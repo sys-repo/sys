@@ -1,0 +1,19 @@
+{
+  "tasks": {
+    "info": "deno run -RE script.deno/cmd.info.ts",
+    "test": "deno run -RE --allow-run script.deno/cmd.test.ts",
+    "lint": "deno run -E --allow-run script.deno/cmd.lint.ts",
+    "dry": "deno run -RE --allow-run script.deno/cmd.dry.ts",
+    "ci": "deno run -RE --allow-run script.deno/cmd.ci.ts",
+    "tmp": "deno run -A scripts/-tmp.ts"
+  },
+  "compilerOptions": { "strict": true },
+  "nodeModules": false,
+  "workspace": [],
+  "importMap": "./deno.imports.json",
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
+  }
+}
