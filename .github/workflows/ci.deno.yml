@@ -10,10 +10,9 @@ jobs:
       contents: read
       id-token: write # The OIDC ID token is used for authentication with JSR.
     env:
-      TEST_SAMPLE: ${{ secrets.TEST_SAMPLE }}
       DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ secrets.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-      PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
+      PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
       PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
 
     steps:
