@@ -1,7 +1,7 @@
 # https://docs.deno.com/deploy/manual/ci_github
 # https://jsr.io/docs/publishing-packages#publishing-from-github-actions
 
-name: publish (JSR)
+name: jsr.publish
 
 on:
   push:
