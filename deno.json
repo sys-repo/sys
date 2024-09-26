@@ -13,7 +13,8 @@
     "./code/sys/std",
     "./code/sys/std-s",
     "./code/sys.driver/driver-automerge",
-    "./code/sys.driver/driver-deno-cloud"
+    "./code/sys.driver/driver-deno-cloud",
+    "./code/-samples/deno.vite-react"
   ],
   "importMap": "./deno.imports.json",
   "lint": {

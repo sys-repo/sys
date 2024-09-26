@@ -8,10 +8,8 @@
     "@std/semver": "jsr:@std/semver@1.0.3",
     "@std/testing": "jsr:@std/testing@1.0.2",
     "@std/async": "jsr:@std/async@1.0.5",
-
     "@hono/hono": "jsr:@hono/hono@4.6.2",
 
-    "npm:@types/ramda": "npm:@types/ramda@0.30.2",
     "npm:automerge": "npm:@automerge/automerge@2.2.8",
     "npm:automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
     "npm:chai": "npm:chai@5.1.1",
