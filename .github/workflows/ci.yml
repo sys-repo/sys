@@ -1,5 +1,5 @@
 # https://docs.deno.com/deploy/manual/ci_github
-name: ci.deno
+name: ci
 
 on: [push]
 

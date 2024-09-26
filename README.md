@@ -1,5 +1,7 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![ci](https://github.com/sys-repo/sys/actions/workflows/ci.deno.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/ci.yml)
+[![jsr](https://github.com/sys-repo/sys/actions/workflows/ci.deno.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.publish.yml)
 
 
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
