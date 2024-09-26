@@ -21,6 +21,8 @@
     "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
     "npm:@privy-io/server-auth@1.12.2": "1.12.2",
     "npm:@types/ramda@0.30.2": "0.30.2",
+    "npm:@types/react-dom@^18.3.0": "18.3.0",
+    "npm:@types/react@^18.3.9": "18.3.9",
     "npm:@vitejs/plugin-react-swc@^3.5.0": "3.7.0_vite@5.4.7",
     "npm:chai@5.1.1": "5.1.1",
     "npm:create-vite@latest": "5.5.2",
@@ -374,10 +376,26 @@
         "undici-types@6.19.8"
       ]
     },
+    "@types/prop-types@15.7.13": {
+      "integrity": "sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA=="
+    },
     "@types/ramda@0.30.2": {
       "integrity": "sha512-PyzHvjCalm2BRYjAU6nIB3TprYwMNOUY/7P/N8bSzp9W/yM2YrtGtAnnVtaCNSeOZ8DzKyFDvaqQs7LnWwwmBA==",
       "dependencies": [
         "types-ramda"
+      ]
+    },
+    "@types/react-dom@18.3.0": {
+      "integrity": "sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==",
+      "dependencies": [
+        "@types/react"
+      ]
+    },
+    "@types/react@18.3.9": {
+      "integrity": "sha512-+BpAVyTpJkNWWSSnaLBk6ePpHLOGJKnEQNbINNovPWzvEUyAe3e+/d494QdEh71RekM/qV7lw6jzf1HGrJyAtQ==",
+      "dependencies": [
+        "@types/prop-types",
+        "csstype"
       ]
     },
     "@vitejs/plugin-react-swc@3.7.0_vite@5.4.7": {
@@ -484,6 +502,9 @@
     },
     "crypt@0.0.2": {
       "integrity": "sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow=="
+    },
+    "csstype@3.1.3": {
+      "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="
     },
     "debug@4.3.7": {
       "integrity": "sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==",
