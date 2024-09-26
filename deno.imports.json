@@ -10,6 +10,9 @@
     "@std/async": "jsr:@std/async@1.0.5",
     "@hono/hono": "jsr:@hono/hono@4.6.2",
 
+    "react": "npm:react@^18.2.0",
+    "react-dom": "npm:react-dom@^18.2.0",
+
     "npm:automerge": "npm:@automerge/automerge@2.2.8",
     "npm:automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
     "npm:chai": "npm:chai@5.1.1",
@@ -19,8 +22,6 @@
     "npm:privy/server-auth": "npm:@privy-io/server-auth@1.12.2",
     "npm:ramda": "npm:ramda@0.30.1",
     "npm:rxjs": "npm:rxjs@7.8.1",
-    "npm:react": "npm:react@^18.2.0",
-    "npm:react-dom": "npm:react-dom@^18.2.0",
     "npm:vite": "npm:vite@^5.2.10",
     "npm:vite-plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.5.0"
   }
