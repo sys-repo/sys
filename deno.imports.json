@@ -13,6 +13,9 @@
     "react": "npm:react@^18.2.0",
     "react-dom": "npm:react-dom@^18.2.0",
 
+    "@types/react": "npm:@types/react@^18.3.9",
+    "@types/react-dom": "npm:@types/react-dom@^18.3.0",
+
     "npm:automerge": "npm:@automerge/automerge@2.2.8",
     "npm:automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
     "npm:chai": "npm:chai@5.1.1",
