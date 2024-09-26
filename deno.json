@@ -7,7 +7,7 @@
     "ci": "deno run -RE --allow-run ./scripts/cmd.ci.ts",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
-  "compilerOptions": { "strict": true },
+  "compilerOptions": { "strict": true, "lib": ["dom"] },
   "nodeModules": false,
   "workspace": [
     "./code/sys/std",
