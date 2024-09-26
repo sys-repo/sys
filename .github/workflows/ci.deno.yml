@@ -28,11 +28,11 @@ jobs:
       - name: CI → type check (publish --dry-run)
         run: deno task dry
 
-      - name: CI → tests
-        run: deno task test
-
       - name: CI → lint
         run: deno task lint
+
+      - name: CI → tests
+        run: deno task test
 
       - name: Info (Monorepo)
         run: deno task info
