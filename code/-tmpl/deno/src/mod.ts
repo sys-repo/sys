@@ -1,1 +1,1 @@
-export { Pkg } from './common/mod.ts';
+export { Pkg } from './common.ts';

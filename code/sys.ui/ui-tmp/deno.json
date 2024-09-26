@@ -1,0 +1,16 @@
+{
+  "name": "@sys/ui-tmp",
+  "version": "0.0.0",
+  "license": "MIT",
+  "tasks": {
+    "dev": "deno run -RN --allow-env --allow-run src/server/mod.ts",
+    "test": "deno test -RW",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  }
+}
