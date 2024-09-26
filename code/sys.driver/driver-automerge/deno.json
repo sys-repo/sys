@@ -1,0 +1,15 @@
+{
+  "name": "@sys/driver-automerge",
+  "version": "0.0.3",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -RWE",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  }
+}
