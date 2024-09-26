@@ -22,7 +22,7 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 
 |     | repo                     | status
 | --- | :---                     | :---
-|  ●  | 🧫  sys                    | current
+|  ●  | sys                      | current 🧫
 |  ○  | ↑ platform-0.2.0         | [previous](https://github.com/cellplatform/platform-0.2.0)
 |  ○  | ↑ platform-0.1.0         | [previous](https://github.com/cellplatform/platform-0.1.0)
 
