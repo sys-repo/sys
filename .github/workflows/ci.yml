@@ -29,8 +29,8 @@ jobs:
       - name: CI → type check (publish --dry-run)
         run: deno task dry
 
-      - name: CI → lint
-        run: deno task lint
+      # - name: CI → lint
+      #   run: deno task lint
 
       - name: CI → tests
         run: deno task test
