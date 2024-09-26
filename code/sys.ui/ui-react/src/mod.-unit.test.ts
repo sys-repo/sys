@@ -1,7 +1,7 @@
-import { describe, it, expect, type t } from './-test.ts';
+import { describe, expect, it } from './-test.ts';
 
 describe('Module', () => {
-  it('Tmp', () => {
+  it('placeholder', () => {
     expect(123).to.equal(123);
   });
 });
