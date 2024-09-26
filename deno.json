@@ -1,0 +1,32 @@
+{
+  "tasks": {
+    "info": "deno run -RE ./scripts/cmd.info.ts",
+    "test": "deno run -RE --allow-run=sh ./scripts/cmd.ci.test.ts",
+    "lint": "deno run -RE --allow-run=sh ./scripts/cmd.ci.lint.ts",
+    "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
+    "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
+    "tmp": "deno run -A ./scripts/-tmp.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment"
+  },
+  "nodeModules": false,
+  "workspace": [
+    "./code/sys/std",
+    "./code/sys/std-s",
+    "./code/sys.ui/ui-react",
+    "./code/sys.driver/driver-automerge",
+    "./code/sys.driver/driver-deno-cloud",
+    "./code/-samples/deno.vite-react"
+  ],
+  "importMap": "./deno.imports.json",
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
+  }
+}
