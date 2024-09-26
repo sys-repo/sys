@@ -1,0 +1,19 @@
+{
+  "name": "@sys/std",
+  "version": "0.0.15",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -RWN",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./date": "./src/u.Date/mod.ts",
+    "./immutable": "./src/u.Immutable/mod.ts",
+    "./testing": "./src/u.Testing/mod.ts",
+    "./testing/httpserver": "./src/u.Testing.HttpServer/mod.ts"
+  }
+}
