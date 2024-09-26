@@ -12,6 +12,7 @@ const run = async (path: string) => {
 // Std Libs.
 await run('code/sys/std');
 await run('code/sys/std-s');
+await run('code/sys.ui/react-ui');
 
 // Drivers.
 await run('code/sys.driver/driver-deno-cloud');
