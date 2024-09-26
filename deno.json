@@ -9,7 +9,7 @@
   },
   "compilerOptions": { "strict": true },
   "nodeModules": false,
-  "workspace": ["./code/sys/std"],
+  "workspace": ["./code/sys/std", "./code/sys/std-s"],
   "importMap": "./deno.imports.json",
   "lint": {
     "rules": {
