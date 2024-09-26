@@ -7,6 +7,7 @@ import type { t } from '../common/mod.ts';
 export const Cmd: t.Cmd = {
   /**
    * Run an <shell> command.
+   * When using grant the "--allow-run=sh" permission argument.
    */
   sh(...input: unknown[]) {
     const options = wrangle.shellOptions(input);
