@@ -9,7 +9,12 @@
   },
   "compilerOptions": { "strict": true },
   "nodeModules": false,
-  "workspace": ["./code/sys/std", "./code/sys/std-s"],
+  "workspace": [
+    "./code/sys/std",
+    "./code/sys/std-s",
+    "./code/sys.driver/driver-automerge",
+    "./code/sys.driver/driver-deno-cloud"
+  ],
   "importMap": "./deno.imports.json",
   "lint": {
     "rules": {
