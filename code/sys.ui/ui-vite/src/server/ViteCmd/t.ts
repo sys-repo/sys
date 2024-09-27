@@ -16,7 +16,7 @@ export type ViteCmdLib = {
     };
   };
   env(options?: EnvOptions): t.ViteCmdEnv;
-  run(command: 'build', options?: RunOptions): Promise<t.ViteCmdRunResponse>;
+  build(options?: RunOptions): Promise<t.ViteCmdRunResponse>;
 };
 
 export type ViteCmdEnv = {

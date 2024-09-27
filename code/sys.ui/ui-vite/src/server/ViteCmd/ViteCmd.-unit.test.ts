@@ -15,17 +15,15 @@ describe('ViteCmd', () => {
     expect(path1).to.not.eql(path2);
   });
 
-  describe('ViteCmd.run', () => {
-    it('ViteCmd.run: "build"', async () => {
-      const outDir = ViteCmd.outDir.test.random();
-      const res = await ViteCmd.run('build', { outDir });
+  it('ViteCmd.build', async () => {
+    const outDir = ViteCmd.outDir.test.random();
+    const res = await ViteCmd.build({ outDir });
 
-      expect(res.paths.outDir).to.eql(outDir);
-      expect(res.cmd).to.include('deno run');
-      expect(res.cmd).to.include('--node-modules-dir npm:vite');
+    expect(res.paths.outDir).to.eql(outDir);
+    expect(res.cmd).to.include('deno run');
+    expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
-      const exists = await Fs.exists(res.paths.outDir);
-      expect(exists).to.eql(true);
-    });
+    const exists = await Fs.exists(res.paths.outDir);
+    expect(exists).to.eql(true);
   });
 });
