@@ -20,7 +20,7 @@ function App() {
         <button onClick={handleClick}>{`count is ${count}`}</button>
       </div>
       <div>
-        {'imported → '}
+        <code>{'imported → '}</code>
         <Foo />
       </div>
     </>

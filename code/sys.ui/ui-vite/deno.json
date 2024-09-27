@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-vite",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWN --allow-run=deno",
