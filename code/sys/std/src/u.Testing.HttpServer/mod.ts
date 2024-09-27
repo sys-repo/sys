@@ -1,3 +1,8 @@
+/**
+ * @module
+ * Test HTTP server tools.
+ */
+
 import type { t } from '../common.ts';
 import { Testing as Base } from '../u.Testing/mod.ts';
 import { TestHttpServer as HttpServer } from './u.HttpServer.ts';
