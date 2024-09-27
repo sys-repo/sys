@@ -8,18 +8,26 @@ export type Cmd = {
   /**
    * Run a <unix> command (on spawned child process).
    */
-  invoke(args: string[], options?: t.CmdOptions): Promise<t.CmdOutput>;
+  invoke(args: CmdInvokeArgs): Promise<t.CmdOutput>;
 
   /**
    * Run an <shell> command.
    */
   sh(options?: t.ShellCmdOptions): t.ShellCmd;
-  sh(path: string): t.ShellCmd;
+  sh(path: t.StringPath): t.ShellCmd;
 
   /**
    * Decode a command output to strings.
    */
   decode(input: Deno.CommandOutput): t.CmdOutput;
+};
+
+export type CmdInvokeArgs = {
+  args: string[];
+  cmd?: string;
+  cwd?: string;
+  env?: Record<string, string>;
+  silent?: boolean;
 };
 
 /**
@@ -31,12 +39,6 @@ export type ShellCmd = {
 };
 
 export type ShellCmdOptions = { args?: string[]; silent?: boolean; path?: string };
-export type CmdOptions = {
-  cmd?: string;
-  cwd?: string;
-  env?: Record<string, string>;
-  silent?: boolean;
-};
 
 /**
  * Command Output as strings
