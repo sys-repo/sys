@@ -17,7 +17,8 @@ export const TestVite: t.TestViteLib = {
   },
   async run(options = {}) {
     const env = TestVite.env(options);
-    const cmd = `deno task test:vite build --config=${DEFAULTS.path.configFile}`;
+    const configFile = DEFAULTS.path.configFile;
+    const cmd = `deno run -A --node-modules-dir npm:vite build --config=${configFile}`;
     const args = cmd.split(' ').slice(1);
     const output = await Cmd.run(args, { env });
     return {

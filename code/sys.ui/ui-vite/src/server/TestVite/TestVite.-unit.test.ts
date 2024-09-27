@@ -20,7 +20,8 @@ describe('TestVite', () => {
     const res = await TestVite.run({ outDir });
 
     expect(res.paths.outDir).to.eql(outDir);
-    expect(res.cmd).to.include('deno task test:vite build --config');
+    expect(res.cmd).to.include('deno run');
+    expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
     const exists = await Fs.exists(res.paths.outDir);
     expect(exists).to.eql(true);
