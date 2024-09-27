@@ -6,15 +6,17 @@ export const Paths = {
     // Standard Libs.
     'code/sys/std',
     'code/sys/std-s',
-    'code/sys.tmp',
-
+    
     // User Interface.
     'code/sys.ui/ui-react',
     'code/sys.ui/ui-vite',
-
+    
     // Drivers.
     'code/sys.driver/driver-deno-cloud',
     'code/sys.driver/driver-automerge',
+
+    // →| dev/null
+    'code/sys.tmp',
   ],
 
   workspace: Pkg.workspace
