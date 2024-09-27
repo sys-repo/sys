@@ -9,7 +9,8 @@ export * from '../common.ts';
 export const DEFAULTS = {
   path: {
     input: Path.join(import.meta.dirname, 'vite.index.html'),
-    outDir: './.tmp/test/dist',
     configFile: './src/server/ViteCmd/vite.config.ts',
+    outDir: './dist',
+    outDirTest: './.tmp/test',
   },
 } as const;

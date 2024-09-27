@@ -10,10 +10,13 @@ export type ViteCmdLib = {
   readonly defineHandler: t.ViteCmdDefineConfigHandler;
   readonly outDir: {
     readonly default: t.StringPath;
-    random(): t.StringPath;
+    readonly test: {
+      readonly base: t.StringPath;
+      random(): t.StringPath;
+    };
   };
   env(options?: EnvOptions): t.ViteCmdEnv;
-  run(options?: RunOptions): Promise<t.ViteCmdRunResponse>;
+  run(command: 'build', options?: RunOptions): Promise<t.ViteCmdRunResponse>;
 };
 
 export type ViteCmdEnv = {

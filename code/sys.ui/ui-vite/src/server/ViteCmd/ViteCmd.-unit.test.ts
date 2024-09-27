@@ -4,26 +4,28 @@ import { ViteCmd } from './mod.ts';
 
 describe('ViteCmd', () => {
   it('ViteCmd.outDir', () => {
-    const def = ViteCmd.outDir.default;
-    expect(def).to.include('./.tmp/test/dist');
+    const outDir = ViteCmd.outDir;
+    expect(outDir.default).to.include('./dist');
 
-    const path1 = ViteCmd.outDir.random();
-    const path2 = ViteCmd.outDir.random();
+    const path1 = outDir.test.random();
+    const path2 = outDir.test.random();
 
-    expect(path1).to.include(def);
-    expect(path2).to.include(def);
+    expect(path1).to.include(outDir.test.base);
+    expect(path2).to.include(outDir.test.base);
     expect(path1).to.not.eql(path2);
   });
 
-  it('ViteCmd.run', async () => {
-    const outDir = ViteCmd.outDir.random();
-    const res = await ViteCmd.run({ outDir });
+  describe('ViteCmd.run', () => {
+    it('ViteCmd.run: "build"', async () => {
+      const outDir = ViteCmd.outDir.test.random();
+      const res = await ViteCmd.run('build', { outDir });
 
-    expect(res.paths.outDir).to.eql(outDir);
-    expect(res.cmd).to.include('deno run');
-    expect(res.cmd).to.include('--node-modules-dir npm:vite');
+      expect(res.paths.outDir).to.eql(outDir);
+      expect(res.cmd).to.include('deno run');
+      expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
-    const exists = await Fs.exists(res.paths.outDir);
-    expect(exists).to.eql(true);
+      const exists = await Fs.exists(res.paths.outDir);
+      expect(exists).to.eql(true);
+    });
   });
 });
