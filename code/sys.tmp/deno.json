@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmp",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
@@ -12,6 +12,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./foo": "./src/ui/Foo.tsx"
+    "./ui": "./src/ui/mod.ts"
   }
 }

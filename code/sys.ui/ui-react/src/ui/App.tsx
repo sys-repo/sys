@@ -7,7 +7,7 @@ import './App.css';
  * Import via module/alias
  * See: /vite.config.json
  */
-import { Foo } from '@sys/tmp/foo';
+import { Foo } from '@sys/tmp/ui';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -19,7 +19,10 @@ function App() {
       <div className="card">
         <button onClick={handleClick}>{`count is ${count}`}</button>
       </div>
-      <Foo />
+      <div>
+        {'imported → '}
+        <Foo />
+      </div>
     </>
   );
 }
