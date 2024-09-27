@@ -5,7 +5,6 @@ export * from './libs.ts';
 
 export type { t };
 
-
 /**
  * Module metadata.
  */
