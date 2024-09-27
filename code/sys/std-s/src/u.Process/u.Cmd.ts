@@ -27,9 +27,11 @@ export const Cmd: t.Cmd = {
    * Run a <unix> command (on spawned child process).
    */
   async run(args, options = {}) {
+    const { cwd } = options;
     const cmd = options.cmd ?? Deno.execPath();
     const command = new Deno.Command(cmd, {
       args,
+      cwd,
       stdout: 'piped', // Capture the "standard" output.
       stderr: 'piped', // Capture the "error" output.
     });
@@ -60,7 +62,7 @@ export const Cmd: t.Cmd = {
     const { code, success, signal, stdout, stderr } = input;
     let _stdout: undefined | string;
     let _stderr: undefined | string;
-    return {
+    const output: t.CmdOutput = {
       code,
       success,
       signal,
@@ -74,7 +76,11 @@ export const Cmd: t.Cmd = {
           return _stderr ?? (_stderr = new TextDecoder().decode(stderr));
         },
       },
+      toString() {
+        return output.success ? output.text.stdout : output.text.stderr;
+      },
     };
+    return output;
   },
 } as const;
 

@@ -31,7 +31,7 @@ export type ShellCmd = {
 };
 
 export type ShellCmdOptions = { args?: string[]; silent?: boolean; path?: string };
-export type CmdOptions = { cmd?: string; silent?: boolean };
+export type CmdOptions = { cmd?: string; cwd?: string; silent?: boolean };
 
 /**
  * Command Output as strings
@@ -46,4 +46,5 @@ export type CmdOutput = {
     readonly stdout: string;
     readonly stderr: string;
   };
+  toString(): string;
 };
