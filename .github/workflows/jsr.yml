@@ -63,4 +63,4 @@ jobs:
         run: |
           cd code/sys.tmp
           deno task test
-          deno publish --dry-run
+          deno publish
