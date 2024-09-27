@@ -1,3 +1,6 @@
+import { default as Pkg } from '../deno.json' with { type: 'json' };
+export { Path } from '@sys/std';
+
 export const Paths = {
   modules: [
     // Standard Libs.
@@ -12,4 +15,6 @@ export const Paths = {
     'code/sys.driver/driver-deno-cloud',
     'code/sys.driver/driver-automerge',
   ],
+
+  workspace: Pkg.workspace
 } as const;

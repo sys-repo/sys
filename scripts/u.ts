@@ -1,8 +1,8 @@
 import type { CmdOutput } from '@sys/std-s/types';
 
 import { c } from '@sys/std-s';
-export { Cmd, c } from '@sys/std-s';
-export { Paths } from './u.paths.ts';
+export { c, Cmd } from '@sys/std-s';
+export { Path, Paths } from './u.paths.ts';
 
 export type CmdResult = {
   output: CmdOutput;
