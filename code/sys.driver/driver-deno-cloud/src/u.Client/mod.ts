@@ -1,3 +1,8 @@
+/**
+ * @module
+ * DenoCloud: Client Tools.
+ */
+
 import type { t } from './common/mod.ts';
 import { client } from './u.Client.ts';
 

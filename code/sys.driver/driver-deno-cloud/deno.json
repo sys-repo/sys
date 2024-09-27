@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno-cloud",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -RNE --watch ./src/-start.ts",
