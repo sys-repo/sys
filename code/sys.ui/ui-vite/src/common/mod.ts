@@ -1,9 +1,12 @@
-/**
- * Module meta-data.
- */
-import { default as Pkg } from '../../deno.json' with { type: 'json' };
+import { default as pkg } from '../../deno.json' with { type: 'json' };
+
+import type * as t from './t.ts';
 export * from './libs.ts';
 
-export type * as t from './t.ts';
-export { Pkg };
+export type { t };
 
+
+/**
+ * Module metadata.
+ */
+export const Pkg = pkg as t.Pkg
