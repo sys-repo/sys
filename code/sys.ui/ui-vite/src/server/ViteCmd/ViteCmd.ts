@@ -2,7 +2,7 @@ import { defineHandler } from './ViteCmd.config.ts';
 import { DEFAULTS, slug, Cmd, type t } from './common.ts';
 
 /**
- * Vite test helpers.
+ * Tools for running Vite via commands issued to a child process.
  */
 export const ViteCmd: t.ViteCmdLib = {
   outDir: {
