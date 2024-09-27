@@ -1,1 +1,1 @@
-export {};
+export { slug } from '@sys/std';
