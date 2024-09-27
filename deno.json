@@ -2,7 +2,7 @@
   "tasks": {
     "info": "deno run -RE ./scripts/cmd.info.ts",
     "test": "deno run -RE --allow-run=sh ./scripts/cmd.ci.test.ts",
-    "lint": "deno run -RE --allow-run=sh ./scripts/cmd.ci.lint.ts",
+    "lint": "deno run -RE --allow-run=sh ./scripts/cmd.lint.ts",
     "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
     "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
     "tmp": "deno run -A ./scripts/-tmp.ts"
