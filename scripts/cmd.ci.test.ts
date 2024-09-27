@@ -1,4 +1,4 @@
-import { Cmd, Log, type CmdResult } from './u.ts';
+import { Cmd, Log, Paths, type CmdResult } from './u.ts';
 
 /**
  * Run all tests across the mono-repo.
@@ -9,14 +9,9 @@ const run = async (path: string) => {
   results.push({ output, path });
 };
 
-// Std Libs
-await run('code/sys/std');
-await run('code/sys/std-s');
-await run('code/sys.ui/ui-react');
-
-// Drivers.
-await run('code/sys.driver/driver-deno-cloud');
-await run('code/sys.driver/driver-automerge');
+for (const path of Paths.modules) {
+  await run(path);
+}
 
 /**
  * Output.
