@@ -1,3 +1,13 @@
+/**
+ * @module
+ * Standard system libraries.
+ *
+ * @example
+ * ```ts
+ * import { ObjectPath } from '@sys/std';
+ * ```
+ */
+
 export { Pkg } from './common/mod.ts';
 
 export { Async } from './u.Async/mod.ts';
