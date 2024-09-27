@@ -41,6 +41,12 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/ui-vite"
+        run: |
+          cd code/sys.ui/ui-vite
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/driver-deno-cloud"
         run: |
           cd code/sys.driver/driver-deno-cloud
