@@ -49,9 +49,6 @@ export type CmdOutput = {
   readonly signal: Deno.Signal | null;
   readonly stdout: Uint8Array;
   readonly stderr: Uint8Array;
-  readonly text: {
-    readonly stdout: string;
-    readonly stderr: string;
-  };
+  readonly text: { readonly stdout: string; readonly stderr: string };
   toString(): string;
 };
