@@ -1,0 +1,2 @@
+# @sys/tmp
+/dev/null

@@ -6,6 +6,7 @@ export const Paths = {
     // Standard Libs.
     'code/sys/std',
     'code/sys/std-s',
+    'code/sys.tmp',
 
     // User Interface.
     'code/sys.ui/ui-react',

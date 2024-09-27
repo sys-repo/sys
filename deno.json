@@ -18,6 +18,7 @@
   "workspace": [
     "./code/sys/std",
     "./code/sys/std-s",
+    "./code/sys.tmp",
     "./code/sys.ui/ui-react",
     "./code/sys.ui/ui-tmp",
     "./code/sys.ui/ui-vite",
