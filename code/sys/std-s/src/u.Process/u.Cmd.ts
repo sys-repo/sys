@@ -32,9 +32,9 @@ export const Cmd: t.Cmd = {
     const command = new Deno.Command(cmd, {
       args,
       cwd,
+      env,
       stdout: 'piped', // Capture the "standard" output.
       stderr: 'piped', // Capture the "error" output.
-      env,
     });
 
     // Execute the command and collect its output.
