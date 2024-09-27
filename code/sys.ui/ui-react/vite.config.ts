@@ -10,7 +10,7 @@ export default defineConfig({
   server: { fs: { allow: ['..'] } },
   resolve: {
     alias: {
-      '@my-module/foo': Path.resolve('../ui-tmp/src/ui/Components.tsx'),
+      '@sys/tmp/foo': Path.resolve('../../sys.tmp/src/ui/Foo.tsx'),
     },
   },
 });
