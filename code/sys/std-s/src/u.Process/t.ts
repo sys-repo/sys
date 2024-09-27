@@ -31,7 +31,12 @@ export type ShellCmd = {
 };
 
 export type ShellCmdOptions = { args?: string[]; silent?: boolean; path?: string };
-export type CmdOptions = { cmd?: string; cwd?: string; silent?: boolean };
+export type CmdOptions = {
+  cmd?: string;
+  cwd?: string;
+  env?: Record<string, string>;
+  silent?: boolean;
+};
 
 /**
  * Command Output as strings

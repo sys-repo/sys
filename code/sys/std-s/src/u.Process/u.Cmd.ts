@@ -27,13 +27,14 @@ export const Cmd: t.Cmd = {
    * Run a <unix> command (on spawned child process).
    */
   async run(args, options = {}) {
-    const { cwd } = options;
+    const { cwd, env } = options;
     const cmd = options.cmd ?? Deno.execPath();
     const command = new Deno.Command(cmd, {
       args,
       cwd,
       stdout: 'piped', // Capture the "standard" output.
       stderr: 'piped', // Capture the "error" output.
+      env,
     });
 
     // Execute the command and collect its output.
