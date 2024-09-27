@@ -1,13 +1,13 @@
-import { defineHandler } from './TestVite.config.ts';
+import { defineHandler } from './ViteCmd.config.ts';
 import { DEFAULTS, slug, Cmd, type t } from './common.ts';
 
 /**
  * Vite test helpers.
  */
-export const TestVite: t.TestViteLib = {
+export const ViteCmd: t.ViteCmdLib = {
   outDir: {
     default: DEFAULTS.path.outDir,
-    random: () => `${TestVite.outDir.default}-${slug()}`,
+    random: () => `${ViteCmd.outDir.default}-${slug()}`,
   },
   defineHandler,
   env(options = {}) {
@@ -16,7 +16,7 @@ export const TestVite: t.TestViteLib = {
     return { VITE_OUTDIR, VITE_INPUT };
   },
   async run(options = {}) {
-    const env = TestVite.env(options);
+    const env = ViteCmd.env(options);
     const configFile = DEFAULTS.path.configFile;
     const cmd = `deno run -A --node-modules-dir npm:vite build --config=${configFile}`;
     const args = cmd.split(' ').slice(1);

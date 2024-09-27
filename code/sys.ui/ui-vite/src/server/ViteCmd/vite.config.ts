@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 import { defineConfig } from 'npm:vite';
 import reactPlugin from 'npm:vite-plugin-react-swc';
-import { defineHandler } from './TestVite.config.ts';
+import { defineHandler } from './ViteCmd.config.ts';
 
 export default defineConfig((ctx) => {
   const res: t.ViteUserConfig = {
