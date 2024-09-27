@@ -15,6 +15,7 @@ export type StringJwt = string;
 export type StringHttpHeader = string;
 export type StringHttpHeaderName = string;
 export type StringUrl = string;
+export type StringPath = string;
 
 /**
  * Numbers

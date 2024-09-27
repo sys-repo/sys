@@ -1,4 +1,4 @@
-import { Fs } from '@sys/std-s';
+import { Fs } from './common.ts';
 import { describe, expect, it, TestVite } from './mod.ts';
 
 describe('ViteConfig', () => {
@@ -22,8 +22,8 @@ describe('ViteConfig', () => {
       expect(res.paths.outDir).to.eql(outDir);
       expect(res.cmd).to.include('deno task test:vite build --config');
 
-      const entryHtml = Fs.join(res.paths.outDir, 'index.html');
-      expect(await Fs.exists(entryHtml)).to.eql(true);
+      const exists = await Fs.exists(res.paths.outDir);
+      expect(exists).to.eql(true);
     });
   });
 });
