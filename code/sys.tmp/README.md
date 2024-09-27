@@ -1,2 +1,2 @@
 # @sys/tmp
-/dev/null
+Temporary and sample module helpers. /dev/null
