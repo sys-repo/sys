@@ -38,21 +38,9 @@ export const Cmd: t.Cmd = {
     });
 
     // Execute the command and collect its output.
-    const res = Cmd.decode(await command.output());
-    const { code } = res;
-
-    if (!options.silent) {
-      const print = (text: string) => {
-        const hasNewline = text.endsWith('\n');
-        text = text.trim();
-        if (!text) return;
-        if (hasNewline) text = `${text}\n`;
-        console.info(text);
-      };
-      if (code === 0) print(res.text.stdout);
-      else print(res.text.stderr);
-    }
-
+    const output = await command.output();
+    const res = Cmd.decode(output);
+    if (!options.silent) printOutput(res.code, res.stdout, res.stderr);
     return res;
   },
 
@@ -71,10 +59,10 @@ export const Cmd: t.Cmd = {
       stderr,
       text: {
         get stdout() {
-          return _stdout ?? (_stdout = new TextDecoder().decode(stdout));
+          return _stdout ?? (_stdout = wrangle.asText(stdout));
         },
         get stderr() {
-          return _stderr ?? (_stderr = new TextDecoder().decode(stderr));
+          return _stderr ?? (_stderr = wrangle.asText(stderr));
         },
       },
       toString() {
@@ -95,4 +83,21 @@ const wrangle = {
     if (typeof input[0] === 'object') return input[0] as t.ShellCmdOptions;
     return {};
   },
+
+  asText(input: Uint8Array | string) {
+    return typeof input === 'string' ? input : new TextDecoder().decode(input);
+  },
 } as const;
+
+function printOutput(code: number, stdout: Uint8Array | string, stderr: Uint8Array | string) {
+  const print = (text: string) => {
+    const hasNewline = text.endsWith('\n');
+    text = text.trim();
+    if (!text) return;
+    if (hasNewline) text = `${text}\n`;
+    console.info(text);
+  };
+
+  if (code === 0) print(wrangle.asText(stdout));
+  else print(wrangle.asText(stderr));
+}
