@@ -1,4 +1,4 @@
-# Driver: automerge
+# Automerge Driver
 Standardised API wrapper around [`automerge`](https://github.com/automerge) and [`automerge-repo`](https://github.com/automerge/automerge-repo).
 
 

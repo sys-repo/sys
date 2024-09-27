@@ -1,4 +1,4 @@
-# Driver: deno.cloud
+# Deno Cloud Driver
 Tools for working with [Deno cloud](https://deno.com/deploy).
 
 
