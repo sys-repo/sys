@@ -5,5 +5,5 @@ import { Pkg } from '../common.ts';
  */
 export const Foo = () => {
   const text = `${Pkg.name}@${Pkg.version}:Foo`;
-  return <div>{text}</div>;
+  return <code>{text}</code>;
 };
