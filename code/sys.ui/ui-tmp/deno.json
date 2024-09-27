@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -RN --allow-env --allow-run src/server/mod.ts",
+    "sample-esbuild": "deno run -RN --allow-env --allow-run src/server/esbuild.ts",
     "test": "deno test -RW",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run"
