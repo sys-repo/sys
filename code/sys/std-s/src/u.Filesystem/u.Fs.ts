@@ -1,5 +1,5 @@
 import { exists } from '@std/fs';
-import { copyDir } from './u.Fs.cp.ts';
+import { copyDir, removeDir } from './u.Fs.dir.ts';
 import { glob } from './u.Fs.glob.ts';
 import { Path } from './u.Path.ts';
 
@@ -14,5 +14,5 @@ export const Fs = {
   Path,
   glob,
   copyDir,
-  remove: Deno.remove,
+  removeDir,
 } as const;
