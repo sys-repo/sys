@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Module Types: DenoCloud
+ */
 export type * from './u.Client/t.ts';
 
 export type * from './u.Server/t.ts';
