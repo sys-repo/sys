@@ -20,7 +20,6 @@
     "./code/sys/std-s",
     "./code/sys.tmp",
     "./code/sys.ui/ui-react",
-    "./code/sys.ui/ui-tmp",
     "./code/sys.ui/ui-vite",
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno-cloud",
