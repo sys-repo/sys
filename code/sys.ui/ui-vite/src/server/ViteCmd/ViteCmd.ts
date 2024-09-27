@@ -1,5 +1,5 @@
 import { defineHandler } from './ViteCmd.config.ts';
-import { DEFAULTS, slug, Cmd, type t } from './common.ts';
+import { Cmd, DEFAULTS, slug, type t } from './common.ts';
 
 /**
  * Tools for running Vite via commands issued to a child process.
