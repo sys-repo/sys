@@ -9,4 +9,4 @@ export type { t };
 /**
  * Module metadata.
  */
-export const Pkg = pkg as t.Pkg
+export const Pkg: t.Pkg = pkg 
