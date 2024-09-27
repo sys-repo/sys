@@ -7,3 +7,4 @@
  * import { ViteConfig } from '@sys/ui-vite/server';
  */
 export { ViteConfig } from './ViteConfig/mod.ts';
+export { TestVite } from './TestVite/mod.ts';
