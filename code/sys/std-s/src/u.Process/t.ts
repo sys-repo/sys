@@ -8,7 +8,7 @@ export type Cmd = {
   /**
    * Run a <unix> command (on spawned child process).
    */
-  run(args: string[], options?: t.CmdOptions): Promise<t.CmdOutput>;
+  invoke(args: string[], options?: t.CmdOptions): Promise<t.CmdOutput>;
 
   /**
    * Run an <shell> command.

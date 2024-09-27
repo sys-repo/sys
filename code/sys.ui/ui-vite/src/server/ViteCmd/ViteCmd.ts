@@ -38,7 +38,7 @@ export const ViteCmd: t.ViteCmdLib = {
     const configFile = DEFAULTS.path.configFile;
     const cmd = `deno run -A --node-modules-dir npm:vite build --config=${configFile}`;
     const args = cmd.split(' ').slice(1);
-    const output = await Cmd.run(args, { env });
+    const output = await Cmd.invoke(args, { env });
     return {
       cmd,
       output,

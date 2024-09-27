@@ -18,7 +18,7 @@ export const Cmd: t.Cmd = {
         const { silent } = options;
         const command = [...(options.args ?? []), ...args];
         if (path) command.unshift(`cd ${path}`);
-        return Cmd.run(['-c', command.join(' && ')], { cmd: 'sh', silent });
+        return Cmd.invoke(['-c', command.join(' && ')], { cmd: 'sh', silent });
       },
     };
   },
@@ -26,7 +26,7 @@ export const Cmd: t.Cmd = {
   /**
    * Run a <unix> command (on spawned child process).
    */
-  async run(args, options = {}) {
+  async invoke(args, options = {}) {
     const { cwd, env } = options;
     const cmd = options.cmd ?? Deno.execPath();
     const command = new Deno.Command(cmd, {
