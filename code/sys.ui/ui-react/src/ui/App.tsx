@@ -3,6 +3,10 @@ import { useState } from 'react';
 import { Pkg } from '../common.ts';
 import './App.css';
 
+/**
+ * Import via module/alias
+ * See: /vite.config.json
+ */
 import { Foo } from '@sys/tmp/foo';
 
 function App() {
