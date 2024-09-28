@@ -7,8 +7,7 @@
  * import { HttpServer, Cmd, Fs } from '@sys/std-s';
  * ```
  */
-
-export { Color, DateTime, Http, Pkg, Semver, c } from './common/mod.ts';
+export { Color, DateTime, Http, Pkg, Semver, c, rx } from './common.ts';
 
 export { Env } from './u.Env/mod.ts';
 export { Fs, Path } from './u.Filesystem/mod.ts';
