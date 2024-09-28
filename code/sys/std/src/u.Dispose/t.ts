@@ -5,15 +5,21 @@ import type { t } from './common.ts';
  */
 export type DisposeLib = {
   /**
-   * Creates a generic disposable interface that is typically
-   * mixed into a wider interface of some kind.
-   */
-  create(until$?: t.UntilObservable): t.Disposable;
-
-  /**
    * Listens to an observable and disposes of the object when fires.
    */
   until(disposable: t.Disposable, until$?: t.UntilObservable): t.Disposable;
+
+  /**
+   * Generates a generic disposable interface that is
+   * typically mixed into a wider interface of some kind.
+   */
+  disposable(until$?: t.UntilObservable): t.Disposable;
+
+  /**
+   * Generates a disposable interface that maintains
+   * and exposes it's disposed state.
+   */
+  lifecycle(until$?: t.UntilObservable): t.Lifecycle;
 
   /**
    * "Completes" a subject by running:

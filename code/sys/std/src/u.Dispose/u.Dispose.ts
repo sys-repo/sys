@@ -1,7 +1,19 @@
-import { Subject, flatten, type t } from './common.ts';
+import { Subject, flatten, take, type t } from './common.ts';
 
 export const Dispose: t.DisposeLib = {
-  create(until$?: t.UntilObservable) {
+  /**
+   * Listens to an observable and disposes of the object when fires.
+   */
+  until(disposable, until$): t.Disposable {
+    if (until$) wrangle.flat(until$).forEach(($) => $.subscribe(disposable.dispose));
+    return disposable;
+  },
+
+  /**
+   * Generates a generic disposable interface that is
+   * typically mixed into a wider interface of some kind.
+   */
+  disposable(until$): t.Disposable {
     const dispose$ = new Subject<void>();
     const disposable: t.Disposable = {
       dispose$: dispose$.asObservable(),
@@ -13,11 +25,20 @@ export const Dispose: t.DisposeLib = {
   },
 
   /**
-   * Listens to an observable and disposes of the object when fires.
+   * Generates a disposable interface that maintains
+   * and exposes it's disposed state.
    */
-  until(disposable: t.Disposable, until$?: t.UntilObservable): t.Disposable {
-    if (until$) wrangle.flatArray(until$).forEach(($) => $.subscribe(disposable.dispose));
-    return disposable;
+  lifecycle(until$) {
+    const { dispose, dispose$ } = Dispose.disposable(until$);
+    let _disposed = false;
+    dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
+    return {
+      dispose$,
+      dispose,
+      get disposed() {
+        return _disposed;
+      },
+    };
   },
 
   /**
@@ -26,17 +47,17 @@ export const Dispose: t.DisposeLib = {
    *    1. subject.next();
    *    2. subject.complete();
    */
-  done(dispose$?: t.Subject<void>) {
+  done(dispose$) {
     dispose$?.next?.();
     dispose$?.complete?.();
   },
-} as const;
+};
 
 /**
  * Helpers
  */
 export const wrangle = {
-  flatArray($?: t.UntilObservable) {
+  flat($?: t.UntilObservable) {
     const list = Array.isArray($) ? $ : [$];
     return flatten(list).filter(Boolean) as t.Observable<any>[];
   },
