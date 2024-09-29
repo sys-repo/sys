@@ -12,6 +12,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./date": "./src/u.Date/mod.ts",
+    "./id": "./src/u.Id/mod.ts",
     "./immutable": "./src/u.Immutable/mod.ts",
     "./testing": "./src/u.Testing/mod.ts",
     "./testing/httpserver": "./src/u.Testing.HttpServer/mod.ts"
