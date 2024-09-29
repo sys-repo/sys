@@ -2,6 +2,9 @@ import type { t } from '../common.ts';
 
 type Event = { type: string; payload: unknown };
 
+/**
+ * Type guards (boolean evaluators).
+ */
 export const Is: t.RxIs = {
   /**
    * Determine if the given input is an Observable.
