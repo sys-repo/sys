@@ -157,7 +157,7 @@ The inverse proposition also appears to be true:
 
 # License - [MIT](Licence)
 
-For a scintillating break down of this open-source classic, treat yourself to **Kyle E. Mitchell's**  
+To understand the context around MIT Licence ("an open-source classic") see  **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
