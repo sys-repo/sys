@@ -2,5 +2,5 @@
  * @module
  * Module: DateTime.
  */
-export * from '../u.Date.DateTime/mod.ts';
-export * from '../u.Date.Time/mod.ts';
+export * from '../u.Time/mod.ts';
+export * from './DateTime.ts';
