@@ -20,7 +20,7 @@ export type HttpHeaders = { readonly [key: t.StringHttpHeaderName]: t.StringHttp
  */
 
 /**
- * Libs
+ * HTTP tools.
  */
 export type HttpLib = {
   readonly Is: t.HttpIs;
@@ -34,16 +34,25 @@ export type HttpLib = {
   toResponse<T extends O>(res: Response): Promise<t.HttpClientResponse<T>>;
 };
 
+/**
+ * URL helpers for working with the HTTP lib.
+ */
 export type HttpUrlLib = {
   create(base: t.StringUrl | Deno.NetAddr): t.HttpUrl;
   fromAddr(base: Deno.NetAddr): t.HttpUrl;
   fromUrl(base: t.StringUrl): t.HttpUrl;
 };
 
+/**
+ * HTTP client tools (fetch).
+ */
 export type HttpClientLib = {
   create(options?: t.HttpFetchClientOptions): t.HttpFetchClient;
 };
 
+/**
+ * Type guards (boolean evaluators).
+ */
 export type HttpIs = {
   netaddr(input: unknown): input is Deno.NetAddr;
 };
@@ -79,13 +88,23 @@ export type HttpFetchClient = {
   delete(url: t.StringUrl, options?: RequestInit): Promise<Response>;
 };
 
+/**
+ * HTTP fetch options.
+ */
 export type HttpFetchClientOptions = {
   accessToken?: t.StringJwt | (() => t.StringJwt);
   contentType?: t.StringContentType | (() => t.StringContentType);
   headers?: t.HttpFetchClientMutateHeaders;
 };
 
+/**
+ * Handler that safely "mutates" client headers within a fetch client.
+ */
 export type HttpFetchClientMutateHeaders = (e: HttpFetchClientMutateHeadersArgs) => void;
+
+/**
+ * Argyments for the Header mutation handler.
+ */
 export type HttpFetchClientMutateHeadersArgs = {
   readonly headers: t.HttpHeaders;
   get(name: string): t.StringHttpHeader;
@@ -96,11 +115,19 @@ export type HttpFetchClientMutateHeadersArgs = {
  * Client Response
  */
 export type HttpClientResponse<T extends O> = HttpClientResponseOK<T> | HttpClientResponseErr;
+
+/**
+ * A fetch client response that was successful (200).
+ */
 export type HttpClientResponseOK<T extends O> = {
   readonly ok: true;
   readonly data: T;
   readonly error?: undefined;
 };
+
+/**
+ * A fetch client response that has error'd.
+ */
 export type HttpClientResponseErr = {
   readonly ok: false;
   readonly data?: undefined;

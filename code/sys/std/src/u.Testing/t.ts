@@ -10,6 +10,9 @@ export type Testing = {
   wait(delay: t.Msecs): Promise<void>;
 };
 
+/**
+ * BDD semantics ("Behavior Driven Development") helpers.
+ */
 export type BddLib = {
   readonly expect: typeof expect;
   readonly describe: typeof describe;

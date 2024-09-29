@@ -37,7 +37,7 @@ export type RxPromiseResponse<E extends Event> = {
 };
 
 /**
- * Flags
+ * Type guards (boolean evaluators).
  */
 export type RxIs = {
   event(input: any, type?: string | { startsWith: string }): boolean;
