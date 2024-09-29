@@ -1,14 +1,33 @@
 import type { t } from '../common.ts';
 
+export type ErrStdErrorOptions = { name?: string; cause?: unknown };
+
 /**
  * Helpers for working with errors.
  */
-export type ErrorLib = {
+export type ErrLib = {
+  readonly Is: t.ErrIsLib;
+
+  /**
+   * Take unknown input and produce a standard error object.
+   */
+  stdError(input: unknown, options?: t.ErrStdErrorOptions): StdError;
+};
+
+/**
+ * Type guards (boolean evaluators).
+ */
+export type ErrIsLib = {
   /**
    * Determine if the given value is "like" an error in that it
    * exposes a {message} property.
    */
-  isErrorLike(input: any): input is t.ErrorLike;
+  errorLike(input: unknown): input is t.ErrorLike;
+
+  /**
+   * Determine if the given value conforms to the [StdError] type.
+   */
+  stdError(input: unknown): input is t.StdError;
 };
 
 /**
@@ -16,3 +35,9 @@ export type ErrorLib = {
  * in that it contains a "message" string.
  */
 export type ErrorLike = { message: string };
+
+/**
+ * A simple serializable object that conforms to the shape of
+ * a standard javascript [Error] object.
+ */
+export type StdError = ErrorLike & { name: string; cause?: StdError };

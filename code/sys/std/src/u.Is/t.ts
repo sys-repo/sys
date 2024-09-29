@@ -7,5 +7,6 @@ export type CommonIsLib = {
   promise<T = any>(value?: any): value is Promise<T>;
   subject: t.RxIs['subject'];
   observable: t.RxIs['observable'];
-  errorLike: t.ErrorLib['isErrorLike'];
+  errorLike: t.ErrIsLib['errorLike'];
+  stdError: t.ErrIsLib['stdError'];
 };

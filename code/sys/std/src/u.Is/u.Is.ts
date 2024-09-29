@@ -3,7 +3,7 @@ import { Err } from '../u.Err/mod.ts';
 import { Is as RxIs } from '../u.Observable/mod.ts';
 
 const { observable, subject } = RxIs;
-const errorLike = Err.isErrorLike;
+const { errorLike, stdError } = Err.Is;
 
 /**
  * Common flag evaluators.
@@ -12,6 +12,7 @@ export const Is: t.CommonIsLib = {
   observable,
   subject,
   errorLike,
+  stdError,
 
   /**
    * Determines whether the given value is a Promise.

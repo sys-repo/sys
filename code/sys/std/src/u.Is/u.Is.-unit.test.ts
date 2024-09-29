@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 
-import { Rx, Err } from '../mod.ts';
+import { Err, Rx } from '../mod.ts';
 import { Is } from './mod.ts';
 
 describe('Is (common flags)', () => {
@@ -10,8 +10,9 @@ describe('Is (common flags)', () => {
     expect(Is.subject).to.equal(Rx.Is.subject);
   });
 
-  it('Is.errorLike', () => {
-    expect(Is.errorLike).to.equal(Err.isErrorLike);
+  it('error', () => {
+    expect(Is.errorLike).to.equal(Err.Is.errorLike);
+    expect(Is.stdError).to.equal(Err.Is.stdError);
   });
 
   it('Is.promise', () => {
