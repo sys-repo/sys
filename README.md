@@ -32,7 +32,7 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# Philosophy: Dev
+# Philosophy ← (Dev)
 
 >> Open System.  
    Open Commons.  
@@ -155,7 +155,7 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# License - [MIT](Licence)
+# License, [MIT](Licence).
 
 To understand the context around MIT Licence ("an open-source classic") see  **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
