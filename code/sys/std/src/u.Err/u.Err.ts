@@ -47,7 +47,7 @@ export const Err: t.ErrLib = {
     if (Array.isArray(input)) return wrangle.unknown('Array', options);
     if (isObject(input)) return wrangle.unknown('Object', options);
 
-    // Generically unknown error.
+    // Generically <unknown> error.
     return wrangle.unknown(typeof input, options);
   },
 };
