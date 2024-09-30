@@ -17,6 +17,7 @@ const deletePattern = async (pattern: string, options: { dry?: boolean } = {}) =
     if (dry) line = `${c.bgGreen(c.white(' dry run '))} ${line}`;
     console.info(line);
   }
+  return paths.length;
 };
 
 /**
@@ -27,18 +28,19 @@ const run = async (path: string) => {
   const deno = mod.default as DenoJson;
   if (!deno.tasks?.clean) return; // NB: check the task exists before running.
 
-  const cmd = 'deno task clean';
-  await Cmd.sh({ silent: true, path }).run(cmd);
-  console.info(`${c.cyan(cmd)}: ${c.white(path)}`);
+  await Cmd.sh({ silent: true, path }).run('deno task clean');
+  console.info(`${c.cyan('     clean')} ${c.gray(path)}`);
 };
 
 for (const path of Paths.workspace) {
   await run(path);
 }
+console.info();
 
 /**
  * Query for temporary file/build noise.
  */
-await deletePattern('**/vite.config.ts.timestamp-*');
+let total = 0;
+total += await deletePattern('**/vite.config.ts.timestamp-*');
 
-console.log();
+if (total > 0) console.info();
