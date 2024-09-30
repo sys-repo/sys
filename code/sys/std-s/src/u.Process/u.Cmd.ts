@@ -1,4 +1,6 @@
-import type { t } from '../common/mod.ts';
+import type { t } from './common.ts';
+import { spawn } from './u.Cmd.spawn.ts';
+import { Wrangle, printOutput, toCmdOutput } from './u.ts';
 
 /**
  * Unix child process.
@@ -27,50 +29,18 @@ export const Cmd: t.Cmd = {
    * Run a <unix> command (on spawned child process).
    */
   async invoke(input) {
-    const { cwd, env } = input;
-    const cmd = input.cmd ?? Deno.execPath();
-    const command = new Deno.Command(cmd, {
-      args: input.args ?? [],
-      cwd,
-      env,
-      stdout: 'piped', // Capture the "standard" output.
-      stderr: 'piped', // Capture the "error" output.
-    });
-
-    // Execute the command and collect its output.
+    const { silent } = input;
+    const command = Wrangle.command(input);
     const output = await command.output();
-    const res = Cmd.decode(output);
-    if (!input.silent) printOutput(res.code, res.stdout, res.stderr);
+    const res = toCmdOutput(output);
+    if (!silent) printOutput(res.code, res.stdout, res.stderr);
     return res;
   },
 
   /**
-   * Decode a command output to strings.
+   * Spawn a long running <unix> command on a child-process.
    */
-  decode(input) {
-    const { code, success, signal, stdout, stderr } = input;
-    let _stdout: undefined | string;
-    let _stderr: undefined | string;
-    const output: t.CmdOutput = {
-      code,
-      success,
-      signal,
-      stdout,
-      stderr,
-      text: {
-        get stdout() {
-          return _stdout ?? (_stdout = wrangle.asText(stdout));
-        },
-        get stderr() {
-          return _stderr ?? (_stderr = wrangle.asText(stderr));
-        },
-      },
-      toString() {
-        return output.success ? output.text.stdout : output.text.stderr;
-      },
-    };
-    return output;
-  },
+  spawn,
 } as const;
 
 /**
@@ -83,21 +53,4 @@ const wrangle = {
     if (typeof input[0] === 'object') return input[0] as t.ShellCmdOptions;
     return {};
   },
-
-  asText(input: Uint8Array | string) {
-    return typeof input === 'string' ? input : new TextDecoder().decode(input);
-  },
 } as const;
-
-function printOutput(code: number, stdout: Uint8Array | string, stderr: Uint8Array | string) {
-  const print = (text: string) => {
-    const hasNewline = text.endsWith('\n');
-    text = text.trim();
-    if (!text) return;
-    if (hasNewline) text = `${text}\n`;
-    console.info(text);
-  };
-
-  if (code === 0) print(wrangle.asText(stdout));
-  else print(wrangle.asText(stderr));
-}
