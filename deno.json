@@ -22,7 +22,7 @@
     "./code/sys.ui/ui-react",
     "./code/sys.ui/ui-vite",
     "./code/sys.driver/driver-automerge",
-    "./code/sys.driver/driver-deno-cloud",
+    "./code/sys.driver/driver-denocloud",
     "./code/-samples/deno.vite-react"
   ],
   "importMap": "./deno.imports.json",

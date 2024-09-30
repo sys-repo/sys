@@ -12,7 +12,7 @@ export const Paths = {
     'code/sys.ui/ui-vite',
     
     // Drivers.
-    'code/sys.driver/driver-deno-cloud',
+    'code/sys.driver/driver-denocloud',
     'code/sys.driver/driver-automerge',
 
     // →| dev/null
