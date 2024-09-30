@@ -47,9 +47,9 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-denocloud"
+      - name: publish module → "@sys/driver-deno"
         run: |
-          cd code/sys.driver/driver-denocloud
+          cd code/sys.driver/driver-deno
           deno task test
           deno publish
 

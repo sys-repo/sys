@@ -1,5 +1,5 @@
 {
-  "name": "@sys/driver-denocloud",
+  "name": "@sys/driver-deno",
   "version": "0.0.0",
   "license": "MIT",
   "tasks": {

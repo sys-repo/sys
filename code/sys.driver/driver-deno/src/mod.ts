@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { DenoCloud } from '@sys/driver-denocloud';
+ * import { DenoCloud } from '@sys/driver-deno/cloud';
  * ```
  */
 

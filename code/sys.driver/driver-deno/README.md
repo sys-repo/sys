@@ -31,7 +31,7 @@ PRIVY_APP_SECRET="****"
 
 ```ts
 import { Pkg } from './mod.ts';
-import { DenoCloud, Server } from 'jsr:@sys/driver-denocloud';
+import { DenoCloud, Server } from 'jsr:@sys/driver-deno';
 
 const app = DenoCloud.server({ env });
 const options = Server.options(8080, Pkg)
