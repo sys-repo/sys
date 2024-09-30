@@ -16,7 +16,7 @@ export const DenoCloud: t.DenoCloudServerLib = {
   server,
 
   async env() {
-    const { env } = await import('../env.ts');
+    const { env } = await import('../../env.ts');
     return env;
   },
 
