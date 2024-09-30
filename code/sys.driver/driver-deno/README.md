@@ -30,8 +30,8 @@ PRIVY_APP_SECRET="****"
 ### Example
 
 ```ts
-import { Pkg } from './mod.ts';
-import { DenoCloud, Server } from 'jsr:@sys/driver-deno';
+import { Pkg } from 'jsr:@sys/driver-deno';
+import { DenoCloud, Server } from 'jsr:@sys/driver-deno/server';
 
 const app = DenoCloud.server({ env });
 const options = Server.options(8080, Pkg)

@@ -1,12 +1,7 @@
-/**
- * @module
- * DenoCloud: Server Tools.
- */
-
-import { DenoCloudClient, HttpServer, type t } from './common/mod.ts';
+import { DenoCloudClient, HttpServer, type t } from './common.ts';
 import { server } from './u.Server.ts';
 
-export { c, Env, HttpServer, Pkg } from './common/mod.ts';
+export { c, Env, HttpServer, Pkg } from './common.ts';
 
 /**
  * Server library.

@@ -1,4 +1,4 @@
-import { DenoSubhostingAPI, Path, Pkg, type t } from '../common/mod.ts';
+import { DenoSubhostingAPI, Path, Pkg, type t } from '../common.ts';
 
 /**
  * Setup routes for deploying and managing sub-hosting instances.

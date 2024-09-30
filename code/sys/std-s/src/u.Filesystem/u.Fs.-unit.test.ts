@@ -1,4 +1,3 @@
-import { exists } from '@std/fs/exists';
 import { describe, expect, it, slug } from '../-test.ts';
 import { Fs } from './mod.ts';
 

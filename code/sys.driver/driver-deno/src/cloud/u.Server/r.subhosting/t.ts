@@ -1,4 +1,4 @@
-import type { DenoSubhostingAPI as D } from '../common/mod.ts';
+import type { DenoSubhostingAPI as D } from '../common.ts';
 
 export type SubhostingInfo = {
   description: string;

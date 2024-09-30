@@ -1,4 +1,4 @@
-import { Http, type t } from './common/mod.ts';
+import { Http, type t } from './common.ts';
 
 /**
  * Factory: Client Library

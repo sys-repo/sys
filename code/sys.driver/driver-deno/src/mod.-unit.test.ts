@@ -1,4 +1,4 @@
-import { describe, expect, it } from './common/mod.ts';
+import { describe, expect, it } from './-test.ts';
 import { env } from './env.ts';
 
 describe('DenoCloud (client)', () => {

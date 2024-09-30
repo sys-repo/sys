@@ -1,4 +1,4 @@
-import type { t } from './common/mod.ts';
+import type { t } from './common.ts';
 
 export const Auth: t.AuthLib = {
   /**

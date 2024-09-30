@@ -1,4 +1,4 @@
-import { HttpServer, type t } from './common/mod.ts';
+import { HttpServer, type t } from './common.ts';
 import { Auth } from './u.Auth.ts';
 import { Routes } from './u.Routes.ts';
 

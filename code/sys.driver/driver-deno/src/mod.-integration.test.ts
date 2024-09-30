@@ -1,5 +1,5 @@
-import { describe, expect, it, Pkg } from './common/mod.ts';
-import { testSetup } from './cloud/u.Server/mod.-testSetup.ts';
+import { Pkg } from './mod.ts';
+import { describe, expect, it, testSetup } from './cloud/-test.ts';
 
 describe('DenoCloud: HTTP Server Routes ← ClientLib', () => {
   describe('/ (root)', () => {

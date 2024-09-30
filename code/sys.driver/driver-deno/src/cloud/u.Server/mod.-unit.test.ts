@@ -1,5 +1,6 @@
-import { Http, Pkg, describe, expect, it } from './common/mod.ts';
-import { testSetup } from './mod.-testSetup.ts';
+import { describe, expect, it } from '../-test.ts';
+import { Http, Pkg } from './common.ts';
+import { testSetup } from '../-test.ts';
 
 describe('DenoCloud (Server)', () => {
   it('server: start → req/res → dispose', async () => {
