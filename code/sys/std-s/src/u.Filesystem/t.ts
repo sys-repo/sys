@@ -1,4 +1,14 @@
+import type { t } from './common.ts';
 import type { WalkEntry } from '@std/fs';
+
+export type FsLib = {
+  glob: t.GlobFactory;
+};
+
+/**
+ * Generate a Glob helper scoped to a path.
+ */
+export type GlobFactory = (...dir: (t.StringPath | undefined)[]) => t.Glob;
 
 /**
  * Runs globs against a filesystem root.
