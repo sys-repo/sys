@@ -1,4 +1,5 @@
 import { describe, expect, it, rx, slug, Time, type t } from '../-test.ts';
+import { Testing } from './common.ts';
 import { Cmd } from './mod.ts';
 
 describe('Cmd', () => {
@@ -94,6 +95,26 @@ describe('Cmd', () => {
       expect(firedObs[0].toString()).to.eql(`${env.FOO}\n`);
 
       await handle.dispose();
+    });
+
+    it('spawn → server HTTP', async () => {
+      const port = Testing.randomPort();
+      const tx = `tx.${Testing.slug()}`;
+      const text = `Hello World ← ${tx}`;
+
+      const cmd = `Deno.serve({ port: ${port} }, () => new Response('${text}'))`;
+      const child = await Cmd.spawn({ args: ['eval', cmd] }).whenReady();
+
+      /**
+       * Client Fetch
+       */
+      const url = `http://localhost:${port}`;
+      const res = await fetch(url);
+      const resText = await res.text();
+      expect(res.status).to.eql(200);
+      expect(resText).to.eql(text);
+
+      await child.dispose();
     });
   });
 });
