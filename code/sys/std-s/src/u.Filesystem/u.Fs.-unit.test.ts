@@ -25,9 +25,7 @@ describe('Fs: filesystem', () => {
       await Deno.writeTextFile(Fs.join(path, 'text.txt'), '👋 hello\n');
       return {
         path,
-        exists() {
-          return Fs.exists(path);
-        },
+        exists: () => Fs.exists(path),
       };
     };
 
