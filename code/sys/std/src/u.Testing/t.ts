@@ -9,6 +9,7 @@ export type Testing = {
   readonly Bdd: BddLib;
   wait(delay: t.Msecs): Promise<void>;
   randomPort(): number;
+  slug: t.IdGenerator;
 };
 
 /**

@@ -1,3 +1,4 @@
+import { Id } from '../u.Id/mod.ts';
 import { Testing, describe, expect, it } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
@@ -19,5 +20,10 @@ describe('Testing', () => {
 
     expect(typeof a === 'number').to.be.true;
     expect(a).to.not.eql(b);
+  });
+
+  it('slug', () => {
+    const id = Testing.slug();
+    expect(Id.Is.slug(id)).to.be.true;
   });
 });

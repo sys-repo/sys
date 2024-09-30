@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 import { Bdd } from './Testing.Bdd.ts';
+import { slug } from '../u.Id/mod.ts';
 import { randomPort } from './u.ts';
 
 export { describe, expect, it } from './Testing.Bdd.ts';
@@ -9,6 +10,7 @@ export { describe, expect, it } from './Testing.Bdd.ts';
  */
 export const Testing: t.Testing = {
   Bdd,
+  slug,
 
   /**
    * Wait for n-milliseconds
