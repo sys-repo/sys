@@ -8,6 +8,7 @@ import type { expect } from 'npm:chai';
 export type Testing = {
   readonly Bdd: BddLib;
   wait(delay: t.Msecs): Promise<void>;
+  randomPort(): number;
 };
 
 /**

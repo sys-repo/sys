@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 import { Bdd } from './Testing.Bdd.ts';
+import { randomPort } from './u.ts';
 
 export { describe, expect, it } from './Testing.Bdd.ts';
 
@@ -10,9 +11,14 @@ export const Testing: t.Testing = {
   Bdd,
 
   /**
-   * Wait for
+   * Wait for n-milliseconds
    */
   wait(msecs): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, msecs));
   },
+
+  /**
+   * Retrieves a random unused port.
+   */
+  randomPort,
 };
