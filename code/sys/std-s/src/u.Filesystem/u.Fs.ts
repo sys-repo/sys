@@ -10,8 +10,8 @@ export { Path };
  */
 export const Fs = {
   ...Path,
-  exists,
   Path,
+  exists,
   glob,
   copyDir,
   removeDir,
