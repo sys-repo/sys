@@ -6,9 +6,7 @@ import { isObject } from './u.ts';
 /**
  * Default values for Errors.
  */
-export const DEFAULTS = {
-  name: 'Error',
-} as const;
+export const DEFAULTS = { name: 'Error' } as const;
 
 /**
  * Helpers for working with errors.
