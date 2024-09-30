@@ -8,7 +8,7 @@ export type FooProps = {
 /**
  * Sample Component.
  */
-export const Foo: FC<FooProps> = (props = {}) => {
+export const Foo: FC<FooProps> = (_props = {}) => {
   const text = `${Pkg.name}@${Pkg.version}:Foo`;
   // @ts-ignore: JSX.Intrinsics not found (yet).
   return <code>{text}</code>;
