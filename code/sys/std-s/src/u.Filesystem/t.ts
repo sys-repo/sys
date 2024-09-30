@@ -15,6 +15,11 @@ export type GlobFactory = (...dir: (t.StringPath | undefined)[]) => t.Glob;
  */
 export type Glob = {
   /**
+   * Read out the base directory.
+   */
+  readonly base: string;
+
+  /**
    *  Query the given glob pattern.
    */
   find(pattern: string, options?: { exclude?: string[] }): Promise<WalkEntry[]>;

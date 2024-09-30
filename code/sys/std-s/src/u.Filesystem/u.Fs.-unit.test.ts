@@ -8,6 +8,7 @@ describe('Fs: filesystem', () => {
   it('glob', async () => {
     const base = Fs.resolve();
     const glob = Fs.glob(base);
+    expect(glob.base).to.eql(base);
 
     const matches = await glob.find('**');
     expect(matches.length).to.be.greaterThan(3);

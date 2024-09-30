@@ -8,7 +8,11 @@ import { Path } from './u.Path.ts';
  */
 export function glob(...dir: (string | undefined)[]): t.Glob {
   const asStrings = (dir: (string | undefined)[]) => dir.filter(Boolean) as string[];
-  return {
+  const api: t.Glob = {
+    get base() {
+      return Path.join(...asStrings(dir));
+    },
+
     async find(pattern, options = {}): Promise<WalkEntry[]> {
       const { exclude } = options;
       const res: WalkEntry[] = [];
@@ -17,8 +21,10 @@ export function glob(...dir: (string | undefined)[]): t.Glob {
       }
       return res;
     },
+
     dir(...subdir) {
       return glob(Path.join(...asStrings(dir), ...asStrings(subdir)));
     },
-  } as const;
+  };
+  return api;
 }
