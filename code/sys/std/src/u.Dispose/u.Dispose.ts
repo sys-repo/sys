@@ -14,7 +14,8 @@ export const Dispose: t.DisposeLib = {
       dispose$: dispose$.asObservable(),
       dispose: () => Dispose.done(dispose$),
     };
-    return Dispose.until(disposable, until$);
+    Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
+    return disposable;
   },
 
   /**
@@ -24,7 +25,6 @@ export const Dispose: t.DisposeLib = {
     const { until$, onDispose } = wrangle.disposableAsyncArgs(args);
     const dispose$ = new Subject<t.DisposeAsyncEvent>();
     let _disposing = false;
-
 
     type P = t.DisposeAsyncEventArgs;
     const asPayload = (stage: t.DisposeAsyncStage, error?: t.DisposeError): P => {
@@ -57,6 +57,7 @@ export const Dispose: t.DisposeLib = {
       },
     };
 
+    Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
     return disposable;
   },
 
@@ -100,16 +101,9 @@ export const Dispose: t.DisposeLib = {
    * Listens to an observable (or set of observbles) and
    * disposes of the target when any of them fire.
    */
-  until(disposable, until$): t.Disposable {
-    if (until$) wrangle.flat(until$).forEach(($) => $.subscribe(disposable.dispose));
-    return disposable;
-  },
-  untilAsync(disposable, until$): t.DisposableAsync {
-    if (until$) {
-      const dispose = disposable.dispose;
-      wrangle.flat(until$).forEach(($) => $.pipe().subscribe(dispose));
-    }
-    return disposable;
+  until($) {
+    const list = Array.isArray($) ? $ : [$];
+    return flatten(list).filter(Boolean);
   },
 
   /**
@@ -128,11 +122,6 @@ export const Dispose: t.DisposeLib = {
  * Helpers
  */
 export const wrangle = {
-  flat($?: t.UntilObservable) {
-    const list = Array.isArray($) ? $ : [$];
-    return flatten(list).filter(Boolean) as t.Observable<any>[];
-  },
-
   disposableAsyncArgs(args: any[]) {
     type Fn = () => Promise<void>;
     let onDispose: Fn | undefined;
@@ -140,7 +129,7 @@ export const wrangle = {
 
     if (typeof args[0] === 'function') onDispose = args[0];
     if (typeof args[1] === 'function') onDispose = args[1];
-    if (Is.observable(args[0])) until$ = args[0];
+    if (Is.observable(args[0]) || Array.isArray(args[0])) until$ = Dispose.until(args[0]);
 
     return { onDispose, until$ };
   },

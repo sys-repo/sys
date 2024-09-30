@@ -8,12 +8,6 @@ export type LifecycleStageHandler = IgnoredResponse | (() => Promise<IgnoredResp
  */
 export type DisposeLib = {
   /**
-   * Listens to an observable and disposes of the object when fires.
-   */
-  until(disposable: t.Disposable, until$?: t.UntilObservable): t.Disposable;
-  untilAsync(disposable: t.DisposableAsync, until$?: t.UntilObservable): t.DisposableAsync;
-
-  /**
    * Generates a generic disposable interface that is
    * typically mixed into a wider interface of some kind.
    */
@@ -28,6 +22,11 @@ export type DisposeLib = {
   lifecycle(until$?: t.UntilObservable): t.Lifecycle;
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
   lifecycleAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+
+  /**
+   * Listens to an observable and disposes of the object when fires.
+   */
+  until($?: t.UntilObservable): t.Observable<unknown>[];
 
   /**
    * "Completes" a subject by running:
