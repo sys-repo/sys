@@ -28,9 +28,9 @@ export const Cmd: t.Cmd = {
   /**
    * Run a <unix> command (on spawned child process).
    */
-  async invoke(input) {
-    const { silent } = input;
-    const command = Wrangle.command(input);
+  async invoke(config) {
+    const { silent } = config;
+    const command = Wrangle.command(config);
     const output = await command.output();
     const res = toCmdOutput(output);
     if (!silent) printOutput(res.code, res.stdout, res.stderr);

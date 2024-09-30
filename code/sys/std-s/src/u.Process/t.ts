@@ -12,13 +12,13 @@ export type Cmd = {
    * Execute a <unix> command on a child process
    * and wait for response.
    */
-  invoke(args: t.CmdInvokeArgs): Promise<t.CmdOutput>;
+  invoke(config: t.CmdInvokeArgs): Promise<t.CmdOutput>;
 
   /**
    * Spawn a child process to run a <unix> command
    * and retrieve a streaming handle to monitor and control it.
    */
-  spawn(args: t.CmdSpawnArgs): t.CmdProcessHandle;
+  spawn(config: t.CmdSpawnArgs): t.CmdProcessHandle;
 
   /**
    * Run an <shell> command.
@@ -51,7 +51,7 @@ export type CmdProcessHandle = t.LifecycleAsync & {
   readonly pid: number;
   readonly $: t.Observable<t.CmdProcessEvent>;
   readonly is: { readonly ready: boolean };
-  whenReady(): Promise<void>;
+  whenReady(): Promise<t.CmdProcessHandle>;
   onStdio(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
 };
 

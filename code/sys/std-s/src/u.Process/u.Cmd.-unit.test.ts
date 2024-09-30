@@ -84,7 +84,8 @@ describe('Cmd', () => {
       expect(typeof handle.pid === 'number').to.be.true;
       expect(handle.is.ready).to.eql(false);
 
-      await handle.whenReady();
+      const res = await handle.whenReady();
+      expect(res).to.equal(handle);
       expect(handle.is.ready).to.eql(true);
 
       expect(firedObs.length).to.eql(1);

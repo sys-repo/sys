@@ -1,17 +1,19 @@
 import { rx, type t } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
+type H = t.CmdProcessHandle;
+
 /**
  * Spawn a child process to run a <unix> command
  * and retrieve a streaming handle to monitor and control it.
  */
-export const spawn: t.Cmd['spawn'] = (input) => {
-  const { silent } = input;
-  const life = rx.lifecycleAsync(input.dispose$, () => kill(child));
+export const spawn: t.Cmd['spawn'] = (config) => {
+  const { silent } = config;
+  const life = rx.lifecycleAsync(config.dispose$, () => kill(child));
   const decoder = new TextDecoder();
 
   const $ = rx.subject<t.CmdProcessEvent>();
-  const command = Wrangle.command(input, { stdin: 'null' });
+  const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();
   const pid = child.pid;
   const handlers = new Set<t.CmdProcessEventHandler>();
@@ -33,8 +35,10 @@ export const spawn: t.Cmd['spawn'] = (input) => {
    * Readiness monitoring.
    */
   let ready = false;
-  let resolveWhenReady: () => void;
-  const whenReadyPromise = new Promise<void>((resolve) => (resolveWhenReady = resolve));
+  let resolveWhenReady: (handle: H) => void;
+  const whenReadyPromise = new Promise<H>((resolve) => {
+    resolveWhenReady = resolve;
+  });
 
   /**
    * Monitor the STDIO streams.
@@ -49,7 +53,7 @@ export const spawn: t.Cmd['spawn'] = (input) => {
         if (!ready) {
           // Check for readiness on first data chunk.
           ready = true;
-          resolveWhenReady();
+          resolveWhenReady(api);
         }
       }
     } finally {
@@ -62,7 +66,7 @@ export const spawn: t.Cmd['spawn'] = (input) => {
   /**
    * API
    */
-  const api: t.CmdProcessHandle = {
+  const api: H = {
     pid,
     $: $.asObservable(),
 
