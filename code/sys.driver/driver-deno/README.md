@@ -1,5 +1,5 @@
 # Deno Cloud Driver
-Tools for working with [Deno cloud](https://deno.com/deploy).
+Tools for working with the [Deno cloud](https://deno.com/deploy).
 
 
 ### References
