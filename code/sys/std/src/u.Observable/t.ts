@@ -16,9 +16,13 @@ export type RxLib = Rxjs & {
   event<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E>;
   payload<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E['payload']>;
 
-  disposable(until$?: t.UntilObservable): t.Disposable;
-  lifecycle(until$?: t.UntilObservable): t.Lifecycle;
   done(dispose$?: t.Subject<void>): void;
+
+  disposable: t.DisposeLib['disposable'];
+  disposableAsync: t.DisposeLib['disposableAsync'];
+
+  lifecycle: t.DisposeLib['lifecycle'];
+  lifecycleAsync: t.DisposeLib['lifecycleAsync'];
 };
 
 /**

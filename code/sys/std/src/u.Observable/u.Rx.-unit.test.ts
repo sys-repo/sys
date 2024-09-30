@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { rx, Rx } from './mod.ts';
+import { rx, Rx, Dispose } from '../mod.ts';
 
 describe('Observable/rx', () => {
   it('dual cased names', () => {
@@ -68,6 +68,13 @@ describe('Observable/rx', () => {
   });
 
   describe('rx.disposable', () => {
+    it('referenced from Dispose', () => {
+      expect(rx.disposable).to.equal(Dispose.disposable);
+      expect(rx.disposableAsync).to.equal(Dispose.disposableAsync);
+      expect(rx.lifecycle).to.equal(Dispose.lifecycle);
+      expect(rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
+    });
+
     it('method: dispose', () => {
       const { dispose$, dispose } = rx.disposable();
 

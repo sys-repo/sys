@@ -7,7 +7,7 @@ import { Is } from './u.Rx.Is.ts';
 import { event, payload } from './u.Rx.payload.ts';
 import { asPromise } from './u.Rx.promise.ts';
 
-const { disposable, done, lifecycle } = Dispose;
+const { disposable, disposableAsync, lifecycle, lifecycleAsync, done } = Dispose;
 
 /**
  * Tools for working with Observables (via the [rxjs] library).
@@ -19,8 +19,10 @@ export const Rx: t.RxLib = {
   asPromise,
 
   done,
-  lifecycle,
   disposable,
+  lifecycle,
+  disposableAsync,
+  lifecycleAsync,
 
   event,
   payload,
