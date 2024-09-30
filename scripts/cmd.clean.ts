@@ -6,22 +6,16 @@ type DenoJson = {
   tasks?: { clean?: string };
 };
 
-const Fmt = {
-  pathAction(action: string, path: string, dry?: boolean) {
-    const prefix = c.bgGreen(c.white(' dry run '));
-    let line = `${c.red(action)}: ${c.white(path)}`;
-    if (dry) line = `${prefix} ${line}`;
-    return line;
-  },
-} as const;
-
 const deletePattern = async (pattern: string, options: { dry?: boolean } = {}) => {
   const { dry } = options;
   const glob = Fs.glob();
   const paths = (await glob.find(pattern)).filter((m) => m.isFile).map((m) => m.path);
   for (const path of paths) {
     if (!dry) await Deno.remove(path);
-    console.info(Fmt.pathAction('Delete', path, dry));
+
+    let line = `${c.red('Delete')}: ${c.white(path)}`;
+    if (dry) line = `${c.bgGreen(c.white(' dry run '))} ${line}`;
+    console.info(line);
   }
 };
 
