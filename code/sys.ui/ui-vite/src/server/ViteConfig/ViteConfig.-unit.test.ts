@@ -20,5 +20,4 @@ describe('ViteConfig', () => {
     expect(path3.endsWith('-foo')).to.be.true;
     expect(path1).to.not.eql(path2);
   });
-
 });
