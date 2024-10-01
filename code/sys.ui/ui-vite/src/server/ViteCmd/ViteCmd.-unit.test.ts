@@ -4,6 +4,7 @@ import { ViteCmd } from './mod.ts';
 describe('ViteCmd', () => {
   const INPUT = {
     sample1: './src/-test/vite.sample-1/index.html',
+    sample2: './src/-test/vite.sample-2/index.html',
   } as const;
 
   it('ViteCmd.outDir', () => {
@@ -24,13 +25,16 @@ describe('ViteCmd', () => {
     it('sample-1', async () => {
       const outDir = ViteCmd.outDir.test.random();
       const input = INPUT.sample1;
-
       const res = await ViteCmd.build({ input, outDir });
+
+      expect(res.ok).to.eql(true);
       expect(res.cmd).to.include('deno run');
       expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
-      const exists = await Fs.exists(res.paths.outDir);
-      expect(exists).to.eql(true);
+      const html = await Deno.readTextFile(Fs.join(res.paths.outDir, 'index.html'));
+      expect(html).to.include('<title>Sample-1</title>');
+    });
+
     });
   });
 

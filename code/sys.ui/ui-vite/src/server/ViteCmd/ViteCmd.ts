@@ -45,6 +45,7 @@ export const ViteCmd: t.ViteCmdLib = {
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
     return {
+      ok: output.success,
       cmd,
       output,
       paths,

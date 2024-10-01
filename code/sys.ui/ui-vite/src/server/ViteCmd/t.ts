@@ -51,9 +51,10 @@ export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
 export type ViteCmdEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
 
 export type ViteCmdRunResponse = {
-  cmd: string;
-  output: t.CmdOutput;
-  paths: ViteCmdPaths;
+  readonly ok: boolean;
+  readonly cmd: string;
+  readonly output: t.CmdOutput;
+  readonly paths: ViteCmdPaths;
   toString(): string;
 };
 
