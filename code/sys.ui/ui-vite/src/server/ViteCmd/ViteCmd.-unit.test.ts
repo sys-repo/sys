@@ -1,5 +1,6 @@
 import { Fs, Testing, describe, expect, it } from '../../-test.ts';
 import { ViteCmd } from './mod.ts';
+import { ViteConfig } from '../mod.ts';
 
 describe('ViteCmd', () => {
   const INPUT = {
@@ -7,18 +8,8 @@ describe('ViteCmd', () => {
     sample2: './src/-test/vite.sample-2/index.html',
   } as const;
 
-  it('ViteCmd.outDir', () => {
-    const outDir = ViteCmd.Config.outDir;
-    expect(outDir.default).to.include('./dist');
-
-    const path1 = outDir.test.random();
-    const path2 = outDir.test.random();
-    const path3 = outDir.test.random('foo');
-
-    expect(path1).to.include(outDir.test.base);
-    expect(path2).to.include(outDir.test.base);
-    expect(path3.endsWith('-foo')).to.be.true;
-    expect(path1).to.not.eql(path2);
+  it('ViteCmd.Config', () => {
+    expect(ViteCmd.Config).to.equal(ViteConfig);
   });
 
   describe('ViteCmd.build', () => {
