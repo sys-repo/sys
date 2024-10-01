@@ -16,7 +16,9 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();
   const pid = child.pid;
-  const handlers = new Set<t.CmdProcessEventHandler>();
+
+  const stdioHandlers = new Set<t.CmdProcessEventHandler>();
+  const whenReadyHandlers = new Set<t.CmdProcessReadyHandler>();
 
   // Function to process output data chunks.
   const processOutput = (kind: t.StdStream, data: Uint8Array) => {
@@ -28,7 +30,7 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       toString: () => _text ?? (_text = decoder.decode(data)),
     };
     $.next(e);
-    Array.from(handlers).forEach((fn) => fn(e));
+    Array.from(stdioHandlers).forEach((fn) => fn(e));
   };
 
   /**
@@ -37,7 +39,11 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   let ready = false;
   let resolveWhenReady: (handle: H) => void;
   const whenReadyPromise = new Promise<H>((resolve) => {
-    resolveWhenReady = resolve;
+    resolveWhenReady = (handle) => {
+      const cmd = config.args.join(' ');
+      Array.from(whenReadyHandlers).forEach((fn) => fn({ pid, cmd }));
+      resolve(handle);
+    };
   });
 
   /**
@@ -73,12 +79,13 @@ export const spawn: t.Cmd['spawn'] = (config) => {
     get is() {
       return { ready };
     },
-    whenReady() {
+    whenReady(fn) {
+      if (fn) whenReadyHandlers.add(fn);
       return whenReadyPromise;
     },
 
     onStdio(fn) {
-      handlers.add(fn);
+      stdioHandlers.add(fn);
       return api;
     },
 
