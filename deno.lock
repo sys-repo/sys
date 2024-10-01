@@ -1262,6 +1262,7 @@
     "https://deno.land/x/fresh@1.6.8/src/server/types.ts": "f5911c9eef864df8ef58fe5bd353ebd22267b35ef2ef8b21def825fd274d05a6",
     "https://deno.land/x/fresh@1.6.8/src/types.ts": "05169e3389979d8283de0ec1db3a765324ffd730b6af29ffe02752f341ae7d35",
     "https://deno.land/x/fresh@1.6.8/versions.json": "c6cc2d0d2bff47425e59f953b8a237a6523dcf8e10f02e7ad92d50f2c5f2552c",
+    "https://deno.land/x/keypress2@0.1.0/mod.ts": "4dd8f96effd53296a57ee508455aa29d9d31fc348c4734846e6f6ebb4243bde5",
     "https://deno.land/x/ts_morph@21.0.1/common/DenoRuntime.ts": "a505f1feae9a77c8f6ab1c18c55d694719e96573f68e9c36463b243e1bef4c3e",
     "https://deno.land/x/ts_morph@21.0.1/common/mod.ts": "01985d2ee7da8d1caee318a9d07664774fbee4e31602bc2bb6bb62c3489555ed",
     "https://deno.land/x/ts_morph@21.0.1/common/ts_morph_common.js": "236475fb18476307e07b3a97dc92fe8fb69e4a9df4ca59aa098dd6430bae7237",

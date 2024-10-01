@@ -5,4 +5,5 @@
 import { Pkg, ViteCmd } from '../src/server/mod.ts';
 
 const input = './src/-test/vite.sample-1/index.html';
-ViteCmd.dev({ Pkg, input });
+const svc = ViteCmd.dev({ Pkg, input });
+await svc.keyboard();

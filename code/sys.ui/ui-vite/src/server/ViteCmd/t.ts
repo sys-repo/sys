@@ -74,5 +74,6 @@ export type ViteCmdChildProcess = {
   readonly port: number;
   readonly url: t.StringPath;
   readonly whenReady: t.CmdProcessHandle['whenReady'];
+  keyboard(): Promise<void>;
   dispose(): Promise<void>;
 };
