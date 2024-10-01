@@ -4,6 +4,7 @@ export type {
   HttpUrl,
   Pkg,
   StringJwt,
+  StringPath,
   StringUrl,
 } from '@sys/std/t';
 
