@@ -53,6 +53,7 @@ describe('ViteCmd', () => {
      *
      *    ➜  Local:   http://localhost:1234/
      *    ➜  Network: use --host to expose
+     *
      */
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
