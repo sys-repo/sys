@@ -7,6 +7,7 @@ export type ViteDevArgs = {
   outDir?: t.StringPath;
   port?: number;
   silent?: boolean;
+  Pkg?: t.Pkg; // Host module.
 };
 
 /**

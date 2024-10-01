@@ -13,4 +13,4 @@ export { ViteConfig } from './ViteConfig/mod.ts';
 /**
  * Helpers
  */
-export { c } from './common.ts';
+export { Pkg, c } from './common.ts';

@@ -1,4 +1,4 @@
-import { Cmd, DEFAULTS, Path, slug, type t } from './common.ts';
+import { Cmd, DEFAULTS, Path, slug, type t, c } from './common.ts';
 
 const resolve = Path.resolve;
 
@@ -61,9 +61,11 @@ export const ViteCmd: t.ViteCmdLib = {
    *    $ vite dev --port=<1234>
    */
   dev(input) {
-    const { port = DEFAULTS.port, silent = false } = input;
+    const { port = DEFAULTS.port, silent = false, Pkg } = input;
     const { env, args } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
+
+    if (!silent && Pkg) Log.entry(Pkg, input.input);
 
     const proc = Cmd.spawn({ args, env, silent });
     const { whenReady, dispose } = proc;
@@ -91,3 +93,14 @@ const wrangle = {
     return { cmd, args, env, paths } as const;
   },
 } as const;
+
+const Log = {
+  /**
+   * Startup log.
+   */
+  entry(pkg: t.Pkg, input: t.StringPath) {
+    console.info();
+    console.info(c.gray(`Module:       ${c.white(pkg.name)}@${pkg.version}`));
+    console.info(c.brightGreen(`entry point:  ${c.gray(input)}`));
+  },
+};
