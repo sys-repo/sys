@@ -1,7 +1,9 @@
-import { Fs, Pkg, describe, expect, it } from '../../-test.ts';
+import { Fs, Pkg, describe, expect, it, type t } from '../../-test.ts';
 import { Denofile } from './mod.ts';
 
 describe('Denofile', () => {
+  const rootPath = Fs.resolve('../../../deno.json');
+
   describe('load file', () => {
     it('exists', async () => {
       const path = Fs.resolve('./deno.json');
@@ -12,8 +14,29 @@ describe('Denofile', () => {
     });
 
     it('not found', async () => {
-      const res = await Denofile.load('404-foobar.json');
+      const res = await Denofile.load('./404.json');
       expect(res.exists).to.eql(false);
+    });
+  });
+
+  describe('Denofile.workspace', () => {
+    it('from path: exists', async () => {
+      const res = await Denofile.workspace(rootPath);
+      expect(res.exists).to.eql(true);
+      expect(res.paths.includes('./code/sys/std')).to.be.true;
+    });
+
+    it('from path: not found', async () => {
+      const res = await Denofile.workspace('./404.json');
+      expect(res.exists).to.eql(false);
+      expect(res.paths).to.eql([]);
+    });
+
+    it('from {json}', async () => {
+      const { json } = await Fs.readJson<t.DenofileJson>(rootPath);
+      const res = await Denofile.workspace(json!);
+      expect(res.exists).to.eql(true);
+      expect(res.paths.includes('./code/sys/std')).to.be.true;
     });
   });
 });
