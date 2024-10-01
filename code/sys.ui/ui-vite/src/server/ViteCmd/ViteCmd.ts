@@ -111,7 +111,7 @@ const Log = {
  * Generates a terminal keyboard listener with common commands.
  */
 export function keyboardFactory(args: { port: number; url: string; dispose: () => Promise<void> }) {
-  const { url } = args;
+  const { url, dispose } = args;
   const sh = Cmd.sh();
 
   return async () => {
@@ -123,7 +123,7 @@ export function keyboardFactory(args: { port: number; url: string; dispose: () =
       }
 
       if (ctrlKey && key === 'c') {
-        await args.dispose();
+        await dispose();
         Deno.exit(0); // Exit on [Ctrl + C].
       }
     }
