@@ -77,7 +77,7 @@ export type RemoveDir = (path: string, options?: { dry?: boolean; log?: boolean 
 export type ReadJsonFile = <T>(path: string) => Promise<ReadJsonFileResponse<T>>;
 export type ReadJsonFileResponse<T> = {
   readonly ok: boolean;
-  readonly exists: boolean | undefined;
+  readonly exists: boolean;
   readonly path: string;
   readonly json?: T;
   readonly error?: Error;

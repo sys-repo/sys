@@ -6,14 +6,15 @@ import type { t } from './common.ts';
  */
 export const readJsonFile: t.ReadJsonFile = async <T>(path: string) => {
   type R = t.ReadJsonFileResponse<T>;
+  const targetExists = await exists(path);
 
-  const fail = (exists: boolean | undefined, error: R['error'], errorReason: R['errorReason']) => {
-    return { ok: false, exists, path, errorReason, error };
+  const fail = (errorReason: R['errorReason'], error: R['error']) => {
+    return { ok: false, exists: targetExists, path, errorReason, error };
   };
 
-  if (!(await exists(path))) {
+  if (!targetExists) {
     const error = new Error(`JSON file does not exist at path: ${path}`);
-    return fail(false, error, 'NotFound');
+    return fail('NotFound', error);
   }
 
   try {
@@ -26,9 +27,9 @@ export const readJsonFile: t.ReadJsonFile = async <T>(path: string) => {
         path,
       };
     } catch (error: any) {
-      return fail(true, error, 'ParseError');
+      return fail('ParseError', error);
     }
   } catch (error: any) {
-    return fail(undefined, error, 'Unknown');
+    return fail('Unknown', error);
   }
 };
