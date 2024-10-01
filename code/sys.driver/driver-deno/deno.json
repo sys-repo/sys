@@ -13,6 +13,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./cloud/client": "./src/mod.cloud/client.ts",
-    "./cloud/server": "./src/mod.cloud/server.ts"
+    "./cloud/server": "./src/mod.cloud/server.ts",
+    "./runtime": "./src/mod.runtime/mod.ts"
   }
 }
