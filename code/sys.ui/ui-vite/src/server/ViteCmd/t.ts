@@ -1,38 +1,65 @@
 import type { t } from './common.ts';
 
-type EnvOptions = { outDir?: t.StringPath; input?: t.StringPath };
-type RunOptions = EnvOptions;
+export type ViteEnvOptions = { input?: t.StringPath; outDir?: t.StringPath };
+export type ViteBuildArgs = { input: t.StringPath; outDir?: t.StringPath };
+export type ViteDevArgs = { input: t.StringPath; outDir?: t.StringPath; port?: number };
 
 /**
  * Library: Tools for running Vite via commands issued to a child process.
  */
 export type ViteCmdLib = {
-  readonly defineHandler: t.ViteCmdDefineConfigHandler;
   readonly outDir: {
     readonly default: t.StringPath;
     readonly test: {
       readonly base: t.StringPath;
-      random(): t.StringPath;
+      random(uniq?: string): t.StringPath;
     };
   };
-  env(options?: EnvOptions): t.ViteCmdEnv;
-  build(options?: RunOptions): Promise<t.ViteCmdRunResponse>;
+
+  /**
+   * Prepares a set of known env-vars to hand to the child process.
+   */
+  env(options?: ViteEnvOptions): t.ViteCmdEnv;
+
+  /**
+   * Prepare paths for the vite build.
+   */
+  paths(options?: ViteEnvOptions): t.ViteCmdPaths;
+
+  /**
+   * Run the <vite:build> command.
+   */
+  build(args: ViteBuildArgs): Promise<t.ViteCmdRunResponse>;
+
+  /**
+   * Long running processes (spawn → child process).
+   */
+  start: {
+    /**
+     * Run the <vite:build> command.
+     */
+    dev(args: ViteDevArgs): t.ViteCmdChildProcess;
+  };
 };
 
-export type ViteCmdEnv = {
-  VITE_OUTDIR: string;
-  VITE_INPUT: string;
-};
+export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
+export type ViteCmdEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
 
 export type ViteCmdRunResponse = {
-  paths: { outDir: t.StringPath };
   cmd: string;
   output: t.CmdOutput;
+  paths: ViteCmdPaths;
   toString(): string;
 };
 
 /**
- * A vite [defineConfig] function configured
- * for unit-testing/mocking purposes.
+ * Vite Child Process.
+ * A long running process, for instance when running: "$ vite dev"
  */
-export type ViteCmdDefineConfigHandler = (ctx: t.ViteConfigEnv, mutate: t.ViteUserConfig) => void;
+export type ViteCmdChildProcess = {
+  readonly process: t.CmdProcessHandle;
+  readonly whenReady: t.CmdProcessHandle['whenReady'];
+  readonly port: number;
+  readonly url: t.StringPath;
+  dispose(): Promise<void>;
+};

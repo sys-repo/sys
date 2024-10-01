@@ -3,7 +3,7 @@
   "version": "0.0.9",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RWN --allow-run=deno",
+    "test": "deno test -RWN --allow-run",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts"
