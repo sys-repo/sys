@@ -26,6 +26,16 @@ describe('ViteCmd', () => {
       expect(html).to.include('<title>Sample-1</title>');
     });
 
+    it.skip('sample: monorepo imports ← Vite {resolve/alias}', async () => {
+      const outDir = ViteCmd.Config.outDir.test.random();
+      const input = INPUT.sample2;
+      const res = await ViteCmd.build({ input, outDir });
+
+      /**
+       * TODO 🐷
+       */
+      console.log('res.ok', res.ok);
+      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡• ↑↓←→`);
     });
   });
 
