@@ -23,14 +23,4 @@ export const Config: t.ViteCmdConfig = {
     const outDir = resolve(options.outDir ?? DEF.outDir);
     return { input, outDir };
   },
-
-  /**
-   * Prepares a set of known env-vars to hand to the child process.
-   */
-  env(options = {}) {
-    const paths = Config.paths(options);
-    const VITE_INPUT = paths.input;
-    const VITE_OUTDIR = paths.outDir;
-    return { VITE_INPUT, VITE_OUTDIR };
-  },
 };

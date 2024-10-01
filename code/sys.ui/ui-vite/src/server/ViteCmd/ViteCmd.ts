@@ -57,12 +57,17 @@ export const ViteCmd: t.ViteCmdLib = {
  * Helpers
  */
 const wrangle = {
-  command(options: t.ViteEnvOptions, arg: string) {
-    const env = Config.env(options);
+  command(options: t.ViteConfigPathsOptions, arg: string) {
     const paths = Config.paths(options);
+
+    const VITE_INPUT = paths.input;
+    const VITE_OUTDIR = paths.outDir;
+    const env = { VITE_INPUT, VITE_OUTDIR };
+
     const configFile = DEFAULTS.path.configFile;
     const cmd = `deno run -A --node-modules-dir npm:vite ${arg} --config=${configFile}`;
     const args = cmd.split(' ').slice(1);
+
     return { cmd, args, env, paths } as const;
   },
 } as const;

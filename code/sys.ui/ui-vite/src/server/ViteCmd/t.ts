@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type ViteEnvOptions = { input?: t.StringPath; outDir?: t.StringPath };
+export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
 export type ViteBuildArgs = { input: t.StringPath; outDir?: t.StringPath; silent?: boolean };
 export type ViteDevArgs = {
   input: t.StringPath;
@@ -57,14 +57,9 @@ export type ViteCmdConfig = {
   };
 
   /**
-   * Prepares a set of known env-vars to hand to the child process.
-   */
-  env(options?: ViteEnvOptions): t.ViteCmdEnv;
-
-  /**
    * Prepare paths for the vite build.
    */
-  paths(options?: ViteEnvOptions): t.ViteCmdPaths;
+  paths(options?: ViteConfigPathsOptions): t.ViteCmdPaths;
 };
 
 export type ViteCmdRunResponse = {
