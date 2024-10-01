@@ -44,7 +44,7 @@ describe('ViteCmd', () => {
      * Uses Deno's NPM compatibility layer.
      *
      * Command:
-     *    $ vite dev --port=1234
+     *    $ vite dev --port=<1234>
      *
      * Terminal Output:
      *
@@ -53,11 +53,10 @@ describe('ViteCmd', () => {
      *    ➜  Local:   http://localhost:1234/
      *    ➜  Network: use --host to expose
      */
-
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const svc = ViteCmd.start.dev({ port, input });
+      const svc = ViteCmd.dev({ port, input, silent: false });
 
       await svc.whenReady();
       await Testing.wait(1000); // NB: wait another moment for the vite server to complete it's startup.

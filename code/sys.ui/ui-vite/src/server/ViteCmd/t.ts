@@ -37,14 +37,20 @@ export type ViteCmdLib = {
   build(args: ViteBuildArgs): Promise<t.ViteCmdRunResponse>;
 
   /**
+   * Run the <vite:build> command.
    * Long running processes (spawn → child process).
+   *
+   * Command:
+   *    $ vite dev --port=<1234>
+   *
+   * Terminal Output:
+   *
+   *    VITE v5.4.7  ready in 350 ms
+   *
+   *    ➜  Local:   http://localhost:1234/
+   *    ➜  Network: use --host to expose
    */
-  start: {
-    /**
-     * Run the <vite:build> command.
-     */
-    dev(args: ViteDevArgs): t.ViteCmdChildProcess;
-  };
+  dev(args: ViteDevArgs): t.ViteCmdChildProcess;
 };
 
 export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };

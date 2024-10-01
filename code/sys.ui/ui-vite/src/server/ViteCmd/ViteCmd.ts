@@ -54,28 +54,27 @@ export const ViteCmd: t.ViteCmdLib = {
   },
 
   /**
+   * Run the <vite:build> command.
    * Long running processes (spawn → child process).
+   *
+   * Command:
+   *    $ vite dev --port=<1234>
    */
-  start: {
-    /**
-     * Run the <vite:dev> command.
-     */
-    dev(input) {
-      const { port = DEFAULTS.port, silent = true } = input;
-      const { env, args } = wrangle.command(input, `dev --port=${port}`);
-      const url = `http://localhost:${port}/`;
+  dev(input) {
+    const { port = DEFAULTS.port, silent = true } = input;
+    const { env, args } = wrangle.command(input, `dev --port=${port}`);
+    const url = `http://localhost:${port}/`;
 
-      const proc = Cmd.spawn({ args, env, silent });
-      const { whenReady, dispose } = proc;
+    const proc = Cmd.spawn({ args, env, silent });
+    const { whenReady, dispose } = proc;
 
-      return {
-        proc,
-        port,
-        url,
-        whenReady,
-        dispose,
-      };
-    },
+    return {
+      proc,
+      port,
+      url,
+      whenReady,
+      dispose,
+    };
   },
 } as const;
 
