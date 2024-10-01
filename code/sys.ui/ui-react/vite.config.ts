@@ -8,6 +8,11 @@ import 'react-dom';
 export default defineConfig({
   plugins: [reactPlugin()],
   server: { fs: { allow: ['..'] } },
+
+  /**
+   * REF: Vite Docs:
+   * https://vitejs.dev/config/shared-options.html#resolve-alias
+   */
   resolve: {
     alias: {
       '@sys/tmp/ui': Path.resolve('../../sys.tmp/src/ui/mod.ts'),
