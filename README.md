@@ -6,10 +6,10 @@
 
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
-- compilation toolchain (output → W3C standards)
-- modules: [sys](/code/sys/) 
-- modules: [sys.ui](/code/sys.ui/) 
-- modules: [sys.driver](/code/sys.driver/) 
+- modules: [sys](/code/sys/) ← standard libs
+- modules: [sys.ui](/code/sys.ui/)
+- modules: [sys.driver](/code/sys.driver/)
+- build toolchain (output → W3C standards)
 
 (built on, and commited to, baseline modern [Web Standards](https://wintercg.org/))
 
