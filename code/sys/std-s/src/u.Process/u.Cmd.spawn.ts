@@ -1,4 +1,4 @@
-import { rx, type t } from './common.ts';
+import { rx, type t, c } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
 type H = t.CmdProcessHandle;
@@ -41,7 +41,8 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   const whenReadyPromise = new Promise<H>((resolve) => {
     resolveWhenReady = (handle) => {
       const cmd = config.args.join(' ');
-      Array.from(whenReadyHandlers).forEach((fn) => fn({ pid, cmd }));
+      const toString = toStringFactory({ pid, cmd });
+      Array.from(whenReadyHandlers).forEach((fn) => fn({ pid, cmd, toString }));
       resolve(handle);
     };
   });
@@ -101,3 +102,16 @@ export const spawn: t.Cmd['spawn'] = (config) => {
 
   return api;
 };
+
+/**
+ * Helpers
+ */
+function toStringFactory(args: { pid: number; cmd: string }) {
+  const { pid, cmd } = args;
+  return () => {
+    return `
+process ${c.gray('pid:')}${c.green(String(pid))}
+${c.gray(cmd)}
+        `.substring(1);
+  };
+}

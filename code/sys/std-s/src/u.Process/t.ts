@@ -59,6 +59,7 @@ export type CmdProcessReadyHandler = (e: CmdProcessReadyHandlerArgs) => void;
 export type CmdProcessReadyHandlerArgs = {
   readonly pid: number;
   readonly cmd: string;
+  toString(): string;
 };
 
 /**
