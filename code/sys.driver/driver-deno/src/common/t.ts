@@ -8,4 +8,6 @@ export type {
   StringUrl,
 } from '@sys/std/t';
 
+export type { ReadJsonResponse } from '@sys/std-s/t';
+
 export type * from '../types.ts';

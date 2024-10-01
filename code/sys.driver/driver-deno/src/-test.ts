@@ -1,2 +1,2 @@
-export { Testing, describe, expect, it } from '@sys/std/testing';
+export { Fs, Testing, describe, expect, it } from '@sys/std-s/testing';
 export * from './common.ts';
