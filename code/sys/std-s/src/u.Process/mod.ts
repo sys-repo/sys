@@ -2,4 +2,4 @@
  * @module
  * Process/Command tools.
  */
-export * from './u.Cmd.ts';
+export { Cmd } from './u.Cmd.ts';
