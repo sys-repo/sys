@@ -65,11 +65,11 @@ export const ViteCmd: t.ViteCmdLib = {
       const { env, args } = wrangle.command(input, `dev --port=${port}`);
       const url = `http://localhost:${port}/`;
 
-      const process = Cmd.spawn({ args, env, silent });
-      const { whenReady, dispose } = process;
+      const proc = Cmd.spawn({ args, env, silent });
+      const { whenReady, dispose } = proc;
 
       return {
-        process,
+        proc,
         port,
         url,
         whenReady,

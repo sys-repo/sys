@@ -63,9 +63,9 @@ export type ViteCmdRunResponse = {
  * A long running process, for instance when running: "$ vite dev"
  */
 export type ViteCmdChildProcess = {
-  readonly process: t.CmdProcessHandle;
-  readonly whenReady: t.CmdProcessHandle['whenReady'];
+  readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly url: t.StringPath;
+  readonly whenReady: t.CmdProcessHandle['whenReady'];
   dispose(): Promise<void>;
 };
