@@ -49,11 +49,12 @@ describe('Fs: filesystem', () => {
   });
 
   describe('Fs.readJsonFile', () => {
-    it('success (file exists)', async () => {
+    it('success', async () => {
       const path = Fs.resolve('./deno.json');
       const res = await Fs.readJsonFile<t.Pkg>(path);
 
       expect(res.ok).to.eql(true);
+      expect(res.exists).to.eql(true);
       expect(res.path).to.eql(path);
       expect(res.json?.name).to.eql('@sys/std-s');
       expect(res.error).to.eql(undefined);
@@ -65,6 +66,7 @@ describe('Fs: filesystem', () => {
       const res = await Fs.readJsonFile(path);
 
       expect(res.ok).to.eql(false);
+      expect(res.exists).to.eql(false);
       expect(res.path).to.eql(path);
       expect(res.errorReason).to.eql('NotFound');
       expect(res.error?.message).to.include('JSON file does not exist at path');
@@ -75,6 +77,7 @@ describe('Fs: filesystem', () => {
       const path = Fs.resolve('./README.md'); // NB: markdown not parse-able as JSON.
       const res = await Fs.readJsonFile<t.Pkg>(path);
       expect(res.ok).to.eql(false);
+      expect(res.exists).to.eql(true);
       expect(res.path).to.eql(path);
       expect(res.errorReason).to.eql('ParseError');
       expect(res.error?.message).to.include('Unexpected token');
