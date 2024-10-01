@@ -124,7 +124,7 @@ export function keyboardFactory(args: { port: number; url: string; dispose: () =
 
       if (ctrlKey && key === 'c') {
         await args.dispose();
-        Deno.exit(0); // Exit on [Ctrl+C].
+        Deno.exit(0); // Exit on [Ctrl + C].
       }
     }
   };
