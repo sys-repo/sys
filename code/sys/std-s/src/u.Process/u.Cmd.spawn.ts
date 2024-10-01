@@ -21,11 +21,11 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   const whenReadyHandlers = new Set<t.CmdProcessReadyHandler>();
 
   // Function to process output data chunks.
-  const processOutput = (kind: t.StdStream, data: Uint8Array) => {
+  const processOutput = (source: t.StdStream, data: Uint8Array) => {
     if (!silent) Deno.stdout.writeSync(data);
     let _text: undefined | string;
     const e: t.CmdProcessEvent = {
-      kind,
+      source,
       data,
       toString: () => _text ?? (_text = decoder.decode(data)),
     };

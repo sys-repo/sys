@@ -90,7 +90,7 @@ export type CmdOutput = {
  */
 export type CmdProcessEventHandler = (e: t.CmdProcessEvent) => void;
 export type CmdProcessEvent = {
-  readonly kind: t.StdStream;
+  readonly source: t.StdStream;
   readonly data: Uint8Array;
   toString(): string;
 };
