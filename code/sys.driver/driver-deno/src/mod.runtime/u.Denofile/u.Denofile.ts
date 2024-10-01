@@ -8,15 +8,16 @@ export const Denofile: t.DenofileLib = {
    * Load a `deno.json` file at the given file path.
    */
   load(path) {
-    return Fs.readJson<t.DenofileJson>(path);
+    return Fs.readJson<t.DenofileJson>(path ?? Fs.resolve('./deno.json'));
   },
 
   /**
    * Load a deno workspace.
    */
   async workspace(source) {
-    const { exists, json } = await wrangle.json(source);
-    const paths = json?.workspace ?? [];
+    const file = await wrangle.json(source);
+    const exists = file.exists && Array.isArray(file.json?.workspace);
+    const paths = file.json?.workspace ?? [];
     return { exists, paths };
   },
 };
@@ -25,9 +26,8 @@ export const Denofile: t.DenofileLib = {
  * Helpers
  */
 const wrangle = {
-  async json(source: t.StringPath | t.DenofileJson) {
+  json(source?: t.StringPath | t.DenofileJson) {
     if (typeof source === 'object') return { exists: true, json: source };
-    const { exists, json } = await Denofile.load(source);
-    return { exists, json };
+    return Denofile.load(source);
   },
 } as const;

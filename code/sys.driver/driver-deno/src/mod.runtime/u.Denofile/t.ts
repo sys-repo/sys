@@ -7,12 +7,12 @@ export type DenofileLib = {
   /**
    * Load a `deno.json` file at the given file path.
    */
-  load(path: t.StringPath): Promise<t.ReadJsonResponse<t.DenofileJson>>;
+  load(path?: t.StringPath): Promise<t.ReadJsonResponse<t.DenofileJson>>;
 
   /**
    * Load a deno workspace.
    */
-  workspace(source: t.StringPath | t.DenofileJson): Promise<t.DenoWorkspace>;
+  workspace(source?: t.StringPath | t.DenofileJson): Promise<t.DenoWorkspace>;
 };
 
 /**
