@@ -9,4 +9,4 @@
  */
 
 export { Pkg } from './common.ts';
-export { DenoCloud } from './u.cloud/u.client/mod.ts';
+export { DenoCloud } from './mod.cloud/u.client/mod.ts';

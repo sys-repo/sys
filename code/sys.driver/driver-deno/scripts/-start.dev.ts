@@ -1,4 +1,4 @@
-import { DenoCloud, Pkg } from '../src/u.cloud/server.ts';
+import { DenoCloud, Pkg } from '../src/mod.cloud/server.ts';
 
 /**
  * Start
