@@ -1,11 +1,11 @@
-import { describe, expect, it, slug } from '../-test.ts';
+import { describe, expect, it, slug, type t } from '../-test.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: filesystem', () => {
   const testDir = Fs.resolve('./.tmp/test');
-  it('ensure test dir', () => Fs.ensureDir(testDir));
+  it('ensure test directory exists', () => Fs.ensureDir(testDir));
 
-  it('glob', async () => {
+  it('Fs.glob', async () => {
     const base = Fs.resolve();
     const glob = Fs.glob(base);
     expect(glob.base).to.eql(base);
@@ -46,5 +46,30 @@ describe('Fs: filesystem', () => {
 
       await Fs.removeDir(testDir.path); // Clean up.
     });
+  });
+
+  describe('Fs.readJsonFile', () => {
+    it('success (file exists)', async () => {
+      const path = Fs.resolve('./deno.json');
+      const res = await Fs.readJsonFile<t.Pkg>(path);
+
+      expect(res.ok).to.eql(true);
+      expect(res.path).to.eql(path);
+      expect(res.json?.name).to.eql('@sys/std-s');
+      expect(res.error).to.eql(undefined);
+      expect(res.errorReason).to.eql(undefined);
+    });
+
+    it('fail: does not exist (404)', async () => {
+      const path = '404-no-exist.json';
+      const res = await Fs.readJsonFile(path);
+
+      expect(res.ok).to.eql(false);
+      expect(res.path).to.eql(path);
+      expect(res.error?.message).to.include('JSON file does not exist at path');
+      expect(res.error?.message).to.include(path);
+      expect(res.errorReason).to.eql('NotFound');
+    });
+
   });
 });

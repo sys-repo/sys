@@ -5,6 +5,7 @@ export type {
   LifecycleAsync,
   Observable,
   PathLib,
+  Pkg,
   StringPath,
   UntilObservable,
 } from '@sys/std/t';

@@ -1,8 +1,9 @@
-import { Path, type t } from './common.ts';
-
 import { ensureDir, exists } from '@std/fs';
+
+import { Path, type t } from './common.ts';
 import { copyDir, removeDir } from './u.dir.ts';
 import { glob } from './u.glob.ts';
+import { readJsonFile } from './u.read.ts';
 
 const { join, resolve } = Path;
 
@@ -18,4 +19,5 @@ export const Fs: t.FsLib = {
   resolve,
   copyDir,
   removeDir,
+  readJsonFile,
 } as const;

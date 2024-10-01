@@ -26,7 +26,7 @@ export const removeDir: t.RemoveDir = async (path, options = {}) => {
 
   if (options.dry) {
     const prefix = c.bgGreen(c.white(' dry run '));
-    let line = `${prefix} ${c.red('Delete')}: ${c.white(path)}`;
+    let line = `${prefix} ${c.cyan('delete')}: ${c.white(path)}`;
     if (!dirExists) line += c.yellow(' ← does not exist');
     console.info(line);
     return;
