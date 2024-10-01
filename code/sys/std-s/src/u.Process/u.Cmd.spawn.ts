@@ -9,10 +9,10 @@ type H = t.CmdProcessHandle;
  */
 export const spawn: t.Cmd['spawn'] = (config) => {
   const { silent } = config;
-  const life = rx.lifecycleAsync(config.dispose$, () => kill(child));
   const decoder = new TextDecoder();
-
+  const life = rx.lifecycleAsync(config.dispose$, () => kill(child));
   const $ = rx.subject<t.CmdProcessEvent>();
+
   const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();
   const pid = child.pid;

@@ -11,7 +11,7 @@ export const Wrangle = {
     return new Deno.Command(cmd, {
       args: input.args ?? [],
       cwd,
-      env,
+      env: { ...env, FORCE_COLOR: '1' },
       stdin,
       stdout: 'piped', // Capture the "standard" output.
       stderr: 'piped', // Capture the "error" output.
