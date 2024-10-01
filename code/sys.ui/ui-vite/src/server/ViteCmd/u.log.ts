@@ -6,7 +6,7 @@ export const Log = {
    */
   entry(pkg: t.Pkg, input: t.StringPath) {
     console.info();
-    console.info(c.gray(`Module:       ${c.white(pkg.name)}@${pkg.version}`));
+    console.info(c.gray(`Module:       ${c.white(c.bold(pkg.name))} ${pkg.version}`));
     console.info(c.brightGreen(`entry point:  ${c.gray(input)}`));
   },
 } as const;
