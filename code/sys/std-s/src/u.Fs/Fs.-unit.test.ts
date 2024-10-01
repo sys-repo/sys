@@ -66,10 +66,18 @@ describe('Fs: filesystem', () => {
 
       expect(res.ok).to.eql(false);
       expect(res.path).to.eql(path);
+      expect(res.errorReason).to.eql('NotFound');
       expect(res.error?.message).to.include('JSON file does not exist at path');
       expect(res.error?.message).to.include(path);
-      expect(res.errorReason).to.eql('NotFound');
     });
 
+    it('fail: JSON parse error', async () => {
+      const path = Fs.resolve('./README.md'); // NB: markdown not parse-able as JSON.
+      const res = await Fs.readJsonFile<t.Pkg>(path);
+      expect(res.ok).to.eql(false);
+      expect(res.path).to.eql(path);
+      expect(res.errorReason).to.eql('ParseError');
+      expect(res.error?.message).to.include('Unexpected token');
+    });
   });
 });
