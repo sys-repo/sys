@@ -20,33 +20,35 @@ describe('ViteCmd', () => {
     expect(path1).to.not.eql(path2);
   });
 
-  it('ViteCmd.build', async () => {
-    const outDir = ViteCmd.outDir.test.random();
-    const input = INPUT.sample1;
+  describe('ViteCmd.build', () => {
+    it('sample-1', async () => {
+      const outDir = ViteCmd.outDir.test.random();
+      const input = INPUT.sample1;
 
-    const res = await ViteCmd.build({ input, outDir });
-    expect(res.cmd).to.include('deno run');
-    expect(res.cmd).to.include('--node-modules-dir npm:vite');
+      const res = await ViteCmd.build({ input, outDir });
+      expect(res.cmd).to.include('deno run');
+      expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
-    const exists = await Fs.exists(res.paths.outDir);
-    expect(exists).to.eql(true);
+      const exists = await Fs.exists(res.paths.outDir);
+      expect(exists).to.eql(true);
+    });
   });
 
-  it('ViteCmd.start.dev', async () => {
-    const input = INPUT.sample1;
-    const port = Testing.randomPort();
-    const svc = ViteCmd.start.dev({ port, input });
-    await svc.whenReady();
+  describe('ViteCmd.start.dev', () => {
+    it('start → fetch(200) → dispose', async () => {
+      const input = INPUT.sample1;
+      const port = Testing.randomPort();
+      const svc = ViteCmd.start.dev({ port, input });
 
-    /**
-     * Fetch
-     */
-    await Testing.wait(1500);
-    const res = await fetch(svc.url);
-    const html = await res.text();
-    expect(res.status).to.eql(200);
-    expect(html).to.include(`<script type="module" src="./main.ts">`); // NB: .ts because in dev mode.
+      await svc.whenReady();
+      await Testing.wait(1000); // NB: wait another moment for the vite server to complete it's startup.
 
-    await svc.dispose();
+      const res = await fetch(svc.url);
+      const html = await res.text();
+      expect(res.status).to.eql(200);
+      expect(html).to.include(`<script type="module" src="./main.ts">`); // NB: ".ts" because in dev mode.
+
+      await svc.dispose();
+    });
   });
 });
