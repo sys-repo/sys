@@ -1,7 +1,5 @@
-import type { t } from '../common/mod.ts';
-
 import { expandGlob, type WalkEntry } from '@std/fs';
-import { Path } from './u.Path.ts';
+import { Path, type t } from './common.ts';
 
 /**
  * Run a glob pattern against the file-system.

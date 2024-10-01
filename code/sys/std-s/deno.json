@@ -13,7 +13,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fs": "./src/u.Filesystem/mod.ts",
+    "./fs": "./src/u.Fs/mod.ts",
     "./process": "./src/u.Process/mod.ts",
     "./httpserver": "./src/u.HttpServer/mod.ts",
     "./testing": "./src/u.Testing/mod.ts"

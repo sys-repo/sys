@@ -4,6 +4,7 @@ export type {
   Lifecycle,
   LifecycleAsync,
   Observable,
+  PathLib,
   StringPath,
   UntilObservable,
 } from '@sys/std/t';
