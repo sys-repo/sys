@@ -1,4 +1,4 @@
-import { Cmd, DEFAULTS, Path, slug, type t, c } from './common.ts';
+import { c, Cmd, DEFAULTS, Path, slug, type t } from './common.ts';
 
 const resolve = Path.resolve;
 
