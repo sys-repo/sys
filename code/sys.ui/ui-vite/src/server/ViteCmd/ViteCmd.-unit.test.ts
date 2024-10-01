@@ -8,7 +8,7 @@ describe('ViteCmd', () => {
   } as const;
 
   it('ViteCmd.outDir', () => {
-    const outDir = ViteCmd.outDir;
+    const outDir = ViteCmd.Config.outDir;
     expect(outDir.default).to.include('./dist');
 
     const path1 = outDir.test.random();
@@ -23,7 +23,7 @@ describe('ViteCmd', () => {
 
   describe('ViteCmd.build', () => {
     it('sample-1', async () => {
-      const outDir = ViteCmd.outDir.test.random();
+      const outDir = ViteCmd.Config.outDir.test.random();
       const input = INPUT.sample1;
       const res = await ViteCmd.build({ input, outDir });
 

@@ -14,23 +14,7 @@ export type ViteDevArgs = {
  * Library: Tools for running Vite via commands issued to a child process.
  */
 export type ViteCmdLib = {
-  readonly outDir: {
-    readonly default: t.StringPath;
-    readonly test: {
-      readonly base: t.StringPath;
-      random(uniq?: string): t.StringPath;
-    };
-  };
-
-  /**
-   * Prepares a set of known env-vars to hand to the child process.
-   */
-  env(options?: ViteEnvOptions): t.ViteCmdEnv;
-
-  /**
-   * Prepare paths for the vite build.
-   */
-  paths(options?: ViteEnvOptions): t.ViteCmdPaths;
+  Config: ViteCmdConfig;
 
   /**
    * Run the <vite:build> command.
@@ -56,6 +40,32 @@ export type ViteCmdLib = {
 
 export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
 export type ViteCmdEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
+
+/**
+ * Configuration options for a Vite server.
+ */
+export type ViteCmdConfig = {
+  /**
+   * The output directory path (helpers and generators).
+   */
+  readonly outDir: {
+    readonly default: t.StringPath;
+    readonly test: {
+      readonly base: t.StringPath;
+      random(uniq?: string): t.StringPath;
+    };
+  };
+
+  /**
+   * Prepares a set of known env-vars to hand to the child process.
+   */
+  env(options?: ViteEnvOptions): t.ViteCmdEnv;
+
+  /**
+   * Prepare paths for the vite build.
+   */
+  paths(options?: ViteEnvOptions): t.ViteCmdPaths;
+};
 
 export type ViteCmdRunResponse = {
   readonly ok: boolean;
