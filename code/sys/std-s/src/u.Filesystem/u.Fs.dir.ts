@@ -36,6 +36,6 @@ export const removeDir: t.RemoveDir = async (path, options = {}) => {
   await Deno.remove(path, { recursive: true });
 
   if (options.log) {
-    console.info(`${c.red('Deleted')} ${c.white(path)}`);
+    console.info(`${c.cyan('deleted')} ${c.white(path)}`);
   }
 };
