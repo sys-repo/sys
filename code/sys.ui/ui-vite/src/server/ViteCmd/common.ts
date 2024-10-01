@@ -1,4 +1,3 @@
-export { Cmd, Fs, Path } from '@sys/std-s';
 export * from '../common.ts';
 
 /**
@@ -6,10 +5,5 @@ export * from '../common.ts';
  */
 export const DEFAULTS = {
   port: 1234,
-  path: {
-    input: './index.html',
-    configFile: './src/server/ViteCmd/vite.config.ts',
-    outDir: './dist',
-    outDirTest: './.tmp/test',
-  },
+  configFile: './src/server/ViteCmd/vite.config.ts',
 } as const;

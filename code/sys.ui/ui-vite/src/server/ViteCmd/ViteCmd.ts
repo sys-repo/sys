@@ -1,6 +1,6 @@
+import { ViteConfig as Config } from '../ViteConfig/mod.ts';
 import { Cmd, DEFAULTS, type t } from './common.ts';
 import { keyboardFactory, Log } from './u.ts';
-import { Config } from './ViteCmd.Config.ts';
 
 /**
  * Tools for running Vite via commands issued to a child process.
@@ -64,7 +64,7 @@ const wrangle = {
     const VITE_OUTDIR = paths.outDir;
     const env = { VITE_INPUT, VITE_OUTDIR };
 
-    const configFile = DEFAULTS.path.configFile;
+    const configFile = DEFAULTS.configFile;
     const cmd = `deno run -A --node-modules-dir npm:vite ${arg} --config=${configFile}`;
     const args = cmd.split(' ').slice(1);
 
