@@ -9,13 +9,19 @@ export function keyboardFactory(args: { port: number; url: string; dispose: () =
 
   return async () => {
     for await (const e of keypress()) {
+      /**
+       * [O] → open the server in the local browser.
+       */
       if (e.key === 'o') {
-        sh.run(`open ${url}`); // Open on [o] key.
+        sh.run(`open ${url}`);
       }
 
+      /**
+       * [Ctrl + C] → shutdown server and exit.
+       */
       if (e.ctrlKey && e.key === 'c') {
         await dispose();
-        Deno.exit(0); // Exit on [Ctrl + C].
+        Deno.exit(0);
       }
     }
   };
