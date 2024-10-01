@@ -13,7 +13,7 @@ const deletePattern = async (pattern: string, options: { dry?: boolean } = {}) =
   for (const path of paths) {
     if (!dry) await Deno.remove(path);
 
-    let line = `${c.red('Delete')}: ${c.white(path)}`;
+    let line = `${c.cyan('delete')} ${c.white(path)}`;
     if (dry) line = `${c.bgGreen(c.white(' dry run '))} ${line}`;
     console.info(line);
   }
