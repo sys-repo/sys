@@ -33,7 +33,7 @@ export type FsLib = {
   readonly removeDir: t.RemoveDir;
 
   /* Asynchronously reads and returns the entire contents of a file as strongly-type JSON. */
-  readonly readJsonFile: t.ReadJsonFile;
+  readonly readJson: t.ReadJson;
 };
 
 /**
@@ -74,8 +74,8 @@ export type RemoveDir = (path: string, options?: { dry?: boolean; log?: boolean 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.
  */
-export type ReadJsonFile = <T>(path: string) => Promise<ReadJsonFileResponse<T>>;
-export type ReadJsonFileResponse<T> = {
+export type ReadJson = <T>(path: string) => Promise<ReadJsonResponse<T>>;
+export type ReadJsonResponse<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;
