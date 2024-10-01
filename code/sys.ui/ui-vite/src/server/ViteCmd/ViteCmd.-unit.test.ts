@@ -39,6 +39,21 @@ describe('ViteCmd', () => {
   });
 
   describe('ViteCmd.start.dev', () => {
+    /**
+     * Dev Mode: long-running child process runing the Vite server.
+     * Uses Deno's NPM compatibility layer.
+     *
+     * Command:
+     *    $ vite dev --port=1234
+     *
+     * Terminal Output:
+     *
+     *    VITE v5.4.7  ready in 350 ms
+     *
+     *    ➜  Local:   http://localhost:1234/
+     *    ➜  Network: use --host to expose
+     */
+
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
@@ -52,6 +67,7 @@ describe('ViteCmd', () => {
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.ts">`); // NB: ".ts" because in dev mode.
 
+      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
       await svc.dispose();
     });
   });
