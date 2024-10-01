@@ -1,8 +1,13 @@
 import type { t } from './common.ts';
 
 export type ViteEnvOptions = { input?: t.StringPath; outDir?: t.StringPath };
-export type ViteBuildArgs = { input: t.StringPath; outDir?: t.StringPath };
-export type ViteDevArgs = { input: t.StringPath; outDir?: t.StringPath; port?: number };
+export type ViteBuildArgs = { input: t.StringPath; outDir?: t.StringPath; silent?: boolean };
+export type ViteDevArgs = {
+  input: t.StringPath;
+  outDir?: t.StringPath;
+  port?: number;
+  silent?: boolean;
+};
 
 /**
  * Library: Tools for running Vite via commands issued to a child process.

@@ -41,8 +41,9 @@ export const ViteCmd: t.ViteCmdLib = {
    * Run the <vite:build> command.
    */
   async build(input) {
+    const { silent = true } = input;
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
-    const output = await Cmd.invoke({ args, env, silent: true });
+    const output = await Cmd.invoke({ args, env, silent });
     return {
       cmd,
       output,
@@ -59,11 +60,11 @@ export const ViteCmd: t.ViteCmdLib = {
      * Run the <vite:dev> command.
      */
     dev(input) {
-      const { port = DEFAULTS.port } = input;
+      const { port = DEFAULTS.port, silent = true } = input;
       const { env, args } = wrangle.command(input, `dev --port=${port}`);
       const url = `http://localhost:${port}/`;
 
-      const process = Cmd.spawn({ args, env, silent: false });
+      const process = Cmd.spawn({ args, env, silent });
       const { whenReady, dispose } = process;
 
       return {
