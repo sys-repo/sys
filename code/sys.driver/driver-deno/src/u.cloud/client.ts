@@ -2,4 +2,4 @@
  * @module
  * DenoCloud: Client Tools.
  */
-export * from './u.Client/mod.ts';
+export * from './u.client/mod.ts';
