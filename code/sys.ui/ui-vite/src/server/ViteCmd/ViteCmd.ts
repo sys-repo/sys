@@ -61,7 +61,7 @@ export const ViteCmd: t.ViteCmdLib = {
    *    $ vite dev --port=<1234>
    */
   dev(input) {
-    const { port = DEFAULTS.port, silent = true } = input;
+    const { port = DEFAULTS.port, silent = false } = input;
     const { env, args } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
