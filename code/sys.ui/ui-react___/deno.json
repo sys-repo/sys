@@ -9,7 +9,8 @@
     "serve": "deno run --allow-net --allow-read jsr:@std/http/file-server dist/",
     "test": "deno test -RW",
     "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run"
+    "dry": "deno publish --allow-dirty --dry-run",
+    "dev2": "deno run -RWNE --allow-run ./scripts/-start.vite-dev.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
