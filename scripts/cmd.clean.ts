@@ -6,8 +6,7 @@ type DenoJson = {
   tasks?: { clean?: string };
 };
 
-const deletePattern = async (pattern: string, options: { dry?: boolean } = {}) => {
-  const { dry } = options;
+const deletePattern = async (pattern: string, dry: boolean = false) => {
   const glob = Fs.glob();
   const paths = (await glob.find(pattern)).filter((m) => m.isFile).map((m) => m.path);
   for (const path of paths) {
