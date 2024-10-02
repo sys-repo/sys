@@ -1,14 +1,23 @@
 import { describe, expect, it, slug, type t } from '../-test.ts';
-import { Fs } from './mod.ts';
+import { Fs, Path } from './mod.ts';
 
 describe('Fs: filesystem', () => {
   const testDir = Fs.resolve('./.tmp/test');
   it('ensure test directory exists', () => Fs.ensureDir(testDir));
 
-  it('Fs.Is', () => {
-    // NB: mapped helpers (convenience).
-    expect(Fs.Is.absolute).to.equal(Fs.Path.Is.absolute);
-    expect(Fs.Is.glob).to.equal(Fs.Path.Is.glob);
+  describe('Fs.Is', () => {
+    const Is = Fs.Is;
+
+    it('has mapped Path methods', () => {
+      // NB: mapped helpers (convenience).
+      expect(Is.absolute).to.equal(Fs.Path.Is.absolute);
+      expect(Is.glob).to.equal(Fs.Path.Is.glob);
+    });
+
+    it('Is.dir', async () => {
+      expect(await Is.dir(Path.resolve('.'))).to.eql(true);
+      expect(await Is.dir(Path.resolve('./deno.json'))).to.eql(false);
+    });
   });
 
   it('Fs.glob', async () => {

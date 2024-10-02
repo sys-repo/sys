@@ -4,8 +4,8 @@ import type { t } from './common.ts';
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.
  */
-export const readJson: t.ReadJson = async <T>(path: string) => {
-  type R = t.ReadJsonResponse<T>;
+export const readJson: t.FsReadJson = async <T>(path: string) => {
+  type R = t.FsReadJsonResponse<T>;
   const targetExists = await exists(path);
 
   const fail = (errorReason: R['errorReason'], error: R['error']) => {

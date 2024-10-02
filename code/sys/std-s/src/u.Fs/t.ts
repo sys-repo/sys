@@ -9,7 +9,10 @@ export type { WalkEntry };
 /**
  * Filesystem/Path type verification flags.
  */
-export type FsIs = t.PathLib['Is'];
+export type FsIs = t.PathLib['Is'] & {
+  /* Determine if the given path points to a directory. */
+  dir(path: t.StringPath | URL): Promise<boolean>;
+};
 
 /**
  * Library: helpers for working with the file-system.
@@ -20,6 +23,9 @@ export type FsLib = {
 
   /* Filesystem/Path type verification flags. */
   readonly Is: FsIs;
+
+  /* Retrieve information about the given path. */
+  readonly stat: t.FsGetStat;
 
   /* Joins a sequence of paths, then normalizes the resulting path. */
   readonly join: typeof StdPath.join;
@@ -37,13 +43,13 @@ export type FsLib = {
   readonly ensureDir: typeof StdFs.ensureDir;
 
   /* Copy all files in a directory. */
-  readonly copyDir: t.CopyDir;
+  readonly copyDir: t.FsCopyDir;
 
   /* Delete a directory (and it's contents). */
-  readonly removeDir: t.RemoveDir;
+  readonly removeDir: t.FsRemoveDir;
 
   /* Asynchronously reads and returns the entire contents of a file as strongly-type JSON. */
-  readonly readJson: t.ReadJson;
+  readonly readJson: t.FsReadJson;
 
   /* Recursively walks through a directory and yields information about each file and directory encountered. */
   readonly walk: typeof StdFs.walk;
@@ -78,20 +84,28 @@ export type Glob = {
 };
 
 /**
+ * Retrieve information about the given path.
+ */
+export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
+
+/**
  * Copy all files in a directory.
  */
-export type CopyDir = (sourceDir: string, targetDir: string) => Promise<void>;
+export type FsCopyDir = (sourceDir: t.StringPath, targetDir: t.StringPath) => Promise<void>;
 
 /**
  * Delete a directory (and it's contents).
  */
-export type RemoveDir = (path: string, options?: { dry?: boolean; log?: boolean }) => Promise<void>;
+export type FsRemoveDir = (
+  path: string,
+  options?: { dry?: boolean; log?: boolean },
+) => Promise<void>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.
  */
-export type ReadJson = <T>(path: string) => Promise<ReadJsonResponse<T>>;
-export type ReadJsonResponse<T> = {
+export type FsReadJson = <T>(path: t.StringPath) => Promise<FsReadJsonResponse<T>>;
+export type FsReadJsonResponse<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;

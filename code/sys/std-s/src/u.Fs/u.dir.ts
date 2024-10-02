@@ -5,7 +5,7 @@ import { exists } from '@std/fs';
 /**
  * Copy all files in a directory.
  */
-export const copyDir: t.CopyDir = async (sourceDir: string, targetDir: string) => {
+export const copyDir: t.FsCopyDir = async (sourceDir: string, targetDir: string) => {
   await Deno.mkdir(targetDir, { recursive: true });
   for await (const entry of Deno.readDir(sourceDir)) {
     const srcPath = `${sourceDir}/${entry.name}`;
@@ -21,7 +21,7 @@ export const copyDir: t.CopyDir = async (sourceDir: string, targetDir: string) =
 /**
  * Delete a directory (and it's contents).
  */
-export const removeDir: t.RemoveDir = async (path, options = {}) => {
+export const removeDir: t.FsRemoveDir = async (path, options = {}) => {
   const dirExists = await exists(path);
 
   if (options.dry) {
