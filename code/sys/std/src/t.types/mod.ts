@@ -16,6 +16,8 @@ export type StringHttpHeader = string;
 export type StringHttpHeaderName = string;
 export type StringUrl = string;
 export type StringPath = string;
+export type StringDirPath = string;
+export type StringFilePath = string;
 
 /**
  * Numbers

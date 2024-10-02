@@ -25,4 +25,5 @@ export const Path: t.PathLib = {
   relative,
   dirname,
   basename,
+  asAbsolute: (path) => (Is.absolute(path) ? path : resolve(path)),
 } as const;

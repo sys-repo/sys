@@ -11,6 +11,11 @@ describe('Path', () => {
     expect(res).to.eql('src/**/*.ts');
   });
 
+  it('asAbsolute', () => {
+    expect(Path.asAbsolute('./foo')).to.eql(Path.resolve('./foo'));
+    expect(Path.asAbsolute('/foo')).to.eql('/foo');
+  });
+
   describe('Path.Is', () => {
     it('Is.absolute', () => {
       expect(Path.Is.absolute('/foo/bar')).to.eql(true);
