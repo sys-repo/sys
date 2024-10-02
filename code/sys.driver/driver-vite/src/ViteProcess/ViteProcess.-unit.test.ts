@@ -1,22 +1,22 @@
 import { Fs, Testing, describe, expect, it } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
-import { ViteCmd } from './mod.ts';
+import { ViteProcess } from './mod.ts';
 
-describe('ViteCmd', () => {
+describe('ViteProcess', () => {
   const INPUT = {
     sample1: './src/-test/vite.sample-1/index.html',
     sample2: './src/-test/vite.sample-2/index.html',
   } as const;
 
-  it('ViteCmd.Config', () => {
-    expect(ViteCmd.Config).to.equal(ViteConfig);
+  it('ViteProcess.Config', () => {
+    expect(ViteProcess.Config).to.equal(ViteConfig);
   });
 
-  describe('ViteCmd.build', () => {
+  describe('ViteProcess.build', () => {
     it('sample-1', async () => {
-      const outDir = ViteCmd.Config.outDir.test.random();
+      const outDir = ViteProcess.Config.outDir.test.random();
       const input = INPUT.sample1;
-      const res = await ViteCmd.build({ input, outDir });
+      const res = await ViteProcess.build({ input, outDir });
 
       expect(res.ok).to.eql(true);
       expect(res.cmd).to.include('deno run');
@@ -34,16 +34,16 @@ describe('ViteCmd', () => {
      *   ↑ within monorepo
      */
     it.skip('sample: monorepo imports ← Vite {resolve/alias}', async () => {
-      const outDir = ViteCmd.Config.outDir.test.random();
+      const outDir = ViteProcess.Config.outDir.test.random();
       const input = INPUT.sample2;
-      const res = await ViteCmd.build({ input, outDir });
+      const res = await ViteProcess.build({ input, outDir });
 
       console.log('res.ok', res.ok);
       console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡• ↑↓←→`);
     });
   });
 
-  describe('ViteCmd.start.dev', () => {
+  describe('ViteProcess.start.dev', () => {
     /**
      * Dev Mode: long-running child process runing the Vite server.
      * Uses Deno's NPM compatibility layer.
@@ -62,7 +62,7 @@ describe('ViteCmd', () => {
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const svc = await ViteCmd.dev({ port, input, silent: false });
+      const svc = await ViteProcess.dev({ port, input, silent: false });
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 

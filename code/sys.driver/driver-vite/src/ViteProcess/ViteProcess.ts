@@ -5,7 +5,7 @@ import { keyboardFactory, Log, plugin } from './u.ts';
 /**
  * Tools for running Vite via commands issued to a child process.
  */
-export const ViteCmd: t.ViteProcessLib = {
+export const ViteProcess: t.ViteProcessLib = {
   Config,
   plugin,
 

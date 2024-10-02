@@ -8,5 +8,5 @@
  * ```
  */
 export { Pkg, c } from './common.ts';
-export { ViteCmd } from './ViteProcess/mod.ts';
+export { ViteProcess } from './ViteProcess/mod.ts';
 export { ViteConfig } from './ViteConfig/mod.ts';

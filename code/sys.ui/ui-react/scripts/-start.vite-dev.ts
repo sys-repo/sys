@@ -1,8 +1,8 @@
 /**
  * Run in a child-process (hence the `-allow-run` requirement).
  */
-import { Pkg, ViteCmd } from './common.ts';
+import { Pkg, ViteProcess } from './common.ts';
 
 const input = './src/-test/vite.sample-1/index.html';
-const server = await ViteCmd.dev({ Pkg, input });
+const server = await ViteProcess.dev({ Pkg, input });
 await server.keyboard();

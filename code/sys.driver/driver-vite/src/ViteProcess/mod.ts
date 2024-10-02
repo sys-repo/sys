@@ -2,4 +2,4 @@
  * @module
  * Vite testing tools.
  */
-export { ViteCmd } from './ViteCmd.ts';
+export { ViteProcess } from './ViteProcess.ts';
