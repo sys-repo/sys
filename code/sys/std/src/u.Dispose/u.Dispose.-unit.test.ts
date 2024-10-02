@@ -243,27 +243,6 @@ describe('Disposable', () => {
     });
   });
 
-  describe.skip('Dispose.untilAsync', () => {
-    /**
-     * TODO 🐷
-     */
-    it('dispose: "start" → "complete"', async () => {
-      const a = Dispose.disposableAsync(async () => await Time.wait(10));
-
-      const fired: t.DisposeAsyncEvent[] = [];
-      a.dispose$.subscribe((e) => fired.push(e));
-
-      a.dispose();
-      a.dispose(); // NB: ensure the "start" event is not fired multiple times.
-
-      console.log('⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡• ↑↓←→');
-      console.log('fired', fired);
-      // expect(fired.length).to.eql(1);
-
-      await a.dispose();
-    });
-  });
-
   describe('Dispose.done', () => {
     it('fires and completes a subject', () => {
       const dispose$ = new Subject<void>();
