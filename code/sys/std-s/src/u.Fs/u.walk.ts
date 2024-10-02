@@ -10,8 +10,8 @@ export { walk };
  */
 export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
   const stat = await Deno.stat(startAt);
-  const startAtDir = stat.isDirectory ? startAt : Path.dirname(startAt);
-  let dir = Path.asAbsolute(startAtDir).replace(/[/\\]+$/, ''); // Normalize the path to remove any trailing slashes.
+  const startDir = stat.isDirectory ? startAt : Path.dirname(startAt);
+  let dir = Path.asAbsolute(startDir).replace(/[/\\]+$/, ''); // Normalize the path to remove any trailing slashes.
   let isStopped = false;
 
   const toFile = ({ name, isSymlink }: WalkEntry): t.FsWalkFile => {
@@ -25,23 +25,24 @@ export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
 
   const toPayload = (path: string): t.FsWalkUpCallbackArgs => {
     return {
-      dir,
+      stop: () => (isStopped = true),
       async files() {
         const res = await Array.fromAsync(walk(path, { includeDirs: false, maxDepth: 1 }));
         return res.map(toFile);
       },
-      stop: () => (isStopped = true),
+      dir,
     };
   };
 
   while (true) {
-    // Execute the callback with the current path
+    /**
+     * Visitor: invoke callback.
+     */
     await onVisit(toPayload(dir));
     if (isStopped) break;
 
-    // If the current path is the same as its parent, we've reached the root
     const parentDir = Path.dirname(dir);
-    if (parentDir === dir) break;
+    if (parentDir === dir) break; // NB: at root.
 
     dir = parentDir;
   }
