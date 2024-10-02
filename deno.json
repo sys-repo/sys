@@ -11,9 +11,10 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsxImportSource": "react",
+    "jsxImportSourceTypes": "@types/react"
   },
   "nodeModules": false,
   "workspace": [
