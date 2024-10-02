@@ -1,3 +1,4 @@
+import { exists } from '@std/fs';
 import { Path, type t } from './common.ts';
 
 /**
@@ -9,5 +10,8 @@ export const Is: t.FsIs = {
   /**
    * Determine if the given path points to a directory.
    */
-  dir: async (path) => (await Deno.stat(path)).isDirectory,
+  async dir(path) {
+    if (!(await exists(path))) return false;
+    return (await Deno.stat(path)).isDirectory;
+  },
 } as const;

@@ -17,6 +17,7 @@ describe('Fs: filesystem', () => {
     it('Is.dir', async () => {
       expect(await Is.dir(Path.resolve('.'))).to.eql(true);
       expect(await Is.dir(Path.resolve('./deno.json'))).to.eql(false);
+      expect(await Is.dir(Path.resolve('./404.json'))).to.eql(false); // NB: target does not exist.
     });
   });
 
