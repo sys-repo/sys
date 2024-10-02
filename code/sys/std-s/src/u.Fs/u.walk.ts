@@ -24,11 +24,13 @@ export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
   };
 
   const toPayload = (path: string): t.FsWalkUpCallbackArgs => {
+    let _files: t.FsWalkFile[] | undefined;
     return {
       stop: () => (isStopped = true),
       async files() {
+        if (_files) return _files;
         const res = await Array.fromAsync(walk(path, { includeDirs: false, maxDepth: 1 }));
-        return res.map(toFile);
+        return (_files = res.map(toFile));
       },
       dir,
     };
