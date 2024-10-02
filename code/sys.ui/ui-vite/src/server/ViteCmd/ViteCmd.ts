@@ -1,19 +1,20 @@
 import { ViteConfig as Config } from '../ViteConfig/mod.ts';
 import { Cmd, DEFAULTS, type t } from './common.ts';
-import { keyboardFactory, Log } from './u.ts';
+import { keyboardFactory, Log, plugin } from './u.ts';
 
 /**
  * Tools for running Vite via commands issued to a child process.
  */
 export const ViteCmd: t.ViteCmdLib = {
   Config,
+  plugin,
 
   /**
    * Run the <vite:build> command.
    */
   async build(input) {
     const { silent = true } = input;
-    const { env, cmd, args, paths } = await wrangle.command(input, 'build');
+    const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
     return {
       ok: output.success,
@@ -33,7 +34,7 @@ export const ViteCmd: t.ViteCmdLib = {
    */
   async dev(input) {
     const { port = DEFAULTS.port, silent = false, Pkg } = input;
-    const { env, args } = await wrangle.command(input, `dev --port=${port}`);
+    const { env, args } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
     if (!silent && Pkg) Log.entry(Pkg, input.input);
@@ -57,17 +58,19 @@ export const ViteCmd: t.ViteCmdLib = {
  * Helpers
  */
 const wrangle = {
-  async command(options: t.ViteConfigPathsOptions, arg: string) {
+  command(options: t.ViteConfigPathsOptions, arg: string) {
     const paths = Config.paths(options);
 
+    /**
+     * NB: The {env} is used to pass dynamic configuration options
+     *     to the vite configuration in the child process.
+     */
     const VITE_INPUT = paths.input;
     const VITE_OUTDIR = paths.outDir;
     const env = { VITE_INPUT, VITE_OUTDIR };
 
-    const configFile = DEFAULTS.configFile;
-    const cmd = `deno run -A --node-modules-dir npm:vite ${arg} --config=${configFile}`;
+    const cmd = `deno run -A --node-modules-dir npm:vite ${arg}`;
     const args = cmd.split(' ').slice(1);
-
     return { cmd, args, env, paths } as const;
   },
 } as const;

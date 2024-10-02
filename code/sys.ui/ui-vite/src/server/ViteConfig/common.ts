@@ -7,6 +7,6 @@ export const DEFAULTS = {
   path: {
     input: './index.html',
     outDir: './dist',
-    outDirTest: './.tmp/test',
+    outDirTesting: './.tmp/testing',
   },
 } as const;

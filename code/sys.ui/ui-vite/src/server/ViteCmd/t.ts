@@ -16,6 +16,12 @@ export type ViteCmdLib = {
   Config: t.ViteConfigLib;
 
   /**
+   * A plugin that configures the project to run in a child-process.
+   * Use this within a `vite.config.ts` in the root of the host project.
+   */
+  readonly plugin: t.ViteCmdPluginFactory;
+
+  /**
    * Run the <vite:build> command.
    */
   build(args: ViteBuildArgs): Promise<t.ViteCmdRunResponse>;
@@ -37,9 +43,18 @@ export type ViteCmdLib = {
   dev(args: ViteDevArgs): Promise<t.ViteCmdChildProcess>;
 };
 
-export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
+/**
+ * A plugin that configures the project to run in a child-process.
+ * Use this within a `vite.config.ts` in the root of the host project.
+ */
+export type ViteCmdPluginFactory = () => t.VitePluginOption;
+
+/* Environment variables passed to the child process. */
 export type ViteCmdEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
 
+/**
+ * Response from a vite command (such as `build`).
+ */
 export type ViteCmdRunResponse = {
   readonly ok: boolean;
   readonly cmd: string;
@@ -47,6 +62,9 @@ export type ViteCmdRunResponse = {
   readonly paths: ViteCmdPaths;
   toString(): string;
 };
+
+/* Paths relating to a Vite child process */
+export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
 
 /**
  * Vite Child Process.

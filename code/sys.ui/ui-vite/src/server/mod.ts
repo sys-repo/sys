@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { ViteCmd, ViteConfig } from '@sys/ui-vite/server';
+ * import { ViteCmd, ViteConfig } from '@sys/ui-vite';
  *
  */
 export { ViteCmd } from './ViteCmd/mod.ts';

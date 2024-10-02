@@ -1,4 +1,4 @@
-import { DEFAULTS, Fs, Path, slug, type t, Denofile } from './common.ts';
+import { DEFAULTS, Denofile, Path, slug, type t } from './common.ts';
 
 const resolve = Path.resolve;
 const DEF = DEFAULTS.path;
@@ -13,8 +13,11 @@ export const ViteConfig: t.ViteConfigLib = {
   outDir: {
     default: DEF.outDir,
     test: {
-      base: DEF.outDirTest,
-      random: (uniq) => `${ViteConfig.outDir.test.base}-${uniq ?? slug()}`,
+      base: DEF.outDirTesting,
+      random(uniq) {
+        const base = ViteConfig.outDir.test.base;
+        return `${base}/test-${uniq ?? slug()}`;
+      },
     },
   },
 

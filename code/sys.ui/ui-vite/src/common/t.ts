@@ -1,7 +1,12 @@
 /**
  * External
  */
-export type { Rollup, ConfigEnv as ViteConfigEnv, UserConfig as ViteUserConfig } from 'npm:vite';
+export type {
+  Rollup,
+  ConfigEnv as ViteConfigEnv,
+  UserConfig as ViteUserConfig,
+  PluginOption as VitePluginOption,
+} from 'npm:vite';
 
 /**
  * System

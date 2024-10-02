@@ -4,7 +4,8 @@
  *
  * @example
  * ```ts
- * import { ViteConfig } from '@sys/ui-vite/server';
+ * import { ViteConfig } from '@sys/ui-vite';
  * ```
  */
 export { Pkg } from './common.ts';
+export { ViteCmd, ViteConfig } from './server/mod.ts';

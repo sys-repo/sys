@@ -1,6 +1,6 @@
 import { Fs, Testing, describe, expect, it } from '../../-test.ts';
-import { ViteCmd } from './mod.ts';
 import { ViteConfig } from '../mod.ts';
+import { ViteCmd } from './mod.ts';
 
 describe('ViteCmd', () => {
   const INPUT = {
