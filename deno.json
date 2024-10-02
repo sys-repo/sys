@@ -6,6 +6,7 @@
     "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
     "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
     "clean": "deno run -RWE --allow-run=sh ./scripts/cmd.clean.ts",
+    "reload": "deno install --reload",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
   "compilerOptions": {

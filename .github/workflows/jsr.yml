@@ -57,7 +57,7 @@ jobs:
         run: |
           cd code/sys.driver/driver-vite
           deno task test
-          deno publish --dry-run
+          deno publish
 
       - name: publish module → "@sys/tmp"
         run: |
