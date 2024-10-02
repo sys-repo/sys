@@ -1,3 +1,5 @@
+import type { t } from '../common.ts';
+
 import {
   basename,
   dirname,
@@ -8,12 +10,13 @@ import {
   resolve,
   toFileUrl,
 } from '@std/path';
-import type { t } from '../common.ts';
+import { Is } from './u.Is.ts';
 
 /**
  * Helpers for working with resource paths.
  */
 export const Path: t.PathLib = {
+  Is,
   join,
   joinGlobs,
   fromFileUrl,

@@ -4,6 +4,9 @@ import type * as StdPath from '@std/path';
  * Library: helpers for working with resource paths.
  */
 export type PathLib = {
+  /* Path type verification flags. */
+  Is: PathIs;
+
   /* Joins a sequence of paths, then normalizes the resulting path. */
   join: typeof StdPath.join;
 
@@ -27,4 +30,15 @@ export type PathLib = {
 
   /* Return the last portion of a path. */
   basename: typeof StdPath.basename;
+};
+
+/**
+ * Path type verification flags.
+ */
+export type PathIs = {
+  /* Test whether the provided path is absolute. */
+  absolute: typeof StdPath.isAbsolute;
+
+  /* Test whether the given string is a glob. */
+  glob: typeof StdPath.isGlob;
 };
