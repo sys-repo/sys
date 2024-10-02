@@ -1,4 +1,5 @@
-import { DEFAULTS, Denofile, Path, slug, type t } from './common.ts';
+import { DEFAULTS, Path, slug, type t } from './common.ts';
+import { workspace } from './u.workspace.ts';
 
 const resolve = Path.resolve;
 const DEF = DEFAULTS.path;
@@ -31,9 +32,7 @@ export const ViteConfig: t.ViteConfigLib = {
   },
 
   /**
-   * Render a `deno.json` workspace into an <Info> object.
+   * Configuration helpers for performing module-resolution over a `deno.json` workspace.
    */
-  workspace(input) {
-    return Denofile.workspace(input);
-  },
+  workspace,
 } as const;

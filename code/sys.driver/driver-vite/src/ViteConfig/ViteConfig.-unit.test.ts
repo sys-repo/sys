@@ -20,14 +20,17 @@ describe('ViteConfig', () => {
 
   describe('Config.workspace', () => {
     it('load', async () => {
-      const a = await ViteConfig.workspace();
+      const a = await ViteConfig.workspace(); // NB: finds root workspace
       const b = await ViteConfig.workspace(ROOT_PATH);
-      const c = await ViteConfig.workspace(rootDenofileJson);
+      const c = await ViteConfig.workspace(rootDenofileJson); // NB: existing {object}.
+      const d = await ViteConfig.workspace(undefined, { walkup: false });
 
-      expect(a.exists).to.eql(false);
+      expect(a.exists).to.eql(true);
       expect(b.exists).to.eql(true);
       expect(c.exists).to.eql(true);
-      expect(b.paths.includes('./code/sys/std')).to.eql(true);
+      expect(a.paths.includes('./code/sys/std')).to.eql(true);
+      expect(a.paths).to.eql(b.paths);
+      expect(d.exists).to.eql(false); // NB: did not walk up to the root workspace `deno.json`
     });
   });
 });

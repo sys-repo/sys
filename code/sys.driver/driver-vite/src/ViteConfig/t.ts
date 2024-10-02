@@ -5,23 +5,28 @@ import type { t } from './common.ts';
  * https://vitejs.dev/config
  */
 export type ViteConfigLib = {
-  /**
-   * The output directory path (helpers and generators).
-   */
+  /* The output directory path (helpers and generators). */
   readonly outDir: t.ViteConfigOutDir;
 
-  /**
-   * Prepare paths for the vite build.
-   */
+  /* Prepare paths for the vite build. */
   paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
 
-  /**
-   * Render a `deno.json` workspace into an <Info> object.
-   */
-  workspace(denofile?: t.StringPath | t.DenofileJson): Promise<t.DenoWorkspace>;
+  /* Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
+  readonly workspace: t.ViteConfigWorkspaceFactory;
 };
 
-/* Param inputs */
+/**
+ * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
+ */
+export type ViteConfigWorkspaceFactory = (
+  denofile?: t.StringPath | t.DenofileJson,
+  options?: t.ViteConfigWorkspaceOptions,
+) => Promise<t.ViteDenoWorkspace>;
+
+/* Options from the {config.workspace} method. */
+export type ViteConfigWorkspaceOptions = { walkup?: boolean };
+
+/* Paths params inputs. */
 export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
 
 /**
@@ -41,4 +46,18 @@ export type ViteConfigOutDir = {
 export type ViteConfigPaths = {
   input: t.StringPath;
   outDir: t.StringPath;
+};
+
+/**
+ * Vite/Deno workspace
+ */
+export type ViteDenoWorkspace = t.DenoWorkspace & {
+  resolution: t.ViteDenoWorkspaceResolution;
+};
+
+/**
+ * Resolution/alias lookup for modules acrowss workspace.
+ */
+export type ViteDenoWorkspaceResolution = {
+  alias: t.ViteAlias[];
 };
