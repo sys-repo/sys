@@ -3,17 +3,30 @@ import { Path, type t } from './common.ts';
 /**
  * Configuration plugin.
  */
-export const plugin: t.VitePluginFactory = () => {
+export const plugin: t.VitePluginFactory = (modify) => {
   return {
     name: 'vite-plugin-sys',
-    config(config, _env) {
+    config(config, env) {
       const input = wrangle.path('VITE_INPUT');
       const outDir = wrangle.path('VITE_OUTDIR');
       const root = Path.dirname(input);
 
+      /**
+       * Base
+       */
       config.root = root;
       config.base = './';
 
+      /**
+       * Server
+       */
+      const server = config.server || (config.server = {});
+      server.fs = { allow: ['..'] };
+
+
+      /**
+       * Build: Rollup Options.
+       */
       const build = config.build || (config.build = {});
       build.emptyOutDir = true;
       build.outDir = Path.relative(root, outDir);
@@ -25,6 +38,11 @@ export const plugin: t.VitePluginFactory = () => {
           assetFileNames: 'assets/a.[hash].[ext]', //  |←  a.<hash> == "asset"
         },
       };
+
+      /**
+       * Run callback for any further modifications
+       */
+      modify?.({ config, env });
     },
   };
 };
