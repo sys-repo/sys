@@ -13,7 +13,11 @@ describe('ViteProcess', () => {
   });
 
   describe('ViteProcess.build', () => {
-    it('sample-1', async () => {
+    /**
+     *  local monorepo import: Module-A  ←  Module-B
+     *  (see sample source)
+     */
+    it('sample: monorepo imports ← Vite {resolve/alias}', async () => {
       const outDir = ViteProcess.Config.outDir.test.random();
       const input = INPUT.sample1;
       const res = await ViteProcess.build({ input, outDir });
@@ -24,22 +28,6 @@ describe('ViteProcess', () => {
 
       const html = await Deno.readTextFile(Fs.join(res.paths.outDir, 'index.html'));
       expect(html).to.include('<title>Sample-1</title>');
-    });
-
-    /**
-     * TODO 🐷
-     * tests that replicate the module imports/aliases in [@sys/ui-react]
-     *
-     *   import: Module-A  →   Module-B
-     *   ↑ within monorepo
-     */
-    it.skip('sample: monorepo imports ← Vite {resolve/alias}', async () => {
-      const outDir = ViteProcess.Config.outDir.test.random();
-      const input = INPUT.sample2;
-      const res = await ViteProcess.build({ input, outDir });
-
-      console.log('res.ok', res.ok);
-      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡• ↑↓←→`);
     });
   });
 
@@ -69,7 +57,7 @@ describe('ViteProcess', () => {
       const res = await fetch(svc.url);
       const html = await res.text();
       expect(res.status).to.eql(200);
-      expect(html).to.include(`<script type="module" src="./main.ts">`); // NB: ".ts" because in dev mode.
+      expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
 
       console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
       await svc.dispose();

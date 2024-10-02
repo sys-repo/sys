@@ -1,8 +1,8 @@
 /**
  * Sample: import NPM module.
  */
-import { Observable } from 'rxjs';
-console.log('Observable', Observable);
+import { Observable } from 'rxjs'; // NB: see monorepo import-map.
+console.log('import rxjs: Observable', Observable);
 
 /**
  * Sample: dynamic import (code-splitting).
