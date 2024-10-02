@@ -7,11 +7,19 @@ import type { t } from './common.ts';
 export type { WalkEntry };
 
 /**
+ * Filesystem/Path type verification flags.
+ */
+export type FsIs = t.PathLib['Is'];
+
+/**
  * Library: helpers for working with the file-system.
  */
 export type FsLib = {
   /* Helpers for working with resource paths. */
   readonly Path: t.PathLib;
+
+  /* Filesystem/Path type verification flags. */
+  readonly Is: FsIs;
 
   /* Joins a sequence of paths, then normalizes the resulting path. */
   readonly join: typeof StdPath.join;

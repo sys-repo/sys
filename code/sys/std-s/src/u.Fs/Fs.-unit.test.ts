@@ -5,6 +5,12 @@ describe('Fs: filesystem', () => {
   const testDir = Fs.resolve('./.tmp/test');
   it('ensure test directory exists', () => Fs.ensureDir(testDir));
 
+  it('Fs.Is', () => {
+    // NB: mapped helpers (convenience).
+    expect(Fs.Is.absolute).to.equal(Fs.Path.Is.absolute);
+    expect(Fs.Is.glob).to.equal(Fs.Path.Is.glob);
+  });
+
   it('Fs.glob', async () => {
     const base = Fs.resolve();
     const glob = Fs.glob(base);

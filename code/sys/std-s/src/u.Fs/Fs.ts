@@ -5,6 +5,7 @@ import { Path, type t } from './common.ts';
 import { copyDir, removeDir } from './u.dir.ts';
 import { glob } from './u.glob.ts';
 import { readJson } from './u.read.ts';
+import { Is } from './Fs.Is.ts';
 
 const { join, resolve } = Path;
 
@@ -12,6 +13,7 @@ const { join, resolve } = Path;
  * Filesystem helpers.
  */
 export const Fs: t.FsLib = {
+  Is,
   Path,
   join,
   resolve,
