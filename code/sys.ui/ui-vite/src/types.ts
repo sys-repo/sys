@@ -2,5 +2,5 @@
  * @module
  * Module Types
  */
-export type * from './server/ViteConfig/t.ts';
-export type * from './server/ViteCmd/t.ts';
+export type * from './ViteConfig/t.ts';
+export type * from './ViteCmd/t.ts';

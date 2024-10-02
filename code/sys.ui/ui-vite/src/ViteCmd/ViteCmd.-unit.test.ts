@@ -1,4 +1,4 @@
-import { Fs, Testing, describe, expect, it } from '../../-test.ts';
+import { Fs, Testing, describe, expect, it } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { ViteCmd } from './mod.ts';
 
@@ -26,6 +26,13 @@ describe('ViteCmd', () => {
       expect(html).to.include('<title>Sample-1</title>');
     });
 
+    /**
+     * TODO 🐷
+     * tests that replicate the module imports/aliases in [@sys/ui-react]
+     *
+     *   import: Module-A  →   Module-B
+     *   ↑ within monorepo
+     */
     it.skip('sample: monorepo imports ← Vite {resolve/alias}', async () => {
       const outDir = ViteCmd.Config.outDir.test.random();
       const input = INPUT.sample2;

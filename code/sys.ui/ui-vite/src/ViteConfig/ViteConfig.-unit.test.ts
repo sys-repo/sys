@@ -1,4 +1,4 @@
-import { describe, expect, it, rootDenofileJson } from '../../-test.ts';
+import { describe, expect, it, rootDenofileJson } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('ViteConfig', () => {
