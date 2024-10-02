@@ -12,19 +12,19 @@ export type ViteDevArgs = {
 /**
  * Library: Tools for running Vite via commands issued to a child process.
  */
-export type ViteCmdLib = {
+export type ViteProcessLib = {
   Config: t.ViteConfigLib;
 
   /**
    * A plugin that configures the project to run in a child-process.
    * Use this within a `vite.config.ts` in the root of the host project.
    */
-  readonly plugin: t.ViteCmdPluginFactory;
+  readonly plugin: t.VitePluginFactory;
 
   /**
    * Run the <vite:build> command.
    */
-  build(args: ViteBuildArgs): Promise<t.ViteCmdRunResponse>;
+  build(args: ViteBuildArgs): Promise<t.ViteRunResponse>;
 
   /**
    * Run the <vite:build> command.
@@ -40,40 +40,37 @@ export type ViteCmdLib = {
    *    ➜  Local:   http://localhost:1234/
    *    ➜  Network: use --host to expose
    */
-  dev(args: ViteDevArgs): Promise<t.ViteCmdChildProcess>;
+  dev(args: ViteDevArgs): Promise<t.ViteProcess>;
+};
+
+/**
+ * Vite Child Process.
+ * A long running process, for instance when running: "$ vite dev"
+ */
+export type ViteProcess = {
+  readonly proc: t.CmdProcessHandle;
+  readonly port: number;
+  readonly url: t.StringPath;
+  keyboard(): Promise<void>;
+  dispose(): Promise<void>;
 };
 
 /**
  * A plugin that configures the project to run in a child-process.
  * Use this within a `vite.config.ts` in the root of the host project.
  */
-export type ViteCmdPluginFactory = () => t.VitePluginOption;
+export type VitePluginFactory = () => t.VitePluginOption;
 
 /* Environment variables passed to the child process. */
-export type ViteCmdEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
+export type ViteProcessEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
 
 /**
  * Response from a vite command (such as `build`).
  */
-export type ViteCmdRunResponse = {
+export type ViteRunResponse = {
   readonly ok: boolean;
   readonly cmd: string;
   readonly output: t.CmdOutput;
-  readonly paths: ViteCmdPaths;
+  readonly paths: t.ViteConfigPaths;
   toString(): string;
-};
-
-/* Paths relating to a Vite child process */
-export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
-
-/**
- * Vite Child Process.
- * A long running process, for instance when running: "$ vite dev"
- */
-export type ViteCmdChildProcess = {
-  readonly proc: t.CmdProcessHandle;
-  readonly port: number;
-  readonly url: t.StringPath;
-  keyboard(): Promise<void>;
-  dispose(): Promise<void>;
 };

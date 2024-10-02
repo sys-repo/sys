@@ -1,6 +1,6 @@
 import { Path, type t } from './common.ts';
 
-export const plugin: t.ViteCmdPluginFactory = () => {
+export const plugin: t.VitePluginFactory = () => {
   return {
     name: 'vite-plugin-sys',
     config(config, _env) {

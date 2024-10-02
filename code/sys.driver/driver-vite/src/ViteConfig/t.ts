@@ -13,7 +13,7 @@ export type ViteConfigLib = {
   /**
    * Prepare paths for the vite build.
    */
-  paths(options?: t.ViteConfigPathsOptions): t.ViteCmdPaths;
+  paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
 
   /**
    * Render a `deno.json` workspace into an <Info> object.
@@ -33,4 +33,12 @@ export type ViteConfigOutDir = {
     readonly base: t.StringPath;
     random(uniq?: string): t.StringPath;
   };
+};
+
+/**
+ * Paths relating to a Vite child process.
+ */
+export type ViteConfigPaths = {
+  input: t.StringPath;
+  outDir: t.StringPath;
 };
