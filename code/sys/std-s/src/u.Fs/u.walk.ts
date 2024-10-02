@@ -44,6 +44,6 @@ export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
     const parentDir = Path.dirname(dir);
     if (parentDir === dir) break; // NB: at root.
 
-    dir = parentDir;
+    dir = parentDir; // ← step-up.
   }
 };
