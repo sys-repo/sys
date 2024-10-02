@@ -29,7 +29,7 @@ export type ViteProcessLib = {
   /**
    * Run the <vite:build> command.
    */
-  build(args: ViteBuildArgs): Promise<t.ViteRunResponse>;
+  build(args: ViteBuildArgs): Promise<t.ViteBuildResponse>;
 
   /**
    * Run the <vite:build> command.
@@ -64,24 +64,31 @@ export type ViteProcess = {
  * A plugin that configures the project to run in a child-process.
  * Use this within a `vite.config.ts` in the root of the host project.
  */
-export type VitePluginFactory = (modify?: t.VitePluginModifier) => t.VitePluginOption;
+export type VitePluginFactory = (args?: t.VitePluginFactoryArgs) => t.VitePluginOption;
 
-export type VitePluginModifier = (e: t.VitePluginModifierArgs) => void;
-export type VitePluginModifierArgs = {
+export type VitePluginFactoryArgs = {
+  modify?: t.VitePluginCallback;
+};
+
+export type VitePluginCallback = (e: t.VitePluginCallbackArgs) => void;
+export type VitePluginCallbackArgs = {
   readonly config: t.ViteUserConfig;
   readonly env: t.ViteConfigEnv;
 };
 
 /* Environment variables passed to the child process. */
-export type ViteProcessEnv = { VITE_OUTDIR: string; VITE_INPUT: string };
+export type ViteProcessEnv = {
+  VITE_OUTDIR: string;
+  VITE_INPUT: string;
+};
 
 /**
  * Response from a vite command (such as `build`).
  */
-export type ViteRunResponse = {
+export type ViteBuildResponse = {
   readonly ok: boolean;
   readonly cmd: string;
   readonly output: t.CmdOutput;
   readonly paths: t.ViteConfigPaths;
-  toString(): string;
+  toString(options?: { pad?: boolean }): string;
 };
