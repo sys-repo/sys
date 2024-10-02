@@ -1,5 +1,6 @@
 import { ensureDir, exists } from '@std/fs';
 
+import { walk, walkUp } from './u.walk.ts';
 import { Path, type t } from './common.ts';
 import { copyDir, removeDir } from './u.dir.ts';
 import { glob } from './u.glob.ts';
@@ -12,12 +13,16 @@ const { join, resolve } = Path;
  */
 export const Fs: t.FsLib = {
   Path,
-  exists,
-  ensureDir,
-  glob,
   join,
   resolve,
+
+  glob,
+  exists,
+  ensureDir,
   copyDir,
   removeDir,
   readJson,
+
+  walk,
+  walkUp,
 } as const;
