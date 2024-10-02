@@ -23,7 +23,6 @@ export const Log = {
     ok: boolean;
     stdio: string;
     paths: t.ViteConfigPaths;
-    log?: boolean;
     pad?: boolean;
     Pkg?: t.Pkg;
   }) {
@@ -39,7 +38,6 @@ ${c.gray(`output: ${paths.outDir}`)}
     if (Pkg) text += c.gray(`\nmodule: ${Log.toModuleString(Pkg)}`);
 
     if (args.pad) text = `\n${text}\n`;
-    if (args.log) console.info(text);
     return text;
   },
 } as const;

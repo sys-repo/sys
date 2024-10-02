@@ -23,9 +23,9 @@ export const ViteProcess: t.ViteProcessLib = {
       output,
       paths,
       toString(options = {}) {
-        const { log, pad } = options;
+        const { pad } = options;
         const stdio = output.toString();
-        return Log.toBuiltString({ ok, stdio, paths, log, pad, Pkg });
+        return Log.toBuiltString({ ok, stdio, paths, pad, Pkg });
       },
     };
     return res;

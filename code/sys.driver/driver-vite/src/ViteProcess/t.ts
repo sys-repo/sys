@@ -1,12 +1,17 @@
 import type { t } from './common.ts';
 
-export type ViteBuildArgs = { input: t.StringPath; outDir?: t.StringPath; silent?: boolean };
+export type ViteBuildArgs = {
+  input: t.StringPath;
+  outDir?: t.StringPath;
+  silent?: boolean;
+  Pkg?: t.Pkg; // Consumer module.
+};
 export type ViteDevArgs = {
   input: t.StringPath;
   outDir?: t.StringPath;
   port?: number;
   silent?: boolean;
-  Pkg?: t.Pkg; // Host module.
+  Pkg?: t.Pkg; // Consumer module.
 };
 
 /**
