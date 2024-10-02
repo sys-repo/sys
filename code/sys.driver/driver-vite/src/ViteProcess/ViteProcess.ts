@@ -1,13 +1,12 @@
-import { ViteConfig as Config } from '../ViteConfig/mod.ts';
-import { Cmd, DEFAULTS, type t } from './common.ts';
-import { keyboardFactory, Log, plugin } from './u.ts';
+import { Cmd, DEFAULTS, ViteConfig, type t } from './common.ts';
+import { keyboardFactory, Log, workspacePlugin } from './u.ts';
 
 /**
  * Tools for running Vite via commands issued to a child process.
  */
 export const ViteProcess: t.ViteProcessLib = {
-  Config,
-  plugin,
+  Config: ViteConfig,
+  workspacePlugin,
 
   /**
    * Run the <vite:build> command.
@@ -65,15 +64,16 @@ export const ViteProcess: t.ViteProcessLib = {
  */
 const wrangle = {
   command(options: t.ViteConfigPathsOptions, arg: string) {
-    const paths = Config.paths(options);
+    const paths = ViteConfig.paths(options);
 
     /**
      * NB: The {env} is used to pass dynamic configuration options
      *     to the vite configuration in the child process.
      */
-    const VITE_INPUT = paths.input;
-    const VITE_OUTDIR = paths.outDir;
-    const env = { VITE_INPUT, VITE_OUTDIR };
+    const env = {
+      VITE_INPUT: paths.input,
+      VITE_OUTDIR: paths.outDir,
+    };
 
     const cmd = `deno run -A --node-modules-dir npm:vite ${arg}`;
     const args = cmd.split(' ').slice(1);

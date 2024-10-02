@@ -24,7 +24,7 @@ export type ViteProcessLib = {
    * A plugin that configures the project to run in a child-process.
    * Use this within a `vite.config.ts` in the root of the host project.
    */
-  readonly plugin: t.VitePluginFactory;
+  workspacePlugin: t.WorkspacePluginFactory;
 
   /**
    * Run the <vite:build> command.
@@ -64,14 +64,25 @@ export type ViteProcess = {
  * A plugin that configures the project to run in a child-process.
  * Use this within a `vite.config.ts` in the root of the host project.
  */
-export type VitePluginFactory = (args?: t.VitePluginFactoryArgs) => t.VitePluginOption;
-
-export type VitePluginFactoryArgs = {
-  modify?: t.VitePluginCallback;
+export type WorkspacePluginFactory = (
+  args?: t.WorkspacePluginFactoryArgs,
+) => Promise<t.WorkspacePlugin>;
+export type WorkspacePluginFactoryArgs = {
+  mutate?: t.ViteConfigMutate;
+  workspace?: t.DenofilePath;
 };
 
-export type VitePluginCallback = (e: t.VitePluginCallbackArgs) => void;
-export type VitePluginCallbackArgs = {
+/**
+ * A Vite plugin that prepares configuration with "standard/common" setup.
+ */
+export type WorkspacePlugin = {
+  name: string;
+  config(config: t.ViteUserConfig, env: t.ViteConfigEnv): Omit<t.ViteUserConfig, 'plugins'>;
+  workspace: t.ViteDenoWorkspace;
+};
+
+export type ViteConfigMutate = (e: t.ViteConfigMutateArgs) => void;
+export type ViteConfigMutateArgs = {
   readonly config: t.ViteUserConfig;
   readonly env: t.ViteConfigEnv;
 };

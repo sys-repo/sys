@@ -22,19 +22,21 @@ import reactPlugin from 'vite-plugin-react-swc';
 /**
  * SAMPLE: Custom plugin (no customization).
  */
-export const customizedConfig = defineConfig((_ctx) => {
-  const config = ViteProcess.plugin({
-    modify(_e) {
+export const customizedConfig = defineConfig(async (_ctx) => {
+  const workspace = await ViteProcess.workspacePlugin({
+    mutate(_e) {
       /**
        * Non-typical use (hook for future extensibility).
        * NOTE: Optional configuration modifier callback.
        *       Use this to mutate the base configuration (safe).
        */
+      const json = JSON.stringify(_e).substring(0, 40);
+      console.info(`\n🌳 (callback inside plugin) | e: ${json}...\n`);
     },
   });
 
   return {
-    plugins: [reactPlugin(), config],
+    plugins: [reactPlugin(), workspace],
   };
 });
 
@@ -42,7 +44,7 @@ export const customizedConfig = defineConfig((_ctx) => {
  * SAMPLE: Simple default (no customization).
  */
 export const simpleConfig = defineConfig((_ctx) => {
-  return { plugins: [reactPlugin(), ViteProcess.plugin()] };
+  return { plugins: [reactPlugin(), ViteProcess.workspacePlugin()] };
 });
 
 /**

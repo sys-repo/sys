@@ -1,12 +1,27 @@
-import { Path, type t } from './common.ts';
+import { Path, ViteConfig, type t } from './common.ts';
 
 /**
  * Configuration plugin.
  */
-export const plugin: t.VitePluginFactory = (modify) => {
-  return {
-    name: 'vite-plugin-sys',
-    config(config, env) {
+export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
+  const path = args?.workspace;
+  const workspace = await ViteConfig.workspace(path);
+  if (!workspace.exists) {
+    const dir = path ?? Path.resolve('.');
+    throw new Error(`A workspace could not be found: ${dir}`);
+  }
+
+  /**
+   * Workspace plugin.
+   */
+  const plugin: t.WorkspacePlugin = {
+    name: 'vite-plugin-workspace',
+    workspace,
+
+    /**
+     * Modify vite config before it's resolved.
+     */
+    config(config: t.ViteUserConfig, env: t.ViteConfigEnv) {
       const input = wrangle.path('VITE_INPUT');
       const outDir = wrangle.path('VITE_OUTDIR');
       const root = Path.dirname(input);
@@ -15,13 +30,13 @@ export const plugin: t.VitePluginFactory = (modify) => {
        * Base
        */
       config.root = root;
-      config.base = './';
+      config.base = './'; // NB: relative pathing within bundled assets, eg: src="./main...
 
       /**
        * Server
        */
       const server = config.server || (config.server = {});
-      server.fs = { allow: ['..'] };
+      server.fs = { allow: ['..'] }; // NB: allows stepping up out of the {CWD} and access other folders in the mono-repo.
 
       /**
        * Module resolution (monorepo).
@@ -46,11 +61,15 @@ export const plugin: t.VitePluginFactory = (modify) => {
       };
 
       /**
-       * Run callback for any further modifications
+       * Run callback for any further modifications to the Vite config.
+       * Directly manipulate the {config} parameter object.
        */
-      modify?.({ config, env });
+      args?.mutate?.({ config, env });
+
+      return config;
     },
   };
+  return plugin;
 };
 
 /**

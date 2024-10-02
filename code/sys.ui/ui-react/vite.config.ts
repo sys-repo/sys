@@ -4,6 +4,6 @@ import reactPlugin from 'vite-plugin-react-swc';
 
 export default defineConfig((_ctx) => {
   return {
-    plugins: [reactPlugin(), ViteProcess.plugin()],
+    plugins: [reactPlugin(), ViteProcess.workspacePlugin()],
   };
 });
