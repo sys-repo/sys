@@ -9,11 +9,11 @@ export const Paths = {
     
     // User Interface.
     'code/sys.ui/ui-react',
-    'code/sys.ui/ui-vite',
     
     // Drivers.
-    'code/sys.driver/driver-deno',
     'code/sys.driver/driver-automerge',
+    'code/sys.driver/driver-deno',
+    'code/sys.driver/driver-vite',
 
     // →| dev/null
     'code/sys.tmp',

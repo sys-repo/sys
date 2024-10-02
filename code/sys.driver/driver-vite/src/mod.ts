@@ -4,10 +4,13 @@
  *
  * @example
  * ```ts
- * import { ViteConfig } from '@sys/ui-vite';
+ * import { ViteConfig } from '@sys/driver-vite';
  * ```
  */
 export { Pkg, c } from './common.ts';
 export { ViteCmd } from './ViteCmd/mod.ts';
 export { ViteConfig } from './ViteConfig/mod.ts';
 
+/**
+ * TODO 🐷 rename: → @sys/driver-vite
+ */

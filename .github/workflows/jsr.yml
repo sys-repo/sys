@@ -41,9 +41,9 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/ui-vite"
+      - name: publish module → "@sys/driver-vite"
         run: |
-          cd code/sys.ui/ui-vite
+          cd code/sys.driver/driver-vite
           deno task test
           deno publish
 
