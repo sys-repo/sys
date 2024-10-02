@@ -6,6 +6,7 @@ export type {
   ConfigEnv as ViteConfigEnv,
   UserConfig as ViteUserConfig,
   PluginOption as VitePluginOption,
+  Alias as ViteAlias,
 } from 'npm:vite';
 
 /**
