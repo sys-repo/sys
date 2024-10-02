@@ -16,8 +16,8 @@
  *
  */
 import { ViteProcess } from '@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
-import reactPlugin from 'npm:vite-plugin-react-swc';
+import { defineConfig } from 'vite';
+import reactPlugin from 'vite-plugin-react-swc';
 
 /**
  * SAMPLE: Custom plugin (no customization).
