@@ -13,16 +13,22 @@ export const ViteProcess: t.ViteProcessLib = {
    * Run the <vite:build> command.
    */
   async build(input) {
-    const { silent = true } = input;
+    const { silent = true, Pkg } = input;
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
-    return {
-      ok: output.success,
+    const ok = output.success;
+    const res: t.ViteBuildResponse = {
+      ok,
       cmd,
       output,
       paths,
-      toString: () => output.toString(),
+      toString(options = {}) {
+        const { log, pad } = options;
+        const stdio = output.toString();
+        return Log.toBuiltString({ ok, stdio, paths, log, pad, Pkg });
+      },
     };
+    return res;
   },
 
   /**
