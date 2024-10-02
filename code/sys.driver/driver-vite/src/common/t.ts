@@ -3,16 +3,16 @@
  */
 export type {
   Rollup,
-  ConfigEnv as ViteConfigEnv,
-  UserConfig as ViteUserConfig,
-  PluginOption as VitePluginOption,
   Alias as ViteAlias,
+  ConfigEnv as ViteConfigEnv,
+  PluginOption as VitePluginOption,
+  UserConfig as ViteUserConfig,
 } from 'vite';
 
 /**
  * System
  */
-export type { DenoWorkspace, DenofileJson } from '@sys/driver-deno/t';
+export type { DenoWorkspace, DenofileJson, DenofilePath } from '@sys/driver-deno/t';
 export type { CmdOutput, CmdProcessHandle } from '@sys/std-s/t';
 export type { Pkg, StringPath, StringUrl } from '@sys/std/t';
 

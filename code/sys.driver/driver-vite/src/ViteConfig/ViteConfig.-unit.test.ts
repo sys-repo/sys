@@ -1,9 +1,7 @@
-import { describe, expect, it, rootDenofileJson } from '../-test.ts';
+import { describe, expect, it, ROOT_DENOFILE } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('ViteConfig', () => {
-  const ROOT_PATH = '../../../deno.json';
-
   it('Config.outDir', () => {
     const outDir = ViteConfig.outDir;
     expect(outDir.default).to.include('./dist');
@@ -21,8 +19,8 @@ describe('ViteConfig', () => {
   describe('Config.workspace', () => {
     it('load', async () => {
       const a = await ViteConfig.workspace(); // NB: finds root workspace
-      const b = await ViteConfig.workspace(ROOT_PATH);
-      const c = await ViteConfig.workspace(rootDenofileJson); // NB: existing {object}.
+      const b = await ViteConfig.workspace(ROOT_DENOFILE.path);
+      const c = await ViteConfig.workspace(ROOT_DENOFILE.json); // NB: existing {object}.
       const d = await ViteConfig.workspace(undefined, { walkup: false });
 
       expect(a.exists).to.eql(true);
