@@ -34,7 +34,7 @@ export type ViteCmdLib = {
    *    ➜  Local:   http://localhost:1234/
    *    ➜  Network: use --host to expose
    */
-  dev(args: ViteDevArgs): t.ViteCmdChildProcess;
+  dev(args: ViteDevArgs): Promise<t.ViteCmdChildProcess>;
 };
 
 export type ViteCmdPaths = { input: t.StringPath; outDir: t.StringPath };
@@ -56,7 +56,6 @@ export type ViteCmdChildProcess = {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly url: t.StringPath;
-  readonly whenReady: t.CmdProcessHandle['whenReady'];
   keyboard(): Promise<void>;
   dispose(): Promise<void>;
 };

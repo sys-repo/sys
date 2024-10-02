@@ -13,7 +13,7 @@ export const ViteCmd: t.ViteCmdLib = {
    */
   async build(input) {
     const { silent = true } = input;
-    const { env, cmd, args, paths } = wrangle.command(input, 'build');
+    const { env, cmd, args, paths } = await wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
     return {
       ok: output.success,
@@ -31,22 +31,22 @@ export const ViteCmd: t.ViteCmdLib = {
    * Command:
    *    $ vite dev --port=<1234>
    */
-  dev(input) {
+  async dev(input) {
     const { port = DEFAULTS.port, silent = false, Pkg } = input;
-    const { env, args } = wrangle.command(input, `dev --port=${port}`);
+    const { env, args } = await wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
     if (!silent && Pkg) Log.entry(Pkg, input.input);
 
     const proc = Cmd.spawn({ args, env, silent });
-    const { whenReady, dispose } = proc;
+    const { dispose } = proc;
     const keyboard = keyboardFactory({ port, url, dispose });
 
+    await proc.whenReady();
     return {
       proc,
       port,
       url,
-      whenReady,
       keyboard,
       dispose,
     };
@@ -57,7 +57,7 @@ export const ViteCmd: t.ViteCmdLib = {
  * Helpers
  */
 const wrangle = {
-  command(options: t.ViteConfigPathsOptions, arg: string) {
+  async command(options: t.ViteConfigPathsOptions, arg: string) {
     const paths = Config.paths(options);
 
     const VITE_INPUT = paths.input;

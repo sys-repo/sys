@@ -31,9 +31,6 @@ describe('ViteCmd', () => {
       const input = INPUT.sample2;
       const res = await ViteCmd.build({ input, outDir });
 
-      /**
-       * TODO 🐷
-       */
       console.log('res.ok', res.ok);
       console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡• ↑↓←→`);
     });
@@ -58,10 +55,9 @@ describe('ViteCmd', () => {
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const svc = ViteCmd.dev({ port, input, silent: false });
+      const svc = await ViteCmd.dev({ port, input, silent: false });
 
-      await svc.whenReady();
-      await Testing.wait(1000); // NB: wait another moment for the vite server to complete it's startup.
+      await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 
       const res = await fetch(svc.url);
       const html = await res.text();
