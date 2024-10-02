@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-type Input = t.StringPath | t.DenofileJson;
+type SrcInput = t.StringPath | t.DenofileJson;
 
 /**
  * Library: `deno.json` file tools.
@@ -9,19 +9,24 @@ export type DenofileLib = {
   /**
    * Load a `deno.json` file at the given file path.
    */
-  load(path?: t.StringPath): Promise<t.ReadJsonResponse<t.DenofileJson>>;
+  load(path?: t.DenofilePath): Promise<t.ReadJsonResponse<t.DenofileJson>>;
 
   /**
    * Load a deno workspace.
    */
-  workspace(src?: Input, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
+  workspace(src?: SrcInput, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
 
   /**
    * Determine if the given input is a `deno.json` file
    * that contains a "workspace":[] configuration.
    */
-  isWorkspace(src?: Input): Promise<boolean>;
+  isWorkspace(src?: SrcInput): Promise<boolean>;
 };
+
+/**
+ * A file-path to a `deno.json` file.
+ */
+export type DenofilePath = t.StringPath;
 
 /**
  * A parsed `deno.json` file.
