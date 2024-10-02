@@ -1,5 +1,5 @@
 import { describe, it } from '@std/testing/bdd';
-import { expect } from 'npm:chai';
+import { expect } from 'chai';
 
 import type { t } from '../common.ts';
 

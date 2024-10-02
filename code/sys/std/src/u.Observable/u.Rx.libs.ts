@@ -13,7 +13,7 @@ export {
   scan,
   Subject,
   timer,
-} from 'npm:rxjs';
+} from 'rxjs';
 
 export {
   catchError,
@@ -27,12 +27,12 @@ export {
   tap,
   throttleTime,
   timeout,
-} from 'npm:rxjs';
+} from 'rxjs';
 
 /**
  * Alias: shorter name.
  */
-import { distinctUntilChanged } from 'npm:rxjs';
+import { distinctUntilChanged } from 'rxjs';
 export const distinctWhile = distinctUntilChanged;
 
 /**
@@ -56,4 +56,4 @@ export const distinctWhile = distinctUntilChanged;
  * the check RXJS makes of the observable that is passed into the [takeUtil] function.
  *
  */
-export { merge, takeUntil } from 'npm:rxjs';
+export { merge, takeUntil } from 'rxjs';

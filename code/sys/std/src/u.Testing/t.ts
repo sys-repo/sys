@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import type { describe, it } from '@std/testing/bdd';
-import type { expect } from 'npm:chai';
+import type { expect } from 'chai';
 
 /**
  * Testing helpers.

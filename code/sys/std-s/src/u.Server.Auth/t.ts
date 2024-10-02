@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-export type { AuthTokenClaims } from 'npm:privy/server-auth';
+export type { AuthTokenClaims } from 'privy/server-auth';
 
 /**
  * Authentication Library

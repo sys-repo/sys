@@ -1,4 +1,4 @@
-import type * as rxjs from 'npm:rxjs';
+import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
 type Event = { type: string; payload: unknown };

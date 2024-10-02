@@ -1,4 +1,4 @@
-export { flatten } from 'npm:ramda';
-export { Subject, filter, take } from 'npm:rxjs';
+export { flatten } from 'ramda';
+export { Subject, filter, take } from 'rxjs';
 
 export * from '../common.ts';

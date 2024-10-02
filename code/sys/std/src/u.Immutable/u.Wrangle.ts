@@ -1,4 +1,4 @@
-import * as FastJsonPatch from 'npm:fast-json-patch';
+import * as FastJsonPatch from 'fast-json-patch';
 
 import type { t } from './common.ts';
 export * from './u.Is.ts';

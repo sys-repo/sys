@@ -7,7 +7,7 @@ export type {
   UserConfig as ViteUserConfig,
   PluginOption as VitePluginOption,
   Alias as ViteAlias,
-} from 'npm:vite';
+} from 'vite';
 
 /**
  * System
