@@ -1,5 +1,8 @@
 import { Path, type t } from './common.ts';
 
+/**
+ * Configuration plugin.
+ */
 export const plugin: t.VitePluginFactory = () => {
   return {
     name: 'vite-plugin-sys',
@@ -7,10 +10,11 @@ export const plugin: t.VitePluginFactory = () => {
       const input = wrangle.path('VITE_INPUT');
       const outDir = wrangle.path('VITE_OUTDIR');
       const root = Path.dirname(input);
-      const build = config.build || (config.build = {});
 
       config.root = root;
       config.base = './';
+
+      const build = config.build || (config.build = {});
       build.emptyOutDir = true;
       build.outDir = Path.relative(root, outDir);
       build.rollupOptions = {
