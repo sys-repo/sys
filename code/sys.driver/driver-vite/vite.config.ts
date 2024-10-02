@@ -20,12 +20,17 @@ import { defineConfig } from 'npm:vite';
 import reactPlugin from 'npm:vite-plugin-react-swc';
 
 export default defineConfig((_ctx) => {
-  const config = ViteProcess.plugin((e) => {
+  const config = ViteProcess.plugin((_e) => {
     /**
      * NOTE: Optional configuration modifier callback.
      *       Use this to mutate the base configuration (safe).
      */
   });
+
+  /**
+   * Default plugin (no customization).
+   */
+  // const config = ViteProcess.plugin();
 
   return {
     plugins: [reactPlugin(), config],
