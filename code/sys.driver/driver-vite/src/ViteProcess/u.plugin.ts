@@ -23,7 +23,13 @@ export const plugin: t.VitePluginFactory = (modify) => {
       const server = config.server || (config.server = {});
       server.fs = { allow: ['..'] };
 
-
+      /**
+       * Module resolution (monorepo).
+       */
+      const resolve = config.resolve || (config.resolve = {});
+      resolve.alias = {
+        '@sys/tmp/ui': Path.resolve('../../sys.tmp/src/ui/mod.ts'),
+      };
       /**
        * Build: Rollup Options.
        */
@@ -34,7 +40,7 @@ export const plugin: t.VitePluginFactory = (modify) => {
         input,
         output: {
           entryFileNames: 'assets/-entry.[hash].js',
-          chunkFileNames: 'assets/c.[hash].js', //     |←  c.<hash> == "code"
+          chunkFileNames: 'assets/c.[hash].js', //     |←  c.<hash> == "code/chunk"
           assetFileNames: 'assets/a.[hash].[ext]', //  |←  a.<hash> == "asset"
         },
       };
