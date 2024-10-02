@@ -7,5 +7,7 @@
  * import { ViteConfig } from '@sys/ui-vite';
  * ```
  */
-export { Pkg } from './common.ts';
-export { ViteCmd, ViteConfig } from './server/mod.ts';
+export { Pkg, c } from './common.ts';
+export { ViteCmd } from './ViteCmd/mod.ts';
+export { ViteConfig } from './ViteConfig/mod.ts';
+
