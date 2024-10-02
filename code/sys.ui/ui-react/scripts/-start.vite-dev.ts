@@ -4,5 +4,5 @@
 import { Pkg, ViteCmd } from './common.ts';
 
 const input = './src/-test/vite.sample-1/index.html';
-const server = ViteCmd.dev({ Pkg, input });
+const server = await ViteCmd.dev({ Pkg, input });
 await server.keyboard();
