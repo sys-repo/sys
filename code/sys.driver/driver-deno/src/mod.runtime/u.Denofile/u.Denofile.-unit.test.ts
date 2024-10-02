@@ -20,6 +20,18 @@ describe('Denofile', () => {
       expect(res.json?.version).to.eql(Pkg.version);
     });
 
+    it('appends <deno.json> to path if directory is given', async () => {
+      const path1 = Fs.resolve('.');
+      const path2 = Fs.resolve('./src');
+      expect(await Fs.Is.dir(path1)).to.eql(true);
+      expect(await Fs.Is.dir(path2)).to.eql(true);
+
+      const res1 = await Denofile.load(path1);
+      const res2 = await Denofile.load(path2);
+      expect(res1.exists).to.eql(true);
+      expect(res2.exists).to.eql(false);
+    });
+
     it('not found', async () => {
       const res = await Denofile.load('./404.json');
       expect(res.exists).to.eql(false);

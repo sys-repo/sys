@@ -7,8 +7,9 @@ export const Denofile: t.DenofileLib = {
   /**
    * Load a `deno.json` file at the given file path.
    */
-  load(path) {
+  async load(path) {
     path = Fs.resolve(path ?? './deno.json');
+    if (await Fs.Is.dir(path)) path = Fs.join(path, 'deno.json');
     return Fs.readJson<t.DenofileJson>(path);
   },
 
