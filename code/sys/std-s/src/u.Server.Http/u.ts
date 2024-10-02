@@ -5,7 +5,7 @@ import { c, type t } from './common.ts';
  * meta-data about the running server and module.
  */
 export const print: t.HttpServerLib['print'] = (addr, pkg) => {
-  const port = c.bold(String(addr.port));
+  const port = c.bold(c.brightGreen(String(addr.port)));
   const host = c.green(`http://localhost:${port}/`);
   if (pkg) {
     console.info();
