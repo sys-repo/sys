@@ -14,6 +14,19 @@
  *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```
+ *
+ * Optionally, you can filter the workspace modules that are exposed
+ * to the Vite bundle:
+ *
+ * ```ts
+ * export default defineConfig((_ctx) => {
+ *   const workspace = workspacePlugin({ filter: (e) => e.subpath.startsWith('/client') });
+ *   return { plugins: [reactPlugin(), workspace] };
+ * });
+ * ```
+ *
+ * Along with the option to manulate the configuration further after the initial
+ * baseline settings have initialized, using the `mutate(e)` plugin callback.
  */
 export { Pkg, c } from './common.ts';
 export { Vite } from './m.Vite/mod.ts';
