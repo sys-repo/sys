@@ -1728,5 +1728,16 @@
     "https://esm.sh/v135/@twind/preset-tailwind@1.1.4/denonext/variants.js": "9d2310bbc179a71d88268866f1806e38d1557f1fdcf068668a14d7fbc5ce12dc",
     "https://esm.sh/v135/preact-render-to-string@6.3.1/X-ZS8q/denonext/preact-render-to-string.mjs": "bcaceb8c3938310aee3dd4f7b6f2136cf0b2b890988c2e6679485e052e76e920",
     "https://esm.sh/v135/style-vendorizer@2.2.3/denonext/style-vendorizer.mjs": "121455e7b04b631ef6463ce63cdcd29febd74d88c37713c774ceca8a1561c83d"
+  },
+  "workspace": {
+    "members": {
+      "deploy/api.db.team": {
+        "dependencies": [
+          "jsr:@sys/driver-deno-cloud@*",
+          "jsr:@sys/std-s@0.0.2",
+          "jsr:@sys/std@0.0.7"
+        ]
+      }
+    }
   }
 }
