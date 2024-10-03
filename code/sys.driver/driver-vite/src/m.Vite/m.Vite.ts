@@ -4,7 +4,7 @@ import { keyboardFactory, Log, workspacePlugin } from './u.ts';
 /**
  * Tools for running Vite via commands issued to a child process.
  */
-export const Vite: t.ViteProcessLib = {
+export const Vite: t.ViteLib = {
   Config: ViteConfig,
   workspacePlugin,
 

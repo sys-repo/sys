@@ -24,7 +24,7 @@ export type ViteDevArgs = {
 /**
  * Library: Tools for running Vite via commands issued to a child process.
  */
-export type ViteProcessLib = {
+export type ViteLib = {
   Config: t.ViteConfigLib;
 
   /**
