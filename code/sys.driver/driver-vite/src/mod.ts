@@ -26,7 +26,7 @@
  * ```
  *
  * Along with the option to manulate the configuration further after the initial
- * baseline settings have initialized, using the `mutate(e)` plugin callback.
+ * baseline settings have initialized, using the `mutate` plugin callback.
  */
 export { Pkg, c } from './common.ts';
 export { Vite } from './m.Vite/mod.ts';
