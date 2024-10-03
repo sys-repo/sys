@@ -15,18 +15,20 @@
     "@types/react": "npm:@types/react@^18.3.9",
     "@types/react-dom": "npm:@types/react-dom@^18.3.0",
 
-    "automerge": "npm:@automerge/automerge@2.2.8",
-    "automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
+    "@automerge/automerge": "npm:@automerge/automerge@2.2.8",
+    "@automerge/automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
+    "@emotion/react": "npm:@emotion/react@11.13.3",
+    "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
+    "@privy-io/server-auth": "npm:@privy-io/server-auth@1.12.2",
+    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.5.0",
+
     "chai": "npm:chai@5.1.1",
-    "cuid": "npm:@paralleldrive/cuid2@2.2.2",
     "deno/subhosting": "npm:subhosting@0.1.0-alpha.1",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
-    "privy/server-auth": "npm:@privy-io/server-auth@1.12.2",
     "ramda": "npm:ramda@0.30.1",
     "react": "npm:react@^18.2.0",
     "react-dom": "npm:react-dom@^18.2.0",
     "rxjs": "npm:rxjs@7.8.1",
-    "vite": "npm:vite@^5.2.10",
-    "vite-plugin-react-swc": "npm:@vitejs/plugin-react-swc@^3.5.0"
+    "vite": "npm:vite@^5.2.10"
   }
 }

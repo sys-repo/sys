@@ -5,7 +5,7 @@
  * @example
  * Within the `vite.config.ts` in the root of the module:
  * ```ts
- * import reactPlugin from 'vite-plugin-react-swc';
+ * import reactPlugin from '@vitejs/plugin-react-swc';
  * import { defineConfig } from 'vite';
  * import { workspacePlugin } from '@sys/driver-vite';
  *

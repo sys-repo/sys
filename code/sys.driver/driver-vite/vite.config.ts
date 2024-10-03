@@ -17,7 +17,7 @@
  */
 import { workspacePlugin } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
-import reactPlugin from 'vite-plugin-react-swc';
+import reactPlugin from '@vitejs/plugin-react-swc';
 
 /**
  * SAMPLE: Custom plugin (no customization).

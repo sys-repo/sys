@@ -1,4 +1,4 @@
-import { init as config, isCuid } from 'cuid';
+import { init as config, isCuid } from '@paralleldrive/cuid2';
 import type { t } from '../common.ts';
 
 function isFactory(length: number) {
