@@ -3,6 +3,7 @@
 .tmp
 .env
 .env.*
+.swc
 
 dist
 node_modules
