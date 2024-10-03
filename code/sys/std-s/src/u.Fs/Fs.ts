@@ -1,12 +1,14 @@
 import { ensureDir, exists } from '@std/fs';
 
-import { Path, type t } from './common.ts';
+import type { t } from './common.ts';
+import { Path } from './Fs.Path.ts';
 import { Is } from './Fs.Is.ts';
 import { copyDir, removeDir } from './u.dir.ts';
 import { glob } from './u.glob.ts';
 import { readJson } from './u.read.ts';
 import { walk, walkUp } from './u.walk.ts';
 
+export { Path };
 const { join, resolve } = Path;
 
 /**

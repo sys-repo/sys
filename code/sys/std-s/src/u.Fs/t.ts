@@ -9,9 +9,17 @@ export type { WalkEntry };
 /**
  * Filesystem/Path type verification flags.
  */
-export type FsIs = t.PathLib['Is'] & {
+export type FsIsLib = t.PathLib['Is'] & {
   /* Determine if the given path points to a directory. */
   dir(path: t.StringPath | URL): Promise<boolean>;
+};
+
+/**
+ * Library: helpers for working with resource paths with the existence of the server FS tools.
+ */
+export type FsPathLib = t.PathLib & {
+  /* Convert the path to it's parent directory if it is not already a directory target. */
+  asDir(path: t.StringPath): Promise<string>;
 };
 
 /**
@@ -19,10 +27,10 @@ export type FsIs = t.PathLib['Is'] & {
  */
 export type FsLib = {
   /* Helpers for working with resource paths. */
-  readonly Path: t.PathLib;
+  readonly Path: t.FsPathLib;
 
   /* Filesystem/Path type verification flags. */
-  readonly Is: FsIs;
+  readonly Is: FsIsLib;
 
   /* Retrieve information about the given path. */
   readonly stat: t.FsGetStat;

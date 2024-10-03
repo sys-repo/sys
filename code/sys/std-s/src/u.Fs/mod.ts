@@ -2,9 +2,7 @@
  * @module
  * Filesystem tools.
  */
-import { Fs } from './Fs.ts';
+import { Fs, Path } from './Fs.ts';
 
-export { Fs };
-export { Path } from './common.ts';
-
+export { Fs, Path };
 export default Fs;
