@@ -13,7 +13,7 @@ describe('ViteProcess', () => {
   });
 
   describe('ViteProcess.build', () => {
-    const testBuild = async (input: t.StringPath) => {
+    const testBuild = async (input: t.StringPath, expected: { title: string }) => {
       const outDir = ViteProcess.Config.outDir.test.random();
       const res = await ViteProcess.build({ input, outDir });
 
@@ -22,19 +22,19 @@ describe('ViteProcess', () => {
       expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
       const html = await Deno.readTextFile(Fs.join(res.paths.outDir, 'index.html'));
-      expect(html).to.include('<title>Sample-1</title>');
+      expect(html).to.include(`<title>${expected.title}</title>`);
     };
 
     it('sample-1: simple', async () => {
-      await testBuild(INPUT.sample1);
+      await testBuild(INPUT.sample1, { title: 'Sample-1' });
     });
 
     /**
      *  local monorepo import: Module-A ← Module-B
      *  (see sample source)
      */
-    it('sample: monorepo imports | Module-A ← Module-B', async () => {
-      await testBuild(INPUT.sample1);
+    it('sample-2: monorepo imports | Module-A ← Module-B', async () => {
+      await testBuild(INPUT.sample2, { title: 'Sample-2' });
     });
   });
 
