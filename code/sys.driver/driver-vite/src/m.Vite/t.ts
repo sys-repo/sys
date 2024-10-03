@@ -82,7 +82,7 @@ export type WorkspacePluginOptions = {
  */
 export type WorkspacePlugin = {
   name: string;
-  workspace: t.ViteDenoWorkspace;
+  ws: t.ViteDenoWorkspace;
   config(config: t.ViteUserConfig, env: t.ViteConfigEnv): Omit<t.ViteUserConfig, 'plugins'>;
 };
 

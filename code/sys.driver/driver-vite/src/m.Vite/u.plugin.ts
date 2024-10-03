@@ -18,7 +18,7 @@ export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any
    */
   const plugin: t.WorkspacePlugin = {
     name: 'vite-plugin-workspace',
-    workspace,
+    ws: workspace,
 
     /**
      * Modify vite config before it's resolved.
