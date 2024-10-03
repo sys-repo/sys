@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Foo } from '@sys/tmp/client/ui';
-import { Css } from '../../ui.css/mod.ts';
+import { Css } from '../../m.css/mod.ts';
 
 console.log('Css', Css);
 
