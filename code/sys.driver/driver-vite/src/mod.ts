@@ -15,5 +15,5 @@
  * ```
  */
 export { Pkg, c } from './common.ts';
-export { ViteProcess } from './ViteProcess/mod.ts';
-export { ViteConfig } from './ViteConfig/mod.ts';
+export { ViteProcess } from './m.ViteProcess/mod.ts';
+export { ViteConfig } from './m.ViteConfig/mod.ts';
