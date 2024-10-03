@@ -1,4 +1,4 @@
-import { describe, expect, it, ROOT } from '../-test.ts';
+import { Fs, describe, expect, it, ROOT } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('ViteConfig.workspace', () => {
@@ -14,16 +14,26 @@ describe('ViteConfig.workspace', () => {
     expect(c.exists).to.eql(false); // NB: did not walk up to the root workspace `deno.json`
   });
 
-  it('builds {alias} list', async () => {
-    const ws = await ViteConfig.workspace();
-    const map = ws.resolution.toMap();
-    const lookup = {
-      key: '@sys/tmp/ui',
-      path: ROOT.resolve('./code/sys.tmp/src/ui/mod.ts'),
-    };
+  describe('resolution {aliases}', () => {
+    it('builds {alias} list', async () => {
+      const ws = await ViteConfig.workspace();
+      const map = ws.resolution.toMap();
+      const lookup = {
+        key: '@sys/tmp/ui',
+        path: ROOT.resolve('./code/sys.tmp/src/ui/mod.ts'),
+      };
 
-    const match = ws.resolution.aliases.find((item) => item.find === lookup.key);
-    expect(match?.replacement).to.eql(lookup.path);
-    expect(map[lookup.key]).to.eql(lookup.path);
+      const match = ws.resolution.aliases.find((item) => item.find === lookup.key);
+      expect(match?.replacement).to.eql(lookup.path);
+      expect(map[lookup.key]).to.eql(lookup.path);
+    });
+
+    it('all files exist', async () => {
+      const ws = await ViteConfig.workspace();
+      for (const alias of ws.resolution.aliases) {
+        const exists = await Fs.exists(alias.replacement);
+        expect(exists).to.eql(true, alias.replacement);
+      }
+    });
   });
 });
