@@ -42,6 +42,7 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       let text = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}
+${c.gray(`input:  ${paths.input}`)}
 ${c.gray(`output: ${paths.outDir}`)}
 `.trim();
       if (Pkg) text += c.gray(`\nmodule: ${Log.module.toString(Pkg)}`);
