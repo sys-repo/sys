@@ -1,5 +1,5 @@
 import { DEFAULTS, Path, slug, type t } from './common.ts';
-import { workspace } from './u.workspace.ts';
+import { workspace } from './u.Workspace.ts';
 
 const resolve = Path.resolve;
 const DEF = DEFAULTS.path;

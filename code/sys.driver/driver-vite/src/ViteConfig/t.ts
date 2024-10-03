@@ -19,7 +19,7 @@ export type ViteConfigLib = {
  * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
  */
 export type ViteConfigWorkspaceFactory = (
-  denofile?: t.StringPath | t.DenofileJson,
+  denofile?: t.StringPath,
   options?: t.ViteConfigWorkspaceOptions,
 ) => Promise<t.ViteDenoWorkspace>;
 
@@ -59,5 +59,5 @@ export type ViteDenoWorkspace = t.DenoWorkspace & {
  * Resolution/alias lookup for modules acrowss workspace.
  */
 export type ViteDenoWorkspaceResolution = {
-  alias: t.ViteAlias[];
+  alias: Record<string, t.StringPath>;
 };

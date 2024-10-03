@@ -1,4 +1,5 @@
 export * from '../common.ts';
+export { ViteConfig } from '../ViteConfig/mod.ts';
 
 /**
  * Constants.
