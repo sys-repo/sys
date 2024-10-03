@@ -1,7 +1,5 @@
 import type { t } from '../common.ts';
 
-type SrcInput = t.StringPath | t.DenofileJson;
-
 /**
  * Library: `deno.json` file tools.
  */
@@ -14,13 +12,13 @@ export type DenofileLib = {
   /**
    * Load a deno workspace.
    */
-  workspace(src?: SrcInput, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
+  workspace(src?: t.StringPath, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
 
   /**
    * Determine if the given input is a `deno.json` file
    * that contains a "workspace":[] configuration.
    */
-  isWorkspace(src?: SrcInput): Promise<boolean>;
+  isWorkspace(src?: t.StringPath): Promise<boolean>;
 };
 
 /**
@@ -46,5 +44,6 @@ export type DenofileJson = {
  */
 export type DenoWorkspace = {
   readonly exists: boolean;
+  readonly path: t.StringPath;
   readonly paths: t.StringPath[];
 };

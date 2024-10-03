@@ -17,13 +17,13 @@ export const Denofile: t.DenofileLib = {
    * Load a deno workspace.
    * NB: pass nothing to walk up to the nearest ancestor workspace.
    */
-  async workspace(input, options = {}) {
+  async workspace(path, options = {}) {
     const { walkup = true } = options;
-    const src = await wrangle.workspaceSource(input, walkup);
-    const file = await wrangle.json(src);
+    const src = await wrangle.workspaceSource(path, walkup);
+    const file = await Denofile.load(src);
     const exists = file.exists && Array.isArray(file.json?.workspace);
     const paths = file.json?.workspace ?? [];
-    return { exists, paths };
+    return { exists, path: file.path, paths };
   },
 
   /**
@@ -31,7 +31,7 @@ export const Denofile: t.DenofileLib = {
    * that contains a "workspace":[] configuration.
    */
   async isWorkspace(input) {
-    const { exists, json } = await wrangle.json(input);
+    const { exists, json } = await Denofile.load(input);
     return exists ? Array.isArray(json?.workspace) : false;
   },
 };
@@ -40,20 +40,14 @@ export const Denofile: t.DenofileLib = {
  * Helpers
  */
 const wrangle = {
-  json(src?: t.StringPath | t.DenofileJson) {
-    if (typeof src === 'object') return { exists: true, json: src };
-    return Denofile.load(src);
-  },
-
-  async workspaceSource(src?: t.StringPath | t.DenofileJson, walkup?: boolean) {
-    if (typeof src === 'object') return src;
+  async workspaceSource(src?: t.StringPath, walkup?: boolean) {
     if (typeof src === 'string') return src;
     return walkup ? await findFirstAncestorWorkspace() : undefined;
   },
 } as const;
 
 async function findFirstAncestorWorkspace() {
-  let root: t.DenofileJson | undefined;
+  let root: t.StringPath | undefined;
   await Fs.walkUp('.', async (e) => {
     // Look for the existence of the [deno.json] file.
     const files = await e.files();
@@ -61,9 +55,9 @@ async function findFirstAncestorWorkspace() {
     if (!denofile) return;
 
     // Load the {JSON} and determine if it is a "workspace".
-    const { json } = await Denofile.load(denofile.path);
-    if (await Denofile.isWorkspace(json)) {
-      root = json;
+    const { path } = await Denofile.load(denofile.path);
+    if (await Denofile.isWorkspace(path)) {
+      root = path;
       e.stop();
     }
   });

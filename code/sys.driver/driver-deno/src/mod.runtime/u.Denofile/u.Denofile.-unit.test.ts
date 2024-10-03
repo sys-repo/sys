@@ -57,6 +57,7 @@ describe('Denofile', () => {
       const res = await Denofile.workspace(rootPath);
       expect(res.exists).to.eql(true);
       expect(res.paths.includes('./code/sys/std')).to.be.true;
+      expect(res.path).to.eql(rootPath);
     });
 
     it('from path: <undefined>  ←  (↑ first-ancestor-workspace ↑)  ←  ./deno.json', async () => {
@@ -75,13 +76,6 @@ describe('Denofile', () => {
       const res = await Denofile.workspace('./404.json');
       expect(res.exists).to.eql(false);
       expect(res.paths).to.eql([]);
-    });
-
-    it('from {json}', async () => {
-      const { json } = await Fs.readJson<t.DenofileJson>(rootPath);
-      const res = await Denofile.workspace(json!);
-      expect(res.exists).to.eql(true);
-      expect(res.paths.includes('./code/sys/std')).to.be.true;
     });
   });
 });
