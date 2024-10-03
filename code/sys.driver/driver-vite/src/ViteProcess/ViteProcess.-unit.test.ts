@@ -1,4 +1,4 @@
-import { Fs, Testing, describe, expect, it } from '../-test.ts';
+import { Fs, Testing, describe, expect, it, Time } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { ViteProcess } from './mod.ts';
 
@@ -50,7 +50,13 @@ describe('ViteProcess', () => {
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const svc = await ViteProcess.dev({ port, input, silent: false });
+      const promise = ViteProcess.dev({ port, input, silent: false });
+
+      const timer = Time.delay(() => {
+        throw new Error('test timed out');
+      });
+
+      const svc = await promise;
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 
@@ -60,6 +66,7 @@ describe('ViteProcess', () => {
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
 
       console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+      timer.cancel();
       await svc.dispose();
     });
   });
