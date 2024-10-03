@@ -29,11 +29,7 @@ describe('ViteProcess', () => {
       await testBuild(INPUT.sample1, { title: 'Sample-1' });
     });
 
-    /**
-     *  local monorepo import: Module-A ← Module-B
-     *  (see sample source)
-     */
-    it('sample-2: monorepo imports | Module-A ← Module-B', async () => {
+    it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
       await testBuild(INPUT.sample2, { title: 'Sample-2' });
     });
   });
