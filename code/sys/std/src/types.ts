@@ -20,4 +20,4 @@ export type * from './u.Testing.HttpServer/t.ts';
 export type * from './u.Testing/t.ts';
 export type * from './u.Time/t.ts';
 
-export type * from './t.types/mod.ts';
+export type * from './types/mod.ts';
