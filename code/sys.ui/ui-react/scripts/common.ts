@@ -1,2 +1,2 @@
 export { Pkg } from '../src/mod.ts';
-export { ViteProcess } from '@sys/driver-vite';
+export { Vite } from '@sys/driver-vite';

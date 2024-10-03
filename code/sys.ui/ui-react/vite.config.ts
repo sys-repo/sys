@@ -1,9 +1,9 @@
-import { ViteProcess } from '@sys/driver-vite';
+import { Vite } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
 import reactPlugin from 'vite-plugin-react-swc';
 
 export default defineConfig((_ctx) => {
-  const workspace = ViteProcess.workspacePlugin({
+  const workspace = Vite.workspacePlugin({
     filter: (e) => e.subpath.startsWith('/client'),
   });
   return {

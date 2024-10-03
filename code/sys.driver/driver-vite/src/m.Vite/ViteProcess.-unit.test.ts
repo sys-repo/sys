@@ -1,6 +1,6 @@
 import { Fs, Testing, describe, expect, it, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
-import { ViteProcess } from './mod.ts';
+import { Vite } from './mod.ts';
 
 describe('ViteProcess', () => {
   const INPUT = {
@@ -9,13 +9,13 @@ describe('ViteProcess', () => {
   } as const;
 
   it('ViteProcess.Config', () => {
-    expect(ViteProcess.Config).to.equal(ViteConfig);
+    expect(Vite.Config).to.equal(ViteConfig);
   });
 
   describe('ViteProcess.build', () => {
     const testBuild = async (input: t.StringPath) => {
-      const outDir = ViteProcess.Config.outDir.test.random();
-      const res = await ViteProcess.build({ input, outDir });
+      const outDir = Vite.Config.outDir.test.random();
+      const res = await Vite.build({ input, outDir });
       const { paths } = res;
 
       expect(res.ok).to.eql(true);
@@ -56,7 +56,7 @@ describe('ViteProcess', () => {
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const promise = ViteProcess.dev({
+      const promise = Vite.dev({
         port,
         input,
         silent: false,

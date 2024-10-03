@@ -3,4 +3,4 @@
  * Vite testing tools.
  */
 export { workspacePlugin } from './u.ts';
-export { ViteProcess } from './ViteProcess.ts';
+export { Vite } from './ViteProcess.ts';
