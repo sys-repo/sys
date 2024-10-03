@@ -1,6 +1,7 @@
 import type { RouteContext as RouteContextBase } from '@sys/std-s/types';
 import type { t } from './common.ts';
 
+type PortNumber = number;
 type DenoHttpServer = Deno.HttpServer<Deno.NetAddr>;
 
 /**
@@ -24,6 +25,7 @@ export type DenoCloudServerLib = {
   client: t.DenoCloudClientLib['client'];
   server(args: t.DenoCloudServerArgs): t.HonoApp;
   serve(options?: t.DenoCloudServeOptions): Promise<DenoHttpServer>;
+  serve(port?: PortNumber, pkg?: t.Pkg): Promise<DenoHttpServer>;
 };
 
 /**
