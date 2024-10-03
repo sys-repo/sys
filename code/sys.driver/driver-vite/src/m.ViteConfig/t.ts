@@ -19,12 +19,15 @@ export type ViteConfigLib = {
  * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
  */
 export type ViteConfigWorkspaceFactory = (
-  denofile?: t.StringPath,
   options?: t.ViteConfigWorkspaceOptions,
 ) => Promise<t.ViteDenoWorkspace>;
 
 /* Options from the {config.workspace} method. */
-export type ViteConfigWorkspaceOptions = { walkup?: boolean };
+export type ViteConfigWorkspaceOptions = {
+  denofile?: t.StringPath;
+  walkup?: boolean;
+  filter?: t.WorkspaceFilter;
+};
 
 /* Paths params inputs. */
 export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
@@ -52,17 +55,19 @@ export type ViteConfigPaths = {
  * Vite/Deno workspace helpers.
  */
 export type ViteDenoWorkspace = t.DenoWorkspace & {
-  /* The module resolution helper information. */
-  resolution: t.ViteDenoWorkspaceResolution;
-};
-
-/**
- * Module resolution information for a Deno workspace.
- */
-export type ViteDenoWorkspaceResolution = {
   /* List of known module-aliases derived from the Deno workspace. */
   readonly aliases: t.ViteAlias[];
 
   /* Convert the list of aliases into a flat map. */
-  toMap(): Record<string, t.StringPath>;
+  toAliasMap(): Record<string, t.StringPath>;
+};
+
+/**
+ * Filter a workspace of modules.
+ */
+export type WorkspaceFilter = (e: t.WorkspaceFilterArgs) => boolean;
+export type WorkspaceFilterArgs = {
+  pkg: string;
+  export: string;
+  subpath: string;
 };

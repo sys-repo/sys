@@ -4,10 +4,11 @@ import { Path, ViteConfig, type t } from './common.ts';
  * Configuration plugin.
  */
 export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
-  const path = args?.workspace;
-  const workspace = await ViteConfig.workspace(path);
+  const denofile = args?.workspace;
+  const filter = args?.filter;
+  const workspace = await ViteConfig.workspace({ denofile, filter });
   if (!workspace.exists) {
-    throw new Error(`A workspace could not be found: ${path ?? Path.resolve('.')}`);
+    throw new Error(`A workspace could not be found: ${denofile ?? Path.resolve('.')}`);
   }
 
   /**
@@ -41,7 +42,7 @@ export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
        * Module resolution (monorepo).
        */
       const resolve = config.resolve || (config.resolve = {});
-      resolve.alias = workspace.resolution.aliases;
+      resolve.alias = workspace.aliases;
 
       /**
        * Build: Rollup Options.

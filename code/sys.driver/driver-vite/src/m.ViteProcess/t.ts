@@ -77,6 +77,7 @@ export type WorkspacePluginFactory = (
 export type WorkspacePluginFactoryArgs = {
   mutate?: t.ViteConfigMutate;
   workspace?: t.DenofilePath;
+  filter?: t.WorkspaceFilter;
 };
 
 /**

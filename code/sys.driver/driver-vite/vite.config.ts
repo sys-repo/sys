@@ -15,7 +15,7 @@
  *        await server.keyboard();
  *
  */
-import { Vite } from '@sys/driver-vite';
+import { workspacePlugin } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
 import reactPlugin from 'vite-plugin-react-swc';
 
@@ -23,7 +23,7 @@ import reactPlugin from 'vite-plugin-react-swc';
  * SAMPLE: Custom plugin (no customization).
  */
 export const customizedConfig = defineConfig(async (_ctx) => {
-  const workspace = await Vite.Process.workspacePlugin({
+  const workspace = await workspacePlugin({
     filter: (e) => e.subpath.startsWith('/client'),
     mutate(e) {
       /**
@@ -46,8 +46,9 @@ export const customizedConfig = defineConfig(async (_ctx) => {
  * SAMPLE: Simple default (no customization).
  */
 export const simpleConfig = defineConfig((_ctx) => {
-  const workspace = Vite.Process.workspacePlugin();
-  return { plugins: [reactPlugin(), workspace] };
+  return {
+    plugins: [reactPlugin(), workspacePlugin()],
+  };
 });
 
 /**

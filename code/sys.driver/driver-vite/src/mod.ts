@@ -5,15 +5,17 @@
  * @example
  * Within the `vite.config.ts` in the root of the module:
  * ```ts
- * import { ViteProcess } from '@sys/driver-vite';
- * import { defineConfig } from 'vite';
  * import reactPlugin from 'vite-plugin-react-swc';
+ * import { defineConfig } from 'vite';
+ * import { workspacePlugin } from '@sys/driver-vite';
  *
  * export default defineConfig((_ctx) => {
- *   return { plugins: [reactPlugin(), ViteProcess.workspacePlugin()] };
+ *   const workspace = workspacePlugin();
+ *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```
  */
 export { Pkg, c } from './common.ts';
-export { ViteProcess } from './m.ViteProcess/mod.ts';
+export { Vite } from './m.Vite/mod.ts';
 export { ViteConfig } from './m.ViteConfig/mod.ts';
+export { ViteProcess, workspacePlugin } from './m.ViteProcess/mod.ts';

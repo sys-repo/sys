@@ -1,4 +1,4 @@
-import { Fs, Testing, describe, expect, it, Time } from '../-test.ts';
+import { Fs, Testing, describe, expect, it, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { ViteProcess } from './mod.ts';
 
@@ -13,13 +13,8 @@ describe('ViteProcess', () => {
   });
 
   describe('ViteProcess.build', () => {
-    /**
-     *  local monorepo import: Module-A  ←  Module-B
-     *  (see sample source)
-     */
-    it('sample: monorepo imports ← Vite {resolve/alias}', async () => {
+    const testBuild = async (input: t.StringPath) => {
       const outDir = ViteProcess.Config.outDir.test.random();
-      const input = INPUT.sample1;
       const res = await ViteProcess.build({ input, outDir });
 
       expect(res.ok).to.eql(true);
@@ -28,6 +23,18 @@ describe('ViteProcess', () => {
 
       const html = await Deno.readTextFile(Fs.join(res.paths.outDir, 'index.html'));
       expect(html).to.include('<title>Sample-1</title>');
+    };
+
+    it('sample-1: simple', async () => {
+      await testBuild(INPUT.sample1);
+    });
+
+    /**
+     *  local monorepo import: Module-A ← Module-B
+     *  (see sample source)
+     */
+    it('sample: monorepo imports | Module-A ← Module-B', async () => {
+      await testBuild(INPUT.sample1);
     });
   });
 
@@ -50,7 +57,11 @@ describe('ViteProcess', () => {
     it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const promise = ViteProcess.dev({ port, input, silent: false });
+      const promise = ViteProcess.dev({
+        port,
+        input,
+        silent: false,
+      });
       const svc = await promise;
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
