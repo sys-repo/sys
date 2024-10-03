@@ -29,7 +29,7 @@
 
     "./code/-samples/deno.vite-react"
   ],
-  "importMap": "./deno.imports.json",
+  "importMap": "./deno.-imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any"]
