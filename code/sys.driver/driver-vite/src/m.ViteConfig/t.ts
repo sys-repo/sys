@@ -58,6 +58,11 @@ export type ViteDenoWorkspace = t.DenoWorkspace & {
   /* List of known module-aliases derived from the Deno workspace. */
   readonly aliases: t.ViteAlias[];
 
+  /**
+   * Module filter used by the workspace (default: always returns true, not blocking).
+   */
+  readonly filter: t.WorkspaceFilter;
+
   /* Convert the list of aliases into a flat map. */
   toAliasMap(): Record<string, t.StringPath>;
 };

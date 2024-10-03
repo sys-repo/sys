@@ -1,4 +1,4 @@
-import { describe, expect, it, ROOT } from '../-test.ts';
+import { describe, expect, it, ROOT, type t } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('ViteProcess.workspacePlugin', () => {
@@ -13,6 +13,12 @@ describe('ViteProcess.workspacePlugin', () => {
       const workspace = ROOT.denofile.path;
       const plugin = await Vite.workspacePlugin({ workspace });
       expect(plugin.workspace.paths).to.eql(ROOT.denofile.json.workspace);
+    });
+
+    it('param: filter param', async () => {
+      const filter: t.WorkspaceFilter = (e) => e.subpath.startsWith('/client');
+      const plugin = await Vite.workspacePlugin(filter);
+      expect(plugin.workspace.filter).to.equal(filter);
     });
 
     it('throw: workspace not found', async () => {

@@ -7,18 +7,21 @@ type E = {
   aliases: t.ViteAlias[];
 };
 
+const defaultFilter: t.WorkspaceFilter = (e) => true;
+
 /**
  * Configuration helpers for performing module-resolution over a `deno.json` workspace.
  */
 export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
-  const { walkup = true } = options;
+  const { walkup = true, filter = defaultFilter } = options;
   const base = await Denofile.workspace(options.denofile, { walkup });
 
   const baseDir = Fs.Path.dirname(base.path);
   const aliases = await wrangle.aliases(baseDir, base.paths, options.filter);
 
-  return {
+  const api: t.ViteDenoWorkspace = {
     ...base,
+    filter,
     aliases,
     toAliasMap() {
       return aliases.reduce((acc: any, alias) => {
@@ -27,6 +30,8 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
       }, {});
     },
   };
+
+  return api;
 };
 
 /**
