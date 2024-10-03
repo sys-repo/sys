@@ -15,7 +15,7 @@
  *        await server.keyboard();
  *
  */
-import { ViteProcess } from '@sys/driver-vite';
+import { Vite } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
 import reactPlugin from 'vite-plugin-react-swc';
 
@@ -23,7 +23,8 @@ import reactPlugin from 'vite-plugin-react-swc';
  * SAMPLE: Custom plugin (no customization).
  */
 export const customizedConfig = defineConfig(async (_ctx) => {
-  const workspace = await ViteProcess.workspacePlugin({
+  const workspace = await Vite.Process.workspacePlugin({
+    filter: (e) => e.subpath.startsWith('/client'),
     mutate(e) {
       /**
        * Non-typical use (hook for future extensibility).
@@ -32,7 +33,7 @@ export const customizedConfig = defineConfig(async (_ctx) => {
        */
       const json = JSON.stringify(e).substring(0, 40);
       console.info(`\n🌳 (callback inside plugin) | e: ${json}...\n`);
-      console.log('workspace', e.workspace.resolution.toMap(), '\n');
+      console.log('workspace', e.workspace.toAliasMap(), '\n');
     },
   });
 
@@ -45,7 +46,8 @@ export const customizedConfig = defineConfig(async (_ctx) => {
  * SAMPLE: Simple default (no customization).
  */
 export const simpleConfig = defineConfig((_ctx) => {
-  return { plugins: [reactPlugin(), ViteProcess.workspacePlugin()] };
+  const workspace = Vite.Process.workspacePlugin();
+  return { plugins: [reactPlugin(), workspace] };
 });
 
 /**
