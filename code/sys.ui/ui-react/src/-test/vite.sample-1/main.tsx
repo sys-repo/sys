@@ -1,19 +1,18 @@
 import { default as Pkg } from '../../../deno.json' with { type: 'json' };
-import { Foo } from '@sys/tmp/client/ui';
 
-console.info('Pkg', Pkg);
-
-/**
- * Sample: render react component.
- */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { App } from './App.tsx';
+
+console.info('Pkg', Pkg);
+document.title = Pkg.name;
+
+/**
+ * Entry Point.
+*/
 const root = createRoot(document.getElementById('root'));
 root.render(
   <StrictMode>
-    <div>
-      <div>{`Hello World 👋`}</div>
-      <Foo />
-    </div>
+    <App/>
   </StrictMode>,
 );

@@ -2,4 +2,4 @@
  * @module
  * Module Types
  */
-export {};
+export type * from './ui.css/t.ts';

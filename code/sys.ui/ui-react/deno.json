@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./client/css": "./src/ui.css/mod.ts"
   }
 }
