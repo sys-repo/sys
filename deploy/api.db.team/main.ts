@@ -1,2 +1,4 @@
+import './u.env-patch.ts';
 import { DenoCloud } from 'jsr:@sys/driver-deno/cloud/server';
-DenoCloud.serve({ port: 8080 });
+
+DenoCloud.serve(8080);
