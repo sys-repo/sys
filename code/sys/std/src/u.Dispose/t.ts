@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
-export type IgnoredResponse = any;
-export type LifecycleStageHandler = IgnoredResponse | (() => Promise<IgnoredResponse>);
+export type LifecycleStageHandler = t.IgnoredResponse;
 
 /**
  * Toolkit for working with disposable interfaces.

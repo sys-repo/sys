@@ -6,6 +6,13 @@ export type * from './t.Object.ts';
 export type * from './t.Observable.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
+export type * from './t.Theme.ts';
+
+/**
+ * Common
+ */
+export type Falsy = false | 0 | '' | null | undefined;
+export type IgnoredResponse = any | Promise<any>;
 
 /**
  * Strings
@@ -15,6 +22,9 @@ export type StringJwt = string;
 export type StringHttpHeader = string;
 export type StringHttpHeaderName = string;
 export type StringUrl = string;
+export type StringUri = string;
+export type StringId = string;
+export type StringTx = string;
 export type StringPath = string;
 export type StringDirPath = string;
 export type StringFilePath = string;
