@@ -20,6 +20,9 @@ export type DenoCloudClient = {
   info(): Promise<t.HttpClientResponse<t.RootResponse>>;
 };
 
+/**
+ * HTTP client for the subhosting deployment cloud.
+ */
 export type DenoCloudClientSubhosting = {
   info(): Promise<t.HttpClientResponse<t.SubhostingInfo>>;
   projects(): Promise<t.HttpClientResponse<t.SubhostingProjectsInfo>>;

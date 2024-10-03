@@ -26,11 +26,18 @@ export type DenoCloudServerLib = {
   serve(options?: t.DenoCloudServeOptions): Promise<DenoHttpServer>;
 };
 
+/**
+ * Arguments passed to the HTTP server at startup.
+ */
 export type DenoCloudServerArgs = {
   env: EnvVars;
   authEnabled?: boolean;
   authLogger?: t.AuthLogger;
 };
+
+/**
+ * Options passed to simple HTTP "serve" method.
+ */
 export type DenoCloudServeOptions = {
   port?: number;
   Pkg?: t.Pkg;
@@ -41,16 +48,33 @@ export type DenoCloudServeOptions = {
  * Library: Auth.
  */
 export type AuthLib = {
+  /**
+   * Initialize the auth middleware.
+   */
   middleware(ctx: t.RouteContext, options?: t.AuthMiddlewareOptions): t.AuthMiddleware;
 };
 
+/**
+ * Middleware that manages authentication on the service.
+ */
 export type AuthMiddleware = t.HonoMiddlewareHandler<t.HonoEnv, '*'>;
+
+/**
+ * Options passed to the auth middleware.
+ */
 export type AuthMiddlewareOptions = {
   enabled?: boolean;
   logger?: t.AuthLogger;
 };
 
+/**
+ * A logger callback that write events to a log.
+ */
 export type AuthLogger = (e: AuthLogEntry) => void;
+
+/**
+ * A single auth entry submitted to a log.
+ */
 export type AuthLogEntry = {
   status: 'OK' | 'Skipped:Disabled' | 'Skipped:Allowed';
   path: string;
