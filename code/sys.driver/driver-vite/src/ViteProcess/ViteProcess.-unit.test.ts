@@ -52,7 +52,8 @@ describe('ViteProcess', () => {
       const port = Testing.randomPort();
       const promise = ViteProcess.dev({ port, input, silent: false });
 
-      const timer = Time.delay(() => {
+      const timer = Time.delay(3000, () => {
+        console.log('timed out');
         throw new Error('test timed out');
       });
 
@@ -60,7 +61,10 @@ describe('ViteProcess', () => {
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 
-      const res = await fetch(svc.url);
+      const url = svc.url;
+      console.log('fetching', url);
+
+      const res = await fetch(url);
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.

@@ -29,29 +29,29 @@ jobs:
         with:
           deno-version: v2.0.0-rc.5
 
-      - name: publish module → "@sys/std"
-        run: |
-          cd code/sys/std
-          deno task test
-          deno publish
-
-      - name: publish module → "@sys/std-s"
-        run: |
-          cd code/sys/std-s
-          deno task test
-          deno publish
-
-      - name: publish module → "@sys/driver-automerge"
-        run: |
-          cd code/sys.driver/driver-automerge
-          deno task test
-          deno publish
-
-      - name: publish module → "@sys/driver-deno"
-        run: |
-          cd code/sys.driver/driver-deno
-          deno task test
-          deno publish
+      #       - name: publish module → "@sys/std"
+      #         run: |
+      #           cd code/sys/std
+      #           deno task test
+      #           deno publish
+      #
+      #       - name: publish module → "@sys/std-s"
+      #         run: |
+      #           cd code/sys/std-s
+      #           deno task test
+      #           deno publish
+      #
+      #       - name: publish module → "@sys/driver-automerge"
+      #         run: |
+      #           cd code/sys.driver/driver-automerge
+      #           deno task test
+      #           deno publish
+      #
+      #       - name: publish module → "@sys/driver-deno"
+      #         run: |
+      #           cd code/sys.driver/driver-deno
+      #           deno task test
+      #           deno publish
 
       - name: publish module → "@sys/driver-vite"
         run: |
