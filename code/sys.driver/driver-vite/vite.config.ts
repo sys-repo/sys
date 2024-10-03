@@ -32,7 +32,7 @@ export const customizedConfig = defineConfig(async (_ctx) => {
        */
       const json = JSON.stringify(e).substring(0, 40);
       console.info(`\n🌳 (callback inside plugin) | e: ${json}...\n`);
-      console.log('workspace', e.workspace.resolution.toMap());
+      console.log('workspace', e.workspace.resolution.toMap(), '\n');
     },
   });
 
