@@ -51,26 +51,16 @@ describe('ViteProcess', () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
       const promise = ViteProcess.dev({ port, input, silent: false });
-
-      const timer = Time.delay(3000, () => {
-        console.log('timed out');
-        throw new Error('test timed out');
-      });
-
       const svc = await promise;
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 
-      const url = svc.url;
-      console.log('fetching', url);
-
-      const res = await fetch(url);
+      const res = await fetch(svc.url);
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
 
       console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
-      timer.cancel();
       await svc.dispose();
     });
   });
