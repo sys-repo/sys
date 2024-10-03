@@ -3,6 +3,7 @@ export type {
   HttpHeaders,
   HttpUrl,
   Pkg,
+  PortNumber,
   StringJwt,
   StringPath,
   StringUrl,
