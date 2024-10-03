@@ -24,14 +24,15 @@ import reactPlugin from 'vite-plugin-react-swc';
  */
 export const customizedConfig = defineConfig(async (_ctx) => {
   const workspace = await ViteProcess.workspacePlugin({
-    mutate(_e) {
+    mutate(e) {
       /**
        * Non-typical use (hook for future extensibility).
        * NOTE: Optional configuration modifier callback.
        *       Use this to mutate the base configuration (safe).
        */
-      const json = JSON.stringify(_e).substring(0, 40);
+      const json = JSON.stringify(e).substring(0, 40);
       console.info(`\n🌳 (callback inside plugin) | e: ${json}...\n`);
+      console.log('workspace', e.workspace.resolution.toMap());
     },
   });
 

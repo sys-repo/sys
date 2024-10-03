@@ -62,8 +62,7 @@ export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
        * Run callback for any further modifications to the Vite config.
        * Directly manipulate the {config} parameter object.
        */
-      args?.mutate?.({ config, env });
-
+      args?.mutate?.({ config, env, workspace });
       return config;
     },
   };

@@ -85,6 +85,7 @@ export type ViteConfigMutate = (e: t.ViteConfigMutateArgs) => void;
 export type ViteConfigMutateArgs = {
   readonly config: t.ViteUserConfig;
   readonly env: t.ViteConfigEnv;
+  readonly workspace: t.ViteDenoWorkspace;
 };
 
 /* Environment variables passed to the child process. */
