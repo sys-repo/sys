@@ -1,4 +1,4 @@
-import { Pkg } from '../../mod.ts';
+import { default as Pkg } from '../../../deno.json' with { type: 'json' };
 import { Foo } from '@sys/tmp/client/ui';
 
 console.info('Pkg', Pkg);

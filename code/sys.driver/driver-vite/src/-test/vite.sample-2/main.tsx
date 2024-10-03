@@ -1,3 +1,6 @@
+import { default as Pkg } from '../../../deno.json' with { type: 'json' };
+console.info('Pkg', Pkg);
+
 /**
  * Sample: import NPM module.
  */
@@ -13,7 +16,7 @@ dynamic.then((mod) => console.log('💦 dynmaic import', mod));
 /**
  * Sample: internal monorepo import.
  */
-import { Foo } from '@sys/tmp/ui'; // NB: imported from mono-repo, mapped in {resolve/alias} Vite config.
+import { Foo } from '@sys/tmp/client/ui'; // NB: imported from mono-repo, mapped in {resolve/alias} Vite config.
 
 /**
  * Sample: render react component.

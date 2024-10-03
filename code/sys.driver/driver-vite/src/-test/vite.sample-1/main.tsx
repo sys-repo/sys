@@ -1,3 +1,6 @@
+import { default as Pkg } from '../../../deno.json' with { type: 'json' };
+console.info('Pkg', Pkg);
+
 /**
  * Sample: render react component.
  */
