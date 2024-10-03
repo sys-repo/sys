@@ -1,11 +1,18 @@
 import type { t } from './common.ts';
 
+/**
+ * Arguments passed to the [.build] method.
+ */
 export type ViteBuildArgs = {
   input: t.StringPath;
   outDir?: t.StringPath;
   silent?: boolean;
   Pkg?: t.Pkg; // Consumer module.
 };
+
+/**
+ * Arguments passed to the [.dev] method.
+ */
 export type ViteDevArgs = {
   input: t.StringPath;
   outDir?: t.StringPath;
@@ -81,17 +88,26 @@ export type WorkspacePlugin = {
   workspace: t.ViteDenoWorkspace;
 };
 
+/**
+ * Function that mutates a configuration upon callback.
+ */
 export type ViteConfigMutate = (e: t.ViteConfigMutateArgs) => void;
+
+/**
+ * Arguments passed to the configuration mutation callback.
+ */
 export type ViteConfigMutateArgs = {
   readonly config: t.ViteUserConfig;
   readonly env: t.ViteConfigEnv;
   readonly workspace: t.ViteDenoWorkspace;
 };
 
-/* Environment variables passed to the child process. */
+/**
+ * Environment variables passed to the child process.
+ */
 export type ViteProcessEnv = {
-  VITE_OUTDIR: string;
   VITE_INPUT: string;
+  VITE_OUTDIR: string;
 };
 
 /**
