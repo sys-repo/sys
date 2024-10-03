@@ -21,9 +21,24 @@ export type RouteContext = RouteContextBase & { env: EnvVars };
  * Library: Server for working with the Deno cloud.
  */
 export type DenoCloudServerLib = {
+  /**
+   * Retrieve the evironent vars, loaded via a .env file of from the running proecss.
+   */
   env(): Promise<t.EnvVars>;
+
+  /**
+   * Create a new HTTP client for interacting with the server.
+   */
   client: t.DenoCloudClientLib['client'];
+
+  /**
+   * Create an instance of the HTTP server.
+   */
   server(args: t.DenoCloudServerArgs): t.HonoApp;
+
+  /**
+   * Create and start the HTTP server (by passing to Deno.serve).
+   */
   serve(options?: t.DenoCloudServeOptions): Promise<DenoHttpServer>;
   serve(port?: PortNumber, pkg?: t.Pkg): Promise<DenoHttpServer>;
 };
