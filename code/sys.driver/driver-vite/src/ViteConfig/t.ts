@@ -49,15 +49,20 @@ export type ViteConfigPaths = {
 };
 
 /**
- * Vite/Deno workspace
+ * Vite/Deno workspace helpers.
  */
 export type ViteDenoWorkspace = t.DenoWorkspace & {
+  /* The module resolution helper information. */
   resolution: t.ViteDenoWorkspaceResolution;
 };
 
 /**
- * Resolution/alias lookup for modules acrowss workspace.
+ * Module resolution information for a Deno workspace.
  */
 export type ViteDenoWorkspaceResolution = {
-  alias: Record<string, t.StringPath>;
+  /* List of known module-aliases derived from the Deno workspace. */
+  readonly aliases: t.ViteAlias[];
+
+  /* Convert the list of aliases into a flat map. */
+  toMap(): Record<string, t.StringPath>;
 };

@@ -1,4 +1,11 @@
-import { Denofile, Fs, type t } from './common.ts';
+import { Denofile, Fs, R, type t } from './common.ts';
+
+type E = {
+  exists: boolean;
+  module: string;
+  config: t.StringPath;
+  aliases: t.ViteAlias[];
+};
 
 /**
  * Configuration helpers for performing module-resolution over a `deno.json` workspace.
@@ -6,58 +13,72 @@ import { Denofile, Fs, type t } from './common.ts';
 export const workspace: t.ViteConfigWorkspaceFactory = async (input, options = {}) => {
   const { walkup = true } = options;
   const base = await Denofile.workspace(input, { walkup });
-
-  const alias = await wrangle.alias(Fs.Path.dirname(base.path), base.paths);
-  const resolution: t.ViteDenoWorkspaceResolution = { alias };
-
+  const aliases = await wrangle.aliases(Fs.Path.dirname(base.path), base.paths);
   return {
     ...base,
-    resolution,
+
+    /**
+     * Workspace module resolution helpers.
+     */
+    resolution: {
+      aliases,
+      toMap() {
+        return aliases.reduce((acc: any, alias) => {
+          acc[String(alias.find)] = alias.replacement;
+          return acc;
+        }, {});
+      },
+    },
   };
 };
 
 /**
  * Helpers
  */
-type WorkspaceExports = {
-  exists: boolean;
-  module: string;
-  config: t.StringPath;
-  alias: Record<string, t.StringPath>;
-};
 
 const wrangle = {
-  async alias(base: t.StringDirPath, workspacePaths: t.StringPath[]) {
-    const exports = await wrangle.modulesExports(base, workspacePaths);
-    let res: t.ViteDenoWorkspaceResolution['alias'] = {};
-    exports.forEach((item) => (res = { ...res, ...item.alias }));
-    return res;
+  async aliases(base: t.StringDirPath, workspacePaths: t.StringPath[]) {
+    const exports = await wrangle.modules(base, workspacePaths);
+    return exports.reduce<t.ViteAlias[]>((acc, next) => {
+      acc.push(...next.aliases);
+      return acc;
+    }, []);
   },
 
-  async modulesExports(base: t.StringDirPath, workspacePaths: t.StringPath[]) {
-    const wait = workspacePaths.map((dir) => wrangle.moduleExports(base, dir));
+  async modules(base: t.StringDirPath, workspacePaths: t.StringPath[]) {
+    const wait = workspacePaths.map((dir) => wrangle.exports(base, dir));
     const res = await Array.fromAsync(wait);
     return res
       .filter((item) => item.exists)
       .filter((item) => item.module) // NB: filter out unmamed modules.
-      .filter((item) => Object.keys(item.alias).length > 0); // Filter out modules that don't provide exports.
+      .filter((item) => item.aliases.length > 0); // Filter out modules that don't provide exports.
   },
 
-  async moduleExports(base: t.StringPath, dir: t.StringPath) {
+  async exports(base: t.StringPath, dir: t.StringPath) {
     const config = Fs.join(base, dir, 'deno.json');
     const { exists, json } = await Denofile.load(config);
     const module = json?.name ?? '';
-
-    const alias = {};
+    const list: t.ViteAlias[] = [];
     if (json?.exports) {
       Object.entries(json.exports).forEach(([key, value]) => {
-        const field = Fs.join(module, key);
-        const target = Fs.join(base, dir, value);
-        (alias as any)[field] = target;
+        const find = Fs.join(module, key);
+        const replacement = Fs.join(base, dir, value);
+        list.push({ find, replacement });
       });
     }
-
-    const res: WorkspaceExports = { module, config, alias, exists };
+    const aliases = wrangle.sortedAliases(list);
+    const res: E = { module, config, aliases, exists };
     return res;
+  },
+
+  sortedAliases(list: t.ViteAlias[]) {
+    /**
+     * NB: ordered longest → shortest so that the most specific
+     *     export-names are matched first so that more general names
+     *     are not prematurely matched and returned by Vite/Rollup.
+     */
+    const length = (alias: t.ViteAlias) => String(alias.find).length;
+    const compare = (a: t.ViteAlias, b: t.ViteAlias) => length(b) - length(a);
+    return R.sort<t.ViteAlias>(compare, list);
   },
 } as const;

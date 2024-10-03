@@ -7,8 +7,7 @@ export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
   const path = args?.workspace;
   const workspace = await ViteConfig.workspace(path);
   if (!workspace.exists) {
-    const dir = path ?? Path.resolve('.');
-    throw new Error(`A workspace could not be found: ${dir}`);
+    throw new Error(`A workspace could not be found: ${path ?? Path.resolve('.')}`);
   }
 
   /**
@@ -42,9 +41,8 @@ export const workspacePlugin: t.WorkspacePluginFactory = async (args) => {
        * Module resolution (monorepo).
        */
       const resolve = config.resolve || (config.resolve = {});
-      resolve.alias = {
-        '@sys/tmp/ui': Path.resolve('../../sys.tmp/src/ui/mod.ts'),
-      };
+      resolve.alias = workspace.resolution.aliases;
+
       /**
        * Build: Rollup Options.
        */

@@ -16,10 +16,14 @@ describe('ViteConfig.workspace', () => {
 
   it('builds {alias} list', async () => {
     const ws = await ViteConfig.workspace();
-    const alias = ws.resolution.alias;
+    const map = ws.resolution.toMap();
+    const lookup = {
+      key: '@sys/tmp/ui',
+      path: ROOT.resolve('./code/sys.tmp/src/ui/mod.ts'),
+    };
 
-    const a = alias['@sys/tmp/ui'];
-    const b = ROOT.resolve('./code/sys.tmp/src/ui/mod.ts');
-    expect(a).to.eql(b);
+    const match = ws.resolution.aliases.find((item) => item.find === lookup.key);
+    expect(match?.replacement).to.eql(lookup.path);
+    expect(map[lookup.key]).to.eql(lookup.path);
   });
 });
