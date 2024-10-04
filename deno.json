@@ -6,9 +6,10 @@
     "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
     "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
     "clean": "deno run -RWE --allow-run=sh ./scripts/cmd.clean.ts",
-    "reload": "deno install --reload",
+    "reload": "rm -rf node_modules && deno install --reload",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
+  "nodeModulesDir": "auto",
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
@@ -16,7 +17,6 @@
     "jsxImportSource": "@emotion/react",
     "jsxImportSourceTypes": "@emotion/react"
   },
-  "nodeModules": false,
   "workspace": [
     "./code/sys/std",
     "./code/sys/std-s",
