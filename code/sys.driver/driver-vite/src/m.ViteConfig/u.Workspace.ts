@@ -1,4 +1,5 @@
-import { Denofile, Fs, R, type t } from './common.ts';
+import { Denofile, Fs, Path, R, type t } from './common.ts';
+import { Log } from './u.ts';
 
 type E = {
   exists: boolean;
@@ -7,17 +8,14 @@ type E = {
   aliases: t.ViteAlias[];
 };
 
-const defaultFilter: t.WorkspaceFilter = (e) => true;
-
 /**
  * Configuration helpers for performing module-resolution over a `deno.json` workspace.
  */
 export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
-  const { walkup = true, filter = defaultFilter } = options;
+  const { walkup = true, filter } = options;
   const base = await Denofile.workspace(options.denofile, { walkup });
-
-  const baseDir = Fs.Path.dirname(base.path);
-  const aliases = await wrangle.aliases(baseDir, base.paths, options.filter);
+  const baseDir = Path.dirname(base.path);
+  const aliases = await wrangle.aliases(baseDir, base.paths, filter);
 
   const api: t.ViteDenoWorkspace = {
     ...base,
@@ -29,6 +27,9 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
         return acc;
       }, {});
     },
+    toString(options = {}) {
+      return Log.Workspace.toString(api, options);
+    },
   };
 
   return api;
@@ -37,7 +38,6 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
 /**
  * Helpers
  */
-
 const wrangle = {
   async aliases(
     baseDir: t.StringDirPath,

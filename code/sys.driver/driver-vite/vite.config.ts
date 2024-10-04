@@ -24,16 +24,21 @@ import reactPlugin from '@vitejs/plugin-react-swc';
  */
 export const customizedConfig = defineConfig(async (_ctx) => {
   const workspace = await workspacePlugin({
+    /**
+     * ƒ(🌳): Filter to apply to the workspace modules
+     *       (default: nothing filtered → ie. the entire monorepo is available for `import`).
+     */
     filter: (e) => e.subpath.startsWith('/client'),
+
+    /**
+     * ƒ(🌳): Callback to mutate the generated Vite configuration before
+     *        it is passed on to the next step in the bundle pipeline
+     */
     mutate(e) {
-      /**
-       * Non-typical use (hook for future extensibility).
-       * NOTE: Optional configuration modifier callback.
-       *       Use this to mutate the base configuration (safe).
-       */
-      const json = JSON.stringify(e).substring(0, 40);
-      console.info(`\n🌳 (callback inside plugin) | e: ${json}...\n`);
-      console.log('workspace', e.workspace.toAliasMap(), '\n');
+      console.info(`\n👋 (callback inside plugin)`);
+      if (e.ws) {
+        console.info(e.ws.toString({ pad: true }));
+      }
     },
   });
 
@@ -46,9 +51,7 @@ export const customizedConfig = defineConfig(async (_ctx) => {
  * SAMPLE: Simple default (no customization).
  */
 export const simpleConfig = defineConfig((_ctx) => {
-  return {
-    plugins: [reactPlugin(), workspacePlugin()],
-  };
+  return { plugins: [reactPlugin(), workspacePlugin()] };
 });
 
 /**

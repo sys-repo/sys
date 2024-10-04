@@ -24,7 +24,7 @@ export const Vite: t.ViteLib = {
       toString(options = {}) {
         const { pad } = options;
         const stdio = output.toString();
-        return Log.build.toString({ ok, stdio, paths, pad, Pkg });
+        return Log.Build.toString({ ok, stdio, paths, pad, Pkg });
       },
     };
     return res;
@@ -42,7 +42,7 @@ export const Vite: t.ViteLib = {
     const { env, args } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
-    if (!silent && Pkg) Log.entry.log(Pkg, input.input);
+    if (!silent && Pkg) Log.Entry.log(Pkg, input.input);
 
     const proc = Cmd.spawn({ args, env, silent });
     const { dispose } = proc;

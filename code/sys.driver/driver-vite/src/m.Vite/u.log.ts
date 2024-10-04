@@ -9,52 +9,50 @@ type BuildArgs = {
 };
 
 /**
- * Logging Display Helpers.
+ * Logging helpers.
  */
 export const Log = {
-  /* Module. */
-  module: {
-    log: (Pkg: t.Pkg) => console.info(Log.module.toString(Pkg)),
+  /**
+   * Module
+   */
+  Module: {
+    log: (Pkg: t.Pkg) => console.info(Log.Module.toString(Pkg)),
     toString(Pkg: t.Pkg) {
       return c.gray(`${c.white(c.bold(Pkg.name))} ${Pkg.version}`);
     },
   },
 
-  /* Startup entry. */
-  entry: {
-    log: (Pkg: t.Pkg, input: t.StringPath) => console.info(Log.entry.toString(Pkg, input)),
+  /**
+   * Startup entry
+   */
+  Entry: {
+    log: (Pkg: t.Pkg, input: t.StringPath) => console.info(Log.Entry.toString(Pkg, input)),
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
-      const text = `
-${c.gray(`Module:       ${Log.module.toString(Pkg)}`)}
+      const res = `
+${c.gray(`Module:       ${Log.Module.toString(Pkg)}`)}
 ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
     `.trim();
-      return Fmt.pad(text, options.pad);
+      return options.pad ? `\n${res}\n` : res;
     },
   },
 
-  /* Build log */
-  build: {
-    log: (args: BuildArgs) => Log.build.toString(args),
+  /**
+   * Build log
+   */
+  Build: {
+    log: (args: BuildArgs) => Log.Build.toString(args),
     toString(args: BuildArgs) {
       const { ok, stdio, paths, Pkg } = args;
       const titleColor = ok ? c.brightGreen : c.brightYellow;
-      let text = `
+      let res = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}
 ${c.gray(`input:  ${paths.input}`)}
 ${c.gray(`output: ${paths.outDir}`)}
 `.trim();
-      if (Pkg) text += c.gray(`\nmodule: ${Log.module.toString(Pkg)}`);
-      if (args.pad) text = `\n${text}\n`;
-      return text;
+      if (Pkg) res += c.gray(`\nmodule: ${Log.Module.toString(Pkg)}`);
+      return args.pad ? `\n${res}\n` : res;
     },
   },
 } as const;
-
-/**
- * Helpers
- */
-const Fmt = {
-  pad: (text: string, pad: boolean = true) => (pad ? `\n${text}\n` : text),
-};
