@@ -6,19 +6,19 @@ describe('ViteProcess.workspacePlugin', () => {
     it('default (no params)', async () => {
       const plugin = await Vite.workspacePlugin();
       expect(plugin.name).to.eql('vite-plugin-workspace');
-      expect(plugin.ws.paths).to.eql(ROOT.denofile.json.workspace);
+      expect(plugin.ws?.paths).to.eql(ROOT.denofile.json.workspace);
     });
 
     it('param: workspace (explicit path)', async () => {
       const workspace = ROOT.denofile.path;
       const plugin = await Vite.workspacePlugin({ workspace });
-      expect(plugin.ws.paths).to.eql(ROOT.denofile.json.workspace);
+      expect(plugin.ws?.paths).to.eql(ROOT.denofile.json.workspace);
     });
 
     it('param: filter param', async () => {
       const filter: t.WorkspaceFilter = (e) => e.subpath.startsWith('/client');
       const plugin = await Vite.workspacePlugin(filter);
-      expect(plugin.ws.filter).to.equal(filter);
+      expect(plugin.ws?.filter).to.equal(filter);
     });
 
     it('throw: workspace not found', async () => {
