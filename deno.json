@@ -30,7 +30,7 @@
     "./deploy/api.db.team",
     "./code/-samples/deno.vite-react"
   ],
-  "importMap": "./deno.-imports.json",
+  "importMap": "./deno.importMap.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any"]
