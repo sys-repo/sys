@@ -7,7 +7,8 @@
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "dev": "deno run -RWNE --allow-run ./scripts/-start.vite-dev.ts"
+    "dev": "deno run -RWNE --allow-run ./scripts/-start.vite-dev.ts",
+    "build": "deno run -RWNE --allow-run ./scripts/-start.vite-build.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
