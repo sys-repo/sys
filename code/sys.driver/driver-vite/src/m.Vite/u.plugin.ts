@@ -5,20 +5,14 @@ import { Path, ViteConfig, type t } from './common.ts';
  */
 export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any[]) => {
   const options = wrangle.options(args);
-  const filter = options.filter;
-
-  const denofile = options.workspace;
-  const workspace = await ViteConfig.workspace({ denofile, filter });
-  if (!workspace.exists) {
-    throw new Error(`A workspace could not be found: ${denofile ?? Path.resolve('.')}`);
-  }
+  const ws = await wrangle.workspace(options);
 
   /**
    * Plugin.
    */
   const plugin: t.WorkspacePlugin = {
     name: 'vite-plugin-workspace',
-    ws: workspace,
+    ws,
 
     /**
      * Modify vite config before it's resolved.
@@ -44,7 +38,9 @@ export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any
        * Module resolution (monorepo).
        */
       const resolve = config.resolve || (config.resolve = {});
-      resolve.alias = workspace.aliases;
+      if (ws) {
+        resolve.alias = ws.aliases;
+      }
 
       /**
        * Build: Rollup Options.
@@ -65,7 +61,7 @@ export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any
        * Run callback for any further modifications to the Vite config.
        * Directly manipulate the {config} parameter object.
        */
-      options?.mutate?.({ config, env, workspace });
+      options?.mutate?.({ config, env, ws });
       return config;
     },
   };
@@ -87,5 +83,19 @@ const wrangle = {
     if (args.length === 0) return {};
     if (typeof args[0] === 'function') return { filter: args[0] };
     return args[0] ?? {};
+  },
+
+  async workspace(options: t.WorkspacePluginOptions) {
+    const { filter } = options;
+    if (options.workspace === false) return undefined;
+
+    const path = options.workspace;
+    const ws = await ViteConfig.workspace({ denofile: path, filter });
+    if (!ws.exists) {
+      const errPath = path ?? Path.resolve('.');
+      throw new Error(`A workspace could not be found: ${errPath}`);
+    }
+
+    return ws;
   },
 } as const;

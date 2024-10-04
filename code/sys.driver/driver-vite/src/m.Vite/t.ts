@@ -72,9 +72,26 @@ export type ViteProcess = {
  * Options passed to the workspace-plugin.
  */
 export type WorkspacePluginOptions = {
-  mutate?: t.ViteConfigMutate;
-  workspace?: t.DenofilePath;
+  /**
+   * Enabled deno workspace support.
+   *
+   * - (default: enabled: walks up to find first available workspace `deno.json` file.)
+   * - pass a specific `deno.json` file string if in a non-standard place.
+   * - pass `false` to disable workspace {alias} mapping.
+   */
+  workspace?: false | t.DenofilePath;
+
+  /**
+   * ƒ(🌳): Filter to apply to the workspace modules
+   *       (default: nothing filtered → ie. the entire monorepo is available for `import`).
+   */
   filter?: t.WorkspaceFilter;
+
+  /**
+   * ƒ(🌳): Callback to mutate the generated Vite configuration before
+   *        it is passed on to the next step in the bundle pipeline
+   */
+  mutate?: t.ViteConfigMutate;
 };
 
 /**
