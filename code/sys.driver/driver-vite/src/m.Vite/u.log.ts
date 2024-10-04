@@ -26,7 +26,10 @@ export const Log = {
    * Startup entry
    */
   Entry: {
-    log: (Pkg: t.Pkg, input: t.StringPath) => console.info(Log.Entry.toString(Pkg, input)),
+    log(Pkg: t.Pkg, input: t.StringPath) {
+      console.info();
+      console.info(Log.Entry.toString(Pkg, input, { pad: true }));
+    },
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
       const res = `
@@ -41,7 +44,9 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
    * Build log
    */
   Build: {
-    log: (args: BuildArgs) => Log.Build.toString(args),
+    log: (args: BuildArgs) => {
+      console.info(Log.Build.toString(args));
+    },
     toString(args: BuildArgs) {
       const { ok, stdio, paths, Pkg } = args;
       const titleColor = ok ? c.brightGreen : c.brightYellow;
