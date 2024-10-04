@@ -1,4 +1,4 @@
-import { rx, type t, c } from './common.ts';
+import { c, rx, type t } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
 type H = t.CmdProcessHandle;

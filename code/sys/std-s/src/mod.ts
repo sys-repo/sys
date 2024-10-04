@@ -4,12 +4,16 @@
  *
  * @example
  * ```ts
- * import { HttpServer, Cmd, Fs } from '@sys/std-s';
+ * import { Env } from '@sys/std-s';          // Env-variables.
+ * import { Fs, Path } from '@sys/std-s';     // Filesystem tools.
+ * import { HttpServer } from '@sys/std-s';   // HTTP server.
+ * import { Colors, c } from '@sys/std-s';     // Terminal color formatting.
  * ```
  */
-export { Color, DateTime, Http, Pkg, Semver, c, rx } from './common.ts';
+export { DateTime, Http, Pkg, Semver, rx } from './common.ts';
 
 export { Env } from './u.Env/mod.ts';
+export { Colors, c } from './u.Fmt/mod.ts';
 export { Fs, Path } from './u.Fs/mod.ts';
-export { HttpServer } from './u.Server.Http/mod.ts';
 export { Cmd } from './u.Process/mod.ts';
+export { HttpServer } from './u.Server.Http/mod.ts';

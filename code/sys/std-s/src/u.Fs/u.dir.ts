@@ -1,6 +1,5 @@
-import type { t } from './common.ts';
-import { c } from '@sys/std';
 import { exists } from '@std/fs';
+import { c, type t } from './common.ts';
 
 /**
  * Copy all files in a directory.
