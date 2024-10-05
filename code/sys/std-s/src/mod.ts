@@ -7,11 +7,19 @@
  * import { Env } from '@sys/std-s';          // Env-variables.
  * import { Fs, Path } from '@sys/std-s';     // Filesystem tools.
  * import { HttpServer } from '@sys/std-s';   // HTTP server.
- * import { Colors, c } from '@sys/std-s';     // Terminal color formatting.
+ * import { Colors, c } from '@sys/std-s';    // Terminal color formatting.
  * ```
  */
-export { DateTime, Http, Pkg, Semver, rx } from './common.ts';
+export { Pkg } from './common.ts';
 
+/**
+ * Web AND Server
+ */
+export { DateTime, Http, Rx, Semver, Time, rx } from '@sys/std';
+
+/**
+ * Server specific.
+ */
 export { Env } from './u.Env/mod.ts';
 export { Colors, c } from './u.Fmt/mod.ts';
 export { Fs, Path } from './u.Fs/mod.ts';
