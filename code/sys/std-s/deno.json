@@ -13,9 +13,9 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fs": "./src/u.Fs/mod.ts",
-    "./process": "./src/u.Process/mod.ts",
-    "./httpserver": "./src/u.Server.Http/mod.ts",
-    "./testing": "./src/u.Testing/mod.ts"
+    "./fs": "./src/m.Fs/mod.ts",
+    "./process": "./src/m.Process/mod.ts",
+    "./httpserver": "./src/m.Server.Http/mod.ts",
+    "./testing": "./src/m.Testing/mod.ts"
   }
 }
