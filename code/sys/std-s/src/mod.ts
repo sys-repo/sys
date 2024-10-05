@@ -15,7 +15,7 @@ export { Pkg } from './common.ts';
 /**
  * Web AND Server
  */
-export { DateTime, Http, Rx, Semver, Time, rx } from '@sys/std';
+export { Dates, Http, Rx, Semver, Time, rx } from '@sys/std';
 
 /**
  * Server specific.
