@@ -27,6 +27,7 @@
     "react": "npm:react@^18.2.0",
     "react-dom": "npm:react-dom@^18.2.0",
     "rxjs": "npm:rxjs@7.8.1",
+    "date-fns": "npm:date-fns@4",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "vite": "npm:vite@^5.2.10"
   }
