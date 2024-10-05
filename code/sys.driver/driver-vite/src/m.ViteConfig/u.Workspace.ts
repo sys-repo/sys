@@ -27,9 +27,8 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
         return acc;
       }, {});
     },
-    toString(options = {}) {
-      return Log.Workspace.toString(api, options);
-    },
+    toString: (options) => Log.Workspace.toString(api, options),
+    log: (options) => console.info(api.toString(options)),
   };
 
   return api;

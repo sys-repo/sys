@@ -28,7 +28,11 @@ export const customizedConfig = defineConfig(async (_ctx) => {
      * ƒ(🌳): Filter to apply to the workspace modules
      *       (default: nothing filtered → ie. the entire monorepo is available for `import`).
      */
-    filter: (e) => e.subpath.startsWith('/client'),
+    filter(e) {
+      if (e.subpath.startsWith('/client')) return true;
+      if (e.pkg === '@sys/std') return true;
+      return false;
+    },
 
     /**
      * ƒ(🌳): Callback to mutate the generated Vite configuration before

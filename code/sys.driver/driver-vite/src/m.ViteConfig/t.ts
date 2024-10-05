@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type ToStringOptions = { pad?: boolean };
+
 /**
  * Configuration options for a Vite server.
  * https://vitejs.dev/config
@@ -67,7 +69,10 @@ export type ViteDenoWorkspace = t.DenoWorkspace & {
   toAliasMap(): Record<string, t.StringPath>;
 
   /* Pretty string representation of the workspace. */
-  toString(options?: { pad?: boolean }): string;
+  toString(options?: ToStringOptions): string;
+
+  /* Pass a toString() on the workspace directly into the log. */
+  log(options?: ToStringOptions): void;
 };
 
 /**

@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type ToStringOptions = { pad?: boolean };
+
 /**
  * Arguments passed to the [.build] method.
  */
@@ -133,5 +135,5 @@ export type ViteBuildResponse = {
   readonly cmd: string;
   readonly output: t.CmdOutput;
   readonly paths: t.ViteConfigPaths;
-  toString(options?: { pad?: boolean }): string;
+  toString(options?: ToStringOptions): string;
 };
