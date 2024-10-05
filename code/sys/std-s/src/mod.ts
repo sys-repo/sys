@@ -20,6 +20,7 @@ export { Dates, Http, Rx, Semver, Time, rx } from '@sys/std';
 /**
  * Server specific.
  */
+export { Cli } from './m.Cli/mod.ts';
 export { Env } from './m.Env/mod.ts';
 export { Colors, c } from './m.Fmt/mod.ts';
 export { Fs, Path } from './m.Fs/mod.ts';

@@ -1,21 +1,24 @@
-import { Time } from '@sys/std-s';
-import ora from 'npm:ora@8';
-import type { Ora } from 'npm:ora@8';
+import { Cli, Time } from '@sys/std-s';
 
-export type CliLib = {
-  spinner(text?: string): Ora;
-};
+/**
+ * SAMPLE: Table
+ */
+const table = Cli.table(['Foo', 'Bar']).indent(2);
+table.push();
+table.push(['123456', 'abc']);
+table.push(['333', 'Hello World 👋']);
+table.render();
+console.info();
 
+/**
+ * SAMPLE: Spinner
+ */
+const spinner = Cli.spinner('Processing...');
+// spinner.start();
 
-  await ensureRef(path, { name: 'vite', version: '5.4.6' });
-  await ensureRef(path, { name: 'tsx', version: '4.19.1' });
-  await ensureRef(path, { name: 'vitest', version: '2.1.1' }, true);
-  // await ensureRef(path, { name: 'typescript', version: '5.6.2' }, true);
-}
+await Time.wait(500);
+spinner.text = 'Doing something else...';
+await Time.wait(1000);
+spinner.succeed('Done!');
 
-console.log(c.green('-'));
-console.log(`↑ dir: ${c.green(dir)}`);
-
-console.log();
-console.log(`${c.yellow('.mts')} files ↑`);
-console.log(c.cyan('total'), paths.length);
+Deno.exit(0);
