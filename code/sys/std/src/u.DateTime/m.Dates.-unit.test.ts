@@ -64,7 +64,7 @@ describe('Dates', () => {
       expect(res).to.eql('3 days ago');
     });
 
-    it.only('Format.relative', () => {
+    it('Format.relative', () => {
       const res = Format.relative(Format.subDays(date, 3), date);
       expect(res).to.eql('last Friday at 3:24 AM');
     });
