@@ -1,18 +1,21 @@
 import { type t, StdDate } from './common.ts';
+import { Format } from './m.Date.u.Format.ts';
 import { Day } from './m.Dates.u.Day.ts';
-import { DateIs } from './m.Dates.u.Is.ts';
+import { Is } from './m.Dates.u.Is.ts';
 
 const { DAY, HOUR, MINUTE, SECOND, WEEK } = StdDate;
 const { parse, difference } = StdDate;
 
-export { Day };
+export { Day, Format };
 
 /**
- * Tools for working with Dates.
+ * Library: Tools for working with Dates.
  */
 export const Dates: t.DatesLib = {
-  Is: DateIs,
+  Is: Is,
   Day,
+  Format,
+  format: Format.toString,
 
   parse,
   difference,

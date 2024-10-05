@@ -1,4 +1,5 @@
-import type { t, StdDate } from './common.ts';
+import type { format, formatDistance, formatRelative, subDays } from 'date-fns';
+import type { StdDate, t } from './common.ts';
 
 /**
  * Library: Tools for working with Dates.
@@ -9,6 +10,12 @@ export type DatesLib = {
 
   /* Tools for working with Day values. */
   Day: t.DayLib;
+
+  /* Tools for formatting dates into "pretty" strings. */
+  Format: t.DateFormatLib;
+
+  /* Format date string in the given "pretty" string. The result may vary by locale. */
+  format: t.DateFormatLib['toString'];
 
   /* Parses a date string using the specified format string. */
   parse: typeof StdDate.parse;
@@ -42,4 +49,21 @@ export type DayLib = {
 export type DateIsLib = {
   leapYear: typeof StdDate.isLeap;
   leapYearUtc: typeof StdDate.isUtcLeap;
+};
+
+/**
+ * Library: Tools for formatting dates into "pretty" strings.
+ */
+export type DateFormatLib = {
+  /* Format date string in the given "pretty" string. The result may vary by locale. */
+  toString: typeof format;
+
+  /* Return the distance between the given dates in words. */
+  distance: typeof formatDistance;
+
+  /* Represent the date in words relative to the given base date. */
+  relative: typeof formatRelative;
+
+  /* Subtract the specified number of days from the given date. */
+  subDays: typeof subDays;
 };

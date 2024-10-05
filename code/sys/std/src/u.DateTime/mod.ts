@@ -5,8 +5,8 @@
  * @example
  *
  * ```ts
- * import { Dates, Time } from '@sys/std/datetime';
+ * import { Dates, Time, Format } from '@sys/std/datetime';
  * ```
  */
-export { Dates, Day } from './m.Dates.ts';
+export { Dates, Day, Format } from './m.Dates.ts';
 export { Time } from './m.Time.ts';

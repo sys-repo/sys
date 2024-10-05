@@ -2,7 +2,9 @@ import { describe, expect, it } from '../-test.ts';
 
 import { Dates, Day } from './mod.ts';
 import { StdDate } from './common.ts';
-import { DateIs } from './m.Dates.u.Is.ts';
+import { Is } from './m.Dates.u.Is.ts';
+import { Format } from './m.Date.u.Format.ts';
+import * as DateFns from 'date-fns';
 
 describe('Dates', () => {
   describe('constants (milliseconds)', () => {
@@ -31,11 +33,40 @@ describe('Dates', () => {
   });
 
   describe('Date.Is', () => {
-    const Is = DateIs;
     it('API', () => {
       expect(Dates.Is).to.equal(Is);
       expect(Is.leapYear).to.equal(StdDate.isLeap);
       expect(Is.leapYearUtc).to.equal(StdDate.isUtcLeap);
+    });
+  });
+
+  describe('Date.Foramt', () => {
+    const date = new Date('2019-03-11T03:24:00');
+
+    it('API', () => {
+      expect(Dates.Format).to.equal(Format);
+      expect(Format.toString).to.equal(DateFns.format);
+      expect(Format.distance).to.equal(DateFns.formatDistance);
+      expect(Format.relative).to.equal(DateFns.formatRelative);
+      expect(Format.subDays).to.equal(DateFns.subDays);
+    });
+
+    it('format (toString)', () => {
+      const pattern = `'Today is a' eeee`;
+      const a = Dates.format(date, pattern);
+      const b = Dates.Format.toString(date, pattern);
+      expect(a).to.eql('Today is a Monday');
+      expect(a).to.eql(b);
+    });
+
+    it('Format.distance | subdays', () => {
+      const res = Format.distance(Format.subDays(date, 3), date, { addSuffix: true });
+      expect(res).to.eql('3 days ago');
+    });
+
+    it.only('Format.relative', () => {
+      const res = Format.relative(Format.subDays(date, 3), date);
+      expect(res).to.eql('last Friday at 3:24 AM');
     });
   });
 
