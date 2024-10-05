@@ -53,10 +53,14 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       let res = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}
-${c.gray(`input:  ${paths.input}`)}
-${c.gray(`output: ${paths.outDir}`)}
-`.trim();
-      if (Pkg) res += c.gray(`\nmodule: ${Log.Module.toString(Pkg)}`);
+${c.gray(` input:  ${paths.input}`)}
+${c.gray(` output: ${paths.outDir}`)}
+`;
+      res = res.trim();
+      if (Pkg) {
+        const jsr = `https://jsr.io/${Pkg.name}`;
+        res += c.gray(`\n pkg:    ${Log.Module.toString(Pkg)}  ${c.white('→')}  ${jsr}`);
+      }
       return args.pad ? `\n${res}\n` : res;
     },
   },
