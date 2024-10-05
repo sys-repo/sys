@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 import { describe, expect, it, type t } from '../-test.ts';
-import { Time } from '../u.Time/mod.ts';
+import { Time } from '../u.DateTime/mod.ts';
 import { Dispose } from './mod.ts';
 
 describe('Disposable', () => {

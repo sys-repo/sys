@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { delay } from './u.delay.ts';
+import { delay } from './m.Time.u.delay.ts';
 
 /**
  * Helpers for working with time and timers (delays).
