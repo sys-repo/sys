@@ -17,7 +17,7 @@ export type PathLib = {
   /* Resolves path segments into a path. */
   resolve: typeof StdPath.resolve;
 
-  asAbsolute: (path: t.StringPath) => string;
+  absolute: (path: t.StringPath) => string;
 
   /* Return the relative path from from to to based on current working directory. */
   relative: typeof StdPath.relative;

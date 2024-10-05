@@ -11,7 +11,7 @@ export { walk };
 export const walkUp: t.FsWalkUp = async (startAt, onVisit) => {
   const stat = await Deno.stat(startAt);
   const startDir = stat.isDirectory ? startAt : Path.dirname(startAt);
-  let dir = Path.asAbsolute(startDir).replace(/[/\\]+$/, ''); // Normalize the path to remove any trailing slashes.
+  let dir = Path.absolute(startDir).replace(/[/\\]+$/, ''); // Normalize the path to remove any trailing slashes.
   let isStopped = false;
 
   const toFile = ({ name, isSymlink }: WalkEntry): t.FsWalkFile => {
