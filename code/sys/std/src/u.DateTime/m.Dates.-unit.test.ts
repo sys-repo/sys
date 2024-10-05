@@ -2,8 +2,7 @@ import { describe, expect, it } from '../-test.ts';
 
 import { Dates, Day } from './mod.ts';
 import { StdDate } from './common.ts';
-import { DateIs } from './m.Dates.u.Is.ts';
-// import { dayOfYear, difference, HOUR, isLeap, MINUTE, SECOND } from './mod.ts';
+import { DateIs } from './m.Dates.Is.ts';
 
 describe('Dates', () => {
   describe('constants (milliseconds)', () => {
