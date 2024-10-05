@@ -5,12 +5,13 @@
  * @example
  * ```ts
  * import { ObjectPath } from '@sys/std';
+ * import { Dates, Time } from '@sys/std';
  * ```
  */
 export { Pkg } from './common.ts';
 
 export { Async } from './u.Async/mod.ts';
-export { DateTime, Time } from './u.DateTime/mod.ts';
+export { Dates, Time } from './u.DateTime/mod.ts';
 export { Delete } from './u.Delete/mod.ts';
 export { Dispose } from './u.Dispose/mod.ts';
 export { Err } from './u.Err/mod.ts';
