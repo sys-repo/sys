@@ -8,4 +8,4 @@
  * ```
  */
 export { Pkg } from './common.ts';
-export { Style } from './m.css/mod.ts';
+export { Style } from './m.Style/mod.ts';

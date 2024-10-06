@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
-import { pluginOptions } from './u.reactPlugin.ts';
+import { pluginOptions } from './emotion/mod.ts';
 
 /**
  * Library: CSS tools.
  */
 export const Style: t.StyleLib = {
-  pluginOptions: () => pluginOptions(),
+  plugin: { emotion: () => pluginOptions() },
 };

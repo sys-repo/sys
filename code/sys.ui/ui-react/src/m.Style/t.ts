@@ -10,12 +10,14 @@ export type { Interpolation as CssProperties } from '@emotion/react';
  * Library: CSS tools.
  */
 export type StyleLib = {
-  /**
-   * Default options for the SWC react plugin that enables
-   * the CSS-in-JS tooling.
-   * https://emotion.sh/
-   */
-  pluginOptions(): t.ReactPluginOptions;
+  plugin: {
+    /**
+     * Default options for the SWC react plugin that enables
+     * the CSS-in-JS tooling.
+     * https://emotion.sh/
+     */
+    emotion(): t.ReactPluginOptions;
+  };
 };
 
 /**

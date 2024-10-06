@@ -1,8 +1,10 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Default configuration for the Emotion (CSS-in-JS) library
  * to be passed to the [@vitejs/plugin-react-swc] plugin.
+ *
+ * https://emotion.sh/docs
  */
 export function pluginOptions(): t.ReactPluginOptions {
   return {

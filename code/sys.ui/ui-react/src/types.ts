@@ -2,4 +2,4 @@
  * @module
  * Module Types
  */
-export type * from './m.css/t.ts';
+export type * from './m.Style/t.ts';

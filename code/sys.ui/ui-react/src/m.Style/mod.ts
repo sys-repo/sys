@@ -10,7 +10,7 @@
  * import reactPlugin from '@vitejs/plugin-react-swc';
  * import { Style } from '@sys/ui-react';
  *
- * const react = reactPlugin(Css.pluginOptions());
+ * const react = reactPlugin(Css.plugin.emotion());
  * ```
  *
  * Ensure the `tsconfig` compiler options include:
@@ -28,4 +28,4 @@
  * Note: the `jsxImportSourceTypes` sets up editor support to recognize
  * the `css={...}` prioperty on react components.
  */
-export { Style } from './m.Css.ts';
+export { Style } from './m.Style.ts';
