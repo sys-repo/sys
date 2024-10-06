@@ -37,7 +37,7 @@ export function keyboardFactory(args: {
        */
       if (Pkg && e.key === 'i') {
         console.clear();
-        console.info(Log.Info.toString({ Pkg, paths, url: url.href }));
+        console.info(Log.Info.toString({ Pkg, paths, url: url.href, pad: true }));
       }
     }
   };
