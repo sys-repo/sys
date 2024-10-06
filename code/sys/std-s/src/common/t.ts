@@ -1,6 +1,7 @@
 export type {
   Disposable,
   DisposeAsyncEvent,
+  IgnoredResponse,
   Lifecycle,
   LifecycleAsync,
   Observable,
@@ -9,8 +10,8 @@ export type {
   StringDirPath,
   StringFilePath,
   StringPath,
+  TimeLib,
   UntilObservable,
-  IgnoredResponse,
 } from '@sys/std/t';
 
 export type * from '../types.ts';
