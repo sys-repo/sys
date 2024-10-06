@@ -1,3 +1,2 @@
 # Types \<T\>
- Common and "standards based" types definitions
- shared between system modules.
+Common ("standard") type definitions shared between system modules.
