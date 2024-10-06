@@ -5,7 +5,8 @@
  *
  * @example
  * ```ts
- * import { Pkg } from '@sys/types/';
+ * import { Pkg } from '@sys/types';
+ * import type { Immutable } from '@sys/types'
  * ```
  */
 export { Pkg } from './common.ts';
