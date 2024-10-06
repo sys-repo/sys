@@ -29,6 +29,12 @@ jobs:
         with:
           deno-version: v2.0.0-rc.5
 
+      - name: publish module → "@sys/types"
+        run: |
+          cd code/sys/types
+          deno task test
+          deno publish --dry-run
+
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
