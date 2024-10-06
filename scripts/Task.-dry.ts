@@ -1,4 +1,4 @@
-import { c, Cli, Cmd, Log, Paths, type CmdResult } from './u.ts';
+import { c, Cli, Cmd, Log, Path, Paths, type CmdResult } from './u.ts';
 
 export async function main() {
   console.info();
@@ -8,7 +8,8 @@ export async function main() {
   const run = async (path: string, index: number, total: number) => {
     const command = `deno publish --allow-dirty --dry-run`;
     const title = c.gray(`${c.white('Type<T> Checks')} (${index + 1} of ${total})`);
-    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}:\n  → ${path}\n`);
+    const modulePath = c.gray(`${Path.dirname(path)}/${c.white(Path.basename(path))}`);
+    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}:\n  → ${modulePath}\n`);
     const output = await Cmd.sh(path).run(command);
     results.push({ output, path });
   };
