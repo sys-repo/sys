@@ -7,8 +7,11 @@ import { Css } from '@sys/ui-react';
 /**
  * Vite setup.
  */
-export default defineConfig((_ctx) => {
-  const workspace = workspacePlugin({ filter: (e) => e.subpath.startsWith('/client') });
-  const react = reactPlugin({ ...Css.pluginOptions() });
+export default defineConfig(async (_ctx) => {
+  const workspace = await workspacePlugin();
+
+  // workspace.ws?.log({}); 🐷
+
+  const react = reactPlugin(Css.pluginOptions());
   return { plugins: [react, workspace] };
 });
