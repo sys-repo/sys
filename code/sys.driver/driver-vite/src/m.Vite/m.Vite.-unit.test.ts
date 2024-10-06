@@ -53,15 +53,16 @@ describe('Vite', () => {
      *    ➜  Network: use --host to expose
      *
      */
-    it('start → fetch(200) → dispose', async () => {
+    it('start → fetch(200) → dispose', async (e) => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
-      const promise = Vite.dev({
-        port,
-        input,
-        silent: false,
-      });
+      const promise = Vite.dev({ input, port, silent: false });
       const svc = await promise;
+
+      svc.proc.onStdErr(async (e) => {
+        console.error(`Failed running Vite server within child process`, e.toString());
+        await svc.dispose();
+      });
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 

@@ -81,7 +81,7 @@ describe('Cmd', () => {
       const firedObs: t.CmdProcessEvent[] = [];
       const firedOn: t.CmdProcessEvent[] = [];
       handle.$.subscribe((e) => firedObs.push(e));
-      handle.onStdio((e) => firedOn.push(e));
+      handle.onStdOut((e) => firedOn.push(e));
 
       expect(typeof handle.pid === 'number').to.be.true;
       expect(handle.is.ready).to.eql(false);

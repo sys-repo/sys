@@ -2,6 +2,7 @@ import { c, rx, type t } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
 type H = t.CmdProcessHandle;
+type E = { source: t.StdStream; fn: t.CmdProcessEventHandler };
 
 /**
  * Spawn a child process to run a <unix> command
@@ -17,7 +18,7 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   const child = command.spawn();
   const pid = child.pid;
 
-  const stdioHandlers = new Set<t.CmdProcessEventHandler>();
+  const stdioHandlers = new Set<E>();
   const whenReadyHandlers = new Set<t.CmdProcessReadyHandler>();
 
   // Function to process output data chunks.
@@ -30,7 +31,9 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       toString: () => _text ?? (_text = decoder.decode(data)),
     };
     $.next(e);
-    Array.from(stdioHandlers).forEach((fn) => fn(e));
+    Array.from(stdioHandlers).forEach((item) => {
+      if (item.source === source) item.fn(e);
+    });
   };
 
   /**
@@ -85,8 +88,13 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       return whenReadyPromise;
     },
 
-    onStdio(fn) {
-      stdioHandlers.add(fn);
+    onStdOut(fn) {
+      stdioHandlers.add({ fn, source: 'stdout' });
+      return api;
+    },
+
+    onStdErr(fn) {
+      stdioHandlers.add({ fn, source: 'stderr' });
       return api;
     },
 

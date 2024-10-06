@@ -52,7 +52,8 @@ export type CmdProcessHandle = t.LifecycleAsync & {
   readonly $: t.Observable<t.CmdProcessEvent>;
   readonly is: { readonly ready: boolean };
   whenReady(fn?: CmdProcessReadyHandler): Promise<t.CmdProcessHandle>;
-  onStdio(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
+  onStdOut(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
+  onStdErr(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
 };
 
 export type CmdProcessReadyHandler = (e: CmdProcessReadyHandlerArgs) => void;
