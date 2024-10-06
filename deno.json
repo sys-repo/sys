@@ -1,10 +1,10 @@
 {
   "tasks": {
     "info": "deno run -RE ./scripts/cmd.info.ts",
-    "test": "deno run -RE --allow-run=sh ./scripts/cmd.ci.test.ts",
+    "test": "deno run -A ./scripts/cmd.ci.test.ts",
     "lint": "deno run -RE --allow-run=sh ./scripts/cmd.lint.ts",
     "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
-    "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
+    "ci": "deno run -A ./scripts/cmd.ci.ts",
     "clean": "deno run -RWE --allow-run=sh ./scripts/cmd.clean.ts",
     "reload": "rm -rf node_modules && deno install --reload",
     "tmp": "deno run -A ./scripts/-tmp.ts"
@@ -19,10 +19,13 @@
     "jsxImportSourceTypes": "@emotion/react"
   },
   "workspace": [
+    "./code/sys.tmp",
+
     "./code/sys/std",
     "./code/sys/std-s",
+    "./code/sys/types",
+
     "./code/sys.ui/ui-react",
-    "./code/sys.tmp",
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",
