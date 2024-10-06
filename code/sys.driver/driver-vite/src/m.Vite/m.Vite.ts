@@ -39,14 +39,14 @@ export const Vite: t.ViteLib = {
    */
   async dev(input) {
     const { port = DEFAULTS.port, silent = false, Pkg } = input;
-    const { env, args } = wrangle.command(input, `dev --port=${port}`);
+    const { env, args, paths } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
     if (!silent && Pkg) Log.Entry.log(Pkg, input.input);
 
     const proc = Cmd.spawn({ args, env, silent });
     const { dispose } = proc;
-    const keyboard = keyboardFactory({ port, url, dispose });
+    const keyboard = keyboardFactory({ Pkg, paths, port, url, dispose });
 
     await proc.whenReady();
     return {
