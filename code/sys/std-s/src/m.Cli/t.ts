@@ -1,3 +1,5 @@
+import { type t, type Time } from '../common.ts';
+
 import type { Ora as OraSpinner } from 'ora';
 import type { Table as CliffyTable } from '@cliffy/table';
 
@@ -10,4 +12,7 @@ export type CliLib = {
 
   /* Create a new Table generator. */
   table(...items: string[][]): CliffyTable;
+
+  /* Wait for the specified milliseconds NB: use with [await]. */
+  wait: typeof Time.wait;
 };
