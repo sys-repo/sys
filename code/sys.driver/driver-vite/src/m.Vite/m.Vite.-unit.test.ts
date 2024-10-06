@@ -1,18 +1,18 @@
-import { Fs, Testing, describe, expect, it, type t } from '../-test.ts';
+import { Fs, Testing, Time, describe, expect, it, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { Vite } from './mod.ts';
 
-describe('ViteProcess', () => {
+describe('Vite', () => {
   const INPUT = {
     sample1: './src/-test/vite.sample-1/index.html',
     sample2: './src/-test/vite.sample-2/index.html',
   } as const;
 
-  it('ViteProcess.Config', () => {
+  it('Vite.Config', () => {
     expect(Vite.Config).to.equal(ViteConfig);
   });
 
-  describe('ViteProcess.build', () => {
+  describe('Vite.build', () => {
     const testBuild = async (input: t.StringPath) => {
       const outDir = Vite.Config.outDir.test.random();
       const res = await Vite.build({ input, outDir });
@@ -37,7 +37,7 @@ describe('ViteProcess', () => {
     });
   });
 
-  describe('ViteProcess.start.dev', () => {
+  describe('Vite.start.dev', () => {
     /**
      * Dev Mode: long-running child process runing the Vite server.
      * Uses Deno's NPM compatibility layer.
