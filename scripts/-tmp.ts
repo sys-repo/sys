@@ -1,4 +1,9 @@
-import { Cli, Time } from '@sys/std-s';
+import { Cli, Time, Env, Http } from '@sys/std-s';
+
+const env = await Env.load();
+
+// console.log('m', m);
+// const NYLAS_API = m.get('NYLAS_API_KEY');
 
 /**
  * SAMPLE: Table
@@ -11,14 +16,43 @@ table.render();
 console.info();
 
 /**
- * SAMPLE: Spinner
+ * Nylas
+ * https://developer.nylas.com/docs/v3/email/#one-click-unsubscribe-requirements-for-google-messages
  */
-const spinner = Cli.spinner('Processing...');
-// spinner.start();
 
-await Time.wait(500);
-spinner.text = 'Doing something else...';
-await Time.wait(1000);
-spinner.succeed('Done!');
+import * as Nylas from 'npm:nylas@7/';
+export async function sampleNylas() {
+  console.log('Nylas', Nylas);
 
+  const NylasConfig = {
+    apiKey: env.get('NYLAS_API_KEY'),
+    apiUri: 'https://api.us.nylas.com',
+    grandId: env.get('NYLAS_GRANT_ID'),
+  };
+  // const GRANT_ID = '29015d82-0c42-4bfb-a3ea-8add8e4bdf42';
+
+  const http = Http.client({ accessToken: NylasConfig.apiKey });
+  const url = `https://api.us.nylas.com/v3/grants/${NylasConfig.grandId}/messages?limit=5`;
+
+  const spinner = Cli.spinner();
+  const res = await http.get(url);
+
+  spinner.succeed(`Done: ${res.status}`);
+  console.log('res', res);
+
+  const json = await res.json();
+  console.log('json', json);
+}
+
+/**
+ *
+ */
+import OpenAI from 'npm:openai@4';
+export async function sampleOpenAI() {
+  console.log('OpenAI', OpenAI);
+}
+
+// Finish up.
+await sampleNylas();
+await sampleOpenAI();
 Deno.exit(0);
