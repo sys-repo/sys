@@ -13,6 +13,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
+    "types": ["vite/client", "react", "react-dom"],
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "jsxImportSourceTypes": "@emotion/react"
