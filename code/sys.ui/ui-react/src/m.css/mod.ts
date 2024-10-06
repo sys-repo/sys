@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for working with CSS (aka "css-in-js").
+ * Tools for working with Styles/CSS (aka "css-in-js").
  *
  * @example
  * Setting up the `vite.config.json` configure the [react-swc] plugin
@@ -8,7 +8,7 @@
  *
  * ```ts
  * import reactPlugin from '@vitejs/plugin-react-swc';
- * import { Css } from '@sys/ui-react';
+ * import { Style } from '@sys/ui-react';
  *
  * const react = reactPlugin(Css.pluginOptions());
  * ```
@@ -28,4 +28,4 @@
  * Note: the `jsxImportSourceTypes` sets up editor support to recognize
  * the `css={...}` prioperty on react components.
  */
-export { Css } from './m.Css.ts';
+export { Style } from './m.Css.ts';

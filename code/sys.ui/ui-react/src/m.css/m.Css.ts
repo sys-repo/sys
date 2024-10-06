@@ -4,8 +4,6 @@ import { pluginOptions } from './u.reactPlugin.ts';
 /**
  * Library: CSS tools.
  */
-export const Css: t.CssLib = {
-  pluginOptions() {
-    return pluginOptions();
-  },
+export const Style: t.StyleLib = {
+  pluginOptions: () => pluginOptions(),
 };
