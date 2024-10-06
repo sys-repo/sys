@@ -31,9 +31,9 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       toString: () => _text ?? (_text = decoder.decode(data)),
     };
     $.next(e);
-    Array.from(stdioHandlers).forEach((item) => {
-      if (item.source === source) item.fn(e);
-    });
+    Array.from(stdioHandlers)
+      .filter((item) => item.source === source)
+      .forEach((item) => item.fn(e));
   };
 
   /**
