@@ -40,4 +40,29 @@ describe('Is (common flags)', () => {
       p.then(); // Type inferred after boolean check.
     }
   });
+
+  it('Is.numeric', () => {
+    const assert = (value: unknown, expected: boolean) => {
+      expect(Is.numeric(value)).to.eql(expected);
+    };
+    assert(123, true);
+    assert('456', true);
+    assert('123.456', true);
+    assert('  789  ', true);
+    assert('12e3', true);
+    assert('0xFF', true);
+    assert('NaN', false);
+    assert(null, false);
+    assert('Infinity', false);
+    assert('-Infinity', false);
+    assert('', false);
+    assert('   ', false);
+    assert('abc123', false);
+    assert(null, false);
+    assert(undefined, false);
+    assert(true, false);
+    assert({}, false);
+    assert([], false);
+    assert(BigInt(123), true);
+  });
 });
