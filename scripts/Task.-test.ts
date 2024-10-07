@@ -12,7 +12,7 @@ export async function main() {
     const command = `deno task test`;
     const title = c.gray(`${c.white('Tests')} (${index + 1} of ${total})`);
     const modulePath = c.gray(`${Path.dirname(path)}/${c.white(Path.basename(path))}`);
-    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}:\n  → ${modulePath}\n`);
+    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n  → ${modulePath}\n`);
     const output = await Cmd.sh({ silent: true, path }).run(command);
     results.push({ output, path });
   };

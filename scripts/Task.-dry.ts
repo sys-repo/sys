@@ -7,9 +7,9 @@ export async function main() {
   const results: CmdResult[] = [];
   const run = async (path: string, index: number, total: number) => {
     const command = `deno publish --allow-dirty --dry-run`;
-    const title = c.gray(`${c.white('Type<T> Checks')} (${index + 1} of ${total})`);
+    const title = c.gray(`${c.white('Type Checks')} (${index + 1} of ${total})`);
     const modulePath = c.gray(`${Path.dirname(path)}/${c.white(Path.basename(path))}`);
-    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}:\n  → ${modulePath}\n`);
+    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n  → ${modulePath}\n`);
     const output = await Cmd.sh(path).run(command);
     results.push({ output, path });
   };
