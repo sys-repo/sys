@@ -1,4 +1,4 @@
-import { isObject, type t, Is } from './common.ts';
+import { Is, isObject, type t } from './common.ts';
 
 type N = number | string | null;
 
