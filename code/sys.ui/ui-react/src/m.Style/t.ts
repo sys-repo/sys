@@ -2,23 +2,34 @@ import type { t } from './common.ts';
 export type * from './t.CssValue.ts';
 
 /**
- * External Libs
- */
-export type { Interpolation as CssProperties } from '@emotion/react';
-
-/**
  * Library: CSS tools.
  */
 export type StyleLib = {
+  readonly Tmpl: t.StyleTmplLib;
   css: t.CssTransformer;
-  plugin: {
-    /**
-     * Default options for the SWC React plugin that enables
-     * the CSS-in-JS tooling.
-     * https://emotion.sh/
-     */
-    emotion(): t.ReactPluginOptions;
-  };
+  plugin: StylePuginLib;
+};
+
+export type StylePuginLib = {
+  /**
+   * Default options for the SWC React plugin that enables
+   * the CSS-in-JS tooling.
+   * https://emotion.sh/
+   */
+  emotion(): t.ReactPluginOptions;
+};
+
+/**
+ * Helpers for working with the [CssTemplates] DSL.
+ */
+export type StyleTmplLib = {
+  /**
+   * Apply common CSS templates (desiganted by capital letter field names)
+   * converting the object into standard [CssProperties].
+   *
+   * For example: { Absolute: 0 }
+   */
+  transform(input?: t.CssValue): t.CssProperties;
 };
 
 /**
@@ -44,5 +55,4 @@ export type ReactCssObject = {
  * Function that transforms 1..n CSS inputs into a style
  * object that can be applied to a React element.
  */
-export type CssTransformer = (...input: t.CssTransformerInput[]) => t.ReactCssObject;
-export type CssTransformerInput = t.CssValue | undefined | null | false;
+export type CssTransformer = (...input: t.CssInput[]) => t.ReactCssObject;
