@@ -12,15 +12,8 @@ export const Tmpl: t.StyleTmplLib = {
   transform(input?: t.CssValue): t.CSSObject {
     if (Is.falsy(input) || !isObject(input)) return {};
 
-    /**
-     * Absolute → { position: 'absolute' ... }
-     */
-    if (input.Absolute !== undefined) {
-      const props = Tmpl.toEdges(input.Absolute);
-      const res: t.CSSObject = { ...input, position: 'absolute', ...props };
-      delete res.Absolute;
-      return res;
-    }
+    // Absolute → { position: 'absolute' ... }
+    if (input.Absolute !== undefined) return wrangle.absolute(input);
 
     /* Finish up: no change */
     return input as t.CSSObject;
@@ -33,8 +26,14 @@ export const Tmpl: t.StyleTmplLib = {
    *  - 4-part array (eg. [10, null, 0, 5])
    *  - Y/X array    (eg. [20, 5])
    */
-  toEdges(input) {
+  toEdges(input, override) {
     const done = (top?: N, right?: N, bottom?: N, left?: N) => {
+      if (typeof override === 'function') {
+        top = override('top', top);
+        right = override('right', right);
+        bottom = override('bottom', bottom);
+        left = override('left', left);
+      }
       return { top, right, bottom, left } as Partial<t.CssEdges>;
     };
     const fromArray = (input: t.CssEdgesArray) => {
@@ -79,5 +78,16 @@ const wrangle = {
       const [top = null, right = null, bottom = null, left = null] = input;
       return [top, right, bottom, left];
     }
+  },
+
+  absolute(obj: t.CssValue): t.CSSObject {
+    if (obj.Absolute === undefined) return obj;
+    const props = Tmpl.toEdges(obj.Absolute, (edge, value) => {
+      if (typeof value !== 'number') return value;
+      return Math.max(0, value);
+    });
+    const res: t.CSSObject = { ...obj, position: 'absolute', ...props };
+    delete res.Absolute;
+    return res;
   },
 } as const;

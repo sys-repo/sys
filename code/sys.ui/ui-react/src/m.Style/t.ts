@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 export type * from './t.CssValue.ts';
 
+type N = number | string | null | undefined;
+
 /**
  * Library: CSS tools.
  */
@@ -38,7 +40,10 @@ export type StyleTmplLib = {
    *  - 4-part array (eg. [10, null, 0, 5])
    *  - Y/X array    (eg. [20, 5])
    */
-  toEdges(input?: t.CssEdgesInput | t.Falsy): Partial<t.CssEdges>;
+  toEdges(
+    input?: t.CssEdgesInput | t.Falsy,
+    override?: (edge: keyof t.CssEdges, value?: N) => N,
+  ): Partial<t.CssEdges>;
 };
 
 /**

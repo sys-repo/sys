@@ -14,7 +14,8 @@ describe('CSS Teamplates', () => {
   });
 
   describe('Tmpl.toEdges', () => {
-    const assert = (res: t.CSSObject, top?: N, right?: N, bottom?: N, left?: N) => {
+    const assert = (res: t.CSSObject, expected: [N, N, N, N]) => {
+      const [top, right, bottom, left] = expected;
       expect(res).to.eql({ top, right, bottom, left });
     };
 
@@ -26,11 +27,12 @@ describe('CSS Teamplates', () => {
     });
 
     it('single value', () => {
-      assert(Tmpl.toEdges(0), 0, 0, 0, 0);
-      assert(Tmpl.toEdges(5), 5, 5, 5, 5);
-      assert(Tmpl.toEdges('3em'), '3em', '3em', '3em', '3em');
-      assert(Tmpl.toEdges('10 20em 30px 40'), 10, '20em', '30px', 40);
-      assert(Tmpl.toEdges('10 20em'), 10, '20em', 10, '20em');
+      assert(Tmpl.toEdges(0), [0, 0, 0, 0]);
+      assert(Tmpl.toEdges(-1), [-1, -1, -1, -1]);
+      assert(Tmpl.toEdges(5), [5, 5, 5, 5]);
+      assert(Tmpl.toEdges('3em'), ['3em', '3em', '3em', '3em']);
+      assert(Tmpl.toEdges('10 20em 30px 40'), [10, '20em', '30px', 40]);
+      assert(Tmpl.toEdges('10 20em'), [10, '20em', 10, '20em']);
     });
 
     it('array values', () => {
@@ -45,17 +47,29 @@ describe('CSS Teamplates', () => {
         left: 30,
       });
     });
+
+    it('with adjustment callback', () => {
+      const edges: (keyof t.CssEdges)[] = [];
+      const res = Tmpl.toEdges([1, 2, 3, 4], (edge, value) => {
+        edges.push(edge);
+        return typeof value === 'number' ? value + 1 : value;
+      });
+      assert(res, [2, 3, 4, 5]);
+      expect(edges).to.eql(['top', 'right', 'bottom', 'left']);
+    });
   });
 
   describe('{ Absolute } → position: "absolute"', () => {
-    const assert = (res: t.CSSObject, top?: N, right?: N, bottom?: N, left?: N) => {
+    const assert = (res: t.CSSObject, expected: [N, N, N, N]) => {
+      const [top, right, bottom, left] = expected;
       expect(res).to.eql({ position: 'absolute', top, right, bottom, left });
       expect(res.Absolute).to.eql(undefined);
     };
 
     it('single value', () => {
-      assert(Tmpl.transform({ Absolute: 0 }), 0, 0, 0, 0);
-      assert(Tmpl.transform({ Absolute: '3em' }), '3em', '3em', '3em', '3em');
+      assert(Tmpl.transform({ Absolute: 0 }), [0, 0, 0, 0]);
+      assert(Tmpl.transform({ Absolute: -1 }), [0, 0, 0, 0]);
+      assert(Tmpl.transform({ Absolute: '3em' }), ['3em', '3em', '3em', '3em']);
       expect(Tmpl.transform({ Absolute: null })).to.eql({ position: 'absolute' });
     });
 
