@@ -29,6 +29,6 @@ console.groupEnd();
 console.group('🌳 import: @sys');
 import { Path, Dates, Time } from '@sys/std';
 console.log('@sys/std:Path', Path);
-console.log('@sys/std:Dates', Dates, Dates.format(now, 'E MMM do, yyyy'));
+console.log('@sys/std:Dates', Dates, `"${Dates.format(now, 'E MMM do, yyyy')}"`);
 console.log('@sys/std:Time', Time);
 console.groupEnd();
