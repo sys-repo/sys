@@ -64,6 +64,20 @@ function isEdgeValue(input: any): input is N {
 }
 
 /**
+ * Converts input to CSS margin edges.
+ */
+// export const toMargins: t.CssToEdges<t.CssMarginEdges> = (input, options = {}) => {
+//   return prefixEdges<t.CssMarginEdges>('margin', toEdges(input, options));
+// };
+
+/**
+ * Converts input to CSS padding edges.
+ */
+// export const toPadding: t.CssToEdges<t.CssPaddingEdges> = (input, options = {}) => {
+//   return prefixEdges<t.CssPaddingEdges>('padding', toEdges(input, options));
+// };
+
+/**
  * Helpers
  */
 const wrangle = {
