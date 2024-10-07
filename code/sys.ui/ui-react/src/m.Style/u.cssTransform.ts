@@ -8,7 +8,7 @@ import { Is } from './u.ts';
  */
 export const css: t.CssTransformer = (...input) => {
   let list: t.SerializedStyles[] = [];
-  (input.flat() as t.CssValue[]).forEach((item) => {
+  (input.flat() as t.CssValue[]).filter(Boolean).forEach((item) => {
     if (Is.serizlisedStyle(item)) return list.push(item);
     if (Is.reactCssObject(item)) return list.push(item.css);
     list.push(emotionCss(processTemplates(item) as any));
@@ -25,5 +25,8 @@ export const css: t.CssTransformer = (...input) => {
  * For example: { Absolute: 0 }
  */
 export function processTemplates(input: t.CssValue): t.CssProperties {
+  /**
+   * TODO 🐷, eg Abs.
+   */
   return input as t.CssProperties;
 }

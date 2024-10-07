@@ -15,6 +15,20 @@ describe('Style', () => {
   });
 
   describe('Style.css ← transform', () => {
+    it('empty', () => {
+      const a = css();
+      const b = css([]);
+      const c = css(...[], false);
+      const d = css(null, undefined, [], false, ...[]);
+
+      expect(a.css.name).to.eql('0');
+      expect(a.css.styles).to.eql('');
+
+      expect(b).to.eql(a);
+      expect(c).to.eql(a);
+      expect(d).to.eql(a);
+    });
+
     it('simple', () => {
       const res = Style.css({ fontSize: 16 });
       expect(res.css.styles).to.include('font-size:16px;');

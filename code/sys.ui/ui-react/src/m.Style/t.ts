@@ -44,4 +44,5 @@ export type ReactCssObject = {
  * Function that transforms 1..n CSS inputs into a style
  * object that can be applied to a React element.
  */
-export type CssTransformer = (...input: t.CssValue[]) => t.ReactCssObject;
+export type CssTransformer = (...input: t.CssTransformerInput[]) => t.ReactCssObject;
+export type CssTransformerInput = t.CssValue | undefined | null | false;
