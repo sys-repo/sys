@@ -23,3 +23,5 @@ export { Rx, rx } from './u.Observable/mod.ts';
 export { Path } from './u.Path/mod.ts';
 export { Semver } from './u.Semver/mod.ts';
 export { Testing } from './u.Testing/mod.ts';
+
+export { R } from './common.ts';

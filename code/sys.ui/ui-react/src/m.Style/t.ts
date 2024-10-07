@@ -1,5 +1,5 @@
-import type { CssProperties } from '../types.ts';
 import type { t } from './common.ts';
+export type * from './t.CssValue.ts';
 
 /**
  * External Libs
@@ -10,9 +10,10 @@ export type { Interpolation as CssProperties } from '@emotion/react';
  * Library: CSS tools.
  */
 export type StyleLib = {
+  css: t.CssTransformer;
   plugin: {
     /**
-     * Default options for the SWC react plugin that enables
+     * Default options for the SWC React plugin that enables
      * the CSS-in-JS tooling.
      * https://emotion.sh/
      */
@@ -29,10 +30,18 @@ export type ReactPluginOptions = {
 };
 
 /**
- * CSS
+ * A spreadable object to apply to a React element,
+ * for example:
+ *   const styles = { base: css({ color: 'red' }) };
+ *   <div {...style.base} />
  */
-export type CssMacros = {
-  Absolute?: [];
+export type ReactCssObject = {
+  /* Style property passed to react. */
+  css: t.SerializedStyles;
 };
 
-export type CssValue = CssProperties & CssMacros;
+/**
+ * Function that transforms 1..n CSS inputs into a style
+ * object that can be applied to a React element.
+ */
+export type CssTransformer = (...input: t.CssValue[]) => t.ReactCssObject;

@@ -13,6 +13,6 @@ document.title = Pkg.name;
 const root = createRoot(document.getElementById('root'));
 root.render(
   <StrictMode>
-    <App style={{border: `solid 1px blue`,}}/>
+    <App style={{border: `solid 1px blue`, color: 'blue',}}/>
   </StrictMode>,
 );
