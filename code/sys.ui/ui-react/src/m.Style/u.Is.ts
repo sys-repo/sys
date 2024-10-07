@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import { isObject, type t } from './common.ts';
 
 /**
  * CSS type validation flags.
@@ -18,10 +18,3 @@ export const Is = {
     return Is.serizlisedStyle(obj.css);
   },
 } as const;
-
-/**
- * Helpers
- */
-function isObject(input: any): input is object {
-  return typeof input === 'object' && input !== null;
-}

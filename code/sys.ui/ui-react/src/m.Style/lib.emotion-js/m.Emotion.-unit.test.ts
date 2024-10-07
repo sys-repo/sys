@@ -18,8 +18,8 @@ describe('Lib: Emotion → https://emotion.sh/docs', () => {
     });
 
     it('merged', () => {
-      const a: t.CssProperties = { color: 'red', fontSize: 16 };
-      const b: t.CssProperties = {
+      const a: t.CSSObject = { color: 'red', fontSize: 16 };
+      const b: t.CSSObject = {
         background: 'blue',
         ':hover': { background: 'green' },
       };

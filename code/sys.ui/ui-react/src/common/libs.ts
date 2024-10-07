@@ -1,1 +1,1 @@
-export { R } from '@sys/std';
+export { Is, R } from '@sys/std';

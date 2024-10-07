@@ -29,7 +29,16 @@ export type StyleTmplLib = {
    *
    * For example: { Absolute: 0 }
    */
-  transform(input?: t.CssValue): t.CssProperties;
+  transform(input?: t.CssValue): t.CSSObject;
+
+  /**
+   * Convert a sloppy input into an {edges} property object
+   * Input:
+   *  - single value (eg. 0 or '5em')
+   *  - 4-part array (eg. [10, null, 0, 5])
+   *  - Y/X array    (eg. [20, 5])
+   */
+  toEdges(input?: t.CssEdgesInput | false): Partial<t.CssEdges>;
 };
 
 /**
