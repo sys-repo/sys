@@ -1,13 +1,10 @@
-import './-tmp-import.ts';
+import './-tmp-import.ts'; // 🐷
 
-import type { t } from './common.ts';
-// import { css as emptionCss } from '@emotion/react';
+import { useState } from 'react';
+
 import { Foo } from '@sys/tmp/client/ui';
-import { css } from './App.Style.ts';
-
-/**
- * Library: CSS-in-JS helpers.
- */
+import { css } from '../../m.Style/mod.ts';
+import type { t } from './common.ts';
 
 /**
  * Sample Component.
@@ -17,25 +14,21 @@ export type AppProps = {
 };
 
 export const App: React.FC<AppProps> = (props) => {
+  const [isOver, setOver] = useState(false);
+  const over = (isOver: boolean) => () => setOver(isOver);
+
   const styles = {
-    blue: css({ color: 'blue' }),
     base: css({
       padding: 10,
-      backgroundColor: 'hotpink',
-      ':hover': { color: 'lightgreen' },
+      color: 'green',
+      backgroundColor: isOver ? 'hotpink' : 'lightgreen',
+      fontFamily: 'monospace',
     }),
   };
 
-  console.log('styles.base', styles.base);
-
   return (
-    <div
-      // {...css(styles.base, props.style)}
-      {...styles.base}
-    >
-      <div>
-        <code>{`Hello World 👋`}</code>
-      </div>
+    <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+      <div>{`Hello World 👋`}</div>
       <Foo />
     </div>
   );
