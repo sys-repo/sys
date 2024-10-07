@@ -6,6 +6,7 @@ import type { expect } from 'chai';
  * Testing helpers.
  */
 export type Testing = {
+  readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
   wait(delay: t.Msecs): Promise<void>;
   randomPort(): number;

@@ -9,6 +9,7 @@ export { describe, expect, it } from './Testing.Bdd.ts';
  * Testing helpers.
  */
 export const Testing: t.Testing = {
+  FALSY: [false, 0, '', null, undefined],
   Bdd,
   slug,
 

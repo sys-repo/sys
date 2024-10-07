@@ -10,7 +10,7 @@ export const Tmpl: t.StyleTmplLib = {
    * For example: { Absolute: 0 }
    */
   transform(input?: t.CssValue): t.CSSObject {
-    if (!isObject(input)) return {};
+    if (Is.falsy(input) || !isObject(input)) return {};
 
     /**
      * Absolute → { position: 'absolute' ... }

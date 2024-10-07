@@ -1,7 +1,7 @@
 /**
  * System
  */
-export type { CommonTheme, Percent } from '@sys/std/t';
+export type { CommonTheme, Falsy, Percent } from '@sys/std/t';
 export type { FC } from 'react';
 
 /**
