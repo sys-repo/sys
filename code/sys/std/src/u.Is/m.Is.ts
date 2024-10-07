@@ -17,30 +17,46 @@ export const Is: t.CommonIsLib = {
   /**
    * Determine if the value is a Promise.
    */
-  promise<T = any>(value?: any): value is Promise<T> {
-    return value !== null && value
-      ? typeof value === 'object' && typeof value.then === 'function'
+  promise<T = any>(input?: any): input is Promise<T> {
+    return input !== null && input
+      ? typeof input === 'object' && typeof input.then === 'function'
       : false;
   },
 
   /**
    * Determine if the value is a number.
    */
-  numeric(value?: any) {
-    if (typeof value === 'number') {
-      return Number.isFinite(value); // Ensure not: NaN, Infinity, or -Infinity.
+  numeric(input?: any) {
+    if (typeof input === 'number') {
+      return Number.isFinite(input); // Ensure not: NaN, Infinity, or -Infinity.
     }
-    if (typeof value === 'bigint') {
+    if (typeof input === 'bigint') {
       return true;
     }
 
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
+    if (typeof input === 'string') {
+      const trimmed = input.trim();
       if (trimmed === '') return false; // Empty string, not a number.
       const num = Number(trimmed);
       return !Number.isNaN(num) && Number.isFinite(num);
     }
 
     return false;
+  },
+
+  /**
+   * Falsy check.
+   * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+   */
+  falsy(input?: any): input is t.Falsy | typeof NaN {
+    return (
+      input === false ||
+      input === 0 ||
+      input === '' ||
+      input === null ||
+      input === undefined ||
+      input === 0n ||
+      Number.isNaN(input) // Handle NaN at runtime
+    );
   },
 };

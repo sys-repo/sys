@@ -52,6 +52,7 @@ describe('Is (common flags)', () => {
     assert('12e3', true);
     assert('0xFF', true);
     assert('NaN', false);
+    assert(NaN, false);
     assert(null, false);
     assert('Infinity', false);
     assert('-Infinity', false);
@@ -64,5 +65,27 @@ describe('Is (common flags)', () => {
     assert({}, false);
     assert([], false);
     assert(BigInt(123), true);
+  });
+
+  it('Is.falsy', () => {
+    const test = (input: unknown, expected: boolean) => {
+      expect(Is.falsy(input)).to.eql(expected, input);
+    };
+    test(false, true);
+    test(0, true);
+    test('', true);
+    test(null, true);
+    test(undefined, true);
+    test(NaN, true);
+    test(BigInt(0), true);
+
+    test(42, false);
+    test('Hello', false);
+    test({}, false);
+    test([], false);
+    test(true, false);
+    test(Symbol('foo'), false);
+    test(BigInt(1), false);
+    test(new Date(), false);
   });
 });
