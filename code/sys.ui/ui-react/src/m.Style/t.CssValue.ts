@@ -20,6 +20,12 @@ export type CssValue = t.CSSObject & t.CssTemplates;
  */
 export type CssTemplates = {
   Absolute?: CssEdgesInput;
+  Margin?: CssEdgesInput;
+  MarginX?: CssEdgesXYInput;
+  MarginY?: CssEdgesXYInput;
+  Padding?: CssEdgesInput;
+  PaddingX?: CssEdgesXYInput;
+  PaddingY?: CssEdgesXYInput;
 };
 
 /**
@@ -28,6 +34,7 @@ export type CssTemplates = {
 type N = string | number | null | undefined;
 export type CssEdgeInput = N;
 export type CssEdgesInput = N | [N] | [N, N] | [N, N, N, N];
+export type CssEdgesXYInput = N | [N] | [N, N];
 export type CssEdges = {
   top: string | number;
   right: string | number;
@@ -35,3 +42,19 @@ export type CssEdges = {
   left: string | number;
 };
 export type CssEdgesArray = [N, N, N, N];
+
+/* Margins */
+export type CssMarginEdges = {
+  marginTop: string | number;
+  marginRight: string | number;
+  marginBottom: string | number;
+  marginLeft: string | number;
+};
+
+/* Padding */
+export type CssPaddingEdges = {
+  paddingTop: string | number;
+  paddingRight: string | number;
+  paddingBottom: string | number;
+  paddingLeft: string | number;
+};

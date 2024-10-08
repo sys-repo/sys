@@ -40,10 +40,15 @@ export type StyleTmplLib = {
    *  - 4-part array (eg. [10, null, 0, 5])
    *  - Y/X array    (eg. [20, 5])
    */
-  toEdges(
-    input?: t.CssEdgesInput | t.Falsy,
-    override?: (edge: keyof t.CssEdges, value?: N) => N,
-  ): Partial<t.CssEdges>;
+  toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CSSObject;
+};
+
+/* Callback that mutates the results of the toEdges function.  */
+export type CssEdgeMutater = (e: CssEdgeMutaterArgs) => void;
+export type CssEdgeMutaterArgs = {
+  readonly current: { readonly value?: N; readonly edge: keyof t.CssEdges };
+  changeValue(next: N): void;
+  changeField(next: keyof t.CSSObject | null): void;
 };
 
 /**
