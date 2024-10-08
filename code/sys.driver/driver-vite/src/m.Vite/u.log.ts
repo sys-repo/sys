@@ -96,23 +96,24 @@ ${c.cyan(`         ${href}`)}
       pad?: boolean;
     }) {
       const { Pkg, paths, url, pad, ws } = args;
-      const hr = '─'.repeat(45);
+      const hr = c.brightGreen(c.bold('─'.repeat(50)));
+      const key = (text: string) => c.bold(c.white(text));
       const text = `
-${c.green('Help')}
-${c.green(hr)}
+${c.brightGreen(c.bold('Help'))}
+${hr}
 ${ws.toString()}
 
 ${Log.Info.toString({ Pkg, url, pad })}      
-Paths:
- ${c.green('input')}  ${paths.input}
- ${c.cyan('outdir')} ${paths.outDir}
+${c.green('input')}    ${paths.input}
+${c.cyan('output')}   ${paths.outDir}
 
-${c.green('Options')}: 
-${c.green(hr)}
- quit   ${c.white(c.bold('ctrl + c'))}
- clear  c
- open   o  ← (in browser)
- help   h
+
+${c.green(c.bold('Options'))}: 
+${hr}
+ Quit   ${key('ctrl + c')}
+ Clear  ${key('c')}
+ Open   ${key('o')}  ← (in browser)
+ Help   ${key('h')}
 `;
       return wrangle.res(c.gray(text), args.pad);
     },
