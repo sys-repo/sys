@@ -1,1 +1,3 @@
-System [react]() tools and standard components.
+
+
+System UI tools and standard components (in "constrained" [React](https://react.dev/)).
