@@ -1,59 +1,65 @@
-import { Fs, c } from '@sys/std-s';
+import { Cli, Env, Http } from '@sys/std-s';
 
-const exclude = [
-  '**/node_modules/**',
-  '**/compiler/**',
-  '**/compiler.samples/**',
-  '**/*.d.mts',
-  // '**/spikes/**',
-];
+const env = await Env.load();
 
-// const pattern = 'code/**/*.mts';
-const pattern = 'code/**/package.json';
-const dir = Fs.resolve(import.meta.dirname || '', '..');
-const paths = await Fs.glob(dir).find(pattern, { exclude });
+// console.log('m', m);
+// const NYLAS_API = m.get('NYLAS_API_KEY');
 
-const ensureRef = async (path: string, mod: { name: string; version: string }, force?: boolean) => {
-  const json = await Deno.readTextFile(path);
-  const pkg = JSON.parse(json);
-  if (pkg.scripts) {
-    const refExists = Object.entries(pkg.scripts).some(([, v]) => String(v).includes(mod.name));
-    if (!refExists && !force) return;
+/**
+ * SAMPLE: Table
+ */
+const table = Cli.table(['Foo', 'Bar']).indent(2);
+table.push();
+table.push(['123456', 'abc']);
+table.push(['333', 'Hello World 👋']);
+table.render();
+console.info();
 
-    const deps = pkg.devDependencies || (pkg.devDependencies = {});
-    deps[mod.name] = mod.version;
+/**
+ * Nylas
+ * https://developer.nylas.com/docs/v3/email/#one-click-unsubscribe-requirements-for-google-messages
+ */
 
-    delete deps[`"${mod.name}"`];
+import * as Nylas from 'npm:nylas@7/';
+export async function sampleNylas() {
+  console.log('Nylas', Nylas);
 
-    console.log('pkg', pkg);
+  const NylasConfig = {
+    apiKey: env.get('NYLAS_API_KEY'),
+    apiUri: 'https://api.us.nylas.com',
+    grandId: env.get('NYLAS_GRANT_ID'),
+  };
+  // const GRANT_ID = '29015d82-0c42-4bfb-a3ea-8add8e4bdf42';
 
-    const output = `${JSON.stringify(pkg, null, '  ')}\n`;
-    await Deno.writeTextFile(path, output);
-  }
-  // console.log('json', json);
-  // console.log('pkg', pkg);
-};
+  const http = Http.client({ accessToken: NylasConfig.apiKey });
+  const url = `https://api.us.nylas.com/v3/grants/${NylasConfig.grandId}/messages?limit=5`;
 
-for (const file of paths) {
-  const path = file.path.substring(dir.length + 1);
+  const spinner = Cli.spinner();
+  const res = await http.get(url);
 
-  // const from = file.path;
-  // const to = Fs.join(Fs.dirname(file.path), file.name.replace(/\.mts$/, '.ts'));
-  // console.log(c.yellow('-------------------------------------------'));
-  // console.log(c.green('•'), path);
-  // console.log('  from', c.gray(from));
-  // console.log('  to  ', c.green(to));
-  // await Deno.rename(from, to);
+  spinner.succeed(`Done: ${res.status}`);
+  // console.log('res', res);
 
-  await ensureRef(path, { name: 'vite', version: '5.4.6' });
-  await ensureRef(path, { name: 'tsx', version: '4.19.1' });
-  await ensureRef(path, { name: 'vitest', version: '2.1.1' }, true);
-  // await ensureRef(path, { name: 'typescript', version: '5.6.2' }, true);
+  const json = await res.json();
+  console.log('json', json);
 }
 
-console.log(c.green('-'));
-console.log(`↑ dir: ${c.green(dir)}`);
+/**
+ *
+ */
+export async function sampleOpenAI() {
+  // console.log('OpenAI', OpenAI);
+}
 
-console.log();
-console.log(`${c.yellow('.mts')} files ↑`);
-console.log(c.cyan('total'), paths.length);
+// Finish up.
+// await sampleNylas();
+// await sampleOpenAI();
+
+const m = Cli.args(Deno.args);
+console.log('m', m);
+
+/**
+ * TODO 🐷 arts passed for try/test/ci
+ */
+
+Deno.exit(0);

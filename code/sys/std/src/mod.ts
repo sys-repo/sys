@@ -1,14 +1,29 @@
-export { Pkg } from './common/mod.ts';
+/**
+ * @module
+ * Standard system libraries.
+ *
+ * @example
+ * ```ts
+ * import { ObjectPath } from '@sys/std';
+ * import { Dates, Time } from '@sys/std';
+ * ```
+ */
+export { Pkg } from './common.ts';
 
-export { Async } from './u.Async/mod.ts';
-export { DateTime, Time } from './u.Date/mod.ts';
-export { Delete } from './u.Delete/mod.ts';
-export { Dispose } from './u.Dispose/mod.ts';
-export { Color, c } from './u.Fmt/mod.ts';
-export { Http } from './u.Http/mod.ts';
-export { Id } from './u.Id/mod.ts';
-export { Immutable } from './u.Immutable/mod.ts';
-export { ObjectPath } from './u.ObjectPath/mod.ts';
-export { Path } from './u.Path/mod.ts';
-export { Semver } from './u.Semver/mod.ts';
-export { Testing } from './u.Testing/mod.ts';
+export { Args } from './m.Args/mod.ts';
+export { Async } from './m.Async/mod.ts';
+export { Dates, Time } from './m.DateTime/mod.ts';
+export { Delete } from './m.Delete/mod.ts';
+export { Dispose } from './m.Dispose/mod.ts';
+export { Err } from './m.Err/mod.ts';
+export { Http } from './m.Http/mod.ts';
+export { Id, cuid, slug } from './m.Id/mod.ts';
+export { Immutable } from './m.Immutable/mod.ts';
+export { Is } from './m.Is/mod.ts';
+export { ObjectPath } from './m.ObjectPath/mod.ts';
+export { Rx, rx } from './m.Observable/mod.ts';
+export { Path } from './m.Path/mod.ts';
+export { Semver } from './m.Semver/mod.ts';
+export { Testing } from './m.Testing/mod.ts';
+
+export { R } from './common.ts';
