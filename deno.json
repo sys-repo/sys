@@ -1,11 +1,11 @@
 {
   "tasks": {
-    "info": "deno run -RE ./scripts/cmd.info.ts",
-    "test": "deno run -A ./scripts/cmd.ci.test.ts",
-    "lint": "deno run -RE --allow-run=sh ./scripts/cmd.lint.ts",
-    "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
-    "ci": "deno run -A ./scripts/cmd.ci.ts",
-    "clean": "deno run -RWE --allow-run=sh ./scripts/cmd.clean.ts",
+    "info": "deno run -RE ./scripts/mod.ts --info",
+    "test": "deno run -A ./scripts/mod.ts --test",
+    "dry": "deno run -RE --allow-run=sh ./scripts/mod.ts --dry",
+    "ci": "deno run -A ./scripts/mod.ts --dry --test --info",
+    "lint": "deno run -RE --allow-run=sh ./scripts/mod.ts --lint",
+    "clean": "deno run -RWE --allow-run=sh ./scripts/mod.ts --clean",
     "reload": "rm -rf node_modules && deno install --reload",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },

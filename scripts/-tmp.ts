@@ -1,4 +1,4 @@
-import { Cli, Time, Env, Http } from '@sys/std-s';
+import { Cli, Env, Http } from '@sys/std-s';
 
 const env = await Env.load();
 
@@ -47,7 +47,6 @@ export async function sampleNylas() {
 /**
  *
  */
-import OpenAI from 'npm:openai@4';
 export async function sampleOpenAI() {
   // console.log('OpenAI', OpenAI);
 }
@@ -56,12 +55,11 @@ export async function sampleOpenAI() {
 // await sampleNylas();
 // await sampleOpenAI();
 
-const m = Deno.args;
+const m = Cli.args(Deno.args);
 console.log('m', m);
 
 /**
  * TODO 🐷 arts passed for try/test/ci
- *
  */
 
 Deno.exit(0);
