@@ -1,1 +1,1 @@
-System [react]() tools and components.
+System [react]() tools and standard components.
