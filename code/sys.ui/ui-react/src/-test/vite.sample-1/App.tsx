@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './-tmp-import.ts'; // 🐷
+import './-sample-import.ts'; // 🐷
 
 import { Foo } from '@sys/tmp/client/ui';
 import { Color, css } from '../../mod.ts';
@@ -35,7 +35,7 @@ export const App: React.FC<AppProps> = (props) => {
       marginTop: 20,
       display: 'grid',
       placeItems: 'center',
-      minHeight: 400,
+      minHeight: 300,
       color: Color.alpha(theme.fg, isOver ? 1 : 0.3),
       backgroundColor: theme.bg,
       transition: `color 200ms`,
@@ -50,7 +50,10 @@ export const App: React.FC<AppProps> = (props) => {
 
   return (
     <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
-      <div {...styles.title}>{`Hello World 👋`}</div>
+      <div {...styles.title}>
+        <div>{`Hello World 👋`}</div>
+        <div>{`(see console for import samples)`}</div>
+      </div>
       <div>
         {'Imported from ← '}
         <Foo />
