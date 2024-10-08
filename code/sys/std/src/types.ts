@@ -12,6 +12,7 @@ export type * from './m.Err/t.ts';
 export type * from './m.Http/t.ts';
 export type * from './m.Id/t.ts';
 export type * from './m.Immutable/t.ts';
+export type * from './m.IndexedDb/t.ts';
 export type * from './m.Is/t.ts';
 export type * from './m.ObjectPath/t.ts';
 export type * from './m.Observable/t.ts';
