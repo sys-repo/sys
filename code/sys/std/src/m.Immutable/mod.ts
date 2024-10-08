@@ -1,5 +1,5 @@
 /**
  * @module
- * Module: Immutable tools.
+ * Tools for working with the standard `Immutable<T>` primitive interface.
  */
 export * from './Immutable.ts';

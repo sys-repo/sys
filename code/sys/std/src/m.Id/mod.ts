@@ -1,3 +1,14 @@
+/**
+ * @module
+ * Library for working with unique identifiers.
+ *
+ * @example
+ * ```ts
+ * import { Id } from '@sys/std/id';          // ← Utility library
+ * import { cuid, slug } from '@sys/std/id';  // ← Standard generator functions.
+ * ```
+ */
+
 import { Id } from './Id.ts';
 export { Id };
 
