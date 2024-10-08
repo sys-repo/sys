@@ -6,9 +6,5 @@
     "@std/path": "npm:@jsr/std__path@1.0.6",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.2"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0"
   }
 }

@@ -9,6 +9,8 @@
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.7",
 
     "csstype": "npm:csstype@3",
+    "@types/react": "npm:@types/react@18",
+    "@types/react-dom": "npm:@types/react-dom@18",
 
     "@automerge/automerge": "npm:@automerge/automerge@2.2.8",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
