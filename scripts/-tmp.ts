@@ -53,6 +53,15 @@ export async function sampleOpenAI() {
 }
 
 // Finish up.
-await sampleNylas();
-await sampleOpenAI();
+// await sampleNylas();
+// await sampleOpenAI();
+
+const m = Deno.args;
+console.log('m', m);
+
+/**
+ * TODO 🐷 arts passed for try/test/ci
+ *
+ */
+
 Deno.exit(0);
