@@ -19,6 +19,7 @@ export { Err } from './m.Err/mod.ts';
 export { Http } from './m.Http/mod.ts';
 export { Id, cuid, slug } from './m.Id/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
+export { IndexedDb } from './m.IndexedDb/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { ObjectPath } from './m.ObjectPath/mod.ts';
 export { Rx, rx } from './m.Observable/mod.ts';

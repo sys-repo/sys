@@ -1,13 +1,11 @@
+import type { t } from '../common.ts';
+
 type DeleteResponse = { name: string; error?: string };
 
 /**
  * A promise based wrapper into the IndexedDB API.
- *
- *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
- *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
- *    https://gist.github.com/JamesMessinger/a0d6389a5d0e3a24814b
  */
-export const IndexedDb = {
+export const IndexedDb: t.IndexedDbLib = {
   /**
    * Create a promised base interface into an IndexedDb
    */

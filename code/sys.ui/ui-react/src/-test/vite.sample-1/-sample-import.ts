@@ -26,12 +26,13 @@ console.groupEnd();
 /**
  * Namespace: @sys
  */
-import { Path, Dates, Time, Args } from '@sys/std';
+import { Path, Dates, Time, Args, IndexedDb } from '@sys/std';
 
 console.group('🌳 import: @sys');
 console.info('@sys/std:Path', Path);
 console.info('@sys/std:Dates', Dates, `"${Dates.format(now, 'E MMM do, yyyy')}"`);
 console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parse:', Args.parse(['--foo', '--bar=baz', './file.txt']));
+console.info('@sys/std:IndexedDb', IndexedDb);
 
 console.groupEnd();
