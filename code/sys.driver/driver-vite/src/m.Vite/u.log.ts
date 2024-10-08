@@ -1,4 +1,5 @@
-import { c, type t } from './common.ts';
+import { resolve } from '../../../../sys/std/src/m.ObjectPath/u.ts';
+import { Denofile, Path, c, type t } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
@@ -32,12 +33,11 @@ export const Log = {
     },
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
-      let res = `
+      const text = `
 ${c.gray(`Module:       ${Log.Module.toString(Pkg)}`)}
 ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
     `;
-      res = res.trim();
-      return options.pad ? `\n${res}\n` : res;
+      return wrangle.res(text, options.pad);
     },
   },
 
@@ -51,18 +51,18 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
     toString(args: BuildArgs) {
       const { ok, stdio, paths, Pkg } = args;
       const titleColor = ok ? c.brightGreen : c.brightYellow;
-      let res = `
+      let text = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}
 ${c.gray(` input:  ${paths.input}`)}
 ${c.gray(` output: ${paths.outDir}`)}
 `;
-      res = res.trim();
+      text = text.trim();
       if (Pkg) {
         const jsr = `https://jsr.io/${Pkg.name}`;
-        res += c.gray(`\n pkg:    ${Log.Module.toString(Pkg)}  ${c.white('→')}  ${jsr}`);
+        text += c.gray(`\n pkg:    ${Log.Module.toString(Pkg)}  ${c.white('→')}  ${jsr}`);
       }
-      return args.pad ? `\n${res}\n` : res;
+      return wrangle.res(text, args.pad);
     },
   },
 
@@ -70,18 +70,61 @@ ${c.gray(` output: ${paths.outDir}`)}
    * Info
    */
   Info: {
-    toString(args: { Pkg: t.Pkg; paths: t.ViteConfigPaths; url: string; pad?: boolean }) {
+    toString(args: { Pkg: t.Pkg; url: string; pad?: boolean }) {
       const { Pkg } = args;
       const url = new URL(args.url);
       const mod = Log.Module.toString(Pkg);
       const port = c.bold(c.brightCyan(url.port));
       const href = `${url.protocol}//${url.hostname}:${port}/`;
-      let res = `
+      const text = `
 ${c.gray(`Module   ${mod}`)}
 ${c.cyan(`         ${href}`)}
           `;
-      res = res.trim();
-      return args.pad ? `\n${res}\n` : res;
+      return wrangle.res(text, args.pad);
     },
+  },
+
+  /**
+   * Help
+   */
+  Help: {
+    toString(args: {
+      Pkg: t.Pkg;
+      ws: t.ViteDenoWorkspace;
+      paths: t.ViteConfigPaths;
+      url: string;
+      pad?: boolean;
+    }) {
+      const { Pkg, paths, url, pad, ws } = args;
+      const hr = '─'.repeat(45);
+      const text = `
+${c.green('Help')}
+${c.green(hr)}
+${ws.toString()}
+
+${Log.Info.toString({ Pkg, url, pad })}      
+Paths:
+ ${c.green('input')}  ${paths.input}
+ ${c.cyan('outdir')} ${paths.outDir}
+
+${c.green('Options')}: 
+${c.green(hr)}
+ quit   ${c.white(c.bold('ctrl + c'))}
+ clear  c
+ open   o  ← (in browser)
+ help   h
+`;
+      return wrangle.res(c.gray(text), args.pad);
+    },
+  },
+} as const;
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  res(text: string, pad?: boolean) {
+    text = text.trim();
+    return pad ? `\n${text}\n` : text;
   },
 } as const;

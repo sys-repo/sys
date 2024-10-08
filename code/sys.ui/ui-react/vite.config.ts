@@ -9,8 +9,7 @@ import { Style } from '@sys/ui-react/style';
  */
 export default defineConfig(async (_ctx) => {
   const workspace = await workspacePlugin();
-
-  // workspace.ws?.log({}); 🐷
+  // workspace.ws?.log({}); // 🐷
 
   const react = reactPlugin(Style.plugin.emotion());
   return { plugins: [react, workspace] };

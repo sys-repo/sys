@@ -1,4 +1,4 @@
-import { Cmd, keypress, type t } from './common.ts';
+import { Cmd, Denofile, keypress, type t, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
@@ -8,6 +8,7 @@ export function keyboardFactory(args: {
   paths: t.ViteConfigPaths;
   port: number;
   url: string;
+  ws: t.ViteDenoWorkspace;
   dispose: () => Promise<void>;
   Pkg?: t.Pkg;
 }) {
@@ -16,6 +17,8 @@ export function keyboardFactory(args: {
   const url = new URL(args.url);
 
   return async () => {
+    const ws = await ViteConfig.workspace();
+
     for await (const e of keypress()) {
       /**
        * [Key-O] → open the server in the local browser.
@@ -33,11 +36,19 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * [Key-I]: Info
+       * [Key-I]: Clear → <ModuleInfo>
        */
-      if (Pkg && e.key === 'i') {
+      if (Pkg && e.key === 'c') {
         console.clear();
-        console.info(Log.Info.toString({ Pkg, paths, url: url.href, pad: true }));
+        console.info(Log.Info.toString({ Pkg, url: url.href, pad: true }));
+      }
+
+      /**
+       * [Key-H]: Inro → <Options | ExtendedInfo>
+       */
+      if (Pkg && e.key === 'h') {
+        console.clear();
+        console.info(Log.Help.toString({ Pkg, paths, ws, url: url.href, pad: true }));
       }
     }
   };

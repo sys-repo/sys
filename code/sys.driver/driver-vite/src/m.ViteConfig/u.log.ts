@@ -1,4 +1,4 @@
-import { c, type t } from './common.ts';
+import { c, type t, Path } from './common.ts';
 
 /**
  * Logging helpers.
@@ -19,9 +19,9 @@ export const Log = {
       ws.aliases.forEach((alias) => {
         const mod = c.green(alias.find.toString());
         const path = alias.replacement;
-        line(` • ${c.gray('import')} ${mod}`);
-        line(c.gray(`   ${c.green('→')} ${path}`));
-        line();
+        const displayPath = `${Path.dirname(path)}/${c.white(Path.basename(path))}`;
+        line(c.gray(` ${c.green('•')} ${c.gray('import')} ${mod}`));
+        line(c.gray(`   ${'→'} ${displayPath}`));
       });
       res = res.trim();
       return options.pad ? `\n${res}\n` : res;
