@@ -29,6 +29,12 @@ jobs:
         with:
           deno-version: v2.0.0-rc.5
 
+      - name: publish module → "@sys/types"
+        run: |
+          cd code/sys/types
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
@@ -41,14 +47,32 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-deno-cloud"
+      - name: publish module → "@sys/ui-react"
         run: |
-          cd code/sys.driver/driver-deno-cloud
+          cd code/sys.ui/ui-react
           deno task test
           deno publish
 
       - name: publish module → "@sys/driver-automerge"
         run: |
           cd code/sys.driver/driver-automerge
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/driver-deno"
+        run: |
+          cd code/sys.driver/driver-deno
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/driver-vite"
+        run: |
+          cd code/sys.driver/driver-vite
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
           deno task test
           deno publish

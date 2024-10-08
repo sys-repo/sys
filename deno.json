@@ -1,29 +1,40 @@
 {
   "tasks": {
-    "info": "deno run -RE ./scripts/cmd.info.ts",
-    "test": "deno run -RE --allow-run=sh ./scripts/cmd.ci.test.ts",
-    "lint": "deno run -RE --allow-run=sh ./scripts/cmd.ci.lint.ts",
-    "dry": "deno run -RE --allow-run=sh ./scripts/cmd.ci.dry.ts",
-    "ci": "deno run -RE --allow-run=sh ./scripts/cmd.ci.ts",
+    "info": "deno run -RE ./scripts/mod.ts --info",
+    "test": "deno run -A ./scripts/mod.ts --test",
+    "dry": "deno run -RE --allow-run=sh ./scripts/mod.ts --dry",
+    "ci": "deno run -A ./scripts/mod.ts --dry --test --info",
+    "lint": "deno run -RE --allow-run=sh ./scripts/mod.ts --lint",
+    "clean": "deno run -RWE --allow-run=sh ./scripts/mod.ts --clean",
+    "reload": "rm -rf node_modules && deno install --reload",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
+  "nodeModulesDir": "auto",
   "compilerOptions": {
     "strict": true,
-    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
+    "types": ["vite/client", "react", "react-dom"],
     "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsxImportSource": "@emotion/react",
+    "jsxImportSourceTypes": "@emotion/react"
   },
-  "nodeModules": false,
   "workspace": [
+    "./code/sys.tmp",
+
     "./code/sys/std",
     "./code/sys/std-s",
-    "./code/sys.ui/ui-tmp",
+    "./code/sys/types",
+
     "./code/sys.ui/ui-react",
+
     "./code/sys.driver/driver-automerge",
-    "./code/sys.driver/driver-deno-cloud",
+    "./code/sys.driver/driver-deno",
+    "./code/sys.driver/driver-vite",
+
+    "./deploy/api.db.team",
     "./code/-samples/deno.vite-react"
   ],
-  "importMap": "./deno.imports.json",
+  "importMap": "./deno.importMap.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any"]

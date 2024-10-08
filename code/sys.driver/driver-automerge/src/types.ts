@@ -1,4 +1,5 @@
 /**
- * System Driver for Automerge: Types
+ * @module
+ * Types: System Driver for Automerge
  */
 export {};

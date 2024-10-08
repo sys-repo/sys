@@ -6,10 +6,10 @@
 
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
-- compilation toolchain (output → W3C standards)
-- modules: [sys](/code/sys/) 
-- modules: [sys.ui](/code/sys.ui/) 
-- modules: [sys.driver](/code/sys.driver/) 
+- modules: [sys](/code/sys/) ← standard libs
+- modules: [sys.ui](/code/sys.ui/)
+- modules: [sys.driver](/code/sys.driver/)
+- build toolchain (output → W3C standards)
 
 (built on, and commited to, baseline modern [Web Standards](https://wintercg.org/))
 
@@ -32,7 +32,7 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# Philosophy: Dev
+# Philosophy ← (Dev)
 
 >> Open System.  
    Open Commons.  
@@ -155,9 +155,9 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# License - [MIT](Licence)
+# License, [MIT](Licence).
 
-For a scintillating break down of this open-source classic, treat yourself to **Kyle E. Mitchell's**  
+To understand the context around MIT Licence ("an open-source classic") see  **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
