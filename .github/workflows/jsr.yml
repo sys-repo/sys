@@ -33,7 +33,7 @@ jobs:
         run: |
           cd code/sys/types
           deno task test
-          deno publish --dry-run
+          deno publish
 
       - name: publish module → "@sys/std"
         run: |
