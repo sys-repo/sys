@@ -12,6 +12,9 @@ export type StyleLib = {
   plugin: StylePuginLib;
 };
 
+/**
+ * Library: Compiler toolchain plugins for CSS.
+ */
 export type StylePuginLib = {
   /**
    * Default options for the SWC React plugin that enables

@@ -40,26 +40,48 @@ export type ColorLib = t.ColorConstants & {
   ): t.ColorTheme;
 };
 
+/**
+ * Common color primitives (hex string).
+ */
 export type ColorConstants = {
-  readonly RED: string;
-  readonly WHITE: string;
-  readonly BLACK: string;
-  readonly DARK: string;
-  readonly BLUE: string;
-  readonly GREEN: string;
+  readonly WHITE: HexColor;
+  readonly BLACK: HexColor;
+  readonly DARK: HexColor;
+  readonly RED: HexColor;
+  readonly GREEN: HexColor;
+  readonly BLUE: HexColor;
 };
 
 /**
  * Represents a theme that produces basic color sets.
  */
 export type ColorTheme = ColorThemeColors & {
+  /* The name of the theme. */
   readonly name: t.CommonTheme;
-  readonly is: { readonly light: boolean; readonly dark: boolean };
+
+  /* Flags */
+  readonly is: {
+    /* Theme is "Light" */
+    readonly light: boolean;
+
+    /* Theme is "Dark" */
+    readonly dark: boolean;
+  };
+
+  /* Retrieve an alpha-percent of the current theme colors. */
   alpha(percent?: t.Percent): ColorThemeColors;
+
+  /* Retrieve a new theme inverted (eg. "Dark" → "Light") */
   invert(): ColorTheme;
 };
 
+/**
+ * Primitive theme colors.
+ */
 export type ColorThemeColors = {
+  /* Background color. */
   readonly bg: HexColor;
+
+  /* Foreground color. */
   readonly fg: HexColor;
 };

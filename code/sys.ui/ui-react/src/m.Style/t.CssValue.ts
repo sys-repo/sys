@@ -32,18 +32,28 @@ export type CssTemplates = {
  * Edges
  */
 type N = string | number | null | undefined;
+
+/* Value representing an edge (eg. "left" or "right"). */
 export type CssEdgeInput = N;
+
+/* Loose input for edges around a 4-sided entity. */
 export type CssEdgesInput = N | [N] | [N, N] | [N, N, N, N];
+
+/* Loose inputs for a value representing a single-dimension (X/Y) */
 export type CssEdgesXYInput = N | [N] | [N, N];
+
+/* Edges for a 4-sided entity. */
 export type CssEdges = {
   top: string | number;
   right: string | number;
   bottom: string | number;
   left: string | number;
 };
+
+/* Array of edge values: "top", "right", "bottom", "left" */
 export type CssEdgesArray = [N, N, N, N];
 
-/* Margins */
+/* CSS margin edges */
 export type CssMarginEdges = {
   marginTop: string | number;
   marginRight: string | number;
@@ -51,7 +61,7 @@ export type CssMarginEdges = {
   marginLeft: string | number;
 };
 
-/* Padding */
+/* CSS padding edges */
 export type CssPaddingEdges = {
   paddingTop: string | number;
   paddingRight: string | number;
