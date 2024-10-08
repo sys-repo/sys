@@ -12,7 +12,7 @@ export { describe, expect, it } from '../m.Testing/mod.ts';
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).
  */
-export const Testing: t.TestingHttp = {
+export const Testing: t.TestingHttpLib = {
   ...Base,
   HttpServer,
 };

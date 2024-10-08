@@ -3,6 +3,9 @@ import { Subject, filter, flatten, take, type t } from './common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { Delete } from '../m.Delete/mod.ts';
 
+/**
+ * Toolkit for working with disposable interfaces.
+ */
 export const Dispose: t.DisposeLib = {
   /**
    * Generates a generic disposable interface that is

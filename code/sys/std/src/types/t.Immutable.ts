@@ -15,8 +15,13 @@ export type Immutable<D = O, P = unknown> = {
  */
 export type ImmutableMutator<D = O> = (draft: D) => void;
 
+/* Loose inputs to the change function (multiple input types) */
 export type ImmutableChangeOptionsInput<P> = ImmutablePatchCallback<P> | ImmutableChangeOptions<P>;
+
+/* Callback that JSON patches arising from a change operation are returned in. */
 export type ImmutablePatchCallback<P> = (patches: P[]) => void;
+
+/* Options passed to the Immutable `change` function. */
 export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
 
 /**
@@ -24,7 +29,10 @@ export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
  * an observable event factory.
  */
 export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
+  /* The unique ID of the instance of the handle. */
   readonly instance: string; // Unique ID of the reference handle.
+
+  /* Generate a new Events object. */
   events(dispose$?: t.UntilObservable): E;
 };
 
@@ -56,16 +64,24 @@ export type ImmutableChange<D, P> = {
  */
 type MapPropName = string;
 type MapToPath = t.ObjectPath | MapPropName;
+
+/* Defines a mapping between immutable objects. */
 export type ImmutableMapping<T extends O, P> = { [K in keyof T]: t.ImmutableMappingArray<T, P> };
+
+/* An immutable mapping represented as an array. */
 export type ImmutableMappingArray<T extends O, P> = [t.ImmutableRef, MapToPath];
+
+/* An immutable mapping property definition. */
 export type ImmutableMappingProp<T extends O, P> = {
   key: string | symbol;
   doc: t.ImmutableRef<T, P, ImmutableMapEvents<T, P>>;
   path: t.ObjectPath;
 };
 
+/* Events instance for an ImmutableMap. */
 export type ImmutableMapEvents<T extends O, P> = t.ImmutableEvents<T, P>;
 
+/* Generator function for an Immutable map with extended properties. */
 export type ImmutableMap<T extends O, P> = t.ImmutableRef<T, P, t.ImmutableMapEvents<T, P>> & {
   toObject(): T;
 };
@@ -76,6 +92,8 @@ export type ImmutableMap<T extends O, P> = t.ImmutableRef<T, P, t.ImmutableMapEv
  * document the patch pertains to.
  */
 export type ImmutableMapPatch<P> = P & { mapping: ImmutableMapPatchInfo };
+
+/* Meta-data about an immutable patch mapping. */
 export type ImmutableMapPatchInfo = { key: string; doc: string };
 
 /**

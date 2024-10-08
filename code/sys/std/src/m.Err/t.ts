@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 
+/* Options passed to the `ErrLib.stdErr` method. */
 export type ErrStdErrorOptions = { name?: string; cause?: unknown };
 
 /**

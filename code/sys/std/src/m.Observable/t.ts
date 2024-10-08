@@ -34,7 +34,11 @@ export type RxAsPromise = {
     options?: { op?: string; timeout?: t.Msecs },
   ): Promise<RxPromiseResponse<E>>;
 };
+
+/* An error thrown during an Rx/Observable promise operation. */
 export type RxPromiseError = { code: 'timeout' | 'completed' | 'unknown'; message: string };
+
+/* The response returned from an Rx/Observable wrapped promise. */
 export type RxPromiseResponse<E extends Event> = {
   payload?: E['payload'];
   error?: t.RxPromiseError;

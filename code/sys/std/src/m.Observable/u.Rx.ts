@@ -9,9 +9,7 @@ import { asPromise } from './u.Rx.promise.ts';
 
 const { disposable, disposableAsync, lifecycle, lifecycleAsync, done } = Dispose;
 
-/**
- * Tools for working with Observables (via the [rxjs] library).
- */
+/* Tools for working with Observables (via the RXJS library). */
 export const Rx: t.RxLib = {
   ...lib,
   Is,
@@ -31,4 +29,5 @@ export const Rx: t.RxLib = {
   },
 };
 
+/* Tools for working with Observables (via the RXJS library). */
 export const rx = Rx;

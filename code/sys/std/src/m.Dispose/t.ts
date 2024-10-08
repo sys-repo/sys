@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
-export type LifecycleStageHandler = t.IgnoredResponse;
+/* Callback invoked upon disposal of a lifecycle object  */
+export type LifecycleStageHandler = () => t.IgnoredResponse;
 
 /**
  * Toolkit for working with disposable interfaces.
@@ -11,6 +12,8 @@ export type DisposeLib = {
    * typically mixed into a wider interface of some kind.
    */
   disposable(until$?: t.UntilObservable): t.Disposable;
+
+  /* An async variant of the dispose pattern. */
   disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
   disposableAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.DisposableAsync;
 
@@ -19,6 +22,8 @@ export type DisposeLib = {
    * and exposes it's disposed state.
    */
   lifecycle(until$?: t.UntilObservable): t.Lifecycle;
+
+  /* An async variant of the lifecycle pattern. */
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
   lifecycleAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
 
