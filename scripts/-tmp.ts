@@ -38,7 +38,7 @@ export async function sampleNylas() {
   const res = await http.get(url);
 
   spinner.succeed(`Done: ${res.status}`);
-  console.log('res', res);
+  // console.log('res', res);
 
   const json = await res.json();
   console.log('json', json);
@@ -49,7 +49,7 @@ export async function sampleNylas() {
  */
 import OpenAI from 'npm:openai@4';
 export async function sampleOpenAI() {
-  console.log('OpenAI', OpenAI);
+  // console.log('OpenAI', OpenAI);
 }
 
 // Finish up.
