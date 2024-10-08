@@ -1,20 +1,16 @@
 import type { ColorInput } from 'tinycolor2';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 import tinycolor from 'tinycolor2';
-import { DARK, RED } from './u.const.ts';
-
-export * from './u.const.ts';
-export * from './u.theme.ts';
+import { RED } from './u.const.ts';
 
 /**
  * Creates a new tiny-color instance.
  * https://github.com/bgrins/TinyColor
  */
-export const create = (value: ColorInput) => tinycolor(value);
-export const black = () => create('black');
-export const white = () => create('white');
-export const dark = () => create(DARK);
+const create = (value: ColorInput) => tinycolor(value);
+const black = () => create('black');
+const white = () => create('white');
 
 /**
  * Mixes two colors.

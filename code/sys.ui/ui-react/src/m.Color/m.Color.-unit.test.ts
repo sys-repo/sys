@@ -1,5 +1,5 @@
-import { Color } from './mod.ts';
 import { describe, expect, it } from '../-test.ts';
+import { Color } from './m.Color.ts';
 
 describe('color', () => {
   describe('Color.format', () => {
@@ -146,6 +146,22 @@ describe('color', () => {
 
       expect(inverted.fg).to.eql('salmon');
       expect(inverted.bg).to.eql('red');
+    });
+  });
+
+  describe('Color.lighten | Color.darkwn', () => {
+    it('lighten', () => {
+      const a = Color.lighten(Color.DARK, 10);
+      const b = Color.lighten(Color.WHITE, 10);
+      expect(a).to.eql('rgb(61, 71, 97)');
+      expect(b).to.eql('rgb(255, 255, 255)');
+    });
+
+    it('darken', () => {
+      const a = Color.darken(Color.WHITE, 10);
+      const b = Color.darken(Color.BLACK, 10);
+      expect(a).to.eql('rgb(230, 230, 230)');
+      expect(b).to.eql('rgb(0, 0, 0)');
     });
   });
 });

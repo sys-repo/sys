@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 import { DARK, WHITE } from './u.const.ts';
 import { alpha } from './u.format.ts';
 

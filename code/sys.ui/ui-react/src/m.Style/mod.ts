@@ -28,4 +28,5 @@
  * Note: the `jsxImportSourceTypes` sets up editor support to recognize
  * the `css={...}` prioperty on react components.
  */
+export { Color } from '../m.Color/mod.ts';
 export { Style, css } from './m.Style.ts';
