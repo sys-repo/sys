@@ -44,7 +44,7 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * [Key-H]: Inro → <Options | ExtendedInfo>
+       * [Key-H]: Info → <Options | ExtendedInfo>
        */
       if (Pkg && e.key === 'h') {
         console.clear();
