@@ -21,14 +21,14 @@ export function keyboardFactory(args: {
 
     for await (const e of keypress()) {
       /**
-       * [Key-O] → open the server in the local browser.
+       * OPEN → open the local browser and point it at the Vite dev-server.
        */
       if (e.key === 'o') {
         sh.run(`open ${url.href}`);
       }
 
       /**
-       * [Ctrl + C] → shutdown server and exit.
+       * QUIT → shutdown server and exit.
        */
       if (e.ctrlKey && e.key === 'c') {
         await dispose();
@@ -36,7 +36,7 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * [Key-I]: Clear → <ModuleInfo>
+       * CLEAR → <ModuleInfo>
        */
       if (Pkg && e.key === 'c') {
         console.clear();
@@ -44,7 +44,7 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * [Key-H]: Info → <Options | ExtendedInfo>
+       * HELP → Info: <Options | ExtendedInfo>
        */
       if (Pkg && e.key === 'h') {
         console.clear();
