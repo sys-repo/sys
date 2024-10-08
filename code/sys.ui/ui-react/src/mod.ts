@@ -8,5 +8,5 @@
  * ```
  */
 export { Pkg } from './common.ts';
-export { Style } from './m.Style/mod.ts';
+export { Style, css } from './m.Style/mod.ts';
 export { Color } from './m.Color/mod.ts';

@@ -3,14 +3,14 @@ import './-tmp-import.ts'; // 🐷
 import { useState } from 'react';
 
 import { Foo } from '@sys/tmp/client/ui';
-import { css } from '../../m.Style/mod.ts';
+import { css } from '../../mod.ts';
 import type { t } from './common.ts';
 
 /**
  * Sample Component.
  */
 export type AppProps = {
-  style?: t.CssProperties;
+  style?: t.CssValue;
 };
 
 export const App: React.FC<AppProps> = (props) => {
@@ -24,11 +24,17 @@ export const App: React.FC<AppProps> = (props) => {
       backgroundColor: isOver ? 'hotpink' : 'lightgreen',
       fontFamily: 'monospace',
     }),
+    title: css({
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      MarginY: 5,
+      PaddingX: 10,
+      PaddingY: [5, 10],
+    }),
   };
 
   return (
     <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
-      <div>{`Hello World 👋`}</div>
+      <div {...styles.title}>{`Hello World 👋`}</div>
       <Foo />
     </div>
   );
