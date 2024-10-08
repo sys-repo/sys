@@ -1,4 +1,4 @@
-import { Id } from '../u.Id/mod.ts';
+import { Id } from '../m.Id/mod.ts';
 import { Testing, describe, expect, it } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {

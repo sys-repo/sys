@@ -4,10 +4,10 @@
  */
 
 import type { t } from '../common.ts';
-import { Testing as Base } from '../u.Testing/mod.ts';
+import { Testing as Base } from '../m.Testing/mod.ts';
 import { TestHttpServer as HttpServer } from './u.HttpServer.ts';
 
-export { describe, expect, it } from '../u.Testing/mod.ts';
+export { describe, expect, it } from '../m.Testing/mod.ts';
 
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).

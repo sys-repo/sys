@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { Bdd } from './Testing.Bdd.ts';
-import { slug } from '../u.Id/mod.ts';
+import { slug } from '../m.Id/mod.ts';
 import { randomPort } from './u.ts';
 
 export { describe, expect, it } from './Testing.Bdd.ts';

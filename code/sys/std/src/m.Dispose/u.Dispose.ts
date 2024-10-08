@@ -1,7 +1,7 @@
-import { Is } from '../u.Observable/u.Rx.Is.ts';
+import { Is } from '../m.Observable/u.Rx.Is.ts';
 import { Subject, filter, flatten, take, type t } from './common.ts';
-import { Err } from '../u.Err/mod.ts';
-import { Delete } from '../u.Delete/mod.ts';
+import { Err } from '../m.Err/mod.ts';
+import { Delete } from '../m.Delete/mod.ts';
 
 export const Dispose: t.DisposeLib = {
   /**

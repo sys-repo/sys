@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { Delete } from '../u.Delete/mod.ts';
+import { Delete } from '../m.Delete/mod.ts';
 import { Is } from './u.Err.Is.ts';
 import { isObject } from './u.ts';
 

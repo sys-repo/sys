@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-import { Dispose } from '../u.Dispose/mod.ts';
+import { Dispose } from '../m.Dispose/mod.ts';
 import * as lib from './u.Rx.libs.ts';
 
 import { Is } from './u.Rx.Is.ts';

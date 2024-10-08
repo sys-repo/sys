@@ -11,11 +11,11 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./datetime": "./src/u.DateTime/mod.ts",
-    "./id": "./src/u.Id/mod.ts",
-    "./immutable": "./src/u.Immutable/mod.ts",
-    "./path": "./src/u.Path/mod.ts",
-    "./testing": "./src/u.Testing/mod.ts",
-    "./testing/httpserver": "./src/u.Testing.HttpServer/mod.ts"
+    "./datetime": "./src/m.DateTime/mod.ts",
+    "./id": "./src/m.Id/mod.ts",
+    "./immutable": "./src/m.Immutable/mod.ts",
+    "./path": "./src/m.Path/mod.ts",
+    "./testing": "./src/m.Testing/mod.ts",
+    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts"
   }
 }

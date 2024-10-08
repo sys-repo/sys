@@ -1,5 +1,5 @@
 import type { t } from '../common/mod.ts';
-import { HttpUrl } from '../u.Http/u.Http.Url.ts';
+import { HttpUrl } from '../m.Http/u.Http.Url.ts';
 
 type M = 'GET' | 'PUT' | 'POST' | 'DELETE';
 type H = { method: M; handler: Deno.ServeHandler };
