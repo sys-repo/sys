@@ -1,3 +1,2 @@
 # sys.ui
-User interface.
-
+System User Interface

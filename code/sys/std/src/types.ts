@@ -1,18 +1,23 @@
-export type * from './u.Async/t.ts';
-export type * from './u.Date.DateTime/t.ts';
-export type * from './u.Date.Time/t.ts';
-export type * from './u.Delete/t.ts';
-export type * from './u.Dispose/t.ts';
-export type * from './u.Fmt/t.ts';
-export type * from './u.Http/t.ts';
-export type * from './u.Immutable/t.ts';
-export type * from './u.Id/t.ts';
-export type * from './u.Is/t.ts';
-export type * from './u.ObjectPath/t.ts';
-export type * from './u.Observable/t.ts';
-export type * from './u.Path/t.ts';
-export type * from './u.Semver/t.ts';
-export type * from './u.Testing.HttpServer/t.ts';
-export type * from './u.Testing/t.ts';
+/**
+ * @module
+ * Module Types: Standard Libs.
+ */
 
-export type * from './t.types/mod.ts';
+export type * from './m.Args/t.ts';
+export type * from './m.Async/t.ts';
+export type * from './m.DateTime/t.ts';
+export type * from './m.Delete/t.ts';
+export type * from './m.Dispose/t.ts';
+export type * from './m.Err/t.ts';
+export type * from './m.Http/t.ts';
+export type * from './m.Id/t.ts';
+export type * from './m.Immutable/t.ts';
+export type * from './m.Is/t.ts';
+export type * from './m.ObjectPath/t.ts';
+export type * from './m.Observable/t.ts';
+export type * from './m.Path/t.ts';
+export type * from './m.Semver/t.ts';
+export type * from './m.Testing.HttpServer/t.ts';
+export type * from './m.Testing/t.ts';
+
+export type * from './types/mod.ts';

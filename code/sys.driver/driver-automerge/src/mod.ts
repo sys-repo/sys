@@ -1,6 +1,10 @@
 /**
- * System Driver for Automerge
+ * @module
+ * Standardised API wrapper around Automerge and Automerge-Repo.
+ *
+ * @example
+ * ```ts
+ * import { } from '@sys/driver-automerge';
+ * ```
  */
-import { Pkg } from './common/mod.ts';
-
-export { Pkg };
+export { Pkg } from './common/mod.ts';

@@ -1,6 +1,5 @@
 {
   "deno.enable": true,
   "deno.lint": true,
-  "deno.importMap": "./deno.imports.json",
   "search.exclude": {}
 }

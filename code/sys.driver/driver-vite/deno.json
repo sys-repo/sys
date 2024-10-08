@@ -1,0 +1,18 @@
+{
+  "name": "@sys/driver-vite",
+  "version": "0.0.6",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -RWN --allow-run",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -RWE ./scripts/-clean.ts",
+    "dev": "deno run -RWNE --allow-run ./scripts/-dev.ts",
+    "build": "deno run -RWNE --allow-run ./scripts/-build.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  }
+}
