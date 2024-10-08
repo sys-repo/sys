@@ -1,4 +1,4 @@
-import { Cmd, Denofile, keypress, type t, ViteConfig } from './common.ts';
+import { Cmd, keypress, type t, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
@@ -8,7 +8,6 @@ export function keyboardFactory(args: {
   paths: t.ViteConfigPaths;
   port: number;
   url: string;
-  ws: t.ViteDenoWorkspace;
   dispose: () => Promise<void>;
   Pkg?: t.Pkg;
 }) {
