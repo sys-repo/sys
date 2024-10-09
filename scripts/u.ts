@@ -1,8 +1,8 @@
-import { c, Cli, Cmd, Fs } from '@sys/std-s';
+import { c, Cli, Cmd, Fs, Semver } from '@sys/std-s';
 import type { CmdOutput } from '@sys/std-s/t';
 
 export { Path, Paths } from './u.paths.ts';
-export { c, Cli, Cmd, Fs };
+export { c, Cli, Cmd, Fs, Semver };
 
 export type CmdResult = {
   output: CmdOutput;
