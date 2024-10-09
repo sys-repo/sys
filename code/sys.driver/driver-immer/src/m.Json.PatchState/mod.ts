@@ -9,13 +9,13 @@
  *
  * type T = { count: number; };
  * const state = PatchState.create<T>({ count: 0 });
- * console.log('current:', state.current);            // ← { count: 0 }
+ * console.log('current:', state.current);          // ← { count: 0 }
  *
  * state.change((d) => d.count = 123);
- * console.log('current:', state.current);            // ← { count: 123 }
+ * console.log('current:', state.current);          // ← { count: 123 }
  *
  * const events = state.events();
- * events.$.subscribe((e) => console.log(e));
+ * events.$.subscribe((e) => console.log(e));       // event stream: 💦
  * ```
  */
 export { PatchState } from './PatchState.ts';

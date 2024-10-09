@@ -78,6 +78,7 @@
     "npm:fast-json-patch@*": "3.1.1",
     "npm:fast-json-patch@3.1.1": "3.1.1",
     "npm:immer@10": "10.1.1",
+    "npm:immer@10.1.1": "10.1.1",
     "npm:minimist@1.2.8": "1.2.8",
     "npm:nylas@7": "7.5.2",
     "npm:openai@4": "4.63.0",
@@ -3237,7 +3238,7 @@
         "npm:@jsr/std__semver@1.0.3",
         "npm:@jsr/std__testing@1.0.3",
         "npm:@jsr/std__uuid@1.0.4",
-        "npm:immer@10"
+        "npm:immer@10.1.1"
       ]
     }
   }
