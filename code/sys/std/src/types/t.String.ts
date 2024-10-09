@@ -28,5 +28,8 @@ export type StringPath = string;
 /* String that represents a path to a file-system directory. */
 export type StringDirPath = string;
 
-/* that represents a path to a file-system file. */
+/* String that represents a path to a file-system file. */
 export type StringFilePath = string;
+
+/* String that represents a cryptographic hash. */
+export type StringHash = string;

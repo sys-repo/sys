@@ -16,6 +16,7 @@ export { Dates, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
+export { Hash } from './m.Hash/mod.ts';
 export { Http } from './m.Http/mod.ts';
 export { Id, cuid, slug } from './m.Id/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';

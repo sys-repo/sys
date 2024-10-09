@@ -54,6 +54,7 @@
     "npm:@jsr/std__semver@1": "1.0.3",
     "npm:@jsr/std__testing@1": "1.0.3",
     "npm:@jsr/std__uuid@1": "1.0.4",
+    "npm:@noble/hashes@1": "1.5.0",
     "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
     "npm:@privy-io/server-auth@1.12.2": "1.12.2",
     "npm:@swc/plugin-emotion@4": "4.0.2",

@@ -12,6 +12,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
+    "./hash": "./src/m.Hash/mod.ts",
     "./id": "./src/m.Id/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
