@@ -20,3 +20,4 @@
  *
  */
 export type * from './types/mod.ts';
+export {};

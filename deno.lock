@@ -50,13 +50,9 @@
     "npm:@jsr/std__cli@1": "1.0.6",
     "npm:@jsr/std__datetime@0.225.2": "0.225.2",
     "npm:@jsr/std__dotenv@0.225.2": "0.225.2",
-    "npm:@jsr/std__path@1": "1.0.6",
     "npm:@jsr/std__path@1.0.6": "1.0.6",
-    "npm:@jsr/std__semver@1": "1.0.3",
     "npm:@jsr/std__semver@1.0.3": "1.0.3",
-    "npm:@jsr/std__testing@1": "1.0.3",
     "npm:@jsr/std__testing@1.0.3": "1.0.3",
-    "npm:@jsr/std__uuid@1": "1.0.4",
     "npm:@jsr/std__uuid@1.0.4": "1.0.4",
     "npm:@noble/hashes@1": "1.5.0",
     "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
@@ -3237,10 +3233,11 @@
         "npm:@jsr/std__async@1",
         "npm:@jsr/std__cli@1",
         "npm:@jsr/std__datetime@0.225.2",
-        "npm:@jsr/std__path@1",
-        "npm:@jsr/std__semver@1",
-        "npm:@jsr/std__testing@1",
-        "npm:@jsr/std__uuid@1"
+        "npm:@jsr/std__path@1.0.6",
+        "npm:@jsr/std__semver@1.0.3",
+        "npm:@jsr/std__testing@1.0.3",
+        "npm:@jsr/std__uuid@1.0.4",
+        "npm:immer@10.1.1"
       ]
     }
   }
