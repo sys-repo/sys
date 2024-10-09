@@ -5,7 +5,17 @@
  *
  * @example
  * ```ts
- * import { Pkg, Cmd } from '@sys/cmd';
+ * import { Cmd } from '@sys/cmd';
+ *
+ * /\/ Sample
+ * export type C = C1 | C2;
+ * export type C1 = t.CmdType<'Foo', { foo: number }>;
+ * export type C2 = t.CmdType<'Bar', { msg?: string }>;
+ *
+ * const doc = await generateTransport();
+ * const cmd = Cmd.create<C>(doc);
+ *
+ * cmd.invoke('Foo', { foo: 888 });
  * ```
  */
 export { Pkg } from './common.ts';

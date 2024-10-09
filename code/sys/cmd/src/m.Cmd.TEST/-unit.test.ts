@@ -11,7 +11,7 @@ import { Tests } from './mod.ts';
  */
 const setup: t.CmdTestSetup = async () => {
   const { dispose, dispose$ } = rx.disposable();
-  const factory: t.CmdTestFactory = async () => Immutable.clonerRef({});
+  const factory: t.CmdTestFactory = () => Immutable.clonerRef({});
   const doc = await factory();
   const res: t.CmdTestState = { doc, factory, dispose, dispose$ };
   return res;
