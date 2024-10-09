@@ -1,5 +1,4 @@
-import { resolve } from '../../../../sys/std/src/m.ObjectPath/u.ts';
-import { Denofile, Path, c, type t } from './common.ts';
+import { c, type t } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
@@ -99,7 +98,7 @@ ${c.cyan(`         ${href}`)}
       const hr = c.brightGreen(c.bold('─'.repeat(50)));
       const key = (text: string) => c.bold(c.white(text));
       const text = `
-${c.brightGreen(c.bold('Help'))}
+${c.brightGreen(c.bold('Info'))}
 ${hr}
 ${ws.toString()}
 
@@ -113,7 +112,7 @@ ${hr}
  Quit   ${key('ctrl + c')}
  Clear  ${key('c')}
  Open   ${key('o')}  ← (in browser)
- Help   ${key('h')}
+ Info   ${key('i')}
 `;
       return wrangle.res(c.gray(text), args.pad);
     },

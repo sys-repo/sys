@@ -1,4 +1,4 @@
-import { c, type t, Path } from './common.ts';
+import { c, Path, type t } from './common.ts';
 
 /**
  * Logging helpers.
@@ -13,15 +13,19 @@ export const Log = {
       const line = (...parts: string[]) => (res += `\n${parts.join(' ')}`);
 
       const filtered = ws.filter ? c.gray(` (filtered)`) : '';
-      const modules = c.brightGreen(c.bold('<Modules>'));
-      line(c.white(`Workspace ${modules} import map:${filtered}`));
+      const modules = c.brightGreen(c.bold('<ESM Module>'));
+      line(c.white(`Workspace ${modules} import-map:${filtered}`));
       line();
 
       ws.aliases.forEach((alias) => {
-        const mod = c.green(alias.find.toString());
+        const fullname = alias.find.toString();
+        const parts = fullname.split('/');
+        const basename = parts.slice(0, 2).join('/');
+        const subpath = parts.slice(2).join('/');
+        const module = c.green(`${basename}/${c.blue(subpath)}`);
         const path = alias.replacement;
         const displayPath = `${Path.dirname(path)}/${c.white(Path.basename(path))}`;
-        line(c.gray(`${c.green('•')} ${c.white('import')} ${mod}`));
+        line(c.gray(`${c.green('•')} ${c.white('import')} ${module}`));
         line(c.dim(`  ${displayPath}`));
       });
       res = res.trim();

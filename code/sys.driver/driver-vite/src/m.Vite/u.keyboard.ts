@@ -43,9 +43,9 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * HELP → Info: <Options | ExtendedInfo>
+       * INFO →: <Options | ExtendedInfo>
        */
-      if (Pkg && e.key === 'h') {
+      if (Pkg && e.key === 'i') {
         console.clear();
         console.info(Log.Help.toString({ Pkg, paths, ws, url: url.href, pad: true }));
       }
