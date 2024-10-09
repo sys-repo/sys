@@ -6,10 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Helpers for resolving and mutating paths.
  */
-export const Path = {
-  /**
-   * Wrangle the paths object from various input types.
-   */
+export const Path: t.CmdPathLib = {
   wrangle(input?: t.CmdPaths | t.ObjectPath) {
     const DEF = DEFAULTS.paths;
     if (!input) return DEF;
@@ -17,15 +14,12 @@ export const Path = {
     return typeof input === 'object' ? input : DEF;
   },
 
-  /**
-   * Factory for a resolver that reads path locations from the given abstract document.
-   * This might be the root document OR a lens within a document.
-   */
   resolver(input?: t.CmdPaths | t.ObjectPath) {
     const paths = Path.wrangle(input);
     const resolve = ObjectPath.resolve;
     const Mutate = ObjectPath.Mutate;
-    const api = {
+
+    const api: t.CmdResolver = {
       paths,
       queue: {
         /**
@@ -47,7 +41,7 @@ export const Path = {
           const path = [...paths.queue, i];
           if (!queue[i]) Mutate.value(d, path, {});
 
-          const item = {
+          const item: t.CmdResolverQueueItem = {
             index: i,
             path,
 
@@ -116,9 +110,6 @@ export const Path = {
     return api;
   },
 
-  /**
-   * Prepend a path to each item within a <CmdPaths> set.
-   */
   prepend(prefix: t.ObjectPath, paths: t.CmdPaths = DEFAULTS.paths): t.CmdPaths {
     return {
       queue: [...prefix, ...paths.queue],

@@ -3,7 +3,7 @@ import { isObject, type t } from './common.ts';
 /**
  * Flags: Event pattern inference.
  */
-export const Is = {
+export const Is: t.CmdIsLib = {
   state: {
     cmd(input: any): input is t.CmdPathsObject {
       if (!isObject(input)) return false;

@@ -3,7 +3,7 @@ import { Value, type t } from './common.ts';
 /**
  * Helpers for working with change patches.
  */
-export const Patch = {
+export const Patch: t.CmdPatchLib = {
   startsWith(patch: t.CmdPatch, def: t.ObjectPath) {
     const path = Patch.path(patch);
     return !path ? false : Value.Array.compare(path).startsWith(def);
@@ -19,6 +19,7 @@ export const Patch = {
   includesQueueChange(patches: t.CmdPatch[], paths: t.CmdPaths) {
     return patches.some((patch) => Patch.isQueueChange(patch, paths));
   },
+
   isQueueChange(patch: t.CmdPatch, paths: t.CmdPaths) {
     return Patch.startsWith(patch, paths.queue);
   },

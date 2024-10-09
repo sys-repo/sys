@@ -3,19 +3,13 @@ import { Listener } from './u.Listener.ts';
 import { Events, Is, Path } from './u.ts';
 
 type O = Record<string, unknown>;
-type OptionsInput = Options | t.CmdPaths;
-type Options = {
-  tx?: t.CmdTxFactory;
-  paths?: t.CmdPaths | t.ObjectPath;
-  issuer?: t.StringId; // The identity (URI) of the issuer of the command.
-};
 
 /**
  * Command factory.
  */
 export function create<C extends t.CmdType>(
   transport: t.CmdTransport,
-  options?: OptionsInput,
+  options?: t.CmdCreateOptionsInput,
 ): t.Cmd<C> {
   const args = wrangle.options(options);
   const resolve = Path.resolver(args.paths);
@@ -137,7 +131,7 @@ export function create<C extends t.CmdType>(
  * Helpers
  */
 const wrangle = {
-  options(input?: OptionsInput): Options {
+  options(input?: t.CmdCreateOptionsInput): t.CmdCreateOptions {
     if (!input) return {};
     if (Path.Is.commandPaths(input)) return { paths: input };
     return input;

@@ -5,6 +5,7 @@ export type {
   Expect,
   ImmutableEvents,
   ImmutableRef,
+  Index,
   It,
   Lifecycle,
   Msecs,

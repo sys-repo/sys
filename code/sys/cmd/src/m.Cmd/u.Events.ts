@@ -2,21 +2,18 @@ import { R, rx, type t, type u } from './common.ts';
 import { Patch } from './u.Patch.ts';
 import { Path } from './u.Path.ts';
 
-type Options = {
-  paths?: t.CmdPaths;
-  issuer?: t.StringId | t.StringId[];
-  dispose$?: t.UntilObservable;
-};
-
 /**
  * Strongly typed events for an abstract CRDT document that has
  * paths within it representing a <Cmd> (Command).
  */
-export const Events = {
+export const Events: t.CmdEventsLib = {
   /**
    * Events factory.
    */
-  create<C extends t.CmdType>(doc?: t.CmdTransport, options: Options = {}): t.CmdEvents<C> {
+  create<C extends t.CmdType>(
+    doc?: t.CmdTransport,
+    options: t.CmdEventsOptions = {},
+  ): t.CmdEvents<C> {
     const resolve = Path.resolver(options.paths);
     const paths = resolve.paths;
     const life = rx.lifecycle(options.dispose$);

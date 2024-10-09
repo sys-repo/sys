@@ -1,17 +1,8 @@
-import { DEFAULTS, rx, type t, ObjectPath } from './common.ts';
+import { DEFAULTS, ObjectPath, rx, type t } from './common.ts';
 import { Path } from './u.Path.ts';
-import { toTransport, toPaths } from './u.To.ts';
+import { toPaths, toTransport } from './u.To.ts';
 
-type MonitorOptions = {
-  min?: number;
-  max?: number;
-  dispose$?: t.UntilObservable;
-};
-
-export const Queue = {
-  /**
-   * Collapse the queue array.
-   */
+export const Queue: t.CmdQueueLib = {
   purge<C extends t.CmdType>(cmd: t.Cmd<C>, options: { min?: number } = {}) {
     const { min = DEFAULTS.queue.bounds.min } = options;
     const doc = toTransport(cmd);
@@ -29,9 +20,6 @@ export const Queue = {
     return resolve.log(doc.current).total?.purged;
   },
 
-  /**
-   * Derive the queue totals from the given transport.
-   */
   totals<C extends t.CmdType>(cmd: t.Cmd<C>): t.CmdQueueTotals {
     const doc = toTransport(cmd);
     const paths = toPaths(cmd);
@@ -43,10 +31,10 @@ export const Queue = {
     return { current, purged, complete };
   },
 
-  /**
-   * Start a queue/purge monitor for the given command.
-   */
-  autopurge<C extends t.CmdType>(cmd: t.Cmd<C>, options: MonitorOptions = {}): t.CmdQueueMonitor {
+  autopurge<C extends t.CmdType>(
+    cmd: t.Cmd<C>,
+    options: t.CmdQueueAutopurgeOptions = {},
+  ): t.CmdQueueMonitor {
     const BOUNDS = DEFAULTS.queue.bounds;
     const { min = BOUNDS.min, max = BOUNDS.max } = options;
 

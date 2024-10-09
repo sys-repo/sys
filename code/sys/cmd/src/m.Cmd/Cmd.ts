@@ -1,5 +1,10 @@
 import { create } from './Cmd.impl.ts';
 import { Events, Is, Patch, Path, Queue, toPaths, toTransport, toIssuer } from './u.ts';
+import type { t } from './common.ts';
+
+export type CmdLib = {
+  readonly Is: t.CmdIsLib;
+};
 
 /**
  * Command event structure on an observable/syncing CRDT.
