@@ -1,7 +1,8 @@
 import type { t } from '../common.ts';
 
 /**
- * Library: Immutable Json/Path tools using Immer-js as the underlying Immutable<T> provider.
+ * Library: Immutable Json/Patch/ObjectPath tools using Immer-js as the
+ * underlying Immutable<T> implementation.
  */
 export type ImmerJsonLib = {
   /* Tools for working with patches */

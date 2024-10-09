@@ -9,7 +9,10 @@ type Cmd = { type: string; payload: { tx: string } };
  * using Immer as the underlying immutability implementation.
  */
 export type ImmerPatchStateLib = {
+  /* Type validation helpers. */
   readonly Is: t.PatchStateIsLib;
+
+  /* Tools for working with properties that act like an command/event stream. */
   readonly Command: t.PatchStateCommandLib;
 
   /**
