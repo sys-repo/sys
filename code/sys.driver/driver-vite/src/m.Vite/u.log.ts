@@ -110,7 +110,7 @@ ${c.cyan('output')}   ${paths.outDir}
 ${c.green(c.bold('Options'))}: 
 ${hr}
  Quit   ${key('ctrl + c')}
- Clear  ${key('c')}
+ Clear  ${key('k')}
  Open   ${key('o')}  ← (in browser)
  Info   ${key('i')}
 `;

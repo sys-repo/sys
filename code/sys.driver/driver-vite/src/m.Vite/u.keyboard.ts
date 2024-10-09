@@ -35,9 +35,9 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * CLEAR → <ModuleInfo>
+       * CLEAR and reset.
        */
-      if (Pkg && e.key === 'c') {
+      if (Pkg && e.key === 'k') {
         console.clear();
         console.info(Log.Info.toString({ Pkg, url: url.href, pad: true }));
       }
