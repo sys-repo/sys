@@ -3236,7 +3236,8 @@
         "npm:@jsr/std__path@1",
         "npm:@jsr/std__semver@1",
         "npm:@jsr/std__testing@1",
-        "npm:@jsr/std__uuid@1"
+        "npm:@jsr/std__uuid@1",
+        "npm:immer@10"
       ]
     }
   }

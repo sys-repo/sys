@@ -6,6 +6,7 @@
     "@std/path": "npm:@jsr/std__path@1",
     "@std/semver": "npm:@jsr/std__semver@1",
     "@std/testing": "npm:@jsr/std__testing@1",
-    "@std/uuid": "npm:@jsr/std__uuid@1"
+    "@std/uuid": "npm:@jsr/std__uuid@1",
+    "immer": "10"
   }
 }

@@ -28,7 +28,6 @@
     "deno/subhosting": "npm:subhosting@0.1.0-alpha.1",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6",
-    "immer": "npm:immer@10",
     "ora": "npm:ora@8",
     "ramda": "npm:ramda@0.30.1",
     "react": "npm:react@18",
