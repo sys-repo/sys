@@ -1,7 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-
-import { Err, Rx } from '../mod.ts';
-import { Is } from './mod.ts';
+import { Err, Is, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('rx: observable | subject', () => {
@@ -87,5 +85,33 @@ describe('Is (common flags)', () => {
     test(Symbol('foo'), false);
     test(BigInt(1), false);
     test(new Date(), false);
+  });
+
+  describe('Is.json', () => {
+    it('is not JSON', () => {
+      expect(Is.json()).to.eql(false);
+      expect(Is.json(null)).to.eql(false);
+      expect(Is.json(123)).to.eql(false);
+      expect(Is.json(new Date())).to.eql(false);
+      expect(Is.json({})).to.eql(false);
+    });
+
+    it('is a string but not JSON', () => {
+      expect(Is.json('')).to.eql(false);
+      expect(Is.json('  ')).to.eql(false);
+      expect(Is.json('hello')).to.eql(false);
+    });
+
+    it('is JSON', () => {
+      expect(Is.json('{}')).to.eql(true);
+      expect(Is.json('[]')).to.eql(true);
+      expect(Is.json('{ "foo": 123 }')).to.eql(true);
+      expect(Is.json('[1,2,3]')).to.eql(true);
+    });
+
+    it('is JSON (trimmed string)', () => {
+      expect(Is.json('  {} ')).to.eql(true);
+      expect(Is.json(' []  ')).to.eql(true);
+    });
   });
 });

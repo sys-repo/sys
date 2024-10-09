@@ -22,6 +22,9 @@ export type CommonIsLib = {
   /* Determine if the value is a number. */
   numeric(input?: unknown): boolean;
 
+  /* Determine if the input is a JSON structure. */
+  json(input?: unknown): input is t.Json;
+
   /**
    * Falsy check.
    * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
