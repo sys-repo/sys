@@ -7,7 +7,7 @@ export type DenofileLib = {
   /**
    * Load a `deno.json` file at the given file path.
    */
-  load(path?: t.DenofilePath): Promise<t.FsReadJsonResponse<t.DenofileJson>>;
+  load(path?: t.DenofilePath): Promise<t.DenofileLoadResponse>;
 
   /**
    * Load a deno workspace.
@@ -20,6 +20,9 @@ export type DenofileLib = {
    */
   isWorkspace(src?: t.StringPath): Promise<boolean>;
 };
+
+/* The async response from a `deno.json` file load request. */
+export type DenofileLoadResponse = t.FsReadJsonResponse<t.DenofileJson>;
 
 /**
  * A file-path to a `deno.json` file.
@@ -44,6 +47,10 @@ export type DenofileJson = {
  */
 export type DenoWorkspace = {
   readonly exists: boolean;
+  readonly dir: t.StringPath;
   readonly file: t.StringPath;
-  readonly paths: t.StringPath[];
+  readonly children: {
+    readonly paths: t.StringPath[];
+    load(): Promise<t.DenofileLoadResponse[]>;
+  };
 };

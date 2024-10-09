@@ -15,7 +15,7 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
   const { walkup = true, filter } = options;
   const base = await Denofile.workspace(options.denofile, { walkup });
   const baseDir = Path.dirname(base.file);
-  const aliases = await wrangle.aliases(baseDir, base.paths, filter);
+  const aliases = await wrangle.aliases(baseDir, base.children.paths, filter);
 
   const api: t.ViteDenoWorkspace = {
     ...base,
