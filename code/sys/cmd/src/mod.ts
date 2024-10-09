@@ -9,3 +9,4 @@
  * ```
  */
 export { Pkg } from './common.ts';
+export { Cmd } from './m.Cmd/mod.ts';

@@ -2,4 +2,4 @@
  * @module
  * Module Types
  */
-export type * from './m.cmd/t.ts';
+export type * from './m.Cmd/t.ts';
