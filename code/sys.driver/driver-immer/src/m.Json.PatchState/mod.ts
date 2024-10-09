@@ -15,7 +15,7 @@
  * console.log('current:', state.current);          // ← { count: 123 }
  *
  * const events = state.events();
- * events.$.subscribe((e) => console.log(e));       // event stream: 💦
+ * events.$.subscribe((e) => console.log(e));       // <event> stream: 💦
  * ```
  */
 export { PatchState } from './PatchState.ts';
