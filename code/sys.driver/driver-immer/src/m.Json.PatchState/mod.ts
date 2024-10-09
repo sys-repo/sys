@@ -5,7 +5,7 @@
  *
  * @example
  * ```ts
- * import { Patch } from '@sys/driver-immer/json/patch-state';
+ * import PatchState from '@sys/driver-immer/json/patch-state';
  *
  * type T = { count: number; };
  * const state = PatchState.create<T>({ count: 0 });
@@ -18,4 +18,4 @@
  * events.$.subscribe((e) => console.log(e));       // <event> stream: 💦
  * ```
  */
-export { PatchState } from './PatchState.ts';
+export { PatchState, PatchState as default } from './PatchState.ts';

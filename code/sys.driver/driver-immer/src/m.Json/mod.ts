@@ -34,3 +34,5 @@ export const Json: t.ImmerJsonLib = {
   /* Convert the given input to a serlalized JSON string. */
   stringify: Util.stringify,
 } as const;
+
+export default Json;

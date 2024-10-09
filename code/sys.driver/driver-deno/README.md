@@ -34,7 +34,7 @@ import { Pkg } from 'jsr:@sys/driver-deno';
 import { DenoCloud, Server } from 'jsr:@sys/driver-deno/server';
 
 const app = DenoCloud.server({ env });
-const options = Server.options(8080, Pkg)
+const options = Server.options(8080, Pkg);
 Deno.serve(options, app.fetch);
 ```
 

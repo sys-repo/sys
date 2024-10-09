@@ -1,6 +1,7 @@
 /**
  * @module
- * Patch
+ * Tools for wokring with the JSON-patch standard.
+ *
  * Standard:
  *    RFC-6902 JSON patch standard
  *    https://tools.ietf.org/html/rfc6902
@@ -10,14 +11,14 @@
  *
  * @example
  * ```ts
- * import { Patch } from '@sys/driver-immer/json/patch';
+ * import Patch from '@sys/driver-immer/json/patch';
  *
  * type T = { count: number; };
  * let obj: T = { count: 0 };
  *
  * const change = Patch.change(obj, (d) => d.count = 123);
  * obj = Patch.apply(obj, change.patches);
-
-* ```
+ *
+ * ```
  */
-export { Patch, toObject } from './m.Patch.ts';
+export { Patch, Patch as default, toObject } from './m.Patch.ts';
