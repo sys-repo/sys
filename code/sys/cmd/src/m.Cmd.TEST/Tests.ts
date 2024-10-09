@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 import { cmdTests as cmd } from './Tests.Cmd.ts';
 import { eventTests as events } from './Tests.Cmd.Events.ts';
@@ -8,16 +8,11 @@ import { pathTests as path } from './Tests.Cmd.Path.ts';
 import { methodTests as method } from './Tests.Cmd.Method.ts';
 import { queueTests as queue } from './Tests.Cmd.Queue.ts';
 
-/**
- * Unit test factory for the <Cmd> system allowing different
- * kinds of source <ImmutableRef> and <Patch> types to be tested
- * against the same standard test suite.
- */
-export const Tests = {
+export const Tests: t.CmdTestsLib = {
   all(setup: t.CmdTestSetup, args: t.TestArgs) {
-    Object.entries(Tests.index).forEach(([, test]) => test(setup, args));
+    Object.entries(Tests.Index).forEach(([, test]) => test(setup, args));
   },
-  index: {
+  Index: {
     cmd,
     events,
     path,
