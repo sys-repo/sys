@@ -1,5 +1,7 @@
 # Cmd (Command)
-An event structure over an `Immutable<T>` that allows for a common event driven 
-remote function invocation pattern to be achieved.
+Distributed function invocation via a Cmd (Command) pattern behind an `Immutable<T>` 
+over a CRDT network transport.
 
-This is a primitive for building up an actor model ("message passing computer").
+### Longer Term (Design Notes)
+The CRDT syncing Cmd<T> pattern is a primitive for building up to a
+actor model ("message passing computer") implementation.
