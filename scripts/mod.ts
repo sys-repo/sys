@@ -5,13 +5,22 @@ import { main as dry } from './Task.-dry.ts';
 import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
 import { main as test } from './Task.-test.ts';
+import { main as bump } from './Task.-bump.ts';
 
-type T = { dry?: boolean; test?: boolean; clean?: boolean; info?: boolean; lint?: boolean };
+type T = {
+  dry?: boolean;
+  test?: boolean;
+  clean?: boolean;
+  info?: boolean;
+  lint?: boolean;
+  bump?: boolean;
+};
 const args = Cli.args<T>(Deno.args);
 
 // Maintenance.
 if (args.clean) await clean();
 if (args.lint) await lint();
+if (args.bump) await bump();
 
 // CI.
 if (args.dry) await dry();

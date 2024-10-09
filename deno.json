@@ -7,6 +7,7 @@
     "lint": "deno run -RE --allow-run=sh ./scripts/mod.ts --lint",
     "clean": "deno run -RWE --allow-run=sh ./scripts/mod.ts --clean",
     "reload": "rm -rf node_modules && deno install --reload",
+    "bump": "deno run -RWE ./scripts/mod.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
   "nodeModulesDir": "auto",
