@@ -1,5 +1,6 @@
 /**
  * @module
- * Module Types
+ * Module Types.
  */
-export {};
+
+// export type * from './m.Json/t.ts';
