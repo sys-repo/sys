@@ -18,6 +18,7 @@
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
-    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts"
+    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts",
+    "./value": "./src/m.Value/mod.ts"
   }
 }
