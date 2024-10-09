@@ -1,6 +1,7 @@
 export type * from './ext.ts';
 
 export type * from './t.Dispose.ts';
+export type * from './t.Error.ts';
 export type * from './t.Immutable.ts';
 export type * from './t.Json.ts';
 export type * from './t.Number.ts';

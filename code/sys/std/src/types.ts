@@ -2,6 +2,7 @@
  * @module
  * Module Types: Standard Libs.
  */
+export type * from '@sys/types';
 
 export type * from './m.Args/t.ts';
 export type * from './m.Async/t.ts';
@@ -22,5 +23,3 @@ export type * from './m.Path/t.ts';
 export type * from './m.Semver/t.ts';
 export type * from './m.Testing.HttpServer/t.ts';
 export type * from './m.Testing/t.ts';
-
-export type * from './types/mod.ts';
