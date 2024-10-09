@@ -65,6 +65,12 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/driver-immer"
+        run: |
+          cd code/sys.driver/driver-immer
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
