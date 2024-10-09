@@ -11,6 +11,9 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./json": "./src/m.Json/mod.ts",
+    "./json/patch": "./src/m.Json.Patch/mod.ts",
+    "./json/patch-state": "./src/m.Json.PatchState/mod.ts"
   }
 }

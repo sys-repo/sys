@@ -5,8 +5,15 @@ import type { t } from './common.ts';
  * for the standardised unit-tests.
  */
 export type CmdTestSetup = () => Promise<CmdTestState>;
-export type CmdTestFactory = () => Promise<t.CmdTransport>;
+
+/* Factory that produces Cmd transports (aka. Immutable<T> documents). */
+export type CmdTestFactory = () => Promise<t.CmdTransport> | t.CmdTransport;
+
+/* State container for a Cmd test. */
 export type CmdTestState = t.Disposable & {
+  /* The tansport (Immutable<T> document). */
   readonly doc: t.CmdTransport;
+
+  /* Factory for producing new Cmd transports. */
   readonly factory: CmdTestFactory;
 };
