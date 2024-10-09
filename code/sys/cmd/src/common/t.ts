@@ -1,8 +1,11 @@
 export type {
+  Describe,
   Disposable,
   ErrorLike,
+  Expect,
   ImmutableEvents,
   ImmutableRef,
+  It,
   Lifecycle,
   Msecs,
   ObjectPath,
@@ -10,6 +13,6 @@ export type {
   StringId,
   StringTx,
   UntilObservable,
-} from '@sys/types';
+} from '@sys/std/t';
 
 export type * from '../types.ts';

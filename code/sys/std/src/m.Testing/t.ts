@@ -1,6 +1,15 @@
-import type { t } from '../common.ts';
 import type { describe, it } from '@std/testing/bdd';
 import type { expect } from 'chai';
+import type { t } from '../common.ts';
+
+/* Assertion library (BDD). */
+export type Expect = typeof expect;
+
+/* Describes a test suite. */
+export type Describe = typeof describe;
+
+/* Defines a single BDD test. */
+export type It = typeof it;
 
 /**
  * Testing helpers.

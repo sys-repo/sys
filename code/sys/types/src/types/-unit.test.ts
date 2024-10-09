@@ -1,4 +1,5 @@
-import { describe, it, type t } from '../-test.ts';
+import { describe, it } from '@sys/std/testing';
+import type { t } from './common.ts';
 
 describe('Types', () => {
   describe('DeepReadonly<T> | DeepMutable<T>', () => {
