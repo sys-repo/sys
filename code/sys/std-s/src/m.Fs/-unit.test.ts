@@ -26,6 +26,10 @@ describe('Fs: filesystem', () => {
     it('refs', () => {
       expect(Fs.Path).to.equal(Path);
       expect(Fs.Path).to.not.equal(StdPath);
+      expect(Fs.join).to.eql(Path.join);
+      expect(Fs.resolve).to.eql(Path.resolve);
+      expect(Fs.dirname).to.eql(Path.dirname);
+      expect(Fs.basename).to.eql(Path.basename);
     });
 
     it('asDir', async () => {
