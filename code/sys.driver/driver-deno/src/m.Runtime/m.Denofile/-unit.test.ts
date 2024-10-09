@@ -56,7 +56,7 @@ describe('Denofile', () => {
     it('from path: exists', async () => {
       const res = await Denofile.workspace(rootPath);
       expect(res.exists).to.eql(true);
-      expect(res.children.paths.includes('./code/sys/std')).to.be.true;
+      expect(res.children.dirs.includes('./code/sys/std')).to.be.true;
       expect(res.file).to.eql(rootPath);
       expect(res.dir).to.eql(Fs.dirname(rootPath));
     });
@@ -67,22 +67,22 @@ describe('Denofile', () => {
       const b = await Denofile.workspace(undefined, { walkup: false });
 
       expect(a.exists).to.eql(true);
-      expect(a.children.paths).to.eql(root.json?.workspace);
+      expect(a.children.dirs).to.eql(root.json?.workspace);
 
       expect(b.exists).to.eql(false);
-      expect(b.children.paths).to.eql([]);
+      expect(b.children.dirs).to.eql([]);
     });
 
     it('from path: not found', async () => {
       const res = await Denofile.workspace('./404.json');
       expect(res.exists).to.eql(false);
-      expect(res.children.paths).to.eql([]);
+      expect(res.children.dirs).to.eql([]);
     });
 
     it('load children', async () => {
       const ws = await Denofile.workspace();
       const children = await ws.children.load();
-      const paths = ws.children.paths.map((subdir) => Fs.join(ws.dir, subdir, 'deno.json'));
+      const paths = ws.children.dirs.map((subdir) => Fs.join(ws.dir, subdir, 'deno.json'));
       children.forEach((child) => {
         expect(paths.includes(child.path)).to.eql(true);
       });

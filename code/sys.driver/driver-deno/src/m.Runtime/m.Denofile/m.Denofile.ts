@@ -1,4 +1,4 @@
-import { Path, Fs, type t } from '../common.ts';
+import { Fs, Path, type t } from '../common.ts';
 
 /**
  * `deno.json` file tools.
@@ -24,9 +24,12 @@ export const Denofile: t.DenofileLib = {
     const exists = denofile.exists && Array.isArray(denofile.json?.workspace);
     const file = denofile.path;
     const dir = Path.dirname(file);
-    const paths = denofile.json?.workspace ?? [];
-    const load = loadChildrenMethod(dir, paths);
-    return { exists, dir, file, paths, children: { paths, load } };
+    const dirs = denofile.json?.workspace ?? [];
+    const children: t.DenoWorkspaceChildren = {
+      dirs,
+      load: loadChildrenMethod(dir, dirs),
+    };
+    return { exists, dir, file, children };
   },
 
   /**

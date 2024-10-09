@@ -49,8 +49,10 @@ export type DenoWorkspace = {
   readonly exists: boolean;
   readonly dir: t.StringPath;
   readonly file: t.StringPath;
-  readonly children: {
-    readonly paths: t.StringPath[];
-    load(): Promise<t.DenofileLoadResponse[]>;
-  };
+  readonly children: t.DenoWorkspaceChildren;
+};
+
+export type DenoWorkspaceChildren = {
+  readonly dirs: t.StringDirPath[];
+  load(): Promise<t.DenofileLoadResponse[]>;
 };

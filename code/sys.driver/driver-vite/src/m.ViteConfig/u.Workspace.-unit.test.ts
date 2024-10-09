@@ -9,8 +9,8 @@ describe('ViteConfig.workspace', () => {
 
     expect(a.exists).to.eql(true);
     expect(b.exists).to.eql(true);
-    expect(a.children.paths.includes('./code/sys/std')).to.eql(true);
-    expect(a.children.paths).to.eql(b.children.paths);
+    expect(a.children.dirs.includes('./code/sys/std')).to.eql(true);
+    expect(a.children.dirs).to.eql(b.children.dirs);
     expect(c.exists).to.eql(false); // NB: did not walk up to the root workspace `deno.json`
   });
 
