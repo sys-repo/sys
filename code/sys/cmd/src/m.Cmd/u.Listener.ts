@@ -22,6 +22,7 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
   const { req, tx, issuer, timeout = DEFAULTS.timeout } = args;
   const life = rx.lifecycle(args.dispose$);
   const { dispose, dispose$ } = life;
+
   const events = cmd.events(dispose$);
 
   type L = t.CmdResponseListener<Req, Res>;
@@ -53,10 +54,13 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
     },
   } as const;
 
+  // Start timeout monitor.
+  const timer = Time.delay(timeout, () => done('Timeout'));
+  dispose$.subscribe(() => timer?.cancel());
+
   /**
    * Finalization.
    */
-  const timer = Time.delay(timeout, () => done('Timeout'));
   const done = (status: Status, result?: R, error?: E) => {
     timer.cancel();
     _status = status;

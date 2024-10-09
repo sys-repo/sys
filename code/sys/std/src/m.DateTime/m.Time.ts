@@ -6,5 +6,5 @@ import { delay } from './m.Time.u.delay.ts';
  */
 export const Time: t.TimeLib = {
   delay,
-  wait: (msecs) => Time.delay(msecs),
+  wait: (msecs) => delay(msecs),
 };

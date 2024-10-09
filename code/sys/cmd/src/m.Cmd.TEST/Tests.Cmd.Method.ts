@@ -138,13 +138,13 @@ export function methodTests(setup: t.CmdTestSetup, args: t.TestArgs) {
 
     describe('Responses', () => {
       it('Response {object} → "tx" passing', async () => {
-        const { doc, dispose } = await setup();
+        const { doc, dispose, dispose$ } = await setup();
         const cmd = Cmd.create<C>(doc);
 
         const tx = 'tx.abc';
         const method = cmd.method('add', 'add:res');
         const res1 = cmd.invoke('foo', {}, { tx });
-        const res2 = method({ a: 1, b: 2 }, { tx });
+        const res2 = method({ a: 1, b: 2 }, { tx, dispose$ });
 
         expect(typeof res1 === 'object').to.be.true;
         expect((res1 as any).listen).to.be.undefined;
@@ -317,11 +317,12 @@ export function methodTests(setup: t.CmdTestSetup, args: t.TestArgs) {
           expect(fired[1].error).to.eql(error);
 
           // Example.
-          method({ a: 1, b: 2 }, (e) => {
+          const m = method({ a: 1, b: 2 }, (e) => {
             e.error; /*  handle error */
             e.result; /* do something with result */
           });
 
+          await m.promise();
           dispose();
         });
 

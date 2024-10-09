@@ -1,6 +1,6 @@
-import { DEFAULTS, Time, slug, type t, type u } from './common.ts';
-import { Events, Is, Path } from './u.ts';
+import { DEFAULTS, slug, type t, type u } from './common.ts';
 import { Listener } from './u.Listener.ts';
+import { Events, Is, Path } from './u.ts';
 
 type O = Record<string, unknown>;
 type OptionsInput = Options | t.CmdPaths;
@@ -58,7 +58,7 @@ export function create<C extends t.CmdType>(
     error?: t.ErrorLike,
   ) => {
     const res: t.CmdInvoked<any> = { tx, issuer, req: { name, params } };
-    const start = () => Time.delay(0, () => push(tx, name, params, issuer, error));
+    const start = () => Promise.resolve().then(() => push(tx, name, params, issuer, error));
     return { res, start } as const;
   };
 
