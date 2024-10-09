@@ -5,13 +5,12 @@ import { c, type t } from './common.ts';
  * meta-data about the running server and module.
  */
 export const print: t.HttpServerLib['print'] = (addr, pkg) => {
-  const port = c.bold(c.brightGreen(String(addr.port)));
-  const host = c.green(`http://localhost:${port}/`);
+  const port = c.bold(c.brightCyan(String(addr.port)));
+  const host = c.cyan(`http://localhost:${port}/`);
   if (pkg) {
     console.info();
-    console.info(c.gray(`Module:    ${c.white(pkg.name)}`));
-    console.info(c.gray(`Version:   ${c.white(pkg.version)}`));
-    console.info(c.gray(`           ${host}`));
+    console.info(c.gray(`Module   ${c.white(pkg.name)} ${pkg.version}`));
+    console.info(c.gray(`         ${host}`));
   } else {
     console.info(c.gray(`Listening on ${host}`));
   }
