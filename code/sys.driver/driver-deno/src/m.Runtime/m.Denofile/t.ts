@@ -44,6 +44,6 @@ export type DenofileJson = {
  */
 export type DenoWorkspace = {
   readonly exists: boolean;
-  readonly path: t.StringPath;
+  readonly file: t.StringPath;
   readonly paths: t.StringPath[];
 };

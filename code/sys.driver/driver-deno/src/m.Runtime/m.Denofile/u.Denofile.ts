@@ -20,10 +20,11 @@ export const Denofile: t.DenofileLib = {
   async workspace(path, options = {}) {
     const { walkup = true } = options;
     const src = await wrangle.workspaceSource(path, walkup);
-    const file = await Denofile.load(src);
-    const exists = file.exists && Array.isArray(file.json?.workspace);
-    const paths = file.json?.workspace ?? [];
-    return { exists, path: file.path, paths };
+    const denofile = await Denofile.load(src);
+    const exists = denofile.exists && Array.isArray(denofile.json?.workspace);
+    const file = denofile.path;
+    const paths = denofile.json?.workspace ?? [];
+    return { exists, file, paths };
   },
 
   /**

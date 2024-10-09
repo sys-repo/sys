@@ -57,7 +57,7 @@ describe('Denofile', () => {
       const res = await Denofile.workspace(rootPath);
       expect(res.exists).to.eql(true);
       expect(res.paths.includes('./code/sys/std')).to.be.true;
-      expect(res.path).to.eql(rootPath);
+      expect(res.file).to.eql(rootPath);
     });
 
     it('from path: <undefined>  ←  (↑ first-ancestor-workspace ↑)  ←  ./deno.json', async () => {
