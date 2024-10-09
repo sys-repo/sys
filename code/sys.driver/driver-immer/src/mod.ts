@@ -1,6 +1,7 @@
 /**
  * @module
- * Tools for working with Immer immutability library.
+ * Driver for working with Immer as the immutability strategy
+ * for an `Immutable<T>` implemenation.
  *
  * @example
  * ```ts
