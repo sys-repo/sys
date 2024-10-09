@@ -1,19 +1,14 @@
 import { Cmd } from '../mod.ts';
-import { Time, type t } from './common.ts';
+import { DEFAULTS, Time, type t } from './common.ts';
 import { Find } from './u.ts';
 
 import type { C, C1 } from './t.ts';
-const DEFAULTS = Cmd.DEFAULTS;
 
 export function cmdTests(setup: t.CmdTestSetup, args: t.TestArgs) {
   const { describe, it, expect } = args;
-  const log = Cmd.DEFAULTS.log();
+  const log = DEFAULTS.log();
 
   describe('Cmd', () => {
-    it('Cmd.DEFAULTS', () => {
-      expect(Cmd.DEFAULTS).to.eql(DEFAULTS);
-    });
-
     it('Cmd.DEFAULTS.error', () => {
       const error: t.ErrorLike = { message: '🍌' };
       expect(DEFAULTS.error('🍌')).to.eql(error);

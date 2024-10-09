@@ -1,10 +1,9 @@
 import { Cmd } from '../mod.ts';
-import type { t } from './common.ts';
+import { DEFAULTS, type t } from './common.ts';
 
-const DEFAULTS = Cmd.DEFAULTS;
 const Path = Cmd.Path;
 
-export function pathTests(setup: t.CmdTestSetup, args: t.TestArgs) {
+export function pathTests(_setup: t.CmdTestSetup, args: t.TestArgs) {
   const { describe, it, expect } = args;
 
   describe('Cmd.Path', () => {

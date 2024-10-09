@@ -1,5 +1,5 @@
 import { Cmd } from '../mod.ts';
-import type { t } from './common.ts';
+import { DEFAULTS, type t } from './common.ts';
 import type { C } from './t.ts';
 
 const Is = Cmd.Is;
@@ -8,7 +8,7 @@ export function flagsTests(setup: t.CmdTestSetup, args: t.TestArgs) {
   const { describe, it, expect } = args;
 
   describe('Cmd.Is', () => {
-    const log = Cmd.DEFAULTS.log();
+    const log = DEFAULTS.log();
     const NON = [null, undefined, 123, 'abc', {}, [], Symbol('foo'), BigInt(0)];
 
     it('Is.state.cmd', () => {

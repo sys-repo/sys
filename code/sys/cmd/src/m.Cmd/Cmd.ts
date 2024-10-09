@@ -1,5 +1,4 @@
 import { create } from './Cmd.impl.ts';
-import { DEFAULTS } from './common.ts';
 import { Events, Is, Patch, Path, Queue, toPaths, toTransport, toIssuer } from './u.ts';
 
 /**
@@ -7,7 +6,6 @@ import { Events, Is, Patch, Path, Queue, toPaths, toTransport, toIssuer } from '
  * Primitive for building up an actor model ("message passing computer").
  */
 export const Cmd = {
-  DEFAULTS,
   Is,
   Path,
   Patch,
