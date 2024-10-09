@@ -1,4 +1,4 @@
 import './u.env-patch.ts';
-import { DenoCloud } from '../../code/sys.driver/driver-deno/src/m.Cloud/server.ts';
+import { DenoCloud } from '@sys/driver-deno/cloud/server';
 
 DenoCloud.serve(8080);
