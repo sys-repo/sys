@@ -2,8 +2,6 @@
  * @module
  * Module Types: Standard Libs.
  */
-export type * from '@sys/types';
-
 export type * from './m.Args/t.ts';
 export type * from './m.Async/t.ts';
 export type * from './m.DateTime/t.ts';
@@ -25,3 +23,5 @@ export type * from './m.Testing.HttpServer/t.ts';
 export type * from './m.Testing/t.ts';
 export type * from './m.Value.Array/t.ts';
 export type * from './m.Value/t.ts';
+
+export type * from '@sys/types/t';
