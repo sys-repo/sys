@@ -2,4 +2,4 @@
  * @module
  * Deno runtime specific tools.
  */
-export { Denofile } from './u.Denofile/mod.ts';
+export { Denofile } from './m.Denofile/mod.ts';

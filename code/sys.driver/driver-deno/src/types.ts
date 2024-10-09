@@ -10,4 +10,4 @@ export type * from './mod.cloud/u.server/r.root/t.ts';
 export type * from './mod.cloud/u.server/r.subhosting/t.ts';
 
 /* Deno Runtime */
-export type * from './mod.runtime/u.Denofile/t.ts';
+export type * from './mod.runtime/m.Denofile/t.ts';
