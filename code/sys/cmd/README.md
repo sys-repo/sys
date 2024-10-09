@@ -1,6 +1,6 @@
 # Cmd (Command)
 Distributed function invocation via a Cmd (Command) pattern behind an `Immutable<T>` 
-over a CRDT network transport.
+over a CRDT transport.
 
 ### Longer Term (Design Notes)
 The CRDT syncing Cmd<T> pattern is a primitive for building up to a
