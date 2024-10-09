@@ -5,6 +5,16 @@ import { PatchState } from '../m.Json.PatchState/mod.ts';
 /**
  * @module
  * Immutable Json/Path tools using Immer-js as the underlying Immutable<T> provider.
+ *
+ * @example
+ * ```ts
+ * import { Json } from '@sys/driver-immer/json'
+ *
+ * type T = { count: number; };
+ * const state = Json.PatchState.create<T>({ count: 0 });
+ * state.change((d) => d.count += 1);
+ *
+ * ```
  */
 export const Json: t.ImmerJsonLib = {
   Patch,
