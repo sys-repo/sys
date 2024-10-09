@@ -1,4 +1,4 @@
-import { rx, type t } from './common';
+import { rx, type t } from './common.ts';
 
 type P = t.PatchOperation;
 type O = Record<string, unknown>;
