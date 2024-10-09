@@ -31,7 +31,7 @@ type A = ArrayPatch;
 /**
  * Tools for working with patches.
  */
-export type PatchTool = {
+export type PatchToolLib = {
   /* Convert the given input to a simple object. */
   toObject<T extends O>(input: any): T;
 

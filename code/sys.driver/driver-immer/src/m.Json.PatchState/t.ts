@@ -5,6 +5,33 @@ type P = t.PatchOperation;
 type Cmd = { type: string; payload: { tx: string } };
 
 /**
+ * Simple/safe JSON/Patch driven Immutable<T> object
+ * using Immer as the underlying immutability implementation.
+ */
+export type ImmerPatchStateLib = {
+  readonly Is: t.PatchStateIsLib;
+  readonly Command: t.PatchStateCommandLib;
+
+  /**
+   * Initialize a new `PatchState` Immutable<T> object.
+   */
+  create<T extends O, E = t.PatchStateEvents<T>>(
+    initial: T,
+    options?: {
+      typename?: string;
+      events?: t.PatchStateEventFactory<T, E>;
+      onChange?: t.PatchChangeHandler<T>;
+    },
+  ): t.PatchState<T, E>;
+
+  /**
+   * Convert a draft (proxied instance) object into a simple object.
+   * See: https://immerjs.github.io/immer/docs/original
+   */
+  toObject<T extends O>(input: any): T;
+};
+
+/**
  * Simple safe/immutable state wrapper for the data object.
  */
 export type PatchState<T extends O, E = PatchStateEvents<T>> = t.ImmutableRef<T, P, E> & {

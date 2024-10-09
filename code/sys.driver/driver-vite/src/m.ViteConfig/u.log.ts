@@ -5,7 +5,7 @@ import { c, Path, type t } from './common.ts';
  */
 export const Log = {
   /**
-   * Workspace
+   * Workspace.
    */
   Workspace: {
     toString(ws: t.ViteDenoWorkspace, options: { pad?: boolean } = {}) {

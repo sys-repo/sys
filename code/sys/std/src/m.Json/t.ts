@@ -5,9 +5,9 @@ import type { t } from '../common.ts';
  * (RFC-8259).
  */
 export type JsonLib = {
-  /* Convert to a JSON string. */
+  /* Convert the given input to a serlalized JSON string. */
   stringify(input: unknown): string;
 
-  /* Convert a JSON string to a JS value. */
+  /* Inflate a serialized JSON string to a JS object. */
   parse<T>(input: t.JsonString | undefined, defaultValue: T | (() => T)): T;
 };
