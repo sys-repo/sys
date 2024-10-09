@@ -40,10 +40,10 @@ export type CmdTestsLib = {
     /* <Cmd> object-path tests. */
     readonly path: CmdTestSuitesRun;
 
-    /* <Cmd> change patch helper tests */
+    /* <Cmd> change patch helper tests. */
     readonly patch: CmdTestSuitesRun;
 
-    /* <Cmd> type checker flag helper tests */
+    /* <Cmd> type checker flag helper tests. */
     readonly flags: CmdTestSuitesRun;
 
     /* <Cmd> method invokcation tests. */
