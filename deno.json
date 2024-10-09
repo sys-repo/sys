@@ -21,6 +21,7 @@
   "workspace": [
     "./code/sys.tmp",
 
+    "./code/sys/cmd",
     "./code/sys/std",
     "./code/sys/std-s",
     "./code/sys/types",
