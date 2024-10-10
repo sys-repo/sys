@@ -1,7 +1,13 @@
 import { describe, expect, it } from '../-test.ts';
 import { Semver } from './mod.ts';
+import * as Std from '@std/semver';
 
 describe('Semver', () => {
+  it('API', () => {
+    expect(Semver.format).to.equal(Std.format);
+    expect(Semver.toString).to.equal(Std.format);
+  });
+
   it('Semver.parse', () => {
     const a = Semver.parse('1.2.0');
     const b = Semver.parse('1.2.1');

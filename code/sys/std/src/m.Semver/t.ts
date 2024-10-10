@@ -8,14 +8,17 @@ export type SemverLib = {
   /* Attempt to parse a string as a semantic version, returning a SemVer object. */
   parse: typeof StdSemver.parse;
 
-  /* Format a SemVer object into a string. */
-  format: typeof StdSemver.format;
-
   /* Returns the new SemVer resulting from an increment by release type. */
   increment: typeof StdSemver.increment;
 
   /* Compare two SemVers. */
   compare: typeof StdSemver.compare;
+
+  /* Format a SemVer object into a string. */
+  format: typeof StdSemver.format;
+
+  /* Format SemVer object into a string.  */
+  toString(input: t.SemVer): string;
 
   /* Semver value assertions. */
   readonly Is: SemverIsLib;

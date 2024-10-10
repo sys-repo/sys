@@ -1,5 +1,6 @@
+import { Confirm } from '@cliffy/prompt';
 import { Denofile } from '@sys/driver-deno';
-import { c, Cli, Semver, type t, Value } from './common.ts';
+import { Fs, c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
   release?: t.SemVerReleaseType;
@@ -15,7 +16,7 @@ export async function main(options: Options = {}) {
   const release = wrangle.release(options, args);
   const releaseColored = `${c.green(Value.String.capitalize(release))}`;
   console.info();
-  console.info(c.gray(`Version ${c.bold(releaseColored)}`));
+  console.info(c.gray(`${c.bold(releaseColored)} Version`));
 
   /**
    * Load the workspace.
@@ -34,7 +35,15 @@ export async function main(options: Options = {}) {
     .filter((file) => file.exists)
     .filter((file) => !!file.json)
     .filter((file) => typeof file.json?.version === 'string')
-    .filter((file) => typeof file.json?.name === 'string');
+    .filter((file) => typeof file.json?.name === 'string')
+    .map((file) => {
+      const json = file.json!;
+      const { name = '', version = '' } = json;
+      const current = Semver.parse(version);
+      const next = Semver.increment(current, release);
+      const path = file.path;
+      return { path, json, name, version: { current, next } };
+    });
 
   const formatSemverColor = (version: t.SemVer, release: t.SemVerReleaseType) => {
     const fmt = (kind: t.SemVerReleaseType, value: number): string => {
@@ -50,17 +59,14 @@ export async function main(options: Options = {}) {
   // Prepare the set of next versions to bump to.
   const table = Cli.table(['Module', 'Current', '', 'Next']);
   children.forEach((child) => {
-    const { name = '', version = '' } = child.json!;
-    const current = Semver.parse(version);
-    const next = Semver.increment(current, release);
-
+    const { name, version } = child;
     const modParts = name.split('/');
     const modScope = modParts[0];
     const modName = modParts.splice(1).join('/');
     const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
 
-    const vCurrent = Semver.format(current);
-    const vNext = formatSemverColor(next, release);
+    const vCurrent = Semver.format(version.current);
+    const vNext = formatSemverColor(version.next, release);
 
     const title = `${c.green('•')} ${pkg}`;
     table.push([title, vCurrent, '→', vNext]);
@@ -72,10 +78,36 @@ export async function main(options: Options = {}) {
 
   /**
    * TODO 🐷
-   * - take argument --patch, --minor --major
    * - prompt yes/no
    * - save new version to all the modulees.
    */
+
+  /**
+   * Prompt to continue.
+   */
+  const res = await Confirm.prompt('Update files?:');
+  if (!res) return false;
+
+  /**
+   * Make file changes.
+   */
+  for (const child of children) {
+    const version = Semver.toString(child.version.next);
+    console.log('version', version);
+
+    const denofile = R.clone(child.json) as t.DenofileJson;
+    denofile.version = Semver.toString(child.version.next);
+
+    const json = `${JSON.stringify(denofile, null, '  ')}\n`;
+    Deno.writeTextFile(child.path, json);
+    console.log('child.path', child.path);
+    console.log('json', json);
+  }
+
+  // console.log('res', res);
+  // console.log('children', children);
+
+  return true;
 }
 
 /**

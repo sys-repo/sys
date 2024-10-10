@@ -57,12 +57,14 @@ export const Semver: t.SemverLib = {
   /* Attempt to parse a string as a semantic version, returning a SemVer object. */
   parse,
 
-  /* Format a SemVer object into a string. */
-  format,
-
   /* Returns the new SemVer resulting from an increment by release type. */
   increment,
 
   /* Compare two SemVers. */
   compare,
+
+  /* Format a SemVer object into a string. */
+  format,
+  /* Format a SemVer object into a string. */
+  toString: format,
 };
