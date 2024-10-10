@@ -1,5 +1,5 @@
 # Cmd (Command)
-Distributed function invocation via a `Cmd<T>` (command) pattern over a CRDT transport.
+Distributed function invocation via a `Cmd<T>` (command pattern) over a CRDT transport.
 
 The strategy leans on the observable/event-stream properties of the `Immutable<T>`
 interface coupled with the CRDT's capabilities to reliably sync itself over
