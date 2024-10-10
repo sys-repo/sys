@@ -1,4 +1,6 @@
 {
+  "name": "@tmp/deploy-api",
+  "version": "0.0.0",
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",
@@ -9,5 +11,6 @@
     "exclude": [],
     "include": [],
     "entrypoint": "main.ts"
-  }
+  },
+  "exports": {}
 }
