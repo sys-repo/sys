@@ -1,9 +1,19 @@
 import { Denofile } from '@sys/driver-deno';
 import { c, Cli, Semver, type t, Value } from './common.ts';
 
-export async function main(options: { releaseType?: t.SemVerReleaseType } = {}) {
-  const { releaseType = 'patch' } = options;
-  const releaseColored = `${c.green(Value.String.capitalize(releaseType))}`;
+type Options = {
+  release?: t.SemVerReleaseType;
+  argv?: string[];
+};
+
+type TArgs = {
+  release?: t.SemVerReleaseType;
+};
+
+export async function main(options: Options = {}) {
+  const args = Cli.args<TArgs>(options.argv ?? Deno.args);
+  const release = wrangle.release(options, args);
+  const releaseColored = `${c.green(Value.String.capitalize(release))}`;
   console.info();
   console.info(c.gray(`Version ${c.bold(releaseColored)}`));
 
@@ -42,7 +52,7 @@ export async function main(options: { releaseType?: t.SemVerReleaseType } = {}) 
   children.forEach((child) => {
     const { name = '', version = '' } = child.json!;
     const current = Semver.parse(version);
-    const next = Semver.increment(current, releaseType);
+    const next = Semver.increment(current, release);
 
     const modParts = name.split('/');
     const modScope = modParts[0];
@@ -50,7 +60,7 @@ export async function main(options: { releaseType?: t.SemVerReleaseType } = {}) 
     const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
 
     const vCurrent = Semver.format(current);
-    const vNext = formatSemverColor(next, releaseType);
+    const vNext = formatSemverColor(next, release);
 
     const title = `${c.green('•')} ${pkg}`;
     table.push([title, vCurrent, '→', vNext]);
@@ -67,3 +77,27 @@ export async function main(options: { releaseType?: t.SemVerReleaseType } = {}) 
    * - save new version to all the modulees.
    */
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  release(options: Options, argv: TArgs): t.SemVerReleaseType {
+    if (options.release !== undefined) return options.release;
+
+    if (argv.release !== undefined) {
+      const release = argv.release.toLowerCase() as t.SemVerReleaseType;
+      const supported: t.SemVerReleaseType[] = ['major', 'minor', 'patch'];
+      if (supported.includes(release)) return release;
+
+      // Unsupported semver release/bump type.
+      const argValue = c.white(c.bold(release));
+      const title = c.bold('Warning');
+      const msg = `--release="${argValue}" argument not supported.`;
+      const warning = c.yellow(`${title}: ${msg}`);
+      console.warn(warning);
+    }
+
+    return 'patch'; // Default.
+  },
+} as const;

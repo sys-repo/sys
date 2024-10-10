@@ -1,5 +1,6 @@
 export type * from './ext.ts';
 
+export type * from './t.Args.ts';
 export type * from './t.Boolean.ts';
 export type * from './t.Dispose.ts';
 export type * from './t.Error.ts';
