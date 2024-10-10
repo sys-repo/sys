@@ -4,6 +4,12 @@ import type { t } from './common.ts';
  * Library: helper for working with time.
  */
 export type TimeLib = {
+  /* Tools for working with an elapsed duration of time. */
+  readonly Duration: t.DurationLib;
+
+  /* Create a new TimeDuration */
+  duration: t.DurationLib['create'];
+
   /**
    * Run a function after a delay.
    */
@@ -36,14 +42,12 @@ export type TimeDelay = {
   readonly is: {
     /* True if the timer was cancelled.  */
     readonly cancelled: boolean;
-
     /* True if the timer completed successfully. */
     readonly completed: boolean;
-
     /* True if the timer is "done" (completed OR failed). */
     readonly done: boolean;
   };
 
-  /* Stops the timer. */
+  /* Stops the timer (dispose). */
   cancel(): void;
 };
