@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 import { ArrayLib } from '../m.Value.Array/mod.ts';
-import { Number } from './m.Number.ts';
-import { String } from './m.String.ts';
+import { Number } from './m.Num.ts';
+import { String } from './m.Str.ts';
 
 /**
  * Determine if the given input is typeof "object" and not <null>.
