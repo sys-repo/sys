@@ -9,9 +9,13 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 - modules: [sys](/code/sys/) ← standard libs
 - modules: [sys.ui](/code/sys.ui/)
 - modules: [sys.driver](/code/sys.driver/)
-- build toolchain (output → W3C standards)
+- build toolchain (output → W3C stds)
 
-(built on, and commited to, baseline modern [Web Standards](https://wintercg.org/))
+<p>&nbsp;</p>
+
+✊🏻💯  
+Built on, and commited to, baseline modern [Web Standards](https://wintercg.org/).
+
 
 ---
 
@@ -80,7 +84,7 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 
 <p>&nbsp;</p>
 
-# Philosophy: Design
+# Philosophy ← (Design)
 "Extracting energy from the [turing tarpit](https://en.wikipedia.org/wiki/Turing_tarpit)" ([Alan Kay](https://www.youtube.com/watch?v=Vt8jyPqsmxE&t=8s))
 
 ![kay-pure-relationships](https://user-images.githubusercontent.com/185555/186360463-cfd81f46-3429-4741-bbb3-b32015a388ac.png)

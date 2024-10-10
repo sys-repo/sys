@@ -1,5 +1,4 @@
-import { resolve } from '../../../../sys/std/src/m.ObjectPath/u.ts';
-import { Denofile, Path, c, type t } from './common.ts';
+import { Path, c, type t } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
@@ -96,24 +95,25 @@ ${c.cyan(`         ${href}`)}
       pad?: boolean;
     }) {
       const { Pkg, paths, url, pad, ws } = args;
-      const hr = c.brightGreen(c.bold('─'.repeat(50)));
+      const hr = c.brightGreen(c.bold('─'.repeat(60)));
       const key = (text: string) => c.bold(c.white(text));
+      const cwd = Path.resolve();
       const text = `
-${c.brightGreen(c.bold('Help'))}
+${c.brightGreen(c.bold('Info'))}
 ${hr}
 ${ws.toString()}
 
 ${Log.Info.toString({ Pkg, url, pad })}      
-${c.green('input')}    ${paths.input}
-${c.cyan('output')}   ${paths.outDir}
+${c.green('input')}    ${paths.input.slice(cwd.length)}
+${c.cyan('output')}   ${paths.outDir.slice(cwd.length)}
 
 
 ${c.green(c.bold('Options'))}: 
 ${hr}
  Quit   ${key('ctrl + c')}
- Clear  ${key('c')}
+ Clear  ${key('k')}
  Open   ${key('o')}  ← (in browser)
- Help   ${key('h')}
+ Info   ${key('i')}
 `;
       return wrangle.res(c.gray(text), args.pad);
     },

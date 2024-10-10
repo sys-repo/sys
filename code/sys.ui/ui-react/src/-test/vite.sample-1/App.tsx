@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './-sample-import.ts'; // 🐷
+import './-sample-imports.ts'; // 🐷
 
 import { Foo } from '@sys/tmp/client/ui';
 import { Color, css } from '../../mod.ts';
@@ -20,7 +20,8 @@ export const App: React.FC<AppProps> = (props) => {
   const theme = Color.theme(props.theme ?? 'Dark');
   const styles = {
     base: css({
-      padding: 10,
+      Margin: 20,
+      padding: 20,
       color: 'green',
       backgroundColor: isOver ? 'hotpink' : 'lightgreen',
       fontFamily: 'monospace',

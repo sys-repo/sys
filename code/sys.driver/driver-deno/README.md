@@ -1,5 +1,5 @@
 # Deno Cloud Driver
-Tools for working with the [Deno cloud](https://deno.com/deploy).
+Tools for working with the [Deno Runtime](https://docs.deno.com/runtime/) and the [Deno Cloud](https://deno.com/deploy):  Deploy™️  |  Subhosting.™️
 
 
 ### References
@@ -34,7 +34,7 @@ import { Pkg } from 'jsr:@sys/driver-deno';
 import { DenoCloud, Server } from 'jsr:@sys/driver-deno/server';
 
 const app = DenoCloud.server({ env });
-const options = Server.options(8080, Pkg)
+const options = Server.options(8080, Pkg);
 Deno.serve(options, app.fetch);
 ```
 

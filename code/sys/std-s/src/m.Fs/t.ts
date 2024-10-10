@@ -41,6 +41,12 @@ export type FsLib = {
   /* Resolves path segments into a path. */
   readonly resolve: typeof StdPath.resolve;
 
+  /* Return the directory path of a path. */
+  readonly dirname: typeof StdPath.dirname;
+
+  /* Return the last portion of a path. */
+  readonly basename: typeof StdPath.basename;
+
   /* Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 

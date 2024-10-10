@@ -47,6 +47,18 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
@@ -65,14 +77,14 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-vite"
+      - name: publish module → "@sys/driver-immer"
         run: |
-          cd code/sys.driver/driver-vite
+          cd code/sys.driver/driver-immer
           deno task test
           deno publish
 
-      - name: publish module → "@sys/tmp"
+      - name: publish module → "@sys/driver-vite"
         run: |
-          cd code/sys.tmp
+          cd code/sys.driver/driver-vite
           deno task test
           deno publish

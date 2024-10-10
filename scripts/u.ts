@@ -1,11 +1,8 @@
-import { c } from '@sys/std-s';
-import type { CmdOutput } from '@sys/std-s/types';
-
-export { c, Cli, Cmd, Fs } from '@sys/std-s';
-export { Path, Paths } from './u.paths.ts';
+import { c, type t } from './common.ts';
+export * from './common.ts';
 
 export type CmdResult = {
-  output: CmdOutput;
+  output: t.CmdOutput;
   path: string;
 };
 
