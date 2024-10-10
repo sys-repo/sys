@@ -28,6 +28,7 @@ export { Rx, rx } from './m.Observable/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Semver } from './m.Semver/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
+export { Text } from './m.Text/mod.ts';
 export { Value, isObject } from './m.Value/mod.ts';
 
 export { R } from './common.ts';
