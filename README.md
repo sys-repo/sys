@@ -9,9 +9,13 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 - modules: [sys](/code/sys/) ← standard libs
 - modules: [sys.ui](/code/sys.ui/)
 - modules: [sys.driver](/code/sys.driver/)
-- build toolchain (output → W3C standards)
+- build toolchain (output → W3C stds)
 
-(built on, and commited to, baseline modern [Web Standards](https://wintercg.org/))
+<p>&nbsp;</p>
+
+✊🏻💯  
+Built on, and commited to, baseline modern [Web Standards](https://wintercg.org/).
+
 
 ---
 
