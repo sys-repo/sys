@@ -18,13 +18,13 @@ export async function main() {
     .filter((file) => typeof file.json?.name === 'string');
 
   // Prepare the set of next versions to bump to.
-  const table = Cli.table(['Module', 'Current', 'Next']);
+  const table = Cli.table(['Module', 'Current', '', 'Next']);
   children.forEach((child) => {
     const { name = '', version = '' } = child.json!;
     const current = Semver.parse(version);
     const next = Semver.increment(current, 'patch');
     const title = `${c.green('•')} ${c.white(name)}`;
-    table.push([title, Semver.format(current), c.green(Semver.format(next))]);
+    table.push([title, Semver.format(current), '→', c.green(Semver.format(next))]);
   });
 
   console.info();
