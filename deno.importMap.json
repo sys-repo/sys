@@ -23,6 +23,7 @@
     "@privy-io/server-auth": "npm:@privy-io/server-auth@1.12.2",
     "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3",
     "@swc/plugin-emotion": "npm:@swc/plugin-emotion@4",
+    "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
     "chai": "npm:chai@5",
     "date-fns": "npm:date-fns@4",

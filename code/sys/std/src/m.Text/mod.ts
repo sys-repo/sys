@@ -8,6 +8,7 @@
  *
  * const long = 'hello world.'.repeat(100)'
  * const short = Text.shorten(long);
+ * const caps = Text.capitalize(short);
  * ```
  */
 
