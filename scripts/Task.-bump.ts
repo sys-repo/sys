@@ -2,7 +2,9 @@ import { Denofile } from '@sys/driver-deno';
 import { c, Cli, Semver } from './u.ts';
 
 export async function main() {
-  // Load the workspace.
+  /**
+   * Load the workspace.
+   */
   const ws = await Denofile.workspace();
   if (!ws.exists) {
     const err = `Could not find a workspace. Ensure the root deno.json file as a "workspace" configuration.`;
@@ -10,7 +12,9 @@ export async function main() {
     return;
   }
 
-  // const dir = Fs.dirname(ws.file);
+  /**
+   * Retrieve the child modules within the workspace.
+   */
   const children = (await ws.children.load())
     .filter((file) => file.exists)
     .filter((file) => !!file.json)
