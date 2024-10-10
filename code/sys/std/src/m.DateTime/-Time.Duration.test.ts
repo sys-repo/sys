@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { StdDate } from './common.ts';
-import { Duration } from './m.Time.u.Duration.ts';
+import { Duration } from './m.Time.Duration.ts';
 import { Time } from './mod.ts';
 
 const { SECOND, MINUTE, HOUR, DAY } = StdDate;

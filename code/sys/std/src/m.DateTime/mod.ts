@@ -27,5 +27,5 @@
  * ```
  */
 export { Date, Date as D, Day, Format } from './m.Date.ts';
-export { Duration } from './m.Time.u.Duration.ts';
+export { Duration } from './m.Time.Duration.ts';
 export { Time } from './m.Time.ts';

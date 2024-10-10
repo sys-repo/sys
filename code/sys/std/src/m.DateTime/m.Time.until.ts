@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 import { Subject, take, takeUntil } from 'rxjs';
 import { Dispose } from '../m.Dispose/mod.ts';
-import { delay as baseDelay, Wrangle as DelayWrangle } from './m.Time.u.delay.ts';
+import { delay as baseDelay, Wrangle as DelayWrangle } from './m.Time.delay.ts';
 
 /**
  * Exposes timer functions that cease after a

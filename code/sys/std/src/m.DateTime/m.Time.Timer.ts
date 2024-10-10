@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
-import { Duration } from './m.Time.u.Duration.ts';
-import { utc } from './m.Time.u.utc.ts';
+import { Duration } from './m.Time.Duration.ts';
+import { utc } from './m.Time.utc.ts';
 
 /**
  * Starts a timer.

@@ -2,8 +2,8 @@ import { describe, expect, it } from '../-test.ts';
 
 import * as DateFns from 'date-fns';
 import { StdDate } from './common.ts';
-import { Format } from './m.Date.u.Format.ts';
-import { Is } from './m.Date.u.Is.ts';
+import { Format } from './m.Date.Format.ts';
+import { Is } from './m.Date.Is.ts';
 import { D, Day, Time } from './mod.ts';
 
 describe('Date', () => {
