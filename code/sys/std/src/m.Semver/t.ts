@@ -14,9 +14,6 @@ export type SemverLib = {
   /* Compare two SemVers. */
   compare: typeof StdSemver.compare;
 
-  /* Format a SemVer object into a string. */
-  format: typeof StdSemver.format;
-
   /* Format SemVer object into a string.  */
   toString(input: t.SemVer): string;
 

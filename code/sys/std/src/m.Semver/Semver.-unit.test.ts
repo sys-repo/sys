@@ -4,7 +4,6 @@ import * as Std from '@std/semver';
 
 describe('Semver', () => {
   it('API', () => {
-    expect(Semver.format).to.equal(Std.format);
     expect(Semver.toString).to.equal(Std.format);
   });
 

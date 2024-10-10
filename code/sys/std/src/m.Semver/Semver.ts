@@ -64,7 +64,5 @@ export const Semver: t.SemverLib = {
   compare,
 
   /* Format a SemVer object into a string. */
-  format,
-  /* Format a SemVer object into a string. */
   toString: format,
 };
