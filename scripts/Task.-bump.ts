@@ -79,11 +79,11 @@ export async function main(options: Options = {}) {
   /**
    * Prompt to continue.
    */
-  const res = await Confirm.prompt('Update files?:');
-  if (!res) return false;
+  const yes = await Confirm.prompt('Update files?:');
+  if (!yes) return false;
 
   /**
-   * Make file changes.
+   * Write version to files.
    */
   for (const child of children) {
     const denofile = R.clone(child.json) as t.DenofileJson;
