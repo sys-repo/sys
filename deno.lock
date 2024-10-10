@@ -42,6 +42,9 @@
     "jsr:@std/semver@1.0.3": "1.0.3",
     "jsr:@std/testing@1.0.2": "1.0.2",
     "jsr:@std/text@~1.0.7": "1.0.7",
+    "jsr:@sys/driver-deno@0.0.6": "0.0.6",
+    "jsr:@sys/std-s@^0.0.15": "0.0.15",
+    "jsr:@sys/std@^0.0.25": "0.0.25",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-indexeddb@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo@1": "1.2.1_@types+node@22.5.4",
@@ -244,6 +247,46 @@
     },
     "@std/text@1.0.7": {
       "integrity": "344a820af99fde81ae1d4f9ce586da3f47a58cda25ac4c4dd688166cf5ed97f1"
+    },
+    "@sys/driver-deno@0.0.6": {
+      "integrity": "762a6e6be1e7194096aeb14099466ae0b1273d3473abc61af7eb87912609ffd9",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/std-s",
+        "npm:@privy-io/server-auth",
+        "npm:subhosting"
+      ]
+    },
+    "@sys/std@0.0.25": {
+      "integrity": "defcc41417f3228f9870701aadd60b015ca3387b1e47fa5a304f449607fa43bb",
+      "dependencies": [
+        "npm:@jsr/std__async@1.0.5",
+        "npm:@jsr/std__cli",
+        "npm:@jsr/std__datetime",
+        "npm:@jsr/std__path",
+        "npm:@jsr/std__semver",
+        "npm:@jsr/std__testing",
+        "npm:@noble/hashes",
+        "npm:@paralleldrive/cuid2",
+        "npm:chai@5",
+        "npm:date-fns",
+        "npm:fast-json-patch@3.1.1",
+        "npm:ramda@0.30.1",
+        "npm:rxjs@7"
+      ]
+    },
+    "@sys/std-s@0.0.15": {
+      "integrity": "b21d40d7f3fc1e9f7908268d9bbb9c961e799e9c53975aff094a69a3543b75c0",
+      "dependencies": [
+        "jsr:@cliffy/table",
+        "jsr:@hono/hono@4",
+        "jsr:@std/dotenv",
+        "jsr:@std/fmt@1",
+        "jsr:@std/fs@1",
+        "jsr:@sys/std",
+        "npm:@privy-io/server-auth",
+        "npm:ora"
+      ]
     }
   },
   "npm": {
