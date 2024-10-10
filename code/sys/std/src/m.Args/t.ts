@@ -1,4 +1,4 @@
-import type { parseArgs } from '@std/cli/parse-args';
+import type { parseArgs, Args } from '@std/cli/parse-args';
 
 /**
  * Tools for parsing and interpretting "arguments" (parameter strings).
@@ -10,3 +10,9 @@ export type ArgsLib = {
    */
   parse: typeof parseArgs;
 };
+
+/**
+ * Represents the result of [argv] arguments parsed
+ * into a object.
+ */
+export type ParsedArgs = Args;
