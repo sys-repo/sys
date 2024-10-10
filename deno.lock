@@ -94,6 +94,7 @@
     "npm:rxjs@7.8.1": "7.8.1",
     "npm:subhosting@0.1.0-alpha.1": "0.1.0-alpha.1",
     "npm:tinycolor2@1.6.0": "1.6.0",
+    "npm:ts-essentials@10.0.2": "10.0.2",
     "npm:uuid@10": "10.0.0",
     "npm:vite@*": "5.4.7",
     "npm:vite@5": "5.4.8_@types+node@22.5.4",
@@ -2604,6 +2605,9 @@
     },
     "ts-case-convert@2.0.7": {
       "integrity": "sha512-Kqj8wrkuduWsKUOUNRczrkdHCDt4ZNNd6HKjVw42EnMIGHQUABS4pqfy0acETVLwUTppc1fzo/yi11+uMTaqzw=="
+    },
+    "ts-essentials@10.0.2": {
+      "integrity": "sha512-Xwag0TULqriaugXqVdDiGZ5wuZpqABZlpwQ2Ho4GDyiu/R2Xjkp/9+zcFxL7uzeLl/QCPrflnvpVYyS3ouT7Zw=="
     },
     "ts-node@10.9.2_@types+node@22.5.4_typescript@5.6.2": {
       "integrity": "sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==",

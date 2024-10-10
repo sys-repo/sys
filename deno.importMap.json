@@ -34,6 +34,7 @@
     "react-dom": "npm:react-dom@18",
     "rxjs": "npm:rxjs@7",
     "tinycolor2": "npm:tinycolor2@1.6.0",
+    "ts-essentials": "npm:ts-essentials@10.0.2",
     "vite": "npm:vite@5"
   }
 }
