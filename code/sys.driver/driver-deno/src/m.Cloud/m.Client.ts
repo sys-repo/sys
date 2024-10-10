@@ -8,3 +8,4 @@
  * ```
  */
 export * from './u.client/mod.ts';
+export type * as t from '../types.ts';

@@ -9,6 +9,6 @@ export { R };
 /**
  * System
  */
-export { Denofile } from '../../../driver-deno/src/m.Runtime/mod.ts';
+export { Denofile } from '@sys/driver-deno/runtime';
 export { Time, slug } from '@sys/std';
-export { Cmd, Fs, Path, c } from '@sys/std-s';
+export { Cli, Cmd, Fs, Path, c } from '@sys/std-s';
