@@ -15,6 +15,11 @@ export type TextSplice = <T extends O>(
 ) => void;
 
 /**
+ * Replace all of a string using splice.
+ */
+export type TextReplace = <T extends O>(doc: T, path: t.ObjectPath, next: string) => void;
+
+/**
  * Calculate a diff between two string providing parameters to pass
  * into a `.splice(..)` function.
  *

@@ -1,7 +1,21 @@
+/**
+ * @module
+ * Tools for working on strings of text.
+ *
+ * @example
+ * ```ts
+ * import { Text } from '@sys/std/text';
+ *
+ * const long = 'hello world.'.repeat(100)'
+ * const short = Text.shorten(long);
+ * ```
+ */
+
+import type { t } from './common.ts';
 import { diff } from './u.diff.ts';
 import { replace, splice } from './u.splice.ts';
 
-export const Text = {
+export const Text: t.TextLib = {
   diff,
   splice,
   replace,

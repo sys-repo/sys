@@ -33,7 +33,7 @@ export const splice: t.TextSplice = <T extends O = O>(
 /**
  * Replace all of a string using splice.
  */
-export function replace<T extends O>(doc: T, path: t.ObjectPath, next: string) {
+export const replace: t.TextReplace = <T extends O>(doc: T, path: t.ObjectPath, next: string) => {
   const current = ObjectPath.resolve(doc, path);
   if (typeof current === 'string') splice(doc, path, 0, current.length, next);
-}
+};

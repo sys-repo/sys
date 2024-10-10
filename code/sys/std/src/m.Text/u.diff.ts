@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Calculate a diff between two string providing parameters to pass
+ * Calculate a difference between two strings providing parameters to pass
  * into a `.splice(..)` function.
  *
  * Ref:
