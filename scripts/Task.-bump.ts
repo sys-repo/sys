@@ -1,6 +1,6 @@
 import { Confirm } from '@cliffy/prompt';
 import { Denofile } from '@sys/driver-deno';
-import { Fs, c, Cli, R, Semver, type t, Value } from './common.ts';
+import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
   release?: t.SemVerReleaseType;
@@ -65,7 +65,7 @@ export async function main(options: Options = {}) {
     const modName = modParts.splice(1).join('/');
     const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
 
-    const vCurrent = Semver.format(version.current);
+    const vCurrent = Semver.toString(version.current);
     const vNext = formatSemverColor(version.next, release);
 
     const title = `${c.green('•')} ${pkg}`;
@@ -77,12 +77,6 @@ export async function main(options: Options = {}) {
   console.info();
 
   /**
-   * TODO 🐷
-   * - prompt yes/no
-   * - save new version to all the modulees.
-   */
-
-  /**
    * Prompt to continue.
    */
   const res = await Confirm.prompt('Update files?:');
@@ -92,20 +86,11 @@ export async function main(options: Options = {}) {
    * Make file changes.
    */
   for (const child of children) {
-    const version = Semver.toString(child.version.next);
-    console.log('version', version);
-
     const denofile = R.clone(child.json) as t.DenofileJson;
     denofile.version = Semver.toString(child.version.next);
-
     const json = `${JSON.stringify(denofile, null, '  ')}\n`;
-    Deno.writeTextFile(child.path, json);
-    console.log('child.path', child.path);
-    console.log('json', json);
+    await Deno.writeTextFile(child.path, json);
   }
-
-  // console.log('res', res);
-  // console.log('children', children);
 
   return true;
 }
