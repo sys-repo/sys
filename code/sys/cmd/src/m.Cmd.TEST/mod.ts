@@ -7,3 +7,4 @@
  * Cmd<T> object.
  */
 export { Tests } from './Tests.ts';
+export type * from './t.ts';
