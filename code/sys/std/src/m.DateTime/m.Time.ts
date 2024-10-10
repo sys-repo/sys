@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
-import { Duration } from './m.Duration.ts';
+import { Duration } from './m.Time.u.Duration.ts';
+import { elapsed, timer } from './m.Time.u.Timer.ts';
 import { delay } from './m.Time.u.delay.ts';
+import { until } from './m.Time.u.until.ts';
 import { utc } from './m.Time.u.utc.ts';
 
 /**
@@ -13,8 +15,11 @@ export const Time: t.TimeLib = {
 
   utc,
   delay,
+  until,
   wait: (msecs) => delay(msecs),
 
   Duration,
   duration: Duration.create,
+  elapsed,
+  timer,
 };

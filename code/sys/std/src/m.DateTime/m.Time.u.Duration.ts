@@ -1,10 +1,20 @@
 import { StdDate, Value, type t } from './common.ts';
 const { MINUTE, SECOND, DAY, HOUR } = StdDate;
 
+const To: t.TimeDurationTo = {
+  sec: (msec: number, round?: number) => Value.round(msec / 1000, round),
+  min: (msec: number, round?: number) => Value.round(msec / 1000 / 60, round),
+  hour: (msec: number, round?: number) => Value.round(msec / 1000 / 60 / 60, round),
+  day: (msec: number, round?: number) => Value.round(msec / 1000 / 60 / 60 / 24, round),
+};
+
 /**
  * Library: tools for working with an elapsed duration of time.
  */
 export const Duration: t.TimeDurationLib = {
+  /* Time duration conversions. */
+  To,
+
   /**
    * Create a new duration helper.
    */
@@ -51,9 +61,7 @@ export const Duration: t.TimeDurationLib = {
     input = (input || '').trim();
     const matchedDigits = input.match(/(\d*\.?)\d*/);
     const digits = matchedDigits && matchedDigits[0] ? +matchedDigits[0] : -1;
-    if (digits < 0) {
-      return done(-1);
-    }
+    if (digits < 0) return done(-1);
 
     // Extract and multiply by unit (sec, min, hour, day).
     input = input.substring(digits.toString().length).trim().toLowerCase();
@@ -114,14 +122,4 @@ export const Duration: t.TimeDurationLib = {
         throw new Error(`Unit '${unit}' not supported `);
     }
   },
-};
-
-/**
- * Helpers
- */
-const To = {
-  sec: (msec: number, precision?: number) => Value.round(msec / 1000, precision),
-  min: (msec: number, precision?: number) => Value.round(msec / 1000 / 60, precision),
-  hour: (msec: number, precision?: number) => Value.round(msec / 1000 / 60 / 60, precision),
-  day: (msec: number, precision?: number) => Value.round(msec / 1000 / 60 / 60 / 24, precision),
 };

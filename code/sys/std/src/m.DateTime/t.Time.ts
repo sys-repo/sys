@@ -13,6 +13,12 @@ export type TimeLib = {
   /* Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
 
+  /* Generates a TimeDuration from the given time until now (or a specified other endpoint). */
+  elapsed(from: t.DateTimeInput, options: { to?: t.DateTimeInput; round?: number }): t.TimeDuration;
+
+  /* Generates a new timer. */
+  timer(start?: Date, options?: { round?: number }): Timer;
+
   /**
    * Run a function after a delay.
    */
@@ -27,10 +33,13 @@ export type TimeLib = {
 
   /* Generate a new UTC datetime instance. */
   utc(input?: t.DateTimeInput): t.DateTime;
+
+  /* A Time helper that runs only until it has been disposed. */
+  until(until$?: t.UntilObservable): t.TimeUntil;
 };
 
 /**
- * Timout/Delay
+ * Timeout/Delay
  */
 
 /* A function called at the completion of a delay timer. */
@@ -56,4 +65,27 @@ export type TimeDelay = {
 
   /* Stops the timer (dispose). */
   cancel(): void;
+};
+
+/**
+ * A Time helper that runs only until it has been disposed.
+ */
+export type TimeUntil = {
+  readonly dispose$: t.Observable<void>;
+  readonly disposed: boolean;
+  delay: t.TimeLib['delay'];
+};
+
+/**
+ * A timer that records the elapsed time since a start date.
+ */
+export type Timer = {
+  /* The starting datetime. */
+  readonly startedAt: Date;
+
+  /* The duration elapsed */
+  readonly elapsed: t.TimeDuration;
+
+  /* Reset the timer. */
+  reset: () => t.Timer;
 };

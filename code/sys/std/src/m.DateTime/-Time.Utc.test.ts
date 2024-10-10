@@ -28,7 +28,7 @@ describe('Time.utc', () => {
   });
 });
 
-describe.only('Time.now', () => {
+describe('Time.now', () => {
   it('now', () => {
     const d = new Date();
     const dt = d.getTime();

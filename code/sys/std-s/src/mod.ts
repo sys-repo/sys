@@ -19,7 +19,7 @@ export {
   Args,
   Async,
   Date,
-  Dates,
+  D,
   Http,
   Immutable,
   ObjectPath,

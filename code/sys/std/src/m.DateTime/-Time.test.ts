@@ -1,6 +1,6 @@
 import { Time } from '../mod.ts';
 import { Testing, describe, expect, it } from '../-test.ts';
-import { Duration } from './m.Duration.ts';
+import { Duration } from './m.Time.u.Duration.ts';
 
 describe('Time', () => {
   const calcDiff = (a: Date, b: Date = new Date()) => b.getTime() - a.getTime();
@@ -10,7 +10,7 @@ describe('Time', () => {
     expect(Time.duration).to.equal(Duration.create);
   });
 
-  describe('Time.delay( )', () => {
+  describe('Time.delay', () => {
     it('TimeDelayPromise: response structure', () => {
       const res = Time.delay(0);
       expect(typeof res.cancel).to.eql('function');
@@ -67,7 +67,7 @@ describe('Time', () => {
     });
   });
 
-  describe('Time.wait( )', () => {
+  describe('Time.wait', () => {
     it('wait: msecs', async () => {
       const startedAt = new Date();
       expect(calcDiff(startedAt)).to.be.closeTo(0, 10);

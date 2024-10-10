@@ -7,7 +7,7 @@ import type { t } from '../common.ts';
 export function delay(...args: any[]): t.TimeDelayPromise {
   type T = t.TimeDelayPromise;
 
-  const { msecs, fn } = wrangle.delayArgs(args);
+  const { msecs, fn } = Wrangle.delayArgs(args);
   const controller = new AbortController();
   const { signal } = controller;
 
@@ -41,7 +41,7 @@ export function delay(...args: any[]): t.TimeDelayPromise {
 /**
  * Helpers
  */
-const wrangle = {
+export const Wrangle = {
   delayArgs(input: any[]) {
     let msecs = 0;
     let fn: t.TimeDelayCallback | undefined;

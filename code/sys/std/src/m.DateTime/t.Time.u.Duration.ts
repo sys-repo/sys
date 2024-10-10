@@ -4,6 +4,9 @@ import type { t } from './common.ts';
  * Library: tools for working with an elapsed duration of time.
  */
 export type TimeDurationLib = {
+  /* Time duration conversions. */
+  readonly To: t.TimeDurationTo;
+
   /* Create a new TimeDuration */
   create(duration: string | number, options?: t.TimeDurationOptions): t.TimeDuration;
 
@@ -18,4 +21,12 @@ export type TimeDurationLib = {
 export type TimeDurationOptions = {
   /* Number of decimal places to round to. */
   round?: number;
+};
+
+/* Time duration conversions. */
+export type TimeDurationTo = {
+  sec(msec: t.Msecs, round?: number): t.Secs;
+  min(msec: t.Msecs, round?: number): t.Secs;
+  hour(msec: t.Msecs, round?: number): t.Secs;
+  day(msec: t.Msecs, round?: number): t.Secs;
 };
