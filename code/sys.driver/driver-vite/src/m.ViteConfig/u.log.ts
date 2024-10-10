@@ -22,9 +22,10 @@ export const Log = {
         const parts = fullname.split('/');
         const basename = parts.slice(0, 2).join('/');
         const subpath = parts.slice(2).join('/');
-        const module = c.green(`${c.white(c.bold(basename))}/${c.green(subpath)}`);
-        const path = alias.replacement;
-        const displayPath = `${Path.dirname(path)}/${c.white(Path.basename(path))}`;
+        const boldWhite = (s: string) => c.white(c.bold(s));
+        const module = c.green(`${boldWhite(basename)}/${boldWhite(subpath)}`);
+        const path = alias.replacement.slice(ws.dir.length + 1);
+        const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
         line(c.gray(`${c.green('•')} ${c.green('import')} ${module}`));
         line(c.dim(`  ${displayPath}`));
       });
