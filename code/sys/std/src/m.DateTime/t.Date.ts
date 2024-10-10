@@ -4,15 +4,18 @@ import type { StdDate, t } from './common.ts';
 /**
  * Library: Tools for working with Dates.
  */
-export type DatesLib = {
+export type DateLib = {
+  /* Tools for working with time. */
+  readonly Time: t.TimeLib;
+
   /* Date value type verification flags. */
-  Is: t.DateIsLib;
+  readonly Is: t.DateIsLib;
 
   /* Tools for working with Day values. */
-  Day: t.DayLib;
+  readonly Day: t.DayLib;
 
   /* Tools for formatting dates into "pretty" strings. */
-  Format: t.DateFormatLib;
+  readonly Format: t.DateFormatLib;
 
   /* Format date string in the given "pretty" string. The result may vary by locale. */
   format: t.DateFormatLib['toString'];
@@ -24,15 +27,15 @@ export type DatesLib = {
   difference: typeof StdDate.difference;
 
   /* The number of milliseconds in a day. */
-  DAY: typeof StdDate.DAY;
+  readonly DAY: typeof StdDate.DAY;
   /* The number of milliseconds in an hour. */
-  HOUR: typeof StdDate.HOUR;
+  readonly HOUR: typeof StdDate.HOUR;
   /* The number of milliseconds in a minute. */
-  MINUTE: typeof StdDate.MINUTE;
+  readonly MINUTE: typeof StdDate.MINUTE;
   /* The number of milliseconds in a second. */
-  SECOND: typeof StdDate.SECOND;
+  readonly SECOND: typeof StdDate.SECOND;
   /* The number of milliseconds in a week. */
-  WEEK: typeof StdDate.WEEK;
+  readonly WEEK: typeof StdDate.WEEK;
 };
 
 /**

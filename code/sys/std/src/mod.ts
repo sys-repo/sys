@@ -12,7 +12,7 @@ export { Pkg } from './common.ts';
 
 export { Args } from './m.Args/mod.ts';
 export { Async } from './m.Async/mod.ts';
-export { Date, Dates, Duration, Time } from './m.DateTime/mod.ts';
+export { Date, Duration, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
