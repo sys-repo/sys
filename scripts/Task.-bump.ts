@@ -1,4 +1,3 @@
-import { Confirm } from '@cliffy/prompt';
 import { Denofile } from '@sys/driver-deno';
 import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
@@ -79,7 +78,7 @@ export async function main(options: Options = {}) {
   /**
    * Prompt to continue.
    */
-  const yes = await Confirm.prompt('Update files?:');
+  const yes = await Cli.confirm('Update files?:');
   if (!yes) return false;
 
   /**

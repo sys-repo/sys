@@ -1,4 +1,15 @@
+import type {
+  Checkbox,
+  Confirm,
+  Input,
+  List,
+  Number,
+  Secret,
+  Select,
+  Toggle,
+} from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
+
 import type { ArgsLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
@@ -27,6 +38,11 @@ export type CliLib = {
 
   /* Wait for the specified milliseconds NB: use with [await]. */
   wait: t.TimeLib['wait'];
+
+  /* Index of input prompts */
+  readonly Prompts: t.CliPromptsLib;
+  /* Boolean: Yes/No confirmation. */
+  confirm: t.CliPromptsLib['Confirm']['prompt'];
 };
 
 /**
@@ -43,4 +59,33 @@ export type CliTableLib = {
 export type CliSpinnerLib = {
   /* Create (and start) a new spinner instance. */
   create(text?: string): OraSpinner;
+};
+
+/**
+ * Index of input prompts.
+ */
+export type CliPromptsLib = {
+  /* Text input prompt (String). */
+  readonly Input: typeof Input;
+
+  /* Yes/No confirmation input prompt (Boolean). */
+  readonly Confirm: typeof Confirm;
+
+  /* Numeric input prompt (Number). */
+  readonly Number: typeof Number;
+
+  /* Secret input prompt (String). */
+  readonly Secret: typeof Secret;
+
+  /* Yes/No toggle input prompt (Boolean). */
+  readonly Toggle: typeof Toggle;
+
+  /* List input prompt. */
+  readonly List: typeof List;
+
+  /* Selection list input prompt. */
+  readonly Select: typeof Select;
+
+  /* Multi-select list input propmt. */
+  readonly Checkbox: typeof Checkbox;
 };
