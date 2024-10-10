@@ -35,10 +35,10 @@ export const Log = {
         const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
 
         const scopeCol = isFirstRenderOfScope ? c.white : c.gray;
-        const module = c.white(`${c.bold(scopeCol(scope))}${c.green('/')}${boldWhite(subpath)}`);
+        const module = c.white(`${scopeCol(scope)}${c.green('/')}${c.white(subpath)}`);
 
         const left = c.gray(`${c.green('•')} ${c.green('import')} ${module}`);
-        const right = c.dim(`${displayPath}`);
+        const right = c.gray(`${displayPath}`);
         table.push([left, c.green('→'), right]);
       });
       line(table.toString());
