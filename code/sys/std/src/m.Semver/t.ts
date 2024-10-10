@@ -1,6 +1,5 @@
-import { type t } from '../common.ts';
-
 import type * as StdSemver from '@std/semver';
+import type { t } from '../common.ts';
 
 /**
  * Library: tools for working with Semver ("Semantic Versions").
@@ -29,6 +28,9 @@ export type SemverLib = {
  * Library: Semver value assertions.
  */
 export type SemverIsLib = {
+  /* Checks to see if value is a valid SemVer object. */
+  valid(input: t.SemVer | string): boolean;
+
   /* Greater than comparison for two SemVers. */
   greaterThan: typeof StdSemver.greaterThan;
   /* Greater than or equal to comparison for two SemVers. */

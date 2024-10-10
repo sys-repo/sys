@@ -11,6 +11,7 @@ import {
   lessThan,
   lessThanRange,
   parse,
+  isSemVer,
 } from '@std/semver';
 
 const Is: t.SemverIsLib = {
@@ -26,6 +27,20 @@ const Is: t.SemverIsLib = {
   lessThan,
   /* Check if the SemVer is less than the range. */
   lessThanRange,
+
+  /* Checks to see if value is a valid SemVer object. */
+  valid(input) {
+    if (isSemVer(input)) return true;
+    if (typeof input === 'string') {
+      try {
+        parse(input);
+        return true;
+      } catch (_err: unknown) {
+        return false;
+      }
+    }
+    return false;
+  },
 };
 
 const Release: t.SemverReleaseLib = {
