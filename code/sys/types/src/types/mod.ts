@@ -11,6 +11,7 @@ export type * from './t.Object.ts';
 export type * from './t.Observable.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
+export type * from './t.Semver.ts';
 export type * from './t.String.ts';
 export type * from './t.Text.ts';
 export type * from './t.Theme.ts';

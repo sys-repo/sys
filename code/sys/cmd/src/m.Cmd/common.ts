@@ -28,10 +28,3 @@ export const DEFAULTS = {
     issuer: Symbol('issuer'),
   },
 } as const;
-
-/**
- * Helpers
- */
-export function isObject(input: any): input is object {
-  return typeof input === 'object' && input !== null;
-}

@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 /**
- * Tools for working with Arrays.
+ * Library: Tools for working with Arrays.
  */
 export type ArrayLib = {
   /* Converts a nested set of arrays into a flat single-level array. */
