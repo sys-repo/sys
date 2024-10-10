@@ -70,3 +70,16 @@ export type DateFormatLib = {
   /* Subtract the specified number of days from the given date. */
   subDays: typeof subDays;
 };
+
+/**
+ * Represents an Date/Time value.
+ */
+export type DateTime = {
+  readonly date: Date;
+  readonly timestamp: t.UnixTimestamp;
+  readonly unix: t.UnixEpoch;
+  format(template?: string): string;
+};
+
+/* Input values for generating a DateTime instance. */
+export type DateTimeInput = number | string | Date;

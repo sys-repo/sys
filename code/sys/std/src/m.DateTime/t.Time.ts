@@ -7,6 +7,9 @@ export type TimeLib = {
   /* Tools for working with an elapsed duration of time. */
   readonly Duration: t.TimeDurationLib;
 
+  /* Retrieve the current datetime. */
+  readonly now: t.DateTime;
+
   /* Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
 
@@ -21,6 +24,9 @@ export type TimeLib = {
    * NB: use with [await].
    */
   wait(msecs: t.Msecs): t.TimeDelayPromise;
+
+  /* Generate a new UTC datetime instance. */
+  utc(input?: t.DateTimeInput): t.DateTime;
 };
 
 /**
