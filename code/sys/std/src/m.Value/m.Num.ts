@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Library: Tools for working with numbers as values.
  */
-export const Number: t.NumberLib = {
+export const Num: t.NumLib = {
   /**
    * Rounds a number to the given number of decimal places.
    */

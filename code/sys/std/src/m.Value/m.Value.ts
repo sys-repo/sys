@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 import { ArrayLib } from '../m.Value.Array/mod.ts';
-import { Number } from './m.Num.ts';
-import { String } from './m.Str.ts';
+import { Num } from './m.Num.ts';
+import { Str } from './m.Str.ts';
 
 /**
  * Determine if the given input is typeof "object" and not <null>.
@@ -19,13 +19,13 @@ export const Value: t.ValueLib = {
   Array: ArrayLib,
 
   /* Library: Tools for working with numbers as values. */
-  Number,
+  Num,
 
   /* Library: Tools for working with strings. */
-  String,
+  Str,
 
   /* Rounds a number to the given number of decimal places. */
-  round: Number['round'],
+  round: Num['round'],
 
   /* Determine if the given input is typeof "object" and not <null>. */
   isObject,

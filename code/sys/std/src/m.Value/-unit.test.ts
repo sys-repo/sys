@@ -1,14 +1,13 @@
 import { describe, expect, it } from '../-test.ts';
 import { ArrayLib } from '../m.Value.Array/mod.ts';
-import { Number, Value, String, isObject } from './mod.ts';
-import { Str, Num } from './common.ts';
+import { Num, Str, Value, isObject } from './mod.ts';
 
 describe('Value', () => {
   it('API', () => {
     expect(Value.Array).to.equal(ArrayLib);
-    expect(Value.String).to.equal(String);
-    expect(Value.Number).to.equal(Number);
-    expect(Value.round).to.equal(Number.round);
+    expect(Value.Str).to.equal(Str);
+    expect(Value.Num).to.equal(Num);
+    expect(Value.round).to.equal(Num.round);
     expect(Value.isObject).to.equal(isObject);
   });
 
@@ -51,13 +50,13 @@ describe('Value', () => {
     it('capitalize', () => {
       const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((v: any) => {
-        expect(String.capitalize(v)).to.eql(Str(v));
+        expect(Str.capitalize(v)).to.eql(String(v));
       });
 
-      expect(String.capitalize('')).to.eql('');
-      expect(String.capitalize('  ')).to.eql('  ');
-      expect(String.capitalize('hello')).to.eql('Hello');
-      expect(String.capitalize('HeLLO')).to.eql('HeLLO');
+      expect(Str.capitalize('')).to.eql('');
+      expect(Str.capitalize('  ')).to.eql('  ');
+      expect(Str.capitalize('hello')).to.eql('Hello');
+      expect(Str.capitalize('HeLLO')).to.eql('HeLLO');
     });
   });
 });

@@ -10,13 +10,13 @@ export type ValueLib = {
   Array: t.ArrayLib;
 
   /* Library: Tools for working with numbers. */
-  Number: t.NumberLib;
+  Num: t.NumLib;
 
   /* Library: Tools for working with strings. */
-  String: t.StringLib;
+  Str: t.StrLib;
 
   /* Rounds a number to the given number of decimal places. */
-  round: t.NumberLib['round'];
+  round: t.NumLib['round'];
 
   /* Determine if the given input is typeof "object" and not <null>. */
   isObject(input: unknown): input is object;
@@ -25,7 +25,7 @@ export type ValueLib = {
 /**
  * Library: Tools for working with numbers.
  */
-export type NumberLib = {
+export type NumLib = {
   /**
    * Rounds a number to the given number of decimal places.
    */
@@ -35,7 +35,7 @@ export type NumberLib = {
 /**
  * Library: Tools for working with strings.
  */
-export type StringLib = {
+export type StrLib = {
   /* Capitalize the given word. */
   capitalize(word: string): string;
 };
