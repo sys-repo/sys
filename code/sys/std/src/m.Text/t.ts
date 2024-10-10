@@ -15,4 +15,7 @@ export type TextLib = {
 
   /* Limit the length of a string inserting ellipsis when needed. */
   shorten(input?: string, maxLength?: number, options?: { ellipsis?: string }): string;
+
+  /* Capitalize the given word. */
+  capitalize(word: string): string;
 };

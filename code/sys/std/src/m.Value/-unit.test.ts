@@ -1,11 +1,10 @@
 import { describe, expect, it } from '../-test.ts';
 import { ArrayLib } from '../m.Value.Array/mod.ts';
-import { Num, Str, Value, isObject } from './mod.ts';
+import { Num, Value, isObject } from './mod.ts';
 
 describe('Value', () => {
   it('API', () => {
     expect(Value.Array).to.equal(ArrayLib);
-    expect(Value.Str).to.equal(Str);
     expect(Value.Num).to.equal(Num);
     expect(Value.round).to.equal(Num.round);
     expect(Value.isObject).to.equal(isObject);
@@ -43,20 +42,6 @@ describe('Value', () => {
         expect(Value.round(0.1234, 2)).to.eql(0.12);
         expect(Value.round(0, -1)).to.eql(0);
       });
-    });
-  });
-
-  describe('String', () => {
-    it('capitalize', () => {
-      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => {
-        expect(Str.capitalize(v)).to.eql(String(v));
-      });
-
-      expect(Str.capitalize('')).to.eql('');
-      expect(Str.capitalize('  ')).to.eql('  ');
-      expect(Str.capitalize('hello')).to.eql('Hello');
-      expect(Str.capitalize('HeLLO')).to.eql('HeLLO');
     });
   });
 });

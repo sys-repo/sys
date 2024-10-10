@@ -143,4 +143,20 @@ describe('Text', () => {
       expect(Text.shorten('hello', 4, { ellipsis: '...' })).to.eql('h...');
     });
   });
+
+  describe('Text.caplitalize', () => {
+    it('invalid input', () => {
+      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => {
+        expect(Text.capitalize(v)).to.eql(String(v));
+      });
+    });
+
+    it('capitalizes a string', () => {
+      expect(Text.capitalize('')).to.eql('');
+      expect(Text.capitalize('  ')).to.eql('  ');
+      expect(Text.capitalize('hello')).to.eql('Hello');
+      expect(Text.capitalize('HeLLO')).to.eql('HeLLO');
+    });
+  });
 });

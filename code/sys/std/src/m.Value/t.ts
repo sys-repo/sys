@@ -12,9 +12,6 @@ export type ValueLib = {
   /* Library: Tools for working with numbers. */
   Num: t.NumLib;
 
-  /* Library: Tools for working with strings. */
-  Str: t.StrLib;
-
   /* Rounds a number to the given number of decimal places. */
   round: t.NumLib['round'];
 
@@ -30,12 +27,4 @@ export type NumLib = {
    * Rounds a number to the given number of decimal places.
    */
   round(value: number, precision?: number): number;
-};
-
-/**
- * Library: Tools for working with strings.
- */
-export type StrLib = {
-  /* Capitalize the given word. */
-  capitalize(word: string): string;
 };

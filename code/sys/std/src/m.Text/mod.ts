@@ -29,4 +29,11 @@ export const Text: t.TextLib = {
     if (text.length <= maxLength) return text;
     return `${text.slice(0, maxLength - ellipsis.length)}${ellipsis}`;
   },
+
+  /* Capitalize the given word. */
+  capitalize(word) {
+    if (typeof word !== 'string') return String(word);
+    if (!word) return word;
+    return word[0].toLocaleUpperCase() + word.slice(1);
+  },
 } as const;
