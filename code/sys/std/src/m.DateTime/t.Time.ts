@@ -5,10 +5,10 @@ import type { t } from './common.ts';
  */
 export type TimeLib = {
   /* Tools for working with an elapsed duration of time. */
-  readonly Duration: t.DurationLib;
+  readonly Duration: t.TimeDurationLib;
 
   /* Create a new TimeDuration */
-  duration: t.DurationLib['create'];
+  duration: t.TimeDurationLib['create'];
 
   /**
    * Run a function after a delay.

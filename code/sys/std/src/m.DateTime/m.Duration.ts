@@ -4,7 +4,7 @@ const { MINUTE, SECOND, DAY, HOUR } = StdDate;
 /**
  * Library: tools for working with an elapsed duration of time.
  */
-export const Duration: t.DurationLib = {
+export const Duration: t.TimeDurationLib = {
   /**
    * Create a new duration helper.
    */
@@ -14,7 +14,7 @@ export const Duration: t.DurationLib = {
     const { round = 1 } = options;
     const msecs = input < 0 ? -1 : input;
 
-    const api: t.Duration = {
+    const api: t.TimeDuration = {
       ok: msecs >= 0,
       msec: msecs,
       sec: To.sec(msecs, round),

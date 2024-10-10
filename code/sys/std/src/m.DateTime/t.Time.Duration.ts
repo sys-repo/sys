@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Represents an elapsed duration of time.
  */
-export type Duration = {
+export type TimeDuration = {
   readonly ok: boolean;
   readonly msec: t.Msecs;
   readonly sec: t.Secs;
@@ -16,19 +16,19 @@ export type Duration = {
 /**
  * Library: tools for working with an elapsed duration of time.
  */
-export type DurationLib = {
+export type TimeDurationLib = {
   /* Create a new TimeDuration */
-  create(duration: string | number, options?: t.DurationOptions): t.Duration;
+  create(duration: string | number, options?: t.TimeDurationOptions): t.TimeDuration;
 
   /* Parses a string or a number (eg. "3.5h") into a Duration helper. */
-  parse(input: string | number, options?: t.DurationOptions): t.Duration;
+  parse(input: string | number, options?: t.TimeDurationOptions): t.TimeDuration;
 
   /* Format milliseconds to a display string. */
   format(msec: t.Msecs, unit: t.TimeUnit, round?: number): string;
 };
 
 /* Options passed to a TimeDuration generator function. */
-export type DurationOptions = {
+export type TimeDurationOptions = {
   /* Number of decimal places to round to. */
   round?: number;
 };
