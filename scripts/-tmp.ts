@@ -1,4 +1,4 @@
-import { Cli, Env, Http } from '@sys/std-s';
+import { Fs, Cli, Env, Http } from '@sys/std-s';
 
 const env = await Env.load();
 
@@ -61,5 +61,8 @@ console.log('m', m);
 /**
  * TODO 🐷 arts passed for try/test/ci
  */
+
+// const match = await Fs.glob().find('code/**/-test.*');
+// console.log('match', match);
 
 Deno.exit(0);

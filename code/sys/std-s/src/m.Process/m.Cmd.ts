@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { spawn } from './u.Cmd.spawn.ts';
+import { spawn } from './u.spawn.ts';
 import { Wrangle, printOutput, toCmdOutput } from './u.ts';
 
 /**
