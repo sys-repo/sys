@@ -4,6 +4,12 @@ import type { t } from '../common.ts';
  * Type guards (boolean evaluators).
  */
 export type CommonIsLib = {
+  /**
+   * Falsy check.
+   * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+   */
+  falsy(input?: unknown): input is t.Falsy | typeof NaN;
+
   /* Determine if the value is a Promise. */
   promise<T = any>(input?: unknown): input is Promise<T>;
 
@@ -25,9 +31,6 @@ export type CommonIsLib = {
   /* Determine if the input is a JSON structure. */
   json(input?: unknown): input is t.Json;
 
-  /**
-   * Falsy check.
-   * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-   */
-  falsy(input?: unknown): input is t.Falsy | typeof NaN;
+  /* Determind if the input is ArrayBufferLike. */
+  arrayBufferLike(input?: unknown): input is ArrayBufferLike;
 };

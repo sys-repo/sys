@@ -55,4 +55,8 @@ export const Is: t.CommonIsLib = {
       Number.isNaN(input) // Handle NaN at runtime
     );
   },
+
+  arrayBufferLike(input?: any): input is ArrayBufferLike {
+    return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
+  },
 };

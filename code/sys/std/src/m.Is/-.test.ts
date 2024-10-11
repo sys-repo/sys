@@ -114,4 +114,17 @@ describe('Is (common flags)', () => {
       expect(Is.json(' []  ')).to.eql(true);
     });
   });
+
+  describe('Is.arrayBufferLike', () => {
+    const binary = new Uint8Array([1, 2, 3]);
+    it('is not ArrayBufferLike', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => expect(Is.arrayBufferLike(v)).to.eql(false));
+      expect(Is.arrayBufferLike(binary)).to.eql(false);
+    });
+
+    it('is ArrayBufferLike', () => {
+      expect(Is.arrayBufferLike(binary.buffer)).to.eql(true);
+    });
+  });
 });
