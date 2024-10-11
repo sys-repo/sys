@@ -6,7 +6,7 @@ import type { t } from '../common.ts';
  */
 export type JsonLib = {
   /* Convert the given input to a serlalized JSON string. */
-  stringify(input: unknown): string;
+  stringify(input: unknown, space?: string | number): string;
 
   /* Inflate a serialized JSON string to a JS object. */
   parse<T>(input: t.JsonString | undefined, defaultValue: T | (() => T)): T;

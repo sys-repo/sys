@@ -2,6 +2,9 @@ import { describe, expect, it, type t } from '../-test.ts';
 import { Json } from './mod.ts';
 
 describe('Json', () => {
+  const circular: any = { foo: 123 };
+  circular.ref = circular;
+
   describe('Json.stringify', () => {
     describe('complex values (multi-line, double-spaces, trailing new-line char)', () => {
       it('{ object }', () => {
@@ -19,6 +22,20 @@ describe('Json', () => {
         expect(res).to.include('  "foo",\n');
         expect(res[res.length - 2]).to.eql(']');
         expect(res[res.length - 1]).to.eql('\n');
+      });
+
+      it('change indent', () => {
+        const obj = { foo: 123, list: [12, 3] };
+        const a = Json.stringify(obj);
+        const b = Json.stringify(obj, 2);
+        const c = Json.stringify(obj, 0);
+        expect(a).to.eql(b);
+        expect(b).to.not.eql(c);
+      });
+
+      it('circular reference (safe)', () => {
+        const res = Json.stringify(circular, 0);
+        expect(res).to.eql('{"foo":123,"ref":"[Circular]"}');
       });
     });
 
