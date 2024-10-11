@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
 import { Color } from './m.Color.ts';
 
-describe('color', () => {
+describe('Color', () => {
   describe('Color.format', () => {
     const test = (value: string | number | boolean | undefined, output?: string) => {
       expect(Color.format(value)).to.eql(output);
