@@ -1,7 +1,7 @@
 /**
  * External
  */
-import * as R from 'ramda';
+import * as R from 'rambda';
 
 export { keypress } from '@cliffy/keypress';
 export { R };
