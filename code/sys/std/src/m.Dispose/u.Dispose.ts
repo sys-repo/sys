@@ -106,7 +106,7 @@ export const Dispose: t.DisposeLib = {
    */
   until($) {
     const list = Array.isArray($) ? $ : [$];
-    return flatten(list).filter(Boolean);
+    return flatten(list).filter(Boolean) as t.Observable<unknown>[];
   },
 
   /**

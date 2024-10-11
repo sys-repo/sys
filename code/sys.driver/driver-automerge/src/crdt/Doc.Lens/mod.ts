@@ -1,2 +1,2 @@
-export { Lens } from './Lens';
-export { Registry } from './Lens.Registry';
+export { Registry } from './Lens.Registry.ts';
+export { Lens } from './Lens.ts';

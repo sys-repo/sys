@@ -40,7 +40,7 @@
   "importMap": "./deno.importMap.json",
   "lint": {
     "rules": {
-      "exclude": ["no-explicit-any"]
+      "exclude": ["no-explicit-any", "no-slow-types"]
     }
   }
 }
