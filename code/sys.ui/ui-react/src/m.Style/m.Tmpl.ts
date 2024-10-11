@@ -1,5 +1,5 @@
 import { Is, isObject, type t } from './common.ts';
-import { toEdges, WrangleEdge } from './u.Tmpl.toEdges.ts';
+import { toEdges, WrangleEdge } from './u.toEdges.ts';
 
 export const Tmpl: t.StyleTmplLib = {
   toEdges,

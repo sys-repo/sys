@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
+import { Tmpl } from './m.Tmpl.ts';
 import { Style, css } from './mod.ts';
-import { Tmpl } from './u.ts';
 
 describe('Style', () => {
   it('API', () => {
