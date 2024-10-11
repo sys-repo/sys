@@ -1,0 +1,123 @@
+import { DocUri } from '.';
+import { testSetup } from '../crdt/Doc/-TEST.u.ts';
+import { describe, expect, it } from '../test';
+import { Is } from './u';
+
+describe('Store.DocUri', async () => {
+  const { store, factory } = testSetup();
+
+  const NON = [true, 123, '', [], {}, null, undefined, Symbol('foo'), BigInt(0)];
+
+  describe('DocUri.id', () => {
+    it('nothing', () => {
+      NON.forEach((value) => {
+        expect(DocUri.id(value)).to.eql('');
+      });
+    });
+
+    it('strips prefix', () => {
+      expect(DocUri.id('automerge:abc')).to.eql('abc');
+      expect(DocUri.id('  automerge:abc  ')).to.eql('abc');
+      expect(DocUri.id('foo:abc')).to.eql('abc');
+    });
+
+    it('no prefix', () => {
+      expect(DocUri.id('abc')).to.eql('abc');
+      expect(DocUri.id('  abc  ')).to.eql('abc');
+    });
+
+    it('discard descendent URI parts', () => {
+      expect(DocUri.id('automerge:abc:foo')).to.eql('abc');
+      expect(DocUri.id('  automerge:abc:foo  ')).to.eql('abc');
+    });
+
+    it('shorten', () => {
+      const uri = 'automerge:3xFTnhG6Z3fzdxqiEoLMRrWHFdfe';
+      const res1 = DocUri.id(uri, { shorten: 4 });
+      const res2 = DocUri.id(uri, { shorten: [2, 3] });
+      const res3 = DocUri.shorten(uri);
+      const res4 = DocUri.shorten(uri, [2, 3]);
+      expect(res1).to.eql('3xFT..Fdfe');
+      expect(res2).to.eql('3x..dfe');
+      expect(res3).to.eql(res1);
+      expect(res4).to.eql(res2);
+    });
+
+    it('from document', async () => {
+      const doc = await factory();
+      const uri = doc.uri.slice(doc.uri.indexOf(':') + 1);
+      expect(DocUri.id(doc)).to.eql(uri);
+    });
+  });
+
+  describe('DocUri.automerge', () => {
+    it('nothing', () => {
+      NON.forEach((value) => {
+        expect(DocUri.automerge(value)).to.eql('');
+      });
+    });
+
+    it('ensure "automerge:" prefix', () => {
+      const test = (input: any, expected: string) => {
+        const res = DocUri.automerge(input);
+        expect(res).to.eql(expected, input);
+      };
+      test('foo', 'automerge:foo');
+      test(' foo ', 'automerge:foo');
+      test(' db:foo ', 'automerge:foo');
+      test(' automerge:foo ', 'automerge:foo');
+      test(' automerge ', 'automerge:automerge');
+    });
+
+    it('shorten', () => {
+      const uri = 'automerge:3xFTnhG6Z3fzdxqiEoLMRrWHFdfe';
+      const res1 = DocUri.automerge(uri, { shorten: 4 });
+      const res2 = DocUri.automerge(uri, { shorten: [2, 3] });
+      expect(res1).to.eql('automerge:3xFT..Fdfe');
+      expect(res2).to.eql('automerge:3x..dfe');
+    });
+  });
+
+  describe('DocUri.Generate', () => {
+    it('generate.docid.binary', () => {
+      const res1 = DocUri.Generate.docid.binary();
+      const res2 = DocUri.Generate.docid.binary();
+      expect(res1).to.not.eql(res2); // NB: random on each call.
+      expect(res1 instanceof Uint8Array).to.be.true;
+    });
+
+    it('generate.docid.string', () => {
+      const res = DocUri.Generate.docid.string();
+      expect(res).to.be.string;
+    });
+
+    it('generate.uri: random/unique', () => {
+      const res1 = DocUri.Generate.uri();
+      const res2 = DocUri.Generate.uri();
+      expect(res1).to.not.eql(res2); // NB: random on each call.
+    });
+
+    it('generate.uri: is an automerge URL', () => {
+      const uri = DocUri.Generate.uri();
+      expect(Is.automergeUrl(uri)).to.eql(true);
+    });
+  });
+
+  describe('DocUri.toString', () => {
+    it('invalid', () => {
+      NON.forEach((value) => {
+        expect(DocUri.toString(value as any)).to.eql('');
+      });
+    });
+
+    it('from string (no change)', () => {
+      expect(DocUri.toString('crdt:foobar')).to.eql('crdt:foobar');
+    });
+
+    it('from document', async () => {
+      const doc = await factory();
+      expect(DocUri.toString(doc)).to.eql(doc.uri);
+      expect(DocUri.toString(doc.uri)).to.eql(doc.uri);
+    });
+  });
+});

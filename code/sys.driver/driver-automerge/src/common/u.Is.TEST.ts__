@@ -1,0 +1,68 @@
+import { Is } from '.';
+import { WebStore } from '../crdt.web';
+import {
+  BroadcastChannelNetworkAdapter,
+  IndexedDBStorageAdapter,
+  Repo,
+  Test,
+  TestDb,
+  expect,
+  type t,
+} from '../test.ui';
+import { RepoList } from '../ui/ui.RepoList';
+
+export default Test.describe('Is (flags)', (e) => {
+  const NON_OBJECTS = [true, 123, '', [], {}, null, undefined, BigInt(123), Symbol('foo')];
+  const storage = TestDb.Unit.name;
+  const store = WebStore.init({ network: false, storage });
+
+  type N = t.NetworkAdapterInterface;
+  const createBroadcast = () => new BroadcastChannelNetworkAdapter() as unknown as N;
+
+  const repo1 = new Repo({ network: [] });
+  const repo2 = new Repo({ network: [createBroadcast()] });
+  const repo3 = new Repo({
+    network: [createBroadcast()],
+    storage: new IndexedDBStorageAdapter(TestDb.Unit.name),
+  });
+
+  e.it('NOTE: other "Is" flag tests run in server-side unit-test file', (e) => {});
+
+  e.it('Is.repo', (e) => {
+    NON_OBJECTS.forEach((v) => expect(Is.repo(v)).to.eql(false));
+    expect(Is.repo(repo1)).to.eql(true);
+    expect(Is.repo(repo2)).to.eql(true);
+    expect(Is.repo(repo3)).to.eql(true);
+  });
+
+  e.it('Is.repoListState', async (e) => {
+    const model = await RepoList.model(store);
+    NON_OBJECTS.forEach((v) => expect(Is.repoListState(v)).to.eql(false));
+    expect(Is.repoListState(model.list.state)).to.eql(true);
+    model.dispose();
+  });
+
+  e.it('Is.repoListModel', async (e) => {
+    const model = await RepoList.model(store);
+    NON_OBJECTS.forEach((v) => expect(Is.repoListState(v)).to.eql(false));
+    expect(Is.repoListModel(model.list.state)).to.eql(false);
+    expect(Is.repoListModel(model.list)).to.eql(false);
+    expect(Is.repoListModel(model)).to.eql(true);
+    model.dispose();
+  });
+
+  e.it('Is.networkSubsystem', (e) => {
+    NON_OBJECTS.forEach((v) => expect(Is.networkSubsystem(v)).to.eql(false));
+    expect(Is.networkSubsystem(repo1)).to.eql(false);
+    expect(Is.networkSubsystem(repo1.networkSubsystem)).to.eql(true);
+    expect(Is.networkSubsystem(repo2.networkSubsystem)).to.eql(true);
+    expect(Is.networkSubsystem(repo3.networkSubsystem)).to.eql(true);
+  });
+
+  e.it('Is.storageSubsystem', (e) => {
+    NON_OBJECTS.forEach((v) => expect(Is.storageSubsystem(v)).to.eql(false));
+    expect(Is.storageSubsystem(repo1.storageSubsystem)).to.eql(false);
+    expect(Is.storageSubsystem(repo2.storageSubsystem)).to.eql(false);
+    expect(Is.storageSubsystem(repo3.storageSubsystem)).to.eql(true);
+  });
+});
