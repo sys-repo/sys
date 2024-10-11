@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
-import { Is as RxIs } from '../m.Observable/mod.ts';
+import { Is as RxIs } from '../m.Rx/mod.ts';
 
 const { observable, subject } = RxIs;
 const { errorLike, stdError } = Err.Is;

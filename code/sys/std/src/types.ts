@@ -16,7 +16,7 @@ export type * from './m.IndexedDb/t.ts';
 export type * from './m.Is/t.ts';
 export type * from './m.Json/t.ts';
 export type * from './m.ObjectPath/t.ts';
-export type * from './m.Observable/t.ts';
+export type * from './m.Rx/t.ts';
 export type * from './m.Path/t.ts';
 export type * from './m.Semver/t.ts';
 export type * from './m.Testing.HttpServer/t.ts';

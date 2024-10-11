@@ -24,7 +24,7 @@ export { IndexedDb } from './m.IndexedDb/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
 export { ObjectPath } from './m.ObjectPath/mod.ts';
-export { Rx, rx } from './m.Observable/mod.ts';
+export { Rx, rx } from './m.Rx/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Semver } from './m.Semver/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
