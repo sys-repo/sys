@@ -65,11 +65,11 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-automerge"
-        run: |
-          cd code/sys.driver/driver-automerge
-          deno task test
-          deno publish
+      # - name: publish module → "@sys/driver-automerge"
+      #   run: |
+      #     cd code/sys.driver/driver-automerge
+      #     deno task test
+      #     deno publish
 
       - name: publish module → "@sys/driver-deno"
         run: |
