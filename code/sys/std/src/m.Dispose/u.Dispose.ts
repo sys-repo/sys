@@ -111,7 +111,6 @@ export const Dispose: t.DisposeLib = {
 
   /**
    * "Completes" a subject by running:
-   *
    *    1. subject.next();
    *    2. subject.complete();
    */

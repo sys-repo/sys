@@ -4,4 +4,4 @@
 import { clone, equals, toString, uniq, uniqBy } from 'rambda';
 
 /* Ramda functional utilities. */
-export const R = { clone, equals, toString, uniq, uniqBy } as const;
+export const R = { clone, equals, uniq, uniqBy, toString } as const;
