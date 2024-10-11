@@ -40,8 +40,9 @@ export const Testing: t.Testing = {
         // FAILED: Suppress error until we exhaust the number of retries.
         _lastError = error;
         if (!silent) {
-          const warning = `Attempt ${attempt} failed. ${times - attempt} retries left.`;
-          console.warn(`${warning} ${message}`.trim());
+          let warning = `Attempt ${attempt} failed. ${times - attempt} retries left.`;
+          if (message) warning = `${warning}|→ ${message}`;
+          console.warn(warning.trim());
         }
         if (typeof delay === 'number') {
           await Time.delay(delay);
