@@ -36,7 +36,7 @@ export const Log = {
         const scopeCol = isFirstRenderOfScope ? c.white : c.gray;
         const module = c.white(`${scopeCol(scope)}${c.green('/')}${c.white(subpath)}`);
 
-        const left = c.gray(`${c.green('•')} ${c.cyan('import')} ${module}`);
+        const left = c.gray(`${c.green('•')} ${c.green('import')} ${module}`);
         const right = c.gray(`${displayPath}`);
         table.push([left, c.green('→'), right]);
       });
