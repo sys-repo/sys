@@ -18,25 +18,32 @@ describe('hash', () => {
         expect(b).to.match(new RegExp(`${endsWith}$`));
       };
 
-      test('hello', 'ff3f354e7a');
+      test('hello', '62938b9824');
       test(new TextEncoder().encode('hello'), '62938b9824');
       test(123, 'f7f7a27ae3');
-      test('', 'a03d82e126');
-      test({ msg: 'abc' }, '43991ca7b7');
-      test({ foo: 123 }, '3c8235fbf9');
-      test(new Uint8Array([21, 31]).buffer, 'ba420bd4bd'); // NB: Not converted to string first.
+      test('', '1b7852b855');
+
+      test({ msg: 'abc' }, '54930e4229');
+      test(JSON.stringify({ msg: 'abc' }), '54930e4229'); // NB: same as ↑ prior.
+
+      test({ foo: 123 }, 'e197b85591');
+      test(JSON.stringify({ foo: 123 }), 'e197b85591');
+
+      test(new Uint8Array([21, 31]).buffer, 'e7495c38e6'); // NB: Not converted to string first.
+
       test(undefined, '359aa9950c');
       test(null, '92f982b90b');
       test({}, 'f61caaff8a');
-      test(circular, 'd5a63d31fd');
+      test(circular, '4cac6b5d1b');
       test([], '161202b945');
-      test([1, { item: 2 }], 'a6a2f3f837');
-      test([1, circular], 'aa35da71e7');
+      test([1, { item: 2 }], '5e93f11476');
+      test([1, circular], '9f1d02388a');
       test(true, 'b44867e12b');
       test(false, '245224f8aa');
       test(123, 'f7f7a27ae3');
       test(BigInt(9999), '456a506e05');
       test(Symbol('foo'), 'b4f8db9f3e');
+      test(() => null, 'b29bf0f50c');
     });
 
     it('sha1', () => {
@@ -52,19 +59,19 @@ describe('hash', () => {
       };
 
       test(new TextEncoder().encode('hello'), 'd9aea9434d');
-      test('hello', '5d06f9d0c4');
+      test('hello', 'd9aea9434d');
       test(123, '5ecbdbbeef');
-      test('', '9e1ecb2585');
-      test({ msg: 'abc' }, 'bd818251c2');
-      test({ foo: 123 }, 'f3b5753ac0');
-      test(new Uint8Array([21, 31]).buffer, 'b23dece0d3'); // NB: Not converted to string first.
+      test('', '90afd80709');
+      test({ msg: 'abc' }, '97dc093ac1');
+      test({ foo: 123 }, '6a241c3e11');
+      test(new Uint8Array([21, 31]).buffer, 'e9ae0042a4'); // NB: Not converted to string first.
       test(undefined, 'a24b69856e');
       test(null, '65032d6833');
       test({}, '0917b2202f');
-      test(circular, '326953447b');
+      test(circular, '569dc7d244');
       test([], '302a97674c');
-      test([1, { item: 2 }], '488d93ac98');
-      test([1, circular], '6705b3f7e6');
+      test([1, { item: 2 }], '2c5ac5b976');
+      test([1, circular], 'b731d509f0');
       test(true, 'fc8ada44db');
       test(false, 'e14d12cb04');
       test(123, '5ecbdbbeef');

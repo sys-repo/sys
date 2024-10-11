@@ -9,7 +9,10 @@
  *  */
 import { sha1 } from '@noble/hashes/sha1';
 import { sha256 } from '@noble/hashes/sha256';
-import { R, type t } from '../common.ts';
+
+import type { t } from '../common.ts';
+import { Is } from '../m.Is/mod.ts';
+import { Json } from '../m.Json/mod.ts';
 import { shortenHash } from './u.ts';
 
 export const Hash: t.HashLib = {
@@ -29,7 +32,16 @@ export const Hash: t.HashLib = {
 
   toBytes(input, options = {}) {
     if (input instanceof Uint8Array) return input;
-    const text = (options.asString ?? R.toString)(input);
+    if (Is.arrayBufferLike(input)) return new Uint8Array(input);
+
+    let text;
+    if (typeof options.asString === 'function') {
+      text = options.asString(input);
+    } else if (typeof input === 'object' && input !== null) {
+      text = Json.stringify(input, 0);
+    } else {
+      text = String(input);
+    }
     return new TextEncoder().encode(text);
   },
 
