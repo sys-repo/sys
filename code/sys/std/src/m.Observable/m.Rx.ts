@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 import { Dispose } from '../m.Dispose/mod.ts';
 import * as lib from './u.Rx.libs.ts';
 
-import { Is } from './u.Rx.Is.ts';
+import { Is } from './m.Rx.Is.ts';
 import { event, payload } from './u.Rx.payload.ts';
 import { asPromise } from './u.Rx.promise.ts';
 

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { Is } from './u.Is.ts';
-import { Mutate } from './u.Mutate.ts';
+import { Is } from './m.Is.ts';
+import { Mutate } from './m.Mutate.ts';
 import { isObject, Validate } from './u.ts';
 
 /**

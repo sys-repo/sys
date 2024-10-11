@@ -1,5 +1,5 @@
 import { filter, map, type t } from './common.ts';
-import { Is } from './u.Rx.Is.ts';
+import { Is } from './m.Rx.Is.ts';
 
 type Event = { type: string; payload: unknown };
 

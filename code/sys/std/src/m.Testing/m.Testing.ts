@@ -1,9 +1,9 @@
 import type { t } from '../common.ts';
-import { Bdd } from './Testing.Bdd.ts';
+import { Bdd } from './m.Bdd.ts';
 import { slug } from '../m.Id/mod.ts';
 import { randomPort } from './u.ts';
 
-export { describe, expect, it } from './Testing.Bdd.ts';
+export { describe, expect, it } from './m.Bdd.ts';
 
 /**
  * Testing helpers.

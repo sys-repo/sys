@@ -11,7 +11,6 @@
  * const caps = Text.capitalize(short);
  * ```
  */
-
 import type { t } from './common.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';

@@ -10,7 +10,7 @@ import {
   resolve,
   toFileUrl,
 } from '@std/path';
-import { Is } from './u.Is.ts';
+import { Is } from './m.Is.ts';
 
 /**
  * Helpers for working with resource paths.
