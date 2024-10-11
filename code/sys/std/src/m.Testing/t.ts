@@ -1,15 +1,6 @@
 import type { describe, it } from '@std/testing/bdd';
 import type { expect } from 'chai';
-import type { t } from '../common.ts';
-
-/* Assertion library (BDD). */
-export type Expect = typeof expect;
-
-/* Describes a test suite. */
-export type Describe = typeof describe;
-
-/* Defines a single BDD test. */
-export type It = typeof it;
+import type { t } from './common.ts';
 
 /**
  * Testing helpers.
@@ -22,11 +13,24 @@ export type Testing = {
   slug: t.IdGenerator;
 };
 
+/* Describes a test suite. */
+export type Describe = typeof describe;
+
+/* Defines a single BDD test. */
+export type It = typeof it;
+
+/* Assertion library (BDD). */
+export type Expect = typeof expect;
+
+/* Expect an error asyncronously */
+export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;
+
 /**
  * BDD semantics ("Behavior Driven Development") helpers.
  */
 export type BddLib = {
-  readonly expect: typeof expect;
   readonly describe: typeof describe;
   readonly it: typeof it;
+  readonly expect: typeof expect;
+  readonly expectError: t.ExpectError;
 };

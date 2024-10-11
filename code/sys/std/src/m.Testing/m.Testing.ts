@@ -1,9 +1,8 @@
-import type { t } from '../common.ts';
-import { Bdd } from './m.Bdd.ts';
-import { slug } from '../m.Id/mod.ts';
-import { randomPort } from './u.ts';
+import type { t } from './common.ts';
 
-export { describe, expect, it } from './m.Bdd.ts';
+import { slug } from '../m.Id/mod.ts';
+import { Bdd } from './m.Bdd.ts';
+import { randomPort } from './u.ts';
 
 /**
  * Testing helpers.

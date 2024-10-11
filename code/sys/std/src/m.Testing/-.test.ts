@@ -1,5 +1,5 @@
 import { Id } from '../m.Id/mod.ts';
-import { Testing, describe, expect, it } from './mod.ts';
+import { Testing, describe, expect, it, expectError } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {
@@ -25,5 +25,28 @@ describe('Testing', () => {
   it('slug', () => {
     const id = Testing.slug();
     expect(Id.Is.slug(id)).to.be.true;
+  });
+
+  describe('expectError', () => {
+    const throwError = (message: string) => {
+      throw new Error(message);
+    };
+
+    it('succeeds (default message)', async () => {
+      await expectError(async () => {
+        await Testing.wait(0);
+        throwError('Foo');
+      });
+    });
+
+    it('succeeds (custom message)', async () => {
+      await expectError(() => throwError('Bar'), 'Bar');
+    });
+
+    it('fails when error not thrown', async () => {
+      await expectError(async () => {
+        await expectError(() => null);
+      });
+    });
   });
 });

@@ -3,4 +3,5 @@
  * Tools for writing and controlling automated tests.
  */
 export { Path } from '../m.Path/mod.ts';
-export { Testing, describe, expect, it } from './m.Testing.ts';
+export { Bdd, describe, expect, expectError, it } from './m.Bdd.ts';
+export { Testing } from './m.Testing.ts';

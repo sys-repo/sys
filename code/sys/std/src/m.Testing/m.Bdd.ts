@@ -1,6 +1,14 @@
-import { describe, it } from '@std/testing/bdd';
-import { expect } from 'chai';
-import type { t } from '../common.ts';
+import { describe, expect, it, type t } from './common.ts';
+import { expectError } from './u.ts';
 
-export { describe, expect, it };
-export const Bdd: t.BddLib = { describe, expect, it };
+export { describe, expect, it, expectError };
+
+/**
+ * BDD semantics ("Behavior Driven Development") helpers.
+ */
+export const Bdd: t.BddLib = {
+  describe,
+  it,
+  expect,
+  expectError,
+};
