@@ -153,6 +153,18 @@ The inverse proposition also appears to be true:
 ![smor-sys crdt-cell-timeline](https://github.com/cellplatform/platform-0.2.0/assets/185555/588f6c58-3e94-4818-8ada-cb333822025d)
 
 
+<p>&nbsp;</p>
+
+---
+
+<p>&nbsp;</p>
+
+### Runtime, Build Toolchain
+
+"Framework" agnostic. Web standards.
+
+![image](https://github.com/user-attachments/assets/19214e9f-5e40-403f-9cef-20994f39ea07)
+
 
 
 <p>&nbsp;</p>
