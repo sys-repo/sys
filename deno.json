@@ -6,7 +6,7 @@
     "ci": "deno run -A ./scripts/main.ts --dry --test --info",
     "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
     "clean": "deno run -RWE --allow-run=sh ./scripts/main.ts --clean",
-    "reload": "deno install --reload",
+    "reload": "rm -rf node_modules && deno install --reload",
     "bump": "deno run -RWE ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
