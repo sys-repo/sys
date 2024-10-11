@@ -49,4 +49,32 @@ describe('Testing', () => {
       });
     });
   });
+
+  describe('retry', () => {
+    it('no handler', async () => {
+      await Testing.retry(3);
+    });
+
+    it('retry: repeats 3 times, then succeeds', async () => {
+      let count = 0;
+      await Testing.retry(3, () => {
+        count++;
+        if (count < 3) throw new Error(`Foo Fail-${count}!`);
+      });
+      expect(count).to.eql(3);
+    });
+
+    it('retry: fails (after 3 attempts)', async () => {
+      let count = 0;
+      try {
+        await Testing.retry(3, () => {
+          count++;
+          throw new Error('Foo Fail');
+        });
+      } catch (err: any) {
+        expect(err.message).to.equal('Foo Fail');
+      }
+      expect(count).to.eql(3);
+    });
+  });
 });

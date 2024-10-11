@@ -8,10 +8,17 @@ import type { t } from './common.ts';
 export type Testing = {
   readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
+  slug: t.IdGenerator;
   wait(delay: t.Msecs): Promise<void>;
   randomPort(): number;
-  slug: t.IdGenerator;
+
+  /* Attempt to run the test function <n>-times before throwing. */
+  retry(times: number, runTest?: RetryRunner): Promise<void>;
+  retry(times: number, options: RetryOptions, runTest?: RetryRunner): Promise<void>;
 };
+
+export type RetryRunner = () => t.IgnoredResponse;
+export type RetryOptions = { silent?: boolean; delay?: t.Msecs; message?: string };
 
 /* Describes a test suite. */
 export type Describe = typeof describe;
