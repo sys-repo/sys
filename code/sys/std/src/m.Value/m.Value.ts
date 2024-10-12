@@ -4,7 +4,7 @@ import { ArrayLib } from '../m.Value.Array/mod.ts';
 import { Num } from './m.Num.ts';
 
 /**
- * Determine if the given input is typeof "object" and not <null>.
+ * Determine if the given input is typeof "object" and not Null.
  */
 export function isObject(input: any): input is object {
   return typeof input === 'object' && input !== null;
