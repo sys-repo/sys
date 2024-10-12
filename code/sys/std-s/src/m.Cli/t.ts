@@ -104,6 +104,7 @@ export type CliFormatLib = {
 export type CliPathFormatter = (e: CliPathFormatterArgs) => t.IgnoredResponse;
 export type CliPathFormatterArgs = t.CliPathPart & {
   change(to: string): void;
+  toString(): string;
 };
 
 export type CliPathPart = {

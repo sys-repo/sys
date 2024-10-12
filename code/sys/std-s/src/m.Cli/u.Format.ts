@@ -20,6 +20,7 @@ export const Format: t.CliFormatLib = {
       fmt({
         ...part,
         change: (to) => (text = to),
+        toString: () => text,
         get text() {
           return text;
         },
