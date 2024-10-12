@@ -25,16 +25,20 @@ export const Log = {
 
         const parts = fullname.split('/');
         const scope = parts.slice(0, 2).join('/');
-        const subpath = parts.slice(2).join('/');
-
         const isFirstRenderOfScope = scope !== _lastScope;
         _lastScope = scope;
 
         const path = alias.replacement.slice(ws.dir.length + 1);
         const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
 
-        const scopeCol = isFirstRenderOfScope ? c.white : c.gray;
-        const module = c.white(`${scopeCol(scope)}${c.green('/')}${c.white(subpath)}`);
+        const module = Cli.Format.path(fullname, (e) => {
+          if (e.is.slash) {
+            if (e.index >= 3) e.change(c.green(e.text));
+          }
+          if (isFirstRenderOfScope && !e.is.slash) {
+            if (e.index === 0 || e.index === 2) e.change(c.white(e.text));
+          }
+        });
 
         const left = c.gray(`${c.green('•')} ${c.green('import')} ${module}`);
         const right = c.gray(`${displayPath}`);
