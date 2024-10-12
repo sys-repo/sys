@@ -9,12 +9,12 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 - modules: [sys](/code/sys/) ← standard libs
 - modules: [sys.ui](/code/sys.ui/)
 - modules: [sys.driver](/code/sys.driver/)
-- build toolchain (output → W3C stds)
+- build toolchain (output → W3C/ECMA standards)
 
 <p>&nbsp;</p>
 
-✊🏻💯  
-Built on, and commited to, baseline modern [Web Standards](https://wintercg.org/).
+(✊🏻💯  )
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/).
 
 
 ---
@@ -35,6 +35,69 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
+
+---
+
+# Immutable\<T\>
+General immutability pattern.  
+See full type definitions: [`@sys/types`](code/sys/types/src/types/t.Immutable.ts)
+
+In its basic usage pattern:
+```ts
+type T = { count: number }
+
+foo.current                    // === { count: 0 }
+foo.change((d) => d.count++)   //  Σ  safe mutate
+foo.current                    // === { count: 1 }
+```
+
+
+...and now with a little more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive.  
+How it is declared, manipulated, listened to, and then disposed of (lifecycle):
+
+
+```ts
+type Immutable<T> = {
+  current: T
+  change(fn: Mutator<T>): void
+  listen(): Events<T>
+}
+
+type T = { count: number }
+
+// Generator<T> over some immutability strategy/lib implementation.
+const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
+
+/**
+ * Imutable change pattern.
+ * (safely mutate a proxy).
+ */
+foo.current                        // === { count: 0 }
+foo.change((d) => d.count = 123);  //  Σ  safe mutate
+foo.current                        // === { count: 123 }
+
+
+// Observable typed Event<T> stream: 💦
+const events = thing.listen(): Events<T>
+events.$.subscribe((e) => { /* event stream handler */ })
+
+/**
+ * ↑ 💦
+ * 
+ * Stream of Patch<T> changes optionally available, 
+ * eg. "RFC-6902 JSON patch standard".
+ * 
+ * The Events<T> library itself enshrines the meaning of the message stream 
+ * conceptually through stongly typed properties and method/function helpers.
+ */
+
+// Finished.
+events.dispose();
+```
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 
 # Philosophy ← (Dev)
 
@@ -171,9 +234,10 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# License, [MIT](Licence).
+# License, [MIT](LICENSE.md).
 
-To understand the context around MIT Licence ("an open-source classic") see  **Kyle E. Mitchell's**  
+To understand the context around MIT Licence ("an open-source classic")  
+see  **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
