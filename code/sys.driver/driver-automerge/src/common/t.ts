@@ -64,8 +64,13 @@ export type {
   CmdType,
 } from '@sys/cmd/t';
 
-export type { Describe, Expect, It } from '@sys/std/t';
+/**
+ * TODO 🐷
+ */
+// export type { SpecImport, SpecImports, TestSuiteRunResponse } from 'sys.test.spec/src/types';
+// export type { TextboxSyncChangeHandler, TextboxSyncListener } from 'sys.ui.react.common/src/types';
 
+export type { Describe, Expect, It } from '@sys/std/t';
 
 /**
  * @local

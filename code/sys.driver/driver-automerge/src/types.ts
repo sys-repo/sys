@@ -13,6 +13,25 @@ export type * from './crdt.web/Store.Web.IndexDb/t.ts';
 export type * from './crdt.web/Store.Web/t.ts';
 
 /**
+ * TODO 🐷 Automerge [migrate]
+ */
+
+//
+// export type * from './crdt.sync/TextboxSync/t.ts';
+//
+// export type * from './ui/ui.Buttons/t.ts';
+// export type * from './ui/ui.Cmd.Bar/t.ts';
+// export type * from './ui/ui.DocUri/t.ts';
+// export type * from './ui/ui.Info.History.Commit/t.ts';
+// export type * from './ui/ui.Info.History.Grid/t.ts';
+// export type * from './ui/ui.Info/t.ts';
+// export type * from './ui/ui.Nav.Paging/t.ts';
+// export type * from './ui/ui.RepoList.Model/t.ts';
+// export type * from './ui/ui.RepoList.Virtual/t.ts';
+// export type * from './ui/ui.RepoList/t.ts';
+// export type * from './ui/ui.use/t.ts';
+
+/**
  * Automerge JS object extensions.
  */
 export interface AutomergeArray<T> extends Array<T> {

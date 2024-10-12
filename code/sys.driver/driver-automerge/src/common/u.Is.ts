@@ -51,6 +51,20 @@ export const Is = {
     return Array.isArray(subject.docs);
   },
 
+  /**
+   * TODO 🐷 Automerge [migrate]
+   */
+
+  //   repoListState(input: any): input is t.RepoListState {
+  //     if (!isObject(input)) return false;
+  //     return PatchState.Is.type(input, Typenames.RepoList.List);
+  //   },
+  //
+  //   repoListModel(input: any): input is t.RepoListModel {
+  //     if (!isObject(input)) return false;
+  //     const { list, store, index } = input as t.RepoListModel;
+  //     return Is.repoListState(list?.state) && Is.webStore(store) && Is.storeIndex(index);
+  //   },
 
   networkSubsystem(input: any): input is t.AutomergeRepo['networkSubsystem'] {
     if (!isObject(input)) return false;
