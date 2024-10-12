@@ -27,6 +27,9 @@ export type CliLib = {
   /* Tools for working with a CLI spinner. */
   readonly Spinner: t.CliSpinnerLib;
 
+  /* Tools for formatting standard output (strings) within a CLI. */
+  readonly Format: CliFormatLib;
+
   /* Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];
 
@@ -88,4 +91,31 @@ export type CliPromptsLib = {
 
   /* Multi-select list input propmt. */
   readonly Checkbox: typeof Checkbox;
+};
+
+/**
+ * Tools for formatting standard output (strings) within a CLI.
+ */
+export type CliFormatLib = {
+  /* Path color formatting. */
+  path(path: string, fmt?: CliPathFormatter): string;
+};
+
+export type CliPathFormatter = (e: CliPathFormatterArgs) => t.IgnoredResponse;
+export type CliPathFormatterArgs = t.CliPathPart & {
+  change(to: string): void;
+};
+
+export type CliPathPart = {
+  readonly index: t.Index;
+  readonly kind: 'slash' | 'dirname' | 'basename';
+  readonly text: string;
+  readonly is: CliPathPartIs;
+};
+export type CliPathPartIs = {
+  readonly first: boolean;
+  readonly last: boolean;
+  readonly slash: boolean;
+  readonly dirname: boolean;
+  readonly basename: boolean;
 };
