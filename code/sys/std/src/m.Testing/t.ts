@@ -14,11 +14,15 @@ export type Testing = {
 
   /* Attempt to run the test function <n>-times before throwing. */
   retry(times: number, runTest?: RetryRunner): Promise<void>;
-  retry(times: number, options: RetryOptions, runTest?: RetryRunner): Promise<void>;
+  retry(times: number, options: RetryOptions, fn?: RetryRunner): Promise<void>;
 };
 
 export type RetryRunner = () => t.IgnoredResponse;
-export type RetryOptions = { silent?: boolean; delay?: t.Msecs; message?: string };
+export type RetryOptions = {
+  silent?: boolean;
+  delay?: t.Msecs;
+  message?: string;
+};
 
 /* Describes a test suite. */
 export type Describe = typeof describe;
