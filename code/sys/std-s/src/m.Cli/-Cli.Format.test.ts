@@ -53,14 +53,13 @@ describe('Cli.Format', () => {
       });
     });
 
-    it.only('cumlative changes', () => {
+    it('cumlative changes', () => {
       const res = Format.path('/foo/bar', (e) => {
         if (e.index === 1) {
           e.change(c.green(e.text));
           e.change(c.white(e.text));
         }
       });
-
       expect(res).to.eql('/[w][g]foo[/g][/w]/bar');
     });
   });
