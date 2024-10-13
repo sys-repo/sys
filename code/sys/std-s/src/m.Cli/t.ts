@@ -10,7 +10,7 @@ import type {
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
 
-import type { ArgsLib } from '@sys/std/t';
+import type { ArgsLib, TextLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
 
@@ -29,6 +29,9 @@ export type CliLib = {
 
   /* Tools for formatting standard output (strings) within a CLI. */
   readonly Format: CliFormatLib;
+
+  /* Tools for working on strings of text. */
+  readonly Text: TextLib;
 
   /* Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];

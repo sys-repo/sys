@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import type { format as formatBytes } from '@std/fmt/bytes';
 
 /**
- * Library: helpers for working on strings of text.
+ * Library: Tools for working on strings of text.
  */
 export type TextLib = {
   /* Calculate a difference between two strings. */
