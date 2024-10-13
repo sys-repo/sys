@@ -60,6 +60,7 @@
     "npm:@jsr/std__cli@1.0.6": "1.0.6",
     "npm:@jsr/std__datetime@0.225.2": "0.225.2",
     "npm:@jsr/std__dotenv@0.225.2": "0.225.2",
+    "npm:@jsr/std__fmt@1": "1.0.2",
     "npm:@jsr/std__path@1.0.6": "1.0.6",
     "npm:@jsr/std__semver@1.0.3": "1.0.3",
     "npm:@jsr/std__testing@1.0.3": "1.0.3",
@@ -732,6 +733,9 @@
     },
     "@jsr/std__dotenv@0.225.2": {
       "integrity": "sha512-IAD2hjptiGf6yuhyjtif+R3WeKYkAiZVk6K+OdIocd9dS+YLP+aFGecjU1B9LHknk368mJgiBgg9sIt0sufw2g=="
+    },
+    "@jsr/std__fmt@1.0.2": {
+      "integrity": "sha512-VGilBV5pwG+4nAuEt2ShJtbkfbIf8WgjyKQT+LCpubjILPygeBF3DL2gTsGM5khMLeWb0n46ZE7cnoWBqCuuRw=="
     },
     "@jsr/std__fs@1.0.4": {
       "integrity": "sha512-0O5aY0IR+NIqfw5BZbYiQ0t0QO/mCaJCQwsrs0kkfkN41t/p9gLGqem10/3zvydYcspUuwwaFlvh9WWQVyR9DA==",
@@ -3440,6 +3444,7 @@
         "npm:@jsr/std__async@1.0.5",
         "npm:@jsr/std__cli@1.0.6",
         "npm:@jsr/std__datetime@0.225.2",
+        "npm:@jsr/std__fmt@1",
         "npm:@jsr/std__path@1.0.6",
         "npm:@jsr/std__semver@1.0.3",
         "npm:@jsr/std__testing@1.0.3",
