@@ -33,10 +33,26 @@ export const Log = {
 
         const module = Cli.Format.path(fullname, (e) => {
           if (e.is.slash) {
-            if (e.index >= 3) e.change(c.green(e.text));
+            if (e.index >= 3) {
+              e.change(c.green(e.text));
+            } else {
+              const next = isFirstRenderOfScope ? c.gray(e.text) : c.dim(e.text);
+              e.change(next);
+            }
           }
           if (isFirstRenderOfScope && !e.is.slash) {
-            if (e.index === 0 || e.index === 2) e.change(c.white(e.text));
+            if (e.index === 0 || e.index === 2) {
+              e.change(c.white(e.text));
+            } else {
+              e.change(c.gray(e.text));
+            }
+          } else {
+            if (e.index > 2) {
+              e.change(c.gray(e.text));
+            } else {
+              const text = e.index === 0 ? c.dim(e.text) : c.gray(e.text);
+              e.change(text);
+            }
           }
         });
 
