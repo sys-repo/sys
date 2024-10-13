@@ -1,3 +1,4 @@
 export * from '../common.ts';
-export { Color } from '../u/mod.ts';
-export { Style, css } from '../u/m.Style/mod.ts';
+export * from './m.React/mod.ts';
+
+export { Color, Style, css } from '../u/mod.ts';

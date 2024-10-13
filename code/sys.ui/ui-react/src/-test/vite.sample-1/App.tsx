@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import './-sample-imports.ts'; // 🐷
 
 import { Foo } from '@sys/tmp/client/ui';
-import { Color, css } from '../../mod.ts';
-import type { t } from './common.ts';
+import { Color, css, type t } from './common.ts';
+
+import './-sample-imports.ts'; // 🐷
 
 /**
- * Sample Component.
+ * Sample Component demonstrating the fundamentals
+ * of React and module importing work.
+ *
+ * - Module "imports" (prove @sys imports from the workspace work)
+ * - Style: CSS primitives
+ * - Style: Color primitives
  */
 export type AppProps = {
   theme?: t.CommonTheme;
