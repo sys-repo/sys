@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v2.0.0-rc.5
+          deno-version: v2
 
       - name: publish module → "@sys/types"
         run: |
@@ -47,17 +47,29 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-automerge"
-        run: |
-          cd code/sys.driver/driver-automerge
-          deno task test
-          deno publish
+      # - name: publish module → "@sys/driver-automerge"
+      #   run: |
+      #     cd code/sys.driver/driver-automerge
+      #     deno task test
+      #     deno publish
 
       - name: publish module → "@sys/driver-deno"
         run: |
@@ -65,14 +77,14 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/driver-vite"
+      - name: publish module → "@sys/driver-immer"
         run: |
-          cd code/sys.driver/driver-vite
+          cd code/sys.driver/driver-immer
           deno task test
           deno publish
 
-      - name: publish module → "@sys/tmp"
+      - name: publish module → "@sys/driver-vite"
         run: |
-          cd code/sys.tmp
+          cd code/sys.driver/driver-vite
           deno task test
           deno publish

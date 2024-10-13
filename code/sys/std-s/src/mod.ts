@@ -15,10 +15,27 @@ export { Pkg } from './common.ts';
 /**
  * Web AND Server
  */
-export { Dates, Http, Rx, Semver, Time, rx } from '@sys/std';
+export {
+  Args,
+  Async,
+  Date,
+  D,
+  Http,
+  Immutable,
+  ObjectPath,
+  R,
+  Rx,
+  Semver,
+  Time,
+  Value,
+  rx,
+} from '@sys/std';
 
 /**
- * Server specific.
+ * Server only.
+ *
+ * NB: importing these libraries into JS that is bundled
+ *     for the browser will fail.
  */
 export { Cli } from './m.Cli/mod.ts';
 export { Env } from './m.Env/mod.ts';

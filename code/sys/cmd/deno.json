@@ -1,0 +1,17 @@
+{
+  "name": "@sys/cmd",
+  "version": "0.0.4",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -RW",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -RWE ./scripts/-clean.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./testing": "./src/m.Cmd.TEST/mod.ts"
+  }
+}

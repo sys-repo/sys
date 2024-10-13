@@ -1,1 +1,1 @@
-export * from './u.Auth.ts';
+export { Auth } from './m.Auth.ts';

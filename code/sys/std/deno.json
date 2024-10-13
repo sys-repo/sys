@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.24",
+  "version": "0.0.27",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWN",
@@ -12,10 +12,15 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
+    "./hash": "./src/m.Hash/mod.ts",
     "./id": "./src/m.Id/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
+    "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./path": "./src/m.Path/mod.ts",
+    "./rx": "./src/m.Rx/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
-    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts"
+    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts",
+    "./text": "./src/m.Text/mod.ts",
+    "./value": "./src/m.Value/mod.ts"
   }
 }

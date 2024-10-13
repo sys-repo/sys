@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
-import { Is as RxIs } from '../m.Observable/mod.ts';
+import { Is as RxIs } from '../m.Rx/mod.ts';
 
 const { observable, subject } = RxIs;
 const { errorLike, stdError } = Err.Is;
@@ -14,18 +14,12 @@ export const Is: t.CommonIsLib = {
   errorLike,
   stdError,
 
-  /**
-   * Determine if the value is a Promise.
-   */
   promise<T = any>(input?: any): input is Promise<T> {
     return input !== null && input
       ? typeof input === 'object' && typeof input.then === 'function'
       : false;
   },
 
-  /**
-   * Determine if the value is a number.
-   */
   numeric(input?: any) {
     if (typeof input === 'number') {
       return Number.isFinite(input); // Ensure not: NaN, Infinity, or -Infinity.
@@ -44,10 +38,12 @@ export const Is: t.CommonIsLib = {
     return false;
   },
 
-  /**
-   * Falsy check.
-   * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-   */
+  json(input?: any): input is t.Json {
+    if (typeof input !== 'string') return false;
+    input = input.trim();
+    return input.startsWith('{') || input.startsWith('[');
+  },
+
   falsy(input?: any): input is t.Falsy | typeof NaN {
     return (
       input === false ||
@@ -58,5 +54,9 @@ export const Is: t.CommonIsLib = {
       input === 0n ||
       Number.isNaN(input) // Handle NaN at runtime
     );
+  },
+
+  arrayBufferLike(input?: any): input is ArrayBufferLike {
+    return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
   },
 };

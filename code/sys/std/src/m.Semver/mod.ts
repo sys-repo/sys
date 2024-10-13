@@ -1,1 +1,1 @@
-export * from './Semver.ts';
+export { Semver } from './m.Semver.ts';

@@ -1,6 +1,6 @@
 {
   "name": "@sys/types",
-  "version": "0.0.0",
+  "version": "0.0.5",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
@@ -11,6 +11,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./pkg": "./src/common/m.pkg.ts"
   }
 }

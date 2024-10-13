@@ -35,17 +35,17 @@ export function keyboardFactory(args: {
       }
 
       /**
-       * CLEAR → <ModuleInfo>
+       * CLEAR and reset.
        */
-      if (Pkg && e.key === 'c') {
+      if (Pkg && e.key === 'k') {
         console.clear();
         console.info(Log.Info.toString({ Pkg, url: url.href, pad: true }));
       }
 
       /**
-       * HELP → Info: <Options | ExtendedInfo>
+       * INFO →: <Options | ExtendedInfo>
        */
-      if (Pkg && e.key === 'h') {
+      if (Pkg && e.key === 'i') {
         console.clear();
         console.info(Log.Help.toString({ Pkg, paths, ws, url: url.href, pad: true }));
       }

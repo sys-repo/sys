@@ -3,7 +3,7 @@ import type { t } from '../common/mod.ts';
 /**
  * Library: HTTP testing helpers.
  */
-export type TestingHttpLib = t.Testing & {
+export type TestingHttpLib = t.TestingLib & {
   /* Helpers for working with an HTTP server. */
   readonly HttpServer: t.TestHttpServer;
 };
