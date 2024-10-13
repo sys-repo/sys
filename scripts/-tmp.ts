@@ -1,70 +1,100 @@
-import { Fs, Cli, Env, Http } from '@sys/std-s';
-
+import { c, Cli, Env, Fs, Path } from '@sys/std-s';
 const env = await Env.load();
-
-// console.log('m', m);
-// const NYLAS_API = m.get('NYLAS_API_KEY');
-
-/**
- * SAMPLE: Table
- */
-const table = Cli.table(['Foo', 'Bar']).indent(2);
-table.push();
-table.push(['123456', 'abc']);
-table.push(['333', 'Hello World 👋']);
-// table.render();
-// console.info();
-
-/**
- * Nylas
- * https://developer.nylas.com/docs/v3/email/#one-click-unsubscribe-requirements-for-google-messages
- */
-
-import * as Nylas from 'npm:nylas@7/';
-export async function sampleNylas() {
-  console.log('Nylas', Nylas);
-
-  const NylasConfig = {
-    apiKey: env.get('NYLAS_API_KEY'),
-    apiUri: 'https://api.us.nylas.com',
-    grandId: env.get('NYLAS_GRANT_ID'),
-  };
-  // const GRANT_ID = '29015d82-0c42-4bfb-a3ea-8add8e4bdf42';
-
-  const http = Http.client({ accessToken: NylasConfig.apiKey });
-  const url = `https://api.us.nylas.com/v3/grants/${NylasConfig.grandId}/messages?limit=5`;
-
-  const spinner = Cli.spinner();
-  const res = await http.get(url);
-
-  spinner.succeed(`Done: ${res.status}`);
-  // console.log('res', res);
-
-  const json = await res.json();
-  console.log('json', json);
-}
-
-/**
- *
- */
-export async function sampleOpenAI() {
-  // console.log('OpenAI', OpenAI);
-}
-
-// Finish up.
-// await sampleNylas();
-// await sampleOpenAI();
-
-// const m = Cli.args(Deno.args);
-// console.log('m', m);
-
-await Cli.Prompts.Confirm.prompt('From node to deno?');
-
-/**
- * TODO 🐷 arts passed for try/test/ci
- */
 
 // const match = await Fs.glob().find('code/**/-test.*');
 // console.log('match', match);
 
+/**
+ * Quilbrium tools.
+ */
+export const Q = {
+  Release: {
+    get env() {
+      const os = Deno.build.os;
+      let arch = Deno.build.arch as string;
+      if (arch === 'x86_64') arch = 'amd64'; // Map Deno architecture labels to release architecture naming
+      if (arch === 'aarch64') arch = 'arm64';
+      return { os, arch };
+    },
+
+    /**
+     * Source: @king's "V2 pull" script.
+     *         https://www.snippets.so/snip/bafkreigs3ozrcezbcmbmkvuzgjkqfnn5ybt66loyuoketervc3c6xb7piu
+     */
+    async pull(options: { os?: string; arch?: string; outDir?: string } = {}) {
+      const env = Q.Release.env;
+      const os = options.os ?? env.os;
+      const arch = options.os ?? env.arch;
+      const outDir = Fs.resolve(options.outDir ? options.outDir : './.bin/q/');
+
+      const spinner = Cli.spinner('retrieving releases').start();
+      const url = 'https://releases.quilibrium.com/release';
+      const res = await fetch(url);
+
+      const text = await res.text();
+      const lines = text.split('\n');
+      const files = lines.filter((line) => line.includes(`${os}-${arch}`));
+
+      // Derive version.
+      const versionMatch = lines[0]?.match(/node-(\d+\.\d+\.\d+)/);
+      const version = versionMatch ? versionMatch[1] : '-';
+
+      let _isNewRelease = false;
+      spinner.succeed(`Manifest retrieved. ${c.dim(url)}`);
+
+      console.info(c.gray(`  Version ${c.white(version)}`));
+      console.info(c.green(`  ↓`));
+
+      // Check each file and download if it doesn't exist locally
+      for (const [i, file] of files.entries()) {
+        try {
+          // Found locally.
+          await Deno.stat(`./${file}`);
+        } catch (err) {
+          if (err instanceof Deno.errors.NotFound) {
+            /**
+             * File does not exist, download it now...
+             */
+            const fileUrl = `https://releases.quilibrium.com/${file}`;
+            const spinner = Cli.spinner(`${c.bold('Downloading')}: ${c.cyan(fileUrl)}`);
+
+            const path = Path.join(outDir, file);
+            const fileRes = await fetch(fileUrl);
+            const fileData = await fileRes.arrayBuffer();
+
+            await Fs.ensureDir(Fs.dirname(path));
+            await Deno.writeFile(path, new Uint8Array(fileData));
+
+            const basename = Path.basename(path);
+            const printBasename = i === 0 ? c.white(basename) : c.gray(basename);
+            const printPath = c.gray(`${c.dim(Path.dirname(path))}/${printBasename}`);
+            spinner.succeed(`Saved ${printPath}`);
+            _isNewRelease = true;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      /**
+       * Log footer.
+       */
+      console.info();
+      if (_isNewRelease) {
+        const title = c.white(`${c.brightGreen('Quilibrium')} ${version}`);
+        const line = c.green(`New ${c.bold(title)} release downloaded.`);
+        console.info(line);
+      } else {
+        console.info(c.gray('No new releases found.'));
+      }
+      console.info();
+    },
+  },
+};
+
+await Q.Release.pull();
+
+/**
+ * Finish up.
+ */
 Deno.exit(0);
