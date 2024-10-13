@@ -1,4 +1,4 @@
 /**
  * @sys/std - Standard Libs.
  */
-export { Is, R, rx } from '@sys/std';
+export { Is, R, Text, Time, Value, rx } from '@sys/std';
