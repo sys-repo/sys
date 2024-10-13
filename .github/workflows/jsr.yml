@@ -24,7 +24,7 @@ jobs:
       PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
 
     steps:
-      # - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2
