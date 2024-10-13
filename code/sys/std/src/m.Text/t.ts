@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { format as formatBytes } from '@std/fmt/bytes';
 
 /**
  * Library: helpers for working on strings of text.
@@ -21,4 +22,7 @@ export type TextLib = {
 
   /* Return the "singular" or "plural" version of a word based on a number. */
   plural(count: number, singular: string, plural?: string): string;
+
+  /* Convert bytes to a human-readable string, eg: 1337 → "1.34 kB" */
+  bytes: typeof formatBytes;
 };

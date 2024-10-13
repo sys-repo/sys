@@ -1,8 +1,22 @@
-import { Text } from './mod.ts';
 import { describe, expect, it, type t } from '../-test.ts';
 import { Immutable } from '../m.Immutable/mod.ts';
+import { Text } from './mod.ts';
 
 describe('Text', () => {
+  describe('Text.bytes', () => {
+    it('converts to display string', () => {
+      const bytes = 123557186;
+      const a = Text.bytes(bytes);
+      const b = Text.bytes(bytes, { maximumFractionDigits: 2 });
+      const c = Text.bytes(1337);
+      const d = Text.bytes(100);
+      expect(a).to.eql('124 MB');
+      expect(b).to.eql('123.56 MB');
+      expect(c).to.eql('1.34 kB');
+      expect(d).to.eql('100 B');
+    });
+  });
+
   describe('Text.diff', () => {
     const assertDiff = (diff: t.TextDiff, index: number, delCount: number, newText?: string) => {
       expect(diff.index).to.eql(index);

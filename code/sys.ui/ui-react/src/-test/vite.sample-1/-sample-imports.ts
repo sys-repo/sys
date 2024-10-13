@@ -36,6 +36,7 @@ console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parse:', Args.parse(['--foo', '--bar=baz', './file.txt']));
 console.info('@sys/std:IndexedDb', IndexedDb);
 console.info('@sys/std:Text', Text);
+console.info('@sys/std:Text.bytes', Text.bytes(1337));
 console.info('@sys/driver-immer', Json);
 
 console.groupEnd();
