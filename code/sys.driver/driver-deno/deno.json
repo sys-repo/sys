@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -RNE --watch ./scripts/-start.dev.ts",
@@ -12,8 +12,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./cloud/client": "./src/mod.cloud/client.ts",
-    "./cloud/server": "./src/mod.cloud/server.ts",
-    "./runtime": "./src/mod.runtime/mod.ts"
+    "./cloud/client": "./src/m.Cloud/m.Client.ts",
+    "./cloud/server": "./src/m.Cloud/m.Server.ts",
+    "./runtime": "./src/m.Runtime/mod.ts"
   }
 }

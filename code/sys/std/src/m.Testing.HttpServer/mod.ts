@@ -5,7 +5,7 @@
 
 import type { t } from '../common.ts';
 import { Testing as Base } from '../m.Testing/mod.ts';
-import { TestHttpServer as HttpServer } from './u.HttpServer.ts';
+import { TestHttpServer as HttpServer } from './m.HttpServer.ts';
 
 export { describe, expect, it } from '../m.Testing/mod.ts';
 

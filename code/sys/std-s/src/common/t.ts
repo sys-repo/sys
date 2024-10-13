@@ -2,6 +2,7 @@ export type {
   Disposable,
   DisposeAsyncEvent,
   IgnoredResponse,
+  Index,
   Lifecycle,
   LifecycleAsync,
   Observable,

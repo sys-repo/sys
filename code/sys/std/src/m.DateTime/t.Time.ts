@@ -4,6 +4,21 @@ import type { t } from './common.ts';
  * Library: helper for working with time.
  */
 export type TimeLib = {
+  /* Tools for working with an elapsed duration of time. */
+  readonly Duration: t.TimeDurationLib;
+
+  /* Retrieve the current datetime. */
+  readonly now: t.DateTime;
+
+  /* Create a new TimeDuration */
+  duration: t.TimeDurationLib['create'];
+
+  /* Generates a TimeDuration from the given time until now (or a specified other endpoint). */
+  elapsed(from: t.DateTimeInput, options: { to?: t.DateTimeInput; round?: number }): t.TimeDuration;
+
+  /* Generates a new timer. */
+  timer(start?: Date, options?: { round?: number }): Timer;
+
   /**
    * Run a function after a delay.
    */
@@ -15,10 +30,16 @@ export type TimeLib = {
    * NB: use with [await].
    */
   wait(msecs: t.Msecs): t.TimeDelayPromise;
+
+  /* Generate a new UTC datetime instance. */
+  utc(input?: t.DateTimeInput): t.DateTime;
+
+  /* A Time helper that runs only until it has been disposed. */
+  until(until$?: t.UntilObservable): t.TimeUntil;
 };
 
 /**
- * Timout/Delay
+ * Timeout/Delay
  */
 
 /* A function called at the completion of a delay timer. */
@@ -36,14 +57,43 @@ export type TimeDelay = {
   readonly is: {
     /* True if the timer was cancelled.  */
     readonly cancelled: boolean;
-
     /* True if the timer completed successfully. */
     readonly completed: boolean;
-
     /* True if the timer is "done" (completed OR failed). */
     readonly done: boolean;
   };
 
-  /* Stops the timer. */
+  /* Stops the timer (dispose). */
   cancel(): void;
+};
+
+/**
+ * Exposes timer functions that cease after a dispose signal is received.
+ */
+export type TimeUntil = {
+  /* Fires when the transient time helper is disposed. */
+  readonly dispose$: t.Observable<void>;
+
+  /* Flag indicating if the transient time heper is disposed. */
+  readonly disposed: boolean;
+
+  /* Delay for the specified milliseconds. */
+  delay: t.TimeLib['delay'];
+
+  /* Wait for the specified milliseconds pass. */
+  wait: t.TimeLib['wait'];
+};
+
+/**
+ * A timer that records the elapsed time since a start date.
+ */
+export type Timer = {
+  /* The starting datetime. */
+  readonly startedAt: Date;
+
+  /* The duration elapsed */
+  readonly elapsed: t.TimeDuration;
+
+  /* Reset the timer. */
+  reset: () => t.Timer;
 };

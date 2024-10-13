@@ -32,3 +32,4 @@
  * ```
  */
 export { Cli } from './m.Cli.ts';
+export { Format } from './u.Format.ts';

@@ -1,7 +1,7 @@
 /**
  * @ext
  */
-import { clone, equals, uniq } from 'ramda';
+import { clone, equals, toString, uniq, uniqBy } from 'rambda';
 
-/* Rambda  */
-export const R = { clone, equals, uniq } as const;
+/* Ramda functional utilities. */
+export const R = { clone, equals, uniq, uniqBy, toString } as const;

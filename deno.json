@@ -1,12 +1,13 @@
 {
   "tasks": {
-    "info": "deno run -RE ./scripts/mod.ts --info",
-    "test": "deno run -A ./scripts/mod.ts --test",
-    "dry": "deno run -RE --allow-run=sh ./scripts/mod.ts --dry",
-    "ci": "deno run -A ./scripts/mod.ts --dry --test --info",
-    "lint": "deno run -RE --allow-run=sh ./scripts/mod.ts --lint",
-    "clean": "deno run -RWE --allow-run=sh ./scripts/mod.ts --clean",
+    "info": "deno run -RE ./scripts/main.ts --info",
+    "test": "deno run -A ./scripts/main.ts --test",
+    "dry": "deno run -RE --allow-run=sh ./scripts/main.ts --dry",
+    "ci": "deno run -A ./scripts/main.ts --dry --test --info",
+    "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
+    "clean": "deno run -RWE --allow-run=sh ./scripts/main.ts --clean",
     "reload": "rm -rf node_modules && deno install --reload",
+    "bump": "deno run -RWE ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
   "nodeModulesDir": "auto",
@@ -21,6 +22,7 @@
   "workspace": [
     "./code/sys.tmp",
 
+    "./code/sys/cmd",
     "./code/sys/std",
     "./code/sys/std-s",
     "./code/sys/types",
@@ -29,6 +31,7 @@
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",
+    "./code/sys.driver/driver-immer",
     "./code/sys.driver/driver-vite",
 
     "./deploy/api.db.team",
@@ -37,7 +40,7 @@
   "importMap": "./deno.importMap.json",
   "lint": {
     "rules": {
-      "exclude": ["no-explicit-any"]
+      "exclude": ["no-explicit-any", "no-slow-types"]
     }
   }
 }

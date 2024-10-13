@@ -1,4 +1,4 @@
-import { Is } from '../m.Observable/u.Rx.Is.ts';
+import { Is } from '../m.Rx/m.Rx.Is.ts';
 import { Subject, filter, flatten, take, type t } from './common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { Delete } from '../m.Delete/mod.ts';
@@ -106,12 +106,11 @@ export const Dispose: t.DisposeLib = {
    */
   until($) {
     const list = Array.isArray($) ? $ : [$];
-    return flatten(list).filter(Boolean);
+    return flatten(list).filter(Boolean) as t.Observable<unknown>[];
   },
 
   /**
    * "Completes" a subject by running:
-   *
    *    1. subject.next();
    *    2. subject.complete();
    */

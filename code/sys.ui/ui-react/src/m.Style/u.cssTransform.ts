@@ -1,6 +1,6 @@
 import { css as toSerializedStyles } from '@emotion/react';
 import { R, type t } from './common.ts';
-import { Tmpl } from './u.Tmpl.ts';
+import { Tmpl } from './m.Tmpl.ts';
 import { Is } from './u.ts';
 
 /**

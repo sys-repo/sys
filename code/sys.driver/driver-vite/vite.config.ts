@@ -16,8 +16,10 @@
  *
  */
 import { workspacePlugin } from '@sys/driver-vite';
-import { defineConfig } from 'vite';
 import reactPlugin from '@vitejs/plugin-react-swc';
+import { defineConfig } from 'vite';
+
+import { c } from '@sys/std-s';
 
 /**
  * SAMPLE: Custom plugin (no customization).
@@ -39,7 +41,7 @@ export const customizedConfig = defineConfig(async (_ctx) => {
      *        it is passed on to the next step in the bundle pipeline
      */
     mutate(e) {
-      console.info(`\n👋 (callback inside plugin)`);
+      console.info(c.dim(`\n👋 (callback inside plugin)`));
       if (e.ws) {
         console.info(e.ws.toString({ pad: true }));
       }
