@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { pluginOptions } from './lib.emotion-js/mod.ts';
+import { pluginOptions } from './emotion-js/mod.ts';
 import { Tmpl } from './m.Tmpl.ts';
 import { css } from './u.cssTransform.ts';
 

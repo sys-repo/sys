@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+export * from './u.reactPlugin.ts';
 
 /**
  * Wrapper helpers around `emotion-js`
