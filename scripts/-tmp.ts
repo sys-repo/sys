@@ -49,6 +49,27 @@ export const Q = {
       console.info(c.gray(`  Version ${c.white(version)}`));
       console.info(c.green(`  ↓`));
 
+      const download = async (file: string, index: t.Index) => {
+        const isFirst = index === 0;
+        const fileUrl = `https://releases.quilibrium.com/${file}`;
+        const spinner = Cli.spinner(`${c.bold('Downloading')}: ${c.cyan(fileUrl)}`);
+
+        const path = Path.join(outDir, file);
+        const fileRes = await fetch(fileUrl);
+        const fileBuffer = await fileRes.arrayBuffer();
+        const fileData = new Uint8Array(fileBuffer);
+        const fileSize = Cli.Text.bytes(fileData.byteLength);
+
+        await Fs.ensureDir(Fs.dirname(path));
+        await Deno.writeFile(path, fileData);
+
+        const basename = Path.basename(path);
+        const printBasename = isFirst ? c.white(basename) : c.gray(basename);
+        const printPath = c.gray(`${c.dim(Path.dirname(path))}/${printBasename}`);
+        const printSize = c.dim(c.gray(`(${fileSize})`));
+        spinner.succeed(`Saved ${printPath}  ${printSize}`);
+      };
+
       // Check each file and download if it doesn't exist locally
       for (const [i, file] of files.entries()) {
         try {
@@ -56,23 +77,8 @@ export const Q = {
           await Deno.stat(`./${file}`);
         } catch (err) {
           if (err instanceof Deno.errors.NotFound) {
-            /**
-             * File does not exist, download it now...
-             */
-            const fileUrl = `https://releases.quilibrium.com/${file}`;
-            const spinner = Cli.spinner(`${c.bold('Downloading')}: ${c.cyan(fileUrl)}`);
-
-            const path = Path.join(outDir, file);
-            const fileRes = await fetch(fileUrl);
-            const fileData = await fileRes.arrayBuffer();
-
-            await Fs.ensureDir(Fs.dirname(path));
-            await Deno.writeFile(path, new Uint8Array(fileData));
-
-            const basename = Path.basename(path);
-            const printBasename = i === 0 ? c.white(basename) : c.gray(basename);
-            const printPath = c.gray(`${c.dim(Path.dirname(path))}/${printBasename}`);
-            spinner.succeed(`Saved ${printPath}`);
+            // File does not exist, download it now...
+            await download(file, i);
             _isNewRelease = true;
           } else {
             throw err;
