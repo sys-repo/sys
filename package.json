@@ -1,14 +1,16 @@
 {
   "dependencies": {
     "@std/async": "npm:@jsr/std__async@1.0.5",
-    "@std/cli": "npm:@jsr/std__cli@1",
+    "@std/cli": "npm:@jsr/std__cli@1.0.6",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
     "@std/path": "npm:@jsr/std__path@1.0.6",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
-    "@std/testing": "npm:@jsr/std__testing@1.0.2"
+    "@std/testing": "npm:@jsr/std__testing@1.0.3",
+    "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
+    "immer": "10.1.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0"
+    "@types/react": "18",
+    "@types/react-dom": "18"
   }
 }

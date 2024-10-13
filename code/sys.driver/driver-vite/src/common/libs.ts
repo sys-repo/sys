@@ -1,7 +1,7 @@
 /**
  * External
  */
-import * as R from 'ramda';
+import * as R from 'rambda';
 
 export { keypress } from '@cliffy/keypress';
 export { R };
@@ -11,4 +11,4 @@ export { R };
  */
 export { Denofile } from '@sys/driver-deno/runtime';
 export { Time, slug } from '@sys/std';
-export { Cmd, Fs, Path, c } from '@sys/std-s';
+export { Cli, Cmd, Fs, Path, c } from '@sys/std-s';

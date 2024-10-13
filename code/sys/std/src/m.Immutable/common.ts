@@ -3,7 +3,7 @@ export * from '../common.ts';
 export { Delete } from '../m.Delete/mod.ts';
 export { slug } from '../m.Id/mod.ts';
 export { ObjectPath } from '../m.ObjectPath/mod.ts';
-export { rx } from '../m.Observable/mod.ts';
+export { rx } from '../m.Rx/mod.ts';
 
 export const Symbols = {
   map: {

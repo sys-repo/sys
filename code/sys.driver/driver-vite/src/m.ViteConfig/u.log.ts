@@ -1,29 +1,50 @@
-import { c, type t, Path } from './common.ts';
+import { c, Cli, Path, type t } from './common.ts';
 
 /**
  * Logging helpers.
  */
 export const Log = {
   /**
-   * Workspace
+   * Workspace.
    */
   Workspace: {
     toString(ws: t.ViteDenoWorkspace, options: { pad?: boolean } = {}) {
       let res = '';
       const line = (...parts: string[]) => (res += `\n${parts.join(' ')}`);
 
-      const filtered = ws.filter ? c.gray(` (filtered)`) : '';
-      const modules = c.brightGreen(c.bold('<Modules>'));
-      line(c.white(`Workspace ${modules} import map:${filtered}`));
+      const filtered = ws.filter ? c.dim(` (filtered)`) : '';
+      const modules = c.brightGreen(c.bold('<ESM Module>'));
+      line(c.white(`Workspace ${modules} import-map:`), filtered);
       line();
 
+      const table = Cli.table([c.dim('  Exports:'), '', c.dim(' Maps to:')]);
+
+      let _lastScope = '';
       ws.aliases.forEach((alias) => {
-        const mod = c.green(alias.find.toString());
-        const path = alias.replacement;
-        const displayPath = `${Path.dirname(path)}/${c.white(Path.basename(path))}`;
-        line(c.gray(`${c.green('•')} ${c.white('import')} ${mod}`));
-        line(c.dim(`  ${displayPath}`));
+        const fullname = alias.find.toString();
+
+        const parts = fullname.split('/');
+        const scope = parts.slice(0, 2).join('/');
+        const isFirstRenderOfScope = scope !== _lastScope;
+        _lastScope = scope;
+
+        const path = alias.replacement.slice(ws.dir.length + 1);
+        const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
+
+        const module = Cli.Format.path(fullname, (e) => {
+          if (e.is.slash) {
+            if (e.index >= 3) e.change(c.green(e.text));
+          }
+          if (isFirstRenderOfScope && !e.is.slash) {
+            if (e.index === 0 || e.index === 2) e.change(c.white(e.text));
+          }
+        });
+
+        const left = c.gray(`${c.green('•')} ${c.green('import')} ${module}`);
+        const right = c.gray(`${displayPath}`);
+        table.push([left, c.green('→'), right]);
       });
+      line(table.toString());
       res = res.trim();
       return options.pad ? `\n${res}\n` : res;
     },

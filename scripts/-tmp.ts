@@ -1,4 +1,4 @@
-import { Cli, Env, Http } from '@sys/std-s';
+import { Fs, Cli, Env, Http } from '@sys/std-s';
 
 const env = await Env.load();
 
@@ -12,8 +12,8 @@ const table = Cli.table(['Foo', 'Bar']).indent(2);
 table.push();
 table.push(['123456', 'abc']);
 table.push(['333', 'Hello World 👋']);
-table.render();
-console.info();
+// table.render();
+// console.info();
 
 /**
  * Nylas
@@ -55,11 +55,16 @@ export async function sampleOpenAI() {
 // await sampleNylas();
 // await sampleOpenAI();
 
-const m = Cli.args(Deno.args);
-console.log('m', m);
+// const m = Cli.args(Deno.args);
+// console.log('m', m);
+
+await Cli.Prompts.Confirm.prompt('From node to deno?');
 
 /**
  * TODO 🐷 arts passed for try/test/ci
  */
+
+// const match = await Fs.glob().find('code/**/-test.*');
+// console.log('match', match);
 
 Deno.exit(0);
