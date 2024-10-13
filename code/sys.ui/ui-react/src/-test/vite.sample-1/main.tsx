@@ -7,7 +7,7 @@ import { App } from './App.tsx';
 console.info('Pkg', Pkg);
 document.title = Pkg.name;
 
-import { DevHarness } from '../../m.ui.Dev/mod.ts';
+import { DevHarness } from '../../ui/m.Dev/mod.ts';
 
 /**
  * Entry Point.

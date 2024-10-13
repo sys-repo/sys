@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Tmpl } from './m.Tmpl.ts';
 import { Style, css } from './mod.ts';
 

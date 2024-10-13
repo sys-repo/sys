@@ -1,4 +1,4 @@
-import { describe, it, expect, type t, Testing } from '../-test.ts';
+import { describe, it, expect, type t, Testing } from '../../-test.ts';
 import { Tmpl } from './m.Tmpl.ts';
 
 type N = string | number | null | undefined;

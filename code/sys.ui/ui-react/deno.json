@@ -14,8 +14,9 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./style": "./src/m.Style/mod.ts",
-    "./style/color": "./src/m.Color/mod.ts",
-    "./ui/dev": "./src/m.ui.Dev/mod.ts"
+    "./u": "./src/u/mod.ts",
+    "./u/color": "./src/u/m.Color/mod.ts",
+    "./u/style": "./src/u/m.Style/mod.ts",
+    "./ui/dev": "./src/ui/m.Dev/mod.ts"
   }
 }

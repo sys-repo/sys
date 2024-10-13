@@ -10,6 +10,6 @@ export type DevHarness = t.FC<DevHarnessProps>;
  * Library: tools for building UI.
  */
 export type DevLib = {
-  /* DevHarness */
+  /* UI development test harness. */
   DevHarness: DevHarness;
 };

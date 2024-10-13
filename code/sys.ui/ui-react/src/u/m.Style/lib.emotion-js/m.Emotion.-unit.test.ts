@@ -1,5 +1,5 @@
 import { css as emotionCss } from '@emotion/react';
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 import { Emotion } from './mod.ts';
 
 /**
