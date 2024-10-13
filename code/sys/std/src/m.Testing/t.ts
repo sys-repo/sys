@@ -5,7 +5,7 @@ import type { t } from './common.ts';
 /**
  * Testing helpers.
  */
-export type Testing = {
+export type TestingLib = {
   readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
   slug: t.IdGenerator;

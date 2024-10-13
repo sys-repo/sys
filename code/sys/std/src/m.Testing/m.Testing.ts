@@ -6,7 +6,7 @@ import { randomPort } from './u.ts';
 /**
  * Testing helpers.
  */
-export const Testing: t.Testing = {
+export const Testing: t.TestingLib = {
   FALSY: [false, 0, '', null, undefined],
   Bdd,
   slug,
