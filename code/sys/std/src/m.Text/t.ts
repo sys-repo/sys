@@ -18,4 +18,7 @@ export type TextLib = {
 
   /* Capitalize the given word. */
   capitalize(word: string): string;
+
+  /* Return the "singular" or "plural" version of a word based on a number. */
+  plural(count: number, singular: string, plural?: string): string;
 };

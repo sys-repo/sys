@@ -14,10 +14,11 @@
 import type { t } from './common.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';
+import { plural } from './u.plural.ts';
 import { shorten } from './u.shorten.ts';
 import { replace, splice } from './u.splice.ts';
 
-export { capitalize, diff, replace, shorten, splice };
+export { capitalize, diff, plural, replace, shorten, splice };
 
 export const Text: t.TextLib = {
   diff,
@@ -25,4 +26,5 @@ export const Text: t.TextLib = {
   replace,
   shorten,
   capitalize,
+  plural,
 } as const;

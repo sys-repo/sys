@@ -159,4 +159,27 @@ describe('Text', () => {
       expect(Text.capitalize('HeLLO')).to.eql('HeLLO');
     });
   });
+
+  describe('plural', () => {
+    it('singular', () => {
+      expect(Text.plural(1, 'item')).to.eql('item');
+      expect(Text.plural(-1, 'item')).to.eql('item');
+      expect(Text.plural(1, 'item', 'items')).to.eql('item');
+      expect(Text.plural(-1, 'item', 'items')).to.eql('item');
+    });
+
+    it('plural', () => {
+      expect(Text.plural(0, 'item', 'items')).to.eql('items');
+      expect(Text.plural(2, 'item', 'items')).to.eql('items');
+      expect(Text.plural(-2, 'item', 'items')).to.eql('items');
+      expect(Text.plural(999, 'item', 'items')).to.eql('items');
+    });
+
+    it('inferred "s"', () => {
+      expect(Text.plural(0, 'item')).to.eql('items');
+      expect(Text.plural(2, 'item')).to.eql('items');
+      expect(Text.plural(-2, 'item')).to.eql('items');
+      expect(Text.plural(999, 'item')).to.eql('items');
+    });
+  });
 });
