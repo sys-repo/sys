@@ -13,12 +13,12 @@ export type TestingLib = {
   randomPort(): number;
 
   /* Attempt to run the test function <n>-times before throwing. */
-  retry(times: number, runTest?: RetryRunner): Promise<void>;
-  retry(times: number, options: RetryOptions, fn?: RetryRunner): Promise<void>;
+  retry(times: number, fn?: TestRetryRunner): Promise<void>;
+  retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
 };
 
-export type RetryRunner = () => t.IgnoredResponse;
-export type RetryOptions = {
+export type TestRetryRunner = () => t.IgnoredResponse;
+export type TestRetryOptions = {
   silent?: boolean;
   delay?: t.Msecs;
   message?: string;

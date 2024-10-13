@@ -1,6 +1,6 @@
 import { Time, type t } from './common.ts';
 
-type R = t.TestingHttpLib['retry'];
+type R = t.TestingLib['retry'];
 
 /**
  * Attempt to run the test function <n>-times before throwing.
@@ -15,13 +15,10 @@ export const retry: R = async (...args: any[]) => {
   for (let attempt = 1; attempt <= times; attempt++) {
     try {
       await fn();
-      /**
-       * SUCCESS: move on (→ exit now) → | 🌳
-       */
-      return;
+      return; // Success → (exit now) → 🌳
     } catch (error) {
       /**
-       * FAILURE → retry
+       * FAILURE → retry.
        * Suppress error until we exhaust the number of retries.
        */
       _lastError = error;
@@ -46,8 +43,8 @@ export const retry: R = async (...args: any[]) => {
  */
 const wrangle = {
   retryArgs(args: any[]) {
-    let fn: t.RetryRunner | undefined;
-    let options: t.RetryOptions = {};
+    let fn: t.TestRetryRunner | undefined;
+    let options: t.TestRetryOptions = {};
 
     const times = args[0];
     if (typeof args[1] === 'function') fn = args[1];
