@@ -1,6 +1,6 @@
 {
   "name": "@tmp/deploy-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",
