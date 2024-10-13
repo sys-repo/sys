@@ -1,9 +1,9 @@
 import { describe, expect, it, Testing } from '../-test.ts';
 import { A, Repo } from '../common.ts';
 
-describe('Automerge', () => {
-  type D = { count: number };
+type D = { count: number };
 
+describe('Automerge', () => {
   /**
    * Hard coded byte array hack.
    * https://automerge.org/docs/cookbook/modeling-data/#setting-up-an-initial-document-structure
