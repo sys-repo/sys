@@ -63,7 +63,7 @@ jobs:
         run: |
           cd code/sys.ui/ui-react
           deno task test
-          deno publish
+          deno publish --dry-run
 
       # - name: publish module → "@sys/driver-automerge"
       #   run: |
