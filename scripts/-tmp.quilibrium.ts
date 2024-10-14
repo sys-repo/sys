@@ -36,12 +36,11 @@ export const Q = {
       const files = lines.filter((line) => line.includes(`${os}-${arch}`));
 
       // Derive version.
-      const versionMatch = lines[0]?.match(/node-(\d+\.\d+\.\d+)/);
+      const versionMatch = lines[0]?.match(/node-(\d+\.\d+\.\d+(?:\.\d+)?)/);
       const version = versionMatch ? versionMatch[1] : '-';
 
       let _isNewRelease = false;
       spinner.succeed(`Manifest retrieved. ${c.dim(url)}`);
-
       console.info(c.gray(`  Version ${c.white(version)}`));
       console.info(c.green(`  ↓`));
 
@@ -66,20 +65,23 @@ export const Q = {
         spinner.succeed(`Saved ${printSize} ${printPath}`);
       };
 
-      // Check each file and download if it doesn't exist locally
-      for (const [i, file] of files.entries()) {
+      const downloadIfNotLocal = async (file: string, i: number) => {
         try {
-          // Found locally.
-          await Deno.stat(`./${file}`);
+          await Deno.stat(`./${file}`); // Success: found locally (when no error).
         } catch (err) {
           if (err instanceof Deno.errors.NotFound) {
-            // File does not exist, download it now...
+            // The file does not exist, download it now...
             await download(file, i);
             _isNewRelease = true;
           } else {
             throw err;
           }
         }
+      };
+
+      // Check each file and download if it doesn't exist locally.
+      for (const [i, file] of files.entries()) {
+        await downloadIfNotLocal(file, i);
       }
 
       /**

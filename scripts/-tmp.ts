@@ -8,17 +8,16 @@ import { Q } from './-tmp.quilibrium.ts';
  * OpenAI
  */
 
-import OpenAI from 'openai';
-const openai = new OpenAI();
-const completion = await openai.chat.completions.create({
-  model: 'gpt-4o',
-  messages: [{ role: 'user', content: 'write a haiku about ai' }],
-});
-
-console.log('completion', completion);
+// import OpenAI from 'openai';
+// const openai = new OpenAI();
+// const completion = await openai.chat.completions.create({
+//   model: 'gpt-4o',
+//   messages: [{ role: 'user', content: 'write a haiku about ai' }],
+// });
+// console.log('completion', completion);
 
 /**
  * Finish up.
  */
-// await Q.Release.pull();
+await Q.Release.pull();
 Deno.exit(0);
