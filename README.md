@@ -87,7 +87,7 @@ events.$.subscribe((e) => { /* event stream handler */ })
  * eg. "RFC-6902 JSON patch standard".
  * 
  * The Events<T> library itself enshrines the meaning of the message stream 
- * conceptually through stongly typed properties and method/function helpers.
+ * conceptually through domain specific, pre-canned, stongly typed properties and method/function filters and helpers.
  */
 
 // Finished.
