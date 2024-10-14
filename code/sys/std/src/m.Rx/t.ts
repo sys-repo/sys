@@ -20,9 +20,14 @@ export type RxLib = Rxjs & {
 
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
-
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
+
+  withinTimeThreshold<T>(
+    $: t.Observable<T>,
+    timeout: t.Msecs,
+    options?: { dispose$?: t.UntilObservable },
+  ): t.TimeThreshold<T>;
 };
 
 /**
@@ -81,4 +86,12 @@ type Rxjs = {
   readonly throttleTime: typeof rxjs.throttleTime;
   readonly timeout: typeof rxjs.timeout;
   readonly distinctUntilChanged: typeof rxjs.distinctUntilChanged;
+};
+
+/**
+ * Represents a time threhold (for use with repeat operations, like double-click).
+ */
+export type TimeThreshold<T> = t.Lifecycle & {
+  readonly $: t.Observable<T>;
+  readonly timeout$: t.Observable<void>;
 };

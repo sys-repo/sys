@@ -1,7 +1,7 @@
-import { Is } from '../m.Rx/m.Rx.Is.ts';
-import { Subject, filter, flatten, take, type t } from './common.ts';
-import { Err } from '../m.Err/mod.ts';
 import { Delete } from '../m.Delete/mod.ts';
+import { Err } from '../m.Err/mod.ts';
+import { Is } from '../m.Rx/m.Is.ts';
+import { Subject, filter, flatten, take, type t } from './common.ts';
 
 /**
  * Toolkit for working with disposable interfaces.
