@@ -8,7 +8,9 @@ export type QNodeLib = {
   readonly Release: t.ReleaseLib;
 };
 
-/* Environment a release is being pulled for. */
+/**
+ * Environment a release is being pulled for.
+ */
 export type ReleaseEnv = {
   /* Operating system type */
   readonly os: string;
@@ -27,10 +29,14 @@ export type ReleaseLib = {
   pull(options?: t.ReleaseOptions): Promise<ReleasePullResponse>;
 };
 
-/* Options passed to the Release.pull method. */
+/**
+ * Options passed to the Release.pull method.
+ */
 export type ReleaseOptions = { os?: string; arch?: string; outDir?: string };
 
-/* Response returned from the Release.pull() method. */
+/**
+ * Response returned from the Release.pull() method.
+ */
 export type ReleasePullResponse = {
   /* Version pulled, or "" empty if nothing was pulled */
   version: string;
