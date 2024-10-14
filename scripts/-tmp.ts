@@ -1,5 +1,7 @@
 import { c, Cli, Env, Fs, Path } from '@sys/std-s';
-import { Q } from './-tmp.quilibrium.ts';
+// import { Q } from './-tmp.quilibrium.ts';
+
+import { Q } from '@sys/driver-quilibrium';
 
 // const match = await Fs.glob().find('code/**/-test.*');
 // console.log('match', match);
@@ -19,5 +21,9 @@ import { Q } from './-tmp.quilibrium.ts';
 /**
  * Finish up.
  */
-await Q.Release.pull();
+await newFunction();
 Deno.exit(0);
+
+async function newFunction() {
+  await Q.Release.pull();
+}
