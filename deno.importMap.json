@@ -29,6 +29,7 @@
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6",
     "ora": "npm:ora@8",
+    "openai": "npm:openai@4",
     "rambda": "npm:rambda@9.3.0",
     "react": "npm:react@18",
     "react-dom": "npm:react-dom@18",
