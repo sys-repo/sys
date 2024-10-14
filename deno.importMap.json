@@ -36,6 +36,7 @@
     "rxjs": "npm:rxjs@7",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.2",
+    "ua-parser-js": "npm:ua-parser-js@1",
     "vite": "npm:vite@5"
   }
 }

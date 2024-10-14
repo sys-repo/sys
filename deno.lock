@@ -107,6 +107,7 @@
     "npm:subhosting@0.1.0-alpha.1": "0.1.0-alpha.1",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.0.2": "10.0.2",
+    "npm:ua-parser-js@1": "1.0.39",
     "npm:uuid@10": "10.0.0",
     "npm:vite@*": "5.4.7",
     "npm:vite@5": "5.4.8_@types+node@22.5.4",
@@ -2892,6 +2893,9 @@
     },
     "typescript@5.6.2": {
       "integrity": "sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw=="
+    },
+    "ua-parser-js@1.0.39": {
+      "integrity": "sha512-k24RCVWlEcjkdOxYmVJgeD/0a1TiSpqLg+ZalVGV9lsnr4yqu0w7tX/x2xX6G4zpkgQnRf89lxuZ1wsbjXM8lw=="
     },
     "unbox-primitive@1.0.2": {
       "integrity": "sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==",
