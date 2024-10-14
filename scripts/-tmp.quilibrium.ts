@@ -1,6 +1,4 @@
-import { c, Cli, Env, Fs, Path } from '@sys/std-s';
-
-// export async function main() {}
+import { c, Cli, Fs, Path } from '@sys/std-s';
 
 /**
  * TODO 🐷 move to module: drivers → @sys/driver-quilibrium
