@@ -1,7 +1,7 @@
 /**
  * System
  */
-export type { CommonTheme, Falsy, Percent, Msecs } from '@sys/std/t';
+export type { CommonTheme, Falsy, FormatBytes, Msecs, Percent } from '@sys/std/t';
 export type { FC } from 'react';
 
 /**

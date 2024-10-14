@@ -1,4 +1,4 @@
-import { Text, Time } from '../common.ts';
+import { type t, Text, Time } from '../common.ts';
 
 const DEFAULTS = {
   mimetype: 'application/octet-stream',
@@ -7,7 +7,7 @@ const DEFAULTS = {
 /**
  * Helpers for working with binary files in the browser.
  */
-export const File = {
+export const File: t.FileLib = {
   DEFAULTS,
   size: Text.bytes,
 
