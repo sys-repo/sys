@@ -22,7 +22,7 @@ export const Release: t.ReleaseLib = {
     const arch = options.os ?? env.arch;
     const outDir = Fs.resolve(options.outDir ? options.outDir : './.bin/q/');
 
-    const res: t.ReleaseResponse = {
+    const res: t.ReleasePullResponse = {
       is: { newRelease: false },
       version: '',
       files: [],
@@ -39,7 +39,7 @@ export const Release: t.ReleaseLib = {
 
     // Derive version.
     const versionMatch = lines[0]?.match(/node-(\d+\.\d+\.\d+(?:\.\d+)?)/);
-    res.version = versionMatch ? versionMatch[1] : '-';
+    res.version = versionMatch ? versionMatch[1] : '';
 
     spinner.succeed(`Manifest retrieved. ${c.dim(url)}`);
     console.info(c.gray(`  Version ${c.white(res.version)}`));
