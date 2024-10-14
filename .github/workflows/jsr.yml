@@ -88,3 +88,9 @@ jobs:
           cd code/sys.driver/driver-vite
           deno task test
           deno publish
+
+      - name: publish module → "@sys/driver-quilibrium"
+        run: |
+          cd code/sys.driver/driver-quilibrium
+          deno task test
+          deno publish
