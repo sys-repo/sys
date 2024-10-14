@@ -8,7 +8,7 @@
  * import type { Pkg } from '@sys/types';
  *
  * import type { Immutable } from '@sys/t';        ←
- * import type { Immutable } from '@sys/types';    ↑ (aliases)
+ * import type { Immutable } from '@sys/types';    ↑ (alias)
  * ```
  *
  * To import the Pkg (Module/Package) concrete meta-data
