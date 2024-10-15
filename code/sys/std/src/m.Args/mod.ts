@@ -1,9 +1,5 @@
-import { parseArgs as parse } from '@std/cli/parse-args';
-import type { t } from '../common.ts';
-
 /**
- * Tools for parsing and interpretting "arguments" (parameter strings).
+ * @module
+ * Tools for parsing command line arguments.
  */
-export const Args: t.ArgsLib = {
-  parse,
-};
+export { Args } from './m.Args.ts';

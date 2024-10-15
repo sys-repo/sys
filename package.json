@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@std/async": "npm:@jsr/std__async@1.0.5",
-    "@std/cli": "npm:@jsr/std__cli@1.0.6",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
     "@std/fmt": "npm:@jsr/std__fmt@1",
     "@std/path": "npm:@jsr/std__path@1.0.6",

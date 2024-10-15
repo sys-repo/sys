@@ -4,20 +4,16 @@ import { Args } from './mod.ts';
 describe('Args', () => {
   describe('parse', () => {
     /**
-     * Source: https://jsr.io/@std/cli
-     */
-    it('sample: from deno', () => {
-      const argv = ['--foo', '--bar=baz', './quux.txt'];
-      const res = Args.parse(argv);
-      expect(res).to.eql({ foo: true, bar: 'baz', _: ['./quux.txt'] });
-    });
-
-    /**
      * Source: https://www.npmjs.com/package/minimist
      */
     it('sample: from minimist (1)', () => {
+      type Flag = 'beep' | 'boop';
+      type Args = { a?: Flag; b?: Flag };
       const cmd = '-a beep -b boop';
-      const res = Args.parse(cmd.split(' '));
+      const res = Args.parse<Args>(cmd.split(' '));
+
+      expect(res.a).to.eql('beep');
+      expect(res.b).to.eql('boop');
       expect(res).to.eql({ _: [], a: 'beep', b: 'boop' });
     });
 
@@ -34,6 +30,14 @@ describe('Args', () => {
         c: true,
         beep: 'boop',
       });
+    });
+
+    it('--arg=value', () => {
+      type T = { num?: number; msg?: string };
+      const cmd = '--num=123 --msg hello';
+      const res = Args.parse<T>(cmd.split(' '));
+      expect(res.num).to.eql(123);
+      expect(res.msg).to.eql('hello');
     });
   });
 });
