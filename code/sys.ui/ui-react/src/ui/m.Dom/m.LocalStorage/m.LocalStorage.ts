@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 /**
  * Helper for working with a strongly typed local-storage object.
  */
-export function LocalStorage<T extends t.JsonMapU>(prefix: string) {
+export const LocalStorage: t.LocalStorageFactory = <T extends t.JsonMapU>(prefix: string) => {
   prefix = prefix.replace(/\/$/, '');
   const toKey = (name: keyof T) => `${prefix}/${String(name)}`;
 
@@ -44,4 +44,4 @@ export function LocalStorage<T extends t.JsonMapU>(prefix: string) {
   };
 
   return local;
-}
+};
