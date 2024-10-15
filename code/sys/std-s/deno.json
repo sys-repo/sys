@@ -1,6 +1,6 @@
 {
   "name": "@sys/std-s",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -RNE --watch ./src/-start.ts",
