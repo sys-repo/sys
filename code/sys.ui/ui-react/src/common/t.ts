@@ -10,6 +10,8 @@ export type {
   Msecs,
   Observable,
   Percent,
+  TimeThreshold,
+  UntilObservable,
 } from '@sys/std/t';
 export type { FC } from 'react';
 
