@@ -29,6 +29,7 @@
  * the `css={...}` prioperty on react components.
  *
  * @example
+ * Declaring CSS styles within objects and applying then to
  *
  * ```ts
  * import { Color, Style, css } from '@sys/ui-react/style';
@@ -39,10 +40,11 @@
  *     backgroundColor: theme.bg,
  *     color: Color.alpha(theme.fg, 0.3)
  *   }),
+ *   label: css({ fontSize: 32 }),
  * };
  *
  * <div {...css(styles.base, props.style)}>
- *   <div>{`👋 Hello World`}</div>
+ *   <div {...styles.label}>{`👋 Hello World`}</div>
  * </div>
  * ```
  */
