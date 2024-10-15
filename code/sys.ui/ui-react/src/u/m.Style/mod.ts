@@ -27,6 +27,24 @@
  *
  * Note: the `jsxImportSourceTypes` sets up editor support to recognize
  * the `css={...}` prioperty on react components.
+ *
+ * @example
+ *
+ * ```ts
+ * import { Color, Style, css } from '@sys/ui-react/style';
+ *
+ * const theme = Color.theme(props.theme);
+ * const styles = {
+ *   base: css({
+ *     backgroundColor: theme.bg,
+ *     color: Color.alpha(theme.fg, 0.3)
+ *   }),
+ * };
+ *
+ * <div {...css(styles.base, props.style)}>
+ *   <div>{`👋 Hello World`}</div>
+ * </div>
+ * ```
  */
 export { Color } from './common.ts';
 export { Style, css } from './m.Style.ts';
