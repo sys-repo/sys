@@ -16,17 +16,20 @@ export const Release: t.ReleaseLib = {
    * Source: @king's "V2 pull" script.
    *         https://www.snippets.so/snip/bafkreigs3ozrcezbcmbmkvuzgjkqfnn5ybt66loyuoketervc3c6xb7piu
    */
-  async pull(options: { os?: string; arch?: string; outDir?: string } = {}) {
+  async pull(
+    options: { os?: string; arch?: string; outDir?: t.StringPath; rootDir?: t.StringPath } = {},
+  ) {
+    const { rootDir } = options;
     const env = Release.env;
     const os = options.os ?? env.os;
     const arch = options.os ?? env.arch;
-    const outDir = Fs.resolve(options.outDir ? options.outDir : './.bin/q/');
+    const outDir = Fs.resolve(options.outDir ? options.outDir : './.bin/quilibrium/');
 
     const res: t.ReleasePullResponse = {
-      is: { newRelease: false },
       version: '',
-      files: [],
+      is: { newRelease: false },
       env,
+      files: [],
     };
 
     const spinner = Cli.spinner('retrieving releases').start();
@@ -36,6 +39,7 @@ export const Release: t.ReleaseLib = {
     const text = await httpResponse.text();
     const lines = text.split('\n');
     const files = lines.filter((line) => line.includes(`${os}-${arch}`));
+    res.files.push(...files);
 
     // Derive version.
     const versionMatch = lines[0]?.match(/node-(\d+\.\d+\.\d+(?:\.\d+)?)/);
@@ -59,9 +63,11 @@ export const Release: t.ReleaseLib = {
       await Fs.ensureDir(Fs.dirname(path));
       await Deno.writeFile(path, fileData);
 
+      const dirname = Fs.dirname(path);
       const basename = Fs.basename(path);
+      const printDir = rootDir ? dirname.substring(rootDir?.length ?? 0) : dirname;
       const printBasename = isFirst ? c.white(basename) : c.gray(basename);
-      const printPath = c.gray(`${c.dim(Fs.dirname(path))}/${printBasename}`);
+      const printPath = c.gray(`${c.dim(printDir)}/${printBasename}`);
       const printSize = c.gray(`(${fileSize})`);
       spinner.succeed(`Saved ${printSize} ${printPath}`);
     };

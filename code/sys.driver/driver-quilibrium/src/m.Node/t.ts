@@ -30,9 +30,14 @@ export type ReleaseLib = {
 };
 
 /**
- * Options passed to the Release.pull method.
+ * Options passed to the `Release.pull` method.
  */
-export type ReleaseOptions = { os?: string; arch?: string; outDir?: string };
+export type ReleaseOptions = {
+  os?: string;
+  arch?: string;
+  outDir?: string;
+  rootDir?: t.StringPath;
+};
 
 /**
  * Response returned from the Release.pull() method.
