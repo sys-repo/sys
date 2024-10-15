@@ -1,4 +1,4 @@
-import { UserAgent, type t } from './common';
+import { UserAgent, type t } from './common.ts';
 
 export const Util = {
   isModifier(value: string) {

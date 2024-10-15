@@ -18,7 +18,7 @@ export type UserAgentLib = {
      * Enumeration representing the supported operating systems.
      * Possible values include 'Windows', 'macOS', 'Linux', 'Android', 'iOS', etc.
      */
-    kinds: t.UserAgentOSKind;
+    kinds: t.UserAgentOSKind[];
   };
 
   /**
@@ -34,6 +34,14 @@ export type UserAgentLib = {
    * device type, engine (e.g., WebKit, Gecko, Blink), and additional flags or features.
    */
   readonly current: t.UserAgent;
+
+  /**
+   * Convert a browser user-agent string into a structured object.
+   * Example:
+   *
+   *    const ua = UserAgent.parse(navigator.userAgent);
+   */
+  parse(input: t.UserAgentString): t.UserAgent;
 };
 
 /**

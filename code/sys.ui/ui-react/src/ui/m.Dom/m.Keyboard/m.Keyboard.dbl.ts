@@ -4,14 +4,11 @@ import { rx, type t } from './common.ts';
 /**
  * A "multi event" monitor scoped to 2-keypresses.
  */
-export function dbl(
-  threshold: t.Msecs = 500,
-  options: { dispose$?: t.UntilObservable } = {},
-): t.KeyboardMonitorMulti {
+export function dbl(threshold = 500, options: { dispose$?: t.UntilObservable } = {}) {
   const life = rx.lifecycle(options.dispose$);
   const { dispose, dispose$ } = life;
 
-  return {
+  const api: t.KeyboardMonitorMulti = {
     on(pattern, fn) {
       type E = t.KeyMatchSubscriberHandlerArgs;
       const $ = rx.subject<E>();
@@ -42,5 +39,7 @@ export function dbl(
     get disposed() {
       return life.disposed;
     },
-  } as const;
+  };
+
+  return api;
 }

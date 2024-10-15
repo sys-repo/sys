@@ -4,5 +4,5 @@
  * without involvement with any other UI libraries.
  */
 export { File } from './m.File/mod.ts';
-export { Keyboard, KeyboardMonitor, KeyListener } from './m.Keyboard/mod.ts';
+export { Keyboard } from './m.Keyboard/mod.ts';
 export { UserAgent } from './m.UserAgent/mod.ts';

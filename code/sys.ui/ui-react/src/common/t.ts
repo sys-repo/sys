@@ -6,6 +6,8 @@ export type {
   Disposable,
   Falsy,
   FormatBytes,
+  JsonMapU,
+  JsonU,
   Lifecycle,
   Msecs,
   Observable,
