@@ -5,12 +5,12 @@ export type DomMockLib = {
   /**
    * Ensure `globalThis` is polyfilled with window/document.
    */
-  polyfill(): DomMockLib;
+  polyfill(): void;
 
   /**
    * Returns the `globalThis` to it's original state.
    */
-  unpolyfill(): DomMockLib;
+  unpolyfill(): void;
 
   /**
    * Keyboard event utilities.

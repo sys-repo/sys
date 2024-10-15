@@ -26,7 +26,7 @@ const flags: t.UserAgentFlag[] = [
  *     servers and network peers identify the application, operating system,
  *     vendor, and/or version of the requesting user agent.""
  */
-export const UserAgent = {
+export const UserAgent: t.UserAgentLib = {
   os: { kinds },
   flags,
 
@@ -45,7 +45,6 @@ export const UserAgent = {
    * Example:
    *
    *    const ua = UserAgent.parse(navigator.userAgent);
-   *
    */
   parse(input: t.UserAgentString): t.UserAgent {
     const parser = UAParser((input || '').trim());
@@ -77,7 +76,7 @@ export const UserAgent = {
       },
     };
   },
-} as const;
+};
 
 /**
  * Helpers
