@@ -3,6 +3,7 @@ export type * from './ext.ts';
 export type * from './t.Boolean.ts';
 export type * from './t.Dispose.ts';
 export type * from './t.Error.ts';
+export type * from './t.Event.ts';
 export type * from './t.Immutable.ts';
 export type * from './t.Io.ts';
 export type * from './t.Json.ts';
