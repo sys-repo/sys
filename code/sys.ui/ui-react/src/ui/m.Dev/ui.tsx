@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { Color, css, DEFAULTS, rx, type t } from './common.ts';
+import { Color, css, type t } from './common.ts';
 
 export type DevHarnessProps = {
   theme?: t.CommonTheme;
@@ -7,8 +6,6 @@ export type DevHarnessProps = {
 };
 
 export const DevHarness: React.FC<DevHarnessProps> = (props) => {
-  const {} = props;
-
   /**
    * Render
    */
