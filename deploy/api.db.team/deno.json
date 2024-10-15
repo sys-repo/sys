@@ -4,7 +4,7 @@
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",
-    "deploy": "deno task check && deployctl deploy --project=tdb-api",
+    "deploy": "deno task check && deployctl deploy --project=tdb-api --org=tdb",
     "ls": "deployctl deployments list",
     "prod": "deployctl deployments redeploy --prod"
   },

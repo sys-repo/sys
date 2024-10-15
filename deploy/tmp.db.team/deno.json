@@ -4,9 +4,17 @@
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",
-    "deploy": "deno task check && deployctl deploy --project=tdb-tmp",
+    "deploy": "deno task check && deployctl deploy --project=tdb-tmp --org=tdb",
     "ls": "deployctl deployments list",
     "prod": "deployctl deployments redeploy --prod"
   },
-  "exports": {}
+  "exports": {},
+  "deploy": {
+    "project": "2d23333d-3cb1-4a7b-a559-42019203b790",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "main.ts"
+  }
 }
