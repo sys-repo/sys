@@ -1,0 +1,12 @@
+{
+  "name": "@tdb/tmp",
+  "version": "0.0.4",
+  "tasks": {
+    "dev": "deno run -RNE --watch ./main.ts",
+    "check": "deno check ./main.ts",
+    "deploy": "deno task check && deployctl deploy --project=tdb-tmp",
+    "ls": "deployctl deployments list",
+    "prod": "deployctl deployments redeploy --prod"
+  },
+  "exports": {}
+}

@@ -35,8 +35,9 @@
     "./code/sys.driver/driver-quilibrium",
     "./code/sys.driver/driver-vite",
 
+    "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
-    "./code/-samples/deno.vite-react"
+    "./deploy/tmp.db.team"
   ],
   "importMap": "./deno.imports.json",
   "lint": {
