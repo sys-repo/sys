@@ -38,7 +38,7 @@
     "./deploy/api.db.team",
     "./code/-samples/deno.vite-react"
   ],
-  "importMap": "./deno.importMap.json",
+  "importMap": "./deno.imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]
