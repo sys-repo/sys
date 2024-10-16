@@ -8,10 +8,10 @@ export type DevBackgroundImage = {
   url: string;
   size?: DevBackgroundImageSize;
   opacity?: number;
-  margin?: t.DevMargin;
+  margin?: t.CssMarginArray;
 };
 export type DevBackgroundImageInput = Omit<DevBackgroundImage, 'margin'> & {
-  margin?: t.DevMarginInput;
+  margin?: t.CssMarginInput;
 };
 
 /**
@@ -64,7 +64,7 @@ export type DevRenderPropsDebug = {
   footer: DevRenderPropsEdge;
   body: {
     renderers: t.DevRendererRef<any>[];
-    padding: t.DevMargin;
+    padding: t.CssPaddingArray;
     scroll: boolean;
   };
 };
@@ -72,7 +72,7 @@ export type DevRenderPropsDebug = {
 export type DevRenderPropsEdge = {
   renderer?: t.DevRendererRef<any>;
   border: { color?: Color };
-  padding: t.DevMargin;
+  padding: t.CssPaddingArray;
 };
 
 export type DevRenderPropsLayers = { [key: string]: DevRenderPropsLayer };
@@ -94,5 +94,5 @@ export type DevRenderSizeFill = {
   mode: 'fill';
   x: boolean;
   y: boolean;
-  margin: t.DevMargin;
+  margin: t.CssMarginArray;
 };

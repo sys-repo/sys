@@ -1,6 +1,3 @@
-export type DevMarginInput =
-  | number
-  | [number]
-  | [number, number]
-  | [number, number, number, number];
-export type DevMargin = [number, number, number, number];
+import type { t } from './common.ts';
+
+export type ImageBadge = { image: t.StringUrl; href: t.StringUrl };

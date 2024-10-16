@@ -39,7 +39,7 @@ export type DevCtx = {
   run(options?: { reset?: boolean; only?: SpecId | SpecId[] }): Promise<t.DevInfo>;
   redraw(target?: DevRedrawTarget): Promise<void>;
   state<T extends O>(initial: T): Promise<DevCtxState<T>>;
-  toObject(): DevCtxObject;
+  toObject(): t.DevCtxObject;
 };
 
 export type DevCtxIs = {
@@ -67,7 +67,7 @@ export type DevCtxSubject = {
   color(value?: Color | null): DevCtxSubject;
   backgroundColor(value?: Color | null): DevCtxSubject;
   size(value: DevSubjectSize): DevCtxSubject;
-  size(mode: DevFillMode, margin?: t.DevMarginInput): DevCtxSubject;
+  size(mode: DevFillMode, margin?: t.CssMarginInput): DevCtxSubject;
   render<T extends O = O>(fn: t.DevRenderer<T>): DevCtxSubject;
 };
 
@@ -90,7 +90,7 @@ export type DevCtxHost<S extends O = O> = {
 export type DevCtxDebug<S extends O = O> = {
   row<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): t.DevRenderRef;
   scroll(value: boolean): DevCtxDebug;
-  padding(value: t.DevMarginInput | undefined | null): DevCtxDebug;
+  padding(value: t.CssMarginInput | undefined | null): DevCtxDebug;
   width(value: number | null): DevCtxDebug;
   header: DevCtxEdge<S>;
   footer: DevCtxEdge<S>;
@@ -99,7 +99,7 @@ export type DevCtxDebug<S extends O = O> = {
 export type DevCtxEdge<S extends O = O> = {
   render<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): DevCtxEdge<S>;
   border(color: Color | null): DevCtxEdge;
-  padding(value: t.DevMarginInput | undefined | null): DevCtxEdge;
+  padding(value: t.CssMarginInput | undefined | null): DevCtxEdge;
 };
 
 export type DevCtxLayer<S extends O = O> = {
