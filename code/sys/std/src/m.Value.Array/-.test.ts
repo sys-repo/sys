@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Time, Value } from '../mod.ts';
+import { Time, Value, asArray } from '../mod.ts';
 
 describe('Value.Array', () => {
   describe('Array.flatten', () => {
@@ -21,6 +21,10 @@ describe('Value.Array', () => {
   });
 
   describe('Array.asArray', () => {
+    it('same function as index', () => {
+      expect(Value.Array.asArray).to.equal(asArray);
+    });
+
     it('already array', () => {
       const input = [{ count: 1 }, { count: 2 }, { count: 3 }];
       const res = Value.Array.asArray(input);

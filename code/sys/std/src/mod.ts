@@ -30,6 +30,6 @@ export { Rx, rx } from './m.Rx/mod.ts';
 export { Semver } from './m.Semver/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
 export { Text } from './m.Text/mod.ts';
-export { Value, isObject } from './m.Value/mod.ts';
+export { Value, isObject, asArray } from './m.Value/mod.ts';
 
 export { R } from './common.ts';

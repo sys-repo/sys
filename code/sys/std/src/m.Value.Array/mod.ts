@@ -1,6 +1,12 @@
 import type { t } from '../common.ts';
 
+export const asArray: t.AsArray = <T>(input: T | T[]): T[] => {
+  return Array.isArray(input) ? input : [input];
+};
+
 export const ArrayLib: t.ArrayLib = {
+  asArray,
+
   flatten<T>(list: any): T[] {
     if (!Array.isArray(list)) return list;
     const result: any = list.reduce((a, b) => {
@@ -8,10 +14,6 @@ export const ArrayLib: t.ArrayLib = {
       return a.concat(value);
     }, []);
     return result as T[];
-  },
-
-  asArray<T>(input: T | T[]): T[] {
-    return Array.isArray(input) ? input : [input];
   },
 
   async asyncFilter<T>(list: T[], predicate: (value: T) => Promise<boolean>) {
