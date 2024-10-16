@@ -29,6 +29,7 @@
     "./code/sys/text",
     "./code/sys/types",
 
+    "./code/sys.ui/ui-dom",
     "./code/sys.ui/ui-react",
 
     "./code/sys.driver/driver-automerge",
