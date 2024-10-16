@@ -1,5 +1,4 @@
-import { Is as base } from '../../m.Is/mod.ts';
-import type { t } from './common.ts';
+import { type t, Is as base } from './common.ts';
 
 export const Is = {
   promise: base.promise,

@@ -17,10 +17,6 @@ type IgnoredResponse = any | Promise<any>;
 
 export type TestModifier = 'skip' | 'only';
 
-export type ModuleImport<T = unknown> = Promise<T>;
-export type ModuleImporter<T = unknown> = () => ModuleImport<T>;
-export type ModuleImports<T = unknown> = { [typename: string]: ModuleImporter<T> };
-
 export type BundleImport = TestSuiteModel | SpecImport | Promise<any>;
 export type SpecModule = { default: TestSuiteModel };
 export type SpecImport = t.ModuleImport<SpecModule>;

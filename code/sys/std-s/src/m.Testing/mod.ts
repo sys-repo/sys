@@ -24,7 +24,7 @@
  * });
  * ```
  */
-export { describe, expect, it } from '@sys/std/testing';
+export { describe, expect, expectError, it } from '@sys/std/testing';
 
 export { Time, rx, slug } from '@sys/std';
 export { Testing } from '@sys/std/testing/httpserver';

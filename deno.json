@@ -25,6 +25,7 @@
     "./code/sys/cmd",
     "./code/sys/std",
     "./code/sys/std-s",
+    "./code/sys/testing",
     "./code/sys/types",
 
     "./code/sys.ui/ui-react",
