@@ -1,6 +1,6 @@
 import { type t, Is as base } from './common.ts';
 
-export const Is = {
+export const Is: t.TestIsLib = {
   promise: base.promise,
 
   suiteId(input: any) {

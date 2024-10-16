@@ -1,19 +1,13 @@
 import type { t } from './common.ts';
 
-export type ResultWalkDownArgs = {
-  suite: t.TestSuiteRunResponse;
-  test?: t.TestRunResponse;
-  stop(): void;
-};
-
 /**
  * Helpers for walking a hierarchical tree of test results.
  */
-export const ResultTree = {
+export const ResultTree: t.TestResultTreeLib = {
   /**
    * Visit each test in the tree (descending).
    */
-  walkDown(from: t.TestSuiteRunResponse | undefined, handler: (e: ResultWalkDownArgs) => void) {
+  walkDown(from: t.TestSuiteRunResponse | undefined, handler: (e: t.ResultWalkDownArgs) => void) {
     if (!from) return;
 
     const invoke = (suite: t.TestSuiteRunResponse, test?: t.TestRunResponse) => {

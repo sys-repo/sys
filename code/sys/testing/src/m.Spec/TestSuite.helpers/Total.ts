@@ -5,7 +5,7 @@ import { TestTree } from './TestTree.ts';
 /**
  * Helpers for calculating totals.
  */
-export const Total = {
+export const Total: t.TestTotalLib = {
   count(suite: t.TestSuiteModel) {
     const res: t.TestSuiteTotal = {
       total: 0,

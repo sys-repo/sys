@@ -6,7 +6,7 @@ type TResult = { suite: t.TestSuiteModel; isDefault: boolean };
 /**
  * Helpers for loading test suite modules.
  */
-export const Loader = {
+export const Loader: t.TestLoaderLib = {
   /**
    * Import test suites from a variety of input types
    */

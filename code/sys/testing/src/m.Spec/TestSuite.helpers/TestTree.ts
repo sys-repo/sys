@@ -1,16 +1,12 @@
 import type { t } from './common.ts';
 import { Is } from './Is.ts';
 
-export type SuiteFindArgs = { suite: t.TestSuiteModel; test?: t.TestModel };
-export type SuiteWalkDownArgs = { suite: t.TestSuiteModel; test?: t.TestModel; stop(): void };
-export type SuiteWalkUpArgs = { suite: t.TestSuiteModel; isRoot: boolean; stop(): void };
-
 type T = t.TestSuiteModel | t.TestModel;
 
 /**
  * Helpers for walking a hierarchical tree of tests.
  */
-export const TestTree = {
+export const TestTree: t.TestTreeLib = {
   parent(child?: T): t.TestSuiteModel | undefined {
     if (Is.test(child)) return (child as t.TestModel).parent;
     if (Is.suite(child)) return (child as t.TestSuiteModel).state.parent;
@@ -26,7 +22,7 @@ export const TestTree = {
     return root;
   },
 
-  walkDown(from: t.TestSuiteModel | undefined, handler: (e: SuiteWalkDownArgs) => void) {
+  walkDown(from: t.TestSuiteModel | undefined, handler: (e: t.SuiteWalkDownArgs) => void) {
     if (!from) return;
 
     const invoke = (suite: t.TestSuiteModel, test?: t.TestModel) => {
@@ -47,7 +43,7 @@ export const TestTree = {
     from.state.children.forEach((child) => TestTree.walkDown(child, handler)); // <== RECURSION 🌳
   },
 
-  walkUp(from: T | undefined, handler: (e: SuiteWalkUpArgs) => void) {
+  walkUp(from: T | undefined, handler: (e: t.SuiteWalkUpArgs) => void) {
     if (!from) return;
     if (Is.test(from)) {
       const suite = TestTree.parent(from);
@@ -69,11 +65,11 @@ export const TestTree = {
 
   find(
     within: t.TestSuiteModel,
-    match: (e: SuiteFindArgs) => boolean,
+    match: (e: t.SuiteFindArgs) => boolean,
     options: { limit?: number } = {},
   ) {
     const { limit } = options;
-    const result: SuiteFindArgs[] = [];
+    const result: t.SuiteFindArgs[] = [];
     TestTree.walkDown(within, (e) => {
       const { suite, test } = e;
       if (match({ suite, test })) {
@@ -84,7 +80,7 @@ export const TestTree = {
     return result;
   },
 
-  findOne(within: t.TestSuiteModel, match: (e: SuiteFindArgs) => boolean) {
+  findOne(within: t.TestSuiteModel, match: (e: t.SuiteFindArgs) => boolean) {
     return TestTree.find(within, match, { limit: 1 })[0];
   },
 

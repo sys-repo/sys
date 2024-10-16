@@ -18,10 +18,10 @@ type Test = {
  * Takes a test suite model and transforms it into another
  * test runners format (e.g. Vitest, Mocha, etc).
  */
-export function Transform(inputDescribe: unknown, inputIt: unknown) {
+export const Transform: t.TestTransformCurry = (inputDescribe: unknown, inputIt: unknown) => {
   const describe = inputDescribe as Suite;
   const it = inputIt as Test;
-  const api = {
+  const api: t.TestTransform = {
     /**
      * Transform a test-suite.
      */
@@ -63,4 +63,4 @@ export function Transform(inputDescribe: unknown, inputIt: unknown) {
   };
 
   return api;
-}
+};
