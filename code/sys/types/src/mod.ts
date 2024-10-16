@@ -19,5 +19,5 @@
  * ```
  *
  */
-export type * from './types/mod.ts';
-export {};
+export type * from './types.ts';
+export type * as t from './types.ts';
