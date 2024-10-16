@@ -11,7 +11,6 @@ export type {
   TestSuiteRunResponse,
 } from '@sys/testing/t';
 
-export type { CssValue } from '../../../../u/m.Style/t.ts';
 export type * from '../../../../common/t.ts';
 export type * from './mod.ts';
 

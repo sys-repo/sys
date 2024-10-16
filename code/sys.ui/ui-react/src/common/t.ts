@@ -29,6 +29,14 @@ export type {
   UntilObservable,
 } from '@sys/std/t';
 
+export type {
+  CssEdgesArray,
+  CssMarginArray,
+  CssMarginInput,
+  CssPaddingArray,
+  CssValue,
+} from '@sys/ui-dom/t';
+
 /**
  * Local
  */

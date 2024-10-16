@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, type t } from '../-test.ts';
 import { Edges, Style } from './mod.ts';
 
 describe('Edges', () => {

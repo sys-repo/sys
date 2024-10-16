@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { Emotion } from './emotion-js/mod.ts';
 import { css } from './mod.ts';
 import { Is } from './u.ts';
