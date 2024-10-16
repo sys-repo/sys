@@ -7,6 +7,7 @@ export type * from './t.Event.ts';
 export type * from './t.Immutable.ts';
 export type * from './t.Io.ts';
 export type * from './t.Json.ts';
+export type * from './t.Module.ts';
 export type * from './t.Number.ts';
 export type * from './t.Object.ts';
 export type * from './t.Observable.ts';
