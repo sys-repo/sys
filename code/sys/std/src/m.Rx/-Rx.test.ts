@@ -290,4 +290,15 @@ describe('Observable/rx', () => {
       expect(threshold.disposed).to.eql(true);
     });
   });
+
+  describe('rx.observeOn(rx.animationFrameScheduler)', () => {
+    it('is polyfilled on server', async () => {
+      let count = 0;
+      const $ = rx.subject();
+      $.pipe(rx.observeOn(rx.animationFrameScheduler)).subscribe(() => count++);
+      $.next(); // NB: if the "requestAnimationFrame" was not polyfilled this would blow up here.
+      await Time.wait(0);
+      expect(count).to.eql(1);
+    });
+  });
 });
