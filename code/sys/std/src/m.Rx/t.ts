@@ -1,7 +1,8 @@
 import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
-type Event = { type: string; payload: unknown };
+type Event = t.Event;
+type E = Event;
 
 /**
  * Tools for working with Observables (via the [rxjs] library).
@@ -12,11 +13,12 @@ export type RxLib = Rxjs & {
   readonly noop$: rxjs.Subject<any>;
   readonly asPromise: t.RxAsPromise;
 
+  done(dispose$?: t.Subject<void>): void;
   subject<T = void>(): rxjs.Subject<T>;
   event<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E>;
   payload<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E['payload']>;
 
-  done(dispose$?: t.Subject<void>): void;
+  bus: t.RxBus;
 
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
@@ -95,3 +97,27 @@ export type TimeThreshold<T> = t.Lifecycle & {
   readonly $: t.Observable<T>;
   readonly timeout$: t.Observable<void>;
 };
+
+/**
+ * Event Bus
+ */
+export type RxBusFactory = <T extends E = E>(
+  input?: t.Subject<any> | t.EventBus<any>,
+) => t.EventBus<T>;
+
+export type RxBus = RxBusFactory & {
+  isBus<T extends E = E>(input?: any): input is t.EventBus<T>;
+  isObservable<T = any>(input?: any): input is t.Observable<T>;
+  asType<T extends E>(bus: t.EventBus<any>): t.EventBus<T>;
+  instance(bus?: t.EventBus<any>): string;
+  connect<T extends E>(buses: t.EventBus<any>[], options?: t.BusConnectOptions): t.BusConnection<T>;
+};
+
+/**
+ * 2-way Event Bus Connection.
+ */
+export type BusConnection<E extends t.Event> = t.Disposable & {
+  readonly isDisposed: boolean;
+  readonly buses: t.EventBus<E>[];
+};
+export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };

@@ -5,6 +5,7 @@ import { Is } from './m.Is.ts';
 import { event, payload } from './u.payload.ts';
 import { asPromise } from './u.promise.ts';
 import { withinTimeThreshold } from './u.time.ts';
+import { bus } from './u.bus.ts';
 
 const { disposable, disposableAsync, lifecycle, lifecycleAsync, done } = Dispose;
 
@@ -16,6 +17,7 @@ export const Rx: t.RxLib = {
   asPromise,
   withinTimeThreshold,
 
+  bus,
   done,
   disposable,
   lifecycle,

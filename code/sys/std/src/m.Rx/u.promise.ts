@@ -1,8 +1,5 @@
 import { catchError, of, take, timeout, type t } from './common.ts';
 
-type Event = { type: string; payload: unknown };
-type Milliseconds = number;
-
 /**
  * Helpers for working with observables as promises.
  */
@@ -10,9 +7,9 @@ export const asPromise: t.RxAsPromise = {
   /**
    * Retrieves the first event from the given observable.
    */
-  first<E extends Event>(
+  first<E extends t.Event>(
     ob$: t.Observable<E['payload']>,
-    options: { op?: string; timeout?: Milliseconds } = {},
+    options: { op?: string; timeout?: t.Msecs } = {},
   ) {
     type T = t.RxPromiseResponse<E>;
 
@@ -27,7 +24,7 @@ export const asPromise: t.RxAsPromise = {
             if (options.op) err = `[${options.op}] ${err}`;
             return of(err);
           }),
-        );
+        ) as t.Observable<E['payload']>;
 
       $.subscribe({
         next(e) {
