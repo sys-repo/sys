@@ -1,4 +1,5 @@
 import { Is, type t } from './common.ts';
+import { Edges } from './m.Edges.ts';
 
 type K = keyof t.CSSObject;
 type N = number | string | null;
@@ -45,7 +46,7 @@ export function toEdges(
     return res;
   };
   const fromArray = (input: t.CssEdgesArray) => {
-    const [top, right, bottom, left] = WrangleEdge.edgesArray(input as N[]);
+    const [top, right, bottom, left] = Edges.toArray(input);
     return done(top, right, bottom, left);
   };
 
@@ -58,7 +59,7 @@ export function toEdges(
     return done(input, input, input, input);
   }
   if (Array.isArray(input)) {
-    return fromArray(WrangleEdge.edgesArray(input as N[]));
+    return fromArray(Edges.toArray(input));
   }
   return {};
 }
@@ -67,33 +68,6 @@ export function toEdges(
  * Value wrangling helpers.
  */
 export const WrangleEdge = {
-  edgesArray(input: N[]): t.CssEdgesArray {
-    if (input.length === 1) {
-      const [value] = input;
-      return [value, value, value, value];
-    } else if (input.length === 2) {
-      const [y, x] = input;
-      return [y, x, y, x];
-    } else {
-      const [top = null, right = null, bottom = null, left = null] = input;
-      return [top, right, bottom, left];
-    }
-  },
-
-  edgesArrayX(input: t.CssEdgesXYInput): t.CssEdgesArray {
-    let array = Array.isArray(input) ? input : [input];
-    if (array.length === 1) array = [array[0], array[0]];
-    const [left, right] = array;
-    return [null, right, null, left];
-  },
-
-  edgesArrayY(input: t.CssEdgesXYInput): t.CssEdgesArray {
-    let array = Array.isArray(input) ? input : [input];
-    if (array.length === 1) array = [array[0], array[0]];
-    const [top, bottom] = array;
-    return [top, null, bottom, null];
-  },
-
   absolute(style: t.CssValue): t.CSSObject {
     if (style.Absolute === undefined) return style;
     const props = toEdges(style.Absolute);
@@ -106,11 +80,11 @@ export const WrangleEdge = {
     return mutateEdge(style, 'Margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft');
   },
   marginX(style: t.CssValue): t.CSSObject {
-    const Margin = WrangleEdge.edgesArrayX(style.MarginX);
+    const Margin = Edges.toArrayX(style.MarginX);
     return WrangleEdge.margin({ ...style, Margin, MarginX: undefined });
   },
   marginY(style: t.CssValue): t.CSSObject {
-    const Margin = WrangleEdge.edgesArrayY(style.MarginY);
+    const Margin = Edges.toArrayY(style.MarginY);
     return WrangleEdge.margin({ ...style, Margin, MarginY: undefined });
   },
 
@@ -125,11 +99,11 @@ export const WrangleEdge = {
     );
   },
   paddingX(style: t.CssValue): t.CSSObject {
-    const Padding = WrangleEdge.edgesArrayX(style.PaddingX);
+    const Padding = Edges.toArrayX(style.PaddingX);
     return WrangleEdge.padding({ ...style, Padding, PaddingX: undefined });
   },
   paddingY(style: t.CssValue): t.CSSObject {
-    const Padding = WrangleEdge.edgesArrayY(style.PaddingY);
+    const Padding = Edges.toArrayY(style.PaddingY);
     return WrangleEdge.padding({ ...style, Padding, PaddingY: undefined });
   },
 } as const;

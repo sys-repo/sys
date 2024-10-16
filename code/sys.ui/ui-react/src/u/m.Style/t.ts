@@ -8,6 +8,7 @@ type N = number | string | null | undefined;
  */
 export type StyleLib = {
   readonly Tmpl: t.StyleTmplLib;
+  readonly Edges: t.CssEdgesLib;
   css: t.CssTransformer;
   plugin: StylePuginLib;
 };
@@ -46,12 +47,36 @@ export type StyleTmplLib = {
   toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CSSObject;
 };
 
-/* Callback that mutates the results of the toEdges function.  */
+/**
+ * Callback that mutates the results of the toEdges function.
+ */
 export type CssEdgeMutater = (e: CssEdgeMutaterArgs) => void;
+
+/**
+ * Arguments for the CssEdgeMutator.
+ */
 export type CssEdgeMutaterArgs = {
   readonly current: { readonly value?: N; readonly edge: keyof t.CssEdges };
   changeValue(next: N): void;
   changeField(next: keyof t.CSSObject | null): void;
+};
+
+/**
+ * Edge value formatter.
+ */
+export type CssEdgesLib = {
+  /**
+   * Convert sloppy inputs into a clean edges array.
+   */
+  toArray(input: t.CssEdgesInput): t.CssEdgesArray;
+  /**
+   * Convert sloppy inputs into a clean edges array on the X-dimension (horizontal).
+   */
+  toArrayX(input: t.CssEdgesXYInput): t.CssEdgesArray;
+  /**
+   * Convert sloppy inputs into a clean edges array on the Y-dimension (vertical).
+   */
+  toArrayY(input: t.CssEdgesXYInput): t.CssEdgesArray;
 };
 
 /**
@@ -69,7 +94,9 @@ export type ReactPluginOptions = {
  *   <div {...style.base} />
  */
 export type ReactCssObject = {
-  /* Style property passed to react. */
+  /**
+   * Style property passed to react.
+   */
   css: t.SerializedStyles;
 };
 
