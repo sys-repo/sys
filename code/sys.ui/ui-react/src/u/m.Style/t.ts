@@ -68,16 +68,18 @@ export type CssEdgesLib = {
   /**
    * Convert sloppy inputs into a clean edges array.
    */
-  toArray(input: t.CssEdgesInput): t.CssEdgesArray;
+  toArray(input: t.CssEdgesInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
   /**
    * Convert sloppy inputs into a clean edges array on the X-dimension (horizontal).
    */
-  toArrayX(input: t.CssEdgesXYInput): t.CssEdgesArray;
+  toArrayX(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
   /**
    * Convert sloppy inputs into a clean edges array on the Y-dimension (vertical).
    */
-  toArrayY(input: t.CssEdgesXYInput): t.CssEdgesArray;
+  toArrayY(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
 };
+
+export type CssEdgeDefault = null | string | number;
 
 /**
  * Options passed to [@vitejs/plugin-react-swc].

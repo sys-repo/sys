@@ -1,12 +1,14 @@
 import type { t } from './common.ts';
 
 export const Edges: t.CssEdgesLib = {
-  toArray(input: t.CssEdgesInput): t.CssEdgesArray {
-    const arr = wrangle.array(input).map((value) => {
-      if (value === undefined || value === null) return null;
+  toArray(input, defaultValue) {
+    const DEF = wrangle.defaultValue(defaultValue);
+    const arr = wrangle.asArray(input, defaultValue).map((value) => {
+      if (value === undefined) return DEF;
+      if (value === null) return null;
       if (typeof value === 'number') return value;
       if (typeof value === 'string' && value) return value;
-      return null;
+      return DEF;
     });
 
     if (arr.length === 1) {
@@ -16,23 +18,23 @@ export const Edges: t.CssEdgesLib = {
       const [y, x] = arr;
       return [y, x, y, x];
     } else {
-      const [top = null, right = null, bottom = null, left = null] = arr;
+      const [top = DEF, right = DEF, bottom = DEF, left = DEF] = arr;
       return [top, right, bottom, left];
     }
   },
 
-  toArrayX(input: t.CssEdgesXYInput): t.CssEdgesArray {
+  toArrayX(input, defaultValue) {
     let array = Array.isArray(input) ? input : [input];
     if (array.length === 1) array = [array[0], array[0]];
     const [left, right] = array;
-    return [null, right, null, left];
+    return Edges.toArray([null, right, null, left], defaultValue);
   },
 
-  toArrayY(input: t.CssEdgesXYInput): t.CssEdgesArray {
+  toArrayY(input, defaultValue) {
     let array = Array.isArray(input) ? input : [input];
     if (array.length === 1) array = [array[0], array[0]];
     const [top, bottom] = array;
-    return [top, null, bottom, null];
+    return Edges.toArray([top, null, bottom, null], defaultValue);
   },
 };
 
@@ -40,8 +42,14 @@ export const Edges: t.CssEdgesLib = {
  * Helpers
  */
 const wrangle = {
-  array(input: t.CssEdgesInput) {
-    if (input === null || input === undefined) return [null];
+  asArray(input: t.CssEdgesInput, defaultValue?: t.CssEdgeDefault) {
+    if (input === null || input === undefined) return [wrangle.defaultValue(defaultValue)];
     return Array.isArray(input) ? input : [input];
+  },
+
+  defaultValue(value?: t.CssEdgeDefault) {
+    if (value === undefined || value === null) return null;
+    if (typeof value === 'number' || typeof value === 'string') return value;
+    return null;
   },
 } as const;
