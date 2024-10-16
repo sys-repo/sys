@@ -1,7 +1,6 @@
-import { DenoCloud, Pkg } from '../src/m.Cloud/server.ts';
+import { DenoCloud, Pkg } from '@sys/driver-deno/cloud/server';
 
 /**
  * Start
  */
-const port = 8080;
-DenoCloud.serve({ Pkg, port });
+DenoCloud.serve(8080, Pkg);
