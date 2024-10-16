@@ -1,6 +1,6 @@
 /**
  * @module
- * Module Types: Standard Libs (non-browser).
+ * Module types.: Standard Libs (non-browser).
  */
 export type * from './m.Cli/t.ts';
 export type * from './m.Env/t.ts';

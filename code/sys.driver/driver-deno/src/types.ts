@@ -1,6 +1,6 @@
 /**
  * @module
- * Module Types: Deno
+ * Module types.: Deno
  */
 
 /* Deno Cloud */

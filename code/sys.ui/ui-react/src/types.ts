@@ -1,6 +1,6 @@
 /**
  * @module
- * Module Types
+ * Module types.
  */
 export type * from './u/m.Style/t.ts';
 
