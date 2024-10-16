@@ -16,10 +16,8 @@ export const Release: t.ReleaseLib = {
    * Source: @king's "V2 pull" script.
    *         https://www.snippets.so/snip/bafkreigs3ozrcezbcmbmkvuzgjkqfnn5ybt66loyuoketervc3c6xb7piu
    */
-  async pull(
-    options: { os?: string; arch?: string; outDir?: t.StringPath; rootDir?: t.StringPath } = {},
-  ) {
-    const { rootDir } = options;
+  async pull(options = {}) {
+    const { rootDir, force = false } = options;
     const env = Release.env;
     const os = options.os ?? env.os;
     const arch = options.os ?? env.arch;
@@ -73,17 +71,13 @@ export const Release: t.ReleaseLib = {
     };
 
     const downloadIfNotLocal = async (file: string, i: number) => {
-      try {
-        await Deno.stat(`./${file}`); // Success: found locally (when no error).
-      } catch (err) {
-        if (err instanceof Deno.errors.NotFound) {
-          // The file does not exist, download it now...
-          await download(file, i);
-          res.is.newRelease = true;
-        } else {
-          throw err;
-        }
-      }
+      const path = Fs.join(outDir, file);
+      const exists = await Fs.exists(path);
+      if (exists && !force) return;
+
+      // The file does not exist, download it now...
+      res.is.newRelease = true;
+      await download(file, i);
     };
 
     // Check each file and download if it doesn't exist locally.
@@ -94,15 +88,15 @@ export const Release: t.ReleaseLib = {
     /**
      * Log footer.
      */
-    console.info();
     if (res.is.newRelease) {
       const title = c.white(`${c.brightGreen('Quilibrium')} ${res.version}`);
       const line = c.green(`New ${c.bold(title)} release downloaded.`);
+      console.info();
       console.info(line);
     } else {
-      console.info(c.gray('No new releases found.'));
+      console.info(c.gray(`  ${c.green('•')} Latest release already exists.`));
+      console.info();
     }
-    console.info();
 
     // Finish up.
     return res;

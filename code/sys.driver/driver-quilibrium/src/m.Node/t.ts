@@ -37,6 +37,7 @@ export type ReleaseOptions = {
   arch?: string;
   outDir?: string;
   rootDir?: t.StringPath;
+  force?: boolean; // force download if already exists.
 };
 
 /**
