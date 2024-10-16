@@ -1,14 +1,6 @@
 /**
  * @module
- * Standard testing helpers (surfaced from "@sys/std").
- *
- * @example
- * Import test helpers.
- *
- * ```ts
- * import { expect, describe, it } from '@sys/testing'
- * import { expect, describe, it } from '@sys/testing/std'
- * ```
+ * Server-side testing tools, including HTTP servers.
  *
  * @example
  * A simple unit-test file, named: `-<Subject>.test.ts`.
@@ -28,4 +20,4 @@
  *   });
  * });
  */
-export * from '@sys/std/testing';
+export * from '@sys/std-s/testing';

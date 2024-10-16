@@ -1,6 +1,6 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
@@ -14,6 +14,6 @@
     "./types": "./src/types.ts",
     "./spec": "./src/m.Spec/mod.ts",
     "./std": "./src/m.std.ts",
-    "./std/server": "./src/m.std.server.ts"
+    "./std/server": "./src/m.std-s.ts"
   }
 }
