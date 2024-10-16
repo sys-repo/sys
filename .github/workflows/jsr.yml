@@ -53,6 +53,12 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/testing"
+        run: |
+          cd code/sys/testing
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/tmp"
         run: |
           cd code/sys.tmp

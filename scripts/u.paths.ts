@@ -1,5 +1,5 @@
 import { default as Pkg } from '../deno.json' with { type: 'json' };
-export { Path} from '@sys/std';
+export { Path } from '@sys/std';
 
 export const Paths = {
   modules: [
@@ -9,6 +9,7 @@ export const Paths = {
     'code/sys/std',
     'code/sys/std-s',
     'code/sys/cmd',
+    'code/sys/testing',
     'code/sys/types',
     
     /**

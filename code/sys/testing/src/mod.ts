@@ -9,3 +9,4 @@
  * ```
  */
 export { Pkg } from './common.ts';
+export * from './m.std.ts';

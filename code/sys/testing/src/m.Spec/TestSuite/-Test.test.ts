@@ -1,6 +1,6 @@
-import { Test } from './mod.ts';
 import { describe, expect, it, type t } from '../../-test.ts';
-import { TestTree, Is } from '../TestSuite.helpers/mod.ts';
+import { Is, TestTree } from '../TestSuite.helpers/mod.ts';
+import { Test } from './mod.ts';
 
 describe('Test (Root/Entry)', () => {
   it('Is', () => {
