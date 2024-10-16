@@ -27,7 +27,7 @@ export type SpecImports = t.ModuleImports<SpecModule>;
  * BDD ("behavior driven develoment") style test configuration API.
  */
 export type Test = {
-  Is: TestIs;
+  Is: t.TestIsLib;
   Tree: typeof Tree;
   Total: typeof Total;
   Stats: typeof Stats;
@@ -41,12 +41,6 @@ export type Test = {
 
   run(items: BundleImport | BundleImport[]): Promise<TestSuiteRunResponse>;
   run(description: string, items: BundleImport | BundleImport[]): Promise<TestSuiteRunResponse>;
-};
-
-export type TestIs = {
-  promise(input?: any): boolean;
-  test(input?: any): boolean;
-  suite(input?: any): boolean;
 };
 
 /**
