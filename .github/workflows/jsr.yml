@@ -65,11 +65,17 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/ui-react"
+      - name: publish module → "@sys/ui-dom"
         run: |
-          cd code/sys.ui/ui-react
+          cd code/sys.ui/ui-dom
           deno task test
           deno publish
+
+      # - name: publish module → "@sys/ui-react"
+      #   run: |
+      #     cd code/sys.ui/ui-react
+      #     deno task test
+      #     deno publish
 
       # - name: publish module → "@sys/driver-automerge"
       #   run: |
