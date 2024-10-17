@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools working with Quilibrium.
+ * Tools for working with Quilibrium.
  * - https://docs.quilibrium.com/
  * - https://quilibrium.guide/
  *
