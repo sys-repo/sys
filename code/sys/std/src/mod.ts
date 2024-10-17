@@ -4,11 +4,24 @@
  *
  * @example
  * ```ts
- * import { ObjectPath } from '@sys/std';
- * import { Dates, Time } from '@sys/std';
+ * import type * as t from 'jsr:@sys/std/t';
+ * import { type t } from 'jsr:@sys/std';     // ↑ alternative.
+ *
+ * import { Async } from 'jsr:@sys/std';
+ * import { Color, c } from 'jsr:@sys/std';
+ * import { Dispose } from 'jsr:@sys/std';
+ * import { Http } from 'jsr:@sys/std';
+ * import { Path } from 'jsr:@sys/std';
+ * import { Semver } from 'jsr:@sys/std';
+ *
+ * import { DateTime, Time } from 'jsr:@sys/std/date';
+ * import { Immutable } from 'jsr:@sys/std/immutable';
+ *
+ * import { Testing } from 'jsr:@sys/std/testing';
+ * import { Testing } from 'jsr:@sys/std/testing/server'; // ↑ alternative.
  * ```
  */
-export { Pkg } from './common.ts';
+export { Pkg, type t } from './common.ts';
 
 export { Args } from './m.Args/mod.ts';
 export { Async } from './m.Async/mod.ts';
