@@ -4,8 +4,8 @@
  *
  * @example
  * ```ts
- * import type * as t from 'jsr:@sys/std/t';
- * import { type t } from 'jsr:@sys/std';     // ↑ alternative.
+ * import type * as t from 'jsr:@sys/std/t';                // ↓
+ * import type { t } from 'jsr:@sys/std';                   // ↑ alternative.
  *
  * import { Async } from 'jsr:@sys/std';
  * import { Color, c } from 'jsr:@sys/std';
@@ -17,8 +17,8 @@
  * import { DateTime, Time } from 'jsr:@sys/std/date';
  * import { Immutable } from 'jsr:@sys/std/immutable';
  *
- * import { Testing } from 'jsr:@sys/std/testing';
- * import { Testing } from 'jsr:@sys/std/testing/server'; // ↑ alternative.
+ * import { Testing } from 'jsr:@sys/std/testing';          // ↓
+ * import { Testing } from 'jsr:@sys/std/testing/server';   // ↑ alternative.
  * ```
  */
 export { Pkg, type t } from './common.ts';
