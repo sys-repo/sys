@@ -7,7 +7,6 @@ export type {
   Event,
   EventBus,
   Falsy,
-  FormatBytes,
   IgnoredResponse,
   Immutable,
   ImmutableMutator,

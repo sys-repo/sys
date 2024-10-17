@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { Str } from '../common.ts';
+import { describe, expect, it } from '../-test.ts';
+import { Str } from './common.ts';
 import { File, FileSize } from './mod.ts';
 
 describe('File', () => {

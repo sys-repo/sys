@@ -6,4 +6,7 @@ export type {
   Percent,
   UntilObservable,
 } from '@sys/types';
+
+export type { FormatBytes } from '@sys/std/t';
+
 export type * from '../types.ts';

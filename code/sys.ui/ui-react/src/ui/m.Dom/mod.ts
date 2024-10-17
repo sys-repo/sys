@@ -23,7 +23,6 @@
  * expect(local.msg).to.eql('hello');
  * ```
  */
-export { File } from './m.File/mod.ts';
 export { Keyboard } from './m.Keyboard/mod.ts';
 export { UserAgent } from './m.UserAgent/mod.ts';
 export { LocalStorage } from './m.LocalStorage/mod.ts';

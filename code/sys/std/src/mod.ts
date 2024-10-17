@@ -42,6 +42,6 @@ export { Promise, maybeWait } from './m.Promise/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
 export { Semver } from './m.Semver/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
-export { Value, isObject, asArray } from './m.Value/mod.ts';
+export { Array, Num, Str, Value, asArray, isObject } from './m.Value/mod.ts';
 
 export { R } from './common.ts';

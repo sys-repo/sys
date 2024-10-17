@@ -9,3 +9,5 @@
  * ```
  */
 export { Pkg } from './common.ts';
+export { Color } from './m.Color/mod.ts';
+export { File } from './m.File/mod.ts';
