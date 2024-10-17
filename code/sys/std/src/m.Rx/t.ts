@@ -5,7 +5,7 @@ type Event = t.Event;
 type E = Event;
 
 /**
- * Tools for working with Observables (via the [rxjs] library).
+ * Tools for working with Observables (via `rxjs`).
  */
 export type RxLib = Rxjs & {
   readonly Is: RxIs;

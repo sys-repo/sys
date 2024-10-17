@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 /**
- * Library: Tools for evaluating and manipulating types of values.
+ * Tools for evaluating and manipulating types of values.
  */
 export type ValueLib = {
   /**

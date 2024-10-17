@@ -5,7 +5,7 @@
 
 if (typeof globalThis.requestAnimationFrame === 'undefined') {
   globalThis.requestAnimationFrame = (callback: FrameRequestCallback): number => {
-    // Schedule the callback as a microtask
+    // Schedule the callback immediately via a microtask.
     const id = Date.now() + Math.random();
     Promise.resolve().then(() => callback(Date.now()));
     return id;
