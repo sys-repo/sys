@@ -19,7 +19,7 @@
     "./path": "./src/m.Path/mod.ts",
     "./rx": "./src/m.Rx/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
-    "./testing/httpserver": "./src/m.Testing.HttpServer/mod.ts",
+    "./testing/server": "./src/m.Testing.HttpServer/mod.ts",
     "./value": "./src/m.Value/mod.ts"
   }
 }

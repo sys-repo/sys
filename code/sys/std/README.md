@@ -24,5 +24,5 @@ import { DateTime, Time } from 'jsr:@sys/std/date';
 import { Immutable } from 'jsr:@sys/std/immutable';
 
 import { Testing } from 'jsr:@sys/std/testing';
-import { Testing } from 'jsr:@sys/std/testing/httpserver';
+import { Testing } from 'jsr:@sys/std/testing/server'; // ↑ server alternative.
 ```
