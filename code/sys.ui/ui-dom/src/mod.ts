@@ -4,7 +4,8 @@
  *
  * @example
  * ```ts
- * import { Color, Style, css } from '@sys/ui-dom/react/style';
+ * import { Color } from '@sys/ui-dom/color';
+ * import { Color, Style, css } from '@sys/ui-dom/style/react';
  * ```
  */
 export { Pkg } from './common.ts';
