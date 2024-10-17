@@ -7,7 +7,7 @@
  * ```ts
  * import { Cmd } from '@sys/cmd';
  *
- * /\/ Sample
+ * // Sample
  * export type C = C1 | C2;
  * export type C1 = t.CmdType<'Foo', { foo: number }>;
  * export type C2 = t.CmdType<'Bar', { msg?: string }>;
