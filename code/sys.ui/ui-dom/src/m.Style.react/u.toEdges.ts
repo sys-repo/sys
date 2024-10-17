@@ -1,5 +1,4 @@
-import { Is, type t } from './common.ts';
-import { Edges } from './m.Edges.ts';
+import { Edges, Is, type t } from './common.ts';
 
 type K = keyof t.CSSObject;
 type N = number | string | null;

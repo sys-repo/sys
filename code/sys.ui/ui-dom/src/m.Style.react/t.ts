@@ -1,12 +1,11 @@
 import type { t } from './common.ts';
 export type * from './t.CssValue.ts';
 
-type N = number | string | null | undefined;
-
 /**
- * Library: CSS tools.
+ * React CSS styling tools.
  */
-export type StyleLib = {
+export type StyleReactLib = {
+  readonly Color: t.ColorLib;
   readonly Tmpl: t.StyleTmplLib;
   readonly Edges: t.CssEdgesLib;
   css: t.CssTransformer;
@@ -14,7 +13,7 @@ export type StyleLib = {
 };
 
 /**
- * Library: Compiler toolchain plugins for CSS.
+ * Compiler toolchain plugins for CSS.
  */
 export type StylePuginLib = {
   /**
@@ -46,40 +45,6 @@ export type StyleTmplLib = {
    */
   toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CSSObject;
 };
-
-/**
- * Callback that mutates the results of the toEdges function.
- */
-export type CssEdgeMutater = (e: CssEdgeMutaterArgs) => void;
-
-/**
- * Arguments for the CssEdgeMutator.
- */
-export type CssEdgeMutaterArgs = {
-  readonly current: { readonly value?: N; readonly edge: keyof t.CssEdges };
-  changeValue(next: N): void;
-  changeField(next: keyof t.CSSObject | null): void;
-};
-
-/**
- * Edge value formatter.
- */
-export type CssEdgesLib = {
-  /**
-   * Convert sloppy inputs into a clean edges array.
-   */
-  toArray(input: t.CssEdgesInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
-  /**
-   * Convert sloppy inputs into a clean edges array on the X-dimension (horizontal).
-   */
-  toArrayX(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
-  /**
-   * Convert sloppy inputs into a clean edges array on the Y-dimension (vertical).
-   */
-  toArrayY(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
-};
-
-export type CssEdgeDefault = null | string | number;
 
 /**
  * Options passed to [@vitejs/plugin-react-swc].

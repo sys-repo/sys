@@ -48,6 +48,5 @@
  * </div>
  * ```
  */
-export { Color } from './common.ts';
-export { Edges } from './m.Edges.ts';
+export { Edges, Color } from '../m.Style/mod.ts';
 export { Style, css } from './m.Style.ts';
