@@ -1,23 +1,28 @@
 import type { t } from '../common.ts';
 
 /**
- * A library of helper functions for working with binary files in the browser.
+ * Default constants used by the library.
+ */
+export type FileLibDefaults = {
+  /**
+   * The default MIME type used when none is specified.
+   */
+  readonly mimetype: string;
+};
+
+/**
+ * Helpers for working with binary files in the browser.
  */
 export type FileLib = {
   /**
    * Default constants used by the library.
    */
-  readonly DEFAULTS: {
-    /**
-     * The default MIME type used when none is specified.
-     */
-    readonly mimetype: string;
-  };
+  readonly DEFAULTS: FileLibDefaults;
 
   /**
-   * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
+   * Tools for working with a file-size (bytes).
    */
-  readonly size: t.FormatBytes;
+  readonly Size: FileSizeLib;
 
   /**
    * Converts a Uint8Array to a Blob object.
@@ -59,4 +64,14 @@ export type FileLib = {
    * @returns A Promise that resolves when the download has been initiated.
    */
   downloadUrl(url: string, filename: string): Promise<void>;
+};
+
+/**
+ * Tools for working with a file-size (bytes).
+ */
+export type FileSizeLib = {
+  /**
+   * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
+   */
+  toString: t.FormatBytes;
 };

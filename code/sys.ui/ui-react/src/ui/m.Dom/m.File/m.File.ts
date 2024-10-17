@@ -1,15 +1,12 @@
-import { type t, Text, Time } from '../common.ts';
-
-const DEFAULTS = {
-  mimetype: 'application/octet-stream',
-};
+import { DEFAULTS, type t, Time } from './common.ts';
+import { FileSize as Size } from './m.FileSize.ts';
 
 /**
  * Helpers for working with binary files in the browser.
  */
 export const File: t.FileLib = {
   DEFAULTS,
-  size: Text.bytes,
+  Size,
 
   /**
    * Convert a [Uint8Array] to a [Blob].

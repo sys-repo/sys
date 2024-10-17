@@ -1,9 +1,11 @@
-import { expect, describe, it, Text } from '../../../-test.ts';
-import { File } from './mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Str } from '../common.ts';
+import { File, FileSize } from './mod.ts';
 
 describe('File', () => {
   it('File.Size', () => {
-    expect(File.size).to.equal(Text.bytes);
+    expect(File.Size).to.equal(FileSize);
+    expect(File.Size.toString).to.equal(Str.bytes);
   });
 
   describe('toBlob', () => {
