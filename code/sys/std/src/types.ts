@@ -1,6 +1,6 @@
 /**
  * @module
- * Module types.: Standard Libs.
+ * Module types: Standard Library.
  */
 export type * from './m.Args/t.ts';
 export type * from './m.Async/t.ts';
