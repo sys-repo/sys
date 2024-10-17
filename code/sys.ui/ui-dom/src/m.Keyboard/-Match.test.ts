@@ -1,4 +1,4 @@
-import { describe, it, expect, type t } from '../../../-test.ts';
+import { describe, it, expect, type t } from '../-test.ts';
 import { Keyboard } from './mod.ts';
 
 describe('Keyboard.Match', () => {

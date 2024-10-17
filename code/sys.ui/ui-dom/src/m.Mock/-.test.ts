@@ -1,5 +1,5 @@
 import { Document, Window } from 'happy-dom';
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { Mock } from './mod.ts';
 
 describe(

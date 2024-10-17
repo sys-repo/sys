@@ -1,13 +1,10 @@
 /**
  * @module
- * Tools for working directly with the raw DOM ("document object model")
- * without involvement with any other UI libraries.
+ * Helper for working with a strongly typed local-storage object.
  *
  * @example
- * To work with local-storage in a strongly typed manner:
- *
  * ```ts
- * import { LocalStorage } from '@sys/ui-react/ui/dom';
+ * import { LocalStorage } from '@sys/ui-dom/local-storage';
  *
  * type T = { count: number; msg?: string };
  * const localstore = LocalStorage<T>('my-namespace-prefix');
@@ -23,6 +20,4 @@
  * expect(local.msg).to.eql('hello');
  * ```
  */
-export { Keyboard } from './m.Keyboard/mod.ts';
-export { UserAgent } from './m.UserAgent/mod.ts';
-export { LocalStorage } from './m.LocalStorage/mod.ts';
+export { LocalStorage } from './m.LocalStorage.ts';

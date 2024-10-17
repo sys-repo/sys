@@ -1,4 +1,4 @@
-import { describe, expect, it, slug } from '../../../-test.ts';
+import { describe, expect, it, slug } from '../-test.ts';
 import { Mock } from '../m.Mock/mod.ts';
 import { LocalStorage } from './mod.ts';
 

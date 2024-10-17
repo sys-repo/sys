@@ -30,4 +30,3 @@
  */
 export { Pkg } from './common.ts';
 export { Color, Style, css } from './u/mod.ts';
-export { Keyboard, LocalStorage, UserAgent } from './ui/m.Dom/mod.ts';

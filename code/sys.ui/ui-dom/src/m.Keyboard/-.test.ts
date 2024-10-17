@@ -1,4 +1,4 @@
-import { Time, describe, expect, it, rx, type t } from '../../../-test.ts';
+import { Time, describe, expect, it, rx, type t } from '../-test.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Keyboard } from './mod.ts';
 import { Mock } from '../m.Mock/mod.ts';

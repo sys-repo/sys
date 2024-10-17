@@ -34,6 +34,7 @@ export type {
   CssMarginInput,
   CssPaddingArray,
   CssValue,
+  KeyboardModifierFlags,
 } from '@sys/ui-dom/t';
 
 /**
