@@ -24,6 +24,7 @@ export type * from './m.Testing.HttpServer/t.ts';
 export type * from './m.Testing/t.ts';
 export type * from './m.Text/t.ts';
 export type * from './m.Value.Array/t.ts';
+export type * from './m.Value.Num/t.ts';
 export type * from './m.Value/t.ts';
 
 export type * from '@sys/types/t';

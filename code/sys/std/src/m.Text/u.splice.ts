@@ -3,8 +3,8 @@ import { ObjectPath, type t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Safely modify a string stored on an immutable object <T>
- * (NB: this mutates the given state.)
+ * Safely modify a string stored on an Immutable<T> object
+ * (NB: this mutates the given state)
  */
 export const splice: t.TextSplice = <T extends O = O>(
   state: T,

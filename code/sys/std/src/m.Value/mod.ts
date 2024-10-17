@@ -1,7 +1,9 @@
 /**
  * @module
- * Tools for evaluating and manipulating types of values.
+ * Tools for evaluating and manipulating various types of values.
  */
 export { asArray } from '../m.Value.Array/mod.ts';
-export { Num } from './m.Num.ts';
-export { Value, isObject } from './m.Value.ts';
+export { isObject } from './u.isObject.ts';
+
+export { Num } from '../m.Value.Num/mod.ts';
+export { Value } from './m.Value.ts';

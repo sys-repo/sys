@@ -2,6 +2,13 @@ import { describe, expect, it } from '../-test.ts';
 import { Time, Value, asArray } from '../mod.ts';
 
 describe('Value.Array', () => {
+  it('API', async () => {
+    const { Array } = await import('./mod.ts');
+    const { ArrayLib } = await import('./m.Array.ts');
+    expect(Array).to.equal(ArrayLib);
+    expect(Value.Array).to.eql(ArrayLib);
+  });
+
   describe('Array.flatten', () => {
     it('makes no change', () => {
       expect(Value.Array.flatten([1, 2, 3])).to.eql([1, 2, 3]);

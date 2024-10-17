@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { ArrayLib } from '../m.Value.Array/mod.ts';
+import { ArrayLib } from '../m.Value.Array/m.Array.ts';
 import { Num, Value, isObject } from './mod.ts';
 
 describe('Value', () => {

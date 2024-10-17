@@ -1,18 +1,13 @@
 import type { t } from '../common.ts';
 
 /**
- * Ensures a value is an array.
- */
-export type AsArray = <T>(input: T | T[]) => T[];
-
-/**
- * Library: Tools for working with Arrays.
+ * Tools for evaluating and manipulating arrays.
  */
 export type ArrayLib = {
   /**
    * Ensure a value is an array.
    */
-  asArray: AsArray;
+  asArray: <T>(input: T | T[]) => T[];
 
   /**
    * Converts a nested set of arrays into a flat single-level array.
