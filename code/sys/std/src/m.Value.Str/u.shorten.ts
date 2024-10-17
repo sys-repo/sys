@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Limit the length of a string inserting ellipsis when needed.
  */
-export const shorten: t.TextLib['shorten'] = (
+export const shorten: t.StrLib['shorten'] = (
   input: string = '',
   maxLength: number = 10,
   options: { ellipsis?: string } = {},

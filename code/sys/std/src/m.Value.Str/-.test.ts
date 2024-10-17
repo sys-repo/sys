@@ -1,15 +1,15 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Immutable } from '../m.Immutable/mod.ts';
-import { Text } from './mod.ts';
+import { Str } from './mod.ts';
 
-describe('Text', () => {
-  describe('Text.bytes', () => {
+describe('Str (Text)', () => {
+  describe('Str.bytes', () => {
     it('converts to display string', () => {
       const bytes = 123557186;
-      const a = Text.bytes(bytes);
-      const b = Text.bytes(bytes, { maximumFractionDigits: 2 });
-      const c = Text.bytes(1337);
-      const d = Text.bytes(100);
+      const a = Str.bytes(bytes);
+      const b = Str.bytes(bytes, { maximumFractionDigits: 2 });
+      const c = Str.bytes(1337);
+      const d = Str.bytes(100);
       expect(a).to.eql('124 MB');
       expect(b).to.eql('123.56 MB');
       expect(c).to.eql('1.34 kB');
@@ -17,7 +17,7 @@ describe('Text', () => {
     });
   });
 
-  describe('Text.diff', () => {
+  describe('Str.diff', () => {
     const assertDiff = (diff: t.TextDiff, index: number, delCount: number, newText?: string) => {
       expect(diff.index).to.eql(index);
       expect(diff.delCount).to.eql(delCount);
@@ -25,45 +25,45 @@ describe('Text', () => {
     };
 
     it('no change', () => {
-      const diff = Text.diff('foo', 'foo', 3);
+      const diff = Str.diff('foo', 'foo', 3);
       assertDiff(diff, 3, 0, '');
     });
 
     it('insert (single char)', () => {
-      const diff1 = Text.diff('', 'a', 1);
-      const diff2 = Text.diff('a', 'ab', 2);
-      const diff3 = Text.diff('ab', 'acb', 2);
+      const diff1 = Str.diff('', 'a', 1);
+      const diff2 = Str.diff('a', 'ab', 2);
+      const diff3 = Str.diff('ab', 'acb', 2);
       assertDiff(diff1, 0, 0, 'a');
       assertDiff(diff2, 1, 0, 'b');
       assertDiff(diff3, 1, 0, 'c');
     });
 
     it('delete', () => {
-      const diff1 = Text.diff('', 'abcd', 4);
-      const diff2 = Text.diff('abcd', 'acd', 1);
-      const diff3 = Text.diff('abc', 'a', 1);
+      const diff1 = Str.diff('', 'abcd', 4);
+      const diff2 = Str.diff('abcd', 'acd', 1);
+      const diff3 = Str.diff('abc', 'a', 1);
       assertDiff(diff1, 0, 0, 'abcd');
       assertDiff(diff2, 1, 1, '');
       assertDiff(diff3, 1, 2, '');
     });
 
     it('replace all', () => {
-      const diff1 = Text.diff('a', 'z', 1);
-      const diff2 = Text.diff('abcd', 'z', 1);
+      const diff1 = Str.diff('a', 'z', 1);
+      const diff2 = Str.diff('abcd', 'z', 1);
       assertDiff(diff1, 0, 1, 'z');
       assertDiff(diff2, 0, 4, 'z');
     });
   });
 
-  describe('Text.splice', () => {
+  describe('Str.splice', () => {
     it('splice: new text', () => {
       const doc = { foo: {} };
       const path = ['foo', 'text'];
 
-      Text.splice(doc, path, 0, 0, 'hello');
+      Str.splice(doc, path, 0, 0, 'hello');
       expect(doc.foo).to.eql({ text: 'hello' });
 
-      Text.splice(doc, path, 4, 0, ' n');
+      Str.splice(doc, path, 4, 0, ' n');
       expect(doc.foo).to.eql({ text: 'hell no' });
     });
 
@@ -71,10 +71,10 @@ describe('Text', () => {
       const doc = { foo: { text: 'hello' } };
       const path = ['foo', 'text'];
 
-      Text.splice(doc, path, 0, 1);
+      Str.splice(doc, path, 0, 1);
       expect(doc.foo).to.eql({ text: 'ello' });
 
-      Text.splice(doc, path, 1, 2);
+      Str.splice(doc, path, 1, 2);
       expect(doc.foo).to.eql({ text: 'eo' });
     });
 
@@ -82,35 +82,35 @@ describe('Text', () => {
       const doc = Immutable.clonerRef({ text: '' });
 
       const path = ['text'];
-      doc.change((d) => Text.splice(d, path, 0, 0, 'hello'));
+      doc.change((d) => Str.splice(d, path, 0, 0, 'hello'));
       expect(doc.current.text).to.eql('hello');
 
-      doc.change((d) => Text.replace(d, path, ''));
+      doc.change((d) => Str.replace(d, path, ''));
       expect(doc.current.text).to.eql('');
     });
 
     it('diff then splice', () => {
       const doc = { text: 'hello' };
-      const diff = Text.diff(doc.text, 'z', 1);
-      Text.splice(doc, ['text'], diff.index, diff.delCount, diff.newText);
+      const diff = Str.diff(doc.text, 'z', 1);
+      Str.splice(doc, ['text'], diff.index, diff.delCount, diff.newText);
       expect(doc.text).to.eql('z');
     });
 
     it('throw: path is empty', () => {
       const doc = {};
-      const fn = () => Text.splice(doc, [], 0, 0, 'hello');
+      const fn = () => Str.splice(doc, [], 0, 0, 'hello');
       expect(fn).to.throw(/Target path is empty/);
     });
 
     it('throw: target parent not an object', () => {
       const doc = {};
-      const fn = () => Text.splice(doc, ['foo', 'text'], 0, 0, 'hello');
+      const fn = () => Str.splice(doc, ['foo', 'text'], 0, 0, 'hello');
       expect(fn).to.throw(/Target path "foo\.text" is not within an object/);
     });
 
     it('throw: target is not a string', () => {
       const test = (doc: any) => {
-        const fn = () => Text.splice(doc, ['text'], 0, 0, 'hello');
+        const fn = () => Str.splice(doc, ['text'], 0, 0, 'hello');
         expect(fn).to.throw(/Target path "text" is not a string/);
       };
       const INVALID = [123, false, null, {}, [], Symbol('foo'), BigInt(0)];
@@ -118,30 +118,30 @@ describe('Text', () => {
     });
   });
 
-  describe('Text.replace', () => {
+  describe('Str.replace', () => {
     it('replace: "hello" → "foobar"', () => {
       const doc = { text: 'hello' };
-      Text.replace(doc, ['text'], 'foobar');
+      Str.replace(doc, ['text'], 'foobar');
       expect(doc).to.eql({ text: 'foobar' });
     });
 
     it('replace: "hello" → "" (clear)', () => {
       const doc = { text: 'hello' };
-      Text.replace(doc, ['text'], '');
+      Str.replace(doc, ['text'], '');
       expect(doc).to.eql({ text: '' });
     });
   });
 
-  describe('Text.shorten', () => {
+  describe('Str.shorten', () => {
     it('empty', () => {
-      expect(Text.shorten(undefined)).to.eql('');
-      expect(Text.shorten('')).to.eql('');
-      expect(Text.shorten('  ')).to.eql('  ');
+      expect(Str.shorten(undefined)).to.eql('');
+      expect(Str.shorten('')).to.eql('');
+      expect(Str.shorten('  ')).to.eql('  ');
     });
 
     it('invalid input (to string)', () => {
       const test = (input: any, expected: string) => {
-        expect(Text.shorten(input)).to.eql(expected);
+        expect(Str.shorten(input)).to.eql(expected);
       };
       test(123, '123');
       test(null, 'null');
@@ -149,51 +149,51 @@ describe('Text', () => {
     });
 
     it('does not add ellipsis', () => {
-      expect(Text.shorten('hello', 5)).to.eql('hello');
+      expect(Str.shorten('hello', 5)).to.eql('hello');
     });
 
     it('adds ellipsis', () => {
-      expect(Text.shorten('hello', 4)).to.eql('hel…');
-      expect(Text.shorten('hello', 4, { ellipsis: '...' })).to.eql('h...');
+      expect(Str.shorten('hello', 4)).to.eql('hel…');
+      expect(Str.shorten('hello', 4, { ellipsis: '...' })).to.eql('h...');
     });
   });
 
-  describe('Text.caplitalize', () => {
+  describe('Str.caplitalize', () => {
     it('invalid input', () => {
       const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((v: any) => {
-        expect(Text.capitalize(v)).to.eql(String(v));
+        expect(Str.capitalize(v)).to.eql(String(v));
       });
     });
 
     it('capitalizes a string', () => {
-      expect(Text.capitalize('')).to.eql('');
-      expect(Text.capitalize('  ')).to.eql('  ');
-      expect(Text.capitalize('hello')).to.eql('Hello');
-      expect(Text.capitalize('HeLLO')).to.eql('HeLLO');
+      expect(Str.capitalize('')).to.eql('');
+      expect(Str.capitalize('  ')).to.eql('  ');
+      expect(Str.capitalize('hello')).to.eql('Hello');
+      expect(Str.capitalize('HeLLO')).to.eql('HeLLO');
     });
   });
 
-  describe('plural', () => {
+  describe('Str.plural', () => {
     it('singular', () => {
-      expect(Text.plural(1, 'item')).to.eql('item');
-      expect(Text.plural(-1, 'item')).to.eql('item');
-      expect(Text.plural(1, 'item', 'items')).to.eql('item');
-      expect(Text.plural(-1, 'item', 'items')).to.eql('item');
+      expect(Str.plural(1, 'item')).to.eql('item');
+      expect(Str.plural(-1, 'item')).to.eql('item');
+      expect(Str.plural(1, 'item', 'items')).to.eql('item');
+      expect(Str.plural(-1, 'item', 'items')).to.eql('item');
     });
 
     it('plural', () => {
-      expect(Text.plural(0, 'item', 'items')).to.eql('items');
-      expect(Text.plural(2, 'item', 'items')).to.eql('items');
-      expect(Text.plural(-2, 'item', 'items')).to.eql('items');
-      expect(Text.plural(999, 'item', 'items')).to.eql('items');
+      expect(Str.plural(0, 'item', 'items')).to.eql('items');
+      expect(Str.plural(2, 'item', 'items')).to.eql('items');
+      expect(Str.plural(-2, 'item', 'items')).to.eql('items');
+      expect(Str.plural(999, 'item', 'items')).to.eql('items');
     });
 
     it('inferred "s"', () => {
-      expect(Text.plural(0, 'item')).to.eql('items');
-      expect(Text.plural(2, 'item')).to.eql('items');
-      expect(Text.plural(-2, 'item')).to.eql('items');
-      expect(Text.plural(999, 'item')).to.eql('items');
+      expect(Str.plural(0, 'item')).to.eql('items');
+      expect(Str.plural(2, 'item')).to.eql('items');
+      expect(Str.plural(-2, 'item')).to.eql('items');
+      expect(Str.plural(999, 'item')).to.eql('items');
     });
   });
 });

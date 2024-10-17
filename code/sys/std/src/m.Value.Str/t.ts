@@ -1,10 +1,15 @@
+import type { FormatOptions } from '@std/fmt/bytes';
 import type { t } from './common.ts';
-import type { format as formatBytes, FormatOptions } from '@std/fmt/bytes';
 
 /**
- * Library: Tools for working on strings of text.
+ * Convert bytes to a human-readable string: "1337 → 1.34 kB".
  */
-export type TextLib = {
+export type FormatBytes = (num: number, options?: FormatOptions) => string;
+
+/**
+ * Tools for working on strings of text.
+ */
+export type StrLib = {
   /**
    * Calculate a difference between two strings.
    */
@@ -40,8 +45,3 @@ export type TextLib = {
    */
   bytes: t.FormatBytes;
 };
-
-/**
- * Convert bytes to a human-readable string: "1337 → 1.34 kB".
- */
-export type FormatBytes = (num: number, options?: FormatOptions) => string;

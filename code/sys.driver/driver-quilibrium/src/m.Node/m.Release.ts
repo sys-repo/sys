@@ -56,7 +56,7 @@ export const Release: t.ReleaseLib = {
       const fileRes = await fetch(fileUrl);
       const fileBuffer = await fileRes.arrayBuffer();
       const fileData = new Uint8Array(fileBuffer);
-      const fileSize = Cli.Text.bytes(fileData.byteLength);
+      const fileSize = Cli.Value.Str.bytes(fileData.byteLength);
 
       await Fs.ensureDir(Fs.dirname(path));
       await Deno.writeFile(path, fileData);

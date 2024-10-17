@@ -1,16 +1,3 @@
-/**
- * @module
- * Tools for working on strings of text.
- *
- * @example
- * ```ts
- * import { Text } from '@sys/std/text';
- *
- * const long = 'hello world.'.repeat(100)'
- * const short = Text.shorten(long);
- * const caps = Text.capitalize(short);
- * ```
- */
 import { format as bytes } from '@std/fmt/bytes';
 
 import type { t } from './common.ts';
@@ -22,7 +9,7 @@ import { replace, splice } from './u.splice.ts';
 
 export { bytes, capitalize, diff, plural, replace, shorten, splice };
 
-export const Text: t.TextLib = {
+export const Str: t.StrLib = {
   diff,
   splice,
   replace,

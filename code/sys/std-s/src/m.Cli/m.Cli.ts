@@ -1,4 +1,4 @@
-import { Args, Text } from '@sys/std';
+import { Args, Value } from '@sys/std';
 import { Time, type t } from './common.ts';
 import { Format } from './u.Format.ts';
 import { Prompts } from './u.Prompts.ts';
@@ -13,7 +13,7 @@ export const Cli: t.CliLib = {
   Table,
   Spinner,
   Format,
-  Text,
+  Value,
   args: Args.parse,
   table: Table.create,
   spinner: Spinner.create,

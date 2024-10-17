@@ -13,7 +13,7 @@
 export { Pkg } from './common.ts';
 
 /**
- * Web AND Server
+ * Web "AND" Server.
  */
 export {
   Args,
@@ -26,7 +26,6 @@ export {
   R,
   Rx,
   Semver,
-  Text,
   Time,
   Value,
   rx,

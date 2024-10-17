@@ -10,9 +10,14 @@ export type ValueLib = {
   Array: t.ArrayLib;
 
   /**
-   * Library: Tools for working with numbers.
+   * Tools for working with numbers.
    */
   Num: t.NumLib;
+
+  /**
+   * Tools for working on strings of text.
+   */
+  Str: t.StrLib;
 
   /**
    * Rounds a number to the specified number of decimal places.

@@ -5,5 +5,4 @@
 export { asArray } from '../m.Value.Array/mod.ts';
 export { isObject } from './u.isObject.ts';
 
-export { Num } from '../m.Value.Num/mod.ts';
-export { Value } from './m.Value.ts';
+export { Array, Num, Str, Value } from './m.Value.ts';
