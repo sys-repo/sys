@@ -2,6 +2,9 @@ import type { t } from '../common.ts';
 
 type M = React.MouseEventHandler;
 
+/**
+ * Properties passed to the `useMouse` hook.
+ */
 export type UseMouseProps = {
   onDown?: M;
   onUp?: M;
@@ -10,6 +13,9 @@ export type UseMouseProps = {
   onDrag?: UseMouseDragHandler;
 };
 
+/**
+ * Hook: information about the movement of a mouse cursor.
+ */
 export type UseMouseMovement = {
   readonly x: number;
   readonly y: number;
@@ -25,5 +31,13 @@ export type UseMouseMovement = {
 /**
  * Events
  */
+
+/**
+ * Event handler for a mouse-drag operation.
+ */
 export type UseMouseDragHandler = (e: UseMouseDragHandlerArgs) => void;
+
+/**
+ * Agrument supplied to the mouse-drag handler.
+ */
 export type UseMouseDragHandlerArgs = UseMouseMovement & { cancel(): void };
