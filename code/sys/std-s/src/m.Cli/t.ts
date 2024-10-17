@@ -10,7 +10,7 @@ import type {
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
 
-import type { ArgsLib, ValueLib } from '@sys/std/t';
+import type { ArgsLib, ValueLib, PathLib, PathFormatLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
 
@@ -24,6 +24,11 @@ export type CliLib = {
   readonly Args: ArgsLib;
 
   /**
+   * Tools for for working with string paths.
+   */
+  readonly Path: PathLib;
+
+  /**
    * Tools for working with CLI tables.
    */
   readonly Table: t.CliTableLib;
@@ -34,14 +39,14 @@ export type CliLib = {
   readonly Spinner: t.CliSpinnerLib;
 
   /**
-   * Tools for formatting standard output (strings) within a CLI.
-   */
-  readonly Format: CliFormatLib;
-
-  /**
    * Tools for working on strings of text.
    */
   readonly Value: ValueLib;
+
+  /**
+   * Common formatting heleprs.
+   */
+  readonly Format: t.CliFormatLib;
 
   /**
    * Parse command-line argments into an object (argv).
@@ -140,43 +145,11 @@ export type CliPromptsLib = {
 };
 
 /**
- * Tools for formatting standard output (strings) within a CLI.
+ * Common formatting helpers when working with a CLI.
  */
 export type CliFormatLib = {
   /**
-   * Path color formatting.
+   * Path display formatting.
    */
-  path(path: string, fmt?: CliPathFormatter): string;
-};
-
-/**
- * A style agnostic formatter function for converting a string path
- * into a "pretty" display element, eg. formatted to the console with colors.
- */
-export type CliPathFormatter = (e: CliPathFormatterArgs) => t.IgnoredResponse;
-export type CliPathFormatterArgs = t.CliPathPart & {
-  change(to: string): void;
-  toString(): string;
-};
-
-/**
- * Represents a single "part" of a path as split by
- * the formatter.
- */
-export type CliPathPart = {
-  readonly index: t.Index;
-  readonly kind: 'slash' | 'dirname' | 'basename';
-  readonly text: string;
-  readonly is: CliPathPartIs;
-};
-
-/**
- * Flags about a single "part" of a formatter path.
- */
-export type CliPathPartIs = {
-  readonly first: boolean;
-  readonly last: boolean;
-  readonly slash: boolean;
-  readonly dirname: boolean;
-  readonly basename: boolean;
+  path: PathFormatLib['string'];
 };

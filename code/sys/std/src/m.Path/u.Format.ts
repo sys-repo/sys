@@ -1,13 +1,13 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * CLI Formatting tools.
  */
-export const Format: t.CliFormatLib = {
+export const Format: t.PathFormatLib = {
   /**
    * Path color formatting.
    */
-  path(path, fmt) {
+  string(path, fmt) {
     if (typeof path !== 'string') return `[Invalid:${typeof path}]`;
     if (!fmt) return path;
 
@@ -37,7 +37,7 @@ export const Format: t.CliFormatLib = {
  */
 const wrangle = {
   parts(path: string, divider: string) {
-    type P = t.CliPathPart;
+    type P = t.PathFormatterPart;
     return path
       .split(divider)
       .flatMap((part, index, array) => (index < array.length - 1 ? [part, divider] : [part]))

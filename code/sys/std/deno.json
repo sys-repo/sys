@@ -11,6 +11,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./args": "./src/m.Args/mod.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
     "./hash": "./src/m.Hash/mod.ts",
     "./id": "./src/m.Id/mod.ts",

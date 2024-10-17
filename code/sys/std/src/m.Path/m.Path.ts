@@ -10,13 +10,16 @@ import {
   resolve,
   toFileUrl,
 } from '@std/path';
+
 import { Is } from './m.Is.ts';
+import { Format } from './u.Format.ts';
 
 /**
  * Helpers for working with resource paths.
  */
 export const Path: t.PathLib = {
   Is,
+  Format,
   join,
   joinGlobs,
   fromFileUrl,
