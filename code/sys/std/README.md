@@ -1,6 +1,5 @@
 # @sys/std
 Standard system libraries.  
-Wraps and extends the audited deno [@std](https://jsr.io/@std) modules ← "standard libs"
 
 ### System Namespace:
 
