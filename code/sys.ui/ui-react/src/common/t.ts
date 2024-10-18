@@ -24,6 +24,7 @@ export type {
   Percent,
   Point,
   StringUrl,
+  StringId,
   TimeThreshold,
   UntilObservable,
 } from '@sys/std/t';

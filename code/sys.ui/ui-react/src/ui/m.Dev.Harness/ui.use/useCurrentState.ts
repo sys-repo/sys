@@ -32,7 +32,7 @@ export function useCurrentState(
       )
       .subscribe((e) => {
         setInfo(e.info);
-        setCount((prev) => prev + 1);
+        setCount((prev: number) => prev + 1);
       });
 
     return () => events.dispose();

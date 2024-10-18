@@ -1,4 +1,4 @@
-import { Spec } from './common.ts';
+import { Spec } from '../common.ts';
 
 export const root = Spec.describe('MySample', (e) => {
   e.it('init', (e) => {

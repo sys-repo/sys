@@ -34,7 +34,7 @@ export const DevKeyboard = {
       copyAddress = DEFAULT.copyAddress,
     } = options;
 
-    const openUrlTab = (href: string) => window.open(href, '_blank', 'noopener,noreferrer');
+    const openUrlTab = (href: string) => globalThis.open(href, '_blank', 'noopener,noreferrer');
 
     const kbd = Keyboard.until(options.dispose$);
     const dbl = kbd.dbl();

@@ -1,5 +1,5 @@
-import { Spec } from './common.ts';
-import { TestLog } from './TestLog.ts';
+import { Spec } from '../common.ts';
+import { TestLog } from '../TestLog.ts';
 
 export function Wrapper() {
   const log = TestLog.create();

@@ -16,7 +16,7 @@ export function useRedrawEvent(
     .map((item) => (typeof item === 'object' ? item.id : item) as Id);
 
   const [count, setCount] = useState(0);
-  const redraw = () => setCount((prev) => prev + 1);
+  const redraw = () => setCount((prev: number) => prev + 1);
 
   /**
    * [Lifecycle]

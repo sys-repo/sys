@@ -1,1 +1,1 @@
-export * from './Dev.Keyboard.mjs';
+export { DevKeyboard } from './Dev.Keyboard.ts';

@@ -1,7 +1,7 @@
 import { rx, slug } from '../common.ts';
 import { DevBus } from '../u.Bus/mod.ts';
 import { Context } from '../u.Ctx/mod.ts';
-import { SAMPLES } from './-Sample.ts';
+import { SAMPLES } from './sample.specs.unit-test/mod.ts';
 
 /**
  * Sample test factories.

@@ -1,11 +1,12 @@
 import { ModuleList } from './mod.ts';
-import { BADGES, COLORS, Pkg, Spec, type t } from '../../test.ui';
+import { BADGES, COLORS, Pkg, Spec, type t } from '../../-test.ts';
 
 export default Spec.describe('ModuleList', (e) => {
   e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
 
     let theme: t.CommonTheme | undefined;
+    theme = 'Light';
     theme = 'Dark';
     const isDark = theme === 'Dark';
 

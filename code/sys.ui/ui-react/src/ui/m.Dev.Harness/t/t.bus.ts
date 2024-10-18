@@ -1,10 +1,9 @@
 import type { t } from './common.ts';
 
-type Id = string;
-type SpecId = Id;
+type SpecId = t.StringId;
 type O = Record<string, unknown>;
 
-export type DevInstance = { bus: t.EventBus<any>; id: Id };
+export type DevInstance = { bus: t.EventBus<any>; id: t.StringId };
 export type DevEnvVars = any;
 
 /**
@@ -12,7 +11,7 @@ export type DevEnvVars = any;
  */
 export type DevEvents = t.Lifecycle & {
   $: t.Observable<t.DevEvent>;
-  instance: { bus: Id; id: Id };
+  instance: DevInstance;
   is: { base(input: any): boolean };
   info: {
     req$: t.Observable<t.DevInfoReq>;
@@ -72,10 +71,10 @@ export type DevEvents = t.Lifecycle & {
   };
   redraw: {
     $: t.Observable<t.DevRedraw>;
-    fire(args: { target?: t.DevRedrawTarget; renderers?: Id[] }): void;
-    subject(): Promise<Id[]>;
-    harness(): Promise<Id[]>;
-    debug(): Promise<Id[]>;
+    fire(args: { target?: t.DevRedrawTarget; renderers?: t.StringId[] }): void;
+    subject(): Promise<t.StringId[]>;
+    harness(): Promise<t.StringId[]>;
+    debug(): Promise<t.StringId[]>;
   };
 };
 
@@ -116,7 +115,7 @@ export type DevInfoResEvent = {
 };
 export type DevInfoRes = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   info?: t.DevInfo;
   error?: string;
 };
@@ -125,7 +124,11 @@ export type DevInfoChangedEvent = {
   type: 'sys.dev/info:changed';
   payload: DevInfoChanged;
 };
-export type DevInfoChanged = { instance: Id; info: t.DevInfo; message: t.DevInfoChangeMessage };
+export type DevInfoChanged = {
+  instance: t.StringId;
+  info: t.DevInfo;
+  message: t.DevInfoChangeMessage;
+};
 
 /**
  * Context: {ctx}
@@ -140,7 +143,7 @@ export type DevCtxResEvent = {
   type: 'sys.dev/ctx:res';
   payload: DevCtxRes;
 };
-export type DevCtxRes = { tx: string; instance: Id; ctx?: t.DevCtx; error?: string };
+export type DevCtxRes = { tx: string; instance: t.StringId; ctx?: t.DevCtx; error?: string };
 
 /**
  * Initialize (with Spec)
@@ -149,13 +152,13 @@ export type DevLoadReqEvent = {
   type: 'sys.dev/load:req';
   payload: DevLoadReq;
 };
-export type DevLoadReq = { tx: string; instance: Id; bundle?: t.BundleImport };
+export type DevLoadReq = { tx: string; instance: t.StringId; bundle?: t.BundleImport };
 
 export type DevLoadResEvent = {
   type: 'sys.dev/load:res';
   payload: DevLoadRes;
 };
-export type DevLoadRes = { tx: string; instance: Id; info?: t.DevInfo; error?: string };
+export type DevLoadRes = { tx: string; instance: t.StringId; info?: t.DevInfo; error?: string };
 
 /**
  * Run the suite of tests.
@@ -163,12 +166,12 @@ export type DevLoadRes = { tx: string; instance: Id; info?: t.DevInfo; error?: s
 export type DevRunReqEvent = { type: 'sys.dev/run:req'; payload: DevRunReq };
 export type DevRunReq = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   only?: SpecId[];
 };
 
 export type DevRunResEvent = { type: 'sys.dev/run:res'; payload: DevRunRes };
-export type DevRunRes = { tx: string; instance: Id; info?: t.DevInfo; error?: string };
+export type DevRunRes = { tx: string; instance: t.StringId; info?: t.DevInfo; error?: string };
 
 /**
  * Reset context/state.
@@ -177,7 +180,7 @@ export type DevResetReqEvent = { type: 'sys.dev/reset:req'; payload: DevResetReq
 export type DevResetReq = { tx: string; instance: Id };
 
 export type DevResetResEvent = { type: 'sys.dev/reset:res'; payload: DevResetRes };
-export type DevResetRes = { tx: string; instance: Id; info?: t.DevInfo; error?: string };
+export type DevResetRes = { tx: string; instance: t.StringId; info?: t.DevInfo; error?: string };
 
 /**
  * Props mutation.
@@ -190,7 +193,7 @@ export type DevPropsChangeReqEvent = {
 };
 export type DevPropsChangeReq = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   mutate: t.DevInfoPropsMutater;
 };
 
@@ -200,7 +203,7 @@ export type DevPropsChangeResEvent = {
 };
 export type DevPropsChangeRes = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   info?: t.DevInfo;
   error?: string;
 };
@@ -209,7 +212,7 @@ export type DevPropsFlushPendingEvent = {
   type: 'sys.dev/props/flush:pending';
   payload: DevPropsFlushPending;
 };
-export type DevPropsFlushPending = { instance: Id; revision: number };
+export type DevPropsFlushPending = { instance: t.StringId; revision: number };
 
 /**
  * State mutation.
@@ -220,7 +223,7 @@ export type DevStateChangeReqEvent = {
 };
 export type DevStateChangeReq = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   mutate: t.DevInfoStateMutater<O> | O;
   initial: O;
 };
@@ -231,7 +234,7 @@ export type DevStateChangeResEvent = {
 };
 export type DevStateChangeRes = {
   tx: string;
-  instance: Id;
+  instance: t.StringId;
   info?: t.DevInfo;
   error?: string;
 };
@@ -244,7 +247,7 @@ export type DevRedrawEvent = {
   payload: DevRedraw;
 };
 export type DevRedraw = {
-  instance: Id;
-  renderers: Id[];
+  instance: t.StringId;
+  renderers: t.StringId[];
   target?: t.DevRedrawTarget;
 };

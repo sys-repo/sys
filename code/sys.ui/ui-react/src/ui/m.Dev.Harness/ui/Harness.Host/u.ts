@@ -1,4 +1,4 @@
-import { Margin, type t } from '../common.ts';
+import { Edges, type t } from '../common.ts';
 
 export const Wrangle = {
   componentSize(value?: t.DevRenderSize) {
@@ -20,7 +20,7 @@ export const Wrangle = {
     return value.margin;
   },
 
-  asMargin(value: number): t.Margin {
-    return Margin.toArray(value);
+  asMargin(value: number): t.CssMarginArray {
+    return Edges.toArray(value ?? 0);
   },
 } as const;

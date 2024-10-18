@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { Foo } from '@sys/tmp/client/ui';
 import { Color, css, type t } from '../common.ts';
 
-import './-sample-imports.ts'; // 🐷
-
 /**
  * Sample Component demonstrating the fundamentals
  * of React and module importing work.
