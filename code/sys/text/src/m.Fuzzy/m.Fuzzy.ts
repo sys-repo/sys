@@ -8,12 +8,10 @@ export const Fuzzy: t.FuzzyLib = {
   /**
    * Match using the given "input" pattern.
    */
-  pattern(pattern: string, options: { maxErrors?: number } = {}) {
+  pattern(pattern, options = {}) {
     const { maxErrors = 2 } = options;
-    return {
-      /**
-       * Match on the given target string value.
-       */
+    const api: t.FuzzyMatcher = {
+      pattern,
       match(input?: string) {
         const text = input ?? '';
         const matches = search(text, pattern, maxErrors);
@@ -35,5 +33,6 @@ export const Fuzzy: t.FuzzyLib = {
         };
       },
     };
+    return api;
   },
 };

@@ -1,7 +1,12 @@
-import { Fuzzy } from './mod.ts';
 import { describe, expect, it } from '../-test.ts';
+import { Fuzzy } from './mod.ts';
 
 describe('Fuzzy (Approx String Match)', () => {
+  it('surfaces "pattern"', () => {
+    const res = Fuzzy.pattern('zoo');
+    expect(res.pattern).to.eql('zoo');
+  });
+
   it('undefined', () => {
     const res1 = Fuzzy.pattern('zoo').match(undefined);
     const res2 = Fuzzy.pattern('zoo').match(null as any);
