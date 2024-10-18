@@ -1,7 +1,7 @@
 import type * as t from './t.ts';
 
+import { Color } from '@sys/ui-dom/style';
 import { COLORS } from './const.COLORS.ts';
-import { Color } from './libs.ts';
 
 export const DEFAULTS = {
   get size(): t.DevRenderedSize {

@@ -12,12 +12,13 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./color": "./src/m.Color/mod.ts",
+    "./file": "./src/m.File/mod.ts",
+    "./keyboard": "./src/m.Keyboard/mod.ts",
+    "./local-storage": "./src/m.LocalStorage/mod.ts",
+    "./mock": "./src/m.Mock/mod.ts",
     "./style": "./src/m.Style/mod.ts",
     "./style/react": "./src/m.Style.react/mod.ts",
-    "./color": "./src/m.Color/mod.ts",
-    "./local-storage": "./src/m.LocalStorage/mod.ts",
-    "./file": "./src/m.File/mod.ts",
-    "./mock": "./src/m.Mock/mod.ts",
     "./user-agent": "./src/m.UserAgent/mod.ts"
   }
 }
