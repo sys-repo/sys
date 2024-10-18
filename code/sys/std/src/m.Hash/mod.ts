@@ -1,4 +1,9 @@
 /**
+ * @module
+ * Tools for working with cryptographic hashes.
+ *
+ * ---
+ *
  * AUDIT NOTES
  *   Crypto libraries mirror the desgin decisions made
  *   by @v on the [@farcaster/hub-web] library.
@@ -6,7 +11,18 @@
  *      circa: May 2023
  *      https://github.com/farcasterxyz/hub-monorepo/tree/main/packages/hub-web
  *
- *  */
+ *
+ * @example
+ * ```ts
+ * import { Hash, sha256 } from '@sys/std/hash';
+ *
+ * const data = new Uint8Array([1, 2, 3]);
+ * const a = Hash.sha256(data);
+ * const b = Hash.sha256(data);
+ *
+ * expect(a).to.eql(b)
+ * ```
+ */
 import { sha1 } from '@noble/hashes/sha1';
 import { sha256 } from '@noble/hashes/sha256';
 
@@ -14,6 +30,8 @@ import type { t } from '../common.ts';
 import { Is } from '../m.Is/mod.ts';
 import { Json } from '../m.Json/mod.ts';
 import { shortenHash } from './u.ts';
+
+export { sha1, sha256 };
 
 export const Hash: t.HashLib = {
   sha1(input, options = {}) {
@@ -61,3 +79,5 @@ export const Hash: t.HashLib = {
     return shortenHash(hash, length, options);
   },
 };
+
+//  import { Hash, sha256 } from '@sys/std/hash';

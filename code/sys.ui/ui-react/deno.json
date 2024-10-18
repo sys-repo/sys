@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
@@ -14,6 +14,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./style": "./src/m.Style/mod.ts"
+    "./ui/dev": "./src/ui/m.Dev/mod.ts",
+    "./ui/react": "./src/ui/m.React/mod.ts"
   }
 }

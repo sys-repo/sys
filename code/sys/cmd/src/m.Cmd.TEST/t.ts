@@ -54,5 +54,7 @@ export type CmdTestsLib = {
   };
 };
 
-/* Runs a suite of tests. */
+/**
+ * Runs a suite of tests.
+ */
 export type CmdTestSuitesRun = (setup: t.CmdTestSetup, args: t.TestArgs) => void;

@@ -13,13 +13,13 @@
 export { Pkg } from './common.ts';
 
 /**
- * Web AND Server
+ * Web "AND" Server.
  */
 export {
   Args,
   Async,
-  Date,
   D,
+  Date,
   Http,
   Immutable,
   ObjectPath,

@@ -24,7 +24,9 @@ export type CmdQueueMonitor = t.Lifecycle & {
   readonly total: CmdQueueTotals;
 };
 
-/* Cmd queue size bounds. */
+/**
+ * Cmd queue size bounds.
+ */
 export type CmdQueueBounds = {
   /* Triggers purge at this value. */
   readonly max: number;
@@ -33,7 +35,9 @@ export type CmdQueueBounds = {
   readonly min: number;
 };
 
-/* Cmd queue totals stats. */
+/**
+ * Cmd queue totals stats.
+ */
 export type CmdQueueTotals = {
   readonly current: number;
   readonly purged: number;
@@ -56,7 +60,10 @@ export type CmdQueueLib = {
     options?: t.CmdQueueAutopurgeOptions,
   ): t.CmdQueueMonitor;
 };
-/* Options passed to CmdQueue.autopurge. */
+
+/**
+ * Options passed to CmdQueue.autopurge.
+ */
 export type CmdQueueAutopurgeOptions = {
   min?: number;
   max?: number;

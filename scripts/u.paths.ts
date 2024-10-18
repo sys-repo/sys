@@ -1,24 +1,35 @@
 import { default as Pkg } from '../deno.json' with { type: 'json' };
-export { Path} from '@sys/std';
+export { Path } from '@sys/std';
 
 export const Paths = {
   modules: [
-    // Standard Libs.
+    /**
+     * @sys: standard libs.
+     */
     'code/sys/std',
     'code/sys/std-s',
     'code/sys/cmd',
+    'code/sys/testing',
     'code/sys/types',
     
-    // User Interface.
-    'code/sys.ui/ui-react',
+    /**
+     * UI
+     */
+    // 'code/sys.ui/ui-react',
+    'code/sys.ui/ui-dom',
     
-    // Drivers.
+    /**
+     * Drivers
+     */
     // 'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-deno',
     'code/sys.driver/driver-immer',
+    'code/sys.driver/driver-quilibrium',
     'code/sys.driver/driver-vite',
 
-    // →| dev/null
+    /**
+     * →| dev/null
+     */
     'code/sys.tmp',
   ],
 

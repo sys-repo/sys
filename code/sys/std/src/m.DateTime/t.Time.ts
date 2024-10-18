@@ -27,9 +27,10 @@ export type TimeLib = {
 
   /**
    * Wait for the specified milliseconds
-   * NB: use with [await].
+   * (NB: use with `await`.)
+   * @param msecs: delay in milliseconds.
    */
-  wait(msecs: t.Msecs): t.TimeDelayPromise;
+  wait(msecs?: t.Msecs): t.TimeDelayPromise;
 
   /* Generate a new UTC datetime instance. */
   utc(input?: t.DateTimeInput): t.DateTime;

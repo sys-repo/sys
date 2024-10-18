@@ -4,5 +4,8 @@
  */
 import { Path } from './m.Path.ts';
 
+export { ObjectPath } from '../m.ObjectPath/mod.ts';
+export { Format } from './u.Format.ts';
 export { Path };
+
 export default Path;
