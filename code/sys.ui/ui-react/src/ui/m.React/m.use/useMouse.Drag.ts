@@ -4,10 +4,10 @@ import type { t } from '../common.ts';
 /**
  * Internal hook that trackes mouse movement events (drag).
  */
-export function useMouseDrag(props: { onDrag?: t.UseMouseDragHandler }) {
+export const useMouseDrag: t.UseMouseDragHook = (props = {}) => {
   const enabled = Boolean(props.onDrag);
   const [dragging, setDragging] = useState(false);
-  const [movement, setMovement] = useState<t.UseMouseMovement>();
+  const [movement, setMovement] = useState<t.MouseMovement>();
 
   const handleMove = (e: MouseEvent) => {
     if (!enabled) return;
@@ -47,21 +47,21 @@ export function useMouseDrag(props: { onDrag?: t.UseMouseDragHandler }) {
   /**
    * API
    */
-  const api = {
+  const api: t.UseMouseDrag = {
     is: { dragging },
     enabled,
     movement,
     start,
     cancel,
-  } as const;
+  };
   return api;
-}
+};
 
 /**
  * Helpers
  */
 const Wrangle = {
-  toMouseMovement(e: MouseEvent): t.UseMouseMovement {
+  toMouseMovement(e: MouseEvent): t.MouseMovement {
     const { x, y } = e;
     const modifiers: t.KeyboardModifierFlags = {
       shift: e.shiftKey,

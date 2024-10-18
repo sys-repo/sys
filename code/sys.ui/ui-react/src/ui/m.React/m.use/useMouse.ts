@@ -1,19 +1,17 @@
 import { useState } from 'react';
-
 import type { t } from '../common.ts';
 import { useMouseDrag } from './useMouse.Drag.ts';
 
 /**
- * HOOK: keep track of mouse events for an HTML element
+ * Hook: keep track of mouse events for an HTML element
  * Usage:
  *
  *     const mouse = useMouse();
  *     <div {...mouse.handlers} />
  *
  */
-export function useMouse(props: t.UseMouseProps = {}) {
+export const useMouse: t.UseMouseHook = (props = {}) => {
   const { onDrag } = props;
-
   const [isDown, setDown] = useState(false);
   const [isOver, setOver] = useState(false);
   const drag = useMouseDrag({ onDrag });
@@ -40,7 +38,7 @@ export function useMouse(props: t.UseMouseProps = {}) {
   /**
    * API
    */
-  return {
+  const api: t.UseMouse = {
     is: { over: isOver, down: isDown, dragging: drag.is.dragging },
     handlers: { onMouseDown, onMouseUp, onMouseEnter, onMouseLeave },
     drag: drag.movement,
@@ -49,5 +47,6 @@ export function useMouse(props: t.UseMouseProps = {}) {
       setOver(false);
       drag.cancel();
     },
-  } as const;
-}
+  };
+  return api;
+};
