@@ -1,70 +1,26 @@
-import { Fs, Cli, Env, Http } from '@sys/std-s';
+import { c, Cli, Env, Fs, Path } from '@sys/std-s';
+// import { Q } from './-tmp.quilibrium.ts';
 
-const env = await Env.load();
-
-// console.log('m', m);
-// const NYLAS_API = m.get('NYLAS_API_KEY');
-
-/**
- * SAMPLE: Table
- */
-const table = Cli.table(['Foo', 'Bar']).indent(2);
-table.push();
-table.push(['123456', 'abc']);
-table.push(['333', 'Hello World 👋']);
-// table.render();
-// console.info();
-
-/**
- * Nylas
- * https://developer.nylas.com/docs/v3/email/#one-click-unsubscribe-requirements-for-google-messages
- */
-
-import * as Nylas from 'npm:nylas@7/';
-export async function sampleNylas() {
-  console.log('Nylas', Nylas);
-
-  const NylasConfig = {
-    apiKey: env.get('NYLAS_API_KEY'),
-    apiUri: 'https://api.us.nylas.com',
-    grandId: env.get('NYLAS_GRANT_ID'),
-  };
-  // const GRANT_ID = '29015d82-0c42-4bfb-a3ea-8add8e4bdf42';
-
-  const http = Http.client({ accessToken: NylasConfig.apiKey });
-  const url = `https://api.us.nylas.com/v3/grants/${NylasConfig.grandId}/messages?limit=5`;
-
-  const spinner = Cli.spinner();
-  const res = await http.get(url);
-
-  spinner.succeed(`Done: ${res.status}`);
-  // console.log('res', res);
-
-  const json = await res.json();
-  console.log('json', json);
-}
-
-/**
- *
- */
-export async function sampleOpenAI() {
-  // console.log('OpenAI', OpenAI);
-}
-
-// Finish up.
-// await sampleNylas();
-// await sampleOpenAI();
-
-// const m = Cli.args(Deno.args);
-// console.log('m', m);
-
-await Cli.Prompts.Confirm.prompt('From node to deno?');
-
-/**
- * TODO 🐷 arts passed for try/test/ci
- */
+import { Q } from '@sys/driver-quilibrium';
 
 // const match = await Fs.glob().find('code/**/-test.*');
 // console.log('match', match);
+
+/**
+ * OpenAI
+ */
+
+import OpenAI from 'openai';
+const openai = new OpenAI();
+const completion = await openai.chat.completions.create({
+  model: 'gpt-4o',
+  messages: [{ role: 'user', content: 'write me a type for a haiku datastructure' }],
+});
+console.log('completion', completion);
+
+/**
+ * Finish up.
+ */
+// await Q.Release.pull();
 
 Deno.exit(0);

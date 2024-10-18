@@ -1,11 +1,11 @@
-import type { t } from '../common.ts';
-
-import { Dispose } from '../m.Dispose/mod.ts';
+import { type t, Dispose } from './common.ts';
 import * as lib from './u.Rx.libs.ts';
 
-import { Is } from './m.Rx.Is.ts';
-import { event, payload } from './u.Rx.payload.ts';
-import { asPromise } from './u.Rx.promise.ts';
+import { Is } from './m.Is.ts';
+import { event, payload } from './u.payload.ts';
+import { asPromise } from './u.promise.ts';
+import { withinTimeThreshold } from './u.time.ts';
+import { bus } from './u.bus.ts';
 
 const { disposable, disposableAsync, lifecycle, lifecycleAsync, done } = Dispose;
 
@@ -15,7 +15,9 @@ export const Rx: t.RxLib = {
   Is,
   noop$: new lib.Subject(),
   asPromise,
+  withinTimeThreshold,
 
+  bus,
   done,
   disposable,
   lifecycle,

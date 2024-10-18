@@ -1,5 +1,5 @@
 import { Denofile } from '@sys/driver-deno';
-import { c, Cli, R, Semver, type t, Text } from './common.ts';
+import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
   release?: t.SemVerReleaseType;
@@ -13,7 +13,7 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args);
   const release = wrangle.release(options, args);
-  const releaseColored = `${c.green(Text.capitalize(release))}`;
+  const releaseColored = `${c.green(Value.Str.capitalize(release))}`;
   console.info();
   console.info(c.gray(`${c.bold(releaseColored)} Version`));
 

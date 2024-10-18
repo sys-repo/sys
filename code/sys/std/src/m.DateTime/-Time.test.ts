@@ -68,21 +68,39 @@ describe('Time', () => {
   });
 
   describe('Time.wait', () => {
-    it('wait: msecs', async () => {
+    it('Time.wait( n ) ← number/msecs param', async () => {
       const startedAt = new Date();
       expect(calcDiff(startedAt)).to.be.closeTo(0, 10);
+
       const res = Time.wait(15);
       await res;
+
+      expect(res.timeout).to.eql(15);
       expect(calcDiff(startedAt)).to.be.greaterThan(14);
       expect(res.is).to.eql({ completed: true, cancelled: false, done: true });
     });
 
-    it('wait: cancelled', () => {
+    it('Time.wait() ← no param', async () => {
+      const startedAt = new Date();
+      expect(calcDiff(startedAt)).to.be.closeTo(0, 10);
+
+      const res = Time.wait();
+      await res;
+
+      expect(res.timeout).to.eql(0);
+      expect(calcDiff(startedAt)).to.be.lessThan(10);
+    });
+
+    it('Time.wait → cancel', () => {
       const startedAt = new Date();
       const res = Time.wait(15);
       res.cancel();
       expect(calcDiff(startedAt)).to.be.closeTo(0, 5); // NB: cancel stops the delay.
       expect(res.is).to.eql({ completed: false, cancelled: true, done: true });
+    });
+
+    it('NB: microtask ← via Promise', async () => {
+      await Promise.resolve();
     });
   });
 });

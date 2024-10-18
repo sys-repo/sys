@@ -1,5 +1,5 @@
 /**
  * @module
- * Module Types
+ * Module types.
  */
 export {};

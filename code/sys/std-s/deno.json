@@ -1,6 +1,6 @@
 {
   "name": "@sys/std-s",
-  "version": "0.0.17",
+  "version": "0.0.19",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -RNE --watch ./src/-start.ts",
@@ -15,7 +15,7 @@
     "./types": "./src/types.ts",
     "./cli": "./src/m.Cli/mod.ts",
     "./fs": "./src/m.Fs/mod.ts",
-    "./httpserver": "./src/m.Server.Http/mod.ts",
+    "./http-server": "./src/m.Server.Http/mod.ts",
     "./process": "./src/m.Process/mod.ts",
     "./testing": "./src/m.Testing/mod.ts"
   }

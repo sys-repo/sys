@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 
-/* Factory method for creating a new Cmd invokation transaction ID. */
+/**
+ * Factory method for creating a new Cmd invokation transaction ID.
+ */
 export type CmdTxFactory = () => t.StringTx;
 
 /**
@@ -13,7 +15,8 @@ export type Cmd<C extends t.CmdType> = {
 };
 
 /**
- * Library: Command event structure on an observable/syncing CRDT.
+ * A "command" event structure on an observable/syncing CRDT.
+ * A mechanism for achieving distributed function invocation.
  * Primitive for building up an actor model ("message passing computer").
  */
 export type CmdLib = {
@@ -45,10 +48,14 @@ export type CmdLib = {
   toIssuer(cmd: any): string | undefined;
 };
 
-/* Loose input to the Cmd `create` factory method. */
+/**
+ * Loose input to the Cmd `create` factory method.
+ */
 export type CmdCreateOptionsInput = CmdCreateOptions | t.CmdPaths;
 
-/* Options passed to the Cmd `create` factory method. */
+/**
+ * Options passed to the Cmd `create` factory method.
+ */
 export type CmdCreateOptions = {
   tx?: t.CmdTxFactory;
   paths?: t.CmdPaths | t.ObjectPath;

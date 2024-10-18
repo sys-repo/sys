@@ -16,7 +16,6 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 (✊🏻💯  )
 Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/).
 
-
 ---
 
 <p>&nbsp;</p>
@@ -52,8 +51,12 @@ foo.current                    // === { count: 1 }
 ```
 
 
-...and now with a little more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive.  
-How it is declared, manipulated, listened to, and then disposed of (lifecycle):
+...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).  
+
+A broad number of diverse (and divergent) systems can be driven by this one single
+"safe" state manipulation pattern.
+
+Below shows how an `Immutable<T>` of `JSON` is declared, listened to, manipulated, and then ultimately disposed of (lifecycle):
 
 
 ```ts
@@ -88,7 +91,7 @@ events.$.subscribe((e) => { /* event stream handler */ })
  * eg. "RFC-6902 JSON patch standard".
  * 
  * The Events<T> library itself enshrines the meaning of the message stream 
- * conceptually through stongly typed properties and method/function helpers.
+ * conceptually through domain specific, pre-canned, stongly typed properties and method/function filters and helpers.
  */
 
 // Finished.

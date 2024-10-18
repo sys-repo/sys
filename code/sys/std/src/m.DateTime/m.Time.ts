@@ -3,6 +3,7 @@ import { Duration } from './m.Time.Duration.ts';
 import { elapsed, timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
 import { until } from './m.Time.until.ts';
+import { wait } from './m.Time.wait.ts';
 import { utc } from './m.Time.utc.ts';
 
 /**
@@ -15,8 +16,8 @@ export const Time: t.TimeLib = {
 
   utc,
   delay,
+  wait,
   until,
-  wait: (msecs) => delay(msecs),
 
   Duration,
   duration: Duration.create,
