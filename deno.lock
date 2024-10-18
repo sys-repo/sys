@@ -73,6 +73,7 @@
     "npm:react-dom@18": "18.3.1_react@18.3.1",
     "npm:react-error-boundary@4": "4.1.0_react@18.3.1",
     "npm:react-icons@5": "5.3.0_react@18.3.1",
+    "npm:react-spinners@0.14.1": "0.14.1_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:react@18": "18.3.1",
     "npm:rxjs@7": "7.8.1",
     "npm:subhosting@0.1.0-alpha.1": "0.1.0-alpha.1",
@@ -2326,6 +2327,13 @@
     "react-is@16.13.1": {
       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
     },
+    "react-spinners@0.14.1_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-2Izq+qgQ08HTofCVEdcAQCXFEYfqTDdfeDQJeo/HHQiQJD4imOicNLhkfN2eh1NYEWVOX4D9ok2lhuDB0z3Aag==",
+      "dependencies": [
+        "react",
+        "react-dom"
+      ]
+    },
     "react@18.3.1": {
       "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
       "dependencies": [
@@ -2882,7 +2890,8 @@
         "npm:@jsr/std__uuid@1.0.4",
         "npm:@types/react-dom@18",
         "npm:@types/react@18",
-        "npm:immer@10.1.1"
+        "npm:immer@10.1.1",
+        "npm:react-spinners@0.14.1"
       ]
     }
   }

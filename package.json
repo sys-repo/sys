@@ -8,7 +8,8 @@
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.3",
     "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
-    "immer": "10.1.1"
+    "immer": "10.1.1",
+    "react-spinners": "0.14.1"
   },
   "devDependencies": {
     "@types/react": "18",
