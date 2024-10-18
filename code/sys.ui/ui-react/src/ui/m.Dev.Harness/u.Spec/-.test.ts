@@ -71,15 +71,13 @@ describe('Spec', () => {
 
     it('runs initial (async)', async () => {
       const { events } = TestSample.controller();
-
       let _every = 0;
       let _initial = 0;
-
       const root = Spec.describe('root', (e) => {
         e.it('foo', (e) => {
           _every++;
-          return Spec.once(e, async (_ctx) => {
-            await Time.delay(10);
+          return Spec.once(e, async () => {
+            await Time.wait(10);
             _initial++;
           });
         });
@@ -88,15 +86,15 @@ describe('Spec', () => {
       await events.load.fire(root);
       await events.run.fire();
 
-      expect(_initial).to.eql(1);
       expect(_every).to.eql(1);
+      expect(_initial).to.eql(1);
 
       await events.run.fire();
       await events.run.fire();
       await events.run.fire();
 
-      expect(_initial).to.eql(1); // NB: no change.
       expect(_every).to.eql(4);
+      expect(_initial).to.eql(1); // NB: no change.
 
       events.dispose();
     });

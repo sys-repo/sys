@@ -124,7 +124,6 @@ export function BusController(args: {
     const { tx, only } = e;
     const spec = state.current.spec;
     let error: string | undefined;
-
     try {
       if (spec) {
         const context = await Ctx.current();
