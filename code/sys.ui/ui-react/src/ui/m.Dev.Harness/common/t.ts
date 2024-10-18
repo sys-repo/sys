@@ -44,4 +44,4 @@ export type UrlInput = string | URL | Location;
 // export type Margin = [number, number, number, number];
 
 export type * from '../t.ts';
-export type * from '../../../../common/t.ts';
+export type * from '../../../common/t.ts';
