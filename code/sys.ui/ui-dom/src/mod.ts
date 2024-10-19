@@ -5,6 +5,7 @@
  * @example
  * ```ts
  * import { Color } from '@sys/ui-dom/color';
+ * import { Color, Style } from '@sys/ui-dom/style';
  * import { Color, Style, css } from '@sys/ui-dom/style/react';
  * ```
  *
