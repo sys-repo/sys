@@ -3,6 +3,7 @@
  * Tools for working with the DOM (Document Object Model).
  *
  * @example
+ * Importing tools for styling.
  * ```ts
  * import { Color } from '@sys/ui-dom';   // ← NB: alias from '@sys/std/color'
  * import { Color, Style } from '@sys/ui-dom/style';
@@ -14,6 +15,32 @@
  * ```ts
  * import { Mock } from '@sys/ui-dom/mock';
  * Mock.polyfill();
+ * ```
+ *
+ * @example
+ * To work with local-storage in a strongly typed way:
+ * ```ts
+ * import { LocalStorage } from '@sys/ui-dom/local-storage';
+ *
+ * type T = { count: number; msg?: string };
+ * const localstore = LocalStorage<T>('my-namespace-prefix');
+ * const local = localstore.object({ count: 0 });
+ * ```
+ *
+ * @example
+ * To work with global keyboard events.
+ *
+ * ```ts
+ * import { Keyboard } from '@sys/ui-dom/keyboard';
+ *
+ * const life = rx.disposable();
+ * const until = Keyboard.until(life.dispose$);
+ *
+ * until.on('KeyZ', (e) => {
+ *   console.log('Z', e);
+ * });
+ *
+ * life.dispose();
  * ```
  */
 export { Pkg } from './common.ts';
