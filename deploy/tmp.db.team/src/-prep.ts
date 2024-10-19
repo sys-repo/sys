@@ -1,8 +1,14 @@
-import { Fs, Cli, c } from '@sys/std-s';
+import { Cli, Fs, c } from '@sys/std-s';
 
-// TEMP 🐷
-const root = '/Users/phil/code/org.cellplatform/platform-0.2.0/code/spikes/dev.000';
-const from = Fs.join(root, 'dist/web');
+/**
+ * TODO 🐷 - tidy up script and find a home for the behavior.
+ */
+const PATHS = {
+  dev000: `/Users/phil/code/org.cellplatform/platform-0.2.0/code/spikes/dev.000`,
+  dev: Fs.Path.resolve('../../code/sys.ui/ui-react/dist'),
+};
+
+const from = PATHS.dev;
 const to = Fs.resolve('./dist');
 
 const exists = {

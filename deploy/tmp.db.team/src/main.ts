@@ -1,5 +1,5 @@
 import { HttpServer } from 'jsr:@sys/std-s';
-import { Pkg } from './m.pkg.ts';
+import { Pkg } from './pkg.ts';
 
 /**
  * Define HTTP Web Server.
