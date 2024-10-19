@@ -10,7 +10,7 @@ export const root = Spec.describe('MySample', (e) => {
       .backgroundColor(1)
       .render(() => {
         const env = ctx.env;
-        const message = typeof env?.msg === 'string' ? env.msg : 'Hello Subject';
+        const message = typeof env?.msg === 'string' ? env.msg : 'Hello <Subject>';
         return <div>{message}</div>;
       });
   });
@@ -18,7 +18,7 @@ export const root = Spec.describe('MySample', (e) => {
   // deno-lint-ignore require-await
   e.it('foo', async (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(() => <div>{`Hello Row!`}</div>);
+    ctx.debug.row(() => <div>{`Hello <Row>!`}</div>);
   });
 });
 
