@@ -1,6 +1,6 @@
-import { Spec, type t } from '../common';
-import { ButtonSample } from './ui.Button';
-import { Hr } from './ui.Hr';
+import { Spec, type t } from '../common.ts';
+import { ButtonSample } from './ui.Button.tsx';
+import { Hr } from './ui.Hr.tsx';
 
 type ButtonClickHandler = (e: ButtonHandlerArgs) => void;
 type ButtonHandler = (e: ButtonHandlerArgs) => t.IgnoredResponse;

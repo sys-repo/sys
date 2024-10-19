@@ -1,5 +1,5 @@
-import { Spec, type t } from '../common';
-import { DevTools } from '../sample.DevTools';
+import { Spec, type t } from '../common.ts';
+import { DevTools } from '../sample.DevTools/mod.ts';
 
 type TOutput = JSX.Element | null | undefined;
 

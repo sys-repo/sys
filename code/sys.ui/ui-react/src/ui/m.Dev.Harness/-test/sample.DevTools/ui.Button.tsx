@@ -1,5 +1,5 @@
-import { RenderCount } from '../../ui/RenderCount';
-import { COLORS, Color, css, useMouse, type t } from '../common';
+import { RenderCount } from '../../ui/RenderCount/mod.ts';
+import { COLORS, Color, css, useMouse, type t } from '../common.ts';
 
 export type ButtonSampleClickHandler = (e: ButtonSampleClickHandlerArgs) => void;
 export type ButtonSampleClickHandlerArgs = { ctx: t.DevCtx };

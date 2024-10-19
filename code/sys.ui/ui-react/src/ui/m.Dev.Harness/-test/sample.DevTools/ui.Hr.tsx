@@ -1,4 +1,4 @@
-import { Color, css } from '../common';
+import { Color, css } from '../common.ts';
 
 export type HrProps = { marginY?: number };
 export const Hr: React.FC<HrProps> = (props) => {

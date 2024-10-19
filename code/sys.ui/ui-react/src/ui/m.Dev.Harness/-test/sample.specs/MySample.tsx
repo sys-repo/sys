@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Color, css, DEFAULTS, Keyboard, type t } from '../common';
+import { Color, css, DEFAULTS, Keyboard, type t } from '../common.ts';
 
 export type MySampleProps = {
   text?: string;
@@ -22,9 +22,9 @@ export const MySample: React.FC<MySampleProps> = (props) => {
   useEffect(() => {
     const keyboard = Keyboard.on({
       Enter(e) {
-        const url = new URL(window.location.href);
+        const url = new URL(globalThis.location.href);
         url.searchParams.set(DEFAULTS.qs.dev, 'true');
-        window.location.href = url.href;
+        globalThis.location.href = url.href;
       },
     });
     return () => keyboard.dispose();

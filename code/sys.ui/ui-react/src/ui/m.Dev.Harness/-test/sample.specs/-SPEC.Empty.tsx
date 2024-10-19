@@ -1,4 +1,4 @@
-import { Spec } from '../common';
+import { Spec } from '../common.ts';
 
 export default Spec.describe('Empty', (e) => {
   e.it('init', async (e) => {

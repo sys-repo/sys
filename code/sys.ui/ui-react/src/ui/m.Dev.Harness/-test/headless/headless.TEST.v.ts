@@ -1,11 +1,11 @@
-import { Dev } from '../..';
-import { describe, expect, it } from '../../test';
+import { Dev } from '../../mod.ts';
+import { describe, expect, it } from '../../-test.ts';
 
 describe('headless (test runner)', () => {
   it('success (OK)', async () => {
     const Specs = {
-      'sample.MySample': () => import('../sample.specs/-SPEC.MySample'),
-      'sample.empty': () => import('../sample.specs/-SPEC.Empty'),
+      'sample.MySample': () => import('../sample.specs/-SPEC.MySample.tsx'),
+      'sample.empty': () => import('../sample.specs/-SPEC.Empty.tsx'),
     };
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(true);
@@ -15,7 +15,7 @@ describe('headless (test runner)', () => {
 
   it('fail', async () => {
     const Specs = {
-      'sample.Fail': () => import('../sample.specs/-SPEC.Fail'),
+      'sample.Fail': () => import('../sample.specs/-SPEC.Fail.tsx'),
     };
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(false);

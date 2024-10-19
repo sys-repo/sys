@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { useState } from 'react';
 
-import { Keyboard } from 'sys.ui.dom';
+import { Keyboard } from '@sys/ui-dom';
 
-import { DevBus } from '../../u.Bus';
-import { COLORS, Color, Spec, css, Time } from '../common';
-import { DevTools } from '../sample.DevTools';
-import { MySample } from './MySample';
+import { DevBus } from '../../u.Bus/mod.ts';
+import { COLORS, Color, Spec, css, Time } from '../common.ts';
+import { DevTools } from '../sample.DevTools/mod.ts';
+import { MySample } from './MySample.tsx';
 
 let _renderCount = 0;
 

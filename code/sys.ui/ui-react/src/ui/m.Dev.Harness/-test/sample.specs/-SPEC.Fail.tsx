@@ -1,4 +1,4 @@
-import { Spec, expect } from '../common';
+import { Spec, expect } from '../common.ts';
 
 export default Spec.describe('will fail', (e) => {
   e.it('init', async (e) => {

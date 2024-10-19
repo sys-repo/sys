@@ -1,6 +1,6 @@
 import { ButtonSample } from '.';
-import { Spec } from '../common';
-import { DevTools } from './DevTools';
+import { Spec } from '../common.ts';
+import { DevTools } from './DevTools.tsx';
 
 let _count = 0;
 

@@ -1,8 +1,8 @@
-import type { t } from '../common';
+import type { t } from '../common.ts';
 
 export const Specs = {
-  'sample.MySample': () => import('./-SPEC.MySample'),
-  'sample.empty': () => import('./-SPEC.Empty'),
-  'sample.fail': () => import('./-SPEC.Fail'),
-  'sample.error': () => import('./-SPEC.Error'),
+  'sample.MySample': () => import('./-SPEC.MySample.tsx'),
+  'sample.empty': () => import('./-SPEC.Empty.tsx'),
+  'sample.fail': () => import('./-SPEC.Fail.tsx'),
+  'sample.error': () => import('./-SPEC.Error.tsx'),
 } as t.SpecImports;
