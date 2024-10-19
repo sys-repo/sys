@@ -10,6 +10,6 @@ export type {
   UntilObservable,
 } from '@sys/types';
 
-export type { FormatBytes, TimeThreshold } from '@sys/std/t';
+export type { ColorLib, FormatBytes, TimeThreshold } from '@sys/std/t';
 
 export type * from '../types.ts';

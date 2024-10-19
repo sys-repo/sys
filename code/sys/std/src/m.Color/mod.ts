@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Color } from '@sys/ui-react
+ * import { Color } from '@sys/std/color
  *
  * const theme = Color.theme('Dark');
  * const myColor = Color.alpha(theme.fg, 0.3);

@@ -4,6 +4,7 @@
  */
 export type * from './m.Args/t.ts';
 export type * from './m.Async/t.ts';
+export type * from './m.Color/t.ts';
 export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
@@ -22,9 +23,9 @@ export type * from './m.Rx/t.ts';
 export type * from './m.Semver/t.ts';
 export type * from './m.Testing.HttpServer/t.ts';
 export type * from './m.Testing/t.ts';
-export type * from './m.Value.Str/t.ts';
 export type * from './m.Value.Array/t.ts';
 export type * from './m.Value.Num/t.ts';
+export type * from './m.Value.Str/t.ts';
 export type * from './m.Value/t.ts';
 
 export type * from '@sys/types/t';

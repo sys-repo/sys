@@ -28,6 +28,7 @@ export { Async } from './m.Async/mod.ts';
 export { D, Date, Duration, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
+export { Color } from './m.Color/mod.ts';
 export { Err } from './m.Err/mod.ts';
 export { Hash } from './m.Hash/mod.ts';
 export { Http } from './m.Http/mod.ts';

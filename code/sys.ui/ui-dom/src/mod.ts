@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Color } from '@sys/ui-dom/color';
+ * import { Color } from '@sys/ui-dom';   // ← NB: alias from '@sys/std/color'
  * import { Color, Style } from '@sys/ui-dom/style';
  * import { Color, Style, css } from '@sys/ui-dom/style/react';
  * ```
@@ -17,7 +17,8 @@
  * ```
  */
 export { Pkg } from './common.ts';
-export { Color } from './m.Color/mod.ts';
+
+export { Color } from './common.ts';
 export { File } from './m.File/mod.ts';
 export { Keyboard } from './m.Keyboard/mod.ts';
 export { LocalStorage } from './m.LocalStorage/mod.ts';
