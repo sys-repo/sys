@@ -1,4 +1,4 @@
-import Bar from 'react-spinners/BarLoader';
+import { BarLoader as Bar } from 'react-spinners';
 import { COLORS, css, type t } from '../common.ts';
 
 export type BarLoaderProps = {
