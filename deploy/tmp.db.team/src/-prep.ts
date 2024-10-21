@@ -5,7 +5,7 @@ import { Cli, Fs, c } from '@sys/std-s';
  */
 const PATHS = {
   dev000: `/Users/phil/code/org.cellplatform/platform-0.2.0/code/spikes/dev.000`,
-  dev: Fs.Path.resolve('../../code/sys.ui/ui-react/dist'),
+  dev: Fs.Path.resolve('../../code/sys.ui/ui-dev-harness/dist'),
 };
 
 const from = PATHS.dev;

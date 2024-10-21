@@ -30,7 +30,7 @@
     "./code/sys/types",
 
     "./code/sys.ui/ui-dom",
-    "./code/sys.ui/ui-react",
+    "./code/sys.ui/ui-dev-harness",
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",

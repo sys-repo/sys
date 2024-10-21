@@ -6,8 +6,8 @@
  * Import pattern for a simple React component
  *
  * ```ts
- * import type { t } from '@sys/ui-react/t';
- * import { Color, Style, css } from '@sys/ui-react/style';
+ * import type { t } from '@sys/ui-dev-harness/t';
+ * import { Color, Style, css } from '@sys/ui-dev-harness/style';
  *
  * export type FooProps = {
  *   theme?: t.CommonTheme;
