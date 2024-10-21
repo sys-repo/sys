@@ -22,5 +22,4 @@ console.log('completion', completion);
  * Finish up.
  */
 // await Q.Release.pull();
-
 Deno.exit(0);
