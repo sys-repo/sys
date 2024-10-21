@@ -15,7 +15,7 @@ const el = (
   <Dev.Harness
     spec={SAMPLES.Sample1}
     style={{
-      // Absolute: 0,
+      Absolute: 0,
       backgroundColor: Color.WHITE,
       backdropFilter: 'blur(5px)',
     }}
