@@ -68,16 +68,17 @@ type Immutable<T> = {
 
 type T = { count: number }
 
-// Generator<T> over some immutability strategy/lib implementation.
+// Generator<T> over some immutability strategy 
+// (typically an external library's implementation, see namespace: `@sys/driver-*`).
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
 
 /**
  * Imutable change pattern.
  * (safely mutate a proxy).
  */
-foo.current                        // === { count: 0 }
-foo.change((d) => d.count = 123);  //  Σ  safe mutate
-foo.current                        // === { count: 123 }
+foo.current                        // === { count: 0 }    ↓
+foo.change((d) => d.count = 123);  //  Σ                  ← safe mutation
+foo.current                        // === { count: 123 }  ↓
 
 
 // Observable typed Event<T> stream: 💦
