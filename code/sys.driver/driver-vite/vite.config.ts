@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-unreachable
+
 /**
  * Sample [vite.config.ts] file
  * Notes:
@@ -31,6 +33,8 @@ export const customizedConfig = defineConfig(async (_ctx) => {
      *       (default: nothing filtered → ie. the entire monorepo is available for `import`).
      */
     filter(e) {
+      return true;
+
       if (e.subpath.startsWith('/client')) return true;
       if (e.pkg === '@sys/std') return true;
       return false;

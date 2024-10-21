@@ -1,11 +1,10 @@
-import { default as Pkg } from '../../../deno.json' with { type: 'json' };
+import { Pkg } from '../pkg.ts';
 console.info('Pkg', Pkg);
 
 /**
- * Sample: import NPM module.
+ * Test imports from across the workspace.
  */
-import { Observable } from 'rxjs'; // NB: see monorepo import-map.
-console.log('import rxjs: Observable', Observable);
+import '../-sample-imports.ts';
 
 /**
  * Sample: dynamic import (code-splitting).

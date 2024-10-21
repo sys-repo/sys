@@ -1,10 +1,12 @@
 /**
- * Namespcae: @std (deno)
+ * @example
+ * Namespace: @std (deno)
+ *            @sys (deno)
+ *
+ * Proves that key imports work from across the workspace
+ * and do not cause build/bundle errors within Vite.
  */
 const now = new Date();
-
-// import * as yaml from 'yaml';
-// console.log('yaml', yaml);
 
 console.group('🌳 import: @std');
 

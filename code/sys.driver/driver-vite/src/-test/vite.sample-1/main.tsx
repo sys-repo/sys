@@ -1,4 +1,4 @@
-import { default as Pkg } from '../../../deno.json' with { type: 'json' };
+import { Pkg } from '../pkg.ts';
 console.info('Pkg', Pkg);
 
 /**

@@ -14,7 +14,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./ui/dev": "./src/ui/m.Dev/mod.ts",
+    "./ui/dev": "./src/ui/m.Dev.Harness/mod.ts",
     "./ui/react": "./src/ui/m.React/mod.ts"
   }
 }

@@ -1,5 +1,4 @@
 import { default as Pkg } from '../../../deno.json' with { type: 'json' };
-import './-sample-imports.ts'; // 🐷
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -10,7 +9,6 @@ document.title = Pkg.name;
 
 import { SAMPLES } from '../../ui/m.Dev.Harness/-test/sample.specs.unit-test/mod.ts';
 import { Dev } from '../../ui/m.Dev.Harness/mod.ts';
-// import { DevHarness } from '../../ui/m.Dev/mod.ts'; // TEMP 🐷
 
 import { Color } from '@sys/ui-dom';
 
