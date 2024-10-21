@@ -22,6 +22,7 @@ import reactPlugin from '@vitejs/plugin-react-swc';
 import { defineConfig } from 'vite';
 
 import { c } from '@sys/std-s';
+import { Style } from '@sys/ui-dom/style/react';
 
 /**
  * SAMPLE: Custom plugin (no customization).
@@ -52,8 +53,9 @@ export const customizedConfig = defineConfig(async (_ctx) => {
     },
   });
 
+  const react = reactPlugin(Style.plugin.emotion());
   return {
-    plugins: [reactPlugin(), workspace],
+    plugins: [react, workspace],
   };
 });
 
@@ -61,7 +63,8 @@ export const customizedConfig = defineConfig(async (_ctx) => {
  * SAMPLE: Simple default (no customization).
  */
 export const simpleConfig = defineConfig((_ctx) => {
-  return { plugins: [reactPlugin(), workspacePlugin()] };
+  const react = reactPlugin(Style.plugin.emotion());
+  return { plugins: [react, workspacePlugin()] };
 });
 
 /**

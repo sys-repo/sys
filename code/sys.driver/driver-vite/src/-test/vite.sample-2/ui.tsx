@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
 import { Foo } from '@sys/tmp/client/ui';
-import { Color, css, type t } from '../common.ts';
+import { Color, css } from '@sys/ui-dom/style/react';
+import type { t } from '../common.ts';
 
 /**
  * Sample Component demonstrating the fundamentals
@@ -11,12 +12,12 @@ import { Color, css, type t } from '../common.ts';
  * - Style: CSS primitives
  * - Style: Color primitives
  */
-export type AppProps = {
+export type ViewProps = {
   theme?: t.CommonTheme;
   style?: t.CssValue;
 };
 
-export const App: React.FC<AppProps> = (props) => {
+export const View: React.FC<ViewProps> = (props) => {
   const [isOver, setOver] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
 
@@ -25,9 +26,9 @@ export const App: React.FC<AppProps> = (props) => {
     base: css({
       Margin: 20,
       padding: 20,
-      color: 'green',
       backgroundColor: isOver ? 'hotpink' : 'lightgreen',
       fontFamily: 'monospace',
+      color: 'blue',
     }),
     title: css({
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
@@ -58,7 +59,7 @@ export const App: React.FC<AppProps> = (props) => {
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>
       </div>
-      <div>
+      <div style={{ paddingTop: 10 }}>
         {'Imported from ← '}
         <Foo />
       </div>

@@ -1,4 +1,7 @@
+import { createRoot } from 'react-dom/client';
 import { Pkg } from '../pkg.ts';
+import { View } from './ui.tsx';
+
 console.info('Pkg', Pkg);
 
 /**
@@ -9,17 +12,11 @@ import '../-sample-imports.ts';
 /**
  * Sample: dynamic import (code-splitting).
  */
-const dynamic = import('./main.foo.ts');
+const dynamic = import('./m.foo.ts');
 dynamic.then((mod) => console.log('💦 dynmaic import', mod));
-
-/**
- * Sample: internal monorepo import.
- */
-import { Foo } from '@sys/tmp/client/ui'; // NB: imported from mono-repo, mapped in {resolve/alias} Vite config.
 
 /**
  * Sample: render react component.
  */
-import { createRoot } from 'react-dom/client';
 const root = createRoot(document.getElementById('root'));
-root.render(<Foo />);
+root.render(<View style={{ border: `solid 1px blue` }} />);
