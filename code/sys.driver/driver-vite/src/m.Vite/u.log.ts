@@ -105,7 +105,7 @@ ${ws.toString()}
 
 ${Log.Info.toString({ Pkg, url, pad })}      
          ↓
-         ${c.green('input')}    ${paths.input.slice(cwd.length)}
+         ${c.white('input')}    ${paths.input.slice(cwd.length)}
          ${c.cyan('output')}   ${paths.outDir.slice(cwd.length)}
 
 
