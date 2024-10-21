@@ -51,10 +51,10 @@ export function useBusController(
   return {
     instance,
     info,
-    get events() {
+    get events(): t.DevEvents {
       return eventsRef.current;
     },
-    get ready() {
+    get ready(): boolean {
       return !!info.render.props;
     },
   } as const;

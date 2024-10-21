@@ -107,7 +107,7 @@ export type DevInfoReqEvent = {
   type: 'sys.dev/info:req';
   payload: DevInfoReq;
 };
-export type DevInfoReq = { tx: string; instance: Id };
+export type DevInfoReq = { tx: string; instance: t.StringId };
 
 export type DevInfoResEvent = {
   type: 'sys.dev/info:res';
@@ -137,7 +137,7 @@ export type DevCtxReqEvent = {
   type: 'sys.dev/ctx:req';
   payload: DevCtxReq;
 };
-export type DevCtxReq = { tx: string; instance: Id };
+export type DevCtxReq = { tx: string; instance: t.StringId };
 
 export type DevCtxResEvent = {
   type: 'sys.dev/ctx:res';
@@ -177,7 +177,7 @@ export type DevRunRes = { tx: string; instance: t.StringId; info?: t.DevInfo; er
  * Reset context/state.
  */
 export type DevResetReqEvent = { type: 'sys.dev/reset:req'; payload: DevResetReq };
-export type DevResetReq = { tx: string; instance: Id };
+export type DevResetReq = { tx: string; instance: t.StringId };
 
 export type DevResetResEvent = { type: 'sys.dev/reset:res'; payload: DevResetRes };
 export type DevResetRes = { tx: string; instance: t.StringId; info?: t.DevInfo; error?: string };

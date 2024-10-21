@@ -314,7 +314,7 @@ export function BusEvents(args: {
    * API.
    */
   const events: t.DevEvents = {
-    instance: { bus: rx.bus.instance(bus), id: instance },
+    instance: { bus, id: instance },
     $,
     dispose,
     dispose$,
