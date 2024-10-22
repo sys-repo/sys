@@ -1,10 +1,10 @@
+import { Spec } from '../../-test.ts';
 import { Harness } from './mod.ts';
-import { Spec } from '../../test.ui';
 
 export default Spec.describe('Harness', (e) => {
-  e.it('init', async (e) => {
+  e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    const bundle = import('../../test.ui/sample.specs/-SPEC.MySample');
+    const bundle = import('../../-test/sample.specs/-SPEC.MySample.tsx');
 
     ctx.subject
       .size('fill')
