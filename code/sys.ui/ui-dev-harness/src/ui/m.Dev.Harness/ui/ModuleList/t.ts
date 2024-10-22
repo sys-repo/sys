@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/**
+ * Default values.
+ */
 export type ModuleListDefaults = {
   displayName: string;
   qs: t.DefaultsQueryString;
@@ -10,6 +13,12 @@ export type ModuleListDefaults = {
 
 /**
  * <Component>
+ */
+export type ModuleListComponent = React.FC<t.ModuleListProps> & ModuleListComponentFields;
+export type ModuleListComponentFields = { DEFAULTS: t.ModuleListDefaults };
+
+/**
+ * Component properties
  */
 export type ModuleListProps<T = unknown> = {
   title?: string;
