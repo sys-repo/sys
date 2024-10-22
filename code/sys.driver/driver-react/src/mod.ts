@@ -1,10 +1,33 @@
 /**
  * @module
- * Tools for ...
+ * Tools for working with DOM/browser based UI react bindings.
  *
  * @example
+ * Import pattern for a simple React component
+ *
  * ```ts
- * import { Pkg } from '@sys/xxx';
+ * import type { t } from '@sys/ui-common/t';
+ * import { Color, Style, css } from '@sys/ui-common';
+ *
+ * export type FooProps = {
+ *   theme?: t.CommonTheme;
+ *   style?: t.CssValue;
+ * }
+ *
+ * export const Foo: React.FC<FooProps> = (props) => {
+ *   const theme = Color.theme(props.theme);
+ *   const styles = {
+ *     base: css({ color: Color.alpha(theme.fg, 0.3) }),
+ *   };
+ *
+ *   return (
+ *     <div {...css(styles.base, props.style)}>
+ *       <div>{`👋 Hello World`}</div>
+ *     </div>
+ *   );
+ * };
  * ```
  */
-export { Pkg } from './common.ts';
+export { Pkg } from './pkg.ts';
+export { FC } from './m.FC/mod.ts';
+export { useClickInside, useClickOutside, useMouse, useMouseDrag } from './m.use/mod.ts';

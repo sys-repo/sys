@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { FC } from './mod.ts';
 
 describe('FC (Functional Component)', () => {

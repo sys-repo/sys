@@ -3,7 +3,6 @@
  * Tools for working with browser based UI (react bindings).
  *
  * @example
- * Import pattern for a simple React component
  *
  * ```ts
  * import type { t } from '@sys/ui-dev-harness/t';
