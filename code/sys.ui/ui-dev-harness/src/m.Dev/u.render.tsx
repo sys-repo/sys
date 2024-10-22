@@ -3,7 +3,7 @@ import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
 import { COLORS, DevWrangle, type t } from './common.ts';
 
-type Options = {
+export type RenderOptions = {
   location?: t.UrlInput;
   badge?: t.ImageBadge;
   hrDepth?: number;
@@ -16,13 +16,15 @@ type Options = {
  * or an index list of available specs.
  *
  * NOTE: This is overridden with a more complex implementation
- *      in the [sys.ui.react.common] package.
+ *      in the [@sys/ui-common] package.
  */
-export async function render(
+export type Render = (
   pkg: { name: string; version: string },
   specs: t.SpecImports,
-  options: Options = {},
-) {
+  options?: RenderOptions,
+) => Promise<JSX.Element>;
+
+export const render: Render = async (pkg, specs, options = {}) => {
   const { keyboard = true } = options;
   const url = DevWrangle.Url.navigate.formatDevFlag(options);
   const spec = await DevWrangle.Url.module(url, specs);
@@ -44,4 +46,4 @@ export async function render(
       style={style}
     />
   );
-}
+};
