@@ -77,15 +77,15 @@ jobs:
           deno task test
           deno publish
 
-      - name: publish module → "@sys/ui-dev-harness"
-        run: |
-          cd code/sys.ui/ui-dev-harness
-          deno task test
-          deno publish
-
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/ui-dev-harness"
+        run: |
+          cd code/sys.ui/ui-dev-harness
           deno task test
           deno publish
 
