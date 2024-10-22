@@ -1,4 +1,4 @@
-import * as t from './t';
+import type * as t from './t.ts';
 
 const node: t.ImageBadge = {
   image: 'https://github.com/cellplatform/platform-0.2.0/actions/workflows/ci.node.yml/badge.svg',
