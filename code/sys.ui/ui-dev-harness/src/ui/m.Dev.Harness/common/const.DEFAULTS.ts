@@ -50,10 +50,12 @@ export const DEFAULTS = {
   /**
    * URL query-string keys.
    */
-  qs: {
-    d: 'd', // NB: alias for "?dev"
-    dev: 'dev',
-    selected: 'selected',
-    filter: 'filter',
+  get qs(): t.DefaultsQueryString {
+    return {
+      d: 'd', // NB: alias for "?dev"
+      dev: 'dev',
+      selected: 'selected',
+      filter: 'filter',
+    };
   },
 } as const;

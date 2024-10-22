@@ -4,7 +4,7 @@ import { Wrangle } from './u.Wrangle.ts';
 /**
  * Root API to the UI Spec Runner system.
  */
-export const Spec = {
+export const Spec: t.SpecLib = {
   Wrangle,
 
   /**

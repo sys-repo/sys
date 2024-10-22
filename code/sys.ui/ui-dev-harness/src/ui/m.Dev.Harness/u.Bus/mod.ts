@@ -2,13 +2,11 @@ import { BusController } from './Bus.Controller.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { Is, Spec, type t } from './common.ts';
 
-import { Test } from '@sys/testing/spec';
-
 export * from './Bus.Events.ts';
 
 type InstanceInput = t.DevInstance | t.DevCtx | t.TestHandlerArgs;
 
-export const DevBus = {
+export const DevBus: t.DevBusLib = {
   Controller: BusController,
   Events: BusEvents,
 

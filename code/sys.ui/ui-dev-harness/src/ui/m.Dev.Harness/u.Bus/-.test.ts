@@ -1,12 +1,13 @@
 import { SAMPLES, Test, TestSample, Time, describe, expect, it, type t } from '../-test.ts';
 import { Spec } from '../mod.ts';
 import { DevBus } from './mod.ts';
+import { DevEventsIs } from './Bus.Events.ts';
 
 const exepctSessionId = (value: string) => expect(value).to.match(/^dev:ctx\./);
 
 describe.skip('DevBus', () => {
   describe('is', () => {
-    const is = DevBus.Events.is;
+    const is = DevEventsIs;
 
     it('is (static/instance)', () => {
       const instance = TestSample.instance();

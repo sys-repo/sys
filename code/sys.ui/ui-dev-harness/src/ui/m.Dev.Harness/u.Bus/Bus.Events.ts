@@ -2,15 +2,13 @@ import { ContextState } from '../u.Ctx/Context.State.ts';
 import { asArray, rx, slug, type t } from './common.ts';
 
 const DEFAULT = { TIMEOUT: 500 };
-
 type O = Record<string, unknown>;
-type Id = string;
 
 /**
  * Event API.
  */
 export function BusEvents(args: {
-  instance: { bus: t.EventBus<any>; id: Id };
+  instance: { bus: t.EventBus<any>; id: t.StringId };
   filter?: (e: t.DevEvent) => boolean;
   dispose$?: t.UntilObservable;
 }): t.DevEvents {
@@ -20,7 +18,7 @@ export function BusEvents(args: {
 
   const bus = rx.bus.asType<t.DevEvent>(args.instance.bus);
   const instance = args.instance.id;
-  const is = BusEvents.is;
+  const is = DevEventsIs;
 
   const $ = bus.$.pipe(
     rx.takeUntil(dispose$),
@@ -339,7 +337,10 @@ export function BusEvents(args: {
  * Event matching.
  */
 const matcher = (startsWith: string) => (input: any) => rx.Is.event(input, { startsWith });
-BusEvents.is = {
+
+export const DevEventsIs = {
   base: matcher('sys.dev/'),
-  instance: (e: t.Event, instance: Id) => BusEvents.is.base(e) && e.payload?.instance === instance,
-};
+  instance(e: t.Event, instance: t.StringId) {
+    return DevEventsIs.base(e) && e.payload?.instance === instance;
+  },
+} as const;

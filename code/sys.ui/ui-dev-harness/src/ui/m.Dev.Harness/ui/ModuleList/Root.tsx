@@ -5,7 +5,7 @@ import { View } from './ui.tsx';
  * Export
  */
 type Fields = {
-  DEFAULTS: typeof DEFAULTS;
+  DEFAULTS: t.ModuleListDefaults;
 };
 export const ModuleList = FC.decorate<t.ModuleListProps, Fields>(
   View,

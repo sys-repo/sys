@@ -1,10 +1,14 @@
 import { Is, type t } from '../common.ts';
 
-export const Wrangle = {
+export type WrangleLib = {
   ctx(
     input: any | t.TestHandlerArgs | t.DevCtx,
-    options: { throw?: boolean } = {},
-  ): t.DevCtx | undefined {
+    options?: { throw?: boolean },
+  ): t.DevCtx | undefined;
+};
+
+export const Wrangle: WrangleLib = {
+  ctx(input, options = {}): t.DevCtx | undefined {
     if (Is.ctx(input)) return input;
 
     if (typeof input === 'object' && input !== null) {

@@ -6,7 +6,7 @@ import { CtxProps } from './Ctx.Props.ts';
 
 type O = Record<string, unknown>;
 
-export const Context = {
+export const Context: t.ContextLib = {
   /**
    * Create a new instance of the Context logic.
    */

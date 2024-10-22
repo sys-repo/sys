@@ -3,11 +3,14 @@ import { DEFAULTS, R, type t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Dynamic value.
+ * Generate a dynamic value.
  *    Used within the definitions of [DevTools] implementations
  *    when the value needs to be re-calculated upon state/prop updates.
  */
-export function ValueHandler<V, State extends O>(events: t.DevEvents) {
+
+export const ValueHandler: t.ValueHandler = <V, State extends O>(
+  events: t.DevEvents,
+): t.DynamicValue<V, State> => {
   type Handler = t.DevValueHandler<V, State>;
   type Subscriber = (e: { value: V }) => void;
 
@@ -68,4 +71,4 @@ export function ValueHandler<V, State extends O>(events: t.DevEvents) {
   };
 
   return api;
-}
+};

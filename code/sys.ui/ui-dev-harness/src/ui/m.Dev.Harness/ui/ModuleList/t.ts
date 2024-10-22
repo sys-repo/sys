@@ -1,5 +1,13 @@
 import type { t } from './common.ts';
 
+export type ModuleListDefaults = {
+  displayName: string;
+  qs: t.DefaultsQueryString;
+  list: { minWidth: number };
+  useAnchorLinks: boolean;
+  showParamDev: boolean;
+};
+
 /**
  * <Component>
  */
