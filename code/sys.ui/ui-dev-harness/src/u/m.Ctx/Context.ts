@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-import { BusEvents } from '../u.Bus/Bus.Events.ts';
+import { BusEvents } from '../m.Bus/Bus.Events.ts';
 import { ContextState } from './Context.State.ts';
 import { CtxProps } from './Ctx.Props.ts';
 

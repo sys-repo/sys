@@ -1,4 +1,4 @@
-import { ContextState } from '../u.Ctx/Context.State.ts';
+import { ContextState } from '../m.Ctx/Context.State.ts';
 import { asArray, rx, slug, type t } from './common.ts';
 
 const DEFAULT = { TIMEOUT: 500 };

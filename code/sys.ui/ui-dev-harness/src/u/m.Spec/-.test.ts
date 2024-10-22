@@ -1,4 +1,4 @@
-import { TestSample, describe, expect, it } from '../-test.ts';
+import { TestSample, describe, expect, it } from '../../-test.ts';
 import { Is, Time, type t } from '../common.ts';
 import { Spec } from './mod.ts';
 

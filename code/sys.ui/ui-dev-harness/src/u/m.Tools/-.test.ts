@@ -1,4 +1,4 @@
-import { TestSample, Time, describe, expect, it, type t } from '../-test.ts';
+import { TestSample, Time, describe, expect, it, type t } from '../../-test.ts';
 import { ValueHandler } from './ValueHandler.ts';
 
 describe('ValueHandler', () => {

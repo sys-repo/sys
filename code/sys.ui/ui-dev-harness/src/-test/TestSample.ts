@@ -1,6 +1,6 @@
 import { rx, slug } from '../common.ts';
-import { DevBus } from '../u.Bus/mod.ts';
-import { Context } from '../u.Ctx/mod.ts';
+import { DevBus } from '../u/m.Bus/mod.ts';
+import { Context } from '../u/m.Ctx/mod.ts';
 import { SAMPLES } from './sample.specs.unit-test/mod.ts';
 
 /**

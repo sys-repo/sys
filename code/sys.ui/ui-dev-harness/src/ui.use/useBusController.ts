@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DevBus } from '../u.Bus/mod.ts';
+import { DevBus } from '../u/m.Bus/mod.ts';
 import { DEFAULTS, Time, rx, slug, type t } from './common.ts';
 
 type Id = string;
