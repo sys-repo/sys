@@ -11,10 +11,18 @@ export type TestArgs = {
 };
 
 /**
- * Common test types.
+ * Sample test type.
  */
 export type C = C1 | C2;
+
+/**
+ * Sample test type.
+ */
 export type C1 = t.CmdType<'Foo', { foo: number }>;
+
+/**
+ * Sample test type.
+ */
 export type C2 = t.CmdType<'Bar', { msg?: string }>;
 
 /**
