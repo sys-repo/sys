@@ -30,7 +30,7 @@
     "@swc/plugin-emotion": "npm:@swc/plugin-emotion@4",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
-    "react-spinners": "https://esm.sh/react-spinners@0.14.1",
+    "react-spinners": "npm:react-spinners@0.14.1",
 
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
