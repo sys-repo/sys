@@ -1,4 +1,4 @@
-import { Spec } from '../common.ts';
+import { Spec } from '../../u/Spec/m.Spec';
 
 export default Spec.describe('Error on initialize', (e) => {
   e.it('init', (e) => {

@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Keyboard } from '@sys/ui-dom';
 
-import { DevBus } from '../../u.Bus/mod.ts';
+import { DevBus } from '../../u/Bus/mod.ts';
 import { COLORS, Color, Spec, css, Time } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 import { MySample } from './MySample.tsx';
@@ -25,12 +25,12 @@ export default Spec.describe('MySample', (e) => {
       // NB: Test helpful to ensure errors don't occur on headless run (aka. server/CI).
       console.log('keyboard', e.pattern);
     });
-    ctx.host.header.render<T>((e) => {
+    ctx.host.header.render<T>(() => {
       return <div>Header</div>;
       // return null;
     });
 
-    ctx.host.footer.render<T>((e) => {
+    ctx.host.footer.render<T>(() => {
       return <div>Footer</div>;
       // return null;
     });
@@ -39,8 +39,8 @@ export default Spec.describe('MySample', (e) => {
       above: css({ padding: 20 }),
       below: css({ Absolute: [null, 20, 20, null] }),
     };
-    ctx.host.layer(1).render((e) => <div {...styles.above}>Layer Above</div>);
-    ctx.host.layer(-1).render((e) => <div {...styles.below}>Layer Below</div>);
+    ctx.host.layer(1).render(() => <div {...styles.above}>Layer Above</div>);
+    ctx.host.layer(-1).render(() => <div {...styles.below}>Layer Below</div>);
 
     ctx.subject
       .size([300, 200])
@@ -97,10 +97,10 @@ export default Spec.describe('MySample', (e) => {
       .hr();
 
     dev
-      .button((btn) => btn.label('run specs').onClick((e) => ctx.run()))
-      .button((btn) => btn.label('run specs (reset)').onClick((e) => ctx.run({ reset: true })))
+      .button((btn) => btn.label('run specs').onClick(() => ctx.run()))
+      .button((btn) => btn.label('run specs (reset)').onClick(() => ctx.run({ reset: true })))
       .button((btn) =>
-        btn.label('throw error').onClick((e) => {
+        btn.label('throw error').onClick(() => {
           state.change((d) => (d.throwError = true));
         }),
       )
@@ -108,9 +108,9 @@ export default Spec.describe('MySample', (e) => {
 
     debug.row(<div>State</div>);
     dev
-      .button((btn) => btn.label('increment (+)').onClick((e) => state.change((d) => d.count++)))
-      .button((btn) => btn.label('decrement (-)').onClick((e) => state.change((d) => d.count--)))
-      .button((btn) => btn.label('no change').onClick((e) => state.change((d) => null)))
+      .button((btn) => btn.label('increment (+)').onClick(() => state.change((d) => d.count++)))
+      .button((btn) => btn.label('decrement (-)').onClick(() => state.change((d) => d.count--)))
+      .button((btn) => btn.label('no change').onClick(() => state.change(() => null)))
       .hr();
 
     debug.row(<div>Harness</div>);
@@ -152,36 +152,36 @@ export default Spec.describe('MySample', (e) => {
     debug.row(<div>Host</div>);
     dev
       .button((btn) =>
-        btn.label('theme: light').onClick((e) => {
+        btn.label('theme: light').onClick(() => {
           ctx.host.color(null).backgroundColor(null).tracelineColor(null);
           // ctx.subject.color(COLORS.DARK);
         }),
       )
 
       .button((btn) =>
-        btn.label('theme: dark').onClick((e) => {
+        btn.label('theme: dark').onClick(() => {
           ctx.host.color(COLORS.WHITE).backgroundColor(COLORS.DARK).tracelineColor(0.1);
           // ctx.subject.color(COLORS.WHITE);
         }),
       )
       .button((btn) =>
-        btn.label('background image: "url"').onClick((e) => {
+        btn.label('background image: "url"').onClick(() => {
           const url =
             'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1287&q=80';
           ctx.host.backgroundImage({ url, margin: 60, opacity: 0.3 });
         }),
       )
       .button((btn) =>
-        btn.label('background image: null').onClick((e) => ctx.host.backgroundImage(null)),
+        btn.label('background image: null').onClick(() => ctx.host.backgroundImage(null)),
       )
       .hr();
 
     debug.row(<div>Debug Panel</div>);
     dev
-      .button((btn) => btn.label('scroll: true').onClick((e) => ctx.debug.scroll(true)))
-      .button((btn) => btn.label('scroll: false').onClick((e) => ctx.debug.scroll(false)))
-      .button((btn) => btn.label('padding: 0').onClick((e) => ctx.debug.padding(0)))
-      .button((btn) => btn.label('padding: [default]').onClick((e) => ctx.debug.padding(null)));
+      .button((btn) => btn.label('scroll: true').onClick(() => ctx.debug.scroll(true)))
+      .button((btn) => btn.label('scroll: false').onClick(() => ctx.debug.scroll(false)))
+      .button((btn) => btn.label('padding: 0').onClick(() => ctx.debug.padding(0)))
+      .button((btn) => btn.label('padding: [default]').onClick(() => ctx.debug.padding(null)));
   });
 });
 

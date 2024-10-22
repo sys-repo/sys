@@ -5,8 +5,8 @@ import { Pkg } from '../../pkg.ts';
 console.info('Pkg', Pkg);
 document.title = Pkg.name;
 
-import { SAMPLES } from '../../ui/m.Dev.Harness/-test/sample.specs.unit-test/mod.ts';
-import { Dev } from '../../ui/m.Dev.Harness/mod.ts';
+import { SAMPLES } from '../sample.specs.unit-test/mod.ts';
+import { Dev } from '../../mod.ts';
 
 console.log('@sys/ui-dev/:react:Dev', Dev);
 const elRoot = <Dev.Harness spec={SAMPLES.Sample1} style={{ Absolute: 0 }} />;

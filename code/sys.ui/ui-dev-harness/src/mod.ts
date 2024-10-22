@@ -2,7 +2,7 @@
  * @module
  * Core <DevHarness> rendering library.
  */
-export { Dev } from './m.Dev/mod.ts';
+export { Dev, render } from './m.Dev/mod.ts';
 export { Pkg } from './pkg.ts';
 export { Spec } from './u/Spec/mod.ts';
 

@@ -1,4 +1,4 @@
-import { ButtonSample } from '.';
+import { ButtonSample } from './mod.ts';
 import { Spec } from '../common.ts';
 import { DevTools } from './DevTools.tsx';
 
@@ -20,7 +20,7 @@ export default Spec.describe('sample.DevTools.Button', (e) => {
           />
         );
       });
-    Spec.once(e, (ctx) => {});
+    Spec.once(e, (_ctx) => {});
   });
 
   e.it('Buttons', (e) => {
@@ -41,7 +41,7 @@ export default Spec.describe('sample.DevTools.Button', (e) => {
     });
 
     dev.button((btn) => {
-      btn.label('change button label').onClick(async (e) => {
+      btn.label('change button label').onClick((_e) => {
         _count++;
         btn.label(`renamed-${_count}`);
       });
