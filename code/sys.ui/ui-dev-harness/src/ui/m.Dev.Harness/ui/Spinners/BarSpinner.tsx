@@ -1,11 +1,11 @@
-import { BarLoader as Bar } from 'react-spinners';
+import { BarLoader } from 'react-spinners';
 import { COLORS, css, type t } from '../common.ts';
 
-export type BarLoaderProps = {
+export type BarSpinnerProps = {
   style?: t.CssValue;
 };
 
-export const BarLoader: React.FC<BarLoaderProps> = (props) => {
+export const BarSpinner: React.FC<BarSpinnerProps> = (props) => {
   const width = 80;
   const styles = {
     base: css({
@@ -19,7 +19,7 @@ export const BarLoader: React.FC<BarLoaderProps> = (props) => {
 
   return (
     <div {...css(styles.base, props.style)}>
-      <Bar color={COLORS.DARK} width={width} />
+      <BarLoader color={COLORS.DARK} width={width} />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Color, css, DEFAULTS, R, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
-import { BarLoader } from '../Spinners/mod.ts';
+import { BarSpinner } from '../Spinners/mod.ts';
 import { HostBackground } from './Host.Background.tsx';
 import { HostComponent } from './Host.Component.tsx';
 import { HostGrid } from './Host.Grid.tsx';
@@ -77,7 +77,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
 
   const elEmpty = !renderProps && (
     <div {...styles.empty}>
-      <BarLoader />
+      <BarSpinner />
     </div>
   );
 

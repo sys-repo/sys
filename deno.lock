@@ -2881,6 +2881,11 @@
       "integrity": "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
     }
   },
+  "remote": {
+    "https://esm.sh/react-spinners@0.14.1": "84ec7732dc5fb07ed1ff60c6c5335da794de9f4b9e7e141d21bb5f64dd463a3f",
+    "https://esm.sh/stable/react@18.3.1/denonext/react.mjs": "fc048ffc55366baf7669519127d186761db72046e2bebf35fe8d0de3964defa3",
+    "https://esm.sh/v135/react-spinners@0.14.1/denonext/react-spinners.mjs": "ffab4a05a6523477722187c1c21d97318437c2191bdc39830242bf60a05459b6"
+  },
   "workspace": {
     "packageJson": {
       "dependencies": [

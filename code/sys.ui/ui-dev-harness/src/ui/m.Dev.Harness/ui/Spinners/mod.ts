@@ -1,1 +1,1 @@
-export * from './BarLoader.tsx';
+export * from './BarSpinner.tsx';
