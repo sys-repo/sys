@@ -360,10 +360,10 @@ describe.skip('DevBus', () => {
 
     describe('ctx.run', () => {
       it('ctx.run()', async () => {
-        const { events } = await TestSample.controller();
+        const { events } = TestSample.controller();
 
         const root = Spec.describe('root', (e) => {
-          e.it('foo', async (e) =>
+          e.it('foo', (e) =>
             Spec.once(e, (ctx) => {
               Time.delay(10, () => ctx.run()); // NB: Simulate a "re-run" activated by say a UI click handler.
             }),
@@ -382,10 +382,10 @@ describe.skip('DevBus', () => {
       });
 
       it('ctx.run({ reset })', async () => {
-        const { events } = await TestSample.controller();
+        const { events } = TestSample.controller();
 
         const root = Spec.describe('root', (e) => {
-          e.it('foo', async (e) => {
+          e.it('foo', (e) => {
             Spec.once(e, (ctx) => {
               Time.delay(10, () => ctx.run({ reset: true })); // NB: Simulate a "re-run" activated by say a UI click handler.
             });
@@ -407,10 +407,10 @@ describe.skip('DevBus', () => {
       });
 
       it('ctx.isInitial', async () => {
-        const { events } = await TestSample.controller();
+        const { events } = TestSample.controller();
         const log: boolean[] = [];
         const root = Spec.describe('root', (e) => {
-          e.it('foo', async (e) => {
+          e.it('foo', (e) => {
             const ctx = Spec.ctx(e);
             log.push(ctx.is.initial);
           });
