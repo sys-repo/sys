@@ -11,7 +11,7 @@ export type {
   TestSuiteRunResponse,
 } from '@sys/testing/t';
 
-export type * from '../../../common/t.ts';
+export type * from '../common/t.ts';
 export type * from './mod.ts';
 
 /**

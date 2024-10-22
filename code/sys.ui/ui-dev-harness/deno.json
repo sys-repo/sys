@@ -13,6 +13,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./-test/entry-specs": "./src/-test/entry.Specs.ts"
   }
 }

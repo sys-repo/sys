@@ -16,7 +16,7 @@ export default Spec.describe('Size/Empty', (e) => {
     });
   });
 
-  e.it('ui:debug', async (e) => {
+  e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
     const dev = DevTools.init(e);
 

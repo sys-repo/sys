@@ -1,15 +1,10 @@
-import { default as pkg } from '../../deno.json' with { type: 'json' };
+export { Pkg } from '../pkg.ts';
+
+export * from './const.ts';
 export * from './libs.ts';
+export * from './Wrangle.ts';
 
-/**
- * Module meta-data.
- */
-export const Pkg = pkg;
+export { Id } from './Id.ts';
+export { Is } from './Is.ts';
+
 export type * as t from './t.ts';
-
-/**
- * Determine if the value is of type Object.
- */
-export function isObject(input: any): input is object {
-  return typeof input === 'object' && input !== null;
-}

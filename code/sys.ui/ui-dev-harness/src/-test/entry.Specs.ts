@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-export { Dev } from '../m.Dev.ts';
+export { Dev } from '../mod.ts';
 
 export const ModuleSpecs = {
   'sys.ui.dev.Harness': () => import('../ui/Harness/-SPEC.tsx'),
