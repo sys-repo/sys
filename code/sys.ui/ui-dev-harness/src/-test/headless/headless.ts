@@ -1,4 +1,4 @@
-import { DevBus } from '../../u/m.Bus/mod.ts';
+import { DevBus } from '../../u/Bus/mod.ts';
 import { Time, rx, slug, type t } from '../common.ts';
 
 type Results = { ok: boolean; elapsed: t.Msecs; total: number; specs: ModuleResults[] };

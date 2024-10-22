@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DevBus } from '../u/m.Bus/mod.ts';
+import { DevBus } from '../u/Bus/mod.ts';
 import { rx, type t } from './common.ts';
 
 type C = t.DevInfoChanged;
