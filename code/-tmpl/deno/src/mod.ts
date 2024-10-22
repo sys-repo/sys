@@ -7,4 +7,4 @@
  * import { Pkg } from '@sys/xxx';
  * ```
  */
-export { Pkg } from './common.ts';
+export { Pkg } from './pkg.ts';
