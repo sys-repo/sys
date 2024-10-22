@@ -77,11 +77,11 @@ jobs:
           deno task test
           deno publish
 
-      # - name: publish module → "@sys/ui-dev-harness"
-      #   run: |
-      #     cd code/sys.ui/ui-dev-harness
-      #     deno task test
-      #     deno publish
+      - name: publish module → "@sys/ui-dev-harness"
+        run: |
+          cd code/sys.ui/ui-dev-harness
+          deno task test
+          deno publish
 
       # - name: publish module → "@sys/driver-automerge"
       #   run: |
