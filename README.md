@@ -46,7 +46,7 @@ In its basic usage pattern:
 type T = { count: number }
 
 foo.current                    // === { count: 0 }
-foo.change((d) => d.count++)   //  Σ  safe mutate
+foo.change((d) => d.count++)   //  Σ  | safe mutation
 foo.current                    // === { count: 1 }
 ```
 
@@ -76,14 +76,14 @@ const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
  * Imutable change pattern.
  * (safely mutate a proxy).
  */
-foo.current                        // === { count: 0 }    ↓
-foo.change((d) => d.count = 123);  //  Σ                  ← safe mutation
-foo.current                        // === { count: 123 }  ↓
+foo.current;                       //  === { count: 0 }    ↓
+foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
+foo.current;                       //  === { count: 123 }  ↓
 
 
-// Observable typed Event<T> stream: 💦
+// Strongly typed Event<T> stream observable: 💦
 const events = thing.listen(): Events<T>
-events.$.subscribe((e) => { /* event stream handler */ })
+events.$.subscribe((e) => { /* event stream handler */ });
 
 /**
  * ↑ 💦
@@ -92,7 +92,8 @@ events.$.subscribe((e) => { /* event stream handler */ })
  * eg. "RFC-6902 JSON patch standard".
  * 
  * The Events<T> library itself enshrines the meaning of the message stream 
- * conceptually through domain specific, pre-canned, stongly typed properties and method/function filters and helpers.
+ * conceptually through domain specific, pre-canned, stongly typed properties 
+ * and methods of functional filters/helpers.
  */
 
 // Finished.

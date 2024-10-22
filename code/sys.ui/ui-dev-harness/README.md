@@ -1,3 +1,17 @@
+# System Dev Harness Primitive
+The dev-harness core render layouts and state logic.
+
+
+
+-----
+TODO: move to → 
+
+    @sys/ui-common
+    @sys/ui-dev
+    @sys/ui-dev-harness
+
+----
+
 UI
 System UI tools and standard components (rendering via React/DOM).
 
