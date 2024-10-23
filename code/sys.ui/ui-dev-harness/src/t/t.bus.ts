@@ -3,11 +3,18 @@ import type { t } from './common.ts';
 type SpecId = t.StringId;
 type O = Record<string, unknown>;
 
+/**
+ * Represents a single instance of the DevHarness.
+ */
 export type DevInstance = { bus: t.EventBus<any>; id: t.StringId };
+
+/**
+ * Environment vars passed in to the DevHarness.
+ */
 export type DevEnvVars = any;
 
 /**
- * EVENT (API)
+ * DevHarness events API.
  */
 export type DevEvents = t.Lifecycle & {
   $: t.Observable<t.DevEvent>;
@@ -79,7 +86,7 @@ export type DevEvents = t.Lifecycle & {
 };
 
 /**
- * EVENT (DEFINITIONS)
+ * Event definitions.
  */
 export type DevEvent =
   | DevInfoReqEvent
@@ -137,12 +144,23 @@ export type DevCtxReqEvent = {
   type: 'sys.dev/ctx:req';
   payload: DevCtxReq;
 };
+
+/**
+ * Request for the current dev context.
+ */
 export type DevCtxReq = { tx: string; instance: t.StringId };
 
+/**
+ * Event delivering a context response.
+ */
 export type DevCtxResEvent = {
   type: 'sys.dev/ctx:res';
   payload: DevCtxRes;
 };
+
+/**
+ * The response containing the requested current Dev context.
+ */
 export type DevCtxRes = { tx: string; instance: t.StringId; ctx?: t.DevCtx; error?: string };
 
 /**

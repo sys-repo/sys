@@ -6,6 +6,9 @@ import { headless } from '../-test/headless/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
 
+/**
+ * Root entry to the DevHarness.
+ */
 export const Dev = {
   Context,
   Bus,

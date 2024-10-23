@@ -42,16 +42,29 @@ export type DevCtx = {
   toObject(): t.DevCtxObject;
 };
 
+/**
+ * Context flags.
+ */
 export type DevCtxIs = {
   readonly initial: boolean; // Flag indicating if this is the initial run (or first run after a reset).
 };
 
+/**
+ * A safe function mutator.
+ */
 export type DevCtxStateMutator<T extends O> = (draft: T) => t.IgnoredResponse;
+
+/**
+ * Immutable context state.
+ */
 export type DevCtxState<T extends O> = {
   current: T;
   change(fn: DevCtxStateMutator<T>): Promise<T>;
 };
 
+/**
+ * A context object used to maintain state for a loaded DevHarness spec.
+ */
 export type DevCtxObject = {
   readonly id: Id;
   readonly instance: t.DevInstance;
@@ -96,12 +109,18 @@ export type DevCtxDebug<S extends O = O> = {
   footer: DevCtxEdge<S>;
 };
 
+/**
+ * Within a panel, properties representing the renderer for an edge.
+ */
 export type DevCtxEdge<S extends O = O> = {
   render<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): DevCtxEdge<S>;
   border(color: Color | null): DevCtxEdge;
   padding(value: t.CssMarginInput | undefined | null): DevCtxEdge;
 };
 
+/**
+ * A renderer targeting a specific layer.
+ */
 export type DevCtxLayer<S extends O = O> = {
   readonly index: number;
   render<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): DevCtxLayer<S>;

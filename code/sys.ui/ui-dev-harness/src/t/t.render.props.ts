@@ -3,13 +3,24 @@ import type { t } from './common.ts';
 type Color = string | number;
 type Size = { width: number; height: number };
 
+/**
+ * Size flag for a background-image.
+ */
 export type DevBackgroundImageSize = 'cover' | 'fill';
+
+/**
+ * A set of properties that represents a background-image.
+ */
 export type DevBackgroundImage = {
   url: string;
   size?: DevBackgroundImageSize;
   opacity?: number;
   margin?: t.CssMarginArray;
 };
+
+/**
+ * Loose input for a  BackgroundImage.
+ */
 export type DevBackgroundImageInput = Omit<DevBackgroundImage, 'margin'> & {
   margin?: t.CssMarginInput;
 };
@@ -24,6 +35,9 @@ export type DevRenderProps = {
   size: DevRenderedSize;
 };
 
+/**
+ * The resulting size that was rendered.
+ */
 export type DevRenderedSize = {
   harness: Size;
   host: Size;
@@ -69,27 +83,45 @@ export type DevRenderPropsDebug = {
   };
 };
 
+/**
+ * Render properties representing the edge of an element.
+ */
 export type DevRenderPropsEdge = {
   renderer?: t.DevRendererRef<any>;
   border: { color?: Color };
   padding: t.CssPaddingArray;
 };
 
+/**
+ * Render properties representing layers of content.
+ */
 export type DevRenderPropsLayers = { [key: string]: DevRenderPropsLayer };
+
+/**
+ * A single renderer layer.
+ */
 export type DevRenderPropsLayer = {
   index: number;
   renderer?: t.DevRendererRef<any>;
 };
 
 /**
- * Size
+ * Render size.
  */
 export type DevRenderSize = DevRenderSizeCenter | DevRenderSizeFill;
+
+/**
+ * Render size fora  center aligned element.
+ */
 export type DevRenderSizeCenter = {
   mode: 'center';
   width?: number;
   height?: number;
 };
+
+/**
+ * Render size foa an element filling the container.
+ */
 export type DevRenderSizeFill = {
   mode: 'fill';
   x: boolean;

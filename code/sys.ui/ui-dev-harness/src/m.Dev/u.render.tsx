@@ -12,8 +12,8 @@ export type RenderOptions = {
 };
 
 /**
- * Render a harness with the selected `dev=<namespace>` import
- * or an index list of available specs.
+ * Render a harness with the selected `dev=<namespace>`
+ * import or an index list of available specs.
  *
  * NOTE: This is overridden with a more complex implementation
  *      in the [@sys/ui-common] package.
@@ -24,6 +24,10 @@ export type Render = (
   options?: RenderOptions,
 ) => Promise<JSX.Element>;
 
+/**
+ * Render a harness with the selected `dev=<namespace>`
+ * import or an index list of available specs.
+ */
 export const render: Render = async (pkg, specs, options = {}) => {
   const { keyboard = true } = options;
   const url = DevWrangle.Url.navigate.formatDevFlag(options);
