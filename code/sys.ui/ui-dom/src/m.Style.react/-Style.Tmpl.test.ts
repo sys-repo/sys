@@ -176,7 +176,7 @@ describe('CSS Teamplates', () => {
       });
     });
 
-    describe.only('{ Size } → width/height', () => {
+    describe('{ Size } → width/height', () => {
       type N = number | string | undefined;
       const test = (input: t.CssValue['Size'], width: N, height: N) => {
         const res = Tmpl.transform({ Size: input });
