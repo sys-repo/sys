@@ -175,5 +175,41 @@ describe('CSS Teamplates', () => {
         assert(Tmpl.transform({ PaddingY: [10, 20] }), [10, undefined, 20, undefined]);
       });
     });
+
+    describe.only('{ Size } → width/height', () => {
+      type N = number | string | undefined;
+      const test = (input: t.CssValue['Size'], width: N, height: N) => {
+        const res = Tmpl.transform({ Size: input });
+        expect(res.width).to.equal(width);
+        expect(res.height).to.equal(height);
+      };
+
+      it('nothing', () => {
+        test(null, undefined, undefined);
+        test(undefined, undefined, undefined);
+        test('', undefined, undefined);
+        test('  ', undefined, undefined);
+        test([0] as any, undefined, undefined);
+        test([] as any, undefined, undefined);
+      });
+
+      it('number', () => {
+        test(50, 50, 50);
+        test([50, 50], 50, 50);
+        test([10, 20], 10, 20);
+        test([10, 20, 999] as any, 10, 20);
+      });
+
+      it('string', () => {
+        test('5em', '5em', '5em');
+        test(['5em', '3px'], '5em', '3px');
+        test(['5em', '3px', '99em'] as any, '5em', '3px');
+      });
+
+      it('mixed (string | number)', () => {
+        test([5, '10em'], 5, '10em');
+        test(['10em', 99], '10em', 99);
+      });
+    });
   });
 });
