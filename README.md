@@ -16,7 +16,6 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 (✊🏻💯  )
 Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/).
 
-
 ---
 
 <p>&nbsp;</p>
@@ -47,13 +46,17 @@ In its basic usage pattern:
 type T = { count: number }
 
 foo.current                    // === { count: 0 }
-foo.change((d) => d.count++)   //  Σ  safe mutate
+foo.change((d) => d.count++)   //  Σ  | safe mutation
 foo.current                    // === { count: 1 }
 ```
 
 
-...and now with a little more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive.  
-How it is declared, manipulated, listened to, and then disposed of (lifecycle):
+...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).  
+
+A broad number of diverse (and divergent) systems can be driven by this one single
+"safe" state manipulation pattern.
+
+Below shows how an `Immutable<T>` of `JSON` is declared, listened to, manipulated, and then ultimately disposed of (lifecycle):
 
 
 ```ts
@@ -65,21 +68,22 @@ type Immutable<T> = {
 
 type T = { count: number }
 
-// Generator<T> over some immutability strategy/lib implementation.
+// Generator<T> over some immutability strategy 
+// (typically an external library's implementation, see namespace: `@sys/driver-*`).
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
 
 /**
  * Imutable change pattern.
  * (safely mutate a proxy).
  */
-foo.current                        // === { count: 0 }
-foo.change((d) => d.count = 123);  //  Σ  safe mutate
-foo.current                        // === { count: 123 }
+foo.current;                       //  === { count: 0 }    ↓
+foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
+foo.current;                       //  === { count: 123 }  ↓
 
 
-// Observable typed Event<T> stream: 💦
+// Strongly typed Event<T> stream observable: 💦
 const events = thing.listen(): Events<T>
-events.$.subscribe((e) => { /* event stream handler */ })
+events.$.subscribe((e) => { /* event stream handler */ });
 
 /**
  * ↑ 💦
@@ -88,7 +92,8 @@ events.$.subscribe((e) => { /* event stream handler */ })
  * eg. "RFC-6902 JSON patch standard".
  * 
  * The Events<T> library itself enshrines the meaning of the message stream 
- * conceptually through stongly typed properties and method/function helpers.
+ * conceptually through domain specific, pre-canned, stongly typed properties 
+ * and methods of functional filters/helpers.
  */
 
 // Finished.

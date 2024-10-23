@@ -1,12 +1,10 @@
-# Cmd (Command)
-Distributed function invocation via a `Cmd<T>` (command pattern) over a CRDT transport.
+# Command Pattern
+Distributed function invocation via a `Cmd<T>` structure that transmits/syncs over a CRDT transport.
 
-The strategy leans on the observable/event-stream properties of the `Immutable<T>`
-interface coupled with the CRDT's capabilities to reliably sync itself over
-a network connection.
+The strategy leans on the observable/event-stream properties of the `Immutable<T>` interface coupled with a CRDT's capabilities around reliably and resiliently syncing over a network.
 
 
+---
 
-### Longer Term (Design Notes)
-The CRDT syncing Cmd<T> pattern is a primitive for building up to a
-actor model ("message passing computer") implementation.
+### Longer Term Design
+The CRDT/syncing `Cmd<T>` pattern is a primitive for building up to an [actor model](https://youtu.be/vMDHpPN_p08?si=yzdKxO-UjdDEoqso) ("[message passing computer](https://www.youtube.com/live/nOrdzDaPYV4?si=k8yEQpA9LMpRFLSy&t=1388)") implementation.

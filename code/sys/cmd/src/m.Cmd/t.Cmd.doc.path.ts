@@ -68,7 +68,9 @@ export type CmdResolver = {
   toObject<C extends t.CmdType>(data: O): t.CmdObject<C>;
 };
 
-/* Queue related data items. */
+/**
+ * Queue related data items.
+ */
 export type CmdResolverQueue = {
   /* The array containing the list of invoked commands. */
   list<C extends t.CmdType>(data: O): t.CmdQueueItem<C>[];

@@ -14,7 +14,8 @@ export type {
  */
 export type { DenoWorkspace, DenofileJson, DenofilePath } from '@sys/driver-deno/t';
 export type { CmdOutput, CmdProcessHandle } from '@sys/std-s/t';
-export type { Pkg, StringDirPath, StringPath, StringUrl } from '@sys/std/t';
+export type { Pkg, StringDirPath, StringPath, StringUrl, CommonTheme } from '@sys/std/t';
+export type { CssValue } from '@sys/ui-dom/t';
 
 /**
  * Local

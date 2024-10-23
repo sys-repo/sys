@@ -1,6 +1,8 @@
 /**
  * @module
- * Module Types
+ * Commonly used React types.
  */
-export type * from './m.Color/t.ts';
-export type * from './m.Style/t.ts';
+export type { FC } from 'react';
+
+export type * from './m.FC/t.ts';
+export type * from './m.use/t.ts';

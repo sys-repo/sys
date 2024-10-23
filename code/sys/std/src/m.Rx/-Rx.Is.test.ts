@@ -50,7 +50,7 @@ describe('Observable/rx', () => {
     });
   });
 
-  it('Is.observable', () => {
+  it('Rx.Is.observable', () => {
     const test = (input: any, expected: boolean) => {
       expect(Is.observable(input)).to.eql(expected);
     };
@@ -67,11 +67,13 @@ describe('Observable/rx', () => {
 
     const $ = Rx.subject() as unknown;
     if (Is.observable<number>($)) {
-      $.subscribe(); // Type inferred after boolean check.
+      $.subscribe(); // NB: type inferred after boolean check.
     }
+
+    expect(Rx.Is.observable).to.equal(Is.observable);
   });
 
-  it('Is.subject', () => {
+  it('Rx.Is.subject', () => {
     const test = (input: any, expected: boolean) => {
       expect(Is.subject(input)).to.eql(expected);
     };

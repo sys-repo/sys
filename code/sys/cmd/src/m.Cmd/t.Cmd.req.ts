@@ -8,6 +8,10 @@ export type CmdInvokeOptions<C extends t.CmdType> = {
   issuer?: t.StringId;
   error?: u.ExtractError<C>;
 };
+
+/**
+ * Options passed to the command's Invoke method.
+ */
 export type CmdInvokeResponseOptions<
   Req extends t.CmdType,
   Res extends t.CmdType,

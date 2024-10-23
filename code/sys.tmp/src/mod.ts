@@ -8,3 +8,4 @@
  * ```
  */
 export { Pkg } from './common.ts';
+export { Foo } from './ui/mod.ts';

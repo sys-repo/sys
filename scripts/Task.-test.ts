@@ -22,7 +22,7 @@ export async function main() {
     for (const [index, path] of Paths.modules.entries()) {
       await run(path, index, total);
     }
-    spinner.succeed();
+    spinner.succeed(c.gray(`${c.white('Complete')} (${c.green(total.toString())})`));
   } catch (err: any) {
     spinner.fail(`Failed: ${err.message}`);
   } finally {

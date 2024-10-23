@@ -15,13 +15,19 @@ export type Immutable<D = O, P = unknown> = {
  */
 export type ImmutableMutator<D = O> = (draft: D) => void;
 
-/* Loose inputs to the change function (multiple input types) */
+/**
+ * Loose inputs to the change function (multiple input types).
+ */
 export type ImmutableChangeOptionsInput<P> = ImmutablePatchCallback<P> | ImmutableChangeOptions<P>;
 
-/* Callback that JSON patches arising from a change operation are returned in. */
+/**
+ * Callback that JSON patches arising from a change operation are returned in.
+ */
 export type ImmutablePatchCallback<P> = (patches: P[]) => void;
 
-/* Options passed to the Immutable `change` function. */
+/**
+ * Options passed to the Immutable `change` function.
+ */
 export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
 
 /**
@@ -78,10 +84,14 @@ export type ImmutableMappingProp<T extends O, P> = {
   path: t.ObjectPath;
 };
 
-/* Events instance for an ImmutableMap. */
+/**
+ * Events instance for an ImmutableMap.
+ */
 export type ImmutableMapEvents<T extends O, P> = t.ImmutableEvents<T, P>;
 
-/* Generator function for an Immutable map with extended properties. */
+/**
+ * Generator function for an Immutable map with extended properties.
+ */
 export type ImmutableMap<T extends O, P> = t.ImmutableRef<T, P, t.ImmutableMapEvents<T, P>> & {
   toObject(): T;
 };
@@ -93,7 +103,9 @@ export type ImmutableMap<T extends O, P> = t.ImmutableRef<T, P, t.ImmutableMapEv
  */
 export type ImmutableMapPatch<P> = P & { mapping: ImmutableMapPatchInfo };
 
-/* Meta-data about an immutable patch mapping. */
+/**
+ * Meta-data about an immutable patch mapping.
+ */
 export type ImmutableMapPatchInfo = { key: string; doc: string };
 
 /**
@@ -101,6 +113,10 @@ export type ImmutableMapPatchInfo = { key: string; doc: string };
  * with identifying meta-data.
  */
 export type ImmutableMapFormatPatch<P> = (e: t.ImmutableMapFormatPatchArgs<P>) => P;
+
+/**
+ * Arguments for formatting a patch.
+ */
 export type ImmutableMapFormatPatchArgs<P> = {
   patch: P;
   key: string;

@@ -1,30 +1,31 @@
 import type { t } from '../common.ts';
 
 /**
- * Library: Tools for evaluating and manipulating types of values.
+ * Tools for evaluating and manipulating types of values.
  */
 export type ValueLib = {
   /**
-   * Tools for working with array.
+   * Tools for working with arrays.
    */
   Array: t.ArrayLib;
 
-  /* Library: Tools for working with numbers. */
+  /**
+   * Tools for working with numbers.
+   */
   Num: t.NumLib;
 
-  /* Rounds a number to the given number of decimal places. */
+  /**
+   * Tools for working on strings of text.
+   */
+  Str: t.StrLib;
+
+  /**
+   * Rounds a number to the specified number of decimal places.
+   */
   round: t.NumLib['round'];
 
-  /* Determine if the given input is typeof "object" and not <null>. */
-  isObject(input: unknown): input is object;
-};
-
-/**
- * Library: Tools for working with numbers.
- */
-export type NumLib = {
   /**
-   * Rounds a number to the given number of decimal places.
+   * Determine if the given input is typeof {object} and not Null.
    */
-  round(value: number, precision?: number): number;
+  isObject(input: unknown): input is object;
 };
