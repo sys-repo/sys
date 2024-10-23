@@ -58,8 +58,11 @@ ${c.gray(` output: ${paths.outDir}`)}
 `;
       text = text.trim();
       if (Pkg) {
+        const version = Pkg.version;
         const jsr = `https://jsr.io/${Pkg.name}`;
-        text += c.gray(`\n pkg:    ${Log.Module.toString(Pkg)}  ${c.white('→')}  ${jsr}`);
+        const url = `${c.cyan(jsr)}@${c.white(Pkg.version)}`;
+        const mod = c.white(c.bold(Pkg.name));
+        text += c.gray(`\n pkg:    ${mod}  ${c.white('→')}  ${url}`);
       }
       return wrangle.res(text, args.pad);
     },
