@@ -2,7 +2,7 @@ import { ModuleList } from './mod.ts';
 import { BADGES, COLORS, Pkg, Spec, type t } from '../../-test.ts';
 
 export default Spec.describe('ModuleList', (e) => {
-  e.it('init', async (e) => {
+  e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     let theme: t.CommonTheme | undefined;
@@ -14,10 +14,10 @@ export default Spec.describe('ModuleList', (e) => {
     ctx.subject
       .size('fill', 100)
       .backgroundColor(isDark ? COLORS.DARK : 1)
-      .render(async (e) => {
-        const { SampleSpecs, ModuleSpecs } = await import('../../test.ui/entry.Specs');
+      .render(async () => {
+        const { SampleSpecs, ModuleSpecs } = await import('../../-test/entry.Specs.ts');
 
-        const fn = () => import('../../test.ui/sample.specs/-SPEC.MySample');
+        const fn = () => import('../../-test/sample.specs/-SPEC.MySample.tsx');
         const specs = {
           ...SampleSpecs,
           ...ModuleSpecs,

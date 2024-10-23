@@ -3,6 +3,6 @@
  */
 import { Pkg, Vite } from '@sys/driver-vite';
 
-const input = './src/-test/vite.sample-1/index.html';
+const input = './src/-test/index.html';
 const bundle = await Vite.build({ Pkg, input });
 console.info(bundle.toString({ pad: true }));
