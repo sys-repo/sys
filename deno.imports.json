@@ -26,13 +26,7 @@
     "@noble/hashes": "npm:@noble/hashes@1",
     "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
     "@privy-io/server-auth": "npm:@privy-io/server-auth@1.12.2",
-    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3",
-    "@swc/plugin-emotion": "npm:@swc/plugin-emotion@4",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
-
-    "vite": "npm:vite@5",
-    "vite-plugin-top-level-await": "npm:vite-plugin-top-level-await@1",
-    "vite-plugin-wasm": "npm:vite-plugin-wasm@3",
 
     "react-spinners": "npm:react-spinners@0.14.1",
 
@@ -44,6 +38,7 @@
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6",
     "happy-dom": "npm:happy-dom@15.7.4",
+    "immer": "npm:immer@10",
     "ora": "npm:ora@8",
     "openai": "npm:openai@4",
     "ramda": "npm:ramda@0.30.1",

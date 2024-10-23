@@ -7,11 +7,15 @@
     "@std/path": "npm:@jsr/std__path@1.0.6",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.3",
-    "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
-    "immer": "10.1.1"
+    "@std/uuid": "npm:@jsr/std__uuid@1.0.4"
   },
   "devDependencies": {
+    "@swc/plugin-emotion": "4",
     "@types/react": "18",
-    "@types/react-dom": "18"
+    "@types/react-dom": "18",
+    "@vitejs/plugin-react-swc": "3",
+    "vite": "5",
+    "vite-plugin-top-level-await": "1",
+    "vite-plugin-wasm": "3"
   }
 }
