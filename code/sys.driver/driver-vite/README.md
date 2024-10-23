@@ -7,3 +7,4 @@ dev-harness within [Deno](https://docs.deno.com/) workspaces.
 
 - [JSR Docs → Vite](https://jsr.io/docs/with/vite) (Build Tool)
 - [Deno Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/)
+- [deno-vite-plugin](https://github.com/denoland/deno-vite-plugin) 
