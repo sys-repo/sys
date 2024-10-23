@@ -107,6 +107,12 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/driver-obsidian"
+        run: |
+          cd code/sys.driver/driver-obsidian
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
