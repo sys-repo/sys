@@ -1,7 +1,7 @@
 import { describe, expect, it, ROOT, type t } from '../-test.ts';
 import { Vite } from './mod.ts';
 
-describe('ViteProcess.workspacePlugin', () => {
+describe('Vite workspacePlugin', () => {
   describe('create', () => {
     it('default (no params)', async () => {
       const plugin = await Vite.workspacePlugin();
