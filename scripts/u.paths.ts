@@ -25,6 +25,7 @@ export const Paths = {
     // 'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-deno',
     'code/sys.driver/driver-immer',
+    'code/sys.driver/driver-obsidian',
     'code/sys.driver/driver-quilibrium',
     'code/sys.driver/driver-vite',
 
