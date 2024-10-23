@@ -30,6 +30,10 @@
     "@swc/plugin-emotion": "npm:@swc/plugin-emotion@4",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
+    "vite": "npm:vite@5",
+    "vite-plugin-top-level-await": "npm:vite-plugin-top-level-await@1",
+    "vite-plugin-wasm": "npm:vite-plugin-wasm@3",
+
     "react-spinners": "npm:react-spinners@0.14.1",
 
     "approx-string-match": "npm:approx-string-match@2",
@@ -52,7 +56,6 @@
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.2",
     "ua-parser-js": "npm:ua-parser-js@1",
-    "vite": "npm:vite@5",
     "yaml": "npm:yaml@2"
   }
 }

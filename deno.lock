@@ -36,6 +36,7 @@
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1",
     "npm:@automerge/automerge-repo@1": "1.2.1",
     "npm:@automerge/automerge@2": "2.2.8",
+    "npm:@deno/vite-plugin@1": "1.0.0_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4",
     "npm:@emotion/react@11": "11.13.3_react@18.3.1",
     "npm:@jsr/std__async@1.0.5": "1.0.5",
     "npm:@jsr/std__cli@1.0.6": "1.0.6",
@@ -80,6 +81,8 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.0.2": "10.0.2",
     "npm:ua-parser-js@1": "1.0.39",
+    "npm:vite-plugin-top-level-await@1": "1.4.4_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4",
+    "npm:vite-plugin-wasm@3": "3.3.0_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4",
     "npm:vite@*": "5.4.9_@types+node@22.5.4",
     "npm:vite@5": "5.4.9_@types+node@22.5.4",
     "npm:yaml@2": "2.6.0"
@@ -341,6 +344,12 @@
       "integrity": "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==",
       "dependencies": [
         "@jridgewell/trace-mapping@0.3.9"
+      ]
+    },
+    "@deno/vite-plugin@1.0.0_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4": {
+      "integrity": "sha512-Q9UeWqs3s7B5lqzu1Z5QrzYAzqTj3+F9YW17tWobGRbT2G40ihwis6zK/+QgMgcG4fm3IqdIfXmpQYhkZpdMfw==",
+      "dependencies": [
+        "vite@5.4.9_@types+node@22.5.4"
       ]
     },
     "@emotion/babel-plugin@11.12.0": {
@@ -681,6 +690,9 @@
         "ts-case-convert",
         "type-fest"
       ]
+    },
+    "@rollup/plugin-virtual@3.0.2": {
+      "integrity": "sha512-10monEYsBp3scM4/ND4LNH5Rxvh3e/cVeL3jWTgZ2SrQ+BmUoQcopVQvnaMcOnykb1VkxUFuDAN+0FnpTFRy2A=="
     },
     "@rollup/rollup-android-arm-eabi@4.24.0": {
       "integrity": "sha512-Q6HJd7Y6xdB48x8ZNVDOqsbh2uByBhgK8PiQgPhwkIw/HC/YX5Ghq2mQY5sRMZWHb3VsFkWooUVOZHKr7DmDIA=="
@@ -2767,6 +2779,9 @@
         "requires-port"
       ]
     },
+    "uuid@10.0.0": {
+      "integrity": "sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ=="
+    },
     "uuid@8.3.2": {
       "integrity": "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg=="
     },
@@ -2775,6 +2790,21 @@
     },
     "v8-compile-cache-lib@3.0.1": {
       "integrity": "sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg=="
+    },
+    "vite-plugin-top-level-await@1.4.4_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4": {
+      "integrity": "sha512-QyxQbvcMkgt+kDb12m2P8Ed35Sp6nXP+l8ptGrnHV9zgYDUpraO0CPdlqLSeBqvY2DToR52nutDG7mIHuysdiw==",
+      "dependencies": [
+        "@rollup/plugin-virtual",
+        "@swc/core",
+        "uuid@10.0.0",
+        "vite@5.4.9_@types+node@22.5.4"
+      ]
+    },
+    "vite-plugin-wasm@3.3.0_vite@5.4.9__@types+node@22.5.4_@types+node@22.5.4": {
+      "integrity": "sha512-tVhz6w+W9MVsOCHzxo6SSMSswCeIw4HTrXEi6qL3IRzATl83jl09JVO1djBqPSwfjgnpVHNLYcaMbaDX5WB/pg==",
+      "dependencies": [
+        "vite@5.4.9_@types+node@22.5.4"
+      ]
     },
     "vite@5.4.9": {
       "integrity": "sha512-20OVpJHh0PAM0oSOELa5GaZNWeDjcAvQjGXy2Uyr+Tp+/D2/Hdz6NLgpJLsarPTA2QJ6v8mX2P1ZfbsSKvdMkg==",
