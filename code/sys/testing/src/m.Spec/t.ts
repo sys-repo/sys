@@ -15,12 +15,34 @@ type Timestamp = number;
 type Ctx = Record<string, unknown>;
 type IgnoredResponse = any | Promise<any>;
 
+/**
+ * Modifiers that can be applied to a spec while testing.
+ */
 export type TestModifier = 'skip' | 'only';
 
+/**
+ * Various types of inputs that represent a Bundle of specs to import.
+ */
 export type BundleImport = TestSuiteModel | SpecImport | Promise<any>;
+
+/**
+ * A module that contains a DevHarness spec.
+ */
 export type SpecModule = { default: TestSuiteModel };
+
+/**
+ * A module import of a spec.
+ */
 export type SpecImport = t.ModuleImport<SpecModule>;
+
+/**
+ * A module importer function of a spec.
+ */
 export type SpecImporter = t.ModuleImporter<SpecModule>;
+
+/**
+ * A map of module DevHarness spec imports.
+ */
 export type SpecImports = t.ModuleImports<SpecModule>;
 
 /**
@@ -65,8 +87,19 @@ export type TestSuiteDescribeDef = (
 export type TestSuiteIt = TestSuiteItDef & { skip: TestSuiteItDef; only: TestSuiteItDef };
 export type TestSuiteItDef = (description: string, handler?: TestHandler) => TestModel;
 
+/**
+ * A handler that contains a "suite" of tests, or child suites.
+ */
 export type TestSuiteHandler = (e: TestSuite) => Anything | Promise<Anything>;
+
+/**
+ * The handler that contains the body of a test.
+ */
 export type TestHandler = (e: TestHandlerArgs) => Anything | Promise<Anything>;
+
+/**
+ * Arguments passed to the TestHandler.
+ */
 export type TestHandlerArgs = {
   id: TestId;
   description: string;
@@ -89,7 +122,14 @@ export type TestModel = {
   toString(): string;
 };
 
+/**
+ * Function that runs a single test.
+ */
 export type TestRun = (options?: TestRunOptions) => Promise<TestRunResponse>;
+
+/**
+ * Options passed to TestRun.
+ */
 export type TestRunOptions = {
   timeout?: Milliseconds;
   excluded?: TestModifier[];
@@ -98,6 +138,10 @@ export type TestRunOptions = {
   after?: AfterRunTest;
   noop?: boolean; // Produces a result without executing any of the actual test function.
 };
+
+/**
+ * Response returned after a single test run has completed.
+ */
 export type TestRunResponse = {
   id: TestId;
   tx: Id; // Unique ID for the individual test run operation.
@@ -113,7 +157,6 @@ export type TestRunResponse = {
 /**
  * Model: Test Suite
  */
-
 export type TestSuiteModel = TestSuite & {
   readonly kind: 'TestSuite';
   readonly state: TestSuiteModelState;
@@ -128,6 +171,9 @@ export type TestSuiteModel = TestSuite & {
   toString(): string;
 };
 
+/**
+ * State of a test/suite model.
+ */
 export type TestSuiteModelState = {
   parent?: TestSuiteModel;
   ready: boolean; // true after [init] has been run.
@@ -139,7 +185,14 @@ export type TestSuiteModelState = {
   modifier?: TestModifier;
 };
 
+/**
+ * Function that runs a suite.
+ */
 export type TestSuiteRun = (options?: TestSuiteRunOptions) => Promise<TestSuiteRunResponse>;
+
+/**
+ * Options passed to the `TestSuiteRun`.
+ */
 export type TestSuiteRunOptions = {
   timeout?: number;
   deep?: boolean;
@@ -150,6 +203,10 @@ export type TestSuiteRunOptions = {
   onProgress?: SuiteRunProgress;
   noop?: boolean; // Produces a result-tree without executing any of the actual test functions.
 };
+
+/**
+ * Response returned after a suite has completed it's run.
+ */
 export type TestSuiteRunResponse = {
   id: SuiteId;
   tx: Id; // Unique ID for the individual suite run operation.
@@ -178,15 +235,26 @@ export type TestSuiteTotal = {
 };
 
 /**
- * Handlers that run before/after a test is run.
+ * Handler that run before a test is run.
  */
 export type BeforeRunTest = (e: BeforeRunTestArgs) => IgnoredResponse;
+
+/**
+ * Arguments passed to the BeforeRun handler.
+ */
 export type BeforeRunTestArgs = {
   id: TestId;
   description: string;
 };
 
+/**
+ * Handler that run after a test is run.
+ */
 export type AfterRunTest = (e: AfterRunTestArgs) => IgnoredResponse;
+
+/**
+ * Arguments passed to the AfterRun handler.
+ */
 export type AfterRunTestArgs = {
   id: TestId;
   description: string;
@@ -197,6 +265,10 @@ export type AfterRunTestArgs = {
  * Handlers that report progress during a run operation.
  */
 export type SuiteRunProgress = (e: SuiteRunProgressArgs) => void;
+
+/**
+ * Arguments passed to `SuiteRunProgress`.
+ */
 export type SuiteRunProgressArgs =
   | SuiteRunProgressStart
   | SuiteRunProgressBeforeTest
@@ -210,21 +282,33 @@ type TestSuiteRunCommon = {
   elapsed: Milliseconds;
 };
 
+/**
+ * Progress at the start of a suite run.
+ */
 export type SuiteRunProgressStart = TestSuiteRunCommon & {
   op: 'run:suite:start';
 };
 
+/**
+ * progress at the point just before a test is run.
+ */
 export type SuiteRunProgressBeforeTest = TestSuiteRunCommon & {
   op: 'run:test:before';
   description: string;
 };
 
+/**
+ * Progress after a test has run.
+ */
 export type SuiteRunProgressAfterTest = TestSuiteRunCommon & {
   op: 'run:test:after';
   description: string;
   result: t.TestRunResponse;
 };
 
+/**
+ * Progress at the moment of completion.
+ */
 export type SuiteRunProgressComplete = TestSuiteRunCommon & {
   op: 'run:suite:complete';
 };
