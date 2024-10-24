@@ -29,5 +29,5 @@
  * baseline settings have initialized, using the `mutate` plugin callback.
  */
 export { Pkg, c } from './common.ts';
-export { ViteConfig } from './m.ViteConfig/mod.ts';
+export { ViteConfig } from './m.Vite.Config/mod.ts';
 export { Vite, workspacePlugin } from './m.Vite/mod.ts';

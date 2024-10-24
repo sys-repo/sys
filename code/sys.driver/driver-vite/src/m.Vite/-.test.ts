@@ -68,12 +68,12 @@ describe('Vite', () => {
 
       const controller = new AbortController();
       const { signal } = controller;
-      const res = await fetch(svc.url, { signal });
       const timeout = Time.delay(5000, () => {
         controller.abort();
         svc?.dispose();
       });
 
+      const res = await fetch(svc.url, { signal });
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
