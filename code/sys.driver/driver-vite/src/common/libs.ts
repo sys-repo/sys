@@ -2,9 +2,9 @@
  * External
  */
 import * as R from 'rambda';
+export { R };
 
 export { keypress } from '@cliffy/keypress';
-export { R };
 
 /**
  * System

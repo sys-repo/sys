@@ -3,7 +3,7 @@ import { Path, ViteConfig, type t } from './common.ts';
 /**
  * Configuration plugin.
  */
-export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any[]) => {
+export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any[]) => {
   const options = wrangle.options(args);
   const ws = await wrangle.workspace(options);
 
@@ -12,7 +12,7 @@ export const workspacePlugin: t.ViteLib['workspacePlugin'] = async (...args: any
    */
   const plugin: t.WorkspacePlugin = {
     name: 'vite-plugin-workspace',
-    ws,
+    info: { ws },
 
     /**
      * Modify vite config before it's resolved.

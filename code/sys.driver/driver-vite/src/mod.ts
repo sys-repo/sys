@@ -5,12 +5,12 @@
  * @example
  * Within the `vite.config.ts` in the root of the module:
  * ```ts
- * import reactPlugin from '@vitejs/plugin-react-swc';
+ * import { Vite } from '@sys/driver-vite';
  * import { defineConfig } from 'vite';
- * import { workspacePlugin } from '@sys/driver-vite';
+ * import reactPlugin from '@vitejs/plugin-react-swc';
  *
- * export default defineConfig((_ctx) => {
- *   const workspace = workspacePlugin();
+ * export default defineConfig(() => {
+ *   const workspace = Vite.Plugin.workspace();
  *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```
@@ -19,8 +19,8 @@
  * to the Vite bundle:
  *
  * ```ts
- * export default defineConfig((_ctx) => {
- *   const workspace = workspacePlugin({ filter: (e) => e.subpath.startsWith('/client') });
+ * export default defineConfig(() => {
+ *   const workspace = Vite.Plugin.workspace({ filter: (e) => e.subpath.startsWith('/client') });
  *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```

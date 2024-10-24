@@ -53,7 +53,7 @@ describe('Vite', () => {
      *    ➜  Network: use --host to expose
      *
      */
-    it('start → fetch(200) → dispose', async (e) => {
+    it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
       const promise = Vite.dev({ input, port, silent: false });
@@ -66,13 +66,21 @@ describe('Vite', () => {
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
 
-      const res = await fetch(svc.url);
+      const controller = new AbortController();
+      const { signal } = controller;
+      const res = await fetch(svc.url, { signal });
+      const timeout = Time.delay(5000, () => {
+        controller.abort();
+        svc?.dispose();
+      });
+
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
-
       console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+
       await svc.dispose();
+      timeout.cancel();
     });
   });
 });

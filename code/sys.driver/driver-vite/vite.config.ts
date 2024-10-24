@@ -20,4 +20,5 @@
 import simple from './vite.config.simple.ts';
 import custom from './vite.config.custom.ts';
 
+// export default simple
 export default custom;

@@ -1,17 +1,18 @@
-import { Cmd, DEFAULTS, ViteConfig, type t } from './common.ts';
-import { keyboardFactory, Log, workspacePlugin } from './u.ts';
+import { Cmd, ViteConfig as Config, DEFAULTS, type t } from './common.ts';
+import { Plugin } from './m.Vite.Plugin.ts';
+import { keyboardFactory, Log } from './u.ts';
 
 /**
  * Tools for running Vite via commands issued to a child process.
  */
 export const Vite: t.ViteLib = {
-  Config: ViteConfig,
-  workspacePlugin,
+  Config,
+  Plugin,
 
   /**
    * Run the <vite:build> command.
    */
-  async build(input) {
+  async build(input: t.ViteBuildArgs): Promise<t.ViteBuildResponse> {
     const { silent = true, Pkg } = input;
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
@@ -37,7 +38,7 @@ export const Vite: t.ViteLib = {
    * Command:
    *    $ vite dev --port=<1234>
    */
-  async dev(input) {
+  async dev(input: t.ViteDevArgs): Promise<t.ViteProcess> {
     const { port = DEFAULTS.port, silent = false, Pkg } = input;
     const { env, args, paths } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
@@ -64,7 +65,7 @@ export const Vite: t.ViteLib = {
  */
 const wrangle = {
   command(options: t.ViteConfigPathsOptions, arg: string) {
-    const paths = ViteConfig.paths(options);
+    const paths = Config.paths(options);
 
     /**
      * NB: The {env} is used to pass dynamic configuration options

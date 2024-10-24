@@ -28,13 +28,7 @@ export type ViteDevArgs = {
  */
 export type ViteLib = {
   Config: t.ViteConfigLib;
-
-  /**
-   * A plugin that configures the project to run in a child-process.
-   * Use this within a `vite.config.ts` in the root of the host project.
-   */
-  workspacePlugin(options?: t.WorkspacePluginOptions): Promise<t.WorkspacePlugin>;
-  workspacePlugin(filter: t.WorkspaceFilter): Promise<t.WorkspacePlugin>;
+  Plugin: t.VitePluginLib;
 
   /**
    * Run the <vite:build> command.
@@ -56,6 +50,18 @@ export type ViteLib = {
    *    ➜  Network: use --host to expose
    */
   dev(args: ViteDevArgs): Promise<t.ViteProcess>;
+};
+
+/**
+ * Index of Vite plugins.
+ */
+export type VitePluginLib = {
+  /**
+   * A plugin that configures the project to run in a child-process.
+   * Use this within a `vite.config.ts` in the root of the host project.
+   */
+  workspace(options?: t.WorkspacePluginOptions): Promise<t.WorkspacePlugin>;
+  workspace(filter: t.WorkspaceFilter): Promise<t.WorkspacePlugin>;
 };
 
 /**
@@ -101,8 +107,8 @@ export type WorkspacePluginOptions = {
  */
 export type WorkspacePlugin = {
   name: string;
-  ws?: t.ViteDenoWorkspace;
   config(config: t.ViteUserConfig, env: t.ViteConfigEnv): Omit<t.ViteUserConfig, 'plugins'>;
+  info: { ws?: t.ViteDenoWorkspace };
 };
 
 /**
