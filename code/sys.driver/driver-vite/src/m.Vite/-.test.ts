@@ -65,6 +65,7 @@ describe('Vite', () => {
       });
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
+      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
       const controller = new AbortController();
       const { signal } = controller;
@@ -77,7 +78,6 @@ describe('Vite', () => {
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
-      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
       await svc.dispose();
       timeout.cancel();

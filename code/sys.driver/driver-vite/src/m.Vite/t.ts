@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { defineConfig } from 'vite';
 
 type ToStringOptions = { pad?: boolean };
 
@@ -53,18 +54,6 @@ export type ViteLib = {
 };
 
 /**
- * Index of Vite plugins.
- */
-export type VitePluginLib = {
-  /**
-   * A plugin that configures the project to run in a child-process.
-   * Use this within a `vite.config.ts` in the root of the host project.
-   */
-  workspace(options?: t.WorkspacePluginOptions): Promise<t.WorkspacePlugin>;
-  workspace(filter: t.WorkspaceFilter): Promise<t.WorkspacePlugin>;
-};
-
-/**
  * Vite Child Process.
  * A long running process, for instance when running: "$ vite dev"
  */
@@ -74,41 +63,6 @@ export type ViteProcess = {
   readonly url: t.StringPath;
   keyboard(): Promise<void>;
   dispose(): Promise<void>;
-};
-
-/**
- * Options passed to the workspace-plugin.
- */
-export type WorkspacePluginOptions = {
-  /**
-   * Enabled deno workspace support.
-   *
-   * - (default: enabled: walks up to find first available workspace `deno.json` file.)
-   * - pass a specific `deno.json` file string if in a non-standard place.
-   * - pass `false` to disable workspace {alias} mapping.
-   */
-  workspace?: false | t.DenofilePath;
-
-  /**
-   * ƒ(🌳): Filter to apply to the workspace modules
-   *       (default: nothing filtered → ie. the entire monorepo is available for `import`).
-   */
-  filter?: t.WorkspaceFilter;
-
-  /**
-   * ƒ(🌳): Callback to mutate the generated Vite configuration before
-   *        it is passed on to the next step in the bundle pipeline
-   */
-  mutate?: t.ViteConfigMutate;
-};
-
-/**
- * A Vite plugin that prepares configuration with "standard/common" setup.
- */
-export type WorkspacePlugin = {
-  name: string;
-  config(config: t.ViteUserConfig, env: t.ViteConfigEnv): Omit<t.ViteUserConfig, 'plugins'>;
-  info: { ws?: t.ViteDenoWorkspace };
 };
 
 /**

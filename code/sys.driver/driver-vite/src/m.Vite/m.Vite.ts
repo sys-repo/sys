@@ -1,5 +1,5 @@
 import { Cmd, ViteConfig as Config, DEFAULTS, type t } from './common.ts';
-import { Plugin } from './m.Vite.Plugin.ts';
+import { Plugin } from '../m.Vite.Plugin/mod.ts';
 import { keyboardFactory, Log } from './u.ts';
 
 /**

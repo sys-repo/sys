@@ -1,7 +1,7 @@
 import { Path, ViteConfig, type t } from './common.ts';
 
 /**
- * Configuration plugin.
+ * Configure a deno workspace to addressable (via import) within Vite.
  */
 export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any[]) => {
   const options = wrangle.options(args);
@@ -13,23 +13,19 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
   const plugin: t.WorkspacePlugin = {
     name: 'vite-plugin-workspace',
     info: { ws },
-
-    /**
-     * Modify vite config before it's resolved.
-     */
-    config(config: t.ViteUserConfig, env: t.ViteConfigEnv) {
+    config(config, env) {
       const input = wrangle.path('VITE_INPUT');
       const outDir = wrangle.path('VITE_OUTDIR');
       const root = Path.dirname(input);
 
       /**
-       * Base
+       * Base.
        */
       config.root = root;
       config.base = './'; // NB: relative pathing within bundled assets, eg: src="./main...
 
       /**
-       * Server
+       * Server.
        */
       const server = config.server || (config.server = {});
       server.fs = { allow: ['..'] }; // NB: allows stepping up out of the {CWD} and access other folders in the mono-repo.
@@ -52,7 +48,7 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
         input,
         output: {
           entryFileNames: 'assets/-entry.[hash].js',
-          chunkFileNames: 'assets/c.[hash].js', //     |←  c.<hash> == "code/chunk"
+          chunkFileNames: 'assets/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
           assetFileNames: 'assets/a.[hash].[ext]', //  |←  a.<hash> == "asset"
         },
       };
@@ -88,11 +84,11 @@ const wrangle = {
   async workspace(options: t.WorkspacePluginOptions) {
     const { filter } = options;
     if (options.workspace === false) return undefined;
+    const denofile = options.workspace === true ? undefined : options.workspace;
 
-    const path = options.workspace;
-    const ws = await ViteConfig.workspace({ denofile: path, filter });
+    const ws = await ViteConfig.workspace({ denofile, filter });
     if (!ws.exists) {
-      const errPath = path ?? Path.resolve('.');
+      const errPath = denofile ?? Path.resolve('.');
       throw new Error(`A workspace could not be found: ${errPath}`);
     }
 
