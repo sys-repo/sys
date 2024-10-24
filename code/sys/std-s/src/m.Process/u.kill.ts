@@ -40,5 +40,7 @@ export async function kill(
     await forceKill();
   } finally {
     if (timer) timer.cancel();
+    await child.stdout.cancel();
+    await child.stderr.cancel();
   }
 }
