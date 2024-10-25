@@ -50,21 +50,19 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
     },
     toString(args: BuildArgs) {
       const { ok, stdio, paths, Pkg } = args;
+      const cwd = Path.resolve();
       const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
       let text = `
 ${stdio}
-${titleColor(c.bold('Bundle'))}   ${titleColor(size)}
-${c.gray(` input:  ${paths.input}`)}
-${c.gray(` output: ${paths.outDir}`)}
+${titleColor(c.bold('Bundle'))}    ${titleColor(size)}
+${c.gray(`input:    ${paths.input.slice(cwd.length)}`)}
+${c.gray(`output:   ${paths.outDir.slice(cwd.length)}`)}
 `;
       text = text.trim();
       if (Pkg) {
-        const jsr = `https://jsr.io/${Pkg.name}`;
-        const url = `${c.cyan(jsr)}@${c.white(Pkg.version)}`;
         const mod = c.white(c.bold(Pkg.name));
-        const arrow = c.white('→');
-        text += c.gray(`\n pkg:    ${mod} ${arrow} ${url}`);
+        text += c.gray(`\npkg:      ${mod} ${Pkg.version}`);
       }
       return wrangle.res(text, args.pad);
     },
