@@ -8,6 +8,7 @@ import { keyboardFactory, Log } from './u.ts';
 export const Vite: t.ViteLib = {
   Config,
   Plugin,
+  common: Plugin.common,
 
   /**
    * Run the <vite:build> command.

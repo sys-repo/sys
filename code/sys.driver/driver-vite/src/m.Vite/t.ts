@@ -29,6 +29,7 @@ export type ViteDevArgs = {
 export type ViteLib = {
   Config: t.ViteConfigLib;
   Plugin: t.VitePluginLib;
+  common: t.VitePluginLib['common'];
 
   /**
    * Run the <vite:build> command.
