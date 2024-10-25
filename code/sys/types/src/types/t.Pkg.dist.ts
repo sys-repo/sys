@@ -20,7 +20,7 @@ export type DistPkg = {
   /**
    * Path to the main entry point.
    */
-  main: t.StringPath;
+  entry: t.StringPath;
 
   /**
    * Map of hashes of the binary contents of the package.
