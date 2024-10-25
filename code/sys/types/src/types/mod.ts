@@ -13,6 +13,7 @@ export type * from './t.Module.ts';
 export type * from './t.Number.ts';
 export type * from './t.Object.ts';
 export type * from './t.Observable.ts';
+export type * from './t.Pkg.dist.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
 export type * from './t.Semver.ts';
