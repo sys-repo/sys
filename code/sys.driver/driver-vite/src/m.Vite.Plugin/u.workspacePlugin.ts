@@ -67,12 +67,6 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
       worker.format = 'es';
 
       /**
-       * ESBuild.
-       */
-      const esbuild = config.esbuild || (config.esbuild = {});
-      esbuild.supported = { 'top-level-await': true };
-
-      /**
        * Chunking.
        */
       const chunker: t.ViteModuleChunksArgs = {
