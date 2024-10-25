@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Pkg } from '../pkg.ts';
 import { View } from './ui.tsx';
@@ -19,4 +20,8 @@ dynamic.then((mod) => console.log('💦 dynmaic import', mod));
  * Sample: render react component.
  */
 const root = createRoot(document.getElementById('root'));
-root.render(<View style={{ border: `solid 1px blue` }} />);
+root.render(
+  <StrictMode>
+    <View style={{ border: `solid 1px blue` }} />
+  </StrictMode>,
+);
