@@ -8,7 +8,7 @@
  */
 const now = new Date();
 
-console.group('🌳 import: @std');
+console.group('🌳 import: @std (deno)');
 
 import * as path from '@std/path';
 console.info('@std/path', path);
@@ -30,11 +30,10 @@ console.groupEnd();
 /**
  * Namespace: @sys
  */
-import { Json } from '@sys/driver-immer';
+console.group('🌳 import: @sys/std');
 import { Args, D, IndexedDb, Path, Time, rx } from '@sys/std';
 import { Str } from '@sys/text';
 
-console.group('🌳 import: @sys');
 console.info('@sys/std:rx', rx);
 console.info('@sys/std:Path', Path);
 console.info('@sys/std:D (Date)', D, `"${D.format(now, 'E MMM do, yyyy')}"`);
@@ -43,5 +42,12 @@ console.info('@sys/std:Args', Args, 'parsed:', Args.parse(['--foo', '--bar=baz',
 console.info('@sys/std:IndexedDb', IndexedDb);
 console.info('@sys/text:Str', Str);
 console.info('@sys/text:Str.bytes', `"${Str.bytes(1337)}"`);
+console.groupEnd();
+
+/**
+ * Namespace: @sys_driver
+ */
+console.group('🌳 import: @sys/driver');
+import { Json } from '@sys/driver-immer';
 console.info('@sys/driver-immer', Json);
 console.groupEnd();
