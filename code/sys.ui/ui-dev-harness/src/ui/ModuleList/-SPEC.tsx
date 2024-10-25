@@ -37,7 +37,7 @@ export default Spec.describe('ModuleList', (e) => {
           <ModuleList
             title={Pkg.name}
             version={Pkg.version}
-            badge={BADGES.ci.node}
+            badge={BADGES.ci.jsr}
             imports={specs}
             hrDepth={2}
             scroll={true}
