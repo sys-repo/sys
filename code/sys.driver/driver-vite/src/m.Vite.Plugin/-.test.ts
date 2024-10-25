@@ -40,9 +40,4 @@ describe('Vite.Plugin.workspace', () => {
       });
     });
   });
-
-  describe('Plugin.common', () => {
-    it('default (no params)', async () => {
-    });
-  });
 });

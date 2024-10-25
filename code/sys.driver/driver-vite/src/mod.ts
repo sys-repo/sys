@@ -32,5 +32,5 @@ export { Pkg } from './pkg.ts';
 
 export { c } from './common.ts';
 export { ViteConfig } from './m.Vite.Config/mod.ts';
-export { Plugin, commonPlugin, workspacePlugin } from './m.Vite.Plugin/mod.ts';
+export { Plugin, workspacePlugin } from './m.Vite.Plugin/mod.ts';
 export { Vite } from './m.Vite/mod.ts';

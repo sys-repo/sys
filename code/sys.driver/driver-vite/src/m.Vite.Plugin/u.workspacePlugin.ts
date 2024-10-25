@@ -44,17 +44,32 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
       const build = config.build || (config.build = {});
       build.emptyOutDir = true;
       build.outDir = Path.relative(root, outDir);
+      build.target = 'esnext';
+      build.minify = options.minify ?? true;
       build.rollupOptions = {
         input,
         output: {
-          entryFileNames: 'assets/-entry.[hash].js',
-          chunkFileNames: 'assets/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
-          assetFileNames: 'assets/a.[hash].[ext]', //  |←  a.<hash> == "asset"
+          format: 'es',
+          entryFileNames: 'pkg/-entry.[hash].js',
+          chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
+          assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
         },
       };
 
       /**
-       * Run callback for any further modifications to the Vite config.
+       * Worker
+       */
+      const worker = config.worker || (config.worker = {});
+      worker.format = 'es';
+
+      /**
+       * ESBuild.
+       */
+      const esbuild = config.esbuild || (config.esbuild = {});
+      esbuild.supported = { 'top-level-await': true };
+
+      /**
+       * Run callback for any further modifications to the [vite.config].
        * Directly manipulate the {config} parameter object.
        */
       options?.mutate?.({ config, env, ws });
