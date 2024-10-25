@@ -42,6 +42,11 @@ export type PathLib = {
   relative: typeof StdPath.relative;
 
   /**
+   * Normalize the path, resolving '..' and '.' segments.
+   */
+  normalize: typeof StdPath.normalize;
+
+  /**
    * Converts a file URL to a path string.
    */
   fromFileUrl: typeof StdPath.fromFileUrl;
