@@ -1,9 +1,4 @@
-import { default as Pkg } from '../../deno.json' with { type: 'json' };
-export * from './libs.ts';
-
-/**
- * @module
- */
 export type * as t from './t.ts';
-export { Pkg };
 
+export { Pkg, pkg } from '../pkg.ts';
+export * from './libs.ts';

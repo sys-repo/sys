@@ -1,2 +1,2 @@
-export type { t } from '../common/mod.ts';
+export { pkg, type t } from '../common.ts';
 export * from '../m.Testing/mod.ts';

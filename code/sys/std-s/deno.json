@@ -3,10 +3,10 @@
   "version": "0.0.21",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -RNE --watch ./src/-start.ts",
-    "test": "deno test -RWNE --allow-run",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
+    "test": "deno test -RWNE --allow-run",
+    "dev": "deno run -RNE --watch ./scripts/-start.ts",
     "clean": "deno run -RWE ./scripts/-clean.ts"
   },
   "exports": {

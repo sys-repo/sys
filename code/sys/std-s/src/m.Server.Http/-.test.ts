@@ -1,5 +1,6 @@
+import { describe, expect, it, pkg } from '../-test.ts';
+import { Pkg } from '../common.ts';
 import { Http, HttpServer } from '../mod.ts';
-import { describe, expect, it } from '../-test.ts';
 
 describe('Server', () => {
   it('app: start → req/res → dispose', async () => {
@@ -19,6 +20,22 @@ describe('Server', () => {
     expect(await res1.json()).to.eql({ count: 123 });
     await res2.body?.cancel();
 
+    await listener.shutdown();
+  });
+
+  it('returns {pkg} in headers', async () => {
+    const app = HttpServer.create({ pkg });
+    const listener = Deno.serve({ port: 0 }, app.fetch);
+    app.get('/', (c) => c.text('no-op'));
+
+    const client = Http.client();
+    const url = Http.url(listener.addr);
+    const res = await client.get(url.base);
+
+    const header = res.headers.get('pkg');
+    expect(header).to.eql(`${Pkg.name}@${Pkg.version}`);
+
+    await res.body?.cancel();
     await listener.shutdown();
   });
 });

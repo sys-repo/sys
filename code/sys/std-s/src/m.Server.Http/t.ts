@@ -24,6 +24,7 @@ export type HttpServerLib = {
 };
 
 export type HttpServerCreateOptions = {
+  pkg?: t.Pkg;
   cors?: boolean;
   static?: boolean;
 };
