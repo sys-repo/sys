@@ -39,13 +39,15 @@ export type CommonPluginsOptions = t.WorkspacePluginOptions & {
  * A Vite plugin that prepares configuration with "standard/common" setup.
  */
 export type WorkspacePlugin = VitePlugin & {
-  info: { ws?: t.ViteDenoWorkspace };
+  info: { ws?: t.ViteDenoWorkspace; pkg?: t.Pkg };
 };
 
 /**
  * Options passed to the workspace-plugin.
  */
 export type WorkspacePluginOptions = {
+  pkg?: t.Pkg;
+
   /**
    * Enabled deno workspace support.
    *

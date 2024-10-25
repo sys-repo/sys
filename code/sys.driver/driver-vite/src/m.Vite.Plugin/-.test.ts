@@ -1,4 +1,4 @@
-import { describe, expect, it, ROOT, type t } from '../-test.ts';
+import { describe, expect, it, ROOT, type t, pkg } from '../-test.ts';
 import { Vite } from '../mod.ts';
 import { Plugin } from './mod.ts';
 
@@ -13,6 +13,11 @@ describe('Vite.Plugin.workspace', () => {
         const plugin = await Vite.Plugin.workspace();
         expect(plugin.name).to.eql('vite-plugin-workspace');
         expect(plugin.info.ws?.children.dirs).to.eql(ROOT.denofile.json.workspace);
+      });
+
+      it('{ pkg }', async () => {
+        const plugin = await Vite.Plugin.workspace({ pkg });
+        expect(plugin.info.pkg).to.eql(pkg);
       });
 
       it('param: workspace (explicit path)', async () => {
