@@ -10,10 +10,6 @@
 export { Pkg } from './common/mod.ts';
 
 /**
- * TODO 🐷 Automerge [migrate]
- */
-
-/**
  * Library
  */
 export { A, Cmd, Data, Is, toObject } from './common.ts';
