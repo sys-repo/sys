@@ -1,3 +1,5 @@
+export { Pkg, pkg } from '../pkg.ts';
+
 export * from './constants.ts';
 export * from './libs.automerge-repo.ts';
 export * from './libs.ts';

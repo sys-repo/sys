@@ -1,11 +1,5 @@
-import { default as pkg } from '../../deno.json' with { type: 'json' };
-
-/**
- * Module meta-data.
- */
-export const Pkg = pkg;
+import { Pkg } from '../pkg.ts';
 const ns = Pkg.name;
-
 
 /**
  * Type display names.
