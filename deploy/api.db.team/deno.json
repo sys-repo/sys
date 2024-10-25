@@ -1,6 +1,6 @@
 {
   "name": "@tdb/api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",
@@ -11,7 +11,9 @@
   "exports": {},
   "deploy": {
     "project": "3f7f1461-6c90-4191-aa70-9052ceb13af9",
-    "exclude": ["**/node_modules"],
+    "exclude": [
+      "**/node_modules"
+    ],
     "include": [],
     "entrypoint": "main.ts"
   }
