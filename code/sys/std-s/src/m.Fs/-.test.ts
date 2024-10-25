@@ -161,4 +161,37 @@ describe('Fs: filesystem', () => {
       expect(names.includes('deno.json')).to.eql(true);
     });
   });
+
+  describe('Fs.Size.dir', () => {
+    const sample = Fs.resolve('./src/-test/-sample-dir');
+
+    it('does not exist', async () => {
+      const path = Fs.resolve('./404');
+      const res = await Fs.Size.dir(path);
+      expect(res.path).to.eql(path);
+      expect(res.exists).to.eql(false);
+      expect(res.total.files).to.eql(0);
+      expect(res.total.bytes).to.eql(0);
+      expect(res.toString()).to.eql('0 B');
+    });
+
+    it('default (no options)', async () => {
+      const res = await Fs.Size.dir(sample);
+      expect(res.path).to.eql(sample);
+      expect(res.exists).to.eql(true);
+
+      expect(res.total.files).to.eql(2);
+      expect(res.total.bytes).to.eql(562);
+      expect(res.toString()).to.eql('562 B');
+    });
+
+    it('maxDepth', async () => {
+      const res1 = await Fs.Size.dir(sample);
+      const res2 = await Fs.Size.dir(sample, { maxDepth: Infinity });
+      const res3 = await Fs.Size.dir(sample, { maxDepth: 1 });
+      expect(res1.total).to.eql(res2.total);
+      expect(res1.total.files).to.eql(2);
+      expect(res3.total.files).to.eql(1);
+    });
+  });
 });

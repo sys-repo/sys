@@ -1,2 +1,1 @@
-export type { t } from './common/mod.ts';
-export * from './m.Testing/mod.ts';
+export * from './-test/mod.ts';

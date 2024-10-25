@@ -1,5 +1,6 @@
 import type * as StdFs from '@std/fs';
 import type * as StdPath from '@std/path';
+import type { FormatOptions } from '@std/fmt/bytes';
 
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
@@ -23,52 +24,90 @@ export type FsPathLib = t.PathLib & {
 };
 
 /**
- * Library: helpers for working with the file-system.
+ * Tools for working with the file-system.
  */
 export type FsLib = {
-  /* Helpers for working with resource paths. */
+  /**
+   * Helpers for working with resource paths.
+   */
   readonly Path: t.FsPathLib;
 
-  /* Filesystem/Path type verification flags. */
-  readonly Is: FsIsLib;
+  /**
+   * Filesystem/Path type verification flags.
+   */
+  readonly Is: t.FsIsLib;
 
-  /* Retrieve information about the given path. */
+  /**
+   * Tools for calculating file sizes.
+   */
+  readonly Size: t.FsSizeLib;
+
+  /**
+   * Retrieve information about the given path.
+   */
   readonly stat: t.FsGetStat;
 
-  /* Joins a sequence of paths, then normalizes the resulting path. */
+  /**
+   * Joins a sequence of paths, then normalizes the resulting path.
+   */
   readonly join: typeof StdPath.join;
 
-  /* Resolves path segments into a path. */
+  /**
+   * Resolves path segments into a path.
+   */
   readonly resolve: typeof StdPath.resolve;
 
-  /* Return the directory path of a path. */
+  /**
+   * Return the directory path of a path.
+   */
   readonly dirname: typeof StdPath.dirname;
 
-  /* Return the last portion of a path. */
+  /**
+   * Return the last portion of a path.
+   */
   readonly basename: typeof StdPath.basename;
 
-  /* Factory for a glob helper. */
+  /**
+   * Factory for a glob helper.
+   */
   readonly glob: t.GlobFactory;
 
-  /* Asynchronously test whether or not the given path exists by checking with the file system. */
+  /**
+   * Asynchronously test whether or not the given path exists
+   * by checking with the file system.
+   */
   readonly exists: typeof StdFs.exists;
 
-  /* Asynchronously ensures that the directory exists, like `mkdir -p.` */
+  /**
+   * Asynchronously ensures that the directory exists, like `mkdir -p.`
+   */
   readonly ensureDir: typeof StdFs.ensureDir;
 
-  /* Copy all files in a directory. */
+  /**
+   * Copy all files in a directory.
+   */
   readonly copyDir: t.FsCopyDir;
 
-  /* Delete a directory (and it's contents). */
+  /**
+   * Delete a directory (and it's contents).
+   */
   readonly removeDir: t.FsRemoveDir;
 
-  /* Asynchronously reads and returns the entire contents of a file as strongly-type JSON. */
+  /**
+   * Asynchronously reads and returns the entire contents of a
+   * file as strongly-type JSON.
+   */
   readonly readJson: t.FsReadJson;
 
-  /* Recursively walks through a directory and yields information about each file and directory encountered. */
+  /**
+   * Recursively walks through a directory and yields information about
+   * each file and directory encountered.
+   */
   readonly walk: typeof StdFs.walk;
 
-  /* Recursively walk up a directory tree (visitor pattern). */
+  /**
+   * Recursively walk up a directory tree (visitor pattern).
+   */
   readonly walkUp: t.FsWalkUp;
 };
 
@@ -140,9 +179,32 @@ export type FsWalkUpCallbackArgs = {
   stop(): void;
 };
 
+/**
+ * Details about a walked file.
+ */
 export type FsWalkFile = {
   path: t.StringPath;
   dir: t.StringDirPath;
   name: string;
   isSymlink: boolean;
+};
+
+/**
+ * Tools for calculating file sizes.
+ */
+export type FsSizeLib = {
+  /**
+   * Walk a directory and total up the file sizes.
+   */
+  dir(path: t.StringDirPath, options?: { maxDepth?: number }): Promise<FsDirSize>;
+};
+
+/**
+ * Represents the byte-size of all files within a directory.
+ */
+export type FsDirSize = {
+  readonly exists: boolean;
+  readonly path: t.StringDirPath;
+  readonly total: { files: number; bytes: number };
+  toString(options?: FormatOptions): string;
 };
