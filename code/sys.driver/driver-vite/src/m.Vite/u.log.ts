@@ -54,7 +54,7 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       const titleColor = ok ? c.brightGreen : c.brightYellow;
       let text = `
 ${stdio}
-${titleColor(c.bold('Bundle'))}   ${size}
+${titleColor(c.bold('Bundle'))}   ${titleColor(size)}
 ${c.gray(` input:  ${paths.input}`)}
 ${c.gray(` output: ${paths.outDir}`)}
 `;
@@ -64,7 +64,7 @@ ${c.gray(` output: ${paths.outDir}`)}
         const url = `${c.cyan(jsr)}@${c.white(Pkg.version)}`;
         const mod = c.white(c.bold(Pkg.name));
         const arrow = c.white('→');
-        text += c.gray(`\n pkg:    ${mod} ${arrow} ${url} ${arrow}`);
+        text += c.gray(`\n pkg:    ${mod} ${arrow} ${url}`);
       }
       return wrangle.res(text, args.pad);
     },

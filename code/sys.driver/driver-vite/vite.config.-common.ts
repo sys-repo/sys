@@ -7,12 +7,10 @@ import { c } from '@sys/std-s';
 /**
  * SAMPLE: Custom plugin (no customization).
  */
-export default defineConfig(async () => {
-  // return Vite.Plugin.common()
-
-  return await Vite.Plugin.common({
-    react: true,
-    wasm: true,
+export default defineConfig(() => {
+  return Vite.Plugin.common({
+    react: true, // ← (default)
+    wasm: true, //  ← (default)
 
     /**
      * ƒ(🌳): Filter to apply to the workspace modules
@@ -35,6 +33,4 @@ export default defineConfig(async () => {
       if (e.ws) console.info(e.ws.toString({ pad: true }));
     },
   });
-
-  // return { plugins: [ws] };
 });
