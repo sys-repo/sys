@@ -1,9 +1,10 @@
-import { Path, c, type t } from './common.ts';
+import { Path, c, type t, Str } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
   stdio: string;
   paths: t.ViteConfigPaths;
+  bytes: number;
   pad?: boolean;
   Pkg?: t.Pkg;
 };
@@ -49,20 +50,21 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
     },
     toString(args: BuildArgs) {
       const { ok, stdio, paths, Pkg } = args;
+      const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
       let text = `
 ${stdio}
-${titleColor(c.bold('Bundle'))}
+${titleColor(c.bold('Bundle'))}   ${size}
 ${c.gray(` input:  ${paths.input}`)}
 ${c.gray(` output: ${paths.outDir}`)}
 `;
       text = text.trim();
       if (Pkg) {
-        const version = Pkg.version;
         const jsr = `https://jsr.io/${Pkg.name}`;
         const url = `${c.cyan(jsr)}@${c.white(Pkg.version)}`;
         const mod = c.white(c.bold(Pkg.name));
-        text += c.gray(`\n pkg:    ${mod}  ${c.white('→')}  ${url}`);
+        const arrow = c.white('→');
+        text += c.gray(`\n pkg:    ${mod} ${arrow} ${url} ${arrow}`);
       }
       return wrangle.res(text, args.pad);
     },

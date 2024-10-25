@@ -1,4 +1,4 @@
-import { Cmd, ViteConfig as Config, DEFAULTS, type t } from './common.ts';
+import { Fs, Cmd, ViteConfig as Config, DEFAULTS, type t } from './common.ts';
 import { Plugin } from '../m.Vite.Plugin/mod.ts';
 import { keyboardFactory, Log } from './u.ts';
 
@@ -16,6 +16,8 @@ export const Vite: t.ViteLib = {
     const { silent = true, Pkg } = input;
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
+    const size = await Fs.Size.dir(paths.outDir);
+    const bytes = size.total.bytes;
     const ok = output.success;
     const res: t.ViteBuildResponse = {
       ok,
@@ -25,7 +27,7 @@ export const Vite: t.ViteLib = {
       toString(options = {}) {
         const { pad } = options;
         const stdio = output.toString();
-        return Log.Build.toString({ ok, stdio, paths, pad, Pkg });
+        return Log.Build.toString({ ok, stdio, paths, pad, Pkg, bytes });
       },
     };
     return res;
