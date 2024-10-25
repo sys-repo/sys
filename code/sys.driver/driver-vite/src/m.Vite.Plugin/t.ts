@@ -68,9 +68,26 @@ export type WorkspacePluginOptions = {
   mutate?: t.ViteConfigMutate;
 
   /**
+   * Chuck a named module into it's own bundle.
+   */
+  chunks?: t.ViteModuleChunks;
+
+  /**
    * Flag indicating if the output should be minified.
    * Useful for debugging the output.
    * Default: true.
    */
   minify?: boolean;
+};
+
+/**
+ * Handler for declaring how to chunk a module.
+ */
+export type ViteModuleChunks = (e: ViteModuleChunksArgs) => void;
+
+/**
+ * Arguments passed to the chunk method.
+ */
+export type ViteModuleChunksArgs = {
+  chunk(alias: string, moduleName?: string | string[]): ViteModuleChunksArgs;
 };

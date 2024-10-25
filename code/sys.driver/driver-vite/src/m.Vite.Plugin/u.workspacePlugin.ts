@@ -1,4 +1,5 @@
-import { Path, ViteConfig, type t } from './common.ts';
+import type { ManualChunksOption } from 'rollup';
+import { R, asArray, Path, ViteConfig, type t } from './common.ts';
 
 /**
  * Configure a deno workspace to addressable (via import) within Vite.
@@ -41,6 +42,7 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
       /**
        * Build: Rollup Options.
        */
+      const manualChunks: ManualChunksOption = {};
       const build = config.build || (config.build = {});
       build.emptyOutDir = true;
       build.outDir = Path.relative(root, outDir);
@@ -49,6 +51,7 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
       build.rollupOptions = {
         input,
         output: {
+          manualChunks,
           format: 'es',
           entryFileNames: 'pkg/-entry.[hash].js',
           chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
@@ -69,10 +72,23 @@ export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any
       esbuild.supported = { 'top-level-await': true };
 
       /**
+       * Chunking.
+       */
+      const chunker: t.ViteModuleChunksArgs = {
+        chunk(alias, moduleName) {
+          manualChunks[alias] = R.uniq(asArray(moduleName ?? alias));
+          return chunker;
+        },
+      };
+      options.chunks?.(chunker);
+
+      /**
        * Run callback for any further modifications to the [vite.config].
        * Directly manipulate the {config} parameter object.
        */
-      options?.mutate?.({ config, env, ws });
+      options.mutate?.({ config, env, ws });
+
+      // Finish up.
       return config;
     },
   };

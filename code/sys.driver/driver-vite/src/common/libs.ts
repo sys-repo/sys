@@ -10,5 +10,5 @@ export { keypress } from '@cliffy/keypress';
  * System
  */
 export { Denofile } from '@sys/driver-deno/runtime';
-export { Str, Time, slug } from '@sys/std';
+export { Str, Time, asArray, slug } from '@sys/std';
 export { Cli, Cmd, Fs, Path, c } from '@sys/std-s';

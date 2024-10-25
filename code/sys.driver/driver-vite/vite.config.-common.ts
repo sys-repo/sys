@@ -32,5 +32,11 @@ export default defineConfig(() => {
       console.info(c.dim(`\n👋 (callback inside plugin)`));
       if (e.ws) console.info(e.ws.toString({ pad: true }));
     },
+
+    chunks(e) {
+      e.chunk('react', 'react');
+      e.chunk('react.dom', 'react-dom');
+      e.chunk('sys', ['@sys/std']);
+    },
   });
 });

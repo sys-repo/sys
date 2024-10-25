@@ -14,6 +14,7 @@
     "@types/react-dom": "18",
     "@swc/plugin-emotion": "4",
     "@vitejs/plugin-react-swc": "3",
+    "rollup": "4",
     "vite": "5",
     "vite-plugin-wasm": "3"
   }

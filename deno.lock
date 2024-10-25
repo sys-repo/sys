@@ -72,6 +72,7 @@
     "npm:react-icons@5": "5.3.0_react@18.3.1",
     "npm:react-spinners@0.14.1": "0.14.1_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:react@18": "18.3.1",
+    "npm:rollup@4": "4.24.0",
     "npm:rxjs@7": "7.8.1",
     "npm:subhosting@0.1.0-alpha.1": "0.1.0-alpha.1",
     "npm:tinycolor2@1.6.0": "1.6.0",
@@ -1890,6 +1891,7 @@
         "npm:@types/react-dom@18",
         "npm:@types/react@18",
         "npm:@vitejs/plugin-react-swc@3",
+        "npm:rollup@4",
         "npm:vite-plugin-wasm@3",
         "npm:vite@5"
       ]

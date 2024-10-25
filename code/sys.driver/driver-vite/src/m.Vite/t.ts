@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-import type { defineConfig } from 'vite';
 
 type ToStringOptions = { pad?: boolean };
 
