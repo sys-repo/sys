@@ -1,9 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { Pkg } from '../pkg.ts';
+import { pkg } from '../pkg.ts';
 
-console.info('Pkg', Pkg);
+console.info('Pkg', pkg);
+globalThis.document.title = `${pkg.name}@${pkg.version}`;
+
 import('@sys/driver-vite/testing/sample-imports');
 
 export async function main() {
