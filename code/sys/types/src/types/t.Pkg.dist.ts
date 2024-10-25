@@ -1,8 +1,10 @@
 import type { t } from './common.ts';
 
 /**
- * The types for the `/dist/pkg.json` file produced
- * during a `build` bundling operation.
+ * A distribution "package" meata-data.
+ *
+ * This is the type definition for the `/dist/pkg.json` JSON file
+ * produced during a build/bundle operation for a module.
  */
 export type DistPkg = {
   /**
