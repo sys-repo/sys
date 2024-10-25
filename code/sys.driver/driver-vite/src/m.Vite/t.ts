@@ -60,6 +60,7 @@ export type ViteProcess = {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly url: t.StringPath;
+  listen(): Promise<void>;
   keyboard(): Promise<void>;
   dispose(): Promise<void>;
 };

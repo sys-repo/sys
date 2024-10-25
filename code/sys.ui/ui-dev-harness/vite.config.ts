@@ -6,8 +6,6 @@ import { defineConfig } from 'vite';
  */
 export default defineConfig(() => {
   return Vite.Plugin.common({
-    mutate(e) {
-      e.ws?.log();
-    },
+    chunks(_e) {},
   });
 });

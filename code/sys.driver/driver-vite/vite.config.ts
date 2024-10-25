@@ -12,7 +12,7 @@
  *
  *        const input = './path/to/entry/index.html';
  *        const server = await ViteProcess.dev({ Pkg, input });
- *        await server.keyboard();
+ *        await server.listen();
  *
  */
 

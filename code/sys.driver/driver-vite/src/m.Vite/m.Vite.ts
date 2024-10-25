@@ -51,11 +51,16 @@ export const Vite: t.ViteLib = {
     const { dispose } = proc;
     const keyboard = keyboardFactory({ Pkg, paths, port, url, dispose });
 
+    const listen = async () => {
+      await keyboard();
+    };
+
     await proc.whenReady();
     return {
       proc,
       port,
       url,
+      listen,
       keyboard,
       dispose,
     };
