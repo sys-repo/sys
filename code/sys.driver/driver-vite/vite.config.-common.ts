@@ -30,7 +30,7 @@ export default defineConfig(() => {
      */
     mutate(e) {
       console.info(c.dim(`\n👋 (callback inside plugin)`));
-      if (e.ws) console.info(e.ws.toString({ pad: true }));
+      // if (e.ws) console.info(e.ws.toString({ pad: true }));
     },
 
     chunks(e) {
