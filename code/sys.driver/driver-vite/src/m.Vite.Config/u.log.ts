@@ -13,11 +13,12 @@ export const Log = {
       const line = (...parts: string[]) => (res += `\n${parts.join(' ')}`);
 
       const filtered = ws.filter ? c.dim(` (filtered)`) : '';
+      line(c.gray(c.bold(`Docs`)));
       const modules = c.brightGreen(c.bold('<ESM Module>'));
-      line(c.white(`Workspace ${modules} import-map:`), filtered);
+      line(c.white(`  Workspace ${modules} import-map:`), filtered);
       line();
 
-      const table = Cli.table([c.dim('  Exports:'), '', c.dim(' Maps to:')]);
+      const table = Cli.table([c.dim('  Export:'), '', c.dim(' Maps to:')]);
 
       let _lastScope = '';
       ws.aliases.forEach((alias) => {
