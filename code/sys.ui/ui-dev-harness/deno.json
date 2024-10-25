@@ -3,12 +3,13 @@
   "version": "0.0.10",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RW",
+    "test": "deno test -RWNE --allow-run --allow-ffi",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "dev": "deno run -RWNE --allow-run ./scripts/-dev.ts",
-    "build": "deno run -RWNE --allow-run ./scripts/-build.ts"
+    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
+    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
+    "serve": "cd dist && serve"
   },
   "exports": {
     ".": "./src/mod.ts",

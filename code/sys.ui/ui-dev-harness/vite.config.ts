@@ -1,17 +1,13 @@
-import reactPlugin from '@vitejs/plugin-react-swc';
-import { defineConfig, type UserConfig } from 'vite';
-
-import { workspacePlugin } from '@sys/driver-vite';
-import { Style } from '@sys/ui-dom/style/react';
+import { Vite } from '@sys/driver-vite';
+import { defineConfig } from 'vite';
 
 /**
- * Vite setup.
+ * Vite "common" setup.
  */
-export default defineConfig(async (_ctx) => {
-  const workspace = await workspacePlugin();
-
-  // workspace.ws?.log({}); // 🐷
-
-  const react = reactPlugin(Style.plugin.emotion());
-  return { plugins: [react, workspace] } as UserConfig;
+export default defineConfig(() => {
+  return Vite.Plugin.common({
+    mutate(e) {
+      e.ws?.log();
+    },
+  });
 });
