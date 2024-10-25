@@ -1,5 +1,5 @@
 import { DenoCloud } from 'jsr:@sys/driver-deno/cloud/server';
-import { default as pkg } from './deno.json' with { type: 'json' };
+import { pkg } from './pkg.ts';
 
 /**
  * https://api.db.team
