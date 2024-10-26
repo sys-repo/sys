@@ -32,7 +32,7 @@ export async function main() {
       ...SampleSpecs,
       ...ModuleSpecs,
     };
-    const el = await render(Pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
     root.render(<StrictMode>{el}</StrictMode>);
   } else {
     const { MySample } = await import('./sample.specs/MySample.tsx');
