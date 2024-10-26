@@ -7,7 +7,10 @@ type O = Record<string, any>;
  * @example
  *
  * ```ts
- * const args = Args.parse(Deno.args)
+ * const args = Args.parse(Deno.args);
+ *
+ * const a = Args.parse("-a beep -b boop");
+ * const b = Args.parse("-x 3 -y 4 -n5 -abc --beep=boop foo bar baz");
  * ```
  */
 export type ArgsLib = {
