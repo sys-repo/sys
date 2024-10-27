@@ -1,16 +1,18 @@
 {
   "name": "@sys/driver-obsidian",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RW",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts"
+    "clean": "deno run -RWE ./scripts/-clean.ts",
+    "test": "deno test -RW",
+    "dir": "deno run -RE ./scripts/-dir.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./s": "./src/s/mod.ts"
   }
 }
