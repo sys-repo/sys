@@ -28,7 +28,7 @@
  * Along with the option to manulate the configuration further after the initial
  * baseline settings have initialized, using the `mutate` plugin callback.
  */
-export { Pkg } from './pkg.ts';
+export { pkg } from './pkg.ts';
 
 export { c } from './common.ts';
 export { ViteConfig } from './m.Vite.Config/mod.ts';

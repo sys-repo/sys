@@ -1,4 +1,4 @@
-export { Pkg } from '../pkg.ts';
+export { pkg } from '../pkg.ts';
 
 export * from './const.ts';
 export * from './libs.ts';

@@ -1,4 +1,4 @@
-import { type t, DEFAULTS as BASE, Pkg } from '../common.ts';
+import { type t, DEFAULTS as BASE, pkg } from '../common.ts';
 
 export * from '../common.ts';
 export * from './common.Calc.ts';
@@ -6,8 +6,12 @@ export * from './common.Calc.ts';
 /**
  * Constants
  */
+const name = 'ModuleList';
+const displayName = `${pkg.name}:${name}`;
+
 export const DEFAULTS: t.ModuleListDefaults = {
-  displayName: `${Pkg.name}:ModuleList`,
+  name,
+  displayName,
   qs: BASE.qs,
   list: { minWidth: 360 },
   useAnchorLinks: true,

@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Default values.
  */
 export type ModuleListDefaults = {
+  name: string;
   displayName: string;
   qs: t.DefaultsQueryString;
   list: { minWidth: number };

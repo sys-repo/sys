@@ -10,7 +10,7 @@
  * import { Colors, c } from '@sys/std-s';    // Terminal color formatting.
  * ```
  */
-export { Pkg } from './pkg.ts';
+export { pkg } from './pkg.ts';
 
 /**
  * Web "AND" Server.

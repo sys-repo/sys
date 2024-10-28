@@ -8,4 +8,4 @@
  * import { Vault } from '@sys/driver-obsidian/s';
  * ```
  */
-export { Pkg } from './pkg.ts';
+export { pkg } from './pkg.ts';

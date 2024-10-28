@@ -28,6 +28,6 @@
  * };
  * ```
  */
-export { Pkg } from './pkg.ts';
+export { pkg } from './pkg.ts';
 export { FC } from './m.FC/mod.ts';
 export { useClickInside, useClickOutside, useMouse, useMouseDrag } from './m.use/mod.ts';
