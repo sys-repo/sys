@@ -9,15 +9,27 @@ export const Vault: t.VaultLib = {
       async listen() {
         console.info(c.gray(`${c.green('listening')}: ${path}`));
         if (!exists) {
-          console.warn(`Cannon listen to vault, directory does not exist: ${path}`);
+          console.warn(`Cannot listen to vault, directory does not exist: ${path}`);
           return;
         }
         const watcher = Deno.watchFs(path);
         for await (const e of watcher) {
-          console.info(`💦 ${c.cyan(e.kind)}:`, e.paths);
+          const kind = wrangle.eventColor(e.kind);
+          console.info(`${kind}:`, e.paths);
         }
       },
     };
     return api;
   },
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  eventColor(kind: Deno.FsEvent['kind']) {
+    let color = c.cyan;
+    if (kind === 'rename') color = c.yellow;
+    return color;
+  },
+} as const;
