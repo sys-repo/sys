@@ -12,4 +12,6 @@ describe('Pkg (Server Tools)', () => {
       expect(value).to.equal(Pkg[key]);
     }
   });
+    // sample
+      console.log('m', res);
 });

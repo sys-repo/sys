@@ -10,6 +10,7 @@ export type {
   Observable,
   PathLib,
   Pkg,
+  StdError,
   StringDirPath,
   StringFilePath,
   StringPath,

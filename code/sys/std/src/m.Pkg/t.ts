@@ -26,7 +26,7 @@ export type PkgLib = {
   fromJson(input: O): t.Pkg;
 
   /**
-   * Generate a new { <unknown>@0.0.0 } package object.
+   * Generate a new { \<unknown\>@0.0.0 } package object.
    */
   unknown(): t.Pkg;
 };
