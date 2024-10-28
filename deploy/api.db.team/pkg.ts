@@ -1,10 +1,8 @@
-import type { t } from '@sys/types';
-import { default as deno } from '../deno.json' with { type: 'json' };
-
-const { name, version } = deno;
+import { Pkg, type t } from '@sys/std';
+import { default as deno } from './deno.json' with { type: 'json' };
 
 
 /**
  * Package meta-data.
  */
-export const pkg: t.Pkg = { name, version };
+export const pkg: t.Pkg = Pkg.fromJson(deno)

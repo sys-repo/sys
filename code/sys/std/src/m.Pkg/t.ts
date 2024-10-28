@@ -18,9 +18,9 @@ export type PkgLib = {
    * @example
    *
    * ```ts
-   * import { Pkg } from '@sys/std';
+   * import { Pkg, type t } from '@sys/std';
    * import { default as deno } from '../deno.json' with { type: 'json' };
-   * export const pkg = Pkg.fromJson(deno);
+   * export const pkg: t.Pkg = Pkg.fromJson(deno);
    * ```
    */
   fromJson(input: O): t.Pkg;
