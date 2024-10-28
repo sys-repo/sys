@@ -40,6 +40,7 @@ export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
 export { ObjectPath } from './m.ObjectPath/mod.ts';
 export { Path } from './m.Path/mod.ts';
+export { Pkg } from './m.Pkg/mod.ts';
 export { Promise, maybeWait } from './m.Promise/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
 export { Semver } from './m.Semver/mod.ts';
