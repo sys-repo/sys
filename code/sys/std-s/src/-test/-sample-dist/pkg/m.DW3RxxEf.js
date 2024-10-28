@@ -1,1 +1,1 @@
-const o={count:0};export{o as Foo};
+// sample.3
