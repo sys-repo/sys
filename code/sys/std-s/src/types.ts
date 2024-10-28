@@ -5,6 +5,7 @@
 export type * from './m.Cli/t.ts';
 export type * from './m.Env/t.ts';
 export type * from './m.Fs/t.ts';
+export type * from './m.Pkg/t.ts';
 export type * from './m.Process/t.ts';
 export type * from './m.Server.Auth/t.ts';
 export type * from './m.Server.Http/t.ts';
