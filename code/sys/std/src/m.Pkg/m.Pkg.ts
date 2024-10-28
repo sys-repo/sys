@@ -20,4 +20,8 @@ export const Pkg: t.PkgLib = {
     const version = typeof pkg.version === 'string' ? pkg.version : UNKNOWN.version;
     return { name, version };
   },
+
+  unknown() {
+    return DEFAULTS.UNKNOWN;
+  },
 };

@@ -1,4 +1,5 @@
 import { describe, expect, it, pkg } from '../-test.ts';
+import { DEFAULTS } from './common.ts';
 import { Pkg } from './mod.ts';
 
 describe('Pkg', () => {
@@ -51,5 +52,14 @@ describe('Pkg', () => {
         expect(Pkg.Is.unknown(Pkg.toString(pkg))).to.eql(false);
       });
     });
+  });
+
+  it('Pkg.unknown', () => {
+    const a = Pkg.unknown();
+    const b = Pkg.unknown();
+
+    expect(a).to.eql(DEFAULTS.UNKNOWN);
+    expect(a).to.eql(b);
+    expect(a).to.not.equal(b);
   });
 });
