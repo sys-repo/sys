@@ -1,6 +1,7 @@
 export type {
   Disposable,
   DisposeAsyncEvent,
+  DistPkg,
   IgnoredResponse,
   Index,
   Lifecycle,
