@@ -14,7 +14,7 @@ export const Vite: t.ViteLib = {
    * Run the <vite:build> command.
    */
   async build(input: t.ViteBuildArgs): Promise<t.ViteBuildResponse> {
-    const { silent = true, Pkg } = input;
+    const { silent = true, pkg } = input;
     const { env, cmd, args, paths } = wrangle.command(input, 'build');
     const output = await Cmd.invoke({ args, env, silent });
     const size = await Fs.Size.dir(paths.outDir);
@@ -28,7 +28,7 @@ export const Vite: t.ViteLib = {
       toString(options = {}) {
         const { pad } = options;
         const stdio = output.toString();
-        return Log.Build.toString({ ok, stdio, paths, pad, Pkg, bytes });
+        return Log.Build.toString({ ok, stdio, paths, pad, pkg, bytes });
       },
     };
     return res;
@@ -42,15 +42,15 @@ export const Vite: t.ViteLib = {
    *    $ vite dev --port=<1234>
    */
   async dev(input: t.ViteDevArgs): Promise<t.ViteProcess> {
-    const { port = DEFAULTS.port, silent = false, Pkg } = input;
+    const { port = DEFAULTS.port, silent = false, pkg } = input;
     const { env, args, paths } = wrangle.command(input, `dev --port=${port}`);
     const url = `http://localhost:${port}/`;
 
-    if (!silent && Pkg) Log.Entry.log(Pkg, input.input);
+    if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
     const proc = Cmd.spawn({ args, env, silent });
     const { dispose } = proc;
-    const keyboard = keyboardFactory({ Pkg, paths, port, url, dispose });
+    const keyboard = keyboardFactory({ pkg, paths, port, url, dispose });
 
     const listen = async () => {
       await keyboard();

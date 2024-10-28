@@ -35,8 +35,10 @@
  *
  * See `src/-test/sample.specs/` for example of the BDD specs.
  */
-export { Dev, render } from './m.Dev/mod.ts';
 export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
+export { Dev, render } from './m.Dev/mod.ts';
 export { Spec } from './u/Spec/mod.ts';
 
 export { useRubberband } from './ui.use/useRubberband.ts';

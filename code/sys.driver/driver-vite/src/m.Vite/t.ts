@@ -9,7 +9,7 @@ export type ViteBuildArgs = {
   input: t.StringPath;
   outDir?: t.StringPath;
   silent?: boolean;
-  Pkg?: t.Pkg; // Consumer module.
+  pkg?: t.Pkg; // Consumer module.
 };
 
 /**
@@ -20,7 +20,7 @@ export type ViteDevArgs = {
   outDir?: t.StringPath;
   port?: number;
   silent?: boolean;
-  Pkg?: t.Pkg; // Consumer module.
+  pkg?: t.Pkg; // Consumer module.
 };
 
 /**

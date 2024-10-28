@@ -7,4 +7,4 @@ const { name, version } = deno;
 /**
  * Package meta-data.
  */
-export const pkg :t.Pkg = { name, version }
+export const pkg: t.Pkg = { name, version };

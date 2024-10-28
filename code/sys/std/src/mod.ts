@@ -21,14 +21,15 @@
  * import { Testing } from 'jsr:@sys/std/testing/server';   // ↑ alternative.
  * ```
  */
-export { Pkg, type t } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
 
 export { Args } from './m.Args/mod.ts';
 export { Async } from './m.Async/mod.ts';
+export { Color } from './m.Color/mod.ts';
 export { D, Date, Duration, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
-export { Color } from './m.Color/mod.ts';
 export { Err } from './m.Err/mod.ts';
 export { Hash } from './m.Hash/mod.ts';
 export { Http } from './m.Http/mod.ts';

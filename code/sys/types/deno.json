@@ -10,7 +10,6 @@
   },
   "exports": {
     ".": "./src/mod.ts",
-    "./t": "./src/types.ts",
-    "./pkg": "./src/common/m.pkg.ts"
+    "./t": "./src/types.ts"
   }
 }

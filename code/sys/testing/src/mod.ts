@@ -4,9 +4,11 @@
  *
  * @example
  * ```ts
- * import { Pkg } from '@sys/testing';
+ * import { pkg } from '@sys/testing';
  * import { Test } from '@sys/testing/spec';
  * ```
  */
-export { Pkg } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
 export * from './m.std.ts';

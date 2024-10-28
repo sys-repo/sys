@@ -5,17 +5,11 @@
  *
  * @example
  * ```ts
- * import type { Pkg } from '@sys/types';
+ * import { pkg } from '@sys/types'; // ← the concrete package meta-data.
+ * import type { Pkg } from '@sys/types'; // the <Pkg> type that defines the {pkg}.
  *
  * import type { Immutable } from '@sys/t';        ←
  * import type { Immutable } from '@sys/types';    ↑ (alias)
- * ```
- *
- * To import the Pkg (Module/Package) concrete meta-data
- * info:
- *
- * ```ts
- * import { Pkg } from '@sys/types/pkg';
  * ```
  *
  */

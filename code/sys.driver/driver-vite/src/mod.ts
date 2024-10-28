@@ -29,6 +29,7 @@
  * baseline settings have initialized, using the `mutate` plugin callback.
  */
 export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
 
 export { c } from './common.ts';
 export { ViteConfig } from './m.Vite.Config/mod.ts';

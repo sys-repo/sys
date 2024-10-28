@@ -8,4 +8,5 @@
  * import { Fuzzy } from '@sys/text/fuzzy';
  * ```
  */
-export { Pkg, Str } from './common.ts';
+export { Str, pkg } from './common.ts';
+export type * as t from './types.ts';

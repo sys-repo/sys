@@ -43,7 +43,8 @@
  * life.dispose();
  * ```
  */
-export { Pkg } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
 
 export { Color } from './common.ts';
 export { File } from './m.File/mod.ts';

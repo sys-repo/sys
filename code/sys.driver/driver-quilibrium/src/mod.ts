@@ -11,5 +11,7 @@
  * await Q.Release.pull();
  * ```
  */
-export { Pkg } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
 export { Q } from './m.Node/mod.ts';

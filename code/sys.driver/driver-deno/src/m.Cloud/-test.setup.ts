@@ -1,5 +1,5 @@
 import { env } from '../env.ts';
-import { Pkg } from './common.ts';
+import { pkg } from './common.ts';
 import { Http, type t } from './u.server/common.ts';
 import { DenoCloud } from './u.server/mod.ts';
 
@@ -11,7 +11,7 @@ export function testSetup(options: { authEnabled?: boolean } = {}) {
   const log = new Set<t.AuthLogEntry>();
   const app = DenoCloud.server({
     env,
-    pkg: Pkg,
+    pkg,
     authEnabled,
     authLogger: (e) => log.add(e),
   });

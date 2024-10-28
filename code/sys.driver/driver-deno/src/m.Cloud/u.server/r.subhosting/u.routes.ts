@@ -1,4 +1,4 @@
-import { DenoSubhostingAPI, Path, Pkg, type t } from '../common.ts';
+import { DenoSubhostingAPI, Path, pkg, type t } from '../common.ts';
 
 /**
  * Setup routes for deploying and managing sub-hosting instances.
@@ -13,8 +13,6 @@ export function routes(path: string, ctx: t.RouteContext) {
    * GET: root info.
    */
   app.get(path, async (c) => {
-    const { name, version } = Pkg;
-    const pkg = { name, version };
     const description = `deno:subhosting™️ controller`;
 
     const auth = await ctx.auth.verify(c.req.raw);

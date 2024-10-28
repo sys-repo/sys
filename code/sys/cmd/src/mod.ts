@@ -18,5 +18,7 @@
  * cmd.invoke('Foo', { foo: 888 });
  * ```
  */
-export { Pkg } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
 export { Cmd } from './m.Cmd/mod.ts';

@@ -4,7 +4,8 @@
  *
  * @example
  * ```ts
- * import { Pkg } from '@sys/xxx';
+ * import { pkg } from '@sys/xxx';
  * ```
  */
 export { pkg } from './pkg.ts';
+export type * as t from './types.ts';

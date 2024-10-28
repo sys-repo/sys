@@ -7,6 +7,6 @@ Surfaces the CRDT using the common system `Immutable<T>` interfaces.
 ### Example
 
 ```ts
-import { Pkg } from '@sys/driver-automerge';
+import { pkg } from '@sys/driver-automerge';
 ```
 

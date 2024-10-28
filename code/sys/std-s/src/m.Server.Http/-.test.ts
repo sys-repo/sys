@@ -1,5 +1,4 @@
 import { describe, expect, it, pkg } from '../-test.ts';
-import { Pkg } from '../common.ts';
 import { Http, HttpServer } from '../mod.ts';
 
 describe('Server', () => {
@@ -33,7 +32,7 @@ describe('Server', () => {
     const res = await client.get(url.base);
 
     const header = res.headers.get('pkg');
-    expect(header).to.eql(`${Pkg.name}@${Pkg.version}`);
+    expect(header).to.eql(`${pkg.name}@${pkg.version}`);
 
     await res.body?.cancel();
     await listener.shutdown();

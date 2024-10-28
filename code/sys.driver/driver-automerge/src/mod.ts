@@ -7,7 +7,8 @@
  * import { } from '@sys/driver-automerge';
  * ```
  */
-export { Pkg } from './common/mod.ts';
+export { pkg } from './common/mod.ts';
+export type * as t from './types.ts';
 
 /**
  * Library

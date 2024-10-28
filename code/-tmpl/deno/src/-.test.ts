@@ -1,6 +1,6 @@
-import { describe, expect, it, Pkg } from './-test.ts';
+import { describe, expect, it, pkg } from './-test.ts';
 
-describe(`Pkg: ${Pkg.name}@${Pkg.version}`, () => {
+describe(`Pkg: ${pkg.name}@${pkg.version}`, () => {
   it('🐷 placeholder', () => {
     expect(123).to.equal(123);
   });

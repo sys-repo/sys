@@ -2,8 +2,8 @@
  * Run in a child-process (hence the `-allow-run` requirement).
  */
 import { Vite } from '@sys/driver-vite';
-import { Pkg } from '../src/pkg.ts';
+import { pkg } from '@sys/ui-dev-harness';
 
 const input = './src/-test/index.html';
-const server = await Vite.dev({ Pkg, input });
+const server = await Vite.dev({ pkg, input });
 await server.listen();
