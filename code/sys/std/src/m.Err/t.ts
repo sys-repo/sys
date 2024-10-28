@@ -1,7 +1,18 @@
 import type { t } from '../common.ts';
 
-/* Options passed to the `ErrLib.stdErr` method. */
-export type ErrStdErrorOptions = { name?: string; cause?: unknown };
+/**
+ * Options passed to the `ErrLib.stdErr` method.
+ */
+export type ErrStdErrorOptions = {
+  /* The name/type of this error. */
+  name?: string;
+
+  /* A sub-error that represents the cause of this error. */
+  cause?: unknown;
+
+  /* A list of errors when creating an Aggregate error. */
+  errors?: (t.StdError | unknown)[];
+};
 
 /**
  * Helpers for working with errors.
@@ -26,7 +37,12 @@ export type ErrIsLib = {
   errorLike(input: unknown): input is t.ErrorLike;
 
   /**
-   * Determine if the given value conforms to the [StdError] type.
+   * Determine if the given value conforms to the `StdError` type.
    */
   stdError(input: unknown): input is t.StdError;
+
+  /**
+   * Determine if the `StdError` is an aggregate of other errors, (aka. it has a [errors] array).
+   */
+  aggregate(input: unknown): input is t.StdError;
 };

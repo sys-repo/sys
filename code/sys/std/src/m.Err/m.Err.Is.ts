@@ -1,5 +1,4 @@
-import type { t } from '../common.ts';
-import { isObject } from './u.ts';
+import { type t, isObject } from './common.ts';
 
 export const Is: t.ErrIsLib = {
   /**
@@ -23,5 +22,14 @@ export const Is: t.ErrIsLib = {
       return true;
     }
     return false;
+  },
+
+  /**
+   * Determine if the `StdError` is an aggregate of other errors, (aka. it has a [errors] array).
+   */
+  aggregate(input: any): input is t.StdError {
+    if (!Is.stdError(input)) return false;
+    if (!Array.isArray(input.errors)) return false;
+    return input.errors.length > 0;
   },
 };

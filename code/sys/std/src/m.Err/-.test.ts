@@ -58,10 +58,24 @@ describe('Err (Error)', () => {
       test({ name: 'Error', message: 'Fail', cause: 555 }, false); // Invalid cause.
       test(deepInvalid, false);
     });
+
+    it('Is.aggregate', () => {
+      const test = (input: any, expected: boolean) => {
+        expect(Err.Is.aggregate(input)).to.eql(expected);
+      };
+
+      const NON = [true, 123, 'foo', {}, [], null, undefined, BigInt(0), Symbol('err')];
+      NON.forEach((value) => test(value, false));
+
+      test(Err.stdError('foo'), false);
+      test(Err.stdError('foo', { errors: [] }), false);
+      test(Err.stdError('foo', { errors: ['a'] }), true);
+      test(Err.stdError('foo', { errors: ['a', 'b'] }), true);
+    });
   });
 
   describe('Err.stdError (convert)', () => {
-    const name = DEFAULTS.name;
+    const name = DEFAULTS.name.error;
 
     it('name', () => {
       const err1 = Err.stdError('durp');
@@ -164,10 +178,32 @@ describe('Err (Error)', () => {
       });
     });
 
+    describe('aggregate', () => {
+      it('simple', () => {
+        const child = Err.stdError('child');
+        const err = Err.stdError('root', { errors: ['foo', child] });
+        expect(child.errors).to.eql(undefined);
+
+        expect(err.message).to.eql('root');
+        expect(err.name).to.eql(DEFAULTS.name.aggregate);
+        expect(err.errors?.length).to.eql(2);
+      });
+
+      it('aggregate of aggregates', () => {
+        const a = Err.stdError('a', { errors: ['foo', 'bar'] });
+        const b = Err.stdError('b', { errors: [a] });
+
+        expect(Err.Is.aggregate(a)).to.eql(true);
+        expect(Err.Is.aggregate(b)).to.eql(true);
+        expect(b.errors?.[0].errors?.[1].message).to.eql('bar');
+      });
+    });
+
     describe('Error (standard JS)', () => {
       it('simple', () => {
-        const err = new Error('Fail');
-        expect(Err.stdError(err)).to.eql({ name, message: 'Fail' });
+        const native = new Error('Fail');
+        const err = Err.stdError(native);
+        expect(err).to.eql({ name, message: 'Fail' });
       });
 
       it('cause (deep)', () => {
