@@ -20,12 +20,31 @@ describe('Pkg', () => {
     });
   });
 
+  describe('Pkg.fromJson', () => {
+    it('INVALID input', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => {
+        const res = Pkg.fromJson(v);
+        expect(Pkg.Is.unknown(res)).to.eql(true);
+      });
+    });
+
+    it('from import', () => {
+      const res = Pkg.fromJson({ name: 'foo', version: '1.2.0' });
+      expect(res.name).to.eql('foo');
+      expect(res.version).to.eql('1.2.0');
+    });
+  });
+
   describe('Pkg.Is', () => {
     describe('Is.unknown', () => {
       it('true (unknown)', () => {
         const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-        NON.forEach((v: any) => expect(Pkg.Is.unknown(v)).to.eql(true));
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.unknown(v)).to.eql(true, v);
+        });
         expect(Pkg.Is.unknown('<unknown>@0.0.0')).to.eql(true);
+        expect(Pkg.Is.unknown({ name: '<unknown>', version: '0.0.0' })).to.eql(true);
       });
 
       it('false (known)', () => {
