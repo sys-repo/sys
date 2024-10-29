@@ -26,7 +26,9 @@ export const dist: t.PkgSLib['dist'] = async (args) => {
    * Prepare the "distributeion-package" json.
    */
   const hash = exists ? await wrangle.hashes(dir) : { pkg: '', files: {} };
-  const dist: t.DistPkg = { pkg, entry, hash };
+  const bytes = await wrangle.bytes(dir, Object.keys(hash.files));
+  const size: t.DistPkg['size'] = { bytes };
+  const dist: t.DistPkg = { pkg, size, entry, hash };
 
   /**
    * Prepare response.
@@ -57,5 +59,14 @@ const wrangle = {
     const { hash, files } = await Hash.Dir.compute(path, { filter });
     const res: t.DistPkgHashes = { pkg: hash, files };
     return res;
+  },
+
+  async bytes(dir: t.StringDir, files: t.StringFile[]) {
+    let count = 0;
+    for (const file of files) {
+      const stat = await Fs.stat(Fs.join(dir, file));
+      count += stat.size;
+    }
+    return count;
   },
 } as const;
