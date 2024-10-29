@@ -37,4 +37,10 @@ export type PkgLib = {
 export type PkgIs = {
   /* Determines if the input is a string of the default "unknown" */
   unknown(input?: string | t.Pkg): boolean;
+
+  /* Determine if the given input is a `Pkg` */
+  pkg(input: unknown): input is t.Pkg;
+
+  /* Determine if the given input is a `DistPkg` */
+  dist(input: unknown): input is t.DistPkg;
 };

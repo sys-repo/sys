@@ -12,4 +12,21 @@ export const Is: t.PkgIs = {
     if (typeof input !== 'string') return true;
     return input === `${UNKNOWN.name}@${UNKNOWN.version}`;
   },
+
+  pkg(input: any): input is t.Pkg {
+    if (!isObject(input)) return false;
+    const pkg = input as t.Pkg;
+    return typeof pkg.name === 'string' && typeof pkg.version === 'string';
+  },
+
+  dist(input: any): input is t.DistPkg {
+    if (!isObject(input)) return false;
+    const dist = input as t.DistPkg;
+    if (!Is.pkg(dist.pkg)) return false;
+    return (
+      typeof dist.entry === 'string' &&
+      typeof dist.hash.pkg === 'string' &&
+      isObject(dist.hash.files)
+    );
+  },
 };

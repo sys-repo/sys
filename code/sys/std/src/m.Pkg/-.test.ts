@@ -1,4 +1,4 @@
-import { describe, expect, it, pkg } from '../-test.ts';
+import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
 import { Pkg } from './mod.ts';
 
@@ -50,6 +50,44 @@ describe('Pkg', () => {
 
       it('false (known)', () => {
         expect(Pkg.Is.unknown(Pkg.toString(pkg))).to.eql(false);
+      });
+    });
+
+    describe('Is.pkg', () => {
+      it('false', () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.pkg(v)).to.eql(false, v);
+        });
+      });
+
+      it('true', () => {
+        const pkg: t.Pkg = { name: 'foo', version: '1.2.3' };
+        expect(Pkg.Is.pkg(pkg)).to.eql(true);
+      });
+    });
+
+    describe('Is.dist', () => {
+      it('false', () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => {
+          expect(Pkg.Is.dist(v)).to.eql(false, v);
+        });
+      });
+
+      it('true', () => {
+        const dist: t.DistPkg = {
+          pkg: { name: 'foo', version: '1.2.3' },
+          entry: 'pkg/entry.js',
+          hash: {
+            pkg: 'acbc',
+            files: {
+              './index.html': 'xxxx',
+              './pkg/entry.js': 'yyyy',
+            },
+          },
+        };
+        expect(Pkg.Is.dist(dist)).to.eql(true);
       });
     });
   });
