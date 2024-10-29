@@ -7,7 +7,7 @@ describe('Pkg (Server Tools)', () => {
     expect(value.endsWith(expected)).to.eql(true, value);
   };
 
-  it('is not the "std" client instance, but surfaces the "std" interface', async () => {
+  it('is not the [sys.std] Client verion, but surfaces all the [sys.std] interface', async () => {
     const { Hash: Base } = await import('@sys/std/hash');
     expect(Hash).to.not.equal(Base); // NB: different instance.
     expect(Hash.Dir).to.equal(Dir);

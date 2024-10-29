@@ -16,7 +16,7 @@ describe('Pkg (Server Tools)', () => {
     await Fs.remove(PATH.file);
   }
 
-  it('is not the "std" client instance, but surfaces the "std" interface', async () => {
+  it('is not the [sys.std] Client verion, but surfaces all the [sys.std] interface', async () => {
     const { Pkg: Base } = await import('@sys/std/pkg');
     expect(Pkg).to.not.equal(Base); // NB: different instance.
 
@@ -33,32 +33,16 @@ describe('Pkg (Server Tools)', () => {
     });
 
     describe('Dist.compute', () => {
-      it('error: directory does not exist', async () => {
-        const dir = Fs.resolve('./.tmp/NO_EXIST/');
-        const res = await Pkg.Dist.compute({ dir, pkg });
-        expect(res.ok).to.eql(false);
-        expect(res.exists).to.eql(false);
-        expect(res.error?.message).to.include(dir);
-        expect(res.error?.message).to.include('does not exist');
-        expect(res.dir).to.eql(dir);
-        expect(res.dist.pkg).to.eql(pkg);
-        expect(res.dist.entry).to.eql('');
-        expect(res.dist.hash).to.eql({ pkg: '', files: {} }); // NB: empty.
-      });
-
-      it('error: path is not a directory', async () => {
-        const dir = Fs.resolve('./deno.json');
-        const res = await Pkg.Dist.compute({ dir, pkg, save: true });
-
-        expect(res.ok).to.eql(false);
-        expect(res.exists).to.eql(true);
-        expect(res.error?.message).to.include(dir);
-        expect(res.error?.message).to.include('path is not a directory');
-      });
-
-      it('compute → success', async () => {
+      it('Dist.compute(): → success', async () => {
         const { dir, entry } = PATH;
         const res = await Pkg.Dist.compute({ dir, pkg, entry });
+
+        console.info('🌳');
+        console.info(`JSON via Pkg.Dist.compute:`);
+        console.info(`/dist/dist.json:`);
+        console.info();
+        console.info(res.dist);
+        console.info();
 
         expect(res.ok).to.eql(true);
         expect(res.exists).to.eql(true);
@@ -88,7 +72,7 @@ describe('Pkg (Server Tools)', () => {
         expect(await exists()).to.eql(false); // NB: never written
       });
 
-      it('{save:true} → saves to file', async () => {
+      it('{save:true} → saves to file-system', async () => {
         const { dir, entry, file } = PATH;
         const exists = () => Fs.exists(file);
         await deleteDistFile();
@@ -101,6 +85,29 @@ describe('Pkg (Server Tools)', () => {
         const json = (await Fs.readJson(file)).json;
         expect(json).to.eql(res.dist);
         await deleteDistFile();
+      });
+
+      it('error: directory does not exist', async () => {
+        const dir = Fs.resolve('./.tmp/NO_EXIST/');
+        const res = await Pkg.Dist.compute({ dir, pkg });
+        expect(res.ok).to.eql(false);
+        expect(res.exists).to.eql(false);
+        expect(res.error?.message).to.include(dir);
+        expect(res.error?.message).to.include('does not exist');
+        expect(res.dir).to.eql(dir);
+        expect(res.dist.pkg).to.eql(pkg);
+        expect(res.dist.entry).to.eql('');
+        expect(res.dist.hash).to.eql({ pkg: '', files: {} }); // NB: empty.
+      });
+
+      it('error: path is not a directory', async () => {
+        const dir = Fs.resolve('./deno.json');
+        const res = await Pkg.Dist.compute({ dir, pkg, save: true });
+
+        expect(res.ok).to.eql(false);
+        expect(res.exists).to.eql(true);
+        expect(res.error?.message).to.include(dir);
+        expect(res.error?.message).to.include('path is not a directory');
       });
     });
   });

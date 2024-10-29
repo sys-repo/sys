@@ -38,7 +38,13 @@ describe('Vite', () => {
       expect(res.dist).to.eql(files.distJson);
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.size.bytes).to.be.greaterThan(160_000);
-      console.info('🌳 dist.json:', res.dist);
+
+      console.info('🌳');
+      console.info(`JSON (via Pkg.Dist.compute):`);
+      console.info(`/dist/dist.json:`);
+      console.info();
+      console.info(res.dist);
+      console.info();
     });
 
     it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
