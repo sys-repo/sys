@@ -12,7 +12,8 @@ export const Err: t.ErrLib = {
   /**
    * Take unknown input and produce a standard error object.
    */
-  std(input: any, options = {}) {
+  std(input: any, opt = {}) {
+    const options = wrangle.options(opt);
     const errors = wrangle.aggregate(options);
     const name = wrangle.name(options);
 
@@ -53,6 +54,12 @@ export const Err: t.ErrLib = {
  * Helpers
  */
 const wrangle = {
+  options(input?: t.ErrStdErrorOptions | string) {
+    if (!input) return {};
+    if (typeof input === 'string') return { name: input };
+    return input;
+  },
+
   name(options: t.ErrStdErrorOptions = {}) {
     if (options.name) return options.name;
     const errors = wrangle.aggregate(options);

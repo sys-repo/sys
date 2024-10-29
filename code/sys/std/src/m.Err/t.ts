@@ -24,7 +24,7 @@ export type ErrLib = {
   /**
    * Take unknown input and produce a standard error object.
    */
-  std(input: unknown, options?: t.ErrStdErrorOptions): t.StdError;
+  std(input: unknown, options?: t.ErrStdErrorOptions | string): t.StdError;
 };
 
 /**

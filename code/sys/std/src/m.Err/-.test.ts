@@ -80,8 +80,10 @@ describe('Err (Error)', () => {
     it('name', () => {
       const err1 = Err.std('durp');
       const err2 = Err.std('durp', { name: 'MyError' });
+      const err3 = Err.std('durp', Err.Name.reference);
       expect(err1.name).to.eql(name);
       expect(err2.name).to.eql('MyError');
+      expect(err3.name).to.eql('ReferenceError');
     });
 
     describe('simple value types (string, number etc)', () => {
