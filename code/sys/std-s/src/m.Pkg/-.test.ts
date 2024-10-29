@@ -67,6 +67,12 @@ describe('Pkg (Server Tools)', () => {
       expect(res.dist.hash.files).to.eql(dirhash.files);
     });
 
+    it('{pkg} not passed → <unknown> package', async () => {
+      const { dir, entry } = PATH;
+      const res = await Pkg.saveDist({ dir, entry });
+      expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
+    });
+
     it('saves to file', async () => {
       const { dir, entry, file } = PATH;
       const exists = () => Fs.exists(file);

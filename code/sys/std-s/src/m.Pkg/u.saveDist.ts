@@ -1,11 +1,13 @@
 import { type t, Delete, Err, Fs, Hash } from './common.ts';
+import { Pkg } from '@sys/std/pkg';
 
 /**
  * Prepare and save a "distribution package"
  * meta-data file, `dist.json`.
  */
 export const saveDist: t.PkgSLib['saveDist'] = async (args) => {
-  const { dir, pkg, entry = '', dryRun = false } = args;
+  const { dir, entry = '', dryRun = false } = args;
+  const pkg = args.pkg ?? Pkg.unknown();
   let error: t.StdError | undefined;
 
   const exists = await Fs.exists(dir);

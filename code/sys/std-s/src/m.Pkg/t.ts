@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import type { PkgLib } from '@sys/std/t';
 
 /**
- * (server extenion of): PkgLib
+ * PkgLib (server extenions)
  *
  * Tools for working with the system standard
  * {pkg} "package" meta-data structure.
@@ -17,7 +17,7 @@ export type PkgSLib = PkgLib & {
 
 export type SaveDistArgs = {
   dir: t.StringPath;
-  pkg: t.Pkg;
+  pkg?: t.Pkg;
   entry?: string;
   dryRun?: boolean;
 };
