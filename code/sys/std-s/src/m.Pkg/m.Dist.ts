@@ -34,13 +34,12 @@ export const Dist: t.PkgDistLib = {
     /**
      * Prepare response.
      */
-    const ok = exists && !error;
-    const res = Delete.undefined<t.PkgSaveDistResponse>({ ok, dir, exists, dist, error });
+    const res = Delete.undefined<t.PkgSaveDistResponse>({ dir, exists, dist, error });
 
     /**
      * Save to the file-system.
      */
-    if (ok && save) {
+    if (save && exists && !error) {
       const path = Fs.join(dir, 'dist.json');
       const json = `${JSON.stringify(dist, null, '  ')}\n`;
       await Fs.ensureDir(dir);

@@ -44,7 +44,6 @@ describe('Pkg (Server Tools)', () => {
         console.info(res.dist);
         console.info();
 
-        expect(res.ok).to.eql(true);
         expect(res.exists).to.eql(true);
         expect(res.error).to.eql(undefined);
 
@@ -79,7 +78,6 @@ describe('Pkg (Server Tools)', () => {
         expect(await exists()).to.eql(false);
 
         const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
-        expect(res.ok).to.eql(true);
         expect(await exists()).to.eql(true);
 
         const json = (await Fs.readJson(file)).json;
@@ -90,7 +88,6 @@ describe('Pkg (Server Tools)', () => {
       it('error: directory does not exist', async () => {
         const dir = Fs.resolve('./.tmp/NO_EXIST/');
         const res = await Pkg.Dist.compute({ dir, pkg });
-        expect(res.ok).to.eql(false);
         expect(res.exists).to.eql(false);
         expect(res.error?.message).to.include(dir);
         expect(res.error?.message).to.include('does not exist');
@@ -104,7 +101,6 @@ describe('Pkg (Server Tools)', () => {
         const dir = Fs.resolve('./deno.json');
         const res = await Pkg.Dist.compute({ dir, pkg, save: true });
 
-        expect(res.ok).to.eql(false);
         expect(res.exists).to.eql(true);
         expect(res.error?.message).to.include(dir);
         expect(res.error?.message).to.include('path is not a directory');
