@@ -26,10 +26,10 @@ describe('Pkg (Server Tools)', () => {
     }
   });
 
-  describe('Pkg.saveDist', () => {
+  describe('Pkg.dist', () => {
     it('error: directory does not exist', async () => {
       const dir = Fs.resolve('./.tmp/NO_EXIST/');
-      const res = await Pkg.saveDist({ dir, pkg });
+      const res = await Pkg.dist({ dir, pkg });
       expect(res.ok).to.eql(false);
       expect(res.exists).to.eql(false);
       expect(res.error?.message).to.include(dir);
@@ -42,7 +42,7 @@ describe('Pkg (Server Tools)', () => {
 
     it('error: path is not a directory', async () => {
       const dir = Fs.resolve('./deno.json');
-      const res = await Pkg.saveDist({ dir, pkg, dryRun: true });
+      const res = await Pkg.dist({ dir, pkg, dryRun: true });
 
       expect(res.ok).to.eql(false);
       expect(res.exists).to.eql(true);
@@ -52,7 +52,7 @@ describe('Pkg (Server Tools)', () => {
 
     it('success', async () => {
       const { dir, entry } = PATH;
-      const res = await Pkg.saveDist({ dir, pkg, entry });
+      const res = await Pkg.dist({ dir, pkg, entry });
 
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
@@ -69,8 +69,17 @@ describe('Pkg (Server Tools)', () => {
 
     it('{pkg} not passed → <unknown> package', async () => {
       const { dir, entry } = PATH;
-      const res = await Pkg.saveDist({ dir, entry });
+      const res = await Pkg.dist({ dir, entry });
       expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
+    });
+
+    it('default: does not save to file', async () => {
+      const { dir, entry, file } = PATH;
+      const exists = () => Fs.exists(file);
+      await deleteDistFile();
+      expect(await exists()).to.eql(false);
+      await Pkg.dist({ dir, pkg, entry, dryRun: true });
+      expect(await exists()).to.eql(false); // NB: never written
     });
 
     it('saves to file', async () => {
@@ -79,24 +88,13 @@ describe('Pkg (Server Tools)', () => {
       await deleteDistFile();
       expect(await exists()).to.eql(false);
 
-      const res = await Pkg.saveDist({ dir, pkg, entry });
+      const res = await Pkg.dist({ dir, pkg, entry });
       expect(res.ok).to.eql(true);
       expect(await exists()).to.eql(true);
 
       const json = (await Fs.readJson(file)).json;
       expect(json).to.eql(res.dist);
       await deleteDistFile();
-
-      console.log('json', json);
-    });
-
-    it('dryRun: does not save to file', async () => {
-      const { dir, entry, file } = PATH;
-      const exists = () => Fs.exists(file);
-      await deleteDistFile();
-      expect(await exists()).to.eql(false);
-      await Pkg.saveDist({ dir, pkg, entry, dryRun: true });
-      expect(await exists()).to.eql(false); // NB: never written
     });
   });
 });

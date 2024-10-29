@@ -5,7 +5,7 @@ import { Pkg } from '@sys/std/pkg';
  * Prepare and save a "distribution package"
  * meta-data file, `dist.json`.
  */
-export const saveDist: t.PkgSLib['saveDist'] = async (args) => {
+export const dist: t.PkgSLib['dist'] = async (args) => {
   const { dir, entry = '', dryRun = false } = args;
   const pkg = args.pkg ?? Pkg.unknown();
   let error: t.StdError | undefined;

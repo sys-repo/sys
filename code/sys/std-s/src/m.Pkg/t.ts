@@ -12,7 +12,7 @@ export type PkgSLib = PkgLib & {
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  saveDist(args: t.SaveDistArgs): Promise<t.PkgSaveDistResponse>;
+  dist(args: t.SaveDistArgs): Promise<t.PkgSaveDistResponse>;
 };
 
 export type SaveDistArgs = {
