@@ -3,8 +3,8 @@ import type { t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Tools for working with the system standard
- * {pkg} "package" meta-data structure.
+ * Tools for working with the standard system
+ * `{pkg}` package meta-data structure.
  */
 export type PkgLib = {
   /* Boolean flag tests related to the {pkg} meta-data. */

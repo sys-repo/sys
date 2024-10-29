@@ -4,8 +4,8 @@ import type { PkgLib } from '@sys/std/t';
 /**
  * PkgLib (server extenions)
  *
- * Tools for working with the system standard
- * {pkg} "package" meta-data structure.
+ * Tools for working with the standard system
+ * `{pkg}` package meta-data structure.
  */
 export type PkgSLib = PkgLib & {
   /**
