@@ -17,7 +17,7 @@ describe(
   () => {
     const TEST_DIR = Fs.resolve('./.tmp/automerge-fs-tests');
     it('BEFORE', async () => {
-      await Fs.removeDir(TEST_DIR);
+      await Fs.remove(TEST_DIR);
     });
 
     it('saves to file-system', async () => {
