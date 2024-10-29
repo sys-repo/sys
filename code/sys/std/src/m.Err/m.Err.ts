@@ -12,7 +12,7 @@ export const Err: t.ErrLib = {
   /**
    * Take unknown input and produce a standard error object.
    */
-  stdError(input: any, options = {}) {
+  std(input: any, options = {}) {
     const errors = wrangle.aggregate(options);
     const name = wrangle.name(options);
 
@@ -67,13 +67,13 @@ const wrangle = {
   unknown(value: unknown, options: t.ErrStdErrorOptions = {}): t.StdError {
     const name = wrangle.name(options);
     const message = wrangle.unknownMessage(value);
-    const cause = options.cause ? Err.stdError(options.cause) : undefined;
+    const cause = options.cause ? Err.std(options.cause) : undefined;
     return cause ? { name, message, cause } : { name, message };
   },
 
   cause(cause: unknown, options: t.ErrStdErrorOptions = {}): t.StdError | undefined {
-    if (cause !== undefined) return Err.stdError(cause);
-    if (options.cause !== undefined) return Err.stdError(options.cause);
+    if (cause !== undefined) return Err.std(cause);
+    if (options.cause !== undefined) return Err.std(options.cause);
     return;
   },
 
@@ -84,6 +84,6 @@ const wrangle = {
 
   aggregate(options: t.ErrStdErrorOptions): t.StdError[] | undefined {
     if (!Array.isArray(options.errors)) return undefined;
-    return options.errors.map((err) => Err.stdError(err));
+    return options.errors.map((err) => Err.std(err));
   },
 } as const;

@@ -54,7 +54,7 @@ export const Dispose: t.DisposeLib = {
           fire('error', {
             name: 'DisposeError',
             message: 'Failed while disposing asynchronously',
-            cause: Err.stdError(err),
+            cause: Err.std(err),
           });
         }
       },
