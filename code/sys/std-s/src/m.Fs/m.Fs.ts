@@ -4,7 +4,8 @@ import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
 import { Size } from './m.Size.ts';
-import { copyDir, removeDir } from './u.dir.ts';
+import { copyDir } from './u.dir.ts';
+import { remove } from './u.remove.ts';
 import { glob } from './u.glob.ts';
 import { readJson } from './u.read.ts';
 import { walk, walkUp } from './u.walk.ts';
@@ -30,7 +31,7 @@ export const Fs: t.FsLib = {
   exists,
   ensureDir,
   copyDir,
-  removeDir,
+  remove,
   readJson,
 
   walk,

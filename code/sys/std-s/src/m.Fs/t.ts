@@ -89,9 +89,9 @@ export type FsLib = {
   readonly copyDir: t.FsCopyDir;
 
   /**
-   * Delete a directory (and it's contents).
+   * Remove a file or directory if it exists.
    */
-  readonly removeDir: t.FsRemoveDir;
+  readonly remove: t.FsRemove;
 
   /**
    * Asynchronously reads and returns the entire contents of a
@@ -149,9 +149,9 @@ export type FsCopyDir = (sourceDir: t.StringPath, targetDir: t.StringPath) => Pr
 /**
  * Delete a directory (and it's contents).
  */
-export type FsRemoveDir = (
+export type FsRemove = (
   path: string,
-  options?: { dry?: boolean; log?: boolean },
+  options?: { dryRun?: boolean; log?: boolean },
 ) => Promise<void>;
 
 /**

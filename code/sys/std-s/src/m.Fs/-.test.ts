@@ -60,33 +60,45 @@ describe('Fs: filesystem', () => {
     expect(self?.name).to.eql(Fs.Path.basename(import.meta.filename ?? ''));
   });
 
-  describe('Fs.deleteDir', () => {
+  describe('Fs.remove', () => {
     const testSetup = async () => {
-      const path = Fs.join(testDir, `rm-dir-${slug()}`);
-      await Fs.ensureDir(path);
-      await Deno.writeTextFile(Fs.join(path, 'text.txt'), '👋 hello\n');
+      const dir = Fs.join(testDir, `rm-dir-${slug()}`);
+      const file = Fs.join(dir, 'text.txt');
+      await Fs.ensureDir(dir);
+      await Deno.writeTextFile(file, '👋 hello\n');
       return {
-        path,
-        exists: () => Fs.exists(path),
-      };
+        path: { dir, file },
+        dirExists: () => Fs.exists(dir),
+        fileExists: () => Fs.exists(file),
+      } as const;
     };
 
     it('deletes a directory', async () => {
-      const testDir = await testSetup();
-      expect(await testDir.exists()).to.eql(true);
+      const sample = await testSetup();
+      expect(await sample.dirExists()).to.eql(true);
 
-      await Fs.remove(testDir.path);
-      expect(await testDir.exists()).to.eql(false);
+      await Fs.remove(sample.path.dir);
+      expect(await sample.dirExists()).to.eql(false);
+    });
+
+    it('deletes a file', async () => {
+      const sample = await testSetup();
+      expect(await sample.dirExists()).to.eql(true);
+      expect(await sample.fileExists()).to.eql(true);
+
+      await Fs.remove(sample.path.file);
+      expect(await sample.dirExists()).to.eql(true);
+      expect(await sample.fileExists()).to.eql(false);
     });
 
     it('dry run ← directory is not deleted', async () => {
-      const testDir = await testSetup();
-      expect(await testDir.exists()).to.eql(true);
+      const sample = await testSetup();
+      expect(await sample.dirExists()).to.eql(true);
 
-      await Fs.remove(testDir.path, { dryRun: true });
-      expect(await testDir.exists()).to.eql(true);
+      await Fs.remove(sample.path.dir, { dryRun: true });
+      expect(await sample.dirExists()).to.eql(true);
 
-      await Fs.remove(testDir.path); // Clean up.
+      await Fs.remove(sample.path.dir); // Clean up.
     });
   });
 
