@@ -1,6 +1,7 @@
-import { pkg, describe, expect, it, Fs } from '../-test.ts';
-import { Pkg } from './mod.ts';
+import { describe, expect, Fs, it, pkg } from '../-test.ts';
 import { Hash } from './common.ts';
+import { Dist } from './m.Dist.ts';
+import { Pkg } from './mod.ts';
 
 describe('Pkg (Server Tools)', () => {
   const PATH = {
@@ -26,75 +27,81 @@ describe('Pkg (Server Tools)', () => {
     }
   });
 
-  describe('Pkg.dist', () => {
-    it('error: directory does not exist', async () => {
-      const dir = Fs.resolve('./.tmp/NO_EXIST/');
-      const res = await Pkg.dist({ dir, pkg });
-      expect(res.ok).to.eql(false);
-      expect(res.exists).to.eql(false);
-      expect(res.error?.message).to.include(dir);
-      expect(res.error?.message).to.include('does not exist');
-      expect(res.dir).to.eql(dir);
-      expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.entry).to.eql('');
-      expect(res.dist.hash).to.eql({ pkg: '', files: {} }); // NB: empty
+  describe('Pkg.Dist', () => {
+    it('API', () => {
+      expect(Pkg.Dist).to.equal(Dist);
     });
 
-    it('error: path is not a directory', async () => {
-      const dir = Fs.resolve('./deno.json');
-      const res = await Pkg.dist({ dir, pkg, save: true });
+    describe('Dist.compute', () => {
+      it('error: directory does not exist', async () => {
+        const dir = Fs.resolve('./.tmp/NO_EXIST/');
+        const res = await Pkg.Dist.compute({ dir, pkg });
+        expect(res.ok).to.eql(false);
+        expect(res.exists).to.eql(false);
+        expect(res.error?.message).to.include(dir);
+        expect(res.error?.message).to.include('does not exist');
+        expect(res.dir).to.eql(dir);
+        expect(res.dist.pkg).to.eql(pkg);
+        expect(res.dist.entry).to.eql('');
+        expect(res.dist.hash).to.eql({ pkg: '', files: {} }); // NB: empty.
+      });
 
-      expect(res.ok).to.eql(false);
-      expect(res.exists).to.eql(true);
-      expect(res.error?.message).to.include(dir);
-      expect(res.error?.message).to.include('path is not a directory');
-    });
+      it('error: path is not a directory', async () => {
+        const dir = Fs.resolve('./deno.json');
+        const res = await Pkg.Dist.compute({ dir, pkg, save: true });
 
-    it('success', async () => {
-      const { dir, entry } = PATH;
-      const res = await Pkg.dist({ dir, pkg, entry });
+        expect(res.ok).to.eql(false);
+        expect(res.exists).to.eql(true);
+        expect(res.error?.message).to.include(dir);
+        expect(res.error?.message).to.include('path is not a directory');
+      });
 
-      expect(res.ok).to.eql(true);
-      expect(res.exists).to.eql(true);
-      expect(res.error).to.eql(undefined);
+      it('compute → success', async () => {
+        const { dir, entry } = PATH;
+        const res = await Pkg.Dist.compute({ dir, pkg, entry });
 
-      expect(res.dir).to.eql(dir);
-      expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.entry).to.eql(entry);
+        expect(res.ok).to.eql(true);
+        expect(res.exists).to.eql(true);
+        expect(res.error).to.eql(undefined);
 
-      const dirhash = await Hash.Dir.compute(dir, (p) => p !== './dist.json');
-      expect(res.dist.hash.pkg).to.eql(dirhash.hash);
-      expect(res.dist.hash.files).to.eql(dirhash.files);
-    });
+        expect(res.dir).to.eql(dir);
+        expect(res.dist.pkg).to.eql(pkg);
+        expect(res.dist.entry).to.eql(entry);
 
-    it('{pkg} not passed → <unknown> package', async () => {
-      const { dir, entry } = PATH;
-      const res = await Pkg.dist({ dir, entry });
-      expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
-    });
+        const dirhash = await Hash.Dir.compute(dir, (p) => p !== './dist.json');
+        expect(res.dist.hash.pkg).to.eql(dirhash.hash);
+        expect(res.dist.hash.files).to.eql(dirhash.files);
+      });
 
-    it('default: does not save to file', async () => {
-      const { dir, entry, file } = PATH;
-      const exists = () => Fs.exists(file);
-      await deleteDistFile();
-      expect(await exists()).to.eql(false);
-      await Pkg.dist({ dir, pkg, entry });
-      expect(await exists()).to.eql(false); // NB: never written
-    });
+      it('{pkg} not passed → <unknown> package', async () => {
+        const { dir, entry } = PATH;
+        const res = await Pkg.Dist.compute({ dir, entry });
+        expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
+      });
 
-    it('saves to file', async () => {
-      const { dir, entry, file } = PATH;
-      const exists = () => Fs.exists(file);
-      await deleteDistFile();
-      expect(await exists()).to.eql(false);
+      it('default: does not save to file', async () => {
+        const { dir, entry, file } = PATH;
+        const exists = () => Fs.exists(file);
+        await deleteDistFile();
+        expect(await exists()).to.eql(false);
+        await Pkg.Dist.compute({ dir, pkg, entry });
+        expect(await exists()).to.eql(false); // NB: never written
+      });
 
-      const res = await Pkg.dist({ dir, pkg, entry, save: true });
-      expect(res.ok).to.eql(true);
-      expect(await exists()).to.eql(true);
+      it('{save:true} → saves to file', async () => {
+        const { dir, entry, file } = PATH;
+        const exists = () => Fs.exists(file);
+        await deleteDistFile();
+        expect(await exists()).to.eql(false);
 
-      const json = (await Fs.readJson(file)).json;
-      expect(json).to.eql(res.dist);
-      await deleteDistFile();
+        const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+        expect(res.ok).to.eql(true);
+        expect(await exists()).to.eql(true);
+
+        const json = (await Fs.readJson(file)).json;
+        expect(json).to.eql(res.dist);
+        await deleteDistFile();
+      });
     });
   });
 });

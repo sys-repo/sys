@@ -8,14 +8,21 @@ import type { PkgLib } from '@sys/std/t';
  * `{pkg}` package meta-data structure.
  */
 export type PkgSLib = PkgLib & {
+  readonly Dist: t.PkgDistLib;
+};
+
+/**
+ * Tools for working with "distribution"
+ */
+export type PkgDistLib = {
   /**
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  dist(args: t.SaveDistArgs): Promise<t.PkgSaveDistResponse>;
+  compute(args: t.PkgDistComputeArgs): Promise<t.PkgSaveDistResponse>;
 };
 
-export type SaveDistArgs = {
+export type PkgDistComputeArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
   entry?: string;
