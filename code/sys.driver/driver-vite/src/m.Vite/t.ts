@@ -94,6 +94,7 @@ export type ViteProcessEnv = {
 export type ViteBuildResponse = {
   readonly ok: boolean;
   readonly cmd: string;
+  readonly dist: t.DistPkg;
   readonly output: t.CmdOutput;
   readonly paths: t.ViteConfigPaths;
   toString(options?: ToStringOptions): string;

@@ -1,4 +1,4 @@
-import { Fs, Testing, Time, describe, expect, it, type t } from '../-test.ts';
+import { Fs, Testing, Time, describe, expect, it, pkg, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { Vite } from './mod.ts';
 
@@ -15,25 +15,33 @@ describe('Vite', () => {
   describe('Vite.build', () => {
     const testBuild = async (input: t.StringPath) => {
       const outDir = Vite.Config.outDir.test.random();
-      const res = await Vite.build({ input, outDir });
+      const res = await Vite.build({ pkg, input, outDir });
       const { paths } = res;
 
       expect(res.ok).to.eql(true);
       expect(res.cmd).to.include('deno run');
       expect(res.cmd).to.include('--node-modules-dir npm:vite');
 
-      const html = await Deno.readTextFile(Fs.join(paths.outDir, 'index.html'));
-      return { html, paths } as const;
+      const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
+      const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
+      return {
+        res,
+        files: { html, distJson },
+        paths,
+      } as const;
     };
 
-    it('sample-1: simple', async () => {
-      const res = await testBuild(INPUT.sample1);
-      expect(res.html).to.include(`<title>Sample-1</title>`);
+    it.only('sample-1: simple', async () => {
+      const { res, files } = await testBuild(INPUT.sample1);
+      expect(files.html).to.include(`<title>Sample-1</title>`);
+      expect(res.dist).to.eql(files.distJson);
+      expect(res.dist.pkg).to.eql(pkg);
+      console.info('🌳 dist.json:', res.dist);
     });
 
     it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-      const res = await testBuild(INPUT.sample2);
-      expect(res.html).to.include(`<title>Sample-2</title>`);
+      const { files } = await testBuild(INPUT.sample2);
+      expect(files.html).to.include(`<title>Sample-2</title>`);
     });
   });
 
