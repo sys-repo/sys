@@ -1,11 +1,13 @@
-import { type t, DEFAULTS, Delete, isObject } from './common.ts';
+import { type t, Delete, isObject } from './common.ts';
 import { Is } from './m.Err.Is.ts';
+import { Name } from './m.Err.Name.ts';
 
 /**
  * Helpers for working with errors.
  */
 export const Err: t.ErrLib = {
   Is,
+  Name,
 
   /**
    * Take unknown input and produce a standard error object.
@@ -54,7 +56,7 @@ const wrangle = {
   name(options: t.ErrStdErrorOptions = {}) {
     if (options.name) return options.name;
     const errors = wrangle.aggregate(options);
-    const name = errors ? DEFAULTS.name.aggregate : DEFAULTS.name.error;
+    const name = errors ? Name.aggregate : Name.error;
     return name;
   },
 

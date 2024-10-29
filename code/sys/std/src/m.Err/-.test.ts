@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { DEFAULTS, Err } from './mod.ts';
+import { Err } from './mod.ts';
 
 describe('Err (Error)', () => {
   describe('Err.Is', () => {
@@ -75,7 +75,7 @@ describe('Err (Error)', () => {
   });
 
   describe('Err.stdError (convert)', () => {
-    const name = DEFAULTS.name.error;
+    const name = Err.Name.error;
 
     it('name', () => {
       const err1 = Err.stdError('durp');
@@ -185,7 +185,7 @@ describe('Err (Error)', () => {
         expect(child.errors).to.eql(undefined);
 
         expect(err.message).to.eql('root');
-        expect(err.name).to.eql(DEFAULTS.name.aggregate);
+        expect(err.name).to.eql(Err.Name.aggregate);
         expect(err.errors?.length).to.eql(2);
       });
 

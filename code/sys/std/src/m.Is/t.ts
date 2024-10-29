@@ -28,12 +28,12 @@ export type CommonIsLib = {
   /**
    * Determine if the value is like an Error object.
    */
-  errorLike: t.ErrIsLib['errorLike'];
+  errorLike: t.ErrIs['errorLike'];
 
   /**
    * Determine if the given value conforms to the [StdError] type.
    */
-  stdError: t.ErrIsLib['stdError'];
+  stdError: t.ErrIs['stdError'];
 
   /**
    * Determine if the value is a number.

@@ -1,6 +1,6 @@
 import { type t, isObject } from './common.ts';
 
-export const Is: t.ErrIsLib = {
+export const Is: t.ErrIs = {
   /**
    * Determine if the given value is "like" an error in that it
    * exposes a {message} property.

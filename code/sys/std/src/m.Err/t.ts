@@ -18,7 +18,8 @@ export type ErrStdErrorOptions = {
  * Helpers for working with errors.
  */
 export type ErrLib = {
-  readonly Is: t.ErrIsLib;
+  readonly Is: t.ErrIs;
+  readonly Name: t.ErrName;
 
   /**
    * Take unknown input and produce a standard error object.
@@ -27,9 +28,27 @@ export type ErrLib = {
 };
 
 /**
+ * The standard named error types.
+ */
+export type ErrName = {
+  readonly error: 'Error';
+  readonly aggregate: 'AggregateError';
+  readonly eval: 'EvalError';
+  readonly range: 'RangeError';
+  readonly reference: 'ReferenceError';
+  readonly syntax: 'SyntaxError';
+  readonly type: 'TypeError';
+  readonly uri: 'URIError';
+  readonly compile: 'CompileError';
+  readonly link: 'LinkError';
+  readonly runtime: 'RuntimeError';
+  readonly internal: 'InternalError';
+};
+
+/**
  * Type guards (boolean evaluators).
  */
-export type ErrIsLib = {
+export type ErrIs = {
   /**
    * Determine if the given value is "like" an error in that it
    * exposes a {message} property.
