@@ -8,25 +8,28 @@ import type { t } from './common.ts';
  */
 export type DistPkg = {
   /**
-   * Type refs.
-   */
-  type: { self: t.StringUrl };
-
-  /**
    * The package meta-data info.
    */
   pkg: t.Pkg;
 
   /**
-   * Path to the main entry point.
+   * Path to the main JS entry point.
    */
   entry: t.StringPath;
 
   /**
    * Map of hashes of the binary contents of the package.
    */
-  hash: {
-    './pkg': t.StringHash;
-    './index.html': t.StringHash;
-  };
+  hash: DistPkgHashes;
+};
+
+/**
+ * The hashes of a ditribution-package.
+ */
+export type DistPkgHashes = {
+  /* The overall hash of all file hashes (after they are sorted). */
+  pkg: t.StringHash;
+
+  /* Map of hashes mapped to the distribution-package's file paths. */
+  files: { [path: t.StringPath]: t.StringHash };
 };

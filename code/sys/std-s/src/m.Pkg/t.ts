@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import type { PkgLib } from '@sys/std/t';
 
 /**
- * (server extenions of): <PkgLib>
+ * (server extenion of): PkgLib
  *
  * Tools for working with the system standard
  * {pkg} "package" meta-data structure.
@@ -12,7 +12,14 @@ export type PkgSLib = PkgLib & {
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  saveDist(dist: t.StringDirPath): Promise<t.PkgSaveDistResponse>;
+  saveDist(args: t.SaveDistArgs): Promise<t.PkgSaveDistResponse>;
+};
+
+export type SaveDistArgs = {
+  dir: t.StringPath;
+  pkg: t.Pkg;
+  entry?: string;
+  dryRun?: boolean;
 };
 
 /**
@@ -22,5 +29,6 @@ export type PkgSaveDistResponse = {
   ok: boolean;
   exists: boolean;
   dir: t.StringDirPath;
+  dist: t.DistPkg;
   error?: t.StdError;
 };
