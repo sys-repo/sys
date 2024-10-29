@@ -6,7 +6,7 @@ import { Pkg } from '@sys/std/pkg';
  * meta-data file, `dist.json`.
  */
 export const dist: t.PkgSLib['dist'] = async (args) => {
-  const { dir, entry = '', dryRun = false } = args;
+  const { dir, entry = '', save = false } = args;
   const pkg = args.pkg ?? Pkg.unknown();
   let error: t.StdError | undefined;
 
@@ -37,7 +37,7 @@ export const dist: t.PkgSLib['dist'] = async (args) => {
   /**
    * Save to the file-system.
    */
-  if (!dryRun && ok) {
+  if (ok && save) {
     const path = Fs.join(dir, 'dist.json');
     const json = `${JSON.stringify(dist, null, '  ')}\n`;
     await Fs.ensureDir(dir);

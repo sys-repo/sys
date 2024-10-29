@@ -19,7 +19,7 @@ export type SaveDistArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
   entry?: string;
-  dryRun?: boolean;
+  save?: boolean;
 };
 
 /**

@@ -42,7 +42,7 @@ describe('Pkg (Server Tools)', () => {
 
     it('error: path is not a directory', async () => {
       const dir = Fs.resolve('./deno.json');
-      const res = await Pkg.dist({ dir, pkg, dryRun: true });
+      const res = await Pkg.dist({ dir, pkg, save: true });
 
       expect(res.ok).to.eql(false);
       expect(res.exists).to.eql(true);
@@ -78,7 +78,7 @@ describe('Pkg (Server Tools)', () => {
       const exists = () => Fs.exists(file);
       await deleteDistFile();
       expect(await exists()).to.eql(false);
-      await Pkg.dist({ dir, pkg, entry, dryRun: true });
+      await Pkg.dist({ dir, pkg, entry });
       expect(await exists()).to.eql(false); // NB: never written
     });
 
@@ -88,7 +88,7 @@ describe('Pkg (Server Tools)', () => {
       await deleteDistFile();
       expect(await exists()).to.eql(false);
 
-      const res = await Pkg.dist({ dir, pkg, entry });
+      const res = await Pkg.dist({ dir, pkg, entry, save: true });
       expect(res.ok).to.eql(true);
       expect(await exists()).to.eql(true);
 
