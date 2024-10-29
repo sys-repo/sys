@@ -79,5 +79,3 @@ export const Hash: t.HashLib = {
     return shortenHash(hash, length, options);
   },
 };
-
-//  import { Hash, sha256 } from '@sys/std/hash';
