@@ -31,7 +31,7 @@ describe('Vite', () => {
       } as const;
     };
 
-    it.only('sample-1: simple', async () => {
+    it('sample-1: simple', async () => {
       const { res, files } = await testBuild(INPUT.sample1);
       expect(files.html).to.include(`<title>Sample-1</title>`);
       expect(res.dist).to.eql(files.distJson);
