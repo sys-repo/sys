@@ -14,14 +14,13 @@ export const build: t.ViteLib['build'] = async (input) => {
 
   const dir = paths.outDir;
   const entry = await wrangle.entryPath(dir);
-  const dist = (await Pkg.dist({ dir, pkg, entry, save: true })).dist;
+  const dist = (await Pkg.Dist.compute({ dir, pkg, entry, save: true })).dist;
 
   const res: t.ViteBuildResponse = {
     ok,
-    cmd,
     dist,
-    output,
     paths,
+    cmd: { input: cmd, output },
     toString(options = {}) {
       const { pad } = options;
       const stdio = output.toString();

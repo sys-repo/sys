@@ -19,8 +19,8 @@ describe('Vite', () => {
       const { paths } = res;
 
       expect(res.ok).to.eql(true);
-      expect(res.cmd).to.include('deno run');
-      expect(res.cmd).to.include('--node-modules-dir npm:vite');
+      expect(res.cmd.input).to.include('deno run');
+      expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
 
       const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
       const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
