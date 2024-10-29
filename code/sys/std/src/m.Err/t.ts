@@ -19,7 +19,7 @@ export type ErrStdErrorOptions = {
  */
 export type ErrLib = {
   readonly Is: t.ErrIs;
-  readonly Name: t.ErrName;
+  readonly Name: t.ErrNameLib;
 
   /**
    * Take unknown input and produce a standard error object.
@@ -30,7 +30,7 @@ export type ErrLib = {
 /**
  * The standard named error types.
  */
-export type ErrName = {
+export type ErrNameLib = {
   readonly error: 'Error';
   readonly aggregate: 'AggregateError';
   readonly eval: 'EvalError';

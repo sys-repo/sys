@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * The standard named error types.
  */
-export const Name: t.ErrName = {
+export const Name: t.ErrNameLib = {
   error: 'Error',
   aggregate: 'AggregateError',
   eval: 'EvalError',

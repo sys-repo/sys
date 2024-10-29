@@ -164,7 +164,7 @@ describe('Err (Error)', () => {
       it('applies cause to simple input values', () => {
         const INPUT = ['str', 123, true, null, undefined, BigInt(123), Symbol('foo'), [], {}];
         INPUT.forEach((input) => {
-          const cause: t.StdError = { name: 'MyCause', message: 'Fail' };
+          const cause: t.StdError = { name: 'MyThing', message: 'Fail' };
           const err = Err.stdError(input, { cause });
           expect(err.cause).to.eql(cause);
         });
