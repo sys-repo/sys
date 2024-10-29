@@ -42,5 +42,6 @@ export { Cli } from './m.Cli/mod.ts';
 export { Env } from './m.Env/mod.ts';
 export { Colors, c } from './m.Fmt/mod.ts';
 export { Fs, Path } from './m.Fs/mod.ts';
+export { Pkg } from './m.Pkg/mod.ts';
 export { Cmd } from './m.Process/mod.ts';
 export { HttpServer } from './m.Server.Http/mod.ts';
