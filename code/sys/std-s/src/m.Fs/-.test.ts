@@ -75,7 +75,7 @@ describe('Fs: filesystem', () => {
       const testDir = await testSetup();
       expect(await testDir.exists()).to.eql(true);
 
-      await Fs.removeDir(testDir.path);
+      await Fs.remove(testDir.path);
       expect(await testDir.exists()).to.eql(false);
     });
 
@@ -83,10 +83,10 @@ describe('Fs: filesystem', () => {
       const testDir = await testSetup();
       expect(await testDir.exists()).to.eql(true);
 
-      await Fs.removeDir(testDir.path, { dry: true });
+      await Fs.remove(testDir.path, { dryRun: true });
       expect(await testDir.exists()).to.eql(true);
 
-      await Fs.removeDir(testDir.path); // Clean up.
+      await Fs.remove(testDir.path); // Clean up.
     });
   });
 

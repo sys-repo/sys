@@ -26,6 +26,6 @@ table.push([c.green('To'), String(exists.to), c.gray(to)]);
 console.info();
 console.info(c.gray(table.toString()));
 
-await Fs.removeDir(to);
+await Fs.remove(to);
 await Fs.copyDir(from, to);
 console.info();
