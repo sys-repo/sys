@@ -25,9 +25,9 @@ describe('Vite', () => {
       const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
       const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
       return {
-        res,
         files: { html, distJson },
         paths,
+        res,
       } as const;
     };
 
