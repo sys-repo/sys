@@ -61,7 +61,8 @@ export type ErrIs = {
   stdError(input: unknown): input is t.StdError;
 
   /**
-   * Determine if the `StdError` is an aggregate of other errors, (aka. it has a [errors] array).
+   * Determine if the `StdError` is an aggregate of other errors,
+   * (aka. it has a [errors] array).
    */
   aggregate(input: unknown): input is t.StdError;
 };
