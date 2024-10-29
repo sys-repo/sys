@@ -16,8 +16,14 @@ export type HashDirLib = {
   /**
    * Calculate the hash of a directory.
    */
-  compute(dir: t.StringPath): Promise<HashDir>;
+  compute(dir: t.StringPath, options?: t.HashDirComputeOptions | t.HashDirFilter): Promise<HashDir>;
 };
+
+/* Options passed to the `Hash.Dir.compute` method. */
+export type HashDirComputeOptions = { filter?: HashDirFilter };
+
+/* Filter out files included within a directory being hashed. */
+export type HashDirFilter = (path: string) => boolean;
 
 /**
  * Represents a hash of a directory.

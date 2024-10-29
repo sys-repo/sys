@@ -20,6 +20,10 @@ describe('Pkg (Server Tools)', () => {
   });
 
   describe('Dir', () => {
+    const PATH = {
+      dir: Fs.resolve('./src/-test/-sample-dist'),
+    } as const;
+
     it('error:  directory does not exist', async () => {
       const dir = Fs.resolve('./NO_EXIST');
       const res = await Hash.Dir.compute(dir);
@@ -42,10 +46,8 @@ describe('Pkg (Server Tools)', () => {
     });
 
     it('compute hash', async () => {
-      const dir = Fs.resolve('./src/-test/-sample-dist');
-      const res = await Hash.Dir.compute(dir);
-
-      expect(res.dir).to.eql(dir);
+      const res = await Hash.Dir.compute(PATH.dir);
+      expect(res.dir).to.eql(PATH.dir);
       expect(res.exists).to.eql(true);
 
       expectHash(res.hash, 'fdb67a7');
@@ -55,6 +57,16 @@ describe('Pkg (Server Tools)', () => {
       expectHash(res.files['./pkg/m.DW3RxxEf.js'], '814fb');
       expectHash(res.files['./pkg/m.Du7RzsRq.js'], 'ea1f0');
       expectHash(res.files['./pkg/m.IecpGBwa.js'], 'e934c');
+    });
+
+    it('filter list of files', async () => {
+      const filter = (path: string) => path.endsWith('.html');
+      const a = await Hash.Dir.compute(PATH.dir, { filter });
+      const b = await Hash.Dir.compute(PATH.dir, filter);
+      const keys = Object.keys(a.files);
+      expect(keys.length).to.eql(1);
+      expect(keys[0]).to.eql('./index.html');
+      expect(a).to.eql(b);
     });
   });
 });
