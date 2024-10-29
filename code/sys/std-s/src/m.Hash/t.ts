@@ -2,8 +2,10 @@ import type { t } from './common.ts';
 import type { HashLib } from '@sys/std/t';
 
 /**
- * (server extension of): HashLib
- * Tools for generating and manipulating Hash's.
+ * `HashLib` (server extensions)
+ *
+ * Tools for generating and manipulating Hash's
+ * within the context of a files and a file-system.
  */
 export type HashSLib = HashLib & {
   readonly Dir: t.HashDirLib;
