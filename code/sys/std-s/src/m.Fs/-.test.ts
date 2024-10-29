@@ -77,7 +77,8 @@ describe('Fs: filesystem', () => {
       const sample = await testSetup();
       expect(await sample.dirExists()).to.eql(true);
 
-      await Fs.remove(sample.path.dir);
+      const res = await Fs.remove(sample.path.dir);
+      expect(res).to.eql(true);
       expect(await sample.dirExists()).to.eql(false);
     });
 
@@ -86,7 +87,8 @@ describe('Fs: filesystem', () => {
       expect(await sample.dirExists()).to.eql(true);
       expect(await sample.fileExists()).to.eql(true);
 
-      await Fs.remove(sample.path.file);
+      const res = await Fs.remove(sample.path.file);
+      expect(res).to.eql(true);
       expect(await sample.dirExists()).to.eql(true);
       expect(await sample.fileExists()).to.eql(false);
     });
@@ -99,6 +101,15 @@ describe('Fs: filesystem', () => {
       expect(await sample.dirExists()).to.eql(true);
 
       await Fs.remove(sample.path.dir); // Clean up.
+    });
+
+    it('non-existent target', async () => {
+      const dir = Fs.resolve('404-NO-EXIST');
+      const file = Fs.join(dir, 'foo.json');
+      const a = await Fs.remove(dir);
+      const b = await Fs.remove(file);
+      expect(a).to.eql(false);
+      expect(b).to.eql(false);
     });
   });
 

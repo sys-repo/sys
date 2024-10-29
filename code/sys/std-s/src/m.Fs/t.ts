@@ -152,7 +152,7 @@ export type FsCopyDir = (sourceDir: t.StringPath, targetDir: t.StringPath) => Pr
 export type FsRemove = (
   path: string,
   options?: { dryRun?: boolean; log?: boolean },
-) => Promise<void>;
+) => Promise<boolean>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.

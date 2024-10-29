@@ -12,10 +12,11 @@ export const remove: t.FsRemove = async (path, options = {}) => {
     let line = `${prefix} ${c.cyan('delete')}: ${c.white(path)}`;
     if (!targetExists) line += c.yellow(' ← does not exist');
     console.info(line); // NB: dry-run always logs (otherwise no point).
-    return;
+    return targetExists;
   }
 
-  if (!targetExists) return undefined;
+  if (!targetExists) return false;
   await Deno.remove(path, { recursive: true });
   if (options.log) console.info(`${c.cyan('deleted')} ${c.white(path)}`);
+  return true;
 };
