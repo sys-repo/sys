@@ -28,7 +28,7 @@ export type SaveDistArgs = {
 export type PkgSaveDistResponse = {
   ok: boolean;
   exists: boolean;
-  dir: t.StringDirPath;
+  dir: t.StringDir;
   dist: t.DistPkg;
   error?: t.StdError;
 };

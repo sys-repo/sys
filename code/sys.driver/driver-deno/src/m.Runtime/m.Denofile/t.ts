@@ -53,6 +53,6 @@ export type DenoWorkspace = {
 };
 
 export type DenoWorkspaceChildren = {
-  readonly dirs: t.StringDirPath[];
+  readonly dirs: t.StringDir[];
   load(): Promise<t.DenofileLoadResponse[]>;
 };

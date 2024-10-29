@@ -52,7 +52,7 @@ export const dist: t.PkgSLib['dist'] = async (args) => {
  * Helpers
  */
 const wrangle = {
-  async hashes(path: t.StringDirPath) {
+  async hashes(path: t.StringDir) {
     const filter = (path: string) => path !== './dist.json';
     const { hash, files } = await Hash.Dir.compute(path, { filter });
     const res: t.DistPkgHashes = { pkg: hash, files };

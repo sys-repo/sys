@@ -38,11 +38,7 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async aliases(
-    baseDir: t.StringDirPath,
-    workspacePaths: t.StringPath[],
-    filter?: t.WorkspaceFilter,
-  ) {
+  async aliases(baseDir: t.StringDir, workspacePaths: t.StringPath[], filter?: t.WorkspaceFilter) {
     const exports = await wrangle.modules(baseDir, workspacePaths, filter);
     return exports.reduce<t.ViteAlias[]>((acc, next) => {
       acc.push(...next.aliases);
@@ -50,11 +46,7 @@ const wrangle = {
     }, []);
   },
 
-  async modules(
-    baseDir: t.StringDirPath,
-    workspacePaths: t.StringPath[],
-    filter?: t.WorkspaceFilter,
-  ) {
+  async modules(baseDir: t.StringDir, workspacePaths: t.StringPath[], filter?: t.WorkspaceFilter) {
     const wait = workspacePaths.map((dir) => wrangle.exports(baseDir, dir, filter));
     const res = await Array.fromAsync(wait);
     return res

@@ -4,6 +4,6 @@ export type {
   Lifecycle,
   StringPath,
   UntilObservable,
-  StringDirPath,
+  StringDir,
 } from '@sys/types';
 export type * from '../types.ts';

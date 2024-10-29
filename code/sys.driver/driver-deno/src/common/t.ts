@@ -4,7 +4,7 @@ export type {
   HttpUrl,
   Pkg,
   PortNumber,
-  StringDirPath,
+  StringDir,
   StringJwt,
   StringPath,
   StringUrl,

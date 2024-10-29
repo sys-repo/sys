@@ -35,7 +35,7 @@ export type HashDir = {
   exists: boolean;
 
   /* Path to the directory the hashes pertains to */
-  dir: t.StringDirPath;
+  dir: t.StringDir;
 
   /* The overall hash of all file hashes (after they are sorted). */
   hash: t.StringHash;

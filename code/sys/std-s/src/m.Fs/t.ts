@@ -174,7 +174,7 @@ export type FsWalkUp = (startAt: t.StringPath, onVisit: t.FsWalkUpallback) => Pr
 export type FsWalkUpallback = (e: FsWalkUpCallbackArgs) => FsWalkUpallbackResponse;
 export type FsWalkUpallbackResponse = Promise<t.IgnoredResponse> | t.IgnoredResponse;
 export type FsWalkUpCallbackArgs = {
-  dir: t.StringDirPath;
+  dir: t.StringDir;
   files(): Promise<FsWalkFile[]>;
   stop(): void;
 };
@@ -184,7 +184,7 @@ export type FsWalkUpCallbackArgs = {
  */
 export type FsWalkFile = {
   path: t.StringPath;
-  dir: t.StringDirPath;
+  dir: t.StringDir;
   name: string;
   isSymlink: boolean;
 };
@@ -196,7 +196,7 @@ export type FsSizeLib = {
   /**
    * Walk a directory and total up the file sizes.
    */
-  dir(path: t.StringDirPath, options?: { maxDepth?: number }): Promise<FsDirSize>;
+  dir(path: t.StringDir, options?: { maxDepth?: number }): Promise<FsDirSize>;
 };
 
 /**
@@ -204,7 +204,7 @@ export type FsSizeLib = {
  */
 export type FsDirSize = {
   readonly exists: boolean;
-  readonly path: t.StringDirPath;
+  readonly path: t.StringDir;
   readonly total: { files: number; bytes: number };
   toString(options?: FormatOptions): string;
 };

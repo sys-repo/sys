@@ -71,7 +71,7 @@ async function findFirstAncestorWorkspace() {
   return root;
 }
 
-function loadChildrenMethod(rootdir: t.StringDirPath, subpaths: t.StringPath[]) {
+function loadChildrenMethod(rootdir: t.StringDir, subpaths: t.StringPath[]) {
   return () => {
     const promises = subpaths
       .map((subpath) => Path.join(rootdir, subpath, 'deno.json'))
