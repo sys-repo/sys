@@ -14,8 +14,8 @@ export const Vault: t.VaultLib = {
         }
         const watcher = Deno.watchFs(path);
         for await (const e of watcher) {
-          const kind = wrangle.eventColor(e.kind)(e.kind);
-          console.info(`${kind}:`, e.paths);
+          const color = wrangle.eventColor(e.kind);
+          console.info(`${color(e.kind)}:`, e.paths);
         }
       },
     };
