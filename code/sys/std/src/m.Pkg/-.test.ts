@@ -78,6 +78,7 @@ describe('Pkg', () => {
       it('true', () => {
         const dist: t.DistPkg = {
           pkg: { name: 'foo', version: '1.2.3' },
+          size: { bytes: 123_456 },
           entry: 'pkg/entry.js',
           hash: {
             pkg: 'acbc',
