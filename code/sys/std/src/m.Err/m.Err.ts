@@ -55,6 +55,9 @@ export const Err: t.ErrLib = {
   errors() {
     const set = new Set<t.StdError>();
     const api: t.ErrorCollection = {
+      get length() {
+        return set.size;
+      },
       get list() {
         return Array.from(set);
       },
@@ -63,7 +66,8 @@ export const Err: t.ErrLib = {
         return { empty };
       },
       add(input) {
-        set.add(Err.std(input));
+        const items = Array.isArray(input) ? input : [input];
+        items.forEach((err) => set.add(Err.std(err)));
         return api;
       },
       toError(pluralMessage = 'Several errors occured.') {

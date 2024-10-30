@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export type StdErrGeneratorInput = unknown;
+export type ErrorGeneratorInput = unknown;
 
 /**
  * Helpers for working with errors.
@@ -12,7 +12,7 @@ export type ErrLib = {
   /**
    * Take unknown input and produce a standard error object.
    */
-  std(input: StdErrGeneratorInput, options?: t.ErrStdOptions | string): t.StdError;
+  std(input: ErrorGeneratorInput, options?: t.ErrStdOptions | string): t.StdError;
 
   /**
    * Create a new error collection builder.
@@ -82,14 +82,16 @@ export type ErrIs = {
  * a single StdError.
  */
 export type ErrorCollection = {
+  readonly length: number;
+
   /* The list of errors. */
   readonly list: ReadonlyArray<t.StdError>;
 
-  /* Boolean flags. */
+  /* Boolean status flags. */
   readonly is: { readonly empty: boolean };
 
   /* Add a new error. */
-  add(error: StdErrGeneratorInput): ErrorCollection;
+  add(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
 
   /**
    * Resolve the collection of errors to either

@@ -227,33 +227,45 @@ describe('Err (Error)', () => {
 
     it('empty by default', () => {
       const err = Err.errors();
+      expect(err.length).to.eql(0);
       expect(err.list.length).to.eql(0);
       expect(err.is.empty).to.eql(true);
     });
 
     it('adds errors', () => {
       const err = Err.std('std-foo');
-      const errs = Err.errors();
-      errs.add(err);
-      errs.add(err); // NB: does not add the same instance twice
-      errs.add('foo').add('foo'); // NB: this will resovle to a new {StdError} and hence increment.
-      expect(errs.list.length).to.eql(3);
+      const errors = Err.errors();
+      errors.add(err);
+      errors.add(err); // NB: does not add the same instance twice
+      errors.add('foo').add('foo'); // NB: this will resovle to a new {StdError} and hence increment.
+      expect(errors.length).to.eql(3);
+      expect(errors.list.length).to.eql(3);
+    });
+
+    it('add an array of errors', () => {
+      const err = Err.std('my-std-err');
+      const errors = Err.errors();
+      errors.add([err, 'foo', err, err, 'bar']);
+      expect(errors.length).to.eql(3);
+      expect(errors.list[0].message).to.eql('my-std-err');
+      expect(errors.list[1].message).to.eql('foo');
+      expect(errors.list[2].message).to.eql('bar');
     });
 
     it('toError: nothing', () => {
-      const errs = Err.errors();
-      expect(errs.toError()).to.eql(undefined);
+      const errors = Err.errors();
+      expect(errors.toError()).to.eql(undefined);
     });
 
     it('toError: single error', () => {
-      const errs = Err.errors().add('foo');
-      expect(errs.toError()?.message).to.eql('foo');
+      const errors = Err.errors().add('foo');
+      expect(errors.toError()?.message).to.eql('foo');
     });
 
     it('toError: multiple errors (Aggregate)', () => {
-      const errs = Err.errors().add('foo').add('bar').add('zoo');
-      const a = errs.toError();
-      const b = errs.toError('my message');
+      const errors = Err.errors().add('foo').add('bar').add('zoo');
+      const a = errors.toError();
+      const b = errors.toError('my message');
       expect(a?.name).to.eql(Err.Name.aggregate);
       expect(a?.message).to.eql('Several errors occured.');
       expect(b?.message).to.eql('my message');
