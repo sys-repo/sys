@@ -1,29 +1,35 @@
 import { type t, describe, expect, Fs, it, pkg } from '../-test.ts';
+import { slug } from '../common.ts';
 import { Hash } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 
+export const SAMPLE_PATH = {
+  dir: Fs.resolve('./src/-test/-sample-dist'),
+  entry: './pkg/-entry.BEgRUrsO.js',
+  get filepath() {
+    return Fs.join(SAMPLE_PATH.dir, 'dist.json');
+  },
+};
+export const SAMPLE_FILE = {
+  dist: {
+    exists: () => Fs.exists(SAMPLE_PATH.filepath),
+    delete: () => Fs.remove(SAMPLE_PATH.filepath),
+    async reset() {
+      await SAMPLE_FILE.dist.delete();
+    },
+    async ensure() {
+      if (await SAMPLE_FILE.dist.exists()) return;
+      const { dir, entry } = SAMPLE_PATH;
+      await Pkg.Dist.compute({ dir, pkg, entry, save: true });
+    },
+    async copyTo(target: t.StringDir) {
+      await Fs.copyDir(SAMPLE_PATH.dir, target);
+    },
+  },
+} as const;
+
 describe('Pkg (Server Tools)', () => {
-  const PATH = {
-    dir: Fs.resolve('./src/-test/-sample-dist'),
-    entry: './pkg/-entry.BEgRUrsO.js',
-    get filepath() {
-      return Fs.join(PATH.dir, 'dist.json');
-    },
-  };
-
-  const SAMPLE_FILE = {
-    dist: {
-      exists: () => Fs.exists(PATH.filepath),
-      delete: () => Fs.remove(PATH.filepath),
-      async ensure() {
-        if (await SAMPLE_FILE.dist.exists()) return;
-        const { dir, entry } = PATH;
-        await Pkg.Dist.compute({ dir, pkg, entry, save: true });
-      },
-    },
-  } as const;
-
   it('is not the [sys.std] Client verion, but surfaces all the [sys.std] interface', async () => {
     const { Pkg: Base } = await import('@sys/std/pkg');
     expect(Pkg).to.not.equal(Base); // NB: different instance.
@@ -50,9 +56,9 @@ describe('Pkg (Server Tools)', () => {
       expect(Pkg.Dist).to.equal(Dist);
     });
 
-    describe('Dist.compute', () => {
+    describe('Dist.compute (save)', () => {
       it('Dist.compute(): → success', async () => {
-        const { dir, entry } = PATH;
+        const { dir, entry } = SAMPLE_PATH;
         const res = await Pkg.Dist.compute({ dir, pkg, entry });
         renderDist(res.dist);
 
@@ -69,24 +75,24 @@ describe('Pkg (Server Tools)', () => {
       });
 
       it('{pkg} not passed → <unknown> package', async () => {
-        const { dir, entry } = PATH;
+        const { dir, entry } = SAMPLE_PATH;
         const res = await Pkg.Dist.compute({ dir, entry });
         expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
       });
 
       it('default: does not save to file', async () => {
-        const { dir, entry, filepath } = PATH;
+        const { dir, entry, filepath } = SAMPLE_PATH;
         const exists = () => Fs.exists(filepath);
-        await SAMPLE_FILE.dist.delete();
+        await SAMPLE_FILE.dist.reset();
         expect(await exists()).to.eql(false);
         await Pkg.Dist.compute({ dir, pkg, entry });
         expect(await exists()).to.eql(false); // NB: never written
       });
 
       it('{save:true} → saves to file-system', async () => {
-        const { dir, entry, filepath } = PATH;
+        const { dir, entry, filepath } = SAMPLE_PATH;
         const exists = () => Fs.exists(filepath);
-        await SAMPLE_FILE.dist.delete();
+        await SAMPLE_FILE.dist.reset();
         expect(await exists()).to.eql(false);
 
         const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
@@ -94,7 +100,7 @@ describe('Pkg (Server Tools)', () => {
 
         const json = (await Fs.readJson(filepath)).json;
         expect(json).to.eql(res.dist);
-        await SAMPLE_FILE.dist.delete();
+        await SAMPLE_FILE.dist.reset();
       });
 
       it('error: directory does not exist', async () => {
@@ -119,21 +125,19 @@ describe('Pkg (Server Tools)', () => {
     });
 
     describe('Dist.load', () => {
-      it('ensure "/dist.json" file exists', async () => {
-        await SAMPLE_FILE.dist.ensure();
-      });
-
       it('Pkg.Dist.load("path") → success', async () => {
+        await SAMPLE_FILE.dist.ensure();
+
         const test = async (path: string) => {
           const res = await Pkg.Dist.load(path);
-          expect(res.path).to.eql(PATH.filepath);
+          expect(res.path).to.eql(SAMPLE_PATH.filepath);
           expect(res.exists).to.eql(true);
           expect(res.error).to.eql(undefined);
           expect(res.dist?.pkg).to.eql(pkg); // NB: loaded, with data.
         };
 
-        await test(PATH.dir); // NB: div ← "/dist.json" appended.
-        await test(PATH.filepath);
+        await test(SAMPLE_PATH.dir); // NB: div ← "/dist.json" appended.
+        await test(SAMPLE_PATH.filepath);
       });
 
       it('404: does not exist', async () => {
@@ -143,9 +147,55 @@ describe('Pkg (Server Tools)', () => {
         expect(res.error?.message).to.include('does not exist');
       });
     });
+
+    describe('Dist.validate', () => {
+      it('validate: is valid', async () => {
+        await SAMPLE_FILE.dist.ensure();
+        const res = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+
+        expect(res.exists).to.eql(true);
+        expect(res.dist?.pkg).to.eql(pkg);
+        expect(res.is.valid).to.eql(true);
+        expect(res.is.unknown).to.eql(false);
+
+        /**
+         * Test multiple inputs:
+         */
+        const a = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+        // const b = await Pkg.Dist.validate(SAMPLE_PATH.dir, "path/to/dist.json");
+        // const c = await Pkg.Dist.validate(SAMPLE_PATH.dir, {DistPkg});
+      });
+
+      /**
+       * TODO 🐷
+       * - not valid (change/break the pkg dir)
+       * - optionally pass in the {DistPkg} as a second param.
+       *   scenario: independent check of {DistPkg} hashses sent through secondary channel
+       * - copy
+       */
+
+      it('404: target dir does not exist', async () => {
+        const res = await Pkg.Dist.validate('404_foobar');
+        expect(res.exists).to.eql(false);
+        expect(res.dist).to.eql(undefined);
+        expect(res.error?.message).to.include('does not exist');
+        expect(res.is.unknown).to.eql(true);
+        expect(res.is.valid).to.eql(undefined); // Falsy.
+      });
+
+      it('404: target dir does not contain a {dist.json}', async () => {
+        await SAMPLE_FILE.dist.delete();
+        const res = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+        expect(res.exists).to.eql(false);
+        expect(res.dist).to.eql(undefined);
+        expect(res.error?.message).to.include('does not exist');
+        expect(res.is.unknown).to.eql(true);
+        expect(res.is.valid).to.eql(undefined); // Falsy.
+      });
+    });
   });
 
   it('|→ clean up', async () => {
-    await SAMPLE_FILE.dist.delete();
+    await SAMPLE_FILE.dist.reset();
   });
 });

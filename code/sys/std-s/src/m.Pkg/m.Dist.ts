@@ -1,5 +1,5 @@
 import { Pkg } from '@sys/std/pkg';
-import { type t, Delete, Err, Fs, Hash } from './common.ts';
+import { type t, Delete, Err, Fs, Hash, R } from './common.ts';
 
 export const Dist: t.PkgDistLib = {
   /**
@@ -53,8 +53,8 @@ export const Dist: t.PkgDistLib = {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
-  async load(path) {
-    path = wrangle.filepath(path);
+  async load(targetDir) {
+    const path = wrangle.filepath(targetDir);
     const exists = await Fs.exists(path);
     const errors = Err.errors();
 
@@ -64,8 +64,7 @@ export const Dist: t.PkgDistLib = {
 
     let dist: t.DistPkg | undefined;
     if (exists) {
-      const res = await Fs.readJson<t.DistPkg>(path);
-      dist = res.json;
+      dist = (await Fs.readJson<t.DistPkg>(path)).json;
     }
 
     // Finish up.
@@ -74,6 +73,39 @@ export const Dist: t.PkgDistLib = {
       path,
       dist,
       error: errors.toError('Several errors occured while loading the `dist.json`'),
+    };
+    return res;
+  },
+
+  /**
+   * Validate a folder with hash definitions of the distribution-package.
+   */
+  async validate(targetDir) {
+    type R = t.DistPkgValidationResponse;
+    const errors = Err.errors();
+    const load = await Dist.load(targetDir);
+    const { path, dist, exists } = load;
+    const is: R['is'] = { valid: undefined, unknown: true };
+    if (!exists) {
+      errors.add(load.error);
+    }
+
+    /**
+     * Perform the validation checks.
+     */
+    if (exists && dist) {
+      const dir = Fs.dirname(path);
+      const current = await Dist.compute({ dir });
+      is.valid = R.equals(dist.hash, current.dist.hash);
+    }
+
+    // Finish up.
+    is.unknown = typeof is.valid !== 'boolean';
+    const res: R = {
+      exists,
+      is,
+      dist,
+      error: errors.toError(),
     };
     return res;
   },

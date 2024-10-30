@@ -1,6 +1,7 @@
-import { pkg, describe, expect, it, Fs } from '../-test.ts';
-import { Hash } from './mod.ts';
+import { describe, expect, Fs, it } from '../-test.ts';
 import { Dir } from './m.Hash.Dir.ts';
+import { Hash } from './mod.ts';
+import { SAMPLE_FILE, SAMPLE_PATH } from '../m.Pkg/-.test.ts';
 
 describe('Pkg (Server Tools)', () => {
   const expectHash = (value: string, expected: string) => {
@@ -20,11 +21,7 @@ describe('Pkg (Server Tools)', () => {
   });
 
   describe('Dir', () => {
-    const PATH = {
-      dir: Fs.resolve('./src/-test/-sample-dist'),
-    } as const;
-
-    it('error:  directory does not exist', async () => {
+    it('error: directory does not exist', async () => {
       const dir = Fs.resolve('./NO_EXIST');
       const res = await Hash.Dir.compute(dir);
 
@@ -46,8 +43,9 @@ describe('Pkg (Server Tools)', () => {
     });
 
     it('compute hash', async () => {
-      const res = await Hash.Dir.compute(PATH.dir);
-      expect(res.dir).to.eql(PATH.dir);
+      await SAMPLE_FILE.dist.reset();
+      const res = await Hash.Dir.compute(SAMPLE_PATH.dir);
+      expect(res.dir).to.eql(SAMPLE_PATH.dir);
       expect(res.exists).to.eql(true);
 
       expectHash(res.hash, 'fdb67a7');
@@ -61,8 +59,8 @@ describe('Pkg (Server Tools)', () => {
 
     it('filter list of files', async () => {
       const filter = (path: string) => path.endsWith('.html');
-      const a = await Hash.Dir.compute(PATH.dir, { filter });
-      const b = await Hash.Dir.compute(PATH.dir, filter);
+      const a = await Hash.Dir.compute(SAMPLE_PATH.dir, { filter });
+      const b = await Hash.Dir.compute(SAMPLE_PATH.dir, filter);
       const keys = Object.keys(a.files);
       expect(keys.length).to.eql(1);
       expect(keys[0]).to.eql('./index.html');

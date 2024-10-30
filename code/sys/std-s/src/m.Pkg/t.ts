@@ -24,8 +24,12 @@ export type PkgDistLib = {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
-  load(path: t.StringPath): Promise<t.PkgLoadDistResponse>;
+  load(targetDir: t.StringPath): Promise<t.PkgLoadDistResponse>;
 
+  /**
+   * Validate a folder with hash definitions of the distribution-package.
+   */
+  validate(targetDir: t.StringPath): Promise<t.DistPkgValidationResponse>;
 };
 
 export type PkgDistComputeArgs = {
@@ -51,6 +55,16 @@ export type PkgSaveDistResponse = {
 export type PkgLoadDistResponse = {
   exists: boolean;
   path: t.StringPath;
+  dist?: t.DistPkg;
+  error?: t.StdError;
+};
+
+/**
+ * Response to a `Pkg.Dist.validate` method call.
+ */
+export type DistPkgValidationResponse = {
+  is: { valid?: boolean; unknown: boolean };
+  exists: boolean;
   dist?: t.DistPkg;
   error?: t.StdError;
 };
