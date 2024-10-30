@@ -15,9 +15,9 @@ export type CmdTestFactory = () => Promise<t.CmdTransport> | t.CmdTransport;
  * State container for a Cmd test.
  */
 export type CmdTestState = t.Disposable & {
-  /* The tansport (Immutable<T> document). */
+  /** The tansport (Immutable<T> document). */
   readonly doc: t.CmdTransport;
 
-  /* Factory for producing new Cmd transports. */
+  /** Factory for producing new Cmd transports. */
   readonly factory: CmdTestFactory;
 };

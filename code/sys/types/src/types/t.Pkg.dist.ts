@@ -7,16 +7,16 @@ import type { t } from './common.ts';
  * produced during a build/bundle operation for a module.
  */
 export type DistPkg = {
-  /* The package meta-data info. */
+  /** The package meta-data info. */
   pkg: t.Pkg;
 
-  /* Distribution-package size statistics. */
+  /** Distribution-package size statistics. */
   size: t.DistPkgSize;
 
-  /* Path to the main JS entry point. */
+  /** Path to the main JS entry point. */
   entry: t.StringPath;
 
-  /* Map of hashes of the binary contents of the package. */
+  /** Map of hashes of the binary contents of the package. */
   hash: DistPkgHashes;
 };
 
@@ -24,10 +24,10 @@ export type DistPkg = {
  * The hashes of a ditribution-package.
  */
 export type DistPkgHashes = {
-  /* The overall hash of all file hashes (after they are sorted). */
+  /** The overall hash of all file hashes (after they are sorted). */
   pkg: t.StringHash;
 
-  /* Map of hashes mapped to the distribution-package's file paths. */
+  /** Map of hashes mapped to the distribution-package's file paths. */
   files: { [path: t.StringPath]: t.StringHash };
 };
 

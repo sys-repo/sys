@@ -24,13 +24,13 @@ export type ErrLib = {
  * Options passed to the `ErrLib.stdErr` method.
  */
 export type ErrStdOptions = {
-  /* The name/type of this error. */
+  /** The name/type of this error. */
   name?: string;
 
-  /* A sub-error that represents the cause of this error. */
+  /** A sub-error that represents the cause of this error. */
   cause?: unknown;
 
-  /* A list of errors when creating an Aggregate error. */
+  /** A list of errors when creating an Aggregate error. */
   errors?: (t.StdError | unknown)[];
 };
 
@@ -84,13 +84,13 @@ export type ErrIs = {
 export type ErrorCollection = {
   readonly length: number;
 
-  /* The list of errors. */
+  /** The list of errors. */
   readonly list: ReadonlyArray<t.StdError>;
 
-  /* Boolean status flags. */
+  /** Boolean status flags. */
   readonly is: { readonly empty: boolean };
 
-  /* Add a new error. */
+  /** Add a new error. */
   add(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
 
   /**

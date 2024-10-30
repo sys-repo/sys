@@ -21,7 +21,7 @@ export type DenofileLib = {
   isWorkspace(src?: t.StringPath): Promise<boolean>;
 };
 
-/* The async response from a `deno.json` file load request. */
+/** The async response from a `deno.json` file load request. */
 export type DenofileLoadResponse = t.FsReadJsonResponse<t.DenofileJson>;
 
 /**

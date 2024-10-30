@@ -9,7 +9,7 @@ import { bus } from './u.bus.ts';
 
 const { disposable, disposableAsync, lifecycle, lifecycleAsync, done } = Dispose;
 
-/* Tools for working with Observables (via the RXJS library). */
+/** Tools for working with Observables (via the RXJS library). */
 export const Rx: t.RxLib = {
   ...lib,
   Is,
@@ -31,5 +31,5 @@ export const Rx: t.RxLib = {
   },
 };
 
-/* Tools for working with Observables (via the RXJS library). */
+/** Tools for working with Observables (via the RXJS library). */
 export const rx = Rx;

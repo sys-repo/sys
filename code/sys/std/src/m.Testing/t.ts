@@ -12,7 +12,7 @@ export type TestingLib = {
   wait(delay: t.Msecs): Promise<void>;
   randomPort(): number;
 
-  /* Attempt to run the test function <n>-times before throwing. */
+  /** Attempt to run the test function <n>-times before throwing. */
   retry(times: number, fn?: TestRetryRunner): Promise<void>;
   retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
 };
@@ -24,16 +24,16 @@ export type TestRetryOptions = {
   message?: string;
 };
 
-/* Describes a test suite. */
+/** Describes a test suite. */
 export type Describe = typeof describe;
 
-/* Defines a single BDD test. */
+/** Defines a single BDD test. */
 export type It = typeof it;
 
-/* Assertion library (BDD). */
+/** Assertion library (BDD). */
 export type Expect = typeof expect;
 
-/* Expect an error asyncronously */
+/** Expect an error asyncronously */
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;
 
 /**

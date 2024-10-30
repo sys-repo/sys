@@ -24,10 +24,10 @@ export type CmdPathsObject<C extends t.CmdType = t.CmdType> = {
  * Tools for working with Cmd paths.
  */
 export type CmdPathLib = {
-  /* Type flag helpers. */
+  /** Type flag helpers. */
   readonly Is: CmdPathIs;
 
-  /* Wrangle the paths object from various input types. */
+  /** Wrangle the paths object from various input types. */
   wrangle(input?: t.CmdPaths | t.ObjectPath): t.CmdPaths;
 
   /**
@@ -36,7 +36,7 @@ export type CmdPathLib = {
    */
   resolver(input?: t.CmdPaths | t.ObjectPath): t.CmdResolver;
 
-  /* Prepend a path to each item within a <CmdPaths> set. */
+  /** Prepend a path to each item within a <CmdPaths> set. */
   prepend(prefix: t.ObjectPath, paths?: t.CmdPaths): t.CmdPaths;
 };
 
@@ -44,10 +44,10 @@ export type CmdPathLib = {
  * Type flags related to Cmd paths.
  */
 export type CmdPathIs = {
-  /* Determine if the input is a `CmdPaths` object. */
+  /** Determine if the input is a `CmdPaths` object. */
   commandPaths(input: any): input is t.CmdPaths;
 
-  /* Determine if the input is a string array. */
+  /** Determine if the input is a string array. */
   stringArray(input: any): input is string[];
 };
 
@@ -55,16 +55,16 @@ export type CmdPathIs = {
  * A path/data resolver for a command.
  */
 export type CmdResolver = {
-  /* The paths used by the resolver. */
+  /** The paths used by the resolver. */
   paths: t.CmdPaths;
 
-  /* Queue related data items. */
+  /** Queue related data items. */
   readonly queue: t.CmdResolverQueue;
 
-  /* Retrieves the Cmd log. */
+  /** Retrieves the Cmd log. */
   log(data: O): t.CmdLog;
 
-  /* Collapse into a simple object. */
+  /** Collapse into a simple object. */
   toObject<C extends t.CmdType>(data: O): t.CmdObject<C>;
 };
 
@@ -72,10 +72,10 @@ export type CmdResolver = {
  * Queue related data items.
  */
 export type CmdResolverQueue = {
-  /* The array containing the list of invoked commands. */
+  /** The array containing the list of invoked commands. */
   list<C extends t.CmdType>(data: O): t.CmdQueueItem<C>[];
 
-  /* Retrieves a helper for working with a single item within the queue. */
+  /** Retrieves a helper for working with a single item within the queue. */
   item<C extends t.CmdType>(data: O, index?: number): t.CmdResolverQueueItem;
 };
 
@@ -83,27 +83,27 @@ export type CmdResolverQueue = {
  * A single queue item.
  */
 export type CmdResolverQueueItem = {
-  /* The item index */
+  /** The item index */
   index: t.Index;
 
-  /* The object-path to the value. */
+  /** The object-path to the value. */
   path: t.ObjectPath;
 
-  /* Read the name from the item. */
+  /** Read the name from the item. */
   name<N extends S = S>(defaultValue?: string): N;
 
-  /* Read the paramters object from the item. */
+  /** Read the paramters object from the item. */
   params<P extends O = O>(defaultValue: P): P;
 
-  /* Read the error from the item. */
+  /** Read the error from the item. */
   error<E extends O = O>(defaultValue?: E): E;
 
-  /* Read the Tx (transaction ID) from the item. */
+  /** Read the Tx (transaction ID) from the item. */
   tx(defaultValue?: string): string;
 
-  /* Read the ID from the item. */
+  /** Read the ID from the item. */
   id(defaultValue?: string): string;
 
-  /* Read the Issue ID from the item. */
+  /** Read the Issue ID from the item. */
   issuer(defaultValue?: string): string;
 };

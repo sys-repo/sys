@@ -7,13 +7,13 @@ type ToStringOptions = { pad?: boolean };
  * https://vitejs.dev/config
  */
 export type ViteConfigLib = {
-  /* The output directory path (helpers and generators). */
+  /** The output directory path (helpers and generators). */
   readonly outDir: t.ViteConfigOutDir;
 
-  /* Prepare paths for the vite build. */
+  /** Prepare paths for the vite build. */
   paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
 
-  /* Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
+  /** Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
   readonly workspace: t.ViteConfigWorkspaceFactory;
 };
 
@@ -24,14 +24,14 @@ export type ViteConfigWorkspaceFactory = (
   options?: t.ViteConfigWorkspaceOptions,
 ) => Promise<t.ViteDenoWorkspace>;
 
-/* Options from the {config.workspace} method. */
+/** Options from the {config.workspace} method. */
 export type ViteConfigWorkspaceOptions = {
   denofile?: t.StringPath;
   walkup?: boolean;
   filter?: t.WorkspaceFilter;
 };
 
-/* Paths params inputs. */
+/** Paths params inputs. */
 export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
 
 /**
@@ -57,7 +57,7 @@ export type ViteConfigPaths = {
  * Vite/Deno workspace helpers.
  */
 export type ViteDenoWorkspace = t.DenoWorkspace & {
-  /* List of known module-aliases derived from the Deno workspace. */
+  /** List of known module-aliases derived from the Deno workspace. */
   readonly aliases: t.ViteAlias[];
 
   /**
@@ -65,13 +65,13 @@ export type ViteDenoWorkspace = t.DenoWorkspace & {
    */
   readonly filter?: t.WorkspaceFilter;
 
-  /* Convert the list of aliases into a flat map. */
+  /** Convert the list of aliases into a flat map. */
   toAliasMap(): Record<string, t.StringPath>;
 
-  /* Pretty string representation of the workspace. */
+  /** Pretty string representation of the workspace. */
   toString(options?: ToStringOptions): string;
 
-  /* Pass a toString() on the workspace directly into the log. */
+  /** Pass a toString() on the workspace directly into the log. */
   log(options?: ToStringOptions): void;
 };
 

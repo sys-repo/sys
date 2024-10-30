@@ -21,28 +21,28 @@ export type HashDirLib = {
   compute(base: t.StringDir, options?: t.HashDirComputeOptions | t.HashDirFilter): Promise<HashDir>;
 };
 
-/* Options passed to the `Hash.Dir.compute` method. */
+/** Options passed to the `Hash.Dir.compute` method. */
 export type HashDirComputeOptions = { filter?: HashDirFilter };
 
-/* Filter out files included within a directory being hashed. */
+/** Filter out files included within a directory being hashed. */
 export type HashDirFilter = (path: string) => boolean;
 
 /**
  * Represents a hash of a directory.
  */
 export type HashDir = {
-  /* Flag indicating if the directory exists. */
+  /** Flag indicating if the directory exists. */
   exists: boolean;
 
-  /* Path to the base directory the relative filepath hashes pertain to. */
+  /** Path to the base directory the relative filepath hashes pertain to. */
   base: t.StringDir;
 
-  /* The overall hash of all file hashes (after they are sorted). */
+  /** The overall hash of all file hashes (after they are sorted). */
   hash: t.StringHash;
 
-  /* Map of hashes mapped to the file paths within the directory. */
+  /** Map of hashes mapped to the file paths within the directory. */
   files: { [path: t.StringPath]: t.StringHash };
 
-  /* Error details if one occured. */
+  /** Error details if one occured. */
   error?: t.StdError;
 };

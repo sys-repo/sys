@@ -4,19 +4,19 @@ import type { t } from './common.ts';
  * Library: helper for working with time.
  */
 export type TimeLib = {
-  /* Tools for working with an elapsed duration of time. */
+  /** Tools for working with an elapsed duration of time. */
   readonly Duration: t.TimeDurationLib;
 
-  /* Retrieve the current datetime. */
+  /** Retrieve the current datetime. */
   readonly now: t.DateTime;
 
-  /* Create a new TimeDuration */
+  /** Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
 
-  /* Generates a TimeDuration from the given time until now (or a specified other endpoint). */
+  /** Generates a TimeDuration from the given time until now (or a specified other endpoint). */
   elapsed(from: t.DateTimeInput, options: { to?: t.DateTimeInput; round?: number }): t.TimeDuration;
 
-  /* Generates a new timer. */
+  /** Generates a new timer. */
   timer(start?: Date, options?: { round?: number }): Timer;
 
   /**
@@ -32,10 +32,10 @@ export type TimeLib = {
    */
   wait(msecs?: t.Msecs): t.TimeDelayPromise;
 
-  /* Generate a new UTC datetime instance. */
+  /** Generate a new UTC datetime instance. */
   utc(input?: t.DateTimeInput): t.DateTime;
 
-  /* A Time helper that runs only until it has been disposed. */
+  /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.UntilObservable): t.TimeUntil;
 };
 
@@ -43,28 +43,28 @@ export type TimeLib = {
  * Timeout/Delay
  */
 
-/* A function called at the completion of a delay timer. */
+/** A function called at the completion of a delay timer. */
 export type TimeDelayCallback = () => void;
 
-/* An extended Promise API that represents a running timer. */
+/** An extended Promise API that represents a running timer. */
 export type TimeDelayPromise = Promise<void> & t.TimeDelay;
 
-/* Extended properties on a delay Promise that represent a running timer. */
+/** Extended properties on a delay Promise that represent a running timer. */
 export type TimeDelay = {
-  /* Duration of the delay. */
+  /** Duration of the delay. */
   readonly timeout: t.Msecs;
 
-  /* Boolean status flags. */
+  /** Boolean status flags. */
   readonly is: {
-    /* True if the timer was cancelled.  */
+    /** True if the timer was cancelled.  */
     readonly cancelled: boolean;
-    /* True if the timer completed successfully. */
+    /** True if the timer completed successfully. */
     readonly completed: boolean;
-    /* True if the timer is "done" (completed OR failed). */
+    /** True if the timer is "done" (completed OR failed). */
     readonly done: boolean;
   };
 
-  /* Stops the timer (dispose). */
+  /** Stops the timer (dispose). */
   cancel(): void;
 };
 
@@ -72,16 +72,16 @@ export type TimeDelay = {
  * Exposes timer functions that cease after a dispose signal is received.
  */
 export type TimeUntil = {
-  /* Fires when the transient time helper is disposed. */
+  /** Fires when the transient time helper is disposed. */
   readonly dispose$: t.Observable<void>;
 
-  /* Flag indicating if the transient time heper is disposed. */
+  /** Flag indicating if the transient time heper is disposed. */
   readonly disposed: boolean;
 
-  /* Delay for the specified milliseconds. */
+  /** Delay for the specified milliseconds. */
   delay: t.TimeLib['delay'];
 
-  /* Wait for the specified milliseconds pass. */
+  /** Wait for the specified milliseconds pass. */
   wait: t.TimeLib['wait'];
 };
 
@@ -89,12 +89,12 @@ export type TimeUntil = {
  * A timer that records the elapsed time since a start date.
  */
 export type Timer = {
-  /* The starting datetime. */
+  /** The starting datetime. */
   readonly startedAt: Date;
 
-  /* The duration elapsed */
+  /** The duration elapsed */
   readonly elapsed: t.TimeDuration;
 
-  /* Reset the timer. */
+  /** Reset the timer. */
   reset: () => t.Timer;
 };

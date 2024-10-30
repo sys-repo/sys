@@ -31,10 +31,10 @@ export function toObject<T extends O>(input: any): T {
  *    https://github.com/immerjs/immer
  */
 export const Patch: t.PatchToolLib = {
-  /* Convert the given input to a simple object. */
+  /** Convert the given input to a simple object. */
   toObject,
 
-  /* Convert the given input to a patch-set. */
+  /** Convert the given input to a patch-set. */
   toPatchSet(forward, backward) {
     return {
       prev: backward ? toPatches(backward) : [],
@@ -42,19 +42,19 @@ export const Patch: t.PatchToolLib = {
     };
   },
 
-  /* Determine if the given set of patches is empty. */
+  /** Determine if the given set of patches is empty. */
   isEmpty(input) {
     return input === null || typeof input !== 'object'
       ? true
       : isEmptyArray(input.prev) && isEmptyArray(input.next);
   },
 
-  /* Determine if the given value is an Immer Proxy object. */
+  /** Determine if the given value is an Immer Proxy object. */
   isProxy(input) {
     return isDraft(input);
   },
 
-  /* Function used to mutate the immutable value. */
+  /** Function used to mutate the immutable value. */
   change<T extends O>(before: T, fn: t.PatchMutation<T> | T) {
     if (typeof fn === 'function') {
       const [to, forward, backward] = produceWithPatches<T>(before, (draft) => {
@@ -75,7 +75,7 @@ export const Patch: t.PatchToolLib = {
     }
   },
 
-  /* An Async option for mutating the object. */
+  /** An Async option for mutating the object. */
   async changeAsync<T extends O>(before: T, fn: t.PatchMutationAsync<T>) {
     const draft = createDraft(before) as T;
     const ctx: t.PatchMutationCtx = { toObject };
@@ -87,7 +87,7 @@ export const Patch: t.PatchToolLib = {
     return { op, before, after, patches };
   },
 
-  /* Apply patches to an object. */
+  /** Apply patches to an object. */
   apply<T extends O>(from: T, patches: t.PatchOperation[] | t.PatchSet) {
     const changes = (Array.isArray(patches) ? patches : patches.next).map(toArrayPatch);
     return applyPatches(from, changes as any); // NB: type hack.

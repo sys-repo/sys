@@ -1,16 +1,16 @@
 import type { t } from '../common.ts';
 
-/* Response object returned from the IndexedDb delete operation. */
+/** Response object returned from the IndexedDb delete operation. */
 export type IndexedDbDeleteResponse = { name: string; error?: string };
 
 /**
  * A promise based wrapper into the IndexedDB API.
  */
 export type IndexedDbLib = {
-  /* Helpers for working IndexedDb record objects. */
+  /** Helpers for working IndexedDb record objects. */
   readonly Record: t.IndexedDbRecord;
 
-  /* Helpers looking at the IDBDatabase container itself. */
+  /** Helpers looking at the IDBDatabase container itself. */
   readonly Database: t.IndexedDbDatabase;
 
   /**
@@ -38,19 +38,19 @@ export type IndexedDbLib = {
  * Helpers for working IndexedDb record objects.
  */
 export type IndexedDbRecord = {
-  /* Retrieves the value of the first record matching the given key or key range in query. */
+  /** Retrieves the value of the first record matching the given key or key range in query. */
   get<T>(
     store: IDBObjectStore | IDBIndex,
     query: IDBValidKey | IDBKeyRange,
   ): Promise<T | undefined>;
 
-  /* Retrieves all records matching the given key or key range in query. */
+  /** Retrieves all records matching the given key or key range in query. */
   getAll<T>(store: IDBObjectStore | IDBIndex, query?: IDBValidKey | IDBKeyRange): Promise<T[]>;
 
-  /* Add or update an object in the given store. */
+  /** Add or update an object in the given store. */
   put<T>(store: IDBObjectStore, value: T, key?: IDBValidKey): Promise<T>;
 
-  /* Delete an object. */
+  /** Delete an object. */
   delete<T>(store: IDBObjectStore, key: IDBValidKey | IDBKeyRange): Promise<T>;
 };
 
@@ -58,6 +58,6 @@ export type IndexedDbRecord = {
  * Helpers looking at the IDBDatabase container itself.
  */
 export type IndexedDbDatabase = {
-  /* Determine if an IDBDatabase is closed. */
+  /** Determine if an IDBDatabase is closed. */
   isClosed(db: IDBDatabase): boolean;
 };

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for installing, monitoring and managing Quilibrium nodes.
  */
 export type QNodeLib = {
-  /* Tools for pulling and managing Quilbrium nodes releases. */
+  /** Tools for pulling and managing Quilbrium nodes releases. */
   readonly Release: t.ReleaseLib;
 };
 
@@ -12,9 +12,9 @@ export type QNodeLib = {
  * Environment a release is being pulled for.
  */
 export type ReleaseEnv = {
-  /* Operating system type */
+  /** Operating system type */
   readonly os: string;
-  /* Architecutre type */
+  /** Architecutre type */
   readonly arch: string;
 };
 
@@ -22,10 +22,10 @@ export type ReleaseEnv = {
  * Tools for pulling and managing Quilbrium nodes releases.
  */
 export type ReleaseLib = {
-  /* Current environment settings used as defaults when pulling releases. */
+  /** Current environment settings used as defaults when pulling releases. */
   readonly env: ReleaseEnv;
 
-  /* Pull latest release. */
+  /** Pull latest release. */
   pull(options?: t.ReleaseOptions): Promise<ReleasePullResponse>;
 };
 
@@ -44,12 +44,12 @@ export type ReleaseOptions = {
  * Response returned from the Release.pull() method.
  */
 export type ReleasePullResponse = {
-  /* Version pulled, or "" empty if nothing was pulled */
+  /** Version pulled, or "" empty if nothing was pulled */
   version: string;
-  /* The paths to the downloaded binaries. */
+  /** The paths to the downloaded binaries. */
   files: t.StringPath[];
-  /* The environment flags used during the pull operations */
+  /** The environment flags used during the pull operations */
   env: ReleaseEnv;
-  /* Flags. */
+  /** Flags. */
   is: { newRelease: boolean };
 };

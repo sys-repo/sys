@@ -29,7 +29,7 @@ export const Tmpl: t.StyleTmplLib = {
     // Size → { width, height }
     if (input.Size !== undefined) formatSize('Size', input.Size, input);
 
-    /* Finish up: no change */
+    /** Finish up: no change */
     return input as t.CSSObject;
   },
 } as const;

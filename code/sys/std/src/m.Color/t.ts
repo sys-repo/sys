@@ -56,22 +56,22 @@ export type ColorConstants = {
  * Represents a theme that produces basic color sets.
  */
 export type ColorTheme = ColorThemeColors & {
-  /* The name of the theme. */
+  /** The name of the theme. */
   readonly name: t.CommonTheme;
 
-  /* Flags */
+  /** Flags */
   readonly is: {
-    /* Theme is "Light" */
+    /** Theme is "Light" */
     readonly light: boolean;
 
-    /* Theme is "Dark" */
+    /** Theme is "Dark" */
     readonly dark: boolean;
   };
 
-  /* Retrieve an alpha-percent of the current theme colors. */
+  /** Retrieve an alpha-percent of the current theme colors. */
   alpha(percent?: t.Percent): ColorThemeColors;
 
-  /* Retrieve a new theme inverted (eg. "Dark" → "Light") */
+  /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
   invert(): ColorTheme;
 };
 
@@ -79,9 +79,9 @@ export type ColorTheme = ColorThemeColors & {
  * Primitive theme colors.
  */
 export type ColorThemeColors = {
-  /* Background color. */
+  /** Background color. */
   readonly bg: HexColor;
 
-  /* Foreground color. */
+  /** Foreground color. */
   readonly fg: HexColor;
 };

@@ -1,6 +1,6 @@
 import type { t, u } from './common.ts';
 
-/* Options passed to the Cmd events factory. */
+/** Options passed to the Cmd events factory. */
 export type CmdEventsOptions = {
   paths?: t.CmdPaths;
   issuer?: t.StringId | t.StringId[];
@@ -8,7 +8,7 @@ export type CmdEventsOptions = {
 };
 
 export type CmdEventsLib = {
-  /* Events factory. */
+  /** Events factory. */
   create<C extends t.CmdType>(doc?: t.CmdTransport, options?: CmdEventsOptions): t.CmdEvents<C>;
 
   /**

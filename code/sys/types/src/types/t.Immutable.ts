@@ -35,10 +35,10 @@ export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
  * an observable event factory.
  */
 export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
-  /* The unique ID of the instance of the handle. */
+  /** The unique ID of the instance of the handle. */
   readonly instance: string; // Unique ID of the reference handle.
 
-  /* Generate a new Events object. */
+  /** Generate a new Events object. */
   events(dispose$?: t.UntilObservable): E;
 };
 
@@ -71,13 +71,13 @@ export type ImmutableChange<D, P> = {
 type MapPropName = string;
 type MapToPath = t.ObjectPath | MapPropName;
 
-/* Defines a mapping between immutable objects. */
+/** Defines a mapping between immutable objects. */
 export type ImmutableMapping<T extends O, P> = { [K in keyof T]: t.ImmutableMappingArray<T, P> };
 
-/* An immutable mapping represented as an array. */
+/** An immutable mapping represented as an array. */
 export type ImmutableMappingArray<T extends O, P> = [t.ImmutableRef, MapToPath];
 
-/* An immutable mapping property definition. */
+/** An immutable mapping property definition. */
 export type ImmutableMappingProp<T extends O, P> = {
   key: string | symbol;
   doc: t.ImmutableRef<T, P, ImmutableMapEvents<T, P>>;
