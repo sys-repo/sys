@@ -83,7 +83,7 @@ export type ErrIs = {
  */
 export type ErrorCollection = {
   /* The list of errors. */
-  readonly items: ReadonlyArray<t.StdError>;
+  readonly list: ReadonlyArray<t.StdError>;
 
   /* Boolean flags. */
   readonly is: { readonly empty: boolean };

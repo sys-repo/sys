@@ -227,7 +227,7 @@ describe('Err (Error)', () => {
 
     it('empty by default', () => {
       const err = Err.errors();
-      expect(err.items.length).to.eql(0);
+      expect(err.list.length).to.eql(0);
       expect(err.is.empty).to.eql(true);
     });
 
@@ -237,7 +237,7 @@ describe('Err (Error)', () => {
       errs.add(err);
       errs.add(err); // NB: does not add the same instance twice
       errs.add('foo').add('foo'); // NB: this will resovle to a new {StdError} and hence increment.
-      expect(errs.items.length).to.eql(3);
+      expect(errs.list.length).to.eql(3);
     });
 
     it('toError: nothing', () => {

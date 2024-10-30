@@ -55,7 +55,7 @@ export const Err: t.ErrLib = {
   errors() {
     const set = new Set<t.StdError>();
     const api: t.ErrorCollection = {
-      get items() {
+      get list() {
         return Array.from(set);
       },
       get is() {
