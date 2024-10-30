@@ -20,6 +20,12 @@ export type PkgDistLib = {
    * meta-data file, `pkg.json`.
    */
   compute(args: t.PkgDistComputeArgs): Promise<t.PkgSaveDistResponse>;
+
+  /**
+   * Load a `dist.json` file into a \<DistPackage\> type.
+   */
+  load(path: t.StringPath): Promise<t.PkgLoadDistResponse>;
+
 };
 
 export type PkgDistComputeArgs = {
@@ -30,12 +36,21 @@ export type PkgDistComputeArgs = {
 };
 
 /**
- * Response to `Pkg.saveDist` method.
+ * Response to a `Pkg.Dist.saveDist` method call.
  */
 export type PkgSaveDistResponse = {
-  ok: boolean;
   exists: boolean;
   dir: t.StringDir;
   dist: t.DistPkg;
+  error?: t.StdError;
+};
+
+/**
+ * Response to a `Pkg.Dist.load` method call.
+ */
+export type PkgLoadDistResponse = {
+  exists: boolean;
+  path: t.StringPath;
+  dist?: t.DistPkg;
   error?: t.StdError;
 };

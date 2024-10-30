@@ -49,6 +49,47 @@ export const Dist: t.PkgDistLib = {
     // Finish up.
     return res;
   },
+
+  /**
+   * Load a `dist.json` file into a \<DistPackage\> type.
+   */
+  async load(path) {
+    path = wrangle.filepath(path);
+    const exists = await Fs.exists(path);
+
+    /**
+     * TODO 🐷 move to Std.Err.errors();
+     */
+    const errors: t.StdError[] = [];
+    const finalError = () => {
+      if (errors.length === 0) return undefined;
+      if (errors.length === 1) return errors[0];
+      if (errors.length > 1) {
+        return Err.std('Several errors occured while loading', { errors });
+      }
+      return undefined;
+    };
+
+    if (!exists) {
+      const err = Err.std(`File at path does not exist: ${path}`);
+      errors.push(err);
+    }
+
+    let dist: t.DistPkg | undefined;
+    if (exists) {
+      const res = await Fs.readJson<t.DistPkg>(path);
+      dist = res.json;
+    }
+
+    // Finish up.
+    const res: t.PkgLoadDistResponse = {
+      exists,
+      path,
+      dist,
+      error: finalError(),
+    };
+    return res;
+  },
 };
 
 /**
@@ -69,5 +110,10 @@ const wrangle = {
       count += stat.size;
     }
     return count;
+  },
+
+  filepath(path: t.StringPath) {
+    if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
+    return path;
   },
 } as const;
