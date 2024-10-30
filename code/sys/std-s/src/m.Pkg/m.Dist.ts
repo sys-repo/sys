@@ -56,23 +56,10 @@ export const Dist: t.PkgDistLib = {
   async load(path) {
     path = wrangle.filepath(path);
     const exists = await Fs.exists(path);
-
-    /**
-     * TODO 🐷 move to Std.Err.errors();
-     */
-    const errors: t.StdError[] = [];
-    const finalError = () => {
-      if (errors.length === 0) return undefined;
-      if (errors.length === 1) return errors[0];
-      if (errors.length > 1) {
-        return Err.std('Several errors occured while loading', { errors });
-      }
-      return undefined;
-    };
+    const errors = Err.errors();
 
     if (!exists) {
-      const err = Err.std(`File at path does not exist: ${path}`);
-      errors.push(err);
+      errors.add(`File at path does not exist: ${path}`);
     }
 
     let dist: t.DistPkg | undefined;
@@ -86,7 +73,7 @@ export const Dist: t.PkgDistLib = {
       exists,
       path,
       dist,
-      error: finalError(),
+      error: errors.toError('Several errors occured while loading the `dist.json`'),
     };
     return res;
   },
