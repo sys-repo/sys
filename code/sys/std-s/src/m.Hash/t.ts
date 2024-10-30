@@ -18,7 +18,7 @@ export type HashDirLib = {
   /**
    * Calculate the hash of a directory.
    */
-  compute(dir: t.StringPath, options?: t.HashDirComputeOptions | t.HashDirFilter): Promise<HashDir>;
+  compute(base: t.StringDir, options?: t.HashDirComputeOptions | t.HashDirFilter): Promise<HashDir>;
 };
 
 /* Options passed to the `Hash.Dir.compute` method. */
@@ -34,8 +34,8 @@ export type HashDir = {
   /* Flag indicating if the directory exists. */
   exists: boolean;
 
-  /* Path to the directory the hashes pertains to */
-  dir: t.StringDir;
+  /* Path to the base directory the relative filepath hashes pertain to. */
+  base: t.StringDir;
 
   /* The overall hash of all file hashes (after they are sorted). */
   hash: t.StringHash;

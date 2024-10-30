@@ -25,7 +25,7 @@ describe('Pkg (Server Tools)', () => {
       const dir = Fs.resolve('./NO_EXIST');
       const res = await Hash.Dir.compute(dir);
 
-      expect(res.dir).to.eql(dir);
+      expect(res.base).to.eql(dir);
       expect(res.exists).to.eql(false);
       expect(res.hash).to.eql('');
       expect(res.files).to.eql({});
@@ -35,7 +35,7 @@ describe('Pkg (Server Tools)', () => {
     it('error: not a file', async () => {
       const file = Fs.resolve('./deno.json');
       const res = await Hash.Dir.compute(file);
-      expect(res.dir).to.eql(file);
+      expect(res.base).to.eql(file);
       expect(res.exists).to.eql(true);
       expect(res.hash).to.eql('');
       expect(res.files).to.eql({});
@@ -45,7 +45,7 @@ describe('Pkg (Server Tools)', () => {
     it('compute hash', async () => {
       await SAMPLE_FILE.dist.reset();
       const res = await Hash.Dir.compute(SAMPLE_PATH.dir);
-      expect(res.dir).to.eql(SAMPLE_PATH.dir);
+      expect(res.base).to.eql(SAMPLE_PATH.dir);
       expect(res.exists).to.eql(true);
 
       expectHash(res.hash, 'fdb67a7');
