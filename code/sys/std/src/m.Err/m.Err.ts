@@ -48,19 +48,51 @@ export const Err: t.ErrLib = {
     // Generically <unknown> error.
     return done(wrangle.unknown(typeof input, options));
   },
+
+  /**
+   * Create a new error collection builder.
+   */
+  errors() {
+    const set = new Set<t.StdError>();
+    const api: t.ErrorCollection = {
+      get items() {
+        return Array.from(set);
+      },
+      get is() {
+        const empty = set.size === 0;
+        return { empty };
+      },
+      add(input) {
+        set.add(Err.std(input));
+        return api;
+      },
+      toError(pluralMessage = 'Several errors occured.') {
+        const total = set.size;
+        const errors = Array.from(set);
+        if (total === 0) return undefined;
+        if (total === 1) return errors[0];
+        if (errors.length > 1) {
+          return Err.std(pluralMessage, { errors });
+        }
+        return undefined;
+      },
+    };
+
+    return api;
+  },
 };
 
 /**
  * Helpers
  */
 const wrangle = {
-  options(input?: t.ErrStdErrorOptions | string) {
+  options(input?: t.ErrStdOptions | string) {
     if (!input) return {};
     if (typeof input === 'string') return { name: input };
     return input;
   },
 
-  name(options: t.ErrStdErrorOptions = {}) {
+  name(options: t.ErrStdOptions = {}) {
     if (options.name) return options.name;
     const errors = wrangle.aggregate(options);
     const name = errors ? Name.aggregate : Name.error;
@@ -71,14 +103,14 @@ const wrangle = {
     return `Unknown error (${value})`;
   },
 
-  unknown(value: unknown, options: t.ErrStdErrorOptions = {}): t.StdError {
+  unknown(value: unknown, options: t.ErrStdOptions = {}): t.StdError {
     const name = wrangle.name(options);
     const message = wrangle.unknownMessage(value);
     const cause = options.cause ? Err.std(options.cause) : undefined;
     return cause ? { name, message, cause } : { name, message };
   },
 
-  cause(cause: unknown, options: t.ErrStdErrorOptions = {}): t.StdError | undefined {
+  cause(cause: unknown, options: t.ErrStdOptions = {}): t.StdError | undefined {
     if (cause !== undefined) return Err.std(cause);
     if (options.cause !== undefined) return Err.std(options.cause);
     return;
@@ -89,7 +121,7 @@ const wrangle = {
     return Delete.undefined({ name, message, cause });
   },
 
-  aggregate(options: t.ErrStdErrorOptions): t.StdError[] | undefined {
+  aggregate(options: t.ErrStdOptions): t.StdError[] | undefined {
     if (!Array.isArray(options.errors)) return undefined;
     return options.errors.map((err) => Err.std(err));
   },

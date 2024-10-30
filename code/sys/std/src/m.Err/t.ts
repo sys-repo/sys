@@ -1,18 +1,6 @@
 import type { t } from '../common.ts';
 
-/**
- * Options passed to the `ErrLib.stdErr` method.
- */
-export type ErrStdErrorOptions = {
-  /* The name/type of this error. */
-  name?: string;
-
-  /* A sub-error that represents the cause of this error. */
-  cause?: unknown;
-
-  /* A list of errors when creating an Aggregate error. */
-  errors?: (t.StdError | unknown)[];
-};
+export type StdErrGeneratorInput = unknown;
 
 /**
  * Helpers for working with errors.
@@ -24,7 +12,26 @@ export type ErrLib = {
   /**
    * Take unknown input and produce a standard error object.
    */
-  std(input: unknown, options?: t.ErrStdErrorOptions | string): t.StdError;
+  std(input: StdErrGeneratorInput, options?: t.ErrStdOptions | string): t.StdError;
+
+  /**
+   * Create a new error collection builder.
+   */
+  errors(): t.ErrorCollection;
+};
+
+/**
+ * Options passed to the `ErrLib.stdErr` method.
+ */
+export type ErrStdOptions = {
+  /* The name/type of this error. */
+  name?: string;
+
+  /* A sub-error that represents the cause of this error. */
+  cause?: unknown;
+
+  /* A list of errors when creating an Aggregate error. */
+  errors?: (t.StdError | unknown)[];
 };
 
 /**
@@ -65,4 +72,30 @@ export type ErrIs = {
    * (aka. it has a [errors] array).
    */
   aggregate(input: unknown): input is t.StdError;
+};
+
+/**
+ * ErrorCollection
+ *
+ * A builder that let's a number of errors be built up
+ * during the course of a method, and then resolve into
+ * a single StdError.
+ */
+export type ErrorCollection = {
+  /* The list of errors. */
+  readonly items: ReadonlyArray<t.StdError>;
+
+  /* Boolean flags. */
+  readonly is: { readonly empty: boolean };
+
+  /* Add a new error. */
+  add(error: StdErrGeneratorInput): ErrorCollection;
+
+  /**
+   * Resolve the collection of errors to either
+   *  - no error (undefined) when empty,
+   *  - a single StdError,
+   *  - or an single Aggregate error containing the collection as child errors.
+   */
+  toError(pluralMessage?: string): t.StdError | undefined;
 };
