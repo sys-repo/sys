@@ -111,6 +111,18 @@ describe('Fs: filesystem', () => {
       expect(a).to.eql(false);
       expect(b).to.eql(false);
     });
+
+    it('stress', async () => {
+      const sample = await testSetup();
+      expect(await sample.dirExists()).to.eql(true);
+
+      const wait = Array.from({ length: 10 }).map(async () => {
+        await Fs.remove(sample.path.dir);
+        expect(await sample.dirExists()).to.eql(false);
+      });
+
+      await Promise.all(wait);
+    });
   });
 
   describe('Fs.readJsonFile', () => {

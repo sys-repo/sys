@@ -16,7 +16,15 @@ export const remove: t.FsRemove = async (path, options = {}) => {
   }
 
   if (!targetExists) return false;
-  await Deno.remove(path, { recursive: true });
-  if (options.log) console.info(`${c.cyan('deleted')} ${c.white(path)}`);
-  return true;
+  try {
+    await Deno.remove(path, { recursive: true });
+    if (options.log) console.info(`${c.cyan('deleted')} ${c.white(path)}`);
+    return true;
+  } catch (error: any) {
+    if (error instanceof Deno.errors.NotFound) {
+      return false; // NB: failure ignored - we are in the final desired state of no file.
+    } else {
+      throw error; // Re-throw the error to let the caller handle it.
+    }
+  }
 };
