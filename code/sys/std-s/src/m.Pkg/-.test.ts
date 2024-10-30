@@ -37,6 +37,7 @@ describe('Pkg (Server Tools)', () => {
 
   describe('Pkg.Dist', () => {
     const renderDist = (dist: t.DistPkg) => {
+      console.info();
       console.info('🌳');
       console.info(`JSON via Pkg.Dist.compute:`);
       console.info(`/dist/dist.json:`);
