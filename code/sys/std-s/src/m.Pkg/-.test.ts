@@ -1,6 +1,5 @@
-import { type t, describe, expect, Fs, it, pkg } from '../-test.ts';
-import { slug } from '../common.ts';
-import { Hash } from './common.ts';
+import { type t, c, describe, expect, Fs, it, pkg, Path } from '../-test.ts';
+import { R, Hash } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -45,8 +44,8 @@ describe('Pkg (Server Tools)', () => {
     const renderDist = (dist: t.DistPkg) => {
       console.info();
       console.info('🌳');
-      console.info(`JSON via Pkg.Dist.compute:`);
-      console.info(`/dist/dist.json:`);
+      console.info(`JSON via ${c.magenta('Pkg.Dist.compute')}:`);
+      console.info(c.gray(`/dist/dist.json:`));
       console.info();
       console.info(dist);
       console.info();
@@ -151,35 +150,56 @@ describe('Pkg (Server Tools)', () => {
     describe('Dist.verify', () => {
       it('validate: is valid', async () => {
         await SAMPLE_FILE.dist.ensure();
-        const res = await Pkg.Dist.verify(SAMPLE_PATH.dir);
+        const dir = SAMPLE_PATH.dir;
 
-        expect(res.exists).to.eql(true);
-        expect(res.dist?.pkg).to.eql(pkg);
-        expect(res.is.valid).to.eql(true);
-        expect(res.is.unknown).to.eql(false);
+        const test = async (hashInput?: t.StringHash | t.CompositeHash) => {
+          const res = await Pkg.Dist.verify(dir, hashInput);
+          expect(res.exists).to.eql(true);
+          expect(res.is.valid).to.eql(true);
+          expect(res.dist?.pkg).to.eql(pkg);
+        };
 
-        /**
-         * Test multiple inputs:
-         */
-        const a = await Pkg.Dist.verify(SAMPLE_PATH.dir);
-        // const b = await Pkg.Dist.validate(SAMPLE_PATH.dir, "path/to/dist.json");
-        // const c = await Pkg.Dist.validate(SAMPLE_PATH.dir, {DistPkg});
+        await test();
+        await test('./dist.json');
+
+        const path = Path.join(dir, 'dist.json');
+        await test(path); // absolute path (anywhere).
+        await test((await Dist.load(path)).dist?.hash);
       });
 
-      /**
-       * TODO 🐷
-       * - not valid (change/break the pkg dir)
-       * - optionally pass in the {DistPkg} as a second param.
-       *   scenario: independent check of {DistPkg} hashses sent through secondary channel
-       * - copy
-       */
+      it('validate: not valid (pass in "man in the middle" attacked state)', async () => {
+        await SAMPLE_FILE.dist.ensure();
+        const dir = SAMPLE_PATH.dir;
+
+        const test = async (
+          expectedValid: boolean,
+          mutate?: (hash: t.DeepMutable<t.CompositeHash>) => void,
+        ) => {
+          const dist = (await Pkg.Dist.compute({ dir })).dist;
+          const hash = R.clone(dist.hash);
+          mutate?.(hash); // ← (test manipulation) setup test conditions.
+
+          const verification = await Pkg.Dist.verify(SAMPLE_PATH.dir, hash);
+          expect(verification.is.valid).to.eql(expectedValid);
+        };
+
+        await test(true);
+        await test(false, (hash) => {
+          /**
+           * NB: (test scenario): mutate the hash
+           *
+           *     Simulate a state after a "man-in-the-middle" style attack has
+           *     occured, where the {hash} manifest, and the actual files differ.
+           */
+          hash.digest = `sha🐷-${'0'.repeat(60)}💥`;
+        });
+      });
 
       it('404: target dir does not exist', async () => {
         const res = await Pkg.Dist.verify('404_foobar');
         expect(res.exists).to.eql(false);
         expect(res.dist).to.eql(undefined);
         expect(res.error?.message).to.include('does not exist');
-        expect(res.is.unknown).to.eql(true);
         expect(res.is.valid).to.eql(undefined); // Falsy.
       });
 
@@ -189,7 +209,6 @@ describe('Pkg (Server Tools)', () => {
         expect(res.exists).to.eql(false);
         expect(res.dist).to.eql(undefined);
         expect(res.error?.message).to.include('does not exist');
-        expect(res.is.unknown).to.eql(true);
         expect(res.is.valid).to.eql(undefined); // Falsy.
       });
     });

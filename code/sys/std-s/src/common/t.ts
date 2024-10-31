@@ -1,5 +1,6 @@
 export type {
   CompositeHash,
+  DeepMutable,
   Disposable,
   DisposeAsyncEvent,
   DistPkg,
