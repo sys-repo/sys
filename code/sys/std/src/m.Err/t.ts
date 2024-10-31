@@ -91,7 +91,7 @@ export type ErrorCollection = {
   readonly is: { readonly empty: boolean };
 
   /** Add a new error. */
-  add(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
+  push(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
 
   /**
    * Resolve the collection of errors to either

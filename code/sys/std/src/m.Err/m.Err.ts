@@ -65,7 +65,7 @@ export const Err: t.ErrLib = {
         const empty = set.size === 0;
         return { empty };
       },
-      add(input) {
+      push(input) {
         const items = Array.isArray(input) ? input : [input];
         items.forEach((err) => set.add(Err.std(err)));
         return api;
