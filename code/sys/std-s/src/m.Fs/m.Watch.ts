@@ -1,4 +1,4 @@
-import { type t, rx, asArray, exists, Err } from './common.ts';
+import { type t, asArray, Err, exists, rx } from './common.ts';
 
 export const Watch: t.FsWatchLib = {
   async start(pathInput, options = {}) {
@@ -8,28 +8,50 @@ export const Watch: t.FsWatchLib = {
     const life = rx.lifecycle(options.dispose$);
     const { dispose, dispose$ } = life;
 
-    // Ensure the watch paths exist.
+    const $$ = rx.subject<t.FsWatchEvent>();
+    const $ = $$.pipe(rx.takeUntil(dispose$));
+
+    let _watcher: Deno.FsWatcher | undefined;
+    dispose$.subscribe(() => _watcher?.close());
+
     const exists = await wrangle.exists(paths);
     if (!exists.ok) {
       exists.paths
         .filter((e) => !e.exists)
-        .forEach((e) => errors.push(`Watch path does not exist: ${e.path}`));
+        .forEach((e) => errors.push(`Path to watch does not exist: ${e.path}`));
+    }
+
+    const listen = async (watcher: Deno.FsWatcher) => {
+      try {
+        for await (const event of watcher) {
+          $$.next({ ...event });
+        }
+      } catch (error) {
+        errors.push(Err.std(`Error while watching file-system`, { cause: error }));
+      }
+    };
+
+    if (exists.ok) {
+      _watcher = Deno.watchFs(paths, { recursive });
+      listen(_watcher);
     }
 
     /**
      * API
      */
     const api: t.FsWatcher = {
-      paths,
-
+      get $() {
+        return $;
+      },
+      get paths() {
+        return paths;
+      },
       get exists() {
         return exists.ok;
       },
-
       get is() {
         return { recursive };
       },
-
       get error() {
         return errors.toError('Several errors occured while watching file-system paths.');
       },
@@ -38,7 +60,9 @@ export const Watch: t.FsWatchLib = {
       dispose,
 
       /** Lifecycle: observable that fires when the watcher disposes. */
-      dispose$,
+      get dispose$() {
+        return dispose$;
+      },
 
       /** Lifecycle: flag indicating if the watcher has been disposed. */
       get disposed() {

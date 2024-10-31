@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
+import { Time, describe, expect, it } from '../-test.ts';
 import { sampleDir } from './-u.ts';
-import { rx } from './common.ts';
+import { type t, rx, slug } from './common.ts';
 import { Watch } from './m.Watch.ts';
 import { Fs } from './mod.ts';
 
@@ -45,7 +45,7 @@ describe('Fs.Watch', () => {
         const path = '404_foobar';
         const watcher = await Fs.watch(path);
         expect(watcher.exists).to.eql(false);
-        expect(watcher.error?.message).to.includes('Watch path does not exist');
+        expect(watcher.error?.message).to.includes('Path to watch does not exist');
         expect(watcher.error?.message).to.includes(path);
         watcher.dispose();
       });
@@ -72,5 +72,81 @@ describe('Fs.Watch', () => {
     });
   });
 
+  describe('⚡️ change events', () => {
+    type E = t.FsWatchEvent;
+
+    it('fires on change', async () => {
+      const [dir] = await SAMPLE.ensureExists();
+      await Time.wait(30);
+
+      const watcher = await Fs.watch(dir);
+      const fired: E[] = [];
+      watcher.$.subscribe((e) => fired.push(e));
+      expect(fired.length).to.eql(0);
+
+      const path = SAMPLE.uniq();
+      await Deno.writeTextFile(path, slug());
+      await Time.wait(30);
+
+      expect(fired.length).to.eql(2);
+      expect(fired.map((e) => e.kind)).to.eql(['create', 'modify']);
+
+      watcher.dispose();
+    });
+
+    it('recursive', async () => {
+      const test = async (recursive: boolean, expectEvents: number) => {
+        const [dir] = await SAMPLE.ensureExists();
+        const childDir = Fs.join(dir, 'foo', 'bar');
+        const childFile = Fs.join(childDir, 'file.txt');
+        const writeChild = () => Deno.writeTextFile(childFile, `foo-${slug()}\n`);
+        await Fs.ensureDir(childDir);
+        await writeChild();
+        await Time.wait(30); // Allow setup to complete before catching events.
+
+        const watcher = await Fs.watch(dir, { recursive });
+        const fired: E[] = [];
+        watcher.$.subscribe((e) => fired.push(e));
+        expect(fired).to.eql([]);
+
+        await writeChild();
+        await Time.wait(30);
+        expect(fired.length).to.eql(expectEvents);
+        watcher.dispose();
+      };
+
+      await test(true, 3);
+      await test(false, 0); // NB: non-recusive, the child-file will not trigger.
+    });
+
+    it('multiple paths', async () => {
+      const uniq = SAMPLE.uniq;
+      const [, d1, d2, d3] = await SAMPLE.ensureExists(uniq('d1'), uniq('d2'), uniq('d3'));
+      await Time.wait(30); // Allow setup to complete before catching events.
+
+      const watcher = await Fs.watch([d1, d2]);
+      const fired: E[] = [];
+      watcher.$.subscribe((e) => fired.push(e));
+      expect(fired).to.eql([]);
+
+      // Changes to watched dirs.
+      const file1 = Fs.join(d1, 'file.txt');
+      const file2 = Fs.join(d2, 'file.txt');
+      const file3 = Fs.join(d3, 'file.txt');
+
+      await Deno.writeTextFile(file1, slug());
+      await Deno.writeTextFile(file2, slug());
+      await Time.wait(30);
+
+      expect(fired.length).to.eql(4);
+      expect(fired.map((e) => e.kind)).to.eql(['create', 'modify', 'create', 'modify']);
+
+      // Write the the non-monitored path.
+      await Deno.writeTextFile(file3, slug());
+      await Time.wait(30);
+      expect(fired.length).to.eql(4); // NB: no-change
+
+      watcher.dispose();
+    });
   });
 });

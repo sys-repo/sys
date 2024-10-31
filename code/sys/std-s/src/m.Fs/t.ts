@@ -1,6 +1,6 @@
+import type { FormatOptions } from '@std/fmt/bytes';
 import type * as StdFs from '@std/fs';
 import type * as StdPath from '@std/path';
-import type { FormatOptions } from '@std/fmt/bytes';
 
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
@@ -197,6 +197,8 @@ export type FsWatchLib = {
  * A live file-system watcher.
  */
 export type FsWatcher = t.Lifecycle & {
+  readonly $: t.Observable<t.FsWatchEvent>;
+
   /** The paths being wathced. */
   readonly paths: t.StringPath[];
 
@@ -209,3 +211,6 @@ export type FsWatcher = t.Lifecycle & {
   /** Error(s) that may have occured during setup or while watching. */
   readonly error?: t.StdError;
 };
+
+/** An event fired by a watched file-system location. */
+export type FsWatchEvent = Deno.FsEvent;
