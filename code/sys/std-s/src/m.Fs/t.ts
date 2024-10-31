@@ -20,6 +20,9 @@ export type FsLib = StdMethods & {
   /** Tools for calculating file sizes. */
   readonly Size: t.FsSizeLib;
 
+  /** Tools for watching file-system changes. */
+  readonly Watch: t.FsWatchLib;
+
   /** Retrieve information about the given path. */
   readonly stat: t.FsGetStat;
 
@@ -32,23 +35,14 @@ export type FsLib = StdMethods & {
   /** Remove a file or directory if it exists. */
   readonly remove: t.FsRemove;
 
-  /**
-   * Asynchronously reads and returns the entire contents of
-   *  a file as strongly-type JSON.
-   *
-   */
+  /** Asynchronously reads and returns the entire contents of a file as strongly-type JSON. */
   readonly readJson: t.FsReadJson;
 
-  /**
-   * Recursively walks through a directory and yields information about
-   * each file and directory encountered.
-   */
-  readonly walk: typeof StdFs.walk;
-
-  /**
-   * Recursively walk up a directory tree (visitor pattern).
-   */
+  /** Recursively walk up a directory tree (visitor pattern). */
   readonly walkUp: t.FsWalkUp;
+
+  /** Start a file-system watcher */
+  readonly watch: t.FsWatchLib['start'];
 };
 
 /** Methods from the `@std` libs. */
@@ -70,6 +64,9 @@ type StdMethods = {
 
   /** Asynchronously ensures that the directory exists, like `mkdir -p.` */
   readonly ensureDir: typeof StdFs.ensureDir;
+
+  /** Recursively walks through a directory and yields information about each file and directory encountered. */
+  readonly walk: typeof StdFs.walk;
 };
 
 /**
@@ -184,4 +181,31 @@ export type FsDirSize = {
   readonly path: t.StringDir;
   readonly total: { files: number; bytes: number };
   toString(options?: FormatOptions): string;
+};
+
+/**
+ * Tools for watching file-system changes.
+ */
+export type FsWatchLib = {
+  start(
+    paths: t.StringPath | t.StringPath[],
+    options?: { recursive?: boolean; dispose$?: t.UntilObservable },
+  ): Promise<t.FsWatcher>;
+};
+
+/**
+ * A live file-system watcher.
+ */
+export type FsWatcher = t.Lifecycle & {
+  /** The paths being wathced. */
+  readonly paths: t.StringPath[];
+
+  /** Flag indicating if all the watched paths exist. */
+  readonly exists: boolean;
+
+  /** Flags */
+  readonly is: { readonly recursive?: boolean };
+
+  /** Error(s) that may have occured during setup or while watching. */
+  readonly error?: t.StdError;
 };
