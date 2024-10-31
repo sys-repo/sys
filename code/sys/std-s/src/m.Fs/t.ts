@@ -8,94 +8,34 @@ import type { t } from './common.ts';
 export type { WalkEntry };
 
 /**
- * Filesystem/Path type verification flags.
- */
-export type FsIsLib = t.PathLib['Is'] & {
-  /** Determine if the given path points to a directory. */
-  dir(path: t.StringPath | URL): Promise<boolean>;
-};
-
-/**
- * Library: helpers for working with resource paths with the existence of the server FS tools.
- */
-export type FsPathLib = t.PathLib & {
-  /** Convert the path to it's parent directory if it is not already a directory target. */
-  asDir(path: t.StringPath): Promise<string>;
-};
-
-/**
  * Tools for working with the file-system.
  */
-export type FsLib = {
-  /**
-   * Helpers for working with resource paths.
-   */
+export type FsLib = StdMethods & {
+  /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 
-  /**
-   * Filesystem/Path type verification flags.
-   */
+  /** Filesystem/Path type verification flags. */
   readonly Is: t.FsIsLib;
 
-  /**
-   * Tools for calculating file sizes.
-   */
+  /** Tools for calculating file sizes. */
   readonly Size: t.FsSizeLib;
 
-  /**
-   * Retrieve information about the given path.
-   */
+  /** Retrieve information about the given path. */
   readonly stat: t.FsGetStat;
 
-  /**
-   * Joins a sequence of paths, then normalizes the resulting path.
-   */
-  readonly join: typeof StdPath.join;
-
-  /**
-   * Resolves path segments into a path.
-   */
-  readonly resolve: typeof StdPath.resolve;
-
-  /**
-   * Return the directory path of a path.
-   */
-  readonly dirname: typeof StdPath.dirname;
-
-  /**
-   * Return the last portion of a path.
-   */
-  readonly basename: typeof StdPath.basename;
-
-  /**
-   * Factory for a glob helper.
-   */
+  /** Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 
-  /**
-   * Asynchronously test whether or not the given path exists
-   * by checking with the file system.
-   */
-  readonly exists: typeof StdFs.exists;
-
-  /**
-   * Asynchronously ensures that the directory exists, like `mkdir -p.`
-   */
-  readonly ensureDir: typeof StdFs.ensureDir;
-
-  /**
-   * Copy all files in a directory.
-   */
+  /** Copy all files in a directory. */
   readonly copyDir: t.FsCopyDir;
 
-  /**
-   * Remove a file or directory if it exists.
-   */
+  /** Remove a file or directory if it exists. */
   readonly remove: t.FsRemove;
 
   /**
-   * Asynchronously reads and returns the entire contents of a
-   * file as strongly-type JSON.
+   * Asynchronously reads and returns the entire contents of
+   *  a file as strongly-type JSON.
+   *
    */
   readonly readJson: t.FsReadJson;
 
@@ -109,6 +49,43 @@ export type FsLib = {
    * Recursively walk up a directory tree (visitor pattern).
    */
   readonly walkUp: t.FsWalkUp;
+};
+
+/** Methods from the `@std` libs. */
+type StdMethods = {
+  /** Joins a sequence of paths, then normalizes the resulting path. */
+  readonly join: typeof StdPath.join;
+
+  /** Resolves path segments into a path. */
+  readonly resolve: typeof StdPath.resolve;
+
+  /** Return the directory path of a path. */
+  readonly dirname: typeof StdPath.dirname;
+
+  /** Return the last portion of a path. */
+  readonly basename: typeof StdPath.basename;
+
+  /** Asynchronously test whether or not the given path exists by checking with the file system. */
+  readonly exists: typeof StdFs.exists;
+
+  /** Asynchronously ensures that the directory exists, like `mkdir -p.` */
+  readonly ensureDir: typeof StdFs.ensureDir;
+};
+
+/**
+ * Filesystem/Path type verification flags.
+ */
+export type FsIsLib = t.PathLib['Is'] & {
+  /** Determine if the given path points to a directory. */
+  dir(path: t.StringPath | URL): Promise<boolean>;
+};
+
+/**
+ * Library: helpers for working with resource paths with the existence of the server FS tools.
+ */
+export type FsPathLib = t.PathLib & {
+  /** Convert the path to it's parent directory if it is not already a directory target. */
+  asDir(path: t.StringPath): Promise<string>;
 };
 
 /**
