@@ -108,7 +108,7 @@ describe('Fs.Watch', () => {
         const [dir] = await SAMPLE.ensureExists();
         const childDir = Fs.join(dir, 'foo', 'bar');
         const childFilepath = Fs.join(childDir, 'file.txt');
-        const writeChild = () => Deno.writeTextFile(childFilepath, `foo-${slug()}\n`);
+        const writeChild = () => Deno.writeTextFile(childFilepath, slug());
         await Fs.ensureDir(childDir);
         await writeChild();
         await Time.wait(100); // Allow setup to complete before catching events.

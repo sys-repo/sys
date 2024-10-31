@@ -21,10 +21,21 @@ export const Watch: t.FsWatchLib = {
         .forEach((e) => errors.push(`Path to watch does not exist: ${e.path}`));
     }
 
+    const isPathWithinScope = (subjects: t.StringPath[]) => {
+      // NB: the {recursive} flat does not work consistently across all OS's.
+      for (const subject of subjects) {
+        for (const path of paths) {
+          if (subject.startsWith(path)) return true;
+        }
+      }
+
+      return false;
+    };
+
     const listen = async (watcher: Deno.FsWatcher) => {
       try {
-        for await (const event of watcher) {
-          $$.next({ ...event });
+        for await (const e of watcher) {
+          if (isPathWithinScope(e.paths)) $$.next({ ...e });
         }
       } catch (error) {
         errors.push(Err.std(`Error while watching file-system`, { cause: error }));
