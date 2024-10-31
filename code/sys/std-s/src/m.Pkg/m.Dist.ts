@@ -1,11 +1,7 @@
 import { Pkg } from '@sys/std/pkg';
 import { type t, Delete, Err, Fs, Hash, R } from './common.ts';
 
-export const Dist: t.PkgDistLib = {
-  /**
-   * Prepare and save a "distribution package"
-   * meta-data file, `dist.json`.
-   */
+export const Dist: t.PkgDistSLib = {
   async compute(args) {
     const { dir, entry = '', save = false } = args;
     const pkg = args.pkg ?? Pkg.unknown();
@@ -26,15 +22,15 @@ export const Dist: t.PkgDistLib = {
     /**
      * Prepare the "distributeion-package" json.
      */
-    const hash = exists ? await wrangle.hashes(dir) : { pkg: '', files: {} };
-    const bytes = await wrangle.bytes(dir, Object.keys(hash.files));
+    const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
+    const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
     const size: t.DistPkg['size'] = { bytes };
     const dist: t.DistPkg = { pkg, size, entry, hash };
 
     /**
      * Prepare response.
      */
-    const res = Delete.undefined<t.PkgSaveDistResponse>({ dir, exists, dist, error });
+    const res = Delete.undefined<t.PkgDistSComputeResponse>({ dir, exists, dist, error });
 
     /**
      * Save to the file-system.
@@ -68,7 +64,7 @@ export const Dist: t.PkgDistLib = {
     }
 
     // Finish up.
-    const res: t.PkgLoadDistResponse = {
+    const res: t.PkgDistSLoadResponse = {
       exists,
       path,
       dist,
@@ -81,7 +77,7 @@ export const Dist: t.PkgDistLib = {
    * Validate a folder with hash definitions of the distribution-package.
    */
   async validate(targetDir) {
-    type R = t.DistPkgValidationResponse;
+    type R = t.PkgDistSValidationResponse;
     const errors = Err.errors();
     const load = await Dist.load(targetDir);
     const { path, dist, exists } = load;
@@ -117,9 +113,8 @@ export const Dist: t.PkgDistLib = {
 const wrangle = {
   async hashes(path: t.StringDir) {
     const filter = (path: string) => path !== './dist.json';
-    const { hash, files } = await Hash.Dir.compute(path, { filter });
-    const res: t.DistPkgHashes = { pkg: hash, files };
-    return res;
+    const res = await Hash.Dir.compute(path, { filter });
+    return res.hash;
   },
 
   async bytes(dir: t.StringDir, files: t.StringFile[]) {

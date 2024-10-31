@@ -25,8 +25,8 @@ export const Is: t.PkgIs = {
     if (!Is.pkg(dist.pkg)) return false;
     return (
       typeof dist.entry === 'string' &&
-      typeof dist.hash.pkg === 'string' &&
-      isObject(dist.hash.files)
+      typeof dist.hash.digest === 'string' &&
+      isObject(dist.hash.parts)
     );
   },
 };

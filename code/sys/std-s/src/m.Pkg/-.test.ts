@@ -70,8 +70,8 @@ describe('Pkg (Server Tools)', () => {
         expect(res.dist.entry).to.eql(entry);
 
         const dirhash = await Hash.Dir.compute(dir, (p) => p !== './dist.json');
-        expect(res.dist.hash.pkg).to.eql(dirhash.hash);
-        expect(res.dist.hash.files).to.eql(dirhash.files);
+        expect(res.dist.hash.digest).to.eql(dirhash.hash.digest);
+        expect(res.dist.hash.parts).to.eql(dirhash.hash.parts);
       });
 
       it('{pkg} not passed → <unknown> package', async () => {
@@ -112,7 +112,7 @@ describe('Pkg (Server Tools)', () => {
         expect(res.dir).to.eql(dir);
         expect(res.dist.pkg).to.eql(pkg);
         expect(res.dist.entry).to.eql('');
-        expect(res.dist.hash).to.eql({ pkg: '', files: {} }); // NB: empty.
+        expect(res.dist.hash).to.eql({ digest: '', parts: {} }); // NB: empty.
       });
 
       it('error: path is not a directory', async () => {

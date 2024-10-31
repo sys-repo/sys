@@ -17,18 +17,7 @@ export type DistPkg = {
   entry: t.StringPath;
 
   /** Map of hashes of the binary contents of the package. */
-  hash: DistPkgHashes;
-};
-
-/**
- * The hashes of a ditribution-package.
- */
-export type DistPkgHashes = {
-  /** The overall hash of all file hashes (after they are sorted). */
-  pkg: t.StringHash;
-
-  /** Map of hashes mapped to the distribution-package's file paths. */
-  files: { [path: t.StringPath]: t.StringHash };
+  hash: t.CompositeHash;
 };
 
 /**

@@ -1,8 +1,8 @@
 export type {
+  CompositeHash,
   Disposable,
   DisposeAsyncEvent,
   DistPkg,
-  DistPkgHashes,
   IgnoredResponse,
   Index,
   Lifecycle,

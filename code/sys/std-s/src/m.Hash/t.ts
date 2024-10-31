@@ -35,13 +35,10 @@ export type HashDir = {
   exists: boolean;
 
   /** Path to the base directory the relative filepath hashes pertain to. */
-  base: t.StringDir;
+  dir: t.StringDir;
 
-  /** The overall hash of all file hashes (after they are sorted). */
-  hash: t.StringHash;
-
-  /** Map of hashes mapped to the file paths within the directory. */
-  files: { [path: t.StringPath]: t.StringHash };
+  /** The composite hash details. */
+  hash: t.CompositeHash;
 
   /** Error details if one occured. */
   error?: t.StdError;
