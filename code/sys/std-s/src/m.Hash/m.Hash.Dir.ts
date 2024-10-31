@@ -70,7 +70,7 @@ export const Dir: t.HashDirLib = {
     const res: t.HashDirVerifyResponse = {
       exists,
       dir,
-      hash: Hash.Composite.toComposite(hash ?? Hash.Composite.empty()),
+      hash: wrangle.hash(hash),
       is: { valid: undefined },
     };
 
@@ -102,5 +102,10 @@ const wrangle = {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;
+  },
+
+  hash(input?: t.CompositeHash) {
+    const hash = input ?? Hash.Composite.toComposite();
+    return Hash.Composite.toComposite(hash);
   },
 } as const;

@@ -6,10 +6,6 @@ type BuildOptionsInput = t.CompositeHashBuildOptions | t.CompositeHashBuildOptio
 type VerifyOptionsInput = t.CompositeHashVerifyOptions | t.HashVerifyLoader;
 
 export const CompositeHash: t.CompositeHashLib = {
-  empty() {
-    return { digest: '', parts: {} };
-  },
-
   toComposite(input) {
     if (!input) return { digest: '', parts: {} };
     return Is.compositeBuilder(input) ? input.toObject() : input;
@@ -74,7 +70,10 @@ export const CompositeHash: t.CompositeHashLib = {
 
     const res: t.HashVerifyResponse = {
       is: { valid: undefined },
-      hash: { a: CompositeHash.toComposite(hash), b: CompositeHash.empty() },
+      hash: {
+        a: CompositeHash.toComposite(hash),
+        b: CompositeHash.toComposite(), // NB: empty.
+      },
     };
 
     /**

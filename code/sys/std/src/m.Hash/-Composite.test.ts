@@ -11,13 +11,6 @@ describe('hash', () => {
       expect(Hash.composite).to.equal(CompositeHash.builder);
     });
 
-    it('empty', () => {
-      const a = Hash.Composite.empty();
-      const b = Hash.Composite.empty();
-      expect(a).to.eql({ digest: '', parts: {} });
-      expect(a).to.not.equal(b);
-    });
-
     it('toComposite', () => {
       const builder = Hash.composite().add('foo', '1234');
       const a = CompositeHash.toComposite(builder);

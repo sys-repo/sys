@@ -7,10 +7,7 @@ export type CompositeHashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
  * Tools for building composite hashes.
  */
 export type CompositeHashLib = {
-  /** Generates an empty [CompositeHash] type. */
-  empty(): t.CompositeHash;
-
-  /** Create a new CompositeHash builder. */
+  /** Create a new Composite-Hash builder. */
   builder(options?: OptionsInput): t.CompositeHashBuilder;
 
   /** Calculate the composite hash (aka: "digest") of the given set of hashes after sorting. */
@@ -22,11 +19,14 @@ export type CompositeHashLib = {
     args: t.CompositeHashVerifyOptions | t.HashVerifyLoader,
   ): Promise<t.HashVerifyResponse>;
 
-  /** Wrangles an input to a concrete [CompositeHash] object/ */
+  /**
+   * Wrangles an input to a simple concrete Composite-Hash object.
+   * Pass nothing to retrieve an empty version of the structure.
+   */
   toComposite(input?: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
 };
 
-/** Options passed to the [CompositeHash].verify method. */
+/** Options passed to the Composite-Hash.verify method. */
 export type CompositeHashVerifyOptions = {
   /** Method for producing hashes. */
   hash?: CompositeHashAlgoInput;
@@ -39,7 +39,7 @@ export type CompositeHashVerifyOptions = {
 export type HashVerifyLoader = (e: HashVerifyLoaderArgs) => Promise<Uint8Array | undefined | void>;
 export type HashVerifyLoaderArgs = { part: string };
 
-/** Response returned from [CompositeHash].verify method. */
+/** Response returned from Composite-Hash.verify method. */
 export type HashVerifyResponse = {
   is: { valid?: boolean };
 
@@ -50,7 +50,7 @@ export type HashVerifyResponse = {
   error?: t.StdError;
 };
 
-/** Options passed to the [CompositeHash].build method. */
+/** Options passed to the Composite-Hash.build method. */
 export type CompositeHashBuildOptions = {
   /** Method for producing hashes. */
   hash?: CompositeHashAlgoInput;
