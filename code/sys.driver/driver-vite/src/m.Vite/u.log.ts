@@ -53,11 +53,14 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       const cwd = Path.resolve();
       const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
+
+      const input = paths.input.slice(cwd.length);
+      const outDir = paths.outDir.slice(cwd.length);
       let text = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)}
-${c.gray(`input:    ${paths.input.slice(cwd.length)}`)}
-${c.gray(`output:   ${paths.outDir.slice(cwd.length)}`)}
+${c.gray(`in:       ${input}`)}
+${c.gray(`out:      ${outDir}/dist.json`)}
 `;
       text = text.trim();
       if (pkg) {
