@@ -77,7 +77,7 @@ describe('Fs.Watch', () => {
 
     it('fires on change', async () => {
       const [dir] = await SAMPLE.ensureExists();
-      await Time.wait(30);
+      await Time.wait(100);
 
       const watcher = await Fs.watch(dir);
       const fired: E[] = [];
@@ -102,7 +102,7 @@ describe('Fs.Watch', () => {
         const writeChild = () => Deno.writeTextFile(childFile, `foo-${slug()}\n`);
         await Fs.ensureDir(childDir);
         await writeChild();
-        await Time.wait(30); // Allow setup to complete before catching events.
+        await Time.wait(100); // Allow setup to complete before catching events.
 
         const watcher = await Fs.watch(dir, { recursive });
         const fired: E[] = [];
