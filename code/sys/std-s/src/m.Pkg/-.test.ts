@@ -148,10 +148,10 @@ describe('Pkg (Server Tools)', () => {
       });
     });
 
-    describe('Dist.validate', () => {
+    describe('Dist.verify', () => {
       it('validate: is valid', async () => {
         await SAMPLE_FILE.dist.ensure();
-        const res = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+        const res = await Pkg.Dist.verify(SAMPLE_PATH.dir);
 
         expect(res.exists).to.eql(true);
         expect(res.dist?.pkg).to.eql(pkg);
@@ -161,7 +161,7 @@ describe('Pkg (Server Tools)', () => {
         /**
          * Test multiple inputs:
          */
-        const a = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+        const a = await Pkg.Dist.verify(SAMPLE_PATH.dir);
         // const b = await Pkg.Dist.validate(SAMPLE_PATH.dir, "path/to/dist.json");
         // const c = await Pkg.Dist.validate(SAMPLE_PATH.dir, {DistPkg});
       });
@@ -175,7 +175,7 @@ describe('Pkg (Server Tools)', () => {
        */
 
       it('404: target dir does not exist', async () => {
-        const res = await Pkg.Dist.validate('404_foobar');
+        const res = await Pkg.Dist.verify('404_foobar');
         expect(res.exists).to.eql(false);
         expect(res.dist).to.eql(undefined);
         expect(res.error?.message).to.include('does not exist');
@@ -185,7 +185,7 @@ describe('Pkg (Server Tools)', () => {
 
       it('404: target dir does not contain a {dist.json}', async () => {
         await SAMPLE_FILE.dist.delete();
-        const res = await Pkg.Dist.validate(SAMPLE_PATH.dir);
+        const res = await Pkg.Dist.verify(SAMPLE_PATH.dir);
         expect(res.exists).to.eql(false);
         expect(res.dist).to.eql(undefined);
         expect(res.error?.message).to.include('does not exist');
