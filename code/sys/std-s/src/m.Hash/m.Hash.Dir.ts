@@ -14,22 +14,17 @@ export const Dir: t.HashDirLib = {
       if (!isDir) {
         res.error = Err.std('Path is not a directory.');
       } else {
-        const orderedHashes: t.StringHash[] = [];
+        const builder = Hash.composite();
         const paths = (await Fs.glob(base).find('**'))
           .filter((m) => m.isFile)
           .map((m) => m.path.substring(base.length + 1))
           .map((m) => `./${m}`)
-          .filter((m) => (filter ? filter(m) : true))
-          .sort();
-
+          .filter((m) => (filter ? filter(m) : true));
         for (const path of paths) {
-          const data = await Deno.readFile(Fs.join(base, path));
-          const hash = Hash.sha256(data);
-          orderedHashes.push(hash);
-          res.files[path] = hash;
+          builder.add(path, await Deno.readFile(Fs.join(base, path)));
         }
-
-        res.hash = Hash.sha256(orderedHashes.join('\n'));
+        res.files = builder.parts;
+        res.hash = builder.digest;
       }
     }
 
