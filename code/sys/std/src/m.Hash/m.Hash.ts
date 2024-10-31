@@ -9,7 +9,7 @@ export { sha1, sha256 };
 export const Hash: t.HashLib = {
   Is,
   Composite,
-  composite: Composite.build,
+  composite: Composite.builder,
 
   sha1,
   sha256,

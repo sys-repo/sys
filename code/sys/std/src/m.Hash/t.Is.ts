@@ -10,6 +10,11 @@ export type HashIsLib = {
   composite(input: unknown): input is t.CompositeHash;
 
   /**
+   * Determine if the given object is a [CompositeHashBuilder]
+   */
+  compositeBuilder(input: unknown): input is t.CompositeHashBuilder;
+
+  /**
    * Determine if the hash input is empty.
    */
   empty(input: t.HashInput): boolean;

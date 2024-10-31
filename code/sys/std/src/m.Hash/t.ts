@@ -42,11 +42,9 @@ export type HashLib = {
   shorten(hash: string, length: number | [number, number], options?: t.ShortenHashOptions): string;
 
   /** Create a new `CompositeHash` builder. */
-  composite: t.CompositeHashLib['create'];
+  composite: t.CompositeHashLib['builder'];
 
-  /**
-   * Resolve the various hash inputs into a single top-level hash value.
-   */
+  /** Resolve the various hash inputs into a single top-level hash value. */
   toString(input?: t.HashInput): string;
 };
 
