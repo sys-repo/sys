@@ -70,7 +70,7 @@ export type PkgDistLoadResponse = {
  * Response to a `Pkg.Dist.verify` method call.
  */
 export type PkgDistVerifyResponse = {
-  is: { valid?: boolean; unknown: boolean };
+  is: t.HashVerifyResponse['is'];
   exists: boolean;
   dist?: t.DistPkg;
   error?: t.StdError;

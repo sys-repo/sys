@@ -1,5 +1,5 @@
 import { Pkg } from '@sys/std/pkg';
-import { type t, Delete, Err, Fs, Hash, R } from './common.ts';
+import { type t, Delete, Err, Fs, Hash } from './common.ts';
 
 export const Dist: t.PkgDistLib = {
   async compute(args) {
@@ -76,33 +76,33 @@ export const Dist: t.PkgDistLib = {
   /**
    * Verify a folder with hash definitions of the distribution-package.
    */
-  async verify(dir) {
+  async verify(dir, hash) {
     type R = t.PkgDistVerifyResponse;
     const errors = Err.errors();
-    const load = await Dist.load(dir);
-    const { path, dist, exists } = load;
-    const is: R['is'] = { valid: undefined, unknown: true };
+    const loaded = await Dist.load(dir);
+    const { path, dist, exists } = loaded;
     if (!exists) {
-      errors.push(load.error);
+      errors.push(loaded.error);
     }
+
+    const res: R = {
+      exists,
+      dist,
+      is: { valid: undefined },
+      error: errors.toError(),
+    };
 
     /**
      * Perform the validation checks.
      */
     if (exists && dist) {
       const dir = Fs.dirname(path);
-      const current = await Dist.compute({ dir });
-      is.valid = R.equals(dist.hash, current.dist.hash);
+      const distfile = Fs.join(dir, 'dist.json');
+      const verification = await Hash.Dir.verify(dir, hash ?? distfile);
+      res.is = verification.is;
     }
 
     // Finish up.
-    is.unknown = typeof is.valid !== 'boolean';
-    const res: R = {
-      exists,
-      is,
-      dist,
-      error: errors.toError(),
-    };
     return res;
   },
 };
