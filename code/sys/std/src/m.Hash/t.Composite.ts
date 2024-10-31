@@ -6,7 +6,7 @@ export type HashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
 /** Loose input type for options passed to Composite-Hash builder creation method. */
 export type CompositeHashBuilderOptionsInput =
   | t.CompositeHashBuildOptions
-  | t.CompositeHashBuildOptions['hash'];
+  | t.CompositeHashBuildOptions['algo'];
 
 /** Loose input type for options passed to Composite-Hash digest method. */
 export type CompositeHashDigestOptionsInput = t.CompositeHashBuildOptions;
@@ -43,7 +43,7 @@ export type CompositeHashLib = {
 /** Options passed to the Composite-Hash.verify method. */
 export type CompositeHashVerifyOptions = {
   /** Method for producing hashes. */
-  hash?: t.HashAlgoInput;
+  algo?: t.HashAlgoInput;
 
   /** Loader to retrieve the data to hash and compare. */
   loader: t.HashVerifyLoader;
@@ -67,7 +67,10 @@ export type HashVerifyResponse = {
 /** Options passed to the Composite-Hash.build method. */
 export type CompositeHashBuildOptions = {
   /** Method for producing hashes. */
-  hash?: HashAlgoInput;
+  algo?: HashAlgoInput;
+
+  /** Initial items to add. */
+  initial?: { key: string; value: unknown }[];
 };
 
 /**
@@ -76,6 +79,9 @@ export type CompositeHashBuildOptions = {
 export type CompositeHashBuilder = t.CompositeHash & {
   /** The number of parts that make up the composite hash. */
   readonly length: number;
+
+  /** The algorithm the builder is using to calculate hashes. */
+  readonly algo: t.HashAlgoInput;
 
   /** Add a new hash to the set. */
   add(key: string, value: unknown): t.CompositeHashBuilder;

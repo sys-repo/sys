@@ -10,5 +10,12 @@ export type CompositeHash = {
   readonly digest: t.StringHash;
 
   /** The constituent parts that make up the hash. */
-  readonly parts: { readonly [key: string]: t.StringHash };
+  readonly parts: t.CompositeHashParts;
+};
+
+/**
+ * A map of the constituent parts that make up a Compsite-Hash digest.
+ */
+export type CompositeHashParts = {
+  readonly [key: string]: t.StringHash;
 };

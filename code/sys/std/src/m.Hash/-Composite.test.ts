@@ -1,4 +1,4 @@
-import { describe, expect, it, Time } from '../-test.ts';
+import { type t, describe, expect, it, Time } from '../-test.ts';
 import { CompositeHash, Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
@@ -38,6 +38,31 @@ describe('hash', () => {
         expect(a.digest).to.eql('');
         expect(a.parts).to.eql({});
         expect(a.length).to.eql(0);
+      });
+
+      it('create ← with {initial} items', () => {
+        const hash = Hash.composite({
+          initial: [
+            { key: 'foo', value: 1 },
+            { key: 'bar', value: 2 },
+          ],
+        });
+        expect(hash.length).to.eql(2);
+        expect(hash.parts['foo']).to.eql(Hash.sha256(1));
+        expect(hash.parts['bar']).to.eql(Hash.sha256(2));
+      });
+
+      it('{algo} parameter', () => {
+        const algo = () => '0x1234';
+        const a = Hash.composite();
+        const b = Hash.composite({ algo: 'sha1' });
+        const c = Hash.composite({ algo: 'sha256' });
+        const d = Hash.composite({ algo });
+
+        expect(a.algo).to.eql('sha256');
+        expect(b.algo).to.eql('sha1');
+        expect(c.algo).to.eql('sha256');
+        expect(d.algo).to.eql(algo);
       });
 
       it('add/remove', () => {
@@ -109,7 +134,7 @@ describe('hash', () => {
         it('sha256 (default)', () => {
           const a = Hash.sha256('a');
           const b = Hash.sha256('b');
-          const hash = Hash.composite({ hash: 'sha256' });
+          const hash = Hash.composite({ algo: 'sha256' });
           expect(hash.digest).to.eql('');
           hash.add('foo', 'a').add('bar', 'b');
           expect(hash.digest).to.eql(Hash.sha256([b, a].join('\n')));
@@ -155,7 +180,7 @@ describe('hash', () => {
         expect(res.error).to.eql(undefined);
       });
 
-      it('verify → not valid', async () => {
+      it('verify → NOT valid (subject data differs from {hash})', async () => {
         const { a, hash } = setup();
         const b = new Uint8Array([11, 22, 33]);
         const res = await CompositeHash.verify(hash, async (e) => {
@@ -168,6 +193,25 @@ describe('hash', () => {
         expect(res.hash.b).to.not.eql(hash.toObject());
         expect(res.is.valid).to.eql(false);
         expect(res.error).to.eql(undefined);
+      });
+
+      it('verify → NOT valid (different hash algoriths used)', async () => {
+        // NB: this test also proves the {hash:algo} parameter works.
+        const test = async (algo: t.HashAlgoInput) => {
+          const sample = setup();
+          const res = await CompositeHash.verify(sample.hash, {
+            algo,
+            async loader(e) {
+              await Time.wait(0);
+              if (e.part === './apple/a') return sample.a;
+              if (e.part === './zoo/b') return sample.b;
+            },
+          });
+          expect(res.is.valid).to.eql(false);
+        };
+
+        await test('sha1');
+        await test(() => '0x1234');
       });
 
       describe('errors', () => {

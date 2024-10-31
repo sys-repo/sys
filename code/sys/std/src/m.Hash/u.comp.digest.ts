@@ -6,5 +6,5 @@ export const digest: t.CompositeHashLib['digest'] = (parts, options = {}) => {
   Object.keys(parts)
     .sort()
     .forEach((key) => hashes.push(parts[key]));
-  return Wrangle.hash(hashes.join('\n'), options.hash);
+  return Wrangle.hash(hashes.join('\n'), options.algo);
 };
