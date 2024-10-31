@@ -1,4 +1,4 @@
-import { type t, asArray, Err, exists, rx } from './common.ts';
+import { type t, Path, asArray, Err, exists, rx } from './common.ts';
 
 export const Watch: t.FsWatchLib = {
   async start(pathInput, options = {}) {
@@ -23,13 +23,15 @@ export const Watch: t.FsWatchLib = {
 
     const isPathWithinScope = (subjects: t.StringPath[]) => {
       // NB: the {recursive} flat does not work consistently across all OS's.
-      for (const subject of subjects) {
-        for (const path of paths) {
-          if (subject.startsWith(path)) return true;
+      if (recursive) return true;
+
+      for (const path of paths) {
+        for (const subject of subjects) {
+          if (Path.dirname(subject) !== path) return false;
         }
       }
 
-      return false;
+      return true;
     };
 
     const listen = async (watcher: Deno.FsWatcher) => {
