@@ -10,6 +10,11 @@ export const CompositeHash: t.CompositeHashLib = {
     return { digest: '', parts: {} };
   },
 
+  toComposite(input) {
+    if (!input) return { digest: '', parts: {} };
+    return Is.compositeBuilder(input) ? input.toObject() : input;
+  },
+
   builder(input = {}) {
     const options = wrangle.builderOptions(input);
     const parts: { [key: string]: string } = {};
@@ -88,10 +93,6 @@ export const CompositeHash: t.CompositeHashLib = {
     res.error = errors.toError();
     res.is.valid = res.error ? false : R.equals(res.hash.a, res.hash.b);
     return res;
-  },
-
-  toComposite(input: t.CompositeHash | t.CompositeHashBuilder) {
-    return Is.compositeBuilder(input) ? input.toObject() : input;
   },
 };
 

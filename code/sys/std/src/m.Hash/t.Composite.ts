@@ -23,7 +23,7 @@ export type CompositeHashLib = {
   ): Promise<t.HashVerifyResponse>;
 
   /** Wrangles an input to a concrete [CompositeHash] object/ */
-  toComposite(input: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
+  toComposite(input?: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
 };
 
 /** Options passed to the [CompositeHash].verify method. */
