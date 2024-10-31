@@ -23,4 +23,5 @@
  * expect(a).to.eql(b)
  * ```
  */
+export { CompositeHash } from './m.Composite.ts';
 export { Hash, sha1, sha256 } from './m.Hash.ts';

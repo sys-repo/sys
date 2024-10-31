@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Hash } from './mod.ts';
+import { CompositeHash, Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
 circular.ref = circular;
@@ -162,6 +162,113 @@ describe('hash', () => {
         expect(res2).to.eql('123..890');
         expect(res3).to.eql('123..890');
         expect(res4).to.eql('sha..890');
+      });
+    });
+  });
+
+  describe('CompositeHash', () => {
+    it('API', () => {
+      expect(Hash.Composite).to.equal(CompositeHash);
+      expect(Hash.composite).to.equal(CompositeHash.create);
+    });
+
+    it('create', () => {
+      const a = Hash.composite();
+      const b = Hash.composite();
+      expect(a).to.not.equal(b); // NB: Different instances.
+      expect(a.digest).to.eql('');
+      expect(a.parts).to.eql({});
+      expect(a.length).to.eql(0);
+    });
+
+    it('add/remove', () => {
+      const hash = Hash.composite();
+      const b = Hash.sha256('b');
+      const c = Hash.sha256('c');
+
+      hash.add('foo', 'a').add('foo', 'b').add('bar', 'c');
+      expect(hash.length).to.eql(2);
+      expect(hash.parts).to.eql({
+        foo: b, // NB: replaced.
+        bar: c,
+      });
+
+      hash.remove('404').remove('foo');
+      expect(hash.length).to.eql(1);
+      expect(hash.parts).to.eql({ bar: c });
+    });
+
+    it('parts is immutable', () => {
+      const hash = Hash.composite().add('foo', '123456');
+      expect(hash.parts).to.not.equal(hash.parts); // NB: distinct instance on each call.
+    });
+
+    it('digest: defaults', () => {
+      const a = Hash.sha256('a');
+      const b = Hash.sha256('b');
+      const hash = Hash.composite();
+      expect(hash.digest).to.eql('');
+
+      hash.add('foo', 'a');
+      expect(hash.digest).to.eql(Hash.sha256([a].join('\n')));
+      expect(hash.digest).to.eql(Hash.Composite.digest(hash.parts));
+
+      hash.add('bar', 'b');
+      expect(hash.digest).to.eql(Hash.sha256([b, a].join('\n'))); // NB: sorted by key-name.
+      expect(hash.digest).to.eql(Hash.Composite.digest(hash.parts));
+      expect(hash.toString()).to.eql(hash.digest);
+
+      hash.remove('foo').remove('bar');
+      expect(hash.digest).to.eql('');
+    });
+
+    it.skip('toObject', () => {
+      const hash = Hash.composite();
+      const a = hash.toObject();
+      expect(a.digest).to.eql('');
+      expect(a.parts).to.eql({});
+
+      hash.add('foo', 'a').add('bar', 'b');
+
+      const b = hash.toObject();
+      expect(b.digest).to.eql(hash.digest);
+      expect(b.parts).to.eql(hash.parts);
+
+      expect((a as any).add).to.eql(undefined);
+    });
+
+    it('toString', () => {
+      const hash = Hash.composite();
+      expect(hash.toString()).to.eql('');
+
+      hash.add('foo', 'a').add('bar', 'b');
+      expect(hash.toString()).to.eql(hash.digest);
+    });
+
+    describe('alternative hash algorithms', () => {
+      it('sha256 (default)', () => {
+        const a = Hash.sha256('a');
+        const b = Hash.sha256('b');
+        const hash = Hash.composite({ hash: 'sha256' });
+        expect(hash.digest).to.eql('');
+        hash.add('foo', 'a').add('bar', 'b');
+        expect(hash.digest).to.eql(Hash.sha256([b, a].join('\n')));
+      });
+
+      it('sha1', () => {
+        const a = Hash.sha1('a');
+        const b = Hash.sha1('b');
+        const hash = Hash.composite({ hash: 'sha1' });
+        expect(hash.digest).to.eql('');
+        hash.add('foo', 'a').add('bar', 'b');
+        expect(hash.digest).to.eql(Hash.sha1([b, a].join('\n')));
+      });
+
+      it('toHash ← ƒ(n)', () => {
+        const h = Hash.composite({ hash: () => 'apple' });
+        expect(h.digest).to.eql('');
+        h.add('foo', 'abc').add('bar', 'def');
+        expect(h.digest).to.eql('apple');
       });
     });
   });
