@@ -1,13 +1,15 @@
 import { describe, expect, it, slug } from '../-test.ts';
+import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
+const SAMPLE = sampleDir();
+
 describe('Fs: write to the file-system operations', () => {
-  const TEST_DIR = Fs.resolve('./.tmp/test');
-  it('|→ ensure test directory exists', () => Fs.ensureDir(TEST_DIR));
+  it('|→ ensure test directory exists', () => Fs.ensureDir(SAMPLE.dir));
 
   describe('Fs.remove', () => {
     const testSetup = async () => {
-      const dir = Fs.join(TEST_DIR, `rm-dir-${slug()}`);
+      const dir = SAMPLE.join(`rm-dir-${slug()}`);
       const file = Fs.join(dir, 'text.txt');
       await Fs.ensureDir(dir);
       await Deno.writeTextFile(file, '👋 hello\n');
