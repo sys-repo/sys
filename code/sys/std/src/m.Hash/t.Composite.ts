@@ -1,22 +1,36 @@
 import type { t } from '../common.ts';
 
-type OptionsInput = t.CompositeHashBuildOptions | t.CompositeHashBuildOptions['hash'];
-export type CompositeHashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
+/** Loose input type for a hashing algorithm choice. */
+export type HashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
+
+/** Loose input type for options passed to Composite-Hash builder creation method. */
+export type CompositeHashBuilderOptionsInput =
+  | t.CompositeHashBuildOptions
+  | t.CompositeHashBuildOptions['hash'];
+
+/** Loose input type for options passed to Composite-Hash digest method. */
+export type CompositeHashDigestOptionsInput = t.CompositeHashBuildOptions;
+
+/** Loose input type for args passed to the Composite-Hash verify method. */
+export type CompositeHashVerifyArgsInput = t.CompositeHashVerifyOptions | t.HashVerifyLoader;
 
 /**
  * Tools for building composite hashes.
  */
 export type CompositeHashLib = {
   /** Create a new Composite-Hash builder. */
-  builder(options?: OptionsInput): t.CompositeHashBuilder;
+  builder(options?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuilder;
 
   /** Calculate the composite hash (aka: "digest") of the given set of hashes after sorting. */
-  digest(parts: t.CompositeHash['parts'], options?: OptionsInput): t.StringHash;
+  digest(
+    parts: t.CompositeHash['parts'],
+    options?: t.CompositeHashDigestOptionsInput,
+  ): t.StringHash;
 
   /** Abstractly verify a hash against content.  */
   verify(
     hash: t.CompositeHash,
-    args: t.CompositeHashVerifyOptions | t.HashVerifyLoader,
+    args: t.CompositeHashVerifyArgsInput,
   ): Promise<t.HashVerifyResponse>;
 
   /**
@@ -29,10 +43,10 @@ export type CompositeHashLib = {
 /** Options passed to the Composite-Hash.verify method. */
 export type CompositeHashVerifyOptions = {
   /** Method for producing hashes. */
-  hash?: CompositeHashAlgoInput;
+  hash?: t.HashAlgoInput;
 
   /** Loader to retrieve the data to hash and compare. */
-  loader: HashVerifyLoader;
+  loader: t.HashVerifyLoader;
 };
 
 /** Function that loads content to be verified against a hash.  */
@@ -53,7 +67,7 @@ export type HashVerifyResponse = {
 /** Options passed to the Composite-Hash.build method. */
 export type CompositeHashBuildOptions = {
   /** Method for producing hashes. */
-  hash?: CompositeHashAlgoInput;
+  hash?: HashAlgoInput;
 };
 
 /**
