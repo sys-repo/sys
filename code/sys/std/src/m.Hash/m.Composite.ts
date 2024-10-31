@@ -1,8 +1,11 @@
 import type { t } from './common.ts';
 import { sha1, sha256 } from './u.hash.ts';
 
+type OptionsInput = t.CompositeHashOptions | t.CompositeHashOptions['hash'];
+
 export const CompositeHash: t.CompositeHashLib = {
-  create(options = {}) {
+  create(input = {}) {
+    const options = wrangle.options(input);
     const parts: { [key: string]: string } = {};
     let _digest: string | undefined;
     const reset = () => (_digest = undefined);
@@ -14,7 +17,6 @@ export const CompositeHash: t.CompositeHashLib = {
 
       get digest() {
         if (api.length === 0) return '';
-        // return _digest ?? '';
         return _digest ?? (_digest = CompositeHash.digest(parts, options));
       },
       get parts() {
@@ -60,6 +62,15 @@ export const CompositeHash: t.CompositeHashLib = {
  * Helpers
  */
 const wrangle = {
+  options(input?: OptionsInput): t.CompositeHashOptions {
+    if (!input) return {};
+    if (typeof input === 'string' || typeof input === 'function') {
+      const hash = input as t.CompositeHashOptions['hash'];
+      return { hash };
+    }
+    return input ?? {};
+  },
+
   hash(value: unknown, options: t.CompositeHashOptions = {}) {
     const { hash } = options;
     if (hash === 'sha1') return sha1(value);

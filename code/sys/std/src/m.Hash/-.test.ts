@@ -222,7 +222,7 @@ describe('hash', () => {
       expect(hash.digest).to.eql('');
     });
 
-    it.skip('toObject', () => {
+    it('toObject', () => {
       const hash = Hash.composite();
       const a = hash.toObject();
       expect(a.digest).to.eql('');
@@ -258,14 +258,14 @@ describe('hash', () => {
       it('sha1', () => {
         const a = Hash.sha1('a');
         const b = Hash.sha1('b');
-        const hash = Hash.composite({ hash: 'sha1' });
+        const hash = Hash.composite('sha1');
         expect(hash.digest).to.eql('');
         hash.add('foo', 'a').add('bar', 'b');
         expect(hash.digest).to.eql(Hash.sha1([b, a].join('\n')));
       });
 
       it('toHash ← ƒ(n)', () => {
-        const h = Hash.composite({ hash: () => 'apple' });
+        const h = Hash.composite((_value) => 'apple');
         expect(h.digest).to.eql('');
         h.add('foo', 'abc').add('bar', 'def');
         expect(h.digest).to.eql('apple');
