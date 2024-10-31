@@ -21,23 +21,11 @@ export const Watch: t.FsWatchLib = {
         .forEach((e) => errors.push(`Path to watch does not exist: ${e.path}`));
     }
 
-    const isPathWithinScope = (subjects: t.StringPath[]) => {
-      // NB: the {recursive} flat does not work consistently across all OS's.
-      if (recursive) return true;
-
-      for (const path of paths) {
-        for (const subject of subjects) {
-          if (Path.dirname(subject) !== path) return false;
-        }
-      }
-
-      return true;
-    };
-
     const listen = async (watcher: Deno.FsWatcher) => {
       try {
         for await (const e of watcher) {
-          if (isPathWithinScope(e.paths)) $$.next({ ...e });
+          if (!wrangle.withinScope(recursive, paths, e.paths)) continue;
+          $$.next({ ...e });
         }
       } catch (error) {
         errors.push(Err.std(`Error while watching file-system`, { cause: error }));
@@ -95,5 +83,16 @@ const wrangle = {
     const paths = await Promise.all(wait);
     const ok = paths.every((item) => item.exists);
     return { ok, paths } as const;
+  },
+
+  withinScope(recursive: boolean, paths: t.StringPath[], subjects: t.StringPath[]) {
+    // NB: the {recursive} flat does not work consistently across all OS's.
+    if (recursive) return true;
+    for (const path of paths) {
+      for (const subject of subjects) {
+        if (Path.dirname(subject) !== path) return false;
+      }
+    }
+    return true;
   },
 } as const;

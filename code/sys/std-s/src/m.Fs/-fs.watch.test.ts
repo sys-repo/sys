@@ -76,11 +76,6 @@ describe('Fs.Watch', () => {
     type E = t.FsWatchEvent;
     const assertIncludesPath = (fired: E[], path: string, expectedMatch: boolean) => {
       const match = fired.filter((e) => e.paths.includes(path));
-
-      if (match.length > 0 !== expectedMatch) {
-        console.log('fired', fired);
-      }
-
       expect(match.length > 0).to.eql(expectedMatch);
     };
 
