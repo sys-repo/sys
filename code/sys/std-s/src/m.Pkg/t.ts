@@ -8,35 +8,38 @@ import type { PkgLib } from '@sys/std/t';
  * `{pkg}` package meta-data structure.
  */
 export type PkgSLib = PkgLib & {
-  readonly Dist: t.PkgDistSLib;
+  readonly Dist: t.PkgDistLib;
 };
 
 /**
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export type PkgDistSLib = {
+export type PkgDistLib = {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
-  load(sourceDir: t.StringPath): Promise<t.PkgDistSLoadResponse>;
+  load(dir: t.StringPath): Promise<t.PkgDistLoadResponse>;
 
   /**
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  compute(args: t.PkgDistSComputeArgs): Promise<t.PkgDistSComputeResponse>;
+  compute(args: t.PkgDistComputeArgs): Promise<t.PkgDistComputeResponse>;
 
   /**
-   * Validate a folder with hash definitions of the distribution-package.
+   * Verify a folder with hash definitions of the distribution-package.
    */
-  validate(sourceDir: t.StringPath): Promise<t.PkgDistSValidationResponse>;
+  verify(
+    dir: t.StringPath,
+    hash?: t.StringHash | t.CompositeHash,
+  ): Promise<t.PkgDistVerifyResponse>;
 };
 
 /**
  * Arguments passed to the `Pkg.Dist.compute` method.
  */
-export type PkgDistSComputeArgs = {
+export type PkgDistComputeArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
   entry?: string;
@@ -46,7 +49,7 @@ export type PkgDistSComputeArgs = {
 /**
  * Response from the `Pkg.Dist.compute` method call.
  */
-export type PkgDistSComputeResponse = {
+export type PkgDistComputeResponse = {
   exists: boolean;
   dir: t.StringDir;
   dist: t.DistPkg;
@@ -56,7 +59,7 @@ export type PkgDistSComputeResponse = {
 /**
  * Response to a `Pkg.Dist.load` method call.
  */
-export type PkgDistSLoadResponse = {
+export type PkgDistLoadResponse = {
   exists: boolean;
   path: t.StringPath;
   dist?: t.DistPkg;
@@ -64,9 +67,9 @@ export type PkgDistSLoadResponse = {
 };
 
 /**
- * Response to a `Pkg.Dist.validate` method call.
+ * Response to a `Pkg.Dist.verify` method call.
  */
-export type PkgDistSValidationResponse = {
+export type PkgDistVerifyResponse = {
   is: { valid?: boolean; unknown: boolean };
   exists: boolean;
   dist?: t.DistPkg;

@@ -1,7 +1,7 @@
 import { Pkg } from '@sys/std/pkg';
 import { type t, Delete, Err, Fs, Hash, R } from './common.ts';
 
-export const Dist: t.PkgDistSLib = {
+export const Dist: t.PkgDistLib = {
   async compute(args) {
     const { dir, entry = '', save = false } = args;
     const pkg = args.pkg ?? Pkg.unknown();
@@ -30,7 +30,7 @@ export const Dist: t.PkgDistSLib = {
     /**
      * Prepare response.
      */
-    const res = Delete.undefined<t.PkgDistSComputeResponse>({ dir, exists, dist, error });
+    const res = Delete.undefined<t.PkgDistComputeResponse>({ dir, exists, dist, error });
 
     /**
      * Save to the file-system.
@@ -49,8 +49,8 @@ export const Dist: t.PkgDistSLib = {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
-  async load(targetDir) {
-    const path = wrangle.filepath(targetDir);
+  async load(dir) {
+    const path = wrangle.filepath(dir);
     const exists = await Fs.exists(path);
     const errors = Err.errors();
 
@@ -64,7 +64,7 @@ export const Dist: t.PkgDistSLib = {
     }
 
     // Finish up.
-    const res: t.PkgDistSLoadResponse = {
+    const res: t.PkgDistLoadResponse = {
       exists,
       path,
       dist,
@@ -74,12 +74,12 @@ export const Dist: t.PkgDistSLib = {
   },
 
   /**
-   * Validate a folder with hash definitions of the distribution-package.
+   * Verify a folder with hash definitions of the distribution-package.
    */
-  async validate(targetDir) {
-    type R = t.PkgDistSValidationResponse;
+  async verify(dir) {
+    type R = t.PkgDistVerifyResponse;
     const errors = Err.errors();
-    const load = await Dist.load(targetDir);
+    const load = await Dist.load(dir);
     const { path, dist, exists } = load;
     const is: R['is'] = { valid: undefined, unknown: true };
     if (!exists) {
