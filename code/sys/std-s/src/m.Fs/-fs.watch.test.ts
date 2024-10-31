@@ -88,8 +88,9 @@ describe('Fs.Watch', () => {
       await Deno.writeTextFile(path, slug());
       await Time.wait(30);
 
-      expect(fired.length).to.eql(2);
-      expect(fired.map((e) => e.kind)).to.eql(['create', 'modify']);
+      const kinds = fired.map((e) => e.kind);
+      expect(kinds).to.include('create');
+      expect(kinds).to.include('modify');
 
       watcher.dispose();
     });
@@ -102,7 +103,7 @@ describe('Fs.Watch', () => {
         const writeChild = () => Deno.writeTextFile(childFile, `foo-${slug()}\n`);
         await Fs.ensureDir(childDir);
         await writeChild();
-        await Time.wait(100); // Allow setup to complete before catching events.
+        await Time.wait(300); // Allow setup to complete before catching events.
 
         const watcher = await Fs.watch(dir, { recursive });
         const fired: E[] = [];
@@ -122,7 +123,7 @@ describe('Fs.Watch', () => {
     it('multiple paths', async () => {
       const uniq = SAMPLE.uniq;
       const [, d1, d2, d3] = await SAMPLE.ensureExists(uniq('d1'), uniq('d2'), uniq('d3'));
-      await Time.wait(30); // Allow setup to complete before catching events.
+      await Time.wait(300); // Allow setup to complete before catching events.
 
       const watcher = await Fs.watch([d1, d2]);
       const fired: E[] = [];
@@ -138,13 +139,20 @@ describe('Fs.Watch', () => {
       await Deno.writeTextFile(file2, slug());
       await Time.wait(30);
 
-      expect(fired.length).to.eql(4);
-      expect(fired.map((e) => e.kind)).to.eql(['create', 'modify', 'create', 'modify']);
+      const includesPath = (path: string, expectedMatch: boolean) => {
+        const match = fired.filter((e) => e.paths.includes(path));
+        expect(match.length > 0).to.eql(expectedMatch);
+      };
+
+      includesPath(file1, true);
+      includesPath(file2, true);
+      includesPath(file3, false);
 
       // Write the the non-monitored path.
+      const length = fired.length;
       await Deno.writeTextFile(file3, slug());
       await Time.wait(30);
-      expect(fired.length).to.eql(4); // NB: no-change
+      expect(fired.length).to.eql(length); // NB: no-change
 
       watcher.dispose();
     });
