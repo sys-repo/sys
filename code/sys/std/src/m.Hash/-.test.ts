@@ -166,6 +166,27 @@ describe('hash', () => {
     });
   });
 
+  describe('Hash.Is', () => {
+    const Is = Hash.Is;
+
+    it('Is.composite: false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => {
+        expect(Is.composite(v)).to.be.false;
+      });
+      expect(Is.composite({ digest: '0x123' })).to.be.false;
+      expect(Is.composite({ parts: {} })).to.be.false;
+    });
+
+    it('Is.composite: true', () => {
+      const hash = Hash.composite();
+      const obj = hash.toObject();
+      expect(Is.composite(hash)).to.eql(true);
+      expect(Is.composite(obj)).to.eql(true);
+      expect(Is.composite({ digest: '0x123', parts: {} })).to.be.true;
+    });
+  });
+
   describe('CompositeHash', () => {
     it('API', () => {
       expect(Hash.Composite).to.equal(CompositeHash);

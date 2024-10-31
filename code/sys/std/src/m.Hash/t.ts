@@ -1,5 +1,6 @@
 import type { t } from '../common.ts';
 export type * from './t.Composite.ts';
+export type * from './t.Is.ts';
 
 /** Function that converts an input into a hash. */
 export type ToHash = (input: any) => string;
@@ -8,6 +9,12 @@ export type ToHash = (input: any) => string;
  * Tools for generating and manipulating Hash's.
  */
 export type HashLib = {
+  /** Boolean flag helpers for evaulating hash values.. */
+  readonly Is: t.HashIsLib;
+
+  /** Tools for creating `CompositeHash` digests. */
+  readonly Composite: t.CompositeHashLib;
+
   /**
    * Generate a self-describing SHA1 hash of the given input.
    *
@@ -30,9 +37,6 @@ export type HashLib = {
 
   /** Shorten a hash for display, format: "left .. right". */
   shorten(hash: string, length: number | [number, number], options?: t.ShortenHashOptions): string;
-
-  /** Tools for creating `CompositeHash` digests. */
-  readonly Composite: t.CompositeHashLib;
 
   /** Create a new `CompositeHash` builder. */
   composite: t.CompositeHashLib['create'];
