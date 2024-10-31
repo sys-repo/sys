@@ -81,8 +81,8 @@ describe('Pkg', () => {
           size: { bytes: 123_456 },
           entry: 'pkg/entry.js',
           hash: {
-            pkg: 'acbc',
-            files: {
+            digest: 'acbc',
+            parts: {
               './index.html': 'xxxx',
               './pkg/entry.js': 'yyyy',
             },
