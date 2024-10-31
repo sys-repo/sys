@@ -11,8 +11,12 @@ type E = { source: t.StdStream; fn: t.CmdProcessEventHandler };
 export const spawn: t.Cmd['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
-  const life = rx.lifecycleAsync(config.dispose$, () => kill(child));
   const $ = rx.subject<t.CmdProcessEvent>();
+  const life = rx.lifecycleAsync(config.dispose$, async () => {
+    await stdoutReader.cancel();
+    await stderrReader.cancel();
+    await kill(child);
+  });
 
   const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();
@@ -53,8 +57,10 @@ export const spawn: t.Cmd['spawn'] = (config) => {
   /**
    * Monitor the STDIO streams.
    */
-  const handleStream = async (kind: t.StdStream, stream: ReadableStream<Uint8Array>) => {
-    const reader = stream.getReader();
+  const handleStream = async (
+    kind: t.StdStream,
+    reader: ReadableStreamDefaultReader<Uint8Array>,
+  ) => {
     try {
       while (true) {
         const res = await reader.read();
@@ -70,8 +76,11 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       reader.releaseLock();
     }
   };
-  handleStream('stdout', child.stdout);
-  handleStream('stderr', child.stderr);
+
+  const stdoutReader = child.stdout.getReader();
+  const stderrReader = child.stderr.getReader();
+  handleStream('stdout', stdoutReader);
+  handleStream('stderr', stderrReader);
 
   /**
    * API
