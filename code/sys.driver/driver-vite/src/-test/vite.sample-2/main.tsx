@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Pkg } from '../pkg.ts';
+import { pkg } from '../../pkg.ts';
 import { View } from './ui.tsx';
 
-console.info('Pkg', Pkg);
+console.info('Pkg', pkg);
 
 /**
  * Test imports from across the workspace.

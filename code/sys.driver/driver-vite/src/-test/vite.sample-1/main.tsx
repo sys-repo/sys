@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Pkg } from '../pkg.ts';
-console.info('Pkg', Pkg);
+import { pkg } from '../../pkg.ts';
+console.info('Pkg', pkg);
 
 /**
  * Sample: render react component.
