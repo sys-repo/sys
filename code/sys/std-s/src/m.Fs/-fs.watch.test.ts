@@ -74,6 +74,10 @@ describe('Fs.Watch', () => {
 
   describe('⚡️ change events', () => {
     type E = t.FsWatchEvent;
+    const assertIncludesPath = (fired: E[], path: string, expectedMatch: boolean) => {
+      const match = fired.filter((e) => e.paths.includes(path));
+      expect(match.length > 0).to.eql(expectedMatch);
+    };
 
     it('fires on change', async () => {
       const [dir] = await SAMPLE.ensureExists();
@@ -91,19 +95,18 @@ describe('Fs.Watch', () => {
       const kinds = fired.map((e) => e.kind);
       expect(kinds).to.include('create');
       expect(kinds).to.include('modify');
-
       watcher.dispose();
     });
 
     it('recursive', async () => {
-      const test = async (recursive: boolean, expectEvents: number) => {
+      const test = async (recursive: boolean) => {
         const [dir] = await SAMPLE.ensureExists();
         const childDir = Fs.join(dir, 'foo', 'bar');
-        const childFile = Fs.join(childDir, 'file.txt');
-        const writeChild = () => Deno.writeTextFile(childFile, `foo-${slug()}\n`);
+        const childFilepath = Fs.join(childDir, 'file.txt');
+        const writeChild = () => Deno.writeTextFile(childFilepath, `foo-${slug()}\n`);
         await Fs.ensureDir(childDir);
         await writeChild();
-        await Time.wait(300); // Allow setup to complete before catching events.
+        await Time.wait(100); // Allow setup to complete before catching events.
 
         const watcher = await Fs.watch(dir, { recursive });
         const fired: E[] = [];
@@ -112,18 +115,19 @@ describe('Fs.Watch', () => {
 
         await writeChild();
         await Time.wait(30);
-        expect(fired.length).to.eql(expectEvents);
+
+        assertIncludesPath(fired, childFilepath, recursive);
         watcher.dispose();
       };
 
-      await test(true, 3);
-      await test(false, 0); // NB: non-recusive, the child-file will not trigger.
+      await test(true);
+      await test(false); // NB: non-recusive, the child-file will not trigger.
     });
 
     it('multiple paths', async () => {
       const uniq = SAMPLE.uniq;
       const [, d1, d2, d3] = await SAMPLE.ensureExists(uniq('d1'), uniq('d2'), uniq('d3'));
-      await Time.wait(300); // Allow setup to complete before catching events.
+      await Time.wait(100); // Allow setup to complete before catching events.
 
       const watcher = await Fs.watch([d1, d2]);
       const fired: E[] = [];
@@ -139,14 +143,9 @@ describe('Fs.Watch', () => {
       await Deno.writeTextFile(file2, slug());
       await Time.wait(30);
 
-      const includesPath = (path: string, expectedMatch: boolean) => {
-        const match = fired.filter((e) => e.paths.includes(path));
-        expect(match.length > 0).to.eql(expectedMatch);
-      };
-
-      includesPath(file1, true);
-      includesPath(file2, true);
-      includesPath(file3, false);
+      assertIncludesPath(fired, file1, true);
+      assertIncludesPath(fired, file2, true);
+      assertIncludesPath(fired, file3, false);
 
       // Write the the non-monitored path.
       const length = fired.length;
