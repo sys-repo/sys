@@ -4,7 +4,7 @@ import { sha1, sha256 } from './u.hash.ts';
 type OptionsInput = t.CompositeHashOptions | t.CompositeHashOptions['hash'];
 
 export const CompositeHash: t.CompositeHashLib = {
-  create(input = {}) {
+  build(input = {}) {
     const options = wrangle.options(input);
     const parts: { [key: string]: string } = {};
     let _digest: string | undefined;

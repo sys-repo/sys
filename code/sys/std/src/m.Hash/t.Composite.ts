@@ -7,7 +7,7 @@ type OptionsInput = t.CompositeHashOptions | t.CompositeHashOptions['hash'];
  */
 export type CompositeHashLib = {
   /** Create a new CompositeHash builder. */
-  create(options?: OptionsInput): t.CompositeHashBuilder;
+  build(options?: OptionsInput): t.CompositeHashBuilder;
 
   /** Calculate the composite hash (aka: "digest") of the given set of hashes after sorting. */
   digest(parts: t.CompositeHash['parts'], options?: OptionsInput): t.StringHash;

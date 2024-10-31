@@ -226,7 +226,7 @@ describe('hash', () => {
   describe('Hash.Composite: <CompositeHash>', () => {
     it('API', () => {
       expect(Hash.Composite).to.equal(CompositeHash);
-      expect(Hash.composite).to.equal(CompositeHash.create);
+      expect(Hash.composite).to.equal(CompositeHash.build);
     });
 
     it('empty', () => {
