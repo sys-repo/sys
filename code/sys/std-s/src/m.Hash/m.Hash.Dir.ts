@@ -9,11 +9,11 @@ export const Dir: t.HashDirLib = {
     const res: t.HashDir = { exists, dir, hash: builder.toObject() };
 
     if (!exists) {
-      res.error = Err.std('Directory does not exist.');
+      errors.push(Err.std('Directory does not exist.'));
     } else {
       const isDir = await Fs.Is.dir(dir);
       if (!isDir) {
-        res.error = Err.std('Path is not a directory.');
+        errors.push(Err.std('Path is not a directory.'));
       } else {
         const paths = (await Fs.glob(dir).find('**'))
           .filter((m) => m.isFile)

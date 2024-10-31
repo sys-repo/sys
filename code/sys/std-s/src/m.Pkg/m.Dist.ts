@@ -55,7 +55,7 @@ export const Dist: t.PkgDistSLib = {
     const errors = Err.errors();
 
     if (!exists) {
-      errors.add(`File at path does not exist: ${path}`);
+      errors.push(`File at path does not exist: ${path}`);
     }
 
     let dist: t.DistPkg | undefined;
@@ -83,7 +83,7 @@ export const Dist: t.PkgDistSLib = {
     const { path, dist, exists } = load;
     const is: R['is'] = { valid: undefined, unknown: true };
     if (!exists) {
-      errors.add(load.error);
+      errors.push(load.error);
     }
 
     /**
