@@ -1,5 +1,4 @@
-import { exists } from '@std/fs';
-import { c, type t } from './common.ts';
+import { type t, c, exists } from './common.ts';
 
 /**
  * Delete a directory (and it's contents).

@@ -1,8 +1,4 @@
-import { exists } from '@std/fs';
-import { format } from '@std/fmt/bytes';
-import { walk } from './u.walk.ts';
-
-import type { t } from './common.ts';
+import { type t, exists, format, walk } from './common.ts';
 
 export const Size: t.FsSizeLib = {
   async dir(path, options = {}) {
