@@ -7,10 +7,10 @@ type O = Record<string, unknown>;
  * `{pkg}` package meta-data structure.
  */
 export type PkgLib = {
-  /* Boolean flag tests related to the {pkg} meta-data. */
+  /** Boolean flag tests related to the {pkg} meta-data. */
   readonly Is: t.PkgIs;
 
-  /* Convert a {pkg} into a display string. */
+  /** Convert a {pkg} into a display string. */
   toString(input?: t.Pkg): string;
 
   /**
@@ -35,12 +35,12 @@ export type PkgLib = {
  * Boolean tests on a {pkg} structure.
  */
 export type PkgIs = {
-  /* Determines if the input is a string of the default "unknown" */
+  /** Determines if the input is a string of the default "unknown" */
   unknown(input?: string | t.Pkg): boolean;
 
-  /* Determine if the given input is a `Pkg` */
+  /** Determine if the given input is a `Pkg` */
   pkg(input: unknown): input is t.Pkg;
 
-  /* Determine if the given input is a `DistPkg` */
+  /** Determine if the given input is a `DistPkg` */
   dist(input: unknown): input is t.DistPkg;
 };
