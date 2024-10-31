@@ -5,6 +5,9 @@ export type * from './t.Is.ts';
 /** Function that converts an input into a hash. */
 export type ToHash = (input: any) => string;
 
+/** Loose parameter input for a value that is a hash. */
+export type HashInput = t.StringHash | t.CompositeHash;
+
 /**
  * Tools for generating and manipulating Hash's.
  */
@@ -40,6 +43,11 @@ export type HashLib = {
 
   /** Create a new `CompositeHash` builder. */
   composite: t.CompositeHashLib['create'];
+
+  /**
+   * Resolve the various hash inputs into a single top-level hash value.
+   */
+  toString(input?: t.HashInput): string;
 };
 
 /** Options passed to Hash methods. */

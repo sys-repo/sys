@@ -88,6 +88,26 @@ describe('hash', () => {
     expect(res).to.eql(Hash.sha256(alt));
   });
 
+  describe('Hash.toString', () => {
+    it('empty', () => {
+      expect(Hash.toString()).to.eql('');
+      expect(Hash.toString('')).to.eql('');
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => expect(Hash.toString(v)).to.eql(''));
+    });
+
+    it('from string', () => {
+      expect(Hash.toString('0x123')).to.eql('0x123');
+    });
+
+    it('from composite', () => {
+      const a = Hash.composite();
+      const b = Hash.composite().add('foo', 'abc');
+      expect(Hash.toString(a)).to.eql(a.digest);
+      expect(Hash.toString(b)).to.eql(b.digest);
+    });
+  });
+
   describe('shorten', () => {
     const hash = 'sha256-1234567890';
     const uri = 'sha1:1234567890';
@@ -169,28 +189,51 @@ describe('hash', () => {
   describe('Hash.Is', () => {
     const Is = Hash.Is;
 
-    it('Is.composite: false', () => {
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v) => {
-        expect(Is.composite(v)).to.be.false;
+    describe('Is.composite', () => {
+      it('false', () => {
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v) => {
+          expect(Is.composite(v)).to.be.false;
+        });
+        expect(Is.composite({ digest: '0x123' })).to.be.false;
+        expect(Is.composite({ parts: {} })).to.be.false;
       });
-      expect(Is.composite({ digest: '0x123' })).to.be.false;
-      expect(Is.composite({ parts: {} })).to.be.false;
+
+      it('true', () => {
+        const hash = Hash.composite();
+        const obj = hash.toObject();
+        expect(Is.composite(hash)).to.eql(true);
+        expect(Is.composite(obj)).to.eql(true);
+        expect(Is.composite({ digest: '0x123', parts: {} })).to.be.true;
+      });
     });
 
-    it('Is.composite: true', () => {
-      const hash = Hash.composite();
-      const obj = hash.toObject();
-      expect(Is.composite(hash)).to.eql(true);
-      expect(Is.composite(obj)).to.eql(true);
-      expect(Is.composite({ digest: '0x123', parts: {} })).to.be.true;
+    describe('Is.empty', () => {
+      it('empty: true', () => {
+        expect(Is.empty('')).to.eql(true);
+        expect(Is.empty({ digest: '', parts: {} })).to.eql(true);
+      });
+
+      it('empty: false', () => {
+        expect(Is.empty('a')).to.eql(false);
+        expect(Is.empty({ digest: 'a', parts: {} })).to.eql(false);
+        expect(Is.empty({ digest: '', parts: { a: 'z' } })).to.eql(false);
+        expect(Is.empty({ digest: 'a', parts: { a: 'z' } })).to.eql(false);
+      });
     });
   });
 
-  describe('CompositeHash', () => {
+  describe('Hash.Composite: <CompositeHash>', () => {
     it('API', () => {
       expect(Hash.Composite).to.equal(CompositeHash);
       expect(Hash.composite).to.equal(CompositeHash.create);
+    });
+
+    it('empty', () => {
+      const a = Hash.Composite.empty();
+      const b = Hash.Composite.empty();
+      expect(a).to.eql({ digest: '', parts: {} });
+      expect(a).to.not.equal(b);
     });
 
     it('create', () => {

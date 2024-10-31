@@ -16,4 +16,11 @@ export const Hash: t.HashLib = {
   toBytes,
   toHex,
   shorten,
+
+  toString(input) {
+    if (!input) return '';
+    if (typeof input === 'string') return input;
+    if (Is.composite(input)) return input.digest;
+    return '';
+  },
 };

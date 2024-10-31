@@ -9,8 +9,11 @@ export type CompositeHashLib = {
   /** Create a new CompositeHash builder. */
   create(options?: OptionsInput): t.CompositeHashBuilder;
 
-  /** Generate a composite hash of the given set of hashes after sorting. */
+  /** Calculate the composite hash (aka: "digest") of the given set of hashes after sorting. */
   digest(parts: t.CompositeHash['parts'], options?: OptionsInput): t.StringHash;
+
+  /** Generates an empty [CompositeHash] type. */
+  empty(): t.CompositeHash;
 };
 
 /** Options passed to the CompositeHash generator. */

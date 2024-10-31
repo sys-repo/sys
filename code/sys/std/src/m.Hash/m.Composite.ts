@@ -56,6 +56,10 @@ export const CompositeHash: t.CompositeHashLib = {
 
     return wrangle.hash(hashes.join('\n'), options);
   },
+
+  empty() {
+    return { digest: '', parts: {} };
+  },
 };
 
 /**
