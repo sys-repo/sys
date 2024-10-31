@@ -40,13 +40,23 @@ describe('hash', () => {
         expect(a.length).to.eql(0);
       });
 
-      it('create ← with {initial} items', () => {
+      it('create ← with {initial} items object', () => {
         const hash = Hash.composite({
           initial: [
             { key: 'foo', value: 1 },
             { key: 'bar', value: 2 },
           ],
         });
+        expect(hash.length).to.eql(2);
+        expect(hash.parts['foo']).to.eql(Hash.sha256(1));
+        expect(hash.parts['bar']).to.eql(Hash.sha256(2));
+      });
+
+      it('create ← with [initial] items array', () => {
+        const hash = Hash.composite([
+          { key: 'foo', value: 1 },
+          { key: 'bar', value: 2 },
+        ]);
         expect(hash.length).to.eql(2);
         expect(hash.parts['foo']).to.eql(Hash.sha256(1));
         expect(hash.parts['bar']).to.eql(Hash.sha256(2));

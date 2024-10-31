@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { CompositeHash, Hash } from './mod.ts';
+import { Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
 circular.ref = circular;

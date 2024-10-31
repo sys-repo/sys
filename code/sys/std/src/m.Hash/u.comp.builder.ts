@@ -60,6 +60,7 @@ export const builder: t.CompositeHashLib['builder'] = (input = {}) => {
 const wrangle = {
   options(input?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuildOptions {
     if (!input) return {};
+    if (Array.isArray(input)) return { initial: input };
     if (typeof input === 'string' || typeof input === 'function') {
       const algo = input as t.CompositeHashBuildOptions['algo'];
       return { algo };

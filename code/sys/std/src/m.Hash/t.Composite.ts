@@ -6,7 +6,8 @@ export type HashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
 /** Loose input type for options passed to Composite-Hash builder creation method. */
 export type CompositeHashBuilderOptionsInput =
   | t.CompositeHashBuildOptions
-  | t.CompositeHashBuildOptions['algo'];
+  | t.CompositeHashBuildOptions['algo']
+  | t.CompositeHashBuildOptions['initial'];
 
 /** Loose input type for options passed to Composite-Hash digest method. */
 export type CompositeHashDigestOptionsInput = t.CompositeHashBuildOptions;
