@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * Tools for working with, listening to, and
@@ -15,5 +15,8 @@ export type VaultLib = {
 export type VaultDir = {
   readonly path: string;
   readonly exists: boolean;
-  listen(): Promise<void>;
+  listen(options?: t.VaultDirListenOptions): Promise<t.FsWatcher>;
 };
+
+/** Options passed to VaultDir.listen */
+export type VaultDirListenOptions = { log?: boolean };
