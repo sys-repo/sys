@@ -92,7 +92,7 @@ describe('Hash (server extension)', () => {
         await SAMPLE_FILE.dist.delete();
         const dir = SAMPLE_PATH.dir;
         const hash = (await Hash.Dir.compute(dir)).hash;
-        const res = await Hash.Dir.verify(SAMPLE_PATH.dir, hash);
+        const res = await Hash.Dir.verify(dir, hash);
 
         expect(res.is.valid).to.eql(true);
         expect(res.error).to.eql(undefined);
@@ -100,6 +100,29 @@ describe('Hash (server extension)', () => {
         expect(res.dir).to.eql(dir);
       });
 
+      it('verify → invalid (hash manipulated | "main in the middle" attack)', async () => {
+        await SAMPLE_FILE.dist.delete();
+        const dir = SAMPLE_PATH.dir;
+        const hash = (await Hash.Dir.compute(dir)).hash;
+        const keys = Object.keys(hash.parts);
+        (hash.parts as any)[keys[0]] = '0xHackedChange';
+
+        const res = await Hash.Dir.verify(dir, hash);
+        expect(res.is.valid).to.eql(false);
+        expect(res.error).to.eql(undefined); // NB: this is not an error state - just invalid.
+      });
+
+      it('verify → invalid (404 file not found)', async () => {
+        await SAMPLE_FILE.dist.delete();
+        const dir = SAMPLE_PATH.dir;
+        const hash = (await Hash.Dir.compute(dir)).hash;
+        (hash.parts as any)['./_404_.html'] = '0x123'; // NB: this file does not exist - should not cause file-system load error.
+
+        const res = await Hash.Dir.verify(dir, hash);
+        expect(res.is.valid).to.eql(false);
+        expect(res.error?.message).to.include('loader did not return content');
+        expect(res.error?.message).to.include('./_404_.html');
+      });
 
       describe('errors', () => {
         it('error: directory does not exist', async () => {

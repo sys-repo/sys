@@ -1,4 +1,4 @@
-import { type t, Err } from './common.ts';
+import { type t, Err, R } from './common.ts';
 import { Is } from './m.Is.ts';
 import { sha1, sha256 } from './u.hash.ts';
 
@@ -86,7 +86,7 @@ export const CompositeHash: t.CompositeHashLib = {
     }
     res.hash.b = current.toObject();
     res.error = errors.toError();
-    res.is.valid = res.error ? false : res.hash.a.digest === res.hash.b.digest;
+    res.is.valid = res.error ? false : R.equals(res.hash.a, res.hash.b);
     return res;
   },
 

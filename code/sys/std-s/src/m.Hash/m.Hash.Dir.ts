@@ -75,13 +75,17 @@ export const Dir: t.HashDirLib = {
     };
 
     /**
-     * Verify
+     * Verify.
      */
     if (Hash.Is.composite(hash)) {
       const read = Deno.readFile;
-      const verification = await Hash.Composite.verify(hash, (e) => read(Fs.join(dir, e.part)));
+      const verification = await Hash.Composite.verify(hash, async (e) => {
+        const path = Fs.join(dir, e.part);
+        const exists = await Fs.exists(path);
+        return exists ? read(path) : undefined;
+      });
       res.is = verification.is;
-      if (verification.error) errors.push(res.error);
+      if (verification.error) errors.push(verification.error);
     }
 
     // Finish up.
