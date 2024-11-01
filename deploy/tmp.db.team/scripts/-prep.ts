@@ -17,11 +17,14 @@ const to = Fs.resolve('./dist');
 const exists = {
   from: await Fs.exists(from),
   to: await Fs.exists(to),
+  label(exists: boolean) {
+    return exists ? 'exists' : c.yellow('404');
+  },
 };
 
-const table = Cli.table(['', 'exists', 'path']);
-table.push([c.green('From'), String(exists.from), c.gray(from)]);
-table.push([c.green('To'), String(exists.to), c.gray(to)]);
+const table = Cli.table([]);
+table.push([c.green('From'), exists.label(exists.from), c.gray(from)]);
+table.push([c.green('To'), exists.label(exists.to), c.gray(to)]);
 
 console.info();
 console.info(c.gray(table.toString()));
