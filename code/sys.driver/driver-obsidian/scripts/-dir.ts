@@ -7,7 +7,7 @@ import { Vault } from '@sys/driver-obsidian/s';
 const path = '/Users/phil/Documents/Notes/tdb';
 const dir = await Vault.dir(path);
 
-const res = await Hash.Dir.compute(dir.path);
+const res = await Hash.Dir.compute(path);
 console.log('Hash', res.hash, '\n');
 
 await dir.listen({ log: true });
