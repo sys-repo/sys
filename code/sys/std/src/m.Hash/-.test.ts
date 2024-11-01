@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it, type t } from '../-test.ts';
 import { Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
@@ -105,6 +105,28 @@ describe('hash', () => {
       const b = Hash.composite().add('foo', 'abc');
       expect(Hash.toString(a)).to.eql(a.digest);
       expect(Hash.toString(b)).to.eql(b.digest);
+    });
+  });
+
+  describe('Hash.prefix', () => {
+    const test = (input: string | undefined, expected: string) => {
+      const res = Hash.prefix(input);
+      console.log('res', res);
+      expect(res).to.eql(expected);
+    };
+
+    it('empty', () => {
+      test('', '');
+      test('foobar', '');
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => test(v, ''));
+    });
+
+    it('success', () => {
+      test('sha256-0000', 'sha256');
+      test('sha256-', 'sha256');
+      test('sha1-', 'sha1');
+      test('🐷-0x000', '🐷');
     });
   });
 

@@ -46,6 +46,9 @@ export type HashLib = {
 
   /** Resolve the various hash inputs into a single top-level hash value. */
   toString(input?: t.HashInput): string;
+
+  /** Extract the prefix of the hash value, eg: "sha256-0x000" → "sha256" */
+  prefix(input?: t.StringHash): string;
 };
 
 /** Options passed to Hash methods. */
