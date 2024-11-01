@@ -22,6 +22,12 @@ describe('Vite', () => {
       expect(res.cmd.input).to.include('deno run');
       expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
 
+      // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
+      const keys = Object.keys(res.dist.hash.parts);
+      const hasPkg = keys.some((key) => key.startsWith('./pkg/-pkg.json'));
+      expect(hasPkg).to.eql(true);
+
+      // Ensure the HTML file eixsts
       const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
       const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
       return {
