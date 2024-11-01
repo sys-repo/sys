@@ -7,14 +7,12 @@
     "deploy": "deno task check && deployctl deploy --prod --project=tdb-tmp --org=tdb",
     "ls": "deployctl deployments list",
     "prod": "deployctl deployments redeploy --prod",
-    "prep": "deno run -RW --allow-env ./src/-prep.ts"
+    "prep": "deno run -RW --allow-env ./scripts/-prep.ts"
   },
   "exports": {},
   "deploy": {
     "project": "2d23333d-3cb1-4a7b-a559-42019203b790",
-    "exclude": [
-      "**/node_modules"
-    ],
+    "exclude": ["**/node_modules"],
     "include": [],
     "entrypoint": "src/main.ts"
   }
