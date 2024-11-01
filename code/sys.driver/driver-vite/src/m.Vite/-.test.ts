@@ -1,4 +1,4 @@
-import { Fs, Testing, Time, describe, expect, it, pkg, type t } from '../-test.ts';
+import { c, describe, expect, Fs, it, pkg, Testing, Time, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { Vite } from './mod.ts';
 
@@ -31,31 +31,40 @@ describe('Vite', () => {
       const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
       const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
       return {
+        input,
         files: { html, distJson },
         paths,
         res,
       } as const;
     };
 
+    const logDist = (input: t.StringPath, dist: t.DistPkg) => {
+      console.info();
+      console.info(c.magenta(`input: ${input}`));
+      console.info(c.magenta(' ↓'));
+      console.info(c.magenta(`output: Pkg.Dist.compute → ${c.white('./dist/dist.json')}`));
+      console.info();
+      console.info(dist);
+      console.info();
+    };
+
     it('sample-1: simple', async () => {
-      const { res, files } = await testBuild(INPUT.sample1);
+      const input = INPUT.sample1;
+      const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-1</title>`);
 
       expect(res.dist).to.eql(files.distJson);
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.size.bytes).to.be.greaterThan(160_000);
 
-      console.info('🌳');
-      console.info(`JSON (via Pkg.Dist.compute):`);
-      console.info(`/dist/dist.json:`);
-      console.info();
-      console.info(res.dist);
-      console.info();
+      logDist(input, res.dist);
     });
 
     it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-      const { files } = await testBuild(INPUT.sample2);
+      const input = INPUT.sample1;
+      const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
+      logDist(input, res.dist);
     });
   });
 
