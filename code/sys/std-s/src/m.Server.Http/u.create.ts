@@ -4,7 +4,7 @@ import { Hono, cors, serveStatic, type t } from './common.ts';
  * Create a new Hono application instance with cors and /static file server.
  */
 export function create(options: t.HttpServerCreateOptions = {}) {
-  const { pkg } = options;
+  const { pkg, hash } = options;
   const app = new Hono();
 
   if (options.cors ?? true) {
@@ -25,6 +25,7 @@ export function create(options: t.HttpServerCreateOptions = {}) {
 
       // Once the response is prepared assign the "pkg" header.
       if (pkg?.name && pkg?.version) c.header('pkg', `${pkg.name}@${pkg.version}`);
+      if (hash) c.header('pkg-digest', hash);
     });
   }
 

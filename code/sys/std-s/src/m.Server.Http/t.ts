@@ -19,12 +19,13 @@ export type HttpServerLib = {
   readonly cors: typeof cors;
   readonly static: typeof serveStatic;
   create(options?: HttpServerCreateOptions): HonoApp;
-  options(port?: number, pkg?: t.Pkg): Deno.ServeOptions;
-  print(addr: Deno.NetAddr, pkg?: t.Pkg): void;
+  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
+  print(addr: Deno.NetAddr, pkg?: t.Pkg, hash?: t.StringHash): void;
 };
 
 export type HttpServerCreateOptions = {
   pkg?: t.Pkg;
+  hash?: t.StringHash;
   cors?: boolean;
   static?: boolean;
 };

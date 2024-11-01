@@ -22,8 +22,9 @@ describe('Server', () => {
     await listener.shutdown();
   });
 
-  it('returns {pkg} in headers', async () => {
-    const app = HttpServer.create({ pkg });
+  it.only('returns {pkg, pkg-digest} in headers', async () => {
+    const hash = 'sha256-00000';
+    const app = HttpServer.create({ pkg, hash });
     const listener = Deno.serve({ port: 0 }, app.fetch);
     app.get('/', (c) => c.text('no-op'));
 
@@ -31,8 +32,9 @@ describe('Server', () => {
     const url = Http.url(listener.addr);
     const res = await client.get(url.base);
 
-    const header = res.headers.get('pkg');
-    expect(header).to.eql(`${pkg.name}@${pkg.version}`);
+    const headers = res.headers;
+    expect(headers.get('pkg')).to.eql(`${pkg.name}@${pkg.version}`);
+    expect(headers.get('pkg-digest')).to.eql(hash);
 
     await res.body?.cancel();
     await listener.shutdown();

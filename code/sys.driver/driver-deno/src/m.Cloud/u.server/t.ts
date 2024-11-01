@@ -48,6 +48,7 @@ export type DenoCloudServerLib = {
 export type DenoCloudServerArgs = {
   env: EnvVars;
   pkg: t.Pkg;
+  hash?: t.StringHash;
   authEnabled?: boolean;
   authLogger?: t.AuthLogger;
 };

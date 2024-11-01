@@ -5,6 +5,7 @@ export type {
   Pkg,
   PortNumber,
   StringDir,
+  StringHash,
   StringJwt,
   StringPath,
   StringUrl,
