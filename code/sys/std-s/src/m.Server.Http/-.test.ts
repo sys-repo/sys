@@ -1,5 +1,6 @@
 import { describe, expect, it, pkg } from '../-test.ts';
 import { Http, HttpServer } from '../mod.ts';
+import { Pkg } from './common.ts';
 
 describe('Server', () => {
   it('app: start → req/res → dispose', async () => {
@@ -31,10 +32,27 @@ describe('Server', () => {
     const client = Http.client();
     const url = Http.url(listener.addr);
     const res = await client.get(url.base);
-
     const headers = res.headers;
-    expect(headers.get('pkg')).to.eql(`${pkg.name}@${pkg.version}`);
+
+    // Default: actaully lower-case.
+    expect(headers.get('pkg')).to.eql(Pkg.toString(pkg));
     expect(headers.get('pkg-digest')).to.eql(hash);
+
+    // Supports reading as capitalized version (via default Headers object).
+    expect(headers.get('Pkg')).to.eql(Pkg.toString(pkg));
+    expect(headers.get('Pkg-Digest')).to.eql(hash);
+
+    /**
+     * The actual header keys are lower-case.
+     *
+     * As per HTTP/2 and HTTP/3 specs.
+     *    RFC 7540 - Hypertext Transfer Protocol Version 2 (HTTP/2)
+     *    RFC 9114 - HTTP/3
+     */
+    //
+    const h = Http.toHeaders(headers);
+    expect(h['pkg']).to.eql(Pkg.toString(pkg));
+    expect(h['pkg-digest']).to.eql(hash);
 
     await res.body?.cancel();
     await listener.shutdown();
