@@ -1,11 +1,10 @@
+import { Pkg } from '@sys/std';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Pkg } from '../pkg.ts';
+import { pkg } from '../pkg.ts';
 
-console.info('Pkg', Pkg);
-globalThis.document.title = `${Pkg.name}@${Pkg.version}`;
-
-// console.log('foo');
+console.info('Pkg', pkg);
+globalThis.document.title = Pkg.toString(pkg);
 
 const el = <div>🐷 TODO: load `automerge` and test Vite/WASM support.</div>;
 
