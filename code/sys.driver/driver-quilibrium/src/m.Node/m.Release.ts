@@ -45,7 +45,7 @@ export const Release: t.ReleaseLib = {
 
     spinner.succeed(`Manifest retrieved. ${c.dim(url)}`);
     console.info(c.gray(`  Version ${c.white(res.version)}`));
-    console.info(c.green(`  ↓`));
+    console.info(c.gray(`  ↓`));
 
     const download = async (file: string, index: t.Index) => {
       const isFirst = index === 0;
@@ -96,7 +96,11 @@ export const Release: t.ReleaseLib = {
       console.info();
       console.info(line);
     } else {
-      console.info(c.gray(`${c.green('•')} NB: latest release already existed.`));
+      const tick = c.green(c.bold('✔'));
+      const msg = res.is.forced
+        ? `${c.green('•')} ${c.dim('NB:forced download over existing binaries.')}`
+        : `${tick} Already on the latest release`;
+      console.info(c.gray(`${msg}`));
       console.info();
     }
 
