@@ -49,7 +49,6 @@ describe('Server', () => {
      *    RFC 7540 - Hypertext Transfer Protocol Version 2 (HTTP/2)
      *    RFC 9114 - HTTP/3
      */
-    //
     const h = Http.toHeaders(headers);
     expect(h['pkg']).to.eql(Pkg.toString(pkg));
     expect(h['pkg-digest']).to.eql(hash);
