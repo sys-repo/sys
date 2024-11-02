@@ -36,8 +36,8 @@ export const Log = {
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
       const text = `
-${c.gray(`Module:       ${Log.Module.toString(Pkg)}`)}
-${c.brightGreen(`entry point:  ${c.gray(input)}`)}
+${c.gray(`Module:   ${Log.Module.toString(Pkg)}`)}
+${c.brightGreen(`entry:    ${c.gray(input)}`)}
     `;
       return wrangle.res(text, options.pad);
     },
