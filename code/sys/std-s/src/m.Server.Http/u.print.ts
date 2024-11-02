@@ -30,7 +30,7 @@ const wrangle = {
   hx(hash?: t.StringHash) {
     if (!hash) return;
     const algo = Hash.prefix(hash);
-    const short = Hash.shorten(hash, [5, 5], { trimPrefix: true });
+    const short = Hash.shorten(hash, [5, 5], true);
     const uri = hash ? `pkg:${algo}:${c.green(short)}` : '';
     return { short, uri };
   },
