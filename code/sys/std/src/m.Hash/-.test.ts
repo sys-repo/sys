@@ -131,8 +131,8 @@ describe('hash', () => {
   });
 
   describe('shorten', () => {
-    const hash = 'sha256-1234567890';
-    const uri = 'sha1:1234567890';
+    const hash = 'sha256-12345678901234567890';
+    const uri = 'sha1:12345678901234567890';
 
     it('(default)', () => {
       const res = Hash.shorten(`   ${hash}   `, 3);
@@ -142,6 +142,15 @@ describe('hash', () => {
     it('empty string', () => {
       expect(Hash.shorten('', 3)).to.eql('');
       expect(Hash.shorten('  ', 3)).to.eql('');
+    });
+
+    it('shorten: boolean param as option', () => {
+      const a = Hash.shorten(hash, [8, 4], true);
+      const b = Hash.shorten(hash, [8, 4], false);
+      const c = Hash.shorten(hash, [8, 4]);
+      expect(a).to.eql('12345678..7890');
+      expect(b).to.eql('sha256-1..7890');
+      expect(b).to.eql(c);
     });
 
     it('length: number', () => {

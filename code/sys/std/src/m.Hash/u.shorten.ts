@@ -1,6 +1,7 @@
 import type { t } from '../common.ts';
 
-export const shorten: t.HashLib['shorten'] = (hash, length, options = {}) => {
+export const shorten: t.HashLib['shorten'] = (hash, length, op = {}) => {
+  const options = wrangle.options(op);
   const { divider = '..' } = options;
 
   hash = wrangle.trimPrefixes((hash || '').trim(), options);
@@ -23,6 +24,12 @@ export const shorten: t.HashLib['shorten'] = (hash, length, options = {}) => {
  * Helpers
  */
 const wrangle = {
+  options(input: Parameters<t.HashLib['shorten']>[2]): t.ShortenHashOptions {
+    if (input === undefined) return {};
+    if (typeof input === 'boolean') return { trimPrefix: input };
+    return input;
+  },
+
   trimPrefixes(hash: string, options: t.ShortenHashOptions): string {
     const dividers = wrangle.prefixDivider(options);
     for (const divider of dividers) {

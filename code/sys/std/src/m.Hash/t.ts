@@ -2,6 +2,8 @@ import type { t } from '../common.ts';
 export type * from './t.Composite.ts';
 export type * from './t.Is.ts';
 
+type TrimPrefix = boolean;
+
 /** Function that converts an input into a hash. */
 export type ToHash = (input: any) => string;
 
@@ -39,7 +41,11 @@ export type HashLib = {
   toHex(bytes: Uint8Array): string;
 
   /** Shorten a hash for display, format: "left .. right". */
-  shorten(hash: string, length: number | [number, number], options?: t.ShortenHashOptions): string;
+  shorten(
+    hash: string,
+    length: number | [number, number],
+    options?: t.ShortenHashOptions | TrimPrefix,
+  ): string;
 
   /** Create a new `CompositeHash` builder. */
   composite: t.CompositeHashLib['builder'];
