@@ -34,7 +34,7 @@ describe('Server', () => {
     const res = await client.get(url.base);
     const headers = res.headers;
 
-    // Default: actaully lower-case.
+    // Default: lower-case.
     expect(headers.get('pkg')).to.eql(Pkg.toString(pkg));
     expect(headers.get('pkg-digest')).to.eql(hash);
 
