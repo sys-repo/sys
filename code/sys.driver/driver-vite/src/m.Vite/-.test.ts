@@ -41,9 +41,9 @@ describe('Vite', () => {
     const logDist = (input: t.StringPath, dist: t.DistPkg) => {
       const distfile = c.bold(c.white('./dist/dist.json'));
       console.info();
-      console.info(c.magenta(`input: ${input}`));
-      console.info(c.magenta(' ↓'));
-      console.info(c.magenta(`output: Pkg.Dist.compute → ${distfile}`));
+      console.info(c.green(`input: ${input}`));
+      console.info(c.green(' ↓'));
+      console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
       console.info();
       console.info(dist);
       console.info();
