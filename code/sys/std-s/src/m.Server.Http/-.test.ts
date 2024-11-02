@@ -22,7 +22,7 @@ describe('Server', () => {
     await listener.shutdown();
   });
 
-  it.only('returns {pkg, pkg-digest} in headers', async () => {
+  it('returns {pkg, pkg-digest} in headers', async () => {
     const hash = 'sha256-00000';
     const app = HttpServer.create({ pkg, hash });
     const listener = Deno.serve({ port: 0 }, app.fetch);
