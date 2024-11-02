@@ -5,14 +5,10 @@ const dist = (await Pkg.Dist.load('./dist')).dist;
 const hash = dist?.hash.digest ?? '';
 
 /**
- * TODO 🐷 header: pkg-hash: <digest>
- */
-
-/**
  * Define HTTP Web Server.
  */
 const app = HttpServer.create({ pkg, hash });
-app.use('/*', HttpServer.static({ root: './dist' }));
+app.use('/*', HttpServer.static('./dist'));
 
 /**
  * Start Server.
