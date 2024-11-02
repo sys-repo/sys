@@ -1,5 +1,5 @@
 export { format } from '@std/fmt/bytes';
-export { exists } from '@std/fs';
+export { ensureDir, exists } from '@std/fs';
 export { walk } from './u.walk.ts';
 
 export * from '../common.ts';

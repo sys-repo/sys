@@ -118,10 +118,22 @@ export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
 /**
  * Copy all files in a directory.
  */
-export type FsCopyDir = (sourceDir: t.StringPath, targetDir: t.StringPath) => Promise<void>;
+export type FsCopyDir = (
+  source: t.StringDir,
+  target: t.StringDir,
+  options?: {
+    /** Write errors and other meta-information to the console: default: false */
+    log?: boolean;
+    /** Overwrite existing directory files, default: false */
+    force?: boolean;
+  },
+) => Promise<FsCopyDirResponse>;
+
+/** Response to an `Fs.copyDir` method call. */
+export type FsCopyDirResponse = { error?: t.StdError };
 
 /**
- * Delete a directory (and it's contents).
+ * Delete a file or directory (and it's contents).
  */
 export type FsRemove = (
   path: string,

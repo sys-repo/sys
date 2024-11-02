@@ -1,11 +1,9 @@
-import { ensureDir, exists } from '@std/fs';
-
-import type { t } from './common.ts';
+import { type t, ensureDir, exists } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
 import { Size } from './m.Size.ts';
 import { Watch } from './m.Watch.ts';
-import { copyDir } from './u.dir.ts';
+import { copyDir } from './u.copy.ts';
 import { glob } from './u.glob.ts';
 import { readJson } from './u.read.ts';
 import { remove } from './u.remove.ts';
