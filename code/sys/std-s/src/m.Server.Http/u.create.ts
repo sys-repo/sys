@@ -1,4 +1,5 @@
-import { Hono, cors, serveStatic, type t } from './common.ts';
+import { Hono, cors, type t } from './common.ts';
+import { serveStatic } from './u.serveStatic.ts';
 
 /**
  * Create a new Hono application instance with cors and /static file server.

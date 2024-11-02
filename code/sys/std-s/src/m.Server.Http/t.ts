@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 import type {
   Hono,
   Context as HonoContext,
@@ -7,22 +5,23 @@ import type {
   Schema as HonoSchema,
 } from '@hono/hono';
 import type { cors } from '@hono/hono/cors';
-import type { serveStatic } from '@hono/hono/deno';
 import type { BlankSchema as HonoBlankSchema, Env as HonoEnv } from '@hono/hono/types';
+import type { t } from './common.ts';
 
 /**
- * Webserver.
+ * HTTP Webserver.
  */
 export type HttpServerLib = {
   readonly Auth: t.ServerAuth;
   readonly Hono: typeof Hono;
   readonly cors: typeof cors;
-  readonly static: typeof serveStatic;
-  create(options?: HttpServerCreateOptions): HonoApp;
+  readonly static: t.HttpServeStatic;
+  create(options?: t.HttpServerCreateOptions): HonoApp;
   options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
   print(addr: Deno.NetAddr, pkg?: t.Pkg, hash?: t.StringHash): void;
 };
 
+/** Options passed to the creation of a server. */
 export type HttpServerCreateOptions = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
@@ -31,13 +30,22 @@ export type HttpServerCreateOptions = {
 };
 
 /**
+ * Create static file-server middleware.
+ */
+export type HttpServeStatic = (
+  input: HttpServeStaticOptions | t.StringDir,
+) => t.HonoMiddlewareHandler;
+/** Options passed to the static server middleware. */
+export type HttpServeStaticOptions = { root: t.StringDir };
+
+/**
  * Hono Server (application instnace).
  */
 export type HonoApp = Hono<HonoEnv, HonoBlankSchema, '/'>;
 export type { HonoBlankSchema, HonoContext, HonoEnv, HonoMiddlewareHandler, HonoSchema };
 
 /**
- * Route
+ * Context passed into route handlers.
  */
 export type RouteContext = {
   readonly app: t.HonoApp;
