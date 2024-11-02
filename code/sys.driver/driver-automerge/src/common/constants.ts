@@ -1,5 +1,5 @@
-import { Pkg } from '../pkg.ts';
-const ns = Pkg.name;
+import { pkg } from '../pkg.ts';
+const ns = pkg.name;
 
 /**
  * Type display names.
