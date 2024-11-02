@@ -1,4 +1,4 @@
-import { Path, c, type t, Str, Time } from './common.ts';
+import { Hash, Path, Str, Time, c, type t } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
@@ -56,24 +56,29 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
 
-      const input = paths.input.slice(cwd.length);
-      const outDir = paths.outDir.slice(cwd.length);
+      const input = paths.input.slice(cwd.length + 1);
+      const outDir = paths.outDir.slice(cwd.length + 1);
       const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
+
+      let digest = '';
+      if (hash) {
+        const algo = Hash.prefix(hash);
+        const short = Hash.shorten(hash, [5, 5], true);
+        let uri = `digest:${algo}:${short}`;
+        uri = `${uri.slice(0, -5)}${c.green(uri.slice(-5))}`;
+        digest = c.gray(`${c.green('←')} ${uri}`);
+      }
 
       let text = `
 ${stdio}
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
 ${c.gray(`in:       ${input}`)}
-${c.gray(`out:      ${outDir}/dist.json`)}
+${c.gray(`out:      ${outDir}/dist.json`)} ${digest}
 `;
       text = text.trim();
       if (pkg) {
         const mod = c.white(c.bold(pkg.name));
         text += c.gray(`\npkg:      ${mod} ${pkg.version}`);
-      }
-      if (hash) {
-        const parts = [hash?.slice(0, -5), hash?.slice(-5)];
-        text += c.gray(`\n          ${parts[0]}${c.green(c.bold(parts[1]))}`);
       }
       return wrangle.res(text, args.pad);
     },
