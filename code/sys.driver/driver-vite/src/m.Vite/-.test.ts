@@ -39,10 +39,11 @@ describe('Vite', () => {
     };
 
     const logDist = (input: t.StringPath, dist: t.DistPkg) => {
+      const distfile = c.bold(c.white('./dist/dist.json'));
       console.info();
       console.info(c.magenta(`input: ${input}`));
       console.info(c.magenta(' ↓'));
-      console.info(c.magenta(`output: Pkg.Dist.compute → ${c.white('./dist/dist.json')}`));
+      console.info(c.magenta(`output: Pkg.Dist.compute → ${distfile}`));
       console.info();
       console.info(dist);
       console.info();
@@ -61,7 +62,7 @@ describe('Vite', () => {
     });
 
     it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-      const input = INPUT.sample1;
+      const input = INPUT.sample2;
       const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
       logDist(input, res.dist);
