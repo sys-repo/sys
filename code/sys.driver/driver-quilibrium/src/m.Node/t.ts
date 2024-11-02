@@ -51,5 +51,5 @@ export type ReleasePullResponse = {
   /** The environment flags used during the pull operations */
   env: ReleaseEnv;
   /** Flags. */
-  is: { newRelease: boolean };
+  is: { newRelease: boolean; forced: boolean };
 };

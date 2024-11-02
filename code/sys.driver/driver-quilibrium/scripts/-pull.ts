@@ -12,7 +12,8 @@ const force = args.force;
  */
 const rootDir = Path.resolve('.');
 const res = await Q.Release.pull({ rootDir, force });
+console.log();
 console.log(c.yellow('─'.repeat(50)));
-console.log(c.yellow('response:'), res);
+console.log(c.yellow('sample response:'), res);
 
 Deno.exit(0);

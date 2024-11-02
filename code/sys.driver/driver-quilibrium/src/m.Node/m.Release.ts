@@ -25,7 +25,7 @@ export const Release: t.ReleaseLib = {
 
     const res: t.ReleasePullResponse = {
       version: '',
-      is: { newRelease: false },
+      is: { newRelease: false, forced: force },
       env,
       files: [],
     };
@@ -56,18 +56,20 @@ export const Release: t.ReleaseLib = {
       const fileRes = await fetch(fileUrl);
       const fileBuffer = await fileRes.arrayBuffer();
       const fileData = new Uint8Array(fileBuffer);
-      const fileSize = Cli.Value.Str.bytes(fileData.byteLength);
+      const totalBytes = fileData.byteLength;
+      const fileSize = Cli.Value.Str.bytes(totalBytes);
 
       await Fs.ensureDir(Fs.dirname(path));
       await Deno.writeFile(path, fileData);
 
       const dirname = Fs.dirname(path);
       const basename = Fs.basename(path);
-      const printDir = rootDir ? dirname.substring(rootDir?.length ?? 0) : dirname;
+
+      const printDir = rootDir ? dirname.substring((rootDir?.length ?? 0) + 1) : dirname;
       const printBasename = isFirst ? c.white(basename) : c.gray(basename);
       const printPath = c.gray(`${c.dim(printDir)}/${printBasename}`);
       const printSize = c.gray(`(${fileSize})`);
-      spinner.succeed(`Saved ${printSize} ${printPath}`);
+      spinner.succeed(`Saved ${printPath} ${printSize}`);
     };
 
     const downloadIfNotLocal = async (file: string, i: number) => {
@@ -76,7 +78,7 @@ export const Release: t.ReleaseLib = {
       if (exists && !force) return;
 
       // The file does not exist, download it now...
-      res.is.newRelease = true;
+      res.is.newRelease = !exists;
       await download(file, i);
     };
 
@@ -94,7 +96,7 @@ export const Release: t.ReleaseLib = {
       console.info();
       console.info(line);
     } else {
-      console.info(c.gray(`  ${c.green('•')} Latest release already exists.`));
+      console.info(c.gray(`${c.green('•')} NB: latest release already existed.`));
       console.info();
     }
 
