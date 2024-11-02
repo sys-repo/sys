@@ -7,11 +7,11 @@
  *
  *    Example of starting up the Vite development server process:
  *
- *        import { Pkg } from './common.ts';
+ *        import { pkg } from './src/pkg.ts';
  *        import { ViteProcess } from '@sys/driver-vite';
  *
  *        const input = './path/to/entry/index.html';
- *        const server = await ViteProcess.dev({ Pkg, input });
+ *        const server = await ViteProcess.dev({ pkg, input });
  *        await server.listen();
  *
  */

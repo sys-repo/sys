@@ -5,7 +5,7 @@
  *
  * @example
  * ```ts
- * import { Pkg, Json, Patch, PatchState } from '@sys/driver-immer';
+ * import { pkg, Json, Patch, PatchState } from '@sys/driver-immer';
  *
  * type T = { count: number; };
  * const state = PatchState.create<T>({ count: 0 });

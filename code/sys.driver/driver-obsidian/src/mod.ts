@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Pkg } from '@sys/driver-obsidian';
+ * import { pkg } from '@sys/driver-obsidian';
  * import { Vault } from '@sys/driver-obsidian/s';
  * ```
  */
