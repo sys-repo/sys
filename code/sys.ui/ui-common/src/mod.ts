@@ -5,8 +5,11 @@
  * @example
  * ```ts
  * import { pkg } from '@sys/ui-common';
+ *
+ * // Common UI component requirements (.tsx)
  * import { Fc, Color, css, rx } from '@sys/ui-common';
  *
+ * // Common UI types.
  * import type { CssValue } from '@sys/ui-common/t';
  * ```
  */
