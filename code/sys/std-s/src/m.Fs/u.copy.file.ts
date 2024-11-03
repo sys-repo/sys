@@ -3,7 +3,7 @@ import { remove } from './u.remove.ts';
 import { Is } from './m.Is.ts';
 
 /**
- * Copy a single file
+ * Copy an individual file.
  */
 export const copyFile: t.FsCopyFile = async (from, to, options = {}) => {
   const { log = false, force = false } = options;

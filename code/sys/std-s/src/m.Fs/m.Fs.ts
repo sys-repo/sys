@@ -3,7 +3,7 @@ import { Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
 import { Size } from './m.Size.ts';
 import { Watch } from './m.Watch.ts';
-import { copyDir, copyFile } from './u.copy.ts';
+import { copy, copyDir, copyFile } from './u.copy.ts';
 import { glob } from './u.glob.ts';
 import { readJson } from './u.read.ts';
 import { remove } from './u.remove.ts';
@@ -33,6 +33,7 @@ export const Fs: t.FsLib = {
   remove,
   readJson,
 
+  copy,
   copyDir,
   copyFile,
 

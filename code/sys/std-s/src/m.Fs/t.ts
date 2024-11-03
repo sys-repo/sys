@@ -29,6 +29,9 @@ export type FsLib = StdMethods & {
   /** Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 
+  /** Copy a file or directory. */
+  readonly copy: t.FsCopy;
+
   /** Copy all files in a directory. */
   readonly copyDir: t.FsCopyDir;
 
@@ -119,13 +122,19 @@ export type Glob = {
 export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
 
 /**
- * Copy all files in a directory.
+ * Copy a file or directory.
  */
-export type FsCopyDir = (
-  from: t.StringDir,
-  to: t.StringDir,
+export type FsCopy = (
+  from: t.StringPath,
+  to: t.StringPath,
   options?: t.FsCopyOptions,
 ) => Promise<t.FsCopyResponse>;
+
+/** Copy all files in a directory. */
+export type FsCopyDir = t.FsCopy;
+
+/** Copy an individual file. */
+export type FsCopyFile = t.FsCopy;
 
 /** Options passed to a file-system copy operation */
 export type FsCopyOptions = {
@@ -134,15 +143,6 @@ export type FsCopyOptions = {
   /** Overwrite existing directory files, default: false */
   force?: boolean;
 };
-
-/**
- * Copy a file.
- */
-export type FsCopyFile = (
-  from: t.StringDir,
-  to: t.StringDir,
-  options?: t.FsCopyOptions,
-) => Promise<t.FsCopyResponse>;
 
 /** Response to an file-system copy operation. */
 export type FsCopyResponse = { error?: t.StdError };

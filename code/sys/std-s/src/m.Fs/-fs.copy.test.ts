@@ -26,6 +26,90 @@ describe('Fs: directory operations', () => {
     expect(await Deno.readTextFile(path)).to.eql(text);
   };
 
+  describe('Fs.copyFile', () => {
+    describe('success', () => {
+      it('success: flat', async () => {
+        const { dir, file } = await setupCopyTest();
+        expect(await Fs.exists(dir.a)).to.eql(true);
+        expect(await Fs.exists(dir.b)).to.eql(false); // NB: copyFile will ensure the parent dir.
+
+        const res = await Fs.copyFile(file.a, file.b);
+        expect(res.error).to.eql(undefined);
+
+        expect(await Fs.exists(dir.b)).to.eql(true);
+        expect(await Fs.exists(file.b)).to.eql(true); // NB: parent dir created.
+        await assertFileText(file.b, file.text);
+      });
+
+      it('success: replaces directory ← {force:true}', async () => {
+        const { dir, file } = await setupCopyTest();
+        await Fs.copyDir(dir.a, dir.b);
+        expect(await Fs.exists(dir.a)).to.eql(true);
+        expect(await Fs.exists(dir.b)).to.eql(true); // NB: copyFile will ensure the parent dir.
+
+        const res = await Fs.copyFile(file.a, dir.b, { force: true });
+        expect(res.error).to.eql(undefined);
+        await assertFileText(dir.b, file.text); // NB: now a file.
+      });
+    });
+
+    describe('errors', () => {
+      it('error: invalid source file-path', async () => {
+        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        const sample = await setupCopyTest();
+        const { dir } = sample;
+        const test = async (sourceFile: any, expectedError: string) => {
+          const res = await Fs.copyFile(sourceFile, dir.b);
+          expect(res.error?.message).to.include(expectedError);
+        };
+
+        await test('./404', 'Copy error - source file does not exist');
+        for (const value of NON) {
+          await test(value, 'Copy error - source file path is not a valid');
+        }
+      });
+
+      it('error: source file-path is a directory', async () => {
+        const sample = await setupCopyTest();
+        const { dir, file } = sample;
+        const res = await Fs.copyFile(dir.a, file.b);
+        expect(res.error?.message).to.include('Cannot copy file - the given path is a directory');
+      });
+
+      it('error: not forced AND file already exists', async () => {
+        const test = async (force?: boolean, error?: string) => {
+          const sample = await setupCopyTest();
+          const { file } = sample;
+
+          // First copy dir to create the scenario of the target already existing.
+          await Fs.copyFile(file.a, file.b);
+          expect(await Fs.exists(file.b)).to.eql(true);
+
+          const res = await Fs.copyFile(file.a, file.b, { force });
+          if (error) expect(res.error?.message).to.include(error);
+        };
+
+        const err = `Cannot copy over existing file`;
+        await test(undefined, err); // Default: false.
+        await test(false, err);
+        await test(true); // NB: forced - no problem.
+      });
+    });
+
+    it('error: target  (and not forced)', async () => {
+      const sample = await setupCopyTest();
+      const { dir, file } = sample;
+
+      // First copy dir to create the scenario of the target already existing.
+      await Fs.copyFile(file.a, file.b);
+
+      const res1 = await Fs.copyFile(file.a, dir.b);
+      const res2 = await Fs.copyFile(file.a, file.b);
+      expect(res1.error?.message).to.include('Cannot copy over existing directory');
+      expect(res2.error?.message).to.include('Cannot copy over existing file');
+    });
+  });
+
   describe('Fs.copyDir', () => {
     describe('success', () => {
       it('success: flat', async () => {
@@ -118,87 +202,36 @@ describe('Fs: directory operations', () => {
     });
   });
 
-  describe('Fs.copyFile', () => {
-    describe('success', () => {
-      it('success: flat', async () => {
-        const { dir, file } = await setupCopyTest();
-        expect(await Fs.exists(dir.a)).to.eql(true);
-        expect(await Fs.exists(dir.b)).to.eql(false); // NB: copyFile will ensure the parent dir.
+  describe('Fs.copy', () => {
+    /**
+     * NB: [Fs.copy] this is a pass-through function depending
+     *     on whether the source ("to" param) is a a file or a directory.
+     *     See corresponding [Fs.copyFile] OR [Fs.copyDir] tests.
+     */
+    it('copy file', async () => {
+      const { dir, file } = await setupCopyTest();
+      expect(await Fs.exists(dir.a)).to.eql(true);
+      expect(await Fs.exists(dir.b)).to.eql(false); // NB: copyFile will ensure the parent dir.
 
-        const res = await Fs.copyFile(file.a, file.b);
-        expect(res.error).to.eql(undefined);
+      const res = await Fs.copy(file.a, file.b);
+      expect(res.error).to.eql(undefined);
 
-        expect(await Fs.exists(dir.b)).to.eql(true);
-        expect(await Fs.exists(file.b)).to.eql(true); // NB: parent dir created.
-        await assertFileText(file.b, file.text);
-      });
-
-      it('success: replaces directory ← {force:true}', async () => {
-        const { dir, file } = await setupCopyTest();
-        await Fs.copyDir(dir.a, dir.b);
-        expect(await Fs.exists(dir.a)).to.eql(true);
-        expect(await Fs.exists(dir.b)).to.eql(true); // NB: copyFile will ensure the parent dir.
-
-        const res = await Fs.copyFile(file.a, dir.b, { force: true });
-        expect(res.error).to.eql(undefined);
-        await assertFileText(dir.b, file.text); // NB: now a file.
-      });
+      expect(await Fs.exists(dir.b)).to.eql(true);
+      expect(await Fs.exists(file.b)).to.eql(true); // NB: parent dir created.
+      await assertFileText(file.b, file.text);
     });
 
-    describe('errors', () => {
-      it('error: invalid source file-path', async () => {
-        const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-        const sample = await setupCopyTest();
-        const { dir } = sample;
-        const test = async (sourceFile: any, expectedError: string) => {
-          const res = await Fs.copyFile(sourceFile, dir.b);
-          expect(res.error?.message).to.include(expectedError);
-        };
+    it('copy directory', async () => {
+      const { dir, file } = await setupCopyTest();
+      expect(await Fs.exists(dir.a)).to.eql(true);
+      expect(await Fs.exists(dir.b)).to.eql(false);
 
-        await test('./404', 'Copy error - source file does not exist');
-        for (const value of NON) {
-          await test(value, 'Copy error - source file path is not a valid');
-        }
-      });
+      const res = await Fs.copy(dir.a, dir.b);
+      expect(res.error).to.eql(undefined);
 
-      it('error: source file-path is a directory', async () => {
-        const sample = await setupCopyTest();
-        const { dir, file } = sample;
-        const res = await Fs.copyFile(dir.a, file.b);
-        expect(res.error?.message).to.include('Cannot copy file - the given path is a directory');
-      });
-
-      it('error: not forced AND file already exists', async () => {
-        const test = async (force?: boolean, error?: string) => {
-          const sample = await setupCopyTest();
-          const { file } = sample;
-
-          // First copy dir to create the scenario of the target already existing.
-          await Fs.copyFile(file.a, file.b);
-          expect(await Fs.exists(file.b)).to.eql(true);
-
-          const res = await Fs.copyFile(file.a, file.b, { force });
-          if (error) expect(res.error?.message).to.include(error);
-        };
-
-        const err = `Cannot copy over existing file`;
-        await test(undefined, err); // Default: false.
-        await test(false, err);
-        await test(true); // NB: forced - no problem.
-      });
-    });
-
-    it('error: target  (and not forced)', async () => {
-      const sample = await setupCopyTest();
-      const { dir, file } = sample;
-
-      // First copy dir to create the scenario of the target already existing.
-      await Fs.copyFile(file.a, file.b);
-
-      const res1 = await Fs.copyFile(file.a, dir.b);
-      const res2 = await Fs.copyFile(file.a, file.b);
-      expect(res1.error?.message).to.include('Cannot copy over existing directory');
-      expect(res2.error?.message).to.include('Cannot copy over existing file');
+      expect(await Fs.exists(dir.b)).to.eql(true);
+      expect(await Fs.exists(file.b)).to.eql(true);
+      await assertFileText(file.b, file.text);
     });
   });
 });
