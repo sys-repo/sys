@@ -10,9 +10,13 @@
     "@std/uuid": "npm:@jsr/std__uuid@1.0.4"
   },
   "devDependencies": {
+    "@types/react": "18.3",
+    "@types/react-dom": "18.3",
     "@swc/plugin-emotion": "4",
     "@vitejs/plugin-react-swc": "3",
     "rollup": "4",
+    "react": "18",
+    "react-dom": "18",
     "vite": "5",
     "vite-plugin-wasm": "3"
   }
