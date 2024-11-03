@@ -3,29 +3,29 @@ import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: directory operations', () => {
+  const setupCopyDirTest = async () => {
+    const SAMPLE = sampleDir('fs-dir');
+    await SAMPLE.ensureExists();
+
+    const text = `sample-${slug()}\n`;
+    const name = 'foo.txt';
+    const a = SAMPLE.join('a');
+    const b = SAMPLE.join('b');
+
+    await Fs.ensureDir(a);
+    await Deno.writeTextFile(Fs.join(a, name), text);
+    return {
+      SAMPLE,
+      dir: { a, b },
+      file: { name, text },
+    } as const;
+  };
+
+  const assertFileText = async (path: string, text: string) => {
+    expect(await Deno.readTextFile(path)).to.eql(text);
+  };
+
   describe('Fs.copyDir', () => {
-    const setupCopyDirTest = async () => {
-      const SAMPLE = sampleDir('fs-dir');
-      await SAMPLE.ensureExists();
-
-      const text = `sample-${slug()}\n`;
-      const name = 'foo.txt';
-      const a = SAMPLE.join('a');
-      const b = SAMPLE.join('b');
-
-      await Fs.ensureDir(a);
-      await Deno.writeTextFile(Fs.join(a, name), text);
-      return {
-        SAMPLE,
-        dir: { a, b },
-        file: { name, text },
-      } as const;
-    };
-
-    const assertFileText = async (path: string, text: string) => {
-      expect(await Deno.readTextFile(path)).to.eql(text);
-    };
-
     describe('success', () => {
       it('success', async () => {
         const { dir, file } = await setupCopyDirTest();
