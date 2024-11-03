@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Color, COLORS, css, Err, Hash, Path, Pkg, pkg, rx, type t } from './common.ts';
 
 export type TmpProps = {
+  digest?: t.StringHash;
   theme?: t.CommonTheme;
   style?: t.CssValue;
 };
@@ -41,9 +42,8 @@ const DistPkg = {
 } as const;
 
 export const Tmp: React.FC<TmpProps> = (props) => {
-  const {} = props;
   const [dist, setDist] = useState<t.DistPkg>();
-  const digest = wrangle.digest(dist);
+  const digest = props.digest ? wrangle.format(props.digest) : wrangle.digest(dist);
 
   /**
    * Lifecycle.
@@ -70,15 +70,13 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     }),
     body: {
       base: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
-      inner: css({
-        marginBottom: '5%',
-      }),
+      inner: css({ marginBottom: '10%' }),
       pig: css({ fontSize: 65 }),
       title: css({ fontSize: 28 }),
     },
     pkg: {
       base: css({
-        Absolute: [null, null, 7, 15],
+        Absolute: [null, null, 7, digest.display ? 18 : 15],
         fontFamily: 'monospace',
         lineHeight: 1.7,
         cursor: 'pointer',
@@ -99,6 +97,12 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     </div>
   );
 
+  const elHash = digest.display && (
+    <div {...styles.pkg.hash} title={digest.tooltip}>
+      {digest.display}
+    </div>
+  );
+
   const elPkg = (
     <div {...styles.pkg.base}>
       <div>
@@ -108,11 +112,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
           <span {...styles.pkg.version}>{pkg.version}</span>
         </div>
       </div>
-      {digest.short && (
-        <div {...styles.pkg.hash} title={digest.tooltip}>
-          {digest.display}
-        </div>
-      )}
+      {digest.display && elHash}
     </div>
   );
 
@@ -129,7 +129,11 @@ export const Tmp: React.FC<TmpProps> = (props) => {
  */
 const wrangle = {
   digest(dist?: t.DistPkg) {
-    const long = dist?.hash.digest ?? '';
+    return wrangle.format(dist?.hash.digest);
+  },
+
+  format(hash?: t.StringHash) {
+    const long = hash ?? '';
     const short = Hash.shorten(long, 4, true);
     const tooltip = `pkg:digest:${long}`;
     const display = `pkg:sha256:#${short}`;
