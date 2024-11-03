@@ -21,8 +21,8 @@ import { Doc, Store, StoreIndex } from './crdt/mod.ts';
 export { Doc };
 // export { Doc, Sync };
 
-// import { StoreIndexDb, WebStore, WebStoreIndex } from './crdt.web';
-// export { StoreIndexDb, WebStore, WebStoreIndex };
+import { StoreIndexDb, WebStore, WebStoreIndex } from './crdt.web/mod.ts';
+export { StoreIndexDb, WebStore, WebStoreIndex };
 
 export const Crdt = {
   // Doc,
