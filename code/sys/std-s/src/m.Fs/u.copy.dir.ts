@@ -4,7 +4,7 @@ import { remove } from './u.remove.ts';
 /**
  * Copy all files in a directory.
  */
-export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) => {
+export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
   const { log = false, force = false } = options;
   const errors = Err.errors();
 
@@ -17,14 +17,14 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
   /*
    * Input guards.
    */
-  if (typeof sourceDir !== 'string') {
-    const value = String(sourceDir) || '<empty>';
+  if (typeof from !== 'string') {
+    const value = String(from) || '<empty>';
     errors.push(`Copy error - source directory is not a valid: ${value}`);
     return done();
   }
 
-  if (!(await exists(sourceDir))) {
-    errors.push(`Copy error - source directory does not exist: ${sourceDir}`);
+  if (!(await exists(from))) {
+    errors.push(`Copy error - source directory does not exist: ${from}`);
     return done();
   }
 
@@ -32,27 +32,27 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
     /**
      * Setup target directory.
      */
-    if (await exists(targetDir)) {
+    if (await exists(to)) {
       if (force) {
-        await remove(targetDir); // NB: force overwrite
+        await remove(to); // NB: force overwrite
       } else {
-        const msg = `Cannot copy over existing target directory (pass {force} option to overwrite): ${targetDir}`;
+        const msg = `Cannot copy over existing directory: ${to}`;
         errors.push(msg);
         return done();
       }
     }
-    await ensureDir(targetDir);
+    await ensureDir(to);
 
     /*
      * Copy operation.
      */
-    for await (const entry of Deno.readDir(sourceDir)) {
-      const srcPath = `${sourceDir}/${entry.name}`;
-      const destPath = `${targetDir}/${entry.name}`;
+    for await (const entry of Deno.readDir(from)) {
+      const source = `${from}/${entry.name}`;
+      const target = `${to}/${entry.name}`;
       if (entry.isDirectory) {
-        await copyDir(srcPath, destPath);
+        await copyDir(source, target);
       } else if (entry.isFile) {
-        await Deno.copyFile(srcPath, destPath);
+        await Deno.copyFile(source, target);
       }
     }
   } catch (error: any) {
@@ -63,7 +63,7 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
     if (error instanceof Deno.errors.NotFound) {
       errors.push(Err.std(`File or directory to copy not found.`, { cause }));
     } else {
-      error.push('Unexpected error while copying directory.', { cause });
+      errors.push(Err.std('Unexpected error while copying directory.', { cause }));
     }
   }
 

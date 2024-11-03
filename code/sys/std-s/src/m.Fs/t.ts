@@ -32,6 +32,9 @@ export type FsLib = StdMethods & {
   /** Copy all files in a directory. */
   readonly copyDir: t.FsCopyDir;
 
+  /** Copy a single file. */
+  readonly copyFile: t.FsCopyFile;
+
   /** Remove a file or directory if it exists. */
   readonly remove: t.FsRemove;
 
@@ -119,18 +122,30 @@ export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
  * Copy all files in a directory.
  */
 export type FsCopyDir = (
-  source: t.StringDir,
-  target: t.StringDir,
-  options?: {
-    /** Write errors and other meta-information to the console: default: false */
-    log?: boolean;
-    /** Overwrite existing directory files, default: false */
-    force?: boolean;
-  },
-) => Promise<FsCopyDirResponse>;
+  from: t.StringDir,
+  to: t.StringDir,
+  options?: t.FsCopyOptions,
+) => Promise<t.FsCopyResponse>;
 
-/** Response to an `Fs.copyDir` method call. */
-export type FsCopyDirResponse = { error?: t.StdError };
+/** Options passed to a file-system copy operation */
+export type FsCopyOptions = {
+  /** Write errors and other meta-information to the console: default: false */
+  log?: boolean;
+  /** Overwrite existing directory files, default: false */
+  force?: boolean;
+};
+
+/**
+ * Copy a file.
+ */
+export type FsCopyFile = (
+  from: t.StringDir,
+  to: t.StringDir,
+  options?: t.FsCopyOptions,
+) => Promise<t.FsCopyResponse>;
+
+/** Response to an file-system copy operation. */
+export type FsCopyResponse = { error?: t.StdError };
 
 /**
  * Delete a file or directory (and it's contents).
