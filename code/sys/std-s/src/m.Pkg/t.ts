@@ -8,14 +8,14 @@ import type { PkgLib } from '@sys/std/t';
  * `{pkg}` package meta-data structure.
  */
 export type PkgSLib = PkgLib & {
-  readonly Dist: t.PkgDistLib;
+  readonly Dist: t.PkgDistSLib;
 };
 
 /**
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export type PkgDistLib = {
+export type PkgDistSLib = {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
