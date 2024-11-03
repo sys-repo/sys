@@ -11,6 +11,7 @@ export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
   const done = () => {
     const error = errors.toError();
     if (error && log) console.warn(`ERROR: ${pkg.name}:Fs.copyDir →`, error);
+    if (error && options.throw) throw error;
     return { error };
   };
 

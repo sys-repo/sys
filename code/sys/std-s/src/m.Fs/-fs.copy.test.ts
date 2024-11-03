@@ -1,4 +1,4 @@
-import { describe, expect, it, slug } from '../-test.ts';
+import { expectError, describe, expect, it, slug } from '../-test.ts';
 import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
@@ -57,9 +57,9 @@ describe('Fs: directory operations', () => {
       it('error: invalid source file-path', async () => {
         const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
         const sample = await setupCopyTest();
-        const { dir } = sample;
+        const { file } = sample;
         const test = async (sourceFile: any, expectedError: string) => {
-          const res = await Fs.copyFile(sourceFile, dir.b);
+          const res = await Fs.copyFile(sourceFile, file.b);
           expect(res.error?.message).to.include(expectedError);
         };
 
@@ -232,6 +232,14 @@ describe('Fs: directory operations', () => {
       expect(await Fs.exists(dir.b)).to.eql(true);
       expect(await Fs.exists(file.b)).to.eql(true);
       await assertFileText(file.b, file.text);
+    });
+
+    it('{throw} parameter (default: false)', async () => {
+      const { dir, file } = await setupCopyTest();
+      expectError(() => Fs.copyFile('./404', file.b, { throw: true }));
+      expectError(() => Fs.copyDir('./404', dir.b, { throw: true }));
+      expectError(() => Fs.copy('./404', file.b, { throw: true }));
+      expectError(() => Fs.copy('./404', dir.b, { throw: true }));
     });
   });
 });

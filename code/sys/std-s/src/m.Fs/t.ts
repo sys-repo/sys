@@ -136,12 +136,14 @@ export type FsCopyDir = t.FsCopy;
 /** Copy an individual file. */
 export type FsCopyFile = t.FsCopy;
 
-/** Options passed to a file-system copy operation */
+/** Options passed to a file-system copy operation, */
 export type FsCopyOptions = {
-  /** Write errors and other meta-information to the console: default: false */
+  /** Write errors and other meta-information to the console (default: false). */
   log?: boolean;
-  /** Overwrite existing directory files, default: false */
+  /** Overwrite existing directory files (default: false). */
   force?: boolean;
+  /** Flag indicating if errors should be thrown (default: false). */
+  throw?: boolean;
 };
 
 /** Response to an file-system copy operation. */
