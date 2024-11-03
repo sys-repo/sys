@@ -19,12 +19,12 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
    */
   if (typeof sourceDir !== 'string') {
     const value = String(sourceDir) || '<empty>';
-    errors.push(`The source directory to copy is not a valid path: ${value}`);
+    errors.push(`Copy error: source directory is not a valid: ${value}`);
     return done();
   }
 
   if (!(await exists(sourceDir))) {
-    errors.push(`The source directory to copy does not exist: ${sourceDir}`);
+    errors.push(`Copy error: source directory does not exist: ${sourceDir}`);
     return done();
   }
 
