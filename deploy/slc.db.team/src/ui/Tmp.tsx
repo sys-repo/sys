@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { COLORS, Color, css, Pkg, pkg, type t, rx, Path, Err } from './common.ts';
+import { useEffect, useState } from 'react';
+import { Color, COLORS, css, Err, Hash, Path, Pkg, pkg, rx, type t } from './common.ts';
 
 export type TmpProps = {
   theme?: t.CommonTheme;
@@ -100,7 +100,9 @@ export const Tmp: React.FC<TmpProps> = (props) => {
           <span {...styles.pkg.version}>{pkg.version}</span>
         </div>
       </div>
-      {digest && <div {...styles.pkg.hash}>{digest}</div>}
+      {digest.short && (
+        <div {...styles.pkg.hash} title={digest.long}>{`pkg:digest:sha256:${digest.short}`}</div>
+      )}
     </div>
   );
 
@@ -117,6 +119,8 @@ export const Tmp: React.FC<TmpProps> = (props) => {
  */
 const wrangle = {
   digest(dist?: t.DistPkg) {
-    return dist?.hash.digest;
+    const long = dist?.hash.digest ?? '';
+    const short = Hash.shorten(long, 4, true);
+    return { long, short };
   },
 } as const;
