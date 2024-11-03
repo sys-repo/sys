@@ -47,3 +47,27 @@ export type PkgIsLib = {
   /** Determine if the given input is a `DistPkg` */
   dist(input: unknown): input is t.DistPkg;
 };
+
+/**
+ * Tools for working with "distribution-package"
+ * ie. an ESM output typically written to a `/dist` folder.
+ */
+export type PkgDistLib = {
+  fetch(options?: t.PkgDistFetchOptions): Promise<PkgDistFetchResponse>;
+};
+
+/** Options passed to the [Pkg.Dist.fetch] method. */
+export type PkgDistFetchOptions = {
+  dispose$?: t.UntilObservable;
+  disposeReason?: string;
+  origin?: string;
+  pathname?: string;
+};
+
+/** Response returned from the [Pkg.Dist.fetch] method. */
+export type PkgDistFetchResponse = {
+  readonly ok: boolean;
+  readonly status: number;
+  readonly dist?: t.DistPkg;
+  readonly error?: t.StdError;
+};
