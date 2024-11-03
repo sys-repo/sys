@@ -9,7 +9,8 @@ export const TestHttpServer: t.TestHttpServer = {
 
   json(...args: any[]) {
     const { body, headers } = wrangle.args(args, 'application/json');
-    return new Response(JSON.stringify(body), { headers });
+    const json = `${JSON.stringify(body, null, '  ')}\n`;
+    return new Response(json, { headers });
   },
 
   text(...args: any[]) {
