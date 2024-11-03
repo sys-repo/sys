@@ -71,6 +71,12 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/ui-common"
+        run: |
+          cd code/sys.ui/ui-common
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/ui-dom"
         run: |
           cd code/sys.ui/ui-dom
