@@ -1,6 +1,6 @@
 import { type t, DEFAULTS, isObject } from './common.ts';
-import { Dist } from './m.Pkg.Dist.ts';
-import { Is } from './m.Pkg.Is.ts';
+import { Dist } from './m.Dist.ts';
+import { Is } from './m.Is.ts';
 
 export const Pkg: t.PkgLib = {
   Is,
