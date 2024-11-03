@@ -1,6 +1,6 @@
 import { type t, c, describe, expect, Fs, it, pkg, Path } from '../-test.ts';
 import { R, Hash } from './common.ts';
-import { Dist } from './m.Pkg.Dist.ts';
+import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 import { SAMPLE_PATH, SAMPLE_FILE } from './-u.ts';
 
