@@ -11,8 +11,10 @@ export const copyFile: t.FsCopyFile = async (from, to, options = {}) => {
 
   const done = () => {
     const error = errors.toError();
-    if (error && log) console.warn(`ERROR: ${pkg.name}:Fs.copyFile →`, error);
-    if (error && options.throw) throw error;
+    if (error) {
+      if (options.throw) throw error;
+      if (options.log) console.warn(`ERROR: ${pkg.name}:Fs.copyFile →`, error);
+    }
     return { error };
   };
 
@@ -36,23 +38,20 @@ export const copyFile: t.FsCopyFile = async (from, to, options = {}) => {
     return done();
   }
 
-  try {
-    /**
-     * Setup target directory.
-     */
-    if (await exists(to)) {
-      if (force) {
-        await remove(to, { log }); // NB: force replace.
-      } else {
-        const kind = (await Is.dir(to)) ? 'directory' : 'file';
-        const msg = `Cannot copy over existing ${kind}: ${to}`;
-        errors.push(msg);
-        return done();
-      }
+  if (await exists(to)) {
+    if (force) {
+      await remove(to, { log }); // NB: force replace.
+    } else {
+      const kind = (await Is.dir(to)) ? 'directory' : 'file';
+      const msg = `Cannot copy over existing ${kind}: ${to}`;
+      errors.push(msg);
+      return done();
     }
-    await ensureDir(Path.dirname(to));
+  }
 
+  try {
     // Copy the file.
+    await ensureDir(Path.dirname(to));
     await Deno.copyFile(from, to);
   } catch (error: any) {
     /**

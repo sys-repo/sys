@@ -5,13 +5,15 @@ import { remove } from './u.remove.ts';
  * Copy all files in a directory.
  */
 export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
-  const { log = false, force = false } = options;
+  const { force = false } = options;
   const errors = Err.errors();
 
   const done = () => {
     const error = errors.toError();
-    if (error && log) console.warn(`ERROR: ${pkg.name}:Fs.copyDir →`, error);
-    if (error && options.throw) throw error;
+    if (error) {
+      if (options.throw) throw error;
+      if (options.log) console.warn(`ERROR: ${pkg.name}:Fs.copyDir →`, error);
+    }
     return { error };
   };
 
@@ -29,21 +31,17 @@ export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
     return done();
   }
 
-  try {
-    /**
-     * Setup target directory.
-     */
-    if (await exists(to)) {
-      if (force) {
-        await remove(to); // NB: force overwrite
-      } else {
-        const msg = `Cannot copy over existing directory: ${to}`;
-        errors.push(msg);
-        return done();
-      }
+  if (await exists(to)) {
+    if (force) {
+      await remove(to); // NB: force overwrite
+    } else {
+      errors.push(`Cannot copy over existing directory: ${to}`);
+      return done();
     }
-    await ensureDir(to);
+  }
+  await ensureDir(to);
 
+  try {
     /*
      * Copy operation.
      */
