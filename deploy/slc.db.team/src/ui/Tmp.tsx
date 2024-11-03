@@ -74,7 +74,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
       title: css({ fontSize: 28 }),
     },
     pkg: {
-      base: css({ Absolute: [null, null, 6, 15], fontFamily: 'monospace', lineHeight: 1.7 }),
+      base: css({ Absolute: [null, null, 7, 15], fontFamily: 'monospace', lineHeight: 1.7 }),
       name: css({}),
       at: css({ MarginX: '0.6em', opacity: 0.6 }),
       version: css({ opacity: 1 }),
