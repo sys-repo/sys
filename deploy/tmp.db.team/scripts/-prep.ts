@@ -10,8 +10,8 @@ const PATHS = {
 };
 
 // const from = PATHS.dev000;
-const from = PATHS.DEV_HARNESS;
 // const from = PATHS.viteDriver;
+const from = PATHS.DEV_HARNESS;
 const to = Fs.resolve('./dist');
 
 const exists = {
@@ -29,6 +29,5 @@ table.push([c.green('To'), exists.label(exists.to), c.gray(to)]);
 console.info();
 console.info(c.gray(table.toString()));
 
-await Fs.remove(to);
-await Fs.copyDir(from, to);
+await Fs.copy(from, to, { force: true, throw: true });
 console.info();
