@@ -1,4 +1,4 @@
-import { Hash, c, type t } from './common.ts';
+import { Hash, c, Cli, type t } from './common.ts';
 
 /**
  * Outputs a formatted console log within
@@ -11,12 +11,11 @@ export const print: t.HttpServerLib['print'] = (addr, pkg, hash) => {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
     const hx = wrangle.hx(hash);
-    const mod = `${c.white(c.bold(pkg.name))} ${pkg.version}`;
-
-    console.info();
-    console.info(c.gray(`Module   ${mod}`));
-    if (hx) console.info(c.gray(`         ${hx.uri}`));
-    console.info(c.gray(`         ${host}`));
+    const table = Cli.table([]);
+    table.push([c.gray('Module'), `${c.white(c.bold(pkg.name))} ${pkg.version}`]);
+    if (hx) table.push(['', hx.uri]);
+    table.push(['', host]);
+    table.render();
   } else {
     console.info(c.gray(`Listening on ${host}`));
   }
@@ -31,7 +30,8 @@ const wrangle = {
     if (!hash) return;
     const algo = Hash.prefix(hash);
     const short = Hash.shorten(hash, [5, 5], true);
-    const uri = hash ? `pkg:${algo}:${c.green(short)}` : '';
+    let uri = `${c.green('digest')}:${algo}:${short}`;
+    uri = c.gray(`${uri.slice(0, -5)}${c.green(uri.slice(-5))}`);
     return { short, uri };
   },
 } as const;
