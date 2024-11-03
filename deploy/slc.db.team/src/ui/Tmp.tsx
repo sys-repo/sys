@@ -70,7 +70,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     }),
     body: {
       base: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
-      inner: css({ marginBottom: '10%' }),
+      inner: css({ marginBottom: '5%' }),
       pig: css({ fontSize: 65 }),
       title: css({ fontSize: 28 }),
     },
