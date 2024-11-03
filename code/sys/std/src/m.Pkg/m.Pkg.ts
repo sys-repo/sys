@@ -1,8 +1,10 @@
 import { type t, DEFAULTS, isObject } from './common.ts';
+import { Dist } from './m.Pkg.Dist.ts';
 import { Is } from './m.Pkg.Is.ts';
 
 export const Pkg: t.PkgLib = {
   Is,
+  Dist,
 
   toString(pkg) {
     const UNKNOWN = DEFAULTS.UNKNOWN;

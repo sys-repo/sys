@@ -1,6 +1,6 @@
 import { type t, DEFAULTS, isObject } from './common.ts';
 
-export const Is: t.PkgIs = {
+export const Is: t.PkgIsLib = {
   unknown(input) {
     const UNKNOWN = DEFAULTS.UNKNOWN;
     if (isObject(input)) {

@@ -1,14 +1,14 @@
 import { describe, expect, Fs, it, type t } from '../-test.ts';
 import { Dir } from './m.Hash.Dir.ts';
 import { Hash } from './mod.ts';
-import { SAMPLE_FILE, SAMPLE_PATH } from '../m.Pkg/-.test.ts';
+import { SAMPLE_FILE, SAMPLE_PATH } from '../m.Pkg/-u.ts';
 
 describe('Hash (server extension)', () => {
   const expectHash = (value: string, expected: string) => {
     expect(value.endsWith(expected)).to.eql(true, value);
   };
 
-  it('is not the [sys.std] Client verion, but surfaces all the [sys.std] interface', async () => {
+  it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
     const { Hash: Base } = await import('@sys/std/hash');
     expect(Hash).to.not.equal(Base); // NB: different instance.
     expect(Hash.Dir).to.equal(Dir);

@@ -8,7 +8,10 @@ type O = Record<string, unknown>;
  */
 export type PkgLib = {
   /** Boolean flag tests related to the {pkg} meta-data. */
-  readonly Is: t.PkgIs;
+  readonly Is: t.PkgIsLib;
+
+  /** Tools for working with distribution packages. */
+  readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
   toString(input?: t.Pkg): string;
@@ -34,7 +37,7 @@ export type PkgLib = {
 /**
  * Boolean tests on a {pkg} structure.
  */
-export type PkgIs = {
+export type PkgIsLib = {
   /** Determines if the input is a string of the default "unknown" */
   unknown(input?: string | t.Pkg): boolean;
 

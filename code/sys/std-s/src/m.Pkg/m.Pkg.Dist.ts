@@ -2,6 +2,8 @@ import { Pkg } from '@sys/std/pkg';
 import { type t, Delete, Err, Fs, Hash } from './common.ts';
 
 export const Dist: t.PkgDistSLib = {
+  ...Pkg.Dist,
+
   async compute(args) {
     const { dir, entry = '', save = false } = args;
     const pkg = args.pkg ?? Pkg.unknown();
