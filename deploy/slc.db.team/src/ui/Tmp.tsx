@@ -70,11 +70,19 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     }),
     body: {
       base: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
+      inner: css({
+        marginBottom: '5%',
+      }),
       pig: css({ fontSize: 65 }),
       title: css({ fontSize: 28 }),
     },
     pkg: {
-      base: css({ Absolute: [null, null, 7, 15], fontFamily: 'monospace', lineHeight: 1.7 }),
+      base: css({
+        Absolute: [null, null, 7, 15],
+        fontFamily: 'monospace',
+        lineHeight: 1.7,
+        cursor: 'pointer',
+      }),
       name: css({}),
       at: css({ MarginX: '0.6em', opacity: 0.6 }),
       version: css({ opacity: 1 }),
@@ -84,7 +92,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
 
   const elBody = (
     <div {...styles.body.base}>
-      <div>
+      <div {...styles.body.inner}>
         <div {...styles.body.pig}>{`🐷`}</div>
         <div {...styles.body.title}>{`Social Lean Canvas`}</div>
       </div>
@@ -101,15 +109,17 @@ export const Tmp: React.FC<TmpProps> = (props) => {
         </div>
       </div>
       {digest.short && (
-        <div {...styles.pkg.hash} title={digest.long}>{`pkg:digest:sha256:${digest.short}`}</div>
+        <div {...styles.pkg.hash} title={digest.tooltip}>
+          {digest.display}
+        </div>
       )}
     </div>
   );
 
   return (
     <div {...css(styles.base, props.style)}>
-      {elPkg}
       {elBody}
+      {elPkg}
     </div>
   );
 };
@@ -121,6 +131,8 @@ const wrangle = {
   digest(dist?: t.DistPkg) {
     const long = dist?.hash.digest ?? '';
     const short = Hash.shorten(long, 4, true);
-    return { long, short };
+    const tooltip = `pkg:digest:${long}`;
+    const display = `pkg:sha256:#${short}`;
+    return { long, short, display, tooltip };
   },
 } as const;
