@@ -90,9 +90,9 @@ describe('Fs: directory operations', () => {
           expect(res.error?.message).to.include(expectedError);
         };
 
-        await test('./404', 'Copy error: source directory does not exist');
+        await test('./404', 'Copy error - source directory does not exist');
         for (const value of NON) {
-          await test(value, 'Copy error: source directory is not a valid');
+          await test(value, 'Copy error - source directory is not a valid');
         }
       });
 

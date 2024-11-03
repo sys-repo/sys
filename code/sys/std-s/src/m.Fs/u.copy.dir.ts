@@ -10,7 +10,7 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
 
   const done = () => {
     const error = errors.toError();
-    if (error && log) console.warn(`ERROR: ${pkg.name}.Fs.copyDir:`, error);
+    if (error && log) console.warn(`ERROR: ${pkg.name}:Fs.copyDir →`, error);
     return { error };
   };
 
@@ -19,12 +19,12 @@ export const copyDir: t.FsCopyDir = async (sourceDir, targetDir, options = {}) =
    */
   if (typeof sourceDir !== 'string') {
     const value = String(sourceDir) || '<empty>';
-    errors.push(`Copy error: source directory is not a valid: ${value}`);
+    errors.push(`Copy error - source directory is not a valid: ${value}`);
     return done();
   }
 
   if (!(await exists(sourceDir))) {
-    errors.push(`Copy error: source directory does not exist: ${sourceDir}`);
+    errors.push(`Copy error - source directory does not exist: ${sourceDir}`);
     return done();
   }
 
