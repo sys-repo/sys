@@ -1,2 +1,2 @@
-export { print } from './u.print.ts';
+export { print } from './u.console.ts';
 export { options } from './u.options.ts';

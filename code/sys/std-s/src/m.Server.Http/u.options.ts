@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { print } from './u.print.ts';
+import { print } from './u.console.ts';
 
 /**
  * Generates a Deno.server(...) configuration options object.
