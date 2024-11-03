@@ -1,45 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Color, COLORS, css, Err, Hash, Path, Pkg, pkg, rx, type t } from './common.ts';
+import { type t, Color, COLORS, css, Hash, Pkg, pkg, rx } from './common.ts';
 
 export type TmpProps = {
   digest?: t.StringHash;
   theme?: t.CommonTheme;
   style?: t.CssValue;
 };
-
-
-const DistPkg = {
-  async fetch(options: { dispose$?: t.UntilObservable; disposeReason?: any } = {}) {
-    const errors = Err.errors();
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const life = rx.disposable(options.dispose$);
-    life.dispose$.subscribe(() => controller.abort(options.disposeReason ?? 'disposed'));
-
-    const url = new URL(Path.join(location.origin, 'dist.json'));
-    const fetched = await fetch(url, { signal });
-    let dist: t.DistPkg | undefined;
-
-    try {
-      if (fetched.ok) {
-        const json = (await fetched.json()) as t.DistPkg;
-        const isPkg = Pkg.Is.dist(json);
-        if (isPkg) dist = json;
-      } else {
-        const cause = Err.std(`${fetched.status}:${fetched.text}`);
-        errors.push(Err.std(`Failed while loading: ${url.href}`, { cause }));
-      }
-    } catch (cause: any) {
-      errors.push(Err.std(`An unexpected error occures: ${url}`, { cause }));
-    }
-
-    return {
-      ok: fetched.ok,
-      dist,
-      error: errors.toError(),
-    };
-  },
-} as const;
 
 export const Tmp: React.FC<TmpProps> = (props) => {
   const [dist, setDist] = useState<t.DistPkg>();
@@ -51,7 +17,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
   useEffect(() => {
     const { dispose, dispose$ } = rx.disposable();
     (async () => {
-      const res = await DistPkg.fetch({ dispose$, disposeReason: 'react:useEffect:dispose' });
+      const res = await Pkg.Dist.fetch({ dispose$, disposeReason: 'react:useEffect:dispose' });
       setDist(res.dist);
     })();
     return dispose;
@@ -71,7 +37,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     body: {
       base: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
       inner: css({ marginBottom: '5%' }),
-      pig: css({ fontSize: 65 }),
+      pig: css({ fontSize: 50 }),
       title: css({ fontSize: 28 }),
     },
     pkg: {
