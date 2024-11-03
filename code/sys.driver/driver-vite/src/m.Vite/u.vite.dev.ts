@@ -7,11 +7,11 @@ import { Log, Wrangle } from './u.ts';
  * Long running processes (spawn → child process).
  *
  * Command:
- *    $ vite dev --port=<1234>
+ *    $ vite dev --port=<1234> --host
  */
 export const dev: t.ViteLib['dev'] = async (input) => {
   const { port = DEFAULTS.port, silent = false, pkg } = input;
-  const { env, args, paths } = Wrangle.command(input, `dev --port=${port}`);
+  const { env, args, paths } = Wrangle.command(input, `dev --port=${port} --host`);
   const url = `http://localhost:${port}/`;
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
