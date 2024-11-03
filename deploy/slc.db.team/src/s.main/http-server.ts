@@ -1,5 +1,5 @@
 import { HttpServer, Pkg } from 'jsr:@sys/std-s';
-import { pkg } from './pkg.ts';
+import { pkg } from '../pkg.ts';
 
 const dist = (await Pkg.Dist.load('./dist')).dist;
 const hash = dist?.hash.digest ?? '';

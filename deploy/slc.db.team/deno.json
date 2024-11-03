@@ -1,20 +1,26 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.1",
+  "version": "0.0.0",
+  "license": "MIT",
   "tasks": {
-    "dev": "deno run -RNE --watch ./src/main.ts",
-    "check": "deno check ./src/main.ts",
-    "deploy": "deno task check && deployctl deploy --prod --project=tdb-slc --org=tdb",
-    "ls": "deployctl deployments list",
-    "prod": "deployctl deployments redeploy --prod",
-    "prep": "deno run -RW --allow-env ./scripts/-prep.ts"
+    "start": "deno run -RNE --watch ./src/s.main/http-server.ts",
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -RWE ./scripts/-clean.ts",
+    "test": "deno test -RWNE --allow-run --allow-ffi",
+    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
+    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
+    "serve": "cd dist && serve",
+    "deploy": "deno task dry && deployctl deploy --prod --org=tdb --project=tdb-slc"
   },
-  "exports": {},
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  },
   "deploy": {
-    "exclude": [
-      "**/node_modules"
-    ],
+    "exclude": ["**/node_modules"],
     "include": [],
-    "entrypoint": "src/main.ts"
+    "entrypoint": "src/s.main/http-server.ts"
   }
 }
