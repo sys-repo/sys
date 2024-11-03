@@ -8,6 +8,7 @@ console.info('Pkg', pkg);
 globalThis.document.title = Pkg.toString(pkg);
 
 const root = createRoot(document.getElementById('root'));
+
 root.render(
   <StrictMode>
     <App />
