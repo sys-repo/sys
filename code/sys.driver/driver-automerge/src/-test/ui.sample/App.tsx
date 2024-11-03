@@ -8,6 +8,10 @@ export type AppProps = {
 
 type D = { count: number };
 
+/**
+ * Rough sample that init's a new Automerge document, to test that
+ * that it works in, and bundle to, the browser runtime.
+ */
 const sample = async () => {
   const store = WebStore.init();
   const doc = await store.doc.getOrCreate<D>((d) => (d.count = 0));
