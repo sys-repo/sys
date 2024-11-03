@@ -12,7 +12,6 @@ document.title = pkg.name;
 console.log('🐷 entry.tsx', pkg);
 
 const root = createRoot(document.getElementById('root'));
-
 root.render(
   <StrictMode>
     <Tmp />
