@@ -9,6 +9,7 @@ import type { HashLib } from '@sys/std/t';
  */
 export type HashSLib = HashLib & {
   readonly Dir: t.HashDirLib;
+  readonly Console: t.HashConsoleLib;
 };
 
 /**
@@ -54,4 +55,11 @@ export type HashDir = {
  */
 export type HashDirVerifyResponse = HashDir & {
   is: t.HashVerifyResponse['is'];
+};
+
+/**
+ * Console (Logging and Display)
+ */
+export type HashConsoleLib = {
+  digest(input?: t.HashInput, options?: { length?: number }): string;
 };

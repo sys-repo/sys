@@ -62,10 +62,7 @@ ${c.brightGreen(`entry:    ${c.gray(input)}`)}
 
       let digest = '';
       if (hash) {
-        const algo = Hash.prefix(hash);
-        const short = Hash.shorten(hash, [5, 5], true);
-        const endHash = `#${short.slice(-5)}`;
-        const uri = `${c.green('digest')}:${algo}:${c.bold(c.green(endHash))}`;
+        const uri = Hash.Console.digest(hash);
         digest = c.gray(`${c.green('←')} ${uri}`);
       }
 
