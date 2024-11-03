@@ -16,7 +16,10 @@ export const build: t.ViteLib['build'] = async (input) => {
 
   const dir = paths.outDir;
   if (pkg) {
-    await Deno.writeTextFile(Fs.join(dir, 'pkg', '-pkg.json'), JSON.stringify(pkg, null, '  '));
+    const path = Fs.join(dir, 'pkg', '-pkg.json');
+    console.log('path', path);
+    await Fs.ensureDir(Fs.dirname(path));
+    await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
   }
 
   const entry = await wrangle.entryPath(dir);
@@ -43,7 +46,16 @@ export const build: t.ViteLib['build'] = async (input) => {
  */
 const wrangle = {
   async entryPath(dist: t.StringDir) {
-    const html = await Deno.readTextFile(Fs.join(dist, 'index.html'));
+    const path = Fs.join(dist, 'index.html');
+
+    if (!(await Fs.exists(path))) {
+      const placeholder = `Placeholder`;
+
+      await Fs.ensureDir(Fs.dirname(path));
+      await Deno.writeTextFile(path, placeholder);
+    }
+
+    const html = await Deno.readTextFile(path);
     const lines = html.split('\n');
     const script = lines.find((line) => line.includes('src="./pkg/-entry.'));
     return wrangle.src(script);
