@@ -57,3 +57,8 @@ export type StringFile = StringPath;
  * String that represents a cryptographic hash.
  */
 export type StringHash = string;
+
+/**
+ * String that represents a hexadeciman (such as a color, eg: "#293042")
+ */
+export type StringHex = string;
