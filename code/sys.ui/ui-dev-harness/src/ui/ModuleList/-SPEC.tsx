@@ -1,5 +1,5 @@
 import { ModuleList } from './mod.ts';
-import { BADGES, COLORS, pkg, Spec, type t } from '../../-test.ts';
+import { Badges, COLORS, pkg, Spec, type t } from '../../-test.ts';
 
 export default Spec.describe('ModuleList', (e) => {
   e.it('init', (e) => {
@@ -37,7 +37,7 @@ export default Spec.describe('ModuleList', (e) => {
           <ModuleList
             title={pkg.name}
             version={pkg.version}
-            badge={BADGES.ci.jsr}
+            badge={Badges.ci.jsr}
             imports={specs}
             hrDepth={2}
             scroll={true}

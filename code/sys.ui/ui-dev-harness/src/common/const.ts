@@ -1,3 +1,3 @@
-export * from './const.BADGES.ts';
-export * from './const.COLORS.ts';
-export * from './const.DEFAULTS.ts';
+export * from './c.BADGES.ts';
+export * from './c.COLORS.ts';
+export * from './c.DEFAULTS.ts';

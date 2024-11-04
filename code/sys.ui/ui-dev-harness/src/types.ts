@@ -18,3 +18,5 @@ export type * from './u/Ctx/t.ts';
 export type * from './u/Keyboard/t.ts';
 export type * from './u/Spec/t.ts';
 export type * from './u/Tools/t.ts';
+
+export type { ColorConstants } from './common/c.COLORS.ts';

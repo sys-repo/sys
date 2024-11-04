@@ -1,30 +1,19 @@
 import { DEFAULTS, Keyboard, type t } from '../common.ts';
 
-export const DevKeyboard = {
-  DEFAULTS: {
-    clearConsole: true,
-    cancelSave: true,
-    cancelPrint: true,
-    newTab: true,
-    copyAddress: true,
-  },
+const KeyboardDefaults = {
+  clearConsole: true,
+  cancelSave: true,
+  cancelPrint: true,
+  newTab: true,
+  copyAddress: true,
+};
 
+export const DevKeyboard: t.DevKeyboardLib = {
   /**
    * Common keyboard controller actions for the DEV harness environment.
    */
-  listen(
-    options: {
-      clearConsole?: boolean;
-      cancelSave?: boolean;
-      cancelPrint?: boolean;
-      newTab?: boolean;
-      copyAddress?: boolean;
-      doubleEscapeDelay?: t.Msecs;
-      onDoubleEscape?: (e: {}) => void;
-      dispose$?: t.UntilObservable;
-    } = {},
-  ) {
-    const DEFAULT = DevKeyboard.DEFAULTS;
+  listen(options = {}) {
+    const DEFAULT = KeyboardDefaults;
     const qs = DEFAULTS.qs;
     const {
       clearConsole = DEFAULT.clearConsole,
@@ -42,7 +31,7 @@ export const DevKeyboard = {
     /**
      * Return to root index.
      */
-    dbl.on('CMD + Escape', () => options.onDoubleEscape?.({}));
+    dbl.on('CMD + Escape', () => options.onDoubleEscape?.());
 
     /**
      * Clear debug console.
@@ -86,7 +75,7 @@ export const DevKeyboard = {
     });
 
     /**
-     * Copy current harness address
+     * Copy current harness address.
      */
     kbd.on('CTRL + ALT + KeyC', (e) => {
       if (!copyAddress) return;

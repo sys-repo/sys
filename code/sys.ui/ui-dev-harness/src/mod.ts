@@ -44,4 +44,4 @@ export { DevKeyboard, Spec, ValueHandler } from './u/mod.ts';
 export { useRubberband } from './ui.use/useRubberband.ts';
 export { ModuleList } from './ui/ModuleList/mod.ts';
 
-export { BADGES, DevWrangle } from './common.ts';
+export { Badges, COLORS, DevWrangle, Is } from './common.ts';

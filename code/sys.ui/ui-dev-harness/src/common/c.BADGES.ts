@@ -8,4 +8,4 @@ const jsr: t.ImageBadge = {
 /**
  * Links to common CI badges.
  */
-export const BADGES = { ci: { jsr } } as const;
+export const Badges = { ci: { jsr } } as const;

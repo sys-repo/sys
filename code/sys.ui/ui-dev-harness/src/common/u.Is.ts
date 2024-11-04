@@ -1,8 +1,8 @@
 import type { t } from '../common.ts';
-import { Is as base } from '@sys/testing/spec';
+import { Is as Base } from '@sys/testing/spec';
 
 export const Is = {
-  ...base,
+  ...Base,
 
   nil(input?: any) {
     return input === undefined || input === null;

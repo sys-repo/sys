@@ -1,5 +1,4 @@
 import type * as t from './t.ts';
-
 import { DEFAULTS } from './const.ts';
 
 const QS = DEFAULTS.qs;
@@ -51,7 +50,7 @@ export const WrangleUrlParams = {
     params.delete(DEFAULTS.qs.dev);
     params.set(DEFAULTS.qs.dev, 'true');
     if (!options.location) {
-      window.location.search = params.toString();
+      globalThis.location.search = params.toString();
     }
     return url;
   },

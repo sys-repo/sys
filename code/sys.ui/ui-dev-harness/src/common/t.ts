@@ -7,18 +7,6 @@ export type { IconType } from 'react-icons';
  * @system
  */
 export type {
-  SpecImport,
-  SpecImporter,
-  SpecImports,
-  SpecModule,
-  TestSuiteDescribe,
-  TestHandlerArgs,
-  TestModel,
-  TestSuiteModel,
-  TestSuiteRunResponse,
-} from '@sys/testing/t';
-
-export type {
   CommonTheme,
   Disposable,
   Event,
@@ -40,11 +28,24 @@ export type {
   Observable,
   Percent,
   Point,
-  StringUrl,
+  StringHex,
   StringId,
+  StringUrl,
   TimeThreshold,
   UntilObservable,
 } from '@sys/std/t';
+
+export type {
+  SpecImport,
+  SpecImporter,
+  SpecImports,
+  SpecModule,
+  TestHandlerArgs,
+  TestModel,
+  TestSuiteDescribe,
+  TestSuiteModel,
+  TestSuiteRunResponse,
+} from '@sys/testing/t';
 
 export type {
   CssEdgesArray,
@@ -52,6 +53,7 @@ export type {
   CssMarginInput,
   CssPaddingArray,
   CssValue,
+  KeyboardEventsUntil,
   KeyboardModifierFlags,
 } from '@sys/ui-dom/t';
 
