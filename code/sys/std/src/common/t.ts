@@ -10,6 +10,7 @@ export type RLib = {
   readonly clone: R['clone'];
   readonly equals: R['equals'];
   readonly mergeDeepRight: R['mergeDeepRight'];
+  readonly is: R['is'];
   readonly prop: R['prop'];
   readonly sortBy: R['sortBy'];
   readonly toString: R['toString'];
