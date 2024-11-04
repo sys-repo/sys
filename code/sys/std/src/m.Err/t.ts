@@ -92,6 +92,7 @@ export type ErrorCollection = {
 
   /** Add a new error. */
   push(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
+  push(error: ErrorGeneratorInput, options?: t.ErrStdOptions | string): ErrorCollection;
 
   /**
    * Resolve the collection of errors to either

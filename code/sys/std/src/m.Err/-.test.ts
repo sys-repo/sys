@@ -215,6 +215,40 @@ describe('Err (Error)', () => {
         expect(err.cause?.message).to.eql('root');
         expect(err.cause?.cause?.message).to.eql('deep');
       });
+
+      it('StdError from StdError (variants)', () => {
+        const cause = Err.std('boo');
+        const errors = [Err.std('a'), Err.std('b')];
+        const name = 'MyName';
+        const a = Err.std('foo', { cause, errors });
+        const b = Err.std(Err.std('foo'), { cause, name });
+        const c = Err.std(Err.std('foo', { cause: 'a', name }), { cause }); // NB: replace cause.
+        const d = Err.std(Err.std('foo', { errors: ['x', 'y'], name }), { errors }); // NB: replace inner errors.
+        const e = Err.std(Err.std('foo', { name }), { name: 'MyFoo' }); // NB: replace cause.
+
+        expect(a.message).to.eql('foo');
+        expect(a.cause?.message).to.eql('boo');
+        expect(a.errors).to.eql(errors);
+
+        expect(b.message).to.eql('foo');
+        expect(b.name).to.eql('MyName');
+        expect(b.errors).to.eql(undefined);
+        expect(b.cause?.message).to.eql('boo');
+
+        expect(c.message).to.eql('foo');
+        expect(c.name).to.eql('MyName');
+        expect(c.errors).to.eql(undefined);
+        expect(c.cause?.message).to.eql('boo'); // NB: not "a"
+
+        expect(d.message).to.eql('foo');
+        expect(d.name).to.eql('MyName');
+        expect(d.cause).to.eql(undefined);
+        expect(d.errors?.[0].message).to.eql('a');
+        expect(d.errors?.[1].message).to.eql('b');
+
+        expect(e.message).to.eql('foo');
+        expect(e.name).to.eql('MyFoo');
+      });
     });
   });
 
@@ -232,7 +266,7 @@ describe('Err (Error)', () => {
       expect(err.is.empty).to.eql(true);
     });
 
-    it('adds errors', () => {
+    it('add errors', () => {
       const err = Err.std('std-foo');
       const errors = Err.errors();
       errors.push(err);
@@ -250,6 +284,20 @@ describe('Err (Error)', () => {
       expect(errors.list[0].message).to.eql('my-std-err');
       expect(errors.list[1].message).to.eql('foo');
       expect(errors.list[2].message).to.eql('bar');
+    });
+
+    it('add with two params (error and cause)', () => {
+      const errors = Err.errors();
+
+      errors.push('foo', 'bar');
+      errors.push(Err.std('hello'), Err.std('fail'));
+      const list = errors.list;
+
+      expect(list[0].message).to.eql('foo');
+      expect(list[0].cause?.message).to.eql('bar');
+
+      expect(list[1].message).to.eql('hello');
+      expect(list[1].cause?.message).to.eql('fail');
     });
 
     it('toError: nothing', () => {
