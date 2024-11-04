@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { Keyboard } from '@sys/ui-dom';
 
-import { DevBus } from '../../u/Bus/mod.ts';
+import { DevBus } from '../../u/m.Bus/mod.ts';
 import { COLORS, Color, Spec, css, Time } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 import { MySample } from './MySample.tsx';

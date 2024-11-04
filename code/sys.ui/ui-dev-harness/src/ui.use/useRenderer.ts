@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DevBus } from '../u/Bus/mod.ts';
+import { DevBus } from '../u/m.Bus/mod.ts';
 import { DEFAULTS, Is, type t } from './common.ts';
 import { useCurrentState } from './useCurrentState.ts';
 import { useRedrawEvent } from './useRedrawEvent.ts';
