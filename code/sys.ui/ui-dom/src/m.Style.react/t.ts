@@ -4,10 +4,8 @@ export type * from './t.CssValue.ts';
 /**
  * React CSS styling tools.
  */
-export type StyleReactLib = {
-  readonly Color: t.ColorLib;
+export type StyleReactLib = t.StyleLib & {
   readonly Tmpl: t.StyleTmplLib;
-  readonly Edges: t.CssEdgesLib;
   css: t.CssTransformer;
   plugin: StylePuginLib;
 };
