@@ -12,3 +12,8 @@ export type DomRect = {
   bottom: number;
   left: number;
 };
+
+/**
+ * Represents the basic size of an element.
+ */
+export type Size = { width: number; height: number };
