@@ -1,4 +1,4 @@
-import { DevKeyboard } from '../u/Keyboard/mod.ts';
+import { DevKeyboard } from '../u/m.Keyboard/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
 import { COLORS, DevWrangle, type t } from './common.ts';

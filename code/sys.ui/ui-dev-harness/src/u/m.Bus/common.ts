@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { Spec } from '../Spec/mod.ts';
+export { Spec } from '../m.Spec/mod.ts';
