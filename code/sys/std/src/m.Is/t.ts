@@ -49,4 +49,14 @@ export type CommonIsLib = {
    * Determine if the input is ArrayBufferLike.
    */
   arrayBufferLike(input?: unknown): input is ArrayBufferLike;
+
+  /**
+   * A safe way to test any value as to wheather is is 'blank'
+   * meaning it can be either:
+   *   - null
+   *   - undefined
+   *   - empty-string ('')
+   *   - empty-array ([]).
+   */
+  blank(value?: any): boolean;
 };

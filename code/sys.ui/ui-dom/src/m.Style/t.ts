@@ -7,4 +7,7 @@ export type * from './t.Edges.ts';
 export type StyleLib = {
   readonly Color: t.ColorLib;
   readonly Edges: t.CssEdgesLib;
+
+  readonly toMargins: t.CssEdgesLib['toMargins'];
+  readonly toPadding: t.CssEdgesLib['toPadding'];
 };

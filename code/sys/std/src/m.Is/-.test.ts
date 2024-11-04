@@ -127,4 +127,46 @@ describe('Is (common flags)', () => {
       expect(Is.arrayBufferLike(binary.buffer)).to.eql(true);
     });
   });
+
+  describe('Is.blank', () => {
+    describe('blank', () => {
+      it('is blank (nothing)', () => {
+        expect(Is.blank(undefined)).to.eql(true);
+        expect(Is.blank(null)).to.eql(true);
+      });
+
+      it('is blank (string)', () => {
+        expect(Is.blank('')).to.eql(true);
+        expect(Is.blank(' ')).to.eql(true);
+        expect(Is.blank('   ')).to.eql(true);
+      });
+
+      it('is blank (array)', () => {
+        expect(Is.blank([])).to.eql(true);
+        expect(Is.blank([null])).to.eql(true);
+        expect(Is.blank([undefined])).to.eql(true);
+        expect(Is.blank([undefined, null])).to.eql(true);
+        expect(Is.blank([undefined, null, ''])).to.eql(true);
+      });
+    });
+
+    describe('NOT blank', () => {
+      it('is not blank (string)', () => {
+        expect(Is.blank('a')).to.eql(false);
+        expect(Is.blank('   .')).to.eql(false);
+      });
+
+      it('is not blank (array)', () => {
+        expect(Is.blank([1])).to.eql(false);
+        expect(Is.blank([null, 'value'])).to.eql(false);
+        expect(Is.blank([null, '   .'])).to.eql(false);
+      });
+
+      it('is not blank (other values)', () => {
+        expect(Is.blank(1)).to.eql(false);
+        expect(Is.blank({})).to.eql(false);
+        expect(Is.blank(() => 0)).to.eql(false);
+      });
+    });
+  });
 });

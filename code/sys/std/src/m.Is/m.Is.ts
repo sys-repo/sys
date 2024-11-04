@@ -59,4 +59,19 @@ export const Is: t.CommonIsLib = {
   arrayBufferLike(input?: any): input is ArrayBufferLike {
     return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
   },
+
+  /**
+   * A safe way to test any value as to wheather is is 'blank'
+   * meaning it can be either:
+   *   - null
+   *   - undefined
+   *   - empty-string ('')
+   *   - empty-array ([]).
+   */
+  blank(value?: any) {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
+    return false;
+  },
 };
