@@ -100,7 +100,13 @@ export const WrangleUrl = {
   },
 };
 
+/**
+ * Common dev value wrangling helpers.
+ */
 export const DevWrangle = {
+  /** Wrangles a dev URL */
   Url: WrangleUrl,
+
+  /** Wrangles the dev params. */
   Params: WrangleUrlParams,
 };
