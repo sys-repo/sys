@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../-test.ts';
-import { DevBus } from '../u/Bus/mod.ts';
-import { Context } from '../u/Ctx/mod.ts';
+import { DevBus } from '../u/m.Bus/mod.ts';
+import { Context } from '../u/m.Ctx/mod.ts';
 import { Spec } from '../u/Spec/mod.ts';
-import { Is } from './Is.ts';
+import { Is } from './m.Is.ts';
 import { rx, type t } from './mod.ts';
 
 describe('Is (flags)', () => {
