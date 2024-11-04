@@ -39,9 +39,9 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 export { Dev, render } from './m.Dev/mod.ts';
-export { DevKeyboard, Spec, ValueHandler } from './u/mod.ts';
 
 export { useRubberband } from './ui.use/useRubberband.ts';
 export { ModuleList } from './ui/ModuleList/mod.ts';
 
-export { Badges, COLORS, DevWrangle, Is } from './common.ts';
+export { Badges, COLORS } from './common.ts';
+export { DevArgs, DevKeyboard, Is, Spec, ValueHandler } from './u/mod.ts';

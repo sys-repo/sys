@@ -1,4 +1,5 @@
-import { Is, type t } from '../common.ts';
+import type { t } from '../common.ts';
+import { Is } from '../m.Is/mod.ts';
 
 export type WrangleLib = {
   ctx(

@@ -1,7 +1,7 @@
-import { DevKeyboard } from '../u/m.Keyboard/mod.ts';
+import { DevKeyboard, DevArgs } from '../u/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
-import { COLORS, DevWrangle, type t } from './common.ts';
+import { COLORS, type t } from './common.ts';
 
 export type RenderOptions = {
   location?: t.UrlInput;
@@ -30,8 +30,8 @@ export type Render = (
  */
 export const render: Render = async (pkg, specs, options = {}) => {
   const { keyboard = true } = options;
-  const url = DevWrangle.Url.navigate.formatDevFlag(options);
-  const spec = await DevWrangle.Url.module(url, specs);
+  const url = DevArgs.Url.navigate.formatDevFlag(options);
+  const spec = await DevArgs.Url.module(url, specs);
   const style = options.style ?? { Absolute: 0, backgroundColor: COLORS.WHITE };
 
   if (keyboard) DevKeyboard.listen({});

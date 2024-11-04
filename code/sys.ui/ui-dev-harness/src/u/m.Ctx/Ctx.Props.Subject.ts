@@ -1,4 +1,5 @@
-import { DEFAULTS, Edges, Id, Is, type t } from './common.ts';
+import { Is } from '../m.Is/mod.ts';
+import { DEFAULTS, Edges, Id, type t } from './common.ts';
 import type { PropArgs } from './common.types.ts';
 
 const SUBJECT = DEFAULTS.props.subject;

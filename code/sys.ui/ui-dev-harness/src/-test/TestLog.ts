@@ -1,4 +1,5 @@
-import { Is, type t } from './common.ts';
+import type { t } from './common.ts';
+import { Is } from '../mod.ts';
 
 type T = { args: t.TestHandlerArgs; ctx: t.DevCtxObject };
 

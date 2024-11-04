@@ -1,6 +1,7 @@
+import { Is } from '../m.Is/mod.ts';
 import { BusController } from './Bus.Controller.ts';
 import { BusEvents } from './Bus.Events.ts';
-import { Is, Spec, type t } from './common.ts';
+import { Spec, type t } from './common.ts';
 
 export * from './Bus.Events.ts';
 

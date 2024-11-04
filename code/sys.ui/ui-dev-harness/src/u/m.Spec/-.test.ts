@@ -1,5 +1,6 @@
 import { TestSample, describe, expect, it } from '../../-test.ts';
-import { Is, Time, type t } from '../common.ts';
+import { Time, type t } from '../common.ts';
+import { Is } from '../m.Is/mod.ts';
 import { Spec } from './mod.ts';
 
 describe('Spec', () => {

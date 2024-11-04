@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { WrangleUrl, WrangleUrlParams } from './u.Wrangle.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { WrangleUrl, WrangleUrlParams } from './mod.ts';
 
 describe('Entry', () => {
   it('isDev', () => {

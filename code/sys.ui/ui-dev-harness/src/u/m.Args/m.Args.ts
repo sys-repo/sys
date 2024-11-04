@@ -1,5 +1,5 @@
-import type * as t from './t.ts';
-import { DEFAULTS } from './const.ts';
+// import type * as t from './t.ts';
+import { type t, DEFAULTS } from '../common.ts';
 
 const QS = DEFAULTS.qs;
 
@@ -102,7 +102,7 @@ export const WrangleUrl = {
 /**
  * Common dev value wrangling helpers.
  */
-export const DevWrangle = {
+export const DevArgs = {
   /** Wrangles a dev URL */
   Url: WrangleUrl,
 
