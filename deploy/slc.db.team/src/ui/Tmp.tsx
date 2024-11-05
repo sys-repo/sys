@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, Color, COLORS, css, Hash, Pkg, pkg, rx } from './common.ts';
+import { type t, Color, COLORS, css, Hash, Pkg, pkg, rx, Str } from './common.ts';
 
 export type TmpProps = {
   digest?: t.StringHash;
@@ -8,14 +8,16 @@ export type TmpProps = {
 };
 
 export const Tmp: React.FC<TmpProps> = (props) => {
-  const [dist, setDist] = useState<t.DistPkg>();
-  const digest = props.digest ? wrangle.format(props.digest) : wrangle.digest(dist);
+  const [_dist, setDist] = useState<t.DistPkg>();
+  const dist: t.DistPkg | undefined = _dist;
+  const digest = props.digest ? wrangle.fmtHash(props.digest) : wrangle.digest(dist);
 
   /**
    * Lifecycle.
    */
   useEffect(() => {
     const { dispose, dispose$ } = rx.disposable();
+    /** GET fetch. */
     (async () => {
       const res = await Pkg.Dist.fetch({ dispose$, disposeReason: 'react:useEffect:dispose' });
       setDist(res.dist);
@@ -42,15 +44,16 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     },
     pkg: {
       base: css({
-        Absolute: [null, null, 7, digest.display ? 18 : 15],
+        Absolute: [null, null, 12, digest.display ? 18 : 15],
         fontFamily: 'monospace',
-        lineHeight: 1.7,
         cursor: 'pointer',
+        display: 'grid',
+        rowGap: '0.6em',
       }),
-      name: css({}),
       at: css({ MarginX: '0.6em', opacity: 0.6 }),
       version: css({ opacity: 1 }),
-      hash: css({ opacity: 0.5, color: Color.DARK }),
+      hash: css({ opacity: 0.8, color: Color.DARK }),
+      name: css({}),
     },
   };
 
@@ -69,16 +72,20 @@ export const Tmp: React.FC<TmpProps> = (props) => {
     </div>
   );
 
+  const elNameVersion = (
+    <div>
+      <div>
+        <span {...styles.pkg.name}>{pkg.name}</span>
+        <span {...styles.pkg.at}>{'@'}</span>
+        <span {...styles.pkg.version}>{pkg.version}</span>
+      </div>
+    </div>
+  );
+
   const elPkg = (
     <div {...styles.pkg.base}>
-      <div>
-        <div>
-          <span {...styles.pkg.name}>{pkg.name}</span>
-          <span {...styles.pkg.at}>{'@'}</span>
-          <span {...styles.pkg.version}>{pkg.version}</span>
-        </div>
-      </div>
-      {digest.display && elHash}
+      {elHash}
+      {elNameVersion}
     </div>
   );
 
@@ -95,10 +102,14 @@ export const Tmp: React.FC<TmpProps> = (props) => {
  */
 const wrangle = {
   digest(dist?: t.DistPkg) {
-    return wrangle.format(dist?.hash.digest);
+    const digest = wrangle.fmtHash(dist?.hash.digest);
+    const b = dist?.size.bytes;
+    const bytes = Str.bytes(b, { compact: true });
+    const display = `${digest.display} (${bytes})`;
+    return { ...digest, display };
   },
 
-  format(hash?: t.StringHash) {
+  fmtHash(hash?: t.StringHash) {
     const long = hash ?? '';
     const short = Hash.shorten(long, 4, true);
     const tooltip = `pkg:digest:${long}`;
