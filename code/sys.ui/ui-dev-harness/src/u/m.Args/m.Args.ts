@@ -1,14 +1,10 @@
-// import type * as t from './t.ts';
 import { type t, DEFAULTS } from '../common.ts';
 
 const QS = DEFAULTS.qs;
 
-export const WrangleUrlParams = {
-  /**
-   * Determine if the given URL is a "dev mode" address.
-   */
+export const DevUrlParams: t.DevUrlParamsLib = {
   isDev(location?: t.UrlInput) {
-    const params = WrangleUrl.location(location).searchParams;
+    const params = DevUrl.location(location).searchParams;
     return params.has(QS.d) || params.has(QS.dev);
   },
 
@@ -16,7 +12,7 @@ export const WrangleUrlParams = {
     options: { location?: t.UrlInput; defaultNamespace?: string; forceDev?: boolean } = {},
   ) {
     const { defaultNamespace, forceDev } = options;
-    const url = WrangleUrl.location(options.location);
+    const url = DevUrl.location(options.location);
     const params = url.searchParams;
 
     const updateParams = () => {
@@ -44,7 +40,7 @@ export const WrangleUrlParams = {
   },
 
   ensureDevFlag(options: { location?: t.UrlInput } = {}) {
-    const url = WrangleUrl.location(options.location);
+    const url = DevUrl.location(options.location);
     const params = url.searchParams;
     params.delete(DEFAULTS.qs.d);
     params.delete(DEFAULTS.qs.dev);
@@ -56,26 +52,20 @@ export const WrangleUrlParams = {
   },
 };
 
-export const WrangleUrl = {
-  navigate: WrangleUrlParams,
+export const DevUrl: t.DevUrlLib = {
+  navigate: DevUrlParams,
 
-  /**
-   * Convert an input location into a standard [URL] object.
-   */
   location(value?: t.UrlInput): URL {
     if (!value) return new URL(globalThis.location.href);
     return typeof value === 'string' ? new URL(value) : new URL(value.href);
   },
 
-  /**
-   * Derive and load the module from the given URL.
-   */
   async module(url: URL, specs: t.SpecImports) {
     const params = url.searchParams;
     if (!params.has(QS.dev)) return undefined;
 
     const namespace = params.get(QS.dev) ?? '';
-    const matches = WrangleUrl.moduleMatches(namespace, specs);
+    const matches = DevUrl.moduleMatches(namespace, specs);
 
     if (matches[0]) {
       const res = await matches[0].fn();
@@ -87,9 +77,6 @@ export const WrangleUrl = {
     return undefined;
   },
 
-  /**
-   * Match fields on the spec {Imports} object with the given query-string key name.
-   */
   moduleMatches(field: string, specs: t.SpecImports) {
     if (!field) return [];
     return Object.keys(specs)
@@ -99,13 +86,7 @@ export const WrangleUrl = {
   },
 };
 
-/**
- * Common dev value wrangling helpers.
- */
-export const DevArgs = {
-  /** Wrangles a dev URL */
-  Url: WrangleUrl,
-
-  /** Wrangles the dev params. */
-  Params: WrangleUrlParams,
+export const DevArgs: t.DevArgsLib = {
+  Url: DevUrl,
+  Params: DevUrlParams,
 };

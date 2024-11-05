@@ -1,16 +1,16 @@
 import { describe, expect, it } from '../../-test.ts';
-import { WrangleUrl, WrangleUrlParams } from './mod.ts';
+import { DevUrl, DevUrlParams } from './mod.ts';
 
 describe('Entry', () => {
   it('isDev', () => {
-    const isDev = WrangleUrl.navigate.isDev;
+    const isDev = DevUrl.navigate.isDev;
     expect(isDev('https://domain.com/')).to.eql(false);
     expect(isDev('https://domain.com/?d')).to.eql(true);
     expect(isDev('https://domain.com/?dev')).to.eql(true);
   });
 
   it('formatDevFlag', () => {
-    const formatDevFlag = WrangleUrlParams.formatDevFlag;
+    const formatDevFlag = DevUrlParams.formatDevFlag;
     const res1 = formatDevFlag({ location: 'https://foo.com' });
     const res2 = formatDevFlag({ location: 'https://foo.com?d' });
     const res3 = formatDevFlag({ location: 'https://foo.com', defaultNamespace: 'foobar' });

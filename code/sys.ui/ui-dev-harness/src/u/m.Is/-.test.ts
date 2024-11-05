@@ -1,7 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
 import { DevBus, Context, Spec } from '../mod.ts';
-// import { Context } from '../u/m.Ctx/mod.ts';
-// import { Spec } from '../u/m.Spec/mod.ts';
 import { Is } from './mod.ts';
 import { rx, type t } from '../common.ts';
 
