@@ -15,7 +15,7 @@ export type ImmerJsonLib = {
   readonly Path: t.ObjectPathLib;
 
   /** Determine if the input is a JSON structure. */
-  isJson: t.CommonIsLib['json'];
+  isJson: t.StdIsLib['json'];
 
   /** Convert the given input to a serlalized JSON string. */
   stringify: t.JsonLib['stringify'];
