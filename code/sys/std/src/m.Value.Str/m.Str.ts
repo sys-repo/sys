@@ -1,6 +1,5 @@
-import { format as bytes } from '@std/fmt/bytes';
-
 import type { t } from './common.ts';
+import { bytes } from './u.bytes.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';

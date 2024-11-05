@@ -15,6 +15,22 @@ describe('Str (Text)', () => {
       expect(c).to.eql('1.34 kB');
       expect(d).to.eql('100 B');
     });
+
+    it('undefined → 0 B', () => {
+      const a = Str.bytes();
+      const b = Str.bytes(-1);
+
+      expect(a).to.eql('0 B');
+      expect(b).to.eql('-1 B');
+    });
+
+    it('{compact}', () => {
+      const compact = true;
+      const a = Str.bytes(123, { compact });
+      const b = Str.bytes(0, { compact });
+      expect(a).to.eql('123B');
+      expect(b).to.eql('0B');
+    });
   });
 
   describe('Str.diff', () => {

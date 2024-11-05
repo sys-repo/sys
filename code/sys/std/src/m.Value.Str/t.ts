@@ -4,7 +4,13 @@ import type { t } from './common.ts';
 /**
  * Convert bytes to a human-readable string: "1337 → 1.34 kB".
  */
-export type FormatBytes = (num: number, options?: FormatOptions) => string;
+export type FormatBytes = (num?: number, options?: FormatBytesOptions) => string;
+
+/** Options for formatting bytes → strings. */
+export type FormatBytesOptions = FormatOptions & {
+  /** Trim spaces. */
+  compact?: boolean;
+};
 
 /**
  * Tools for working on strings of text.
