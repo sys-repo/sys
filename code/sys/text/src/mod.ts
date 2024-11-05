@@ -4,9 +4,12 @@
  *
  * @example
  * ```ts
- * import { Str } from '@sys/text';
+ * import { Str, Diff } from '@sys/text';
  * import { Fuzzy } from '@sys/text/fuzzy';
  * ```
  */
-export { Str, pkg } from './common.ts';
+export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
+
+export { Str } from './common.ts';
+export { Diff } from './m.Diff/mod.ts';

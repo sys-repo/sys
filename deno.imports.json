@@ -29,14 +29,18 @@
 
     "react-error-boundary": "npm:react-error-boundary@4",
     "react-icons": "npm:react-icons@5",
+    "react-inspector": "npm:react-inspector@6",
     "react-spinners": "npm:react-spinners@0.14.1",
     "@emotion/react": "npm:@emotion/react@11",
+
+    "@types/diff": "npm:@types/diff@5.2.2",
 
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
     "csstype": "npm:csstype@3",
     "date-fns": "npm:date-fns@4",
     "deno/subhosting": "npm:subhosting@0.1.0-alpha.1",
+    "diff": "npm:diff@7",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6",
     "happy-dom": "npm:happy-dom@15.7.4",
