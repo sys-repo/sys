@@ -65,6 +65,17 @@ describe('Is (common flags)', () => {
     assert(BigInt(123), true);
   });
 
+  it('Is.nil', () => {
+    const test = (input: unknown, expected: boolean) => {
+      expect(Is.nil(input)).to.eql(expected, input);
+    };
+    test(null, true);
+    test(undefined, true);
+
+    const NON = ['', 123, true, BigInt(0), Symbol('foo'), {}, []];
+    NON.forEach((v: any) => test(v, false));
+  });
+
   it('Is.falsy', () => {
     const test = (input: unknown, expected: boolean) => {
       expect(Is.falsy(input)).to.eql(expected, input);

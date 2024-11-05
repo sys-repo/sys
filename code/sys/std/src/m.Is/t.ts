@@ -3,12 +3,17 @@ import type { t } from '../common.ts';
 /**
  * Type guards (boolean evaluators).
  */
-export type CommonIsLib = {
+export type StdIsLib = {
   /**
    * Falsy check.
    * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
    */
   falsy(input?: unknown): input is t.Falsy | typeof NaN;
+
+  /**
+   * Determine if the input is undefined or null.
+   */
+  nil(input?: unknown): boolean;
 
   /**
    * Determine if the value is a Promise.

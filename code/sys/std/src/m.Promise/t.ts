@@ -7,7 +7,7 @@ export type PromiseLib = {
   /**
    * Determine if the value is a Promise.
    */
-  isPromise: t.CommonIsLib['promise'];
+  isPromise: t.StdIsLib['promise'];
 
   /**
    * Wait for the promise to complete if the given value
