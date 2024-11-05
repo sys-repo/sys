@@ -3,7 +3,18 @@ import type * as t from './t.ts';
 /**
  * @ext
  */
-import { equals, is, mergeDeepRight, prop, sortBy, toString, uniq, uniqBy } from 'rambda';
+import {
+  clamp,
+  equals,
+  flatten,
+  is,
+  mergeDeepRight,
+  prop,
+  sortBy,
+  toString,
+  uniq,
+  uniqBy,
+} from 'rambda';
 import { clone } from 'ramda'; // NB: clone from "rambda" causes errors on circular-references.
 
 /**
@@ -11,8 +22,10 @@ import { clone } from 'ramda'; // NB: clone from "rambda" causes errors on circu
  */
 export const R: t.RLib = {
   clone,
+  clamp,
   equals,
   mergeDeepRight,
+  flatten,
   is,
   prop,
   sortBy,

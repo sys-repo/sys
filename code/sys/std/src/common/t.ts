@@ -8,8 +8,10 @@ type R = typeof Rambda;
  */
 export type RLib = {
   readonly clone: R['clone'];
+  readonly clamp: R['clamp'];
   readonly equals: R['equals'];
   readonly mergeDeepRight: R['mergeDeepRight'];
+  readonly flatten: R['flatten'];
   readonly is: R['is'];
   readonly prop: R['prop'];
   readonly sortBy: R['sortBy'];
