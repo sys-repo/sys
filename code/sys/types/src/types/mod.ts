@@ -19,6 +19,7 @@ export type * from './t.Pkg.dist.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
 export type * from './t.Semver.ts';
+export type * from './t.Size.ts';
 export type * from './t.String.ts';
 export type * from './t.Text.ts';
 export type * from './t.Theme.ts';
