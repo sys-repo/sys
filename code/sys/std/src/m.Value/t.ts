@@ -1,5 +1,7 @@
 import type { t } from '../common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Tools for evaluating and manipulating types of values.
  */
@@ -21,4 +23,16 @@ export type ValueLib = {
 
   /** Determine if the given input is typeof {object} and not Null. */
   isObject(input: unknown): input is object;
+
+  /**
+   * Toggle the value of a boolean {object} key.
+   * WARNING:
+   *    This manipulates the given object.
+   *    Ensure an immutable-safe object is passed.
+   */
+  toggle<T extends O | any[]>(
+    mutate: T,
+    key: T extends any[] ? number : keyof T,
+    defaultValue?: boolean,
+  ): boolean;
 };

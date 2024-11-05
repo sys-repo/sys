@@ -4,5 +4,4 @@
  */
 export { asArray } from '../m.Value.Array/mod.ts';
 export { isObject } from './u.isObject.ts';
-
 export { Array, Num, Str, Value } from './m.Value.ts';
