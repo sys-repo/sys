@@ -45,11 +45,9 @@ export type {
   TimeDelayPromise,
 } from '@sys/std/t';
 
+export type { CssEdgesInput, CssMarginInput, CssPaddingInput, CssShadow } from '@sys/ui-css/t';
+
 export type {
-  CssEdgesInput,
-  CssMarginInput,
-  CssPaddingInput,
-  CssShadow,
   KeyMatchSubscriberHandler,
   KeyboardKeypress,
   KeyboardKeypressProps,

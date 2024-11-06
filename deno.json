@@ -20,6 +20,7 @@
     "jsxImportSourceTypes": "@emotion/react"
   },
   "workspace": [
+    "./code/-tmpl/deno",
     "./code/sys.tmp",
 
     "./code/sys/cmd",
