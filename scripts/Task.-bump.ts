@@ -27,10 +27,16 @@ export async function main(options: Options = {}) {
     return;
   }
 
+  const exclude = (path: t.StringPath) => {
+    if (path.includes('code/-tmpl/')) return true;
+    return false;
+  };
+
   /**
    * Retrieve the child modules within the workspace.
    */
   const children = (await ws.children.load())
+    .filter((file) => !exclude(file.path))
     .filter((file) => file.exists)
     .filter((file) => !!file.json)
     .filter((file) => typeof file.json?.version === 'string')
