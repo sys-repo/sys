@@ -18,9 +18,6 @@ describe('Cmd', () => {
       const args = ['eval', 'console.log("👋 hello world")'];
       const res = await Cmd.invoke({ args, silent: true });
 
-      console.log('res', res);
-      console.log('res.toString()', res.toString());
-
       expect(res.code).to.eql(0);
       expect(res.success).to.eql(true);
 
