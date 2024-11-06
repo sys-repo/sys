@@ -19,4 +19,6 @@ export type VaultDir = {
 };
 
 /** Options passed to VaultDir.listen */
-export type VaultDirListenOptions = { log?: boolean };
+export type VaultDirListenOptions = {
+  log?: boolean;
+};
