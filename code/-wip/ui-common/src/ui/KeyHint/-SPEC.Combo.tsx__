@@ -1,0 +1,117 @@
+import { DEFAULTS, KeyHint } from './mod.ts';
+import { Dev, pkg, UserAgent, type t } from '../../test.ui/mod.ts';
+
+type P = t.KeyHintComboProps;
+type T = { props: P };
+const initial: T = { props: {} };
+
+/**
+ * Spec
+ */
+const name = DEFAULTS.displayName.KeyHintCombo;
+
+export default Dev.describe(name, (e) => {
+  type LocalStore = Pick<P, 'theme' | 'enabled' | 'parse' | 'os' | 'keys'>;
+  const localstore = Dev.LocalStorage<LocalStore>(`dev:${pkg.name}.${name}`);
+  const local = localstore.object({
+    keys: undefined,
+    theme: undefined,
+    os: undefined,
+    parse: DEFAULTS.parse,
+    enabled: DEFAULTS.enabled,
+  });
+
+  e.it('ui:init', async (e) => {
+    const ctx = Dev.ctx(e);
+    const dev = Dev.tools<T>(e, initial);
+
+    const state = await ctx.state<T>(initial);
+    await state.change((d) => {
+      d.props.enabled = local.enabled;
+      d.props.keys = local.keys;
+      d.props.theme = local.theme;
+      d.props.os = local.os;
+      d.props.parse = local.parse;
+    });
+
+    ctx.debug.width(330);
+    ctx.subject.display('grid').render<T>((e) => {
+      const { props } = e.state;
+      Dev.Theme.background(ctx, props.theme, 1);
+      return <KeyHint.Combo {...props} />;
+    });
+  });
+
+  e.it('ui:debug', async (e) => {
+    const dev = Dev.tools<T>(e, initial);
+    const state = await dev.state();
+    const link = Dev.Link.pkg(Pkg, dev);
+
+    link.button('KeyHint', `?KeyHint`);
+    link.button('Cmd.Bar', '?Cmd.Bar');
+    dev.hr(5, 20);
+
+    dev.section('Properties', (dev) => {
+      Dev.Theme.switch(dev, ['props', 'theme'], (e) => (local.theme = e));
+      dev.hr(-1, 5);
+
+      dev.boolean((btn) => {
+        const value = (state: T) => !!state.props.enabled;
+        btn
+          .label((e) => `enabled`)
+          .value((e) => value(e.state))
+          .onClick((e) => e.change((d) => Dev.toggle(d.props, 'enabled')));
+      });
+
+      dev.boolean((btn) => {
+        const value = (state: T) => !!state.props.parse;
+        btn
+          .label((e) => `parse`)
+          .value((e) => value(e.state))
+          .onClick((e) => e.change((d) => Dev.toggle(d.props, 'parse')));
+      });
+
+      dev.hr(-1, 5);
+
+      [undefined, ...UserAgent.os.kinds].forEach((os) => {
+        const name = !os ? '<undefined>' : os;
+        dev.button((btn) => {
+          btn
+            .label(`os: ${name}`)
+            .right((e) => (e.state.props.os === os ? `←` : ''))
+            .enabled((e) => true)
+            .onClick((e) => e.change((d) => (local.os = d.props.os = os)));
+        });
+      });
+    });
+
+    dev.hr(5, 20);
+
+    dev.section('Common States', (dev) => {
+      const text = (keys?: string[], label?: string) => {
+        const name = label || (keys || []).map((m) => `"${m}"`).join(', ');
+        dev.button(name, (e) => e.change((d) => (local.keys = d.props.keys = keys)));
+      };
+      text(undefined, '<undefined>');
+      text([], '[ ]');
+      dev.hr(-1, 5);
+      text(['META + K']);
+      text(['Meta + K', 'Ctrl + S']);
+      text(['CMD + K + SHIFT + CTRL + P', 'K', 'P']);
+    });
+
+    dev.hr(5, 20);
+
+    dev.section('Debug', (dev) => {
+      dev.button('redraw', (e) => dev.redraw());
+    });
+  });
+
+  e.it('ui:footer', async (e) => {
+    const dev = Dev.tools<T>(e, initial);
+    dev.footer.border(-0.1).render<T>((e) => {
+      const data = e.state;
+      return <Dev.Object name={name} data={data} expand={1} fontSize={11} />;
+    });
+  });
+});
