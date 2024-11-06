@@ -17,8 +17,10 @@ export const Tmp: React.FC<TmpProps> = (props) => {
    */
   useEffect(() => {
     const { dispose, dispose$ } = rx.disposable();
-    /** GET fetch. */
     (async () => {
+      /**
+       * GET fetch
+       */
       const res = await Pkg.Dist.fetch({ dispose$, disposeReason: 'react:useEffect:dispose' });
       setDist(res.dist);
     })();
@@ -37,31 +39,37 @@ export const Tmp: React.FC<TmpProps> = (props) => {
       fontFamily: 'sans-serif',
     }),
     body: {
-      base: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
-      inner: css({ marginBottom: '5%' }),
+      base: css({ Absolute: 0, display: 'grid', placeItems: 'center', userSelect: 'none' }),
+      inner: css({ marginBottom: 25 }),
       pig: css({ fontSize: 50 }),
       title: css({ fontSize: 28 }),
     },
     pkg: {
       base: css({
-        Absolute: [null, null, 12, digest.display ? 18 : 15],
+        Absolute: [null, null, 16, digest.display ? 18 : 15],
         fontFamily: 'monospace',
         cursor: 'pointer',
         display: 'grid',
-        rowGap: '0.6em',
+        rowGap: '0.5em',
       }),
-      at: css({ MarginX: '0.6em', opacity: 0.6 }),
+      at: css({ MarginX: '0.6em', opacity: 0.5 }),
       version: css({ opacity: 1 }),
-      hash: css({ opacity: 0.8, color: Color.DARK }),
+      hash: css({ opacity: 0.5 }),
       name: css({}),
     },
+    a: css({
+      textDecoration: 'none',
+      color: theme.fg,
+    }),
   };
 
   const elBody = (
     <div {...styles.body.base}>
       <div {...styles.body.inner}>
-        <div {...styles.body.pig}>{`🐷`}</div>
-        <div {...styles.body.title}>{`Social Lean Canvas`}</div>
+        <a {...styles.a} href="./docs">
+          <div {...styles.body.pig}>{`🐷`}</div>
+          <div {...styles.body.title}>{`Social Lean Canvas`}</div>
+        </a>
       </div>
     </div>
   );
@@ -84,8 +92,8 @@ export const Tmp: React.FC<TmpProps> = (props) => {
 
   const elPkg = (
     <div {...styles.pkg.base}>
-      {elHash}
       {elNameVersion}
+      {elHash}
     </div>
   );
 
@@ -111,7 +119,7 @@ const wrangle = {
 
   fmtHash(hash?: t.StringHash) {
     const long = hash ?? '';
-    const short = Hash.shorten(long, 4, true);
+    const short = Hash.shorten(long, [0, 4], true);
     const tooltip = `pkg:digest:${long}`;
     const display = `pkg:sha256:#${short}`;
     return { long, short, display, tooltip };
