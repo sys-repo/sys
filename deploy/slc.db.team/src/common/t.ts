@@ -1,4 +1,5 @@
 export type {
+  CommonTheme,
   Disposable,
   DistPkg,
   Lifecycle,
@@ -7,5 +8,7 @@ export type {
   StringHash,
   UntilObservable,
 } from '@sys/types';
-export type { CommonTheme, CssValue } from '@sys/ui-common/t';
+
+export type { CssValue } from '@sys/ui-dom/t';
+
 export type * from '../types.ts';
