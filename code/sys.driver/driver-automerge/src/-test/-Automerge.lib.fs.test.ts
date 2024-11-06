@@ -1,6 +1,6 @@
+import { Repo } from '@automerge/automerge-repo';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
 import { c, describe, expect, Fs, it, slug, Time } from '../-test.ts';
-import { Repo } from '../common.ts';
 
 type D = { count: number };
 

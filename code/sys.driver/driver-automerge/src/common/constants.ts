@@ -22,4 +22,5 @@ export const Symbols = {
   Store: Symbol(`${ns}.Store`),
   StoreIndex: Symbol(`${ns}.StoreIndex`),
   WebStore: Symbol(`${ns}.WebStore`),
+  FsStore: Symbol(`${ns}.FsStore`),
 } as const;

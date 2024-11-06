@@ -1,1 +1,1 @@
-export { WebStore } from './WebStore.tsx';
+export { WebStore } from './m.WebStore.tsx';

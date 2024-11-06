@@ -1,4 +1,5 @@
-import { IndexedDBStorageAdapter, Repo } from '../../common/libs.automerge-repo.ts';
+import { Repo } from '@automerge/automerge-repo';
+import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 import { BroadcastChannel, Doc, Store } from '../common.ts';
 import { WebStoreIndex as Index } from '../Store.Web.Index/mod.ts';
 import { StoreIndexDb } from '../Store.Web.IndexDb/mod.ts';
@@ -31,12 +32,12 @@ export const WebStore = {
    * Initialize a new instance of a CRDT store/repo.
    */
   init(options: Init = {}) {
-    const { debug } = options;
+    const { debug, dispose$ } = options;
     const network = Wrangle.network(options);
     const storage = Wrangle.storage(options);
     const repo = new Repo({ network, storage });
 
-    const base = Store.init({ repo, dispose$: options.dispose$, debug });
+    const base = Store.init({ repo, debug, dispose$ });
     const store: t.WebStore = {
       ...base,
       get disposed() {

@@ -12,6 +12,9 @@ export type * from './crdt.web/Store.Web.Index/t.ts';
 export type * from './crdt.web/Store.Web.IndexDb/t.ts';
 export type * from './crdt.web/Store.Web/t.ts';
 
+export type * from './crdt.fs/Store.Fs/t.ts';
+export type * from './crdt.fs/Store.Fs.Index/t.ts';
+
 /**
  * TODO 🐷 Automerge [migrate]
  */

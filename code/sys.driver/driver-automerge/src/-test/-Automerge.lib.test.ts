@@ -1,5 +1,6 @@
+import { Repo } from '@automerge/automerge-repo';
 import { describe, expect, it, Testing } from '../-test.ts';
-import { A, Repo } from '../common.ts';
+import { A } from '../common.ts';
 
 type D = { count: number };
 
