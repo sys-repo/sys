@@ -1,4 +1,4 @@
-import { type t, Path, asArray, Err, exists, rx } from './common.ts';
+import { type t, asArray, Err, exists, Path, rx } from './common.ts';
 
 export const Watch: t.FsWatchLib = {
   async start(pathInput, options = {}) {
@@ -27,8 +27,8 @@ export const Watch: t.FsWatchLib = {
           if (!wrangle.withinScope(recursive, paths, e.paths)) continue;
           $$.next({ ...e });
         }
-      } catch (error) {
-        errors.push(Err.std(`Error while watching file-system`, { cause: error }));
+      } catch (cause) {
+        errors.push(Err.std(`Error while watching file-system`, { cause }));
       }
     };
 
