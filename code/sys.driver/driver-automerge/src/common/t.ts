@@ -35,6 +35,7 @@ export type {
   ParsedArgs,
   PickRequired,
   SortOrder,
+  StringDir,
   StringUri,
   TextDiff,
   TextSplice,

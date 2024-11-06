@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it, type t } from '../-test.ts';
 import { Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
@@ -88,9 +88,51 @@ describe('hash', () => {
     expect(res).to.eql(Hash.sha256(alt));
   });
 
+  describe('Hash.toString', () => {
+    it('empty', () => {
+      expect(Hash.toString()).to.eql('');
+      expect(Hash.toString('')).to.eql('');
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => expect(Hash.toString(v)).to.eql(''));
+    });
+
+    it('from string', () => {
+      expect(Hash.toString('0x123')).to.eql('0x123');
+    });
+
+    it('from composite', () => {
+      const a = Hash.composite();
+      const b = Hash.composite().add('foo', 'abc');
+      expect(Hash.toString(a)).to.eql(a.digest);
+      expect(Hash.toString(b)).to.eql(b.digest);
+    });
+  });
+
+  describe('Hash.prefix', () => {
+    const test = (input: string | undefined, expected: string) => {
+      const res = Hash.prefix(input);
+      console.log('res', res);
+      expect(res).to.eql(expected);
+    };
+
+    it('empty', () => {
+      test('', '');
+      test('foobar', '');
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => test(v, ''));
+    });
+
+    it('success', () => {
+      test('sha256-0000', 'sha256');
+      test('sha256-', 'sha256');
+      test('sha1-', 'sha1');
+      test('🐷-0x000', '🐷');
+    });
+  });
+
   describe('shorten', () => {
-    const hash = 'sha256-1234567890';
-    const uri = 'sha1:1234567890';
+    const hash = 'sha256-12345678901234567890';
+    const uri = 'sha1:12345678901234567890';
 
     it('(default)', () => {
       const res = Hash.shorten(`   ${hash}   `, 3);
@@ -100,6 +142,15 @@ describe('hash', () => {
     it('empty string', () => {
       expect(Hash.shorten('', 3)).to.eql('');
       expect(Hash.shorten('  ', 3)).to.eql('');
+    });
+
+    it('shorten: boolean param as option', () => {
+      const a = Hash.shorten(hash, [8, 4], true);
+      const b = Hash.shorten(hash, [8, 4], false);
+      const c = Hash.shorten(hash, [8, 4]);
+      expect(a).to.eql('12345678..7890');
+      expect(b).to.eql('sha256-1..7890');
+      expect(b).to.eql(c);
     });
 
     it('length: number', () => {
@@ -162,6 +213,60 @@ describe('hash', () => {
         expect(res2).to.eql('123..890');
         expect(res3).to.eql('123..890');
         expect(res4).to.eql('sha..890');
+      });
+    });
+  });
+
+  describe('Hash.Is', () => {
+    const Is = Hash.Is;
+
+    describe('Is.composite', () => {
+      it('false', () => {
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v) => {
+          expect(Is.composite(v)).to.be.false;
+        });
+        expect(Is.composite({ digest: '0x123' })).to.be.false;
+        expect(Is.composite({ parts: {} })).to.be.false;
+      });
+
+      it('true', () => {
+        const hash = Hash.composite();
+        const obj = hash.toObject();
+        expect(Is.composite(hash)).to.eql(true);
+        expect(Is.composite(obj)).to.eql(true);
+        expect(Is.composite({ digest: '0x123', parts: {} })).to.be.true;
+      });
+    });
+
+    describe('Is.compositeBuilder', () => {
+      it('false', () => {
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v) => {
+          expect(Is.compositeBuilder(v)).to.be.false;
+        });
+        const hash = Hash.composite();
+        expect(Is.compositeBuilder(hash.toObject())).to.be.false;
+        expect(Is.compositeBuilder({ digest: '0x123', parts: {} })).to.be.false;
+      });
+
+      it('true', () => {
+        const hash = Hash.composite();
+        expect(Is.compositeBuilder(hash)).to.eql(true);
+      });
+    });
+
+    describe('Is.empty', () => {
+      it('empty: true', () => {
+        expect(Is.empty('')).to.eql(true);
+        expect(Is.empty({ digest: '', parts: {} })).to.eql(true);
+      });
+
+      it('empty: false', () => {
+        expect(Is.empty('a')).to.eql(false);
+        expect(Is.empty({ digest: 'a', parts: {} })).to.eql(false);
+        expect(Is.empty({ digest: '', parts: { a: 'z' } })).to.eql(false);
+        expect(Is.empty({ digest: 'a', parts: { a: 'z' } })).to.eql(false);
       });
     });
   });

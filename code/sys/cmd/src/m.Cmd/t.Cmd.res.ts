@@ -35,6 +35,9 @@ export type CmdResponseHandler<Req extends t.CmdType, Res extends t.CmdType> = (
   e: CmdResponseHandlerArgs<Req, Res>,
 ) => void;
 
+/**
+ * Arguments passed to the command response handler.
+ */
 export type CmdResponseHandlerArgs<Req extends t.CmdType, Res extends t.CmdType> = Pick<
   CmdResponseListener<Req, Res>,
   'ok' | 'tx' | 'issuer' | 'result' | 'error'

@@ -26,7 +26,7 @@ describe('Testing.HttpServer', () => {
     await server.dispose();
   });
 
-  it('response: JSON', async () => {
+  it('response: application/json', async () => {
     const server1 = Http.server(() => Http.json({ foo: 123 }));
     const server2 = Http.server((req) => Http.json(req, { foo: 456 }));
     const url1 = server1.url.join('foo');
@@ -34,13 +34,23 @@ describe('Testing.HttpServer', () => {
     const res1 = await fetch(url1);
     const res2 = await fetch(url2);
 
-    expect(await res1.json()).to.eql({ foo: 123 });
-    expect(await res2.json()).to.eql({ foo: 456 });
-
+    expect(res1.headers.get('content-type')).to.eql('application/json');
     expect(res1.headers.get('x-request-url')).to.eql(null);
     expect(res2.headers.get('x-request-url')).to.eql(url2);
 
+    expect(await res1.json()).to.eql({ foo: 123 });
+    expect(await res2.json()).to.eql({ foo: 456 });
+
     await server1.dispose();
     await server2.dispose();
+  });
+
+  it('response: plain/text', async () => {
+    const server = Http.server(() => Http.text('foobar'));
+    const url = server.url.join('foo');
+    const res = await fetch(url);
+    expect(res.headers.get('content-type')).to.eql('plain/text');
+    expect(await res.text()).to.eql('foobar');
+    await server.dispose();
   });
 });

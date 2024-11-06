@@ -11,10 +11,18 @@ export type TestArgs = {
 };
 
 /**
- * Common test types.
+ * Sample test type.
  */
 export type C = C1 | C2;
+
+/**
+ * Sample test type.
+ */
 export type C1 = t.CmdType<'Foo', { foo: number }>;
+
+/**
+ * Sample test type.
+ */
 export type C2 = t.CmdType<'Bar', { msg?: string }>;
 
 /**
@@ -26,33 +34,35 @@ export type C2 = t.CmdType<'Bar', { msg?: string }>;
  * against the same standard test suite.
  */
 export type CmdTestsLib = {
-  /* Run all suites. */
+  /** Run all suites. */
   readonly all: CmdTestSuitesRun;
 
-  /* Index of test suites. */
+  /** Index of test suites. */
   readonly Index: {
-    /* Primary <Cmd> tests. */
+    /** Primary <Cmd> tests. */
     readonly cmd: CmdTestSuitesRun;
 
-    /* <Cmd> events tests. */
+    /** <Cmd> events tests. */
     readonly events: CmdTestSuitesRun;
 
-    /* <Cmd> object-path tests. */
+    /** <Cmd> object-path tests. */
     readonly path: CmdTestSuitesRun;
 
-    /* <Cmd> change patch helper tests. */
+    /** <Cmd> change patch helper tests. */
     readonly patch: CmdTestSuitesRun;
 
-    /* <Cmd> type checker flag helper tests. */
+    /** <Cmd> type checker flag helper tests. */
     readonly flags: CmdTestSuitesRun;
 
-    /* <Cmd> method invokcation tests. */
+    /** <Cmd> method invokcation tests. */
     readonly method: CmdTestSuitesRun;
 
-    /* <Cmd> exeuction queue tests. */
+    /** <Cmd> exeuction queue tests. */
     readonly queue: CmdTestSuitesRun;
   };
 };
 
-/* Runs a suite of tests. */
+/**
+ * Runs a suite of tests.
+ */
 export type CmdTestSuitesRun = (setup: t.CmdTestSetup, args: t.TestArgs) => void;

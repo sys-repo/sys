@@ -2,7 +2,7 @@ import { DenoCloudClient, type t } from './common.ts';
 import { server } from './u.Server.ts';
 import { serve } from './u.serve.ts';
 
-export { c, Env, HttpServer, Pkg } from './common.ts';
+export { c, Env, HttpServer, pkg } from './common.ts';
 
 /**
  * Server library.

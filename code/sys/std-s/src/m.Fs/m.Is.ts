@@ -1,5 +1,4 @@
-import { exists } from '@std/fs';
-import { Path, type t } from './common.ts';
+import { type t, exists, Path } from './common.ts';
 
 /**
  * Filesystem/Path type verification flags.

@@ -1,16 +1,22 @@
 import type { t } from '../common.ts';
 
 /**
- * Library: Tools for working with Arrays.
+ * Tools for evaluating and manipulating arrays.
  */
 export type ArrayLib = {
-  /* Converts a nested set of arrays into a flat single-level array. */
+  /**
+   * Ensure a value is an array.
+   */
+  asArray: <T>(input: T | T[]) => T[];
+
+  /**
+   * Converts a nested set of arrays into a flat single-level array.
+   */
   flatten<T>(list: unknown): T[];
 
-  /* Ensures a value is an array. */
-  asArray<T>(input: T | T[]): T[];
-
-  /* Filter an array with an asynchronous predicate. */
+  /**
+   * Filter an array with an asynchronous predicate.
+   */
   asyncFilter<T>(list: T[], predicate: (value: T) => Promise<boolean>): Promise<T[]>;
 
   /**

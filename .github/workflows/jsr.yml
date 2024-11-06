@@ -53,15 +53,45 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/testing"
+        run: |
+          cd code/sys/testing
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/text"
+        run: |
+          cd code/sys/text
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/tmp"
         run: |
           cd code/sys.tmp
           deno task test
           deno publish
 
+      - name: publish module → "@sys/ui-css"
+        run: |
+          cd code/sys.ui/ui-css
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/ui-dom"
+        run: |
+          cd code/sys.ui/ui-dom
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
+          deno task test
+          deno publish
+
+      - name: publish module → "@sys/ui-dev-harness"
+        run: |
+          cd code/sys.ui/ui-dev-harness
           deno task test
           deno publish
 
@@ -83,8 +113,20 @@ jobs:
           deno task test
           deno publish
 
+      - name: publish module → "@sys/driver-obsidian"
+        run: |
+          cd code/sys.driver/driver-obsidian
+          deno task test
+          deno publish
+
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
+          deno task test --trace-leaks
+          deno publish
+
+      - name: publish module → "@sys/driver-quilibrium"
+        run: |
+          cd code/sys.driver/driver-quilibrium
           deno task test
           deno publish

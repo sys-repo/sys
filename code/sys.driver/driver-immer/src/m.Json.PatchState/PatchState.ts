@@ -8,13 +8,13 @@ import { toObject, type t } from './common.ts';
  * using Immer as the underlying immutability implementation.
  */
 export const PatchState: t.ImmerPatchStateLib = {
-  /* Type validation helpers. */
+  /** Type validation helpers. */
   Is,
 
-  /* Tools for working with properties that act like an command/event stream. */
+  /** Tools for working with properties that act like an command/event stream. */
   Command,
 
-  /* Initialize a new `PatchState` Immutable<T> object. */
+  /** Initialize a new `PatchState` Immutable<T> object. */
   create,
 
   /**

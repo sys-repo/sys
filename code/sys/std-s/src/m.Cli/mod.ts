@@ -23,6 +23,7 @@
  *
  * ```ts
  * import { Cli, Time } from '@sys/std-s';
+ * import { Cli } from '@sys/std-s/cli';    // (alternative import path)
  *
  * const table = Cli.table(['Foo', 'Bar']).indent(2);
  * table.push();
@@ -32,4 +33,4 @@
  * ```
  */
 export { Cli } from './m.Cli.ts';
-export { Format } from './u.Format.ts';
+export { Format } from './m.Format.ts';

@@ -1,30 +1,38 @@
 import type { t } from '../common.ts';
 
+type O = Record<string, unknown>;
+
 /**
- * Library: Tools for evaluating and manipulating types of values.
+ * Tools for evaluating and manipulating types of values.
  */
 export type ValueLib = {
-  /**
-   * Tools for working with array.
-   */
+  /** Tools for working with arrays. */
   Array: t.ArrayLib;
 
-  /* Library: Tools for working with numbers. */
+  /** Tools for working with numbers. */
   Num: t.NumLib;
 
-  /* Rounds a number to the given number of decimal places. */
+  /** Tools for working on strings of text. */
+  Str: t.StrLib;
+
+  /** Tools for working with objects. */
+  Obj: t.ObjLib;
+
+  /** Rounds a number to the specified number of decimal places. */
   round: t.NumLib['round'];
 
-  /* Determine if the given input is typeof "object" and not <null>. */
+  /** Determine if the given input is typeof {object} and not Null. */
   isObject(input: unknown): input is object;
-};
 
-/**
- * Library: Tools for working with numbers.
- */
-export type NumLib = {
   /**
-   * Rounds a number to the given number of decimal places.
+   * Toggle the value of a boolean {object} key.
+   * WARNING:
+   *    This manipulates the given object.
+   *    Ensure an immutable-safe object is passed.
    */
-  round(value: number, precision?: number): number;
+  toggle<T extends O | any[]>(
+    mutate: T,
+    key: T extends any[] ? number : keyof T,
+    defaultValue?: boolean,
+  ): boolean;
 };

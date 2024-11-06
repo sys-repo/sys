@@ -1,5 +1,5 @@
 export type {
-  /* A deep object-tree variant of the Required<T> utility type. */
+  /** A deep object-tree variant of the Required<T> utility type. */
   DeepRequired,
 } from 'ts-essentials';
 

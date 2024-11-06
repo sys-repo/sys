@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { ArrayLib } from '../m.Value.Array/mod.ts';
+import { ArrayLib } from '../m.Value.Array/m.Array.ts';
 import { Num, Value, isObject } from './mod.ts';
 
 describe('Value', () => {
@@ -10,38 +10,84 @@ describe('Value', () => {
     expect(Value.isObject).to.equal(isObject);
   });
 
-  describe('Number', () => {
-    describe('round', () => {
-      it('should round to no decimal places by default', () => {
-        expect(Value.round(1.2345)).to.eql(1);
-        expect(Value.round(1.5)).to.eql(2);
-        expect(Value.round(1.4)).to.eql(1);
-      });
+  describe('toggle', () => {
+    it('toggle: {object}', () => {
+      const obj = { foo: true };
+      const res = Value.toggle(obj, 'foo');
+      expect(obj.foo).to.eql(false);
+      expect(res).to.eql(false);
 
-      it('should round to the specified number of decimal places', () => {
-        expect(Value.round(1.2345, 2)).to.eql(1.23);
-        expect(Value.round(1.235, 2)).to.eql(1.24);
-        expect(Value.round(1.2345, 3)).to.eql(1.235);
-      });
+      const res3 = Value.toggle(obj, 'foo');
+      expect(obj.foo).to.eql(true);
+      expect(res3).to.eql(true);
+    });
 
-      it('should handle negative precision correctly', () => {
-        expect(Value.round(12345, -1)).to.eql(12350);
-        expect(Value.round(12345, -2)).to.eql(12300);
-      });
+    it('toggle: [array]', () => {
+      const list = [true, false];
 
-      it('should round negative numbers correctly', () => {
-        expect(Value.round(-1.2345)).to.eql(-1);
-        expect(Value.round(-1.5)).to.eql(-1);
-        expect(Value.round(-1.51)).to.eql(-2);
-        expect(Value.round(-1.4)).to.eql(-1);
-        expect(Value.round(-1.2345, 2)).to.eql(-1.23);
-      });
+      const res1 = Value.toggle(list, 0);
+      const res2 = Value.toggle(list, 1);
+      const res3 = Value.toggle(list, 999);
+      const res4 = Value.toggle(list, 999);
 
-      it('should round zero correctly', () => {
-        expect(Value.round(0)).to.eql(0);
-        expect(Value.round(0.1234, 2)).to.eql(0.12);
-        expect(Value.round(0, -1)).to.eql(0);
+      expect(res1).to.eql(false);
+      expect(res2).to.eql(true);
+      expect(res3).to.eql(true);
+      expect(res4).to.eql(false);
+
+      expect(list[0]).to.eql(false);
+      expect(list[1]).to.eql(true);
+      expect(list[999]).to.eql(false);
+    });
+
+    it('toggle ← (default value)', () => {
+      const res1 = Value.toggle({ foo: undefined }, 'foo');
+      const res2 = Value.toggle({ foo: undefined }, 'foo', true);
+      const res3 = Value.toggle({ foo: undefined }, 'foo', false);
+      expect(res1).to.eql(true);
+      expect(res2).to.eql(true);
+      expect(res3).to.eql(false);
+
+      const res4 = Value.toggle([], 0);
+      const res5 = Value.toggle([], 0, true);
+      const res6 = Value.toggle([], 0, false);
+      expect(res4).to.eql(true);
+      expect(res5).to.eql(true);
+      expect(res6).to.eql(false);
+    });
+
+    it('throw: invalid input', () => {
+      [null, undefined, 123, '', true, Symbol('sym')].forEach((value: any) => {
+        const fn = () => Value.toggle(value, 'foo');
+        expect(fn).to.throw(/Object or Array required/);
       });
+    });
+
+    it('throw: invalid key value type ← {object}', () => {
+      const test = (obj: { foo: any }) => {
+        const fn = () => Value.toggle(obj, 'foo');
+        expect(fn).to.throw(/is not a boolean/);
+      };
+      test({ foo: null });
+      test({ foo: 123 });
+      test({ foo: {} });
+      test({ foo: [] });
+      test({ foo: Symbol('hello') });
+      test({ foo: BigInt(1234) });
+    });
+
+    it('throw: invalid key value type ← [array]', () => {
+      const test = (obj: any[]) => {
+        const fn = () => Value.toggle(obj, 0);
+        expect(fn).to.throw(/is not a boolean/);
+      };
+      test([null]);
+      test([123]);
+      test(['hello']);
+      test([BigInt(1234)]);
+      test([Symbol('hello')]);
+      test([{}]);
+      test([[]]);
     });
   });
 });

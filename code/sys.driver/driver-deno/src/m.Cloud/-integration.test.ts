@@ -1,4 +1,4 @@
-import { describe, expect, it, Pkg, testSetup } from './-test.ts';
+import { describe, expect, it, pkg, testSetup } from './-test.ts';
 
 describe('DenoCloud: HTTP Server Routes ← ClientLib', () => {
   describe('/ (root)', () => {
@@ -11,7 +11,7 @@ describe('DenoCloud: HTTP Server Routes ← ClientLib', () => {
 
       if (res.ok) {
         const data = res.data;
-        expect(data.pkg).to.eql({ name: Pkg.name, version: Pkg.version });
+        expect(data.pkg).to.eql({ name: pkg.name, version: pkg.version });
       }
 
       await dispose();
@@ -29,7 +29,7 @@ describe('DenoCloud: HTTP Server Routes ← ClientLib', () => {
       if (res.ok) {
         const data = res.data;
         expect(data.description).to.include('deno:subhosting™️');
-        expect(data.pkg).to.eql({ name: Pkg.name, version: Pkg.version });
+        expect(data.pkg).to.eql({ name: pkg.name, version: pkg.version });
         expect(data.auth.identity).to.eql('');
         expect(data.auth.verified).to.eql(false);
       }

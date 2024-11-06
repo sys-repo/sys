@@ -1,6 +1,6 @@
 import type { t, u } from './common.ts';
 
-/* Options passed to the Cmd events factory. */
+/** Options passed to the Cmd events factory. */
 export type CmdEventsOptions = {
   paths?: t.CmdPaths;
   issuer?: t.StringId | t.StringId[];
@@ -8,7 +8,7 @@ export type CmdEventsOptions = {
 };
 
 export type CmdEventsLib = {
-  /* Events factory. */
+  /** Events factory. */
   create<C extends t.CmdType>(doc?: t.CmdTransport, options?: CmdEventsOptions): t.CmdEvents<C>;
 
   /**
@@ -24,7 +24,7 @@ export type CmdEventsLib = {
 export type CmdEventsFactory<C extends t.CmdType> = (dispose$?: t.UntilObservable) => CmdEvents<C>;
 
 /**
- * Events API
+ * Command Events API.
  */
 export type CmdEvents<C extends t.CmdType> = t.Lifecycle & CmdEventsInner<C>;
 type CmdEventsInner<C extends t.CmdType> = Pick<t.Lifecycle, 'dispose$' | 'disposed'> & {
@@ -35,12 +35,18 @@ type CmdEventsInner<C extends t.CmdType> = Pick<t.Lifecycle, 'dispose$' | 'dispo
   readonly issuer: t.CmdEventsIssuerMethod<C>;
 };
 
+/**
+ * Register handlers for named events.
+ */
 export type CmdEventsOnMethod<C extends t.CmdType> = <N extends C['name']>(
   name: N,
   handler?: CmdEventsOnMethodHandler<u.CmdTypeMap<C>[N]>,
 ) => t.Observable<CmdTx<u.CmdTypeMap<C>[N]>>;
 export type CmdEventsOnMethodHandler<C extends t.CmdType> = (e: CmdTx<C>) => void;
 
+/**
+ * Spawn an event structure that listens just for events from specific issuer(s).
+ */
 export type CmdEventsIssuerMethod<C extends t.CmdType> = (
   issuer: t.StringId | t.StringId[],
 ) => CmdEventsInner<C>;
@@ -57,6 +63,10 @@ export type CmdTxEvent<C extends t.CmdType = t.CmdType> = {
   type: 'sys.cmd/tx';
   payload: CmdTx<C>;
 };
+
+/**
+ * Represents a single command transaction ("tx").
+ */
 export type CmdTx<C extends t.CmdType = t.CmdType> = {
   readonly name: C['name'];
   readonly params: C['params'];

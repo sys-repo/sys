@@ -1,4 +1,4 @@
-import { Fs, Pkg, describe, expect, it, type t } from '../../-test.ts';
+import { Fs, pkg, describe, expect, it, type t } from '../../-test.ts';
 import { Denofile } from './mod.ts';
 
 describe('Denofile', () => {
@@ -10,14 +10,14 @@ describe('Denofile', () => {
       const res = await Denofile.load(path);
       expect(res.exists).to.eql(true);
       expect(res.json?.name).to.eql('@sys/driver-deno');
-      expect(res.json?.version).to.eql(Pkg.version);
+      expect(res.json?.version).to.eql(pkg.version);
     });
 
     it('path <undefined> ← default to root of [cwd]', async () => {
       const res = await Denofile.load();
       expect(res.exists).to.eql(true);
       expect(res.json?.name).to.eql('@sys/driver-deno');
-      expect(res.json?.version).to.eql(Pkg.version);
+      expect(res.json?.version).to.eql(pkg.version);
     });
 
     it('appends <deno.json> to path if directory is given', async () => {

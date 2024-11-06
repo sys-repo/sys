@@ -1,11 +1,14 @@
-import { Path, c, type t } from './common.ts';
+import { Hash, Path, Str, Time, c, type t } from './common.ts';
 
 type BuildArgs = {
   ok: boolean;
   stdio: string;
   paths: t.ViteConfigPaths;
+  bytes: number;
   pad?: boolean;
-  Pkg?: t.Pkg;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+  elapsed?: t.Msecs;
 };
 
 /**
@@ -33,8 +36,8 @@ export const Log = {
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
       const text = `
-${c.gray(`Module:       ${Log.Module.toString(Pkg)}`)}
-${c.brightGreen(`entry point:  ${c.gray(input)}`)}
+${c.gray(`Module:   ${Log.Module.toString(Pkg)}`)}
+${c.brightGreen(`entry:    ${c.gray(input)}`)}
     `;
       return wrangle.res(text, options.pad);
     },
@@ -48,18 +51,31 @@ ${c.brightGreen(`entry point:  ${c.gray(input)}`)}
       console.info(Log.Build.toString(args));
     },
     toString(args: BuildArgs) {
-      const { ok, stdio, paths, Pkg } = args;
+      const { ok, stdio, paths, pkg, hash } = args;
+      const cwd = Path.resolve();
+      const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
+
+      const input = paths.input.slice(cwd.length + 1);
+      const outDir = paths.outDir.slice(cwd.length + 1);
+      const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
+
+      let digest = '';
+      if (hash) {
+        const uri = Hash.Console.digest(hash);
+        digest = c.gray(`${c.green('←')} ${uri}`);
+      }
+
       let text = `
 ${stdio}
-${titleColor(c.bold('Bundle'))}
-${c.gray(` input:  ${paths.input}`)}
-${c.gray(` output: ${paths.outDir}`)}
+${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
+${c.gray(`in:       ${input}`)}
+${c.gray(`out:      ${outDir}/dist.json`)} ${digest}
 `;
       text = text.trim();
-      if (Pkg) {
-        const jsr = `https://jsr.io/${Pkg.name}`;
-        text += c.gray(`\n pkg:    ${Log.Module.toString(Pkg)}  ${c.white('→')}  ${jsr}`);
+      if (pkg) {
+        const mod = c.white(c.bold(pkg.name));
+        text += c.gray(`\npkg:      ${mod} ${pkg.version}`);
       }
       return wrangle.res(text, args.pad);
     },
@@ -69,10 +85,10 @@ ${c.gray(` output: ${paths.outDir}`)}
    * Info
    */
   Info: {
-    toString(args: { Pkg: t.Pkg; url: string; pad?: boolean }) {
-      const { Pkg } = args;
+    toString(args: { pkg: t.Pkg; url: string; pad?: boolean }) {
+      const { pkg } = args;
       const url = new URL(args.url);
-      const mod = Log.Module.toString(Pkg);
+      const mod = Log.Module.toString(pkg);
       const port = c.bold(c.brightCyan(url.port));
       const href = `${url.protocol}//${url.hostname}:${port}/`;
       const text = `
@@ -88,13 +104,13 @@ ${c.cyan(`         ${href}`)}
    */
   Help: {
     toString(args: {
-      Pkg: t.Pkg;
+      pkg: t.Pkg;
       ws: t.ViteDenoWorkspace;
       paths: t.ViteConfigPaths;
       url: string;
       pad?: boolean;
     }) {
-      const { Pkg, paths, url, pad, ws } = args;
+      const { pkg, paths, url, pad, ws } = args;
       const hr = c.brightGreen(c.bold('─'.repeat(60)));
       const key = (text: string) => c.bold(c.white(text));
       const cwd = Path.resolve();
@@ -103,9 +119,9 @@ ${c.brightGreen(c.bold('Info'))}
 ${hr}
 ${ws.toString()}
 
-${Log.Info.toString({ Pkg, url, pad })}      
+${Log.Info.toString({ pkg, url, pad })}      
          ↓
-         ${c.green('input')}    ${paths.input.slice(cwd.length)}
+         ${c.white('input')}    ${paths.input.slice(cwd.length)}
          ${c.cyan('output')}   ${paths.outDir.slice(cwd.length)}
 
 
