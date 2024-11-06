@@ -3,15 +3,12 @@
  * Testing tools.
  *
  * @example
- * A simple unit-test file, named: `<subject>.-unit.test.ts`.
+ * A simple unit-test file, named: `-<Subject>.test.ts`.
  *
  * The test runner picks up on the `*.test.ts` pattern, and the
- * `.-unit.` prefix highlights it both visually as a "unit test" in
- * the folder, as well as explicitly calling out the "type" of tests
- * contained withhin the file:
- *
- * - `*.-unit.test.ts`
- * - `*.-int.test.ts` ← "integration" test.
+ * `-<Subject>.` name prefix highlights it both visually as a "unit test" in
+ * the folder as well as ensuring the tests are naturally grouped together
+ * within the folder structure.
  *
  * ```ts
  * import { Testing, describe, expect, it } from '@std/sys';
@@ -24,8 +21,8 @@
  * });
  * ```
  */
-export { describe, expect, it } from '@sys/std/testing';
+export { describe, expect, expectError, it } from '@sys/std/testing';
 
 export { Time, rx, slug } from '@sys/std';
-export { Testing } from '@sys/std/testing/httpserver';
+export { Testing } from '@sys/std/testing/server';
 export { Fs, Path } from '../m.Fs/mod.ts';

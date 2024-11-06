@@ -3,14 +3,21 @@
     "@std/async": "npm:@jsr/std__async@1.0.5",
     "@std/cli": "npm:@jsr/std__cli@1.0.6",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
+    "@std/fmt": "npm:@jsr/std__fmt@1",
     "@std/path": "npm:@jsr/std__path@1.0.6",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.3",
-    "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
-    "immer": "10.1.1"
+    "@std/uuid": "npm:@jsr/std__uuid@1.0.4"
   },
   "devDependencies": {
-    "@types/react": "18",
-    "@types/react-dom": "18"
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@swc/plugin-emotion": "4",
+    "@vitejs/plugin-react-swc": "3",
+    "rollup": "4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vite": "5",
+    "vite-plugin-wasm": "3"
   }
 }

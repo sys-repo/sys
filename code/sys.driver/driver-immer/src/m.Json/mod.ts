@@ -23,15 +23,15 @@ import { PatchState } from '../m.Json.PatchState/mod.ts';
  * underlying Immutable<T> implementation.
  */
 export const Json: t.ImmerJsonLib = {
-  /* Tools for working with patches */
+  /** Tools for working with patches */
   Patch,
-  /* Immutable<T> implemetation over Immer.  */
+  /** Immutable<T> implemetation over Immer.  */
   PatchState,
-  /* Object-path tools for mapping changes into the Immutable<T> state objects. */
+  /** Object-path tools for mapping changes into the Immutable<T> state objects. */
   Path,
-  /* Determine if the input is a JSON structure. */
+  /** Determine if the input is a JSON structure. */
   isJson: Is.json,
-  /* Convert the given input to a serlalized JSON string. */
+  /** Convert the given input to a serlalized JSON string. */
   stringify: Util.stringify,
 } as const;
 

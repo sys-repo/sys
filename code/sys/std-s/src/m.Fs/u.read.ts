@@ -1,5 +1,4 @@
-import { exists } from '@std/fs';
-import type { t } from './common.ts';
+import { type t, exists } from './common.ts';
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.

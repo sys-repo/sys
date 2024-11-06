@@ -5,12 +5,12 @@
  * @example
  * Within the `vite.config.ts` in the root of the module:
  * ```ts
- * import reactPlugin from '@vitejs/plugin-react-swc';
+ * import { Vite } from '@sys/driver-vite';
  * import { defineConfig } from 'vite';
- * import { workspacePlugin } from '@sys/driver-vite';
+ * import reactPlugin from '@vitejs/plugin-react-swc';
  *
- * export default defineConfig((_ctx) => {
- *   const workspace = workspacePlugin();
+ * export default defineConfig(() => {
+ *   const workspace = Vite.Plugin.workspace();
  *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```
@@ -19,8 +19,8 @@
  * to the Vite bundle:
  *
  * ```ts
- * export default defineConfig((_ctx) => {
- *   const workspace = workspacePlugin({ filter: (e) => e.subpath.startsWith('/client') });
+ * export default defineConfig(() => {
+ *   const workspace = Vite.Plugin.workspace({ filter: (e) => e.subpath.startsWith('/client') });
  *   return { plugins: [reactPlugin(), workspace] };
  * });
  * ```
@@ -28,6 +28,10 @@
  * Along with the option to manulate the configuration further after the initial
  * baseline settings have initialized, using the `mutate` plugin callback.
  */
-export { Pkg, c } from './common.ts';
-export { ViteConfig } from './m.ViteConfig/mod.ts';
-export { Vite, workspacePlugin } from './m.Vite/mod.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
+export { c } from './common.ts';
+export { ViteConfig } from './m.Vite.Config/mod.ts';
+export { Plugin, workspacePlugin } from './m.Vite.Plugin/mod.ts';
+export { Vite } from './m.Vite/mod.ts';

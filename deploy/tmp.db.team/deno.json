@@ -1,0 +1,21 @@
+{
+  "name": "@tdb/tmp",
+  "version": "0.0.8",
+  "tasks": {
+    "dev": "deno run -RNE --watch ./src/main.ts",
+    "check": "deno check ./src/main.ts",
+    "deploy": "deno task check && deployctl deploy --prod --project=tdb-tmp --org=tdb",
+    "ls": "deployctl deployments list",
+    "prod": "deployctl deployments redeploy --prod",
+    "prep": "deno run -RW --allow-env ./scripts/-prep.ts"
+  },
+  "exports": {},
+  "deploy": {
+    "project": "2d23333d-3cb1-4a7b-a559-42019203b790",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "src/main.ts"
+  }
+}

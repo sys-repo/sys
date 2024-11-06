@@ -1,4 +1,4 @@
-import { HttpServer, Pkg, type t } from './common.ts';
+import { HttpServer, pkg as Package, type t } from './common.ts';
 import { server } from './u.Server.ts';
 
 /**
@@ -7,9 +7,9 @@ import { server } from './u.Server.ts';
 export const serve: t.DenoCloudServerLib['serve'] = async (...args: []) => {
   const options = wrangle.options(args);
   const port = options.port ?? 8080;
-  const pkg = options.Pkg ?? Pkg;
+  const pkg = options.pkg ?? Package;
   const env = options.env ?? (await wrangle.env());
-  const app = server({ env });
+  const app = server({ env, pkg });
   const config = HttpServer.options(port, pkg);
   return Deno.serve(config, app.fetch);
 };
@@ -28,8 +28,8 @@ const wrangle = {
     if (typeof args[0] === 'object') return args[0];
     if (typeof args[0] === 'number') {
       const port = args[0];
-      const Pkg = typeof args[1] === 'object' ? args[1] : undefined;
-      return { port, Pkg };
+      const pkg = typeof args[1] === 'object' ? args[1] : undefined;
+      return { port, pkg };
     }
     return {};
   },

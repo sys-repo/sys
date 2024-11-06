@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Http, Pkg } from './common.ts';
+import { Http, pkg } from './common.ts';
 import { testSetup } from '../-test.ts';
 
 describe('DenoCloud (Server)', () => {
@@ -11,8 +11,8 @@ describe('DenoCloud (Server)', () => {
     expect(res.status).to.eql(200);
 
     const body = await res.json();
-    expect(body.pkg.name).to.eql(Pkg.name);
-    expect(body.pkg.version).to.eql(Pkg.version);
+    expect(body.pkg.name).to.eql(pkg.name);
+    expect(body.pkg.version).to.eql(pkg.version);
 
     await test.dispose();
   });

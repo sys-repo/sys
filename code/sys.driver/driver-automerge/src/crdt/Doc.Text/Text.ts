@@ -1,5 +1,7 @@
-import { diff } from '@sys/std/text';
+import { Str } from '@sys/std';
 import { replace, splice } from './Text.splice.ts';
+
+const diff = Str.diff;
 
 /**
  * Syncer for a text <input> element.

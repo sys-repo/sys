@@ -22,15 +22,15 @@ export type CmdPatch = { path: t.ObjectPath | string };
  *  when the Cmd data structure changes.
  */
 export type CmdPatchLib = {
-  /* Determine if the patch start with the given path. */
+  /** Determine if the patch start with the given path. */
   startsWith(patch: t.CmdPatch, def: t.ObjectPath): boolean;
 
-  /* Extract an object-path from a patch. */
+  /** Extract an object-path from a patch. */
   path(patch: t.CmdPatch): t.ObjectPath;
 
-  /* Determine if the given set includes any "change" patches. */
+  /** Determine if the given set includes any "change" patches. */
   includesQueueChange(patches: t.CmdPatch[], paths: t.CmdPaths): boolean;
 
-  /* Determine if the patch represents a change. */
+  /** Determine if the patch represents a change. */
   isQueueChange(patch: t.CmdPatch, paths: t.CmdPaths): boolean;
 };

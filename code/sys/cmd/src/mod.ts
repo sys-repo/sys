@@ -7,7 +7,7 @@
  * ```ts
  * import { Cmd } from '@sys/cmd';
  *
- * /\/ Sample
+ * // Sample
  * export type C = C1 | C2;
  * export type C1 = t.CmdType<'Foo', { foo: number }>;
  * export type C2 = t.CmdType<'Bar', { msg?: string }>;
@@ -18,5 +18,7 @@
  * cmd.invoke('Foo', { foo: 888 });
  * ```
  */
-export { Pkg } from './common.ts';
+export { pkg } from './pkg.ts';
+export type * as t from './types.ts';
+
 export { Cmd } from './m.Cmd/mod.ts';

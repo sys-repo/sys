@@ -1,2 +1,2 @@
 export { DEFAULTS } from './common.ts';
-export * from './m.Cmd.ts';
+export { Cmd } from './m.Cmd.ts';

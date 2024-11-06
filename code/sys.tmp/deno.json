@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmp",
-  "version": "0.0.5",
+  "version": "0.0.16",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
