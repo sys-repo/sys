@@ -7,6 +7,7 @@ export type { IconType } from 'react-icons';
  * @system
  */
 export type {
+  ColorConstants,
   CommonTheme,
   Disposable,
   Event,

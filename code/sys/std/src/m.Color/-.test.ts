@@ -16,7 +16,7 @@ describe('Color', () => {
     });
 
     it('converts TRUE to RED (ruby)', () => {
-      test(true, Color.RED);
+      test(true, Color.RUBY);
     });
 
     it('undefined', () => {

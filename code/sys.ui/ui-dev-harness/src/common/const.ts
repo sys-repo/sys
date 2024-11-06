@@ -1,3 +1,3 @@
-export * from './c.BADGES.ts';
-export * from './c.COLORS.ts';
-export * from './c.DEFAULTS.ts';
+export { COLORS } from '@sys/std/color';
+export { Badges } from './c.BADGES.ts';
+export { DEFAULTS } from './c.DEFAULTS.ts';

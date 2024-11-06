@@ -41,18 +41,6 @@ export type ColorLib = t.ColorConstants & {
 };
 
 /**
- * Common color primitives (hex string).
- */
-export type ColorConstants = {
-  readonly WHITE: HexColor;
-  readonly BLACK: HexColor;
-  readonly DARK: HexColor;
-  readonly RED: HexColor;
-  readonly GREEN: HexColor;
-  readonly BLUE: HexColor;
-};
-
-/**
  * Represents a theme that produces basic color sets.
  */
 export type ColorTheme = ColorThemeColors & {
@@ -84,4 +72,34 @@ export type ColorThemeColors = {
 
   /** Foreground color. */
   readonly fg: HexColor;
+};
+
+/**
+ * Common color constants.
+ */
+export type ColorConstants = {
+  /** The color black. */
+  BLACK: t.StringHex;
+  /** The color white. */
+  WHITE: t.StringHex;
+  /** Dark inky color. */
+  DARK: t.StringHex;
+  /** The color cyan. */
+  CYAN: t.StringHex;
+  /** The color magenta. */
+  MAGENTA: t.StringHex;
+  /** The color blue. */
+  BLUE: t.StringHex;
+  /** The color green. */
+  GREEN: t.StringHex;
+  /** The color yellow. */
+  YELLOW: t.StringHex;
+  /** The color lime green. */
+  LIME: t.StringHex;
+  /** The color purple. */
+  PURPLE: t.StringHex;
+  /** The color red. */
+  RED: t.StringHex;
+  /** Standard "ruby" RED color (semi-transparent). */
+  RUBY: t.StringHex;
 };

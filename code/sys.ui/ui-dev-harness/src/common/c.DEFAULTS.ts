@@ -1,7 +1,5 @@
+import { Color, COLORS } from '@sys/std/color';
 import type * as t from './t.ts';
-
-import { Color } from '@sys/std';
-import { COLORS } from './c.COLORS.ts';
 
 export const DEFAULTS = {
   get size(): t.DevRenderedSize {

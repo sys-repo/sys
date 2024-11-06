@@ -2,7 +2,7 @@ import type { ColorInput } from 'tinycolor2';
 import type { t } from './common.ts';
 
 import tinycolor from 'tinycolor2';
-import { RED } from './u.const.ts';
+import { RUBY } from './u.const.ts';
 
 /**
  * Creates a new tiny-color instance.
@@ -25,7 +25,7 @@ export function mix(color1: ColorInput, color2: ColorInput, amount?: number) {
  */
 export function format(value: string | number | boolean | undefined): string | undefined {
   if (value === undefined) return undefined;
-  if (value === true) return RED;
+  if (value === true) return RUBY;
   if (typeof value === 'number') return toGrayAlpha(value);
   if (typeof value === 'string') {
     if (value.includes('url(')) return value;
