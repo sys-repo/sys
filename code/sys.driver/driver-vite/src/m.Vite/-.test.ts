@@ -18,6 +18,9 @@ describe('Vite', () => {
       const res = await Vite.build({ pkg, input, outDir });
       const { paths } = res;
 
+      console.log('res', res);
+      console.log('res.toString()', res.toString());
+
       expect(res.ok).to.eql(true);
       expect(res.cmd.input).to.include('deno run');
       expect(res.cmd.input).to.include('--node-modules-dir npm:vite');

@@ -6,8 +6,8 @@
  * Importing tools for styling.
  * ```ts
  * import { Color } from '@sys/ui-dom';   // ← NB: alias from '@sys/std/color'
- * import { Color, Style } from '@sys/ui-dom/style';
- * import { Color, Style, css } from '@sys/ui-dom/style/react';
+ * import { Color, Style } from '@sys/ui-css';
+ * import { Color, Style, css } from '@sys/ui-css/react';
  * ```
  *
  * @example

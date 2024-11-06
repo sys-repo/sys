@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import type { t } from './common.ts';
 
 /**
@@ -5,5 +6,5 @@ import type { t } from './common.ts';
  */
 export type ReactEventLib = {
   /** Convert react mouse events into keyboard modifier info object. */
-  modifiers(e: React.MouseEvent): t.KeyboardModifierFlags;
+  modifiers(e: MouseEvent): t.KeyboardModifierFlags;
 };

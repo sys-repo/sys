@@ -1,7 +1,8 @@
-import { Style } from '@sys/ui-dom/style/react';
+import type { t } from './common.ts';
+
+import { Style } from '@sys/ui-css/react';
 import reactPlugin from '@vitejs/plugin-react-swc';
 import wasm from 'vite-plugin-wasm';
-import type { t } from './common.ts';
 import { workspacePlugin } from './u.workspacePlugin.ts';
 
 /**

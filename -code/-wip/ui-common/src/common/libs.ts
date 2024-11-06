@@ -7,7 +7,7 @@ export { Fuzzy } from '@sys/text/fuzzy';
 export { Badges, COLORS } from '@sys/ui-dev-harness';
 export { KeyboardMonitor } from '@sys/ui-dom/keyboard';
 export { LocalStorage } from '@sys/ui-dom/local-storage';
-export { Color, Style, css } from '@sys/ui-dom/style/react';
+export { Color, Style, css } from '@sys/ui-css/react';
 export { UserAgent } from '@sys/ui-dom/user-agent';
 export { FC, ReactEvent, useMouse } from '@sys/ui-react';
 

@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Style, Color, Edges } from '@sys/ui-dom/style';
+ * import { Style, Color, Edges } from '@sys/ui-css';
  * ```
  */
 export { Color } from './common.ts';

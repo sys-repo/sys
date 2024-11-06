@@ -1,8 +1,9 @@
+import type { RefObject, MouseEventHandler } from 'react';
 import type { t } from '../common.ts';
 
 type E = HTMLElement;
 type Div = HTMLDivElement;
-type M = React.MouseEventHandler;
+type M = MouseEventHandler;
 type MouseCallback = (e: MouseEvent) => void;
 
 /**
@@ -109,7 +110,7 @@ export type UseClickInput<T extends E> = t.UseClickProps<T> | MouseCallback;
  * Hook: information about a mouse click operations
  */
 export type UseClick<T extends E> = {
-  readonly ref: React.RefObject<T>;
+  readonly ref: RefObject<T>;
   readonly stage: t.UseClickStage;
 };
 
@@ -118,7 +119,7 @@ export type UseClick<T extends E> = {
  */
 export type UseClickProps<T extends E> = {
   stage?: t.UseClickStage;
-  ref?: React.RefObject<T>;
+  ref?: RefObject<T>;
   callback?: MouseCallback;
 };
 

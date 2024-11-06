@@ -26,7 +26,7 @@ export type {
 
 export type { DenoWorkspace, DenofileJson, DenofilePath } from '@sys/driver-deno/t';
 export type { CmdOutput, CmdProcessHandle } from '@sys/std-s/t';
-export type { CssValue } from '@sys/ui-dom/t';
+export type { CssValue } from '@sys/ui-css/t';
 
 /**
  * Local

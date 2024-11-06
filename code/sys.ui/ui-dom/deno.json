@@ -16,8 +16,6 @@
     "./keyboard": "./src/m.Keyboard/mod.ts",
     "./local-storage": "./src/m.LocalStorage/mod.ts",
     "./mock": "./src/m.Mock/mod.ts",
-    "./style": "./src/m.Style/mod.ts",
-    "./style/react": "./src/m.Style.react/mod.ts",
     "./user-agent": "./src/m.UserAgent/mod.ts"
   }
 }

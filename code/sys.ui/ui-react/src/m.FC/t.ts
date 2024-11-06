@@ -2,7 +2,7 @@
  * @module
  * Commonly used React types.
  */
-export type { FC } from 'react';
+import type { FC } from 'react';
 
 type O = Record<string, unknown>;
 
@@ -13,9 +13,5 @@ export type FCLib = {
   /**
    * Decorate a React function declaration with additional fields.
    */
-  decorate<P, F extends O>(
-    View: React.FC<P>,
-    fields: F,
-    options?: { displayName?: string },
-  ): React.FC<P> & F;
+  decorate<P, F extends O>(View: FC<P>, fields: F, options?: { displayName?: string }): FC<P> & F;
 };

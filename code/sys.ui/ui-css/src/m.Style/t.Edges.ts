@@ -59,3 +59,70 @@ export type CssToEdges<T> = (
   input?: t.CssEdgesInput | [],
   options?: { defaultValue?: t.CssEdgesInput },
 ) => Partial<T>;
+
+/**
+ * Edges
+ */
+
+export type CssMarginInput = CssEdgesInput;
+export type CssPaddingInput = CssEdgesInput;
+
+/**
+ * Value representing an edge (eg. "left" or "right").
+ */
+export type CssEdgeInput = N;
+
+/**
+ * Loose input for edges around a 4-sided entity.
+ */
+export type CssEdgesInput = N | [N] | [N, N] | [N, N, N, N];
+
+/**
+ * Loose inputs for a value representing a single-dimension (X/Y)
+ */
+export type CssEdgesXYInput = N | [N] | [N, N];
+
+/**
+ * Edges for a 4-sided entity.
+ */
+export type CssEdges = {
+  top: string | number;
+  right: string | number;
+  bottom: string | number;
+  left: string | number;
+};
+
+/**
+ * Array of edge values: "top", "right", "bottom", "left"
+ */
+export type CssEdgesArray = [N, N, N, N];
+
+/**
+ * An array of edges representing a margin.
+ */
+export type CssMarginArray = CssEdgesArray;
+
+/**
+ * An array of edges representing a padding.
+ */
+export type CssPaddingArray = CssEdgesArray;
+
+/**
+ * CSS margin edges.
+ */
+export type CssMarginEdges = {
+  marginTop: string | number;
+  marginRight: string | number;
+  marginBottom: string | number;
+  marginLeft: string | number;
+};
+
+/**
+ * CSS padding edges.
+ */
+export type CssPaddingEdges = {
+  paddingTop: string | number;
+  paddingRight: string | number;
+  paddingBottom: string | number;
+  paddingLeft: string | number;
+};

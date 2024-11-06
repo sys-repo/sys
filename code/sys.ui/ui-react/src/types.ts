@@ -2,6 +2,7 @@
  * @module
  * Commonly used React types.
  */
+import type { JSX } from 'react';
 export type { FC } from 'react';
 
 export type * from './m.FC/t.ts';
