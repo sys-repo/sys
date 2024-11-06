@@ -35,8 +35,8 @@ export {
 /**
  * Server only.
  *
- * NB: importing these libraries into JS that is bundled
- *     for the browser will fail.
+ * NB: importing these libraries into JS/ESM for bundling for
+ *     the browser (eg. via Vite) will fail.
  */
 export { Cli } from './m.Cli/mod.ts';
 export { Env } from './m.Env/mod.ts';
