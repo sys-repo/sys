@@ -11,9 +11,10 @@ export const print: t.HttpServerLib['print'] = (addr, pkg, hash) => {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
     const hx = Hash.Console.digest(hash);
+    const integrity = c.gray(`${hx}    ← dist/dist.json`);
     const table = Cli.table([]);
     table.push([c.gray('Module'), `${c.white(c.bold(pkg.name))} ${pkg.version}`]);
-    if (hx) table.push(['', hx]);
+    if (hx) table.push(['', integrity]);
     table.push(['', host]);
     table.render();
   } else {
