@@ -1,11 +1,11 @@
-import { serveStatic as base } from '@hono/hono/deno';
+import { serveStatic as honoStatic } from '@hono/hono/deno';
 import type { t } from './common.ts';
 
 type Input = Parameters<t.HttpServeStatic>[0];
 
 export const serveStatic: t.HttpServeStatic = (input: Input) => {
   const options = wrangle.options(input);
-  return base(options);
+  return honoStatic(options);
 };
 
 /**
