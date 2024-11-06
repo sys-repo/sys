@@ -20,24 +20,34 @@
     "jsxImportSourceTypes": "@emotion/react"
   },
   "workspace": [
+    "./code/-tmpl/deno",
     "./code/sys.tmp",
 
     "./code/sys/cmd",
     "./code/sys/std",
     "./code/sys/std-s",
+    "./code/sys/testing",
+    "./code/sys/text",
     "./code/sys/types",
 
+    "./code/sys.ui/ui-css",
+    "./code/sys.ui/ui-dom",
+    "./code/sys.ui/ui-dev-harness",
     "./code/sys.ui/ui-react",
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",
     "./code/sys.driver/driver-immer",
+    "./code/sys.driver/driver-obsidian",
+    "./code/sys.driver/driver-quilibrium",
     "./code/sys.driver/driver-vite",
 
+    "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
-    "./code/-samples/deno.vite-react"
+    "./deploy/slc.db.team",
+    "./deploy/tmp.db.team"
   ],
-  "importMap": "./deno.importMap.json",
+  "importMap": "./deno.imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]

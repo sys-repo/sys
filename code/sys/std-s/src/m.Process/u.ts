@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export { kill } from './u.kill.ts';
 
 /**
  * Helpers
@@ -22,18 +23,6 @@ export const Wrangle = {
     return typeof input === 'string' ? input : new TextDecoder().decode(input);
   },
 } as const;
-
-/**
- * Kills a child process.
- */
-export async function kill(child: Deno.ChildProcess, options: { log?: boolean } = {}) {
-  try {
-    Deno.kill(child.pid, 'SIGTERM'); // Send signal to terminate the process.
-  } catch (error) {
-    if (options.log) console.error(`Failed to kill process ${child.pid}:`, error);
-  }
-  await child.status; // Wait for the process to exit.
-}
 
 /**
  * Write [stdio] stream data to the console.

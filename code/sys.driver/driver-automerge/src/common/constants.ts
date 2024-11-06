@@ -1,9 +1,5 @@
-import { default as pkg } from '../../deno.json' with { type: 'json' };
-
-/* Module meta-data. */
-export const Pkg = pkg;
-const ns = Pkg.name;
-
+import { pkg } from '../pkg.ts';
+const ns = pkg.name;
 
 /**
  * Type display names.
@@ -26,4 +22,5 @@ export const Symbols = {
   Store: Symbol(`${ns}.Store`),
   StoreIndex: Symbol(`${ns}.StoreIndex`),
   WebStore: Symbol(`${ns}.WebStore`),
+  FsStore: Symbol(`${ns}.FsStore`),
 } as const;

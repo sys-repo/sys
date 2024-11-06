@@ -1,5 +1,5 @@
 import { Denofile } from '@sys/driver-deno';
-import { c, Cli, R, Semver, type t, Text } from './common.ts';
+import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
   release?: t.SemVerReleaseType;
@@ -13,7 +13,7 @@ type TArgs = {
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args);
   const release = wrangle.release(options, args);
-  const releaseColored = `${c.green(Text.capitalize(release))}`;
+  const releaseColored = `${c.green(Value.Str.capitalize(release))}`;
   console.info();
   console.info(c.gray(`${c.bold(releaseColored)} Version`));
 
@@ -27,10 +27,16 @@ export async function main(options: Options = {}) {
     return;
   }
 
+  const exclude = (path: t.StringPath) => {
+    if (path.includes('code/-tmpl/')) return true;
+    return false;
+  };
+
   /**
    * Retrieve the child modules within the workspace.
    */
   const children = (await ws.children.load())
+    .filter((file) => !exclude(file.path))
     .filter((file) => file.exists)
     .filter((file) => !!file.json)
     .filter((file) => typeof file.json?.version === 'string')

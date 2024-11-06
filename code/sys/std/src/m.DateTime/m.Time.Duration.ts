@@ -12,7 +12,7 @@ const To: t.TimeDurationTo = {
  * Library: tools for working with an elapsed duration of time.
  */
 export const Duration: t.TimeDurationLib = {
-  /* Time duration conversions. */
+  /** Time duration conversions. */
   To,
 
   /**

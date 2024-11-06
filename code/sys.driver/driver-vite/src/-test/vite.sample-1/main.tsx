@@ -1,9 +1,14 @@
-import { default as Pkg } from '../../../deno.json' with { type: 'json' };
-console.info('Pkg', Pkg);
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { pkg } from '../../pkg.ts';
+console.info('Pkg', pkg);
 
 /**
  * Sample: render react component.
  */
-import { createRoot } from 'react-dom/client';
 const root = createRoot(document.getElementById('root'));
-root.render(<div>Hello World 👋</div>);
+root.render(
+  <StrictMode>
+    <div>Hello World 👋</div>
+  </StrictMode>,
+);

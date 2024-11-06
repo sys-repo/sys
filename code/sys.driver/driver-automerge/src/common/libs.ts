@@ -4,6 +4,8 @@
 export { PatchState } from '@sys/driver-immer';
 export { R } from '@sys/std';
 
+export { next as A } from '@automerge/automerge';
+
 /**
  * @system
  */

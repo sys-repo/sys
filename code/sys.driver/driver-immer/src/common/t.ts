@@ -1,5 +1,5 @@
 export type {
-  CommonIsLib,
+  StdIsLib,
   ImmutableChange,
   ImmutableChangeOptions,
   ImmutableChangeOptionsInput,

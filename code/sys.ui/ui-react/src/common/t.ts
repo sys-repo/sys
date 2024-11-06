@@ -1,10 +1,4 @@
-/**
- * System
- */
-export type { CommonTheme, Falsy, Percent } from '@sys/std/t';
-export type { FC } from 'react';
+export type { Disposable, Lifecycle, Point, UntilObservable } from '@sys/types';
+export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 
-/**
- * Local
- */
 export type * from '../types.ts';

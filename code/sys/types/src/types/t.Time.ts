@@ -1,16 +1,26 @@
-/* A number representing milliseconds. */
+/**
+ * A number representing milliseconds.
+ */
 export type Msecs = number;
 
-/* Number represening seconds. */
+/**
+ * Number represening seconds.
+ */
 export type Secs = number;
 
-/* Number represening minutes. */
+/**
+ * Number represening minutes.
+ */
 export type Mins = number;
 
-/* Number represening hours. */
+/**
+ * Number represening hours.
+ */
 export type Hours = number;
 
-/* Number represening days. */
+/**
+ * Number represening days.
+ */
 export type Days = number;
 
 /**

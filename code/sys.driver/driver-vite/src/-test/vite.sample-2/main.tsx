@@ -1,26 +1,27 @@
-import { default as Pkg } from '../../../deno.json' with { type: 'json' };
-console.info('Pkg', Pkg);
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { pkg } from '../../pkg.ts';
+import { View } from './ui.tsx';
+
+console.info('Pkg', pkg);
 
 /**
- * Sample: import NPM module.
+ * Test imports from across the workspace.
  */
-import { Observable } from 'rxjs'; // NB: see monorepo import-map.
-console.log('import rxjs: Observable', Observable);
+import '../-sample-imports.ts';
 
 /**
  * Sample: dynamic import (code-splitting).
  */
-const dynamic = import('./main.foo.ts');
+const dynamic = import('./m.foo.ts');
 dynamic.then((mod) => console.log('💦 dynmaic import', mod));
-
-/**
- * Sample: internal monorepo import.
- */
-import { Foo } from '@sys/tmp/client/ui'; // NB: imported from mono-repo, mapped in {resolve/alias} Vite config.
 
 /**
  * Sample: render react component.
  */
-import { createRoot } from 'react-dom/client';
 const root = createRoot(document.getElementById('root'));
-root.render(<Foo />);
+root.render(
+  <StrictMode>
+    <View style={{ border: `solid 1px blue` }} />
+  </StrictMode>,
+);

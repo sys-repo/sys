@@ -9,9 +9,9 @@ export function keyboardFactory(args: {
   port: number;
   url: string;
   dispose: () => Promise<void>;
-  Pkg?: t.Pkg;
+  pkg?: t.Pkg;
 }) {
-  const { dispose, Pkg, paths } = args;
+  const { dispose, pkg, paths } = args;
   const sh = Cmd.sh();
   const url = new URL(args.url);
 
@@ -37,17 +37,17 @@ export function keyboardFactory(args: {
       /**
        * CLEAR and reset.
        */
-      if (Pkg && e.key === 'k') {
+      if (pkg && e.key === 'k') {
         console.clear();
-        console.info(Log.Info.toString({ Pkg, url: url.href, pad: true }));
+        console.info(Log.Info.toString({ pkg, url: url.href, pad: true }));
       }
 
       /**
        * INFO →: <Options | ExtendedInfo>
        */
-      if (Pkg && e.key === 'i') {
+      if (pkg && e.key === 'i') {
         console.clear();
-        console.info(Log.Help.toString({ Pkg, paths, ws, url: url.href, pad: true }));
+        console.info(Log.Help.toString({ pkg, paths, ws, url: url.href, pad: true }));
       }
     }
   };

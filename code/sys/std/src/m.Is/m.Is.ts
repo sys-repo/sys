@@ -8,11 +8,27 @@ const { errorLike, stdError } = Err.Is;
 /**
  * Common flag evaluators.
  */
-export const Is: t.CommonIsLib = {
+export const Is: t.StdIsLib = {
   observable,
   subject,
   errorLike,
   stdError,
+
+  falsy(input?: any): input is t.Falsy | typeof NaN {
+    return (
+      input === false ||
+      input === 0 ||
+      input === '' ||
+      input === null ||
+      input === undefined ||
+      input === 0n ||
+      Number.isNaN(input) // Handle NaN at runtime
+    );
+  },
+
+  nil(input?: any) {
+    return input === undefined || input === null;
+  },
 
   promise<T = any>(input?: any): input is Promise<T> {
     return input !== null && input
@@ -44,19 +60,22 @@ export const Is: t.CommonIsLib = {
     return input.startsWith('{') || input.startsWith('[');
   },
 
-  falsy(input?: any): input is t.Falsy | typeof NaN {
-    return (
-      input === false ||
-      input === 0 ||
-      input === '' ||
-      input === null ||
-      input === undefined ||
-      input === 0n ||
-      Number.isNaN(input) // Handle NaN at runtime
-    );
-  },
-
   arrayBufferLike(input?: any): input is ArrayBufferLike {
     return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
+  },
+
+  /**
+   * A safe way to test any value as to wheather is is 'blank'
+   * meaning it can be either:
+   *   - null
+   *   - undefined
+   *   - empty-string ('')
+   *   - empty-array ([]).
+   */
+  blank(value?: any) {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
+    return false;
   },
 };

@@ -36,6 +36,10 @@ export const Is = {
     return isObjectType(input, Symbols.WebStore);
   },
 
+  fsStore(input: any): input is t.FsStore {
+    return isObjectType(input, Symbols.FsStore);
+  },
+
   repo(input: any): input is t.AutomergeRepo {
     if (!isObject(input)) return false;
     const obj = input as t.AutomergeRepo;

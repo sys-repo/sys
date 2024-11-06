@@ -5,27 +5,27 @@ import type { t } from './common.ts';
  * Index of input prompts.
  */
 export const Prompts: t.CliPromptsLib = {
-  /* Text input prompt (String). */
+  /** Text input prompt (String). */
   Input,
 
-  /* Yes/No confirmation input prompt (Boolean). */
+  /** Yes/No confirmation input prompt (Boolean). */
   Confirm,
 
-  /* Numeric input prompt (Number). */
+  /** Numeric input prompt (Number). */
   Number,
 
-  /* Secret input prompt (String). */
+  /** Secret input prompt (String). */
   Secret,
 
-  /* Yes/No toggle input prompt (Boolean). */
+  /** Yes/No toggle input prompt (Boolean). */
   Toggle,
 
-  /* List input prompt. */
+  /** List input prompt. */
   List,
 
-  /* Selection list input prompt. */
+  /** Selection list input prompt. */
   Select,
 
-  /* Multi-select list input propmt. */
+  /** Multi-select list input propmt. */
   Checkbox,
 };

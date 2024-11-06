@@ -1,4 +1,4 @@
-import { Fs, Testing, Time, describe, expect, it, type t } from '../-test.ts';
+import { c, describe, expect, Fs, it, pkg, Testing, Time, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
 import { Vite } from './mod.ts';
 
@@ -15,25 +15,60 @@ describe('Vite', () => {
   describe('Vite.build', () => {
     const testBuild = async (input: t.StringPath) => {
       const outDir = Vite.Config.outDir.test.random();
-      const res = await Vite.build({ input, outDir });
+      const res = await Vite.build({ pkg, input, outDir });
       const { paths } = res;
 
-      expect(res.ok).to.eql(true);
-      expect(res.cmd).to.include('deno run');
-      expect(res.cmd).to.include('--node-modules-dir npm:vite');
+      console.log('res', res);
+      console.log('res.toString()', res.toString());
 
-      const html = await Deno.readTextFile(Fs.join(paths.outDir, 'index.html'));
-      return { html, paths } as const;
+      expect(res.ok).to.eql(true);
+      expect(res.cmd.input).to.include('deno run');
+      expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
+
+      // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
+      const keys = Object.keys(res.dist.hash.parts);
+      const hasPkg = keys.some((key) => key.startsWith('./pkg/-pkg.json'));
+      expect(hasPkg).to.eql(true);
+
+      // Ensure the HTML file eixsts
+      const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
+      const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
+      return {
+        input,
+        files: { html, distJson },
+        paths,
+        res,
+      } as const;
+    };
+
+    const logDist = (input: t.StringPath, dist: t.DistPkg) => {
+      const distfile = c.bold(c.white('./dist/dist.json'));
+      console.info();
+      console.info(c.green(`input: ${input}`));
+      console.info(c.green(' ↓'));
+      console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
+      console.info();
+      console.info(dist);
+      console.info();
     };
 
     it('sample-1: simple', async () => {
-      const res = await testBuild(INPUT.sample1);
-      expect(res.html).to.include(`<title>Sample-1</title>`);
+      const input = INPUT.sample1;
+      const { res, files } = await testBuild(input);
+      expect(files.html).to.include(`<title>Sample-1</title>`);
+
+      expect(res.dist).to.eql(files.distJson);
+      expect(res.dist.pkg).to.eql(pkg);
+      expect(res.dist.size.bytes).to.be.greaterThan(160_000);
+
+      logDist(input, res.dist);
     });
 
     it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-      const res = await testBuild(INPUT.sample2);
-      expect(res.html).to.include(`<title>Sample-2</title>`);
+      const input = INPUT.sample2;
+      const { res, files } = await testBuild(input);
+      expect(files.html).to.include(`<title>Sample-2</title>`);
+      logDist(input, res.dist);
     });
   });
 
@@ -53,7 +88,7 @@ describe('Vite', () => {
      *    ➜  Network: use --host to expose
      *
      */
-    it('start → fetch(200) → dispose', async (e) => {
+    it('start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
       const promise = Vite.dev({ input, port, silent: false });
@@ -65,14 +100,22 @@ describe('Vite', () => {
       });
 
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
+      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
-      const res = await fetch(svc.url);
+      const controller = new AbortController();
+      const { signal } = controller;
+      const timeout = Time.delay(5000, () => {
+        controller.abort();
+        svc?.dispose();
+      });
+
+      const res = await fetch(svc.url, { signal });
       const html = await res.text();
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
 
-      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
       await svc.dispose();
+      timeout.cancel();
     });
   });
 });

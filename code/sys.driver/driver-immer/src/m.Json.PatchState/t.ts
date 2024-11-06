@@ -9,10 +9,10 @@ type Cmd = { type: string; payload: { tx: string } };
  * using Immer as the underlying immutability implementation.
  */
 export type ImmerPatchStateLib = {
-  /* Type validation helpers. */
+  /** Type validation helpers. */
   readonly Is: t.PatchStateIsLib;
 
-  /* Tools for working with properties that act like an command/event stream. */
+  /** Tools for working with properties that act like an command/event stream. */
   readonly Command: t.PatchStateCommandLib;
 
   /**
@@ -88,17 +88,17 @@ export type PatchStateCommandLib = {
   ): t.Observable<T>;
 };
 
-/* Function that dispatches a patch change. */
+/** Function that dispatches a patch change. */
 export type PatchDispatcher<T> = (cmd: T) => void;
 
 /**
  * Type validation helpers.
  */
 export type PatchStateIsLib = {
-  /* Determine if the given object is a [PatchState] object. */
+  /** Determine if the given object is a [PatchState] object. */
   state(input: unknown): input is t.PatchState<any>;
 
-  /* Determine if the given object is a [PatchState] of the specified type. */
+  /** Determine if the given object is a [PatchState] of the specified type. */
   type(input: unknown, typename: string): input is t.PatchState<any>;
 
   /**

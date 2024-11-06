@@ -1,5 +1,6 @@
+import { describe, expect, it, pkg } from '../-test.ts';
 import { Http, HttpServer } from '../mod.ts';
-import { describe, expect, it } from '../-test.ts';
+import { Pkg } from './common.ts';
 
 describe('Server', () => {
   it('app: start → req/res → dispose', async () => {
@@ -19,6 +20,40 @@ describe('Server', () => {
     expect(await res1.json()).to.eql({ count: 123 });
     await res2.body?.cancel();
 
+    await listener.shutdown();
+  });
+
+  it('returns {pkg, pkg-digest} in headers', async () => {
+    const hash = 'sha256-00000';
+    const app = HttpServer.create({ pkg, hash });
+    const listener = Deno.serve({ port: 0 }, app.fetch);
+    app.get('/', (c) => c.text('no-op'));
+
+    const client = Http.client();
+    const url = Http.url(listener.addr);
+    const res = await client.get(url.base);
+    const headers = res.headers;
+
+    // Default: lower-case.
+    expect(headers.get('pkg')).to.eql(Pkg.toString(pkg));
+    expect(headers.get('pkg-digest')).to.eql(hash);
+
+    // Supports reading as capitalized version (via default Headers object).
+    expect(headers.get('Pkg')).to.eql(Pkg.toString(pkg));
+    expect(headers.get('Pkg-Digest')).to.eql(hash);
+
+    /**
+     * The actual header keys are lower-case.
+     *
+     * As per HTTP/2 and HTTP/3 specs.
+     *    RFC 7540 - Hypertext Transfer Protocol Version 2 (HTTP/2)
+     *    RFC 9114 - HTTP/3
+     */
+    const h = Http.toHeaders(headers);
+    expect(h['pkg']).to.eql(Pkg.toString(pkg));
+    expect(h['pkg-digest']).to.eql(hash);
+
+    await res.body?.cancel();
     await listener.shutdown();
   });
 });

@@ -14,7 +14,7 @@ export type EnvVars = {
 /**
  * Context passed to routes.
  */
-export type RouteContext = RouteContextBase & { env: EnvVars };
+export type RouteContext = RouteContextBase & { env: EnvVars; pkg: t.Pkg };
 
 /**
  * Library: Server for working with the Deno cloud.
@@ -47,6 +47,8 @@ export type DenoCloudServerLib = {
  */
 export type DenoCloudServerArgs = {
   env: EnvVars;
+  pkg: t.Pkg;
+  hash?: t.StringHash;
   authEnabled?: boolean;
   authLogger?: t.AuthLogger;
 };
@@ -56,8 +58,8 @@ export type DenoCloudServerArgs = {
  */
 export type DenoCloudServeOptions = {
   port?: number;
-  Pkg?: t.Pkg;
   env?: t.EnvVars;
+  pkg?: t.Pkg;
 };
 
 /**

@@ -1,5 +1,5 @@
 import type * as t from './t.ts';
-import { BroadcastChannelNetworkAdapter } from './libs.automerge-repo.ts';
+import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';
 
 export const BroadcastChannel = {
   create(): t.NetworkAdapterInterface {
