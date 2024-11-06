@@ -35,8 +35,17 @@ export type HttpServerCreateOptions = {
 export type HttpServeStatic = (
   input: HttpServeStaticOptions | t.StringDir,
 ) => t.HonoMiddlewareHandler;
+
 /** Options passed to the static server middleware. */
-export type HttpServeStaticOptions = { root: t.StringDir };
+export type HttpServeStaticOptions<E extends HonoEnv = HonoEnv> = {
+  root?: string;
+  path?: string;
+  precompressed?: boolean;
+  mimes?: Record<string, string>;
+  rewriteRequestPath?: (path: string) => string;
+  onFound?: (path: string, c: HonoContext<E>) => void | Promise<void>;
+  onNotFound?: (path: string, c: HonoContext<E>) => void | Promise<void>;
+};
 
 /**
  * Hono Server (application instnace).
