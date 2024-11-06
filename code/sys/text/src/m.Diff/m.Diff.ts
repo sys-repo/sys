@@ -4,9 +4,9 @@ import type { t } from '../common.ts';
 /**
  * Helpers for determining differences between text strings.
  */
-export const Diff = {
+export const Diff: t.DiffLib = {
   /**
-   * Construct a diff between two strings.
+   * Calculate a list of diffs between two strings.
    */
   chars(from: string, to: string, options: { ignoreCase?: boolean } = {}): t.TextCharDiff[] {
     const { ignoreCase = false } = options;
