@@ -11,12 +11,12 @@ export type ViteLib = {
   common: t.VitePluginLib['common'];
 
   /**
-   * Run the <vite:build> command.
+   * Run the Vite `build` command to produce an output bundle.
    */
   build(args: ViteBuildArgs): Promise<t.ViteBuildResponse>;
 
   /**
-   * Run the <vite:build> command.
+   * Run the Vite `dev` command.
    * Long running processes (spawn → child process).
    *
    * Command:
