@@ -5,7 +5,8 @@ type F = t.ErrLib['catch'];
 
 export const catchError: F = async <T>(promise: Promise<T>) => {
   try {
-    return { ok: true, data: await promise, error: undefined };
+    const data = await promise;
+    return { ok: true, data, error: undefined };
   } catch (cause) {
     return { ok: false, error: std(cause) };
   }
