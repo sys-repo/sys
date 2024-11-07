@@ -17,6 +17,7 @@
     "./fs": "./src/m.Fs/mod.ts",
     "./hash": "./src/m.Hash/mod.ts",
     "./http-server": "./src/m.Server.Http/mod.ts",
+    "./net": "./src/m.Net/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./process": "./src/m.Process/mod.ts",
     "./testing": "./src/m.Testing/mod.ts"
