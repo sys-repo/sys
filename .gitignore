@@ -5,6 +5,7 @@
 .env
 .env.*
 .swc
+.vitepress
 
 dist
 dist.*
