@@ -13,7 +13,7 @@ import type { t } from './common.ts';
  * extension module.
  */
 export type VitePressLib = {
-  dev(options?: t.VitePressDevOptions): Promise<t.VitePressDevResponse>;
+  dev(options?: t.VitePressDevOptions): Promise<t.VitePressDevServer>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
