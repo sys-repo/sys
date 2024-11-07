@@ -2,7 +2,7 @@ import { Cmd, Cli, type t, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
- * Generates a terminal keyboard listener with common commands.
+ * Create a keyboard listener to control the running dev server.
  */
 export function keyboardFactory(args: {
   paths: t.ViteConfigPaths;
@@ -20,7 +20,7 @@ export function keyboardFactory(args: {
 
     for await (const e of Cli.keypress()) {
       /**
-       * OPEN → open the local browser and point it at the Vite dev-server.
+       * OPEN → open the local browser and point it at the dev-server.
        */
       if (e.key === 'o') {
         sh.run(`open ${url.href}`);
