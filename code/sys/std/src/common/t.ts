@@ -14,6 +14,7 @@ export type RLib = {
   readonly flatten: R['flatten'];
   readonly is: R['is'];
   readonly prop: R['prop'];
+  readonly sort: R['sort'];
   readonly sortBy: R['sortBy'];
   readonly toString: R['toString'];
   readonly uniq: R['uniq'];
