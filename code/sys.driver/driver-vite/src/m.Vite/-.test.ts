@@ -72,7 +72,7 @@ describe('Vite', () => {
     });
   });
 
-  describe('Vite.start.dev', () => {
+  describe('Vite.dev', () => {
     /**
      * Dev Mode: long-running child process runing the Vite server.
      * Uses Deno's NPM compatibility layer.
@@ -88,7 +88,7 @@ describe('Vite', () => {
      *    ➜  Network: use --host to expose
      *
      */
-    it('start → fetch(200) → dispose', async () => {
+    it('process: start → fetch(200) → dispose', async () => {
       const input = INPUT.sample1;
       const port = Testing.randomPort();
       const promise = Vite.dev({ input, port, silent: false });
