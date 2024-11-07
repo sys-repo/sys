@@ -3,27 +3,6 @@ import type { t } from './common.ts';
 type ToStringOptions = { pad?: boolean };
 
 /**
- * Arguments passed to the [.build] method.
- */
-export type ViteBuildArgs = {
-  input: t.StringPath;
-  outDir?: t.StringPath;
-  silent?: boolean;
-  pkg?: t.Pkg; // Consumer module.
-};
-
-/**
- * Arguments passed to the [.dev] method.
- */
-export type ViteDevArgs = {
-  input: t.StringPath;
-  outDir?: t.StringPath;
-  port?: number;
-  silent?: boolean;
-  pkg?: t.Pkg; // Consumer module.
-};
-
-/**
  * Library: Tools for running Vite via commands issued to a child process.
  */
 export type ViteLib = {
@@ -54,16 +33,37 @@ export type ViteLib = {
 };
 
 /**
+ * Arguments passed to the [Vite.build] method.
+ */
+export type ViteBuildArgs = {
+  input: t.StringPath;
+  outDir?: t.StringPath;
+  silent?: boolean;
+  pkg?: t.Pkg; // Consumer module.
+};
+
+/**
+ * Arguments passed to the [Vite.dev] method.
+ */
+export type ViteDevArgs = {
+  dispose$?: t.UntilObservable;
+  input: t.StringPath;
+  outDir?: t.StringPath;
+  port?: number;
+  silent?: boolean;
+  pkg?: t.Pkg; // Consumer module.
+};
+
+/**
  * Vite Child Process.
  * A long running process, for instance when running: "$ vite dev"
  */
-export type ViteProcess = {
+export type ViteProcess = t.LifecycleAsync & {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly url: t.StringPath;
   listen(): Promise<void>;
   keyboard(): Promise<void>;
-  dispose(): Promise<void>;
 };
 
 /**

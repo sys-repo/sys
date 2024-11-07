@@ -12,17 +12,7 @@ export type {
 /**
  * System
  */
-export type {
-  CommonTheme,
-  CompositeHash,
-  DistPkg,
-  Msecs,
-  Pkg,
-  StringDir,
-  StringHash,
-  StringPath,
-  StringUrl,
-} from '@sys/std/t';
+export type * from '@sys/std/t';
 
 export type { DenoWorkspace, DenofileJson, DenofilePath } from '@sys/driver-deno/t';
 export type { CmdOutput, CmdProcessHandle } from '@sys/std-s/t';

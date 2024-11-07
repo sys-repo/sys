@@ -17,7 +17,7 @@ export const dev: t.ViteLib['dev'] = async (input) => {
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
-  const proc = Cmd.spawn({ args, env, silent });
+  const proc = Cmd.spawn({ args, env, silent, dispose$: input.dispose$ });
   const { dispose } = proc;
   const keyboard = keyboardFactory({ pkg, paths, port, url, dispose });
 
@@ -32,7 +32,17 @@ export const dev: t.ViteLib['dev'] = async (input) => {
     url,
     listen,
     keyboard,
+
+    /**
+     * Lifecycle.
+     */
     dispose,
+    get dispose$() {
+      return proc.dispose$;
+    },
+    get disposed() {
+      return proc.disposed;
+    },
   };
   return api;
 };

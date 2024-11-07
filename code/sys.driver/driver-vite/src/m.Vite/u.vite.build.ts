@@ -17,7 +17,6 @@ export const build: t.ViteLib['build'] = async (input) => {
   const dir = paths.outDir;
   if (pkg) {
     const path = Fs.join(dir, 'pkg', '-pkg.json');
-    console.log('path', path);
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
   }
@@ -50,7 +49,6 @@ const wrangle = {
 
     if (!(await Fs.exists(path))) {
       const placeholder = `Placeholder`;
-
       await Fs.ensureDir(Fs.dirname(path));
       await Deno.writeTextFile(path, placeholder);
     }
