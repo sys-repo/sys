@@ -1,14 +1,34 @@
-import { Time, describe, it, expect, type t } from '../-test.ts';
-import { Vitepress } from './mod.ts';
+import { describe, expect, it, slug, Testing, Time } from '../-test.ts';
+import { VitePress } from './mod.ts';
 
 describe('Vitepress', () => {
-  //
-  it('TMP', async () => {
-    const res = await Vitepress.dev();
+  describe('VitePress.dev()', () => {
+    it('process: start → fetch(200) → dispose', async () => {
+      const port = Testing.randomPort();
+      const path = `./tmp/docs/${slug()}`;
+      const svc = await VitePress.dev({ port, path });
+      expect(svc.port).to.eql(port);
+      expect(svc.path).to.eql(path);
 
-    await Time.wait(2500);
-    console.log('res', res);
+      await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
+      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
-    await res.dispose();
+      const controller = new AbortController();
+      const { signal } = controller;
+      const timeout = Time.delay(5000, () => {
+        controller.abort();
+        svc?.dispose();
+      });
+
+      const res = await fetch(svc.url, { signal });
+      const html = await res.text();
+
+      expect(res.status).to.eql(200);
+      expect(html).to.include(`<script type="module"`);
+      expect(html).to.include(`node_modules/.deno/vitepress@`);
+
+      await svc.dispose();
+      timeout.cancel();
+    });
   });
 });

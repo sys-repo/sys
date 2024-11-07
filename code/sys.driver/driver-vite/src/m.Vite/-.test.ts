@@ -30,7 +30,7 @@ describe('Vite', () => {
       const hasPkg = keys.some((key) => key.startsWith('./pkg/-pkg.json'));
       expect(hasPkg).to.eql(true);
 
-      // Ensure the HTML file eixsts
+      // Ensure the HTML file exists.
       const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
       const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
       return {
