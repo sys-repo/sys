@@ -19,14 +19,16 @@ export type VitePressLib = {
 /** Options passed to the [VitePress.dev] method. */
 export type VitePressDevOptions = {
   dispose$?: t.UntilObservable;
+  pkg?: t.Pkg;
   port?: number;
   path?: t.StringPath;
 };
 
 /** Response from the [VitePress.dev] method. */
-export type VitePressDevResponse = t.LifecycleAsync & {
+export type VitePressDevServer = t.LifecycleAsync & {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly path: t.StringPath;
   readonly url: t.StringUrl;
+  listen(): Promise<void>;
 };

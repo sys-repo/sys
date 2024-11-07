@@ -2,4 +2,4 @@
  * @module
  * Module types.
  */
-export type * from './m.Vitepress/t.ts';
+export type * from './m.VitePress/t.ts';
