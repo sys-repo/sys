@@ -1,7 +1,8 @@
-import { Cmd, type t } from './common.ts';
+import { Cmd, Net, type t } from './common.ts';
 
 export const dev: t.VitePressLib['dev'] = async (options = {}) => {
-  const { port = 1234, path = 'docs' } = options;
+  const { path = 'docs' } = options;
+  const port = Net.port(options.port ?? 1234);
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${path} --port ${port}`;
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
