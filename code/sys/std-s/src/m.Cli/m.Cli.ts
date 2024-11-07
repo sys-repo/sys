@@ -20,12 +20,13 @@ export const Cli: t.CliLib = {
   Path,
   Format,
   Keyboard,
+  Prompts,
 
   args: Args.parse,
   table: Table.create,
   spinner: Spinner.create,
   wait: Time.wait,
+  keypress: Keyboard.keypress,
 
-  Prompts,
   confirm: (options) => Prompts.Confirm.prompt(options),
 };

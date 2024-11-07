@@ -9,6 +9,7 @@ import type {
   Toggle,
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
+import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 
 import type { ArgsLib, ValueLib, PathLib, PathFormatLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
@@ -39,6 +40,9 @@ export type CliLib = {
   /** Tools for working with the keyboard within a CLI. */
   readonly Keyboard: t.CliKeyboardLib;
 
+  /** Index of input prompts */
+  readonly Prompts: t.CliPromptsLib;
+
   /** Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];
 
@@ -51,11 +55,11 @@ export type CliLib = {
   /** Wait for the specified milliseconds. */
   wait: t.TimeLib['wait'];
 
-  /** Index of input prompts */
-  readonly Prompts: t.CliPromptsLib;
-
   /** Boolean: Yes/No confirmation. */
   confirm: t.CliPromptsLib['Confirm']['prompt'];
+
+  /** Listen to keypress events. */
+  keypress: t.CliKeyboardLib['keypress'];
 };
 
 /**
@@ -137,5 +141,17 @@ export type CliFormatLib = {
  * Tools for working with the keyboard within a CLI.
  */
 export type CliKeyboardLib = {
-  //
+  /**
+   * Listen to keypress events.
+   *
+   * @example
+   * ```ts
+   * for await (const e of Cli.keypress()) {
+   *   if (e.key === 'o' && e.ctrlKey) {
+   *      ...
+   *   }
+   * }
+   * ```
+   */
+  readonly keypress: typeof CliffyKeypress;
 };

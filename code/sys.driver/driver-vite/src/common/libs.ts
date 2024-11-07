@@ -1,9 +1,4 @@
 /**
- * External
- */
-export { keypress } from '@cliffy/keypress';
-
-/**
  * System
  */
 export { Denofile } from '@sys/driver-deno/runtime';

@@ -11,7 +11,7 @@ export type ViteLib = {
   common: t.VitePluginLib['common'];
 
   /**
-   * Run the Vite `build` command to produce an output bundle.
+   * Run the Vite `build` command to produce an output `/dist` bundle.
    */
   build(args: ViteBuildArgs): Promise<t.ViteBuildResponse>;
 

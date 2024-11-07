@@ -1,4 +1,4 @@
-import { Cmd, keypress, type t, ViteConfig } from './common.ts';
+import { Cmd, Cli, type t, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
@@ -18,7 +18,7 @@ export function keyboardFactory(args: {
   return async () => {
     const ws = await ViteConfig.workspace();
 
-    for await (const e of keypress()) {
+    for await (const e of Cli.keypress()) {
       /**
        * OPEN → open the local browser and point it at the Vite dev-server.
        */
