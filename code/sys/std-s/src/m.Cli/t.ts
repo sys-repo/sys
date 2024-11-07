@@ -36,6 +36,9 @@ export type CliLib = {
   /** Common formatting heleprs. */
   readonly Format: t.CliFormatLib;
 
+  /** Tools for working with the keyboard within a CLI. */
+  readonly Keyboard: t.CliKeyboardLib;
+
   /** Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];
 
@@ -128,4 +131,11 @@ export type CliFormatLib = {
    * Path display formatting.
    */
   path: PathFormatLib['string'];
+};
+
+/**
+ * Tools for working with the keyboard within a CLI.
+ */
+export type CliKeyboardLib = {
+  //
 };
