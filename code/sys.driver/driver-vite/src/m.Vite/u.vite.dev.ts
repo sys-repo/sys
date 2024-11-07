@@ -1,4 +1,4 @@
-import { Cmd, DEFAULTS, type t } from './common.ts';
+import { Cmd, DEFAULTS, Net, type t } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -10,7 +10,8 @@ import { Log, Wrangle } from './u.ts';
  *    $ vite dev --port=<1234> --host
  */
 export const dev: t.ViteLib['dev'] = async (input) => {
-  const { port = DEFAULTS.port, silent = false, pkg } = input;
+  const { silent = false, pkg } = input;
+  const port = Net.port(input.port ?? DEFAULTS.port);
   const { env, args, paths } = Wrangle.command(input, `dev --port=${port} --host`);
   const url = `http://localhost:${port}/`;
 
