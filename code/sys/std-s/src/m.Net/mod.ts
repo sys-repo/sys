@@ -4,12 +4,13 @@
  *
  * @example
  * ```ts
- * import { Net } from '@sys/std-s/net';
+ * import { Net } from '@sys/std-s/network';
  * const port = Net.Port.random();
  * ```
  */
 import { Net } from './m.Net.ts';
 
-export default Net;
-export { Net };
 export { Port } from './m.Port.ts';
+export { Net };
+
+export default Net;
