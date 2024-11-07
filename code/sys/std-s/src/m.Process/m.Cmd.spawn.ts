@@ -11,12 +11,13 @@ type E = { source: t.StdStream; fn: t.CmdProcessEventHandler };
 export const spawn: t.Cmd['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
-  const $ = rx.subject<t.CmdProcessEvent>();
   const life = rx.lifecycleAsync(config.dispose$, async () => {
     await stdoutReader.cancel();
     await stderrReader.cancel();
     await kill(child);
   });
+  const $ = rx.subject<t.CmdProcessEvent>();
+  const $$ = $.pipe(rx.takeUntil(life.dispose$));
 
   const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();
@@ -87,7 +88,9 @@ export const spawn: t.Cmd['spawn'] = (config) => {
    */
   const api: H = {
     pid,
-    $: $.asObservable(),
+    get $() {
+      return $$;
+    },
 
     get is() {
       return { ready };
@@ -111,7 +114,9 @@ export const spawn: t.Cmd['spawn'] = (config) => {
      * Lifecycle.
      */
     dispose: life.dispose,
-    dispose$: life.dispose$,
+    get dispose$() {
+      return life.dispose$;
+    },
     get disposed() {
       return life.disposed;
     },
