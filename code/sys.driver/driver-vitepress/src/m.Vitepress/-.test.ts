@@ -32,4 +32,12 @@ describe('Vitepress', () => {
       timeout.cancel();
     });
   });
+
+  describe('VitePress.build', () => {
+    it.skip('sample-1', async () => {
+      /**
+       * TODO 🐷
+       */
+    });
+  });
 });
