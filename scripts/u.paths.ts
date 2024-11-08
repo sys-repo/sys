@@ -29,6 +29,7 @@ export const Paths = {
     'code/sys.driver/driver-obsidian',
     'code/sys.driver/driver-quilibrium',
     'code/sys.driver/driver-vite',
+    'code/sys.driver/driver-vitepress',
 
     /**
      * →| dev/null

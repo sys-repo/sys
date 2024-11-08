@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for working with the "VitePress" documentation bundle compiler.
+ * Tools for working with the "VitePress" documentation content compiler.
  * https://vitepress.dev/
  * 
  * The "VitePress" documentation [Markdown → HTML/JS] vite bundler
