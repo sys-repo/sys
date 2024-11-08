@@ -6,7 +6,7 @@ type F = t.VitePressLib['dev'];
 
 export const dev: F = async (input = {}) => {
   const options = wrangle.options(input);
-  const { path = 'docs', pkg } = options;
+  const { path = '', pkg } = options;
   const port = Net.port(options.port ?? 1234);
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${path} --port ${port}`;
   const args = cmd.split(' ').slice(1);
