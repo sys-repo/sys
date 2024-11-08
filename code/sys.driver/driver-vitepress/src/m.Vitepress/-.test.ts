@@ -1,11 +1,12 @@
-import { describe, expect, it, slug, Testing, Time } from '../-test.ts';
+import { describe, expect, it, Testing, Time } from '../-test.ts';
+import { SAMPLE } from './-u.ts';
 import { VitePress } from './mod.ts';
 
 describe('Vitepress', () => {
-  describe('VitePress.dev()', () => {
+  describe('VitePress.dev', () => {
     it('process: start → fetch(200) → dispose', async () => {
-      const port = Testing.randomPort();
-      const path = `./tmp/docs/${slug()}`;
+      const sample = await SAMPLE.setup();
+      const { port, path } = sample;
       const svc = await VitePress.dev({ port, path });
       expect(svc.port).to.eql(port);
       expect(svc.path).to.eql(path);
