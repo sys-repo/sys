@@ -17,7 +17,7 @@
  * into that file:
  *
  * ```ts
- * import { VitePress } from '@sys/driver-vitepress';
+ * import { VitePress } from 'jsr:@sys/driver-vitepress';
  *
  * const server = await VitePress.dev();
  * await server.listen();
@@ -25,7 +25,7 @@
  *
  * Then start the development server:
  * ```ts
- * $ deno run -A main.ts
+ * deno run -A main.ts
  * ```
  */
 export { pkg } from './pkg.ts';
