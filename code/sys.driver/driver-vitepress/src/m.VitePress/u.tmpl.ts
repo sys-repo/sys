@@ -1,3 +1,9 @@
+export const gitignore = `
+cache/
+dist/
+`.slice(1);
+
+export const config = `
 import { defineConfig } from 'vitepress';
 
 export default () => {
@@ -6,3 +12,6 @@ export default () => {
     description: 'See https://vitepress.dev/ for configuration options.',
   });
 };
+`.slice(1);
+
+export const Tmpl = { gitignore, config };

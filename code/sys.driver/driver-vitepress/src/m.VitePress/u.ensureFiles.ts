@@ -1,4 +1,5 @@
 import { type t, Fs } from './common.ts';
+import { Tmpl } from './u.tmpl.ts';
 
 /**
  * Ensure the required configuration files exist within
@@ -6,13 +7,14 @@ import { type t, Fs } from './common.ts';
  */
 export async function ensureFiles(dir: t.StringDir) {
   dir = Fs.Is.absolute(dir) ? dir : Fs.resolve(dir);
-  const resolve = (...parts: string[]) => Fs.resolve(import.meta.dirname ?? '', ...parts);
-  const ensure = async (source: t.StringPath, target: t.StringPath) => {
+
+  const ensure = async (tmpl: string, target: t.StringPath) => {
     target = Fs.join(dir, target);
     if (await Fs.exists(target)) return;
-    await Fs.copy(resolve(source), target, { throw: true });
+    await Fs.ensureDir(Fs.dirname(target));
+    await Deno.writeTextFile(target, tmpl);
   };
 
-  await ensure('../-tmpl/config.ts', '.vitepress/config.ts');
-  await ensure('../-tmpl/.gitignore', '.vitepress/.gitignore');
+  await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
+  await ensure(Tmpl.config, '.vitepress/config.ts');
 }
