@@ -16,7 +16,7 @@ export type VitePressLib = {
   /**
    * Start the development server.
    */
-  dev(options?: t.VitePressDevOptions): Promise<t.VitePressDevServer>;
+  dev(options?: t.VitePressDevOptions | t.StringPath): Promise<t.VitePressDevServer>;
 
   /**
    * Run the VitePress `build` command to produce the output `/dist` bundle.

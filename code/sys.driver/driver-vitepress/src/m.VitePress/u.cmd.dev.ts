@@ -1,7 +1,10 @@
 import { Cmd, Net, type t } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 
-export const dev: t.VitePressLib['dev'] = async (options = {}) => {
+type F = t.VitePressLib['dev'];
+
+export const dev: F = async (input = {}) => {
+  const options = wrangle.options(input);
   const { path = 'docs', pkg } = options;
   const port = Net.port(options.port ?? 1234);
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${path} --port ${port}`;
@@ -38,3 +41,13 @@ export const dev: t.VitePressLib['dev'] = async (options = {}) => {
   };
   return api;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  options(input: Parameters<F>[0]): t.VitePressDevOptions {
+    if (typeof input === 'string') return { path: input };
+    return input ?? {};
+  },
+} as const;
