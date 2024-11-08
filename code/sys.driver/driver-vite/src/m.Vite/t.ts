@@ -24,7 +24,7 @@ export type ViteLib = {
    *
    * Terminal Output:
    *
-   *    VITE v5.4.7  ready in 350 ms
+   *    VITE v<X.X.X>  ready in 350 ms
    *
    *    ➜  Local:   http://localhost:1234/
    *    ➜  Network: use --host to expose
