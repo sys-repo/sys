@@ -9,7 +9,7 @@ export function keyboardFactory(args: {
   dispose: () => Promise<void>;
   pkg?: t.Pkg;
 }) {
-  const { dispose, pkg } = args;
+  const { dispose } = args;
   const url = new URL(args.url);
   const sh = Cmd.sh();
 

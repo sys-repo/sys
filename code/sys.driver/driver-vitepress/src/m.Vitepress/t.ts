@@ -13,7 +13,15 @@ import type { t } from './common.ts';
  * extension module.
  */
 export type VitePressLib = {
+  /**
+   * Start the development server.
+   */
   dev(options?: t.VitePressDevOptions): Promise<t.VitePressDevServer>;
+
+  /**
+   * Run the VitePress `build` command to produce the output `/dist` bundle.
+   */
+  build(args: t.VitePressBuildArgs): Promise<t.VitePressBuildResponse>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
@@ -24,11 +32,20 @@ export type VitePressDevOptions = {
   path?: t.StringPath;
 };
 
-/** Response from the [VitePress.dev] method. */
+/**
+ * A running [VitePress] development server running on localhost.
+ */
 export type VitePressDevServer = t.LifecycleAsync & {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
   readonly path: t.StringPath;
   readonly url: t.StringUrl;
   listen(): Promise<void>;
+  keyboard(): Promise<void>;
 };
+
+/** Arguments passed to the [VitePress.build] method. */
+export type VitePressBuildArgs = {};
+
+/** Response from the [VitePress.build] method. */
+export type VitePressBuildResponse = {};
