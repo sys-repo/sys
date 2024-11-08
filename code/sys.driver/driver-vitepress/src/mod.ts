@@ -23,8 +23,7 @@
  * await server.listen();
  * ```
  *
- * Then run the process:
- *
+ * Then start the development server:
  * ```ts
  * $ deno run -A main.ts
  * ```
