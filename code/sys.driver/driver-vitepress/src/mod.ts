@@ -23,10 +23,21 @@
  * await server.listen();
  * ```
  *
- * Then start the development server:
- * ```ts
- * deno run -A main.ts
- * ```
+ * Then start up the live-updating (HMS) development server process,
+ * run the terminal command:
+ *
+ * ```bash
+ * Command:
+ *    $ deno run -A main.ts
+ *
+ * Terminal Output:
+ *
+ *    vitepress v<X.X.X>
+ *
+ *    ➜  Local:   http://localhost:1234/
+ *    ➜  Network: use --host to expose
+
+* ```
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
