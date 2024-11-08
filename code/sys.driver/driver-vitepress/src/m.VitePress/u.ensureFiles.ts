@@ -10,7 +10,7 @@ export async function ensureFiles(dir: t.StringDir) {
   const ensure = async (source: t.StringPath, target: t.StringPath) => {
     target = Fs.join(dir, target);
     if (await Fs.exists(target)) return;
-    await Fs.copy(resolve(source), target);
+    await Fs.copy(resolve(source), target, { throw: true });
   };
 
   await ensure('../-tmpl/config.ts', '.vitepress/config.ts');
