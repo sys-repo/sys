@@ -1,4 +1,5 @@
 import { Cmd, Net, type t } from './common.ts';
+import { ensureFiles } from './u.ensureFiles.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 
 type F = t.VitePressLib['dev'];
@@ -10,6 +11,8 @@ export const dev: F = async (input = {}) => {
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${path} --port ${port}`;
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
+
+  await ensureFiles(path);
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;

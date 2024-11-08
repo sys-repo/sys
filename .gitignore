@@ -5,10 +5,11 @@
 .env
 .env.*
 .swc
-.vitepress
 
 dist
 dist.*
 node_modules
 
 vite.config.ts.timestamp-*
+**/.vitepress/cache/
+**/.vitepress/dist/
