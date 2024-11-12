@@ -25,4 +25,11 @@ describe('Fs.Path', () => {
     expect(res2).to.eql(path1); // NB: stepped up to parent.
     expect(res3).to.eql(path3); // NB: not-found, no change.
   });
+
+  it('Fs.resolve', () => {
+    const path1 = Path.resolve('.');
+    const path2 = Path.resolve(path1);
+    expect(Path.Is.absolute(path1)).to.eql(true);
+    expect(path1).to.eql(path2); // NB: does not alter an already absolute path.
+  });
 });
