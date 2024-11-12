@@ -12,8 +12,6 @@ export const build: B = async (input) => {
   const timer = Time.timer();
 
   const output = await Cmd.invoke({ args, env, silent });
-  const size = await Fs.Size.dir(paths.outDir);
-  const bytes = size.total.bytes;
   const ok = output.success;
 
   const dir = paths.outDir;
@@ -31,6 +29,7 @@ export const build: B = async (input) => {
   const res: t.ViteBuildResponse = {
     ok,
     paths,
+    elapsed,
     get dist() {
       return dist;
     },
@@ -40,7 +39,9 @@ export const build: B = async (input) => {
     toString(options = {}) {
       const { pad } = options;
       const stdio = output.toString();
-      return Log.Build.toString({ ok, stdio, paths, pad, pkg, bytes, hash, elapsed });
+      const bytes = dist.size.bytes;
+      const dirs = { in: paths.input, out: paths.outDir };
+      return Log.Build.toString({ ok, stdio, dirs, pad, pkg, bytes, hash, elapsed });
     },
   };
   return res;

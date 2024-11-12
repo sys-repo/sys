@@ -6,4 +6,6 @@ import { pkg } from '../src/pkg.ts';
 
 const input = './src/-test/vite.sample-2/index.html';
 const bundle = await Vite.build({ pkg, input });
+
+console.log(`-------------------------------------------`);
 console.info(bundle.toString({ pad: true }));

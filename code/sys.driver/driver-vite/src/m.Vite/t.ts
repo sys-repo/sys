@@ -6,8 +6,8 @@ type ToStringOptions = { pad?: boolean };
  * Library: Tools for running Vite via commands issued to a child process.
  */
 export type ViteLib = {
-  Config: t.ViteConfigLib;
-  Plugin: t.VitePluginLib;
+  readonly Config: t.ViteConfigLib;
+  readonly Plugin: t.VitePluginLib;
   common: t.VitePluginLib['common'];
 
   /**
@@ -96,5 +96,6 @@ export type ViteBuildResponse = {
   readonly paths: t.ViteConfigPaths;
   readonly dist: t.DistPkg;
   readonly cmd: { readonly input: string; readonly output: t.CmdOutput };
+  readonly elapsed: t.Msecs;
   toString(options?: ToStringOptions): string;
 };
