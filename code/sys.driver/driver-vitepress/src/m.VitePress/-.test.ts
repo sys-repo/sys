@@ -57,9 +57,7 @@ describe('Vitepress', () => {
       assertDist(res.dist);
 
       const port = Testing.randomPort();
-      const app = HttpServer.create();
-      app.use('/*', HttpServer.static(res.dirs.out));
-
+      const app = HttpServer.create({ static: ['/*', res.dirs.out] });
       const server = Deno.serve({ port }, app.fetch);
       const fetched = await fetch(`http://localhost:${port}`);
       const text = await fetched.text();

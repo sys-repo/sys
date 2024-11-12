@@ -1,10 +1,12 @@
 import { Hono, cors, type t } from './common.ts';
 import { serveStatic } from './u.serveStatic.ts';
 
+type Optionsions = t.HttpServerCreateOptions;
+
 /**
  * Create a new Hono application instance with cors and /static file server.
  */
-export function create(options: t.HttpServerCreateOptions = {}) {
+export function create(options: Optionsions = {}) {
   const { pkg, hash } = options;
   const app = new Hono();
 
@@ -31,8 +33,25 @@ export function create(options: t.HttpServerCreateOptions = {}) {
   }
 
   if (options.static ?? true) {
-    app.use('/static/*', serveStatic({ root: './' }));
+    const { route, root } = wrangle.static(options.static);
+    app.use(route, serveStatic({ root }));
   }
 
   return app;
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  static(input: Optionsions['static']) {
+    let route = '/static/*';
+    let root = './';
+    if (typeof input === 'string') root = input;
+    if (Array.isArray(input)) {
+      route = input[0];
+      root = input[1];
+    }
+    return { route, root };
+  },
+} as const;

@@ -26,7 +26,7 @@ export type HttpServerCreateOptions = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
   cors?: boolean;
-  static?: boolean;
+  static?: boolean | t.StringDir | [t.StringUrlRoute, t.StringDir];
 };
 
 /**
