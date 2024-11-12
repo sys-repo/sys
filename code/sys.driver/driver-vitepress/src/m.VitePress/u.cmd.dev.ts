@@ -4,6 +4,9 @@ import { keyboardFactory } from './u.keyboard.ts';
 
 type F = t.VitePressLib['dev'];
 
+/**
+ * https://vitepress.dev/reference/cli#vitepress-dev
+ */
 export const dev: F = async (input = {}) => {
   const options = wrangle.options(input);
   const { path = '', pkg } = options;

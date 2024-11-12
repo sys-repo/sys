@@ -30,9 +30,13 @@ export const build: B = async (input) => {
 
   const res: t.ViteBuildResponse = {
     ok,
-    dist,
     paths,
-    cmd: { input: cmd, output },
+    get dist() {
+      return dist;
+    },
+    get cmd() {
+      return { input: cmd, output };
+    },
     toString(options = {}) {
       const { pad } = options;
       const stdio = output.toString();

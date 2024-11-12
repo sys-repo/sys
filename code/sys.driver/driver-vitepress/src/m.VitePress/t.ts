@@ -15,13 +15,15 @@ import type { t } from './common.ts';
 export type VitePressLib = {
   /**
    * Start the development server.
+   * https://vitepress.dev/reference/cli#vitepress-dev
    */
-  dev(options?: t.VitePressDevOptions | t.StringPath): Promise<t.VitePressDevServer>;
+  dev(options?: t.VitePressDevOptions | t.StringDir): Promise<t.VitePressDevServer>;
 
   /**
    * Run the VitePress `build` command to produce the output `/dist` bundle.
+   * https://vitepress.dev/reference/cli#vitepress-build
    */
-  build(args: t.VitePressBuildArgs): Promise<t.VitePressBuildResponse>;
+  build(options?: t.VitePressBuildOptions | t.StringDir): Promise<t.VitePressBuildResponse>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
@@ -45,7 +47,16 @@ export type VitePressDevServer = t.LifecycleAsync & {
 };
 
 /** Arguments passed to the [VitePress.build] method. */
-export type VitePressBuildArgs = {};
+export type VitePressBuildOptions = {
+  pkg?: t.Pkg; // Consumer module.
+  inDir?: t.StringDir;
+  outDir?: t.StringDir;
+  silent?: boolean;
+};
 
 /** Response from the [VitePress.build] method. */
-export type VitePressBuildResponse = {};
+export type VitePressBuildResponse = {
+  ok: boolean;
+  dir: { in: t.StringDir; out: t.StringDir };
+  dist: t.DistPkg;
+};
