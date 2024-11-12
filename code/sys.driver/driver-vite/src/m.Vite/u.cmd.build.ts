@@ -1,10 +1,12 @@
 import { Cmd, Fs, Pkg, Time, type t } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
+type B = t.ViteLib['build'];
+
 /**
  * Run the <vite:build> command.
  */
-export const build: t.ViteLib['build'] = async (input) => {
+export const build: B = async (input) => {
   const { silent = true, pkg } = input;
   const { env, cmd, args, paths } = Wrangle.command(input, 'build');
   const timer = Time.timer();
