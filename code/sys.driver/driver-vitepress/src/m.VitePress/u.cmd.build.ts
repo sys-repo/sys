@@ -1,4 +1,5 @@
-import { Cmd, Fs, Pkg, type t } from './common.ts';
+import { type t, Cmd, Fs, Pkg, Time } from './common.ts';
+import { Log } from './u.log.ts';
 
 type B = t.VitePressLib['build'];
 type R = t.VitePressBuildResponse;
@@ -7,32 +8,43 @@ type R = t.VitePressBuildResponse;
  * https://vitepress.dev/reference/cli#vitepress-build
  */
 export const build: B = async (input = {}) => {
+  const timer = Time.timer();
   const options = wrangle.options(input);
-  const { pkg, silent = false } = options;
-  const dir = wrangle.dir(options);
+  const { pkg, silent = true } = options;
+  const dirs = wrangle.dirs(options);
 
-  const cmd = `deno run -A --node-modules-dir npm:vitepress build ${dir.in} --outDir=${dir.out}`;
+  const cmd = `deno run -A --node-modules-dir npm:vitepress build ${dirs.in} --outDir=${dirs.out}`;
   const args = cmd.split(' ').slice(1);
   const output = await Cmd.invoke({ args, silent });
   const ok = output.success;
 
   // Write {pkg} into /dist so it's included within the digest-hash.
   if (pkg) {
-    const path = Fs.join(dir.out, 'assets', '-pkg.json');
+    const path = Fs.join(dirs.out, 'assets', '-pkg.json');
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
   }
 
   // Calculate the `/dist.json` file and digest-hash.
   const entry = './index.html';
-  const dist = (await Pkg.Dist.compute({ dir: dir.out, pkg, entry, save: true })).dist;
+  const dist = (await Pkg.Dist.compute({ dir: dirs.out, pkg, entry, save: true })).dist;
+  const elapsed = timer.elapsed.msec;
 
   // Finish up.
   const res: R = {
     ok,
-    dir,
+    elapsed,
+    get dirs() {
+      return dirs;
+    },
     get dist() {
       return dist;
+    },
+    toString(options = {}) {
+      const { pad } = options;
+      const bytes = dist.size.bytes;
+      const hash = dist.hash.digest;
+      return Log.Build.toString({ ok, pad, bytes, dirs, hash, pkg, elapsed });
     },
   };
   return res;
@@ -48,7 +60,7 @@ const wrangle = {
     return input;
   },
 
-  dir(options: t.VitePressBuildOptions): R['dir'] {
+  dirs(options: t.VitePressBuildOptions): R['dirs'] {
     const { inDir = '', outDir = '' } = options;
     return {
       in: Fs.resolve(inDir),

@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type ToStringOptions = { pad?: boolean };
+
 /**
  * Tools for working with the "VitePress" documentation bundle compiler.
  * https://vitepress.dev/
@@ -57,6 +59,8 @@ export type VitePressBuildOptions = {
 /** Response from the [VitePress.build] method. */
 export type VitePressBuildResponse = {
   ok: boolean;
-  dir: { in: t.StringDir; out: t.StringDir };
+  elapsed: t.Msecs;
+  dirs: t.ViteBundleDirs;
   dist: t.DistPkg;
+  toString(options?: ToStringOptions): string;
 };
