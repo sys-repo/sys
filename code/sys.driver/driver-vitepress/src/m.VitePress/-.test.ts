@@ -1,4 +1,6 @@
-import { type t, describe, expect, Fs, it, Pkg, slug, Testing, Time } from '../-test.ts';
+import { describe, expect, it, Testing } from '../-test.ts';
+import { type t, Fs, HttpServer, Pkg, slug, Time } from './common.ts';
+
 import { SAMPLE } from './-u.ts';
 import { VitePress } from './mod.ts';
 
@@ -14,14 +16,7 @@ describe('Vitepress', () => {
       await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
       console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
-      const controller = new AbortController();
-      const { signal } = controller;
-      const timeout = Time.delay(5000, () => {
-        controller.abort();
-        server?.dispose();
-      });
-
-      const res = await fetch(server.url, { signal });
+      const res = await fetch(server.url);
       const html = await res.text();
 
       expect(res.status).to.eql(200);
@@ -29,7 +24,6 @@ describe('Vitepress', () => {
       expect(html).to.include(`node_modules/.deno/vitepress@`);
 
       await server.dispose();
-      timeout.cancel();
     });
   });
 
@@ -49,42 +43,47 @@ describe('Vitepress', () => {
     it('sample-1 (default params)', async () => {
       const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
       const sample = await SAMPLE.setup({ slug: true });
-      const dir = {
-        in: Fs.resolve(sample.path),
-        out: Fs.resolve(sample.path, '.vitepress/dist'),
-      };
+      const inDir = Fs.resolve(sample.path);
+      const outDir = Fs.resolve(sample.path, '.vitepress/dist');
 
-      const inDir = dir.in;
       const res = await VitePress.build({ pkg, inDir, silent: false });
 
       expect(res.ok).to.eql(true);
-      expect(res.dirs).to.eql(dir);
+      expect(res.dirs.in).to.eql(inDir);
+      expect(res.dirs.out).to.eql(outDir);
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.elapsed).to.be.greaterThan(0);
-      expect(res.dist).to.eql((await Pkg.Dist.load(dir.out)).dist); // NB: `dist.json` file emitted in build.
+      expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
       assertDist(res.dist);
 
-      /**
-       * TODO 🐷
-       */
+      const port = Testing.randomPort();
+      const app = HttpServer.create();
+      app.use('/*', HttpServer.static(res.dirs.out));
+
+      const server = Deno.serve({ port }, app.fetch);
+      const fetched = await fetch(`http://localhost:${port}`);
+      const text = await fetched.text();
+
+      const assertHtml = (match: string) => expect(text.includes(match)).to.be.true;
+      assertHtml(`<title>Root | My Sample</title>`);
+      assertHtml(`The root of <code>sample-1</code>`);
+
+      server.shutdown();
     });
 
     it('sample-1: custom {outDir}', async () => {
       const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
       const sample = await SAMPLE.setup({ slug: true });
-      const dir = {
-        in: Fs.resolve(sample.path),
-        out: Fs.resolve(sample.path, '-my-dist'),
-      };
-      expect(await Fs.exists(dir.out)).to.eql(false); // NB: clean initial condition.
+      const inDir = Fs.resolve(sample.path);
+      const outDir = Fs.resolve(sample.path, '.vitepress/dist');
+      expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
 
-      const inDir = dir.in;
-      const outDir = dir.out;
       const res = await VitePress.build({ pkg, inDir, outDir, silent: true });
 
       expect(res.ok).to.eql(true);
-      expect(res.dirs).to.eql(dir);
-      expect(res.dist).to.eql((await Pkg.Dist.load(dir.out)).dist); // NB: `dist.json` file emitted in build.
+      expect(res.dirs.in).to.eql(inDir);
+      expect(res.dirs.out).to.eql(outDir);
+      expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
       assertDist(res.dist);
     });
   });
