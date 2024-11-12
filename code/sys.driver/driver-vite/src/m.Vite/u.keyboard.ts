@@ -1,4 +1,4 @@
-import { Cmd, Cli, type t, ViteConfig } from './common.ts';
+import { type t, Cli, Cmd, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
@@ -10,10 +10,11 @@ export function keyboardFactory(args: {
   url: string;
   dispose: () => Promise<void>;
   pkg?: t.Pkg;
+  dist?: t.DistPkg;
 }) {
-  const { dispose, pkg, paths } = args;
+  const { pkg, dist, paths, dispose } = args;
   const sh = Cmd.sh();
-  const url = new URL(args.url);
+  const url = new URL(args.url).href;
 
   return async () => {
     const ws = await ViteConfig.workspace();
@@ -23,7 +24,7 @@ export function keyboardFactory(args: {
        * OPEN → open the local browser and point it at the dev-server.
        */
       if (e.key === 'o') {
-        sh.run(`open ${url.href}`);
+        sh.run(`open ${url}`);
       }
 
       /**
@@ -39,15 +40,21 @@ export function keyboardFactory(args: {
        */
       if (pkg && e.key === 'k') {
         console.clear();
-        console.info(Log.Info.toString({ pkg, url: url.href, pad: true }));
+        console.info(Log.Info.toString({ pkg, url, pad: true }));
       }
 
       /**
        * INFO →: <Options | ExtendedInfo>
        */
-      if (pkg && e.key === 'i') {
-        console.clear();
-        console.info(Log.Help.toString({ pkg, paths, ws, url: url.href, pad: true }));
+      if (pkg) {
+        if (e.key === 'i') {
+          console.clear();
+          console.info(Log.Help.toString({ pkg, dist, paths, url, pad: false }));
+        }
+        if (e.key === 'i' && e.shiftKey) {
+          console.clear();
+          console.info(Log.Help.toString({ pkg, dist, paths, ws, url, pad: true }));
+        }
       }
     }
   };
