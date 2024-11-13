@@ -1,5 +1,8 @@
+import { pkg as std } from '@sys/std-s';
+import { Pkg } from '../common.ts';
+
 export const pkg = `
-import { Pkg, type t } from 'jsr:@sys/std';
+import { Pkg, type t } from 'jsr:${Pkg.toString(std)}';
 import { default as deno } from './deno.json' with { type: 'json' };
 
 /**

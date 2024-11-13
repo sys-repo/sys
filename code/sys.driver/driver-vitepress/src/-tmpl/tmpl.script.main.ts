@@ -1,17 +1,17 @@
-import { pkg } from '../pkg.ts';
-import { pkg as pkgStd } from '@sys/std-s';
+import { pkg as std } from '@sys/std-s';
+import { pkg, Pkg } from '../common.ts';
 
 export const main = `
-import { VitePress } from 'jsr:@sys/${pkg.name}@${pkg.version}';
-import { c, Args, HttpServer, Pkg } from 'jsr:@sys/${pkgStd.name}@${pkgStd.version}';
-import { pkg } from './pkg.ts';
+import { VitePress } from 'jsr:${Pkg.toString(pkg)}';
+import { c, Args, HttpServer, Pkg } from 'jsr:${Pkg.toString(std)}';
+import { pkg } from '../pkg.ts';
 
 type C = 'dev' | 'build' | 'serve';
 type T = { cmd: C };
 const argv = Args.parse<T>(Deno.args);
 const cmd = argv.cmd ?? 'dev';
 
-const inDir = './.tmp/docs.main-sample';
+const inDir = '.';
 const outDir = './dist';
 
 if (cmd === 'dev') {
