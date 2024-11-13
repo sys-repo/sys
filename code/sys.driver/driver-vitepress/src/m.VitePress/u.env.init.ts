@@ -1,3 +1,4 @@
+import { exists } from '@std/fs/exists';
 import { type t, Fs, Tmpl } from './common.ts';
 
 type F = t.VitePressEnvLib['init'];
@@ -17,7 +18,9 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
 
   const ensure = async (tmpl: string, target: t.StringPath) => {
     target = Fs.join(dir, target);
-    if (!force && (await Fs.exists(target))) return;
+    if (!force) {
+      if (await wrangle.existsAndNotEmpty(target)) return;
+    }
     await Fs.ensureDir(Fs.dirname(target));
     await Deno.writeTextFile(target, tmpl);
   };
@@ -33,3 +36,17 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
 
   await ensure(Tmpl.Markdown.index, 'docs/index.md');
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  async existsAndNotEmpty(target: t.StringPath) {
+    const exists = await Fs.exists(target);
+    if (exists) {
+      const isEmpty = !(await Deno.readTextFile(Fs.resolve(target)));
+      if (isEmpty) return false;
+    }
+    return exists;
+  },
+} as const;
