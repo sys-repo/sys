@@ -1,5 +1,6 @@
 import { VitePress } from '@sys/driver-vitepress';
+import { SCRIPT } from './u.ts';
 
-const path = 'src/-test/vitepress.sample-1';
-const server = await VitePress.dev(path);
+const env = await SCRIPT.env();
+const server = await VitePress.dev(env.inDir);
 await server.listen();

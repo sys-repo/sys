@@ -17,7 +17,7 @@ describe('Vitepress', () => {
 
   describe('VitePress.dev', () => {
     it('process: start → fetch(200) → dispose', async () => {
-      const sample = await SAMPLE.setup();
+      const sample = await SAMPLE.init();
       const { port, inDir } = sample;
       const server = await VitePress.dev({ port, inDir });
       expect(server.port).to.eql(port);
@@ -37,7 +37,7 @@ describe('Vitepress', () => {
     });
 
     it('process: ensures baseline files ← Env.init()', async () => {
-      const sample = await SAMPLE.setup();
+      const sample = await SAMPLE.init();
       const { port, inDir } = sample;
       await assertEnvExists(inDir, false);
 
@@ -62,7 +62,7 @@ describe('Vitepress', () => {
 
     it('build (default params)', async () => {
       const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
-      const sample = await SAMPLE.setup({ slug: true });
+      const sample = await SAMPLE.init({ slug: true });
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, '.vitepress/dist');
 
@@ -91,7 +91,7 @@ describe('Vitepress', () => {
 
     it('build: custom {outDir}', async () => {
       const pkg = SAMPLE.createPkg();
-      const sample = await SAMPLE.setup({ slug: true });
+      const sample = await SAMPLE.init({ slug: true });
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, '.vitepress/dist');
       expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
@@ -106,7 +106,7 @@ describe('Vitepress', () => {
     });
 
     it('build: ensures baseline files ← Env.init()', async () => {
-      const sample = await SAMPLE.setup();
+      const sample = await SAMPLE.init();
       const { inDir } = sample;
       await assertEnvExists(inDir, false);
       await VitePress.build({ inDir });
@@ -121,7 +121,7 @@ describe('Vitepress', () => {
 
     describe('Env.init', () => {
       it('insert deno.json → {tasks}', async () => {
-        const sample = await SAMPLE.setup();
+        const sample = await SAMPLE.init();
         const { inDir } = sample;
         await assertEnvExists(inDir, false);
         await Env.init({ inDir });
