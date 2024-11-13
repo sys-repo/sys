@@ -3,6 +3,7 @@ import { config } from './tmpl.config.ts';
 import { denofile } from './tmpl.deno.json.ts';
 import { pkg } from './tmpl.pkg.ts';
 import { index } from './tmpl.index.md.ts';
+import { settings } from './tmpl.vscode.settings.json.ts';
 
 const gitignore = `
 cache/
@@ -12,8 +13,9 @@ dist/
 export const Tmpl = {
   Script: { main },
   Markdown: { index },
+  VSCode: { settings },
   pkg,
   gitignore,
   config,
   denofile,
-};
+} as const;

@@ -23,7 +23,7 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
   };
 
   await ensure(Tmpl.Script.main, '-scripts/-main.ts');
-  await ensure(Tmpl.gitignore, '.vscode/settings.json');
+  await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
   await ensure(Tmpl.config, '.vitepress/config.ts');
   await ensure(Tmpl.denofile, 'deno.json');
