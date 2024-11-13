@@ -51,7 +51,7 @@
  *
  * ---
  *
- * Once ready to release, `build` the content into a Pkg bundle to deploy to the cloud.
+ * Once ready to release, `build` the content into a package/bundle to deploy to the cloud.
  * You can test it locally using the local `serve` command:
  *
  * ```bash
