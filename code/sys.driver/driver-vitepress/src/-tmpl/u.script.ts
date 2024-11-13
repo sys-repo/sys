@@ -1,7 +1,7 @@
 import { pkg as std } from '@sys/std-s';
 import { pkg, Pkg } from '../common.ts';
 
-export const main = `
+const main = `
 import { VitePress } from 'jsr:${Pkg.toString(pkg)}';
 import { c, Args, HttpServer, Pkg } from 'jsr:${Pkg.toString(std)}';
 import { pkg } from '../pkg.ts';
@@ -39,3 +39,5 @@ if (cmd === 'dev') {
  console.error('cmd action not supported:', cmd);
 }
 `.slice(1);
+
+export const Script = { main } as const;

@@ -22,11 +22,12 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
     await Deno.writeTextFile(target, tmpl);
   };
 
-  await ensure(Tmpl.Script.main, '-scripts/-main.ts');
+  await ensure(Tmpl.Script.main, '.scripts/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
   await ensure(Tmpl.config, '.vitepress/config.ts');
-  await ensure(Tmpl.denofile, 'deno.json');
+  await ensure(Tmpl.Pkg.deno, 'deno.json');
+  await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.pkg, 'pkg.ts');
   await ensure(Tmpl.Markdown.index, 'index.md');
 }

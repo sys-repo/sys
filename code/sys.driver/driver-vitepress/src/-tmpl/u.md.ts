@@ -16,3 +16,5 @@ ${LOREM}
 ${LOREM}
 
 `.slice(1);
+
+export const Markdown = { index } as const;

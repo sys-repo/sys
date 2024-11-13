@@ -14,8 +14,9 @@ describe('Vitepress', () => {
     await assert('.vscode/settings.json');
     await assert('.vitepress/.gitignore');
     await assert('.vitepress/config.ts');
-    await assert('-scripts/-main.ts');
+    await assert('.scripts/-main.ts');
     await assert('deno.json');
+    await assert('package.json');
     await assert('pkg.ts');
     await assert('index.md');
   };
