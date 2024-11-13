@@ -11,6 +11,7 @@ describe('Vitepress', () => {
   };
   const assertEnvExists = async (dir: string, expected = true) => {
     const assert = (path: string) => assertExists(Fs.join(dir, path), expected);
+    await assert('.vscode/settings.json');
     await assert('.vitepress/.gitignore');
     await assert('.vitepress/config.ts');
     await assert('-scripts/-main.ts');
