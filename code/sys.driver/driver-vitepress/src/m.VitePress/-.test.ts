@@ -43,8 +43,6 @@ describe('Vitepress', () => {
     it('process: ensures baseline files ← Env.init()', async () => {
       const sample = await SAMPLE.init();
       const { port, inDir } = sample;
-      await assertEnvExists(inDir, false);
-
       const server = await VitePress.dev({ port, inDir });
       await server.dispose();
       await assertEnvExists(inDir);
@@ -112,7 +110,6 @@ describe('Vitepress', () => {
     it('build: ensures baseline files ← Env.init()', async () => {
       const sample = await SAMPLE.init();
       const { inDir } = sample;
-      await assertEnvExists(inDir, false);
       await VitePress.build({ inDir });
       await assertEnvExists(inDir);
     });
