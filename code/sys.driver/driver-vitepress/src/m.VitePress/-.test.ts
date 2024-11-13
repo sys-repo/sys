@@ -18,7 +18,7 @@ describe('Vitepress', () => {
     await assert('deno.json');
     await assert('package.json');
     await assert('pkg.ts');
-    await assert('index.md');
+    await assert('docs/index.md');
   };
 
   describe('VitePress.dev', () => {

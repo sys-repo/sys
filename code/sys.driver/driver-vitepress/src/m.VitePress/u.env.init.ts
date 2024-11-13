@@ -31,5 +31,5 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
 
-  await ensure(Tmpl.Markdown.index, 'index.md');
+  await ensure(Tmpl.Markdown.index, 'docs/index.md');
 }
