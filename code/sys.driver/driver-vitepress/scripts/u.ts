@@ -3,14 +3,14 @@ import { Fs } from '../src/common.ts';
 /**
  * Helpers for the scripts.
  */
-export const SCRIPT = {
+export const TMP = {
   /**
    * Setup standard/sample environment.
    */
   async env(options: { force?: boolean } = {}) {
     const { force = false } = options;
     const sampleDir = Fs.resolve('./src/-test/vitepress.sample-1');
-    const inDir = './.tmp/docs';
+    const inDir = './.tmp/docs.scripts';
     const outDir = './dist';
 
     if (force || !(await Fs.exists(inDir))) {

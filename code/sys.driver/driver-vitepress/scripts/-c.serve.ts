@@ -1,8 +1,8 @@
 import { HttpServer, Pkg } from 'jsr:@sys/std-s';
 import { pkg } from '../src/pkg.ts';
-import { SCRIPT } from './u.ts';
+import { TMP } from './u.ts';
 
-const env = await SCRIPT.env();
+const env = await TMP.env();
 const dist = (await Pkg.Dist.load('./dist')).dist;
 const hash = dist?.hash.digest ?? '';
 
