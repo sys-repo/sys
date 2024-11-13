@@ -26,6 +26,7 @@ export const Log = {
  */
 const wrangle = {
   formatPath(input: string = ''): string {
-    return input.replace(/^\.\//, '');
+    const res = input.replace(/^\.\//, '');
+    return res ? res : `./ ${c.dim('(← root)')}`;
   },
 } as const;
