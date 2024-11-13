@@ -27,11 +27,14 @@
  * ```
  *
  * @example
- * Once the project is initialized, use the three main commands via the `deno task`
+ * Once the project is initialized, use the three main commands `dev`, `build`
+ * and `serve` via the `deno task`.
  *
- * To run the HMR dev server:
+ * To run the HMR (hot-module-reload) development server while authoring:
  *
  * ```bash
+ * deno task dev
+ *
  * Terminal Output:
  *
  *    vitepress v<X.X.X>
@@ -40,7 +43,13 @@
  *    ➜  Network: use --host to expose
  * ```
  *
- * Then move over to Obsidian (or other markdown editor of choice) to author your content.
+ * Open the web-browser at http://localhost:1234/ (or hit the `o` key to open your browser
+ * at that address).
+ *
+ * Then move over to Obsidian (or your other markdown editor of choice) to author your content
+ * seeing the resulting output live updating in your browser.
+ *
+ * ---
  *
  * Once ready to release, `build` the content into a Pkg bundle to deploy to the cloud.
  * You can test it locally using the local `serve` command:

@@ -1,7 +1,10 @@
+import { pkg } from '../pkg.ts';
+import { pkg as pkgStdS } from '@sys/std-s';
+
 export const main = `
-import { VitePress } from '@sys/driver-vitepress';
-import { c, Args, HttpServer, Pkg } from '@sys/std-s';
-import { pkg } from '../src/pkg.ts';
+import { VitePress } from 'jsr@sys/${pkg.name}@${pkg.version}';
+import { c, Args, HttpServer, Pkg } from '@sys/${pkgStdS.name}@${pkgStdS.version}';
+import { pkg } from './pkg.ts';
 
 type C = 'dev' | 'build' | 'serve';
 type T = { cmd: C };
