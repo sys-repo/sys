@@ -1,6 +1,8 @@
 import { VitePress } from '@sys/driver-vitepress';
-import { TMP } from './u.ts';
+import { TMP, pkg } from './u.ts';
 
 const env = await TMP.env();
-const server = await VitePress.dev(env.inDir);
+const { inDir } = env;
+
+const server = await VitePress.dev({ inDir, pkg });
 await server.listen();

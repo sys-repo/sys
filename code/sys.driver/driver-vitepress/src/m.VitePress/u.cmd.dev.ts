@@ -1,6 +1,7 @@
 import { Cmd, Net, type t } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Env } from './m.Env.ts';
+import { Log } from './u.log.ts';
 
 type F = t.VitePressLib['dev'];
 type R = t.VitePressDevServer;
@@ -17,7 +18,8 @@ export const dev: F = async (input = {}) => {
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await Env.init({ inDir });
+  await Env.init({ pkg, inDir });
+  Log.Dev.log({ inDir, pkg });
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;

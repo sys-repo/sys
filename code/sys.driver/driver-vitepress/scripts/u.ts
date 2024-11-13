@@ -1,3 +1,4 @@
+export { pkg } from '../src/pkg.ts';
 import { Fs } from '../src/common.ts';
 
 /**

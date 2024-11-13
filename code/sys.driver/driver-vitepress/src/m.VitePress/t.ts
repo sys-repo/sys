@@ -79,5 +79,6 @@ export type VitePressEnvLib = {
 };
 
 export type VitePressEnvInitArgs = {
+  pkg?: t.Pkg;
   inDir?: t.StringDir;
 };

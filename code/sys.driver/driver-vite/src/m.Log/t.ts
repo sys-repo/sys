@@ -36,6 +36,9 @@ export type ViteLogModuleLib = {
   toString(pkg: t.Pkg): string;
 };
 
+/**
+ * Arguments passed to the pkg/bundle logging helper.
+ */
 export type ViteLogBundleArgs = {
   ok: boolean;
   bytes: number;
@@ -44,4 +47,12 @@ export type ViteLogBundleArgs = {
   hash?: t.StringHash;
   elapsed?: t.Msecs;
   pad?: boolean;
+};
+
+/**
+ * Arguments passed to the Dev logging helper.
+ */
+export type ViteLogDevArgs = {
+  inDir?: t.StringDir;
+  pkg?: t.Pkg;
 };
