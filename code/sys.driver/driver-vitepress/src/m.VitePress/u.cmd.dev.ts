@@ -1,21 +1,23 @@
 import { Cmd, Net, type t } from './common.ts';
-import { ensureFiles } from './u.ensureFiles.ts';
 import { keyboardFactory } from './u.keyboard.ts';
+import { Env } from './m.Env.ts';
 
 type F = t.VitePressLib['dev'];
+type R = t.VitePressDevServer;
 
 /**
  * https://vitepress.dev/reference/cli#vitepress-dev
  */
 export const dev: F = async (input = {}) => {
   const options = wrangle.options(input);
-  const { path = '', pkg } = options;
+  const { inDir = '', pkg } = options;
+  const dirs: R['dirs'] = { in: inDir };
   const port = Net.port(options.port ?? 1234);
-  const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${path} --port ${port}`;
+  const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} --port ${port}`;
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await ensureFiles(path);
+  await Env.init({ inDir });
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;
@@ -26,13 +28,19 @@ export const dev: F = async (input = {}) => {
   };
 
   await proc.whenReady();
-  const api: t.VitePressDevServer = {
-    proc,
+  const api: R = {
     port,
-    path,
     url,
     listen,
     keyboard,
+
+    get proc() {
+      return proc;
+    },
+
+    get dirs() {
+      return dirs;
+    },
 
     /**
      * Lifecycle.
@@ -52,8 +60,8 @@ export const dev: F = async (input = {}) => {
  * Helpers
  */
 const wrangle = {
-  options(input: Parameters<F>[0]): t.VitePressDevOptions {
-    if (typeof input === 'string') return { path: input };
+  options(input: Parameters<F>[0]): t.VitePressDevArgs {
+    if (typeof input === 'string') return { inDir: input };
     return input ?? {};
   },
 } as const;

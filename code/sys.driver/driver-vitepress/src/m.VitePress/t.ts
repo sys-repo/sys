@@ -15,25 +15,28 @@ type ToStringOptions = { pad?: boolean };
  * extension module.
  */
 export type VitePressLib = {
+  /** Tools for maintaining the "Editor Machine/Device" environment. */
+  readonly Env: VitePressEnvLib;
+
   /**
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev
    */
-  dev(options?: t.VitePressDevOptions | t.StringDir): Promise<t.VitePressDevServer>;
+  dev(options?: t.VitePressDevArgs | t.StringDir): Promise<t.VitePressDevServer>;
 
   /**
    * Run the VitePress `build` command to produce the output `/dist` bundle.
    * https://vitepress.dev/reference/cli#vitepress-build
    */
-  build(options?: t.VitePressBuildOptions | t.StringDir): Promise<t.VitePressBuildResponse>;
+  build(options?: t.VitePressBuildArgs | t.StringDir): Promise<t.VitePressBuildResponse>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
-export type VitePressDevOptions = {
-  dispose$?: t.UntilObservable;
+export type VitePressDevArgs = {
+  inDir?: t.StringDir;
   pkg?: t.Pkg;
   port?: number;
-  path?: t.StringPath;
+  dispose$?: t.UntilObservable;
 };
 
 /**
@@ -42,14 +45,14 @@ export type VitePressDevOptions = {
 export type VitePressDevServer = t.LifecycleAsync & {
   readonly proc: t.CmdProcessHandle;
   readonly port: number;
-  readonly path: t.StringPath;
+  readonly dirs: Omit<t.ViteBundleDirs, 'out'>;
   readonly url: t.StringUrl;
   listen(): Promise<void>;
   keyboard(): Promise<void>;
 };
 
 /** Arguments passed to the [VitePress.build] method. */
-export type VitePressBuildOptions = {
+export type VitePressBuildArgs = {
   pkg?: t.Pkg; // Consumer module.
   inDir?: t.StringDir;
   outDir?: t.StringDir;
@@ -63,4 +66,18 @@ export type VitePressBuildResponse = {
   dirs: t.ViteBundleDirs;
   dist: t.DistPkg;
   toString(options?: ToStringOptions): string;
+};
+
+/**
+ * Tools for maintaining the local "Editor Machine/Device" environment state.
+ */
+export type VitePressEnvLib = {
+  /**
+   * Initialize the local machine environment.
+   */
+  init(args: t.VitePressEnvInitArgs): Promise<void>;
+};
+
+export type VitePressEnvInitArgs = {
+  inDir?: t.StringDir;
 };

@@ -1,5 +1,6 @@
 import { type t, Cmd, Fs, Pkg, Time } from './common.ts';
 import { Log } from './u.log.ts';
+import { Env } from './m.Env.ts';
 
 type B = t.VitePressLib['build'];
 type R = t.VitePressBuildResponse;
@@ -11,7 +12,11 @@ export const build: B = async (input = {}) => {
   const timer = Time.timer();
   const options = wrangle.options(input);
   const { pkg, silent = true } = options;
+
   const dirs = wrangle.dirs(options);
+  const inDir = dirs.in;
+
+  await Env.init({ inDir });
 
   const cmd = `deno run -A --node-modules-dir npm:vitepress build ${dirs.in} --outDir=${dirs.out}`;
   const args = cmd.split(' ').slice(1);
@@ -60,7 +65,7 @@ const wrangle = {
     return input;
   },
 
-  dirs(options: t.VitePressBuildOptions): R['dirs'] {
+  dirs(options: t.VitePressBuildArgs): R['dirs'] {
     const { inDir = '', outDir = '' } = options;
     return {
       in: Fs.resolve(inDir),

@@ -16,8 +16,8 @@ export const dev: D = async (input) => {
   const { silent = false, pkg } = input;
   const port = Net.port(input.port ?? DEFAULTS.port);
   const { dist } = await Pkg.Dist.load(Path.resolve('./dist/dist.json'));
-  const url = `http://localhost:${port}/`;
 
+  const url = `http://localhost:${port}/`;
   const { env, args, paths } = Wrangle.command(input, `dev --port=${port} --host`);
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
@@ -31,11 +31,14 @@ export const dev: D = async (input) => {
 
   await proc.whenReady();
   const api: t.ViteProcess = {
-    proc,
     port,
     url,
     listen,
     keyboard,
+
+    get proc() {
+      return proc;
+    },
 
     /**
      * Lifecycle.
