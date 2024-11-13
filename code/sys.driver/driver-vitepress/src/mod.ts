@@ -60,7 +60,10 @@
  * ```
  *
  */
+import { VitePress } from './m.VitePress/mod.ts';
+
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
-export { VitePress } from './m.VitePress/mod.ts';
+export { VitePress };
+export default VitePress;
