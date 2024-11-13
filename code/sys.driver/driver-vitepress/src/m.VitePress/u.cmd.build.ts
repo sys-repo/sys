@@ -35,6 +35,10 @@ export const build: B = async (input = {}) => {
   const dist = (await Pkg.Dist.compute({ dir: dirs.out, pkg, entry, save: true })).dist;
   const elapsed = timer.elapsed.msec;
 
+  if (!ok) {
+    console.error(output.text.stderr);
+  }
+
   // Finish up.
   const res: R = {
     ok,
