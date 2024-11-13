@@ -22,6 +22,9 @@ export type StringUrlRoute = string;
 /** String that represents a unique identifier. */
 export type StringId = string;
 
+/** String that represents a <semver> (semantic version), eg "0.1.2". */
+export type StringSemVer = string;
+
 /** String that represents a `tx` (transaction identifier). */
 export type StringTx = string;
 
