@@ -7,4 +7,5 @@ export const VitePress: t.VitePressLib = {
   dev,
   build,
   Env,
+  init: Env.init,
 };

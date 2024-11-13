@@ -18,6 +18,9 @@ export type VitePressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
   readonly Env: VitePressEnvLib;
 
+  /** Initialize the local machine environment. */
+  init: t.VitePressEnvLib['init'];
+
   /**
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev
@@ -75,10 +78,9 @@ export type VitePressEnvLib = {
   /**
    * Initialize the local machine environment.
    */
-  init(args: t.VitePressEnvInitArgs): Promise<void>;
+  init(args?: t.VitePressEnvInitArgs): Promise<void>;
 };
 
 export type VitePressEnvInitArgs = {
-  pkg?: t.Pkg;
   inDir?: t.StringDir;
 };

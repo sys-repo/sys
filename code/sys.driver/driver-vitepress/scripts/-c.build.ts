@@ -7,3 +7,9 @@ const { inDir, outDir } = env;
 
 const res = await VitePress.build({ inDir, outDir, pkg });
 console.info(res.toString({ pad: true }));
+
+/**
+ * TODO 🐷
+ * targetted from deno.json → {tasks}
+ * -c.main.ts  |→  Args.parse  |→  .dev, .build, .serve
+ */

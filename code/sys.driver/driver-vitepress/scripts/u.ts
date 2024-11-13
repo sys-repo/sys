@@ -11,7 +11,7 @@ export const TMP = {
   async env(options: { force?: boolean } = {}) {
     const { force = false } = options;
     const sampleDir = Fs.resolve('./src/-test/vitepress.sample-1');
-    const inDir = './.tmp/docs.scripts';
+    const inDir = './.tmp/docs.scripts.src';
     const outDir = './dist';
 
     if (force || !(await Fs.exists(inDir))) {

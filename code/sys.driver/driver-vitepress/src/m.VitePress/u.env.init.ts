@@ -1,9 +1,8 @@
-import { type t, Fs } from './common.ts';
-import { Tmpl } from './u.tmpl.ts';
+import { type t, Fs, Tmpl } from './common.ts';
 
 type F = t.VitePressEnvLib['init'];
 
-export const init: F = async (args) => {
+export const init: F = async (args = {}) => {
   const { inDir = '' } = args;
   await ensureFiles(inDir);
 };
@@ -23,6 +22,10 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
     await Deno.writeTextFile(target, tmpl);
   };
 
+  await ensure(Tmpl.Scripts.main, '-scripts/-main.ts');
   await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
   await ensure(Tmpl.config, '.vitepress/config.ts');
+  await ensure(Tmpl.denofile, 'deno.json');
+  await ensure(Tmpl.pkg, 'pkg.ts');
+  await ensure(Tmpl.Markdown.index, 'index.md');
 }

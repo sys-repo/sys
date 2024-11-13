@@ -9,7 +9,8 @@
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-c.dev.ts",
     "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-c.build.ts",
-    "serve": "deno run -RNE --watch ./scripts/-c.serve.ts"
+    "serve": "deno run -RNE --watch ./scripts/-c.serve.ts",
+    "tmp": "deno run -RWNE --allow-run --allow-ffi ./scripts/-main.ts --cmd=dev"
   },
   "exports": {
     ".": "./src/mod.ts",
