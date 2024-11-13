@@ -6,6 +6,7 @@ type C = 'dev' | 'build' | 'serve';
 type T = { cmd: C };
 const argv = Args.parse<T>(Deno.args);
 const cmd = argv.cmd ?? 'dev';
+
 const inDir = './.tmp/docs.main-sample';
 const outDir = './dist';
 

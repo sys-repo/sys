@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing } from '../-test.ts';
+import { c, describe, expect, it, Testing } from '../-test.ts';
 import { type t, Fs, HttpServer, Pkg, slug } from './common.ts';
 
 import { SAMPLE } from './-u.ts';
@@ -7,12 +7,16 @@ import { VitePress } from './mod.ts';
 
 describe('Vitepress', () => {
   const assertExists = async (path: string, expected = true) => {
-    expect(await Fs.exists(path)).to.eql(expected);
+    expect(await Fs.exists(path)).to.eql(expected, path);
   };
   const assertEnvExists = async (dir: string, expected = true) => {
     const assert = (path: string) => assertExists(Fs.join(dir, path), expected);
     await assert('.vitepress/.gitignore');
     await assert('.vitepress/config.ts');
+    await assert('-scripts/-main.ts');
+    await assert('deno.json');
+    await assert('pkg.ts');
+    await assert('index.md');
   };
 
   describe('VitePress.dev', () => {
@@ -23,7 +27,7 @@ describe('Vitepress', () => {
       expect(server.port).to.eql(port);
       expect(server.dirs.in).to.eql(inDir);
 
-      await Testing.wait(1000); // NB: wait another moment for the vite-server to complete it's startup.
+      await Testing.wait(1_000); // NB: wait another moment for the vite-server to complete it's startup.
       console.info(); //           NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
       const res = await fetch(server.url);
@@ -117,10 +121,11 @@ describe('Vitepress', () => {
   describe('VitePress.Env', () => {
     it('API', () => {
       expect(VitePress.Env).to.equal(Env);
+      expect(VitePress.init).to.equal(Env.init);
     });
 
     describe('Env.init', () => {
-      it.only('insert deno.json → {tasks}', async () => {
+      it('insert deno.json → {tasks}', async () => {
         const sample = await SAMPLE.init();
         const { inDir } = sample;
         await Env.init({ inDir });
