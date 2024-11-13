@@ -12,32 +12,44 @@
  * extension module.
  *
  * @example
- * To run the VitePress process for your Obsidian vault, place a `main.ts` file
- * within the folder where your vault(s) are stored and paste the following code
- * into that file:
+ * To initialize a new VitePress project start with a scaffolding module named `tmpl.ts`:
  *
  * ```ts
  * import { VitePress } from 'jsr:@sys/driver-vitepress';
- *
- * const server = await VitePress.dev();
- * await server.listen();
+ * await VitePress.init();
  * ```
  *
- * Then start up the live-updating (HMS) development server process,
- * run the terminal command:
+ * This will layout the baseline files. Run the command:
  *
  * ```bash
- * Command:
- *    $ deno run -A main.ts
+ * deno run -A tmpl.ts
+ * rm tmpl.ts
+ * ```
  *
+ * @example
+ * Once the project is initialized, use the three main commands via the `deno task`
+ *
+ * To run the HMR dev server:
+ *
+ * ```bash
  * Terminal Output:
  *
  *    vitepress v<X.X.X>
  *
  *    ➜  Local:   http://localhost:1234/
  *    ➜  Network: use --host to expose
-
-* ```
+ * ```
+ *
+ * Then move over to Obsidian (or other markdown editor of choice) to author your content.
+ *
+ * Once ready to release, `build` the content into a Pkg bundle to deploy to the cloud.
+ * You can test it locally using the local `serve` command:
+ *
+ * ```bash
+ * deno task build
+ * deno task serve
+ * ```
+ *
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';

@@ -22,7 +22,7 @@ async function ensureFiles(dir: t.StringDir, options: { force?: boolean } = {}) 
     await Deno.writeTextFile(target, tmpl);
   };
 
-  await ensure(Tmpl.Scripts.main, '-scripts/-main.ts');
+  await ensure(Tmpl.Script.main, '-scripts/-main.ts');
   await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
   await ensure(Tmpl.config, '.vitepress/config.ts');
   await ensure(Tmpl.denofile, 'deno.json');

@@ -1,5 +1,6 @@
+export const main = `
 import { VitePress } from '@sys/driver-vitepress';
-import { Args, HttpServer, Pkg } from '@sys/std-s';
+import { c, Args, HttpServer, Pkg } from '@sys/std-s';
 import { pkg } from '../src/pkg.ts';
 
 type C = 'dev' | 'build' | 'serve';
@@ -32,5 +33,6 @@ if (cmd === 'dev') {
   const config = HttpServer.options(8080, pkg, hash);
   Deno.serve(config, app.fetch);
 } else {
-  console.error('cmd action not supported:', cmd);
+ console.error('cmd action not supported:', cmd);
 }
+`.slice(1);
