@@ -21,7 +21,6 @@
   },
   "workspace": [
     "./-tmp/-vitepress/a",
-    "./-tmp/-vitepress/b",
 
     "./code/-tmpl/deno",
     "./code/sys.tmp",
