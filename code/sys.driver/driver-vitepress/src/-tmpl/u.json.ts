@@ -1,6 +1,7 @@
 const taskMain = `deno run -RWNE --allow-run --allow-ffi ./.scripts/-main.ts`;
 const deno = `
 {
+  "version": "0.0.0",
   "tasks": {
     "dev": "${taskMain} --cmd=dev",
     "build": "${taskMain} --cmd=build",
