@@ -3,7 +3,7 @@ import { pkg, Pkg } from '../common.ts';
 
 const main = `
 import { VitePress } from 'jsr:${Pkg.toString(pkg)}';
-import { c, Args, HttpServer, Pkg } from 'jsr:${Pkg.toString(std)}';
+import { Args, HttpServer, Pkg } from 'jsr:${Pkg.toString(std)}';
 import { pkg } from '../pkg.ts';
 
 type C = 'dev' | 'build' | 'serve';
