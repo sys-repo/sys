@@ -2546,6 +2546,15 @@
         "npm:vitepress@1",
         "npm:vue@3"
       ]
+    },
+    "members": {
+      "code/sys.driver/driver-vitepress": {
+        "packageJson": {
+          "dependencies": [
+            "npm:vue@3"
+          ]
+        }
+      }
     }
   }
 }
