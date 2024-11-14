@@ -12,21 +12,15 @@
  * extension module.
  *
  * @example
+ * Getting started.
  * To initialize a new VitePress project start with a scaffolding module named `tmpl.ts`:
  *
- * ```ts
- * import { VitePress } from 'jsr:@sys/driver-vitepress';
- * await VitePress.init();
- * ```
- *
- * This will layout the baseline files. Run the command:
- *
  * ```bash
- * deno run -A tmpl.ts
- * rm tmpl.ts
+ * deno run -A jsr:@sys/driver-vitepress/init
  * ```
  *
- * @example
+ * This will layout the baseline required files for the VitePress engine. Run the command:
+ *
  * Once the project is initialized, use the three main commands `dev`, `build`
  * and `serve` via the `deno task`.
  *
