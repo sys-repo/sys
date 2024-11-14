@@ -32,7 +32,7 @@
  *
  * Terminal Output:
  *
- *    vitepress v<X.X.X>
+ *    vitepress v<x.x.x>
  *
  *    ➜  Local:   http://localhost:1234/
  *    ➜  Network: use --host to expose
