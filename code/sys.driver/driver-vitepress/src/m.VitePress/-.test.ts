@@ -15,7 +15,6 @@ describe('Vitepress', () => {
     await assert('.vitepress/.gitignore');
     await assert('.vitepress/config.ts');
     await assert('.scripts/-main.ts');
-    await assert('.scripts/-upgrade.ts');
     await assert('deno.json');
     await assert('package.json');
     await assert('pkg.ts');
@@ -31,7 +30,7 @@ describe('Vitepress', () => {
       expect(server.dirs.in).to.eql(inDir);
 
       await Testing.wait(1_000); // NB: wait another moment for the vite-server to complete it's startup.
-      console.info(); //           NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+      console.info(); //            NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
       const res = await fetch(server.url);
       const html = await res.text();

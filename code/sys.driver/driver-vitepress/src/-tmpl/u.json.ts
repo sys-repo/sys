@@ -1,13 +1,12 @@
-const runScript = `deno run -RWNE --allow-run --allow-ffi ./.scripts`;
-const taskMain = `${runScript}/-main.ts`;
+const entry = `jsr:@sys/driver-vitepress/main`;
 const deno = `
 {
   "version": "0.0.0",
   "tasks": {
-    "dev": "${taskMain} --cmd=dev",
-    "build": "${taskMain} --cmd=build",
-    "serve": "${taskMain} --cmd=serve",
-    "upgrade": "${runScript}/-upgrade.ts"
+    "dev":     "deno run -RWNE --allow-run ${entry} --cmd=dev",
+    "build":   "deno run -RWNE --allow-run ${entry} --cmd=build",
+    "serve":   "deno run -RNE ${entry} --cmd=serve",
+    "upgrade": "deno run -RWNE ${entry} --cmd=upgrade"
   },
   "nodeModulesDir": "auto"
 }
@@ -27,5 +26,5 @@ const settings = `
 }
 `.slice(1);
 
-export const VSCode = { settings };
-export const Pkg = { deno, package: pkg };
+export const VSCode = { settings } as const;
+export const Pkg = { deno, package: pkg } as const;
