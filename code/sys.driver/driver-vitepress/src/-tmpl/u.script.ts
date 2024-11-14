@@ -11,7 +11,7 @@ type T = { cmd: C };
 const argv = Args.parse<T>(Deno.args);
 const cmd = argv.cmd ?? 'dev';
 
-const inDir = '.';
+const inDir = './';
 const outDir = './dist';
 
 if (cmd === 'dev') {
