@@ -58,12 +58,14 @@
  * deno task build
  * deno task serve
  * ```
- *
  */
 import { VitePress } from './m.VitePress/mod.ts';
+export { VitePress };
 
 export { pkg } from './pkg.ts';
+
+/** Module types. */
 export type * as t from './types.ts';
 
-export { VitePress };
+/** VitePress library. */
 export default VitePress;
