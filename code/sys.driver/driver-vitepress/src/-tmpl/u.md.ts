@@ -7,7 +7,7 @@ Generated with \`${Pkg.toString(pkg)}\`.
 
 ## Refs
 
-- [jsr registry: @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
+- [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
 - [https://vitepress.dev](https://vitepress.dev)
 
 
