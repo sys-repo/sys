@@ -14,10 +14,14 @@
  * @example
  * Getting started.
  *
- * To initialize a new VitePress project start with a scaffolding module named `tmpl.ts`:
+ * To initialize a new content-transpiler project start by scaffolding out a runtime folder:
+ * By default, the source content will be embedded within it within a `/docs` folder.
+ *
+ * Pass in a `--srcDir` path to seperate your content from the runtime folder when ready (Optional).
  *
  * ```bash
  * deno run -A jsr:@sys/driver-vitepress/init
+ * deno install
  * ```
  * To specify a different location for your source content (`.md` files)
  * pass the `--srcDir=<path>` argument.
@@ -27,24 +31,30 @@
  * Once the project is initialized, use the three main commands `dev`, `build`
  * and `serve` via the `deno task`.
  *
- * To run the HMR (hot-module-reload) development server while authoring:
+ * To run in development while authoring your content, run:
  *
  * ```bash
  * deno task dev
- *
- * Terminal Output:
- *
- *    vitepress v<x.x.x>
- *
- *    ➜  Local:   http://localhost:1234/
- *    ➜  Network: use --host to expose
  * ```
  *
- * Open the web-browser at http://localhost:1234/ (or hit the `o` key to open your browser
- * at that address).
+ * this will start the HMR (hot-module-reload) development server:
  *
- * Then move over to Obsidian (or any other markdown editor of choice) to author your content,
- * seeing the resulting output live updating in your browser.
+ * ```bash
+ *
+ *    vitepress v<X.X.X>
+ *
+ *    ➜  Local:   http://localhost:1234/
+ *    ➜  Network: use --host to expose *
+ *
+ * ```
+ *
+ * Open the web-browser at http://localhost:1234/
+ *
+ * You can now move over to Obsidian (or any other markdown editor of choice)
+ * to author and manage your `srcDir` content.
+ *
+ * The running HMR (hot-module-reload) the server will display the rendered result in your
+ * browser, live updating on each edit you make.
  *
  * ---
  *
@@ -55,6 +65,26 @@
  * deno task build
  * deno task serve
  * ```
+ * See the `dist/dist.json` file for the SHA256 content hash and module
+ * manifest of the versioned bundled.  This can be used as a
+ *
+ * These are published in HTTP headers:
+ * ```
+ *   pkg:          { name, version }
+ *   pkg-digest:   digest:sha256:#
+ * ```
+ *
+ *
+ * @example
+ * To `upgrade` your current local version of the compiler project, run:
+ *
+ * ```bash
+ * deno task upgrade
+ * ```
+ *
+ * Migration
+ *    Note: this does not touch the state of the "content" -
+ *    only the compiler configuration and generated code assets.
  */
 import { VitePress } from './m.VitePress/mod.ts';
 export { VitePress };
