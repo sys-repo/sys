@@ -36,9 +36,19 @@ export type VitePressLib = {
 
 /** Options passed to the [VitePress.dev] method. */
 export type VitePressDevArgs = {
+  /** Path to the input directory. */
   inDir?: t.StringDir;
+
+  /** Package meta-data. */
   pkg?: t.Pkg;
+
+  /** Port to attempt to start the dev server on. */
   port?: number;
+
+  /** Flag indicating if the browser should be automatically opened. Default: true.  */
+  open?: boolean;
+
+  /** Stop the dev server. */
   dispose$?: t.UntilObservable;
 };
 

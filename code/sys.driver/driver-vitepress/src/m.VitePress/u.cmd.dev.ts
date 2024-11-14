@@ -11,11 +11,12 @@ type R = t.VitePressDevServer;
  */
 export const dev: F = async (input = {}) => {
   const options = wrangle.options(input);
-  const { inDir = '', pkg } = options;
+  const { pkg, inDir = '', open = true } = options;
   const dirs: R['dirs'] = { in: inDir };
   const port = Net.port(options.port ?? 1234);
 
-  const params = `--port=${port} --open`;
+  let params = `--port=${port}`;
+  if (open) params += ` --open`;
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} ${params}`;
 
   const args = cmd.split(' ').slice(1);
