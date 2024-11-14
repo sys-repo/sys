@@ -1,11 +1,13 @@
-const taskMain = `deno run -RWNE --allow-run --allow-ffi ./.scripts/-main.ts`;
+const runScript = `deno run -RWNE --allow-run --allow-ffi ./.scripts`;
+const taskMain = `${runScript}/-main.ts`;
 const deno = `
 {
   "version": "0.0.0",
   "tasks": {
     "dev": "${taskMain} --cmd=dev",
     "build": "${taskMain} --cmd=build",
-    "serve": "${taskMain} --cmd=serve"
+    "serve": "${taskMain} --cmd=serve",
+    "upgrade": "${runScript}/-upgrade.ts"
   }
 }
 `.slice(1);

@@ -40,4 +40,9 @@ if (cmd === 'dev') {
 }
 `.slice(1);
 
-export const Script = { main } as const;
+const upgrade = `
+import { VitePress } from 'jsr:${Pkg.toString(pkg)}';
+await VitePress.init();
+`.slice(1);
+
+export const Script = { upgrade, main } as const;
