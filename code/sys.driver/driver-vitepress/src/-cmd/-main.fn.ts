@@ -11,42 +11,49 @@ import { Args, HttpServer, pkg, Pkg, c } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
-export type TArgs = {
-  cmd: 'dev' | 'build' | 'serve' | 'upgrade';
-  inDir?: string;
-  outDir?: string;
-  srcDir?: string;
-};
+type A = ADev | ABuild | AServe | AUpgrade;
+type ADev = { cmd: 'dev'; inDir?: string; srcDir?: string; open?: boolean };
+type ABuild = { cmd: 'build'; inDir?: string; outDir?: string; srcDir?: string };
+type AServe = { cmd: 'serve'; outDir?: string };
+type AUpgrade = { cmd: 'upgrade'; inDir?: string; srcDir?: string };
+
+const DEF = {
+  cmd: 'dev',
+  inDir: './',
+  outDir: './dist',
+  srcDir: undefined,
+  open: undefined,
+} as const;
 
 export async function main(argv: string[]) {
-  const args = Args.parse<TArgs>(argv);
-  const cmd = args.cmd ?? 'dev';
-  const inDir = args.inDir ?? './';
-  const outDir = args.outDir ?? './dist';
-  const srcDir = args.srcDir;
+  const args = Args.parse<A>(argv);
+  const cmd = args.cmd ?? DEF.cmd;
 
-  if (cmd === 'dev') {
+  if (args.cmd === 'dev') {
     /**
      * Start HMR development server.
      */
+    const { inDir = DEF.inDir } = args;
     const server = await VitePress.dev({ inDir, pkg });
     await server.listen();
     return;
   }
 
-  if (cmd === 'build') {
+  if (args.cmd === 'build') {
     /**
      * Transpile the production bundle (Pkg).
      */
+    const { inDir = DEF.inDir, outDir = DEF.outDir } = args;
     const res = await VitePress.build({ inDir, outDir, pkg });
     console.info(res.toString({ pad: true }));
     return;
   }
 
-  if (cmd === 'serve') {
+  if (args.cmd === 'serve') {
     /**
      * Run local HTTP server on bundle.
      */
+    const { outDir = DEF.outDir } = args;
     const dist = (await Pkg.Dist.load('./dist')).dist;
     const hash = dist?.hash.digest ?? '';
     const app = HttpServer.create({ pkg, hash, static: ['/*', outDir] });
@@ -55,11 +62,12 @@ export async function main(argv: string[]) {
     return;
   }
 
-  if (cmd === 'upgrade') {
+  if (args.cmd === 'upgrade') {
     /**
-     * (Migration)
+     * Migration:
      * Upgrade the state of the local project configuration.
      */
+    const { inDir = DEF.inDir, srcDir = DEF.srcDir } = args;
     await VitePress.Env.init({ inDir, srcDir, force: true });
     console.info();
     ViteLog.Module.log(pkg);
@@ -72,4 +80,7 @@ export async function main(argv: string[]) {
   console.error(`The given --cmd="${cmd}" value not supported`);
 }
 
+/**
+ * Export
+ */
 export default main;

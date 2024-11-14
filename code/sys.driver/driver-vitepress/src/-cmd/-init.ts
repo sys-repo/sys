@@ -10,7 +10,8 @@
 import { Args } from '../common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
-const args = Args.parse<{ srcDir?: string }>(Deno.args);
-const srcDir = args.srcDir;
+type A = { srcDir?: string };
+const args = Args.parse<A>(Deno.args);
+const { srcDir } = args;
 
 await VitePress.init({ srcDir });
