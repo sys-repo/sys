@@ -13,7 +13,8 @@ export const Log = {
       const inDir = wrangle.formatPath(args.inDir);
       const table = Cli.table([]);
       if (pkg) {
-        table.push([c.gray('module'), c.gray(Pkg.toString(pkg))]);
+        const module = c.gray(`${c.white(pkg.name)}${c.dim('@')}${pkg.version}`);
+        table.push([c.gray('module'), module]);
       }
       table.push([c.green(`input:`), c.gray(inDir)]);
       return table.toString();
@@ -27,6 +28,6 @@ export const Log = {
 const wrangle = {
   formatPath(input: string = ''): string {
     const res = input.replace(/^\.\//, '');
-    return res ? res : `./ ${c.dim('(← root)')}`;
+    return res ? res : `./`;
   },
 } as const;
