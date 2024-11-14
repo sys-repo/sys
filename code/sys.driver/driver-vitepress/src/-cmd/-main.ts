@@ -7,5 +7,5 @@
  *
  * https://vite.dev
  */
-import { main } from './-main.ts';
+import { main } from './-main.fn.ts';
 main(Deno.args);

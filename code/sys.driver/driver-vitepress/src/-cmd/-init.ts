@@ -7,8 +7,8 @@
  *
  * https://vite.dev
  */
-import { Args } from './common.ts';
-import { VitePress } from './m.VitePress/mod.ts';
+import { Args } from '../common.ts';
+import { VitePress } from '../m.VitePress/mod.ts';
 
 const args = Args.parse<{ srcDir?: string }>(Deno.args);
 const srcDir = args.srcDir;

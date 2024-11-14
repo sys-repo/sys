@@ -10,4 +10,4 @@
  *  }
  *
  */
-import '../src/-main.-run.ts';
+import '../src/-cmd/-main.ts';

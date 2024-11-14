@@ -18,7 +18,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./init": "./src/-init.-run.ts",
-    "./main": "./src/-main.-run.ts"
+    "./init": "./src/-cmd/-init.ts",
+    "./main": "./src/-cmd/-main.ts"
   }
 }
