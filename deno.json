@@ -20,8 +20,6 @@
     "jsxImportSourceTypes": "@emotion/react"
   },
   "workspace": [
-    "./-tmp/-vitepress/a",
-
     "./code/-tmpl/deno",
     "./code/sys.tmp",
 

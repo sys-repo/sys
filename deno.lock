@@ -2546,6 +2546,15 @@
         "npm:vitepress@1",
         "npm:vue@3"
       ]
+    },
+    "members": {
+      "-tmp/-vitepress/a": {
+        "packageJson": {
+          "dependencies": [
+            "npm:vue@3"
+          ]
+        }
+      }
     }
   }
 }
