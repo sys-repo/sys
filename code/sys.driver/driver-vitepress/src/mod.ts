@@ -19,8 +19,10 @@
  * ```bash
  * deno run -A jsr:@sys/driver-vitepress/init
  * ```
+ * To specify a different location for your source content (`.md` files)
+ * pass the `--srcDir=<path>` argument.
  *
- * This will layout the baseline required files for the VitePress engine. Run the command:
+ * This will layout the baseline required files for the VitePress engine.
  *
  * Once the project is initialized, use the three main commands `dev`, `build`
  * and `serve` via the `deno task`.
@@ -41,7 +43,7 @@
  * Open the web-browser at http://localhost:1234/ (or hit the `o` key to open your browser
  * at that address).
  *
- * Then move over to Obsidian (or your other markdown editor of choice) to author your content
+ * Then move over to Obsidian (or any other markdown editor of choice) to author your content,
  * seeing the resulting output live updating in your browser.
  *
  * ---
