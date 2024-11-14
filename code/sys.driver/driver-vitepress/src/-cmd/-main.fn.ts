@@ -7,15 +7,16 @@
  *
  * https://vite.dev
  */
-import { Args, HttpServer, pkg, Pkg, c } from '../common.ts';
+import { type t, Args, HttpServer, pkg, Pkg, c } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
 type A = ADev | ABuild | AServe | AUpgrade;
-type ADev = { cmd: 'dev'; inDir?: string; srcDir?: string; open?: boolean };
-type ABuild = { cmd: 'build'; inDir?: string; outDir?: string; srcDir?: string };
-type AServe = { cmd: 'serve'; outDir?: string };
-type AUpgrade = { cmd: 'upgrade'; inDir?: string; srcDir?: string };
+type P = t.StringPath;
+type ADev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
+type ABuild = { cmd: 'build'; inDir?: P; outDir?: P; srcDir?: P };
+type AServe = { cmd: 'serve'; outDir?: P };
+type AUpgrade = { cmd: 'upgrade'; inDir?: P; srcDir?: P };
 
 const DEF = {
   cmd: 'dev',
