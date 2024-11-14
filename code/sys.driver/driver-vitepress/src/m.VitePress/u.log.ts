@@ -1,5 +1,5 @@
 import { ViteLog } from '@sys/driver-vite/log';
-import { type t, Cli, c, Pkg } from './common.ts';
+import { type t, c, Cli } from './common.ts';
 
 export const Log = {
   Build: {
