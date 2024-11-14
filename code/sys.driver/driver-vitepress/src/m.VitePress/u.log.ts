@@ -1,5 +1,4 @@
-import { ViteLog } from '@sys/driver-vite/log';
-import { type t, c, Cli } from './common.ts';
+import { type t, c, Cli, ViteLog } from './common.ts';
 
 export const Log = {
   Build: {
@@ -27,7 +26,6 @@ export const Log = {
  */
 const wrangle = {
   formatPath(input: string = ''): string {
-    const res = input.replace(/^\.\//, '');
-    return res ? res : `./`;
+    return input ? input : `./`;
   },
 } as const;
