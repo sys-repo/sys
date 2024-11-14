@@ -8,7 +8,8 @@ const deno = `
     "build": "${taskMain} --cmd=build",
     "serve": "${taskMain} --cmd=serve",
     "upgrade": "${runScript}/-upgrade.ts"
-  }
+  },
+  "nodeModulesDir": "auto"
 }
 `.slice(1);
 

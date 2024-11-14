@@ -82,6 +82,7 @@ export type VitePressEnvLib = {
 };
 
 export type VitePressEnvInitArgs = {
-  inDir?: t.StringDir;
   force?: boolean;
+  inDir?: t.StringDir;
+  srcDir?: t.StringDir;
 };

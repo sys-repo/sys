@@ -1,5 +1,5 @@
-import { c, describe, expect, it, Testing } from '../-test.ts';
-import { type t, Fs, HttpServer, Pkg, slug } from './common.ts';
+import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
+import { type t, HttpServer, Pkg, slug } from './common.ts';
 
 import { SAMPLE } from './-u.ts';
 import { Env } from './m.Env.ts';
@@ -135,6 +135,20 @@ describe('Vitepress', () => {
         console.info(await sample.ls());
 
         await assertEnvExists(inDir);
+      });
+
+      it('custom --srcDir parameter', async () => {
+        const test = async (srcDir?: string, expectedSrcDir?: string) => {
+          const sample = await SAMPLE.init();
+          const { inDir } = sample;
+          await Env.init({ inDir, srcDir });
+
+          const file = await Deno.readTextFile(Fs.join(inDir, '.vitepress/config.ts'));
+          const line = `srcDir: '${expectedSrcDir}',`;
+          expect(file.includes(line)).to.eql(true, line);
+        };
+        await test('../foo', '../foo');
+        await test(undefined, './docs'); // NB: default.
       });
     });
   });

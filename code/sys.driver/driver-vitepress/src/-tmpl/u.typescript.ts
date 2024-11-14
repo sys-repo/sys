@@ -1,7 +1,7 @@
 import { pkg as std } from '@sys/std-s';
-import { Pkg } from '../common.ts';
+import { Pkg, type t } from '../common.ts';
 
-export const pkg = `
+const pkg = `
 import { Pkg, type t } from 'jsr:${Pkg.toString(std)}';
 import { default as deno } from './deno.json' with { type: 'json' };
 
@@ -11,17 +11,20 @@ import { default as deno } from './deno.json' with { type: 'json' };
 export const pkg: t.Pkg = Pkg.fromJson(deno, 'unnamed');
 `.slice(1);
 
-export const config = `
+const config = (args: { srcDir?: t.StringDir } = {}) => {
+  const { srcDir = './docs' } = args;
+  return `
 import { defineConfig } from 'vitepress';
 
 export default () => {
   return defineConfig({
     title: 'My Sample',
     description: 'See https://vitepress.dev for configuration options.',
-    srcDir: './docs',
+    srcDir: '${srcDir}',
   });
 };
 `.slice(1);
+};
 
 /**
  * Export

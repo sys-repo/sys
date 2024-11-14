@@ -13,6 +13,7 @@
  *
  * @example
  * Getting started.
+ *
  * To initialize a new VitePress project start with a scaffolding module named `tmpl.ts`:
  *
  * ```bash
