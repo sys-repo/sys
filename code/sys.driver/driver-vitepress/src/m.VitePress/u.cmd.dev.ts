@@ -1,6 +1,6 @@
 import { Cmd, Net, type t } from './common.ts';
-import { keyboardFactory } from './u.keyboard.ts';
 import { Env } from './m.Env.ts';
+import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 
 type F = t.VitePressLib['dev'];
@@ -14,7 +14,10 @@ export const dev: F = async (input = {}) => {
   const { inDir = '', pkg } = options;
   const dirs: R['dirs'] = { in: inDir };
   const port = Net.port(options.port ?? 1234);
-  const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} --port ${port}`;
+
+  const params = `--port=${port} --open`;
+  const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} ${params}`;
+
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
@@ -23,7 +26,7 @@ export const dev: F = async (input = {}) => {
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;
-  const keyboard = keyboardFactory({ port, url, dispose, pkg });
+  const keyboard = keyboardFactory({ port, url, pkg, dispose });
 
   const listen = async () => {
     await keyboard();
