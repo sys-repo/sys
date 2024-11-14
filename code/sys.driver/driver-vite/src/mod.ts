@@ -4,6 +4,7 @@
  *
  * @example
  * Within the `vite.config.ts` in the root of the module:
+ *
  * ```ts
  * import { Vite } from '@sys/driver-vite';
  * import { defineConfig } from 'vite';
