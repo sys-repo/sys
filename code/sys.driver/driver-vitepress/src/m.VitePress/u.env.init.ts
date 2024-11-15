@@ -23,7 +23,7 @@ async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; for
     await Deno.writeTextFile(target, tmpl);
   };
 
-  await ensure(Tmpl.Script.main, '.scripts/-main.ts');
+  await ensure(Tmpl.Script.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
