@@ -13,8 +13,15 @@ export type JsrLib = {
  * Network fetching helpers against the "jsr.io" end-point.
  */
 export type JsrFetchLib = {
-  /** Fetch the package meta-data */
-  packageMeta(
+  readonly Pkg: t.JsrFetchPkgLib;
+};
+
+/**
+ * Network fetching helpers against a specific package.
+ */
+export type JsrFetchPkgLib = {
+  /** Retrieve the package's latest version and version history. */
+  versions(
     subject: t.Pkg | t.StringName,
     options?: t.JsrFetchPackageMetaOptions,
   ): Promise<t.JsrFetchResponse<t.JsrPackageMeta>>;
@@ -24,6 +31,7 @@ export type JsrFetchPackageMetaOptions = {
   dispose$?: t.UntilObservable;
 };
 
+/** The response from a JSR fetch request. */
 export type JsrFetchResponse<T> = {
   status: number;
   url: t.StringUrl;
@@ -45,6 +53,5 @@ export type JsrPackageMeta = {
   latest: t.SemVer;
   versions: { [version: string]: JsrPackageMetaVersion };
 };
-
 /** Version details about a specific package version. */
 export type JsrPackageMetaVersion = { yanked?: boolean };
