@@ -30,6 +30,12 @@ export const std: t.ErrLib['std'] = (input: any, opt = {}) => {
     return done(wrangle.errorObject(name, message, { cause }));
   }
 
+  if (input instanceof Response) {
+    const name = 'HttpError';
+    const message = `HTTP Error: ${input.status} ${input.statusText}`;
+    return done(wrangle.errorObject(name, message, {}));
+  }
+
   if (Is.errorLike(input)) {
     const err = input as t.StdError;
     const message = err.message || wrangle.unknownMessage('ErrorLike');

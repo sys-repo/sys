@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export type ErrorGeneratorInput = unknown;
+export type ErrorGeneratorInput = unknown | Response;
 
 /**
  * Helpers for working with errors.

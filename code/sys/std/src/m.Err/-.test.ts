@@ -162,6 +162,15 @@ describe('Err (Error)', () => {
       expect(Err.std(input)).to.equal(input);
     });
 
+    describe('HTTP Response', () => {
+      it('404', () => {
+        const res = new Response(null, { status: 404, statusText: 'fail' });
+        const err = Err.std(res);
+        expect(err.name).to.eql('HttpError');
+        expect(err.message).to.eql('HTTP Error: 404 fail');
+      });
+    });
+
     describe('cause', () => {
       it('applies cause to simple input values', () => {
         const INPUT = ['str', 123, true, null, undefined, BigInt(123), Symbol('foo'), [], {}];
