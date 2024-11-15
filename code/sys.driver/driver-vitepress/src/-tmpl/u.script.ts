@@ -1,6 +1,6 @@
 import { pkg, Pkg } from '../common.ts';
 
-const vitepress = `jsr:${Pkg.toString(pkg)}`;
+const vitepress = `jsr:${pkg.name}`;
 
 const main = `
 import '${vitepress}/main';

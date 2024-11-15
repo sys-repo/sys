@@ -4,7 +4,6 @@ import type { t } from './common.ts';
 export const denofile = (args: { pkg?: t.Pkg } = {}) => {
   const self = args.pkg ?? pkg;
   const importUri = `jsr:@sys/driver-vitepress@${self.version}`;
-
   const entry = `jsr:@sys/driver-vitepress/main`;
   const json = `
 {
