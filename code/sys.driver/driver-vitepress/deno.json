@@ -11,8 +11,9 @@
     "dev": "deno run -RWNE --allow-run ./-scripts/-main.ts --cmd=dev --inDir=./.tmp/sample",
     "build": "deno run -RWE --allow-run ./-scripts/-main.ts --cmd=build --inDir=./.tmp/sample",
     "serve": "deno run -RNE ./-scripts/-main.ts --cmd=serve --inDir=./.tmp/sample",
+    "upgrade": "deno run -RWNE ./-scripts/-main.ts --cmd=upgrade --inDir=./.tmp/sample",
 
-    "upgrade": "deno run -RWNE ./-scripts/-main.ts --cmd=upgrade --inDir=./.tmp/sample"
+    "tmp": "deno run -N ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
