@@ -1,5 +1,5 @@
 // deno-lint-ignore-file require-await
-import { describe, it, expect, type t } from '../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { Err } from './mod.ts';
 
 describe('Err.catch', () => {
