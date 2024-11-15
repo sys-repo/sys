@@ -75,7 +75,6 @@ ${c.cyan(`         ${href}`)}
       const { pkg, dist, paths, url, pad, ws } = args;
       const hr = c.brightGreen(c.bold('─'.repeat(60)));
       const key = (text: string) => c.bold(c.white(text));
-      const cwd = Path.resolve();
       const digest = ViteLog.digest(args.dist?.hash.digest);
 
       let text = `
@@ -85,8 +84,8 @@ ${ws?.toString() || ''}
 
 ${Log.Info.toString({ pkg, dist, url, pad })}      
          ${c.green('↓')}
-         ${c.green('input')}    ./${paths.input.slice(cwd.length + 1)}
-         ${c.white('output')}   ./${paths.outDir.slice(cwd.length + 1)} ${digest}
+         ${c.green('input')}    ${Path.trimCwd(paths.input)}
+         ${c.white('output')}   ${Path.trimCwd(paths.outDir)} ${digest}
 
 
 ${c.green(c.bold('Options'))}: 

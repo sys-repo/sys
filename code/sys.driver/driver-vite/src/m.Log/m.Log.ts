@@ -26,12 +26,11 @@ export const ViteLog: t.ViteLogLib = {
 
     toString(args) {
       const { ok, dirs, pkg, hash } = args;
-      const cwd = Path.resolve();
       const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
 
-      const input = dirs.in.slice(cwd.length + 1);
-      const outDir = dirs.out.slice(cwd.length + 1);
+      const input = Path.trimCwd(dirs.in);
+      const outDir = Path.trimCwd(dirs.out);
       const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
       const digest = ViteLog.digest(hash);
 

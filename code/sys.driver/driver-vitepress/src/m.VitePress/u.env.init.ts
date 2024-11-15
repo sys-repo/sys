@@ -6,7 +6,7 @@ export const init: F = async (args = {}) => {
   const { inDir = '', srcDir, force = false, silent = false } = args;
   const files = await ensureFiles({ inDir, srcDir, force });
   if (!silent) {
-    console.info(c.green('Env'));
+    console.info(c.green('Update Environment'));
     files.table.render();
   }
 };
@@ -18,14 +18,10 @@ export const init: F = async (args = {}) => {
 async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; force?: boolean }) {
   const { force = false, srcDir = './docs' } = args;
 
-  const cwd = Deno.cwd();
-  const shortPath = (target: string) =>
-    Fs.Is.absolute(target) ? target.slice(cwd.length + 1) : target;
-
   type K = 'new' | 'unchanged' | 'updated';
   const table = Cli.table(['files:', '']);
   const logPath = (kind: K, path: string) => {
-    path = shortPath(path);
+    path = Fs.Path.trimCwd(path);
     if (kind === 'new') kind = c.green(kind) as K;
     if (kind === 'updated') kind = c.yellow(kind) as K;
     if (kind === 'unchanged') kind = c.gray(c.dim(kind)) as K;
