@@ -69,6 +69,7 @@ export type VitePressBuildArgs = {
   pkg?: t.Pkg; // Consumer module.
   inDir?: t.StringDir;
   outDir?: t.StringDir;
+  srcDir?: t.StringDir;
   silent?: boolean;
 };
 

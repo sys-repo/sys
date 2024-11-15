@@ -22,7 +22,7 @@ const DEF = {
   cmd: 'dev',
   inDir: './',
   outDir: './dist',
-  srcDir: undefined,
+  srcDir: './docs',
   open: undefined,
 } as const;
 
@@ -44,8 +44,8 @@ export async function main(argv: string[]) {
     /**
      * Transpile the production bundle (Pkg).
      */
-    const { inDir = DEF.inDir, outDir = DEF.outDir } = args;
-    const res = await VitePress.build({ inDir, outDir, pkg });
+    const { inDir = DEF.inDir, outDir = DEF.outDir, srcDir = DEF.srcDir } = args;
+    const res = await VitePress.build({ inDir, outDir, srcDir, pkg });
     console.info(res.toString({ pad: true }));
     return;
   }
