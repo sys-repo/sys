@@ -6,6 +6,7 @@ import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
 
 export type { WalkEntry };
+export type * from './t.Path.ts';
 
 /**
  * Tools for working with the file-system.
@@ -84,14 +85,6 @@ export type FsIsLib = t.PathLib['Is'] & {
 };
 
 /**
- * Library: helpers for working with resource paths with the existence of the server FS tools.
- */
-export type FsPathLib = t.PathLib & {
-  /** Convert the path to it's parent directory if it is not already a directory target. */
-  asDir(path: t.StringPath): Promise<string>;
-};
-
-/**
  * Generate a Glob helper scoped to a path.
  */
 export type GlobFactory = (...dir: (t.StringPath | undefined)[]) => t.Glob;
@@ -111,7 +104,7 @@ export type Glob = {
   find(pattern: string, options?: { exclude?: string[] }): Promise<WalkEntry[]>;
 
   /**
-   * Retrieve a sub-directory [Glob] from the current context.
+   * Retrieve a sub-directory `Glob` from the current context.
    */
   dir(...subdir: (string | undefined)[]): Glob;
 };
