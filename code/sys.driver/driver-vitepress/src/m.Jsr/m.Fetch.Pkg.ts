@@ -1,4 +1,4 @@
-import { type t, Err, rx } from './common.ts';
+import { type t, Err } from './common.ts';
 
 type R = t.JsrFetchResponse<t.JsrPackageMeta>;
 
@@ -6,19 +6,22 @@ export const Pkg: t.JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
-  async versions(input) {
+  async versions(name) {
     const errors = Err.errors();
-    const name = typeof input === 'object' ? input.name : input;
-    const version = typeof input === 'object' ? input.version : '';
-    const url = wrangle.url(name, version);
-
+    const url = wrangle.url(name);
     let data: t.JsrPackageMeta | undefined;
 
     const controller = new AbortController();
     const { signal } = controller;
     const fetched = await fetch(url, { signal });
     const { status } = fetched;
-    if (fetched.ok) data = (await fetched.json()) as t.JsrPackageMeta;
+
+    if (fetched.ok) {
+      data = (await fetched.json()) as t.JsrPackageMeta;
+    } else {
+      fetched.body?.cancel();
+      errors.push(fetched);
+    }
 
     const error = errors.toError();
     const res: R = {

@@ -22,7 +22,7 @@ export type JsrFetchLib = {
 export type JsrFetchPkgLib = {
   /** Retrieve the package's latest version and version history. */
   versions(
-    subject: t.Pkg | t.StringName,
+    name: string,
     options?: t.JsrFetchPackageMetaOptions,
   ): Promise<t.JsrFetchResponse<t.JsrPackageMeta>>;
 };
