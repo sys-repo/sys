@@ -5,7 +5,6 @@ type F = t.VitePressEnvLib['init'];
 export const init: F = async (args = {}) => {
   const { inDir = '', srcDir, force = false, silent = false } = args;
   const files = await ensureFiles({ inDir, srcDir, force });
-
   if (!silent) {
     console.info(c.green('Env'));
     files.table.render();
