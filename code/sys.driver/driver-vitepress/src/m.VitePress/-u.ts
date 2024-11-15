@@ -12,7 +12,7 @@ export const SAMPLE = {
 
   async init(options: { slug?: boolean } = {}) {
     const port = Testing.randomPort();
-    let path = `./.tmp/docs.tests`;
+    let path = `./.tmp/tests`;
     if (options.slug ?? true) path = Fs.join(path, slug());
 
     await Fs.copy(SAMPLE.PATH.sample, Fs.resolve(path), { force: true });
