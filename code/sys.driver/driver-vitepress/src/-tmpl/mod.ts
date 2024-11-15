@@ -2,11 +2,7 @@ import { Pkg, VSCode } from './u.json.ts';
 import { Markdown } from './u.md.ts';
 import { Script } from './u.script.ts';
 import { Typescript } from './u.typescript.ts';
-
-const gitignore = `
-cache/
-dist/
-`.slice(1);
+import { gitignore } from './u.gitignore.ts';
 
 export const Tmpl = {
   VSCode,

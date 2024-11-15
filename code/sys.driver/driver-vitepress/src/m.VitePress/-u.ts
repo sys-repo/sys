@@ -46,7 +46,7 @@ export const assertExists = async (path: t.StringPath, expected = true) => {
 export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   const assert = (path: string) => assertExists(Fs.join(dir, path), expected);
   await assert('.vscode/settings.json');
-  await assert('.vitepress/.gitignore');
+  await assert('.gitignore');
   await assert('.vitepress/config.ts');
   await assert('.sys/-main.ts');
   await assert('deno.json');

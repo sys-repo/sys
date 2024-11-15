@@ -12,7 +12,7 @@ export const init: F = async (args = {}) => {
  * the given directory.
  */
 async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; force?: boolean }) {
-  const { force = false, srcDir } = args;
+  const { force = false, srcDir = './docs' } = args;
 
   const ensure = async (tmpl: string, target: t.StringPath) => {
     target = Fs.join(args.inDir, target);
@@ -26,7 +26,7 @@ async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; for
   await ensure(Tmpl.Script.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
-  await ensure(Tmpl.gitignore, '.vitepress/.gitignore');
+  await ensure(Tmpl.gitignore, '.gitignore');
 
   await ensure(Tmpl.Pkg.deno, 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');

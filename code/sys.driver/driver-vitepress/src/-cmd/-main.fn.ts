@@ -7,22 +7,20 @@
  *
  * https://vite.dev
  */
-import { type t, Args, HttpServer, pkg, Pkg, c } from '../common.ts';
+import { type t, Fs, Args, HttpServer, pkg, Pkg, c } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
 type A = ADev | ABuild | AServe | AUpgrade;
 type P = t.StringPath;
 type ADev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
-type ABuild = { cmd: 'build'; inDir?: P; outDir?: P; srcDir?: P };
-type AServe = { cmd: 'serve'; outDir?: P };
-type AUpgrade = { cmd: 'upgrade'; inDir?: P; srcDir?: P };
+type ABuild = { cmd: 'build'; inDir?: P };
+type AServe = { cmd: 'serve'; inDir?: P };
+type AUpgrade = { cmd: 'upgrade'; inDir?: P };
 
 const DEF = {
   cmd: 'dev',
   inDir: './',
-  outDir: './dist',
-  srcDir: './docs',
   open: undefined,
 } as const;
 
@@ -44,8 +42,8 @@ export async function main(argv: string[]) {
     /**
      * Transpile the production bundle (Pkg).
      */
-    const { inDir = DEF.inDir, outDir = DEF.outDir, srcDir = DEF.srcDir } = args;
-    const res = await VitePress.build({ inDir, outDir, srcDir, pkg });
+    const { inDir = DEF.inDir } = args;
+    const res = await VitePress.build({ inDir, pkg });
     console.info(res.toString({ pad: true }));
     return;
   }
@@ -54,10 +52,12 @@ export async function main(argv: string[]) {
     /**
      * Run local HTTP server on bundle.
      */
-    const { outDir = DEF.outDir } = args;
-    const dist = (await Pkg.Dist.load('./dist')).dist;
+    const { inDir = DEF.inDir } = args;
+    const dir = Fs.join(inDir, '.vitepress/dist');
+    const dist = (await Pkg.Dist.load(dir)).dist;
     const hash = dist?.hash.digest ?? '';
-    const app = HttpServer.create({ pkg, hash, static: ['/*', outDir] });
+
+    const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
     const config = HttpServer.options(8080, pkg, hash);
     Deno.serve(config, app.fetch);
     return;
@@ -68,8 +68,8 @@ export async function main(argv: string[]) {
      * Migration:
      * Upgrade the state of the local project configuration.
      */
-    const { inDir = DEF.inDir, srcDir = DEF.srcDir } = args;
-    await VitePress.Env.init({ inDir, srcDir, force: true });
+    const { inDir = DEF.inDir } = args;
+    await VitePress.Env.init({ inDir, force: true });
     console.info();
     ViteLog.Module.log(pkg);
     console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
