@@ -1,4 +1,4 @@
-import { type t, Cli, Fs, Tmpl, c } from './common.ts';
+import { type t, pkg, Cli, Fs, Tmpl, c } from './common.ts';
 
 type F = t.VitePressEnvLib['init'];
 
@@ -56,7 +56,7 @@ async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; for
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
 
-  await ensure(Tmpl.Pkg.deno, 'deno.json');
+  await ensure(Tmpl.Pkg.denofile({ pkg }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
 
