@@ -11,14 +11,17 @@ type R = t.VitePressBuildResponse;
 export const build: B = async (input = {}) => {
   const timer = Time.timer();
   const options = wrangle.options(input);
-  const { pkg, silent = true } = options;
+  const { pkg, srcDir = 'docs', silent = true } = options;
 
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
+  const outDir = dirs.out;
+  await Env.init({ inDir, srcDir });
 
-  await Env.init({ inDir });
+  let params = `--outDir=${outDir}`;
+  if (srcDir) params += ` --srcDir=${srcDir}`;
 
-  const cmd = `deno run -A --node-modules-dir npm:vitepress build ${dirs.in} --outDir=${dirs.out}`;
+  const cmd = `deno run -A --node-modules-dir npm:vitepress build ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);
   const output = await Cmd.invoke({ args, silent });
   const ok = output.success;
