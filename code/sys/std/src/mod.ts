@@ -12,7 +12,6 @@
  * import { Dispose } from 'jsr:@sys/std';
  * import { Http } from 'jsr:@sys/std';
  * import { Path } from 'jsr:@sys/std';
- * import { Semver } from 'jsr:@sys/std';
  *
  * import { DateTime, Time } from 'jsr:@sys/std/date';
  * import { Immutable } from 'jsr:@sys/std/immutable';
@@ -43,7 +42,6 @@ export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { Promise, maybeWait } from './m.Promise/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
-export { Semver } from './m.Semver/mod.ts';
 export { Testing } from './m.Testing/mod.ts';
 export { Array, Num, Str, Value, asArray, isObject } from './m.Value/mod.ts';
 
