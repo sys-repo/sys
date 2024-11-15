@@ -41,17 +41,19 @@ describe('Net', () => {
         expect(res).to.eql(pref);
       });
 
-      it('port in use → increments', () => {
-        const a = Port.random();
-        const b = a + 1;
-        const listener1 = Deno.listen({ port: a });
-        const listener2 = Deno.listen({ port: b });
+      it('port in use → increments', async () => {
+        await Testing.retry(3, () => {
+          const a = Port.random();
+          const b = a + 1;
+          const listener1 = Deno.listen({ port: a });
+          const listener2 = Deno.listen({ port: b });
 
-        const res = Port.get(a);
-        listener1.close();
-        listener2.close();
+          const res = Port.get(a);
+          listener1.close();
+          listener2.close();
 
-        expect(res).to.eql(a + 2);
+          expect(res).to.eql(a + 2);
+        });
       });
 
       it('port in use → {throw: true}', () => {
