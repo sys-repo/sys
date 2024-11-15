@@ -12,7 +12,7 @@
  * extension module.
  *
  * @example
- * Getting started.
+ * Initialize a folder as a VitePress project.
  *
  * To initialize a new content-transpiler project start by scaffolding out a runtime folder:
  * By default, the source content will be embedded within it within a `/docs` folder.
