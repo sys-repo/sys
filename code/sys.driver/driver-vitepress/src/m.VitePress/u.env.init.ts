@@ -1,10 +1,15 @@
-import { type t, Fs, Tmpl } from './common.ts';
+import { type t, Cli, Fs, Tmpl, c } from './common.ts';
 
 type F = t.VitePressEnvLib['init'];
 
 export const init: F = async (args = {}) => {
-  const { inDir = '', srcDir, force = false } = args;
-  await ensureFiles({ inDir, srcDir, force });
+  const { inDir = '', srcDir, force = false, silent = false } = args;
+  const files = await ensureFiles({ inDir, srcDir, force });
+
+  if (!silent) {
+    console.info(c.green('Env'));
+    files.table.render();
+  }
 };
 
 /**
@@ -14,15 +19,43 @@ export const init: F = async (args = {}) => {
 async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; force?: boolean }) {
   const { force = false, srcDir = './docs' } = args;
 
-  const ensure = async (tmpl: string, target: t.StringPath) => {
-    target = Fs.join(args.inDir, target);
-    if (!force) {
-      if (await wrangle.existsAndNotEmpty(target)) return;
-    }
-    await Fs.ensureDir(Fs.dirname(target));
-    await Deno.writeTextFile(target, tmpl);
+  const cwd = Deno.cwd();
+  const shortPath = (target: string) =>
+    Fs.Is.absolute(target) ? target.slice(cwd.length + 1) : target;
+
+  type K = 'new' | 'unchanged' | 'updated';
+  const table = Cli.table(['files:', '']);
+  const logPath = (kind: K, path: string) => {
+    path = shortPath(path);
+    if (kind === 'new') kind = c.green(kind) as K;
+    if (kind === 'updated') kind = c.yellow(kind) as K;
+    if (kind === 'unchanged') kind = c.gray(c.dim(kind)) as K;
+    table.push([`  ${kind}`, c.gray(path)]);
   };
 
+  const hasChanged = async (tmpl: string, path: string) => {
+    if (!(await Fs.exists(path))) return false;
+    const file = await Deno.readTextFile(path);
+    return file !== tmpl;
+  };
+
+  const ensure = async (tmpl: string, path: t.StringPath) => {
+    path = Fs.join(args.inDir, path);
+    const exists = await wrangle.existsAndNotEmpty(path);
+    if (!force && exists) {
+      return logPath('unchanged', path);
+    }
+    if (exists) {
+      const isDiff = await hasChanged(tmpl, path);
+      if (!isDiff) return logPath('unchanged', path);
+    }
+
+    await Fs.ensureDir(Fs.dirname(path));
+    await Deno.writeTextFile(path, tmpl);
+    logPath(exists ? 'updated' : 'new', path);
+  };
+
+  // Layout file templates.
   await ensure(Tmpl.Script.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
@@ -33,6 +66,9 @@ async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; for
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
 
   await ensure(Tmpl.Markdown.index, 'docs/index.md');
+
+  // Finish up.
+  return { table };
 }
 
 /**

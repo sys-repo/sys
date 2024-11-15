@@ -96,4 +96,5 @@ export type VitePressEnvInitArgs = {
   force?: boolean;
   inDir?: t.StringDir;
   srcDir?: t.StringDir;
+  silent?: boolean;
 };

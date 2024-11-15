@@ -18,11 +18,10 @@ export const dev: F = async (input = {}) => {
   let params = `--port=${port}`;
   if (open) params += ` --open`;
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} ${params}`;
-
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await Env.init({ inDir });
+  await Env.init({ inDir, silent: true });
   Log.Dev.log({ inDir, pkg });
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
