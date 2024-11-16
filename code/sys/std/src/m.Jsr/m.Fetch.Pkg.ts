@@ -17,17 +17,31 @@ export const Pkg: t.JsrFetchPkgLib = {
     if (!version) version = (await Pkg.versions(name)).data?.latest;
     const url = wrangle.url(name, version);
     const fetch = Fetch.disposable(options.dispose$);
-    let res = await fetch.json<t.JsrPkgVersionInfo>(url);
-    if (res.data) {
-      const data = {
-        ...res.data,
-        scope: wrangle.scope(name),
-        name: wrangle.name(name),
-        version: version ?? '',
-      };
-      res = { ...res, data };
-    }
-    return res;
+    const res = await fetch.json<t.JsrPkgVersionInfo>(url);
+    if (!res.data) return res;
+
+    const scope = wrangle.scope(name);
+    const pkg: t.Pkg = { name, version: version ?? '' };
+    const data: t.JsrPkgVersionInfo = {
+      ...res.data,
+      scope,
+      pkg,
+
+      get manifest() {
+        return res.data?.manifest;
+      },
+      get exports() {
+        return res.data?.exports;
+      },
+      get moduleGraph1() {
+        return res.data?.moduleGraph1;
+      },
+      get moduleGraph2() {
+        return res.data?.moduleGraph2;
+      },
+    };
+
+    return { ...res, data };
   },
 };
 

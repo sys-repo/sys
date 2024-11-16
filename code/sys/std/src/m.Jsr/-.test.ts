@@ -58,8 +58,8 @@ describe('Jsr', () => {
           expect(res.error).to.eql(undefined);
 
           expect(res.data?.scope).to.eql('@sys');
-          expect(res.data?.name).to.eql('std');
-          expect(res.data?.version).to.eql(version);
+          expect(res.data?.pkg.name).to.eql('@sys/std');
+          expect(res.data?.pkg.version).to.eql(version);
 
           const manifest = res.data?.manifest ?? {};
           const paths = Object.keys(manifest);
@@ -85,8 +85,8 @@ describe('Jsr', () => {
         expect(res.error).to.eql(undefined);
 
         expect(res.data?.scope).to.eql('@sys');
-        expect(res.data?.name).to.eql('std');
-        expect(res.data?.version).to.eql(latest);
+        expect(res.data?.pkg.name).to.eql('@sys/std');
+        expect(res.data?.pkg.version).to.eql(latest);
       });
     });
 

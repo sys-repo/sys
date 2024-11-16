@@ -61,12 +61,16 @@ export type JsrPackageMetaVersion = { yanked?: boolean };
  * https://jsr.io/docs/api#package-version-metadata
  */
 export type JsrPkgVersionInfo = {
+  pkg: { name: string; version: t.StringSemVer };
   scope: string;
-  name: string;
-  version: t.StringSemVer;
-  manifest: JsrPkgManifest;
-  exports: { [key: string]: string };
+  manifest?: JsrPkgManifest;
+  exports?: { [key: string]: string };
+  moduleGraph1?: unknown;
+  moduleGraph2?: unknown;
 };
 
+/**
+ * The manifest of the source code file-structure (.ts files) within the package.
+ */
 export type JsrPkgManifest = { [path: string]: JsrPkgManifestFile };
 export type JsrPkgManifestFile = { size: number; checksum: string };
