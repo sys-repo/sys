@@ -7,6 +7,7 @@ import type { t } from './common.ts';
  */
 export type JsrLib = {
   readonly Fetch: t.JsrFetchLib;
+  readonly Url: t.JsrUrlLib;
 };
 
 /**
@@ -30,7 +31,7 @@ export type JsrFetchPkgLib = {
    */
   info(
     name: string,
-    version?: t.StringSemVer,
+    version?: t.StringSemver,
     options?: t.JsrFetchPkgOptions,
   ): Promise<t.JsrFetchPkgInfoResponse>;
 };
@@ -50,7 +51,7 @@ export type JsrFetchPkgInfoResponse = t.FetchResponse<t.JsrPkgVersionInfo>;
 export type JsrPkgMetaVersions = {
   scope: string;
   name: string;
-  latest: t.StringSemVer;
+  latest: t.StringSemver;
   versions: { [version: string]: JsrPackageMetaVersion };
 };
 /** Version details about a specific package version. */
@@ -61,7 +62,7 @@ export type JsrPackageMetaVersion = { yanked?: boolean };
  * https://jsr.io/docs/api#package-version-metadata
  */
 export type JsrPkgVersionInfo = {
-  pkg: { name: string; version: t.StringSemVer };
+  pkg: { name: string; version: t.StringSemver };
   scope: string;
   manifest?: JsrPkgManifest;
   exports?: { [key: string]: string };
@@ -74,3 +75,26 @@ export type JsrPkgVersionInfo = {
  */
 export type JsrPkgManifest = { [path: string]: JsrPkgManifestFile };
 export type JsrPkgManifestFile = { size: number; checksum: string };
+
+/**
+ * Standard URL generators for the JSR registry.
+ */
+export type JsrUrlLib = {
+  readonly origin: t.StringUrl;
+  readonly Pkg: t.JsrUrlPkgLib;
+};
+/**
+ * URLs pertaining to packages.
+ */
+export type JsrUrlPkgLib = {
+  /**
+   * Generate the URL for meta-data information about a package as a whole.
+   * https://jsr.io/docs/api#package-metadata
+   */
+  metadata(name: string): t.StringUrl;
+
+  /**
+   * Generate the URL for meta-data about a specific package version.
+   */
+  version(name: string, version: t.StringSemver): t.StringUrl;
+};

@@ -1,11 +1,12 @@
 import { type t, Fetch } from './common.ts';
+import { Url } from './m.Url.ts';
 
 export const Pkg: t.JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
   versions(name, options = {}) {
-    const url = wrangle.url(name);
+    const url = Url.Pkg.metadata(name);
     const fetch = Fetch.disposable(options.dispose$);
     return fetch.json<t.JsrPkgMetaVersions>(url);
   },
@@ -13,9 +14,9 @@ export const Pkg: t.JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-version-metadata
    */
-  async info(name, version, options = {}) {
-    if (!version) version = (await Pkg.versions(name)).data?.latest;
-    const url = wrangle.url(name, version);
+  async info(name, vInput, options = {}) {
+    const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
+    const url = Url.Pkg.version(name, version);
     const fetch = Fetch.disposable(options.dispose$);
     const res = await fetch.json<t.JsrPkgVersionInfo>(url);
     if (!res.data) return res;
@@ -49,11 +50,6 @@ export const Pkg: t.JsrFetchPkgLib = {
  * Helpers
  */
 const wrangle = {
-  url(name: string, version?: t.StringSemVer) {
-    const base = `https://jsr.io/${name}`;
-    const path = version ? `${version}_meta.json` : 'meta.json';
-    return `${base}/${path}`;
-  },
   scope: (input: string) => input.split('/')[0],
   name: (input: string) => input.split('/')[1],
 } as const;

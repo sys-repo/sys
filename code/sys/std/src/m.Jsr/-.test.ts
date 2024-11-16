@@ -1,11 +1,12 @@
 import { Semver } from '@sys/std/semver';
 import { describe, expect, it, Testing } from '../-test.ts';
 import { rx, slug } from '../mod.ts';
-import { Fetch, Jsr } from './mod.ts';
+import { Fetch, Jsr, Url } from './mod.ts';
 
 describe('Jsr', () => {
   it('API', () => {
     expect(Jsr.Fetch).to.equal(Fetch);
+    expect(Jsr.Url).to.equal(Url);
   });
 
   describe('Jsr.Fetch.Pkg', () => {
@@ -99,6 +100,22 @@ describe('Jsr', () => {
       expect(res.status).to.eql(499);
       expect(res.data).to.eql(undefined);
       expect(res.error?.message).to.include('Fetch operation disposed of before completing (499)');
+    });
+  });
+
+  describe('Jsr.Url', () => {
+    it('origin (url)', () => {
+      expect(Url.origin).to.eql('https://jsr.io');
+    });
+
+    it('Url.Pkg.metadata', () => {
+      const url = Url.Pkg.metadata('@sys/std');
+      expect(url).to.eql('https://jsr.io/@sys/std/meta.json');
+    });
+
+    it('Url.Pkg.version', () => {
+      const url = Url.Pkg.version('@sys/std', '0.0.42');
+      expect(url).to.eql('https://jsr.io/@sys/std/0.0.42_meta.json');
     });
   });
 });
