@@ -7,6 +7,7 @@ export type * from './t.Dom.ts';
 export type * from './t.Error.ts';
 export type * from './t.Event.ts';
 export type * from './t.Hash.ts';
+export type * from './t.Http.ts';
 export type * from './t.Immutable.ts';
 export type * from './t.Io.ts';
 export type * from './t.Json.ts';

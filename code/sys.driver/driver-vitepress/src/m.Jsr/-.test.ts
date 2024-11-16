@@ -1,5 +1,5 @@
 import { Semver } from '@sys/std/semver';
-import { slug, describe, expect, it } from '../-test.ts';
+import { describe, expect, it, rx, slug } from '../-test.ts';
 import { Fetch, Jsr } from './mod.ts';
 
 describe('Jsr', () => {
@@ -46,11 +46,21 @@ describe('Jsr', () => {
      * + compare checksums from JSR with {dist.json:hash}
      */
 
-    it.skip('specific version ← via {pkg}', async () => {});
+    describe('Pkg.info( name, version )', () => {
+      it.skip('200 - success', async () => {});
+    });
 
-    it.skip('404: module does not exist', async () => {});
+    it('dispose ← (cancel fetch operation)', async () => {
+      const { dispose, dispose$ } = rx.disposable();
+      const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
+      dispose();
 
-    it.skip('dispose ← (cancel fetch operation)', async () => {});
+      const res = await promise;
+      expect(res.status).to.eql(499);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.message).to.include('Fetch operation disposed of before completing (499)');
+    });
+
     it.skip('', async () => {});
     it.skip('', async () => {});
     it.skip('', async () => {});

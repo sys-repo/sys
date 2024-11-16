@@ -21,23 +21,15 @@ export type JsrFetchLib = {
  */
 export type JsrFetchPkgLib = {
   /** Retrieve the package's latest version and version history. */
-  versions(
-    name: string,
-    options?: t.JsrFetchPackageMetaOptions,
-  ): Promise<t.JsrFetchResponse<t.JsrPackageMeta>>;
+  versions(name: string, options?: t.JsrFetchVersionsOptions): Promise<t.JsrFetchVersionsResponse>;
+
 };
 
-export type JsrFetchPackageMetaOptions = {
-  dispose$?: t.UntilObservable;
-};
+/** Options for the `Jsr.Fetch.versions` method */
+export type JsrFetchVersionsOptions = { dispose$?: t.UntilObservable };
 
-/** The response from a JSR fetch request. */
-export type JsrFetchResponse<T> = {
-  status: number;
-  url: t.StringUrl;
-  data?: T;
-  error?: t.StdError;
-};
+/** Resposne to a `Jsr.Fetch.versions` request. */
+export type JsrFetchVersionsResponse = t.FetchResponse<t.JsrPackageMeta>;
 
 /**
  * The meta-data about a module.
