@@ -1,5 +1,6 @@
 import { Semver } from '@sys/std/semver';
-import { describe, expect, it, rx, slug, Testing } from '../-test.ts';
+import { describe, expect, it, Testing } from '../-test.ts';
+import { rx, slug } from '../mod.ts';
 import { Fetch, Jsr } from './mod.ts';
 
 describe('Jsr', () => {

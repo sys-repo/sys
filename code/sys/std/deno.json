@@ -19,6 +19,7 @@
     "./id": "./src/m.Id/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
+    "./jsr": "./src/m.Jsr/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./rx": "./src/m.Rx/mod.ts",
