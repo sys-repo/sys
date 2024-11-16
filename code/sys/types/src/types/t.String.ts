@@ -23,7 +23,7 @@ export type StringUrlRoute = string;
 export type StringId = string;
 
 /** String that represents a <semver> (semantic version), eg "0.1.2". */
-export type StringSemVer = string;
+export type StringSemver = string;
 
 /** String that represents a <name> of something. */
 export type StringName = string;

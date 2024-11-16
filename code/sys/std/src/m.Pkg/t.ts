@@ -26,7 +26,7 @@ export type PkgLib = {
    * export const pkg: t.Pkg = Pkg.fromJson(deno);
    * ```
    */
-  fromJson(input: O, defaultName?: string, defaultVersion?: t.StringSemVer): t.Pkg;
+  fromJson(input: O, defaultName?: string, defaultVersion?: t.StringSemver): t.Pkg;
 
   /**
    * Generate a new { \<unknown\>@0.0.0 } package object.
