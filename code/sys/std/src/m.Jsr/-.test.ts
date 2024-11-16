@@ -41,14 +41,6 @@ describe('Jsr', () => {
       });
     });
 
-    /**
-     * TODO 🐷
-     *
-     * - move to @sys/std OR @sys/jsr
-     * + 🌼 compare checksums from JSR with {dist.json:hash}
-     *
-     */
-
     describe('Pkg.info( name, version )', () => {
       it('200 - success', async () => {
         await Testing.retry(3, async () => {
