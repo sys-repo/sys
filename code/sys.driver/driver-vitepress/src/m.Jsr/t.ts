@@ -20,30 +20,53 @@ export type JsrFetchLib = {
  * Network fetching helpers against a specific package.
  */
 export type JsrFetchPkgLib = {
-  /** Retrieve the package's latest version and version history. */
-  versions(name: string, options?: t.JsrFetchVersionsOptions): Promise<t.JsrFetchVersionsResponse>;
+  /**
+   * Retrieve the package's latest version and version history.
+   */
+  versions(name: string, options?: t.JsrFetchPkgOptions): Promise<t.JsrFetchPkgVersionsResponse>;
 
+  /**
+   * Retrieve meta-data about a specific package version.
+   */
+  info(
+    name: string,
+    version?: t.StringSemVer,
+    options?: t.JsrFetchPkgOptions,
+  ): Promise<t.JsrFetchPkgInfoResponse>;
 };
 
 /** Options for the `Jsr.Fetch.versions` method */
-export type JsrFetchVersionsOptions = { dispose$?: t.UntilObservable };
+export type JsrFetchPkgOptions = { dispose$?: t.UntilObservable };
+/** Resposne to a `Jsr.Fetch.Pkg.versions` request. */
+export type JsrFetchPkgVersionsResponse = t.FetchResponse<t.JsrPkgMetaVersions>;
 
-/** Resposne to a `Jsr.Fetch.versions` request. */
-export type JsrFetchVersionsResponse = t.FetchResponse<t.JsrPackageMeta>;
+/** Response to a `Jsr.Fetch.Pkg.info` request. */
+export type JsrFetchPkgInfoResponse = t.FetchResponse<t.JsrPkgVersionInfo>;
 
 /**
- * The meta-data about a module.
+ * Top level meta-data about a published package including it's version history.
  * https://jsr.io/docs/api#package-metadata
- *
- * ```
- * GET: https://jsr.io/@<scope>/<package-name>/meta.json
- * ```
  */
-export type JsrPackageMeta = {
+export type JsrPkgMetaVersions = {
   scope: string;
   name: string;
-  latest: t.SemVer;
+  latest: t.StringSemVer;
   versions: { [version: string]: JsrPackageMetaVersion };
 };
 /** Version details about a specific package version. */
 export type JsrPackageMetaVersion = { yanked?: boolean };
+
+/**
+ * Meta-data about a specific published package version.
+ * https://jsr.io/docs/api#package-version-metadata
+ */
+export type JsrPkgVersionInfo = {
+  scope: string;
+  name: string;
+  version: t.StringSemVer;
+  manifest: JsrPkgManifest;
+  exports: { [key: string]: string };
+};
+
+export type JsrPkgManifest = { [path: string]: JsrPkgManifestFile };
+export type JsrPkgManifestFile = { size: number; checksum: string };
