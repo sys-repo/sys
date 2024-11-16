@@ -20,6 +20,9 @@ export type HttpHeaders = { readonly [key: t.StringHttpHeaderName]: t.StringHttp
  * HTTP tools.
  */
 export type HttpLib = {
+  /** Tools for working with the `fetch` function in system/standard ways. */
+  readonly Fetch: t.HttpFetchLib;
+
   /** Type guards (boolean evaluators). */
   readonly Is: t.HttpIs;
 

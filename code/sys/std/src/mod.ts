@@ -25,13 +25,13 @@ export type * as t from './types.ts';
 
 export { Args } from './m.Args/mod.ts';
 export { Async } from './m.Async/mod.ts';
-export { Color, COLORS } from './m.Color/mod.ts';
+export { COLORS, Color } from './m.Color/mod.ts';
 export { D, Date, Duration, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
 export { Hash } from './m.Hash/mod.ts';
-export { Http } from './m.Http/mod.ts';
+export { Fetch, Http } from './m.Http/mod.ts';
 export { Id, cuid, slug } from './m.Id/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
 export { IndexedDb } from './m.IndexedDb/mod.ts';
