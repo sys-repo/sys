@@ -164,10 +164,10 @@ describe('Err (Error)', () => {
 
     describe('HTTP Response', () => {
       it('404', () => {
-        const res = new Response(null, { status: 404, statusText: 'fail' });
+        const res = new Response(null, { status: 404, statusText: 'Not Found' });
         const err = Err.std(res);
         expect(err.name).to.eql('HttpError');
-        expect(err.message).to.eql('HTTP Error: 404 fail');
+        expect(err.message).to.eql('404 Not Found');
       });
     });
 

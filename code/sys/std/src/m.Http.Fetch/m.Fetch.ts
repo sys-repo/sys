@@ -31,20 +31,24 @@ export const Fetch: t.HttpFetchLib = {
             errors.push(fetched);
           }
         } catch (cause: any) {
+          const name = 'HttpError';
           if (_aborted) {
             // HTTP: Client Closed Request.
             status = 499;
-            errors.push('Fetch operation disposed of before completing (499)');
+            const err = Err.std('Fetch operation disposed of before completing (499)', { name });
+            errors.push(err);
           } else {
             // HTTP: Unknown Error.
             status = 520;
-            errors.push(`Failed while fetching: ${url}`, { cause });
+            const err = Err.std(`Failed while fetching: ${url}`, { cause, name });
+            errors.push(err);
           }
         }
 
         // Finish up.
         const error = errors.toError();
-        return { status, url, data, error };
+        const ok = !error;
+        return { ok, status, url, data, error };
       },
 
       /**

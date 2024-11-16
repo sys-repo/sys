@@ -32,7 +32,7 @@ export const std: t.ErrLib['std'] = (input: any, opt = {}) => {
 
   if (input instanceof Response) {
     const name = 'HttpError';
-    const message = `HTTP Error: ${input.status} ${input.statusText}`;
+    const message = `${input.status} ${input.statusText}`;
     return done(wrangle.errorObject(name, message, {}));
   }
 

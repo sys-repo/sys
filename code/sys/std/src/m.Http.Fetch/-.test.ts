@@ -11,7 +11,7 @@ describe('Http.Fetch', () => {
   });
 
   describe('Fetch.disposable', () => {
-    it('success: 200', async () => {
+    it('200: success', async () => {
       const life = rx.disposable();
       const server = TestHttp.server(() => TestHttp.json({ foo: 123 }));
       const url = server.url.base;
@@ -19,12 +19,53 @@ describe('Http.Fetch', () => {
       expect(fetch.disposed).to.eql(false);
 
       const res = await fetch.json(url);
+      expect(res.ok).to.eql(true);
       expect(res.status).to.eql(200);
       expect(res.url).to.eql(url);
       expect(res.data).to.eql({ foo: 123 });
       expect(res.error).to.eql(undefined);
 
       expect(fetch.disposed).to.eql(false);
+      await server.dispose();
+    });
+
+    it('404: error', async () => {
+      const life = rx.disposable();
+      const server = TestHttp.server(() => TestHttp.error(404, 'Not Found'));
+
+      const url = server.url.base;
+      const fetch = Fetch.disposable(life.dispose$);
+
+      const res = await fetch.json(url);
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(404);
+      expect(res.url).to.eql(url);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.name).to.eql('HttpError');
+      expect(res.error?.message).to.include('404 Not Found');
+
+      await server.dispose();
+    });
+
+    it('disposed', async () => {
+      const life = rx.disposable();
+      const server = TestHttp.server(() => TestHttp.json({ foo: 123 }));
+      const url = server.url.base;
+      const fetch = Fetch.disposable(life.dispose$);
+      expect(fetch.disposed).to.eql(false);
+
+      const promise = fetch.json(url);
+      life.dispose();
+      const res = await promise;
+
+      expect(res.ok).to.eql(false);
+      expect(res.status).to.eql(499);
+      expect(res.url).to.eql(url);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.name).to.eql('HttpError');
+      expect(res.error?.message).to.include('Fetch operation disposed of before completing (499)');
+
+      expect(fetch.disposed).to.eql(true);
       await server.dispose();
     });
   });
