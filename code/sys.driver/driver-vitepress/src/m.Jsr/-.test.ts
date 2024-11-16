@@ -41,12 +41,10 @@ describe('Jsr', () => {
 
     /**
      * TODO 🐷
-     * - Fetch.Pkg.versions
-     * - Fetch.Pkg.info
      *
      * - move to @sys/std OR @sys/jsr
+     * + 🌼 compare checksums from JSR with {dist.json:hash}
      *
-     * + compare checksums from JSR with {dist.json:hash}
      */
 
     describe('Pkg.info( name, version )', () => {
