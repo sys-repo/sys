@@ -1,4 +1,5 @@
 export { Args, Err, Fetch, Http, Str, Time, rx, slug } from '@sys/std';
+export { Jsr } from '@sys/std/jsr';
 
 export { Cli, c } from '@sys/std-s/cli';
 export { Fs, Path } from '@sys/std-s/fs';

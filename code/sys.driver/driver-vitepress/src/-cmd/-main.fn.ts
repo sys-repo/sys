@@ -7,7 +7,7 @@
  *
  * https://vite.dev
  */
-import { type t, Fs, Args, HttpServer, pkg, Pkg, c } from '../common.ts';
+import { type t, Fs, Args, HttpServer, pkg, Pkg, c, Jsr } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
@@ -68,8 +68,26 @@ export async function main(argv: string[]) {
      * Migration:
      * Upgrade the state of the local project configuration.
      */
+    const registryInfo = (await Jsr.Fetch.Pkg.versions('@sys/driver-vitepress')).data;
+    const current = pkg.version;
+    const latest = registryInfo?.latest;
+
+    console.log('TODO 🐷 ');
+    console.log('latest', latest);
+    console.log('current', current);
+    console.log(`-------------------------------------------`);
+
+    /**
+     * TODO 🐷
+     * - update {imports} map within deno.json file if diff
+     * - and run `$ deno install --reload` to pull the new nodule.
+     * - then run the upgrade again ← RECURSION (then exit here)
+     */
+
+    // Update template files.
     const { inDir = DEF.inDir } = args;
     await VitePress.Env.init({ inDir, force: true });
+
     console.info();
     ViteLog.Module.log(pkg);
     console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
