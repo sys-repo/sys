@@ -25,6 +25,15 @@ export async function upgrade(args: { inDir: t.StringDir }) {
   };
   const diff = Semver.compare(semver.latest, semver.current);
 
+  const updateFiles = async (upgrade?: t.StringSemver) => {
+    // Update template files.
+    await VitePress.Env.init({ inDir, upgrade, force: true });
+    console.info();
+    ViteLog.Module.log(pkg);
+    console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
+    console.info();
+  };
+
   if (diff <= 0) {
     // Already latest.
     console.info();
@@ -49,7 +58,8 @@ export async function upgrade(args: { inDir: t.StringDir }) {
 
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
-    await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
+    await updateFiles(latest);
+    // await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
     return;
   }
 
@@ -58,11 +68,5 @@ export async function upgrade(args: { inDir: t.StringDir }) {
   console.log('semver', semver);
   console.log('diff', diff);
 
-  // Update template files.
-  await VitePress.Env.init({ inDir, force: true });
-
-  console.info();
-  ViteLog.Module.log(pkg);
-  console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
-  console.info();
+  await updateFiles();
 }
