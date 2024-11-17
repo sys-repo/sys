@@ -36,9 +36,9 @@ export async function upgrade(args: { inDir: t.StringDir }) {
 
   if (diff <= 0) {
     // Already latest.
-    console.info();
-    console.info(`Local version ${c.green(pkg.version)} is the most recent release`);
-    console.info();
+    // console.info();
+    // console.info(`Local version ${c.green(pkg.version)} is the most recent release`);
+    // console.info();
     return;
   }
   if (diff > 0) {
@@ -58,8 +58,8 @@ export async function upgrade(args: { inDir: t.StringDir }) {
 
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
-    await updateFiles(latest);
-    // await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
+    // await updateFiles(latest);
+    await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
     return;
   }
 
