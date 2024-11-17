@@ -1,7 +1,7 @@
 /**
  * @module
  * Tools for working with the "VitePress" documentation content compiler.
- * https://vitepress.dev/
+ * https://vitepress.dev
  *
  * The "VitePress" documentation [Markdown → HTML/JS] vite bundler
  * is in the category of a SSGs "static-site-generator."

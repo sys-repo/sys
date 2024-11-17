@@ -4,7 +4,7 @@ type ToStringOptions = { pad?: boolean };
 
 /**
  * Tools for working with the "VitePress" documentation bundle compiler.
- * https://vitepress.dev/
+ * https://vitepress.dev
  *
  * The "VitePress" documentation [Markdown → HTML/JS] vite bundler
  * is in the category of a SSGs "static-site-generator."
@@ -92,6 +92,7 @@ export type VitePressEnvLib = {
   init(args?: t.VitePressEnvInitArgs): Promise<void>;
 };
 
+/** Arguments passed to the `VitePress.init` method. */
 export type VitePressEnvInitArgs = {
   force?: boolean;
   inDir?: t.StringDir;
