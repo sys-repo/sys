@@ -8,4 +8,5 @@
  * https://vite.dev
  */
 import { main } from './-main.fn.ts';
-main(Deno.args);
+await main(Deno.args);
+Deno.exit(0);
