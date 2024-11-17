@@ -3,8 +3,8 @@ import { type t, pkg, Cli, Fs, Tmpl, c } from './common.ts';
 type F = t.VitePressEnvLib['init'];
 
 export const init: F = async (args = {}) => {
-  const { inDir = '', srcDir, force = false, silent = false } = args;
-  const files = await ensureFiles({ inDir, srcDir, force });
+  const { inDir = '', srcDir, force = false, silent = false, filter } = args;
+  const files = await ensureFiles({ inDir, srcDir, force, filter });
   if (!silent) {
     console.info(c.green('Update Environment'));
     files.table.render();
@@ -15,7 +15,12 @@ export const init: F = async (args = {}) => {
  * Ensure the required configuration files exist within
  * the given directory.
  */
-async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; force?: boolean }) {
+async function ensureFiles(args: {
+  inDir: t.StringDir;
+  srcDir?: t.StringDir;
+  force?: boolean;
+  filter?: (path: t.StringPath) => boolean;
+}) {
   const { force = false, srcDir = './docs' } = args;
 
   type K = 'new' | 'unchanged' | 'updated';
@@ -35,6 +40,10 @@ async function ensureFiles(args: { inDir: t.StringDir; srcDir?: t.StringDir; for
   };
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
+    if (args.filter) {
+      if (!args.filter(path)) return;
+    }
+
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
     if (!force && exists) {

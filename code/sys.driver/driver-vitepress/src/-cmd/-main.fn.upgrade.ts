@@ -51,7 +51,7 @@ export async function upgrade(argv: string[]) {
   /**
    * Update project template files.
    */
-  await VitePress.Env.init({ inDir, force: true });
+  await VitePress.Env.init({ inDir, force: true, filter: (p) => !p.startsWith('docs/') });
   console.info();
   ViteLog.Module.log(pkg);
   console.info(c.gray(`Project is at version: ${c.green(pkg.version)}`));
