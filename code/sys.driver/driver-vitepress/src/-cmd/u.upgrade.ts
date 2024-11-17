@@ -2,7 +2,7 @@ import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
 
 import { Tmpl } from '../-tmpl/mod.ts';
-import { type t, c, Fs, Jsr, pkg } from '../common.ts';
+import { type t, c, Fs, Jsr, pkg, Cli } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
@@ -25,21 +25,12 @@ export async function upgrade(args: { inDir: t.StringDir }) {
   };
   const diff = Semver.compare(semver.latest, semver.current);
 
-  const updateFiles = async (upgrade?: t.StringSemver) => {
-    // Update template files.
-    await VitePress.Env.init({ inDir, upgrade, force: true });
-    console.info();
-    ViteLog.Module.log(pkg);
-    console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
-    console.info();
-  };
-
   if (diff <= 0) {
     // Already latest.
     // console.info();
     // console.info(`Local version ${c.green(pkg.version)} is the most recent release`);
     // console.info();
-    return;
+    // return;
   }
   if (diff > 0) {
     // Perform update.
@@ -51,15 +42,15 @@ export async function upgrade(args: { inDir: t.StringDir }) {
      * TODO 🐷
      * - await Denofile.change(path, (d) => <mutator>);
      */
-    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version: latest } });
+    const version = latest;
+    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
     await Deno.writeTextFile(Fs.join(inDir, 'deno.json'), denofile);
 
     console.log('denofile', denofile);
 
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
-    // await updateFiles(latest);
-    await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
+    await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below).
     return;
   }
 
@@ -68,5 +59,12 @@ export async function upgrade(args: { inDir: t.StringDir }) {
   console.log('semver', semver);
   console.log('diff', diff);
 
-  await updateFiles();
+  /**
+   * Update template files.
+   */
+  await VitePress.Env.init({ inDir, force: true });
+  console.info();
+  ViteLog.Module.log(pkg);
+  console.info(c.gray(`Project at version: ${c.white(pkg.name)}@${c.green(pkg.version)}`));
+  console.info();
 }
