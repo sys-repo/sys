@@ -1,4 +1,4 @@
-import { type t, Cmd, Fs, Pkg, Time } from './common.ts';
+import { type t, Cmd, Cli, Fs, Pkg, Time, c } from './common.ts';
 import { Env } from './m.Env.ts';
 import { Log } from './u.log.ts';
 
@@ -12,6 +12,9 @@ export const build: B = async (input = {}) => {
   const timer = Time.timer();
   const options = wrangle.options(input);
   const { pkg, srcDir = 'docs', silent = true } = options;
+
+  const spinner = Cli.spinner(c.gray('building...'));
+  if (!silent) spinner.start();
 
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
@@ -59,6 +62,8 @@ export const build: B = async (input = {}) => {
       return Log.Build.toString({ ok, pad, bytes, dirs, hash, pkg, elapsed });
     },
   };
+
+  spinner?.stop();
   return res;
 };
 
