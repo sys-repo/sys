@@ -53,7 +53,8 @@ export async function upgrade(argv: string[]) {
    */
   await VitePress.Env.init({ inDir, force: true, filter: (p) => !p.startsWith('docs/') });
   console.info();
+
+  console.info(c.green(`Project at version:`));
   ViteLog.Module.log(pkg);
-  console.info(c.gray(`Project is at version: ${c.green(pkg.version)}`));
   console.info();
 }
