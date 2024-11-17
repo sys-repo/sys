@@ -7,9 +7,9 @@
  *
  * https://vite.dev
  */
-import { type t, Fs, Args, HttpServer, pkg, Pkg, c, Jsr } from '../common.ts';
-import { ViteLog } from '../m.VitePress/common.ts';
+import { type t, Args, Fs, HttpServer, Jsr, pkg, Pkg } from '../common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
+import { upgrade } from './u.upgrade.ts';
 
 type A = ADev | ABuild | AServe | AUpgrade;
 type P = t.StringPath;
@@ -60,22 +60,15 @@ export async function main(argv: string[]) {
     const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
     const config = HttpServer.options(8080, pkg, hash);
     Deno.serve(config, app.fetch);
+
     return;
   }
 
   if (args.cmd === 'upgrade') {
     /**
-     * Migration:
-     * Upgrade the state of the local project configuration.
+     * TODO 🐷
+     * - srite deno.json with latest version.
      */
-    const registryInfo = (await Jsr.Fetch.Pkg.versions('@sys/driver-vitepress')).data;
-    const current = pkg.version;
-    const latest = registryInfo?.latest;
-
-    console.log('TODO 🐷 ');
-    console.log('latest', latest);
-    console.log('current', current);
-    console.log(`-------------------------------------------`);
 
     /**
      * TODO 🐷
@@ -83,15 +76,8 @@ export async function main(argv: string[]) {
      * - and run `$ deno install --reload` to pull the new nodule.
      * - then run the upgrade again ← RECURSION (then exit here)
      */
-
-    // Update template files.
     const { inDir = DEF.inDir } = args;
-    await VitePress.Env.init({ inDir, force: true });
-
-    console.info();
-    ViteLog.Module.log(pkg);
-    console.info(c.gray(`Migrated project to version: ${c.green(pkg.version)}`));
-    console.info();
+    await upgrade({ inDir });
     return;
   }
 
