@@ -15,3 +15,4 @@ const args = Args.parse<A>(Deno.args);
 const { srcDir } = args;
 
 await VitePress.init({ srcDir });
+Deno.exit(0);
