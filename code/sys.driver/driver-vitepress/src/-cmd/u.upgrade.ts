@@ -46,8 +46,6 @@ export async function upgrade(args: { inDir: t.StringDir }) {
     const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
     await Deno.writeTextFile(Fs.join(inDir, 'deno.json'), denofile);
 
-    console.log('denofile', denofile);
-
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
     await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below).

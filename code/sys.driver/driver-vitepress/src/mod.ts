@@ -21,7 +21,6 @@
  *
  * ```bash
  * deno run -A jsr:@sys/driver-vitepress/init
- * deno install
  * ```
  * To specify a different location for your source content (`.md` files)
  * pass the `--srcDir=<path>` argument.

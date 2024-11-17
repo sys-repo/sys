@@ -57,9 +57,10 @@ export async function main(argv: string[]) {
     const dist = (await Pkg.Dist.load(dir)).dist;
     const hash = dist?.hash.digest ?? '';
 
+    const port = 8080;
     const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-    const config = HttpServer.options(8080, pkg, hash);
-    Deno.serve(config, app.fetch);
+    Deno.serve(HttpServer.options(port, pkg, hash), app.fetch);
+    await HttpServer.keyboard({ port });
 
     return;
   }

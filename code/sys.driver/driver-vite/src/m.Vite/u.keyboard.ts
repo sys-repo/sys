@@ -8,9 +8,9 @@ export function keyboardFactory(args: {
   paths: t.ViteConfigPaths;
   port: number;
   url: string;
-  dispose: () => Promise<void>;
   pkg?: t.Pkg;
   dist?: t.DistPkg;
+  dispose: () => Promise<void>;
 }) {
   const { pkg, dist, paths, dispose } = args;
   const sh = Cmd.sh();
