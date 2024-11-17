@@ -11,10 +11,10 @@ export const denofile = (args: { pkg?: t.Pkg } = {}) => {
 {
   "version": "0.0.0",
   "tasks": {
-    "dev":     "deno run -RWNE --allow-run ${self.name} --cmd=dev",
-    "build":   "deno run -RWNE --allow-run ${self.name} --cmd=build",
-    "serve":   "deno run -RNE ${self.name} --cmd=serve",
-    "upgrade": "deno run -RWNE --allow-run ${self.name} --cmd=upgrade"
+    "dev":     "deno run -RWNE --allow-run ${entry} --cmd=dev",
+    "build":   "deno run -RWNE --allow-run ${entry} --cmd=build",
+    "serve":   "deno run -RNE ${entry} --cmd=serve",
+    "upgrade": "deno run -RWNE --allow-run ${entry} --cmd=upgrade"
   },
   "nodeModulesDir": "auto",
   "imports": {

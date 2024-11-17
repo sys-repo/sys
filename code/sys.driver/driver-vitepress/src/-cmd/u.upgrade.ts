@@ -1,8 +1,8 @@
-import { Denofile } from '@sys/driver-deno';
 import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
 
-import { type t, c, Cli, Fs, Jsr, pkg } from '../common.ts';
+import { Tmpl } from '../-tmpl/mod.ts';
+import { type t, c, Fs, Jsr, pkg } from '../common.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 
@@ -37,25 +37,19 @@ export async function upgrade(args: { inDir: t.StringDir }) {
     console.info();
     console.info(`Upgrading local version ${c.gray(pkg.version)} to latest: ${c.green(latest)}`);
     console.info();
-    const spinner = Cli.spinner('upgrading...').start();
 
     /**
      * TODO 🐷
      * - await Denofile.change(path, (d) => <mutator>);
      */
-    const path = Fs.join(inDir, 'deno.json');
-    const json = (await Denofile.load(path)).json ?? {};
-    const imports = json.imports || (json.imports = {});
-    imports[pkg.name] = `jsr:${pkg.name}@${latest}`;
-    await Deno.writeTextFile(path, `${JSON.stringify(json, null, '  ')}\n`);
+    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version: latest } });
+    await Deno.writeTextFile(Fs.join(inDir, 'deno.json'), denofile);
 
-    console.log('json', json);
+    console.log('denofile', denofile);
 
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
-    await sh.run('deno task upgrade');
-
-    spinner.clear().stop();
+    await sh.run('deno task upgrade'); // NB: recursion - recall the command to complete the update (below)
     return;
   }
 

@@ -44,7 +44,7 @@
  *    vitepress v<X.X.X>
  *
  *    ➜  Local:   http://localhost:1234/
- *    ➜  Network: use --host to expose *
+ *    ➜  Network: use --host to expose
  *
  * ```
  *
