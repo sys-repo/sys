@@ -14,6 +14,7 @@ export default () => {
     themeConfig: { 
       sidebar,
       smoothScroll: true,
+      search: { provider: 'local' },
     },
   });
 };

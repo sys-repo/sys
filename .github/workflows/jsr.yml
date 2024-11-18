@@ -29,11 +29,11 @@ jobs:
         with:
           deno-version: v2
 
-      - name: publish module → "@sys/std-s"
-        run: |
-          cd code/sys/std-s
-          deno task test
-          deno publish
+      # - name: publish module → "@sys/std-s"
+      #   run: |
+      #     cd code/sys/std-s
+      #     deno task test
+      #     deno publish
 
       - name: publish module → "@sys/driver-vitepress"
         run: |
