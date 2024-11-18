@@ -60,7 +60,7 @@ async function ensureFiles(args: {
   };
 
   // Layout file templates.
-  await ensure(Tmpl.Script.main, '.sys/-main.ts');
+  await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
