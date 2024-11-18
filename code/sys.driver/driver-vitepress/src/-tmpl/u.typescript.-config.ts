@@ -14,9 +14,10 @@ export default () => {
     themeConfig: { 
       sidebar,
       smoothScroll: true,
-      search: { provider: 'local' },
     },
   });
 };
 `.slice(1);
 };
+
+// search: { provider: 'local' },
