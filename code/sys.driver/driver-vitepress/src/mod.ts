@@ -15,20 +15,18 @@
  * Initialize a folder as a VitePress project.
  *
  * To initialize a new content-transpiler project start by scaffolding out a runtime folder:
- * By default, the source content will be embedded within it within a `/docs` folder.
+ * By default, the source content will be housed within `/docs` folder.  All
+ * programmatic modules (with the exceptions of highlevel configuration .ts files)
+ * are housed within `.hidden` folders and updatable via `deno trask upgrade`.
  *
- * Pass in a `--srcDir` path to seperate your content from the runtime folder when ready (Optional).
+ * Turn the current working directory into a content project.
  *
  * ```bash
  * deno run -A jsr:@sys/driver-vitepress/init
  * ```
- * To specify a different location for your source content (`.md` files)
- * pass the `--srcDir=<path>` argument.
- *
- * This will layout the baseline required files for the VitePress engine.
  *
  * Once the project is initialized, use the three main commands `dev`, `build`
- * and `serve` via the `deno task`.
+ * and `serve` via the `deno task` command.
  *
  * To run in development while authoring your content, run:
  *
@@ -50,7 +48,7 @@
  * Open the web-browser at http://localhost:1234/
  *
  * You can now move over to Obsidian (or any other markdown editor of choice)
- * to author and manage your `srcDir` content.
+ * to author and manage your content within the `/docs/` folder.
  *
  * The running HMR (hot-module-reload) the server will display the rendered result in your
  * browser, live updating on each edit you make.
@@ -75,7 +73,7 @@
  *
  *
  * @example
- * To `upgrade` your current local version of the compiler project, run:
+ * To `upgrade` your current local version of the compiler, run:
  *
  * ```bash
  * deno task upgrade

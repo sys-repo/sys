@@ -1,6 +1,12 @@
 export const nav = `
 import type { DefaultTheme } from 'vitepress';
 
+/**
+ * Left sidebar navigation.
+ *
+ * Documentation:
+ * https://vitepress.dev/guide/getting-started
+ */
 export const sidebar: DefaultTheme.Sidebar = [
   {
     text: 'Section Title A',
