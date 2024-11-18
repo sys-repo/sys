@@ -68,8 +68,11 @@ async function ensureFiles(args: {
   await ensure(Tmpl.Pkg.denofile({ pkg }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
+  await ensure(Tmpl.Typescript.nav, 'pkg.nav.ts');
 
   await ensure(Tmpl.Markdown.index, 'docs/index.md');
+  await ensure(Tmpl.Markdown.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
+  await ensure(Tmpl.Markdown.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
 
   // Finish up.
   return { table };
