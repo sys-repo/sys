@@ -2,12 +2,6 @@ import type { t } from '../common/mod.ts';
 
 type O = Record<string, unknown>;
 
-/** HTTP header verbs. */
-export type HttpMethod = 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH' | 'OPTIONS';
-
-/** An object map of HTTP headers. */
-export type HttpHeaders = { readonly [key: t.StringHttpHeaderName]: t.StringHttpHeader };
-
 /**
  * @module
  * HTTP tools.
@@ -37,6 +31,9 @@ export type HttpLib = {
   /** Convert a `Response` into an HTTP client error. */
   toError(res: Response): t.HttpClientError;
 
+  /** Convert a `Response` into an HTTP client error. */
+  toError2(res: Response): t.HttpError | undefined;
+
   /** Convert a `Response` into a standard `HttpClientResponse` */
   toResponse<T extends O>(res: Response): Promise<t.HttpClientResponse<T>>;
 };
@@ -61,6 +58,9 @@ export type HttpUrlLib = {
 export type HttpIs = {
   /** Determine if the given value is a `NetAddr`. */
   netaddr(input: unknown): input is Deno.NetAddr;
+
+  /** Determine if the HTTP status code is within the 200 range.  */
+  statusOK(status: number): boolean;
 };
 
 /**

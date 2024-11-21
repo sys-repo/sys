@@ -1,9 +1,12 @@
-import type { t } from './common.ts';
+import { type t, isObject } from './common.ts';
+import { statusOK } from './u.ts';
 
 /**
  * Flags for the HTTP library.
  */
 export const Is: t.HttpIs = {
+  statusOK,
+
   netaddr(input: any): input is Deno.NetAddr {
     if (!isObject(input)) return false;
     const addr = input as Deno.NetAddr;
@@ -12,10 +15,3 @@ export const Is: t.HttpIs = {
     return typeof addr.hostname === 'string' && typeof addr.port === 'number';
   },
 } as const;
-
-/**
- * Helpers
- */
-export function isObject(input: any): input is object {
-  return typeof input === 'object' && input !== null;
-}

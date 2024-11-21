@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { Is } from './m.Err.Is.ts';
-import { Name } from './m.Err.Name.ts';
+import { Is } from './m.Is.ts';
+import { Name } from './m.Name.ts';
 import { errors } from './u.errors.ts';
 import { std } from './u.std.ts';
 import { catchError } from './u.catchError.ts';

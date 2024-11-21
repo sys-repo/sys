@@ -1,4 +1,4 @@
-import { type t, isObject } from './common.ts';
+import { type t, isRecord } from './common.ts';
 
 export const Is: t.ErrIs = {
   /**
@@ -6,7 +6,7 @@ export const Is: t.ErrIs = {
    * exposes a {message} property.
    */
   errorLike(input: any): input is t.ErrorLike {
-    if (!isObject(input)) return false;
+    if (!isRecord(input)) return false;
     if (input instanceof Error) return true;
     return typeof input.message === 'string';
   },
@@ -15,7 +15,7 @@ export const Is: t.ErrIs = {
    * Determine if the given value conforms to the [StdError] type.
    */
   stdError(input: any): input is t.StdError {
-    if (!isObject(input)) return false;
+    if (!isRecord(input)) return false;
     if (input instanceof Error) return false; // NB: system error (not yet converted to simple/serlializable [StdError] object.
     if (typeof input.message === 'string' && typeof input.name === 'string') {
       if (input.cause !== undefined && !Is.stdError(input.cause)) return false;

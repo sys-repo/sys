@@ -1,6 +1,6 @@
 import { type t, Delete, isObject } from './common.ts';
-import { Is } from './m.Err.Is.ts';
-import { Name } from './m.Err.Name.ts';
+import { Is } from './m.Is.ts';
+import { Name } from './m.Name.ts';
 
 /**
  * Take unknown input and produce a standard error object.
