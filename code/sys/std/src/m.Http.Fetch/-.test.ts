@@ -43,7 +43,7 @@ describe('Http.Fetch', () => {
       expect(res.data).to.eql(undefined);
 
       expect(res.error?.name).to.eql('HttpError');
-      expect(res.error?.message).to.include('HTTP:GET request failed');
+      expect(res.error?.message).to.include('HTTP/GET request failed');
       expect(res.error?.cause?.message).to.include('404 Not Found');
       expect(res.error?.headers).to.eql({ foo: 'bar' });
 

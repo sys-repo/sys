@@ -56,7 +56,7 @@ export const Fetch: t.HttpFetchLib = {
         if (cause) {
           const method = (options.method ?? 'GET').toUpperCase();
           const name = 'HttpError';
-          const message = `HTTP:${method} request failed: ${url}`;
+          const message = `HTTP/${method} request failed: ${url}`;
           const headers = toHeaders(options.headers);
           const base = Err.std(message, { name, cause });
           error = { ...base, status, statusText, headers };
