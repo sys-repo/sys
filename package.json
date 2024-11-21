@@ -3,7 +3,7 @@
     "@std/async": "npm:@jsr/std__async@1.0.5",
     "@std/cli": "npm:@jsr/std__cli@1.0.6",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
-    "@std/fmt": "npm:@jsr/std__fmt@1",
+    "@std/fmt": "npm:@jsr/std__fmt@^1.0.3",
     "@std/path": "npm:@jsr/std__path@1.0.6",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.3",
@@ -14,12 +14,12 @@
     "@types/react-dom": "18.3.1",
     "@swc/plugin-emotion": "4",
     "@vitejs/plugin-react-swc": "3",
-    "rollup": "4",
+    "rollup": "^4.27.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "vitepress": "1",
-    "vite": "5",
+    "vite": "^5.4.11",
     "vite-plugin-wasm": "3",
-    "vue": "3"
+    "vue": "^3.5.13"
   }
 }
