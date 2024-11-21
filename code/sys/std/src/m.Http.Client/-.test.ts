@@ -1,22 +1,28 @@
 import { Testing, describe, expect, it } from '../m.Testing.HttpServer/mod.ts';
+import { Http } from '../mod.ts';
 import { DEFAULTS } from './common.ts';
-import { Http } from './mod.ts';
+import { HttpClient } from './mod.ts';
 
 describe('Http.client', () => {
-  const ApplicationJson = DEFAULTS.contentType;
+  const JsonMimetype = DEFAULTS.contentType;
   const TestHttp = Testing.HttpServer;
+
+  it('API', () => {
+    expect(Http.Client).to.equal(HttpClient);
+    expect(Http.client).to.eql(HttpClient.create);
+  });
 
   describe('headers', () => {
     it('headers: (default)', () => {
       const client = Http.client();
-      expect(client.headers).to.eql({ 'Content-Type': ApplicationJson });
-      expect(client.header('Content-Type')).to.eql(ApplicationJson);
+      expect(client.headers).to.eql({ 'Content-Type': JsonMimetype });
+      expect(client.header('Content-Type')).to.eql(JsonMimetype);
     });
 
     it('header: authToken → headers:{ Authorization } ← Bearer Token', () => {
       const client1 = Http.client({ accessToken: 'my-jwt' });
       const client2 = Http.client({ accessToken: () => 'my-dynamic' });
-      expect(client1.header('Authorization')).to.eql(`Bearer ${'my-jwt'}`);
+      expect(client1.header('Authorization')).to.eql(`Bearer my-jwt`);
       expect(client2.header('Authorization')).to.eql('my-dynamic');
     });
 
@@ -37,7 +43,7 @@ describe('Http.client', () => {
       const client = Http.client({
         headers(e) {
           count++;
-          expect(e.get('Content-Type')).to.eql(ApplicationJson);
+          expect(e.get('Content-Type')).to.eql(JsonMimetype);
 
           e.set('x-foo', 123).set('x-bar', 'hello');
           expect(e.get('x-foo')).to.eql('123');

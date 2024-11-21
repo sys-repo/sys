@@ -16,6 +16,7 @@
     "./datetime": "./src/m.DateTime/mod.ts",
     "./error": "./src/m.Err/mod.ts",
     "./hash": "./src/m.Hash/mod.ts",
+    "./http": "./src/m.Http/mod.ts",
     "./id": "./src/m.Id/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",

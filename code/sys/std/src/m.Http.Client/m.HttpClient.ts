@@ -2,14 +2,14 @@ import { DEFAULTS, type t } from './common.ts';
 
 type O = Record<string, unknown>;
 type R = RequestInit;
-type C = t.HttpFetchClient;
-type Options = t.HttpFetchClientOptions;
+type C = t.HttpClient;
+type Options = t.HttpClientOptions;
 
 /**
  * An HTTP client
  * (utility shim over <fetch>).
  */
-export const Client: t.HttpClientLib = {
+export const HttpClient: t.HttpClientLib = {
   /**
    * HTTP client factory.
    */
@@ -20,7 +20,7 @@ export const Client: t.HttpClientLib = {
       return api.method(method, url, { ...options, body });
     };
 
-    const api: t.HttpFetchClient = {
+    const api: t.HttpClient = {
       get contentType() {
         return wrangle.contentType(options);
       },
@@ -49,7 +49,7 @@ export const Client: t.HttpClientLib = {
     };
     return api;
   },
-} as const;
+};
 
 /**
  * Helpers
@@ -76,7 +76,7 @@ const wrangle = {
     if (accessToken) headers['Authorization'] = accessToken;
 
     if (typeof options.headers === 'function') {
-      const payload: t.HttpFetchClientMutateHeadersArgs = {
+      const payload: t.HttpClientMutateHeadersArgs = {
         get headers() {
           return { ...headers };
         },
