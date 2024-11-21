@@ -100,15 +100,5 @@ export type HttpClientResponseOK<T extends O> = {
 export type HttpClientResponseErr = {
   readonly ok: false;
   readonly data?: undefined;
-  readonly error: t.HttpClientError;
-};
-
-/**
- * HTTP Error
- */
-export type HttpClientError = {
-  readonly ok: boolean;
-  readonly status: number;
-  readonly statusText: string;
-  readonly headers: t.HttpHeaders;
+  readonly error: t.HttpError;
 };

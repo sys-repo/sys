@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
-import { Http } from './mod.ts';
 import { Err } from '../m.Err/mod.ts';
+import { Http } from './mod.ts';
 
 describe('Http', () => {
   it('Http.toHeaders', () => {
@@ -10,12 +10,10 @@ describe('Http', () => {
     expect(Http.toHeaders(new Headers())).to.eql({});
   });
 
-  it('Http.toError', () => {});
-
   describe('Http.toError', () => {
     it('404: Not found', () => {
       const res = new Response('Not Found', { status: 404, statusText: 'Not Found' });
-      const err = Http.toError2(res);
+      const err = Http.toError(res);
       expect(Err.Is.stdError(err)).to.eql(true);
 
       expect(err?.message).to.eql(`404 Not Found`);
@@ -26,7 +24,7 @@ describe('Http', () => {
 
     it('Default message (no status text)', () => {
       const res = new Response('Not Found', { status: 500 });
-      const err = Http.toError2(res);
+      const err = Http.toError(res);
       expect(Err.Is.stdError(err)).to.eql(true);
 
       expect(err?.message).to.eql(`500 HTTP Error`);
@@ -36,15 +34,7 @@ describe('Http', () => {
 
     it('No error: 200 → <undefined>', () => {
       const res = new Response('Not Found', { status: 200 });
-      const err = Http.toError2(res);
-
-      console.log('err', err);
-      expect(err).to.eql(undefined);
-
-      //
-      /**
-       * TODO 🐷
-       */
+      expect(Http.toError(res)).to.eql(undefined);
     });
   });
 
@@ -65,9 +55,9 @@ describe('Http', () => {
       const res = await Http.toResponse(input);
       expect(res.ok).to.eql(false);
       expect(res.data).to.eql(undefined);
-      expect(res.error?.ok).to.eql(false);
       expect(res.error?.status).to.eql(404);
       expect(res.error?.statusText).to.eql('foo');
+      expect(res.error?.message).to.eql('404 foo');
       expect(res.error?.headers).to.eql({ 'content-type': 'text/plain;charset=UTF-8' });
     });
   });

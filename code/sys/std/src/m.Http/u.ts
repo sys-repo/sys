@@ -15,19 +15,9 @@ export function toHeaders(input: Headers): t.HttpHeaders {
 /**
  * Convert a web `Response` into the standard client HTTP error object.
  */
-export function toError(res: Response): t.HttpClientError {
-  const { ok, status, statusText } = res;
-  const headers = toHeaders(res.headers);
-  return { ok, status, statusText, headers };
-}
-
-/**
- * Convert a web `Response` into the standard client HTTP error object.
- */
-export function toError2(res: Response): t.HttpError | undefined {
+export function toError(res: Response): t.HttpError | undefined {
   const { status } = res;
   if (statusOK(status)) return undefined;
-
   const statusText = String(res.statusText).trim();
   const headers = toHeaders(res.headers);
   const msg = `${status} ${statusText || 'HTTP Error'}`;

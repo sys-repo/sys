@@ -29,10 +29,7 @@ export type HttpLib = {
   toHeaders(input: Headers): t.HttpHeaders;
 
   /** Convert a `Response` into an HTTP client error. */
-  toError(res: Response): t.HttpClientError;
-
-  /** Convert a `Response` into an HTTP client error. */
-  toError2(res: Response): t.HttpError | undefined;
+  toError(res: Response): t.HttpError | undefined;
 
   /** Convert a `Response` into a standard `HttpClientResponse` */
   toResponse<T extends O>(res: Response): Promise<t.HttpClientResponse<T>>;
