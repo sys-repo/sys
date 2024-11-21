@@ -20,7 +20,7 @@ export type FetchResponse<T> = {
   status: number;
   url: t.StringUrl;
   data?: T;
-  error?: t.StdError;
+  error?: t.HttpError;
 };
 
 /**

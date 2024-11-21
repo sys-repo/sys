@@ -1,24 +1,17 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { Err } from '../m.Err/mod.ts';
 import { Http } from './mod.ts';
 
 describe('Http', () => {
-  it('Http.toHeaders', () => {
-    const input = new Headers();
-    input.set('x-foo', 'foo');
-    expect(Http.toHeaders(input)).to.eql({ 'x-foo': 'foo' });
-    expect(Http.toHeaders(new Headers())).to.eql({});
-  });
-
   describe('Http.toError', () => {
     it('404: Not found', () => {
       const res = new Response('Not Found', { status: 404, statusText: 'Not Found' });
       const err = Http.toError(res);
       expect(Err.Is.stdError(err)).to.eql(true);
 
-      expect(err?.message).to.eql(`404 Not Found`);
       expect(err?.status).to.eql(404);
       expect(err?.statusText).to.eql('Not Found');
+      expect(err?.message).to.eql(`404 Not Found`);
       expect(err?.headers).to.eql({ 'content-type': 'text/plain;charset=UTF-8' });
     });
 
@@ -59,6 +52,34 @@ describe('Http', () => {
       expect(res.error?.statusText).to.eql('foo');
       expect(res.error?.message).to.eql('404 foo');
       expect(res.error?.headers).to.eql({ 'content-type': 'text/plain;charset=UTF-8' });
+    });
+  });
+
+  describe('Http.toHeaders', () => {
+    it('undefined → {}', () => {
+      expect(Http.toHeaders()).to.eql({});
+    });
+
+    it('{HttpHeaders} record → no change', () => {
+      const headers: t.HttpHeaders = { 'content-type': 'application/json', pkg: 'name@1.2.3' };
+      expect(Http.toHeaders(headers)).to.equal(headers);
+    });
+
+    it('from [Headers] object', () => {
+      const input = new Headers();
+      input.set('x-foo', 'foo');
+      expect(Http.toHeaders(input)).to.eql({ 'x-foo': 'foo' });
+      expect(Http.toHeaders(new Headers())).to.eql({});
+    });
+
+    it('from [string, string][] array', () => {
+      const a = Http.toHeaders([]);
+      const b = Http.toHeaders([
+        ['foo', 'xyz'],
+        ['bar', '123'],
+      ]);
+      expect(a).to.eql({});
+      expect(b).to.eql({ foo: 'xyz', bar: '123' });
     });
   });
 });

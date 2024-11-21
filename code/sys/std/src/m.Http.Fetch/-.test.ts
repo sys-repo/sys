@@ -29,20 +29,23 @@ describe('Http.Fetch', () => {
       await server.dispose();
     });
 
-    it('404: error', async () => {
+    it('404: error with headers', async () => {
       const life = rx.disposable();
       const server = TestHttp.server(() => TestHttp.error(404, 'Not Found'));
-
-      const url = server.url.base;
       const fetch = Fetch.disposable(life.dispose$);
 
-      const res = await fetch.json(url);
+      const url = server.url.base;
+      const headers = { foo: 'bar' };
+      const res = await fetch.json(url, { headers });
       expect(res.ok).to.eql(false);
       expect(res.status).to.eql(404);
       expect(res.url).to.eql(url);
       expect(res.data).to.eql(undefined);
+
       expect(res.error?.name).to.eql('HttpError');
-      expect(res.error?.message).to.include('404 Not Found');
+      expect(res.error?.message).to.include('HTTP:GET request failed');
+      expect(res.error?.cause?.message).to.include('404 Not Found');
+      expect(res.error?.headers).to.eql({ foo: 'bar' });
 
       await server.dispose();
     });
@@ -63,7 +66,9 @@ describe('Http.Fetch', () => {
       expect(res.url).to.eql(url);
       expect(res.data).to.eql(undefined);
       expect(res.error?.name).to.eql('HttpError');
-      expect(res.error?.message).to.include('Fetch operation disposed of before completing (499)');
+      expect(res.error?.cause?.message).to.include(
+        'Fetch operation disposed of before completing (499)',
+      );
 
       expect(fetch.disposed).to.eql(true);
       await server.dispose();

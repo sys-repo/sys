@@ -76,7 +76,7 @@ const wrangle = {
     if (accessToken) headers['Authorization'] = accessToken;
 
     if (typeof options.headers === 'function') {
-      const payload: t.HttpClientMutateHeadersArgs = {
+      const payload: t.HttpMutateHeadersArgs = {
         get headers() {
           return { ...headers };
         },

@@ -58,18 +58,18 @@ export type HttpClient = {
 export type HttpClientOptions = {
   accessToken?: t.StringJwt | (() => t.StringJwt);
   contentType?: t.StringContentType | (() => t.StringContentType);
-  headers?: t.HttpClientMutateHeaders;
+  headers?: t.HttpMutateHeaders;
 };
 
 /**
  * Handler that safely "mutates" client headers within a fetch client.
  */
-export type HttpClientMutateHeaders = (e: HttpClientMutateHeadersArgs) => void;
+export type HttpMutateHeaders = (e: HttpMutateHeadersArgs) => void;
 
 /**
  * Argyments for the Header mutation handler.
  */
-export type HttpClientMutateHeadersArgs = {
+export type HttpMutateHeadersArgs = {
   /** HTTP headers. */
   readonly headers: t.HttpHeaders;
 
@@ -77,28 +77,5 @@ export type HttpClientMutateHeadersArgs = {
   get(name: string): t.StringHttpHeader;
 
   /** Mutate: set a new header value. */
-  set(name: string, value: string | number | null): HttpClientMutateHeadersArgs;
-};
-
-/**
- * Client Response
- */
-export type HttpClientResponse<T extends O> = HttpClientResponseOK<T> | HttpClientResponseErr;
-
-/**
- * A fetch client response that was successful (200).
- */
-export type HttpClientResponseOK<T extends O> = {
-  readonly ok: true;
-  readonly data: T;
-  readonly error?: undefined;
-};
-
-/**
- * A fetch client response that has error'd.
- */
-export type HttpClientResponseErr = {
-  readonly ok: false;
-  readonly data?: undefined;
-  readonly error: t.HttpError;
+  set(name: string, value: string | number | null): HttpMutateHeadersArgs;
 };

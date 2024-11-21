@@ -26,13 +26,13 @@ export type HttpLib = {
   readonly client: t.HttpClientLib['create'];
 
   /** Convert `Headers` into a simple headers object */
-  toHeaders(input: Headers): t.HttpHeaders;
+  toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
 
   /** Convert a `Response` into an HTTP client error. */
-  toError(res: Response): t.HttpError | undefined;
+  toError(input: Response): t.HttpError | undefined;
 
   /** Convert a `Response` into a standard `HttpClientResponse` */
-  toResponse<T extends O>(res: Response): Promise<t.HttpClientResponse<T>>;
+  toResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
 };
 
 /**
