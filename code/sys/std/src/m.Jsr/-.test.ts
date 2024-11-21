@@ -91,7 +91,10 @@ describe('Jsr', () => {
       const res = await promise;
       expect(res.status).to.eql(499);
       expect(res.data).to.eql(undefined);
-      expect(res.error?.message).to.include('Fetch operation disposed of before completing (499)');
+
+      expect(res.error?.message).to.include('HTTP:GET request failed');
+      expect(res.error?.message).to.include('https://jsr.io/@sys/std/meta.json');
+      expect(res.error?.cause?.message).to.include('disposed of before completing (499)');
     });
   });
 
