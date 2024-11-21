@@ -31,7 +31,7 @@ export type HttpLib = {
   /** Convert a `Response` into an HTTP client error. */
   toError(input: Response): t.HttpError | undefined;
 
-  /** Convert a `Response` into a standard `HttpClientResponse` */
+  /** Convert a `Response` into a standard HTTP fetch response. */
   toResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
 };
 
