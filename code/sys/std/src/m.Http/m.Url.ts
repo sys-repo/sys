@@ -1,6 +1,6 @@
 import type { t } from '../common/mod.ts';
 import { Path } from '../m.Path/mod.ts';
-import { Is } from './u.Is.ts';
+import { Is } from './m.Is.ts';
 
 /**
  * Helpers for a URL used within an HTTP fetch client.

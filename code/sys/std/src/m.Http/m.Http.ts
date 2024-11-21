@@ -1,8 +1,8 @@
+import { HttpClient as Client } from '../m.Http.Client/mod.ts';
 import { Fetch } from '../m.Http.Fetch/mod.ts';
 import type { t } from './common.ts';
-import { HttpClient as Client } from '../m.Http.Client/mod.ts';
-import { HttpUrl as Url } from './u.Http.Url.ts';
-import { Is } from './u.Is.ts';
+import { Is } from './m.Is.ts';
+import { HttpUrl as Url } from './m.Url.ts';
 import { toError, toHeaders, toResponse } from './u.ts';
 
 /**
