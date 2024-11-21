@@ -1,7 +1,8 @@
 import type { t } from './common.ts';
 
 /**
- * The standard named error types.
+ * The standard named error types (JS).
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors
  */
 export const Name: t.ErrNameLib = {
   error: 'Error',
