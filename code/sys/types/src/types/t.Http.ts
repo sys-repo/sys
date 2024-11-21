@@ -15,12 +15,24 @@ export type HttpHeaders = {
 /**
  * Response from an HTTP fetch request.
  */
-export type FetchResponse<T> = {
-  ok: boolean;
+export type FetchResponse<T> = FetchResponseOK<T> | FetchResponseFail;
+
+/** The success version of an HTTP `FetchResponse`. */
+export type FetchResponseOK<T> = {
+  ok: true;
   status: number;
   url: t.StringUrl;
-  data?: T;
-  error?: t.HttpError;
+  data: T;
+  error: undefined;
+};
+
+/** The failure version of an HTTP `FetchResponse`. */
+export type FetchResponseFail = {
+  ok: false;
+  status: number;
+  url: t.StringUrl;
+  data: undefined;
+  error: t.HttpError;
 };
 
 /**

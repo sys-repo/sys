@@ -64,7 +64,7 @@ export const Fetch: t.HttpFetchLib = {
 
         // Finish up.
         const ok = !cause;
-        return { ok, status, url, data, error };
+        return { ok, status, url, data, error } as t.FetchResponse<T>;
       },
 
       /**
