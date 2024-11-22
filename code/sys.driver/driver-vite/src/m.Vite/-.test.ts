@@ -1,13 +1,9 @@
 import { c, describe, expect, Fs, it, pkg, Testing, Time, type t } from '../-test.ts';
 import { ViteConfig } from '../mod.ts';
+import { INPUT } from './-u.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite', () => {
-  const INPUT = {
-    sample1: './src/-test/vite.sample-1/index.html',
-    sample2: './src/-test/vite.sample-2/index.html',
-  } as const;
-
   it('Vite.Config', () => {
     expect(Vite.Config).to.equal(ViteConfig);
   });
@@ -70,6 +66,12 @@ describe('Vite', () => {
       const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
       logDist(input, res.dist);
+    });
+
+    it.only('sample-3: main.ts entry point', async () => {
+      const input = INPUT.sample3;
+      const { res, files } = await testBuild(input);
+      console.log('res', res);
     });
   });
 
