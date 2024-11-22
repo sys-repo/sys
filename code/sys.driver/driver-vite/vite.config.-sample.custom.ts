@@ -1,9 +1,8 @@
 // deno-lint-ignore-file no-unreachable
 import { Vite } from '@sys/driver-vite';
+import { c } from '@sys/std-s';
 import { defineConfig } from 'vite';
 import { pkg } from './src/pkg.ts';
-
-import { c } from '@sys/std-s';
 
 /**
  * SAMPLE: Custom plugin (no customization).

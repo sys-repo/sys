@@ -10,7 +10,6 @@ export const build: B = async (input) => {
   const { silent = true, pkg } = input;
   const { env, cmd, args, paths } = Wrangle.command(input, 'build');
   const timer = Time.timer();
-
   const output = await Cmd.invoke({ args, env, silent });
   const ok = output.success;
 
@@ -52,22 +51,7 @@ export const build: B = async (input) => {
  */
 const wrangle = {
   async entryPath(dist: t.StringDir) {
-    const path = Fs.join(dist, 'index.html');
-
-    if (!(await Fs.exists(path))) {
-      const placeholder = `Placeholder`;
-      await Fs.ensureDir(Fs.dirname(path));
-      await Deno.writeTextFile(path, placeholder);
-    }
-
-    const html = await Deno.readTextFile(path);
-    const lines = html.split('\n');
-    const script = lines.find((line) => line.includes('src="./pkg/-entry.'));
-    return wrangle.src(script);
-  },
-
-  src(text: string = '') {
-    const match = text.match(/src="([^"]*)"/);
-    return match ? match[1] : '';
+    const paths = await Fs.glob(dist).find('pkg/-entry.*');
+    return paths[0]?.name ?? '';
   },
 } as const;
