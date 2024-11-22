@@ -5,7 +5,7 @@ import type { DefaultTheme } from 'vitepress';
  * Left sidebar navigation.
  *
  * Documentation:
- * https://vitepress.dev/guide/getting-started
+ * https://vitepress.dev/reference/default-theme-sidebar
  */
 export const sidebar: DefaultTheme.Sidebar = [
   {
