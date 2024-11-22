@@ -12,6 +12,7 @@ export default defineConfig(() => {
     pkg,
     react: true, // ← (default)
     wasm: true, //  ← (default)
+    // workspace: false,
 
     /**
      * ƒ(🌳): Filter to apply to the workspace modules
