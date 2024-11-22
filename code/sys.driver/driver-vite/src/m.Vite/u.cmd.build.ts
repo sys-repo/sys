@@ -52,6 +52,7 @@ export const build: B = async (input) => {
 const wrangle = {
   async entryPath(dist: t.StringDir) {
     const paths = await Fs.glob(dist).find('pkg/-entry.*');
-    return paths[0]?.name ?? '';
+    const filename = paths[0]?.name ?? '';
+    return filename ? `./pkg/${filename}` : '';
   },
 } as const;

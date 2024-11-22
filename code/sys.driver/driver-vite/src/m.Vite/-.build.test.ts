@@ -8,9 +8,6 @@ describe('Vite.build', () => {
     const res = await Vite.build({ pkg, input, outDir });
     const { paths } = res;
 
-    console.log('res', res);
-    console.log('res.toString()', res.toString());
-
     expect(res.ok).to.eql(true);
     expect(res.cmd.input).to.include('deno run');
     expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
@@ -21,12 +18,17 @@ describe('Vite.build', () => {
     const hasPkg = keys.some((key) => key.startsWith('./pkg/-pkg.json'));
     expect(hasPkg).to.eql(true);
 
-    // Ensure the HTML file exists.
-    const html = await Deno.readTextFile(Fs.join(outDir, 'index.html'));
+    // Load file outputs.
+    const readFile = async (path: string) => {
+      return (await Fs.exists(path)) ? Deno.readTextFile(path) : '';
+    };
     const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
+    const html = await readFile(Fs.join(outDir, 'index.html'));
+    const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
+
     return {
       input,
-      files: { html, distJson },
+      files: { html, distJson, entry },
       paths,
       res,
     } as const;
@@ -51,6 +53,7 @@ describe('Vite.build', () => {
     expect(res.dist).to.eql(files.distJson);
     expect(res.dist.pkg).to.eql(pkg);
     expect(res.dist.size.bytes).to.be.greaterThan(160_000);
+    expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
 
     logDist(input, res.dist);
   });
@@ -62,9 +65,9 @@ describe('Vite.build', () => {
     logDist(input, res.dist);
   });
 
-  it.only('sample-3: main.ts entry point', async () => {
+  it('sample-3: main.ts entry point', async () => {
     const input = INPUT.sample3;
-    const { res, files } = await testBuild(input);
-    console.log('res', res);
+    const { files } = await testBuild(input);
+    expect(files.entry).to.includes('console.info("main.ts")');
   });
 });
