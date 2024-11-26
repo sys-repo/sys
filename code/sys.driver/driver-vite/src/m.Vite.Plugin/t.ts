@@ -24,15 +24,14 @@ export type VitePluginLib = {
 };
 
 export type CommonPluginsOptions = t.WorkspacePluginOptions & {
-  /**
-   * Flag indicating if the "react+swc" plugin whould be included.
-   */
+  /** Flag indicating if the "react+swc" plugin whould be included. */
   react?: boolean;
 
-  /**
-   * Flag indicating if the "wasm" plugin whould be included.
-   */
+  /** Flag indicating if the "wasm" plugin whould be included. */
   wasm?: boolean;
+
+  /** Flag indicating if the workspace plugin should be loaded (default:true). */
+  workspace?: boolean;
 };
 
 /**

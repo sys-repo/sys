@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export type ErrorGeneratorInput = unknown;
+export type ErrorGeneratorInput = unknown | Response;
 
 /**
  * Helpers for working with errors.
@@ -18,7 +18,21 @@ export type ErrLib = {
    * Create a new error collection builder.
    */
   errors(): t.ErrorCollection;
+
+  /**
+   * Principled way to handle try/catch/(error) execution
+   * on async functions avoiding the proliferation of
+   * try/catch statements.
+   */
+  catch<T>(promise: Promise<T>): Promise<t.ErrCatch<T>>;
 };
+
+/**
+ * The response (and/or error) from an [Err.catch] method call.
+ */
+export type ErrCatch<T> = ErrCatchSuccess<T> | ErrCatchFail<T>;
+export type ErrCatchSuccess<T> = { ok: true; data: T; error: undefined };
+export type ErrCatchFail<T> = { ok: false; data?: T; error: t.StdError };
 
 /**
  * Options passed to the `ErrLib.stdErr` method.

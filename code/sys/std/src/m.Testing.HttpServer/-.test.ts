@@ -53,4 +53,11 @@ describe('Testing.HttpServer', () => {
     expect(await res.text()).to.eql('foobar');
     await server.dispose();
   });
+
+  it('response: error', () => {
+    const res = Http.error(404, 'Not Found');
+    expect(res.ok).to.eql(false);
+    expect(res.status).to.eql(404);
+    expect(res.statusText).to.eql('Not Found');
+  });
 });

@@ -15,7 +15,7 @@ export const retry: R = async (...args: any[]) => {
   for (let attempt = 1; attempt <= times; attempt++) {
     try {
       await fn();
-      return; // Success → (exit now) → 🌳
+      return; // Success → (exit now) → 🌳.
     } catch (error) {
       /**
        * FAILURE → retry.

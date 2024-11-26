@@ -19,8 +19,10 @@ export const commonPlugins: t.VitePluginLib['common'] = async (options = {}) => 
   // Root workspace and build configuration.
   // NB: The default build options are configrued within
   //     the workspace plugin.
-  const ws = await workspacePlugin(options);
-  plugins.push(ws);
+  if (options.workspace ?? true) {
+    const ws = await workspacePlugin(options);
+    plugins.push(ws);
+  }
 
   // WASM support.
   if (options.wasm ?? true) {

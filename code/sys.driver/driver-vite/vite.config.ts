@@ -17,8 +17,8 @@
  */
 
 // deno-lint-ignore-file  no-unused-vars verbatim-module-syntax
-import common from './vite.config.-sample.common.ts';
+import simple from './vite.config.-sample.simple.ts';
 import custom from './vite.config.-sample.custom.ts';
 
-// export default common;
+// export default simple;
 export default custom;

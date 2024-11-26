@@ -17,13 +17,13 @@ export type DenoCloudClientOptions = { accessToken?: t.StringJwt };
 export type DenoCloudClient = {
   readonly url: t.HttpUrl;
   readonly subhosting: DenoCloudClientSubhosting;
-  info(): Promise<t.HttpClientResponse<t.RootResponse>>;
+  info(): Promise<t.FetchResponse<t.RootResponse>>;
 };
 
 /**
  * HTTP client for the subhosting deployment cloud.
  */
 export type DenoCloudClientSubhosting = {
-  info(): Promise<t.HttpClientResponse<t.SubhostingInfo>>;
-  projects(): Promise<t.HttpClientResponse<t.SubhostingProjectsInfo>>;
+  info(): Promise<t.FetchResponse<t.SubhostingInfo>>;
+  projects(): Promise<t.FetchResponse<t.SubhostingProjectsInfo>>;
 };

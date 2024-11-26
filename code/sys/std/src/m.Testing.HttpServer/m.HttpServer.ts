@@ -17,7 +17,11 @@ export const TestHttpServer: t.TestHttpServer = {
     const { body, headers } = wrangle.args(args, 'plain/text');
     return new Response(String(body), { headers });
   },
-} as const;
+
+  error(status, statusText) {
+    return new Response(null, { status, statusText });
+  },
+};
 
 /**
  * Helpers

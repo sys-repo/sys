@@ -16,10 +16,6 @@ export function resolve<T>(root: unknown | unknown[], path: t.ObjectPath): T | u
   return current;
 }
 
-export function isObject(input: any): input is object {
-  return input !== null && typeof input === 'object';
-}
-
 export const Validate = {
   rootParam(root: unknown) {
     if (typeof root !== 'object' || root === null) throw new Error('root is not an object');
