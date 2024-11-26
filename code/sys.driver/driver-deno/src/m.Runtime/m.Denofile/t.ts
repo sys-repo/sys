@@ -38,6 +38,7 @@ export type DenofileJson = {
   licence?: string;
   tasks?: Record<string, string>;
   importMap?: t.StringPath;
+  imports?: Record<string, string>;
   exports?: Record<string, string>;
   workspace?: t.StringPath[];
 };

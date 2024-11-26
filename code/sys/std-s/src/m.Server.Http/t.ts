@@ -19,6 +19,7 @@ export type HttpServerLib = {
   create(options?: t.HttpServerCreateOptions): HonoApp;
   options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
   print(addr: Deno.NetAddr, pkg?: t.Pkg, hash?: t.StringHash): void;
+  keyboard(args: { port: number; dispose?: () => Promise<void> }): Promise<void>;
 };
 
 /** Options passed to the creation of a server. */
@@ -26,7 +27,7 @@ export type HttpServerCreateOptions = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
   cors?: boolean;
-  static?: boolean;
+  static?: boolean | t.StringDir | [t.StringUrlRoute, t.StringDir];
 };
 
 /**

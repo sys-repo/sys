@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 import { Bdd, slug } from './common.ts';
-import { retry } from './u.retry.ts';
-import { randomPort } from './u.ts';
+import { randomPort, retry } from './u.ts';
 
 /**
  * Testing helpers.

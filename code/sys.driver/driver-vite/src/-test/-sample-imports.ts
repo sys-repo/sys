@@ -31,7 +31,9 @@ const now = new Date();
  * Namespace: @sys
  */
 console.group('🌳 import: @sys/std');
-import { Args, D, IndexedDb, Path, Time, rx, Semver } from '@sys/std';
+import { Args, D, IndexedDb, Path, Time, rx } from '@sys/std';
+import { Semver } from '@sys/std/semver';
+import { Jsr } from '@sys/std/jsr';
 import { Str } from '@sys/text';
 
 console.info('@sys/std:rx', rx);
@@ -39,10 +41,12 @@ console.info('@sys/std:Path', Path);
 console.info('@sys/std:D (Date)', D, `"${D.format(now, 'E MMM do, yyyy')}"`);
 console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parsed:', Args.parse(['--foo', '--bar=baz', './file.txt']));
-console.info('@sys/std:Semver', Semver, Semver.parse('1.2.3'));
 console.info('@sys/std:IndexedDb', IndexedDb);
 console.info('@sys/text:Str', Str);
 console.info('@sys/text:Str.bytes', `"${Str.bytes(1337)}"`);
+console.log();
+console.info('@sys/std/jsr', Jsr);
+console.info('@sys/std/semver', Semver, Semver.parse('1.2.3'));
 console.groupEnd();
 
 /**

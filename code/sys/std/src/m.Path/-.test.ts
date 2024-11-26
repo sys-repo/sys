@@ -17,14 +17,24 @@ describe('Path', () => {
   });
 
   describe('Path.Is', () => {
+    const Is = Path.Is;
+
     it('Is.absolute', () => {
-      expect(Path.Is.absolute('/foo/bar')).to.eql(true);
-      expect(Path.Is.absolute('./foo/bar')).to.eql(false);
+      expect(Is.absolute('/foo/bar')).to.eql(true);
+      expect(Is.absolute('./foo/bar')).to.eql(false);
+      expect(Is.absolute('foo/bar')).to.eql(false);
+    });
+
+    it('Is.relative', () => {
+      // NB: the oppsotive of Is.absolute
+      expect(Is.relative('/foo/bar')).to.eql(false);
+      expect(Is.relative('./foo/bar')).to.eql(true);
+      expect(Is.relative('foo/bar')).to.eql(true);
     });
 
     it('Is.glob', () => {
-      expect(Path.Is.glob('**/foo.*')).to.eql(true);
-      expect(Path.Is.glob('./foo/bar')).to.eql(false);
+      expect(Is.glob('**/foo.*')).to.eql(true);
+      expect(Is.glob('./foo/bar')).to.eql(false);
     });
   });
 });

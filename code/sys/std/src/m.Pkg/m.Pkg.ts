@@ -13,13 +13,14 @@ export const Pkg: t.PkgLib = {
     return `${name}@${version}`;
   },
 
-  fromJson(input) {
+  fromJson(input, defName, defVersion) {
     const UNKNOWN = DEFAULTS.UNKNOWN;
     if (!isObject(input)) return UNKNOWN;
 
     const pkg = input as t.Pkg;
-    const name = typeof pkg.name === 'string' ? pkg.name : UNKNOWN.name;
-    const version = typeof pkg.version === 'string' ? pkg.version : UNKNOWN.version;
+    const name = typeof pkg.name === 'string' ? pkg.name : defName ?? UNKNOWN.name;
+    const version = typeof pkg.version === 'string' ? pkg.version : defVersion ?? UNKNOWN.version;
+
     return { name, version };
   },
 

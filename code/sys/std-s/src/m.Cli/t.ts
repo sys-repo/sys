@@ -9,6 +9,7 @@ import type {
   Toggle,
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
+import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 
 import type { ArgsLib, ValueLib, PathLib, PathFormatLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
@@ -18,65 +19,47 @@ import type { t } from './common.ts';
  * Tools for CLI's (command-line-interface).
  */
 export type CliLib = {
-  /**
-   * Argument parsing helpers
-   */
+  /** Argument parsing helpers */
   readonly Args: ArgsLib;
 
-  /**
-   * Tools for for working with string paths.
-   */
+  /** Tools for for working with string paths. */
   readonly Path: PathLib;
 
-  /**
-   * Tools for working with CLI tables.
-   */
+  /** Tools for working with CLI tables. */
   readonly Table: t.CliTableLib;
 
-  /**
-   * Tools for working with a CLI spinner.
-   */
+  /** Tools for working with a CLI spinner. */
   readonly Spinner: t.CliSpinnerLib;
 
-  /**
-   * Tools for working on strings of text.
-   */
+  /** Tools for working on strings of text. */
   readonly Value: ValueLib;
 
-  /**
-   * Common formatting heleprs.
-   */
+  /** Common formatting heleprs. */
   readonly Format: t.CliFormatLib;
 
-  /**
-   * Parse command-line argments into an object (argv).
-   */
-  args: ArgsLib['parse'];
+  /** Tools for working with the keyboard within a CLI. */
+  readonly Keyboard: t.CliKeyboardLib;
 
-  /**
-   * Create a new Table generator instance.
-   */
-  table: t.CliTableLib['create'];
-
-  /**
-   * Create (and start) a new spinner instance.
-   */
-  spinner: t.CliSpinnerLib['create'];
-
-  /**
-   * Wait for the specified milliseconds.
-   */
-  wait: t.TimeLib['wait'];
-
-  /**
-   * Index of input prompts
-   */
+  /** Index of input prompts */
   readonly Prompts: t.CliPromptsLib;
 
-  /**
-   * Boolean: Yes/No confirmation.
-   */
+  /** Parse command-line argments into an object (argv). */
+  args: ArgsLib['parse'];
+
+  /** Create a new Table generator instance. */
+  table: t.CliTableLib['create'];
+
+  /** Create (and start) a new spinner instance. */
+  spinner: t.CliSpinnerLib['create'];
+
+  /** Wait for the specified milliseconds. */
+  wait: t.TimeLib['wait'];
+
+  /** Boolean: Yes/No confirmation. */
   confirm: t.CliPromptsLib['Confirm']['prompt'];
+
+  /** Listen to keypress events. */
+  keypress: t.CliKeyboardLib['keypress'];
 };
 
 /**
@@ -152,4 +135,23 @@ export type CliFormatLib = {
    * Path display formatting.
    */
   path: PathFormatLib['string'];
+};
+
+/**
+ * Tools for working with the keyboard within a CLI.
+ */
+export type CliKeyboardLib = {
+  /**
+   * Listen to keypress events.
+   *
+   * @example
+   * ```ts
+   * for await (const e of Cli.keypress()) {
+   *   if (e.key === 'o' && e.ctrlKey) {
+   *      ...
+   *   }
+   * }
+   * ```
+   */
+  readonly keypress: typeof CliffyKeypress;
 };

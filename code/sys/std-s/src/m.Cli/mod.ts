@@ -32,5 +32,15 @@
  * table.render();
  * ```
  */
-export { Cli } from './m.Cli.ts';
+import { Cli } from './m.Cli.ts';
+
 export { Format } from './m.Format.ts';
+export { Keyboard } from './m.Keyboard.ts';
+export { Prompts } from './m.Prompts.ts';
+export { Spinner } from './m.Spinner.ts';
+export { Table } from './m.Table.ts';
+
+export { c } from '../m.Fmt/mod.ts';
+export { Cli };
+
+export default Cli;

@@ -1,0 +1,2020 @@
+{
+  "slugs": [
+    {
+      "kind": "slug:namespace",
+      "namespace": "intro",
+      "title": "Introduction"
+    },
+    {
+      "id": "intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.653,
+      "title": "SLC Innovation Programme",
+      "video": {
+        "innerScale": 1.1,
+        "src": {
+          "id": "851209192",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258671853-81ef82e9-c2c0-4d59-a0e4-806c3a889cca.png",
+            "start": 0
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258659458-ca448cab-383c-4170-80ba-d55e3c83a312.png",
+            "start": 64
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro.programme",
+      "kind": "slug:VideoDiagram",
+      "split": 0.717,
+      "title": "About This Programme",
+      "video": {
+        "innerScale": 1.1,
+        "src": {
+          "id": "851211170",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258672044-788b5fda-85af-447c-8651-ce8b1030eda3.png",
+            "start": 0
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258672166-576b41d7-dfa8-4b3f-9960-7bedbb188d54.png",
+            "start": 94
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258673262-d1314e2f-ed07-4ec1-a746-457cfe2ccff8.png",
+            "start": 116
+          }
+        ]
+      }
+    },
+    {
+      "id": "intro.canvas",
+      "kind": "slug:VideoDiagram",
+      "split": 0.653,
+      "title": "How to Use The Canvas",
+      "video": {
+        "innerScale": 1.05,
+        "src": {
+          "id": "851212258",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258673999-724e767c-560e-46fc-9868-ec9763cbb6b7.png",
+            "start": 0
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258673947-c35bbfd9-e1a4-4974-bcf1-be970365b69d.png",
+            "start": 14
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258673948-93447543-e794-42da-95e4-e47d5d1aa4ad.png",
+            "start": 21
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258673999-724e767c-560e-46fc-9868-ec9763cbb6b7.png",
+            "start": 45
+          },
+          {
+            "src": "https://user-images.githubusercontent.com/185555/258672166-576b41d7-dfa8-4b3f-9960-7bedbb188d54.png",
+            "start": 122
+          }
+        ]
+      }
+    },
+    {
+      "id": "purpose",
+      "kind": "slug:VideoDiagram",
+      "split": 0.68,
+      "title": "Purpose",
+      "video": {
+        "innerScale": 1.01,
+        "src": {
+          "id": "577945255",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.6,
+            "src": "https://user-images.githubusercontent.com/185555/258676537-1f72bdfd-2c67-4286-aac8-b489204ba79e.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "customermodel",
+      "title": "Customer Model"
+    },
+    {
+      "id": "customermodel.overview",
+      "kind": "slug:VideoDiagram",
+      "split": 0.64,
+      "title": "Customers",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577933592",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "start": 0,
+            "scale": 0.6,
+            "src": "https://user-images.githubusercontent.com/185555/259265555-11f11af7-d993-4e81-bac6-d88fdcd315ad.png"
+          },
+          {
+            "start": 0,
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/259265623-95af98f0-e9b0-470f-b3df-d67075b79369.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.customers.1",
+      "kind": "slug:VideoDiagram",
+      "split": 0.693,
+      "title": "Customers (One)",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577928799",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258678843-72027c74-17f4-450c-806f-d4aeae158931.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.customers.2",
+      "kind": "slug:VideoDiagram",
+      "title": "Customers (Two)",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577928965",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258678843-72027c74-17f4-450c-806f-d4aeae158931.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.customers.earlyadopters",
+      "kind": "slug:VideoDiagram",
+      "title": "Early Adopters",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577929214",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258678843-72027c74-17f4-450c-806f-d4aeae158931.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.jobs",
+      "kind": "slug:VideoDiagram",
+      "title": "Jobs to be Done",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577933180",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258679138-f1f61d51-9803-4928-bbe5-790153e578eb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.jobs.existingalternatives",
+      "kind": "slug:VideoDiagram",
+      "title": "Existing Alternatives ",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577933435",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258679138-f1f61d51-9803-4928-bbe5-790153e578eb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.uvp",
+      "kind": "slug:VideoDiagram",
+      "title": "Unique Value Proposition",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577937937",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258679207-83301cb2-c07b-44a5-9178-0485f3679b8a.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.solution",
+      "kind": "slug:VideoDiagram",
+      "title": "Solution",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577937777",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258679288-5920e11b-331c-4158-87d4-b8bb8af5516b.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.677,
+      "title": "Example",
+      "video": {
+        "innerScale": 1.01,
+        "src": {
+          "id": "577929636",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258687717-9d34a221-1610-4a55-9157-a5a943fcfc9a.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.customers",
+      "kind": "slug:VideoDiagram",
+      "split": 0.683,
+      "title": "Example: Customers",
+      "video": {
+        "innerScale": 1.03,
+        "src": {
+          "id": "577929426",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258688907-9c1fd4ba-4727-41b0-9ce7-5407debed3c0.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258688921-347fbf6d-ad69-4157-855f-7457b38f8cc1.png",
+            "start": 8
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258688923-88d5ac08-5788-4734-8e46-78bf5b931f13.png",
+            "start": 35
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.jobs",
+      "kind": "slug:VideoDiagram",
+      "split": 0.687,
+      "title": "Example: Jobs to be Done ",
+      "video": {
+        "innerScale": 1.03,
+        "src": {
+          "id": "577929737",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258690425-71eb6113-1541-48ae-b094-1f262fac6ac7.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258690432-e19aabbb-d9e1-4260-8cd0-0e483b52a2e4.png",
+            "start": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.UVP",
+      "kind": "slug:VideoDiagram",
+      "split": 0.71,
+      "title": "Example: UVP",
+      "video": {
+        "innerScale": 1.03,
+        "src": {
+          "id": "577933078",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "start": 0,
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258691202-19b6d32a-f225-4802-8b2c-2665c929fe46.png"
+          },
+          {
+            "start": 5,
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258691209-4d84be14-65c9-4d7e-a49f-eb81657f2e45.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.solution",
+      "kind": "slug:VideoDiagram",
+      "split": 0.713,
+      "title": "Example: Solution",
+      "video": {
+        "innerScale": 1.03,
+        "src": {
+          "id": "577932985",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258691728-1e92ad06-cfd1-4eb1-b9cb-6d740485a09a.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258691726-7e690b29-77d4-47f1-bc9f-65cef6f4860b.png",
+            "start": 17
+          }
+        ]
+      }
+    },
+    {
+      "id": "customermodel.example.FB.conclusion",
+      "kind": "slug:VideoDiagram",
+      "split": 0.707,
+      "title": "Example: Conclusion",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577929355",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258693837-92bb4005-ff1d-4654-85f3-b51feedebdeb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "impactmodel",
+      "title": "Impact Model"
+    },
+    {
+      "id": "impactmodel.overview",
+      "kind": "slug:VideoDiagram",
+      "split": 0.687,
+      "title": "Impact Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955565",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683136-72156ccf-9cf7-404c-9251-9e6ca40cb646.png",
+            "start": 0
+          },
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683177-16ad8903-e263-4f5b-b7d2-7604fcadbe70.png",
+            "start": 15
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.overview.context",
+      "kind": "slug:VideoDiagram",
+      "title": "Context",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955697",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683323-e5282930-acbd-44f5-ae4c-b787da4a4202.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.overview.disclaimer",
+      "kind": "slug:VideoDiagram",
+      "title": "Just One Approach ",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955864",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683323-e5282930-acbd-44f5-ae4c-b787da4a4202.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.issue",
+      "kind": "slug:VideoDiagram",
+      "split": 0.723,
+      "title": "Issue",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955305",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683421-76d6631a-78a0-47b1-8743-f6d19382a2ce.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.participants",
+      "kind": "slug:VideoDiagram",
+      "split": 0.733,
+      "title": "Participants",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955976",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "start": 0,
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/259269324-ef25251c-b135-41f9-9fe9-520c9383ae30.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.activities",
+      "kind": "slug:VideoDiagram",
+      "split": 0.69,
+      "title": "Activities",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577943744",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683501-35f87ff3-f808-4c3b-9ce2-46b24f061ce1.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.shorttermoutcomes",
+      "kind": "slug:VideoDiagram",
+      "split": 0.74,
+      "title": "Short Term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577956096",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683528-dc5670e3-d1c9-45dc-ad2d-845e7dcd51e9.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.mediumtermoutcomes",
+      "kind": "slug:VideoDiagram",
+      "split": 0.71,
+      "title": "Medium Term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955482",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683755-32d9afc4-6f62-483f-b0ef-41dd1f838d84.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.longtermoutcomes",
+      "kind": "slug:VideoDiagram",
+      "split": 0.733,
+      "title": "Long Term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955408",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683790-74900d97-7d28-4729-817b-686ef9932db3.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.impact",
+      "kind": "slug:VideoDiagram",
+      "title": "Impact  ",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577955192",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258683884-a2649ae6-1205-425c-b082-b3e0d4d9335d.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.intro",
+      "kind": "slug:VideoDiagram",
+      "title": "Example",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944077",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258694530-1ad84605-ef8a-4d46-b2a9-8e96b1f4c9b1.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.issue",
+      "kind": "slug:VideoDiagram",
+      "split": 0.733,
+      "title": "Example: Issue",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944185",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258694807-54af1d7e-1198-40e4-a524-5a4d051351c0.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.participants",
+      "kind": "slug:VideoDiagram",
+      "split": 0.753,
+      "title": "Example: Participants",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944806",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "start": 0,
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/259268593-2651e155-e1c2-484b-aa9b-6783971180f9.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.activities",
+      "kind": "slug:VideoDiagram",
+      "split": 0.763,
+      "title": "Example: Activities",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577943848",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258695530-ed1df6d6-4b79-48bd-b0c7-ff37b4fab1bb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.shorttermoutcomesI",
+      "kind": "slug:VideoDiagram",
+      "split": 0.75,
+      "title": "Example: Short-term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944940",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258697747-108503dd-d81b-495e-b750-66bf68709120.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.mediumtermoutcomes",
+      "kind": "slug:VideoDiagram",
+      "split": 0.75,
+      "title": "Example: Medium-term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944731",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258697741-0eacf674-633d-42e7-943c-713fcfb668fb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.longtermoutcomes",
+      "kind": "slug:VideoDiagram",
+      "split": 0.75,
+      "title": "Example: Long-term Outcomes",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577944642",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258697731-77673802-b620-4869-bc95-9c18c769125d.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "impactmodel.example.impact",
+      "kind": "slug:VideoDiagram",
+      "split": 0.627,
+      "title": "Example: Impact",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577943950",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258697719-01e41c37-65f6-4db2-8b46-2882a0bf094c.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "metrics",
+      "title": "Economic Model"
+    },
+    {
+      "id": "economicmodel.overview",
+      "kind": "slug:VideoDiagram",
+      "split": 0.543,
+      "title": "Economic Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577954558",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.6,
+            "src": "https://user-images.githubusercontent.com/185555/258698575-65aa349d-430a-4870-ae58-4a1635848511.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258698783-37d60998-478d-4709-8c73-a736e22e36b1.png",
+            "start": 18
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.channels",
+      "kind": "slug:VideoDiagram",
+      "split": 0.703,
+      "title": "Channels",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938360",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258698984-df1da57d-f508-41d8-964a-c8537e0c6a91.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.financialmodel.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.69,
+      "title": "Financial Model (Intro)",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577954346",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258699030-ead93fa0-83a9-4586-bb18-9b51c13690c5.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.financialmodel.revenue",
+      "kind": "slug:VideoDiagram",
+      "split": 0.69,
+      "title": "Revenue",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577954492",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258699083-0fc5bd70-2cbf-4a56-98cc-f8fd0c63d38e.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.financialmodel.costs",
+      "kind": "slug:VideoDiagram",
+      "split": 0.687,
+      "title": "Costs",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577954228",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258699124-0fe80d38-db0d-43d3-ab6a-507108e57869.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.advantage.1leverage",
+      "kind": "slug:VideoDiagram",
+      "split": 0.683,
+      "title": "Advantage: Leverage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938084",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258699180-af0c5f15-b019-4a45-8a02-2960899387db.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.advantage.2innovate",
+      "kind": "slug:VideoDiagram",
+      "split": 0.687,
+      "title": "Advantage: Innovate",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938331",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258699180-af0c5f15-b019-4a45-8a02-2960899387db.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.FB.example.overview",
+      "kind": "slug:VideoDiagram",
+      "split": 0.48,
+      "title": "Example",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938899",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258701584-bc064632-7492-4f1e-b333-4d111af63126.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.FB.example.channels",
+      "kind": "slug:VideoDiagram",
+      "split": 0.673,
+      "title": "Example: Channels",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938645",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258701634-3e8b3437-2964-4427-b750-11d1ee4110e3.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258701742-ad0e2ad1-c5cf-4921-a830-bb97810fbe72.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.FB.example.financialmodel",
+      "kind": "slug:VideoDiagram",
+      "split": 0.667,
+      "title": "Example: Financial Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938753",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258702272-b45f3292-fee0-4305-8574-8cd838e7d86a.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258702294-b3c8b9c2-50b0-4538-9d1e-7301dfe44e4f.png",
+            "start": 6
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258702298-2f342a99-2b5b-4b88-8544-aba3234000c6.png",
+            "start": 25
+          }
+        ]
+      }
+    },
+    {
+      "id": "economicmodel.FB.example.advantage",
+      "kind": "slug:VideoDiagram",
+      "split": 0.667,
+      "title": "Example: Advantage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577938493",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258702762-cc2c78dc-8f66-4dd7-9f25-ba503f040a6c.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258702765-53af8ba0-9955-4299-a5d6-1b73edaeafce.png",
+            "start": 14
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "metrics",
+      "title": "Metrics"
+    },
+    {
+      "id": "metrics.keymetrics",
+      "kind": "slug:VideoDiagram",
+      "title": "Key Metrics",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "577945041",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.6,
+            "src": "https://user-images.githubusercontent.com/185555/258703729-9d2e7906-3079-4299-8ffe-546caf77f941.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "conclusion",
+      "title": "Conclusion"
+    },
+    {
+      "id": "canvas.conclusion",
+      "kind": "slug:VideoDiagram",
+      "title": "When you've finished",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "851213132",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258672044-788b5fda-85af-447c-8651-ce8b1030eda3.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "strategy",
+      "title": "Strategy"
+    },
+    {
+      "id": "strategy.intro",
+      "kind": "slug:VideoDiagram",
+      "title": "Introduction to Strategy",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "851213828",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258672166-576b41d7-dfa8-4b3f-9960-7bedbb188d54.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.intro.2",
+      "kind": "slug:VideoDiagram",
+      "split": 0.693,
+      "title": "Getting Started",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598791412",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258672166-576b41d7-dfa8-4b3f-9960-7bedbb188d54.png",
+            "start": 0
+          },
+          {
+            "scale": 0.85,
+            "src": "https://user-images.githubusercontent.com/185555/258704864-6cf19bfd-6bfe-4148-aac8-e9bc6f327962.png",
+            "start": 54
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "startupjourney",
+      "title": "Startup Journey"
+    },
+    {
+      "id": "startupjourney.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.41,
+      "title": "The Startup Journey",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598792779",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258706852-98db5f16-c2ba-4e4b-bb3f-eef4a151121d.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "startupjourney.2",
+      "kind": "slug:VideoDiagram",
+      "split": 0.657,
+      "title": "Definition of a Startup",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598791681",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258707039-92bfe94b-a63e-4bf4-8eb1-df87be2eb4c9.png",
+            "start": 0
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258707140-b2df4a87-8bae-4589-a2cd-5a89cf9155bd.png",
+            "start": 12
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258707039-92bfe94b-a63e-4bf4-8eb1-df87be2eb4c9.png",
+            "start": 36
+          }
+        ]
+      }
+    },
+    {
+      "id": "startupjourney.3",
+      "kind": "slug:VideoDiagram",
+      "split": 0.643,
+      "title": "From Startup to Business",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598791979",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258707436-fd39d04a-effa-4d88-a43d-16560f676abb.png",
+            "start": 0
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258707464-0fc4d6c6-0bc1-4d15-9fe0-18e46a3644e3.png",
+            "start": 6
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258707493-310febee-fc1f-48e1-bfec-51fa05585dfc.png",
+            "start": 40
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258707524-3b05f66f-8ac4-44be-a9f6-862862b05611.png",
+            "start": 56
+          }
+        ]
+      }
+    },
+    {
+      "id": "startupjourney.4",
+      "kind": "slug:VideoDiagram",
+      "split": 0.74,
+      "title": "From Founders to Employees",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598792314",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258708016-bf798904-635a-44a9-a6d0-2ac9015e4f96.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "startupjourney.5",
+      "kind": "slug:VideoDiagram",
+      "split": 0.65,
+      "title": "The Three Circles",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598792522",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258711740-d4b70a85-5486-4512-b89c-75debe92ca3d.png",
+            "start": 0
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258711782-62e3a768-68d5-406c-85e2-78f9e95eeb39.png",
+            "start": 41
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258711802-58242189-bd60-4789-9e71-94d6cad515af.png",
+            "start": 51
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258711759-f9171352-30b6-40f6-87bd-f43963aa85e5.png",
+            "start": 75
+          }
+        ]
+      }
+    },
+    {
+      "id": "startupjourney5.eg",
+      "kind": "slug:VideoDiagram",
+      "split": 0.643,
+      "title": "Example",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598793055",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258711740-d4b70a85-5486-4512-b89c-75debe92ca3d.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "goodbm",
+      "title": "Good Business Model"
+    },
+    {
+      "id": "goodbm.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.767,
+      "title": "A Good Business Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598789079",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258715942-01c9eb71-1325-4211-9b06-d12ba7e63fe7.png",
+            "start": 0
+          },
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258715968-6d478f21-f15d-4f5e-8a1d-dffdd11400ae.png",
+            "start": 68
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.2.customermodel",
+      "kind": "slug:VideoDiagram",
+      "title": "Product Market Fit",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598757457",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258716362-22cb4a33-5321-4c6d-95ec-26b90a81eb70.png",
+            "start": 0
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258716385-d5ff0a7b-cbb9-45bf-9401-efc247e71ff6.png",
+            "start": 8
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.3.impactmodel",
+      "kind": "slug:VideoDiagram",
+      "title": "Impact Micro / Macro",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598757720",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258716752-50ef5a31-5c5b-4973-9d20-7026ef348e87.png",
+            "start": 0
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258716776-213794cc-6087-4052-a9a0-96b9703ba645.png",
+            "start": 8
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.4.economicmodel.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.683,
+      "title": "Economic Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598758279",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.7,
+            "src": "https://user-images.githubusercontent.com/185555/258717247-558d0b0f-3825-4e8f-b910-f9c2acd0d86b.png",
+            "start": 0
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258717383-dc18622b-77d4-4cc2-bfc2-dccf339d817f.png",
+            "start": 18
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.4.economicmodel.uniteconomics.1",
+      "kind": "slug:VideoDiagram",
+      "split": 0.753,
+      "title": "Positive Unit Economics ",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598758327",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718196-3ab075d8-59cb-46f7-9da3-7ae26aa8251c.png",
+            "start": 0
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718248-578d9842-4c16-46b1-88fa-70e474373ced.png",
+            "start": 15
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.4.economicmodel.uniteconomics.2",
+      "kind": "slug:VideoDiagram",
+      "split": 0.783,
+      "title": "Calculating",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598758555",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718409-aba235d8-2008-4dff-ad3a-bba247be8702.png",
+            "start": 0
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718479-d9b84723-b9dd-4351-b67a-042dd4d86e05.png",
+            "start": 62
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.4.economicmodel.growth",
+      "kind": "slug:VideoDiagram",
+      "title": "Can You Grow?",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598757995",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718724-3b12ff14-e4f1-4f25-a190-76bc53e686bf.png",
+            "start": 0
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718738-170d388d-de31-4afe-bd70-f613352e6af8.png",
+            "start": 4
+          },
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258718767-410b3c52-416a-41bb-9004-32297fad4296.png",
+            "start": 25
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.conclusion",
+      "kind": "slug:VideoDiagram",
+      "split": 0.387,
+      "title": "Conclusion",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598758962",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258722197-38fbb2cb-c3d5-4f75-80c9-aeef0200a6ba.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "goodbm.improve",
+      "title": "Improvement"
+    },
+    {
+      "id": "goodbm.improve.jeff",
+      "kind": "slug:VideoDiagram",
+      "title": "Improve Your Business Model",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598759314",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258722963-f8da0a30-2477-4d7f-aadf-ec2097d63b3f.png",
+            "start": 0
+          },
+          {
+            "scale": 0.74,
+            "src": "https://user-images.githubusercontent.com/185555/258723084-170d2d17-5d56-494e-9ac4-68d5176de157.png",
+            "start": 12
+          },
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258723112-642cb060-c2db-413f-97ed-67ca0eb273e1.png",
+            "start": 55
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.727,
+      "title": "Leverage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598788777",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258723704-9852d071-5eb1-44d4-b3ec-7ff3e386fb1a.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.667,
+      "title": "Types of Leverage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598786562",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724142-506416bd-3e64-41d9-b85e-8315d2254daa.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.labour",
+      "kind": "slug:VideoDiagram",
+      "title": "Labour",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598786787",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724235-ad03d995-eee1-486a-8f13-b8658cd81c5b.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.technology",
+      "kind": "slug:VideoDiagram",
+      "title": "Technology",
+      "video": {
+        "innerScale": 1.15,
+        "src": {
+          "id": "598787988",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724317-a78a3bc6-fcd5-4cb0-b1d0-113f0d94ae74.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.capital",
+      "kind": "slug:VideoDiagram",
+      "title": "Capital",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598759864",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724389-d57fc9e2-bb59-4d2d-a646-3703493f79aa.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.Product",
+      "kind": "slug:VideoDiagram",
+      "title": "Product",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598787543",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724467-273fabf7-4e97-4a4a-bae0-882ec8b5da47.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.media",
+      "kind": "slug:VideoDiagram",
+      "title": "Media",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598786893",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724550-96195499-9f2c-4cc5-a618-1870d525defa.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.perceptual",
+      "kind": "slug:VideoDiagram",
+      "title": "Perceptual",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598787297",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724616-d1a76df8-a4e0-4482-9d9d-85f6cade59fe.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.network",
+      "kind": "slug:VideoDiagram",
+      "title": "Network",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598787119",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724693-57184816-71bb-43df-b0dd-494327d72e57.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.2types.strategic",
+      "kind": "slug:VideoDiagram",
+      "split": 0.753,
+      "title": "Strategic",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598787671",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724758-314e94b2-b9bc-4da9-9ac3-44763fd67ceb.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.3size.1",
+      "kind": "slug:VideoDiagram",
+      "split": 0.663,
+      "title": "Enterprise Size",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598788082",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258724873-6813f52a-01de-48bc-bcfe-49d7fcb79e81.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.leverage.3size.2",
+      "kind": "slug:VideoDiagram",
+      "title": "Enterprise Complexity",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598788467",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258724944-7a99c045-65e0-4e0b-81a0-d2363b6cca39.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "goodbm.improve.conclusion",
+      "kind": "slug:VideoDiagram",
+      "split": 0.773,
+      "title": "Conclusion ",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598759076",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258725150-f1a44a40-21fc-406a-94aa-7c330dd24ede.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "strategy.stage",
+      "title": "Strategy Stage"
+    },
+    {
+      "id": "strategy.stage.intro",
+      "kind": "slug:VideoDiagram",
+      "title": "Stage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598793514",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258729336-52097361-322e-4bb2-a0e6-9f2b39aee9c9.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.stage.1",
+      "kind": "slug:VideoDiagram",
+      "split": 0.72,
+      "title": "Assessing Your Stage",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598795704",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.97,
+            "src": "https://user-images.githubusercontent.com/185555/258729479-036ae33e-47d0-4533-b08d-b0388484d5da.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.stage.2",
+      "kind": "slug:VideoDiagram",
+      "split": 0.72,
+      "title": "The Venture Map",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598795918",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258729516-fa75631c-32ef-45f1-91dc-9370a67aaddf.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.stage.3",
+      "kind": "slug:VideoDiagram",
+      "split": 0.717,
+      "title": "Conclusions",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598796095",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.85,
+            "src": "https://user-images.githubusercontent.com/185555/258729578-3c37e55e-4aa1-45c5-9c74-78d01dc42962.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "kind": "slug:namespace",
+      "namespace": "strategy.models",
+      "title": "Strategy Models"
+    },
+    {
+      "id": "strategy.models.intro",
+      "kind": "slug:VideoDiagram",
+      "split": 0.62,
+      "title": "Strategy",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598794082",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.8,
+            "src": "https://user-images.githubusercontent.com/185555/258731304-0c36ff18-5adb-4ca7-84c6-679f024a6fc2.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.models.2",
+      "kind": "slug:VideoDiagram",
+      "split": 0.743,
+      "title": "Canvas Models",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598793732",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "start": 0,
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258731717-f2698344-9b96-46d7-8237-069d1cb9b3a8.png"
+          },
+          {
+            "start": 60,
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/259271445-e0a699f2-5782-4c40-ba5d-f77f803b7090.png"
+          },
+          {
+            "start": 67,
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/259271453-bd6b4125-498d-4a56-848e-1db0737a4fa1.png"
+          },
+          {
+            "start": 76,
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/259271461-ebd7d480-178e-4e5c-a9b1-6f98e19fd192.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.models.validation",
+      "kind": "slug:VideoDiagram",
+      "split": 0.727,
+      "title": "Validation",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598795327",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258732088-883064dc-60be-44f3-b59e-430e66bb05f5.png",
+            "start": 0
+          },
+          {
+            "scale": 0.9,
+            "src": "https://user-images.githubusercontent.com/185555/258732112-cdd6881b-539c-4ce2-8ad5-0026b5bede20.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.models.together",
+      "kind": "slug:VideoDiagram",
+      "split": 0.72,
+      "title": "Pulling Your Strategy Together",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598796367",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.95,
+            "src": "https://user-images.githubusercontent.com/185555/258732446-070a44a1-3c7b-4415-a03d-2e641f526f9d.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.timeline",
+      "kind": "slug:VideoDiagram",
+      "split": 0.723,
+      "title": "Strategy Timeline",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "851214652",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 0.97,
+            "src": "https://user-images.githubusercontent.com/185555/258733175-6c16ec25-0395-4629-a267-f7bb537656c0.png",
+            "start": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "strategy.conclusion",
+      "kind": "slug:VideoDiagram",
+      "split": 0.717,
+      "title": "Conclusion",
+      "video": {
+        "innerScale": 1.02,
+        "src": {
+          "id": "598793191",
+          "kind": "Vimeo"
+        },
+        "timestamps": [
+          {
+            "scale": 1,
+            "src": "https://user-images.githubusercontent.com/185555/258735372-664939ab-6574-4aca-8d05-0901cab728fc.png",
+            "start": 0
+          }
+        ]
+      }
+    }
+  ]
+}

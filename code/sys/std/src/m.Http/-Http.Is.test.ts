@@ -14,4 +14,12 @@ describe('Http.Is', () => {
     expect(Http.Is.netaddr(server.addr)).to.eql(true);
     await server.dispose();
   });
+
+  it('Is.statusOK', () => {
+    const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+    NON.forEach((v: any) => expect(Http.Is.statusOK(v)).to.eql(false));
+    expect(Http.Is.statusOK(200)).to.eql(true);
+    expect(Http.Is.statusOK(201)).to.eql(true);
+    expect(Http.Is.statusOK(404)).to.eql(false);
+  });
 });

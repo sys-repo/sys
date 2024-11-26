@@ -71,10 +71,11 @@ export type PathLib = {
  * Path verification flags.
  */
 export type PathIsLib = {
-  /**
-   * Test whether the provided path is absolute.
-   */
+  /** Determine if the provided path is absolute (not relative). */
   absolute: typeof StdPath.isAbsolute;
+
+  /** Determine if the provided path is relative (not absolute). */
+  relative(path: t.StringPath): boolean;
 
   /**
    * Test whether the given string is a glob.

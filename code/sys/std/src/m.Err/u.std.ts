@@ -1,6 +1,6 @@
 import { type t, Delete, isObject } from './common.ts';
-import { Is } from './m.Err.Is.ts';
-import { Name } from './m.Err.Name.ts';
+import { Is } from './m.Is.ts';
+import { Name } from './m.Name.ts';
 
 /**
  * Take unknown input and produce a standard error object.
@@ -28,6 +28,12 @@ export const std: t.ErrLib['std'] = (input: any, opt = {}) => {
     const message = input || wrangle.unknownMessage(input);
     const cause = wrangle.cause(undefined, options);
     return done(wrangle.errorObject(name, message, { cause }));
+  }
+
+  if (input instanceof Response) {
+    const name = 'HttpError';
+    const message = `${input.status} ${input.statusText}`;
+    return done(wrangle.errorObject(name, message, {}));
   }
 
   if (Is.errorLike(input)) {

@@ -95,6 +95,7 @@ jobs:
           deno task test
           deno publish
 
+      #  🐷
       # - name: publish module → "@sys/driver-automerge"
       #   run: |
       #     cd code/sys.driver/driver-automerge
@@ -122,6 +123,12 @@ jobs:
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
+          deno task test --trace-leaks
+          deno publish
+
+      - name: publish module → "@sys/driver-vitepress"
+        run: |
+          cd code/sys.driver/driver-vitepress
           deno task test --trace-leaks
           deno publish
 

@@ -5,6 +5,7 @@ import type { t } from '../common.ts';
  * Path type verification flags.
  */
 export const Is: t.PathIsLib = {
-  absolute,
   glob,
+  absolute,
+  relative: (path) => !Is.absolute(path),
 };

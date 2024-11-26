@@ -1,4 +1,4 @@
-import { Symbols, type t } from './common.ts';
+import { type t, Symbols, isObject } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -31,10 +31,6 @@ export const Is: t.ImmutableIsLib = {
 /**
  * Helpers
  */
-function isObject(input: any) {
-  return input !== null && typeof input === 'object';
-}
-
 function areFuncs(...input: any[]) {
   return input.every((v) => typeof v === 'function');
 }

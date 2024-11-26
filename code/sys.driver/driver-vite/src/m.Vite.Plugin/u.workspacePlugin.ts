@@ -7,6 +7,7 @@ import { R, asArray, Path, ViteConfig, type t } from './common.ts';
 export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any[]) => {
   const options = wrangle.options(args);
   const { pkg } = options;
+  // options.workspace
   const ws = await wrangle.workspace(options);
 
   /**
@@ -110,8 +111,8 @@ const wrangle = {
   async workspace(options: t.WorkspacePluginOptions) {
     const { filter } = options;
     if (options.workspace === false) return undefined;
-    const denofile = options.workspace === true ? undefined : options.workspace;
 
+    const denofile = options.workspace === true ? undefined : options.workspace;
     const ws = await ViteConfig.workspace({ denofile, filter });
     if (!ws.exists) {
       const errPath = denofile ?? Path.resolve('.');
