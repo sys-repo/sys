@@ -1,7 +1,7 @@
-import type { t } from './common.ts';
+import { type t, isObject } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Mutate } from './m.Mutate.ts';
-import { isObject, Validate } from './u.ts';
+import { Validate } from './u.ts';
 
 /**
  * Helpers for working with arrays that represent object paths.

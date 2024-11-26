@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
 import { ArrayLib } from '../m.Value.Array/m.Array.ts';
-import { Num, Value, isObject } from './mod.ts';
+import { isObject, isRecord } from '../common.ts';
+import { Num, Value } from './mod.ts';
 
 describe('Value', () => {
   it('API', () => {
@@ -8,6 +9,7 @@ describe('Value', () => {
     expect(Value.Num).to.equal(Num);
     expect(Value.round).to.equal(Num.round);
     expect(Value.isObject).to.equal(isObject);
+    expect(Value.isRecord).to.equal(isRecord);
   });
 
   describe('toggle', () => {

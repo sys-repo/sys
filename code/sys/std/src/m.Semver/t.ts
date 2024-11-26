@@ -29,7 +29,7 @@ export type SemverLib = {
  */
 export type SemverIsLib = {
   /** Checks to see if value is a valid SemVer object. */
-  valid(input: t.SemVer | string): boolean;
+  valid(input?: t.SemVer | string): boolean;
 
   /** Greater than comparison for two SemVers. */
   greaterThan: typeof StdSemver.greaterThan;

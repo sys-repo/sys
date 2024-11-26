@@ -1,5 +1,5 @@
 import { Fs } from '@sys/std-s';
+const remove = (path: string) => Fs.remove(Fs.resolve(path), { log: true });
 
-const removeDir = (path: string) => Fs.remove(Fs.resolve(path), { log: true });
-await removeDir('./dist');
-await removeDir('./.tmp');
+await remove('./dist');
+await remove('./.tmp');

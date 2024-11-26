@@ -16,7 +16,7 @@ const dir = await Vault.dir(path);
 // const hx = await Hash.Dir.compute(path);
 // console.log('Hash', hx.hash, '\n');
 
-const listener = await dir.listen({ log: false });
+const listener = await dir.listen({ log: true });
 
 listener.$.pipe(
   rx.filter((e) => e.paths.some((p) => p.startsWith('/Users/phil/Documents/Notes/tdb/SLC/sample'))),

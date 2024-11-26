@@ -1,0 +1,27 @@
+{
+  "kind": "dir",
+  "dir": {
+    "indexedAt": 1695690211367
+  },
+  "hash": {
+    "files": "sha256-5944ac2fa7a41caa297b32ef5b8bdec623f547b5ef1a976c65f536ef8ae16282",
+    "dir": "sha256-84280c1be94bef2b763966ec11d78df6232a390115fc6ca0b70ec7377906db77"
+  },
+  "files": [
+    {
+      "path": "index.json",
+      "bytes": 578,
+      "filehash": "sha256-38056e83a896e48bd2cd5cdd56d31cc14195f6781c476eabe96643f0bb6b0d19"
+    },
+    {
+      "path": "log.json",
+      "bytes": 63,
+      "filehash": "sha256-7cbb17b6f2216f43d33eac4c3ee0979f8fabe48153ec93250201e65b6a9d6356"
+    },
+    {
+      "path": "md/README.md",
+      "bytes": 57,
+      "filehash": "sha256-7a48826da2af737a86eada318b8bdf2e0e1db02e1592b44295068c25c4625d7f"
+    }
+  ]
+}

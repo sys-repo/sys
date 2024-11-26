@@ -53,6 +53,11 @@ export type ViteConfigPaths = {
   outDir: t.StringPath;
 };
 
+export type ViteBundleDirs = {
+  in: t.StringDir;
+  out: t.StringDir;
+};
+
 /**
  * Vite/Deno workspace helpers.
  */

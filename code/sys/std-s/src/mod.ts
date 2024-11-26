@@ -26,11 +26,11 @@ export {
   ObjectPath,
   R,
   Rx,
-  Semver,
   Time,
   Value,
   rx,
 } from '@sys/std';
+export { Semver } from '@sys/std/semver';
 
 /**
  * Server only.

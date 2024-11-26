@@ -20,6 +20,9 @@ export type TestHttpServer = {
   /** Convert the given text value to a Response object. */
   text(body: unknown): Response;
   text(req: Request, body: unknown): Response;
+
+  /** Produce an error response */
+  error(status: number, statusText: string): Response;
 };
 
 /**

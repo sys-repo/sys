@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for working with Styles/CSS (aka "css-in-js") in React.
+ * Tools for working with Styles/CSS programatically (aka "css-in-js") in React.
  *
  * @example
  * Setting up the `vite.config.json` configure the [react-swc] plugin
