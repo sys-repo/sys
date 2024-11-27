@@ -1,5 +1,5 @@
+import { Tmpl } from '../-tmpl/mod.ts';
 import { type t, Cli, Fs, c, pkg } from './common.ts';
-import { Tmpl } from './m.Tmpl.ts';
 
 /**
  * Ensure the required configuration files exist within

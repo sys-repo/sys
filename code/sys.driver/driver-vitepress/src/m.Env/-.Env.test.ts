@@ -1,7 +1,7 @@
 import { c, describe, expect, Fs, it } from '../-test.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
 import { Env } from './m.Env.ts';
-import { VitePress } from './mod.ts';
+import { VitePress } from '../mod.ts';
 
 describe('Vitepress.Env', () => {
   it('API', () => {

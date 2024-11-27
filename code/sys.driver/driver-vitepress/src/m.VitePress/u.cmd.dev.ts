@@ -1,5 +1,4 @@
-import { Cmd, Net, type t } from './common.ts';
-import { Env } from './m.Env.ts';
+import { type t, Cmd, Env, Net } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 
