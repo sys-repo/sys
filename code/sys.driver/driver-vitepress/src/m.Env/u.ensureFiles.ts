@@ -13,17 +13,20 @@ export async function ensureFiles(args: {
 }) {
   const { force = false, srcDir = './docs' } = args;
 
-  type K = 'new' | 'unchanged' | 'updated';
+  type K = t.VitePressFileUpdate['kind'];
   const table = Cli.table(['files:', '']);
-  const logPath = (kind: K, path: string) => {
+  const files: t.VitePressFileUpdate[] = [];
+  const logPath = (kind: K, path: t.StringPath) => {
     path = Fs.Path.trimCwd(path);
-    if (kind === 'new') kind = c.green(kind) as K;
-    if (kind === 'updated') kind = c.yellow(kind) as K;
-    if (kind === 'unchanged') kind = c.gray(c.dim(kind)) as K;
-    table.push([`  ${kind}`, c.gray(path)]);
+    let k = kind;
+    if (k === 'new') k = c.green(k) as K;
+    if (k === 'updated') k = c.yellow(k) as K;
+    if (k === 'unchanged') k = c.gray(c.dim(k)) as K;
+    table.push([`  ${k}`, c.gray(path)]);
+    files.push({ kind, path });
   };
 
-  const hasChanged = async (tmpl: string, path: string) => {
+  const hasChanged = async (tmpl: string, path: t.StringPath) => {
     if (!(await Fs.exists(path))) return false;
     const file = await Deno.readTextFile(path);
     return file !== tmpl;
@@ -65,7 +68,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Markdown.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
 
   // Finish up.
-  return { table };
+  return { files, table } as const;
 }
 
 /**
@@ -75,7 +78,8 @@ const wrangle = {
   async existsAndNotEmpty(target: t.StringPath) {
     const exists = await Fs.exists(target);
     if (exists) {
-      const isEmpty = !(await Deno.readTextFile(Fs.resolve(target)));
+      const text = await Deno.readTextFile(Fs.resolve(target));
+      const isEmpty = (text ?? '').length === 0;
       if (isEmpty) return false;
     }
     return exists;

@@ -18,9 +18,6 @@ export type VitePressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
   readonly Env: t.VitePressEnvLib;
 
-  /** Initialize the local machine environment. */
-  init: t.VitePressEnvLib['init'];
-
   /**
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev

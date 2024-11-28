@@ -14,5 +14,5 @@ type A = { srcDir?: string };
 const args = Args.parse<A>(Deno.args);
 const { srcDir } = args;
 
-await VitePress.init({ srcDir });
+await VitePress.Env.update({ srcDir });
 Deno.exit(0);

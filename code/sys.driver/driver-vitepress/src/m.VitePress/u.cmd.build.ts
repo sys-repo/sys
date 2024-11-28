@@ -18,7 +18,7 @@ export const build: B = async (input = {}) => {
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
   const outDir = dirs.out;
-  await Env.init({ inDir, srcDir, silent: true });
+  await Env.update({ inDir, srcDir, silent: true });
 
   let params = `--outDir=${outDir}`;
   if (srcDir) params += ` --srcDir=${srcDir}`;
