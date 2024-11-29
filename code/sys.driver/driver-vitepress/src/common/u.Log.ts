@@ -9,8 +9,8 @@ export const Log = {
     };
     push('dev', 'Run the development server.');
     push('build', 'Transpile the production bundle.');
-    push('serve', 'Run a local HTTP server on the production bundle.');
-    push('upgrade', `Upgrade to latest version`);
+    push('serve', 'Run a local HTTP server for the production bundle.');
+    push('upgrade', `Upgrade to latest version.`);
 
     console.info(c.gray(`Usage: ${c.green('deno task [COMMAND]')}`));
     table.render();
