@@ -29,8 +29,8 @@ jobs:
         with:
           deno-version: v2
 
-      - name: publish module → "@sys/driver-quilibrium"
+      - name: publish module → "@sys/driver-vitepress"
         run: |
-          cd code/sys.driver/driver-quilibrium
+          cd code/sys.driver/driver-vitepress
           deno task test
           deno publish
