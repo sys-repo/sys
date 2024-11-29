@@ -10,12 +10,10 @@ export const SAMPLE = {
     return { name: `@sample/${slug()}`, version: '0.1.2' };
   },
 
-  async init(options: { slug?: boolean } = {}) {
+  init(options: { slug?: boolean } = {}) {
     const port = Testing.randomPort();
     let path = `./.tmp/tests`;
     if (options.slug ?? true) path = Fs.join(path, slug());
-
-    await Fs.copy(SAMPLE.PATH.sample, Fs.resolve(path), { force: true });
 
     const inDir = Fs.resolve(path);
     const outDir = Fs.resolve(path, '.vitepress/dist');
