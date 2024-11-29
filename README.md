@@ -230,7 +230,7 @@ The inverse proposition also appears to be true:
 
 "Framework" agnostic. Web standards.
 
-![image](https://github.com/user-attachments/assets/19214e9f-5e40-403f-9cef-20994f39ea07)
+![image](https://github.com/user-attachments/assets/853a68bb-060d-4c64-be19-094e75b39523)
 
 
 
