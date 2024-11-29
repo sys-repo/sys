@@ -28,8 +28,8 @@ export async function ensureFiles(args: {
   };
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
-    //Custom filter.
     if (args.filter) {
+      //Custom filter.
       if (!args.filter(path)) return;
     }
 
