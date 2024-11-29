@@ -36,7 +36,6 @@
     "jsr:@std/testing@1.0.3": "1.0.3",
     "jsr:@std/text@~1.0.7": "1.0.7",
     "jsr:@std/uuid@1.0.4": "1.0.4",
-    "jsr:@sys/driver-vitepress@0.0.55": "0.0.55",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1": "1.2.1",
     "npm:@automerge/automerge-repo-storage-indexeddb@1": "1.2.1",
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1",
@@ -227,9 +226,6 @@
         "jsr:@std/bytes",
         "jsr:@std/crypto"
       ]
-    },
-    "@sys/driver-vitepress@0.0.55": {
-      "integrity": "80083ea4299b1f0df0a65493ac5092939a470c8b2d6ec7d3c327075360f1afcc"
     }
   },
   "npm": {
@@ -2762,16 +2758,6 @@
     },
     "members": {
       "code/sys.driver/driver-vitepress": {
-        "packageJson": {
-          "dependencies": [
-            "npm:vue@3"
-          ]
-        }
-      },
-      "code/sys.driver/driver-vitepress/.tmp/sample": {
-        "dependencies": [
-          "jsr:@sys/driver-vitepress@0.0.55"
-        ],
         "packageJson": {
           "dependencies": [
             "npm:vue@3"
