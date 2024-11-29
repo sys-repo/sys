@@ -35,7 +35,10 @@ export async function upgrade(argv: string[]) {
   if (diff !== 0) {
     // Perform version change.
     const version = Semver.toString(targetVersion);
-    const isGreater = Semver.Is.greaterThan(semver.current, targetVersion);
+    console.log('targetVersion', targetVersion);
+    console.log('semver.current', semver.current);
+
+    const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
     console.info();
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
