@@ -1,5 +1,4 @@
-import { Cmd, Net, type t } from './common.ts';
-import { Env } from './m.Env.ts';
+import { type t, Cmd, Env, Net } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 
@@ -21,7 +20,7 @@ export const dev: F = async (input = {}) => {
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await Env.init({ inDir, silent: true });
+  await Env.update({ inDir, silent: true });
   Log.Dev.log({ inDir, pkg });
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });

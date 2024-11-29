@@ -19,7 +19,7 @@ describe('VitePress.build', () => {
 
   it('build (default params)', async () => {
     const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
-    const sample = await SAMPLE.init({ slug: true });
+    const sample = SAMPLE.init({ slug: true });
     const inDir = Fs.resolve(sample.path);
     const outDir = Fs.resolve(sample.path, '.vitepress/dist');
 
@@ -39,16 +39,16 @@ describe('VitePress.build', () => {
     const fetched = await fetch(`http://localhost:${port}`);
     const text = await fetched.text();
 
-    const assertHtml = (match: string) => expect(text.includes(match)).to.be.true;
-    assertHtml(`<title>Root | My Sample</title>`);
-    assertHtml(`The root of <code>sample-1</code>`);
+    const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
+    assertHtml(`<title>Hello World. | My Sample</title>`);
+    assertHtml(`Generated with <code>@sys/driver-vitepress@`);
 
     server.shutdown();
   });
 
   it('build: custom {outDir}', async () => {
     const pkg = SAMPLE.createPkg();
-    const sample = await SAMPLE.init({ slug: true });
+    const sample = SAMPLE.init({ slug: true });
     const inDir = Fs.resolve(sample.path);
     const outDir = Fs.resolve(sample.path, '.vitepress/dist');
     expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
@@ -63,7 +63,7 @@ describe('VitePress.build', () => {
   });
 
   it('build: ensures baseline files ← Env.init()', async () => {
-    const sample = await SAMPLE.init();
+    const sample = SAMPLE.init();
     const { inDir } = sample;
     await VitePress.build({ inDir });
     await assertEnvExists(inDir);

@@ -1,5 +1,4 @@
-import { type t, Cmd, Cli, Fs, Pkg, Time, c } from './common.ts';
-import { Env } from './m.Env.ts';
+import { type t, c, Cli, Cmd, Env, Fs, Pkg, Time } from './common.ts';
 import { Log } from './u.log.ts';
 
 type B = t.VitePressLib['build'];
@@ -19,7 +18,7 @@ export const build: B = async (input = {}) => {
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
   const outDir = dirs.out;
-  await Env.init({ inDir, srcDir, silent: true });
+  await Env.update({ inDir, srcDir, silent: true });
 
   let params = `--outDir=${outDir}`;
   if (srcDir) params += ` --srcDir=${srcDir}`;

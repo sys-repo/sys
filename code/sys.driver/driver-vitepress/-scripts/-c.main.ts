@@ -11,4 +11,4 @@
  *  }
  * ```
  */
-import '../src/-cmd/-main.ts';
+import '../src/m.Cmd/-main.ts';
