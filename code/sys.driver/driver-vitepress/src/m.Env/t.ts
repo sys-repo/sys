@@ -15,7 +15,7 @@ export type VitePressEnvUpdateArgs = {
   force?: boolean;
   inDir?: t.StringDir;
   srcDir?: t.StringDir;
-  upgrade?: t.StringSemver;
+  version?: t.StringSemver;
   silent?: boolean;
   filter?: (path: t.StringPath) => boolean;
 };

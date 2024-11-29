@@ -21,40 +21,45 @@ export async function upgrade(argv: string[]) {
   const registry = (await Jsr.Fetch.Pkg.versions('@sys/driver-vitepress')).data;
   const latest = registry?.latest ?? '0.0.0';
   const semver = { latest: Semver.parse(latest), current: Semver.parse(pkg.version) };
-  const diff = Semver.compare(semver.latest, semver.current);
+  const targetVersion = args.version ? Semver.parse(args.version) : semver.latest;
+  const diff = Semver.compare(targetVersion, semver.current);
+
+  const runUpdater = async () => {
+    /**
+     * Update project template files.
+     */
+    await VitePress.Env.update({ inDir, force: true, filter: (p) => !p.startsWith('docs/') });
+    console.info();
+    console.info(c.green(`Project at version:`));
+    ViteLog.Module.log(pkg);
+    console.info();
+  };
 
   if (diff === 0 && !force) {
     console.info();
-    console.info(`Local version ${c.green(pkg.version)} is the most recent release`);
+    console.info(`Local version ${c.green(pkg.version)} is already up-to-date.`);
     console.info(c.gray(pkg.name));
     console.info();
     return;
   }
 
-  if (diff > 0) {
-    // Perform upgrade.
+  if (diff !== 0) {
+    // Perform version change.
+    const version = Semver.toString(targetVersion);
+    const isGreater = Semver.Is.greaterThan(targetVersion, semver.latest);
+    const direction = isGreater ? 'Upgrading' : 'Downgrading';
     console.info();
-    console.info(`Upgrading local version ${c.gray(pkg.version)} to latest → ${c.green(latest)}`);
+    console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
     console.info(c.gray(pkg.name));
     console.info();
 
-    const version = latest;
     const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
-    await Deno.writeTextFile(Fs.join(inDir, 'deno.json'), denofile);
+    const path = Fs.join(inDir, 'deno.json');
+    await Deno.writeTextFile(path, denofile);
 
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
-    await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
+    await runUpdater();
     return;
   }
-
-  /**
-   * Update project template files.
-   */
-  await VitePress.Env.update({ inDir, force: true, filter: (p) => !p.startsWith('docs/') });
-  console.info();
-
-  console.info(c.green(`Project at version:`));
-  ViteLog.Module.log(pkg);
-  console.info();
 }

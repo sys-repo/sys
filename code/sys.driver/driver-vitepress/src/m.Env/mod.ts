@@ -9,13 +9,12 @@ export const Env: t.VitePressEnvLib = {
    * Initialize template files.
    */
   async update(args = {}) {
-    const { inDir = '', srcDir, force = false, silent = false, filter } = args;
-    const { files, table } = await ensureFiles({ inDir, srcDir, force, filter });
+    const { inDir = '', srcDir, version, force = false, silent = false, filter } = args;
+    const { files, table } = await ensureFiles({ inDir, srcDir, force, version, filter });
     if (!silent) {
       console.info(c.green('Update Environment'));
       table.render();
     }
-
     return { files };
   },
 };

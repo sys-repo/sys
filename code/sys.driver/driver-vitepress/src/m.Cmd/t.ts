@@ -40,7 +40,12 @@ export type CmdArgsBuild = { cmd: 'build'; inDir?: P };
 export type CmdArgsServe = { cmd: 'serve'; inDir?: P };
 
 /** The `upgrade` command. */
-export type CmdArgsUpgrade = { cmd: 'upgrade'; inDir?: P; force?: boolean };
+export type CmdArgsUpgrade = {
+  cmd: 'upgrade';
+  inDir?: P;
+  force?: boolean;
+  version?: t.StringSemver;
+};
 
 /** The `init` command. */
-export type CmdArgsInit = { srcDir?: string; inDir?: string };
+export type CmdArgsInit = { srcDir?: P; inDir?: P };

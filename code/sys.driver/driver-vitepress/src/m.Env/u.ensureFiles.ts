@@ -9,9 +9,11 @@ export async function ensureFiles(args: {
   inDir: t.StringDir;
   srcDir?: t.StringDir;
   force?: boolean;
+  version?: t.StringSemver;
   filter?: (path: t.StringPath) => boolean;
 }) {
   const { force = false, srcDir = './docs' } = args;
+  const version = args.version ?? pkg.version;
 
   type K = t.VitePressFileUpdate['kind'];
   const table = Cli.table([c.gray('files:'), '']);
@@ -58,7 +60,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
 
-  await ensure(Tmpl.Pkg.denofile({ pkg }), 'deno.json');
+  await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'pkg.nav.ts');
