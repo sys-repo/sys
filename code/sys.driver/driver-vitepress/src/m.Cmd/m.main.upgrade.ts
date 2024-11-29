@@ -60,7 +60,7 @@ export async function upgrade(argv: string[]) {
 
     console.info();
     console.info(c.green(`Project at version:`));
-    ViteLog.Module.log(pkg);
+    ViteLog.Module.log({ ...pkg, version });
     console.info();
 
     return;
