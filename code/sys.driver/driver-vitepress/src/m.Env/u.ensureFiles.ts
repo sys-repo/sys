@@ -1,5 +1,5 @@
-import { type t, Cli, Fs, c, pkg } from './common.ts';
-import { Tmpl } from './m.Tmpl.ts';
+import { Tmpl } from '../-tmpl/mod.ts';
+import { type t, Fs, pkg } from './common.ts';
 
 /**
  * Ensure the required configuration files exist within
@@ -9,21 +9,19 @@ export async function ensureFiles(args: {
   inDir: t.StringDir;
   srcDir?: t.StringDir;
   force?: boolean;
+  version?: t.StringSemver;
   filter?: (path: t.StringPath) => boolean;
 }) {
   const { force = false, srcDir = './docs' } = args;
+  const version = args.version ?? pkg.version;
 
-  type K = 'new' | 'unchanged' | 'updated';
-  const table = Cli.table(['files:', '']);
-  const logPath = (kind: K, path: string) => {
-    path = Fs.Path.trimCwd(path);
-    if (kind === 'new') kind = c.green(kind) as K;
-    if (kind === 'updated') kind = c.yellow(kind) as K;
-    if (kind === 'unchanged') kind = c.gray(c.dim(kind)) as K;
-    table.push([`  ${kind}`, c.gray(path)]);
+  type K = t.VitePressFileUpdate['kind'];
+  const files: t.VitePressFileUpdate[] = [];
+  const logPath = (kind: K, path: t.StringPath) => {
+    files.push({ kind, path });
   };
 
-  const hasChanged = async (tmpl: string, path: string) => {
+  const hasChanged = async (tmpl: string, path: t.StringPath) => {
     if (!(await Fs.exists(path))) return false;
     const file = await Deno.readTextFile(path);
     return file !== tmpl;
@@ -31,22 +29,24 @@ export async function ensureFiles(args: {
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
     if (args.filter) {
+      //Custom filter.
       if (!args.filter(path)) return;
     }
 
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
     if (!force && exists) {
-      return logPath('unchanged', path);
+      if (is.userFile(path)) return logPath('UserFile', path); // Don't touch user files, as they may have changed them.
+      return logPath('Unchanged', path);
     }
     if (exists) {
       const isDiff = await hasChanged(tmpl, path);
-      if (!isDiff) return logPath('unchanged', path);
+      if (!isDiff) return logPath('Unchanged', path);
     }
 
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, tmpl);
-    logPath(exists ? 'updated' : 'new', path);
+    logPath(exists ? 'Updated' : 'Created', path);
   };
 
   // Layout file templates.
@@ -55,7 +55,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
 
-  await ensure(Tmpl.Pkg.denofile({ pkg }), 'deno.json');
+  await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'pkg.nav.ts');
@@ -65,7 +65,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Markdown.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
 
   // Finish up.
-  return { table };
+  return { files } as const;
 }
 
 /**
@@ -75,9 +75,23 @@ const wrangle = {
   async existsAndNotEmpty(target: t.StringPath) {
     const exists = await Fs.exists(target);
     if (exists) {
-      const isEmpty = !(await Deno.readTextFile(Fs.resolve(target)));
+      const text = await Deno.readTextFile(Fs.resolve(target));
+      const isEmpty = (text ?? '').length === 0;
       if (isEmpty) return false;
     }
     return exists;
+  },
+} as const;
+
+const is = {
+  withinHiddenDir(path: string): boolean {
+    const dirs = path.split('/').slice(0, -1);
+    return dirs.some((dir) => dir.startsWith('.'));
+  },
+
+  userFile(path: string): boolean {
+    if (is.withinHiddenDir(path)) return false;
+    const ignore = ['.gitignore', 'deno.json', 'package.json'];
+    return !ignore.some((m) => path.split('/').slice(-1)[0] === m);
   },
 } as const;
