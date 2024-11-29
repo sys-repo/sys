@@ -33,14 +33,10 @@ export async function ensureFiles(args: {
       if (!args.filter(path)) return;
     }
 
-    // Only oversite files within "/.hidden/" dirs.
-    if (!force && is.userFile(path)) {
-      return logPath('UserFile', path);
-    }
-
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
     if (!force && exists) {
+      if (is.userFile(path)) return logPath('UserFile', path); // Don't touch user files, as they may have changed them.
       return logPath('Unchanged', path);
     }
     if (exists) {
