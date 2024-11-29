@@ -86,6 +86,7 @@
 import { VitePress } from './m.VitePress/mod.ts';
 export { VitePress };
 
+export { Cmd } from './m.Cmd/mod.ts';
 export { pkg } from './pkg.ts';
 
 /** Module types. */

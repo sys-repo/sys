@@ -19,7 +19,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./init": "./src/-cmd/-init.ts",
-    "./main": "./src/-cmd/-main.ts"
+    "./init": "./src/m.Cmd/-init.ts",
+    "./main": "./src/m.Cmd/-main.ts"
   }
 }

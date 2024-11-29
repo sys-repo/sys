@@ -1,16 +1,15 @@
-/**
- * @module
- * Run on import:
- *
- *    Performs an file/folder scaffolding initialization
- *    of a standard VitePress project.
- *
- * https://vite.dev
- */
-import { type t, Args, Fs, HttpServer, pkg, Pkg, DEFAULTS } from './common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
-import { upgrade } from './-main.fn.upgrade.ts';
 
+import { type t, Args, DEFAULTS, Fs, HttpServer, pkg, Pkg } from './common.ts';
+import { upgrade } from './u.upgrade.ts';
+
+/**
+ * Main command entry point.
+ *
+ * Pass: "--cmd=<sub-command>"
+ *      to specify which action to take, and then the paratmers
+ *      that pertain to <sub-command> as defined in the <VitePressCmd> type.
+ */
 export async function main(argv: string[]) {
   const args = Args.parse<t.CmdArgs>(argv);
   const cmd = args.cmd ?? DEFAULTS.cmd;
@@ -60,8 +59,3 @@ export async function main(argv: string[]) {
   // Command not matched.
   console.error(`The given --cmd="${cmd}" value not supported`);
 }
-
-/**
- * Export
- */
-export default main;
