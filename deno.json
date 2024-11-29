@@ -42,6 +42,7 @@
     "./code/sys.driver/driver-quilibrium",
     "./code/sys.driver/driver-vite",
     "./code/sys.driver/driver-vitepress",
+    "./code/sys.driver/driver-vitepress/.tmp/sample",
 
     "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
