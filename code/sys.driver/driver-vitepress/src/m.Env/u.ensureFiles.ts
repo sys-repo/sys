@@ -14,7 +14,7 @@ export async function ensureFiles(args: {
   const { force = false, srcDir = './docs' } = args;
 
   type K = t.VitePressFileUpdate['kind'];
-  const table = Cli.table(['files:', '']);
+  const table = Cli.table([c.gray('files:'), '']);
   const files: t.VitePressFileUpdate[] = [];
   const logPath = (kind: K, path: t.StringPath) => {
     path = Fs.Path.trimCwd(path);

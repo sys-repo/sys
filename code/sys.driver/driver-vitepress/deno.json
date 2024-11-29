@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vitepress",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -8,7 +8,7 @@
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
 
-    "init": "deno run -RWNE --allow-run ./-scripts/-c.init.ts --srcDir=./.tmp/sample",
+    "init": "deno run -RWNE --allow-run ./-scripts/-c.init.ts --inDir=./.tmp/sample",
     "dev": "deno run -RWNE --allow-run ./-scripts/-c.main.ts --cmd=dev --inDir=./.tmp/sample",
     "build": "deno run -RWE --allow-run ./-scripts/-c.main.ts --cmd=build --inDir=./.tmp/sample",
     "serve": "deno run -RNE --allow-run ./-scripts/-c.main.ts --cmd=serve --inDir=./.tmp/sample",

@@ -3,15 +3,17 @@ import { VitePress } from '../m.VitePress/mod.ts';
 import { type t, Args, DEFAULTS, Fs, HttpServer, pkg, Pkg } from './common.ts';
 import { upgrade } from './u.upgrade.ts';
 
+type F = t.VitePressCmdLib['main'];
+
 /**
  * Main command entry point.
  *
  * Pass: "--cmd=<sub-command>"
- *      to specify which action to take, and then the paratmers
- *      that pertain to <sub-command> as defined in the <VitePressCmd> type.
+ *       to specify which action to take, and then the paratmers
+ *       that pertain to <sub-command> as defined in the <VitePressCmd> type.
  */
-export async function main(argv: string[]) {
-  const args = Args.parse<t.CmdArgs>(argv);
+export const main: F = async (argv) => {
+  const args = Args.parse<t.CmdArgsMain>(argv);
   const cmd = args.cmd ?? DEFAULTS.cmd;
 
   if (args.cmd === 'dev') {
@@ -36,7 +38,7 @@ export async function main(argv: string[]) {
 
   if (args.cmd === 'serve') {
     /**
-     * Run local HTTP server on bundle.
+     * Run local HTTP server on production bundle.
      */
     const { inDir = DEFAULTS.inDir } = args;
     const dir = Fs.join(inDir, '.vitepress/dist');
@@ -58,4 +60,4 @@ export async function main(argv: string[]) {
 
   // Command not matched.
   console.error(`The given --cmd="${cmd}" value not supported`);
-}
+};
