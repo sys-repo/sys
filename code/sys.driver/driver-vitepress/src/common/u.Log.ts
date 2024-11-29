@@ -1,4 +1,3 @@
-import { pkg } from '../pkg.ts';
 import { c, Cli } from './libs.ts';
 
 export const Log = {
