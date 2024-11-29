@@ -33,4 +33,4 @@ jobs:
         run: |
           cd code/sys.driver/driver-vitepress
           deno task test
-          deno publish
+          deno publish  --allow-dirty
