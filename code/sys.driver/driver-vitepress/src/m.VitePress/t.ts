@@ -18,9 +18,6 @@ export type VitePressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
   readonly Env: t.VitePressEnvLib;
 
-  /** The API invoked via the CLI command API for the Pkg. */
-  readonly Cmd: t.VitePressCmdLib;
-
   /**
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev
