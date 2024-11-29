@@ -1,5 +1,5 @@
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, Log } from './common.ts';
+import { type t, Args, c, Log, pkg } from './common.ts';
 
 type F = t.VitePressCmdLib['init'];
 
@@ -13,7 +13,16 @@ export const init: F = async (argv, options = {}) => {
   const args = Args.parse<t.CmdArgsInit>(argv);
   const { inDir, srcDir } = args;
 
-  if (!silent) console.info();
+  if (!silent) {
+    console.info();
+    console.info(`${pkg.name} ${c.gray(pkg.version)}`);
+  }
+
   await VitePress.Env.update({ inDir, srcDir });
-  if (!silent) Log.commandAPI();
+
+  if (!silent) {
+    console.info();
+    Log.commandAPI();
+    console.info();
+  }
 };
