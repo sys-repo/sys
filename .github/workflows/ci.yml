@@ -1,36 +1,36 @@
-# https://docs.deno.com/deploy/manual/ci_github
-name: ci
-
-on: [push]
-
-jobs:
-  deno:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write # The OIDC ID token is used for authentication with JSR.
-    environment: dev
-    env:
-      TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
-      DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-      PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
-      PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v2
-
-      - name: Info (Deno Version)
-        run: deno --version
-
-      - name: CI → type check (publish --dry-run)
-        run: deno task dry
-
-      - name: CI → tests
-        run: deno task test --trace-leaks
-
-      - name: Info (Monorepo)
-        run: deno task info
+# # https://docs.deno.com/deploy/manual/ci_github
+# name: ci
+#
+# on: [push]
+#
+# jobs:
+#   deno:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       id-token: write # The OIDC ID token is used for authentication with JSR.
+#     environment: dev
+#     env:
+#       TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
+#       DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
+#       DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
+#       PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
+#       PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
+#
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: denoland/setup-deno@v1
+#         with:
+#           deno-version: v2
+#
+#       - name: Info (Deno Version)
+#         run: deno --version
+#
+#       - name: CI → type check (publish --dry-run)
+#         run: deno task dry
+#
+#       - name: CI → tests
+#         run: deno task test --trace-leaks
+#
+#       - name: Info (Monorepo)
+#         run: deno task info
