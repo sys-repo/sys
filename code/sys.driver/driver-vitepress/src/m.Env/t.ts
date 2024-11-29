@@ -31,6 +31,6 @@ export type VitePressEnvUpdateResponse = {
  * Details about a file update.
  */
 export type VitePressFileUpdate = {
-  readonly kind: 'new' | 'unchanged' | 'updated';
+  readonly kind: 'Created' | 'Updated' | 'Unchanged' | 'UserFile';
   readonly path: t.StringPath;
 };

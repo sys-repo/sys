@@ -1,7 +1,7 @@
 import { VitePress } from '../m.VitePress/mod.ts';
 
 import { type t, Args, DEFAULTS, Fs, HttpServer, pkg, Pkg } from './common.ts';
-import { upgrade } from './u.upgrade.ts';
+import { upgrade } from './m.main.upgrade.ts';
 
 type F = t.VitePressCmdLib['main'];
 

@@ -3,7 +3,7 @@ import { Semver } from '@sys/std/semver';
 import { Tmpl } from '../-tmpl/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, c, Cli, DEFAULTS, Fs, Jsr, pkg } from './common.ts';
+import { type t, Args, c, Cli, DEFAULTS, Fs, Jsr, pkg, Log } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -41,7 +41,7 @@ export async function upgrade(argv: string[]) {
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
     console.info(c.gray(pkg.name));
     console.info();
-    const spinner = Cli.spinner().start();
+    const spinner = Cli.spinner(c.gray('upgrading')).start();
 
     const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
     const path = Fs.join(inDir, 'deno.json');
@@ -51,8 +51,13 @@ export async function upgrade(argv: string[]) {
     /**
      * Update project template files.
      */
-    await VitePress.Env.update({ inDir, force: true, filter: (p) => !p.startsWith('docs/') });
+    const filter = (p: string) => !p.startsWith('docs/');
+    const res = await VitePress.Env.update({ filter, inDir, force: false, silent: true });
+
     spinner.stop().clear();
+    console.info(c.green('Updated Environment'));
+    Log.filesTable(res.files).render();
+
     console.info();
     console.info(c.green(`Project at version:`));
     ViteLog.Module.log(pkg);

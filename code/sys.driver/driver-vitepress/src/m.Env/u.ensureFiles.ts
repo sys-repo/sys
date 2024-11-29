@@ -1,5 +1,5 @@
 import { Tmpl } from '../-tmpl/mod.ts';
-import { type t, Cli, Fs, c, pkg } from './common.ts';
+import { type t, Fs, pkg } from './common.ts';
 
 /**
  * Ensure the required configuration files exist within
@@ -16,15 +16,8 @@ export async function ensureFiles(args: {
   const version = args.version ?? pkg.version;
 
   type K = t.VitePressFileUpdate['kind'];
-  const table = Cli.table([c.gray('files:'), '']);
   const files: t.VitePressFileUpdate[] = [];
   const logPath = (kind: K, path: t.StringPath) => {
-    path = Fs.Path.trimCwd(path);
-    let k = kind;
-    if (k === 'new') k = c.green(k) as K;
-    if (k === 'updated') k = c.yellow(k) as K;
-    if (k === 'unchanged') k = c.gray(c.dim(k)) as K;
-    table.push([`  ${k}`, c.gray(path)]);
     files.push({ kind, path });
   };
 
@@ -35,23 +28,29 @@ export async function ensureFiles(args: {
   };
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
+    //Custom filter.
     if (args.filter) {
       if (!args.filter(path)) return;
+    }
+
+    // Only oversite files within "/.hidden/" dirs.
+    if (!force && is.userFile(path)) {
+      return logPath('UserFile', path);
     }
 
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
     if (!force && exists) {
-      return logPath('unchanged', path);
+      return logPath('Unchanged', path);
     }
     if (exists) {
       const isDiff = await hasChanged(tmpl, path);
-      if (!isDiff) return logPath('unchanged', path);
+      if (!isDiff) return logPath('Unchanged', path);
     }
 
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, tmpl);
-    logPath(exists ? 'updated' : 'new', path);
+    logPath(exists ? 'Updated' : 'Created', path);
   };
 
   // Layout file templates.
@@ -70,7 +69,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Markdown.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
 
   // Finish up.
-  return { files, table } as const;
+  return { files } as const;
 }
 
 /**
@@ -85,5 +84,18 @@ const wrangle = {
       if (isEmpty) return false;
     }
     return exists;
+  },
+} as const;
+
+const is = {
+  withinHiddenDir(path: string): boolean {
+    const dirs = path.split('/').slice(0, -1);
+    return dirs.some((dir) => dir.startsWith('.'));
+  },
+
+  userFile(path: string): boolean {
+    if (is.withinHiddenDir(path)) return false;
+    const ignore = ['.gitignore', 'deno.json', 'package.json'];
+    return !ignore.some((m) => path.split('/').slice(-1)[0] === m);
   },
 } as const;

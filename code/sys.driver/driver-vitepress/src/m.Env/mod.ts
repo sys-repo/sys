@@ -1,4 +1,4 @@
-import { type t, c } from './common.ts';
+import { type t, c, Log } from './common.ts';
 import { ensureFiles } from './u.ensureFiles.ts';
 
 /**
@@ -10,10 +10,10 @@ export const Env: t.VitePressEnvLib = {
    */
   async update(args = {}) {
     const { inDir = '', srcDir, version, force = false, silent = false, filter } = args;
-    const { files, table } = await ensureFiles({ inDir, srcDir, force, version, filter });
+    const { files } = await ensureFiles({ inDir, srcDir, force, version, filter });
     if (!silent) {
-      console.info(c.green('Update Environment'));
-      table.render();
+      console.info(c.green('Updated Environment'));
+      Log.filesTable(files).render();
     }
     return { files };
   },
