@@ -3,7 +3,6 @@
 [![ci](https://github.com/sys-repo/sys/actions/workflows/ci.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/ci.yml)
 [![jsr](https://github.com/sys-repo/sys/actions/workflows/jsr.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yml)
 
-
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
 - modules: [sys](/code/sys/) ← standard libs
