@@ -17,7 +17,7 @@
  * To initialize a new content-transpiler project start by scaffolding out a runtime folder:
  * By default, the source content will be housed within `/docs` folder.  All
  * programmatic modules (with the exceptions of highlevel configuration .ts files)
- * are housed within `.hidden` folders and updatable via `deno trask upgrade`.
+ * are housed within `.hidden` folders and auto-updatable via `deno task upgrade`.
  *
  * Turn the current working directory into a content project.
  *
