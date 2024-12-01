@@ -1,16 +1,7 @@
-import { describe, expect, Fs, it, slug } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { SAMPLE } from './-u.ts';
 import { Is } from './common.ts';
 import { FsStore } from './mod.ts';
-
-export const SAMPLE = {
-  async setup() {
-    const root = Fs.resolve('./.tmp/test');
-    const instance = Fs.join(root, slug());
-    const dir = { root, instance } as const;
-    await Fs.ensureDir(dir.instance);
-    return { dir } as const;
-  },
-};
 
 describe('Store.Fs', () => {
   it('init', async () => {
