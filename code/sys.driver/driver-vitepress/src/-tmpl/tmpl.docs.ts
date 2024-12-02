@@ -5,6 +5,16 @@ const LOREM = `**Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Quis
  * Sample index page.
  */
 export const index = `
+<!-- https://vitepress.dev/guide/using-vue -->
+<script setup>
+import { onMounted } from 'vue'
+onMounted(() => {
+  import('./foo.ts').then((module) => {
+    console.log("./foo.ts", module)
+  })
+})
+</script>
+
 # Hello World.
 
 Generated with \`${Pkg.toString(pkg)}\`.
@@ -28,6 +38,10 @@ foo: 123
 \`\`\`
 `.slice(1);
 
+export const foo = `
+console.log("hello world 👋");
+`.slice(1);
+
 /**
  * Sample page.
  */
@@ -40,7 +54,7 @@ ${lorem ? LOREM : ''}
   `.slice(1);
 }
 
-export const Markdown = {
-  index,
-  sample,
+export const Docs = {
+  md: { index, sample },
+  ts: { foo },
 } as const;
