@@ -41,7 +41,7 @@ export const main: F = async (argv) => {
      * Run local HTTP server on production bundle.
      */
     const { inDir = DEFAULTS.inDir } = args;
-    const dir = Fs.join(inDir, '.vitepress/dist');
+    const dir = Fs.join(inDir, 'dist');
     const dist = (await Pkg.Dist.load(dir)).dist;
     const hash = dist?.hash.digest ?? '';
 

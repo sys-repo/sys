@@ -80,7 +80,7 @@ const wrangle = {
     const { inDir = '', outDir = '' } = options;
     return {
       in: Fs.resolve(inDir),
-      out: outDir ? Fs.resolve(outDir) : Fs.resolve(inDir, '.vitepress/dist'),
+      out: outDir ? Fs.resolve(outDir) : Fs.resolve(inDir, 'dist'),
     };
   },
 } as const;

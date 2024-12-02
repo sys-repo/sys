@@ -21,7 +21,7 @@ describe('VitePress.build', () => {
     const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
     const sample = SAMPLE.init({ slug: true });
     const inDir = Fs.resolve(sample.path);
-    const outDir = Fs.resolve(sample.path, '.vitepress/dist');
+    const outDir = Fs.resolve(sample.path, 'dist');
 
     const res = await VitePress.build({ pkg, inDir, silent: false });
 
