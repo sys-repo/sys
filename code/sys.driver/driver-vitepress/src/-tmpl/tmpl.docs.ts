@@ -11,7 +11,7 @@ import { onMounted } from 'vue'
 onMounted(() => {
   import('../src/setup.ts').then((module) => {
     console.log("src/setup.ts", module)
-  })
+  });
 })
 </script>
 

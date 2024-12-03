@@ -49,6 +49,7 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   await assert('.sys/-main.ts');
   await assert('deno.json');
   await assert('package.json');
-  await assert('pkg.ts');
   await assert('docs/index.md');
+  await assert('src/pkg.ts');
+  await assert('src/setup.ts');
 };

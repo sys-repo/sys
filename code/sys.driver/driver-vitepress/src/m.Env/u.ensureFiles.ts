@@ -29,7 +29,6 @@ export async function ensureFiles(args: {
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
     if (args.filter) {
-      //Custom filter.
       if (!args.filter(path)) return;
     }
 
@@ -57,7 +56,7 @@ export async function ensureFiles(args: {
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
-  await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
+  await ensure(Tmpl.Typescript.pkg, 'src/pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
 
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
