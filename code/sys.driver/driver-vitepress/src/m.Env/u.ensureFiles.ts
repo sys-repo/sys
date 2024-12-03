@@ -52,12 +52,16 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
+  await ensure(Tmpl.Typescript.theme, '.vitepress/theme/index.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'src/pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
+
+  await ensure(Tmpl.Typescript.Components.index, 'src/components/index.ts');
+  await ensure(Tmpl.Typescript.Components.Sample, 'src/components/Sample.vue');
 
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
@@ -88,7 +92,6 @@ const is = {
     const dirs = path.split('/').slice(0, -1);
     return dirs.some((dir) => dir.startsWith('.'));
   },
-
   userFile(path: string): boolean {
     if (is.withinHiddenDir(path)) return false;
     const ignore = ['.gitignore', 'deno.json', 'package.json'];

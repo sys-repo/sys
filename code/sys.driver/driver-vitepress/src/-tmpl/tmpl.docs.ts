@@ -19,6 +19,8 @@ onMounted(() => {
 
 Generated with \`${Pkg.toString(pkg)}\`.
 
+<Sample/>
+
 ## Refs
 
 - [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
