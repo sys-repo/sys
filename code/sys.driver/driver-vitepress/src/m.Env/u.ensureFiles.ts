@@ -63,7 +63,7 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
-  await ensure(Tmpl.Docs.ts.foo, 'docs/foo.ts');
+  await ensure(Tmpl.Docs.ts.setup, 'src/setup.ts');
 
   // Finish up.
   return { files } as const;

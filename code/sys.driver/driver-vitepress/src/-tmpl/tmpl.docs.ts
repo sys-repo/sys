@@ -9,8 +9,8 @@ export const index = `
 <script setup>
 import { onMounted } from 'vue'
 onMounted(() => {
-  import('./foo.ts').then((module) => {
-    console.log("./foo.ts", module)
+  import('../src/setup.ts').then((module) => {
+    console.log("src/setup.ts", module)
   })
 })
 </script>
@@ -38,7 +38,7 @@ foo: 123
 \`\`\`
 `.slice(1);
 
-export const foo = `
+export const setup = `
 console.log("hello world 👋");
 `.slice(1);
 
@@ -56,5 +56,5 @@ ${lorem ? LOREM : ''}
 
 export const Docs = {
   md: { index, sample },
-  ts: { foo },
+  ts: { setup },
 } as const;
