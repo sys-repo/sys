@@ -49,7 +49,6 @@ export async function ensureFiles(args: {
   };
 
   // Layout file templates.
-  await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.Typescript.theme, '.vitepress/theme/index.ts');
@@ -59,6 +58,10 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.Typescript.pkg, 'src/pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
+
+  await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
+  await ensure(Tmpl.Typescript.Components.Sys.index, '.sys/components/index.ts');
+  await ensure(Tmpl.Typescript.Components.Sys.VimeoPlayer, '.sys/components/VimeoPlayer.vue');
 
   await ensure(Tmpl.Typescript.Components.index, 'src/components/index.ts');
   await ensure(Tmpl.Typescript.Components.Sample, 'src/components/Sample.vue');

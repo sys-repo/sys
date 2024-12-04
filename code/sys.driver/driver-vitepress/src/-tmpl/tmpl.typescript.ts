@@ -1,15 +1,15 @@
-import { config } from './tmpl.typescript.-config.ts';
-import { main } from './tmpl.typescript.-main.ts';
-import { nav } from './tmpl.typescript.-nav.ts';
-import { pkg } from './tmpl.typescript.-pkg.ts';
-import { theme } from './tmpl.typescript.-theme.ts';
-import { Components } from './tmpl.typescript.-components.ts';
+import { Components } from './tmpl.ts.-components.ts';
+import { config } from './tmpl.ts.-config.ts';
+import { main } from './tmpl.ts.-main.ts';
+import { nav } from './tmpl.ts.-nav.ts';
+import { pkg } from './tmpl.ts.-pkg.ts';
+import { theme } from './tmpl.ts.-theme.ts';
 
 export const Typescript = {
+  Components,
+  config,
   pkg,
   nav,
   main,
-  config,
   theme,
-  Components,
 } as const;

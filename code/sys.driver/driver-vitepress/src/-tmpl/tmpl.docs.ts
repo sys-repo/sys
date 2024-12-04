@@ -20,6 +20,7 @@ onMounted(() => {
 Generated with \`${Pkg.toString(pkg)}\`.
 
 <Sample/>
+<VimeoPlayer id="1234" />
 
 ## Refs
 

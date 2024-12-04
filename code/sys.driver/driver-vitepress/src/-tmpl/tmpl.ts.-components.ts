@@ -1,3 +1,5 @@
+import { Sys } from './tmpl.ts.-components.sys.ts';
+
 /**
  * Index: global component registration.
  */
@@ -43,4 +45,4 @@ export default defineComponent({
 </style>
 `.slice(1);
 
-export const Components = { index, Sample } as const;
+export const Components = { index, Sample, Sys } as const;
