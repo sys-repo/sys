@@ -17,8 +17,9 @@
     "rollup": "4.28.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "vidstack": "next",
     "vitepress": "1",
-    "vite": "6.0.2",
+    "vite": "6.0.3",
     "vite-plugin-wasm": "3",
     "vue": "3.5.13"
   }
