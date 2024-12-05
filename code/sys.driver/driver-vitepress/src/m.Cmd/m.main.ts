@@ -58,6 +58,10 @@ export const main: F = async (argv) => {
     return;
   }
 
+  if (args.cmd === 'help') {
+    return;
+  }
+
   // Command not matched.
   console.error(`The given --cmd="${cmd}" value not supported`);
 };
