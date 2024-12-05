@@ -17,17 +17,18 @@ export function registerComponents(ctx: EnhanceAppContext) {
 const VideoPlayer = `
 <template>
   <div class="root">
-    <div>Vime Player</div>
+    <div>VideoPlayer</div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+const name = 'VideoPlayer';
 
 export default defineComponent({
-  name: 'VimePlayer',
+  name,
   setup() {
-    console.log('Setup');
+    console.log('Setup:', name);
   },
 });
 </script>
