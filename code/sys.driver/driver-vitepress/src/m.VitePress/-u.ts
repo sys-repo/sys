@@ -51,5 +51,4 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   await assert('package.json');
   await assert('docs/index.md');
   await assert('src/pkg.ts');
-  await assert('src/setup.ts');
 };
