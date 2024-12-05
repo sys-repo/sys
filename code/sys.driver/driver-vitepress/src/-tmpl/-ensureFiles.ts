@@ -48,8 +48,10 @@ export async function ensureFiles(args: {
   // Layout file templates.
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
-  await ensure(Tmpl.Typescript.theme, '.vitepress/theme/index.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
+
+  await ensure(Tmpl.Theme.ts.index, '.vitepress/theme/index.ts');
+  await ensure(Tmpl.Theme.css.index, '.vitepress/theme/index.css');
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
