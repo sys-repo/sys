@@ -41,7 +41,7 @@ describe('VitePress.build', () => {
     const text = await fetched.text();
 
     const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
-    assertHtml(`<title>Hello World. | Untitled</title>`);
+    assertHtml(`<title>👋 Hello World. | Untitled</title>`);
     assertHtml(`Generated with <code>@sys/driver-vitepress@`);
 
     server.shutdown();
