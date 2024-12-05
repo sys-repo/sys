@@ -17,9 +17,7 @@ export async function ensureFiles(args: {
 
   type K = t.VitePressFileUpdate['kind'];
   const files: t.VitePressFileUpdate[] = [];
-  const logPath = (kind: K, path: t.StringPath) => {
-    files.push({ kind, path });
-  };
+  const logPath = (kind: K, path: t.StringPath) => files.push({ kind, path });
 
   const hasChanged = async (tmpl: string, path: t.StringPath) => {
     if (!(await Fs.exists(path))) return false;
@@ -34,12 +32,10 @@ export async function ensureFiles(args: {
 
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
+    const isDiff = exists ? await hasChanged(tmpl, path) : false;
+
     if (!force && exists) {
       if (is.userFile(path)) return logPath('UserFile', path); // Don't touch user files, as they may have changed them.
-      return logPath('Unchanged', path);
-    }
-    if (exists) {
-      const isDiff = await hasChanged(tmpl, path);
       if (!isDiff) return logPath('Unchanged', path);
     }
 
