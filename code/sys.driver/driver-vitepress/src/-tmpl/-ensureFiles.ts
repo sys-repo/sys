@@ -55,7 +55,6 @@ export async function ensureFiles(args: {
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
-  await ensure(Tmpl.Typescript.pkg, 'src/pkg.ts');
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
 
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
