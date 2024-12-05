@@ -5,7 +5,7 @@ const LOREM = `**Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Quis
  * Sample index page.
  */
 export const index = `
-# 👋 Hello World.
+# 👋 Hello World
 
 Generated with \`${Pkg.toString(pkg)}\`.
 

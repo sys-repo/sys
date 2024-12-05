@@ -23,9 +23,7 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   await assert('.sys/components/VideoPlayer.vue');
   await assert('deno.json');
   await assert('package.json');
-  await assert('src/pkg.ts');
   await assert('src/nav.ts');
-  await assert('src/pkg.ts');
   await assert('src/components/index.ts');
   await assert('src/components/Sample.vue');
   await assert('docs/index.md');
