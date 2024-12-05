@@ -12,7 +12,9 @@ export const Log = {
 
     const push = (cmd: string, description: string) => {
       const color = cmdColor(cmd);
-      const left = c.gray(`  deno task ${color(cmd)}`);
+      let name = color(cmd);
+      if (args.cmd === cmd) name = c.bold(name);
+      const left = c.gray(`  deno task ${name}`);
       table.push([left, description]);
     };
     push('dev', 'Run the development server.');
@@ -21,7 +23,7 @@ export const Log = {
     push('upgrade', `Upgrade to latest version.`);
     push('help', `Show help.`);
 
-    console.info(c.gray(`Usage: ${c.green(`deno task ${c.bold(cmd || '[COMMAND]')}`)}`));
+    console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : '[COMMAND]'}`)}`));
     table.render();
     console.info(``);
   },
