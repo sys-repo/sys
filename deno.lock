@@ -61,7 +61,6 @@
     "npm:@types/react-dom@18.3.1": "18.3.1",
     "npm:@types/react@18.3.12": "18.3.12",
     "npm:@vitejs/plugin-react-swc@3": "3.7.2_vite@6.0.3__@types+node@22.5.4__yaml@2.6.0_@types+node@22.5.4_yaml@2.6.0",
-    "npm:@vitejs/plugin-vue@5": "5.2.1_vite@6.0.3__@types+node@22.5.4__yaml@2.6.0_vue@3.5.13_@types+node@22.5.4_yaml@2.6.0",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@5": "5.1.2",
     "npm:csstype@3": "3.1.3",
@@ -1207,13 +1206,6 @@
       "integrity": "sha512-cxh314tzaWwOLqVes2gnnCtvBDcM1UMdn+iFR+UjAn411dPT3tOmqrJjbMd7koZpMAmBM/GqeV4n9ge7JSiJJQ==",
       "dependencies": [
         "vite@5.4.11_@types+node@22.5.4",
-        "vue"
-      ]
-    },
-    "@vitejs/plugin-vue@5.2.1_vite@6.0.3__@types+node@22.5.4__yaml@2.6.0_vue@3.5.13_@types+node@22.5.4_yaml@2.6.0": {
-      "integrity": "sha512-cxh314tzaWwOLqVes2gnnCtvBDcM1UMdn+iFR+UjAn411dPT3tOmqrJjbMd7koZpMAmBM/GqeV4n9ge7JSiJJQ==",
-      "dependencies": [
-        "vite@6.0.3_@types+node@22.5.4_yaml@2.6.0",
         "vue"
       ]
     },
@@ -2710,7 +2702,7 @@
         "@shikijs/transformers",
         "@shikijs/types",
         "@types/markdown-it",
-        "@vitejs/plugin-vue@5.2.1_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_@types+node@22.5.4",
+        "@vitejs/plugin-vue",
         "@vue/devtools-api",
         "@vue/shared",
         "@vueuse/core",
@@ -2827,7 +2819,6 @@
         "npm:@types/react-dom@18.3.1",
         "npm:@types/react@18.3.12",
         "npm:@vitejs/plugin-react-swc@3",
-        "npm:@vitejs/plugin-vue@5",
         "npm:react-dom@18.3.1",
         "npm:react@18.3.1",
         "npm:rollup@4.28.0",

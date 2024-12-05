@@ -17,14 +17,14 @@ export function registerComponents(ctx: EnhanceAppContext) {
 const VideoPlayer = `
 <template>
   <div class="root">
-    <div>VideoPlayer</div>
+    <div>🐷 Video Player (WIP)</div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-const name = 'VideoPlayer';
 
+const name = 'VideoPlayer';
 export default defineComponent({
   name,
   setup() {
@@ -37,7 +37,7 @@ export default defineComponent({
 .root {
   background-color: rgba(255, 0, 0, 0.1);
   padding: 12px;
-  margin-top: 5;
+  margin-top: 5px;
 }
 </style>
 `.slice(1);

@@ -17,7 +17,7 @@ export default Theme;
 `.slice(1);
 
 const CSS = `
-@import '@vidstack/player/styles/defaults.css';
+/* placeholder */
 `.slice(1);
 
 export const Theme = {
