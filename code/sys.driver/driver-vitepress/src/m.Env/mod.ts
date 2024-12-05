@@ -1,4 +1,4 @@
-import { ensureFiles } from '../-tmpl/u.ensureFiles.ts';
+import { ensureFiles } from '../-tmpl/mod.ts';
 import { type t, c, Log } from './common.ts';
 
 /**
