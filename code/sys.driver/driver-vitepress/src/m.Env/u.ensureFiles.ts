@@ -35,7 +35,7 @@ export async function ensureFiles(args: {
     const isDiff = exists ? await hasChanged(tmpl, path) : false;
 
     if (!force && exists) {
-      if (is.userFile(path)) return logPath('UserFile', path); // Don't touch user files, as they may have changed them.
+      if (is.userFile(path)) return logPath('Userspace', path); // Don't touch user files, as they may have changed them.
       if (!isDiff) return logPath('Unchanged', path);
     }
 

@@ -23,7 +23,7 @@ export const Log = {
     type K = t.VitePressFileUpdate['kind'];
     const table = Cli.table([c.gray('Scaffold:'), '']);
     for (const item of files) {
-      const isUserfile = item.kind === 'UserFile';
+      const isUserfile = item.kind === 'Userspace';
       let path = Fs.Path.trimCwd(item.path);
       path = isUserfile ? c.dim(c.gray(path)) : path;
 
@@ -31,7 +31,7 @@ export const Log = {
       if (k === 'Created') k = c.green(k) as K;
       if (k === 'Updated') k = c.yellow(k) as K;
       if (k === 'Unchanged') k = c.gray(k) as K;
-      if (k === 'UserFile') k = c.gray(k) as K;
+      if (k === 'Userspace') k = c.gray(k) as K;
 
       const suffix = isUserfile ? '(ignored)' : '';
       table.push([`  ${k}`, c.white(path), suffix]);
