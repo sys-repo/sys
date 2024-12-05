@@ -17,6 +17,8 @@ export const main: F = async (argv) => {
   const cmd = args.cmd ?? DEFAULTS.cmd;
 
   if (args.cmd === 'dev') {
+    Log.usageAPI();
+
     /**
      * Start HMR development server.
      */
@@ -59,7 +61,7 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'help') {
-    Log.commandAPI();
+    Log.usageAPI();
     return;
   }
 

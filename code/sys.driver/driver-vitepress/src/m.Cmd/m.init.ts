@@ -22,7 +22,7 @@ export const init: F = async (argv, options = {}) => {
 
   if (!silent) {
     console.info();
-    Log.commandAPI();
+    Log.usageAPI();
     console.info();
   }
 };

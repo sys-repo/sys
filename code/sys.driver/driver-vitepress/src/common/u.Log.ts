@@ -2,7 +2,7 @@ import { c, Cli, Fs } from './libs.ts';
 import type * as t from './t.ts';
 
 export const Log = {
-  commandAPI() {
+  usageAPI() {
     const table = Cli.table([]);
     const push = (cmd: string, description: string) => {
       const left = c.gray(`  deno task ${c.green(cmd)}`);
