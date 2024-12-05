@@ -14,7 +14,7 @@ export const denofile = (args: { pkg?: t.Pkg } = {}) => {
     "dev":     "deno run -RWNE --allow-run ${entry} --cmd=dev",
     "build":   "deno run -RWNE --allow-run ${entry} --cmd=build",
     "serve":   "deno run -RNE --allow-run ${entry} --cmd=serve",
-    "upgrade": "deno run -RWNE --allow-run ${entry} --cmd=upgrade"
+    "upgrade": "deno run -RWNE --allow-run ${entry} --cmd=upgrade",
     "help": "deno run -RWNE --allow-run ${entry} --cmd=help"
   },
   "nodeModulesDir": "auto",
