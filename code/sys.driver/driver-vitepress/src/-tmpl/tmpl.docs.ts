@@ -10,7 +10,7 @@ export const index = `
 Generated with \`${Pkg.toString(pkg)}\`.
 
 <Sample/>
-<VimeoPlayer id="1234" />
+<Video id="1234" />
 
 ## Refs
 

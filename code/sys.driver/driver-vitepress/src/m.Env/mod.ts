@@ -1,5 +1,5 @@
+import { ensureFiles } from '../-tmpl/u.ensureFiles.ts';
 import { type t, c, Log } from './common.ts';
-import { ensureFiles } from './u.ensureFiles.ts';
 
 /**
  * Helpers for establishing and updating the project environment.

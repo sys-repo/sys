@@ -41,6 +41,7 @@ export async function ensureFiles(args: {
 
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, tmpl);
+
     logPath(exists ? 'Updated' : 'Created', path);
   };
 
@@ -57,7 +58,7 @@ export async function ensureFiles(args: {
 
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Tmpl.Typescript.Components.Sys.index, '.sys/components/index.ts');
-  await ensure(Tmpl.Typescript.Components.Sys.VimeoPlayer, '.sys/components/VimeoPlayer.vue');
+  await ensure(Tmpl.Typescript.Components.Sys.VideoPlayer, '.sys/components/VideoPlayer.vue');
 
   await ensure(Tmpl.Typescript.Components.index, 'src/components/index.ts');
   await ensure(Tmpl.Typescript.Components.Sample, 'src/components/Sample.vue');
