@@ -20,7 +20,6 @@ export const dev: F = async (input = {}) => {
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await Env.update({ inDir, silent: true });
   Log.Dev.log({ inDir, pkg });
 
   const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
