@@ -2,10 +2,17 @@ import { c, Cli, Fs } from './libs.ts';
 import type * as t from './t.ts';
 
 export const Log = {
-  usageAPI() {
+  usageAPI(args: { cmd?: t.CmdArgsMain['cmd'] } = {}) {
+    const { cmd } = args;
     const table = Cli.table([]);
+    const cmdColor = (cmd: string) => {
+      if (!args.cmd) return c.green;
+      return cmd === args.cmd ? c.green : c.gray;
+    };
+
     const push = (cmd: string, description: string) => {
-      const left = c.gray(`  deno task ${c.green(cmd)}`);
+      const color = cmdColor(cmd);
+      const left = c.gray(`  deno task ${color(cmd)}`);
       table.push([left, description]);
     };
     push('dev', 'Run the development server.');
@@ -14,7 +21,7 @@ export const Log = {
     push('upgrade', `Upgrade to latest version.`);
     push('help', `Show help.`);
 
-    console.info(c.gray(`Usage: ${c.green('deno task [COMMAND]')}`));
+    console.info(c.gray(`Usage: ${c.green(`deno task ${c.bold(cmd || '[COMMAND]')}`)}`));
     table.render();
     console.info(``);
   },
