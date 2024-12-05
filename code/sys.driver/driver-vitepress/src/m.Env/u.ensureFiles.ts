@@ -35,7 +35,7 @@ export async function ensureFiles(args: {
     const isDiff = exists ? await hasChanged(tmpl, path) : false;
 
     if (!force && exists) {
-      if (is.userFile(path)) return logPath('Userspace', path); // Don't touch user files, as they may have changed them.
+      if (is.inUserspace(path)) return logPath('Userspace', path); // Don't touch user files, as they may have changed them.
       if (!isDiff) return logPath('Unchanged', path);
     }
 
@@ -65,7 +65,6 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
-  await ensure(Tmpl.Docs.ts.setup, 'src/setup.ts');
 
   // Finish up.
   return { files } as const;
@@ -91,7 +90,7 @@ const is = {
     const dirs = path.split('/').slice(0, -1);
     return dirs.some((dir) => dir.startsWith('.'));
   },
-  userFile(path: string): boolean {
+  inUserspace(path: string): boolean {
     if (is.withinHiddenDir(path)) return false;
     const ignore = ['.gitignore', 'deno.json', 'package.json'];
     return !ignore.some((m) => path.split('/').slice(-1)[0] === m);
