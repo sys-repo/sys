@@ -7,7 +7,8 @@ type F = t.HttpServerLib['options'];
  * Generates a Deno.server(...) configuration options object.
  */
 export const options: F = (...input: any[]) => {
-  const { port, pkg, hash } = wrangle.options(input);
+  const options = wrangle.options(input);
+  const { port, pkg, hash } = options;
   return {
     port,
     onListen(address) {

@@ -20,17 +20,24 @@ export type HttpServerLib = {
   options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions<Deno.NetAddr>;
   options(args: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;
-  keyboard(args: { port: number; dispose?: () => Promise<void> }): Promise<void>;
+  keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
 };
 
-/** Options arguments passed to [HttpServer.options] */
+/** Arguments passed to [HttpServer.options] */
 export type HttpServerOptionsOptions = {
   port?: number;
   pkg?: t.Pkg;
   hash?: t.StringHash;
 };
 
-/** Options arguments passed to [HttpServer.print] */
+/** Arguments passed to [HttpServer.print] */
+export type HttpServerKeyboardOptions = {
+  port: number;
+  print?: boolean;
+  dispose?: () => Promise<void>;
+};
+
+/** Arguments passed to [HttpServer.print] */
 export type HttpServerPrintOptions = {
   addr: Deno.NetAddr;
   pkg?: t.Pkg;

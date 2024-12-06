@@ -1,10 +1,27 @@
 import { Cmd } from '../m.Process/mod.ts';
-import { Cli } from './common.ts';
+import { Cli, c } from './common.ts';
 
 /**
  * Create a keyboard listener to control the running dev server.
  */
-export async function keyboard(args: { port: number; dispose?: () => Promise<void> }) {
+export async function keyboard(args: {
+  port: number;
+  print?: boolean;
+  dispose?: () => Promise<void>;
+}) {
+  if (args.print) {
+    const table = Cli.table([]);
+    const push = (label: string, value: string) => {
+      label = c.gray(` ${label}`);
+      value = ` ${value}`;
+      table.push([label, value]);
+    };
+    push('Quit', 'ctrl + c');
+    push('Open', `o ${c.gray(c.dim('in browser'))}`);
+    console.info(c.gray(c.dim('Keyboard')));
+    console.info(table.toString().trim());
+  }
+
   const sh = Cmd.sh();
   for await (const e of Cli.keypress()) {
     /**
