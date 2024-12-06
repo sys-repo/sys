@@ -1,4 +1,4 @@
-import UAParser from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 import type { t } from '../common.ts';
 
 type P = UAParser.IResult;
