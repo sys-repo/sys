@@ -18,8 +18,16 @@ export type HttpServerLib = {
   readonly static: t.HttpServeStatic;
   create(options?: t.HttpServerCreateOptions): HonoApp;
   options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
-  print(addr: Deno.NetAddr, pkg?: t.Pkg, hash?: t.StringHash): void;
+  print(args: t.HttpServerPrintOptions): void;
   keyboard(args: { port: number; dispose?: () => Promise<void> }): Promise<void>;
+};
+
+/** Options passed to [HttpServer.print] */
+export type HttpServerPrintOptions = {
+  addr: Deno.NetAddr;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+  keyboard?: boolean;
 };
 
 /** Options passed to the creation of a server. */

@@ -4,7 +4,7 @@ import { Hash, c, Cli, type t } from './common.ts';
  * Outputs a formatted console log within
  * meta-data about the running server and module.
  */
-export const print: t.HttpServerLib['print'] = (addr, pkg, hash) => {
+export const print: t.HttpServerLib['print'] = ({ addr, pkg, hash }) => {
   const port = c.bold(c.brightCyan(String(addr.port)));
   const host = c.cyan(`http://localhost:${port}/`);
   if (pkg) {

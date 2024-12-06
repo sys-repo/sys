@@ -1,12 +1,17 @@
 import type { t } from './common.ts';
 import { print } from './u.log.ts';
 
+type F = t.HttpServerLib['options'];
+
 /**
  * Generates a Deno.server(...) configuration options object.
  */
-export const options: t.HttpServerLib['options'] = (port, pkg, hash) => {
+export const options: F = (port, pkg, hash) => {
   return {
     port,
-    onListen: (addr) => print(addr as Deno.NetAddr, pkg, hash),
+    onListen(address) {
+      const addr = address as Deno.NetAddr;
+      print({ addr, pkg, hash });
+    },
   };
 };
