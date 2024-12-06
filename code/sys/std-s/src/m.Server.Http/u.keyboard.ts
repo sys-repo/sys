@@ -20,6 +20,7 @@ export async function keyboard(args: {
     push('Open', `o ${c.gray(c.dim('in browser'))}`);
     console.info(c.gray(c.dim('Keyboard')));
     console.info(table.toString().trim());
+    console.info();
   }
 
   const sh = Cmd.sh();
