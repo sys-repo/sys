@@ -23,7 +23,8 @@ export const Log = {
     push('upgrade', `Upgrade to latest version.`);
     push('help', `Show help.`);
 
-    console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : '[COMMAND]'}`)}`));
+    const COMMAND = `[${c.bold('COMMAND')}]`;
+    console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : COMMAND}`)}`));
     table.render();
     console.info(``);
   },
