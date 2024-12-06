@@ -66,7 +66,7 @@ describe('Server', () => {
       const b = HttpServer.options(port, pkg, hash);
       const c = HttpServer.options(port, pkg, hash);
       const d = HttpServer.options();
-      const e = HttpServer.options({ port, pkg, hash });
+      const e = HttpServer.options({ pkg, port, hash });
       const all = [a, b, c, d, e];
       all.forEach((item) => {
         expect(typeof item.onListen === 'function').to.eql(true);
