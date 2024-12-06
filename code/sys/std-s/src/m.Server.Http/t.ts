@@ -43,6 +43,7 @@ export type HttpServerPrintOptions = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
   keyboard?: boolean;
+  requestedPort?: t.PortNumber;
 };
 
 /** Options passed to the creation of a server. */

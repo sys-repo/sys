@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import { type t, Net } from './common.ts';
 import { print } from './u.log.ts';
 
 type F = t.HttpServerLib['options'];
@@ -8,12 +8,14 @@ type F = t.HttpServerLib['options'];
  */
 export const options: F = (...input: any[]) => {
   const options = wrangle.options(input);
-  const { port, pkg, hash } = options;
+  const { pkg, hash } = options;
+  const port = Net.port(options.port);
   return {
     port,
     onListen(address) {
       const addr = address as Deno.NetAddr;
-      print({ addr, pkg, hash });
+      const requestedPort = options.port;
+      print({ addr, pkg, hash, requestedPort });
     },
   };
 };
