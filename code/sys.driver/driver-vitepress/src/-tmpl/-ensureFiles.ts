@@ -46,6 +46,8 @@ export async function ensureFiles(args: {
   };
 
   // Layout file templates.
+  const Components = Tmpl.Typescript.Components;
+
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
   await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
@@ -58,11 +60,13 @@ export async function ensureFiles(args: {
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
 
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
-  await ensure(Tmpl.Typescript.Components.Sys.index, '.sys/components/index.ts');
-  await ensure(Tmpl.Typescript.Components.Sys.VideoPlayer, '.sys/components/VideoPlayer.vue');
+  await ensure(Components.Sys.index, '.sys/components/index.ts');
+  await ensure(Components.Sys.VideoPlayer, '.sys/components/VideoPlayer.vue');
+  await ensure(Components.Sys.ReactWrapper, '.sys/components/ReactWrapper.vue');
+  await ensure(Components.Sys.ReactWrapperSample, '.sys/components/ReactWrapper.Sample.ts');
 
-  await ensure(Tmpl.Typescript.Components.index, 'src/components/index.ts');
-  await ensure(Tmpl.Typescript.Components.Sample, 'src/components/Sample.vue');
+  await ensure(Components.index, 'src/components/index.ts');
+  await ensure(Components.Sample, 'src/components/Sample.vue');
 
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
