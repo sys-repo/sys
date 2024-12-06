@@ -50,6 +50,7 @@ export const ReactWrapper = `
 
 <script setup lang="ts">
 import { onMounted, ref, onBeforeUnmount } from 'vue';
+
 import React from 'react-dom';
 import ReactDOM from 'react-dom/client';
 import { MyReactComponent } from './ReactWrapper.Sample.ts';
@@ -93,7 +94,15 @@ export default defineComponent({
 `;
 
 export const ReactWrapperSample = `
+import React from 'react';
 
+export const MyReactComponent: React.FC = () => {
+  return (
+    <div style={{ color: 'blue', fontSize: '20px' }}>
+      Hello from React!
+    </div>
+  );
+};
 `;
 
 export const Sys = {
