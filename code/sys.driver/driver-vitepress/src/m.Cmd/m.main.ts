@@ -50,9 +50,8 @@ export const main: F = async (argv) => {
 
     const port = 8080;
     const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-    Deno.serve(HttpServer.options(port, pkg, hash), app.fetch);
-    await HttpServer.keyboard({ port });
-
+    Deno.serve(HttpServer.options({ port, pkg, hash }), app.fetch);
+    await HttpServer.keyboard({ port, print: true });
     return;
   }
 
