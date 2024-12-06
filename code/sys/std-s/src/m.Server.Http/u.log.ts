@@ -16,6 +16,9 @@ export const print: t.HttpServerLib['print'] = ({ addr, pkg, hash }) => {
     const version = c.gray(`  ${pkg.version}`);
     const table = Cli.table([]);
 
+    console.trace();
+    // console.log('options', options);
+
     table.push([c.gray('Module'), `${mod}`, version]);
     if (hx) table.push(['', integrity, c.gray(`${c.dim('←')} dist/dist.json`)]);
     table.push(['', host]);

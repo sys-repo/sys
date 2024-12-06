@@ -17,12 +17,20 @@ export type HttpServerLib = {
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;
   create(options?: t.HttpServerCreateOptions): HonoApp;
-  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
+  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions<Deno.NetAddr>;
+  options(args: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;
   keyboard(args: { port: number; dispose?: () => Promise<void> }): Promise<void>;
 };
 
-/** Options passed to [HttpServer.print] */
+/** Options arguments passed to [HttpServer.options] */
+export type HttpServerOptionsOptions = {
+  port?: number;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+};
+
+/** Options arguments passed to [HttpServer.print] */
 export type HttpServerPrintOptions = {
   addr: Deno.NetAddr;
   pkg?: t.Pkg;
