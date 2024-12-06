@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "@std/async": "npm:@jsr/std__async@1.0.9",
-    "@std/cli": "npm:@jsr/std__cli@1.0.7",
+    "@std/cli": "npm:@jsr/std__cli@1.0.8",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
     "@std/fmt": "npm:@jsr/std__fmt@^1.0.3",
     "@std/path": "npm:@jsr/std__path@1.0.8",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
-    "@std/testing": "npm:@jsr/std__testing@1.0.5",
+    "@std/testing": "npm:@jsr/std__testing@1.0.6",
     "@std/uuid": "npm:@jsr/std__uuid@1.0.4"
   },
   "devDependencies": {
@@ -14,7 +14,7 @@
     "@types/react-dom": "18.3.1",
     "@swc/plugin-emotion": "8.0.1",
     "@vitejs/plugin-react-swc": "3",
-    "rollup": "4.28.0",
+    "rollup": "4.28.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "vidstack": "next",
