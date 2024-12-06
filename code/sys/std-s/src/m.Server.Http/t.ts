@@ -12,7 +12,6 @@ import type { t } from './common.ts';
  * HTTP Webserver.
  */
 export type HttpServerLib = {
-  readonly Auth: t.ServerAuth;
   readonly Hono: typeof Hono;
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;

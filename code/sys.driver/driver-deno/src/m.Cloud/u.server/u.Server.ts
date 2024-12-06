@@ -1,4 +1,4 @@
-import { HttpServer, type t } from './common.ts';
+import { type t, HttpServer, Auth as HttpServerAuth } from './common.ts';
 import { Auth } from './u.Auth.ts';
 import { Routes } from './u.Routes.ts';
 
@@ -28,7 +28,7 @@ export function server(args: A) {
 const wrangle = {
   auth(args: A) {
     const privy = args.env.privy;
-    return HttpServer.Auth.ctx(privy.appId, privy.appSecret);
+    return HttpServerAuth.ctx(privy.appId, privy.appSecret);
   },
 
   authMiddleware(args: A, ctx: t.RouteContext) {
