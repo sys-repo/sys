@@ -100,17 +100,15 @@ const wrangle = {
     const { os, device } = parser;
     const name = wrangle.string(os.name);
 
-    let macOS = name === 'Mac OS';
+    let macOS = name === 'macOS';
     let iOS = name === 'iOS';
-    let iPad = device.model === 'iPad';
-    let iPhone = device.model === 'iPhone';
+    const iPad = device.model === 'iPad';
+    const iPhone = device.model === 'iPhone';
     const mobile = device.type === 'mobile';
     const tablet = device.type === 'tablet';
 
-    if (macOS) {
-      if (iPad || iPhone) iOS = true;
-      if (iOS) macOS = false;
-    }
+    if (iPad || iPhone) iOS = true;
+    if (iOS) macOS = false;
 
     return {
       posix: ['Linux', 'Ubuntu'].includes(name),

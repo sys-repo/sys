@@ -28,7 +28,7 @@ describe('UserAgent', () => {
 
   it('parses string', () => {
     const res = UserAgent.parse(EXAMPLE.apple.macos);
-    expect(res.os.name).to.eql('Mac OS');
+    expect(res.os.name).to.eql('macOS');
     expect(res.browser.name).to.eql('Chrome');
     expect(res.device.vendor).to.eql('Apple');
   });
