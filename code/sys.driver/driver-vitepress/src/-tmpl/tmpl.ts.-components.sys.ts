@@ -3,10 +3,13 @@
  */
 export const index = `
 import type { EnhanceAppContext } from 'vitepress';
+
+import ReactWrapper from './ReactWrapper.vue';
 import Video from './VideoPlayer.vue';
 
 export function registerComponents(ctx: EnhanceAppContext) {
   ctx.app.component('Video', Video);  
+  ctx.app.component('ReactWrapper', ReactWrapper);
 }
 `.slice(1);
 
@@ -44,35 +47,29 @@ export default defineComponent({
 
 export const ReactWrapper = `
 <template>
-  <!-- This is where the React component will be mounted -->
   <div ref="reactRoot"></div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, onBeforeUnmount } from 'vue';
 
-import React from 'react-dom';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { MyReactComponent } from './ReactWrapper.Sample.ts';
+import { MyComponent } from './ReactWrapper.Sample';
 
 const reactRoot = ref<HTMLElement | null>(null);
 let root: ReactDOM.Root | null = null;
 
 onMounted(() => {
   if (reactRoot.value) {
-    // Create the React root and render the React component
+    const el = React.createElement(MyComponent, { count: 123 });
     root = ReactDOM.createRoot(reactRoot.value);
-    // root.render(<MyReactComponent />);
-    // React.cloneElement()
-    // root.render();
-    console.log('root', root);
+    root.render(el);
   }
 });
 
 onBeforeUnmount(() => {
-  if (root) {
-    root.unmount();
-  }
+  root?.unmount();
 });
 </script>
 
@@ -96,10 +93,15 @@ export default defineComponent({
 export const ReactWrapperSample = `
 import React from 'react';
 
-export const MyReactComponent: React.FC = () => {
+export type MyComponentProps = {
+  count?: number;
+};
+
+export const MyComponent: React.FC<MyComponentProps> = (props) => {
+  console.log('MyComponent.props:', props);
   return (
-    <div style={{ color: 'blue', fontSize: '20px' }}>
-      Hello from React!
+    <div style={{ marginTop: 5, padding: 10, backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */ }}>
+      <div>Hello from React 👋</div>
     </div>
   );
 };

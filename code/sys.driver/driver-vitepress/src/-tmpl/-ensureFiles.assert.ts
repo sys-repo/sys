@@ -25,7 +25,7 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
     '.sys/components/index.ts',
     '.sys/components/VideoPlayer.vue',
     '.sys/components/ReactWrapper.vue',
-    '.sys/components/ReactWrapper.Sample.ts',
+    '.sys/components/ReactWrapper.Sample.tsx',
     'src/nav.ts',
     'src/components/index.ts',
     'src/components/Sample.vue',

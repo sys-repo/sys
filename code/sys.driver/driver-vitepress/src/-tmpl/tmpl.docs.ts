@@ -7,19 +7,18 @@ const LOREM = `**Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Quis
 export const index = `
 # 👋 Hello World
 
-Generated with \`${Pkg.toString(pkg)}\`.
+Generated with \`${Pkg.toString(pkg)}\`.  
+Sample throw-away content.
 
 <Sample/>
 <Video id="1234" />
+<ReactWrapper />
 
 ## Refs
-
 - [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
 - [https://vitepress.dev](https://vitepress.dev)
 
-
 ## Topic
-
 ${LOREM}
 
 ## H2
