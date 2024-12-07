@@ -1,10 +1,9 @@
 export const pkgJson = `
 {
   "dependencies": {
-    "@vitejs/plugin-react-swc": "3",
+    "@vidstack/react": "next",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "vidstack": "next",
     "vitepress": "1",
     "vue": "3"    
   }
