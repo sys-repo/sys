@@ -5,10 +5,10 @@ export const index = `
 import type { EnhanceAppContext } from 'vitepress';
 
 import ReactWrapper from './ReactWrapper.vue';
-import Video from './VideoPlayer.vue';
+import Video from './Video.vue';
 
 export function registerComponents(ctx: EnhanceAppContext) {
-  ctx.app.component('Video', Video);  
+  ctx.app.component('Video', Video);
   ctx.app.component('ReactWrapper', ReactWrapper);
 }
 `.slice(1);
@@ -17,37 +17,68 @@ export function registerComponents(ctx: EnhanceAppContext) {
  * Sample VimeoVime multi-purpose video player.
  * https://vidstack.io/docs
  */
-export const VideoPlayer = `
+export const VideoVue = `
 <template>
-  <div class="root">
-    <div>🐷 Video Player (WIP)</div>
-  </div>
+  <div ref="reactRoot"></div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 
-const name = 'VideoPlayer';
-export default defineComponent({
-  name,
-  setup() {
-    console.log('Setup:', name);
-  },
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Video } from './Video';
+
+const reactRoot = ref<HTMLElement | null>(null);
+let root: ReactDOM.Root | null = null;
+
+onMounted(() => {
+  if (reactRoot.value) {
+    const el = React.createElement(Video, {});
+    root = ReactDOM.createRoot(reactRoot.value);
+    root.render(el);
+  }
+});
+
+onBeforeUnmount(() => {
+  root?.unmount();
 });
 </script>
 
 <style scoped>
-.root {
-  background-color: rgba(255, 0, 0, 0.1);
-  padding: 12px;
-  margin-top: 5px;
-}
 </style>
+`;
+
+export const VideoTsx = `
+import React from 'react';
+
+import '@vidstack/react/player/styles/base.css';
+import '@vidstack/react/player/styles/plyr/theme.css';
+
+import { MediaPlayer, MediaProvider } from '@vidstack/react';
+import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
+
+export type VideoProps = {
+  src?: string;
+};
+
+export const Video: React.FC<VideoProps> = (props: VideoProps) => {
+  console.log('VideoPlayer.tsx', props);
+  return (
+    <MediaPlayer title="Sprite Fight" src={'vimeo/727951677'}>
+      <MediaProvider />
+      <PlyrLayout
+        thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
+        icons={plyrLayoutIcons}
+      />
+    </MediaPlayer>
+  );
+};
 `;
 
 export const ReactWrapper = `
 <template>
-  <div ref="reactRoot"></div>
+  <div ref="reactRoot" class="root"></div>
 </template>
 
 <script setup lang="ts">
@@ -73,20 +104,10 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-
-const name = 'VideoPlayer';
-export default defineComponent({
-  name,
-  setup() {
-    console.log('Setup:', name);
-  },
-});
-</script>
-
 <style scoped>
-/* Optional styling */
+.root {
+  padding-bottom: 10px;
+}
 </style>
 `;
 
@@ -109,7 +130,8 @@ export const MyComponent: React.FC<MyComponentProps> = (props) => {
 
 export const Sys = {
   index,
-  VideoPlayer,
+  VideoVue,
+  VideoTsx,
   ReactWrapper,
   ReactWrapperSample,
 } as const;

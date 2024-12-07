@@ -8,11 +8,11 @@ export const index = `
 # 👋 Hello World
 
 Generated with \`${Pkg.toString(pkg)}\`.  
-Sample throw-away content.
+Sample content...
 
 <Sample/>
-<Video id="1234" />
 <ReactWrapper />
+<Video id="1234" />
 
 ## Refs
 - [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)

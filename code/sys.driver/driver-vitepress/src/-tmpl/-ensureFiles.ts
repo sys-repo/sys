@@ -61,7 +61,8 @@ export async function ensureFiles(args: {
 
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Components.Sys.index, '.sys/components/index.ts');
-  await ensure(Components.Sys.VideoPlayer, '.sys/components/VideoPlayer.vue');
+  await ensure(Components.Sys.VideoVue, '.sys/components/Video.vue');
+  await ensure(Components.Sys.VideoTsx, '.sys/components/Video.tsx');
   await ensure(Components.Sys.ReactWrapper, '.sys/components/ReactWrapper.vue');
   await ensure(Components.Sys.ReactWrapperSample, '.sys/components/ReactWrapper.Sample.tsx');
 
