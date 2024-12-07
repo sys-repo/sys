@@ -7,7 +7,10 @@
     "@std/path": "npm:@jsr/std__path@1.0.8",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
     "@std/testing": "npm:@jsr/std__testing@1.0.6",
-    "@std/uuid": "npm:@jsr/std__uuid@1.0.4"
+    "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
+    "@vidstack/react": "next",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
     "@types/react": "18.3.12",
@@ -15,9 +18,6 @@
     "@swc/plugin-emotion": "8.0.1",
     "@vitejs/plugin-react-swc": "3",
     "rollup": "4.28.1",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "vidstack": "next",
     "vitepress": "1",
     "vite": "6.0.3",
     "vite-plugin-wasm": "3",

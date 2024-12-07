@@ -77,6 +77,7 @@
     "npm:@types/node@*": "22.5.4",
     "npm:@types/react-dom@18.3.1": "18.3.1",
     "npm:@types/react@18.3.12": "18.3.12",
+    "npm:@vidstack/react@next": "1.12.12_@types+react@18.3.12_react@18.3.1",
     "npm:@vitejs/plugin-react-swc@3": "3.7.2_vite@6.0.3__@types+node@22.5.4__yaml@2.6.0_@types+node@22.5.4_yaml@2.6.0",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@5": "5.1.2",
@@ -118,7 +119,6 @@
     "npm:ua-parser-js@1": "1.0.39",
     "npm:ua-parser-js@2": "2.0.0",
     "npm:ua-parser-js@2.0.0": "2.0.0",
-    "npm:vidstack@next": "1.12.12",
     "npm:vite-plugin-wasm@3": "3.3.0_vite@5.4.11__@types+node@22.5.4_@types+node@22.5.4",
     "npm:vite@*": "6.0.3_@types+node@22.5.4_yaml@2.6.0",
     "npm:vite@6.0.3": "6.0.3_@types+node@22.5.4_yaml@2.6.0",
@@ -1381,9 +1381,6 @@
         "csstype"
       ]
     },
-    "@types/trusted-types@2.0.7": {
-      "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
-    },
     "@types/unist@3.0.3": {
       "integrity": "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="
     },
@@ -1407,6 +1404,15 @@
     },
     "@ungap/structured-clone@1.2.0": {
       "integrity": "sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ=="
+    },
+    "@vidstack/react@1.12.12_@types+react@18.3.12_react@18.3.1": {
+      "integrity": "sha512-rEwCkZdp/K0FopUU76lgYJqzOZa3AGM2FumQnTPPSCP9jwShYReY9mXgl4/UP5CH3v7MkaVl5ZT67rhfjPxx9Q==",
+      "dependencies": [
+        "@floating-ui/dom",
+        "@types/react",
+        "media-captions",
+        "react"
+      ]
     },
     "@vitejs/plugin-react-swc@3.7.2_vite@6.0.3__@types+node@22.5.4__yaml@2.6.0_@types+node@22.5.4_yaml@2.6.0": {
       "integrity": "sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==",
@@ -1560,14 +1566,11 @@
     "acorn-walk@8.3.4": {
       "integrity": "sha512-ueEepnujpqee2o5aIYnvHU6C0A42MNdsIDeqy5BydrkuC5R1ZuUFnm27EeFJGoEHJQgn3uleRvmTXaJgfXbt4g==",
       "dependencies": [
-        "acorn@8.13.0"
+        "acorn"
       ]
     },
     "acorn@8.13.0": {
       "integrity": "sha512-8zSiw54Oxrdym50NlZ9sUusyO1Z1ZchgRLWRaK6c86XJFClyCgFKetdowBg5bKxyp/u+CDBJG4Mpp0m3HLZl9w=="
-    },
-    "acorn@8.14.0": {
-      "integrity": "sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA=="
     },
     "agentkeepalive@4.5.0": {
       "integrity": "sha512-5GG/5IbQQpC9FpkRGsSvZI5QYeSCzlJHdpBQntCsuTOxhKD8lqKhrleg2Yi7yvMIf82Ycmmqln9U8V9qwEiJew==",
@@ -2270,12 +2273,6 @@
     "lines-and-columns@1.2.4": {
       "integrity": "sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg=="
     },
-    "lit-html@2.8.0": {
-      "integrity": "sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==",
-      "dependencies": [
-        "@types/trusted-types"
-      ]
-    },
     "log-symbols@6.0.0": {
       "integrity": "sha512-i24m8rpwhmPIS4zscNzK6MSEhk0DUWa/8iYQWxhffV8jkI4Phvs3F+quL5xvS0gdQR0FyTCMMH33Y78dDTzzIw==",
       "dependencies": [
@@ -2972,7 +2969,7 @@
         "@tsconfig/node14",
         "@tsconfig/node16",
         "@types/node@22.5.4",
-        "acorn@8.13.0",
+        "acorn",
         "acorn-walk",
         "arg",
         "create-require",
@@ -3045,13 +3042,6 @@
         "unist-util-visit-parents"
       ]
     },
-    "unplugin@1.16.0": {
-      "integrity": "sha512-5liCNPuJW8dqh3+DM6uNM2EI3MLLpCKp/KY+9pB5M2S2SR2qvvDHhKgBOaTWEbZTAws3CXfB0rKTIolWKL05VQ==",
-      "dependencies": [
-        "acorn@8.14.0",
-        "webpack-virtual-modules"
-      ]
-    },
     "upper-case-first@2.0.2": {
       "integrity": "sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==",
       "dependencies": [
@@ -3098,15 +3088,6 @@
       "dependencies": [
         "@types/unist",
         "vfile-message"
-      ]
-    },
-    "vidstack@1.12.12": {
-      "integrity": "sha512-7413cfsyk6F0TtjiAA1QK1uyxgiTb6i0YFJSsQlXSJQaQQ/ZeQ/Fa4KDfC6EFCLPHoHPyW0Ejs5a6HFF64JXLQ==",
-      "dependencies": [
-        "@floating-ui/dom",
-        "lit-html",
-        "media-captions",
-        "unplugin"
       ]
     },
     "vite-plugin-wasm@3.3.0_vite@5.4.11__@types+node@22.5.4_@types+node@22.5.4": {
@@ -3186,9 +3167,6 @@
     },
     "webidl-conversions@7.0.0": {
       "integrity": "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="
-    },
-    "webpack-virtual-modules@0.6.2": {
-      "integrity": "sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ=="
     },
     "whatwg-fetch@3.6.20": {
       "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg=="
@@ -3272,11 +3250,11 @@
         "npm:@swc/plugin-emotion@8.0.1",
         "npm:@types/react-dom@18.3.1",
         "npm:@types/react@18.3.12",
+        "npm:@vidstack/react@next",
         "npm:@vitejs/plugin-react-swc@3",
         "npm:react-dom@18.3.1",
         "npm:react@18.3.1",
         "npm:rollup@4.28.1",
-        "npm:vidstack@next",
         "npm:vite-plugin-wasm@3",
         "npm:vite@6.0.3",
         "npm:vitepress@1",
