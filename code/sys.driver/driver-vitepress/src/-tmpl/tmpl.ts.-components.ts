@@ -8,7 +8,6 @@ import type { EnhanceAppContext } from 'vitepress';
 import Sample from './Sample.vue';
 
 export function registerComponents(ctx: EnhanceAppContext) {
-  console.log('registerComponents:', ctx);
   ctx.app.component('Sample', Sample);  
 }
 `.slice(1);

@@ -49,7 +49,7 @@ export async function ensureFiles(args: {
   const Components = Tmpl.Typescript.Components;
 
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
-  await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
+  await ensure(Tmpl.Typescript.vitepressConfig({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
 
   await ensure(Tmpl.Theme.ts.index, '.vitepress/theme/index.ts');
@@ -57,7 +57,11 @@ export async function ensureFiles(args: {
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
+
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
+  await ensure(Tmpl.Typescript.config, 'src/config.ts');
+  await ensure(Components.index, 'src/components/index.ts');
+  await ensure(Components.Sample, 'src/components/Sample.vue');
 
   await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
   await ensure(Components.Sys.index, '.sys/components/index.ts');
@@ -66,9 +70,6 @@ export async function ensureFiles(args: {
   await ensure(Components.Sys.ReactSetup, '.sys/components/React.setup.ts');
   await ensure(Components.Sys.ReactWrapper, '.sys/components/React.Wrapper.vue');
   await ensure(Components.Sys.ReactSample, '.sys/components/React.Wrapper.Sample.tsx');
-
-  await ensure(Components.index, 'src/components/index.ts');
-  await ensure(Components.Sample, 'src/components/Sample.vue');
 
   await ensure(Tmpl.Docs.md.index, 'docs/index.md');
   await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
