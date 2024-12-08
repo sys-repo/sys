@@ -12,7 +12,12 @@ Sample markdown content...
 
 <Sample/>
 <ReactWrapper />
-<Video id="1234" />
+<Video src="vimeo/727951677" />
+
+
+\`\`\`yaml
+timestamps: 1234 (WIP)
+\`\`\`
 
 ## Refs
 - [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)

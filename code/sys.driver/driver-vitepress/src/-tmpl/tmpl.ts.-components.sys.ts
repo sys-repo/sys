@@ -83,7 +83,7 @@ export const ReactWrapper = `
 
 <script setup lang="ts">
 import { setup, ref } from './React.setup';
-import { MyComponent } from './React.Sample';
+import { MyComponent } from './React.Wrapper.Sample';
 
 const root = ref();
 setup(root, MyComponent, { count: 1234 });
