@@ -17,9 +17,7 @@ export async function ensureFiles(args: {
 
   type K = t.VitePressFileUpdate['kind'];
   const files: t.VitePressFileUpdate[] = [];
-  const logPath = (kind: K, path: t.StringPath) => {
-    files.push({ kind, path });
-  };
+  const logPath = (kind: K, path: t.StringPath) => files.push({ kind, path });
 
   const hasChanged = async (tmpl: string, path: t.StringPath) => {
     if (!(await Fs.exists(path))) return false;
@@ -29,40 +27,53 @@ export async function ensureFiles(args: {
 
   const ensure = async (tmpl: string, path: t.StringPath) => {
     if (args.filter) {
-      //Custom filter.
       if (!args.filter(path)) return;
     }
 
     path = Fs.join(args.inDir, path);
     const exists = await wrangle.existsAndNotEmpty(path);
+    const isDiff = exists ? await hasChanged(tmpl, path) : false;
+
     if (!force && exists) {
-      if (is.userFile(path)) return logPath('UserFile', path); // Don't touch user files, as they may have changed them.
-      return logPath('Unchanged', path);
-    }
-    if (exists) {
-      const isDiff = await hasChanged(tmpl, path);
+      if (is.inUserspace(path)) return logPath('Userspace', path); // Don't touch user files, as they may have changed them.
       if (!isDiff) return logPath('Unchanged', path);
     }
 
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, tmpl);
+
     logPath(exists ? 'Updated' : 'Created', path);
   };
 
   // Layout file templates.
-  await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
+  const Components = Tmpl.Typescript.Components;
+
   await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
-  await ensure(Tmpl.Typescript.config({ srcDir }), '.vitepress/config.ts');
+  await ensure(Tmpl.Typescript.vitepressConfig({ srcDir }), '.vitepress/config.ts');
   await ensure(Tmpl.gitignore, '.gitignore');
+
+  await ensure(Tmpl.Theme.ts.index, '.vitepress/theme/index.ts');
+  await ensure(Tmpl.Theme.css.index, '.vitepress/theme/index.css');
 
   await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
   await ensure(Tmpl.Pkg.package, 'package.json');
-  await ensure(Tmpl.Typescript.pkg, 'pkg.ts');
-  await ensure(Tmpl.Typescript.nav, 'pkg.nav.ts');
 
-  await ensure(Tmpl.Markdown.index, 'docs/index.md');
-  await ensure(Tmpl.Markdown.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
-  await ensure(Tmpl.Markdown.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
+  await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
+  await ensure(Tmpl.Typescript.config, 'src/config.ts');
+  await ensure(Components.index, 'src/components/index.ts');
+  await ensure(Components.Sample, 'src/components/Sample.vue');
+
+  await ensure(Tmpl.Typescript.main, '.sys/-main.ts');
+  await ensure(Components.Sys.index, '.sys/components/index.ts');
+  await ensure(Components.Sys.VideoVue, '.sys/components/Video.vue');
+  await ensure(Components.Sys.VideoTsx, '.sys/components/Video.tsx');
+  await ensure(Components.Sys.ReactSetup, '.sys/components/React.setup.ts');
+  await ensure(Components.Sys.ReactWrapper, '.sys/components/React.Wrapper.vue');
+  await ensure(Components.Sys.ReactSample, '.sys/components/React.Wrapper.Sample.tsx');
+
+  await ensure(Tmpl.Docs.md.index, 'docs/index.md');
+  await ensure(Tmpl.Docs.md.sample({ title: 'Title-A' }), 'docs/section-a/item-a.md');
+  await ensure(Tmpl.Docs.md.sample({ title: 'Title-B' }), 'docs/section-a/item-b.md');
 
   // Finish up.
   return { files } as const;
@@ -88,8 +99,7 @@ const is = {
     const dirs = path.split('/').slice(0, -1);
     return dirs.some((dir) => dir.startsWith('.'));
   },
-
-  userFile(path: string): boolean {
+  inUserspace(path: string): boolean {
     if (is.withinHiddenDir(path)) return false;
     const ignore = ['.gitignore', 'deno.json', 'package.json'];
     return !ignore.some((m) => path.split('/').slice(-1)[0] === m);

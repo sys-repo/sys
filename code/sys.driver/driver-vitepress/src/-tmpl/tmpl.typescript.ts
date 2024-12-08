@@ -1,11 +1,12 @@
-import { config } from './tmpl.typescript.-config.ts';
-import { main } from './tmpl.typescript.-main.ts';
-import { nav } from './tmpl.typescript.-nav.ts';
-import { pkg } from './tmpl.typescript.-pkg.ts';
+import { Components } from './tmpl.ts.-components.ts';
+import { config, vitepressConfig } from './tmpl.ts.-config.ts';
+import { main } from './tmpl.ts.-main.ts';
+import { nav } from './tmpl.ts.-nav.ts';
 
 export const Typescript = {
-  pkg,
+  Components,
+  config,
+  vitepressConfig,
   nav,
   main,
-  config,
 } as const;

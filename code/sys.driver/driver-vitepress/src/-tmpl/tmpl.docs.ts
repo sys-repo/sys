@@ -5,18 +5,24 @@ const LOREM = `**Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Quis
  * Sample index page.
  */
 export const index = `
-# Hello World.
+# 👋 Hello World
 
-Generated with \`${Pkg.toString(pkg)}\`.
+Generated with \`${Pkg.toString(pkg)}\`.  
+Sample markdown content...
+
+<Sample/>
+<Video src="vimeo/727951677" />
+
+
+\`\`\`yaml
+timestamps: 1234 (WIP)
+\`\`\`
 
 ## Refs
-
 - [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
 - [https://vitepress.dev](https://vitepress.dev)
 
-
 ## Topic
-
 ${LOREM}
 
 ## H2
@@ -40,7 +46,6 @@ ${lorem ? LOREM : ''}
   `.slice(1);
 }
 
-export const Markdown = {
-  index,
-  sample,
+export const Docs = {
+  md: { index, sample },
 } as const;

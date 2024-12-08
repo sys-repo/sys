@@ -1,7 +1,11 @@
 export const pkgJson = `
 {
   "dependencies": {
-    "vue": "3"
+    "@vidstack/react": "next",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vitepress": "1",
+    "vue": "3"    
   }
 }
 `.slice(1);
