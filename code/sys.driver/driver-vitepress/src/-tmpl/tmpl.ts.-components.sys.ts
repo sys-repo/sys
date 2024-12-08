@@ -19,33 +19,23 @@ export function registerComponents(ctx: EnhanceAppContext) {
  */
 export const VideoVue = `
 <template>
-  <div ref="reactRoot"></div>
+  <div ref="root" class="root"></div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, onBeforeUnmount } from 'vue';
-
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { setup, ref } from './React.setup';
 import { Video } from './Video';
 
-const reactRoot = ref<HTMLElement | null>(null);
-let root: ReactDOM.Root | null = null;
-
-onMounted(() => {
-  if (reactRoot.value) {
-    const el = React.createElement(Video, {});
-    root = ReactDOM.createRoot(reactRoot.value);
-    root.render(el);
-  }
-});
-
-onBeforeUnmount(() => {
-  root?.unmount();
-});
+type VideoProps = { title?: string; src?: string };
+const root = ref();
+const props = defineProps<VideoProps>();
+setup(root, Video, props);
 </script>
 
 <style scoped>
+.root {
+  padding-bottom: 10px;
+}
 </style>
 `;
 
@@ -59,13 +49,17 @@ import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
 export type VideoProps = {
+  title?: string;
   src?: string;
 };
 
+/**
+ * Component
+ */
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
-  console.log('VideoPlayer.tsx', props);
+  const src = props.src || DEFAULTS.src;
   return (
-    <MediaPlayer title="Sprite Fight" src={'vimeo/727951677'}>
+    <MediaPlayer title={props.title} src={src}>
       <MediaProvider />
       <PlyrLayout
         // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
@@ -74,11 +68,18 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
     </MediaPlayer>
   );
 };
+
+/**
+ * Constants
+ */
+export const DEFAULTS = {
+  src: 'vimeo/499921561', // Tubes.
+} as const;
 `;
 
 export const ReactWrapper = `
 <template>
-  <div ref="root" class="root"></div>
+  <div ref="root"></div>
 </template>
 
 <script setup lang="ts">
@@ -89,11 +90,7 @@ const root = ref();
 setup(root, MyComponent, { count: 1234 });
 </script>
 
-<style scoped>
-.root {
-  padding-bottom: 10px;
-}
-</style>
+<style scoped></style>
 `;
 
 export const ReactSetup = `
@@ -114,8 +111,6 @@ export function setup<P extends O>(
   props?: P,
 ) {
   let root: ReactDOM.Root | undefined;
-
-  console.log('⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔');
 
   onMounted(() => {
     if (refRoot.value) {

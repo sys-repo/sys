@@ -11,7 +11,6 @@ Generated with \`${Pkg.toString(pkg)}\`.
 Sample markdown content...
 
 <Sample/>
-<ReactWrapper />
 <Video src="vimeo/727951677" />
 
 
