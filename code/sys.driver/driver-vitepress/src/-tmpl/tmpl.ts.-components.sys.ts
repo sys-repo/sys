@@ -68,7 +68,7 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
     <MediaPlayer title="Sprite Fight" src={'vimeo/727951677'}>
       <MediaProvider />
       <PlyrLayout
-        thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
+        // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
         icons={plyrLayoutIcons}
       />
     </MediaPlayer>
