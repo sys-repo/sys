@@ -8,7 +8,7 @@ export const index = `
 # 👋 Hello World
 
 Generated with \`${Pkg.toString(pkg)}\`.  
-Sample content...
+Sample markdown content...
 
 <Sample/>
 <ReactWrapper />

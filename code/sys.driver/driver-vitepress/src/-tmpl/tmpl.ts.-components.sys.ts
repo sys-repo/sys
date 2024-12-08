@@ -4,7 +4,7 @@
 export const index = `
 import type { EnhanceAppContext } from 'vitepress';
 
-import ReactWrapper from './ReactWrapper.vue';
+import ReactWrapper from './React.Wrapper.vue';
 import Video from './Video.vue';
 
 export function registerComponents(ctx: EnhanceAppContext) {
@@ -78,30 +78,15 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
 
 export const ReactWrapper = `
 <template>
-  <div ref="reactRoot" class="root"></div>
+  <div ref="root" class="root"></div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { setup, ref } from './React.setup';
+import { MyComponent } from './React.Sample';
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { MyComponent } from './ReactWrapper.Sample';
-
-const reactRoot = ref<HTMLElement | null>(null);
-let root: ReactDOM.Root | null = null;
-
-onMounted(() => {
-  if (reactRoot.value) {
-    const el = React.createElement(MyComponent, { count: 123 });
-    root = ReactDOM.createRoot(reactRoot.value);
-    root.render(el);
-  }
-});
-
-onBeforeUnmount(() => {
-  root?.unmount();
-});
+const root = ref();
+setup(root, MyComponent, { count: 1234 });
 </script>
 
 <style scoped>
@@ -111,7 +96,42 @@ onBeforeUnmount(() => {
 </style>
 `;
 
-export const ReactWrapperSample = `
+export const ReactSetup = `
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { onBeforeUnmount, onMounted, ref as vueRef, type Ref } from 'vue';
+
+type O = Record<string, unknown>;
+
+export const ref = () => vueRef<HTMLElement | undefined>();
+
+/**
+ * Setup a react-in-vue wrapper.
+ */
+export function setup<P extends O>(
+  refRoot: Ref<HTMLElement | undefined>,
+  Component: React.FC<P>,
+  props?: P,
+) {
+  let root: ReactDOM.Root | undefined;
+
+  console.log('⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔');
+
+  onMounted(() => {
+    if (refRoot.value) {
+      const el = React.createElement(Component, props);
+      root = ReactDOM.createRoot(refRoot.value);
+      root.render(el);
+    }
+  });
+
+  onBeforeUnmount(() => {
+    root?.unmount();
+  });
+}
+`;
+
+export const ReactSample = `
 import React from 'react';
 
 export type MyComponentProps = {
@@ -132,6 +152,7 @@ export const Sys = {
   index,
   VideoVue,
   VideoTsx,
+  ReactSetup,
   ReactWrapper,
-  ReactWrapperSample,
+  ReactSample,
 } as const;
