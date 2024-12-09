@@ -6,12 +6,15 @@ export const vitepressConfig = (args: { srcDir?: t.StringDir } = {}) => {
 import { defineConfig } from 'vitepress';
 import { Config } from '../src/config.ts';
 import { sidebar } from '../src/nav.ts';
+import { markdown } from './config.markdown.ts';
 
 export default () => {
+  const { title, description } = Config;
   return defineConfig({
-    title: Config.title,
-    description: Config.description,
+    title,
+    description,
     srcDir: '${srcDir}',
+    markdown,
     themeConfig: { 
       sidebar,
       search: { provider: 'local' },
@@ -29,5 +32,10 @@ export const Config = {
 `;
 
 export const markdownConfig = `
-// foo
+import type { MarkdownRenderer } from 'vitepress';
+
+export const markdown = {
+  config(md: MarkdownRenderer) {
+  },
+};
 `;
