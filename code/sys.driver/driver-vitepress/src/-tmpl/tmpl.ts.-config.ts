@@ -21,9 +21,13 @@ export default () => {
 `.slice(1);
 };
 
-export const config = `
+export const userConfig = `
 export const Config = {
   title: 'Untitled',
   description: '', // Rendered in the head of each page, useful for SEO.
 } as const;
+`;
+
+export const markdownConfig = `
+// foo
 `;

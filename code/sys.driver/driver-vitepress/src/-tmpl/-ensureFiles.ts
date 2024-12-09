@@ -48,18 +48,19 @@ export async function ensureFiles(args: {
   // Layout file templates.
   const Components = Tmpl.Typescript.Components;
 
-  await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
-  await ensure(Tmpl.Typescript.vitepressConfig({ srcDir }), '.vitepress/config.ts');
+  await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
+  await ensure(Tmpl.Pkg.package, 'package.json');
   await ensure(Tmpl.gitignore, '.gitignore');
+  await ensure(Tmpl.VSCode.settings, '.vscode/settings.json');
+
+  await ensure(Tmpl.Typescript.vitepressConfig({ srcDir }), '.vitepress/config.ts');
+  await ensure(Tmpl.Typescript.markdownConfig, '.vitepress/config.markdown.ts');
 
   await ensure(Tmpl.Theme.ts.index, '.vitepress/theme/index.ts');
   await ensure(Tmpl.Theme.css.index, '.vitepress/theme/index.css');
 
-  await ensure(Tmpl.Pkg.denofile({ pkg: { ...pkg, version } }), 'deno.json');
-  await ensure(Tmpl.Pkg.package, 'package.json');
-
   await ensure(Tmpl.Typescript.nav, 'src/nav.ts');
-  await ensure(Tmpl.Typescript.config, 'src/config.ts');
+  await ensure(Tmpl.Typescript.userConfig, 'src/config.ts');
   await ensure(Components.index, 'src/components/index.ts');
   await ensure(Components.Sample, 'src/components/Sample.vue');
 

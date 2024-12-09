@@ -20,6 +20,7 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
     '.vscode/settings.json',
     '.gitignore',
     '.vitepress/config.ts',
+    '.vitepress/config.markdown.ts',
     '.vitepress/theme/index.ts',
     '.sys/-main.ts',
     '.sys/components/index.ts',
