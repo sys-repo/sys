@@ -34,8 +34,8 @@ describe('Fs.Path', () => {
   });
 
   it('Fs.Path.cwd', () => {
-    expect(Fs.Path.cwd).to.eql(Deno.cwd());
-    expect(Fs.cwd).to.eql(Fs.Path.cwd);
+    expect(Fs.Path.cwd()).to.eql(Deno.cwd());
+    expect(Fs.cwd()).to.eql(Fs.Path.cwd());
   });
 
   describe('trimCwd ← "current working directory"', () => {

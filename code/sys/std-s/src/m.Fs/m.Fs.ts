@@ -21,6 +21,7 @@ export const Fs: t.FsLib = {
   Size,
   Watch,
   stat: Deno.stat,
+  cwd: Deno.cwd,
 
   join,
   resolve,
@@ -40,8 +41,4 @@ export const Fs: t.FsLib = {
   walk,
   walkUp,
   watch: Watch.start,
-
-  get cwd() {
-    return Path.cwd;
-  },
 } as const;

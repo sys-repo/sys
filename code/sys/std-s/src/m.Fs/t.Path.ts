@@ -15,7 +15,7 @@ export type FsPathLib = t.PathLib & {
   trimCwd(path: t.StringPath, options?: t.FsPathTrimCwdOptions | boolean): t.StringPath;
 
   /** Current working directory. */
-  readonly cwd: t.StringDir;
+  cwd(): t.StringDir;
 };
 
 /**
