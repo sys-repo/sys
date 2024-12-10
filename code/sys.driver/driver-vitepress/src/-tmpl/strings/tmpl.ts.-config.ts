@@ -51,8 +51,8 @@ export const markdown = {
       const token = tokens[idx];
 
       if (token.info.trim() === 'yaml') {
-        const yaml = parse(token.content);
-        if (yaml.component === 'Video') {
+        const yaml = parse(token.content) || undefined;
+        if (yaml?.component === 'Video') {
           const defaultHtml = defaultFence(tokens, idx, options, env, self);
           const src = yaml.src || '';
           let html = \`<Video src="\${src}"/>\`;
