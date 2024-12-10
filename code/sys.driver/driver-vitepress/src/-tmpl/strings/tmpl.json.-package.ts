@@ -5,7 +5,8 @@ export const pkgJson = `
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "vitepress": "1",
-    "vue": "3"    
+    "vue": "3",
+    "yaml": "2"
   }
 }
 `.slice(1);
