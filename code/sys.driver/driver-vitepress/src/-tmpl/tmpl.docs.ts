@@ -10,17 +10,14 @@ export const index = `
 Generated with \`${Pkg.toString(pkg)}\`.  
 Sample markdown content...
 
-<Sample/>
-<Video src="vimeo/727951677" />
-
 
 \`\`\`yaml
-timestamps: 1234 (WIP)
+debug: true
+component: Video
+src: vimeo/727951677
+timestamps: [WIP]
 \`\`\`
 
-## Refs
-- [jsr registry → @sys/driver-vitepress](https://jsr.io/@sys/driver-vitepress)
-- [https://vitepress.dev](https://vitepress.dev)
 
 ## Topic
 ${LOREM}
@@ -29,10 +26,7 @@ ${LOREM}
 ### H3
 #### H4
 
-\`\`\`yaml
-foo: 123
-\`\`\`
-`.slice(1);
+`;
 
 /**
  * Sample page.
