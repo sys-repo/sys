@@ -6,8 +6,8 @@ export const Tmpl: t.TmplLib = {
       return {
         dir,
         async ls() {
-          const ls = await Fs.glob(dir).find('**');
-          return ls.filter((p) => p.path !== dir).map((p) => p.path);
+          const files = await Fs.glob(dir).find('**');
+          return files.filter((p) => p.path !== dir).map((p) => p.path);
         },
       };
     };
