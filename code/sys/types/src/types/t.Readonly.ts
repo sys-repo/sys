@@ -29,6 +29,6 @@ export type DeepMutable<T> = {
  *    https://www.typescriptlang.org/docs/handbook/utility-types.html
  *
  */
-export type PartialDeep<T> = {
-  [P in keyof T]?: PartialDeep<T[P]>;
+export type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
 };
