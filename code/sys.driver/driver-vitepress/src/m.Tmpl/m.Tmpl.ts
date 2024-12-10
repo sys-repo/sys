@@ -16,6 +16,8 @@ export const Tmpl: t.TmplLib = {
       source: tmplDir(source),
       target: tmplDir(target),
       async copy() {
+        const res: t.TmplCopyResponse = { files: [] };
+
         for (const from of await api.source.ls()) {
           if (await Fs.Is.file(from)) {
             const to = Fs.join(target, from.slice(source.length + 1));
@@ -31,6 +33,8 @@ export const Tmpl: t.TmplLib = {
              */
           }
         }
+
+        return res;
       },
     };
     return api;
