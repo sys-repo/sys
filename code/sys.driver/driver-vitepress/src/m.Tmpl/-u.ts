@@ -2,7 +2,7 @@ import { type t, Fs, slug } from './common.ts';
 
 export const SAMPLE = {
   init(options: { source?: t.StringDir; slug?: boolean } = {}) {
-    const source = Fs.resolve(options.source ?? './src/m.Tmpl/-sample-1');
+    const source = Fs.resolve(options.source ?? './src/m.Tmpl/-sample');
 
     let target = `./.tmp/Tmpl.tests`;
     if (options.slug ?? true) target = Fs.join(target, slug());
