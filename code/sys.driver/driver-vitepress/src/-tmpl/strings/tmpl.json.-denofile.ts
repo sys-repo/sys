@@ -1,5 +1,4 @@
-import { pkg } from '../pkg.ts';
-import type { t } from './common.ts';
+import { type t, pkg } from './common.ts';
 
 export const denofile = (args: { pkg?: t.Pkg } = {}) => {
   const self = args.pkg ?? pkg;

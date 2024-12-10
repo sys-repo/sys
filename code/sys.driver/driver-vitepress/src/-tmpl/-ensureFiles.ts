@@ -1,4 +1,4 @@
-import { Tmpl } from '../-tmpl/mod.ts';
+import { Tmpl } from './strings/mod.ts';
 import { type t, Fs, pkg } from './common.ts';
 
 /**
