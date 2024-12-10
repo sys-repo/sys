@@ -14,8 +14,7 @@ export const SAMPLE = {
     };
 
     return {
-      source,
-      target,
+      dir: { source, target },
       ls: {
         source: () => ls(source),
         target: () => ls(target),
