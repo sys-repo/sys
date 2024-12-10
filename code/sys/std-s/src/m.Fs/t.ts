@@ -82,6 +82,9 @@ type StdMethods = {
 export type FsIsLib = t.PathLib['Is'] & {
   /** Determine if the given path points to a directory. */
   dir(path: t.StringPath | URL): Promise<boolean>;
+
+  /** Determine if the given path points to a file (not a directory). */
+  file(path: t.StringPath | URL): Promise<boolean>;
 };
 
 /**

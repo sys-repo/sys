@@ -17,4 +17,16 @@ export const Is: t.FsIsLib = {
       return false;
     }
   },
+
+  /**
+   * Determine if the given path points to a file (not a directory).
+   */
+  async file(path) {
+    try {
+      if (!(await exists(path))) return false;
+      return (await Deno.stat(path)).isFile;
+    } catch (_error: any) {
+      return false;
+    }
+  },
 } as const;
