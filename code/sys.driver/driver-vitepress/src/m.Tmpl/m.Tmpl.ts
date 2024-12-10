@@ -27,6 +27,7 @@ export const Tmpl: t.TmplLib = {
              * - read the file
              * - format content (optional)
              *
+             * - MOVE [Tmpl] → @
              */
           }
         }
