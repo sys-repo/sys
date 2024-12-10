@@ -12,6 +12,9 @@ export type * from './t.Path.ts';
  * Tools for working with the file-system.
  */
 export type FsLib = StdMethods & {
+  /** Current working directory. */
+  readonly cwd: t.StringDir;
+
   /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 

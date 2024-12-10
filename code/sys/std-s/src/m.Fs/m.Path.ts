@@ -25,6 +25,10 @@ export const Path: L = {
       return wrangle.relativePrefix(path, prefix);
     }
   },
+
+  get cwd() {
+    return Deno.cwd();
+  },
 };
 
 /**

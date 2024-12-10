@@ -13,6 +13,9 @@ export type FsPathLib = t.PathLib & {
    * Removes the CWD (current-working-directory) from the given path if it exists.
    */
   trimCwd(path: t.StringPath, options?: t.FsPathTrimCwdOptions | boolean): t.StringPath;
+
+  /** Current working directory. */
+  readonly cwd: t.StringDir;
 };
 
 /**

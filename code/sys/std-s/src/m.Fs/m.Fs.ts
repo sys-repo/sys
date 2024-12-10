@@ -40,4 +40,8 @@ export const Fs: t.FsLib = {
   walk,
   walkUp,
   watch: Watch.start,
+
+  get cwd() {
+    return Path.cwd;
+  },
 } as const;
