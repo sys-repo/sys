@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
-import { assertEnvExists, SAMPLE } from './-u.ts';
+import { SAMPLE } from './-u.ts';
 import { VitePress } from './mod.ts';
 
 describe('VitePress.build', () => {

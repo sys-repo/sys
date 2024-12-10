@@ -2,10 +2,6 @@ import { type t, expect, slug, Testing } from '../-test.ts';
 import { Fs } from './common.ts';
 
 export const SAMPLE = {
-  PATH: {
-    sample: Fs.resolve('./src/-test/vitepress.sample-1'),
-  },
-
   createPkg(): t.Pkg {
     return { name: `@sample/${slug()}`, version: '0.1.2' };
   },
