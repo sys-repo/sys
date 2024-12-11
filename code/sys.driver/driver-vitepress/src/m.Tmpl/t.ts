@@ -36,6 +36,9 @@ export type Tmpl = {
   copy(target: t.StringDir): Promise<t.TmplCopyResponse>;
 };
 
+/**
+ * The reponse returned from the `tmpl.copy` method.
+ */
 export type TmplCopyResponse = {
   readonly source: t.TmplDir;
   readonly target: t.TmplDir;
@@ -66,12 +69,12 @@ export type TmplFile = {
 export type TmplOperation = {
   /** The kind of file operation that occured. */
   action: 'Created' | 'Updated' | 'Unchanged';
-  /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
-  excluded?: string;
-  /** The source file details */
+  /** The source file details. */
   source: t.TmplFile;
-  /** The target file details */
+  /** The target file details. */
   target: t.TmplFile;
   /** The text body of the file. */
   text: { from: string; to: string };
+  /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
+  excluded?: string;
 };
