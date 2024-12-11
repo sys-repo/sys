@@ -21,6 +21,7 @@ export const Fs: t.FsLib = {
   Size,
   Watch,
   stat: Deno.stat,
+  cwd: Deno.cwd,
 
   join,
   resolve,

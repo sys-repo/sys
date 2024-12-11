@@ -20,7 +20,7 @@ export type ButtonProps = {
   isDown?: boolean; // force the button into an "is-down" state.
 
   spinning?: boolean;
-  spinner?: t.PartialDeep<ButtonSpinner>;
+  spinner?: t.DeepPartial<ButtonSpinner>;
 
   style?: t.CssValue;
   theme?: t.CommonTheme;

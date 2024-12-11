@@ -1,4 +1,7 @@
-export { Env, HttpServer, c } from '@sys/std-s';
+export { Env, c } from '@sys/std-s';
+export { Auth } from '@sys/std-s/auth';
+export { HttpServer } from '@sys/std-s/http';
+
 export { PrivyClient } from '@privy-io/server-auth';
 export { DenoSubhostingAPI };
 

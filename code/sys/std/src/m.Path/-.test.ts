@@ -26,7 +26,7 @@ describe('Path', () => {
     });
 
     it('Is.relative', () => {
-      // NB: the oppsotive of Is.absolute
+      // NB: the opposite of Is.absolute
       expect(Is.relative('/foo/bar')).to.eql(false);
       expect(Is.relative('./foo/bar')).to.eql(true);
       expect(Is.relative('foo/bar')).to.eql(true);
@@ -35,6 +35,16 @@ describe('Path', () => {
     it('Is.glob', () => {
       expect(Is.glob('**/foo.*')).to.eql(true);
       expect(Is.glob('./foo/bar')).to.eql(false);
+    });
+  });
+
+  describe('Path.extname', () => {
+    it('include "." prefix', () => {
+      expect(Path.extname('foo.md')).to.eql('.md');
+    });
+
+    it('no extension', () => {
+      expect(Path.extname('foo.bar/filename')).to.eql('');
     });
   });
 });

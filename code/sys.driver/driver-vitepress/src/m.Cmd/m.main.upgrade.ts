@@ -57,9 +57,11 @@ export async function upgrade(argv: string[]) {
   const filter = (p: string) => !p.startsWith('docs/');
   const res = await VitePress.Env.update({ filter, inDir, force: false, silent: true });
 
+  /**
+   * Finish up.
+   */
   console.info(c.green('Updated Environment'));
   Log.filesTable(res.files).render();
-
   console.info();
   console.info(c.green(`Project at version:`));
   ViteLog.Module.log(pkg);

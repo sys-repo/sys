@@ -21,11 +21,17 @@ const hash = hx.digest;
  *       "Pkg": "<name>@<version>"
  *       "Pkg-Digest": "<hash>"
  */
+const port = 8080;
 const app = HttpServer.create({ pkg, hash });
-const options = HttpServer.options(8000, pkg, hash);
+const options = HttpServer.options({ port, pkg, hash });
 Deno.serve(options, app.fetch);
 
 /**
  * Routes.
  */
 app.get('/', (c) => c.json({ msg: '👋' }));
+
+/**
+ * Listen to keyboard.
+ */
+await HttpServer.keyboard({ port, print: true });

@@ -33,6 +33,11 @@ describe('Fs.Path', () => {
     expect(path1).to.eql(path2); // NB: does not alter an already absolute path.
   });
 
+  it('Fs.Path.cwd', () => {
+    expect(Fs.Path.cwd()).to.eql(Deno.cwd());
+    expect(Fs.cwd()).to.eql(Fs.Path.cwd());
+  });
+
   describe('trimCwd ← "current working directory"', () => {
     it('invalid input', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
