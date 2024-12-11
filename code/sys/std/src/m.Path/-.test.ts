@@ -26,7 +26,7 @@ describe('Path', () => {
     });
 
     it('Is.relative', () => {
-      // NB: the oppsotive of Is.absolute
+      // NB: the opposite of Is.absolute
       expect(Is.relative('/foo/bar')).to.eql(false);
       expect(Is.relative('./foo/bar')).to.eql(true);
       expect(Is.relative('foo/bar')).to.eql(true);
