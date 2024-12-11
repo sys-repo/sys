@@ -16,12 +16,16 @@ export type TmplLib = {
  */
 export type TmplProcessFile = (args: TmplProcessFileArgs) => void | Promise<void>;
 export type TmplProcessFileArgs = {
+  /** Details of the file being processed. */
   readonly file: TmplFile;
-  readonly change: {
-    filename(text: string): TmplProcessFileArgs;
-    body(text: string): TmplProcessFileArgs;
-  };
+  /** The text body of the file. */
+  readonly text: string;
+  /** Filter out the file from being copied. */
   exclude(reason: string): TmplProcessFileArgs;
+  /** Adjust the name of the file. */
+  rename(filename: string): TmplProcessFileArgs;
+  /** Adjust the text within the file. */
+  modify(text: string): TmplProcessFileArgs;
 };
 
 /**
@@ -35,14 +39,14 @@ export type Tmpl = {
 export type TmplCopyResponse = {
   readonly source: t.TmplDir;
   readonly target: t.TmplDir;
-  readonly operations: t.TmplFileOperation[];
+  readonly operations: t.TmplOperation[];
 };
 
 /**
  * A directory involved in a [Tmpl] configuration.
  */
 export type TmplDir = {
-  readonly dir: t.StringDir;
+  dir: t.StringDir;
   ls(): Promise<t.StringPath[]>;
 };
 
@@ -50,22 +54,24 @@ export type TmplDir = {
  * Details about a template file.
  */
 export type TmplFile = {
-  readonly cwd: t.StringDir;
-  readonly path: t.StringPath;
-  readonly dir: string;
-  readonly name: string;
+  cwd: t.StringDir;
+  path: t.StringPath;
+  dir: string;
+  name: string;
 };
 
 /**
  * Details about a file update.
  */
-export type TmplFileOperation = {
-  /** The file path details */
-  readonly file: t.TmplFile;
-
+export type TmplOperation = {
   /** The kind of file operation that occured. */
-  readonly action: 'Created' | 'Updated' | 'Unchanged';
-
-  /** If ecluded, contains the reason for the exclusion, otherwise `undefined`. */
+  action: 'Created' | 'Updated' | 'Unchanged';
+  /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
   excluded?: string;
+  /** The source file details */
+  source: t.TmplFile;
+  /** The target file details */
+  target: t.TmplFile;
+  /** The text body of the file. */
+  text: { from: string; to: string };
 };
