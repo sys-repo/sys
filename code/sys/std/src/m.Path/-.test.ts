@@ -37,4 +37,14 @@ describe('Path', () => {
       expect(Is.glob('./foo/bar')).to.eql(false);
     });
   });
+
+  describe('Path.extname', () => {
+    it('include "." prefix', () => {
+      expect(Path.extname('foo.md')).to.eql('.md');
+    });
+
+    it('no extension', () => {
+      expect(Path.extname('foo.bar/filename')).to.eql('');
+    });
+  });
 });
