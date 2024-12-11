@@ -64,8 +64,8 @@ export type TmplFileOperation = {
   readonly file: t.TmplFile;
 
   /** The kind of file operation that occured. */
-  readonly kind: 'Created' | 'Updated' | 'Unchanged';
+  readonly action: 'Created' | 'Updated' | 'Unchanged';
 
-  /** Contains a value if excluded, which is the reason for the exclusion, otherwise [undefined]. */
+  /** If ecluded, contains the reason for the exclusion, otherwise `undefined`. */
   excluded?: string;
 };

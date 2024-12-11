@@ -15,9 +15,13 @@ export const Tmpl: t.TmplLib = {
         for (const from of await api.source.ls()) {
           if (!(await Fs.Is.file(from))) continue;
 
+          type Op = t.TmplFileOperation;
           const to = Fs.join(target, from.slice(source.length + 1));
           const file = wrangle.file(to);
-          const operation: t.DeepPartial<t.TmplFileOperation> = { file, kind: 'Unchanged' };
+          const operation: t.DeepPartial<Op> = {
+            file,
+            action: 'Unchanged',
+          };
 
           if (typeof fn === 'function') {
             const { args, changes } = wrangle.args(file);
@@ -28,7 +32,7 @@ export const Tmpl: t.TmplLib = {
 
           await Fs.copy(from, to);
 
-          res.operations.push(operation as t.TmplFileOperation);
+          res.operations.push(operation as Op);
         }
 
         return res;

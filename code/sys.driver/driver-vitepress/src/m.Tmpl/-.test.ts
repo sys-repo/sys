@@ -31,7 +31,7 @@ describe('Tmpl', () => {
 
       for (const op of res.operations) {
         if (op.file.name.endsWith('.md')) {
-          expect(op?.kind).to.eql('Unchanged');
+          expect(op?.action).to.eql('Unchanged');
           expect(op?.excluded).to.eql('user-space');
         } else {
           expect(op.excluded).to.eql(undefined);
