@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Library for copying template files.
  */
 export type TmplLib = {
-  create(source: t.StringDir, target: t.StringDir, fn?: t.TmplProcessFile): Tmpl;
+  create(source: t.StringDir, fn?: t.TmplProcessFile): Tmpl;
 };
 
 /**
@@ -29,11 +29,12 @@ export type TmplProcessFileArgs = {
  */
 export type Tmpl = {
   readonly source: t.TmplDir;
-  readonly target: t.TmplDir;
-  copy(): Promise<t.TmplCopyResponse>;
+  copy(target: t.StringDir): Promise<t.TmplCopyResponse>;
 };
 
 export type TmplCopyResponse = {
+  readonly source: t.TmplDir;
+  readonly target: t.TmplDir;
   readonly operations: t.TmplFileOperation[];
 };
 

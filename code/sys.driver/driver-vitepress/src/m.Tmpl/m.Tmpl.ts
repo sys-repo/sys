@@ -1,13 +1,16 @@
-import { type t, Fs, Path, Is } from './common.ts';
+import { type t, Fs, Is, Path } from './common.ts';
 
 export const Tmpl: t.TmplLib = {
-  create(source, target, fn) {
+  create(source, fn) {
     const api: t.Tmpl = {
       source: wrangle.dir(source),
-      target: wrangle.dir(target),
 
-      async copy() {
-        const res: t.TmplCopyResponse = { operations: [] };
+      async copy(target) {
+        const res: t.TmplCopyResponse = {
+          source: api.source,
+          target: wrangle.dir(target),
+          operations: [],
+        };
 
         for (const from of await api.source.ls()) {
           if (!(await Fs.Is.file(from))) continue;
