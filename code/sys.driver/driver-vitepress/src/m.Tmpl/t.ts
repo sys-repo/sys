@@ -14,13 +14,14 @@ export type TmplLib = {
  *  - adjust the text content before writing.
  *  - adjust the target filename.
  */
-export type TmplProcessFile = (args: TmplProcessFileArgs) => void;
+export type TmplProcessFile = (args: TmplProcessFileArgs) => void | Promise<void>;
 export type TmplProcessFileArgs = {
-  readonly target: {};
-  readonly path: t.StringPath;
-  exclude(reason: string): void;
-  changeText(text: string): void;
-  changeFilename(text: string): void;
+  readonly file: TmplFile;
+  readonly change: {
+    filename(text: string): TmplProcessFileArgs;
+    body(text: string): TmplProcessFileArgs;
+  };
+  exclude(reason: string): TmplProcessFileArgs;
 };
 
 /**
@@ -33,7 +34,7 @@ export type Tmpl = {
 };
 
 export type TmplCopyResponse = {
-  readonly files: t.TmplFileUpdate[];
+  readonly operations: t.TmplFileOperation[];
 };
 
 /**
@@ -45,10 +46,25 @@ export type TmplDir = {
 };
 
 /**
+ * Details about a template file.
+ */
+export type TmplFile = {
+  readonly cwd: t.StringDir;
+  readonly path: t.StringPath;
+  readonly dir: string;
+  readonly name: string;
+};
+
+/**
  * Details about a file update.
  */
-export type TmplFileUpdate = {
-  readonly op: 'Created' | 'Updated' | 'Unchanged';
-  readonly path: t.StringPath;
-  readonly is: { different: boolean; excluded: boolean; userspace: boolean };
+export type TmplFileOperation = {
+  /** The file path details */
+  readonly file: t.TmplFile;
+
+  /** The kind of file operation that occured. */
+  readonly kind: 'Created' | 'Updated' | 'Unchanged';
+
+  /** Contains a value if excluded, which is the reason for the exclusion, otherwise [undefined]. */
+  excluded?: string;
 };
