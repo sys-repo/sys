@@ -1,6 +1,7 @@
 export const gitignore = `
-.vitepress/cache
-.vitepress/dist
-dist
-node_modules
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+dist/
+tmp/
 `.slice(1);
