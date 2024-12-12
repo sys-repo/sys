@@ -13,24 +13,33 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
 
     const to = Fs.join(target.dir, from.slice(source.dir.length + 1));
     const text = await Deno.readTextFile(from);
-    const op: t.TmplOperation = {
+    const op: t.TmplFileOperation = {
       source: Wrangle.file(from),
       target: Wrangle.file(to),
-      text: { from: text, to: text },
+      text: { before: text, after: text },
       action: 'Unchanged',
+      exists: await Fs.exists(to),
     };
 
     if (typeof fn === 'function') {
-      const { args, changes } = wrangle.args(op.target, op.text.from);
+      // const { args, changes } = wrangle.args(op.target, op.text.before);
+      const { args, changes } = wrangle.args(op);
       const res = fn(args);
       if (Is.promise(res)) await res;
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.target.name = changes.filename;
-      if (changes.text) op.text.to = changes.text;
+      if (changes.text) op.text.after = changes.text;
     }
 
+    /**
+     * TODO 🐷
+     * - MOVE [Tmpl] → @sys/tmpl
+     * - update action
+     * - only write when necessary.
+     * - calculate diff
+     */
     await Fs.ensureDir(op.target.dir);
-    await Deno.writeTextFile(op.target.path, op.text.to);
+    await Deno.writeTextFile(op.target.path, op.text.after);
 
     // Log final state.
     res.operations.push(op);
@@ -43,10 +52,18 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
  * Helpers
  */
 const wrangle = {
-  args(file: t.TmplFile, text: string) {
+  args(op: t.TmplFileOperation) {
+    // const { args, changes } = wrangle.args(op.target, op.text.before);
+
     const changes = { excluded: '', filename: '', text: '' };
+
+    const text = op.text.before;
+
     const args: t.TmplProcessFileArgs = {
-      file,
+      file: {
+        source: op.source,
+        target: op.target,
+      },
       text,
       exclude(reason) {
         changes.excluded = reason;
