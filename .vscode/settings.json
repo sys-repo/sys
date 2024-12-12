@@ -2,8 +2,6 @@
   "deno.enable": true,
   "deno.lint": false,
   "deno.unstable": [],
-  // "deno.enablePaths": ["src"],
-
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true
