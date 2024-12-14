@@ -3,11 +3,14 @@ import { SAMPLE } from './-u.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
+  const readFile = Deno.readTextFile;
+
   it('init: paths', async () => {
     const test = SAMPLE.init();
     const tmpl = Tmpl.create(test.source);
     expect(tmpl.source.dir).to.eql(test.source);
     expect(await tmpl.source.ls()).to.eql(await test.ls.source());
+    tmpl;
   });
 
   describe('tmpl.copy (method)', () => {
@@ -23,7 +26,7 @@ describe('Tmpl', () => {
       expect(res.operations.every((m) => m.excluded === undefined)).to.eql(true);
     });
 
-    it('fn (param): exclude', async () => {
+    it.only('fn: exclude', async () => {
       const { source, target } = SAMPLE.init();
       const tmpl = Tmpl.create(source, async (e) => {
         await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
@@ -33,13 +36,17 @@ describe('Tmpl', () => {
       const res = await tmpl.copy(target);
 
       for (const op of res.operations) {
-        if (op.target.name.endsWith('.md')) {
+        if (op.file.target.name.endsWith('.md')) {
           expect(op?.action).to.eql('Unchanged');
           expect(op?.excluded).to.eql('user-space');
         } else {
           expect(op.excluded).to.eql(undefined);
         }
       }
+
+      // Ensure file was not copied.
+      const path = Fs.join(target, 'doc.md');
+      expect(await Fs.exists(path)).to.eql(false); // NB: file was not copied.
     });
 
     it('fn: file source/target', async () => {
@@ -60,25 +67,35 @@ describe('Tmpl', () => {
         if (e.file.target.name === 'mod.ts') e.rename('main.ts');
       });
       const res = await tmpl.copy(target);
-      const match = res.operations.find((m) => m.target.name === 'main.ts');
-      expect(match?.source.name).to.eql('mod.ts');
-      expect(match?.target.name).to.eql('main.ts');
+      const match = res.operations.find((m) => m.file.target.name === 'main.ts');
+      expect(match?.file.source.name).to.eql('mod.ts');
+      expect(match?.file.target.name).to.eql('main.ts');
     });
 
     it('fn: modify (file text)', async () => {
       const { source, target } = SAMPLE.init();
       const tmpl = Tmpl.create(source, (e) => {
         if (e.file.target.name === 'mod.ts') {
-          expect(e.text).to.include('{FOO_BAR}');
-          e.modify(e.text.replace(/\{FOO_BAR\}/g, '👋 Hello'));
+          const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
+          e.modify(next);
         }
       });
-      const res = await tmpl.copy(target);
-      const mod = res.operations.find((m) => m.target.name === 'mod.ts');
-      const filetext = await Deno.readTextFile(mod?.target.path ?? '');
-      expect(mod?.text.before).to.include(`name: '{FOO_BAR}'`);
-      expect(mod?.text.after).to.include(`name: '👋 Hello'`);
-      expect(filetext).to.include(`name: '👋 Hello'`);
+
+      const a = await tmpl.copy(target);
+      const b = await tmpl.copy(target);
+      const matchA = a.operations.find((m) => m.file.target.name === 'mod.ts');
+      const matchB = b.operations.find((m) => m.file.target.name === 'mod.ts');
+
+      expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
+      expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
+      expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
+      expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
+      expect(await readFile(matchA?.file.target.path ?? '')).to.include(`name: '👋 Hello'`);
+
+      const writtenA = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+      const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+      expect(writtenA).to.include(`name: '👋 Hello'`);
+      expect(writtenB).to.include(`name: '👋 Hello'`);
     });
 
     it('fn: exists (flag)', async () => {

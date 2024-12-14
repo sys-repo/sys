@@ -18,7 +18,6 @@ export type TmplProcessFile = (args: TmplProcessFileArgs) => void | Promise<void
 export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
   readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile };
-
   /** The text body of the file. */
   readonly text: string;
   /** Filter out the file from being copied. */
@@ -69,15 +68,16 @@ export type TmplFile = {
  */
 export type TmplFileOperation = {
   /** The kind of file operation that occured. */
-  action: 'Created' | 'Updated' | 'Unchanged';
-  /** The source file details. */
-  source: t.TmplFile;
-  /** The target file details. */
-  target: t.TmplFile;
-  /** The text content of the file. */
-  text: { before: string; after: string };
+  action: 'Created' | 'Updated' | 'Unchanged' | 'Unknown';
   /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
   excluded?: string;
   /** Flag indicating if the file already exists in the target location. */
   exists: boolean;
+  /** File path details. */
+  file: { source: t.TmplFile; target: t.TmplFile };
+  /** The text content of the file. */
+  text: {
+    source: string;
+    target: { before: string; after: string };
+  };
 };

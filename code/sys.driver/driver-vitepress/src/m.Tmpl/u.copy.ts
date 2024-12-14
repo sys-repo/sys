@@ -12,23 +12,29 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
     if (await Fs.Is.dir(from)) continue;
 
     const to = Fs.join(target.dir, from.slice(source.dir.length + 1));
-    const text = await Deno.readTextFile(from);
+    const sourceText = await Deno.readTextFile(from);
+    const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
-      source: Wrangle.file(from),
-      target: Wrangle.file(to),
-      text: { before: text, after: text },
+      file: {
+        source: Wrangle.file(from),
+        target: Wrangle.file(to),
+      },
+      text: {
+        source: sourceText,
+        target: { before: targetText, after: targetText || sourceText },
+      },
       action: 'Unchanged',
       exists: await Fs.exists(to),
+      excluded: undefined,
     };
 
     if (typeof fn === 'function') {
-      // const { args, changes } = wrangle.args(op.target, op.text.before);
       const { args, changes } = wrangle.args(op);
       const res = fn(args);
       if (Is.promise(res)) await res;
       if (changes.excluded) op.excluded = changes.excluded;
-      if (changes.filename) op.target.name = changes.filename;
-      if (changes.text) op.text.after = changes.text;
+      if (changes.filename) op.file.target.name = changes.filename;
+      if (changes.text) op.text.target.after = changes.text;
     }
 
     /**
@@ -38,8 +44,10 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
      * - only write when necessary.
      * - calculate diff
      */
-    await Fs.ensureDir(op.target.dir);
-    await Deno.writeTextFile(op.target.path, op.text.after);
+    if (typeof op.excluded !== 'string') {
+      await Fs.ensureDir(op.file.target.dir);
+      await Deno.writeTextFile(op.file.target.path, op.text.target.after);
+    }
 
     // Log final state.
     res.operations.push(op);
@@ -53,17 +61,10 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
  */
 const wrangle = {
   args(op: t.TmplFileOperation) {
-    // const { args, changes } = wrangle.args(op.target, op.text.before);
-
     const changes = { excluded: '', filename: '', text: '' };
-
-    const text = op.text.before;
-
+    const text = op.text.target.before || op.text.source;
     const args: t.TmplProcessFileArgs = {
-      file: {
-        source: op.source,
-        target: op.target,
-      },
+      file: op.file,
       text,
       exclude(reason) {
         changes.excluded = reason;
