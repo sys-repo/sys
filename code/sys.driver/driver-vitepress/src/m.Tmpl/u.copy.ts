@@ -1,6 +1,12 @@
 import { type t, Fs, Is } from './common.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
+type Changes = {
+  excluded: t.TmplFileOperation['excluded'];
+  filename: string;
+  text: string;
+};
+
 export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProcessFile) {
   const res: t.TmplCopyResponse = {
     source,
@@ -25,7 +31,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
       },
       action: 'Unchanged',
       exists: await Fs.exists(to),
-      excluded: undefined,
+      excluded: false,
     };
 
     if (typeof fn === 'function') {
@@ -45,6 +51,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
      * - calculate diff
      */
     if (typeof op.excluded !== 'string') {
+    if (!op.excluded) {
       await Fs.ensureDir(op.file.target.dir);
       await Deno.writeTextFile(op.file.target.path, op.text.target.after);
     }
@@ -61,13 +68,13 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
  */
 const wrangle = {
   args(op: t.TmplFileOperation) {
-    const changes = { excluded: '', filename: '', text: '' };
+    const changes: Changes = { excluded: false, filename: '', text: '' };
     const text = op.text.target.before || op.text.source;
     const args: t.TmplProcessFileArgs = {
       file: op.file,
       text,
       exclude(reason) {
-        changes.excluded = reason;
+        changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;
       },
       rename(filename) {

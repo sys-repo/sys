@@ -21,7 +21,7 @@ export type TmplProcessFileArgs = {
   /** The text body of the file. */
   readonly text: string;
   /** Filter out the file from being copied. */
-  exclude(reason: string): TmplProcessFileArgs;
+  exclude(reason?: string): TmplProcessFileArgs;
   /** Adjust the name of the file. */
   rename(filename: string): TmplProcessFileArgs;
   /** Adjust the text within the file. */
@@ -70,7 +70,7 @@ export type TmplFileOperation = {
   /** The kind of file operation that occured. */
   action: 'Created' | 'Updated' | 'Unchanged' | 'Unknown';
   /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
-  excluded?: string;
+  excluded: boolean | { reason: string };
   /** Flag indicating if the file already exists in the target location. */
   exists: boolean;
   /** File path details. */

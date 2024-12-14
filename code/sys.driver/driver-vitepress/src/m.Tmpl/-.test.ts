@@ -23,30 +23,32 @@ describe('Tmpl', () => {
 
       expect(res.source.dir).to.eql(test.source);
       expect(await res.target.ls()).to.eql(await test.ls.target());
-      expect(res.operations.every((m) => m.excluded === undefined)).to.eql(true);
+      expect(res.operations.every((m) => m.excluded === false)).to.eql(true);
     });
 
-    it.only('fn: exclude', async () => {
+    it('fn: exclude', async () => {
       const { source, target } = SAMPLE.init();
       const tmpl = Tmpl.create(source, async (e) => {
         await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
         if (e.file.target.name.endsWith('.md')) e.exclude('user-space');
+        if (e.file.target.name === '.gitignore') e.exclude();
       });
 
       const res = await tmpl.copy(target);
 
       for (const op of res.operations) {
         if (op.file.target.name.endsWith('.md')) {
-          expect(op?.action).to.eql('Unchanged');
-          expect(op?.excluded).to.eql('user-space');
+          expect(op?.excluded).to.eql({ reason: 'user-space' }); // NB: excluded with reason.
+        } else if (op.file.target.name === '.gitignore') {
+          expect(op?.excluded).to.eql(true); // NB: no reason, boolean TRUE (aka. was excluded).
         } else {
-          expect(op.excluded).to.eql(undefined);
+          expect(op.excluded).to.eql(false);
         }
       }
 
-      // Ensure file was not copied.
-      const path = Fs.join(target, 'doc.md');
-      expect(await Fs.exists(path)).to.eql(false); // NB: file was not copied.
+      // Ensure excluded files were not copied.
+      expect(await Fs.exists(Fs.join(target, 'doc.md'))).to.eql(false);
+      expect(await Fs.exists(Fs.join(target, '.gitignore'))).to.eql(false);
     });
 
     it('fn: file source/target', async () => {
