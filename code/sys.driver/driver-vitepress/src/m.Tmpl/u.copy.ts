@@ -38,7 +38,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
       const res = fn(args);
       if (Is.promise(res)) await res;
       if (changes.excluded) op.excluded = changes.excluded;
-      if (changes.filename) op.file.target.name = changes.filename;
+      if (changes.filename) op.file.target = Wrangle.rename(op.file.target, changes.filename);
       if (changes.text) op.text.target.after = changes.text;
     }
 
@@ -49,7 +49,6 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
      * - only write when necessary.
      * - calculate diff
      */
-    if (typeof op.excluded !== 'string') {
     if (!op.excluded) {
       await Fs.ensureDir(op.file.target.dir);
       await Deno.writeTextFile(op.file.target.path, op.text.target.after);

@@ -63,15 +63,17 @@ describe('Tmpl', () => {
       expect(count).to.greaterThan(0); // NB: ensure the callback ran.
     });
 
-    it('fn: rename', async () => {
-      const { source, target } = SAMPLE.init();
-      const tmpl = Tmpl.create(source, (e) => {
+    it('fn: rename file', async () => {
+      const test = SAMPLE.init();
+      const tmpl = Tmpl.create(test.source, (e) => {
         if (e.file.target.name === 'mod.ts') e.rename('main.ts');
       });
-      const res = await tmpl.copy(target);
+      const res = await tmpl.copy(test.target);
       const match = res.operations.find((m) => m.file.target.name === 'main.ts');
       expect(match?.file.source.name).to.eql('mod.ts');
       expect(match?.file.target.name).to.eql('main.ts');
+      expect(await test.exists.target('mod.ts')).to.eql(false);
+      expect(await test.exists.target('main.ts')).to.eql(true);
     });
 
     it('fn: modify (file text)', async () => {

@@ -20,4 +20,10 @@ export const Wrangle = {
     const name = Path.trimCwd(Path.basename(path));
     return { cwd, path, dir, name };
   },
+
+  rename(input: t.TmplFile | string, filename: string) {
+    const path = typeof input === 'string' ? input : input.path;
+    const dir = Path.dirname(path);
+    return Wrangle.file(Fs.join(dir, filename));
+  },
 } as const;
