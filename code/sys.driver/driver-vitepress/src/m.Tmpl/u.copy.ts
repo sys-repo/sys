@@ -29,7 +29,6 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
         source: sourceText,
         target: { before: targetText, after: targetText || sourceText },
       },
-      action: 'Unchanged',
       exists: await Fs.exists(to),
       excluded: false,
     };

@@ -67,8 +67,6 @@ export type TmplFile = {
  * Details about a file update.
  */
 export type TmplFileOperation = {
-  /** The kind of file operation that occured. */
-  action: 'Created' | 'Updated' | 'Unchanged' | 'Unknown';
   /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
   excluded: boolean | { reason: string };
   /** Flag indicating if the file already exists in the target location. */
