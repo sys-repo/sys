@@ -44,11 +44,6 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
       if (changes.text) op.text.target.after = changes.text;
     }
 
-    /**
-     * TODO 🐷
-     * -  MOVE [Tmpl] → @sys/tmpl
-     *
-     */
     if (!op.excluded) {
       const target = op.file.target;
       const path = target.path;
