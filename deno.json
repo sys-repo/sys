@@ -28,6 +28,7 @@
     "./code/sys/std-s",
     "./code/sys/testing",
     "./code/sys/text",
+    "./code/sys/tmpl",
     "./code/sys/types",
 
     "./code/sys.ui/ui-css",
