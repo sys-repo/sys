@@ -11,7 +11,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
   const res: t.TmplCopyResponse = {
     source,
     target,
-    operations: [],
+    ops: [],
   };
 
   for (const from of await source.ls()) {
@@ -30,6 +30,9 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
         target: { before: targetText, after: targetText || sourceText },
       },
       excluded: false,
+      written: false,
+      created: false,
+      updated: false,
     };
 
     if (typeof fn === 'function') {
@@ -49,12 +52,25 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
      * - calculate diff
      */
     if (!op.excluded) {
-      await Fs.ensureDir(op.file.target.dir);
-      await Deno.writeTextFile(op.file.target.path, op.text.target.after);
+      const target = op.file.target;
+      const path = target.path;
+      const exists = await Fs.exists(path);
+      const isDiff = op.text.target.before !== op.text.target.after;
+      if (!exists) {
+        op.written = true;
+        op.created = true;
+      } else if (isDiff) {
+        op.written = true;
+        op.updated = true;
+      }
+      if (op.created || op.updated) {
+        await Fs.ensureDir(target.dir);
+        await Deno.writeTextFile(path, op.text.target.after);
+      }
     }
 
     // Log final state.
-    res.operations.push(op);
+    res.ops.push(op);
   }
 
   return res;

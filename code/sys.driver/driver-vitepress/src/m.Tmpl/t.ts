@@ -14,7 +14,8 @@ export type TmplLib = {
  *  - adjust the text content before writing.
  *  - adjust the target filename.
  */
-export type TmplProcessFile = (args: TmplProcessFileArgs) => void | Promise<void>;
+export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResponse;
+export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
   readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile };
@@ -42,7 +43,7 @@ export type Tmpl = {
 export type TmplCopyResponse = {
   readonly source: t.TmplDir;
   readonly target: t.TmplDir;
-  readonly operations: t.TmplFileOperation[];
+  readonly ops: t.TmplFileOperation[];
 };
 
 /**
@@ -67,8 +68,14 @@ export type TmplFile = {
  * Details about a file update.
  */
 export type TmplFileOperation = {
-  /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
+  /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
+  /** Flag indicating if a write operation was performed for the file. */
+  written: boolean;
+  /** Flag indicating if the write operation was a "create" action */
+  created: boolean;
+  /** Flag indicating if the write operation was the "update" action. */
+  updated: boolean;
   /** File path details. */
   file: {
     source: t.TmplFile;

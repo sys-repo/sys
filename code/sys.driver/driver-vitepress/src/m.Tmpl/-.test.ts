@@ -19,11 +19,48 @@ describe('Tmpl', () => {
       const tmpl = Tmpl.create(test.source);
       expect(await test.ls.target()).to.eql([]);
 
-      const res = await tmpl.copy(test.target);
+      const a = await tmpl.copy(test.target);
+      const b = await tmpl.copy(test.target);
 
-      expect(res.source.dir).to.eql(test.source);
-      expect(await res.target.ls()).to.eql(await test.ls.target());
-      expect(res.operations.every((m) => m.excluded === false)).to.eql(true);
+      expect(a.source.dir).to.eql(test.source);
+      expect(await a.target.ls()).to.eql(await test.ls.target());
+      expect(a.ops.every((m) => m.excluded === false)).to.eql(true);
+      expect(a.ops.every((m) => m.written === true)).to.eql(true);
+      expect(a.ops.every((m) => m.created === true)).to.eql(true);
+      expect(a.ops.every((m) => m.updated === false)).to.eql(true);
+
+      expect(b.ops.every((m) => m.written === false)).to.eql(true);
+      expect(b.ops.every((m) => m.created === false)).to.eql(true);
+      expect(b.ops.every((m) => m.updated === false)).to.eql(true);
+    });
+
+    it('tmpl.copy(): → create → update', async () => {
+      const test = SAMPLE.init();
+      let count = 0;
+      const tmpl = Tmpl.create(test.source, (e) => {
+        if (e.file.target.name !== 'mod.ts') return e.exclude();
+        e.modify(`const foo = ${count}`);
+        return;
+      });
+
+      const resA = await tmpl.copy(test.target);
+      count = 123; // NB: cuase change in file
+      const resB = await tmpl.copy(test.target); // NB: "udpated" from above change.
+      const resC = await tmpl.copy(test.target); // NB: no changes.
+
+      const a = resA.ops.filter((e) => e.written);
+      const b = resB.ops.filter((e) => e.written);
+      const c = resC.ops.filter((e) => e.written);
+
+      expect(a.length).to.eql(1);
+      expect(b.length).to.eql(1);
+      expect(c.length).to.eql(0);
+
+      expect(a[0].created).to.eql(true);
+      expect(a[0].updated).to.eql(false);
+
+      expect(b[0].created).to.eql(false);
+      expect(b[0].updated).to.eql(true);
     });
 
     it('fn: exclude', async () => {
@@ -36,7 +73,7 @@ describe('Tmpl', () => {
 
       const res = await tmpl.copy(target);
 
-      for (const op of res.operations) {
+      for (const op of res.ops) {
         if (op.file.target.name.endsWith('.md')) {
           expect(op?.excluded).to.eql({ reason: 'user-space' }); // NB: excluded with reason.
         } else if (op.file.target.name === '.gitignore') {
@@ -69,7 +106,7 @@ describe('Tmpl', () => {
         if (e.file.target.name === 'mod.ts') e.rename('main.ts');
       });
       const res = await tmpl.copy(test.target);
-      const match = res.operations.find((m) => m.file.target.name === 'main.ts');
+      const match = res.ops.find((m) => m.file.target.name === 'main.ts');
       expect(match?.file.source.name).to.eql('mod.ts');
       expect(match?.file.target.name).to.eql('main.ts');
       expect(await test.exists.target('mod.ts')).to.eql(false);
@@ -87,8 +124,8 @@ describe('Tmpl', () => {
 
       const a = await tmpl.copy(target);
       const b = await tmpl.copy(target);
-      const matchA = a.operations.find((m) => m.file.target.name === 'mod.ts');
-      const matchB = b.operations.find((m) => m.file.target.name === 'mod.ts');
+      const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
+      const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
 
       expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
       expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
