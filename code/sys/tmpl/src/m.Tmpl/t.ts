@@ -59,7 +59,7 @@ export type TmplCopyResponse = {
  */
 export type TmplDir = {
   dir: t.StringDir;
-  ls(): Promise<t.StringPath[]>;
+  ls(trimCwd?: boolean): Promise<t.StringPath[]>;
 };
 
 /**

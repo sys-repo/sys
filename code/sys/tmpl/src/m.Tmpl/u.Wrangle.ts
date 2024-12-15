@@ -1,4 +1,4 @@
-import { type t, Path, Fs } from './common.ts';
+import { type t, Fs, Path } from './common.ts';
 
 /**
  * Helpers
@@ -7,9 +7,11 @@ export const Wrangle = {
   dir(dir: string): t.TmplDir {
     return {
       dir,
-      async ls() {
+      async ls(trimCwd) {
         const files = await Fs.glob(dir).find('**');
-        return files.filter((p) => p.path !== dir).map((p) => p.path);
+        return files
+          .filter((p) => p.path !== dir)
+          .map((p) => (trimCwd ? Path.trimCwd(p.path) : p.path));
       },
     };
   },

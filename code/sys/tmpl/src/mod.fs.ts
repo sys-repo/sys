@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { create } from '@sys/tmpl/fs';
+ * import { Tmpl, create } from '@sys/tmpl/fs';
  *
  * const tmpl = create('path/to/source/dir');
  * const res = await tmpl.copy('path/to/target/dir');

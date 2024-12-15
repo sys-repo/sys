@@ -5,7 +5,7 @@
  * @example
  * ```ts
  * import { pkg } from '@sys/tmpl';
- * import { Tmpl } from '@sys/tmpl/fs';
+ * import { Tmpl, create } from '@sys/tmpl/fs';
  * ```
  */
 export { pkg } from './pkg.ts';
