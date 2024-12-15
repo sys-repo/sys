@@ -11,6 +11,7 @@ export const Paths = {
     'code/sys/cmd',
     'code/sys/testing',
     'code/sys/text',
+    'code/sys/tmpl',
     'code/sys/types',
     
     /**
