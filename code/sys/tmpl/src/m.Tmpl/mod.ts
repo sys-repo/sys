@@ -1,1 +1,1 @@
-export { Tmpl } from './m.Tmpl.ts';
+export { Tmpl, create } from './m.Tmpl.ts';

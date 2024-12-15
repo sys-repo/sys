@@ -4,7 +4,8 @@ import type { t } from './common.ts';
  * Library for copying template files.
  */
 export type TmplLib = {
-  create(source: t.StringDir, fn?: t.TmplProcessFile): Tmpl;
+  /** Create a new directory template. */
+  create: TmplFactory;
 };
 
 /**
@@ -30,10 +31,17 @@ export type TmplProcessFileArgs = {
 };
 
 /**
+ * Generator function for a directory Template.
+ */
+export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmpl;
+
+/**
  * A template copier.
  */
 export type Tmpl = {
+  /** The directory containing the source template files. */
   readonly source: t.TmplDir;
+  /** Perform a copy of the templates to a target directory. */
   copy(target: t.StringDir): Promise<t.TmplCopyResponse>;
 };
 
