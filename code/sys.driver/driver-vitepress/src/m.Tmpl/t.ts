@@ -69,10 +69,11 @@ export type TmplFile = {
 export type TmplFileOperation = {
   /** If excluded, contains the reason for the exclusion, otherwise `undefined`. */
   excluded: boolean | { reason: string };
-  /** Flag indicating if the file already exists in the target location. */
-  exists: boolean;
   /** File path details. */
-  file: { source: t.TmplFile; target: t.TmplFile };
+  file: {
+    source: t.TmplFile;
+    target: t.TmplFile;
+  };
   /** The text content of the file. */
   text: {
     source: string;

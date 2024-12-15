@@ -101,14 +101,5 @@ describe('Tmpl', () => {
       expect(writtenA).to.include(`name: '👋 Hello'`);
       expect(writtenB).to.include(`name: '👋 Hello'`);
     });
-
-    it('fn: exists (flag)', async () => {
-      const { source, target } = SAMPLE.init();
-      const tmpl = Tmpl.create(source);
-      const a = await tmpl.copy(target);
-      const b = await tmpl.copy(target);
-      expect(a.operations.every((m) => m.exists === false)).to.eql(true);
-      expect(b.operations.every((m) => m.exists === true)).to.eql(true);
-    });
   });
 });
