@@ -10,3 +10,5 @@
  * const res = await tmpl.copy('path/to/target/dir');
  * ```
  */
+export { Tmpl } from './m.Tmpl/m.Tmpl.ts';
+export { Fs, Path } from './common.ts';
