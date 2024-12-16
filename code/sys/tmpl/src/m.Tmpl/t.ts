@@ -4,6 +4,8 @@ import type { t } from './common.ts';
  * Library for copying template files.
  */
 export type TmplLib = {
+  /** Tools for converting a Tmpl to console/log output. */
+  readonly Log: t.TmplLogLib;
   /** Create a new directory template. */
   create: TmplFactory;
 };
@@ -19,7 +21,7 @@ export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResp
 export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
-  readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile };
+  readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
   /** The text body of the file. */
   readonly text: string;
   /** Filter out the file from being copied. */
@@ -63,7 +65,7 @@ export type TmplDir = {
 };
 
 /**
- * Details about a template file.
+ * Path details about a template file.
  */
 export type TmplFile = {
   cwd: t.StringDir;

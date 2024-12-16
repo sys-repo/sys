@@ -36,15 +36,18 @@ describe('Tmpl', () => {
 
     it('tmpl.copy(): → create → update', async () => {
       const test = SAMPLE.init();
+      let foo = 0;
       let count = 0;
       const tmpl = Tmpl.create(test.source, (e) => {
         if (e.file.target.name !== 'mod.ts') return e.exclude();
-        e.modify(`const foo = ${count}`);
-        return;
+        e.modify(`const foo = ${foo}`);
+
+        expect(e.file.target.exists).to.eql(count === 0 ? false : true);
+        count++;
       });
 
       const resA = await tmpl.copy(test.target);
-      count = 123; // NB: cuase change in file
+      foo = 123; // NB: cuase change in file
       const resB = await tmpl.copy(test.target); // NB: "udpated" from above change.
       const resC = await tmpl.copy(test.target); // NB: no changes.
 
@@ -52,6 +55,7 @@ describe('Tmpl', () => {
       const b = resB.ops.filter((e) => e.written);
       const c = resC.ops.filter((e) => e.written);
 
+      expect(count).to.greaterThan(1);
       expect(a.length).to.eql(1);
       expect(b.length).to.eql(1);
       expect(c.length).to.eql(0);

@@ -36,7 +36,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
     };
 
     if (typeof fn === 'function') {
-      const { args, changes } = wrangle.args(op);
+      const { args, changes } = await wrangle.args(op);
       const res = fn(args);
       if (Is.promise(res)) await res;
       if (changes.excluded) op.excluded = changes.excluded;
@@ -73,11 +73,11 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
  * Helpers
  */
 const wrangle = {
-  args(op: t.TmplFileOperation) {
+  async args(op: t.TmplFileOperation) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const text = op.text.target.before || op.text.source;
     const args: t.TmplProcessFileArgs = {
-      file: op.file,
+      file: await wrangle.argsFile(op.file),
       text,
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
@@ -93,5 +93,12 @@ const wrangle = {
       },
     };
     return { args, changes } as const;
+  },
+
+  async argsFile(file: t.TmplFileOperation['file']) {
+    const exists = await Fs.exists(file.target.path);
+    const target = { ...file.target, exists };
+    const res: t.TmplProcessFileArgs['file'] = { ...file, target };
+    return res;
   },
 } as const;
