@@ -11,4 +11,4 @@
  * ```
  */
 export { Fs, Path } from './common.ts';
-export { create, Tmpl } from './m.Tmpl/m.Tmpl.ts';
+export { create, Log, Tmpl } from './m.Tmpl/m.Tmpl.ts';

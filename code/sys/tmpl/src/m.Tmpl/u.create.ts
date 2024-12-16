@@ -5,9 +5,12 @@ import { copy } from './u.copy.ts';
 /**
  * Create a new directory template.
  */
-export const create: t.TmplFactory = (source, fn) => {
+export const create: t.TmplFactory = (sourceDir, fn) => {
+  const source = Wrangle.dir(sourceDir);
   const tmpl: t.Tmpl = {
-    source: Wrangle.dir(source),
+    get source() {
+      return source;
+    },
     copy: (target) => copy(tmpl.source, Wrangle.dir(target), fn),
   };
   return tmpl;

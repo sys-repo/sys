@@ -1,4 +1,3 @@
-import { exists } from '@std/fs/exists';
 import { type t, Fs, slug } from './common.ts';
 
 export const SAMPLE = {
