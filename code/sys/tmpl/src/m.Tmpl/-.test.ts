@@ -185,12 +185,14 @@ describe('Tmpl', () => {
     it('force ← with exclusion', async () => {
       const test = SAMPLE.init();
       const tmpl = Tmpl.create(test.source, (e) => {
-        if (e.file.target.name === 'doc.md') e.exclude('user-space');
+        const file = e.file.target;
+        if (!file.exists) return; // NB: create the user-space file if it does not yet exist
+        if (file.name === 'doc.md') e.exclude('user-space');
       });
 
       const resA = await tmpl.copy(test.target);
       const resB = await tmpl.copy(test.target, { force: true });
-      expect(await test.exists.target('doc.md')).to.eql(false);
+      expect(await test.exists.target('doc.md')).to.eql(true);
 
       const indent = 2;
       const hideExcluded = false;
