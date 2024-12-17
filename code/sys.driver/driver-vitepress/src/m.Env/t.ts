@@ -17,20 +17,11 @@ export type VitePressEnvUpdateArgs = {
   srcDir?: t.StringDir;
   version?: t.StringSemver;
   silent?: boolean;
-  filter?: (path: t.StringPath) => boolean;
 };
 
 /**
  * The response returned from an update.
  */
 export type VitePressEnvUpdateResponse = {
-  readonly files: t.VitePressFileUpdate[];
-};
-
-/**
- * Details about a file update.
- */
-export type VitePressFileUpdate = {
-  readonly kind: 'Created' | 'Updated' | 'Unchanged' | 'Userspace';
-  readonly path: t.StringPath;
+  readonly tmpl: t.TmplCopyResponse;
 };

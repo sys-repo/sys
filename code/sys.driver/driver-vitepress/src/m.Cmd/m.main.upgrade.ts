@@ -1,6 +1,5 @@
 import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
-import { Tmpl } from '../-tmpl/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 import { type t, Args, c, DEFAULTS, Fs, Jsr, Log, pkg } from './common.ts';
@@ -55,7 +54,7 @@ export async function upgrade(argv: string[]) {
    * Update project template files.
    */
   const filter = (p: string) => !p.startsWith('docs/');
-  const res = await VitePress.Env.update({ filter, inDir, force, silent: true });
+  const res = await VitePress.Env.update({ inDir, force, silent: true });
 
   /**
    * Finish up.
