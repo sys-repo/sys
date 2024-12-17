@@ -12,9 +12,8 @@ export const create: t.TmplFactory = (sourceDir, fn) => {
       return source;
     },
     copy(targetDir, options = {}) {
-      const { force } = options;
       const target = Wrangle.dir(targetDir);
-      return copy({ source, target, fn, force });
+      return copy(source, target, fn, options);
     },
   };
   return tmpl;

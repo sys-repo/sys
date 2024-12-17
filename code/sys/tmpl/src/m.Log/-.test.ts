@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { Tmpl } from '../m.Tmpl/mod.ts';
-import { SAMPLE } from './-u.ts';
+import { SAMPLE } from '../m.Tmpl/-u.ts';
 import { Log } from './mod.ts';
 
 describe('Tmpl.Log', () => {

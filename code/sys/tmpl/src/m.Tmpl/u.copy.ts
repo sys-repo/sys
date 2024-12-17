@@ -7,21 +7,14 @@ type Changes = {
   text: string;
 };
 
-type Args = {
-  source: t.TmplDir;
-  target: t.TmplDir;
-  fn?: t.TmplProcessFile;
-  force?: boolean;
-};
-
-export async function copy(args: Args) {
-  const { source, target, fn } = args;
-  const forced = args.force ?? false;
-  const res: t.TmplCopyResponse = {
-    source,
-    target,
-    ops: [],
-  };
+export async function copy(
+  source: t.TmplDir,
+  target: t.TmplDir,
+  fn: t.TmplProcessFile | undefined,
+  options: t.TmplCopyOptions = {},
+) {
+  const forced = options.force ?? false;
+  const res: t.TmplCopyResponse = { source, target, ops: [] };
 
   for (const from of await source.ls()) {
     if (await Fs.Is.dir(from)) continue;

@@ -84,121 +84,125 @@ describe('Tmpl', () => {
       logOps(resC, 'C: re-run', { indent });
     });
 
-    it('fn: exclude', async () => {
-      const { source, target } = SAMPLE.init();
-      const tmpl = Tmpl.create(source, async (e) => {
-        await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
-        if (e.file.target.name.endsWith('.md')) e.exclude('user-space');
-        if (e.file.target.name === '.gitignore') e.exclude();
-      });
+    describe('fn: (file process handler)', () => {
+      it('fn: exclude', async () => {
+        const { source, target } = SAMPLE.init();
+        const tmpl = Tmpl.create(source, async (e) => {
+          await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
+          if (e.file.target.name.endsWith('.md')) e.exclude('user-space');
+          if (e.file.target.name === '.gitignore') e.exclude();
+        });
 
-      const res = await tmpl.copy(target);
+        const res = await tmpl.copy(target);
 
-      for (const op of res.ops) {
-        if (op.file.target.name.endsWith('.md')) {
-          expect(op?.excluded).to.eql({ reason: 'user-space' }); // NB: excluded with reason.
-        } else if (op.file.target.name === '.gitignore') {
-          expect(op?.excluded).to.eql(true); // NB: no reason, boolean TRUE (aka. was excluded).
-        } else {
-          expect(op.excluded).to.eql(false);
+        for (const op of res.ops) {
+          if (op.file.target.name.endsWith('.md')) {
+            expect(op?.excluded).to.eql({ reason: 'user-space' }); // NB: excluded with reason.
+          } else if (op.file.target.name === '.gitignore') {
+            expect(op?.excluded).to.eql(true); // NB: no reason, boolean TRUE (aka. was excluded).
+          } else {
+            expect(op.excluded).to.eql(false);
+          }
         }
-      }
 
-      // Ensure excluded files were not copied.
-      expect(await Fs.exists(Fs.join(target, 'doc.md'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(target, '.gitignore'))).to.eql(false);
-    });
-
-    it('fn: file source/target', async () => {
-      const { source, target } = SAMPLE.init();
-      let count = 0;
-      const tmpl = Tmpl.create(source, (e) => {
-        count++;
-        expect(e.file.source.dir).to.eql(Fs.Path.trimCwd(source));
-        expect(e.file.target.dir).to.eql(Fs.Path.trimCwd(target));
-      });
-      await tmpl.copy(target);
-      expect(count).to.greaterThan(0); // NB: ensure the callback ran.
-    });
-
-    it('fn: rename file', async () => {
-      const test = SAMPLE.init();
-      const tmpl = Tmpl.create(test.source, (e) => {
-        if (e.file.target.name === 'mod.ts') e.rename('main.ts');
-      });
-      const res = await tmpl.copy(test.target);
-      const match = res.ops.find((m) => m.file.target.name === 'main.ts');
-      expect(match?.file.source.name).to.eql('mod.ts');
-      expect(match?.file.target.name).to.eql('main.ts');
-      expect(await test.exists.target('mod.ts')).to.eql(false);
-      expect(await test.exists.target('main.ts')).to.eql(true);
-    });
-
-    it('fn: modify (file text)', async () => {
-      const { source, target } = SAMPLE.init();
-      const tmpl = Tmpl.create(source, (e) => {
-        if (e.file.target.name === 'mod.ts') {
-          const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
-          e.modify(next);
-        }
+        // Ensure excluded files were not copied.
+        expect(await Fs.exists(Fs.join(target, 'doc.md'))).to.eql(false);
+        expect(await Fs.exists(Fs.join(target, '.gitignore'))).to.eql(false);
       });
 
-      const a = await tmpl.copy(target);
-      const b = await tmpl.copy(target);
-      const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
-      const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
-
-      expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
-      expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
-      expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
-      expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
-      expect(await readFile(matchA?.file.target.path ?? '')).to.include(`name: '👋 Hello'`);
-
-      const writtenA = await readFile(Fs.join(a.target.dir, 'mod.ts'));
-      const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
-      expect(writtenA).to.include(`name: '👋 Hello'`);
-      expect(writtenB).to.include(`name: '👋 Hello'`);
-    });
-
-    it('force', async () => {
-      const test = SAMPLE.init();
-      const tmpl = Tmpl.create(test.source);
-
-      const resA = await tmpl.copy(test.target);
-      const resB = await tmpl.copy(test.target); // NB: no changes (already written).
-      const resC = await tmpl.copy(test.target, { force: true });
-
-      expect(resA.ops.every((m) => m.forced === false)).to.be.true;
-      expect(resB.ops.every((m) => m.forced === false)).to.be.true;
-      expect(resC.ops.every((m) => m.forced === true)).to.be.true;
-
-      expect(resA.ops.every((m) => m.written === true)).to.be.true;
-      expect(resB.ops.every((m) => m.written === false)).to.be.true;
-      expect(resC.ops.every((m) => m.written === true)).to.be.true;
-
-      const indent = 2;
-      logOps(resB, 'Not forced:', { indent });
-      console.info();
-      logOps(resC, 'Forced:', { indent });
-    });
-
-    it('force ← with exclusion', async () => {
-      const test = SAMPLE.init();
-      const tmpl = Tmpl.create(test.source, (e) => {
-        const file = e.file.target;
-        if (!file.exists) return; // NB: create the user-space file if it does not yet exist
-        if (file.name === 'doc.md') e.exclude('user-space');
+      it('fn: file source/target', async () => {
+        const { source, target } = SAMPLE.init();
+        let count = 0;
+        const tmpl = Tmpl.create(source, (e) => {
+          count++;
+          expect(e.file.source.dir).to.eql(Fs.Path.trimCwd(source));
+          expect(e.file.target.dir).to.eql(Fs.Path.trimCwd(target));
+        });
+        await tmpl.copy(target);
+        expect(count).to.greaterThan(0); // NB: ensure the callback ran.
       });
 
-      const resA = await tmpl.copy(test.target);
-      const resB = await tmpl.copy(test.target, { force: true });
-      expect(await test.exists.target('doc.md')).to.eql(true);
+      it('fn: rename file', async () => {
+        const test = SAMPLE.init();
+        const tmpl = Tmpl.create(test.source, (e) => {
+          if (e.file.target.name === 'mod.ts') e.rename('main.ts');
+        });
+        const res = await tmpl.copy(test.target);
+        const match = res.ops.find((m) => m.file.target.name === 'main.ts');
+        expect(match?.file.source.name).to.eql('mod.ts');
+        expect(match?.file.target.name).to.eql('main.ts');
+        expect(await test.exists.target('mod.ts')).to.eql(false);
+        expect(await test.exists.target('main.ts')).to.eql(true);
+      });
 
-      const indent = 2;
-      const hideExcluded = false;
-      logOps(resA, 'Initial:', { indent, hideExcluded });
-      console.info();
-      logOps(resB, 'Forced:', { indent, hideExcluded });
+      it('fn: modify (file text)', async () => {
+        const { source, target } = SAMPLE.init();
+        const tmpl = Tmpl.create(source, (e) => {
+          if (e.file.target.name === 'mod.ts') {
+            const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
+            e.modify(next);
+          }
+        });
+
+        const a = await tmpl.copy(target);
+        const b = await tmpl.copy(target);
+        const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
+        const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
+
+        expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
+        expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
+        expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
+        expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
+        expect(await readFile(matchA?.file.target.path ?? '')).to.include(`name: '👋 Hello'`);
+
+        const writtenA = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+        const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+        expect(writtenA).to.include(`name: '👋 Hello'`);
+        expect(writtenB).to.include(`name: '👋 Hello'`);
+      });
+    });
+
+    describe('force', () => {
+      it('force', async () => {
+        const test = SAMPLE.init();
+        const tmpl = Tmpl.create(test.source);
+
+        const resA = await tmpl.copy(test.target);
+        const resB = await tmpl.copy(test.target); // NB: no changes (already written).
+        const resC = await tmpl.copy(test.target, { force: true });
+
+        expect(resA.ops.every((m) => m.forced === false)).to.be.true;
+        expect(resB.ops.every((m) => m.forced === false)).to.be.true;
+        expect(resC.ops.every((m) => m.forced === true)).to.be.true;
+
+        expect(resA.ops.every((m) => m.written === true)).to.be.true;
+        expect(resB.ops.every((m) => m.written === false)).to.be.true; // NB: no change to write.
+        expect(resC.ops.every((m) => m.written === true)).to.be.true; //  NB: no change, but forced.
+
+        const indent = 2;
+        logOps(resB, 'Not forced:', { indent });
+        console.info();
+        logOps(resC, 'Forced:', { indent });
+      });
+
+      it('force ← (with exclusions)', async () => {
+        const test = SAMPLE.init();
+        const tmpl = Tmpl.create(test.source, (e) => {
+          const file = e.file.target;
+          if (!file.exists) return; // NB: create the user-space file if it does not yet exist
+          if (file.name === 'doc.md') e.exclude('user-space');
+        });
+
+        const resA = await tmpl.copy(test.target);
+        const resB = await tmpl.copy(test.target, { force: true });
+        expect(await test.exists.target('doc.md')).to.eql(true);
+
+        const indent = 2;
+        const hideExcluded = false;
+        logOps(resA, 'Initial:', { indent, hideExcluded });
+        console.info();
+        logOps(resB, 'Forced:', { indent, hideExcluded });
+      });
     });
   });
 });
