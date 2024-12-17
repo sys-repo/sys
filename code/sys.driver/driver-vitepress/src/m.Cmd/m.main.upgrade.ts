@@ -55,7 +55,7 @@ export async function upgrade(argv: string[]) {
    * Update project template files.
    */
   const filter = (p: string) => !p.startsWith('docs/');
-  const res = await VitePress.Env.update({ filter, inDir, force: false, silent: true });
+  const res = await VitePress.Env.update({ filter, inDir, force, silent: true });
 
   /**
    * Finish up.
