@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { ops } from './u.ops.ts';
+import { table } from './u.table.ts';
 
 export const Log: t.TmplLogLib = {
-  ops,
+  table,
 };

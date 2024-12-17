@@ -12,7 +12,7 @@ describe('Tmpl', () => {
   ) => {
     const { indent, hideExcluded = true } = options;
     console.info(title);
-    console.info(Tmpl.Log.ops(res.ops).table({ hideExcluded, indent }));
+    console.info(Tmpl.Log.table(res.ops, { hideExcluded, indent }));
   };
 
   it('init: paths', async () => {

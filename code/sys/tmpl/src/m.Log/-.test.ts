@@ -20,9 +20,9 @@ describe('Tmpl.Log', () => {
     change = true;
     const res3 = await tmpl.copy(test.target);
 
-    const table1 = Tmpl.Log.ops(res1.ops).table();
-    const table2 = Tmpl.Log.ops(res2.ops).table();
-    const table3 = Tmpl.Log.ops(res3.ops).table();
+    const table1 = Log.table(res1.ops);
+    const table2 = Log.table(res2.ops);
+    const table3 = Log.table(res3.ops);
 
     expect(table1.toString()).to.include('Created');
     expect(table1.toString()).to.not.include('Updated');

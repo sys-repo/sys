@@ -1,24 +1,17 @@
 import { type t, c, Cli } from './common.ts';
 
-export const ops: t.TmplLogLib['ops'] = (ops) => {
-  return {
-    get ops() {
-      return ops;
-    },
-    table(options = {}) {
-      const table = Cli.table([]);
-      const indent = options.indent ? ' '.repeat(options.indent) : '';
-      ops
-        .filter((op) => (options.hideExcluded ? !op.excluded : true))
-        .forEach((op) => {
-          const path = wrangle.path(op);
-          const action = wrangle.action(op);
-          const note = wrangle.note(op);
-          table.push([`${indent}${action}`, path, note]);
-        });
-      return table.toString().replace(/^\s*\n/, '');
-    },
-  };
+export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
+  const table = Cli.table([]);
+  const indent = options.indent ? ' '.repeat(options.indent) : '';
+  ops
+    .filter((op) => (options.hideExcluded ? !op.excluded : true))
+    .forEach((op) => {
+      const path = wrangle.path(op);
+      const action = wrangle.action(op);
+      const note = wrangle.note(op);
+      table.push([`${indent}${action}`, path, note]);
+    });
+  return table.toString().replace(/^\s*\n/, '');
 };
 
 /**
