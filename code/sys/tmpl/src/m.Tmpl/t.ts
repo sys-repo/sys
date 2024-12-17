@@ -97,13 +97,7 @@ export type TmplFileOperation = {
   /** Flag indicating if the file operation was forced. */
   forced: boolean;
   /** File path details. */
-  file: {
-    source: t.TmplFile;
-    target: t.TmplFile;
-  };
+  file: { source: t.TmplFile; target: t.TmplFile };
   /** The text content of the file. */
-  text: {
-    source: string;
-    target: { before: string; after: string };
-  };
+  text: { source: string; target: { before: string; after: string } };
 };
