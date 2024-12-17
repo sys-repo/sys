@@ -1,4 +1,4 @@
-import { ensureFiles } from '../-tmpl/mod.ts';
+import { runTemplate } from './u.tmpl.ts';
 import { type t, c, Fs, Tmpl } from './common.ts';
 
 /**
@@ -14,7 +14,7 @@ export const Env: t.VitePressEnvLib = {
     /**
      * Update template files.
      */
-    const tmpl = await ensureFiles({ inDir, srcDir, version, force });
+    const tmpl = await runTemplate({ inDir, srcDir, version, force });
 
     /**
      * Clean away obsolete files.
