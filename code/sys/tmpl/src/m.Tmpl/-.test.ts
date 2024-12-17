@@ -1,9 +1,19 @@
-import { Fs, describe, expect, it, Time } from '../-test.ts';
+import { describe, expect, Fs, it, Time, type t } from '../-test.ts';
 import { SAMPLE } from './-u.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
   const readFile = Deno.readTextFile;
+
+  const logOps = (
+    res: t.TmplCopyResponse,
+    title: string,
+    options: { indent?: number; hideExcluded?: boolean } = {},
+  ) => {
+    const { indent, hideExcluded = true } = options;
+    console.info(title);
+    console.info(Tmpl.Log.ops(res.ops).table({ hideExcluded, indent }));
+  };
 
   it('init: paths', async () => {
     const test = SAMPLE.init();
@@ -33,6 +43,8 @@ describe('Tmpl', () => {
       expect(b.ops.every((m) => m.written === false)).to.be.true;
       expect(b.ops.every((m) => m.created === false)).to.be.true;
       expect(b.ops.every((m) => m.updated === false)).to.be.true;
+
+      logOps(a, 'Copy:', { indent: 2 });
     });
 
     it('tmpl.copy(): → create → update', async () => {
@@ -42,14 +54,13 @@ describe('Tmpl', () => {
       const tmpl = Tmpl.create(test.source, (e) => {
         if (e.file.target.name !== 'mod.ts') return e.exclude();
         e.modify(`const foo = ${foo}`);
-
         expect(e.file.target.exists).to.eql(count === 0 ? false : true);
         count++;
       });
 
       const resA = await tmpl.copy(test.target);
-      foo = 123; // NB: cuase change in file
-      const resB = await tmpl.copy(test.target); // NB: "udpated" from above change.
+      foo = 123; // NB: cuase change in file.
+      const resB = await tmpl.copy(test.target); // NB: "updated" via change flag.
       const resC = await tmpl.copy(test.target); // NB: no changes.
 
       const a = resA.ops.filter((e) => e.written);
@@ -66,6 +77,11 @@ describe('Tmpl', () => {
 
       expect(b[0].created).to.eql(false);
       expect(b[0].updated).to.eql(true);
+
+      const indent = 3;
+      logOps(resA, 'A: initial', { indent });
+      logOps(resB, 'B: changed', { indent });
+      logOps(resC, 'C: re-run', { indent });
     });
 
     it('fn: exclude', async () => {
@@ -142,6 +158,45 @@ describe('Tmpl', () => {
       const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
       expect(writtenA).to.include(`name: '👋 Hello'`);
       expect(writtenB).to.include(`name: '👋 Hello'`);
+    });
+
+    it('force', async () => {
+      const test = SAMPLE.init();
+      const tmpl = Tmpl.create(test.source);
+
+      const resA = await tmpl.copy(test.target);
+      const resB = await tmpl.copy(test.target); // NB: no changes (already written).
+      const resC = await tmpl.copy(test.target, { force: true });
+
+      expect(resA.ops.every((m) => m.forced === false)).to.be.true;
+      expect(resB.ops.every((m) => m.forced === false)).to.be.true;
+      expect(resC.ops.every((m) => m.forced === true)).to.be.true;
+
+      expect(resA.ops.every((m) => m.written === true)).to.be.true;
+      expect(resB.ops.every((m) => m.written === false)).to.be.true;
+      expect(resC.ops.every((m) => m.written === true)).to.be.true;
+
+      const indent = 2;
+      logOps(resB, 'Not forced:', { indent });
+      console.info();
+      logOps(resC, 'Forced:', { indent });
+    });
+
+    it('force ← with exclusion', async () => {
+      const test = SAMPLE.init();
+      const tmpl = Tmpl.create(test.source, (e) => {
+        if (e.file.target.name === 'doc.md') e.exclude('user-space');
+      });
+
+      const resA = await tmpl.copy(test.target);
+      const resB = await tmpl.copy(test.target, { force: true });
+      expect(await test.exists.target('doc.md')).to.eql(false);
+
+      const indent = 2;
+      const hideExcluded = false;
+      logOps(resA, 'Initial:', { indent, hideExcluded });
+      console.info();
+      logOps(resB, 'Forced:', { indent, hideExcluded });
     });
   });
 });

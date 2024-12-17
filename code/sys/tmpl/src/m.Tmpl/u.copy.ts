@@ -60,13 +60,12 @@ export async function copy(args: Args) {
       const exists = await Fs.exists(path);
       const isDiff = op.text.target.before !== op.text.target.after;
       if (!exists) {
-        op.written = true;
         op.created = true;
-      } else if (isDiff) {
-        op.written = true;
+      } else if (isDiff || op.forced) {
         op.updated = true;
       }
       if (op.created || op.updated) {
+        op.written = true;
         await Fs.ensureDir(target.dir);
         await Deno.writeTextFile(path, op.text.target.after);
       }

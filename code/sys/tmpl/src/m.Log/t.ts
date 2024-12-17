@@ -16,5 +16,5 @@ export type TmplLogOps = {
   readonly ops: t.TmplFileOperation[];
 
   /** Convert a set of template operations to a console table. */
-  table(options?: { indent?: number }): t.CliTable;
+  table(options?: { indent?: number; hideExcluded?: boolean }): string;
 };
