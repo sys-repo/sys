@@ -37,6 +37,7 @@ export async function copy(
       updated: false,
       forced,
     };
+    res.ops.push(op);
 
     if (typeof fn === 'function') {
       const { args, changes } = await wrangle.args(op);
@@ -57,15 +58,14 @@ export async function copy(
       } else if (isDiff || op.forced) {
         op.updated = true;
       }
-      if (op.created || op.updated) {
+      if ((op.created || op.updated) && (options.write ?? true)) {
         op.written = true;
         await Fs.ensureDir(target.dir);
         await Deno.writeTextFile(path, op.text.target.after);
       }
     }
-
-    res.ops.push(op);
   }
+
   return res;
 }
 

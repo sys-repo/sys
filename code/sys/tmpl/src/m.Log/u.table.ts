@@ -31,15 +31,28 @@ const wrangle = {
   },
   note(op: t.TmplFileOperation) {
     let text = '';
+    const append = (value: string) => {
+      if (text) text += ' | ';
+      text += value;
+      return text;
+    };
     if (op.excluded) {
-      const reason = typeof op.excluded === 'object' ? op.excluded.reason : '';
       const base = 'excluded';
-      text = reason ? `${base}: ${reason}` : base;
+      const reason = typeof op.excluded === 'object' ? op.excluded.reason : '';
+      append(reason ? `${base}: ${reason}` : base);
     }
     if (op.forced && !op.excluded) {
-      if (text) text += ' | ';
-      text += c.yellow('forced');
+      append(c.yellow('forced'));
+    }
+    if (is.dryRun(op)) {
+      append(`(${c.cyan('dry-run')})`);
     }
     return text ? c.gray(`${c.white('←')} ${text}`) : '';
+  },
+} as const;
+
+const is = {
+  dryRun(op: t.TmplFileOperation) {
+    return !op.written && (op.created || op.updated);
   },
 } as const;

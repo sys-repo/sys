@@ -44,7 +44,15 @@ export type Tmpl = {
   /** The directory containing the source template files. */
   readonly source: t.TmplDir;
   /** Perform a copy of the templates to a target directory. */
-  copy(target: t.StringDir, options?: { force?: boolean }): Promise<t.TmplCopyResponse>;
+  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
+};
+
+/** Options passed to the `tmpl.copy` method. */
+export type TmplCopyOptions = {
+  /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
+  force?: boolean;
+  /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
+  write?: boolean;
 };
 
 /**
