@@ -7,7 +7,16 @@ type Changes = {
   text: string;
 };
 
-export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProcessFile) {
+type Args = {
+  source: t.TmplDir;
+  target: t.TmplDir;
+  fn?: t.TmplProcessFile;
+  force?: boolean;
+};
+
+export async function copy(args: Args) {
+  const { source, target, fn } = args;
+  const forced = args.force ?? false;
   const res: t.TmplCopyResponse = {
     source,
     target,
@@ -33,6 +42,7 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
       written: false,
       created: false,
       updated: false,
+      forced,
     };
 
     if (typeof fn === 'function') {
@@ -62,10 +72,8 @@ export async function copy(source: t.TmplDir, target: t.TmplDir, fn?: t.TmplProc
       }
     }
 
-    // Log final state.
     res.ops.push(op);
   }
-
   return res;
 }
 

@@ -24,14 +24,15 @@ describe('Tmpl', () => {
 
       expect(a.source.dir).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
-      expect(a.ops.every((m) => m.excluded === false)).to.eql(true);
-      expect(a.ops.every((m) => m.written === true)).to.eql(true);
-      expect(a.ops.every((m) => m.created === true)).to.eql(true);
-      expect(a.ops.every((m) => m.updated === false)).to.eql(true);
+      expect(a.ops.every((m) => m.excluded === false)).to.be.true;
+      expect(a.ops.every((m) => m.written === true)).to.be.true;
+      expect(a.ops.every((m) => m.created === true)).to.be.true;
+      expect(a.ops.every((m) => m.updated === false)).to.be.true;
+      expect(a.ops.every((m) => m.forced === false)).to.be.true;
 
-      expect(b.ops.every((m) => m.written === false)).to.eql(true);
-      expect(b.ops.every((m) => m.created === false)).to.eql(true);
-      expect(b.ops.every((m) => m.updated === false)).to.eql(true);
+      expect(b.ops.every((m) => m.written === false)).to.be.true;
+      expect(b.ops.every((m) => m.created === false)).to.be.true;
+      expect(b.ops.every((m) => m.updated === false)).to.be.true;
     });
 
     it('tmpl.copy(): → create → update', async () => {
