@@ -1,5 +1,5 @@
-import { runTemplate } from './u.tmpl.ts';
 import { type t, c, Fs, Tmpl } from './common.ts';
+import { runTemplate } from './u.tmpl.ts';
 
 /**
  * Helpers for establishing and updating the project environment.
@@ -29,7 +29,7 @@ export const Env: t.VitePressEnvLib = {
      */
     if (!silent) {
       console.info(c.green('Updated Environment'));
-      console.info(Tmpl.Log.ops(tmpl.ops).table({ indent: 2 }));
+      console.info(Tmpl.Log.table(tmpl.ops, { indent: 2 }));
     }
 
     return { tmpl };
