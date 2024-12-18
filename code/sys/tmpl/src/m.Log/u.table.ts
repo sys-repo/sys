@@ -24,7 +24,7 @@ const wrangle = {
     return op.excluded ? c.dim(text) : text;
   },
   action(op: t.TmplFileOperation) {
-    if (op.excluded) return c.gray(c.dim(''));
+    if (op.excluded) return c.gray(c.dim('n/a'));
     if (op.created) return c.green('Created');
     if (op.updated) return c.yellow('Updated');
     return c.gray('Unchanged');

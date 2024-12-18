@@ -77,10 +77,9 @@ export async function copy(
 const wrangle = {
   async args(op: t.TmplFileOperation) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
-    const text = op.text.target.before || op.text.source;
     const args: t.TmplProcessFileArgs = {
       file: await wrangle.argsFile(op.file),
-      text,
+      text: op.text.source,
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;
