@@ -49,7 +49,9 @@ export async function upgrade(argv: string[]) {
     const tmpl = Env.tmpl({ inDir, version }).filter((file) => file.name === 'deno.json');
     const m = await tmpl.copy(inDir, { force: true });
 
+    console.log('tmpl.source.ls()', tmpl.source.ls());
     console.log('m', m);
+    console.log('m.target.ls()', m.target.ls());
 
     // Install and run.
     const sh = Cmd.sh(inDir);
