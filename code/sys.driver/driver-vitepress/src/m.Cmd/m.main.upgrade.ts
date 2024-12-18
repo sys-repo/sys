@@ -33,6 +33,7 @@ export async function upgrade(argv: string[]) {
   }
 
   console.log(`||| ⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+  console.log('diff', diff);
 
   if (diff !== 0) {
     // Perform version change (up or down).
@@ -63,6 +64,7 @@ export async function upgrade(argv: string[]) {
    * Update project template files.
    */
   const res = await VitePress.Env.update({ inDir, force, silent: true });
+  console.log('res', res);
 
   /**
    * Finish up.
