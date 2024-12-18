@@ -11,14 +11,14 @@ type F = t.VitePressCmdLib['init'];
 export const init: F = async (argv, options = {}) => {
   const { silent = false } = options;
   const args = Args.parse<t.CmdArgsInit>(argv);
-  const { inDir, srcDir } = args;
+  const { inDir } = args;
 
   if (!silent) {
     console.info();
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await VitePress.Env.update({ inDir, srcDir });
+  await VitePress.Env.update({ inDir });
 
   if (!silent) {
     console.info();

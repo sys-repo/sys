@@ -1,8 +1,9 @@
 import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
+import { Env } from '../m.Env/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, c, DEFAULTS, Fs, Jsr, Log, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Jsr, pkg, Tmpl } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -32,7 +33,7 @@ export async function upgrade(argv: string[]) {
   }
 
   if (diff !== 0) {
-    // Perform version change.
+    // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
@@ -41,9 +42,11 @@ export async function upgrade(argv: string[]) {
     console.info(c.gray(pkg.name));
     console.info();
 
-    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
-    const path = Fs.join(inDir, 'deno.json');
-    await Deno.writeTextFile(path, denofile);
+    // Update the `deno.json` file with the new version.
+    const tmpl = Env.tmpl({ inDir, version }).filter((file) => file.name === 'deno.json');
+    await tmpl.copy(inDir, { force: true });
+
+    // Install and run.
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
     await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
@@ -53,14 +56,13 @@ export async function upgrade(argv: string[]) {
   /**
    * Update project template files.
    */
-  const filter = (p: string) => !p.startsWith('docs/');
   const res = await VitePress.Env.update({ inDir, force, silent: true });
 
   /**
    * Finish up.
    */
   console.info(c.green('Updated Environment'));
-  Log.filesTable(res.files).render();
+  console.info(Tmpl.Log.table(res.ops, { indent: 2 }));
   console.info();
   console.info(c.green(`Project at version:`));
   ViteLog.Module.log(pkg);

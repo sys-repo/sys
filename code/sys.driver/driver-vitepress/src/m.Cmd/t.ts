@@ -52,4 +52,4 @@ export type CmdArgsHelp = {
 };
 
 /** The `init` command. */
-export type CmdArgsInit = { srcDir?: P; inDir?: P };
+export type CmdArgsInit = { inDir?: P };
