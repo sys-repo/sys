@@ -9,8 +9,8 @@ export const SAMPLE = {
     target = Fs.resolve(target);
 
     const ls = async (dir: t.StringDir) => {
-      const files = await Fs.glob(dir).find('**');
-      return files.filter((m) => m.path !== dir).map((m) => m.path);
+      const files = await Fs.glob(dir).find('**', { includeDirs: false });
+      return files.map((m) => m.path);
     };
 
     const exists = (dir: t.StringDir, path: string[]) => {

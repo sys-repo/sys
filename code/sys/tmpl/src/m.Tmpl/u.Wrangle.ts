@@ -4,13 +4,18 @@ import { type t, Fs, Path } from './common.ts';
  * Helpers
  */
 export const Wrangle = {
-  dir(dir: string): t.TmplDir {
+  dir(dir: string, filters?: t.TmplFilter[]): t.TmplDir {
     return {
       dir,
       async ls(trimCwd) {
-        const files = await Fs.glob(dir).find('**');
+        const files = await Fs.glob(dir).find('**', { includeDirs: false });
+        const include = (path: string) => {
+          if (!filters) return true;
+          const file = Wrangle.file(path);
+          return filters.every((filter) => filter(file));
+        };
         return files
-          .filter((p) => p.path !== dir)
+          .filter((p) => include(p.path))
           .map((p) => (trimCwd ? Path.trimCwd(p.path) : p.path));
       },
     };

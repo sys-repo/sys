@@ -6,9 +6,38 @@ import type { t } from './common.ts';
 export type TmplLib = {
   /** Tools for converting a Tmpl to console/log output. */
   readonly Log: t.TmplLogLib;
+
   /** Create a new directory template. */
-  create: TmplFactory;
+  create: t.TmplFactory;
 };
+
+/**
+ * Generator function for a directory Template.
+ */
+export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmpl;
+
+/**
+ * A template engine.
+ */
+export type Tmpl = {
+  /** The directory containing the source template files. */
+  readonly source: t.TmplDir;
+
+  /** Perform a copy of the templates to a target directory. */
+  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
+
+  /** Clones the template filtering down to a subset of source files. */
+  filter(fn: t.TmplFilter): t.Tmpl;
+};
+
+/**
+ * A filter on template source files.
+ * NB: this differs from "exclude" whereby it filters out any knowledge of the
+ *     file's existence in the source directory, however exclude acknowledges the
+ *     existence of the file but excludes it from the set of templates that
+ *     are copied to the target.
+ */
+export type TmplFilter = (file: t.TmplFile) => boolean;
 
 /**
  * Handler that runs for each template file being copied.
@@ -30,21 +59,6 @@ export type TmplProcessFileArgs = {
   rename(filename: string): TmplProcessFileArgs;
   /** Adjust the text within the file. */
   modify(text: string): TmplProcessFileArgs;
-};
-
-/**
- * Generator function for a directory Template.
- */
-export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmpl;
-
-/**
- * A template copier.
- */
-export type Tmpl = {
-  /** The directory containing the source template files. */
-  readonly source: t.TmplDir;
-  /** Perform a copy of the templates to a target directory. */
-  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
 };
 
 /** Options passed to the `tmpl.copy` method. */

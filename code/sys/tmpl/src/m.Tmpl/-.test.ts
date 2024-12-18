@@ -23,7 +23,7 @@ describe('Tmpl', () => {
     tmpl;
   });
 
-  describe('tmpl.copy (method)', () => {
+  describe('tmpl.copy:', () => {
     it('copies all source files', async () => {
       const test = SAMPLE.init();
       const tmpl = Tmpl.create(test.source);
@@ -115,8 +115,8 @@ describe('Tmpl', () => {
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
-          expect(e.file.source.dir).to.eql(Fs.Path.trimCwd(source));
-          expect(e.file.target.dir).to.eql(Fs.Path.trimCwd(target));
+          expect(e.file.source.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
+          expect(e.file.target.dir.startsWith(Fs.Path.trimCwd(target))).to.be.true;
         });
         await tmpl.copy(target);
         expect(count).to.greaterThan(0); // NB: ensure the callback ran.
@@ -195,7 +195,7 @@ describe('Tmpl', () => {
 
         const resA = await tmpl.copy(test.target);
         const resB = await tmpl.copy(test.target, { force: true });
-        expect(await test.exists.target('doc.md')).to.eql(true);
+        expect(await test.exists.target('docs/index.md')).to.eql(true);
 
         const indent = 2;
         const hideExcluded = false;
@@ -224,6 +224,39 @@ describe('Tmpl', () => {
         expect(table).to.include('dry-run');
         console.info(table);
       });
+    });
+  });
+
+  describe('tmpl.filter:', () => {
+    const includes = (paths: string[], endsWith: string) => {
+      return paths.some((path) => path.endsWith(endsWith));
+    };
+
+    it('single-level filter', async () => {
+      const test = SAMPLE.init();
+      const tmpl1 = Tmpl.create(test.source);
+      const tmpl2 = Tmpl.create(test.source).filter((file) => file.name !== '.gitignore');
+      expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.true;
+      expect(includes(await tmpl2.source.ls(), '/.gitignore')).to.be.false;
+    });
+
+    it('multi-level filter', async () => {
+      const test = SAMPLE.init();
+      const tmpl1 = Tmpl.create(test.source).filter((file) => file.name !== '.gitignore');
+      const tmpl2 = tmpl1.filter((file) => !file.name.endsWith('.md'));
+      expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.false;
+      expect(includes(await tmpl1.source.ls(), '/index.md')).to.be.true;
+      expect(includes(await tmpl2.source.ls(), '/index.md')).to.be.false;
+    });
+
+    it('does not copy filtered files', async () => {
+      const test = SAMPLE.init();
+      const tmpl = Tmpl.create(test.source).filter((file) => !file.name.endsWith('.md'));
+      await tmpl.copy(test.target);
+
+      const paths = await test.ls.target();
+      expect(paths.length).to.greaterThan(2);
+      expect(includes(paths, '.md')).to.be.false;
     });
   });
 });

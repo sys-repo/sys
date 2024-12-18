@@ -53,11 +53,13 @@ export async function copy(
       const path = target.path;
       const exists = await Fs.exists(path);
       const isDiff = op.text.target.before !== op.text.target.after;
+
       if (!exists) {
         op.created = true;
       } else if (isDiff || op.forced) {
         op.updated = true;
       }
+
       if ((op.created || op.updated) && (options.write ?? true)) {
         op.written = true;
         await Fs.ensureDir(target.dir);
