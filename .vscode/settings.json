@@ -1,5 +1,12 @@
 {
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.maxTsServerMemory": 8192,
   "deno.enable": true,
-  "deno.lint": true,
-  "search.exclude": {}
+  "deno.lint": false,
+  "deno.unstable": [],
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "-tmp": true
+  }
 }

@@ -20,3 +20,15 @@ type DeepReadonlyObject<T> = {
 export type DeepMutable<T> = {
   -readonly [P in keyof T]: T[P] extends object ? DeepMutable<T[P]> : T[P];
 };
+
+/**
+ * A version of <Partial> allowing an entire
+ * tree hierarchy to be considered <Partial>.
+ *
+ * See:
+ *    https://www.typescriptlang.org/docs/handbook/utility-types.html
+ *
+ */
+export type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
+};
