@@ -32,6 +32,8 @@ export async function upgrade(argv: string[]) {
     return;
   }
 
+  console.log(`||| ⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+
   if (diff !== 0) {
     // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
@@ -44,7 +46,9 @@ export async function upgrade(argv: string[]) {
 
     // Update the `deno.json` file with the new version.
     const tmpl = Env.tmpl({ inDir, version }).filter((file) => file.name === 'deno.json');
-    await tmpl.copy(inDir, { force: true });
+    const m = await tmpl.copy(inDir, { force: true });
+
+    console.log('m', m);
 
     // Install and run.
     const sh = Cmd.sh(inDir);
@@ -52,6 +56,8 @@ export async function upgrade(argv: string[]) {
     await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
     return;
   }
+
+  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔ ||||`);
 
   /**
    * Update project template files.
