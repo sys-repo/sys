@@ -107,7 +107,10 @@ export type Glob = {
   /**
    *  Query the given glob pattern.
    */
-  find(pattern: string, options?: { exclude?: string[] }): Promise<WalkEntry[]>;
+  find(
+    pattern: string,
+    options?: { exclude?: string[]; includeDirs?: boolean },
+  ): Promise<WalkEntry[]>;
 
   /**
    * Retrieve a sub-directory `Glob` from the current context.

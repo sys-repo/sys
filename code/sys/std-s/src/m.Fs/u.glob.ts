@@ -12,9 +12,10 @@ export function glob(...dir: (string | undefined)[]): t.Glob {
     },
 
     async find(pattern, options = {}): Promise<WalkEntry[]> {
-      const { exclude } = options;
+      const { exclude, includeDirs } = options;
+      pattern = Path.join(...asStrings(dir), pattern);
       const res: WalkEntry[] = [];
-      for await (const file of expandGlob(Path.join(...asStrings(dir), pattern), { exclude })) {
+      for await (const file of expandGlob(pattern, { exclude, includeDirs })) {
         res.push(file);
       }
       return res;
