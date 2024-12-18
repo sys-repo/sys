@@ -1,5 +1,5 @@
-import { expandGlob, type WalkEntry } from '@std/fs';
-import { Path, type t } from './common.ts';
+import { type WalkEntry, expandGlob } from '@std/fs';
+import { type t, Path } from './common.ts';
 
 /**
  * Run a glob pattern against the file-system.
