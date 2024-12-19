@@ -31,6 +31,6 @@ export const Path: t.PathLib = {
   normalize,
   dirname,
   basename,
-  extname,
   absolute: (path) => (Is.absolute(path) ? path : resolve(path)),
+  extname: (input: string) => (typeof input === 'string' ? extname(input) : ''),
 } as const;

@@ -46,5 +46,10 @@ describe('Path', () => {
     it('no extension', () => {
       expect(Path.extname('foo.bar/filename')).to.eql('');
     });
+
+    it('no extension: non string input', () => {
+      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => expect(Path.extname(v)).to.eql(''));
+    });
   });
 });
