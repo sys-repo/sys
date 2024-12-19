@@ -8,7 +8,7 @@ type Ext = keyof typeof contentTypes;
 
 export const Data: t.FileMapDataLib = {
   contentType(path) {
-    if (!Is.supported(path)) return '';
+    if (!Is.pathSupported(path)) return '';
     const ext = Path.extname(path) as Ext;
     return contentTypes[ext] || '';
   },

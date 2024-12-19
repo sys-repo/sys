@@ -34,7 +34,10 @@ export type FileMapDataLib = {
  */
 export type FileMapIsLib = {
   /** Determine if the given path has a supported file extension. */
-  supported(path: t.StringPath): boolean;
+  pathSupported(path: t.StringPath): boolean;
+
+  /** Determine if the given content-type is supported. */
+  mimeSupported(path: t.StringPath): boolean;
 
   /** Determine if the given string a data URN format (RFC 2397). */
   dataUri(input: string): boolean;
