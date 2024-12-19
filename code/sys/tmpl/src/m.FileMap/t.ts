@@ -20,7 +20,7 @@ export type FileMapLib = {
  */
 export type FileMapDataLib = {
   /** Encode a file's text. */
-  encode(input: string): string;
+  encode(contentType: string, input: string): string;
 
   /** Decode an encoded file. */
   decode(input: string): string;
@@ -33,7 +33,11 @@ export type FileMapDataLib = {
  * Boolean flag assertions.
  */
 export type FileMapIsLib = {
+  /** Determine if the given path has a supported file extension. */
   supported(path: t.StringPath): boolean;
+
+  /** Determine if the given string a data URN format (RFC 2397). */
+  dataUri(input: string): boolean;
 };
 
 /**

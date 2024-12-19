@@ -35,25 +35,40 @@ describe('FileMap', () => {
       test('', false);
       test('  ', false);
     });
+
+    describe('Is.dataUri', () => {
+      const test = (input: any, expected: boolean) => {
+        expect(FileMap.Is.dataUri(input)).to.eql(expected);
+      };
+      test('data:text/plain;base64,0000', true);
+      test('text/plain;base64,0000', false);
+      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => test(v, false));
+    });
   });
 
   describe('FileMap.Data (encoding)', () => {
-    it('encode → decode', () => {
-      const res = FileMap.Data.encode('foobar');
-      expect(res).to.eql('base64-Zm9vYmFy');
+    it('encode → decode: string', () => {
+      const res = FileMap.Data.encode('text/plain', 'foobar');
+      expect(res).to.eql('data:text/plain;base64,Zm9vYmFy');
       expect(FileMap.Data.decode(res)).to.eql('foobar');
     });
 
     it('does not double encode', () => {
-      const a = FileMap.Data.encode('foobar');
-      const b = FileMap.Data.encode(a);
-      expect(a).to.eql('base64-Zm9vYmFy');
+      const a = FileMap.Data.encode('text/plain', 'foobar');
+      const b = FileMap.Data.encode('text/plain', a);
+      expect(a).to.eql('data:text/plain;base64,Zm9vYmFy');
       expect(b).to.eql(a);
     });
 
-    it('decode: throws if not prefixed with encoding format', () => {
+    it('decode: throws if not a data-uri', () => {
       const fn = () => FileMap.Data.decode('foobar');
-      expect(fn).to.throw(/Supported encoding format could not be derived/);
+      expect(fn).to.throw(/Input not a "data:" URI/);
+    });
+
+    it('decode: throws if not base64 encoded', () => {
+      const fn = () => FileMap.Data.decode('data:text/plain,000');
+      expect(fn).to.throw(/Data URI is not base64 encoded/);
     });
 
     it('contentType', () => {

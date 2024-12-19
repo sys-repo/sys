@@ -7,6 +7,12 @@ export const Is: t.FileMapIsLib = {
     const exts = Object.keys(DEFAULTS.contentTypes);
     return ext ? exts.some((m) => m == ext) : false;
   },
+
+  dataUri(input) {
+    if (typeof input !== 'string') return false;
+    if (!input.startsWith('data:')) return false;
+    return input.includes(',') && input.includes('/');
+  },
 };
 
 /**

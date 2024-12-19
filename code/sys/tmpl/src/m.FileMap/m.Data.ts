@@ -12,15 +12,14 @@ export const Data: t.FileMapDataLib = {
     const ext = Path.extname(path) as Ext;
     return contentTypes[ext] || '';
   },
-  encode(input) {
-    if (input.startsWith('base64-')) return input;
-    return `base64-${encodeBase64(input)}`;
+  encode(contentType, input) {
+    if (input.startsWith('data:')) return input;
+    return `data:${contentType};base64,${encodeBase64(input)}`;
   },
   decode(input) {
-    if (!input.startsWith('base64-')) {
-      throw new Error('Supported encoding format could not be derived');
-    }
-    const text = input.replace(/^base64-/, '');
+    if (!Is.dataUri(input)) throw new Error('Input not a "data:" URI');
+    if (!input.includes(`;base64,`)) throw new Error('Data URI is not base64 encoded');
+    const text = input.split(',')[1];
     const binary = decodeBase64(text);
     return new TextDecoder().decode(binary);
   },

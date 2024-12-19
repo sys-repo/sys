@@ -37,9 +37,9 @@ const wrangle = {
   },
 
   async fileContent(path: t.StringPath) {
-    const exists = await Fs.exists(path);
-    if (!exists) return;
+    if (!(await Fs.exists(path))) return;
+    const contentType = Data.contentType(path);
     const text = await Deno.readTextFile(path);
-    return Data.encode(text);
+    return Data.encode(contentType, text);
   },
 } as const;
