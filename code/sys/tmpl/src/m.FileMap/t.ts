@@ -9,7 +9,8 @@ import type { t } from './common.ts';
 export type FileMapLib = {
   /** Helpers for encoding/decoding file data. */
   readonly Data: FileMapDataLib;
-
+  /** Boolean flag assertions. */
+  readonly Is: FileMapIsLib;
   /** Bundle the files wihtin directory into a `FileMap` object  */
   bundle(dir: t.StringDir): Promise<FileMap>;
 };
@@ -23,6 +24,16 @@ export type FileMapDataLib = {
 
   /** Decode an encoded file. */
   decode(input: string): string;
+
+  /** Derive a content-type (mime) for the given path. */
+  contentType(path: t.StringPath): string;
+};
+
+/**
+ * Boolean flag assertions.
+ */
+export type FileMapIsLib = {
+  supported(path: t.StringPath): boolean;
 };
 
 /**
