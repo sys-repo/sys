@@ -1,11 +1,19 @@
-import { type t, Fs } from './common.ts';
+import { type t, Fs, Path } from './common.ts';
 import { Data } from './m.Data.ts';
+import { Is } from './m.Is.ts';
 
-export const bundle: t.FileMapLib['bundle'] = async (dir) => {
+export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
   const res: t.FileMap = {};
+  const options = wrangle.options(opt);
 
   dir = Fs.resolve(dir);
-  const paths = await wrangle.paths(dir);
+  let paths = await wrangle.paths(dir);
+  if (options.filter) {
+    paths = paths.filter((path) => {
+      const args = wrangle.pathFilter(path, dir);
+      return options.filter ? options.filter(args) : true;
+    });
+  }
 
   const wait = paths.map(async (path) => {
     const file = await wrangle.fileContent(path);
@@ -16,7 +24,6 @@ export const bundle: t.FileMapLib['bundle'] = async (dir) => {
   });
 
   await Promise.all(wait);
-
   return res;
 };
 
@@ -27,7 +34,16 @@ const wrangle = {
   async paths(dir: t.StringDir) {
     const includeDirs = false;
     const glob = Fs.glob(dir);
-    return (await glob.find('**', { includeDirs })).map((m) => m.path);
+    const paths = (await glob.find('**', { includeDirs })).map((m) => m.path);
+    return paths.filter((path) => Is.supported.path(path));
+  },
+
+  pathFilter(path: t.StringPath, base: t.StringDir): t.FileMapBundleFilterArgs {
+    return {
+      path: path.slice(base.length + 1),
+      ext: Path.extname(path),
+      contentType: Data.contentType.fromPath(path),
+    };
   },
 
   pathKey(path: t.StringPath, base?: t.StringDir) {
@@ -38,8 +54,17 @@ const wrangle = {
 
   async fileContent(path: t.StringPath) {
     if (!(await Fs.exists(path))) return;
-    const contentType = Data.contentType(path);
+
+    const contentType = Data.contentType.fromPath(path);
+    if (!contentType) return;
+
     const text = await Deno.readTextFile(path);
     return Data.encode(contentType, text);
+  },
+
+  options(input?: t.FileMapBundleOptions | t.FileMapBundleFilter) {
+    if (!input) return {};
+    if (typeof input === 'function') return { filter: input };
+    return input;
   },
 } as const;

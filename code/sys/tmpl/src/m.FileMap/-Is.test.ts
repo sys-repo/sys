@@ -3,11 +3,21 @@ import { DEFAULTS } from './common.ts';
 import { FileMap } from './mod.ts';
 
 describe('FileMap.Is', () => {
-  it('Is.pathSupported', () => {
+  const Is = FileMap.Is;
+
+  it('Is.dataUri', () => {
+    const test = (input: any, expected: boolean) => {
+      expect(Is.dataUri(input)).to.eql(expected);
+    };
+    test('data:text/plain;base64,0000', true);
+    test('text/plain;base64,0000', false);
+    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+    NON.forEach((v) => test(v, false));
+  });
+
+  it('Is.supported.path', () => {
     const test = (path: any, expected: boolean) => {
-      const ext = Path.extname(path);
-      expect(FileMap.Is.pathSupported(path)).to.eql(expected);
-      expect(FileMap.Is.pathSupported(ext)).to.eql(expected);
+      expect(Is.supported.path(path)).to.eql(expected);
     };
     test('foo.png', true);
     test('bar/foo.jpg', true);
@@ -16,6 +26,8 @@ describe('FileMap.Is', () => {
     test('Component.tsx', true);
     test('docs/index.md', true);
     test('deno.json', true);
+    test('.gitignore', true);
+    test('foo/bar/.gitignore', true);
 
     const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((v) => test(v, false));
@@ -24,9 +36,9 @@ describe('FileMap.Is', () => {
     test('  ', false);
   });
 
-  it('Is.mimeSupported', () => {
+  it('Is.supported.contentType', () => {
     const test = (contentType: any, expected: boolean) => {
-      expect(FileMap.Is.mimeSupported(contentType)).to.eql(expected);
+      expect(Is.supported.contentType(contentType)).to.eql(expected);
     };
     Object.values(DEFAULTS.contentTypes).forEach((v) => test(v, true));
 
@@ -37,13 +49,38 @@ describe('FileMap.Is', () => {
     test('foo/bar', false);
   });
 
-  it('Is.dataUri', () => {
-    const test = (input: any, expected: boolean) => {
-      expect(FileMap.Is.dataUri(input)).to.eql(expected);
+  it('Is.contentType.string', () => {
+    const test = (contentType: any, expected: boolean) => {
+      expect(Is.contentType.string(contentType)).to.eql(expected);
     };
-    test('data:text/plain;base64,0000', true);
-    test('text/plain;base64,0000', false);
+
+    test('application/json', true);
+    test('text/plain', true);
+    test('text/markdown', true);
+    test('text/markdown', true);
+    test('image/svg+xml', true);
+
     const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((v) => test(v, false));
+    test('image/png', false);
+    test('image/jpeg', false);
+    test('image/webb', false);
+  });
+
+  it('Is.contentType.binary', () => {
+    const test = (contentType: any, expected: boolean) => {
+      expect(Is.contentType.binary(contentType)).to.eql(expected);
+    };
+
+    test('image/png', true);
+    test('image/jpeg', true);
+    test('image/webp', true);
+
+    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+    NON.forEach((v) => test(v, false));
+    test('application/json', false);
+    test('text/plain', false);
+    test('text/markdown', false);
+    test('text/markdown', false);
   });
 });
