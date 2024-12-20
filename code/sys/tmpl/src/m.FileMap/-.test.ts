@@ -15,7 +15,7 @@ describe('FileMap', () => {
       const res = await FileMap.bundle(dir);
       expect(Object.keys(res)).to.eql(await getPaths());
       expect(res['images/vector.svg']).to.exist;
-      expect(res['images/wax.png']).to.exist;
+      expect(res['images/pixels.png']).to.exist;
     });
 
     it('bundle: filtered', async () => {
