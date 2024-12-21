@@ -9,7 +9,7 @@ export const SAMPLE = {
     target = Fs.resolve(target);
 
     const ls = async (dir: t.StringDir) => {
-      const files = await Fs.glob(dir).find('**', { includeDirs: false });
+      const files = await Fs.glob(dir, { includeDirs: false }).find('**');
       return files.map((m) => m.path);
     };
 

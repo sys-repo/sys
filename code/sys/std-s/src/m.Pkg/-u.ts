@@ -18,8 +18,8 @@ export const Sample = {
         return Fs.join(dir, 'dist.json');
       },
       async ls() {
-        const res = await Fs.glob(dir).find('**', { includeDirs: false });
-        return res.map((m) => m.path);
+        const glob = Fs.glob(dir, { includeDirs: false });
+        return (await glob.find('**')).map((m) => m.path);
       },
     } as const;
 

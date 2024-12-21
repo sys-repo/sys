@@ -93,7 +93,7 @@ export type FsIsLib = t.PathLib['Is'] & {
 /**
  * Generate a Glob helper scoped to a path.
  */
-export type GlobFactory = (...dir: (t.StringPath | undefined)[]) => t.Glob;
+export type GlobFactory = (dir: t.StringDir, options?: GlobOptions) => t.Glob;
 
 /**
  * Runs globs against a filesystem root.
@@ -107,16 +107,16 @@ export type Glob = {
   /**
    *  Query the given glob pattern.
    */
-  find(
-    pattern: string,
-    options?: { exclude?: string[]; includeDirs?: boolean },
-  ): Promise<WalkEntry[]>;
+  find(pattern: string, options?: GlobOptions): Promise<WalkEntry[]>;
 
   /**
    * Retrieve a sub-directory `Glob` from the current context.
    */
-  dir(...subdir: (string | undefined)[]): Glob;
+  dir(subdir: t.StringDir): Glob;
 };
+
+/** Options for a glob operation.  */
+export type GlobOptions = { exclude?: string[]; includeDirs?: boolean };
 
 /**
  * Retrieve information about the given path.

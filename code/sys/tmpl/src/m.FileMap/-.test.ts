@@ -4,8 +4,8 @@ import { FileMap } from './mod.ts';
 describe('FileMap', () => {
   const SAMPLE_DIR = 'src/m.FileMap/-sample';
   const getPaths = async (dir = SAMPLE_DIR) => {
-    const glob = Fs.glob(dir);
-    const paths = await glob.find('**', { includeDirs: false });
+    const glob = Fs.glob(dir, { includeDirs: false });
+    const paths = await glob.find('**');
     return paths.map((m) => Path.trimCwd(m.path)).map((path) => path.slice(dir.length + 1));
   };
 

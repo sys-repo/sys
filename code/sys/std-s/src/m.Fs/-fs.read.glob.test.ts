@@ -17,10 +17,13 @@ describe('Fs.glob', () => {
   });
 
   it('option → includeDirs: false', async () => {
-    const glob = Fs.glob(Fs.resolve());
+    const dir = Fs.resolve();
+    const glob = Fs.glob(dir);
     const a = await glob.find('**', {});
     const b = await glob.find('**', { includeDirs: false });
+    const c = await Fs.glob(dir, { includeDirs: false }).find('**');
     expect(a.some((m) => m.isDirectory === true)).to.be.true; //  Default param.
     expect(b.some((m) => m.isDirectory === true)).to.be.false; // Directories excluded.
+    expect(c.some((m) => m.isDirectory === true)).to.be.false; // Option passed into root glob constructor.
   });
 });

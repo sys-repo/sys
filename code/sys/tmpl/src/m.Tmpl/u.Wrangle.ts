@@ -8,7 +8,7 @@ export const Wrangle = {
     return {
       dir,
       async ls(trimCwd) {
-        const files = await Fs.glob(dir).find('**', { includeDirs: false });
+        const files = await Fs.glob(dir, { includeDirs: false }).find('**');
         const include = (path: string) => {
           if (!filters) return true;
           const file = Wrangle.file(path);
