@@ -1,9 +1,9 @@
 import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
-import { Tmpl } from '../-tmpl/mod.ts';
+import { Env } from '../m.Env/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, c, DEFAULTS, Fs, Jsr, Log, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Jsr, pkg, Tmpl } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -32,8 +32,11 @@ export async function upgrade(argv: string[]) {
     return;
   }
 
+  console.log(`||| ⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+  console.log('diff', diff);
+
   if (diff !== 0) {
-    // Perform version change.
+    // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
@@ -42,24 +45,34 @@ export async function upgrade(argv: string[]) {
     console.info(c.gray(pkg.name));
     console.info();
 
-    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
-    const path = Fs.join(inDir, 'deno.json');
-    await Deno.writeTextFile(path, denofile);
+    // Update the `deno.json` file with the new version.
+    const tmpl = Env.tmpl({ inDir, version }).filter((file) => file.name === 'deno.json');
+    const m = await tmpl.copy(inDir, { force: true });
+
+    console.log('tmpl.source.ls()', tmpl.source.ls());
+    console.log('m', m);
+    console.log('m.target.ls()', m.target.ls());
+
+    // Install and run.
     const sh = Cmd.sh(inDir);
     await sh.run('deno install');
     await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
     return;
   }
 
+  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔ ||||`);
+
   /**
    * Update project template files.
    */
-  const filter = (p: string) => !p.startsWith('docs/');
-  const res = await VitePress.Env.update({ filter, inDir, force: false, silent: true });
+  const res = await VitePress.Env.update({ inDir, force, silent: true });
+  console.log('res', res);
 
+  /**
+   * Finish up.
+   */
   console.info(c.green('Updated Environment'));
-  Log.filesTable(res.files).render();
-
+  console.info(Tmpl.Log.table(res.ops, { indent: 2 }));
   console.info();
   console.info(c.green(`Project at version:`));
   ViteLog.Module.log(pkg);

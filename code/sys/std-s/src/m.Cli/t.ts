@@ -69,8 +69,11 @@ export type CliTableLib = {
   /**
    * Create a new Table generator instance.
    */
-  create(...items: string[][]): CliffyTable;
+  create(...items: string[][]): CliTable;
 };
+
+/** Represents a table that can be written to the console. */
+export type CliTable = CliffyTable;
 
 /**
  * Tools for working with a CLI spinner.

@@ -2,10 +2,6 @@ import { type t, expect, slug, Testing } from '../-test.ts';
 import { Fs } from './common.ts';
 
 export const SAMPLE = {
-  PATH: {
-    sample: Fs.resolve('./src/-test/vitepress.sample-1'),
-  },
-
   createPkg(): t.Pkg {
     return { name: `@sample/${slug()}`, version: '0.1.2' };
   },
@@ -46,9 +42,9 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   await assert('.vscode/settings.json');
   await assert('.gitignore');
   await assert('.vitepress/config.ts');
+  await assert('.vitepress/theme/index.ts');
   await assert('.sys/-main.ts');
   await assert('deno.json');
   await assert('package.json');
-  await assert('pkg.ts');
   await assert('docs/index.md');
 };

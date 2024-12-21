@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../-test.ts';
-import { SAMPLE_FILE } from './-u.ts';
 import { Pkg } from './mod.ts';
 
 describe('Pkg (Server Tools)', () => {
@@ -13,9 +12,5 @@ describe('Pkg (Server Tools)', () => {
       const value = Base[key];
       expect(value).to.equal(Pkg[key]);
     }
-  });
-
-  it('|→ clean up', async () => {
-    await SAMPLE_FILE.dist.reset();
   });
 });

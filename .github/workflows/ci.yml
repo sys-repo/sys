@@ -30,7 +30,7 @@ jobs:
         run: deno task dry
 
       - name: CI → tests
-        run: deno task test --trace-leaks
+        run: deno task test --trace-leaks --parallel
 
       - name: Info (Monorepo)
         run: deno task info

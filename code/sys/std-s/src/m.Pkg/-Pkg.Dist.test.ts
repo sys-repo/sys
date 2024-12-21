@@ -1,8 +1,8 @@
-import { type t, c, describe, expect, Fs, it, pkg, Path } from '../-test.ts';
-import { R, Hash } from './common.ts';
+import { type t, c, describe, expect, Fs, it, Path, pkg } from '../-test.ts';
+import { Sample } from './-u.ts';
+import { Hash, R } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
-import { SAMPLE_PATH, SAMPLE_FILE } from './-u.ts';
 
 describe('Pkg.Dist', () => {
   const renderDist = (dist: t.DistPkg) => {
@@ -34,14 +34,15 @@ describe('Pkg.Dist', () => {
 
   describe('Dist.compute (save)', () => {
     it('Dist.compute(): → success', async () => {
-      const { dir, entry } = SAMPLE_PATH;
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
       const res = await Pkg.Dist.compute({ dir, pkg, entry });
       renderDist(res.dist);
 
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
 
-      expect(res.dir).to.eql(dir);
+      expect(res.dir).to.eql(Fs.resolve(dir));
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.entry).to.eql(entry);
 
@@ -51,24 +52,26 @@ describe('Pkg.Dist', () => {
     });
 
     it('{pkg} not passed → <unknown> package', async () => {
-      const { dir, entry } = SAMPLE_PATH;
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
       const res = await Pkg.Dist.compute({ dir, entry });
       expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
     });
 
     it('default: does not save to file', async () => {
-      const { dir, entry, filepath } = SAMPLE_PATH;
+      const sample = await Sample.init();
+      const { dir, entry, filepath } = sample.path;
       const exists = () => Fs.exists(filepath);
-      await SAMPLE_FILE.dist.reset();
+
       expect(await exists()).to.eql(false);
       await Pkg.Dist.compute({ dir, pkg, entry });
       expect(await exists()).to.eql(false); // NB: never written
     });
 
     it('{save:true} → saves to file-system', async () => {
-      const { dir, entry, filepath } = SAMPLE_PATH;
+      const sample = await Sample.init();
+      const { dir, entry, filepath } = sample.path;
       const exists = () => Fs.exists(filepath);
-      await SAMPLE_FILE.dist.reset();
       expect(await exists()).to.eql(false);
 
       const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
@@ -76,7 +79,6 @@ describe('Pkg.Dist', () => {
 
       const json = (await Fs.readJson(filepath)).json;
       expect(json).to.eql(res.dist);
-      await SAMPLE_FILE.dist.reset();
     });
 
     it('error: directory does not exist', async () => {
@@ -102,18 +104,19 @@ describe('Pkg.Dist', () => {
 
   describe('Dist.load', () => {
     it('Pkg.Dist.load("path") → success', async () => {
-      await SAMPLE_FILE.dist.ensure();
+      const sample = await Sample.init();
+      await sample.file.dist.ensure();
 
       const test = async (path: string) => {
         const res = await Pkg.Dist.load(path);
-        expect(res.path).to.eql(SAMPLE_PATH.filepath);
+        expect(res.path).to.eql(Fs.resolve(sample.path.filepath));
         expect(res.exists).to.eql(true);
         expect(res.error).to.eql(undefined);
         expect(res.dist?.pkg).to.eql(pkg); // NB: loaded, with data.
       };
 
-      await test(SAMPLE_PATH.dir); // NB: div ← "/dist.json" appended.
-      await test(SAMPLE_PATH.filepath);
+      await test(sample.path.dir); // NB: div ← "/dist.json" appended.
+      await test(sample.path.filepath);
     });
 
     it('404: does not exist', async () => {
@@ -126,12 +129,15 @@ describe('Pkg.Dist', () => {
 
   describe('Dist.verify', () => {
     it('validate: is valid', async () => {
-      await SAMPLE_FILE.dist.ensure();
-      const dir = SAMPLE_PATH.dir;
+      const sample = await Sample.init({ slug: false });
+      await sample.file.dist.reset();
+      await sample.file.dist.ensure();
+
+      const { dir } = sample.path;
 
       const test = async (hashInput?: t.StringHash | t.CompositeHash) => {
         const res = await Pkg.Dist.verify(dir, hashInput);
-        expect(res.exists).to.eql(true);
+        expect(res.exists).to.eql(true, `exists: ${dir}`);
         expect(res.is.valid).to.eql(true);
         expect(res.dist?.pkg).to.eql(pkg);
       };
@@ -140,13 +146,14 @@ describe('Pkg.Dist', () => {
       await test('./dist.json');
 
       const path = Path.join(dir, 'dist.json');
-      await test(path); // absolute path (anywhere).
+      await test(Fs.resolve(path)); // absolute path (anywhere).
       await test((await Dist.load(path)).dist?.hash);
     });
 
     it('validate: not valid (pass in "man in the middle" attacked state)', async () => {
-      await SAMPLE_FILE.dist.ensure();
-      const dir = SAMPLE_PATH.dir;
+      const sample = await Sample.init();
+      const dir = sample.path.dir;
+      await sample.file.dist.ensure();
 
       const test = async (
         expectedValid: boolean,
@@ -156,7 +163,7 @@ describe('Pkg.Dist', () => {
         const hash = R.clone(dist.hash);
         mutate?.(hash); // ← (test manipulation) setup test conditions.
 
-        const verification = await Pkg.Dist.verify(SAMPLE_PATH.dir, hash);
+        const verification = await Pkg.Dist.verify(dir, hash);
         expect(verification.is.valid).to.eql(expectedValid);
       };
 
@@ -181,16 +188,15 @@ describe('Pkg.Dist', () => {
     });
 
     it('404: target dir does not contain a {dist.json}', async () => {
-      await SAMPLE_FILE.dist.delete();
-      const res = await Pkg.Dist.verify(SAMPLE_PATH.dir);
+      const sample = await Sample.init();
+      const dir = sample.path.dir;
+      await sample.file.dist.delete();
+
+      const res = await Pkg.Dist.verify(dir);
       expect(res.exists).to.eql(false);
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('does not exist');
       expect(res.is.valid).to.eql(undefined); // Falsy.
     });
-  });
-
-  it('|→ clean up', async () => {
-    await SAMPLE_FILE.dist.reset();
   });
 });

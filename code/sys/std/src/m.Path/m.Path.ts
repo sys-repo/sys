@@ -3,6 +3,7 @@ import type { t } from '../common.ts';
 import {
   basename,
   dirname,
+  extname,
   fromFileUrl,
   join,
   joinGlobs,
@@ -31,4 +32,5 @@ export const Path: t.PathLib = {
   dirname,
   basename,
   absolute: (path) => (Is.absolute(path) ? path : resolve(path)),
+  extname: (input: string) => (typeof input === 'string' ? extname(input) : ''),
 } as const;
