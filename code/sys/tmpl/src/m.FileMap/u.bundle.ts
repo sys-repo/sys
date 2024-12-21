@@ -55,11 +55,11 @@ const wrangle = {
   async fileContent(path: t.StringPath) {
     if (!(await Fs.exists(path))) return;
 
-    const contentType = Data.contentType.fromPath(path);
-    if (!contentType) return;
+    const mime = Data.contentType.fromPath(path);
+    if (!mime) return;
 
-    const text = await Deno.readTextFile(path);
-    return Data.encode(contentType, text);
+    const read = Is.contentType.string(mime) ? Deno.readTextFile : Deno.readFile;
+    return Data.encode(mime, await read(path));
   },
 
   options(input?: t.FileMapBundleOptions | t.FileMapBundleFilter) {

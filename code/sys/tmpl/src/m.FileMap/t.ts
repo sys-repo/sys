@@ -14,8 +14,14 @@ export type FileMapLib = {
   readonly Is: FileMapIsLib;
 
   /** Bundle the files wihtin directory into a `FileMap` object.  */
-  bundle: t.FileMapBundle;
+  bundle: t.FileMapBundler;
+
+  /** Save a file-bundle to a target location. */
+  write(target: t.StringDir, bundle: t.FileMap): Promise<FileMapSaveResponse>;
 };
+
+/** Resposne from `FileMap.write` method. */
+export type FileMapSaveResponse = { err?: t.StdError };
 
 /**
  * Represents a bundled set of paths/files as a structured object.
@@ -23,12 +29,14 @@ export type FileMapLib = {
 export type FileMap = { [path: t.StringPath]: string };
 
 /** Bundles a directory into a `FileMap` data-uri object */
-export type FileMapBundle = (
+export type FileMapBundler = (
   dir: t.StringDir,
   options?: t.FileMapBundleOptions | t.FileMapBundleFilter,
 ) => Promise<FileMap>;
+
 /** Options passed to the `FileMap.bundle` method. */
 export type FileMapBundleOptions = { filter?: FileMapBundleFilter };
+
 /** Filter the narrow down files included within a `FileMap` bundle. */
 export type FileMapBundleFilter = (e: FileMapBundleFilterArgs) => boolean;
 export type FileMapBundleFilterArgs = {
