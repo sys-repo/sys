@@ -1,27 +1,45 @@
-import { type t, Fs, pkg } from '../-test.ts';
+import { Fs, pkg, slug } from '../-test.ts';
 import { Pkg } from './mod.ts';
 
-export const SAMPLE_PATH = {
+export const Sample = {
   dir: Fs.resolve('./src/-test/-sample-dist'),
-  entry: './pkg/-entry.BEgRUrsO.js',
-  get filepath() {
-    return Fs.join(SAMPLE_PATH.dir, 'dist.json');
-  },
-};
-export const SAMPLE_FILE = {
-  dist: {
-    exists: () => Fs.exists(SAMPLE_PATH.filepath),
-    delete: () => Fs.remove(SAMPLE_PATH.filepath),
-    async reset() {
-      await SAMPLE_FILE.dist.delete();
-    },
-    async ensure() {
-      if (await SAMPLE_FILE.dist.exists()) return;
-      const { dir, entry } = SAMPLE_PATH;
-      await Pkg.Dist.compute({ dir, pkg, entry, save: true });
-    },
-    async copyTo(target: t.StringDir) {
-      await Fs.copyDir(SAMPLE_PATH.dir, target);
-    },
+
+  /**
+   * Initialize a new sample directory to test against.
+   */
+  async init(options: { slug?: boolean } = {}) {
+    let dir = './.tmp/test/m.Pkg';
+    if (options.slug ?? true) dir += `/${slug()}`;
+
+    const path = {
+      dir,
+      entry: './pkg/-entry.BEgRUrsO.js',
+      get filepath() {
+        return Fs.join(dir, 'dist.json');
+      },
+      async ls() {
+        const res = await Fs.glob(dir).find('**', { includeDirs: false });
+        return res.map((m) => m.path);
+      },
+    } as const;
+
+    const file = {
+      dist: {
+        exists: () => Fs.exists(path.filepath),
+        delete: () => Fs.remove(path.filepath),
+        async reset() {
+          await file.dist.delete();
+        },
+        async ensure() {
+          if (await file.dist.exists()) return;
+          const { dir, entry } = path;
+          const save = true;
+          await Pkg.Dist.compute({ dir, pkg, entry, save });
+        },
+      },
+    } as const;
+
+    await Fs.copyDir(Sample.dir, dir);
+    return { path, file } as const;
   },
 } as const;

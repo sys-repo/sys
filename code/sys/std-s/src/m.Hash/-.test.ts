@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, type t } from '../-test.ts';
+import { Sample } from '../m.Pkg/-u.ts';
 import { Dir } from './m.Hash.Dir.ts';
 import { Hash } from './mod.ts';
-import { SAMPLE_FILE, SAMPLE_PATH } from '../m.Pkg/-u.ts';
 
 describe('Hash (server extension)', () => {
   const expectHash = (value: string, expected: string) => {
@@ -23,9 +23,10 @@ describe('Hash (server extension)', () => {
   describe('Hash.Dir', () => {
     describe('Dir.compute', () => {
       it('compute → success', async () => {
-        await SAMPLE_FILE.dist.reset();
-        const res = await Hash.Dir.compute(SAMPLE_PATH.dir);
-        expect(res.dir).to.eql(SAMPLE_PATH.dir);
+        const sample = await Sample.init();
+        const dir = sample.path.dir;
+        const res = await Hash.Dir.compute(dir);
+        expect(res.dir).to.eql(Fs.resolve(dir));
         expect(res.exists).to.eql(true);
 
         expectHash(res.hash.digest, 'fdb67a7');
@@ -38,9 +39,12 @@ describe('Hash (server extension)', () => {
       });
 
       it('computer → with filtered set of files', async () => {
+        const sample = await Sample.init();
+        const dir = sample.path.dir;
+
         const filter = (path: string) => path.endsWith('.html');
-        const a = await Hash.Dir.compute(SAMPLE_PATH.dir, { filter });
-        const b = await Hash.Dir.compute(SAMPLE_PATH.dir, filter);
+        const a = await Hash.Dir.compute(dir, { filter });
+        const b = await Hash.Dir.compute(dir, filter);
         const keys = Object.keys(a.hash.parts);
         expect(keys.length).to.eql(1);
         expect(keys[0]).to.eql('./index.html');
@@ -73,36 +77,38 @@ describe('Hash (server extension)', () => {
 
     describe('Dir.verify', () => {
       it('verify → success: from path "./dist.json"', async () => {
-        await SAMPLE_FILE.dist.ensure();
-        const dir = SAMPLE_PATH.dir;
+        const sample = await Sample.init();
+        const dir = sample.path.dir;
+        await sample.file.dist.ensure();
 
         const test = async (hashPath: t.StringPath) => {
           const res = await Hash.Dir.verify(dir, hashPath);
           expect(res.is.valid).to.eql(true);
           expect(res.error).to.eql(undefined);
           expect(res.exists).to.eql(true);
-          expect(res.dir).to.eql(dir);
+          expect(res.dir).to.eql(Fs.resolve(dir));
         };
 
         await test('./dist.json');
-        await test(Fs.join(dir, 'dist.json'));
+        await test(Fs.resolve(dir, 'dist.json'));
       });
 
       it('verify → success: from {hash} object', async () => {
-        await SAMPLE_FILE.dist.delete();
-        const dir = SAMPLE_PATH.dir;
+        const sample = await Sample.init();
+        // await SAMPLE_FILE.dist.delete();
+        const dir = sample.path.dir;
         const hash = (await Hash.Dir.compute(dir)).hash;
         const res = await Hash.Dir.verify(dir, hash);
 
         expect(res.is.valid).to.eql(true);
         expect(res.error).to.eql(undefined);
         expect(res.exists).to.eql(true);
-        expect(res.dir).to.eql(dir);
+        expect(res.dir).to.eql(Fs.resolve(dir));
       });
 
       it('verify → invalid (hash manipulated | "main in the middle" attack)', async () => {
-        await SAMPLE_FILE.dist.delete();
-        const dir = SAMPLE_PATH.dir;
+        const sample = await Sample.init();
+        const dir = sample.path.dir;
         const hash = (await Hash.Dir.compute(dir)).hash;
         const keys = Object.keys(hash.parts);
         (hash.parts as any)[keys[0]] = '0xHackedChange';
@@ -113,8 +119,8 @@ describe('Hash (server extension)', () => {
       });
 
       it('verify → invalid (404 file not found)', async () => {
-        await SAMPLE_FILE.dist.delete();
-        const dir = SAMPLE_PATH.dir;
+        const sample = await Sample.init();
+        const dir = sample.path.dir;
         const hash = (await Hash.Dir.compute(dir)).hash;
         (hash.parts as any)['./_404_.html'] = '0x123'; // NB: this file does not exist - should not cause file-system load error.
 
@@ -136,20 +142,21 @@ describe('Hash (server extension)', () => {
         });
 
         it('error: path to `dist.json` file does not exist', async () => {
-          await SAMPLE_FILE.dist.ensure();
-          const dir = SAMPLE_PATH.dir;
+          const sample = await Sample.init();
+          const dir = sample.path.dir;
           const res = await Hash.Dir.verify(dir, './404.json');
-          expect(res.dir).to.eql(dir);
+          expect(res.dir).to.eql(Fs.resolve(dir));
           expect(res.exists).to.eql(true); // NB: dir exists, not the file.
           expect(Hash.Is.empty(res.hash)).to.eql(true);
           expect(res.error?.message).to.include('Hash data to compare does not exist');
         });
 
         it('error: path to `dist.json` file does not contain a {hash} value', async () => {
-          const dir = SAMPLE_PATH.dir;
+          const sample = await Sample.init();
+          const dir = sample.path.dir;
           const test = async (json: t.Json) => {
-            await SAMPLE_FILE.dist.delete();
-            Deno.writeTextFile(SAMPLE_PATH.filepath, JSON.stringify(json));
+            await sample.file.dist.delete();
+            Deno.writeTextFile(sample.path.filepath, JSON.stringify(json));
             const res = await Hash.Dir.verify(dir, './dist.json');
             expect(res.error?.message).to.include('File does not contain a { hash:');
           };
