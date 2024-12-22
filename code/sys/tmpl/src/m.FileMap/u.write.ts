@@ -15,8 +15,8 @@ export const write: t.FileMapLib['write'] = async (dir, bundle) => {
     try {
       await Fs.ensureDir(Path.dirname(path));
       await writeFile(path, Data.decode(value));
-    } catch (cause) {
-      errors.push(`Failed while writing FileMap path: ${path}`, { cause });
+    } catch (err: any) {
+      errors.push(`Failed while writing FileMap path: ${path}`, err);
     }
   });
   await Promise.all(wait);
