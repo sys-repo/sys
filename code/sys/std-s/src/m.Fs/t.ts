@@ -33,6 +33,9 @@ export type FsLib = StdMethods & {
   /** Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 
+  /** List the file-paths within a directory (simple glob). */
+  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
+
   /** Copy a file or directory. */
   readonly copy: t.FsCopy;
 

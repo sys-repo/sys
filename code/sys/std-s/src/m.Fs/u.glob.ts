@@ -28,3 +28,12 @@ export const glob: t.GlobFactory = (dir, baseOptions = {}) => {
   };
   return api;
 };
+
+/**
+ * List the file-paths within a directory (simple glob).
+ */
+export const ls: t.FsLib['ls'] = async (dir: t.StringDir, opt = {}) => {
+  const options = { includeDirs: false, ...opt };
+  const files = await glob(dir, options).find('**');
+  return files.map((m) => m.path);
+};
