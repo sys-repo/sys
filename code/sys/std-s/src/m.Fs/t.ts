@@ -12,9 +12,6 @@ export type * from './t.Path.ts';
  * Tools for working with the file-system.
  */
 export type FsLib = StdMethods & {
-  /** Current working directory. */
-  cwd(): t.StringDir;
-
   /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 
@@ -33,8 +30,8 @@ export type FsLib = StdMethods & {
   /** Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 
-  /** List the file-paths within a directory (simple glob). */
-  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
+  /** Writes a string or binary file ensuring it's parent directory exists. */
+  readonly write: t.FsWriteFile;
 
   /** Copy a file or directory. */
   readonly copy: t.FsCopy;
@@ -56,6 +53,12 @@ export type FsLib = StdMethods & {
 
   /** Start a file-system watcher */
   readonly watch: t.FsWatchLib['start'];
+
+  /** Current working directory. */
+  cwd(): t.StringDir;
+
+  /** List the file-paths within a directory (simple glob). */
+  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
 };
 
 /** Methods from the `@std` libs. */
@@ -151,7 +154,7 @@ export type FsCopyOptions = {
   throw?: boolean;
 };
 
-/** Response to an file-system copy operation. */
+/** Response from the `Fs.copy` method. */
 export type FsCopyResponse = { error?: t.StdError };
 
 /**
@@ -161,6 +164,26 @@ export type FsRemove = (
   path: string,
   options?: { dryRun?: boolean; log?: boolean },
 ) => Promise<boolean>;
+
+/**
+ * Writes a string or binary file ensuring it's parent directory exists.
+ */
+export type FsWriteFile = (
+  path: t.StringPath,
+  data: string | Uint8Array,
+  options?: FsWriteFileOptions,
+) => Promise<FsWriteFileResponse>;
+
+/** Options passed to the `Fs.write` method. */
+export type FsWriteFileOptions = {
+  /** Overwrite existing directory files (default: false). */
+  force?: boolean;
+  /** Flag indicating if errors should be thrown (default: false). */
+  throw?: boolean;
+};
+
+/** Response from the `Fs.write` method. */
+export type FsWriteFileResponse = { error?: t.StdError };
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.

@@ -3,13 +3,12 @@ import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: write to the file-system operations', () => {
-  const SAMPLE = sampleDir('fs-write');
-
-  it('|→ ensure test directory exists', () => Fs.ensureDir(SAMPLE.dir));
+  const Sample = sampleDir('fs-write');
+  it('|→ ensure test directory exists', () => Fs.ensureDir(Sample.dir));
 
   describe('Fs.remove', () => {
     const testSetup = async () => {
-      const dir = SAMPLE.join(`rm-dir-${slug()}`);
+      const dir = Sample.join(`Fs.remove-${slug()}`);
       const file = Fs.join(dir, 'text.txt');
       await Fs.ensureDir(dir);
       await Deno.writeTextFile(file, '👋 hello\n');
@@ -71,4 +70,55 @@ describe('Fs: write to the file-system operations', () => {
       await Promise.all(wait);
     });
   });
+
+  describe('Fs.write', () => {
+    const getDir = () => Sample.join(`Fs.write-${slug()}`);
+
+    it('write: string', async () => {
+      const path = Fs.join(getDir(), 'foo.txt');
+      const data = '👋\n';
+
+      expect(await Fs.exists(path)).to.eql(false);
+      const res = await Fs.write(path, data);
+      expect(res.error).to.eql(undefined);
+      expect(await Fs.exists(path)).to.eql(true);
+      expect(await Deno.readTextFile(path)).to.eql(data);
+    });
+
+    it('write: binary', async () => {
+      const path = Fs.join(getDir(), 'foo.dat');
+      const data = new Uint8Array([1, 2, 3]);
+
+      expect(await Fs.exists(path)).to.eql(false);
+      const res = await Fs.write(path, data);
+      expect(res.error).to.eql(undefined);
+      expect(await Fs.exists(path)).to.eql(true);
+      expect(await Deno.readFile(path)).to.eql(data);
+    });
+
+    describe('param: {force}', () => {
+      const a = '👋\n';
+      const b = new Uint8Array([1, 2, 3]);
+
+      it('force: true (default)', async () => {
+        const path = Fs.join(getDir(), 'myfile');
+        await Fs.write(path, a);
+        const res = await Fs.write(path, b);
+        expect(await Deno.readFile(path)).to.eql(b);
+        expect(res.error).to.eql(undefined);
+      });
+
+      it('force: false', async () => {
+        const path = Fs.join(getDir(), 'myfile');
+        await Fs.write(path, a);
+        expect(await Deno.readTextFile(path)).to.eql(a);
+
+        const res = await Fs.write(path, b, { force: false });
+        expect(await Deno.readTextFile(path)).to.eql(a); // NB: not over-written.
+
+        expect(res.error?.message).to.include('Failed to write because a file already exists');
+        expect(res.error?.message).to.include(path);
+      });
+    });
+
 });

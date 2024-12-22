@@ -8,6 +8,7 @@ import { glob, ls } from './u.glob.ts';
 import { readJson } from './u.read.ts';
 import { remove } from './u.remove.ts';
 import { walk, walkUp } from './u.walk.ts';
+import { write } from './u.write.ts';
 
 export { Path };
 const { join, resolve, basename, dirname } = Path;
@@ -35,6 +36,7 @@ export const Fs: t.FsLib = {
   remove,
   readJson,
 
+  write,
   copy,
   copyDir,
   copyFile,
