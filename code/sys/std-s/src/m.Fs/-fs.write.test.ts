@@ -1,4 +1,4 @@
-import { describe, expect, it, slug } from '../-test.ts';
+import { describe, expect, expectError, it, slug } from '../-test.ts';
 import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
@@ -76,11 +76,13 @@ describe('Fs: write to the file-system operations', () => {
 
     it('write: string', async () => {
       const path = Fs.join(getDir(), 'foo.txt');
-      const data = '👋\n';
+      const data = '👋';
 
       expect(await Fs.exists(path)).to.eql(false);
       const res = await Fs.write(path, data);
+
       expect(res.error).to.eql(undefined);
+      expect(res.overwritten).to.eql(false);
       expect(await Fs.exists(path)).to.eql(true);
       expect(await Deno.readTextFile(path)).to.eql(data);
     });
@@ -92,12 +94,13 @@ describe('Fs: write to the file-system operations', () => {
       expect(await Fs.exists(path)).to.eql(false);
       const res = await Fs.write(path, data);
       expect(res.error).to.eql(undefined);
+      expect(res.overwritten).to.eql(false);
       expect(await Fs.exists(path)).to.eql(true);
       expect(await Deno.readFile(path)).to.eql(data);
     });
 
     describe('param: {force}', () => {
-      const a = '👋\n';
+      const a = '👋';
       const b = new Uint8Array([1, 2, 3]);
 
       it('force: true (default)', async () => {
@@ -106,6 +109,7 @@ describe('Fs: write to the file-system operations', () => {
         const res = await Fs.write(path, b);
         expect(await Deno.readFile(path)).to.eql(b);
         expect(res.error).to.eql(undefined);
+        expect(res.overwritten).to.eql(true);
       });
 
       it('force: false', async () => {
@@ -118,7 +122,16 @@ describe('Fs: write to the file-system operations', () => {
 
         expect(res.error?.message).to.include('Failed to write because a file already exists');
         expect(res.error?.message).to.include(path);
+        expect(res.overwritten).to.eql(false);
+      });
+
+      it('{throw:true}: throws when target exists (unforced)', async () => {
+        const path = Fs.join(getDir(), 'foo.txt');
+        await Fs.write(path, '🌼'); // NB: setup first file to (not) overwrite.
+
+        const fn = () => Fs.write(path, '💥', { force: false, throw: true });
+        await expectError(fn, 'Failed to write because a file already exists');
       });
     });
-
+  });
 });

@@ -183,7 +183,10 @@ export type FsWriteFileOptions = {
 };
 
 /** Response from the `Fs.write` method. */
-export type FsWriteFileResponse = { error?: t.StdError };
+export type FsWriteFileResponse = {
+  readonly overwritten: boolean;
+  readonly error?: t.StdError;
+};
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.
