@@ -1,4 +1,5 @@
 export * from '../common.ts';
+export { Fs } from '../m.Fs/m.Fs.ts';
 
 export const DEFAULTS = {
   contentTypes: {
