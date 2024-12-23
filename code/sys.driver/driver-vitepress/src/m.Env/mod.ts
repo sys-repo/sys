@@ -1,6 +1,8 @@
 import { type t, c, Fs, Tmpl } from './common.ts';
 import { createTmpl } from './u.tmpl.ts';
 
+export { saveFileMap } from './u.tmpl.save.ts';
+
 /**
  * Helpers for establishing and updating the project environment.
  */

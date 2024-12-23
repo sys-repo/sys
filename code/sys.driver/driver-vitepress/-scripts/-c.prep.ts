@@ -1,2 +1,2 @@
-import { saveFileMap } from '../src/m.Env/u.tmpl.save.ts';
+import { saveFileMap } from '../src/m.Env/mod.ts';
 await saveFileMap();

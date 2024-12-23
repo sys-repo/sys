@@ -1,11 +1,15 @@
 import { c, describe, expect, Fs, it } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
-import { Env } from './mod.ts';
+import { Env, saveFileMap } from './mod.ts';
 
 describe('Vitepress.Env', () => {
   it('API', () => {
     expect(VitePress.Env).to.equal(Env);
+  });
+
+  it('Prepare: save file-map', async () => {
+    await saveFileMap();
   });
 
   describe('Env.update', () => {
