@@ -33,6 +33,9 @@ export type FsLib = StdMethods & {
   /** Writes a string or binary file ensuring it's parent directory exists. */
   readonly write: t.FsWriteFile;
 
+  /** Writes a JSON serializable value to a string of JSON to a file. */
+  readonly writeJson: t.FsWriteJson;
+
   /** Copy a file or directory. */
   readonly copy: t.FsCopy;
 
@@ -187,6 +190,15 @@ export type FsWriteFileResponse = {
   readonly overwritten: boolean;
   readonly error?: t.StdError;
 };
+
+/**
+ * Writes a JSON serializable value to a string of JSON to a file.
+ */
+export type FsWriteJson = (
+  path: t.StringPath,
+  data: t.Json,
+  options?: t.FsWriteFileOptions,
+) => Promise<FsWriteFileResponse>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.

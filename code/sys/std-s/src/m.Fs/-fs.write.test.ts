@@ -1,4 +1,4 @@
-import { describe, expect, expectError, it, slug } from '../-test.ts';
+import { describe, expect, expectError, it, slug, type t } from '../-test.ts';
 import { sampleDir } from './-u.ts';
 import { Fs } from './mod.ts';
 
@@ -131,6 +131,50 @@ describe('Fs: write to the file-system operations', () => {
 
         const fn = () => Fs.write(path, '💥', { force: false, throw: true });
         await expectError(fn, 'Failed to write because a file already exists');
+      });
+    });
+  });
+
+  describe('Fs.writeJson', () => {
+    const getDir = () => Sample.join(`Fs.write-${slug()}`);
+    const getPath = () => Fs.join(getDir(), 'foo.json');
+
+    const assertJsonFile = async (path: string, data: t.Json) => {
+      const text = await Deno.readTextFile(path);
+      expect(text.at(-1)).to.eql('\n');
+      expect(text).to.includes(JSON.stringify(data, null, '  '));
+    };
+
+    it('write {object}', async () => {
+      const path = getPath();
+      const data = { foo: { bar: 123 } };
+
+      const a = await Fs.writeJson(path, data);
+      const b = await Fs.writeJson(path, data);
+
+      expect(a.error).to.eql(undefined);
+      expect(b.error).to.eql(undefined);
+      expect(a.overwritten).to.eql(false);
+      expect(b.overwritten).to.eql(true);
+
+      await assertJsonFile(path, data);
+    });
+
+    describe('error (while serializing)', () => {
+      const circular: any = { foo: { bar: 123 } };
+      circular.foo['zoo'] = circular.foo; // NB: setup circular-reference to cause error.
+
+      it('error: (default)', async () => {
+        const path = getPath();
+        const res = await Fs.writeJson(path, circular);
+        expect(res.error?.message).to.include('Failed while serializing JSON to save to file');
+        expect(res.error?.cause?.message).to.include('Converting circular structure to JSON');
+      });
+
+      it('error: throw', async () => {
+        const path = getPath();
+        const fn = () => Fs.writeJson(path, circular, { throw: true });
+        await expectError(fn, 'Failed while serializing JSON to save to file');
       });
     });
   });

@@ -1,3 +1,4 @@
+import { StdDate } from '../../../std/src/m.DateTime/common.ts';
 import { type t, ensureDir, Err, exists as fileExists } from './common.ts';
 import { Path } from './m.Path.ts';
 
@@ -39,4 +40,21 @@ export const write: t.FsWriteFile = async (path, data, options = {}) => {
     overwritten,
     error,
   };
+};
+
+/**
+ * Writes a JSON serializable value to a string of JSON to a file.
+ */
+export const writeJson: t.FsWriteJson = async (path, data, options = {}) => {
+  try {
+    const json = JSON.stringify(data, null, '  ');
+    return write(path, `${json}\n`, options);
+  } catch (cause: any) {
+    const err = `Failed while serializing JSON to save to file: ${path}`;
+    if (options.throw) throw new Error(err);
+    return {
+      overwritten: false,
+      error: Err.std(err, { cause }),
+    };
+  }
 };
