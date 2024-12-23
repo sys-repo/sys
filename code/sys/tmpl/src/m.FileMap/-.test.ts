@@ -66,8 +66,15 @@ describe('FileMap', () => {
       await expectEqual(dir, sample.target, bundle);
     });
 
-    it.skip('additive by default', async () => {});
-    // it.skip('replace: clear before write (option)', async () => {});
+    it('additive (by default)', async () => {
+      const sample = await Sample.init();
+      const bundle = await FileMap.bundle(dir);
+      const target = sample.target;
+      await Fs.write(Path.join(target, 'foo.txt'), '👋');
+      await FileMap.write(target, bundle);
+      const ls = (await Fs.ls(target)).map((p) => p.slice(Path.resolve(target).length + 1)).sort();
+      expect(ls).to.eql([...Object.keys(bundle), 'foo.txt'].sort());
+    });
 
     describe('errors', () => {
       it('error: corrupted file', async () => {
