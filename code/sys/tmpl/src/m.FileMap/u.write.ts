@@ -4,35 +4,23 @@ import { Data } from './m.Data.ts';
 /**
  * Save a file-bundle to a target location.
  */
-export const write: t.FileMapLib['write'] = async (dir, bundle) => {
+export const write: t.FileMapLib['write'] = async (target, bundle) => {
   const errors = Err.errors();
-  dir = Path.resolve(dir);
-  await Fs.ensureDir(dir);
+  target = Path.resolve(target);
+  await Fs.ensureDir(target);
 
   // Copy files.
   const wait = Object.entries(bundle).map(async ([key, value]) => {
-    const path = Path.join(dir, key);
+    const path = Path.join(target, key);
     try {
-      await Fs.ensureDir(Path.dirname(path));
-      await writeFile(path, Data.decode(value));
-    } catch (err: any) {
-      errors.push(`Failed while writing FileMap path: ${path}`, err);
+      await Fs.write(path, Data.decode(value));
+    } catch (cause: any) {
+      errors.push(`Failed while writing FileMap path: ${path}`, cause);
     }
   });
   await Promise.all(wait);
 
   // Finish up.
-  const err = errors.toError();
-  return { err };
+  const error = errors.toError();
+  return { target, error };
 };
-
-/**
- * Helpers
- */
-async function writeFile(path: t.StringPath, data: string | Uint8Array) {
-  if (typeof data === 'string') {
-    await Deno.writeTextFile(path, data);
-  } else {
-    await Deno.writeFile(path, data);
-  }
-}

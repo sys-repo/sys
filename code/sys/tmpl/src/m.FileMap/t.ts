@@ -21,7 +21,10 @@ export type FileMapLib = {
 };
 
 /** Resposne from `FileMap.write` method. */
-export type FileMapSaveResponse = { err?: t.StdError };
+export type FileMapSaveResponse = {
+  readonly target: t.StringDir;
+  readonly error?: t.StdError;
+};
 
 /**
  * Represents a bundled set of paths/files as a structured object.
