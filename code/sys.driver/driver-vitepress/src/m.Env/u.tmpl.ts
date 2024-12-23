@@ -1,6 +1,6 @@
 import { type t, Fs, pkg, Tmpl } from './common.ts';
 
-export const createTmpl: t.VitePressTmplFactory = (args) => {
+export const createTmpl: t.VitePressTmplFactory = async (args) => {
   const { srcDir = './docs' } = args;
   const templatesDir = Fs.resolve('./src/-tmpl');
   const inDir = Fs.Path.trimCwd(Fs.resolve(args.inDir));

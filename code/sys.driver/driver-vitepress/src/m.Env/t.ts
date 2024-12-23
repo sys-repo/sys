@@ -14,7 +14,7 @@ export type VitePressEnvLib = {
 /**
  * Creates an instance of the template file generator.
  */
-export type VitePressTmplFactory = (args: t.VitePressTmplFactoryArgs) => t.Tmpl;
+export type VitePressTmplFactory = (args: t.VitePressTmplFactoryArgs) => Promise<t.Tmpl>;
 export type VitePressTmplFactoryArgs = {
   inDir: t.StringDir;
   srcDir?: t.StringDir;

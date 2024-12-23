@@ -16,7 +16,7 @@ export const Env: t.VitePressEnvLib = {
     /**
      * Update template files.
      */
-    const tmpl = createTmpl({ inDir, srcDir, version });
+    const tmpl = await createTmpl({ inDir, srcDir, version });
     const { ops } = await tmpl.copy(inDir, { force });
 
     /**

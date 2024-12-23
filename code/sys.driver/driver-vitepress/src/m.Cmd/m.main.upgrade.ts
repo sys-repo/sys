@@ -46,7 +46,7 @@ export async function upgrade(argv: string[]) {
     console.info();
 
     // Update the `deno.json` file with the new version.
-    const tmpl = Env.tmpl({ inDir, version }).filter((file) => file.name === 'deno.json');
+    const tmpl = (await Env.tmpl({ inDir, version })).filter((file) => file.name === 'deno.json');
     const m = await tmpl.copy(inDir, { force: true });
 
     console.log('tmpl.source.ls()', tmpl.source.ls());
