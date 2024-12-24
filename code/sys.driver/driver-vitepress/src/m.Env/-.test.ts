@@ -1,7 +1,7 @@
 import { c, describe, expect, Fs, it } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
-import { Env, saveFileMap } from './mod.ts';
+import { Env, bundleTemplateFiles } from './mod.ts';
 
 describe('Vitepress.Env', () => {
   it('API', () => {
@@ -9,7 +9,7 @@ describe('Vitepress.Env', () => {
   });
 
   it('Prepare: save file-map', async () => {
-    await saveFileMap();
+    await bundleTemplateFiles();
   });
 
   describe('Env.update', () => {

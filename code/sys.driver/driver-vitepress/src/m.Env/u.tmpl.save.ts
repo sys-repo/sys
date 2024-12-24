@@ -1,6 +1,9 @@
 import { FileMap, Fs, c } from './common.ts';
 
-export async function saveFileMap() {
+/**
+ * Bundle the template files into a `FileMap`.
+ */
+export async function bundleTemplateFiles() {
   const path = {
     source: 'src/-tmpl',
     target: 'src/m.Env/u.tmpl.json',
