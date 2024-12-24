@@ -33,9 +33,9 @@ export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
 const wrangle = {
   async paths(dir: t.StringDir) {
     const includeDirs = false;
-    const glob = Fs.glob(dir);
-    const paths = (await glob.find('**', { includeDirs })).map((m) => m.path);
-    return paths.filter((path) => Is.supported.path(path));
+    const glob = Fs.glob(dir, { includeDirs });
+    const paths = (await glob.find('**')).map((m) => m.path);
+    return paths;
   },
 
   pathFilter(path: t.StringPath, base: t.StringDir): t.FileMapBundleFilterArgs {

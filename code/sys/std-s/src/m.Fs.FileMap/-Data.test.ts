@@ -49,15 +49,16 @@ describe('FileMap.Data (encoding)', () => {
       test('foo/bar/.gitignore', 'text/plain');
     });
 
-    it('contentType.fromPath: not supported → "" (empty string)', () => {
+    it('contentType.fromPath: default → "text/plain"', () => {
       const test = (path: string) => {
-        expect(Data.contentType.fromPath(path)).to.eql('');
+        expect(Data.contentType.fromPath(path)).to.eql(DEFAULTS.contentType);
       };
       test('');
       test('foo');
       test('foo/bar.baz');
-      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => test(v));
+      test('foo/file.ts');
+      test('foo/file.tsx');
+      test('foo/foo.vue');
     });
 
     it('contentType.fromUri', () => {

@@ -2,11 +2,9 @@ export * from '../common.ts';
 export { Fs } from '../m.Fs/m.Fs.ts';
 
 export const DEFAULTS = {
+  contentType: 'text/plain',
   contentTypes: {
     '.json': 'application/json',
-    '.ts': 'text/plain',
-    '.tsx': 'text/plain',
-    '.gitignore': 'text/plain',
     '.md': 'text/markdown',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',

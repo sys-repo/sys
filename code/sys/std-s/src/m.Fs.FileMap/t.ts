@@ -77,9 +77,6 @@ export type FileMapIsLib = {
 
   /** Supported formats */
   readonly supported: {
-    /** Determine if the given path has a supported file extension. */
-    path(path: t.StringPath): boolean;
-
     /** Determine if the given content-type is supported. */
     contentType(path: t.StringPath): boolean;
   };

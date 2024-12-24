@@ -15,27 +15,6 @@ describe('FileMap.Is', () => {
     NON.forEach((v) => test(v, false));
   });
 
-  it('Is.supported.path', () => {
-    const test = (path: any, expected: boolean) => {
-      expect(Is.supported.path(path)).to.eql(expected);
-    };
-    test('foo.png', true);
-    test('bar/foo.jpg', true);
-    test('bar/foo.jpeg', true);
-    test('mod.ts', true);
-    test('Component.tsx', true);
-    test('docs/index.md', true);
-    test('deno.json', true);
-    test('.gitignore', true);
-    test('foo/bar/.gitignore', true);
-
-    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((v) => test(v, false));
-    test('foo', false);
-    test('', false);
-    test('  ', false);
-  });
-
   it('Is.supported.contentType', () => {
     const test = (contentType: any, expected: boolean) => {
       expect(Is.supported.contentType(contentType)).to.eql(expected);

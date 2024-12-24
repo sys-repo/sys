@@ -1,8 +1,5 @@
 import { type t, DEFAULTS, Path } from './common.ts';
 
-const contentTypes = DEFAULTS.contentTypes;
-type Ext = keyof typeof contentTypes;
-
 export const Is: t.FileMapIsLib = {
   dataUri(input) {
     if (typeof input !== 'string') return false;
@@ -16,15 +13,9 @@ export const Is: t.FileMapIsLib = {
   },
 
   supported: {
-    path(path) {
-      if (typeof path !== 'string') return false;
-      const filename = Path.basename(path);
-      const ext = wrangle.ext(filename) as Ext;
-      const exts = Object.keys(DEFAULTS.contentTypes);
-      return ext ? exts.some((m) => m === ext) : false;
-    },
     contentType(mime) {
       if (typeof mime !== 'string') return false;
+      if (mime === DEFAULTS.contentType) return true;
       return Object.values(DEFAULTS.contentTypes).some((v: string) => v === mime);
     },
   },
