@@ -1,2 +1,4 @@
-import { bundleTemplateFiles } from '../src/m.Env/mod.ts';
+import { bundleTemplateFiles, saveTemplateFiles } from '../src/m.Env/mod.ts';
+
 await bundleTemplateFiles();
+await saveTemplateFiles();
