@@ -1,11 +1,12 @@
 import { Hash } from '@sys/std/hash';
-import { type t, Err, Fs } from './common.ts';
+import { type t, Path, Err, Fs } from './common.ts';
 
 export const Dir: t.HashDirLib = {
   /**
    * Computer a `CompositeHash` for the given directory.
    */
   async compute(dir, options = {}) {
+    dir = Fs.resolve(dir);
     const { filter } = wrangle.computeOptions(options);
     const errors = Err.errors();
     const exists = await Fs.exists(dir);
@@ -25,7 +26,9 @@ export const Dir: t.HashDirLib = {
           .map((m) => `./${m}`)
           .filter((m) => (filter ? filter(m) : true));
         for (const path of paths) {
-          builder.add(path, await Deno.readFile(Fs.join(dir, path)));
+          const filepath = Fs.join(dir, path);
+          const exists = await Fs.exists(filepath);
+          if (exists) builder.add(path, await Deno.readFile(filepath));
         }
         res.hash = builder.toObject();
       }
@@ -39,6 +42,7 @@ export const Dir: t.HashDirLib = {
    * Verify a direcotry against the given [CompositeHash] value.
    */
   async verify(dir, hashInput) {
+    dir = Fs.resolve(dir);
     const errors = Err.errors();
     const exists = await Fs.exists(dir);
     if (!exists) {
@@ -52,7 +56,7 @@ export const Dir: t.HashDirLib = {
      * Load {Hash} from path.
      */
     if (exists && typeof hashInput === 'string') {
-      const path = Fs.Path.Is.absolute(hashInput) ? hashInput : Fs.join(dir, hashInput);
+      const path = Path.Is.absolute(hashInput) ? hashInput : Path.join(dir, hashInput);
       const file = await Fs.readJson<{ hash: t.CompositeHash }>(path);
       if (!file.exists) {
         errors.push(`Hash data to compare does not exist in a file at specified path: ${path}`);

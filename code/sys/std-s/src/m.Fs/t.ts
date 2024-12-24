@@ -30,6 +30,12 @@ export type FsLib = StdMethods & {
   /** Factory for a glob helper. */
   readonly glob: t.GlobFactory;
 
+  /** Writes a string or binary file ensuring it's parent directory exists. */
+  readonly write: t.FsWriteFile;
+
+  /** Writes a JSON serializable value to a string of JSON to a file. */
+  readonly writeJson: t.FsWriteJson;
+
   /** Copy a file or directory. */
   readonly copy: t.FsCopy;
 
@@ -50,6 +56,12 @@ export type FsLib = StdMethods & {
 
   /** Start a file-system watcher */
   readonly watch: t.FsWatchLib['start'];
+
+  /** Current working directory. */
+  cwd(): t.StringDir;
+
+  /** List the file-paths within a directory (simple glob). */
+  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
 };
 
 /** Methods from the `@std` libs. */
@@ -82,12 +94,15 @@ type StdMethods = {
 export type FsIsLib = t.PathLib['Is'] & {
   /** Determine if the given path points to a directory. */
   dir(path: t.StringPath | URL): Promise<boolean>;
+
+  /** Determine if the given path points to a file (not a directory). */
+  file(path: t.StringPath | URL): Promise<boolean>;
 };
 
 /**
  * Generate a Glob helper scoped to a path.
  */
-export type GlobFactory = (...dir: (t.StringPath | undefined)[]) => t.Glob;
+export type GlobFactory = (dir: t.StringDir, options?: GlobOptions) => t.Glob;
 
 /**
  * Runs globs against a filesystem root.
@@ -101,13 +116,16 @@ export type Glob = {
   /**
    *  Query the given glob pattern.
    */
-  find(pattern: string, options?: { exclude?: string[] }): Promise<WalkEntry[]>;
+  find(pattern: string, options?: GlobOptions): Promise<WalkEntry[]>;
 
   /**
    * Retrieve a sub-directory `Glob` from the current context.
    */
-  dir(...subdir: (string | undefined)[]): Glob;
+  dir(subdir: t.StringDir): Glob;
 };
+
+/** Options for a glob operation.  */
+export type GlobOptions = { exclude?: string[]; includeDirs?: boolean };
 
 /**
  * Retrieve information about the given path.
@@ -139,7 +157,7 @@ export type FsCopyOptions = {
   throw?: boolean;
 };
 
-/** Response to an file-system copy operation. */
+/** Response from the `Fs.copy` method. */
 export type FsCopyResponse = { error?: t.StdError };
 
 /**
@@ -149,6 +167,38 @@ export type FsRemove = (
   path: string,
   options?: { dryRun?: boolean; log?: boolean },
 ) => Promise<boolean>;
+
+/**
+ * Writes a string or binary file ensuring it's parent directory exists.
+ */
+export type FsWriteFile = (
+  path: t.StringPath,
+  data: string | Uint8Array,
+  options?: FsWriteFileOptions,
+) => Promise<FsWriteFileResponse>;
+
+/** Options passed to the `Fs.write` method. */
+export type FsWriteFileOptions = {
+  /** Overwrite existing directory files (default: false). */
+  force?: boolean;
+  /** Flag indicating if errors should be thrown (default: false). */
+  throw?: boolean;
+};
+
+/** Response from the `Fs.write` method. */
+export type FsWriteFileResponse = {
+  readonly overwritten: boolean;
+  readonly error?: t.StdError;
+};
+
+/**
+ * Writes a JSON serializable value to a string of JSON to a file.
+ */
+export type FsWriteJson = (
+  path: t.StringPath,
+  data: t.Json,
+  options?: t.FsWriteFileOptions,
+) => Promise<FsWriteFileResponse>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.

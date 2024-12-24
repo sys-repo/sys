@@ -15,6 +15,7 @@ export const Path: L = {
     return (await Is.dir(path)) ? path : Base.dirname(path);
   },
 
+  cwd: Deno.cwd,
   trimCwd(path, opt) {
     const { prefix = false, cwd = Deno.cwd() } = wrangle.trimCwdOptions(opt);
     if (typeof path !== 'string') return '';

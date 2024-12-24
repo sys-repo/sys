@@ -12,7 +12,7 @@ export type {
   ModuleImports,
   ObjectPath,
   Observable,
-  PartialDeep,
+  DeepPartial,
   PatchOperation,
   Percent,
   PickRequired,
