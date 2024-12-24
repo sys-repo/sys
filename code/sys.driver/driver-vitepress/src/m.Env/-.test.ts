@@ -8,10 +8,6 @@ describe('Vitepress.Env', () => {
     expect(VitePress.Env).to.equal(Env);
   });
 
-  it('Prepare: save file-map', async () => {
-    await bundleTemplateFiles();
-  });
-
   describe('Env.update', () => {
     it('insert deno.json → {tasks}', async () => {
       const sample = SAMPLE.init();
