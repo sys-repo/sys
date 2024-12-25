@@ -36,4 +36,12 @@ describe('Tmpl.Log', () => {
     expect(table3.toString()).to.include('Updated');
     expect(table3.toString()).to.not.include('Unchanged');
   });
+
+  it('empty', async () => {
+    const test = SAMPLE.init();
+    const tmpl = Tmpl.create(test.source).filter(() => false);
+    const res = await tmpl.copy(test.target);
+    const table = Log.table(res.ops);
+    expect(table).to.include('No items to display');
+  });
 });

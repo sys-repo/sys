@@ -3,6 +3,11 @@ import { type t, c, Cli } from './common.ts';
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   const table = Cli.table([]);
   const indent = options.indent ? ' '.repeat(options.indent) : '';
+
+  if (ops.length === 0) {
+    return c.gray(c.italic(`${indent}No items to display`));
+  }
+
   ops
     .filter((op) => (options.hideExcluded ? !op.excluded : true))
     .forEach((op) => {
