@@ -1,7 +1,8 @@
 import { type t, c, Fs, Tmpl } from './common.ts';
 import { createTmpl } from './u.tmpl.ts';
 
-export { bundleTemplateFiles, saveTemplateFiles } from './u.tmpl.save.ts';
+export { bundleTemplateFiles } from './u.tmpl.bundle.ts';
+export { saveTemplateFiles } from './u.tmpl.bundle.write.ts';
 
 /**
  * Helpers for establishing and updating the project environment.
