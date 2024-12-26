@@ -26,10 +26,14 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
         .replace(/<SELF_IMPORT_NAME>/, pkg.name);
+
       return e.modify(text);
     }
 
+    console.log('file.path', file.path, file.path.endsWith('/.vitepress/config.ts'));
+
     if (file.path.endsWith('/.vitepress/config.ts')) {
+      console.log('srcDir', srcDir);
       const text = e.text.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
     }
