@@ -71,7 +71,8 @@ export async function upgrade(argv: string[]) {
   /**
    * Update project template files.
    */
-  const res = await VitePress.Env.update({ inDir, force, silent: true });
+  console.log('running →', 'VitePress.Env.update');
+  const res = await VitePress.Env.update({ inDir, force, silent: false });
   console.log('res', res);
 
   /**
