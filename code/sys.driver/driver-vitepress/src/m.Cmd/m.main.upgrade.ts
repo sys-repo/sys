@@ -12,6 +12,9 @@ import { type t, Args, c, DEFAULTS, Jsr, pkg, Tmpl } from './common.ts';
 export async function upgrade(argv: string[]) {
   const args = Args.parse<t.CmdArgsUpgrade>(argv);
   const { inDir = DEFAULTS.inDir, force = false } = args;
+
+  console.log('function upgrade');
+
   if (args.cmd !== 'upgrade') return;
 
   /**
@@ -23,6 +26,10 @@ export async function upgrade(argv: string[]) {
   const semver = { latest: Semver.parse(latest), current: Semver.parse(pkg.version) };
   const targetVersion = args.version ? Semver.parse(args.version) : semver.latest;
   const diff = Semver.compare(targetVersion, semver.current);
+
+  console.log('semver.latest', Semver.toString(semver.latest));
+  console.log('semver.current', Semver.toString(semver.current));
+  console.log('targetVersion', Semver.toString(targetVersion));
 
   if (diff === 0 && !force) {
     console.info();
@@ -49,14 +56,17 @@ export async function upgrade(argv: string[]) {
     const tmpl = (await Env.tmpl({ inDir, version })).filter((file) => file.name === 'deno.json');
     await tmpl.copy(inDir, { force: true });
 
+    console.log(`-------------------------------------------`);
+
     // Install and run.
-    const sh = Cmd.sh(inDir);
+    const sh = Cmd.sh({ path: inDir, silent: false });
     await sh.run('deno install');
+    console.log('after install');
     await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
     return;
   }
 
-  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔ ||||`);
+  console.log(`AFTER ⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔ ||||`);
 
   /**
    * Update project template files.
