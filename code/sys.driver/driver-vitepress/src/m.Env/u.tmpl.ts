@@ -30,10 +30,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.modify(text);
     }
 
-    console.log('file.path', file.path, file.path.endsWith('/.vitepress/config.ts'));
-
-    if (file.path.endsWith('/.vitepress/config.ts')) {
-      console.log('srcDir', srcDir);
+    if (file.path.endsWith('.vitepress/config.ts')) {
       const text = e.text.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
     }
