@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vitepress",
-  "version": "0.0.100",
+  "version": "0.0.101",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
