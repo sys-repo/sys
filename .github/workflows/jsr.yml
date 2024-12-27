@@ -35,8 +35,8 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish
 
-      - name: publish module → "@sys/ui-react"
+      - name: publish module → "@sys/ui-dom"
         run: |
-          cd code/sys.ui/ui-react
+          cd code/sys.ui/ui-dom
           deno task test --parallel
           deno publish
