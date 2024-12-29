@@ -5,10 +5,10 @@ import { Log, Wrangle } from './u.ts';
 type D = t.ViteLib['dev'];
 
 /**
- * Matches:
- *   VITE <v6.0.3>  ready in <955> ms
+ * Matches (example):
+ *   VITE v6.0.3  ready in 955 ms
  */
-const viteStartupMessageRegex = /VITE v\d\.\d\.\d\s+ready in \d+ ms/g;
+const viteStartupRegex = /VITE v\d\.\d\.\d\s+ready in \d+ ms/g;
 
 /**
  * Run the <vite:build> command.
@@ -29,7 +29,7 @@ export const dev: D = async (input) => {
 
   const readySignal: t.CmdReadySignalFilter = (e) => {
     const text = stripAnsi(e.toString());
-    const match = viteStartupMessageRegex.exec(text);
+    const match = viteStartupRegex.exec(text);
     return !!match;
   };
 

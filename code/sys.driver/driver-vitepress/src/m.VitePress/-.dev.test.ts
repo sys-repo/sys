@@ -5,7 +5,7 @@ import { VitePress } from './mod.ts';
 describe('VitePress.dev', () => {
   const open = false;
 
-  it.skip('process: start → fetch(200) → dispose', async () => {
+  it('process: start → fetch(200) → dispose', async () => {
     const sample = SAMPLE.init();
     const { port, inDir } = sample;
     await VitePress.Env.update({ inDir });
