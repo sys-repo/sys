@@ -79,6 +79,7 @@ export const spawn: t.Cmd['spawn'] = (config) => {
           const { readySignal } = config;
           if (readySignal === undefined) markAsReady();
           if (typeof readySignal === 'string' && e.toString() === `${readySignal}\n`) markAsReady();
+          if (typeof readySignal === 'function' && readySignal(e)) markAsReady();
         }
       }
     } finally {

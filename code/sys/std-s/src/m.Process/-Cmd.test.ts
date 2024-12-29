@@ -115,6 +115,30 @@ describe('Cmd', () => {
       await test(`MY_SIGNAL_${slug()}`);
     });
 
+    it('spawn → wait ("ready signal" function) → events', async () => {
+      let fired = 0;
+      const readySignal: t.CmdReadySignalFilter = (e) => {
+        fired++;
+        return e.toString() === 'foo:3\n';
+      };
+
+      const cmd = `
+        let count = 0;
+        setInterval(() => {
+          count++;
+          console.info(\`foo:\${count}\`);
+        }, 100); 
+    `;
+      const args = ['eval', cmd];
+      const handle = Cmd.spawn({ args, readySignal, silent: true });
+
+      expect(fired).to.eql(0);
+      await handle.whenReady();
+      expect(fired).to.eql(3);
+
+      await handle.dispose();
+    });
+
     it('spawn → server HTTP', async () => {
       const port = Testing.randomPort();
       const tx = `tx.${Testing.slug()}`;
@@ -126,7 +150,7 @@ describe('Cmd', () => {
         console.info('${Cmd.Signal.ready}');
       `;
       const args = ['eval', cmd];
-      const child = await Cmd.spawn({ args, readySignal }).whenReady();
+      const child = await Cmd.spawn({ args, readySignal, silent: true }).whenReady();
 
       /**
        * Client Fetch

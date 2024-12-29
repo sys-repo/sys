@@ -65,8 +65,11 @@ export type CmdSpawnArgs = t.CmdInvokeArgs & {
    * await handle.whenReady();
    * ```
    */
-  readySignal?: string;
+  readySignal?: string | t.CmdReadySignalFilter;
 };
+
+/** A function that determines if the given process/stdio event represents a "ready" signal. */
+export type CmdReadySignalFilter = (e: t.CmdProcessEvent) => boolean;
 
 /**
  * The output from the `Cmd.spawn` command that represents
