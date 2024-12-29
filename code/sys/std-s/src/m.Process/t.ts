@@ -8,6 +8,10 @@ export type StdStream = 'stdout' | 'stderr';
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
 export type Cmd = {
+  readonly Signal: {
+    readonly ready: 'PROCESS_READY';
+  };
+
   /**
    * Execute a <unix> command on a child process
    * and wait for response.
@@ -15,7 +19,7 @@ export type Cmd = {
   invoke(config: t.CmdInvokeArgs): Promise<t.CmdOutput>;
 
   /**
-   * Spawn a child process to run a <unix> command
+   * Spawn a child process to run a <unix>-like command
    * and retrieve a streaming handle to monitor and control it.
    */
   spawn(config: t.CmdSpawnArgs): t.CmdProcessHandle;
@@ -27,9 +31,7 @@ export type Cmd = {
   sh(path: t.StringPath): t.ShellCmd;
 };
 
-/**
- * Process: Invoke
- */
+/** Arguments passed to the `Cmd.invoke` method. */
 export type CmdInvokeArgs = {
   args: string[];
   cmd?: string;
@@ -38,14 +40,37 @@ export type CmdInvokeArgs = {
   silent?: boolean;
 };
 
-/**
- * Process: Spawn
- */
-export type CmdSpawnArgs = t.CmdInvokeArgs & { dispose$?: t.UntilObservable };
+/** Arguments passed to the `Cmd.spawn` method. */
+export type CmdSpawnArgs = t.CmdInvokeArgs & {
+  dispose$?: t.UntilObservable;
+
+  /**
+   * The flag used in the child process to signal "ready" and cause
+   * the `whenReady` promise to resolve. When omitted readiness is
+   * signalled immediately on first StdOut.
+   *
+   * This is useful, for example, when a child-process is starting up an HTTP server,
+   * and you need a reliable way to signal back to the host when it is ready
+   * to recieve inbound requests.
+   *
+   * @example
+   * When using `readySignal` emit the signal to the console within
+   * the spawned child process:
+   *
+   * ```ts
+   * const readySignal = 'PROCESS_READY';
+   * const cmd = `console.log("${readySignal}");`;
+   * const handle = Cmd.spawn({ args: ['eval', cmd], readySignal });
+   *
+   * await handle.whenReady();
+   * ```
+   */
+  readySignal?: string;
+};
 
 /**
- * The output from the Run command that represents
- * a spawned child-process.
+ * The output from the `Cmd.spawn` command that represents
+ * a running child-process.
  */
 export type CmdProcessHandle = t.LifecycleAsync & {
   readonly pid: number;
@@ -71,7 +96,12 @@ export type ShellCmd = {
   run(...args: string[]): Promise<t.CmdOutput>;
 };
 
-export type ShellCmdOptions = { args?: string[]; silent?: boolean; path?: string };
+/** Options passed to the `Cmd.sh` method.  */
+export type ShellCmdOptions = {
+  readonly args?: string[];
+  readonly silent?: boolean;
+  readonly path?: string;
+};
 
 /**
  * Command Output as strings
