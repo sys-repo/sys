@@ -1,3 +1,5 @@
+import stripAnsi from 'strip-ansi';
+
 import { Args } from '@sys/std/args';
 import { Path } from '@sys/std/path';
 import { Value } from '@sys/std/value';
@@ -29,4 +31,5 @@ export const Cli: t.CliLib = {
   keypress: Keyboard.keypress,
 
   confirm: (options) => Prompts.Confirm.prompt(options),
+  stripAnsi,
 };

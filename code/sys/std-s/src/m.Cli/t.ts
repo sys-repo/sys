@@ -60,6 +60,9 @@ export type CliLib = {
 
   /** Listen to keypress events. */
   keypress: t.CliKeyboardLib['keypress'];
+
+  /** Strip ANSI escape codes from a string. */
+  stripAnsi(input: string): string;
 };
 
 /**

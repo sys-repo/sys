@@ -51,6 +51,7 @@
     "ramda": "npm:ramda@0.30.1",
     "rambda": "npm:rambda@9.4.0",
     "rxjs": "npm:rxjs@7",
+    "strip-ansi": "npm:strip-ansi@7",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.3",
     "ua-parser-js": "npm:ua-parser-js@2.0.0",
