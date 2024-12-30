@@ -9,10 +9,4 @@
  * ```
  */
 export { pkg } from './pkg.ts';
-
-import type * as t from './types.ts';
-
-export {
-  /** Module types. */
-  t,
-};
+export type * as t from './types.ts';
