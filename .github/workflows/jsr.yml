@@ -53,6 +53,12 @@ jobs:
           deno task test --parallel
           deno publish
 
+      - name: publish module → "@sys/proc"
+        run: |
+          cd code/sys/proc
+          deno task test --parallel
+          deno publish
+
       - name: publish module → "@sys/std-s"
         run: |
           cd code/sys/std-s
