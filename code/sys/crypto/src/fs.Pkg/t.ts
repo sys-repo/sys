@@ -7,16 +7,16 @@ import type { PkgLib } from '@sys/std/t';
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.
  */
-export type PkgSLib = PkgLib & {
+export type PkgFsLib = PkgLib & {
   /** Tools for working with distribution packages. */
-  readonly Dist: t.PkgDistSLib;
+  readonly Dist: t.PkgDistFsLib;
 };
 
 /**
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export type PkgDistSLib = t.PkgDistLib & {
+export type PkgDistFsLib = t.PkgDistLib & {
   /**
    * Load a `dist.json` file into a \<DistPackage\> type.
    */

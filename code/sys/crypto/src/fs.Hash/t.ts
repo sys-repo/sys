@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
 import type { HashLib } from '@sys/std/t';
+import type { t } from './common.ts';
 
 /**
  * `HashLib` (server extensions).
@@ -58,7 +58,7 @@ export type HashDirVerifyResponse = HashDir & {
 };
 
 /**
- * Console (Logging and Display)
+ * Console (Logging and Display).
  */
 export type HashConsoleLib = {
   digest(input?: t.HashInput, options?: { length?: number }): string;
