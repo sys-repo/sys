@@ -1,6 +1,10 @@
 import { Pkg } from '@sys/std/pkg';
 import { type t, Delete, Err, Fs, Hash } from './common.ts';
 
+/**
+ * Tools for working with "distribution-package"
+ * ie. an ESM output typically written to a `/dist` folder.
+ */
 export const Dist: t.PkgDistSLib = {
   ...Pkg.Dist,
 

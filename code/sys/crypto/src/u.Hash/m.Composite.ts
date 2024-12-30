@@ -4,6 +4,9 @@ import { digest } from './u.comp.digest.ts';
 import { verify } from './u.comp.verify.ts';
 import { toComposite } from './u.toComposite.ts';
 
+/**
+ * Tools for building composite hashes.
+ */
 export const CompositeHash: t.CompositeHashLib = {
   toComposite,
   builder,

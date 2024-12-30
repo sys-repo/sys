@@ -3,6 +3,9 @@ import { type t, Is, Json } from './common.ts';
 import { sha1 as toSha1 } from '@noble/hashes/sha1';
 import { sha256 as toSha256 } from '@noble/hashes/sha256';
 
+/**
+ * Generate a self-describing SHA1 hash of the given input.
+ */
 export const sha1: t.HashLib['sha1'] = (input, options = {}) => {
   const { prefix = true } = options;
   const bytes = toBytes(input, options);
@@ -10,6 +13,9 @@ export const sha1: t.HashLib['sha1'] = (input, options = {}) => {
   return hash && prefix ? `sha1-${hash}` : hash;
 };
 
+/**
+ * Generate a self-describing SHA256 hash of the given input.
+ */
 export const sha256: t.HashLib['sha256'] = (input, options = {}) => {
   const { prefix = true } = options;
   const bytes = toBytes(input, options);
