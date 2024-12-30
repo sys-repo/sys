@@ -1,11 +1,14 @@
 /**
  * @module
- * Tools for ...
+ * Helpers for working with cryptographic functions.
  *
  * @example
  * ```ts
- * import { pkg } from '@sys/xxx-🐷';
+ * import { pkg } from '@sys/crypto';
+ * import { Hash } from '@sys/crypto/hash';
  * ```
  */
 export { pkg } from './pkg.ts';
+
+/** Module types. */
 export type * as t from './types.ts';
