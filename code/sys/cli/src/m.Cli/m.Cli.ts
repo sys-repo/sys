@@ -1,8 +1,4 @@
-import { Args } from '@sys/std/args';
-import { Path } from '@sys/std/path';
-import { Value } from '@sys/std/value';
-
-import { type t, Time, stripAnsi } from './common.ts';
+import { type t, Args, Path, Time, Value, stripAnsi } from './common.ts';
 import { Format } from './m.Format.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Prompts } from './m.Prompts.ts';
