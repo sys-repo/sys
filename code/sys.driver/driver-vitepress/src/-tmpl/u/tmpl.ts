@@ -1,6 +1,6 @@
 import { type t, Fs, PATHS, pkg, Tmpl } from './common.ts';
-import { saveTemplateFiles } from './u.tmpl.bundle.write.ts';
-export { bundleTemplateFiles } from './u.tmpl.bundle.ts';
+import { saveTemplateFiles } from './tmpl.bundle.write.ts';
+export { bundleTemplateFiles } from './tmpl.bundle.ts';
 
 /**
  * Create a new instance of the bundled file template.
