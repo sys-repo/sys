@@ -1,4 +1,4 @@
-import { type t, c, Cli } from './common.ts';
+import { type t, toTmplFile, c, Cli, Path } from './common.ts';
 
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   const table = Cli.table([]);
@@ -11,7 +11,7 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   ops
     .filter((op) => (options.hideExcluded ? !op.excluded : true))
     .forEach((op) => {
-      const path = wrangle.path(op);
+      const path = wrangle.path(op, options.trimBase);
       const action = wrangle.action(op);
       const note = wrangle.note(op);
       table.push([`${indent}${action}`, path, note]);
@@ -23,17 +23,26 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
  * Helpers
  */
 const wrangle = {
-  path(op: t.TmplFileOperation) {
-    const file = op.file.target;
-    const text = c.gray(`${file.dir}/${c.white(file.name)}`);
+  path(op: t.TmplFileOperation, trimBase?: t.StringPath) {
+    let path = Path.trimCwd(op.file.target.path);
+    if (trimBase && path.startsWith(trimBase)) path = path.slice(trimBase.length);
+    const file = toTmplFile(path);
+
+    let text = '';
+    if (file.dir) text += `${file.dir}/`;
+    text += c.white(file.name);
+    text = c.gray(text);
+
     return op.excluded ? c.dim(text) : text;
   },
+
   action(op: t.TmplFileOperation) {
     if (op.excluded) return c.gray(c.dim('n/a'));
     if (op.created) return c.green('Created');
     if (op.updated) return c.yellow('Updated');
     return c.gray('Unchanged');
   },
+
   note(op: t.TmplFileOperation) {
     let text = '';
     const append = (value: string) => {

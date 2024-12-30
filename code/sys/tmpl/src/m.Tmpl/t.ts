@@ -90,7 +90,6 @@ export type TmplDir = {
  * Path details about a template file.
  */
 export type TmplFile = {
-  cwd: t.StringDir;
   path: t.StringPath;
   dir: string;
   name: string;

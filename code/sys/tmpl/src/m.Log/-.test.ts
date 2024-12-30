@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { Path, describe, expect, it, stripAnsi } from '../-test.ts';
 import { Tmpl } from '../m.Tmpl/mod.ts';
 import { SAMPLE } from '../m.Tmpl/-u.ts';
 import { Log } from './mod.ts';
@@ -35,6 +35,16 @@ describe('Tmpl.Log', () => {
     expect(table3.toString()).to.not.include('Created');
     expect(table3.toString()).to.include('Updated');
     expect(table3.toString()).to.not.include('Unchanged');
+  });
+
+  it('trimBase:<path>', async () => {
+    const test = SAMPLE.init();
+    const tmpl = Tmpl.create(test.source, (e) => {});
+    const res = await tmpl.copy(test.target);
+
+    const trimBase = Path.trimCwd(test.target) + '/';
+    const table = Log.table(res.ops, { trimBase });
+    expect(stripAnsi(table.toString())).to.include('  .gitignore');
   });
 
   it('empty', async () => {

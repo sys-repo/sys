@@ -1,4 +1,4 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Fs, Path, toTmplFile } from './common.ts';
 
 /**
  * Helpers
@@ -22,13 +22,10 @@ export const Wrangle = {
   },
 
   file(path: t.StringPath): t.TmplFile {
-    const cwd = Path.cwd();
-    const dir = Path.trimCwd(Path.dirname(path));
-    const name = Path.trimCwd(Path.basename(path));
-    return { cwd, path, dir, name };
+    return toTmplFile(path);
   },
 
-  rename(input: t.TmplFile | string, filename: string) {
+  rename(input: t.TmplFile | string, filename: string): t.TmplFile {
     const path = typeof input === 'string' ? input : input.path;
     const dir = Path.dirname(path);
     return Wrangle.file(Fs.join(dir, filename));
