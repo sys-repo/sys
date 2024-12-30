@@ -121,7 +121,6 @@
     "npm:vite-plugin-wasm@3": "3.3.0_vite@5.4.11__@types+node@22.5.4_@types+node@22.5.4",
     "npm:vite@*": "6.0.3_@types+node@22.5.4",
     "npm:vite@6.0.3": "6.0.3_@types+node@22.5.4",
-    "npm:vitepress@*": "1.5.0_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.2_@types+node@22.5.4_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:vitepress@1": "1.5.0_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.2_@types+node@22.5.4_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:vue@3.5.13": "3.5.13",
     "npm:yaml@2.6.1": "2.6.1"
