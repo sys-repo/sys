@@ -6,7 +6,8 @@
  * Display a CLI spinner:
  *
  * ```ts
- * import { Cli, Time } from '@sys/std-s';
+ * import { Time } from '@sys/std';
+ * import { Cli } from '@sys/cli';
  *
  * const spinner = Cli.spinner('My long running process...');
  *
@@ -22,13 +23,13 @@
  * Display details in a tabular layout:
  *
  * ```ts
- * import { Cli, Time } from '@sys/std-s';
- * import { Cli } from '@sys/std-s/cli';    // (alternative import path)
+ * import { Cli } from '@sys/cli';
+ * import { c } from '@sys/cli/fmt';
  *
  * const table = Cli.table(['Foo', 'Bar']).indent(2);
  * table.push();
  * table.push(['123456', 'abc']);
- * table.push(['333', 'Hello World 👋']);
+ * table.push(['333', c.green('Hello World 👋')]);
  * table.render();
  * ```
  */
