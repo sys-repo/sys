@@ -32,6 +32,7 @@
     "./code/sys/fs",
     "./code/sys/cmd",
     "./code/sys/text",
+    "./code/sys/tmpl",
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
