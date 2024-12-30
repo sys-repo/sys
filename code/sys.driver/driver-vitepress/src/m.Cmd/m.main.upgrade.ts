@@ -48,8 +48,6 @@ export async function upgrade(argv: string[]) {
 
     // Install and run.
     const sh = Cmd.sh({ path: inDir, silent: false });
-    // await sh.run('deno install');
-
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
     console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
     await sh.run(cmd);
