@@ -12,6 +12,7 @@ export const Paths = {
     'code/sys/cli',
     'code/sys/fs',
     'code/sys/proc',
+    'code/sys/crypto',
     
     'code/sys/std-s',
 

@@ -27,6 +27,7 @@
     "./code/sys/fs",
     "./code/sys/cli",
     "./code/sys/proc",
+    "./code/sys/crypto",
 
     "./code/sys/std-s",
 
