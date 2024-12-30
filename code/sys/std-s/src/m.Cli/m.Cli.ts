@@ -2,7 +2,7 @@ import { Args } from '@sys/std/args';
 import { Path } from '@sys/std/path';
 import { Value } from '@sys/std/value';
 
-import { Time, type t } from './common.ts';
+import { type t, Time, stripAnsi } from './common.ts';
 import { Format } from './m.Format.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Prompts } from './m.Prompts.ts';
@@ -29,4 +29,5 @@ export const Cli: t.CliLib = {
   keypress: Keyboard.keypress,
 
   confirm: (options) => Prompts.Confirm.prompt(options),
+  stripAnsi,
 };

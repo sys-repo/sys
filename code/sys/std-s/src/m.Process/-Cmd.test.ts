@@ -72,33 +72,69 @@ describe('Cmd', () => {
       });
     });
 
-    it('spawn → wait → events', async () => {
-      const env = { FOO: `tx.${slug()}` };
-      const cmd = `setInterval(() => console.log(Deno.env.get('FOO')), 50);`;
+    it('spawn → wait ("ready signal") → events', async () => {
+      const test = async (readySignal: string) => {
+        const env = { FOO: `tx.${slug()}` };
+        const cmd = `
+          setInterval(() => console.log(Deno.env.get('FOO')), 30); 
+          console.info('${readySignal}');
+        `;
+        const args = ['eval', cmd];
+        const handle = Cmd.spawn({ args, env, readySignal, silent: true });
+
+        const firedWhenReady: t.CmdProcessReadyHandlerArgs[] = [];
+        const firedObservable: t.CmdProcessEvent[] = [];
+        const firedOnHandler: t.CmdProcessEvent[] = [];
+        handle.$.subscribe((e) => firedObservable.push(e));
+        handle.onStdOut((e) => firedOnHandler.push(e));
+
+        expect(typeof handle.pid === 'number').to.be.true;
+        expect(handle.is.ready).to.eql(false);
+
+        const res = await handle.whenReady((e) => firedWhenReady.push(e));
+        expect(res).to.equal(handle);
+        expect(handle.is.ready).to.eql(true);
+
+        expect(firedWhenReady.length).to.eql(1);
+        expect(typeof firedWhenReady[0].pid === 'number').to.be.true;
+        expect(firedWhenReady[0].cmd).to.include(`console.log(Deno.env.get('FOO'))`);
+
+        expect(firedObservable.length).to.eql(1);
+        expect(firedOnHandler.length).to.eql(1);
+        expect(firedObservable[0]).to.eql(firedOnHandler[0]);
+        expect(firedObservable[0].toString()).to.eql(`${readySignal}\n`);
+
+        await Time.wait(50); // NB: wait for 30ms timeout in command script (above).
+        expect(firedObservable.length).to.eql(2);
+        expect(firedObservable[1].toString()).to.eql(`${env.FOO}\n`); // NB: passed in {env} variable emitted in console.
+
+        await handle.dispose();
+      };
+
+      await test(Cmd.Signal.ready);
+      await test(`MY_SIGNAL_${slug()}`);
+    });
+
+    it('spawn → wait ("ready signal" function) → events', async () => {
+      let fired = 0;
+      const readySignal: t.CmdReadySignalFilter = (e) => {
+        fired++;
+        return e.toString() === 'foo:3\n';
+      };
+
+      const cmd = `
+        let count = 0;
+        setInterval(() => {
+          count++;
+          console.info(\`foo:\${count}\`);
+        }, 100); 
+    `;
       const args = ['eval', cmd];
-      const handle = Cmd.spawn({ args, env, silent: true });
+      const handle = Cmd.spawn({ args, readySignal, silent: true });
 
-      const firedWhenReady: t.CmdProcessReadyHandlerArgs[] = [];
-      const firedObs: t.CmdProcessEvent[] = [];
-      const firedOn: t.CmdProcessEvent[] = [];
-      handle.$.subscribe((e) => firedObs.push(e));
-      handle.onStdOut((e) => firedOn.push(e));
-
-      expect(typeof handle.pid === 'number').to.be.true;
-      expect(handle.is.ready).to.eql(false);
-
-      const res = await handle.whenReady((e) => firedWhenReady.push(e));
-      expect(res).to.equal(handle);
-      expect(handle.is.ready).to.eql(true);
-
-      expect(firedWhenReady.length).to.eql(1);
-      expect(typeof firedWhenReady[0].pid === 'number').to.be.true;
-      expect(firedWhenReady[0].cmd).to.include(`console.log(Deno.env.get('FOO'))`);
-
-      expect(firedObs.length).to.eql(1);
-      expect(firedOn.length).to.eql(1);
-      expect(firedObs[0]).to.eql(firedOn[0]);
-      expect(firedObs[0].toString()).to.eql(`${env.FOO}\n`);
+      expect(fired).to.eql(0);
+      await handle.whenReady();
+      expect(fired).to.eql(3);
 
       await handle.dispose();
     });
@@ -108,8 +144,13 @@ describe('Cmd', () => {
       const tx = `tx.${Testing.slug()}`;
       const text = `Hello World ← ${tx}`;
 
-      const cmd = `Deno.serve({ port: ${port} }, () => new Response('${text}'))`;
-      const child = await Cmd.spawn({ args: ['eval', cmd] }).whenReady();
+      const readySignal = Cmd.Signal.ready;
+      const cmd = `
+        Deno.serve({ port: ${port} }, () => new Response('${text}'));
+        console.info('${Cmd.Signal.ready}');
+      `;
+      const args = ['eval', cmd];
+      const child = await Cmd.spawn({ args, readySignal, silent: true }).whenReady();
 
       /**
        * Client Fetch
@@ -117,6 +158,7 @@ describe('Cmd', () => {
       const url = `http://localhost:${port}`;
       const res = await fetch(url);
       const resText = await res.text();
+
       expect(res.status).to.eql(200);
       expect(resText).to.eql(text);
 

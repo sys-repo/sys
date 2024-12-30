@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing } from '../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
 import { VitePress } from './mod.ts';
 
@@ -6,13 +6,14 @@ describe('VitePress.dev', () => {
   const open = false;
 
   it('process: start → fetch(200) → dispose', async () => {
-    const sample = await SAMPLE.init();
+    const sample = SAMPLE.init();
     const { port, inDir } = sample;
-    const server = await VitePress.dev({ port, inDir, open });
+    await VitePress.Env.update({ inDir });
+
+    const server = await VitePress.dev({ port, inDir, open }); // NB: await returns after Vitepress as completed it's startup.
     expect(server.port).to.eql(port);
     expect(server.dirs.in).to.eql(inDir);
 
-    await Testing.wait(1_000); // NB: wait another moment for the vite-server to complete it's startup.
     console.info(); //            NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
     const res = await fetch(server.url);
@@ -26,8 +27,10 @@ describe('VitePress.dev', () => {
   });
 
   it('process: ensures baseline files ← Env.init()', async () => {
-    const sample = await SAMPLE.init();
+    const sample = SAMPLE.init();
     const { port, inDir } = sample;
+    await VitePress.Env.update({ inDir });
+
     const server = await VitePress.dev({ port, inDir, open });
     await server.dispose();
     await assertEnvExists(inDir);

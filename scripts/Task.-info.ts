@@ -1,4 +1,5 @@
-import { Fs, c } from '@sys/std-s';
+import { Fs } from '@sys/std-s';
+import { c } from '@sys/std-s/cli';
 
 export async function main() {
   /**
@@ -39,13 +40,15 @@ export async function main() {
       '**/node_modules/**',
       '**/_archive/**',
       '**/-tmpl/**',
+      '**/.tmp/**',
       '**/spikes/**',
       '**/compiler/**',
       '**/compiler.samples/**',
       '**/dist/**',
     ];
     const pattern = 'code/**/*.{ts,tsx}';
-    const files = await Fs.glob(import.meta.dirname, '..').find(pattern, { exclude });
+    const baseDir = Fs.join(import.meta.dirname ?? '', '..');
+    const files = await Fs.glob(baseDir).find(pattern, { exclude });
 
     console.info('👋');
     console.info(`${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));

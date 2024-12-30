@@ -12,14 +12,37 @@ import type { t } from './common.ts';
  * HTTP Webserver.
  */
 export type HttpServerLib = {
-  readonly Auth: t.ServerAuth;
   readonly Hono: typeof Hono;
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;
   create(options?: t.HttpServerCreateOptions): HonoApp;
-  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions;
-  print(addr: Deno.NetAddr, pkg?: t.Pkg, hash?: t.StringHash): void;
-  keyboard(args: { port: number; dispose?: () => Promise<void> }): Promise<void>;
+  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions<Deno.NetAddr>;
+  options(args: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
+  print(args: t.HttpServerPrintOptions): void;
+  keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
+};
+
+/** Arguments passed to [HttpServer.options] */
+export type HttpServerOptionsOptions = {
+  port?: number;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+};
+
+/** Arguments passed to [HttpServer.print] */
+export type HttpServerKeyboardOptions = {
+  port: number;
+  print?: boolean;
+  dispose?: () => Promise<void>;
+};
+
+/** Arguments passed to [HttpServer.print] */
+export type HttpServerPrintOptions = {
+  addr: Deno.NetAddr;
+  pkg?: t.Pkg;
+  hash?: t.StringHash;
+  keyboard?: boolean;
+  requestedPort?: t.PortNumber;
 };
 
 /** Options passed to the creation of a server. */
