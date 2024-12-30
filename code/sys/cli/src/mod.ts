@@ -10,6 +10,8 @@
  */
 import { Cli } from './m.Cli/mod.ts';
 export { pkg } from './pkg.ts';
+
+/** Types */
 export type * as t from './types.ts';
 
 /**

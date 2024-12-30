@@ -1,7 +1,9 @@
 import * as Colors from '@std/fmt/colors';
 
-/**
- * Color formatting tools (alias to Color).
- */
-export { Colors };
+export {
+  /** Color formatting helpers. */
+  Colors,
+};
+
+/** Color formatting tools (alias to Color). */
 export const c = Colors;

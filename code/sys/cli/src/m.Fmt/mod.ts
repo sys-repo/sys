@@ -2,5 +2,16 @@
  * @module
  * Color formatting tools.
  */
-export { Colors, c } from './m.Colors.ts';
-export { stripAnsi } from '../common.ts';
+
+export {
+  /** Ansi color code helpers. */
+  Colors,
+
+  /** Alias to Colors. */
+  c,
+} from './m.Colors.ts';
+
+export {
+  /** Remove ANSI characters from the given string. */
+  stripAnsi,
+} from '../common.ts';
