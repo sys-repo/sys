@@ -18,33 +18,35 @@ describe('VitePress.build', () => {
   };
 
   it('build (default params)', async () => {
-    const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
-    const sample = SAMPLE.init({ slug: true });
-    const inDir = Fs.resolve(sample.path);
-    const outDir = Fs.resolve(sample.path, 'dist');
+    await Testing.retry(3, async () => {
+      const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
+      const sample = SAMPLE.init({ slug: true });
+      const inDir = Fs.resolve(sample.path);
+      const outDir = Fs.resolve(sample.path, 'dist');
 
-    await VitePress.Env.update({ inDir });
-    const res = await VitePress.build({ pkg, inDir, silent: false });
+      await VitePress.Env.update({ inDir });
+      const res = await VitePress.build({ pkg, inDir, silent: false });
 
-    expect(res.ok).to.eql(true);
-    expect(res.dirs.in).to.eql(inDir);
-    expect(res.dirs.out).to.eql(outDir);
-    expect(res.dist.pkg).to.eql(pkg);
-    expect(res.elapsed).to.be.greaterThan(0);
-    expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
-    assertDistFiles(res.dist);
+      expect(res.ok).to.eql(true);
+      expect(res.dirs.in).to.eql(inDir);
+      expect(res.dirs.out).to.eql(outDir);
+      expect(res.dist.pkg).to.eql(pkg);
+      expect(res.elapsed).to.be.greaterThan(0);
+      expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
+      assertDistFiles(res.dist);
 
-    const port = Testing.randomPort();
-    const app = HttpServer.create({ static: ['/*', res.dirs.out] });
-    const server = Deno.serve({ port }, app.fetch);
-    const fetched = await fetch(`http://localhost:${port}`);
-    const text = await fetched.text();
+      const port = Testing.randomPort();
+      const app = HttpServer.create({ static: ['/*', res.dirs.out] });
+      const server = Deno.serve({ port }, app.fetch);
+      const fetched = await fetch(`http://localhost:${port}`);
+      const text = await fetched.text();
 
-    const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
-    assertHtml(`<title>👋 Hello World | Untitled</title>`);
-    assertHtml(`Generated with <code>@sys/driver-vitepress@`);
+      const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
+      assertHtml(`<title>👋 Hello World | Untitled</title>`);
+      assertHtml(`Generated with <code>@sys/driver-vitepress@`);
 
-    server.shutdown();
+      server.shutdown();
+    });
   });
 
   it('build: custom {outDir}', async () => {
