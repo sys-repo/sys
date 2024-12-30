@@ -9,4 +9,4 @@ export { Fs, Path } from '@sys/fs';
 export { Hash } from '@sys/std-s/hash';
 export { Net } from '@sys/std-s/network';
 export { Pkg } from '@sys/std-s/pkg';
-export { Proc } from '@sys/proc';
+export { Process } from '@sys/proc';

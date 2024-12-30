@@ -31,7 +31,7 @@ export type Proc = {
   sh(path: t.StringPath): t.ShellCmd;
 };
 
-/** Arguments passed to the `Cmd.invoke` method. */
+/** Arguments passed to the `Process.invoke` method. */
 export type CmdInvokeArgs = {
   args: string[];
   cmd?: string;
@@ -40,7 +40,7 @@ export type CmdInvokeArgs = {
   silent?: boolean;
 };
 
-/** Arguments passed to the `Cmd.spawn` method. */
+/** Arguments passed to the `Process.spawn` method. */
 export type CmdSpawnArgs = t.CmdInvokeArgs & {
   dispose$?: t.UntilObservable;
 
@@ -60,7 +60,7 @@ export type CmdSpawnArgs = t.CmdInvokeArgs & {
    * ```ts
    * const readySignal = 'PROCESS_READY';
    * const cmd = `console.log("${readySignal}");`;
-   * const handle = Cmd.spawn({ args: ['eval', cmd], readySignal });
+   * const handle = Process.spawn({ args: ['eval', cmd], readySignal });
    *
    * await handle.whenReady();
    * ```
@@ -72,7 +72,7 @@ export type CmdSpawnArgs = t.CmdInvokeArgs & {
 export type CmdReadySignalFilter = (e: t.CmdProcessEvent) => boolean;
 
 /**
- * The output from the `Cmd.spawn` command that represents
+ * The output from the `Process.spawn` command that represents
  * a running child-process.
  */
 export type CmdProcessHandle = t.LifecycleAsync & {
@@ -99,7 +99,7 @@ export type ShellCmd = {
   run(...args: string[]): Promise<t.CmdOutput>;
 };
 
-/** Options passed to the `Cmd.sh` method.  */
+/** Options passed to the `Process.sh` method.  */
 export type ShellCmdOptions = {
   readonly args?: string[];
   readonly silent?: boolean;

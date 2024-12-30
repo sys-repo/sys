@@ -3,7 +3,7 @@
  * Unix child process.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-import { Proc } from './m.Proc.ts';
+import { Process } from './m.Process.ts';
 
-export { Proc };
-export default Proc;
+export { Process };
+export default Process;

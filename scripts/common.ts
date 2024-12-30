@@ -1,7 +1,7 @@
 export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { R, Semver, Value } from '@sys/std-s';
-export { Proc } from '@sys/proc';
+export { Process } from '@sys/proc';
 
 export { Path, Paths } from './u.paths.ts';
 

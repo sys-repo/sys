@@ -1,4 +1,4 @@
-import { Proc } from '@sys/proc';
+import { Process } from '@sys/proc';
 import { Cli, c } from './common.ts';
 
 /**
@@ -23,7 +23,7 @@ export async function keyboard(args: {
     console.info();
   }
 
-  const sh = Proc.sh();
+  const sh = Process.sh();
   for await (const e of Cli.keypress()) {
     /**
      * OPEN → open the local browser and point it at the running port.

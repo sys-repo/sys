@@ -1,4 +1,4 @@
-import { type t, Cli, Proc, ViteConfig } from './common.ts';
+import { type t, Cli, Process, ViteConfig } from './common.ts';
 import { Log } from './u.log.ts';
 
 /**
@@ -13,7 +13,7 @@ export function keyboardFactory(args: {
   dispose: () => Promise<void>;
 }) {
   const { pkg, dist, paths, dispose } = args;
-  const sh = Proc.sh();
+  const sh = Process.sh();
   const url = new URL(args.url).href;
 
   return async () => {
