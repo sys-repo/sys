@@ -11,6 +11,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./cli": "./src/m.Cli/mod.ts",
+    "./fmt": "./src/m.Fmt/mod.ts"
   }
 }
