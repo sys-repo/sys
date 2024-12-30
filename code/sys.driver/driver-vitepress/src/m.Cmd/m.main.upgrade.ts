@@ -66,11 +66,10 @@ export async function upgrade(argv: string[]) {
     console.log('after install');
 
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
-    console.log('cmd', cmd);
+    console.info(c.gray(`${c.italic('updating files from templates:')} ${c.cyan(cmd)}`));
+    await sh.run(cmd);
 
-    const o2 = await sh.run(cmd);
-
-    console.log('o2', o2);
+    // console.log('o2', o2);
 
     // const out = sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
     // await out;

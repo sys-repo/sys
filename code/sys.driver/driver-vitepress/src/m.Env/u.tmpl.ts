@@ -15,6 +15,8 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
     const file = e.file.target;
     const subpath = file.path.slice(inDir.length + 1);
 
+    console.log('subpath', is.userspace(subpath), subpath);
+
     if (file.exists && is.userspace(subpath)) {
       return e.exclude('user-space');
     }
