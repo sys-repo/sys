@@ -23,12 +23,15 @@
     "./code/-tmpl/deno",
     "./code/sys.tmp",
 
-    "./code/sys/cmd",
+    "./code/sys/types",
+
     "./code/sys/std",
     "./code/sys/std-s",
     "./code/sys/testing",
+
+    "./code/sys/fs",
+    "./code/sys/cmd",
     "./code/sys/text",
-    "./code/sys/types",
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
