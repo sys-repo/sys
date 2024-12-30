@@ -59,6 +59,12 @@ jobs:
           deno task test --parallel
           deno publish
 
+      - name: publish module → "@sys/crypto"
+        run: |
+          cd code/sys/crypto
+          deno task test --parallel
+          deno publish
+
       - name: publish module → "@sys/std-s"
         run: |
           cd code/sys/std-s
