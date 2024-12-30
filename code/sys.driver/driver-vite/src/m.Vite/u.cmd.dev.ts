@@ -28,9 +28,8 @@ export const dev: D = async (input) => {
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
   const readySignal: t.CmdReadySignalFilter = (e) => {
-    const text = stripAnsi(e.toString());
-    const match = viteStartupRegex.exec(text);
-    return !!match;
+    const lines = stripAnsi(e.toString()).split('\n');
+    return lines.some((line) => !!viteStartupRegex.exec(line));
   };
 
   const proc = Cmd.spawn({ args, env, silent, readySignal, dispose$: input.dispose$ });
