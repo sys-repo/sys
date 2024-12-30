@@ -40,7 +40,7 @@ export async function upgrade(argv: string[]) {
 
     console.info();
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
-    console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
+    console.info(c.gray(`${c.italic('running template:')} ${c.cyan(cmd)}`));
     console.info();
 
     // Install and run.
