@@ -1,6 +1,7 @@
 import { Path as StdPath } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
-import { Fs, Path } from './mod.ts';
+import { Path } from './common.ts';
+import { Fs } from './mod.ts';
 
 describe('Fs: filesystem', () => {
   describe('Fs.Path', () => {

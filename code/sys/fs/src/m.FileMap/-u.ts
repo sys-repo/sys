@@ -2,7 +2,7 @@ import { Fs, slug } from './common.ts';
 
 export const Sample = {
   source: {
-    dir: 'src/m.Fs.FileMap/-sample',
+    dir: 'src/m.FileMap/-sample',
     ls: () => Fs.ls(Sample.source.dir),
   },
 

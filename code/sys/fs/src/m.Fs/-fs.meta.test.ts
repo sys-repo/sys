@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
-import { Fs, Path } from './mod.ts';
+import { Path } from './common.ts';
+import { Fs } from './mod.ts';
 
 describe('Fs: info/meta-data operations on the file-system', () => {
   describe('Fs.Is (flags)', () => {
