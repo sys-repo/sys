@@ -11,17 +11,9 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
   const templatesDir = Fs.resolve(PATHS.tmp);
   if (!(await Fs.exists(templatesDir))) await saveTemplateFiles(templatesDir);
 
-  console.log('args.inDir', args.inDir);
-  console.log('inDir', inDir);
-  console.log(`-------------------------------------------`);
-
   return Tmpl.create(templatesDir, (e) => {
     const file = e.file.target;
     const subpath = inDir ? file.path.slice(inDir.length + 1) : file.path;
-
-    console.log(' >> ');
-    console.log('subpath', is.userspace(subpath), subpath);
-    console.log('file', file);
 
     if (file.exists && is.userspace(subpath)) {
       return e.exclude('user-space');
