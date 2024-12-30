@@ -25,7 +25,7 @@
  *
  * const readySignal = Process.Signal.ready;
  * const cmd = `
- *   Deno.serve({ port: ${port} }, () => new Response('${text}'));
+ *   Deno.serve({ port: 1234 }, () => new Response('👋 hello world'));
  *   console.info('${Process.Signal.ready}');
  * `;
  * const args = ['eval', cmd];
