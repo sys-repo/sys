@@ -7,7 +7,7 @@ export type StdStream = 'stdout' | 'stderr';
  * Unix child process.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export type Cmd = {
+export type Proc = {
   readonly Signal: {
     readonly ready: 'PROCESS_READY';
   };

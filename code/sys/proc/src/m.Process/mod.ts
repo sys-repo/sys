@@ -1,5 +1,9 @@
 /**
  * @module
- * Process/Command tools.
+ * Unix child process.
+ * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export { Cmd } from './m.Cmd.ts';
+import { Proc } from './m.Proc.ts';
+
+export { Proc };
+export default Proc;

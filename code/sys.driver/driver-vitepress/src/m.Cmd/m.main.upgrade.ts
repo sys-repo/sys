@@ -1,4 +1,4 @@
-import { Cmd } from '@sys/proc';
+import { Proc } from '@sys/proc';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { type t, Args, c, DEFAULTS, Jsr, pkg } from './common.ts';
@@ -44,7 +44,7 @@ export async function upgrade(argv: string[]) {
     console.info();
 
     // Install and run.
-    await Cmd.sh({ path: inDir }).run(cmd);
+    await Proc.sh({ path: inDir }).run(cmd);
   }
 
   /**

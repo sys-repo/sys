@@ -1,4 +1,4 @@
-import { c, Cmd, Fs, Path, Paths } from './u.ts';
+import { c, Proc, Fs, Path, Paths } from './u.ts';
 
 type DenoJson = {
   name: string;
@@ -28,7 +28,7 @@ export async function main() {
     const deno = mod.default as DenoJson;
     if (!deno.tasks?.clean) return; // NB: check the task exists before running.
 
-    await Cmd.sh({ silent: true, path }).run('deno task clean');
+    await Proc.sh({ silent: true, path }).run('deno task clean');
     console.info(`${c.cyan('     clean')} ${c.gray(path)}`);
   };
 

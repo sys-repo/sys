@@ -8,7 +8,7 @@ type E = { source: t.StdStream; fn: t.CmdProcessEventHandler };
  * Spawn a child process to run a <unix> command
  * and retrieve a streaming handle to monitor and control it.
  */
-export const spawn: t.Cmd['spawn'] = (config) => {
+export const spawn: t.Proc['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
   const life = rx.lifecycleAsync(config.dispose$, async () => {

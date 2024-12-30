@@ -1,4 +1,4 @@
-import { Cmd, Log, Paths, type CmdResult } from './u.ts';
+import { Proc, Log, Paths, type CmdResult } from './u.ts';
 
 export async function main() {
   /**
@@ -6,7 +6,7 @@ export async function main() {
    */
   const results: CmdResult[] = [];
   const run = async (path: string) => {
-    const output = await Cmd.sh({ silent: true, path }).run(`deno lint`);
+    const output = await Proc.sh({ silent: true, path }).run(`deno lint`);
     results.push({ output, path });
   };
 

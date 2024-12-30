@@ -1,12 +1,12 @@
 import type { t } from './common.ts';
-import { spawn } from './m.Cmd.spawn.ts';
+import { spawn } from './m.Proc.spawn.ts';
 import { Wrangle, printOutput, toCmdOutput } from './u.ts';
 
 /**
  * Unix child process.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export const Cmd: t.Cmd = {
+export const Proc: t.Proc = {
   Signal: { ready: 'PROCESS_READY' },
 
   /**
@@ -22,7 +22,7 @@ export const Cmd: t.Cmd = {
         const { silent } = options;
         const command = [...(options.args ?? []), ...args];
         if (path) command.unshift(`cd ${path}`);
-        return Cmd.invoke({ args: ['-c', command.join(' && ')], cmd: 'sh', silent });
+        return Proc.invoke({ args: ['-c', command.join(' && ')], cmd: 'sh', silent });
       },
     };
   },

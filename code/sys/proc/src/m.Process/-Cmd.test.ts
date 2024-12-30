@@ -1,10 +1,10 @@
 import { type t, Testing, describe, expect, it, rx, slug, Time } from '../-test.ts';
-import { Cmd } from './mod.ts';
+import { Proc } from './mod.ts';
 
 describe('Cmd', () => {
   describe('Cmd.sh', () => {
     it('run: "echo"', async () => {
-      const sh = Cmd.sh({ silent: true });
+      const sh = Proc.sh({ silent: true });
       const res = await sh.run('echo foo');
       expect(res.code).to.eql(0);
       expect(res.success).to.eql(true);
@@ -15,7 +15,7 @@ describe('Cmd', () => {
   describe('Cmd.invoke (sync)', () => {
     it('invoke → stdout', async () => {
       const args = ['eval', 'console.log("👋 hello world")'];
-      const res = await Cmd.invoke({ args, silent: true });
+      const res = await Proc.invoke({ args, silent: true });
 
       expect(res.code).to.eql(0);
       expect(res.success).to.eql(true);
@@ -27,7 +27,7 @@ describe('Cmd', () => {
 
     it('invoke → stderr', async () => {
       const args = ['eval', 'throw new Error("my-error")'];
-      const res = await Cmd.invoke({ args, silent: true });
+      const res = await Proc.invoke({ args, silent: true });
 
       expect(res.code).to.eql(1);
       expect(res.success).to.eql(false);
@@ -42,7 +42,7 @@ describe('Cmd', () => {
     describe('lifecycle', () => {
       it('spawn → dispose', async () => {
         const args = ['eval', 'console.log("👋")'];
-        const handle = Cmd.spawn({ args, silent: true });
+        const handle = Proc.spawn({ args, silent: true });
 
         const fired: t.DisposeAsyncEvent[] = [];
         handle.dispose$.subscribe((e) => fired.push(e));
@@ -58,7 +58,7 @@ describe('Cmd', () => {
       it('spawn → dispose$', async () => {
         const { dispose$, dispose } = rx.lifecycle();
         const args = ['eval', 'console.log("👋")'];
-        const handle = Cmd.spawn({ args, silent: true, dispose$ });
+        const handle = Proc.spawn({ args, silent: true, dispose$ });
 
         const fired: t.DisposeAsyncEvent[] = [];
         handle.dispose$.subscribe((e) => fired.push(e));
@@ -79,7 +79,7 @@ describe('Cmd', () => {
           console.info('${readySignal}');
         `;
         const args = ['eval', cmd];
-        const handle = Cmd.spawn({ args, env, readySignal, silent: true });
+        const handle = Proc.spawn({ args, env, readySignal, silent: true });
 
         const firedWhenReady: t.CmdProcessReadyHandlerArgs[] = [];
         const firedObservable: t.CmdProcessEvent[] = [];
@@ -110,7 +110,7 @@ describe('Cmd', () => {
         await handle.dispose();
       };
 
-      await test(Cmd.Signal.ready);
+      await test(Proc.Signal.ready);
       await test(`MY_SIGNAL_${slug()}`);
     });
 
@@ -129,7 +129,7 @@ describe('Cmd', () => {
         }, 100); 
     `;
       const args = ['eval', cmd];
-      const handle = Cmd.spawn({ args, readySignal, silent: true });
+      const handle = Proc.spawn({ args, readySignal, silent: true });
 
       expect(fired).to.eql(0);
       await handle.whenReady();
@@ -143,13 +143,13 @@ describe('Cmd', () => {
       const tx = `tx.${Testing.slug()}`;
       const text = `Hello World ← ${tx}`;
 
-      const readySignal = Cmd.Signal.ready;
+      const readySignal = Proc.Signal.ready;
       const cmd = `
         Deno.serve({ port: ${port} }, () => new Response('${text}'));
-        console.info('${Cmd.Signal.ready}');
+        console.info('${Proc.Signal.ready}');
       `;
       const args = ['eval', cmd];
-      const child = await Cmd.spawn({ args, readySignal, silent: true }).whenReady();
+      const child = await Proc.spawn({ args, readySignal, silent: true }).whenReady();
 
       /**
        * Client Fetch
