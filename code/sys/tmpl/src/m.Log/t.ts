@@ -9,6 +9,6 @@ export type TmplLogLib = {
    */
   table(
     ops: t.TmplFileOperation[],
-    options?: { indent?: number; hideExcluded?: boolean; trimBase?: t.StringPath },
+    options?: { indent?: number; hideExcluded?: boolean; trimPathLeft?: t.StringPath },
   ): string;
 };

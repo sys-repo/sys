@@ -1,6 +1,6 @@
 import { Path, describe, expect, it, stripAnsi } from '../-test.ts';
-import { Tmpl } from '../m.Tmpl/mod.ts';
 import { SAMPLE } from '../m.Tmpl/-u.ts';
+import { Tmpl } from '../m.Tmpl/mod.ts';
 import { Log } from './mod.ts';
 
 describe('Tmpl.Log', () => {
@@ -42,8 +42,8 @@ describe('Tmpl.Log', () => {
     const tmpl = Tmpl.create(test.source, (e) => {});
     const res = await tmpl.copy(test.target);
 
-    const trimBase = Path.trimCwd(test.target) + '/';
-    const table = Log.table(res.ops, { trimBase });
+    const trimPathLeft = Path.trimCwd(test.target) + '/';
+    const table = Log.table(res.ops, { trimPathLeft });
     expect(stripAnsi(table.toString())).to.include('  .gitignore');
   });
 

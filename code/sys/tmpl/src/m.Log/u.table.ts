@@ -11,7 +11,7 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   ops
     .filter((op) => (options.hideExcluded ? !op.excluded : true))
     .forEach((op) => {
-      const path = wrangle.path(op, options.trimBase);
+      const path = wrangle.path(op, options.trimPathLeft);
       const action = wrangle.action(op);
       const note = wrangle.note(op);
       table.push([`${indent}${action}`, path, note]);
