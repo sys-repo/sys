@@ -13,7 +13,7 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
     .forEach((op) => {
       const path = wrangle.path(op, options.trimPathLeft);
       const action = wrangle.action(op);
-      const note = wrangle.note(op);
+      const note = wrangle.note(op, options);
       table.push([`${indent}${action}`, path, note]);
     });
   return table.toString().replace(/^\s*\n/, '');
@@ -37,13 +37,13 @@ const wrangle = {
   },
 
   action(op: t.TmplFileOperation) {
-    if (op.excluded) return c.gray(c.dim('n/a'));
+    if (op.excluded) return c.gray(c.dim(' n/a'));
     if (op.created) return c.green('Created');
     if (op.updated) return c.yellow('Updated');
     return c.gray('Unchanged');
   },
 
-  note(op: t.TmplFileOperation) {
+  note(op: t.TmplFileOperation, options: t.TmplLogTableOptions) {
     let text = '';
     const append = (value: string) => {
       if (text) text += ' | ';
@@ -60,6 +60,10 @@ const wrangle = {
     }
     if (is.dryRun(op)) {
       append(`(${c.cyan('dry-run')})`);
+    }
+    if (typeof options.note === 'function') {
+      const note = options.note(op);
+      if (note) append(note);
     }
     return text ? c.gray(`${c.white('←')} ${text}`) : '';
   },

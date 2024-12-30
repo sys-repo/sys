@@ -7,8 +7,13 @@ export type TmplLogLib = {
   /**
    * Convert a set of template operations to a console table.
    */
-  table(
-    ops: t.TmplFileOperation[],
-    options?: { indent?: number; hideExcluded?: boolean; trimPathLeft?: t.StringPath },
-  ): string;
+  table(ops: t.TmplFileOperation[], options?: t.TmplLogTableOptions): string;
+};
+
+/** Options passed to the `Tmpl.Log.table` method. */
+export type TmplLogTableOptions = {
+  indent?: number;
+  hideExcluded?: boolean;
+  trimPathLeft?: t.StringPath;
+  note?: (op: t.TmplFileOperation) => string | void;
 };
