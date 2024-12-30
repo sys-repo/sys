@@ -5,7 +5,7 @@ export { kill } from './u.kill.ts';
  * Helpers
  */
 export const Wrangle = {
-  command(input: t.CmdInvokeArgs, options: { stdin?: t.Stdio } = {}) {
+  command(input: t.ProcInvokeArgs, options: { stdin?: t.Stdio } = {}) {
     const { cwd, env } = input;
     const { stdin } = options;
     const cmd = input.cmd ?? Deno.execPath();
@@ -47,11 +47,11 @@ export function printOutput(
 /**
  * Format [Deno.CommandOutput] into a standard output object.
  */
-export function toCmdOutput(input: Deno.CommandOutput): t.CmdOutput {
+export function toProcOutput(input: Deno.CommandOutput): t.ProcOutput {
   const { code, success, signal, stdout, stderr } = input;
   let _stdout: undefined | string;
   let _stderr: undefined | string;
-  const res: t.CmdOutput = {
+  const res: t.ProcOutput = {
     code,
     success,
     signal,

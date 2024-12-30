@@ -1,8 +1,8 @@
 import { type t, c, rx } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
-type H = t.CmdProcessHandle;
-type E = { source: t.StdStream; fn: t.CmdProcessEventHandler };
+type H = t.ProcHandle;
+type E = { source: t.StdStream; fn: t.ProcEventHandler };
 
 /**
  * Spawn a child process to run a <unix> command
@@ -16,7 +16,7 @@ export const spawn: t.Proc['spawn'] = (config) => {
     await stderrReader.cancel();
     await kill(child);
   });
-  const $ = rx.subject<t.CmdProcessEvent>();
+  const $ = rx.subject<t.ProcEvent>();
   const $$ = $.pipe(rx.takeUntil(life.dispose$));
 
   const command = Wrangle.command(config, { stdin: 'null' });
@@ -24,13 +24,13 @@ export const spawn: t.Proc['spawn'] = (config) => {
   const pid = child.pid;
 
   const stdioHandlers = new Set<E>();
-  const whenReadyHandlers = new Set<t.CmdProcessReadyHandler>();
+  const whenReadyHandlers = new Set<t.ProcReadyHandler>();
 
   // Function to process output data chunks.
   const processOutput = (source: t.StdStream, data: Uint8Array) => {
     if (!silent) Deno.stdout.writeSync(data);
     let _text: undefined | string;
-    const e: t.CmdProcessEvent = {
+    const e: t.ProcEvent = {
       source,
       data,
       toString: () => _text ?? (_text = decoder.decode(data)),

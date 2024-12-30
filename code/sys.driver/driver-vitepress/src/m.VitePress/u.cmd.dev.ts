@@ -28,7 +28,7 @@ export const dev: F = async (input = {}) => {
 
   Log.Dev.log({ inDir, pkg });
 
-  const readySignal: t.CmdReadySignalFilter = (e) => {
+  const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
     return lines.some((line) => !!vitepressStartupRegex.exec(line));
   };

@@ -16,23 +16,23 @@ export type Proc = {
    * Execute a <unix> command on a child process
    * and wait for response.
    */
-  invoke(config: t.CmdInvokeArgs): Promise<t.CmdOutput>;
+  invoke(config: t.ProcInvokeArgs): Promise<t.ProcOutput>;
 
   /**
    * Spawn a child process to run a <unix>-like command
    * and retrieve a streaming handle to monitor and control it.
    */
-  spawn(config: t.CmdSpawnArgs): t.CmdProcessHandle;
+  spawn(config: t.ProcSpawnArgs): t.ProcHandle;
 
   /**
    * Run an <shell> command.
    */
-  sh(options?: t.ShellCmdOptions): t.ShellCmd;
-  sh(path: t.StringPath): t.ShellCmd;
+  sh(options?: t.ShellProcOptions): t.ShellProc;
+  sh(path: t.StringPath): t.ShellProc;
 };
 
 /** Arguments passed to the `Process.invoke` method. */
-export type CmdInvokeArgs = {
+export type ProcInvokeArgs = {
   args: string[];
   cmd?: string;
   cwd?: string;
@@ -41,7 +41,7 @@ export type CmdInvokeArgs = {
 };
 
 /** Arguments passed to the `Process.spawn` method. */
-export type CmdSpawnArgs = t.CmdInvokeArgs & {
+export type ProcSpawnArgs = t.ProcInvokeArgs & {
   dispose$?: t.UntilObservable;
 
   /**
@@ -65,27 +65,27 @@ export type CmdSpawnArgs = t.CmdInvokeArgs & {
    * await handle.whenReady();
    * ```
    */
-  readySignal?: string | t.CmdReadySignalFilter;
+  readySignal?: string | t.ProcReadySignalFilter;
 };
 
 /** A function that determines if the given process/stdio event represents a "ready" signal. */
-export type CmdReadySignalFilter = (e: t.CmdProcessEvent) => boolean;
+export type ProcReadySignalFilter = (e: t.ProcEvent) => boolean;
 
 /**
  * The output from the `Process.spawn` command that represents
  * a running child-process.
  */
-export type CmdProcessHandle = t.LifecycleAsync & {
+export type ProcHandle = t.LifecycleAsync & {
   readonly pid: number;
-  readonly $: t.Observable<t.CmdProcessEvent>;
+  readonly $: t.Observable<t.ProcEvent>;
   readonly is: { readonly ready: boolean };
-  whenReady(fn?: CmdProcessReadyHandler): Promise<t.CmdProcessHandle>;
-  onStdOut(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
-  onStdErr(fn: t.CmdProcessEventHandler): t.CmdProcessHandle;
+  whenReady(fn?: ProcReadyHandler): Promise<t.ProcHandle>;
+  onStdOut(fn: t.ProcEventHandler): t.ProcHandle;
+  onStdErr(fn: t.ProcEventHandler): t.ProcHandle;
 };
 
-export type CmdProcessReadyHandler = (e: CmdProcessReadyHandlerArgs) => void;
-export type CmdProcessReadyHandlerArgs = {
+export type ProcReadyHandler = (e: ProcProcessReadyHandlerArgs) => void;
+export type ProcProcessReadyHandlerArgs = {
   readonly pid: number;
   readonly cmd: string;
   toString(): string;
@@ -94,13 +94,13 @@ export type CmdProcessReadyHandlerArgs = {
 /**
  * A shell command ("sh").
  */
-export type ShellCmd = {
+export type ShellProc = {
   readonly path: string;
-  run(...args: string[]): Promise<t.CmdOutput>;
+  run(...args: string[]): Promise<t.ProcOutput>;
 };
 
 /** Options passed to the `Process.sh` method.  */
-export type ShellCmdOptions = {
+export type ShellProcOptions = {
   readonly args?: string[];
   readonly silent?: boolean;
   readonly path?: string;
@@ -109,7 +109,7 @@ export type ShellCmdOptions = {
 /**
  * Command Output as strings
  */
-export type CmdOutput = {
+export type ProcOutput = {
   readonly code: number;
   readonly success: boolean;
   readonly signal: Deno.Signal | null;
@@ -122,8 +122,8 @@ export type CmdOutput = {
 /**
  * Process Events
  */
-export type CmdProcessEventHandler = (e: t.CmdProcessEvent) => void;
-export type CmdProcessEvent = {
+export type ProcEventHandler = (e: t.ProcEvent) => void;
+export type ProcEvent = {
   readonly source: t.StdStream;
   readonly data: Uint8Array;
   toString(): string;

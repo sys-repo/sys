@@ -27,7 +27,7 @@ export const dev: D = async (input) => {
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
-  const readySignal: t.CmdReadySignalFilter = (e) => {
+  const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
     return lines.some((line) => !!viteStartupRegex.exec(line));
   };

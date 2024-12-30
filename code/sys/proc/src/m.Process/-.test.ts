@@ -81,9 +81,9 @@ describe('Process', () => {
         const args = ['eval', cmd];
         const handle = Process.spawn({ args, env, readySignal, silent: true });
 
-        const firedWhenReady: t.CmdProcessReadyHandlerArgs[] = [];
-        const firedObservable: t.CmdProcessEvent[] = [];
-        const firedOnHandler: t.CmdProcessEvent[] = [];
+        const firedWhenReady: t.ProcProcessReadyHandlerArgs[] = [];
+        const firedObservable: t.ProcEvent[] = [];
+        const firedOnHandler: t.ProcEvent[] = [];
         handle.$.subscribe((e) => firedObservable.push(e));
         handle.onStdOut((e) => firedOnHandler.push(e));
 
@@ -116,7 +116,7 @@ describe('Process', () => {
 
     it('spawn → wait ("ready signal" function) → events', async () => {
       let fired = 0;
-      const readySignal: t.CmdReadySignalFilter = (e) => {
+      const readySignal: t.ProcReadySignalFilter = (e) => {
         fired++;
         return e.toString() === 'foo:3\n';
       };

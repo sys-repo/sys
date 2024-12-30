@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { spawn } from './m.Process.spawn.ts';
-import { Wrangle, printOutput, toCmdOutput } from './u.ts';
+import { Wrangle, printOutput, toProcOutput } from './u.ts';
 
 /**
  * Unix child process.
@@ -34,7 +34,7 @@ export const Process: t.Proc = {
     const { silent } = config;
     const command = Wrangle.command(config);
     const output = await command.output();
-    const res = toCmdOutput(output);
+    const res = toProcOutput(output);
     if (!silent) printOutput(res.code, res.stdout, res.stderr);
     return res;
   },
@@ -49,10 +49,10 @@ export const Process: t.Proc = {
  * Helpers
  */
 const wrangle = {
-  shellOptions(input: unknown[]): t.ShellCmdOptions {
+  shellOptions(input: unknown[]): t.ShellProcOptions {
     if (input.length === 0) return {};
     if (typeof input[0] === 'string') return { path: input[0] };
-    if (typeof input[0] === 'object') return input[0] as t.ShellCmdOptions;
+    if (typeof input[0] === 'object') return input[0] as t.ShellProcOptions;
     return {};
   },
 } as const;
