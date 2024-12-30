@@ -48,7 +48,7 @@ export async function upgrade(argv: string[]) {
 
     // Install and run.
     const sh = Cmd.sh({ path: inDir, silent: false });
-    await sh.run('deno install');
+    // await sh.run('deno install');
 
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
     console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
@@ -60,6 +60,6 @@ export async function upgrade(argv: string[]) {
    */
   console.info();
   console.info(c.green(`Project at version:`));
-  ViteLog.Module.log(pkg);
+  ViteLog.Module.log({ ...pkg, version: Semver.toString(targetVersion) });
   console.info();
 }
