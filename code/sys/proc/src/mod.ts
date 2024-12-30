@@ -23,9 +23,13 @@
  * ```ts
  * import { Process } from '@sys/proc';
  *
- * const args = ['eval', 'console.log("👋")'];
- * const readySignal = 'READY';
- * const proc = Process.spawn({ args, readySignal });
+ * const readySignal = Process.Signal.ready;
+ * const cmd = `
+ *   Deno.serve({ port: ${port} }, () => new Response('${text}'));
+ *   console.info('${Process.Signal.ready}');
+ * `;
+ * const args = ['eval', cmd];
+ * const proc = await Process.spawn({ args, readySignal, silent: true }).whenReady();
  *
  * await proc.whenReady();
  *
