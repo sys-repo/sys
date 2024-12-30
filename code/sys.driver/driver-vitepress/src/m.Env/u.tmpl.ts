@@ -17,7 +17,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
 
   return Tmpl.create(templatesDir, (e) => {
     const file = e.file.target;
-    const subpath = file.path.slice(inDir.length + 1);
+    const subpath = inDir ? file.path.slice(inDir.length + 1) : file.path;
 
     console.log(' >> ');
     console.log('subpath', is.userspace(subpath), subpath);
