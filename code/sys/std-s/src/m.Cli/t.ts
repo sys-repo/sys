@@ -60,6 +60,9 @@ export type CliLib = {
 
   /** Listen to keypress events. */
   keypress: t.CliKeyboardLib['keypress'];
+
+  /** Strip ANSI escape codes from a string. */
+  stripAnsi(input: string): string;
 };
 
 /**
@@ -69,8 +72,11 @@ export type CliTableLib = {
   /**
    * Create a new Table generator instance.
    */
-  create(...items: string[][]): CliffyTable;
+  create(...items: string[][]): CliTable;
 };
+
+/** Represents a table that can be written to the console. */
+export type CliTable = CliffyTable;
 
 /**
  * Tools for working with a CLI spinner.

@@ -8,7 +8,6 @@ export const Is = {
     if (!isObject(input)) return false;
     const obj = input as t.SerializedStyles;
     if (typeof obj.name !== 'string' || typeof obj.styles !== 'string') return false;
-    if (obj.map !== undefined && typeof obj.map !== 'string') return false;
     return isObject(obj.next) ? Is.serizlisedStyle(obj.next) : true;
   },
 

@@ -1,6 +1,6 @@
 import { Args, Path } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
-import { Cli, Format, Keyboard, Prompts, Spinner, Table } from './mod.ts';
+import { c, Cli, Format, Keyboard, Prompts, Spinner, Table } from './mod.ts';
 
 describe('Cli', () => {
   it('API', () => {
@@ -15,5 +15,14 @@ describe('Cli', () => {
 
     expect(Cli.args).to.equal(Args.parse);
     expect(Cli.keypress).to.equal(Keyboard.keypress);
+  });
+
+  it('Cli.stripAnsi', () => {
+    const test = (input: string, output: string) => {
+      expect(Cli.stripAnsi(input)).to.eql(output);
+    };
+    test('foobar', 'foobar');
+    test(c.cyan('foobar'), 'foobar');
+    test(`foo${c.green('bar')} baz`, 'foobar baz');
   });
 });

@@ -56,4 +56,21 @@ describe('Server', () => {
     await res.body?.cancel();
     await listener.shutdown();
   });
+
+  describe('HttpServer.options', () => {
+    it('overloaded params', () => {
+      const port = 123;
+      const pkg = { name: 'foo', version: '1.2.3' };
+      const hash = '0xHash';
+      const a = HttpServer.options(port, pkg, hash);
+      const b = HttpServer.options(port, pkg, hash);
+      const c = HttpServer.options(port, pkg, hash);
+      const d = HttpServer.options();
+      const e = HttpServer.options({ pkg, port, hash });
+      const all = [a, b, c, d, e];
+      all.forEach((item) => {
+        expect(typeof item.onListen === 'function').to.eql(true);
+      });
+    });
+  });
 });

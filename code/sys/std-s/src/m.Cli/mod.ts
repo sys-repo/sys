@@ -34,6 +34,7 @@
  */
 import { Cli } from './m.Cli.ts';
 
+export { stripAnsi } from './common.ts';
 export { Format } from './m.Format.ts';
 export { Keyboard } from './m.Keyboard.ts';
 export { Prompts } from './m.Prompts.ts';
