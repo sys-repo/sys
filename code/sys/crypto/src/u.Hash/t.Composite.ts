@@ -52,6 +52,8 @@ export type CompositeHashVerifyOptions = {
 
 /** Function that loads content to be verified against a hash.  */
 export type HashVerifyLoader = (e: HashVerifyLoaderArgs) => Promise<Uint8Array | undefined | void>;
+
+/** Arguments passed to the `HashVerifyLoader`. */
 export type HashVerifyLoaderArgs = { part: string };
 
 /** Response returned from Composite-Hash.verify method. */
