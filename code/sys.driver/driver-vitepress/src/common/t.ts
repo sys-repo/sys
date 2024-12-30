@@ -3,7 +3,7 @@ export type * from '@sys/types/t';
 
 export type { DenofileJson } from '@sys/driver-deno/t';
 export type { FileMap } from '@sys/fs/t';
-export type { CmdProcessHandle, CmdReadySignalFilter } from '@sys/std-s/t';
+export type { CmdProcessHandle, CmdReadySignalFilter } from '@sys/proc/t';
 export type { Tmpl, TmplFileOperation } from '@sys/tmpl/t';
 
 export type * from '../types.ts';

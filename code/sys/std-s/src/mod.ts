@@ -41,5 +41,4 @@ export { Semver } from '@sys/std/semver';
 export { Env } from './m.Env/mod.ts';
 export { Hash } from './m.Hash/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
-export { Cmd } from './m.Process/mod.ts';
 export { HttpServer } from './m.Server.Http/mod.ts';

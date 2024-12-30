@@ -1,4 +1,4 @@
-import { Cmd } from '../m.Process/mod.ts';
+import { Cmd } from '@sys/proc';
 import { Cli, c } from './common.ts';
 
 /**

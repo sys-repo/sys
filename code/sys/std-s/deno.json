@@ -20,7 +20,6 @@
     "./auth": "./src/m.Server.Auth/mod.ts",
     "./network": "./src/m.Net/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
-    "./process": "./src/m.Process/mod.ts",
     "./testing": "./src/m.Testing/mod.ts"
   }
 }

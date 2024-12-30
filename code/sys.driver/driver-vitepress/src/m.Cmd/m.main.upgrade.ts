@@ -1,6 +1,5 @@
-import { Cmd } from '@sys/std-s/process';
+import { Cmd } from '@sys/proc';
 import { Semver } from '@sys/std/semver';
-import { Env } from '../m.Env/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { type t, Args, c, DEFAULTS, Jsr, pkg } from './common.ts';
 

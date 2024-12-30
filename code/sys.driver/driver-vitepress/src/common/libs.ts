@@ -8,6 +8,6 @@ export { Hash } from '@sys/std-s/hash';
 export { HttpServer } from '@sys/std-s/http';
 export { Net } from '@sys/std-s/network';
 export { Pkg } from '@sys/std-s/pkg';
-export { Cmd } from '@sys/std-s/process';
+export { Cmd } from '@sys/proc';
 
 export { Tmpl } from '@sys/tmpl/fs';
