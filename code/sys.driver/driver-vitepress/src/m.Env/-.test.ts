@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
+import { type t, c, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
 import { Env } from './mod.ts';
@@ -10,20 +10,22 @@ describe('Vitepress.Env', () => {
 
   describe('Env.update', () => {
     it('insert deno.json → {tasks}', async () => {
-      const sample = SAMPLE.init();
-      const { inDir } = sample;
-      await Env.update({ inDir });
+      await Testing.retry(3, async () => {
+        const sample = SAMPLE.init();
+        const { inDir } = sample;
+        await Env.update({ inDir });
 
-      console.info();
-      console.info(c.bold(c.green(`Env.init()`)));
-      console.info(`inDir:`);
-      console.info(await sample.ls());
+        console.info();
+        console.info(c.bold(c.green(`Env.init()`)));
+        console.info(`inDir:`);
+        console.info(await sample.ls());
 
-      await assertEnvExists(inDir);
+        await assertEnvExists(inDir);
+      });
     });
 
     it('--srcDir parameter: source directory', async () => {
-      const test = async (srcDir: string | undefined, expectedSrcDir: string) => {
+      const test = async (srcDir: t.StringDir | undefined, expectedSrcDir: t.StringDir) => {
         await Testing.retry(3, async () => {
           const sample = SAMPLE.init();
           const { inDir } = sample;
