@@ -5,11 +5,13 @@ export const Dist: t.PkgDistSLib = {
   ...Pkg.Dist,
 
   async compute(args) {
-    const { dir, entry = '', save = false } = args;
+    const { entry = '', save = false } = args;
+    const dir = Fs.resolve(args.dir);
     const pkg = args.pkg ?? Pkg.unknown();
     let error: t.StdError | undefined;
 
     const exists = await Fs.exists(dir);
+
     if (!exists) {
       const message = `The given "dist" directory for the package does not exist: ${dir}`;
       error = Err.std(message);
@@ -52,6 +54,7 @@ export const Dist: t.PkgDistSLib = {
    * Load a `dist.json` file into a \<DistPackage\> type.
    */
   async load(dir) {
+    dir = Fs.resolve(dir);
     const path = wrangle.filepath(dir);
     const exists = await Fs.exists(path);
     const errors = Err.errors();
@@ -79,7 +82,7 @@ export const Dist: t.PkgDistSLib = {
    * Verify a folder with hash definitions of the distribution-package.
    */
   async verify(dir, hash) {
-    type R = t.PkgDistVerifyResponse;
+    dir = Fs.resolve(dir);
     const errors = Err.errors();
     const loaded = await Dist.load(dir);
     const { path, dist, exists } = loaded;
@@ -87,7 +90,7 @@ export const Dist: t.PkgDistSLib = {
       errors.push(loaded.error);
     }
 
-    const res: R = {
+    const res: t.PkgDistVerifyResponse = {
       exists,
       dist,
       is: { valid: undefined },

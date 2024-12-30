@@ -29,7 +29,7 @@ export const ViteLog: t.ViteLogLib = {
       const size = Str.bytes(args.bytes);
       const titleColor = ok ? c.brightGreen : c.brightYellow;
 
-      const input = Path.trimCwd(dirs.in);
+      const input = Path.trimCwd(dirs.in) || './';
       const outDir = Path.trimCwd(dirs.out);
       const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
       const digest = ViteLog.digest(hash);

@@ -1,12 +1,16 @@
 import { c, describe, expect, Fs, it } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
-import { Env } from './mod.ts';
+import { Env, bundleTemplateFiles } from './mod.ts';
 
 describe('Vitepress.Env', () => {
   it('API', () => {
     expect(VitePress.Env).to.equal(Env);
   });
+
+  // it('Prepare: save file-map', async () => {
+  //   await bundleTemplateFiles();
+  // });
 
   describe('Env.update', () => {
     it('insert deno.json → {tasks}', async () => {

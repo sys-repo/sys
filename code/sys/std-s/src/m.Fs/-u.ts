@@ -6,7 +6,7 @@ import { Fs } from './mod.ts';
  */
 export function sampleDir(prefix: string = '') {
   if (prefix) prefix = `${prefix}-`;
-  const dir = Fs.resolve(`./.tmp/test/${prefix}${slug()}`);
+  const dir = Fs.resolve(`.tmp/test/m.Fs/${prefix}${slug()}`);
   const api = {
     dir,
     join: (...parts: t.StringPath[]) => Fs.join(api.dir, ...parts),
