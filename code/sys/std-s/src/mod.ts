@@ -26,9 +26,9 @@ export {
   ObjectPath,
   R,
   Rx,
+  rx,
   Time,
   Value,
-  rx,
 } from '@sys/std';
 export { Semver } from '@sys/std/semver';
 
@@ -39,6 +39,4 @@ export { Semver } from '@sys/std/semver';
  *     for the browser (eg. via Vite) will fail.
  */
 export { Env } from './m.Env/mod.ts';
-export { Hash } from './m.Hash/mod.ts';
-export { Pkg } from './m.Pkg/mod.ts';
 export { HttpServer } from './m.Server.Http/mod.ts';
