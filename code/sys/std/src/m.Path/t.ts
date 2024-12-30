@@ -6,65 +6,44 @@ import type { t } from '../common.ts';
  * (addresses to resources locally or over a network)
  */
 export type PathLib = {
-  /**
-   * Path type verification flags.
-   */
+  /** Path type verification flags. */
   Is: PathIsLib;
 
-  /**
-   * Tools for formatting standard output (strings) within a CLI.
-   */
+  /** Tools for formatting standard output (strings) within a CLI. */
   Format: t.PathFormatLib;
 
-  /**
-   * Joins a sequence of paths, then normalizes the resulting path.
-   */
+  /** Joins a sequence of paths, then normalizes the resulting path. */
   join: typeof StdPath.join;
 
-  /**
-   * Joins a sequence of globs, then normalizes the resulting glob.
-   */
+  /** Joins a sequence of globs, then normalizes the resulting glob. */
   joinGlobs: typeof StdPath.joinGlobs;
 
-  /**
-   * Resolves path segments into a path.
-   */
+  /** Resolves path segments into a path. */
   resolve: typeof StdPath.resolve;
 
-  /**
-   * Ensure the given path is absolute.
-   */
+  /** Ensure the given path is absolute. */
   absolute: (path: t.StringPath) => string;
 
-  /**
-   * Return the relative path from from to to based on current working directory.
-   */
+  /** Return the relative path from from to to based on current working directory. */
   relative: typeof StdPath.relative;
 
-  /**
-   * Normalize the path, resolving '..' and '.' segments.
-   */
+  /** Normalize the path, resolving '..' and '.' segments. */
   normalize: typeof StdPath.normalize;
 
-  /**
-   * Converts a file URL to a path string.
-   */
+  /** Converts a file URL to a path string. */
   fromFileUrl: typeof StdPath.fromFileUrl;
 
-  /**
-   * Converts a path string to a file URL.
-   */
+  /** Converts a path string to a file URL. */
   toFileUrl: typeof StdPath.toFileUrl;
 
-  /**
-   * Return the directory path of a path.
-   */
+  /** Return the directory path of a path. */
   dirname: typeof StdPath.dirname;
 
-  /**
-   * Return the last portion of a path.
-   */
+  /** Return the last portion of a path. */
   basename: typeof StdPath.basename;
+
+  /** Return the extension of the path with leading period (".") */
+  extname: typeof StdPath.extname;
 };
 
 /**

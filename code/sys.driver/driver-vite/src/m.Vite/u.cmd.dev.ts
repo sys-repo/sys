@@ -1,8 +1,14 @@
-import { Cmd, DEFAULTS, Net, Path, Pkg, type t } from './common.ts';
+import { type t, stripAnsi, Cmd, DEFAULTS, Net, Path, Pkg } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
 type D = t.ViteLib['dev'];
+
+/**
+ * Matches (example):
+ *   VITE v6.0.3  ready in 955 ms
+ */
+const viteStartupRegex = /VITE v\d\.\d\.\d\s+ready in \d+ ms/g;
 
 /**
  * Run the <vite:build> command.
@@ -10,7 +16,6 @@ type D = t.ViteLib['dev'];
  *
  * Command:
  *    $ vite dev --port=<1234> --host
- *
  */
 export const dev: D = async (input) => {
   const { silent = false, pkg } = input;
@@ -22,7 +27,12 @@ export const dev: D = async (input) => {
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
-  const proc = Cmd.spawn({ args, env, silent, dispose$: input.dispose$ });
+  const readySignal: t.CmdReadySignalFilter = (e) => {
+    const lines = stripAnsi(e.toString()).split('\n');
+    return lines.some((line) => !!viteStartupRegex.exec(line));
+  };
+
+  const proc = Cmd.spawn({ args, env, silent, readySignal, dispose$: input.dispose$ });
   const { dispose } = proc;
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url, dispose });
   const listen = async () => {

@@ -16,6 +16,12 @@ describe('Fs: info/meta-data operations on the file-system', () => {
       expect(await Is.dir(Path.resolve('./deno.json'))).to.eql(false);
       expect(await Is.dir(Path.resolve('./404.json'))).to.eql(false); // NB: target does not exist.
     });
+
+    it('Is.file', async () => {
+      expect(await Is.file(Path.resolve('.'))).to.eql(false);
+      expect(await Is.file(Path.resolve('./deno.json'))).to.eql(true);
+      expect(await Is.file(Path.resolve('./404.json'))).to.eql(false); // NB: target does not exist.
+    });
   });
 
   describe('Fs.Size.dir', () => {

@@ -7,6 +7,8 @@ import { Wrangle, printOutput, toCmdOutput } from './u.ts';
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
 export const Cmd: t.Cmd = {
+  Signal: { ready: 'PROCESS_READY' },
+
   /**
    * Run an <shell> command.
    * When using grant the "--allow-run=sh" permission argument.

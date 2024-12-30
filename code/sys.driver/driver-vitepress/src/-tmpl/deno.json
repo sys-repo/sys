@@ -1,0 +1,13 @@
+{
+  "version": "0.0.0",
+  "tasks": {
+    "dev": "deno run -RWNE --allow-run <ENTRY> --cmd=dev",
+    "build": "deno run -RWNE --allow-run <ENTRY> --cmd=build",
+    "serve": "deno run -RNE --allow-run <ENTRY> --cmd=serve",
+    "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
+    "help": "deno run -RWNE --allow-run <ENTRY> --cmd=help"
+  },
+  "imports": {
+    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
+  }
+}

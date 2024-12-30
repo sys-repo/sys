@@ -1,9 +1,15 @@
-import { type t, Cmd, Env, Net } from './common.ts';
+import { type t, Cmd, Net, stripAnsi } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 
 type F = t.VitePressLib['dev'];
 type R = t.VitePressDevServer;
+
+/**
+ * Matches (example):
+ *   vitepress v1.5.0
+ */
+const vitepressStartupRegex = /vitepress v\d\.\d\.\d/g;
 
 /**
  * https://vitepress.dev/reference/cli#vitepress-dev
@@ -20,10 +26,14 @@ export const dev: F = async (input = {}) => {
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  await Env.update({ inDir, silent: true });
   Log.Dev.log({ inDir, pkg });
 
-  const proc = Cmd.spawn({ args, silent: false, dispose$: options.dispose$ });
+  const readySignal: t.CmdReadySignalFilter = (e) => {
+    const lines = stripAnsi(e.toString()).split('\n');
+    return lines.some((line) => !!vitepressStartupRegex.exec(line));
+  };
+
+  const proc = Cmd.spawn({ args, readySignal, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;
   const keyboard = keyboardFactory({ port, url, pkg, dispose });
 

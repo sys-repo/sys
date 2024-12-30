@@ -1,9 +1,8 @@
 import { Cmd } from '@sys/std-s/process';
 import { Semver } from '@sys/std/semver';
-import { Tmpl } from '../-tmpl/mod.ts';
+import { Env } from '../m.Env/mod.ts';
 import { ViteLog } from '../m.VitePress/common.ts';
-import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, c, DEFAULTS, Fs, Jsr, Log, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Jsr, pkg } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -12,6 +11,7 @@ import { type t, Args, c, DEFAULTS, Fs, Jsr, Log, pkg } from './common.ts';
 export async function upgrade(argv: string[]) {
   const args = Args.parse<t.CmdArgsUpgrade>(argv);
   const { inDir = DEFAULTS.inDir, force = false } = args;
+
   if (args.cmd !== 'upgrade') return;
 
   /**
@@ -33,35 +33,26 @@ export async function upgrade(argv: string[]) {
   }
 
   if (diff !== 0) {
-    // Perform version change.
+    // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
+    const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
+
     console.info();
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
-    console.info(c.gray(pkg.name));
+    console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
     console.info();
 
-    const denofile = Tmpl.Pkg.denofile({ pkg: { ...pkg, version } });
-    const path = Fs.join(inDir, 'deno.json');
-    await Deno.writeTextFile(path, denofile);
-    const sh = Cmd.sh(inDir);
-    await sh.run('deno install');
-    await sh.run('deno task upgrade --force'); // NB: recursion - recall the command to complete the update (below).
-    return;
+    // Install and run.
+    await Cmd.sh({ path: inDir }).run(cmd);
   }
 
   /**
-   * Update project template files.
+   * Finish up.
    */
-  const filter = (p: string) => !p.startsWith('docs/');
-  const res = await VitePress.Env.update({ filter, inDir, force: false, silent: true });
-
-  console.info(c.green('Updated Environment'));
-  Log.filesTable(res.files).render();
-
   console.info();
   console.info(c.green(`Project at version:`));
-  ViteLog.Module.log(pkg);
+  ViteLog.Module.log({ ...pkg, version: Semver.toString(targetVersion) });
   console.info();
 }

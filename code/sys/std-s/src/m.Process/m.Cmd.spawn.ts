@@ -1,4 +1,4 @@
-import { c, rx, type t } from './common.ts';
+import { type t, c, rx } from './common.ts';
 import { Wrangle, kill } from './u.ts';
 
 type H = t.CmdProcessHandle;
@@ -39,6 +39,7 @@ export const spawn: t.Cmd['spawn'] = (config) => {
     Array.from(stdioHandlers)
       .filter((item) => item.source === source)
       .forEach((item) => item.fn(e));
+    return e;
   };
 
   /**
@@ -54,6 +55,11 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       resolve(handle);
     };
   });
+  const markAsReady = () => {
+    if (ready) return;
+    ready = true;
+    resolveWhenReady(api);
+  };
 
   /**
    * Monitor the STDIO streams.
@@ -66,11 +72,14 @@ export const spawn: t.Cmd['spawn'] = (config) => {
       while (true) {
         const res = await reader.read();
         if (res.done) break;
-        processOutput(kind, res.value);
+
+        const e = processOutput(kind, res.value);
+
         if (!ready) {
-          // Check for readiness on first data chunk.
-          ready = true;
-          resolveWhenReady(api);
+          const { readySignal } = config;
+          if (readySignal === undefined) markAsReady();
+          if (typeof readySignal === 'string' && e.toString() === `${readySignal}\n`) markAsReady();
+          if (typeof readySignal === 'function' && readySignal(e)) markAsReady();
         }
       }
     } finally {
@@ -134,6 +143,6 @@ function toStringFactory(args: { pid: number; cmd: string }) {
     return `
 process ${c.gray('pid:')}${c.green(String(pid))}
 ${c.gray(cmd)}
-        `.substring(1);
+`.substring(1);
   };
 }
