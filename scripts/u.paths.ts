@@ -8,9 +8,13 @@ export const Paths = {
      */
     'code/sys/types',
     'code/sys/std',
+    
     'code/sys/cli',
     'code/sys/fs',
+    'code/sys/proc',
+    
     'code/sys/std-s',
+
     'code/sys/cmd',
     'code/sys/testing',
     'code/sys/text',
