@@ -10,8 +10,6 @@
  */
 import { Fs } from './m.Fs/mod.ts';
 export { pkg } from './pkg.ts';
-
-/** Module types. */
 export type * as t from './types.ts';
 
 /**

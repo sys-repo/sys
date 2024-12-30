@@ -8,10 +8,8 @@
  * import { c, Colors, stripAnsi } from '@sys/cli/fmt';
  * ```
  */
-export { pkg } from './pkg.ts';
 import { Cli } from './m.Cli/mod.ts';
-
-/** Module types. */
+export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 /**
