@@ -1,1 +1,1 @@
-export { Err, Is, isObject, Json, R, rx, Time } from '@sys/std';
+export { Err, Is, isObject, Json, R, rx, slug, Time, Delete } from '@sys/std';

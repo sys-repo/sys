@@ -12,6 +12,9 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./hash": "./src/m.Hash/mod.ts"
+    "./hash": "./src/u.Hash/mod.ts",
+    "./fs": "./src/mod.fs.ts",
+    "./fs/hash": "./src/fs.Hash/mod.ts",
+    "./fs/pkg": "./src/fs.Pkg/mod.ts"
   }
 }
