@@ -39,12 +39,11 @@ export async function upgrade(argv: string[]) {
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
     console.info();
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
-    console.info(c.gray(pkg.name));
     console.info();
 
     // Update the `deno.json` file with the new version.
-    const tmpl = (await Env.tmpl({ inDir, version })).filter((file) => file.name === 'deno.json');
-    await tmpl.copy(inDir, { force: true });
+    // const tmpl = (await Env.tmpl({ inDir, version })).filter((file) => file.name === 'deno.json');
+    // await tmpl.copy(inDir, { force: true });
 
     // Install and run.
     const sh = Cmd.sh({ path: inDir, silent: false });
