@@ -37,15 +37,15 @@ export async function upgrade(argv: string[]) {
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
+    const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
+
     console.info();
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
+    console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
     console.info();
 
     // Install and run.
-    const sh = Cmd.sh({ path: inDir });
-    const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
-    console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
-    await sh.run(cmd);
+    await Cmd.sh({ path: inDir }).run(cmd);
   }
 
   /**
