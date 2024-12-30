@@ -1,4 +1,5 @@
 /**
+ * @module
  * Color formatting tools.
  */
 import * as Colors from '@std/fmt/colors';
