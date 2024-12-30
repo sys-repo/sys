@@ -4,10 +4,7 @@
  */
 export type * from '@sys/std/t';
 
-export type * from './m.Cli/t.ts';
 export type * from './m.Env/t.ts';
-export type * from './m.Fs.FileMap/t.ts';
-export type * from './m.Fs/t.ts';
 export type * from './m.Hash/t.ts';
 export type * from './m.Net/t.ts';
 export type * from './m.Pkg/t.ts';

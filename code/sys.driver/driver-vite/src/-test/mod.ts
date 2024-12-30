@@ -3,9 +3,9 @@
  * Testing tools.
  */
 
-export { Path, slug } from '@sys/std';
-export { Fs } from '@sys/std-s';
-export { Testing, describe, expect, it } from '@sys/std/testing';
+export { Fs, Path } from '@sys/fs';
+export { slug } from '@sys/std';
+export { describe, expect, it, Testing } from '@sys/std/testing';
 
 /**
  * Local

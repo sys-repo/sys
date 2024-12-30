@@ -1,4 +1,5 @@
-import { Cli, Fs, c } from '@sys/std-s';
+import { Cli, c } from '@sys/cli';
+import { Fs } from '@sys/fs';
 
 /**
  * TODO 🐷 - tidy up script and find a home for the behavior.

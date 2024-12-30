@@ -1,5 +1,4 @@
-import { Fs } from '@sys/std-s';
-import { c } from '@sys/std-s/cli';
+import { c, Fs } from './common.ts';
 
 export async function main() {
   /**

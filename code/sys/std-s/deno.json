@@ -1,6 +1,6 @@
 {
   "name": "@sys/std-s",
-  "version": "0.0.56",
+  "version": "0.0.57",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -13,11 +13,10 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./cli": "./src/m.Cli/mod.ts",
-    "./fs": "./src/m.Fs/mod.ts",
-    "./fmt": "./src/m.Fmt/mod.ts",
     "./hash": "./src/m.Hash/mod.ts",
     "./http": "./src/m.Server.Http/mod.ts",
+    "./fs": "./src/mod.fs.ts",
+    "./fmt": "./src/mod.fmt.ts",
     "./auth": "./src/m.Server.Auth/mod.ts",
     "./network": "./src/m.Net/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",

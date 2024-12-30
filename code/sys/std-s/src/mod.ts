@@ -4,10 +4,10 @@
  *
  * @example
  * ```ts
- * import { Env } from '@sys/std-s';          // Env-variables.
- * import { Fs, Path } from '@sys/std-s';     // Filesystem tools.
- * import { HttpServer } from '@sys/std-s';   // HTTP server.
- * import { Colors, c } from '@sys/std-s';    // Terminal color formatting.
+ * import { Env } from '@sys/std-s';              // Env-variables.
+ * import { HttpServer } from '@sys/std-s/http';  // HTTP server.
+ * import { Fs, Path } from '@sys/std-s/fs';      // Filesystem tools (alias to "@sys/fs")
+ * import { Colors, c } from '@sys/std-s/fmt';    // Terminal color formatting (alias to "@sys/cli/fmt")
  * ```
  */
 export { pkg } from './pkg.ts';
@@ -38,10 +38,7 @@ export { Semver } from '@sys/std/semver';
  * NB: importing these libraries into JS/ESM for bundling
  *     for the browser (eg. via Vite) will fail.
  */
-export { Cli } from './m.Cli/mod.ts';
 export { Env } from './m.Env/mod.ts';
-export { Colors, c } from './m.Fmt/mod.ts';
-export { Fs, Path } from './m.Fs/mod.ts';
 export { Hash } from './m.Hash/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { Cmd } from './m.Process/mod.ts';

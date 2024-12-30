@@ -1,5 +1,7 @@
-import { Cli, c, Hash, Fs, rx } from '@sys/std-s';
+import { c, Cli } from '@sys/cli';
 import { Vault } from '@sys/driver-obsidian/s';
+import { Fs } from '@sys/fs';
+import { rx } from '@sys/std/rx';
 
 /**
  * Sample Vaul/Directory monitoring.

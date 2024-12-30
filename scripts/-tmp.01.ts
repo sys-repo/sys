@@ -1,4 +1,5 @@
-import { Fs, c } from '@sys/std-s';
+export { c } from '@sys/cli';
+export { Fs, Path } from '@sys/fs';
 
 const exclude = [
   '**/node_modules/**',
