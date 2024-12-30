@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "info": "deno run -RE ./scripts/main.ts --info",
+    "info": "deno run -RE --allow-sys --allow-ffi ./scripts/main.ts --info",
     "test": "deno run -A ./scripts/main.ts --test",
     "dry": "deno run -RE --allow-run=sh ./scripts/main.ts --dry",
     "ci": "deno run -A ./scripts/main.ts --dry --test --info",
