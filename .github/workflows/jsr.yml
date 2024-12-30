@@ -41,12 +41,6 @@ jobs:
           deno task test --parallel
           deno publish
 
-      - name: publish module → "@sys/std-s"
-        run: |
-          cd code/sys/std-s
-          deno task test --parallel
-          deno publish
-
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli
@@ -56,6 +50,12 @@ jobs:
       - name: publish module → "@sys/fs"
         run: |
           cd code/sys/fs
+          deno task test --parallel
+          deno publish
+
+      - name: publish module → "@sys/std-s"
+        run: |
+          cd code/sys/std-s
           deno task test --parallel
           deno publish
 
