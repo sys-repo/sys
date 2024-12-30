@@ -7,7 +7,6 @@
     "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
     "help": "deno run -RWNE --allow-run <ENTRY> --cmd=help"
   },
-  "nodeModulesDir": "auto",
   "imports": {
     "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
   }
