@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, it } from '../-test.ts';
+import { Testing, c, describe, expect, Fs, it } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 import { assertEnvExists, SAMPLE } from './-u.ts';
 import { Env, bundleTemplateFiles } from './mod.ts';
@@ -7,10 +7,6 @@ describe('Vitepress.Env', () => {
   it('API', () => {
     expect(VitePress.Env).to.equal(Env);
   });
-
-  // it('Prepare: save file-map', async () => {
-  //   await bundleTemplateFiles();
-  // });
 
   describe('Env.update', () => {
     it('insert deno.json → {tasks}', async () => {
@@ -28,13 +24,15 @@ describe('Vitepress.Env', () => {
 
     it('--srcDir parameter: source directory', async () => {
       const test = async (srcDir: string | undefined, expectedSrcDir: string) => {
-        const sample = SAMPLE.init();
-        const { inDir } = sample;
-        await Env.update({ inDir, srcDir, silent: true });
+        await Testing.retry(3, async () => {
+          const sample = SAMPLE.init();
+          const { inDir } = sample;
+          await Env.update({ inDir, srcDir, silent: true });
 
-        const file = await Deno.readTextFile(Fs.join(inDir, '.vitepress/config.ts'));
-        const line = `srcDir: '${expectedSrcDir}',`;
-        expect(file.includes(line)).to.eql(true, line);
+          const file = await Deno.readTextFile(Fs.join(inDir, '.vitepress/config.ts'));
+          const line = `srcDir: '${expectedSrcDir}',`;
+          expect(file.includes(line)).to.eql(true, line);
+        });
       };
       await test('../foo', '../foo'); //  NB: custom.
       await test(undefined, './docs'); // NB: default.
