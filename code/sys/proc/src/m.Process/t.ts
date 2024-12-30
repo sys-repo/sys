@@ -1,6 +1,9 @@
 import type { t } from './common.ts';
 
+/** Ways to handle `stdin` on a spawned child process. */
 export type Stdio = 'piped' | 'inherit' | 'null';
+
+/** Direction of a STDIO stream. */
 export type StdStream = 'stdout' | 'stderr';
 
 /**
@@ -84,7 +87,10 @@ export type ProcHandle = t.LifecycleAsync & {
   onStdErr(fn: t.ProcEventHandler): t.ProcHandle;
 };
 
+/** Handler for the `Process.whenReady` method. */
 export type ProcReadyHandler = (e: ProcProcessReadyHandlerArgs) => void;
+
+/** Arguments passed to the `Process.whenReady` method. */
 export type ProcProcessReadyHandlerArgs = {
   readonly pid: number;
   readonly cmd: string;
@@ -119,10 +125,10 @@ export type ProcOutput = {
   toString(): string;
 };
 
-/**
- * Process Events
- */
+/** Handles events on a Process. */
 export type ProcEventHandler = (e: t.ProcEvent) => void;
+
+/** An event fired when data is emmited by the Process. */
 export type ProcEvent = {
   readonly source: t.StdStream;
   readonly data: Uint8Array;
