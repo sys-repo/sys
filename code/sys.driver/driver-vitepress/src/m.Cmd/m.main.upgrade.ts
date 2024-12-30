@@ -41,12 +41,8 @@ export async function upgrade(argv: string[]) {
     console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
     console.info();
 
-    // Update the `deno.json` file with the new version.
-    // const tmpl = (await Env.tmpl({ inDir, version })).filter((file) => file.name === 'deno.json');
-    // await tmpl.copy(inDir, { force: true });
-
     // Install and run.
-    const sh = Cmd.sh({ path: inDir, silent: false });
+    const sh = Cmd.sh({ path: inDir });
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
     console.info(c.gray(`${c.italic('updating from templates:')} ${c.cyan(cmd)}`));
     await sh.run(cmd);
