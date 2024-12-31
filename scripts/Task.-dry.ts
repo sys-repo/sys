@@ -1,4 +1,4 @@
-import { c, Cli, Cmd, Log, Path, Paths, type CmdResult } from './u.ts';
+import { c, Cli, Process, Log, Path, Paths, type CmdResult } from './u.ts';
 
 export async function main() {
   console.info();
@@ -10,7 +10,7 @@ export async function main() {
     const title = c.gray(`${c.white('Type Checks')} (${c.white(String(index + 1))} of ${total})`);
     const modulePath = c.gray(`${Path.dirname(path)}/${c.white(Path.basename(path))}`);
     spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n  → ${modulePath}\n`);
-    const output = await Cmd.sh(path).run(command);
+    const output = await Process.sh(path).run(command);
     results.push({ output, path });
   };
 

@@ -1,4 +1,4 @@
-import { Fs } from '@sys/std-s';
+import { Fs } from '@sys/fs';
 import { Vite } from '@sys/driver-vite';
 import { pkg } from '../src/pkg.ts';
 

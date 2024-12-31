@@ -1,4 +1,4 @@
-import { type t, stripAnsi, Cmd, DEFAULTS, Net, Path, Pkg } from './common.ts';
+import { type t, stripAnsi, Process, DEFAULTS, Net, Path, Pkg } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log, Wrangle } from './u.ts';
 
@@ -27,12 +27,12 @@ export const dev: D = async (input) => {
 
   if (!silent && pkg) Log.Entry.log(pkg, input.input);
 
-  const readySignal: t.CmdReadySignalFilter = (e) => {
+  const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
     return lines.some((line) => !!viteStartupRegex.exec(line));
   };
 
-  const proc = Cmd.spawn({ args, env, silent, readySignal, dispose$: input.dispose$ });
+  const proc = Process.spawn({ args, env, silent, readySignal, dispose$: input.dispose$ });
   const { dispose } = proc;
   const keyboard = keyboardFactory({ pkg, dist, paths, port, url, dispose });
   const listen = async () => {

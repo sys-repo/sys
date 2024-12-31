@@ -1,5 +1,4 @@
-import { Fs } from '@sys/std-s';
-import { c } from '@sys/std-s/cli';
+import { c, Fs } from './common.ts';
 
 export async function main() {
   /**
@@ -51,16 +50,16 @@ export async function main() {
     const files = await Fs.glob(baseDir).find(pattern, { exclude });
 
     console.info('👋');
-    console.info(`${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
-    console.info('  typescript  ', c.green(Deno.version.typescript));
-    console.info('          v8  ', c.green(Deno.version.v8));
+    console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
+    console.info('    typescript  ', c.green(Deno.version.typescript));
+    console.info('            v8  ', c.green(Deno.version.v8));
 
-    console.info(c.bold('↓'));
-    console.info(c.dim('code.pattern  '), c.dim(pattern));
-    console.info('       files  ', c.yellow(files.length.toLocaleString()));
+    console.info(c.bold('  ↓'));
+    console.info(c.dim('  code.pattern  '), c.dim(pattern));
+    console.info('         files  ', c.yellow(files.length.toLocaleString()));
     if (options.lines) {
       const lines = await countLines(files.map((file) => file.path));
-      console.info('       lines  ', c.yellow(lines.total.toLocaleString()));
+      console.info('         lines  ', c.yellow(lines.total.toLocaleString()));
     }
   }
 

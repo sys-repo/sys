@@ -1,0 +1,18 @@
+{
+  "name": "@sys/cli",
+  "version": "0.0.3",
+  "license": "MIT",
+  "tasks": {
+    "lint": "deno lint",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -RWE ./scripts/-clean.ts",
+    "test": "deno test -RWNE --allow-run --allow-ffi"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./cli": "./src/m.Cli/mod.ts",
+    "./fmt": "./src/m.Fmt/mod.ts"
+  }
+}

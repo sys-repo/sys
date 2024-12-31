@@ -53,7 +53,7 @@ export type VitePressDevArgs = {
  * A running [VitePress] development server running on localhost.
  */
 export type VitePressDevServer = t.LifecycleAsync & {
-  readonly proc: t.CmdProcessHandle;
+  readonly proc: t.ProcHandle;
   readonly port: number;
   readonly dirs: Omit<t.ViteBundleDirs, 'out'>;
   readonly url: t.StringUrl;
