@@ -1,4 +1,4 @@
-import { Cli, Cmd, type t } from './common.ts';
+import { Cli, Process, type t } from './common.ts';
 
 /**
  * Create a keyboard listener to control the running dev server.
@@ -11,7 +11,7 @@ export function keyboardFactory(args: {
 }) {
   const { dispose } = args;
   const url = new URL(args.url);
-  const sh = Cmd.sh();
+  const sh = Process.sh();
 
   return async () => {
     for await (const e of Cli.keypress()) {

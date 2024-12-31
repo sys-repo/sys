@@ -1,4 +1,4 @@
-import { Fs } from '@sys/std-s/fs';
+import { Fs } from '@sys/fs';
 
 const PATH = {
   from: '/Users/phil/code/samples/vitepress-slc/docs/.vitepress/dist',

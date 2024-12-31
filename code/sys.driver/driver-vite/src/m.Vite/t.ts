@@ -59,7 +59,7 @@ export type ViteDevArgs = {
  * A long running process, for instance when running: "$ vite dev"
  */
 export type ViteProcess = t.LifecycleAsync & {
-  readonly proc: t.CmdProcessHandle;
+  readonly proc: t.ProcHandle;
   readonly port: number;
   readonly url: t.StringPath;
   listen(): Promise<void>;
@@ -95,7 +95,7 @@ export type ViteBuildResponse = {
   readonly ok: boolean;
   readonly paths: t.ViteConfigPaths;
   readonly dist: t.DistPkg;
-  readonly cmd: { readonly input: string; readonly output: t.CmdOutput };
+  readonly cmd: { readonly input: string; readonly output: t.ProcOutput };
   readonly elapsed: t.Msecs;
   toString(options?: ToStringOptions): string;
 };

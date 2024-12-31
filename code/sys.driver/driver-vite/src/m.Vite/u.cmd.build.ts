@@ -1,4 +1,4 @@
-import { Cmd, Fs, Pkg, Time, type t } from './common.ts';
+import { Process, Fs, Pkg, Time, type t } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -10,7 +10,7 @@ export const build: B = async (input) => {
   const { silent = true, pkg } = input;
   const { env, cmd, args, paths } = Wrangle.command(input, 'build');
   const timer = Time.timer();
-  const output = await Cmd.invoke({ args, env, silent });
+  const output = await Process.invoke({ args, env, silent });
   const ok = output.success;
 
   const dir = paths.outDir;

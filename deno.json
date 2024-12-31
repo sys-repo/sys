@@ -20,16 +20,20 @@
     "jsxImportSourceTypes": "@emotion/react"
   },
   "workspace": [
-    "./code/-tmpl/deno",
-    "./code/sys.tmp",
+    "./code/sys/types",
+    "./code/sys/std",
+
+    "./code/sys/testing",
+    "./code/sys/fs",
+    "./code/sys/cli",
+    "./code/sys/proc",
+    "./code/sys/crypto",
+
+    "./code/sys/std-s",
 
     "./code/sys/cmd",
-    "./code/sys/std",
-    "./code/sys/std-s",
-    "./code/sys/testing",
     "./code/sys/text",
     "./code/sys/tmpl",
-    "./code/sys/types",
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
@@ -47,7 +51,10 @@
     "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
     "./deploy/slc.db.team",
-    "./deploy/tmp.db.team"
+    "./deploy/tmp.db.team",
+
+    "./code/-tmpl/deno",
+    "./code/sys.tmp"
   ],
   "importMap": "./deno.imports.json",
   "lint": {

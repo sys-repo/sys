@@ -1,4 +1,5 @@
-export { Fs, c } from '@sys/std-s';
-export { Testing, describe, expect, expectError, it } from '@sys/std/testing';
+export { c } from '@sys/cli/fmt';
+export { Fs } from '@sys/fs';
+export { describe, expect, expectError, it, Testing } from '@sys/std/testing';
 
 export * from './common.ts';

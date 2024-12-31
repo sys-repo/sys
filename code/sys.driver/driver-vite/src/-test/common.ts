@@ -1,2 +1,4 @@
-export { Cmd, Fs, Path } from '@sys/std-s';
+export { Fs, Path } from '@sys/fs';
+export { Cmd } from '@sys/std-s';
+
 export * from '../common.ts';

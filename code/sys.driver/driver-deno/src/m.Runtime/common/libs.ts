@@ -1,1 +1,2 @@
-export { Fs, c } from '@sys/std-s';
+export { c } from '@sys/cli';
+export { Fs } from '@sys/fs';

@@ -73,7 +73,7 @@ export async function main(options: Options = {}) {
     const vCurrent = Semver.toString(version.current);
     const vNext = formatSemverColor(version.next, release);
 
-    const title = `${c.green('•')} ${pkg}`;
+    const title = `${c.green(' •')} ${pkg}`;
     table.push([title, vCurrent, '→', vNext]);
   });
 
