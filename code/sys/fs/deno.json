@@ -1,6 +1,6 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -15,6 +15,6 @@
     "./dir": "./src/m.Dir/mod.ts",
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
-    "./watch": "./src/m.Fs.Watch/mod.ts"
+    "./watch": "./src/m.Watch/mod.ts"
   }
 }
