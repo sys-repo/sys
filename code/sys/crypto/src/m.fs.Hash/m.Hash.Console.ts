@@ -1,5 +1,5 @@
 import { type t, c } from './common.ts';
-import { Hash } from '../u.Hash/mod.ts';
+import { Hash } from '../m.Hash/mod.ts';
 
 export const Console: t.HashConsoleLib = {
   digest(input, options = {}) {
