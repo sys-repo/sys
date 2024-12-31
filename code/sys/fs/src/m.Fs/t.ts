@@ -14,13 +14,13 @@ export type FsLib = StdMethods & {
   /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 
-  /** Filesystem/Path type verification flags. */
+  /** File-system/path type verification flags. */
   readonly Is: t.FsIsLib;
 
-  /** Tools for calculating file sizes. */
+  /** Helpers for calculating file sizes. */
   readonly Size: t.FsSizeLib;
 
-  /** Tools for watching file-system changes. */
+  /** Helpers for watching file-system changes. */
   readonly Watch: t.FsWatchLib;
 
   /** Retrieve information about the given path. */
