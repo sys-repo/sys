@@ -45,9 +45,8 @@ export const Log = {
   /**
    * Display the help output.
    */
-  help(args: { cmd?: Cmd } = {}) {
-    const { cmd } = args;
-    Log.usageAPI({ cmd });
+  help() {
+    Log.usageAPI();
     console.info(c.gray(`${c.white(pkg.name)} ${c.green(pkg.version)}`));
   },
 };
