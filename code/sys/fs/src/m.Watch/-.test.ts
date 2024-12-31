@@ -10,7 +10,9 @@ describe('Fs.Watch', () => {
 
   it('|→ ensure test directory exists', () => Fs.ensureDir(SAMPLE.dir));
 
-  it('API', () => {
+  it('API', async () => {
+    const m = await import('./mod.ts');
+    expect(m.Watch).to.equal(Watch);
     expect(Fs.Watch).to.equal(Watch);
     expect(Fs.watch).to.equal(Watch.start);
   });

@@ -1,4 +1,4 @@
-import { Watch } from '../m.Fs.Watch/mod.ts';
+import { Watch } from '../m.Watch/mod.ts';
 import { type t, ensureDir, exists, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
