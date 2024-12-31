@@ -1,8 +1,9 @@
 import { Time, describe, expect, it } from '../-test.ts';
 import { sampleDir } from './-u.ts';
 import { type t, rx, slug } from './common.ts';
-import { Watch } from './m.Watch.ts';
-import { Fs } from './mod.ts';
+
+import { Fs } from '../m.Fs/mod.ts';
+import { Watch } from './mod.ts';
 
 describe('Fs.Watch', () => {
   const SAMPLE = sampleDir('fs-watch');

@@ -1,7 +1,7 @@
+import { Watch } from '../m.Fs.Watch/mod.ts';
 import { type t, ensureDir, exists, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
-import { Watch } from './m.Watch.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { glob, ls } from './u.glob.ts';
 import { readJson } from './u.read.ts';

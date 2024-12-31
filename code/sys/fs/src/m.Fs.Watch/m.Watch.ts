@@ -1,6 +1,12 @@
 import { type t, asArray, Err, exists, Path, rx } from './common.ts';
 
+/**
+ * Tools for watching file-system changes.
+ */
 export const Watch: t.FsWatchLib = {
+  /**
+   * Start a file-system watcher instance.
+   */
   async start(pathInput, options = {}) {
     const { recursive = true } = options;
     const paths = asArray(pathInput);
