@@ -1,4 +1,4 @@
-import { type t, c, Cli, pkg } from './common.ts';
+import { type t, c, Cli, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
 
 type Cmd = t.CmdArgsMain['cmd'];
 
@@ -6,6 +6,25 @@ type Cmd = t.CmdArgsMain['cmd'];
  * Console logging operations for the module.
  */
 export const Log = {
+  Build: {
+    log: (args: t.ViteLogBundleArgs) => console.info(Log.Build.toString(args)),
+    toString: (args: t.ViteLogBundleArgs) => ViteLog.Bundle.toString(args),
+  },
+  Dev: {
+    log: (args: t.ViteLogDevArgs) => console.info(Log.Dev.toString(args)),
+    toString: (args: t.ViteLogDevArgs) => {
+      const { pkg } = args;
+      const inDir = wrangle.formatPath(args.inDir);
+      const table = Cli.table([]);
+      if (pkg) {
+        const module = c.gray(`${c.white(pkg.name)}${c.dim('@')}${pkg.version}`);
+        table.push([c.gray('module'), module]);
+      }
+      table.push([c.green(`input:`), c.gray(inDir)]);
+      return table.toString();
+    },
+  },
+
   /**
    * Output the usage API (command/help).
    */
@@ -45,8 +64,45 @@ export const Log = {
   /**
    * Display the help output.
    */
-  help() {
+  async help(args: { inDir?: t.StringDir } = {}) {
+    const { inDir = PATHS.inDir } = args;
     Log.usageAPI();
-    console.info(c.gray(`${c.white(pkg.name)} ${c.green(pkg.version)}`));
+
+    const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, 'dist'));
+    if (dist) {
+      Log.dist(dist, { inDir });
+    } else {
+      console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
+    }
+
+    console.info();
+  },
+
+  /**
+   * Log a table of a distribution package info.
+   */
+  dist(dist: t.DistPkg, options: { inDir?: t.StringDir } = {}) {
+    const { inDir = PATHS.inDir } = options;
+
+    const title = c.green(c.bold('Bundle'));
+    const size = c.brightGreen(Str.bytes(dist.size.bytes));
+    const digest = ViteLog.digest(dist.hash.digest);
+    const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
+
+    const table = Cli.table([title, size]);
+    const push = (label: string, value: string) => table.push([c.gray(label), value]);
+
+    push('dist:', c.gray(`${distPath} ${digest}`));
+    push('pkg:', c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
+    console.info(table.toString().trim());
   },
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  formatPath(input: string = ''): string {
+    return input ? input : `./`;
+  },
+} as const;

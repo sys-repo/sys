@@ -57,7 +57,7 @@ export type CmdArgsUpgrade = {
 };
 
 /** The `backup` command. */
-export type CmdArgsBackup = { cmd: 'backup' };
+export type CmdArgsBackup = { cmd: 'backup'; inDir?: P };
 
 /** The `help` information command. */
-export type CmdArgsHelp = { cmd: 'help' };
+export type CmdArgsHelp = { cmd: 'help'; inDir?: P };

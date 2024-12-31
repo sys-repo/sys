@@ -4,6 +4,7 @@ export * from './libs.ts';
 export type * as t from './t.ts';
 
 export const PATHS = {
+  inDir: './',
   tmp: '.tmp/-tmpl',
   source: 'src/-tmpl/files',
   json: 'src/-tmpl/u/tmpl.bundle.json',

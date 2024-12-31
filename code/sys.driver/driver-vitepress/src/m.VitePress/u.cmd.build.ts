@@ -1,5 +1,4 @@
-import { type t, c, Cli, Process, Fs, Pkg, Time } from './common.ts';
-import { Log } from './u.log.ts';
+import { type t, c, Cli, Fs, Log, Pkg, Process, Time } from './common.ts';
 
 type B = t.VitePressLib['build'];
 type R = t.VitePressBuildResponse;
