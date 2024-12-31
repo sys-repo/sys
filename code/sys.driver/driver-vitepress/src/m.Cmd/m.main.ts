@@ -43,18 +43,17 @@ export const main: F = async (argv) => {
     return;
   }
 
-  if (args.cmd === 'upgrade') {
-    Log.usageAPI({ cmd: 'upgrade' });
-    const { upgrade } = await import('./u.upgrade.ts');
-    await upgrade(argv);
-    return;
-  }
-
   if (args.cmd === 'backup') {
     Log.usageAPI({ cmd: 'backup' });
     const { inDir = DEFAULTS.inDir } = args;
     const { backup } = await import('./u.backup.ts');
     await backup(argv, { inDir });
+    return;
+  }
+
+  if (args.cmd === 'upgrade') {
+    const { upgrade } = await import('./u.upgrade.ts');
+    await upgrade(argv);
     return;
   }
 
