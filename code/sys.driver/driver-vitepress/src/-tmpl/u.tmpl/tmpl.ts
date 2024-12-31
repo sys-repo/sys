@@ -9,7 +9,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
   const { srcDir = './docs' } = args;
   const inDir = Fs.Path.trimCwd(Fs.resolve(args.inDir));
   const templatesDir = Fs.resolve(PATHS.tmp);
-  if (!(await Fs.exists(templatesDir))) await saveTemplateFiles(templatesDir);
+  await saveTemplateFiles(templatesDir);
 
   return Tmpl.create(templatesDir, (e) => {
     const file = e.file.target;
