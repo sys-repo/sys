@@ -10,7 +10,7 @@ import type { t } from './common.ts';
  * Tools for generating and manipulating Hash's
  * within the context of a files and a file-system.
  */
-export const Hash: t.HashSLib = {
+export const Hash: t.HashFsLib = {
   ...Base,
   Dir,
   Console,

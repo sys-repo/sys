@@ -7,7 +7,7 @@ import type { t } from './common.ts';
  * Tools for generating and manipulating Hash's
  * within the context of a files and a file-system.
  */
-export type HashSLib = HashLib & {
+export type HashFsLib = HashLib & {
   readonly Dir: t.HashDirLib;
   readonly Console: t.HashConsoleLib;
 };
