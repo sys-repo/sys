@@ -58,7 +58,7 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'help') {
-    Log.usageAPI();
+    Log.help();
     return;
   }
 

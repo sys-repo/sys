@@ -1,8 +1,15 @@
-import { c, Cli } from './libs.ts';
-import type * as t from './t.ts';
+import { type t, c, Cli, pkg } from './common.ts';
 
+type Cmd = t.CmdArgsMain['cmd'];
+
+/**
+ * Console logging operations for the module.
+ */
 export const Log = {
-  usageAPI(args: { cmd?: t.CmdArgsMain['cmd'] } = {}) {
+  /**
+   * Output the usage API (command/help).
+   */
+  usageAPI(args: { cmd?: Cmd } = {}) {
     const { cmd } = args;
     const table = Cli.table([]);
     const cmdColor = (cmd: string) => {
@@ -26,11 +33,21 @@ export const Log = {
     push('build', 'Transpile the production bundle.');
     push('serve', 'Run a local HTTP server with the production bundle.');
     push('upgrade', `Upgrade to latest version.`);
+    push('backup', `Make a snapshot backup of the project.`);
     push('help', `Show help.`);
 
     const COMMAND = `[${c.bold('COMMAND')}]`;
     console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : COMMAND}`)}`));
     table.render();
     console.info(``);
+  },
+
+  /**
+   * Display the help output.
+   */
+  help(args: { cmd?: Cmd } = {}) {
+    const { cmd } = args;
+    Log.usageAPI({ cmd });
+    console.info(c.gray(`${c.white(pkg.name)} ${c.green(pkg.version)}`));
   },
 };
