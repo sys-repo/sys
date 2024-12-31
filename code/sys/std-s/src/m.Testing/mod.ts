@@ -23,6 +23,6 @@
  */
 export { describe, expect, expectError, it } from '@sys/std/testing';
 
-export { Time, rx, slug } from '@sys/std';
+export { rx, slug, Time } from '@sys/std';
 export { Testing } from '@sys/std/testing/server';
-export { Fs, Path } from '../m.Fs/mod.ts';
+export { Fs, Path } from '../common.ts';

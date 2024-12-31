@@ -1,4 +1,4 @@
-import { type t, Cmd, Net, stripAnsi } from './common.ts';
+import { type t, Process, Net, stripAnsi } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 import { Log } from './u.log.ts';
 
@@ -28,12 +28,12 @@ export const dev: F = async (input = {}) => {
 
   Log.Dev.log({ inDir, pkg });
 
-  const readySignal: t.CmdReadySignalFilter = (e) => {
+  const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
     return lines.some((line) => !!vitepressStartupRegex.exec(line));
   };
 
-  const proc = Cmd.spawn({ args, readySignal, silent: false, dispose$: options.dispose$ });
+  const proc = Process.spawn({ args, readySignal, silent: false, dispose$: options.dispose$ });
   const dispose = proc.dispose;
   const keyboard = keyboardFactory({ port, url, pkg, dispose });
 

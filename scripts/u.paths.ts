@@ -6,13 +6,20 @@ export const Paths = {
     /**
      * @sys: standard libs.
      */
+    'code/sys/types',
     'code/sys/std',
+    
+    'code/sys/cli',
+    'code/sys/fs',
+    'code/sys/proc',
+    'code/sys/crypto',
+    
     'code/sys/std-s',
+
     'code/sys/cmd',
     'code/sys/testing',
     'code/sys/text',
     'code/sys/tmpl',
-    'code/sys/types',
     
     /**
      * UI

@@ -1,5 +1,7 @@
 import { Q } from '@sys/driver-quilibrium';
-import { c, Path, Args } from '@sys/std-s';
+import { Args } from '@sys/std-s';
+import { c } from '@sys/cli';
+import { Path } from '@sys/fs';
 
 type Args = {
   force?: boolean;

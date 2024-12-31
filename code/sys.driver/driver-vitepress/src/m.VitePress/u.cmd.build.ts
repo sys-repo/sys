@@ -1,4 +1,4 @@
-import { type t, c, Cli, Cmd, Fs, Pkg, Time } from './common.ts';
+import { type t, c, Cli, Process, Fs, Pkg, Time } from './common.ts';
 import { Log } from './u.log.ts';
 
 type B = t.VitePressLib['build'];
@@ -24,7 +24,7 @@ export const build: B = async (input = {}) => {
 
   const cmd = `deno run -A --node-modules-dir npm:vitepress build ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);
-  const output = await Cmd.invoke({ args, silent });
+  const output = await Process.invoke({ args, silent });
   const ok = output.success;
 
   // Write {pkg} into /dist so it's included within the digest-hash.

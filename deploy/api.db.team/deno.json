@@ -1,6 +1,6 @@
 {
   "name": "@tdb/api",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "tasks": {
     "dev": "deno run -RNE --watch ./main.ts",
     "check": "deno check ./main.ts",

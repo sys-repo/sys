@@ -1,2 +1,4 @@
 export { Time } from '@sys/std';
-export { Cli, Fs, c } from '@sys/std-s';
+
+export { c, Cli } from '@sys/cli';
+export { Fs } from '@sys/fs';

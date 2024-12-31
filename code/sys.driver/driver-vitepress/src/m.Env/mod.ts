@@ -1,14 +1,11 @@
+import { createTmpl as tmpl } from '../-tmpl/mod.ts';
 import { type t, c, Fs, Tmpl } from './common.ts';
-import { createTmpl } from './u.tmpl.ts';
-
-export { bundleTemplateFiles } from './u.tmpl.bundle.ts';
-export { saveTemplateFiles } from './u.tmpl.bundle.write.ts';
 
 /**
  * Helpers for establishing and updating the project environment.
  */
 export const Env: t.VitePressEnvLib = {
-  tmpl: createTmpl,
+  tmpl,
 
   /**
    * Initialize template files.
@@ -19,7 +16,7 @@ export const Env: t.VitePressEnvLib = {
     /**
      * Update template files.
      */
-    const tmpl = await createTmpl({ inDir, srcDir, version });
+    const tmpl = await Env.tmpl({ inDir, srcDir, version });
     const { ops } = await tmpl.copy(inDir, { force });
 
     /**
