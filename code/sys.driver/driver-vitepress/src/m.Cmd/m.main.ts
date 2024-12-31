@@ -1,6 +1,6 @@
 import { VitePress } from '../m.VitePress/mod.ts';
 
-import { type t, Args, DEFAULTS, Fs, HttpServer, Log, pkg, Pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Fs, HttpServer, Log, pkg, Pkg } from './common.ts';
 import { upgrade } from './m.main.upgrade.ts';
 
 type F = t.VitePressCmdLib['main'];
@@ -66,5 +66,5 @@ export const main: F = async (argv) => {
   }
 
   // Command not matched.
-  console.error(`The given --cmd="${cmd}" value not supported`);
+  console.error(`The given --cmd="${c.yellow(c.bold(cmd))}" is not supported`);
 };
