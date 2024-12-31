@@ -1,7 +1,5 @@
 import { VitePress } from '../m.VitePress/mod.ts';
-
-import { type t, Args, c, DEFAULTS, Fs, HttpServer, Log, pkg, Pkg } from './common.ts';
-import { upgrade } from './m.main.upgrade.ts';
+import { type t, Args, c, DEFAULTS, Log, pkg } from './common.ts';
 
 type F = t.VitePressCmdLib['main'];
 
@@ -16,10 +14,10 @@ export const main: F = async (argv) => {
   const args = Args.parse<t.CmdArgsMain>(argv);
   const cmd = args.cmd ?? DEFAULTS.cmd;
 
+  /**
+   * Start HMR development server.
+   */
   if (args.cmd === 'dev') {
-    /**
-     * Start HMR development server.
-     */
     Log.usageAPI({ cmd: 'dev' });
     const { inDir = DEFAULTS.inDir } = args;
     const server = await VitePress.dev({ inDir, pkg });
@@ -27,10 +25,10 @@ export const main: F = async (argv) => {
     return;
   }
 
+  /**
+   * Transpile the production bundle (Pkg).
+   */
   if (args.cmd === 'build') {
-    /**
-     * Transpile the production bundle (Pkg).
-     */
     Log.usageAPI({ cmd: 'build' });
     const { inDir = DEFAULTS.inDir } = args;
     const res = await VitePress.build({ inDir, pkg });
@@ -39,24 +37,23 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'serve') {
-    /**
-     * Run local HTTP server on production bundle.
-     */
     Log.usageAPI({ cmd: 'serve' });
-    const { inDir = DEFAULTS.inDir } = args;
-    const dir = Fs.join(inDir, 'dist');
-    const dist = (await Pkg.Dist.load(dir)).dist;
-    const hash = dist?.hash.digest ?? '';
-
-    const port = 8080;
-    const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-    Deno.serve(HttpServer.options({ port, pkg, hash }), app.fetch);
-    await HttpServer.keyboard({ port, print: true });
+    const { serve } = await import('./u.serve.ts');
+    await serve(argv);
     return;
   }
 
   if (args.cmd === 'upgrade') {
+    Log.usageAPI({ cmd: 'upgrade' });
+    const { upgrade } = await import('./u.upgrade.ts');
     await upgrade(argv);
+    return;
+  }
+
+  if (args.cmd === 'backup') {
+    Log.usageAPI({ cmd: 'backup' });
+    const { backup } = await import('./u.backup.ts');
+    await backup(argv);
     return;
   }
 
