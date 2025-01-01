@@ -91,11 +91,12 @@ export const Log = {
     const size = c.brightGreen(Str.bytes(dist.size.bytes));
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
+    const distPathCols = `${Path.dirname(distPath)}/${c.cyan(Path.basename(distPath))}`;
 
     const table = Cli.table([title, size]);
     const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
-    push('dist:', c.gray(`${distPath} ${digest}`));
+    push('dist:', c.gray(`${distPathCols} ${digest}`));
     push('pkg:', c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
     console.info(table.toString().trim());
   },
