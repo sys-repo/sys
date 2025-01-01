@@ -35,3 +35,13 @@ Usage: deno task [COMMAND]
   deno task upgrade   Upgrade to latest version.                         
   deno task help      Show help.              
 ```
+
+### JSR Publishing
+Before publishing to [JSR](https://jsr.io/@sys/driver-vitepress) ensure you update the
+embedded templates file-map.
+
+```
+deno task prep
+```
+
+↑ updates template file changes into `src/-tmpl/u.tmpl/tmpl.bundle.json`
