@@ -88,7 +88,7 @@ export const Log = {
     const { inDir = PATHS.inDir } = options;
 
     const title = c.green(c.bold('Bundle'));
-    const size = c.brightGreen(Str.bytes(dist.size.bytes));
+    const size = c.gray(Str.bytes(dist.size.bytes));
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
     const distPathCols = `${Path.dirname(distPath)}/${c.cyan(Path.basename(distPath))}`;
