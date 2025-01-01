@@ -28,8 +28,8 @@ export const Log = {
   /**
    * Output the usage API (command/help).
    */
-  usageAPI(args: { cmd?: Cmd } = {}) {
-    const { cmd } = args;
+  usageAPI(args: { cmd?: Cmd; minimal?: boolean } = {}) {
+    const { cmd, minimal = true } = args;
     const table = Cli.table([]);
     const cmdColor = (cmd: string) => {
       if (!args.cmd) return c.green;
@@ -51,9 +51,12 @@ export const Log = {
     push('dev', 'Run the development server.');
     push('build', 'Transpile the production bundle.');
     push('serve', 'Run a local HTTP server with the production bundle.');
-    push('upgrade', `Upgrade to latest version.`);
-    push('backup', `Make a snapshot backup of the project.`);
-    push('clean', `Clean the project of temporary files.`);
+    if (!minimal) {
+      table.push(['', '']);
+      push('upgrade', `Upgrade to latest version.`);
+      push('backup', `Make a snapshot backup of the project.`);
+      push('clean', `Clean the project of temporary files.`);
+    }
     push('help', `Show help.`);
 
     const COMMAND = `[${c.bold('COMMAND')}]`;
@@ -65,9 +68,9 @@ export const Log = {
   /**
    * Display the help output.
    */
-  async help(args: { inDir?: t.StringDir } = {}) {
-    const { inDir = PATHS.inDir } = args;
-    Log.usageAPI();
+  async help(args: { inDir?: t.StringDir; minimal?: boolean } = {}) {
+    const { inDir = PATHS.inDir, minimal = false } = args;
+    Log.usageAPI({ minimal });
 
     const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, 'dist'));
     if (dist) {

@@ -64,7 +64,7 @@ export const main: F = async (argv) => {
 
   if (args.cmd === 'help') {
     const { inDir = PATHS.inDir } = args;
-    await Log.help({ inDir });
+    await Log.help({ inDir, minimal: false });
     return;
   }
 
