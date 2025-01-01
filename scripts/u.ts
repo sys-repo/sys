@@ -1,4 +1,5 @@
-import { c, type t } from './common.ts';
+import { type t, Path, c } from './common.ts';
+import { Paths } from './u.ts';
 export * from './common.ts';
 
 export type CmdResult = {
@@ -45,5 +46,29 @@ export const Log = {
 
     if (options.pad) console.log();
     return success;
+  },
+
+  /**
+   * List of modules at the given path.
+   */
+  moduleList(args: { index?: t.Index; indent?: number }) {
+    let res = '';
+    const append = (line: String) => (res += `${line}\n`);
+    const indent = args.indent ? ' '.repeat(args.indent) : '';
+
+    for (const [index, path] of Paths.modules.entries()) {
+      const isCurrent = typeof args.index === 'number' ? index === args.index : false;
+      const dim = (text: string) => (isCurrent ? text : c.dim(text));
+
+      const dir = Path.dirname(path);
+      const name = Path.basename(path);
+      const nameFmt = isCurrent ? c.bold(c.white(name)) : name;
+      const modulePath = dim(c.gray(`${dir}/${nameFmt}`));
+      const bullet = dim(isCurrent ? c.white('•') : c.gray('•'));
+
+      append(`${indent}${bullet} ${modulePath}`);
+    }
+
+    return res;
   },
 } as const;
