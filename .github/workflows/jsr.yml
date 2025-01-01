@@ -29,12 +29,6 @@ jobs:
         with:
           deno-version: v2
 
-      - name: publish module → "@sys/cli"
-        run: |
-          cd code/sys/cli
-          deno task test --parallel --trace-leaks
-          deno publish
-
       - name: publish module → "@sys/driver-vitepress"
         run: |
           cd code/sys.driver/driver-vitepress
