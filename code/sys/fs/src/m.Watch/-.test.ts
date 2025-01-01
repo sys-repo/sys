@@ -1,5 +1,4 @@
-import { Time, describe, expect, it } from '../-test.ts';
-import { sampleDir } from './-u.ts';
+import { describe, expect, it, sampleDir, Time } from '../-test.ts';
 import { type t, rx, slug } from './common.ts';
 
 import { Fs } from '../m.Fs/mod.ts';

@@ -1,5 +1,4 @@
-import { expectError, describe, expect, it, slug } from '../-test.ts';
-import { sampleDir } from './-u.ts';
+import { describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: directory operations', () => {
