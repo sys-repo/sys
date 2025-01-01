@@ -60,7 +60,7 @@ export type FsLib = StdMethods & {
   cwd(): t.StringDir;
 
   /** List the file-paths within a directory (simple glob). */
-  readonly ls: t.GlobList;
+  readonly ls: t.GlobPathList;
 };
 
 /** Methods from the `@std` libs. */

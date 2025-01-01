@@ -4,11 +4,14 @@ import type { t } from './common.ts';
  * Helpers for performing glob searches over a file-system.
  */
 export type GlobLib = {
+  /** Tools for working with ignore files (eg. ".gitignore"). */
+  readonly Ignore: t.GlobIgnoreLib;
+
   /** Generate a Glob helper scoped to a path. */
   readonly create: t.GlobFactory;
 
   /** List the file-paths within a directory (simple glob). */
-  readonly ls: t.GlobList;
+  readonly ls: t.GlobPathList;
 };
 
 /**
@@ -39,4 +42,10 @@ export type GlobOptions = {
 /**
  * List the file-paths within a directory (simple glob).
  */
-export type GlobList = (dir: t.StringDir, options?: t.GlobOptions) => Promise<t.StringPath[]>;
+export type GlobPathList = (dir: t.StringDir, options?: t.GlobOptions) => Promise<t.StringPath[]>;
+
+/**
+ * Tools for working with ignore files (eg. ".gitignore").
+ */
+export type GlobIgnoreLib = {
+};
