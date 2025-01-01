@@ -49,7 +49,7 @@ export const Log = {
       table.push([left, right]);
     };
     push('dev', 'Run the development server.');
-    push('build', 'Transpile the production bundle.');
+    push('build', 'Transpile into production bundle.');
     push('serve', 'Run a local HTTP server with the production bundle.');
     if (!minimal) {
       table.push(['', '']);
@@ -91,16 +91,22 @@ export const Log = {
   dist(dist: t.DistPkg, options: { inDir?: t.StringDir } = {}) {
     const { inDir = PATHS.inDir } = options;
 
-    const title = c.green(c.bold('Bundle'));
+    const title = c.green(c.bold('Production Bundle'));
     const size = c.gray(Str.bytes(dist.size.bytes));
+    console.info(title);
+
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
-    const distPathCols = `${Path.dirname(distPath)}/${c.cyan(Path.basename(distPath))}`;
+    // const distPathFmt = `${Path.dirname(distPath)}/${c.cyan(Path.basename(distPath))}`;
+    const distDir = Path.dirname(distPath);
+    let distPathFmt = `${Path.dirname(distDir)}/${c.cyan(Path.basename(distDir))}`;
+    distPathFmt += `/${Path.basename(distPath)}`;
 
-    const table = Cli.table([title, size]);
+    const table = Cli.table([]);
     const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
-    push('dist:', c.gray(`${distPathCols} ${digest}`));
+    push('size:', size);
+    push('dist:', c.gray(`${distPathFmt} ${digest}`));
     push('pkg:', c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
 
     console.info(table.toString().trim());
