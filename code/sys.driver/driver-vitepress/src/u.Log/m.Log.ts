@@ -98,7 +98,43 @@ export const Log = {
 
     push('dist:', c.gray(`${distPathCols} ${digest}`));
     push('pkg:', c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
+
     console.info(table.toString().trim());
+  },
+
+  Snapshot: {
+    async log(snapshot: t.DirSnapshot) {
+      const text = await Log.Snapshot.toString(snapshot);
+      console.info(text);
+      return text;
+    },
+
+    async toString(snapshot: t.DirSnapshot) {
+      const target = snapshot.path.target;
+      const size = await Fs.Size.dir(Path.resolve(target));
+
+      const backupsDir = Fs.dirname(target);
+      const backups = (await Fs.glob(backupsDir).find('*', {}))
+        .filter((e) => e.isDirectory)
+        .map((e) => e.path);
+
+      const snapshotsPlural = Str.plural(backups.length, 'snapshot', 'snapshots');
+      let total = `${size.total.files} files `;
+      total += c.gray(`in latest of ${backups.length} ${snapshotsPlural}`);
+
+      const title = c.green(c.bold('Snapshot'));
+      const titleSize = c.brightGreen(Str.bytes(size.total.bytes));
+
+      const table = Cli.table([title, titleSize]);
+      const push = (label: string, value: string | number) => table.push([c.gray(label), value]);
+      const grayPath = (path: t.StringPath) => c.gray(Path.trimCwd(path));
+
+      push('  source', grayPath(snapshot.path.source));
+      push('  target', grayPath(snapshot.path.target));
+      push('  total', total);
+
+      return table.toString().trim();
+    },
   },
 };
 
