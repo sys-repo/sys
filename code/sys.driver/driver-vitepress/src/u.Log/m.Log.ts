@@ -53,6 +53,7 @@ export const Log = {
     push('serve', 'Run a local HTTP server with the production bundle.');
     push('upgrade', `Upgrade to latest version.`);
     push('backup', `Make a snapshot backup of the project.`);
+    push('clean', `Clean the project of temporary files.`);
     push('help', `Show help.`);
 
     const COMMAND = `[${c.bold('COMMAND')}]`;

@@ -3,9 +3,9 @@ import { type t, Args, Cli, Dir, Log, Path, PATHS } from './common.ts';
 /**
  * Perform a snapshot backup on the project.
  */
-export async function backup(argv: string[], options: { inDir?: t.StringDir } = {}) {
-  const { inDir = PATHS.inDir } = options;
+export async function backup(argv: string[]) {
   const args = Args.parse<t.CmdArgsBackup>(argv);
+  const { inDir = PATHS.inDir } = args;
   if (args.cmd !== 'backup') return;
 
   const source = Path.join(inDir);
@@ -17,7 +17,7 @@ export async function backup(argv: string[], options: { inDir?: t.StringDir } = 
   };
 
   // Copy directory snapshot.
-  const spinner = Cli.spinner().start();
+  const spinner = Cli.spinner('').start();
   const snapshot = await Dir.snapshot({ source, target, filter });
   spinner.stop();
 

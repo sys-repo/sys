@@ -1,7 +1,7 @@
 import { Process } from '@sys/proc';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
-import { type t, Args, c, DEFAULTS, Jsr, pkg } from './common.ts';
+import { type t, Args, c, Jsr, PATHS, pkg } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -9,7 +9,7 @@ import { type t, Args, c, DEFAULTS, Jsr, pkg } from './common.ts';
  */
 export async function upgrade(argv: string[]) {
   const args = Args.parse<t.CmdArgsUpgrade>(argv);
-  const { inDir = DEFAULTS.inDir, force = false } = args;
+  const { inDir = PATHS.inDir, force = false } = args;
 
   if (args.cmd !== 'upgrade') return;
 

@@ -1,5 +1,5 @@
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Pkg, Args, c, DEFAULTS, Log, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, PATHS, Log, pkg } from './common.ts';
 
 type F = t.VitePressCmdLib['main'];
 
@@ -19,7 +19,7 @@ export const main: F = async (argv) => {
    */
   if (args.cmd === 'dev') {
     Log.usageAPI({ cmd: 'dev' });
-    const { inDir = DEFAULTS.inDir } = args;
+    const { inDir = PATHS.inDir } = args;
     const server = await VitePress.dev({ inDir, pkg });
     await server.listen();
     return;
@@ -30,7 +30,7 @@ export const main: F = async (argv) => {
    */
   if (args.cmd === 'build') {
     Log.usageAPI({ cmd: 'build' });
-    const { inDir = DEFAULTS.inDir } = args;
+    const { inDir = PATHS.inDir } = args;
     const res = await VitePress.build({ inDir, pkg });
     console.info(res.toString({ pad: true }));
     return;
@@ -43,11 +43,16 @@ export const main: F = async (argv) => {
     return;
   }
 
+  if (args.cmd === 'clean') {
+    const { clean } = await import('./u.clean.ts');
+    await clean(argv);
+    return;
+  }
+
   if (args.cmd === 'backup') {
     Log.usageAPI({ cmd: 'backup' });
-    const { inDir = DEFAULTS.inDir } = args;
     const { backup } = await import('./u.backup.ts');
-    await backup(argv, { inDir });
+    await backup(argv);
     return;
   }
 
@@ -58,7 +63,7 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'help') {
-    const { inDir = DEFAULTS.inDir } = args;
+    const { inDir = PATHS.inDir } = args;
     await Log.help({ inDir });
     return;
   }

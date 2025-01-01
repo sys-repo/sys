@@ -32,6 +32,7 @@ export type CmdArgsMain =
   | CmdArgsDev
   | CmdArgsBuild
   | CmdArgsServe
+  | CmdArgsClean
   | CmdArgsUpgrade
   | CmdArgsBackup
   | CmdArgsHelp;
@@ -55,6 +56,9 @@ export type CmdArgsUpgrade = {
   force?: boolean;
   version?: t.StringSemver;
 };
+
+/** The `clean` command. */
+export type CmdArgsClean = { cmd: 'clean'; inDir?: P };
 
 /** The `backup` command. */
 export type CmdArgsBackup = { cmd: 'backup'; inDir?: P };
