@@ -19,7 +19,7 @@ export async function backup(argv: string[]) {
   // Copy directory snapshot.
   const spinner = Cli.spinner('').start();
   const snapshot = await Dir.snapshot({ source, target, filter });
-  spinner.stop();
+  spinner.stop().clear();
 
   // Log output.
   await Log.Snapshot.log(snapshot);
