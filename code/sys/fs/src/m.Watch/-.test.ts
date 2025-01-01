@@ -6,7 +6,7 @@ import { Fs } from '../m.Fs/mod.ts';
 import { Watch } from './mod.ts';
 
 describe('Fs.Watch', () => {
-  const SAMPLE = sampleDir('fs-watch');
+  const SAMPLE = sampleDir('Fs.Watch');
 
   it('|→ ensure test directory exists', () => Fs.ensureDir(SAMPLE.dir));
 

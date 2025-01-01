@@ -4,7 +4,7 @@ import { Fs } from './mod.ts';
 
 describe('Fs: directory operations', () => {
   const setupCopyTest = async () => {
-    const SAMPLE = sampleDir('fs-dir');
+    const SAMPLE = sampleDir('Fs');
     await SAMPLE.ensureExists();
 
     const text = `sample-${slug()}\n`;
@@ -210,6 +210,7 @@ describe('Fs: directory operations', () => {
      */
     it('copy file', async () => {
       const { dir, file } = await setupCopyTest();
+
       expect(await Fs.exists(dir.a)).to.eql(true);
       expect(await Fs.exists(dir.b)).to.eql(false); // NB: copyFile will ensure the parent dir.
 

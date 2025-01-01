@@ -1,12 +1,13 @@
-import { type t, slug } from './common.ts';
+import { type t, Path, slug } from './common.ts';
 import { Fs } from './mod.ts';
 
 /**
  * Helpers for working with a sample directory.
  */
-export function sampleDir(prefix: string = '') {
-  if (prefix) prefix = `${prefix}-`;
-  const dir = Fs.resolve(`.tmp/test/m.Fs/${prefix}${slug()}`);
+export function sampleDir(prefix: string, appendSlug: boolean = true) {
+  let dir = Fs.resolve(`.tmp/test/${prefix}`);
+  if (appendSlug) dir = Path.join(dir, slug());
+
   const api = {
     dir,
     join: (...parts: t.StringPath[]) => Fs.join(api.dir, ...parts),

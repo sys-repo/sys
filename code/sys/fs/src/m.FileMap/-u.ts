@@ -7,7 +7,7 @@ export const Sample = {
   },
 
   async init(options: { slug?: boolean } = {}) {
-    const target = Fs.join(`./.tmp/test/m.FileMap`, options.slug ?? true ? slug() : '');
+    const target = Fs.join(`./.tmp/test/Fs.FileMap`, options.slug ?? true ? slug() : '');
     return {
       target,
       ls: () => Fs.ls(target),
