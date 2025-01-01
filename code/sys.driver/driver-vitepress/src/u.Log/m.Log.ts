@@ -131,7 +131,7 @@ export const Log = {
 
       push('  source', grayPath(snapshot.path.source));
       push('  target', grayPath(snapshot.path.target));
-      push('  total', total);
+      push('  total', total.toLocaleString());
 
       return table.toString().trim();
     },
