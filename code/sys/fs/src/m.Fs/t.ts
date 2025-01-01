@@ -137,7 +137,7 @@ export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
 export type FsCopy = (
   from: t.StringPath,
   to: t.StringPath,
-  options?: t.FsCopyOptions,
+  options?: t.FsCopyOptions | t.FsCopyFilter,
 ) => Promise<t.FsCopyResponse>;
 
 /** Copy all files in a directory. */
@@ -154,10 +154,15 @@ export type FsCopyOptions = {
   force?: boolean;
   /** Flag indicating if errors should be thrown (default: false). */
   throw?: boolean;
+  /** Filter to remove files from the copy set. */
+  filter?: t.FsCopyFilter;
 };
 
 /** Response from the `Fs.copy` method. */
 export type FsCopyResponse = { error?: t.StdError };
+
+/** Filter files during a copy operation. */
+export type FsCopyFilter = (path: t.StringPath) => boolean;
 
 /**
  * Delete a file or directory (and it's contents).

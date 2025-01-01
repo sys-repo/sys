@@ -1,10 +1,12 @@
 import { type t, ensureDir, Err, exists, pkg } from './common.ts';
 import { remove } from './u.remove.ts';
+import { Wrangle } from './u.copy.util.ts';
 
 /**
  * Copy all files in a directory.
  */
-export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
+export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
+  const options = Wrangle.options(opt);
   const { force = false } = options;
   const errors = Err.errors();
 
@@ -48,6 +50,7 @@ export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
     for await (const entry of Deno.readDir(from)) {
       const source = `${from}/${entry.name}`;
       const target = `${to}/${entry.name}`;
+      if (!Wrangle.filter(target, options.filter)) continue;
       if (entry.isDirectory) {
         await copyDir(source, target);
       } else if (entry.isFile) {

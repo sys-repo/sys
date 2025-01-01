@@ -1,5 +1,6 @@
-import { describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
+import { type t, describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
 import { Fs } from './mod.ts';
+import { Path } from './common.ts';
 
 describe('Fs: directory operations', () => {
   const setupCopyTest = async () => {
@@ -62,9 +63,9 @@ describe('Fs: directory operations', () => {
           expect(res.error?.message).to.include(expectedError);
         };
 
-        await test('./404', 'Copy error - source file does not exist');
+        await test('./404', 'Cannot copy file because source file does not exist');
         for (const value of NON) {
-          await test(value, 'Copy error - source file path is not a valid');
+          await test(value, 'Cannot copy file because source file path is not a valid');
         }
       });
 
@@ -72,7 +73,9 @@ describe('Fs: directory operations', () => {
         const sample = await setupCopyTest();
         const { dir, file } = sample;
         const res = await Fs.copyFile(dir.a, file.b);
-        expect(res.error?.message).to.include('Cannot copy file - the given path is a directory');
+        expect(res.error?.message).to.include(
+          'Cannot copy file because the given path is a directory',
+        );
       });
 
       it('error: not forced AND file already exists', async () => {
@@ -232,6 +235,57 @@ describe('Fs: directory operations', () => {
       expect(await Fs.exists(dir.b)).to.eql(true);
       expect(await Fs.exists(file.b)).to.eql(true);
       await assertFileText(file.b, file.text);
+    });
+
+    describe('filter', () => {
+      it('filter on: dir', async () => {
+        const test = async (filter?: t.FsCopyFilter) => {
+          const sample = await setupCopyTest();
+          const { dir } = sample;
+          const res = await Fs.copyDir(dir.a, dir.b, filter);
+          const ls = await Fs.ls(dir.b);
+          return { res, ls, sample };
+        };
+
+        const a = await test();
+        const b = await test((path) => Path.basename(path) !== 'foo.txt');
+
+        expect(a.ls.length).to.eql(1);
+        expect(b.ls.length).to.eql(0); // NB: filtered out.
+
+        expect(await Fs.exists(a.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(a.sample.file.b)).to.eql(true);
+
+        expect(await Fs.exists(b.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
+
+      it('filter on: file', async () => {
+        const test = async (filter?: t.FsCopyFilter) => {
+          const sample = await setupCopyTest();
+          const { file, dir } = sample;
+          const res = await Fs.copyFile(file.a, file.b, filter);
+          const ls = await Fs.ls(dir.b);
+          return { res, ls, sample };
+        };
+
+        const a = await test();
+        const b = await test((path) => Path.basename(path) !== 'foo.txt');
+
+        expect(a.res.error).to.eql(undefined);
+        expect(b.res.error?.message).to.include(
+          'Cannot copy file because the path has been filtered out',
+        );
+
+        expect(a.ls.length).to.eql(1);
+        expect(b.ls.length).to.eql(0); // NB: filtered out.
+
+        expect(await Fs.exists(a.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(a.sample.file.b)).to.eql(true);
+
+        expect(await Fs.exists(b.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
     });
 
     it('{throw} parameter (default: false)', async () => {
