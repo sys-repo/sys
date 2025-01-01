@@ -1,4 +1,4 @@
-import { describe, expect, it, sampleDir, slug, Time } from '../-test.ts';
+import { type t, describe, expect, it, sampleDir, slug, Time } from '../-test.ts';
 import { Fs, Path } from './common.ts';
 import { Dir } from './mod.ts';
 
@@ -34,22 +34,41 @@ describe('Fs.Dir', () => {
 
     it('run: Dir.snapshot("source", "target")', async () => {
       const sample = await sampleSetup();
-      const paths = sample.paths;
+      const { source, target } = sample.paths;
 
-      const a = await Dir.snapshot(paths.source, paths.target);
+      const snapshotA = await Dir.snapshot({ source, target });
       await Time.wait(10);
       await sample.modify();
-      const b = await Dir.snapshot(paths.source, paths.target);
+      const snapshotB = await Dir.snapshot({ source, target });
 
-      expect(b.timestamp).to.be.greaterThan(a.timestamp); // NB: seqentual folder layout.
+      expect(snapshotB.timestamp).to.be.greaterThan(snapshotA.timestamp); // NB: seqentual folder layout.
 
-      expect(a.error).to.eql(undefined);
-      expect(b.error).to.eql(undefined);
+      expect(snapshotA.error).to.eql(undefined);
+      expect(snapshotB.error).to.eql(undefined);
 
       const read = (dir: string) => Deno.readTextFile(Path.join(dir, 'mod.ts'));
-      const readA = await read(a.path.target);
-      const readB = await read(b.path.target);
+      const readA = await read(snapshotA.path.target);
+      const readB = await read(snapshotB.path.target);
       expect(readA).to.not.eql(readB); // NB: modified content between snapshots.
+    });
+
+    it('filter', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+
+      const snapshotA = await Dir.snapshot({ source, target });
+      const snapshotB = await Dir.snapshot({
+        source,
+        target,
+        filter: (path) => Path.basename(path) !== 'mod.ts',
+      });
+
+      const contains = (snapshot: t.DirSnapshot, filename: string) => {
+        return snapshot.copied.some((p) => p.endsWith(filename));
+      };
+
+      expect(contains(snapshotA, 'mod.ts')).to.eql(true);
+      expect(contains(snapshotB, 'mod.ts')).to.eql(false); // NB: filtered out of copy-set/
     });
   });
 });

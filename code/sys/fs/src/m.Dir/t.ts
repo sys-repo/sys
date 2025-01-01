@@ -5,7 +5,14 @@ import type { t } from './common.ts';
  */
 export type FsDirLib = {
   /** Create a snapshot of the specified directory. */
-  snapshot(source: t.StringDir, target: t.StringDir): Promise<DirSnapshot>;
+  snapshot(args: FsDirSnapshotArgs): Promise<DirSnapshot>;
+};
+
+/** Arguments passed to the `Dir.snapshot` method. */
+export type FsDirSnapshotArgs = {
+  source: t.StringDir;
+  target: t.StringDir;
+  filter?: t.FsCopyFilter;
 };
 
 /**
@@ -15,5 +22,6 @@ export type DirSnapshot = {
   id: string;
   timestamp: number;
   path: { source: t.StringDir; target: t.StringDir };
+  copied: t.StringPath[];
   error?: t.StdError;
 };
