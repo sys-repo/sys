@@ -3,7 +3,7 @@ import { type t, Args, PATHS, Fs, Path } from './common.ts';
 /**
  * Clean the project of temporary files.
  */
-export async function clean(argv: string[], options: { inDir?: t.StringDir } = {}) {
+export async function clean(argv: string[]) {
   const args = Args.parse<t.CmdArgsClean>(argv);
   const { inDir = PATHS.inDir } = args;
   if (args.cmd !== 'clean') return;
