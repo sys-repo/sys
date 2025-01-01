@@ -4,9 +4,9 @@ import { Fs, Path } from '../mod.ts';
 /**
  * Helpers for working with a sample directory.
  */
-export function sampleDir(dirname: string, appendSlug: boolean = true) {
+export function sampleDir(dirname: string, options: { slug?: boolean } = {}) {
   let dir = Fs.resolve(`.tmp/test/${dirname}`);
-  if (appendSlug) dir = Path.join(dir, slug());
+  if (options.slug ?? true) dir = Path.join(dir, slug());
 
   const api = {
     dir,
