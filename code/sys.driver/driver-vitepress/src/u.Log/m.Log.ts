@@ -72,7 +72,10 @@ export const Log = {
     if (dist) {
       Log.dist(dist, { inDir });
     } else {
+      const buildCmd = c.green(`deno task ${c.bold('build')}`);
+      const buildOutput = `dist/*`;
       console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
+      console.info(c.gray(`${c.italic(`(not yet built)`)} → run ${buildCmd} → ${buildOutput}`));
     }
 
     console.info();
