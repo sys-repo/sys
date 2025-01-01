@@ -8,4 +8,5 @@ export const PATHS = {
   tmp: '.tmp/-tmpl',
   source: 'src/-tmpl/files',
   json: 'src/-tmpl/u.tmpl/tmpl.bundle.json',
+  backup: '.backup',
 } as const;
