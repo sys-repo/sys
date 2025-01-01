@@ -7,7 +7,9 @@ import { ls } from './u.ls.ts';
  * Helpers for performing glob searches over a file-system.
  */
 export const Glob: t.GlobLib = {
-  Ignore,
   create,
   ls,
+
+  Ignore,
+  ignore: Ignore.create,
 };

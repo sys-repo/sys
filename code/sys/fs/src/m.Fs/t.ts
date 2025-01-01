@@ -7,27 +7,14 @@ import type { t } from './common.ts';
 
 export type { WalkEntry };
 
+type Methods = StdMethods & IndexMethods & GlobMethods;
+
 /**
  * Tools for working with the file-system.
  */
-export type FsLib = StdMethods & {
-  /** Helpers for working with resource paths. */
-  readonly Path: t.FsPathLib;
-
-  /** File-system/path type verification flags. */
-  readonly Is: t.FsIsLib;
-
-  /** Helpers for calculating file sizes. */
-  readonly Size: t.FsSizeLib;
-
-  /** Helpers for watching file-system changes. */
-  readonly Watch: t.FsWatchLib;
-
+export type FsLib = Methods & {
   /** Retrieve information about the given path. */
   readonly stat: t.FsGetStat;
-
-  /** Factory for a glob helper. */
-  readonly glob: t.GlobFactory;
 
   /** Writes a string or binary file ensuring it's parent directory exists. */
   readonly write: t.FsWriteFile;
@@ -58,12 +45,36 @@ export type FsLib = StdMethods & {
 
   /** Current working directory. */
   cwd(): t.StringDir;
-
-  /** List the file-paths within a directory (simple glob). */
-  readonly ls: t.GlobPathList;
 };
 
-/** Methods from the `@std` libs. */
+/**
+ * Index properties.
+ */
+type IndexMethods = {
+  /** Helpers for working with resource paths. */
+  readonly Path: t.FsPathLib;
+
+  /** File-system/path type verification flags. */
+  readonly Is: t.FsIsLib;
+
+  /** Helpers for calculating file sizes. */
+  readonly Size: t.FsSizeLib;
+
+  /** Helpers for watching file-system changes. */
+  readonly Watch: t.FsWatchLib;
+};
+
+type GlobMethods = {
+  /** List the file-paths within a directory (simple glob). */
+  readonly ls: t.GlobPathList;
+
+  /** Factory for a glob helper. */
+  readonly glob: t.GlobFactory;
+};
+
+/**
+ * Methods from the `@std` libs.
+ */
 type StdMethods = {
   /** Joins a sequence of paths, then normalizes the resulting path. */
   readonly join: typeof StdPath.join;

@@ -48,4 +48,10 @@ export type GlobPathList = (dir: t.StringDir, options?: t.GlobOptions) => Promis
  * Tools for working with ignore files (eg. ".gitignore").
  */
 export type GlobIgnoreLib = {
+  /**
+   * TODO 🐷
+   * - fromFile
+   * - create(ignorelist: t.StringPattern[])
+   *   →: { ƒ:isIgnored() }
+   */
 };

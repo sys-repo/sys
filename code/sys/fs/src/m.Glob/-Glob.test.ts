@@ -4,9 +4,8 @@ import { Glob, GlobIgnore } from './mod.ts';
 
 describe('Glob', () => {
   it('API', () => {
-    expect(Fs.glob).to.equal(Glob.create);
-    expect(Fs.ls).to.equal(Glob.ls);
     expect(Glob.Ignore).to.equal(GlobIgnore);
+    expect(Glob.ignore).to.equal(GlobIgnore.create);
   });
 
   describe('file pattern matching', () => {

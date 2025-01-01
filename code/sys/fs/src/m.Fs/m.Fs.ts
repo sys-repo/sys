@@ -31,6 +31,7 @@ export const Fs: t.FsLib = {
 
   glob,
   ls,
+
   exists,
   ensureDir,
   remove,
