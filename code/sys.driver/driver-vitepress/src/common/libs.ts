@@ -2,7 +2,7 @@ export { c, Cli, stripAnsi } from '@sys/cli';
 export { Dir, FileMap, Fs, Path } from '@sys/fs';
 
 export { Process } from '@sys/proc';
-export { Args, Err, Is, rx, slug, Str, Time } from '@sys/std';
+export { Args, Date, Err, Is, rx, slug, Str, Time } from '@sys/std';
 export { Fetch, Http } from '@sys/std/http';
 export { Jsr } from '@sys/std/jsr';
 

@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
+import { type t, Date as D, c, Cli, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
 
 type Cmd = t.CmdArgsMain['cmd'];
 
@@ -54,8 +54,8 @@ export const Log = {
     if (!minimal) {
       table.push(['', '']);
       push('upgrade', `Upgrade to latest version.`);
-      push('backup', `Make a snapshot backup of the project.`);
-      push('clean', `Clean the project of temporary files.`);
+      push('backup', `Take a snapshot of the project.`);
+      push('clean', `Delete temporary files.`);
     }
     push('help', `Show help.`);
 
@@ -92,22 +92,19 @@ export const Log = {
     const { inDir = PATHS.inDir } = options;
 
     const title = c.green(c.bold('Production Bundle'));
-    const size = c.gray(Str.bytes(dist.size.bytes));
+    const size = c.gray(`${Str.bytes(dist.size.bytes)}`);
     console.info(title);
 
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
-    // const distPathFmt = `${Path.dirname(distPath)}/${c.cyan(Path.basename(distPath))}`;
-    const distDir = Path.dirname(distPath);
-    let distPathFmt = `${Path.dirname(distDir)}/${c.cyan(Path.basename(distDir))}`;
-    distPathFmt += `/${Path.basename(distPath)}`;
+    const distPathFmt = `${Path.dirname(distPath)}/${Path.basename(distPath)}`;
 
     const table = Cli.table([]);
     const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
     push('size:', size);
     push('dist:', c.gray(`${distPathFmt} ${digest}`));
-    push('pkg:', c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
+    push('pkg:', c.gray(`https://jsr.io/${c.white(c.bold(pkg.name))} ${pkg.version}`));
 
     console.info(table.toString().trim());
   },
@@ -130,17 +127,20 @@ export const Log = {
 
       const snapshotsPlural = Str.plural(backups.length, 'snapshot', 'snapshots');
       let total = `${size.total.files} files `;
-      total += c.gray(`in latest of ${backups.length} ${snapshotsPlural}`);
+      total += c.gray(`in latest of ${backups.length} backup-${snapshotsPlural}`);
 
       const title = c.green(c.bold('Snapshot'));
       const titleSize = c.brightGreen(Str.bytes(size.total.bytes));
 
       const table = Cli.table([title, titleSize]);
       const push = (label: string, value: string | number) => table.push([c.gray(label), value]);
-      const grayPath = (path: t.StringPath) => c.gray(`./${Path.trimCwd(path)}`);
+      const formatPath = (path: t.StringPath) => `./${Path.trimCwd(path)}`;
 
-      push('  source', grayPath(snapshot.path.source));
-      push('  target', grayPath(snapshot.path.target));
+      const date = new Date(snapshot.timestamp);
+      const dateFmt = D.format(date, 'd MMM yyyy');
+
+      push('  source', c.gray(formatPath(snapshot.path.source)));
+      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${dateFmt}`));
       push('  total', total.toLocaleString());
 
       return table.toString().trim();

@@ -50,7 +50,6 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'backup') {
-    Log.usageAPI({ cmd: 'backup' });
     const { backup } = await import('./u.backup.ts');
     await backup(argv);
     return;
