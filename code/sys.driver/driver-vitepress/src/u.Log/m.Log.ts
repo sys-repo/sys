@@ -127,7 +127,7 @@ export const Log = {
 
       const table = Cli.table([title, titleSize]);
       const push = (label: string, value: string | number) => table.push([c.gray(label), value]);
-      const grayPath = (path: t.StringPath) => c.gray(Path.trimCwd(path));
+      const grayPath = (path: t.StringPath) => c.gray(`./${Path.trimCwd(path)}`);
 
       push('  source', grayPath(snapshot.path.source));
       push('  target', grayPath(snapshot.path.target));
