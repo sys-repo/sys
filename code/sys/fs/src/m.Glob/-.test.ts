@@ -1,7 +1,13 @@
 import { describe, expect, it } from '../-test.ts';
-import { Fs } from './mod.ts';
+import { Fs } from '../m.Fs/mod.ts';
+import { Glob } from './mod.ts';
 
 describe('Fs.glob', () => {
+  it('API', () => {
+    expect(Fs.glob).to.equal(Glob.create);
+    expect(Fs.ls).to.equal(Glob.ls);
+  });
+
   it('glob.find("**") ← default params', async () => {
     const base = Fs.resolve();
     const glob = Fs.glob(base);

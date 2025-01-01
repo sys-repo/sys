@@ -60,7 +60,7 @@ export type FsLib = StdMethods & {
   cwd(): t.StringDir;
 
   /** List the file-paths within a directory (simple glob). */
-  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
+  readonly ls: t.GlobList;
 };
 
 /** Methods from the `@std` libs. */
@@ -97,34 +97,6 @@ export type FsIsLib = t.PathLib['Is'] & {
   /** Determine if the given path points to a file (not a directory). */
   file(path: t.StringPath | URL): Promise<boolean>;
 };
-
-/**
- * Generate a Glob helper scoped to a path.
- */
-export type GlobFactory = (dir: t.StringDir, options?: GlobOptions) => t.Glob;
-
-/**
- * Runs globs against a filesystem root.
- */
-export type Glob = {
-  /**
-   * Read out the base directory.
-   */
-  readonly base: string;
-
-  /**
-   *  Query the given glob pattern.
-   */
-  find(pattern: string, options?: GlobOptions): Promise<WalkEntry[]>;
-
-  /**
-   * Retrieve a sub-directory `Glob` from the current context.
-   */
-  dir(subdir: t.StringDir): Glob;
-};
-
-/** Options for a glob operation.  */
-export type GlobOptions = { exclude?: string[]; includeDirs?: boolean };
 
 /**
  * Retrieve information about the given path.
