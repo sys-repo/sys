@@ -4,7 +4,7 @@
     "dev": "deno run -RWNE --allow-run <ENTRY> --cmd=dev",
     "build": "deno run -RWNE --allow-run <ENTRY> --cmd=build",
     "serve": "deno run -RNE <ENTRY> --cmd=serve",
-    "upgrade": "deno run -RWNE <ENTRY> --cmd=upgrade",
+    "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
     "backup": "deno run -RWE <ENTRY> --cmd=backup",
     "help": "deno run -RE <ENTRY> --cmd=help"
   },
