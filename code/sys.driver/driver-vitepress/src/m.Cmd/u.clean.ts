@@ -9,5 +9,5 @@ export async function clean(argv: string[]) {
   if (args.cmd !== 'clean') return;
 
   const join = (...path: string[]) => Path.join(inDir, ...path);
-  await Fs.remove(join('dist'), { log: true });
+  await Fs.remove(join(PATHS.dist), { log: true });
 }

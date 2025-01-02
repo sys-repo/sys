@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Log, Pkg, Process, Time } from './common.ts';
+import { type t, c, Cli, Fs, Log, PATHS, Pkg, Process, Time } from './common.ts';
 
 type B = t.VitePressLib['build'];
 type R = t.VitePressBuildResponse;
@@ -78,7 +78,7 @@ const wrangle = {
     const { inDir = '', outDir = '' } = options;
     return {
       in: Fs.resolve(inDir),
-      out: outDir ? Fs.resolve(outDir) : Fs.resolve(inDir, 'dist'),
+      out: outDir ? Fs.resolve(outDir) : Fs.resolve(inDir, PATHS.dist),
     };
   },
 } as const;

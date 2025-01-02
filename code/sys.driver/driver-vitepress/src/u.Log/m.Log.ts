@@ -1,4 +1,4 @@
-import { type t, Date as D, c, Cli, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
+import { type t, c, Cli, Date as D, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
 
 type Cmd = t.CmdArgsMain['cmd'];
 
@@ -72,7 +72,7 @@ export const Log = {
     const { inDir = PATHS.inDir, minimal = false } = args;
     Log.usageAPI({ minimal });
 
-    const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, 'dist'));
+    const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, PATHS.dist));
     if (dist) {
       Log.dist(dist, { inDir });
     } else {

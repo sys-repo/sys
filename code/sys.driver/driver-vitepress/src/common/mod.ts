@@ -7,6 +7,7 @@ export const PATHS = {
   inDir: './',
   tmp: '.tmp/-tmpl',
   backup: '.backup',
+  dist: 'dist',
   tmpl: {
     source: 'src/-tmpl/files',
     json: 'src/-tmpl/u.tmpl/tmpl.bundle.json',

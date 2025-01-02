@@ -9,7 +9,7 @@ export async function serve(argv: string[]) {
 
   if (args.cmd !== 'serve') return;
 
-  const dir = Fs.join(inDir, 'dist');
+  const dir = Fs.join(inDir, PATHS.dist);
   const dist = (await Pkg.Dist.load(dir)).dist;
   const hash = dist?.hash.digest ?? '';
 
