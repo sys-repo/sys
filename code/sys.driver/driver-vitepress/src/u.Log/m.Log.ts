@@ -127,7 +127,7 @@ export const Log = {
 
       const snapshotsPlural = Str.plural(backups.length, 'snapshot', 'snapshots');
       let total = `${size.total.files} files `;
-      total += c.gray(`in latest of ${backups.length} backup-${snapshotsPlural}`);
+      total += c.gray(`in latest of ${backups.length} <${snapshotsPlural}>-backup`);
 
       const title = c.green(c.bold('Snapshot'));
       const titleSize = c.brightGreen(Str.bytes(size.total.bytes));
@@ -140,7 +140,7 @@ export const Log = {
       const dateFmt = D.format(date, 'd MMM yyyy');
 
       push('  source', c.gray(formatPath(snapshot.path.source)));
-      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${dateFmt}`));
+      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${c.white(dateFmt)}`));
       push('  total', total.toLocaleString());
 
       return table.toString().trim();

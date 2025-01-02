@@ -22,10 +22,10 @@ describe('cmd: backup', () => {
     };
 
     // Ignored (not backed up).
-    test('.backup/', true);
-    test('foo/.backup/', true);
-    test('foo/.backup/xxx.000', true);
-    test('.tmp/sample/.backup/1735782009153.u4toce/.vitepress', true);
+    test('-backup/', true);
+    test('foo/-backup/', true);
+    test('foo/-backup/xxx.000', true);
+    test('.tmp/sample/-backup/1735782009153.u4toce/.vitepress', true);
     test('dist/index.html', true);
     test('.tmp/sample/dist/index.html', true);
 
@@ -55,7 +55,7 @@ describe('cmd: backup', () => {
 
       // NB: not copied (ecluded via .gitignore).
       await assertExists(Fs.join(targetDir, 'dist'), false);
-      await assertExists(Fs.join(targetDir, '.backup'), false);
+      await assertExists(Fs.join(targetDir, '-backup'), false);
       await assertExists(Fs.join(targetDir, '.sys'), true);
       await assertExists(Fs.join(targetDir, '.vitepress'), true);
       await assertExists(Fs.join(targetDir, 'docs'), true);

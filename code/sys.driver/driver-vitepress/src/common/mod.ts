@@ -6,7 +6,7 @@ export type * as t from './t.ts';
 export const PATHS = {
   inDir: './',
   tmp: '.tmp/-tmpl',
-  backup: '.backup',
+  backup: '-backup',
   dist: 'dist',
   tmpl: {
     source: 'src/-tmpl/files',

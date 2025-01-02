@@ -2,6 +2,6 @@ node_modules/
 dist/
 tmp/
 
-.backup/
+-backup/
 .vitepress/cache/
 .vitepress/dist/
