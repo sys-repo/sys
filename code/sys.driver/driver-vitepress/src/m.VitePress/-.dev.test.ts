@@ -6,7 +6,7 @@ describe('VitePress.dev', () => {
   const open = false;
 
   it('process: start → fetch(200) → dispose', async () => {
-    Testing.repeat(3, async () => {
+    Testing.retry(3, async () => {
       const sample = Sample.init();
       const { port, inDir } = sample;
       await VitePress.Env.update({ inDir });
@@ -29,7 +29,7 @@ describe('VitePress.dev', () => {
   });
 
   it('process: ensures baseline files ← Env.init()', async () => {
-    Testing.repeat(3, async () => {
+    Testing.retry(3, async () => {
       const sample = Sample.init();
       const { port, inDir } = sample;
       await VitePress.Env.update({ inDir });
