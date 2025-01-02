@@ -29,6 +29,12 @@ jobs:
         with:
           deno-version: v2
 
+      - name: publish module → "@sys/fs"
+        run: |
+          cd code/sys/fs
+          deno task test --parallel --trace-leaks
+          deno publish
+
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/sys/tmpl
