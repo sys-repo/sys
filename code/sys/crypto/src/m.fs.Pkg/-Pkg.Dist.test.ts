@@ -68,6 +68,14 @@ describe('Pkg.Dist', () => {
       expect(await exists()).to.eql(false); // NB: never written
     });
 
+    it('param: string → { inDir }', async () => {
+      const sample = await Sample.init();
+      const { dir } = sample.path;
+      const res = await Pkg.Dist.compute(dir);
+      expect(res.dir).to.eql(Fs.resolve(dir));
+      expect(res.dist.size.bytes).to.greaterThan(0);
+    });
+
     it('{save:true} → saves to file-system', async () => {
       const sample = await Sample.init();
       const { dir, entry, filepath } = sample.path;

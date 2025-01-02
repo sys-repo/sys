@@ -8,7 +8,8 @@ import { type t, Delete, Err, Fs, Hash } from './common.ts';
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
 
-  async compute(args) {
+  async compute(input) {
+    const args = wrangle.computeArgs(input);
     const { entry = '', save = false } = args;
     const dir = Fs.resolve(args.dir);
     const pkg = args.pkg ?? Pkg.unknown();
@@ -138,5 +139,10 @@ const wrangle = {
   filepath(path: t.StringPath) {
     if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
     return path;
+  },
+
+  computeArgs(input: Parameters<t.PkgDistFsLib['compute']>[0]): t.PkgDistComputeArgs {
+    if (typeof input === 'string') return { dir: input };
+    return input;
   },
 } as const;

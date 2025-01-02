@@ -26,7 +26,9 @@ export type PkgDistFsLib = t.PkgDistLib & {
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  compute(args: t.PkgDistComputeArgs): Promise<t.PkgDistComputeResponse>;
+  compute(
+    args: t.PkgDistComputeArgs | t.PkgDistComputeArgs['dir'],
+  ): Promise<t.PkgDistComputeResponse>;
 
   /**
    * Verify a folder with hash definitions of the distribution-package.
