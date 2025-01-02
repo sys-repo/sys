@@ -1,7 +1,8 @@
 # VitePress Driver
 Tools for working with the "[VitePress](https://vitepress.dev)" documentation SSG (static-site-generator).
 
-https://vitepress.dev
+- https://vitepress.dev
+- See also [jsr:@sys/driver-vite](https://jsr.io/@sys/driver-vite)
 
 <p>&nbsp;<p>
 
