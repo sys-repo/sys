@@ -22,6 +22,6 @@ export type DirSnapshot = {
   id: string;
   timestamp: number;
   path: { source: t.StringDir; target: t.StringDir };
-  copied: t.StringPath[];
+  files: t.StringPath[];
   error?: t.StdError;
 };

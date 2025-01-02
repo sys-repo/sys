@@ -64,7 +64,7 @@ describe('Fs.Dir', () => {
       });
 
       const contains = (snapshot: t.DirSnapshot, filename: string) => {
-        return snapshot.copied.some((p) => p.endsWith(filename));
+        return snapshot.files.some((p) => p.endsWith(filename));
       };
 
       expect(contains(snapshotA, 'mod.ts')).to.eql(true);

@@ -15,15 +15,25 @@ export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
   };
 
 
-  const copied = await Fs.copyDir(path.source, path.target, { filter });
-  if (copied.error) errors.push(copied.error);
+  const copyRes = await Fs.copyDir(path.source, path.target, { filter });
+  if (copyRes.error) errors.push(copyRes.error);
 
   const res: t.DirSnapshot = {
     id,
     timestamp,
     path,
-    copied: await Fs.ls(path.target),
+    files: await wrangle.relativePaths(path.target),
     error: errors.toError(),
   };
   return res;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  async relativePaths(dir: t.StringDir) {
+    dir = Fs.resolve(dir);
+    return (await Fs.ls(dir)).map((path) => path.slice(dir.length + 1));
+  },
+} as const;
