@@ -58,6 +58,7 @@ describe('cmd: backup', () => {
       await assertExists(Fs.join(targetDir, '-backup'), false);
       await assertExists(Fs.join(targetDir, '.sys'), true);
       await assertExists(Fs.join(targetDir, '.vitepress'), true);
+      await assertExists(Fs.join(targetDir, '.vitepress/cache'), false);
       await assertExists(Fs.join(targetDir, 'docs'), true);
       await assertExists(Fs.join(targetDir, 'src'), true);
       await assertExists(Fs.join(targetDir, 'deno.json'), true);
