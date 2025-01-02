@@ -14,25 +14,6 @@ describe('cmd: backup', () => {
     expect(await Fs.exists(dir)).to.eql(exists);
   };
 
-  it('ignore: via ".gitignore"', async () => {
-    const { gitignore } = await setup();
-
-    const test = (path: string, expected: boolean) => {
-      expect(gitignore.isIgnored(path)).to.eql(expected, path);
-    };
-
-    // Ignored (not backed up).
-    test('-backup/', true);
-    test('foo/-backup/', true);
-    test('foo/-backup/xxx.000', true);
-    test('.tmp/sample/-backup/1735782009153.u4toce/.vitepress', true);
-    test('dist/index.html', true);
-    test('.tmp/sample/dist/index.html', true);
-
-    // Not ignored (is backed up).
-    test('deno.json', false);
-  });
-
   it('perform backup copy', async () => {
     await Testing.retry(3, async () => {
       const sample = Sample.init({ slug: true });
@@ -52,17 +33,22 @@ describe('cmd: backup', () => {
       const snapshot = res.snapshot;
       const targetDir = snapshot.path.target;
       expect(snapshot.error).to.eql(undefined);
+      expect(res.excluded).to.include('dist/index.html');
 
-      // NB: not copied (ecluded via .gitignore).
-      await assertExists(Fs.join(targetDir, 'dist'), false);
-      await assertExists(Fs.join(targetDir, '-backup'), false);
-      await assertExists(Fs.join(targetDir, '.sys'), true);
-      await assertExists(Fs.join(targetDir, '.vitepress'), true);
-      await assertExists(Fs.join(targetDir, '.vitepress/cache'), false);
-      await assertExists(Fs.join(targetDir, 'docs'), true);
-      await assertExists(Fs.join(targetDir, 'src'), true);
-      await assertExists(Fs.join(targetDir, 'deno.json'), true);
-      await assertExists(Fs.join(targetDir, 'package.json'), true);
+      // NB: not copied (ecluded via .ignore list).
+      const assertTargetExists = (path: string, exists: boolean) =>
+        assertExists(Fs.join(targetDir, path), exists);
+
+      await assertTargetExists('dist', false);
+      await assertTargetExists('-backup', false);
+      await assertTargetExists('.sys', true);
+      await assertTargetExists('.tmp', false);
+      await assertTargetExists('.vitepress', true);
+      await assertTargetExists('.vitepress/cache', false);
+      await assertTargetExists('docs', true);
+      await assertTargetExists('src', true);
+      await assertTargetExists('deno.json', true);
+      await assertTargetExists('package.json', true);
     });
   });
 });

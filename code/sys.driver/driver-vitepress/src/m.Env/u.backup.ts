@@ -16,11 +16,14 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   const { inDir = '' } = args;
   const source = Path.join(inDir);
   const target = Path.join(inDir, PATHS.backup);
-  const ignored = Ignore.create(IGNORE);
+  const ignore = Ignore.create(IGNORE);
+  const excluded: t.StringPath[] = [];
 
   const filter: t.FsCopyFilter = (e) => {
     const path = Path.relative(inDir, e.source);
-    return !ignored.isIgnored(path);
+    const isIgnored = ignore.isIgnored(path);
+    if (isIgnored) excluded.push(path);
+    return !isIgnored;
   };
 
   // Copy directory snapshot.
@@ -35,6 +38,6 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   }
 
   // Response.
-  const res: t.VitePressBackupResponse = { ignored, snapshot };
+  const res: t.VitePressBackupResponse = { excluded, snapshot };
   return res;
 };
