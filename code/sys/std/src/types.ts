@@ -14,6 +14,7 @@ export type * from './m.Http.Client/t.ts';
 export type * from './m.Http.Fetch/t.ts';
 export type * from './m.Http/t.ts';
 export type * from './m.Id/t.ts';
+export type * from './m.Ignore/t.ts';
 export type * from './m.Immutable/t.ts';
 export type * from './m.IndexedDb/t.ts';
 export type * from './m.Is/t.ts';

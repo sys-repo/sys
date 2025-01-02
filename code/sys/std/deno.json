@@ -18,6 +18,7 @@
     "./hash": "./src/m.Hash/mod.ts",
     "./http": "./src/m.Http/mod.ts",
     "./id": "./src/m.Id/mod.ts",
+    "./ignore": "./src/m.Ignore/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./jsr": "./src/m.Jsr/mod.ts",
