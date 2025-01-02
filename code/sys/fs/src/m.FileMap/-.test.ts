@@ -60,7 +60,7 @@ describe('FileMap', () => {
     };
 
     it('writes to target directory', async () => {
-      const sample = await Sample.init();
+      const sample = Sample.init();
       const bundle = await FileMap.bundle(dir);
       const res = await FileMap.write(sample.target, bundle);
       expect(res.target).to.eql(Path.resolve(sample.target));
@@ -69,7 +69,7 @@ describe('FileMap', () => {
     });
 
     it('additive (by default)', async () => {
-      const sample = await Sample.init();
+      const sample = Sample.init();
       const bundle = await FileMap.bundle(dir);
       const target = sample.target;
       await Fs.write(Path.join(target, 'foo.txt'), '👋');
@@ -80,7 +80,7 @@ describe('FileMap', () => {
 
     describe('errors', () => {
       it('error: corrupted file', async () => {
-        const sample = await Sample.init();
+        const sample = Sample.init();
         const bundle = await FileMap.bundle(dir);
 
         bundle['.gitignore'] = 'xxx'; // NB: corrupt the file.
