@@ -4,6 +4,7 @@ export { Dir, FileMap, Fs, Path } from '@sys/fs';
 export { Process } from '@sys/proc';
 export { Args, Date, Err, Is, rx, slug, Str, Time } from '@sys/std';
 export { Fetch, Http } from '@sys/std/http';
+export { Ignore } from '@sys/std/ignore';
 export { Jsr } from '@sys/std/jsr';
 
 export { Hash, Pkg } from '@sys/crypto/fs';

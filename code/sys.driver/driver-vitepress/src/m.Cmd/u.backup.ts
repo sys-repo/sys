@@ -1,4 +1,4 @@
-import { type t, Args, Cli, Dir, Log, Path, PATHS } from './common.ts';
+import { type t, Fs, Args, Cli, Dir, Log, Path, PATHS, Ignore } from './common.ts';
 
 /**
  * Perform a snapshot backup on the project.
@@ -11,8 +11,13 @@ export async function backup(argv: string[]) {
   const source = Path.join(inDir);
   const target = Path.join(inDir, PATHS.backup);
 
-  const filter: t.FsCopyFilter = (path) => {
-    if (path.endsWith(`/${PATHS.backup}`)) return false;
+  const gitignore = await wrangle.gitignore(source);
+  const backupDir = Path.join(inDir, PATHS.backup);
+
+
+  const filter: t.FsCopyFilter = (e) => {
+    if (e.source.startsWith(backupDir)) return false;
+    if (gitignore?.isIgnored(e.source)) return false;
     return true;
   };
 
@@ -28,3 +33,13 @@ export async function backup(argv: string[]) {
   // Finish up.
   return snapshot;
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  async gitignore(dir: t.StringDir) {
+    const path = Path.join(dir, '.gitignore');
+    return (await Fs.exists(path)) ? Ignore.create(await Deno.readTextFile(path)) : undefined;
+  },
+} as const;
