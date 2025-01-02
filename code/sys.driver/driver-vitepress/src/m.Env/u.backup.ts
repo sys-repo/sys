@@ -15,9 +15,22 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   const viteCacheDir = Path.join(inDir, PATHS.viteCache);
   const distDir = Path.join(inDir, PATHS.dist);
 
+  console.group('🌳 BACKUP: dirs (exclude)');
+  console.log('backupDir', backupDir);
+  console.log('viteCacheDir', viteCacheDir);
+  console.log('distDir', distDir);
+  console.groupEnd();
+
 
   const filter: t.FsCopyFilter = (e) => {
     const startsWith = (path: string) => e.source.startsWith(path);
+
+    console.log('e.path', e.source);
+    console.log('backupDir', startsWith(backupDir));
+    console.log('backupDir', startsWith(viteCacheDir));
+    console.log('backupDir', startsWith(distDir));
+    console.log();
+
     if (startsWith(backupDir)) return false;
     if (startsWith(viteCacheDir)) return false;
     if (startsWith(distDir)) return false;
