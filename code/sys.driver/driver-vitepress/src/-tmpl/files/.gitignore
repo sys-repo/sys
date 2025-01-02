@@ -1,7 +1,6 @@
-# NB: Excluded from backups.
 node_modules/
 dist/
-tmp/
+.tmp/
 
 -backup/
 -backup/**
