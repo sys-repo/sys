@@ -2,9 +2,11 @@ import { type t, Cli, Dir, Ignore, Log, Path, PATHS } from './common.ts';
 
 const IGNORE = `
 node_modules/
+dist/
 -backup/
 -backup/**
 .vitepress/cache/
+.tmp/
 `;
 
 /**
@@ -14,11 +16,11 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   const { inDir = '' } = args;
   const source = Path.join(inDir);
   const target = Path.join(inDir, PATHS.backup);
-  const exclusions = Ignore.create(IGNORE);
+  const ignored = Ignore.create(IGNORE);
 
   const filter: t.FsCopyFilter = (e) => {
     const path = Path.relative(inDir, e.source);
-    return !exclusions.isIgnored(path);
+    return !ignored.isIgnored(path);
   };
 
   // Copy directory snapshot.
@@ -33,5 +35,6 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   }
 
   // Response.
-  return { exclusions, snapshot };
+  const res: t.VitePressBackupResponse = { ignored, snapshot };
+  return res;
 };
