@@ -1,7 +1,7 @@
 import { type t, ensureDir, Err, exists, Path, pkg } from './common.ts';
 import { Is } from './m.Is.ts';
-import { remove } from './u.remove.ts';
 import { Wrangle } from './u.copy.util.ts';
+import { remove } from './u.remove.ts';
 
 /**
  * Copy an individual file.
@@ -52,7 +52,7 @@ export const copyFile: t.FsCopyFile = async (from, to, opt = {}) => {
   }
 
   try {
-    // Check if filtered
+    // Check if filtered.
     let allowCopy = true;
     if (typeof options.filter === 'function' && !Wrangle.filter(from, to, options.filter)) {
       allowCopy = false;
