@@ -112,5 +112,9 @@ export type TmplFileOperation = {
   /** File path details. */
   file: { source: t.TmplFile; target: t.TmplFile };
   /** The text content of the file. */
-  text: { source: string; target: { before: string; after: string } };
+  text: {
+    source: string;
+    target: { before: string; after: string; isDiff: boolean };
+    isDiff: boolean;
+  };
 };

@@ -29,7 +29,18 @@ export async function copy(
       },
       text: {
         source: sourceText,
-        target: { before: targetText, after: targetText || sourceText },
+        target: {
+          before: targetText,
+          after: sourceText !== targetText ? sourceText : targetText || sourceText,
+          get isDiff() {
+            return op.text.target.before !== op.text.target.after;
+          },
+        },
+        get isDiff() {
+          if (op.text.target.isDiff) return true;
+          if (op.text.source !== op.text.target.after) return true;
+          return false;
+        },
       },
       excluded: false,
       written: false,
@@ -52,7 +63,7 @@ export async function copy(
       const target = op.file.target;
       const path = target.path;
       const exists = await Fs.exists(path);
-      const isDiff = op.text.target.before !== op.text.target.after;
+      const isDiff = op.text.isDiff;
 
       if (!exists) {
         op.created = true;
