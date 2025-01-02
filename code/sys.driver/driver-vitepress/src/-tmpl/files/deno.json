@@ -6,7 +6,7 @@
     "serve": "deno run -RNE --allow-run <ENTRY> --cmd=serve",
     "clean": "deno run -RWE <ENTRY> --cmd=clean",
     "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
-    "backup": "deno run -RWE <ENTRY> --cmd=backup",
+    "backup": "deno run -RWE --allow-run <ENTRY> --cmd=backup",
     "help": "deno run -RE <ENTRY> --cmd=help"
   },
   "imports": {
