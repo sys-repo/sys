@@ -15,13 +15,11 @@ export const Ignore: t.IgnoreLib = {
     return {
       rules,
       isIgnored(path, root) {
-        path = Path.normalize(path);
-        if (root) path = Path.relative(root, path);
+        path = wrangle.path(path, root);
         return ignore.ignores(path);
       },
       check(path, root) {
-        path = Path.normalize(path);
-        if (root) path = Path.relative(root, path);
+        path = wrangle.path(path, root);
         const result = ignore.checkIgnore(path) as t.IgnoreCheckPathResult;
         const { ignored, unignored } = result;
         const rule = result.rule
@@ -37,6 +35,11 @@ export const Ignore: t.IgnoreLib = {
  * Helpers
  */
 const wrangle = {
+  path(path: string, root?: string) {
+    path = Path.normalize(path);
+    return root ? Path.relative(root, path) : path;
+  },
+
   lines(input: string) {
     return input.split(/\r?\n/).map((line) => line.trim());
   },
