@@ -10,12 +10,17 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   const target = Path.join(inDir, PATHS.backup);
 
   const gitignore = await wrangle.gitignore(source);
+
   const backupDir = Path.join(inDir, PATHS.backup);
+  const viteCacheDir = Path.join(inDir, PATHS.viteCache);
+  const distDir = Path.join(inDir, PATHS.dist);
 
 
   const filter: t.FsCopyFilter = (e) => {
-    if (e.source.startsWith(backupDir)) return false;
-    if (gitignore?.isIgnored(e.source)) return false;
+    const startsWith = (path: string) => e.source.startsWith(path);
+    if (startsWith(backupDir)) return false;
+    if (startsWith(viteCacheDir)) return false;
+    if (startsWith(distDir)) return false;
     return true;
   };
 

@@ -16,4 +16,5 @@ export async function saveTemplateFiles(target: string = PATHS.tmp) {
     const filename = c.white(Fs.basename(path));
     console.info(c.gray(`  ${prefix} ${dirname}/${filename}`))
   })
+  console.info()
 }

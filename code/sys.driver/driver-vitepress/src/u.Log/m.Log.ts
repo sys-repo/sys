@@ -127,7 +127,7 @@ export const Log = {
 
       const snapshotsPlural = Str.plural(backups.length, 'snapshot', 'snapshots');
       let total = `${size.total.files} files `;
-      total += c.gray(`in latest of ${backups.length} <${snapshotsPlural}>-backup`);
+      total += c.gray(`in latest of ${backups.length} ${snapshotsPlural}`);
 
       const title = c.green(c.bold('Snapshot'));
       const titleSize = c.brightGreen(Str.bytes(size.total.bytes));

@@ -7,6 +7,7 @@ export const PATHS = {
   inDir: './',
   tmp: '.tmp/-tmpl',
   backup: '-backup',
+  viteCache: '.vitepress/cache',
   dist: 'dist',
   tmpl: {
     source: 'src/-tmpl/files',
