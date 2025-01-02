@@ -127,7 +127,7 @@ export const Log = {
         .map((e) => e.path);
 
       const snapshotsPlural = Str.plural(backups.length, 'snapshot', 'snapshots');
-      let total = `${size.total.files} files `;
+      let total = `${size.total.files.toLocaleString()} files `;
       total += c.gray(`in latest of ${backups.length} ${snapshotsPlural}`);
 
       const title = c.green(c.bold('Snapshot'));
