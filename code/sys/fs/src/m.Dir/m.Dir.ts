@@ -1,5 +1,5 @@
-import { type t } from './common.ts';
-import { snapshot } from './u.snapshot.ts';
+import type { t } from './common.ts';
+import { snapshot } from './m.Dir.snapshot.ts';
 
 /**
  * Helpers for working with file-system directories.
