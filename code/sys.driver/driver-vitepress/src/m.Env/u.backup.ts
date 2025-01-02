@@ -25,7 +25,7 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   spinner.stop().clear();
 
   // Finish up.
-  if (!options.silent) {
+  if (!args.silent) {
     await Log.Snapshot.log(snapshot);
     console.info();
   }
