@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
-import { SAMPLE } from './-u.ts';
+import { Sample } from './-u.ts';
 import { VitePress } from './mod.ts';
 
 describe('VitePress.build', () => {
@@ -20,7 +20,7 @@ describe('VitePress.build', () => {
   it('build (default params)', async () => {
     await Testing.retry(3, async () => {
       const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
-      const sample = SAMPLE.init({ slug: true });
+      const sample = Sample.init({ slug: true });
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, 'dist');
 
@@ -50,8 +50,8 @@ describe('VitePress.build', () => {
   });
 
   it('build: custom {outDir}', async () => {
-    const pkg = SAMPLE.createPkg();
-    const sample = SAMPLE.init({ slug: true });
+    const pkg = Sample.createPkg();
+    const sample = Sample.init({ slug: true });
     const inDir = Fs.resolve(sample.path);
     const outDir = Fs.resolve(sample.path, '.vitepress/dist');
     expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
