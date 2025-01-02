@@ -3,5 +3,6 @@ dist/
 tmp/
 
 -backup/
-.vitepress/cache/
-.vitepress/dist/
+-backup/**
+.vitepress/cache/**
+.vitepress/dist/**
