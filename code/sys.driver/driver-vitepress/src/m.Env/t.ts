@@ -4,11 +4,14 @@ import type { t } from './common.ts';
  * Tools for maintaining the local "Editor Machine/Device" environment state.
  */
 export type VitePressEnvLib = {
-  /** Initialize the local machine environment. */
-  update(args?: t.VitePressEnvUpdateArgs): Promise<VitePressEnvUpdateResponse>;
-
   /** Create a new file-generator instances. */
   tmpl: VitePressTmplFactory;
+
+  /** Initialize the local machine environment with latest templates */
+  update(args?: t.VitePressEnvUpdateArgs): Promise<t.VitePressEnvUpdateResponse>;
+
+  /** Create a backup snapshot. */
+  backup(args: t.VitePressBackupArgs): Promise<t.VitePressBackupResponse>;
 };
 
 /**
@@ -21,7 +24,7 @@ export type VitePressTmplFactoryArgs = {
   version?: t.StringSemver;
 };
 
-/** Arguments passed to the `VitePress.init` method. */
+/** Arguments passed to the `VitePress.Env.update` method. */
 export type VitePressEnvUpdateArgs = {
   force?: boolean;
   inDir?: t.StringDir;
@@ -31,8 +34,15 @@ export type VitePressEnvUpdateArgs = {
 };
 
 /**
- * The response returned from an update.
+ * The response returned from an environment update.
  */
 export type VitePressEnvUpdateResponse = {
   readonly ops: t.TmplFileOperation[];
+};
+
+/** Arguments passed to the `VitePress.Env.backup` method. */
+export type VitePressBackupArgs = { inDir: t.StringDir; silent?: boolean };
+export type VitePressBackupResponse = {
+  readonly snapshot: t.DirSnapshot;
+  readonly gitignore?: t.Ignore;
 };
