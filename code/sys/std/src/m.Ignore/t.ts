@@ -1,22 +1,22 @@
 import type { t } from './common.ts';
 
-/** A string that repersents an ignore glob file-matching pattern (allows for ! negation). */
+/** A string that repersents an ignore glob file-matching pattern (allows for "!" negation). */
 export type StringGlobIgnore = string;
 
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
-export type GlobIgnoreLib = {
+export type IgnoreLib = {
   /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).  */
-  create(rules: t.StringGlobIgnore | t.StringGlobIgnore[]): GlobIgnore;
+  create(rules: t.StringGlobIgnore | t.StringGlobIgnore[]): Ignore;
 };
 
 /**
  * A glob-ignore pattern matcher.
  */
-export type GlobIgnore = {
+export type Ignore = {
   /** List of ignore file-pattern rules. */
-  rules: t.GlobIgnoreRule[];
+  rules: t.IgnoreRule[];
 
   /**
    * Determine if a path is ignored by the rule-set.
@@ -32,7 +32,7 @@ export type GlobIgnore = {
 /**
  * Represents a single glob-ignore rule.
  */
-export type GlobIgnoreRule = {
-  pattern: t.StringGlobIgnore;
-  isNegation: boolean;
+export type IgnoreRule = {
+  readonly pattern: t.StringGlobIgnore;
+  readonly isNegation: boolean;
 };

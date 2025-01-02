@@ -4,9 +4,9 @@ import { default as Lib } from 'ignore';
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
-export const Ignore: t.GlobIgnoreLib = {
+export const Ignore: t.IgnoreLib = {
   /**
-   * Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).
+   * Create an instance of a glob-ignore helper (eg. from a `.gititnore` file).
    */
   create(input) {
     const rules = wrangle.rules(input);
@@ -32,7 +32,7 @@ const wrangle = {
     return input.split(/\r?\n/).map((line) => line.trim());
   },
 
-  rules(input: Parameters<t.GlobIgnoreLib['create']>[0]): t.GlobIgnoreRule[] {
+  rules(input: Parameters<t.IgnoreLib['create']>[0]): t.IgnoreRule[] {
     if (!input || input === null) return [];
 
     if (Array.isArray(input)) {
@@ -50,7 +50,7 @@ const wrangle = {
     return [];
   },
 
-  rule(pattern: t.StringGlobIgnore): t.GlobIgnoreRule {
+  rule(pattern: t.StringGlobIgnore): t.IgnoreRule {
     pattern = pattern.trim();
     return {
       pattern,

@@ -1,7 +1,7 @@
 import { type t, describe, expect, it } from '../-test.ts';
 import { Ignore } from './mod.ts';
 
-type P = Parameters<t.GlobIgnoreLib['create']>[0];
+type P = Parameters<t.IgnoreLib['create']>[0];
 
 describe('Ignore', () => {
   describe('create: pattern input variants', () => {
