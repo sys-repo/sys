@@ -24,12 +24,17 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   const snapshot = await Dir.snapshot({ source, target, filter });
   spinner.stop().clear();
 
-  // Finish up.
+  // Log output.
   if (!args.silent) {
     await Log.Snapshot.log(snapshot);
     console.info();
   }
-  return { gitignore, snapshot };
+
+  // Response.
+  return {
+    gitignore,
+    snapshot,
+  };
 };
 
 /**
