@@ -1,17 +1,26 @@
 import type { t } from './common.ts';
 
+/** A string that is a glob file-matching pattern.  */
+export type StringGlob = string;
+
+/** A string that repersents an ignore glob file-matching pattern (allows for ! negation). */
+export type StringGlobIgnore = StringGlob;
+
 /**
  * Helpers for performing glob searches over a file-system.
  */
 export type GlobLib = {
-  /** Tools for working with ignore files (eg. ".gitignore"). */
-  readonly Ignore: t.GlobIgnoreLib;
-
   /** Generate a Glob helper scoped to a path. */
   readonly create: t.GlobFactory;
 
   /** List the file-paths within a directory (simple glob). */
   readonly ls: t.GlobPathList;
+
+  /** Tools for working with ignore files (eg. ".gitignore"). */
+  readonly Ignore: t.GlobIgnoreLib;
+
+  /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file). */
+  readonly ignore: t.GlobIgnoreLib['create'];
 };
 
 /**
@@ -48,10 +57,32 @@ export type GlobPathList = (dir: t.StringDir, options?: t.GlobOptions) => Promis
  * Tools for working with ignore files (eg. ".gitignore").
  */
 export type GlobIgnoreLib = {
+  /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).  */
+  create(rules: t.StringGlobIgnore | t.StringGlobIgnore[]): GlobIgnore;
+};
+
+/**
+ * A glob-ignore pattern matcher.
+ */
+export type GlobIgnore = {
+  /** List of ignore rules. */
+  rules: t.GlobIgnoreRule[];
+
   /**
-   * TODO 🐷
-   * - fromFile
-   * - create(ignorelist: t.StringPattern[])
-   *   →: { ƒ:isIgnored() }
+   * Determine if a path is ignored by the rule-set.
+   *
+   * @param path the path (absolute or relative) to test.
+   * @param root optional root directory for the repo - if provided,
+   *        we will compute a relative path, which more closely mimics
+   *        actual gitignore usage (patterns are usually relative to repo root).
    */
+  isIgnored(path: t.StringPath, root?: t.StringDir): boolean;
+};
+
+/**
+ * Represents a single glob-ignore rule.
+ */
+export type GlobIgnoreRule = {
+  pattern: t.StringGlobIgnore;
+  isNegation: boolean;
 };
