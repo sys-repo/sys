@@ -1,7 +1,7 @@
-import { type t, ensureDir, Err, exists, Path, pkg } from './common.ts';
+import { type t, Err, exists, pkg } from './common.ts';
+import { copyFile } from './u.copy.file.ts';
 import { Wrangle } from './u.copy.util.ts';
 import { remove } from './u.remove.ts';
-import { copyFile } from './u.copy.file.ts';
 
 /**
  * Copy all files in a directory.
@@ -50,8 +50,8 @@ export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
     for await (const entry of Deno.readDir(from)) {
       const source = `${from}/${entry.name}`;
       const target = `${to}/${entry.name}`;
-      if (!Wrangle.filter(source, target, options.filter)) continue;
       if (entry.isDirectory) {
+        if (!Wrangle.filter(source, target, options.filter)) continue;
         await copyDir(source, target, options); // ← Recursion 🌳
       } else if (entry.isFile) {
         await copyFile(source, target, options);

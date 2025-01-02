@@ -23,6 +23,7 @@ export const Fs: t.FsLib = {
   Watch,
   stat: Deno.stat,
   cwd: Deno.cwd,
+  trimCwd: Path.trimCwd,
 
   join,
   resolve,

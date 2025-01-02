@@ -15,9 +15,20 @@ describe('Fs: directory operations', () => {
     await Fs.ensureDir(a);
     await Deno.writeTextFile(Fs.join(a, name), text);
 
+    const dir = {
+      a,
+      b,
+      async ls() {
+        return {
+          a: await Fs.ls(a),
+          b: await Fs.ls(b),
+        } as const;
+      },
+    };
+
     return {
       SAMPLE,
-      dir: { a, b },
+      dir,
       file: { text, name, a: Fs.join(a, name), b: Fs.join(b, name) },
     } as const;
   };
@@ -285,6 +296,56 @@ describe('Fs: directory operations', () => {
 
         expect(await Fs.exists(b.sample.file.a)).to.eql(true);
         expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
+
+      describe('filter paths: (e) => boolean', () => {
+        type A = t.FsCopyFilterArgs;
+
+        it('copyDir', async () => {
+          const sample = await setupCopyTest();
+          const { dir } = sample;
+          expect((await dir.ls()).b.length).to.eql(0); // NB: not yet copied.
+
+          // NB: ensure the passed paths are absolute.
+          const a = Fs.trimCwd(dir.a);
+          const b = Fs.trimCwd(dir.b);
+
+          const fired: A[] = [];
+          await Fs.copyDir(a, b, (e) => {
+            fired.push(e);
+            return true;
+          });
+
+          expect((await dir.ls()).b.length).to.eql(1); // NB: exists now.
+          expect(fired.length).to.eql(1);
+
+          const e = fired[0];
+          expect(Path.Is.absolute(e.source)).to.be.true;
+          expect(Path.Is.absolute(e.target)).to.be.true;
+        });
+
+        it('copyFile', async () => {
+          const sample = await setupCopyTest();
+          const { file, dir } = sample;
+          expect((await dir.ls()).b.length).to.eql(0); // NB: not yet copied.
+
+          // NB: ensure the passed paths are absolute.
+          const a = Fs.trimCwd(file.a);
+          const b = Fs.trimCwd(file.b);
+
+          const fired: A[] = [];
+          await Fs.copyFile(a, b, (e) => {
+            fired.push(e);
+            return true;
+          });
+
+          expect((await dir.ls()).b.length).to.eql(1); // NB: exists now.
+          expect(fired.length).to.eql(1);
+
+          const e = fired[0];
+          expect(Path.Is.absolute(e.source)).to.be.true;
+          expect(Path.Is.absolute(e.target)).to.be.true;
+        });
       });
     });
 

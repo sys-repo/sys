@@ -8,6 +8,7 @@ describe('Fs: filesystem', () => {
   it('API', () => {
     expect(Fs.glob).to.equal(Glob.create);
     expect(Fs.ls).to.equal(Glob.ls);
+    expect(Fs.trimCwd).to.equal(Path.trimCwd);
   });
 
   describe('Fs.Path', () => {
