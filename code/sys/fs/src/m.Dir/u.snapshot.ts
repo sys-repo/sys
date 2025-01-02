@@ -11,7 +11,7 @@ export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
 
   const path: t.DirSnapshot['path'] = {
     source: args.source,
-    target: Path.join(args.target, `${id}.snapshot`),
+    target: Path.join(args.target, `snapshot.${id}`),
   };
 
   const copied = await Fs.copyDir(path.source, path.target, { filter });
