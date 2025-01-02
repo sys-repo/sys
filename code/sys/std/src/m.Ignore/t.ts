@@ -1,14 +1,11 @@
 import type { t } from './common.ts';
 
-/** A string that repersents an ignore glob file-matching pattern (allows for "!" negation). */
-export type StringGlobIgnore = string;
-
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
 export type IgnoreLib = {
   /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).  */
-  create(rules: t.StringGlobIgnore | t.StringGlobIgnore[]): Ignore;
+  create(rules: string | string[]): Ignore;
 };
 
 /**
@@ -27,12 +24,32 @@ export type Ignore = {
    *        actual gitignore usage (patterns are usually relative to repo root).
    */
   isIgnored(path: t.StringPath, root?: t.StringDir): boolean;
+
+  /**
+   * Debugs ignore rules and returns the checking result, which is
+   * equivalent to git check-ignore -v.
+   *
+   * @param path the path (absolute or relative) to test.
+   * @param root optional root directory for the repo - if provided,
+   *        we will compute a relative path, which more closely mimics
+   *        actual gitignore usage (patterns are usually relative to repo root).
+   */
+  check(path: t.StringPath, root?: t.StringDir): t.IgnoreCheckPathResult;
 };
 
 /**
  * Represents a single glob-ignore rule.
  */
 export type IgnoreRule = {
-  readonly pattern: t.StringGlobIgnore;
-  readonly isNegation: boolean;
+  readonly pattern: string;
+  readonly negative: boolean;
+};
+
+/**
+ * Response from the `ignore.check(path)` method.
+ */
+export type IgnoreCheckPathResult = {
+  readonly ignored: boolean;
+  readonly unignored: boolean;
+  readonly rule?: IgnoreRule;
 };

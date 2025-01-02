@@ -1,5 +1,5 @@
-import { type t, Path } from './common.ts';
 import { default as Lib } from 'ignore';
+import { type t, Path } from './common.ts';
 
 /**
  * Tools for working with ignore files (eg. ".gitignore").
@@ -12,13 +12,22 @@ export const Ignore: t.IgnoreLib = {
     const rules = wrangle.rules(input);
     const ignore = Lib.default();
     rules.forEach((rule) => ignore.add(rule.pattern));
-
     return {
       rules,
       isIgnored(path, root) {
         path = Path.normalize(path);
         if (root) path = Path.relative(root, path);
         return ignore.ignores(path);
+      },
+      check(path, root) {
+        path = Path.normalize(path);
+        if (root) path = Path.relative(root, path);
+        const result = ignore.checkIgnore(path) as t.IgnoreCheckPathResult;
+        const { ignored, unignored } = result;
+        const rule = result.rule
+          ? rules.find((item) => item.pattern === result.rule?.pattern)
+          : undefined;
+        return { ignored, unignored, rule };
       },
     };
   },
@@ -30,6 +39,12 @@ export const Ignore: t.IgnoreLib = {
 const wrangle = {
   lines(input: string) {
     return input.split(/\r?\n/).map((line) => line.trim());
+  },
+
+  rule(pattern: string): t.IgnoreRule {
+    pattern = pattern.trim();
+    const negative = pattern.startsWith('!');
+    return { pattern, negative };
   },
 
   rules(input: Parameters<t.IgnoreLib['create']>[0]): t.IgnoreRule[] {
@@ -48,13 +63,5 @@ const wrangle = {
       return wrangle.rules(wrangle.lines(input)); // Recursion 🌳
     }
     return [];
-  },
-
-  rule(pattern: t.StringGlobIgnore): t.IgnoreRule {
-    pattern = pattern.trim();
-    return {
-      pattern,
-      isNegation: pattern.startsWith('!'),
-    };
   },
 } as const;

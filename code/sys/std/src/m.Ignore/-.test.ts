@@ -4,14 +4,15 @@ import { Ignore } from './mod.ts';
 type P = Parameters<t.IgnoreLib['create']>[0];
 
 describe('Ignore', () => {
-  describe('create: pattern input variants', () => {
-    const gitignore = `
-      dist
-      .env
-      .env.*
-      !**/.foo/cache/
+  const gitignore = `
+    dist
+    .env
+    .env.*
+    **/cache/
+    !**/.foo/cache/
 `;
 
+  describe('create: pattern input variants', () => {
     it('empty', () => {
       const test = (input: P) => {
         const ignore = Ignore.create(input);
@@ -42,7 +43,8 @@ describe('Ignore', () => {
       expect(a.rules[0].pattern).to.eql('dist');
       expect(a.rules[1].pattern).to.eql('.env');
       expect(a.rules[2].pattern).to.eql('.env.*');
-      expect(a.rules[3].pattern).to.eql('!**/.foo/cache/');
+      expect(a.rules[3].pattern).to.eql('**/cache/');
+      expect(a.rules[4].pattern).to.eql('!**/.foo/cache/');
     });
 
     it('multi-line within array', () => {
@@ -56,11 +58,11 @@ describe('Ignore', () => {
   });
 
   describe('pattern rules', () => {
-    it('isNegation', () => {
+    it('is negative (negation)', () => {
       const test = (input: P, expected: boolean) => {
         const ignore = Ignore.create(input);
         const rule = ignore.rules[0];
-        expect(rule.isNegation).to.eql(expected);
+        expect(rule.negative).to.eql(expected);
       };
 
       test('foo', false);
@@ -129,6 +131,38 @@ describe('Ignore', () => {
         test('file[0-9].txt', 'file1.txt', true);
         test('file[0-9].txt', 'filea.txt', false);
       });
+    });
+  });
+
+  describe('check', () => {
+    const ignore = Ignore.create(gitignore);
+
+    it('not ignored', () => {
+      const res = ignore.check('foo');
+      expect(res.ignored).to.eql(false);
+      expect(res.unignored).to.eql(false);
+      expect(res.rule).to.eql(undefined);
+    });
+
+    it('is ignored', () => {
+      const res = ignore.check('foo/.env');
+      expect(res.ignored).to.eql(true);
+      expect(res.unignored).to.eql(false);
+      expect(res.rule?.pattern).to.eql('.env');
+      expect(res.rule?.negative).to.eql(false);
+    });
+
+    it('is unignored', () => {
+      const a = ignore.check('hello/cache/');
+      const b = ignore.check('.foo/cache/');
+
+      expect(a.ignored).to.eql(true);
+      expect(a.unignored).to.eql(false);
+      expect(a.rule?.pattern).to.eql('**/cache/');
+
+      expect(b.ignored).to.eql(false);
+      expect(b.unignored).to.eql(true);
+      expect(b.rule).to.eql(undefined);
     });
   });
 });
