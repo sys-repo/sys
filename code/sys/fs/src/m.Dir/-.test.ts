@@ -60,7 +60,7 @@ describe('Fs.Dir', () => {
       const snapshotB = await Dir.snapshot({
         source,
         target,
-        filter: (path) => Path.basename(path) !== 'mod.ts',
+        filter: (e) => Path.basename(e.source) !== 'mod.ts',
       });
 
       const contains = (snapshot: t.DirSnapshot, filename: string) => {
