@@ -4,7 +4,6 @@ import { Glob } from './mod.ts';
 
 describe('Glob', () => {
   it('API', () => {
-    expect(Glob.ignore).to.equal(Ignore.create);
     expect(Fs.ls).to.equal(Glob.ls);
   });
 

@@ -9,9 +9,6 @@ export type GlobLib = {
 
   /** List the file-paths within a directory (simple glob). */
   readonly ls: t.GlobPathList;
-
-  /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file). */
-  readonly ignore: t.IgnoreLib['create'];
 };
 
 /**

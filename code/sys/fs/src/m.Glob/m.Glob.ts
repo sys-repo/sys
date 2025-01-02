@@ -1,4 +1,4 @@
-import { type t, Ignore } from './common.ts';
+import { type t } from './common.ts';
 import { create } from './u.create.ts';
 import { ls } from './u.ls.ts';
 
@@ -8,5 +8,4 @@ import { ls } from './u.ls.ts';
 export const Glob: t.GlobLib = {
   create,
   ls,
-  ignore: Ignore.create,
 };
