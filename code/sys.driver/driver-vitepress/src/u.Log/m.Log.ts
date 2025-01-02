@@ -98,13 +98,14 @@ export const Log = {
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
     const distPathFmt = `${Path.dirname(distPath)}/${Path.basename(distPath)}`;
+    const pkgNameFmt = c.white(c.bold(pkg.name));
 
     const table = Cli.table([]);
     const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
     push('size:', size);
     push('dist:', c.gray(`${distPathFmt} ${digest}`));
-    push('pkg:', c.gray(`https://jsr.io/${c.white(c.bold(pkg.name))} ${pkg.version}`));
+    push('pkg:', c.gray(`https://jsr.io/${pkgNameFmt}@${pkg.version}`));
 
     console.info(table.toString().trim());
   },
