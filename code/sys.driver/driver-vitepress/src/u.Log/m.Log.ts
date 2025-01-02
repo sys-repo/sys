@@ -139,8 +139,12 @@ export const Log = {
       const date = new Date(snapshot.timestamp);
       const dateFmt = D.format(date, 'd MMM yyyy');
 
+      const distJson = await Pkg.Dist.compute(snapshot.path.target);
+      const digest = distJson.dist?.hash.digest;
+      const targetRight = `${c.white(dateFmt)} | digest:${c.green(`#${digest.slice(-4)}`)}`;
+
       push('  source', c.gray(formatPath(snapshot.path.source)));
-      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${c.white(dateFmt)}`));
+      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${targetRight}`));
       push('  total', total.toLocaleString());
 
       return table.toString().trim();
