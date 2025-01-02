@@ -1,5 +1,5 @@
 import { VitePress } from '../m.VitePress/mod.ts';
-import { type t, Args, c, DEFAULTS, PATHS, Log, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Env, Log, PATHS, pkg } from './common.ts';
 
 type F = t.VitePressCmdLib['main'];
 
@@ -50,8 +50,8 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'backup') {
-    const { backup } = await import('./u.backup.ts');
-    await backup(argv);
+    const { inDir = PATHS.inDir } = args;
+    await Env.backup({ inDir });
     return;
   }
 
