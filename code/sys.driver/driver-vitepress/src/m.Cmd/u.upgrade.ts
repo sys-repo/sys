@@ -31,7 +31,7 @@ export async function upgrade(argv: string[]) {
     return;
   }
 
-  if (diff !== 0) {
+  if (diff !== 0 || force) {
     // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
