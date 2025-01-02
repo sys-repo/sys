@@ -145,7 +145,11 @@ export type FsCopyOptions = {
 export type FsCopyResponse = { error?: t.StdError };
 
 /** Filter files during a copy operation. */
-export type FsCopyFilter = (path: t.StringPath) => boolean;
+export type FsCopyFilter = (args: t.FsCopyFilterArgs) => boolean;
+export type FsCopyFilterArgs = {
+  source: t.StringPath;
+  target: t.StringPath;
+};
 
 /**
  * Delete a file or directory (and it's contents).

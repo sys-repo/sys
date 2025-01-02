@@ -10,7 +10,7 @@ export const Wrangle = {
     return input;
   },
 
-  filter(path: t.StringPath, filter?: t.FsCopyFilter): boolean {
-    return filter ? filter(path) : true;
+  filter(source: t.StringPath, target: t.StringPath, filter?: t.FsCopyFilter): boolean {
+    return filter ? filter({ source, target }) : true;
   },
 } as const;

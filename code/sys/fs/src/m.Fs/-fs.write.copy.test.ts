@@ -248,7 +248,7 @@ describe('Fs: directory operations', () => {
         };
 
         const a = await test();
-        const b = await test((path) => Path.basename(path) !== 'foo.txt');
+        const b = await test((e) => Path.basename(e.source) !== 'foo.txt');
 
         expect(a.ls.length).to.eql(1);
         expect(b.ls.length).to.eql(0); // NB: filtered out.
@@ -270,7 +270,7 @@ describe('Fs: directory operations', () => {
         };
 
         const a = await test();
-        const b = await test((path) => Path.basename(path) !== 'foo.txt');
+        const b = await test((e) => Path.basename(e.target) !== 'foo.txt');
 
         expect(a.res.error).to.eql(undefined);
         expect(b.res.error?.message).to.include(

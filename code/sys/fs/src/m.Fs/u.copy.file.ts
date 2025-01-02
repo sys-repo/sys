@@ -54,7 +54,7 @@ export const copyFile: t.FsCopyFile = async (from, to, opt = {}) => {
   try {
     // Check if filtered
     let allowCopy = true;
-    if (typeof options.filter === 'function' && !Wrangle.filter(to, options.filter)) {
+    if (typeof options.filter === 'function' && !Wrangle.filter(from, to, options.filter)) {
       allowCopy = false;
       errors.push(`Cannot copy file because the path has been filtered out: ${to}`);
     }

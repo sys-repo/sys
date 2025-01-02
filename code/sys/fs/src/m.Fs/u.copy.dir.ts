@@ -50,7 +50,7 @@ export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
     for await (const entry of Deno.readDir(from)) {
       const source = `${from}/${entry.name}`;
       const target = `${to}/${entry.name}`;
-      if (!Wrangle.filter(target, options.filter)) continue;
+      if (!Wrangle.filter(source, target, options.filter)) continue;
       if (entry.isDirectory) {
         await copyDir(source, target);
       } else if (entry.isFile) {
