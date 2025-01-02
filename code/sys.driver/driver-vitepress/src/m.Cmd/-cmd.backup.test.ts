@@ -1,4 +1,4 @@
-import { type t, Ignore, PATHS, Fs, describe, it, expect } from '../-test.ts';
+import { Fs, Ignore, PATHS, describe, expect, it } from '../-test.ts';
 
 describe('cmd: backup', () => {
   const setup = async () => {
