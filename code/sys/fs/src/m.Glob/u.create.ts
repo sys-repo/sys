@@ -12,18 +12,20 @@ export const create: t.GlobFactory = (dir, baseOptions = {}) => {
     },
 
     async find(pattern, options = {}): Promise<WalkEntry[]> {
-      const { exclude, includeDirs } = { ...baseOptions, ...options };
+      const { exclude, includeDirs, trimCwd } = { ...baseOptions, ...options };
       pattern = Path.join(dir, pattern);
       const res: WalkEntry[] = [];
       const expanded = expandGlob(pattern, { exclude, includeDirs });
       for await (const file of expanded) {
+        if (trimCwd) file.path = Path.trimCwd(file.path);
         res.push(file);
       }
       return res;
     },
 
-    dir(subdir) {
-      return create(Path.join(dir, subdir)); // ← RECURSION 🌳
+    dir(subdir, options = {}) {
+      const path = Path.join(dir, subdir);
+      return create(path, { ...baseOptions, ...options }); // ← RECURSION 🌳
     },
   };
   return api;

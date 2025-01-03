@@ -1,6 +1,7 @@
 import { describe, expect, Ignore, it } from '../-test.ts';
 import { Fs } from '../m.Fs/mod.ts';
 import { Glob } from './mod.ts';
+import { Path } from './common.ts';
 
 describe('Glob', () => {
   it('API', () => {
@@ -16,13 +17,14 @@ describe('Glob', () => {
       const matches = await glob.find('**');
       expect(matches.length).to.be.greaterThan(10);
       expect(matches.some((m) => m.isDirectory === true)).to.be.true; // NB: includes directories by default.
+      expect(matches.every((m) => Path.Is.absolute(m.path))).to.be.true;
 
       const self = matches.find((item) => item.path === import.meta.filename);
       expect(self?.isFile).to.eql(true);
       expect(self?.name).to.eql(Fs.Path.basename(import.meta.filename ?? ''));
     });
 
-    it('option: {includeDirs: false}', async () => {
+    it('option: { includeDirs: false }', async () => {
       const dir = Fs.resolve('src');
       const glob = Fs.glob(dir);
       const a = await glob.find('**', {});
@@ -31,6 +33,22 @@ describe('Glob', () => {
       expect(a.some((m) => m.isDirectory === true)).to.be.true; //  Default param.
       expect(b.some((m) => m.isDirectory === true)).to.be.false; // Directories excluded.
       expect(c.some((m) => m.isDirectory === true)).to.be.false; // Option passed into root glob constructor.
+    });
+
+    it('option: { trimCwd:true }', async () => {
+      const dir = Fs.resolve('src');
+      const glob = Fs.glob(dir);
+      const a = await glob.find('**');
+      const b = await glob.find('**', { trimCwd: true });
+      const c = await Fs.glob(dir, { trimCwd: true }).find('**');
+      const d = await Fs.glob(dir).dir('m.Glob').find('**');
+      const e = await Fs.glob(dir).dir('m.Glob', { trimCwd: true }).find('**');
+
+      expect(a.every((m) => Path.Is.absolute(m.path))).to.be.true;
+      expect(b.every((m) => Path.Is.relative(m.path))).to.be.true;
+      expect(c.every((m) => Path.Is.relative(m.path))).to.be.true;
+      expect(d.every((m) => Path.Is.absolute(m.path))).to.be.true;
+      expect(e.every((m) => Path.Is.relative(m.path))).to.be.true;
     });
   });
 
@@ -48,6 +66,13 @@ describe('Glob', () => {
       const glob = await Fs.glob(dir, { includeDirs }).find('**');
       const ls = await Fs.ls(dir, { includeDirs });
       expect(ls).to.eql(glob.map((m) => m.path));
+    });
+
+    it('option: { trimCwd:true }', async () => {
+      const a = await Fs.ls(dir);
+      const b = await Fs.ls(dir, { trimCwd: true });
+      expect(a.every((p) => Path.Is.absolute(p))).to.be.true;
+      expect(b.every((p) => Path.Is.relative(p))).to.be.true;
     });
 
     it('path to file → [] empty array', async () => {

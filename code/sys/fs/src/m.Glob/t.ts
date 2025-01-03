@@ -27,13 +27,14 @@ export type Glob = {
   find(pattern: string, options?: t.GlobOptions): Promise<t.WalkEntry[]>;
 
   /** Retrieve a sub-directory `Glob` from the current context. */
-  dir(subdir: t.StringDir): Glob;
+  dir(subdir: t.StringDir, options?: GlobOptions): Glob;
 };
 
 /** Options for a glob operation.  */
 export type GlobOptions = {
   exclude?: string[];
   includeDirs?: boolean;
+  trimCwd?: boolean;
 };
 
 /**

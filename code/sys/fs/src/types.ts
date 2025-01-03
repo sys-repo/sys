@@ -2,6 +2,7 @@
  * @module
  * Module types.
  */
+export type * from './m.Dir.Hash/t.ts';
 export type * from './m.Dir/t.ts';
 export type * from './m.FileMap/t.ts';
 export type * from './m.Fs/t.ts';
