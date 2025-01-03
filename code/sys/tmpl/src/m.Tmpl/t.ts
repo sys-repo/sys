@@ -119,7 +119,7 @@ export type TmplFileOperation = {
 
   /** The text content of the file. */
   text: {
-    source: string;
+    tmpl: string;
     target: { before: string; after: string; isDiff: boolean };
   };
 };

@@ -149,7 +149,7 @@ describe('Tmpl', () => {
         const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
         const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
 
-        expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
+        expect(matchA?.text.tmpl).to.include(`name: '{FOO_BAR}'`);
         expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
         expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
         expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
