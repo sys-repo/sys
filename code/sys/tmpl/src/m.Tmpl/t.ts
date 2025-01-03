@@ -101,16 +101,22 @@ export type TmplFile = {
 export type TmplFileOperation = {
   /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
+
   /** Flag indicating if a write operation was performed for the file. */
   written: boolean;
+
   /** Flag indicating if the write operation was a "create" action */
   created: boolean;
+
   /** Flag indicating if the write operation was the "update" action. */
   updated: boolean;
+
   /** Flag indicating if the file operation was forced. */
   forced: boolean;
+
   /** File path details. */
   file: { source: t.TmplFile; target: t.TmplFile };
+
   /** The text content of the file. */
   text: {
     source: string;
