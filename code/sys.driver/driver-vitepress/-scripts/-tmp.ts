@@ -10,7 +10,7 @@ res.ops.forEach((op) => {
   // console.log("op", op.)
 });
 
-const op = res.ops.find((op) => op.file.source.name === '.gitignore');
+const op = res.ops.find((op) => op.file.tmpl.name === '.gitignore');
 
 // console.log('op', op);
 

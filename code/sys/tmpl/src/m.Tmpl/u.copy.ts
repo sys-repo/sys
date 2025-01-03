@@ -24,7 +24,7 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        source: Wrangle.file(from),
+        tmpl: Wrangle.file(from),
         target: Wrangle.file(to),
       },
       text: {

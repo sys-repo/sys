@@ -115,7 +115,7 @@ describe('Tmpl', () => {
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
-          expect(e.file.source.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
+          expect(e.file.tmpl.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
           expect(e.file.target.dir.startsWith(Fs.Path.trimCwd(target))).to.be.true;
         });
         await tmpl.copy(target);
@@ -129,7 +129,7 @@ describe('Tmpl', () => {
         });
         const res = await tmpl.copy(test.target);
         const match = res.ops.find((m) => m.file.target.name === 'main.ts');
-        expect(match?.file.source.name).to.eql('mod.ts');
+        expect(match?.file.tmpl.name).to.eql('mod.ts');
         expect(match?.file.target.name).to.eql('main.ts');
         expect(await test.exists.target('mod.ts')).to.eql(false);
         expect(await test.exists.target('main.ts')).to.eql(true);

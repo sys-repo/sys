@@ -23,7 +23,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
     if (file.name === 'deno.json') {
       const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
-      const text = e.text
+      const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
         .replace(/<SELF_IMPORT_NAME>/, pkg.name);
@@ -32,7 +32,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
     }
 
     if (file.path.endsWith('.vitepress/config.ts')) {
-      const text = e.text.replace(/<SRC_DIR>/, srcDir);
+      const text = e.text.tmpl.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
     }
   });
