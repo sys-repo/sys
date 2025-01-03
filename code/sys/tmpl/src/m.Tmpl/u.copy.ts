@@ -50,7 +50,11 @@ export async function copy(
       await fn(args);
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = Wrangle.rename(op.file.target, changes.filename);
-      if (changes.text) op.text.target.after = changes.text;
+      if (changes.text) {
+        op.text.target.after = changes.text; // Update to modified output.
+      } else {
+        op.text.target.after = args.text.tmpl; // Update to current template.
+      }
     }
 
     if (!op.excluded) {
