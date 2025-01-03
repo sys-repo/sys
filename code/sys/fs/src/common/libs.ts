@@ -1,6 +1,6 @@
 export { ensureDir, exists } from '@std/fs';
 
-export { asArray, rx, slug, Time } from '@sys/std';
+export { asArray, Delete, R, rx, slug, Time } from '@sys/std';
 export { Err } from '@sys/std/error';
 export { Hash } from '@sys/std/hash';
 export { Ignore } from '@sys/std/ignore';

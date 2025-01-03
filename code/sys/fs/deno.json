@@ -15,6 +15,7 @@
     "./dir": "./src/m.Dir/mod.ts",
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
+    "./pkg": "./src/m.Pkg/mod.ts",
     "./watch": "./src/m.Watch/mod.ts"
   }
 }
