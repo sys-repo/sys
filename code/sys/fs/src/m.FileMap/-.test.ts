@@ -5,18 +5,13 @@ import { Sample } from './-u.ts';
 import { FileMap } from './mod.ts';
 
 describe('FileMap', () => {
-  const getPaths = async (dir = Sample.source.dir) => {
-    const glob = Fs.glob(dir, { includeDirs: false });
-    const paths = await glob.find('**');
-    return paths.map((m) => Path.trimCwd(m.path)).map((path) => path.slice(dir.length + 1));
-  };
-
   describe('bundle', () => {
     const dir = Sample.source.dir;
 
     it('bundle ← all paths', async () => {
       const res = await FileMap.bundle(dir);
-      expect(Object.keys(res).sort()).to.eql((await getPaths()).sort());
+      const paths = (await Sample.source.ls()).map((p) => p.slice(dir.length + 1)).sort();
+      expect(Object.keys(res).sort()).to.eql(paths);
       expect(res['images/vector.svg']).to.exist;
       expect(res['images/pixels.png']).to.exist;
     });
