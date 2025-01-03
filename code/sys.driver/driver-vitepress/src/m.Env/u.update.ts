@@ -14,7 +14,7 @@ export const update: t.VitePressEnvLib['update'] = async (args = {}) => {
   const { ops } = await tmpl.copy(inDir, { force });
 
   /**
-   * Clean away obsolete files.
+   * Clean away obsolete files (historical).
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
   await remove('src/pkg.ts');
