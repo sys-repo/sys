@@ -31,15 +31,10 @@ export async function copy(
         source: sourceText,
         target: {
           before: targetText,
-          after: sourceText !== targetText ? sourceText : targetText || sourceText,
+          after: targetText || sourceText,
           get isDiff() {
             return op.text.target.before !== op.text.target.after;
           },
-        },
-        get isDiff() {
-          if (op.text.target.isDiff) return true;
-          if (op.text.source !== op.text.target.after) return true;
-          return false;
         },
       },
       excluded: false,
@@ -52,8 +47,7 @@ export async function copy(
 
     if (typeof fn === 'function') {
       const { args, changes } = await wrangle.args(op);
-      const res = fn(args);
-      if (Is.promise(res)) await res;
+      await fn(args);
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = Wrangle.rename(op.file.target, changes.filename);
       if (changes.text) op.text.target.after = changes.text;
@@ -63,7 +57,7 @@ export async function copy(
       const target = op.file.target;
       const path = target.path;
       const exists = await Fs.exists(path);
-      const isDiff = op.text.isDiff;
+      const isDiff = op.text.target.isDiff;
 
       if (!exists) {
         op.created = true;
@@ -90,7 +84,7 @@ const wrangle = {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const args: t.TmplProcessFileArgs = {
       file: await wrangle.argsFile(op.file),
-      text: op.text.source,
+      text: { tmpl: op.text.source, current: op.text.target.before },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;

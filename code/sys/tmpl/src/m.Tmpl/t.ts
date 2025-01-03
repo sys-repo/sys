@@ -52,7 +52,7 @@ export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
   readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
   /** The text body of the file. */
-  readonly text: string;
+  readonly text: { tmpl: string; current: string };
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
   /** Adjust the name of the file. */
@@ -115,6 +115,5 @@ export type TmplFileOperation = {
   text: {
     source: string;
     target: { before: string; after: string; isDiff: boolean };
-    isDiff: boolean;
   };
 };

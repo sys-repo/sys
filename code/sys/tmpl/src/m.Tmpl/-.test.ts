@@ -47,7 +47,7 @@ describe('Tmpl', () => {
       logOps(a, 'Copy:', { indent: 2 });
     });
 
-    it.skip('tmpl.copy(): → create → update', async () => {
+    it('tmpl.copy(): → create → update', async () => {
       const test = SAMPLE.init();
       let foo = 0;
       let count = 0;
@@ -70,7 +70,7 @@ describe('Tmpl', () => {
       expect(count).to.greaterThan(1);
       expect(a.length).to.eql(1);
       expect(b.length).to.eql(1);
-      // expect(c.length).to.eql(0);
+      expect(c.length).to.eql(0);
 
       expect(a[0].created).to.eql(true);
       expect(a[0].updated).to.eql(false);
@@ -139,7 +139,7 @@ describe('Tmpl', () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, (e) => {
           if (e.file.target.name === 'mod.ts') {
-            const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
+            const next = e.text.tmpl.replace(/\{FOO_BAR\}/g, '👋 Hello');
             e.modify(next);
           }
         });
