@@ -33,6 +33,7 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
 
   // Log output.
   if (!args.silent) {
+    console.info();
     await Log.Snapshot.log(snapshot);
     console.info();
   }
