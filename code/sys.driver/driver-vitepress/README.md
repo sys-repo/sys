@@ -30,11 +30,14 @@ deno task help
 
 Usage: deno task [COMMAND]
                                                                          
-  deno task dev       Run the development server.                        
-  deno task build     Transpile into production bundle.                   
+  deno task dev       Run the development server.                  
+  deno task build     Transpile into production bundle.
   deno task serve     Run a local HTTP server with the production bundle.
-  deno task upgrade   Upgrade to latest version.                         
-  deno task help      Show help.              
+
+  deno task upgrade   Upgrade to latest version.                    
+  deno task backup    Take a snapshot of the project.
+  deno task clean     Delete temporary files.
+  deno task help      Show help.
 ```
 
 ### JSR Publishing
