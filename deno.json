@@ -2,7 +2,7 @@
   "tasks": {
     "info": "deno run -RE --allow-sys --allow-ffi ./scripts/main.ts --info",
     "test": "deno run -A ./scripts/main.ts --test",
-    "dry": "deno run -RE --allow-run=sh ./scripts/main.ts --dry",
+    "dry": "deno run -RE --allow-run=sh --allow-sys --allow-ffi ./scripts/main.ts --dry",
     "ci": "deno run -A ./scripts/main.ts --dry --test --info",
     "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
     "clean": "deno run -RWE --allow-run=sh ./scripts/main.ts --clean",
