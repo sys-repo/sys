@@ -3,28 +3,28 @@ import type { t } from './common.ts';
 /**
  * Tools for working hashes of a file-system directory.
  */
-export type HashDirLib = {
+export type DirHashLib = {
   /**
    * Calculate the hash of a directory.
    */
-  compute(dir: t.StringDir, options?: t.HashDirComputeOptions | t.HashDirFilter): Promise<HashDir>;
+  compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.DirHashFilter): Promise<DirHash>;
 
   /**
    * Verify a directory against the given [CompositeHash] value.
    */
-  verify(dir: t.StringDir, hash: t.StringHash | t.CompositeHash): Promise<HashDirVerifyResponse>;
+  verify(dir: t.StringDir, hash: t.StringHash | t.CompositeHash): Promise<DirHashVerifyResponse>;
 };
 
 /** Options passed to the `Hash.Dir.compute` method. */
-export type HashDirComputeOptions = { filter?: HashDirFilter };
+export type DirHashComputeOptions = { filter?: DirHashFilter };
 
 /** Filter out files included within a directory being hashed. */
-export type HashDirFilter = (path: string) => boolean;
+export type DirHashFilter = (path: t.StringPath) => boolean;
 
 /**
  * Represents a hash of a directory.
  */
-export type HashDir = {
+export type DirHash = {
   /** The composite hash value. */
   hash: t.CompositeHash;
 
@@ -41,7 +41,7 @@ export type HashDir = {
 /**
  * The results of a verification of a directory.
  */
-export type HashDirVerifyResponse = HashDir & {
+export type DirHashVerifyResponse = DirHash & {
   is: t.HashVerifyResponse['is'];
 };
 

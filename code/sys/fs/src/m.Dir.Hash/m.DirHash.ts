@@ -1,7 +1,7 @@
 import { Hash } from '@sys/std/hash';
 import { type t, Err, Fs, Path } from './common.ts';
 
-export const DirHash: t.HashDirLib = {
+export const DirHash: t.DirHashLib = {
   /**
    * Computer a `CompositeHash` for the given directory.
    */
@@ -11,7 +11,7 @@ export const DirHash: t.HashDirLib = {
     const errors = Err.errors();
     const exists = await Fs.exists(dir);
     const builder = Hash.composite();
-    const res: t.HashDir = { exists, dir, hash: builder.toObject() };
+    const res: t.DirHash = { exists, dir, hash: builder.toObject() };
 
     if (!exists) {
       errors.push(Err.std('Directory does not exist.'));
@@ -70,7 +70,7 @@ export const DirHash: t.HashDirLib = {
     /**
      * Response.
      */
-    const res: t.HashDirVerifyResponse = {
+    const res: t.DirHashVerifyResponse = {
       exists,
       dir,
       hash: wrangle.hash(hash),
@@ -101,7 +101,7 @@ export const DirHash: t.HashDirLib = {
  * Helpers
  */
 const wrangle = {
-  computeOptions(input?: t.HashDirComputeOptions | t.HashDirFilter) {
+  computeOptions(input?: t.DirHashComputeOptions | t.DirHashFilter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;
