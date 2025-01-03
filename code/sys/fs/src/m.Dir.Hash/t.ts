@@ -4,14 +4,13 @@ import type { t } from './common.ts';
  * Tools for working hashes of a file-system directory.
  */
 export type DirHashLib = {
-  /**
-   * Calculate the hash of a directory.
-   */
+  /** Hash related console logging helpers. */
+  readonly Log: t.DirHashLogLib;
+
+  /** Calculate the hash of a directory. */
   compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.DirHashFilter): Promise<DirHash>;
 
-  /**
-   * Verify a directory against the given [CompositeHash] value.
-   */
+  /** Verify a directory against the given [CompositeHash] value. */
   verify(dir: t.StringDir, hash: t.StringHash | t.CompositeHash): Promise<DirHashVerifyResponse>;
 };
 
@@ -46,7 +45,7 @@ export type DirHashVerifyResponse = DirHash & {
 };
 
 /**
- * Console (Logging and Display).
+ * Hash related console logging helpers.
  */
 export type DirHashLogLib = {
   digest(input?: t.HashInput, options?: { length?: number }): string;

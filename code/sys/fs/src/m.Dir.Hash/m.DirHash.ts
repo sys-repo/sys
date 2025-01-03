@@ -1,10 +1,12 @@
-import { Hash } from '@sys/std/hash';
-import { type t, Err, Fs, Path } from './common.ts';
+import { type t, Err, Fs, Hash, Path } from './common.ts';
+import { DirHashLog as Log } from './m.Log.ts';
 
 /**
  * Tools for working hashes of a file-system directory.
  */
 export const DirHash: t.DirHashLib = {
+  Log,
+
   /**
    * Computer a `CompositeHash` for the given directory.
    */

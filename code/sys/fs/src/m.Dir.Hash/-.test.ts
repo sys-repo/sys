@@ -1,6 +1,8 @@
 import { describe, expect, it, type t } from '../-test.ts';
+import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
 import { Fs, Hash } from './common.ts';
+import { DirHashLog } from './m.Log.ts';
 import { DirHash } from './mod.ts';
 
 describe('Dir.Hash', () => {
@@ -10,10 +12,13 @@ describe('Dir.Hash', () => {
 
   const verifyFileHash = async (path: t.StringPath, expected: t.StringHash) => {
     const binary = await Deno.readFile(path);
-    const hash = Hash.sha256(binary);
     expect(Hash.sha256(binary)).to.eql(expected);
   };
 
+  it('API', () => {
+    expect(Dir.Hash).to.equal(DirHash);
+    expect(DirHash.Log).to.equal(DirHashLog);
+  });
 
   describe('Dir.Hash.compute', () => {
     it('compute → success', async () => {
@@ -165,6 +170,16 @@ describe('Dir.Hash', () => {
         await test({ foo: 123 });
         await test({ hash: { foo: 123 } });
       });
+    });
+  });
+
+  describe('Dir.Hash.Log', () => {
+    const Log = Dir.Hash.Log;
+
+    it('string: Log.digest', async () => {
+      const sample = await Sample.init();
+      const res = await DirHash.compute(sample.dir);
+      console.info('DirHash.Log.digest:', Log.digest(res.hash));
     });
   });
 });
