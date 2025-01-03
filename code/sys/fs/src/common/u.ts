@@ -1,4 +1,4 @@
-import * as t from './t.ts';
+import type * as t from './t.ts';
 import { exists } from './libs.ts';
 
 /**

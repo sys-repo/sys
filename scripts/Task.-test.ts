@@ -1,4 +1,4 @@
-import { c, Cli, Process, Log, Path, Paths, type CmdResult } from './u.ts';
+import { c, Cli, Log, Paths, Process, type CmdResult } from './u.ts';
 
 export async function main() {
   console.info();
@@ -11,8 +11,8 @@ export async function main() {
   const run = async (path: string, index: number, total: number) => {
     const command = `deno task test`;
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
-    const modulePath = c.gray(`${Path.dirname(path)}/${c.white(Path.basename(path))}`);
-    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n  → ${modulePath}\n`);
+    const moduleList = Log.moduleList({ index, indent: 3 });
+    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n${moduleList}`);
     const output = await Process.sh({ silent: true, path }).run(command);
     results.push({ output, path });
   };
@@ -22,7 +22,7 @@ export async function main() {
     for (const [index, path] of Paths.modules.entries()) {
       await run(path, index, total);
     }
-    spinner.succeed(c.gray(`${c.white('Complete')} (${c.green(total.toString())})`));
+    spinner.stop();
   } catch (err: any) {
     spinner.fail(`Failed: ${err.message}`);
   } finally {

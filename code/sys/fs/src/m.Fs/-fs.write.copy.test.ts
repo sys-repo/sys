@@ -1,10 +1,10 @@
-import { expectError, describe, expect, it, slug } from '../-test.ts';
-import { sampleDir } from './-u.ts';
+import { type t, describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
 import { Fs } from './mod.ts';
+import { Path } from './common.ts';
 
 describe('Fs: directory operations', () => {
   const setupCopyTest = async () => {
-    const SAMPLE = sampleDir('fs-dir');
+    const SAMPLE = sampleDir('Fs');
     await SAMPLE.ensureExists();
 
     const text = `sample-${slug()}\n`;
@@ -15,9 +15,20 @@ describe('Fs: directory operations', () => {
     await Fs.ensureDir(a);
     await Deno.writeTextFile(Fs.join(a, name), text);
 
+    const dir = {
+      a,
+      b,
+      async ls() {
+        return {
+          a: await Fs.ls(a),
+          b: await Fs.ls(b),
+        } as const;
+      },
+    };
+
     return {
       SAMPLE,
-      dir: { a, b },
+      dir,
       file: { text, name, a: Fs.join(a, name), b: Fs.join(b, name) },
     } as const;
   };
@@ -63,9 +74,9 @@ describe('Fs: directory operations', () => {
           expect(res.error?.message).to.include(expectedError);
         };
 
-        await test('./404', 'Copy error - source file does not exist');
+        await test('./404', 'Cannot copy file because source file does not exist');
         for (const value of NON) {
-          await test(value, 'Copy error - source file path is not a valid');
+          await test(value, 'Cannot copy file because source file path is not a valid');
         }
       });
 
@@ -73,7 +84,9 @@ describe('Fs: directory operations', () => {
         const sample = await setupCopyTest();
         const { dir, file } = sample;
         const res = await Fs.copyFile(dir.a, file.b);
-        expect(res.error?.message).to.include('Cannot copy file - the given path is a directory');
+        expect(res.error?.message).to.include(
+          'Cannot copy file because the given path is a directory',
+        );
       });
 
       it('error: not forced AND file already exists', async () => {
@@ -210,6 +223,7 @@ describe('Fs: directory operations', () => {
      */
     it('copy file', async () => {
       const { dir, file } = await setupCopyTest();
+
       expect(await Fs.exists(dir.a)).to.eql(true);
       expect(await Fs.exists(dir.b)).to.eql(false); // NB: copyFile will ensure the parent dir.
 
@@ -232,6 +246,107 @@ describe('Fs: directory operations', () => {
       expect(await Fs.exists(dir.b)).to.eql(true);
       expect(await Fs.exists(file.b)).to.eql(true);
       await assertFileText(file.b, file.text);
+    });
+
+    describe('filter', () => {
+      it('filter on: dir', async () => {
+        const test = async (filter?: t.FsCopyFilter) => {
+          const sample = await setupCopyTest();
+          const { dir } = sample;
+          const res = await Fs.copyDir(dir.a, dir.b, filter);
+          const ls = await Fs.ls(dir.b);
+          return { res, ls, sample };
+        };
+
+        const a = await test();
+        const b = await test((e) => Path.basename(e.source) !== 'foo.txt');
+
+        expect(a.ls.length).to.eql(1);
+        expect(b.ls.length).to.eql(0); // NB: filtered out.
+
+        expect(await Fs.exists(a.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(a.sample.file.b)).to.eql(true);
+
+        expect(await Fs.exists(b.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
+
+      it('filter on: file', async () => {
+        const test = async (filter?: t.FsCopyFilter) => {
+          const sample = await setupCopyTest();
+          const { file, dir } = sample;
+          const res = await Fs.copyFile(file.a, file.b, filter);
+          const ls = await Fs.ls(dir.b);
+          return { res, ls, sample };
+        };
+
+        const a = await test();
+        const b = await test((e) => Path.basename(e.target) !== 'foo.txt');
+
+        expect(a.res.error).to.eql(undefined);
+        expect(b.res.error?.message).to.include(
+          'Cannot copy file because the path has been filtered out',
+        );
+
+        expect(a.ls.length).to.eql(1);
+        expect(b.ls.length).to.eql(0); // NB: filtered out.
+
+        expect(await Fs.exists(a.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(a.sample.file.b)).to.eql(true);
+
+        expect(await Fs.exists(b.sample.file.a)).to.eql(true);
+        expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
+
+      describe('filter paths: (e) => boolean', () => {
+        type A = t.FsCopyFilterArgs;
+
+        it('copyDir', async () => {
+          const sample = await setupCopyTest();
+          const { dir } = sample;
+          expect((await dir.ls()).b.length).to.eql(0); // NB: not yet copied.
+
+          // NB: ensure the passed paths are absolute.
+          const a = Fs.trimCwd(dir.a);
+          const b = Fs.trimCwd(dir.b);
+
+          const fired: A[] = [];
+          await Fs.copyDir(a, b, (e) => {
+            fired.push(e);
+            return true;
+          });
+
+          expect((await dir.ls()).b.length).to.eql(1); // NB: exists now.
+          expect(fired.length).to.eql(1);
+
+          const e = fired[0];
+          expect(Path.Is.absolute(e.source)).to.be.true;
+          expect(Path.Is.absolute(e.target)).to.be.true;
+        });
+
+        it('copyFile', async () => {
+          const sample = await setupCopyTest();
+          const { file, dir } = sample;
+          expect((await dir.ls()).b.length).to.eql(0); // NB: not yet copied.
+
+          // NB: ensure the passed paths are absolute.
+          const a = Fs.trimCwd(file.a);
+          const b = Fs.trimCwd(file.b);
+
+          const fired: A[] = [];
+          await Fs.copyFile(a, b, (e) => {
+            fired.push(e);
+            return true;
+          });
+
+          expect((await dir.ls()).b.length).to.eql(1); // NB: exists now.
+          expect(fired.length).to.eql(1);
+
+          const e = fired[0];
+          expect(Path.Is.absolute(e.source)).to.be.true;
+          expect(Path.Is.absolute(e.target)).to.be.true;
+        });
+      });
     });
 
     it('{throw} parameter (default: false)', async () => {

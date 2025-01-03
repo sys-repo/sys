@@ -1,3 +1,3 @@
-export { createTmpl } from './u/tmpl.ts';
-export { bundleTemplateFiles } from './u/tmpl.bundle.ts';
-export { saveTemplateFiles } from './u/tmpl.bundle.write.ts';
+export { createTmpl } from './u.tmpl/tmpl.ts';
+export { bundleTemplateFiles } from './u.tmpl/tmpl.bundle.ts';
+export { saveTemplateFiles } from './u.tmpl/tmpl.bundle.write.ts';

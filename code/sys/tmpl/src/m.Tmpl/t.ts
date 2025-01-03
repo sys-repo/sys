@@ -50,9 +50,9 @@ export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResp
 export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
-  readonly file: { readonly source: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
+  readonly file: { readonly tmpl: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
   /** The text body of the file. */
-  readonly text: string;
+  readonly text: { tmpl: string; current: string };
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
   /** Adjust the name of the file. */
@@ -101,16 +101,25 @@ export type TmplFile = {
 export type TmplFileOperation = {
   /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
+
   /** Flag indicating if a write operation was performed for the file. */
   written: boolean;
+
   /** Flag indicating if the write operation was a "create" action */
   created: boolean;
+
   /** Flag indicating if the write operation was the "update" action. */
   updated: boolean;
+
   /** Flag indicating if the file operation was forced. */
   forced: boolean;
+
   /** File path details. */
-  file: { source: t.TmplFile; target: t.TmplFile };
+  file: { tmpl: t.TmplFile; target: t.TmplFile };
+
   /** The text content of the file. */
-  text: { source: string; target: { before: string; after: string } };
+  text: {
+    tmpl: string;
+    target: { before: string; after: string; isDiff: boolean };
+  };
 };

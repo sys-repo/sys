@@ -1,9 +1,8 @@
-import { describe, expect, expectError, it, slug, type t } from '../-test.ts';
-import { sampleDir } from './-u.ts';
+import { describe, expect, expectError, it, sampleDir, slug, type t } from '../-test.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: write to the file-system operations', () => {
-  const Sample = sampleDir('fs-write');
+  const Sample = sampleDir('Fs.write');
   it('|→ ensure test directory exists', () => Fs.ensureDir(Sample.dir));
 
   describe('Fs.remove', () => {

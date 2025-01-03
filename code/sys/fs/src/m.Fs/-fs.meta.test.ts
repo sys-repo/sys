@@ -26,7 +26,7 @@ describe('Fs: info/meta-data operations on the file-system', () => {
   });
 
   describe('Fs.Size.dir', () => {
-    const sample = Fs.resolve('./src/-test/-sample-dir');
+    const sample = Fs.resolve('./src/-test/-sample-dir-1');
 
     it('does not exist', async () => {
       const path = Fs.resolve('./404');

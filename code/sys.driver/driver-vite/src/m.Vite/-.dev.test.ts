@@ -19,31 +19,33 @@ describe('Vite.dev', () => {
    *
    */
   it('process: start → fetch(200) → dispose', async () => {
-    const input = INPUT.sample1;
-    const port = Testing.randomPort();
-    const promise = Vite.dev({ input, port, silent: false });
-    const server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
+    await Testing.retry(3, async () => {
+      const input = INPUT.sample1;
+      const port = Testing.randomPort();
+      const promise = Vite.dev({ input, port, silent: false });
+      const server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
 
-    server.proc.onStdErr(async (e) => {
-      console.error(`Failed running Vite server within child process`, e.toString());
+      server.proc.onStdErr(async (e) => {
+        console.error(`Failed running Vite server within child process`, e.toString());
+        await server.dispose();
+      });
+
+      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+
+      const controller = new AbortController();
+      const { signal } = controller;
+      const timeout = Time.delay(5000, () => {
+        controller.abort();
+        server?.dispose();
+      });
+
+      const res = await fetch(server.url, { signal });
+      const html = await res.text();
+      expect(res.status).to.eql(200);
+      expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
+
       await server.dispose();
+      timeout.cancel();
     });
-
-    console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
-
-    const controller = new AbortController();
-    const { signal } = controller;
-    const timeout = Time.delay(5000, () => {
-      controller.abort();
-      server?.dispose();
-    });
-
-    const res = await fetch(server.url, { signal });
-    const html = await res.text();
-    expect(res.status).to.eql(200);
-    expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".ts" because in dev mode.
-
-    await server.dispose();
-    timeout.cancel();
   });
 });

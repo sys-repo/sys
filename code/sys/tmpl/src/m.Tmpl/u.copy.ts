@@ -24,12 +24,18 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        source: Wrangle.file(from),
+        tmpl: Wrangle.file(from),
         target: Wrangle.file(to),
       },
       text: {
-        source: sourceText,
-        target: { before: targetText, after: targetText || sourceText },
+        tmpl: sourceText,
+        target: {
+          before: targetText,
+          after: targetText || sourceText,
+          get isDiff() {
+            return op.text.target.before !== op.text.target.after;
+          },
+        },
       },
       excluded: false,
       written: false,
@@ -41,18 +47,21 @@ export async function copy(
 
     if (typeof fn === 'function') {
       const { args, changes } = await wrangle.args(op);
-      const res = fn(args);
-      if (Is.promise(res)) await res;
+      await fn(args);
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = Wrangle.rename(op.file.target, changes.filename);
-      if (changes.text) op.text.target.after = changes.text;
+      if (changes.text) {
+        op.text.target.after = changes.text; // Update to modified output.
+      } else {
+        op.text.target.after = args.text.tmpl; // Update to current template.
+      }
     }
 
     if (!op.excluded) {
       const target = op.file.target;
       const path = target.path;
       const exists = await Fs.exists(path);
-      const isDiff = op.text.target.before !== op.text.target.after;
+      const isDiff = op.text.target.isDiff;
 
       if (!exists) {
         op.created = true;
@@ -79,7 +88,7 @@ const wrangle = {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const args: t.TmplProcessFileArgs = {
       file: await wrangle.argsFile(op.file),
-      text: op.text.source,
+      text: { tmpl: op.text.tmpl, current: op.text.target.before },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;

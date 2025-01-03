@@ -115,7 +115,7 @@ describe('Tmpl', () => {
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
-          expect(e.file.source.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
+          expect(e.file.tmpl.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
           expect(e.file.target.dir.startsWith(Fs.Path.trimCwd(target))).to.be.true;
         });
         await tmpl.copy(target);
@@ -129,7 +129,7 @@ describe('Tmpl', () => {
         });
         const res = await tmpl.copy(test.target);
         const match = res.ops.find((m) => m.file.target.name === 'main.ts');
-        expect(match?.file.source.name).to.eql('mod.ts');
+        expect(match?.file.tmpl.name).to.eql('mod.ts');
         expect(match?.file.target.name).to.eql('main.ts');
         expect(await test.exists.target('mod.ts')).to.eql(false);
         expect(await test.exists.target('main.ts')).to.eql(true);
@@ -139,7 +139,7 @@ describe('Tmpl', () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, (e) => {
           if (e.file.target.name === 'mod.ts') {
-            const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
+            const next = e.text.tmpl.replace(/\{FOO_BAR\}/g, '👋 Hello');
             e.modify(next);
           }
         });
@@ -149,7 +149,7 @@ describe('Tmpl', () => {
         const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
         const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
 
-        expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
+        expect(matchA?.text.tmpl).to.include(`name: '{FOO_BAR}'`);
         expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
         expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
         expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
