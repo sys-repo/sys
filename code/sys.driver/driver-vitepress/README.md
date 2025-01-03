@@ -6,6 +6,8 @@ Tools for working with the "[VitePress](https://vitepress.dev)" documentation SS
 
 <p>&nbsp;<p>
 
+NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/README.md#agnostic).
+
 ---
 
 <p>&nbsp;<p>
