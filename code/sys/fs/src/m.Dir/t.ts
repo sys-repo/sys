@@ -4,6 +4,9 @@ import type { t } from './common.ts';
  * Helpers for working with file-system directories.
  */
 export type FsDirLib = {
+  /** Tools for working hashes of a file-system directory. */
+  readonly Hash: t.DirHashLib;
+
   /** Create a snapshot of the specified directory. */
   snapshot(args: FsDirSnapshotArgs): Promise<DirSnapshot>;
 };
@@ -21,7 +24,7 @@ export type FsDirSnapshotArgs = {
 export type DirSnapshot = {
   id: string;
   timestamp: number;
+  hx: t.CompositeHash;
   path: { source: t.StringDir; target: t.StringDir };
-  files: t.StringPath[];
   error?: t.StdError;
 };

@@ -1,6 +1,9 @@
 import { Hash } from '@sys/std/hash';
 import { type t, Err, Fs, Path } from './common.ts';
 
+/**
+ * Tools for working hashes of a file-system directory.
+ */
 export const DirHash: t.DirHashLib = {
   /**
    * Computer a `CompositeHash` for the given directory.

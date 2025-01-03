@@ -1,11 +1,14 @@
 import { type t, describe, expect, it, sampleDir, slug, Time } from '../-test.ts';
+import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { Fs, Path } from './common.ts';
+import { toHash } from './m.Dir.snapshot.ts';
 import { Dir } from './mod.ts';
 
 describe('Fs.Dir', () => {
   it('API', async () => {
     const m = await import('@sys/fs/dir');
     expect(m.Dir).to.equal(Dir);
+    expect(m.Dir.Hash).to.equal(DirHash);
   });
 
   describe('Dir.snapshot', () => {
