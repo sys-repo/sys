@@ -1,6 +1,6 @@
 import { Pkg } from '@sys/std/pkg';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, Delete, Err, Fs } from './common.ts';
+import { type t, Delete, Err, Fs, Path } from './common.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -35,7 +35,7 @@ export const Dist: t.PkgDistFsLib = {
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
     const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
     const size: t.DistPkg['size'] = { bytes };
-    const dist: t.DistPkg = { pkg, size, entry, hash };
+    const dist: t.DistPkg = { pkg, size, entry: wrangle.entry(entry), hash };
 
     /**
      * Prepare response.
@@ -145,5 +145,10 @@ const wrangle = {
   computeArgs(input: Parameters<t.PkgDistFsLib['compute']>[0]): t.PkgDistComputeArgs {
     if (typeof input === 'string') return { dir: input };
     return input;
+  },
+
+  entry(input: string) {
+    input = Path.normalize(input);
+    return input === '.' ? '' : input;
   },
 } as const;

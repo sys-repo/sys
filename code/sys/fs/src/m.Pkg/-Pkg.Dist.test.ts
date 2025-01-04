@@ -45,7 +45,7 @@ describe('Pkg.Dist', () => {
 
       expect(res.dir).to.eql(Fs.resolve(dir));
       expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.entry).to.eql(entry);
+      expect(res.dist.entry).to.eql(Path.normalize(entry));
 
       const dirhash = await Dir.Hash.compute(dir, (p) => p !== './dist.json');
       expect(res.dist.hash.digest).to.eql(dirhash.hash.digest);

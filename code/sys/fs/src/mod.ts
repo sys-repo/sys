@@ -16,10 +16,11 @@ export type * as t from './types.ts';
 /**
  * Helpers.
  */
-export { FileMap } from './m.FileMap/mod.ts';
-export { Watch } from './m.Watch/mod.ts';
-export { Path } from './m.Path/mod.ts';
 export { Dir } from './m.Dir/mod.ts';
+export { FileMap } from './m.FileMap/mod.ts';
+export { Path } from './m.Path/mod.ts';
+export { Pkg } from './m.Pkg/mod.ts';
+export { Watch } from './m.Watch/mod.ts';
 
 /**
  * Main Library.
