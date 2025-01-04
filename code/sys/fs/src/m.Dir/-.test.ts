@@ -1,8 +1,9 @@
-import { type t, describe, expect, it, sampleDir, slug, Time } from '../-test.ts';
+import { type t, describe, expect, it, sampleDir, slug, Time, c } from '../-test.ts';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { Fs, Path } from './common.ts';
-import { toHash } from './m.Dir.snapshot.ts';
 import { Dir } from './mod.ts';
+
+const toHash = async (dir: t.StringDir) => (await DirHash.compute(dir)).hash;
 
 describe('Fs.Dir', () => {
   it('API', async () => {
@@ -19,13 +20,13 @@ describe('Fs.Dir', () => {
         target: Path.join(sample.dir, 'target'),
       };
       await sample.ensureExists();
-      await Fs.copy('src/-test/-sample-dir-2', paths.source);
+      await Fs.copy('src/-test/-sample-2', paths.source);
 
       return {
         paths,
         async ls() {
           console.info('Sample Dir:', sample.dir);
-          console.log('paths:', await Fs.ls(paths.target));
+          console.info('paths:', await Fs.ls(paths.target));
         },
         async modify() {
           const path = Path.join(paths.source, 'mod.ts');
@@ -34,6 +35,22 @@ describe('Fs.Dir', () => {
         },
       } as const;
     };
+
+    it('filename: snapshot.<unix-timestamp>.#<digest>', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+
+      const snapshot = await Dir.snapshot({ source, target });
+      const hxSource = await toHash(source);
+      const hxTarget = await toHash(snapshot.path.target);
+
+      expect(hxSource).to.eql(hxTarget);
+      expect(snapshot.hx).to.eql(hxTarget);
+      expect(snapshot.hx).to.eql(hxSource);
+      expect(snapshot.path.target.endsWith(hxTarget.digest.slice(-5))).to.be.true;
+
+      console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
+    });
 
     it('run: Dir.snapshot("source", "target")', async () => {
       const sample = await sampleSetup();
@@ -63,15 +80,19 @@ describe('Fs.Dir', () => {
       const snapshotB = await Dir.snapshot({
         source,
         target,
-        filter: (e) => Path.basename(e.source) !== 'mod.ts',
+        filter(path) {
+          // Example: exclude all YAML files.
+          return !path.endsWith('.yaml');
+        },
       });
 
       const contains = (snapshot: t.DirSnapshot, filename: string) => {
-        return snapshot.files.some((p) => p.endsWith(filename));
+        const paths = Object.keys(snapshot.hx.parts);
+        return paths.some((p) => p.endsWith(filename));
       };
 
-      expect(contains(snapshotA, 'mod.ts')).to.eql(true);
-      expect(contains(snapshotB, 'mod.ts')).to.eql(false); // NB: filtered out of copy-set/
+      expect(contains(snapshotA, 'foo.yaml')).to.eql(true);
+      expect(contains(snapshotB, 'foo.yaml')).to.eql(false); // NB: filtered out of the copy-set.
     });
   });
 });
