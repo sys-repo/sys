@@ -9,7 +9,7 @@ export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
   const timestamp = Time.now.timestamp;
 
   const sourceHx = await wrangle.hash(args.source, args.filter);
-  const id = `${timestamp}.#${sourceHx.digest.slice(-5)}`;
+  const id = `${timestamp}.${sourceHx.digest.slice(-5)}`;
 
   const path: t.DirSnapshot['path'] = {
     source: args.source,
