@@ -6,9 +6,6 @@ type TrimPrefix = boolean;
 /** Function that converts an input into a hash. */
 export type ToHash = (input: any) => string;
 
-/** Loose parameter input for a value that is a hash. */
-export type HashInput = t.StringHash | t.CompositeHash;
-
 /**
  * Tools for generating and manipulating Hash's.
  */
