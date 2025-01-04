@@ -14,14 +14,18 @@ describe('cmd: backup (shapshot)', () => {
     expect(await Fs.exists(dir)).to.eql(exists, dir);
   };
 
-  it.only('perform backup copy', async () => {
+  it('perform backup copy', async () => {
     /**
-     * - ↓ init
-     * - ↓ build  (dist)
-     * - ↓ backup (snapshot)
+     *
+     * sequence:
+     *  - ↓ init
+     *  - ↓ build   (dist)
+     *  - ↓ backup  (snapshot)
+     *
      */
     await Testing.retry(3, async () => {
       const test = async (args: Pick<t.VitePressBackupArgs, 'includeDist'> = {}) => {
+        const { includeDist } = args;
         const sample = Sample.init({});
         const inDir = sample.path;
 
@@ -35,7 +39,7 @@ describe('cmd: backup (shapshot)', () => {
         await VitePress.build({ inDir, silent });
         await assertExists(backupDir, false); // NB: not yet backed up.
 
-        const res = await Env.backup({ inDir });
+        const res = await Env.backup({ inDir, includeDist });
         const snapshot = res.snapshot;
         const targetDir = snapshot.path.target;
         expect(snapshot.error).to.eql(undefined);
@@ -45,7 +49,7 @@ describe('cmd: backup (shapshot)', () => {
           await assertExists(Fs.join(targetDir, path), exists);
         };
 
-        await assertTargetExists('dist', !!args.includeDist);
+        await assertTargetExists('dist', !!includeDist);
         await assertTargetExists('-backup', false);
         await assertTargetExists('.sys', true);
         await assertTargetExists('.tmp', false);
