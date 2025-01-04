@@ -9,7 +9,6 @@ export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
 export type * from './m.Err/t.ts';
-export type * from './m.Hash/t.ts';
 export type * from './m.Http.Client/t.ts';
 export type * from './m.Http.Fetch/t.ts';
 export type * from './m.Http/t.ts';
