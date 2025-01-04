@@ -2,4 +2,4 @@
  * @module
  * Helpers for formatting hash data to the console.
  */
-export { FmtHash } from './m.HashFmt.ts';
+export { HashFmt } from './m.HashFmt.ts';

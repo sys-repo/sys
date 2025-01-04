@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Hash, FmtHash } from './common.ts';
+import { Fs, Hash, HashFmt } from './common.ts';
 
 import { DirHash } from './mod.ts';
 
@@ -17,7 +17,7 @@ describe('Dir.Hash', () => {
 
   it('API', () => {
     expect(Dir.Hash).to.equal(DirHash);
-    expect(DirHash.Fmt).to.equal(FmtHash);
+    expect(DirHash.Fmt).to.equal(HashFmt);
   });
 
   describe('Dir.Hash.compute', () => {

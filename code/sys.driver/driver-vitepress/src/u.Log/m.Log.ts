@@ -10,7 +10,7 @@ import {
   Pkg,
   Str,
   ViteLog,
-  FmtHash,
+  HashFmt,
 } from './common.ts';
 
 type Cmd = t.CmdArgsMain['cmd'];
@@ -155,7 +155,7 @@ export const Log = {
 
       const distJson = await Pkg.Dist.compute(snapshot.path.target);
       const digest = distJson.dist?.hash.digest;
-      const targetRight = `${c.white(dateFmt)} | ${FmtHash.digest(digest, { algo: false })}`;
+      const targetRight = `${c.white(dateFmt)} | ${HashFmt.digest(digest, { algo: false })}`;
 
       push('  source', c.gray(formatPath(snapshot.path.source)));
       push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${targetRight}`));

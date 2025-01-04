@@ -1,4 +1,4 @@
-import { type t, FmtHash as Fmt } from './common.ts';
+import { type t, HashFmt as Fmt } from './common.ts';
 import { compute } from './u.compute.ts';
 import { verify } from './u.verify.ts';
 

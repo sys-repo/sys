@@ -1,4 +1,4 @@
-import { type t, c, Cli, FmtHash } from './common.ts';
+import { type t, c, Cli, HashFmt } from './common.ts';
 
 /**
  * Outputs a formatted console log within
@@ -12,7 +12,7 @@ export const print: t.HttpServerLib['print'] = (options) => {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
 
-    const hx = FmtHash.digest(hash);
+    const hx = HashFmt.digest(hash);
     const integrity = c.gray(`${hx}`);
     const mod = c.bold(pkg.name);
     const version = c.gray(`  ${pkg.version}`);
