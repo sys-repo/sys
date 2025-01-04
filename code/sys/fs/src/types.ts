@@ -1,9 +1,9 @@
-import type { t } from './common.ts';
-
 /**
  * @module
  * Module types.
  */
+import type { t } from './common.ts';
+
 export type * from './m.Pkg/t.ts';
 export type * from './m.Dir.Hash/t.ts';
 export type * from './m.Dir/t.ts';
