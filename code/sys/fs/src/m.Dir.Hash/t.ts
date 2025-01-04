@@ -8,17 +8,14 @@ export type DirHashLib = {
   readonly Fmt: t.FmtHashLib;
 
   /** Calculate the hash of a directory. */
-  compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.DirHashFilter): Promise<DirHash>;
+  compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.FsPathFilter): Promise<DirHash>;
 
   /** Verify a directory against the given [CompositeHash] value. */
   verify(dir: t.StringDir, hash: t.StringHash | t.CompositeHash): Promise<DirHashVerifyResponse>;
 };
 
 /** Options passed to the `Hash.Dir.compute` method. */
-export type DirHashComputeOptions = { filter?: DirHashFilter };
-
-/** Filter out files included within a directory being hashed. */
-export type DirHashFilter = (path: t.StringPath) => boolean;
+export type DirHashComputeOptions = { filter?: t.FsPathFilter };
 
 /**
  * Represents a hash of a directory.

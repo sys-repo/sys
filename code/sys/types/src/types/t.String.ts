@@ -34,8 +34,20 @@ export type StringTx = string;
 /** String that represents a path to a resource (file etc.) */
 export type StringPath = string;
 
+/** String that represents an absolute path. */
+export type StringAbsolutePath = string;
+
+/** String that represents an relative path. */
+export type StringRelativePath = string;
+
 /** String that represents a path to a file-system directory. */
 export type StringDir = StringPath;
+
+/** String that represents an absolute directory path. */
+export type StringAbsoluteDir = StringPath;
+
+/** String that represents an relative directory path. */
+export type StringRelativeDir = string;
 
 /** String that represents a path to a file-system file. */
 export type StringFile = StringPath;

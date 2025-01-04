@@ -15,7 +15,7 @@ export type FsDirLib = {
 export type FsDirSnapshotArgs = {
   source: t.StringDir;
   target: t.StringDir;
-  filter?: t.FsCopyFilter;
+  filter?: t.FsPathFilter;
 };
 
 /**
@@ -25,6 +25,6 @@ export type DirSnapshot = {
   id: string;
   timestamp: number;
   hx: t.CompositeHash;
-  path: { source: t.StringDir; target: t.StringDir };
+  path: { source: t.StringAbsoluteDir; target: t.StringAbsoluteDir };
   error?: t.StdError;
 };

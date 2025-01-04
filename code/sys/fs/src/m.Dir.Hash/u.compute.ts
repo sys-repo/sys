@@ -39,7 +39,7 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
  * Helpers
  */
 const wrangle = {
-  computeOptions(input?: t.DirHashComputeOptions | t.DirHashFilter) {
+  computeOptions(input?: t.DirHashComputeOptions | t.FsPathFilter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;
