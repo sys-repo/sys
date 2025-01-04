@@ -10,11 +10,11 @@ describe('VitePress.build', () => {
     const pathsInclude = (start: t.StringPath) => paths.some((p) => p.startsWith(start));
     const expectPath = (start: t.StringPath) => expect(pathsInclude(start)).to.be.true;
 
-    expectPath('./404.html');
-    expectPath('./assets/-pkg.json'); // NB: digest-hash in `dist.json` includes {pkg.json} version.
-    expectPath('./assets/chunks/');
-    expectPath('./hashmap.json');
-    expectPath('./index.html');
+    expectPath('404.html');
+    expectPath('assets/-pkg.json'); // NB: digest-hash in `dist.json` includes {pkg.json} version.
+    expectPath('assets/chunks/');
+    expectPath('hashmap.json');
+    expectPath('index.html');
   };
 
   it('build (default params)', async () => {

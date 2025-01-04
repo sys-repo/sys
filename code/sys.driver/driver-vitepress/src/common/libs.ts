@@ -7,7 +7,8 @@ export { Fetch, Http } from '@sys/std/http';
 export { Ignore } from '@sys/std/ignore';
 export { Jsr } from '@sys/std/jsr';
 
-export { Hash, Pkg } from '@sys/crypto/fs';
+export { Hash } from '@sys/crypto/hash';
+export { Pkg } from '@sys/fs/pkg';
 export { HttpServer } from '@sys/std-s/http';
 export { Net } from '@sys/std-s/network';
 export { Tmpl } from '@sys/tmpl/fs';
