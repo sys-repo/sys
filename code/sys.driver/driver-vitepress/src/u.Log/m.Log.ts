@@ -1,4 +1,17 @@
-import { type t, c, Cli, Date as D, Fs, Path, PATHS, pkg, Pkg, Str, ViteLog } from './common.ts';
+import {
+  type t,
+  c,
+  Cli,
+  Date as D,
+  Fs,
+  Path,
+  PATHS,
+  pkg,
+  Pkg,
+  Str,
+  ViteLog,
+  FmtHash,
+} from './common.ts';
 
 type Cmd = t.CmdArgsMain['cmd'];
 
@@ -142,7 +155,7 @@ export const Log = {
 
       const distJson = await Pkg.Dist.compute(snapshot.path.target);
       const digest = distJson.dist?.hash.digest;
-      const targetRight = `${c.white(dateFmt)} | digest:${c.green(`#${digest.slice(-4)}`)}`;
+      const targetRight = `${c.white(dateFmt)} | ${FmtHash.digest(digest, { algo: false })}`;
 
       push('  source', c.gray(formatPath(snapshot.path.source)));
       push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${targetRight}`));

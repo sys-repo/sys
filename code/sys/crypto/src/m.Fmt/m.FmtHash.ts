@@ -10,7 +10,10 @@ export const FmtHash: t.FmtHashLib = {
     const algo = Hash.prefix(hash);
     const short = Hash.shorten(hash, length, true);
     const endHash = `#${short.slice(-length)}`;
-    const uri = `${'digest'}:${algo}:${c.green(endHash)}`;
+
+    let uri = `digest`;
+    if (options.algo ?? true) uri += `:${algo}`;
+    uri += `:${c.green(endHash)}`;
 
     return c.gray(uri);
   },
