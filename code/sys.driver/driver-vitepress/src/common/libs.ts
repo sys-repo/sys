@@ -8,6 +8,8 @@ export { Ignore } from '@sys/std/ignore';
 export { Jsr } from '@sys/std/jsr';
 
 export { Hash } from '@sys/crypto/hash';
+export { FmtHash } from '@sys/crypto/fmt';
+
 export { Pkg } from '@sys/fs/pkg';
 export { HttpServer } from '@sys/std-s/http';
 export { Net } from '@sys/std-s/network';
