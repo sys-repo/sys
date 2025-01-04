@@ -23,8 +23,8 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
     p = p.startsWith(inDir) ? p.slice(inDir.length + 1) : p;
 
     if (p.startsWith(PATHS.backup)) return false;
-    if (p.startsWith(PATHS.dist)) return false;
     if (p.startsWith(PATHS.vitepressCache)) return false;
+    if (p.startsWith(PATHS.dist) && !args.includeDist) return false;
 
     if (ignore.isIgnored(p)) return false;
     return true;

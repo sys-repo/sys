@@ -1,9 +1,9 @@
-import { Testing, Fs, Ignore, PATHS, describe, expect, it } from '../-test.ts';
+import { type t, Fs, Ignore, PATHS, Testing, describe, expect, it } from '../-test.ts';
 import { Sample } from '../m.VitePress/-u.ts';
-import { Env } from './mod.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
+import { Env } from './mod.ts';
 
-describe('cmd: backup', () => {
+describe('cmd: backup (shapshot)', () => {
   const setup = async () => {
     const text = await Deno.readTextFile(Fs.join(PATHS.tmpl.source, '.gitignore'));
     const gitignore = Ignore.create(text);
@@ -11,43 +11,54 @@ describe('cmd: backup', () => {
   };
 
   const assertExists = async (dir: string, exists = true) => {
-    expect(await Fs.exists(dir)).to.eql(exists);
+    expect(await Fs.exists(dir)).to.eql(exists, dir);
   };
 
-  it('perform backup copy', async () => {
+  it.only('perform backup copy', async () => {
+    /**
+     * - ↓ init
+     * - ↓ build  (dist)
+     * - ↓ backup (snapshot)
+     */
     await Testing.retry(3, async () => {
-      const sample = Sample.init({ slug: true });
-      const inDir = sample.path;
+      const test = async (args: Pick<t.VitePressBackupArgs, 'includeDist'> = {}) => {
+        const sample = Sample.init({});
+        const inDir = sample.path;
 
-      const backupDir = Fs.join(inDir, PATHS.backup);
-      const distDir = Fs.join(inDir, PATHS.dist);
+        const backupDir = Fs.join(inDir, PATHS.backup);
+        const distDir = Fs.join(inDir, PATHS.dist);
 
-      const silent = true;
-      await Env.update({ inDir, silent });
-      await assertExists(distDir, false); // NB: not yet built.
+        const silent = true;
+        await Env.update({ inDir, silent });
+        await assertExists(distDir, false); // NB: not yet built.
 
-      await VitePress.build({ inDir, silent });
-      await assertExists(backupDir, false); // NB: not yet backed up.
+        await VitePress.build({ inDir, silent });
+        await assertExists(backupDir, false); // NB: not yet backed up.
 
-      const res = await Env.backup({ inDir });
-      const snapshot = res.snapshot;
-      const targetDir = snapshot.path.target;
-      expect(snapshot.error).to.eql(undefined);
+        const res = await Env.backup({ inDir });
+        const snapshot = res.snapshot;
+        const targetDir = snapshot.path.target;
+        expect(snapshot.error).to.eql(undefined);
 
-      // NB: not copied (ecluded via .ignore list).
-      const assertTargetExists = (path: string, exists: boolean) =>
-        assertExists(Fs.join(targetDir, path), exists);
+        // NB: not copied (ecluded via .ignore list).
+        const assertTargetExists = async (path: string, exists: boolean) => {
+          await assertExists(Fs.join(targetDir, path), exists);
+        };
 
-      await assertTargetExists('dist', false);
-      await assertTargetExists('-backup', false);
-      await assertTargetExists('.sys', true);
-      await assertTargetExists('.tmp', false);
-      await assertTargetExists('.vitepress', true);
-      await assertTargetExists('.vitepress/cache', false);
-      await assertTargetExists('docs', true);
-      await assertTargetExists('src', true);
-      await assertTargetExists('deno.json', true);
-      await assertTargetExists('package.json', true);
+        await assertTargetExists('dist', !!args.includeDist);
+        await assertTargetExists('-backup', false);
+        await assertTargetExists('.sys', true);
+        await assertTargetExists('.tmp', false);
+        await assertTargetExists('.vitepress', true);
+        await assertTargetExists('.vitepress/cache', false);
+        await assertTargetExists('docs', true);
+        await assertTargetExists('src', true);
+        await assertTargetExists('deno.json', true);
+        await assertTargetExists('package.json', true);
+      };
+
+      await test({}); // default: excludes the /dist folder.
+      await test({ includeDist: true });
     });
   });
 });

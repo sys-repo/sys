@@ -41,7 +41,11 @@ export type VitePressEnvUpdateResponse = {
 };
 
 /** Arguments passed to the `VitePress.Env.backup` method. */
-export type VitePressBackupArgs = { inDir: t.StringDir; silent?: boolean };
+export type VitePressBackupArgs = {
+  inDir: t.StringDir;
+  silent?: boolean;
+  includeDist?: boolean;
+};
 export type VitePressBackupResponse = {
   readonly snapshot: t.DirSnapshot;
 };
