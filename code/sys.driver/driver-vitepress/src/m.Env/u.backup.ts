@@ -13,17 +13,21 @@ dist/
  * Create a backup snapshot.
  */
 export const backup: t.VitePressEnvLib['backup'] = async (args) => {
-  const { inDir = '' } = args;
+  const inDir = Path.resolve(args.inDir);
+
   const source = Path.join(inDir);
   const target = Path.join(inDir, PATHS.backup);
   const ignore = Ignore.create(IGNORE);
-  const excluded: t.StringPath[] = [];
 
-  const filter: t.FsCopyFilter = (e) => {
-    const path = Path.relative(inDir, e.source);
-    const isIgnored = ignore.isIgnored(path);
-    if (isIgnored) excluded.push(path);
-    return !isIgnored;
+  const filter: t.FsPathFilter = (p) => {
+    p = p.startsWith(inDir) ? p.slice(inDir.length + 1) : p;
+
+    if (p.startsWith(PATHS.backup)) return false;
+    if (p.startsWith(PATHS.dist)) return false;
+    if (p.startsWith(PATHS.vitepressCache)) return false;
+
+    if (ignore.isIgnored(p)) return false;
+    return true;
   };
 
   // Copy directory snapshot.
@@ -39,6 +43,6 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   }
 
   // Response.
-  const res: t.VitePressBackupResponse = { excluded, snapshot };
+  const res: t.VitePressBackupResponse = { snapshot };
   return res;
 };

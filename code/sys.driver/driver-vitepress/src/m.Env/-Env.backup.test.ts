@@ -33,7 +33,6 @@ describe('cmd: backup', () => {
       const snapshot = res.snapshot;
       const targetDir = snapshot.path.target;
       expect(snapshot.error).to.eql(undefined);
-      expect(res.excluded).to.include('dist/index.html');
 
       // NB: not copied (ecluded via .ignore list).
       const assertTargetExists = (path: string, exists: boolean) =>
