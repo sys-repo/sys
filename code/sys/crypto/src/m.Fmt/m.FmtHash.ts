@@ -1,6 +1,6 @@
 import { type t, c, Hash } from './common.ts';
 
-export const DirHashLog: t.DirHashLogLib = {
+export const FmtHash: t.FmtHashLib = {
   digest(input, options = {}) {
     if (!input) return '';
 

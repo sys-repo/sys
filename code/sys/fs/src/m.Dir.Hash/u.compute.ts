@@ -1,4 +1,4 @@
-import { type t, Err, Fs, Hash, Path } from './common.ts';
+import { type t, Err, Fs, Hash, CompositeHash } from './common.ts';
 
 /**
  * Compute a `CompositeHash` for the given directory.
@@ -8,7 +8,7 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
   const { filter } = wrangle.computeOptions(options);
   const errors = Err.errors();
   const exists = await Fs.exists(dir);
-  const builder = Hash.composite();
+  const builder = CompositeHash.builder();
   const res: t.DirHash = { exists, dir, hash: builder.toObject() };
 
   if (!exists) {

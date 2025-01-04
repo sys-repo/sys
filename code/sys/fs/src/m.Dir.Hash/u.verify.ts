@@ -1,4 +1,4 @@
-import { type t, Err, Fs, Hash, Path } from './common.ts';
+import { type t, Err, Fs, Hash, Path, CompositeHash } from './common.ts';
 
 /**
  * Verify a directory against the given [CompositeHash] value.
@@ -45,7 +45,7 @@ export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
    */
   if (Hash.Is.composite(hash)) {
     const read = Deno.readFile;
-    const verification = await Hash.Composite.verify(hash, async (e) => {
+    const verification = await CompositeHash.verify(hash, async (e) => {
       const path = Fs.join(dir, e.part);
       const exists = await Fs.exists(path);
       return exists ? read(path) : undefined;
@@ -64,7 +64,7 @@ export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
  */
 const wrangle = {
   hash(input?: t.CompositeHash) {
-    const hash = input ?? Hash.Composite.toComposite();
-    return Hash.Composite.toComposite(hash);
+    const hash = input ?? CompositeHash.toComposite();
+    return CompositeHash.toComposite(hash);
   },
 } as const;

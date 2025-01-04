@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type DirHashLib = {
   /** Hash related console logging helpers. */
-  readonly Log: t.DirHashLogLib;
+  readonly Fmt: t.FmtHashLib;
 
   /** Calculate the hash of a directory. */
   compute(dir: t.StringDir, options?: t.DirHashComputeOptions | t.DirHashFilter): Promise<DirHash>;
@@ -42,11 +42,4 @@ export type DirHash = {
  */
 export type DirHashVerifyResponse = DirHash & {
   is: t.HashVerifyResponse['is'];
-};
-
-/**
- * Hash related console logging helpers.
- */
-export type DirHashLogLib = {
-  digest(input?: t.HashInput, options?: { length?: number }): string;
 };

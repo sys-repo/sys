@@ -1,8 +1,8 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Hash } from './common.ts';
-import { DirHashLog } from './m.Log.ts';
+import { Fs, Hash, FmtHash } from './common.ts';
+
 import { DirHash } from './mod.ts';
 
 describe('Dir.Hash', () => {
@@ -17,7 +17,7 @@ describe('Dir.Hash', () => {
 
   it('API', () => {
     expect(Dir.Hash).to.equal(DirHash);
-    expect(DirHash.Log).to.equal(DirHashLog);
+    expect(DirHash.Fmt).to.equal(FmtHash);
   });
 
   describe('Dir.Hash.compute', () => {
@@ -173,13 +173,13 @@ describe('Dir.Hash', () => {
     });
   });
 
-  describe('Dir.Hash.Log', () => {
-    const Log = Dir.Hash.Log;
+  describe('Dir.Hash.Fmt', () => {
+    const Fmt = Dir.Hash.Fmt;
 
     it('string: Log.digest', async () => {
       const sample = await Sample.init();
       const res = await DirHash.compute(sample.dir);
-      console.info('DirHash.Log.digest:', Log.digest(res.hash));
+      console.info('DirHash.Log.digest:', Fmt.digest(res.hash));
     });
   });
 });

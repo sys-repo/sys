@@ -1,5 +1,4 @@
-import { type t } from './common.ts';
-import { DirHashLog as Log } from './m.Log.ts';
+import { type t, FmtHash as Fmt } from './common.ts';
 import { compute } from './u.compute.ts';
 import { verify } from './u.verify.ts';
 
@@ -7,7 +6,7 @@ import { verify } from './u.verify.ts';
  * Tools for working hashes of a file-system directory.
  */
 export const DirHash: t.DirHashLib = {
-  Log,
+  Fmt,
   compute,
   verify,
 };
