@@ -17,6 +17,7 @@ export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
   };
 
   const filter: t.FsCopyFilter = (e) => (args.filter ? args.filter(e.source) : true);
+
   const copyRes = await Fs.copyDir(path.source, path.target, { filter });
   if (copyRes.error) errors.push(copyRes.error);
 
@@ -32,6 +33,7 @@ export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
     console.info();
     console.info(msg);
     errors.push(stripAnsi(msg));
+    if (args.throw) throw new Error(msg);
   }
 
   const res: t.DirSnapshot = {

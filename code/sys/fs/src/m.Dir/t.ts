@@ -16,6 +16,7 @@ export type FsDirSnapshotArgs = {
   source: t.StringDir;
   target: t.StringDir;
   filter?: t.FsPathFilter;
+  throw?: boolean;
 };
 
 /**
