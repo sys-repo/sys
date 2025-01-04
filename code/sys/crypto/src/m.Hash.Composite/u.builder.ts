@@ -1,8 +1,7 @@
 import type { t } from './common.ts';
-import { digest } from './u.comp.digest.ts';
+import { digest } from './u.digest.ts';
 import { Wrangle } from './u.wrangle.ts';
 
-type Input = t.CompositeHashBuilderOptionsInput;
 type Parts = t.DeepMutable<t.CompositeHashParts>;
 
 export const builder: t.CompositeHashLib['builder'] = (input = {}) => {

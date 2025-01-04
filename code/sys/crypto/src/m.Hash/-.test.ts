@@ -1,4 +1,5 @@
-import { describe, expect, it, type t } from '../-test.ts';
+import { describe, expect, it } from '../-test.ts';
+import { CompositeHash } from '../m.Hash.Composite/mod.ts';
 import { Hash } from './mod.ts';
 
 const circular: any = { foo: 123 };
@@ -101,8 +102,8 @@ describe('hash', () => {
     });
 
     it('from composite', () => {
-      const a = Hash.composite();
-      const b = Hash.composite().add('foo', 'abc');
+      const a = CompositeHash.builder();
+      const b = CompositeHash.builder().add('foo', 'abc');
       expect(Hash.toString(a)).to.eql(a.digest);
       expect(Hash.toString(b)).to.eql(b.digest);
     });
@@ -230,7 +231,7 @@ describe('hash', () => {
       });
 
       it('true', () => {
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         const obj = hash.toObject();
         expect(Is.composite(hash)).to.eql(true);
         expect(Is.composite(obj)).to.eql(true);
@@ -244,13 +245,13 @@ describe('hash', () => {
         NON.forEach((v) => {
           expect(Is.compositeBuilder(v)).to.be.false;
         });
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         expect(Is.compositeBuilder(hash.toObject())).to.be.false;
         expect(Is.compositeBuilder({ digest: '0x123', parts: {} })).to.be.false;
       });
 
       it('true', () => {
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         expect(Is.compositeBuilder(hash)).to.eql(true);
       });
     });

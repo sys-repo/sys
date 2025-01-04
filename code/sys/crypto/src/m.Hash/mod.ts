@@ -22,6 +22,18 @@
  *
  * expect(a).to.eql(b)
  * ```
+ *
+ * @example
+ * Create a composite hash (digest) of several values.
+ * ```ts
+ * import { CompositeHash } from '@sys/std/hash';
+ *
+ * const digest = CompositeHash.create();
+ * digest
+ *  .add('foo', 1234)
+ *  .add('bar', binary)
+ *  .toObject();
+ * ```
  */
-export { CompositeHash } from './m.Composite.ts';
+export { CompositeHash } from '../m.Hash.Composite/mod.ts';
 export { Hash, sha1, sha256 } from './m.Hash.ts';

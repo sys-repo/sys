@@ -1,5 +1,4 @@
-import type { t } from './common.ts';
-import { Is } from './m.Is.ts';
+import { type t, Is } from './common.ts';
 
 export const toComposite: t.CompositeHashLib['toComposite'] = (input) => {
   if (!input) return { digest: '', parts: {} };

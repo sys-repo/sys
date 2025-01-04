@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
-import { builder } from './u.comp.builder.ts';
-import { digest } from './u.comp.digest.ts';
-import { verify } from './u.comp.verify.ts';
+import { builder } from './u.builder.ts';
+import { digest } from './u.digest.ts';
 import { toComposite } from './u.toComposite.ts';
+import { verify } from './u.verify.ts';
 
 /**
  * Tools for building composite hashes.

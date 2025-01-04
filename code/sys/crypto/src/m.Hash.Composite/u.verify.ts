@@ -1,5 +1,5 @@
 import { type t, Err, R } from './common.ts';
-import { builder } from './u.comp.builder.ts';
+import { builder } from './u.builder.ts';
 import { toComposite } from './u.toComposite.ts';
 
 export const verify: t.CompositeHashLib['verify'] = async (hash, argsInput) => {

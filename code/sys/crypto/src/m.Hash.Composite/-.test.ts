@@ -1,18 +1,14 @@
 import { type t, describe, expect, it, Time } from '../-test.ts';
-import { CompositeHash, Hash } from './mod.ts';
+import { Hash } from '../m.Hash/mod.ts';
+import { CompositeHash } from './mod.ts';
 
 const circular: any = { foo: 123 };
 circular.ref = circular;
 
 describe('hash', () => {
-  describe('Hash.Composite: <CompositeHash>', () => {
-    it('API', () => {
-      expect(Hash.Composite).to.equal(CompositeHash);
-      expect(Hash.composite).to.equal(CompositeHash.builder);
-    });
-
+  describe('CompositeHash: <CompositeHash>', () => {
     it('toComposite', () => {
-      const builder = Hash.composite().add('foo', '1234');
+      const builder = CompositeHash.builder().add('foo', '1234');
       const a = CompositeHash.toComposite(builder);
       const b = CompositeHash.toComposite(builder.toObject());
       const c = CompositeHash.toComposite(); // NB: "empty"
@@ -30,10 +26,10 @@ describe('hash', () => {
       expect(Hash.Is.empty(c)).to.eql(true);
     });
 
-    describe('Hash.Composite.build ← compsite-hash builder', () => {
+    describe('CompositeHash.build ← compsite-hash builder', () => {
       it('create', () => {
-        const a = Hash.composite();
-        const b = Hash.composite();
+        const a = CompositeHash.builder();
+        const b = CompositeHash.builder();
         expect(a).to.not.equal(b); // NB: Different instances.
         expect(a.digest).to.eql('');
         expect(a.parts).to.eql({});
@@ -41,7 +37,7 @@ describe('hash', () => {
       });
 
       it('create ← with {initial} items object', () => {
-        const hash = Hash.composite({
+        const hash = CompositeHash.builder({
           initial: [
             { key: 'foo', value: 1 },
             { key: 'bar', value: 2 },
@@ -53,7 +49,7 @@ describe('hash', () => {
       });
 
       it('create ← with [initial] items array', () => {
-        const hash = Hash.composite([
+        const hash = CompositeHash.builder([
           { key: 'foo', value: 1 },
           { key: 'bar', value: 2 },
         ]);
@@ -64,10 +60,10 @@ describe('hash', () => {
 
       it('{algo} parameter', () => {
         const algo = () => '0x1234';
-        const a = Hash.composite();
-        const b = Hash.composite({ algo: 'sha1' });
-        const c = Hash.composite({ algo: 'sha256' });
-        const d = Hash.composite({ algo });
+        const a = CompositeHash.builder();
+        const b = CompositeHash.builder({ algo: 'sha1' });
+        const c = CompositeHash.builder({ algo: 'sha256' });
+        const d = CompositeHash.builder({ algo });
 
         expect(a.algo).to.eql('sha256');
         expect(b.algo).to.eql('sha1');
@@ -76,7 +72,7 @@ describe('hash', () => {
       });
 
       it('add/remove', () => {
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         const b = Hash.sha256('b');
         const c = Hash.sha256('c');
 
@@ -93,7 +89,7 @@ describe('hash', () => {
       });
 
       it('parts is immutable', () => {
-        const hash = Hash.composite().add('foo', '123456');
+        const hash = CompositeHash.builder().add('foo', '123456');
         expect(hash.parts).to.not.equal(hash.parts); // NB: distinct instance on each call.
       });
 
@@ -101,16 +97,16 @@ describe('hash', () => {
         const data = new Uint8Array([1, 2, 3]);
         const a = Hash.sha256('a');
         const b = Hash.sha256(data);
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         expect(hash.digest).to.eql('');
 
         hash.add('foo', 'a');
         expect(hash.digest).to.eql(Hash.sha256([a].join('\n')));
-        expect(hash.digest).to.eql(Hash.Composite.digest(hash.parts));
+        expect(hash.digest).to.eql(CompositeHash.digest(hash.parts));
 
         hash.add('bar', data);
         expect(hash.digest).to.eql(Hash.sha256([b, a].join('\n'))); // NB: sorted by key-name.
-        expect(hash.digest).to.eql(Hash.Composite.digest(hash.parts));
+        expect(hash.digest).to.eql(CompositeHash.digest(hash.parts));
         expect(hash.toString()).to.eql(hash.digest);
 
         hash.remove('foo').remove('bar');
@@ -118,7 +114,7 @@ describe('hash', () => {
       });
 
       it('toObject', () => {
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         const a = hash.toObject();
         expect(a.digest).to.eql('');
         expect(a.parts).to.eql({});
@@ -133,7 +129,7 @@ describe('hash', () => {
       });
 
       it('toString', () => {
-        const hash = Hash.composite();
+        const hash = CompositeHash.builder();
         expect(hash.toString()).to.eql('');
 
         hash.add('foo', 'a').add('bar', 'b');
@@ -144,7 +140,7 @@ describe('hash', () => {
         it('sha256 (default)', () => {
           const a = Hash.sha256('a');
           const b = Hash.sha256('b');
-          const hash = Hash.composite({ algo: 'sha256' });
+          const hash = CompositeHash.builder({ algo: 'sha256' });
           expect(hash.digest).to.eql('');
           hash.add('foo', 'a').add('bar', 'b');
           expect(hash.digest).to.eql(Hash.sha256([b, a].join('\n')));
@@ -153,14 +149,14 @@ describe('hash', () => {
         it('sha1', () => {
           const a = Hash.sha1('a');
           const b = Hash.sha1('b');
-          const hash = Hash.composite('sha1');
+          const hash = CompositeHash.builder('sha1');
           expect(hash.digest).to.eql('');
           hash.add('foo', 'a').add('bar', 'b');
           expect(hash.digest).to.eql(Hash.sha1([b, a].join('\n')));
         });
 
         it('toHash ← ƒ(n)', () => {
-          const h = Hash.composite((_value) => 'apple');
+          const h = CompositeHash.builder((_value) => 'apple');
           expect(h.digest).to.eql('');
           h.add('foo', 'abc').add('bar', 'def');
           expect(h.digest).to.eql('apple');
@@ -168,11 +164,11 @@ describe('hash', () => {
       });
     });
 
-    describe('Hash.Composite.verify', () => {
+    describe('CompositeHash.verify', () => {
       const setup = () => {
         const a = new Uint8Array([1, 2, 3]);
         const b = new Uint8Array([4, 5, 6]);
-        const hash = Hash.Composite.builder().add('./apple/a', a).add('./zoo/b', b);
+        const hash = CompositeHash.builder().add('./apple/a', a).add('./zoo/b', b);
         return { a, b, hash };
       };
 

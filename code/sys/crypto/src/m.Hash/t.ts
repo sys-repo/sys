@@ -1,5 +1,4 @@
 import type { t } from '../common.ts';
-export type * from './t.Composite.ts';
 export type * from './t.Is.ts';
 
 type TrimPrefix = boolean;
@@ -16,9 +15,6 @@ export type HashInput = t.StringHash | t.CompositeHash;
 export type HashLib = {
   /** Boolean flag helpers for evaulating hash values.. */
   readonly Is: t.HashIsLib;
-
-  /** Tools for creating `CompositeHash` digests. */
-  readonly Composite: t.CompositeHashLib;
 
   /**
    * Generate a self-describing SHA1 hash of the given input.
@@ -46,9 +42,6 @@ export type HashLib = {
     length: number | [number, number],
     options?: t.ShortenHashOptions | TrimPrefix,
   ): string;
-
-  /** Create a new `CompositeHash` builder. */
-  composite: t.CompositeHashLib['builder'];
 
   /** Resolve the various hash inputs into a single top-level hash value. */
   toString(input?: t.HashInput): string;
