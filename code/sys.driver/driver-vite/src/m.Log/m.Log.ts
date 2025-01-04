@@ -1,9 +1,9 @@
-import { type t, c, Hash, Path, Str, Time } from '../common.ts';
+import { type t, c, FmtHash, Path, Str, Time } from '../common.ts';
 
 export const ViteLog: t.ViteLogLib = {
   digest(hash?: t.StringHash) {
     if (!hash) return '';
-    const uri = Hash.Console.digest(hash);
+    const uri = FmtHash.digest(hash);
     return c.gray(`${c.green('←')} ${uri}`);
   },
 
