@@ -14,6 +14,6 @@ export const Env: t.VitePressEnvLib = {
   /** Initialize the local machine environment with latest templates */
   update,
 
-  /** Create a backup snapshot. */
+  /** Create a project folder snapshot. */
   backup,
 };
