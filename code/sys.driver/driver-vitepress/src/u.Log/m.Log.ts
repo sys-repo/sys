@@ -91,8 +91,10 @@ export const Log = {
     } else {
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
       const buildOutput = `dist/*`;
+      const notBuilt = c.italic(c.yellow('(not yet built)'));
       console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
-      console.info(c.gray(`${c.italic(`(not yet built)`)} → run ${buildCmd} → ${buildOutput}`));
+      console.info(c.gray(`${notBuilt} → run:`));
+      console.info(c.gray(`                      ${buildCmd}`));
     }
 
     console.info();
