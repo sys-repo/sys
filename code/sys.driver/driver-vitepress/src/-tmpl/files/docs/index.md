@@ -1,7 +1,7 @@
 
 # 👋 Hello World
 
-Generated with `@sys/driver-vitepress@0.0.90`.  
+Generated with [`@sys/driver-vitepress@<DRIVER_VER>`](https://jsr.io/@sys/driver-vitepress@<DRIVER_VER>).  
 Sample markdown content...
 
 

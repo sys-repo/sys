@@ -17,11 +17,15 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
     const subpath = inDir ? file.path.slice(inDir.length + 1) : file.path;
 
     if (file.exists && is.userspace(subpath)) {
+      /**
+       *  🫵  DO NOT adjust user generated
+       *     content after the initial creation.
+       */
       return e.exclude('user-space');
     }
 
+    const version = args.version ?? pkg.version;
     if (file.name === 'deno.json') {
-      const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
@@ -31,6 +35,25 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.modify(text);
     }
 
+
+    if (file.path.endsWith('docs/index.md')) {
+      console.log('file', file);
+
+      const text = e.text.tmpl.replace(/\<DRIVER_VER\>/g, pkg.version);
+      return e.modify(text);
+
+      /**
+       * TODO 🐷
+       * write the version generated with in
+       */
+    }
+
+    /**
+     * Content Source (Src)
+     * Markdown and Image files
+     * Docs:
+     *       https://vitepress.dev/reference/site-config#srcdir
+     */
     if (file.path.endsWith('.vitepress/config.ts')) {
       const text = e.text.tmpl.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
