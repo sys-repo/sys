@@ -50,8 +50,8 @@ export const main: F = async (argv) => {
   }
 
   if (args.cmd === 'backup') {
-    const { inDir = PATHS.inDir } = args;
-    await Env.backup({ inDir });
+    const { inDir = PATHS.inDir, includeDist } = args;
+    await Env.backup({ inDir, includeDist });
     return;
   }
 

@@ -61,7 +61,7 @@ export type CmdArgsUpgrade = {
 export type CmdArgsClean = { cmd: 'clean'; inDir?: P };
 
 /** The `backup` command. */
-export type CmdArgsBackup = { cmd: 'backup'; inDir?: P };
+export type CmdArgsBackup = { cmd: 'backup'; inDir?: P; includeDist?: boolean };
 
 /** The `help` information command. */
 export type CmdArgsHelp = { cmd: 'help'; inDir?: P };
