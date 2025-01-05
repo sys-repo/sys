@@ -10,7 +10,7 @@ export const create: t.TmplFactory = (sourceDir, fn) => {
 };
 
 /**
- * Internal implementation of the tmplate
+ * Internal implementation of the template.
  */
 function factory(args: {
   sourceDir: t.StringDir;
