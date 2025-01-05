@@ -65,12 +65,6 @@ jobs:
           deno task test --parallel
           deno publish
 
-      - name: publish module → "@sys/std-s"
-        run: |
-          cd code/sys/std-s
-          deno task test --parallel
-          deno publish
-
       - name: publish module → "@sys/cmd"
         run: |
           cd code/sys/cmd
@@ -92,6 +86,12 @@ jobs:
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/sys/tmpl
+          deno task test --parallel
+          deno publish
+
+      - name: publish module → "@sys/std-s"
+        run: |
+          cd code/sys/std-s
           deno task test --parallel
           deno publish
 
