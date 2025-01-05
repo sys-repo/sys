@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../-test.ts';
+import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
 import { Sample } from './-u.ts';
@@ -38,12 +38,20 @@ describe('VitePress.build', () => {
       const port = Testing.randomPort();
       const app = HttpServer.create({ static: ['/*', res.dirs.out] });
       const server = Deno.serve({ port }, app.fetch);
-      const fetched = await fetch(`http://localhost:${port}`);
+      const url = `http://localhost:${port}`;
+      const fetched = await fetch(url);
       const text = await fetched.text();
+
+      console.info();
+      console.info(c.cyan('Fetched "html/text" from:'), c.bold(url));
+      console.info();
+      console.info(text);
+      console.info();
 
       const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
       assertHtml(`<title>👋 Hello World | Untitled</title>`);
-      assertHtml(`Generated with <code>@sys/driver-vitepress@`);
+      assertHtml(`Generated with`);
+      assertHtml(`href="https://jsr.io/@sys/driver-vitepress@`);
 
       server.shutdown();
     });
