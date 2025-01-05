@@ -18,7 +18,7 @@ describe('Tmpl', () => {
   it('init: paths', async () => {
     const test = SAMPLE.init();
     const tmpl = Tmpl.create(test.source);
-    expect(tmpl.source.dir).to.eql(test.source);
+    expect(tmpl.source.path).to.eql(test.source);
     expect(await tmpl.source.ls()).to.eql(await test.ls.source());
     tmpl;
   });
@@ -32,7 +32,7 @@ describe('Tmpl', () => {
       const a = await tmpl.copy(test.target);
       const b = await tmpl.copy(test.target);
 
-      expect(a.source.dir).to.eql(test.source);
+      expect(a.source.path).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
       expect(a.ops.every((m) => m.excluded === false)).to.be.true;
       expect(a.ops.every((m) => m.written === true)).to.be.true;
@@ -155,8 +155,9 @@ describe('Tmpl', () => {
         expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
         expect(await readFile(matchA?.file.target.path ?? '')).to.include(`name: '👋 Hello'`);
 
-        const writtenA = await readFile(Fs.join(a.target.dir, 'mod.ts'));
-        const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+        const writtenA = await readFile(a.target.join('mod.ts'));
+        const writtenB = await readFile(a.target.join('mod.ts'));
+
         expect(writtenA).to.include(`name: '👋 Hello'`);
         expect(writtenB).to.include(`name: '👋 Hello'`);
       });

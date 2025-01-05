@@ -4,9 +4,11 @@ import { type t, Fs, Path, toTmplFile } from './common.ts';
  * Helpers
  */
 export const Wrangle = {
-  dir(dir: string, filters?: t.TmplFilter[]): t.TmplDir {
+  dir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir {
+    const path = Path.resolve(dir);
     return {
-      dir,
+      path,
+      join: (...parts) => Path.join(path, ...parts),
       async ls(trimCwd) {
         const files = await Fs.glob(dir, { includeDirs: false }).find('**');
         const include = (path: string) => {

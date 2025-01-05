@@ -82,8 +82,9 @@ export type TmplCopyResponse = {
  * A directory involved in a [Tmpl] configuration.
  */
 export type TmplDir = {
-  dir: t.StringDir;
-  ls(trimCwd?: boolean): Promise<t.StringPath[]>;
+  path: t.StringAbsoluteDir;
+  join(...parts: t.StringPath[]): t.StringAbsolutePath;
+  ls(trimCwd?: boolean): Promise<t.StringAbsolutePath[]>;
 };
 
 /**
