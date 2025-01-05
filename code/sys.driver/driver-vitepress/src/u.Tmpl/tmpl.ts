@@ -35,6 +35,10 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.modify(text);
     }
 
+    /**
+     * TODO 🐷 put in base (inDir) propr
+     * 
+     * 
 
     if (file.path.endsWith('docs/index.md')) {
       console.log('file', file);
