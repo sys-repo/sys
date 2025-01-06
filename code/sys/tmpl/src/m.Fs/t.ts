@@ -1,13 +1,25 @@
 import type { t } from './common.ts';
 
+/** Filter on file paths. */
+export type FsFileFilter = (file: t.FsFile) => boolean;
+
+/**
+ * Generator function that produces `FsDir` data-structures.
+ */
+export type FsDirFactory = (
+  dir: t.StringDir,
+  options?: t.FsDirFactoryOptions | t.FsFileFilter | t.FsFileFilter[],
+) => t.FsDir;
+
+/** Options used when creating an `FsDir`. */
+export type FsDirFactoryOptions = {
+  filter?: t.FsFileFilter | t.FsFileFilter[];
+};
 
 /**
  * An object representing a directory path.
  */
 export type FsDir = {
-  /** The conceptual root from which relative paths are computed. */
-  // readonly base: t.StringAbsoluteDir;
-
   /** The the canonical directory location. */
   absolute: t.StringAbsoluteDir;
 
@@ -26,6 +38,11 @@ export type FsDirListOptions = {
   trimCwd?: boolean;
   filter?: t.FsFileFilter;
 };
+
+/**
+ * Generator function that produces `FsFile` data-structures.
+ */
+export type FsFileFactory = (path: t.StringPath, baseDir?: t.StringDir) => t.FsFile;
 
 /**
  * Path details about a template file.
@@ -49,8 +66,3 @@ export type FsFile = {
   /** Convert to string: `file.absolute` */
   toString(): string;
 };
-
-/**
- * Filter on file paths.
- */
-export type FsFileFilter = (file: t.FsFile) => boolean;

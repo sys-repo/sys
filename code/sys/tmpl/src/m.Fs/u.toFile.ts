@@ -1,9 +1,9 @@
 import { type t, Path } from './common.ts';
 
 /**
- * Convert a path into a [FsFile] data-structure.
+ * Convert a path into a `FsFile` data-structure.
  */
-export function toFile(path: t.StringPath, baseDir?: t.StringDir): t.FsFile {
+export const toFile: t.FsFileFactory = (path, baseDir) => {
   let relative = Path.normalize(path.trim());
   let base = wrangle.base(path, baseDir);
   if (Path.Is.absolute(relative) && !relative.startsWith(base)) {
@@ -27,7 +27,7 @@ export function toFile(path: t.StringPath, baseDir?: t.StringDir): t.FsFile {
     file,
     toString: () => absolute,
   };
-}
+};
 
 /**
  * Helpers

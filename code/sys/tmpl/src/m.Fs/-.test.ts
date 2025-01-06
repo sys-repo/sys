@@ -10,10 +10,18 @@ describe('Path.dir|file', () => {
 
   describe('toTmplDir', () => {
     describe('paths', () => {
-      it('default', () => {
-        const path = Path.resolve('foo/bar');
-        const res = toDir(path);
-        expect(res.absolute).to.eql(path);
+      it('input: absolute', () => {
+        const absolute = Path.resolve('foo/bar');
+        const res = toDir(absolute);
+        expect(res.absolute).to.eql(absolute);
+        expect(res.toString()).to.eql(res.absolute);
+      });
+
+      it('input: relative ← resolves against CWD', () => {
+        const relative = 'foo/bar';
+        const res = toDir(relative);
+        expect(res.absolute).to.eql(Path.resolve(relative));
+        expect(res.absolute.startsWith(cwd)).to.eql(true);
         expect(res.toString()).to.eql(res.absolute);
       });
     });
@@ -60,7 +68,7 @@ describe('Path.dir|file', () => {
   });
 
   describe('toTmplFile', () => {
-    describe('base (path)', () => {
+    describe('base', () => {
       it('path: relative, base provided', () => {
         const test = (base: string, path: string) => {
           const res = toFile(`  ./${path}  `, ` ${base} `);
