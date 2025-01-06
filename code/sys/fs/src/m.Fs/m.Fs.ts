@@ -1,12 +1,14 @@
+import { type t, ensureDir, exists, ls, Path } from './common.ts';
+
 import { create as glob } from '../m.Glob/u.create.ts';
-import { ls } from '../m.Glob/u.ls.ts';
 import { Watch } from '../m.Watch/mod.ts';
-import { type t, ensureDir, exists, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { readJson } from './u.read.ts';
 import { remove } from './u.remove.ts';
+import { toDir } from './u.toDir.ts';
+import { toFile } from './u.toFile.ts';
 import { walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
 
@@ -32,6 +34,8 @@ export const Fs: t.FsLib = {
 
   glob,
   ls,
+  toFile,
+  toDir,
 
   exists,
   ensureDir,

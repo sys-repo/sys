@@ -5,6 +5,8 @@ import type * as StdPath from '@std/path';
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
 
+export type * from './t.Dir.ts';
+export type * from './t.File.ts';
 export type { WalkEntry };
 
 type Methods = StdMethods & IndexMethods & GlobMethods;
@@ -48,6 +50,12 @@ export type FsLib = Methods & {
 
   /** Removes the CWD (current-working-directory) from the given path if it exists. */
   trimCwd: t.FsPathLib['trimCwd'];
+
+  /** Generator function that produces `FsFile` data-structures. */
+  toFile: t.FsFileFactory;
+
+  /** Generator function that produces `FsDir` data-structures. */
+  toDir: t.FsDirFactory;
 };
 
 /**
