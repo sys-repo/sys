@@ -1,6 +1,6 @@
 import { type t, Fs, PATHS, pkg, Tmpl } from './common.ts';
-import { saveTemplateFiles } from './tmpl.bundle.write.ts';
-export { bundleTemplateFiles } from './tmpl.bundle.ts';
+import { saveTemplateFiles } from './bundle.write.ts';
+export { bundleTemplateFiles } from './bundle.ts';
 
 /**
  * Create a new instance of the bundled file template.
@@ -14,10 +14,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
   await saveTemplateFiles(templatesDir);
 
   return Tmpl.create(templatesDir, (e) => {
-    const target = e.target;
-    const subpath = inDir ? target.absolute.slice(inDir.length + 1) : target.absolute;
-
-    if (target.exists && is.userspace(subpath)) {
+    if (e.target.exists && is.userspace(e.target.relative)) {
       /**
        *  🫵  DO NOT adjust user generated
        *     content after the initial creation.
