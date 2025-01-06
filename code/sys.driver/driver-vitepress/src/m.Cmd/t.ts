@@ -28,7 +28,17 @@ export type VitePressCmdLib = {
  */
 export type VitePressCmdArgs = CmdArgs;
 export type CmdArgs = CmdArgsMain | CmdArgsInit;
-export type CmdArgsMain = CmdArgsDev | CmdArgsBuild | CmdArgsServe | CmdArgsUpgrade | CmdArgsHelp;
+export type CmdArgsMain =
+  | CmdArgsDev
+  | CmdArgsBuild
+  | CmdArgsServe
+  | CmdArgsClean
+  | CmdArgsUpgrade
+  | CmdArgsBackup
+  | CmdArgsHelp;
+
+/** The `init` command. */
+export type CmdArgsInit = { inDir?: P };
 
 /** The `dev` server command. */
 export type CmdArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
@@ -47,9 +57,11 @@ export type CmdArgsUpgrade = {
   version?: t.StringSemver;
 };
 
-export type CmdArgsHelp = {
-  cmd: 'help';
-};
+/** The `clean` command. */
+export type CmdArgsClean = { cmd: 'clean'; inDir?: P };
 
-/** The `init` command. */
-export type CmdArgsInit = { inDir?: P };
+/** The `backup` command. */
+export type CmdArgsBackup = { cmd: 'backup'; inDir?: P; includeDist?: boolean };
+
+/** The `help` information command. */
+export type CmdArgsHelp = { cmd: 'help'; inDir?: P };

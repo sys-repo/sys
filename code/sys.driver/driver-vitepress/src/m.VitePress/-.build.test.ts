@@ -1,7 +1,7 @@
-import { describe, expect, Fs, it, Testing } from '../-test.ts';
+import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
-import { SAMPLE } from './-u.ts';
+import { Sample } from './-u.ts';
 import { VitePress } from './mod.ts';
 
 describe('VitePress.build', () => {
@@ -10,17 +10,17 @@ describe('VitePress.build', () => {
     const pathsInclude = (start: t.StringPath) => paths.some((p) => p.startsWith(start));
     const expectPath = (start: t.StringPath) => expect(pathsInclude(start)).to.be.true;
 
-    expectPath('./404.html');
-    expectPath('./assets/-pkg.json'); // NB: digest-hash in `dist.json` includes {pkg.json} version.
-    expectPath('./assets/chunks/');
-    expectPath('./hashmap.json');
-    expectPath('./index.html');
+    expectPath('404.html');
+    expectPath('assets/-pkg.json'); // NB: digest-hash in `dist.json` includes {pkg.json} version.
+    expectPath('assets/chunks/');
+    expectPath('hashmap.json');
+    expectPath('index.html');
   };
 
   it('build (default params)', async () => {
     await Testing.retry(3, async () => {
       const pkg = { name: `@sample/${slug()}`, version: '0.1.2' };
-      const sample = SAMPLE.init({ slug: true });
+      const sample = Sample.init({ slug: true });
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, 'dist');
 
@@ -38,20 +38,28 @@ describe('VitePress.build', () => {
       const port = Testing.randomPort();
       const app = HttpServer.create({ static: ['/*', res.dirs.out] });
       const server = Deno.serve({ port }, app.fetch);
-      const fetched = await fetch(`http://localhost:${port}`);
+      const url = `http://localhost:${port}`;
+      const fetched = await fetch(url);
       const text = await fetched.text();
+
+      console.info();
+      console.info(c.cyan('Fetched "html/text" from:'), c.bold(url));
+      console.info();
+      console.info(text);
+      console.info();
 
       const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
       assertHtml(`<title>👋 Hello World | Untitled</title>`);
-      assertHtml(`Generated with <code>@sys/driver-vitepress@`);
+      assertHtml(`Generated with`);
+      assertHtml(`href="https://jsr.io/@sys/driver-vitepress@`);
 
       server.shutdown();
     });
   });
 
   it('build: custom {outDir}', async () => {
-    const pkg = SAMPLE.createPkg();
-    const sample = SAMPLE.init({ slug: true });
+    const pkg = Sample.createPkg();
+    const sample = Sample.init({ slug: true });
     const inDir = Fs.resolve(sample.path);
     const outDir = Fs.resolve(sample.path, '.vitepress/dist');
     expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.

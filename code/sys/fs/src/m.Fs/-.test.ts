@@ -1,9 +1,16 @@
 import { Path as StdPath } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
+import { Glob } from '../m.Glob/mod.ts';
 import { Path } from './common.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: filesystem', () => {
+  it('API', () => {
+    expect(Fs.glob).to.equal(Glob.create);
+    expect(Fs.ls).to.equal(Glob.ls);
+    expect(Fs.trimCwd).to.equal(Path.trimCwd);
+  });
+
   describe('Fs.Path', () => {
     it('refs', () => {
       expect(Fs.Path).to.equal(Path);

@@ -5,29 +5,18 @@ import type * as StdPath from '@std/path';
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
 
+export type * from './t.Dir.ts';
+export type * from './t.File.ts';
 export type { WalkEntry };
+
+type Methods = StdMethods & IndexMethods & GlobMethods;
 
 /**
  * Tools for working with the file-system.
  */
-export type FsLib = StdMethods & {
-  /** Helpers for working with resource paths. */
-  readonly Path: t.FsPathLib;
-
-  /** Filesystem/Path type verification flags. */
-  readonly Is: t.FsIsLib;
-
-  /** Tools for calculating file sizes. */
-  readonly Size: t.FsSizeLib;
-
-  /** Tools for watching file-system changes. */
-  readonly Watch: t.FsWatchLib;
-
+export type FsLib = Methods & {
   /** Retrieve information about the given path. */
   readonly stat: t.FsGetStat;
-
-  /** Factory for a glob helper. */
-  readonly glob: t.GlobFactory;
 
   /** Writes a string or binary file ensuring it's parent directory exists. */
   readonly write: t.FsWriteFile;
@@ -59,11 +48,44 @@ export type FsLib = StdMethods & {
   /** Current working directory. */
   cwd(): t.StringDir;
 
-  /** List the file-paths within a directory (simple glob). */
-  ls(dir: t.StringDir, options?: GlobOptions): Promise<t.StringPath[]>;
+  /** Removes the CWD (current-working-directory) from the given path if it exists. */
+  trimCwd: t.FsPathLib['trimCwd'];
+
+  /** Generator function that produces `FsFile` data-structures. */
+  toFile: t.FsFileFactory;
+
+  /** Generator function that produces `FsDir` data-structures. */
+  toDir: t.FsDirFactory;
 };
 
-/** Methods from the `@std` libs. */
+/**
+ * Index properties.
+ */
+type IndexMethods = {
+  /** Helpers for working with resource paths. */
+  readonly Path: t.FsPathLib;
+
+  /** File-system/path type verification flags. */
+  readonly Is: t.FsIsLib;
+
+  /** Helpers for calculating file sizes. */
+  readonly Size: t.FsSizeLib;
+
+  /** Helpers for watching file-system changes. */
+  readonly Watch: t.FsWatchLib;
+};
+
+type GlobMethods = {
+  /** List the file-paths within a directory (simple glob). */
+  readonly ls: t.GlobPathList;
+
+  /** Factory for a glob helper. */
+  readonly glob: t.GlobFactory;
+};
+
+/**
+ * Methods from the `@std` libs.
+ */
 type StdMethods = {
   /** Joins a sequence of paths, then normalizes the resulting path. */
   readonly join: typeof StdPath.join;
@@ -99,34 +121,6 @@ export type FsIsLib = t.PathLib['Is'] & {
 };
 
 /**
- * Generate a Glob helper scoped to a path.
- */
-export type GlobFactory = (dir: t.StringDir, options?: GlobOptions) => t.Glob;
-
-/**
- * Runs globs against a filesystem root.
- */
-export type Glob = {
-  /**
-   * Read out the base directory.
-   */
-  readonly base: string;
-
-  /**
-   *  Query the given glob pattern.
-   */
-  find(pattern: string, options?: GlobOptions): Promise<WalkEntry[]>;
-
-  /**
-   * Retrieve a sub-directory `Glob` from the current context.
-   */
-  dir(subdir: t.StringDir): Glob;
-};
-
-/** Options for a glob operation.  */
-export type GlobOptions = { exclude?: string[]; includeDirs?: boolean };
-
-/**
  * Retrieve information about the given path.
  */
 export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
@@ -137,7 +131,7 @@ export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
 export type FsCopy = (
   from: t.StringPath,
   to: t.StringPath,
-  options?: t.FsCopyOptions,
+  options?: t.FsCopyOptions | t.FsCopyFilter,
 ) => Promise<t.FsCopyResponse>;
 
 /** Copy all files in a directory. */
@@ -154,6 +148,8 @@ export type FsCopyOptions = {
   force?: boolean;
   /** Flag indicating if errors should be thrown (default: false). */
   throw?: boolean;
+  /** Filter to remove files from the copy set. */
+  filter?: t.FsCopyFilter;
 };
 
 /** Response from the `Fs.copy` method. */
@@ -253,35 +249,3 @@ export type FsDirSize = {
   readonly total: { files: number; bytes: number };
   toString(options?: FormatOptions): string;
 };
-
-/**
- * Tools for watching file-system changes.
- */
-export type FsWatchLib = {
-  start(
-    paths: t.StringPath | t.StringPath[],
-    options?: { recursive?: boolean; dispose$?: t.UntilObservable },
-  ): Promise<t.FsWatcher>;
-};
-
-/**
- * A live file-system watcher.
- */
-export type FsWatcher = t.Lifecycle & {
-  readonly $: t.Observable<t.FsWatchEvent>;
-
-  /** The paths being wathced. */
-  readonly paths: t.StringPath[];
-
-  /** Flag indicating if all the watched paths exist. */
-  readonly exists: boolean;
-
-  /** Flags */
-  readonly is: { readonly recursive?: boolean };
-
-  /** Error(s) that may have occured during setup or while watching. */
-  readonly error?: t.StdError;
-};
-
-/** An event fired by a watched file-system location. */
-export type FsWatchEvent = Deno.FsEvent;
