@@ -1,5 +1,5 @@
 import { c, FileMap, Fs, PATHS } from './common.ts';
-import bundle from './tmpl.bundle.json' with { type: 'json' };
+import bundle from './-bundle.json' with { type: 'json' };
 
 /**
  * Write out a <FileMap> bundle to a target location.
