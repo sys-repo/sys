@@ -4,7 +4,7 @@ import type * as t from './t.ts';
 /**
  * Convert a path into a {TmplFile} data structure.
  */
-export function toTmplFile2(base: t.StringDir, relative: t.StringRelativePath): t.TmplFile2 {
+export function toTmplFile(base: t.StringDir, relative: t.StringRelativePath): t.TmplFile {
   base = Path.resolve(base.trim());
   if (Path.Is.absolute(relative) && !relative.startsWith(base)) {
     const msg = `The given [relative] path is absolute but does not match the given [base].`;
@@ -21,7 +21,14 @@ export function toTmplFile2(base: t.StringDir, relative: t.StringRelativePath): 
   const name = Path.basename(relative);
   const ext = Path.extname(relative);
   const file = { name, ext };
-  return { absolute, base, relative, dir, file };
+
+  return {
+    absolute,
+    base,
+    relative,
+    dir,
+    file,
+  };
 }
 
 /**

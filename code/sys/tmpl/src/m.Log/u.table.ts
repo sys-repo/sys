@@ -1,4 +1,4 @@
-import { type t, toTmplFile___, c, Cli, Path } from './common.ts';
+import { type t, c, Cli } from './common.ts';
 
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   const table = Cli.table([]);

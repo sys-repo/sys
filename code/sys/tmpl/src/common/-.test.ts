@@ -1,5 +1,5 @@
 import { Path, describe, expect, it } from '../-test.ts';
-import { toTmplFile2 } from './mod.ts';
+import { toTmplFile } from './mod.ts';
 
 describe('common', () => {
   describe('toTmplFile', () => {
@@ -7,7 +7,7 @@ describe('common', () => {
 
     it('path: base == cwd', () => {
       const test = (base: string, path: string) => {
-        const res = toTmplFile2(` ${base} `, `  ./${path}  `);
+        const res = toTmplFile(` ${base} `, `  ./${path}  `);
         expect(res.base).to.eql(Path.resolve(base));
         expect(res.absolute).to.eql(Path.resolve(base, Path.normalize(path)));
         expect(res.relative).to.eql(Path.normalize(path));
@@ -23,8 +23,8 @@ describe('common', () => {
     });
 
     it('single dotfile: ".gitignore"', () => {
-      const a = toTmplFile2(cwd, '.gitignore');
-      const b = toTmplFile2(cwd, 'foo/.gitignore'); // NB: no directory.
+      const a = toTmplFile(cwd, '.gitignore');
+      const b = toTmplFile(cwd, 'foo/.gitignore'); // NB: no directory.
 
       expect(a.file.name).to.eql('.gitignore');
       expect(b.file.name).to.eql('.gitignore');
@@ -39,14 +39,14 @@ describe('common', () => {
 
     it('path contains base (absolute)', () => {
       const path = 'foo/file.ts';
-      const res = toTmplFile2(cwd, Path.join(cwd, path));
+      const res = toTmplFile(cwd, Path.join(cwd, path));
       expect(res.base).to.eql(cwd);
       expect(res.absolute).to.eql(Path.join(cwd, path));
       expect(res.relative).to.eql(path);
     });
 
     it('throw: relative path absolute AND difference from base', () => {
-      const fn = () => toTmplFile2('/base/path', '/foo/file.ts');
+      const fn = () => toTmplFile('/base/path', '/foo/file.ts');
       expect(fn).to.throw(
         /The given \[relative\] path is absolute but does not match the given \[base\]/,
       );

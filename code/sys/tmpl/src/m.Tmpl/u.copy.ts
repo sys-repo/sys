@@ -1,4 +1,4 @@
-import { type t, Fs, Is, toTmplFile2 } from './common.ts';
+import { type t, Fs, Is, toTmplFile } from './common.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
 type Changes = {
@@ -24,8 +24,8 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        tmpl: toTmplFile2(source.path, from),
-        target: toTmplFile2(target.path, to),
+        tmpl: toTmplFile(source.path, from),
+        target: toTmplFile(target.path, to),
       },
       text: {
         tmpl: sourceText,
