@@ -3,7 +3,7 @@ import { type t, Path } from './common.ts';
 /**
  * Convert a path into a {TmplFile} data structure.
  */
-export function toFile(base: t.StringDir, relative: t.StringRelativePath): t.FsFile {
+export function toFile(relative: t.StringRelativePath, base: t.StringDir): t.FsFile {
   base = Path.resolve(base.trim());
   if (Path.Is.absolute(relative) && !relative.startsWith(base)) {
     const msg = `The given [relative] path is absolute but does not match the given [base].`;

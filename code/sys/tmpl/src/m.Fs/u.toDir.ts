@@ -16,7 +16,7 @@ export function toDir(dir: t.StringDir, filters?: t.FsFileFilter[]): t.FsDir {
       const hasFilters = !!(filters || options.filter);
 
       const include = (p: string) => {
-        const file = toFile(absolute, p);
+        const file = toFile(p, absolute);
         if (options.filter && !options.filter(file)) return false;
         if (filters) {
           for (const fn of filters) {

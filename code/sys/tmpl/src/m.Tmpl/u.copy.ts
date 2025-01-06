@@ -23,8 +23,8 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        tmpl: toFile(source.absolute, from),
-        target: toFile(target.absolute, to),
+        tmpl: toFile(from, source.absolute),
+        target: toFile(to, target.absolute),
       },
       text: {
         tmpl: sourceText,
@@ -108,6 +108,6 @@ const wrangle = {
   },
 
   rename(input: t.FsFile, newFilename: string): t.FsFile {
-    return toFile(input.base, Fs.join(input.dir, newFilename));
+    return toFile(Fs.join(input.dir, newFilename), input.base);
   },
 } as const;

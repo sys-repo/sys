@@ -62,7 +62,7 @@ describe('Path.dir|file', () => {
   describe('toTmplFile', () => {
     it('base', () => {
       const test = (base: string, path: string) => {
-        const res = toFile(` ${base} `, `  ./${path}  `);
+        const res = toFile(`  ./${path}  `, ` ${base} `);
         expect(res.base).to.eql(Path.resolve(base));
         expect(res.absolute).to.eql(Path.resolve(base, Path.normalize(path)));
         expect(res.relative).to.eql(Path.normalize(path));
@@ -78,8 +78,8 @@ describe('Path.dir|file', () => {
     });
 
     it('single dotfile: ".gitignore"', () => {
-      const a = toFile(cwd, '.gitignore');
-      const b = toFile(cwd, 'foo/.gitignore'); // NB: no directory.
+      const a = toFile('.gitignore', cwd);
+      const b = toFile('foo/.gitignore', cwd); // NB: no directory.
 
       expect(a.file.name).to.eql('.gitignore');
       expect(b.file.name).to.eql('.gitignore');
@@ -94,19 +94,19 @@ describe('Path.dir|file', () => {
 
     it('path contains base (absolute)', () => {
       const path = 'foo/file.ts';
-      const res = toFile(cwd, Path.join(cwd, path));
+      const res = toFile(Path.join(cwd, path), cwd);
       expect(res.base).to.eql(cwd);
       expect(res.absolute).to.eql(Path.join(cwd, path));
       expect(res.relative).to.eql(path);
     });
 
     it('toString() → file.absolute', () => {
-      const res = toFile(cwd, Path.join(cwd, 'foo/file.ts'));
+      const res = toFile(Path.join(cwd, 'foo/file.ts'), cwd);
       expect(res.toString()).to.eql(res.absolute);
     });
 
     it('throw: relative path absolute AND difference from base', () => {
-      const fn = () => toFile('/base/path', '/foo/file.ts');
+      const fn = () => toFile('/foo/file.ts', '/base/path');
       expect(fn).to.throw(
         /The given \[relative\] path is absolute but does not match the given \[base\]/,
       );
