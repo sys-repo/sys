@@ -33,7 +33,7 @@ deno task help
 Usage: deno task [COMMAND]
                                                                          
   deno task dev       Run the development server.                  
-  deno task build     Transpile into production bundle.
+  deno task build     Transpile to production bundle.
   deno task serve     Run a local HTTP server with the production bundle.
 
   deno task upgrade   Upgrade to latest version.                    

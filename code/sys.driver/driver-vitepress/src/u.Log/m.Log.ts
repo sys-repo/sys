@@ -62,7 +62,7 @@ export const Log = {
       table.push([left, right]);
     };
     push('dev', 'Run the development server.');
-    push('build', 'Transpile into production bundle.');
+    push('build', 'Transpile to production bundle.');
     push('serve', 'Run a local HTTP server with the production bundle.');
     if (!minimal) {
       table.push(['', '']);
