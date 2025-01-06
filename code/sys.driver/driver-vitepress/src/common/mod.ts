@@ -10,7 +10,7 @@ export const PATHS = {
   backup: '-backup',
   vitepressCache: '.vitepress/cache',
   tmpl: {
-    source: 'src/-tmpl.files',
+    source: 'src/-tmpl',
     json: 'src/u.Tmpl/-bundle.json',
   },
 } as const;
