@@ -4,9 +4,9 @@ Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and dev-har
 
 ### References
 
-- [JSR Docs → Vite](https://jsr.io/docs/with/vite) (Build Tool)
-- [Deno Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/)
-- [@sys/driver-deno](https://jsr.io/@sys/driver-deno) 
+- [JSR Docs: Vite](https://jsr.io/docs/with/vite) (Build Tool)
+- [Deno Docs: Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/)
+- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno) 
 
 
 <p>&nbsp;<p>

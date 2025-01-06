@@ -1,5 +1,4 @@
-import type { t } from './common.ts';
-import { Wrangle } from './u.Wrangle.ts';
+import { type t, Fs } from './common.ts';
 import { copy } from './u.copy.ts';
 
 /**
@@ -10,21 +9,21 @@ export const create: t.TmplFactory = (sourceDir, fn) => {
 };
 
 /**
- * Internal implementation of the tmplate
+ * Internal implementation of the template.
  */
 function factory(args: {
   sourceDir: t.StringDir;
   fn?: t.TmplProcessFile;
-  filter?: t.TmplFilter[];
+  filter?: t.FsFileFilter[];
 }): t.Tmpl {
   const { sourceDir, fn } = args;
-  const source = Wrangle.dir(sourceDir, args.filter);
+  const source = Fs.toDir(sourceDir, args.filter);
   const tmpl: t.Tmpl = {
     get source() {
       return source;
     },
     copy(target, options = {}) {
-      return copy(source, Wrangle.dir(target), fn, options);
+      return copy(source, Fs.toDir(target), fn, options);
     },
     filter(next) {
       const { sourceDir, fn } = args;

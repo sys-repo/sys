@@ -1,10 +1,13 @@
-import { type t, ensureDir, Err, exists, pkg } from './common.ts';
+import { type t, Err, exists, pkg } from './common.ts';
+import { copyFile } from './u.copy.file.ts';
+import { Wrangle } from './u.copy.util.ts';
 import { remove } from './u.remove.ts';
 
 /**
  * Copy all files in a directory.
  */
-export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
+export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
+  const options = Wrangle.options(opt);
   const { force = false } = options;
   const errors = Err.errors();
 
@@ -39,7 +42,6 @@ export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
       return done();
     }
   }
-  await ensureDir(to);
 
   try {
     /*
@@ -49,9 +51,10 @@ export const copyDir: t.FsCopyDir = async (from, to, options = {}) => {
       const source = `${from}/${entry.name}`;
       const target = `${to}/${entry.name}`;
       if (entry.isDirectory) {
-        await copyDir(source, target);
+        if (!Wrangle.filter(source, target, options.filter)) continue;
+        await copyDir(source, target, options); // ← Recursion 🌳
       } else if (entry.isFile) {
-        await Deno.copyFile(source, target);
+        await copyFile(source, target, options);
       }
     }
   } catch (error: any) {

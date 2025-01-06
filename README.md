@@ -240,8 +240,8 @@ The inverse proposition also appears to be true:
 
 # License, [MIT](LICENSE.md).
 
-To understand the context around MIT Licence ("an open-source classic")  
-see  **Kyle E. Mitchell's**  
+To understand the legal and historical context around MIT Licence ("an open-source classic")  
+see **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>

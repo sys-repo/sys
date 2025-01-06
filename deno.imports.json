@@ -45,6 +45,7 @@
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6",
     "happy-dom": "npm:happy-dom@15.11.7",
+    "ignore": "npm:ignore@7",
     "immer": "npm:immer@10",
     "ora": "npm:ora@8.1.1",
     "openai": "npm:openai@4.76.0",

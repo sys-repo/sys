@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, it, pkg, type t } from '../-test.ts';
+import { type t, c, describe, expect, Fs, it, pkg, Testing } from '../-test.ts';
 import { INPUT } from './-u.ts';
 import { Vite } from './mod.ts';
 
@@ -15,7 +15,8 @@ describe('Vite.build', () => {
 
     // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
     const keys = Object.keys(res.dist.hash.parts);
-    const hasPkg = keys.some((key) => key.startsWith('./pkg/-pkg.json'));
+    const hasPkg = keys.some((key) => key.startsWith('pkg/-pkg.json'));
+
     expect(hasPkg).to.eql(true);
 
     // Load file outputs.
@@ -48,6 +49,7 @@ describe('Vite.build', () => {
   it('sample-1: simple', async () => {
     const input = INPUT.sample1;
     const { res, files } = await testBuild(input);
+
     expect(files.html).to.include(`<title>Sample-1</title>`);
 
     expect(res.dist).to.eql(files.distJson);

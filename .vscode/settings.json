@@ -1,8 +1,10 @@
 {
   "typescript.disableAutomaticTypeAcquisition": true,
-  "typescript.tsserver.maxTsServerMemory": 8192,
+  "typescript.tsserver.maxTsServerMemory": 16384,
 
+  "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.quickSuggestionsDelay": 0,
 
   "deno.enable": true,
   "deno.lint": false,

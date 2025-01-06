@@ -68,7 +68,7 @@
  * These are published in HTTP headers:
  * ```
  *   pkg:          { name, version }
- *   pkg-digest:   digest:sha256:#
+ *   pkg-digest:   <hash:sha256>
  * ```
  *
  *

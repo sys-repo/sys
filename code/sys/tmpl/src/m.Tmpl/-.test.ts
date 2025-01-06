@@ -18,7 +18,7 @@ describe('Tmpl', () => {
   it('init: paths', async () => {
     const test = SAMPLE.init();
     const tmpl = Tmpl.create(test.source);
-    expect(tmpl.source.dir).to.eql(test.source);
+    expect(tmpl.source.absolute).to.eql(test.source);
     expect(await tmpl.source.ls()).to.eql(await test.ls.source());
     tmpl;
   });
@@ -32,7 +32,7 @@ describe('Tmpl', () => {
       const a = await tmpl.copy(test.target);
       const b = await tmpl.copy(test.target);
 
-      expect(a.source.dir).to.eql(test.source);
+      expect(a.source.absolute).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
       expect(a.ops.every((m) => m.excluded === false)).to.be.true;
       expect(a.ops.every((m) => m.written === true)).to.be.true;
@@ -52,9 +52,9 @@ describe('Tmpl', () => {
       let foo = 0;
       let count = 0;
       const tmpl = Tmpl.create(test.source, (e) => {
-        if (e.file.target.name !== 'mod.ts') return e.exclude();
+        if (e.target.file.name !== 'mod.ts') return e.exclude();
         e.modify(`const foo = ${foo}`);
-        expect(e.file.target.exists).to.eql(count === 0 ? false : true);
+        expect(e.target.exists).to.eql(count === 0 ? false : true);
         count++;
       });
 
@@ -89,16 +89,16 @@ describe('Tmpl', () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, async (e) => {
           await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
-          if (e.file.target.name.endsWith('.md')) e.exclude('user-space');
-          if (e.file.target.name === '.gitignore') e.exclude();
+          if (e.target.file.name.endsWith('.md')) e.exclude('user-space');
+          if (e.target.file.name === '.gitignore') e.exclude();
         });
 
         const res = await tmpl.copy(target);
 
         for (const op of res.ops) {
-          if (op.file.target.name.endsWith('.md')) {
+          if (op.file.target.file.name.endsWith('.md')) {
             expect(op?.excluded).to.eql({ reason: 'user-space' }); // NB: excluded with reason.
-          } else if (op.file.target.name === '.gitignore') {
+          } else if (op.file.target.file.name === '.gitignore') {
             expect(op?.excluded).to.eql(true); // NB: no reason, boolean TRUE (aka. was excluded).
           } else {
             expect(op.excluded).to.eql(false);
@@ -115,8 +115,8 @@ describe('Tmpl', () => {
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
-          expect(e.file.source.dir.startsWith(Fs.Path.trimCwd(source))).to.be.true;
-          expect(e.file.target.dir.startsWith(Fs.Path.trimCwd(target))).to.be.true;
+          expect(e.tmpl.base).to.eql(source);
+          expect(e.target.base).to.eql(target);
         });
         await tmpl.copy(target);
         expect(count).to.greaterThan(0); // NB: ensure the callback ran.
@@ -125,12 +125,12 @@ describe('Tmpl', () => {
       it('fn: rename file', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source, (e) => {
-          if (e.file.target.name === 'mod.ts') e.rename('main.ts');
+          if (e.target.file.name === 'mod.ts') e.rename('main.ts');
         });
         const res = await tmpl.copy(test.target);
-        const match = res.ops.find((m) => m.file.target.name === 'main.ts');
-        expect(match?.file.source.name).to.eql('mod.ts');
-        expect(match?.file.target.name).to.eql('main.ts');
+        const match = res.ops.find((m) => m.file.target.file.name === 'main.ts');
+        expect(match?.file.tmpl.file.name).to.eql('mod.ts');
+        expect(match?.file.target.file.name).to.eql('main.ts');
         expect(await test.exists.target('mod.ts')).to.eql(false);
         expect(await test.exists.target('main.ts')).to.eql(true);
       });
@@ -138,25 +138,26 @@ describe('Tmpl', () => {
       it('fn: modify (file text)', async () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, (e) => {
-          if (e.file.target.name === 'mod.ts') {
-            const next = e.text.replace(/\{FOO_BAR\}/g, '👋 Hello');
+          if (e.target.file.name === 'mod.ts') {
+            const next = e.text.tmpl.replace(/\{FOO_BAR\}/g, '👋 Hello');
             e.modify(next);
           }
         });
 
         const a = await tmpl.copy(target);
         const b = await tmpl.copy(target);
-        const matchA = a.ops.find((m) => m.file.target.name === 'mod.ts');
-        const matchB = b.ops.find((m) => m.file.target.name === 'mod.ts');
+        const matchA = a.ops.find((m) => m.file.target.file.name === 'mod.ts');
+        const matchB = b.ops.find((m) => m.file.target.file.name === 'mod.ts');
 
-        expect(matchA?.text.source).to.include(`name: '{FOO_BAR}'`);
+        expect(matchA?.text.tmpl).to.include(`name: '{FOO_BAR}'`);
         expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
         expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
         expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
-        expect(await readFile(matchA?.file.target.path ?? '')).to.include(`name: '👋 Hello'`);
+        expect(await readFile(matchA?.file.target.absolute ?? '')).to.include(`name: '👋 Hello'`);
 
-        const writtenA = await readFile(Fs.join(a.target.dir, 'mod.ts'));
-        const writtenB = await readFile(Fs.join(a.target.dir, 'mod.ts'));
+        const writtenA = await readFile(a.target.join('mod.ts'));
+        const writtenB = await readFile(a.target.join('mod.ts'));
+
         expect(writtenA).to.include(`name: '👋 Hello'`);
         expect(writtenB).to.include(`name: '👋 Hello'`);
       });
@@ -188,9 +189,8 @@ describe('Tmpl', () => {
       it('force ← (with exclusions)', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source, (e) => {
-          const file = e.file.target;
-          if (!file.exists) return; // NB: create the user-space file if it does not yet exist
-          if (file.name === 'doc.md') e.exclude('user-space');
+          if (!e.target.exists) return; // NB: create the user-space file if it does not yet exist
+          if (e.target.file.name === 'doc.md') e.exclude('user-space');
         });
 
         const resA = await tmpl.copy(test.target);
@@ -212,7 +212,7 @@ describe('Tmpl', () => {
         const res = await tmpl.copy(test.target, { write: false });
         expect(res.ops.every((m) => m.written === false)).to.be.true;
         for (const op of res.ops) {
-          expect(await Fs.exists(op.file.target.path)).to.eql(false);
+          expect(await Fs.exists(op.file.target.absolute)).to.eql(false);
         }
       });
 
@@ -235,15 +235,15 @@ describe('Tmpl', () => {
     it('single-level filter', async () => {
       const test = SAMPLE.init();
       const tmpl1 = Tmpl.create(test.source);
-      const tmpl2 = Tmpl.create(test.source).filter((file) => file.name !== '.gitignore');
+      const tmpl2 = Tmpl.create(test.source).filter((e) => e.file.name !== '.gitignore');
       expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.true;
       expect(includes(await tmpl2.source.ls(), '/.gitignore')).to.be.false;
     });
 
     it('multi-level filter', async () => {
       const test = SAMPLE.init();
-      const tmpl1 = Tmpl.create(test.source).filter((file) => file.name !== '.gitignore');
-      const tmpl2 = tmpl1.filter((file) => !file.name.endsWith('.md'));
+      const tmpl1 = Tmpl.create(test.source).filter((e) => e.file.name !== '.gitignore');
+      const tmpl2 = tmpl1.filter((e) => !e.file.name.endsWith('.md'));
       expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.false;
       expect(includes(await tmpl1.source.ls(), '/index.md')).to.be.true;
       expect(includes(await tmpl2.source.ls(), '/index.md')).to.be.false;
@@ -251,7 +251,7 @@ describe('Tmpl', () => {
 
     it('does not copy filtered files', async () => {
       const test = SAMPLE.init();
-      const tmpl = Tmpl.create(test.source).filter((file) => !file.name.endsWith('.md'));
+      const tmpl = Tmpl.create(test.source).filter((e) => !e.file.name.endsWith('.md'));
       await tmpl.copy(test.target);
 
       const paths = await test.ls.target();
