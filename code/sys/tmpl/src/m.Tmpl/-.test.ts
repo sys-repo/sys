@@ -52,9 +52,9 @@ describe('Tmpl', () => {
       let foo = 0;
       let count = 0;
       const tmpl = Tmpl.create(test.source, (e) => {
-        if (e.file.target.file.name !== 'mod.ts') return e.exclude();
+        if (e.target.file.name !== 'mod.ts') return e.exclude();
         e.modify(`const foo = ${foo}`);
-        expect(e.file.target.exists).to.eql(count === 0 ? false : true);
+        expect(e.target.exists).to.eql(count === 0 ? false : true);
         count++;
       });
 
@@ -89,8 +89,8 @@ describe('Tmpl', () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, async (e) => {
           await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
-          if (e.file.target.file.name.endsWith('.md')) e.exclude('user-space');
-          if (e.file.target.file.name === '.gitignore') e.exclude();
+          if (e.target.file.name.endsWith('.md')) e.exclude('user-space');
+          if (e.target.file.name === '.gitignore') e.exclude();
         });
 
         const res = await tmpl.copy(target);
@@ -115,8 +115,8 @@ describe('Tmpl', () => {
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
-          expect(e.file.tmpl.base).to.eql(source);
-          expect(e.file.target.base).to.eql(target);
+          expect(e.tmpl.base).to.eql(source);
+          expect(e.target.base).to.eql(target);
         });
         await tmpl.copy(target);
         expect(count).to.greaterThan(0); // NB: ensure the callback ran.
@@ -125,7 +125,7 @@ describe('Tmpl', () => {
       it('fn: rename file', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source, (e) => {
-          if (e.file.target.file.name === 'mod.ts') e.rename('main.ts');
+          if (e.target.file.name === 'mod.ts') e.rename('main.ts');
         });
         const res = await tmpl.copy(test.target);
         const match = res.ops.find((m) => m.file.target.file.name === 'main.ts');
@@ -138,7 +138,7 @@ describe('Tmpl', () => {
       it('fn: modify (file text)', async () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, (e) => {
-          if (e.file.target.file.name === 'mod.ts') {
+          if (e.target.file.name === 'mod.ts') {
             const next = e.text.tmpl.replace(/\{FOO_BAR\}/g, '👋 Hello');
             e.modify(next);
           }
@@ -189,9 +189,8 @@ describe('Tmpl', () => {
       it('force ← (with exclusions)', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source, (e) => {
-          const target = e.file.target;
-          if (!target.exists) return; // NB: create the user-space file if it does not yet exist
-          if (target.file.name === 'doc.md') e.exclude('user-space');
+          if (!e.target.exists) return; // NB: create the user-space file if it does not yet exist
+          if (e.target.file.name === 'doc.md') e.exclude('user-space');
         });
 
         const resA = await tmpl.copy(test.target);

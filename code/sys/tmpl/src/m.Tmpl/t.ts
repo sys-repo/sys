@@ -49,9 +49,11 @@ export type TmplFilter = (file: t.TmplFile) => boolean;
 export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResponse;
 export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
-  /** Details of the file being processed. */
-  readonly file: { readonly tmpl: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
+  /** The source template file. */
+  readonly tmpl: t.TmplFile;
 
+  /** The target location being copied to. */
+  readonly target: t.TmplFile & { exists: boolean };
 
   /** The text body of the file. */
   readonly text: { tmpl: string; current: string };

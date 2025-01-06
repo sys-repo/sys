@@ -1,4 +1,4 @@
-import { type t, Fs, Is, toTmplFile } from './common.ts';
+import { type t, Fs, toTmplFile } from './common.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
 type Changes = {
@@ -87,8 +87,10 @@ export async function copy(
 const wrangle = {
   async args(op: t.TmplFileOperation) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
+    const { tmpl, target } = op.file;
     const args: t.TmplProcessFileArgs = {
-      file: await wrangle.argsFile(op.file),
+      tmpl,
+      target: { ...target, exists: await Fs.exists(target.absolute) },
       text: { tmpl: op.text.tmpl, current: op.text.target.before },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
@@ -104,12 +106,5 @@ const wrangle = {
       },
     };
     return { args, changes } as const;
-  },
-
-  async argsFile(file: t.TmplFileOperation['file']) {
-    const exists = await Fs.exists(file.target.absolute);
-    const target = { ...file.target, exists };
-    const res: t.TmplProcessFileArgs['file'] = { ...file, target };
-    return res;
   },
 } as const;
