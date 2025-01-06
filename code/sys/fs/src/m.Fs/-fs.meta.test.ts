@@ -26,7 +26,7 @@ describe('Fs: info/meta-data operations on the file-system', () => {
   });
 
   describe('Fs.Size.dir', () => {
-    const sample = Fs.resolve('./src/-test/-sample-dir');
+    const sample = Fs.resolve('./src/-test/-sample-1');
 
     it('does not exist', async () => {
       const path = Fs.resolve('./404');
@@ -44,8 +44,8 @@ describe('Fs: info/meta-data operations on the file-system', () => {
       expect(res.exists).to.eql(true);
 
       expect(res.total.files).to.eql(2);
-      expect(res.total.bytes).to.eql(562);
-      expect(res.toString()).to.eql('562 B');
+      expect(res.total.bytes).to.eql(563);
+      expect(res.toString()).to.eql('563 B');
     });
 
     it('maxDepth', async () => {

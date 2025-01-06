@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dev-harness",
-  "version": "0.0.24",
+  "version": "0.0.28",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWNE --allow-run --allow-ffi",

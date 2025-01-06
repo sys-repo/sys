@@ -24,7 +24,7 @@ export type PathLib = {
   /** Ensure the given path is absolute. */
   absolute: (path: t.StringPath) => string;
 
-  /** Return the relative path from from to to based on current working directory. */
+  /** Return the relative path based on current working directory. */
   relative: typeof StdPath.relative;
 
   /** Normalize the path, resolving '..' and '.' segments. */

@@ -47,6 +47,24 @@ jobs:
           deno task test --parallel
           deno publish
 
+      - name: publish module → "@sys/crypto"
+        run: |
+          cd code/sys/crypto
+          deno task test --parallel
+          deno publish
+
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
+          deno task test --parallel
+          deno publish
+
+      - name: publish module → "@sys/text"
+        run: |
+          cd code/sys/text
+          deno task test --parallel
+          deno publish
+
       - name: publish module → "@sys/fs"
         run: |
           cd code/sys/fs
@@ -59,33 +77,15 @@ jobs:
           deno task test --parallel
           deno publish
 
-      - name: publish module → "@sys/crypto"
-        run: |
-          cd code/sys/crypto
-          deno task test --parallel
-          deno publish
-
       - name: publish module → "@sys/std-s"
         run: |
           cd code/sys/std-s
           deno task test --parallel
           deno publish
 
-      - name: publish module → "@sys/cmd"
-        run: |
-          cd code/sys/cmd
-          deno task test --parallel
-          deno publish
-
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
-          deno task test --parallel
-          deno publish
-
-      - name: publish module → "@sys/text"
-        run: |
-          cd code/sys/text
           deno task test --parallel
           deno publish
 

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2019-2024  Phil Cockfield (https://github.com/philcockfield), 
+Copyright (c) 2019-2025  Phil Cockfield (https://github.com/philcockfield), 
                          Rowan Yeoman   (https://github.com/rowanyeoman)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
