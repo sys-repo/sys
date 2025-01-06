@@ -1,18 +1,16 @@
 import { type t, Path } from './common.ts';
 
 /**
- * Convert a path into a {TmplFile} data structure.
+ * Convert a path into a [FsFile] data-structure.
  */
-export function toFile(relative: t.StringRelativePath, base: t.StringDir): t.FsFile {
-  base = Path.resolve(base.trim());
+export function toFile(path: t.StringPath, baseDir?: t.StringDir): t.FsFile {
+  let relative = Path.normalize(path.trim());
+  let base = wrangle.base(path, baseDir);
   if (Path.Is.absolute(relative) && !relative.startsWith(base)) {
     const msg = `The given [relative] path is absolute but does not match the given [base].`;
     const err = `${msg}\n- base:     ${base}\n- relative: ${relative}`;
     throw new Error(err);
   }
-
-  relative = relative.trim();
-  relative = Path.normalize(relative);
   if (relative.startsWith(base)) relative = relative.slice(base.length + 1);
 
   const absolute = Path.join(base, relative);
@@ -22,8 +20,8 @@ export function toFile(relative: t.StringRelativePath, base: t.StringDir): t.FsF
   const file = { name, ext };
 
   return {
-    absolute,
     base,
+    absolute,
     relative,
     dir,
     file,
@@ -38,5 +36,11 @@ const wrangle = {
   dir(path: t.StringPath) {
     const dir = Path.dirname(path);
     return dir === '.' ? '' : dir;
+  },
+
+  base(path: t.StringPath, baseDir?: t.StringDir) {
+    if (typeof baseDir === 'string') return Path.resolve(baseDir.trim());
+    if (Path.Is.absolute(path)) return Path.dirname(path);
+    return Path.cwd();
   },
 } as const;

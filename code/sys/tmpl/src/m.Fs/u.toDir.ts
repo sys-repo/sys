@@ -2,7 +2,7 @@ import { type t, Fs, Path } from './common.ts';
 import { toFile } from './u.toFile.ts';
 
 /**
- * Convert a path into a {TmplDir} data structure.
+ * Convert a path into a [FsDir] data-structure.
  */
 export function toDir(dir: t.StringDir, filters?: t.FsFileFilter[]): t.FsDir {
   const absolute = Path.resolve(dir);

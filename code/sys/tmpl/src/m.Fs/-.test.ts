@@ -1,5 +1,5 @@
-import { type t, Path, describe, expect, it, Fs } from '../-test.ts';
-import { toFile, toDir } from './mod.ts';
+import { Fs, Path, describe, expect, it } from '../-test.ts';
+import { toDir, toFile } from './mod.ts';
 
 describe('Path.dir|file', () => {
   const cwd = Path.cwd();
@@ -60,21 +60,67 @@ describe('Path.dir|file', () => {
   });
 
   describe('toTmplFile', () => {
-    it('base', () => {
-      const test = (base: string, path: string) => {
-        const res = toFile(`  ./${path}  `, ` ${base} `);
-        expect(res.base).to.eql(Path.resolve(base));
-        expect(res.absolute).to.eql(Path.resolve(base, Path.normalize(path)));
-        expect(res.relative).to.eql(Path.normalize(path));
-        expect(res.file.name).to.eql(Path.basename(res.absolute));
-        expect(res.file.ext).to.eql(Path.extname(res.absolute));
-      };
+    describe('base (path)', () => {
+      it('path: relative, base provided', () => {
+        const test = (base: string, path: string) => {
+          const res = toFile(`  ./${path}  `, ` ${base} `);
+          expect(res.base).to.eql(Path.resolve(base));
+          expect(res.absolute).to.eql(Path.resolve(base, Path.normalize(path)));
+          expect(res.relative).to.eql(Path.normalize(path));
+          expect(res.file.name).to.eql(Path.basename(res.absolute));
+          expect(res.file.ext).to.eql(Path.extname(res.absolute));
+        };
 
-      test(cwd, 'foo/bar/file.ts');
-      test('my/base', './foo/bar/../file.ts');
-      test('/my/base/', 'file.ts');
-      test('', 't.ts');
-      test('/my/base/', 'noextension');
+        test(cwd, 'foo/bar/file.ts');
+        test('my/base', './foo/bar/../file.ts');
+        test('/my/base/', 'file.ts');
+        test('', 't.ts');
+        test('/my/base/', 'noextension');
+      });
+
+      it('path: absolute, base: absolute (passed)', () => {
+        const base = '/base/bar';
+        const path = 'foo/file.ts';
+        const res = toFile(Path.join(base, path), base);
+        expect(res.base).to.eql(base);
+        expect(res.absolute).to.eql(Path.join(base, path));
+        expect(res.relative).to.eql(path);
+      });
+
+      it('path: relative, base: relative passed ← base is resolved', () => {
+        const base = 'foo/bar';
+        const path = 'baz/file.ts';
+        const res = toFile(path, base);
+        expect(res.absolute).to.eql(Path.resolve(base, path));
+        expect(res.base).to.eql(Path.resolve(base));
+        expect(res.dir).to.eql('baz');
+        expect(res.relative).to.eql('baz/file.ts');
+      });
+
+      it('path: absolute, base not passed ← is inferred as parent-dir', () => {
+        const path = '/base/foo/bar/file.ts';
+        const res = toFile(path);
+        expect(res.absolute).to.eql(path);
+        expect(res.base).to.eql(Path.dirname(path));
+        expect(res.dir).to.eql('');
+        expect(res.relative).to.eql('file.ts');
+      });
+
+      it('path: relative, base is inferred as CWD (current-working-directory)', () => {
+        const path = 'baz/file.ts';
+        const res = toFile(path);
+        expect(res.absolute).to.eql(Path.resolve(path));
+        expect(res.base).to.eql(cwd);
+        expect(res.dir).to.eql('baz');
+        expect(res.relative).to.eql('baz/file.ts');
+      });
+
+      it('throw: path is absolute BUT differs from base', () => {
+        const fn = () => toFile('/foo/file.ts', '/base/path');
+        expect(fn).to.throw(
+          /The given \[relative\] path is absolute but does not match the given \[base\]/,
+        );
+      });
     });
 
     it('single dotfile: ".gitignore"', () => {
@@ -92,24 +138,9 @@ describe('Path.dir|file', () => {
       expect(b.file.ext).to.eql('');
     });
 
-    it('path contains base (absolute)', () => {
-      const path = 'foo/file.ts';
-      const res = toFile(Path.join(cwd, path), cwd);
-      expect(res.base).to.eql(cwd);
-      expect(res.absolute).to.eql(Path.join(cwd, path));
-      expect(res.relative).to.eql(path);
-    });
-
     it('toString() → file.absolute', () => {
       const res = toFile(Path.join(cwd, 'foo/file.ts'), cwd);
       expect(res.toString()).to.eql(res.absolute);
-    });
-
-    it('throw: relative path absolute AND difference from base', () => {
-      const fn = () => toFile('/foo/file.ts', '/base/path');
-      expect(fn).to.throw(
-        /The given \[relative\] path is absolute but does not match the given \[base\]/,
-      );
     });
   });
 });
