@@ -1,5 +1,4 @@
-import type { t } from './common.ts';
-import { Wrangle } from './u.Wrangle.ts';
+import { type t, toTmplDir } from './common.ts';
 import { copy } from './u.copy.ts';
 
 /**
@@ -18,13 +17,13 @@ function factory(args: {
   filter?: t.TmplFilter[];
 }): t.Tmpl {
   const { sourceDir, fn } = args;
-  const source = Wrangle.dir(sourceDir, args.filter);
+  const source = toTmplDir(sourceDir, args.filter);
   const tmpl: t.Tmpl = {
     get source() {
       return source;
     },
     copy(target, options = {}) {
-      return copy(source, Wrangle.dir(target), fn, options);
+      return copy(source, toTmplDir(target), fn, options);
     },
     filter(next) {
       const { sourceDir, fn } = args;

@@ -1,5 +1,4 @@
 import { type t, Fs, toTmplFile } from './common.ts';
-import { Wrangle } from './u.Wrangle.ts';
 
 type Changes = {
   excluded: t.TmplFileOperation['excluded'];
@@ -49,7 +48,7 @@ export async function copy(
       const { args, changes } = await wrangle.args(op);
       await fn(args);
       if (changes.excluded) op.excluded = changes.excluded;
-      if (changes.filename) op.file.target = Wrangle.rename(op.file.target, changes.filename);
+      if (changes.filename) op.file.target = wrangle.rename(op.file.target, changes.filename);
       if (changes.text) {
         op.text.target.after = changes.text; // Update to modified output.
       } else {
@@ -106,5 +105,9 @@ const wrangle = {
       },
     };
     return { args, changes } as const;
+  },
+
+  rename(input: t.TmplFile, newFilename: string): t.TmplFile {
+    return toTmplFile(input.base, Fs.join(input.dir, newFilename));
   },
 } as const;
