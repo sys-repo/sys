@@ -1,12 +1,10 @@
-import type * as t from './t.ts';
-
-import { Fs, Path } from './libs.ts';
-import { toTmplFile } from './u.toTmplFile.ts';
+import { type t, Fs, Path } from './common.ts';
+import { toFile } from './u.toFile.ts';
 
 /**
  * Convert a path into a {TmplDir} data structure.
  */
-export function toTmplDir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir {
+export function toDir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir {
   const absolute = Path.resolve(dir);
   return {
     absolute,
@@ -16,7 +14,7 @@ export function toTmplDir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir
       const files = await Fs.glob(dir, { includeDirs: false }).find('**');
       const include = (p: string) => {
         if (!filters) return true;
-        const file = toTmplFile(absolute, p);
+        const file = toFile(absolute, p);
         return filters.every((filter) => filter(file));
       };
       return files
