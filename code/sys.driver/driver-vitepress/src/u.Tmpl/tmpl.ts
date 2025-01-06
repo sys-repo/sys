@@ -9,14 +9,15 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
   const { srcDir = './docs' } = args;
   const inDir = Fs.Path.trimCwd(Fs.resolve(args.inDir));
   const templatesDir = Fs.resolve(PATHS.tmp);
+
   await Fs.remove(templatesDir);
   await saveTemplateFiles(templatesDir);
 
   return Tmpl.create(templatesDir, (e) => {
-    const file = e.file.target;
-    const subpath = inDir ? file.path.slice(inDir.length + 1) : file.path;
+    const target = e.target;
+    const subpath = inDir ? target.absolute.slice(inDir.length + 1) : target.absolute;
 
-    if (file.exists && is.userspace(subpath)) {
+    if (target.exists && is.userspace(subpath)) {
       /**
        *  🫵  DO NOT adjust user generated
        *     content after the initial creation.
@@ -24,8 +25,8 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.exclude('user-space');
     }
 
-    const version = args.version ?? pkg.version;
-    if (file.name === 'deno.json') {
+    if (e.target.relative === 'deno.json') {
+      const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
@@ -35,30 +36,18 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.modify(text);
     }
 
-    /**
-     * TODO 🐷 put in base (inDir) propr
-     * 
-     * 
-
-    if (file.path.endsWith('docs/index.md')) {
-      console.log('file', file);
-
+    if (e.target.relative === 'docs/index.md') {
       const text = e.text.tmpl.replace(/\<DRIVER_VER\>/g, pkg.version);
       return e.modify(text);
-
-      /**
-       * TODO 🐷
-       * write the version generated with in
-       */
     }
 
     /**
-     * Content Source (Src)
+     * Content Source ("src").
      * Markdown and Image files
      * Docs:
      *       https://vitepress.dev/reference/site-config#srcdir
      */
-    if (file.path.endsWith('.vitepress/config.ts')) {
+    if (e.target.relative === '.vitepress/config.ts') {
       const text = e.text.tmpl.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
     }
