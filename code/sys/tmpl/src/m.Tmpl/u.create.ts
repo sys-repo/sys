@@ -14,7 +14,7 @@ export const create: t.TmplFactory = (sourceDir, fn) => {
 function factory(args: {
   sourceDir: t.StringDir;
   fn?: t.TmplProcessFile;
-  filter?: t.TmplFilter[];
+  filter?: t.FsFileFilter[];
 }): t.Tmpl {
   const { sourceDir, fn } = args;
   const source = toDir(sourceDir, args.filter);

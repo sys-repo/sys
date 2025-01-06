@@ -7,8 +7,8 @@ type Changes = {
 };
 
 export async function copy(
-  source: t.TmplDir,
-  target: t.TmplDir,
+  source: t.FsDir,
+  target: t.FsDir,
   fn: t.TmplProcessFile | undefined,
   options: t.TmplCopyOptions = {},
 ) {
@@ -107,7 +107,7 @@ const wrangle = {
     return { args, changes } as const;
   },
 
-  rename(input: t.TmplFile, newFilename: string): t.TmplFile {
+  rename(input: t.FsFile, newFilename: string): t.FsFile {
     return toFile(input.base, Fs.join(input.dir, newFilename));
   },
 } as const;

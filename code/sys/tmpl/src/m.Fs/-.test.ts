@@ -1,30 +1,61 @@
-import { type t, Path, describe, expect, it } from '../-test.ts';
+import { type t, Path, describe, expect, it, Fs } from '../-test.ts';
 import { toFile, toDir } from './mod.ts';
 
 describe('Path.dir|file', () => {
   const cwd = Path.cwd();
 
+  const Sample = {
+    dir: Path.resolve('src/m.Fs/-sample'),
+  };
+
   describe('toTmplDir', () => {
-    it('simple', () => {
-      const path = Path.resolve('foo/bar');
-      const res = toDir(path);
-      expect(res.absolute).to.eql(path);
-      expect(res.toString()).to.eql(res.absolute);
+    describe('paths', () => {
+      it('default', () => {
+        const path = Path.resolve('foo/bar');
+        const res = toDir(path);
+        expect(res.absolute).to.eql(path);
+        expect(res.toString()).to.eql(res.absolute);
+      });
     });
 
-    it('filtered', async () => {
-      const path = Path.resolve('src/-test/-sample');
-      const a = toDir(path);
-      const b = toDir(path, [(e) => e.file.name !== '.gitignore']);
+    describe('Dir.ls', () => {
+      it('default', async () => {
+        const dir = toDir(Sample.dir);
+        const a = await dir.ls();
+        const b = await Fs.ls(Sample.dir);
+        expect(a.length).to.be.greaterThan(0);
+        expect(a).to.eql(b);
+        expect(a.every((p) => Path.Is.absolute(p))).to.be.true;
+      });
 
-      const assertIncludes = async (dir: t.TmplDir, endsWith: string, expected = true) => {
-        const paths = await dir.ls();
-        const exists = paths.some((p) => p.endsWith(endsWith));
-        expect(exists).to.eql(expected);
-      };
+      it('option: {trimCwd}', async () => {
+        const dir = toDir(Sample.dir);
+        const trimCwd = true;
+        const a = await dir.ls({ trimCwd });
+        const b = await Fs.ls(Sample.dir, { trimCwd });
+        expect(a).to.eql(b);
+        expect(a.every((p) => Path.Is.relative(p))).to.be.true;
+      });
 
-      await assertIncludes(a, '.gitignore', true);
-      await assertIncludes(b, '.gitignore', false);
+      it('filtered', async () => {
+        const path = Sample.dir;
+        const a = toDir(path);
+        const b = toDir(path, [(e) => e.file.name !== '.gitignore']);
+        const c = toDir(path, [(e) => e.file.name !== '.gitignore']);
+
+        const assertIncludes = async (paths: string[], endsWith: string, expected = true) => {
+          const exists = paths.some((p) => p.endsWith(endsWith));
+          expect(exists).to.eql(expected);
+        };
+
+        await assertIncludes(await a.ls(), '.gitignore', true);
+        await assertIncludes(await b.ls(), '.gitignore', false);
+
+        const pathsC = await c.ls((e) => e.file.ext !== '.json');
+        await assertIncludes(pathsC, '.gitignore', false); // NB: via root Dir filter.
+        await assertIncludes(pathsC, 'deno.json', false); //  NB: via Dir.ls({ filter }).
+        await assertIncludes(pathsC, 'mod.ts', true);
+      });
     });
   });
 

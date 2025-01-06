@@ -21,7 +21,7 @@ export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmp
  */
 export type Tmpl = {
   /** The directory containing the source template files. */
-  readonly source: t.TmplDir;
+  readonly source: t.FsDir;
 
   /** Perform a copy of the templates to a target directory. */
   copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
@@ -37,7 +37,7 @@ export type Tmpl = {
  *     existence of the file but excludes it from the set of templates that
  *     are copied to the target.
  */
-export type TmplFilter = (file: t.TmplFile) => boolean;
+export type TmplFilter = t.FsFileFilter;
 
 /**
  * Handler that runs for each template file being copied.
@@ -50,10 +50,10 @@ export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResp
 export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
   /** The source template file. */
-  readonly tmpl: t.TmplFile;
+  readonly tmpl: t.FsFile;
 
   /** The target location being copied to. */
-  readonly target: t.TmplFile & { exists: boolean };
+  readonly target: t.FsFile & { exists: boolean };
 
   /** The text body of the file. */
   readonly text: { tmpl: string; current: string };
@@ -80,8 +80,8 @@ export type TmplCopyOptions = {
  * The reponse returned from the `tmpl.copy` method.
  */
 export type TmplCopyResponse = {
-  readonly source: t.TmplDir;
-  readonly target: t.TmplDir;
+  readonly source: t.FsDir;
+  readonly target: t.FsDir;
   readonly ops: t.TmplFileOperation[];
 };
 
@@ -105,7 +105,7 @@ export type TmplFileOperation = {
   forced: boolean;
 
   /** File path details. */
-  file: { tmpl: t.TmplFile; target: t.TmplFile };
+  file: { tmpl: t.FsFile; target: t.FsFile };
 
   /** The text content of the file. */
   text: {

@@ -2,9 +2,12 @@ import type { t } from './common.ts';
 
 
 /**
- * A directory involved in a [Tmpl] configuration.
+ * An object representing a directory path.
  */
-export type TmplDir = {
+export type FsDir = {
+  /** The conceptual root from which relative paths are computed. */
+  // readonly base: t.StringAbsoluteDir;
+
   /** The the canonical directory location. */
   absolute: t.StringAbsoluteDir;
 
@@ -12,16 +15,22 @@ export type TmplDir = {
   join(...parts: t.StringPath[]): t.StringAbsolutePath;
 
   /** List the file paths within directory. */
-  ls(trimCwd?: boolean): Promise<t.StringAbsolutePath[]>;
+  ls(options?: t.FsDirListOptions | t.FsFileFilter): Promise<t.StringPath[]>;
 
   /** Convert to string: `dir.absolute` */
   toString(): string;
 };
 
+/** Options passed to the `Dir.ls` method. */
+export type FsDirListOptions = {
+  trimCwd?: boolean;
+  filter?: t.FsFileFilter;
+};
+
 /**
  * Path details about a template file.
  */
-export type TmplFile = {
+export type FsFile = {
   /** The conceptual root from which relative paths are computed. */
   readonly base: t.StringAbsoluteDir;
 
@@ -40,3 +49,8 @@ export type TmplFile = {
   /** Convert to string: `file.absolute` */
   toString(): string;
 };
+
+/**
+ * Filter on file paths.
+ */
+export type FsFileFilter = (file: t.FsFile) => boolean;

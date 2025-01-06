@@ -4,22 +4,41 @@ import { toFile } from './u.toFile.ts';
 /**
  * Convert a path into a {TmplDir} data structure.
  */
-export function toDir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir {
+export function toDir(dir: t.StringDir, filters?: t.FsFileFilter[]): t.FsDir {
   const absolute = Path.resolve(dir);
   return {
     absolute,
     toString: () => absolute,
     join: (...parts) => Path.join(absolute, ...parts),
-    async ls(trimCwd) {
-      const files = await Fs.glob(dir, { includeDirs: false }).find('**');
+    async ls(input) {
+      const options = wrangle.lsOptions(input);
+      const { trimCwd } = options;
+      const hasFilters = !!(filters || options.filter);
+
       const include = (p: string) => {
-        if (!filters) return true;
         const file = toFile(absolute, p);
-        return filters.every((filter) => filter(file));
+        if (options.filter && !options.filter(file)) return false;
+        if (filters) {
+          for (const fn of filters) {
+            if (!fn(file)) return false;
+          }
+        }
+        return true;
       };
-      return files
-        .filter((p) => include(p.path))
-        .map((p) => (trimCwd ? Path.trimCwd(p.path) : p.path));
+
+      const paths = await Fs.ls(absolute, { trimCwd, includeDirs: false });
+      return hasFilters ? paths.filter((p) => include(p)) : paths;
     },
   };
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  lsOptions(input?: Parameters<t.FsDir['ls']>[0]): t.FsDirListOptions {
+    if (!input) return {};
+    if (typeof input === 'function') return { filter: input };
+    return input;
+  },
+} as const;
