@@ -1,4 +1,5 @@
-import { type t, Fs, Path, toTmplFile } from './common.ts';
+import { type t, Fs, Path, toTmplFile___, toTmplFile2 } from './common.ts';
+
 
 /**
  * Helpers
@@ -11,9 +12,9 @@ export const Wrangle = {
       join: (...parts) => Path.join(path, ...parts),
       async ls(trimCwd) {
         const files = await Fs.glob(dir, { includeDirs: false }).find('**');
-        const include = (path: string) => {
+        const include = (p: string) => {
           if (!filters) return true;
-          const file = Wrangle.file(path);
+          const file = toTmplFile2(path, p);
           return filters.every((filter) => filter(file));
         };
         return files
@@ -23,13 +24,7 @@ export const Wrangle = {
     };
   },
 
-  file(path: t.StringPath): t.TmplFile {
-    return toTmplFile(path);
-  },
-
-  rename(input: t.TmplFile | string, filename: string): t.TmplFile {
-    const path = typeof input === 'string' ? input : input.path;
-    const dir = Path.dirname(path);
-    return Wrangle.file(Fs.join(dir, filename));
+  rename(input: t.TmplFile2, newFilename: string): t.TmplFile2 {
+    return toTmplFile2(input.base, Fs.join(input.dir, newFilename));
   },
 } as const;

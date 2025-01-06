@@ -1,4 +1,4 @@
-import { type t, Fs, Is } from './common.ts';
+import { type t, Fs, Is, toTmplFile2 } from './common.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
 type Changes = {
@@ -24,8 +24,8 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        tmpl: Wrangle.file(from),
-        target: Wrangle.file(to),
+        tmpl: toTmplFile2(source.path, from),
+        target: toTmplFile2(target.path, to),
       },
       text: {
         tmpl: sourceText,
@@ -59,7 +59,7 @@ export async function copy(
 
     if (!op.excluded) {
       const target = op.file.target;
-      const path = target.path;
+      const path = target.absolute;
       const exists = await Fs.exists(path);
       const isDiff = op.text.target.isDiff;
 
@@ -71,7 +71,8 @@ export async function copy(
 
       if ((op.created || op.updated) && (options.write ?? true)) {
         op.written = true;
-        await Fs.ensureDir(target.dir);
+
+        await Fs.ensureDir(Fs.dirname(path));
         await Deno.writeTextFile(path, op.text.target.after);
       }
     }
@@ -106,7 +107,7 @@ const wrangle = {
   },
 
   async argsFile(file: t.TmplFileOperation['file']) {
-    const exists = await Fs.exists(file.target.path);
+    const exists = await Fs.exists(file.target.absolute);
     const target = { ...file.target, exists };
     const res: t.TmplProcessFileArgs['file'] = { ...file, target };
     return res;

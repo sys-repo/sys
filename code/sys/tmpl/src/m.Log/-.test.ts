@@ -63,7 +63,7 @@ describe('Tmpl.Log', () => {
 
       const table = Log.table(res.ops, {
         note(op) {
-          const filename = op.file.target.name;
+          const filename = op.file.target.file.name;
           if (filename === 'deno.json') return `foo`;
         },
       });

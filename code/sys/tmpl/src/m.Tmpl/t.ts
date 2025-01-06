@@ -37,7 +37,7 @@ export type Tmpl = {
  *     existence of the file but excludes it from the set of templates that
  *     are copied to the target.
  */
-export type TmplFilter = (file: t.TmplFile) => boolean;
+export type TmplFilter = (file: t.TmplFile2) => boolean;
 
 /**
  * Handler that runs for each template file being copied.
@@ -50,13 +50,17 @@ export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResp
 export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
 export type TmplProcessFileArgs = {
   /** Details of the file being processed. */
-  readonly file: { readonly tmpl: t.TmplFile; readonly target: t.TmplFile & { exists: boolean } };
+  readonly file: { readonly tmpl: t.TmplFile2; readonly target: t.TmplFile2 & { exists: boolean } };
+
   /** The text body of the file. */
   readonly text: { tmpl: string; current: string };
+
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
+
   /** Adjust the name of the file. */
   rename(filename: string): TmplProcessFileArgs;
+
   /** Adjust the text within the file. */
   modify(text: string): TmplProcessFileArgs;
 };
@@ -91,9 +95,31 @@ export type TmplDir = {
  * Path details about a template file.
  */
 export type TmplFile = {
-  path: t.StringPath;
+  /** The the canonical file location. */
+  absolute: t.StringAbsolutePath;
+
+  /** The conceptual root from which relative paths are computed. */
+  base: t.StringAbsoluteDir;
+
   dir: string;
   name: string;
+};
+
+export type TmplFile2 = {
+  /** The conceptual root from which relative paths are computed. */
+  base: t.StringAbsoluteDir;
+
+  /** The the canonical file location. */
+  absolute: t.StringAbsolutePath;
+
+  /** The relative path starting at `base`. */
+  relative: t.StringRelativePath;
+
+  /** The relative directory starting at `base`.  */
+  dir: t.StringRelativeDir;
+
+  /** Details of the filename. */
+  file: { name: string; ext: string };
 };
 
 /**
@@ -116,7 +142,7 @@ export type TmplFileOperation = {
   forced: boolean;
 
   /** File path details. */
-  file: { tmpl: t.TmplFile; target: t.TmplFile };
+  file: { tmpl: t.TmplFile2; target: t.TmplFile2 };
 
   /** The text content of the file. */
   text: {

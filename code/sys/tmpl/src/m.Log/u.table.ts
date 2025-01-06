@@ -1,4 +1,4 @@
-import { type t, toTmplFile, c, Cli, Path } from './common.ts';
+import { type t, toTmplFile___, c, Cli, Path } from './common.ts';
 
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   const table = Cli.table([]);
@@ -24,15 +24,11 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
  */
 const wrangle = {
   path(op: t.TmplFileOperation, trimBase?: t.StringPath) {
-    let path = Path.trimCwd(op.file.target.path);
-    if (trimBase && path.startsWith(trimBase)) path = path.slice(trimBase.length);
-    const file = toTmplFile(path);
-
+    const target = op.file.target;
     let text = '';
-    if (file.dir) text += `${file.dir}/`;
-    text += c.white(file.name);
+    if (target.dir) text += `${target.dir}/`;
+    text += c.white(target.file.name);
     text = c.gray(text);
-
     return op.excluded ? c.dim(text) : text;
   },
 
