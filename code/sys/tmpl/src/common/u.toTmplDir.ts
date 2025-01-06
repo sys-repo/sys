@@ -3,15 +3,12 @@ import type * as t from './t.ts';
 import { Fs, Path } from './libs.ts';
 import { toTmplFile } from './u.toTmplFile.ts';
 
-const cwd = Path.cwd();
-
 /**
  * Convert a path into a {TmplDir} data structure.
  */
 export function toTmplDir(dir: t.StringDir, filters?: t.TmplFilter[]): t.TmplDir {
   const absolute = Path.resolve(dir);
   return {
-    cwd,
     absolute,
     toString: () => absolute,
     join: (...parts) => Path.join(absolute, ...parts),

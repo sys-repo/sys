@@ -8,8 +8,6 @@ describe('common', () => {
     it('simple', () => {
       const path = Path.resolve('foo/bar');
       const res = toTmplDir(path);
-
-      expect(res.cwd).to.eql(cwd);
       expect(res.absolute).to.eql(path);
       expect(res.toString()).to.eql(res.absolute);
     });

@@ -89,9 +89,6 @@ export type TmplCopyResponse = {
  * A directory involved in a [Tmpl] configuration.
  */
 export type TmplDir = {
-  /** The current-working-directory the process is running in. */
-  cwd: t.StringAbsolutePath;
-
   /** The the canonical directory location. */
   absolute: t.StringAbsoluteDir;
 
