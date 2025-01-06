@@ -35,6 +35,7 @@ export type GlobOptions = {
   exclude?: string[];
   includeDirs?: boolean;
   trimCwd?: boolean;
+  depth?: number;
 };
 
 /**

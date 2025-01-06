@@ -13,7 +13,7 @@ export const toDir: t.FsDirFactory = (path, opt) => {
     join: (...parts) => StdPath.join(absolute, ...parts),
     async ls(input) {
       const options = wrangle.lsOptions(input);
-      const { trimCwd } = options;
+      const { trimCwd, depth } = options;
       const hasFilters = !!(baseOptions.filter || options.filter);
 
       const include = (p: string) => {
@@ -27,7 +27,7 @@ export const toDir: t.FsDirFactory = (path, opt) => {
         return true;
       };
 
-      const paths = await ls(absolute, { trimCwd, includeDirs: false });
+      const paths = await ls(absolute, { trimCwd, depth, includeDirs: false });
       return hasFilters ? paths.filter((p) => include(p)) : paths;
     },
   };

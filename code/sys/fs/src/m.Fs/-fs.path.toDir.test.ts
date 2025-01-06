@@ -2,6 +2,7 @@ import { describe, expect, it } from '../-test.ts';
 import { Path } from './common.ts';
 import { Fs } from './mod.ts';
 import { toDir } from './u.toDir.ts';
+import { assertPathDepth } from '../m.Glob/-.test.ts';
 
 describe('Fs.toDir', () => {
   const cwd = Path.cwd();
@@ -67,6 +68,17 @@ describe('Fs.toDir', () => {
       await assertIncludes(pathsC, '.gitignore', false); // NB: via root Dir filter.
       await assertIncludes(pathsC, 'deno.json', false); //  NB: via Dir.ls({ filter }).
       await assertIncludes(pathsC, 'mod.ts', true);
+    });
+
+    it('depth', async () => {
+      const dir = toDir(Sample.dir);
+      const test = async (depth: number) => {
+        const paths = await dir.ls({ depth });
+        assertPathDepth(depth, dir.absolute, paths);
+      };
+      await test(0);
+      await test(1);
+      await test(2);
     });
   });
 });

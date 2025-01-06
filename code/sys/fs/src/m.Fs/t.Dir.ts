@@ -34,4 +34,5 @@ export type FsDir = {
 export type FsDirListOptions = {
   trimCwd?: boolean;
   filter?: t.FsFileFilter;
+  depth?: number;
 };
