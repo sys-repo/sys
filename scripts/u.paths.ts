@@ -15,7 +15,7 @@ export const Paths = {
     'code/sys/proc',
     
     'code/sys/std-s',
-    'code/sys/tmp',
+    'code/sys.tmp',
     
     'code/sys/cmd',
     'code/sys/testing',
