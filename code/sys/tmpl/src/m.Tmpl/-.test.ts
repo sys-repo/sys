@@ -18,7 +18,7 @@ describe('Tmpl', () => {
   it('init: paths', async () => {
     const test = SAMPLE.init();
     const tmpl = Tmpl.create(test.source);
-    expect(tmpl.source.path).to.eql(test.source);
+    expect(tmpl.source.absolute).to.eql(test.source);
     expect(await tmpl.source.ls()).to.eql(await test.ls.source());
     tmpl;
   });
@@ -32,7 +32,7 @@ describe('Tmpl', () => {
       const a = await tmpl.copy(test.target);
       const b = await tmpl.copy(test.target);
 
-      expect(a.source.path).to.eql(test.source);
+      expect(a.source.absolute).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
       expect(a.ops.every((m) => m.excluded === false)).to.be.true;
       expect(a.ops.every((m) => m.written === true)).to.be.true;

@@ -1,11 +1,37 @@
-import { Path, describe, expect, it } from '../-test.ts';
-import { toTmplFile } from './mod.ts';
+import { type t, Path, describe, expect, it } from '../-test.ts';
+import { toTmplFile, toTmplDir } from './mod.ts';
 
 describe('common', () => {
-  describe('toTmplFile', () => {
-    const cwd = Path.cwd();
+  const cwd = Path.cwd();
 
-    it('path: base == cwd', () => {
+  describe('toTmplDir', () => {
+    it('simple', () => {
+      const path = Path.resolve('foo/bar');
+      const res = toTmplDir(path);
+
+      expect(res.cwd).to.eql(cwd);
+      expect(res.absolute).to.eql(path);
+      expect(res.toString()).to.eql(res.absolute);
+    });
+
+    it('filtered', async () => {
+      const path = Path.resolve('src/-test/-sample');
+      const a = toTmplDir(path);
+      const b = toTmplDir(path, [(e) => e.file.name !== '.gitignore']);
+
+      const assertIncludes = async (dir: t.TmplDir, endsWith: string, expected = true) => {
+        const paths = await dir.ls();
+        const exists = paths.some((p) => p.endsWith(endsWith));
+        expect(exists).to.eql(expected);
+      };
+
+      await assertIncludes(a, '.gitignore', true);
+      await assertIncludes(b, '.gitignore', false);
+    });
+  });
+
+  describe('toTmplFile', () => {
+    it('base', () => {
       const test = (base: string, path: string) => {
         const res = toTmplFile(` ${base} `, `  ./${path}  `);
         expect(res.base).to.eql(Path.resolve(base));
@@ -43,6 +69,11 @@ describe('common', () => {
       expect(res.base).to.eql(cwd);
       expect(res.absolute).to.eql(Path.join(cwd, path));
       expect(res.relative).to.eql(path);
+    });
+
+    it('toString() → file.absolute', () => {
+      const res = toTmplFile(cwd, Path.join(cwd, 'foo/file.ts'));
+      expect(res.toString()).to.eql(res.absolute);
     });
 
     it('throw: relative path absolute AND difference from base', () => {

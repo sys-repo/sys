@@ -28,6 +28,7 @@ export function toTmplFile(base: t.StringDir, relative: t.StringRelativePath): t
     relative,
     dir,
     file,
+    toString: () => absolute,
   };
 }
 

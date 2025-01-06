@@ -18,13 +18,13 @@ export async function copy(
   for (const from of await source.ls()) {
     if (await Fs.Is.dir(from)) continue;
 
-    const to = Fs.join(target.path, from.slice(source.path.length + 1));
+    const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
     const sourceText = await Deno.readTextFile(from);
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        tmpl: toTmplFile(source.path, from),
-        target: toTmplFile(target.path, to),
+        tmpl: toTmplFile(source.absolute, from),
+        target: toTmplFile(target.absolute, to),
       },
       text: {
         tmpl: sourceText,

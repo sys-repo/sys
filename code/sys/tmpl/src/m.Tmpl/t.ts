@@ -89,9 +89,20 @@ export type TmplCopyResponse = {
  * A directory involved in a [Tmpl] configuration.
  */
 export type TmplDir = {
-  path: t.StringAbsoluteDir;
+  /** The current-working-directory the process is running in. */
+  cwd: t.StringAbsolutePath;
+
+  /** The the canonical directory location. */
+  absolute: t.StringAbsoluteDir;
+
+  /** Joins a sequence of paths to the directory (ie. sub-folders). */
   join(...parts: t.StringPath[]): t.StringAbsolutePath;
+
+  /** List the file paths within directory. */
   ls(trimCwd?: boolean): Promise<t.StringAbsolutePath[]>;
+
+  /** Convert to string: `dir.absolute` */
+  toString(): string;
 };
 
 /**
@@ -99,19 +110,22 @@ export type TmplDir = {
  */
 export type TmplFile = {
   /** The conceptual root from which relative paths are computed. */
-  base: t.StringAbsoluteDir;
+  readonly base: t.StringAbsoluteDir;
 
   /** The the canonical file location. */
-  absolute: t.StringAbsolutePath;
+  readonly absolute: t.StringAbsolutePath;
 
   /** The relative path starting at `base`. */
-  relative: t.StringRelativePath;
+  readonly relative: t.StringRelativePath;
 
   /** The relative directory starting at `base`.  */
-  dir: t.StringRelativeDir;
+  readonly dir: t.StringRelativeDir;
 
   /** Details of the filename. */
-  file: { name: string; ext: string };
+  readonly file: { readonly name: string; readonly ext: string };
+
+  /** Convert to string: `file.absolute` */
+  toString(): string;
 };
 
 /**
