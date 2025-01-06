@@ -1,4 +1,4 @@
-import { type t, Fs, toFile } from './common.ts';
+import { type t, Fs } from './common.ts';
 
 type Changes = {
   excluded: t.TmplFileOperation['excluded'];
@@ -23,8 +23,8 @@ export async function copy(
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
     const op: t.TmplFileOperation = {
       file: {
-        tmpl: toFile(from, source.absolute),
-        target: toFile(to, target.absolute),
+        tmpl: Fs.toFile(from, source.absolute),
+        target: Fs.toFile(to, target.absolute),
       },
       text: {
         tmpl: sourceText,
@@ -108,6 +108,6 @@ const wrangle = {
   },
 
   rename(input: t.FsFile, newFilename: string): t.FsFile {
-    return toFile(Fs.join(input.dir, newFilename), input.base);
+    return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
   },
 } as const;

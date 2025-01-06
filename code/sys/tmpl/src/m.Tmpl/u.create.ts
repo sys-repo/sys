@@ -1,4 +1,4 @@
-import { type t, toDir } from './common.ts';
+import { type t, Fs } from './common.ts';
 import { copy } from './u.copy.ts';
 
 /**
@@ -17,13 +17,13 @@ function factory(args: {
   filter?: t.FsFileFilter[];
 }): t.Tmpl {
   const { sourceDir, fn } = args;
-  const source = toDir(sourceDir, args.filter);
+  const source = Fs.toDir(sourceDir, args.filter);
   const tmpl: t.Tmpl = {
     get source() {
       return source;
     },
     copy(target, options = {}) {
-      return copy(source, toDir(target), fn, options);
+      return copy(source, Fs.toDir(target), fn, options);
     },
     filter(next) {
       const { sourceDir, fn } = args;
