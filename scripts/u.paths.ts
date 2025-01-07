@@ -13,6 +13,7 @@ export const Paths = {
     'code/sys/crypto',
     'code/sys/fs',
     'code/sys/proc',
+    'code/sys/main',
     
     'code/sys/std-s',
     'code/sys.tmp',
@@ -40,10 +41,7 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-vitepress',
 
-
     'code/sys/sys',
-    'code/sys/main',
-
 
     /**
      * →| dev/null
