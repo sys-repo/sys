@@ -1,10 +1,10 @@
 /**
  * @module
- * Tools for ...
+ * Core system tools ← API module index (ESM/WASM/JSR).
  *
  * @example
  * ```ts
- * import { pkg } from '@sys/xxx-🐷';
+ * import { Module } from '@sys/sys/module';
  * ```
  */
 export { pkg } from './pkg.ts';
