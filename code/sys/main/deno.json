@@ -1,12 +1,13 @@
 {
   "name": "@sys/main",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -RWNE --allow-run --allow-ffi",
+    "sys": "deno run -RWE ./scripts/-c.main.ts foo --bar"
   },
   "exports": {
     ".": "./src/mod.ts",

@@ -1,4 +1,4 @@
-# main (entry)
+# Main Entry Points
 CLI entry point to the core system tools ← API module index (ESM/WASM/JSR).
 
 - Module Management

@@ -35,12 +35,6 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/sys"
-        run: |
-          cd code/sys/sys
-          deno task test --parallel --trace-leaks
-          deno publish
-
       - name: publish module → "@sys/main"
         run: |
           cd code/sys/main
