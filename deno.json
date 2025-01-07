@@ -50,6 +50,8 @@
     "./code/sys.driver/driver-vite",
     "./code/sys.driver/driver-vitepress",
 
+    "./code/sys/sys",
+
     "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
     "./deploy/slc.db.team",
