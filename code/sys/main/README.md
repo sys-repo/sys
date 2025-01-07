@@ -14,7 +14,7 @@ Module management:
 ```ts
 import { Cmd } from '@sys/main';
 
-// WIP( 🐷 something like):
+// WIP...🐷 something like:
 Cmd.main([]): Promise<R>
 ```
 
