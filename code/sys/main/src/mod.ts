@@ -1,13 +1,10 @@
 /**
  * @module
- * Core system tools ← API module index (ESM/WASM/JSR).
+ * CLI entry point to the core system tools (ESM/WASM/JSR).
  *
  * @example
- * ```ts
- * import { Cmd } from '@sys/main';
+ * ```bash
+ * deno run -RWE jsr:@sys/main@<version> <command> --<params>
  * ```
  */
-export { pkg } from './pkg.ts';
-
-/** Module types. */
-export type * as t from './types.ts';
+import '../src/m.Cmd/-main.ts';

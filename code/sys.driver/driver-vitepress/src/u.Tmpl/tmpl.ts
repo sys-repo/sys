@@ -1,4 +1,6 @@
-import { type t, Fs, PATHS, pkg, Tmpl } from './common.ts';
+import { Main } from '@sys/main/cmd';
+
+import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
 import { saveTemplateFiles } from './bundle.write.ts';
 export { bundleTemplateFiles } from './bundle.ts';
 
@@ -27,6 +29,7 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
+        .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
         .replace(/<SELF_IMPORT_NAME>/, pkg.name);
 

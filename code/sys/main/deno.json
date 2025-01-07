@@ -1,6 +1,6 @@
 {
   "name": "@sys/main",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./cmd": "./src/m.Cmd/mod.ts"
   }
 }

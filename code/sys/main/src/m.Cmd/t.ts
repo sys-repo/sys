@@ -1,6 +1,15 @@
 import type { t } from './common.ts';
 
 /**
+ * Main entry.
+ */
+export type SysMainLib = {
+  readonly Cmd: t.SysCmdLib;
+  readonly entry: t.SysCmdLib['main'];
+  readonly pkg: t.Pkg;
+};
+
+/**
  * Common system "Cmd" (Command Line) API.
  */
 export type SysCmdLib = {
