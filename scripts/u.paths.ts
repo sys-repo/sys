@@ -42,6 +42,7 @@ export const Paths = {
 
 
     'code/sys/sys',
+    'code/sys/main',
 
 
     /**
