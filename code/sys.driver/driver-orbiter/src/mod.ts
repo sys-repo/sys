@@ -1,0 +1,13 @@
+/**
+ * @module
+ * Tools for ...
+ *
+ * @example
+ * ```ts
+ * import { pkg } from '@sys/xxx-🐷';
+ * ```
+ */
+export { pkg } from './pkg.ts';
+
+/** Module types. */
+export type * as t from './types.ts';
