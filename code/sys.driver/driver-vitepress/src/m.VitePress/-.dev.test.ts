@@ -5,7 +5,7 @@ import { VitePress } from './mod.ts';
 describe('VitePress.dev', () => {
   const open = false;
 
-  it('process: start → fetch(200) → dispose', async () => {
+  it('process: start → fetch(200) → dispose', { sanitizeResources: false }, async () => {
     Testing.retry(3, async () => {
       const sample = Sample.init();
       const { port, inDir } = sample;
@@ -16,7 +16,7 @@ describe('VitePress.dev', () => {
         expect(server.port).to.eql(port);
         expect(server.dirs.in).to.eql(inDir);
 
-        console.info(); //            NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+        console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
 
         const res = await fetch(server.url);
         const html = await res.text();

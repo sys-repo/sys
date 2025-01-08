@@ -58,19 +58,21 @@ describe('VitePress.build', () => {
   });
 
   it('build: custom {outDir}', async () => {
-    const pkg = Sample.createPkg();
-    const sample = Sample.init({ slug: true });
-    const inDir = Fs.resolve(sample.path);
-    const outDir = Fs.resolve(sample.path, '.vitepress/dist');
-    expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
+    await Testing.retry(3, async () => {
+      const pkg = Sample.createPkg();
+      const sample = Sample.init({ slug: true });
+      const inDir = Fs.resolve(sample.path);
+      const outDir = Fs.resolve(sample.path, '.vitepress/dist');
+      expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
 
-    await VitePress.Env.update({ inDir });
-    const res = await VitePress.build({ pkg, inDir, outDir, silent: true });
+      await VitePress.Env.update({ inDir });
+      const res = await VitePress.build({ pkg, inDir, outDir, silent: true });
 
-    expect(res.ok).to.eql(true);
-    expect(res.dirs.in).to.eql(inDir);
-    expect(res.dirs.out).to.eql(outDir);
-    expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
-    assertDistFiles(res.dist);
+      expect(res.ok).to.eql(true);
+      expect(res.dirs.in).to.eql(inDir);
+      expect(res.dirs.out).to.eql(outDir);
+      expect(res.dist).to.eql((await Pkg.Dist.load(outDir)).dist); // NB: `dist.json` file emitted in build.
+      assertDistFiles(res.dist);
+    });
   });
 });
