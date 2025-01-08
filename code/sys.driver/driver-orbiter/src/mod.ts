@@ -1,7 +1,7 @@
 /**
  * @module
  * State in the cloud over an HTTP bridge from IPFS using IPCM for pinned
- * CID mapping and auditably immutable version-control of `Uint8Array`'s.
+ * CID mapping and auditably immutable version/history control of `Uint8Array`'s.
  *
  * @example
  * ```ts
