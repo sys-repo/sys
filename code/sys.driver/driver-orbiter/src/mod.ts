@@ -1,10 +1,11 @@
 /**
  * @module
- * Tools for ...
+ * State in the cloud over an HTTP bridge from IPFS using IPCM
+ * for pinned CID mapping and immutable version control.
  *
  * @example
  * ```ts
- * import { pkg } from '@sys/xxx-🐷';
+ * import { pkg } from '@sys/driver-orbiter';
  * ```
  */
 export { pkg } from './pkg.ts';
