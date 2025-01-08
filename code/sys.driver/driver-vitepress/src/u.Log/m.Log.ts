@@ -107,12 +107,13 @@ export const Log = {
     const { inDir = PATHS.inDir } = options;
 
     const title = c.green(c.bold('Production Bundle'));
-    const size = c.gray(`${Str.bytes(dist.size.bytes)}`);
+    const size = c.white(`${Str.bytes(dist.size.bytes)}`);
     console.info(title);
 
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
-    const distPathFmt = `${Path.dirname(distPath)}/${Path.basename(distPath)}`;
+    const d = Fs.toFile(distPath);
+    const distPathFmt = `${c.green(Path.dirname(d.relative))}/${d.file.name}`;
     const pkgNameFmt = c.white(c.bold(pkg.name));
 
     const table = Cli.table([]);
