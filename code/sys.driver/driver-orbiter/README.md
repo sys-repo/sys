@@ -1,5 +1,5 @@
 # Orbiter Driver (IPFS)
-State over an HTTP bridge from [IPFS](https://ipfs.tech/) using [IPCM](https://ipcm.dev) for immutable version control.
+State in the cloud over an HTTP bridge from [IPFS](https://ipfs.tech/) using [IPCM](https://ipcm.dev) for pinned [CID](https://docs.ipfs.tech/concepts/content-addressing/) mapping and immutable version control.
 
 - https://orbiter.host
 - https://ipcm.dev
