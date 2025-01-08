@@ -13,6 +13,7 @@ export const Paths = {
     'code/sys/crypto',
     'code/sys/fs',
     'code/sys/proc',
+    'code/sys/main',
     
     'code/sys/std-s',
     'code/sys.tmp',
@@ -36,9 +37,12 @@ export const Paths = {
     'code/sys.driver/driver-deno',
     'code/sys.driver/driver-immer',
     'code/sys.driver/driver-obsidian',
+    'code/sys.driver/driver-orbiter',    
     'code/sys.driver/driver-quilibrium',
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-vitepress',
+
+    'code/sys/sys',
 
     /**
      * →| dev/null
