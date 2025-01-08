@@ -21,7 +21,9 @@ This module contains tools for managing state deployed to IPFS on the [orbiter.h
 ## IPCM
 File-mapping on IPFS managed by [IPCM](https://ipcm.dev), where a blockchain is used to map file-paths to [CID](https://docs.ipfs.tech/concepts/content-addressing/)'s.
 
-![ipcm-dev-state-binary-oss-mit-InterPlanetary-CID-Mapping](https://github.com/user-attachments/assets/2dae3f1a-6ab1-483f-9e0c-934aac5ca8b6)
+
+![ipcm-dev-state-binary-oss-mit-InterPlanetary-CID-Mapping](https://github.com/user-attachments/assets/3367b1f0-bcf8-47d1-a19c-d310bac40aa3)
+
 
 
 ```
