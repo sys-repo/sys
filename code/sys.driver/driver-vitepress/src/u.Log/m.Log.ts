@@ -121,7 +121,7 @@ export const Log = {
 
     push('size:', size);
     push('dist:', c.gray(`${distPathFmt} ${digest}`));
-    push('pkg:', c.gray(`https://jsr.io/${pkgNameFmt}@${pkg.version}`));
+    push('builder:', c.gray(`https://jsr.io/${pkgNameFmt}@${pkg.version}`));
 
     console.info(table.toString().trim());
   },
