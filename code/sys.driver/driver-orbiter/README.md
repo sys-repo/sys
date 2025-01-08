@@ -1,4 +1,4 @@
-# sys.state.ipfs.orbiter
+# state.ipfs.orbiter
 
 ## Orbiter Driver (IPFS)
 State in the cloud over an HTTP bridge from [IPFS](https://ipfs.tech) using [IPCM](https://ipcm.dev) for pinned [CID](https://docs.ipfs.tech/concepts/content-addressing/) mapping and immutable version control.
