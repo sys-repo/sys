@@ -22,7 +22,7 @@ This module contains tools for managing state deployed to IPFS on the
 ---
 
 ## IPCM
-File-mapping on IPFS managed by [IPCM](https://ipcm.dev), where a blockchain is used to map 
+File-mapping on IPFS handled via [IPCM](https://ipcm.dev), where a blockchain is used to map 
 file-paths to [CID](https://docs.ipfs.tech/concepts/content-addressing/)'s.
 
 
