@@ -1,12 +1,15 @@
 # state.ipfs.orbiter
 
 ## Orbiter Driver (IPFS)
-State in the cloud over an HTTP bridge from [IPFS](https://ipfs.tech) using [IPCM](https://ipcm.dev) for pinned [CID](https://docs.ipfs.tech/concepts/content-addressing/) mapping and auditably immutable-version control of `Uint8Array`'s.
+State in the cloud over an HTTP bridge from [IPFS](https://ipfs.tech) using [IPCM](https://ipcm.dev) 
+for pinned [CID](https://docs.ipfs.tech/concepts/content-addressing/) mapping and auditably 
+immutable-version control of `Uint8Array`'s.
 
 - https://orbiter.host
 - https://ipcm.dev
 
-This module contains tools for managing state deployed to IPFS on the [orbiter.host](https://orbiter.host) service.
+This module contains tools for managing state deployed to IPFS on the 
+[orbiter.host](https://orbiter.host) service.
 
 ## Layers
 
@@ -19,7 +22,8 @@ This module contains tools for managing state deployed to IPFS on the [orbiter.h
 ---
 
 ## IPCM
-File-mapping on IPFS managed by [IPCM](https://ipcm.dev), where a blockchain is used to map file-paths to [CID](https://docs.ipfs.tech/concepts/content-addressing/)'s.
+File-mapping on IPFS managed by [IPCM](https://ipcm.dev), where a blockchain is used to map 
+file-paths to [CID](https://docs.ipfs.tech/concepts/content-addressing/)'s.
 
 
 ![ipcm-dev-state-binary-oss-mit-InterPlanetary-CID-Mapping](https://github.com/user-attachments/assets/3367b1f0-bcf8-47d1-a19c-d310bac40aa3)
