@@ -32,7 +32,7 @@ describe('VitePress.dev', () => {
     });
   });
 
-  it('process: ensures baseline files ← Env.init()', async () => {
+  it('process: ensures baseline files ← Env.init()', { sanitizeResources: false }, async () => {
     Testing.retry(3, async () => {
       const sample = Sample.init();
       const { port, inDir } = sample;
