@@ -33,7 +33,7 @@ export async function upgrade(argv: string[]) {
 
   if (diff !== 0 || force) {
     // Safety: make backup before making changes.
-    Env.backup({ inDir });
+    await Env.backup({ inDir });
 
     // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
