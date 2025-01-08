@@ -23,7 +23,7 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 deno run -A jsr:@sys/driver-vitepress/init
 ```
 
-### Command Interface (Common API Surface)
+### Command Interface (Common)
 
 ```bash
 deno task help
