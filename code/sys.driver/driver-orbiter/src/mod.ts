@@ -1,7 +1,7 @@
 /**
  * @module
  * State in the cloud over an HTTP bridge from IPFS using IPCM
- * for pinned CID mapping and immutable version control.
+ * for pinned CID mapping and auditably immutable version-control.
  *
  * @example
  * ```ts
