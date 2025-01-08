@@ -1,7 +1,7 @@
 import { Process } from '@sys/proc';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
-import { type t, Args, c, Jsr, PATHS, pkg } from './common.ts';
+import { type t, Args, c, Env, Jsr, PATHS, pkg } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -32,6 +32,9 @@ export async function upgrade(argv: string[]) {
   }
 
   if (diff !== 0 || force) {
+    // Safety: make backup before making changes.
+    Env.backup({ inDir });
+
     // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
