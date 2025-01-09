@@ -1,10 +1,11 @@
-import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, Err, Fs, Path, Time, c, stripAnsi } from './common.ts';
+import { type t, DirHash, Err, Fs, Path, Time, c, stripAnsi } from './common.ts';
+
+type F = t.FsDirSnapshotLib['write'];
 
 /**
- * Create a snapshot of the specified directory.
+ * Write a snapshot of the specified directory to disk.
  */
-export const snapshot: t.FsDirLib['snapshot'] = async (args) => {
+export const write: F = async (args) => {
   const errors = Err.errors();
   const timestamp = Time.now.timestamp;
 
