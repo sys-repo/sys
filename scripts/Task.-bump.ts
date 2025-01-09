@@ -38,11 +38,11 @@ export async function main(options: Options = {}) {
   const children = (await ws.children.load())
     .filter((file) => !exclude(file.path))
     .filter((file) => file.exists)
-    .filter((file) => !!file.json)
-    .filter((file) => typeof file.json?.version === 'string')
-    .filter((file) => typeof file.json?.name === 'string')
+    .filter((file) => !!file.data)
+    .filter((file) => typeof file.data?.version === 'string')
+    .filter((file) => typeof file.data?.name === 'string')
     .map((file) => {
-      const json = file.json!;
+      const json = file.data!;
       const { name = '', version = '' } = json;
       const current = Semver.parse(version);
       const next = Semver.increment(current, release);

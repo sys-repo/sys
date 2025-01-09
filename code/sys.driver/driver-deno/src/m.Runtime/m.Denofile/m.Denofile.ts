@@ -21,10 +21,10 @@ export const Denofile: t.DenofileLib = {
     const { walkup = true } = options;
     const src = await wrangle.workspaceSource(path, walkup);
     const denofile = await Denofile.load(src);
-    const exists = denofile.exists && Array.isArray(denofile.json?.workspace);
+    const exists = denofile.exists && Array.isArray(denofile.data?.workspace);
     const file = denofile.path;
     const dir = Path.dirname(file);
-    const dirs = denofile.json?.workspace ?? [];
+    const dirs = denofile.data?.workspace ?? [];
     const children: t.DenoWorkspaceChildren = {
       dirs,
       load: loadChildrenMethod(dir, dirs),
@@ -37,8 +37,8 @@ export const Denofile: t.DenofileLib = {
    * that contains a "workspace":[] configuration.
    */
   async isWorkspace(input) {
-    const { exists, json } = await Denofile.load(input);
-    return exists ? Array.isArray(json?.workspace) : false;
+    const { exists, data } = await Denofile.load(input);
+    return exists ? Array.isArray(data?.workspace) : false;
   },
 };
 

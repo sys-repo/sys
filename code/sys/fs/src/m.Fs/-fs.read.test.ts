@@ -10,7 +10,7 @@ describe('Fs: read from the file-system operations', () => {
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
       expect(res.path).to.eql(path);
-      expect(res.json?.name).to.eql('@sys/fs');
+      expect(res.data?.name).to.eql('@sys/fs');
       expect(res.error).to.eql(undefined);
       expect(res.errorReason).to.eql(undefined);
     });

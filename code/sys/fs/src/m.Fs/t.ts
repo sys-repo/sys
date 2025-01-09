@@ -203,7 +203,7 @@ export type FsReadJsonResponse<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;
-  readonly json?: T;
+  readonly data?: T;
   readonly error?: Error;
   readonly errorReason?: 'NotFound' | 'ParseError' | 'Unknown';
 };

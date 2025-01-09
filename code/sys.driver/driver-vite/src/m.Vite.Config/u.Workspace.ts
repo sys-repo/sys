@@ -57,11 +57,11 @@ const wrangle = {
 
   async exports(base: t.StringPath, dir: t.StringPath, filter?: t.WorkspaceFilter) {
     const config = Fs.join(base, dir, 'deno.json');
-    const { exists, json } = await Denofile.load(config);
-    const pkg = json?.name ?? '';
+    const { exists, data } = await Denofile.load(config);
+    const pkg = data?.name ?? '';
     const list: t.ViteAlias[] = [];
-    if (json?.exports) {
-      Object.entries(json.exports).forEach(([key, value]) => {
+    if (data?.exports) {
+      Object.entries(data.exports).forEach(([key, value]) => {
         const find = Fs.join(pkg, key);
         const replacement = Fs.join(base, dir, value);
         list.push({ find, replacement });
