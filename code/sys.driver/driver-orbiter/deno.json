@@ -7,7 +7,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "cli": "deno run -A npm:orbiter-cli"
+    "tmp": "deno run -A npm:orbiter-cli"
   },
   "exports": {
     ".": "./src/mod.ts",
