@@ -12,24 +12,25 @@ export const write: F = async (args) => {
   const sourceHx = await wrangle.hash(args.source, args.filter);
   const id = `${timestamp}.${sourceHx.digest.slice(-5)}`;
 
-  const path: t.DirSnapshot['path'] = {
+  const root = Path.join(args.target, `snapshot.${id}`);
+  const path: t.DirSnapshotPaths = {
     source: args.source,
-    target: Path.join(args.target, `snapshot.${id}`),
+    target: { root },
   };
 
   const filter: t.FsCopyFilter = (e) => (args.filter ? args.filter(e.source) : true);
 
-  const copyRes = await Fs.copyDir(path.source, path.target, { filter });
+  const copyRes = await Fs.copyDir(path.source, path.target.root, { filter });
   if (copyRes.error) errors.push(copyRes.error);
 
-  const targetHx = await wrangle.hash(path.target);
+  const targetHx = await wrangle.hash(path.target.root);
   if (sourceHx.digest !== targetHx.digest) {
     let msg = c.yellow(c.bold('WARNING'));
     msg += ` Snapshot hashes differ between source and target (after [copy] operation).\n`;
     msg += ` source ${c.yellow(sourceHx.digest)}\n`;
     msg += `        ${c.gray(args.source)}\n`;
     msg += ` target ${c.yellow(targetHx.digest)}\n`;
-    msg += `        ${c.gray(path.target)}\n`;
+    msg += `        ${c.gray(path.target.root)}\n`;
 
     console.info();
     console.info(msg);

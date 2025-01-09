@@ -23,6 +23,11 @@ export type DirSnapshot = {
   id: string;
   timestamp: number;
   hx: t.CompositeHash;
-  path: { source: t.StringAbsoluteDir; target: t.StringAbsoluteDir };
+  path: t.DirSnapshotPaths;
   error?: t.StdError;
+};
+
+export type DirSnapshotPaths = {
+  source: t.StringAbsoluteDir;
+  target: { root: t.StringAbsoluteDir };
 };

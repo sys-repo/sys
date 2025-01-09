@@ -42,12 +42,12 @@ describe('Fs.Dir', () => {
 
       const snapshot = await DirSnapshot.write({ source, target });
       const hxSource = await toHash(source);
-      const hxTarget = await toHash(snapshot.path.target);
+      const hxTarget = await toHash(snapshot.path.target.root);
 
       expect(hxSource).to.eql(hxTarget);
       expect(snapshot.hx).to.eql(hxTarget);
       expect(snapshot.hx).to.eql(hxSource);
-      expect(snapshot.path.target.endsWith(hxTarget.digest.slice(-5))).to.be.true;
+      expect(snapshot.path.target.root.endsWith(hxTarget.digest.slice(-5))).to.be.true;
 
       console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
     });
@@ -67,8 +67,8 @@ describe('Fs.Dir', () => {
       expect(snapshotB.error).to.eql(undefined);
 
       const read = (dir: string) => Deno.readTextFile(Path.join(dir, 'mod.ts'));
-      const readA = await read(snapshotA.path.target);
-      const readB = await read(snapshotB.path.target);
+      const readA = await read(snapshotA.path.target.root);
+      const readB = await read(snapshotB.path.target.root);
       expect(readA).to.not.eql(readB); // NB: modified content between snapshots.
     });
 
