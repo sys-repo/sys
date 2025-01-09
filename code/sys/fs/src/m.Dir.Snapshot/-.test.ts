@@ -94,5 +94,13 @@ describe('Fs.Dir.Snapshot', () => {
       expect(contains(snapshotA, 'foo.yaml')).to.eql(true);
       expect(contains(snapshotB, 'foo.yaml')).to.eql(false); // NB: filtered out of the copy-set.
     });
+
+    it('meta: dir.json', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+      const snapshot = await Dir.snapshot({ source, target });
+      const res = (await Fs.readJson<t.DirSnapshotMeta>(snapshot.path.target.meta)).json;
+      expect(res?.hx).to.eql(snapshot.hx);
+    });
   });
 });

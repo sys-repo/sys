@@ -37,4 +37,7 @@ export type DirSnapshotPaths = {
   };
 };
 
-};
+/**
+ * Metadata about a directory-snapshot (stored in the root as .json).
+ */
+export type DirSnapshotMeta = { readonly hx: t.CompositeHash };

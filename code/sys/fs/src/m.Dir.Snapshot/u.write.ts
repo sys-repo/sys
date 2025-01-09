@@ -17,7 +17,7 @@ export const write: F = async (args) => {
     source: args.source,
     target: {
       root,
-      files: Path.join(root, '-files'),
+      files: Path.join(root, 'dir'),
       meta: Path.join(root, 'dir.json'),
     },
   };
@@ -42,11 +42,15 @@ export const write: F = async (args) => {
     if (args.throw) throw new Error(msg);
   }
 
+  const hx = targetHx;
+  const meta: t.DirSnapshotMeta = { hx };
+  await Fs.writeJson(path.target.meta, meta);
+
   const res: t.DirSnapshot = {
     id,
     timestamp,
     path,
-    hx: targetHx,
+    hx,
     error: errors.toError(),
   };
   return res;
