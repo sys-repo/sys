@@ -6,7 +6,7 @@ import { Fs, Path } from './common.ts';
 
 const toHash = async (dir: t.StringDir) => (await DirHash.compute(dir)).hash;
 
-describe('Fs.Dir', () => {
+describe('Fs.Dir.Snapshot', () => {
   const sampleSetup = async (options: { slug?: boolean } = {}) => {
     const sample = sampleDir('Fs.Dir.snapshot', options);
     const paths = {
@@ -35,14 +35,14 @@ describe('Fs.Dir', () => {
     expect(Dir.snapshot).to.equal(Dir.Snapshot.write);
   });
 
-  describe('Dir.Snapshot.write', () => {
+  describe('Snapshot.write', () => {
     it('filename: snapshot.<unix-timestamp>.#<digest>', async () => {
       const sample = await sampleSetup();
       const { source, target } = sample.paths;
 
       const snapshot = await DirSnapshot.write({ source, target });
       const hxSource = await toHash(source);
-      const hxTarget = await toHash(snapshot.path.target.root);
+      const hxTarget = await toHash(snapshot.path.target.files);
 
       expect(hxSource).to.eql(hxTarget);
       expect(snapshot.hx).to.eql(hxTarget);
@@ -67,8 +67,8 @@ describe('Fs.Dir', () => {
       expect(snapshotB.error).to.eql(undefined);
 
       const read = (dir: string) => Deno.readTextFile(Path.join(dir, 'mod.ts'));
-      const readA = await read(snapshotA.path.target.root);
-      const readB = await read(snapshotB.path.target.root);
+      const readA = await read(snapshotA.path.target.files);
+      const readB = await read(snapshotB.path.target.files);
       expect(readA).to.not.eql(readB); // NB: modified content between snapshots.
     });
 

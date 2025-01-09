@@ -17,17 +17,24 @@ export type FsDirSnapshotArgs = {
 };
 
 /**
- * A backup snapshot
+ * A directory-snapshot.
  */
 export type DirSnapshot = {
-  id: string;
-  timestamp: number;
-  hx: t.CompositeHash;
-  path: t.DirSnapshotPaths;
-  error?: t.StdError;
+  readonly id: string;
+  readonly timestamp: number;
+  readonly hx: t.CompositeHash;
+  readonly path: t.DirSnapshotPaths;
+  readonly error?: t.StdError;
 };
 
+/** Paths related to a directory-snapshot. */
 export type DirSnapshotPaths = {
-  source: t.StringAbsoluteDir;
-  target: { root: t.StringAbsoluteDir };
+  readonly source: t.StringAbsoluteDir;
+  readonly target: {
+    readonly root: t.StringAbsoluteDir;
+    readonly files: t.StringAbsoluteDir;
+    readonly meta: t.StringAbsolutePath;
+  };
+};
+
 };

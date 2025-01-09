@@ -15,15 +15,19 @@ export const write: F = async (args) => {
   const root = Path.join(args.target, `snapshot.${id}`);
   const path: t.DirSnapshotPaths = {
     source: args.source,
-    target: { root },
+    target: {
+      root,
+      files: Path.join(root, '-files'),
+      meta: Path.join(root, 'dir.json'),
+    },
   };
 
   const filter: t.FsCopyFilter = (e) => (args.filter ? args.filter(e.source) : true);
 
-  const copyRes = await Fs.copyDir(path.source, path.target.root, { filter });
+  const copyRes = await Fs.copyDir(path.source, path.target.files, { filter });
   if (copyRes.error) errors.push(copyRes.error);
 
-  const targetHx = await wrangle.hash(path.target.root);
+  const targetHx = await wrangle.hash(path.target.files);
   if (sourceHx.digest !== targetHx.digest) {
     let msg = c.yellow(c.bold('WARNING'));
     msg += ` Snapshot hashes differ between source and target (after [copy] operation).\n`;
