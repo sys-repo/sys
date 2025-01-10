@@ -33,19 +33,19 @@ jobs:
         run: |
           cd code/sys/types
           deno task test --parallel
-          deno publish
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
           deno task test --parallel
-          deno publish
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli
           deno task test --parallel
-          deno publish
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/crypto"
         run: |
