@@ -25,6 +25,7 @@
     "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/path@~1.0.6": "1.0.8",
+    "jsr:@std/semver@1.0.3": "1.0.3",
     "jsr:@std/text@~1.0.7": "1.0.9",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-indexeddb@1": "1.2.1_@types+node@22.5.4",
@@ -169,6 +170,9 @@
     },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
+    },
+    "@std/semver@1.0.3": {
+      "integrity": "7c139c6076a080eeaa4252c78b95ca5302818d7eafab0470d34cafd9930c13c8"
     },
     "@std/text@1.0.9": {
       "integrity": "b2db4abc3e6ab93eb0280a0d5e126fd3fca80955bcc297ccaaf555e995eab747"
@@ -2935,7 +2939,12 @@
       "jsr:@std/datetime@0.225.2",
       "jsr:@std/dotenv@0.225.3",
       "jsr:@std/encoding@1.0.6",
+      "jsr:@std/fmt@^1.0.3",
       "jsr:@std/fs@1.0.8",
+      "jsr:@std/path@1.0.8",
+      "jsr:@std/semver@1.0.3",
+      "jsr:@std/testing@1.0.8",
+      "jsr:@std/uuid@1.0.4",
       "npm:@automerge/automerge-repo-network-broadcastchannel@1",
       "npm:@automerge/automerge-repo-storage-indexeddb@1",
       "npm:@automerge/automerge-repo-storage-nodefs@1",
