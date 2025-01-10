@@ -33,7 +33,6 @@ export { Err } from './m.Err/mod.ts';
 export { Fetch, Http } from './m.Http/mod.ts';
 export { Id, cuid, slug } from './m.Id/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
-export { IndexedDb } from './m.IndexedDb/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
 export { ObjectPath } from './m.ObjectPath/mod.ts';
@@ -41,7 +40,6 @@ export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { Promise, maybeWait } from './m.Promise/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
-export { Testing } from './m.Testing/mod.ts';
 export { Array, Num, Str, Value, asArray, isObject } from './m.Value/mod.ts';
 
 export { R } from './common.ts';
