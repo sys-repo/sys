@@ -31,7 +31,7 @@ const now = new Date();
  * Namespace: @sys
  */
 console.group('🌳 import: @sys/std');
-import { Args, D, Path, Time, rx } from '@sys/std';
+import { Args, D, Path, Time, rx, Value } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
 import { Jsr } from '@sys/std/jsr';
 import { Semver } from '@sys/std/semver';
@@ -48,7 +48,10 @@ console.info('@sys/text:Str.bytes', `"${Str.bytes(1337)}"`);
 console.log();
 console.info('@sys/std/jsr', Jsr);
 console.info('@sys/std/semver', Semver, Semver.parse('1.2.3'));
+console.info('@sys/std:Value.Str.bytes:', Value.Str.bytes(1234));
 console.groupEnd();
+
+console.info(' ');
 
 /**
  * Namespace: @sys_driver
