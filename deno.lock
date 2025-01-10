@@ -7,6 +7,7 @@
     "jsr:@cliffy/keypress@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cliffy/prompt@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cliffy/table@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@noble/hashes@1.7.0": "1.7.0",
     "jsr:@std/assert@^1.0.10": "1.0.10",
     "jsr:@std/assert@~1.0.6": "1.0.10",
     "jsr:@std/async@1.0.9": "1.0.9",
@@ -37,6 +38,7 @@
     "npm:@jsr/std__semver@1.0.3": "1.0.3",
     "npm:@jsr/std__testing@1.0.8": "1.0.8",
     "npm:@jsr/std__uuid@1.0.4": "1.0.4",
+    "npm:@noble/hashes@1.7.0": "1.7.0",
     "npm:@onsetsoftware/automerge-patcher@0.14.0": "0.14.0_@automerge+automerge@2.2.8",
     "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
     "npm:@privy-io/server-auth@1.16.9": "1.16.9",
@@ -127,6 +129,9 @@
       "dependencies": [
         "jsr:@std/fmt"
       ]
+    },
+    "@noble/hashes@1.7.0": {
+      "integrity": "aabc691a2c41789b3387311a8e5d4651f96c210c55f587eb8849cc180eb7f7c8"
     },
     "@std/assert@1.0.10": {
       "integrity": "59b5cbac5bd55459a19045d95cc7c2ff787b4f8527c0dd195078ff6f9481fbb3"
@@ -2831,6 +2836,7 @@
       "npm:@automerge/automerge-repo-storage-nodefs@1",
       "npm:@automerge/automerge-repo@1",
       "npm:@automerge/automerge@2",
+      "npm:@noble/hashes@1.7.0",
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
       "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@privy-io/server-auth@1.16.9",
