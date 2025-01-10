@@ -23,7 +23,8 @@ describe('Vite.build', () => {
     const readFile = async (path: string) => {
       return (await Fs.exists(path)) ? Deno.readTextFile(path) : '';
     };
-    const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
+    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+    const distJson = json.data;
     const html = await readFile(Fs.join(outDir, 'index.html'));
     const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
 

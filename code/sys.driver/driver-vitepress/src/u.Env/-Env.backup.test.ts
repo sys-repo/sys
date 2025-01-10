@@ -41,7 +41,7 @@ describe('cmd: backup (shapshot)', () => {
 
         const res = await Env.backup({ inDir, includeDist });
         const snapshot = res.snapshot;
-        const targetDir = snapshot.path.target;
+        const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);
 
         // NB: not copied (ecluded via .ignore list).

@@ -134,7 +134,7 @@ export const Log = {
     },
 
     async toString(snapshot: t.DirSnapshot) {
-      const target = snapshot.path.target;
+      const target = snapshot.path.target.root;
       const size = await Fs.Size.dir(Path.resolve(target));
 
       const backupsDir = Fs.dirname(target);
@@ -156,12 +156,12 @@ export const Log = {
       const date = new Date(snapshot.timestamp);
       const dateFmt = D.format(date, 'd MMM yyyy');
 
-      const distJson = await Pkg.Dist.compute(snapshot.path.target);
+      const distJson = await Pkg.Dist.compute(snapshot.path.target.files);
       const digest = distJson.dist?.hash.digest;
       const targetRight = `${c.white(dateFmt)} | ${HashFmt.digest(digest, { algo: false })}`;
 
       push('  source', c.gray(formatPath(snapshot.path.source)));
-      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${targetRight}`));
+      push('  target', c.gray(`${formatPath(snapshot.path.target.root)} | ${targetRight}`));
       push('  total', total.toLocaleString());
 
       return table.toString().trim();
