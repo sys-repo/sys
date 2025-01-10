@@ -45,6 +45,7 @@ export type VitePressBackupArgs = {
   inDir: t.StringDir;
   silent?: boolean;
   includeDist?: boolean;
+  force?: boolean;
 };
 export type VitePressBackupResponse = {
   readonly snapshot: t.DirSnapshot;
