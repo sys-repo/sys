@@ -1,5 +1,4 @@
 import type { t } from '../common.ts';
-
 import { parseArgs as parse } from '@std/cli/parse-args';
 
 /**
