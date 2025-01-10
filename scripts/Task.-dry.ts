@@ -6,7 +6,7 @@ export async function main() {
 
   const results: CmdResult[] = [];
   const run = async (path: string, index: number, total: number) => {
-    const command = `deno ${c.bold('publish')} --allow-dirty --dry-run`;
+    const command = `deno publish --allow-dirty --dry-run`;
     const title = c.gray(`${c.white('Type Checks')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
 

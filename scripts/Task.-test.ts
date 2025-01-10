@@ -9,7 +9,7 @@ export async function main() {
    */
   const results: CmdResult[] = [];
   const run = async (path: string, index: number, total: number) => {
-    const command = `deno task ${c.bold('test')}`;
+    const command = `deno task test`;
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
     spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n${moduleList}`);
