@@ -1,10 +1,6 @@
-import { type t, DirHash, Err, Fs, Path, Time, c, stripAnsi } from './common.ts';
+import { type t, DirHash, Err, Fs, Path, Time, c, stripAnsi, NAME } from './common.ts';
 
 type F = t.FsDirSnapshotLib['write'];
-const NAME = {
-  dir: 'dir',
-  meta: 'dir.json',
-} as const;
 
 const join = Path.join;
 
@@ -100,8 +96,8 @@ const wrangle = {
     target: t.StringPath,
     backref?: t.StringAbsoluteDir,
   ): t.DirSnapshotPaths {
-    let root = Path.resolve(target, `snapshot.${id}`);
-    if (backref) root += '.backref';
+    let root = Path.resolve(target, `${NAME.prefix}.${id}`);
+    if (backref) root += NAME.ext.backref;
     return {
       source: Path.resolve(source),
       target: {
