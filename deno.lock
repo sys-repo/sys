@@ -40,6 +40,7 @@
     "npm:@swc/plugin-emotion@8.0.3": "8.0.3",
     "npm:@types/diff@6.0.0": "6.0.0",
     "npm:@types/minimist@1.2.5": "1.2.5",
+    "npm:@types/node@*": "22.5.4",
     "npm:@types/react-dom@18.3.1": "18.3.1",
     "npm:@types/react@18.3.12": "18.3.12",
     "npm:@vidstack/react@next": "1.12.12_@types+react@18.3.12_react@18.3.1",
@@ -58,6 +59,7 @@
     "npm:minimist@1.2.8": "1.2.8",
     "npm:openai@4.76.0": "4.76.0",
     "npm:ora@8.1.1": "8.1.1",
+    "npm:pretty-bytes@6.1.1": "6.1.1",
     "npm:rambda@9.4.1": "9.4.1",
     "npm:ramda@0.30.1": "0.30.1",
     "npm:react-dom@18.3.1": "18.3.1_react@18.3.1",
@@ -74,7 +76,8 @@
     "npm:ts-essentials@10.0.4": "10.0.4",
     "npm:ua-parser-js@2.0.0": "2.0.0",
     "npm:vite-plugin-wasm@3": "3.4.1_vite@6.0.7",
-    "npm:vite@6.0.7": "6.0.7",
+    "npm:vite@*": "6.0.7_yaml@2.6.1",
+    "npm:vite@6.0.7": "6.0.7_yaml@2.6.1",
     "npm:vitepress@1": "1.5.0_vite@5.4.11_vue@3.5.13_focus-trap@7.6.2_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:vue@3.5.13": "3.5.13",
     "npm:yaml@2.6.1": "2.6.1"
@@ -2200,6 +2203,9 @@
     "preact@10.25.4": {
       "integrity": "sha512-jLdZDb+Q+odkHJ+MpW/9U5cODzqnB+fy2EiHSZES7ldV5LK7yjlVzTp7R8Xy6W6y75kfK8iWYtFVH7lvjwrCMA=="
     },
+    "pretty-bytes@6.1.1": {
+      "integrity": "sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ=="
+    },
     "property-information@6.5.0": {
       "integrity": "sha512-PgTgs/BlvHxOu8QuEN7wi5A0OmXaBcHpmCSTehcs6Uuu9IkDIEo13Hy7n898RHfrQ49vKCoGeWZSaAK01nwVig=="
     },
@@ -2664,6 +2670,16 @@
         "rollup"
       ]
     },
+    "vite@6.0.7_yaml@2.6.1": {
+      "integrity": "sha512-RDt8r/7qx9940f8FcOIAH9PTViRrghKaK2K1jY3RaAURrEUbm9Du1mJ72G+jlhtG3WwodnfzY8ORQZbBavZEAQ==",
+      "dependencies": [
+        "esbuild@0.24.2",
+        "fsevents",
+        "postcss",
+        "rollup",
+        "yaml@2.6.1"
+      ]
+    },
     "vitepress@1.5.0_vite@5.4.11_vue@3.5.13_focus-trap@7.6.2_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
       "integrity": "sha512-q4Q/G2zjvynvizdB3/bupdYkCJe2umSAMv9Ju4d92E6/NXJ59z70xB0q5p/4lpRyAwflDsbwy1mLV9Q5+nlB+g==",
       "dependencies": [
@@ -2812,6 +2828,7 @@
       "npm:immer@10",
       "npm:openai@4.76.0",
       "npm:ora@8.1.1",
+      "npm:pretty-bytes@6.1.1",
       "npm:rambda@9.4.1",
       "npm:ramda@0.30.1",
       "npm:react-error-boundary@4",

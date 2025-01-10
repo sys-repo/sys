@@ -44,6 +44,7 @@
     "immer": "npm:immer@10",
     "ora": "npm:ora@8.1.1",
     "openai": "npm:openai@4.76.0",
+    "pretty-bytes": "npm:pretty-bytes@6.1.1",
     "ramda": "npm:ramda@0.30.1",
     "rambda": "npm:rambda@9.4.1",
     "rxjs": "npm:rxjs@7",
