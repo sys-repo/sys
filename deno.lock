@@ -10,6 +10,7 @@
     "jsr:@std/assert@^1.0.10": "1.0.10",
     "jsr:@std/assert@^1.0.9": "1.0.10",
     "jsr:@std/assert@~1.0.6": "1.0.10",
+    "jsr:@std/async@1.0.9": "1.0.9",
     "jsr:@std/datetime@0.225.2": "0.225.2",
     "jsr:@std/dotenv@0.225.3": "0.225.3",
     "jsr:@std/encoding@1": "1.0.6",
@@ -138,6 +139,9 @@
       "dependencies": [
         "jsr:@std/internal"
       ]
+    },
+    "@std/async@1.0.9": {
+      "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
     },
     "@std/datetime@0.225.2": {
       "integrity": "45f0100554a912cd65f48089ef0a33aa1eb6ea21f08090840b539ab582827eaa"
@@ -2927,6 +2931,7 @@
       "jsr:@cliffy/keypress@1.0.0-rc.7",
       "jsr:@cliffy/prompt@1.0.0-rc.7",
       "jsr:@cliffy/table@1.0.0-rc.7",
+      "jsr:@std/async@1.0.9",
       "jsr:@std/datetime@0.225.2",
       "jsr:@std/dotenv@0.225.3",
       "jsr:@std/encoding@1.0.6",
