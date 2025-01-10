@@ -32,17 +32,18 @@ export async function upgrade(argv: string[]) {
   }
 
   if (diff !== 0 || force) {
-    // Safety: make backup before making changes.
-    await Env.backup({ inDir });
-
     // Perform version change (up or down).
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
+
+    const message = `${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`;
+    await Env.backup({ inDir, message }); // Safety: make backup before making changes.
+
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
 
     console.info();
-    console.info(`${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`);
+    console.info(message);
     console.info(c.gray(`${c.italic('running template:')} ${c.cyan(cmd)}`));
     console.info();
 
