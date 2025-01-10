@@ -12,7 +12,6 @@
     "@std/testing": "jsr:@std/testing@1.0.6",
     "@std/uuid": "jsr:@std/uuid@1.0.4",
 
-    "@hono/hono": "jsr:@hono/hono@4.6.13",
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7",
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.7",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.7",
@@ -23,16 +22,13 @@
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@1",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@1",
 
-    "@noble/hashes": "npm:@noble/hashes@1.6.1",
     "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
     "@privy-io/server-auth": "npm:@privy-io/server-auth@1.16.9",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
     "react-error-boundary": "npm:react-error-boundary@4",
-    "react-icons": "npm:react-icons@5.4.0",
     "react-inspector": "npm:react-inspector@6",
     "react-spinners": "npm:react-spinners@0.15.0",
-    "@emotion/react": "npm:@emotion/react@11.13.5",
 
     "@types/diff": "npm:@types/diff@6.0.0",
 
