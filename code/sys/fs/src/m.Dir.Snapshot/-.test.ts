@@ -119,12 +119,11 @@ describe('Fs.Dir.Snapshot', () => {
       await Fs.writeJson(Fs.join(target, 'snapshot.1234.hx123/dir.json'), { foo: 123 });
 
       const a = await Dir.snapshot({ source, target });
-      await Time.wait(10);
+      await Time.wait(10); // NB: different timestamp.
       const b = await Dir.snapshot({ source, target });
 
       expect(a.is.backref).to.eql(false);
       expect(b.is.backref).to.eql(true);
-
       expect(a.path.target.root.endsWith('.backref')).to.be.false;
       expect(b.path.target.root.endsWith('.backref')).to.be.true;
 
@@ -145,5 +144,26 @@ describe('Fs.Dir.Snapshot', () => {
       expect(metaB?.is.backref).to.eql(true);
     });
 
+    it('options: {force} ← backref not used', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+
+      const a = await Dir.snapshot({ source, target });
+      await Time.wait(10); // NB: different timestamp.
+      const b = await Dir.snapshot({ source, target, force: true });
+
+      expect(a.is.backref).to.eql(false);
+      expect(b.is.backref).to.eql(false);
+      expect(a.path.target.root.endsWith('.backref')).to.be.false;
+      expect(b.path.target.root.endsWith('.backref')).to.be.false;
+
+      expect(a.path.target.meta).to.not.eql(b.path.target.meta);
+
+      const metaA = await loadMeta(a.path.target.meta);
+      const metaB = await loadMeta(b.path.target.meta);
+      expect(metaA).to.eql(metaB); // NB: equivalient duplicated snapshot directories.
+      expect(metaA?.is.backref).to.eql(false);
+      expect(metaB?.is.backref).to.eql(false);
+    });
   });
 });
