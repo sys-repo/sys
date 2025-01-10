@@ -36,7 +36,7 @@ export const commonPlugins: t.VitePluginLib['common'] = async (options = {}) => 
   // -  https://swc.rs
   if (options.react ?? true) {
     const css = Style.plugin.emotion();
-    plugins.push(reactPlugin(css));
+    plugins.push(reactPlugin(css) as any);
   }
 
   // Finish up.

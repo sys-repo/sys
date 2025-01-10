@@ -48,7 +48,7 @@ describe('Vite.build', () => {
   };
 
   it('sample-1: simple', async () => {
-    Testing.retry(3, async () => {
+    await Testing.retry(3, async () => {
       const input = INPUT.sample1;
       const { res, files } = await testBuild(input);
 
@@ -64,7 +64,7 @@ describe('Vite.build', () => {
   });
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-    Testing.retry(3, async () => {
+    await Testing.retry(3, async () => {
       const input = INPUT.sample2;
       const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
@@ -73,7 +73,7 @@ describe('Vite.build', () => {
   });
 
   it('sample-3: main.ts entry point', async () => {
-    Testing.retry(3, async () => {
+    await Testing.retry(3, async () => {
       const input = INPUT.sample3;
       const { files } = await testBuild(input);
       expect(files.entry).to.includes('console.info("main.ts")');
