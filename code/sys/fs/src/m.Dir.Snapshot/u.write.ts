@@ -1,4 +1,4 @@
-import { type t, DirHash, Err, Fs, Path, Time, c, stripAnsi, NAME } from './common.ts';
+import { type t, DirHash, Err, Fs, NAME, Path, Time, c, stripAnsi } from './common.ts';
 
 type F = t.FsDirSnapshotLib['write'];
 
