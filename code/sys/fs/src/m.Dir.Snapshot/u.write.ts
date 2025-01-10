@@ -75,8 +75,8 @@ export const write: F = async (args) => {
 /**
  * Helpers
  */
-const writeMeta = async (path: t.StringPath, hx: t.CompositeHash, backref: boolean) => {
-  const meta: t.DirSnapshotMeta = { hx, is: { backref } };
+const writeMeta = async (path: t.StringPath, hx: t.CompositeHash, ref: boolean) => {
+  const meta: t.DirSnapshotMeta = { hx, is: { ref } };
   await Fs.writeJson(path, meta);
 };
 

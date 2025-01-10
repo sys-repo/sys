@@ -141,8 +141,8 @@ describe('Fs.Dir.Snapshot', () => {
       const metaB = await loadMeta(b.path.target.meta);
       expect(metaA).to.not.eql(metaB);
       expect(metaA?.hx).to.eql(metaB?.hx);
-      expect(metaA?.is.backref).to.eql(false);
-      expect(metaB?.is.backref).to.eql(true);
+      expect(metaA?.is.ref).to.eql(false);
+      expect(metaB?.is.ref).to.eql(true);
     });
 
     it('options: {force} ← backref not used', async () => {
@@ -163,8 +163,8 @@ describe('Fs.Dir.Snapshot', () => {
       const metaA = await loadMeta(a.path.target.meta);
       const metaB = await loadMeta(b.path.target.meta);
       expect(metaA).to.eql(metaB); // NB: equivalient duplicated snapshot directories.
-      expect(metaA?.is.backref).to.eql(false);
-      expect(metaB?.is.backref).to.eql(false);
+      expect(metaA?.is.ref).to.eql(false);
+      expect(metaB?.is.ref).to.eql(false);
     });
   });
 });

@@ -45,5 +45,5 @@ export type DirSnapshotPaths = {
  */
 export type DirSnapshotMeta = {
   readonly hx: t.CompositeHash;
-  readonly is: { readonly backref: boolean };
+  readonly is: { readonly ref: boolean };
 };
