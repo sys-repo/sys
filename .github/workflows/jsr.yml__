@@ -77,6 +77,12 @@ jobs:
           deno task test --parallel
           deno publish
 
+      - name: publish module → "@sys/main"
+        run: |
+          cd code/sys/main
+          deno task test --parallel --trace-leaks
+          deno publish
+
       - name: publish module → "@sys/std-s"
         run: |
           cd code/sys/std-s
@@ -149,6 +155,12 @@ jobs:
           cd code/sys.driver/driver-obsidian
           deno task test --parallel
           deno publish
+
+      - name: publish module → "@sys/driver-orbiter"
+        run: |
+          cd code/sys.driver/driver-orbiter
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-vite"
         run: |
