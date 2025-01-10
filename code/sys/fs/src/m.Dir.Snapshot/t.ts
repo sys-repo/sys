@@ -13,9 +13,11 @@ export type FsDirSnapshotArgs = {
   source: t.StringDir;
   target: t.StringDir;
   filter?: t.FsPathFilter;
+  message?: string;
+  throw?: boolean;
+
   /** Force the snapshot even if an existing shaoshot hash exists (default: false). */
   force?: boolean;
-  throw?: boolean;
 };
 
 /**
@@ -44,6 +46,7 @@ export type DirSnapshotPaths = {
  * Metadata about a directory-snapshot (stored in the root as .json).
  */
 export type DirSnapshotMeta = {
-  readonly hx: t.CompositeHash;
-  readonly ref?: true;
+  ref?: true;
+  message?: string;
+  hx: t.CompositeHash;
 };

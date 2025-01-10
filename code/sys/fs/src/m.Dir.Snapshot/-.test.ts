@@ -7,6 +7,11 @@ import { Fs, Path } from './common.ts';
 const toHash = async (dir: t.StringDir) => (await DirHash.compute(dir)).hash;
 
 describe('Fs.Dir.Snapshot', () => {
+  const loadMeta = async (path: t.StringPath) => {
+    const json = await Fs.readJson<t.DirSnapshotMeta>(path);
+    return json.data;
+  };
+
   const sampleSetup = async (options: { slug?: boolean } = {}) => {
     const sample = sampleDir('Fs.Dir.snapshot', options);
     const paths = {
@@ -101,17 +106,28 @@ describe('Fs.Dir.Snapshot', () => {
       const sample = await sampleSetup();
       const { source, target } = sample.paths;
       const snapshot = await Dir.snapshot({ source, target });
-      const res = (await Fs.readJson<t.DirSnapshotMeta>(snapshot.path.target.meta)).data;
+      const res = await loadMeta(snapshot.path.target.meta);
       expect(res?.hx).to.eql(snapshot.hx);
+    });
+
+    it('meta: message', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+      const message = '👋 hello';
+
+      const a = await Dir.snapshot({ source, target });
+      const b = await Dir.snapshot({ source, target, message });
+
+      const metaA = await loadMeta(a.path.target.meta);
+      const metaB = await loadMeta(b.path.target.meta);
+
+      expect(metaA?.message).to.eql(undefined);
+      expect(metaB?.message).to.eql(message);
     });
   });
 
-  describe('De-dupe: backref stubs for existing content', () => {
-    const loadMeta = async (path: t.StringPath) => {
-      return (await Fs.readJson<t.DirSnapshotMeta>(path)).data;
-    };
-
-    it('saves backref (default)', async () => {
+  describe('De-dupe: linked-list reference stubs for existing content', () => {
+    it('saves .ref (default)', async () => {
       const sample = await sampleSetup();
       const { source, target } = sample.paths;
 

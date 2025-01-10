@@ -1,4 +1,4 @@
-import { type t, DirHash, Err, Fs, NAME, Path, Time, c, stripAnsi } from './common.ts';
+import { type t, Delete, DirHash, Err, Fs, NAME, Path, Time, c, stripAnsi } from './common.ts';
 
 type F = t.FsDirSnapshotLib['write'];
 
@@ -8,7 +8,7 @@ const join = Path.join;
  * Write a snapshot of the specified directory to disk.
  */
 export const write: F = async (args) => {
-  const { force = false } = args;
+  const { force = false, message } = args;
   const errors = Err.errors();
   const timestamp = Time.now.timestamp;
 
@@ -26,7 +26,7 @@ export const write: F = async (args) => {
     const existing = await wrangle.existing(path, sourceHx.digest);
     if (existing) {
       const backrefPaths = wrangle.paths(id, args.source, args.target, existing);
-      await writeMeta(backrefPaths.target.meta, sourceHx, true);
+      await writeMeta(backrefPaths.target.meta, sourceHx, true, message);
       backref = true;
       path = backrefPaths;
     }
@@ -58,7 +58,7 @@ export const write: F = async (args) => {
     }
 
     hx = targetHx;
-    await writeMeta(path.target.meta, targetHx, false);
+    await writeMeta(path.target.meta, targetHx, false, message);
   }
 
   const res: t.DirSnapshot = {
@@ -75,8 +75,15 @@ export const write: F = async (args) => {
 /**
  * Helpers
  */
-const writeMeta = async (path: t.StringPath, hx: t.CompositeHash, isRef: boolean) => {
-  const meta: t.DirSnapshotMeta = isRef ? { ref: true, hx } : { hx };
+const writeMeta = async (
+  path: t.StringPath,
+  hx: t.CompositeHash,
+  isRef: boolean,
+  message?: string,
+) => {
+  const meta: t.DirSnapshotMeta = { hx };
+  if (isRef) meta.ref = true;
+  if ((message || '').trim()) meta.message = message;
   await Fs.writeJson(path, meta);
 };
 
