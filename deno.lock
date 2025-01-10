@@ -77,8 +77,10 @@
     "npm:ts-essentials@10.0.4": "10.0.4",
     "npm:ua-parser-js@2.0.0": "2.0.0",
     "npm:vite-plugin-wasm@3": "3.4.1_vite@6.0.7",
-    "npm:vite@6.0.7": "6.0.7",
-    "npm:vitepress@1": "1.5.0_vite@5.4.11_vue@3.5.13_focus-trap@7.6.2_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:vite@*": "6.0.7_@types+node@22.5.4_yaml@2.6.1",
+    "npm:vite@6.0.7": "6.0.7_@types+node@22.5.4_yaml@2.6.1",
+    "npm:vitepress@*": "1.5.0_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.2_@types+node@22.5.4_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:vitepress@1": "1.5.0_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.2_@types+node@22.5.4_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:vue@3.5.13": "3.5.13",
     "npm:yaml@2.6.1": "2.6.1"
   },
@@ -1179,6 +1181,13 @@
       "dependencies": [
         "@swc/core",
         "vite@6.0.7"
+      ]
+    },
+    "@vitejs/plugin-vue@5.2.1_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_@types+node@22.5.4": {
+      "integrity": "sha512-cxh314tzaWwOLqVes2gnnCtvBDcM1UMdn+iFR+UjAn411dPT3tOmqrJjbMd7koZpMAmBM/GqeV4n9ge7JSiJJQ==",
+      "dependencies": [
+        "vite@5.4.11_@types+node@22.5.4",
+        "vue"
       ]
     },
     "@vitejs/plugin-vue@5.2.1_vite@5.4.11_vue@3.5.13": {
@@ -2663,6 +2672,16 @@
         "rollup"
       ]
     },
+    "vite@5.4.11_@types+node@22.5.4": {
+      "integrity": "sha512-c7jFQRklXua0mTzneGW9QVyxFjUgwcihC4bXEtujIo2ouWCe1Ajt/amn2PCxYnhYfd5k09JX3SB7OYWFKYqj8Q==",
+      "dependencies": [
+        "@types/node@22.5.4",
+        "esbuild@0.21.5",
+        "fsevents",
+        "postcss",
+        "rollup"
+      ]
+    },
     "vite@6.0.7": {
       "integrity": "sha512-RDt8r/7qx9940f8FcOIAH9PTViRrghKaK2K1jY3RaAURrEUbm9Du1mJ72G+jlhtG3WwodnfzY8ORQZbBavZEAQ==",
       "dependencies": [
@@ -2670,6 +2689,40 @@
         "fsevents",
         "postcss",
         "rollup"
+      ]
+    },
+    "vite@6.0.7_@types+node@22.5.4_yaml@2.6.1": {
+      "integrity": "sha512-RDt8r/7qx9940f8FcOIAH9PTViRrghKaK2K1jY3RaAURrEUbm9Du1mJ72G+jlhtG3WwodnfzY8ORQZbBavZEAQ==",
+      "dependencies": [
+        "@types/node@22.5.4",
+        "esbuild@0.24.2",
+        "fsevents",
+        "postcss",
+        "rollup",
+        "yaml@2.6.1"
+      ]
+    },
+    "vitepress@1.5.0_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.2_@types+node@22.5.4_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-q4Q/G2zjvynvizdB3/bupdYkCJe2umSAMv9Ju4d92E6/NXJ59z70xB0q5p/4lpRyAwflDsbwy1mLV9Q5+nlB+g==",
+      "dependencies": [
+        "@docsearch/css",
+        "@docsearch/js",
+        "@iconify-json/simple-icons",
+        "@shikijs/core",
+        "@shikijs/transformers",
+        "@shikijs/types",
+        "@types/markdown-it",
+        "@vitejs/plugin-vue@5.2.1_vite@5.4.11__@types+node@22.5.4_vue@3.5.13_@types+node@22.5.4",
+        "@vue/devtools-api",
+        "@vue/shared",
+        "@vueuse/core",
+        "@vueuse/integrations",
+        "focus-trap",
+        "mark.js",
+        "minisearch",
+        "shiki",
+        "vite@5.4.11_@types+node@22.5.4",
+        "vue"
       ]
     },
     "vitepress@1.5.0_vite@5.4.11_vue@3.5.13_focus-trap@7.6.2_@types+react@18.3.12_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
@@ -2682,7 +2735,7 @@
         "@shikijs/transformers",
         "@shikijs/types",
         "@types/markdown-it",
-        "@vitejs/plugin-vue",
+        "@vitejs/plugin-vue@5.2.1_vite@5.4.11_vue@3.5.13",
         "@vue/devtools-api",
         "@vue/shared",
         "@vueuse/core",
