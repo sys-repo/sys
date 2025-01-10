@@ -37,7 +37,7 @@
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge@2": "2.2.8",
-    "npm:@emotion/react@11.13.5": "11.13.5_react@18.3.1",
+    "npm:@emotion/react@11.14.0": "11.14.0_react@18.3.1",
     "npm:@jsr/noble__hashes@1.7.0": "1.7.0",
     "npm:@jsr/std__async@1.0.9": "1.0.9",
     "npm:@jsr/std__cli@1.0.8": "1.0.8",
@@ -88,7 +88,7 @@
     "npm:strip-ansi@7": "7.1.0",
     "npm:subhosting@0.1.0-alpha.1": "0.1.0-alpha.1",
     "npm:tinycolor2@1.6.0": "1.6.0",
-    "npm:ts-essentials@10.0.3": "10.0.3",
+    "npm:ts-essentials@10.0.4": "10.0.4",
     "npm:ua-parser-js@2.0.0": "2.0.0",
     "npm:vite-plugin-wasm@3": "3.4.1_vite@6.0.7__@types+node@22.5.4__yaml@2.6.1_@types+node@22.5.4_yaml@2.6.1",
     "npm:vite@*": "6.0.7_@types+node@22.5.4_yaml@2.6.1",
@@ -532,8 +532,8 @@
     "@emotion/memoize@0.9.0": {
       "integrity": "sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ=="
     },
-    "@emotion/react@11.13.5_react@18.3.1": {
-      "integrity": "sha512-6zeCUxUH+EPF1s+YF/2hPVODeV/7V07YU5x+2tfuRL8MdW6rv5vb2+CBEGTGwBdux0OIERcOS+RzxeK80k2DsQ==",
+    "@emotion/react@11.14.0_react@18.3.1": {
+      "integrity": "sha512-O000MLDBDdk/EohJPFUqvnp4qnHeYkVP5B0xEG0D/L7cOKP9kefu2DXn8dj74cQfsEzUqh+sr1RzFqiL1o+PpA==",
       "dependencies": [
         "@babel/runtime",
         "@emotion/babel-plugin",
@@ -2670,8 +2670,8 @@
     "ts-case-convert@2.1.0": {
       "integrity": "sha512-Ye79el/pHYXfoew6kqhMwCoxp4NWjKNcm2kBzpmEMIU9dd9aBmHNNFtZ+WTm0rz1ngyDmfqDXDlyUnBXayiD0w=="
     },
-    "ts-essentials@10.0.3": {
-      "integrity": "sha512-/FrVAZ76JLTWxJOERk04fm8hYENDo0PWSP3YLQKxevLwWtxemGcl5JJEzN4iqfDlRve0ckyfFaOBu4xbNH/wZw=="
+    "ts-essentials@10.0.4": {
+      "integrity": "sha512-lwYdz28+S4nicm+jFi6V58LaAIpxzhg9rLdgNC1VsdP/xiFBseGhF1M/shwCk6zMmwahBZdXcl34LVHrEang3A=="
     },
     "ts-node@10.9.2_@types+node@22.5.4_typescript@5.7.3": {
       "integrity": "sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==",
@@ -3008,13 +3008,13 @@
       "npm:strip-ansi@7",
       "npm:subhosting@0.1.0-alpha.1",
       "npm:tinycolor2@1.6.0",
-      "npm:ts-essentials@10.0.3",
+      "npm:ts-essentials@10.0.4",
       "npm:ua-parser-js@2.0.0",
       "npm:yaml@2.6.1"
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@emotion/react@11.13.5",
+        "npm:@emotion/react@11.14.0",
         "npm:@jsr/noble__hashes@1.7.0",
         "npm:@jsr/std__async@1.0.9",
         "npm:@jsr/std__cli@1.0.8",
