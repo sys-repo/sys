@@ -2,7 +2,6 @@
   "dependencies": {
     "@noble/hashes": "npm:@jsr/noble__hashes@1.7.0",
     "@std/async": "npm:@jsr/std__async@1.0.9",
-    "@std/cli": "npm:@jsr/std__cli@1.0.9",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.2",
     "@std/fmt": "npm:@jsr/std__fmt@^1.0.3",
     "@std/path": "npm:@jsr/std__path@1.0.8",
@@ -12,11 +11,13 @@
     "@vidstack/react": "next",
     "@emotion/react": "11.14.0",
     "hono": "4.6.16",
+    "minimist": "1.2.8",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.4.0"
   },
   "devDependencies": {
+    "@types/minimist": "1.2.5",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@swc/plugin-emotion": "8.0.3",
