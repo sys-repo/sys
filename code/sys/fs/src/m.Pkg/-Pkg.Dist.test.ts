@@ -86,7 +86,7 @@ describe('Pkg.Dist', () => {
       const res = await Pkg.Dist.compute({ dir, pkg, entry, save: true });
       expect(await exists()).to.eql(true);
 
-      const json = (await Fs.readJson(filepath)).json;
+      const json = (await Fs.readJson(filepath)).data;
       expect(json).to.eql(res.dist);
     });
 

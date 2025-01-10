@@ -48,6 +48,7 @@ describe('Fs.Dir.Snapshot', () => {
       expect(snapshot.hx).to.eql(hxTarget);
       expect(snapshot.hx).to.eql(hxSource);
       expect(snapshot.path.target.root.endsWith(hxTarget.digest.slice(-5))).to.be.true;
+      expect(snapshot.is.backref).to.eql(false);
 
       console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
     });
@@ -59,7 +60,7 @@ describe('Fs.Dir.Snapshot', () => {
       const snapshotA = await Dir.snapshot({ source, target });
       await Time.wait(10);
       await sample.modify();
-      const snapshotB = await Dir.snapshot({ source, target });
+      const snapshotB = await Dir.snapshot({ source, target, force: true });
 
       expect(snapshotB.timestamp).to.be.greaterThan(snapshotA.timestamp); // NB: seqentual folder layout.
 
@@ -99,8 +100,50 @@ describe('Fs.Dir.Snapshot', () => {
       const sample = await sampleSetup();
       const { source, target } = sample.paths;
       const snapshot = await Dir.snapshot({ source, target });
-      const res = (await Fs.readJson<t.DirSnapshotMeta>(snapshot.path.target.meta)).json;
+      const res = (await Fs.readJson<t.DirSnapshotMeta>(snapshot.path.target.meta)).data;
       expect(res?.hx).to.eql(snapshot.hx);
     });
+  });
+
+  describe('De-dupe: backref stubs for existing content', () => {
+    const loadMeta = async (path: t.StringPath) => {
+      return (await Fs.readJson<t.DirSnapshotMeta>(path)).data;
+    };
+
+    it('saves backref (default)', async () => {
+      const sample = await sampleSetup();
+      const { source, target } = sample.paths;
+
+      // NB: write in sample noise to ensure it is ignored by the algorithm.
+      await Fs.write(Fs.join(target, 'foo.txt'), 'Foobar');
+      await Fs.writeJson(Fs.join(target, 'snapshot.1234.hx123/dir.json'), { foo: 123 });
+
+      const a = await Dir.snapshot({ source, target });
+      await Time.wait(10);
+      const b = await Dir.snapshot({ source, target });
+
+      expect(a.is.backref).to.eql(false);
+      expect(b.is.backref).to.eql(true);
+
+      expect(a.path.target.root.endsWith('.backref')).to.be.false;
+      expect(b.path.target.root.endsWith('.backref')).to.be.true;
+
+      expect(b.path.target.files).to.eql(a.path.target.files); //   NB: points to referenced files.
+      expect(b.path.target.meta).to.not.eql(a.path.target.meta); // NB: points to backref stub.
+
+      const ls = await Fs.ls(target);
+      expect(ls.includes(a.path.target.meta)).to.be.true;
+      expect(ls.includes(b.path.target.meta)).to.be.true;
+      expect(await Fs.exists(Fs.join(a.path.target.root, 'dir'))).to.be.true;
+      expect(await Fs.exists(Fs.join(b.path.target.root, 'dir'))).to.be.false;
+
+      const metaA = await loadMeta(a.path.target.meta);
+      const metaB = await loadMeta(b.path.target.meta);
+      expect(metaA).to.not.eql(metaB);
+      expect(metaA?.hx).to.eql(metaB?.hx);
+      expect(metaA?.is.backref).to.eql(false);
+      expect(metaB?.is.backref).to.eql(true);
+    });
+
   });
 });
