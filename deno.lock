@@ -2972,7 +2972,7 @@
       "jsr:@std/datetime@0.225.2",
       "jsr:@std/dotenv@0.225.3",
       "jsr:@std/encoding@1",
-      "jsr:@std/fmt@1",
+      "jsr:@std/fmt@1.0.3",
       "jsr:@std/fs@1.0.6",
       "jsr:@std/path@1.0.8",
       "jsr:@std/semver@1.0.3",
