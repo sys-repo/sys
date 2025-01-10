@@ -66,7 +66,7 @@ export const write: F = async (args) => {
     timestamp,
     hx,
     path,
-    is: { backref },
+    is: { ref: backref },
     error: errors.toError(),
   };
   return res;
@@ -75,8 +75,8 @@ export const write: F = async (args) => {
 /**
  * Helpers
  */
-const writeMeta = async (path: t.StringPath, hx: t.CompositeHash, ref: boolean) => {
-  const meta: t.DirSnapshotMeta = { hx, is: { ref } };
+const writeMeta = async (path: t.StringPath, hx: t.CompositeHash, isRef: boolean) => {
+  const meta: t.DirSnapshotMeta = isRef ? { ref: true, hx } : { hx };
   await Fs.writeJson(path, meta);
 };
 

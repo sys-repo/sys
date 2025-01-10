@@ -48,7 +48,7 @@ describe('Fs.Dir.Snapshot', () => {
       expect(snapshot.hx).to.eql(hxTarget);
       expect(snapshot.hx).to.eql(hxSource);
       expect(snapshot.path.target.root.endsWith(hxTarget.digest.slice(-5))).to.be.true;
-      expect(snapshot.is.backref).to.eql(false);
+      expect(snapshot.is.ref).to.eql(false);
 
       console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
       console.info(`${c.brightCyan('ls')}("${c.gray(target)}"):\n`, await Fs.ls(target));
@@ -123,8 +123,8 @@ describe('Fs.Dir.Snapshot', () => {
       await Time.wait(10); // NB: different timestamp.
       const b = await Dir.snapshot({ source, target });
 
-      expect(a.is.backref).to.eql(false);
-      expect(b.is.backref).to.eql(true);
+      expect(a.is.ref).to.eql(false);
+      expect(b.is.ref).to.eql(true);
       expect(a.path.target.root.endsWith('.ref')).to.be.false;
       expect(b.path.target.root.endsWith('.ref')).to.be.true;
 
@@ -141,8 +141,8 @@ describe('Fs.Dir.Snapshot', () => {
       const metaB = await loadMeta(b.path.target.meta);
       expect(metaA).to.not.eql(metaB);
       expect(metaA?.hx).to.eql(metaB?.hx);
-      expect(metaA?.is.ref).to.eql(false);
-      expect(metaB?.is.ref).to.eql(true);
+      expect(metaA?.ref).to.eql(undefined);
+      expect(metaB?.ref).to.eql(true);
     });
 
     it('options: {force} ← backref not used', async () => {
@@ -153,8 +153,8 @@ describe('Fs.Dir.Snapshot', () => {
       await Time.wait(10); // NB: different timestamp.
       const b = await Dir.snapshot({ source, target, force: true });
 
-      expect(a.is.backref).to.eql(false);
-      expect(b.is.backref).to.eql(false);
+      expect(a.is.ref).to.eql(false);
+      expect(b.is.ref).to.eql(false);
       expect(a.path.target.root.endsWith('.backref')).to.be.false;
       expect(b.path.target.root.endsWith('.backref')).to.be.false;
 
@@ -163,8 +163,8 @@ describe('Fs.Dir.Snapshot', () => {
       const metaA = await loadMeta(a.path.target.meta);
       const metaB = await loadMeta(b.path.target.meta);
       expect(metaA).to.eql(metaB); // NB: equivalient duplicated snapshot directories.
-      expect(metaA?.is.ref).to.eql(false);
-      expect(metaB?.is.ref).to.eql(false);
+      expect(metaA?.ref).to.eql(undefined);
+      expect(metaB?.ref).to.eql(undefined);
     });
   });
 });
