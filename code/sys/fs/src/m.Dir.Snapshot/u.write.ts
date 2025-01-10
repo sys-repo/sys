@@ -87,7 +87,7 @@ const wrangle = {
   },
 
   short(digest: t.StringHash) {
-    return digest.slice(-5);
+    return digest.slice(-5) || '0'.repeat(5);
   },
 
   paths(
