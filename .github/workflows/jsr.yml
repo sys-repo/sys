@@ -35,6 +35,12 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish
 
+      - name: publish module → "@sys/tmpl"
+        run: |
+          cd code/sys/tmpl
+          deno task test --parallel --trace-leaks
+          deno publish
+
       - name: publish module → "@sys/driver-orbiter"
         run: |
           cd code/sys.driver/driver-orbiter
