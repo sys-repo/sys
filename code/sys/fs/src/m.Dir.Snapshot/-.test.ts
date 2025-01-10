@@ -51,6 +51,7 @@ describe('Fs.Dir.Snapshot', () => {
       expect(snapshot.is.backref).to.eql(false);
 
       console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
+      console.info(`${c.brightCyan('ls')}("${c.gray(target)}"):\n`, await Fs.ls(target));
     });
 
     it('run: Dir.snapshot("source", "target")', async () => {
@@ -124,8 +125,8 @@ describe('Fs.Dir.Snapshot', () => {
 
       expect(a.is.backref).to.eql(false);
       expect(b.is.backref).to.eql(true);
-      expect(a.path.target.root.endsWith('.backref')).to.be.false;
-      expect(b.path.target.root.endsWith('.backref')).to.be.true;
+      expect(a.path.target.root.endsWith('.ref')).to.be.false;
+      expect(b.path.target.root.endsWith('.ref')).to.be.true;
 
       expect(b.path.target.files).to.eql(a.path.target.files); //   NB: points to referenced files.
       expect(b.path.target.meta).to.not.eql(a.path.target.meta); // NB: points to backref stub.

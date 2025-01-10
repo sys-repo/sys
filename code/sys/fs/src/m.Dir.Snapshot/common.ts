@@ -7,6 +7,6 @@ export const NAME = {
   dir: 'dir',
   meta: 'dir.json',
   prefix: 'snapshot',
-  ext: { backref: '.backref' },
+  ext: { backref: '.ref' },
 } as const;
 export const DEFAULTS = { NAME } as const;
