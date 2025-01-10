@@ -10,6 +10,7 @@
     "jsr:@std/assert@^1.0.10": "1.0.10",
     "jsr:@std/assert@^1.0.9": "1.0.10",
     "jsr:@std/assert@~1.0.6": "1.0.10",
+    "jsr:@std/cli@1.0.9": "1.0.9",
     "jsr:@std/datetime@0.225.2": "0.225.2",
     "jsr:@std/dotenv@0.225.3": "0.225.3",
     "jsr:@std/encoding@1": "1.0.6",
@@ -38,7 +39,7 @@
     "npm:@jsr/std__fmt@^1.0.3": "1.0.3",
     "npm:@jsr/std__path@1.0.8": "1.0.8",
     "npm:@jsr/std__semver@1.0.3": "1.0.3",
-    "npm:@jsr/std__testing@1.0.6": "1.0.6",
+    "npm:@jsr/std__testing@1.0.8": "1.0.8",
     "npm:@jsr/std__uuid@1.0.4": "1.0.4",
     "npm:@noble/hashes@1.6.1": "1.6.1",
     "npm:@noble/hashes@1.7.0": "1.7.0",
@@ -137,6 +138,9 @@
       "dependencies": [
         "jsr:@std/internal"
       ]
+    },
+    "@std/cli@1.0.9": {
+      "integrity": "557e5865af000efbf3f737dcfea5b8ab86453594f4a9cd8d08c9fa83d8e3f3bc"
     },
     "@std/datetime@0.225.2": {
       "integrity": "45f0100554a912cd65f48089ef0a33aa1eb6ea21f08090840b539ab582827eaa"
@@ -787,8 +791,8 @@
     "@jsr/std__semver@1.0.3": {
       "integrity": "sha512-d1uBT0Muxhd3yBIw9ZE1Q/4N1Y0td0EJe1AqwM3hP05IMwaWQV/miksQOPR3rup3bVovuIvqBm7WJcoUripdQA=="
     },
-    "@jsr/std__testing@1.0.6": {
-      "integrity": "sha512-9zxSR8HWhGN7XhYLkZ9LntXLcY9o2vjptay8vHcYWUoGjaINITREeeetYzVFEEvF3++MfL2BvD86WcrWahDy8A==",
+    "@jsr/std__testing@1.0.8": {
+      "integrity": "sha512-TfUc6LXIKfv1qUd6igcTHt9ayaH77v7GQ/x3sBXf+iIJpsbisYXsvet5Cgt+AZcSzPRAc16jIKPUTukiLbrx6A==",
       "dependencies": [
         "@jsr/std__assert",
         "@jsr/std__async",
@@ -2923,6 +2927,7 @@
       "jsr:@cliffy/keypress@1.0.0-rc.7",
       "jsr:@cliffy/prompt@1.0.0-rc.7",
       "jsr:@cliffy/table@1.0.0-rc.7",
+      "jsr:@std/cli@1.0.9",
       "jsr:@std/datetime@0.225.2",
       "jsr:@std/dotenv@0.225.3",
       "jsr:@std/encoding@1.0.6",
@@ -2971,7 +2976,7 @@
         "npm:@jsr/std__fmt@^1.0.3",
         "npm:@jsr/std__path@1.0.8",
         "npm:@jsr/std__semver@1.0.3",
-        "npm:@jsr/std__testing@1.0.6",
+        "npm:@jsr/std__testing@1.0.8",
         "npm:@jsr/std__uuid@1.0.4",
         "npm:@swc/plugin-emotion@8.0.3",
         "npm:@types/react-dom@18.3.1",

@@ -7,7 +7,7 @@
     "@std/fmt": "npm:@jsr/std__fmt@^1.0.3",
     "@std/path": "npm:@jsr/std__path@1.0.8",
     "@std/semver": "npm:@jsr/std__semver@1.0.3",
-    "@std/testing": "npm:@jsr/std__testing@1.0.6",
+    "@std/testing": "npm:@jsr/std__testing@1.0.8",
     "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
     "@vidstack/react": "next",
     "@emotion/react": "11.14.0",
