@@ -2,7 +2,7 @@
   "imports": {
     "@std/datetime": "jsr:@std/datetime@0.225.2",
     "@std/dotenv": "jsr:@std/dotenv@0.225.3",
-    "@std/encoding": "jsr:@std/encoding@1",
+    "@std/encoding": "jsr:@std/encoding@1.0.6",
     "@std/fs": "jsr:@std/fs@1.0.8",
 
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7",
