@@ -1,7 +1,7 @@
 import { Process } from '@sys/proc';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
-import { type t, Args, c, Env, Jsr, PATHS, pkg } from './common.ts';
+import { type t, Args, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
@@ -37,13 +37,13 @@ export async function upgrade(argv: string[]) {
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
     const direction = isGreater ? 'Upgrading' : 'Downgrading';
 
-    const message = `${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`;
-    await Env.backup({ inDir, message }); // Safety: make backup before making changes.
+    const msg = `${direction} local version ${c.gray(pkg.version)} to → ${c.green(version)}`;
+    await Env.backup({ inDir, message: stripAnsi(msg) }); // Safety: make backup before making changes.
 
     const cmd = `deno run -A jsr:@sys/driver-vitepress@${version}/init`;
 
     console.info();
-    console.info(message);
+    console.info(msg);
     console.info(c.gray(`${c.italic('running template:')} ${c.cyan(cmd)}`));
     console.info();
 
