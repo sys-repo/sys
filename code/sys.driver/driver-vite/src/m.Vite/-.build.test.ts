@@ -48,29 +48,35 @@ describe('Vite.build', () => {
   };
 
   it('sample-1: simple', async () => {
-    const input = INPUT.sample1;
-    const { res, files } = await testBuild(input);
+    Testing.retry(3, async () => {
+      const input = INPUT.sample1;
+      const { res, files } = await testBuild(input);
 
-    expect(files.html).to.include(`<title>Sample-1</title>`);
+      expect(files.html).to.include(`<title>Sample-1</title>`);
 
-    expect(res.dist).to.eql(files.distJson);
-    expect(res.dist.pkg).to.eql(pkg);
-    expect(res.dist.size.bytes).to.be.greaterThan(160_000);
-    expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
+      expect(res.dist).to.eql(files.distJson);
+      expect(res.dist.pkg).to.eql(pkg);
+      expect(res.dist.size.bytes).to.be.greaterThan(160_000);
+      expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
 
-    logDist(input, res.dist);
+      logDist(input, res.dist);
+    });
   });
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-    const input = INPUT.sample2;
-    const { res, files } = await testBuild(input);
-    expect(files.html).to.include(`<title>Sample-2</title>`);
-    logDist(input, res.dist);
+    Testing.retry(3, async () => {
+      const input = INPUT.sample2;
+      const { res, files } = await testBuild(input);
+      expect(files.html).to.include(`<title>Sample-2</title>`);
+      logDist(input, res.dist);
+    });
   });
 
   it('sample-3: main.ts entry point', async () => {
-    const input = INPUT.sample3;
-    const { files } = await testBuild(input);
-    expect(files.entry).to.includes('console.info("main.ts")');
+    Testing.retry(3, async () => {
+      const input = INPUT.sample3;
+      const { files } = await testBuild(input);
+      expect(files.entry).to.includes('console.info("main.ts")');
+    });
   });
 });

@@ -31,9 +31,11 @@ const now = new Date();
  * Namespace: @sys
  */
 console.group('🌳 import: @sys/std');
-import { Args, D, IndexedDb, Path, Time, rx } from '@sys/std';
-import { Semver } from '@sys/std/semver';
+import { Json } from '@sys/driver-immer';
+import { Args, D, Path, Time, rx } from '@sys/std';
+import { IndexedDb } from '@sys/std/indexeddb';
 import { Jsr } from '@sys/std/jsr';
+import { Semver } from '@sys/std/semver';
 import { Str } from '@sys/text';
 
 console.info('@sys/std:rx', rx);
@@ -53,6 +55,5 @@ console.groupEnd();
  * Namespace: @sys_driver
  */
 console.group('🌳 import: @sys/driver');
-import { Json } from '@sys/driver-immer';
 console.info('@sys/driver-immer', Json);
 console.groupEnd();
