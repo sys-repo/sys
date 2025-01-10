@@ -10,11 +10,6 @@
     "jsr:@std/assert@^1.0.10": "1.0.10",
     "jsr:@std/assert@^1.0.9": "1.0.10",
     "jsr:@std/assert@~1.0.6": "1.0.10",
-    "jsr:@std/async@1.0.9": "1.0.9",
-    "jsr:@std/async@^1.0.9": "1.0.9",
-    "jsr:@std/bytes@^1.0.2": "1.0.4",
-    "jsr:@std/cli@1.0.9": "1.0.9",
-    "jsr:@std/crypto@^1.0.3": "1.0.3",
     "jsr:@std/datetime@0.225.2": "0.225.2",
     "jsr:@std/dotenv@0.225.3": "0.225.3",
     "jsr:@std/encoding@1": "1.0.6",
@@ -28,10 +23,7 @@
     "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/path@~1.0.6": "1.0.8",
-    "jsr:@std/semver@1.0.3": "1.0.3",
-    "jsr:@std/testing@1.0.8": "1.0.8",
     "jsr:@std/text@~1.0.7": "1.0.9",
-    "jsr:@std/uuid@1.0.4": "1.0.4",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-indexeddb@1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1_@types+node@22.5.4",
@@ -145,18 +137,6 @@
         "jsr:@std/internal"
       ]
     },
-    "@std/async@1.0.9": {
-      "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
-    },
-    "@std/bytes@1.0.4": {
-      "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
-    },
-    "@std/cli@1.0.9": {
-      "integrity": "557e5865af000efbf3f737dcfea5b8ab86453594f4a9cd8d08c9fa83d8e3f3bc"
-    },
-    "@std/crypto@1.0.3": {
-      "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
-    },
     "@std/datetime@0.225.2": {
       "integrity": "45f0100554a912cd65f48089ef0a33aa1eb6ea21f08090840b539ab582827eaa"
     },
@@ -184,25 +164,8 @@
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     },
-    "@std/semver@1.0.3": {
-      "integrity": "7c139c6076a080eeaa4252c78b95ca5302818d7eafab0470d34cafd9930c13c8"
-    },
-    "@std/testing@1.0.8": {
-      "integrity": "ceef535808fb7568e91b0f8263599bd29b1c5603ffb0377227f00a8ca9fe42a2",
-      "dependencies": [
-        "jsr:@std/assert@^1.0.10",
-        "jsr:@std/internal"
-      ]
-    },
     "@std/text@1.0.9": {
       "integrity": "b2db4abc3e6ab93eb0280a0d5e126fd3fca80955bcc297ccaaf555e995eab747"
-    },
-    "@std/uuid@1.0.4": {
-      "integrity": "f4233149cc8b4753cc3763fd83a7c4101699491f55c7be78dc7b30281946d7a0",
-      "dependencies": [
-        "jsr:@std/bytes",
-        "jsr:@std/crypto"
-      ]
     }
   },
   "npm": {
@@ -2959,17 +2922,10 @@
       "jsr:@cliffy/keypress@1.0.0-rc.7",
       "jsr:@cliffy/prompt@1.0.0-rc.7",
       "jsr:@cliffy/table@1.0.0-rc.7",
-      "jsr:@std/async@1.0.9",
-      "jsr:@std/cli@1.0.9",
       "jsr:@std/datetime@0.225.2",
       "jsr:@std/dotenv@0.225.3",
       "jsr:@std/encoding@1",
-      "jsr:@std/fmt@1.0.3",
       "jsr:@std/fs@1.0.8",
-      "jsr:@std/path@1.0.8",
-      "jsr:@std/semver@1.0.3",
-      "jsr:@std/testing@1.0.8",
-      "jsr:@std/uuid@1.0.4",
       "npm:@automerge/automerge-repo-network-broadcastchannel@1",
       "npm:@automerge/automerge-repo-storage-indexeddb@1",
       "npm:@automerge/automerge-repo-storage-nodefs@1",
