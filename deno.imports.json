@@ -25,6 +25,7 @@
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
     "@noble/hashes": "npm:@noble/hashes@1.7.0",
+    "@noble/hashes/*": "npm:@noble/hashes@1.7.0/*",
 
     "react-error-boundary": "npm:react-error-boundary@4",
     "react-inspector": "npm:react-inspector@6",

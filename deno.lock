@@ -31,13 +31,13 @@
     "npm:@automerge/automerge-repo@1": "1.2.1",
     "npm:@automerge/automerge@2": "2.2.8",
     "npm:@emotion/react@11.14.0": "11.14.0_react@18.3.1",
-    "npm:@jsr/noble__hashes@1.7.0": "1.7.0",
     "npm:@jsr/std__async@1.0.9": "1.0.9",
     "npm:@jsr/std__datetime@0.225.2": "0.225.2",
     "npm:@jsr/std__path@1.0.8": "1.0.8",
     "npm:@jsr/std__semver@1.0.3": "1.0.3",
     "npm:@jsr/std__testing@1.0.8": "1.0.8",
     "npm:@jsr/std__uuid@1.0.4": "1.0.4",
+    "npm:@noble/hashes@1": "1.7.0",
     "npm:@noble/hashes@1.7.0": "1.7.0",
     "npm:@onsetsoftware/automerge-patcher@0.14.0": "0.14.0_@automerge+automerge@2.2.8",
     "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
@@ -752,9 +752,6 @@
         "@jridgewell/resolve-uri",
         "@jridgewell/sourcemap-codec"
       ]
-    },
-    "@jsr/noble__hashes@1.7.0": {
-      "integrity": "sha512-Gyp15jGvDIyaogZaaziJRlZV38rG0tO0vGOFPU5fCVmJvahcgrmwXpCiE9SL3USaR6dY1Bp7Z6h/qThyukq/Nw=="
     },
     "@jsr/std__assert@1.0.10": {
       "integrity": "sha512-CtUmSFZCxOoyxwhCgaaksNW1Wnf++texZNyrwXC/p32Fm+3ciHgY8oXVsd/BtjoSy3ChB/XkMOu162tnFSkGaA==",
@@ -2870,13 +2867,13 @@
     "packageJson": {
       "dependencies": [
         "npm:@emotion/react@11.14.0",
-        "npm:@jsr/noble__hashes@1.7.0",
         "npm:@jsr/std__async@1.0.9",
         "npm:@jsr/std__datetime@0.225.2",
         "npm:@jsr/std__path@1.0.8",
         "npm:@jsr/std__semver@1.0.3",
         "npm:@jsr/std__testing@1.0.8",
         "npm:@jsr/std__uuid@1.0.4",
+        "npm:@noble/hashes@1.7.0",
         "npm:@swc/plugin-emotion@8.0.3",
         "npm:@types/minimist@1.2.5",
         "npm:@types/react-dom@18.3.1",
