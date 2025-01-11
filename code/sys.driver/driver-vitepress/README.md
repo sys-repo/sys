@@ -10,6 +10,13 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 
 ---
 
+New (Initialize)
+
+```bash
+deno run -A jsr:@sys/driver-vitepress/init
+```
+
+
 <p>&nbsp;<p>
 
 ### Build Pipeline (Compilation Toolchain)
@@ -17,11 +24,6 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 ![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/5d631b2e-8e76-4ec8-3ca2-d4943e70b100/original)
 
 
-### Generator (Initialize)
-
-```bash
-deno run -A jsr:@sys/driver-vitepress/init
-```
 
 ### Command Interface (Common)
 
