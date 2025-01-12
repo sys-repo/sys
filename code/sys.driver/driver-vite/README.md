@@ -2,6 +2,12 @@
 
 Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and dev-harness within [Deno](https://docs.deno.com/) workspaces.
 
+<p>&nbsp;<p>
+
+NB: <UI Framework™️> agnostic.
+
+---
+
 ### References
 
 - [JSR Docs: Vite](https://jsr.io/docs/with/vite) (Build Tool)
