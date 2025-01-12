@@ -10,7 +10,7 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 
 ---
 
-New (Initialize)
+### Initialize (New Instance)
 
 ```bash
 deno run -A jsr:@sys/driver-vitepress/init
