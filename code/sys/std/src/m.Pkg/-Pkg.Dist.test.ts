@@ -1,6 +1,6 @@
 import { type t, describe, expect, it } from '../-test.ts';
 import { slug } from '../m.Id/mod.ts';
-import { Testing } from '../m.Testing.HttpServer/mod.ts';
+import { Testing } from '../m.Testing.Server/mod.ts';
 import { Dist, Pkg } from './mod.ts';
 
 describe('Pkg.Dist', () => {
