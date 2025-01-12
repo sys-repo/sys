@@ -1,10 +1,15 @@
-import { describe, it } from '../-test.ts';
-import { c } from './mod.ts';
+import { describe, expect, it } from '../-test.ts';
+import { c, Colors } from './mod.ts';
 
 describe('Fmt', () => {
+  it('API', () => {
+    expect(Colors.c).to.equal(c);
+  });
+
   describe('Colors', () => {
     it('sample', () => {
-      console.log(`I see a ${c.red('red door')} and I want it painted ${c.black('black')}`);
+      const msg = `I see a ${c.brightCyan('cyan door')} and I want it painted ${c.black('black')}.`;
+      console.info(msg);
     });
   });
 });

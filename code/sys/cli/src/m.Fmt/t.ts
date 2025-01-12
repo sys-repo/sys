@@ -4,11 +4,17 @@ import type { t } from './common.ts';
  * CLI color formatting tools.
  */
 export type FmtColorsLib = {
-  //
+  c: AnsiColors;
 };
 
+/**
+ * Wraps the given text in an [ANSI] color wrapper.
+ */
 export type WrapAnsiColor = (text: string) => string;
 
+/**
+ * Index of ANSI color-wrapping methods.
+ */
 export type AnsiColors = {
   bgBlack: WrapAnsiColor;
   bgBlue: WrapAnsiColor;
