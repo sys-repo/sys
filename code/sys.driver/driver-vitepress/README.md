@@ -10,7 +10,9 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 
 ---
 
-### Initialize (New Instance)
+
+### Initialize (New Instance): 🧫
+Scaffold new project instance with the current-working-directory (`cwd`) of the file-system:
 
 ```bash
 deno run -A jsr:@sys/driver-vitepress/init
@@ -19,7 +21,7 @@ deno run -A jsr:@sys/driver-vitepress/init
 
 <p>&nbsp;<p>
 
-### Build Pipeline (Compilation Toolchain)
+### Build Toolchain (Compilation → Pipeline → 💦)
 
 ![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/5d631b2e-8e76-4ec8-3ca2-d4943e70b100/original)
 
