@@ -12,7 +12,7 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 
 
 ### Initialize (New Instance): 🧫
-Scaffold new project instance with the current-working-directory (`cwd`) of the file-system:
+Scaffold a new project within the current-working-directory (`cwd`) of the file-system:
 
 ```bash
 deno run -A jsr:@sys/driver-vitepress/init
