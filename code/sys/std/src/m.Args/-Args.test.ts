@@ -6,8 +6,6 @@ describe('Args', () => {
     /**
      * Source:
      *  - samples:       https://www.npmjs.com/package/minimist
-     *  - wraps module:  @std/cli/parse-args
-     *                   https://jsr.io/@std/cli
      */
     it('sample: from minimist (1)', () => {
       type Flag = 'beep' | 'boop';

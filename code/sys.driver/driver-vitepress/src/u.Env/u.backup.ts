@@ -13,6 +13,7 @@ dist/
  * Create a backup snapshot.
  */
 export const backup: t.VitePressEnvLib['backup'] = async (args) => {
+  const { force, message } = args;
   const inDir = Path.resolve(args.inDir);
 
   const source = Path.join(inDir);
@@ -32,7 +33,13 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
 
   // Copy directory snapshot.
   const spinner = Cli.spinner('').start();
-  const snapshot = await Dir.snapshot({ source, target, filter });
+  const snapshot = await Dir.snapshot({
+    source,
+    target,
+    filter,
+    force,
+    message,
+  });
   spinner.stop().clear();
 
   // Log output.

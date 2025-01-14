@@ -1,4 +1,3 @@
-import type { FormatOptions } from '@std/fmt/bytes';
 import type * as StdFs from '@std/fs';
 import type * as StdPath from '@std/path';
 
@@ -203,7 +202,7 @@ export type FsReadJsonResponse<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;
-  readonly json?: T;
+  readonly data?: T;
   readonly error?: Error;
   readonly errorReason?: 'NotFound' | 'ParseError' | 'Unknown';
 };
@@ -247,5 +246,5 @@ export type FsDirSize = {
   readonly exists: boolean;
   readonly path: t.StringDir;
   readonly total: { files: number; bytes: number };
-  toString(options?: FormatOptions): string;
+  toString(options?: t.FormatBytesOptions): string;
 };

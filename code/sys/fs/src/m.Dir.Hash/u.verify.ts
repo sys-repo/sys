@@ -23,7 +23,7 @@ export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
     if (!file.exists) {
       errors.push(`Hash data to compare does not exist in a file at specified path: ${path}`);
     } else {
-      hash = file.json?.hash;
+      hash = file.data?.hash;
       if (!Hash.Is.composite(hash)) {
         errors.push(`File does not contain a { hash: <CompositeHash> } structure: ${path}`);
       }

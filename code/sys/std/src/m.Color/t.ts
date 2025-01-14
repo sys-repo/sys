@@ -100,6 +100,6 @@ export type ColorConstants = {
   PURPLE: t.StringHex;
   /** The color red. */
   RED: t.StringHex;
-  /** Standard "ruby" RED color (semi-transparent). */
+  /** Debugger "ruby" RED color (semi-transparent). */
   RUBY: t.StringHex;
 };

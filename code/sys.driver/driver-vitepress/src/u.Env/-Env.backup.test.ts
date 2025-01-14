@@ -1,20 +1,14 @@
-import { type t, Fs, Ignore, PATHS, Testing, describe, expect, it } from '../-test.ts';
+import { type t, Fs, PATHS, Testing, describe, expect, it } from '../-test.ts';
 import { Sample } from '../m.VitePress/-u.ts';
 import { VitePress } from '../m.VitePress/mod.ts';
 import { Env } from './mod.ts';
 
 describe('cmd: backup (shapshot)', () => {
-  const setup = async () => {
-    const text = await Deno.readTextFile(Fs.join(PATHS.tmpl.source, '.gitignore'));
-    const gitignore = Ignore.create(text);
-    return { gitignore };
-  };
-
   const assertExists = async (dir: string, exists = true) => {
     expect(await Fs.exists(dir)).to.eql(exists, dir);
   };
 
-  it('perform backup copy', async () => {
+  it('perform backup copy', { sanitizeResources: false, sanitizeOps: false }, async () => {
     /**
      *
      * sequence:
@@ -41,7 +35,7 @@ describe('cmd: backup (shapshot)', () => {
 
         const res = await Env.backup({ inDir, includeDist });
         const snapshot = res.snapshot;
-        const targetDir = snapshot.path.target;
+        const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);
 
         // NB: not copied (ecluded via .ignore list).

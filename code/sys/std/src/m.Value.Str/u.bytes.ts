@@ -1,9 +1,6 @@
-import { format } from '@std/fmt/bytes';
+import prettyBytes from 'pretty-bytes';
 import type { t } from './common.ts';
 
 export const bytes: t.FormatBytes = (num, options = {}) => {
-  const { compact = false } = options;
-  let str = format(num ?? 0, options);
-  if (compact) str = str.replace(/\s/g, '');
-  return str;
+  return prettyBytes(num ?? 0, options);
 };

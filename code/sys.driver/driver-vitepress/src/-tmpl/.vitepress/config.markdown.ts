@@ -1,4 +1,3 @@
-
 import type { MarkdownRenderer } from 'vitepress';
 import { parse } from 'yaml';
 
@@ -26,6 +25,14 @@ export const markdown = {
           if (yaml.debug) html = `${html}\n${defaultHtml}`;
           return html;
         }
+
+        if (yaml?.component === 'ConceptPlayer') {
+          const defaultHtml = defaultFence(tokens, idx, options, env, self);
+          const src = yaml.video || '';
+          let html = `<Video src="${src}"/>`;
+          if (yaml.debug) html = `${html}\n${defaultHtml}`;
+          return html;
+        }
       }
 
       // No overriden matches found, return default rendering.
@@ -33,5 +40,3 @@ export const markdown = {
     };
   },
 };
-
-

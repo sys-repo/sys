@@ -1,10 +1,10 @@
 import type { t } from './common.ts';
 
-export const RUBY = `rgba(255, 0, 0, 0.1)`; // Standard "ruby" RED color (semi-transparent).
+export const RUBY = `rgba(255, 0, 0, 0.1)`; // Debugger "ruby" RED color (semi-transparent).
 
 export const BLACK = '#000';
 export const WHITE = '#FFFFFF';
-export const DARK = '#293042'; // Inky blue/black
+export const DARK = '#293042'; // Inky blue/black.
 export const CYAN = '#00C2FF';
 export const MAGENTA = '#FE0064';
 export const BLUE = '#4D7EF7';

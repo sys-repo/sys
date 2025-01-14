@@ -12,6 +12,10 @@ import { type t, pkg } from './common.ts';
 import { Cmd } from './m.Cmd.ts';
 
 export { Cmd };
+
+/**
+ * Standardised "<Main Entry>" system behaviors.
+ */
 export const Main: t.SysMainLib = {
   Cmd,
   pkg,

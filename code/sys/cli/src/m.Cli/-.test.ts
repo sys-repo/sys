@@ -1,6 +1,6 @@
 import { Args, Path } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
-import { c, Cli, Format, Keyboard, Prompts, Spinner, Table } from './mod.ts';
+import { c, Cli, Format, Keyboard, Prompt, Spinner, Table } from './mod.ts';
 
 describe('Cli', () => {
   it('API', () => {
@@ -9,7 +9,7 @@ describe('Cli', () => {
 
     expect(Cli.Format).to.equal(Format);
     expect(Cli.Keyboard).to.equal(Keyboard);
-    expect(Cli.Prompts).to.equal(Prompts);
+    expect(Cli.Prompt).to.equal(Prompt);
     expect(Cli.Spinner).to.equal(Spinner);
     expect(Cli.Table).to.equal(Table);
 

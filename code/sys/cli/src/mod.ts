@@ -18,7 +18,13 @@ export type * as t from './types.ts';
  * Library
  */
 export { Args } from './common.ts';
-export { c, Colors, stripAnsi } from './m.Fmt/mod.ts';
+export {
+  /** Standard ANSI colors. */
+  c,
+  /**  */
+  Colors,
+  stripAnsi,
+} from './m.Fmt/mod.ts';
 export { Cli };
 
 export default Cli;

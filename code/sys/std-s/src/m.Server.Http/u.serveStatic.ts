@@ -1,4 +1,4 @@
-import { serveStatic as honoStatic } from '@hono/hono/deno';
+import { serveStatic as honoStatic } from 'hono/deno';
 import type { t } from './common.ts';
 
 type Input = Parameters<t.HttpServeStatic>[0];

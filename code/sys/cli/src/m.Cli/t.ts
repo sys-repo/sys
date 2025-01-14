@@ -41,7 +41,7 @@ export type CliLib = {
   readonly Keyboard: t.CliKeyboardLib;
 
   /** Index of input prompts */
-  readonly Prompts: t.CliPromptsLib;
+  readonly Prompt: t.CliPromptLib;
 
   /** Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];
@@ -56,7 +56,7 @@ export type CliLib = {
   wait: t.TimeLib['wait'];
 
   /** Boolean: Yes/No confirmation. */
-  confirm: t.CliPromptsLib['Confirm']['prompt'];
+  confirm: t.CliPromptLib['Confirm']['prompt'];
 
   /** Listen to keypress events. */
   keypress: t.CliKeyboardLib['keypress'];
@@ -91,7 +91,7 @@ export type CliSpinnerLib = {
 /**
  * Index of input prompts.
  */
-export type CliPromptsLib = {
+export type CliPromptLib = {
   /**
    * Text input prompt (String).
    */
