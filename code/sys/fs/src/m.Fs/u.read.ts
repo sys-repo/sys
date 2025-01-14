@@ -22,7 +22,7 @@ export const readJson: t.FsReadJson = async <T>(path: string) => {
       return {
         ok: true,
         exists: true,
-        json: JSON.parse(text) as T,
+        data: JSON.parse(text) as T,
         path,
       };
     } catch (error: any) {

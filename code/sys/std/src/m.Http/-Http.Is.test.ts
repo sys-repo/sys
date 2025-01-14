@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../m.Testing.HttpServer/mod.ts';
+import { Testing, describe, expect, it } from '../m.Testing.Server/mod.ts';
 import { Http } from './mod.ts';
 
 describe('Http.Is', () => {

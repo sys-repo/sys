@@ -19,6 +19,8 @@ describe('Jsr', () => {
           expect(res.status).to.eql(200);
           expect(res.error).to.eql(undefined);
 
+          console.log('res', res);
+
           expect(res.data?.scope).to.eql('sys');
           expect(res.data?.name).to.eql('std');
 

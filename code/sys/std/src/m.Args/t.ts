@@ -1,5 +1,3 @@
-import type { parseArgs } from '@std/cli/parse-args';
-
 type O = Record<string, any>;
 
 /**
@@ -17,7 +15,7 @@ export type ArgsLib = {
   /**
    * Parse command line arguments.
    */
-  parse: typeof parseArgs;
+  parse<T extends O = O>(argv: string[]): ParsedArgs<T>;
 };
 
 /**

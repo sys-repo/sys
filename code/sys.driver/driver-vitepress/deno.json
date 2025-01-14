@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vitepress",
-  "version": "0.0.164",
+  "version": "0.0.198",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -22,6 +22,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./init": "./src/m.Cmd/-init.ts",
-    "./main": "./src/m.Cmd/-main.ts"
+    "./main": "./src/m.Cmd/-main.ts",
+    "./ui": "./src/ui/mod.ts"
   }
 }

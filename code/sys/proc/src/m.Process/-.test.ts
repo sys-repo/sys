@@ -1,4 +1,4 @@
-import { type t, Testing, describe, expect, it, rx, slug, Time } from '../-test.ts';
+import { type t, Testing, describe, expect, c, it, rx, slug, Time } from '../-test.ts';
 import { Process } from './mod.ts';
 
 describe('Process', () => {
@@ -14,13 +14,13 @@ describe('Process', () => {
 
   describe('Process.invoke (sync)', () => {
     it('invoke → stdout', async () => {
-      const args = ['eval', 'console.log("👋 hello world")'];
-      const res = await Process.invoke({ args, silent: true });
+      const args = ['eval', `console.log("👋 hello ${c.green('world')}")`];
+      const res = await Process.invoke({ args, silent: false });
 
       expect(res.code).to.eql(0);
       expect(res.success).to.eql(true);
 
-      expect(res.toString()).to.include('👋 hello world');
+      expect(res.toString()).to.include('👋 hello');
       expect(res.text.stdout).to.eql(res.toString());
       expect(res.text.stderr).to.eql('');
     });

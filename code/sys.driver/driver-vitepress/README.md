@@ -10,20 +10,24 @@ NB: \<UI Framework™️\> [agnostic](https://github.com/sys-repo/sys/edit/main/
 
 ---
 
-<p>&nbsp;<p>
 
-### Build Pipeline (Compilation Toolchain)
-
-![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/5d631b2e-8e76-4ec8-3ca2-d4943e70b100/original)
-
-
-### Generator (Initialize)
+### Initialize (New Instance): 🧫
+Scaffold a new project within the current-working-directory (`cwd`) on the local file-system:
 
 ```bash
 deno run -A jsr:@sys/driver-vitepress/init
 ```
 
-### Command Interface (Common API Surface)
+
+<p>&nbsp;<p>
+
+### Build Toolchain (Compilation → Pipeline → 💦)
+
+![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/5d631b2e-8e76-4ec8-3ca2-d4943e70b100/original)
+
+
+
+### Command Interface (Common)
 
 ```bash
 deno task help

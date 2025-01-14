@@ -24,10 +24,10 @@ describe('Str (Text)', () => {
       expect(b).to.eql('-1 B');
     });
 
-    it('{compact}', () => {
-      const compact = true;
-      const a = Str.bytes(123, { compact });
-      const b = Str.bytes(0, { compact });
+    it('{ space:false }', () => {
+      const space = false;
+      const a = Str.bytes(123, { space });
+      const b = Str.bytes(0, { space });
       expect(a).to.eql('123B');
       expect(b).to.eql('0B');
     });

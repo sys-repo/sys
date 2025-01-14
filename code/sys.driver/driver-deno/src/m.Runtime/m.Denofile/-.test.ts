@@ -9,15 +9,15 @@ describe('Denofile', () => {
       const path = Fs.resolve('./deno.json');
       const res = await Denofile.load(path);
       expect(res.exists).to.eql(true);
-      expect(res.json?.name).to.eql('@sys/driver-deno');
-      expect(res.json?.version).to.eql(pkg.version);
+      expect(res.data?.name).to.eql('@sys/driver-deno');
+      expect(res.data?.version).to.eql(pkg.version);
     });
 
     it('path <undefined> ← default to root of [cwd]', async () => {
       const res = await Denofile.load();
       expect(res.exists).to.eql(true);
-      expect(res.json?.name).to.eql('@sys/driver-deno');
-      expect(res.json?.version).to.eql(pkg.version);
+      expect(res.data?.name).to.eql('@sys/driver-deno');
+      expect(res.data?.version).to.eql(pkg.version);
     });
 
     it('appends <deno.json> to path if directory is given', async () => {
@@ -67,7 +67,7 @@ describe('Denofile', () => {
       const b = await Denofile.workspace(undefined, { walkup: false });
 
       expect(a.exists).to.eql(true);
-      expect(a.children.dirs).to.eql(root.json?.workspace);
+      expect(a.children.dirs).to.eql(root.data?.workspace);
 
       expect(b.exists).to.eql(false);
       expect(b.children.dirs).to.eql([]);

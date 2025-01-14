@@ -1,12 +1,13 @@
 {
   "name": "@sys/driver-orbiter",
-  "version": "0.0.1",
+  "version": "0.0.21",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -RWNE --allow-run --allow-ffi",
+    "tmp": "deno run -A npm:orbiter-cli"
   },
   "exports": {
     ".": "./src/mod.ts",

@@ -3,9 +3,9 @@ import type {
   Context as HonoContext,
   MiddlewareHandler as HonoMiddlewareHandler,
   Schema as HonoSchema,
-} from '@hono/hono';
-import type { cors } from '@hono/hono/cors';
-import type { BlankSchema as HonoBlankSchema, Env as HonoEnv } from '@hono/hono/types';
+} from 'hono';
+import type { cors } from 'hono/cors';
+import type { BlankSchema as HonoBlankSchema, Env as HonoEnv } from 'hono/types';
 import type { t } from './common.ts';
 
 /**
