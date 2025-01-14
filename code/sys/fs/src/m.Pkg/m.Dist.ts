@@ -71,7 +71,7 @@ export const Dist: t.PkgDistFsLib = {
 
     let dist: t.DistPkg | undefined;
     if (exists) {
-      dist = (await Fs.readJson<t.DistPkg>(path)).json;
+      dist = (await Fs.readJson<t.DistPkg>(path)).data;
     }
 
     // Finish up.

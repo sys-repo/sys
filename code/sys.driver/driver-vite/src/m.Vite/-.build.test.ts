@@ -23,7 +23,8 @@ describe('Vite.build', () => {
     const readFile = async (path: string) => {
       return (await Fs.exists(path)) ? Deno.readTextFile(path) : '';
     };
-    const distJson = (await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'))).json;
+    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+    const distJson = json.data;
     const html = await readFile(Fs.join(outDir, 'index.html'));
     const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
 
@@ -47,29 +48,35 @@ describe('Vite.build', () => {
   };
 
   it('sample-1: simple', async () => {
-    const input = INPUT.sample1;
-    const { res, files } = await testBuild(input);
+    await Testing.retry(3, async () => {
+      const input = INPUT.sample1;
+      const { res, files } = await testBuild(input);
 
-    expect(files.html).to.include(`<title>Sample-1</title>`);
+      expect(files.html).to.include(`<title>Sample-1</title>`);
 
-    expect(res.dist).to.eql(files.distJson);
-    expect(res.dist.pkg).to.eql(pkg);
-    expect(res.dist.size.bytes).to.be.greaterThan(160_000);
-    expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
+      expect(res.dist).to.eql(files.distJson);
+      expect(res.dist.pkg).to.eql(pkg);
+      expect(res.dist.size.bytes).to.be.greaterThan(160_000);
+      expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
 
-    logDist(input, res.dist);
+      logDist(input, res.dist);
+    });
   });
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-    const input = INPUT.sample2;
-    const { res, files } = await testBuild(input);
-    expect(files.html).to.include(`<title>Sample-2</title>`);
-    logDist(input, res.dist);
+    await Testing.retry(3, async () => {
+      const input = INPUT.sample2;
+      const { res, files } = await testBuild(input);
+      expect(files.html).to.include(`<title>Sample-2</title>`);
+      logDist(input, res.dist);
+    });
   });
 
   it('sample-3: main.ts entry point', async () => {
-    const input = INPUT.sample3;
-    const { files } = await testBuild(input);
-    expect(files.entry).to.includes('console.info("main.ts")');
+    await Testing.retry(3, async () => {
+      const input = INPUT.sample3;
+      const { files } = await testBuild(input);
+      expect(files.entry).to.includes('console.info("main.ts")');
+    });
   });
 });

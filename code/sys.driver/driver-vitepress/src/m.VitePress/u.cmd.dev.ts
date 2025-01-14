@@ -19,7 +19,7 @@ export const dev: F = async (input = {}) => {
   const dirs: R['dirs'] = { in: inDir };
   const port = Net.port(options.port ?? 1234);
 
-  let params = `--port=${port}`;
+  let params = `--port=${port} --host`;
   if (open) params += ` --open`;
   const cmd = `deno run -A --node-modules-dir npm:vitepress dev ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);

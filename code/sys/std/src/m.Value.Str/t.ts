@@ -1,4 +1,4 @@
-import type { FormatOptions } from '@std/fmt/bytes';
+import type { Options as FormatOptions } from 'pretty-bytes';
 import type { t } from './common.ts';
 
 /**
@@ -7,10 +7,7 @@ import type { t } from './common.ts';
 export type FormatBytes = (num?: number, options?: FormatBytesOptions) => string;
 
 /** Options for formatting bytes → strings. */
-export type FormatBytesOptions = FormatOptions & {
-  /** Trim spaces. */
-  compact?: boolean;
-};
+export type FormatBytesOptions = FormatOptions & {};
 
 /**
  * Tools for working on strings of text.

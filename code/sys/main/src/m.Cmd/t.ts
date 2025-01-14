@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Main entry.
+ * Standardised "<Main Entry>" system beahviors.
  */
 export type SysMainLib = {
   readonly Cmd: t.SysCmdLib;

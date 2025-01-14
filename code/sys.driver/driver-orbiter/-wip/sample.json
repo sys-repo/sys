@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "cmd": "deno run -A npm:orbiter-cli",
+    "login": "deno run -RWNE --allow-sys --allow-run npm:orbiter-cli login --provider github",
+    "ls": "deno run -RWNE --allow-sys --allow-run npm:orbiter-cli list",
+    "update": "deno run -A npm:orbiter-cli update --siteId='3a666869-a53f-40a9-94c7-55b1b10d9491' dist",
+    "help": "deno run -ER  --allow-sys --allow-run npm:orbiter-cli --help"
+  },
+  "imports": {
+    "orbiter-cli": "npm:orbiter-cli@^0.0.9"
+  }
+}

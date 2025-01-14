@@ -8,7 +8,8 @@
     "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
     "backup": "deno run -RWE --allow-run <ENTRY> --cmd=backup",
     "help": "deno run -RE <ENTRY> --cmd=help",
-    "sys": "deno run -RWNE <ENTRY_MAIN>"
+    "sys": "deno run -RWNE <ENTRY_MAIN>",
+    "tmp": "deno run -A npm:orbiter-cli"
   },
   "imports": {
     "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"

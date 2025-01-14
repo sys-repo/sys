@@ -1,7 +1,7 @@
 import { type t, Args, Path, Time, Value, stripAnsi } from './common.ts';
 import { Format } from './m.Format.ts';
 import { Keyboard } from './m.Keyboard.ts';
-import { Prompts } from './m.Prompts.ts';
+import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';
 import { Table } from './m.Table.ts';
 
@@ -16,7 +16,7 @@ export const Cli: t.CliLib = {
   Path,
   Format,
   Keyboard,
-  Prompts,
+  Prompt,
 
   args: Args.parse,
   table: Table.create,
@@ -24,6 +24,6 @@ export const Cli: t.CliLib = {
   wait: Time.wait,
   keypress: Keyboard.keypress,
 
-  confirm: (options) => Prompts.Confirm.prompt(options),
+  confirm: (options) => Prompt.Confirm.prompt(options),
   stripAnsi,
 };

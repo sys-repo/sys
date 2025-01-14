@@ -1,9 +1,12 @@
-import * as Colors from '@std/fmt/colors';
+import type { t } from './common.ts';
+import * as c from './std-lib.colors.ts';
 
 export {
-  /** Color formatting helpers. */
-  Colors,
+  /** Standard ANSI colors. */
+  c,
 };
 
-/** Color formatting tools (alias to Color). */
-export const c = Colors;
+/**
+ * CLI color formatting tools.
+ */
+export const Colors: t.FmtColorsLib = { c };

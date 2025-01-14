@@ -107,12 +107,13 @@ export const Log = {
     const { inDir = PATHS.inDir } = options;
 
     const title = c.green(c.bold('Production Bundle'));
-    const size = c.gray(`${Str.bytes(dist.size.bytes)}`);
+    const size = c.white(`${Str.bytes(dist.size.bytes)}`);
     console.info(title);
 
     const digest = ViteLog.digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
-    const distPathFmt = `${Path.dirname(distPath)}/${Path.basename(distPath)}`;
+    const d = Fs.toFile(distPath);
+    const distPathFmt = `${c.green(Path.dirname(d.relative))}/${d.file.name}`;
     const pkgNameFmt = c.white(c.bold(pkg.name));
 
     const table = Cli.table([]);
@@ -120,7 +121,7 @@ export const Log = {
 
     push('size:', size);
     push('dist:', c.gray(`${distPathFmt} ${digest}`));
-    push('pkg:', c.gray(`https://jsr.io/${pkgNameFmt}@${pkg.version}`));
+    push('builder:', c.gray(`https://jsr.io/${pkgNameFmt}@${pkg.version}`));
 
     console.info(table.toString().trim());
   },
@@ -133,7 +134,7 @@ export const Log = {
     },
 
     async toString(snapshot: t.DirSnapshot) {
-      const target = snapshot.path.target;
+      const target = snapshot.path.target.root;
       const size = await Fs.Size.dir(Path.resolve(target));
 
       const backupsDir = Fs.dirname(target);
@@ -155,12 +156,12 @@ export const Log = {
       const date = new Date(snapshot.timestamp);
       const dateFmt = D.format(date, 'd MMM yyyy');
 
-      const distJson = await Pkg.Dist.compute(snapshot.path.target);
+      const distJson = await Pkg.Dist.compute(snapshot.path.target.files);
       const digest = distJson.dist?.hash.digest;
       const targetRight = `${c.white(dateFmt)} | ${HashFmt.digest(digest, { algo: false })}`;
 
       push('  source', c.gray(formatPath(snapshot.path.source)));
-      push('  target', c.gray(`${formatPath(snapshot.path.target)} | ${targetRight}`));
+      push('  target', c.gray(`${formatPath(snapshot.path.target.root)} | ${targetRight}`));
       push('  total', total.toLocaleString());
 
       return table.toString().trim();

@@ -1,4 +1,4 @@
-import { describe, it } from '@sys/std/testing';
+import { describe, it } from '@std/testing/bdd';
 import type { t } from './common.ts';
 
 describe('Types', () => {
@@ -11,8 +11,10 @@ describe('Types', () => {
       /**
        * NB: without the "@ts-ignore" supressions, the error checking proves the type.
        */
+
       // @ts-ignore: test
       obj.foo = 123;
+
       // @ts-ignore: test
       obj.child.bar = 456;
     });

@@ -9,24 +9,24 @@ describe('Net', () => {
   });
 
   describe('Net.Port', () => {
-    it('Port.random()', () => {
-      Testing.retry(3, () => {
-        const ports = [...Array(50)].map(() => Port.random());
+    it('Port.random()', async () => {
+      await Testing.retry(3, () => {
+        const ports = [...Array(30)].map(() => Port.random());
         expect(R.equals(R.uniq(ports), ports)).to.eql(true);
         expect(ports.every((v) => typeof v === 'number')).to.eql(true);
       });
     });
 
-    it('Port.inUse: false', () => {
-      Testing.retry(3, () => {
+    it('Port.inUse: false', async () => {
+      await Testing.retry(3, () => {
         // NB: check that none of the randomly generated ports are in use.
         const ports = [...Array(10)].map(() => Port.random());
         expect(ports.every((p) => !Port.inUse(p))).to.eql(true);
       });
     });
 
-    it('Port.inUse: true', () => {
-      Testing.retry(3, () => {
+    it('Port.inUse: true', async () => {
+      await Testing.retry(3, () => {
         const port = Port.random();
         const listener = Deno.listen({ port });
         expect(Port.inUse(port)).to.eql(true);

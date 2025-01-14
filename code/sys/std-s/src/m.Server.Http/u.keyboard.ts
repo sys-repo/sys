@@ -16,8 +16,8 @@ export async function keyboard(args: {
       value = ` ${value}`;
       table.push([label, value]);
     };
-    push('Quit', 'ctrl + c');
     push('Open', `o ${c.gray(c.dim('in browser'))}`);
+    push('Quit', 'ctrl + c');
     console.info(c.gray(c.dim('Keyboard')));
     console.info(table.toString().trim());
     console.info();
