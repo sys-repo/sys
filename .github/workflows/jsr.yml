@@ -168,6 +168,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/driver-ollama"
+        run: |
+          cd code/sys.driver/driver-ollama
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-orbiter"
         run: |
           cd code/sys.driver/driver-orbiter
