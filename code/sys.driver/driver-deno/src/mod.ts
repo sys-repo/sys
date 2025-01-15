@@ -11,5 +11,5 @@
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
-export { DenoCloud } from './m.Cloud/u.server/mod.ts';
+export { DenoCloud } from './m.Cloud/ns.server/mod.ts';
 export { Denofile } from './m.Runtime/mod.ts';

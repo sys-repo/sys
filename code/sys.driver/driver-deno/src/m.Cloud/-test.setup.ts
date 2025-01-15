@@ -1,7 +1,7 @@
 import { env } from '../env.ts';
 import { pkg } from './common.ts';
-import { Http, type t } from './u.server/common.ts';
-import { DenoCloud } from './u.server/mod.ts';
+import { Http, type t } from './ns.server/common.ts';
+import { DenoCloud } from './ns.server/mod.ts';
 
 /**
  * Setup a server

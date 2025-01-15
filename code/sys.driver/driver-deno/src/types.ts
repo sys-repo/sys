@@ -4,10 +4,10 @@
  */
 
 /** Deno Cloud */
-export type * from './m.Cloud/u.client/t.ts';
-export type * from './m.Cloud/u.server/t.ts';
-export type * from './m.Cloud/u.server/r.root/t.ts';
-export type * from './m.Cloud/u.server/r.subhosting/t.ts';
+export type * from './m.Cloud/ns.client/t.ts';
+export type * from './m.Cloud/ns.server/t.ts';
+export type * from './m.Cloud/ns.server/r.root/t.ts';
+export type * from './m.Cloud/ns.server/r.subhosting/t.ts';
 
 /** Deno Runtime */
 export type * from './m.Runtime/m.Denofile/t.ts';
