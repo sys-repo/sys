@@ -38,6 +38,7 @@ export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { maybeWait, Promise } from './m.Promise/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
+export { Url } from './m.Url/mod.ts';
 export { Array, asArray, isObject, isRecord, Num, Str, Value } from './m.Value/mod.ts';
 
 export { R } from './common.ts';
