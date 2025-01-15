@@ -1,7 +1,7 @@
 import { VitePress } from '../m.VitePress/mod.ts';
 import { type t, Args, c, DEFAULTS, Env, Log, PATHS, pkg } from './common.ts';
 
-type F = t.VitePressMainLib['main'];
+type F = t.VitePressEntryLib['main'];
 
 /**
  * Main command entry point.
@@ -11,7 +11,7 @@ type F = t.VitePressMainLib['main'];
  *       that pertain to <sub-command> as defined in the <VitePressCmd> type.
  */
 export const main: F = async (argv) => {
-  const args = Args.parse<t.VitePressMainArgs>(argv);
+  const args = Args.parse<t.VitePressEntryArgs>(argv);
   const cmd = args.cmd ?? DEFAULTS.cmd;
 
   /**
