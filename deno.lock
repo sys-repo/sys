@@ -69,6 +69,7 @@
     "npm:ignore@7": "7.0.0",
     "npm:immer@10": "10.1.1",
     "npm:minimist@1.2.8": "1.2.8",
+    "npm:ollama@0.5.12": "0.5.12",
     "npm:openai@4.76.0": "4.76.0",
     "npm:ora@8.1.1": "8.1.1",
     "npm:picocolors@1.1.1": "1.1.1",
@@ -2179,6 +2180,12 @@
     "node-gyp-build@4.8.4": {
       "integrity": "sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ=="
     },
+    "ollama@0.5.12": {
+      "integrity": "sha512-flVH1fn1c9NF7VV3bW9kSu0E+bYc40b4DxL/gS2Debhao35osJFRDiPOj9sIWTMvcyj78Paw1OuhfIe7uhDWfQ==",
+      "dependencies": [
+        "whatwg-fetch"
+      ]
+    },
     "onetime@7.0.0": {
       "integrity": "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==",
       "dependencies": [
@@ -2932,6 +2939,7 @@
       "npm:happy-dom@16.5.3",
       "npm:ignore@7",
       "npm:immer@10",
+      "npm:ollama@0.5.12",
       "npm:openai@4.76.0",
       "npm:ora@8.1.1",
       "npm:pretty-bytes@6.1.1",
