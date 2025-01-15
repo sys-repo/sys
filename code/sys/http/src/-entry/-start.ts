@@ -3,7 +3,7 @@
  * Entry point for starting an HTTP server.
  *
  * ```bash
- * deno run -NE --allow-run jsr:@sys/http/server/start
+ * deno run jsr:@sys/http/server/start
  * ```
  */
 import { type t, Args } from './common.ts';
