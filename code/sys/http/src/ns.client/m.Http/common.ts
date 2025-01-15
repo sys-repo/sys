@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { Fetch } from '../m.Fetch/mod.ts';
+export { Fetch } from '../m.Http.Fetch/mod.ts';
