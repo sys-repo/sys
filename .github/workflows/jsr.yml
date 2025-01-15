@@ -53,15 +53,27 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/cmd"
+      - name: publish module → "@sys/http"
         run: |
-          cd code/sys/cmd
+          cd code/sys/http
           deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/text"
         run: |
           cd code/sys/text
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/tmpl"
+        run: |
+          cd code/sys/tmpl
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -92,12 +104,6 @@ jobs:
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/tmpl"
-        run: |
-          cd code/sys/tmpl
           deno task test --parallel
           deno publish --allow-dirty
 
