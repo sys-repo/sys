@@ -64,4 +64,10 @@ export type StdIsLib = {
    *   - empty-array ([]).
    */
   blank(value?: any): boolean;
+
+  /** Determine if the given value is a `NetAddr`. */
+  netaddr(input: unknown): input is Deno.NetAddr;
+
+  /** Determine if the HTTP status code is within the 200 range.  */
+  statusOK(status: number): boolean;
 };
