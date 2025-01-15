@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 type P = t.StringPath;
 
 /**
- * The API invoked via the CLI command API for the Pkg.
+ * The API invoked via the CLI command API.
  */
 export type VitePressCmdLib = {
   /**

@@ -4,4 +4,5 @@
  * Immediate execution.
  */
 import { Main } from './mod.ts';
-await Main.entry();
+await Main.entry(Deno.args);
+Deno.exit(0);

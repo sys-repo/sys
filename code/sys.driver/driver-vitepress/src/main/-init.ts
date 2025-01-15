@@ -8,6 +8,6 @@
  * https://vitepress.dev
  *
  */
-import { Cmd } from '../m.Cmd/mod.ts';
+import { Cmd } from './mod.ts';
 await Cmd.init(Deno.args);
 Deno.exit(0);
