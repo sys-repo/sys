@@ -9,8 +9,6 @@ describe('Pkg.Dist', () => {
   });
 
   describe('Dist.fetch', () => {
-    const Http = Testing.HttpServer;
-
     const SAMPLE = {
       dist(): t.DistPkg {
         return {
@@ -27,9 +25,9 @@ describe('Pkg.Dist', () => {
 
     const testSetup = () => {
       const dist = SAMPLE.dist();
-      const server = Http.server((req) => {
+      const server = Testing.Http.server((req) => {
         const url = new URL(req.url);
-        if (url.pathname === '/dist.json') return Http.json(dist);
+        if (url.pathname === '/dist.json') return Testing.Http.json(dist);
         return new Response('Not found', { status: 404 });
       });
       const origin = server.url.base;
