@@ -30,8 +30,12 @@ describe('DenoCloud: HTTP Server Routes ← ClientLib', () => {
         const data = res.data;
         expect(data.description).to.include('deno:subhosting™️');
         expect(data.pkg).to.eql({ name: pkg.name, version: pkg.version });
-        expect(data.auth.identity).to.eql('');
         expect(data.auth.verified).to.eql(false);
+
+        /**
+         * TODO 🐷 Pluggable Auth identity provider.
+         */
+        expect(data.auth.identity).to.eql('NO_OP:🐷');
       }
 
       await dispose();
