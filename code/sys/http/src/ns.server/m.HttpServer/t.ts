@@ -82,5 +82,4 @@ export type { HonoBlankSchema, HonoContext, HonoEnv, HonoMiddlewareHandler, Hono
  */
 export type RouteContext = {
   readonly app: t.HonoApp;
-  readonly auth: t.AuthCtx;
 };

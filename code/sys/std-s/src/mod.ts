@@ -18,4 +18,3 @@ export type * as t from './types.ts';
  *     for the browser (eg. via Vite) will fail.
  */
 export { Env } from './m.Env/mod.ts';
-export { HttpServer } from './m.Server.Http/mod.ts';

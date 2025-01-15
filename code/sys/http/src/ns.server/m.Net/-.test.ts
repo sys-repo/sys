@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing } from '../-test.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
 import { R } from './common.ts';
 import { Net, Port } from './mod.ts';
 

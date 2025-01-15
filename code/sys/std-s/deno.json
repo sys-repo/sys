@@ -13,11 +13,9 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./http": "./src/m.Server.Http/mod.ts",
     "./fs": "./src/mod.fs.ts",
     "./fmt": "./src/mod.fmt.ts",
     "./auth": "./src/m.Server.Auth/mod.ts",
-    "./network": "./src/m.Net/mod.ts",
     "./testing": "./src/m.Testing/mod.ts"
   }
 }

@@ -1,6 +1,6 @@
-import { Http, describe, expect, it, pkg } from '../-test.ts';
-import { HttpServer } from '../mod.ts';
-import { Pkg } from './common.ts';
+import { describe, expect, it, pkg } from '../../-test.ts';
+import { Http, Pkg } from './common.ts';
+import { HttpServer } from './mod.ts';
 
 describe('Server', () => {
   it('app: start → req/res → dispose', async () => {
