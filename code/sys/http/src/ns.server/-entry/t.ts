@@ -8,16 +8,16 @@ export type HttpMainLib = {
   entry(argv?: string[]): Promise<void>;
 
   /** Start the HTTP server. */
-  start(args: t.HttpMainStartArgs): Promise<void>;
+  start(args: t.HttpMainArgsStart): Promise<void>;
 };
 
 /**
  * ARGV (Command Line Arguments)
  */
-export type HttpMainArgs = HttpMainStartArgs;
+export type HttpMainArgs = HttpMainArgsStart;
 
 /** Start an HTTP server */
-export type HttpMainStartArgs = {
+export type HttpMainArgsStart = {
   cmd: 'start';
   port?: number;
 };
