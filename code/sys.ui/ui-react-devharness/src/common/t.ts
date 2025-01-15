@@ -6,35 +6,8 @@ export type { IconType } from 'react-icons';
 /**
  * @system
  */
-export type {
-  ColorConstants,
-  CommonTheme,
-  Disposable,
-  Event,
-  EventBus,
-  Falsy,
-  IgnoredResponse,
-  Immutable,
-  ImmutableMutator,
-  ImmutableRef,
-  Json,
-  JsonMap,
-  JsonMapU,
-  JsonU,
-  Lifecycle,
-  ModuleImport,
-  ModuleImporter,
-  ModuleImports,
-  Msecs,
-  Observable,
-  Percent,
-  Point,
-  StringHex,
-  StringId,
-  StringUrl,
-  TimeThreshold,
-  UntilObservable,
-} from '@sys/std/t';
+export type * from '@sys/types/t';
+export type { ColorConstants, ModuleImport, ModuleImporter, ModuleImports } from '@sys/std/t';
 
 export type {
   SpecImport,

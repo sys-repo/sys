@@ -17,5 +17,4 @@ export type * from './mod.ts';
 /**
  * @local
  */
-export type UrlString = string;
 export type UrlInput = string | URL | Location;

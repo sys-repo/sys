@@ -92,7 +92,7 @@ export type DevCtxHost<S extends O = O> = {
   readonly footer: DevCtxEdge<S>;
   color(value: Color | null): DevCtxHost<S>;
   backgroundColor(value: Color | null): DevCtxHost<S>;
-  backgroundImage(value: t.DevBackgroundImageInput | t.UrlString | null): DevCtxHost<S>;
+  backgroundImage(value: t.DevBackgroundImageInput | t.StringUrl | null): DevCtxHost<S>;
   tracelineColor(value: Color | null): DevCtxHost<S>;
   layer(index: number): DevCtxLayer<S>;
 };
