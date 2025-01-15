@@ -15,9 +15,11 @@ export function routes(path: string, ctx: t.RouteContext) {
   app.get(path, async (c) => {
     const description = `deno:subhosting™️ controller`;
 
-    const auth = await ctx.auth.verify(c.req.raw);
-    const identity = auth.claims?.userId ?? '';
-    const verified = auth.verified;
+    // const auth = await ctx.auth.verify(c.req.raw);
+    // const identity = auth.claims?.userId ?? '';
+    // const verified = auth.verified;
+    const identity = 'NO_OP:🐷'; // TODO 🐷
+    const verified = false;
 
     const res: t.SubhostingInfo = {
       description,

@@ -10,8 +10,8 @@ type A = t.DenoCloudServerArgs;
 export function server(args: A) {
   const { env, pkg, hash } = args;
   const app = HttpServer.create({ pkg, hash });
-  const auth = wrangle.auth(args);
-  const ctx: t.RouteContext = { app, auth, env, pkg };
+  // const auth = wrangle.auth(args);
+  const ctx: t.RouteContext = { app, env, pkg };
 
   // Configure HTTP server.
   app.use('*', wrangle.authMiddleware(args, ctx));
