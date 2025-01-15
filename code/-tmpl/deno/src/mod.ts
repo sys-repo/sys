@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { pkg } from '@sys/xxx-🐷';
+ * import { pkg } from 'jsr:@sys/xxx-🐷';
  * ```
  */
 export { pkg } from './pkg.ts';

@@ -41,6 +41,18 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/fs"
+        run: |
+          cd code/sys/fs
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/proc"
+        run: |
+          cd code/sys/proc
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli
@@ -53,9 +65,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/cmd"
+      - name: publish module → "@sys/http"
         run: |
-          cd code/sys/cmd
+          cd code/sys/http
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -65,15 +77,21 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/fs"
+      - name: publish module → "@sys/tmpl"
         run: |
-          cd code/sys/fs
+          cd code/sys/tmpl
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/proc"
+      - name: publish module → "@sys/cmd"
         run: |
-          cd code/sys/proc
+          cd code/sys/cmd
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/jsr"
+        run: |
+          cd code/sys/jsr
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -92,18 +110,6 @@ jobs:
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/tmpl"
-        run: |
-          cd code/sys/tmpl
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/tmp"
-        run: |
-          cd code/sys.tmp
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -183,5 +189,11 @@ jobs:
       - name: publish module → "@sys/driver-quilibrium"
         run: |
           cd code/sys.driver/driver-quilibrium
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
           deno task test --parallel
           deno publish --allow-dirty

@@ -5,7 +5,7 @@ import type { t } from '../common/mod.ts';
  */
 export type TestingHttpLib = t.TestingLib & {
   /** Helpers for working with an HTTP server. */
-  readonly HttpServer: t.TestHttpServer;
+  readonly Http: t.TestHttpServer;
 };
 
 /** An simple HTTP server for testing. */

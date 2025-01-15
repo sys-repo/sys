@@ -1,5 +1,5 @@
-import { describe, expect, it, pkg } from '../-test.ts';
-import { Http, HttpServer } from '../mod.ts';
+import { Http, describe, expect, it, pkg } from '../-test.ts';
+import { HttpServer } from '../mod.ts';
 import { Pkg } from './common.ts';
 
 describe('Server', () => {

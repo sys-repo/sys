@@ -180,4 +180,25 @@ describe('Is (common flags)', () => {
       });
     });
   });
+
+  describe('Is.netaddr', () => {
+    it('Is.netaddr: false', () => {
+      const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+      NON.forEach((v) => expect(Is.netaddr(v)).to.eql(false));
+    });
+
+    it('Is.netaddr: true', async () => {
+      const server = Deno.serve((req) => new Response('Hello'));
+      expect(Is.netaddr(server.addr)).to.eql(true);
+      await server.shutdown();
+    });
+  });
+
+  it('Is.statusOK', () => {
+    const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+    NON.forEach((v: any) => expect(Is.statusOK(v)).to.eql(false));
+    expect(Is.statusOK(200)).to.eql(true);
+    expect(Is.statusOK(201)).to.eql(true);
+    expect(Is.statusOK(404)).to.eql(false);
+  });
 });

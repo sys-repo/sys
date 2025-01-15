@@ -6,7 +6,7 @@ import { pkg } from '../pkg.ts';
 console.info('Pkg', pkg);
 globalThis.document.title = `${pkg.name}@${pkg.version}`;
 
-import('@sys/driver-vite/testing/sample-imports');
+import '@sys/tmp/sample-imports';
 
 export async function main() {
   const params = new URL(location.href).searchParams;
