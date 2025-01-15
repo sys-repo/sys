@@ -1,2 +1,2 @@
-export type { HonoApp, RouteContext, HttpServerLib } from '@sys/std-s/types';
+export type { HonoApp, RouteContext, HttpServerLib } from '@sys/http/t';
 export * from '../../../common/t.ts';

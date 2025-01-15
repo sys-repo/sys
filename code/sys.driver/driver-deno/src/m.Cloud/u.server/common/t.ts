@@ -1,11 +1,12 @@
+export type { AuthCtx } from '@sys/std-s/types';
+
 export type {
-  AuthCtx,
   HonoApp,
   HonoBlankSchema,
   HonoEnv,
   HonoMiddlewareHandler,
   HttpServerLib,
-} from '@sys/std-s/types';
+} from '@sys/http/t';
 
 export type { AuthTokenClaims } from '@privy-io/server-auth';
 

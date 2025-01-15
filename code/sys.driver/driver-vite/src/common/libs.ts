@@ -9,4 +9,4 @@ export { HashFmt } from '@sys/crypto/fmt';
 export { Hash } from '@sys/crypto/hash';
 export { Fs, Path, Pkg } from '@sys/fs';
 export { Process } from '@sys/process';
-export { Net } from '@sys/std-s/network';
+export { Net } from '@sys/http/server';

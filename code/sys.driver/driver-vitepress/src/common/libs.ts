@@ -11,8 +11,7 @@ export { HashFmt } from '@sys/crypto/fmt';
 export { Hash } from '@sys/crypto/hash';
 
 export { Pkg } from '@sys/fs/pkg';
-export { HttpServer } from '@sys/std-s/http';
-export { Net } from '@sys/std-s/network';
+export { HttpServer, Net } from '@sys/http/server';
 export { Tmpl } from '@sys/tmpl/fs';
 
 export { ViteLog } from '@sys/driver-vite/log';

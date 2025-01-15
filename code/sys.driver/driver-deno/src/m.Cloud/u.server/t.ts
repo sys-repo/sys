@@ -1,4 +1,4 @@
-import type { RouteContext as RouteContextBase } from '@sys/std-s/types';
+import type { RouteContext as RouteContextBase } from '@sys/http/t';
 import type { t } from './common.ts';
 
 type DenoHttpServer = Deno.HttpServer<Deno.NetAddr>;
