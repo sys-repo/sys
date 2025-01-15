@@ -15,7 +15,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./log": "./src/m.Log/mod.ts",
-    "./testing/sample-imports": "./src/-test/-sample-imports.ts"
+    "./log": "./src/m.Log/mod.ts"
   }
 }
