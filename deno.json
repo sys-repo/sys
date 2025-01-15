@@ -65,7 +65,7 @@
     "./code/-tmpl/deno",
     "./code/sys.tmp"
   ],
-  "importMap": "./deno.imports.json",
+  "importMap": "./deno_imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]
