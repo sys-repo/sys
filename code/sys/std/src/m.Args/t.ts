@@ -15,7 +15,7 @@ export type ArgsLib = {
   /**
    * Parse command line arguments.
    */
-  parse<T extends O = O>(argv: string[]): ParsedArgs<T>;
+  parse<T extends O = O>(argv?: string[]): ParsedArgs<T>;
 };
 
 /**

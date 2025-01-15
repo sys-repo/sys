@@ -40,5 +40,9 @@ describe('Args', () => {
       expect(res.num).to.eql(123);
       expect(res.msg).to.eql('hello');
     });
+
+    it('Args.parse() ← no [argv] passed | empty array', () => {
+      expect(Args.parse()).to.eql({ _: [] });
+    });
   });
 });

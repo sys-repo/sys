@@ -8,7 +8,7 @@ export const Args: t.ArgsLib = {
   /**
    * Parse command line arguments.
    */
-  parse(argv) {
+  parse(argv = []) {
     return parseArgs(argv);
   },
 };
