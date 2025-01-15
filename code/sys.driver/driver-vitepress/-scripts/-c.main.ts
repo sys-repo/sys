@@ -11,4 +11,4 @@
  *  }
  * ```
  */
-import '../src/main/-entry.ts';
+import '../src/-main/-entry.ts';

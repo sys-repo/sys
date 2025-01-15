@@ -21,8 +21,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./init": "./src/main/-init.ts",
-    "./main": "./src/main/-entry.ts",
+    "./init": "./src/-main/-init.ts",
+    "./main": "./src/-main/-entry.ts",
     "./ui": "./src/ui/mod.ts"
   }
 }
