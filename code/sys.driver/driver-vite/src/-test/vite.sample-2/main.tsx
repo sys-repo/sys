@@ -8,7 +8,7 @@ console.info('Pkg', pkg);
 /**
  * Test imports from across the workspace.
  */
-import '../-sample-imports.ts';
+import '@sys/tmp/sample-imports';
 
 /**
  * Sample: dynamic import (code-splitting).

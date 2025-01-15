@@ -12,6 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client/ui": "./src/ui/mod.ts"
+    "./client/ui": "./src/ui/mod.ts",
+    "./sample-imports": "./src/-sample-imports.ts"
   }
 }

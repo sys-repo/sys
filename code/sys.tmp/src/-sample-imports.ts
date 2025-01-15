@@ -10,30 +10,13 @@
 const now = new Date();
 
 /**
- * TODO 🐷 move to @sys/tmp
- */
-
-// console.group('🌳 import: @std (deno)');
-// import * as path from '@std/path';
-// import * as datetime from '@std/datetime';
-// import * as async from '@std/async';
-// import * as semver from '@std/semver';
-// import * as testing from '@std/testing/bdd';
-//
-// console.info('@std/path', path);
-// console.info('@std/datetime', datetime, datetime.format(now, 'yyyy-MM-dd'));
-// console.info('@std/async', async);
-// console.info('@std/semver', semver);
-// console.info('@std/testing', testing);
-// console.groupEnd();
-
-/**
  * Namespace: @sys
  */
 console.group('🌳 import: @sys/std');
-import { Args, D, Path, Time, rx, Value } from '@sys/std';
+import { Json } from '@sys/driver-immer';
+import { Jsr } from '@sys/jsr';
+import { Args, D, Path, rx, Time, Value } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
-import { Jsr } from '@sys/std/jsr';
 import { Semver } from '@sys/std/semver';
 import { Str } from '@sys/text';
 
@@ -58,7 +41,6 @@ console.info(' ');
  * Namespace: @sys : driver
  */
 console.group('🌳 import: @sys/driver');
-import { Json } from '@sys/driver-immer';
 
 console.info('@sys/driver-immer', Json);
 console.groupEnd();
