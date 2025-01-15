@@ -1,6 +1,9 @@
 import { type t, Fetch } from './common.ts';
 import { Url } from './m.Url.ts';
 
+/**
+ * Network fetching helpers against a specific JSR package.
+ */
 export const Pkg: t.JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata

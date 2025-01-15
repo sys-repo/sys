@@ -18,7 +18,7 @@ export type JsrFetchLib = {
 };
 
 /**
- * Network fetching helpers against a specific package.
+ * Network fetching helpers against a specific JSR package.
  */
 export type JsrFetchPkgLib = {
   /**
