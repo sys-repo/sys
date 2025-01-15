@@ -13,6 +13,7 @@ export async function start(args: t.HttpEntryArgsStart) {
 
   const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
   const options = HttpServer.options({ port, pkg, hash });
+
   Deno.serve(options, app.fetch);
   await HttpServer.keyboard({ port, print: true });
 }
