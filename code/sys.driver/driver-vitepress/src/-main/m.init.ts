@@ -1,7 +1,7 @@
 import { VitePress } from '../m.VitePress/mod.ts';
 import { type t, Args, c, Log, pkg } from './common.ts';
 
-type F = t.VitePressCmdLib['init'];
+type F = t.VitePressMainLib['init'];
 
 /**
  * Scaffold a new project, use the command-line:
@@ -10,7 +10,7 @@ type F = t.VitePressCmdLib['init'];
  */
 export const init: F = async (argv, options = {}) => {
   const { silent = false } = options;
-  const args = Args.parse<t.CmdArgsInit>(argv);
+  const args = Args.parse<t.MainArgsInit>(argv);
   const { inDir } = args;
 
   if (!silent) {

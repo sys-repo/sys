@@ -8,7 +8,7 @@ import { type t, Args, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
  * latest released version on JSR.
  */
 export async function upgrade(argv: string[]) {
-  const args = Args.parse<t.CmdArgsUpgrade>(argv);
+  const args = Args.parse<t.MainArgsUpgrade>(argv);
   const { inDir = PATHS.inDir, force = false } = args;
 
   if (args.cmd !== 'upgrade') return;

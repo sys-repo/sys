@@ -5,7 +5,7 @@ type P = t.StringPath;
 /**
  * The API invoked via the CLI command API.
  */
-export type VitePressCmdLib = {
+export type VitePressMainLib = {
   /**
    * Scaffold a new project, use the command-line:
    *
@@ -26,31 +26,30 @@ export type VitePressCmdLib = {
 /**
  * Arguments passed into the main CLI entry point.
  */
-export type VitePressCmdArgs = CmdArgs;
-export type CmdArgs = CmdArgsMain | CmdArgsInit;
-export type CmdArgsMain =
-  | CmdArgsDev
-  | CmdArgsBuild
-  | CmdArgsServe
-  | CmdArgsClean
-  | CmdArgsUpgrade
-  | CmdArgsBackup
-  | CmdArgsHelp;
+export type VitePressMainArgs =
+  | MainArgsInit
+  | MainArgsDev
+  | MainArgsBuild
+  | MainArgsServe
+  | MainArgsClean
+  | MainArgsUpgrade
+  | MainArgsBackup
+  | MainArgsHelp;
 
 /** The `init` command. */
-export type CmdArgsInit = { inDir?: P };
+export type MainArgsInit = { cmd: 'init'; inDir?: P };
 
 /** The `dev` server command. */
-export type CmdArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
+export type MainArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
 
 /** The `build` project command. */
-export type CmdArgsBuild = { cmd: 'build'; inDir?: P };
+export type MainArgsBuild = { cmd: 'build'; inDir?: P };
 
 /** The `serve` built project command. */
-export type CmdArgsServe = { cmd: 'serve'; inDir?: P };
+export type MainArgsServe = { cmd: 'serve'; inDir?: P };
 
 /** The `upgrade` command. */
-export type CmdArgsUpgrade = {
+export type MainArgsUpgrade = {
   cmd: 'upgrade';
   inDir?: P;
   force?: boolean;
@@ -58,10 +57,10 @@ export type CmdArgsUpgrade = {
 };
 
 /** The `clean` command. */
-export type CmdArgsClean = { cmd: 'clean'; inDir?: P };
+export type MainArgsClean = { cmd: 'clean'; inDir?: P };
 
 /** The `backup` command. */
-export type CmdArgsBackup = { cmd: 'backup'; inDir?: P; includeDist?: boolean; force?: boolean };
+export type MainArgsBackup = { cmd: 'backup'; inDir?: P; includeDist?: boolean; force?: boolean };
 
 /** The `help` information command. */
-export type CmdArgsHelp = { cmd: 'help'; inDir?: P };
+export type MainArgsHelp = { cmd: 'help'; inDir?: P };

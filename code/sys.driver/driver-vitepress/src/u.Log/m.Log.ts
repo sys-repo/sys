@@ -13,7 +13,7 @@ import {
   HashFmt,
 } from './common.ts';
 
-type Cmd = t.CmdArgsMain['cmd'];
+type Cmd = t.VitePressMainArgs['cmd'];
 
 /**
  * Console logging operations for the module.
