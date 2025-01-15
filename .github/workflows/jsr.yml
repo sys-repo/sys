@@ -47,9 +47,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/proc"
+      - name: publish module → "@sys/process"
         run: |
-          cd code/sys/proc
+          cd code/sys/process
           deno task test --parallel
           deno publish --allow-dirty
 

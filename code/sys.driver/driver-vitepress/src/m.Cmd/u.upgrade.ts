@@ -1,4 +1,4 @@
-import { Process } from '@sys/proc';
+import { Process } from '@sys/process';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
 import { type t, Args, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';

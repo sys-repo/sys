@@ -1,4 +1,4 @@
-import { Process } from '@sys/proc';
+import { Process } from '@sys/process';
 import { Cli, c } from './common.ts';
 
 /**
