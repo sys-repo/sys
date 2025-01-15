@@ -1,4 +1,4 @@
-# Vite Bundler Toolchain
+# Vite Driver
 
 Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and dev-harness within [Deno](https://docs.deno.com/) workspaces.
 
