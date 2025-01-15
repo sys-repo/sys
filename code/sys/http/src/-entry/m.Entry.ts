@@ -1,15 +1,11 @@
 import { type t, Args } from './common.ts';
+import { start } from './u.start.ts';
 
 export const Entry: t.HttpEntryLib = {
+  start,
   async entry(input) {
     const args = wrangle.args(input ?? Deno.args);
     if (args.cmd === 'start') return Entry.start(args);
-  },
-
-  async start(args) {
-    if (args.cmd !== 'start') return;
-    const { port = 8080 } = args;
-
   },
 };
 

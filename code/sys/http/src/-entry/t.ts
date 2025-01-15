@@ -20,4 +20,5 @@ export type HttpEntryArgs = HttpEntryArgsStart;
 export type HttpEntryArgsStart = {
   cmd: 'start';
   port?: number;
+  dir?: t.StringDir;
 };
