@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../-test.ts';
+import { Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
 import { DEFAULTS } from './common.ts';
 import { HttpClient } from './mod.ts';

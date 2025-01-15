@@ -1,5 +1,5 @@
 import { Http } from '../mod.ts';
-import { Testing, describe, expect, it } from '../-test.ts';
+import { Testing, describe, expect, it } from '../../-test.ts';
 import { rx } from './common.ts';
 import { Fetch } from './mod.ts';
 
