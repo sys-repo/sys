@@ -1,8 +1,9 @@
+export { R, Value } from '@sys/std';
+export { Semver } from '@sys/std/semver';
+
 export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
-export { R, Semver, Value } from '@sys/std-s';
 export { Process } from '@sys/proc';
 
-export { Path, Paths } from './u.paths.ts';
-
 export * as t from './t.ts';
+export { Path, Paths } from './u.paths.ts';
