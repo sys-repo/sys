@@ -27,9 +27,9 @@ export const Paths = {
     /**
      * UI
      */
-    'code/sys.ui/ui-dev-harness',
     'code/sys.ui/ui-dom',
     'code/sys.ui/ui-react',
+    'code/sys.ui/ui-react-devharness',
     
     /**
      * Drivers

@@ -15,7 +15,7 @@
  * in a right hande "debug" panel.
  *
  * ```ts
- * import { render } from '@sys/ui-dev-harness'
+ * import { render } from '@sys/ui-react-devharness'
  * import { createRoot } from 'react-dom/client';
  * import { SampleSpecs } from './src/-test/entry.Specs.ts';
  *
@@ -27,7 +27,7 @@
  * or to render from the component directly:
  *
  * ```ts
- * import { Dev } from '@sys/ui-dev-harness'
+ * import { Dev } from '@sys/ui-react-devharness'
  * import { SampleSpecs } from './src/-test/entry.Specs.ts';
  *
  * const el = <Dev.Harness specs={SampleSpecs} />

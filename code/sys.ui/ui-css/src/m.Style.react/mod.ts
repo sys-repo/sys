@@ -8,7 +8,7 @@
  *
  * ```ts
  * import reactPlugin from '@vitejs/plugin-react-swc';
- * import { Style } from '@sys/ui-dev-harness';
+ * import { Style } from '@sys/ui-react-devharness';
  *
  * const react = reactPlugin(Css.plugin.emotion());
  * ```
@@ -32,7 +32,7 @@
  * Declaring CSS styles within objects and applying then to
  *
  * ```ts
- * import { Color, Style, css } from '@sys/ui-dev-harness/style';
+ * import { Color, Style, css } from '@sys/ui-react-devharness/style';
  *
  * const theme = Color.theme(props.theme);
  * const styles = {

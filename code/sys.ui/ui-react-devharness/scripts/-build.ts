@@ -1,5 +1,5 @@
 import { Vite } from '@sys/driver-vite';
-import { pkg } from '@sys/ui-dev-harness';
+import { pkg } from '@sys/ui-react-devharness';
 
 const input = './src/-test/index.html';
 const bundle = await Vite.build({ pkg, input });
