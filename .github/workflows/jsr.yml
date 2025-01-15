@@ -113,12 +113,6 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmp"
-        run: |
-          cd code/sys.tmp
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/ui-css"
         run: |
           cd code/sys.ui/ui-css
@@ -195,5 +189,11 @@ jobs:
       - name: publish module → "@sys/driver-quilibrium"
         run: |
           cd code/sys.driver/driver-quilibrium
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
           deno task test --parallel
           deno publish --allow-dirty
