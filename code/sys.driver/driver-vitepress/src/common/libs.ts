@@ -3,7 +3,7 @@ export { Dir, FileMap, Fs, Path } from '@sys/fs';
 
 export { Fetch, Http } from '@sys/http';
 export { Jsr } from '@sys/jsr';
-export { Process } from '@sys/proc';
+export { Process } from '@sys/process';
 export { Args, Date, Err, Is, rx, slug, Str, Time } from '@sys/std';
 export { Ignore } from '@sys/std/ignore';
 

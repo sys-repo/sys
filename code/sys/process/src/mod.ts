@@ -7,7 +7,7 @@
  * @example
  * Running a short lived shell command (synchronous):
  * ```ts
- * import { Process } from '@sys/proc';
+ * import { Process } from '@sys/process';
  *
  * const sh = Process.sh('./path/to/cwd');
  * const res = await sh.run('echo foo');     // ← res.code == 0 (success)
@@ -21,7 +21,7 @@
  * @example
  * Spawning a long-running child process (asynchronous):
  * ```ts
- * import { Process } from '@sys/proc';
+ * import { Process } from '@sys/process';
  *
  * const readySignal = Process.Signal.ready;
  * const cmd = `
