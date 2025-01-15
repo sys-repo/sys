@@ -12,7 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/m.Client/mod.ts",
+    "./client": "./src/ns.client/mod.ts",
     "./server": "./src/ns.server/mod.ts"
   }
 }
