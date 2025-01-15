@@ -6,13 +6,15 @@
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -RWNE --allow-run --allow-ffi",
+    "serve": "deno run -NE ./scripts/-c.main.ts --cmd=start"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./client": "./src/ns.client/mod.ts",
-    "./server": "./src/ns.server/mod.ts"
+    "./server": "./src/ns.server/mod.ts",
+    "./server/main": "./src/ns.server/main/-entry.ts"
   }
 }

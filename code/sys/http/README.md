@@ -11,3 +11,6 @@ import { Net, HttpServer } from '@sys/http/server'
 import { Http } from '@sys/http/client'
 ```
 
+```bash
+deno run -NE jsr:@sys/http/server/start --port=1234
+```
