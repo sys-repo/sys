@@ -9,17 +9,17 @@ export const Paths = {
     'code/sys/types',
     'code/sys/std',
     
-    'code/sys/cli',
-    'code/sys/crypto',
+    'code/sys/testing',
     'code/sys/fs',
+    'code/sys/cli',
     'code/sys/proc',
-    'code/sys/main',
+    'code/sys/crypto',
     
     'code/sys/std-s',
     'code/sys.tmp',
     
+    'code/sys/http',
     'code/sys/cmd',
-    'code/sys/testing',
     'code/sys/text',
     'code/sys/tmpl',
     
@@ -43,7 +43,11 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-vitepress',
 
+    /**
+     * Barrels
+     */
     'code/sys/sys',
+    'code/sys/main',
 
     /**
      * →| dev/null

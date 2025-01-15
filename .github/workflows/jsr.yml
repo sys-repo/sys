@@ -77,6 +77,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/jsr"
+        run: |
+          cd code/sys/jsr
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/fs"
         run: |
           cd code/sys/fs

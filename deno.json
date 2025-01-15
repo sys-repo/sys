@@ -33,10 +33,11 @@
 
     "./code/sys/std-s",
 
-    "./code/sys/cmd",
     "./code/sys/http",
     "./code/sys/text",
     "./code/sys/tmpl",
+    "./code/sys/cmd",
+    "./code/sys/jsr",
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
