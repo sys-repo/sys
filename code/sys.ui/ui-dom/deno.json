@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dom",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
