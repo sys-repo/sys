@@ -1,11 +1,9 @@
-import { Http } from '../m.Http/mod.ts';
-import { Testing, describe, expect, it } from '../m.Testing.Server/mod.ts';
+import { Http } from '../mod.ts';
+import { Testing, describe, expect, it } from '../-test.ts';
 import { rx } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Http.Fetch', () => {
-  const TestHttp = Testing.HttpServer;
-
   it('API', () => {
     expect(Http.Fetch).to.equal(Fetch);
   });
@@ -13,7 +11,7 @@ describe('Http.Fetch', () => {
   describe('Fetch.disposable', () => {
     it('200: success', async () => {
       const life = rx.disposable();
-      const server = TestHttp.server(() => TestHttp.json({ foo: 123 }));
+      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
       const url = server.url.base;
       const fetch = Fetch.disposable(life.dispose$);
       expect(fetch.disposed).to.eql(false);
@@ -31,7 +29,7 @@ describe('Http.Fetch', () => {
 
     it('404: error with headers', async () => {
       const life = rx.disposable();
-      const server = TestHttp.server(() => TestHttp.error(404, 'Not Found'));
+      const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
       const fetch = Fetch.disposable(life.dispose$);
 
       const url = server.url.base;
@@ -52,7 +50,7 @@ describe('Http.Fetch', () => {
 
     it('disposed', async () => {
       const life = rx.disposable();
-      const server = TestHttp.server(() => TestHttp.json({ foo: 123 }));
+      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
       const url = server.url.base;
       const fetch = Fetch.disposable(life.dispose$);
       expect(fetch.disposed).to.eql(false);

@@ -1,5 +1,4 @@
-import { type t, isRecord } from './common.ts';
-import { Err } from '../m.Err/mod.ts';
+import { type t, Err, Is, isRecord } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -28,7 +27,7 @@ export function toHeaders(input?: Headers | HeadersInit): t.HttpHeaders {
  */
 export function toError(res: Response): t.HttpError | undefined {
   const { status } = res;
-  if (statusOK(status)) return undefined;
+  if (Is.statusOK(status)) return undefined;
   const statusText = String(res.statusText).trim();
   const headers = toHeaders(res.headers);
   const name = 'HttpError';
@@ -46,11 +45,3 @@ export async function toResponse<T extends O>(res: Response) {
   const url = res.url;
   return { ok, status, url, data, error } as t.FetchResponse<T>;
 }
-
-/**
- * Determine if the HTTP status code is within the 200 range.
- */
-export const statusOK: t.HttpIs['statusOK'] = (input) => {
-  if (typeof input !== 'number') return false;
-  return String(input)[0] === '2';
-};

@@ -1,8 +1,12 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { Err } from '../m.Err/mod.ts';
+import { type t, describe, Err, expect, it, Url } from '../-test.ts';
 import { Http } from './mod.ts';
 
 describe('Http', () => {
+  it('API', () => {
+    expect(Http.Url).to.equal(Url);
+    expect(Http.url).to.equal(Url.create);
+  });
+
   describe('Http.toError', () => {
     it('404: Not found', () => {
       const res = new Response('Not Found', { status: 404, statusText: 'Not Found' });

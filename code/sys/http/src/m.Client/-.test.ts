@@ -1,11 +1,10 @@
-import { Testing, describe, expect, it } from '../m.Testing.Server/mod.ts';
+import { Testing, describe, expect, it } from '../-test.ts';
 import { Http } from '../mod.ts';
 import { DEFAULTS } from './common.ts';
 import { HttpClient } from './mod.ts';
 
 describe('Http.client', () => {
   const JsonMimetype = DEFAULTS.contentType;
-  const TestHttp = Testing.HttpServer;
 
   it('API', () => {
     expect(Http.Client).to.equal(HttpClient);
@@ -64,9 +63,9 @@ describe('Http.client', () => {
     });
 
     it('headers passed to server', async () => {
-      const server = TestHttp.server((req) => {
+      const server = Testing.Http.server((req) => {
         const headers = Http.toHeaders(req.headers);
-        return TestHttp.json({ headers });
+        return Testing.Http.json({ headers });
       });
       const client = Http.client({ headers: (e) => e.set('x-foo', '123') });
 
@@ -87,7 +86,7 @@ describe('Http.client', () => {
 
   describe('fetch (HTTP methods/verbs)', () => {
     it('fetch', async () => {
-      const server = TestHttp.server(() => new Response('foo'));
+      const server = Testing.Http.server(() => new Response('foo'));
       const client = Http.client();
 
       const url = server.url.join('foo');
@@ -102,9 +101,9 @@ describe('Http.client', () => {
 
     it('GET', async () => {
       let _method = '';
-      const server = TestHttp.server((req) => {
+      const server = Testing.Http.server((req) => {
         _method = req.method;
-        return TestHttp.json({ foo: 123 });
+        return Testing.Http.json({ foo: 123 });
       });
       const client = Http.client();
       const url = server.url.join('foo');
@@ -120,7 +119,7 @@ describe('Http.client', () => {
 
     it('HEAD', async () => {
       let _method = '';
-      const server = TestHttp.server((req) => {
+      const server = Testing.Http.server((req) => {
         _method = req.method;
         return new Response();
       });
@@ -136,7 +135,7 @@ describe('Http.client', () => {
 
     it('OPTIONS', async () => {
       let _method = '';
-      const server = TestHttp.server((req) => {
+      const server = Testing.Http.server((req) => {
         _method = req.method;
         return new Response();
       });
@@ -153,9 +152,9 @@ describe('Http.client', () => {
 
     it('PUT', async () => {
       let _method = '';
-      const server = TestHttp.server(async (req) => {
+      const server = Testing.Http.server(async (req) => {
         _method = req.method;
-        return TestHttp.json({ data: await req.json() });
+        return Testing.Http.json({ data: await req.json() });
       });
       const client = Http.client();
       const url = server.url.join('foo');
@@ -170,9 +169,9 @@ describe('Http.client', () => {
 
     it('POST', async () => {
       let _method = '';
-      const server = TestHttp.server(async (req) => {
+      const server = Testing.Http.server(async (req) => {
         _method = req.method;
-        return TestHttp.json({ data: await req.json() });
+        return Testing.Http.json({ data: await req.json() });
       });
       const client = Http.client();
       const url = server.url.join('foo');
@@ -187,9 +186,9 @@ describe('Http.client', () => {
 
     it('PATCH', async () => {
       let _method = '';
-      const server = TestHttp.server(async (req) => {
+      const server = Testing.Http.server(async (req) => {
         _method = req.method;
-        return TestHttp.json({ data: await req.json() });
+        return Testing.Http.json({ data: await req.json() });
       });
       const client = Http.client();
       const url = server.url.join('foo');
@@ -204,9 +203,9 @@ describe('Http.client', () => {
 
     it('DELETE', async () => {
       let _method = '';
-      const server = TestHttp.server((req) => {
+      const server = Testing.Http.server((req) => {
         _method = req.method;
-        return TestHttp.json({ foo: 123 });
+        return Testing.Http.json({ foo: 123 });
       });
       const client = Http.client();
       const url = server.url.join('foo');
