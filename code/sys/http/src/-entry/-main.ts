@@ -3,6 +3,6 @@
  * Main CLI entry point to the module.
  * Immediate execution.
  */
-import { Main } from './mod.ts';
-await Main.entry(Deno.args);
+import { Entry } from './mod.ts';
+await Entry.entry();
 Deno.exit(0);

@@ -7,4 +7,4 @@
  *  deno run -NE jsr:@sys/http/server/start --port=1234
  * ```
  */
-import '../src/ns.server/-entry/-main.ts';
+import '../src/-entry/-main.ts';
