@@ -6,6 +6,12 @@ import '@vidstack/react/player/styles/plyr/theme.css';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
+/**
+ * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
+ */
+// import { Foo } from '@sys/tmp/ui';
+// console.log('Foo', Foo);
+
 export type VideoProps = {
   title?: string;
   src?: string;
