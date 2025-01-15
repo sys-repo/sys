@@ -5,3 +5,4 @@ export { Fs } from '@sys/fs';
 
 export { HashFmt } from '@sys/crypto/fmt';
 export { Hash } from '@sys/crypto/hash';
+export { Http } from '@sys/http';

@@ -11,12 +11,16 @@
     "jsr:@std/assert@^1.0.10": "1.0.10",
     "jsr:@std/assert@~1.0.6": "1.0.10",
     "jsr:@std/async@1.0.9": "1.0.9",
+    "jsr:@std/bytes@^1.0.2": "1.0.4",
+    "jsr:@std/crypto@^1.0.3": "1.0.3",
+    "jsr:@std/data-structures@^1.0.5": "1.0.5",
     "jsr:@std/datetime@0.225.2": "0.225.2",
     "jsr:@std/dotenv@0.225.3": "0.225.3",
     "jsr:@std/encoding@1.0.6": "1.0.6",
     "jsr:@std/encoding@~1.0.5": "1.0.6",
     "jsr:@std/fmt@~1.0.2": "1.0.4",
     "jsr:@std/fs@1.0.8": "1.0.8",
+    "jsr:@std/fs@^1.0.8": "1.0.8",
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "jsr:@std/io@~0.224.9": "0.224.9",
     "jsr:@std/path@1.0.8": "1.0.8",
@@ -25,11 +29,13 @@
     "jsr:@std/semver@1.0.3": "1.0.3",
     "jsr:@std/testing@1.0.8": "1.0.8",
     "jsr:@std/text@~1.0.7": "1.0.9",
+    "jsr:@std/uuid@1.0.4": "1.0.4",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1": "1.2.1",
     "npm:@automerge/automerge-repo-storage-indexeddb@1": "1.2.1",
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1",
     "npm:@automerge/automerge-repo@1": "1.2.1",
     "npm:@automerge/automerge@2": "2.2.8",
+    "npm:@emotion/react@11.13.5": "11.13.5_react@18.3.1",
     "npm:@emotion/react@11.14.0": "11.14.0_react@18.3.1",
     "npm:@jsr/std__async@1.0.9": "1.0.9",
     "npm:@jsr/std__datetime@0.225.2": "0.225.2",
@@ -63,6 +69,7 @@
     "npm:ignore@7": "7.0.0",
     "npm:immer@10": "10.1.1",
     "npm:minimist@1.2.8": "1.2.8",
+    "npm:ollama@0.5.12": "0.5.12",
     "npm:openai@4.76.0": "4.76.0",
     "npm:ora@8.1.1": "8.1.1",
     "npm:picocolors@1.1.1": "1.1.1",
@@ -136,10 +143,22 @@
       "integrity": "aabc691a2c41789b3387311a8e5d4651f96c210c55f587eb8849cc180eb7f7c8"
     },
     "@std/assert@1.0.10": {
-      "integrity": "59b5cbac5bd55459a19045d95cc7c2ff787b4f8527c0dd195078ff6f9481fbb3"
+      "integrity": "59b5cbac5bd55459a19045d95cc7c2ff787b4f8527c0dd195078ff6f9481fbb3",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
     },
     "@std/async@1.0.9": {
       "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
+    },
+    "@std/bytes@1.0.4": {
+      "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
+    },
+    "@std/crypto@1.0.3": {
+      "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
+    },
+    "@std/data-structures@1.0.5": {
+      "integrity": "86dd5c2d6365a6ad56e9103b3a877c5d5ade238c68ae463acfe0eb0e56d40783"
     },
     "@std/datetime@0.225.2": {
       "integrity": "45f0100554a912cd65f48089ef0a33aa1eb6ea21f08090840b539ab582827eaa"
@@ -175,11 +194,21 @@
       "integrity": "ceef535808fb7568e91b0f8263599bd29b1c5603ffb0377227f00a8ca9fe42a2",
       "dependencies": [
         "jsr:@std/assert@^1.0.10",
-        "jsr:@std/internal"
+        "jsr:@std/data-structures",
+        "jsr:@std/fs@^1.0.8",
+        "jsr:@std/internal",
+        "jsr:@std/path@^1.0.8"
       ]
     },
     "@std/text@1.0.9": {
       "integrity": "b2db4abc3e6ab93eb0280a0d5e126fd3fca80955bcc297ccaaf555e995eab747"
+    },
+    "@std/uuid@1.0.4": {
+      "integrity": "f4233149cc8b4753cc3763fd83a7c4101699491f55c7be78dc7b30281946d7a0",
+      "dependencies": [
+        "jsr:@std/bytes",
+        "jsr:@std/crypto"
+      ]
     }
   },
   "npm": {
@@ -501,6 +530,20 @@
     },
     "@emotion/memoize@0.9.0": {
       "integrity": "sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ=="
+    },
+    "@emotion/react@11.13.5_react@18.3.1": {
+      "integrity": "sha512-6zeCUxUH+EPF1s+YF/2hPVODeV/7V07YU5x+2tfuRL8MdW6rv5vb2+CBEGTGwBdux0OIERcOS+RzxeK80k2DsQ==",
+      "dependencies": [
+        "@babel/runtime",
+        "@emotion/babel-plugin",
+        "@emotion/cache",
+        "@emotion/serialize",
+        "@emotion/use-insertion-effect-with-fallbacks",
+        "@emotion/utils",
+        "@emotion/weak-memoize",
+        "hoist-non-react-statics",
+        "react"
+      ]
     },
     "@emotion/react@11.14.0_react@18.3.1": {
       "integrity": "sha512-O000MLDBDdk/EohJPFUqvnp4qnHeYkVP5B0xEG0D/L7cOKP9kefu2DXn8dj74cQfsEzUqh+sr1RzFqiL1o+PpA==",
@@ -2137,6 +2180,12 @@
     "node-gyp-build@4.8.4": {
       "integrity": "sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ=="
     },
+    "ollama@0.5.12": {
+      "integrity": "sha512-flVH1fn1c9NF7VV3bW9kSu0E+bYc40b4DxL/gS2Debhao35osJFRDiPOj9sIWTMvcyj78Paw1OuhfIe7uhDWfQ==",
+      "dependencies": [
+        "whatwg-fetch"
+      ]
+    },
     "onetime@7.0.0": {
       "integrity": "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==",
       "dependencies": [
@@ -2890,6 +2939,7 @@
       "npm:happy-dom@16.5.3",
       "npm:ignore@7",
       "npm:immer@10",
+      "npm:ollama@0.5.12",
       "npm:openai@4.76.0",
       "npm:ora@8.1.1",
       "npm:pretty-bytes@6.1.1",

@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import { type t, isObject } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { Is as RxIs } from '../m.Rx/mod.ts';
 
@@ -77,5 +77,24 @@ export const Is: t.StdIsLib = {
     if (typeof value === 'string' && value.trim() === '') return true;
     if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
     return false;
+  },
+
+  /**
+   * Determine if the given value is a `NetAddr`.
+   */
+  netaddr(input): input is Deno.NetAddr {
+    if (!isObject(input)) return false;
+    const addr = input as Deno.NetAddr;
+
+    if (!(addr.transport === 'tcp' || addr.transport === 'udp')) return false;
+    return typeof addr.hostname === 'string' && typeof addr.port === 'number';
+  },
+
+  /**
+   * Determine if the HTTP status code is within the 200 range.
+   */
+  statusOK(input) {
+    if (typeof input !== 'number') return false;
+    return String(input)[0] === '2';
   },
 };

@@ -2,10 +2,8 @@ import { describe, expect, it } from '../-test.ts';
 import { Testing } from './mod.ts';
 
 describe('Testing.HttpServer', () => {
-  const Http = Testing.HttpServer;
-
   it('create: listen → dispose (close)', async () => {
-    const server = Http.server();
+    const server = Testing.Http.server();
     expect(server.disposed).to.eql(false);
 
     expect(server.addr.port).to.be.a('number');
@@ -17,7 +15,7 @@ describe('Testing.HttpServer', () => {
   });
 
   it('fetch: default handler', async () => {
-    const server = Http.server(() => new Response('Hello 👋'));
+    const server = Testing.Http.server(() => new Response('Hello 👋'));
     const url = server.url.join('foo');
     const res = await fetch(url);
     expect(res.url).to.eql(url);
@@ -27,8 +25,8 @@ describe('Testing.HttpServer', () => {
   });
 
   it('response: application/json', async () => {
-    const server1 = Http.server(() => Http.json({ foo: 123 }));
-    const server2 = Http.server((req) => Http.json(req, { foo: 456 }));
+    const server1 = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
+    const server2 = Testing.Http.server((req) => Testing.Http.json(req, { foo: 456 }));
     const url1 = server1.url.join('foo');
     const url2 = server2.url.join('bar');
     const res1 = await fetch(url1);
@@ -46,7 +44,7 @@ describe('Testing.HttpServer', () => {
   });
 
   it('response: plain/text', async () => {
-    const server = Http.server(() => Http.text('foobar'));
+    const server = Testing.Http.server(() => Testing.Http.text('foobar'));
     const url = server.url.join('foo');
     const res = await fetch(url);
     expect(res.headers.get('content-type')).to.eql('plain/text');
@@ -55,7 +53,7 @@ describe('Testing.HttpServer', () => {
   });
 
   it('response: error', () => {
-    const res = Http.error(404, 'Not Found');
+    const res = Testing.Http.error(404, 'Not Found');
     expect(res.ok).to.eql(false);
     expect(res.status).to.eql(404);
     expect(res.statusText).to.eql('Not Found');

@@ -29,8 +29,8 @@ describe('ViteConfig.workspace', () => {
     });
 
     it('filter {aliases} list', async () => {
-      const ws = await ViteConfig.workspace({ filter: (e) => e.subpath.startsWith('/client') });
-      const includesClient = (input: string) => input.includes('/client/');
+      const ws = await ViteConfig.workspace({ filter: (e) => e.subpath.includes('/client') });
+      const includesClient = (input: string) => input.includes('/client');
       const isOnlyClients = ws.aliases.every((item) => includesClient(String(item.find)));
       expect(isOnlyClients).to.eql(true);
     });
