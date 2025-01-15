@@ -22,7 +22,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./init": "./src/main/-init.ts",
-    "./main": "./src/main/-main.ts",
+    "./main": "./src/main/-entry.ts",
     "./ui": "./src/ui/mod.ts"
   }
 }
