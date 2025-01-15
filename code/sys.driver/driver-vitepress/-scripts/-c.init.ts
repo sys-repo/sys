@@ -7,4 +7,4 @@
  * deno run -RWNE --allow-run jsr:@sys/driver-vitepress/init
  * ```
  */
-import '../src/-main/-init.ts';
+import '../src/-entry/-init.ts';
