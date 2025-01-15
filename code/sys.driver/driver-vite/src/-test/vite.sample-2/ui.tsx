@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Foo } from '@sys/tmp/client/ui';
+import { Foo } from '@sys/tmp/ui';
 import { Color, css } from '@sys/ui-css/react';
 import type { t } from '../common.ts';
 

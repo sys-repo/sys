@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Foo } from '@sys/tmp/client/ui';
+ * import { Foo } from '@sys/tmp/ui';
  * ```
  */
 export { pkg } from './pkg.ts';
