@@ -8,6 +8,7 @@
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "serve": "deno run -NE ./-scripts/-entry.main.ts --cmd=start"
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
