@@ -10,9 +10,18 @@ type F = t.VitePressEntryLib['main'];
  *       to specify which action to take, and then the paratmers
  *       that pertain to <sub-command> as defined in the <VitePressCmd> type.
  */
-export const main: F = async (argv) => {
-  const args = Args.parse<t.VitePressEntryArgs>(argv);
+export const main: F = async (input) => {
+  const args = wrangle.args(input ?? Deno.args);
   const cmd = args.cmd ?? DEFAULTS.cmd;
+
+  /**
+   * Run the initialization templates.
+   */
+  if (args.cmd === 'init') {
+    const { init } = await import('./u.init.ts');
+    await init(args);
+    return;
+  }
 
   /**
    * Start HMR development server.
@@ -39,13 +48,13 @@ export const main: F = async (argv) => {
   if (args.cmd === 'serve') {
     Log.usageAPI({ cmd: 'serve' });
     const { serve } = await import('./u.serve.ts');
-    await serve(argv);
+    await serve(args);
     return;
   }
 
   if (args.cmd === 'clean') {
     const { clean } = await import('./u.clean.ts');
-    await clean(argv);
+    await clean(args);
     return;
   }
 
@@ -57,7 +66,7 @@ export const main: F = async (argv) => {
 
   if (args.cmd === 'upgrade') {
     const { upgrade } = await import('./u.upgrade.ts');
-    await upgrade(argv);
+    await upgrade(args);
     return;
   }
 
@@ -70,3 +79,13 @@ export const main: F = async (argv) => {
   // Command not matched.
   console.error(`The given --cmd="${c.yellow(c.bold(cmd))}" is not supported`);
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  args(argv: string[] | t.VitePressEntryArgs) {
+    type T = t.VitePressEntryArgs;
+    return Array.isArray(argv) ? Args.parse<T>(argv) : (argv as T);
+  },
+} as const;

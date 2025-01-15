@@ -1,14 +1,13 @@
 import { Process } from '@sys/process';
 import { Semver } from '@sys/std/semver';
 import { ViteLog } from '../m.VitePress/common.ts';
-import { type t, Args, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
+import { type t, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
 
 /**
  * Perform an upgrade on the local project to the
  * latest released version on JSR.
  */
-export async function upgrade(argv: string[]) {
-  const args = Args.parse<t.EntryArgsUpgrade>(argv);
+export async function upgrade(args: t.EntryArgsUpgrade) {
   const { inDir = PATHS.inDir, force = false } = args;
 
   if (args.cmd !== 'upgrade') return;

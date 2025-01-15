@@ -1,10 +1,9 @@
-import { type t, Args, Fs, Path, PATHS } from './common.ts';
+import { type t, Fs, Path, PATHS } from './common.ts';
 
 /**
  * Clean the project of temporary files.
  */
-export async function clean(argv: string[]) {
-  const args = Args.parse<t.EntryArgsClean>(argv);
+export async function clean(args: t.EntryArgsClean) {
   const { inDir = PATHS.inDir } = args;
   if (args.cmd !== 'clean') return;
 

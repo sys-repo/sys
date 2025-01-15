@@ -1,10 +1,9 @@
-import { type t, Args, Fs, HttpServer, PATHS, Pkg, pkg } from './common.ts';
+import { type t, Fs, HttpServer, PATHS, Pkg, pkg } from './common.ts';
 
 /**
  * Run local HTTP server on production bundle.
  */
-export async function serve(argv: string[]) {
-  const args = Args.parse<t.EntryArgsServe>(argv);
+export async function serve(args: t.EntryArgsServe) {
   const { inDir = PATHS.inDir } = args;
 
   if (args.cmd !== 'serve') return;

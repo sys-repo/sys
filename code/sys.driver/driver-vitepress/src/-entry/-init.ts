@@ -1,13 +1,14 @@
 /**
  * @module
- * Run on import:
+ * Entry point for initializing from templates.
  *
- *    Perform new system file/folder scaffolding initialization
- *    of a standard VitePress project.
- *
- * https://vitepress.dev
- *
+ * ```bash
+ * deno run -RWNE --allow-run jsr:@sys/driver-vitepress/init
+ * ```
  */
-import { Cmd } from './mod.ts';
-await Cmd.init(Deno.args);
+import { type t, Args } from './common.ts';
+import { Entry } from './mod.ts';
+
+const args = Args.parse<t.EntryArgsInit>(Deno.args);
+await Entry.main({ ...args, cmd: 'init' });
 Deno.exit(0);

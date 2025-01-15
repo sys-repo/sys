@@ -1,8 +1,4 @@
 import type { t } from './common.ts';
-import { main } from './m.main.ts';
-import { init } from './m.init.ts';
+import { main } from './u.main.ts';
 
-export const Cmd: t.VitePressEntryLib = {
-  init,
-  main,
-};
+export const Entry: t.VitePressEntryLib = { main };
