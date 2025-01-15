@@ -1,1 +1,1 @@
-export { Pkg, rx, Time } from '@sys/std';
+export { Err, Pkg, rx, Time } from '@sys/std';
