@@ -1,9 +1,11 @@
 import { type t, Args, ViteLog } from './common.ts';
+import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
 
 export const Entry: t.ViteEntryLib = {
   dev,
+  build,
   serve,
 
   async entry(input) {
@@ -17,8 +19,13 @@ export const Entry: t.ViteEntryLib = {
       return await Entry.dev(args);
     }
 
+    if (args.cmd === 'build') {
+      if (!args.silent) ViteLog.UsageAPI.log({ cmd: 'build' });
+      return await Entry.build(args);
+    }
+
     if (args.cmd === 'serve') {
-      ViteLog.UsageAPI.log({ cmd: 'serve' });
+      if (!args.silent) ViteLog.UsageAPI.log({ cmd: 'serve' });
       return Entry.serve(args);
     }
   },

@@ -10,6 +10,6 @@
 import { type t, Args } from './common.ts';
 import { Entry } from './mod.ts';
 
-const args = Args.parse<t.EntryArgsServe>(Deno.args);
+const args = Args.parse<t.ViteEntryArgsServe>(Deno.args);
 await Entry.serve({ ...args, cmd: 'serve' });
 Deno.exit(0);

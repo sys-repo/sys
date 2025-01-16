@@ -9,20 +9,31 @@ export type ViteEntryLib = {
   /** Main entry: [argv] "cmd" parse and delegate.  */
   entry(argv?: string[] | t.ViteEntryArgs): Promise<void>;
 
-  /** Start the HTTP static server on the bundled `dist/*` folder. */
-  serve(args: t.EntryArgsServe): Promise<void>;
+  /** Start the HMR `dev` server. */
+  dev(args: t.ViteEntryArgsDev): Promise<void>;
 
-  /** The HMR `dev` server. */
-  dev(args: t.EntryArgsDev): Promise<void>;
+  /** Build the production `dist` bundle. */
+  build(args: t.ViteEntryArgsBuild): Promise<void>;
+
+  /** Start the HTTP static server on the bundled `dist/*` folder. */
+  serve(args: t.ViteEntryArgsServe): Promise<void>;
 };
 
 /**
  * ARGV (Command Line Arguments)
  */
-export type ViteEntryArgs = EntryArgsDev | EntryArgsServe;
+export type ViteEntryArgs = ViteEntryArgsDev | ViteEntryArgsBuild | ViteEntryArgsServe;
 
 /** The HMR `dev` server. */
-export type EntryArgsDev = { cmd: 'dev'; input?: P; open?: boolean };
+export type ViteEntryArgsDev = { cmd: 'dev'; input?: P; open?: boolean };
+
+/** The `build` project command. */
+export type ViteEntryArgsBuild = {
+  cmd: 'build';
+  input?: P;
+  output?: P;
+  silent?: boolean;
+};
 
 /** The `serve` the built project `/dist` folder command. */
-export type EntryArgsServe = { cmd: 'serve'; port?: number; dir?: P };
+export type ViteEntryArgsServe = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };

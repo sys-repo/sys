@@ -4,12 +4,12 @@
  * HMR: hot-module-reload
  *
  * ```bash
- * deno run jsr:@sys/driver-vitepress/dev
+ * deno run jsr:@sys/driver-vitepress/build
  * ```
  */
 import { type t, Args } from './common.ts';
 import { Entry } from './mod.ts';
 
-const args = Args.parse<t.ViteEntryArgsDev>(Deno.args);
-await Entry.dev({ ...args, cmd: 'dev' });
+const args = Args.parse<t.ViteEntryArgsBuild>(Deno.args);
+await Entry.build({ ...args, cmd: 'build' });
 Deno.exit(0);

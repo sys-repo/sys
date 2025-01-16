@@ -21,9 +21,19 @@ NB: <UI Framework™️> agnostic.
 
 ### Usage (Command Line)
 
-Serve the built distribution folder (`./dist/*`) via static HTTP server.
+Start the live (HMR) development server.
 ```bash
-deno run -RNE --allow-run jsr:@sys/driver-vite/serve
+deno run -RWNE --allow-run --allow-ffi jsr:@sys/driver-vite/dev
+```
+
+Build the production `./dist` bundle.
+```bash
+deno run -RWE --allow-run --allow-ffi jsr:@sys/driver-vite/build
+```
+
+Serve the built distribution folder (`./dist`) via static HTTP server.
+```bash
+deno run -RNE --allow-run --allow-ffi jsr:@sys/driver-vite/serve
 ```
 
 

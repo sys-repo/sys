@@ -8,7 +8,7 @@
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev --input=./src/-test/vite.sample-2/index.html",
-    "build": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-build.ts",
+    "build": "deno run -RWE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build --input=./src/-test/vite.sample-2/index.html",
     "serve": "deno run -RNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve"
   },
   "exports": {
@@ -16,7 +16,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./log": "./src/m.Log/mod.ts",
-    "./serve": "./src/-entry/-serve.ts",
-    "./dev": "./src/-entry/-dev.ts"
+    "./dev": "./src/-entry/-dev.ts",
+    "./build": "./src/-entry/-build.ts",
+    "./serve": "./src/-entry/-serve.ts"
   }
 }
