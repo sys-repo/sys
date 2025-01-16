@@ -33,3 +33,46 @@ deno run -RNE --allow-run jsr:@sys/driver-vite/serve
 
 ![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/a720851d-97c8-4feb-439c-6e4a41be6b00/original)
 
+
+
+## Configuration
+
+Within the `vite.config.ts` file in the root of your module folder:
+
+```ts
+import { Vite } from '@sys/driver-vite';
+import { defineConfig } from 'vite';
+import reactPlugin from '@vitejs/plugin-react-swc';
+
+export default defineConfig(() => {
+  const workspace = Vite.Plugin.workspace();
+  return { plugins: [reactPlugin(), workspace] };
+});
+```
+ 
+Optionally, you can filter the workspace modules that are exposed
+to the Vite bundle:
+ 
+```ts
+export default defineConfig(() => {
+  const workspace = Vite.Plugin.workspace({ filter: (e) => e.subpath.startsWith('/client') });
+  return { plugins: [reactPlugin(), workspace] };
+});
+```
+ 
+Along with the option to manulate the configuration further after the initial
+baseline settings have initialized, using the `mutate` plugin callback.
+
+```ts
+export default defineConfig(() => {
+  const workspace = Vite.Plugin.workspace({ 
+    mutate(e) {
+      console.info(c.dim(`\n👋 (callback inside plugin)`));
+      if (e.ws) console.info(e.ws.toString({ pad: true }));
+    },
+  });
+  return { plugins: [reactPlugin(), workspace] };
+});
+```
+
+See [basic](./vite.config.-sample.simple.ts) and [custom](./vite.config.-sample.custom.ts) `vite.config.ts` sample files.
