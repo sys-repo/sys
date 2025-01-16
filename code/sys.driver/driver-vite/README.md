@@ -1,6 +1,7 @@
 # Vite Driver
 
-Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and dev-harness within [Deno](https://docs.deno.com/) workspaces.
+Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and design-time dev harness 
+within a multi-module [Deno](https://docs.deno.com/) workspaces.
 
 <p>&nbsp;<p>
 
