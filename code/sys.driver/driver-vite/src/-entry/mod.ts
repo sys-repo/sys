@@ -1,11 +1,26 @@
-import { type t, Args } from './common.ts';
+import { type t, Args, ViteLog } from './common.ts';
+import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
 
 export const Entry: t.ViteEntryLib = {
+  dev,
   serve,
+
   async entry(input) {
     const args = wrangle.args(input ?? Deno.args);
-    if (args.cmd === 'serve') return Entry.serve(args);
+
+    /**
+     * Start HMR development server.
+     */
+    if (args.cmd === 'dev') {
+      ViteLog.UsageAPI.log({ cmd: 'dev' });
+      return await Entry.dev(args);
+    }
+
+    if (args.cmd === 'serve') {
+      ViteLog.UsageAPI.log({ cmd: 'serve' });
+      return Entry.serve(args);
+    }
   },
 };
 

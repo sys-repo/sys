@@ -1,4 +1,4 @@
-import { type t, HttpServer, Pkg, pkg } from './common.ts';
+import { type t, HttpServer, pkg, Pkg } from './common.ts';
 
 /**
  * Run a local HTTP server from entry command-args.

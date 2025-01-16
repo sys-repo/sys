@@ -11,6 +11,9 @@ export type ViteEntryLib = {
 
   /** Start the HTTP static server on the bundled `dist/*` folder. */
   serve(args: t.EntryArgsServe): Promise<void>;
+
+  /** The HMR `dev` server. */
+  dev(args: t.EntryArgsDev): Promise<void>;
 };
 
 /**
@@ -18,8 +21,8 @@ export type ViteEntryLib = {
  */
 export type ViteEntryArgs = EntryArgsDev | EntryArgsServe;
 
-/** The `dev` server command. */
-export type EntryArgsDev = { cmd: 'dev'; dir?: P; open?: boolean };
+/** The HMR `dev` server. */
+export type EntryArgsDev = { cmd: 'dev'; input?: P; open?: boolean };
 
 /** The `serve` the built project `/dist` folder command. */
 export type EntryArgsServe = { cmd: 'serve'; port?: number; dir?: P };

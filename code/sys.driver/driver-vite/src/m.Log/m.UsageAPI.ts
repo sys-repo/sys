@@ -32,10 +32,9 @@ export const UsageAPI: t.ViteLogUsageApi = {
     }
     push('help', `Show help.`);
 
-
     const COMMAND = `[${c.bold('COMMAND')}]`;
     console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : COMMAND}`)}`));
-    table.render();
-    console.info(``);
+    console.info('');
+    console.info(table.toString().trim());
   },
 };

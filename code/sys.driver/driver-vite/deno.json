@@ -16,6 +16,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./log": "./src/m.Log/mod.ts",
-    "./serve": "./src/-entry/-serve.ts"
+    "./serve": "./src/-entry/-serve.ts",
+    "./dev": "./src/-entry/-dev.ts"
   }
 }
