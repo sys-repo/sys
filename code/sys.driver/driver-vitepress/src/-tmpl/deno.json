@@ -1,9 +1,9 @@
 {
   "version": "0.0.0",
   "tasks": {
-    "dev": "deno run -RWNE --allow-run <ENTRY> --cmd=dev",
-    "build": "deno run -RWE --allow-run <ENTRY> --cmd=build",
-    "serve": "deno run -RNE --allow-run <ENTRY> --cmd=serve",
+    "dev": "deno run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=dev",
+    "build": "deno run -RWE --allow-run --allow-ffi <ENTRY> --cmd=build",
+    "serve": "deno run -RNE --allow-run --allow-ffi <ENTRY> --cmd=serve",
     "clean": "deno run -RWE <ENTRY> --cmd=clean",
     "upgrade": "deno run -RWNE --allow-run <ENTRY> --cmd=upgrade",
     "backup": "deno run -RWE --allow-run <ENTRY> --cmd=backup",
