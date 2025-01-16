@@ -1,20 +1,17 @@
-import { UsageAPI } from '../../../driver-vite/src/m.Log/m.UsageAPI.ts';
 import {
   type t,
   c,
   Cli,
   Date as D,
   Fs,
+  HashFmt,
   Path,
   PATHS,
   pkg,
   Pkg,
   Str,
   ViteLog,
-  HashFmt,
 } from './common.ts';
-
-type Cmd = t.VitePressEntryArgs['cmd'];
 
 /**
  * Console logging operations for the module.
