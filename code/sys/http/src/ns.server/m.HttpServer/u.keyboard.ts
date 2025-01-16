@@ -11,13 +11,14 @@ export async function keyboard(args: {
 }) {
   if (args.print) {
     const table = Cli.table([]);
-    const push = (description: string, keyCommand: string) => {
+    const push = (keyCommand: string, description: string) => {
       description = c.gray(` ${description}`);
       keyCommand = `  ${keyCommand}`;
       table.push([keyCommand, description]);
     };
-    push(`Open ${c.dim('in browser')}`, `${c.bold('o')}`);
-    push('Quit', c.bold('ctrl + c'));
+    push(`${c.bold('o')}`, `Open ${c.green('in browser')}`);
+    push(c.bold('q'), 'Quit');
+    push(c.bold('ctrl + c'), 'Quit');
 
     console.info(c.gray('Keyboard'));
     console.info(table.toString());
@@ -37,7 +38,10 @@ export async function keyboard(args: {
     /**
      * QUIT → shutdown server and exit.
      */
-    if (e.ctrlKey && e.key === 'c') {
+    let isQuit = false;
+    if (e.ctrlKey && e.key === 'c') isQuit = true;
+    if (e.key === 'q') isQuit = true;
+    if (isQuit) {
       await args.dispose?.();
       Deno.exit(0);
     }
