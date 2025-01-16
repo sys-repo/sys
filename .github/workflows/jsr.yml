@@ -29,6 +29,12 @@ jobs:
         with:
           deno-version: v2
 
+      - name: publish module → "@sys/ui-react"
+        run: |
+          cd code/ui/ui-react
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/tmp"
         run: |
           cd code/sys.tmp
