@@ -2,6 +2,12 @@ import { describe, expect, it, Testing } from '../../-test.ts';
 import { R } from './common.ts';
 import { Net, Port } from './mod.ts';
 
+const NO_SANITIZE = {
+  // Disable resource-leak checks and op-leak checks.
+  sanitizeOps: false,
+  sanitizeResources: false,
+};
+
 describe('Net', () => {
   it('API', () => {
     expect(Net.Port).to.equal(Port);
@@ -9,7 +15,7 @@ describe('Net', () => {
   });
 
   describe('Net.Port', () => {
-    it('Port.random()', async () => {
+    it('Port.random()', NO_SANITIZE, async () => {
       await Testing.retry(3, () => {
         const ports = [...Array(30)].map(() => Port.random());
         expect(R.equals(R.uniq(ports), ports)).to.eql(true);
@@ -17,7 +23,7 @@ describe('Net', () => {
       });
     });
 
-    it('Port.inUse: false', async () => {
+    it('Port.inUse: false', NO_SANITIZE, async () => {
       await Testing.retry(3, () => {
         // NB: check that none of the randomly generated ports are in use.
         const ports = [...Array(10)].map(() => Port.random());
