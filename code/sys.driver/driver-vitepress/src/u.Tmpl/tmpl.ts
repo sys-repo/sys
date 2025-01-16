@@ -1,4 +1,5 @@
 import { Main } from '@sys/main/cmd';
+import { pkg as vitePkg } from '@sys/driver-vite';
 
 import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
 import { saveTemplateFiles } from './bundle.write.ts';
@@ -31,7 +32,8 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
+        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
+        .replace(/<VITE_VERSION>/, vitePkg.version);
 
       return e.modify(text);
     }

@@ -14,6 +14,8 @@ export default async () => {
   const ws = await ViteConfig.workspace({});
   console.log('ws', ws);
 
+  console.log('ws.exists', ws.exists);
+
   return defineConfig({
     title,
     description,

@@ -12,6 +12,7 @@
     "tmp": "deno run -A npm:orbiter-cli"
   },
   "imports": {
-    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
+    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@<VITE_VERSION>"
   }
 }
