@@ -4,7 +4,7 @@
  * @example
  * Invoked via deno run command:
  * ```bash
- *  deno run -NE jsr:@sys/http/server/start --port=1234
+ *  deno run jsr:@sys/http/server/start --port=1234
  * ```
  */
 import '../src/-entry/-main.ts';
