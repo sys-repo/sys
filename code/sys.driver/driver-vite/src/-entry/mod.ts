@@ -1,3 +1,7 @@
+/**
+ * @module
+ * The entry points, when using the module from the command-line [argv].
+ */
 import { type t, Args, ViteLog } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
@@ -8,7 +12,7 @@ export const Entry: t.ViteEntryLib = {
   build,
   serve,
 
-  async entry(input) {
+  async main(input) {
     const args = wrangle.args(input ?? Deno.args);
 
     /**

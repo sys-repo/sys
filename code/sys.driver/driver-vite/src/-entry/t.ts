@@ -7,7 +7,7 @@ type P = t.StringPath;
  */
 export type ViteEntryLib = {
   /** Main entry: [argv] "cmd" parse and delegate.  */
-  entry(argv?: string[] | t.ViteEntryArgs): Promise<void>;
+  main(argv?: string[] | t.ViteEntryArgs): Promise<void>;
 
   /** Start the HMR `dev` server. */
   dev(args: t.ViteEntryArgsDev): Promise<void>;
