@@ -4,7 +4,7 @@ import { type t, c, Log, PATHS, pkg } from './common.ts';
 /**
  * Run the initialization templates.
  */
-export async function init(args: t.EntryArgsInit) {
+export async function init(args: t.VitePressEntryArgsInit) {
   const { inDir = PATHS.inDir, silent = false } = args;
   if (args.cmd !== 'init') return;
 
@@ -17,7 +17,7 @@ export async function init(args: t.EntryArgsInit) {
 
   if (!silent) {
     console.info();
-    Log.usageAPI();
+    Log.UsageAPI.log();
     console.info();
   }
 }

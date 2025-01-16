@@ -27,7 +27,7 @@ export const main: F = async (input) => {
    * Start HMR development server.
    */
   if (args.cmd === 'dev') {
-    Log.usageAPI({ cmd: 'dev' });
+    Log.UsageAPI.log({ cmd: 'dev' });
     const { inDir = PATHS.inDir } = args;
     const server = await VitePress.dev({ inDir, pkg });
     await server.listen();
@@ -38,7 +38,7 @@ export const main: F = async (input) => {
    * Transpile the production bundle (Pkg).
    */
   if (args.cmd === 'build') {
-    Log.usageAPI({ cmd: 'build' });
+    Log.UsageAPI.log({ cmd: 'build' });
     const { inDir = PATHS.inDir } = args;
     const res = await VitePress.build({ inDir, pkg });
     console.info(res.toString({ pad: true }));
@@ -46,7 +46,7 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'serve') {
-    Log.usageAPI({ cmd: 'serve' });
+    Log.UsageAPI.log({ cmd: 'serve' });
     const { serve } = await import('./u.serve.ts');
     await serve(args);
     return;

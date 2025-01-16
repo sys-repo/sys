@@ -10,12 +10,24 @@ export type ViteLogLib = {
   /** Log pkg/module details. */
   readonly Module: t.ViteLogModuleLib;
 
+  /** Log the common "dev/build/serve" API.  */
+  readonly UsageAPI: t.ViteLogUsageApi;
+
   /** Helper for padding an output string. */
   pad(text: string, pad?: boolean): string;
 
   /** Format the digest-hash */
   digest(hash?: t.StringHash): string;
 };
+
+/**
+ * Log the common "dev/build/serve" API.
+ */
+export type ViteLogUsageApi = {
+  /** Render to console. */
+  log(args?: t.ViteLogUsageApiArgs): void;
+};
+export type ViteLogUsageApiArgs = { cmd?: string; minimal?: boolean };
 
 /**
  * Log bundled distribution details.

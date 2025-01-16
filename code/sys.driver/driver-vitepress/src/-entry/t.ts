@@ -20,29 +20,29 @@ export type VitePressEntryLib = {
  * Arguments passed into the main CLI entry point.
  */
 export type VitePressEntryArgs =
-  | EntryArgsInit
-  | EntryArgsDev
-  | EntryArgsBuild
-  | EntryArgsServe
-  | EntryArgsClean
-  | EntryArgsUpgrade
-  | EntryArgsBackup
-  | EntryArgsHelp;
+  | VitePressEntryArgsInit
+  | VitePressEntryArgsDev
+  | VitePressEntryArgsBuild
+  | VitePressEntryArgsServe
+  | VitePressEntryArgsClean
+  | VitePressEntryArgsUpgrade
+  | VitePressEntryArgsBackup
+  | VitePressEntryArgsHelp;
 
 /** The `init` command. */
-export type EntryArgsInit = { cmd: 'init'; inDir?: P; silent?: boolean };
+export type VitePressEntryArgsInit = { cmd: 'init'; inDir?: P; silent?: boolean };
 
 /** The `dev` server command. */
-export type EntryArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
+export type VitePressEntryArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
 
 /** The `build` project command. */
-export type EntryArgsBuild = { cmd: 'build'; inDir?: P };
+export type VitePressEntryArgsBuild = { cmd: 'build'; inDir?: P };
 
-/** The `serve` built project command. */
-export type EntryArgsServe = { cmd: 'serve'; inDir?: P };
+/** The `serve` the built project `/dist` folder command. */
+export type VitePressEntryArgsServe = { cmd: 'serve'; inDir?: P };
 
 /** The `upgrade` command. */
-export type EntryArgsUpgrade = {
+export type VitePressEntryArgsUpgrade = {
   cmd: 'upgrade';
   inDir?: P;
   force?: boolean;
@@ -50,10 +50,15 @@ export type EntryArgsUpgrade = {
 };
 
 /** The `clean` command. */
-export type EntryArgsClean = { cmd: 'clean'; inDir?: P };
+export type VitePressEntryArgsClean = { cmd: 'clean'; inDir?: P };
 
 /** The `backup` command. */
-export type EntryArgsBackup = { cmd: 'backup'; inDir?: P; includeDist?: boolean; force?: boolean };
+export type VitePressEntryArgsBackup = {
+  cmd: 'backup';
+  inDir?: P;
+  includeDist?: boolean;
+  force?: boolean;
+};
 
 /** The `help` information command. */
-export type EntryArgsHelp = { cmd: 'help'; inDir?: P };
+export type VitePressEntryArgsHelp = { cmd: 'help'; inDir?: P };

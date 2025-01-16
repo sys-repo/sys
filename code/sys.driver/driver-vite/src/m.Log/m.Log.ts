@@ -1,6 +1,9 @@
 import { type t, c, HashFmt, Path, Str, Time } from '../common.ts';
+import { UsageAPI } from './m.UsageAPI.ts';
 
 export const ViteLog: t.ViteLogLib = {
+  UsageAPI,
+
   digest(hash?: t.StringHash) {
     if (!hash) return '';
     const uri = HashFmt.digest(hash);
