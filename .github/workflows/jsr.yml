@@ -31,8 +31,8 @@ jobs:
 
       - name: publish module → "@sys/ui-react"
         run: |
-          cd code/ui/ui-react
-          deno task test --parallel --trace-leaks
+          cd code/sys.ui/ui-react
+          deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/tmp"
