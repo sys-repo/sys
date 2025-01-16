@@ -27,6 +27,7 @@ export type HttpServerOptionsOptions = {
   port?: number;
   pkg?: t.Pkg;
   hash?: t.StringHash;
+  silent?: boolean;
 };
 
 /** Arguments passed to [HttpServer.print] */
