@@ -1,4 +1,4 @@
-
+// @ts-types="@types/react"
 import React from 'react';
 
 export type MyComponentProps = {

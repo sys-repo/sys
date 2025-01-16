@@ -7,24 +7,14 @@ import { ViteConfig } from '@sys/driver-vite';
 
 export default async () => {
   const { title, description } = Config;
-
-  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨||||🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
-  console.log('ViteConfig', ViteConfig);
-
   const ws = await ViteConfig.workspace({});
-  console.log('ws', ws);
-
-  console.log('ws.exists', ws.exists);
-
+  const alias = ws.aliases;
   return defineConfig({
     title,
     description,
     srcDir: '<SRC_DIR>',
     markdown,
-    themeConfig: {
-      sidebar,
-      search: { provider: 'local' },
-    },
-    vite: {},
+    themeConfig: { sidebar, search: { provider: 'local' } },
+    vite: { resolve: { alias } },
   });
 };

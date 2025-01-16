@@ -1,3 +1,4 @@
+// @ts-types="@types/react"
 import React from 'react';
 
 import '@vidstack/react/player/styles/base.css';
@@ -9,8 +10,8 @@ import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr
 /**
  * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
  */
-// import { Foo } from '@sys/tmp/ui';
-// console.log('Foo', Foo);
+import { Foo } from '@sys/tmp/ui';
+console.log('Foo', Foo);
 
 export type VideoProps = {
   title?: string;
@@ -22,6 +23,9 @@ export type VideoProps = {
  */
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
+
+  return <Foo />;
+
   return (
     <MediaPlayer title={props.title} src={src} playsInline={true}>
       <MediaProvider />
