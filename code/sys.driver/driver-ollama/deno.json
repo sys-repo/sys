@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-ollama",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",

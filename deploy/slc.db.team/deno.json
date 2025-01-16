@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "license": "MIT",
   "tasks": {
     "start": "deno run -RNE --watch ./src/s.main/http-server.ts",
@@ -20,7 +20,9 @@
     "./types": "./src/types.ts"
   },
   "deploy": {
-    "exclude": ["**/node_modules"],
+    "exclude": [
+      "**/node_modules"
+    ],
     "include": [],
     "entrypoint": "src/s.main/http-server.ts"
   }
