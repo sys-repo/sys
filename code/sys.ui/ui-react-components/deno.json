@@ -7,9 +7,9 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
-    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "deno run -RNE --allow-run jsr:@sys/http/server/start"
+    "dev": "deno   run -A ./-scripts/-main.ts --cmd=dev   --in=./src/-test/index.html",
+    "build": "deno run -A ./-scripts/-main.ts --cmd=build --in=./src/-test/index.html",
+    "serve": "deno run -A ./-scripts/-main.ts --cmd=serve --in=./src/-test/index.html"
   },
   "exports": {
     ".": "./src/mod.ts",
