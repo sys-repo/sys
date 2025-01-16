@@ -19,6 +19,14 @@ NB: <UI Framework™️> agnostic.
 
 ---
 
+### Usage (Command Line)
+
+Serve the built distribution folder (`./dist/*`) via static HTTP server.
+```bash
+deno run -RNE --allow-run jsr:@sys/driver-vite/serve
+```
+
+
 <p>&nbsp;<p>
 
 ### Runtime ← Bundler
