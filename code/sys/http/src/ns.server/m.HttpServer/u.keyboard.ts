@@ -16,7 +16,7 @@ export async function keyboard(args: {
       keyCommand = `  ${keyCommand}`;
       table.push([keyCommand, description]);
     };
-    push('Open', `${c.bold('o')} ${c.gray(c.dim('in browser'))}`);
+    push(`Open ${c.dim('in browser')}`, `${c.bold('o')}`);
     push('Quit', c.bold('ctrl + c'));
 
     console.info(c.gray('Keyboard'));
