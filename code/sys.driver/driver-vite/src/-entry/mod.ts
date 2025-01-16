@@ -15,9 +15,6 @@ export const Entry: t.ViteEntryLib = {
   async main(input) {
     const args = wrangle.args(input ?? Deno.args);
 
-    /**
-     * Start HMR development server.
-     */
     if (args.cmd === 'dev') {
       ViteLog.UsageAPI.log({ cmd: 'dev' });
       return await Entry.dev(args);
