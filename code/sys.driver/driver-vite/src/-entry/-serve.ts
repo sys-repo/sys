@@ -4,7 +4,7 @@
  * via a plain HTTP server.
  *
  * ```bash
- * deno run jsr:@sys/driver-vitepress/serve
+ * deno run jsr:@sys/driver-vite/serve
  * ```
  */
 import { type t, Args } from './common.ts';

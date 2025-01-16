@@ -4,7 +4,7 @@
  * HMR: hot-module-reload
  *
  * ```bash
- * deno run jsr:@sys/driver-vitepress/build
+ * deno run jsr:@sys/driver-vite/build
  * ```
  */
 import { type t, Args } from './common.ts';
