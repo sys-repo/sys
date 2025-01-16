@@ -7,14 +7,14 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "init": "deno run -RWNE --allow-run ./-scripts/-main.ts --cmd=init --inDir=./.tmp/sample",
-    "dev": "deno run -RWNE --allow-run ./-scripts/-main.ts --cmd=dev --inDir=./.tmp/sample",
+    "init": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init --inDir=./.tmp/sample",
+    "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev --inDir=./.tmp/sample",
     "build": "deno run -RWE --allow-run ./-scripts/-main.ts --cmd=build --inDir=./.tmp/sample",
     "serve": "deno run -RNE --allow-run ./-scripts/-main.ts --cmd=serve --inDir=./.tmp/sample",
     "upgrade": "deno run -RWNE --allow-run ./-scripts/-main.ts --cmd=upgrade --inDir=./.tmp/sample",
     "backup": "deno run -RWE --allow-run ./-scripts/-main.ts --cmd=backup --inDir=./.tmp/sample",
     "help": "deno run -RE ./-scripts/-main.ts --cmd=help --inDir=./.tmp/sample",
-    "prep": "deno run -RWE ./-scripts/-prep.ts",
+    "prep": "deno run -RWE --allow-ffi ./-scripts/-prep.ts",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
