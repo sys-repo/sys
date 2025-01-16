@@ -5,12 +5,13 @@ import { type t, Cli, pkg, Vite } from './common.ts';
  */
 export async function build(args: t.ViteEntryArgsBuild) {
   if (args.cmd !== 'build') return;
-  const { input = '', silent } = args;
+  const { silent } = args;
 
   if (!silent) console.info();
   const spinner = Cli.Spinner.create('building', { silent });
 
-  const outDir = args.output;
+  const input = args.in ?? '';
+  const outDir = args.out;
   const bundle = await Vite.build({ pkg, input, outDir, silent });
 
   if (!silent) {

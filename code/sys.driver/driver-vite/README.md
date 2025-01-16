@@ -41,9 +41,9 @@ Sample `deno.json` file
 ```json
 {
   "tasks": {
-    "dev": "deno   run -A jsr:@sys/driver-vite/dev   --input=./src/-entry/index.html",
-    "build": "deno run -A jsr:@sys/driver-vite/build --input=./src/-entry/index.html",
-    "serve": "deno run -A jsr:@sys/driver-vite/serve --input=./src/-entry/index.html"
+    "dev": "deno   run -A jsr:@sys/driver-vite/dev   --in=./src/-entry/index.html",
+    "build": "deno run -A jsr:@sys/driver-vite/build --in=./src/-entry/index.html",
+    "serve": "deno run -A jsr:@sys/driver-vite/serve --in=./src/-entry/index.html"
   },
 }
 ```

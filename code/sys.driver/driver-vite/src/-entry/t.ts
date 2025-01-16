@@ -25,13 +25,13 @@ export type ViteEntryLib = {
 export type ViteEntryArgs = ViteEntryArgsDev | ViteEntryArgsBuild | ViteEntryArgsServe;
 
 /** The HMR `dev` server. */
-export type ViteEntryArgsDev = { cmd: 'dev'; input?: P; open?: boolean };
+export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };
 
 /** The `build` project command. */
 export type ViteEntryArgsBuild = {
   cmd: 'build';
-  input?: P;
-  output?: P;
+  in?: P;
+  out?: P;
   silent?: boolean;
 };
 

@@ -5,7 +5,7 @@ import { pkg, type t, Vite } from './common.ts';
  */
 export async function dev(args: t.ViteEntryArgsDev) {
   if (args.cmd !== 'dev') return;
-  const { input = '' } = args;
+  const input = args.in ?? '';
   const server = await Vite.dev({ pkg, input });
   await server.listen();
 }

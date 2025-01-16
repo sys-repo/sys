@@ -7,8 +7,8 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev --input=./src/-test/vite.sample-2/index.html",
-    "build": "deno run -RWE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build --input=./src/-test/vite.sample-2/index.html",
+    "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev --in=./src/-test/vite.sample-2/index.html",
+    "build": "deno run -RWE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build --in=./src/-test/vite.sample-2/index.html",
     "serve": "deno run -RNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve"
   },
   "exports": {
