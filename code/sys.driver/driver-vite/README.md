@@ -24,17 +24,28 @@ NB: <UI Framework™️> agnostic.
 
 Start the live (HMR) development server.
 ```bash
-deno run -RWNE --allow-run --allow-ffi jsr:@sys/driver-vite/dev
+deno run jsr:@sys/driver-vite/dev
 ```
 
-Build the production `./dist` bundle.
+Build the production `dist/` bundle.
 ```bash
-deno run -RWE --allow-run --allow-ffi jsr:@sys/driver-vite/build
+deno run jsr:@sys/driver-vite/build
 ```
 
-Serve the built distribution folder (`./dist`) via static HTTP server.
+Serve the built distribution folder (`dist/`) via static HTTP server.
 ```bash
-deno run -RNE --allow-run --allow-ffi jsr:@sys/driver-vite/serve
+deno run jsr:@sys/driver-vite/serve
+```
+
+Sample `deno.json` file
+```json
+{
+  "tasks": {
+    "dev": "deno   run -A jsr:@sys/driver-vite/dev   --input=./src/-entry/index.html",
+    "build": "deno run -A jsr:@sys/driver-vite/build --input=./src/-entry/index.html",
+    "serve": "deno run -A jsr:@sys/driver-vite/serve --input=./src/-entry/index.html"
+  },
+}
 ```
 
 
