@@ -16,7 +16,7 @@ describe('Id', () => {
     });
 
     it('ids are unique', () => {
-      const ids = new Array(1000).map(() => Id.cuid());
+      const ids = Array.from({ length: 1000 }).map(() => Id.cuid());
       expect(ids.length).to.eql(R.uniq(ids).length);
     });
 
@@ -26,7 +26,7 @@ describe('Id', () => {
 
     it('Id.Is.cuid( )', () => {
       ['', true, 123, [], {}, null, undefined].forEach((v) => expect(Id.Is.cuid(v)).to.eql(false));
-      new Array(50).forEach(() => {
+      Array.from({ length: 50 }).forEach(() => {
         const cuid = Id.cuid();
         const slug = Id.slug();
         expect(Id.Is.cuid(cuid)).to.eql(true);
@@ -43,12 +43,12 @@ describe('Id', () => {
     });
 
     it('ids are unique (1000)', () => {
-      const ids = new Array(1000).map(() => Id.slug());
+      const ids = Array.from({ length: 1000 }).map(() => Id.slug());
       expect(ids.length).to.eql(R.uniq(ids).length);
     });
 
     it('ids are unique (1000)', () => {
-      const ids = new Array(1000).map(() => Id.slug());
+      const ids = Array.from({ length: 1000 }).map(() => Id.slug());
       expect(ids.length).to.eql(R.uniq(ids).length);
     });
 
@@ -63,7 +63,7 @@ describe('Id', () => {
 
     it('Id.Is.slug( )', () => {
       ['', true, 123, [], {}, null, undefined].forEach((v) => expect(Id.Is.cuid(v)).to.eql(false));
-      new Array(50).forEach(() => {
+      Array.from({ length: 50 }).forEach(() => {
         const cuid = Id.cuid();
         const slug = Id.slug();
         expect(Id.Is.slug(cuid)).to.eql(false);
