@@ -18,11 +18,12 @@ export const Paths = {
     'code/sys/std-s',
     'code/sys.tmp',
     
+    'code/sys/random',
     'code/sys/http',
     'code/sys/cmd',
     'code/sys/text',
     'code/sys/tmpl',
-    './code/sys/jsr',
+    'code/sys/jsr',
 
     /**
      * UI
