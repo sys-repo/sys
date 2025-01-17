@@ -40,6 +40,11 @@ export const createTmpl: t.VitePressTmplFactory = async (args) => {
       return e.modify(text);
     }
 
+    if (e.target.relative === 'package.json') {
+      const text = e.text.tmpl.replace(/<TMP_VERSION>/, tmpPkg.version);
+      return e.modify(text);
+    }
+
     if (e.target.relative === 'docs/index.md') {
       const text = e.text.tmpl.replace(/\<DRIVER_VER\>/g, pkg.version);
       return e.modify(text);
