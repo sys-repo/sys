@@ -1,10 +1,10 @@
 {
   "name": "@sys/driver-vitepress",
-  "version": "0.0.214",
+  "version": "0.0.215",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run",
+    "lint": "deno    lint",
+    "dry": "deno     publish --allow-dirty --dry-run",
     "clean": "deno   run -RWE ./-scripts/-clean.ts",
     "test": "deno    test -RWNE --allow-run --allow-ffi",
     "init": "deno    run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init --inDir=./.tmp/sample",
