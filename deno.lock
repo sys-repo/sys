@@ -46,7 +46,6 @@
     "npm:@noble/hashes@1": "1.7.0",
     "npm:@noble/hashes@1.7.0": "1.7.0",
     "npm:@onsetsoftware/automerge-patcher@0.14.0": "0.14.0_@automerge+automerge@2.2.8",
-    "npm:@paralleldrive/cuid2@2.2.2": "2.2.2",
     "npm:@privy-io/server-auth@1.16.9": "1.16.9",
     "npm:@swc/plugin-emotion@8.0.3": "8.0.3",
     "npm:@types/diff@6.0.0": "6.0.0",
@@ -866,12 +865,6 @@
       "dependencies": [
         "@automerge/automerge",
         "is-plain-object"
-      ]
-    },
-    "@paralleldrive/cuid2@2.2.2": {
-      "integrity": "sha512-ZOBkgDwEdoYVlSeRbYYXs0S9MejQofiVYoTbKzy/6GQa39/q5tQU2IX46+shYnUkpEl3wc+J6wRlar7r2EK2xA==",
-      "dependencies": [
-        "@noble/hashes"
       ]
     },
     "@pkgjs/parseargs@0.11.0": {
@@ -2926,7 +2919,6 @@
       "npm:@automerge/automerge@2",
       "npm:@noble/hashes@1.7.0",
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
-      "npm:@paralleldrive/cuid2@2.2.2",
       "npm:@privy-io/server-auth@1.16.9",
       "npm:@types/diff@6.0.0",
       "npm:approx-string-match@2",
