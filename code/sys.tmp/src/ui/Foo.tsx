@@ -1,6 +1,6 @@
 // @ts-types="@types/react"
 import React from 'react';
-import { pkg } from './common.ts';
+import { pkg } from '../pkg.ts';
 
 /**
  * Sample component properties.
