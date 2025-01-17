@@ -73,8 +73,8 @@ const is = {
   },
   userspace(path: string): boolean {
     if (is.withinHiddenDir(path)) return false;
-    const exclude = ['.gitignore', 'deno.json', 'package.json'];
-    const isExcluded = exclude.some((m) => path.split('/').slice(-1)[0] === m);
+    const NOT_USERSPACE = ['deno.json', 'package.json', '.npmrc', '.gitignore'];
+    const isExcluded = NOT_USERSPACE.some((m) => path.split('/').slice(-1)[0] === m);
     return !isExcluded;
   },
 } as const;
