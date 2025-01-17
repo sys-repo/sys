@@ -29,11 +29,11 @@ jobs:
         with:
           deno-version: v2
 
-      - name: publish module → "@sys/ui-react"
-        run: |
-          cd code/sys.ui/ui-react
-          deno task test --parallel
-          deno publish --allow-dirty
+      # - name: publish module → "@sys/ui-react"
+      #   run: |
+      #     cd code/sys.ui/ui-react
+      #     deno task test --parallel
+      #     deno publish --allow-dirty
 
       # - name: publish module → "@sys/ui-react-components"
       #   run: |
