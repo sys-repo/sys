@@ -1,15 +1,14 @@
-import { describe, expect, it, Testing, Err } from '../-test.ts';
+import { describe, expect, it, Testing } from '../-test.ts';
 import { assertEnvExists, Sample } from './-u.ts';
 import { VitePress } from './mod.ts';
 
 describe('VitePress.dev', () => {
-  const open = false;
-
   it(
     'process: start → fetch(200) → dispose',
     { sanitizeResources: false, sanitizeOps: false },
     async () => {
-      Testing.retry(3, async () => {
+      await Testing.retry(3, async () => {
+        const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
         await VitePress.Env.update({ inDir });
@@ -40,7 +39,8 @@ describe('VitePress.dev', () => {
     'process: ensures baseline files ← Env.init()',
     { sanitizeResources: false, sanitizeOps: false },
     async () => {
-      Testing.retry(3, async () => {
+      await Testing.retry(3, async () => {
+        const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
         await VitePress.Env.update({ inDir });
