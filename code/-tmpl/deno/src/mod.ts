@@ -1,11 +1,6 @@
 /**
  * @module
- * Tools for ...
- *
- * @example
- * ```ts
- * import { pkg } from 'jsr:@sys/xxx-🐷';
- * ```
+ * Tools for...
  */
 export { pkg } from './pkg.ts';
 
