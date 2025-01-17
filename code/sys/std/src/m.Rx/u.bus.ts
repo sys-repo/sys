@@ -1,4 +1,4 @@
-import { slug } from '../m.Id/mod.ts';
+import { slug } from '../m.Random/mod.ts';
 import { Is } from './m.Is.ts';
 import { connect } from './u.bus.connect.ts';
 import { busAsType, instance, isBus } from './u.bus.util.ts';

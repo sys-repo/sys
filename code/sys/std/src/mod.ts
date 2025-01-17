@@ -29,7 +29,7 @@ export { D, Date, Duration, Time } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
-export { cuid, Id, slug } from './m.Id/mod.ts';
+export { slug } from './m.Random/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';

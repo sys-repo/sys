@@ -20,7 +20,6 @@
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@1",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@1",
 
-    "@paralleldrive/cuid2": "npm:@paralleldrive/cuid2@2.2.2",
     "@privy-io/server-auth": "npm:@privy-io/server-auth@1.16.9",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
