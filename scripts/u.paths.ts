@@ -31,7 +31,12 @@ export const Paths = {
     'code/sys.ui/ui-react',
     'code/sys.ui/ui-react-devharness',
     'code/sys.ui/ui-react-components',
-    
+
+    /**
+     * →| dev/null
+     */
+    'code/sys.tmp',
+
     /**
      * Drivers
      */
@@ -50,11 +55,6 @@ export const Paths = {
      */
     'code/sys/sys',
     'code/sys/main',
-
-    /**
-     * →| dev/null
-     */
-    'code/sys.tmp',
   ],
 
   workspace: Pkg.workspace
