@@ -33,7 +33,6 @@
 
     "./code/sys/std-s",
 
-    "./code/sys/random",
     "./code/sys/http",
     "./code/sys/text",
     "./code/sys/tmpl",

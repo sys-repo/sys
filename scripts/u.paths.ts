@@ -18,7 +18,6 @@ export const Paths = {
     'code/sys/std-s',
     'code/sys.tmp',
     
-    'code/sys/random',
     'code/sys/http',
     'code/sys/cmd',
     'code/sys/text',
