@@ -20,6 +20,13 @@ NB: <UI Framework™️> agnostic.
 
 ---
 
+<p>&nbsp;<p>
+
+### Runtime ← Bundler
+
+![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/a720851d-97c8-4feb-439c-6e4a41be6b00/original)
+
+
 ### Usage (Command Line)
 
 Start the live (HMR) development server.
@@ -51,9 +58,6 @@ Sample `deno.json` file
 
 <p>&nbsp;<p>
 
-### Runtime ← Bundler
-
-![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/a720851d-97c8-4feb-439c-6e4a41be6b00/original)
 
 
 
