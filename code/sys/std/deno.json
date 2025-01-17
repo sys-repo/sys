@@ -12,7 +12,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./args": "./src/m.Args/mod.ts",
-    "./color": "./src/m.Color/mod.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
     "./error": "./src/m.Err/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
