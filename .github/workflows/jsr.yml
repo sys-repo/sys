@@ -41,6 +41,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/color"
+        run: |
+          cd code/sys/types
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli

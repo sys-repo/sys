@@ -9,6 +9,7 @@ export const Paths = {
      */
     'code/sys/types',
     'code/sys/std',
+    'code/sys/path',
     
     'code/sys/testing',
     'code/sys/fs',

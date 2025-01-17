@@ -1,10 +1,8 @@
 import type { t } from './common.ts';
-import * as c from './std-lib.colors.ts';
 
-export {
-  /** Standard ANSI colors. */
-  c,
-};
+/** Standard ANSI colors. */
+import * as c from './std-lib.colors.ts';
+export { c };
 
 /**
  * CLI color formatting tools.
