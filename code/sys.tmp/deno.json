@@ -14,6 +14,6 @@
     "./types": "./src/types.ts",
     "./tmp": "./src/mod.tmp.ts",
     "./ui": "./src/ui/mod.ts",
-    "./sample-imports": "./src/-sample-imports.ts"
+    "./sample-imports": "./src/-sample/-sample-imports.ts"
   }
 }

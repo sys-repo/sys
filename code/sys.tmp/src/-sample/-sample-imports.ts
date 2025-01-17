@@ -9,7 +9,7 @@
  */
 const now = new Date();
 
-import { pkg } from './pkg.ts';
+import { pkg } from '../pkg.ts';
 console.info(`💦 import '${pkg.name}/sample-imports';`);
 
 /**
