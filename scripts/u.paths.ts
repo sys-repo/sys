@@ -2,6 +2,7 @@ import { default as Pkg } from '../deno.json' with { type: 'json' };
 export { Path } from '@sys/std';
 
 export const Paths = {
+  workspace: Pkg.workspace,
   modules: [
     /**
      * @sys: standard libs.
@@ -57,5 +58,4 @@ export const Paths = {
     'code/sys/main',
   ],
 
-  workspace: Pkg.workspace
 } as const;
