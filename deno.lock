@@ -49,7 +49,6 @@
     "npm:@privy-io/server-auth@1.16.9": "1.16.9",
     "npm:@swc/plugin-emotion@8.0.3": "8.0.3",
     "npm:@types/diff@6.0.0": "6.0.0",
-    "npm:@types/minimist@1.2.5": "1.2.5",
     "npm:@types/node@*": "22.5.4",
     "npm:@types/react-dom@18.3.1": "18.3.1",
     "npm:@types/react@18.3.12": "18.3.12",
@@ -67,7 +66,6 @@
     "npm:hono@4.6.16": "4.6.16",
     "npm:ignore@7": "7.0.0",
     "npm:immer@10": "10.1.1",
-    "npm:minimist@1.2.8": "1.2.8",
     "npm:ollama@0.5.12": "0.5.12",
     "npm:openai@4.76.0": "4.76.0",
     "npm:ora@8.1.1": "8.1.1",
@@ -1143,9 +1141,6 @@
     "@types/mdurl@2.0.0": {
       "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg=="
     },
-    "@types/minimist@1.2.5": {
-      "integrity": "sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag=="
-    },
     "@types/node-fetch@2.6.12": {
       "integrity": "sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==",
       "dependencies": [
@@ -2134,9 +2129,6 @@
         "brace-expansion"
       ]
     },
-    "minimist@1.2.8": {
-      "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA=="
-    },
     "minipass@7.1.2": {
       "integrity": "sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw=="
     },
@@ -2959,13 +2951,11 @@
         "npm:@jsr/std__uuid@1.0.4",
         "npm:@noble/hashes@1.7.0",
         "npm:@swc/plugin-emotion@8.0.3",
-        "npm:@types/minimist@1.2.5",
         "npm:@types/react-dom@18.3.1",
         "npm:@types/react@18.3.12",
         "npm:@vidstack/react@next",
         "npm:@vitejs/plugin-react-swc@3",
         "npm:hono@4.6.16",
-        "npm:minimist@1.2.8",
         "npm:react-dom@18.3.1",
         "npm:react-icons@5.4.0",
         "npm:react@18.3.1",
