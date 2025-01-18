@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * CLI color formatting tools.
  */
-export type FmtColorsLib = {
+export type AnsiColorLib = {
   c: AnsiColors;
 };
 
