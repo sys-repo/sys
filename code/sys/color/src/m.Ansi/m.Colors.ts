@@ -1,3 +1,4 @@
+import { Color as rgb } from '../m.Rgb/mod.ts';
 import type { t } from './common.ts';
 
 /** Standard ANSI colors. */
@@ -7,4 +8,7 @@ export { c };
 /**
  * CLI color formatting tools.
  */
-export const Colors: t.AnsiColorLib = { c };
+export const Color: t.AnsiColorLib = {
+  ansi: c,
+  rgb,
+};

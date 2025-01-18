@@ -4,7 +4,8 @@ import type { t } from './common.ts';
  * CLI color formatting tools.
  */
 export type AnsiColorLib = {
-  c: AnsiColors;
+  readonly ansi: AnsiColors;
+  readonly rgb: t.ColorLib;
 };
 
 /**
