@@ -43,7 +43,7 @@ jobs:
 
       - name: publish module → "@sys/color"
         run: |
-          cd code/sys/types
+          cd code/sys/color
           deno task test --parallel
           deno publish --allow-dirty
 
