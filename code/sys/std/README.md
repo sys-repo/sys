@@ -1,6 +1,6 @@
 # @sys/std
 Standard system libraries.  
-Basic low-level  basic language/system helpers.
+Basic low-level utility functions and helpers.
 
 ### System:Std (Standard)
 
