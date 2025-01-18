@@ -1,4 +1,4 @@
-import { Color, COLORS } from '@sys/std/color';
+import { Color, COLORS } from '@sys/color';
 import type * as t from './t.ts';
 
 export const DEFAULTS = {
