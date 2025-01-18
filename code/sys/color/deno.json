@@ -12,6 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/ns.client/mod.ts"
+    "./rgb": "./src/m.Color/mod.ts",
+    "./ansi": "./src/m.Ansi/mod.ts"
   }
 }

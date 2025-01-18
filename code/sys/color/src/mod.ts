@@ -10,4 +10,4 @@ export type * as t from './types.ts';
 /**
  * Library.
  */
-export { Color, COLORS } from './ns.client/m.Color/mod.ts';
+export { Color, COLORS } from './m.Color/mod.ts';
