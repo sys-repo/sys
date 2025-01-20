@@ -1,4 +1,5 @@
-import { c, Process, Fs, Path, Paths } from './u.ts';
+import { c, Fs, Path, Process } from './common.ts';
+import { Paths } from './u.ts';
 
 type DenoJson = {
   name: string;
