@@ -150,12 +150,6 @@ jobs:
       #     deno task test --parallel
       #     deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmp"
-        run: |
-          cd code/sys.tmp
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/driver-deno"
         run: |
           cd code/sys.driver/driver-deno
@@ -165,6 +159,12 @@ jobs:
       - name: publish module → "@sys/driver-immer"
         run: |
           cd code/sys.driver/driver-immer
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
           deno task test --parallel
           deno publish --allow-dirty
 
