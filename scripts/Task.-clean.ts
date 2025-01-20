@@ -30,7 +30,8 @@ export async function main() {
     if (!deno.tasks?.clean) return; // NB: check the task exists before running.
 
     await Process.sh({ silent: true, path }).run('deno task clean');
-    console.info(`${c.cyan('     clean')} ${c.gray(path)}`);
+    const pathFmt = `${c.gray(Path.dirname(path))}/${c.white(Path.basename(path))}`;
+    console.info(`${c.cyan('     clean')} ${pathFmt}`);
   };
 
   for (const path of Paths.workspace) {
