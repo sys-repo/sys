@@ -14,8 +14,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./fs": "./src/mod.fs.ts",
-    "./fmt": "./src/mod.fmt.ts",
-    "./auth": "./src/m.Server.Auth/mod.ts",
-    "./testing": "./src/m.Testing/mod.ts"
+    "./auth": "./src/m.Server.Auth/mod.ts"
   }
 }

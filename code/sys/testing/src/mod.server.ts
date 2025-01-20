@@ -1,14 +1,6 @@
 /**
  * @module
- * Standard testing helpers (surfaced from "@sys/std").
- *
- * @example
- * Import test helpers.
- *
- * ```ts
- * import { expect, describe, it } from '@sys/testing'
- * import { expect, describe, it } from '@sys/testing/std'
- * ```
+ * Server-side testing tools, including HTTP servers.
  *
  * @example
  * A simple unit-test file, named: `-<Subject>.test.ts`.
@@ -19,7 +11,7 @@
  * within the folder structure.
  *
  * ```ts
- * import { Testing, describe, expect, it } from '@std/sys';
+ * import { Testing, describe, expect, it } from '@sys/testing/server';
  *
  * describe('My Suite', () => {
  *   it('does something', async () => {
@@ -28,4 +20,6 @@
  *   });
  * });
  */
-export * from '@sys/std/testing';
+export { Fs, Path } from '@sys/fs';
+export { describe, expect, expectError, it, slug, Time } from '@sys/std/testing';
+export { Testing } from '@sys/std/testing/server';

@@ -1,2 +1,1 @@
-export * from '../common.ts';
-export * from '../m.Testing/mod.ts';
+export * from '@sys/testing/server';
