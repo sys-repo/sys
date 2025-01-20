@@ -15,6 +15,6 @@ export default async () => {
     srcDir: '<SRC_DIR>',
     markdown,
     themeConfig: { sidebar, search: { provider: 'local' } },
-    vite: { resolve: { alias } },
+    vite: { resolve: { alias, preserveSymlinks: true } },
   });
 };
