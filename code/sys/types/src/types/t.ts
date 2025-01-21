@@ -4,10 +4,3 @@
  * that whatever is returned will not be used.)
  */
 export type IgnoredResponse = any | Promise<any>;
-
-/**
- * Direction a list is sorted in
- * - asc:  ascending ↑,
- * - desc: descending ↓
- */
-export type SortOrder = 'asc' | 'desc';
