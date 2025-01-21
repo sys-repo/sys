@@ -1,3 +1,5 @@
 import { type t, describe, it, expect } from '../-test.ts';
 
-describe('suite', () => {});
+describe('suite', () => {
+  it('🐷', async () => {});
+});
