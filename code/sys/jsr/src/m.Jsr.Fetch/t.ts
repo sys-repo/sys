@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.Url.ts';
 
 /**
  * Network fetching helpers against the "jsr.io" end-point.

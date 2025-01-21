@@ -1,6 +1,7 @@
 import { c, describe, expect, it, rx, Semver, slug, Testing } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
-import { Fetch, Url } from './mod.ts';
+import { Url } from './common.ts';
+import { Fetch } from './mod.ts';
 
 describe('Jsr.Fetch', () => {
   it('API', () => {

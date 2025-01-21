@@ -1,5 +1,4 @@
-import { type t, Fetch } from './common.ts';
-import { Url } from './m.Url.ts';
+import { type t, Fetch, Url } from './common.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
