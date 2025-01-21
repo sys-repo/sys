@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Fetch } from '../m.Jsr.Fetch/mod.ts';
+import { Fetch } from '../m.Fetch/mod.ts';
 import { Jsr } from './mod.ts';
 
 describe('Jsr', () => {
