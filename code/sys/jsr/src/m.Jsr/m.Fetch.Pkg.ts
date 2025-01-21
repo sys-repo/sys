@@ -8,10 +8,20 @@ export const Pkg: t.JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
-  versions(name, options = {}) {
+  async versions(name, options = {}) {
     const url = Url.Pkg.metadata(name);
     const fetch = Fetch.disposable(options.dispose$);
-    return fetch.json<t.JsrPkgMetaVersions>(url);
+    const res = await fetch.json<t.JsrPkgMetaVersions>(url);
+    const data = res.data
+      ? {
+          ...res.data,
+          get versions() {
+            // NB: prevent display blow-outs if console logging the response object.
+            return res.data.versions;
+          },
+        }
+      : undefined;
+    return { ...res, data } as t.JsrFetchPkgVersionsResponse;
   },
 
   /**

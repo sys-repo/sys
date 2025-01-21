@@ -1,5 +1,4 @@
-import { Semver } from '@sys/std/semver';
-import { rx, slug, describe, expect, it, Testing } from '../-test.ts';
+import { c, describe, expect, it, rx, Semver, slug, Testing } from '../-test.ts';
 import { Fetch, Jsr, Url } from './mod.ts';
 
 describe('Jsr', () => {
@@ -18,15 +17,22 @@ describe('Jsr', () => {
           expect(res.status).to.eql(200);
           expect(res.error).to.eql(undefined);
 
-          console.log('res', res);
+          console.info();
+          console.info(c.cyan(`Fetch.Pkg.${c.bold('versions')}:`), res);
+          console.info();
 
           expect(res.data?.scope).to.eql('sys');
           expect(res.data?.name).to.eql('std');
 
-          const versions = Object.keys(res.data?.versions ?? []);
+          const versions = Semver.sort(Object.keys(res.data?.versions ?? []));
           expect(versions).to.include('0.0.1');
           expect(versions).to.include('0.0.42');
           expect(Semver.Is.valid(res.data?.latest)).to.eql(true);
+
+          const max = 5;
+          const title = c.cyan(`${c.bold('versions')} (latest ${max} of ${versions.length}):`);
+          console.info(title, versions.slice(0, max));
+          console.info();
         });
       });
 
