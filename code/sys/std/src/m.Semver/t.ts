@@ -14,8 +14,12 @@ export type SemverLib = {
   /** Compare two SemVers. */
   compare: typeof StdSemver.compare;
 
+  /** Sort a list of versions. */
+  sort(input: t.StringSemver[], options?: SemverSortOptionsInput): t.StringSemver[];
+  sort(input: t.SemVer[], options?: SemverSortOptionsInput): t.SemVer[];
+
   /** Format SemVer object into a string.  */
-  toString(input: t.SemVer): string;
+  toString(input: t.SemVer): t.StringSemver;
 
   /** Semver value assertions. */
   readonly Is: SemverIsLib;
@@ -23,6 +27,10 @@ export type SemverLib = {
   /** Tools and information about SemVerRelease */
   readonly Release: t.SemverReleaseLib;
 };
+
+/** Options for the `Semver.sort` method. */
+export type SemverSortOptions = { order?: t.SortOrder };
+export type SemverSortOptionsInput = t.SemverSortOptions | t.SortOrder;
 
 /**
  * Library: Semver value assertions.
