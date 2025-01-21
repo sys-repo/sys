@@ -41,15 +41,19 @@ export type SemverIsLib = {
 
   /** Greater than comparison for two SemVers. */
   greaterThan: typeof StdSemver.greaterThan;
+
   /** Greater than or equal to comparison for two SemVers. */
   greaterOrEqual: typeof StdSemver.greaterOrEqual;
+
   /** Check if the SemVer is greater than the range. */
   greaterThanRange: typeof StdSemver.greaterThanRange;
 
   /** Less than comparison for two SemVers. */
   lessThan: typeof StdSemver.lessThan;
+
   /** Less than or equal to comparison for two SemVers. */
   lessOrEqual: typeof StdSemver.lessOrEqual;
+
   /** Check if the SemVer is less than the range. */
   lessThanRange: typeof StdSemver.lessThanRange;
 };
@@ -58,5 +62,6 @@ export type SemverIsLib = {
  * Library: Tools and information about SemVerRelease
  */
 export type SemverReleaseLib = {
+  /** List of release types. */
   types: t.SemVerReleaseType[];
 };
