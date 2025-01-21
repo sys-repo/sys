@@ -7,7 +7,6 @@ import type { t } from './common.ts';
  */
 export type JsrLib = {
   readonly Fetch: t.JsrFetchLib;
-  readonly Url: t.JsrUrlLib;
 };
 
 /**
@@ -15,6 +14,7 @@ export type JsrLib = {
  */
 export type JsrFetchLib = {
   readonly Pkg: t.JsrFetchPkgLib;
+  readonly Url: t.JsrUrlLib;
 };
 
 /**
@@ -30,8 +30,11 @@ export type JsrFetchPkgLib = {
    * Retrieve meta-data about a specific package version.
    */
   info(
+    /** Module identifier: @scope/<name> */
     name: string,
+    /** Version to retrieve (omit to retrieve latest). */
     version?: t.StringSemver,
+
     options?: t.JsrFetchPkgOptions,
   ): Promise<t.JsrFetchPkgInfoResponse>;
 };
@@ -63,7 +66,6 @@ export type JsrPackageMetaVersion = { yanked?: boolean };
  */
 export type JsrPkgVersionInfo = {
   pkg: { name: string; version: t.StringSemver };
-  scope: string;
   manifest?: JsrPkgManifest;
   exports?: { [key: string]: string };
   moduleGraph1?: unknown;

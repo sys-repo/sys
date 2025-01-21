@@ -34,11 +34,9 @@ export const Pkg: t.JsrFetchPkgLib = {
     const res = await fetch.json<t.JsrPkgVersionInfo>(url);
     if (!res.data) return res;
 
-    const scope = wrangle.scope(name);
     const pkg: t.Pkg = { name, version: version ?? '' };
     const data: t.JsrPkgVersionInfo = {
       ...res.data,
-      scope,
       pkg,
 
       get manifest() {
@@ -58,11 +56,3 @@ export const Pkg: t.JsrFetchPkgLib = {
     return { ...res, data };
   },
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  scope: (input: string) => input.split('/')[0],
-  name: (input: string) => input.split('/')[1],
-} as const;

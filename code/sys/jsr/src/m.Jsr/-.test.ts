@@ -4,7 +4,7 @@ import { Fetch, Jsr, Url } from './mod.ts';
 describe('Jsr', () => {
   it('API', () => {
     expect(Jsr.Fetch).to.equal(Fetch);
-    expect(Jsr.Url).to.equal(Url);
+    expect(Jsr.Fetch.Url).to.equal(Url);
   });
 
   describe('Jsr.Fetch.Pkg', () => {
@@ -12,7 +12,7 @@ describe('Jsr', () => {
       it('200 - list', async () => {
         await Testing.retry(3, async () => {
           const name = '@sys/std';
-          const res = await Fetch.Pkg.versions(name);
+          const res = await Jsr.Fetch.Pkg.versions(name);
           expect(res.url).to.eql(`https://jsr.io/${name}/meta.json`);
           expect(res.status).to.eql(200);
           expect(res.error).to.eql(undefined);
@@ -57,7 +57,6 @@ describe('Jsr', () => {
           expect(res.status).to.eql(200);
           expect(res.error).to.eql(undefined);
 
-          expect(res.data?.scope).to.eql('@sys');
           expect(res.data?.pkg.name).to.eql('@sys/std');
           expect(res.data?.pkg.version).to.eql(version);
 
@@ -73,10 +72,14 @@ describe('Jsr', () => {
           const mod = manifest['/src/mod.ts'];
           expect(mod.checksum.startsWith('sha256-')).to.eql(true);
           expect(typeof mod.size === 'number').to.eql(true);
+
+          console.info();
+          console.info(c.cyan(`Jsr.Fetch.Pkg.${c.bold('info')}:`), res);
+          console.info();
         });
       });
 
-      it('latest: version ommited', async () => {
+      it('latest: version param ommited', async () => {
         const name = '@sys/std';
         const latest = (await Fetch.Pkg.versions(name)).data?.latest;
 
@@ -84,7 +87,6 @@ describe('Jsr', () => {
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
 
-        expect(res.data?.scope).to.eql('@sys');
         expect(res.data?.pkg.name).to.eql('@sys/std');
         expect(res.data?.pkg.version).to.eql(latest);
       });
@@ -105,7 +107,7 @@ describe('Jsr', () => {
     });
   });
 
-  describe('Jsr.Url', () => {
+  describe('Jsr.Fetch.Url', () => {
     it('origin (url)', () => {
       expect(Url.origin).to.eql('https://jsr.io');
     });
