@@ -28,7 +28,7 @@ describe('Http.Fetch', () => {
         await server.dispose();
       });
 
-      it.only('200: text', async () => {
+      it('200: text', async () => {
         const life = rx.disposable();
         const text = 'foo-👋';
         const server = Testing.Http.server(() => Testing.Http.text(text));
