@@ -12,7 +12,11 @@ export type JsrManifestLib = {
   /**
    * Fetch the manifest from origin.
    */
-  fetch(name: t.StringPkgName, version?: t.StringSemver): Promise<t.JsrManifestFetchResponse>;
+  fetch(
+    name: t.StringPkgName,
+    version?: t.StringSemver,
+    options?: t.JsrFetchPkgOptions,
+  ): Promise<t.JsrManifestFetchResponse>;
 };
 
 /**

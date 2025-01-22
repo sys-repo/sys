@@ -1,4 +1,4 @@
-import { type t, Fetch, Err } from './common.ts';
+import { type t, Err } from './common.ts';
 
 /**
  * Tools for working with a module's source-code.
@@ -20,9 +20,10 @@ export const Manifest: t.JsrManifestLib = {
     return api;
   },
 
-  async fetch(name, version) {
+  async fetch(name, version, options) {
+    const { Fetch } = await import('../m.Fetch/mod.ts');
     const errors = Err.errors();
-    const res = await Fetch.Pkg.info(name, version);
+    const res = await Fetch.Pkg.info(name, version, options);
     const { data, error, status } = res;
 
     if (error) errors.push(error);
