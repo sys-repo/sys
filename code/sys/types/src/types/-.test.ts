@@ -32,8 +32,8 @@ describe('Types', () => {
 
   it('PkgName: scoped package name → "@scope/<name>"', () => {
     // @ts-ignore
-    const a: t.PkgName = 'foo'; // NB: Invalid.
-    const b: t.PkgName = '@sys/std';
+    const a: t.StringScopedPkgName = 'foo'; // NB: Invalid.
+    const b: t.StringScopedPkgName = '@sys/std';
     console.info();
     console.info('a (invalid):', a);
     console.info('b (valid):', b);
