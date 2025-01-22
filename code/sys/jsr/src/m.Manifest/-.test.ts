@@ -37,6 +37,8 @@ describe('Jsr.Manifest (integration test)', () => {
       const unordered = Object.keys(SAMPLE.def);
       expect(m.paths).to.not.eql(unordered);
       expect(m.paths).to.eql(unordered.sort());
+      expect(m.paths).to.eql(unordered.sort()); // NB: assert the function ensures a alpha-numeric sort on the paths.
+      expect(m.paths).to.equal(m.paths); // NB: lazy-loaded and cached prop value.
     });
   });
 
