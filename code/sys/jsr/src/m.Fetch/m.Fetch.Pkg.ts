@@ -54,4 +54,19 @@ export const Pkg: t.JsrFetchPkgLib = {
 
     return { ...res, data };
   },
+
+  /**
+   * https://jsr.io/docs/api#modules
+   */
+  file(name, version, opt = {}) {
+    const api: t.JsrPkgFileFetcher = {
+      pkg: { name, version },
+      async path(path, options = {}) {
+        const fetch = Fetch.disposable([opt.dispose$, options.dispose$]);
+        const url = Url.Pkg.file(name, version, path);
+        return fetch.text(url);
+      },
+    };
+    return api;
+  },
 };

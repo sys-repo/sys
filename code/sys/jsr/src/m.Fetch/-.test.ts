@@ -1,28 +1,31 @@
-import { c, describe, expect, it, rx, Semver, slug, Testing } from '../-test.ts';
+import { c, Cli, describe, expect, Hash, it, rx, Semver, slug, Testing } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
 import { Url } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Jsr.Fetch', () => {
+  const SAMPLE = {
+    pkg: { name: '@sys/std', version: '0.0.42' },
+    def: {
+      // NB: paths not-ordered.
+      '/src/m.Path/mod.ts': {
+        size: 261,
+        checksum: 'sha256-03d38aeb62a14d34da9f576d12454537d4c6cedff0ad80d9ee4b9b8bb77702ba',
+      },
+      '/src/pkg.ts': {
+        size: 241,
+        checksum: 'sha256-b79790c447397a88ace8c538792fa37742ea38306cd08676947a2cd026b66269',
+      },
+      '/deno.json': {
+        size: 830,
+        checksum: 'sha256-dd9c3b367d8745aef1083b94982689dc7b39c75e16d8da66c78da6450166f3d5',
+      },
+    },
+  } as const;
+
   it('API', () => {
     expect(Jsr.Fetch).to.equal(Fetch);
     expect(Fetch.Url).to.equal(Url);
-  });
-
-  describe('Fetch.Url', () => {
-    it('origin (url)', () => {
-      expect(Url.origin).to.eql('https://jsr.io');
-    });
-
-    it('Url.Pkg.metadata', () => {
-      const url = Url.Pkg.metadata('@sys/std');
-      expect(url).to.eql('https://jsr.io/@sys/std/meta.json');
-    });
-
-    it('Url.Pkg.version', () => {
-      const url = Url.Pkg.version('@sys/std', '0.0.42');
-      expect(url).to.eql('https://jsr.io/@sys/std/0.0.42_meta.json');
-    });
   });
 
   describe('Fetch.Pkg', () => {
@@ -109,6 +112,59 @@ describe('Jsr.Fetch', () => {
         expect(res.data?.pkg.version).to.eql(latest);
       });
     });
+
+    describe.only('Pkg.file( name, version ).path( "..." )', () => {
+      const { name, version } = SAMPLE.pkg;
+
+      const testPull = async (path: keyof typeof SAMPLE.def, ...expectText: string[]) => {
+        await Testing.retry(3, async () => {
+          const res = await Fetch.Pkg.file(name, version).path(path);
+          const hx = Hash.sha256(res.data);
+          const table = Cli.table([]);
+
+          table.push([c.cyan(' url:'), c.green(res.url)]);
+          table.push([c.cyan(' hash (manifest):'), SAMPLE.def[path].checksum]);
+          table.push([c.cyan(' hash (pulled):'), hx]);
+
+          console.info(c.cyan(c.bold('Fetch.Pkg.file.path:')));
+          console.info();
+          console.info(table.toString().trim());
+          console.info();
+          console.info(c.italic(res.data ?? '(empty)'));
+          console.info();
+
+          expect(res.status).to.eql(200);
+          expect(res.error).to.eql(undefined);
+          expect(res.url).to.eql(Url.Pkg.file(name, version, path));
+          expect(hx).to.eql(SAMPLE.def[path].checksum);
+          expectText.forEach((text) => {
+            expect(res.data).to.include(text);
+          });
+        });
+      };
+
+      it('create', () => {
+        const file = Fetch.Pkg.file(name, version);
+        expect(file.pkg).to.eql({ name, version });
+        expect(typeof file.path).to.eql('function');
+      });
+
+      it('pull: "/src/pkg.ts"', async () => {
+        await testPull(
+          '/src/pkg.ts',
+          `import type { Pkg as TPkg } from 'jsr:@sys/types@^0.0.13';`,
+          `export const pkg: TPkg = Pkg.fromJson(deno)`,
+        );
+      });
+
+      it('pull: "/deno.json"', async () => {
+        await testPull('/deno.json', `"name": "@sys/std"`);
+      });
+
+      it('pull: "/src/m.Path/mod.ts"', async () => {
+        await testPull('/src/m.Path/mod.ts', 'export default Path;');
+      });
+
 
     it('dispose ← (cancel fetch operation)', async () => {
       const { dispose, dispose$ } = rx.disposable();
