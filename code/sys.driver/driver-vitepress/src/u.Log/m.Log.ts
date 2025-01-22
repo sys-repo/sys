@@ -47,6 +47,7 @@ export const Log = {
 
     const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, PATHS.dist));
     if (dist) {
+      console.info();
       Log.dist(dist, { inDir });
     } else {
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
