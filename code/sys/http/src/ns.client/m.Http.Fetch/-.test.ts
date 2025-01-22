@@ -9,43 +9,64 @@ describe('Http.Fetch', () => {
   });
 
   describe('Fetch.disposable', () => {
-    it('200: success ← json', async () => {
-      const life = rx.disposable();
-      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
-      const url = server.url.base;
-      const fetch = Fetch.disposable(life.dispose$);
-      expect(fetch.disposed).to.eql(false);
+    describe('success', () => {
+      it('200: json', async () => {
+        const life = rx.disposable();
+        const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
+        const url = server.url.base;
+        const fetch = Fetch.disposable(life.dispose$);
+        expect(fetch.disposed).to.eql(false);
 
-      const res = await fetch.json(url);
-      expect(res.ok).to.eql(true);
-      expect(res.status).to.eql(200);
-      expect(res.url).to.eql(url);
-      expect(res.data).to.eql({ foo: 123 });
-      expect(res.error).to.eql(undefined);
+        const res = await fetch.json(url);
+        expect(res.ok).to.eql(true);
+        expect(res.status).to.eql(200);
+        expect(res.url).to.eql(url);
+        expect(res.data).to.eql({ foo: 123 });
+        expect(res.error).to.eql(undefined);
 
-      expect(fetch.disposed).to.eql(false);
-      await server.dispose();
+        expect(fetch.disposed).to.eql(false);
+        await server.dispose();
+      });
+
     });
 
-    it('404: error with headers', async () => {
-      const life = rx.disposable();
-      const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
-      const fetch = Fetch.disposable(life.dispose$);
+    describe('fail', () => {
+      it('404: error with headers', async () => {
+        const life = rx.disposable();
+        const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
+        const fetch = Fetch.disposable(life.dispose$);
 
-      const url = server.url.base;
-      const headers = { foo: 'bar' };
-      const res = await fetch.json(url, { headers });
-      expect(res.ok).to.eql(false);
-      expect(res.status).to.eql(404);
-      expect(res.url).to.eql(url);
-      expect(res.data).to.eql(undefined);
+        const url = server.url.base;
+        const headers = { foo: 'bar' };
+        const res = await fetch.json(url, { headers });
+        expect(res.ok).to.eql(false);
+        expect(res.status).to.eql(404);
+        expect(res.url).to.eql(url);
+        expect(res.data).to.eql(undefined);
 
-      expect(res.error?.name).to.eql('HttpError');
-      expect(res.error?.message).to.include('HTTP/GET request failed');
-      expect(res.error?.cause?.message).to.include('404 Not Found');
-      expect(res.error?.headers).to.eql({ foo: 'bar' });
+        expect(res.error?.name).to.eql('HttpError');
+        expect(res.error?.message).to.include('HTTP/GET request failed');
+        expect(res.error?.cause?.message).to.include('404 Not Found');
+        expect(res.error?.headers).to.eql({ foo: 'bar' });
 
-      await server.dispose();
+        await server.dispose();
+      });
+
+      it('520: client error (JSON parse failure)', async () => {
+        const server = Testing.Http.server(() => Testing.Http.text('hello'));
+        const fetch = Fetch.disposable();
+
+        const url = server.url.base;
+        const res = await fetch.json(url);
+
+        expect(res.status).to.eql(520);
+        expect(res.error?.name).to.eql('HttpError');
+        expect(res.error?.message).to.include('HTTP/GET request failed');
+        expect(res.error?.cause?.message).to.include('Failed while fetching');
+        expect(res.error?.cause?.cause?.message).to.include('is not valid JSON');
+
+        await server.dispose();
+      });
     });
 
     describe('dispose', () => {
