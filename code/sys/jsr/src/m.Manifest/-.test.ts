@@ -1,6 +1,7 @@
 import { type t, c, describe, it, expect, Testing, slug } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
 import { Manifest } from './mod.ts';
+import { Fetch } from './common.ts';
 
 describe('Jsr.Manifest (integration test)', () => {
   const SAMPLE = {
@@ -48,6 +49,8 @@ describe('Jsr.Manifest (integration test)', () => {
       const res = await Manifest.fetch(name, version);
       expect(res.status).to.eql(200);
       expect(res.error).to.eql(undefined);
+      expect(res.origin).to.eql(Jsr.Fetch.Url.origin);
+
       if (!res.error) {
         // NB: type ensures manifest when no error.
         expect(res.manifest.pkg).to.eql(SAMPLE.pkg);
@@ -65,8 +68,9 @@ describe('Jsr.Manifest (integration test)', () => {
       const name = `@FAIL/FOO-${slug()}`;
       const res = await Manifest.fetch(name, version);
       expect(res.status).to.eql(404);
-
+      expect(res.origin).to.eql(Jsr.Fetch.Url.origin);
       expect(res.manifest).to.eql(undefined);
+
       expect(res.error?.name).to.eql('HttpError');
       expect(res.error?.message).to.include('HTTP/GET request failed');
       expect(res.error?.message).to.include(`https://jsr.io/${name}`);
