@@ -43,10 +43,10 @@ export type JsrPkgMetaVersions = {
   scope: string;
   name: string;
   latest: t.StringSemver;
-  versions: { [version: string]: JsrPackageMetaVersion };
+  versions: { [version: string]: JsrPkgMetaVersion };
 };
 /** Version details about a specific package version. */
-export type JsrPackageMetaVersion = { yanked?: boolean };
+export type JsrPkgMetaVersion = { yanked?: boolean };
 
 /**
  * Meta-data about a specific published package version.
