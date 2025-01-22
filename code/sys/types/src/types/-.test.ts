@@ -29,4 +29,5 @@ describe('Types', () => {
     obj.child = { bar: 123 };
     obj.child.bar = 456;
   });
+
 });
