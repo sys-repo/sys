@@ -8,4 +8,9 @@ export const Pkg: t.JsrUrlPkgLib = {
   version(name, version) {
     return `${origin}/${name}/${version}_meta.json`;
   },
+
+  file(name, version, path) {
+    path = path.replace(/^\//, '');
+    return `${origin}/${name}/${version}/${path}`;
+  },
 };

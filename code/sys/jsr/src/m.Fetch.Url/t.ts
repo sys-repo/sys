@@ -12,13 +12,19 @@ export type JsrUrlLib = {
  */
 export type JsrUrlPkgLib = {
   /**
-   * Generate the URL for meta-data information about a package as a whole.
+   * URL for meta-data information about a package as a whole.
    * https://jsr.io/docs/api#package-metadata
    */
-  metadata(name: string): t.StringUrl;
+  metadata(name: t.StringPkgName): t.StringUrl;
 
   /**
-   * Generate the URL for meta-data about a specific package version.
+   * URL for meta-data about a specific package version.
    */
-  version(name: string, version: t.StringSemver): t.StringUrl;
+  version(name: t.StringPkgName, version: t.StringSemver): t.StringUrl;
+
+  /**
+   * URL for the source code of a given module file.
+   * https://jsr.io/docs/api#modules
+   */
+  file(name: t.StringPkgName, version: t.StringSemver, path: string): t.StringUrl;
 };
