@@ -21,11 +21,8 @@ export type JsrFetchPkgLib = {
    * Retrieve meta-data about a specific package version.
    */
   info(
-    /** Module identifier: @scope/<name> */
-    name: string,
-    /** Version to retrieve (omit to retrieve latest). */
+    name: t.StringPkgName,
     version?: t.StringSemver,
-
     options?: t.JsrFetchPkgOptions,
   ): Promise<t.JsrFetchPkgInfoResponse>;
 };
@@ -56,7 +53,7 @@ export type JsrPackageMetaVersion = { yanked?: boolean };
  * https://jsr.io/docs/api#package-version-metadata
  */
 export type JsrPkgVersionInfo = {
-  pkg: { name: string; version: t.StringSemver };
+  pkg: t.Pkg;
   manifest?: JsrPkgManifest;
   exports?: { [key: string]: string };
   moduleGraph1?: unknown;
