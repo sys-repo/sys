@@ -28,6 +28,25 @@ describe('Http.Fetch', () => {
         await server.dispose();
       });
 
+      it.only('200: text', async () => {
+        const life = rx.disposable();
+        const text = 'foo-👋';
+        const server = Testing.Http.server(() => Testing.Http.text(text));
+        const url = server.url.base;
+        const fetch = Fetch.disposable(life.dispose$);
+        expect(fetch.disposed).to.eql(false);
+
+        const res = await fetch.text(url);
+
+        expect(res.ok).to.eql(true);
+        expect(res.status).to.eql(200);
+        expect(res.url).to.eql(url);
+        expect(res.data).to.eql(text);
+        expect(res.error).to.eql(undefined);
+
+        expect(fetch.disposed).to.eql(false);
+        await server.dispose();
+      });
     });
 
     describe('fail', () => {

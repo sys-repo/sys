@@ -75,6 +75,10 @@ export const Fetch: t.HttpFetchLib = {
         return invokeFetch<T>(input, options, (res) => res.json());
       },
 
+      async text(input: RequestInput, options: RequestInit = {}) {
+        return invokeFetch<string>(input, options, (res) => res.text());
+      },
+
       /**
        * Lifecycle.
        */

@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type RequestInput = RequestInfo | URL;
+
 /**
  * Tools for working with the `fetch` function in system/standard ways.
  */
@@ -13,6 +15,9 @@ export type HttpFetchLib = {
  * an AbortController and signals to cancel fetch operations mid-stream.
  */
 export type HttpDisposableFetch = t.Lifecycle & {
-  /** Invoke a fetch to retrieve JSON. */
-  json<T>(input: RequestInfo | URL, options?: RequestInit): Promise<t.FetchResponse<T>>;
+  /** Invoke a fetch to retrieve "application/json". */
+  json<T>(input: RequestInput, options?: RequestInit): Promise<t.FetchResponse<T>>;
+
+  /** Invoke a fetch to retrieve "text/plain". */
+  text(input: RequestInput, options?: RequestInit): Promise<t.FetchResponse<string>>;
 };
