@@ -64,6 +64,16 @@ describe('Jsr.Manifest (integration test)', () => {
       const res = await Manifest.fetch(name, version);
       expect(res.status).to.eql(404);
 
+      expect(res.manifest).to.eql(undefined);
+      expect(res.error?.name).to.eql('HttpError');
+      expect(res.error?.message).to.include('HTTP/GET request failed');
+      expect(res.error?.message).to.include(`https://jsr.io/${name}`);
+
+      console.info();
+      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, res);
+      console.info();
+    });
+  });
     const m = res.data?.manifest;
     if (g) {
       // console.log('Object.keys(g)', Object.keys(g).sort().slice(0, 5));
