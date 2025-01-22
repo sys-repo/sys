@@ -40,7 +40,7 @@ export const Fetch: t.HttpFetchLib = {
           if (_aborted) {
             // HTTP: Client Closed Request.
             status = 499;
-            const err = Err.std('Fetch operation disposed of before completing (499)', { name });
+            const err = Err.std('Fetch operation disposed before completing (499)', { name });
             errors.push(err);
           } else {
             // HTTP: Unknown Error.

@@ -65,7 +65,7 @@ describe('Http.Fetch', () => {
       expect(res.data).to.eql(undefined);
       expect(res.error?.name).to.eql('HttpError');
       expect(res.error?.cause?.message).to.include(
-        'Fetch operation disposed of before completing (499)',
+        'Fetch operation disposed before completing (499)',
       );
 
       expect(fetch.disposed).to.eql(true);

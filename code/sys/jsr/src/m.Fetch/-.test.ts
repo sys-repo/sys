@@ -121,7 +121,7 @@ describe('Jsr.Fetch', () => {
 
       expect(res.error?.message).to.include('HTTP/GET request failed');
       expect(res.error?.message).to.include('https://jsr.io/@sys/std/meta.json');
-      expect(res.error?.cause?.message).to.include('disposed of before completing (499)');
+      expect(res.error?.cause?.message).to.include('disposed before completing (499)');
     });
   });
 });
