@@ -9,7 +9,7 @@ export type Pkg = { name: t.StringPkgName; version: t.StringSemver };
 export type StringPkgName = string;
 
 /**
- * Module identifier: @scope/<name>.
+ * Module identifier: @<scope>/<package-name>.
  * eg: "@sys/std"
  */
 export type StringScopedPkgName = `@${string}/${string}`;
