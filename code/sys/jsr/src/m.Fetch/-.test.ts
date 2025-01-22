@@ -165,6 +165,13 @@ describe('Jsr.Fetch', () => {
         await testPull('/src/m.Path/mod.ts', 'export default Path;');
       });
 
+      it('error: 404', async () => {
+        const path = `/foo/404-${slug()}.ts`;
+        const res = await Fetch.Pkg.file(name, version).path(path);
+        expect(res.status).to.eql(404);
+        expect(res.data).to.eql(undefined);
+        expect(res.error?.cause?.message).to.include('404 Not Found');
+      });
 
     it('dispose ← (cancel fetch operation)', async () => {
       const { dispose, dispose$ } = rx.disposable();
