@@ -1,7 +1,7 @@
-import { type t, c, describe, it, expect, Testing, slug } from '../-test.ts';
+import { c, describe, expect, it, slug } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
-import { Manifest } from './mod.ts';
 import { Fetch } from './common.ts';
+import { Manifest } from './mod.ts';
 
 describe('Jsr.Manifest (integration test)', () => {
   const SAMPLE = {
@@ -37,7 +37,6 @@ describe('Jsr.Manifest (integration test)', () => {
       const m = Manifest.create(SAMPLE.pkg, SAMPLE.def);
       const unordered = Object.keys(SAMPLE.def);
       expect(m.paths).to.not.eql(unordered);
-      expect(m.paths).to.eql(unordered.sort());
       expect(m.paths).to.eql(unordered.sort()); // NB: assert the function ensures a alpha-numeric sort on the paths.
       expect(m.paths).to.equal(m.paths); // NB: lazy-loaded and cached prop value.
     });
@@ -47,6 +46,7 @@ describe('Jsr.Manifest (integration test)', () => {
     it('success', async () => {
       const { name, version } = SAMPLE.pkg;
       const res = await Manifest.fetch(name, version);
+      expect(res.ok).to.eql(true);
       expect(res.status).to.eql(200);
       expect(res.error).to.eql(undefined);
       expect(res.origin).to.eql(Jsr.Fetch.Url.origin);
@@ -67,6 +67,7 @@ describe('Jsr.Manifest (integration test)', () => {
       const { version } = SAMPLE.pkg;
       const name = `@FAIL/FOO-${slug()}`;
       const res = await Manifest.fetch(name, version);
+      expect(res.ok).to.eql(false);
       expect(res.status).to.eql(404);
       expect(res.origin).to.eql(Jsr.Fetch.Url.origin);
       expect(res.manifest).to.eql(undefined);
@@ -80,10 +81,7 @@ describe('Jsr.Manifest (integration test)', () => {
       console.info();
     });
   });
-    const m = res.data?.manifest;
-    if (g) {
-      // console.log('Object.keys(g)', Object.keys(g).sort().slice(0, 5));
-    }
+
 
     if (m) {
       // console.log('Object.keys(m)', Object.keys(m).sort().slice(0, 5));

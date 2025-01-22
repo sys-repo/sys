@@ -10,7 +10,7 @@ export type JsrManifestLib = {
   create(pkg: t.Pkg, def: t.JsrPkgManifest): t.JsrManifest;
 
   /**
-   * Fetch the manifest from origin.
+   * Create the manifest by fetching the definition from origin.
    */
   fetch(
     name: t.StringPkgName,
@@ -26,20 +26,39 @@ export type JsrManifest = {
   readonly pkg: t.Pkg;
   readonly def: t.JsrPkgManifest;
   readonly paths: t.StringPath[];
+  pull(options?: t.JsrManifestPullOptions): Promise<t.JsrManifestPullResponse>;
 };
 
 /**
  * Response from the `Manifest.fetch` method.
  */
 export type JsrManifestFetchResponse = JsrManifestFetchSuccess | JsrManifestFetchFail;
-export type JsrManifestFetchSuccess = {
+type FetchCommon = {
+  readonly ok: boolean;
   readonly status: t.HttpStatusCode;
+  readonly origin: t.StringUrl;
+};
+
+/** Successfully fetched Manifest from origin. */
+export type JsrManifestFetchSuccess = FetchCommon & {
   readonly manifest: t.JsrManifest;
   readonly error?: undefined; // Success case does not have an error.
 };
 
-export type JsrManifestFetchFail = {
-  readonly status: t.HttpStatusCode;
+/** Failed while fetching Manifest from origin. */
+export type JsrManifestFetchFail = FetchCommon & {
   readonly error: t.StdError;
   readonly manifest?: never; // Fail case will not include a manifest.
+};
+
+/**
+ * Response from `manifest.pull` method.
+ */
+export type JsrManifestPullResponse = {
+  error?: t.StdError;
+};
+
+/** Options passed to `manifest.pull` method. */
+export type JsrManifestPullOptions = {
+  dispose$?: t.UntilObservable;
 };
