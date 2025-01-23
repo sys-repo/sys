@@ -2,7 +2,6 @@
  * @module
  * Module types.
  */
-export type * from './ns.client/m.Http.Client/t.ts';
 export type * from './ns.client/m.Http.Fetch/t.ts';
 export type * from './ns.client/m.Http/t.ts';
 
