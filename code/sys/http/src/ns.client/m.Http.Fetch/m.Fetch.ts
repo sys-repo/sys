@@ -16,7 +16,7 @@ export const Fetch: t.HttpFetchLib = {
 
     const invokeFetch = async <T>(
       input: RequestInput,
-      options: RequestInit,
+      init: RequestInit,
       toData: (res: Response) => Promise<T>,
     ): Promise<t.FetchResponse<T>> => {
       const errors = Err.errors();
@@ -28,7 +28,7 @@ export const Fetch: t.HttpFetchLib = {
 
       try {
         const { signal } = controller;
-        const fetched = await fetch(url, { ...options, signal });
+        const fetched = await fetch(url, { ...init, signal });
         status = fetched.status;
         statusText = fetched.statusText;
         headers = fetched.headers;
@@ -59,26 +59,35 @@ export const Fetch: t.HttpFetchLib = {
       let error: t.HttpError | undefined;
       const cause = errors.toError();
       if (cause) {
-        const method = (options.method ?? 'GET').toUpperCase();
+        const method = (init.method ?? 'GET').toUpperCase();
         const name = 'HttpError';
         const message = `HTTP/${method} request failed: ${url}`;
-        const headers = toHeaders(options.headers);
+        const headers = toHeaders(init.headers);
         const base = Err.std(message, { name, cause });
         error = { ...base, status, statusText, headers };
       }
 
       // Finish up.
       const ok = !cause;
-      return { ok, status, url, headers, data, error } as t.FetchResponse<T>;
+      return {
+        ok,
+        status,
+        url,
+        get headers() {
+          return headers;
+        },
+        data,
+        error,
+      } as t.FetchResponse<T>;
     };
 
     const api: t.HttpDisposableFetch = {
-      async json<T>(input: RequestInput, options: RequestInit = {}) {
-        return invokeFetch<T>(input, options, (res) => res.json());
+      async json<T>(input: RequestInput, init: RequestInit = {}) {
+        return invokeFetch<T>(input, init, (res) => res.json());
       },
 
-      async text(input: RequestInput, options: RequestInit = {}) {
-        return invokeFetch<string>(input, options, (res) => res.text());
+      async text(input: RequestInput, init: RequestInit = {}) {
+        return invokeFetch<string>(input, init, (res) => res.text());
       },
 
       /**
