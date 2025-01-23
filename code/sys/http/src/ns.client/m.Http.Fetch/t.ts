@@ -6,8 +6,10 @@ type RequestInput = RequestInfo | URL;
  * Tools for working with the `fetch` function in system/standard ways.
  */
 export type HttpFetchLib = {
-  /** Fetch helper that can cancel fetch operations mid-stream. */
-  disposable(until$?: t.UntilObservable): t.HttpFetch;
+  /**
+   * Fetch helper that can cancel fetch operations mid-stream.
+   */
+  create(until$?: t.UntilObservable): t.HttpFetch;
 };
 
 /**

@@ -1,6 +1,4 @@
-import { type t, Cli, c, Testing, describe, expect, it } from '../../-test.ts';
-
-import { Hash } from '@sys/crypto/hash';
+import { Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
 import { rx } from './common.ts';
 import { Fetch } from './mod.ts';
@@ -16,7 +14,7 @@ describe('Http.Fetch', () => {
         const life = rx.disposable();
         const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
         const url = server.url.base;
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.create(life.dispose$);
         expect(fetch.disposed).to.eql(false);
 
         const res = await fetch.json(url);
@@ -36,7 +34,7 @@ describe('Http.Fetch', () => {
         const text = 'foo-👋';
         const server = Testing.Http.server(() => Testing.Http.text(text));
         const url = server.url.base;
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.create(life.dispose$);
         expect(fetch.disposed).to.eql(false);
 
         const res = await fetch.text(url);
@@ -56,7 +54,7 @@ describe('Http.Fetch', () => {
       it('404: error with headers', async () => {
         const life = rx.disposable();
         const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.create(life.dispose$);
 
         const url = server.url.base;
         const headers = { foo: 'bar' };
@@ -76,7 +74,7 @@ describe('Http.Fetch', () => {
 
       it('520: client error (JSON parse failure)', async () => {
         const server = Testing.Http.server(() => Testing.Http.text('hello'));
-        const fetch = Fetch.disposable();
+        const fetch = Fetch.create();
 
         const url = server.url.base;
         const res = await fetch.json(url);
@@ -96,7 +94,7 @@ describe('Http.Fetch', () => {
         const life = rx.disposable();
         const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
         const url = server.url.base;
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.create(life.dispose$);
         expect(fetch.disposed).to.eql(false);
 
         const promise = fetch.json(url);
@@ -118,7 +116,7 @@ describe('Http.Fetch', () => {
 
       it('fetch.dispose', async () => {
         const life = rx.disposable();
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.create(life.dispose$);
 
         const fired = { life: 0, fetch: 0 };
         life.dispose$.subscribe(() => fired.life++);

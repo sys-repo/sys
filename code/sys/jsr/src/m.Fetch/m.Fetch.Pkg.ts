@@ -9,7 +9,7 @@ export const Pkg: t.JsrFetchPkgLib = {
    */
   async versions(name, options = {}) {
     const url = Url.Pkg.metadata(name);
-    const fetch = Fetch.disposable(options.dispose$);
+    const fetch = Fetch.create(options.dispose$);
     const res = await fetch.json<t.JsrPkgMetaVersions>(url);
     const data = res.data
       ? {
@@ -35,7 +35,7 @@ export const Pkg: t.JsrFetchPkgLib = {
   async info(name, vInput, options = {}) {
     const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
     const url = Url.Pkg.version(name, version);
-    const fetch = Fetch.disposable(options.dispose$);
+    const fetch = Fetch.create(options.dispose$);
     const res = await fetch.json<t.JsrPkgVersionInfo>(url);
     if (!res.data) return res;
 
@@ -76,7 +76,7 @@ export const Pkg: t.JsrFetchPkgLib = {
       async text(path, options = {}) {
         const { checksum } = options;
         const errors = Err.errors();
-        const fetch = Fetch.disposable([opt.dispose$, options.dispose$]);
+        const fetch = Fetch.create([opt.dispose$, options.dispose$]);
         const url = Url.Pkg.file(name, version, path);
 
         let res = await fetch.text(url, {}, { checksum });

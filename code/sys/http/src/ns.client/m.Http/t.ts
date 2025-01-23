@@ -10,7 +10,7 @@ export type HttpLib = {
   /** Tools for working with the `fetch` function in system/standard ways. */
   readonly Fetch: t.HttpFetchLib;
   /** Generator function for a new fetch client. */
-  readonly fetch: t.HttpFetchLib['disposable'];
+  readonly fetch: t.HttpFetchLib['create'];
 
   /** HTTP client tools (GET, PUT, POST, DELETE over Fetch). */
   readonly Client: t.HttpClientLib;
