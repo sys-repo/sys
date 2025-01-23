@@ -13,9 +13,9 @@ export type HttpLib = {
   readonly fetch: t.HttpFetchLib['create'];
 
   /** HTTP client tools (GET, PUT, POST, DELETE over Fetch). */
-  readonly Client: t.HttpClientLib;
+  // readonly Client: t.HttpClientLib;
   /** Generator function for a new HTTP/fetch client. */
-  readonly client: t.HttpClientLib['create'];
+  // readonly client: t.HttpClientLib['create'];
 
   /** URL helpers for working with the HTTP lib. */
   readonly Url: t.UrlLib;
