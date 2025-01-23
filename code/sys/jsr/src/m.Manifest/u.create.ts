@@ -1,4 +1,4 @@
-import { type t, Err, rx, Http } from './common.ts';
+import { type t, Err, Fetch, rx } from './common.ts';
 
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
   pkg = { ...pkg };
@@ -15,11 +15,26 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
 
     async pull(options = {}) {
       const life = rx.lifecycle(options.dispose$);
-      /**
-       * TODO 🐷 fetch and save all files.
-       */
-      return {};
+      const { dispose$ } = life;
+      const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { dispose$ });
+
+      const loading = api.paths.map((path) => {
+        const checksum = def[path]?.checksum;
+        return fetch.text(path, { checksum });
+      });
+      const loaded = await Promise.all(loading);
+
+      const errors = Err.errors();
+      const ok = loaded.every((m) => m.ok === true);
+      if (!ok) loaded.filter((m) => !!m.error).forEach((m) => errors.push(m.error));
+
+      return {
+        ok,
+        files: loaded,
+        error: errors.toError(),
+      };
     },
   };
+
   return api;
 };

@@ -1,26 +1,6 @@
-import { c, describe, expect, it, slug } from '../-test.ts';
+import { c, describe, expect, it, SAMPLE, slug, Testing } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
-import { Fetch } from './common.ts';
 import { Manifest } from './mod.ts';
-
-export const SAMPLE = {
-  pkg: { name: '@sys/std', version: '0.0.42' },
-  def: {
-    // NB: paths not-ordered.
-    '/src/m.Path/mod.ts': {
-      size: 261,
-      checksum: 'sha256-03d38aeb62a14d34da9f576d12454537d4c6cedff0ad80d9ee4b9b8bb77702ba',
-    },
-    '/src/pkg.ts': {
-      size: 241,
-      checksum: 'sha256-b79790c447397a88ace8c538792fa37742ea38306cd08676947a2cd026b66269',
-    },
-    '/deno.json': {
-      size: 830,
-      checksum: 'sha256-dd9c3b367d8745aef1083b94982689dc7b39c75e16d8da66c78da6450166f3d5',
-    },
-  },
-} as const;
 
 describe('Jsr.Manifest (integration test)', () => {
   describe('Manifest.create', () => {
@@ -38,7 +18,7 @@ describe('Jsr.Manifest (integration test)', () => {
       const unordered = Object.keys(SAMPLE.def);
       expect(m.paths).to.not.eql(unordered);
       expect(m.paths).to.eql(unordered.sort()); // NB: assert the function ensures a alpha-numeric sort on the paths.
-      expect(m.paths).to.equal(m.paths); // NB: lazy-loaded and cached prop value.
+      expect(m.paths).to.equal(m.paths); //        NB: lazy-loaded and cached prop value.
     });
   });
 
@@ -81,6 +61,24 @@ describe('Jsr.Manifest (integration test)', () => {
       console.info();
     });
   });
+
+  describe.only('manifest.pull', () => {
+    it('pull locally (in-memory only)', async () => {
+      await Testing.retry(3, async () => {
+        const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
+        const res = await manifest.pull();
+
+        expect(res.ok).to.eql(true);
+        expect(res.files.length).to.eql(Object.keys(SAMPLE.def).length);
+
+        for (const file of res.files) {
+          expect(file.ok).to.eql(true);
+          expect(file.status).to.eql(200);
+          expect(file.error).to.eql(undefined);
+          expect(file.checksum?.valid).to.eql(true);
+        }
+      });
+    });
 
 
     if (m) {

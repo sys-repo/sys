@@ -55,6 +55,8 @@ export type JsrManifestFetchFail = FetchCommon & {
  * Response from `manifest.pull` method.
  */
 export type JsrManifestPullResponse = {
+  ok: boolean;
+  files: t.JsrFetchPkgFileResponse[];
   error?: t.StdError;
 };
 
