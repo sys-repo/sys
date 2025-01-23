@@ -3,43 +3,43 @@ import { Http } from '../mod.ts';
 import { DEFAULTS } from './common.ts';
 import { HttpClient } from './mod.ts';
 
-describe('Http.client', () => {
+describe('HttpClient.create', () => {
   const JsonMimetype = DEFAULTS.contentType;
 
   it('API', () => {
     expect(Http.Client).to.equal(HttpClient);
-    expect(Http.client).to.eql(HttpClient.create);
+    expect(Http.client).to.equal(HttpClient.create);
   });
 
   describe('headers', () => {
     it('headers: (default)', () => {
-      const client = Http.client();
+      const client = HttpClient.create();
       expect(client.headers).to.eql({ 'Content-Type': JsonMimetype });
       expect(client.header('Content-Type')).to.eql(JsonMimetype);
     });
 
     it('header: authToken → headers:{ Authorization } ← Bearer Token', () => {
-      const client1 = Http.client({ accessToken: 'my-jwt' });
-      const client2 = Http.client({ accessToken: () => 'my-dynamic' });
+      const client1 = HttpClient.create({ accessToken: 'my-jwt' });
+      const client2 = HttpClient.create({ accessToken: () => 'my-dynamic' });
       expect(client1.header('Authorization')).to.eql(`Bearer my-jwt`);
       expect(client2.header('Authorization')).to.eql('my-dynamic');
     });
 
     it('header: static/dynamic content-type', () => {
-      const client1 = Http.client({ contentType: 'foo' });
-      const client2 = Http.client({ contentType: () => 'bar' });
+      const client1 = HttpClient.create({ contentType: 'foo' });
+      const client2 = HttpClient.create({ contentType: () => 'bar' });
       expect(client1.contentType).to.eql('foo');
       expect(client2.contentType).to.eql('bar');
     });
 
     it('header: does not exist', () => {
-      const client = Http.client();
+      const client = HttpClient.create();
       expect(client.header('x-foo')).to.eql(undefined);
     });
 
     it('headers: manipulate', () => {
       let count = 0;
-      const client = Http.client({
+      const client = HttpClient.create({
         headers(e) {
           count++;
           expect(e.get('Content-Type')).to.eql(JsonMimetype);
@@ -67,7 +67,7 @@ describe('Http.client', () => {
         const headers = Http.toHeaders(req.headers);
         return Testing.Http.json({ headers });
       });
-      const client = Http.client({ headers: (e) => e.set('x-foo', '123') });
+      const client = HttpClient.create({ headers: (e) => e.set('x-foo', '123') });
 
       const url = server.url.base;
       const res1 = await client.get(url);
@@ -87,7 +87,7 @@ describe('Http.client', () => {
   describe('fetch (HTTP methods/verbs)', () => {
     it('fetch', async () => {
       const server = Testing.Http.server(() => new Response('foo'));
-      const client = Http.client();
+      const client = HttpClient.create();
 
       const url = server.url.join('foo');
       const res = await client.fetch(url);
@@ -105,7 +105,7 @@ describe('Http.client', () => {
         _method = req.method;
         return Testing.Http.json({ foo: 123 });
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.get(url);
 
@@ -123,7 +123,7 @@ describe('Http.client', () => {
         _method = req.method;
         return new Response();
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.head(url);
 
@@ -139,7 +139,7 @@ describe('Http.client', () => {
         _method = req.method;
         return new Response();
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.options(url);
 
@@ -156,7 +156,7 @@ describe('Http.client', () => {
         _method = req.method;
         return Testing.Http.json({ data: await req.json() });
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.put(url, { msg: 'hello' });
 
@@ -173,7 +173,7 @@ describe('Http.client', () => {
         _method = req.method;
         return Testing.Http.json({ data: await req.json() });
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.post(url, { msg: 'hello' });
 
@@ -190,7 +190,7 @@ describe('Http.client', () => {
         _method = req.method;
         return Testing.Http.json({ data: await req.json() });
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.patch(url, { msg: 'hello' });
 
@@ -207,7 +207,7 @@ describe('Http.client', () => {
         _method = req.method;
         return Testing.Http.json({ foo: 123 });
       });
-      const client = Http.client();
+      const client = HttpClient.create();
       const url = server.url.join('foo');
       const res = await client.delete(url);
 

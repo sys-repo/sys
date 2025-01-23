@@ -9,17 +9,17 @@ describe('Server', () => {
 
     app.get('/', (c) => c.json({ count: 123 }));
 
-    const client = Http.client();
+    const fetch = Http.fetch();
     const url = Http.url(listener.addr);
-    const res1 = await client.get(url.base);
-    const res2 = await client.get(url.join('404'));
+    const res1 = await fetch.json(url.base);
+    const res2 = await fetch.json(url.join('404'));
 
     expect(res1.status).to.eql(200);
     expect(res2.status).to.eql(404);
 
-    expect(await res1.json()).to.eql({ count: 123 });
-    await res2.body?.cancel();
+    expect(await res1.data).to.eql({ count: 123 });
 
+    fetch.dispose();
     await listener.shutdown();
   });
 
@@ -29,9 +29,10 @@ describe('Server', () => {
     const listener = Deno.serve({ port: 0 }, app.fetch);
     app.get('/', (c) => c.text('no-op'));
 
-    const client = Http.client();
+    const fetch = Http.fetch();
     const url = Http.url(listener.addr);
-    const res = await client.get(url.base);
+    const res = await fetch.text(url.base);
+
     const headers = res.headers;
 
     // Default: lower-case.
@@ -53,7 +54,8 @@ describe('Server', () => {
     expect(h['pkg']).to.eql(Pkg.toString(pkg));
     expect(h['pkg-digest']).to.eql(hash);
 
-    await res.body?.cancel();
+    fetch.dispose();
+    // await res.body?.cancel();
     await listener.shutdown();
   });
 

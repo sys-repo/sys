@@ -12,6 +12,7 @@ export const Http: t.HttpLib = {
   Client,
   Url,
 
+  fetch: Fetch.disposable,
   client: Client.create,
   url: Url.create,
 
