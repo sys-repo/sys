@@ -213,7 +213,7 @@ describe('Http.Fetch', () => {
 
       const error = res.error;
       expect(error?.name).to.eql('HttpError');
-      expect(error?.cause?.message).to.include('Fetch operation disposed before completing (499');
+      expect(error?.cause?.message).to.include('Fetch operation disposed before completing');
 
       expect(fetch.disposed).to.eql(true);
       await server.dispose();

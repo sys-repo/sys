@@ -15,7 +15,8 @@ describe('Http.Fetch: hash checksums', () => {
     const error = res.error?.cause;
     expect(res.ok).to.eql(false);
     expect(res.status).to.eql(412);
-    expect(error?.message).to.include(`412:Pre-condition failed (checksum-mismatch)`);
+    expect(res.statusText).to.eql('Pre-condition failed (checksum-mismatch)');
+    expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
     expect(error?.message).to.include(`does not match the expected checksum:`);
     expect(error?.message).to.include(res.checksum?.actual);
     expect(error?.message).to.include(res.checksum?.expected);

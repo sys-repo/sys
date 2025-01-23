@@ -25,6 +25,7 @@ export type FetchResponse<T> = FetchResponseOK<T> | FetchResponseFail;
 
 type FetchResponseCommon = {
   status: t.HttpStatusCode;
+  statusText: string;
   url: t.StringUrl;
   headers: Headers;
   checksum?: t.FetchResponseChecksum;

@@ -47,7 +47,11 @@ export const create: F = (input: Parameters<F>[0]) => {
           // NB: do not load crypto-algos into memory unless needed.
           const { verifyChecksum } = await import('./u.checksum.ts');
           checksum = verifyChecksum<T>(data, options.checksum, errors);
-          if (!checksum.valid) status = 412;
+          if (!checksum.valid) {
+            const err = DEFAULTS.error.checksumFail;
+            status = err.status;
+            statusText = err.statusText;
+          }
         }
       } else {
         fetched.body?.cancel();
@@ -58,12 +62,14 @@ export const create: F = (input: Parameters<F>[0]) => {
       statusText = 'HTTP Client Error';
       if (_aborted) {
         // HTTP: Client Closed Request.
-        status = 499;
-        const err = Err.std('Fetch operation disposed before completing (499)', { name });
-        errors.push(err);
+        const err = DEFAULTS.error.clientDisposed;
+        status = err.status;
+        statusText = err.statusText;
+        const error = Err.std(statusText, { name });
+        errors.push(error);
       } else {
         // HTTP: Unknown Error.
-        status = 520;
+        status = DEFAULTS.error.unknown.status;
         const err = Err.std(`Failed while fetching: ${url}`, { cause, name });
         errors.push(err);
       }
@@ -86,6 +92,7 @@ export const create: F = (input: Parameters<F>[0]) => {
     return {
       ok,
       status,
+      statusText,
       url,
       get headers() {
         return headers;

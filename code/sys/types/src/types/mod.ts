@@ -1,4 +1,4 @@
-export type * from './ext.ts';
+export type * from './-ext.ts';
 
 export type * from './t.Boolean.ts';
 export type * from './t.Coord.ts';

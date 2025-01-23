@@ -1,5 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
-import type { t } from './common.ts';
+import { DEFAULTS, type t } from './common.ts';
 
 export function verifyChecksum<T>(
   data: T | undefined,
@@ -10,7 +10,8 @@ export function verifyChecksum<T>(
   const valid = actual === expected;
 
   if (!valid) {
-    let msg = '412:Pre-condition failed (checksum-mismatch). ';
+    const err = DEFAULTS.error.checksumFail;
+    let msg = `${err.status}: ${err.statusText}. `;
     msg += `The hash of the fetched content ("${actual}") does not match the expected checksum: "${expected}"`;
     errors.push(msg);
   }
