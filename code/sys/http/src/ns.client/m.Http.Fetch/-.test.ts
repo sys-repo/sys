@@ -167,12 +167,13 @@ describe('Http.Fetch', () => {
         expect(res.ok).to.eql(false);
         expect(res.status).to.eql(412);
         expect(error?.message).to.include(`412:Pre-condition failed (checksum-mismatch)`);
-        expect(error?.message).to.include(`does not match the expected checksum: "sha256-FAIL"`);
+        expect(error?.message).to.include(`does not match the expected checksum:`);
         expect(error?.message).to.include(res.checksum?.actual);
+        expect(error?.message).to.include(res.checksum?.expected);
       };
 
       it('text: { checksum }', async () => {
-        const text = 'sample-🌳';
+        const text = 'text-🌳';
         const server = Testing.Http.server(() => Testing.Http.text(text));
         const url = server.url.base;
         const fetch = Fetch.disposable();
