@@ -1,18 +1,18 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { Http, pkg } from './common.ts';
 import { testSetup } from '../-test.ts';
 
 describe('DenoCloud (Server)', () => {
   it('server: start → req/res → dispose', async () => {
     const test = testSetup();
-    const client = Http.client();
+    const fetch = Http.fetch();
 
-    const res = await client.get(test.url.base);
+    const res = await fetch.json<t.RootResponse>(test.url.base);
     expect(res.status).to.eql(200);
 
-    const body = await res.json();
-    expect(body.pkg.name).to.eql(pkg.name);
-    expect(body.pkg.version).to.eql(pkg.version);
+    const body = res.data;
+    expect(body?.pkg.name).to.eql(pkg.name);
+    expect(body?.pkg.version).to.eql(pkg.version);
 
     await test.dispose();
   });

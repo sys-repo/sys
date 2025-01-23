@@ -13,7 +13,7 @@ import { Http, type t } from './common.ts';
 export const client: t.DenoCloudClientLib['client'] = (base, options = {}) => {
   const { accessToken } = options;
   const url = Http.url(base);
-  const client = Http.client({ accessToken });
+  const fetch = Http.fetch({ accessToken });
 
   /**
    * API
@@ -22,22 +22,16 @@ export const client: t.DenoCloudClientLib['client'] = (base, options = {}) => {
     url,
     async info() {
       const url = api.url.join('/');
-      const raw = await client.get(url);
-      const res = await Http.toResponse<t.RootResponse>(raw);
-      return res;
+      return fetch.json<t.RootResponse>(url);
     },
     subhosting: {
       async info() {
         const url = api.url.join('/subhosting');
-        const raw = await client.get(url);
-        const res = await Http.toResponse<t.SubhostingInfo>(raw);
-        return res;
+        return fetch.json<t.SubhostingInfo>(url);
       },
       async projects() {
         const url = api.url.join('/subhosting/projects');
-        const raw = await client.get(url);
-        const res = await Http.toResponse<t.SubhostingProjectsInfo>(raw);
-        return res;
+        return fetch.json<t.SubhostingProjectsInfo>(url);
       },
     },
   };
