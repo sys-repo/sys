@@ -90,7 +90,7 @@ export const Fetch: t.HttpFetchLib = {
       } as t.FetchResponse<T>;
     };
 
-    const api: t.HttpDisposableFetch = {
+    const api: t.HttpFetch = {
       async json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
         return invokeFetch<T>(input, init, options, (res) => res.json());
       },

@@ -7,14 +7,14 @@ type RequestInput = RequestInfo | URL;
  */
 export type HttpFetchLib = {
   /** Fetch helper that can cancel fetch operations mid-stream. */
-  disposable(until$?: t.UntilObservable): t.HttpDisposableFetch;
+  disposable(until$?: t.UntilObservable): t.HttpFetch;
 };
 
 /**
  * A `fetch` helper that implements the `disposable` pattern using
  * an AbortController and signals to cancel fetch operations mid-stream.
  */
-export type HttpDisposableFetch = t.Lifecycle & {
+export type HttpFetch = t.Lifecycle & {
   /** Invoke a fetch to retrieve "application/json". */
   json<T>(
     input: RequestInput,
