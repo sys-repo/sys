@@ -20,7 +20,13 @@ export const Pkg: t.JsrFetchPkgLib = {
           },
         }
       : undefined;
-    return { ...res, data } as t.JsrFetchPkgVersionsResponse;
+    return {
+      ...res,
+      get headers() {
+        return res.headers;
+      },
+      data,
+    } as t.JsrFetchPkgVersionsResponse;
   },
 
   /**
@@ -52,7 +58,13 @@ export const Pkg: t.JsrFetchPkgLib = {
       },
     };
 
-    return { ...res, data };
+    return {
+      ...res,
+      get headers() {
+        return res.headers;
+      },
+      data,
+    };
   },
 
   /**
@@ -62,22 +74,13 @@ export const Pkg: t.JsrFetchPkgLib = {
     const api: t.JsrPkgFileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
+        const { checksum } = options;
         const errors = Err.errors();
         const fetch = Fetch.disposable([opt.dispose$, options.dispose$]);
         const url = Url.Pkg.file(name, version, path);
 
-        let res = await fetch.text(url);
+        let res = await fetch.text(url, {}, { checksum });
         let status = res.status;
-
-        if (options.checksum) {
-          const hx = Hash.sha256(res.data);
-          if (hx !== options.checksum) {
-            status = 412;
-            let msg = '412:Pre-condition failed (checksum-mismatch). ';
-            msg += `The hash of the fetched content for "${path}" (${hx}) does not match the given checksum: ${options.checksum}`;
-            errors.push(msg);
-          }
-        }
 
         if (errors.ok) return res;
         if (res.error) errors.push(res.error);
@@ -85,6 +88,9 @@ export const Pkg: t.JsrFetchPkgLib = {
           ...res,
           ok: false,
           status,
+          get headers() {
+            return res.headers;
+          },
           error: errors.toError(),
         } as any;
       },
