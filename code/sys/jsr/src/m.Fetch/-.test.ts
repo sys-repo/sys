@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, Hash, it, rx, Semver, slug, Testing } from '../-test.ts';
+import { type t, c, Cli, describe, expect, Hash, it, rx, Semver, slug, Testing } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
 import { Url } from './common.ts';
 import { Fetch } from './mod.ts';
@@ -22,6 +22,13 @@ describe('Jsr.Fetch', () => {
       },
     },
   } as const;
+
+  const assertFetchDisposed = (res: t.FetchResponse<unknown>) => {
+    expect(res.status).to.eql(499);
+    expect(res.data).to.eql(undefined);
+    expect(res.error?.message).to.include('HTTP/GET request failed');
+    expect(res.error?.cause?.message).to.include('disposed before completing (499)');
+  };
 
   it('API', () => {
     expect(Jsr.Fetch).to.equal(Fetch);
@@ -113,12 +120,12 @@ describe('Jsr.Fetch', () => {
       });
     });
 
-    describe.only('Pkg.file( name, version ).path( "..." )', () => {
+    describe('Pkg.file( name, version ).path( "..." )', () => {
       const { name, version } = SAMPLE.pkg;
 
       const testPull = async (path: keyof typeof SAMPLE.def, ...expectText: string[]) => {
         await Testing.retry(3, async () => {
-          const res = await Fetch.Pkg.file(name, version).path(path);
+          const res = await Fetch.Pkg.file(name, version).text(path);
           const hx = Hash.sha256(res.data);
           const table = Cli.table([]);
 
@@ -146,7 +153,7 @@ describe('Jsr.Fetch', () => {
       it('create', () => {
         const file = Fetch.Pkg.file(name, version);
         expect(file.pkg).to.eql({ name, version });
-        expect(typeof file.path).to.eql('function');
+        expect(typeof file.text).to.eql('function');
       });
 
       it('pull: "/src/pkg.ts"', async () => {
@@ -167,11 +174,32 @@ describe('Jsr.Fetch', () => {
 
       it('error: 404', async () => {
         const path = `/foo/404-${slug()}.ts`;
-        const res = await Fetch.Pkg.file(name, version).path(path);
+        const res = await Fetch.Pkg.file(name, version).text(path);
         expect(res.status).to.eql(404);
         expect(res.data).to.eql(undefined);
         expect(res.error?.cause?.message).to.include('404 Not Found');
       });
+
+      describe('dispose ← (cancel fetch operation)', () => {
+        const path = '/src/pkg.ts';
+
+        it('dispose$: param on fetcher constructor', async () => {
+          const { dispose, dispose$ } = rx.disposable();
+          const file = Fetch.Pkg.file(name, version, { dispose$ });
+          const promise = file.text(path);
+          dispose();
+          assertFetchDisposed(await promise);
+        });
+
+        it('dispose$: param on path fetch request', async () => {
+          const { dispose, dispose$ } = rx.disposable();
+          const file = Fetch.Pkg.file(name, version);
+          const promise = file.text(path, { dispose$ });
+          dispose();
+          assertFetchDisposed(await promise);
+        });
+      });
+    });
 
     it('dispose ← (cancel fetch operation)', async () => {
       const { dispose, dispose$ } = rx.disposable();
@@ -179,12 +207,8 @@ describe('Jsr.Fetch', () => {
       dispose();
 
       const res = await promise;
-      expect(res.status).to.eql(499);
-      expect(res.data).to.eql(undefined);
-
-      expect(res.error?.message).to.include('HTTP/GET request failed');
       expect(res.error?.message).to.include('https://jsr.io/@sys/std/meta.json');
-      expect(res.error?.cause?.message).to.include('disposed before completing (499)');
+      assertFetchDisposed(res);
     });
   });
 });

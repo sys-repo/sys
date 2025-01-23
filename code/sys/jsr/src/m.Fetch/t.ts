@@ -25,10 +25,20 @@ export type JsrFetchPkgLib = {
     version?: t.StringSemver,
     options?: t.JsrFetchPkgOptions,
   ): Promise<t.JsrFetchPkgInfoResponse>;
+
+  /**
+   * Retrieve a fetcher for pulling source-code file data for a specific package/version
+   */
+  file(
+    name: t.StringPkgName,
+    version: t.StringSemver,
+    options?: t.JsrFetchPkgOptions,
+  ): t.JsrPkgFileFetcher;
 };
 
 /** Options for the `Jsr.Fetch.versions` method */
 export type JsrFetchPkgOptions = { dispose$?: t.UntilObservable };
+
 /** Resposne to a `Jsr.Fetch.Pkg.versions` request. */
 export type JsrFetchPkgVersionsResponse = t.FetchResponse<t.JsrPkgMetaVersions>;
 
@@ -64,4 +74,14 @@ export type JsrPkgVersionInfo = {
  * The manifest of the source code file-structure (.ts files) within the package.
  */
 export type JsrPkgManifest = { [path: string]: JsrPkgManifestFile };
-export type JsrPkgManifestFile = { size: number; checksum: string };
+export type JsrPkgManifestFile = { readonly size: number; readonly checksum: string };
+
+/**
+ * File fetching.
+ */
+export type JsrPkgFileFetcher = {
+  pkg: t.Pkg;
+  text(path: t.StringPath, options?: t.JsrFetchPkgOptions): Promise<JsrFetchPkgFileResponse>;
+};
+/** Response to a `Jsr.Fetch.Pkg.file::path()` request. */
+export type JsrFetchPkgFileResponse = t.FetchResponse<string>;

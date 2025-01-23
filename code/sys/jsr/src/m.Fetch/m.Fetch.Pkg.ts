@@ -61,7 +61,7 @@ export const Pkg: t.JsrFetchPkgLib = {
   file(name, version, opt = {}) {
     const api: t.JsrPkgFileFetcher = {
       pkg: { name, version },
-      async path(path, options = {}) {
+      async text(path, options = {}) {
         const fetch = Fetch.disposable([opt.dispose$, options.dispose$]);
         const url = Url.Pkg.file(name, version, path);
         return fetch.text(url);
