@@ -1,4 +1,6 @@
-import { Testing, describe, expect, it } from '../../-test.ts';
+import { type t, Cli, c, Testing, describe, expect, it } from '../../-test.ts';
+
+import { Hash } from '@sys/crypto/hash';
 import { Http } from '../mod.ts';
 import { rx } from './common.ts';
 import { Fetch } from './mod.ts';
@@ -128,6 +130,65 @@ describe('Http.Fetch', () => {
 
         expect(fired.life).to.eql(0);
         expect(fired.fetch).to.eql(1);
+      });
+    });
+
+    describe('checksum', () => {
+      const print = (res: t.FetchResponse<unknown>) => {
+        const table = Cli.table([]);
+
+        table.push([c.cyan(' status:'), c.bold(String(res.status))]);
+        table.push([c.cyan(' url:'), c.green(res.url)]);
+        table.push([c.cyan(' hash (expected):'), res.checksum?.expected]);
+        table.push([c.cyan(' hash (actual):'), res.checksum?.actual]);
+        table.push([c.cyan(' data:')]);
+
+        console.info();
+        console.info(table.toString().trim());
+        console.info();
+        console.info(c.italic(c.yellow(String(res.data ?? '(empty)'))));
+        console.info();
+        console.info(res.error?.cause);
+        console.info();
+      };
+
+      const assertSuccess = (res: t.FetchResponse<unknown>) => {
+        expect(res.ok).to.eql(true);
+        expect(res.status).to.eql(200);
+        expect(res.error).to.eql(undefined);
+      };
+
+      const assertFail = (res: t.FetchResponse<unknown>) => {
+        const error = res.error?.cause;
+        expect(res.ok).to.eql(false);
+        expect(res.status).to.eql(412);
+        expect(error?.message).to.include(`412:Pre-condition failed (checksum-mismatch)`);
+        expect(error?.message).to.include(`does not match the expected checksum: "sha256-FAIL"`);
+        expect(error?.message).to.include(res.checksum?.actual);
+      };
+
+      it('text: { checksum }', async () => {
+        const life = rx.disposable();
+        const text = 'sample-🌳';
+        const server = Testing.Http.server(() => Testing.Http.text(text));
+        const url = server.url.base;
+        const fetch = Fetch.disposable(life.dispose$);
+
+        const checksum = Hash.sha256(text);
+        const resA = await fetch.text(url, {}, {});
+        const resB = await fetch.text(url, {}, { checksum: 'sha256-FAIL' });
+        const resC = await fetch.text(url, {}, { checksum });
+
+        assertSuccess(resA);
+        assertFail(resB);
+        assertSuccess(resC);
+
+        expect(resA.checksum).to.eql(undefined);
+        expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+
+        print(resB);
+
+        await server.dispose();
       });
     });
   });

@@ -23,24 +23,28 @@ export type HttpHeaders = {
  */
 export type FetchResponse<T> = FetchResponseOK<T> | FetchResponseFail;
 
-/** The success version of an HTTP `FetchResponse`. */
-export type FetchResponseOK<T> = {
-  ok: true;
+type FetchResponseCommon = {
   status: t.HttpStatusCode;
   url: t.StringUrl;
   headers: Headers;
-  data: T;
-  error: undefined;
+  checksum?: t.FetchResponseChecksum;
 };
 
+/** The success version of an HTTP `FetchResponse`. */
+export type FetchResponseOK<T> = FetchResponseCommon & { ok: true; data: T; error: undefined };
+
 /** The failure version of an HTTP `FetchResponse`. */
-export type FetchResponseFail = {
+export type FetchResponseFail = FetchResponseCommon & {
   ok: false;
-  status: t.HttpStatusCode;
-  url: t.StringUrl;
-  headers: Headers;
   data: undefined;
   error: t.HttpError;
+};
+
+/** The chechsum (hash matching) match results for a HTTP response data. */
+export type FetchResponseChecksum = {
+  valid: boolean;
+  expected: t.StringHash;
+  actual: t.StringHash;
 };
 
 /**

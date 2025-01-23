@@ -19,5 +19,12 @@ export type HttpDisposableFetch = t.Lifecycle & {
   json<T>(input: RequestInput, init?: RequestInit): Promise<t.FetchResponse<T>>;
 
   /** Invoke a fetch to retrieve "text/plain". */
-  text(input: RequestInput, init?: RequestInit): Promise<t.FetchResponse<string>>;
+  text(
+    input: RequestInput,
+    init?: RequestInit,
+    options?: t.HttpFetchOptions,
+  ): Promise<t.FetchResponse<string>>;
 };
+
+/** Optoins passed to the `fetch.text` method. */
+export type HttpFetchOptions = { checksum?: t.StringHash };
