@@ -65,7 +65,7 @@ describe('Jsr.Manifest (integration test)', () => {
   describe.only('manifest.pull', () => {
     it('pull locally (in-memory only)', async () => {
       await Testing.retry(3, async () => {
-        const base = Fetch.Url.Pkg.file(SAMPLE.pkg.name, SAMPLE.pkg.version, '');
+        const baseUrl = Fetch.Url.Pkg.file(SAMPLE.pkg.name, SAMPLE.pkg.version, '');
         const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
         const res = await manifest.pull();
 
@@ -78,7 +78,7 @@ describe('Jsr.Manifest (integration test)', () => {
           expect(file.error).to.eql(undefined);
           expect(file.checksum?.valid).to.eql(true);
 
-          const path = file.url.slice(base.length - 1) as keyof typeof SAMPLE.def;
+          const path = file.url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
           const def = SAMPLE.def[path];
           expect(file.checksum?.actual).to.eql(def.checksum);
           expect(file.checksum?.expected).to.eql(def.checksum);
@@ -87,10 +87,24 @@ describe('Jsr.Manifest (integration test)', () => {
     });
 
 
-    if (m) {
-      // console.log('Object.keys(m)', Object.keys(m).sort().slice(0, 5));
-      // console.log('m', m);
-      // console.log('res.data?.manifest', res.data?.manifest);
-    }
+
+    it('error: checksum fail', async () => {
+      const path = '/src/pkg.ts';
+      const def = {
+        ...SAMPLE.def,
+        [path]: { ...SAMPLE.def[path], checksum: 'sha256-FAIL' },
+      };
+
+      const manifest = Manifest.create(SAMPLE.pkg, def);
+      const res = await manifest.pull();
+
+      expect(res.ok).to.eql(false);
+      expect(res.files.map((m) => m.status)).to.eql([200, 200, 412]);
+
+      const failure = res.files.find((m) => m.status === 412);
+      const error = failure?.error?.cause;
+      expect(failure?.statusText).to.include('Pre-condition failed (checksum-mismatch)');
+      expect(error?.message).to.include('412: Pre-condition failed (checksum-mismatch).');
+    });
   });
 });
