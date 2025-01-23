@@ -1,5 +1,5 @@
-import { type t, c, Cli, describe, expect, Hash, it, rx, slug, Testing } from '../-test.ts';
-import { assertFetchDisposed, SAMPLE } from './-u.ts';
+import { type t, c, Cli, describe, expect, Hash, it, rx, SAMPLE, slug, Testing } from '../-test.ts';
+import { assertFetchDisposed } from './-u.ts';
 import { Url } from './common.ts';
 import { Fetch } from './mod.ts';
 
