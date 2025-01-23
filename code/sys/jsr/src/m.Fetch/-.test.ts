@@ -235,9 +235,10 @@ describe('Jsr.Fetch', () => {
     it('dispose ← (cancel fetch operation)', async () => {
       const { dispose, dispose$ } = rx.disposable();
       const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
-      dispose();
 
+      dispose();
       const res = await promise;
+
       expect(res.error?.message).to.include('https://jsr.io/@sys/std/meta.json');
       assertFetchDisposed(res);
     });
