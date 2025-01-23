@@ -1,5 +1,4 @@
-import { describe, expect, Fs, it, Time, type t } from '../-test.ts';
-import { SAMPLE } from './-u.ts';
+import { describe, expect, Fs, it, SAMPLE, Time, type t } from '../-test.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {

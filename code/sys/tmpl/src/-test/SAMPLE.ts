@@ -1,4 +1,4 @@
-import { type t, Fs, slug } from './common.ts';
+import { type t, Fs, slug } from '../common.ts';
 
 export const SAMPLE = {
   init(options: { source?: t.StringDir; slug?: boolean } = {}) {
