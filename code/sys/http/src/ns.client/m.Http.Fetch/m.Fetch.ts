@@ -24,12 +24,14 @@ export const Fetch: t.HttpFetchLib = {
       let status = 200;
       let statusText = 'OK';
       let data: T | undefined;
+      let headers: Headers = new Headers();
 
       try {
         const { signal } = controller;
         const fetched = await fetch(url, { ...options, signal });
         status = fetched.status;
         statusText = fetched.statusText;
+        headers = fetched.headers;
 
         if (fetched.ok) {
           data = await toData(fetched);
@@ -67,7 +69,7 @@ export const Fetch: t.HttpFetchLib = {
 
       // Finish up.
       const ok = !cause;
-      return { ok, status, url, data, error } as t.FetchResponse<T>;
+      return { ok, status, url, headers, data, error } as t.FetchResponse<T>;
     };
 
     const api: t.HttpDisposableFetch = {

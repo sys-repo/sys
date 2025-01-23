@@ -23,6 +23,7 @@ describe('Http.Fetch', () => {
         expect(res.url).to.eql(url);
         expect(res.data).to.eql({ foo: 123 });
         expect(res.error).to.eql(undefined);
+        expect(res.headers.get('content-type')).to.eql('application/json');
 
         expect(fetch.disposed).to.eql(false);
         await server.dispose();

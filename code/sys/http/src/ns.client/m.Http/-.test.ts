@@ -1,10 +1,13 @@
 import { type t, describe, Err, expect, it, Url } from '../../-test.ts';
+import { Fetch } from '../m.Http.Fetch/mod.ts';
 import { Http } from './mod.ts';
 
 describe('Http', () => {
   it('API', () => {
     expect(Http.Url).to.equal(Url);
     expect(Http.url).to.equal(Url.create);
+    expect(Http.Fetch).to.equal(Fetch);
+    expect(Http.fetch).to.equal(Fetch.disposable);
   });
 
   describe('Http.toError', () => {

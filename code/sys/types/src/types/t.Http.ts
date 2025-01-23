@@ -28,6 +28,7 @@ export type FetchResponseOK<T> = {
   ok: true;
   status: t.HttpStatusCode;
   url: t.StringUrl;
+  headers: Headers;
   data: T;
   error: undefined;
 };
@@ -37,6 +38,7 @@ export type FetchResponseFail = {
   ok: false;
   status: t.HttpStatusCode;
   url: t.StringUrl;
+  headers: Headers;
   data: undefined;
   error: t.HttpError;
 };
