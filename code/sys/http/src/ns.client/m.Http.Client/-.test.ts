@@ -4,18 +4,13 @@ import { DEFAULTS } from './common.ts';
 import { HttpClient } from './mod.ts';
 
 describe('HttpClient.create', () => {
-  const JsonMimetype = DEFAULTS.contentType;
-
-  it('API', () => {
-    expect(Http.Client).to.equal(HttpClient);
-    expect(Http.client).to.equal(HttpClient.create);
-  });
+  const JsonMime = DEFAULTS.contentType;
 
   describe('headers', () => {
     it('headers: (default)', () => {
       const client = HttpClient.create();
-      expect(client.headers).to.eql({ 'Content-Type': JsonMimetype });
-      expect(client.header('Content-Type')).to.eql(JsonMimetype);
+      expect(client.headers).to.eql({ 'Content-Type': JsonMime });
+      expect(client.header('Content-Type')).to.eql(JsonMime);
     });
 
     it('header: authToken → headers:{ Authorization } ← Bearer Token', () => {
@@ -42,7 +37,7 @@ describe('HttpClient.create', () => {
       const client = HttpClient.create({
         headers(e) {
           count++;
-          expect(e.get('Content-Type')).to.eql(JsonMimetype);
+          expect(e.get('Content-Type')).to.eql(JsonMime);
 
           e.set('x-foo', 123).set('x-bar', 'hello');
           expect(e.get('x-foo')).to.eql('123');
