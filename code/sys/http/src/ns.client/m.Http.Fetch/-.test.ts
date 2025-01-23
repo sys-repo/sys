@@ -9,10 +9,19 @@ describe('Http.Fetch', () => {
     expect(Http.fetch).to.equal(Fetch.create);
   });
 
-  it('create', () => {
-    const life = rx.disposable();
-    const fetch = Fetch.create(life.dispose$);
-    expect(fetch.disposed).to.eql(false);
+  describe('create', () => {
+    it('input: dispose$', () => {
+      const life = rx.disposable();
+      const { dispose$ } = life;
+      const a = Fetch.create(life.dispose$);
+      const b = Fetch.create([life.dispose$]);
+      const c = Fetch.create([life.dispose$, undefined]);
+      const d = Fetch.create({ dispose$ });
+
+      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(false));
+      life.dispose();
+      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(true));
+    });
   });
 
   describe('fetch: success', () => {
@@ -95,7 +104,7 @@ describe('Http.Fetch', () => {
     });
   });
 
-  describe('dispose', () => {
+  describe('lifecycle', () => {
     it('dispose$ ← (observable param)', async () => {
       const life = rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));

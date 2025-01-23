@@ -9,7 +9,14 @@ export type HttpFetchLib = {
   /**
    * Fetch helper that can cancel fetch operations mid-stream.
    */
-  create(until$?: t.UntilObservable): t.HttpFetch;
+  create(args?: t.UntilObservable | HttpFetchCreateOptions): t.HttpFetch;
+};
+
+/** Options passed to the `HttpFetch.create` method. */
+export type HttpFetchCreateOptions = {
+  headers?: t.HttpMutateHeaders;
+  accessToken?: t.StringJwt | (() => t.StringJwt);
+  dispose$?: t.UntilObservable;
 };
 
 /**
