@@ -1,6 +1,8 @@
 import { type t, Err, rx, Http } from './common.ts';
 
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
+  pkg = { ...pkg };
+  def = { ...def };
   let _paths: undefined | t.StringPath[];
   const api: t.JsrManifest = {
     pkg,
