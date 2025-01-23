@@ -16,7 +16,11 @@ export type HttpFetchLib = {
  */
 export type HttpDisposableFetch = t.Lifecycle & {
   /** Invoke a fetch to retrieve "application/json". */
-  json<T>(input: RequestInput, init?: RequestInit): Promise<t.FetchResponse<T>>;
+  json<T>(
+    input: RequestInput,
+    init?: RequestInit,
+    options?: t.HttpFetchOptions,
+  ): Promise<t.FetchResponse<T>>;
 
   /** Invoke a fetch to retrieve "text/plain". */
   text(

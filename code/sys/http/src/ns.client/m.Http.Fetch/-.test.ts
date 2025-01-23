@@ -143,10 +143,14 @@ describe('Http.Fetch', () => {
         table.push([c.cyan(' hash (actual):'), res.checksum?.actual]);
         table.push([c.cyan(' data:')]);
 
+        let data: any;
+        if (typeof res.data === 'string') data = res.data;
+        if (typeof res.data === 'object') data = JSON.stringify(res.data, null, '  ');
+
         console.info();
         console.info(table.toString().trim());
         console.info();
-        console.info(c.italic(c.yellow(String(res.data ?? '(empty)'))));
+        console.info(c.italic(c.yellow(String(data || '(empty)'))));
         console.info();
         console.info(res.error?.cause);
         console.info();
@@ -168,16 +172,16 @@ describe('Http.Fetch', () => {
       };
 
       it('text: { checksum }', async () => {
-        const life = rx.disposable();
         const text = 'sample-🌳';
         const server = Testing.Http.server(() => Testing.Http.text(text));
         const url = server.url.base;
-        const fetch = Fetch.disposable(life.dispose$);
+        const fetch = Fetch.disposable();
 
         const checksum = Hash.sha256(text);
-        const resA = await fetch.text(url, {}, {});
+        const resA = await fetch.text(url); // NB: "control" (defaults).
         const resB = await fetch.text(url, {}, { checksum: 'sha256-FAIL' });
         const resC = await fetch.text(url, {}, { checksum });
+        print(resB);
 
         assertSuccess(resA);
         assertFail(resB);
@@ -186,8 +190,29 @@ describe('Http.Fetch', () => {
         expect(resA.checksum).to.eql(undefined);
         expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
 
+        fetch.dispose();
+        await server.dispose();
+      });
+
+      it('json: { checksum }', async () => {
+        const json = { foo: 123 };
+        const server = Testing.Http.server(() => Testing.Http.json(json));
+        const url = server.url.base;
+        const fetch = Fetch.disposable();
+
+        const checksum = Hash.sha256(json);
+        const resA = await fetch.json(url); // NB: "control" (defaults).
+        const resB = await fetch.json(url, {}, { checksum: 'sha256-FAIL' });
+        const resC = await fetch.json(url, {}, { checksum });
         print(resB);
 
+        assertSuccess(resA);
+        assertFail(resB);
+        assertSuccess(resC);
+
+        console.log('checksum', checksum);
+
+        fetch.dispose();
         await server.dispose();
       });
     });

@@ -1,6 +1,5 @@
 import { toHeaders } from '../m.Http/u.ts';
 import { type t, Err, rx } from './common.ts';
-import { verifyChecksum } from './u.checksum.ts';
 
 type RequestInput = RequestInfo | URL;
 
@@ -92,8 +91,8 @@ export const Fetch: t.HttpFetchLib = {
     };
 
     const api: t.HttpDisposableFetch = {
-      async json<T>(input: RequestInput, init: RequestInit = {}) {
-        return invokeFetch<T>(input, init, {}, (res) => res.json());
+      async json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
+        return invokeFetch<T>(input, init, options, (res) => res.json());
       },
 
       async text(input: RequestInput, init: RequestInit = {}, options = {}) {
