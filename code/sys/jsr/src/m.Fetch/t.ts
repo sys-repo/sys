@@ -36,8 +36,11 @@ export type JsrFetchPkgLib = {
   ): t.JsrPkgFileFetcher;
 };
 
-/** Options for the `Jsr.Fetch.versions` method */
+/** Options for the `Jsr.Fetch.<fetch-method>` methods */
 export type JsrFetchPkgOptions = { dispose$?: t.UntilObservable };
+
+/** Options for the `Jsr.Fetch.<fetch-method>` methods that perform hash checksums on the fetched content. */
+export type JsrFetchPkgChecksumOptions = JsrFetchPkgOptions & { checksum?: t.StringHash };
 
 /** Resposne to a `Jsr.Fetch.Pkg.versions` request. */
 export type JsrFetchPkgVersionsResponse = t.FetchResponse<t.JsrPkgMetaVersions>;
@@ -81,7 +84,10 @@ export type JsrPkgManifestFile = { readonly size: number; readonly checksum: str
  */
 export type JsrPkgFileFetcher = {
   pkg: t.Pkg;
-  text(path: t.StringPath, options?: t.JsrFetchPkgOptions): Promise<JsrFetchPkgFileResponse>;
+  text(
+    path: t.StringPath,
+    options?: t.JsrFetchPkgChecksumOptions,
+  ): Promise<JsrFetchPkgFileResponse>;
 };
 /** Response to a `Jsr.Fetch.Pkg.file::path()` request. */
 export type JsrFetchPkgFileResponse = t.FetchResponse<string>;

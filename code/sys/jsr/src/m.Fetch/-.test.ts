@@ -137,7 +137,7 @@ describe('Jsr.Fetch', () => {
           console.info();
           console.info(table.toString().trim());
           console.info();
-          console.info(c.italic(res.data ?? '(empty)'));
+          console.info(c.italic(c.yellow(res.data ?? '(empty)')));
           console.info();
 
           expect(res.status).to.eql(200);
@@ -172,12 +172,43 @@ describe('Jsr.Fetch', () => {
         await testPull('/src/m.Path/mod.ts', 'export default Path;');
       });
 
-      it('error: 404', async () => {
-        const path = `/foo/404-${slug()}.ts`;
-        const res = await Fetch.Pkg.file(name, version).text(path);
-        expect(res.status).to.eql(404);
-        expect(res.data).to.eql(undefined);
-        expect(res.error?.cause?.message).to.include('404 Not Found');
+      it('pull: { checksum }', async () => {});
+
+      describe('errors', () => {
+        it('error: 404', async () => {
+          const path = `/foo/404-${slug()}.ts`;
+          const res = await Fetch.Pkg.file(name, version).text(path);
+          expect(res.status).to.eql(404);
+          expect(res.data).to.eql(undefined);
+          expect(res.error?.cause?.message).to.include('404 Not Found');
+        });
+
+        it('error: checksum/hash mismatch', async () => {
+          const path = '/src/pkg.ts';
+          const def = SAMPLE.def[path];
+
+          const resA = await Fetch.Pkg.file(name, version).text(path); // NB: control (works).
+          const resB = await Fetch.Pkg.file(name, version).text(path, { checksum: 'sha256-FAIL' });
+          const resC = await Fetch.Pkg.file(name, version).text(path, { checksum: def.checksum });
+
+          // SUCCESS: control (works).
+          expect(resA.ok).to.eql(true);
+          expect(resA.status).to.eql(200);
+          expect(resA.error).to.eql(undefined);
+
+          // FAIL: checksum mismatch.
+          expect(resB.ok).to.eql(false);
+          expect(resB.status).to.eql(412); //
+          expect(resB.error?.message).to.include(`412:Pre-condition failed (checksum-mismatch)`);
+          expect(resB.error?.message).to.include(`does not match the given checksum: sha256-FAIL`);
+          expect(resB.error?.message).to.include(def.checksum);
+
+          // SUCCESS: checksum passed.
+          expect(resC.ok).to.eql(true);
+          expect(resC.status).to.eql(200);
+          expect(resC.error).to.eql(undefined);
+          expect(resC.data).to.eql(resA.data);
+        });
       });
 
       describe('dispose ← (cancel fetch operation)', () => {

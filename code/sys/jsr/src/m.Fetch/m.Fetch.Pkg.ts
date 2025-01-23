@@ -1,4 +1,4 @@
-import { type t, Fetch, Url } from './common.ts';
+import { type t, Err, Fetch, Hash, Url } from './common.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
@@ -62,9 +62,31 @@ export const Pkg: t.JsrFetchPkgLib = {
     const api: t.JsrPkgFileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
+        const errors = Err.errors();
         const fetch = Fetch.disposable([opt.dispose$, options.dispose$]);
         const url = Url.Pkg.file(name, version, path);
-        return fetch.text(url);
+
+        let res = await fetch.text(url);
+        let status = res.status;
+
+        if (options.checksum) {
+          const hx = Hash.sha256(res.data);
+          if (hx !== options.checksum) {
+            status = 412;
+            let msg = '412:Pre-condition failed (checksum-mismatch). ';
+            msg += `The hash of the fetched content for "${path}" (${hx}) does not match the given checksum: ${options.checksum}`;
+            errors.push(msg);
+          }
+        }
+
+        if (errors.ok) return res;
+        if (res.error) errors.push(res.error);
+        return {
+          ...res,
+          ok: false,
+          status,
+          error: errors.toError(),
+        } as any;
       },
     };
     return api;
