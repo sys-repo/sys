@@ -61,6 +61,4 @@ export type JsrManifestPullResponse = {
 };
 
 /** Options passed to `manifest.pull` method. */
-export type JsrManifestPullOptions = {
-  dispose$?: t.UntilObservable;
-};
+export type JsrManifestPullOptions = { dispose$?: t.UntilObservable };

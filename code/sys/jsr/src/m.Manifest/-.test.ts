@@ -65,6 +65,7 @@ describe('Jsr.Manifest (integration test)', () => {
   describe.only('manifest.pull', () => {
     it('pull locally (in-memory only)', async () => {
       await Testing.retry(3, async () => {
+        const base = Fetch.Url.Pkg.file(SAMPLE.pkg.name, SAMPLE.pkg.version, '');
         const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
         const res = await manifest.pull();
 
@@ -76,6 +77,11 @@ describe('Jsr.Manifest (integration test)', () => {
           expect(file.status).to.eql(200);
           expect(file.error).to.eql(undefined);
           expect(file.checksum?.valid).to.eql(true);
+
+          const path = file.url.slice(base.length - 1) as keyof typeof SAMPLE.def;
+          const def = SAMPLE.def[path];
+          expect(file.checksum?.actual).to.eql(def.checksum);
+          expect(file.checksum?.expected).to.eql(def.checksum);
         }
       });
     });

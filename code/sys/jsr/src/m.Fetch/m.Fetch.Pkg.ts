@@ -88,13 +88,15 @@ export const Pkg: t.JsrFetchPkgLib = {
           ...res,
           ok: false,
           status,
+          path,
           get headers() {
             return res.headers;
           },
           error: errors.toError(),
-        } as any;
+        } as any; // NB: type-hack, error.
       },
     };
+
     return api;
   },
 };

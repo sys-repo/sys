@@ -87,7 +87,7 @@ export type JsrPkgFileFetcher = {
   text(
     path: t.StringPath,
     options?: t.JsrFetchPkgChecksumOptions,
-  ): Promise<JsrFetchPkgFileResponse>;
+  ): Promise<t.JsrFetchPkgFileResponse>;
 };
 /** Response to a `Jsr.Fetch.Pkg.file::path()` request. */
 export type JsrFetchPkgFileResponse = t.FetchResponse<string>;
