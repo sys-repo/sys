@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.Headers.ts';
 
 type RequestInput = RequestInfo | URL;
 
@@ -6,9 +7,7 @@ type RequestInput = RequestInfo | URL;
  * Tools for working with the `fetch` function in system/standard ways.
  */
 export type HttpFetchLib = {
-  /**
-   * Fetch helper that can cancel fetch operations mid-stream.
-   */
+  /** Fetch helper that can cancel fetch operations mid-stream. */
   create(args?: t.UntilObservable | HttpFetchCreateOptions): t.HttpFetch;
 };
 
@@ -24,6 +23,12 @@ export type HttpFetchCreateOptions = {
  * an AbortController and signals to cancel fetch operations mid-stream.
  */
 export type HttpFetch = t.Lifecycle & {
+  /** HTTP headers map. */
+  readonly headers: t.HttpHeaders;
+
+  /** Retrieve the value for the specified header. */
+  header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
+
   /** Invoke a fetch to retrieve "application/json". */
   json<T>(
     input: RequestInput,
@@ -39,5 +44,5 @@ export type HttpFetch = t.Lifecycle & {
   ): Promise<t.FetchResponse<string>>;
 };
 
-/** Optoins passed to the `fetch.text` method. */
+/** Options passed to the `fetch.text` method. */
 export type HttpFetchOptions = { checksum?: t.StringHash };

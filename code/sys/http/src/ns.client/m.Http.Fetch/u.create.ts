@@ -1,11 +1,13 @@
-import { type t, Err, rx, toHeaders } from './common.ts';
+import { type t, DEFAULTS, Err, Is, rx, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
+type F = t.HttpFetchLib['create'];
 
-export const create: t.HttpFetchLib['create'] = (until$?: t.UntilObservable) => {
+export const create: F = (input: Parameters<F>[0]) => {
+  const options = wrangle.options(input);
   let _aborted = false;
 
-  const life = rx.lifecycle(until$);
+  const life = rx.lifecycle(options.dispose$);
   const controller = new AbortController();
   life.dispose$.subscribe(() => {
     _aborted = true;
@@ -13,6 +15,7 @@ export const create: t.HttpFetchLib['create'] = (until$?: t.UntilObservable) => 
   });
 
   const invokeFetch = async <T>(
+    contentType: t.StringContentType,
     input: RequestInput,
     init: RequestInit,
     options: t.HttpFetchOptions,
@@ -28,8 +31,11 @@ export const create: t.HttpFetchLib['create'] = (until$?: t.UntilObservable) => 
     let checksum: undefined | t.FetchResponseChecksum;
 
     try {
-      const { signal } = controller;
-      const fetched = await fetch(url, { ...init, signal });
+      const fetched = await fetch(url, {
+        ...init,
+        signal: controller.signal,
+        headers: { ...api.headers, 'content-type': contentType },
+      });
       status = fetched.status;
       statusText = fetched.statusText;
       headers = fetched.headers;
@@ -91,12 +97,18 @@ export const create: t.HttpFetchLib['create'] = (until$?: t.UntilObservable) => 
   };
 
   const api: t.HttpFetch = {
+    get headers() {
+      return wrangle.headers(options);
+    },
+
+    header: (name) => (api.headers as any)[name],
+
     async json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
-      return invokeFetch<T>(input, init, options, (res) => res.json());
+      return invokeFetch<T>('application/json', input, init, options, (res) => res.json());
     },
 
     async text(input: RequestInput, init: RequestInit = {}, options = {}) {
-      return invokeFetch<string>(input, init, options, (res) => res.text());
+      return invokeFetch<string>('text/plain', input, init, options, (res) => res.text());
     },
 
     /**
@@ -118,6 +130,13 @@ export const create: t.HttpFetchLib['create'] = (until$?: t.UntilObservable) => 
  * Helpers
  */
 const wrangle = {
+  options(input: Parameters<F>[0]): t.HttpFetchCreateOptions {
+    if (!input) return {};
+    if (Array.isArray(input) || Is.observable(input)) return { dispose$: input };
+    if (typeof input === 'object') return input as t.HttpFetchCreateOptions;
+    return {};
+  },
+
   href(input: RequestInput): string {
     if (typeof input === 'string') {
       return input;
@@ -127,5 +146,44 @@ const wrangle = {
       return input.href;
     }
     throw new Error('Unsupported input type');
+  },
+
+  accessToken(options: t.HttpFetchCreateOptions): string {
+    const accessToken = options.accessToken;
+    if (typeof accessToken === 'function') return accessToken();
+    if (typeof accessToken === 'string') {
+      const token = accessToken
+        .trim()
+        .replace(/^Bearer /, '')
+        .trim();
+      return `Bearer ${token}`;
+    }
+    return '';
+  },
+
+  headers(options: t.HttpFetchCreateOptions): t.HttpHeaders {
+    const accessToken = wrangle.accessToken(options);
+    const headers: any = {};
+    if (accessToken) headers['Authorization'] = accessToken;
+
+    if (typeof options.headers === 'function') {
+      const payload: t.HttpMutateHeadersArgs = {
+        get headers() {
+          return { ...headers };
+        },
+        get(name) {
+          return headers[name];
+        },
+        set(name, value) {
+          if (typeof value === 'string') value = value.trim();
+          if (!value) delete headers[name];
+          else headers[name] = String(value);
+          return payload;
+        },
+      };
+      options.headers(payload);
+    }
+
+    return headers;
   },
 } as const;

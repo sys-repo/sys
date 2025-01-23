@@ -10,24 +10,59 @@ describe('Http.Fetch', () => {
   });
 
   describe('create', () => {
-    it('input: dispose$', () => {
-      const life = rx.disposable();
-      const { dispose$ } = life;
-      const a = Fetch.create(life.dispose$);
-      const b = Fetch.create([life.dispose$]);
-      const c = Fetch.create([life.dispose$, undefined]);
-      const d = Fetch.create({ dispose$ });
+    it('default', () => {
+      const fetch = Http.fetch();
+      expect(fetch.disposed).to.eql(false);
+      expect(fetch.headers).to.eql({});
+    });
 
-      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(false));
-      life.dispose();
-      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(true));
+    it('param: { headers } ← pre-fetch mutation function', () => {
+      let count = 0;
+      const fetch = Http.fetch({
+        headers(e) {
+          count++;
+
+          e.set('x-foo', 123).set('x-bar', 'hello');
+          expect(e.get('x-foo')).to.eql('123');
+          expect(e.get('x-bar')).to.eql('hello');
+
+          e.set('x-foo', null).set('x-bar', '  '); // NB: removed.
+          expect(e.get('x-foo')).to.eql(undefined);
+          expect(e.get('x-bar')).to.eql(undefined);
+
+          const keys = Object.keys(e.headers);
+          expect(keys.includes('x-foo')).to.eql(false);
+          expect(keys.includes('x-bar')).to.eql(false);
+
+          e.set('x-foo', 123).set('x-bar', 'hello');
+        },
+      });
+
+      fetch.headers;
+      fetch.headers;
+      expect(count).to.eql(2);
+
+      expect(fetch.headers).to.eql({ 'x-foo': '123', 'x-bar': 'hello' });
+      expect(fetch.header('x-foo')).to.eql('123');
+    });
+
+    it('param: { accessToken }', () => {
+      const fetch1 = Http.fetch({ accessToken: '0x123' }); // NB: "Bearer" prefixed automatically
+      const fetch2 = Http.fetch({ accessToken: '  Bearer   0x123  ' }); // NB: trims and clean input.
+      const fetch3 = Http.fetch({ accessToken: () => 'Bearer 0x456' }); // NB: function does not presume "Bearer"
+      expect(fetch1.header('Authorization')).to.eql('Bearer 0x123');
+      expect(fetch2.header('Authorization')).to.eql('Bearer 0x123');
+      expect(fetch3.header('Authorization')).to.eql('Bearer 0x456');
     });
   });
 
   describe('fetch: success', () => {
     it('200: json', async () => {
       const life = rx.disposable();
-      const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
+      const server = Testing.Http.server((req) => {
+        expect(req.headers.get('content-type')).to.eql('application/json');
+        return Testing.Http.json({ foo: 123 });
+      });
       const url = server.url.base;
       const fetch = Fetch.create(life.dispose$);
       expect(fetch.disposed).to.eql(false);
@@ -47,7 +82,10 @@ describe('Http.Fetch', () => {
     it('200: text', async () => {
       const life = rx.disposable();
       const text = 'foo-👋';
-      const server = Testing.Http.server(() => Testing.Http.text(text));
+      const server = Testing.Http.server((req) => {
+        expect(req.headers.get('content-type')).to.eql('text/plain');
+        return Testing.Http.text(text);
+      });
       const url = server.url.base;
       const fetch = Fetch.create(life.dispose$);
       expect(fetch.disposed).to.eql(false);
@@ -59,6 +97,7 @@ describe('Http.Fetch', () => {
       expect(res.url).to.eql(url);
       expect(res.data).to.eql(text);
       expect(res.error).to.eql(undefined);
+      expect(res.headers.get('content-type')).to.eql('text/plain');
 
       expect(fetch.disposed).to.eql(false);
       await server.dispose();
@@ -104,7 +143,58 @@ describe('Http.Fetch', () => {
     });
   });
 
+  describe('headers', () => {
+    it('passes custom-headers to server', async () => {
+      let count = 0;
+      const server = Testing.Http.server((req) => {
+        count++;
+        expect(req.headers.get('x-foo')).to.eql('123');
+        expect(req.headers.get('x-bar')).to.eql('456');
+        return Testing.Http.text('hello');
+      });
+
+      const fetch = Fetch.create({ headers: (e) => e.set('x-foo', 123).set('x-bar', 456) });
+      expect(fetch.disposed).to.eql(false);
+
+      await fetch.text(server.url.base);
+      expect(count).to.eql(1); // NB: server was called.
+
+      await server.dispose();
+    });
+
+    it('{ accessToken }', async () => {
+      const fetch1 = Http.fetch({ accessToken: '  my-jwt  ' });
+      const fetch2 = Http.fetch({ accessToken: () => 'Bearer my-dynamic' });
+
+      let tokens: string[] = [];
+      const server = Testing.Http.server((req) => {
+        tokens.push(req.headers.get('Authorization') || '');
+        return Testing.Http.text('👋');
+      });
+
+      const url = server.url.base;
+      await fetch1.text(url);
+      await fetch2.text(url);
+
+      expect(tokens).to.eql(['Bearer my-jwt', 'Bearer my-dynamic']);
+      await server.dispose();
+    });
+  });
+
   describe('lifecycle', () => {
+    it('create: dispose$ param variants', () => {
+      const life = rx.disposable();
+      const { dispose$ } = life;
+      const a = Fetch.create(life.dispose$);
+      const b = Fetch.create([life.dispose$]);
+      const c = Fetch.create([life.dispose$, undefined]);
+      const d = Fetch.create({ dispose$ });
+
+      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(false));
+      life.dispose();
+      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(true));
+    });
+
     it('dispose$ ← (observable param)', async () => {
       const life = rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));

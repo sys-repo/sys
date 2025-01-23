@@ -21,7 +21,7 @@ export type HttpClient = {
   /** HTTP headers map. */
   readonly headers: t.HttpHeaders;
 
-  /** Retrrieve the value for the specified header. */
+  /** Retrieve the value for the specified header. */
   header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
 
   /** Fetch request. */
@@ -59,23 +59,4 @@ export type HttpClientOptions = {
   accessToken?: t.StringJwt | (() => t.StringJwt);
   contentType?: t.StringContentType | (() => t.StringContentType);
   headers?: t.HttpMutateHeaders;
-};
-
-/**
- * Handler that safely "mutates" client headers within a fetch client.
- */
-export type HttpMutateHeaders = (e: HttpMutateHeadersArgs) => void;
-
-/**
- * Argyments for the Header mutation handler.
- */
-export type HttpMutateHeadersArgs = {
-  /** HTTP headers. */
-  readonly headers: t.HttpHeaders;
-
-  /** Retrieve the header with the specifid name. */
-  get(name: string): t.StringHttpHeader;
-
-  /** Mutate: set a new header value. */
-  set(name: string, value: string | number | null): HttpMutateHeadersArgs;
 };
