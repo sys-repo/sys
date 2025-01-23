@@ -6,8 +6,9 @@ import { Fetch } from './mod.ts';
 describe('Jsr.Fetch', () => {
   const SAMPLE = {
     pkg: { name: '@sys/std', version: '0.0.42' },
+
+    // NB: paths not-ordered.
     def: {
-      // NB: paths not-ordered.
       '/src/m.Path/mod.ts': {
         size: 261,
         checksum: 'sha256-03d38aeb62a14d34da9f576d12454537d4c6cedff0ad80d9ee4b9b8bb77702ba',
@@ -123,22 +124,28 @@ describe('Jsr.Fetch', () => {
     describe('Pkg.file( name, version ).path( "..." )', () => {
       const { name, version } = SAMPLE.pkg;
 
+      const print = (res: t.JsrFetchPkgFileResponse, checksum: t.StringHash) => {
+        const hx = Hash.sha256(res.data);
+        const table = Cli.table([]);
+
+        table.push([c.cyan(' url:'), c.green(res.url)]);
+        table.push([c.cyan(' hash (manifest):'), checksum]);
+        table.push([c.cyan(' hash (pulled):'), hx]);
+
+        console.info(c.cyan(c.bold('Fetch.Pkg.file.path:')));
+        console.info();
+        console.info(table.toString().trim());
+        console.info();
+        console.info(c.italic(c.yellow(res.data ?? '(empty)')));
+        console.info();
+      };
+
       const testPull = async (path: keyof typeof SAMPLE.def, ...expectText: string[]) => {
         await Testing.retry(3, async () => {
           const res = await Fetch.Pkg.file(name, version).text(path);
           const hx = Hash.sha256(res.data);
-          const table = Cli.table([]);
-
-          table.push([c.cyan(' url:'), c.green(res.url)]);
-          table.push([c.cyan(' hash (manifest):'), SAMPLE.def[path].checksum]);
-          table.push([c.cyan(' hash (pulled):'), hx]);
-
-          console.info(c.cyan(c.bold('Fetch.Pkg.file.path:')));
-          console.info();
-          console.info(table.toString().trim());
-          console.info();
-          console.info(c.italic(c.yellow(res.data ?? '(empty)')));
-          console.info();
+          const def = SAMPLE.def[path];
+          print(res, def.checksum);
 
           expect(res.status).to.eql(200);
           expect(res.error).to.eql(undefined);
@@ -172,8 +179,6 @@ describe('Jsr.Fetch', () => {
         await testPull('/src/m.Path/mod.ts', 'export default Path;');
       });
 
-      it('pull: { checksum }', async () => {});
-
       describe('errors', () => {
         it('error: 404', async () => {
           const path = `/foo/404-${slug()}.ts`;
@@ -202,6 +207,8 @@ describe('Jsr.Fetch', () => {
           expect(resB.error?.message).to.include(`412:Pre-condition failed (checksum-mismatch)`);
           expect(resB.error?.message).to.include(`does not match the given checksum: sha256-FAIL`);
           expect(resB.error?.message).to.include(def.checksum);
+
+          print(resB, 'sha256-FAIL');
 
           // SUCCESS: checksum passed.
           expect(resC.ok).to.eql(true);
