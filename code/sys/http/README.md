@@ -6,15 +6,15 @@ Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational p
 Fetch tools:
 
 ```ts
-import { Http } from 'jsr:@sys/http/client'
+import { Http } from 'jsr:@sys/http/client';
 
 const fetch = Http.Fetch.create({ accessToken: 'my-jwt' });
 const fetch = Http.fetch();  // ← shorthand (alt).
 
 const url = 'https://url.com/api';
-const checksum = 'sha256-01234'
+const checksum = 'sha256-01234';
 
-const json = fetch.json(url)
+const json = fetch.json(url);
 const text = fetch.text(url, { checksum }); // ← ensure content matches given hash.
 ```
 
@@ -27,10 +27,12 @@ import { Http } from 'jsr:@sys/http/client';
 const { dispose$, dispose } = rx.disposable();
 
 // Dispose aborts all in-progress operations.
-const fetch = Http.fetch(dispose$);  
+const fetch = Http.fetch({ dispose$ });  
+const fetch = Http.fetch(dispose$);       // (alternative)
 
-// Dispose aborts only the single fetch operation.
-const json = fetch.json(url, {}, { dispose$ })
+// Dispose aborts the specific fetch operation.
+const json = fetch.json(url, {}, { dispose$ });
+const text = fetch.json(url, {}, { dispose$, checksum });
 ```
 
 
