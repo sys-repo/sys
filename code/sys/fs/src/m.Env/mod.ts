@@ -1,9 +1,19 @@
+/**
+ * @module
+ * Helpers for retrieveing environment variables (aka. "secrets").
+ *
+ * @example
+ * ```ts
+ * import { Env } from '@sys/fs/env';
+ * const env = await Env.load();
+ *
+ * env.get('TEST_SAMPLE') //== "foobar"
+ * ```
+ */
+
 import * as DotEnv from '@std/dotenv';
 import type { t } from '../common.ts';
 
-/**
- * Helpers for retrieveing environment variables (aka. "secrets").
- */
 export const Env: t.EnvLib = {
   /**
    * Creates a reader for accessing env-vars.
