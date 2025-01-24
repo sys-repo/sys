@@ -1,5 +1,6 @@
-import { c, describe, expect, it, SAMPLE, slug, Testing } from '../-test.ts';
+import { Fs, c, describe, expect, it, SAMPLE, slug, Testing, Hash } from '../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
+import { Fetch } from './common.ts';
 import { Manifest } from './mod.ts';
 
 describe('Jsr.Manifest (integration test)', () => {
@@ -62,31 +63,60 @@ describe('Jsr.Manifest (integration test)', () => {
     });
   });
 
-  describe.only('manifest.pull', () => {
+  describe('manifest.pull', () => {
+    const baseUrl = Fetch.Url.Pkg.file(SAMPLE.pkg.name, SAMPLE.pkg.version, '');
+
     it('pull locally (in-memory only)', async () => {
-      await Testing.retry(3, async () => {
-        const baseUrl = Fetch.Url.Pkg.file(SAMPLE.pkg.name, SAMPLE.pkg.version, '');
-        const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
-        const res = await manifest.pull();
+      const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
+      const res = await manifest.pull();
 
-        expect(res.ok).to.eql(true);
-        expect(res.files.length).to.eql(Object.keys(SAMPLE.def).length);
+      expect(res.ok).to.eql(true);
+      expect(res.files.length).to.eql(Object.keys(SAMPLE.def).length);
+      expect(res.written).to.eql(undefined);
 
-        for (const file of res.files) {
-          expect(file.ok).to.eql(true);
-          expect(file.status).to.eql(200);
-          expect(file.error).to.eql(undefined);
-          expect(file.checksum?.valid).to.eql(true);
+      for (const file of res.files) {
+        expect(file.ok).to.eql(true);
+        expect(file.status).to.eql(200);
+        expect(file.error).to.eql(undefined);
+        expect(file.checksum?.valid).to.eql(true);
 
-          const path = file.url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
-          const def = SAMPLE.def[path];
-          expect(file.checksum?.actual).to.eql(def.checksum);
-          expect(file.checksum?.expected).to.eql(def.checksum);
-        }
-      });
+        const path = file.url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
+        const def = SAMPLE.def[path];
+        expect(file.checksum?.actual).to.eql(def.checksum);
+        expect(file.checksum?.expected).to.eql(def.checksum);
+      }
     });
 
+    it('pull locally → save (file-system: directory)', async () => {
+      const sample = await SAMPLE.fs('Jsr.Manifest.pull').init();
+      expect(await sample.ls()).to.eql([]);
 
+      const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
+      const res = await manifest.pull(sample.dir);
+
+      expect(res.written?.dir).to.eql(sample.dir);
+      expect((await sample.ls(true)).sort()).to.eql(Object.keys(SAMPLE.def).sort()); // NB: directory contains all files.
+
+      // Ensure hash/checksums match.
+      for (const file of res.files) {
+        const path = Fs.join(res.written?.dir || '', file.url.slice(baseUrl.length));
+        const data = await Deno.readFile(path);
+        expect(Hash.sha256(data)).to.eql(file.checksum?.expected);
+      }
+    });
+
+    it('pull locally → filter paths', async () => {
+      const sample = await SAMPLE.fs('Jsr.Manifest.pull').init();
+      expect(await sample.ls()).to.eql([]);
+
+      const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
+      const resA = await manifest.pull();
+      const resB = await manifest.pull({ filter: (p) => p.endsWith('/pkg.ts') });
+
+      expect(resA.files.length).to.eql(Object.keys(SAMPLE.def).length);
+      expect(resB.files.length).to.eql(1);
+      expect(resB.files[0].checksum?.actual).to.eql(SAMPLE.def['/src/pkg.ts'].checksum);
+    });
 
     it('error: checksum fail', async () => {
       const path = '/src/pkg.ts';

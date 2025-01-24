@@ -26,7 +26,7 @@ export type JsrManifest = {
   readonly pkg: t.Pkg;
   readonly def: t.JsrPkgManifest;
   readonly paths: t.StringPath[];
-  pull(options?: t.JsrManifestPullOptions): Promise<t.JsrManifestPullResponse>;
+  pull(options?: t.JsrManifestPullOptions | t.StringDir): Promise<t.JsrManifestPullResponse>;
 };
 
 /**
@@ -58,7 +58,12 @@ export type JsrManifestPullResponse = {
   ok: boolean;
   files: t.JsrFetchPkgFileResponse[];
   error?: t.StdError;
+  written?: { dir: t.StringDir };
 };
 
 /** Options passed to `manifest.pull` method. */
-export type JsrManifestPullOptions = { dispose$?: t.UntilObservable };
+export type JsrManifestPullOptions = {
+  dispose$?: t.UntilObservable;
+  write?: t.StringDir;
+  filter?: t.FsPathFilter;
+};

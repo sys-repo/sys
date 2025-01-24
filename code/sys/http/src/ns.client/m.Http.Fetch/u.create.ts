@@ -97,7 +97,9 @@ export const create: F = (input: Parameters<F>[0]) => {
       get headers() {
         return headers;
       },
-      data,
+      get data() {
+        return data;
+      },
       error,
       checksum,
     } as t.FetchResponse<T>;
