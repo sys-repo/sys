@@ -3,7 +3,7 @@ import { Paths } from './u.ts';
 export * from './common.ts';
 
 export type CmdResult = {
-  output: t.CmdOutput;
+  output: t.ProcOutput;
   path: string;
 };
 

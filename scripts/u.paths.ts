@@ -17,7 +17,6 @@ export const Paths = {
     'code/sys/process',
     'code/sys/crypto',
     
-    'code/sys/std-s',
     'code/sys.tmp',
     
     'code/sys/http',

@@ -1,4 +1,4 @@
-import { type t, HttpServer, Auth as HttpServerAuth } from './common.ts';
+import { type t, HttpServer } from './common.ts';
 import { Auth } from './u.Auth.ts';
 import { Routes } from './u.Routes.ts';
 
@@ -26,11 +26,6 @@ export function server(args: A) {
  * Helpers
  */
 const wrangle = {
-  auth(args: A) {
-    const privy = args.env.privy;
-    return HttpServerAuth.ctx(privy.appId, privy.appSecret);
-  },
-
   authMiddleware(args: A, ctx: t.RouteContext) {
     const enabled = args.authEnabled ?? true;
     const logger = args.authLogger;

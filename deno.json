@@ -32,8 +32,6 @@
     "./code/sys/process",
     "./code/sys/crypto",
 
-    "./code/sys/std-s",
-
     "./code/sys/http",
     "./code/sys/text",
     "./code/sys/tmpl",

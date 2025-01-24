@@ -5,7 +5,6 @@ Basic low-level utility functions and helpers.
 ### System:Std (Standard)
 
 - [`jsr: @sys/std`](https://jsr.io/@sys/std) ← | Browser, WinterTG
-- [`jsr: @sys/std-s`](https://jsr.io/@sys/std-s) ← | server environments ( Posix, WinterTG ).
 
 
 
