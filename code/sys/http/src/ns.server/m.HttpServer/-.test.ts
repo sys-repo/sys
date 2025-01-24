@@ -3,21 +3,26 @@ import { Http, Pkg } from './common.ts';
 import { HttpServer } from './mod.ts';
 
 describe('Server', () => {
+  const opts = HttpServer.options(1234, pkg);
+  const app = HttpServer.create();
+  const listener = Deno.serve(opts, app.fetch);
+
   it('app: start → req/res → dispose', async () => {
     const app = HttpServer.create();
     const listener = Deno.serve({ port: 0 }, app.fetch);
 
+    type T = { count: number };
     app.get('/', (c) => c.json({ count: 123 }));
 
     const fetch = Http.fetch();
     const url = Http.url(listener.addr);
-    const res1 = await fetch.json(url.base);
-    const res2 = await fetch.json(url.join('404'));
+    const res1 = await fetch.json<T>(url.base);
+    const res2 = await fetch.json<T>(url.join('404'));
 
     expect(res1.status).to.eql(200);
     expect(res2.status).to.eql(404);
 
-    expect(await res1.data).to.eql({ count: 123 });
+    expect(res1.data).to.eql({ count: 123 });
 
     fetch.dispose();
     await listener.shutdown();
