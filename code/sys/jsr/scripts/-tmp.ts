@@ -1,9 +1,13 @@
 import { Jsr } from '@sys/jsr/server';
 
-const { manifest } = await Jsr.Manifest.fetch('@sys/driver-vitepress', '0.0.218');
+const pull = async (name: string, version: string) => {
+  const { manifest } = await Jsr.Manifest.fetch(name, version);
+  if (manifest) {
+    const dir = '.tmp/sample-pull';
+    const res = await manifest.pull(dir);
+    console.info('res:', res);
+  }
+};
 
-if (manifest) {
-  const dir = '.tmp/sample-pull';
-  const res = await manifest.pull(dir);
-  console.log('res', res);
-}
+await pull('@sys/driver-vitepress', '0.0.25');
+await pull('@sys/std', '0.0.42');

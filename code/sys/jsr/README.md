@@ -33,3 +33,20 @@ const res = await Jsr.Fetch.Pkg.info('@sys/std', '0.0.42');
 //  -  graph (moduleGraph1, moduleGraph2)
 ```
 
+Pull the source-code of a specific module/version and save it to the local file-system.
+
+```ts
+import { Jsr } from 'jsr:@sys/jsr/server';
+
+const { manifest } = await Jsr.Manifest.fetch('@sys/std', '0.0.42');
+if (manifest) {
+  /**
+   * Options:
+   * - ƒn(filter)
+   * - write: (default string: directory to save to).
+   */
+  const res = await manifest.pull('.tmp/my-modules'); // ← saves to dir/@<scope>/<module-name>
+  console.log(res);
+}
+
+```
