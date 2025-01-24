@@ -22,7 +22,14 @@ export type ViteEntryLib = {
 /**
  * ARGV (Command Line Arguments)
  */
-export type ViteEntryArgs = ViteEntryArgsDev | ViteEntryArgsBuild | ViteEntryArgsServe;
+export type ViteEntryArgs =
+  | ViteEntryArgsInit
+  | ViteEntryArgsDev
+  | ViteEntryArgsBuild
+  | ViteEntryArgsServe;
+
+/** The `init` command. */
+export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };
