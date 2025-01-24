@@ -17,4 +17,3 @@ export type * as t from './types.ts';
  * NB: importing these libraries into JS/ESM for bundling
  *     for the browser (eg. via Vite) will fail.
  */
-export { Env } from './m.Env/mod.ts';

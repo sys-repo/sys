@@ -1,5 +1,5 @@
 import * as DotEnv from '@std/dotenv';
-import type { t } from '../common/mod.ts';
+import type { t } from '../common.ts';
 
 /**
  * Helpers for retrieveing environment variables (aka. "secrets").
