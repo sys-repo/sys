@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Net } from '@sys/std-s/network';
+ * import { Net, Port } from '@sys/http/server';
  * const port = Net.Port.random();
  * ```
  */
