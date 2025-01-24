@@ -48,10 +48,9 @@ if (manifest) {
    * - ƒn(filter)
    * - write: (default string: directory to save to).
    */
-  const res = await manifest.pull('./my-modules-dir'); 
-  //                                     ↑
-  //                          saves to dir/@<scope>/<module-name>
-  console.log(res);
+  const pulled = await manifest.pull('./my-modules-dir'); 
+  //                                 ↑ saves to: <dir>/@<scope>/<module-name>
+  console.log(pulled);
 }
 
 ```
