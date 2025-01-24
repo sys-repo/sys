@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { type t, Err, Fetch, Path, rx } from './common.ts';
+import { type t, Err, Fetch, Path, Pkg, rx } from './common.ts';
 
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
   pkg = { ...pkg };
@@ -41,10 +41,18 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
        */
       let written: t.JsrManifestPullResponse['written'] | undefined;
       if (options.write) {
-        const dir = Path.resolve(options.write);
-        written = { dir };
-        for (const item of loaded.filter((m) => m.ok && !!m.data)) {
-          const path = Path.join(dir, item.url.slice(baseUrl.length));
+        const relative = Pkg.toString(pkg);
+        const absolute = Path.resolve(options.write, relative);
+        const items = loaded.filter((m) => m.ok && !!m.data);
+
+        written = {
+          absolute,
+          relative,
+          total: { files: items.length },
+        };
+
+        for (const item of items) {
+          const path = Path.join(absolute, item.url.slice(baseUrl.length));
           const res = await Fs.write(path, item.data || '');
           if (res.error) errors.push(res.error);
         }
@@ -59,7 +67,9 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
       // Finish up.
       return {
         ok,
-        files: loaded,
+        get files() {
+          return loaded;
+        },
         written,
         error: errors.toError(),
       };

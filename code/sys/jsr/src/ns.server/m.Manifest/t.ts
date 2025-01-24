@@ -58,7 +58,11 @@ export type JsrManifestPullResponse = {
   ok: boolean;
   files: t.JsrFetchPkgFileResponse[];
   error?: t.StdError;
-  written?: { dir: t.StringDir };
+  written?: {
+    absolute: t.StringDir;
+    relative: t.StringDir;
+    total: { files: t.NumberTotal };
+  };
 };
 
 /** Options passed to `manifest.pull` method. */

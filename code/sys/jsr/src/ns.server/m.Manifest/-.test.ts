@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, Hash, it, SAMPLE, slug } from '../../-test.ts';
+import { c, describe, expect, Fs, Hash, it, Pkg, SAMPLE, slug } from '../../-test.ts';
 import { Jsr } from '../mod.ts';
 import { Fetch } from './common.ts';
 import { Manifest } from './mod.ts';
@@ -88,18 +88,19 @@ describe('Jsr.Manifest (integration test)', () => {
     });
 
     it('pull locally → save (file-system: directory)', async () => {
-      const sample = await SAMPLE.fs('Jsr.Manifest.pull').init();
+      const sample = await SAMPLE.fs('Jsr.Manifest.pull', { slug: true }).init();
       expect(await sample.ls()).to.eql([]);
 
       const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
       const res = await manifest.pull(sample.dir);
 
-      expect(res.written?.dir).to.eql(sample.dir);
-      expect((await sample.ls(true)).sort()).to.eql(Object.keys(SAMPLE.def).sort()); // NB: directory contains all files.
+      expect(res.written?.total.files).to.eql(Object.keys(SAMPLE.def).length);
+      expect(res.written?.absolute).to.eql(Fs.join(sample.dir, Pkg.toString(SAMPLE.pkg)));
+      expect(res.written?.relative).to.eql(Pkg.toString(SAMPLE.pkg));
 
       // Ensure hash/checksums match.
       for (const file of res.files) {
-        const path = Fs.join(res.written?.dir || '', file.url.slice(baseUrl.length));
+        const path = Fs.join(res.written?.absolute || '', file.url.slice(baseUrl.length));
         const data = await Deno.readFile(path);
         expect(Hash.sha256(data)).to.eql(file.checksum?.expected);
       }
