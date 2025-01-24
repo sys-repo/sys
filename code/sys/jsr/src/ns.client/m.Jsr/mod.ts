@@ -1,6 +1,10 @@
 /**
  * @module
- * Tools for working with JSR ("the Javascript Registry").
+ * Tools for working with the JSR module registry (on the client).
  * https://jsr.io/docs
  */
-export { Jsr } from './m.Jsr.ts';
+import { type t, Fetch } from './common.ts';
+
+export const Jsr: t.JsrClientLib = {
+  Fetch,
+};
