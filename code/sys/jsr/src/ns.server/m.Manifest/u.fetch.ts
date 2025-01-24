@@ -1,8 +1,7 @@
-import { type t, Err } from './common.ts';
+import { type t, Err, Fetch } from './common.ts';
 import { create } from './u.create.ts';
 
 export const fetch: t.JsrManifestLib['fetch'] = async (name, version, options = {}) => {
-  const { Fetch } = await import('../m.Fetch/mod.ts');
   const origin = Fetch.Url.origin;
   const errors = Err.errors();
 

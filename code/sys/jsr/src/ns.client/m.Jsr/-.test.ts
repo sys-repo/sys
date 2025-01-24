@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Fetch } from '../m.Fetch/mod.ts';
 import { Jsr } from './mod.ts';
 

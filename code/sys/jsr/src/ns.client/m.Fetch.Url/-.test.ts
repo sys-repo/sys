@@ -1,4 +1,4 @@
-import { c, describe, expect, it } from '../-test.ts';
+import { c, describe, expect, it } from '../../-test.ts';
 import { Url } from './mod.ts';
 
 describe('Jsr.Fetch.Url', () => {

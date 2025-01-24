@@ -1,5 +1,4 @@
-import { init } from 'rambda';
-import { type t, Fs, slug } from '../common.ts';
+import { type t, Fs, slug } from './common.ts';
 
 export const SAMPLE = {
   pkg: { name: '@sys/std', version: '0.0.42' },

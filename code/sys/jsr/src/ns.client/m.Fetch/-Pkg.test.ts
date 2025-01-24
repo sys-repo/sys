@@ -1,4 +1,4 @@
-import { c, describe, expect, it, rx, Semver, slug, Testing } from '../-test.ts';
+import { c, describe, expect, it, rx, Semver, slug, Testing } from '../../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
 import { assertFetchDisposed } from './-u.ts';
 import { Fetch } from './mod.ts';

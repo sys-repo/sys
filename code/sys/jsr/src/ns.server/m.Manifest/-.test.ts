@@ -1,5 +1,5 @@
-import { Fs, c, describe, expect, it, SAMPLE, slug, Testing, Hash } from '../-test.ts';
-import { Jsr } from '../m.Jsr/mod.ts';
+import { c, describe, expect, Fs, Hash, it, SAMPLE, slug } from '../../-test.ts';
+import { Jsr } from '../mod.ts';
 import { Fetch } from './common.ts';
 import { Manifest } from './mod.ts';
 

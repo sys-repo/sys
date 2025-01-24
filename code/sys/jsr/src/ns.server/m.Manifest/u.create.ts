@@ -1,4 +1,5 @@
-import { type t, Fs, Err, Fetch, rx } from './common.ts';
+import { type t, Err, Fetch, rx } from './common.ts';
+import { Fs } from '@sys/fs';
 
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
   pkg = { ...pkg };

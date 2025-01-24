@@ -2,7 +2,8 @@
  * @module
  * Module types.
  */
-export type * from './m.Fetch.Url/t.ts';
-export type * from './m.Fetch/t.ts';
-export type * from './m.Manifest/t.ts';
-export type * from './m.Jsr/t.ts';
+export type * from './ns.client/m.Fetch.Url/t.ts';
+export type * from './ns.client/m.Fetch/t.ts';
+export type * from './ns.client/m.Jsr/t.ts';
+
+export type * from './ns.server/m.Manifest/t.ts';
