@@ -9,7 +9,7 @@ Fetch tools:
 import { Http } from 'jsr:@sys/http/client'
 
 const fetch = Http.Fetch.create({ accessToken: 'my-jwt' });
-const fetch = Http.fetch();  // ← shorthand (alt),
+const fetch = Http.fetch();  // ← shorthand (alt).
 
 const url = 'https://url.com/api';
 const checksum = 'sha256-01234'
