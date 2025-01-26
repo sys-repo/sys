@@ -11,7 +11,7 @@ export type VitepressEntryLib = {
    *
    * Pass: "--cmd=<sub-command>"
    *      to specify which action to take, and then the paratmers
-   *      that pertain to <sub-command> as defined in the <VitePressCmd> type.
+   *      that pertain to <sub-command> as defined in the entry args types.
    */
   main(argv?: string[] | VitepressEntryArgs): Promise<void>;
 };
