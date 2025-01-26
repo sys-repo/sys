@@ -14,7 +14,7 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
   const templatesDir = Fs.resolve(PATHS.tmp);
 
   await Fs.remove(templatesDir);
-  await Bundle.saveToFilesystem(templatesDir);
+  await Bundle.toFilesystem(templatesDir);
 
   return Tmpl.create(templatesDir, (e) => {
     if (e.target.exists && is.userspace(e.target.relative)) {

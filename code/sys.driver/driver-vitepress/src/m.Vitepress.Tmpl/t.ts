@@ -23,9 +23,9 @@ export type VitepressTmplCreateArgs = {
  * Tools for file bundling within the ESM module (to be published into the registry).
  */
 export type VitepressBundleLib = {
-  /** Prepare a file-map .json file from the current source code. */
-  prep(): Promise<{ from: t.StringDir; to: t.StringDir }>;
+  /** Read in the current source code of the templates and bundle it into a file-map. */
+  toFilemap(): Promise<{ from: t.StringDir; to: t.StringDir }>;
 
   /** Write out the bundled <FileMap> to a target location. */
-  saveToFilesystem(dir?: t.StringDir): Promise<void>;
+  toFilesystem(dir?: t.StringDir): Promise<void>;
 };
