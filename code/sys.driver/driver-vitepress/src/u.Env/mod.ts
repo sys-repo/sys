@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-import { createTmpl as tmpl } from '../u.Tmpl/mod.ts';
+import { createTmpl as tmpl } from '../m.Vitepress.Tmpl/mod.ts';
 import { backup } from './u.backup.ts';
 import { update } from './u.update.ts';
 

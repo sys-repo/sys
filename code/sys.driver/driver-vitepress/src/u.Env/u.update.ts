@@ -1,4 +1,4 @@
-import { createTmpl } from '../u.Tmpl/mod.ts';
+import { createTmpl } from '../m.Vitepress.Tmpl/mod.ts';
 import { type t, Fs, Tmpl, c } from './common.ts';
 
 /**
