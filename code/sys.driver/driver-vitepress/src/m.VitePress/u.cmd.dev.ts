@@ -1,4 +1,4 @@
-import { type t, Log, Net, Process, stripAnsi } from './common.ts';
+import { type t, VitepressLog, Net, Process, stripAnsi } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 
 type F = t.VitepressLib['dev'];
@@ -25,7 +25,7 @@ export const dev: F = async (input = {}) => {
   const args = cmd.split(' ').slice(1);
   const url = `http://localhost:${port}`;
 
-  Log.Dev.log({ inDir, pkg });
+  VitepressLog.Dev.log({ inDir, pkg });
 
   const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');

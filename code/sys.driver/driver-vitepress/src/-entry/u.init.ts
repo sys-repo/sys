@@ -1,5 +1,5 @@
 import { VitePress } from '../m.Vitepress/mod.ts';
-import { type t, c, Log, PATHS, pkg } from './common.ts';
+import { type t, c, VitepressLog, PATHS, pkg } from './common.ts';
 
 /**
  * Run the initialization templates.
@@ -17,7 +17,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
 
   if (!silent) {
     console.info();
-    Log.UsageAPI.log();
+    VitepressLog.UsageAPI.log();
     console.info();
   }
 }

@@ -1,1 +1,1 @@
-export { Log } from './m.Log.ts';
+export { VitepressLog } from './m.Log.ts';

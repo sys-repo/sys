@@ -1,4 +1,4 @@
-import { type t, Cli, Dir, Ignore, Log, Path, PATHS } from './common.ts';
+import { type t, Cli, Dir, Ignore, VitepressLog, Path, PATHS } from './common.ts';
 
 const IGNORE = `
 node_modules/
@@ -45,7 +45,7 @@ export const backup: t.VitepressEnvLib['backup'] = async (args) => {
   // Log output.
   if (!args.silent) {
     console.info();
-    await Log.Snapshot.log(snapshot);
+    await VitepressLog.Snapshot.log(snapshot);
     console.info();
   }
 

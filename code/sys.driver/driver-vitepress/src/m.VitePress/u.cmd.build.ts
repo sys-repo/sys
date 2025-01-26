@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Log, PATHS, Pkg, Process, Time } from './common.ts';
+import { type t, c, Cli, Fs, VitepressLog, PATHS, Pkg, Process, Time } from './common.ts';
 
 type B = t.VitepressLib['build'];
 type R = t.VitepressBuildResponse;
@@ -56,7 +56,7 @@ export const build: B = async (input = {}) => {
       const { pad } = options;
       const bytes = dist.size.bytes;
       const hash = dist.hash.digest;
-      return Log.Build.toString({ ok, pad, bytes, dirs, hash, pkg, elapsed });
+      return VitepressLog.Build.toString({ ok, pad, bytes, dirs, hash, pkg, elapsed });
     },
   };
 

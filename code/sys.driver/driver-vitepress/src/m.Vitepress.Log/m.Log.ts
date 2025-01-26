@@ -16,15 +16,15 @@ import {
 /**
  * Console logging operations for the module.
  */
-export const Log = {
+export const VitepressLog = {
   UsageAPI: ViteLog.UsageAPI,
 
   Build: {
-    log: (args: t.ViteLogBundleArgs) => console.info(Log.Build.toString(args)),
+    log: (args: t.ViteLogBundleArgs) => console.info(VitepressLog.Build.toString(args)),
     toString: (args: t.ViteLogBundleArgs) => ViteLog.Bundle.toString(args),
   },
   Dev: {
-    log: (args: t.ViteLogDevArgs) => console.info(Log.Dev.toString(args)),
+    log: (args: t.ViteLogDevArgs) => console.info(VitepressLog.Dev.toString(args)),
     toString: (args: t.ViteLogDevArgs) => {
       const { pkg } = args;
       const inDir = wrangle.formatPath(args.inDir);
@@ -43,12 +43,12 @@ export const Log = {
    */
   async help(args: { inDir?: t.StringDir; minimal?: boolean } = {}) {
     const { inDir = PATHS.inDir, minimal = false } = args;
-    Log.UsageAPI.log({ minimal });
+    VitepressLog.UsageAPI.log({ minimal });
 
     const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, PATHS.dist));
     if (dist) {
       console.info();
-      Log.dist(dist, { inDir });
+      VitepressLog.dist(dist, { inDir });
     } else {
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
       const notBuilt = c.italic(c.yellow('(not yet built)'));
@@ -88,7 +88,7 @@ export const Log = {
 
   Snapshot: {
     async log(snapshot: t.DirSnapshot) {
-      const text = await Log.Snapshot.toString(snapshot);
+      const text = await VitepressLog.Snapshot.toString(snapshot);
       console.info(text);
       return text;
     },

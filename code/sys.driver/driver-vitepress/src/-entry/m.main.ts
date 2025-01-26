@@ -1,5 +1,5 @@
 import { VitePress } from '../m.Vitepress/mod.ts';
-import { type t, Args, c, DEFAULTS, Env, Log, PATHS, pkg } from './common.ts';
+import { type t, Args, c, DEFAULTS, Env, VitepressLog, PATHS, pkg } from './common.ts';
 
 type F = t.VitepressEntryLib['main'];
 
@@ -27,7 +27,7 @@ export const main: F = async (input) => {
    * Start HMR development server.
    */
   if (args.cmd === 'dev') {
-    Log.UsageAPI.log({ cmd: 'dev' });
+    VitepressLog.UsageAPI.log({ cmd: 'dev' });
     const { inDir = PATHS.inDir } = args;
     const server = await VitePress.dev({ inDir, pkg });
     await server.listen();
@@ -38,7 +38,7 @@ export const main: F = async (input) => {
    * Transpile the production bundle (Pkg).
    */
   if (args.cmd === 'build') {
-    Log.UsageAPI.log({ cmd: 'build' });
+    VitepressLog.UsageAPI.log({ cmd: 'build' });
     const { inDir = PATHS.inDir } = args;
     const res = await VitePress.build({ inDir, pkg });
     console.info(res.toString({ pad: true }));
@@ -46,7 +46,7 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'serve') {
-    Log.UsageAPI.log({ cmd: 'serve' });
+    VitepressLog.UsageAPI.log({ cmd: 'serve' });
     const { serve } = await import('./u.serve.ts');
     await serve(args);
     return;
@@ -72,7 +72,7 @@ export const main: F = async (input) => {
 
   if (args.cmd === 'help') {
     const { inDir = PATHS.inDir } = args;
-    await Log.help({ inDir, minimal: false });
+    await VitepressLog.help({ inDir, minimal: false });
     return;
   }
 
