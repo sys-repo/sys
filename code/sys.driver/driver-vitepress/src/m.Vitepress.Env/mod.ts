@@ -1,6 +1,5 @@
-import type { t } from './common.ts';
+import { type t, VitepressTmpl as Tmpl } from './common.ts';
 
-import { createTmpl as tmpl } from '../m.Vitepress.Tmpl/mod.ts';
 import { backup } from './u.backup.ts';
 import { update } from './u.update.ts';
 
@@ -8,8 +7,11 @@ import { update } from './u.update.ts';
  * Helpers for establishing and updating the project environment.
  */
 export const Env: t.VitepressEnvLib = {
+  /** Template library for a VitePress project. */
+  Tmpl,
+
   /** Create a new file-generator instances. */
-  tmpl,
+  tmpl: Tmpl.create,
 
   /** Initialize the local machine environment with latest templates */
   update,

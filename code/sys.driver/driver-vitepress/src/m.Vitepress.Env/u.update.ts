@@ -1,5 +1,4 @@
-import { createTmpl } from '../m.Vitepress.Tmpl/mod.ts';
-import { type t, Fs, Tmpl, c } from './common.ts';
+import { type t, c, Fs, Tmpl, VitepressTmpl } from './common.ts';
 
 /**
  * Initialize the local machine environment with latest templates
@@ -10,7 +9,7 @@ export const update: t.VitepressEnvLib['update'] = async (args = {}) => {
   /**
    * Update template files.
    */
-  const tmpl = await createTmpl({ inDir, srcDir, version });
+  const tmpl = await VitepressTmpl.create({ inDir, srcDir, version });
   const { ops } = await tmpl.copy(inDir, { force });
 
   /**

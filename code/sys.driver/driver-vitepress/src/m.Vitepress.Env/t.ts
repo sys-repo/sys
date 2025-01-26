@@ -4,8 +4,11 @@ import type { t } from './common.ts';
  * Tools for maintaining the local "Editor Machine/Device" environment state.
  */
 export type VitepressEnvLib = {
-  /** Create a new file-generator instances. */
-  tmpl: t.VitepressTmplFactory;
+  /** Template library for a VitePress project. */
+  readonly Tmpl: t.VitepressTmplLib;
+
+  /** Create a new template instance (file-generator). */
+  tmpl: t.VitepressTmplLib['create'];
 
   /** Initialize the local machine environment with latest templates */
   update(args?: t.VitepressEnvUpdateArgs): Promise<t.VitepressEnvUpdateResponse>;
