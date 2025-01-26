@@ -1,4 +1,4 @@
-import { VitePress } from '../m.VitePress/mod.ts';
+import { VitePress } from '../m.Vitepress/mod.ts';
 import { type t, c, Log, PATHS, pkg } from './common.ts';
 
 /**

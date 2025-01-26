@@ -1,6 +1,6 @@
 import { type t, expect } from '../-test.ts';
 import { Fs } from './common.ts';
-export { Sample } from '../m.VitePress/-u.ts';
+export { Sample } from '../m.Vitepress/-u.ts';
 
 /**
  * Assert the given path exists.

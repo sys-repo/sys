@@ -1,7 +1,7 @@
 import { type t, Log, Net, Process, stripAnsi } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 
-type F = t.VitePressLib['dev'];
+type F = t.VitepressLib['dev'];
 type R = t.VitePressDevServer;
 
 /**

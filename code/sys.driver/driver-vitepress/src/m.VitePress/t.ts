@@ -14,7 +14,7 @@ type ToStringOptions = { pad?: boolean };
  * invokeable programmatically in places like CI, or your own
  * extension module.
  */
-export type VitePressLib = {
+export type VitepressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
   readonly Env: t.VitepressEnvLib;
 

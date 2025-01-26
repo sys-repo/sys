@@ -7,7 +7,7 @@ import { dev } from './u.cmd.dev.ts';
 /**
  * Tools for working with a VitePress project.
  */
-export const VitePress: t.VitePressLib = {
+export const VitePress: t.VitepressLib = {
   Env,
   dev,
   build,

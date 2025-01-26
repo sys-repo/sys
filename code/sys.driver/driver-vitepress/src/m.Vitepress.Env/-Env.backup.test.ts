@@ -1,6 +1,6 @@
 import { type t, Fs, PATHS, Testing, describe, expect, it } from '../-test.ts';
-import { Sample } from '../m.VitePress/-u.ts';
-import { VitePress } from '../m.VitePress/mod.ts';
+import { Sample } from '../m.Vitepress/-u.ts';
+import { VitePress } from '../m.Vitepress/mod.ts';
 import { Env } from './mod.ts';
 
 describe('cmd: backup (shapshot)', () => {

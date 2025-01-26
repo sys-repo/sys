@@ -1,2 +1,2 @@
-export { Sample } from '../m.VitePress/-u.ts';
+export { Sample } from '../m.Vitepress/-u.ts';
 export { assertEnvExists, assertExists } from './-assert.ts';

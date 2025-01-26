@@ -1,6 +1,6 @@
 import { Process } from '@sys/process';
 import { Semver } from '@sys/std/semver';
-import { ViteLog } from '../m.VitePress/common.ts';
+import { ViteLog } from '../m.Vitepress/common.ts';
 import { type t, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
 
 /**
