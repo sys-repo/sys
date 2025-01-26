@@ -14,8 +14,9 @@ export type {
  */
 export type * from '@sys/std/t';
 
-export type { DenofileJson, DenofilePath, DenoWorkspace } from '@sys/driver-deno/t';
+export type { DenoWorkspace, DenofileJson, DenofilePath } from '@sys/driver-deno/t';
 export type { ProcHandle, ProcOutput, ProcReadySignalFilter } from '@sys/process/t';
+export type { Tmpl } from '@sys/tmpl/t';
 export type { CssValue } from '@sys/ui-css/t';
 
 /**
