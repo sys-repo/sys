@@ -12,7 +12,7 @@ dist/
 /**
  * Create a backup snapshot.
  */
-export const backup: t.VitePressEnvLib['backup'] = async (args) => {
+export const backup: t.VitepressEnvLib['backup'] = async (args) => {
   const { force, message } = args;
   const inDir = Path.resolve(args.inDir);
 
@@ -50,6 +50,6 @@ export const backup: t.VitePressEnvLib['backup'] = async (args) => {
   }
 
   // Response.
-  const res: t.VitePressBackupResponse = { snapshot };
+  const res: t.VitepressBackupResponse = { snapshot };
   return res;
 };

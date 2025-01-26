@@ -7,7 +7,7 @@ import { update } from './u.update.ts';
 /**
  * Helpers for establishing and updating the project environment.
  */
-export const Env: t.VitePressEnvLib = {
+export const Env: t.VitepressEnvLib = {
   /** Create a new file-generator instances. */
   tmpl,
 

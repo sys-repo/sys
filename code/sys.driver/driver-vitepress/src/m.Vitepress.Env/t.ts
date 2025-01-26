@@ -3,19 +3,19 @@ import type { t } from './common.ts';
 /**
  * Tools for maintaining the local "Editor Machine/Device" environment state.
  */
-export type VitePressEnvLib = {
+export type VitepressEnvLib = {
   /** Create a new file-generator instances. */
-  tmpl: t.VitePressTmplFactory;
+  tmpl: t.VitepressTmplFactory;
 
   /** Initialize the local machine environment with latest templates */
-  update(args?: t.VitePressEnvUpdateArgs): Promise<t.VitePressEnvUpdateResponse>;
+  update(args?: t.VitepressEnvUpdateArgs): Promise<t.VitepressEnvUpdateResponse>;
 
   /** Create a backup snapshot. */
-  backup(args: t.VitePressBackupArgs): Promise<t.VitePressBackupResponse>;
+  backup(args: t.VitepressBackupArgs): Promise<t.VitepressBackupResponse>;
 };
 
 /** Arguments passed to the `VitePress.Env.update` method. */
-export type VitePressEnvUpdateArgs = {
+export type VitepressEnvUpdateArgs = {
   force?: boolean;
   inDir?: t.StringDir;
   srcDir?: t.StringDir;
@@ -26,18 +26,18 @@ export type VitePressEnvUpdateArgs = {
 /**
  * The response returned from an environment update.
  */
-export type VitePressEnvUpdateResponse = {
+export type VitepressEnvUpdateResponse = {
   readonly ops: t.TmplFileOperation[];
 };
 
 /** Arguments passed to the `VitePress.Env.backup` method. */
-export type VitePressBackupArgs = {
+export type VitepressBackupArgs = {
   inDir: t.StringDir;
   silent?: boolean;
   includeDist?: boolean;
   force?: boolean;
   message?: string;
 };
-export type VitePressBackupResponse = {
+export type VitepressBackupResponse = {
   readonly snapshot: t.DirSnapshot;
 };

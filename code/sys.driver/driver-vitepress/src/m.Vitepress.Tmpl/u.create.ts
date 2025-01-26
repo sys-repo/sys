@@ -9,7 +9,7 @@ export { bundleTemplateFiles } from './bundle.ts';
 /**
  * Create a new instance of the bundled file template.
  */
-export const createTmpl: t.VitePressTmplFactory = async (args) => {
+export const createTmpl: t.VitepressTmplFactory = async (args) => {
   const { srcDir = './docs' } = args;
   const inDir = Fs.Path.trimCwd(Fs.resolve(args.inDir));
   const templatesDir = Fs.resolve(PATHS.tmp);

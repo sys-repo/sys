@@ -18,7 +18,7 @@ describe('cmd: backup (shapshot)', () => {
      *
      */
     await Testing.retry(3, async () => {
-      const test = async (args: Pick<t.VitePressBackupArgs, 'includeDist'> = {}) => {
+      const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {
         const { includeDist } = args;
         const sample = Sample.init({});
         const inDir = sample.path;

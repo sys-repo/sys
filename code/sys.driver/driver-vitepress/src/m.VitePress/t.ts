@@ -16,7 +16,7 @@ type ToStringOptions = { pad?: boolean };
  */
 export type VitePressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
-  readonly Env: t.VitePressEnvLib;
+  readonly Env: t.VitepressEnvLib;
 
   /**
    * Start the development server.

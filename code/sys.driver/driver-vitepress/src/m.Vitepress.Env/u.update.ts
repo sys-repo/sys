@@ -4,7 +4,7 @@ import { type t, Fs, Tmpl, c } from './common.ts';
 /**
  * Initialize the local machine environment with latest templates
  */
-export const update: t.VitePressEnvLib['update'] = async (args = {}) => {
+export const update: t.VitepressEnvLib['update'] = async (args = {}) => {
   const { inDir = '', srcDir, version, force = false, silent = false } = args;
 
   /**
