@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 /**
  * Template Library:
- * Create and keep upated a "Vitepress" project.
+ * Create (and keep upated) a "Vitepress" project.
  */
 export type VitepressTmplLib = {
   /** Tools for file bundling within the ESM module (to be published into the registry). */
