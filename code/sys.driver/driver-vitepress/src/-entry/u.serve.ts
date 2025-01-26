@@ -3,7 +3,7 @@ import { type t, Fs, HttpServer, PATHS, Pkg, pkg } from './common.ts';
 /**
  * Run local HTTP server on production bundle.
  */
-export async function serve(args: t.VitePressEntryArgsServe) {
+export async function serve(args: t.VitepressEntryArgsServe) {
   const { inDir = PATHS.inDir } = args;
 
   if (args.cmd !== 'serve') return;

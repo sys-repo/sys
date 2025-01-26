@@ -1,7 +1,7 @@
 import { VitePress } from '../m.Vitepress/mod.ts';
 import { type t, Args, c, DEFAULTS, Env, Log, PATHS, pkg } from './common.ts';
 
-type F = t.VitePressEntryLib['main'];
+type F = t.VitepressEntryLib['main'];
 
 /**
  * Main command entry point.
@@ -84,8 +84,8 @@ export const main: F = async (input) => {
  * Helpers
  */
 const wrangle = {
-  args(argv: string[] | t.VitePressEntryArgs) {
-    type T = t.VitePressEntryArgs;
+  args(argv: string[] | t.VitepressEntryArgs) {
+    type T = t.VitepressEntryArgs;
     return Array.isArray(argv) ? Args.parse<T>(argv) : (argv as T);
   },
 } as const;

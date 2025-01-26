@@ -7,7 +7,7 @@ import { type t, c, Env, Jsr, PATHS, pkg, stripAnsi } from './common.ts';
  * Perform an upgrade on the local project to the
  * latest released version on JSR.
  */
-export async function upgrade(args: t.VitePressEntryArgsUpgrade) {
+export async function upgrade(args: t.VitepressEntryArgsUpgrade) {
   const { inDir = PATHS.inDir, force = false } = args;
 
   if (args.cmd !== 'upgrade') return;

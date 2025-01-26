@@ -9,6 +9,6 @@
 import { type t, Args } from './common.ts';
 import { Entry } from './mod.ts';
 
-const args = Args.parse<t.VitePressEntryArgsInit>(Deno.args);
+const args = Args.parse<t.VitepressEntryArgsInit>(Deno.args);
 await Entry.main({ ...args, cmd: 'init' });
 Deno.exit(0);
