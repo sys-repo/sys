@@ -22,17 +22,17 @@ export type VitepressLib = {
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev
    */
-  dev(options?: t.VitePressDevArgs | t.StringDir): Promise<t.VitePressDevServer>;
+  dev(options?: t.VitepressDevArgs | t.StringDir): Promise<t.VitepressDevServer>;
 
   /**
    * Run the VitePress `build` command to produce the output `/dist` bundle.
    * https://vitepress.dev/reference/cli#vitepress-build
    */
-  build(options?: t.VitePressBuildArgs | t.StringDir): Promise<t.VitePressBuildResponse>;
+  build(options?: t.VitepressBuildArgs | t.StringDir): Promise<t.VitepressBuildResponse>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
-export type VitePressDevArgs = {
+export type VitepressDevArgs = {
   /** Path to the input directory. */
   inDir?: t.StringDir;
 
@@ -52,7 +52,7 @@ export type VitePressDevArgs = {
 /**
  * A running [VitePress] development server running on localhost.
  */
-export type VitePressDevServer = t.LifecycleAsync & {
+export type VitepressDevServer = t.LifecycleAsync & {
   readonly proc: t.ProcHandle;
   readonly port: number;
   readonly dirs: Omit<t.ViteBundleDirs, 'out'>;
@@ -62,7 +62,7 @@ export type VitePressDevServer = t.LifecycleAsync & {
 };
 
 /** Arguments passed to the [VitePress.build] method. */
-export type VitePressBuildArgs = {
+export type VitepressBuildArgs = {
   pkg?: t.Pkg; // Consumer module.
   inDir?: t.StringDir;
   outDir?: t.StringDir;
@@ -71,7 +71,7 @@ export type VitePressBuildArgs = {
 };
 
 /** Response from the [VitePress.build] method. */
-export type VitePressBuildResponse = {
+export type VitepressBuildResponse = {
   ok: boolean;
   elapsed: t.Msecs;
   dirs: t.ViteBundleDirs;

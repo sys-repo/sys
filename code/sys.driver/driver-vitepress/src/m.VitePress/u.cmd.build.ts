@@ -1,7 +1,7 @@
 import { type t, c, Cli, Fs, Log, PATHS, Pkg, Process, Time } from './common.ts';
 
 type B = t.VitepressLib['build'];
-type R = t.VitePressBuildResponse;
+type R = t.VitepressBuildResponse;
 
 /**
  * https://vitepress.dev/reference/cli#vitepress-build
@@ -74,7 +74,7 @@ const wrangle = {
     return input;
   },
 
-  dirs(options: t.VitePressBuildArgs): R['dirs'] {
+  dirs(options: t.VitepressBuildArgs): R['dirs'] {
     const { inDir = '', outDir = '' } = options;
     return {
       in: Fs.resolve(inDir),

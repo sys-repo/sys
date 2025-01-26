@@ -2,7 +2,7 @@ import { type t, Log, Net, Process, stripAnsi } from './common.ts';
 import { keyboardFactory } from './u.keyboard.ts';
 
 type F = t.VitepressLib['dev'];
-type R = t.VitePressDevServer;
+type R = t.VitepressDevServer;
 
 /**
  * Matches (example):
@@ -73,7 +73,7 @@ export const dev: F = async (input = {}) => {
  * Helpers
  */
 const wrangle = {
-  options(input: Parameters<F>[0]): t.VitePressDevArgs {
+  options(input: Parameters<F>[0]): t.VitepressDevArgs {
     if (typeof input === 'string') return { inDir: input };
     return input ?? {};
   },
