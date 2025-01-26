@@ -1,10 +1,9 @@
-import { Main } from '@sys/main/cmd';
 import { pkg as vitePkg } from '@sys/driver-vite';
+import { Main } from '@sys/main/cmd';
 import { pkg as tmpPkg } from '@sys/tmp';
 
 import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
-import { saveTemplateFiles } from './bundle.write.ts';
-export { bundleTemplateFiles } from './bundle.ts';
+import { Bundle } from './m.Bundle.ts';
 
 /**
  * Create a new instance of the bundled file template.
@@ -15,7 +14,7 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
   const templatesDir = Fs.resolve(PATHS.tmp);
 
   await Fs.remove(templatesDir);
-  await saveTemplateFiles(templatesDir);
+  await Bundle.saveToFilesystem(templatesDir);
 
   return Tmpl.create(templatesDir, (e) => {
     if (e.target.exists && is.userspace(e.target.relative)) {

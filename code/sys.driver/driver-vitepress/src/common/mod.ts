@@ -11,6 +11,6 @@ export const PATHS = {
   vitepressCache: '.vitepress/cache',
   tmpl: {
     source: 'src/-tmpl',
-    json: 'src/u.Tmpl/-bundle.json',
+    json: 'src/m.Vitepress.Tmpl/-bundle.json',
   },
 } as const;
