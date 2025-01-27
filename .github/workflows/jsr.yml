@@ -53,8 +53,8 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
-      # - name: publish module → "@sys/driver-vitepress"
-      #   run: |
-      #     cd code/sys.driver/driver-vitepress
-      #     deno task test --parallel --trace-leaks
-      #     deno publish --allow-dirty
+      - name: publish module → "@sys/driver-vitepress"
+        run: |
+          cd code/sys.driver/driver-vitepress
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
