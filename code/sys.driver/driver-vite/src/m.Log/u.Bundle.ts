@@ -25,7 +25,7 @@ ${c.gray(`out:      ${outDir}/dist.json`)} ${tx}
     text = text.trim();
     if (pkg) {
       const mod = c.white(c.bold(pkg.name));
-      text += c.gray(`\npkg:      ${mod} ${c.cyan(pkg.version)}`);
+      text += c.gray(`\npkg:      ${mod} ${c.cyan(c.bold(pkg.version))}`);
     }
     return pad(text, args.pad);
   },

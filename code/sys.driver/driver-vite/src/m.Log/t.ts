@@ -37,7 +37,11 @@ export type ViteLogApi = {
 export type ViteLogUsageApiArgs = {
   cmd?: string;
   minimal?: boolean;
+  disabled?: t.ViteLogApiCmd[];
 };
+
+/** Commands included in the Help log. */
+export type ViteLogApiCmd = 'dev' | 'build' | 'serve' | 'upgrade' | 'backup' | 'clean' | 'help';
 
 /**
  * Log bundled distribution details.
