@@ -20,6 +20,16 @@ NB: <UI Framework™️> agnostic.
 
 ---
 
+### Initialize (New Instance): 🧫
+Scaffold a new project within the current-working-directory (`cwd`) on the local file-system:
+
+```bash
+deno run -A jsr:@sys/driver-vite/init
+```
+
+
+---
+
 <p>&nbsp;<p>
 
 ### Runtime ← Bundler
