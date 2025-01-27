@@ -29,8 +29,7 @@ export const create: t.ViteTmplLib['create'] = async (args) => {
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
-        .replace(/<VITE_VERSION>/, vitePkg.version);
+        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
 
       return e.modify(text);
     }
@@ -46,9 +45,9 @@ const is = {
     return dirs.some((dir) => dir.startsWith('.'));
   },
   userspace(path: string): boolean {
-    if (is.withinHiddenDir(path)) return false;
-    const NOT_USERSPACE = ['deno.json', 'package.json', '.npmrc', '.gitignore'];
-    const isExcluded = NOT_USERSPACE.some((m) => path.split('/').slice(-1)[0] === m);
-    return !isExcluded;
+    /**
+     * NOTE: no "user-space" concept as of yet.
+     */
+    return false;
   },
 } as const;
