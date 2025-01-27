@@ -11,7 +11,7 @@ describe('VitePress.dev', () => {
         const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
-        await VitePress.Env.update({ inDir });
+        await VitePress.Env.Tmpl.update({ inDir });
         const server = await VitePress.dev({ port, inDir, open }); // NB: await returns after Vitepress as completed it's startup.
 
         try {
@@ -43,7 +43,7 @@ describe('VitePress.dev', () => {
         const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
-        await VitePress.Env.update({ inDir });
+        await VitePress.Env.Tmpl.update({ inDir });
 
         const server = await VitePress.dev({ port, inDir, open });
         await server.dispose();

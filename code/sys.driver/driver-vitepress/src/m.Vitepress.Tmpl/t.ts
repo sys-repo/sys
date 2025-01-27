@@ -10,6 +10,9 @@ export type VitepressTmplLib = {
 
   /** Creates an instance of the template file generator. */
   create(args: t.VitepressTmplCreateArgs): Promise<t.Tmpl>;
+
+  /** Initialize the local machine environment with latest templates */
+  update(args?: t.VitepressTmplUpdateArgs): Promise<t.VitepressTmplUpdateResponse>;
 };
 
 /** Arguments passed to the `VitepressTmpl.create` method. */
@@ -29,3 +32,17 @@ export type VitepressBundleLib = {
   /** Write out the bundled <FileMap> to a target location. */
   toFilesystem(dir?: t.StringDir): Promise<void>;
 };
+
+/** Arguments passed to the `VitePress.Tmpl.update` method. */
+export type VitepressTmplUpdateArgs = {
+  force?: boolean;
+  inDir?: t.StringDir;
+  srcDir?: t.StringDir;
+  version?: t.StringSemver;
+  silent?: boolean;
+};
+
+/**
+ * The response returned from an environment update.
+ */
+export type VitepressTmplUpdateResponse = { readonly ops: t.TmplFileOperation[] };

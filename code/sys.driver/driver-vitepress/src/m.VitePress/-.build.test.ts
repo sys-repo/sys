@@ -24,7 +24,7 @@ describe('VitePress.build', () => {
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, 'dist');
 
-      await VitePress.Env.update({ inDir });
+      await VitePress.Env.Tmpl.update({ inDir });
       const res = await VitePress.build({ pkg, inDir, silent: false });
 
       expect(res.ok).to.eql(true);
@@ -65,7 +65,7 @@ describe('VitePress.build', () => {
       const outDir = Fs.resolve(sample.path, '.vitepress/dist');
       expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
 
-      await VitePress.Env.update({ inDir });
+      await VitePress.Env.Tmpl.update({ inDir });
       const res = await VitePress.build({ pkg, inDir, outDir, silent: true });
 
       expect(res.ok).to.eql(true);
