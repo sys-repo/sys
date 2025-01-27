@@ -13,7 +13,7 @@ NB: <UI Framework™️> agnostic.
 
 - [JSR Docs: Vite](https://jsr.io/docs/with/vite) (Build Tool)
 - [Deno Docs: Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/)
-- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno) 
+- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno) ← workspace
 
 
 <p>&nbsp;<p>
