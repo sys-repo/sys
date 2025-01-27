@@ -14,12 +14,10 @@ export const update: t.VitepressTmplLib['update'] = async (args = {}) => {
   const { ops } = await tmpl.copy(inDir, { force });
 
   /**
-   * Clean away obsolete files (historical).
+   *  🫵  Clean up helpers here (flesh out as needed: 🐷).
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
-  await remove('src/pkg.ts');
-  await remove('src/setup.ts');
-  await remove('src/components');
+  // await remove('./path/to/obsolete/file');
 
   /**
    * Finish up.
