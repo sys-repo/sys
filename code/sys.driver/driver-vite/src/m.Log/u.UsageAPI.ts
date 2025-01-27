@@ -1,4 +1,4 @@
-import { type t, c, Cli } from '../common.ts';
+import { type t, c, Cli } from './common.ts';
 
 export const UsageAPI: t.ViteLogUsageApi = {
   log(args = {}) {

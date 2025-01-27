@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Tools for logging common Vite related output.
@@ -10,8 +10,14 @@ export type ViteLogLib = {
   /** Log pkg/module details. */
   readonly Module: t.ViteLogModuleLib;
 
+  /** Log a `/dist` bundle folder. */
+  readonly Dist: t.ViteLogDistLib;
+
   /** Log the common "dev/build/serve" API.  */
   readonly UsageAPI: t.ViteLogUsageApi;
+
+  /** Command output. */
+  readonly Help: t.ViteLogHelpLib;
 
   /** Helper for padding an output string. */
   pad(text: string, pad?: boolean): string;
@@ -67,4 +73,33 @@ export type ViteLogBundleArgs = {
 export type ViteLogDevArgs = {
   inDir?: t.StringDir;
   pkg?: t.Pkg;
+};
+
+/**
+ * Help output.
+ */
+export type ViteLogHelpLib = {
+  log(args: t.ViteLogHelpArgs): Promise<void>;
+};
+/** Arguments passed to `VitLog.help()` method. */
+export type ViteLogHelpArgs = {
+  pkg?: t.Pkg;
+  api?: t.ViteLogUsageApiArgs;
+  in?: t.StringDir;
+  out?: t.StringDir;
+};
+
+/** Log a `/dist` bundle folder. */
+export type ViteLogDistLib = {
+  log(dist: t.DistPkg, options: t.ViteLogDistOptions): void;
+  toString(dist: t.DistPkg, options: t.ViteLogDistOptions): string;
+};
+
+/** Options passed to the `Log.Dist` method. */
+export type ViteLogDistOptions = {
+  ok?: boolean;
+  title?: string;
+  elapsed?: t.Msecs;
+  dirs?: { in?: t.StringDir; out?: t.StringDir };
+  pad?: boolean;
 };
