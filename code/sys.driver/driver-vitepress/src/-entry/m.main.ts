@@ -47,6 +47,7 @@ export const main: F = async (input) => {
 
   if (args.cmd === 'serve') {
     VitepressLog.UsageAPI.log({ cmd: 'serve' });
+    console.info();
     const { serve } = await import('./u.serve.ts');
     await serve(args);
     return;
