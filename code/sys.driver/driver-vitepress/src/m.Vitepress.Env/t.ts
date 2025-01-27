@@ -7,9 +7,6 @@ export type VitepressEnvLib = {
   /** Template library for a VitePress project. */
   readonly Tmpl: t.VitepressTmplLib;
 
-  /** Create a new template instance (file-generator). */
-  tmpl: t.VitepressTmplLib['create'];
-
   /** Initialize the local machine environment with latest templates */
   update(args?: t.VitepressEnvUpdateArgs): Promise<t.VitepressEnvUpdateResponse>;
 

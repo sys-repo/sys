@@ -10,9 +10,6 @@ export const VitepressEnv: t.VitepressEnvLib = {
   /** Template library for a VitePress project. */
   Tmpl,
 
-  /** Create a new file-generator instances. */
-  tmpl: Tmpl.create,
-
   /** Initialize the local machine environment with latest templates */
   update,
 

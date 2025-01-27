@@ -33,8 +33,7 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
         .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
         .replace(/<SELF_IMPORT_NAME>/, pkg.name)
-        .replace(/<VITE_VERSION>/, vitePkg.version)
-        .replace(/<TMP_VERSION>/, tmpPkg.version);
+        .replace(/<VITE_VERSION>/, vitePkg.version);
 
       return e.modify(text);
     }
