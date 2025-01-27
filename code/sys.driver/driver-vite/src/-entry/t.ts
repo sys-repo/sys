@@ -26,10 +26,14 @@ export type ViteEntryArgs =
   | ViteEntryArgsInit
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
-  | ViteEntryArgsServe;
+  | ViteEntryArgsServe
+  | ViteEntryArgsHelp;
 
 /** The `init` command. */
-export type ViteEntryArgsInit = { cmd: 'init'; in?: P; silent?: boolean };
+export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
+
+/** The `help` information command. */
+export type ViteEntryArgsHelp = { cmd: 'help'; in?: P; out?: P };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };
@@ -43,4 +47,9 @@ export type ViteEntryArgsBuild = {
 };
 
 /** The `serve` the built project `/dist` folder command. */
-export type ViteEntryArgsServe = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
+export type ViteEntryArgsServe = {
+  cmd: 'serve';
+  port?: number;
+  dir?: P;
+  silent?: boolean;
+};
