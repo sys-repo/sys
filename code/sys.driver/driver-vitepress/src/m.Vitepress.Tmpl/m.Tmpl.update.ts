@@ -15,6 +15,7 @@ export const update: t.VitepressTmplLib['update'] = async (args = {}) => {
 
   /**
    *  🫵  Clean up helpers here (flesh out as needed: 🐷).
+   *      eg. migration change patching.
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
   // await remove('./path/to/obsolete/file');

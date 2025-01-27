@@ -11,8 +11,15 @@ export const update: t.ViteTmplLib['update'] = async (args = {}) => {
    * Update template files.
    */
   const tmpl = await create({ version });
-  const target = args.in ?? '.';
-  const { ops } = await tmpl.copy(target, { force });
+  const dir = args.in ?? '.';
+  const { ops } = await tmpl.copy(dir, { force });
+
+  /**
+   *  🫵  Clean up helpers here (flesh out as needed: 🐷).
+   *      eg. migration change patching.
+   */
+  const remove = (...path: string[]) => Fs.remove(Fs.join(dir, ...path));
+  // await remove('./path/to/obsolete/file');
 
   /**
    * Finish up.
