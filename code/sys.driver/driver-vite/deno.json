@@ -7,9 +7,9 @@
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE ./-scripts/-clean.ts",
     "test": "deno     test -RWNE --allow-run --allow-ffi",
-    "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init   --in=./src/-test/vite.sample-2/index.html",
-    "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/vite.sample-2/index.html",
-    "build": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/vite.sample-2/index.html",
+    "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init   --in=./.tmp/sample-init",
+    "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./.tmp/sample-init/src/-test/index.html",
+    "build": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./.tmp/sample-init/src/-test/index.html",
     "serve": "deno    run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
     "prep": "deno     run -RWE --allow-ffi ./-scripts/-prep.ts",
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
@@ -22,6 +22,8 @@
     "./log": "./src/m.Log/mod.ts",
     "./dev": "./src/-entry/-dev.ts",
     "./build": "./src/-entry/-build.ts",
-    "./serve": "./src/-entry/-serve.ts"
+    "./serve": "./src/-entry/-serve.ts",
+    "./main": "./src/-entry/-main.ts",
+    "./init": "./src/-entry/-init.ts"
   }
 }

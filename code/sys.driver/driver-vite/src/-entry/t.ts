@@ -29,7 +29,7 @@ export type ViteEntryArgs =
   | ViteEntryArgsServe;
 
 /** The `init` command. */
-export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
+export type ViteEntryArgsInit = { cmd: 'init'; in?: P; silent?: boolean };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };

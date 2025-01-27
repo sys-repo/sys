@@ -29,6 +29,12 @@ export const Entry: t.ViteEntryLib = {
       if (!args.silent) ViteLog.UsageAPI.log({ cmd: 'serve' });
       return Entry.serve(args);
     }
+
+    if (args.cmd === 'init') {
+      const { init } = await import('./u.init.ts');
+      await init(args);
+      return;
+    }
   },
 };
 

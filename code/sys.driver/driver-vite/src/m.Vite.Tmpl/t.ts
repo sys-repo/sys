@@ -10,6 +10,9 @@ export type ViteTmplLib = {
 
   /** Creates an instance of the template file generator. */
   create(args: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
+
+  /** Initialize the local machine environment with latest templates */
+  update(args?: t.ViteTmplUpdateArgs): Promise<t.ViteTmplUpdateResponse>;
 };
 
 /** Arguments passed to the `ViteTmpl.create` method. */
@@ -27,3 +30,16 @@ export type ViteBundleLib = {
   /** Write out the bundled <FileMap> to a target location. */
   toFilesystem(dir?: t.StringDir): Promise<void>;
 };
+
+/** Arguments passed to the `Vite.Tmpl.update` method. */
+export type ViteTmplUpdateArgs = {
+  force?: boolean;
+  in?: t.StringDir;
+  version?: t.StringSemver;
+  silent?: boolean;
+};
+
+/**
+ * The response returned from an environment update.
+ */
+export type ViteTmplUpdateResponse = { readonly ops: t.TmplFileOperation[] };
