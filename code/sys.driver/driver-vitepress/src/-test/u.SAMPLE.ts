@@ -1,7 +1,7 @@
 import { type t, slug, Testing } from '../-test.ts';
 import { Fs } from '../common.ts';
 
-export const Sample = {
+export const SAMPLE = {
   createPkg(): t.Pkg {
     return { name: `@sample/${slug()}`, version: '0.1.2' };
   },

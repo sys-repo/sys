@@ -1,11 +1,11 @@
-import { type t, assertEnvExists, c, describe, expect, Fs, it, Sample, Testing } from '../-test.ts';
+import { type t, assertEnvExists, c, describe, expect, Fs, it, SAMPLE, Testing } from '../-test.ts';
 import { VitePress } from '../mod.ts';
 
 describe('Vitepress.Env', () => {
   describe('Env.update', () => {
     it('insert deno.json → {tasks}', async () => {
       await Testing.retry(3, async () => {
-        const sample = Sample.init();
+        const sample = SAMPLE.init();
         const { inDir } = sample;
         await VitePress.Env.Tmpl.update({ inDir });
 
@@ -21,7 +21,7 @@ describe('Vitepress.Env', () => {
     it('--srcDir parameter: source directory', async () => {
       const test = async (srcDir: t.StringDir | undefined, expectedSrcDir: t.StringDir) => {
         await Testing.retry(3, async () => {
-          const sample = Sample.init();
+          const sample = SAMPLE.init();
           const { inDir } = sample;
           await VitePress.Env.Tmpl.update({ inDir, srcDir, silent: true });
 
