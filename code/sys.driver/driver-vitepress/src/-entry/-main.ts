@@ -7,6 +7,6 @@
  *      that pertain to <sub-command> as defined in the <VitePressCmd> type.
  *
  */
-import { Entry } from './mod.ts';
-await Entry.main();
+import { VitepressEntry } from './mod.ts';
+await VitepressEntry.main();
 Deno.exit(0);

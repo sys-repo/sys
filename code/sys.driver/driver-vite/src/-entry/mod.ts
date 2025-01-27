@@ -7,7 +7,7 @@ import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
 
-export const Entry: t.ViteEntryLib = {
+export const ViteEntry: t.ViteEntryLib = {
   dev,
   build,
   serve,
@@ -17,24 +17,23 @@ export const Entry: t.ViteEntryLib = {
 
     if (args.cmd === 'dev') {
       ViteLog.API.log({ cmd: 'dev' });
-      return await Entry.dev(args);
+      return await ViteEntry.dev(args);
     }
 
     if (args.cmd === 'build') {
       if (!args.silent) ViteLog.API.log({ cmd: 'build' });
-      return await Entry.build(args);
+      return await ViteEntry.build(args);
     }
 
     if (args.cmd === 'serve') {
       if (!args.silent) ViteLog.API.log({ cmd: 'serve' });
       console.info();
-      return Entry.serve(args);
+      return await ViteEntry.serve(args);
     }
 
     if (args.cmd === 'init') {
       const { init } = await import('./u.init.ts');
-      await init(args);
-      return;
+      return await init(args);
     }
 
     if (args.cmd === 'help') {

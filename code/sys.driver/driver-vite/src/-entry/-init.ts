@@ -7,8 +7,8 @@
  * ```
  */
 import { type t, Args } from './common.ts';
-import { Entry } from './mod.ts';
+import { ViteEntry } from './mod.ts';
 
 const args = Args.parse<t.ViteEntryArgsInit>(Deno.args);
-await Entry.main({ ...args, cmd: 'init' });
+await ViteEntry.main({ ...args, cmd: 'init' });
 Deno.exit(0);

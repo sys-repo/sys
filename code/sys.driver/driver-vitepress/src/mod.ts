@@ -86,7 +86,7 @@
 import { VitePress } from './m.Vitepress/mod.ts';
 export { VitePress };
 
-export { Entry } from './-entry/mod.ts';
+export { VitepressEntry } from './-entry/mod.ts';
 export { pkg } from './pkg.ts';
 
 export default VitePress;
