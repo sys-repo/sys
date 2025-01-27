@@ -1,6 +1,5 @@
-import { type t, c, describe, expect, Fs, it, Testing } from '../-test.ts';
+import { type t, assertEnvExists, c, describe, expect, Fs, it, Sample, Testing } from '../-test.ts';
 import { VitePress } from '../mod.ts';
-import { assertEnvExists, Sample } from './-u.ts';
 
 describe('Vitepress.Env', () => {
   describe('Env.update', () => {
@@ -8,7 +7,7 @@ describe('Vitepress.Env', () => {
       await Testing.retry(3, async () => {
         const sample = Sample.init();
         const { inDir } = sample;
-        await VitepressEnv.update({ inDir });
+        await VitePress.Env.Tmpl.update({ inDir });
 
         console.info();
         console.info(c.bold(c.green(`Env.init()`)));
@@ -24,7 +23,7 @@ describe('Vitepress.Env', () => {
         await Testing.retry(3, async () => {
           const sample = Sample.init();
           const { inDir } = sample;
-          await VitepressEnv.update({ inDir, srcDir, silent: true });
+          await VitePress.Env.Tmpl.update({ inDir, srcDir, silent: true });
 
           const file = await Deno.readTextFile(Fs.join(inDir, '.vitepress/config.ts'));
           const line = `srcDir: '${expectedSrcDir}',`;
