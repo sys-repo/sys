@@ -15,10 +15,10 @@ export const print: t.HttpServerLib['print'] = (options) => {
     const hx = HashFmt.digest(hash);
     const integrity = c.gray(`${hx}`);
     const mod = c.bold(pkg.name);
-    const version = c.gray(`  ${pkg.version}`);
+    const version = c.gray(`${pkg.version}`);
 
     const table = Cli.table([]);
-    table.push([c.gray('Module'), `${mod}`, version]);
+    table.push([c.gray('Module'), `${mod} ${version}`]);
 
     if (hx) table.push(['', integrity, c.gray(`${c.dim('←')} dist/dist.json`)]);
     if (requestedPort && requestedPort !== addr.port) {
@@ -26,7 +26,7 @@ export const print: t.HttpServerLib['print'] = (options) => {
     } else {
       table.push(['', host]);
     }
-    table.render();
+    console.info(table.toString().trim());
   } else {
     console.info(c.gray(`Listening on ${host}`));
   }

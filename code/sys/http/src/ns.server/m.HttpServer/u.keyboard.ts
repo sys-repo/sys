@@ -11,17 +11,17 @@ export async function keyboard(args: {
 }) {
   if (args.print) {
     const table = Cli.table([]);
-    const push = (keyCommand: string, description: string) => {
+    const push = (keyCommand: string, description: string = '') => {
+      keyCommand = `${keyCommand}`;
       description = c.gray(` ${description}`);
-      keyCommand = `  ${keyCommand}`;
       table.push([keyCommand, description]);
     };
+    push(c.gray('Keyboard'));
     push(`${c.bold('o')}`, `Open ${c.green('in browser')}`);
     push(c.bold('q'), 'Quit');
     push(c.bold('ctrl + c'), 'Quit');
 
-    console.info(c.gray('Keyboard'));
-    console.info(table.toString());
+    console.info(table.toString().trim());
     console.info();
   }
 
