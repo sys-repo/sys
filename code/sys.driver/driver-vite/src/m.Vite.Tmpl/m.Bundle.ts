@@ -18,7 +18,7 @@ export const Bundle: t.ViteBundleLib = {
    * Write out the bundled <FileMap> to a target location.
    */
   async toFilesystem(dir: t.StringDir = PATHS.tmp) {
-    await FileMap.write(dir, bundle);
+     await FileMap.write(dir, bundle);
     console.info(c.gray(`Template files hydrated to: ${c.white(Fs.Path.trimCwd(dir))}`));
 
     const ls = await Fs.ls(dir);

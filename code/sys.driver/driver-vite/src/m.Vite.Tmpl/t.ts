@@ -14,8 +14,6 @@ export type ViteTmplLib = {
 
 /** Arguments passed to the `ViteTmpl.create` method. */
 export type ViteTmplCreateArgs = {
-  inDir: t.StringDir;
-  srcDir?: t.StringDir;
   version?: t.StringSemver;
 };
 
