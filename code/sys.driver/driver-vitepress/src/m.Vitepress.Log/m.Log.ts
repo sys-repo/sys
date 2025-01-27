@@ -17,7 +17,7 @@ import {
  * Console logging operations for the module.
  */
 export const VitepressLog = {
-  UsageAPI: ViteLog.UsageAPI,
+  API: ViteLog.API,
 
   Build: {
     log: (args: t.ViteLogBundleArgs) => console.info(VitepressLog.Build.toString(args)),
@@ -43,7 +43,7 @@ export const VitepressLog = {
    */
   async help(args: { inDir?: t.StringDir; minimal?: boolean } = {}) {
     const { inDir = PATHS.inDir, minimal = false } = args;
-    VitepressLog.UsageAPI.log({ minimal });
+    VitepressLog.API.log({ minimal });
     console.info();
 
     const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, PATHS.dist));

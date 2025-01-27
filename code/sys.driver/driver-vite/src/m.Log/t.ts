@@ -14,7 +14,7 @@ export type ViteLogLib = {
   readonly Dist: t.ViteLogDistLib;
 
   /** Log the common "dev/build/serve" API.  */
-  readonly UsageAPI: t.ViteLogUsageApi;
+  readonly API: t.ViteLogApi;
 
   /** Command output. */
   readonly Help: t.ViteLogHelpLib;
@@ -27,13 +27,17 @@ export type ViteLogLib = {
 };
 
 /**
- * Log the common "dev/build/serve" API.
+ * Log the common "dev/build/serve" (and optionally extended) API.
  */
-export type ViteLogUsageApi = {
+export type ViteLogApi = {
   /** Render to console. */
   log(args?: t.ViteLogUsageApiArgs): void;
 };
-export type ViteLogUsageApiArgs = { cmd?: string; minimal?: boolean };
+/** Arguments passed to `Log.API` method */
+export type ViteLogUsageApiArgs = {
+  cmd?: string;
+  minimal?: boolean;
+};
 
 /**
  * Log bundled distribution details.

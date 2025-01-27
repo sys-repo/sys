@@ -1,6 +1,6 @@
 import { type t, c, Cli } from './common.ts';
 
-export const UsageAPI: t.ViteLogUsageApi = {
+export const API: t.ViteLogApi = {
   log(args = {}) {
     const { cmd, minimal = true } = args;
     const table = Cli.table([]);

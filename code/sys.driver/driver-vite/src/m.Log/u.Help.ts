@@ -1,11 +1,11 @@
 import { type t, c, Fs, pkg as modulePkg, PATHS, Pkg } from './common.ts';
-import { UsageAPI } from './u.UsageAPI.ts';
+import { API } from './u.API.ts';
 import { Dist } from './u.Dist.ts';
 
 export const Help: t.ViteLogHelpLib = {
   async log(args = {}) {
     const pkg = args.pkg ?? modulePkg;
-    UsageAPI.log({ ...args.api, minimal: false });
+    API.log({ ...args.api, minimal: false });
     console.info();
 
     const dirs = {

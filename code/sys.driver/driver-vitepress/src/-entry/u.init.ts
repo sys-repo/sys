@@ -17,7 +17,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
 
   if (!silent) {
     console.info();
-    VitepressLog.UsageAPI.log();
+    VitepressLog.API.log();
     console.info();
   }
 }

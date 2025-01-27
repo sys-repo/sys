@@ -17,7 +17,7 @@ export async function init(args: t.ViteEntryArgsInit) {
 
   if (!silent) {
     console.info();
-    ViteLog.UsageAPI.log();
+    ViteLog.API.log();
     console.info();
   }
 }

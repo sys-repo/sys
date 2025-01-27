@@ -8,12 +8,12 @@ import { Bundle } from './u.Bundle.ts';
 import { Dist } from './u.Dist.ts';
 import { Help } from './u.Help.ts';
 import { Module } from './u.Module.ts';
-import { UsageAPI } from './u.UsageAPI.ts';
+import { API } from './u.API.ts';
 import { digest, pad } from './u.ts';
 
 export const ViteLog: t.ViteLogLib = {
   Help,
-  UsageAPI,
+  API,
 
   Module,
   Bundle,
