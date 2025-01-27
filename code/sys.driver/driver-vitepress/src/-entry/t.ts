@@ -39,7 +39,7 @@ export type VitepressEntryArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: 
 export type VitepressEntryArgsBuild = { cmd: 'build'; inDir?: P };
 
 /** The `serve` the built project `/dist` folder command. */
-export type VitepressEntryArgsServe = { cmd: 'serve'; inDir?: P };
+export type VitepressEntryArgsServe = t.ViteEntryArgsServe;
 
 /** The `upgrade` command. */
 export type VitepressEntryArgsUpgrade = {

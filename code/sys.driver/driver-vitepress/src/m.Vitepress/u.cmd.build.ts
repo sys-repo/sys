@@ -9,9 +9,9 @@ type R = t.VitepressBuildResponse;
 export const build: B = async (input = {}) => {
   const timer = Time.timer();
   const options = wrangle.options(input);
-  const { pkg, srcDir = 'docs', silent = true } = options;
+  const { pkg, srcDir = 'docs', silent = false } = options;
 
-  const spinner = Cli.spinner(c.gray('building...'));
+  const spinner = Cli.spinner(c.gray('building...'), { start: false });
   if (!silent) spinner.start();
 
   const dirs = wrangle.dirs(options);
@@ -23,8 +23,9 @@ export const build: B = async (input = {}) => {
 
   const cmd = `deno run -A --node-modules-dir npm:vitepress build ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);
-  const output = await Process.invoke({ args, silent });
+  const output = await Process.invoke({ args, silent: true });
   const ok = output.success;
+  spinner?.clear().stop();
 
   // Write {pkg} into /dist so it's included within the digest-hash.
   if (pkg) {
@@ -60,7 +61,6 @@ export const build: B = async (input = {}) => {
     },
   };
 
-  spinner?.stop();
   return res;
 };
 

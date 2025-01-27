@@ -1,5 +1,15 @@
 import { VitePress } from '../m.Vitepress/mod.ts';
-import { type t, Args, c, DEFAULTS, VitepressEnv, VitepressLog, PATHS, pkg } from './common.ts';
+import {
+  type t,
+  Args,
+  c,
+  DEFAULTS,
+  VitepressEnv,
+  ViteEntry,
+  VitepressLog,
+  PATHS,
+  pkg,
+} from './common.ts';
 
 type F = t.VitepressEntryLib['main'];
 
@@ -39,8 +49,10 @@ export const main: F = async (input) => {
    */
   if (args.cmd === 'build') {
     VitepressLog.API.log({ cmd: 'build' });
+    console.info();
+
     const { inDir = PATHS.inDir } = args;
-    const res = await VitePress.build({ inDir, pkg });
+    const res = await VitePress.build({ inDir, pkg, silent: false });
     console.info(res.toString({ pad: true }));
     return;
   }
@@ -48,8 +60,7 @@ export const main: F = async (input) => {
   if (args.cmd === 'serve') {
     VitepressLog.API.log({ cmd: 'serve' });
     console.info();
-    const { serve } = await import('./u.serve.ts');
-    await serve(args);
+    await ViteEntry.serve(args);
     return;
   }
 
