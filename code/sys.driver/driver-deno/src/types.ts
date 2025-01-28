@@ -11,3 +11,4 @@ export type * from './m.Cloud/ns.server/r.subhosting/t.ts';
 
 /** Deno Runtime */
 export type * from './m.Runtime/m.Denofile/t.ts';
+export type * from './m.Runtime/m.Module/t.ts';
