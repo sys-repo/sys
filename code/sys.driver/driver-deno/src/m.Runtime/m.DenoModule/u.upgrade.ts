@@ -46,6 +46,10 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
       msg = `${direction} local version ${c.gray(current)} to → ${c.green(c.bold(version))}`;
     }
 
+    /**
+     * TODO 🐷 generalize backup
+     */
+    // await VitepressEnv.backup({ inDir, message: stripAnsi(msg) }); // Safety: make backup before making changes.
 
     const cmd = `deno run -A jsr:${moduleName}@${version}/init`;
     console.info();
@@ -55,7 +59,8 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
 
     // Install and run.
     const path = args.dir;
-    await Process.sh({ path }).run(cmd);
+    console.log('path', path);
+    // await Process.sh({ path }).run(cmd);
   }
 
   /**

@@ -6,4 +6,4 @@
 import type { t } from './common.ts';
 import { upgrade } from './u.upgrade.ts';
 
-export const Module: t.DenoModuleLib = { upgrade };
+export const DenoModule: t.DenoModuleLib = { upgrade };

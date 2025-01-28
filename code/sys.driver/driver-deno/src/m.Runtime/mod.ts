@@ -8,4 +8,4 @@
  * ```
  */
 export { Denofile } from './m.Denofile/mod.ts';
-export { Module } from './m.Module/mod.ts';
+export { DenoModule } from './m.DenoModule/mod.ts';
