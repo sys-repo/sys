@@ -13,7 +13,7 @@ import type { t } from './common.ts';
 
 export const Is: t.SemverIsLib = {
   /** Equality comparison between two SemVers. */
-  equal: equals,
+  eql: equals,
 
   /** Greater than comparison between two SemVers. */
   greaterThan,

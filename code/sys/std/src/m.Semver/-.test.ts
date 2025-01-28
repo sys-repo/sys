@@ -71,11 +71,11 @@ describe('Semver', () => {
       });
     });
 
-    it('Is.equal', () => {
+    it('Is.eql', () => {
       const a = Semver.parse('0.1.2');
       const b = Semver.parse('0.1.3');
-      expect(Semver.Is.equal(a, a)).to.eql(true);
-      expect(Semver.Is.equal(a, b)).to.eql(false);
+      expect(Semver.Is.eql(a, a)).to.eql(true);
+      expect(Semver.Is.eql(a, b)).to.eql(false);
     });
   });
 });

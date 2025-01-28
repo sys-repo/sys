@@ -40,7 +40,7 @@ export type SemverIsLib = {
   valid(input?: t.SemVer | string): boolean;
 
   /** Equality comparison between two SemVers. */
-  equal: typeof StdSemver.equals;
+  eql: typeof StdSemver.equals;
 
   /** Greater than comparison between two SemVers. */
   greaterThan: typeof StdSemver.greaterThan;
