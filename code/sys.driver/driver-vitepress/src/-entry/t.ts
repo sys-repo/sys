@@ -30,13 +30,13 @@ export type VitepressEntryArgs =
   | VitepressEntryArgsHelp;
 
 /** The `init` command. */
-export type VitepressEntryArgsInit = { cmd: 'init'; inDir?: P; silent?: boolean };
+export type VitepressEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
 
 /** The `dev` server command. */
-export type VitepressEntryArgsDev = { cmd: 'dev'; inDir?: P; srcDir?: P; open?: boolean };
+export type VitepressEntryArgsDev = { cmd: 'dev'; dir?: P; srcDir?: P; open?: boolean };
 
 /** The `build` project command. */
-export type VitepressEntryArgsBuild = { cmd: 'build'; inDir?: P };
+export type VitepressEntryArgsBuild = { cmd: 'build'; dir?: P };
 
 /** The `serve` the built project `/dist` folder command. */
 export type VitepressEntryArgsServe = t.ViteEntryArgsServe;
@@ -44,7 +44,7 @@ export type VitepressEntryArgsServe = t.ViteEntryArgsServe;
 /** The `upgrade` command. */
 export type VitepressEntryArgsUpgrade = {
   cmd: 'upgrade';
-  inDir?: P;
+  dir?: P;
   force?: boolean;
   version?: t.StringSemver;
 };
@@ -55,10 +55,10 @@ export type VitepressEntryArgsClean = { cmd: 'clean'; inDir?: P };
 /** The `backup` command. */
 export type VitepressEntryArgsBackup = {
   cmd: 'backup';
-  inDir?: P;
+  dir?: P;
   includeDist?: boolean;
   force?: boolean;
 };
 
 /** The `help` information command. */
-export type VitepressEntryArgsHelp = { cmd: 'help'; inDir?: P };
+export type VitepressEntryArgsHelp = { cmd: 'help'; dir?: P };

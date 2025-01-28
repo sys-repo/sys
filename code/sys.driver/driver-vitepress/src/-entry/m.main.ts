@@ -38,8 +38,8 @@ export const main: F = async (input) => {
    */
   if (args.cmd === 'dev') {
     VitepressLog.API.log({ cmd: 'dev' });
-    const { inDir = PATHS.inDir } = args;
-    const server = await VitePress.dev({ inDir, pkg });
+    const { dir = PATHS.inDir } = args;
+    const server = await VitePress.dev({ inDir: dir, pkg });
     await server.listen();
     return;
   }
@@ -51,8 +51,8 @@ export const main: F = async (input) => {
     VitepressLog.API.log({ cmd: 'build' });
     console.info();
 
-    const { inDir = PATHS.inDir } = args;
-    const res = await VitePress.build({ inDir, pkg, silent: false });
+    const { dir = PATHS.inDir } = args;
+    const res = await VitePress.build({ inDir: dir, pkg, silent: false });
     console.info(res.toString({ pad: true }));
     return;
   }
@@ -71,8 +71,8 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'backup') {
-    const { inDir = PATHS.inDir, includeDist, force } = args;
-    await VitepressEnv.backup({ inDir, includeDist, force });
+    const { dir = PATHS.inDir, includeDist, force } = args;
+    await VitepressEnv.backup({ inDir: dir, includeDist, force });
     return;
   }
 
@@ -83,8 +83,8 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'help') {
-    const { inDir = PATHS.inDir } = args;
-    await VitepressLog.help({ inDir, minimal: false });
+    const { dir = PATHS.inDir } = args;
+    await VitepressLog.help({ dir, minimal: false });
     return;
   }
 

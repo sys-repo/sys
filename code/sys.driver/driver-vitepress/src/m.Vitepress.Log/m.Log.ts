@@ -41,14 +41,14 @@ export const VitepressLog = {
   /**
    * Display the help output.
    */
-  async help(args: { inDir?: t.StringDir; minimal?: boolean } = {}) {
-    const { inDir = PATHS.inDir, minimal = false } = args;
+  async help(args: { dir?: t.StringDir; minimal?: boolean } = {}) {
+    const { dir = PATHS.inDir, minimal = false } = args;
     VitepressLog.API.log({ minimal });
     console.info();
 
-    const { dist } = await Pkg.Dist.load(Fs.resolve(inDir, PATHS.dist));
+    const { dist } = await Pkg.Dist.load(Fs.resolve(dir, PATHS.dist));
     if (dist) {
-      ViteLog.Dist.log(dist, { dirs: { in: inDir } });
+      ViteLog.Dist.log(dist, { dirs: { in: dir } });
     } else {
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
       const notBuilt = c.italic(c.yellow('(not yet built)'));

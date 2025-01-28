@@ -5,7 +5,7 @@ import { type t, c, PATHS, pkg, VitepressLog } from './common.ts';
  * Run the initialization templates.
  */
 export async function init(args: t.VitepressEntryArgsInit) {
-  const { inDir = PATHS.inDir, silent = false } = args;
+  const { dir = PATHS.inDir, silent = false } = args;
   if (args.cmd !== 'init') return;
 
   if (!silent) {
@@ -13,7 +13,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await VitePress.Env.Tmpl.update({ inDir });
+  await VitePress.Env.Tmpl.update({ inDir: dir });
 
   if (!silent) {
     console.info();
