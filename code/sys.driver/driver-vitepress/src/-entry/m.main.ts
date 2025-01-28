@@ -9,6 +9,7 @@ import {
   VitepressLog,
   PATHS,
   pkg,
+  DenoModule,
 } from './common.ts';
 
 type F = t.VitepressEntryLib['main'];
@@ -77,8 +78,14 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'upgrade') {
-    const { upgrade } = await import('./u.upgrade.ts');
-    await upgrade(args);
+    const { dir = PATHS.inDir, force = false } = args;
+    await DenoModule.upgrade({
+      name: pkg.name,
+      currentVersion: pkg.version,
+      targetVersion: args.version,
+      dir,
+      force,
+    });
     return;
   }
 
