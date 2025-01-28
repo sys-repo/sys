@@ -1,7 +1,7 @@
 import { describe, expect, it } from './-test.ts';
 import { env } from './env.ts';
 
-describe('DenoCloud (client)', () => {
+describe('DenoCloud', () => {
   it('.env contains values ← secrets', () => {
     const expectValue = <T>(obj: T, ns: string, key: keyof T) => {
       const value = obj[key];
