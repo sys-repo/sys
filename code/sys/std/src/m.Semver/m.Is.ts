@@ -1,4 +1,5 @@
 import {
+  equals,
   greaterOrEqual,
   greaterThan,
   greaterThanRange,
@@ -11,16 +12,24 @@ import {
 import type { t } from './common.ts';
 
 export const Is: t.SemverIsLib = {
-  /** Greater than comparison for two SemVers. */
+  /** Equality comparison between two SemVers. */
+  equal: equals,
+
+  /** Greater than comparison between two SemVers. */
   greaterThan,
-  /** Greater than or equal to comparison for two SemVers. */
+
+  /** Greater than or equal to comparison between two SemVers. */
   greaterOrEqual,
+
   /** Check if the SemVer is greater than the range. */
   greaterThanRange,
-  /** Less than comparison for two SemVers. */
+
+  /** Less than comparison between two SemVers. */
   lessOrEqual,
-  /** Less than or equal to comparison for two SemVers. */
+
+  /** Less than or equal to comparison between two SemVers. */
   lessThan,
+
   /** Check if the SemVer is less than the range. */
   lessThanRange,
 

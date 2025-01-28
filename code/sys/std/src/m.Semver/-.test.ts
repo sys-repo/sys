@@ -70,5 +70,12 @@ describe('Semver', () => {
         expect(Semver.Is.valid(value)).to.eql(false);
       });
     });
+
+    it('Is.equal', () => {
+      const a = Semver.parse('0.1.2');
+      const b = Semver.parse('0.1.3');
+      expect(Semver.Is.equal(a, a)).to.eql(true);
+      expect(Semver.Is.equal(a, b)).to.eql(false);
+    });
   });
 });
