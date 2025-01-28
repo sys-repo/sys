@@ -1,13 +1,14 @@
 import type { t } from '../common.ts';
+export type * from './t.Workspace.ts';
 
 /**
  * Library: `deno.json` file tools.
  */
-export type DenofileLib = {
+export type DenoFileLib = {
   /**
    * Load a `deno.json` file at the given file path.
    */
-  load(path?: t.DenofilePath): Promise<t.DenofileLoadResponse>;
+  load(path?: t.DenoFilePath): Promise<t.DenoFileLoadResponse>;
 
   /**
    * Load a deno workspace.
@@ -22,17 +23,17 @@ export type DenofileLib = {
 };
 
 /** The async response from a `deno.json` file load request. */
-export type DenofileLoadResponse = t.FsReadJsonResponse<t.DenofileJson>;
+export type DenoFileLoadResponse = t.FsReadJsonResponse<t.DenoFileJson>;
 
 /**
  * A file-path to a `deno.json` file.
  */
-export type DenofilePath = t.StringPath;
+export type DenoFilePath = t.StringPath;
 
 /**
  * A parsed `deno.json` file.
  */
-export type DenofileJson = {
+export type DenoFileJson = {
   name?: string;
   version?: string;
   licence?: string;
@@ -41,19 +42,4 @@ export type DenofileJson = {
   imports?: Record<string, string>;
   exports?: Record<string, string>;
   workspace?: t.StringPath[];
-};
-
-/**
- * An <Info> object for working with a Deno workspace.
- */
-export type DenoWorkspace = {
-  readonly exists: boolean;
-  readonly dir: t.StringPath;
-  readonly file: t.StringPath;
-  readonly children: t.DenoWorkspaceChildren;
-};
-
-export type DenoWorkspaceChildren = {
-  readonly dirs: t.StringDir[];
-  load(): Promise<t.DenofileLoadResponse[]>;
 };

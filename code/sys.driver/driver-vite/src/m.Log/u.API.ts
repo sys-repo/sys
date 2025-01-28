@@ -29,7 +29,7 @@ export const API: t.ViteLogApi = {
 
       if (isDisabled) {
         left += c.yellow('*');
-        footnote = c.yellow(`\n* TODO 🐷 ${c.italic('(yet to implement)')}`);
+        footnote = c.yellow(`\n* TODO 🐷 ${c.italic('(implemention in progress)')}`);
       }
 
       table.push([left, right]);

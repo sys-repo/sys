@@ -11,4 +11,4 @@ export { HttpServer, Net } from '@sys/http/server';
 export { Process } from '@sys/process';
 export { Tmpl } from '@sys/tmpl/fs';
 
-export { Denofile, DenoModule } from '@sys/driver-deno/runtime';
+export { DenoFile, DenoModule } from '@sys/driver-deno/runtime';

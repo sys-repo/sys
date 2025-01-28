@@ -54,7 +54,7 @@ export type WorkspacePluginOptions = {
    * - pass a specific `deno.json` file string if in a non-standard place.
    * - pass `false` to disable workspace {alias} mapping.
    */
-  workspace?: boolean | t.DenofilePath;
+  workspace?: boolean | t.DenoFilePath;
 
   /**
    * ƒ(🌳): Filter to apply to the workspace modules
