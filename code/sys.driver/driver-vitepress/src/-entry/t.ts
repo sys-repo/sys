@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-type P = t.StringPath;
+export type P = t.StringPath;
 
 /**
  * The API invoked via the CLI command API.
@@ -42,12 +42,7 @@ export type VitepressEntryArgsBuild = { cmd: 'build'; dir?: P };
 export type VitepressEntryArgsServe = t.ViteEntryArgsServe;
 
 /** The `upgrade` command. */
-export type VitepressEntryArgsUpgrade = {
-  cmd: 'upgrade';
-  dir?: P;
-  force?: boolean;
-  version?: t.StringSemver;
-};
+export type VitepressEntryArgsUpgrade = t.ViteEntryArgsUpgrade;
 
 /** The `clean` command. */
 export type VitepressEntryArgsClean = { cmd: 'clean'; inDir?: P };

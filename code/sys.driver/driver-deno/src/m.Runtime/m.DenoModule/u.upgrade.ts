@@ -40,7 +40,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
 
     let msg = 'no change';
     if (isEqual) {
-      msg = `Rerunning templates for version ${c.green(c.bold(version))}`;
+      msg = `Re-running templates for version ${c.green(c.bold(version))}`;
     } else {
       const direction = isGreater ? 'Upgrading' : 'Downgrading';
       msg = `${direction} local version ${c.gray(current)} to → ${c.green(c.bold(version))}`;
@@ -54,7 +54,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
     const table = Cli.table(['', '']);
     let skipped = args.dryRun ? c.yellow('← skipped (dry-run)') : '';
     table.push([c.gray(c.italic('running template:')), `${c.cyan(cmd)} ${skipped}`]);
-    table.push([c.gray('target'), c.gray(path || './')]);
+    table.push([c.gray('target:'), c.gray(path || './')]);
     console.info(table.toString().trim());
     console.info();
 

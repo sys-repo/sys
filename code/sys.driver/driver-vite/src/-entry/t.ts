@@ -27,7 +27,8 @@ export type ViteEntryArgs =
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
-  | ViteEntryArgsHelp;
+  | ViteEntryArgsHelp
+  | ViteEntryArgsUpgrade;
 
 /** The `init` command. */
 export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
@@ -52,4 +53,12 @@ export type ViteEntryArgsServe = {
   port?: number;
   dir?: P;
   silent?: boolean;
+};
+/** The `upgrade` command. */
+export type ViteEntryArgsUpgrade = {
+  cmd: 'upgrade';
+  dir?: P;
+  force?: boolean;
+  version?: t.StringSemver;
+  dryRun?: boolean;
 };

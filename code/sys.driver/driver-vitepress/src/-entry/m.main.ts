@@ -78,13 +78,14 @@ export const main: F = async (input) => {
   }
 
   if (args.cmd === 'upgrade') {
-    const { dir = PATHS.inDir, force = false } = args;
+    const { dir = PATHS.inDir, force = false, dryRun } = args;
     await DenoModule.upgrade({
       name: pkg.name,
       currentVersion: pkg.version,
       targetVersion: args.version,
       dir,
       force,
+      dryRun,
     });
     return;
   }
