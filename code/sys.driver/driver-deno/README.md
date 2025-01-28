@@ -28,6 +28,7 @@ PRIVY_APP_SECRET="****"
 
 
 ### Example
+Interacting with the Deno™️ cloud/deployment services.
 
 ```ts
 import { pkg } from 'jsr:@sys/driver-deno';
@@ -38,4 +39,9 @@ const options = Server.options(8080, pkg);
 Deno.serve(options, app.fetch);
 ```
 
+Working with an upgradable Deno module/app.
 
+```ts
+import { Module } from 'jsr:@sys/driver-deno/runtime';
+await Module.upgrade();
+```

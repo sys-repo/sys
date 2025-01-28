@@ -4,11 +4,11 @@
  *
  * @example
  * ```ts
- * // Context: universal (Browser + WinterCG)
+ * // Context: universal (Browser + WinterTC)
  * import { pkg } from '@sys/crypto';
  * import { Hash } from '@sys/crypto/hash';
  *
- * // Context: file-system environments (WinterCG)
+ * // Context: file-system environments (WinterTC)
  * import { Hash } from '@sys/crypto/fs/hash';
  * import { Pkg, Dist } from '@sys/crypto/fs/pkg';
  * ```

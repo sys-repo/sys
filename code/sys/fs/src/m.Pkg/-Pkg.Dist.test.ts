@@ -138,7 +138,7 @@ describe('Pkg.Dist', () => {
 
   describe('Dist.verify', () => {
     it('validate: is valid', async () => {
-      const sample = await Sample.init({ slug: false });
+      const sample = await Sample.init();
       await sample.file.dist.reset();
       await sample.file.dist.ensure();
 

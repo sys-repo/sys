@@ -14,7 +14,7 @@ export const TestHttpServer: t.TestHttpServer = {
   },
 
   text(...args: any[]) {
-    const { body, headers } = wrangle.args(args, 'plain/text');
+    const { body, headers } = wrangle.args(args, 'text/plain');
     return new Response(String(body), { headers });
   },
 

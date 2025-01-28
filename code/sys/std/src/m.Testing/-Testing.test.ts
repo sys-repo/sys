@@ -1,4 +1,4 @@
-import { Id } from '../m.Id/mod.ts';
+import { Random } from '../m.Random/mod.ts';
 import { Testing, describe, expect, it, expectError } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
@@ -24,7 +24,7 @@ describe('Testing', () => {
 
   it('slug', () => {
     const id = Testing.slug();
-    expect(Id.Is.slug(id)).to.be.true;
+    expect(id.length).to.eql(Random.Length.slug);
   });
 
   describe('expectError', () => {

@@ -1,5 +1,4 @@
-import { Path, describe, expect, it, stripAnsi } from '../-test.ts';
-import { SAMPLE } from '../m.Tmpl/-u.ts';
+import { Path, SAMPLE, describe, expect, it, stripAnsi } from '../-test.ts';
 import { Tmpl } from '../m.Tmpl/mod.ts';
 import { Log } from './mod.ts';
 

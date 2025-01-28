@@ -7,6 +7,7 @@ import type { t } from './common.ts';
 export type * from './m.Dir.Hash/t.ts';
 export type * from './m.Dir.Snapshot/t.ts';
 export type * from './m.Dir/t.ts';
+export type * from './m.Env/t.ts';
 export type * from './m.FileMap/t.ts';
 export type * from './m.Fs/t.ts';
 export type * from './m.Glob/t.ts';

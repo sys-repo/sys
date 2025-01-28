@@ -96,6 +96,8 @@ export type ErrIs = {
  * a single StdError.
  */
 export type ErrorCollection = {
+  readonly ok: boolean;
+
   readonly length: number;
 
   /** The list of errors. */

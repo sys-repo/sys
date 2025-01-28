@@ -4,7 +4,7 @@ import { type t, Path } from './common.ts';
 /**
  * Run a glob pattern against the file-system.
  */
-export const create: t.GlobFactory = (dir, baseOptions = {}) => {
+export const create: t.GlobFactory = (dir = '.', baseOptions = {}) => {
   dir = Path.resolve(dir);
 
   const api: t.Glob = {

@@ -8,7 +8,7 @@ import type { t } from './common.ts';
 export type TestingLib = {
   readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
-  slug: t.IdGenerator;
+  slug: t.RandomLib['slug'];
   wait(delay: t.Msecs): Promise<void>;
   randomPort(): number;
 

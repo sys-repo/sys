@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # The OIDC ID token is used for authentication with JSR.
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
     environment: dev
     env:
       TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
@@ -28,6 +28,36 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v2
+
+      # - name: publish module → "@sys/ui-react"
+      #   run: |
+      #     cd code/sys.ui/ui-react
+      #     deno task test --parallel
+      #     deno publish --allow-dirty
+
+      # - name: publish module → "@sys/ui-react-components"
+      #   run: |
+      #     cd code/sys.ui/ui-react-components
+      #     deno task test --parallel
+      #     deno publish --allow-dirty
+
+      - name: publish module → "@sys/std"
+        run: |
+          cd code/sys/std
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/tmp"
+        run: |
+          cd code/sys.tmp
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-vite"
+        run: |
+          cd code/sys.driver/driver-vite
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-vitepress"
         run: |

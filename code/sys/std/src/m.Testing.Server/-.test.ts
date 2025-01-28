@@ -43,11 +43,11 @@ describe('Testing.HttpServer', () => {
     await server2.dispose();
   });
 
-  it('response: plain/text', async () => {
+  it('response: text/plain', async () => {
     const server = Testing.Http.server(() => Testing.Http.text('foobar'));
     const url = server.url.join('foo');
     const res = await fetch(url);
-    expect(res.headers.get('content-type')).to.eql('plain/text');
+    expect(res.headers.get('content-type')).to.eql('text/plain');
     expect(await res.text()).to.eql('foobar');
     await server.dispose();
   });

@@ -35,14 +35,13 @@
  */
 import { Cli } from './m.Cli.ts';
 
-export { stripAnsi } from './common.ts';
+export { c, stripAnsi } from './common.ts';
 export { Format } from './m.Format.ts';
 export { Keyboard } from './m.Keyboard.ts';
 export { Prompt } from './m.Prompt.ts';
 export { Spinner } from './m.Spinner.ts';
 export { Table } from './m.Table.ts';
 
-export { c } from '../m.Fmt/mod.ts';
 export { Cli };
 
 export default Cli;

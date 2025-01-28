@@ -6,6 +6,7 @@ type ToStringOptions = { pad?: boolean };
  * Library: Tools for running Vite via commands issued to a child process.
  */
 export type ViteLib = {
+  readonly Tmpl: t.ViteTmplLib;
   readonly Config: t.ViteConfigLib;
   readonly Plugin: t.VitePluginLib;
   common: t.VitePluginLib['common'];

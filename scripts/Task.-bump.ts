@@ -1,4 +1,4 @@
-import { Denofile } from '@sys/driver-deno';
+import { DenoFile } from '@sys/driver-deno';
 import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
@@ -20,7 +20,7 @@ export async function main(options: Options = {}) {
   /**
    * Load the workspace.
    */
-  const ws = await Denofile.workspace();
+  const ws = await DenoFile.workspace();
   if (!ws.exists) {
     const err = `Could not find a workspace. Ensure the root deno.json file as a "workspace" configuration.`;
     console.warn(err);
@@ -91,7 +91,7 @@ export async function main(options: Options = {}) {
    * Write version to files.
    */
   for (const child of children) {
-    const denofile = R.clone(child.json) as t.DenofileJson;
+    const denofile = R.clone(child.json) as t.DenoFileJson;
     denofile.version = Semver.toString(child.version.next);
     const json = `${JSON.stringify(denofile, null, '  ')}\n`;
     await Deno.writeTextFile(child.path, json);

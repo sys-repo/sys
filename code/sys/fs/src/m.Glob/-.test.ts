@@ -20,6 +20,13 @@ describe('Glob', () => {
     expect(Fs.ls).to.equal(Glob.ls);
   });
 
+  describe('create', () => {
+    it('create: Fs.glob() ← no params', () => {
+      const glob = Fs.glob();
+      expect(glob.base).to.eql(Path.resolve('.')); // NB: default.
+    });
+  });
+
   describe('find: file pattern matching', () => {
     it('glob.find("**") ← default params', async () => {
       const base = Fs.resolve();

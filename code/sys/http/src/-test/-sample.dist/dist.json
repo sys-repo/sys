@@ -1,0 +1,11 @@
+{
+  "pkg": { "name": "<sample>", "version": "0.0.0" },
+  "size": { "bytes": 348 },
+  "entry": "",
+  "hash": {
+    "digest": "sha256-55762fcac4537c8258c8d04f42abbc737263bbb54a64ebc7c82d9a3b4413537b",
+    "parts": {
+      "index.html": "sha256-f220d6617ba567a736651518bb6e488f99388ab588cb34259701c2045612e4b3"
+    }
+  }
+}

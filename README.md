@@ -13,7 +13,7 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 <p>&nbsp;</p>
 
 (✊🏻💯  )
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/).
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintertc.org/) (WinterTC).
 
 ---
 

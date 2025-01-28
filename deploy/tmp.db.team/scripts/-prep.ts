@@ -6,7 +6,7 @@ import { Fs } from '@sys/fs';
  */
 const PATHS = {
   // dev000: `/Users/phil/code/org.cellplatform/platform-0.2.0/code/spikes/dev.000`,
-  DEV_HARNESS: Fs.Path.resolve('../../code/sys.ui/ui-dev-harness/dist'),
+  DEV_HARNESS: Fs.Path.resolve('../../code/sys.ui/ui-react-devharness/dist'),
   DRIVER_VITE: Fs.Path.resolve('../../code/sys.driver/driver-vite/dist'),
 };
 

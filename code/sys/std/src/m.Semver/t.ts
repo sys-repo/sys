@@ -14,8 +14,12 @@ export type SemverLib = {
   /** Compare two SemVers. */
   compare: typeof StdSemver.compare;
 
+  /** Sort a list of versions. */
+  sort(input: t.StringSemver[], options?: SemverSortOptionsInput): t.StringSemver[];
+  sort(input: t.SemVer[], options?: SemverSortOptionsInput): t.SemVer[];
+
   /** Format SemVer object into a string.  */
-  toString(input: t.SemVer): string;
+  toString(input: t.SemVer): t.StringSemver;
 
   /** Semver value assertions. */
   readonly Is: SemverIsLib;
@@ -24,6 +28,10 @@ export type SemverLib = {
   readonly Release: t.SemverReleaseLib;
 };
 
+/** Options for the `Semver.sort` method. */
+export type SemverSortOptions = { order?: t.SortOrder };
+export type SemverSortOptionsInput = t.SemverSortOptions | t.SortOrder;
+
 /**
  * Library: Semver value assertions.
  */
@@ -31,17 +39,24 @@ export type SemverIsLib = {
   /** Checks to see if value is a valid SemVer object. */
   valid(input?: t.SemVer | string): boolean;
 
-  /** Greater than comparison for two SemVers. */
+  /** Equality comparison between two SemVers. */
+  eql: typeof StdSemver.equals;
+
+  /** Greater than comparison between two SemVers. */
   greaterThan: typeof StdSemver.greaterThan;
-  /** Greater than or equal to comparison for two SemVers. */
+
+  /** Greater than or equal to comparison between two SemVers. */
   greaterOrEqual: typeof StdSemver.greaterOrEqual;
+
   /** Check if the SemVer is greater than the range. */
   greaterThanRange: typeof StdSemver.greaterThanRange;
 
-  /** Less than comparison for two SemVers. */
+  /** Less than comparison between two SemVers. */
   lessThan: typeof StdSemver.lessThan;
-  /** Less than or equal to comparison for two SemVers. */
+
+  /** Less than or equal to comparison between two SemVers. */
   lessOrEqual: typeof StdSemver.lessOrEqual;
+
   /** Check if the SemVer is less than the range. */
   lessThanRange: typeof StdSemver.lessThanRange;
 };
@@ -50,5 +65,6 @@ export type SemverIsLib = {
  * Library: Tools and information about SemVerRelease
  */
 export type SemverReleaseLib = {
+  /** List of release types. */
   types: t.SemVerReleaseType[];
 };

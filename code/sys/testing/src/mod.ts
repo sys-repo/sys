@@ -1,14 +1,15 @@
 /**
  * @module
- * Tools for testing.
- *
- * @example
- * ```ts
- * import { pkg } from '@sys/testing';
- * import { Test } from '@sys/testing/spec';
- * ```
+ * Standard testing helpers (surfaced from "@sys/std").
  */
 export { pkg } from './pkg.ts';
+
+/**
+ * Module types.
+ */
 export type * as t from './types.ts';
 
-export * from './m.std.ts';
+/**
+ * Library.
+ */
+export * from '@sys/std/testing';

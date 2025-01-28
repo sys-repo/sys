@@ -16,7 +16,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
-    "types": ["react", "react-dom", "vite/client", "vue", "vidstack/vue"],
+    "types": ["vite/client"],
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "jsxImportSourceTypes": "@emotion/react"
@@ -24,14 +24,13 @@
   "workspace": [
     "./code/sys/types",
     "./code/sys/std",
+    "./code/sys/color",
 
     "./code/sys/testing",
     "./code/sys/fs",
     "./code/sys/cli",
     "./code/sys/process",
     "./code/sys/crypto",
-
-    "./code/sys/std-s",
 
     "./code/sys/http",
     "./code/sys/text",
@@ -41,8 +40,9 @@
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
-    "./code/sys.ui/ui-dev-harness",
     "./code/sys.ui/ui-react",
+    "./code/sys.ui/ui-react-devharness",
+    "./code/sys.ui/ui-react-components",
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",
