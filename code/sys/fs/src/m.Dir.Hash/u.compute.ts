@@ -20,8 +20,8 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
     } else {
       const paths = (await Fs.glob(dir).find('**'))
         .filter((m) => m.isFile)
-        .map((m) => m.path.substring(dir.length + 1))
-        .filter((m) => (filter ? filter(m) : true));
+        .filter((m) => (filter ? filter(m.path) : true))
+        .map((m) => m.path.substring(dir.length + 1));
       for (const path of paths) {
         const filepath = Fs.join(dir, path);
         const exists = await Fs.exists(filepath);
