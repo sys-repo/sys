@@ -42,7 +42,10 @@ export const ViteEntry: t.ViteEntryLib = {
         pkg,
         in: args.in,
         out: args.out,
-        api: { disabled: ['backup'] }, // TODO 🐷 temporarily disabled until implemented (working in VitePress module).
+        /**
+         * TODO 🐷 temporarily disabled until implemented (working in VitePress module).
+         */
+        api: { disabled: ['backup', 'clean'] },
       });
       return;
     }

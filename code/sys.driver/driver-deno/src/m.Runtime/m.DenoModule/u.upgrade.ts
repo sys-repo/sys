@@ -52,7 +52,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
     console.info(msg);
 
     const table = Cli.table(['', '']);
-    let skipped = args.dryRun ? c.yellow('← skipped (dry-run)') : '';
+    let skipped = args.dryRun ? c.yellow(c.italic('← skipped (dry-run)')) : '';
     table.push([c.gray(c.italic('running template:')), `${c.cyan(cmd)} ${skipped}`]);
     table.push([c.gray('target:'), c.gray(path || './')]);
     console.info(table.toString().trim());

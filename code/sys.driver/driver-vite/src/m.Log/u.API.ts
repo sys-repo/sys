@@ -7,6 +7,8 @@ export const API: t.ViteLogApi = {
     const { cmd, minimal = true, disabled = [] } = args;
     const table = Cli.table([]);
 
+    let footnote = '';
+
     const cmdColor = (cmd: t.ViteLogApiCmd): C => {
       const isDisabled = disabled.includes(cmd);
       const done = (fmt: C): C => (!isDisabled ? fmt : (str) => c.strikethrough(c.dim(fmt(str))));
@@ -19,11 +21,17 @@ export const API: t.ViteLogApi = {
     };
 
     const push = (cmd: t.ViteLogApiCmd, description: string) => {
-      const color = cmdColor(cmd);
-      let name = color(cmd);
+      const isDisabled = disabled.includes(cmd);
+      let name = cmdColor(cmd)(`${cmd}`);
       if (args.cmd === cmd) name = c.bold(name);
-      const left = c.gray(`  deno task ${name}`);
+      let left = c.gray(`  deno task ${name}`);
       const right = descriptionColor(cmd)(description);
+
+      if (isDisabled) {
+        left += c.yellow('*');
+        footnote = c.yellow(`\n* TODO 🐷 ${c.italic('(yet to implement)')}`);
+      }
+
       table.push([left, right]);
     };
 
@@ -42,5 +50,6 @@ export const API: t.ViteLogApi = {
     console.info(c.gray(`Usage: ${c.green(`deno task ${cmd ? c.bold(cmd) : COMMAND}`)}`));
     console.info('');
     console.info(table.toString().trim());
+    if (footnote) console.info(footnote);
   },
 };
