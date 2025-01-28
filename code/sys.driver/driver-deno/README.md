@@ -44,4 +44,6 @@ Working with an upgradable Deno module/app.
 ```ts
 import { Module } from 'jsr:@sys/driver-deno/runtime';
 await Module.upgrade();
+
+// ↑ updates <deno.json> version, re-runs templates, and installs new dependencies.
 ```
