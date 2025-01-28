@@ -4,6 +4,10 @@
  * has a `deno.json` file and can be `upgraded` against a registry.
  */
 import type { t } from './common.ts';
+import { backup } from './u.backup.ts';
 import { upgrade } from './u.upgrade.ts';
 
-export const DenoModule: t.DenoModuleLib = { upgrade };
+export const DenoModule: t.DenoModuleLib = {
+  upgrade,
+  backup,
+};
