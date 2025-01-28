@@ -4,15 +4,10 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const { force = false } = args;
 
   const done = () => {
-    const res: t.DenoModuleUpgradeResponse = {
-      version: {
-        from: Semver.toString(semver.current),
-        to: Semver.toString(targetVersion),
-      },
-      get changed() {
-        return !Semver.Is.eql(semver.current, targetVersion);
-      },
-    };
+    const from = Semver.toString(semver.current);
+    const to = Semver.toString(targetVersion);
+    const changed = !Semver.Is.eql(semver.current, targetVersion);
+    const res: t.DenoModuleUpgradeResponse = { version: { from, to }, changed };
     return res;
   };
 
@@ -26,7 +21,6 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const semver = { latest: Semver.parse(latest), current: Semver.parse(args.currentVersion) };
   const targetVersion = args.targetVersion ? Semver.parse(args.targetVersion) : semver.latest;
   const diff = Semver.compare(targetVersion, semver.current);
-
 
   if (diff === 0 && !force) {
     const v = Semver.toString(semver.current);
@@ -42,8 +36,15 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
     const current = Semver.toString(semver.current);
     const version = Semver.toString(targetVersion);
     const isGreater = Semver.Is.greaterThan(targetVersion, semver.current);
-    const direction = isGreater ? 'Upgrading' : 'Downgrading';
-    const msg = `${direction} local version ${c.gray(current)} to → ${c.green(version)}`;
+    const isEqual = Semver.Is.eql(targetVersion, semver.current);
+
+    let msg = 'no change';
+    if (isEqual) {
+      msg = `Rerunning templates for version ${c.green(c.bold(version))}`;
+    } else {
+      const direction = isGreater ? 'Upgrading' : 'Downgrading';
+      msg = `${direction} local version ${c.gray(current)} to → ${c.green(c.bold(version))}`;
+    }
 
 
     const cmd = `deno run -A jsr:${moduleName}@${version}/init`;
@@ -60,23 +61,11 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   /**
    * Finish up.
    */
+  const fmtTargetVer = c.bold(c.green(Semver.toString(targetVersion)));
   console.info();
   console.info(c.green(`Project at version:`));
-  Log.Module.log({ name: moduleName, version: Semver.toString(targetVersion) });
+  console.info(c.gray(`${c.white(c.bold(moduleName))}@${fmtTargetVer}`));
   console.info();
 
   return done();
 };
-
-/**
- * Helpers
- */
-
-export const Log = {
-  Module: {
-    log: (pkg: t.Pkg) => console.info(Log.Module.toString(pkg)),
-    toString(pkg: t.Pkg) {
-      return c.gray(`${c.white(c.bold(pkg.name))}@${c.bold(c.cyan(pkg.version))}`);
-    },
-  },
-} as const;
