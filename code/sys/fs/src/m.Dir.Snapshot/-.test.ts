@@ -3,6 +3,7 @@ import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { DirSnapshot } from '../m.Dir.Snapshot/mod.ts';
 import { Dir } from '../m.Dir/mod.ts';
 import { Fs, Path } from './common.ts';
+import { Fmt } from './m.Fmt.ts';
 
 const toHash = async (dir: t.StringDir) => (await DirHash.compute(dir)).hash;
 
@@ -36,8 +37,9 @@ describe('Fs.Dir.Snapshot', () => {
   };
 
   it('API', () => {
-    expect(Dir.Snapshot).to.equal(Dir.Snapshot);
+    expect(Dir.Snapshot).to.equal(DirSnapshot);
     expect(Dir.snapshot).to.equal(Dir.Snapshot.write);
+    expect(Dir.Snapshot.Fmt).to.equal(Fmt);
   });
 
   describe('Snapshot.write', () => {
@@ -56,7 +58,14 @@ describe('Fs.Dir.Snapshot', () => {
       expect(snapshot.is.ref).to.eql(false);
 
       console.info(c.cyan(`${'<Type>'}: ${c.bold('DirSnapshot')}\n\n`), snapshot, '\n');
-      console.info(`${c.brightCyan('ls')}("${c.gray(target)}"):\n`, await Fs.ls(target));
+      console.info(
+        `${c.brightCyan('ls')}("${c.gray(target)}"):\n`,
+        await Fs.ls(target, { trimCwd: true }),
+      );
+
+      console.info();
+      await DirSnapshot.Fmt.log(snapshot);
+      console.info();
     });
 
     it('run: Dir.snapshot("source", "target")', async () => {
@@ -100,6 +109,12 @@ describe('Fs.Dir.Snapshot', () => {
 
       expect(contains(snapshotA, 'foo.yaml')).to.eql(true);
       expect(contains(snapshotB, 'foo.yaml')).to.eql(false); // NB: filtered out of the copy-set.
+
+      console.info();
+      await DirSnapshot.Fmt.log(snapshotA, { title: 'Snapshot-A' });
+      console.info();
+      await DirSnapshot.Fmt.log(snapshotB, { title: 'Snapshot-B (filtered)' });
+      console.info();
     });
 
     it('meta: dir.json', async () => {
