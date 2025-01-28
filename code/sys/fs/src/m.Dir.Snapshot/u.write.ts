@@ -63,9 +63,9 @@ export const write: F = async (args) => {
 
   const res: t.DirSnapshot = {
     id,
-    timestamp,
     hx,
     path,
+    timestamp,
     is: { ref: backref },
     error: errors.toError(),
   };
