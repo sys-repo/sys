@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
-import { Fs } from './mod.ts';
 import { Path } from './common.ts';
+import { Fs } from './mod.ts';
 
 describe('Fs: directory operations', () => {
   const setupCopyTest = async () => {
@@ -296,6 +296,34 @@ describe('Fs: directory operations', () => {
 
         expect(await Fs.exists(b.sample.file.a)).to.eql(true);
         expect(await Fs.exists(b.sample.file.b)).to.eql(false);
+      });
+
+      it('filter(args): folder path ends in "/"', async () => {
+        const sample = await setupCopyTest();
+        const { dir } = sample;
+
+        const text = `sample-${slug()}\n`;
+        const deepPath = Fs.join('foo', 'bar', 'file.txt');
+        const deepA = Fs.join(dir.a, deepPath);
+        const deepB = Fs.join(dir.b, deepPath);
+
+        await Fs.ensureDir(Fs.dirname(deepA));
+        await Deno.writeTextFile(deepA, text);
+
+        const fired: t.FsCopyFilterArgs[] = [];
+        const res = await Fs.copyDir(dir.a, dir.b, {
+          filter(e) {
+            fired.push(e);
+            return true;
+          },
+        });
+        expect(res.error).to.eql(undefined);
+        await assertFileText(deepB, text);
+
+        expect(fired[1].source.endsWith('/a/foo/')).to.eql(true);
+        expect(fired[1].target.endsWith('/b/foo/')).to.eql(true);
+        expect(fired[2].source.endsWith('/a/foo/bar/')).to.eql(true);
+        expect(fired[2].target.endsWith('/b/foo/bar/')).to.eql(true);
       });
 
       describe('filter paths: (e) => boolean', () => {

@@ -51,7 +51,8 @@ export const copyDir: t.FsCopyDir = async (from, to, opt = {}) => {
       const source = `${from}/${entry.name}`;
       const target = `${to}/${entry.name}`;
       if (entry.isDirectory) {
-        if (!Wrangle.filter(source, target, options.filter)) continue;
+        // NB: "/" suffix indicates to the filter that the path is a folder.
+        if (!Wrangle.filter(`${source}/`, `${target}/`, options.filter)) continue;
         await copyDir(source, target, options); // ← Recursion 🌳
       } else if (entry.isFile) {
         await copyFile(source, target, options);
