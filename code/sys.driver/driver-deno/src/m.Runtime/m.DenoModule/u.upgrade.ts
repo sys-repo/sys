@@ -1,4 +1,4 @@
-import { type t, c, Semver, Jsr, Process } from './common.ts';
+import { type t, c, Cli, Jsr, Semver } from './common.ts';
 
 export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const { force = false } = args;
@@ -51,23 +51,28 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
      */
     // await VitepressEnv.backup({ inDir, message: stripAnsi(msg) }); // Safety: make backup before making changes.
 
+    const path = args.dir;
     const cmd = `deno run -A jsr:${moduleName}@${version}/init`;
     console.info();
     console.info(msg);
-    console.info(c.gray(`${c.italic('running template:')} ${c.cyan(cmd)}`));
+
+    const table = Cli.table(['', '']);
+    let skipped = args.dryRun ? c.yellow('← skipped (dry-run)') : '';
+    table.push([c.gray(c.italic('running template:')), `${c.cyan(cmd)} ${skipped}`]);
+    table.push([c.gray('target'), c.gray(path || './')]);
+    console.info(table.toString().trim());
     console.info();
 
     // Install and run.
-    const path = args.dir;
-    console.log('path', path);
-    // await Process.sh({ path }).run(cmd);
+    if (!args.dryRun) {
+    }
   }
 
   /**
    * Finish up.
    */
   const fmtTargetVer = c.bold(c.green(Semver.toString(targetVersion)));
-  console.info();
+  // console.info();
   console.info(c.green(`Project at version:`));
   console.info(c.gray(`${c.white(c.bold(moduleName))}@${fmtTargetVer}`));
   console.info();

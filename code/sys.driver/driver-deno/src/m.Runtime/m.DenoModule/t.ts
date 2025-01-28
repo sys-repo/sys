@@ -22,6 +22,7 @@ export type DenoModuleUpgradeArgs = {
   targetVersion?: t.StringSemver;
   dir?: t.StringDir;
   force?: boolean;
+  dryRun?: boolean;
 };
 
 /** Resposne from `DenoModule.upgrade` method. */

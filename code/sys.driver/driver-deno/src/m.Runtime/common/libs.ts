@@ -1,3 +1,4 @@
+export { Cli } from '@sys/cli';
 export { c, stripAnsi } from '@sys/color/ansi';
 export { Fs } from '@sys/fs';
 export { Jsr } from '@sys/jsr';
