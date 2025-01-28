@@ -1,4 +1,4 @@
-import { type t, c, Cli, Jsr, Semver } from './common.ts';
+import { type t, c, Cli, Jsr, Process, Semver } from './common.ts';
 
 export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const { force = false } = args;
@@ -65,6 +65,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
 
     // Install and run.
     if (!args.dryRun) {
+      await Process.sh({ path }).run(cmd);
     }
   }
 
@@ -72,7 +73,6 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
    * Finish up.
    */
   const fmtTargetVer = c.bold(c.green(Semver.toString(targetVersion)));
-  // console.info();
   console.info(c.green(`Project at version:`));
   console.info(c.gray(`${c.white(c.bold(moduleName))}@${fmtTargetVer}`));
   console.info();
