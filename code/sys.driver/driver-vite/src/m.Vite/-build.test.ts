@@ -3,6 +3,17 @@ import { INPUT } from './-u.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
+  const logDist = (input: t.StringPath, dist: t.DistPkg) => {
+    const distfile = c.bold(c.white('./dist/dist.json'));
+    console.info();
+    console.info(c.green(`input: ${input}`));
+    console.info(c.green(' ↓'));
+    console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
+    console.info();
+    console.info(dist);
+    console.info();
+  };
+
   const testBuild = async (input: t.StringPath) => {
     const outDir = Vite.Config.outDir.test.random();
     const res = await Vite.build({ pkg, input, outDir });
@@ -36,17 +47,6 @@ describe('Vite.build', () => {
     } as const;
   };
 
-  const logDist = (input: t.StringPath, dist: t.DistPkg) => {
-    const distfile = c.bold(c.white('./dist/dist.json'));
-    console.info();
-    console.info(c.green(`input: ${input}`));
-    console.info(c.green(' ↓'));
-    console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
-    console.info();
-    console.info(dist);
-    console.info();
-  };
-
   it('sample-1: simple', async () => {
     await Testing.retry(3, async () => {
       const input = INPUT.sample1;
@@ -68,7 +68,14 @@ describe('Vite.build', () => {
       const input = INPUT.sample2;
       const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
+      expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
+      expect(files.html).to.include(`<link rel="modulepreload" crossorigin href="./pkg/`);
       logDist(input, res.dist);
+
+      console.info();
+      console.info(c.brightCyan(`${c.bold('files.html')} (sample-2):\n`));
+      console.info(c.italic(c.yellow(files.html)));
+      console.info();
     });
   });
 
