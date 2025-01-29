@@ -9,10 +9,10 @@
     "clean": "deno run -RWE ./scripts/-clean.ts"
   },
   "exports": {
-    ".": "./src/mod.ts",
+    ".": "./src/ns.client/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./spec": "./src/m.Spec/mod.ts",
+    "./spec": "./src/ns.client/m.Spec/mod.ts",
     "./server": "./src/ns.server/mod.ts"
   }
 }
