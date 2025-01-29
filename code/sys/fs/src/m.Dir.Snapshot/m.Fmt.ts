@@ -22,7 +22,7 @@ export const Fmt: t.DirSnapshotFmtLib = {
     let total = `${size.total.files.toLocaleString()} files `;
     total += c.gray(`in latest of ${backups.length} ${snapshotsPlural} (${fmtSize})`);
 
-    const table = Cli.table([title]);
+    const table = Cli.table([title, options.message ?? '']);
     const push = (label: string, value: string | number) => table.push([c.gray(label), value]);
     const formatPath = (path: t.StringPath) => `./${Path.trimCwd(path)}`;
 

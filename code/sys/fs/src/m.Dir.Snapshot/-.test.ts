@@ -138,6 +138,9 @@ describe('Fs.Dir.Snapshot', () => {
 
       expect(metaA?.message).to.eql(undefined);
       expect(metaB?.message).to.eql(message);
+
+      expect(a.message).to.eql(undefined);
+      expect(b.message).to.eql(message);
     });
   });
 

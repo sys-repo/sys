@@ -66,6 +66,7 @@ export const write: F = async (args) => {
     hx,
     path,
     timestamp,
+    message,
     is: { ref: backref },
     error: errors.toError(),
   };

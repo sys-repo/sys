@@ -39,6 +39,7 @@ export type DirSnapshot = {
   readonly path: t.DirSnapshotPaths;
   readonly is: { readonly ref: boolean };
   readonly error?: t.StdError;
+  readonly message?: string;
 };
 
 /** Paths related to a directory-snapshot. */
@@ -69,4 +70,7 @@ export type DirSnapshotFmtLib = {
 };
 
 /** Options passed to `Dir.Snapshot.Fmt` methods. */
-export type DirSnapshotFmtOptions = { title?: string };
+export type DirSnapshotFmtOptions = {
+  title?: string;
+  message?: string;
+};
