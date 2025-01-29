@@ -1,21 +1,15 @@
 import { type t, Cli, Dir, Ignore, PATHS, Path } from './common.ts';
 
-export const IGNORE = `
-node_modules/
--backup/
--backup/**
-`;
-
 export const backup: t.DenoModuleLib['backup'] = async (args) => {
   const { force = false, message, fmt = {}, includeDist = false } = args;
   const source = Path.resolve(args.source ?? '.');
   const target = args.target ? Path.resolve(args.target) : Path.join(source, PATHS.backup);
-  const ignore = Ignore.create(`${IGNORE}\n${args.ignore ?? ''}`);
+  const ignore = Ignore.create(args.ignore ?? '');
 
   const filter: t.FsPathFilter = (absolute) => {
-    const relative = absolute.startsWith(source) ? absolute.slice(source.length + 1) : absolute;
+    if (absolute.startsWith(target)) return false; // NB: ensure we don't "backup the backup."
 
-    if (relative.startsWith(PATHS.backup)) return false;
+    const relative = absolute.startsWith(source) ? absolute.slice(source.length + 1) : absolute;
     if (relative.startsWith(PATHS.dist) && includeDist === false) return false;
     if (ignore.isIgnored(relative)) return false;
     if (args.filter?.(absolute) === false) return false;
@@ -31,7 +25,7 @@ export const backup: t.DenoModuleLib['backup'] = async (args) => {
   // Log output.
   if (!args.silent) {
     const title = fmt.title;
-    await Dir.Snapshot.Fmt.log(snapshot, { title });
+    await Dir.Snapshot.Fmt.log(snapshot, { title, message });
   }
 
   // Response.

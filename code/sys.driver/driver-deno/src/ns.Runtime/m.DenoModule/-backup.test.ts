@@ -9,6 +9,11 @@ describe('DenoModule.backup', () => {
     expect(await Fs.exists(dir)).to.eql(exists, dir);
   };
 
+  const loadMeta = async (path: t.StringPath) => {
+    const json = await Fs.readJson<t.DirSnapshotMeta>(path);
+    return json.data;
+  };
+
   it('perform backup copy', { sanitizeResources: false, sanitizeOps: false }, async () => {
     /**
      * Sequence:
@@ -121,5 +126,21 @@ describe('DenoModule.backup', () => {
     await assertTargetExists('.tmp/', false);
     await assertTargetExists('src/', true);
     await assertTargetExists('README.md', true);
+  });
+
+  it('{message} param ← commit details', async () => {
+    const sample = sampleFs();
+    const source = sample.dir;
+    await SAMPLE.sample1.tmpl().copy(source);
+
+    const message = '👋 hello';
+
+    console.info();
+    const res = await DenoModule.backup({ source, message });
+    console.info();
+
+    const meta = await loadMeta(res.snapshot.path.target.meta);
+    expect(meta?.message).to.eql(message);
+    expect(meta?.hx.digest).to.eql(res.snapshot.hx.digest);
   });
 });
