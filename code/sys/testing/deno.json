@@ -13,6 +13,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./spec": "./src/m.Spec/mod.ts",
-    "./server": "./src/m.Server/mod.ts"
+    "./server": "./src/ns.server/mod.ts"
   }
 }
