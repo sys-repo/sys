@@ -4,10 +4,11 @@ export { pkg } from '../pkg.ts';
 export * from './libs.ts';
 
 export const PATHS = {
-  tmp: '.tmp/-tmpl/',
   dist: 'dist/',
   backup: '-backup/',
+  tmp: '.tmp/',
   tmpl: {
+    tmp: '.tmp/-tmpl/',
     source: 'src/-tmpl/',
     json: 'src/m.Vite.Tmpl/-bundle.json',
   },

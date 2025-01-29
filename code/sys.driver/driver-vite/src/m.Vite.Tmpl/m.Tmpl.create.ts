@@ -5,8 +5,8 @@ import { Bundle } from './m.Bundle.ts';
 /**
  * Create a new instance of the bundled file template.
  */
-export const create: t.ViteTmplLib['create'] = async (args) => {
-  const templatesDir = Fs.resolve(PATHS.tmp);
+export const create: t.ViteTmplLib['create'] = async (args = {}) => {
+  const templatesDir = Fs.resolve(PATHS.tmpl.tmp);
 
   await Fs.remove(templatesDir);
   await Bundle.toFilesystem(templatesDir);
