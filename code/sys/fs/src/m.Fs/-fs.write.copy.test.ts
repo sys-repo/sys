@@ -320,6 +320,8 @@ describe('Fs: directory operations', () => {
         expect(res.error).to.eql(undefined);
         await assertFileText(deepB, text);
 
+        console.log(fired);
+
         expect(fired[1].source.endsWith('/a/foo/')).to.eql(true);
         expect(fired[1].target.endsWith('/b/foo/')).to.eql(true);
         expect(fired[2].source.endsWith('/a/foo/bar/')).to.eql(true);
