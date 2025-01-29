@@ -27,14 +27,12 @@ export type ViteEntryArgs =
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
-  | ViteEntryArgsHelp
-  | ViteEntryArgsUpgrade;
+  | ViteEntryArgsUpgrade
+  | ViteEntryArgsBackup
+  | ViteEntryArgsHelp;
 
 /** The `init` command. */
 export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
-
-/** The `help` information command. */
-export type ViteEntryArgsHelp = { cmd: 'help'; in?: P; out?: P };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };
@@ -54,6 +52,7 @@ export type ViteEntryArgsServe = {
   dir?: P;
   silent?: boolean;
 };
+
 /** The `upgrade` command. */
 export type ViteEntryArgsUpgrade = {
   cmd: 'upgrade';
@@ -62,3 +61,13 @@ export type ViteEntryArgsUpgrade = {
   version?: t.StringSemver;
   dryRun?: boolean;
 };
+/** The `backup` command. */
+export type ViteEntryArgsBackup = {
+  cmd: 'backup';
+  dir?: P;
+  force?: boolean;
+  includeDist?: boolean;
+};
+
+/** The `help` information command. */
+export type ViteEntryArgsHelp = { cmd: 'help'; in?: P; out?: P };

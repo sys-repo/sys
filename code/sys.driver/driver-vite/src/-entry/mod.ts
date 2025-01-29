@@ -2,7 +2,8 @@
  * @module
  * The entry points, when using the module from the command-line [argv].
  */
-import { type t, Args, c, DenoModule, pkg, ViteLog } from './common.ts';
+import { Vitepress } from '../../../driver-vitepress/src/m.Vitepress/mod.ts';
+import { type t, PATHS, Args, c, DenoModule, pkg, ViteLog, Vite } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
@@ -45,13 +46,21 @@ export const ViteEntry: t.ViteEntryLib = {
         /**
          * TODO 🐷 temporarily disabled until implemented (working in VitePress module).
          */
-        api: { disabled: ['backup', 'clean'] },
+        api: { disabled: ['clean'] },
       });
       return;
     }
 
+    if (cmd === 'backup') {
+      const { dir = '.', includeDist, force } = args;
+      await Vite.backup({ dir, includeDist, force });
+      return;
+    }
+
     if (cmd === 'upgrade') {
-      const { dir, force = false, dryRun } = args;
+      const { dir = '.', force = false, dryRun } = args;
+      const message = 'Pre-upgrade backup';
+      await Vite.backup({ dir, includeDist: false, force, message });
       await DenoModule.upgrade({
         name: pkg.name,
         currentVersion: pkg.version,
