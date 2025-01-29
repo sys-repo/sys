@@ -15,6 +15,6 @@
     "./types": "./src/types.ts",
     "./cloud/client": "./src/ns.Cloud/ns.client/mod.ts",
     "./cloud/server": "./src/ns.Cloud/ns.server/mod.ts",
-    "./runtime": "./src/m.Runtime/mod.ts"
+    "./runtime": "./src/ns.Runtime/mod.ts"
   }
 }
