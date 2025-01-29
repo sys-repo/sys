@@ -9,6 +9,7 @@ import {
   pkg,
   ViteEntry,
   VitepressLog,
+  ViteLog,
 } from './common.ts';
 
 type F = t.VitepressEntryLib['main'];
@@ -38,7 +39,7 @@ export const VitepressEntry: t.VitepressEntryLib = {
      * Start HMR development server.
      */
     if (args.cmd === 'dev') {
-      VitepressLog.API.log({ cmd: 'dev' });
+      ViteLog.API.log({ cmd: 'dev' });
       const { dir = PATHS.inDir } = args;
       const server = await Vitepress.dev({ inDir: dir, pkg });
       await server.listen();
@@ -49,7 +50,7 @@ export const VitepressEntry: t.VitepressEntryLib = {
      * Transpile the production bundle (Pkg).
      */
     if (args.cmd === 'build') {
-      VitepressLog.API.log({ cmd: 'build' });
+      ViteLog.API.log({ cmd: 'build' });
       console.info();
 
       const { dir = PATHS.inDir } = args;
@@ -59,7 +60,7 @@ export const VitepressEntry: t.VitepressEntryLib = {
     }
 
     if (args.cmd === 'serve') {
-      VitepressLog.API.log({ cmd: 'serve' });
+      ViteLog.API.log({ cmd: 'serve' });
       console.info();
       await ViteEntry.serve(args);
       return;

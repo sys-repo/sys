@@ -1,11 +1,9 @@
-import { type t, c, Cli, Fs, PATHS, pkg, Pkg, ViteLog } from './common.ts';
+import { type t, Path, c, Cli, PATHS, pkg, ViteLog } from './common.ts';
 
 /**
  * Console logging operations for the module.
  */
 export const VitepressLog = {
-  API: ViteLog.API,
-
   Build: {
     log: (args: t.ViteLogBundleArgs) => console.info(VitepressLog.Build.toString(args)),
     toString: (args: t.ViteLogBundleArgs) => ViteLog.Bundle.toString(args),
@@ -30,19 +28,12 @@ export const VitepressLog = {
    */
   async help(args: { dir?: t.StringDir; minimal?: boolean } = {}) {
     const { dir = PATHS.inDir, minimal = false } = args;
-    VitepressLog.API.log({ minimal });
-    console.info();
-
-    const { dist } = await Pkg.Dist.load(Fs.resolve(dir, PATHS.dist));
-    if (dist) {
-      ViteLog.Dist.log(dist, { dirs: { in: dir } });
-    } else {
-      const buildCmd = c.green(`deno task ${c.bold('build')}`);
-      const notBuilt = c.italic(c.yellow('(no bundle)'));
-      console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
-      console.info(c.gray(`${notBuilt} → run: ${buildCmd}`));
-    }
-
+    await ViteLog.Help.log({
+      pkg,
+      in: dir,
+      out: Path.join(dir, PATHS.dist),
+      api: { minimal },
+    });
     console.info();
   },
 };
