@@ -10,12 +10,10 @@ describe('cmd: backup (shapshot)', () => {
 
   it('perform backup copy', { sanitizeResources: false, sanitizeOps: false }, async () => {
     /**
-     *
-     * sequence:
+     * Sequence:
      *  - ↓ init
      *  - ↓ build   (dist)
      *  - ↓ backup  (snapshot)
-     *
      */
     await Testing.retry(3, async () => {
       const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {

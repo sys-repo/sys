@@ -1,6 +1,4 @@
-import { pkg as vitePkg } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-
 import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
 
