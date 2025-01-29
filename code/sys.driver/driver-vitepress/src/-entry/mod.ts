@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
-import { main } from './m.main.ts';
-
-export const VitepressEntry: t.VitepressEntryLib = { main };
+/**
+ * @module
+ * The entry points, when using the module from the command-line [argv].
+ */
+export { VitepressEntry } from './m.Entry.ts';
