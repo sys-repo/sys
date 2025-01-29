@@ -1,4 +1,4 @@
-import { type t, Fs, PATHS, describe, expect, it, Testing } from '../-test.ts';
+import { type t, describe, expect, Fs, it, PATHS, Testing } from '../-test.ts';
 import { Sample } from '../m.Vitepress/-u.ts';
 import { VitePress } from '../m.Vitepress/mod.ts';
 import { VitepressEnv } from './mod.ts';
