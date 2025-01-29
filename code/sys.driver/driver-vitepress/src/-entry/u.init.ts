@@ -13,7 +13,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await VitePress.Env.Tmpl.update({ inDir: dir });
+  await VitePress.Tmpl.update({ inDir: dir });
 
   if (!silent) {
     console.info();

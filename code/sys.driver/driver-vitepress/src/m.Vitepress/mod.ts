@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 import { VitepressEnv as Env } from '../m.Vitepress.Env/mod.ts';
+import { VitepressTmpl as Tmpl } from '../m.Vitepress.Tmpl/mod.ts';
 import { build } from './u.cmd.build.ts';
 import { dev } from './u.cmd.dev.ts';
 
@@ -9,6 +10,7 @@ import { dev } from './u.cmd.dev.ts';
  */
 export const VitePress: t.VitepressLib = {
   Env,
+  Tmpl,
   dev,
   build,
 };

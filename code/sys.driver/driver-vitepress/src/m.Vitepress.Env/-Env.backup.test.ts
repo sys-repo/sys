@@ -25,7 +25,7 @@ describe('cmd: backup (shapshot)', () => {
         const distDir = Fs.join(inDir, PATHS.dist);
 
         const silent = true;
-        await VitePress.Env.Tmpl.update({ inDir, silent });
+        await VitePress.Tmpl.update({ inDir, silent });
         await assertExists(distDir, false); // NB: not yet built.
 
         await VitePress.build({ inDir, silent });

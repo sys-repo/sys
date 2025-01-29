@@ -18,6 +18,9 @@ export type VitepressLib = {
   /** Tools for maintaining the "Editor Machine/Device" environment. */
   readonly Env: t.VitepressEnvLib;
 
+  /** Template library for a VitePress project. */
+  readonly Tmpl: t.VitepressTmplLib;
+
   /**
    * Start the development server.
    * https://vitepress.dev/reference/cli#vitepress-dev

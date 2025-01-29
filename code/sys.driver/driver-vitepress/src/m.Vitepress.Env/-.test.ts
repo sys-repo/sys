@@ -7,7 +7,7 @@ describe('Vitepress.Env', () => {
       await Testing.retry(3, async () => {
         const sample = SAMPLE.init();
         const { inDir } = sample;
-        await VitePress.Env.Tmpl.update({ inDir });
+        await VitePress.Tmpl.update({ inDir });
 
         console.info();
         console.info(c.bold(c.green(`Env.init()`)));
@@ -23,7 +23,7 @@ describe('Vitepress.Env', () => {
         await Testing.retry(3, async () => {
           const sample = SAMPLE.init();
           const { inDir } = sample;
-          await VitePress.Env.Tmpl.update({ inDir, srcDir, silent: true });
+          await VitePress.Tmpl.update({ inDir, srcDir, silent: true });
 
           const file = await Deno.readTextFile(Fs.join(inDir, '.vitepress/config.ts'));
           const line = `srcDir: '${expectedSrcDir}',`;

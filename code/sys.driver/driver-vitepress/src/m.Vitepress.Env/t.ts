@@ -4,9 +4,6 @@ import type { t } from './common.ts';
  * Tools for maintaining the local "Editor Machine/Device" environment state.
  */
 export type VitepressEnvLib = {
-  /** Template library for a VitePress project. */
-  readonly Tmpl: t.VitepressTmplLib;
-
   /** Create a backup snapshot. */
   backup(args: t.VitepressBackupArgs): Promise<t.VitepressBackupResponse>;
 };
