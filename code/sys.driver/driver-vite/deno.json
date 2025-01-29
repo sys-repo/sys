@@ -12,7 +12,7 @@
     "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev     --in=./.tmp/sample/src/-test/index.html",
     "build": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build   --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",
     "serve": "deno    run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve   --dir=./.tmp/sample/dist",
-    "clean": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=clean  --dir=./.tmp/sample",
+    "clean": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=clean   --dir=./.tmp/sample",
     "backup": "deno   run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup  --dir=./.tmp/sample",
     "upgrade": "deno  run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade --dir=./.tmp/sample",
     "help": "deno     run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=help    --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",

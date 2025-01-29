@@ -3,13 +3,13 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=dev",
-    "build": "deno    run -RWE --allow-run --allow-ffi <ENTRY> --cmd=build",
-    "serve": "deno    run -RNE --allow-run --allow-ffi <ENTRY> --cmd=serve",
-    "clean": "deno    run -RWE --allow-ffi <ENTRY> --cmd=clean",
+    "build": "deno    run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=build",
+    "serve": "deno    run -RNE  --allow-run --allow-ffi <ENTRY> --cmd=serve",
+    "clean": "deno    run -RWE  --allow-ffi             <ENTRY> --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
-    "backup": "deno   run -RWE --allow-run --allow-ffi <ENTRY> --cmd=backup",
-    "help": "deno     run -RE --allow-ffi <ENTRY> --cmd=help",
-    "sys": "deno      run -RWNE <ENTRY_MAIN>"
+    "backup": "deno   run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=backup",
+    "help": "deno     run -RE   --allow-ffi             <ENTRY> --cmd=help",
+    "sys": "deno      run -RWNE <ENTRY_SYS>"
   },
   "imports": {
     "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
