@@ -24,6 +24,7 @@ export type ViteEntryLib = {
  */
 export type ViteEntryArgs =
   | ViteEntryArgsInit
+  | ViteEntryArgsClean
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
   | ViteEntryArgsServe
@@ -33,6 +34,9 @@ export type ViteEntryArgs =
 
 /** The `init` command. */
 export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
+
+/** The `clean` command. */
+export type ViteEntryArgsClean = { cmd: 'clean'; dir?: P };
 
 /** The HMR `dev` server. */
 export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };

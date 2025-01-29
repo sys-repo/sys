@@ -45,7 +45,7 @@ export type VitepressEntryArgsServe = t.ViteEntryArgsServe;
 export type VitepressEntryArgsUpgrade = t.ViteEntryArgsUpgrade;
 
 /** The `clean` command. */
-export type VitepressEntryArgsClean = { cmd: 'clean'; inDir?: P };
+export type VitepressEntryArgsClean = { cmd: 'clean'; dir?: P };
 
 /** The `backup` command. */
 export type VitepressEntryArgsBackup = {

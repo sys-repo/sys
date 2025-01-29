@@ -3,8 +3,8 @@ import { type t, Fs, Path, PATHS } from './common.ts';
 /**
  * Clean the project of temporary files.
  */
-export async function clean(args: t.VitepressEntryArgsClean) {
-  const { dir = PATHS.inDir } = args;
+export async function clean(args: t.ViteEntryArgsClean) {
+  const { dir = '.' } = args;
   if (args.cmd !== 'clean') return;
 
   const join = (...path: string[]) => Path.resolve(dir, ...path);
