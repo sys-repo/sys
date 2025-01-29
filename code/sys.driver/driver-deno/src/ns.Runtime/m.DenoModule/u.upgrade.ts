@@ -1,4 +1,5 @@
 import { type t, c, Cli, Jsr, Process, Semver } from './common.ts';
+import { backup } from './u.backup.ts';
 
 export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const { force = false } = args;
@@ -45,11 +46,6 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
       const direction = isGreater ? 'Upgrading' : 'Downgrading';
       msg = `${direction} local version ${c.gray(current)} to → ${c.green(c.bold(version))}`;
     }
-
-    /**
-     * TODO 🐷 generalize backup
-     */
-    // await VitepressEnv.backup({ inDir, message: stripAnsi(msg) }); // Safety: make backup before making changes.
 
     const path = args.dir;
     const cmd = `deno run -A jsr:${moduleName}@${version}/init`;
