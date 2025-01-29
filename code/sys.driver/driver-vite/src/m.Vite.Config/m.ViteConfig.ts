@@ -13,13 +13,6 @@ export const ViteConfig: t.ViteConfigLib = {
    */
   outDir: {
     default: DEF.outDir,
-    test: {
-      base: DEF.outDirTesting,
-      random(uniq) {
-        const base = ViteConfig.outDir.test.base;
-        return `${base}/test-${uniq ?? slug()}`;
-      },
-    },
   },
 
   /**

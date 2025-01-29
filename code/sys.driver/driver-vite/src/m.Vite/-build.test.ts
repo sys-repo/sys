@@ -14,7 +14,8 @@ describe('Vite.build', () => {
   };
 
   const testBuild = async (input: t.StringPath) => {
-    const outDir = Vite.Config.outDir.test.random();
+    const fs = SAMPLE.fs('Vite.build');
+    const outDir = fs.dir;
     const res = await Vite.build({ pkg, input, outDir });
     const { paths } = res;
 

@@ -39,10 +39,6 @@ export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPa
  */
 export type ViteConfigOutDir = {
   readonly default: t.StringPath;
-  readonly test: {
-    readonly base: t.StringPath;
-    random(uniq?: string): t.StringPath;
-  };
 };
 
 /**
