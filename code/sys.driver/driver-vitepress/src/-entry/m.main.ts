@@ -78,6 +78,8 @@ export const main: F = async (input) => {
 
   if (args.cmd === 'upgrade') {
     const { dir = PATHS.inDir, force = false, dryRun } = args;
+    const message = 'Pre-upgrade backup';
+    await Vitepress.backup({ dir, includeDist: false, force, message });
     await DenoModule.upgrade({
       name: pkg.name,
       currentVersion: pkg.version,
