@@ -1,6 +1,5 @@
-import { type t, describe, expect, Fs, it, PATHS, Testing } from '../-test.ts';
-import { Sample } from '../m.Vitepress/-u.ts';
-import { Vitepress } from '../m.Vitepress/mod.ts';
+import { type t, describe, expect, Fs, it, PATHS, SAMPLE, Testing } from '../-test.ts';
+import { Vite } from './mod.ts';
 
 describe('cmd: backup (shapshot)', () => {
   const assertExists = async (dir: string, exists = true) => {
@@ -15,21 +14,26 @@ describe('cmd: backup (shapshot)', () => {
      *  - ↓ backup  (snapshot)
      */
     await Testing.retry(3, async () => {
-      const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {
+      const test = async (args: Pick<t.ViteBackupArgs, 'includeDist'> = {}) => {
         const { includeDist } = args;
-        const sample = Sample.init({});
-        const inDir = sample.path;
-        const backupDir = Fs.join(inDir, PATHS.backup);
-        const distDir = Fs.join(inDir, PATHS.dist);
 
-        const silent = true;
-        await Vitepress.Tmpl.update({ inDir, silent });
-        await assertExists(distDir, false); // NB: not yet built.
+        const fs = await SAMPLE.fs('Vite.backup').create();
+        const dir = fs.dir;
+        const backupDir = Fs.join(dir, PATHS.backup);
+        const outDir = Fs.join(dir, PATHS.dist);
+        const input = Fs.join(dir, 'src/-test/index.html');
 
-        await Vitepress.build({ inDir, silent });
+        const tmpl = await Vite.Tmpl.create();
+        await tmpl.copy(dir);
+        await assertExists(outDir, false); // NB: not yet built.
+
+        await Vite.build({ input, outDir });
+        await assertExists(outDir, true);
         await assertExists(backupDir, false); // NB: not yet backed up.
 
-        const res = await Vitepress.backup({ dir: inDir, includeDist });
+        console.info();
+        const res = await Vite.backup({ dir, includeDist });
+        console.info();
         const snapshot = res.snapshot;
         const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);
@@ -40,14 +44,13 @@ describe('cmd: backup (shapshot)', () => {
 
         await assertTargetExists('dist', !!includeDist);
         await assertTargetExists('-backup', false);
-        await assertTargetExists('.sys', true);
         await assertTargetExists('.tmp', false);
-        await assertTargetExists('.vitepress', true);
-        await assertTargetExists('.vitepress/cache', false);
-        await assertTargetExists('docs', true);
-        await assertTargetExists('src', true);
+        await assertTargetExists('.npmrc', true);
+        await assertTargetExists('src/pkg.ts', true);
+        await assertTargetExists('README.md', true);
         await assertTargetExists('deno.json', true);
         await assertTargetExists('package.json', true);
+        await assertTargetExists('vite.config.ts', true);
       };
 
       await test({}); // default: excludes the /dist folder.
