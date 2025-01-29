@@ -1,8 +1,7 @@
-import { type t, Cli, Dir, Ignore, VitepressLog, Path, PATHS } from './common.ts';
+import { type t, DenoModule, Path, PATHS } from './common.ts';
 
-const IGNORE = `
+const ignore = `
 node_modules/
-dist/
 -backup/
 -backup/**
 .vitepress/cache/
@@ -13,43 +12,18 @@ dist/
  * Create a backup snapshot.
  */
 export const backup: t.VitepressEnvLib['backup'] = async (args) => {
-  const { force, message } = args;
-  const inDir = Path.resolve(args.inDir);
+  const { force, message, includeDist = false } = args;
+  const source = Path.resolve(args.inDir);
 
-  const source = Path.join(inDir);
-  const target = Path.join(inDir, PATHS.backup);
-  const ignore = Ignore.create(IGNORE);
+  const filter: t.FsPathFilter = (absolute) => {
+    const relative = absolute.startsWith(source) ? absolute.slice(source.length + 1) : absolute;
 
-  const filter: t.FsPathFilter = (p) => {
-    p = p.startsWith(inDir) ? p.slice(inDir.length + 1) : p;
+    if (relative.startsWith(PATHS.backup)) return false;
+    if (relative.startsWith(PATHS.vitepressCache)) return false;
+    if (relative.startsWith(PATHS.dist)) return !!args.includeDist;
 
-    if (p.startsWith(PATHS.backup)) return false;
-    if (p.startsWith(PATHS.vitepressCache)) return false;
-    if (p.startsWith(PATHS.dist)) return !!args.includeDist;
-
-    if (ignore.isIgnored(p)) return false;
     return true;
   };
 
-  // Copy directory snapshot.
-  const spinner = Cli.spinner('').start();
-  const snapshot = await Dir.snapshot({
-    source,
-    target,
-    filter,
-    force,
-    message,
-  });
-  spinner.stop().clear();
-
-  // Log output.
-  if (!args.silent) {
-    console.info();
-    await VitepressLog.Snapshot.log(snapshot);
-    console.info();
-  }
-
-  // Response.
-  const res: t.VitepressBackupResponse = { snapshot };
-  return res;
+  return DenoModule.backup({ source, filter, message, force, ignore, includeDist });
 };

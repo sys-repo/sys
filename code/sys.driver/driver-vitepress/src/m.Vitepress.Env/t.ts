@@ -19,6 +19,6 @@ export type VitepressBackupArgs = {
   force?: boolean;
   message?: string;
 };
-export type VitepressBackupResponse = {
-  readonly snapshot: t.DirSnapshot;
-};
+
+/** Response from `VitePress.Env.backup` method. */
+export type VitepressBackupResponse = t.DenoModuleBackupResponse;
