@@ -18,9 +18,18 @@ export type TestingDirOptions = {
  * A sample directory to test operations on the file-system.
  */
 export type TestingDir = {
-  readonly dir: string;
-  ensure(): Promise<TestingDir>;
+  /** The path to the test directory. */
+  readonly dir: t.StringAbsoluteDir;
+
+  /** Ensures the test directory exists. */
+  create(): Promise<TestingDir>;
+
+  /** Checks if the root directory, or a sub-path within it, exists. */
   exists(...path: t.StringPath[]): Promise<boolean>;
+
+  /** Joins a path to the root test directory. */
   join(...parts: t.StringPath[]): t.StringAbsolutePath;
+
+  /** Lists all paths within the root directory. */
   ls(trimRoot?: boolean): Promise<t.StringPath[]>;
 };

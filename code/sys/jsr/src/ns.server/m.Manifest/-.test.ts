@@ -88,7 +88,7 @@ describe('Jsr.Manifest (integration test)', () => {
     });
 
     it('pull locally → save (file-system: directory)', async () => {
-      const sample = await SAMPLE.fs('Jsr.Manifest.pull', { slug: true }).ensure();
+      const sample = await SAMPLE.fs('Jsr.Manifest.pull', { slug: true }).create();
       expect(await sample.ls()).to.eql([]);
 
       const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);
@@ -107,7 +107,7 @@ describe('Jsr.Manifest (integration test)', () => {
     });
 
     it('pull locally → filter paths', async () => {
-      const sample = await SAMPLE.fs('Jsr.Manifest.pull').ensure();
+      const sample = await SAMPLE.fs('Jsr.Manifest.pull').create();
       expect(await sample.ls()).to.eql([]);
 
       const manifest = Manifest.create(SAMPLE.pkg, SAMPLE.def);

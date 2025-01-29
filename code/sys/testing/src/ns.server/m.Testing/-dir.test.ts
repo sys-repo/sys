@@ -13,12 +13,12 @@ describe('Testing.dir', () => {
     it('exists: root', async () => {
       const dir = Testing.dir('foo');
       expect(await dir.exists()).to.eql(false);
-      await dir.ensure();
+      await dir.create();
       expect(await dir.exists()).to.eql(true);
     });
 
     it('exists: subpath', async () => {
-      const fs = await Testing.dir('foo').ensure();
+      const fs = await Testing.dir('foo').create();
       expect(await fs.exists()).to.eql(true);
       expect(await fs.exists('foo/bar')).to.eql(false);
 
@@ -44,7 +44,7 @@ describe('Testing.dir', () => {
       const fs = Testing.dir('foo');
       expect(await fs.ls()).to.eql([]);
       expect(await fs.ls(true)).to.eql([]);
-      await fs.ensure();
+      await fs.create();
       expect(await fs.ls()).to.eql([]);
     });
 

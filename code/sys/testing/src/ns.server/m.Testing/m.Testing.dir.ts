@@ -6,10 +6,9 @@ import { type t, Fs, slug } from './common.ts';
 
 export const dir: t.TestingServerLib['dir'] = (dirname: string, options = {}) => {
   const dir = Fs.resolve(`./.tmp/test/${dirname}`, options.slug ?? true ? slug() : '');
+  const exists = (dir: string, path: string[]) => Fs.exists(Fs.join(dir, ...path));
 
-  const exists = (dir: t.StringDir, path: string[]) => Fs.exists(Fs.join(dir, ...path));
-
-  const api = {
+  const api: t.TestingDir = {
     dir,
     exists: (...path: string[]) => exists(dir, path),
     join: (...parts: string[]) => Fs.join(dir, ...parts),
@@ -19,10 +18,11 @@ export const dir: t.TestingServerLib['dir'] = (dirname: string, options = {}) =>
       return trimRoot ? paths.map((p) => p.slice(dir.length + 1)) : paths;
     },
 
-    async ensure() {
+    async create() {
       await Fs.ensureDir(dir);
       return api;
     },
-  } as const;
+  };
+
   return api;
 };
