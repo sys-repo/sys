@@ -35,7 +35,6 @@ describe('cmd: backup (shapshot)', () => {
         const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);
 
-        // NB: not copied (ecluded via .ignore list).
         const assertTargetExists = async (path: string, exists: boolean) => {
           await assertExists(Fs.join(targetDir, path), exists);
         };

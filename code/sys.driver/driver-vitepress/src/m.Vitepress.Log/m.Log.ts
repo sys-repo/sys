@@ -38,10 +38,9 @@ export const VitepressLog = {
       ViteLog.Dist.log(dist, { dirs: { in: dir } });
     } else {
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
-      const notBuilt = c.italic(c.yellow('(not yet built)'));
+      const notBuilt = c.italic(c.yellow('(no bundle)'));
       console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));
-      console.info(c.gray(`${notBuilt} → run:`));
-      console.info(c.gray(`                      ${buildCmd}`));
+      console.info(c.gray(`${notBuilt} → run: ${buildCmd}`));
     }
 
     console.info();
