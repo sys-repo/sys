@@ -24,7 +24,12 @@ export const Fmt: t.DirSnapshotFmtLib = {
 
     const table = Cli.table([title, options.message ?? '']);
     const push = (label: string, value: string | number) => table.push([c.gray(label), value]);
-    const formatPath = (path: t.StringPath) => `./${Path.trimCwd(path)}`;
+    const formatPath = (path: t.StringPath) => {
+      const REF = '.ref';
+      path = Path.trimCwd(path);
+      if (path.endsWith(REF)) path = `${path.slice(0, -REF.length)}${c.brightMagenta(REF)}`;
+      return `./${path}`;
+    };
 
     const date = new Date(snapshot.timestamp);
     const dateFmt = D.format(date, 'd MMM yyyy');
