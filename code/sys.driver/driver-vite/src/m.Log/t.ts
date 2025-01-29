@@ -33,6 +33,7 @@ export type ViteLogApi = {
   /** Render to console. */
   log(args?: t.ViteLogUsageApiArgs): void;
 };
+
 /** Arguments passed to `Log.API` method */
 export type ViteLogUsageApiArgs = {
   cmd?: string;
