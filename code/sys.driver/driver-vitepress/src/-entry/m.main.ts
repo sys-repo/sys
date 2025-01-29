@@ -1,4 +1,4 @@
-import { VitePress } from '../m.Vitepress/mod.ts';
+import { Vitepress } from '../m.Vitepress/mod.ts';
 import {
   type t,
   Args,
@@ -18,7 +18,7 @@ type F = t.VitepressEntryLib['main'];
  *
  * Pass: "--cmd=<sub-command>"
  *       to specify which action to take, and then the paratmers
- *       that pertain to <sub-command> as defined in the <VitePressCmd> type.
+ *       that pertain to <sub-command> as defined in the entry types.
  */
 export const main: F = async (input) => {
   const args = wrangle.args(input ?? Deno.args);
@@ -39,7 +39,7 @@ export const main: F = async (input) => {
   if (args.cmd === 'dev') {
     VitepressLog.API.log({ cmd: 'dev' });
     const { dir = PATHS.inDir } = args;
-    const server = await VitePress.dev({ inDir: dir, pkg });
+    const server = await Vitepress.dev({ inDir: dir, pkg });
     await server.listen();
     return;
   }
@@ -52,7 +52,7 @@ export const main: F = async (input) => {
     console.info();
 
     const { dir = PATHS.inDir } = args;
-    const res = await VitePress.build({ inDir: dir, pkg, silent: false });
+    const res = await Vitepress.build({ inDir: dir, pkg, silent: false });
     console.info(res.toString({ pad: true }));
     return;
   }
@@ -72,7 +72,7 @@ export const main: F = async (input) => {
 
   if (args.cmd === 'backup') {
     const { dir = PATHS.inDir, includeDist, force } = args;
-    await VitePress.backup({ inDir: dir, includeDist, force });
+    await Vitepress.backup({ inDir: dir, includeDist, force });
     return;
   }
 

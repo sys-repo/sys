@@ -1,4 +1,4 @@
-import { VitePress } from '../m.Vitepress/mod.ts';
+import { Vitepress } from '../m.Vitepress/mod.ts';
 import { type t, c, PATHS, pkg, VitepressLog } from './common.ts';
 
 /**
@@ -13,7 +13,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await VitePress.Tmpl.update({ inDir: dir });
+  await Vitepress.Tmpl.update({ inDir: dir });
 
   if (!silent) {
     console.info();

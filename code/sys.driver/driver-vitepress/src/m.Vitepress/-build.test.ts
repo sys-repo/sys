@@ -2,9 +2,9 @@ import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
 import { Sample } from './-u.ts';
-import { VitePress } from './mod.ts';
+import { Vitepress } from './mod.ts';
 
-describe('VitePress.build', () => {
+describe('Vitepress.build', () => {
   const assertDistFiles = (dist: t.DistPkg) => {
     const paths = Object.keys(dist.hash.parts ?? {});
     const pathsInclude = (start: t.StringPath) => paths.some((p) => p.startsWith(start));
@@ -24,8 +24,8 @@ describe('VitePress.build', () => {
       const inDir = Fs.resolve(sample.path);
       const outDir = Fs.resolve(sample.path, 'dist');
 
-      await VitePress.Tmpl.update({ inDir });
-      const res = await VitePress.build({ pkg, inDir, silent: false });
+      await Vitepress.Tmpl.update({ inDir });
+      const res = await Vitepress.build({ pkg, inDir, silent: false });
 
       expect(res.ok).to.eql(true);
       expect(res.dirs.in).to.eql(inDir);
@@ -65,8 +65,8 @@ describe('VitePress.build', () => {
       const outDir = Fs.resolve(sample.path, '.vitepress/dist');
       expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
 
-      await VitePress.Tmpl.update({ inDir });
-      const res = await VitePress.build({ pkg, inDir, outDir, silent: true });
+      await Vitepress.Tmpl.update({ inDir });
+      const res = await Vitepress.build({ pkg, inDir, outDir, silent: true });
 
       expect(res.ok).to.eql(true);
       expect(res.dirs.in).to.eql(inDir);

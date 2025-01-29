@@ -1,6 +1,6 @@
 import { type t, describe, expect, Fs, it, PATHS, Testing } from '../-test.ts';
 import { Sample } from '../m.Vitepress/-u.ts';
-import { VitePress } from '../m.Vitepress/mod.ts';
+import { Vitepress } from '../m.Vitepress/mod.ts';
 
 describe('cmd: backup (shapshot)', () => {
   const assertExists = async (dir: string, exists = true) => {
@@ -24,13 +24,13 @@ describe('cmd: backup (shapshot)', () => {
         const distDir = Fs.join(inDir, PATHS.dist);
 
         const silent = true;
-        await VitePress.Tmpl.update({ inDir, silent });
+        await Vitepress.Tmpl.update({ inDir, silent });
         await assertExists(distDir, false); // NB: not yet built.
 
-        await VitePress.build({ inDir, silent });
+        await Vitepress.build({ inDir, silent });
         await assertExists(backupDir, false); // NB: not yet backed up.
 
-        const res = await VitePress.backup({ inDir, includeDist });
+        const res = await Vitepress.backup({ inDir, includeDist });
         const snapshot = res.snapshot;
         const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);

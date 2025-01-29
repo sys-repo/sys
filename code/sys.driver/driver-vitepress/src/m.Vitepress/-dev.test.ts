@@ -1,6 +1,6 @@
 import { describe, expect, it, Testing } from '../-test.ts';
 import { assertEnvExists, Sample } from './-u.ts';
-import { VitePress } from './mod.ts';
+import { Vitepress } from './mod.ts';
 
 describe('VitePress.dev', () => {
   it(
@@ -11,8 +11,8 @@ describe('VitePress.dev', () => {
         const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
-        await VitePress.Tmpl.update({ inDir });
-        const server = await VitePress.dev({ port, inDir, open }); // NB: await returns after Vitepress as completed it's startup.
+        await Vitepress.Tmpl.update({ inDir });
+        const server = await Vitepress.dev({ port, inDir, open }); // NB: await returns after Vitepress as completed it's startup.
 
         try {
           expect(server.port).to.eql(port);
@@ -43,9 +43,9 @@ describe('VitePress.dev', () => {
         const open = false;
         const sample = Sample.init();
         const { port, inDir } = sample;
-        await VitePress.Tmpl.update({ inDir });
+        await Vitepress.Tmpl.update({ inDir });
 
-        const server = await VitePress.dev({ port, inDir, open });
+        const server = await Vitepress.dev({ port, inDir, open });
         await server.dispose();
         await assertEnvExists(inDir);
       });

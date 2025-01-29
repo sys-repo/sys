@@ -83,10 +83,10 @@
  *    Note: this does not touch the state of the "content" -
  *    only the compiler configuration and generated code assets.
  */
-import { VitePress } from './m.Vitepress/mod.ts';
-export { VitePress };
+import { Vitepress } from './m.Vitepress/mod.ts';
+export { Vitepress };
 
 export { VitepressEntry } from './-entry/mod.ts';
 export { pkg } from './pkg.ts';
 
-export default VitePress;
+export default Vitepress;
