@@ -1,5 +1,4 @@
-import { type t, c, describe, expect, Fs, it, pkg, Testing } from '../-test.ts';
-import { INPUT } from './-u.ts';
+import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
@@ -49,7 +48,7 @@ describe('Vite.build', () => {
 
   it('sample-1: simple', async () => {
     await Testing.retry(3, async () => {
-      const input = INPUT.sample1;
+      const input = SAMPLE.Input.sample1;
       const { res, files } = await testBuild(input);
 
       expect(files.html).to.include(`<title>Sample-1</title>`);
@@ -65,7 +64,7 @@ describe('Vite.build', () => {
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
     await Testing.retry(3, async () => {
-      const input = INPUT.sample2;
+      const input = SAMPLE.Input.sample2;
       const { res, files } = await testBuild(input);
       expect(files.html).to.include(`<title>Sample-2</title>`);
       expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
@@ -81,7 +80,7 @@ describe('Vite.build', () => {
 
   it('sample-3: main.ts entry point', async () => {
     await Testing.retry(3, async () => {
-      const input = INPUT.sample3;
+      const input = SAMPLE.Input.sample3;
       const { files } = await testBuild(input);
       expect(files.entry).to.includes('console.info("main.ts")');
     });

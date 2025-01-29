@@ -11,4 +11,5 @@ export { describe, expect, it, Testing } from '@sys/std/testing';
  * Local
  */
 export * from '../common.ts';
-export { ROOT } from './ROOT.ts';
+export { ROOT } from './u.ROOT.ts';
+export { SAMPLE } from './u.SAMPLE.ts';

@@ -1,5 +1,4 @@
-import { describe, expect, it, Testing, Time } from '../-test.ts';
-import { INPUT } from './-u.ts';
+import { describe, expect, it, SAMPLE, Testing, Time } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.dev', () => {
@@ -20,7 +19,7 @@ describe('Vite.dev', () => {
    */
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(3, async () => {
-      const input = INPUT.sample1;
+      const input = SAMPLE.Input.sample1;
       const port = Testing.randomPort();
       const promise = Vite.dev({ input, port, silent: false });
       const server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
