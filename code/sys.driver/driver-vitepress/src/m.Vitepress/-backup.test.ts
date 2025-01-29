@@ -30,7 +30,7 @@ describe('cmd: backup (shapshot)', () => {
         await Vitepress.build({ inDir, silent });
         await assertExists(backupDir, false); // NB: not yet backed up.
 
-        const res = await Vitepress.backup({ inDir, includeDist });
+        const res = await Vitepress.backup({ dir: inDir, includeDist });
         const snapshot = res.snapshot;
         const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);

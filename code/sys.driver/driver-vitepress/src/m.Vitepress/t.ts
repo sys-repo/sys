@@ -84,7 +84,7 @@ export type VitepressBuildResponse = {
 
 /** Arguments passed to the `VitePress.Env.backup` method. */
 export type VitepressBackupArgs = {
-  inDir: t.StringDir;
+  dir: t.StringDir;
   silent?: boolean;
   includeDist?: boolean;
   force?: boolean;

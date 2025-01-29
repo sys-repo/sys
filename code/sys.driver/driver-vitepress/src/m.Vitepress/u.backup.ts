@@ -13,7 +13,7 @@ node_modules/
  */
 export const backup: t.VitepressLib['backup'] = async (args) => {
   const { force, message, includeDist = false } = args;
-  const source = Path.resolve(args.inDir);
+  const source = Path.resolve(args.dir);
 
   const filter: t.FsPathFilter = (absolute) => {
     const relative = absolute.startsWith(source) ? absolute.slice(source.length + 1) : absolute;
