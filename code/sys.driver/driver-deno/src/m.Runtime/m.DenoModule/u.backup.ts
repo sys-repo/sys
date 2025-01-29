@@ -2,26 +2,23 @@ import { type t, Cli, Dir, Ignore, PATHS, Path } from './common.ts';
 
 export const IGNORE = `
 node_modules/
-dist/
 -backup/
 -backup/**
-.tmp/
 `;
 
 export const backup: t.DenoModuleLib['backup'] = async (args) => {
-  const { force = false, message, fmt = {} } = args;
-
+  const { force = false, message, fmt = {}, includeDist = false } = args;
   const source = Path.resolve(args.source ?? '.');
   const target = args.target ? Path.resolve(args.target) : Path.join(source, PATHS.backup);
   const ignore = Ignore.create(`${IGNORE}\n${args.ignore ?? ''}`);
 
-  const filter: t.FsPathFilter = (p) => {
-    p = p.startsWith(source) ? p.slice(source.length + 1) : p;
+  const filter: t.FsPathFilter = (absolute) => {
+    const relative = absolute.startsWith(source) ? absolute.slice(source.length + 1) : absolute;
 
-    if (p.startsWith(PATHS.backup)) return false;
-    if (p.startsWith(PATHS.dist)) return !!args.includeDist;
-    if (ignore.isIgnored(p)) return false;
-    if (args.filter?.(p) === false) return false;
+    if (relative.startsWith(PATHS.backup)) return false;
+    if (relative.startsWith(PATHS.dist) && includeDist === false) return false;
+    if (ignore.isIgnored(relative)) return false;
+    if (args.filter?.(absolute) === false) return false;
 
     return true;
   };
