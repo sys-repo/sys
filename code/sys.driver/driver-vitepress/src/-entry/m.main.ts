@@ -4,7 +4,6 @@ import {
   Args,
   c,
   DEFAULTS,
-  VitepressEnv,
   ViteEntry,
   VitepressLog,
   PATHS,
