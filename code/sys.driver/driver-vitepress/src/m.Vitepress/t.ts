@@ -30,8 +30,10 @@ export type VitepressLib = {
    */
   build(options?: t.VitepressBuildArgs | t.StringDir): Promise<t.VitepressBuildResponse>;
 
-  /** Create a backup snapshot. */
-  backup(args: t.VitepressBackupArgs): Promise<t.DenoModuleBackupResponse>;
+  /**
+   * Create a backup snapshot of the project.
+   */
+  backup(args: t.VitepressBackupArgs): Promise<t.DenoModuleBackup>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
