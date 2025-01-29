@@ -1,4 +1,4 @@
-import { Env } from './m.Cloud/ns.server/mod.ts';
+import { Env } from './ns.Cloud/ns.server/mod.ts';
 
 const get = (await Env.load()).get;
 
