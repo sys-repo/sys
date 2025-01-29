@@ -54,7 +54,9 @@ export const ViteEntry: t.ViteEntryLib = {
 
     if (cmd === 'backup') {
       const { dir = '.', includeDist, force } = args;
+      console.info();
       await Vite.backup({ dir, includeDist, force });
+      console.info();
       return;
     }
 

@@ -74,7 +74,9 @@ export const VitepressEntry: t.VitepressEntryLib = {
 
     if (args.cmd === 'backup') {
       const { dir = PATHS.inDir, includeDist, force } = args;
+      console.info();
       await Vitepress.backup({ dir, includeDist, force });
+      console.info();
       return;
     }
 
