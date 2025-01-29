@@ -1,13 +1,12 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.72",
+  "version": "0.0.73",
   "license": "MIT",
   "tasks": {
     "lint": "deno     lint",
     "dry": "deno      publish --allow-dirty --dry-run",
     "test": "deno     test -RWNE --allow-run --allow-ffi",
     "reset": "deno    run -RWE ./-scripts/-reset.ts",
-
     "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init    --dir=./.tmp/sample",
     "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev     --in=./.tmp/sample/src/-test/index.html",
     "build": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build   --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",
@@ -16,7 +15,6 @@
     "backup": "deno   run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup  --dir=./.tmp/sample",
     "upgrade": "deno  run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade --dir=./.tmp/sample",
     "help": "deno     run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=help    --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",
-
     "prep": "deno     run -RWE --allow-ffi ./-scripts/-prep.ts",
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },

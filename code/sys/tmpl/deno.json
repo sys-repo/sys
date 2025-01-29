@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",

@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "license": "MIT",
   "tasks": {
     "start": "deno run -RNE --watch ./src/s.main/http-server.ts",
