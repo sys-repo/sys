@@ -16,7 +16,7 @@ export type DenoModuleLib = {
   /**
    * Create a backup snapshot of the module's source-code and working files.
    */
-  backup(args: t.DenoModuleBackupArgs): Promise<t.DenoModuleBackupResponse>;
+  backup(args: t.DenoModuleBackupArgs): Promise<t.DenoModuleBackup>;
 };
 
 /** Arguments for the `DenoModule.upgrade` method. */
@@ -64,5 +64,6 @@ export type DenoModuleBackupArgs = {
   /** Filter function to narrow down the paths included in the snapshot. */
   filter?: t.FsPathFilter;
 };
+
 /** Response from `VitePress.Env.backup` method. */
-export type DenoModuleBackupResponse = { readonly snapshot: t.DirSnapshot };
+export type DenoModuleBackup = { readonly snapshot: t.DirSnapshot };

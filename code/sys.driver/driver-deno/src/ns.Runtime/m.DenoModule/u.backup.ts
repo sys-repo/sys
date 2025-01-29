@@ -29,6 +29,6 @@ export const backup: t.DenoModuleLib['backup'] = async (args) => {
   }
 
   // Response.
-  const res: t.DenoModuleBackupResponse = { snapshot };
+  const res: t.DenoModuleBackup = { snapshot };
   return res;
 };
