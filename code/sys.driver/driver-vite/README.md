@@ -40,30 +40,35 @@ deno run -A jsr:@sys/driver-vite/init
 
 ### Usage (Command Line)
 
-Start the live (HMR) development server.
 ```bash
-deno run jsr:@sys/driver-vite/dev
+deno run -A jsr:@sys/driver-vite/init
 ```
 
-Build the production `dist/` bundle.
+
+The `/init` command initializes a project with a `deno.json` file providing the
+the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
+
 ```bash
-deno run jsr:@sys/driver-vite/build
+jsr:@sys/driver-vite@<version>/main --cmd=dev
+jsr:@sys/driver-vite@<version>/main --cmd=build
+jsr:@sys/driver-vite@<version>/main --cmd=serve
+
+# (etc)...
 ```
 
-Serve the built distribution folder (`dist/`) via static HTTP server.
-```bash
-deno run jsr:@sys/driver-vite/serve
-```
+Call up "Help" to see available commands → `deno task help`:
 
-Sample `deno.json` file
-```json
-{
-  "tasks": {
-    "dev": "deno run   -A jsr:@sys/driver-vite/dev   --in=./src/-entry/index.html",
-    "build": "deno run -A jsr:@sys/driver-vite/build --in=./src/-entry/index.html",
-    "serve": "deno run -A jsr:@sys/driver-vite/serve --dir=./src/-entry/index.html"
-  },
-}
+```bash
+Usage: deno task [COMMAND]
+
+  deno task dev       Run the development server.                        
+  deno task build     Transpile to production bundle.                    
+  deno task serve     Run a local HTTP server with the production bundle.
+                                                                         
+  deno task upgrade   Upgrade to latest version.                         
+  deno task backup    Take a snapshot of the project.                    
+  deno task clean     Delete temporary files.                            
+  deno task help      Show help.
 ```
 
 

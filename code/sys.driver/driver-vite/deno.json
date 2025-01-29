@@ -26,9 +26,6 @@
     "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
     "./log": "./src/m.Log/mod.ts",
-    "./dev": "./src/-entry/-dev.ts",
-    "./build": "./src/-entry/-build.ts",
-    "./serve": "./src/-entry/-serve.ts",
     "./main": "./src/-entry/-main.ts",
     "./init": "./src/-entry/-init.ts"
   }
