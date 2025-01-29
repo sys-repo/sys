@@ -25,7 +25,7 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
-        .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
+        .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
         .replace(/<SELF_IMPORT_NAME>/, pkg.name);
 

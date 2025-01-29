@@ -9,7 +9,7 @@ export type ViteTmplLib = {
   readonly Bundle: ViteBundleLib;
 
   /** Creates an instance of the template file generator. */
-  create(args: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
+  create(args?: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
 
   /** Initialize the local machine environment with latest templates */
   update(args?: t.ViteTmplUpdateArgs): Promise<t.ViteTmplUpdateResponse>;
