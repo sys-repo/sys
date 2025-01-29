@@ -11,7 +11,7 @@ export type DenoModuleLib = {
    *
    *    deno run -A jsr:@sys/driver-vite/init
    */
-  upgrade(args: t.DenoModuleUpgradeArgs): Promise<DenoModuleUpgradeResponse>;
+  upgrade(args: t.DenoModuleUpgradeArgs): Promise<DenoModuleUpgrade>;
 
   /**
    * Create a backup snapshot of the module's source-code and working files.
@@ -21,16 +21,34 @@ export type DenoModuleLib = {
 
 /** Arguments for the `DenoModule.upgrade` method. */
 export type DenoModuleUpgradeArgs = {
+  /** The package name. */
   name: t.StringPkgName;
+
+  /** The current version of the package. */
   currentVersion: t.StringSemver;
+
+  /** The tarvet version to upgrade to (ommit to use latest in registry). */
   targetVersion?: t.StringSemver;
+
+  /** The root directory of the project to upgrade. */
   dir?: t.StringDir;
+
+  /** Flag indicating if the upgrade should be forced, even if already at latest version. */
   force?: boolean;
+
+  /** If `true`, the upgrade is performed as a "dry run," meaning no actual changes are made to the project. */
   dryRun?: boolean;
+
+  /**
+   * A hook that is called if an upgrade is needed immediately before the
+   * operation begins, allowing for things like "backup" or other safety/migration
+   * steps to be performed.
+   */
+  beforeUpgrade?: (e: { message: string }) => Promise<void>;
 };
 
 /** Resposne from `DenoModule.upgrade` method. */
-export type DenoModuleUpgradeResponse = {
+export type DenoModuleUpgrade = {
   readonly version: { from: t.StringSemver; to: t.StringSemver };
   readonly changed: boolean;
 };
