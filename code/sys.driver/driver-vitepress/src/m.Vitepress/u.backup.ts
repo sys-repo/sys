@@ -11,7 +11,7 @@ node_modules/
 /**
  * Create a backup snapshot.
  */
-export const backup: t.VitepressEnvLib['backup'] = async (args) => {
+export const backup: t.VitepressLib['backup'] = async (args) => {
   const { force, message, includeDist = false } = args;
   const source = Path.resolve(args.inDir);
 

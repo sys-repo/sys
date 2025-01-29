@@ -3,19 +3,4 @@ import type { t } from './common.ts';
 /**
  * Tools for maintaining the local "Editor Machine/Device" environment state.
  */
-export type VitepressEnvLib = {
-  /** Create a backup snapshot. */
-  backup(args: t.VitepressBackupArgs): Promise<t.VitepressBackupResponse>;
-};
-
-/** Arguments passed to the `VitePress.Env.backup` method. */
-export type VitepressBackupArgs = {
-  inDir: t.StringDir;
-  silent?: boolean;
-  includeDist?: boolean;
-  force?: boolean;
-  message?: string;
-};
-
-/** Response from `VitePress.Env.backup` method. */
-export type VitepressBackupResponse = t.DenoModuleBackupResponse;
+export type VitepressEnvLib = {};

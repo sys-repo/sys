@@ -15,9 +15,6 @@ type ToStringOptions = { pad?: boolean };
  * extension module.
  */
 export type VitepressLib = {
-  /** Tools for maintaining the "Editor Machine/Device" environment. */
-  readonly Env: t.VitepressEnvLib;
-
   /** Template library for a VitePress project. */
   readonly Tmpl: t.VitepressTmplLib;
 
@@ -32,6 +29,9 @@ export type VitepressLib = {
    * https://vitepress.dev/reference/cli#vitepress-build
    */
   build(options?: t.VitepressBuildArgs | t.StringDir): Promise<t.VitepressBuildResponse>;
+
+  /** Create a backup snapshot. */
+  backup(args: t.VitepressBackupArgs): Promise<t.DenoModuleBackupResponse>;
 };
 
 /** Options passed to the [VitePress.dev] method. */
@@ -80,4 +80,13 @@ export type VitepressBuildResponse = {
   dirs: t.ViteBundleDirs;
   dist: t.DistPkg;
   toString(options?: ToStringOptions): string;
+};
+
+/** Arguments passed to the `VitePress.Env.backup` method. */
+export type VitepressBackupArgs = {
+  inDir: t.StringDir;
+  silent?: boolean;
+  includeDist?: boolean;
+  force?: boolean;
+  message?: string;
 };

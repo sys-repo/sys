@@ -73,7 +73,7 @@ export const main: F = async (input) => {
 
   if (args.cmd === 'backup') {
     const { dir = PATHS.inDir, includeDist, force } = args;
-    await VitepressEnv.backup({ inDir: dir, includeDist, force });
+    await VitePress.backup({ inDir: dir, includeDist, force });
     return;
   }
 
