@@ -51,6 +51,7 @@ export type DenoModuleUpgradeArgs = {
 export type DenoModuleUpgrade = {
   readonly version: { from: t.StringSemver; to: t.StringSemver };
   readonly changed: boolean;
+  readonly dryRun: boolean;
 };
 
 /** Arguments for the `DenoModule.backup` method. */

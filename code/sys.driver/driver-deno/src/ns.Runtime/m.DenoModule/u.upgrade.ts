@@ -1,14 +1,13 @@
-import { type t, c, Cli, Jsr, Process, Semver } from './common.ts';
-import { backup } from './u.backup.ts';
+import { type t, c, Cli, Jsr, Process, Semver, stripAnsi } from './common.ts';
 
 export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
-  const { force = false } = args;
+  const { force = false, dryRun = false } = args;
 
+  let changed = false;
   const done = () => {
     const from = Semver.toString(semver.current);
     const to = Semver.toString(targetVersion);
-    const changed = !Semver.Is.eql(semver.current, targetVersion);
-    const res: t.DenoModuleUpgradeResponse = { version: { from, to }, changed };
+    const res: t.DenoModuleUpgrade = { version: { from, to }, changed, dryRun };
     return res;
   };
 
@@ -26,8 +25,8 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   if (diff === 0 && !force) {
     const v = Semver.toString(semver.current);
     console.info();
+    console.info(c.brightCyan(moduleName));
     console.info(`Local version ${c.green(c.bold(v))} is already up-to-date.`);
-    console.info(c.gray(moduleName));
     console.info();
     return done();
   }
@@ -47,20 +46,27 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
       msg = `${direction} local version ${c.gray(current)} to → ${c.green(c.bold(version))}`;
     }
 
+    if (args.beforeUpgrade) {
+      const message = stripAnsi(msg);
+      await args.beforeUpgrade({ message });
+    }
+
     const path = args.dir;
     const cmd = `deno run -A jsr:${moduleName}@${version}/init`;
     console.info();
     console.info(msg);
 
     const table = Cli.table(['', '']);
-    let skipped = args.dryRun ? c.yellow(c.italic('← skipped (dry-run)')) : '';
-    table.push([c.gray(c.italic('running template:')), `${c.cyan(cmd)} ${skipped}`]);
+    const fmtSkipped = args.dryRun ? c.yellow(c.italic('← skipped (dry-run)')) : '';
+    const fmtCmd = c.cyan(args.dryRun ? c.dim(cmd) : cmd);
+    table.push([c.gray(c.italic('running template:')), `${fmtCmd} ${fmtSkipped}`]);
     table.push([c.gray('target:'), c.gray(path || './')]);
     console.info(table.toString().trim());
     console.info();
 
     // Install and run.
     if (!args.dryRun) {
+      changed = true;
       await Process.sh({ path }).run(cmd);
     }
   }
