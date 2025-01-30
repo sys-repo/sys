@@ -162,13 +162,31 @@ describe('Tmpl', () => {
       });
     });
 
-    describe('fn: afterCopy (callback)', () => {
-      it('invokes: sync/async', async () => {
+    describe('fn: beforeCopy | afterCopy (callbacks)', () => {
+      it('beforeCopy: sync/async', async () => {
         const { source, target } = SAMPLE.init();
-        const fired: t.TmplAfterCopyArgs[] = [];
+        const fired: t.TmplCopyHandlerArgs[] = [];
 
-        const a: t.TmplAfterCopy = (e) => fired.push(e);
-        const b: t.TmplAfterCopy = async (e) => {
+        const a: t.TmplCopyHandler = (e) => fired.push(e);
+        const b: t.TmplCopyHandler = async (e) => {
+          expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
+          fired.push(e);
+        };
+        const tmpl = Tmpl.create(source, { beforeCopy: a });
+
+        await tmpl.copy(target);
+        expect(fired.length).to.eql(1);
+
+        await tmpl.copy(target, { beforeCopy: [b] });
+        expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
+      });
+
+      it('afterCopy: sync/async', async () => {
+        const { source, target } = SAMPLE.init();
+        const fired: t.TmplCopyHandlerArgs[] = [];
+
+        const a: t.TmplCopyHandler = (e) => fired.push(e);
+        const b: t.TmplCopyHandler = async (e) => {
           expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
           fired.push(e);
         };

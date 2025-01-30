@@ -1,13 +1,12 @@
 import { type t, Fs } from './common.ts';
-import { TmplAfterCopy } from './t.ts';
 import { copy } from './u.copy.ts';
 
 /**
  * Create a new directory template.
  */
 export const create: t.TmplFactory = (sourceDir, opt) => {
-  const { processFile, afterCopy } = wrangle.options(opt);
-  return factory({ sourceDir, processFile, afterCopy });
+  const { processFile, beforeCopy, afterCopy } = wrangle.options(opt);
+  return factory({ sourceDir, beforeCopy, processFile, afterCopy });
 };
 
 /**
@@ -15,8 +14,9 @@ export const create: t.TmplFactory = (sourceDir, opt) => {
  */
 function factory(args: {
   sourceDir: t.StringDir;
+  beforeCopy?: t.TmplCopyHandler;
   processFile?: t.TmplProcessFile;
-  afterCopy?: t.TmplAfterCopy;
+  afterCopy?: t.TmplCopyHandler;
   filter?: t.FsFileFilter[];
 }): t.Tmpl {
   const { sourceDir, processFile } = args;
@@ -26,8 +26,9 @@ function factory(args: {
       return source;
     },
     copy(target, options = {}) {
-      const afterCopy = [options.afterCopy, args.afterCopy].filter(Boolean) as t.TmplAfterCopy[];
-      return copy(source, Fs.toDir(target), processFile, { ...options, afterCopy });
+      const beforeCopy = wrangle.copyHandlers(args.beforeCopy, options.beforeCopy);
+      const afterCopy = wrangle.copyHandlers(args.afterCopy, options.afterCopy);
+      return copy(source, Fs.toDir(target), processFile, { ...options, beforeCopy, afterCopy });
     },
     filter(next) {
       const { sourceDir, processFile } = args;
@@ -46,5 +47,10 @@ const wrangle = {
     if (!input) return {};
     if (typeof input === 'function') return { processFile: input };
     return input;
+  },
+
+  copyHandlers(base?: t.TmplCopyHandler, param?: t.TmplCopyHandler | t.TmplCopyHandler[]) {
+    type T = t.TmplCopyHandler;
+    return [param, base].flat(Infinity).filter(Boolean) as T[];
   },
 } as const;

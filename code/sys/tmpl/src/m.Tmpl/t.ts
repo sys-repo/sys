@@ -22,7 +22,8 @@ export type TmplFactory = (
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
   processFile?: t.TmplProcessFile;
-  afterCopy?: t.TmplAfterCopy;
+  beforeCopy?: t.TmplCopyHandler;
+  afterCopy?: t.TmplCopyHandler;
 };
 
 /**
@@ -82,9 +83,9 @@ export type TmplProcessFileArgs = {
  * Use this to do either clean up, or additional setup actions not handled
  * directly by the template-copy engine.
  */
-export type TmplAfterCopy = (e: TmplAfterCopyArgs) => t.IgnoredResponse;
+export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResponse;
 /** Arguments passed to the `afterCopy` callback. */
-export type TmplAfterCopyArgs = {
+export type TmplCopyHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
 };
 
@@ -96,8 +97,11 @@ export type TmplCopyOptions = {
   /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
   write?: boolean;
 
+  /** Handler(s) to run before the copy operation starts. */
+  beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+
   /** Handler(s) to run after the copy operation completes. */
-  afterCopy?: t.TmplAfterCopy | t.TmplAfterCopy[];
+  afterCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
 };
 
 /**

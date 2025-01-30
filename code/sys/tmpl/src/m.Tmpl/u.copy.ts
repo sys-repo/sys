@@ -26,6 +26,19 @@ export async function copy(
     },
   };
 
+  const copyArgs: t.TmplCopyHandlerArgs = {
+    get dir() {
+      return { source, target };
+    },
+  };
+
+  /**
+   * Run BEFORE handlers.
+   */
+  for (const fn of wrangle.copyHandlers(options.beforeCopy)) {
+    await fn(copyArgs);
+  }
+
   /**
    * Perform copy on files.
    */
@@ -105,14 +118,8 @@ export async function copy(
   /**
    * Run AFTER handlers.
    */
-  // const afterCopy = wrangle.afterCopy(options);
-  const after: t.TmplAfterCopyArgs = {
-    get dir() {
-      return { source, target };
-    },
-  };
-  for (const fn of wrangle.afterCopy(options)) {
-    await fn(after);
+  for (const fn of wrangle.copyHandlers(options.afterCopy)) {
+    await fn(copyArgs);
   }
 
   // Finish up.
@@ -150,9 +157,9 @@ const wrangle = {
     return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
   },
 
-  afterCopy(options: t.TmplCopyOptions): t.TmplAfterCopy[] {
-    if (!options.afterCopy) return [];
-    const res = Array.isArray(options.afterCopy) ? options.afterCopy : [options.afterCopy];
+  copyHandlers(input?: t.TmplCopyHandler | t.TmplCopyHandler[]): t.TmplCopyHandler[] {
+    if (!input) return [];
+    const res = Array.isArray(input) ? input : [input];
     return res.flat(Infinity).filter(Boolean);
   },
 } as const;
