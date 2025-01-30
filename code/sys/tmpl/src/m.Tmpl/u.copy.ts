@@ -15,6 +15,9 @@ export async function copy(
   const forced = options.force ?? false;
   const res: t.TmplCopyResponse = { source, target, ops: [] };
 
+  /**
+   * Perform copy on files.
+   */
   for (const from of await source.ls()) {
     if (await Fs.Is.dir(from)) continue;
 
@@ -77,6 +80,20 @@ export async function copy(
     }
   }
 
+  /**
+   * Run AFTER handlers.
+   */
+  // const afterCopy = wrangle.afterCopy(options);
+  const after: t.TmplAfterCopyArgs = {
+    get dir() {
+      return { source, target };
+    },
+  };
+  for (const fn of wrangle.afterCopy(options)) {
+    await fn(after);
+  }
+
+  // Finish up.
   return res;
 }
 
@@ -109,5 +126,11 @@ const wrangle = {
 
   rename(input: t.FsFile, newFilename: string): t.FsFile {
     return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
+  },
+
+  afterCopy(options: t.TmplCopyOptions): t.TmplAfterCopy[] {
+    if (!options.afterCopy) return [];
+    const res = Array.isArray(options.afterCopy) ? options.afterCopy : [options.afterCopy];
+    return res.flat(Infinity).filter(Boolean);
   },
 } as const;
