@@ -27,7 +27,7 @@ export const Fmt: t.DirSnapshotFmtLib = {
     const formatPath = (path: t.StringPath) => {
       const REF = '.ref';
       path = Path.trimCwd(path);
-      if (path.endsWith(REF)) path = `${path.slice(0, -REF.length)}${c.brightMagenta(REF)}`;
+      if (path.endsWith(REF)) path = `${path.slice(0, -REF.length)}${c.brightMagenta(c.dim(REF))}`;
       return `./${path}`;
     };
 
