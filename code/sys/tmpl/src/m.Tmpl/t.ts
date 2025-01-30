@@ -14,7 +14,15 @@ export type TmplLib = {
 /**
  * Generator function for a directory Template.
  */
-export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmpl;
+export type TmplFactory = (
+  source: t.StringDir,
+  options?: t.TmplFactoryOptions | t.TmplProcessFile,
+) => t.Tmpl;
+
+/** Options passed to the template engine factory. */
+export type TmplFactoryOptions = {
+  processFile?: t.TmplProcessFile;
+};
 
 /**
  * A template engine.
