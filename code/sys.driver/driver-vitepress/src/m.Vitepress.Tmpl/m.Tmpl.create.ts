@@ -48,15 +48,24 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
       return e.modify(text);
     }
 
-    /**
-     * Content Source ("src").
-     * Markdown and Image files
-     * Docs:
-     *       https://vitepress.dev/reference/site-config#srcdir
-     */
     if (e.target.relative === '.vitepress/config.ts') {
+      /**
+       * Content Source ("src").
+       * Markdown and Image files
+       * Docs:
+       *       https://vitepress.dev/reference/site-config#srcdir
+       */
       const text = e.text.tmpl.replace(/<SRC_DIR>/, srcDir);
       return e.modify(text);
+    }
+
+    if (e.target.file.name === '.gitignore_') {
+      /**
+       * Rename to ".gitignore"
+       * NB: This ensure the template files themselves are not ignored within the mono-repo
+       *     but initiating "consumer" module does have a proper `.gitignore` file.
+       */
+      e.rename('.gitignore');
     }
   });
 };
