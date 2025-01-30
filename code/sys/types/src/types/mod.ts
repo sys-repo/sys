@@ -11,6 +11,7 @@ export type * from './t.Http.ts';
 export type * from './t.Immutable.ts';
 export type * from './t.Io.ts';
 export type * from './t.Json.ts';
+export type * from './t.Jsx.ts';
 export type * from './t.Module.ts';
 export type * from './t.Number.ts';
 export type * from './t.Object.ts';
