@@ -1,6 +1,7 @@
 /**
  * @external
  */
+export type { ReactChildren } from 'react';
 export type { IconType } from 'react-icons';
 
 /**

@@ -1,10 +1,10 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
 type Id = string;
 type SpecId = Id;
 type Color = string | number;
 type NumberOrNil = number | null | undefined;
-type O = Record<string, unknown>;
 
 /**
  * Context wrapper that manages a {ctx} object passed
@@ -101,7 +101,7 @@ export type DevCtxHost<S extends O = O> = {
  * Debug Panel
  */
 export type DevCtxDebug<S extends O = O> = {
-  row<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): t.DevRenderRef;
+  row<T extends O = S>(input: t.DevRenderer<T> | t.JSXElement): t.DevRenderRef;
   scroll(value: boolean): DevCtxDebug;
   padding(value: t.CssMarginInput | undefined | null): DevCtxDebug;
   width(value: number | null): DevCtxDebug;
@@ -113,7 +113,7 @@ export type DevCtxDebug<S extends O = O> = {
  * Within a panel, properties representing the renderer for an edge.
  */
 export type DevCtxEdge<S extends O = O> = {
-  render<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): DevCtxEdge<S>;
+  render<T extends O = S>(input: t.DevRenderer<T> | t.JSXElement): DevCtxEdge<S>;
   border(color: Color | null): DevCtxEdge;
   padding(value: t.CssMarginInput | undefined | null): DevCtxEdge;
 };
@@ -123,5 +123,5 @@ export type DevCtxEdge<S extends O = O> = {
  */
 export type DevCtxLayer<S extends O = O> = {
   readonly index: number;
-  render<T extends O = S>(input: t.DevRenderer<T> | JSX.Element): DevCtxLayer<S>;
+  render<T extends O = S>(input: t.DevRenderer<T> | t.JSXElement): DevCtxLayer<S>;
 };

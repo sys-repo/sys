@@ -20,13 +20,9 @@
  *    "compilerOptions": {
  *      "jsx": "react-jsx",
  *      "jsxImportSource": "@emotion/react",
- *      "jsxImportSourceTypes": "@emotion/react"
  *    }
  * }
  * ```
- *
- * Note: the `jsxImportSourceTypes` sets up editor support to recognize
- * the `css={...}` prioperty on react components.
  *
  * @example
  * Declaring CSS styles within objects and applying then to

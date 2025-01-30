@@ -22,7 +22,7 @@ export type Render = (
   pkg: { name: string; version: string },
   specs: t.SpecImports,
   options?: RenderOptions,
-) => Promise<JSX.Element>;
+) => Promise<t.JSXElement>;
 
 /**
  * Render a harness with the selected `dev=<namespace>`

@@ -1,7 +1,7 @@
-import { Spec, type t, css } from '../common.ts';
+import { type t, css, Spec } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 
-type TOutput = JSX.Element | null | undefined;
+type TOutput = t.JSXElement | null | undefined;
 
 export default Spec.describe('Size/Empty', (e) => {
   let el: TOutput = null;

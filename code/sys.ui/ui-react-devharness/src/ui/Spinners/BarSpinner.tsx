@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, type Component } from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
 type BarLoaderProps = { color?: string; width?: number };
-type BarLoaderComponent = (prop: BarLoaderProps) => JSX.Element | null;
+type BarLoaderComponent = Component<BarLoaderProps>;
 let BarLoader: BarLoaderComponent | undefined;
 
 export type BarSpinnerProps = {

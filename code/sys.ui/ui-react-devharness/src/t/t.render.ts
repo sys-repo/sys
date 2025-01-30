@@ -4,7 +4,7 @@ type Id = string;
 type RendererId = Id;
 type O = Record<string, unknown>;
 
-export type RenderedResult = JSX.Element | undefined | null;
+export type RenderedResult = t.JSXElement | undefined | null;
 
 /**
  * Function that returns a renderable element.
