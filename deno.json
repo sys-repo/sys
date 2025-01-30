@@ -18,8 +18,7 @@
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "types": ["vite/client"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "jsxImportSourceTypes": "@emotion/react"
+    "jsxImportSource": "@emotion/react"
   },
   "workspace": [
     "./code/sys/types",

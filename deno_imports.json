@@ -1,10 +1,10 @@
 {
   "imports": {
     "@std/async": "jsr:@std/async@1.0.10",
-    "@std/datetime": "jsr:@std/datetime@0.225.2",
+    "@std/datetime": "jsr:@std/datetime@0.225.3",
     "@std/dotenv": "jsr:@std/dotenv@0.225.3",
     "@std/encoding": "jsr:@std/encoding@1.0.6",
-    "@std/fs": "jsr:@std/fs@1.0.8",
+    "@std/fs": "jsr:@std/fs@1.0.10",
     "@std/path": "jsr:@std/path@1.0.8",
     "@std/semver": "jsr:@std/semver@1.0.3",
     "@std/testing": "jsr:@std/testing@1.0.9",
@@ -20,17 +20,17 @@
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@1",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@1",
 
-    "@privy-io/server-auth": "npm:@privy-io/server-auth@1.16.9",
+    "@privy-io/server-auth": "npm:@privy-io/server-auth@1.18.4",
     "@onsetsoftware/automerge-patcher": "npm:@onsetsoftware/automerge-patcher@0.14.0",
 
     "@noble/hashes": "npm:@noble/hashes@1.7.1",
     "@noble/hashes/*": "npm:@noble/hashes@1.7.1/*",
 
-    "react-error-boundary": "npm:react-error-boundary@4",
+    "react-error-boundary": "npm:react-error-boundary@5",
     "react-inspector": "npm:react-inspector@6",
     "react-spinners": "npm:react-spinners@0.15.0",
 
-    "@types/diff": "npm:@types/diff@6.0.0",
+    "@types/diff": "npm:@types/diff@7.0.0",
 
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
@@ -40,20 +40,19 @@
     "diff": "npm:diff@7",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "fake-indexeddb": "npm:fake-indexeddb@6.0.0",
-    "happy-dom": "npm:happy-dom@16.5.3",
+    "happy-dom": "npm:happy-dom@16.7.3",
     "ignore": "npm:ignore@7",
     "immer": "npm:immer@10",
     "ora": "npm:ora@8.1.1",
-    "openai": "npm:openai@4.76.0",
     "ollama": "npm:ollama@0.5.12",
     "pretty-bytes": "npm:pretty-bytes@6.1.1",
     "ramda": "npm:ramda@0.30.1",
-    "rambda": "npm:rambda@9.4.1",
+    "rambda": "npm:rambda@9.4.2",
     "rxjs": "npm:rxjs@7",
     "strip-ansi": "npm:strip-ansi@7",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
     "ua-parser-js": "npm:ua-parser-js@2.0.0",
-    "yaml": "npm:yaml@2.6.1"
+    "yaml": "npm:yaml@2.7.0"
   }
 }
