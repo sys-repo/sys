@@ -1,7 +1,6 @@
-import { pkg as pkgSysStd } from '@sys/std';
-import { Main } from '@sys/main/cmd';
-import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
+import { type t, Fs, PATHS, Tmpl } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
+import { createFileProcessor } from './u.processFile.ts';
 
 /**
  * Create a new instance of the bundled file template.
@@ -9,43 +8,22 @@ import { Bundle } from './m.Bundle.ts';
 export const create: t.ViteTmplLib['create'] = async (args = {}) => {
   const templatesDir = Fs.resolve(PATHS.tmpl.tmp);
 
-  await Fs.remove(templatesDir);
-  await Bundle.toFilesystem(templatesDir);
+  const beforeCopy: t.TmplCopyHandler = async () => {
+    /**
+     * Ensure the templates are hydrated and ready to use.
+     */
+    await Fs.remove(templatesDir);
+    await Bundle.toFilesystem(templatesDir);
+  };
 
-  return Tmpl.create(templatesDir, (e) => {
-    if (e.target.exists && is.userspace(e.target.relative)) {
-      /**
-       *  🫵  DO NOT adjust user generated
-       *     content after the initial creation.
-       */
-      return e.exclude('user-space');
-    }
+  const afterCopy: t.TmplCopyHandler = async (e) => {
+    /**
+     * (🐷) Perform additional setup here (as needed).
+     */
+  };
 
-    if (e.target.relative === 'deno.json') {
-      /**
-       * Update versions in `deno.json`:
-       */
-      const version = args.version ?? pkg.version;
-      const importUri = `jsr:${pkg.name}@${version}`;
-      const text = e.text.tmpl
-        .replace(/<ENTRY>/g, `${importUri}/main`)
-        .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
-        .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
-        .replace(/<SYS_STD_VER>/, pkgSysStd.version);
-
-      return e.modify(text);
-    }
-
-    if (e.target.file.name === '.gitignore_') {
-      /**
-       * Rename to ".gitignore"
-       * NB: This ensure the template files themselves are not ignored within the mono-repo
-       *     but initiating "consumer" module does have a proper `.gitignore` file.
-       */
-      e.rename('.gitignore');
-    }
-  });
+  const processFile = createFileProcessor(args);
+  return Tmpl.create(templatesDir, { processFile, beforeCopy, afterCopy });
 };
 
 /**
