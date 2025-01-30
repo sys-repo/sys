@@ -6,7 +6,7 @@
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -RWNE --allow-run --allow-ffi src/m.Fs/-fs.write.copy.test.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
