@@ -37,6 +37,6 @@ jobs:
 
       - name: publish module → "@sys/driver-vite"
         run: |
-          cd code/driver/driver-vite
+          cd code/sys.driver/driver-vite
           deno task test --parallel
           deno publish --allow-dirty
