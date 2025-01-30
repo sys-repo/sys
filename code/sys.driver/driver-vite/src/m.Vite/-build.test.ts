@@ -2,7 +2,7 @@ import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-t
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
-  const logDist = (input: t.StringPath, dist: t.DistPkg) => {
+  const printDist = (input: t.StringPath, dist: t.DistPkg) => {
     const distfile = c.bold(c.white('./dist/dist.json'));
     console.info();
     console.info(c.green(`input: ${input}`));
@@ -10,6 +10,14 @@ describe('Vite.build', () => {
     console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
     console.info();
     console.info(dist);
+    console.info();
+  };
+
+  const printHtml = (html: string, title: string) => {
+    const fmtTitle = title ? `(${title})` : '';
+    console.info();
+    console.info(c.brightCyan(`${c.bold('files.html')} ${fmtTitle}:\n`));
+    console.info(c.italic(c.yellow(html)));
     console.info();
   };
 
@@ -59,7 +67,8 @@ describe('Vite.build', () => {
       expect(res.dist.size.bytes).to.be.greaterThan(160_000);
       expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
 
-      logDist(input, res.dist);
+      printDist(input, res.dist);
+      printHtml(files.html, 'sample-1');
     });
   });
 
@@ -70,12 +79,9 @@ describe('Vite.build', () => {
       expect(files.html).to.include(`<title>Sample-2</title>`);
       expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
       expect(files.html).to.include(`<link rel="modulepreload" crossorigin href="./pkg/`);
-      logDist(input, res.dist);
+      printDist(input, res.dist);
 
-      console.info();
-      console.info(c.brightCyan(`${c.bold('files.html')} (sample-2):\n`));
-      console.info(c.italic(c.yellow(files.html)));
-      console.info();
+      printHtml(files.html, 'sample-2');
     });
   });
 
