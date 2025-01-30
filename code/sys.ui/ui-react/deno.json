@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.56",
+  "version": "0.0.57",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
