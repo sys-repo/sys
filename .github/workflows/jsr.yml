@@ -35,14 +35,14 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-vitepress"
-        run: |
-          cd code/sys.driver/driver-vitepress
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-vitepress"
+        run: |
+          cd code/sys.driver/driver-vitepress
           deno task test --parallel
           deno publish --allow-dirty
