@@ -51,6 +51,7 @@ describe('cmd: backup (shapshot)', () => {
         await assertTargetExists('deno.json', true);
         await assertTargetExists('package.json', true);
         await assertTargetExists('vite.config.ts', true);
+        await assertTargetExists('.gitignore', true);
       };
 
       await test({}); // default: excludes the /dist folder.

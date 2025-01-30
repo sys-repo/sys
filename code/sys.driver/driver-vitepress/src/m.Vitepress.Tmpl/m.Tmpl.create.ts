@@ -26,6 +26,9 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
     }
 
     if (e.target.relative === 'deno.json') {
+      /**
+       * Update versions in `deno.json`:
+       */
       const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl

@@ -22,6 +22,9 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
     }
 
     if (e.target.relative === 'deno.json') {
+      /**
+       * Update versions in `deno.json`:
+       */
       const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl
@@ -32,6 +35,15 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
         .replace(/<SYS_STD_VER>/, pkgSysStd.version);
 
       return e.modify(text);
+    }
+
+    if (e.target.file.name === '.gitignore_') {
+      /**
+       * Rename to ".gitignore"
+       * NB: This ensure the template files themselves are not ignored within the mono-repo
+       *     but initiating "consumer" module does have a proper `.gitignore` file.
+       */
+      e.rename('.gitignore');
     }
   });
 };
