@@ -5,12 +5,13 @@ export type * as t from './t.ts';
 
 export const PATHS = {
   inDir: './',
-  tmp: '.tmp/-tmpl',
-  dist: 'dist',
+  srcDir: './docs',
+  dist: './dist',
   backup: '-backup',
-  vitepressCache: '.vitepress/cache',
+  vitepressCache: './.vitepress/cache',
   tmpl: {
-    source: 'src/-tmpl',
-    json: 'src/m.Vitepress.Tmpl/-bundle.json',
+    tmp: './.tmp/-tmpl',
+    source: './src/-tmpl',
+    json: './src/m.Vitepress.Tmpl/-bundle.json',
   },
 } as const;
