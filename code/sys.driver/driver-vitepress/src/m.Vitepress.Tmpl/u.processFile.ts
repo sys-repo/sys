@@ -56,7 +56,7 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
       return e.modify(text);
     }
 
-    if (e.target.file.name === '.gitignore_') {
+    if (e.target.file.name === '.gitignore-') {
       /**
        * Rename to ".gitignore"
        * NB: This ensure the template files themselves are not ignored within the mono-repo
