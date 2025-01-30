@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
+import { type t, describe, expect, expectError, it, sampleDir, slug, R } from '../-test.ts';
 import { Path } from './common.ts';
 import { Fs } from './mod.ts';
 
@@ -310,7 +310,7 @@ describe('Fs: directory operations', () => {
         await Fs.ensureDir(Fs.dirname(deepA));
         await Deno.writeTextFile(deepA, text);
 
-        const fired: t.FsCopyFilterArgs[] = [];
+        let fired: t.FsCopyFilterArgs[] = [];
         const res = await Fs.copyDir(dir.a, dir.b, {
           filter(e) {
             fired.push(e);
@@ -320,14 +320,17 @@ describe('Fs: directory operations', () => {
         expect(res.error).to.eql(undefined);
         await assertFileText(deepB, text);
 
-        fired.sort();
+        // fired = fired.sort();
+
+        const sorted = R.sortBy(R.prop<t.FsCopyFilterArgs, 'source'>('source'), fired);
 
         console.log('fired', fired);
+        console.log('sorted', sorted);
 
-        expect(fired[1].source.endsWith('/a/foo/')).to.eql(true);
-        expect(fired[1].target.endsWith('/b/foo/')).to.eql(true);
-        expect(fired[2].source.endsWith('/a/foo/bar/')).to.eql(true);
-        expect(fired[2].target.endsWith('/b/foo/bar/')).to.eql(true);
+        expect(sorted[1].source.endsWith('/a/foo/')).to.eql(true);
+        expect(sorted[1].target.endsWith('/b/foo/')).to.eql(true);
+        expect(sorted[2].source.endsWith('/a/foo/bar/')).to.eql(true);
+        expect(sorted[2].target.endsWith('/b/foo/bar/')).to.eql(true);
       });
 
       describe('filter paths: (e) => boolean', () => {
