@@ -9,5 +9,5 @@ export type JsrServerLib = t.JsrClientLib & {
   readonly Manifest: t.JsrManifestLib;
 
   /** Create the manifest by fetching the definition from origin. */
-  readonly manifest: t.JsrManifestLib['create'];
+  readonly manifest: t.JsrManifestLib['fetch'];
 };

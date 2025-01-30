@@ -1,4 +1,4 @@
-import { type t, Fs, PATHS, Tmpl, Jsr, Manifest, c } from './common.ts';
+import { type t, Fs, Jsr, PATHS, Tmpl } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
 import { createFileProcessor } from './u.processFile.ts';
 
@@ -18,7 +18,7 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
 
   const afterCopy: t.TmplCopyHandler = async (e) => {
 
-    const { manifest } = await Manifest.fetch('@sys/tmp', '0.0.56');
+    const { manifest } = await Jsr.manifest('@sys/tmp', '0.0.56');
     if (manifest) {
       const path = e.dir.target.join(PATHS.sys.jsr);
       await manifest.pull(path);

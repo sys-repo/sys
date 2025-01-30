@@ -10,5 +10,5 @@ import type { t } from './common.ts';
 export const Jsr: t.JsrServerLib = {
   ...Base,
   Manifest,
-  manifest: Manifest.create,
+  manifest: Manifest.fetch,
 };
