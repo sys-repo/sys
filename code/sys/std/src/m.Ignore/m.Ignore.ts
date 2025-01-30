@@ -10,7 +10,7 @@ export const Ignore: t.IgnoreLib = {
    */
   create(input) {
     const rules = wrangle.rules(input);
-    const ignore = Lib.default();
+    const ignore = Lib();
     rules.forEach((rule) => ignore.add(rule.pattern));
     return {
       rules,
