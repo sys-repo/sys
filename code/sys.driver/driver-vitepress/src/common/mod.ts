@@ -14,4 +14,7 @@ export const PATHS = {
     source: './src/-tmpl',
     json: './src/m.Vitepress.Tmpl/-bundle.json',
   },
+  sys: {
+    jsr: './.sys/jsr',
+  },
 } as const;

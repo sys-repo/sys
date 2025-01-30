@@ -1,4 +1,4 @@
-import { type t, Fs, PATHS, Tmpl } from './common.ts';
+import { type t, Fs, PATHS, Tmpl, Jsr, Manifest, c } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
 import { createFileProcessor } from './u.processFile.ts';
 
@@ -6,18 +6,25 @@ import { createFileProcessor } from './u.processFile.ts';
  * Create a new instance of the bundled file template.
  */
 export const create: t.VitepressTmplLib['create'] = async (args) => {
-  const processFile = createFileProcessor(args);
-
   const templatesDir = Fs.resolve(PATHS.tmpl.tmp);
-  await Fs.remove(templatesDir);
-  await Bundle.toFilesystem(templatesDir);
 
+  const beforeCopy: t.TmplCopyHandler = async () => {
+    /**
+     * Ensure the templates are hydrated and ready to use.
+     */
+    await Fs.remove(templatesDir);
+    await Bundle.toFilesystem(templatesDir);
+  };
 
-  /**
-   * TODO 🐷
-   * - afterCreate (hook)
-   * - save modules: ./sys/jsr/  (← save deps modules - to recreate local "workspace" in target module).
-   */
+  const afterCopy: t.TmplCopyHandler = async (e) => {
 
-  return Tmpl.create(templatesDir, { processFile, afterCopy });
+    const { manifest } = await Manifest.fetch('@sys/tmp', '0.0.56');
+    if (manifest) {
+      const path = e.dir.target.join(PATHS.sys.jsr);
+      await manifest.pull(path);
+    }
+  };
+
+  const processFile = createFileProcessor(args);
+  return Tmpl.create(templatesDir, { processFile, beforeCopy, afterCopy });
 };
