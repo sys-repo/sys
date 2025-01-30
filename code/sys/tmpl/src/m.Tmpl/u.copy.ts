@@ -13,7 +13,18 @@ export async function copy(
   options: t.TmplCopyOptions = {},
 ) {
   const forced = options.force ?? false;
-  const res: t.TmplCopyResponse = { source, target, ops: [] };
+  const ops: t.TmplFileOperation[] = [];
+  const res: t.TmplCopyResponse = {
+    get source() {
+      return source;
+    },
+    get target() {
+      return target;
+    },
+    get ops() {
+      return ops;
+    },
+  };
 
   /**
    * Perform copy on files.
@@ -24,20 +35,31 @@ export async function copy(
     const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
     const sourceText = await Deno.readTextFile(from);
     const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
-    const op: t.TmplFileOperation = {
-      file: {
-        tmpl: Fs.toFile(from, source.absolute),
-        target: Fs.toFile(to, target.absolute),
+
+    type T = t.TmplFileOperation;
+    let _file: T['file'];
+    let _text: T['text'];
+
+    const op: T = {
+      get file() {
+        if (_file) return _file;
+        return (_file = {
+          tmpl: Fs.toFile(from, source.absolute),
+          target: Fs.toFile(to, target.absolute),
+        });
       },
-      text: {
-        tmpl: sourceText,
-        target: {
-          before: targetText,
-          after: targetText || sourceText,
-          get isDiff() {
-            return op.text.target.before !== op.text.target.after;
+      get text() {
+        if (_text) return _text;
+        return (_text = {
+          tmpl: sourceText,
+          target: {
+            before: targetText,
+            after: targetText || sourceText,
+            get isDiff() {
+              return op.text.target.before !== op.text.target.after;
+            },
           },
-        },
+        });
       },
       excluded: false,
       written: false,
@@ -45,7 +67,7 @@ export async function copy(
       updated: false,
       forced,
     };
-    res.ops.push(op);
+    ops.push(op);
 
     if (typeof fn === 'function') {
       const { args, changes } = await wrangle.args(op);

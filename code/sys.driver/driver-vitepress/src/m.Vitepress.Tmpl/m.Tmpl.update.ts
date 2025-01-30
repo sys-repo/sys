@@ -11,7 +11,8 @@ export const update: t.VitepressTmplLib['update'] = async (args = {}) => {
    * Update template files.
    */
   const tmpl = await create({ inDir, srcDir, version });
-  const { ops } = await tmpl.copy(inDir, { force });
+  const copied = await tmpl.copy(inDir, { force });
+  const { ops } = copied;
 
   /**
    *  🫵  Clean up helpers here (flesh out as needed: 🐷).
