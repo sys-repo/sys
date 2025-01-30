@@ -1,3 +1,4 @@
+import { pkg as pkgSysStd } from '@sys/std';
 import { Main } from '@sys/main/cmd';
 import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
@@ -27,7 +28,8 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
+        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
+        .replace(/<SYS_STD_VER>/, pkgSysStd.version);
 
       return e.modify(text);
     }

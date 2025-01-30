@@ -11,7 +11,9 @@
     "help": "deno     run -RE   --allow-ffi             <ENTRY> --cmd=help",
     "sys": "deno      run -RWNE <ENTRY_SYS>"
   },
+  "workspace": [],
   "imports": {
-    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
+    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>",
+    "@sys/std": "jsr:@sys/std@<SYS_STD_VER>"
   }
 }

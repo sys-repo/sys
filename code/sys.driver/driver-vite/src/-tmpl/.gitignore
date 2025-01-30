@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.tmp/
+
+.sys
+.vscode
+
+-backup/
+-backup/**
