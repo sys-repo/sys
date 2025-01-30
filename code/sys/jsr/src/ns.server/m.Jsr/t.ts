@@ -7,4 +7,7 @@ import type { t } from './common.ts';
 export type JsrServerLib = t.JsrClientLib & {
   /** Tools for working with a module's source-code. */
   readonly Manifest: t.JsrManifestLib;
+
+  /** Create the manifest by fetching the definition from origin. */
+  readonly manifest: t.JsrManifestLib['create'];
 };
