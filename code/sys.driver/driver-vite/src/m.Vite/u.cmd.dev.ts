@@ -6,9 +6,9 @@ type D = t.ViteLib['dev'];
 
 /**
  * Matches (example):
- *   VITE v6.0.3  ready in 955 ms
+ *   VITE v6.0.11  ready in 839 ms
  */
-const viteStartupRegex = /VITE v\d\.\d\.\d\s+ready in \d+ ms/g;
+const REGEX_START = /VITE v(?:\d+\.\d+\.\d+)\s+ready in\s+(\d+)\s+ms/;
 
 /**
  * Run the <vite:build> command.
@@ -29,7 +29,7 @@ export const dev: D = async (input) => {
 
   const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
-    return lines.some((line) => !!viteStartupRegex.exec(line));
+    return lines.some((line) => !!REGEX_START.exec(line));
   };
 
   const proc = Process.spawn({ args, env, silent, readySignal, dispose$: input.dispose$ });

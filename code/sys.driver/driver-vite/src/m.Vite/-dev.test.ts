@@ -1,4 +1,4 @@
-import { describe, expect, it, SAMPLE, Testing, Time } from '../-test.ts';
+import { c, describe, expect, it, SAMPLE, Testing, Time } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.dev', () => {
@@ -38,6 +38,7 @@ describe('Vite.dev', () => {
         server?.dispose();
       });
 
+      console.info(c.yellow(`Invoking test fetch to: ${c.white(server.url)}\n`));
       const res = await fetch(server.url, { signal });
       const html = await res.text();
       expect(res.status).to.eql(200);
