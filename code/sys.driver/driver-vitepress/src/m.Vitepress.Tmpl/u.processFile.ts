@@ -66,6 +66,7 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     }
   };
 }
+
 /**
  * Helpers
  */
@@ -75,7 +76,7 @@ const is = {
     return dirs.some((dir) => dir.startsWith('.'));
   },
   userspace(path: string): boolean {
-    if (is.withinHiddenDir(path)) return false;
+    if (is.withinHiddenDir(path)) return false; // NB: contract: "anything hidden is not editable by user."
     const NOT_USERSPACE = ['deno.json', 'package.json', '.npmrc', '.gitignore'];
     const isExcluded = NOT_USERSPACE.some((m) => path.split('/').slice(-1)[0] === m);
     return !isExcluded;

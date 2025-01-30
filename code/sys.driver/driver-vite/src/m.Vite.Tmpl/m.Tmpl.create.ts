@@ -25,19 +25,3 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
   const processFile = createFileProcessor(args);
   return Tmpl.create(templatesDir, { processFile, beforeCopy, afterCopy });
 };
-
-/**
- * Helpers
- */
-const is = {
-  withinHiddenDir(path: string): boolean {
-    const dirs = path.split('/').slice(0, -1);
-    return dirs.some((dir) => dir.startsWith('.'));
-  },
-  userspace(path: string): boolean {
-    /**
-     * NOTE: no "user-space" concept as of yet.
-     */
-    return false;
-  },
-} as const;

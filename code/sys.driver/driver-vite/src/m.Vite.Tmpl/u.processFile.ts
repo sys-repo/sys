@@ -53,6 +53,8 @@ const is = {
   userspace(path: string): boolean {
     /**
      * NOTE: no "user-space" concept as of yet.
+     * Example:
+     *      contract: "anything hidden is not editable by user."
      */
     return false;
   },
