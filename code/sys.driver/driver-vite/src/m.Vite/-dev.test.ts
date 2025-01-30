@@ -38,7 +38,8 @@ describe('Vite.dev', () => {
         server?.dispose();
       });
 
-      console.info(c.yellow(`Invoking test fetch to: ${c.white(server.url)}\n`));
+      console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}\n`));
+
       const res = await fetch(server.url, { signal });
       const html = await res.text();
       expect(res.status).to.eql(200);
