@@ -30,7 +30,7 @@
     "react-inspector": "npm:react-inspector@6",
     "react-spinners": "npm:react-spinners@0.15.0",
 
-    "@types/diff": "npm:@types/diff@7.0.0",
+    "@types/diff": "npm:@types/diff@7.0.1",
 
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",

@@ -46,6 +46,7 @@
     "npm:@privy-io/server-auth@1.18.4": "1.18.4",
     "npm:@swc/plugin-emotion@8.6.0": "8.6.0",
     "npm:@types/diff@7.0.0": "7.0.0",
+    "npm:@types/diff@7.0.1": "7.0.1",
     "npm:@types/node@*": "22.5.4",
     "npm:@types/react-dom@19.0.3": "19.0.3_@types+react@19.0.8",
     "npm:@types/react@19.0.8": "19.0.8",
@@ -1087,6 +1088,9 @@
     },
     "@types/diff@7.0.0": {
       "integrity": "sha512-sVpkpbnTJL9CYoDf4U+tHaQLe5HiTaHWY7m9FuYA7oMCHwC9ie0Vh9eIGapyzYrU3+pILlSY2fAc4elfw5m4dg=="
+    },
+    "@types/diff@7.0.1": {
+      "integrity": "sha512-R/BHQFripuhW6XPXy05hIvXJQdQ4540KnTvEFHSLjXfHYM41liOLKgIJEyYYiQe796xpaMHfe4Uj/p7Uvng2vA=="
     },
     "@types/estree@1.0.6": {
       "integrity": "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="
@@ -2873,7 +2877,7 @@
       "npm:@noble/hashes@1.7.1",
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
       "npm:@privy-io/server-auth@1.18.4",
-      "npm:@types/diff@7.0.0",
+      "npm:@types/diff@7.0.1",
       "npm:approx-string-match@2",
       "npm:chai@5",
       "npm:csstype@3",
