@@ -43,3 +43,10 @@ This results in several benefits:
 
 ```
 ↑ source [ref: ipcm.dev](https://ipcm.dev)
+
+
+---
+
+### Notes / Reference:
+
+- ["IPCM vs IPNS"](https://www.pinata.cloud/blog/ipcm-vs-ipns/?utm_source=farcaster&utm_medium=social&utm_campaign=ipcm) - [@stevedylandev.eth](https://warpcast.com/stevedylandev.eth)
