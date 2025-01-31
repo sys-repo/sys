@@ -13,7 +13,7 @@ import { View } from './entry.sample.tsx';
 console.info('Pkg', pkg);
 
 /**
- * Test imports from across the workspace.
+ * 🐷 Test imports from across the workspace.
  */
 import '@sys/tmp/sample-imports';
 
