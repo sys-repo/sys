@@ -3,7 +3,5 @@ dist/
 .tmp/
 
 .sys
-.vscode
-
 -backup/
 -backup/**
