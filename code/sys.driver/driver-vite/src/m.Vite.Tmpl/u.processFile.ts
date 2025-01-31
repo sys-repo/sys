@@ -1,5 +1,4 @@
 import { Main } from '@sys/main/cmd';
-import { pkg as pkgSysStd } from '@sys/std';
 import { type t, pkg, Pkg } from './common.ts';
 
 /**
@@ -25,8 +24,7 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
         .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
-        .replace(/<SYS_STD_VER>/, pkgSysStd.version);
+        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
 
       return e.modify(text);
     }

@@ -1,7 +1,10 @@
 {
-  "dependences": {
+  "dependencies": {
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "@sys/std": "npm:@jsr/sys__std@0",
+    "@sys/tmp": "npm:@jsr/sys__tmp@0",
+    "@sys/ui-css": "npm:@jsr/sys__ui-css@0"
   },
   "devDependencies": {
     "@types/react": "19.0.8",
