@@ -11,7 +11,6 @@ import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr
  * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
  */
 import { Foo } from '@sys/tmp/ui';
-console.log('Foo', Foo);
 
 export type VideoProps = {
   title?: string;
@@ -25,7 +24,11 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
 
   // TEMP 🐷
-  return <Foo />;
+  return (
+    <div>
+      import: <Foo importSample={true} />
+    </div>
+  );
 
   return (
     <MediaPlayer title={props.title} src={src} playsInline={true}>

@@ -11,6 +11,14 @@
     "sys": "deno      run -RWNE <ENTRY_SYS>",
     "tmp": "deno      run -A npm:orbiter-cli"
   },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
+    "types": ["vite/client"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react"
+  },
+  "workspace": [],
   "imports": {
     "@sys/driver-vite": "jsr:@sys/driver-vite@<VITE_VERSION>",
     "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"

@@ -1,13 +1,15 @@
 {
   "dependencies": {
     "@vidstack/react": "next",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "vitepress": "1",
-    "vue": "3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "yaml": "2",
     "@sys/std": "npm:@jsr/sys__std@0",
     "@sys/tmp": "npm:@jsr/sys__tmp@0",
     "@sys/ui-css": "npm:@jsr/sys__ui-css@0"
+  },
+  "devDependencies": {
+    "vitepress": "1",
+    "vue": "3"
   }
 }

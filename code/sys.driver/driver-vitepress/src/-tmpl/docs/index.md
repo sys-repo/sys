@@ -1,8 +1,18 @@
+# 👋 Hello
 
-# 👋 Hello World
+Generated with [`@sys/driver-vitepress@<DRIVER_VER>`](https://jsr.io/@sys/driver-vitepress@<DRIVER_VER>)
 
-Generated with [`@sys/driver-vitepress@<DRIVER_VER>`](https://jsr.io/@sys/driver-vitepress@<DRIVER_VER>).  
-Sample markdown content...
+
+```yaml
+debug: true
+component: sys/tmp/ui:Foo
+notes: |
+  Should import: @sys/tmp@0.0.57/ui:<Foo> (WIP)
+  Provies:
+  - react rendering
+  - import from system module (monorepo) via JSR.
+  - correct aliasing of fully-qualified "import" text (eg: "npm:react:19.0.0" → "react")
+```
 
 
 ```yaml
@@ -20,16 +30,66 @@ timestamps:
 debug: true
 component: Video
 src: vimeo/727951677
-timestamps: [WIP]
+```
+
+<p>&nbsp;</p>
+
+---
+
+
+# Markdown ( [Syntax](https://markdown-it.github.io/) )
+A sample breakdown of the main markdown syntax options available...(🐷):
+
+
+## H1 Header
+### H2 Header
+#### H3 Header
+##### H4 Header
+
+- **Bold text** and *italic text* can be emphasized.
+- Lists:
+  - Unordered item
+  - Another item
+    - Sub-item
+    - Another sub-item
+  - Third item
+- Ordered list:
+  1. First item
+  2. Second item
+  3. Third item
+
+> Blockquotes are useful for highlighting text.
+
+Inline `code` and code blocks:
+
+```python
+# Fenced code block example
+print("Hello, World!")
+```
+
+Color syntax highlighting all major modern languages:
+
+```ts
+function foo(args:{ msg?: string } = {}): string {
+  const { msg } = args
+  return `Hello World${msg ? ` (${msg})` : ''} 👋`;
+}
 ```
 
 
+Links:  
+[Ineternal link](#section) | [External link](https://example.com)  
 
+Footnote reference[^1].
 
-## Topic
-**Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Quisque nec quam lorem. Praesent fermentum, augue ut porta varius, eros nisl euismod ante, ac suscipit elit libero nec dolor. Morbi magna enim, molestie non arcu id, varius sollicitudin neque. In sed quam mauris. Aenean mi nisl, elementum non arcu quis, ultrices tincidunt augue. Vivamus fermentum iaculis tellus finibus porttitor. Nulla eu purus id dolor auctor suscipit. Integer lacinia sapien at ante tempus volutpat.
+Tables:
+| Header 1 | Header 2 |
+|----------|----------|
+| Row 1    | Data 1   |
+| Row 2    | Data 2   |
 
-## H2
-### H3
-#### H4
+[^1]: This is a footnote.
 
+This is a paragraph with a [reference-style link][ref] and another [inline link](https://example.com).
+
+[ref]: https://example.com "Optional title"
