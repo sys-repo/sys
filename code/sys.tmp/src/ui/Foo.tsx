@@ -5,12 +5,19 @@ import { pkg } from '../pkg.ts';
 /**
  * Sample component properties.
  */
-export type FooProps = { enabled?: boolean };
+export type FooProps = {
+  enabled?: boolean;
+  importSample?: boolean;
+};
 
 /**
  * Sample component.
  */
 export const Foo: React.FC<FooProps> = (props) => {
+  React.useEffect(() => {
+    if (props.importSample) import('@sys/tmp/sample-imports');
+  }, [props.importSample]);
+
   const { enabled = true } = props;
   let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
   if (!enabled) text += ' (disabled)';
