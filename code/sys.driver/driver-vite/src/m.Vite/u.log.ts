@@ -21,7 +21,7 @@ export const Log = {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
       const text = `
 ${c.gray(`Module:   ${ViteLog.Module.toString(Pkg)}`)}
-${c.brightGreen(`entry:    ${c.gray(input)}`)}
+${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
     `;
       return ViteLog.pad(text, options.pad);
     },
@@ -98,5 +98,17 @@ ${hr}
       text = text.trim();
       return ViteLog.pad(c.gray(text), args.pad);
     },
+  },
+} as const;
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  fmtPath(path: string = '') {
+    path = path.trim();
+    if (path === '' || path === '.') path = './';
+    if (path === './') path = `./ ${c.dim('(root directory)')}`;
+    return c.gray(path);
   },
 } as const;

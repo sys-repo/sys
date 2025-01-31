@@ -60,7 +60,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
     const fmtSkipped = args.dryRun ? c.yellow(c.italic('← skipped (dry-run)')) : '';
     const fmtCmd = c.cyan(args.dryRun ? c.dim(cmd) : cmd);
     table.push([c.gray(c.italic('running template:')), `${fmtCmd} ${fmtSkipped}`]);
-    table.push([c.gray('target:'), wrangle.targetPath(path)]);
+    table.push([c.gray('target:'), wrangle.formatPath(path)]);
     console.info(table.toString().trim());
     console.info();
 
@@ -86,7 +86,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
  * Helpers
  */
 const wrangle = {
-  targetPath(path: string = '') {
+  formatPath(path: string = '') {
     path = path.trim();
     if (path === '' || path === '.') path = './';
     if (path === './') path = `./ ${c.dim('(root directory)')}`;

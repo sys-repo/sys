@@ -12,13 +12,13 @@ export const VitepressLog = {
     log: (args: t.ViteLogDevArgs) => console.info(VitepressLog.Dev.toString(args)),
     toString: (args: t.ViteLogDevArgs) => {
       const { pkg } = args;
-      const inDir = wrangle.formatPath(args.inDir);
+      // const inDir = wrangle.formatPath(args.inDir);
       const table = Cli.table([]);
       if (pkg) {
         const module = c.gray(`${c.white(pkg.name)}${c.dim('@')}${pkg.version}`);
         table.push([c.gray('module'), module]);
       }
-      table.push([c.green(`input:`), c.gray(inDir)]);
+      table.push([c.green(`input:`), wrangle.formatPath(args.inDir)]);
       return table.toString();
     },
   },
@@ -42,7 +42,10 @@ export const VitepressLog = {
  * Helpers
  */
 const wrangle = {
-  formatPath(input: string = ''): string {
-    return input ? input : `./`;
+  formatPath(path: string = ''): string {
+    path = path.trim();
+    if (path === '' || path === '.') path = './';
+    if (path === './') path = `./ ${c.dim('(root directory)')}`;
+    return c.gray(path);
   },
 } as const;
