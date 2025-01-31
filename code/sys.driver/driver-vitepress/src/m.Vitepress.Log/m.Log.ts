@@ -1,4 +1,4 @@
-import { type t, Path, c, Cli, PATHS, pkg, ViteLog } from './common.ts';
+import { type t, c, Cli, Path, PATHS, pkg, ViteLog } from './common.ts';
 
 /**
  * Console logging operations for the module.
@@ -12,7 +12,6 @@ export const VitepressLog = {
     log: (args: t.ViteLogDevArgs) => console.info(VitepressLog.Dev.toString(args)),
     toString: (args: t.ViteLogDevArgs) => {
       const { pkg } = args;
-      // const inDir = wrangle.formatPath(args.inDir);
       const table = Cli.table([]);
       if (pkg) {
         const module = c.gray(`${c.white(pkg.name)}${c.dim('@')}${pkg.version}`);
