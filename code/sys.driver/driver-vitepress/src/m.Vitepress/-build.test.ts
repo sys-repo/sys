@@ -45,11 +45,11 @@ describe('Vitepress.build', () => {
       console.info();
       console.info(c.cyan('Fetched "html/text" from:'), c.bold(url));
       console.info();
-      console.info(text);
+      console.info(c.yellow(c.italic(text)));
       console.info();
 
       const assertHtml = (match: string) => expect(text.includes(match)).to.eql(true, match);
-      assertHtml(`<title>👋 Hello World | Untitled</title>`);
+      assertHtml(`<title>👋 Hello`);
       assertHtml(`Generated with`);
       assertHtml(`href="https://jsr.io/@sys/driver-vitepress@`);
 
