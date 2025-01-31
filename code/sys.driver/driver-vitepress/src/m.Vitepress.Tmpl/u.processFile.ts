@@ -1,6 +1,5 @@
 import { pkg as vitePkg } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-import { pkg as tmpPkg } from '@sys/tmp';
 
 import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
 
@@ -36,8 +35,8 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     }
 
     if (e.target.relative === 'package.json') {
-      const text = e.text.tmpl.replace(/<TMP_VERSION>/, tmpPkg.version);
-      return e.modify(text);
+      // const text = e.text.tmpl.replace(/<TMP_VERSION>/, tmpPkg.version);
+      // return e.modify(text);
     }
 
     if (e.target.relative === 'docs/index.md') {
