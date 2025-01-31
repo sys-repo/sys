@@ -88,7 +88,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
 const wrangle = {
   targetPath(path: string = '') {
     path = path.trim();
-    if (!path || path === '.') path = './';
+    if (path === '' || path === '.') path = './';
     if (path === './') path = `./ ${c.dim('(root directory)')}`;
     return c.gray(path);
   },
