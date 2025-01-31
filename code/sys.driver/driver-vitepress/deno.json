@@ -16,6 +16,7 @@
     "backup": "deno  run -RWE     --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup  --dir=./.tmp/sample",
     "help": "deno    run -RE      --allow-ffi ./-scripts/-main.ts             --cmd=help    --dir=./.tmp/sample",
     "prep": "deno    run -RWE --allow-ffi ./-scripts/-prep.ts",
+    "rdev": "deno task reset && deno task prep && deno task init && deno task dev",
     "tmp": "deno     run -A ./-scripts/-tmp.ts"
   },
   "exports": {
