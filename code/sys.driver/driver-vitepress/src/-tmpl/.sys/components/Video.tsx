@@ -23,14 +23,7 @@ export type VideoProps = {
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
 
-  // TEMP 🐷
-  return (
-    <div>
-      import: <Foo importSample={true} />
-    </div>
-  );
-
-  return (
+  const elPlayer = (
     <MediaPlayer title={props.title} src={src} playsInline={true}>
       <MediaProvider />
       <PlyrLayout
@@ -38,6 +31,18 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
         icons={plyrLayoutIcons}
       />
     </MediaPlayer>
+  );
+
+  // return
+
+  // TEMP 🐷
+  return (
+    <div>
+      <div>
+        import: <Foo importSample={true} />
+      </div>
+      {/* {elPlayer} */}
+    </div>
   );
 };
 
