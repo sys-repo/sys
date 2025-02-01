@@ -2,6 +2,8 @@
 import React from 'react';
 import { pkg } from '../pkg.ts';
 
+const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
+
 /**
  * Sample component properties.
  */
@@ -21,5 +23,5 @@ export const Foo: React.FC<FooProps> = (props) => {
   const { enabled = true } = props;
   let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
   if (!enabled) text += ' (disabled)';
-  return <code>{text}</code>;
+  return <code style={{ backgroundColor: RED }}>{text}</code>;
 };
