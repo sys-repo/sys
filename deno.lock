@@ -34,7 +34,7 @@
     "npm:@automerge/automerge-repo-storage-nodefs@1": "1.2.1",
     "npm:@automerge/automerge-repo@1": "1.2.1",
     "npm:@automerge/automerge@2": "2.2.8",
-    "npm:@emotion/react@11.14.0": "11.14.0_react@19.0.0",
+    "npm:@emotion/react@11.14.0": "11.14.0_react@18.3.1",
     "npm:@jsr/std__async@1.0.10": "1.0.10",
     "npm:@jsr/std__datetime@0.225.3": "0.225.3",
     "npm:@jsr/std__path@1.0.8": "1.0.8",
@@ -71,7 +71,7 @@
     "npm:ramda@0.30.1": "0.30.1",
     "npm:react-dom@19.0.0": "19.0.0_react@19.0.0",
     "npm:react-error-boundary@5": "5.0.0_react@19.0.0",
-    "npm:react-icons@5.4.0": "5.4.0_react@19.0.0",
+    "npm:react-icons@5.4.0": "5.4.0_react@18.3.1",
     "npm:react-inspector@6": "6.0.2_react@18.3.1",
     "npm:react-spinners@0.15.0": "0.15.0_react@19.0.0_react-dom@19.0.0__react@19.0.0",
     "npm:react@19.0.0": "19.0.0",
@@ -517,7 +517,7 @@
     "@emotion/memoize@0.9.0": {
       "integrity": "sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ=="
     },
-    "@emotion/react@11.14.0_react@19.0.0": {
+    "@emotion/react@11.14.0_react@18.3.1": {
       "integrity": "sha512-O000MLDBDdk/EohJPFUqvnp4qnHeYkVP5B0xEG0D/L7cOKP9kefu2DXn8dj74cQfsEzUqh+sr1RzFqiL1o+PpA==",
       "dependencies": [
         "@babel/runtime",
@@ -528,7 +528,7 @@
         "@emotion/utils",
         "@emotion/weak-memoize",
         "hoist-non-react-statics",
-        "react@19.0.0"
+        "react@18.3.1"
       ]
     },
     "@emotion/serialize@1.3.3": {
@@ -547,10 +547,10 @@
     "@emotion/unitless@0.10.0": {
       "integrity": "sha512-dFoMUuQA20zvtVTuxZww6OHoJYgrzfKM1t52mVySDJnMSEa08ruEvdYQbhvyu6soU+NeLVd3yKfTfT0NeV6qGg=="
     },
-    "@emotion/use-insertion-effect-with-fallbacks@1.2.0_react@19.0.0": {
+    "@emotion/use-insertion-effect-with-fallbacks@1.2.0_react@18.3.1": {
       "integrity": "sha512-yJMtVdH59sxi/aVJBpk9FQq+OR8ll5GT8oWd57UpeaKEVGab41JWaCFA7FRLoMLloOZF/c/wsPoe+bfGmRKgDg==",
       "dependencies": [
-        "react@19.0.0"
+        "react@18.3.1"
       ]
     },
     "@emotion/utils@1.4.2": {
@@ -2267,10 +2267,10 @@
         "react@19.0.0"
       ]
     },
-    "react-icons@5.4.0_react@19.0.0": {
+    "react-icons@5.4.0_react@18.3.1": {
       "integrity": "sha512-7eltJxgVt7X64oHh6wSWNwwbKTCtMfK35hcjvJS0yxEAhPM8oUKdS3+kqaW1vicIltw+kR2unHaa12S9pPALoQ==",
       "dependencies": [
-        "react@19.0.0"
+        "react@18.3.1"
       ]
     },
     "react-inspector@6.0.2_react@18.3.1": {
@@ -2915,14 +2915,10 @@
         "npm:@jsr/std__uuid@1.0.4",
         "npm:@noble/hashes@1.7.1",
         "npm:@swc/plugin-emotion@8.6.0",
-        "npm:@types/react-dom@19.0.3",
-        "npm:@types/react@19.0.8",
         "npm:@vidstack/react@next",
         "npm:@vitejs/plugin-react-swc@3",
         "npm:hono@4.6.19",
-        "npm:react-dom@19.0.0",
         "npm:react-icons@5.4.0",
-        "npm:react@19.0.0",
         "npm:rollup@4.32.1",
         "npm:vite-plugin-wasm@3",
         "npm:vite@6.0.11",
