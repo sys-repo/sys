@@ -15,7 +15,7 @@ const vitepressStartupRegex = /vitepress v\d\.\d\.\d/g;
  */
 export const dev: F = async (input = {}) => {
   const options = wrangle.options(input);
-  const { pkg, inDir = '', open = true } = options;
+  const { pkg, inDir = '', open = false } = options;
   const dirs: R['dirs'] = { in: inDir };
   const port = Net.port(options.port ?? 1234);
 
