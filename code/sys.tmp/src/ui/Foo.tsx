@@ -2,7 +2,8 @@
 import React from 'react';
 import { pkg } from '../pkg.ts';
 
-const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
+/** Constants. */
+export const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
 
 /**
  * Sample component properties.
@@ -13,7 +14,7 @@ export type FooProps = {
 };
 
 /**
- * Sample component.
+ * Component (UI).
  */
 export const Foo: React.FC<FooProps> = (props) => {
   React.useEffect(() => {
