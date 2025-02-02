@@ -12,7 +12,7 @@ export function dynamicNpmAliasPlugin(): Plugin {
       const match = source.match(/^npm:(\w+?)@(\d+\.\d+\.\d+(?:-[\w.]+)?)$/);
 
       if (source === 'react') {
-        // TEMP 🐷
+        // TEMP | 🐷
         console.log('match', match, source);
       }
 

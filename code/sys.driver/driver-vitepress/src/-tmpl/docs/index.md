@@ -11,7 +11,7 @@ notes: |
   Provies:
   - react rendering
   - import from system module (monorepo) via JSR.
-  - correct aliasing of fully-qualified "import" text (eg: "npm:react:19.0.0" → "react")
+  - correct aliasing of fully-qualified "import" text (eg: "npm:react:18.0.0" → "react")
 ```
 
 
