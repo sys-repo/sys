@@ -72,7 +72,7 @@ res.data // ← { count: 123 }
 
 Standing up an HTTP server via command line (from the `jsr:` registry) from the `/start` module entry.
 
-`--allowRun` allows keyboard interaction from the terminal, eg: "o" to open in browser.
+`--allowRun` allows keyboard interaction from the terminal, eg: `O` key to open in browser.
 
 ```bash
 deno run -RNE --allow-run jsr:@sys/http/server/start --port=1234

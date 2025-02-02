@@ -17,9 +17,9 @@ export async function keyboard(args: {
       table.push([keyCommand, description]);
     };
     push(c.gray('Keyboard'));
-    push(`${c.bold('o')}`, `Open ${c.green('in browser')}`);
-    push(c.bold('q'), 'Quit');
-    push(c.bold('ctrl + c'), 'Quit');
+    push(`${c.bold('O')}`, `Open ${c.green('in browser')}`);
+    push(c.bold('Q'), 'Quit');
+    push(c.bold('Ctrl + C'), 'Quit');
 
     console.info(table.toString().trim());
     console.info();
