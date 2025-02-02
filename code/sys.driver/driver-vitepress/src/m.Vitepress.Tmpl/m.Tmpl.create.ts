@@ -8,23 +8,22 @@ import { createFileProcessor } from './u.processFile.ts';
 export const create: t.VitepressTmplLib['create'] = async (args) => {
   const templatesDir = Fs.resolve(PATHS.tmpl.tmp);
 
+  /**
+   * Ensure the templates are hydrated and ready to use.
+   */
   const beforeCopy: t.TmplCopyHandler = async () => {
-    /**
-     * Ensure the templates are hydrated and ready to use.
-     */
     await Fs.remove(templatesDir);
     await Bundle.toFilesystem(templatesDir);
   };
 
-  const afterCopy: t.TmplCopyHandler = async (e) => {
+  /**
+   * (🐷) Perform additional setup here (as needed).
+   */
+  const afterCopy: t.TmplCopyHandler = async (e) => {};
 
-    const { manifest } = await Jsr.manifest('@sys/tmp', '0.0.56');
-    if (manifest) {
-      const path = e.dir.target.join(PATHS.sys.jsr);
-      await manifest.pull(path);
-    }
-  };
-
+  /**
+   * Template-engine instance.
+   */
   const processFile = createFileProcessor(args);
   return Tmpl.create(templatesDir, { processFile, beforeCopy, afterCopy });
 };
