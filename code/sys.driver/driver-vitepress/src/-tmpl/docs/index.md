@@ -78,7 +78,7 @@ function foo(args:{ msg?: string } = {}): string {
 
 
 Links:  
-[Ineternal link](#section) | [External link](https://example.com)  
+[Internal link](#section) | [External link](https://example.com)  
 
 Footnote reference[^1].
 
