@@ -12,7 +12,6 @@
     "bump": "deno run -RWE --allow-sys --allow-ffi ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
-  "nodeModulesDir": "auto",
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
@@ -20,6 +19,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react"
   },
+  "nodeModulesDir": "auto",
+  "importMap": "./deno.imports.jsonc",
   "workspace": [
     "./code/sys/types",
     "./code/sys/std",
@@ -64,7 +65,6 @@
     "./code/-tmpl/deno",
     "./code/sys.tmp"
   ],
-  "importMap": "./deno_imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]
