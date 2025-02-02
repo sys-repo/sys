@@ -2,6 +2,8 @@ import type { Plugin } from 'vitepress';
 
 // A custom Vite plugin for dynamic alias resolution
 export function dynamicNpmAliasPlugin(): Plugin {
+  console.log('dynamicNpmAliasPlugin', dynamicNpmAliasPlugin);
+
   return {
     name: 'vite:dynamic-npm-alias',
     resolveId(source: string) {
