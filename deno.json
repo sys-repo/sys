@@ -20,7 +20,7 @@
     "jsxImportSource": "@emotion/react"
   },
   "nodeModulesDir": "auto",
-  "importMap": "./deno.imports.jsonc",
+  "importMap": "./deno.imports.json",
   "workspace": [
     "./code/sys/types",
     "./code/sys/std",
