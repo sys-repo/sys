@@ -4,9 +4,9 @@
  *
  * @example
  * ```ts
- * import { DenoFile, DenoModule, DenoImports } from '@sys/driver-deno/runtime';
+ * import { DenoFile, DenoModule, DenoDeps } from '@sys/driver-deno/runtime';
  * ```
  */
 export { DenoFile } from './m.DenoFile/mod.ts';
 export { DenoModule } from './m.DenoModule/mod.ts';
-export { DenoImports } from './m.DenoImports/mod.ts';
+export { DenoDeps } from './m.DenoDeps/mod.ts';
