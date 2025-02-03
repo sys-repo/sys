@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.104",
+  "version": "0.0.105",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWN",
@@ -14,6 +14,7 @@
     "./args": "./src/m.Args/mod.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
     "./error": "./src/m.Err/mod.ts",
+    "./esm": "./src/m.Esm/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
