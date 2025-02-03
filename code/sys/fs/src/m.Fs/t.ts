@@ -35,6 +35,9 @@ export type FsLib = Methods & {
   /** Remove a file or directory if it exists. */
   readonly remove: t.FsRemove;
 
+  /** Asynchronously reads and returns the entire contents of a binary file (Uint8Array). */
+  readonly read: t.FsReadBinary;
+
   /** Asynchronously reads and returns the entire contents of a text file. */
   readonly readText: t.FsReadText;
 
@@ -199,6 +202,11 @@ export type FsWriteJson = (
   data: t.Json,
   options?: t.FsWriteFileOptions,
 ) => Promise<FsWriteFileResponse>;
+
+/**
+ * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
+ */
+export type FsReadBinary = (path: t.StringPath) => Promise<FsReadResponse<Uint8Array>>;
 
 /**
  * Asynchronously reads and returns the entire contents of a text file.

@@ -118,4 +118,30 @@ describe('Fs: read from the file-system operations', () => {
       assertDecodingError(res, path);
     });
   });
+
+  describe('Fs.read (binary)', () => {
+    it('success: binary file', async () => {
+      const path = './src/-test/-sample-files/foo.bin';
+      const res = await Fs.read(path);
+      assertSuccess(res, path);
+      expect(res.data).to.eql(new Uint8Array([1, 2, 3]));
+    });
+
+    it('success: text (as binary)', async () => {
+      const path = './src/-test/-sample-files/foo.txt';
+      const res = await Fs.read(path);
+      assertSuccess(res, path);
+
+      const text = 'Foo-👋\n';
+      const binary = new TextEncoder().encode(text);
+      expect(res.data).to.eql(binary);
+    });
+
+    it('fail: does not exist', async () => {
+      const path = '404.bin';
+      const res = await Fs.read(path);
+      assertNotFound(res, path);
+      expect(res.error?.message).to.include('Binary file');
+    });
+  });
 });
