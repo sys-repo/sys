@@ -1,4 +1,4 @@
-import { DenoFile } from '@sys/driver-deno';
+import { DenoFile } from '@sys/driver-deno/runtime';
 import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
