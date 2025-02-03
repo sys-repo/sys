@@ -133,10 +133,17 @@ const wrangle = {
   async args(op: t.TmplFileOperation) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const { tmpl, target } = op.file;
+    const exists = await Fs.exists(target.absolute);
     const args: t.TmplProcessFileArgs = {
-      tmpl,
-      target: { ...target, exists: await Fs.exists(target.absolute) },
-      text: { tmpl: op.text.tmpl, current: op.text.target.before },
+      get tmpl() {
+        return tmpl;
+      },
+      get target() {
+        return { ...target, exists };
+      },
+      get text() {
+        return { tmpl: op.text.tmpl, current: op.text.target.before };
+      },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;
