@@ -1,5 +1,5 @@
 import type { Plugin } from 'vitepress';
-import { Esm } from '@sys/std/pkg';
+import { Esm } from '@sys/std/esm';
 
 // RegExp
 

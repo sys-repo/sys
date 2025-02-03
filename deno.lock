@@ -10,6 +10,7 @@
     "jsr:@std/assert@~1.0.6": "1.0.11",
     "jsr:@std/async@1.0.10": "1.0.10",
     "jsr:@std/datetime@0.225.3": "0.225.3",
+    "jsr:@std/dotenv@0.225.3": "0.225.3",
     "jsr:@std/encoding@1.0.6": "1.0.6",
     "jsr:@std/encoding@~1.0.5": "1.0.6",
     "jsr:@std/fmt@~1.0.2": "1.0.5",
@@ -128,6 +129,9 @@
     },
     "@std/datetime@0.225.3": {
       "integrity": "fda0b7791b43d9a46764986fec39922a8ceb70ffca642651fa7d0683501a171a"
+    },
+    "@std/dotenv@0.225.3": {
+      "integrity": "a95e5b812c27b0854c52acbae215856d9cce9d4bbf774d938c51d212711e8d4a"
     },
     "@std/encoding@1.0.6": {
       "integrity": "ca87122c196e8831737d9547acf001766618e78cd8c33920776c7f5885546069"
