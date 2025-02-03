@@ -6,14 +6,22 @@ import { type t, Err } from './common.ts';
 
 /**
  * Regex breakdown:
- *   ^                                  : start of string
- *   (?:(jsr|npm):)?                    : optionally match and capture "jsr:" or "npm:"
- *   ([\w.-]+)                          : capture the module name (letters, numbers, underscores, hyphens, or dots)
- *   (?:@(\d+\.\d+\.\d+(?:-[\w.]+)?))?    : optionally match "@" followed by a semantic version
- *   $                                  : end of string
+ *   - For file paths:
+ *       ^                                     : start of string
+ *       (?:\/|\.\/|\.\.\/)                    : match an absolute path ("/") or a relative path ("./" or "../")
+ *       [\w\/.-]+                            : one or more word characters, slashes, dots, or hyphens
+ *       \.[\w]+                              : a dot followed by one or more word characters (the file extension)
+ *       $                                    : end of string
+ *
+ *   - For package specifiers:
+ *       ^                                     : start of string
+ *       (?:(jsr|npm):)?                       : optionally match and capture "jsr:" or "npm:"
+ *       ((?:@[\w.-]+\/)?[\w.-]+)               : capture the module name (optionally scoped)
+ *       (?:@([~^]?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))? : optionally match "@" followed by a semantic version
+ *       $                                     : end of string
  */
 const REGEX = {
-  filepath: /^(?:\.\/|\.\.\/)[\w\/.-]+\.[\w]+$/,
+  filepath: /^(?:\/|\.\/|\.\.\/)[\w\/.-]+\.[\w]+$/,
   package: /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@([~^]?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?$/,
 } as const;
 

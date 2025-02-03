@@ -25,10 +25,16 @@ describe('Jsr.Esm', () => {
         expect(res?.name).to.eql(expectedName);
         expect(res.error).to.eql(undefined);
       };
-      test('./foobar/mod.ts', './foobar/mod.ts');
+
       test('foobar', 'foobar');
       test('  foobar  ', 'foobar');
       test('  @foo/bar  ', '@foo/bar');
+      test('npm:foobar', 'foobar');
+      test('jsr:foobar', 'foobar');
+      test('jsr:@foo/bar', '@foo/bar');
+
+      test('./foobar/mod.ts', './foobar/mod.ts');
+      test('/foobar/mod.ts', '/foobar/mod.ts');
     });
 
     it('version', () => {
