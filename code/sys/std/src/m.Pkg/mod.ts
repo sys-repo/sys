@@ -6,5 +6,6 @@
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './m.Pkg.ts';
 
+export { Esm } from '../m.Pkg.Esm/mod.ts';
 export { Dist, Pkg };
 export default Pkg;
