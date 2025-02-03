@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { Esm } from './mod.ts';
 
 describe('Jsr.Esm', () => {
@@ -15,6 +15,7 @@ describe('Jsr.Esm', () => {
       test('jsr:@foo/bar', 'jsr');
       test('npm:foobar', 'npm');
       test('npm:@jsr/sys__tmp@1.2.3', 'npm');
+      test('npm:@jsr/sys__tmp@^1.2', 'npm');
     });
 
     it('name', () => {
@@ -24,6 +25,7 @@ describe('Jsr.Esm', () => {
         expect(res?.name).to.eql(expectedName);
         expect(res.error).to.eql(undefined);
       };
+      test('./foobar/mod.ts', './foobar/mod.ts');
       test('foobar', 'foobar');
       test('  foobar  ', 'foobar');
       test('  @foo/bar  ', '@foo/bar');
@@ -58,14 +60,27 @@ describe('Jsr.Esm', () => {
         });
       });
 
-      it('non-supported prefix', () => {
-        const input = 'fail:foobar@0.1.2';
-        const res = Esm.parse(input);
-        expect(res.prefix).to.eql('');
-        expect(res.name).to.eql('');
-        expect(res.version).to.eql('');
-        expect(res.error?.message).to.include('Failed to parse ESM import string');
-        expect(res.input).to.eql(input);
+      it('failed to parse', () => {
+        const test = (input: string) => {
+          const res = Esm.parse(input);
+          expect(res.input).to.eql(input);
+          expect(res.prefix).to.eql('');
+          expect(res.name).to.eql('');
+          expect(res.version).to.eql('');
+          expect(res.error?.message).to.include('Failed to parse ESM import string', input);
+        };
+
+        test('');
+        test('  ');
+
+        // Invalid prefix.
+        test('fail:foobar@0.1.2');
+        test(':foobar@0.1.2');
+        test('::foobar');
+
+        // Invalid version.
+        test('jsr:foobar@');
+        test('foobar@hello');
       });
     });
   });

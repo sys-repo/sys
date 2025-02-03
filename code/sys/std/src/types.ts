@@ -8,6 +8,7 @@ export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
 export type * from './m.Err/t.ts';
+export type * from './m.Esm/t.ts';
 export type * from './m.Ignore/t.ts';
 export type * from './m.Immutable/t.ts';
 export type * from './m.IndexedDb/t.ts';

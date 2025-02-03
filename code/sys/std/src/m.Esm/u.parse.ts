@@ -4,13 +4,18 @@
  */
 import { type t, Err } from './common.ts';
 
-// Regex breakdown:
-//   ^                                  : start of string
-//   (?:(jsr|npm):)?                    : optionally match and capture "jsr:" or "npm:"
-//   ([\w.-]+)                          : capture the module name (letters, numbers, underscores, hyphens, or dots)
-//   (?:@(\d+\.\d+\.\d+(?:-[\w.]+)?))?    : optionally match "@" followed by a semantic version
-//   $                                  : end of string
-const REGEX = /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@([~^]?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?$/;
+/**
+ * Regex breakdown:
+ *   ^                                  : start of string
+ *   (?:(jsr|npm):)?                    : optionally match and capture "jsr:" or "npm:"
+ *   ([\w.-]+)                          : capture the module name (letters, numbers, underscores, hyphens, or dots)
+ *   (?:@(\d+\.\d+\.\d+(?:-[\w.]+)?))?    : optionally match "@" followed by a semantic version
+ *   $                                  : end of string
+ */
+const REGEX = {
+  filepath: /^(?:\.\/|\.\.\/)[\w\/.-]+\.[\w]+$/,
+  package: /^(?:(jsr|npm):)?((?:@[\w.-]+\/)?[\w.-]+)(?:@([~^]?\d+(?:\.\d+){0,2}(?:-[\w.]+)?))?$/,
+} as const;
 
 /**
  * Parses an import string of the form:
@@ -43,11 +48,16 @@ export const parse: t.EsmLib['parse'] = (input) => {
     };
   };
 
-  if (typeof input !== 'string') {
-    return fail(`Given ESM import is not a string (${typeof input})`);
+  if (typeof input !== 'string') return fail(`Given ESM import is not a string (${typeof input})`);
+  const text = input.trim();
+
+  // Check if the input is a relative file path (e.g. "./foo/mod.ts" or "../bar/utils.ts")
+  if (REGEX.filepath.test(text)) {
+    return done('', text, ''); // NB: path → no prefix or version.
   }
 
-  const match = input.trim().match(REGEX);
+  // Otherwise, attempt to parse as a package specifier.
+  const match = text.match(REGEX.package);
   if (!match) return fail(`Failed to parse ESM import string`);
 
   const [, prefix, name, version] = match;
