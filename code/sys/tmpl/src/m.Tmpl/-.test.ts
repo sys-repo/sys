@@ -2,7 +2,7 @@ import { describe, expect, Fs, it, SAMPLE, Time, type t } from '../-test.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
-  const readFile = Deno.readTextFile;
+  const readFile = async (path: string) => (await Fs.readText(path)).data;
 
   const logOps = (
     res: t.TmplCopyResponse,

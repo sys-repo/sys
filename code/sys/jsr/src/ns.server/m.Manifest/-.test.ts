@@ -101,7 +101,7 @@ describe('Jsr.Manifest (integration test)', () => {
       // Ensure hash/checksums match.
       for (const file of res.files) {
         const path = Fs.join(res.written?.absolute || '', file.url.slice(baseUrl.length));
-        const data = await Deno.readFile(path);
+        const data = (await Fs.read(path)).data;
         expect(Hash.sha256(data)).to.eql(file.checksum?.expected);
       }
     });

@@ -46,8 +46,8 @@ export async function copy(
     if (await Fs.Is.dir(from)) continue;
 
     const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
-    const sourceText = await Deno.readTextFile(from);
-    const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
+    const sourceText = (await Fs.readText(from)).data ?? '';
+    const targetText = (await Fs.readText(to)).data ?? '';
 
     type T = t.TmplFileOperation;
     let _file: T['file'];

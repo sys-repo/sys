@@ -38,9 +38,10 @@ describe('FileMap', () => {
           target: Fs.resolve(targetDir, key),
         };
         const file = {
-          source: await Deno.readFile(path.source),
-          target: await Deno.readFile(path.target),
+          source: (await Fs.read(path.source)).data!,
+          target: (await Fs.read(path.target)).data!,
         };
+
         if (!areEqual(file.source, file.target)) return false;
       }
       return true;

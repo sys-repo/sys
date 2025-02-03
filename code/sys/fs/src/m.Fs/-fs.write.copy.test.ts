@@ -34,7 +34,7 @@ describe('Fs: directory operations', () => {
   };
 
   const assertFileText = async (path: string, text: string) => {
-    expect(await Deno.readTextFile(path)).to.eql(text);
+    expect((await Fs.readText(path)).data).to.eql(text);
   };
 
   describe('Fs.copyFile', () => {

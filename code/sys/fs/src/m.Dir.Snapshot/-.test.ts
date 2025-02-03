@@ -82,7 +82,7 @@ describe('Fs.Dir.Snapshot', () => {
       expect(snapshotA.error).to.eql(undefined);
       expect(snapshotB.error).to.eql(undefined);
 
-      const read = (dir: string) => Deno.readTextFile(Path.join(dir, 'mod.ts'));
+      const read = async (dir: string) => (await Fs.readText(Path.join(dir, 'mod.ts'))).data;
       const readA = await read(snapshotA.path.target.files);
       const readB = await read(snapshotB.path.target.files);
       expect(readA).to.not.eql(readB); // NB: modified content between snapshots.

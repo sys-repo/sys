@@ -39,9 +39,7 @@ describe('Vite.build', () => {
     expect(hasPkg).to.eql(true);
 
     // Load file outputs.
-    const readFile = async (path: string) => {
-      return (await Fs.exists(path)) ? Deno.readTextFile(path) : '';
-    };
+    const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
     const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
     const distJson = json.data;
     const html = await readFile(Fs.join(outDir, 'index.html'));

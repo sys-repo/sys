@@ -23,9 +23,8 @@ export const compute: t.DirHashLib['compute'] = async (dir, options = {}) => {
         .filter((m) => (filter ? filter(m.path) : true))
         .map((m) => m.path.substring(dir.length + 1));
       for (const path of paths) {
-        const filepath = Fs.join(dir, path);
-        const exists = await Fs.exists(filepath);
-        if (exists) builder.add(path, await Deno.readFile(filepath));
+        const file = await Fs.read(Fs.join(dir, path));
+        if (file.exists) builder.add(path, file.data);
       }
       res.hash = builder.toObject();
     }
