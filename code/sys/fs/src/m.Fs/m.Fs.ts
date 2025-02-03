@@ -5,7 +5,7 @@ import { Watch } from '../m.Watch/mod.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
-import { readJson } from './u.read.ts';
+import { readJson, readYaml } from './u.read.ts';
 import { remove } from './u.remove.ts';
 import { toDir } from './u.toDir.ts';
 import { toFile } from './u.toFile.ts';
@@ -41,6 +41,7 @@ export const Fs: t.FsLib = {
   ensureDir,
   remove,
   readJson,
+  readYaml,
 
   write,
   writeJson,
