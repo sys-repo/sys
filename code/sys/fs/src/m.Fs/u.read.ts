@@ -4,7 +4,6 @@ import { type t, exists, Path, Err } from './common.ts';
  * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
  */
 export const read: t.FsReadBinary = async (path: string) => {
-  // const parse = (text: string) => text;
   return handleRead<Uint8Array>({ path, format: 'Binary' });
 };
 
