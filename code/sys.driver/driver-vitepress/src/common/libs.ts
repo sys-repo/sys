@@ -14,6 +14,6 @@ export { Pkg } from '@sys/fs/pkg';
 export { HttpServer, Net } from '@sys/http/server';
 export { Tmpl } from '@sys/tmpl/fs';
 
-export { DenoModule } from '@sys/driver-deno/runtime';
+export { DenoFile, DenoModule } from '@sys/driver-deno/runtime';
 export { ViteEntry } from '@sys/driver-vite/entry';
 export { ViteLog } from '@sys/driver-vite/log';

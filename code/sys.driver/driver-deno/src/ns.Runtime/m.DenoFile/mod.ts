@@ -27,8 +27,10 @@ export const DenoFile: t.DenoFileLib = {
     const dir = Path.dirname(file);
     const dirs = denofile.data?.workspace ?? [];
     const children: t.DenoWorkspaceChildren = {
-      dirs,
       load: loadChildrenMethod(dir, dirs),
+      get dirs() {
+        return dirs;
+      },
     };
     return { exists, dir, file, children };
   },
