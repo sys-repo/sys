@@ -73,7 +73,10 @@ describe('Jsr.Esm', () => {
           expect(res.prefix).to.eql('');
           expect(res.name).to.eql('');
           expect(res.version).to.eql('');
-          expect(res.error?.message).to.include('Failed to parse ESM import string', input);
+          expect(res.error?.message).to.include(
+            'Failed to parse ESM module-specifier import string',
+            input,
+          );
         };
 
         test('');

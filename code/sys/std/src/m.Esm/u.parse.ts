@@ -26,29 +26,16 @@ const REGEX = {
 } as const;
 
 /**
- * Parses an import string of the form:
- *
- *   [<prefix>:]<name>[@<version>]
- *
- * Where:
- *   - `prefix` is either "jsr" or "npm" (optional),
- *   - `name` is the module name,
- *   - `version` is a semantic version (e.g. "1.2.3" or "1.2.3-beta", optional).
- *
- * If the version is not provided, the `version` property is set to an empty string.
- * If the input does not match the expected pattern, the function returns undefined.
- *
- * @param input - The ESM import string to parse.
- * @returns A JsrImport object or undefined if the input is invalid.
+ * Parses an "import" module-specifier string.
  */
-export const parse: t.EsmLib['parse'] = (input) => {
+export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
   type T = t.EsmImport;
 
   const fail = (err: string) => done('', '', '', err);
   const done = (prefix: string, name: string, version: string, err?: string): t.EsmParsedImport => {
     const error = err ? Err.std(err) : undefined;
     return {
-      input: String(input),
+      input: String(moduleSpecifier),
       prefix: prefix as T['prefix'],
       name,
       version,
@@ -56,17 +43,19 @@ export const parse: t.EsmLib['parse'] = (input) => {
     };
   };
 
-  if (typeof input !== 'string') return fail(`Given ESM import is not a string (${typeof input})`);
-  const text = input.trim();
+  if (typeof moduleSpecifier !== 'string') {
+    return fail(`Given ESM import is not a string (${typeof moduleSpecifier})`);
+  }
 
   // Check if the input is a relative file path (e.g. "./foo/mod.ts" or "../bar/utils.ts")
+  const text = moduleSpecifier.trim();
   if (REGEX.filepath.test(text)) {
-    return done('', text, ''); // NB: path → no prefix or version.
+    return done('', text, ''); // NB: "path" specifier → no prefix or version.
   }
 
   // Otherwise, attempt to parse as a package specifier.
   const match = text.match(REGEX.package);
-  if (!match) return fail(`Failed to parse ESM import string`);
+  if (!match) return fail(`Failed to parse ESM module-specifier import string`);
 
   const [, prefix, name, version] = match;
   return done(prefix ?? '', name, version ?? '');

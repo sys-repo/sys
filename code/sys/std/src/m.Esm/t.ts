@@ -1,17 +1,18 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with ESM imports.
+ * Tools for working with systems and runtimes that support
+ * the ESM (EcmaScript Module) standard.
  */
 export type EsmLib = {
   /**
-   * Determines if the given ESM "import" string represents a
-   * "<prefix>:<name>[@<version>]" module name.
+   * Parses an "import" module-specifier string.
    *
-   * @param input - The import string to parse.
-   * @returns A JsrImport object if the input is valid, or undefined if not.
+   * @param moduleSpecifier - The import string to parse.
+   * @returns A EsmImport object if the input is valid
+   *          See the `error` property for failure state.
    */
-  parse(input: string): EsmParsedImport;
+  parse(moduleSpecifier: string): EsmParsedImport;
 };
 
 /**

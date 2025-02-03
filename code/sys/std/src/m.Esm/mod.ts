@@ -1,6 +1,7 @@
 /**
  * @module
- * Tools for evaluating boolean flags on JSR related data.
+ * Tools for working with systems and runtimes that support
+ * the ESM (EcmaScript Module) standard.
  */
 import type { t } from './common.ts';
 import { parse } from './u.parse.ts';
