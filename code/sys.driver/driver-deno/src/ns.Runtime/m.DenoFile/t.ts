@@ -23,7 +23,7 @@ export type DenoFileLib = {
 };
 
 /** The async response from a `deno.json` file load request. */
-export type DenoFileLoadResponse = t.FsReadJsonResponse<t.DenoFileJson>;
+export type DenoFileLoadResponse = t.FsReadResponse<t.DenoFileJson>;
 
 /**
  * A file-path to a `deno.json` file.

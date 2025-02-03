@@ -1,2 +1,2 @@
 export { Http } from '@sys/http';
-export { Path, slug } from '@sys/std';
+export { Err, Path, slug } from '@sys/std';
