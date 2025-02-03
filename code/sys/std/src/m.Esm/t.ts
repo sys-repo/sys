@@ -16,13 +16,15 @@ export type EsmLib = {
 };
 
 /**
- * Represents a parsed import statement.
+ * A parsed ESM import statement.
  */
 export type EsmImport = {
   readonly prefix: 'jsr' | 'npm' | '';
   readonly name: string;
   readonly version: t.StringSemver;
-  readonly error?: t.StdError;
 };
 
-export type EsmParsedImport = EsmImport & { input: string };
+export type EsmParsedImport = EsmImport & {
+  input: string;
+  readonly error?: t.StdError;
+};
