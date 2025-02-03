@@ -30,8 +30,7 @@ export const build: B = async (input = {}) => {
   // Write {pkg} into /dist so it's included within the digest-hash.
   if (pkg) {
     const path = Fs.join(dirs.out, 'assets', '-pkg.json');
-    await Fs.ensureDir(Fs.dirname(path));
-    await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
+    await Fs.writeJson(path, pkg);
   }
 
   // Calculate the `/dist.json` file and digest-hash.
