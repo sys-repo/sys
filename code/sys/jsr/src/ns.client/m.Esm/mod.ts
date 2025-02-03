@@ -3,5 +3,6 @@
  * Tools for evaluating boolean flags on JSR related data.
  */
 import type { t } from './common.ts';
+import { parse } from './u.parse.ts';
 
-export const Is: t.JsrIsLib = {};
+export const Esm: t.EsmLib = { parse };
