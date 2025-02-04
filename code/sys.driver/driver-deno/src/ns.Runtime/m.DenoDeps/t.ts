@@ -98,5 +98,5 @@ export type DenoYamlDepNode = DenoYamlDep & {
  */
 export type DenoDepsFmt = {
   /** Log a list of deps to a table. */
-  deps(deps?: t.DenoDep[]): string;
+  deps(deps?: t.DenoDep[], options?: { indent?: number }): string;
 };

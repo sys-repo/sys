@@ -1,8 +1,11 @@
-import { type t, c, Cli } from './common.ts';
+import { type t, c, Cli, Semver } from './common.ts';
 
 export const Fmt: t.DenoDepsFmt = {
-  deps(deps) {
+  deps(deps, options = {}) {
     if (!deps) return '';
+    const indent = wrangle.indent(options.indent);
+    const prefixes = deps.map((dep) => Semver.Prefix.get(dep.module.version)).filter(Boolean);
+    const maxPrefixLength = prefixes.reduce((max, prefix) => Math.max(max, prefix.length), 0);
 
     const table = Cli.table([]);
     deps.forEach((dep) => {
@@ -15,10 +18,32 @@ export const Fmt: t.DenoDepsFmt = {
 
       const fmtRegistry = ` ${c.gray(registry.toUpperCase())}`;
       const fmtName = c.gray(`${scope}${c.white(name)}`);
-      const fmtVersion = c.green(mod.version);
-      table.push([fmtName, fmtVersion, fmtRegistry]);
+      const fmtVersion = wrangle.version(mod.version, maxPrefixLength);
+
+      table.push([`${indent}${fmtName}`, fmtVersion, fmtRegistry]);
     });
 
-    return table.toString().trim();
+    return `${indent}${table.toString().trim()}`;
   },
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  indent(length: number = 0) {
+    return length ? ' '.repeat(length) : '';
+  },
+
+  version(version: t.StringSemver, maxLength: number) {
+    const prefix = Semver.Prefix.get(version);
+    if (prefix) {
+      const versionWithoutPrefix = version.slice(prefix.length);
+      const coloredPrefix = c.gray(prefix);
+      const indent = wrangle.indent(maxLength - prefix.length);
+      return `${coloredPrefix}${indent}${Semver.Fmt.colorize(versionWithoutPrefix)}`;
+    } else {
+      return `${wrangle.indent(maxLength)}${Semver.Fmt.colorize(version)}`;
+    }
+  },
+} as const;
