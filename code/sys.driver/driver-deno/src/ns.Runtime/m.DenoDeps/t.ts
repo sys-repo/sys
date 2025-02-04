@@ -10,10 +10,16 @@ export type DenoDepsLib = {
   /** Load the imports definitions from YAML. */
   fromYaml(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
+  /** Convert deps to a `deno.json` format. */
+  toDenoJson(input: t.DenoDeps): t.PkgJsonDeno;
+
+  /** Convert deps to a `package.json` format. */
+  toPackageJson(input: t.DenoDeps): t.PkgJsonNode;
 };
 
 /** A response object from a `DenoDeps` constructor function. */
 export type DenoDepsResponse = { data?: t.DenoDeps; error?: t.StdError };
+
 /**
  * A common data-structure for expressing an ESM "import"
  * (normalized between 'deno.json' and 'package.json")
@@ -32,6 +38,12 @@ export type DenoDep = {
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
   target: DenoDepTargetFile[];
+
+  /**
+   * Flag indicating if the import is a development-dependency only.
+   * Only relevant when producing a `package.json` file.
+   */
+  dev?: boolean;
 };
 
 /**
@@ -49,4 +61,10 @@ export type DenoYamlDep = {
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
   target: DenoDepTargetFile | DenoDepTargetFile[];
+
+  /**
+   * Flag indicating if the import is a development-dependency only.
+   * Only relevant when producing a `package.json` file.
+   */
+  dev?: boolean;
 };

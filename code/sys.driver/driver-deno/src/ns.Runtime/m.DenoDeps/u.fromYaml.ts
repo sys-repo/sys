@@ -45,28 +45,17 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
     if (typeof item?.import !== 'string') return;
     const module = Esm.parse(item.import);
     if (module.error) errors.push(`${module.error.message} ("${module.input}")`);
-    return {
+    const res: t.DenoDep = {
       get module() {
         return module;
       },
       target: wrangle.target(item),
     };
+    if (item.dev) res.dev = true;
+    return res;
   };
 
   const imports = yaml.imports.map((item) => toImport(item)!).filter(Boolean);
-
-  /**
-   * TODO 🐷
-   * -
-   */
-
-  /**
-   * @sys/fs/yaml
-   * - param: "path" | "YAML"
-   * - response<T>: { yaml:T,  error?}
-   */
-  // TODO: Yaml.load(path, YAML string)
-
   return done({ imports });
 };
 

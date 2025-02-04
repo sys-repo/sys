@@ -12,3 +12,9 @@ imports:
 
   - import: npm:rxjs@7
     target: package.json
+
+  - import: npm:hono@4.6
+
+  - import: npm:@types/react@^18.0.0
+    target: [package.json]
+    dev: true

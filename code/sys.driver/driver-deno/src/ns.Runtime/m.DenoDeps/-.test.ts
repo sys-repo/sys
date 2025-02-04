@@ -25,6 +25,10 @@ describe('DenoDeps', () => {
       expect(mod.name).to.eql('@std/async');
       expect(mod.version).to.eql('1.0.10');
       expect(mod.prefix).to.eql('jsr');
+
+      const reactTypes = imports.find((m) => m.module.name === '@types/react');
+      expect(reactTypes?.dev).to.eql(true);
+      expect(imports[0].dev).to.eql(undefined);
     });
 
     it('input: YAML (string)', async () => {
@@ -74,6 +78,43 @@ describe('DenoDeps', () => {
         const imports = res.data?.imports ?? [];
         expect(imports[0].module.error).to.eql(undefined);
         expect(imports[1].module.error?.message).to.include(`Failed to parse ESM module-specifier`);
+      });
+    });
+  });
+
+  describe('toDenoJson', () => {
+    it('empty', () => {
+      const json = DenoDeps.toDenoJson({ imports: [] });
+      expect(json).to.eql({ imports: {} });
+    });
+
+    it('imports', async () => {
+      const res = await DenoDeps.fromYaml(SAMPLE.path);
+      const json = DenoDeps.toDenoJson(res.data!);
+      expect(json).to.eql({
+        imports: {
+          '@std/async': 'jsr:@std/async@1.0.10',
+          '@std/assert': 'jsr:@std/assert@1.0.11',
+          '@std/fs': 'jsr:@std/fs@1.0.11',
+          '@std/http': 'jsr:@std/http@1.0.13',
+          hono: 'npm:hono@4.6',
+        },
+      });
+    });
+  });
+
+  describe('toPackageJson', () => {
+    it('empty', () => {
+      const json = DenoDeps.toPackageJson({ imports: [] });
+      expect(json).to.eql({ dependencies: {}, devDependencies: {} });
+    });
+
+    it('imports', async () => {
+      const res = await DenoDeps.fromYaml(SAMPLE.path);
+      const json = DenoDeps.toPackageJson(res.data!);
+      expect(json).to.eql({
+        dependencies: { '@std/async': 'npm:@jsr/@std__async@1.0.10', rxjs: '7' },
+        devDependencies: { '@types/react': '^18.0.0' },
       });
     });
   });

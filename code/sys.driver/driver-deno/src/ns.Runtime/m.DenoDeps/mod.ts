@@ -7,7 +7,10 @@
  */
 import { type t } from './common.ts';
 import { fromYaml } from './u.fromYaml.ts';
+import { toDenoJson, toPackageJson } from './u.toJson.ts';
 
 export const DenoDeps: t.DenoDepsLib = {
   fromYaml,
+  toDenoJson,
+  toPackageJson,
 };
