@@ -9,6 +9,7 @@
     "reload": "deno task reload:clear && deno task reload:install",
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
+    "prep": "deno run -RWE ./scripts/main.ts --prep",
     "bump": "deno run -RWE --allow-sys --allow-ffi ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
