@@ -7,6 +7,9 @@ export type DenoDepTargetFile = 'deno.json' | 'package.json';
  * Tools for working with the dependency/imports of a Deno mono-repo.
  */
 export type DenoDepsLib = {
+  /** Logging helpers */
+  readonly Fmt: t.DenoDepsFmt;
+
   /** Load the imports definitions from YAML. */
   fromYaml(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
@@ -75,15 +78,25 @@ export type DenoYamlDep = {
   import: t.StringModuleSpecifier;
 };
 
+/** Deno/deno.json variant. */
 export type DenoYamlDepDeno = DenoYamlDep & {
   /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
   wildcard?: boolean;
 };
 
+/** Node/package.json variant. */
 export type DenoYamlDepNode = DenoYamlDep & {
   /**
    * Flag indicating if the import is a development-dependency only.
    * Only relevant when producing a `package.json` file.
    */
   dev?: boolean;
+};
+
+/**
+ * Logging helpers.
+ */
+export type DenoDepsFmt = {
+  /** Log a list of deps to a table. */
+  deps(deps?: t.DenoDep[]): string;
 };

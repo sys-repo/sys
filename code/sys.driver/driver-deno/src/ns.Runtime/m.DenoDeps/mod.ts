@@ -8,8 +8,10 @@
 import { type t } from './common.ts';
 import { fromYaml } from './u.fromYaml.ts';
 import { toDenoJson, toPackageJson } from './u.toJson.ts';
+import { Fmt } from './m.Fmt.ts';
 
 export const DenoDeps: t.DenoDepsLib = {
+  Fmt,
   fromYaml,
   toDenoJson,
   toPackageJson,

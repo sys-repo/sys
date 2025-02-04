@@ -1,10 +1,15 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
 import { DenoDeps } from './mod.ts';
+import { Fmt } from './m.Fmt.ts';
 
 describe('DenoDeps', () => {
   const SAMPLE = {
     path: './src/-test/sample-2/imports.yaml',
   };
+
+  it('API', () => {
+    expect(DenoDeps.Fmt).to.equal(Fmt);
+  });
 
   describe('fromYaml', () => {
     it('input: path (string)', async () => {
