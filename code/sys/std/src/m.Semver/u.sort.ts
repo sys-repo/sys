@@ -20,7 +20,7 @@ export const sort: t.SemverLib['sort'] = (input, opt) => {
  * Helpers
  */
 const wrangle = {
-  semver(input: t.StringSemver | t.SemVer) {
+  semver(input: t.StringSemver | t.SemVer): t.SemVer {
     return typeof input === 'string' ? parse(input) : input;
   },
 
