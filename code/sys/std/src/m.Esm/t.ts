@@ -23,7 +23,18 @@ export type EsmLib = {
   parse(moduleSpecifier: string): EsmParsedImport;
 
   /** Convert the parsed-import object to a fully-qualified ESM module-specifier. */
-  toString(module: EsmImport): string;
+  toString(
+    /** The ESM module to convert to a string. */
+    module: EsmImport,
+    options?: {
+      /** Replace prefix. */
+      prefix?: EsmImport['prefix'];
+      /** Replace name. */
+      name?: EsmImport['name'];
+      /** Replace version. */
+      version?: EsmImport['version'];
+    },
+  ): string;
 };
 
 /**
