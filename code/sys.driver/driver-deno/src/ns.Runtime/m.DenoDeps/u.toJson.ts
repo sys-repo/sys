@@ -30,7 +30,9 @@ export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (input) => {
 
     const toString = (mod: t.EsmImport) => {
       if (mod.prefix === 'jsr') {
-        const [scope, name] = mod.name.split('/');
+        const split = mod.name.split('/');
+        const scope = split[0].replace(/^\@/, '');
+        const name = split[1];
         return `npm:@jsr/${scope}__${name}@${mod.version}`;
       } else {
         return mod.version;

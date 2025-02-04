@@ -117,8 +117,13 @@ describe('DenoDeps', () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
       const json = DenoDeps.toPackageJson(res.data!);
       expect(json).to.eql({
-        dependencies: { '@std/async': 'npm:@jsr/@std__async@1.0.10', rxjs: '7' },
-        devDependencies: { '@types/react': '^18.0.0' },
+        dependencies: {
+          '@std/async': 'npm:@jsr/std__async@1.0.10',
+          rxjs: '7',
+        },
+        devDependencies: {
+          '@types/react': '^18.0.0',
+        },
       });
     });
   });
