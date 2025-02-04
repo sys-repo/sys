@@ -31,7 +31,7 @@ export const coerce: t.SemverLib['coerce'] = (version) => {
     return fail(`Specified version is invalid type ("${typeof version}")`);
   }
 
-  const trimmed = version.trim();
+  let trimmed = version.trim().replace(/^v/, '');
   if (!trimmed) return fail('Specified version is empty');
 
   /**
