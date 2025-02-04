@@ -173,32 +173,48 @@ describe('Jsr.Esm', () => {
     });
 
     describe('modules.latest: (version)', () => {
-      const specifiers = ['jsr:foobar', 'npm:@foo/bar@1.2.3', Esm.parse('npm:@foo/bar@~1.2.4')];
+      describe('param: string (semver)', () => {
+        const specifiers = ['jsr:foobar', 'npm:@foo/bar@1.2.3', Esm.parse('npm:@foo/bar@~1.2.4')];
 
-      it('empty (no match)', () => {
-        const modules = Esm.modules(specifiers);
-        expect(modules.latest('')).to.eql('');
-        expect(modules.latest('  ')).to.eql('');
-        expect(modules.latest('bam')).to.eql('');
-        expect(modules.latest('@foo')).to.eql('');
-        expect(modules.latest('npm:@foo/boo')).to.eql('');
+        it('empty (no match)', () => {
+          const modules = Esm.modules(specifiers);
+          expect(modules.latest('')).to.eql('');
+          expect(modules.latest('  ')).to.eql('');
+          expect(modules.latest('bam')).to.eql('');
+          expect(modules.latest('@foo')).to.eql('');
+          expect(modules.latest('npm:@foo/boo')).to.eql('');
+        });
+
+        it('match: string', () => {
+          const modules = Esm.modules(specifiers);
+          const test = (input: string, expected: string) => {
+            const res = modules.latest(input);
+            expect(res).to.eql(expected);
+          };
+          test('@foo/bar', '1.2.4');
+          test('  @foo/bar  ', '1.2.4');
+          test('npm:@foo/bar', '1.2.4');
+          test('npm:@foo/bar@1.2.3', '1.2.4');
+        });
+
+        it('no version → empty ("")', () => {
+          const modules = Esm.modules(specifiers);
+          expect(modules.latest('jsr:foobar')).to.eql('');
+        });
       });
 
-      it('match', () => {
-        const modules = Esm.modules(specifiers);
-        const test = (input: string, expected: string) => {
-          const res = modules.latest(input);
-          expect(res).to.eql(expected);
-        };
-        test('@foo/bar', '1.2.4');
-        test('  @foo/bar  ', '1.2.4');
-        test('npm:@foo/bar', '1.2.4');
-        test('npm:@foo/bar@1.2.3', '1.2.4');
-      });
+      describe('param: {EsmImportMap}', () => {
+        const specifiers = ['rxjs:7', 'npm:@foo/bar@1.2.3', Esm.parse('npm:@foo/bar@~1.2.4')];
 
-      it('no version → empty ("")', () => {
-        const modules = Esm.modules(specifiers);
-        expect(modules.latest('jsr:foobar')).to.eql('');
+        it('empty', () => {
+          const modules = Esm.modules(specifiers);
+          const deps: t.EsmImportMap = {};
+          const res = modules.latest(deps);
+          expect(res).to.eql(deps);
+          expect(res).to.not.equal(deps); // NB: immutable.
+        });
+
+        });
       });
     });
   });

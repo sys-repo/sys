@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** A map of {"alias":"module-specifier"} values. */
+export type EsmImportMap = { [key: string]: string };
+
 /**
  * Tools for working with systems and runtimes that support
  * the ESM (EcmaScript Module) standard.
@@ -42,8 +45,10 @@ export type EsmParsedImport = EsmImport & {
  */
 export type EsmModulesLib = {
   /** Create an instance of a group-of-modules. */
-  create(input?: (t.StringModuleSpecifier | t.EsmImport)[]): EsmModules;
+  create(input?: EsmCreateArray | Readonly<EsmCreateArray>): EsmModules;
 };
+
+type EsmCreateArray = (t.StringModuleSpecifier | t.EsmImport)[];
 
 /**
  * Tools for working with group-of-modules (instance).
@@ -53,4 +58,5 @@ export type EsmModules = {
   readonly items: Readonly<t.EsmImport[]>;
   readonly error?: t.StdError;
   latest(name: t.StringModuleSpecifier): t.StringSemver;
+  latest(deps: t.EsmImportMap): t.EsmImportMap;
 };

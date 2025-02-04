@@ -1,4 +1,5 @@
-import { type t, Err, Semver } from './common.ts';
+import { type t, Err } from './common.ts';
+import { Latest } from './u.latest.ts';
 import { parse } from './u.parse.ts';
 
 export const Modules: t.EsmModulesLib = {
@@ -18,13 +19,10 @@ export const Modules: t.EsmModulesLib = {
       get error() {
         return errors.toError();
       },
-
-      latest(name) {
-        name = parse(name).name;
-        const matches = items.filter((m) => m.name === name);
-        const versions = matches.map((m) => Semver.stripPrefix(m.version));
-        const sorted = Semver.sort(versions, { order: 'desc' });
-        return sorted[0] ?? '';
+      latest(input) {
+        return typeof input === 'string'
+          ? Latest.name(items, input)
+          : (Latest.deps(items, input) as any); // NB: return-type hack.
       },
     };
 
