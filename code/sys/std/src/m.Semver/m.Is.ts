@@ -33,7 +33,9 @@ export const Is: t.SemverIsLib = {
   /** Check if the SemVer is less than the range. */
   lessThanRange,
 
-  /** Checks to see if value is a valid SemVer object. */
+  /**
+   * Checks to see if value is a valid SemVer object.
+   */
   valid(input) {
     if (isSemVer(input)) return true;
     if (typeof input === 'string') {

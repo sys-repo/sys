@@ -2,7 +2,7 @@ import type * as StdSemver from '@std/semver';
 import type { t } from '../common.ts';
 
 /**
- * Library: tools for working with Semver ("Semantic Versions").
+ * Tools for working with Semver ("Semantic Versions").
  */
 export type SemverLib = {
   /** Semver value assertions. */
@@ -14,6 +14,9 @@ export type SemverLib = {
   /** Attempt to parse a string as a semantic version, returning a SemVer object. */
   parse: typeof StdSemver.parse;
 
+  /** Coerce a partial semver string into a complete semver. */
+  coerce(input?: string): t.SemverCoerceResponse;
+
   /** Returns the new SemVer resulting from an increment by release type. */
   increment: typeof StdSemver.increment;
 
@@ -24,16 +27,22 @@ export type SemverLib = {
   sort(input: t.StringSemver[], options?: SemverSortOptionsInput): t.StringSemver[];
   sort(input: t.SemVer[], options?: SemverSortOptionsInput): t.SemVer[];
 
-  /** Format SemVer object into a string.  */
-  toString(input: t.SemVer): t.StringSemver;
-
   /** Removes any modifier prefixes from the semver (eg. "~" or "^" or ">="). */
   stripPrefix(input: t.StringSemver): t.StringSemver;
+
+  /** Format SemVer object into a string.  */
+  toString(input: t.SemVer | t.StringSemver): t.StringSemver;
 };
 
 /** Options for the `Semver.sort` method. */
 export type SemverSortOptions = { order?: t.SortOrder };
 export type SemverSortOptionsInput = t.SemverSortOptions | t.SortOrder;
+
+/** Response from the `Semver.coerce` method. */
+export type SemverCoerceResponse = {
+  version: t.StringSemver;
+  error?: t.StdError;
+};
 
 /**
  * Library: Semver value assertions.

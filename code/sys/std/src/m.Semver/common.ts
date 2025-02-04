@@ -1,5 +1,7 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 export * from '../common.ts';
+
+export { Err } from '../m.Err/mod.ts';
 
 /**
  * Constants

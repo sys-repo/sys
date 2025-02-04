@@ -1,12 +1,12 @@
 import { parse as base } from '@std/semver';
 
 import type { t } from './common.ts';
-import { stripPrefix } from './u.ts';
+import { stripPrefix } from './u.prefix.ts';
 
-export const parse: t.SemverLib['parse'] = (value) => {
-  if (is.empty(value)) value = '0.0.0';
-  value = stripPrefix(value.trim());
-  return base(value);
+export const parse: t.SemverLib['parse'] = (input) => {
+  if (is.empty(input)) input = '0.0.0';
+  input = stripPrefix(input.trim());
+  return base(input);
 };
 
 /**
@@ -14,7 +14,6 @@ export const parse: t.SemverLib['parse'] = (value) => {
  */
 const is = {
   empty(input?: string) {
-    if (typeof input !== 'string') return true;
-    return input.trim() === '';
+    return typeof input !== 'string' ? true : input.trim() === '';
   },
 } as const;
