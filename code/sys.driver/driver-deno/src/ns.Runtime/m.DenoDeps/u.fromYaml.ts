@@ -35,7 +35,7 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
     return fail('Failed to load YAML');
   }
 
-  const toImport = (
+  const asImport = (
     item: t.DenoYamlDep,
     target: t.DenoDepTargetFile,
     dev?: boolean,
@@ -55,17 +55,22 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
     return res;
   };
 
-  const imports: t.DenoDep[] = [];
+  const deps: t.DenoDep[] = [];
 
   if (Array.isArray(yaml['deno.json'])) {
-    const items = yaml['deno.json'].map((m) => toImport(m, 'deno.json', false, m.wildcard)!);
-    imports.push(...items.filter(Boolean));
+    const items = yaml['deno.json'].map((m) => asImport(m, 'deno.json', false, m.wildcard)!);
+    deps.push(...items.filter(Boolean));
   }
 
   if (Array.isArray(yaml['package.json'])) {
-    const items = yaml['package.json'].map((m) => toImport(m, 'package.json', m.dev)!);
-    imports.push(...items.filter(Boolean));
+    const items = yaml['package.json'].map((m) => asImport(m, 'package.json', m.dev)!);
+    deps.push(...items.filter(Boolean));
   }
 
-  return done({ imports });
+  return done({
+    deps,
+    get modules() {
+      return deps.map((m) => m.module);
+    },
+  });
 };

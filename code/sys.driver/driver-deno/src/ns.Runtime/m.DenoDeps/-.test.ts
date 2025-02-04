@@ -9,31 +9,31 @@ describe('DenoDeps', () => {
   describe('fromYaml', () => {
     it('input: path (string)', async () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
-      const imports = res.data?.imports ?? [];
+      const deps = res.data?.deps ?? [];
       expect(res.error).to.eql(undefined);
 
-      expect(imports[0].target).to.eql('deno.json');
-      expect(imports[1].target).to.eql('deno.json');
-      expect(imports[2].target).to.eql('deno.json');
-      expect(imports[3].target).to.eql('deno.json');
+      expect(deps[0].target).to.eql('deno.json');
+      expect(deps[1].target).to.eql('deno.json');
+      expect(deps[2].target).to.eql('deno.json');
+      expect(deps[3].target).to.eql('deno.json');
 
-      expect(imports[4].target).to.eql('package.json');
-      expect(imports[5].target).to.eql('package.json');
-      expect(imports[6].target).to.eql('package.json');
+      expect(deps[4].target).to.eql('package.json');
+      expect(deps[5].target).to.eql('package.json');
+      expect(deps[6].target).to.eql('package.json');
 
-      const mod = imports[0].module;
+      const mod = deps[0].module;
       expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
       expect(mod.name).to.eql('@std/assert');
       expect(mod.version).to.eql('1.0.11');
       expect(mod.prefix).to.eql('jsr');
 
-      const reactTypes = imports.find((m) => m.module.name === '@types/react');
-      const nobleHashes = imports.find((m) => m.module.name === '@noble/hashes');
+      const reactTypes = deps.find((m) => m.module.name === '@types/react');
+      const nobleHashes = deps.find((m) => m.module.name === '@noble/hashes');
 
-      expect(imports[0].dev).to.eql(undefined);
+      expect(deps[0].dev).to.eql(undefined);
       expect(reactTypes?.dev).to.eql(true);
 
-      expect(imports[0].wildcard).to.eql(undefined);
+      expect(deps[0].wildcard).to.eql(undefined);
       expect(nobleHashes?.wildcard).to.eql(true);
     });
 
@@ -42,7 +42,8 @@ describe('DenoDeps', () => {
       const yaml = (await Fs.readText(path)).data!;
       const a = await DenoDeps.fromYaml(yaml);
       const b = await DenoDeps.fromYaml(path);
-      expect(a).to.eql(b);
+
+      expect(a.data?.deps).to.eql(b.data?.deps);
       expect(a.error).to.eql(undefined);
       expect(b.error).to.eql(undefined);
     });
@@ -76,16 +77,23 @@ describe('DenoDeps', () => {
         expect(res.error?.message).to.include('Failed to parse ESM module-specifier');
         expect(res.error?.message).to.include('"fail:foobar@0.1.2"');
 
-        const imports = res.data?.imports ?? [];
-        expect(imports[0].module.error).to.eql(undefined);
-        expect(imports[1].module.error?.message).to.include(`Failed to parse ESM module-specifier`);
+        const deps = res.data?.deps ?? [];
+        expect(deps[0].module.error).to.eql(undefined);
+        expect(deps[1].module.error?.message).to.include(`Failed to parse ESM module-specifier`);
       });
+    });
+  });
+
+  describe('deps.modules ← filter', () => {
+    it('modules == deps (mapped)', async () => {
+      const { data } = await DenoDeps.fromYaml(SAMPLE.path);
+      expect(data?.modules).to.eql(data?.deps.map((m) => m.module));
     });
   });
 
   describe('toDenoJson', () => {
     it('empty', () => {
-      const a = DenoDeps.toDenoJson({ imports: [] });
+      const a = DenoDeps.toDenoJson([]);
       const b = DenoDeps.toDenoJson();
       expect(a).to.eql({});
       expect(b).to.eql({});
@@ -93,7 +101,7 @@ describe('DenoDeps', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
-      const json = DenoDeps.toDenoJson(res.data!);
+      const json = DenoDeps.toDenoJson(res.data?.deps);
       expect(json).to.eql({
         imports: {
           '@std/assert': 'jsr:@std/assert@1.0.11',
@@ -108,7 +116,7 @@ describe('DenoDeps', () => {
 
   describe('toPackageJson', () => {
     it('empty', () => {
-      const a = DenoDeps.toPackageJson({ imports: [] });
+      const a = DenoDeps.toPackageJson([]);
       const b = DenoDeps.toPackageJson();
       expect(a).to.eql({});
       expect(b).to.eql({});
@@ -116,7 +124,7 @@ describe('DenoDeps', () => {
 
     it('imports', async () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
-      const json = DenoDeps.toPackageJson(res.data!);
+      const json = DenoDeps.toPackageJson(res.data!.deps);
       expect(json).to.eql({
         dependencies: { '@std/async': 'npm:@jsr/std__async@1.0.10', rxjs: '7', hono: '4.6' },
         devDependencies: { '@types/react': '^18.0.0' },

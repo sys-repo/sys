@@ -6,10 +6,10 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `deno.json` format.
  */
-export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (input) => {
+export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (deps) => {
   const imports: D = {};
-  if (input) {
-    input.imports
+  if (deps) {
+    deps
       .filter((e) => !e.module.error)
       .filter((e) => e.target.includes('deno.json'))
       .forEach((e) => {
@@ -27,12 +27,12 @@ export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (input) => {
 /**
  * Convert deps to a `package.json` format.
  */
-export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (input) => {
+export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (deps) => {
   const dependencies: D = {};
   const devDependencies: D = {};
 
-  if (input) {
-    const imports = input.imports
+  if (deps) {
+    const imports = deps
       .filter((e) => !e.module.error)
       .filter((e) => e.target.includes('package.json'));
 

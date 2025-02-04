@@ -11,10 +11,10 @@ export type DenoDepsLib = {
   fromYaml(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
   /** Convert deps to a `deno.json` format. */
-  toDenoJson(input?: t.DenoDeps): t.PkgJsonDeno;
+  toDenoJson(deps?: t.DenoDep[]): t.PkgJsonDeno;
 
   /** Convert deps to a `package.json` format. */
-  toPackageJson(input?: t.DenoDeps): t.PkgJsonNode;
+  toPackageJson(deps?: t.DenoDep[]): t.PkgJsonNode;
 };
 
 /** A response object from a `DenoDeps` constructor function. */
@@ -24,16 +24,17 @@ export type DenoDepsResponse = { data?: t.DenoDeps; error?: t.StdError };
  * A common data-structure for expressing an ESM "import"
  * (normalized between 'deno.json' and 'package.json")
  */
-export type DenoDeps = { imports: DenoDep[] };
+export type DenoDeps = {
+  readonly deps: DenoDep[];
+  readonly modules: Readonly<t.EsmImport[]>;
+};
 
 /**
  * A common data-structure for expressing an ESM "import"
  * (normalized between 'deno.json' and 'package.json")
  */
 export type DenoDep = {
-  /**
-   * The module-specifier name of the import.
-   */
+  /** The module-specifier name of the import. */
   module: t.EsmParsedImport;
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
@@ -45,7 +46,14 @@ export type DenoDep = {
    */
   dev?: boolean;
 
-  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
+  /**
+   * Flag indicating if a wildcard entry should be inserted into an generated import-map.
+   * Causes an import (within deno.json), like:
+   *
+   *    "@noble/hashes"
+   *    "@noble/hashes/*"
+   *
+   */
   wildcard?: boolean;
 };
 
