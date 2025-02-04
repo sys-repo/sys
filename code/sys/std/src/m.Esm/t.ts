@@ -42,7 +42,7 @@ export type EsmParsedImport = EsmImport & {
  */
 export type EsmModulesLib = {
   /** Create an instance of a group-of-modules. */
-  create(input: (t.StringModuleSpecifier | t.EsmImport)[]): EsmModules;
+  create(input?: (t.StringModuleSpecifier | t.EsmImport)[]): EsmModules;
 };
 
 /**

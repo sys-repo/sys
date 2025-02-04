@@ -117,10 +117,15 @@ describe('Jsr.Esm', () => {
   describe('Esm.Modules', () => {
     describe('create:', () => {
       it('empty', () => {
-        const modules = Esm.modules([]);
-        expect(modules.items.length).to.eql(0);
-        expect(modules.ok).to.eql(true);
-        expect(modules.error).to.eql(undefined);
+        type T = Parameters<t.EsmModulesLib['create']>[0];
+        const test = (input?: T) => {
+          const modules = Esm.modules(input);
+          expect(modules.items.length).to.eql(0);
+          expect(modules.ok).to.eql(true);
+          expect(modules.error).to.eql(undefined);
+        };
+        test();
+        test([]);
       });
 
       it('from: string[]', () => {
