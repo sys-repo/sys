@@ -44,6 +44,9 @@ export type DenoDep = {
    * Only relevant when producing a `package.json` file.
    */
   dev?: boolean;
+
+  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
+  wildcard?: boolean;
 };
 
 /**
@@ -67,4 +70,7 @@ export type DenoYamlDep = {
    * Only relevant when producing a `package.json` file.
    */
   dev?: boolean;
+
+  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
+  wildcard?: boolean;
 };

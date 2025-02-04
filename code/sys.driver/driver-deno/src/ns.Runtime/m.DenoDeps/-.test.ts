@@ -27,8 +27,13 @@ describe('DenoDeps', () => {
       expect(mod.prefix).to.eql('jsr');
 
       const reactTypes = imports.find((m) => m.module.name === '@types/react');
-      expect(reactTypes?.dev).to.eql(true);
+      const nobleHashes = imports.find((m) => m.module.name === '@noble/hashes');
+
       expect(imports[0].dev).to.eql(undefined);
+      expect(reactTypes?.dev).to.eql(true);
+
+      expect(imports[0].wildcard).to.eql(undefined);
+      expect(nobleHashes?.wildcard).to.eql(true);
     });
 
     it('input: YAML (string)', async () => {
@@ -100,6 +105,8 @@ describe('DenoDeps', () => {
           '@std/fs': 'jsr:@std/fs@1.0.11',
           '@std/http': 'jsr:@std/http@1.0.13',
           hono: 'npm:hono@4.6',
+          '@noble/hashes': 'npm:@noble/hashes@1.7.1',
+          '@noble/hashes/*': 'npm:@noble/hashes@1.7.1/*',
         },
       });
     });

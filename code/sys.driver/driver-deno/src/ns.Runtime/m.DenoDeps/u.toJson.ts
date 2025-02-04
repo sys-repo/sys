@@ -11,7 +11,11 @@ export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (input) => {
     input.imports
       .filter((e) => !e.module.error)
       .filter((e) => e.target.includes('deno.json'))
-      .forEach((e) => (imports[e.module.name] = Esm.toString(e.module)));
+      .forEach((e) => {
+        const value = Esm.toString(e.module);
+        imports[e.module.name] = value;
+        if (e.wildcard) imports[`${e.module.name}/*`] = `${value}/*`;
+      });
   }
   return { imports };
 };

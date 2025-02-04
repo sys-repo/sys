@@ -52,6 +52,7 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
       target: wrangle.target(item),
     };
     if (item.dev) res.dev = true;
+    if (item.wildcard) res.wildcard = true;
     return res;
   };
 
