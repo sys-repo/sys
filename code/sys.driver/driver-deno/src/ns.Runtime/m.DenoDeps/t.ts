@@ -65,9 +65,6 @@ export type DenoYamlDep = {
    *    npm:rxjs@7
    */
   import: t.StringModuleSpecifier;
-
-  /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
-  target: DenoDepTargetFile | DenoDepTargetFile[];
 };
 
 export type DenoYamlDepDeno = DenoYamlDep & {

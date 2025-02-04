@@ -1,8 +1,6 @@
 import { type t, Fs, Err, Esm } from './common.ts';
 import { parse } from 'yaml';
 
-const TARGETS: t.DenoDepTargetFile[] = ['deno.json', 'package.json'];
-
 /**
  * Load the imports definitions from YAML.
  */
@@ -71,17 +69,3 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
 
   return done({ imports });
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  target(item: t.DenoYamlDep): t.DenoDepTargetFile[] {
-    let res: t.DenoDepTargetFile[] = [];
-    if (!item.target) return ['deno.json'];
-    if (typeof item.target === 'string') res.push(item.target);
-    if (Array.isArray(item.target)) res.push(...item.target);
-    res = res.filter((item) => TARGETS.includes(item));
-    return res.length === 0 ? ['deno.json'] : res;
-  },
-} as const;
