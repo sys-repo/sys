@@ -73,10 +73,7 @@ describe('Jsr.Esm', () => {
           expect(res.prefix).to.eql('');
           expect(res.name).to.eql('');
           expect(res.version).to.eql('');
-          expect(res.error?.message).to.include(
-            'Failed to parse ESM module-specifier import string',
-            input,
-          );
+          expect(res.error?.message).to.include('Failed to parse ESM module-specifier', input);
         };
 
         test('');
@@ -91,6 +88,22 @@ describe('Jsr.Esm', () => {
         test('jsr:foobar@');
         test('foobar@hello');
       });
+    });
+  });
+
+  describe('Esm.toString', () => {
+    it('Esm.toString', () => {
+      const test = (input: string) => {
+        const mod = Esm.parse(input);
+        const res = Esm.toString(mod);
+        expect(mod.error).to.eql(undefined, input);
+        expect(res).to.eql(input);
+      };
+      test('jsr:@sys/tmp@^0.0.42');
+      test('jsr:@sys/tmp');
+      test('rxjs@7');
+      test('rxjs');
+      test('npm:rxjs@7');
     });
   });
 });

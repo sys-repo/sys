@@ -13,6 +13,9 @@ export type EsmLib = {
    *          See the `error` property for failure state.
    */
   parse(moduleSpecifier: string): EsmParsedImport;
+
+  /** Convert the parsed-import object to a fully-qualified ESM module-specifier. */
+  toString(module: EsmImport): string;
 };
 
 /**
