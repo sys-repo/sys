@@ -37,6 +37,7 @@ describe('Jsr.Esm', () => {
       test('  @foo/bar  ', '@foo/bar');
       test('npm:foobar', 'foobar');
       test('jsr:foobar', 'foobar');
+      test('jsr:foobar@^1.2', 'foobar');
       test('jsr:@foo/bar', '@foo/bar');
 
       test('./foobar/mod.ts', './foobar/mod.ts');
@@ -56,7 +57,14 @@ describe('Jsr.Esm', () => {
       test(' foobar@^1.2.3 ', '^1.2.3');
       test('foobar@1.2.3-alpha.1  ', '1.2.3-alpha.1');
       test('  @scope/foobar@3', '3');
+
       test(' foobar@~3.1', '~3.1');
+      test(' foobar@^3.1', '^3.1');
+
+      test(' foobar@>=3.1', '>=3.1');
+      test(' foobar@<=3.1', '<=3.1');
+      test(' foobar@<3.1', '<3.1');
+      test(' foobar@>3.1', '>3.1');
     });
 
     describe('error', () => {
