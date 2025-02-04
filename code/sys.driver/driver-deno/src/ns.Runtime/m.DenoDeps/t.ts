@@ -11,10 +11,10 @@ export type DenoDepsLib = {
   fromYaml(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
   /** Convert deps to a `deno.json` format. */
-  toDenoJson(input: t.DenoDeps): t.PkgJsonDeno;
+  toDenoJson(input?: t.DenoDeps): t.PkgJsonDeno;
 
   /** Convert deps to a `package.json` format. */
-  toPackageJson(input: t.DenoDeps): t.PkgJsonNode;
+  toPackageJson(input?: t.DenoDeps): t.PkgJsonNode;
 };
 
 /** A response object from a `DenoDeps` constructor function. */
