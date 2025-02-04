@@ -5,7 +5,7 @@ import { DenoDeps, Fs } from './common.ts';
  * from definieions within `imports.yaml`
  */
 export async function main() {
-  const res = await DenoDeps.fromYaml('./imports.yaml');
+  const res = await DenoDeps.fromYaml('./config.yaml');
   if (res.error) return console.error(res.error);
 
   await Fs.writeJson('./package.json', DenoDeps.toPackageJson(res.data));
