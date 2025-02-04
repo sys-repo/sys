@@ -87,8 +87,8 @@ describe('DenoDeps', () => {
     it('empty', () => {
       const a = DenoDeps.toDenoJson({ imports: [] });
       const b = DenoDeps.toDenoJson();
-      expect(a).to.eql({ imports: {} });
-      expect(b).to.eql({ imports: {} });
+      expect(a).to.eql({});
+      expect(b).to.eql({});
     });
 
     it('imports', async () => {
@@ -110,8 +110,8 @@ describe('DenoDeps', () => {
     it('empty', () => {
       const a = DenoDeps.toPackageJson({ imports: [] });
       const b = DenoDeps.toPackageJson();
-      expect(a).to.eql({ dependencies: {}, devDependencies: {} });
-      expect(b).to.eql({ dependencies: {}, devDependencies: {} });
+      expect(a).to.eql({});
+      expect(b).to.eql({});
     });
 
     it('imports', async () => {

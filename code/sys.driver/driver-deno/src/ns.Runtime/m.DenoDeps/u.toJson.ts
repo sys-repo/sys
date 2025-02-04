@@ -1,5 +1,6 @@
 import { type t, Esm } from './common.ts';
 
+type O = Record<string, unknown>;
 type D = { [key: string]: string };
 
 /**
@@ -17,7 +18,10 @@ export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (input) => {
         if (e.wildcard) imports[`${e.module.name}/*`] = `${value}/*`;
       });
   }
-  return { imports };
+
+  const res: t.PkgJsonDeno = {};
+  if (!isEmpty(imports)) res.imports = imports;
+  return res;
 };
 
 /**
@@ -52,5 +56,15 @@ export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (input) => {
       .forEach((e) => (devDependencies[e.module.name] = toString(e.module)));
   }
 
-  return { dependencies, devDependencies };
+  const res: t.PkgJsonNode = {};
+  if (!isEmpty(dependencies)) res.dependencies = dependencies;
+  if (!isEmpty(devDependencies)) res.devDependencies = devDependencies;
+  return res;
 };
+
+/**
+ * Helpers
+ */
+function isEmpty(input: O) {
+  return Object.keys(input).length === 0;
+}
