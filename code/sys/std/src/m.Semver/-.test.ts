@@ -135,10 +135,15 @@ describe('Semver', () => {
       test('  7.8  ', '7.8.0');
       test('0.0', '0.0.0');
 
-      // "v" prefix.
+      // "v" (version) prefix.
       test('v7', '7.0.0');
       test(' v3.2 ', '3.2.0');
       test(' v1.2.3-alpha.5 ', '1.2.3-alpha.5');
+
+      // Modifier Prefix.
+      test('~7', '~7.0.0');
+      test('^6.5', '^6.5.0');
+      test('>=3.2', '>=3.2.0');
     });
 
     it('prefixes', () => {
