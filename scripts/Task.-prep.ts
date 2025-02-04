@@ -29,6 +29,6 @@ export async function main() {
   console.info(c.brightWhite(`${c.bold('Import Maps')}`));
   console.info(c.green(`(dependencies written)`), fmtSeeFiles);
   console.info();
-  console.info(DenoDeps.Fmt.deps(deps));
+  console.info(DenoDeps.Fmt.deps(deps, { indent: 2 }));
   console.info();
 }

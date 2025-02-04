@@ -1,5 +1,5 @@
 export { R, Value } from '@sys/std';
-export { Semver } from '@sys/std/semver';
+export { Semver } from '@sys/std/semver/server';
 
 export { c, Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
