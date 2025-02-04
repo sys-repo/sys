@@ -167,7 +167,7 @@ describe('Jsr.Esm', () => {
       });
     });
 
-    describe('modules.latest:', () => {
+    describe('modules.latest: (version)', () => {
       const specifiers = ['jsr:foobar', 'npm:@foo/bar@1.2.3', Esm.parse('npm:@foo/bar@~1.2.4')];
 
       it('empty (no match)', () => {
