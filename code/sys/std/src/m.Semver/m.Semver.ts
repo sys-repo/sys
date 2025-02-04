@@ -3,6 +3,7 @@ import { type t, Release } from './common.ts';
 import { Is } from './m.Is.ts';
 import { parse } from './u.parse.ts';
 import { sort } from './u.sort.ts';
+import { stripPrefix } from './u.ts';
 
 export const Semver: t.SemverLib = {
   /** Semver value assertions. */
@@ -25,4 +26,7 @@ export const Semver: t.SemverLib = {
 
   /** Format a SemVer object into a string. */
   toString: format,
+
+  /** Removes any modifier prefixes from the semver (eg. "~" or "^" or ">="). */
+  stripPrefix,
 };

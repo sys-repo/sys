@@ -1,5 +1,6 @@
-import { compare, parse } from '@std/semver';
+import { compare } from '@std/semver';
 import { type t } from './common.ts';
+import { parse } from './u.parse.ts';
 
 /**
  * Sort a list of versions.

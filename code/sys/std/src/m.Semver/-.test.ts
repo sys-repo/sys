@@ -7,6 +7,24 @@ describe('Semver', () => {
     expect(Semver.toString).to.equal(Std.format);
   });
 
+  describe('Semver.stripPrefix', () => {
+    it('strips the prefix', () => {
+      const test = (input: string, expected: string) => {
+        expect(Semver.stripPrefix(input)).to.eql(expected);
+        expect(Semver.stripPrefix(` ${input}  `)).to.eql(expected);
+      };
+      test('~0.1.2', '0.1.2');
+      test('^0.1.2', '0.1.2');
+      test('>=0.1.2', '0.1.2');
+      test('<=0.1.2', '0.1.2');
+    });
+
+    it('invalid values', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v: any) => expect(Semver.stripPrefix(v)).to.eql(''));
+    });
+  });
+
   describe('Semver.parse', () => {
     it('simple', () => {
       const a = Semver.parse('1.2.0');

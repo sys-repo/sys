@@ -5,6 +5,12 @@ import type { t } from '../common.ts';
  * Library: tools for working with Semver ("Semantic Versions").
  */
 export type SemverLib = {
+  /** Semver value assertions. */
+  readonly Is: SemverIsLib;
+
+  /** Tools and information about SemVerRelease */
+  readonly Release: t.SemverReleaseLib;
+
   /** Attempt to parse a string as a semantic version, returning a SemVer object. */
   parse: typeof StdSemver.parse;
 
@@ -21,11 +27,8 @@ export type SemverLib = {
   /** Format SemVer object into a string.  */
   toString(input: t.SemVer): t.StringSemver;
 
-  /** Semver value assertions. */
-  readonly Is: SemverIsLib;
-
-  /** Tools and information about SemVerRelease */
-  readonly Release: t.SemverReleaseLib;
+  /** Removes any modifier prefixes from the semver (eg. "~" or "^" or ">="). */
+  stripPrefix(input: t.StringSemver): t.StringSemver;
 };
 
 /** Options for the `Semver.sort` method. */
