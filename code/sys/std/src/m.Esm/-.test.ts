@@ -1,6 +1,6 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { Esm } from './mod.ts';
 import { Modules } from './m.Modules.ts';
+import { Esm } from './mod.ts';
 
 describe('Jsr.Esm', () => {
   it('API', () => {
@@ -189,6 +189,11 @@ describe('Jsr.Esm', () => {
         test('  @foo/bar  ', '1.2.4');
         test('npm:@foo/bar', '1.2.4');
         test('npm:@foo/bar@1.2.3', '1.2.4');
+      });
+
+      it('no version → empty ("")', () => {
+        const modules = Esm.modules(specifiers);
+        expect(modules.latest('jsr:foobar')).to.eql('');
       });
     });
   });
