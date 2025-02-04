@@ -23,6 +23,7 @@
     "./random": "./src/m.Random/mod.ts",
     "./rx": "./src/m.Rx/mod.ts",
     "./semver": "./src/m.Semver/mod.ts",
+    "./semver/server": "./src/m.Semver.Server/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./value": "./src/m.Value/mod.ts"
