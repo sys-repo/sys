@@ -115,7 +115,7 @@ describe('Jsr.Esm', () => {
   });
 
   describe('Esm.Modules', () => {
-    describe('create', () => {
+    describe('create:', () => {
       it('empty', () => {
         const modules = Esm.modules([]);
         expect(modules.items.length).to.eql(0);
@@ -125,34 +125,70 @@ describe('Jsr.Esm', () => {
 
       it('from: string[]', () => {
         const modules = Esm.modules(['foobar', 'jsr:foobar@1', 'npm:@foo/bar@1.2.3']);
-        expect(modules.items.length).to.eql(3);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
-
-        console.log('modules', modules);
+        expect(modules.items.length).to.eql(3);
+        expect(modules.items.map((m) => m.name)).to.eql(['foobar', 'foobar', '@foo/bar']);
       });
 
       it('from: <EsmImport>[]', () => {
         const a = Esm.parse('jsr:foobar@1');
         const b = Esm.parse('npm:@foo/bar@1.2.3');
-
         const modules = Esm.modules([a, b]);
-        expect(modules.items.length).to.eql(2);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
+        expect(modules.items.length).to.eql(2);
+        expect(modules.items[0]).to.eql(a);
+        expect(modules.items[1]).to.eql(b);
+
+        // NB: different instance.
+        expect(modules.items[0]).to.not.equal(a);
+        expect(modules.items[1]).to.not.equal(b);
       });
 
-      it('from: mixed', () => {});
+      it('from: mixed', () => {
+        const mod = Esm.parse('npm:@foo/bar@1.2.3');
+        const modules = Esm.modules(['jsr:foobar@1', 'npm:@foo/bar@1.2.3', mod]);
+        expect(modules.ok).to.eql(true);
+        expect(modules.error).to.eql(undefined);
+        expect(modules.items.length).to.eql(3);
+        expect(modules.items.map((m) => m.name)).to.eql(['foobar', '@foo/bar', mod.name]);
+      });
+
+      describe('errors', () => {
+        it('module parse error', async () => {
+          const fail = 'FAIL:@foo/bar@1.2.3';
+          const modules = Esm.modules(['foobar', fail, 'jsr:foobar@1']);
+          expect(modules.items.length).to.eql(3);
+          expect(modules.ok).to.eql(false);
+          expect(modules.error?.message).to.include('Failed to parse ESM module-specifier');
+          expect(modules.error?.message).to.include(fail);
+        });
+      });
     });
 
-    describe('errors', () => {
-      it('module parse error', async () => {
-        const fail = 'FAIL:@foo/bar@1.2.3';
-        const modules = Esm.modules(['foobar', fail, 'jsr:foobar@1']);
-        expect(modules.items.length).to.eql(3);
-        expect(modules.ok).to.eql(false);
-        expect(modules.error?.message).to.include('Failed to parse ESM module-specifier');
-        expect(modules.error?.message).to.include(fail);
+    describe('modules.latest:', () => {
+      const specifiers = ['jsr:foobar', 'npm:@foo/bar@1.2.3', Esm.parse('npm:@foo/bar@~1.2.4')];
+
+      it('empty (no match)', () => {
+        const modules = Esm.modules(specifiers);
+        expect(modules.latest('')).to.eql('');
+        expect(modules.latest('  ')).to.eql('');
+        expect(modules.latest('bam')).to.eql('');
+        expect(modules.latest('@foo')).to.eql('');
+        expect(modules.latest('npm:@foo/boo')).to.eql('');
+      });
+
+      it('match', () => {
+        const modules = Esm.modules(specifiers);
+        const test = (input: string, expected: string) => {
+          const res = modules.latest(input);
+          expect(res).to.eql(expected);
+        };
+        test('@foo/bar', '1.2.4');
+        test('  @foo/bar  ', '1.2.4');
+        test('npm:@foo/bar', '1.2.4');
+        test('npm:@foo/bar@1.2.3', '1.2.4');
       });
     });
   });
