@@ -7,10 +7,55 @@ describe('Semver', () => {
     expect(Semver.toString).to.equal(Std.format);
   });
 
-  it('Semver.parse', () => {
-    const a = Semver.parse('1.2.0');
-    const b = Semver.parse('1.2.1');
-    expect(Semver.Is.greaterThan(b, a)).to.eql(true);
+  describe('Semver.parse', () => {
+    it('simple', () => {
+      const a = Semver.parse('1.2.0');
+      const b = Semver.parse('1.2.1');
+      expect(Semver.Is.greaterThan(b, a)).to.eql(true);
+    });
+
+    it('with modifier prefixes', () => {
+      const test = (input: string, expected: string) => {
+        const ver = Semver.parse(input);
+        expect(Semver.toString(ver)).to.eql(expected);
+      };
+      test('~0.1.2', '0.1.2');
+      test('^0.1.2', '0.1.2');
+      test('>=0.1.2', '0.1.2');
+      test('<=0.1.2', '0.1.2');
+    });
+
+    it('empty → 0.0.0', () => {
+      const test = (input: any) => {
+        const ver = Semver.parse(input);
+        expect(Semver.toString(ver)).to.eql('0.0.0');
+      };
+      test('');
+      test('  ');
+    });
+
+    it('non-string → 0.0.0', () => {
+      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => {
+        const ver = Semver.parse(value);
+        expect(Semver.toString(ver)).to.eql('0.0.0');
+      });
+    });
+
+    describe('error', () => {
+      it('throw: wildcards', () => {
+        // NB: The official SemVer 2.0.0 spec does not accept wildcards values.
+        const test = (input: string) => {
+          const fn = () => Semver.parse(input);
+          expect(fn).to.throw();
+        };
+        test('1.x');
+        test('1.2.x');
+        test('1.2.*');
+        test('x');
+        test('*');
+      });
+    });
   });
 
   describe('Semver.sort', () => {

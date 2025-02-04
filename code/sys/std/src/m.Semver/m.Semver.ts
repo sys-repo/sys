@@ -1,6 +1,7 @@
-import { compare, format, increment, parse } from '@std/semver';
+import { compare, format, increment } from '@std/semver';
 import { type t, Release } from './common.ts';
 import { Is } from './m.Is.ts';
+import { parse } from './u.parse.ts';
 import { sort } from './u.sort.ts';
 
 export const Semver: t.SemverLib = {
