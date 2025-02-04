@@ -21,6 +21,7 @@ export type * from './m.Promise/t.ts';
 export type * from './m.Random/t.ts';
 export type * from './m.Regex/t.ts';
 export type * from './m.Rx/t.ts';
+export type * from './m.Semver.Server/t.ts';
 export type * from './m.Semver/t.ts';
 export type * from './m.Testing.Server/t.ts';
 export type * from './m.Testing/t.ts';
