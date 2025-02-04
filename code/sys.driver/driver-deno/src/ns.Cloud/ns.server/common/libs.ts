@@ -3,5 +3,4 @@ export { Env } from '@sys/fs/env';
 export { HttpServer } from '@sys/http/server';
 
 export { DenoSubhostingAPI };
-
-import DenoSubhostingAPI from 'deno/subhosting';
+import DenoSubhostingAPI from 'subhosting';
