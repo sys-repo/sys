@@ -223,6 +223,36 @@ describe('Semver', () => {
   });
 
   describe('Semver.Prefix', () => {
+    describe('Prefix.get', () => {
+      const test = (input: string, expected: string) => {
+        expect(Prefix.get(input)).to.eql(expected);
+        expect(Prefix.get(` ${input}  `)).to.eql(expected); // NB: white-space padding.
+      };
+
+      it('extracts the prefix', () => {
+        test('~0.1.2', '~');
+        test('^0.1.2', '^');
+        test('>=0.1.2', '>=');
+        test('<=0.1.2', '<=');
+        test('<0.1.2', '<');
+        test('>0.1.2', '>');
+      });
+
+      it('no prefix', () => {
+        test('0.1.2', '');
+        test('1.2', '');
+        test('1', '');
+        test('', '');
+        test(' ', '');
+        test('foo', '');
+      });
+
+      it('invalid input', () => {
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => expect(Semver.Prefix.get(v)).to.eql(''));
+      });
+    });
+
     describe('Prefix.strip', () => {
       it('strips the prefix', () => {
         const test = (input: string, expected: string) => {

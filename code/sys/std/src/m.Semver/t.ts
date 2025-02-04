@@ -88,4 +88,6 @@ export type SemverPrefixLib = {
   /** Removes any modifier prefixes from the semver. */
   strip(input: string): t.StringSemver;
 
+  /** Removes any modifier prefixes from the semver. */
+  get(input: string): string;
 };
