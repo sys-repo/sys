@@ -5,6 +5,11 @@ import type { t } from './common.ts';
  * the ESM (EcmaScript Module) standard.
  */
 export type EsmLib = {
+  /** Tools for working with groups of modules. */
+  readonly Modules: t.EsmModulesLib;
+  /** Create an instance of a group-of-modules. */
+  modules: t.EsmModulesLib['create'];
+
   /**
    * Parses an "import" module-specifier string.
    *
@@ -29,5 +34,22 @@ export type EsmImport = {
 
 export type EsmParsedImport = EsmImport & {
   input: string;
+  readonly error?: t.StdError;
+};
+
+/**
+ * Tools for working with group-of-modules (libarary).
+ */
+export type EsmModulesLib = {
+  /** Create an instance of a group-of-modules. */
+  create(input: (t.StringModuleSpecifier | t.EsmImport)[]): EsmModules;
+};
+
+/**
+ * Tools for working with group-of-modules (instance).
+ */
+export type EsmModules = {
+  readonly ok: boolean;
+  readonly items: Readonly<t.EsmImport[]>;
   readonly error?: t.StdError;
 };

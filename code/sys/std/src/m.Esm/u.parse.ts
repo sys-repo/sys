@@ -55,7 +55,7 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
 
   // Otherwise, attempt to parse as a package specifier.
   const match = text.match(REGEX.package);
-  if (!match) return fail(`Failed to parse ESM module-specifier string`);
+  if (!match) return fail(`Failed to parse ESM module-specifier string ("${moduleSpecifier}")`);
 
   const [, prefix, name, version] = match;
   return done(prefix ?? '', name, version ?? '');

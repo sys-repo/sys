@@ -1,7 +1,13 @@
 import { type t, describe, expect, it } from '../-test.ts';
 import { Esm } from './mod.ts';
+import { Modules } from './m.Modules.ts';
 
 describe('Jsr.Esm', () => {
+  it('API', () => {
+    expect(Esm.Modules).to.equal(Modules);
+    expect(Esm.modules).to.equal(Modules.create);
+  });
+
   describe('Esm.parse', () => {
     it('prefix', () => {
       const test = (input: string, expectedPrefix: t.EsmImport['prefix']) => {
@@ -74,6 +80,7 @@ describe('Jsr.Esm', () => {
           expect(res.name).to.eql('');
           expect(res.version).to.eql('');
           expect(res.error?.message).to.include('Failed to parse ESM module-specifier', input);
+          expect(res.error?.message).to.include(input);
         };
 
         test('');
@@ -104,6 +111,49 @@ describe('Jsr.Esm', () => {
       test('rxjs@7');
       test('rxjs');
       test('npm:rxjs@7');
+    });
+  });
+
+  describe('Esm.Modules', () => {
+    describe('create', () => {
+      it('empty', () => {
+        const modules = Esm.modules([]);
+        expect(modules.items.length).to.eql(0);
+        expect(modules.ok).to.eql(true);
+        expect(modules.error).to.eql(undefined);
+      });
+
+      it('from: string[]', () => {
+        const modules = Esm.modules(['foobar', 'jsr:foobar@1', 'npm:@foo/bar@1.2.3']);
+        expect(modules.items.length).to.eql(3);
+        expect(modules.ok).to.eql(true);
+        expect(modules.error).to.eql(undefined);
+
+        console.log('modules', modules);
+      });
+
+      it('from: <EsmImport>[]', () => {
+        const a = Esm.parse('jsr:foobar@1');
+        const b = Esm.parse('npm:@foo/bar@1.2.3');
+
+        const modules = Esm.modules([a, b]);
+        expect(modules.items.length).to.eql(2);
+        expect(modules.ok).to.eql(true);
+        expect(modules.error).to.eql(undefined);
+      });
+
+      it('from: mixed', () => {});
+    });
+
+    describe('errors', () => {
+      it('module parse error', async () => {
+        const fail = 'FAIL:@foo/bar@1.2.3';
+        const modules = Esm.modules(['foobar', fail, 'jsr:foobar@1']);
+        expect(modules.items.length).to.eql(3);
+        expect(modules.ok).to.eql(false);
+        expect(modules.error?.message).to.include('Failed to parse ESM module-specifier');
+        expect(modules.error?.message).to.include(fail);
+      });
     });
   });
 });
