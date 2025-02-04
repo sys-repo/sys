@@ -28,7 +28,7 @@ export const coerce: t.SemverLib['coerce'] = (version) => {
   };
 
   if (typeof version !== 'string') {
-    return fail(`Specified version is invalid type (${typeof version})`);
+    return fail(`Specified version is invalid type ("${typeof version}")`);
   }
 
   const trimmed = version.trim();
@@ -60,7 +60,7 @@ export const coerce: t.SemverLib['coerce'] = (version) => {
 
   // Validate the extra portion if it exists.
   if (extra && extra.length > 0) {
-    // Extra must begin with either '-' or '+'
+    // Extra must begin with either '-' or '+'.
     if (extra[0] !== '-' && extra[0] !== '+') {
       return fail(`Invalid extra semver characters: "${extra}" in version "${version}"`);
     }
@@ -72,6 +72,6 @@ export const coerce: t.SemverLib['coerce'] = (version) => {
     parts.push('0');
   }
 
-  const fullCore = parts.join('.');
-  return done(operator + fullCore + extra);
+  // Finish up.
+  return done(`${operator}${parts.join('.')}${extra}`);
 };
