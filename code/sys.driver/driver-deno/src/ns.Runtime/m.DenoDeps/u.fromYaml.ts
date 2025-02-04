@@ -37,26 +37,38 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
     return fail('Failed to load YAML');
   }
 
-  if (!Array.isArray(yaml.imports)) {
-    return fail('Invalid YAML: the {imports} array not found');
-  }
-
-  const toImport = (item: t.DenoYamlDep): t.DenoDep | undefined => {
+  const toImport = (
+    item: t.DenoYamlDep,
+    target: t.DenoDepTargetFile,
+    dev?: boolean,
+    wildcard?: boolean,
+  ): t.DenoDep | undefined => {
     if (typeof item?.import !== 'string') return;
     const module = Esm.parse(item.import);
     if (module.error) errors.push(`${module.error.message} ("${module.input}")`);
     const res: t.DenoDep = {
+      target,
       get module() {
         return module;
       },
-      target: wrangle.target(item),
     };
-    if (item.dev) res.dev = true;
-    if (item.wildcard) res.wildcard = true;
+    if (dev) res.dev = true;
+    if (wildcard) res.wildcard = true;
     return res;
   };
 
-  const imports = yaml.imports.map((item) => toImport(item)!).filter(Boolean);
+  const imports: t.DenoDep[] = [];
+
+  if (Array.isArray(yaml['deno.json'])) {
+    const items = yaml['deno.json'].map((m) => toImport(m, 'deno.json', false, m.wildcard)!);
+    imports.push(...items.filter(Boolean));
+  }
+
+  if (Array.isArray(yaml['package.json'])) {
+    const items = yaml['package.json'].map((m) => toImport(m, 'package.json', m.dev)!);
+    imports.push(...items.filter(Boolean));
+  }
+
   return done({ imports });
 };
 

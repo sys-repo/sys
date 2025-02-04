@@ -37,7 +37,7 @@ export type DenoDep = {
   module: t.EsmParsedImport;
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
-  target: DenoDepTargetFile[];
+  target: DenoDepTargetFile;
 
   /**
    * Flag indicating if the import is a development-dependency only.
@@ -52,7 +52,11 @@ export type DenoDep = {
 /**
  * The structure the YAML definition file, declaring the imports.
  */
-export type DenoYamlDeps = { imports: DenoYamlDep[] };
+export type DenoYamlDeps = {
+  'deno.json': t.DenoYamlDepDeno[];
+  'package.json': t.DenoYamlDepNode[];
+};
+
 export type DenoYamlDep = {
   /**
    * The name (module-specifier) of an ESM import.
@@ -64,13 +68,17 @@ export type DenoYamlDep = {
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
   target: DenoDepTargetFile | DenoDepTargetFile[];
+};
 
+export type DenoYamlDepDeno = DenoYamlDep & {
+  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
+  wildcard?: boolean;
+};
+
+export type DenoYamlDepNode = DenoYamlDep & {
   /**
    * Flag indicating if the import is a development-dependency only.
    * Only relevant when producing a `package.json` file.
    */
   dev?: boolean;
-
-  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
-  wildcard?: boolean;
 };

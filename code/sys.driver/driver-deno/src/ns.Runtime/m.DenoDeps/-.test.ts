@@ -4,26 +4,27 @@ import { DenoDeps } from './mod.ts';
 describe('DenoDeps', () => {
   const SAMPLE = {
     path: './src/-test/sample-2/imports.yaml',
-  } as const;
+  };
 
   describe('fromYaml', () => {
     it('input: path (string)', async () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
       const imports = res.data?.imports ?? [];
-
       expect(res.error).to.eql(undefined);
-      expect(imports.length).to.be.greaterThan(3);
 
-      expect(imports[0].target).to.eql(['deno.json', 'package.json']);
-      expect(imports[1].target).to.eql(['deno.json']);
-      expect(imports[2].target).to.eql(['deno.json']);
-      expect(imports[3].target).to.eql(['deno.json']);
-      expect(imports[4].target).to.eql(['package.json']);
+      expect(imports[0].target).to.eql('deno.json');
+      expect(imports[1].target).to.eql('deno.json');
+      expect(imports[2].target).to.eql('deno.json');
+      expect(imports[3].target).to.eql('deno.json');
+
+      expect(imports[4].target).to.eql('package.json');
+      expect(imports[5].target).to.eql('package.json');
+      expect(imports[6].target).to.eql('package.json');
 
       const mod = imports[0].module;
-      expect(mod.input).to.eql('jsr:@std/async@1.0.10');
-      expect(mod.name).to.eql('@std/async');
-      expect(mod.version).to.eql('1.0.10');
+      expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
+      expect(mod.name).to.eql('@std/assert');
+      expect(mod.version).to.eql('1.0.11');
       expect(mod.prefix).to.eql('jsr');
 
       const reactTypes = imports.find((m) => m.module.name === '@types/react');
@@ -56,7 +57,7 @@ describe('DenoDeps', () => {
 
       it('invalid YAML: parse error', async () => {
         const yaml = `
-          imports:
+          deno.json:
             import: jsr:@sys/tmp@0.0.42
             import: npm:rxjs@7
       `;
@@ -65,14 +66,9 @@ describe('DenoDeps', () => {
         expect(res.error?.cause?.message).to.include('Map keys must be unique');
       });
 
-      it('invalid YAML: {imports} not found', async () => {
-        const res = await DenoDeps.fromYaml('foo:123');
-        expect(res.error?.message).to.includes('Invalid YAML: the {imports} array not found');
-      });
-
       it('invalid YAML: module ESM unparsable', async () => {
         const yaml = `
-          imports:
+          deno.json:
             - import: jsr:@sys/tmp@0.0.42
             - import: fail:foobar@0.1.2        
         `;
@@ -100,11 +96,9 @@ describe('DenoDeps', () => {
       const json = DenoDeps.toDenoJson(res.data!);
       expect(json).to.eql({
         imports: {
-          '@std/async': 'jsr:@std/async@1.0.10',
           '@std/assert': 'jsr:@std/assert@1.0.11',
-          '@std/fs': 'jsr:@std/fs@1.0.11',
           '@std/http': 'jsr:@std/http@1.0.13',
-          hono: 'npm:hono@4.6',
+          '@std/fs': 'jsr:@std/fs@1.0.11',
           '@noble/hashes': 'npm:@noble/hashes@1.7.1',
           '@noble/hashes/*': 'npm:@noble/hashes@1.7.1/*',
         },
@@ -124,13 +118,8 @@ describe('DenoDeps', () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
       const json = DenoDeps.toPackageJson(res.data!);
       expect(json).to.eql({
-        dependencies: {
-          '@std/async': 'npm:@jsr/std__async@1.0.10',
-          rxjs: '7',
-        },
-        devDependencies: {
-          '@types/react': '^18.0.0',
-        },
+        dependencies: { '@std/async': 'npm:@jsr/std__async@1.0.10', rxjs: '7', hono: '4.6' },
+        devDependencies: { '@types/react': '^18.0.0' },
       });
     });
   });
