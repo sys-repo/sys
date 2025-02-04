@@ -8,8 +8,11 @@ export type SemverLib = {
   /** Semver value assertions. */
   readonly Is: SemverIsLib;
 
-  /** Tools and information about SemVerRelease */
+  /** Information about SemVerRelease */
   readonly Release: t.SemverReleaseLib;
+
+  /** Helpers for extracting the modifier prefix of a semver (eg "^" or ">=" etc). */
+  readonly Prefix: t.SemverPrefixLib;
 
   /** Attempt to parse a string as a semantic version, returning a SemVer object. */
   parse: typeof StdSemver.parse;
@@ -26,9 +29,6 @@ export type SemverLib = {
   /** Sort a list of versions. */
   sort(input: t.StringSemver[], options?: SemverSortOptionsInput): t.StringSemver[];
   sort(input: t.SemVer[], options?: SemverSortOptionsInput): t.SemVer[];
-
-  /** Removes any modifier prefixes from the semver (eg. "~" or "^" or ">="). */
-  stripPrefix(input: t.StringSemver): t.StringSemver;
 
   /** Format SemVer object into a string.  */
   toString(input: t.SemVer | t.StringSemver): t.StringSemver;
@@ -74,9 +74,18 @@ export type SemverIsLib = {
 };
 
 /**
- * Library: Tools and information about SemVerRelease
+ * Information about SemVerRelease
  */
 export type SemverReleaseLib = {
   /** List of release types. */
   types: t.SemVerReleaseType[];
+};
+
+/**
+ * Helpers for extracting the modifier prefix of a semver (eg "^" or ">=" etc).
+ */
+export type SemverPrefixLib = {
+  /** Removes any modifier prefixes from the semver. */
+  strip(input: string): t.StringSemver;
+
 };

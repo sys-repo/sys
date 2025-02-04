@@ -1,7 +1,14 @@
 import { describe, expect, it } from '../-test.ts';
+import { Is } from './m.Is.ts';
+import { Prefix } from './m.Prefix.ts';
 import { Semver } from './mod.ts';
 
 describe('Semver', () => {
+  it('API', () => {
+    expect(Semver.Is).to.equal(Is);
+    expect(Semver.Prefix).to.equal(Prefix);
+  });
+
   describe('toString', () => {
     it('toString( {object} ) → string', () => {
       const ver = Semver.parse('1.2.0');
@@ -215,27 +222,25 @@ describe('Semver', () => {
     });
   });
 
-  describe('Semver.stripPrefix', () => {
-    it('strips the prefix', () => {
-      const test = (input: string, expected: string) => {
-        expect(Semver.stripPrefix(input)).to.eql(expected);
-        expect(Semver.stripPrefix(` ${input}  `)).to.eql(expected);
-      };
-      test('~0.1.2', '0.1.2');
-      test('^0.1.2', '0.1.2');
-      test('>=0.1.2', '0.1.2');
-      test('<=0.1.2', '0.1.2');
-    });
+  describe('Semver.Prefix', () => {
+    describe('Prefix.strip', () => {
+      it('strips the prefix', () => {
+        const test = (input: string, expected: string) => {
+          expect(Prefix.strip(input)).to.eql(expected);
+          expect(Prefix.strip(` ${input}  `)).to.eql(expected); // NB: white-space padding.
+        };
+        test('~0.1.2', '0.1.2');
+        test('^0.1.2', '0.1.2');
+        test('>=0.1.2', '0.1.2');
+        test('<=0.1.2', '0.1.2');
+        test('<0.1.2', '0.1.2');
+        test('>0.1.2', '0.1.2');
+      });
 
-    it('invalid values', () => {
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => expect(Semver.stripPrefix(v)).to.eql(''));
+      it('invalid input', () => {
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => expect(Semver.Prefix.strip(v)).to.eql(''));
+      });
     });
-  });
-
-  describe('Semver.prefix', () => {
-    /**
-     * TODO 🐷
-     */
   });
 });

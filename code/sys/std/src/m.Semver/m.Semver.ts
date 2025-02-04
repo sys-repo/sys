@@ -5,7 +5,7 @@ import { Is } from './m.Is.ts';
 import { coerce } from './u.coerce.ts';
 import { parse } from './u.parse.ts';
 import { sort } from './u.sort.ts';
-import { stripPrefix } from './u.prefix.ts';
+import { Prefix } from './m.Prefix.ts';
 
 export const Semver: t.SemverLib = {
   /** Semver value assertions. */
@@ -13,6 +13,9 @@ export const Semver: t.SemverLib = {
 
   /** Tools and information about SemVerRelease */
   Release,
+
+  /** Helpers for extracting the modifier prefix of a semver (eg "^" or ">=" etc). */
+  Prefix,
 
   /** Sort a list of versions. */
   sort,
@@ -28,9 +31,6 @@ export const Semver: t.SemverLib = {
 
   /** Compare two SemVers. */
   compare,
-
-  /** Removes any modifier prefixes from the semver (eg. "~" or "^" or ">="). */
-  stripPrefix,
 
   /** Format a SemVer object into a string. */
   toString(input) {
