@@ -163,23 +163,37 @@ describe('Semver', () => {
       b: ['2.0.0', '1.10.1', '1.2.10', '1.2.3', '0.9.5'],
     };
 
-    it('returns differnt instance', () => {
+    it('returns different instance', () => {
       expect(Semver.sort(versions)).to.not.equal(versions);
       expect(Semver.sort(semvers)).to.not.equal(semvers);
     });
 
-    it('order: descending (default)', () => {
+    it('does not strip prefixes', () => {
+      const versions: string[] = ['<1.2.3', '>=2.0.0', '~1.10.1', 'v0.9.5', '^1.2.10'];
       const a = Semver.sort(versions);
-      const b = Semver.sort(semvers, {});
-      expect(a).to.eql(SORTED.a);
-      expect(b.map((v) => Semver.toString(v))).to.eql(SORTED.b);
+      const b = Semver.sort(versions, 'desc');
+
+      expect(a).to.not.eql(versions);
+      expect(b).to.not.eql(versions);
+
+      expect(a).to.eql(['>=2.0.0', '~1.10.1', '^1.2.10', '<1.2.3', 'v0.9.5']);
+      expect(b).to.eql(['>=2.0.0', '~1.10.1', '^1.2.10', '<1.2.3', 'v0.9.5']);
     });
 
-    it('order: ascending', () => {
-      const a = Semver.sort(versions, { order: 'asc' });
-      const b = Semver.sort(semvers, 'asc');
-      expect(a).to.eql([...SORTED.a].reverse());
-      expect(b.map((v) => Semver.toString(v))).to.eql([...SORTED.b].reverse());
+    describe('option: sort order', () => {
+      it('descending (default)', () => {
+        const a = Semver.sort(versions);
+        const b = Semver.sort(semvers, {});
+        expect(a).to.eql(SORTED.a);
+        expect(b.map((v) => Semver.toString(v))).to.eql(SORTED.b);
+      });
+
+      it('ascending', () => {
+        const a = Semver.sort(versions, { order: 'asc' });
+        const b = Semver.sort(semvers, 'asc');
+        expect(a).to.eql([...SORTED.a].reverse());
+        expect(b.map((v) => Semver.toString(v))).to.eql([...SORTED.b].reverse());
+      });
     });
   });
 
@@ -265,6 +279,7 @@ describe('Semver', () => {
         test('<=0.1.2', '0.1.2');
         test('<0.1.2', '0.1.2');
         test('>0.1.2', '0.1.2');
+        test('0.1.2', '0.1.2');
       });
 
       it('invalid input', () => {
