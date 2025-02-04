@@ -43,14 +43,13 @@ export const coerce: t.SemverLib['coerce'] = (version) => {
    *   4. The rest of the string: pre-release and/or build metadata.
    *
    * Breakdown:
-   *   ^((?:[~^]|<=|>=|<|>))?   => Optional operator prefix.
-   *   \s*                      => Optional whitespace.
-   *   (\d+(?:\.\d+){0,2})      => Numeric core (1 to 3 parts).
-   *   (.*)$                   => The rest of the string.
+   *   ^((?:[~^]|<=|>=|<|>))?   →   Optional operator prefix.
+   *   \s*                      →   Optional whitespace.
+   *   (\d+(?:\.\d+){0,2})      →   Numeric core (1 to 3 parts).
+   *   (.*)$                    →   The rest of the string.
    */
   const regex = /^((?:[~^]|<=|>=|<|>))?\s*(\d+(?:\.\d+){0,2})(.*)$/;
   const match = trimmed.match(regex);
-
   if (!match) {
     return fail(`Specified version is invalid type ("${version}")`);
   }
