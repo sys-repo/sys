@@ -11,7 +11,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./ansi": "./src/m.Ansi/mod.ts",
+    "./ansi/server": "./src/m.Ansi/mod.ts",
     "./args": "./src/m.Args/mod.ts",
     "./datetime": "./src/m.DateTime/mod.ts",
     "./error": "./src/m.Err/mod.ts",
