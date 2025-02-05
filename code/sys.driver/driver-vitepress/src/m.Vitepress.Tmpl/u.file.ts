@@ -1,7 +1,6 @@
 import { pkg as vitePkg } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-
-import { type t, Fs, PATHS, pkg, Pkg, Tmpl } from './common.ts';
+import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -35,8 +34,19 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     }
 
     if (e.target.relative === 'package.json') {
-      // const text = e.text.tmpl.replace(/<TMP_VERSION>/, tmpPkg.version);
-      // return e.modify(text);
+      const ws = await DenoFile.workspace();
+      const config = (await DenoDeps.fromYaml(Path.join(ws.dir, 'config.yaml'))).data;
+      const modules = Esm.modules([...(config?.modules ?? []), ...ws.modules.items]);
+      const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
+
+      const next = {
+        ...pkg,
+        dependencies: modules.latest(pkg?.dependencies ?? {}),
+        devDependencies: modules.latest(pkg?.devDependencies ?? {}),
+      };
+
+      const json = `${JSON.stringify(next, null, '  ')}\n`;
+      return e.modify(json);
     }
 
     if (e.target.relative === 'docs/index.md') {
