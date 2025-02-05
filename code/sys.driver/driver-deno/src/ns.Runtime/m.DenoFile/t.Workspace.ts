@@ -8,6 +8,7 @@ export type DenoWorkspace = {
   readonly dir: t.StringPath;
   readonly file: t.StringPath;
   readonly children: t.DenoWorkspaceChildren;
+  readonly modules: t.EsmModules;
 };
 
 export type DenoWorkspaceChildren = {

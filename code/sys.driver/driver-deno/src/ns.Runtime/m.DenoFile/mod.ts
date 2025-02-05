@@ -2,7 +2,7 @@
  * @module
  * Tools for working with a `deno.json` file.
  */
-import { Fs, Path, type t } from './common.ts';
+import { type t, Fs, Path, Esm } from './common.ts';
 
 export const DenoFile: t.DenoFileLib = {
   /**
@@ -26,13 +26,24 @@ export const DenoFile: t.DenoFileLib = {
     const file = denofile.path;
     const dir = Path.dirname(file);
     const dirs = denofile.data?.workspace ?? [];
+
     const children: t.DenoWorkspaceChildren = {
       load: loadChildrenMethod(dir, dirs),
       get dirs() {
         return dirs;
       },
     };
-    return { exists, dir, file, children };
+
+    const specifiers = toModuleSpecifiers(await children.load());
+    const modules = Esm.modules(specifiers);
+    const api: t.DenoWorkspace = {
+      exists,
+      dir,
+      file,
+      children,
+      modules,
+    };
+    return api;
   },
 
   /**
@@ -51,11 +62,11 @@ export const DenoFile: t.DenoFileLib = {
 const wrangle = {
   async workspaceSource(src?: t.StringPath, walkup?: boolean) {
     if (typeof src === 'string') return src;
-    return walkup ? await findFirstAncestorWorkspace() : undefined;
+    return walkup ? await findFirstWorkspaceAncestor() : undefined;
   },
 } as const;
 
-async function findFirstAncestorWorkspace() {
+async function findFirstWorkspaceAncestor() {
   let root: t.StringPath | undefined;
   await Fs.walkUp('.', async (e) => {
     // Look for the existence of the [deno.json] file.
@@ -81,4 +92,16 @@ function loadChildrenMethod(rootdir: t.StringDir, subpaths: t.StringPath[]) {
       .map((path) => DenoFile.load(path));
     return Promise.all(promises);
   };
+}
+
+function toModuleSpecifiers(children: t.DenoFileLoadResponse[]) {
+  return children
+    .filter((e) => e.ok && !!e.data)
+    .filter((e) => !!e.data?.name)
+    .map((e) => {
+      const data = e.data!;
+      const name = data.name ?? '<ERROR>';
+      const version = data.version ?? '0.0.0';
+      return `jsr:${name}@${version}`;
+    });
 }
