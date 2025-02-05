@@ -2,12 +2,12 @@ import { DenoFile } from '@sys/driver-deno/runtime';
 import { c, Cli, R, Semver, type t, Value } from './common.ts';
 
 type Options = {
-  release?: t.SemVerReleaseType;
+  release?: t.SemverReleaseType;
   argv?: string[];
 };
 
 type TArgs = {
-  release?: t.SemVerReleaseType;
+  release?: t.SemverReleaseType;
 };
 
 export async function main(options: Options = {}) {
@@ -44,14 +44,14 @@ export async function main(options: Options = {}) {
     .map((file) => {
       const json = file.data!;
       const { name = '', version = '' } = json;
-      const current = Semver.parse(version);
+      const current = Semver.parse(version).version;
       const next = Semver.increment(current, release);
       const path = file.path;
       return { path, json, name, version: { current, next } };
     });
 
-  const formatSemverColor = (version: t.SemVer, release: t.SemVerReleaseType) => {
-    const fmt = (kind: t.SemVerReleaseType, value: number): string => {
+  const formatSemverColor = (version: t.Semver, release: t.SemverReleaseType) => {
+    const fmt = (kind: t.SemverReleaseType, value: number): string => {
       const text = String(value);
       return kind === release ? c.bold(text) : text;
     };
@@ -104,12 +104,12 @@ export async function main(options: Options = {}) {
  * Helpers
  */
 const wrangle = {
-  release(options: Options, argv: TArgs): t.SemVerReleaseType {
+  release(options: Options, argv: TArgs): t.SemverReleaseType {
     if (options.release !== undefined) return options.release;
 
     if (argv.release !== undefined) {
-      const release = argv.release.toLowerCase() as t.SemVerReleaseType;
-      const supported: t.SemVerReleaseType[] = ['major', 'minor', 'patch'];
+      const release = argv.release.toLowerCase() as t.SemverReleaseType;
+      const supported: t.SemverReleaseType[] = ['major', 'minor', 'patch'];
       if (supported.includes(release)) return release;
 
       // Unsupported semver release/bump type.

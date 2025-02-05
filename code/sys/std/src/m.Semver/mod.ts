@@ -9,7 +9,7 @@ import { compare, format, increment } from '@std/semver';
 import { type t, Release } from './common.ts';
 import { Is } from './m.Is.ts';
 import { coerce } from './u.coerce.ts';
-import { parse } from './u.parse.ts';
+import { parse, range } from './u.parse.ts';
 import { sort } from './u.sort.ts';
 import { Prefix } from './m.Prefix.ts';
 
@@ -31,6 +31,9 @@ export const Semver: t.SemverLib = {
 
   /** Coerce a partial semver string into a complete semver. */
   coerce,
+
+  /** Attempt to parse a SemVer range (eg ">=1.0.0 <2.0.0 || >=3.0.0"). */
+  range,
 
   /** Returns the new SemVer resulting from an increment by release type. */
   increment,

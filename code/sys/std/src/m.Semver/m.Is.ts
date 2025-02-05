@@ -1,15 +1,16 @@
+import { isSemVer } from '@std/semver';
+
+import type { t } from './common.ts';
 import {
+  eql,
   greaterOrEqual,
   greaterThan,
   greaterThanRange,
-  isSemVer,
   lessOrEqual,
   lessThan,
   lessThanRange,
-  parse,
-} from '@std/semver';
-import type { t } from './common.ts';
-import { eql } from './u.compare.ts';
+} from './u.compare.ts';
+import { parse } from './u.parse.ts';
 
 export const Is: t.SemverIsLib = {
   /** Equality comparison between two SemVers. */
@@ -38,14 +39,31 @@ export const Is: t.SemverIsLib = {
    */
   valid(input) {
     if (isSemVer(input)) return true;
-    if (typeof input === 'string') {
-      try {
-        parse(input);
-        return true;
-      } catch (_err: unknown) {
-        return false;
-      }
-    }
+    if (typeof input === 'string') return !parse(input).error;
     return false;
   },
+
+  /**
+   * Determine if the given SemVer range is a wildcard (eg. "*" no constraint).
+   */
+  wildcardRange(input) {
+    if (!input || !Array.isArray(input)) return false;
+    if (!(input.length === 1 && input[0].length === 1)) return false;
+    const range = input[0][0];
+    return (
+      range.operator === undefined &&
+      Number.isNaN(range.major) &&
+      Number.isNaN(range.minor) &&
+      Number.isNaN(range.patch) &&
+      isEmptyArray(range.build) &&
+      isEmptyArray(range.prerelease)
+    );
+  },
 };
+
+/**
+ * Helpers
+ */
+function isEmptyArray(value: unknown): boolean {
+  return Array.isArray(value) && value.length === 0;
+}

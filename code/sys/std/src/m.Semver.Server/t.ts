@@ -12,5 +12,5 @@ export type SemverServerLib = t.SemverLib & {
  * Console formatting helpers.
  */
 export type SemverServerFmt = {
-  colorize(version: t.StringSemver | t.SemVer): string;
+  colorize(version: t.StringSemver | t.Semver): string;
 };

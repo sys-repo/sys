@@ -20,8 +20,8 @@ export const sort: t.SemverLib['sort'] = (input, opt) => {
  * Helpers
  */
 const wrangle = {
-  semver(input: t.StringSemver | t.SemVer): t.SemVer {
-    return typeof input === 'string' ? parse(input) : input;
+  semver(input: t.StringSemver | t.Semver): t.Semver {
+    return typeof input === 'string' ? parse(input).version : input;
   },
 
   options(input?: t.SemverSortOptionsInput): t.SemverSortOptions {
