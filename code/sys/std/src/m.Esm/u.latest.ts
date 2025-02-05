@@ -34,6 +34,8 @@ const wrangle = {
   },
 
   value(value: string, version: t.StringSemver) {
+    value = value.trim();
+    if (!value) return version;
     const coerced = Semver.coerce(value);
     return coerced.error ? toString(parse(value), { version }) : version;
   },

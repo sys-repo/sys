@@ -259,11 +259,25 @@ describe('Jsr.Esm', () => {
           };
 
           const res = modules.latest(deps);
-
           expect(res['@foo/bar']).to.eql('npm:@foo/bar@~1.2.4'); //   Latest in [modules].
           expect(res['@sys/tmp']).to.eql('jsr:@sys/tmp@^0.0.10'); //  No change.
           expect(res['rxjs']).to.eql('^7.2'); //                      Latest in [modules]
           expect(res['foo']).to.eql('3.2'); //                        Latest in deps.
+        });
+
+        it('empty version values', () => {
+          const specifiers = ['rxjs@^7.2', 'jsr:@sys/tmp@0.0.10', 'npm:@foo/bar@~1.2.4', 'foo@2'];
+          const modules = Esm.modules(specifiers);
+          const deps: t.EsmImportMap = {
+            '@foo/bar': '',
+            '@sys/tmp': '',
+            foo: '  ',
+          };
+
+          const res = modules.latest(deps);
+          expect(res['@foo/bar']).to.eql('~1.2.4'); //   Latest in [modules].
+          expect(res['@sys/tmp']).to.eql('0.0.10'); //  No change.
+          expect(res['foo']).to.eql('2'); //                        Latest in deps.
         });
       });
     });
