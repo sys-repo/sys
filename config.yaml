@@ -56,6 +56,7 @@ deno.json:
   - import: jsr:@std/fs@1.0.10
   - import: jsr:@std/encoding@1.0.6
   - import: jsr:@std/dotenv@0.225.3
+  - import: jsr:@std/async@1.0.10
 
 package.json:
   - import: jsr:@std/async@1.0.10
