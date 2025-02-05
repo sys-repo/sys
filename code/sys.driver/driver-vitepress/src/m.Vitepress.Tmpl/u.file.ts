@@ -8,6 +8,13 @@ import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './co
 export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProcessFile {
   const { srcDir = PATHS.srcDir } = args;
 
+  const getWorkspace = async () => {
+    const ws = await DenoFile.workspace();
+    const deps = (await DenoDeps.fromYaml(Path.join(ws.dir, 'config.yaml'))).data;
+    const modules = Esm.modules([...(deps?.modules ?? []), ...ws.modules.items]);
+    return { ws, modules };
+  };
+
   return async (e) => {
     if (e.target.exists && is.userspace(e.target.relative)) {
       /**
@@ -34,11 +41,8 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     }
 
     if (e.target.relative === 'package.json') {
-      const ws = await DenoFile.workspace();
-      const config = (await DenoDeps.fromYaml(Path.join(ws.dir, 'config.yaml'))).data;
-      const modules = Esm.modules([...(config?.modules ?? []), ...ws.modules.items]);
+      const { modules } = await getWorkspace();
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
-
       const next = {
         ...pkg,
         dependencies: modules.latest(pkg?.dependencies ?? {}),
