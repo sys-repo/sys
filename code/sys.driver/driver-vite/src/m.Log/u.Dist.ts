@@ -17,7 +17,7 @@ export const Dist: t.ViteLogLib['Dist'] = {
     const hx = digest(dist.hash.digest);
     const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
     const d = Fs.toFile(distPath);
-    const distPathFmt = `${c.green(Path.dirname(d.relative))}/${d.file.name}`;
+    const distPathFmt = `${c.green(`${Path.dirname(d.relative)}/`)}${c.dim(d.file.name)}`;
     const pkgNameFmt = c.white(c.bold(pkg.name));
 
     const table = Cli.table([]);
