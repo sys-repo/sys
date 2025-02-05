@@ -1,5 +1,4 @@
 import { parse as base, parseRange } from '@std/semver';
-
 import { type t, Err } from './common.ts';
 import { Prefix } from './m.Prefix.ts';
 
@@ -21,12 +20,16 @@ export const range: t.SemverLib['range'] = (input) => {
     errors.push(error, { cause });
     return done(parseRange('*'));
   };
-  const errors = Err.errors();
 
-  if (typeof input !== 'string') return fail(`Range input invalid: ${typeof input}`);
+  const errors = Err.errors();
+  if (typeof input !== 'string') {
+    return fail(`Range input invalid: ${typeof input}`);
+  }
 
   const text = (input || '').trim();
-  if (!text) return fail('Range value not given');
+  if (!text) {
+    return fail('Range value not given');
+  }
 
   try {
     return done(parseRange(text));
