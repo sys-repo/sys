@@ -23,7 +23,7 @@ deno.json:
   - import: jsr:@std/dotenv@0.225.3
   - import: jsr:@std/async@1.0.10
 
-  # CLI tools,
+  # CLI tools.
   - import: jsr:@cliffy/keypress@1.0.0-rc.7
   - import: jsr:@cliffy/prompt@1.0.0-rc.7
   - import: jsr:@cliffy/table@1.0.0-rc.7
@@ -40,7 +40,7 @@ deno.json:
   - import: npm:@automerge/automerge-repo-storage-nodefs@1
   - import: npm:@onsetsoftware/automerge-patcher@0.14.0
 
-  # Sundry: NPM
+  # Sundry: NPM.
   - import: npm:react-error-boundary@5
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.15.0
@@ -70,13 +70,7 @@ deno.json:
   - import: npm:subhosting@0.1.0-alpha.1
 
 package.json:
-  # - import: jsr:@std/async@1.0.10
-  # - import: jsr:@std/datetime@0.225.3
-  # - import: jsr:@std/path@1.0.8
-  # - import: jsr:@std/semver@1.0.3
-  # - import: jsr:@std/testing@1.0.9
-  # - import: jsr:@std/uuid@1.0.4
-
+  # Deno standard libs ("std").
   - import: jsr:@std/async@1.0.10
   - import: jsr:@std/datetime@0.225.3
   - import: jsr:@std/path@1.0.8
@@ -88,20 +82,28 @@ package.json:
   - import: jsr:@std/dotenv@0.225.3
   - import: jsr:@std/async@1.0.10
 
+  # Sundry: NPM.
+  - import: npm:@noble/hashes@1.7.1
+  - import: npm:hono@4.6.19
+
+  # UI.
   - import: npm:@vidstack/react@1.12.12
   - import: npm:@emotion/react@11.14.0
-  - import: npm:hono@4.6.19
+
+  #  UI: React.
+  - import: npm:@types/react@^18.0.0
+  - import: npm:@types/react-dom@^18.0.0
   - import: npm:react@^18.0.0
   - import: npm:react-dom@^18.0.0
   - import: npm:react-icons@5.4.0
-  - import: npm:@noble/hashes@1.7.1
 
-  - import: npm:@types/react@^18.0.0
-  - import: npm:@types/react-dom@^18.0.0
+  # Build tools.
   - import: npm:@swc/plugin-emotion@8.6.0
   - import: npm:@vitejs/plugin-react-swc@3
   - import: npm:rollup@4.32.1
-  - import: npm:vitepress@1
   - import: npm:vite@6.0.11
   - import: npm:vite-plugin-wasm@3
+
+  # Build tools: frameworks.
+  - import: npm:vitepress@1
   - import: npm:vue@3.5.13
