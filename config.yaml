@@ -1,3 +1,15 @@
+#
+#  System Dependencies ("imports")
+#
+#  This is the "single-source-of-truth" with regards dependency versioning.
+#  Import maps (in the `deno.json` and `package.json` files) is auto-generated
+#  from this config definition.
+#
+#  Also, other downstream dependencies (such as template generators, see `@sys/tmpl`)
+#  use this definition to calculate "latest" versions to inject into a say a
+#  `package.json` file for a scaffolded project.
+#
+
 deno.json:
   - import: npm:@noble/hashes@1.7.1
     wildcard: true
