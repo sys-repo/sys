@@ -29,7 +29,7 @@ export type DenoDepsResponse = { data?: t.DenoDeps; error?: t.StdError };
  */
 export type DenoDeps = {
   readonly deps: DenoDep[];
-  readonly modules: Readonly<t.EsmImport[]>;
+  readonly modules: t.EsmModules;
 };
 
 /**

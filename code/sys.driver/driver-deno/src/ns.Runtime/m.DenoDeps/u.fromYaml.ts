@@ -69,8 +69,6 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
 
   return done({
     deps,
-    get modules() {
-      return deps.map((m) => m.module);
-    },
+    modules: Esm.modules(deps.map((m) => m.module)),
   });
 };

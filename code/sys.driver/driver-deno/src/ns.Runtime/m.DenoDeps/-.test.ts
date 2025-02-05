@@ -92,7 +92,7 @@ describe('DenoDeps', () => {
   describe('instance: deps.modules ← filter', () => {
     it('modules == deps (mapped)', async () => {
       const { data } = await DenoDeps.fromYaml(SAMPLE.path);
-      expect(data?.modules).to.eql(data?.deps.map((m) => m.module));
+      expect(data?.modules.items).to.eql(data?.deps.map((m) => m.module));
     });
   });
 
