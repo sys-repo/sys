@@ -11,7 +11,7 @@ describe('DenoDeps', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
   });
 
-  describe('fromYaml', () => {
+  describe('DenoDeps.fromYaml', () => {
     it('input: path (string)', async () => {
       const res = await DenoDeps.fromYaml(SAMPLE.path);
       const deps = res.data?.deps ?? [];
@@ -89,14 +89,14 @@ describe('DenoDeps', () => {
     });
   });
 
-  describe('deps.modules ← filter', () => {
+  describe('instance: deps.modules ← filter', () => {
     it('modules == deps (mapped)', async () => {
       const { data } = await DenoDeps.fromYaml(SAMPLE.path);
       expect(data?.modules).to.eql(data?.deps.map((m) => m.module));
     });
   });
 
-  describe('toDenoJson', () => {
+  describe('DenoDeps:toDenoJson', () => {
     it('empty', () => {
       const a = DenoDeps.toDenoJson([]);
       const b = DenoDeps.toDenoJson();
@@ -119,7 +119,7 @@ describe('DenoDeps', () => {
     });
   });
 
-  describe('toPackageJson', () => {
+  describe('DenoDeps.toPackageJson', () => {
     it('empty', () => {
       const a = DenoDeps.toPackageJson([]);
       const b = DenoDeps.toPackageJson();
