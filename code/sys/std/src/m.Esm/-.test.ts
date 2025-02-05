@@ -270,14 +270,14 @@ describe('Jsr.Esm', () => {
           const modules = Esm.modules(specifiers);
           const deps: t.EsmImportMap = {
             '@foo/bar': '',
-            '@sys/tmp': '',
+            '@sys/tmp': 'jsr:@sys/tmp',
             foo: '  ',
           };
 
           const res = modules.latest(deps);
-          expect(res['@foo/bar']).to.eql('~1.2.4'); //   Latest in [modules].
-          expect(res['@sys/tmp']).to.eql('0.0.10'); //  No change.
-          expect(res['foo']).to.eql('2'); //                        Latest in deps.
+          expect(res['@foo/bar']).to.eql('~1.2.4');
+          expect(res['@sys/tmp']).to.eql('jsr:@sys/tmp@0.0.10');
+          expect(res['foo']).to.eql('2');
         });
       });
     });
