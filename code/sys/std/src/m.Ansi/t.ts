@@ -1,14 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * CLI color formatting tools.
- */
-export type AnsiColorLib = {
-  readonly ansi: AnsiColors;
-  readonly rgb: t.ColorLib;
-};
-
-/**
  * Wraps the given text in an [ANSI] color wrapper.
  */
 export type WrapAnsiColor = (text: string) => string;

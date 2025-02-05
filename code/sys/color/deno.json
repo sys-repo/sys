@@ -13,6 +13,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./rgb": "./src/m.Rgb/mod.ts",
-    "./ansi": "./src/m.Ansi/mod.ts"
+    "./ansi": "./src/mod.Ansi.ts"
   }
 }
