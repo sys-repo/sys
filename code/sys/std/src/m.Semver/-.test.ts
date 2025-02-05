@@ -222,7 +222,7 @@ describe('Semver', () => {
     });
   });
 
-  describe('Semver.Is', () => {
+  describe('Semver.Is (compare)', () => {
     it('Is.semver', () => {
       const ver = Semver.parse('0.0.0');
 
@@ -240,9 +240,15 @@ describe('Semver', () => {
 
     it('Is.eql', () => {
       const a = Semver.parse('0.1.2');
-      const b = Semver.parse('0.1.3');
+      const b = '0.1.3';
+      const c = '0.1';
+      const d = '0.1.0';
       expect(Semver.Is.eql(a, a)).to.eql(true);
       expect(Semver.Is.eql(a, b)).to.eql(false);
+      expect(Semver.Is.eql(c, c)).to.eql(true);
+      expect(Semver.Is.eql(b, c)).to.eql(false);
+      expect(Semver.Is.eql(c, d)).to.eql(true);
+      expect(Semver.Is.eql(c, '0.1.0-alpha.1')).to.eql(false);
     });
   });
 
