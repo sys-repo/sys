@@ -148,6 +148,7 @@ describe('Jsr.Esm', () => {
         type T = Parameters<t.EsmModulesLib['create']>[0];
         const test = (input?: T) => {
           const modules = Esm.modules(input);
+          expect(modules.count).to.eql(0);
           expect(modules.items.length).to.eql(0);
           expect(modules.ok).to.eql(true);
           expect(modules.error).to.eql(undefined);
@@ -160,7 +161,8 @@ describe('Jsr.Esm', () => {
         const modules = Esm.modules(['foobar', 'jsr:foobar@1', 'npm:@foo/bar@1.2.3']);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
-        expect(modules.items.length).to.eql(3);
+        expect(modules.count).to.eql(3);
+        expect(modules.items.length).to.eql(modules.count);
         expect(modules.items.map((m) => m.name)).to.eql(['foobar', 'foobar', '@foo/bar']);
       });
 
@@ -170,7 +172,7 @@ describe('Jsr.Esm', () => {
         const modules = Esm.modules([a, b]);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
-        expect(modules.items.length).to.eql(2);
+        expect(modules.count).to.eql(2);
         expect(modules.items[0]).to.eql(a);
         expect(modules.items[1]).to.eql(b);
 
@@ -184,7 +186,7 @@ describe('Jsr.Esm', () => {
         const modules = Esm.modules(['jsr:foobar@1', 'npm:@foo/bar@1.2.3', mod]);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
-        expect(modules.items.length).to.eql(3);
+        expect(modules.count).to.eql(3);
         expect(modules.items.map((m) => m.name)).to.eql(['foobar', '@foo/bar', mod.name]);
       });
 
@@ -192,7 +194,7 @@ describe('Jsr.Esm', () => {
         it('module parse error', async () => {
           const fail = 'FAIL:@foo/bar@1.2.3';
           const modules = Esm.modules(['foobar', fail, 'jsr:foobar@1']);
-          expect(modules.items.length).to.eql(3);
+          expect(modules.count).to.eql(3);
           expect(modules.ok).to.eql(false);
           expect(modules.error?.message).to.include('Failed to parse ESM module-specifier');
           expect(modules.error?.message).to.include(fail);

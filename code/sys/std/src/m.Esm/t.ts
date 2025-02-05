@@ -67,6 +67,7 @@ type EsmCreateArray = (t.StringModuleSpecifier | t.EsmImport)[];
 export type EsmModules = {
   readonly ok: boolean;
   readonly items: Readonly<t.EsmImport[]>;
+  readonly count: number;
   readonly error?: t.StdError;
   latest(name: t.StringModuleSpecifier): t.StringSemver;
   latest(deps: t.EsmImportMap): t.EsmImportMap;

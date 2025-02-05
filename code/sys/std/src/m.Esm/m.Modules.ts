@@ -16,6 +16,9 @@ export const Modules: t.EsmModulesLib = {
       get items() {
         return items;
       },
+      get count() {
+        return items.length;
+      },
       get error() {
         return errors.toError();
       },
