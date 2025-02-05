@@ -1,7 +1,7 @@
 /**
  * System
  */
-export { Args, asArray, R, slug, Str, Time } from '@sys/std';
+export { Args, asArray, Esm, R, slug, Str, Time } from '@sys/std';
 
 export { c, Cli, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
@@ -11,4 +11,4 @@ export { HttpServer, Net } from '@sys/http/server';
 export { Process } from '@sys/process';
 export { Tmpl } from '@sys/tmpl/fs';
 
-export { DenoFile, DenoModule } from '@sys/driver-deno/runtime';
+export { DenoDeps, DenoFile, DenoModule } from '@sys/driver-deno/runtime';

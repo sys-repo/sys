@@ -1,10 +1,17 @@
 import { Main } from '@sys/main/cmd';
-import { type t, pkg, Pkg } from './common.ts';
+import { type t, DenoDeps, DenoFile, Esm, Fs, Path, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
  */
 export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFile {
+  const getWorkspace = async () => {
+    const ws = await DenoFile.workspace();
+    const deps = (await DenoDeps.fromYaml(Path.join(ws.dir, 'config.yaml'))).data;
+    const modules = Esm.modules([...(deps?.modules ?? []), ...ws.modules.items]);
+    return { ws, modules };
+  };
+
   return async (e) => {
     if (e.target.exists && is.userspace(e.target.relative)) {
       /**
@@ -27,6 +34,19 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
         .replace(/<SELF_IMPORT_NAME>/, pkg.name);
 
       return e.modify(text);
+    }
+
+    if (e.target.relative === 'package.json') {
+      const { modules } = await getWorkspace();
+      const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
+      const next = {
+        ...pkg,
+        dependencies: modules.latest(pkg?.dependencies ?? {}),
+        devDependencies: modules.latest(pkg?.devDependencies ?? {}),
+      };
+
+      const json = `${JSON.stringify(next, null, '  ')}\n`;
+      return e.modify(json);
     }
 
     if (e.target.file.name === '.gitignore-') {
