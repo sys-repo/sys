@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-immer",
-  "version": "0.0.65",
+  "version": "0.0.66",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
