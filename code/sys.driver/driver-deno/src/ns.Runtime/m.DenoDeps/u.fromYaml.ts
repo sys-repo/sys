@@ -54,7 +54,7 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
       if (Array.isArray(group)) {
         group.forEach((m) => {
           const item = m as t.DenoYamlDep;
-          addDep(item, target, item.dev, item.wildcard);
+          addDep(item, target, item.dev ?? dev, item.wildcard);
         });
       }
     }

@@ -114,6 +114,22 @@ describe('DenoDeps', () => {
       expect(modules.items[0].version).to.eql('^0.1.0');
     });
 
+    it('groups: dev (flag) on ref → package.json:devDependencies', async () => {
+      const yaml = `
+        groups:
+          foobar:
+            - import: jsr:@sys/foo@1
+            - import: jsr:@sys/bar@1
+
+        package.json:
+          - group: foobar
+            dev: true
+        `;
+      const res = await DenoDeps.fromYaml(yaml);
+      const { deps, modules } = res.data!;
+      expect(deps.every((m) => m.dev === true)).to.eql(true);
+    });
+
     describe('errors', () => {
       it('path: not found', async () => {
         const path = './404.yaml';
