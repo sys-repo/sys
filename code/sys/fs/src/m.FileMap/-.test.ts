@@ -8,7 +8,7 @@ describe('FileMap', () => {
   describe('bundle', () => {
     const dir = Sample.source.dir;
 
-    it('bundle ← all paths', async () => {
+    it('bundle ← all paths (sorted)', async () => {
       const res = await FileMap.bundle(dir);
       const paths = (await Sample.source.ls()).map((p) => p.slice(dir.length + 1)).sort();
       expect(Object.keys(res).sort()).to.eql(paths);
