@@ -6,7 +6,7 @@ const i = c.italic;
  * from definieions within `imports.yaml`
  */
 export async function main() {
-  const res = await DenoDeps.fromYaml('./config.yaml');
+  const res = await DenoDeps.fromYaml('./deps.yaml');
   if (res.error) return console.error(res.error);
 
   const PATH = {
@@ -24,11 +24,12 @@ export async function main() {
   /**
    * Output: console.
    */
-  const fmtSeeFiles = c.gray(`see ${i(PATH.deno)} and ${i(PATH.package)}`);
+  const fp = (text: string) => i(c.yellow(text)); // fp: file-path
+  const fmtSeeFiles = c.gray(`${fp(PATH.deno)} and ${fp(PATH.package)}`);
   console.info();
-  console.info(c.brightWhite(`${c.bold('Import Maps')}`));
-  console.info(c.green(`(dependencies written)`), fmtSeeFiles);
+  console.info(c.brightWhite(`${c.bold('Import Map')}`));
+  console.info(c.green(`(dependencies written to):`), fmtSeeFiles);
   console.info();
-  console.info(DenoDeps.Fmt.deps(deps, { indent: 2 }));
+  console.info(DenoDeps.Fmt.deps(deps, { indent: 0 }));
   console.info();
 }
