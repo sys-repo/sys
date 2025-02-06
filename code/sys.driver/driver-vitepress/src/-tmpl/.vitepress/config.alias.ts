@@ -10,7 +10,7 @@ import { Err, Path } from '@sys/std';
  */
 export async function getAliases() {
   const ws = await ViteConfig.workspace({});
-  const deps = (await loadDeps(ws.dir)).deps;
+  const deps = (await loadDeps()).deps;
 
   const npm = 'npm';
   const npmRefs = deps.filter((d) => d.module.prefix === npm);
@@ -22,9 +22,9 @@ export async function getAliases() {
 /**
  * Helpers
  */
-async function loadDeps(dir: string) {
+async function loadDeps() {
   const errors = Err.errors();
-  const path = Path.join(dir, 'deps.yaml');
+  const path = Path.resolve('./.sys/deps.yaml');
   const res = await DenoDeps.from(path);
 
   if (res.error || !res.data?.deps) {
