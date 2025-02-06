@@ -37,7 +37,7 @@ src: vimeo/727951677
 ---
 
 
-# Markdown ( [Syntax](https://markdown-it.github.io/) )
+# Markdown - [Syntax](https://markdown-it.github.io/)
 A sample breakdown of the main markdown syntax options available...(🐷):
 
 
