@@ -10,7 +10,33 @@
 #  `package.json` file for a scaffolded project.
 #
 
+groups:
+  automerge:
+    # https://automerge.org
+    - import: npm:@automerge/automerge@2
+    - import: npm:@automerge/automerge-repo@1
+    - import: npm:@automerge/automerge-repo-network-broadcastchannel@1
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@1
+    - import: npm:@automerge/automerge-repo-storage-nodefs@1
+    - import: npm:@onsetsoftware/automerge-patcher@0.14.0
+
+  deno/std:
+    # Deno standard libs ("std").
+    - import: jsr:@std/async@1.0.10
+    - import: jsr:@std/datetime@0.225.3
+    - import: jsr:@std/path@1.0.8
+    - import: jsr:@std/semver@1.0.3
+    - import: jsr:@std/testing@1.0.9
+    - import: jsr:@std/uuid@1.0.4
+    - import: jsr:@std/fs@1.0.10
+    - import: jsr:@std/encoding@1.0.6
+    - import: jsr:@std/dotenv@0.225.3
+    - import: jsr:@std/async@1.0.10
+
 deno.json:
+  - group: deno/std
+  - group: automerge
+
   # Deno standard libs ("std").
   - import: jsr:@std/async@1.0.10
   - import: jsr:@std/datetime@0.225.3
@@ -70,6 +96,8 @@ deno.json:
   - import: npm:subhosting@0.1.0-alpha.1
 
 package.json:
+  - group: deno/std
+
   # Deno standard libs ("std").
   - import: jsr:@std/async@1.0.10
   - import: jsr:@std/datetime@0.225.3
