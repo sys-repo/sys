@@ -14,8 +14,8 @@
     "@std/async": "jsr:@std/async@1.0.10",
     "@std/datetime": "jsr:@std/datetime@0.225.3",
     "@std/dotenv": "jsr:@std/dotenv@0.225.3",
-    "@std/encoding": "jsr:@std/encoding@1.0.6",
-    "@std/fs": "jsr:@std/fs@1.0.10",
+    "@std/encoding": "jsr:@std/encoding@1.0.7",
+    "@std/fs": "jsr:@std/fs@1.0.11",
     "@std/path": "jsr:@std/path@1.0.8",
     "@std/semver": "jsr:@std/semver@1.0.3",
     "@std/testing": "jsr:@std/testing@1.0.9",
@@ -28,11 +28,11 @@
     "diff": "npm:diff@7",
     "fake-indexeddb": "npm:fake-indexeddb@6.0.0",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
-    "happy-dom": "npm:happy-dom@16.7.3",
+    "happy-dom": "npm:happy-dom@17.0.0",
     "ignore": "npm:ignore@7",
     "immer": "npm:immer@10",
     "ollama": "npm:ollama@0.5.12",
-    "ora": "npm:ora@8.1.1",
+    "ora": "npm:ora@8.2.0",
     "pretty-bytes": "npm:pretty-bytes@6.1.1",
     "rambda": "npm:rambda@9.4.2",
     "ramda": "npm:ramda@0.30.1",
@@ -44,7 +44,7 @@
     "subhosting": "npm:subhosting@0.1.0-alpha.1",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
-    "ua-parser-js": "npm:ua-parser-js@2.0.0",
+    "ua-parser-js": "npm:ua-parser-js@2.0.1",
     "yaml": "npm:yaml@2.7.0"
   }
 }

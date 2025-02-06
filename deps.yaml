@@ -25,8 +25,8 @@ groups:
     - import: jsr:@std/semver@1.0.3
     - import: jsr:@std/testing@1.0.9
     - import: jsr:@std/uuid@1.0.4
-    - import: jsr:@std/fs@1.0.10
-    - import: jsr:@std/encoding@1.0.6
+    - import: jsr:@std/fs@1.0.11
+    - import: jsr:@std/encoding@1.0.7
     - import: jsr:@std/dotenv@0.225.3
     - import: jsr:@std/async@1.0.10
 
@@ -62,10 +62,10 @@ deno.json:
   - import: npm:diff@7
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.0
-  - import: npm:happy-dom@16.7.3
+  - import: npm:happy-dom@17.0.0
   - import: npm:ignore@7
   - import: npm:immer@10
-  - import: npm:ora@8.1.1
+  - import: npm:ora@8.2.0
   - import: npm:ollama@0.5.12
   - import: npm:pretty-bytes@6.1.1
   - import: npm:ramda@0.30.1
@@ -77,17 +77,19 @@ deno.json:
   - import: npm:yaml@2.7.0
   - import: npm:subhosting@0.1.0-alpha.1
 
+  # Browser
+  - import: npm:csstype@3
+  - import: npm:ua-parser-js@2.0.1
+
   # - UI
   - import: npm:react-error-boundary@5
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.15.0
-  - import: npm:csstype@3
-  - import: npm:ua-parser-js@2.0.0
 
 package.json:
   - group: std/deno
   - group: crypto
-  - import: npm:hono@4.6
+  - import: npm:hono@4.6.20
 
   # UI.
   - import: npm:@vidstack/react@1.12.12
@@ -103,8 +105,8 @@ package.json:
   # Build tools.
   - import: npm:@swc/plugin-emotion@8.6.0
   - import: npm:@vitejs/plugin-react-swc@3
-  - import: npm:rollup@4.32.1
-  - import: npm:vite@6.0.11
+  - import: npm:rollup@4.34.4
+  - import: npm:vite@6.1.0
   - import: npm:vite-plugin-wasm@3
   # Build tools: frameworks.
   - import: npm:vitepress@1
