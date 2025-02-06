@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.69",
+  "version": "0.0.70",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -RNE --watch ./-scripts/-dev.ts",

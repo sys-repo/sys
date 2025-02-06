@@ -36,6 +36,9 @@ async function loadDeps(dir: string) {
   return { deps, error: errors.toError() };
 }
 
+/**
+ * TODO 🐷 - move to @sys/vite: ViteConfig.toAlias | .toAliasRegex
+ */
 
 /**
  * Match: "npm:<module-name>@<semver>"
