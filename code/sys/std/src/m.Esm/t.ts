@@ -44,6 +44,7 @@ export type EsmImport = {
   prefix: 'jsr' | 'npm' | '';
   name: string;
   version: t.StringSemver;
+  toString(): string;
 };
 
 export type EsmParsedImport = EsmImport & {

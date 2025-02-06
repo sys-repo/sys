@@ -3,6 +3,7 @@
  * Tools for evaluating boolean flags on JSR related data.
  */
 import { type t, Err } from './common.ts';
+import { toString } from './u.toString.ts';
 
 /**
  * Regex breakdown:
@@ -35,13 +36,15 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
   const fail = (err: string) => done('', '', '', err);
   const done = (prefix: string, name: string, version: string, err?: string): t.EsmParsedImport => {
     const error = err ? Err.std(err) : undefined;
-    return {
+    const api: t.EsmParsedImport = {
       input: String(moduleSpecifier),
       prefix: prefix as T['prefix'],
       name,
       version,
       error,
+      toString: () => toString(api),
     };
+    return api;
   };
 
   if (typeof moduleSpecifier !== 'string') {
