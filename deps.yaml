@@ -17,7 +17,7 @@
 #
 
 groups:
-  deno/std:
+  std/deno:
     # Deno standard libs ("std").
     - import: jsr:@std/async@1.0.10
     - import: jsr:@std/datetime@0.225.3
@@ -44,7 +44,7 @@ groups:
       wildcard: true
 
 deno.json:
-  - group: deno/std
+  - group: std/deno
   - group: automerge
   - group: crypto
 
@@ -85,7 +85,7 @@ deno.json:
   - import: npm:ua-parser-js@2.0.0
 
 package.json:
-  - group: deno/std
+  - group: std/deno
   - group: crypto
   - import: npm:hono@4.6
 
