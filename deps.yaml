@@ -1,6 +1,11 @@
 #
 #  System Dependencies ("imports")
 #
+#        ./💦
+#          |            deno.json
+#          |(write)  →  deno.imports.json
+#          |(write)  →  package.json
+#
 #  This is the "single-source-of-truth" with regards dependency versioning.
 #  Import maps (in the `deno.json` and `package.json` files) is auto-generated
 #  from this config definition.
