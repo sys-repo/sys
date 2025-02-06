@@ -48,13 +48,9 @@ deno.json:
   - import: jsr:@cliffy/table@1.0.0-rc.7
 
   # Sundry: NPM.
-  - import: npm:react-error-boundary@5
-  - import: npm:react-inspector@6
-  - import: npm:react-spinners@0.15.0
   - import: npm:@types/diff@7.0.1
-  - import: npm:approx-string-match@2
   - import: npm:chai@5
-  - import: npm:csstype@3
+  - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:subhosting@0.1.0-alpha.1
   - import: npm:diff@7
@@ -72,13 +68,20 @@ deno.json:
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.0.4
-  - import: npm:ua-parser-js@2.0.0
   - import: npm:yaml@2.7.0
   - import: npm:subhosting@0.1.0-alpha.1
+
+  # - UI
+  - import: npm:react-error-boundary@5
+  - import: npm:react-inspector@6
+  - import: npm:react-spinners@0.15.0
+  - import: npm:csstype@3
+  - import: npm:ua-parser-js@2.0.0
 
 package.json:
   - group: deno/std
   - group: crypto
+  - import: npm:hono@4.6
 
   # UI.
   - import: npm:@vidstack/react@1.12.12
@@ -97,7 +100,6 @@ package.json:
   - import: npm:rollup@4.32.1
   - import: npm:vite@6.0.11
   - import: npm:vite-plugin-wasm@3
-
   # Build tools: frameworks.
   - import: npm:vitepress@1
   - import: npm:vue@3.5.13
