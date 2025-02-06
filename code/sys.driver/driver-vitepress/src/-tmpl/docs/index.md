@@ -62,18 +62,17 @@ A sample breakdown of the main markdown syntax options available...(🐷):
 
 Inline `code` and code blocks:
 
-```python
-# Fenced code block example
-print("Hello, World!")
+```ts
+const hello = (subject: string) => `👋 Hello, ${subject}!`;
+console.log(hello('World'));
 ```
+
 
 Color syntax highlighting all major modern languages:
 
-```ts
-function foo(args:{ msg?: string } = {}): string {
-  const { msg } = args
-  return `Hello World${msg ? ` (${msg})` : ''} 👋`;
-}
+```python
+# 👋
+print("Hello, World!")
 ```
 
 
