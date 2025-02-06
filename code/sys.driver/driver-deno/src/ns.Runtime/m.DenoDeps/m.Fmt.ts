@@ -20,10 +20,10 @@ export const Fmt: t.DenoDepsFmt = {
       const fmtName = c.gray(`${scope}${c.white(name)}`);
       const fmtVersion = wrangle.version(mod.version, maxPrefixLength);
 
-      table.push([`${indent}${fmtName}`, fmtVersion, fmtRegistry]);
+      table.push([`${indent}${fmtVersion}`, fmtName, fmtRegistry]);
     });
 
-    return `${indent}${table.toString().trim()}`;
+    return `↓${indent}${table.toString().trimEnd()}`;
   },
 };
 

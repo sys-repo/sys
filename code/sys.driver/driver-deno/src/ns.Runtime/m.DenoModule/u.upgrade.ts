@@ -18,8 +18,13 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   const moduleName = args.name;
   const registry = (await Jsr.Fetch.Pkg.versions(moduleName)).data;
   const latest = registry?.latest ?? '0.0.0';
-  const semver = { latest: Semver.parse(latest), current: Semver.parse(args.currentVersion) };
-  const targetVersion = args.targetVersion ? Semver.parse(args.targetVersion) : semver.latest;
+  const semver = {
+    latest: Semver.parse(latest).version,
+    current: Semver.parse(args.currentVersion).version,
+  };
+  const targetVersion = args.targetVersion
+    ? Semver.parse(args.targetVersion).version
+    : semver.latest;
   const diff = Semver.compare(targetVersion, semver.current);
 
   if (diff === 0 && !force) {

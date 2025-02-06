@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.yaml.ts';
 
 /** Flags indicating the target file format (`deno.json` OR `package.json`). */
 export type DenoDepTargetFile = 'deno.json' | 'package.json';
@@ -41,7 +42,7 @@ export type DenoDep = {
   module: t.EsmParsedImport;
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
-  target: DenoDepTargetFile;
+  target: DenoDepTargetFile[];
 
   /**
    * Flag indicating if the import is a development-dependency only.
@@ -55,42 +56,8 @@ export type DenoDep = {
    *
    *    "@noble/hashes"
    *    "@noble/hashes/*"
-   *
    */
   wildcard?: boolean;
-};
-
-/**
- * The structure the YAML definition file, declaring the imports.
- */
-export type DenoYamlDeps = {
-  'deno.json': t.DenoYamlDepDeno[];
-  'package.json': t.DenoYamlDepNode[];
-};
-
-export type DenoYamlDep = {
-  /**
-   * The name (module-specifier) of an ESM import.
-   * eg:
-   *    jsr:@sys/tmp@0.0.0
-   *    npm:rxjs@7
-   */
-  import: t.StringModuleSpecifier;
-};
-
-/** Deno/deno.json variant. */
-export type DenoYamlDepDeno = DenoYamlDep & {
-  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
-  wildcard?: boolean;
-};
-
-/** Node/package.json variant. */
-export type DenoYamlDepNode = DenoYamlDep & {
-  /**
-   * Flag indicating if the import is a development-dependency only.
-   * Only relevant when producing a `package.json` file.
-   */
-  dev?: boolean;
 };
 
 /**
