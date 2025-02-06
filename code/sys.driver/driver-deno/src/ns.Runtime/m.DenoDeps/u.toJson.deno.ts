@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `deno.json` format.
  */
-export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (deps) => {
+export function toDenoJson(deps?: t.DenoDep[]): t.PkgJsonDeno {
   const imports: D = {};
   if (deps) {
     deps
@@ -21,4 +21,4 @@ export const toDenoJson: t.DenoDepsLib['toDenoJson'] = (deps) => {
   const res: t.PkgJsonDeno = {};
   if (!isEmptyRecord(imports)) res.imports = sortKeys(imports);
   return res;
-};
+}

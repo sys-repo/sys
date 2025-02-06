@@ -14,11 +14,9 @@ export type DenoDepsLib = {
   /** Load the imports definitions from YAML. */
   from(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
-  /** Convert deps to a `deno.json` format. */
-  toDenoJson(deps?: t.DenoDep[]): t.PkgJsonDeno;
-
-  /** Convert deps to a `package.json` format. */
-  toPackageJson(deps?: t.DenoDep[]): t.PkgJsonNode;
+  /** Convert deps to a `deno.json` or `package.json` format. */
+  toJson(kind: 'deno.json', deps?: t.DenoDep[]): t.PkgJsonDeno;
+  toJson(kind: 'package.json', deps?: t.DenoDep[]): t.PkgJsonNode;
 };
 
 /** A response object from a `DenoDeps` constructor function. */

@@ -175,17 +175,17 @@ describe('DenoDeps', () => {
     });
   });
 
-  describe('DenoDeps:toDenoJson', () => {
+  describe('DenoDeps:toJson("deno.json")', () => {
     it('empty', () => {
-      const a = DenoDeps.toDenoJson([]);
-      const b = DenoDeps.toDenoJson();
+      const a = DenoDeps.toJson('deno.json', []);
+      const b = DenoDeps.toJson('deno.json');
       expect(a).to.eql({});
       expect(b).to.eql({});
     });
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
-      const json = DenoDeps.toDenoJson(res.data?.deps);
+      const json = DenoDeps.toJson('deno.json', res.data?.deps);
 
       expect(json).to.eql({
         imports: {
@@ -202,17 +202,17 @@ describe('DenoDeps', () => {
     });
   });
 
-  describe('DenoDeps.toPackageJson', () => {
+  describe('DenoDeps.toJson("package.json")', () => {
     it('empty', () => {
-      const a = DenoDeps.toPackageJson([]);
-      const b = DenoDeps.toPackageJson();
+      const a = DenoDeps.toJson('package.json', []);
+      const b = DenoDeps.toJson('package.json');
       expect(a).to.eql({});
       expect(b).to.eql({});
     });
 
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
-      const json = DenoDeps.toPackageJson(res.data!.deps);
+      const json = DenoDeps.toJson('package.json', res.data!.deps);
 
       expect(json).to.eql({
         dependencies: {

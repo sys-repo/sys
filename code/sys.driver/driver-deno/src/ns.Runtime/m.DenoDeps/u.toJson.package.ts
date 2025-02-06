@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `package.json` format.
  */
-export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (deps) => {
+export function toPackageJson(deps?: t.DenoDep[]): t.PkgJsonNode {
   const dependencies: D = {};
   const devDependencies: D = {};
 
@@ -38,4 +38,4 @@ export const toPackageJson: t.DenoDepsLib['toPackageJson'] = (deps) => {
   if (!isEmptyRecord(dependencies)) res.dependencies = sortKeys(dependencies);
   if (!isEmptyRecord(devDependencies)) res.devDependencies = sortKeys(devDependencies);
   return res;
-};
+}
