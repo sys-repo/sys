@@ -1,5 +1,3 @@
-import type { Alias } from 'vite';
-
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import { ViteConfig } from '@sys/driver-vite';
 import { Err, Path } from '@sys/std';
@@ -13,8 +11,11 @@ import { Err, Path } from '@sys/std';
 export async function getAliases() {
   const ws = await ViteConfig.workspace({});
   const deps = (await loadDeps(ws.dir)).deps;
-  const npmRefs = deps.filter((d) => d.module.prefix === 'npm');
-  const npmAliases = npmRefs.map((m) => toAlias(m.module.name));
+
+  const npm = 'npm';
+  const npmRefs = deps.filter((d) => d.module.prefix === npm);
+  const npmAliases = npmRefs.map((m) => ViteConfig.alias(npm, m.module.name));
+
   return [...ws.aliases, ...npmAliases];
 }
 
@@ -34,21 +35,4 @@ async function loadDeps(dir: string) {
 
   const deps = res.data?.deps ?? [];
   return { deps, error: errors.toError() };
-}
-
-/**
- * TODO 🐷 - move to @sys/vite: ViteConfig.toAlias | .toAliasRegex
- */
-
-/**
- * Match: "npm:<module-name>@<semver>"
- */
-export function toAliasRegex(moduleName: string): RegExp {
-  const name = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // NB: Escape any special regex characters.
-  return new RegExp(`^npm:${name}@(\\d+\\.\\d+\\.\\d+)(?:-[\\w.]+)?$`);
-}
-
-export function toAlias(moduleName: string): Alias {
-  const find = toAliasRegex(moduleName);
-  return { find, replacement: moduleName };
 }

@@ -2,6 +2,9 @@ import type { t } from './common.ts';
 
 type ToStringOptions = { pad?: boolean };
 
+/** Flags for major code-registries. */
+export type CodeRegistry = 'jsr' | 'npm';
+
 /**
  * Configuration options for a Vite server.
  * https://vitejs.dev/config
@@ -14,7 +17,13 @@ export type ViteConfigLib = {
   paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
 
   /** Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
-  readonly workspace: t.ViteConfigWorkspaceFactory;
+  workspace: t.ViteConfigWorkspaceFactory;
+
+  /**
+   * Construct a replacement regex to use an as alias for a module/import lookup
+   * within the Vite/Rollup/alias configuration.
+   */
+  alias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias;
 };
 
 /**
@@ -32,7 +41,10 @@ export type ViteConfigWorkspaceOptions = {
 };
 
 /** Paths params inputs. */
-export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
+export type ViteConfigPathsOptions = {
+  input?: t.StringPath;
+  outDir?: t.StringPath;
+};
 
 /**
  * Tools for configuring the "output" dir, eg: "./dist"
