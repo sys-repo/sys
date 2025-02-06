@@ -20,7 +20,8 @@
   },
   "workspace": [],
   "imports": {
-    "@sys/driver-vite": "jsr:@sys/driver-vite@<VITE_VERSION>",
-    "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
+    "@sys/driver-deno": "<DRIVER_DENO>",
+    "@sys/driver-vite": "<DRIVER_VITE>",
+    "@sys/driver-vitepress": "<DRIVER_VITEPRESS>"
   }
 }

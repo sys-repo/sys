@@ -1,4 +1,5 @@
 import { pkg as pkgVite } from '@sys/driver-vite';
+import { pkg as pkgDeno } from '@sys/driver-deno';
 import { Main } from '@sys/main/cmd';
 import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './common.ts';
 
@@ -33,9 +34,9 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
       const text = e.text.tmpl
         .replace(/<ENTRY>/g, `${importUri}/main`)
         .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
-        .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name)
-        .replace(/<VITE_VERSION>/, pkgVite.version);
+        .replace(/<DRIVER_DENO>/, `jsr:${Pkg.toString(pkgDeno)}`)
+        .replace(/<DRIVER_VITE>/, `jsr:${Pkg.toString(pkgVite)}`)
+        .replace(/<DRIVER_VITEPRESS>/, `jsr:${Pkg.toString(pkg)}`);
 
       return e.modify(text);
     }
