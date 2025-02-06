@@ -29,17 +29,17 @@ jobs:
         with:
           deno-version: v2
 
-      - name: publish module → "@sys/driver-deno"
-        run: |
-          cd code/sys.driver/driver-deno
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-vite"
-        run: |
-          cd code/sys.driver/driver-vite
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
+      #       - name: publish module → "@sys/driver-deno"
+      #         run: |
+      #           cd code/sys.driver/driver-deno
+      #           deno task test --parallel --trace-leaks
+      #           deno publish --allow-dirty
+      #
+      #       - name: publish module → "@sys/driver-vite"
+      #         run: |
+      #           cd code/sys.driver/driver-vite
+      #           deno task test --parallel --trace-leaks
+      #           deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-vitepress"
         run: |
