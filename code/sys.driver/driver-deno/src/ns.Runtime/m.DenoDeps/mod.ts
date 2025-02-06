@@ -6,13 +6,13 @@
  * use this to auto-prepare `deno.json` and/or `package.json` files.
  */
 import { type t } from './common.ts';
-import { fromYaml } from './u.fromYaml.ts';
+import { from } from './u.from.ts';
 import { toDenoJson, toPackageJson } from './u.toJson.ts';
 import { Fmt } from './m.Fmt.ts';
 
 export const DenoDeps: t.DenoDepsLib = {
   Fmt,
-  fromYaml,
+  from,
   toDenoJson,
   toPackageJson,
 };

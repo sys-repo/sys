@@ -1,10 +1,10 @@
-import { type t, Semver, Fs, Err, Esm } from './common.ts';
 import { parse } from 'yaml';
+import { type t, Err, Esm, Fs, Semver } from './common.ts';
 
 /**
  * Load the imports definitions from YAML.
  */
-export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
+export const from: t.DenoDepsLib['from'] = async (input) => {
   const errors = Err.errors();
 
   const fail = (err: string | t.StdError) => {

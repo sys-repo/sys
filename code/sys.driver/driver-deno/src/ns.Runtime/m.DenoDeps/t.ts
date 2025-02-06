@@ -12,7 +12,7 @@ export type DenoDepsLib = {
   readonly Fmt: t.DenoDepsFmt;
 
   /** Load the imports definitions from YAML. */
-  fromYaml(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
+  from(input: t.StringPath | t.StringYaml): Promise<t.DenoDepsResponse>;
 
   /** Convert deps to a `deno.json` format. */
   toDenoJson(deps?: t.DenoDep[]): t.PkgJsonDeno;

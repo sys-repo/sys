@@ -11,10 +11,10 @@ describe('DenoDeps', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
   });
 
-  describe('DenoDeps.fromYaml', () => {
+  describe('DenoDeps.from', () => {
     it('input: path (string → file.yaml)', async () => {
       const path = SAMPLE.path;
-      const res = await DenoDeps.fromYaml(path);
+      const res = await DenoDeps.from(path);
 
       const yaml = (await Fs.readText(path)).data ?? '';
       console.info(c.brightCyan(`Sample YAML:`), c.gray(path));
@@ -63,8 +63,8 @@ describe('DenoDeps', () => {
       const path = SAMPLE.path;
       const yaml = (await Fs.readText(path)).data!;
 
-      const a = await DenoDeps.fromYaml(yaml);
-      const b = await DenoDeps.fromYaml(path);
+      const a = await DenoDeps.from(yaml);
+      const b = await DenoDeps.from(path);
       expect(a.error).to.eql(undefined);
       expect(b.error).to.eql(undefined);
 
@@ -84,7 +84,7 @@ describe('DenoDeps', () => {
           - import: npm:rxjs@7
           - baz: 0
       `;
-      const res = await DenoDeps.fromYaml(yaml);
+      const res = await DenoDeps.from(yaml);
       const deps = res.data;
       expect(res.error).to.eql(undefined);
       expect(deps?.modules.count).to.eql(2);
@@ -106,7 +106,7 @@ describe('DenoDeps', () => {
           - import: jsr:@sys/tmp
       `;
 
-      const res = await DenoDeps.fromYaml(yaml);
+      const res = await DenoDeps.from(yaml);
       const { deps, modules } = res.data!;
 
       expect(deps.length).to.eql(1);
@@ -125,7 +125,7 @@ describe('DenoDeps', () => {
           - group: foobar
             dev: true
         `;
-      const res = await DenoDeps.fromYaml(yaml);
+      const res = await DenoDeps.from(yaml);
       const { deps, modules } = res.data!;
       expect(deps.every((m) => m.dev === true)).to.eql(true);
     });
@@ -133,7 +133,7 @@ describe('DenoDeps', () => {
     describe('errors', () => {
       it('path: not found', async () => {
         const path = './404.yaml';
-        const res = await DenoDeps.fromYaml(path);
+        const res = await DenoDeps.from(path);
         expect(res.error?.message).to.include('Failed to load YAML at path:');
         expect(res.error?.message).to.include(Fs.resolve(path));
       });
@@ -144,7 +144,7 @@ describe('DenoDeps', () => {
             import: jsr:@sys/tmp@0.0.42
             import: npm:rxjs@7
       `;
-        const res = await DenoDeps.fromYaml(yaml);
+        const res = await DenoDeps.from(yaml);
         expect(res.error?.message).to.include('Failed while parsing given YAML');
         expect(res.error?.cause?.message).to.include('Map keys must be unique');
       });
@@ -155,7 +155,7 @@ describe('DenoDeps', () => {
             - import: jsr:@sys/tmp@0.0.42
             - import: fail:foobar@0.1.2        
         `;
-        const res = await DenoDeps.fromYaml(yaml);
+        const res = await DenoDeps.from(yaml);
         expect(res.error?.message).to.include('Failed to parse ESM module-specifier');
         expect(res.error?.message).to.include('"fail:foobar@0.1.2"');
 
@@ -168,7 +168,7 @@ describe('DenoDeps', () => {
 
   describe('DenoDeps/instance: deps.modules ← filtered', () => {
     it('modules == deps (mapped)', async () => {
-      const { data } = await DenoDeps.fromYaml(SAMPLE.path);
+      const { data } = await DenoDeps.from(SAMPLE.path);
       const a = data?.modules.items;
       const b = data?.deps.map((m) => m.module);
       expect(a).to.eql(b);
@@ -184,7 +184,7 @@ describe('DenoDeps', () => {
     });
 
     it('imports', async () => {
-      const res = await DenoDeps.fromYaml(SAMPLE.path);
+      const res = await DenoDeps.from(SAMPLE.path);
       const json = DenoDeps.toDenoJson(res.data?.deps);
 
       expect(json).to.eql({
@@ -211,7 +211,7 @@ describe('DenoDeps', () => {
     });
 
     it('imports', async () => {
-      const res = await DenoDeps.fromYaml(SAMPLE.path);
+      const res = await DenoDeps.from(SAMPLE.path);
       const json = DenoDeps.toPackageJson(res.data!.deps);
 
       expect(json).to.eql({
