@@ -86,16 +86,18 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
   /**
    * De-dupe.
    */
-  const deduped = new Map<string, t.DenoDep>();
+  const dedupedMap = new Map<string, t.DenoDep>();
   for (const item of deps) {
     const name = item.module.name;
-    if (!deduped.has(name)) {
-      deduped.set(name, item);
+    if (!dedupedMap.has(name)) {
+      dedupedMap.set(name, item);
     } else {
-      // Merge targets:
-      //  - ensuring no duplicate target values.
-      //  - ensuring highest version is retained.
-      const existing = deduped.get(name)!;
+      /**
+       * Merge targets:
+       *  - ensuring no duplicate target values.
+       *  - ensuring highest version is retained.
+       */
+      const existing = dedupedMap.get(name)!;
       for (const target of item.target) {
         if (!existing.target.includes(target)) {
           existing.target.push(target);
@@ -110,9 +112,10 @@ export const fromYaml: t.DenoDepsLib['fromYaml'] = async (input) => {
   /**
    * Finish up.
    */
+  const deduped = Array.from(dedupedMap.values());
   return done({
-    deps: Array.from(deduped.values()),
-    modules: Esm.modules(deps.map((m) => m.module)),
+    deps: deduped,
+    modules: Esm.modules(deduped.map((m) => m.module)),
   });
 };
 
