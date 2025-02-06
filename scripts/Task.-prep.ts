@@ -6,7 +6,7 @@ const i = c.italic;
  * from definieions within `imports.yaml`
  */
 export async function main() {
-  const res = await DenoDeps.fromYaml('./deps.yaml');
+  const res = await DenoDeps.from('./deps.yaml');
   if (res.error) return console.error(res.error);
 
   const PATH = {
