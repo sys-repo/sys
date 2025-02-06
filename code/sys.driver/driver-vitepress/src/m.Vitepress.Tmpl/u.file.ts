@@ -11,9 +11,18 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
 
   const getWorkspace = async (base: t.StringDir) => {
     const ws = await DenoFile.workspace();
-    const path = Path.join(base, '.sys/deps.yaml');
+    const path = Fs.join(base, '.sys/deps.yaml');
+
     const m = (await DenoDeps.from(path)).data?.modules;
     const modules = Esm.modules([...(m?.items ?? []), ...ws.modules.items]);
+
+    console.group('🌳 getWorkspace');
+    console.log('path', path);
+    console.log('m', m?.items.length);
+    console.log('m', m);
+    console.log('modules.count', modules.count);
+    console.groupEnd();
+
     return { ws, modules };
   };
 
@@ -70,8 +79,7 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
 
       console.log('next:', next);
 
-      const json = `${JSON.stringify(next, null, '  ')}\n`;
-      return e.modify(json);
+      return e.modify(`${JSON.stringify(next, null, '  ')}\n`);
     }
 
     if (e.target.relative === 'docs/index.md') {
