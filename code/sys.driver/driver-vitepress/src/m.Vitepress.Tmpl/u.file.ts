@@ -41,7 +41,11 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
       return e.modify(text);
     }
 
+    console.log('e.target.relative', e.target.relative);
+
     if (e.target.relative === 'package.json') {
+      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+
       const { modules } = await getWorkspace();
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
       const next = {
@@ -49,6 +53,8 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
         dependencies: modules.latest(pkg?.dependencies ?? {}),
         devDependencies: modules.latest(pkg?.devDependencies ?? {}),
       };
+
+      console.log('next:', next);
 
       const json = `${JSON.stringify(next, null, '  ')}\n`;
       return e.modify(json);
