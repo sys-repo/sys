@@ -18,8 +18,8 @@ export async function main() {
    * Write to file-system.
    */
   const deps = res.data?.deps;
-  await Fs.writeJson(PATH.package, DenoDeps.toPackageJson(deps));
-  await Fs.writeJson(PATH.deno, DenoDeps.toDenoJson(deps));
+  await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
+  await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
 
   /**
    * Output: console.

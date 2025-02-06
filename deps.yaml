@@ -113,5 +113,5 @@ package.json:
   - import: npm:react-icons@5.4.0
 
   # UI:Frameworks
-  - import: npm:vitepress@1
+  - import: npm:vitepress@1.6.3
   - import: npm:vue@3.5.13
