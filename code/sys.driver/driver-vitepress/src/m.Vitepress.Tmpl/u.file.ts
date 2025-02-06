@@ -48,6 +48,14 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
 
       const { modules } = await getWorkspace();
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
+
+      console.log('pkg', pkg);
+      console.log('modules', modules);
+      console.log(
+        'modules.latest(pkg?.dependencies ?? {})',
+        modules.latest(pkg?.dependencies ?? {}),
+      );
+
       const next = {
         ...pkg,
         dependencies: modules.latest(pkg?.dependencies ?? {}),
