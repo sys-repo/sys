@@ -41,9 +41,9 @@ const wrangle = {
   },
 
   gt(a: t.StringSemver, b: t.StringSemver) {
-    const clean = (ver: string) => Semver.Prefix.strip(Semver.coerce(ver).version);
+    const clean = (v: string) => Semver.Prefix.strip(Semver.coerce(v).version);
     a = clean(a);
     b = clean(b);
-    return Semver.Is.greaterThan(Semver.parse(a), Semver.parse(b));
+    return Semver.Is.greaterThan(a, b);
   },
 } as const;

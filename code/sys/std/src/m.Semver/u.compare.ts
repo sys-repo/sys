@@ -32,7 +32,6 @@ export const eql: L['eql'] = (a, b) => {
 /**
  * > | Greater-than.
  */
-
 export const greaterThan: L['greaterThan'] = (a, b) => {
   const ver = wrangle.semvers(a, b);
   return ver.ok ? gt(ver.a, ver.b) : false;
@@ -72,7 +71,7 @@ export const lessThanRange: L['lessThanRange'] = (version, range) => {
 const wrangle = {
   semver(input: InputV): t.Semver | undefined {
     if (typeof input === 'object') return input;
-    const version = coerce(input).version;
+    const version = coerce(input || '0').version;
     const parsed = version ? parse(version) : undefined;
     return parsed && !parsed.error ? parsed.version : undefined;
   },

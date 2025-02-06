@@ -332,6 +332,10 @@ describe('Semver', () => {
       expect(Semver.Is.greaterThan(a, a)).to.eql(false);
       expect(Semver.Is.greaterThan(a, b)).to.eql(false);
       expect(Semver.Is.greaterThan(b, a)).to.eql(true);
+
+      expect(Semver.Is.greaterThan('1.2.4', '0')).to.eql(true);
+      expect(Semver.Is.greaterThan('1.2.4', '')).to.eql(true);
+      expect(Semver.Is.greaterThan('', '1.2.4')).to.eql(false);
     });
 
     it('Is.greaterOrEqual', () => {
@@ -340,6 +344,8 @@ describe('Semver', () => {
       expect(Semver.Is.greaterOrEqual(a, a)).to.eql(true);
       expect(Semver.Is.greaterOrEqual(a, b)).to.eql(false);
       expect(Semver.Is.greaterOrEqual(b, a)).to.eql(true);
+      expect(Semver.Is.greaterThan('1.2', '')).to.eql(true);
+      expect(Semver.Is.greaterThan('', '1.2')).to.eql(false);
     });
 
     it('Is.greaterThanRange', () => {
@@ -357,6 +363,7 @@ describe('Semver', () => {
       expect(Semver.Is.lessThan(a, a)).to.eql(false);
       expect(Semver.Is.lessThan(a, b)).to.eql(true);
       expect(Semver.Is.lessThan(b, a)).to.eql(false);
+      expect(Semver.Is.lessThan('', '1.5')).to.eql(true);
     });
 
     it('Is.lessOrEqual', () => {
