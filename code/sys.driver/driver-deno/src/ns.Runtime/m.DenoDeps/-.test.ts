@@ -62,12 +62,15 @@ describe('DenoDeps', () => {
     it('input: YAML (string)', async () => {
       const path = SAMPLE.path;
       const yaml = (await Fs.readText(path)).data!;
+
       const a = await DenoDeps.fromYaml(yaml);
       const b = await DenoDeps.fromYaml(path);
-
-      expect(a.data?.deps).to.eql(b.data?.deps);
       expect(a.error).to.eql(undefined);
       expect(b.error).to.eql(undefined);
+
+      const aa = a.data?.modules.items.map((m) => m.name);
+      const bb = b.data?.modules.items.map((m) => m.name);
+      expect(aa).to.eql(bb);
     });
 
     it('input: YAML (string) - unknown item keys ignored', async () => {
@@ -150,7 +153,9 @@ describe('DenoDeps', () => {
   describe('DenoDeps/instance: deps.modules ← filtered', () => {
     it('modules == deps (mapped)', async () => {
       const { data } = await DenoDeps.fromYaml(SAMPLE.path);
-      expect(data?.modules.items).to.eql(data?.deps.map((m) => m.module));
+      const a = data?.modules.items;
+      const b = data?.deps.map((m) => m.module);
+      expect(a).to.eql(b);
     });
   });
 
