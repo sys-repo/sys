@@ -41,14 +41,14 @@ export type EsmLib = {
  * A parsed ESM import statement.
  */
 export type EsmImport = {
-  readonly prefix: 'jsr' | 'npm' | '';
-  readonly name: string;
-  readonly version: t.StringSemver;
+  prefix: 'jsr' | 'npm' | '';
+  name: string;
+  version: t.StringSemver;
 };
 
 export type EsmParsedImport = EsmImport & {
   input: string;
-  readonly error?: t.StdError;
+  error?: t.StdError;
 };
 
 /**
