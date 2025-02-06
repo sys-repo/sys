@@ -27,6 +27,10 @@ async function loadDeps() {
   const path = Path.resolve('./.sys/deps.yaml');
   const res = await DenoDeps.from(path);
 
+  console.log('LOAD DEPS');
+  console.log('path', path);
+  console.log('res.error', res.error);
+
   if (res.error || !res.data?.deps) {
     const err = `Failed to load system dependencies from: ${path}`;
     console.warn(err, { cause: res.error });

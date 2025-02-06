@@ -9,10 +9,11 @@ import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './co
 export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProcessFile {
   const { srcDir = PATHS.srcDir } = args;
 
-  const getWorkspace = async () => {
+  const getWorkspace = async (base: t.StringDir) => {
     const ws = await DenoFile.workspace();
-    const deps = (await DenoDeps.from(Path.join(ws.dir, 'deps.yaml'))).data;
-    const modules = Esm.modules([...(deps?.modules.items ?? []), ...ws.modules.items]);
+    const path = Path.join(base, '.sys/deps.yaml');
+    const m = (await DenoDeps.from(path)).data?.modules;
+    const modules = Esm.modules([...(m?.items ?? []), ...ws.modules.items]);
     return { ws, modules };
   };
 
@@ -41,14 +42,17 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
       return e.modify(text);
     }
 
-    console.log('e.target.relative', e.target.relative);
+    // console.log('e.target.relative', e.target.relative);
 
     if (e.target.relative === 'package.json') {
+      // console.log('srcDir', srcDir);
       console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+      console.log('e', e.target);
 
-      const { modules } = await getWorkspace();
+      const { modules } = await getWorkspace(e.target.base);
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
 
+      console.log(`-------------------------------------------`);
       console.log('pkg', pkg);
       console.log('modules', modules);
       console.log(
