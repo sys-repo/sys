@@ -3,20 +3,23 @@ import type { t } from './common.ts';
 /**
  * Structure of the YAML definition file.
  */
-export type DenoYamlDeps = {
-  groups?: t.DenoYamlDepsGroups;
-  'deno.json'?: t.DenoYamlDep[];
-  'package.json'?: t.DenoYamlDep[];
+export type YamlDenoDeps = {
+  groups?: t.YamlDenoDepsGroups;
+  'deno.json'?: t.YamlDenoDep[];
+  'package.json'?: t.YamlDenoDep[];
 };
 
 /**
  * Named groups of imports.
  */
-export type DenoYamlGroupName = string;
-export type DenoYamlDepsGroups = { [groupname: t.DenoYamlGroupName]: t.DenoYamlDepsGroup[] };
-export type DenoYamlDepsGroup = Omit<t.DenoYamlDep, 'group'>;
+export type YamlDenoGroupName = string;
+export type YamlDenoDepsGroups = { [groupname: t.YamlDenoGroupName]: t.YamlDenoDepsGroup[] };
+export type YamlDenoDepsGroup = Omit<t.YamlDenoDep, 'group'>;
 
-export type DenoYamlDep = {
+/**
+ * Represents a module dependency of the workspace.
+ */
+export type YamlDenoDep = {
   /**
    * The name (module-specifier) of an ESM import.
    * eg:
@@ -26,7 +29,7 @@ export type DenoYamlDep = {
   import?: t.StringModuleSpecifier;
 
   /** Name of an import group to include. */
-  group?: t.DenoYamlGroupName;
+  group?: t.YamlDenoGroupName;
 
   /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
   wildcard?: boolean;

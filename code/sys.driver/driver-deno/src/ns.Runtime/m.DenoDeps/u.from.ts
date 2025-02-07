@@ -20,10 +20,10 @@ export const from: t.DenoDepsLib['from'] = async (input) => {
   /**
    * Read or parse YAML.
    */
-  let yaml: t.DenoYamlDeps | undefined;
+  let yaml: t.YamlDenoDeps | undefined;
   if (is.yamlPath(input)) {
     const path = Fs.resolve(input);
-    const file = await Fs.readYaml<t.DenoYamlDeps>(path);
+    const file = await Fs.readYaml<t.YamlDenoDeps>(path);
     if (!file.exists) return fail(`Failed to load YAML at path: ${path}`);
     yaml = file.data;
   } else {
@@ -44,7 +44,7 @@ export const from: t.DenoDepsLib['from'] = async (input) => {
    */
   const deps: t.DenoDep[] = [];
   const addDep = (
-    item: t.DenoYamlDep,
+    item: t.YamlDenoDep,
     target: t.DenoDepTargetFile,
     dev?: boolean,
     wildcard?: boolean,
@@ -53,7 +53,7 @@ export const from: t.DenoDepsLib['from'] = async (input) => {
       const group = groups[item.group];
       if (Array.isArray(group)) {
         group.forEach((m) => {
-          const item = m as t.DenoYamlDep;
+          const item = m as t.YamlDenoDep;
           addDep(item, target, item.dev ?? dev, item.wildcard);
         });
       }
