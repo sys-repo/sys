@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `deno.json` format.
  */
-export function toDenoJson(deps?: t.DenoDep[]): t.PkgJsonDeno {
+export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
   const imports: D = {};
   if (deps) {
     deps

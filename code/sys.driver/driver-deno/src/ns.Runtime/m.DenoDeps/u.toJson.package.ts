@@ -5,7 +5,7 @@ type D = { [key: string]: string };
 /**
  * Convert deps to a `package.json` format.
  */
-export function toPackageJson(deps?: t.DenoDep[]): t.PkgJsonNode {
+export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
   const dependencies: D = {};
   const devDependencies: D = {};
 

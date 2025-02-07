@@ -10,7 +10,7 @@ import { Fmt } from './m.Fmt.ts';
 import { from } from './u.from.ts';
 import { toJson } from './u.toJson.ts';
 
-export const DenoDeps: t.DenoDepsLib = {
+export const DenoDeps: t.DepsLib = {
   Fmt,
   from,
   toJson: (kind, deps) => toJson(kind, deps),

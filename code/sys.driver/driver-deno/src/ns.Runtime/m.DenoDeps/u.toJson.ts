@@ -7,7 +7,7 @@ export { toDenoJson, toPackageJson };
 /**
  * Wrangler: toJson
  */
-export const toJson = (kind: t.DenoDepTargetFile, deps?: t.DenoDep[]) => {
+export const toJson = (kind: t.DepTargetFile, deps?: t.Dep[]) => {
   if (kind === 'deno.json') return toDenoJson(deps);
   if (kind === 'package.json') return toPackageJson(deps);
   throw new Error(`Unsupported JSON kind flag: "${kind}"`);
