@@ -9,24 +9,32 @@ import { Err, Path } from '@sys/std';
  *    - npm:<deps>       The upstream dependencies imported from the NPM registry.
  */
 export async function getAliases() {
-  const ws = await ViteConfig.workspace({});
-  const deps = (await loadDeps()).deps;
+  // const ws = await ViteConfig.workspace({});
+  const deps1 = (await loadDeps('./.sys/sys.yaml')).deps;
+  const deps2 = (await loadDeps('./.sys/sys.deps.yaml')).deps;
+
   // console.log('import.meta', import.meta);
 
-  const npm = 'npm';
-  const npmRefs = deps.filter((d) => d.module.prefix === npm);
-  const npmAliases = npmRefs.map((m) => ViteConfig.alias(npm, m.module.name));
+  const modules = [...deps1.map((d) => d.module), ...deps2.map((d) => d.module)];
 
-  return [...ws.aliases, ...npmAliases];
+  const npm = 'npm';
+  const npmRefs = modules.filter((d) => d.prefix === npm);
+  const npmAliases = npmRefs.map((m) => ViteConfig.alias(npm, m.name));
+
+  console.log('[...npmAliases]', [...npmAliases]);
+
   // return [];
+  return [...npmAliases];
 }
 
 /**
  * Helpers
  */
-async function loadDeps() {
+async function loadDeps(path: string) {
   const errors = Err.errors();
-  const path = Path.resolve('./.sys/deps.yaml');
+
+  path = Path.resolve(import.meta.dirname ?? '', '..', path);
+  console.log('path', path);
   const res = await DenoDeps.from(path);
 
   console.log('LOAD DEPS');
