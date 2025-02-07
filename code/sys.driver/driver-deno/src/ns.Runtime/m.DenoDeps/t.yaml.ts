@@ -23,10 +23,10 @@ export type DenoYamlDep = {
    *    jsr:@sys/tmp@0.0.0
    *    npm:rxjs@7
    */
-  import: t.StringModuleSpecifier;
+  import?: t.StringModuleSpecifier;
 
   /** Name of an import group to include. */
-  group: t.DenoYamlGroupName;
+  group?: t.DenoYamlGroupName;
 
   /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
   wildcard?: boolean;

@@ -1,7 +1,7 @@
-import { pkg as pkgVite } from '@sys/driver-vite';
 import { pkg as pkgDeno } from '@sys/driver-deno';
+import { pkg as pkgVite } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './common.ts';
+import { type t, DenoDeps, DenoFile, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -9,21 +9,24 @@ import { type t, DenoDeps, DenoFile, Esm, Fs, Path, PATHS, pkg, Pkg } from './co
 export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProcessFile {
   const { srcDir = PATHS.srcDir } = args;
 
-  const getWorkspace = async (base: t.StringDir) => {
+  const getDeps = async (base: t.StringDir) => {
     const ws = await DenoFile.workspace();
-    const path = Fs.join(base, '.sys/deps.yaml');
 
-    const m = (await DenoDeps.from(path)).data?.modules;
-    const modules = Esm.modules([...(m?.items ?? []), ...ws.modules.items]);
+    const join = (...parts: string[]) => Fs.join(base, ...parts);
+    const path = Fs.join(base, '.sys/sys.deps.yaml');
+
+    const m1 = (await DenoDeps.from(join('.sys/sys.deps.yaml'))).data?.modules;
+    const m2 = (await DenoDeps.from(join('.sys/sys.yaml'))).data?.modules;
+    const modules = Esm.modules([...(m1?.items ?? []), ...(m2?.items ?? [])]);
 
     console.group('🌳 getWorkspace');
     console.log('path', path);
-    console.log('m', m?.items.length);
-    console.log('m', m);
+    console.log('m', m1?.items.length);
+    console.log('m', m1);
     console.log('modules.count', modules.count);
     console.groupEnd();
 
-    return { ws, modules };
+    return { modules };
   };
 
   return async (e) => {
@@ -54,11 +57,10 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     // console.log('e.target.relative', e.target.relative);
 
     if (e.target.relative === 'package.json') {
-      // console.log('srcDir', srcDir);
       console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
       console.log('e', e.target);
 
-      const { modules } = await getWorkspace(e.target.base);
+      const { modules } = await getDeps(e.target.base);
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
 
       modules.items.forEach((m) => {

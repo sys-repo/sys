@@ -11,12 +11,14 @@ import { Err, Path } from '@sys/std';
 export async function getAliases() {
   const ws = await ViteConfig.workspace({});
   const deps = (await loadDeps()).deps;
+  // console.log('import.meta', import.meta);
 
   const npm = 'npm';
   const npmRefs = deps.filter((d) => d.module.prefix === npm);
   const npmAliases = npmRefs.map((m) => ViteConfig.alias(npm, m.module.name));
 
   return [...ws.aliases, ...npmAliases];
+  // return [];
 }
 
 /**
