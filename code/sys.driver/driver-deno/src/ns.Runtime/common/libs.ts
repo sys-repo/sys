@@ -1,3 +1,6 @@
+import { parse, stringify } from 'yaml';
+export const Yaml = { parse, stringify } as const;
+
 export { Cli } from '@sys/cli';
 export { c, stripAnsi } from '@sys/color/ansi';
 export { Dir, Fs } from '@sys/fs';
