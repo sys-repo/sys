@@ -84,6 +84,7 @@ type T = { count: number }
 // (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
 
+
 /**
  * Imutable change pattern.
  * (safely mutate a proxy).
