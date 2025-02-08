@@ -1,9 +1,8 @@
-import { describe, expect, Fs, it, Time, type t } from '../-test.ts';
-import { SAMPLE } from './-u.ts';
+import { describe, expect, Fs, it, SAMPLE, Time, type t } from '../-test.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
-  const readFile = Deno.readTextFile;
+  const readFile = async (path: string) => (await Fs.readText(path)).data;
 
   const logOps = (
     res: t.TmplCopyResponse,
@@ -84,7 +83,7 @@ describe('Tmpl', () => {
       logOps(resC, 'C: re-run', { indent });
     });
 
-    describe('fn: (file process handler)', () => {
+    describe('fn: processFile (callback)', () => {
       it('fn: exclude', async () => {
         const { source, target } = SAMPLE.init();
         const tmpl = Tmpl.create(source, async (e) => {
@@ -160,6 +159,44 @@ describe('Tmpl', () => {
 
         expect(writtenA).to.include(`name: '👋 Hello'`);
         expect(writtenB).to.include(`name: '👋 Hello'`);
+      });
+    });
+
+    describe('fn: beforeCopy | afterCopy (callbacks)', () => {
+      it('beforeCopy: sync/async', async () => {
+        const { source, target } = SAMPLE.init();
+        const fired: t.TmplCopyHandlerArgs[] = [];
+
+        const a: t.TmplCopyHandler = (e) => fired.push(e);
+        const b: t.TmplCopyHandler = async (e) => {
+          expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
+          fired.push(e);
+        };
+        const tmpl = Tmpl.create(source, { beforeCopy: a });
+
+        await tmpl.copy(target);
+        expect(fired.length).to.eql(1);
+
+        await tmpl.copy(target, { beforeCopy: [b] });
+        expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
+      });
+
+      it('afterCopy: sync/async', async () => {
+        const { source, target } = SAMPLE.init();
+        const fired: t.TmplCopyHandlerArgs[] = [];
+
+        const a: t.TmplCopyHandler = (e) => fired.push(e);
+        const b: t.TmplCopyHandler = async (e) => {
+          expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
+          fired.push(e);
+        };
+        const tmpl = Tmpl.create(source, { afterCopy: a });
+
+        await tmpl.copy(target);
+        expect(fired.length).to.eql(1);
+
+        await tmpl.copy(target, { afterCopy: [b] });
+        expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
       });
     });
 

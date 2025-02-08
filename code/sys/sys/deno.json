@@ -1,12 +1,16 @@
 {
   "name": "@sys/sys",
-  "version": "0.0.16",
+  "version": "0.0.39",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -RWNE --allow-run --allow-ffi",
+    "compile": "deno task compile:deno && deno task compile:chmod",
+    "compile:deno": "deno compile --output=dist/sys.app src/-entry/compile.ts",
+    "compile:chmod": "chmod +x --output=dist/sys.app",
+    "tmp": "./dist/sys.app"
   },
   "exports": {
     ".": "./src/mod.ts",

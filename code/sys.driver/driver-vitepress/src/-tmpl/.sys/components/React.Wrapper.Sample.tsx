@@ -1,4 +1,4 @@
-
+// @ts-types="@types/react"
 import React from 'react';
 
 export type MyComponentProps = {
@@ -13,3 +13,4 @@ export const MyComponent: React.FC<MyComponentProps> = (props) => {
     </div>
   );
 };
+//

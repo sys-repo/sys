@@ -474,4 +474,19 @@ describe('Value.Obj', () => {
       expect(res).to.eql({ b: 2, c: 3 });
     });
   });
+
+  describe('Value.Obj.sortKeys', () => {
+    it('empty', () => {
+      const obj = {};
+      const res = Value.Obj.sortKeys(obj);
+      expect(res).to.not.equal(obj); // NB: new instance (immutable).
+    });
+
+    it('sorts keys', () => {
+      const obj = { foo: 456, zoo: 'hello', apple: 123 };
+      const res = Value.Obj.sortKeys(obj);
+      expect(Object.keys(res)).to.not.eql(Object.keys(obj));
+      expect(Object.keys(res).sort()).to.eql(Object.keys(obj).sort());
+    });
+  });
 });

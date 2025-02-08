@@ -35,8 +35,17 @@ export type FsLib = Methods & {
   /** Remove a file or directory if it exists. */
   readonly remove: t.FsRemove;
 
-  /** Asynchronously reads and returns the entire contents of a file as strongly-type JSON. */
+  /** Asynchronously reads and returns the entire contents of a binary file (Uint8Array). */
+  readonly read: t.FsReadBinary;
+
+  /** Asynchronously reads and returns the entire contents of a text file. */
+  readonly readText: t.FsReadText;
+
+  /** Asynchronously reads and returns the entire contents of a file as strongly-typed, parsed JSON. */
   readonly readJson: t.FsReadJson;
+
+  /** Asynchronously reads and returns the entire contents of a file as strongly-typed, parsed JSON. */
+  readonly readYaml: t.FsReadYaml;
 
   /** Recursively walk up a directory tree (visitor pattern). */
   readonly walkUp: t.FsWalkUp;
@@ -195,16 +204,35 @@ export type FsWriteJson = (
 ) => Promise<FsWriteFileResponse>;
 
 /**
- * Asynchronously reads and returns the entire contents of a file as strongly-type JSON.
+ * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
  */
-export type FsReadJson = <T>(path: t.StringPath) => Promise<FsReadJsonResponse<T>>;
-export type FsReadJsonResponse<T> = {
+export type FsReadBinary = (path: t.StringPath) => Promise<FsReadResponse<Uint8Array>>;
+
+/**
+ * Asynchronously reads and returns the entire contents of a text file.
+ */
+export type FsReadText = (path: t.StringPath) => Promise<FsReadResponse<string>>;
+
+/**
+ * Asynchronously reads and returns the entire contents of a file
+ * as strongly-typed, parsed JSON.
+ */
+export type FsReadJson = <T>(path: t.StringPath) => Promise<FsReadResponse<T>>;
+
+/**
+ * Asynchronously reads and returns the entire contents of a file
+ * as strongly-typed, parsed YAML.
+ */
+export type FsReadYaml = <T>(path: t.StringPath) => Promise<FsReadResponse<T>>;
+
+/** A response from a file read operation.  */
+export type FsReadResponse<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;
   readonly data?: T;
-  readonly error?: Error;
-  readonly errorReason?: 'NotFound' | 'ParseError' | 'Unknown';
+  readonly error?: t.StdError;
+  readonly errorReason?: 'NotFound' | 'ParseError' | 'DecodingError' | 'Unknown';
 };
 
 /**

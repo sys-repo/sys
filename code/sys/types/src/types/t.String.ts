@@ -57,3 +57,17 @@ export type StringHash = string;
 
 /** String that represents a hexadeciman (such as a color, eg: "#293042") */
 export type StringHex = string;
+
+/** A raw string of of unparsed JSON. (RFC 8259) */
+export type StringJson = string;
+
+/** A raw string of unparsed YAML. */
+export type StringYaml = string;
+
+/**
+ * The name (module-specifier) of an ESM import.
+ * eg:
+ *    jsr:@sys/tmp@0.0.0
+ *    npm:rxjs@7
+ */
+export type StringModuleSpecifier = string;

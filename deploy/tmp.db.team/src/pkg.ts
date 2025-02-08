@@ -5,4 +5,4 @@ import { default as deno } from '../deno.json' with { type: 'json' };
 /**
  * Package meta-data.
  */
-export const pkg: t.Pkg = Pkg.fromJson(deno)
+export const pkg: t.Pkg = Pkg.fromJson(deno);

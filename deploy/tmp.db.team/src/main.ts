@@ -1,4 +1,5 @@
-import { HttpServer, Pkg } from 'jsr:@sys/std-s';
+import { Pkg } from 'jsr:@sys/fs';
+import { HttpServer } from 'jsr:@sys/http/server';
 import { pkg } from './pkg.ts';
 
 const dist = (await Pkg.Dist.load('./dist')).dist;

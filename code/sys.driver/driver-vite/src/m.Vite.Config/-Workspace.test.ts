@@ -19,7 +19,7 @@ describe('ViteConfig.workspace', () => {
       const ws = await ViteConfig.workspace();
       const map = ws.toAliasMap();
       const lookup = {
-        key: '@sys/tmp/client/ui',
+        key: '@sys/tmp/ui',
         path: ROOT.resolve('./code/sys.tmp/src/ui/mod.ts'),
       };
 

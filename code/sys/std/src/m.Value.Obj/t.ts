@@ -60,6 +60,11 @@ export type ObjLib = {
    * Prunes values on the given period seperated key-path from an object.
    */
   prune(keyPath: string, root: { [key: string]: any }): KeyMap;
+
+  /**
+   * Sort the keys of an object.
+   */
+  sortKeys<T extends O>(obj: T): T;
 };
 
 /** A callback passed to the object walker function. */

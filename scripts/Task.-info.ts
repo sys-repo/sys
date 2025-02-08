@@ -11,7 +11,7 @@ export async function main() {
     const process = async (path: string) => {
       const fileInfo = await Deno.stat(path);
       if (fileInfo.isFile) {
-        const file = await Deno.readTextFile(path);
+        const file = (await Fs.readText(path)).data;
         const lines = file.split('\n');
         files.push({ path, total: { lines: lines.length } });
       }

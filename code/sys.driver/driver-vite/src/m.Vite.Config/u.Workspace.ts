@@ -1,4 +1,4 @@
-import { Denofile, Fs, Path, R, type t } from './common.ts';
+import { DenoFile, Fs, Path, R, type t } from './common.ts';
 import { Log } from './u.ts';
 
 type E = {
@@ -13,7 +13,7 @@ type E = {
  */
 export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
   const { walkup = true, filter } = options;
-  const base = await Denofile.workspace(options.denofile, { walkup });
+  const base = await DenoFile.workspace(options.denofile, { walkup });
   const baseDir = Path.dirname(base.file);
   const aliases = await wrangle.aliases(baseDir, base.children.dirs, filter);
 
@@ -57,7 +57,7 @@ const wrangle = {
 
   async exports(base: t.StringPath, dir: t.StringPath, filter?: t.WorkspaceFilter) {
     const config = Fs.join(base, dir, 'deno.json');
-    const { exists, data } = await Denofile.load(config);
+    const { exists, data } = await DenoFile.load(config);
     const pkg = data?.name ?? '';
     const list: t.ViteAlias[] = [];
     if (data?.exports) {

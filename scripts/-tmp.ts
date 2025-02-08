@@ -1,4 +1,4 @@
-import { Jsr } from '@sys/std/jsr';
+import { Jsr } from '@sys/jsr';
 import { Cli } from '@sys/cli';
 import { Paths } from './u.paths.ts';
 

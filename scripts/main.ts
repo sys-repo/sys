@@ -1,11 +1,12 @@
 import { Cli } from './u.ts';
 
+import { main as bump } from './Task.-bump.ts';
 import { main as clean } from './Task.-clean.ts';
 import { main as dry } from './Task.-dry.ts';
 import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
+import { main as prep } from './Task.-prep.ts';
 import { main as test } from './Task.-test.ts';
-import { main as bump } from './Task.-bump.ts';
 
 type T = {
   dry?: boolean;
@@ -14,6 +15,7 @@ type T = {
   info?: boolean;
   lint?: boolean;
   bump?: boolean;
+  prep?: boolean;
 };
 const args = Cli.args<T>(Deno.args);
 
@@ -21,6 +23,7 @@ const args = Cli.args<T>(Deno.args);
 if (args.clean) await clean();
 if (args.lint) await lint();
 if (args.bump) await bump();
+if (args.prep) await prep();
 
 // CI.
 if (args.dry) await dry();

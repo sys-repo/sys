@@ -1,20 +1,32 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.54",
+  "version": "0.0.96",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi",
-    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
-    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "cd dist && serve"
+    "lint": "deno     lint",
+    "dry": "deno      publish --allow-dirty --dry-run",
+    "test": "deno     test -RWNE --allow-run --allow-ffi",
+    "reset": "deno    run -RWE ./-scripts/-reset.ts",
+    "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init    --dir=./.tmp/sample",
+    "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev     --in=./.tmp/sample/src/-test/index.html",
+    "build": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build   --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",
+    "serve": "deno    run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve   --dir=./.tmp/sample/dist",
+    "clean": "deno    run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=clean   --dir=./.tmp/sample",
+    "backup": "deno   run -RWE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup  --dir=./.tmp/sample",
+    "upgrade": "deno  run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade --dir=./.tmp/sample",
+    "help": "deno     run -RNE   --allow-run --allow-ffi ./-scripts/-main.ts --cmd=help    --in=./.tmp/sample/src/-test/index.html --out=./.tmp/sample/dist",
+    "prep": "deno     run -RWE --allow-ffi ./-scripts/-prep.ts",
+    "r": "deno task reset && deno task prep && deno task init",
+    "rdev": "deno task r && deno task dev",
+    "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./log": "./src/m.Log/mod.ts"
+    "./entry": "./src/-entry/mod.ts",
+    "./log": "./src/m.Log/mod.ts",
+    "./main": "./src/-entry/-main.ts",
+    "./init": "./src/-entry/-init.ts"
   }
 }

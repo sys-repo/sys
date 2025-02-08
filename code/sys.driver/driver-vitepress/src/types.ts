@@ -2,9 +2,10 @@
  * @module
  * Module types.
  */
-export type * from './m.Cmd/t.ts';
-export type * from './u.Env/t.ts';
-export type * from './u.Log/t.ts';
-export type * from './m.VitePress/t.ts';
+export type * from './-entry/t.ts';
+
+export type * from './m.Vitepress.Log/t.ts';
+export type * from './m.Vitepress.Tmpl/t.ts';
+export type * from './m.Vitepress/t.ts';
 
 export type * from './ui/components/t.ts';

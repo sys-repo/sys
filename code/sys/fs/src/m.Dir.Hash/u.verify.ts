@@ -44,14 +44,12 @@ export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
    * Verify.
    */
   if (Hash.Is.composite(hash)) {
-    const read = Deno.readFile;
-    const verification = await CompositeHash.verify(hash, async (e) => {
+    const verify = await CompositeHash.verify(hash, async (e) => {
       const path = Fs.join(dir, e.part);
-      const exists = await Fs.exists(path);
-      return exists ? read(path) : undefined;
+      return (await Fs.read(path)).data;
     });
-    res.is = verification.is;
-    if (verification.error) errors.push(verification.error);
+    res.is = verify.is;
+    if (verify.error) errors.push(verify.error);
   }
 
   // Finish up.

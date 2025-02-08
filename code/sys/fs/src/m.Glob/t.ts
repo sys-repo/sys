@@ -14,7 +14,7 @@ export type GlobLib = {
 /**
  * Generate a Glob helper scoped to a path.
  */
-export type GlobFactory = (dir: t.StringDir, options?: GlobOptions) => t.Glob;
+export type GlobFactory = (dir?: t.StringDir, options?: GlobOptions) => t.Glob;
 
 /**
  * Runs globs against a filesystem root.
