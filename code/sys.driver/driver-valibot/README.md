@@ -2,8 +2,9 @@
 Tools for programmatic \<Type\> declaration and validation.
 
 - https://valibot.dev
-- https://github.com/fabian-hiller/valibot
 - https://jsr.io/@valibot/valibot
+- https://github.com/fabian-hiller/valibot
+- https://valibot.dev/thesis.pdf
 
 >> "Valibot is the open source schema library for TypeScript with bundle
 >> size, type safety and developer experience in mind."

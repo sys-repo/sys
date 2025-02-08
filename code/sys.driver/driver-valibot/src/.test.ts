@@ -10,6 +10,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
   });
 
   /**
+   * Sample from README:
    * https://github.com/fabian-hiller/valibot?tab=readme-ov-file#example
    */
   it('sample', () => {
