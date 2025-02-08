@@ -60,7 +60,7 @@ type T = { count: number }
 
 foo.current                    // === { count: 0 }
 foo.change((d) => d.count++)   //  Σ  | safe mutation
-foo.current                    // === { count: 1 }
+foo.current                    // === { count: 1 }      ← (next instance):🌳
 ```
 
 
