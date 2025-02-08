@@ -252,10 +252,10 @@ The inverse proposition also appears to be true:
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# License, [MIT](LICENSE.md).
+# [MIT](LICENSE.md).
 
-To understand the legal and historical context around MIT Licence ("an open-source classic")  
-see **Kyle E. Mitchell's**  
+To understand the legal and historical context around the MIT Licence  
+and it's enduring importance as "an open-source classic", see **Kyle E. Mitchell's**  
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
