@@ -21,6 +21,7 @@
     "@std/testing": "jsr:@std/testing@1.0.9",
     "@std/uuid": "jsr:@std/uuid@1.0.4",
     "@types/diff": "npm:@types/diff@7.0.1",
+    "@valibot/valibot": "jsr:@valibot/valibot@0.42",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
     "csstype": "npm:csstype@3",
