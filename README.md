@@ -82,7 +82,7 @@ type Immutable<T> = {
 type T = { count: number }
 
 // Generator<T> over some immutability strategy 
-// (typically an external library's implementation, see namespace: `@sys/driver-*`).
+// (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
 
 /**
