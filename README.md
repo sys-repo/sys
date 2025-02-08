@@ -3,6 +3,20 @@
 [![ci][ci-image]][ci-url]
 [![jsr-ci][jsr-ci-image]][jsr-ci-url]
 
+[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: https://opensource.org/licenses/mit
+
+[jsr-scope-image]: https://jsr.io/badges/@sys?style=flat-square
+[jsr-scope-url]: https://jsr.io/@sys
+
+[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml/badge.svg
+[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml
+
+[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
+[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
+
+
+
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
 - modules: [sys](/code/sys/) ← standard libs
@@ -246,14 +260,3 @@ see **Kyle E. Mitchell's**
 
 <p>&nbsp;</p>
 
-[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-url]: https://opensource.org/licenses/mit
-
-[jsr-scope-image]: https://jsr.io/badges/@sys?style=flat-square
-[jsr-scope-url]: https://jsr.io/@sys
-
-[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yml/badge.svg
-[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yml
-
-[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yml/badge.svg
-[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yml
