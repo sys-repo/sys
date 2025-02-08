@@ -242,7 +242,7 @@ The inverse proposition also appears to be true:
 
 ### Runtime, Build Toolchain
 
-"Framework" agnostic. Web standards.
+"Framework" agnostic. [Web standards](https://wintercg.org/).
 
 ![image](https://github.com/user-attachments/assets/853a68bb-060d-4c64-be19-094e75b39523)
 
