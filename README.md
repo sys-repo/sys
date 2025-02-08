@@ -1,7 +1,7 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
 [![jsr-scope][jsr-scope-image]][jsr-scope-url]
 [![ci][ci-image]][ci-url]
-[![jsr-ci][jsr-ci-image]][jsr-ci-url]
+[![ci-jsr][ci-jsr-image]][ci-jsr-url]
 
 [mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [mit-url]: https://opensource.org/licenses/mit
@@ -12,8 +12,8 @@
 [ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml/badge.svg
 [ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml
 
-[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
-[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
+[ci-jsr-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
+[ci-jsr-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
 
 
