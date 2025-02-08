@@ -1,5 +1,6 @@
-import { DEFAULTS, Path, slug, type t } from './common.ts';
+import { type t, DEFAULTS, Path } from './common.ts';
 import { workspace } from './u.Workspace.ts';
+import { toAlias as alias } from './u.alias.ts';
 
 const resolve = Path.resolve;
 const DEF = DEFAULTS.path;
@@ -13,13 +14,6 @@ export const ViteConfig: t.ViteConfigLib = {
    */
   outDir: {
     default: DEF.outDir,
-    test: {
-      base: DEF.outDirTesting,
-      random(uniq) {
-        const base = ViteConfig.outDir.test.base;
-        return `${base}/test-${uniq ?? slug()}`;
-      },
-    },
   },
 
   /**
@@ -35,4 +29,10 @@ export const ViteConfig: t.ViteConfigLib = {
    * Configuration helpers for performing module-resolution over a `deno.json` workspace.
    */
   workspace,
+
+  /**
+   * Construct a replacement regex to use an as alias for a module/import lookup
+   * within the Vite/Rollup/alias configuration.
+   */
+  alias,
 } as const;

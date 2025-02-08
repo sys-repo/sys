@@ -20,6 +20,12 @@
  *   });
  * });
  */
-export { Path } from '../m.Path/mod.ts';
 export { Bdd, describe, expect, expectError, it } from './m.Bdd.ts';
 export { Testing } from './m.Testing.ts';
+
+/**
+ * Common utility helpers.
+ */
+export { Path } from '../m.Path/mod.ts';
+export { slug } from '../m.Random/mod.ts';
+export { Time } from '../m.DateTime/mod.ts';

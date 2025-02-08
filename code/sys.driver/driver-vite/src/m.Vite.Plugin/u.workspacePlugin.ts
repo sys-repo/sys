@@ -7,7 +7,6 @@ import { R, asArray, Path, ViteConfig, type t } from './common.ts';
 export const workspacePlugin: t.VitePluginLib['workspace'] = async (...args: any[]) => {
   const options = wrangle.options(args);
   const { pkg } = options;
-  // options.workspace
   const ws = await wrangle.workspace(options);
 
   /**

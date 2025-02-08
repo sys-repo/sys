@@ -1,15 +1,28 @@
-import type { FC } from 'react';
-import { pkg } from '../common.ts';
+// @ts-types="@types/react"
+import React from 'react';
+import { pkg } from '../pkg.ts';
+
+/** Constants. */
+export const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
 
 /**
  * Sample component properties.
  */
-export type FooProps = { enabled?: boolean };
+export type FooProps = {
+  enabled?: boolean;
+  importSample?: boolean;
+};
 
 /**
- * Sample component.
+ * Component (UI).
  */
-export const Foo: FC<FooProps> = (_props = {}) => {
-  const text = `${pkg.name}@${pkg.version}:Foo`;
-  return <code>{text}</code>;
+export const Foo: React.FC<FooProps> = (props) => {
+  React.useEffect(() => {
+    if (props.importSample) import('@sys/tmp/sample-imports');
+  }, [props.importSample]);
+
+  const { enabled = true } = props;
+  let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
+  if (!enabled) text += ' (disabled)';
+  return <code style={{ backgroundColor: RED }}>{text}</code>;
 };

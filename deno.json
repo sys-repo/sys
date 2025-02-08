@@ -2,36 +2,36 @@
   "tasks": {
     "info": "deno run -RE --allow-sys --allow-ffi ./scripts/main.ts --info",
     "test": "deno run -A ./scripts/main.ts --test",
-    "dry": "deno run -RE --allow-run=sh --allow-sys --allow-ffi ./scripts/main.ts --dry",
+    "dry": "deno run -RE --allow-run --allow-sys --allow-ffi ./scripts/main.ts --dry",
     "ci": "deno run -A ./scripts/main.ts --dry --test --info",
     "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./scripts/main.ts --clean",
     "reload": "deno task reload:clear && deno task reload:install",
     "reload:clear": "rm -rf node_modules",
-    "reload:install": "deno install --reload --allow-scripts=npm:@swc/core@1.10.1,npm:cbor-extract@2.2.0,npm:bigint-buffer@1.1.5,npm:vue-demi@0.14.10,npm:bufferutil@4.0.9,npm:utf-8-validate@5.0.10",
+    "reload:install": "deno install --reload",
+    "prep": "deno run -RWE ./scripts/main.ts --prep",
     "bump": "deno run -RWE --allow-sys --allow-ffi ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
-  "nodeModulesDir": "auto",
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
-    "types": ["react", "react-dom", "vite/client", "vue", "vidstack/vue"],
+    "types": ["vite/client"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "jsxImportSourceTypes": "@emotion/react"
+    "jsxImportSource": "@emotion/react"
   },
+  "nodeModulesDir": "auto",
+  "importMap": "./deno.imports.json",
   "workspace": [
     "./code/sys/types",
     "./code/sys/std",
+    "./code/sys/color",
 
     "./code/sys/testing",
     "./code/sys/fs",
     "./code/sys/cli",
-    "./code/sys/proc",
+    "./code/sys/process",
     "./code/sys/crypto",
-
-    "./code/sys/std-s",
 
     "./code/sys/http",
     "./code/sys/text",
@@ -41,8 +41,9 @@
 
     "./code/sys.ui/ui-css",
     "./code/sys.ui/ui-dom",
-    "./code/sys.ui/ui-dev-harness",
     "./code/sys.ui/ui-react",
+    "./code/sys.ui/ui-react-devharness",
+    "./code/sys.ui/ui-react-components",
 
     "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-deno",
@@ -65,7 +66,6 @@
     "./code/-tmpl/deno",
     "./code/sys.tmp"
   ],
-  "importMap": "./deno_imports.json",
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]

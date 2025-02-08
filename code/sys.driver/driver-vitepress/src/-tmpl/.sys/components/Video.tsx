@@ -1,3 +1,4 @@
+// @ts-types="@types/react"
 import React from 'react';
 
 import '@vidstack/react/player/styles/base.css';
@@ -5,6 +6,11 @@ import '@vidstack/react/player/styles/plyr/theme.css';
 
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
+
+/**
+ * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
+ */
+// import { Foo } from '@sys/tmp/ui';
 
 export type VideoProps = {
   title?: string;
@@ -16,14 +22,25 @@ export type VideoProps = {
  */
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
+
+  // const elPlayer = (
+  //   <MediaPlayer title={props.title} src={src} playsInline={true}>
+  //     <MediaProvider />
+  //     <PlyrLayout
+  //       // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
+  //       icons={plyrLayoutIcons}
+  //     />
+  //   </MediaPlayer>
+  // );
+
+  // TEMP 🐷
   return (
-    <MediaPlayer title={props.title} src={src} playsInline={true}>
-      <MediaProvider />
-      <PlyrLayout
-        // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
-        icons={plyrLayoutIcons}
-      />
-    </MediaPlayer>
+    <div>
+      {/* <div>
+        import: <Foo importSample={true} />
+      </div> */}
+      {/* {elPlayer} */}
+    </div>
   );
 };
 

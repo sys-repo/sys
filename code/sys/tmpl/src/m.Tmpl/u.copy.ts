@@ -13,28 +13,66 @@ export async function copy(
   options: t.TmplCopyOptions = {},
 ) {
   const forced = options.force ?? false;
-  const res: t.TmplCopyResponse = { source, target, ops: [] };
+  const ops: t.TmplFileOperation[] = [];
+  const res: t.TmplCopyResponse = {
+    get source() {
+      return source;
+    },
+    get target() {
+      return target;
+    },
+    get ops() {
+      return ops;
+    },
+  };
 
+  const copyArgs: t.TmplCopyHandlerArgs = {
+    get dir() {
+      return { source, target };
+    },
+  };
+
+  /**
+   * Run BEFORE handlers.
+   */
+  for (const fn of wrangle.copyHandlers(options.beforeCopy)) {
+    await fn(copyArgs);
+  }
+
+  /**
+   * Perform copy on files.
+   */
   for (const from of await source.ls()) {
     if (await Fs.Is.dir(from)) continue;
 
     const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
-    const sourceText = await Deno.readTextFile(from);
-    const targetText = (await Fs.exists(to)) ? await Deno.readTextFile(to) : '';
-    const op: t.TmplFileOperation = {
-      file: {
-        tmpl: Fs.toFile(from, source.absolute),
-        target: Fs.toFile(to, target.absolute),
+    const sourceText = (await Fs.readText(from)).data ?? '';
+    const targetText = (await Fs.readText(to)).data ?? '';
+
+    type T = t.TmplFileOperation;
+    let _file: T['file'];
+    let _text: T['text'];
+
+    const op: T = {
+      get file() {
+        if (_file) return _file;
+        return (_file = {
+          tmpl: Fs.toFile(from, source.absolute),
+          target: Fs.toFile(to, target.absolute),
+        });
       },
-      text: {
-        tmpl: sourceText,
-        target: {
-          before: targetText,
-          after: targetText || sourceText,
-          get isDiff() {
-            return op.text.target.before !== op.text.target.after;
+      get text() {
+        if (_text) return _text;
+        return (_text = {
+          tmpl: sourceText,
+          target: {
+            before: targetText,
+            after: targetText || sourceText,
+            get isDiff() {
+              return op.text.target.before !== op.text.target.after;
+            },
           },
-        },
+        });
       },
       excluded: false,
       written: false,
@@ -42,7 +80,7 @@ export async function copy(
       updated: false,
       forced,
     };
-    res.ops.push(op);
+    ops.push(op);
 
     if (typeof fn === 'function') {
       const { args, changes } = await wrangle.args(op);
@@ -77,6 +115,14 @@ export async function copy(
     }
   }
 
+  /**
+   * Run AFTER handlers.
+   */
+  for (const fn of wrangle.copyHandlers(options.afterCopy)) {
+    await fn(copyArgs);
+  }
+
+  // Finish up.
   return res;
 }
 
@@ -87,10 +133,17 @@ const wrangle = {
   async args(op: t.TmplFileOperation) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const { tmpl, target } = op.file;
+    const exists = await Fs.exists(target.absolute);
     const args: t.TmplProcessFileArgs = {
-      tmpl,
-      target: { ...target, exists: await Fs.exists(target.absolute) },
-      text: { tmpl: op.text.tmpl, current: op.text.target.before },
+      get tmpl() {
+        return tmpl;
+      },
+      get target() {
+        return { ...target, exists };
+      },
+      get text() {
+        return { tmpl: op.text.tmpl, current: op.text.target.before };
+      },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
         return args;
@@ -109,5 +162,11 @@ const wrangle = {
 
   rename(input: t.FsFile, newFilename: string): t.FsFile {
     return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
+  },
+
+  copyHandlers(input?: t.TmplCopyHandler | t.TmplCopyHandler[]): t.TmplCopyHandler[] {
+    if (!input) return [];
+    const res = Array.isArray(input) ? input : [input];
+    return res.flat(Infinity).filter(Boolean);
   },
 } as const;

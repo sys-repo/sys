@@ -27,6 +27,9 @@ export type ValueLib = {
   /** Determine if the given input is a simple {key:value} record object.  */
   isRecord(input: unknown): input is O;
 
+  /** Determine if the given input is typeof {object} with no fields. */
+  isEmptyRecord(input: unknown): input is object;
+
   /**
    * Toggle the value of a boolean {object} key.
    * WARNING:

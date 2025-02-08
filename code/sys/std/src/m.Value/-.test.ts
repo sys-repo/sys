@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
-import { ArrayLib } from '../m.Value.Array/m.Array.ts';
 import { isObject, isRecord } from '../common.ts';
+import { ArrayLib } from '../m.Value.Array/m.Array.ts';
 import { Num, Value } from './mod.ts';
 
 describe('Value', () => {
@@ -90,6 +90,48 @@ describe('Value', () => {
       test([Symbol('hello')]);
       test([{}]);
       test([[]]);
+    });
+  });
+
+  describe('isObject', () => {
+    it('is an Object', () => {
+      expect(Value.isObject({})).to.eql(true);
+      expect(Value.isObject([])).to.eql(true); // NB: technically in JS an Array is an object. See: isRecord (alt).
+    });
+
+    it('is not an Object', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo')];
+      NON.forEach((value) => expect(Value.isObject(value)).to.eql(false));
+
+      // Notably:
+      expect(Value.isObject(null)).to.eql(false);
+    });
+  });
+
+  describe('isEmptyRecord', () => {
+    it('is an empty record {object}', () => {
+      expect(Value.isEmptyRecord({})).to.eql(true);
+    });
+
+    it('is not an empty record {object}', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), [], { foo: 123 }];
+      NON.forEach((value) => expect(Value.isEmptyRecord(value)).to.eql(false));
+    });
+  });
+
+  describe('isRecord', () => {
+    it('is a {object} record', () => {
+      expect(Value.isRecord({})).to.eql(true);
+      expect(Value.isRecord({ foo: [] })).to.eql(true);
+    });
+
+    it('is not a {object} record', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), []];
+      NON.forEach((value) => expect(Value.isRecord(value)).to.eql(false));
+
+      // Notably:
+      expect(Value.isRecord(null)).to.eql(false);
+      expect(Value.isRecord([])).to.eql(false);
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.29",
+  "version": "0.0.52",
   "license": "MIT",
   "tasks": {
     "start": "deno run -RNE --watch ./src/s.main/http-server.ts",
@@ -11,7 +11,7 @@
     "prep": "deno run -RWE ./scripts/-prep.ts",
     "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
     "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "cd dist && serve",
+    "serve": "deno run -RNE --allow-run jsr:@sys/http/server/start",
     "deploy": "deno task dry && deployctl deploy --prod --org=tdb --project=tdb-slc"
   },
   "exports": {

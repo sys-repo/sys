@@ -5,11 +5,11 @@
   "tasks": {
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts",
+    "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
-    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "cd dist && serve"
+    "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-dev.ts",
+    "build": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-build.ts",
+    "serve": "deno run -RNE --allow-run jsr:@sys/http/server/start"
   },
   "exports": {
     ".": "./src/mod.ts",

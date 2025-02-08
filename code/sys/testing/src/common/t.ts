@@ -1,10 +1,10 @@
+export type * from '@sys/types/t';
+
 export type {
-  Disposable,
-  Lifecycle,
   ModuleImport,
   ModuleImporter,
   ModuleImports,
-  UntilObservable,
+  TestingHttpLib,
   TimeDelayPromise,
 } from '@sys/std/t';
 

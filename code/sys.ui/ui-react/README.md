@@ -7,6 +7,17 @@ import { FC } from 'react';
 import { createRoot } from 'react-dom/client';
 ```
 
+When working within Deno you may need to enable react types within each `.tsx` file using:
+
+```ts
+// @ts-types="@types/react"
+import React from 'react';
+```
+
+For more see [Deno docs](https://docs.deno.com/runtime/reference/ts_config_migration/#providing-types-when-importing) on configuring types.
+
+---
+
 ### Notes: 
 
 - The system is ultimately "UI Abstraction Library" agnostic, and so React is just one of any DOM rendering approaches, but it is the initial implementation choice.

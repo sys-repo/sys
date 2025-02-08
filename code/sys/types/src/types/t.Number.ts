@@ -22,3 +22,8 @@ export type Percent = number;
  * A pixel OR a percentage number: 0..1 = percent, >1 = pixels.
  */
 export type PixelOrPercent = Pixels | Percent; //
+
+/**
+ * A number that represents a "total" (typically 1-based).
+ */
+export type NumberTotal = number;

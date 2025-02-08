@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * A distribution "package" meata-data.
+ * A distribution "package" meta-data.
  *
  * This is the type definition for the `/dist/pkg.json` JSON file
  * produced during a build/bundle operation for a module.

@@ -1,19 +1,20 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.45",
+  "version": "0.0.70",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -RNE --watch ./scripts/-dev.ts",
-    "test": "deno test -RNE",
+    "dev": "deno run -RNE --watch ./-scripts/-dev.ts",
+    "test": "deno test -RWNE",
     "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run"
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -RWE ./-scripts/-clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./cloud/client": "./src/m.Cloud/m.Client.ts",
-    "./cloud/server": "./src/m.Cloud/m.Server.ts",
-    "./runtime": "./src/m.Runtime/mod.ts"
+    "./cloud/client": "./src/ns.Cloud/ns.client/mod.ts",
+    "./cloud/server": "./src/ns.Cloud/ns.server/mod.ts",
+    "./runtime": "./src/ns.Runtime/mod.ts"
   }
 }

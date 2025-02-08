@@ -11,7 +11,7 @@ describe('Dir.Hash', () => {
   };
 
   const verifyFileHash = async (path: t.StringPath, expected: t.StringHash) => {
-    const binary = await Deno.readFile(path);
+    const binary = (await Fs.read(path)).data;
     expect(Hash.sha256(binary)).to.eql(expected);
   };
 
