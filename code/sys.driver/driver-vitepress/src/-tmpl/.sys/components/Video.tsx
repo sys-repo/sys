@@ -10,7 +10,7 @@ import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr
 /**
  * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
  */
-import { Foo } from '@sys/tmp/ui';
+// import { Foo } from '@sys/tmp/ui';
 
 export type VideoProps = {
   title?: string;
@@ -23,24 +23,22 @@ export type VideoProps = {
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
 
-  const elPlayer = (
-    <MediaPlayer title={props.title} src={src} playsInline={true}>
-      <MediaProvider />
-      <PlyrLayout
-        // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
-        icons={plyrLayoutIcons}
-      />
-    </MediaPlayer>
-  );
-
-  // return
+  // const elPlayer = (
+  //   <MediaPlayer title={props.title} src={src} playsInline={true}>
+  //     <MediaProvider />
+  //     <PlyrLayout
+  //       // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
+  //       icons={plyrLayoutIcons}
+  //     />
+  //   </MediaPlayer>
+  // );
 
   // TEMP 🐷
   return (
     <div>
-      <div>
+      {/* <div>
         import: <Foo importSample={true} />
-      </div>
+      </div> */}
       {/* {elPlayer} */}
     </div>
   );

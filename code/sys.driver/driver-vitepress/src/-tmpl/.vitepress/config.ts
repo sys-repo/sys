@@ -10,8 +10,6 @@ export default async (env: ConfigEnv) => {
   const { title, description } = Config;
   const alias = (await getAliases()) as any; // NB: type-hack ("vitepress" vs. "vite" fighting).
 
-  console.log('alias', alias);
-
   return defineConfig({
     title,
     description,

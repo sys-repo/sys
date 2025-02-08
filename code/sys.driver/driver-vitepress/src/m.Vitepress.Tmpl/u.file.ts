@@ -19,13 +19,6 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
     const m2 = (await DenoDeps.from(join('.sys/sys.yaml'))).data?.modules;
     const modules = Esm.modules([...(m1?.items ?? []), ...(m2?.items ?? [])]);
 
-    console.group('🌳 getWorkspace');
-    console.log('path', path);
-    console.log('m', m1?.items.length);
-    console.log('m', m1);
-    console.log('modules.count', modules.count);
-    console.groupEnd();
-
     return { modules };
   };
 
@@ -54,32 +47,14 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
       return e.modify(text);
     }
 
-    // console.log('e.target.relative', e.target.relative);
-
     if (e.target.relative === 'package.json') {
-      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
-      console.log('e', e.target);
-
       const { modules } = await getDeps(e.target.base);
       const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
-
-      modules.items.forEach((m) => {
-        console.log(' > ', m.toString());
-      });
-
-      console.log(`-------------------------------------------`);
-      console.log('pkg', pkg);
-      console.log('modules', modules);
-      console.log('pkg?.dependencies:', modules.latest(pkg?.dependencies ?? {}));
-      console.log('pkg?.devDependencies:', modules.latest(pkg?.devDependencies ?? {}));
-
       const next = {
         ...pkg,
         dependencies: modules.latest(pkg?.dependencies ?? {}),
         devDependencies: modules.latest(pkg?.devDependencies ?? {}),
       };
-
-      console.log('next:', next);
 
       return e.modify(`${JSON.stringify(next, null, '  ')}\n`);
     }
