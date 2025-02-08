@@ -1,4 +1,5 @@
 import { type t, Yaml, Err, Esm, Fs, Semver } from './common.ts';
+import { toYaml } from './u.toYaml.ts';
 
 /**
  * Load the imports definitions from YAML.
@@ -115,6 +116,7 @@ export const from: t.DepsLib['from'] = async (input) => {
   return done({
     deps: deduped,
     modules: Esm.modules(deduped.map((m) => m.module)),
+    toYaml: (options) => toYaml(deduped, options),
   });
 };
 

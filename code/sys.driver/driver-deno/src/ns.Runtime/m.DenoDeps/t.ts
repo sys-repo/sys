@@ -29,7 +29,25 @@ export type DepsResponse = { data?: t.Deps; error?: t.StdError };
 export type Deps = {
   readonly deps: Dep[];
   readonly modules: t.EsmModules;
+  toYaml(options?: t.DepsYamlOptions): t.DepsYaml;
 };
+
+/**
+ * The dependency-set as YAML.
+ * Use this to stringify save "<deps>.yaml" files, which in turn can
+ * be passed back in through the `DenoDeps.from("./deps.yaml")` method.
+ */
+export type DepsYaml = {
+  readonly obj: t.YamlDeps;
+  readonly text: t.StringYaml;
+  toString(): string;
+};
+
+/** Categorize a dependency into a group (Nothing response is ungrouped). */
+export type DepsCategorizeByGroup = (dep: t.Dep) => string | t.Nothing;
+
+/** Options passed to the `DenoDeps.toYaml` method. */
+export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
 
 /**
  * A common data-structure for expressing an ESM "import"

@@ -11,7 +11,7 @@ describe('DenoDeps', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
   });
 
-  describe('DenoDeps.from', () => {
+  describe('DenoDeps.from (YAML)', () => {
     it('input: path (string → file.yaml)', async () => {
       const path = SAMPLE.path;
       const res = await DenoDeps.from(path);
@@ -47,7 +47,7 @@ describe('DenoDeps', () => {
       expect(deps[0].dev).to.eql(undefined);
       expect(deps[0].wildcard).to.eql(undefined);
 
-      const find = (name: string, fn: (dep: t.DenoDep) => void) => {
+      const find = (name: string, fn: (dep: t.Dep) => void) => {
         const match = deps.find((m) => m.module.name === name);
         if (!match) throw new Error(`Expected to find module: "${name}"`);
         fn(match);
@@ -172,6 +172,79 @@ describe('DenoDeps', () => {
       const a = data?.modules.items;
       const b = data?.deps.map((m) => m.module);
       expect(a).to.eql(b);
+    });
+  });
+
+  describe('DenoDeps/instance: deps.yaml', () => {
+    const print = (yaml: t.DepsYaml, title = '') => {
+      const type = 't.DepsYaml:';
+      title = title || 'deps.toYaml().text:';
+      console.info();
+      console.info(c.brightCyan(c.bold(type)), c.white(title));
+      console.info(c.yellow(c.italic(yaml.text)));
+      console.info();
+    };
+
+    it('empty', async () => {
+      const yaml = `
+        groups:
+        deno.json:
+        package.json:
+      `;
+      const { data, error } = await DenoDeps.from(yaml);
+      expect(error).to.eql(undefined);
+
+      if (data) {
+        const yaml = data.toYaml();
+        print(yaml, `deps.toYaml() ← (${c.bold('empty')})`);
+        expect(yaml.text).to.include('groups: {}');
+        expect(yaml.text).to.include('deno.json: []');
+        expect(yaml.text).to.include('package.json: []');
+        expect(yaml.text).to.eql(yaml.toString());
+      }
+    });
+
+    it('yaml object and text: grouped/ungrouped', async () => {
+      const yaml = `
+        groups:
+          common/foo:
+            - import: jsr:@sample/tmp-1
+            - import: jsr:@sample/tmp-2
+            - import: jsr:@sample/tmp-3
+              dev: true
+            
+        deno.json:
+          - group: common/foo
+          - import: jsr:@sample/foobar-1
+            wildcard: true
+
+        package.json:
+          - group: common/foo
+          - import: jsr:@sample/foobar-2
+            dev: true
+
+      `;
+
+      const { data, error } = await DenoDeps.from(yaml);
+      expect(error).to.eql(undefined);
+
+      if (data) {
+        const ungrouped = data.toYaml();
+        const grouped = data.toYaml({
+          groupBy(dep) {
+            const name = dep.module.name;
+            if (name.match(/tmp-(\d+)$/)) return 'common/foo';
+          },
+        });
+
+        print(ungrouped, `data.toYaml ← (${c.bold('ungrouped')})`);
+        console.info();
+        print(grouped, `data.toYaml ← (${c.bold('grouped')}):`);
+
+        expect(grouped.text).to.eql(grouped.toString());
+        expect(ungrouped.text).to.eql(ungrouped.toString());
+
+      }
     });
   });
 
