@@ -58,9 +58,9 @@ In its basic usage pattern:
 ```ts
 type T = { count: number }
 
-foo.current                    // === { count: 0 }
-foo.change((d) => d.count++)   //  Σ  | safe mutation
-foo.current                    // === { count: 1 }      ← (next instance):🌳
+foo.current;                       //  === { count: 0 }    ↓
+foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
+foo.current;                       //  === { count: 123 }  ↓              ..(next instance)
 ```
 
 
@@ -96,7 +96,7 @@ foo.current;                       //  === { count: 123 }  ↓
 
 // Strongly typed Event<T> stream observable: 💦
 const events = thing.listen(): Events<T>
-events.$.subscribe((e) => { /* event stream handler */ });
+events.$.subscribe((e) => { /* handle event stream */ });
 
 /**
  * ↑ 💦
