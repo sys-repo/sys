@@ -14,7 +14,17 @@ export type TmplLib = {
 /**
  * Generator function for a directory Template.
  */
-export type TmplFactory = (source: t.StringDir, fn?: t.TmplProcessFile) => t.Tmpl;
+export type TmplFactory = (
+  source: t.StringDir,
+  options?: t.TmplFactoryOptions | t.TmplProcessFile,
+) => t.Tmpl;
+
+/** Options passed to the template engine factory. */
+export type TmplFactoryOptions = {
+  processFile?: t.TmplProcessFile;
+  beforeCopy?: t.TmplCopyHandler;
+  afterCopy?: t.TmplCopyHandler;
+};
 
 /**
  * A template engine.
@@ -68,12 +78,30 @@ export type TmplProcessFileArgs = {
   modify(text: string): TmplProcessFileArgs;
 };
 
+/**
+ * Callback that is run after the template engine as finished copying.
+ * Use this to do either clean up, or additional setup actions not handled
+ * directly by the template-copy engine.
+ */
+export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResponse;
+/** Arguments passed to the `afterCopy` callback. */
+export type TmplCopyHandlerArgs = {
+  readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
+};
+
 /** Options passed to the `tmpl.copy` method. */
 export type TmplCopyOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
   force?: boolean;
+
   /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
   write?: boolean;
+
+  /** Handler(s) to run before the copy operation starts. */
+  beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+
+  /** Handler(s) to run after the copy operation completes. */
+  afterCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
 };
 
 /**

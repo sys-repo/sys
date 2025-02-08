@@ -1,6 +1,6 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.36",
+  "version": "0.0.63",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -13,6 +13,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./dir": "./src/m.Dir/mod.ts",
+    "./env": "./src/m.Env/mod.ts",
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",

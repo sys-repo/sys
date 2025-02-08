@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.tmp/
+.swc/
+
+.sys
+-backup/
+-backup/**

@@ -1,5 +1,7 @@
-export { pkg } from '../src/pkg.ts';
 import { Fs } from '../src/common.ts';
+
+export * from '../src/common.ts';
+export { pkg } from '../src/pkg.ts';
 
 /**
  * Helpers for the scripts.

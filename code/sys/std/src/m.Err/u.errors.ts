@@ -7,6 +7,9 @@ import { std } from './u.std.ts';
 export const errors: t.ErrLib['errors'] = () => {
   const set = new Set<t.StdError>();
   const api: t.ErrorCollection = {
+    get ok() {
+      return api.length === 0;
+    },
     get length() {
       return set.size;
     },

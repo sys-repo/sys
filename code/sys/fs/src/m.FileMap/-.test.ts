@@ -8,7 +8,7 @@ describe('FileMap', () => {
   describe('bundle', () => {
     const dir = Sample.source.dir;
 
-    it('bundle ← all paths', async () => {
+    it('bundle ← all paths (sorted)', async () => {
       const res = await FileMap.bundle(dir);
       const paths = (await Sample.source.ls()).map((p) => p.slice(dir.length + 1)).sort();
       expect(Object.keys(res).sort()).to.eql(paths);
@@ -38,9 +38,10 @@ describe('FileMap', () => {
           target: Fs.resolve(targetDir, key),
         };
         const file = {
-          source: await Deno.readFile(path.source),
-          target: await Deno.readFile(path.target),
+          source: (await Fs.read(path.source)).data!,
+          target: (await Fs.read(path.target)).data!,
         };
+
         if (!areEqual(file.source, file.target)) return false;
       }
       return true;

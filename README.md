@@ -1,7 +1,7 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
-[![license:mit](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/mit)
-[![ci](https://github.com/sys-repo/sys/actions/workflows/ci.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/ci.yml)
-[![jsr](https://github.com/sys-repo/sys/actions/workflows/jsr.yml/badge.svg)](https://github.com/sys-repo/sys/actions/workflows/jsr.yml)
+[![jsr-scope][jsr-scope-image]][jsr-scope-url]
+[![ci][ci-image]][ci-url]
+[![jsr-ci][jsr-ci-image]][jsr-ci-url]
 
 Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
@@ -12,8 +12,8 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 
 <p>&nbsp;</p>
 
-(✊🏻💯  )
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/).
+[![licence][mit-image]][mit-url]  
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/). ( ✊🏻💯 )
 
 ---
 
@@ -26,7 +26,7 @@ Architecture, API's, and other conceptual primmitives will change (almost certai
 
 |     | repo                     | status
 | --- | :---                     | :---
-|  ●  | sys                      | current 🧫
+|  ●  | sys 🧫                    | current
 |  ○  | ↑ platform-0.2.0         | [previous](https://github.com/cellplatform/platform-0.2.0)
 |  ○  | ↑ platform-0.1.0         | [previous](https://github.com/cellplatform/platform-0.1.0)
 
@@ -245,3 +245,15 @@ see **Kyle E. Mitchell's**
 "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
+
+[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: https://opensource.org/licenses/mit
+
+[jsr-scope-image]: https://jsr.io/badges/@sys?style=flat-square
+[jsr-scope-url]: https://jsr.io/@sys
+
+[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yml
+
+[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yml/badge.svg
+[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yml

@@ -1,6 +1,6 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.24",
+  "version": "0.0.48",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -13,6 +13,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./cli": "./src/m.Cli/mod.ts",
-    "./fmt": "./src/m.Fmt/mod.ts"
+    "./fmt": "./src/mod.fmt.ts"
   }
 }

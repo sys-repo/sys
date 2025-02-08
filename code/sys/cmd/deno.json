@@ -1,6 +1,6 @@
 {
   "name": "@sys/cmd",
-  "version": "0.0.41",
+  "version": "0.0.64",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",

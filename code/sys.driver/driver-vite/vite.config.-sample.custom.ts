@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unreachable
+import { c } from '@sys/cli';
 import { Vite } from '@sys/driver-vite';
-import { c, Cli } from '@sys/cli';
 
 import { defineConfig } from 'vite';
 import { pkg } from './src/pkg.ts';

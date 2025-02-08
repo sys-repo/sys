@@ -1,7 +1,8 @@
 export * from '../common.ts';
+export { DirHash } from '../m.Dir.Hash/mod.ts';
 export { Fs } from '../m.Fs/mod.ts';
 export { Path } from '../m.Path/mod.ts';
-export { DirHash } from '../m.Dir.Hash/mod.ts';
+export { Pkg } from '../m.Pkg/mod.ts';
 
 export const NAME = {
   dir: 'dir',

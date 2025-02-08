@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.tmp/
+
+.sys
+.vitepress
+.vscode
+
+-backup/
+-backup/**
+.vitepress/cache/**
+.vitepress/dist/**

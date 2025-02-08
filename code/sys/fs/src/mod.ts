@@ -1,13 +1,6 @@
 /**
  * @module
  * Tools for working with the file-system.
- *
- * @example
- * ```ts
- * import { Fs, Path } from '@sys/fs';
- * import { FileMap } from '@sys/fs/filemap';
- * import { Watch } from '@sys/fs/watch';
- * ```
  */
 import { Fs } from './m.Fs/mod.ts';
 export { pkg } from './pkg.ts';

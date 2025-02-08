@@ -1,4 +1,4 @@
-import { type t, Delete, DirHash, Err, Fs, NAME, Path, Time, c, stripAnsi } from './common.ts';
+import { type t, DirHash, Err, Fs, NAME, Path, Time, c, stripAnsi } from './common.ts';
 
 type F = t.FsDirSnapshotLib['write'];
 
@@ -63,9 +63,10 @@ export const write: F = async (args) => {
 
   const res: t.DirSnapshot = {
     id,
-    timestamp,
     hx,
     path,
+    timestamp,
+    message,
     is: { ref: backref },
     error: errors.toError(),
   };

@@ -85,7 +85,7 @@ export type CliSpinnerLib = {
   /**
    * Create (and start) a new spinner instance.
    */
-  create(text?: string): OraSpinner;
+  create(text?: string, options?: { start?: boolean; silent?: boolean }): OraSpinner;
 };
 
 /**

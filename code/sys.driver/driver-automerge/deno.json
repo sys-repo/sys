@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.45",
+  "version": "0.0.68",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -8,7 +8,7 @@
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
     "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "cd dist && serve"
+    "serve": "deno run -RNE --allow-run jsr:@sys/http/server/start"
   },
   "exports": {
     ".": "./src/mod.ts",

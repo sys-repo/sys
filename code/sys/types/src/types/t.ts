@@ -6,8 +6,9 @@
 export type IgnoredResponse = any | Promise<any>;
 
 /**
- * Direction a list is sorted in
- * - asc:  ascending ↑,
- * - desc: descending ↓
+ * Any kind of "non" response.
+ * Example usage:
+ *
+ *    type F = (e: Args) => string | Nothing;
  */
-export type SortOrder = 'asc' | 'desc';
+export type Nothing = void | undefined | null;

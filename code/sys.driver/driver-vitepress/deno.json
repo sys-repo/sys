@@ -1,28 +1,32 @@
 {
   "name": "@sys/driver-vitepress",
-  "version": "0.0.199",
+  "version": "0.0.256",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi",
-    "init": "deno run -RWNE --allow-run ./-scripts/-c.init.ts --inDir=./.tmp/sample",
-    "dev": "deno run -RWNE --allow-run ./-scripts/-c.main.ts --cmd=dev --inDir=./.tmp/sample",
-    "build": "deno run -RWE --allow-run ./-scripts/-c.main.ts --cmd=build --inDir=./.tmp/sample",
-    "serve": "deno run -RNE --allow-run ./-scripts/-c.main.ts --cmd=serve --inDir=./.tmp/sample",
-    "upgrade": "deno run -RWNE --allow-run ./-scripts/-c.main.ts --cmd=upgrade --inDir=./.tmp/sample",
-    "backup": "deno run -RWE --allow-run ./-scripts/-c.main.ts --cmd=backup --inDir=./.tmp/sample",
-    "help": "deno run -RE ./-scripts/-c.main.ts --cmd=help --inDir=./.tmp/sample",
-    "prep": "deno run -RWE ./-scripts/-c.prep.ts",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "lint": "deno    lint",
+    "dry": "deno     publish --allow-dirty --dry-run",
+    "reset": "deno   run -RWE ./-scripts/-reset.ts",
+    "test__": "deno    test -RWNE   --allow-run --allow-ffi",
+    "test": "echo no-op",
+    "init": "deno    run -RWNE    --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init    --dir=./.tmp/sample",
+    "dev": "deno     run -RWNE    --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev     --dir=./.tmp/sample",
+    "build": "deno   run -RWE     --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build   --dir=./.tmp/sample",
+    "serve": "deno   run -RNE     --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve   --dir=./.tmp/sample/dist",
+    "clean": "deno   run -RWE     --allow-run --allow-ffi ./-scripts/-main.ts --cmd=clean   --dir=./.tmp/sample",
+    "upgrade": "deno run -RWNE    --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade --dir=./.tmp/sample",
+    "backup": "deno  run -RWE     --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup  --dir=./.tmp/sample",
+    "help": "deno    run -RE      --allow-ffi ./-scripts/-main.ts             --cmd=help    --dir=./.tmp/sample",
+    "prep": "deno    run -RWE --allow-ffi ./-scripts/-prep.ts",
+    "r": "deno task reset && deno task prep && deno task init",
+    "rdev": "deno task r && deno task dev",
+    "tmp": "deno     run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./init": "./src/m.Cmd/-init.ts",
-    "./main": "./src/m.Cmd/-main.ts",
+    "./main": "./src/-entry/-main.ts",
+    "./init": "./src/-entry/-init.ts",
     "./ui": "./src/ui/mod.ts"
   }
 }

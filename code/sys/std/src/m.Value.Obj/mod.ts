@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { build, pluck, prune, remove } from './m.Obj.path.ts';
-import { pick, toArray, trimStringsDeep, walk } from './m.Obj.ts';
+import { pick, toArray, trimStringsDeep, walk, sortKeys } from './m.Obj.ts';
 
 export const Obj: t.ObjLib = {
   walk,
@@ -11,4 +11,5 @@ export const Obj: t.ObjLib = {
   pluck,
   remove,
   prune,
+  sortKeys,
 };
