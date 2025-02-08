@@ -243,7 +243,6 @@ describe('DenoDeps', () => {
 
         expect(grouped.text).to.eql(grouped.toString());
         expect(ungrouped.text).to.eql(ungrouped.toString());
-
       }
     });
   });
