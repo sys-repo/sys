@@ -4,3 +4,11 @@
  * that whatever is returned will not be used.)
  */
 export type IgnoredResponse = any | Promise<any>;
+
+/**
+ * Any kind of "non" response.
+ * Example usage:
+ *
+ *    type F = (e: Args) => string | Nothing;
+ */
+export type Nothing = void | undefined | null;
