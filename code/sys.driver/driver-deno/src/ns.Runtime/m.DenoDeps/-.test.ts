@@ -11,6 +11,42 @@ describe('DenoDeps', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
   });
 
+  describe('DepDeps.toDep', () => {
+    it('from string', () => {
+      const esm = 'jsr:@sys/tmp@0.1.2';
+      const a = DenoDeps.toDep(esm);
+      const b = DenoDeps.toDep(esm, { target: 'package.json' });
+      const c = DenoDeps.toDep(esm, { target: ['package.json', 'deno.json'] });
+      const d = DenoDeps.toDep(esm, { dev: true, wildcard: true });
+
+      expect(a.module.toString()).to.eql(esm);
+      expect(b.module.input).to.eql(esm);
+      expect(c.module.version).to.eql('0.1.2');
+
+      expect(a.target).to.eql(['deno.json']);
+      expect(b.target).to.eql(['package.json']);
+      expect(c.target).to.eql(['deno.json', 'package.json']); // NB: sorted
+
+      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
+      expect([d.dev, d.wildcard]).to.eql([true, true]);
+    });
+
+    it('from {EsmImport}', () => {
+      const esm = Esm.parse('jsr:@sys/tmp@0.1.2');
+      const a = DenoDeps.toDep(esm);
+      const b = DenoDeps.toDep(esm, { target: 'package.json', dev: true });
+      const c = DenoDeps.toDep(esm, { wildcard: true });
+
+      expect(a.module.toString()).to.eql(esm.toString());
+      expect(b.module.toString()).to.eql(esm.toString());
+      expect(c.module.toString()).to.eql(esm.toString());
+
+      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
+      expect([b.dev, b.wildcard]).to.eql([true, undefined]);
+      expect([c.dev, c.wildcard]).to.eql([undefined, true]);
+    });
+  });
+
   describe('DenoDeps.from (YAML)', () => {
     it('input: path (string → file.yaml)', async () => {
       const path = SAMPLE.path;

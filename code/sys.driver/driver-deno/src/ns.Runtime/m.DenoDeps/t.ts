@@ -17,6 +17,15 @@ export type DepsLib = {
   /** Convert deps to a `deno.json` or `package.json` format. */
   toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
   toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgJsonNode;
+
+  /** Convert deps into YAML.  */
+  toYaml(deps: t.Dep[], options?: t.DepsYamlOptions): t.DepsYaml;
+
+  /** Convert to a dependency representation. */
+  toDep(
+    module: t.EsmImport | t.StringModuleSpecifier,
+    options?: { target?: t.DepTargetFile | t.DepTargetFile[]; dev?: boolean; wildcard?: boolean },
+  ): t.Dep;
 };
 
 /** A response object from a `DenoDeps` constructor function. */
@@ -27,7 +36,7 @@ export type DepsResult = { data?: t.Deps; error?: t.StdError };
  * (normalized between 'deno.json' and 'package.json")
  */
 export type Deps = {
-  readonly deps: Dep[];
+  readonly deps: t.Dep[];
   readonly modules: t.EsmModules;
   toYaml(options?: t.DepsYamlOptions): t.DepsYaml;
 };
@@ -50,7 +59,7 @@ export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
 export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResult;
 export type DepsCategorizeByGroupArgs = {
   dep: t.Dep;
-  target: t.DepTargetFile;
+  target: t.DepTargetFile | t.DepTargetFile[];
   group(name: string, options?: { wildcard?: boolean; dev?: boolean }): void;
 };
 

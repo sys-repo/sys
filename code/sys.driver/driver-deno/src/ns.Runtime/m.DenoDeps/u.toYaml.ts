@@ -8,7 +8,7 @@ type R = Required<t.YamlDeps>;
  *  - process deps onto <target>.json.
  *  - de-dupe into groups.
  */
-export function toYaml(deps: t.Dep[], options: t.DepsYamlOptions = {}): t.DepsYaml {
+export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
   const obj: t.YamlDeps = { groups: {}, 'deno.json': [], 'package.json': [] };
 
   const target = (target: t.DepTargetFile, dep: t.Dep) => {
@@ -54,7 +54,7 @@ export function toYaml(deps: t.Dep[], options: t.DepsYamlOptions = {}): t.DepsYa
     toString: () => api.text,
   };
   return api;
-}
+};
 
 /**
  * Helpers
