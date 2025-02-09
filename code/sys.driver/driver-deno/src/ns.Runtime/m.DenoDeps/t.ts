@@ -47,7 +47,7 @@ export type DepsYaml = {
 export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
 
 /** Categorize a dependency into a group (Nothing response is ungrouped). */
-export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResponse;
+export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResult;
 export type DepsCategorizeByGroupArgs = {
   dep: t.Dep;
   target: t.DepTargetFile;

@@ -243,7 +243,7 @@ export type FsReadResponse<T> = {
  */
 export type FsWalkUp = (startAt: t.StringPath, onVisit: t.FsWalkUpallback) => Promise<void>;
 export type FsWalkUpallback = (e: FsWalkUpCallbackArgs) => FsWalkUpallbackResponse;
-export type FsWalkUpallbackResponse = Promise<t.IgnoredResponse> | t.IgnoredResponse;
+export type FsWalkUpallbackResponse = Promise<t.IgnoredResult> | t.IgnoredResult;
 export type FsWalkUpCallbackArgs = {
   dir: t.StringDir;
   files(): Promise<FsWalkFile[]>;

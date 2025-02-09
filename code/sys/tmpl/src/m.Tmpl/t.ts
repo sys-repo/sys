@@ -57,7 +57,7 @@ export type TmplFilter = t.FsFileFilter;
  *  - adjust the target filename.
  */
 export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResponse;
-export type TmplProcessFileResponse = t.IgnoredResponse | Promise<t.IgnoredResponse>;
+export type TmplProcessFileResponse = t.IgnoredResult | Promise<t.IgnoredResult>;
 export type TmplProcessFileArgs = {
   /** The source template file. */
   readonly tmpl: t.FsFile;
@@ -83,7 +83,7 @@ export type TmplProcessFileArgs = {
  * Use this to do either clean up, or additional setup actions not handled
  * directly by the template-copy engine.
  */
-export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResponse;
+export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResult;
 /** Arguments passed to the `afterCopy` callback. */
 export type TmplCopyHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
