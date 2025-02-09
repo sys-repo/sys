@@ -8,7 +8,7 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
   const getWorkspace = async () => {
     const ws = await DenoFile.workspace();
     const deps = (await DenoDeps.from(Path.join(ws.dir, 'deps.yaml'))).data;
-    const modules = Esm.modules([...(deps?.modules.items ?? []), ...ws.modules.items]);
+    const modules = Esm.modules([...(deps?.modules.items ?? []), ...ws.children.modules.items]);
     return { ws, modules };
   };
 
