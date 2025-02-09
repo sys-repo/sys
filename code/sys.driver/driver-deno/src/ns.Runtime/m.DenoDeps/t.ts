@@ -43,11 +43,16 @@ export type DepsYaml = {
   toString(): string;
 };
 
-/** Categorize a dependency into a group (Nothing response is ungrouped). */
-export type DepsCategorizeByGroup = (dep: t.Dep) => string | t.Nothing;
-
 /** Options passed to the `DenoDeps.toYaml` method. */
 export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
+
+/** Categorize a dependency into a group (Nothing response is ungrouped). */
+export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResponse;
+export type DepsCategorizeByGroupArgs = {
+  dep: t.Dep;
+  target: t.DepTargetFile;
+  group(name: string, options?: { wildcard?: boolean; dev?: boolean }): void;
+};
 
 /**
  * A common data-structure for expressing an ESM "import"
@@ -61,12 +66,6 @@ export type Dep = {
   target: DepTargetFile[];
 
   /**
-   * Flag indicating if the import is a development-dependency only.
-   * Only relevant when producing a `package.json` file.
-   */
-  dev?: boolean;
-
-  /**
    * Flag indicating if a wildcard entry should be inserted into an generated import-map.
    * Causes an import (within deno.json), like:
    *
@@ -74,6 +73,12 @@ export type Dep = {
    *    "@noble/hashes/*"
    */
   wildcard?: boolean;
+
+  /**
+   * Flag indicating if the import is a development-dependency only.
+   * Only relevant when producing a `package.json` file.
+   */
+  dev?: boolean;
 };
 
 /**
