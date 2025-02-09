@@ -23,5 +23,6 @@
     "@sys/driver-deno": "<DRIVER_DENO>",
     "@sys/driver-vite": "<DRIVER_VITE>",
     "@sys/driver-vitepress": "<DRIVER_VITEPRESS>"
-  }
+  },
+  "nodeModulesDir": "auto"
 }
