@@ -15,8 +15,8 @@ export type DenoWorkspace = {
  *  The child projects within a workspace.
  */
 export type DenoWorkspaceChildren = {
-  readonly dirs: Readonly<t.StringDir[]>;
-  readonly files: Readonly<t.DenoWorkspaceChild[]>;
+  readonly dirs: t.StringDir[];
+  readonly files: t.DenoWorkspaceChild[];
 };
 
 /**
