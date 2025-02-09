@@ -12,7 +12,7 @@ export type DepsLib = {
   readonly Fmt: t.DepsFmt;
 
   /** Load the imports definitions from YAML. */
-  from(input: t.StringPath | t.StringYaml): Promise<t.DepsResponse>;
+  from(input: t.StringPath | t.StringYaml): Promise<t.DepsResult>;
 
   /** Convert deps to a `deno.json` or `package.json` format. */
   toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
@@ -20,7 +20,7 @@ export type DepsLib = {
 };
 
 /** A response object from a `DenoDeps` constructor function. */
-export type DepsResponse = { data?: t.Deps; error?: t.StdError };
+export type DepsResult = { data?: t.Deps; error?: t.StdError };
 
 /**
  * A common data-structure for expressing an ESM "import"
