@@ -107,6 +107,9 @@ type StdMethods = {
   /** Return the last portion of a path. */
   readonly basename: typeof StdPath.basename;
 
+  /** Return the last portion of a path. */
+  readonly extname: typeof StdPath.extname;
+
   /** Asynchronously test whether or not the given path exists by checking with the file system. */
   readonly exists: typeof StdFs.exists;
 
