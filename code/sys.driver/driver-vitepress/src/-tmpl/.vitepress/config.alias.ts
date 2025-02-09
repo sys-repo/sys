@@ -1,6 +1,8 @@
+import type { Alias } from 'vite';
+
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import { ViteConfig } from '@sys/driver-vite';
-import { Err, Path } from '@sys/std';
+import { Err, Path, R } from '@sys/std';
 
 /**
  * Generate "import" statement aliase map for:
@@ -9,22 +11,17 @@ import { Err, Path } from '@sys/std';
  *    - npm:<deps>       The upstream dependencies imported from the NPM registry.
  */
 export async function getAliases() {
-  const ws = await ViteConfig.workspace({});
-
-  return ws.aliases;
-
-  const deps1 = (await loadDeps('./.sys/sys.yaml')).deps;
-  const deps2 = (await loadDeps('./.sys/sys.deps.yaml')).deps;
+  const deps1 = (await loadDeps('./.sys/deps.yaml')).deps;
+  const deps2 = (await loadDeps('./.sys/deps.sys.yaml')).deps;
   const modules = [...deps1.map((d) => d.module), ...deps2.map((d) => d.module)];
 
-  const npm = 'npm';
-  const npmRefs = modules.filter((d) => d.prefix === npm);
-  const npmAliases = npmRefs.map((m) => ViteConfig.alias(npm, m.name));
+  const unique = R.uniqBy((item: Alias) => `${item.replacement}:${item.find.toString()}`);
+  const aliases = modules
+    .filter((m) => m.prefix)
+    .filter((m) => m.version !== '0.0.0')
+    .map((m) => ViteConfig.alias(m.prefix as 'npm' | 'jsr', m.name));
 
-  console.log('[...npmAliases]', [...npmAliases]);
-
-  // return [];
-  return [...npmAliases];
+  return unique(aliases);
 }
 
 /**
@@ -32,16 +29,17 @@ export async function getAliases() {
  */
 async function loadDeps(path: string) {
   const errors = Err.errors();
-
   path = Path.resolve(import.meta.dirname ?? '', '..', path);
-  const res = await DenoDeps.from(path);
 
+  const res = await DenoDeps.from(path);
   if (res.error || !res.data?.deps) {
     const err = `Failed to load system dependencies from: ${path}`;
     console.warn(err, { cause: res.error });
     errors.push(err);
   }
 
-  const deps = res.data?.deps ?? [];
-  return { deps, error: errors.toError() };
+  return {
+    deps: res.data?.deps ?? [],
+    error: errors.toError(),
+  } as const;
 }
