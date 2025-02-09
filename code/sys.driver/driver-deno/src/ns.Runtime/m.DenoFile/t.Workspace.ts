@@ -11,7 +11,18 @@ export type DenoWorkspace = {
   readonly modules: t.EsmModules;
 };
 
+/**
+ *  The child projects within a workspace.
+ */
 export type DenoWorkspaceChildren = {
-  readonly dirs: t.StringDir[];
-  load(): Promise<t.DenoFileLoadResponse[]>;
+  readonly dirs: Readonly<t.StringDir[]>;
+  readonly files: Readonly<t.DenoWorkspaceChild[]>;
+};
+
+/**
+ * Represents a single child of a workspace.
+ */
+export type DenoWorkspaceChild = {
+  readonly file: t.DenoFileJson;
+  readonly path: t.StringPath;
 };

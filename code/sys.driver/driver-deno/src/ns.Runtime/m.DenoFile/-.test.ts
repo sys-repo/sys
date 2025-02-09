@@ -82,11 +82,11 @@ describe('DenoFile', () => {
     });
 
     describe('children', () => {
-      it('children.load()', async () => {
+      it('children.files (paths)', async () => {
         const ws = await DenoFile.workspace();
-        const children = await ws.children.load();
+        const files = ws.children.files;
         const paths = ws.children.dirs.map((subdir) => Fs.join(ws.dir, subdir, 'deno.json'));
-        children.forEach((child) => {
+        files.forEach((child) => {
           expect(paths.includes(child.path)).to.eql(true);
         });
       });
@@ -95,14 +95,12 @@ describe('DenoFile', () => {
     describe('modules', () => {
       it('includes all modules from the workspace.', async () => {
         const ws = await DenoFile.workspace();
-        const children = await ws.children.load();
-
         expect(ws.modules.ok).to.eql(true);
         expect(ws.modules.error).to.eql(undefined);
 
-        const namesA = children.map((m) => m.data?.name ?? '');
+        const namesA = ws.children.files.map((m) => m.file.name ?? '');
         const namesB = ws.modules.items.map((m) => m.name);
-        expect(namesA.filter(Boolean).sort()).to.eql(namesB.filter(Boolean).sort());
+        expect(namesA.filter(Boolean).toSorted()).to.eql(namesB.filter(Boolean).toSorted());
       });
 
       it('empty workspace → no modules', async () => {

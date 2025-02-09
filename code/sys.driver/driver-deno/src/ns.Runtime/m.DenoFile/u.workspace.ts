@@ -1,5 +1,14 @@
 import { type t, Esm, Fs, Path } from './common.ts';
-import { isWorkspace, load } from './u.ts';
+import { load } from './u.load.ts';
+
+/**
+ * Determine if the given input is a `deno.json` file
+ * that contains a "workspace":[] configuration.
+ */
+export const isWorkspace: t.DenoFileLib['isWorkspace'] = async (input) => {
+  const { exists, data } = await load(input);
+  return exists ? Array.isArray(data?.workspace) : false;
+};
 
 /**
  * Load a deno workspace.
@@ -14,15 +23,14 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
   const dir = Path.dirname(file);
   const dirs = denofile.data?.workspace ?? [];
 
+  const files = await loadFiles(dir, dirs);
+  const specifiers = toModuleSpecifiers(files.map((m) => m.file));
+  const modules = Esm.modules(specifiers);
   const children: t.DenoWorkspaceChildren = {
-    load: loadChildrenMethod(dir, dirs),
-    get dirs() {
-      return dirs;
-    },
+    files,
+    dirs,
   };
 
-  const specifiers = toModuleSpecifiers(await children.load());
-  const modules = Esm.modules(specifiers);
   const api: t.DenoWorkspace = {
     exists,
     dir,
@@ -62,23 +70,21 @@ async function findFirstWorkspaceAncestor() {
   return root;
 }
 
-function loadChildrenMethod(rootdir: t.StringDir, subpaths: t.StringPath[]) {
-  return () => {
-    const promises = subpaths
-      .map((subpath) => Path.join(rootdir, subpath, 'deno.json'))
-      .map((path) => load(path));
-    return Promise.all(promises);
-  };
+async function loadFiles(rootdir: t.StringDir, subpaths: t.StringPath[]) {
+  const promises = subpaths
+    .map((subpath) => Path.join(rootdir, subpath, 'deno.json'))
+    .map((path) => load(path));
+  return (await Promise.all(promises))
+    .map((m): t.DenoWorkspaceChild => ({ file: m.data!, path: m.path }))
+    .filter((m) => !!m.file);
 }
 
-function toModuleSpecifiers(children: t.DenoFileLoadResponse[]) {
-  return children
-    .filter((e) => e.ok && !!e.data)
-    .filter((e) => !!e.data?.name)
-    .map((e) => {
-      const data = e.data!;
-      const name = data.name ?? '<ERROR>';
-      const version = data.version ?? '0.0.0';
+function toModuleSpecifiers(files: t.DenoFileJson[]) {
+  return files
+    .filter((file) => !!file.name)
+    .map((file) => {
+      const name = file.name ?? '<ERROR>';
+      const version = file.version ?? '0.0.0';
       return `jsr:${name}@${version}`;
     });
 }
