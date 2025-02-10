@@ -10,7 +10,7 @@ export const Fmt: t.DepsFmt = {
     const table = Cli.table([]);
     deps.forEach((dep) => {
       const mod = dep.module;
-      const registry = mod.prefix === 'jsr' ? 'jsr' : mod.prefix || 'npm';
+      const registry = mod.registry === 'jsr' ? 'jsr' : mod.registry || 'npm';
 
       const [left, right] = mod.name.split('/');
       const name = right ? right : left;
