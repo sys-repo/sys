@@ -1,7 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
-
-import { toAliasRegex, toAlias } from './u.alias.ts';
+import { toAlias, toAliasRegex } from './u.alias.ts';
 
 describe('ViteConfig', () => {
   it('API', () => {
@@ -17,14 +16,14 @@ describe('ViteConfig', () => {
     it('toAlias', () => {
       const jsr = toAlias('jsr', ' foobar ');
       const npm = toAlias('npm', ' @scope/foo ');
+      expect(jsr.customResolver).to.eql(undefined);
+      expect(npm.customResolver).to.eql(undefined);
 
       expect(jsr.replacement).to.eql('foobar');
       expect(jsr.find).to.eql(toAliasRegex('jsr', 'foobar'));
-      expect(jsr.customResolver).to.eql(undefined);
 
       expect(npm.replacement).to.eql('@scope/foo');
       expect(npm.find).to.eql(toAliasRegex('npm', '@scope/foo'));
-      expect(npm.customResolver).to.eql(undefined);
     });
 
     it('toAliasRegex', () => {
