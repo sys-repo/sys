@@ -1,10 +1,11 @@
 import type { t } from './common.ts';
 
 /**
- * Match: "<npm>:<module-name>@<0.0.0>/path"
+ * Match:
+ *    "<npm>:<module-name>@<0.0.0>/path"
+ *    "<npm>:<module-name>/path"
  */
-
-export function toAliasRegex(prefix: t.CodeRegistry, moduleName: string): RegExp {
+export function toAliasRegex(prefix: string, moduleName: string): RegExp {
   const name = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // NB: escape characters.
   const modifier = '(?:\\^|~|>=|<=|>|<)?';
 
@@ -20,10 +21,10 @@ export function toAliasRegex(prefix: t.CodeRegistry, moduleName: string): RegExp
   /**
    * Build the full regex:
    *  - Starts with the prefix and module name.
-   *  - Followed by "@" and the version (with an optional modifier).
+   *  - Optionally followed by "@" and the version (with an optional modifier).
    *  - Optionally followed by a trailing path.
    */
-  return new RegExp(`^${prefix}:${name}@(${versionPattern})(?:\\/.*)?$`);
+  return new RegExp(`^${prefix}:${name}(?:@(${versionPattern}))?(?:\\/.*)?$`);
 }
 
 /**
@@ -33,5 +34,8 @@ export function toAliasRegex(prefix: t.CodeRegistry, moduleName: string): RegExp
 export function toAlias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias {
   const replacement = (moduleName || '').trim();
   const find = toAliasRegex(prefix, replacement);
-  return { find, replacement };
+  return {
+    find,
+    replacement,
+  };
 }
