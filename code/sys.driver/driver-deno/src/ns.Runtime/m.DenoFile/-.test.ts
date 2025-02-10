@@ -56,8 +56,9 @@ describe('DenoFile', () => {
     describe('path', () => {
       it('from path: exists', async () => {
         const res = await DenoFile.workspace(rootPath);
+        const dirs = res.children.map((child) => Fs.dirname(child.path));
         expect(res.exists).to.eql(true);
-        expect(res.children.dirs.includes('./code/sys/std')).to.be.true;
+        expect(dirs.some((p) => p === 'code/sys/std')).to.be.true;
         expect(res.file).to.eql(rootPath);
         expect(res.dir).to.eql(Fs.dirname(rootPath));
       });
@@ -66,27 +67,28 @@ describe('DenoFile', () => {
         const root = await Fs.readJson<t.DenoFileJson>(rootPath);
         const a = await DenoFile.workspace();
         const b = await DenoFile.workspace(undefined, { walkup: false });
+        const dirs = root.data?.workspace?.map((p) => p.replace(/^\.\//, ''));
 
         expect(a.exists).to.eql(true);
-        expect(a.children.dirs).to.eql(root.data?.workspace);
+        expect(a.children.map((m) => Fs.dirname(m.path))).to.eql(dirs);
 
         expect(b.exists).to.eql(false);
-        expect(b.children.dirs).to.eql([]);
+        expect(b.children).to.eql([]);
       });
 
       it('from path: not found', async () => {
         const res = await DenoFile.workspace('./404.json');
         expect(res.exists).to.eql(false);
-        expect(res.children.dirs).to.eql([]);
+        expect(res.children).to.eql([]);
       });
     });
 
     describe('children', () => {
       it('children.files (paths)', async () => {
         const ws = await DenoFile.workspace();
-        const files = ws.children.files;
-        const paths = ws.children.dirs.map((subdir) => Fs.join(ws.dir, subdir, 'deno.json'));
-        files.forEach((child) => {
+        const dirs = ws.children.map((child) => Fs.dirname(child.path));
+        const paths = dirs.map((subdir) => Fs.join('./', subdir, 'deno.json'));
+        ws.children.forEach((child) => {
           expect(paths.includes(child.path)).to.eql(true);
         });
       });
@@ -98,7 +100,7 @@ describe('DenoFile', () => {
         expect(ws.modules.ok).to.eql(true);
         expect(ws.modules.error).to.eql(undefined);
 
-        const namesA = ws.children.files.map((m) => m.file.name ?? '');
+        const namesA = ws.children.map((m) => m.file.name ?? '');
         const namesB = ws.modules.items.map((m) => m.name);
         expect(namesA.filter(Boolean).toSorted()).to.eql(namesB.filter(Boolean).toSorted());
       });

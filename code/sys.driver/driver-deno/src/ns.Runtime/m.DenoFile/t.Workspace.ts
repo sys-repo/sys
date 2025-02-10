@@ -7,16 +7,8 @@ export type DenoWorkspace = {
   readonly exists: boolean;
   readonly dir: t.StringPath;
   readonly file: t.StringPath;
-  readonly children: t.DenoWorkspaceChildren;
+  readonly children: t.DenoWorkspaceChild[];
   readonly modules: t.EsmModules;
-};
-
-/**
- *  The child projects within a workspace.
- */
-export type DenoWorkspaceChildren = {
-  readonly dirs: t.StringDir[];
-  readonly files: t.DenoWorkspaceChild[];
 };
 
 /**

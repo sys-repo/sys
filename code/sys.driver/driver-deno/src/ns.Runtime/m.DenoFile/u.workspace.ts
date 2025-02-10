@@ -23,16 +23,17 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
   const dir = Path.dirname(file);
   const dirs = denofile.data?.workspace ?? [];
 
-  const files = await loadFiles(dir, dirs);
-  const modules = Esm.modules(toModuleSpecifiers(files.map((m) => m.file)));
-  const children: t.DenoWorkspaceChildren = { files, dirs };
+  let _modules: t.EsmModules | undefined; // NB: lazy-load.
+  const children = await loadFiles(dir, dirs);
 
   const api: t.DenoWorkspace = {
     exists,
     dir,
     file,
     children,
-    modules,
+    get modules() {
+      return _modules || (_modules = Esm.modules(toModuleSpecifiers(children.map((m) => m.file))));
+    },
   };
   return api;
 };
@@ -66,12 +67,13 @@ async function findFirstWorkspaceAncestor() {
   return root;
 }
 
-async function loadFiles(rootdir: t.StringDir, subpaths: t.StringPath[]) {
+async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
+  const trimPath = (path: t.StringPath) => path.slice(root.length + 1);
   const promises = subpaths
-    .map((subpath) => Path.join(rootdir, subpath, 'deno.json'))
+    .map((subpath) => Path.join(root, subpath, 'deno.json'))
     .map((path) => load(path));
   return (await Promise.all(promises))
-    .map((m): t.DenoWorkspaceChild => ({ file: m.data!, path: m.path }))
+    .map((m): t.DenoWorkspaceChild => ({ file: m.data!, path: trimPath(m.path) }))
     .filter((m) => !!m.file);
 }
 
