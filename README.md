@@ -117,7 +117,7 @@ events.dispose();
 <p>&nbsp;</p>
 
 
-# Philosophy ← (Dev)
+# (Development) Philosophy
 
 >> Open System.  
    Open Commons.  
@@ -165,7 +165,7 @@ events.dispose();
 
 <p>&nbsp;</p>
 
-# Philosophy ← (Design)
+# (Design) Philosophy
 "Extracting energy from the [turing tarpit](https://en.wikipedia.org/wiki/Turing_tarpit)" ([Alan Kay](https://www.youtube.com/watch?v=Vt8jyPqsmxE&t=8s))
 
 ![kay-pure-relationships](https://user-images.githubusercontent.com/185555/186360463-cfd81f46-3429-4741-bbb3-b32015a388ac.png)
