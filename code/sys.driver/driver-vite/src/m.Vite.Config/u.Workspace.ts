@@ -15,7 +15,7 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
   const { walkup = true, filter } = options;
   const base = await DenoFile.workspace(options.denofile, { walkup });
   const baseDir = Path.dirname(base.file);
-  const aliases = await wrangle.aliases(baseDir, base.children.dirs, filter);
+  const aliases = await wrangle.aliases(baseDir, base.children, filter);
 
   const api: t.ViteDenoWorkspace = {
     ...base,
@@ -38,16 +38,16 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async aliases(baseDir: t.StringDir, workspacePaths: t.StringPath[], filter?: t.WorkspaceFilter) {
-    const exports = await wrangle.modules(baseDir, workspacePaths, filter);
+  async aliases(base: t.StringDir, children: t.DenoWorkspaceChild[], filter?: t.WorkspaceFilter) {
+    const exports = await wrangle.modules(base, children, filter);
     return exports.reduce<t.ViteAlias[]>((acc, next) => {
       acc.push(...next.aliases);
       return acc;
     }, []);
   },
 
-  async modules(baseDir: t.StringDir, workspacePaths: t.StringPath[], filter?: t.WorkspaceFilter) {
-    const wait = workspacePaths.map((dir) => wrangle.exports(baseDir, dir, filter));
+  async modules(base: t.StringDir, children: t.DenoWorkspaceChild[], filter?: t.WorkspaceFilter) {
+    const wait = children.map((child) => wrangle.exports(base, Fs.dirname(child.path), filter));
     const res = await Array.fromAsync(wait);
     return res
       .filter((item) => item.exists)
@@ -68,14 +68,11 @@ const wrangle = {
       });
     }
 
-    const aliases = wrangle
-      //
-      .sortedAliases(list)
-      .filter((alias) => {
-        if (!filter) return true;
-        const payload = wrangle.filterArgs(pkg, alias);
-        return filter?.(payload);
-      });
+    const aliases = wrangle.sortedAliases(list).filter((alias) => {
+      if (!filter) return true;
+      const payload = wrangle.filterArgs(pkg, alias);
+      return filter?.(payload);
+    });
 
     const res: E = { pkg, config, aliases, exists };
     return res;

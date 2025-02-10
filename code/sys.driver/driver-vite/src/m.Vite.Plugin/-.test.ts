@@ -1,4 +1,4 @@
-import { describe, expect, it, ROOT, type t, pkg } from '../-test.ts';
+import { type t, describe, expect, Fs, it, pkg, ROOT } from '../-test.ts';
 import { Vite } from '../mod.ts';
 import { Plugin } from './mod.ts';
 
@@ -9,10 +9,12 @@ describe('Vite.Plugin.workspace', () => {
 
   describe('Plugin.workspace', () => {
     describe('create', () => {
+      const wsDirs = ROOT.denofile.json.workspace.map((p) => p.replace(/^\.\//, '')).toSorted();
+
       it('default (no params)', async () => {
         const plugin = await Vite.Plugin.workspace();
         expect(plugin.name).to.eql('vite-plugin-workspace');
-        expect(plugin.info.ws?.children.dirs).to.eql(ROOT.denofile.json.workspace);
+        expect(plugin.info.ws?.children.map((m) => Fs.dirname(m.path)).toSorted()).to.eql(wsDirs);
       });
 
       it('{ pkg }', async () => {
@@ -23,7 +25,7 @@ describe('Vite.Plugin.workspace', () => {
       it('param: workspace (explicit path)', async () => {
         const workspace = ROOT.denofile.path;
         const plugin = await Vite.Plugin.workspace({ workspace });
-        expect(plugin.info.ws?.children.dirs).to.eql(ROOT.denofile.json.workspace);
+        expect(plugin.info.ws?.children.map((m) => Fs.dirname(m.path)).toSorted()).to.eql(wsDirs);
       });
 
       it('param: filter param', async () => {
