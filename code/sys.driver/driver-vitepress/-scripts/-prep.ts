@@ -7,7 +7,7 @@ import { Fs } from '@sys/fs';
  * Save monorepo deps.
  */
 const ws = await DenoFile.workspace();
-const deps: Dep[] = ws.children.modules.items.map((m) => DenoDeps.toDep(m));
+const deps: Dep[] = ws.modules.items.map((m) => DenoDeps.toDep(m));
 const yaml = DenoDeps.toYaml(deps);
 
 const dir = './src/-tmpl/.sys';

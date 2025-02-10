@@ -1,16 +1,18 @@
-import { type t, Fs, describe, expect, it, ROOT } from '../-test.ts';
+import { type t, describe, expect, Fs, it, ROOT } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('ViteConfig.workspace', () => {
   it('loads (via path)', async () => {
+    const map = (children: t.DenoWorkspaceChild[]) => children.map((m) => Fs.dirname(m.path));
+
     const a = await ViteConfig.workspace(); // NB: finds root workspace
     const b = await ViteConfig.workspace({ denofile: ROOT.denofile.path });
     const c = await ViteConfig.workspace({ walkup: false });
 
     expect(a.exists).to.eql(true);
     expect(b.exists).to.eql(true);
-    expect(a.children.map((m) => m.path).includes('code/sys/std')).to.eql(true);
-    expect(a.children.map((m) => m.path)).to.eql(b.children.map((m) => m.path));
+    expect(map(a.children).includes('code/sys/std')).to.eql(true);
+    expect(map(a.children)).to.eql(map(b.children));
     expect(c.exists).to.eql(false); // NB: did not walk up to the root workspace `deno.json`
   });
 

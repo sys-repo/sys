@@ -83,7 +83,7 @@ describe('DenoFile', () => {
       });
     });
 
-    describe('children', () => {
+    describe('workspace.children', () => {
       it('children.files (paths)', async () => {
         const ws = await DenoFile.workspace();
         const dirs = ws.children.map((child) => Fs.dirname(child.path));
@@ -94,7 +94,7 @@ describe('DenoFile', () => {
       });
     });
 
-    describe('children.modules', () => {
+    describe('workspace.modules', () => {
       it('includes all modules from the workspace.', async () => {
         const ws = await DenoFile.workspace();
         expect(ws.modules.ok).to.eql(true);
