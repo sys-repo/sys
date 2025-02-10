@@ -244,9 +244,9 @@ The inverse proposition also appears to be true:
 
 "Framework" agnostic. [Web standards](https://wintercg.org/).
 
-![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/285b2392-ae7d-4aec-9d41-7862030a49b4)
+![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
 
-Related librariees: `@sys/std/esm`, `@sys/driver-deno`
+Adjacent libs: `@sys/std/esm`, `@sys/driver-deno` (workspace).
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
