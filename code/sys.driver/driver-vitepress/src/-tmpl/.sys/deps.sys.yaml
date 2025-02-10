@@ -25,8 +25,8 @@ deno.json:
   - import: jsr:@sys/driver-orbiter@0.0.48
   - import: jsr:@sys/driver-quilibrium@0.0.61
   - import: jsr:@sys/driver-valibot@0.0.1
-  - import: jsr:@sys/driver-vite@0.0.97
-  - import: jsr:@sys/driver-vitepress@0.0.258
+  - import: jsr:@sys/driver-vite@0.0.99
+  - import: jsr:@sys/driver-vitepress@0.0.259
   - import: jsr:@sys/sys@0.0.40
   - import: jsr:@sys/main@0.0.42
   - import: jsr:@tdb/api@0.0.57
