@@ -25,13 +25,14 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
 
   const files = await loadFiles(dir, dirs);
   const modules = Esm.modules(toModuleSpecifiers(files.map((m) => m.file)));
-  const children: t.DenoWorkspaceChildren = { files, dirs, modules };
+  const children: t.DenoWorkspaceChildren = { files, dirs };
 
   const api: t.DenoWorkspace = {
     exists,
     dir,
     file,
     children,
+    modules,
   };
   return api;
 };
