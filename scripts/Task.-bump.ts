@@ -35,18 +35,17 @@ export async function main(options: Options = {}) {
   /**
    * Retrieve the child modules within the workspace.
    */
-  const children = (await ws.children.load())
-    .filter((file) => !exclude(file.path))
-    .filter((file) => file.exists)
-    .filter((file) => !!file.data)
-    .filter((file) => typeof file.data?.version === 'string')
-    .filter((file) => typeof file.data?.name === 'string')
-    .map((file) => {
-      const json = file.data!;
+  const children = ws.children
+    .filter((child) => !exclude(child.path))
+    .filter((child) => !!child.file.version)
+    .filter((child) => typeof child.file.version === 'string')
+    .filter((child) => typeof child.file.name === 'string')
+    .map((child) => {
+      const json = child.file;
+      const path = child.path;
       const { name = '', version = '' } = json;
       const current = Semver.parse(version).version;
       const next = Semver.increment(current, release);
-      const path = file.path;
       return { path, json, name, version: { current, next } };
     });
 
