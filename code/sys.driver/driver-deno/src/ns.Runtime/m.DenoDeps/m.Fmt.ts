@@ -39,7 +39,7 @@ const wrangle = {
     const prefix = Semver.Prefix.get(version);
     if (prefix) {
       const versionWithoutPrefix = version.slice(prefix.length);
-      const coloredPrefix = c.gray(prefix);
+      const coloredPrefix = c.yellow(prefix);
       const indent = wrangle.indent(maxLength - prefix.length);
       return `${coloredPrefix}${indent}${Semver.Fmt.colorize(versionWithoutPrefix)}`;
     } else {
