@@ -33,7 +33,7 @@ export const Fmt: t.DepsFmt = {
       table.push([`${indent}${fmtVersion}`, fmtName, fmtRegistry]);
     });
 
-    return `↓${indent}${table.toString().trimEnd()}`;
+    return `${indent}↓${indent}${table.toString().trimEnd()}`;
   },
 };
 
@@ -47,13 +47,18 @@ const wrangle = {
 
   version(version: t.StringSemver, maxLength: number) {
     const prefix = Semver.Prefix.get(version);
+
+    const colorize = (version: string) => {
+      return Semver.Fmt.colorize(version, { highlight: 'major' });
+    };
+
     if (prefix) {
       const versionWithoutPrefix = version.slice(prefix.length);
       const coloredPrefix = c.yellow(prefix);
       const indent = wrangle.indent(maxLength - prefix.length);
-      return `${coloredPrefix}${indent}${Semver.Fmt.colorize(versionWithoutPrefix)}`;
+      return `${coloredPrefix}${indent}${colorize(versionWithoutPrefix)}`;
     } else {
-      return `${wrangle.indent(maxLength)}${Semver.Fmt.colorize(version)}`;
+      return `${wrangle.indent(maxLength)}${colorize(version)}`;
     }
   },
 } as const;

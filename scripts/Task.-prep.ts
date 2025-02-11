@@ -34,8 +34,8 @@ export async function main() {
   const fmtSeeFiles = c.gray(`${fp(PATH.deno)} and ${fp(PATH.package)}`);
   console.info();
   console.info(c.brightWhite(`${c.bold('Import Map')}`));
-  console.info(c.green(` (dependencies written to):`), fmtSeeFiles);
+  console.info(c.gray(` (dependencies written to):`), fmtSeeFiles);
   console.info();
-  console.info(DenoDeps.Fmt.deps(deps, { indent: 0 }));
+  console.info(DenoDeps.Fmt.deps(deps, { indent: 1 }));
   console.info();
 }
