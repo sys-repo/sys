@@ -1,7 +1,9 @@
+import { c } from '@sys/color/ansi';
 import { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
 import { Dep } from '@sys/driver-deno/t';
 import { Vitepress } from '@sys/driver-vitepress';
 import { Fs } from '@sys/fs';
+import { pkg } from '../src/pkg.ts';
 
 /**
  * Save monorepo deps.
@@ -20,3 +22,6 @@ await Fs.write(Fs.join(dir, 'deps.sys.yaml'), yaml.text);
 const Bundle = Vitepress.Tmpl.Bundle;
 await Bundle.toFilemap();
 await Bundle.toFilesystem(); // NB: test output.
+
+console.info(c.brightCyan('Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+console.info();
