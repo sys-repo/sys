@@ -1,4 +1,4 @@
-import { type t, c, Cli, R, Semver } from './common.ts';
+import { type t, c, Cli, Semver } from './common.ts';
 
 export const Fmt: t.DepsFmt = {
   deps(deps, options = {}) {
@@ -7,7 +7,7 @@ export const Fmt: t.DepsFmt = {
     const prefixes = deps.map((dep) => Semver.Prefix.get(dep.module.version)).filter(Boolean);
     const maxPrefixLength = prefixes.reduce((max, prefix) => Math.max(max, prefix.length), 0);
 
-    const sorted = R.sortBy((m) => m.module.registry, deps);
+    const sorted = deps.toSorted((a, b) => a.module.registry.localeCompare(b.module.registry));
     const table = Cli.table([]);
     let prevRegistry: t.EsmRegistry = 'jsr';
 
