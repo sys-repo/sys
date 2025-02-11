@@ -96,7 +96,8 @@ export async function main(options: Options = {}) {
     await Deno.writeTextFile(child.path, json);
   }
 
-  await import('./Task.-prep.ts');
+  const prepare = await import('./Task.-prep.ts');
+  await prepare.main();
 
   return true;
 }
@@ -121,6 +122,6 @@ const wrangle = {
       console.warn(warning);
     }
 
-    return 'patch'; // Default.
+    return 'patch'; // (Default).
   },
 } as const;
