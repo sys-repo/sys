@@ -26,12 +26,12 @@ deno.json:
   - import: jsr:@sys/driver-quilibrium@0.0.62
   - import: jsr:@sys/driver-valibot@0.0.2
   - import: jsr:@sys/driver-vite@0.0.101
-  - import: jsr:@sys/driver-vitepress@0.0.263
+  - import: jsr:@sys/driver-vitepress@0.0.264
   - import: jsr:@sys/sys@0.0.41
   - import: jsr:@sys/main@0.0.43
   - import: jsr:@tdb/api@0.0.58
   - import: jsr:@tdb/slc@0.0.54
   - import: jsr:@tdb/tmp@0.0.58
   - import: jsr:@sys/name@0.0.0
-  - import: jsr:@sys/tmp@0.0.75
+  - import: jsr:@sys/tmp@0.0.76
 package.json: []
