@@ -45,10 +45,10 @@ groups:
 
   build/tools:
     - import: npm:@swc/plugin-emotion@8.6.0
-    - import: npm:@vitejs/plugin-react-swc@3
-    - import: npm:rollup@4.34.4
+    - import: npm:@vitejs/plugin-react-swc@3.8.0
+    - import: npm:rollup@4.34.6
     - import: npm:vite@6.1.0
-    - import: npm:vite-plugin-wasm@3
+    - import: npm:vite-plugin-wasm@3.4.1
 
 deno.json:
   - group: std/deno
@@ -102,7 +102,7 @@ package.json:
   - group: build/tools
     dev: true
 
-  - import: npm:hono@4.6.20
+  - import: npm:hono@4.7.0
 
   # UI
   - import: npm:@vidstack/react@1.12.12
