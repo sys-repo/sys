@@ -96,6 +96,8 @@ export async function main(options: Options = {}) {
     await Deno.writeTextFile(child.path, json);
   }
 
+  await import('./Task.-prep.ts');
+
   return true;
 }
 
