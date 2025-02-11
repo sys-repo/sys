@@ -19,8 +19,8 @@
     "jsxImportSource": "@emotion/react"
   },
   "workspace": [],
+  "nodeModulesDir": "auto",
   "imports": {
     "<SELF_IMPORT_NAME>": "<SELF_IMPORT_URI>"
-  },
-  "nodeModulesDir": "auto"
+  }
 }
