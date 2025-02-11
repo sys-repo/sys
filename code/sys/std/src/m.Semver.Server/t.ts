@@ -16,7 +16,8 @@ export type SemverServerFmt = {
 };
 
 type ColorizeOptions = {
+  highlight?: t.SemverReleaseType;
   baseColor?: t.WrapAnsiColor;
   prefixColor?: t.WrapAnsiColor;
-  highlight?: t.SemverReleaseType;
+  prereleaseColor?: t.WrapAnsiColor;
 };
