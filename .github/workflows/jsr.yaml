@@ -36,6 +36,12 @@ jobs:
       #           deno publish --allow-dirty
       #
 
+      - name: publish module → "@sys/std"
+        run: |
+          cd code/sys/std
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/tmp"
         run: |
           cd code/sys.tmp
