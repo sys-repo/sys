@@ -46,12 +46,8 @@ const wrangle = {
   },
 
   version(version: t.StringSemver, maxLength: number) {
+    const colorize = (version: string) => Semver.Fmt.colorize(version, { highlight: 'major' });
     const prefix = Semver.Prefix.get(version);
-
-    const colorize = (version: string) => {
-      return Semver.Fmt.colorize(version, { highlight: 'major' });
-    };
-
     if (prefix) {
       const versionWithoutPrefix = version.slice(prefix.length);
       const coloredPrefix = c.yellow(prefix);
