@@ -8,8 +8,7 @@
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
     "backup": "deno   run -RWE --allow-run --allow-ffi <ENTRY> --cmd=backup",
     "help": "deno     run -RE --allow-ffi <ENTRY> --cmd=help",
-    "sys": "deno      run -RWNE <ENTRY_SYS>",
-    "tmp": "deno      run -A npm:orbiter-cli"
+    "sys": "deno      run -RWNE <ENTRY_SYS>"
   },
   "compilerOptions": {
     "strict": true,

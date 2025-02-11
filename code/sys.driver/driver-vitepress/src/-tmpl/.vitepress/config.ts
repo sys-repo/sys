@@ -16,6 +16,6 @@ export default async (env: ConfigEnv) => {
     srcDir: '<SRC_DIR>',
     markdown,
     themeConfig: { sidebar, search: { provider: 'local' } },
-    vite: { resolve: { alias } },
+    vite: { resolve: { alias }, plugins: [] },
   });
 };
