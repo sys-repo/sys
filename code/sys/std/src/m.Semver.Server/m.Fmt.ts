@@ -24,7 +24,9 @@ export const Fmt: t.SemverServerFmt = {
     const major = fmt('major', v.major);
     const minor = fmt('minor', v.minor);
     const patch = fmt('patch', v.patch);
-    const pre = v.prerelease.length === 0 ? '' : prereleaseColor(`-${v.prerelease.join('.')}`);
+
+    const prerelease = v.prerelease ?? [];
+    const pre = prerelease.length === 0 ? '' : prereleaseColor(`-${prerelease.join('.')}`);
 
     const dot = c.dim(baseColor('.'));
     const ver = `${major}${dot}${minor}${dot}${patch}`;

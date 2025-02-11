@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.117",
+  "version": "0.0.118",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWN",
