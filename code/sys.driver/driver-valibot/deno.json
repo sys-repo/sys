@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-valibot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
