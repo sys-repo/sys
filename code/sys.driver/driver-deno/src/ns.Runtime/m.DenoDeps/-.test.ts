@@ -79,7 +79,7 @@ describe('DenoDeps', () => {
       expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
       expect(mod.name).to.eql('@std/assert');
       expect(mod.version).to.eql('1.0.11');
-      expect(mod.prefix).to.eql('jsr');
+      expect(mod.registry).to.eql('jsr');
       expect(deps[0].dev).to.eql(undefined);
       expect(deps[0].wildcard).to.eql(undefined);
 
