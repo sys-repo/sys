@@ -1,4 +1,4 @@
-import { type t, c, Cli, Semver } from './common.ts';
+import { type t, c, Cli, R, Semver } from './common.ts';
 
 export const Fmt: t.DepsFmt = {
   deps(deps, options = {}) {
@@ -7,10 +7,20 @@ export const Fmt: t.DepsFmt = {
     const prefixes = deps.map((dep) => Semver.Prefix.get(dep.module.version)).filter(Boolean);
     const maxPrefixLength = prefixes.reduce((max, prefix) => Math.max(max, prefix.length), 0);
 
+    const sorted = R.sortBy((m) => m.module.registry, deps);
     const table = Cli.table([]);
-    deps.forEach((dep) => {
+    let prevRegistry: t.EsmRegistry = 'jsr';
+
+    sorted.forEach((dep) => {
       const mod = dep.module;
       const registry = mod.registry === 'jsr' ? 'jsr' : mod.registry || 'npm';
+
+      const isDiff = registry !== prevRegistry;
+      prevRegistry = registry;
+      if (isDiff) {
+        table.push([]); // Blank line between registries.
+        return;
+      }
 
       const [left, right] = mod.name.split('/');
       const name = right ? right : left;
