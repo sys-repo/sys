@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-obsidian",
-  "version": "0.0.63",
+  "version": "0.0.65",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
