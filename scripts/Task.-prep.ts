@@ -2,8 +2,8 @@ import { c, DenoDeps, Fs } from './common.ts';
 const i = c.italic;
 
 /**
- * Prepare the [package.json] and [deno.json] files
- * from definieions within `imports.yaml`
+ * Prepare the [deno.json | package.json] files from
+ * definitions within the monorepo's `deps.yaml` configuration.
  */
 export async function main() {
   const res = await DenoDeps.from('./deps.yaml');
@@ -15,11 +15,17 @@ export async function main() {
   };
 
   /**
-   * Write to file-system.
+   * Write to file-system: [deno.json | package.json]
    */
   const deps = res.data?.deps;
   await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
   await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
+
+  /**
+   * Run `prep` command on sub-modules.
+   */
+  await import('../code/sys.driver/driver-vite/-scripts/-prep.ts');
+  await import('../code/sys.driver/driver-vitepress/-scripts/-prep.ts');
 
   /**
    * Output: console.

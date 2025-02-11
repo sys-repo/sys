@@ -5,6 +5,8 @@ import { Vitepress } from '@sys/driver-vitepress';
 import { Fs } from '@sys/fs';
 import { pkg } from '../src/pkg.ts';
 
+await Fs.remove('./.tmp');
+
 /**
  * Save monorepo deps.
  */
