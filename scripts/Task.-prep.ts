@@ -15,7 +15,7 @@ export async function main() {
   };
 
   /**
-   * Write to file-system: [deno.json | package.json]
+   * Write to file-system: [deno.json | package.json].
    */
   const deps = res.data?.deps;
   await Fs.writeJson(PATH.package, DenoDeps.toJson('package.json', deps));
