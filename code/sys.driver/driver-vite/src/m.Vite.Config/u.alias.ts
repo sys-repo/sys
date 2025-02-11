@@ -31,7 +31,7 @@ export function toAliasRegex(prefix: string, moduleName: string): RegExp {
  * Construct a replacement regex to use an as alias for a module/import lookup
  * within the Vite/Rollup/alias configuration.
  */
-export function toAlias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias {
+export function toAlias(prefix: string, moduleName: string): t.ViteAlias {
   const replacement = (moduleName || '').trim();
   const find = toAliasRegex(prefix, replacement);
   return {

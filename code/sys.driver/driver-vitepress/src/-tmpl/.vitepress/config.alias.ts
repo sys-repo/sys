@@ -5,22 +5,29 @@ import { ViteConfig } from '@sys/driver-vite';
 import { Err, Path, R } from '@sys/std';
 
 /**
- * Generate "import" statement aliase map for:
+ * Generate "import" statement alias map for:
  *
  *    - jsr:@sys         System modules within the workspace.
  *    - npm:<deps>       The upstream dependencies imported from the NPM registry.
  */
 export async function getAliases() {
-  const deps1 = (await loadDeps('./.sys/deps.yaml')).deps;
-  const deps2 = (await loadDeps('./.sys/deps.sys.yaml')).deps;
-  const modules = [...deps1.map((d) => d.module), ...deps2.map((d) => d.module)];
+  const deps = (await loadDeps('./.sys/deps.yaml')).deps;
+  const depsSys = (await loadDeps('./.sys/deps.sys.yaml')).deps;
+
+  const isSys = (name: string) => name.startsWith('@sys/');
+  const ws = await ViteConfig.workspace();
+  const a = depsSys.map((m) => m.name).filter(isSys);
+  const b = ws.modules.items.map((m) => m.name).filter(isSys);
+  const isSystemMonorepo = a.every((item) => b.includes(item));
+  if (isSystemMonorepo) return ws.aliases;
+
+  const modules = [...deps, ...depsSys];
+  const aliases = modules
+    .filter((m) => !!m.registry)
+    .filter((m) => m.version !== '0.0.0')
+    .map((m) => ViteConfig.alias(m.registry, m.name));
 
   const unique = R.uniqBy((item: Alias) => `${item.replacement}:${item.find.toString()}`);
-  const aliases = modules
-    .filter((m) => m.prefix)
-    .filter((m) => m.version !== '0.0.0')
-    .map((m) => ViteConfig.alias(m.prefix as 'npm' | 'jsr', m.name));
-
   return unique(aliases);
 }
 
@@ -39,7 +46,7 @@ async function loadDeps(path: string) {
   }
 
   return {
-    deps: res.data?.deps ?? [],
+    deps: (res.data?.deps ?? []).map((d) => d.module),
     error: errors.toError(),
   } as const;
 }

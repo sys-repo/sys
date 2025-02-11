@@ -16,6 +16,7 @@ describe('ViteConfig', () => {
     it('toAlias', () => {
       const jsr = toAlias('jsr', ' foobar ');
       const npm = toAlias('npm', ' @scope/foo ');
+
       expect(jsr.customResolver).to.eql(undefined);
       expect(npm.customResolver).to.eql(undefined);
 

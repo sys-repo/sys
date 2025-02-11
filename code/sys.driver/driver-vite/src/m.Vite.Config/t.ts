@@ -23,7 +23,7 @@ export type ViteConfigLib = {
    * Construct a replacement regex to use an as alias for a module/import lookup
    * within the Vite/Rollup/alias configuration.
    */
-  alias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias;
+  alias(registry: string, moduleName: string): t.ViteAlias;
 };
 
 /**
