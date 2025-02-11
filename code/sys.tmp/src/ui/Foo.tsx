@@ -10,17 +10,12 @@ export const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
  */
 export type FooProps = {
   enabled?: boolean;
-  importSample?: boolean;
 };
 
 /**
  * Component (UI).
  */
 export const Foo: React.FC<FooProps> = (props) => {
-  React.useEffect(() => {
-    if (props.importSample) import('@sys/tmp/sample-imports');
-  }, [props.importSample]);
-
   const { enabled = true } = props;
   let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
   if (!enabled) text += ' (disabled)';

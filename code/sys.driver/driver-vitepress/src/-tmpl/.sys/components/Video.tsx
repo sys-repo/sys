@@ -36,7 +36,7 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
 
   const elFoo = (
     <div>
-      import: <Foo importSample={true} />
+      import: <Foo />
     </div>
   );
 
