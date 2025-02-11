@@ -1,5 +1,5 @@
 import { DenoFile } from '@sys/driver-deno/runtime';
-import { c, Cli, R, Semver, type t, Value } from './common.ts';
+import { type t, c, Cli, R, Semver, Value } from './common.ts';
 
 type Options = {
   release?: t.SemverReleaseType;
@@ -70,7 +70,7 @@ export async function main(options: Options = {}) {
     const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
 
     const vCurrent = Semver.toString(version.current);
-    const vNext = formatSemverColor(version.next, release);
+    const vNext = Semver.Fmt.colorize(version.next, { highlight: release, baseColor: c.green });
 
     const title = `${c.green(' •')} ${pkg}`;
     table.push([title, vCurrent, '→', vNext]);
