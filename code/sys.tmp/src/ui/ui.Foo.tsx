@@ -6,7 +6,7 @@ import { pkg } from '../pkg.ts';
 export const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
 
 /**
- * Sample component properties.
+ * Sample properties.
  */
 export type FooProps = {
   enabled?: boolean;
