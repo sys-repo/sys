@@ -37,7 +37,7 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
 
   const fail = (err: string) => done('', '', '', '', err);
   const done = (
-    prefix: string,
+    registry: string,
     name: string,
     version: string,
     subpath: string,
@@ -46,7 +46,7 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
     const error = err ? Err.std(err) : undefined;
     const api: t.EsmParsedImport = {
       input: String(moduleSpecifier),
-      registry: prefix as T['registry'],
+      registry: registry as T['registry'],
       name,
       subpath,
       version,
@@ -70,7 +70,7 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
   const match = text.match(REGEX.package);
   if (!match) return fail(`Failed to parse ESM module-specifier string ("${moduleSpecifier}")`);
 
-  const [, prefix, name, version, rawSubpath] = match;
+  const [, registry = '', name, version = '', rawSubpath] = match;
   const subpath = rawSubpath ? rawSubpath.replace(/^\/*/, '') : '';
-  return done(prefix ?? '', name, version ?? '', subpath);
+  return done(registry, name, version, subpath);
 };
