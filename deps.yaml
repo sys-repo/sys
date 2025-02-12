@@ -105,14 +105,14 @@ package.json:
   - import: npm:hono@4.7.0
 
   # UI
-  - import: npm:@vidstack/react@1.12.12
-
   # UI:React
-  - import: npm:@types/react@^18.0.0
-  - import: npm:@types/react-dom@^18.0.0
-  - import: npm:react@^18.0.0
-  - import: npm:react-dom@^18.0.0
+  - import: npm:@types/react@18.3.18
+  - import: npm:@types/react-dom@18.3.5
+  - import: npm:react@18.3.1
+  - import: npm:react-dom@18.3.1
+
   - import: npm:react-icons@5.4.0
+  - import: npm:@vidstack/react@1.12.12
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3

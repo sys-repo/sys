@@ -20,10 +20,10 @@
     "jsr:@std/semver@1.0.3": "1.0.3",
     "jsr:@std/text@~1.0.7": "1.0.10",
     "jsr:@valibot/valibot@1.0.0-rc.0": "1.0.0-rc.0",
-    "npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1": "1.2.1",
-    "npm:@automerge/automerge-repo-storage-indexeddb@1.2.1": "1.2.1",
-    "npm:@automerge/automerge-repo-storage-nodefs@1.2.1": "1.2.1",
-    "npm:@automerge/automerge-repo@1.2.1": "1.2.1",
+    "npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1": "1.2.1_@types+node@22.5.4",
+    "npm:@automerge/automerge-repo-storage-indexeddb@1.2.1": "1.2.1_@types+node@22.5.4",
+    "npm:@automerge/automerge-repo-storage-nodefs@1.2.1": "1.2.1_@types+node@22.5.4",
+    "npm:@automerge/automerge-repo@1.2.1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge@2.2.8": "2.2.8",
     "npm:@jsr/std__async@1.0.10": "1.0.10",
     "npm:@jsr/std__datetime@0.225.3": "0.225.3",
@@ -37,8 +37,9 @@
     "npm:@noble/hashes@1.7.1": "1.7.1",
     "npm:@onsetsoftware/automerge-patcher@0.14.0": "0.14.0_@automerge+automerge@2.2.8",
     "npm:@types/diff@7.0.1": "7.0.1",
-    "npm:@types/react-dom@18": "18.3.5_@types+react@18.3.18",
-    "npm:@types/react@18": "18.3.18",
+    "npm:@types/node@*": "22.5.4",
+    "npm:@types/react-dom@18.3.5": "18.3.5_@types+react@18.3.18",
+    "npm:@types/react@18.3.18": "18.3.18",
     "npm:@vidstack/react@1.12.12": "1.12.12_@types+react@18.3.18_react@18.3.1",
     "npm:@vitejs/plugin-react-swc@3.8.0": "3.8.0_vite@6.1.0",
     "npm:approx-string-match@2": "2.0.0",
@@ -58,12 +59,13 @@
     "npm:pretty-bytes@6.1.1": "6.1.1",
     "npm:rambda@9.4.2": "9.4.2",
     "npm:ramda@0.30.1": "0.30.1",
-    "npm:react-dom@18": "18.3.1_react@18.3.1",
+    "npm:react-dom@18.3.1": "18.3.1_react@18.3.1",
     "npm:react-error-boundary@5": "5.0.0_react@18.3.1",
     "npm:react-icons@5.4.0": "5.4.0_react@18.3.1",
     "npm:react-inspector@6": "6.0.2_react@18.3.1",
     "npm:react-spinners@0.15.0": "0.15.0_react@18.3.1_react-dom@18.3.1__react@18.3.1",
-    "npm:react@18": "18.3.1",
+    "npm:react@18.3.1": "18.3.1",
+    "npm:react@^18.3.1": "18.3.1",
     "npm:rollup@4.34.6": "4.34.6",
     "npm:rxjs@7": "7.8.1",
     "npm:strip-ansi@7": "7.1.0",
@@ -72,10 +74,10 @@
     "npm:ts-essentials@10.0.4": "10.0.4",
     "npm:ua-parser-js@2.0.2": "2.0.2",
     "npm:vite-plugin-wasm@3.4.1": "3.4.1_vite@6.1.0",
-    "npm:vite@*": "6.1.0_yaml@2.7.0",
-    "npm:vite@6.1.0": "6.1.0_yaml@2.7.0",
-    "npm:vitepress@*": "1.6.3_vite@5.4.14_vue@3.5.13_focus-trap@7.6.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1",
-    "npm:vitepress@1.6.3": "1.6.3_vite@5.4.14_vue@3.5.13_focus-trap@7.6.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:vite@*": "6.1.0_@types+node@22.5.4_yaml@2.7.0",
+    "npm:vite@6.1.0": "6.1.0_@types+node@22.5.4_yaml@2.7.0",
+    "npm:vitepress@*": "1.6.3_vite@5.4.14__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.4_@types+node@22.5.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:vitepress@1.6.3": "1.6.3_vite@5.4.14__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.4_@types+node@22.5.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:vue@3.5.13": "3.5.13",
     "npm:yaml@2.7.0": "2.7.0"
   },
@@ -284,26 +286,26 @@
         "@algolia/client-common"
       ]
     },
-    "@automerge/automerge-repo-network-broadcastchannel@1.2.1": {
+    "@automerge/automerge-repo-network-broadcastchannel@1.2.1_@types+node@22.5.4": {
       "integrity": "sha512-Jm3NiuFe/+3aHpHhRYEYOchkMkavMw7+ysNKqYgC7zyGM8jtBowJhxmD4awvz+I5dWNA64KNJIt4k7h295HPAQ==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-indexeddb@1.2.1": {
+    "@automerge/automerge-repo-storage-indexeddb@1.2.1_@types+node@22.5.4": {
       "integrity": "sha512-u+9eZZJK7DAr541buF4ut1ipkuiKRoaAtoFYo/ilq7zOLO7JX+GQOFx/8eKKRDlGt/AHTcDaFktkcaX0vKahQQ==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-nodefs@1.2.1": {
+    "@automerge/automerge-repo-storage-nodefs@1.2.1_@types+node@22.5.4": {
       "integrity": "sha512-MEbz4vul3frdl+zWDQE3ELBNjiC78QSOEb4reeEgCiGcoimLKxUmHvlQLxpiR209tw72Tf6RRFtvwoqV1I8TKw==",
       "dependencies": [
         "@automerge/automerge-repo",
         "rimraf"
       ]
     },
-    "@automerge/automerge-repo@1.2.1": {
+    "@automerge/automerge-repo@1.2.1_@types+node@22.5.4": {
       "integrity": "sha512-uEBr4bM01aSWkEt2tDKQxfW0Pahz2zbTTn4sRJfeKJlAg2SLr4QepFJ+3Tp4CNEkkU485olfnKYf6gt7uilMZQ==",
       "dependencies": [
         "@automerge/automerge",
@@ -930,6 +932,13 @@
       "dependencies": [
         "@swc/core",
         "vite@6.1.0"
+      ]
+    },
+    "@vitejs/plugin-vue@5.2.1_vite@5.4.14__@types+node@22.5.4_vue@3.5.13_@types+node@22.5.4": {
+      "integrity": "sha512-cxh314tzaWwOLqVes2gnnCtvBDcM1UMdn+iFR+UjAn411dPT3tOmqrJjbMd7koZpMAmBM/GqeV4n9ge7JSiJJQ==",
+      "dependencies": [
+        "vite@5.4.14_@types+node@22.5.4",
+        "vue"
       ]
     },
     "@vitejs/plugin-vue@5.2.1_vite@5.4.14_vue@3.5.13": {
@@ -2082,6 +2091,16 @@
         "rollup"
       ]
     },
+    "vite@5.4.14_@types+node@22.5.4": {
+      "integrity": "sha512-EK5cY7Q1D8JNhSaPKVK4pwBFvaTmZxEnoKXLG/U9gmdDcihQGNzFlgIvaxezFR4glP1LsuiedwMBqCXH3wZccA==",
+      "dependencies": [
+        "@types/node@22.5.4",
+        "esbuild@0.21.5",
+        "fsevents",
+        "postcss",
+        "rollup"
+      ]
+    },
     "vite@6.1.0": {
       "integrity": "sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==",
       "dependencies": [
@@ -2091,14 +2110,38 @@
         "rollup"
       ]
     },
-    "vite@6.1.0_yaml@2.7.0": {
+    "vite@6.1.0_@types+node@22.5.4_yaml@2.7.0": {
       "integrity": "sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==",
       "dependencies": [
+        "@types/node@22.5.4",
         "esbuild@0.24.2",
         "fsevents",
         "postcss",
         "rollup",
         "yaml"
+      ]
+    },
+    "vitepress@1.6.3_vite@5.4.14__@types+node@22.5.4_vue@3.5.13_focus-trap@7.6.4_@types+node@22.5.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
+      "integrity": "sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==",
+      "dependencies": [
+        "@docsearch/css",
+        "@docsearch/js",
+        "@iconify-json/simple-icons",
+        "@shikijs/core",
+        "@shikijs/transformers",
+        "@shikijs/types",
+        "@types/markdown-it",
+        "@vitejs/plugin-vue@5.2.1_vite@5.4.14__@types+node@22.5.4_vue@3.5.13_@types+node@22.5.4",
+        "@vue/devtools-api",
+        "@vue/shared",
+        "@vueuse/core",
+        "@vueuse/integrations",
+        "focus-trap",
+        "mark.js",
+        "minisearch",
+        "shiki",
+        "vite@5.4.14_@types+node@22.5.4",
+        "vue"
       ]
     },
     "vitepress@1.6.3_vite@5.4.14_vue@3.5.13_focus-trap@7.6.4_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1": {
@@ -2111,7 +2154,7 @@
         "@shikijs/transformers",
         "@shikijs/types",
         "@types/markdown-it",
-        "@vitejs/plugin-vue",
+        "@vitejs/plugin-vue@5.2.1_vite@5.4.14_vue@3.5.13",
         "@vue/devtools-api",
         "@vue/shared",
         "@vueuse/core",
@@ -2256,14 +2299,14 @@
         "npm:@jsr/std__testing@1.0.9",
         "npm:@jsr/std__uuid@1.0.4",
         "npm:@noble/hashes@1.7.1",
-        "npm:@types/react-dom@18",
-        "npm:@types/react@18",
+        "npm:@types/react-dom@18.3.5",
+        "npm:@types/react@18.3.18",
         "npm:@vidstack/react@1.12.12",
         "npm:@vitejs/plugin-react-swc@3.8.0",
         "npm:hono@4.7.0",
-        "npm:react-dom@18",
+        "npm:react-dom@18.3.1",
         "npm:react-icons@5.4.0",
-        "npm:react@18",
+        "npm:react@18.3.1",
         "npm:rollup@4.34.6",
         "npm:vite-plugin-wasm@3.4.1",
         "npm:vite@6.1.0",
