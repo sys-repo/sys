@@ -4,7 +4,14 @@ import { isTransformed } from './u.ts';
 type O = Record<string, unknown>;
 const cache = new Map<number, t.CssTransformed>();
 
+/**
+ * Transform a lose set of CSS inputs into a CSS class-name.
+ */
 export const css: t.CssTransformToStyle = (...input) => transform(...input).style;
+
+/**
+ * Perform a cacheable transformation on a loose set of CSS inputs.
+ */
 export const transform: t.CssTransform = (...input) => {
   const before = wrangle.input(input);
   const hx = toHash(before);

@@ -1,7 +1,7 @@
 import { type t, Color } from './common.ts';
 
 import { Edges } from '../m.Style.Edges/mod.ts';
-import { transform, css } from './u.transform.ts';
+import { css, transform } from './u.transform.ts';
 import { toShadow } from './u.ts';
 
 const { toPadding, toMargins } = Edges;

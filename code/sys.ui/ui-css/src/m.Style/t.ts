@@ -7,7 +7,6 @@ import type { t } from './common.ts';
  *
  *  - { fontSize: 32 }
  *  - { fontSize: '32px' }
- *
  */
 export type CssProps = CSSProperties;
 
@@ -15,14 +14,22 @@ export type CssProps = CSSProperties;
  * CSS styling tools.
  */
 export type StyleLib = {
+  /** Tools for working with colors. */
   readonly Color: t.ColorLib;
+  /** Tools for working with edges. */
   readonly Edges: t.CssEdgesLib;
 
+  /** Perform a cacheable transformation on a loose set of CSS inputs. */
   readonly transform: t.CssTransform;
+
+  /** Transform a lose set of CSS inputs into a CSS class-name. */
   readonly css: t.CssTransformToStyle;
 
+  /** Transform margin spacing. */
   readonly toMargins: t.CssEdgesLib['toMargins'];
+  /** Transform padding spacing. */
   readonly toPadding: t.CssEdgesLib['toPadding'];
+  /** Transform shadding settings. */
   readonly toShadow: CssToShadow;
 };
 
