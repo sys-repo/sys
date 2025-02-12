@@ -8,7 +8,7 @@ debug: true
 component: sys/tmp/ui:Foo
 notes: |
   Should import: @sys/tmp@0.0.57/ui:<Foo> (WIP)
-  Provies:
+  Proves:
   - react rendering
   - import from system module (monorepo) via JSR.
   - correct aliasing of fully-qualified "import" text (eg: "npm:react:18.0.0" → "react")
