@@ -7,6 +7,6 @@ export { Color } from '@sys/color';
 export { asArray, Is, maybeWait, Path, R, rx, slug, Time } from '@sys/std';
 export { Str, Value } from '@sys/std/value';
 
-export { css, Edges, Style } from '@sys/ui-css/react';
+export { css, Edges, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
 export { FC, useMouse } from '@sys/ui-react';
