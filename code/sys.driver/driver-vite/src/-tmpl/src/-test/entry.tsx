@@ -8,12 +8,13 @@ console.log('🐷 entry.tsx', pkg);
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { View } from './entry.sample.tsx';
+import { FooComponent } from './entry.Foo.tsx';
 
-console.info('Pkg', pkg);
+console.info('Pkg:💦', pkg);
 
 /**
- * 🐷 Test imports from across the workspace.
+ * 🐷 Test " @sys " module imports from across the
+ *    namespace (monorepo/workspace).
  */
 import '@sys/tmp/sample-imports';
 
@@ -23,6 +24,6 @@ import '@sys/tmp/sample-imports';
 const root = createRoot(document.getElementById('root')!);
 root.render(
   <StrictMode>
-    <View style={{ border: `solid 1px blue` }} />
+    <FooComponent style={{ border: `solid 1px blue` }} />
   </StrictMode>,
 );

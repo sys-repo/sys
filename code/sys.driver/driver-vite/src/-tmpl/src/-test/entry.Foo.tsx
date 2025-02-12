@@ -1,23 +1,24 @@
 import { useState } from 'react';
 
 import { Foo } from '@sys/tmp/ui';
-import { Color, css } from '@sys/ui-css/react';
+import { Color, css } from '@sys/ui-css';
 import type { t } from '../common.ts';
 
 /**
- * Sample Component demonstrating the fundamentals
- * of React and module importing work.
+ * Sample Component demonstrating the fundamentals of React
+ * and proving module importing works across the monorepo.
  *
- * - Module "imports" (prove @sys imports from the workspace work)
- * - Style: CSS primitives
- * - Style: Color primitives
+ *   - Module "imports" (prove @sys imports from the workspace work)
+ *   - Style: CSS primitives
+ *   - Style: Color primitives
+ *
  */
-export type ViewProps = {
+export type FooComponent = {
   theme?: t.CommonTheme;
   style?: t.CssValue;
 };
 
-export const View: React.FC<ViewProps> = (props) => {
+export const FooComponent: React.FC<FooComponent> = (props) => {
   const [isOver, setOver] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
 
@@ -47,15 +48,20 @@ export const View: React.FC<ViewProps> = (props) => {
     }),
   };
 
+
   const elThemeSample = (
-    <div {...styles.themeSample}>
+    <div style={styles.themeSample.style}>
       <div>Hello</div>
     </div>
   );
 
   return (
-    <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
-      <div {...styles.title}>
+    <div
+      style={css(styles.base, props.style).style}
+      onMouseEnter={over(true)}
+      onMouseLeave={over(false)}
+    >
+      <div style={styles.title.style}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>
       </div>
