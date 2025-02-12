@@ -1,4 +1,4 @@
-import { c, DenoDeps, Fs } from './common.ts';
+import { c, DenoDeps, Fs, Process } from './common.ts';
 const i = c.italic;
 
 /**
@@ -22,10 +22,14 @@ export async function main() {
   await Fs.writeJson(PATH.deno, DenoDeps.toJson('deno.json', deps));
 
   /**
-   * Run `prep` command on sub-modules.
+   * Run `prep` → `init` commands on sub-modules.
    */
-  await import('../code/sys.driver/driver-vite/-scripts/-prep.ts');
-  await import('../code/sys.driver/driver-vitepress/-scripts/-prep.ts');
+  const sh = (path: string) => Process.sh({ path });
+  const module = (...parts: string[]) => sh(Fs.resolve('./code', ...parts));
+
+  const cmd = 'deno task prep && deno task init';
+  await module('sys.driver/driver-vite').run(cmd);
+  await module('sys.driver/driver-vitepress').run(cmd);
 
   /**
    * Output: console.
