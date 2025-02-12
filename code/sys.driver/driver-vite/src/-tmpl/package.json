@@ -11,7 +11,6 @@
     "@types/react": "",
     "@types/react-dom": "",
     "@vitejs/plugin-react-swc": "",
-    "@emotion/react": "",
     "rollup": "",
     "vite": "",
     "vite-plugin-wasm": ""

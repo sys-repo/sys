@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@emotion/react": "",
     "@vidstack/react": "",
     "yaml": "",
     "@sys/std": "npm:@jsr/sys__std",

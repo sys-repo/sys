@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@emotion/react": "11.14.0",
     "@noble/hashes": "1.7.1",
     "@std/async": "npm:@jsr/std__async@1.0.10",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.3",

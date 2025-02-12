@@ -106,7 +106,6 @@ package.json:
 
   # UI
   - import: npm:@vidstack/react@1.12.12
-  - import: npm:@emotion/react@11.14.0
 
   # UI:React
   - import: npm:@types/react@^18.0.0
