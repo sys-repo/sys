@@ -10,5 +10,5 @@ const bundle = Vite.Tmpl.Bundle;
 await bundle.toFilemap();
 await bundle.writeToFile(resolve(PATHS.tmpl.tmp)); // NB: test output.
 
-console.info(c.brightCyan('Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+console.info(c.brightCyan('↑ Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
 console.info();

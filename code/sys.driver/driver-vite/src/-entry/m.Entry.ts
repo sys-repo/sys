@@ -18,23 +18,27 @@ export const ViteEntry: t.ViteEntryLib = {
 
     if (cmd === 'init') {
       const { init } = await import('./u.init.ts');
-      return await init(args);
+      await init(args);
+      return;
     }
 
     if (cmd === 'dev') {
       ViteLog.API.log({ cmd: 'dev' });
-      return await ViteEntry.dev(args);
+      await ViteEntry.dev(args);
+      return;
     }
 
     if (cmd === 'build') {
       if (!args.silent) ViteLog.API.log({ cmd: 'build' });
-      return await ViteEntry.build(args);
+      await ViteEntry.build(args);
+      return;
     }
 
     if (cmd === 'serve') {
       if (!args.silent) ViteLog.API.log({ cmd: 'serve' });
       console.info();
-      return await ViteEntry.serve(args);
+      await ViteEntry.serve(args);
+      return;
     }
 
     if (args.cmd === 'clean') {

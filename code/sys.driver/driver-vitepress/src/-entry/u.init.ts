@@ -19,5 +19,7 @@ export async function init(args: t.VitepressEntryArgsInit) {
     console.info();
     ViteLog.API.log();
     console.info();
+    console.info(c.brightCyan('↑ Init Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+    console.info();
   }
 }

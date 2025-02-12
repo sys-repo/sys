@@ -27,5 +27,5 @@ const Bundle = Vitepress.Tmpl.Bundle;
 await Bundle.toFilemap();
 await Bundle.toFilesystem(resolve(PATHS.tmpl.tmp)); // NB: test output.
 
-console.info(c.brightCyan('Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+console.info(c.brightCyan('↑ Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
 console.info();
