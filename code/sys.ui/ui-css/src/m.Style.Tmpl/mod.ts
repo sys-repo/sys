@@ -16,24 +16,25 @@ export const Tmpl: t.StyleTmplLib = {
    */
   transform(input?: t.CssValue): t.CssObject {
     if (Is.falsy(input) || !isObject(input)) return {};
+    let o = input as t.CssTemplates;
 
     // Absolute → { position: 'absolute' ... }
-    if (input.Absolute !== undefined) input = WrangleEdge.absolute(input);
+    if (o.Absolute !== undefined) o = WrangleEdge.absolute(o);
 
     // Margin → { marginLeft: ... }
-    if (input.Margin !== undefined) input = WrangleEdge.margin(input);
-    if (input.MarginX !== undefined) input = WrangleEdge.marginX(input);
-    if (input.MarginY !== undefined) input = WrangleEdge.marginY(input);
+    if (o.Margin !== undefined) o = WrangleEdge.margin(o);
+    if (o.MarginX !== undefined) o = WrangleEdge.marginX(o);
+    if (o.MarginY !== undefined) o = WrangleEdge.marginY(o);
 
     // Padding → { paddingLeft: ... }
-    if (input.Padding !== undefined) input = WrangleEdge.padding(input);
-    if (input.PaddingX !== undefined) input = WrangleEdge.paddingX(input);
-    if (input.PaddingY !== undefined) input = WrangleEdge.paddingY(input);
+    if (o.Padding !== undefined) o = WrangleEdge.padding(o);
+    if (o.PaddingX !== undefined) o = WrangleEdge.paddingX(o);
+    if (o.PaddingY !== undefined) o = WrangleEdge.paddingY(o);
 
     // Size → { width, height }
-    if (input.Size !== undefined) formatSize('Size', input.Size, input);
+    if (o.Size !== undefined) formatSize('Size', o.Size, o);
 
     /** Finish up: no change */
-    return input as t.CssObject;
+    return o as t.CssObject;
   },
 };

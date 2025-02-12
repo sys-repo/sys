@@ -28,6 +28,7 @@ export const Paths = {
     /**
      * UI
      */
+    'code/sys.ui/ui-css',
     'code/sys.ui/ui-dom',
     'code/sys.ui/ui-react',
     'code/sys.ui/ui-react-devharness',
