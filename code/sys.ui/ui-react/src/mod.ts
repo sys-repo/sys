@@ -21,7 +21,7 @@
  *   };
  *
  *   return (
- *     <div {...css(styles.base, props.style)}>
+ *     <div style={css(styles.base, props.style)}>
  *       <div>{`👋 Hello World`}</div>
  *     </div>
  *   );
