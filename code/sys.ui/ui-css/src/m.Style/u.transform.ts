@@ -1,5 +1,5 @@
 import { type t, toHash } from './common.ts';
-import { isTransformed } from './u.ts';
+import { isTransformed } from './u.is.ts';
 
 type O = Record<string, unknown>;
 const cache = new Map<number, t.CssTransformed>();
