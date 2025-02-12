@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'npm:@types/react';
+import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 
 export type CssObject = CSSProperties;
