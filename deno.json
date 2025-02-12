@@ -20,8 +20,7 @@
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "types": ["vite/client"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react"
+    "jsx": "react-jsx"
   },
   "nodeModulesDir": "auto",
   "importMap": "./deno.imports.json",
