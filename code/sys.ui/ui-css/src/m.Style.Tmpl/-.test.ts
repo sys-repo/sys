@@ -14,7 +14,7 @@ describe('Tmpl', () => {
   });
 
   describe('CSS Edges (top, right, bottom, left)', () => {
-    const assertEdges = (res: t.CssObject, expected: [N, N, N, N]) => {
+    const assertEdges = (res: t.CssProps, expected: [N, N, N, N]) => {
       const [top, right, bottom, left] = expected;
       expect(res.top).to.eql(top);
       expect(res.right).to.eql(right);
@@ -93,7 +93,7 @@ describe('Tmpl', () => {
     });
 
     describe('{ Margin, MarginX, MarginY }', () => {
-      const assert = (res: t.CssObject, expected: [N, N, N, N]) => {
+      const assert = (res: t.CssProps, expected: [N, N, N, N]) => {
         const [top, right, bottom, left] = expected;
         expect(res.marginTop).to.eql(top);
         expect(res.marginRight).to.eql(right);
@@ -135,7 +135,7 @@ describe('Tmpl', () => {
     });
 
     describe('{ Padding, PaddingX, PaddingY }', () => {
-      const assert = (res: t.CssObject, expected: [N, N, N, N]) => {
+      const assert = (res: t.CssProps, expected: [N, N, N, N]) => {
         const [top, right, bottom, left] = expected;
         expect(res.paddingTop).to.eql(top);
         expect(res.paddingRight).to.eql(right);
