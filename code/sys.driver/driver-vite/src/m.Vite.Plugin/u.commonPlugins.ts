@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
 
-import { Style } from '@sys/ui-css/react';
 import reactPlugin from '@vitejs/plugin-react-swc';
 import wasm from 'vite-plugin-wasm';
 import { workspacePlugin } from './u.workspacePlugin.ts';
@@ -35,8 +34,7 @@ export const commonPlugins: t.VitePluginLib['common'] = async (options = {}) => 
   // -  https://github.com/vitejs/vite-plugin-react-swc
   // -  https://swc.rs
   if (options.react ?? true) {
-    const css = Style.plugin.emotion();
-    plugins.push(reactPlugin(css) as any);
+    plugins.push(reactPlugin() as any);
   }
 
   // Finish up.
