@@ -10,4 +10,4 @@
 export { Edges } from '../m.Style.Edges/mod.ts';
 export { Color } from './common.ts';
 export { Style } from './m.Style.ts';
-export { css } from './u.transform.ts';
+export { css, transform } from './u.transform.ts';

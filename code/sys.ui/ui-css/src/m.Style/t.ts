@@ -1,7 +1,6 @@
-import type * as CSS from 'csstype';
+import type { CSSProperties } from 'npm:@types/react';
 import type { t } from './common.ts';
 
-export type CSSProperties = CSS.PropertiesFallback<number | string>;
 export type CssObject = CSSProperties;
 
 /**
@@ -11,7 +10,9 @@ export type StyleLib = {
   readonly Color: t.ColorLib;
   readonly Edges: t.CssEdgesLib;
 
-  readonly css: t.CssTransform;
+  readonly transform: t.CssTransform;
+  readonly css: t.CssTransformToStyle;
+
   readonly toMargins: t.CssEdgesLib['toMargins'];
   readonly toPadding: t.CssEdgesLib['toPadding'];
   readonly toShadow: CssToShadow;
@@ -30,6 +31,14 @@ export type CssInput = t.CssValue | undefined | null | false | never | CssTransf
  * NB: This is the raw transform containing the style along with cache metadata.
  */
 export type CssTransform = (...input: t.CssInput[]) => t.CssTransformed;
+
+/**
+ * Function that transforms 1..n CSS inputs into a style
+ * object that can be applied to a JSX element.
+ *
+ * NB: This is the raw transform containing the style along with cache metadata.
+ */
+export type CssTransformToStyle = (...input: t.CssInput[]) => t.CssObject;
 
 /**
  * A transformed CSS properties object.

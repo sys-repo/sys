@@ -1,18 +1,25 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { css, Style } from './mod.ts';
+import { Style, css, transform } from './mod.ts';
 
 describe('Style.css', () => {
   it('API', () => {
-    expect(Style.css).to.equal(css);
+    expect(Style.transform).to.equal(transform);
     expect(Style.css).to.equal(css);
   });
 
   describe('css → { styles }', () => {
+    it('css: style ← css().style', () => {
+      const style = { fontSize: 30 };
+      const a = transform(style);
+      const b = css(style);
+      expect(b).to.eql(a.s);
+    });
+
     it('empty', () => {
-      const a = css();
-      const b = css([]);
-      const c = css(...[], false);
-      const d = css(null, undefined, [], false, ...[]);
+      const a = transform();
+      const b = transform([]);
+      const c = transform(...[], false);
+      const d = transform(null, undefined, [], false, ...[]);
 
       expect(a.s).to.eql({});
       expect(b).to.eql(a);
@@ -26,9 +33,9 @@ describe('Style.css', () => {
     });
 
     it('plain CSS fields', () => {
-      const a = css({ fontSize: 30 });
-      const b = css({ fontSize: 30 });
-      const c = css({ fontSize: 31 });
+      const a = transform({ fontSize: 30 });
+      const b = transform({ fontSize: 30 });
+      const c = transform({ fontSize: 31 });
 
       expect(a.s.fontSize).to.eql(30);
       expect(b.s.fontSize).to.eql(30);
@@ -37,21 +44,14 @@ describe('Style.css', () => {
       expect(a).to.equal(b);
       expect(a).to.not.equal(c);
     });
-
-    it('css: style ← css().style', () => {
-      const style = { fontSize: 30 };
-      const a = css(style);
-      const b = css(style);
-      expect(b.s).to.eql(a.s);
-    });
   });
 
   describe('merging', () => {
     it('basic merge', () => {
-      const a = css({ color: 'red' });
-      const b = css({ background: 'blue' });
+      const a = transform({ color: 'red' });
+      const b = transform({ background: 'blue' });
 
-      const res = css(a, b);
+      const res = transform(a, b);
       expect(res.s).to.include({ color: 'red' });
       expect(res.s).to.include({ background: 'blue' });
     });
@@ -63,35 +63,55 @@ describe('Style.css', () => {
       };
 
       const props = { style: { color: 'red' } };
-      const styles = { base: css({ background: 'blue' }) };
+      const styles = { base: transform({ background: 'blue' }) };
+
+      assert(transform(styles.base, props.style));
+      assert(transform(styles.base, transform(props.style)));
+      assert(transform(transform(styles.base), transform(transform(props.style))));
+      assert(transform([transform(styles.base), transform(transform(props.style))]));
+      assert(
+        transform(
+          transform([transform(styles.base), transform(transform(props.style))]),
+          transform([transform(styles.base), [transform(transform([transform([[props.style]])]))]]),
+        ),
+      );
+    });
+
+    it('deep merge ← {style} object', () => {
+      const assert = (res: t.CssObject) => {
+        expect(res).to.include({ color: 'red' });
+        expect(res).to.include({ background: 'blue' });
+      };
+
+      const props = { style: { color: 'red' } };
+      const styles = { base: transform({ background: 'blue' }) };
 
       assert(css(styles.base, props.style));
-      assert(css(styles.base, css(props.style)));
-      assert(css(css(styles.base), css(css(props.style))));
-      assert(css([css(styles.base), css(css(props.style))]));
+      assert(css(styles.base, transform(props.style)));
+      assert(css(transform(styles.base), css(transform(props.style))));
+      assert(css([transform(styles.base), transform(transform(props.style))]));
       assert(
         css(
-          css([css(styles.base), css(css(props.style))]),
-          css([css(styles.base), [css(css([css([[props.style]])]))]]),
+          transform([transform(styles.base), Style.transform(css(props.style))]),
+          transform([transform(styles.base), [Style.css(transform([transform([[props.style]])]))]]),
         ),
       );
     });
 
     it('cache name repeats (reused)', () => {
       const props = { style: { color: 'red' } };
-      const styles = { base: css({ background: 'blue' }) };
+      const styles = { base: transform({ background: 'blue' }) };
 
-      const a = css(css(styles.base), css(css(props.style)));
-      const b = css(css(styles.base), css(css(props.style)));
-
+      const a = transform(transform(styles.base), transform(transform(props.style)));
+      const b = transform(transform(styles.base), transform(transform(props.style)));
       expect(a.hx).to.equal(b.hx);
     });
 
     it('wrapped ← equality', () => {
-      const a = css({ color: 'red' });
-      const b = css(a);
-      const c = css([b]);
-      const d = css([a, c], b);
+      const a = transform({ color: 'red' });
+      const b = transform(a);
+      const c = transform([b]);
+      const d = transform([a, c], b);
       expect(b).to.eql(a);
       expect(c).to.eql(a);
       expect(d).to.eql(a);
