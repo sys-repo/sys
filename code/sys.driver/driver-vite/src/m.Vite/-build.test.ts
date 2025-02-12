@@ -62,7 +62,7 @@ describe('Vite.build', () => {
 
       expect(res.dist).to.eql(files.distJson);
       expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.size.bytes).to.be.greaterThan(160_000);
+      expect(res.dist.size.bytes).to.be.greaterThan(100_000);
       expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
 
       printDist(input, res.dist);
