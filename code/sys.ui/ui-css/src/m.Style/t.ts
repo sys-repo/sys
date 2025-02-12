@@ -47,7 +47,7 @@ export type CssTransformed = {
   /** The hash of the style (used for caching). */
   readonly hx: number;
   /** Style properties. */
-  readonly s: t.CssObject;
+  readonly style: t.CssObject;
 };
 
 /**

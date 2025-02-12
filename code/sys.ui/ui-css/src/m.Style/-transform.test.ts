@@ -12,7 +12,7 @@ describe('Style.css', () => {
       const style = { fontSize: 30 };
       const a = transform(style);
       const b = css(style);
-      expect(b).to.eql(a.s);
+      expect(b).to.eql(a.style);
     });
 
     it('empty', () => {
@@ -21,15 +21,15 @@ describe('Style.css', () => {
       const c = transform(...[], false);
       const d = transform(null, undefined, [], false, ...[]);
 
-      expect(a.s).to.eql({});
+      expect(a.style).to.eql({});
       expect(b).to.eql(a);
       expect(c).to.eql(a);
       expect(d).to.eql(a);
 
       // Cached instances (on hx).
-      expect(a.s).to.equal(b.s);
-      expect(a.s).to.equal(c.s);
-      expect(a.s).to.equal(d.s);
+      expect(a.style).to.equal(b.style);
+      expect(a.style).to.equal(c.style);
+      expect(a.style).to.equal(d.style);
     });
 
     it('plain CSS fields', () => {
@@ -37,9 +37,9 @@ describe('Style.css', () => {
       const b = transform({ fontSize: 30 });
       const c = transform({ fontSize: 31 });
 
-      expect(a.s.fontSize).to.eql(30);
-      expect(b.s.fontSize).to.eql(30);
-      expect(c.s.fontSize).to.eql(31);
+      expect(a.style.fontSize).to.eql(30);
+      expect(b.style.fontSize).to.eql(30);
+      expect(c.style.fontSize).to.eql(31);
 
       expect(a).to.equal(b);
       expect(a).to.not.equal(c);
@@ -52,14 +52,14 @@ describe('Style.css', () => {
       const b = transform({ background: 'blue' });
 
       const res = transform(a, b);
-      expect(res.s).to.include({ color: 'red' });
-      expect(res.s).to.include({ background: 'blue' });
+      expect(res.style).to.include({ color: 'red' });
+      expect(res.style).to.include({ background: 'blue' });
     });
 
     it('deep merge', () => {
       const assert = (res: t.CssTransformed) => {
-        expect(res.s).to.include({ color: 'red' });
-        expect(res.s).to.include({ background: 'blue' });
+        expect(res.style).to.include({ color: 'red' });
+        expect(res.style).to.include({ background: 'blue' });
       };
 
       const props = { style: { color: 'red' } };
