@@ -1,7 +1,6 @@
-import { Time, describe, expect, it, rx, type t } from '../-test.ts';
+import { Time, describe, expect, it, rx, type t, DomMock } from '../-test.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Keyboard } from './mod.ts';
-import { Mock } from '../m.Mock/mod.ts';
 
 describe(
   'Keyboard',
@@ -13,7 +12,7 @@ describe(
 
   () => {
     it('(before)', () => {
-      Mock.polyfill();
+      DomMock.polyfill();
     });
 
     describe('KeyListener', () => {
@@ -22,8 +21,8 @@ describe(
         KeyListener.keydown((e) => fired.push(e));
         KeyListener.keyup((e) => fired.push(e));
 
-        const downEvent = Mock.Keyboard.keydownEvent();
-        const upEvent = Mock.Keyboard.keyupEvent();
+        const downEvent = DomMock.Keyboard.keydownEvent();
+        const upEvent = DomMock.Keyboard.keyupEvent();
 
         document.dispatchEvent(downEvent);
         document.dispatchEvent(upEvent);
@@ -50,11 +49,11 @@ describe(
         keydown.dispose();
         keyup.dispose(); // NB: Keyup-2 not disposed.
 
-        const downEvent = Mock.Keyboard.keydownEvent();
-        const upEvent = Mock.Keyboard.keyupEvent();
+        const downEvent = DomMock.Keyboard.keydownEvent();
+        const upEvent = DomMock.Keyboard.keyupEvent();
 
-        Mock.Keyboard.fire(downEvent);
-        Mock.Keyboard.fire(upEvent);
+        DomMock.Keyboard.fire(downEvent);
+        DomMock.Keyboard.fire(upEvent);
 
         await Time.wait(0);
         expect(fired.length).to.eql(0);
@@ -68,13 +67,13 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         until.on('KeyZ', (e) => fired.push(e.event));
 
-        Mock.Keyboard.fire();
+        DomMock.Keyboard.fire();
         expect(fired.length).to.eql(1);
 
         life.dispose();
         expect(until.disposed).to.eql(true);
 
-        Mock.Keyboard.fire();
+        DomMock.Keyboard.fire();
         expect(fired.length).to.eql(1);
       });
 
@@ -86,14 +85,14 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         dbl.on('KeyB', (e) => fired.push(e.event));
 
-        const ev = Mock.Keyboard.keydownEvent('b');
-        Mock.Keyboard.fire(ev);
-        Mock.Keyboard.fire(ev);
+        const ev = DomMock.Keyboard.keydownEvent('b');
+        DomMock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
 
         until.dispose();
-        Mock.Keyboard.fire(ev);
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1); // No more events after dispose of [until]
       });
     });
@@ -104,10 +103,10 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         dbl.on('KeyM', (e) => fired.push(e.event));
 
-        const ev = Mock.Keyboard.keydownEvent('z');
-        Mock.Keyboard.fire(ev);
+        const ev = DomMock.Keyboard.keydownEvent('z');
+        DomMock.Keyboard.fire(ev);
         await Time.wait(10);
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
 
         await Time.wait(50);
         expect(fired.length).to.eql(0);
@@ -120,19 +119,19 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         dbl.on('KeyM', (e) => fired.push(e.event));
 
-        const ev = Mock.Keyboard.keydownEvent('m');
-        Mock.Keyboard.fire(ev); // First keypress.
+        const ev = DomMock.Keyboard.keydownEvent('m');
+        DomMock.Keyboard.fire(ev); // First keypress.
         await Time.wait(10);
         expect(fired.length).to.eql(0);
-        Mock.Keyboard.fire(ev); // Second keypress.
+        DomMock.Keyboard.fire(ev); // Second keypress.
 
         await Time.wait(20);
         expect(fired.length).to.eql(1);
         expect(fired[0].code).to.eql('KeyM');
 
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1); // NB: not increment yet.
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(2);
       });
 
@@ -141,15 +140,15 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         dbl.on('KeyA', (e) => fired.push(e.event));
 
-        const ev = Mock.Keyboard.keydownEvent('a');
-        Mock.Keyboard.fire(ev);
-        Mock.Keyboard.fire(ev);
+        const ev = DomMock.Keyboard.keydownEvent('a');
+        DomMock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
 
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
         await Time.wait(30);
-        Mock.Keyboard.fire(ev); // NB: second event comes in after timeout.
+        DomMock.Keyboard.fire(ev); // NB: second event comes in after timeout.
         expect(fired.length).to.eql(1); // No change.
       });
 
@@ -174,14 +173,14 @@ describe(
         const fired: t.KeyboardKeypress[] = [];
         dbl.on('KeyM', (e) => fired.push(e.event));
 
-        const ev = Mock.Keyboard.keydownEvent('m');
-        Mock.Keyboard.fire(ev);
-        Mock.Keyboard.fire(ev);
+        const ev = DomMock.Keyboard.keydownEvent('m');
+        DomMock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
 
         dbl.dispose();
-        Mock.Keyboard.fire(ev);
-        Mock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
+        DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
       });
     });
