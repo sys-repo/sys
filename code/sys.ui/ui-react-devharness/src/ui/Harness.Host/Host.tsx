@@ -74,7 +74,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elMain = (
-    <div {...styles.main}>
+    <div style={styles.main}>
       <HostLayers instance={instance} layers={layersBelow} />
       {elGrid}
       <HostLayers instance={instance} layers={layersAbove} />
@@ -82,7 +82,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elBody = (
-    <div {...styles.body}>
+    <div style={styles.body}>
       <PanelHeader instance={instance} current={host?.header} />
       {elMain}
       <PanelFooter instance={instance} current={host?.footer} />
@@ -90,13 +90,13 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elEmpty = isEmpty && (
-    <div {...styles.empty}>
+    <div style={styles.empty}>
       <BarSpinner />
     </div>
   );
 
   return (
-    <div ref={props.baseRef} {...css(styles.base, props.style)}>
+    <div ref={props.baseRef} style={css(styles.base, props.style)}>
       {elBackground}
       {elBody}
       {elEmpty}

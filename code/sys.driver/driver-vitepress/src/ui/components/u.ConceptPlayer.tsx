@@ -23,7 +23,7 @@ export const ConceptPlayer: React.FC<ConceptPlayerProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       <div>{`🐷 ConceptPlayer`}</div>
     </div>
   );

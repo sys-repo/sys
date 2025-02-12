@@ -32,8 +32,8 @@ export const PanelEdge: React.FC<PanelBarProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)} data-component={`dev.harness:${edge}`}>
-      <div {...styles.body}>{element}</div>
+    <div style={css(styles.base, props.style)} data-component={`dev.harness:${edge}`}>
+      <div style={styles.body}>{element}</div>
     </div>
   );
 };

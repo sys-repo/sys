@@ -9,5 +9,5 @@ export const Hr: React.FC<HrProps> = (props) => {
       MarginY: props.marginY ?? 10,
     }),
   };
-  return <div {...styles.base} />;
+  return <div style={styles.base} />;
 };

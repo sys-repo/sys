@@ -42,7 +42,7 @@ export const App: React.FC<AppProps> = (props) => {
   console.log(doc);
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       <div>{`🐷 Sample`}</div>
     </div>
   );

@@ -121,16 +121,16 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
 
   const linkStyle = css(styles.link, !ns ? styles.linkDimmed : undefined);
   const elLink = (
-    <a href={useAnchorLinks ? url.href : undefined} onClick={handleClick} {...linkStyle}>
-      <div {...styles.row.label}>{title ?? uri}</div>
+    <a href={useAnchorLinks ? url.href : undefined} onClick={handleClick} style={linkStyle}>
+      <div style={styles.row.label}>{title ?? uri}</div>
     </a>
   );
 
   return (
-    <li ref={baseRef} {...css(styles.base, props.style)}>
-      {showHr && <hr {...styles.hr} />}
-      <div {...styles.row.base}>
-        <div {...styles.row.icon}>{Icon && <VscSymbolClass />}</div>
+    <li ref={baseRef} style={css(styles.base, props.style)}>
+      {showHr && <hr style={styles.hr} />}
+      <div style={styles.row.base}>
+        <div style={styles.row.icon}>{Icon && <VscSymbolClass />}</div>
         {elLink}
         <div style={{ width: 20 }} />
       </div>

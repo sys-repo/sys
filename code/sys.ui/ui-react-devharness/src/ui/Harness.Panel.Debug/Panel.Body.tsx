@@ -17,5 +17,5 @@ export const DebugPanelBody: React.FC<DebugPanelBodyrops> = (props) => {
     return <Row key={renderer.id} instance={instance} renderer={renderer} />;
   });
 
-  return <div {...css(styles.base, props.style)}>{elements}</div>;
+  return <div style={css(styles.base, props.style)}>{elements}</div>;
 };

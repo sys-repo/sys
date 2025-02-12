@@ -41,10 +41,10 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
     <div
       data-component={'dev.harness:Panel.Debug'}
       ref={props.baseRef}
-      {...css(styles.base, props.style)}
+      style={css(styles.base, props.style)}
     >
       <PanelHeader instance={instance} current={debug?.header} />
-      <div {...styles.body}>
+      <div style={styles.body}>
         <Body instance={instance} current={current.info} />
       </div>
       <PanelFooter instance={instance} current={debug?.footer} />

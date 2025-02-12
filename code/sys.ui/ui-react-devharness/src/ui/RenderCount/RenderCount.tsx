@@ -26,7 +26,7 @@ export const RenderCount: React.FC<RenderCountProps> = (props) => {
   };
 
   const text = `${prefix}${countRef.current}`;
-  return <div {...css(styles.base, props.style)}>{text}</div>;
+  return <div style={css(styles.base, props.style)}>{text}</div>;
 };
 
 /**

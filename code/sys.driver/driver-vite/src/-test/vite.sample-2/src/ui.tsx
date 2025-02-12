@@ -54,7 +54,7 @@ export const View: React.FC<ViewProps> = (props) => {
   );
 
   return (
-    <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+    <div style={css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
       <div {...styles.title}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>

@@ -37,7 +37,7 @@ export default Spec.describe('Size/Empty', (e) => {
     renderButton('undefined', undefined);
     dev.hr();
     const bgr = { backgroundColor: 'rgba(255, 0, 0, 0.5)' };
-    const renderDiv = (style: t.CssValue) => <div {...css(style, bgr)} />;
+    const renderDiv = (style: t.CssValue) => <div style={css(style, bgr)} />;
     renderButton('<div> ← flat (height: 1px)', renderDiv({ width: 300, height: 1 }));
     renderButton('<div> ← narrow (width: 1px)', renderDiv({ width: 1, height: 300 }));
     renderButton('<div> content </div>', <div>{'👋 hello'}</div>);

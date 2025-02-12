@@ -22,7 +22,7 @@ export const HostLayers: React.FC<HostLayersProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       {layers.map((layer) => {
         return <HostLayer key={layer.index} instance={instance} layer={layer} />;
       })}

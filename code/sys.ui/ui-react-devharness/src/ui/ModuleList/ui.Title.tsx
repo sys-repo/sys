@@ -29,21 +29,21 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elBadge = badge && (
     <a href={badge?.href} target={'_blank'} rel={'noopener noreferrer'}>
-      <img {...styles.block} src={badge?.image} />
+      <img style={styles.block} src={badge?.image} />
     </a>
   );
 
   const elTitle = title && (
     <>
       <span>{title}</span>
-      {props.version && <span {...styles.version}>{`@${props.version}`}</span>}
+      {props.version && <span style={styles.version}>{`@${props.version}`}</span>}
     </>
   );
 
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.left}>{elTitle}</div>
-      <div {...styles.right}>{elBadge}</div>
+    <div style={css(styles.base, props.style)}>
+      <div style={styles.left}>{elTitle}</div>
+      <div style={styles.right}>{elBadge}</div>
     </div>
   );
 };

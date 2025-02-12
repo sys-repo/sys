@@ -15,5 +15,5 @@ export const Footer: React.FC<FooterProps> = (props) => {
   const styles = {
     base: css({ height: 80, color }),
   };
-  return <div {...css(styles.base, props.style)}></div>;
+  return <div style={css(styles.base, props.style)}></div>;
 };

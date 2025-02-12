@@ -23,5 +23,5 @@ export const HostLayer: React.FC<HostLayerProps> = (props) => {
     }),
   };
 
-  return <div {...css(styles.base, props.style)}>{element}</div>;
+  return <div style={css(styles.base, props.style)}>{element}</div>;
 };
