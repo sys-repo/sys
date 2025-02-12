@@ -10,7 +10,6 @@
   "devDependencies": {
     "@types/react": "",
     "@types/react-dom": "",
-    "@swc/plugin-emotion": "",
     "@vitejs/plugin-react-swc": "",
     "@emotion/react": "",
     "rollup": "",

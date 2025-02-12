@@ -44,7 +44,6 @@ groups:
       wildcard: true
 
   build/tools:
-    - import: npm:@swc/plugin-emotion@8.6.0
     - import: npm:@vitejs/plugin-react-swc@3
     - import: npm:rollup@4.34.4
     - import: npm:vite@6.1.0

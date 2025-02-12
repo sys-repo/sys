@@ -32,11 +32,11 @@ groups:
 
   automerge:
     # https://automerge.org
-    - import: npm:@automerge/automerge@2
-    - import: npm:@automerge/automerge-repo@1
-    - import: npm:@automerge/automerge-repo-network-broadcastchannel@1
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@1
-    - import: npm:@automerge/automerge-repo-storage-nodefs@1
+    - import: npm:@automerge/automerge@2.2.8
+    - import: npm:@automerge/automerge-repo@1.2.1
+    - import: npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@1.2.1
+    - import: npm:@automerge/automerge-repo-storage-nodefs@1.2.1
     - import: npm:@onsetsoftware/automerge-patcher@0.14.0
 
   crypto:
@@ -44,7 +44,6 @@ groups:
       wildcard: true
 
   build/tools:
-    - import: npm:@swc/plugin-emotion@8.6.0
     - import: npm:@vitejs/plugin-react-swc@3.8.0
     - import: npm:rollup@4.34.6
     - import: npm:vite@6.1.0
@@ -86,6 +85,7 @@ deno.json:
   - import: npm:ts-essentials@10.0.4
   - import: npm:yaml@2.7.0
   - import: npm:subhosting@0.1.0-alpha.1
+  - import: npm:hash-it@6.0.0
 
   # Browser
   - import: npm:csstype@3
@@ -109,10 +109,10 @@ package.json:
   - import: npm:@emotion/react@11.14.0
 
   # UI:React
-  - import: npm:@types/react@^19
-  - import: npm:@types/react-dom@^19
-  - import: npm:react@^19
-  - import: npm:react-dom@^19
+  - import: npm:@types/react@^18.0.0
+  - import: npm:@types/react-dom@^18.0.0
+  - import: npm:react@^18.0.0
+  - import: npm:react-dom@^18.0.0
   - import: npm:react-icons@5.4.0
 
   # UI:Frameworks
