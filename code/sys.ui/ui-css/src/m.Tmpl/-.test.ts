@@ -1,9 +1,9 @@
-import { describe, it, expect, type t, Testing } from '../-test.ts';
-import { Tmpl } from './m.Tmpl.ts';
+import { type t, describe, it, expect, Testing } from '../-test.ts';
+import { Tmpl } from './mod.ts';
 
 type N = string | number | null | undefined;
 
-describe('CSS Teamplates', () => {
+describe('Tmpl', () => {
   it('empty (from Falsy)', () => {
     Testing.FALSY.forEach((v) => expect(Tmpl.transform(v)).to.eql({}));
   });
@@ -14,7 +14,7 @@ describe('CSS Teamplates', () => {
   });
 
   describe('CSS Edges (top, right, bottom, left)', () => {
-    const assertEdges = (res: t.CSSObject, expected: [N, N, N, N]) => {
+    const assertEdges = (res: t.CssObject, expected: [N, N, N, N]) => {
       const [top, right, bottom, left] = expected;
       expect(res.top).to.eql(top);
       expect(res.right).to.eql(right);
@@ -65,7 +65,7 @@ describe('CSS Teamplates', () => {
     });
 
     describe('{ Absolute } → position: "absolute"', () => {
-      const assert = (res: t.CSSObject, expected: [N, N, N, N]) => {
+      const assert = (res: t.CssValue, expected: [N, N, N, N]) => {
         assertEdges(res, expected);
         expect(res.Absolute).to.eql(undefined);
         expect(res.position).to.eql('absolute');
@@ -93,7 +93,7 @@ describe('CSS Teamplates', () => {
     });
 
     describe('{ Margin, MarginX, MarginY }', () => {
-      const assert = (res: t.CSSObject, expected: [N, N, N, N]) => {
+      const assert = (res: t.CssObject, expected: [N, N, N, N]) => {
         const [top, right, bottom, left] = expected;
         expect(res.marginTop).to.eql(top);
         expect(res.marginRight).to.eql(right);
@@ -135,7 +135,7 @@ describe('CSS Teamplates', () => {
     });
 
     describe('{ Padding, PaddingX, PaddingY }', () => {
-      const assert = (res: t.CSSObject, expected: [N, N, N, N]) => {
+      const assert = (res: t.CssObject, expected: [N, N, N, N]) => {
         const [top, right, bottom, left] = expected;
         expect(res.paddingTop).to.eql(top);
         expect(res.paddingRight).to.eql(right);

@@ -11,7 +11,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
-    "./react": "./src/m.Style.react/mod.ts"
+    "./types": "./src/types.ts"
   }
 }

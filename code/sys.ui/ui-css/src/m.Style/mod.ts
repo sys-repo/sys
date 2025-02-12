@@ -7,6 +7,7 @@
  * import { Style, Color, Edges } from '@sys/ui-css';
  * ```
  */
+export { Edges } from '../m.Style.Edges/mod.ts';
 export { Color } from './common.ts';
-export { Edges } from './m.Edges.ts';
 export { Style } from './m.Style.ts';
+export { css } from './u.css.ts';

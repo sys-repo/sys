@@ -1,4 +1,8 @@
-import { Is, isObject, type t } from './common.ts';
+/**
+ * @module
+ */
+import { type t, Is, isObject } from './common.ts';
+import { formatSize } from './u.formatSize.ts';
 import { toEdges, WrangleEdge } from './u.toEdges.ts';
 
 export const Tmpl: t.StyleTmplLib = {
@@ -10,7 +14,7 @@ export const Tmpl: t.StyleTmplLib = {
    *
    * For example: { Absolute: 0 }
    */
-  transform(input?: t.CssValue): t.CSSObject {
+  transform(input?: t.CssValue): t.CssObject {
     if (Is.falsy(input) || !isObject(input)) return {};
 
     // Absolute → { position: 'absolute' ... }
@@ -30,38 +34,6 @@ export const Tmpl: t.StyleTmplLib = {
     if (input.Size !== undefined) formatSize('Size', input.Size, input);
 
     /** Finish up: no change */
-    return input as t.CSSObject;
+    return input as t.CssObject;
   },
-} as const;
-
-/**
- * Helpers
- */
-export function formatSize(key: string, input: unknown, target: t.CSSObject) {
-  type V = string | number | undefined;
-  const format = (input: any): V => {
-    if (!(typeof input === 'number' || typeof input === 'string')) return;
-    if (typeof input === 'string' && !input.trim()) return;
-    return input;
-  };
-  if (Array.isArray(input)) {
-    const width = format(input[0]);
-    const height = format(input[1]);
-    if (width !== undefined && height !== undefined) {
-      const styles = { width, height };
-      mergeAndReplace(key, styles, target);
-    }
-  } else {
-    const value = format(input);
-    if (value !== undefined) {
-      const styles = { width: value, height: value };
-      mergeAndReplace(key, styles, target);
-    }
-  }
-}
-
-function mergeAndReplace(key: string, value: unknown, target: t.CSSObject) {
-  Object.assign(target, value);
-  delete target[key as keyof t.CSSObject];
-  return target;
-}
+};

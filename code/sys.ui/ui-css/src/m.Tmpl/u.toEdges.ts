@@ -1,6 +1,6 @@
 import { Edges, Is, type t } from './common.ts';
 
-type K = keyof t.CSSObject;
+type K = keyof t.CssObject;
 type N = number | string | null;
 
 /**
@@ -13,17 +13,17 @@ type N = number | string | null;
 export function toEdges(
   input?: t.CssEdgesInput | t.Falsy,
   mutater?: t.CssEdgeMutater,
-): t.CSSObject {
+): t.CssObject {
   const done = (top?: N, right?: N, bottom?: N, left?: N) => {
-    const res: t.CSSObject = {};
-    const assign = (field: keyof t.CSSObject | null, value?: N) => {
+    const res: t.CssObject = {};
+    const assign = (field: keyof t.CssObject | null, value?: N) => {
       if (value == null || field == null) return;
-      res[field] = value;
+      (res as any)[field] = value;
     };
 
     if (typeof mutater === 'function') {
       const runMutation = (edge: keyof t.CssEdges, value?: N) => {
-        let field: keyof t.CSSObject | null = edge;
+        let field: keyof t.CssObject | null = edge;
         const payload: t.CssEdgeMutaterArgs = {
           current: { value, edge },
           changeField: (next) => (field = next),
@@ -67,27 +67,27 @@ export function toEdges(
  * Value wrangling helpers.
  */
 export const WrangleEdge = {
-  absolute(style: t.CssValue): t.CSSObject {
+  absolute(style: t.CssValue): t.CssObject {
     if (style.Absolute === undefined) return style;
     const props = toEdges(style.Absolute);
-    const res: t.CSSObject = { ...style, position: 'absolute', ...props };
-    delete res.Absolute;
+    const res: t.CssObject = { ...style, position: 'absolute', ...props };
+    delete (res as any).Absolute;
     return res;
   },
 
-  margin(style: t.CssValue): t.CSSObject {
+  margin(style: t.CssValue): t.CssObject {
     return mutateEdge(style, 'Margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft');
   },
-  marginX(style: t.CssValue): t.CSSObject {
+  marginX(style: t.CssValue): t.CssObject {
     const Margin = Edges.toArrayX(style.MarginX);
     return WrangleEdge.margin({ ...style, Margin, MarginX: undefined });
   },
-  marginY(style: t.CssValue): t.CSSObject {
+  marginY(style: t.CssValue): t.CssObject {
     const Margin = Edges.toArrayY(style.MarginY);
     return WrangleEdge.margin({ ...style, Margin, MarginY: undefined });
   },
 
-  padding(style: t.CssValue): t.CSSObject {
+  padding(style: t.CssValue): t.CssObject {
     return mutateEdge(
       style,
       'Padding',
@@ -97,11 +97,11 @@ export const WrangleEdge = {
       'paddingLeft',
     );
   },
-  paddingX(style: t.CssValue): t.CSSObject {
+  paddingX(style: t.CssValue): t.CssObject {
     const Padding = Edges.toArrayX(style.PaddingX);
     return WrangleEdge.padding({ ...style, Padding, PaddingX: undefined });
   },
-  paddingY(style: t.CssValue): t.CSSObject {
+  paddingY(style: t.CssValue): t.CssObject {
     const Padding = Edges.toArrayY(style.PaddingY);
     return WrangleEdge.padding({ ...style, Padding, PaddingY: undefined });
   },
@@ -121,7 +121,7 @@ function mutateEdge(
   rightKey: K | null,
   bottomKey: K | null,
   leftKey: K | null,
-): t.CSSObject {
+): t.CssObject {
   if (style[tmplKey] === undefined) return style;
   const props = toEdges(style[tmplKey], (e) => {
     const { edge } = e.current;
@@ -130,7 +130,7 @@ function mutateEdge(
     if (edge === 'bottom') e.changeField(bottomKey);
     if (edge === 'left') e.changeField(leftKey);
   });
-  const res: t.CSSObject = { ...style, ...props };
-  delete res[tmplKey];
+  const res: t.CssObject = { ...style, ...props };
+  delete (res as any)[tmplKey];
   return res;
 }

@@ -1,13 +1,7 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { Edges, Style } from './mod.ts';
+import { Edges } from './mod.ts';
 
 describe('Edges', () => {
-  it('API', () => {
-    expect(Style.Edges).to.equal(Edges);
-    expect(Style.toMargins).to.equal(Edges.toMargins);
-    expect(Style.toPadding).to.equal(Edges.toPadding);
-  });
-
   describe('toArray', () => {
     it('toArray', () => {
       const test = (input: any, expected: t.CssEdgesArray) => {
@@ -221,71 +215,71 @@ describe('Edges', () => {
     });
   });
 
-  //   describe('toMargins', () => {
-  //     it('none', () => {
-  //       expect(Style.toMargins()).to.eql({});
-  //       expect(Style.toMargins(null)).to.eql({});
-  //     });
-  //
-  //     it('all edges', () => {
-  //       expect(Style.toMargins(10)).to.eql({
-  //         marginTop: 10,
-  //         marginRight: 10,
-  //         marginBottom: 10,
-  //         marginLeft: 10,
-  //       });
-  //       expect(Style.toMargins([10, 20, 30, 40])).to.eql({
-  //         marginTop: 10,
-  //         marginRight: 20,
-  //         marginBottom: 30,
-  //         marginLeft: 40,
-  //       });
-  //     });
-  //
-  //     it('Y/X', () => {
-  //       const res = Style.toMargins([10, 20]);
-  //       expect(res).to.eql({ marginTop: 10, marginRight: 20, marginBottom: 10, marginLeft: 20 });
-  //     });
-  //
-  //     it('defaultValue', () => {
-  //       const expected = { marginTop: 10, marginRight: 10, marginBottom: 10, marginLeft: 10 };
-  //       expect(Style.toMargins(undefined, { defaultValue: 10 })).to.eql(expected);
-  //       expect(Style.toMargins([], { defaultValue: 10 })).to.eql(expected);
-  //       expect(Style.toMargins([null], { defaultValue: 10 })).to.eql(expected);
-  //     });
-  //   });
+  describe('toMargins', () => {
+    it('none', () => {
+      expect(Edges.toMargins()).to.eql({});
+      expect(Edges.toMargins(null)).to.eql({});
+    });
 
-  //   describe('toPadding', () => {
-  //     it('none', () => {
-  //       expect(Style.toPadding()).to.eql({});
-  //       expect(Style.toPadding(null)).to.eql({});
-  //     });
-  //
-  //     it('all edges', () => {
-  //       expect(Style.toPadding(10)).to.eql({
-  //         paddingTop: 10,
-  //         paddingRight: 10,
-  //         paddingBottom: 10,
-  //         paddingLeft: 10,
-  //       });
-  //       expect(Style.toPadding([10, 20, 30, 40])).to.eql({
-  //         paddingTop: 10,
-  //         paddingRight: 20,
-  //         paddingBottom: 30,
-  //         paddingLeft: 40,
-  //       });
-  //     });
-  //
-  //     it('Y/X', () => {
-  //       const res = Style.toPadding([10, 20]);
-  //       expect(res).to.eql({ paddingTop: 10, paddingRight: 20, paddingBottom: 10, paddingLeft: 20 });
-  //     });
-  //
-  //     it('defaultValue', () => {
-  //       const expected = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
-  //       expect(Style.toPadding(undefined, { defaultValue: 10 })).to.eql(expected);
-  //       expect(Style.toPadding([], { defaultValue: 10 })).to.eql(expected);
-  //       expect(Style.toPadding([null], { defaultValue: 10 })).to.eql(expected);
-  //     });
-  //   });
+    it('all edges', () => {
+      expect(Edges.toMargins(10)).to.eql({
+        marginTop: 10,
+        marginRight: 10,
+        marginBottom: 10,
+        marginLeft: 10,
+      });
+      expect(Edges.toMargins([10, 20, 30, 40])).to.eql({
+        marginTop: 10,
+        marginRight: 20,
+        marginBottom: 30,
+        marginLeft: 40,
+      });
+    });
+
+    it('Y/X', () => {
+      const res = Edges.toMargins([10, 20]);
+      expect(res).to.eql({ marginTop: 10, marginRight: 20, marginBottom: 10, marginLeft: 20 });
+    });
+
+    it('defaultValue', () => {
+      const expected = { marginTop: 10, marginRight: 10, marginBottom: 10, marginLeft: 10 };
+      expect(Edges.toMargins(undefined, { defaultValue: 10 })).to.eql(expected);
+      expect(Edges.toMargins([], { defaultValue: 10 })).to.eql(expected);
+      expect(Edges.toMargins([null], { defaultValue: 10 })).to.eql(expected);
+    });
+  });
+
+  describe('toPadding', () => {
+    it('none', () => {
+      expect(Edges.toPadding()).to.eql({});
+      expect(Edges.toPadding(null)).to.eql({});
+    });
+
+    it('all edges', () => {
+      expect(Edges.toPadding(10)).to.eql({
+        paddingTop: 10,
+        paddingRight: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+      });
+      expect(Edges.toPadding([10, 20, 30, 40])).to.eql({
+        paddingTop: 10,
+        paddingRight: 20,
+        paddingBottom: 30,
+        paddingLeft: 40,
+      });
+    });
+
+    it('Y/X', () => {
+      const res = Edges.toPadding([10, 20]);
+      expect(res).to.eql({ paddingTop: 10, paddingRight: 20, paddingBottom: 10, paddingLeft: 20 });
+    });
+
+    it('defaultValue', () => {
+      const expected = { paddingTop: 10, paddingRight: 10, paddingBottom: 10, paddingLeft: 10 };
+      expect(Edges.toPadding(undefined, { defaultValue: 10 })).to.eql(expected);
+      expect(Edges.toPadding([], { defaultValue: 10 })).to.eql(expected);
+      expect(Edges.toPadding([null], { defaultValue: 10 })).to.eql(expected);
+    });
+  });
 });

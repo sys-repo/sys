@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { toArray, toArrayX, toArrayY } from './m.Edges.toArray.ts';
-import { toEdges, toMargins, toPadding } from './m.Edges.toEdges.ts';
+import { toArray, toArrayX, toArrayY } from './u.toArray.ts';
+import { toEdges, toMargins, toPadding } from './u.toEdges.ts';
 
 export const Edges: t.CssEdgesLib = {
   toArray,

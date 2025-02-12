@@ -13,9 +13,8 @@
  * ```ts
  * import { css, Style, Color } from '@sys/ui-css/react';
  * ```
-
 */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
-export { Color, Edges, Style } from './m.Style/mod.ts';
+export { Color, css, Edges, Style } from './m.Style/mod.ts';
