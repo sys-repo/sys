@@ -32,7 +32,7 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
       color: 'blue',
     }),
     title: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: Color.RUBY,
       MarginY: 5,
       PaddingX: 10,
       PaddingY: [15, 30],
@@ -48,20 +48,15 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
     }),
   };
 
-
   const elThemeSample = (
-    <div style={styles.themeSample.style}>
+    <div style={styles.themeSample}>
       <div>Hello</div>
     </div>
   );
 
   return (
-    <div
-      style={css(styles.base, props.style).style}
-      onMouseEnter={over(true)}
-      onMouseLeave={over(false)}
-    >
-      <div style={styles.title.style}>
+    <div style={css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+      <div style={styles.title}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>
       </div>
