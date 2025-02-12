@@ -13,7 +13,7 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
    */
   const beforeCopy: t.TmplCopyHandler = async () => {
     await Fs.remove(templatesDir);
-    await Bundle.toFilesystem(templatesDir);
+    await Bundle.writeToFile(templatesDir);
   };
 
   /**
