@@ -65,6 +65,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/testing"
+        run: |
+          cd code/sys/testing
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/process"
         run: |
           cd code/sys/process
@@ -105,12 +111,6 @@ jobs:
         run: |
           cd code/sys/main
           deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/testing"
-        run: |
-          cd code/sys/testing
-          deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/ui-css"
