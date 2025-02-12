@@ -14,7 +14,7 @@ export const Tmpl: t.StyleTmplLib = {
    *
    * For example: { Absolute: 0 }
    */
-  transform(input?: t.CssValue): t.CssObject {
+  transform(input?: t.CssValue): t.CssProps {
     if (Is.falsy(input) || !isObject(input)) return {};
     let o = input as t.CssTemplates;
 
@@ -35,6 +35,6 @@ export const Tmpl: t.StyleTmplLib = {
     if (o.Size !== undefined) formatSize('Size', o.Size, o);
 
     /** Finish up: no change */
-    return o as t.CssObject;
+    return o as t.CssProps;
   },
 };

@@ -1,7 +1,15 @@
 import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 
-export type CssObject = CSSProperties;
+/**
+ * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
+ * For example:
+ *
+ *  - { fontSize: 32 }
+ *  - { fontSize: '32px' }
+ *
+ */
+export type CssProps = CSSProperties;
 
 /**
  * CSS styling tools.
@@ -21,7 +29,7 @@ export type StyleLib = {
 /**
  * Standard CSS properties with CSS-template extensions.
  */
-export type CssValue = t.CssObject & t.CssTemplates;
+export type CssValue = t.CssProps & t.CssTemplates;
 export type CssInput = t.CssValue | undefined | null | false | never | CssTransformed | CssInput[];
 
 /**
@@ -38,7 +46,7 @@ export type CssTransform = (...input: t.CssInput[]) => t.CssTransformed;
  *
  * NB: This is the raw transform containing the style along with cache metadata.
  */
-export type CssTransformToStyle = (...input: t.CssInput[]) => t.CssObject;
+export type CssTransformToStyle = (...input: t.CssInput[]) => t.CssProps;
 
 /**
  * A transformed CSS properties object.
@@ -47,7 +55,7 @@ export type CssTransformed = {
   /** The hash of the style (used for caching). */
   readonly hx: number;
   /** Style properties. */
-  readonly style: t.CssObject;
+  readonly style: t.CssProps;
 };
 
 /**

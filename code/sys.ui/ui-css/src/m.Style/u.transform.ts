@@ -10,7 +10,7 @@ export const transform: t.CssTransform = (...input) => {
   const hx = toHash(before);
   if (cache.has(hx)) return cache.get(hx)!;
 
-  const style: t.CssObject = {};
+  const style: t.CssProps = {};
   Object.entries(before).forEach(([key, value]) => ((style as any)[key] = value));
 
   const res: t.CssTransformed = { hx, style };
@@ -22,7 +22,7 @@ export const transform: t.CssTransform = (...input) => {
  * Helpers
  */
 const wrangle = {
-  input(input: any): t.CssObject {
+  input(input: any): t.CssProps {
     if (Array.isArray(input)) {
       return input.reduce((acc, next) => ({ ...acc, ...wrangle.input(next) }), {} as O);
     } else {

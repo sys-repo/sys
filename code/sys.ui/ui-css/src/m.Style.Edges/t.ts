@@ -18,7 +18,7 @@ export type CssEdgeMutater = (e: CssEdgeMutaterArgs) => void;
 export type CssEdgeMutaterArgs = {
   readonly current: { readonly value?: N; readonly edge: keyof t.CssEdges };
   changeValue(next: N): void;
-  changeField(next: keyof t.CssObject | null): void;
+  changeField(next: keyof t.CssProps | null): void;
 };
 
 /**

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export function formatSize(key: string, input: unknown, target: t.CssObject) {
+export function formatSize(key: string, input: unknown, target: t.CssProps) {
   type V = string | number | undefined;
   const format = (input: any): V => {
     if (!(typeof input === 'number' || typeof input === 'string')) return;
@@ -23,8 +23,8 @@ export function formatSize(key: string, input: unknown, target: t.CssObject) {
   }
 }
 
-function mergeAndReplace(key: string, value: unknown, target: t.CssObject) {
+function mergeAndReplace(key: string, value: unknown, target: t.CssProps) {
   Object.assign(target, value);
-  delete target[key as keyof t.CssObject];
+  delete target[key as keyof t.CssProps];
   return target;
 }

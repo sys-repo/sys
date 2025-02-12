@@ -10,7 +10,7 @@ export type StyleTmplLib = {
    *
    * For example: { Absolute: 0 }
    */
-  transform(input?: t.CssValue | t.Falsy): t.CssObject;
+  transform(input?: t.CssValue | t.Falsy): t.CssProps;
 
   /**
    * Convert a sloppy input into an {edges} property object
@@ -19,7 +19,7 @@ export type StyleTmplLib = {
    *  - 4-part array (eg. [10, null, 0, 5])
    *  - Y/X array    (eg. [20, 5])
    */
-  toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CssObject;
+  toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CssProps;
 };
 
 /**

@@ -78,7 +78,7 @@ describe('Style.css', () => {
     });
 
     it('deep merge ← {style} object', () => {
-      const assert = (res: t.CssObject) => {
+      const assert = (res: t.CssProps) => {
         expect(res).to.include({ color: 'red' });
         expect(res).to.include({ background: 'blue' });
       };
