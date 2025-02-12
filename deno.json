@@ -12,7 +12,7 @@
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
 
-    "prep": "deno run -RWE --allow-ffi ./scripts/main.ts --prep",
+    "prep": "deno run -RWE --allow-ffi --allow-run ./scripts/main.ts --prep",
     "bump": "deno run -RWE --allow-sys --allow-ffi ./scripts/main.ts --bump",
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
