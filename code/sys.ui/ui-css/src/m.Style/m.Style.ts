@@ -1,6 +1,6 @@
 import { type t, Color } from './common.ts';
 
-import { Edges } from '../m.Style.Edges/mod.ts';
+import { Edges } from '../m.Edges/mod.ts';
 import { css, transform } from './u.transform.ts';
 import { toShadow } from './u.ts';
 
