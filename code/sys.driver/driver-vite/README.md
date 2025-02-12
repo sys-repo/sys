@@ -35,7 +35,8 @@ deno run -A jsr:@sys/driver-vite/init
 
 ### Runtime ← Bundler
 
-![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/a720851d-97c8-4feb-439c-6e4a41be6b00/original)
+![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/f76ef3f2-f4f3-40bf-9301-517e21fe5a0d)
+
 
 
 ### Usage (Command Line)
