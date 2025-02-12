@@ -1,6 +1,6 @@
 import { Color, describe, expect, it } from '../-test.ts';
 import { Edges, Style } from './mod.ts';
-import { css } from './u.css.ts';
+import { css } from './u.transform.ts';
 
 describe('Style', () => {
   it('API', () => {

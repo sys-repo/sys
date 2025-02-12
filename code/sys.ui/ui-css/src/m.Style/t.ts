@@ -11,7 +11,7 @@ export type StyleLib = {
   readonly Color: t.ColorLib;
   readonly Edges: t.CssEdgesLib;
 
-  readonly css: t.CssTransformer;
+  readonly css: t.CssTransform;
   readonly toMargins: t.CssEdgesLib['toMargins'];
   readonly toPadding: t.CssEdgesLib['toPadding'];
   readonly toShadow: CssToShadow;
@@ -25,18 +25,20 @@ export type CssInput = t.CssValue | undefined | null | false | never | CssTransf
 
 /**
  * Function that transforms 1..n CSS inputs into a style
- * object that can be applied to a React element.
+ * object that can be applied to a JSX element.
+ *
+ * NB: This is the raw transform containing the style along with cache metadata.
  */
-export type CssTransformer = (...input: t.CssInput[]) => t.CssTransformed;
+export type CssTransform = (...input: t.CssInput[]) => t.CssTransformed;
 
 /**
  * A transformed CSS properties object.
  */
 export type CssTransformed = {
-  /** The hash of the style. */
+  /** The hash of the style (used for caching). */
   readonly hx: number;
   /** Style properties. */
-  readonly style: t.CssObject;
+  readonly s: t.CssObject;
 };
 
 /**
