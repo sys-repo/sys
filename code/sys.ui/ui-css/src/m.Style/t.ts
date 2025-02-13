@@ -31,6 +31,9 @@ export type StyleLib = {
   readonly toPadding: t.CssEdgesLib['toPadding'];
   /** Transform shadding settings. */
   readonly toShadow: CssToShadow;
+
+  /** Convert a {style} props object to a CSS string. */
+  toString(style: t.CssProps): string;
 };
 
 /**
@@ -61,8 +64,12 @@ export type CssTransformToStyle = (...input: t.CssInput[]) => t.CssProps;
 export type CssTransformed = {
   /** The hash of the style (used for caching). */
   readonly hx: number;
+
   /** Style properties. */
   readonly style: t.CssProps;
+
+  /** Convert the {style} props object to a CSS string. */
+  toString(): string;
 };
 
 /**
@@ -75,4 +82,19 @@ export type CssShadow = {
   x?: number;
   y?: number;
   inner?: boolean;
+};
+
+/**
+ * A <style> DOM element used to store and manage CSS-classes
+ * generated from CssProps
+ */
+export type ClassStyle = {
+  /** The root prefix applied to generated class-names. */
+  readonly prefix: string;
+
+  /** List of CSS class-names that have been inserted into the DOM.  */
+  readonly classes: Readonly<string[]>;
+
+  /** Generates and inserts a CSS class-name for the given style(s). */
+  insert(style: t.CssProps, hx?: number): string;
 };

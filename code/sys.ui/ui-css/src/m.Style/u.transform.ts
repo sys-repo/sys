@@ -1,5 +1,6 @@
 import { type t, toHash } from './common.ts';
 import { isTransformed } from './u.is.ts';
+import { toString } from './u.toString.ts';
 
 type O = Record<string, unknown>;
 const cache = new Map<number, t.CssTransformed>();
@@ -20,7 +21,7 @@ export const transform: t.CssTransform = (...input) => {
   const style: t.CssProps = {};
   Object.entries(before).forEach(([key, value]) => ((style as any)[key] = value));
 
-  const res: t.CssTransformed = { hx, style };
+  const res: t.CssTransformed = { hx, style, toString: () => toString(style) };
   cache.set(hx, res);
   return res;
 };

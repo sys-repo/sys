@@ -46,6 +46,17 @@ describe('Style.css', () => {
     });
   });
 
+  describe('toString', () => {
+    it('empty', () => {
+      expect(transform({}).toString()).to.eql('');
+    });
+
+    it('simple', () => {
+      const a = transform({ fontSize: 30, fontFamily: 'sans-serif' });
+      expect(a.toString()).to.eql('font-size: 30px; font-family: sans-serif;');
+    });
+  });
+
   describe('merging', () => {
     it('basic merge', () => {
       const a = transform({ color: 'red' });
