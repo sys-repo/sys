@@ -7,10 +7,7 @@ import '@vidstack/react/player/styles/plyr/theme.css';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
-/**
- * TODO 🐷 - add workspace/plugin refs for VitePress → see: @sys/driver-vite
- */
-// import { Foo } from '@sys/tmp/ui';
+import { Foo } from '@sys/tmp/ui';
 import '@sys/tmp/sample-imports';
 
 export type VideoProps = {
@@ -34,7 +31,11 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   //   </MediaPlayer>
   // );
 
-  const elFoo = <div>{/* import: <Foo /> */}</div>;
+  const elFoo = (
+    <div>
+      import: <Foo />
+    </div>
+  );
 
   // TEMP 🐷
   return (

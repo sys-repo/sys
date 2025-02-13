@@ -23,6 +23,7 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
   const over = (isOver: boolean) => () => setOver(isOver);
 
   const theme = Color.theme(props.theme ?? 'Dark');
+
   const styles = {
     base: css({
       Margin: 20,
@@ -33,9 +34,10 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
     }),
     title: css({
       backgroundColor: Color.RUBY,
+      fontSize: 30,
       MarginY: 5,
-      PaddingX: 10,
-      PaddingY: [15, 30],
+      PaddingX: 30,
+      PaddingY: [30, 15],
     }),
     themeSample: css({
       marginTop: 20,
@@ -49,17 +51,21 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
   };
 
   const elThemeSample = (
-    <div style={styles.themeSample}>
+    <div className={styles.themeSample.class}>
       <div>Hello</div>
     </div>
   );
 
   return (
-    <div style={css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
-      <div style={styles.title}>
+    <div
+      className={css(styles.base, props.style).class}
+      onMouseEnter={over(true)}
+      onMouseLeave={over(false)}
+    >
+      <div className={styles.title.class}>
         <div>{`Hello World 👋`}</div>
-        <div>{`(see console for import samples)`}</div>
       </div>
+      <div>{`(see console for import samples)`}</div>
       <div style={{ paddingTop: 10 }}>
         {'Imported from ← '}
         <Foo />
