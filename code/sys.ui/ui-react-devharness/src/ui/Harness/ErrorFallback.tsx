@@ -27,15 +27,15 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = (props) => {
   };
 
   const elError = (
-    <pre style={styles.pre}>
+    <pre className={styles.pre.class}>
       <div>{error?.message}</div>
       <div>{error?.stack}</div>
     </pre>
   );
 
   return (
-    <div style={css(styles.base, props.style)}>
-      <div style={styles.body}>{elError}</div>
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class}>{elError}</div>
     </div>
   );
 };

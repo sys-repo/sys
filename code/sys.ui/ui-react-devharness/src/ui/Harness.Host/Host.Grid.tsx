@@ -60,22 +60,24 @@ export const HostGrid: React.FC<HostGridProps> = (props) => {
 
   return (
     <div
-      style={css(
-        styles.base,
-        sizeMode === 'center' ? grid.center : undefined,
-        sizeMode === 'fill' ? grid.fill : undefined,
-        props.style,
-      )}
+      className={
+        css(
+          styles.base,
+          sizeMode === 'center' ? grid.center : undefined,
+          sizeMode === 'fill' ? grid.fill : undefined,
+          props.style,
+        ).class
+      }
     >
-      <div style={styles.block} />
-      <div style={css(styles.block, { borderLeft, borderRight })} />
-      <div style={css(styles.block)} />
-      <div style={css(styles.block, { borderTop, borderBottom })} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderLeft, borderRight }).class} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderTop, borderBottom }).class} />
       {props.children}
-      <div style={css(styles.block, { borderTop, borderBottom })} />
-      <div style={css(styles.block)} />
-      <div style={css(styles.block, { borderLeft, borderRight })} />
-      <div style={css(styles.block)} />
+      <div className={css(styles.block, { borderTop, borderBottom }).class} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderLeft, borderRight }).class} />
+      <div className={styles.block.class} />
     </div>
   );
 };

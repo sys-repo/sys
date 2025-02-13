@@ -68,8 +68,8 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   };
 
   const elList = (
-    <div style={styles.list.outer}>
-      <div style={styles.list.inner}>
+    <div className={styles.list.outer.class}>
+      <div className={styles.list.inner.class}>
         <List
           url={url}
           imports={imports}
@@ -89,7 +89,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   );
 
   const elBody = (
-    <div style={styles.body}>
+    <div className={styles.body.class}>
       <Title
         enabled={enabled}
         title={props.title}
@@ -104,7 +104,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   );
 
   return (
-    <div ref={baseRef} style={css(styles.base, props.style)}>
+    <div ref={baseRef} className={css(styles.base, props.style).class}>
       {elBody}
     </div>
   );

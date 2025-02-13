@@ -34,7 +34,7 @@ export const BarSpinner: React.FC<BarSpinnerProps> = (props) => {
   if (!BarLoader) return null;
 
   return (
-    <div style={css(styles.base, props.style)}>
+    <div className={css(styles.base, props.style).class}>
       <BarLoader color={COLORS.DARK} width={width} />
     </div>
   );

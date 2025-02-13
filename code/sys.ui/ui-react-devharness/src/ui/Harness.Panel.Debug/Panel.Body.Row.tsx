@@ -16,5 +16,5 @@ export const DebugPanelBodyRow: React.FC<DebugPanelBodyRow> = (props) => {
     }),
   };
 
-  return <div style={styles.base}>{element}</div>;
+  return <div className={styles.base.class}>{element}</div>;
 };

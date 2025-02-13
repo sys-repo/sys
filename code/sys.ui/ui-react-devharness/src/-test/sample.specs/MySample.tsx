@@ -55,16 +55,16 @@ export const MySample: React.FC<MySampleProps> = (props) => {
   };
 
   _count++;
-  const elRender = <div style={styles.render}>{`render-${_count}`}</div>;
+  const elRender = <div className={styles.render.class}>{`render-${_count}`}</div>;
 
   return (
-    <div style={css(styles.base, props.style)} onClick={props.onClick}>
-      <div style={styles.body}>
+    <div className={css(styles.base, props.style).class} onClick={props.onClick}>
+      <div className={styles.body.class}>
         <div>🐷 {props.text ?? 'MySample'}</div>
-        <div style={styles.data}>
+        <div className={styles.data.class}>
           <pre>state: {props.data ? JSON.stringify(props.data, null, '  ') : 'undefined'} </pre>
         </div>
-        <a href={'?dev'} style={styles.link}>
+        <a href={'?dev'} className={styles.link.class}>
           ?dev
         </a>
         {elRender}

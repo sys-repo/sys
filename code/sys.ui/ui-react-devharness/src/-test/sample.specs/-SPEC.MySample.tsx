@@ -39,8 +39,8 @@ export default Spec.describe('MySample', (e) => {
       above: css({ padding: 20 }),
       below: css({ Absolute: [null, 20, 20, null] }),
     };
-    ctx.host.layer(1).render(() => <div style={styles.above}>Layer Above</div>);
-    ctx.host.layer(-1).render(() => <div style={styles.below}>Layer Below</div>);
+    ctx.host.layer(1).render(() => <div className={styles.above.class}>Layer Above</div>);
+    ctx.host.layer(-1).render(() => <div className={styles.below.class}>Layer Below</div>);
 
     ctx.subject
       .size([300, 200])
@@ -211,8 +211,8 @@ const ComponentSample = (props: P = {}) => {
     }),
   };
   return (
-    <div style={styles.base}>
-      <div style={styles.inner} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+    <div className={styles.base.class}>
+      <div className={styles.inner.class} onMouseEnter={over(true)} onMouseLeave={over(false)}>
         {title}
         {isOver ? ' - over' : ''}
       </div>

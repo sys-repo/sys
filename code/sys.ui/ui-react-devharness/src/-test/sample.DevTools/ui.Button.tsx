@@ -59,14 +59,14 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
 
   return (
     <div
-      style={css(styles.base, props.style)}
+      className={css(styles.base, props.style).class}
       {...mouse.handlers}
       onClick={() => props.onClick?.({ ctx })}
     >
-      <div style={styles.icon.base}>
-        <div style={styles.icon.image} />
+      <div className={styles.icon.base.class}>
+        <div className={styles.icon.image.class} />
       </div>
-      <div style={styles.body}>{props.label || 'Unnamed'}</div>
+      <div className={styles.body.class}>{props.label || 'Unnamed'}</div>
       <RenderCount />
     </div>
   );

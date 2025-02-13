@@ -83,16 +83,16 @@ export const List: React.FC<ListProps> = (props) => {
   };
 
   const elEmpty = importsKeys.length === 0 && (
-    <div style={styles.empty}>{'Nothing to display.'}</div>
+    <div className={styles.empty.class}>{'Nothing to display.'}</div>
   );
   const elList = importsKeys.map((key, i) => item(i, key, { Icon: VscSymbolClass, ns: true }));
 
   return (
-    <ul style={css(styles.base, props.style)}>
+    <ul className={css(styles.base, props.style).class}>
       {elEmpty}
       {elList}
 
-      {showParamDev && <hr style={styles.hrDashed} />}
+      {showParamDev && <hr className={styles.hrDashed.class} />}
       {showParamDev && hasDevParam && item(-1, undefined, { title: '?dev - remove param' })}
       {showParamDev && !hasDevParam && item(-1, 'true', { title: '?dev - add param' })}
     </ul>

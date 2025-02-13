@@ -36,10 +36,14 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
   };
 
   const elBody = element && (
-    <div ref={props.subjectRef} style={styles.body} data-component={'dev.harness:ComponentHost'}>
+    <div
+      ref={props.subjectRef}
+      className={styles.body.class}
+      data-component={'dev.harness:ComponentHost'}
+    >
       {element}
     </div>
   );
 
-  return <div style={css(styles.base, props.style)}>{elBody}</div>;
+  return <div className={css(styles.base, props.style).class}>{elBody}</div>;
 };

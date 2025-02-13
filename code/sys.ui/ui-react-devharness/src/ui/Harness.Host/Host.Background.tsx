@@ -30,8 +30,8 @@ export const HostBackground: React.FC<DevHostBackgroundProps> = (props) => {
     }),
   };
   return (
-    <div style={css(styles.base, props.style)}>
-      <div style={styles.body} />
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class} />
     </div>
   );
 };
