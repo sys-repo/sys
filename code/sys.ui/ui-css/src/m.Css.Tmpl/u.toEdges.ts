@@ -1,4 +1,4 @@
-import { CssEdges, Is, type t } from './common.ts';
+import { type t, Delete, CssEdges, Is } from './common.ts';
 
 type K = keyof t.CssProps;
 type N = number | string | null;
@@ -128,6 +128,6 @@ function mutateEdge(
     if (edge === 'left') e.changeField(leftKey);
   });
   const res: t.CssProps = { ...style, ...props };
-  delete (res as any)[tmplKey];
-  return res;
+  delete res[tmplKey];
+  return Delete.undefined(res);
 }

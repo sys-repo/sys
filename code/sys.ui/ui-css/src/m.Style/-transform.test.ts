@@ -13,17 +13,10 @@ describe(
 
     it('API', () => {
       expect(Style.transform).to.equal(transform);
-      expect(Style.css).to.equal(css);
+      expect(css).to.equal(transform);
     });
 
     describe('css → { styles }', () => {
-      it('css: style ← css().style', () => {
-        const style = { fontSize: 30 };
-        const a = transform(style);
-        const b = css(style);
-        expect(b).to.eql(a.style);
-      });
-
       it('empty', () => {
         const a = transform();
         const b = transform([]);
@@ -75,9 +68,9 @@ describe(
 
     describe('css → "class-name" (inserted into DOM)', () => {
       it('simple', () => {
-        const style = { fontSize: 30 };
+        const style = { fontSize: 22 };
         const a = transform(style);
-        const className = `css-${a.hx}`;
+        const className = `sys-${a.hx}`;
         expect(findCssRule(className)).to.eql(undefined);
 
         expect(a.class).to.eql(className);
@@ -117,39 +110,36 @@ describe(
         const styles = { base: transform({ background: 'blue' }) };
 
         assert(transform(styles.base, props.style));
-        assert(transform(styles.base, transform(props.style)));
+        assert(transform(styles.base, css(props.style)));
         assert(transform(transform(styles.base), transform(transform(props.style))));
-        assert(transform([transform(styles.base), transform(transform(props.style))]));
+        assert(transform([css(styles.base), transform(transform(props.style))]));
         assert(
           transform(
-            transform([transform(styles.base), transform(transform(props.style))]),
-            transform([
-              transform(styles.base),
-              [transform(transform([transform([[props.style]])]))],
-            ]),
+            transform([transform(styles.base), css(transform(props.style))]),
+            transform([transform(styles.base), [transform(transform([css([[props.style]])]))]]),
           ),
         );
       });
 
       it('deep merge ← {style} object', () => {
-        const assert = (res: t.CssProps) => {
-          expect(res).to.include({ color: 'red' });
-          expect(res).to.include({ background: 'blue' });
+        const assert = (res: t.CssTransformed) => {
+          expect(res.style).to.include({ color: 'red' });
+          expect(res.style).to.include({ background: 'blue' });
         };
 
         const props = { style: { color: 'red' } };
         const styles = { base: transform({ background: 'blue' }) };
 
-        assert(css(styles.base, props.style));
-        assert(css(styles.base, transform(props.style)));
-        assert(css(transform(styles.base), css(transform(props.style))));
-        assert(css([transform(styles.base), transform(transform(props.style))]));
+        assert(transform(styles.base, props.style));
+        assert(transform(styles.base, transform(props.style)));
+        assert(transform(transform(styles.base), transform(transform(props.style))));
+        assert(transform([transform(styles.base), transform(transform(props.style))]));
         assert(
-          css(
-            transform([transform(styles.base), Style.transform(css(props.style))]),
+          transform(
+            transform([transform(styles.base), Style.transform(transform(props.style))]),
             transform([
               transform(styles.base),
-              [Style.css(transform([transform([[props.style]])]))],
+              [Style.transform(transform([transform([[props.style]])]))],
             ]),
           ),
         );

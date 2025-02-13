@@ -7,11 +7,6 @@ const cache = new Map<number, t.CssTransformed>();
 let _dom: t.CssDom | undefined;
 
 /**
- * Transform a lose set of CSS inputs into a CSS class-name.
- */
-export const css: t.CssTransformToStyle = (...input) => transform(...input).style;
-
-/**
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 export const transform: t.CssTransform = (...input) => {
@@ -21,7 +16,9 @@ export const transform: t.CssTransform = (...input) => {
 
   const api: t.CssTransformed = {
     hx,
-    style,
+    get style() {
+      return style;
+    },
     get class() {
       const dom = _dom || (_dom = CssDom.create());
       return dom.class(style, hx);

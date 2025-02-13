@@ -11,13 +11,17 @@ import type { t } from './common.ts';
 export type CssProps = CSSProperties;
 
 /**
+ * A CSS class-name.
+ * (no period, eg "foo" not ".foo")
+ */
+export type CssClassname = string;
+
+/**
  * CSS styling tools.
  */
 export type StyleLib = NamespaceLibs & {
   /** Perform a cacheable transformation on a loose set of CSS inputs. */
   readonly transform: t.CssTransform;
-  /** Transform a lose set of CSS inputs into a CSS class-name. */
-  readonly css: t.CssTransformToStyle;
 
   /** Transform margin spacing. */
   readonly toMargins: t.CssEdgesLib['toMargins'];
@@ -59,14 +63,6 @@ export type CssInput = t.CssValue | undefined | null | false | never | CssTransf
 export type CssTransform = (...input: t.CssInput[]) => t.CssTransformed;
 
 /**
- * Function that transforms 1..n CSS inputs into a style
- * object that can be applied to a JSX element.
- *
- * NB: This is the raw transform containing the style along with cache metadata.
- */
-export type CssTransformToStyle = (...input: t.CssInput[]) => t.CssProps;
-
-/**
  * A transformed CSS properties object.
  */
 export type CssTransformed = {
@@ -77,7 +73,7 @@ export type CssTransformed = {
   readonly style: t.CssProps;
 
   /** The CSS class-name. */
-  readonly class: string;
+  readonly class: t.CssClassname;
 
   /** Convert the {style} props object to a CSS string. */
   toString(): string;

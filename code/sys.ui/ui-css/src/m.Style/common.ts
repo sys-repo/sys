@@ -7,7 +7,6 @@ export { CssEdges } from '../m.Css.Edges/mod.ts';
 export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 
 export const DEFAULTS = {
-  prefix: 'css',
   get pixelProps() {
     return pixelProps;
   },

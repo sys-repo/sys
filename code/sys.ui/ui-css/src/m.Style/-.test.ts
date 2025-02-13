@@ -11,7 +11,7 @@ describe('Style', () => {
     expect(Style.Dom).to.equal(CssDom);
     expect(Style.Tmpl).to.eql(CssTmpl);
 
-    expect(Style.css).to.equal(css);
+    expect(Style.transform).to.equal(css);
     expect(Style.transform).to.equal(transform);
 
     expect(Style.Edges).to.equal(CssEdges);

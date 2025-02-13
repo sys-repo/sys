@@ -92,6 +92,46 @@ describe('CssTmpl: template transforms', () => {
       });
     });
 
+    describe('cleaning template input', () => {
+      const assertNoKey = (key: keyof t.CssTemplates, subject: t.CssValue) => {
+        const exists = Object.keys(subject).includes(String(key));
+        expect(exists).to.eql(false, key);
+      };
+
+      it('single property transform', () => {
+        const transform = CssTmpl.transform;
+        assertNoKey('Absolute', transform({ Absolute: 10 }));
+        assertNoKey('Margin', transform({ Margin: 10 }));
+        assertNoKey('MarginX', transform({ MarginX: [5] }));
+        assertNoKey('MarginY', transform({ MarginY: [1, 2, 3, 4] }));
+        assertNoKey('Padding', transform({ Padding: 10 }));
+        assertNoKey('PaddingX', transform({ PaddingX: [0] }));
+        assertNoKey('PaddingY', transform({ PaddingY: 4 }));
+        assertNoKey('Size', transform({ Size: [20, 30] }));
+      });
+
+      it('multi-property {object} transform', () => {
+        const o = CssTmpl.transform({
+          Absolute: 10,
+          Margin: 9,
+          MarginX: [5],
+          MarginY: [1, 2, 3, 4],
+          Padding: 10,
+          PaddingX: [0],
+          PaddingY: 4,
+          Size: [20, 30],
+        });
+        assertNoKey('Absolute', o);
+        assertNoKey('Margin', o);
+        assertNoKey('MarginX', o);
+        assertNoKey('MarginY', o);
+        assertNoKey('Padding', o);
+        assertNoKey('PaddingX', o);
+        assertNoKey('PaddingY', o);
+        assertNoKey('Size', o);
+      });
+    });
+
     describe('{ Margin, MarginX, MarginY }', () => {
       const assert = (res: t.CssProps, expected: [N, N, N, N]) => {
         const [top, right, bottom, left] = expected;

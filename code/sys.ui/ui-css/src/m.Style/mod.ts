@@ -7,5 +7,8 @@
  * import { Style, Color, Edges } from '@sys/ui-css';
  * ```
  */
+import { transform } from './u.transform.ts';
+
 export { Style } from './m.Style.ts';
-export { css, transform } from './u.transform.ts';
+export { transform };
+export const css = transform;
