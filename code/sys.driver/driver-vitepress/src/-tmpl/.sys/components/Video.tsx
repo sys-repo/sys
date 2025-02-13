@@ -18,14 +18,6 @@ export type VideoProps = {
  */
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
-
-  const elFoo = (
-    <div>
-      import: <Foo />
-    </div>
-  );
-
-  // TEMP 🐷
   return (
     <div>
       <Foo />
