@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { Fs } from '../m.Fs/mod.ts';
 import { Path } from '../m.Path/mod.ts';
 import { Sample } from './-u.ts';
@@ -79,7 +79,7 @@ describe('FileMap', () => {
         const sample = Sample.init();
         const bundle = await FileMap.bundle(dir);
 
-        bundle['.gitignore'] = 'xx💀xx'; // NB: simulate a corruption to the file content.
+        bundle['.gitignore'] = 'xx💀xx'; // NB: simulate a corruption to the file-content.
 
         const res = await FileMap.write(sample.target, bundle);
         expect(res.error?.message).to.include('Failed while writing FileMap');
