@@ -18,5 +18,4 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 export { Color } from './common.ts';
-export { Edges } from './m.Edges/mod.ts';
 export { css, Style } from './m.Style/mod.ts';

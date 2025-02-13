@@ -22,7 +22,7 @@ export type CssEdgeMutaterArgs = {
 };
 
 /**
- * Edge value formatter.
+ * Edge value formatting tools.
  */
 export type CssEdgesLib = {
   /** Convert sloppy inputs into a clean edges array. */

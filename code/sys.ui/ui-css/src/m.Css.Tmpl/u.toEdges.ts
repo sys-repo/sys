@@ -1,4 +1,4 @@
-import { Edges, Is, type t } from './common.ts';
+import { CssEdges, Is, type t } from './common.ts';
 
 type K = keyof t.CssProps;
 type N = number | string | null;
@@ -42,7 +42,7 @@ export function toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMu
     return res;
   };
   const fromArray = (input: t.CssEdgesArray) => {
-    const [top, right, bottom, left] = Edges.toArray(input);
+    const [top, right, bottom, left] = CssEdges.toArray(input);
     return done(top, right, bottom, left);
   };
 
@@ -55,7 +55,7 @@ export function toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMu
     return done(input, input, input, input);
   }
   if (Array.isArray(input)) {
-    return fromArray(Edges.toArray(input));
+    return fromArray(CssEdges.toArray(input));
   }
   return {};
 }
@@ -76,11 +76,11 @@ export const WrangleEdge = {
     return mutateEdge(style, 'Margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft');
   },
   marginX(style: t.CssValue): t.CssProps {
-    const Margin = Edges.toArrayX(style.MarginX);
+    const Margin = CssEdges.toArrayX(style.MarginX);
     return WrangleEdge.margin({ ...style, Margin, MarginX: undefined });
   },
   marginY(style: t.CssValue): t.CssProps {
-    const Margin = Edges.toArrayY(style.MarginY);
+    const Margin = CssEdges.toArrayY(style.MarginY);
     return WrangleEdge.margin({ ...style, Margin, MarginY: undefined });
   },
 
@@ -95,11 +95,11 @@ export const WrangleEdge = {
     );
   },
   paddingX(style: t.CssValue): t.CssProps {
-    const Padding = Edges.toArrayX(style.PaddingX);
+    const Padding = CssEdges.toArrayX(style.PaddingX);
     return WrangleEdge.padding({ ...style, Padding, PaddingX: undefined });
   },
   paddingY(style: t.CssValue): t.CssProps {
-    const Padding = Edges.toArrayY(style.PaddingY);
+    const Padding = CssEdges.toArrayY(style.PaddingY);
     return WrangleEdge.padding({ ...style, Padding, PaddingY: undefined });
   },
 } as const;

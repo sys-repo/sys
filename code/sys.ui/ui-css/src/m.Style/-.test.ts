@@ -1,13 +1,13 @@
 import { describe, expect, it } from '../-test.ts';
-import { Color, Edges, Style, css } from '../mod.ts';
+import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
+import { CssEdges } from '../m.Edges/mod.ts';
+import { Color, Style, css } from '../mod.ts';
 import { DEFAULTS, Str } from './common.ts';
 import { CssDom } from './m.CssDom.ts';
 import { transform } from './u.transform.ts';
-import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 
 describe('Style', () => {
   it('API', () => {
-    expect(Style.Edges).to.equal(Edges);
     expect(Style.Color).to.equal(Color);
     expect(Style.Dom).to.equal(CssDom);
     expect(Style.Tmpl).to.eql(CssTmpl);
@@ -15,8 +15,9 @@ describe('Style', () => {
     expect(Style.css).to.equal(css);
     expect(Style.transform).to.equal(transform);
 
-    expect(Style.toMargins).to.equal(Edges.toMargins);
-    expect(Style.toPadding).to.equal(Edges.toPadding);
+    expect(Style.Edges).to.equal(CssEdges);
+    expect(Style.toMargins).to.equal(CssEdges.toMargins);
+    expect(Style.toPadding).to.equal(CssEdges.toPadding);
   });
 
   describe('Style.toString', () => {

@@ -1,7 +1,7 @@
 import { type t, Color } from './common.ts';
 
 import { CssTmpl as Tmpl } from '../m.Css.Tmpl/mod.ts';
-import { Edges } from '../m.Edges/mod.ts';
+import { CssEdges as Edges } from '../m.Edges/mod.ts';
 
 import { CssDom as Dom } from './m.CssDom.ts';
 import { toString } from './u.toString.ts';

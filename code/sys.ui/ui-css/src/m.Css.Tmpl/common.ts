@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { Edges } from '../m.Edges/mod.ts';
+export { CssEdges } from '../m.Edges/mod.ts';
