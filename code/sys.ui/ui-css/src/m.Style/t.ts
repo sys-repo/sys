@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 
+export type * from './t.CssDom.ts';
+
 /**
  * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
  * For example:
@@ -18,6 +20,8 @@ export type StyleLib = {
   readonly Color: t.ColorLib;
   /** Tools for working with edges. */
   readonly Edges: t.CssEdgesLib;
+  /** Tools for programatically managing CSS stylesheets within the browser DOM. */
+  readonly Dom: t.CssDomLib;
 
   /** Perform a cacheable transformation on a loose set of CSS inputs. */
   readonly transform: t.CssTransform;
@@ -68,6 +72,9 @@ export type CssTransformed = {
   /** Style properties. */
   readonly style: t.CssProps;
 
+  /** The CSS class-name. */
+  readonly class: string;
+
   /** Convert the {style} props object to a CSS string. */
   toString(): string;
 };
@@ -82,19 +89,4 @@ export type CssShadow = {
   x?: number;
   y?: number;
   inner?: boolean;
-};
-
-/**
- * A <style> DOM element used to store and manage CSS-classes
- * generated from CssProps
- */
-export type ClassStyle = {
-  /** The root prefix applied to generated class-names. */
-  readonly prefix: string;
-
-  /** List of CSS class-names that have been inserted into the DOM.  */
-  readonly classes: Readonly<string[]>;
-
-  /** Generates and inserts a CSS class-name for the given style(s). */
-  insert(style: t.CssProps, hx?: number): string;
 };

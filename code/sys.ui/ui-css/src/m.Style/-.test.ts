@@ -1,12 +1,14 @@
 import { describe, expect, it } from '../-test.ts';
 import { Color, Edges, Style, css } from '../mod.ts';
-import { transform } from './u.transform.ts';
 import { DEFAULTS, Str } from './common.ts';
+import { CssDom } from './m.CssDom.ts';
+import { transform } from './u.transform.ts';
 
 describe('Style', () => {
   it('API', () => {
     expect(Style.Edges).to.equal(Edges);
     expect(Style.Color).to.equal(Color);
+    expect(Style.Dom).to.equal(CssDom);
 
     expect(Style.css).to.equal(css);
     expect(Style.transform).to.equal(transform);

@@ -1,6 +1,6 @@
 import { describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
-import { create } from './u.className.ts';
+import { CssDom } from './m.CssDom.ts';
 import { transform } from './u.transform.ts';
 
 describe(
@@ -13,9 +13,9 @@ describe(
 
     describe('create (instance)', () => {
       it('prefix: default', () => {
-        const a = create('');
-        const b = create('   ');
-        const c = create();
+        const a = CssDom.create('');
+        const b = CssDom.create('   ');
+        const c = CssDom.create();
         expect(a.prefix).to.eql('css');
         expect(b.prefix).to.eql('css');
         expect(c.prefix).to.eql('css');
@@ -23,7 +23,7 @@ describe(
 
       it('custom prefix', () => {
         const test = (prefix: string, expected: string) => {
-          const ns = create(prefix);
+          const ns = CssDom.create(prefix);
           expect(ns.prefix).to.eql(expected);
         };
         test('foo', 'foo');
@@ -35,24 +35,24 @@ describe(
       });
 
       it('pooling (instance reuse keyed on "prefix")', () => {
-        const a = create();
-        const b = create(DEFAULTS.prefix);
-        const c = create('foo');
+        const a = CssDom.create();
+        const b = CssDom.create(DEFAULTS.prefix);
+        const c = CssDom.create('foo');
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
       });
 
       it('insert root <style> into DOM (singleton)', () => {
         const find = () => document.querySelector(`style[data-controller="${pkg.name}"]`);
-        create();
+        CssDom.create();
         expect(find()).to.exist;
-        create();
+        CssDom.create();
         expect(find()).to.equal(find()); // Singleton.
       });
 
       it('throw: invalid prefix', () => {
         const test = (prefix: string) => {
-          const fn = () => create(prefix);
+          const fn = () => CssDom.create(prefix);
           expect(fn).to.throw(
             /String must start with a letter and can contain letters, digits, and hyphens \(hyphen not allowed at the beginning\)/,
           );
@@ -68,7 +68,7 @@ describe(
     describe('class/style DOM insertion', () => {
       const testSetup = () => {
         const prefix = `sample-${slug()}`;
-        const manager = create(prefix);
+        const manager = CssDom.create(prefix);
         return { manager };
       };
 

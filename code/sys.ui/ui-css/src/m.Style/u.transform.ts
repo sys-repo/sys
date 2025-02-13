@@ -1,9 +1,11 @@
 import { type t, toHash } from './common.ts';
 import { isTransformed } from './u.is.ts';
 import { toString } from './u.toString.ts';
+import { CssDom } from './m.CssDom.ts';
 
 type O = Record<string, unknown>;
 const cache = new Map<number, t.CssTransformed>();
+let _dom: t.CssDom | undefined;
 
 /**
  * Transform a lose set of CSS inputs into a CSS class-name.
@@ -21,9 +23,18 @@ export const transform: t.CssTransform = (...input) => {
   const style: t.CssProps = {};
   Object.entries(before).forEach(([key, value]) => ((style as any)[key] = value));
 
-  const res: t.CssTransformed = { hx, style, toString: () => toString(style) };
-  cache.set(hx, res);
-  return res;
+  const api: t.CssTransformed = {
+    hx,
+    style,
+    get class() {
+      const dom = _dom || (_dom = CssDom.create());
+      return dom.insert(style, hx);
+    },
+    toString: () => toString(style),
+  };
+
+  cache.set(hx, api);
+  return api;
 };
 
 /**
