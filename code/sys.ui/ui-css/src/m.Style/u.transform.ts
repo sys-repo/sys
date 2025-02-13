@@ -1,7 +1,7 @@
 import { type t, toHash } from './common.ts';
+import { CssDom } from './m.CssDom.ts';
 import { isTransformed } from './u.is.ts';
 import { toString } from './u.toString.ts';
-import { CssDom } from './m.CssDom.ts';
 
 type O = Record<string, unknown>;
 const cache = new Map<number, t.CssTransformed>();
