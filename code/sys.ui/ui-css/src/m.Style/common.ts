@@ -2,7 +2,7 @@ import toHash from 'hash-it';
 export { toHash };
 
 export * from '../common.ts';
-export { CssTmpl } from '../m.Tmpl/mod.ts';
+export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 
 export const DEFAULTS = {
   prefix: 'css',

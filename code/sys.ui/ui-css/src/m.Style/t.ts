@@ -18,8 +18,10 @@ export type CssProps = CSSProperties;
 export type StyleLib = {
   /** Tools for working with colors. */
   readonly Color: t.ColorLib;
+
   /** Tools for working with edges. */
   readonly Edges: t.CssEdgesLib;
+
   /** Tools for programatically managing CSS stylesheets within the browser DOM. */
   readonly Dom: t.CssDomLib;
 
