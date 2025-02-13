@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.110",
+  "version": "0.0.111",
   "license": "MIT",
   "tasks": {
     "lint": "deno     lint",

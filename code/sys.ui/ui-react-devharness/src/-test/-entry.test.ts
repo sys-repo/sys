@@ -1,6 +1,7 @@
 import { Dev } from '../mod.ts';
 import { describe, expect, it } from '../-test.ts';
 import { Specs } from './entry.Specs.ts';
+import { DomMock } from '../../../../sys/testing/src/ns.server/mod.ts';
 
 /**
  * Sample of testing the visual UI specs headlessly on the server.
@@ -11,6 +12,8 @@ import { Specs } from './entry.Specs.ts';
  *    within the CI pipeline.
  */
 describe('visual specs', () => {
+  DomMock.polyfill();
+
   it('run', async () => {
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(true);
