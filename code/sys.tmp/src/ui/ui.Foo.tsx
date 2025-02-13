@@ -1,17 +1,13 @@
 // @ts-types="@types/react"
 import React from 'react';
-
-import { css } from '@sys/ui-css';
-import { pkg } from '../pkg.ts';
-
-/** Constants. */
-export const RED = 'rgba(255, 0, 0, 0.1)'; /* RED */
+import { type t, Color, css, pkg } from './common.ts';
 
 /**
  * Sample properties.
  */
 export type FooProps = {
   enabled?: boolean;
+  style?: t.CssValue;
 };
 
 /**
@@ -24,7 +20,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   const styles = {
     base: css({
       display: 'inline-block',
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: Color.RUBY,
     }),
   };
 
