@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Helpers for working with the [CssTemplates] DSL.
  */
-export type StyleTmplLib = {
+export type CssTmplLib = {
   /**
    * Apply common CSS templates (desiganted by capital letter field names)
    * converting the object into standard [CssProperties].

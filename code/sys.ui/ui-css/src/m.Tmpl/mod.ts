@@ -5,7 +5,7 @@ import { type t, Is, isObject } from './common.ts';
 import { formatSize } from './u.formatSize.ts';
 import { toEdges, WrangleEdge } from './u.toEdges.ts';
 
-export const Tmpl: t.StyleTmplLib = {
+export const CssTmpl: t.CssTmplLib = {
   toEdges,
 
   /**

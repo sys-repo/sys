@@ -1,16 +1,16 @@
-import { type t, describe, it, expect, Testing } from '../-test.ts';
-import { Tmpl } from './mod.ts';
+import { type t, describe, expect, it, Testing } from '../-test.ts';
+import { CssTmpl } from './mod.ts';
 
 type N = string | number | null | undefined;
 
-describe('Tmpl', () => {
+describe('CssTmpl: template transforms', () => {
   it('empty (from Falsy)', () => {
-    Testing.FALSY.forEach((v) => expect(Tmpl.transform(v)).to.eql({}));
+    Testing.FALSY.forEach((v) => expect(CssTmpl.transform(v)).to.eql({}));
   });
 
   it('no change when no <Template> fields found', () => {
-    expect(Tmpl.transform({})).to.eql({});
-    expect(Tmpl.transform({ fontSize: 16 })).to.eql({ fontSize: 16 });
+    expect(CssTmpl.transform({})).to.eql({});
+    expect(CssTmpl.transform({ fontSize: 16 })).to.eql({ fontSize: 16 });
   });
 
   describe('CSS Edges (top, right, bottom, left)', () => {
@@ -22,39 +22,39 @@ describe('Tmpl', () => {
       expect(res.left).to.eql(left);
     };
 
-    describe('Tmpl.toEdges', () => {
+    describe('CssTmpl.toEdges', () => {
       it('empty', () => {
-        expect(Tmpl.toEdges()).to.eql({});
-        expect(Tmpl.toEdges(null)).to.eql({});
-        expect(Tmpl.toEdges(undefined)).to.eql({});
-        expect(Tmpl.toEdges(false)).to.eql({});
+        expect(CssTmpl.toEdges()).to.eql({});
+        expect(CssTmpl.toEdges(null)).to.eql({});
+        expect(CssTmpl.toEdges(undefined)).to.eql({});
+        expect(CssTmpl.toEdges(false)).to.eql({});
       });
 
       it('single value', () => {
-        assertEdges(Tmpl.toEdges(0), [0, 0, 0, 0]);
-        assertEdges(Tmpl.toEdges(-1), [-1, -1, -1, -1]);
-        assertEdges(Tmpl.toEdges(5), [5, 5, 5, 5]);
-        assertEdges(Tmpl.toEdges('3em'), ['3em', '3em', '3em', '3em']);
-        assertEdges(Tmpl.toEdges('10 20em 30px 40'), [10, '20em', '30px', 40]);
-        assertEdges(Tmpl.toEdges('10 20em'), [10, '20em', 10, '20em']);
+        assertEdges(CssTmpl.toEdges(0), [0, 0, 0, 0]);
+        assertEdges(CssTmpl.toEdges(-1), [-1, -1, -1, -1]);
+        assertEdges(CssTmpl.toEdges(5), [5, 5, 5, 5]);
+        assertEdges(CssTmpl.toEdges('3em'), ['3em', '3em', '3em', '3em']);
+        assertEdges(CssTmpl.toEdges('10 20em 30px 40'), [10, '20em', '30px', 40]);
+        assertEdges(CssTmpl.toEdges('10 20em'), [10, '20em', 10, '20em']);
       });
 
       it('array values', () => {
-        expect(Tmpl.toEdges([10])).to.eql({ top: 10, right: 10, bottom: 10, left: 10 });
-        expect(Tmpl.toEdges([10, 20])).to.eql({ top: 10, right: 20, bottom: 10, left: 20 });
-        expect(Tmpl.toEdges(['3em', 20])).to.eql({
+        expect(CssTmpl.toEdges([10])).to.eql({ top: 10, right: 10, bottom: 10, left: 10 });
+        expect(CssTmpl.toEdges([10, 20])).to.eql({ top: 10, right: 20, bottom: 10, left: 20 });
+        expect(CssTmpl.toEdges(['3em', 20])).to.eql({
           top: '3em',
           right: 20,
           bottom: '3em',
           left: 20,
         });
-        expect(Tmpl.toEdges([1, 2, 3] as any)).to.eql({ top: 1, right: 2, bottom: 3 });
-        expect(Tmpl.toEdges([0, null, '2px', 30])).to.eql({ top: 0, bottom: '2px', left: 30 });
+        expect(CssTmpl.toEdges([1, 2, 3] as any)).to.eql({ top: 1, right: 2, bottom: 3 });
+        expect(CssTmpl.toEdges([0, null, '2px', 30])).to.eql({ top: 0, bottom: '2px', left: 30 });
       });
 
       it('with mutation callback', () => {
         const edges: (keyof t.CssEdges)[] = [];
-        const res = Tmpl.toEdges([1, 2, 3, 4], (e) => {
+        const res = CssTmpl.toEdges([1, 2, 3, 4], (e) => {
           edges.push(e.current.edge);
           const value = e.current.value;
           e.changeValue(typeof value === 'number' ? value + 1 : value);
@@ -72,18 +72,18 @@ describe('Tmpl', () => {
       };
 
       it('single value', () => {
-        expect(Tmpl.transform({ Absolute: null })).to.eql({ position: 'absolute' });
-        assert(Tmpl.transform({ Absolute: 0 }), [0, 0, 0, 0]);
-        assert(Tmpl.transform({ Absolute: -1 }), [-1, -1, -1, -1]);
-        assert(Tmpl.transform({ Absolute: '3em' }), ['3em', '3em', '3em', '3em']);
+        expect(CssTmpl.transform({ Absolute: null })).to.eql({ position: 'absolute' });
+        assert(CssTmpl.transform({ Absolute: 0 }), [0, 0, 0, 0]);
+        assert(CssTmpl.transform({ Absolute: -1 }), [-1, -1, -1, -1]);
+        assert(CssTmpl.transform({ Absolute: '3em' }), ['3em', '3em', '3em', '3em']);
       });
 
       it('array value', () => {
-        assert(Tmpl.transform({ Absolute: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
+        assert(CssTmpl.transform({ Absolute: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
       });
 
       it('multi-part string value', () => {
-        const res = Tmpl.transform({ Absolute: '10 20em 30px 40' });
+        const res = CssTmpl.transform({ Absolute: '10 20em 30px 40' });
         expect(res.position).to.equal('absolute');
         expect(res.top).to.equal(10);
         expect(res.right).to.equal('20em');
@@ -102,17 +102,17 @@ describe('Tmpl', () => {
       };
 
       it('Margin: single value', () => {
-        assert(Tmpl.transform({ Margin: 0 }), [0, 0, 0, 0]);
-        assert(Tmpl.transform({ Margin: -1 }), [-1, -1, -1, -1]);
-        assert(Tmpl.transform({ Margin: '3em' }), ['3em', '3em', '3em', '3em']);
+        assert(CssTmpl.transform({ Margin: 0 }), [0, 0, 0, 0]);
+        assert(CssTmpl.transform({ Margin: -1 }), [-1, -1, -1, -1]);
+        assert(CssTmpl.transform({ Margin: '3em' }), ['3em', '3em', '3em', '3em']);
       });
 
       it('Margin: array value', () => {
-        assert(Tmpl.transform({ Margin: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
+        assert(CssTmpl.transform({ Margin: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
       });
 
       it('Margin: multi-part string value', () => {
-        const res = Tmpl.transform({ Margin: '10 20em 30px 40' });
+        const res = CssTmpl.transform({ Margin: '10 20em 30px 40' });
         expect(res.marginTop).to.equal(10);
         expect(res.marginRight).to.equal('20em');
         expect(res.marginBottom).to.equal('30px');
@@ -120,17 +120,17 @@ describe('Tmpl', () => {
       });
 
       it('MarginX: (left/right)', () => {
-        assert(Tmpl.transform({ MarginX: null }), [undefined, undefined, undefined, undefined]);
-        assert(Tmpl.transform({ MarginX: 5 }), [undefined, 5, undefined, 5]);
-        assert(Tmpl.transform({ MarginX: [5] }), [undefined, 5, undefined, 5]);
-        assert(Tmpl.transform({ MarginX: [10, 20] }), [undefined, 20, undefined, 10]);
+        assert(CssTmpl.transform({ MarginX: null }), [undefined, undefined, undefined, undefined]);
+        assert(CssTmpl.transform({ MarginX: 5 }), [undefined, 5, undefined, 5]);
+        assert(CssTmpl.transform({ MarginX: [5] }), [undefined, 5, undefined, 5]);
+        assert(CssTmpl.transform({ MarginX: [10, 20] }), [undefined, 20, undefined, 10]);
       });
 
       it('MarginY: (top/bottom)', () => {
-        assert(Tmpl.transform({ MarginY: null }), [undefined, undefined, undefined, undefined]);
-        assert(Tmpl.transform({ MarginY: 5 }), [5, undefined, 5, undefined]);
-        assert(Tmpl.transform({ MarginY: [5] }), [5, undefined, 5, undefined]);
-        assert(Tmpl.transform({ MarginY: [10, 20] }), [10, undefined, 20, undefined]);
+        assert(CssTmpl.transform({ MarginY: null }), [undefined, undefined, undefined, undefined]);
+        assert(CssTmpl.transform({ MarginY: 5 }), [5, undefined, 5, undefined]);
+        assert(CssTmpl.transform({ MarginY: [5] }), [5, undefined, 5, undefined]);
+        assert(CssTmpl.transform({ MarginY: [10, 20] }), [10, undefined, 20, undefined]);
       });
     });
 
@@ -144,17 +144,17 @@ describe('Tmpl', () => {
       };
 
       it('Padding: single value', () => {
-        assert(Tmpl.transform({ Padding: 0 }), [0, 0, 0, 0]);
-        assert(Tmpl.transform({ Padding: -1 }), [-1, -1, -1, -1]);
-        assert(Tmpl.transform({ Padding: '3em' }), ['3em', '3em', '3em', '3em']);
+        assert(CssTmpl.transform({ Padding: 0 }), [0, 0, 0, 0]);
+        assert(CssTmpl.transform({ Padding: -1 }), [-1, -1, -1, -1]);
+        assert(CssTmpl.transform({ Padding: '3em' }), ['3em', '3em', '3em', '3em']);
       });
 
       it('Padding: array value', () => {
-        assert(Tmpl.transform({ Padding: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
+        assert(CssTmpl.transform({ Padding: [10, null, '5em', -5] }), [10, undefined, '5em', -5]);
       });
 
       it('Padding: multi-part string value', () => {
-        const res = Tmpl.transform({ Padding: '10 20em 30px 40' });
+        const res = CssTmpl.transform({ Padding: '10 20em 30px 40' });
         expect(res.paddingTop).to.equal(10);
         expect(res.paddingRight).to.equal('20em');
         expect(res.paddingBottom).to.equal('30px');
@@ -162,24 +162,24 @@ describe('Tmpl', () => {
       });
 
       it('PaddingX: (left/right)', () => {
-        assert(Tmpl.transform({ PaddingX: null }), [undefined, undefined, undefined, undefined]);
-        assert(Tmpl.transform({ PaddingX: 5 }), [undefined, 5, undefined, 5]);
-        assert(Tmpl.transform({ PaddingX: [5] }), [undefined, 5, undefined, 5]);
-        assert(Tmpl.transform({ PaddingX: [10, 20] }), [undefined, 20, undefined, 10]);
+        assert(CssTmpl.transform({ PaddingX: null }), [undefined, undefined, undefined, undefined]);
+        assert(CssTmpl.transform({ PaddingX: 5 }), [undefined, 5, undefined, 5]);
+        assert(CssTmpl.transform({ PaddingX: [5] }), [undefined, 5, undefined, 5]);
+        assert(CssTmpl.transform({ PaddingX: [10, 20] }), [undefined, 20, undefined, 10]);
       });
 
       it('PaddingY: (top/bottom)', () => {
-        assert(Tmpl.transform({ PaddingY: null }), [undefined, undefined, undefined, undefined]);
-        assert(Tmpl.transform({ PaddingY: 5 }), [5, undefined, 5, undefined]);
-        assert(Tmpl.transform({ PaddingY: [5] }), [5, undefined, 5, undefined]);
-        assert(Tmpl.transform({ PaddingY: [10, 20] }), [10, undefined, 20, undefined]);
+        assert(CssTmpl.transform({ PaddingY: null }), [undefined, undefined, undefined, undefined]);
+        assert(CssTmpl.transform({ PaddingY: 5 }), [5, undefined, 5, undefined]);
+        assert(CssTmpl.transform({ PaddingY: [5] }), [5, undefined, 5, undefined]);
+        assert(CssTmpl.transform({ PaddingY: [10, 20] }), [10, undefined, 20, undefined]);
       });
     });
 
     describe('{ Size } → width/height', () => {
       type N = number | string | undefined;
       const test = (input: t.CssValue['Size'], width: N, height: N) => {
-        const res = Tmpl.transform({ Size: input });
+        const res = CssTmpl.transform({ Size: input });
         expect(res.width).to.equal(width);
         expect(res.height).to.equal(height);
       };
