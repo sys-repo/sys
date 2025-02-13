@@ -1,5 +1,5 @@
-import { type t, DomMock, describe, expect, it, findCssRule } from '../-test.ts';
-import { find } from 'rambda';
+import { type t, DomMock, describe, expect, findCssRule, it } from '../-test.ts';
+import { toHash } from './common.ts';
 import { Style, css, transform } from './mod.ts';
 
 describe(
@@ -51,6 +51,16 @@ describe(
 
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
+      });
+    });
+
+    describe('{ Template } → {styles} | capitalised known templates.', () => {
+      it('handles CSS template', () => {
+        const a = transform({ Absolute: 0 });
+        const b = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
+        expect(a.style).to.eql(b);
+        expect(a.hx).to.eql(toHash(b));
+        expect(a.style.Absolute).to.eql(undefined); // NB: clean up on object after transform.
       });
     });
 
