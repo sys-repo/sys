@@ -1,5 +1,8 @@
-import { type t, DEFAULTS, pkg, toHash, V } from './common.ts';
-import { toString } from './u.toString.ts';
+/**
+ * @module
+ * Tools for programatically managing CSS stylesheets within the browser DOM.
+ */
+import { type t, DEFAULTS, pkg, toHash, toString, V } from './common.ts';
 
 type StringPrefix = string;
 const singletons = new Map<StringPrefix, t.CssDom>();

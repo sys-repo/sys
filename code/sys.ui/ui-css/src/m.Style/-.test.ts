@@ -2,8 +2,7 @@ import { describe, expect, it } from '../-test.ts';
 import { CssEdges } from '../m.Css.Edges/mod.ts';
 import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 import { Color, Style, css } from '../mod.ts';
-import { DEFAULTS, Str } from './common.ts';
-import { CssDom } from './m.CssDom.ts';
+import { CssDom, DEFAULTS, Str } from './common.ts';
 import { transform } from './u.transform.ts';
 
 describe('Style', () => {

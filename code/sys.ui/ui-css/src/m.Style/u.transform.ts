@@ -1,5 +1,4 @@
-import { type t, CssTmpl, toHash } from './common.ts';
-import { CssDom } from './m.CssDom.ts';
+import { type t, CssTmpl, toHash, CssDom } from './common.ts';
 import { isTransformed } from './u.is.ts';
 import { toString } from './u.toString.ts';
 

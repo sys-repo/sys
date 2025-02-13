@@ -1,7 +1,7 @@
 import { type t, describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
+import { transform } from '../m.Style/mod.ts';
 import { DEFAULTS } from './common.ts';
-import { CssDom } from './m.CssDom.ts';
-import { transform } from './u.transform.ts';
+import { CssDom } from './mod.ts';
 
 describe(
   'Style: CSS ClassName',

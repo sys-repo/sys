@@ -1,10 +1,11 @@
-import toHash from 'hash-it';
+export * from '../common.ts';
+
 export { toHash };
+import toHash from 'hash-it';
 
 export * from '../common.ts';
-export { CssDom } from '../m.Css.Dom/mod.ts';
-export { CssEdges } from '../m.Css.Edges/mod.ts';
 export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
+export { toString } from '../m.Style/u.toString.ts';
 
 export const DEFAULTS = {
   prefix: 'css',

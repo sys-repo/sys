@@ -1,8 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for programatically managing CSS stylesheets
- * within the browser DOM.
+ * Tools for programatically managing CSS stylesheets within the browser DOM.
  */
 export type CssDomLib = {
   /** Generator factory. */

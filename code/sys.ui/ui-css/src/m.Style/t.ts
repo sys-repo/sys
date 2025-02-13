@@ -1,8 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 
-export type * from './t.CssDom.ts';
-
 /**
  * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
  * For example:
