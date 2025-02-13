@@ -212,4 +212,38 @@ describe('Str (Text)', () => {
       expect(Str.plural(999, 'item')).to.eql('items');
     });
   });
+
+  describe('Str.camelToKebab', () => {
+    const test = (input: string, expected: string) => {
+      expect(Str.camelToKebab(input)).to.eql(expected, input);
+    };
+
+    it('empty', () => {
+      test('', '');
+      test(' ', ' ');
+    });
+
+    it('invalid input', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, ''));
+    });
+
+    it('success: variants', () => {
+      test('alreadykebab', 'alreadykebab');
+      test('already-kebab', 'already-kebab');
+      test('Already-kebab', 'already-kebab');
+      test('kebab-case-string', 'kebab-case-string');
+
+      test('camelCase', 'camel-case');
+      test('thisIsATest', 'this-is-a-test');
+
+      test('ABC', 'a-b-c');
+      test('XMLHttpRequest', 'x-m-l-http-request');
+      test('CamelCase', 'camel-case');
+      test('-CamelCase', '-camel-case');
+      test('--CamelCase', '--camel-case');
+      test('--camelCase', '--camel-case');
+      test('--camel-Case', '--camel-case');
+    });
+  });
 });
