@@ -1,9 +1,20 @@
 import toHash from 'hash-it';
-
 export { toHash };
-export * from '../common.ts';
 
-// CSS properties that accept unitless numbers (equating to "px" pixels).
+export * from '../common.ts';
+export { Tmpl } from '../m.Tmpl/mod.ts';
+
+export const DEFAULTS = {
+  prefix: 'css',
+  get pxProps() {
+    return pxProps;
+  },
+} as const;
+
+/**
+ * CSS properties that accept unitless
+ * numbers (equating to "px" pixels).
+ */
 const pxProps = new Set<string>([
   'width',
   'height',
@@ -36,8 +47,3 @@ const pxProps = new Set<string>([
   'letterSpacing',
   'wordSpacing',
 ]);
-
-export const DEFAULTS = {
-  prefix: 'css',
-  pxProps,
-} as const;

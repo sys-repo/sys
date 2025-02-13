@@ -21,5 +21,5 @@ export type CssDom = {
   readonly classes: Readonly<string[]>;
 
   /** Generates a CSS class-name and inserts the given {Style} into the DOM. */
-  insert(style: t.CssProps, hx?: number): string;
+  class(style: t.CssProps, hx?: number): string;
 };

@@ -1,8 +1,9 @@
 import { type t, DEFAULTS, pkg, toHash, V } from './common.ts';
 import { toString } from './u.toString.ts';
 
+type StringPrefix = string;
+const singletons = new Map<StringPrefix, t.CssDom>();
 let _singletonSheet: CSSStyleSheet | null = null;
-const singletons = new Map<string, t.CssDom>();
 
 export const CssDom: t.CssDomLib = {
   create(prefix) {
@@ -18,7 +19,7 @@ export const CssDom: t.CssDomLib = {
       get classes() {
         return Array.from(inserted);
       },
-      insert(style, hxInput) {
+      class(style, hxInput) {
         const hx = hxInput ?? toHash(style);
         const className = `${prefix}-${hx}`;
         if (inserted.has(className)) {

@@ -1,4 +1,4 @@
-import { type t, toHash } from './common.ts';
+import { type t, Tmpl, toHash } from './common.ts';
 import { CssDom } from './m.CssDom.ts';
 import { isTransformed } from './u.is.ts';
 import { toString } from './u.toString.ts';
@@ -16,19 +16,16 @@ export const css: t.CssTransformToStyle = (...input) => transform(...input).styl
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 export const transform: t.CssTransform = (...input) => {
-  const before = wrangle.input(input);
-  const hx = toHash(before);
+  const style: t.CssProps = Tmpl.transform(wrangle.input(input));
+  const hx = toHash(style);
   if (cache.has(hx)) return cache.get(hx)!;
-
-  const style: t.CssProps = {};
-  Object.entries(before).forEach(([key, value]) => ((style as any)[key] = value));
 
   const api: t.CssTransformed = {
     hx,
     style,
     get class() {
       const dom = _dom || (_dom = CssDom.create());
-      return dom.insert(style, hx);
+      return dom.class(style, hx);
     },
     toString: () => toString(style),
   };

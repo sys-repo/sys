@@ -1,4 +1,4 @@
-import { describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
+import { type t, describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
 import { CssDom } from './m.CssDom.ts';
 import { transform } from './u.transform.ts';
@@ -66,25 +66,24 @@ describe(
     });
 
     describe('class/style DOM insertion', () => {
-      const testSetup = () => {
+      const setup = (): t.CssDom => {
         const prefix = `sample-${slug()}`;
-        const manager = CssDom.create(prefix);
-        return { manager };
+        return CssDom.create(prefix);
       };
 
       it('simple ("hx" not passed)', () => {
-        const { manager } = testSetup();
-        const m = transform({ fontSize: 32, display: 'grid' });
-        expect(manager.classes.length).to.eql(0); // NB: no "inserted classes" yet.
+        const dom = setup();
+        const m = transform({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
+        expect(dom.classes.length).to.eql(0); // NB: no "inserted classes" yet.
 
         // Baseline: ensure the rule is not yet within the DOM.
-        const className = `${manager.prefix}-${m.hx}`;
+        const className = `${dom.prefix}-${m.hx}`;
         expect(findCssRule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
-        const a = manager.insert(m.style);
-        const b = manager.insert(m.style);
+        const a = dom.class(m.style);
+        const b = dom.class(m.style);
 
-        expect(manager.classes.length).to.eql(1); // NB: not added twice.
+        expect(dom.classes.length).to.eql(1); // NB: not added twice.
         expect(a).to.eql(b);
         expect(a).to.eql(className);
 
@@ -94,13 +93,13 @@ describe(
       });
 
       it('hash passed as parameter', () => {
-        const { manager } = testSetup();
+        const dom = setup();
         const m = transform({ fontSize: 32, display: 'grid' });
 
-        const className = `${manager.prefix}-${m.hx}`;
+        const className = `${dom.prefix}-${m.hx}`;
         expect(findCssRule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
-        manager.insert(m.style, m.hx);
+        dom.class(m.style, m.hx);
         const rule = findCssRule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
       });
