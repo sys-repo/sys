@@ -1,4 +1,4 @@
-import { type t, Color, isObject } from './common.ts';
+import { type t, Color } from './common.ts';
 
 /**
  * Converts into to a box-shadow.
