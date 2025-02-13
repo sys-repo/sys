@@ -56,7 +56,6 @@
     "./code/sys.driver/driver-ollama",
     "./code/sys.driver/driver-orbiter",
     "./code/sys.driver/driver-quilibrium",
-    "./code/sys.driver/driver-valibot",
     "./code/sys.driver/driver-vite",
     "./code/sys.driver/driver-vitepress",
 

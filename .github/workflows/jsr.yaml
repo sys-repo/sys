@@ -197,9 +197,3 @@ jobs:
           cd code/sys.driver/driver-quilibrium
           deno task test --parallel
           deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-valibot"
-        run: |
-          cd code/sys.driver/driver-valibot
-          deno task test --parallel
-          # deno publish --allow-dirty

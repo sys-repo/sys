@@ -53,7 +53,6 @@ export const Paths = {
     'code/sys.driver/driver-ollama',    
     'code/sys.driver/driver-orbiter',    
     'code/sys.driver/driver-quilibrium',
-    'code/sys.driver/driver-valibot',
 
     /**
      * Barrels
