@@ -7,6 +7,7 @@ describe(
 
   /** NOTE: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
+
   () => {
     DomMock.polyfill();
 
@@ -55,12 +56,20 @@ describe(
     });
 
     describe('{ Template } → {styles} | capitalised known templates.', () => {
-      it('handles CSS template', () => {
+      it('Absolute: 0', () => {
         const a = transform({ Absolute: 0 });
         const b = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
         expect(a.style).to.eql(b);
         expect(a.hx).to.eql(toHash(b));
         expect(a.style.Absolute).to.eql(undefined); // NB: clean up on object after transform.
+      });
+
+      it('PaddingX: [10, 20]', () => {
+        const a = transform({ PaddingX: [10, 20] });
+        const b = { paddingLeft: 10, paddingRight: 20 };
+        expect(a.style).to.eql(b);
+        expect(a.hx).to.eql(toHash(b));
+        expect(a.style.PaddingX).to.eql(undefined); // NB: clean up on object after transform.
       });
     });
 
