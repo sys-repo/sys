@@ -8,6 +8,7 @@ describe(
 
   /** NOTE: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
+
   () => {
     DomMock.polyfill();
 
