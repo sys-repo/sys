@@ -6,8 +6,8 @@ export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 
 export const DEFAULTS = {
   prefix: 'css',
-  get pxProps() {
-    return pxProps;
+  get pixelProps() {
+    return pixelProps;
   },
 } as const;
 
@@ -15,7 +15,7 @@ export const DEFAULTS = {
  * CSS properties that accept unitless
  * numbers (equating to "px" pixels).
  */
-const pxProps = new Set<string>([
+const pixelProps = new Set<string>([
   'width',
   'height',
   'top',

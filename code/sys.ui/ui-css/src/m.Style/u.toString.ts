@@ -12,6 +12,6 @@ export const toString: t.StyleLib['toString'] = (style) => {
  */
 function formatValue(prop: string, value: unknown) {
   if (typeof value === 'string') return value;
-  const unit = DEFAULTS.pxProps.has(prop) ? 'px' : '';
+  const unit = DEFAULTS.pixelProps.has(prop) ? 'px' : '';
   return `${value}${unit}`;
 }

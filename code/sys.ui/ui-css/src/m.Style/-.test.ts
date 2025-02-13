@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
+import { CssEdges } from '../m.Css.Edges/mod.ts';
 import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
-import { CssEdges } from '../m.Edges/mod.ts';
 import { Color, Style, css } from '../mod.ts';
 import { DEFAULTS, Str } from './common.ts';
 import { CssDom } from './m.CssDom.ts';
@@ -38,7 +38,7 @@ describe('Style', () => {
     });
 
     it('number to "px" pixels', () => {
-      Array.from(DEFAULTS.pxProps).forEach((prop) => {
+      Array.from(DEFAULTS.pixelProps).forEach((prop) => {
         const res = Style.toString({ [prop]: 10 });
         const key = Str.camelToKebab(prop);
         expect(res).to.eql(`${key}: 10px;`);
