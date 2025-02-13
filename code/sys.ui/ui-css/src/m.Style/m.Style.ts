@@ -1,6 +1,8 @@
 import { type t, Color } from './common.ts';
 
+import { CssTmpl as Tmpl } from '../m.Css.Tmpl/mod.ts';
 import { Edges } from '../m.Edges/mod.ts';
+
 import { CssDom as Dom } from './m.CssDom.ts';
 import { toString } from './u.toString.ts';
 import { css, transform } from './u.transform.ts';
@@ -12,6 +14,7 @@ export const Style: t.StyleLib = {
   Color,
   Edges,
   Dom,
+  Tmpl,
 
   transform,
   css,

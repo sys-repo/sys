@@ -15,19 +15,9 @@ export type CssProps = CSSProperties;
 /**
  * CSS styling tools.
  */
-export type StyleLib = {
-  /** Tools for working with colors. */
-  readonly Color: t.ColorLib;
-
-  /** Tools for working with edges. */
-  readonly Edges: t.CssEdgesLib;
-
-  /** Tools for programatically managing CSS stylesheets within the browser DOM. */
-  readonly Dom: t.CssDomLib;
-
+export type StyleLib = NamespaceLibs & {
   /** Perform a cacheable transformation on a loose set of CSS inputs. */
   readonly transform: t.CssTransform;
-
   /** Transform a lose set of CSS inputs into a CSS class-name. */
   readonly css: t.CssTransformToStyle;
 
@@ -40,6 +30,20 @@ export type StyleLib = {
 
   /** Convert a {style} props object to a CSS string. */
   toString(style: t.CssProps): string;
+};
+
+type NamespaceLibs = {
+  /** Tools for working with colors. */
+  readonly Color: t.ColorLib;
+
+  /** Tools for working with edges. */
+  readonly Edges: t.CssEdgesLib;
+
+  /** Tools for working with edges. */
+  readonly Tmpl: t.CssTmplLib;
+
+  /** Tools for programatically managing CSS stylesheets within the browser DOM. */
+  readonly Dom: t.CssDomLib;
 };
 
 /**

@@ -3,12 +3,14 @@ import { Color, Edges, Style, css } from '../mod.ts';
 import { DEFAULTS, Str } from './common.ts';
 import { CssDom } from './m.CssDom.ts';
 import { transform } from './u.transform.ts';
+import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
 
 describe('Style', () => {
   it('API', () => {
     expect(Style.Edges).to.equal(Edges);
     expect(Style.Color).to.equal(Color);
     expect(Style.Dom).to.equal(CssDom);
+    expect(Style.Tmpl).to.eql(CssTmpl);
 
     expect(Style.css).to.equal(css);
     expect(Style.transform).to.equal(transform);
