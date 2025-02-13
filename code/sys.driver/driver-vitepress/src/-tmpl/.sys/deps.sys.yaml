@@ -1,6 +1,6 @@
 deno.json:
   - import: jsr:@sys/types@0.0.75
-  - import: jsr:@sys/std@0.0.123
+  - import: jsr:@sys/std@0.0.124
   - import: jsr:@sys/color@0.0.28
   - import: jsr:@sys/testing@0.0.68
   - import: jsr:@sys/fs@0.0.72
