@@ -17,9 +17,9 @@ describe(
         const a = CssDom.create('');
         const b = CssDom.create('   ');
         const c = CssDom.create();
-        expect(a.prefix).to.eql('sys');
-        expect(b.prefix).to.eql('sys');
-        expect(c.prefix).to.eql('sys');
+        expect(a.prefix).to.eql(DEFAULTS.prefix);
+        expect(b.prefix).to.eql(DEFAULTS.prefix);
+        expect(c.prefix).to.eql(DEFAULTS.prefix);
       });
 
       it('custom prefix', () => {
