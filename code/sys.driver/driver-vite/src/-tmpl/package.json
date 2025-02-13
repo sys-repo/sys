@@ -4,9 +4,9 @@
     "@sys/tmp": "npm:@jsr/sys__tmp",
     "@sys/types": "npm:@jsr/sys__types",
     "@sys/ui-css": "npm:@jsr/sys__ui-css",
-    "@valibot/valibot": "npm:@jsr/valibot__valibot",
     "react": "",
-    "react-dom": ""
+    "react-dom": "",
+    "valibot": ""
   },
   "devDependencies": {
     "@types/react": "",

@@ -21,7 +21,6 @@
     "jsr:@std/path@~1.0.6": "1.0.8",
     "jsr:@std/semver@1.0.3": "1.0.3",
     "jsr:@std/text@~1.0.7": "1.0.10",
-    "jsr:@valibot/valibot@1.0.0-rc.0": "1.0.0-rc.0",
     "npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-indexeddb@1.2.1": "1.2.1_@types+node@22.5.4",
     "npm:@automerge/automerge-repo-storage-nodefs@1.2.1": "1.2.1_@types+node@22.5.4",
@@ -76,6 +75,7 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.0.4": "10.0.4",
     "npm:ua-parser-js@2.0.2": "2.0.2",
+    "npm:valibot@1.0.0-rc.0": "1.0.0-rc.0",
     "npm:vite-plugin-wasm@3.4.1": "3.4.1_vite@6.1.0",
     "npm:vite@*": "6.1.0_@types+node@22.5.4_yaml@2.7.0",
     "npm:vite@6.1.0": "6.1.0_@types+node@22.5.4_yaml@2.7.0",
@@ -160,9 +160,6 @@
     },
     "@std/text@1.0.10": {
       "integrity": "9dcab377450253c0efa9a9a0c731040bfd4e1c03f8303b5934381467b7954338"
-    },
-    "@valibot/valibot@1.0.0-rc.0": {
-      "integrity": "2937c0444f9b1bffee13a8e918e9cb1c9706effd1098226edf09a90129b1ea87"
     }
   },
   "npm": {
@@ -2073,6 +2070,9 @@
     "v8-compile-cache-lib@3.0.1": {
       "integrity": "sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg=="
     },
+    "valibot@1.0.0-rc.0": {
+      "integrity": "sha512-9ZUrOXOejY/WaIn8p0Z469R1qBAwNJeqq8jzOIDsl1qR8gqtObHQmyHLFli0UCkcGiTco5kH6/KPLWsTWE9b2g=="
+    },
     "vfile-message@4.0.2": {
       "integrity": "sha512-jRDZ1IMLttGj41KcZvlrYAaI3CfqpLpfpf+Mfig13viT6NKvRzWZ+lXz0Y5D60w6uJIBAOGq9mSHf0gktF0duw==",
       "dependencies": [
@@ -2262,7 +2262,6 @@
       "jsr:@std/semver@1.0.3",
       "jsr:@std/testing@1.0.9",
       "jsr:@std/uuid@1.0.4",
-      "jsr:@valibot/valibot@1.0.0-rc.0",
       "npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1",
       "npm:@automerge/automerge-repo-storage-indexeddb@1.2.1",
       "npm:@automerge/automerge-repo-storage-nodefs@1.2.1",
@@ -2296,6 +2295,7 @@
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.0.4",
       "npm:ua-parser-js@2.0.2",
+      "npm:valibot@1.0.0-rc.0",
       "npm:yaml@2.7.0"
     ],
     "packageJson": {

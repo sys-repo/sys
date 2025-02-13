@@ -59,9 +59,6 @@ deno.json:
   - import: jsr:@cliffy/prompt@1.0.0-rc.7
   - import: jsr:@cliffy/table@1.0.0-rc.7
 
-  # Sundry: JSR
-  - import: jsr:@valibot/valibot@1.0.0-rc.0
-
   # Sundry: NPM
   - import: npm:@types/diff@7.0.1
   - import: npm:chai@5
@@ -72,6 +69,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.0
   - import: npm:happy-dom@17.0.3
+  - import: npm:hash-it@6.0.0
   - import: npm:ignore@7
   - import: npm:immer@10
   - import: npm:ora@8.2.0
@@ -81,11 +79,11 @@ deno.json:
   - import: npm:rambda@9.4.2
   - import: npm:rxjs@7
   - import: npm:strip-ansi@7
+  - import: npm:subhosting@0.1.0-alpha.1
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.0.4
+  - import: npm:valibot@1.0.0-rc.0
   - import: npm:yaml@2.7.0
-  - import: npm:subhosting@0.1.0-alpha.1
-  - import: npm:hash-it@6.0.0
 
   # Browser
   - import: npm:csstype@3

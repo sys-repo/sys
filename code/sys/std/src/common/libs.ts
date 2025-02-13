@@ -37,7 +37,6 @@ export const R: t.RLib = {
 };
 
 /**
- * Validation helpers.
- * https://valibot.dev/
+ * Validation helpers ( https://valibot.dev )
  */
-export * as V from '@valibot/valibot';
+export * as V from 'valibot';

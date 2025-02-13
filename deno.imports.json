@@ -21,7 +21,6 @@
     "@std/testing": "jsr:@std/testing@1.0.9",
     "@std/uuid": "jsr:@std/uuid@1.0.4",
     "@types/diff": "npm:@types/diff@7.0.1",
-    "@valibot/valibot": "jsr:@valibot/valibot@1.0.0-rc.0",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
     "csstype": "npm:csstype@3",
@@ -47,6 +46,7 @@
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
     "ua-parser-js": "npm:ua-parser-js@2.0.2",
+    "valibot": "npm:valibot@1.0.0-rc.0",
     "yaml": "npm:yaml@2.7.0"
   }
 }

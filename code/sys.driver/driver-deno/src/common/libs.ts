@@ -1,4 +1,4 @@
-export * as v from '@valibot/valibot';
+export * as v from 'valibot';
 
 export { Http } from '@sys/http';
 export { Delete, Err, Path, slug } from '@sys/std';

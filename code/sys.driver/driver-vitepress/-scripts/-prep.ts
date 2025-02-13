@@ -17,7 +17,7 @@ const deps: Dep[] = ws.modules.items.map((m) => DenoDeps.toDep(m));
 const yaml = DenoDeps.toYaml(deps);
 
 const dir = resolve('src/-tmpl/.sys');
-await Fs.copy(Fs.join(ws.dir, 'deps.yaml'), Fs.join(dir, 'deps.yaml'));
+await Fs.copy(Fs.join(ws.dir, 'deps.yaml'), Fs.join(dir, 'deps.yaml'), { force: true });
 await Fs.write(Fs.join(dir, 'deps.sys.yaml'), yaml.text);
 
 /**
