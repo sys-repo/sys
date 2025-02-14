@@ -1,7 +1,6 @@
+import { DomMock, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
-import { describe, expect, it } from '../-test.ts';
 import { Specs } from './entry.Specs.ts';
-import { DomMock } from '../../../../sys/testing/src/ns.server/mod.ts';
 
 /**
  * Sample of testing the visual UI specs headlessly on the server.
