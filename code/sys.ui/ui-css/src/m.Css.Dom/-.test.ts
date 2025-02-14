@@ -1,6 +1,6 @@
 import { type t, describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
-import { transform } from '../m.Style/mod.ts';
-import { DEFAULTS } from './common.ts';
+import { css } from '../m.Style/mod.ts';
+import { DEFAULT } from './common.ts';
 import { CssDom } from './mod.ts';
 
 describe(
@@ -17,9 +17,9 @@ describe(
         const a = CssDom.create('');
         const b = CssDom.create('   ');
         const c = CssDom.create();
-        expect(a.prefix).to.eql(DEFAULTS.prefix);
-        expect(b.prefix).to.eql(DEFAULTS.prefix);
-        expect(c.prefix).to.eql(DEFAULTS.prefix);
+        expect(a.prefix).to.eql(DEFAULT.prefix);
+        expect(b.prefix).to.eql(DEFAULT.prefix);
+        expect(c.prefix).to.eql(DEFAULT.prefix);
       });
 
       it('custom prefix', () => {
@@ -37,7 +37,7 @@ describe(
 
       it('pooling (instance reuse keyed on "prefix")', () => {
         const a = CssDom.create();
-        const b = CssDom.create(DEFAULTS.prefix);
+        const b = CssDom.create(DEFAULT.prefix);
         const c = CssDom.create('foo');
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
@@ -74,7 +74,7 @@ describe(
 
       it('simple ("hx" not passed)', () => {
         const dom = setup();
-        const m = transform({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
+        const m = css({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
         expect(dom.classes.length).to.eql(0); // NB: no "inserted classes" yet.
 
         // Baseline: ensure the rule is not yet within the DOM.
@@ -88,14 +88,14 @@ describe(
         expect(a).to.eql(b);
         expect(a).to.eql(className);
 
-        // Ensure is inserted within DOM.
+        // Ensure the CSS-rule is inserted within DOM.
         const rule = findCssRule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
       });
 
       it('hash passed as parameter', () => {
         const dom = setup();
-        const m = transform({ fontSize: 32, display: 'grid' });
+        const m = css({ fontSize: 32, display: 'grid' });
 
         const className = `${dom.prefix}-${m.hx}`;
         expect(findCssRule(className)).to.eql(undefined); // NB: nothing inserted yet.
