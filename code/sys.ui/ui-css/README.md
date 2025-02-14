@@ -19,9 +19,10 @@ export function Component(props:{}) {
 
 
 ### CSSProps
+Transformation pipeline.
 
 ```bash
-Input: { PaddingX: [ 10, 30 ] }
+Input: { PaddingX: [ 10, 30 ] }  ← NB: capitalized "template" expander(s).
 ↓
 
 CssTransform:
