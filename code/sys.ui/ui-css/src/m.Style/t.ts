@@ -21,7 +21,9 @@ export type CssClassname = string;
  */
 export type StyleLib = NamespaceLibs & {
   /** Perform a cacheable transformation on a loose set of CSS inputs. */
-  readonly transform: t.CssTransform;
+  readonly css: t.CssTransform;
+  /** Factory to produce `transform` function scoped to the given prefix. */
+  transformer(options?: { prefix?: string }): t.CssTransform;
 
   /** Transform margin spacing. */
   readonly toMargins: t.CssEdgesLib['toMargins'];

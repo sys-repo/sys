@@ -1,12 +1,17 @@
 import toHash from 'hash-it';
-export { toHash };
+import { DEFAULT as CssDomDefaults } from '../m.Css.Dom/mod.ts';
 
-export * from '../common.ts';
 export { CssDom } from '../m.Css.Dom/mod.ts';
 export { CssEdges } from '../m.Css.Edges/mod.ts';
 export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
+export { toHash };
 
-export const DEFAULTS = {
+export * from '../common.ts';
+
+export const DEFAULT = {
+  get prefix() {
+    return CssDomDefaults.prefix;
+  },
   get pixelProps() {
     return pixelProps;
   },

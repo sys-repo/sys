@@ -1,9 +1,9 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it, TestPrint } from '../-test.ts';
 import { CssEdges } from '../m.Css.Edges/mod.ts';
 import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
-import { Color, Style, css } from '../mod.ts';
-import { CssDom, DEFAULTS, Str } from './common.ts';
-import { transform } from './u.transform.ts';
+import { Color, css, Style } from '../mod.ts';
+import { CssDom, DEFAULT, Str } from './common.ts';
+import { transformer } from './u.transform.ts';
 
 describe('Style', () => {
   it('API', () => {
@@ -11,8 +11,8 @@ describe('Style', () => {
     expect(Style.Dom).to.equal(CssDom);
     expect(Style.Tmpl).to.eql(CssTmpl);
 
-    expect(Style.transform).to.equal(css);
-    expect(Style.transform).to.equal(transform);
+    expect(Style.css).to.equal(css);
+    expect(Style.transformer).to.equal(transformer);
 
     expect(Style.Edges).to.equal(CssEdges);
     expect(Style.toMargins).to.equal(CssEdges.toMargins);
@@ -37,11 +37,27 @@ describe('Style', () => {
     });
 
     it('number to "px" pixels', () => {
-      Array.from(DEFAULTS.pixelProps).forEach((prop) => {
+      Array.from(DEFAULT.pixelProps).forEach((prop) => {
         const res = Style.toString({ [prop]: 10 });
         const key = Str.camelToKebab(prop);
         expect(res).to.eql(`${key}: 10px;`);
       });
+    });
+  });
+
+  describe('Style.transformer ← factory', () => {
+    it('ƒn: transformer ← <default> class-name prefix', () => {
+      const css = Style.transformer();
+      const m = css({ display: 'grid' });
+      expect(m.class.startsWith(`${DEFAULT.prefix}-`)).to.be.true;
+      TestPrint.transformed(m);
+    });
+
+    it('ƒn: transformer ← <custom> class-name prefix', () => {
+      const css = Style.transformer({ prefix: 'foo' });
+      const m = css({ display: 'grid' });
+      expect(m.class.startsWith(`foo-`)).to.be.true;
+      TestPrint.transformed(m);
     });
   });
 });

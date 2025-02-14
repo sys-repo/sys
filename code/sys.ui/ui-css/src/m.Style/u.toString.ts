@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, isRecord, Str } from './common.ts';
+import { type t, DEFAULT, isRecord, Str } from './common.ts';
 
 export const toString: t.StyleLib['toString'] = (style) => {
   if (!isRecord(style)) return '';
@@ -12,6 +12,6 @@ export const toString: t.StyleLib['toString'] = (style) => {
  */
 function formatValue(prop: string, value: unknown) {
   if (typeof value === 'string') return value;
-  const unit = DEFAULTS.pixelProps.has(prop) ? 'px' : '';
+  const unit = DEFAULT.pixelProps.has(prop) ? 'px' : '';
   return `${value}${unit}`;
 }
