@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, pkg, toHash, toString, V } from './common.ts';
+import { type t, DEFAULT, pkg, toHash, toString, V } from './common.ts';
 import { AlphanumericWithHyphens } from './u.ts';
 
 type Prefix = string;
@@ -9,11 +9,11 @@ let _sheet: CSSStyleSheet | null = null;
  * Generator factory
  */
 export const create: t.CssDomLib['create'] = (prefix) => {
-  prefix = ((prefix ?? '').trim() || DEFAULTS.prefix).replace(/-*$/, '');
+  prefix = ((prefix ?? '').trim() || DEFAULT.prefix).replace(/-*$/, '');
   V.parse(AlphanumericWithHyphens, prefix);
   if (singletons.has(prefix)) return singletons.get(prefix)!;
 
-  const sheet = getStyleSheet();
+  const sheet = getOrCreateStylesheet();
   const inserted = new Set<string>();
 
   const api: t.CssDom = {
@@ -24,14 +24,13 @@ export const create: t.CssDomLib['create'] = (prefix) => {
     class(style, hxInput) {
       const hx = hxInput ?? toHash(style);
       const className = `${prefix}-${hx}`;
-      if (inserted.has(className)) {
-        return className;
-      } else {
-        const rule = `.${className} { ${toString(style)} }`;
-        sheet.insertRule(rule, sheet.cssRules.length);
-        inserted.add(className);
-        return className;
-      }
+      if (inserted.has(className)) return className;
+
+      // Initial creation.
+      const rule = `.${className} { ${toString(style)} }`;
+      sheet.insertRule?.(rule, sheet.cssRules.length);
+      inserted.add(className);
+      return className;
     },
   };
 
@@ -47,13 +46,16 @@ export const create: t.CssDomLib['create'] = (prefix) => {
  * Singleton <style> element management.
  * If one doesn't exist, we create one and append it to the <head>.
  */
-function getStyleSheet(): CSSStyleSheet {
+function getOrCreateStylesheet(): CSSStyleSheet {
   if (_sheet) return _sheet;
 
-  const el = document.createElement('style');
-  el.setAttribute('data-controller', pkg.name);
-
-  document.head.appendChild(el);
-  _sheet = el.sheet as CSSStyleSheet;
-  return _sheet;
+  if (typeof document === 'undefined') {
+    return {} as CSSStyleSheet; // Dummy.
+  } else {
+    const el = document.createElement('style');
+    el.setAttribute('data-controller', pkg.name);
+    document.head.appendChild(el);
+    _sheet = el.sheet as CSSStyleSheet;
+    return _sheet;
+  }
 }
