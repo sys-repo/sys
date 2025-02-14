@@ -28,7 +28,7 @@
     "diff": "npm:diff@7",
     "fake-indexeddb": "npm:fake-indexeddb@6.0.0",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
-    "happy-dom": "npm:happy-dom@17.0.3",
+    "happy-dom": "npm:happy-dom@17.1.0",
     "hash-it": "npm:hash-it@6.0.0",
     "ignore": "npm:ignore@7",
     "immer": "npm:immer@10",
