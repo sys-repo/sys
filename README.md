@@ -40,7 +40,7 @@ See also: `0.<0.0.0>` "[epoch semantic versioning](https://antfu.me/posts/epoch-
 
 |     | repo                     | status
 | --- | :---                     | :---
-|  ●  | sys 🧫                    | current
+|  ●  | sys 🧫                   | current
 |  ○  | ↑ platform-0.2.0         | [previous](https://github.com/cellplatform/platform-0.2.0)
 |  ○  | ↑ platform-0.1.0         | [previous](https://github.com/cellplatform/platform-0.1.0)
 
