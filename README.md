@@ -36,6 +36,7 @@ Built on, and mission-locked to modern, portable, [Web Standards](https://winter
 ![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**  
 Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.  
+See also: `0.<0.0.0>` "[epoch semantic versioning](https://antfu.me/posts/epoch-semver)".
 
 |     | repo                     | status
 | --- | :---                     | :---
