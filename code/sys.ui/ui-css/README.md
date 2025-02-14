@@ -9,7 +9,7 @@ Applying to a JSX style idiom:
 ```tsx
 import { css } from '@sys/ui-css';
 
-export function View(props:{}) {
+export function Component(props:{}) {
   const styles = {
     base: css({ padding: 10 }),
   };
