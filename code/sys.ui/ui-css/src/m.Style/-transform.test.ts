@@ -60,7 +60,7 @@ describe('Style.css', () => {
   });
 
   describe('css → "class-name" (inserted into DOM)', () => {
-    it.only('simple', () => {
+    it('simple', () => {
       const prefix = 'foo';
       const css = Style.transformer({ prefix });
 
