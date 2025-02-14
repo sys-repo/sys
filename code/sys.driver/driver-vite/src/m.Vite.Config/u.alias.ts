@@ -16,16 +16,21 @@ export function toAliasRegex(prefix: string, moduleName: string): RegExp {
   const name = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape module name.
   const modifier = '(?:\\^|~|>=|<=|>|<)?';
 
-  // Matches a core version (one to three numeric components)
+  /**
+   * Matches a version number:
+   *  - A core version (one to three numeric components)
+   *  - An optional pre-release (e.g. "-alpha" or "-alpha.1")
+   */
   const versionCore = '\\d+(?:\\.\\d+){0,2}';
-  // Optionally matches a pre-release identifier (e.g., "-alpha" or "-alpha.1")
   const preRelease = '(?:-[\\w.]+)?';
   const versionPattern = `${modifier}${versionCore}${preRelease}`;
 
-  // Build the regex:
-  //  - Starts with "<prefix>:<name>"
-  //  - Optionally followed by "@" and the version (non-capturing)
-  //  - Optionally followed by a trailing path (captured as group 1)
+  /**
+   * Build the regex:
+   *  - Starts with "<prefix>:<name>"
+   *  - Optionally followed by "@" and the version (non-capturing)
+   *  - Optionally followed by a trailing path (captured as group 1)
+   */
   return new RegExp(`^${prefix}:${name}(?:@(?:${versionPattern}))?(\\/.*)?$`);
 }
 
@@ -41,12 +46,9 @@ export function toAliasRegex(prefix: string, moduleName: string): RegExp {
  *   Input: "npm:@vidstack/react@1.12.12/player/layouts/plyr" yields replacement: "@vidstack/react/player/layouts/plyr"
  */
 export function toAlias(prefix: string, moduleName: string): t.ViteAlias {
-  const trimmedModuleName = (moduleName || '').trim();
-  const find = toAliasRegex(prefix, trimmedModuleName);
-  // Append the captured subpath (if any) via "$1" to the base moduleName.
-  const replacement = trimmedModuleName + '$1';
+  const trimmed = (moduleName || '').trim();
   return {
-    find,
-    replacement,
+    find: toAliasRegex(prefix, trimmed),
+    replacement: `${trimmed}$1`, // NB: Append the captured subpath (if any) via "$1" to the base module-name.
   };
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 import { toAlias, toAliasRegex } from './u.alias.ts';
 
@@ -13,20 +13,6 @@ describe('ViteConfig', () => {
   });
 
   describe('rollup: alias', () => {
-    it.skip('toAlias', () => {
-      const jsr = toAlias('jsr', ' foobar ');
-      const npm = toAlias('npm', ' @scope/foo ');
-
-      expect(jsr.customResolver).to.eql(undefined);
-      expect(npm.customResolver).to.eql(undefined);
-
-      expect(jsr.replacement).to.eql('foobar');
-      expect(jsr.find).to.eql(toAliasRegex('jsr', 'foobar'));
-
-      expect(npm.replacement).to.eql('@scope/foo');
-      expect(npm.find).to.eql(toAliasRegex('npm', '@scope/foo'));
-    });
-
     it('toAliasRegex', () => {
       const jsr = toAliasRegex('jsr', 'foobar');
       const npm = toAliasRegex('npm', 'foobar');
@@ -50,6 +36,58 @@ describe('ViteConfig', () => {
 
       test(npm, ' npm:foobar@1.2.3', false);
       test(npm, 'npm:foobar@1.2 ', false);
+    });
+
+    describe('toAlias', () => {
+      it('structure', () => {
+        const jsr = toAlias('jsr', ' foobar ');
+        const npm = toAlias('npm', ' @scope/foo ');
+        expect(jsr.customResolver).to.eql(undefined);
+        expect(npm.customResolver).to.eql(undefined);
+
+        expect(jsr.find).to.eql(toAliasRegex('jsr', 'foobar'));
+        expect(jsr.replacement).to.eql('foobar$1');
+
+        expect(npm.find).to.eql(toAliasRegex('npm', '@scope/foo'));
+        expect(npm.replacement).to.eql('@scope/foo$1');
+      });
+
+      const test = (
+        registry: t.CodeRegistry,
+        moduleName: string,
+        input: string,
+        expected: string,
+      ) => {
+        const alias = toAlias(registry, moduleName);
+        const res = input.replace(alias.find, alias.replacement);
+        expect(res).to.eql(expected);
+      };
+
+      it('replace module without version but not subpath', () => {
+        test('npm', '@vidstack/react', 'npm:@vidstack/react', '@vidstack/react');
+        test('npm', 'foo', 'npm:foo', 'foo');
+        test('jsr', '@sys/tmp', 'jsr:@sys/tmp', '@sys/tmp');
+      });
+
+      it('replace module with version but not subpath', () => {
+        test('npm', '@vidstack/react', 'npm:@vidstack/react@1.2.3', '@vidstack/react');
+        test('npm', 'foo', 'npm:foo@~1', 'foo');
+        test('npm', 'foo', 'npm:foo@1.2.3-alpha.1', 'foo');
+        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@>=0.1.2', '@sys/tmp');
+      });
+
+      it('replace module with version and subpath', () => {
+        test('npm', '@vidstack/react', 'npm:@vidstack/react@1.2.3/a/b', '@vidstack/react/a/b');
+        test('npm', 'foo', 'npm:foo@1.2.3/a/b', 'foo/a/b');
+        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@1.2.3/foo', '@sys/tmp/foo');
+        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@1.2.3/foo/bar.z', '@sys/tmp/foo/bar.z');
+      });
+
+      it('replace module without version but with subpath', () => {
+        test('npm', '@vidstack/react', 'npm:@vidstack/react/a/b', '@vidstack/react/a/b');
+        test('npm', 'foo', 'npm:foo/a/b', 'foo/a/b');
+        test('jsr', '@sys/tmp', 'jsr:@sys/tmp/a/b', '@sys/tmp/a/b');
+      });
     });
   });
 });
