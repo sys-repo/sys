@@ -2,8 +2,7 @@ import { Vitepress } from '@sys/driver-vitepress';
 import { type t, c, DenoDeps, DenoFile, Fs, PATHS, pkg } from './common.ts';
 
 const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);
-const tmp = resolve('.tmp');
-await Fs.remove(tmp);
+await Fs.remove(resolve('.tmp'));
 
 /**
  * Save monorepo deps.

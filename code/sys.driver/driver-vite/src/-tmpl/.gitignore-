@@ -1,8 +1,10 @@
-node_modules/
-dist/
-.tmp/
-.swc/
+node_modules
+dist
+.tmp
+.swc
 
 .sys
--backup/
+.vscode
+
+-backup
 -backup/**

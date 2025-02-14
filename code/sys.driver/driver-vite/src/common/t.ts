@@ -20,6 +20,7 @@ export type {
   DenoModuleBackup,
   DenoWorkspace,
   DenoWorkspaceChild,
+  Dep,
 } from '@sys/driver-deno/t';
 export type { FsPathFilter } from '@sys/fs/t';
 export type { ProcHandle, ProcOutput, ProcReadySignalFilter } from '@sys/process/t';
