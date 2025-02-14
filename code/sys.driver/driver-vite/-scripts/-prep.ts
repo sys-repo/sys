@@ -1,7 +1,5 @@
-import { c } from '@sys/color/ansi';
 import { Vite } from '@sys/driver-vite';
-import { Fs } from '@sys/fs';
-import { PATHS, pkg } from '../src/common.ts';
+import { Fs, PATHS, c, pkg } from './common.ts';
 
 const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);
 await Fs.remove(resolve('.tmp'));
