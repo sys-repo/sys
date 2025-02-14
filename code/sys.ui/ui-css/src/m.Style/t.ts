@@ -20,7 +20,7 @@ export type CssClassname = string;
  * CSS styling tools.
  */
 export type StyleLib = NamespaceLibs & {
-  /** Perform a cacheable transformation on a loose set of CSS inputs. */
+  /** Perform a transformation on a loose set of CSS inputs. */
   readonly css: t.CssTransform;
   /** Factory to produce `transform` function scoped to the given prefix. */
   transformer(options?: { prefix?: string }): t.CssTransform;

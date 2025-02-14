@@ -5,8 +5,6 @@
 import { type t, DEFAULT } from './common.ts';
 import { create } from './u.create.ts';
 
-export { DEFAULT };
-
 export const CssDom: t.CssDomLib = {
   create,
 };

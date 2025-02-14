@@ -1,5 +1,5 @@
 import toHash from 'hash-it';
-import { DEFAULT as CssDomDefaults } from '../m.Css.Dom/mod.ts';
+import { DEFAULT as CssDomDefaults } from '../m.Css.Dom/common.ts';
 
 export { CssDom } from '../m.Css.Dom/mod.ts';
 export { CssEdges } from '../m.Css.Edges/mod.ts';
