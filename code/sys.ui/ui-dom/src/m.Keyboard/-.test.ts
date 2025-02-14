@@ -5,9 +5,7 @@ import { Keyboard } from './mod.ts';
 describe(
   'Keyboard',
 
-  /**
-   * NOTE: leaked timers left around by the "happy-dom" module.
-   */
+  /** NB: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
 
   () => {
