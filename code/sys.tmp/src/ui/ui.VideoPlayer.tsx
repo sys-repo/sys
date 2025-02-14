@@ -1,6 +1,6 @@
 // @ts-types="@types/react"
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, css } from './common.ts';
 
 import '@vidstack/react/player/styles/base.css';
 import '@vidstack/react/player/styles/plyr/theme.css';
