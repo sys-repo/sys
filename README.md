@@ -26,9 +26,11 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 <p>&nbsp;</p>
 
 [![licence][mit-image]][mit-url]  
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/). ( ✊🏻💯 )
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )
 
 ---
+
+
 
 <p>&nbsp;</p>
 
