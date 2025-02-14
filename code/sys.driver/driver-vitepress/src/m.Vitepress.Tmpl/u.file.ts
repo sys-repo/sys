@@ -1,7 +1,7 @@
 import { pkg as pkgDeno } from '@sys/driver-deno';
 import { pkg as pkgVite } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-import { type t, DenoDeps, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
+import { type t, c, DenoDeps, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -54,11 +54,11 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
         dependencies: modules.latest(pkg?.dependencies ?? {}),
         devDependencies: modules.latest(pkg?.devDependencies ?? {}),
       };
+
+      console.info(c.gray(`Resolved versions:`));
+      console.info(c.brightCyan(c.bold(`./package.json:`)), next, '\n');
+
       const json = `${JSON.stringify(next, null, '  ')}\n`;
-
-      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
-      console.log('package.json', next);
-
       return e.modify(json);
     }
 
