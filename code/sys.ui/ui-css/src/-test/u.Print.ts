@@ -8,7 +8,7 @@ export const TestPrint = {
     console.info();
     console.info(`↑.${c.brightCyan('style')}:`, m.style);
     console.info(`↑.${c.brightCyan('class')}:`, `"${c.yellow(m.class)}"`);
-    console.info(`↑.${c.brightCyan('toString')}:`, `"${c.yellow(m.toString())}"`);
+    console.info(`↑.${c.brightCyan('toString()')}:`, `"${c.yellow(m.toString())}"`);
     console.info();
   },
 };

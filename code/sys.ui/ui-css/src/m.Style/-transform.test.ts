@@ -1,4 +1,4 @@
-import { type t, DomMock, describe, expect, findCssRule, it, TestPrint } from '../-test.ts';
+import { type t, DomMock, c, describe, expect, findCssRule, it, TestPrint } from '../-test.ts';
 import { toHash } from './common.ts';
 import { Style, css } from './mod.ts';
 
@@ -64,11 +64,15 @@ describe('Style.css', () => {
       const prefix = 'foo';
       const css = Style.transformer({ prefix });
 
+      const input: t.CssProps = { PaddingX: [10, 30] };
       const m = css({ PaddingX: [10, 30] });
       const className = `${prefix}-${m.hx}`;
       expect(findCssRule(className)).to.eql(undefined);
 
+      console.info(c.gray('\nInput:'), input);
+      console.info(c.gray('↓'));
       TestPrint.transformed(m);
+
       expect(m.class).to.eql(className); // NB: insertion into DOM happens here.
       expect(findCssRule(className)?.cssText).to.include(className);
       expect(findCssRule(className)?.cssText).to.include(m.toString());

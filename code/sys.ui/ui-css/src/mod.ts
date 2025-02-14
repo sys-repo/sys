@@ -7,13 +7,7 @@
  * ```ts
  * import { css, Style, Color } from '@sys/ui-css';
  * ```
-
- * @example
- * React specific style imports
- * ```ts
- * import { css, Style, Color } from '@sys/ui-css/react';
- * ```
-*/
+ */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
