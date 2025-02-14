@@ -1,9 +1,5 @@
-import { c } from '@sys/color/ansi';
-import { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
-import { Dep } from '@sys/driver-deno/t';
 import { Vitepress } from '@sys/driver-vitepress';
-import { Fs } from '@sys/fs';
-import { PATHS, pkg } from '../src/common.ts';
+import { c, DenoDeps, DenoFile, Fs, PATHS, pkg, type t } from './u.ts';
 
 const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);
 const tmp = resolve('.tmp');
@@ -13,7 +9,7 @@ await Fs.remove(tmp);
  * Save monorepo deps.
  */
 const ws = await DenoFile.workspace();
-const deps: Dep[] = ws.modules.items.map((m) => DenoDeps.toDep(m));
+const deps: t.Dep[] = ws.modules.items.map((m) => DenoDeps.toDep(m));
 const yaml = DenoDeps.toYaml(deps);
 
 const dir = resolve('src/-tmpl/.sys');
