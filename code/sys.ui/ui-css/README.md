@@ -1,10 +1,13 @@
 # Style/CSS
 Tools for working with Styles/CSS programatically (aka "css-in-js").
 
+Note: This approach is a pure JS-to-CSS/DOM approach, with zero-dependencies on any other
+special bundler plugin, or post-css processing type dependencies, which inevitably cause 
+problems down stream when importing UI components from registry modules (less moving pieces).
 
 
 ### Usage
-Applying to a JSX style idiom:
+Applying within a JSX programming style idiom:
 
 ```tsx
 import { css } from '@sys/ui-css';
