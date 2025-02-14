@@ -10,11 +10,16 @@ import { Specs } from './entry.Specs.ts';
  *    assertions within the visual specs, to be included and monitored
  *    within the CI pipeline.
  */
-describe('visual specs', () => {
-  DomMock.polyfill();
+describe(
+  'visual specs',
+  //
+  { sanitizeResources: false, sanitizeOps: false },
+  () => {
+    DomMock.polyfill();
 
-  it('run', async () => {
-    const res = await Dev.headless(Specs);
-    expect(res.ok).to.eql(true);
-  });
-});
+    it('run', async () => {
+      const res = await Dev.headless(Specs);
+      expect(res.ok).to.eql(true);
+    });
+  },
+);
