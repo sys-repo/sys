@@ -79,7 +79,7 @@ describe('Style.css', () => {
     });
   });
 
-  describe.only('toString', () => {
+  describe('toString', () => {
     const style = { fontSize: 30, fontFamily: 'sans-serif' };
 
     const print = (kind: t.CssTransformStringKind, value: string) => {
