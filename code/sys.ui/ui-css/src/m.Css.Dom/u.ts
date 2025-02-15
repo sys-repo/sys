@@ -1,4 +1,4 @@
-import { type t, DEFAULT, pkg, toHash, toString, V } from './common.ts';
+import { V } from './common.ts';
 
 /**
  * Validation.
