@@ -4,11 +4,13 @@ import { toString } from './u.toString.ts';
 
 type M = Map<number, t.CssTransformed>;
 type O = Record<string, unknown>;
+type F = t.StyleLib['transformer'];
 
 /**
  * Generator (factory).
  */
-export const transformer: t.StyleLib['transformer'] = (options = {}) => {
+export const transformer: F = (input) => {
+  const options = wrangle.options(input);
   const { prefix = DEFAULT.prefix } = options;
   const dom = CssDom.create(prefix);
   const cache = new Map<number, t.CssTransformed>();
@@ -33,7 +35,16 @@ function transform(args: { dom: t.CssDom; cache: M; input: t.CssInput[] }): t.Cs
     get class() {
       return dom.class(style, hx);
     },
-    toString: () => toString(style),
+    toString(kind = 'CssRule') {
+      const rule = toString(style);
+
+      if (kind === 'CssRule') return rule;
+      if (kind === 'CssSelector') {
+        return `.${api.class} { ${rule} }`;
+      }
+
+      throw new Error(`Kind '${kind}' not supported`);
+    },
   };
 
   cache.set(hx, api);
@@ -44,6 +55,12 @@ function transform(args: { dom: t.CssDom; cache: M; input: t.CssInput[] }): t.Cs
  * Helpers
  */
 const wrangle = {
+  options(input?: Parameters<F>[0]): t.StyleTransformerOptions {
+    if (!input) return {};
+    if (typeof input === 'string') return { prefix: input };
+    return input;
+  },
+
   input(input: any): t.CssProps {
     if (Array.isArray(input)) {
       return input.reduce((acc, next) => ({ ...acc, ...wrangle.input(next) }), {} as O);

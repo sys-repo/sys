@@ -79,14 +79,37 @@ describe('Style.css', () => {
     });
   });
 
-  describe('toString', () => {
+  describe.only('toString', () => {
+    const style = { fontSize: 30, fontFamily: 'sans-serif' };
+
+    const print = (kind: t.CssTransformStringKind, value: string) => {
+      console.info();
+      console.info(`${c.brightCyan(kind)}: "${c.yellow(value)}"`);
+      console.info();
+    };
+
     it('empty', () => {
       expect(css({}).toString()).to.eql('');
     });
 
-    it('simple', () => {
-      const a = css({ fontSize: 30, fontFamily: 'sans-serif' });
-      expect(a.toString()).to.eql('font-size: 30px; font-family: sans-serif;');
+    it('kind: CssRule (default)', () => {
+      const m = css(style);
+      const a = m.toString();
+      const b = m.toString('CssRule');
+
+      print('CssRule', m.toString());
+
+      expect(a).to.eql('font-size: 30px; font-family: sans-serif;');
+      expect(a).to.eql(b);
+    });
+
+    it('kind: CssSelector', () => {
+      const css = Style.transformer('foo');
+      const m = css(style);
+      const str = m.toString('CssSelector');
+
+      print('CssSelector', str);
+      expect(str).to.eql(`.foo-${m.hx} { font-size: 30px; font-family: sans-serif; }`);
     });
   });
 

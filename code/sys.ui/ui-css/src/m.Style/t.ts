@@ -15,6 +15,10 @@ export type CssProps = CSSProperties;
  * (no period, eg "foo" not ".foo")
  */
 export type CssClassname = string;
+export type CssClassPrefix = string;
+
+/** Options passed to `Style.transformer` factory function. */
+export type StyleTransformerOptions = { prefix?: string };
 
 /**
  * CSS styling tools.
@@ -22,8 +26,9 @@ export type CssClassname = string;
 export type StyleLib = NamespaceLibs & {
   /** Perform a transformation on a loose set of CSS inputs. */
   readonly css: t.CssTransform;
+
   /** Factory to produce `transform` function scoped to the given prefix. */
-  transformer(options?: { prefix?: string }): t.CssTransform;
+  transformer(options?: t.CssClassPrefix | t.StyleTransformerOptions): t.CssTransform;
 
   /** Transform margin spacing. */
   readonly toMargins: t.CssEdgesLib['toMargins'];
@@ -78,8 +83,11 @@ export type CssTransformed = {
   readonly class: t.CssClassname;
 
   /** Convert the {style} props object to a CSS string. */
-  toString(): string;
+  toString(kind?: t.CssTransformStringKind): string;
 };
+
+/** Flags indicating the kind of string to export from the `toString` method. */
+export type CssTransformStringKind = 'CssRule' | 'CssSelector';
 
 /**
  * Shadow
