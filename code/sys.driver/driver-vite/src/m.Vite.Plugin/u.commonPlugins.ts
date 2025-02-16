@@ -38,5 +38,5 @@ export const commonPlugins: t.VitePluginLib['common'] = async (options = {}) => 
   }
 
   // Finish up.
-  return { plugins };
+  return plugins;
 };

@@ -20,7 +20,7 @@ export type VitePluginLib = {
    * A composite plugin that allow for a minimal configuration within `vite.config.ts`
    * that draws together react-swc, emotion-style, wasm, and the [deno-workspace] support.
    */
-  common(options?: t.CommonPluginsOptions): Promise<t.ViteUserConfig>;
+  common(options?: t.CommonPluginsOptions): Promise<t.VitePluginOption[]>;
 };
 
 export type CommonPluginsOptions = t.WorkspacePluginOptions & {

@@ -14,7 +14,7 @@ export default defineConfig(async () => {
   const __dirname = Path.fromFileUrl(import.meta.url);
   console.log('__dirname', __dirname);
 
-  const { plugins } = await Vite.Plugin.common({
+  const plugins = await Vite.Plugin.common({
     pkg,
     react: true, // ← (default)
     wasm: true, //  ← (default)
