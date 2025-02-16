@@ -23,7 +23,6 @@ export { slug } from './m.Random/mod.ts';
 export { Regex } from './m.Regex/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
 export { Url } from './m.Url/mod.ts';
-export { Array, asArray, isObject, isRecord, Num, Str, Value } from './m.Value/mod.ts';
-export { V } from './m.Validation/mod.ts';
+export { Array, asArray, isObject, isRecord, Num, Str, V, Value } from './m.Value/mod.ts';
 
 export { R } from './common.ts';

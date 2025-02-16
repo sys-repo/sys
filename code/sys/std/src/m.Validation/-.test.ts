@@ -4,7 +4,7 @@ import { V } from './mod.ts';
 /**
  * https://valibot.dev
  */
-describe('Validation', () => {
+describe('Validation: Valibot', () => {
   it('string: AlphanumericWithHyphens', () => {
     const AlphanumericWithHyphens = V.pipe(
       V.string(),
