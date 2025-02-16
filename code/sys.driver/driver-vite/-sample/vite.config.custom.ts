@@ -2,14 +2,19 @@
 import { c } from '@sys/cli';
 import { Vite } from '@sys/driver-vite';
 
-import { defineConfig } from 'vite';
-import { pkg } from './src/pkg.ts';
+import { defineConfig, type UserConfig } from 'vite';
+import { pkg, Path } from '../src/common.ts';
 
 /**
  * SAMPLE: Custom plugin (no customization).
  */
-export default defineConfig(() => {
-  return Vite.Plugin.common({
+export default defineConfig(async () => {
+  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+
+  const __dirname = Path.fromFileUrl(import.meta.url);
+  console.log('__dirname', __dirname);
+
+  const { plugins } = await Vite.Plugin.common({
     pkg,
     react: true, // ← (default)
     wasm: true, //  ← (default)
@@ -42,4 +47,17 @@ export default defineConfig(() => {
       e.chunk('sys', ['@sys/std']);
     },
   });
+
+  const libEntry = Path.join(__dirname, '../src/-entry/-lib.ts');
+  console.log('p', libEntry);
+
+  const build: UserConfig['build'] = {
+  };
+
+  const res: UserConfig = {
+    plugins,
+    // build,
+  };
+
+  return res;
 });
