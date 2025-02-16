@@ -12,9 +12,7 @@ export const ViteConfig: t.ViteConfigLib = {
   /**
    * Output directory paths.
    */
-  outDir: {
-    default: DEF.outDir,
-  },
+  outDir: { default: DEF.outDir },
 
   /**
    * Prepare paths for the vite build.
@@ -35,4 +33,4 @@ export const ViteConfig: t.ViteConfigLib = {
    * within the Vite/Rollup/alias configuration.
    */
   alias,
-} as const;
+};
