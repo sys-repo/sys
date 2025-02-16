@@ -18,7 +18,7 @@ export type FooComponent = {
   style?: t.CssValue;
 };
 
-export const FooComponent: React.FC<FooComponent> = (props) => {
+export const FooSample: React.FC<FooComponent> = (props) => {
   const [isOver, setOver] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
 
@@ -69,6 +69,8 @@ export const FooComponent: React.FC<FooComponent> = (props) => {
       <div style={{ paddingTop: 10 }}>
         {'Imported from ← '}
         <Foo />
+        <div>{'🐷🐷 TMP 🐷🐷 import WIP'}</div>
+        <code>{'<JSX> → Vite → ESM.js.d.ts → mod.ts → JSR → import'}</code>
       </div>
       {elThemeSample}
     </div>

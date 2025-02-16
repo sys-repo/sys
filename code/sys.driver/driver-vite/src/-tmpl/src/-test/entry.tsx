@@ -4,13 +4,11 @@ import { pkg } from '../common.ts';
  * Render UI.
  */
 globalThis.document.title = pkg.name;
-console.log('🐷 entry.tsx', pkg);
+console.log('🐷 ./entry.tsx → Pkg:💦', pkg);
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { FooComponent } from './entry.Foo.tsx';
-
-console.info('Pkg:💦', pkg);
+import { FooSample } from './entry.Foo.tsx';
 
 /**
  * 🐷 Test " @sys " module imports from across the
@@ -24,6 +22,6 @@ import '@sys/tmp/sample-imports';
 const root = createRoot(document.getElementById('root')!);
 root.render(
   <StrictMode>
-    <FooComponent style={{ border: `solid 1px blue` }} />
+    <FooSample style={{ border: `solid 1px blue` }} />
   </StrictMode>,
 );
