@@ -51,7 +51,7 @@ const wrangle = {
     const res = await Array.fromAsync(wait);
     return res
       .filter((item) => item.exists)
-      .filter((item) => item.pkg) // NB: filter out unmamed modules.
+      .filter((item) => item.pkg) // NB: filter out unnamed modules.
       .filter((item) => item.aliases.length > 0); // Filter out modules that don't provide exports.
   },
 
