@@ -1,14 +1,19 @@
 {
+  "deno.enable": true,
+  "deno.lint": false,
+  "deno.unstable": [],
+  
   "typescript.disableAutomaticTypeAcquisition": true,
   "typescript.tsserver.maxTsServerMemory": 16384,
-
+  
+  "editor.formatOnSave": true,
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestionsDelay": 0,
 
-  "deno.enable": true,
-  "deno.lint": false,
-  "deno.unstable": [],
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
