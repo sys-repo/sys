@@ -35,8 +35,3 @@ export const R: t.RLib = {
   uniq,
   uniqBy,
 };
-
-/**
- * Validation helpers ( https://valibot.dev )
- */
-export * as V from 'valibot';
