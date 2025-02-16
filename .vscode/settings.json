@@ -6,13 +6,13 @@
   "typescript.disableAutomaticTypeAcquisition": true,
   "typescript.tsserver.maxTsServerMemory": 16384,
   
-  "editor.formatOnSave": true,
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestionsDelay": 0,
-
-  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
-  "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  
+  // "editor.formatOnSave": true,
+  // "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  // "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
 
   "search.exclude": {
     "**/node_modules": true,
