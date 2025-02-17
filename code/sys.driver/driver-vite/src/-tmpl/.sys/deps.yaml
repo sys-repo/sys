@@ -48,6 +48,7 @@ groups:
     - import: npm:rollup@4.34.6
     - import: npm:vite@6.1.0
     - import: npm:vite-plugin-wasm@3.4.1
+    - import: npm:vite-plugin-dts@4.5.0
 
 deno.json:
   - group: std/deno
