@@ -33,7 +33,7 @@ export default defineConfig(async () => {
     },
 
     /**
-     * ƒ(🌳): Callback to mutate the generated Vite configuration before
+     * ƒ(🌳):　Callback to mutate the generated Vite configuration before
      *        it is passed on to the next step in the bundle pipeline
      */
     mutate(e) {
