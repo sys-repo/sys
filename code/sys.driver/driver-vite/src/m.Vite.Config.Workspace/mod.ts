@@ -1,5 +1,8 @@
+/**
+ * @module
+ */
 import { DenoFile, Fs, Path, R, type t } from './common.ts';
-import { Log } from './u.ts';
+import { Log } from './u.log.ts';
 
 type E = {
   exists: boolean;
@@ -11,7 +14,7 @@ type E = {
 /**
  * Configuration helpers for performing module-resolution over a `deno.json` workspace.
  */
-export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
+export const workspace: t.ViteConfigLib['workspace'] = async (options = {}) => {
   const { walkup = true, filter } = options;
   const base = await DenoFile.workspace(options.denofile, { walkup });
   const aliases = await wrangle.aliases(Path.dirname(base.file), base.children, filter);
@@ -26,7 +29,7 @@ export const workspace: t.ViteConfigWorkspaceFactory = async (options = {}) => {
         return acc;
       }, {});
     },
-    toString: (options) => Log.Workspace.toString(api, options),
+    toString: (options) => Log.toString(api, options),
     log: (options) => console.info(api.toString(options)),
   };
 

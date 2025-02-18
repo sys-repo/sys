@@ -17,7 +17,7 @@ export type ViteConfigLib = {
   paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
 
   /** Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
-  workspace: t.ViteConfigWorkspaceFactory;
+  workspace(options?: t.ViteConfigWorkspaceOptions): Promise<t.ViteDenoWorkspace>;
 
   /**
    * Construct a replacement regex to use an as alias for a module/import lookup
@@ -26,13 +26,6 @@ export type ViteConfigLib = {
   alias(registry: string, moduleName: string): t.ViteAlias;
 };
 
-/**
- * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
- */
-export type ViteConfigWorkspaceFactory = (
-  options?: t.ViteConfigWorkspaceOptions,
-) => Promise<t.ViteDenoWorkspace>;
-
 /** Options from the {config.workspace} method. */
 export type ViteConfigWorkspaceOptions = {
   denofile?: t.StringPath;
@@ -40,26 +33,18 @@ export type ViteConfigWorkspaceOptions = {
   filter?: t.WorkspaceFilter;
 };
 
-/** Paths params inputs. */
-export type ViteConfigPathsOptions = {
-  input?: t.StringPath;
-  outDir?: t.StringPath;
-};
-
 /**
  * Tools for configuring the "output" dir, eg: "./dist"
  */
-export type ViteConfigOutDir = {
-  readonly default: t.StringPath;
-};
+export type ViteConfigOutDir = { readonly default: t.StringPath };
+
+/** Paths params inputs. */
+export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
 
 /**
  * Paths relating to a Vite child process.
  */
-export type ViteConfigPaths = {
-  input: t.StringPath;
-  outDir: t.StringPath;
-};
+export type ViteConfigPaths = { input: t.StringPath; outDir: t.StringPath };
 
 export type ViteBundleDirs = {
   in: t.StringDir;

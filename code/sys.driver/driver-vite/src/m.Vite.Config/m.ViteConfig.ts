@@ -1,5 +1,5 @@
+import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
 import { type t, DEFAULTS, Path } from './common.ts';
-import { workspace } from './u.Workspace.ts';
 import { toAlias as alias } from './u.alias.ts';
 
 const resolve = Path.resolve;
