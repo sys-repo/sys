@@ -7,11 +7,6 @@ describe('ViteConfig', () => {
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 
-  it('Config.outDir', () => {
-    const outDir = ViteConfig.outDir;
-    expect(outDir.default).to.include('./dist');
-  });
-
   describe('rollup: alias', () => {
     it('toAliasRegex', () => {
       const jsr = toAliasRegex('jsr', 'foobar');

@@ -55,8 +55,10 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     root,
     base: options.base || './', // NB: relative pathing within bundled assets, eg: src="./main...",
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {CWD} and access other folders in the monorepo.
-    build,
     worker: { format },
+    get build() {
+      return build;
+    },
     get plugins() {
       return plugins;
     },

@@ -4,11 +4,12 @@
 export type {
   Rollup,
   Alias as ViteAlias,
+  BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
+  LibraryOptions as ViteLibraryOptions,
+  Plugin as VitePlugin,
   PluginOption as VitePluginOption,
   UserConfig as ViteUserConfig,
-  LibraryOptions as ViteLibraryOptions,
-  BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
 } from 'vite';
 
 /**
