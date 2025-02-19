@@ -20,7 +20,7 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
     let text = `
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
 ${c.gray(`in:       ${input}`)}
-${c.gray(`out:      ${outDir}/dist.json`)} ${tx}
+${c.gray(`out:      ${outDir.replace(/\/$/, '')}/dist.json`)} ${tx}
 `;
     text = text.trim();
     if (pkg) {
