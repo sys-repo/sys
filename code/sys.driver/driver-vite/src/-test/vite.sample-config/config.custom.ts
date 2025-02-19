@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-unreachable
 import { Vite } from '@sys/driver-vite';
+import dts from 'vite-plugin-dts';
 
 import { defineConfig } from 'vite';
 
