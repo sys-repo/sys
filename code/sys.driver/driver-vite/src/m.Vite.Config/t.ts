@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
-export type * from './t.paths.ts';
+export type * from './t.path.ts';
 
 /** Flags for major code-registries. */
 export type CodeRegistry = 'jsr' | 'npm';
@@ -36,6 +36,12 @@ export type ViteConfigLib = {
    */
   paths(options?: t.DeepPartial<t.ViteConfigPath>): t.ViteConfigPath;
 };
+
+/**
+ * TODO 🐷 refactor these path object out.
+ * - normalize them (where possible)
+ * - use the Path if possible.
+ */
 
 /** Paths relating to a Vite child process. */
 export type ViteConfigPaths = { input: t.StringPath; outDir: t.StringPath };
