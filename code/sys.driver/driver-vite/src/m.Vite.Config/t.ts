@@ -26,9 +26,6 @@ export type ViteConfigLib = {
   alias(registry: string, moduleName: string): t.ViteAlias;
 };
 
-/** Tools for configuring the "output" dir, eg: "./dist" */
-export type ViteConfigOutDir = { readonly default: t.StringPath };
-
 /** Paths params inputs. */
 export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
 

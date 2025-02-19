@@ -43,6 +43,7 @@ export type ViteBuildArgs = {
   input: t.StringPath;
   outDir?: t.StringPath;
   silent?: boolean;
+  cwd?: t.StringAbsoluteDir;
   pkg?: t.Pkg; // Consumer module.
 };
 

@@ -7,4 +7,8 @@ export const SAMPLE = {
     sample2: './src/-test/vite.sample-2/index.html',
     sample3: './src/-test/vite.sample-3/main.ts',
   },
+  dir: {
+    a: './src/-test/vite.sample-a',
+    b: './src/-test/vite.sample-b',
+  },
 } as const;

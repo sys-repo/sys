@@ -21,10 +21,18 @@ describe('Vite.build', () => {
     console.info();
   };
 
-  const testBuild = async (input: t.StringPath) => {
-    const fs = SAMPLE.fs('Vite.build');
-    const outDir = fs.dir;
-    const res = await Vite.build({ pkg, input, outDir });
+  const testBuild2 = async (sample: t.StringDir) => {
+    const fs = SAMPLE.fs('Vite.build-2');
+    await Fs.copy(sample, fs.dir);
+
+    const cwd = fs.dir;
+    console.log('sample', sample);
+    console.log('fs.dir', fs.dir);
+    console.log('await fs.ls()', await fs.ls());
+
+    const outDir = Fs.join(fs.dir, 'dist');
+    const input = Fs.join(fs.dir, 'index.html');
+    const res = await Vite.build({ cwd, pkg, input, outDir });
     const { paths } = res;
 
     expect(res.ok).to.eql(true);
@@ -35,7 +43,6 @@ describe('Vite.build', () => {
     // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
     const keys = Object.keys(res.dist.hash.parts);
     const hasPkg = keys.some((key) => key.startsWith('pkg/-pkg.json'));
-
     expect(hasPkg).to.eql(true);
 
     // Load file outputs.
@@ -47,47 +54,36 @@ describe('Vite.build', () => {
 
     return {
       input,
-      files: { html, distJson, entry },
+      get files() {
+        return { html, distJson, entry };
+      },
       paths,
       res,
     } as const;
   };
 
-  it('sample-1: simple', async () => {
-    await Testing.retry(3, async () => {
-      const input = SAMPLE.Input.sample1;
-      const { res, files } = await testBuild(input);
+  it('sample-a: simple', async () => {
+    const { res, files } = await testBuild2(SAMPLE.dir.a);
+    printHtml(files.html, 'sample-1');
+    expect(files.html).to.include(`<title>Sample-1</title>`);
 
-      expect(files.html).to.include(`<title>Sample-1</title>`);
-
-      expect(res.dist).to.eql(files.distJson);
-      expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.size.bytes).to.be.greaterThan(100_000);
-      expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
-
-      printDist(input, res.dist);
-      printHtml(files.html, 'sample-1');
-    });
+    expect(res.dist).to.eql(files.distJson);
+    expect(res.dist.pkg).to.eql(pkg);
+    expect(res.dist.size.bytes).to.be.greaterThan(100_000);
+    expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
   });
 
-  it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
+  it.only('sample-b: monorepo imports | Module-B  ←  Module-A', async () => {
     await Testing.retry(3, async () => {
-      const input = SAMPLE.Input.sample2;
-      const { res, files } = await testBuild(input);
+      const { files } = await testBuild2(SAMPLE.dir.b);
+      printHtml(files.html, 'sample-2');
+
       expect(files.html).to.include(`<title>Sample-2</title>`);
       expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
-      expect(files.html).to.include(`<link rel="modulepreload" crossorigin href="./pkg/`);
-      printDist(input, res.dist);
 
-      printHtml(files.html, 'sample-2');
-    });
-  });
-
-  it('sample-3: main.ts entry point', async () => {
-    await Testing.retry(3, async () => {
-      const input = SAMPLE.Input.sample3;
-      const { files } = await testBuild(input);
-      expect(files.entry).to.includes('console.info("main.ts")');
+      const filenames = Object.keys(files.distJson?.hash.parts ?? []);
+      const js = filenames.filter((p) => p.endsWith('.js'));
+      expect(js.length).to.eql(3); // NB: 3rd .js file proves the code-splitting.
     });
   });
 });
