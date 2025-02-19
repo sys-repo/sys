@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, c, describe, expect, it } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 import { toAlias, toAliasRegex } from './u.alias.ts';
 
@@ -83,6 +83,44 @@ describe('ViteConfig', () => {
         test('npm', 'foo', 'npm:foo/a/b', 'foo/a/b');
         test('jsr', '@sys/tmp', 'jsr:@sys/tmp/a/b', '@sys/tmp/a/b');
       });
+    });
+  });
+
+  describe('paths', () => {
+    it('default paths (empty params)', () => {
+      const res = ViteConfig.paths();
+      expect(res.app.input).to.eql('index.html');
+      expect(res.app.outDir).to.eql('dist/');
+
+      console.info();
+      console.info(c.brightCyan('ViteConfig.paths (default):'));
+      console.info(res);
+      console.info();
+    });
+
+    it('adjusted (partial)', () => {
+      const a = ViteConfig.paths({ app: { input: 'src/-test/index.html' } });
+      const b = ViteConfig.paths({ app: { outDir: 'foobar' } });
+      const c = ViteConfig.paths({ app: { input: '  ', outDir: '' } });
+      const d = ViteConfig.paths({ app: { input: ' foo.html ', outDir: ' bar ' } });
+
+      console.log('a', a);
+      console.log('b', b);
+      console.log('c', c);
+
+      expect(a.app.input).to.eql('src/-test/index.html');
+      expect(a.app.outDir).to.eql('dist/');
+
+      expect(b.app.input).to.eql('index.html');
+      expect(b.app.outDir).to.eql('foobar');
+
+      // NB: empty space → defaults.
+      expect(c.app.input).to.eql('index.html');
+      expect(c.app.outDir).to.eql('dist/');
+
+      // NB: space trimmed.
+      expect(d.app.input).to.eql('foo.html');
+      expect(d.app.outDir).to.eql('bar');
     });
   });
 });
