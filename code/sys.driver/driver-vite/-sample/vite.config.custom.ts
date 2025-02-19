@@ -1,24 +1,15 @@
 // deno-lint-ignore-file no-unreachable
-import { c } from '@sys/cli';
 import { Vite } from '@sys/driver-vite';
 
-import { defineConfig, type UserConfig } from 'vite';
-import { pkg, Path } from '../src/common.ts';
+import { defineConfig } from 'vite';
 
 /**
  * SAMPLE: Custom plugin (no customization).
  */
 export default defineConfig(async () => {
-  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
-
-  const __dirname = Path.fromFileUrl(import.meta.url);
-  console.log('__dirname', __dirname);
-
-  const plugins = await Vite.Plugin.common({
-    pkg,
-    react: true, // ← (default)
-    wasm: true, //  ← (default)
-    // workspace: false,
+  const app = await Vite.Config.app({
+    input: '.tmp/sample/src/-test/index.html',
+    outDir: '.tmp/sample/dist',
 
     /**
      * ƒ(🌳): Filter to apply to the workspace modules
@@ -32,32 +23,15 @@ export default defineConfig(async () => {
       return false;
     },
 
-    /**
-     * ƒ(🌳):　Callback to mutate the generated Vite configuration before
-     *        it is passed on to the next step in the bundle pipeline
-     */
-    mutate(e) {
-      console.info(c.dim(`\n👋 (callback inside plugin)`));
-      // if (e.ws) console.info(e.ws.toString({ pad: true }));
-    },
-
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');
       e.chunk('sys', ['@sys/std']);
     },
+
+    minify: true, //                         ← (default)
+    plugins: { react: true, wasm: true }, // ← (default)
   });
 
-  const libEntry = Path.join(__dirname, '../src/-entry/-lib.ts');
-  console.log('p', libEntry);
-
-  const build: UserConfig['build'] = {
-  };
-
-  const res: UserConfig = {
-    plugins,
-    // build,
-  };
-
-  return res;
+  return app;
 });
