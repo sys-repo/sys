@@ -12,6 +12,8 @@ export type CodeRegistry = 'jsr' | 'npm';
  * https://vitejs.dev/config
  */
 export type ViteConfigLib = {
+  readonly Is: t.ViteConfigIsLib;
+
   /**
    * Construct an "application" configuration (index.html).
    */
@@ -44,10 +46,12 @@ export type ViteConfigLib = {
 };
 
 /**
- * TODO 🐷 refactor these path object out.
- * - normalize them (where possible)
- * - use the Path if possible.
+ * Library of boolean evaluation helpers for Vite configuration data.
  */
+export type ViteConfigIsLib = {
+  /** Determine if the given input is a paths configuration object. */
+  paths(input?: any): input is t.ViteConfigPaths;
+};
 
 /** Paths relating to a Vite child process. */
 export type ViteConfigPaths____ = { input: t.StringPath; outDir: t.StringPath };

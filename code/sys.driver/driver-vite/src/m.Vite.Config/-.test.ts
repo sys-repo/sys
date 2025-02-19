@@ -1,5 +1,6 @@
 import { type t, c, describe, expect, it, Path, SAMPLE } from '../-test.ts';
 import { Vite } from '../mod.ts';
+import { Is } from './m.Is.ts';
 import { ViteConfig } from './mod.ts';
 import { toAlias, toAliasRegex } from './u.alias.ts';
 
@@ -8,6 +9,7 @@ describe('ViteConfig', () => {
 
   it('API', () => {
     expect(Vite.Config).to.equal(ViteConfig);
+    expect(ViteConfig.Is).to.equal(Is);
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 
@@ -174,11 +176,36 @@ describe('ViteConfig', () => {
       expect(res.module).to.eql({});
     });
 
+    it('loads main samples', async () => {
+      const test = async (path: t.StringPath) => {
+        const res = await Vite.Config.fromFile(path);
+        expect(res.error).to.eql(undefined);
+        expect(ViteConfig.Is.paths(res.module.paths)).to.be.true;
+      };
+
+      await test('src/-test/vite.sample-config/config.simple.ts');
+      await test('src/-test/vite.sample-config/config.custom.ts');
+    });
+
     it('fail: not found', async () => {
       const res = await ViteConfig.fromFile('/foo/404/vite.config.ts');
       expect(res.error?.message).to.include('Module not found at path');
       expect(res.error?.cause?.name).to.eql('TypeError');
       expect(res.module).to.eql({});
+    });
+  });
+
+  describe('ViteConfig.Is', () => {
+    it('Is.path', () => {
+      const test = (input: any, expected: boolean) => {
+        const res = ViteConfig.Is.paths(input);
+        expect(res).to.eql(expected, input);
+      };
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => test(value, false));
+
+      test(ViteConfig.paths(), true);
+      test(ViteConfig.paths({ app: { entry: 'src/-entry/index.html' } }), true);
     });
   });
 });

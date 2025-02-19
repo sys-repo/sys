@@ -1,4 +1,5 @@
 import { type t, Delete, Err, isRecord, Path } from './common.ts';
+import { Is } from './m.Is.ts';
 
 type R = t.ViteConfigFromFile;
 
@@ -44,19 +45,7 @@ const wrangle = {
   },
   module(mod: any): R['module'] {
     const defineConfig = typeof mod?.default === 'function' ? mod.default : undefined;
-    const paths = is.paths(mod?.paths) ? mod.paths : undefined;
+    const paths = Is.paths(mod?.paths) ? mod.paths : undefined;
     return Delete.undefined({ defineConfig, paths });
-  },
-} as const;
-
-const is = {
-  paths(input: any): input is t.ViteConfigPaths {
-    if (!isRecord(input)) return false;
-    const o = input as t.ViteConfigPaths;
-    return (
-      typeof o.cwd === 'string' &&
-      typeof o.app?.entry === 'string' &&
-      typeof o.app?.outDir === 'string'
-    );
   },
 } as const;

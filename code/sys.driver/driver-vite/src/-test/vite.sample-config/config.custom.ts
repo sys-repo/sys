@@ -1,16 +1,21 @@
 // deno-lint-ignore-file no-unreachable
 import { Vite } from '@sys/driver-vite';
 import dts from 'vite-plugin-dts';
-
 import { defineConfig } from 'vite';
+
+export const paths = Vite.Config.paths({
+  app: {
+    entry: '.tmp/sample/src/-test/index.html',
+    outDir: '.tmp/sample/dist',
+  },
+});
 
 /**
  * SAMPLE: Custom plugin (no customization).
  */
 export default defineConfig(async () => {
   const app = await Vite.Config.app({
-    input: '.tmp/sample/src/-test/index.html',
-    outDir: '.tmp/sample/dist',
+    paths,
 
     /**
      * ƒ(🌳): Filter to apply to the workspace modules
