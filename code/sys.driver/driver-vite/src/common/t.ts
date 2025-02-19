@@ -8,6 +8,7 @@ export type {
   PluginOption as VitePluginOption,
   UserConfig as ViteUserConfig,
   LibraryOptions as ViteLibraryOptions,
+  BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
 } from 'vite';
 
 /**
