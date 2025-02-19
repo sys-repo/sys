@@ -1,3 +1,4 @@
+import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
@@ -35,6 +36,11 @@ export type ViteConfigLib = {
    * ```
    */
   paths(options?: t.DeepPartial<t.ViteConfigPaths>): t.ViteConfigPaths;
+
+  /**
+   * Attempts to dynamically load a `vite.config.ts` module.
+   */
+  fromFile(path?: t.StringPath): Promise<ViteConfigFromFile>;
 };
 
 /**
@@ -67,4 +73,13 @@ export type ViteModuleChunks = (e: ViteModuleChunksArgs) => void;
 export type ViteModuleChunksArgs = {
   /** Define a chunk. */
   chunk(alias: string, moduleName?: string | string[]): ViteModuleChunksArgs;
+};
+
+/**
+ * The result from the `Vite.Config.fromFile` method.
+ */
+export type ViteConfigFromFile = {
+  path: t.StringAbsolutePath;
+  module: { defineConfig?: typeof defineConfig; paths?: t.ViteConfigPaths };
+  error?: t.StdError;
 };

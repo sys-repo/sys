@@ -1,4 +1,5 @@
-import { type t, c, describe, expect, it, Path } from '../-test.ts';
+import { type t, c, describe, expect, it, Path, SAMPLE } from '../-test.ts';
+import { Vite } from '../mod.ts';
 import { ViteConfig } from './mod.ts';
 import { toAlias, toAliasRegex } from './u.alias.ts';
 
@@ -6,10 +7,11 @@ describe('ViteConfig', () => {
   const { brightCyan: cyan, bold } = c;
 
   it('API', () => {
+    expect(Vite.Config).to.equal(ViteConfig);
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 
-  describe('rollup: alias', () => {
+  describe('ViteConfig.alias (rollup)', () => {
     it('toAliasRegex', () => {
       const jsr = toAliasRegex('jsr', 'foobar');
       const npm = toAliasRegex('npm', 'foobar');
@@ -88,7 +90,7 @@ describe('ViteConfig', () => {
     });
   });
 
-  describe('paths', () => {
+  describe('ViteConfig.paths', () => {
     it('default paths (empty params)', () => {
       const a = ViteConfig.paths();
       const b = ViteConfig.paths();
@@ -144,6 +146,39 @@ describe('ViteConfig', () => {
       expect(a.cwd).to.eql(Path.cwd());
       expect(b.cwd).to.eql(Path.dirname(Path.fromFileUrl(import.meta.url)));
       expect(c.cwd).to.eql('/foo/bar');
+    });
+  });
+
+  describe('ViteConfig.fromFile', () => {
+    it('load from file path', async () => {
+      const path = Path.join(SAMPLE.Dirs.b, 'vite.config.ts');
+      const res = await ViteConfig.fromFile(path);
+      expect(res.error).to.eql(undefined);
+      expect(res.path).to.eql(Path.resolve(path));
+      expect(res.module.paths?.app.entry).to.eql('src/-entry/index.html');
+      expect(typeof res.module.defineConfig === 'function').to.be.true;
+    });
+
+    it('no params: load from implicit {CWD}', async () => {
+      const path = Path.resolve('vite.config.ts');
+      const res = await ViteConfig.fromFile();
+      expect(res.path).to.eql(path);
+      expect(typeof res.module.defineConfig === 'function').to.be.true;
+      expect((await import(path)).default).to.eql(res.module.defineConfig);
+    });
+
+    it('no `paths` | no `defineConfig`', async () => {
+      const path = Path.fromFileUrl(import.meta.url); // NB: not a `vite.config.ts` module.
+      const res = await ViteConfig.fromFile(path);
+      expect(res.error).to.eql(undefined);
+      expect(res.module).to.eql({});
+    });
+
+    it('fail: not found', async () => {
+      const res = await ViteConfig.fromFile('/foo/404/vite.config.ts');
+      expect(res.error?.message).to.include('Module not found at path');
+      expect(res.error?.cause?.name).to.eql('TypeError');
+      expect(res.module).to.eql({});
     });
   });
 });

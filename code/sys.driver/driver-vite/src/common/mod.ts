@@ -7,6 +7,7 @@ export const PATHS = {
   dist: 'dist/',
   backup: '-backup/',
   tmp: '.tmp/',
+  html: { index: 'index.html' },
   tmpl: {
     tmp: '.tmp/-tmpl/',
     source: 'src/-tmpl/',
