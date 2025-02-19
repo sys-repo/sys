@@ -92,3 +92,12 @@ export type ViteConfigCommonPlugins = {
   /** Flag indicating if the "wasm" plugin should be included. */
   wasm?: boolean;
 };
+
+/**
+ * Handler for declaring how to chunk a module.
+ */
+export type ViteModuleChunks = (e: ViteModuleChunksArgs) => void;
+/** Arguments passed to the chunk method. */
+export type ViteModuleChunksArgs = {
+  chunk(alias: string, moduleName?: string | string[]): ViteModuleChunksArgs;
+};

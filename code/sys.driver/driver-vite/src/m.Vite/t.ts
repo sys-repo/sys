@@ -8,8 +8,6 @@ type ToStringOptions = { pad?: boolean };
 export type ViteLib = {
   readonly Tmpl: t.ViteTmplLib;
   readonly Config: t.ViteConfigLib;
-  readonly Plugin: t.VitePluginLib;
-  common: t.VitePluginLib['common'];
 
   /**
    * Run the Vite `build` command to produce an output `/dist` bundle.

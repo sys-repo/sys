@@ -77,7 +77,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
  * Helpers
  */
 const wrangle = {
-  async workspace(options: t.WorkspacePluginOptions) {
+  async workspace(options: t.ViteConfigAppOptions) {
     const { filter } = options;
     if (options.workspace === false) return undefined;
 
