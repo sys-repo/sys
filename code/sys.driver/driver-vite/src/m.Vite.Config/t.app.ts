@@ -4,15 +4,7 @@ import type { t } from './common.ts';
  * Options passed to the `Vite.Config.app` method.
  */
 export type ViteConfigAppOptions = {
-  input?: t.StringDir;
-  outDir?: t.StringPath;
-
-  /**
-   * Relative pathing within bundled assets, eg: src="./main..."
-   * See:
-   *  https://vite.dev/config/shared-options.html#base
-   */
-  base?: t.StringRelativeDir;
+  paths?: t.ViteConfigPaths;
 
   /**
    * Enabled deno workspace support.

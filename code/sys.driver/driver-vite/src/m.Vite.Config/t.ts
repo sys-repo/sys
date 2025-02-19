@@ -31,10 +31,10 @@ export type ViteConfigLib = {
    * Produces a set of standard parts for export from a `vite.config.ts` file.
    * @example
    * ```ts
-   * export const paths = Vite.Config.paths(...);
+   * export const paths = Vite.Config.paths(import.meta, ...);
    * ```
    */
-  paths(options?: t.DeepPartial<t.ViteConfigPath>): t.ViteConfigPath;
+  paths(options?: t.DeepPartial<t.ViteConfigPaths>): t.ViteConfigPaths;
 };
 
 /**
@@ -44,7 +44,7 @@ export type ViteConfigLib = {
  */
 
 /** Paths relating to a Vite child process. */
-export type ViteConfigPaths = { input: t.StringPath; outDir: t.StringPath };
+export type ViteConfigPaths____ = { input: t.StringPath; outDir: t.StringPath };
 
 /** Bundle directories. */
 export type ViteBundleDirs = { in: t.StringDir; out: t.StringDir };

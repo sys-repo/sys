@@ -2,13 +2,19 @@ import type { ManualChunksOption } from 'rollup';
 
 import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
 import { type t, asArray, Path, R } from './common.ts';
+import { paths as formatPaths } from './u.path.ts';
 import { commonPlugins } from './u.plugins.ts';
 
+/**
+ * Application bundle configuration.
+ */
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const { minify = true } = options;
   const ws = await wrangle.workspace(options);
-  const input = options.input ? Path.resolve(options.input) : Path.resolve('./index.html');
-  const outDir = options.outDir ? Path.resolve(options.outDir) : Path.resolve('./dist');
+  const paths = formatPaths(options.paths);
+
+  const input = Path.join(paths.cwd, paths.app.entry);
+  const outDir = Path.join(paths.cwd, paths.app.outDir);
   const root = Path.dirname(input);
 
   /**
@@ -36,7 +42,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     emptyOutDir: true,
     outDir,
     rollupOptions: {
-      input: Path.join(root, 'index.html'),
+      input,
       output: {
         format,
         manualChunks,
@@ -49,8 +55,8 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
 
   const res: t.ViteUserConfig = {
     root,
-    base: options.base || './', // NB: relative pathing within bundled assets, eg: src="./main...",
-    server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {CWD} and access other folders in the monorepo.
+    base: paths.app.base,
+    server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
     worker: { format },
     get build() {
       return build;
@@ -88,4 +94,12 @@ const wrangle = {
 
     return ws;
   },
+
+  //   paths() {},
+  //
+  //   envPath(envKey: string) {
+  //     const path = Deno.env.get(envKey) ?? '';
+  //     if (!path) throw new Error(`Path at env-key "${envKey}" not found`);
+  //     return Path.resolve(path);
+  //   },
 } as const;

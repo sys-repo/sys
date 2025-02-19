@@ -1,16 +1,25 @@
-import { type t, PATHS } from './common.ts';
+import { type t, PATHS, Path } from './common.ts';
 
-export const paths: t.ViteConfigLib['paths'] = (options = {}) => {
-  const app: t.DeepMutable<t.ViteConfigPathApp> = { input: PATHS.html.index, outDir: PATHS.dist };
-  const lib: t.DeepMutable<t.ViteConfigPathLib> = {};
+type F = t.ViteConfigLib['paths'];
 
-  if (valueExists(options.app?.input)) app.input = options.app?.input;
+export const paths: F = (options = {}) => {
+  const cwd = wrangle.cwd(options);
+  const app: t.DeepMutable<t.ViteConfigPathsApp> = {
+    entry: PATHS.html.index,
+    outDir: PATHS.dist,
+    base: './',
+  };
+  const lib: t.DeepMutable<t.ViteConfigPathsLib> = {};
+
+  if (valueExists(options.app?.entry)) app.entry = options.app?.entry;
   if (valueExists(options.app?.outDir)) app.outDir = options.app?.outDir;
+  if (valueExists(options.app?.base)) app.base = options.app?.base;
 
-  app.input = app.input.trim();
+  app.entry = app.entry.trim();
   app.outDir = app.outDir.trim();
+  app.base = app.base.trim();
 
-  return { app, lib };
+  return { cwd, app, lib };
 };
 
 /**
@@ -19,3 +28,15 @@ export const paths: t.ViteConfigLib['paths'] = (options = {}) => {
 function valueExists(value?: string): value is string {
   return typeof value === 'string' ? !!value.trim() : false;
 }
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  cwd(options: Parameters<F>[0]) {
+    if (typeof options?.cwd !== 'string') return Path.cwd();
+    let path = options.cwd.trim();
+    if (path.startsWith('file://')) path = Path.dirname(Path.fromFileUrl(path));
+    return path;
+  },
+} as const;
