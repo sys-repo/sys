@@ -88,13 +88,15 @@ describe('ViteConfig', () => {
 
   describe('paths', () => {
     it('default paths (empty params)', () => {
-      const res = ViteConfig.paths();
-      expect(res.app.input).to.eql('index.html');
-      expect(res.app.outDir).to.eql('dist/');
+      const a = ViteConfig.paths();
+      const b = ViteConfig.paths();
+      expect(a.app.input).to.eql('index.html');
+      expect(a.app.outDir).to.eql('dist/');
+      expect(a).to.not.equal(b);
 
       console.info();
       console.info(c.brightCyan('ViteConfig.paths (default):'));
-      console.info(res);
+      console.info(a);
       console.info();
     });
 
