@@ -4,35 +4,28 @@ import { Vite } from './mod.ts';
 describe('Vite.build', () => {
   const printDist = (input: t.StringPath, dist: t.DistPkg) => {
     const distfile = c.bold(c.white('./dist/dist.json'));
-    console.info();
-    console.info(c.green(`input: ${input}`));
+    console.info(c.gray(`input: ${Fs.trimCwd(input)}`));
     console.info(c.green(' ↓'));
-    console.info(c.green(`output: Pkg.Dist.compute → ${distfile}`));
-    console.info();
+    console.info(c.gray(`output: Pkg.Dist.compute → ${distfile}`));
+    console.info(c.green(' ↓'));
     console.info(dist);
     console.info();
   };
 
-  const printHtml = (html: string, title: string) => {
+  const printHtml = (html: string, title: string, dir: t.StringDir) => {
     const fmtTitle = title ? `(${title})` : '';
-    console.info();
-    console.info(c.brightCyan(`${c.bold('files.html')} ${fmtTitle}:\n`));
+    console.info(c.brightCyan(`${c.bold('files.html')} ${fmtTitle}:`));
+    console.info(c.gray(dir), '\n');
     console.info(c.italic(c.yellow(html)));
     console.info();
   };
 
-  const testBuild2 = async (sample: t.StringDir) => {
-    const fs = SAMPLE.fs('Vite.build-2');
+  const testBuild = async (sample: t.StringDir) => {
+    const fs = SAMPLE.fs('Vite.build');
     await Fs.copy(sample, fs.dir);
 
     const cwd = fs.dir;
-    console.log('sample', sample);
-    console.log('fs.dir', fs.dir);
-    console.log('await fs.ls()', await fs.ls());
-
-    const outDir = Fs.join(fs.dir, 'dist');
-    const input = Fs.join(fs.dir, 'index.html');
-    const res = await Vite.build({ cwd, pkg, input, outDir });
+    const res = await Vite.build({ cwd, pkg });
     const { paths } = res;
 
     expect(res.ok).to.eql(true);
@@ -47,24 +40,23 @@ describe('Vite.build', () => {
 
     // Load file outputs.
     const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
-    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
+    const json = await Fs.readJson<t.DistPkg>(Fs.join(paths.outDir, 'dist.json'));
     const distJson = json.data;
-    const html = await readFile(Fs.join(outDir, 'index.html'));
-    const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
+    const html = await readFile(Fs.join(paths.outDir, 'index.html'));
+    const entry = await readFile(Fs.join(paths.outDir, distJson?.entry ?? ''));
 
     return {
-      input,
+      res,
+      paths,
       get files() {
         return { html, distJson, entry };
       },
-      paths,
-      res,
     } as const;
   };
 
-  it('sample-a: simple', async () => {
-    const { res, files } = await testBuild2(SAMPLE.dir.a);
-    printHtml(files.html, 'sample-1');
+  it('sample-A: simple', async () => {
+    const { res, files } = await testBuild(SAMPLE.dir.a);
+    printHtml(files.html, 'sample-1', res.paths.outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
 
     expect(res.dist).to.eql(files.distJson);
@@ -73,17 +65,18 @@ describe('Vite.build', () => {
     expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
   });
 
-  it.only('sample-b: monorepo imports | Module-B  ←  Module-A', async () => {
+  it('sample-B: monorepo imports | Module-B  ←  Module-A', async () => {
     await Testing.retry(3, async () => {
-      const { files } = await testBuild2(SAMPLE.dir.b);
-      printHtml(files.html, 'sample-2');
+      const { files, res } = await testBuild(SAMPLE.dir.b);
+      printHtml(files.html, 'sample-2', res.paths.outDir);
+      printDist(res.paths.input, res.dist);
 
       expect(files.html).to.include(`<title>Sample-2</title>`);
       expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
 
       const filenames = Object.keys(files.distJson?.hash.parts ?? []);
       const js = filenames.filter((p) => p.endsWith('.js'));
-      expect(js.length).to.eql(3); // NB: 3rd .js file proves the code-splitting.
+      expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
     });
   });
 });

@@ -13,21 +13,24 @@ export type ViteConfigLib = {
    */
   app(options?: t.ViteConfigAppOptions): Promise<t.ViteUserConfig>;
 
-  /** Prepare paths for the vite build. */
-  paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
-
-  /** Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
+  /**
+   * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
+   */
   workspace(options?: t.ViteConfigWorkspaceOptions): Promise<t.ViteDenoWorkspace>;
 
   /**
-   * Construct a replacement regex to use an as alias for a module/import lookup
-   * within the Vite/Rollup/alias configuration.
+   * Construct a replacement regex to use an as alias for a module/import
+   * lookup within the Vite/Rollup/alias configuration.
    */
   alias(registry: string, moduleName: string): t.ViteAlias;
 };
 
 /** Paths params inputs. */
-export type ViteConfigPathsOptions = { input?: t.StringPath; outDir?: t.StringPath };
+export type ViteConfigPathsOptions = {
+  input?: t.StringPath;
+  outDir?: t.StringPath;
+  cwd?: t.StringDir;
+};
 
 /** Paths relating to a Vite child process. */
 export type ViteConfigPaths = { input: t.StringPath; outDir: t.StringPath };

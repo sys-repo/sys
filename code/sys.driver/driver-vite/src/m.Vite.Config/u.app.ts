@@ -5,11 +5,11 @@ import { type t, asArray, Path, R } from './common.ts';
 import { commonPlugins } from './u.plugins.ts';
 
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
+  const { minify = true } = options;
   const ws = await wrangle.workspace(options);
-
   const input = options.input ? Path.resolve(options.input) : Path.resolve('./index.html');
+  const outDir = options.outDir ? Path.resolve(options.outDir) : Path.resolve('./dist');
   const root = Path.dirname(input);
-  const dist = options.outDir ? Path.resolve(options.outDir) : Path.resolve('./dist');
 
   /**
    * Chunking.
@@ -26,19 +26,15 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   }
 
   /**
-   * Plugins
-   */
-  const plugins = await commonPlugins(options.plugins);
-
-  /**
    * Config.
    */
   const format = 'es';
+  const plugins = await commonPlugins(options.plugins);
   const build: t.ViteBuildEnvironmentOptions = {
     target: 'esnext',
-    minify: options.minify ?? true,
+    minify,
     emptyOutDir: true,
-    outDir: dist,
+    outDir,
     rollupOptions: {
       input: Path.join(root, 'index.html'),
       output: {
