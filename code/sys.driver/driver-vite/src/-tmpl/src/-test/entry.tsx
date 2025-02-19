@@ -8,7 +8,7 @@ console.log('🐷 ./entry.tsx → Pkg:💦', pkg);
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { FooSample } from './entry.Foo.tsx';
+import { FooSample } from './-sample/ui.Foo.tsx';
 
 /**
  * 🐷 Test " @sys " module imports from across the

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Foo } from '@sys/tmp/ui';
 import { Color, css } from '@sys/ui-css';
-import type { t } from '../common.ts';
+import type { t } from '../../common.ts';
 
 /**
  * Sample Component demonstrating the fundamentals of React
