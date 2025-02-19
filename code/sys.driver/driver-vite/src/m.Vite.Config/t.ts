@@ -41,15 +41,7 @@ export type ViteBundleDirs = { in: t.StringDir; out: t.StringDir };
 /**
  * Options passed to the `Vite.Config.app` method.
  */
-export type ViteConfigAppOptions = {
-  /**
-   * Project root directory (where index.html is located).
-   * Can be an absolute path, or a path relative to the current working directory.
-   * See:
-   *    https://vite.dev/config/shared-options.html#root
-   */
-  root?: t.StringDir;
-
+export type ViteConfigAppOptions = ViteConfigPathsOptions & {
   /**
    * Relative pathing within bundled assets, eg: src="./main..."
    * See:

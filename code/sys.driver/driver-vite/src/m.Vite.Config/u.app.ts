@@ -6,8 +6,10 @@ import { commonPlugins } from './u.plugins.ts';
 
 export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const ws = await wrangle.workspace(options);
-  const root = Path.resolve(options.root || Path.cwd());
-  const base = options.base || './'; // NB: relative pathing within bundled assets, eg: src="./main..."
+
+  const input = options.input ? Path.resolve(options.input) : Path.resolve('./index.html');
+  const root = Path.dirname(input);
+  const dist = options.outDir ? Path.resolve(options.outDir) : Path.resolve('./dist');
 
   /**
    * Chunking.
@@ -33,9 +35,10 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    */
   const format = 'es';
   const build: t.ViteBuildEnvironmentOptions = {
-    emptyOutDir: true,
     target: 'esnext',
     minify: options.minify ?? true,
+    emptyOutDir: true,
+    outDir: dist,
     rollupOptions: {
       input: Path.join(root, 'index.html'),
       output: {
@@ -50,11 +53,13 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
 
   const res: t.ViteUserConfig = {
     root,
-    base,
+    base: options.base || './', // NB: relative pathing within bundled assets, eg: src="./main...",
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {CWD} and access other folders in the monorepo.
     build,
     worker: { format },
-    plugins,
+    get plugins() {
+      return plugins;
+    },
     resolve: {
       get alias() {
         return ws ? ws.aliases : undefined;
