@@ -1,8 +1,10 @@
 import { type t, PATHS, Path } from './common.ts';
 
 type F = t.ViteConfigLib['paths'];
+type Options = t.DeepPartial<t.ViteConfigPaths>;
 
-export const paths: F = (options = {}) => {
+export const paths: F = (input) => {
+  const options = wrangle.options(input);
   const cwd = wrangle.cwd(options);
   const app: t.DeepMutable<t.ViteConfigPathsApp> = {
     entry: PATHS.html.index,
@@ -33,7 +35,13 @@ function valueExists(value?: string): value is string {
  * Helpers
  */
 const wrangle = {
-  cwd(options: Parameters<F>[0]) {
+  options(input: Parameters<F>[0]): Options {
+    if (typeof input === 'string') return { cwd: input };
+    return input ?? {};
+  },
+
+  cwd(options: Options): string {
+    if (typeof options === 'string') return wrangle.cwd({ cwd: options });
     if (typeof options?.cwd !== 'string') return Path.cwd();
     let path = options.cwd.trim();
     if (path.startsWith('file://')) path = Path.dirname(Path.fromFileUrl(path));

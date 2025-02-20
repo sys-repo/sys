@@ -1,6 +1,5 @@
 import { Vite } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
-  return Vite.Config.app();
-});
+export const paths = Vite.Config.paths(import.meta.url);
+export default defineConfig(() => Vite.Config.app({ paths }));

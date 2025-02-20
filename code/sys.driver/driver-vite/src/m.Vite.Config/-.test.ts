@@ -106,7 +106,7 @@ describe('ViteConfig', () => {
       console.info();
     });
 
-    it('adjusted', () => {
+    it('adjusted via params', () => {
       const a = ViteConfig.paths({ app: { entry: 'src/-entry/index.html' } });
       const b = ViteConfig.paths({ app: { outDir: 'foobar', base: './foo' } });
       const c = ViteConfig.paths({ app: { entry: '  ', outDir: '' } });
@@ -144,10 +144,12 @@ describe('ViteConfig', () => {
       const a = ViteConfig.paths();
       const b = ViteConfig.paths({ cwd: import.meta.url });
       const c = ViteConfig.paths({ cwd: ' /foo/bar ' });
+      const d = ViteConfig.paths(import.meta.url);
 
       expect(a.cwd).to.eql(Path.cwd());
       expect(b.cwd).to.eql(Path.dirname(Path.fromFileUrl(import.meta.url)));
       expect(c.cwd).to.eql('/foo/bar');
+      expect(d.cwd).to.eql(b.cwd);
     });
   });
 

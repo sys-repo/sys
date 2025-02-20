@@ -37,7 +37,7 @@ export type ViteConfigLib = {
    * export const paths = Vite.Config.paths(import.meta, ...);
    * ```
    */
-  paths(options?: t.DeepPartial<t.ViteConfigPaths>): t.ViteConfigPaths;
+  paths(options?: t.DeepPartial<t.ViteConfigPaths> | t.StringAbsoluteDir): t.ViteConfigPaths;
 
   /**
    * Attempts to dynamically load a `vite.config.ts` module.

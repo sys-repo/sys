@@ -1,37 +1,44 @@
-import { type t, c, describe, expect, Fs, it, pkg, SAMPLE, Testing } from '../-test.ts';
+import { type t, c, describe, expect, Fs, it, pkg, SAMPLE } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
-  const printDist = (input: t.StringPath, dist: t.DistPkg) => {
-    const distfile = c.bold(c.white('./dist/dist.json'));
-    console.info(c.gray(`input: ${Fs.trimCwd(input)}`));
-    console.info(c.green(' ↓'));
-    console.info(c.gray(`output: Pkg.Dist.compute → ${distfile}`));
-    console.info(c.green(' ↓'));
+  const printDist = (dist: t.DistPkg, paths: t.ViteConfigPaths) => {
+    const entry = Fs.trimCwd(Fs.join(paths.cwd, paths.app.entry));
+    const fmtDist = c.bold(c.white('./dist/dist.json'));
+    const fmtEntry = `${Fs.dirname(entry)}/${c.white(c.bold(Fs.basename(entry)))}`;
+
+    console.info(c.gray(`input: ${fmtEntry}`));
+    console.info(c.green('  ↓'));
+    console.info(c.gray(`output: Pkg.Dist.compute → ${fmtDist}`));
+    console.info(c.green('  ↓'));
     console.info(dist);
     console.info();
   };
 
   const printHtml = (html: string, title: string, dir: t.StringDir) => {
     const fmtTitle = title ? `(${title})` : '';
+    console.info();
     console.info(c.brightCyan(`${c.bold('files.html')} ${fmtTitle}:`));
-    console.info(c.gray(dir), '\n');
-    console.info(c.italic(c.yellow(html)));
+    console.info(c.gray(Fs.trimCwd(dir)), '\n');
+    console.info(c.italic(html ? c.yellow(html) : c.red('  <empty>')));
     console.info();
   };
 
   const testBuild = async (sample: t.StringDir) => {
     const fs = SAMPLE.fs('Vite.build');
     await Fs.copy(sample, fs.dir);
+    const m = await Vite.Config.fromFile(Fs.join(fs.dir, 'vite.config.ts'));
 
     const cwd = fs.dir;
     const res = await Vite.build({ cwd, pkg });
     const { paths } = res;
+    if (!res.ok) console.warn(res.toString());
 
     expect(res.ok).to.eql(true);
     expect(res.cmd.input).to.include('deno run');
     expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
     expect(res.elapsed).to.be.greaterThan(0);
+    expect(res.paths).to.eql(m.module.paths);
 
     // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
     const keys = Object.keys(res.dist.hash.parts);
@@ -40,23 +47,26 @@ describe('Vite.build', () => {
 
     // Load file outputs.
     const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
-    const json = await Fs.readJson<t.DistPkg>(Fs.join(paths.outDir, 'dist.json'));
+    const outDir = Fs.join(paths.cwd, paths.app.outDir);
+    const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
     const distJson = json.data;
-    const html = await readFile(Fs.join(paths.outDir, 'index.html'));
-    const entry = await readFile(Fs.join(paths.outDir, distJson?.entry ?? ''));
+    const html = await readFile(Fs.join(outDir, 'index.html'));
+    const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
 
     return {
       res,
       paths,
+      outDir,
       get files() {
-        return { html, distJson, entry };
+        return { html, distJson, entry } as const;
       },
     } as const;
   };
 
   it('sample-A: simple', async () => {
-    const { res, files } = await testBuild(SAMPLE.dir.a);
-    printHtml(files.html, 'sample-1', res.paths.outDir);
+    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.a);
+
+    printHtml(files.html, 'sample-1', outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
 
     expect(res.dist).to.eql(files.distJson);
@@ -66,17 +76,16 @@ describe('Vite.build', () => {
   });
 
   it('sample-B: monorepo imports | Module-B  ←  Module-A', async () => {
-    await Testing.retry(3, async () => {
-      const { files, res } = await testBuild(SAMPLE.dir.b);
-      printHtml(files.html, 'sample-2', res.paths.outDir);
-      printDist(res.paths.input, res.dist);
+    const { files, res, outDir } = await testBuild(SAMPLE.Dirs.b);
+    printHtml(files.html, 'sample-2', outDir);
+    printDist(res.dist, res.paths);
 
-      expect(files.html).to.include(`<title>Sample-2</title>`);
-      expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
+    expect(files.html).to.include(`<title>Sample-2</title>`);
+    expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
+    expect(res.dist.size.bytes).to.be.greaterThan(10_000);
 
-      const filenames = Object.keys(files.distJson?.hash.parts ?? []);
-      const js = filenames.filter((p) => p.endsWith('.js'));
-      expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
-    });
+    const filenames = Object.keys(files.distJson?.hash.parts ?? []);
+    const js = filenames.filter((p) => p.endsWith('.js'));
+    expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
   });
 });

@@ -94,4 +94,10 @@ const wrangle = {
 
     return ws;
   },
+
+  path(envKey: string) {
+    const path = Deno.env.get(envKey) ?? '';
+    // if (!path) throw new Error(`Path at env-key "${envKey}" not found`);
+    return path ? Path.resolve(path) : '';
+  },
 } as const;
