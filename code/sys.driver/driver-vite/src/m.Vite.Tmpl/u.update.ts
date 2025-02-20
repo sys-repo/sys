@@ -1,5 +1,5 @@
 import { type t, c, Fs, Tmpl } from './common.ts';
-import { create } from './m.Tmpl.create.ts';
+import { create } from './u.create.ts';
 
 /**
  * Initialize the local machine environment with latest templates
