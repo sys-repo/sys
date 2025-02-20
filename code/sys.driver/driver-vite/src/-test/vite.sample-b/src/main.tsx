@@ -11,7 +11,7 @@ import '@sys/tmp/sample-imports';
  * Sample: dynamic import (code-splitting).
  */
 const dynamic = import('./m.foo.ts');
-dynamic.then((mod) => console.log('💦 dynmaic import', mod));
+dynamic.then((mod) => console.info('💦 dynmaic import', mod));
 
 /**
  * Sample: render react component.
