@@ -1,4 +1,4 @@
-import { type t, Fs, Pkg, Process, Time, ViteConfig } from './common.ts';
+import { type t, Fs, Pkg, Process, Time } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -8,7 +8,8 @@ type B = t.ViteLib['build'];
  */
 export const build: B = async (input) => {
   const timer = Time.timer();
-  const paths = await wrangle.paths(input.cwd);
+  const paths = await Wrangle.pathsFromConfigfile(input.cwd);
+
   const { pkg, silent = true } = input;
   const { cmd, args } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);
@@ -53,15 +54,6 @@ export const build: B = async (input) => {
  * Helpers
  */
 const wrangle = {
-  async paths(cwd?: t.StringDir) {
-    const filename = 'vite.config.ts';
-    const path = Fs.join(cwd || Fs.cwd(), filename);
-    const res = await ViteConfig.fromFile(path);
-    const paths = res.module.paths;
-    if (!paths) throw new Error(`Failed to load paths from [${filename}]. Path: ${path}`);
-    return paths;
-  },
-
   async entryPath(dist: t.StringDir) {
     const paths = await Fs.glob(dist).find('pkg/-entry.*');
     const filename = paths[0]?.name ?? '';
