@@ -53,11 +53,9 @@ export type ViteConfigIsLib = {
   paths(input?: any): input is t.ViteConfigPaths;
 };
 
-/** Paths relating to a Vite child process. */
-export type ViteConfigPaths____ = { input: t.StringPath; outDir: t.StringPath };
 
 /** Bundle directories. */
-export type ViteBundleDirs = { in: t.StringDir; out: t.StringDir };
+export type ViteBundleIO = { in: t.StringDir; out: t.StringDir };
 
 /**
  * Common plugins (default: true).
