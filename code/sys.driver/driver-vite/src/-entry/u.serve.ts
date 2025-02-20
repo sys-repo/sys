@@ -17,7 +17,7 @@ export async function serve(args: t.ViteEntryArgsServe) {
 
   const fmtDir = c.gray(dir.replace(/^\.\//, ''));
   const fmtDirExists = c.yellow(!dirExists ? c.bold('(does not exist)') : '');
-  console.info(c.gray(`Dir      ${fmtDir} ${fmtDirExists}`));
+  console.info(c.gray(`Static:   ${fmtDir} ${fmtDirExists}`));
 
   Deno.serve(options, app.fetch);
   await HttpServer.keyboard({ port, print: !silent });
