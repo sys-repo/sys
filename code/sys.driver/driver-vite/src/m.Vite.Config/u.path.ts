@@ -45,6 +45,7 @@ const wrangle = {
     if (typeof options?.cwd !== 'string') return Path.cwd();
     let path = options.cwd.trim();
     if (path.startsWith('file://')) path = Path.dirname(Path.fromFileUrl(path));
+    if (path.endsWith('/vite.config.ts')) path = path.slice(-'/vite.config.ts'.length);
     return path;
   },
 } as const;
