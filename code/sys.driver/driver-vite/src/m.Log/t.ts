@@ -90,12 +90,12 @@ export type ViteLogDevArgs = {
 export type ViteLogHelpLib = {
   log(args: t.ViteLogHelpArgs): Promise<void>;
 };
+
 /** Arguments passed to `VitLog.help()` method. */
 export type ViteLogHelpArgs = {
   pkg?: t.Pkg;
   api?: t.ViteLogUsageApiArgs;
-  in?: t.StringDir;
-  out?: t.StringDir;
+  dir?: t.StringDir;
 };
 
 /** Log a `/dist` bundle folder. */

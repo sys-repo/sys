@@ -65,4 +65,4 @@ export type ViteEntryArgsBackup = {
 };
 
 /** The `help` information command. */
-export type ViteEntryArgsHelp = { cmd: 'help'; in?: P; out?: P };
+export type ViteEntryArgsHelp = { cmd: 'help'; dir?: P };

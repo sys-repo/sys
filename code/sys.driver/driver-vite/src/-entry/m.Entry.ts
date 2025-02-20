@@ -48,11 +48,8 @@ export const ViteEntry: t.ViteEntryLib = {
     }
 
     if (cmd === 'help') {
-      await ViteLog.Help.log({
-        pkg,
-        in: args.in,
-        out: args.out,
-      });
+      const { dir } = args;
+      await ViteLog.Help.log({ pkg, dir });
       return;
     }
 
