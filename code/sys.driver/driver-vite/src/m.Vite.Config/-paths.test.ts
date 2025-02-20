@@ -68,7 +68,7 @@ describe('ViteConfig: paths', () => {
 
   describe('ViteConfig.fromFile', () => {
     it('load from file path', async () => {
-      const rootDir = SAMPLE.Dirs.b;
+      const rootDir = SAMPLE.Dirs.sample2;
       const path = Path.join(rootDir, 'vite.config.ts');
       const res = await ViteConfig.fromFile(path);
 

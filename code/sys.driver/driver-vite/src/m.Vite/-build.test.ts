@@ -68,7 +68,7 @@ describe('Vite.build', () => {
   };
 
   it('sample-1: simple', async () => {
-    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.a);
+    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1);
 
     printHtml(files.html, 'sample-1', outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
@@ -81,7 +81,7 @@ describe('Vite.build', () => {
   });
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
-    const { files, res, outDir } = await testBuild(SAMPLE.Dirs.b);
+    const { files, res, outDir } = await testBuild(SAMPLE.Dirs.sample2);
     printHtml(files.html, 'sample-2', outDir);
     printDist(res.dist, res.paths);
 

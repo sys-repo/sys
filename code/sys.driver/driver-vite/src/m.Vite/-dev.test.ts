@@ -28,7 +28,7 @@ describe('Vite.dev', () => {
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(3, async () => {
       const fs = SAMPLE.fs('Vite.dev');
-      await Fs.copy(SAMPLE.Dirs.b, fs.dir);
+      await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
 
       const cwd = fs.dir;
       const port = Testing.randomPort();
