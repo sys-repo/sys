@@ -25,7 +25,7 @@ describe('Config.Build', () => {
         plugins: ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name),
         resolve: {
           ...config.resolve,
-          alias: `← ${config.resolve?.alias?.length} total aliases`,
+          alias: `← 🌳 ${config.resolve?.alias?.length} total aliases`,
         },
       });
       console.info();

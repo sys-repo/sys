@@ -2,7 +2,7 @@ import type { ManualChunksOption } from 'rollup';
 
 import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
 import { type t, asArray, Path, R } from './common.ts';
-import { paths as formatPaths } from './u.path.ts';
+import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
 /**
