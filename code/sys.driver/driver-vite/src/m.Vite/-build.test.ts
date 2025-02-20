@@ -31,10 +31,10 @@ describe('Vite.build', () => {
 
   const testBuild = async (sample: t.StringDir) => {
     const fs = SAMPLE.fs('Vite.build');
-    await Fs.copy(sample, fs.dir);
-    const m = await Vite.Config.fromFile(Fs.join(fs.dir, 'vite.config.ts'));
-
     const cwd = fs.dir;
+    await Fs.copy(sample, cwd);
+    const m = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+
     const res = await Vite.build({ cwd, pkg });
     const { paths } = res;
     if (!res.ok) console.warn(res.toString());
@@ -67,7 +67,7 @@ describe('Vite.build', () => {
     } as const;
   };
 
-  it('sample-A: simple', async () => {
+  it('sample-1: simple', async () => {
     const { res, files, outDir } = await testBuild(SAMPLE.Dirs.a);
 
     printHtml(files.html, 'sample-1', outDir);
@@ -80,7 +80,7 @@ describe('Vite.build', () => {
     expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
   });
 
-  it('sample-B: monorepo imports | Module-B  ←  Module-A', async () => {
+  it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
     const { files, res, outDir } = await testBuild(SAMPLE.Dirs.b);
     printHtml(files.html, 'sample-2', outDir);
     printDist(res.dist, res.paths);
