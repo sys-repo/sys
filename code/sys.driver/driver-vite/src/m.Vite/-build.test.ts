@@ -2,15 +2,20 @@ import { type t, c, describe, expect, Fs, it, pkg, SAMPLE } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
+  const { brightCyan: cyan, bold } = c;
+
   const printDist = (dist: t.DistPkg, paths: t.ViteConfigPaths) => {
     const entry = Fs.trimCwd(Fs.join(paths.cwd, paths.app.entry));
-    const fmtDist = c.bold(c.white('./dist/dist.json'));
-    const fmtEntry = `${Fs.dirname(entry)}/${c.white(c.bold(Fs.basename(entry)))}`;
+    const outDir = Fs.trimCwd(Fs.join(paths.cwd, paths.app.outDir));
 
-    console.info(c.gray(`input: ${fmtEntry}`));
-    console.info(c.green('  ↓'));
-    console.info(c.gray(`output: Pkg.Dist.compute → ${fmtDist}`));
-    console.info(c.green('  ↓'));
+    const fmtDist = c.bold(`${Fs.dirname(outDir)}/${c.white(Fs.basename(outDir))}`);
+    const fmtEntry = `${Fs.dirname(entry)}/${c.white(c.bold(Fs.basename(entry)))}`;
+    const io = (label: string) => cyan(bold(label));
+
+    console.info(c.gray(`${io('input')}: ${fmtEntry}`));
+    console.info(cyan('  ↓'));
+    console.info(c.gray(`${io('output')}: Pkg.Dist.compute: ${cyan('→')} ${fmtDist}`));
+    console.info(cyan('  ↓'));
     console.info(dist);
     console.info();
   };
@@ -49,16 +54,15 @@ describe('Vite.build', () => {
     const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
     const outDir = Fs.join(paths.cwd, paths.app.outDir);
     const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
-    const distJson = json.data;
     const html = await readFile(Fs.join(outDir, 'index.html'));
-    const entry = await readFile(Fs.join(outDir, distJson?.entry ?? ''));
+    const entry = await readFile(Fs.join(outDir, json.data?.entry ?? ''));
 
     return {
       res,
       paths,
       outDir,
       get files() {
-        return { html, distJson, entry } as const;
+        return { html, entry, json: { dist: json.data } } as const;
       },
     } as const;
   };
@@ -68,8 +72,9 @@ describe('Vite.build', () => {
 
     printHtml(files.html, 'sample-1', outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
+    expect(files.entry).to.include(`Hello World 👋`);
 
-    expect(res.dist).to.eql(files.distJson);
+    expect(res.dist).to.eql(files.json.dist);
     expect(res.dist.pkg).to.eql(pkg);
     expect(res.dist.size.bytes).to.be.greaterThan(100_000);
     expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
@@ -84,7 +89,7 @@ describe('Vite.build', () => {
     expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
     expect(res.dist.size.bytes).to.be.greaterThan(10_000);
 
-    const filenames = Object.keys(files.distJson?.hash.parts ?? []);
+    const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));
     expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
   });
