@@ -3,7 +3,6 @@ import { Vite } from './mod.ts';
 
 describe('cmd: backup (shapshot)', () => {
   const { brightCyan: cyan } = c;
-
   const assertExists = async (dir: string, exists = true) => {
     expect(await Fs.exists(dir)).to.eql(exists, dir);
   };
@@ -15,24 +14,21 @@ describe('cmd: backup (shapshot)', () => {
      *  - ↓ build   (dist)
      *  - ↓ backup  (snapshot)
      */
-    await Testing.retry(2, async () => {
+    await Testing.retry(1, async () => {
       const test = async (args: Pick<t.ViteBackupArgs, 'includeDist'> = {}) => {
         const { includeDist } = args;
 
-        const fs = await SAMPLE.fs('Vite.backup').create();
-        const cwd = fs.dir;
+        const fs = SAMPLE.fs('Vite.backup');
+        await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
         const dir = fs.dir;
 
-        const backupDir = Fs.join(cwd, PATHS.backup);
-        const outDir = Fs.join(cwd, PATHS.dist);
-
-        const tmpl = await Vite.Tmpl.create();
-        await tmpl.copy(cwd);
+        const backupDir = Fs.join(dir, PATHS.backup);
+        const outDir = Fs.join(dir, PATHS.dist);
 
         await assertExists(outDir, false); //    NB: not yet built.
         await assertExists(backupDir, false); // NB: not yet backed-up.
 
-        const buildResult = await Vite.build({ cwd, pkg });
+        const buildResult = await Vite.build({ cwd: dir, pkg });
         if (!buildResult.ok) console.error(buildResult.toString());
 
         expect(buildResult.ok).to.eql(true);
@@ -47,25 +43,22 @@ describe('cmd: backup (shapshot)', () => {
         const targetDir = snapshot.path.target.files;
         expect(snapshot.error).to.eql(undefined);
 
-        const assertTargetExists = async (path: string, exists: boolean) => {
+        const assertBackupExists = async (path: t.StringPath, exists: boolean) => {
           await assertExists(Fs.join(targetDir, path), exists);
         };
 
-        await assertTargetExists('dist', !!includeDist);
-        await assertTargetExists('-backup', false);
-        await assertTargetExists('.tmp', false);
-        await assertTargetExists('.npmrc', true);
-        await assertTargetExists('src/pkg.ts', true);
-        await assertTargetExists('README.md', true);
-        await assertTargetExists('deno.json', true);
-        await assertTargetExists('package.json', true);
-        await assertTargetExists('vite.config.ts', true);
-        await assertTargetExists('.gitignore', true);
+        await assertBackupExists('dist', !!includeDist);
+        await assertBackupExists('-backup', false); // NB: the "-backup" folder is not duplicated into the backup copy.
+        await assertBackupExists('src/common.ts', true);
+        await assertBackupExists('src/m.foo.ts', true);
+        await assertBackupExists('src/ui.tsx', true);
+        await assertBackupExists('vite.config.ts', true);
 
+        const inclDist = includeDist ? c.gray(c.italic(`/dist included`)) : '';
         console.info(cyan(c.bold('Sequence:')));
-        console.info(cyan(` ↓ init    ${c.gray(c.italic('(from template)'))}`));
+        console.info(cyan(` ↓ init      ${c.gray(c.italic('(copied from sample)'))}`));
         console.info(cyan(` ↓ build`));
-        console.info(cyan(` ↓ backup  ${c.green(c.bold('← Snapshot'))}`));
+        console.info(cyan(` ↓ backup  ${c.green(c.bold('← Snapshot'))} ${inclDist}`));
         console.info();
       };
 
