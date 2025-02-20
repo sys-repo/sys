@@ -2,7 +2,7 @@ import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
-export type * from './t.path.ts';
+export type * from './t.paths.ts';
 
 /** Flags for major code-registries. */
 export type CodeRegistry = 'jsr' | 'npm';
@@ -31,11 +31,7 @@ export type ViteConfigLib = {
   alias(registry: string, moduleName: string): t.ViteAlias;
 
   /**
-   * Produces a set of standard parts for export from a `vite.config.ts` file.
-   * @example
-   * ```ts
-   * export const paths = Vite.Config.paths(import.meta, ...);
-   * ```
+   * Produce a set of standard parts for export from a `vite.config.ts` file.
    */
   paths(options?: t.DeepPartial<t.ViteConfigPaths> | t.StringAbsoluteDir): t.ViteConfigPaths;
 
@@ -52,7 +48,6 @@ export type ViteConfigIsLib = {
   /** Determine if the given input is a paths configuration object. */
   paths(input?: any): input is t.ViteConfigPaths;
 };
-
 
 /** Bundle directories. */
 export type ViteBundleIO = { in: t.StringDir; out: t.StringDir };
@@ -81,6 +76,7 @@ export type ViteModuleChunksArgs = {
  * The result from the `Vite.Config.fromFile` method.
  */
 export type ViteConfigFromFile = {
+  exists: boolean;
   path: t.StringAbsolutePath;
   module: { defineConfig?: typeof defineConfig; paths?: t.ViteConfigPaths };
   error?: t.StdError;
