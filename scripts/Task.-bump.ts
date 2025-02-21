@@ -49,17 +49,6 @@ export async function main(options: Options = {}) {
       return { path, json, name, version: { current, next } };
     });
 
-  const formatSemverColor = (version: t.Semver, release: t.SemverReleaseType) => {
-    const fmt = (kind: t.SemverReleaseType, value: number): string => {
-      const text = String(value);
-      return kind === release ? c.bold(text) : text;
-    };
-    const major = fmt('major', version.major);
-    const minor = fmt('minor', version.minor);
-    const patch = fmt('patch', version.patch);
-    return c.green(`${major}.${minor}.${patch}`);
-  };
-
   // Prepare the set of next versions to bump to.
   const table = Cli.table(['Module', 'Current', '', 'Next']);
   children.forEach((child) => {
