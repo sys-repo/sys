@@ -45,7 +45,7 @@ export async function main(options: Options = {}) {
       const path = child.path;
       const { name = '', version = '' } = json;
       const current = Semver.parse(version).version;
-      const next = Semver.increment(current, release);
+      const next = wrangle.increment(current, release);
       return { path, json, name, version: { current, next } };
     });
 
@@ -112,5 +112,11 @@ const wrangle = {
     }
 
     return 'patch'; // (Default).
+  },
+
+  increment(current: t.Semver, release: t.SemverReleaseType) {
+    const isPrerelease = (current.prerelease ?? []).length > 0;
+    if (release === 'patch' && isPrerelease) release = 'prerelease';
+    return Semver.increment(current, release);
   },
 } as const;
