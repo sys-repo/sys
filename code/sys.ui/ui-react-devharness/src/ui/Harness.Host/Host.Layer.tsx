@@ -5,7 +5,7 @@ import { css, useRenderer, type t } from '../common.ts';
 export type HostLayerProps = {
   instance: t.DevInstance;
   layer: t.DevRenderPropsLayer;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostLayer: React.FC<HostLayerProps> = (props) => {

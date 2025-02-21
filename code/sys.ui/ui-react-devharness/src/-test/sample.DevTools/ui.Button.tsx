@@ -9,7 +9,7 @@ export type ButtonSampleClickHandlerArgs = { ctx: t.DevCtx };
 export type ButtonProps = {
   ctx: t.DevCtx;
   label?: string;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onClick?: ButtonSampleClickHandler;
 };
 

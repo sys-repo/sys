@@ -6,7 +6,7 @@ import { DebugPanelBodyRow as Row } from './Panel.Body.Row.tsx';
 export type DebugPanelBodyrops = {
   instance: t.DevInstance;
   current?: t.DevInfo;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const DebugPanelBody: React.FC<DebugPanelBodyrops> = (props) => {

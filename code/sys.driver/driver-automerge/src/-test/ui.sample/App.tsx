@@ -3,7 +3,7 @@ import { Color, css, Doc, WebStore, type t } from './common.ts';
 
 export type AppProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 type D = { count: number };

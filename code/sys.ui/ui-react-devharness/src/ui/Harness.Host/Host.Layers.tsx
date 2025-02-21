@@ -6,7 +6,7 @@ import { HostLayer } from './Host.Layer.tsx';
 export type HostLayersProps = {
   instance: t.DevInstance;
   layers: t.DevRenderPropsLayer[];
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostLayers: React.FC<HostLayersProps> = (props) => {

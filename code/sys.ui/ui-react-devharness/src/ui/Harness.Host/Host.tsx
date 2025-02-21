@@ -14,7 +14,7 @@ const DEFAULT = DEFAULTS.props.host;
 
 export type HarnessHostProps = {
   instance: t.DevInstance;
-  style?: t.CssValue;
+  style?: t.CssInput;
   baseRef?: React.RefObject<HTMLDivElement>;
   subjectRef?: React.RefObject<HTMLDivElement>;
 };

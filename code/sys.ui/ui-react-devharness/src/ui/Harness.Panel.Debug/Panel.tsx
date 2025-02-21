@@ -7,7 +7,7 @@ import { DebugPanelBody as Body } from './Panel.Body.tsx';
 export type DebugPanelProps = {
   instance: t.DevInstance;
   baseRef?: React.RefObject<HTMLDivElement>;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const DebugPanel: React.FC<DebugPanelProps> = (props) => {

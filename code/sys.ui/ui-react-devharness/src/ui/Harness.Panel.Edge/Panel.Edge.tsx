@@ -7,7 +7,7 @@ export type PanelBarProps = {
   instance: t.DevInstance;
   edge: 'Header' | 'Footer';
   current?: t.DevRenderPropsEdge;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const PanelEdge: React.FC<PanelBarProps> = (props) => {

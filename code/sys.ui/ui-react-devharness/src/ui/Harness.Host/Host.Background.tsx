@@ -4,7 +4,7 @@ import { css, type t } from '../common.ts';
 
 export type DevHostBackgroundProps = {
   renderProps?: t.DevRenderProps;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostBackground: React.FC<DevHostBackgroundProps> = (props) => {

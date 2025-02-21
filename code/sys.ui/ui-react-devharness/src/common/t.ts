@@ -29,6 +29,7 @@ export type {
   CssMarginInput,
   CssPaddingArray,
   CssValue,
+  CssInput,
 } from '@sys/ui-css/t';
 
 export type { KeyboardEventsUntil, KeyboardModifierFlags } from '@sys/ui-dom/t';

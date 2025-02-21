@@ -15,7 +15,7 @@ import type { t } from '../../common.ts';
  */
 export type FooComponent = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const FooSample: React.FC<FooComponent> = (props) => {

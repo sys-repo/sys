@@ -14,7 +14,7 @@ import type { t } from './common.ts';
  */
 export type ViewProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const View: React.FC<ViewProps> = (props) => {

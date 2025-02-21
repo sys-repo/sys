@@ -18,7 +18,7 @@ export const DEFAULTS = {
 export type VideoPlayerProps = {
   title?: string;
   src?: string;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 /**

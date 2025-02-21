@@ -15,7 +15,7 @@ export type ListProps = {
   hrDepth?: number;
   useAnchorLinks?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onItemReadyChange?: t.ModuleListItemReadyHandler;
   onItemClick?: t.ModuleListItemHandler;
   onItemSelect?: t.ModuleListItemHandler;

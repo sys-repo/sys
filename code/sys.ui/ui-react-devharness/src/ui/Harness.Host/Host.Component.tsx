@@ -8,7 +8,7 @@ export type HostComponentProps = {
   border?: string;
   renderProps?: t.DevRenderProps;
   subjectRef?: React.RefObject<HTMLDivElement>;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostComponent: React.FC<HostComponentProps> = (props) => {

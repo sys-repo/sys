@@ -7,7 +7,7 @@ import { type t, css, pkg } from './common.ts';
  */
 export type FooProps = {
   enabled?: boolean;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 /**

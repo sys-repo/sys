@@ -10,7 +10,7 @@ export type RenderOptions = {
   badge?: t.ImageBadge;
   hrDepth?: number;
   keyboard?: boolean;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 /**

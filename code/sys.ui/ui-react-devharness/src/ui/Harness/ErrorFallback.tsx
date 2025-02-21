@@ -4,7 +4,7 @@ import type { FallbackProps } from 'react-error-boundary';
 import { COLORS, css, type t } from '../common.ts';
 
 export type ErrorFallbackProps = FallbackProps & {
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const ErrorFallback: React.FC<ErrorFallbackProps> = (props) => {

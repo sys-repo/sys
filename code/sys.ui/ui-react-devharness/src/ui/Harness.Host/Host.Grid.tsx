@@ -7,7 +7,7 @@ export type HostGridProps = {
   children?: t.ReactChildren;
   border?: string;
   renderProps?: t.DevRenderProps;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostGrid: React.FC<HostGridProps> = (props) => {

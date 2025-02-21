@@ -5,7 +5,7 @@ import { Color, css, type t } from '../common.ts';
 export type FooterProps = {
   enabled?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 /**

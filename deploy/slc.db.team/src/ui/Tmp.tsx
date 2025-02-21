@@ -4,7 +4,7 @@ import { type t, Color, COLORS, css, Hash, Pkg, pkg, rx, Str } from './common.ts
 export type TmpProps = {
   digest?: t.StringHash;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const Tmp: React.FC<TmpProps> = (props) => {

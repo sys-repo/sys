@@ -6,7 +6,7 @@ export type MySampleProps = {
   text?: string;
   data?: t.Json;
   throwError?: boolean;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onClick?: () => void;
 };
 

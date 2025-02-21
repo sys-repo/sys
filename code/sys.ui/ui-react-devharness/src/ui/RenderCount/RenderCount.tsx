@@ -5,7 +5,7 @@ import { COLORS, css, type t } from '../common.ts';
 export type RenderCountProps = {
   absolute?: t.CssValue['Absolute'];
   prefix?: string;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const RenderCount: React.FC<RenderCountProps> = (props) => {

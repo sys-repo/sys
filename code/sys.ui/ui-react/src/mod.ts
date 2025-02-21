@@ -11,7 +11,7 @@
  *
  * export type FooProps = {
  *   theme?: t.CommonTheme;
- *   style?: t.CssValue;
+ *   style?: t.CssInput;
  * }
  *
  * export const Foo: React.FC<FooProps> = (props) => {
