@@ -43,7 +43,7 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
       className={styles.body.class}
       data-component={'dev.harness:ComponentHost'}
     >
-      {element}
+      {element as t.ReactNode}
     </div>
   );
 

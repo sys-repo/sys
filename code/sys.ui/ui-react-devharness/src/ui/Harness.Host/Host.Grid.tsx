@@ -4,7 +4,7 @@ import { css, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
 export type HostGridProps = {
-  children?: t.ReactChildren;
+  children?: t.ReactNode;
   border?: string;
   renderProps?: t.DevRenderProps;
   style?: t.CssInput;
