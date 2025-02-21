@@ -9,4 +9,9 @@ export { toString } from '../m.Style/u.toString.ts';
 
 export const DEFAULT = {
   prefix: 'sys',
+  get pseudoClasses() {
+    return pseudoClasses;
+  },
 } as const;
+
+const pseudoClasses = new Set<string>([':hover']);

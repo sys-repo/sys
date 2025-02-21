@@ -37,12 +37,8 @@ function transform(args: { dom: t.CssDom; cache: M; input: t.CssInput[] }): t.Cs
     },
     toString(kind = 'CssRule') {
       const rule = toString(style);
-
       if (kind === 'CssRule') return rule;
-      if (kind === 'CssSelector') {
-        return `.${api.class} { ${rule} }`;
-      }
-
+      if (kind === 'CssSelector') return `.${api.class} { ${rule} }`;
       throw new Error(`Kind '${kind}' not supported`);
     },
   };

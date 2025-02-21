@@ -1,4 +1,4 @@
-import { type t, describe, DomMock, expect, findCssRule, it, pkg, slug } from '../-test.ts';
+import { type t, describe, DomMock, expect, FindCss, it, pkg } from '../-test.ts';
 import { css } from '../m.Style/mod.ts';
 import { DEFAULT } from './common.ts';
 import { CssDom } from './mod.ts';
@@ -67,8 +67,10 @@ describe(
     });
 
     describe('class/style DOM insertion', () => {
+      let count = 0;
       const setup = (): t.CssDom => {
-        const prefix = `sample-${slug()}`;
+        count++;
+        const prefix = `sample${count}`;
         return CssDom.create(prefix);
       };
 
@@ -79,7 +81,7 @@ describe(
 
         // Baseline: ensure the rule is not yet within the DOM.
         const className = `${dom.prefix}-${m.hx}`;
-        expect(findCssRule(className)).to.eql(undefined); // NB: nothing inserted yet.
+        expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
         const a = dom.class(m.style);
         const b = dom.class(m.style);
@@ -89,7 +91,7 @@ describe(
         expect(a).to.eql(className);
 
         // Ensure the CSS-rule is inserted within DOM.
-        const rule = findCssRule(className);
+        const rule = FindCss.rule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
       });
 
@@ -98,11 +100,22 @@ describe(
         const m = css({ fontSize: 32, display: 'grid' });
 
         const className = `${dom.prefix}-${m.hx}`;
-        expect(findCssRule(className)).to.eql(undefined); // NB: nothing inserted yet.
+        expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
         dom.class(m.style, m.hx);
-        const rule = findCssRule(className);
+        const rule = FindCss.rule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
+      });
+
+      describe('pseudo-class', () => {
+        it(':hover', () => {
+          const dom = setup();
+          const m = css({ color: 'red', ':hover': { color: ' salmon ' } });
+          const className = dom.class(m.style, m.hx);
+          const rules = FindCss.rules(className);
+          expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
+          expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
+        });
       });
     });
   },

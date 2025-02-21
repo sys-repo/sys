@@ -38,7 +38,7 @@ export type StyleLib = NamespaceLibs & {
   readonly toShadow: CssToShadow;
 
   /** Convert a {style} props object to a CSS string. */
-  toString(style: t.CssProps): string;
+  toString(style?: t.CssValue): string;
 };
 
 type NamespaceLibs = {
@@ -58,7 +58,7 @@ type NamespaceLibs = {
 /**
  * Standard CSS properties with CSS-template extensions.
  */
-export type CssValue = t.CssProps & t.CssTemplates;
+export type CssValue = t.CssProps & t.CssPseudo & t.CssTemplates;
 export type CssInput = t.CssValue | undefined | null | false | never | CssTransformed | CssInput[];
 
 /**
@@ -99,4 +99,14 @@ export type CssShadow = {
   x?: number;
   y?: number;
   inner?: boolean;
+};
+
+/**
+ * CSS psuedo-classes.
+ */
+export type CssPseudo = {
+  ':hover'?: t.CssValue;
+  // ':active'?: t.CssValue;
+  // ':focus'?: t.CssValue;
+  // ':visited'?: t.CssValue;
 };

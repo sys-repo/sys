@@ -1,4 +1,4 @@
-import { type t, DEFAULT, pkg, toHash, toString, V } from './common.ts';
+import { type t, DEFAULT, isRecord, pkg, toHash, toString, V } from './common.ts';
 import { AlphanumericWithHyphens } from './u.ts';
 
 type Prefix = string;
@@ -15,6 +15,7 @@ export const create: t.CssDomLib['create'] = (prefix) => {
 
   const sheet = getOrCreateStylesheet();
   const inserted = new Set<string>();
+  const insertRule = (rule: string) => sheet.insertRule?.(rule, sheet.cssRules.length);
 
   const api: t.CssDom = {
     prefix,
@@ -27,9 +28,14 @@ export const create: t.CssDomLib['create'] = (prefix) => {
       if (inserted.has(className)) return className;
 
       // Initial creation.
-      const rule = `.${className} { ${toString(style)} }`;
-      sheet.insertRule?.(rule, sheet.cssRules.length);
       inserted.add(className);
+      insertRule(`.${className} { ${toString(style)} }`);
+
+      Object.entries(style)
+        .filter(([key]) => DEFAULT.pseudoClasses.has(key))
+        .filter(([_, value]) => isRecord(value))
+        .forEach(([key, value]) => insertRule(`.${className}${key} { ${toString(value)} }`));
+
       return className;
     },
   };
@@ -50,7 +56,7 @@ function getOrCreateStylesheet(): CSSStyleSheet {
   if (_sheet) return _sheet;
 
   if (typeof document === 'undefined') {
-    return {} as CSSStyleSheet; // Dummy.
+    return {} as CSSStyleSheet; // Dummy (NB: safe when running on server).
   } else {
     const el = document.createElement('style');
     el.setAttribute('data-controller', pkg.name);
