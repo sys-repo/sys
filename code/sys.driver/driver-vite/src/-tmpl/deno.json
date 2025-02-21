@@ -5,18 +5,22 @@
     "dev": "deno      run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=dev    --in=./src/-test/index.html",
     "build": "deno    run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=build  --in=./src/-test/index.html",
     "serve": "deno    run -RNE  --allow-run --allow-ffi <ENTRY> --cmd=serve",
+
     "clean": "deno    run -RWE  --allow-ffi             <ENTRY> --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
     "backup": "deno   run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=backup",
     "help": "deno     run -RE   --allow-ffi             <ENTRY> --cmd=help",
-    "sys": "deno      run -RWNE <ENTRY_SYS>"
+
+    "sys": "deno      run -RWNE <ENTRY_SYS>",
+    "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "types": ["vite/client", "@types/react"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment"
   },
   "workspace": [],
   "nodeModulesDir": "auto",
