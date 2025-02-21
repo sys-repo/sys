@@ -108,7 +108,7 @@ ${hr}
  */
 const wrangle = {
   fmtPath(path: string = '') {
-    path = path.trim();
+    path = Path.trimCwd(path.trim());
     if (path === '' || path === '.') path = './';
     if (path === './') path = `./ ${c.dim('(root directory)')}`;
     return c.gray(path);
