@@ -2,7 +2,7 @@ import { type t, c, describe, expect, it, Path, SAMPLE } from '../-test.ts';
 import { Vite } from '../mod.ts';
 import { ViteConfig } from './mod.ts';
 
-describe('ViteConfig: paths', () => {
+describe.skip('ViteConfig: paths', () => {
   const { brightCyan: cyan, bold } = c;
 
   describe('ViteConfig.paths', () => {

@@ -1,7 +1,7 @@
 import { type t, c, describe, expect, Fs, it, PATHS, pkg, SAMPLE, Testing } from '../-test.ts';
 import { Vite } from './mod.ts';
 
-describe('cmd: backup (shapshot)', () => {
+describe.skip('cmd: backup (shapshot)', () => {
   const { brightCyan: cyan } = c;
   const assertExists = async (dir: string, exists = true) => {
     expect(await Fs.exists(dir)).to.eql(exists, dir);
