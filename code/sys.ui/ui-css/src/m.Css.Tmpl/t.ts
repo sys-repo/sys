@@ -40,4 +40,5 @@ export type CssTemplates = {
   PaddingX?: t.CssEdgesXYInput;
   PaddingY?: t.CssEdgesXYInput;
   Size?: number | string | [number | string, number | string] | t.Falsy;
+  Scroll?: boolean;
 };

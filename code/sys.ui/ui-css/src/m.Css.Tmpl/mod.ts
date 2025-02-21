@@ -1,9 +1,12 @@
 /**
  * @module
+ * Helpers for converting capitalized "Template" fields
+ * into their corresponding valid CSSProperties.
  */
 import { type t, Is, isObject } from './common.ts';
 import { formatSize } from './u.formatSize.ts';
 import { toEdges, WrangleEdge } from './u.toEdges.ts';
+import { formatScroll } from './u.formatScroll.ts';
 
 export const CssTmpl: t.CssTmplLib = {
   toEdges,
@@ -33,6 +36,9 @@ export const CssTmpl: t.CssTmplLib = {
 
     // Size → { width, height }
     if (o.Size !== undefined) formatSize('Size', o.Size, o);
+
+    // Scroll → { overflow... }
+    if (typeof o.Scroll === 'boolean') formatScroll('Scroll', o.Scroll, o);
 
     /** Finish up: no change */
     return o as t.CssProps;

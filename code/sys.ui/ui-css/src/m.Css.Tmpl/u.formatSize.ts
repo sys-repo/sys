@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { mergeAndReplace } from './u.ts';
 
 export function formatSize(key: string, input: unknown, target: t.CssProps) {
   type V = string | number | undefined;
@@ -21,10 +22,4 @@ export function formatSize(key: string, input: unknown, target: t.CssProps) {
       mergeAndReplace(key, styles, target);
     }
   }
-}
-
-function mergeAndReplace(key: string, value: unknown, target: t.CssProps) {
-  Object.assign(target, value);
-  delete target[key as keyof t.CssProps];
-  return target;
 }

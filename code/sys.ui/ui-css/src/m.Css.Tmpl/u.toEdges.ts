@@ -10,7 +10,10 @@ type N = number | string | null;
  *  - 4-part array (eg. [10, null, 0, 5])
  *  - Y/X array    (eg. [20, 5])
  */
-export function toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CssProps {
+export function toEdges(
+  input?: t.CssEdgesInput | t.Falsy | boolean,
+  mutater?: t.CssEdgeMutater,
+): t.CssProps {
   const done = (top?: N, right?: N, bottom?: N, left?: N) => {
     const res: t.CssProps = {};
     const assign = (field: keyof t.CssProps | null, value?: N) => {
