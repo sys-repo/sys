@@ -29,8 +29,10 @@ export const VitepressLog = {
     const { dir = PATHS.inDir, minimal = false } = args;
     await ViteLog.Help.log({
       pkg,
-      in: dir,
-      out: Path.join(dir, PATHS.dist),
+      dirs: {
+        in: dir,
+        out: Path.join(dir, PATHS.dist),
+      },
       api: { minimal },
     });
     console.info();

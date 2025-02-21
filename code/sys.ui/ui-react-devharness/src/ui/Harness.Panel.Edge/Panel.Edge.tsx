@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
@@ -5,7 +7,7 @@ export type PanelBarProps = {
   instance: t.DevInstance;
   edge: 'Header' | 'Footer';
   current?: t.DevRenderPropsEdge;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const PanelEdge: React.FC<PanelBarProps> = (props) => {
@@ -32,8 +34,8 @@ export const PanelEdge: React.FC<PanelBarProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)} data-component={`dev.harness:${edge}`}>
-      <div {...styles.body}>{element}</div>
+    <div className={css(styles.base, props.style).class} data-component={`dev.harness:${edge}`}>
+      <div className={styles.body.class}>{element as t.ReactNode}</div>
     </div>
   );
 };

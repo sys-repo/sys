@@ -1,13 +1,25 @@
-import { Fs } from '@sys/fs';
-import { DenoFile } from '@sys/driver-deno/runtime';
 import { Vitepress } from '@sys/driver-vitepress';
+import { type t, c, DenoDeps, DenoFile, Fs, PATHS, pkg } from './common.ts';
 
-const ws = await DenoFile.workspace();
-await Fs.copy(Fs.join(ws.dir, 'deps.yaml'), './src/-tmpl/.sys/deps.yaml');
+const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);
+await Fs.remove(resolve('.tmp'));
+
 /**
- * TODO 🐷 expose from {ws}. Save to file
+ * Save monorepo deps.
  */
+const ws = await DenoFile.workspace();
+const deps: t.Dep[] = ws.modules.items.map((esm) => DenoDeps.toDep(esm));
 
+const dir = resolve('src/-tmpl/.sys');
+await Fs.copy(Fs.join(ws.dir, 'deps.yaml'), Fs.join(dir, 'deps.yaml'), { force: true });
+await Fs.write(Fs.join(dir, 'deps.sys.yaml'), DenoDeps.toYaml(deps).text);
+
+/**
+ * Bundle files (for code-registry).
+ */
 const Bundle = Vitepress.Tmpl.Bundle;
 await Bundle.toFilemap();
-await Bundle.toFilesystem(); // NB: test output.
+await Bundle.toFilesystem(resolve(PATHS.tmpl.tmp)); // NB: test output.
+
+console.info(c.brightCyan('↑ Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+console.info();

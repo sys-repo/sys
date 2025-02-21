@@ -3,6 +3,9 @@ import type { t } from './common.ts';
 /** A map of {"alias":"module-specifier"} values. */
 export type EsmImportMap = { [key: string]: string };
 
+/** Values representing public registries of ESM modules. */
+export type EsmRegistry = 'jsr' | 'npm';
+
 /**
  * Tools for working with systems and runtimes that support
  * the ESM (EcmaScript Module) standard.
@@ -23,30 +26,36 @@ export type EsmLib = {
   parse(moduleSpecifier: string): EsmParsedImport;
 
   /** Convert the parsed-import object to a fully-qualified ESM module-specifier. */
-  toString(
-    /** The ESM module to convert to a string. */
-    module: EsmImport,
-    options?: {
-      /** Replace prefix. */
-      prefix?: EsmImport['prefix'];
-      /** Replace name. */
-      name?: EsmImport['name'];
-      /** Replace version. */
-      version?: EsmImport['version'];
-    },
-  ): string;
+  toString(module: EsmImport, options?: EsmToStringOptions): string;
+};
+
+/** Options for the `Esm.toString` method. */
+export type EsmToStringOptions = {
+  /** Replace registry. */
+  registry?: t.EsmRegistry | '';
+
+  /** Replace name. */
+  name?: EsmImport['name'];
+
+  /** Replace version. */
+  version?: EsmImport['version'];
+
+  /** Replace subpath. */
+  subpath?: EsmImport['subpath'];
 };
 
 /**
  * A parsed ESM import statement.
  */
 export type EsmImport = {
-  prefix: 'jsr' | 'npm' | '';
+  registry: t.EsmRegistry | '';
   name: string;
   version: t.StringSemver;
+  subpath: string;
   toString(): string;
 };
 
+/** The result from an `ESM.parse` operation. */
 export type EsmParsedImport = EsmImport & {
   input: string;
   error?: t.StdError;

@@ -1,10 +1,12 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 import { HostLayer } from './Host.Layer.tsx';
 
 export type HostLayersProps = {
   instance: t.DevInstance;
   layers: t.DevRenderPropsLayer[];
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostLayers: React.FC<HostLayersProps> = (props) => {
@@ -22,7 +24,7 @@ export const HostLayers: React.FC<HostLayersProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div className={css(styles.base, props.style).class}>
       {layers.map((layer) => {
         return <HostLayer key={layer.index} instance={instance} layer={layer} />;
       })}

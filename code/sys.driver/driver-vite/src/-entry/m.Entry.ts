@@ -2,7 +2,9 @@
  * @module
  * The entry points, when using the module from the command-line [argv].
  */
-import { type t, Args, c, DenoModule, pkg, Vite, ViteLog } from './common.ts';
+import { Wrangle } from '../m.Vite/u.wrangle.ts';
+
+import { type t, Path, Args, c, DenoModule, pkg, Vite, ViteLog } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
@@ -18,23 +20,27 @@ export const ViteEntry: t.ViteEntryLib = {
 
     if (cmd === 'init') {
       const { init } = await import('./u.init.ts');
-      return await init(args);
+      await init(args);
+      return;
     }
 
     if (cmd === 'dev') {
       ViteLog.API.log({ cmd: 'dev' });
-      return await ViteEntry.dev(args);
+      await ViteEntry.dev(args);
+      return;
     }
 
     if (cmd === 'build') {
       if (!args.silent) ViteLog.API.log({ cmd: 'build' });
-      return await ViteEntry.build(args);
+      await ViteEntry.build(args);
+      return;
     }
 
     if (cmd === 'serve') {
       if (!args.silent) ViteLog.API.log({ cmd: 'serve' });
       console.info();
-      return await ViteEntry.serve(args);
+      await ViteEntry.serve(args);
+      return;
     }
 
     if (args.cmd === 'clean') {
@@ -44,11 +50,13 @@ export const ViteEntry: t.ViteEntryLib = {
     }
 
     if (cmd === 'help') {
-      await ViteLog.Help.log({
-        pkg,
-        in: args.in,
-        out: args.out,
-      });
+      const { dir } = args;
+      const paths = await Wrangle.pathsFromConfigfile(dir);
+      const dirs = {
+        in: Path.join(paths.cwd, paths.app.entry),
+        out: Path.join(paths.cwd, paths.app.outDir),
+      };
+      await ViteLog.Help.log({ pkg, dirs });
       return;
     }
 

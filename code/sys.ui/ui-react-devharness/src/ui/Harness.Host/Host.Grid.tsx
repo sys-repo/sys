@@ -1,11 +1,13 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
 export type HostGridProps = {
-  children?: t.ReactChildren;
+  children?: t.ReactNode;
   border?: string;
   renderProps?: t.DevRenderProps;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostGrid: React.FC<HostGridProps> = (props) => {
@@ -60,22 +62,24 @@ export const HostGrid: React.FC<HostGridProps> = (props) => {
 
   return (
     <div
-      {...css(
-        styles.base,
-        sizeMode === 'center' ? grid.center : undefined,
-        sizeMode === 'fill' ? grid.fill : undefined,
-        props.style,
-      )}
+      className={
+        css(
+          styles.base,
+          sizeMode === 'center' ? grid.center : undefined,
+          sizeMode === 'fill' ? grid.fill : undefined,
+          props.style,
+        ).class
+      }
     >
-      <div {...styles.block} />
-      <div {...css(styles.block, { borderLeft, borderRight })} />
-      <div {...css(styles.block)} />
-      <div {...css(styles.block, { borderTop, borderBottom })} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderLeft, borderRight }).class} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderTop, borderBottom }).class} />
       {props.children}
-      <div {...css(styles.block, { borderTop, borderBottom })} />
-      <div {...css(styles.block)} />
-      <div {...css(styles.block, { borderLeft, borderRight })} />
-      <div {...css(styles.block)} />
+      <div className={css(styles.block, { borderTop, borderBottom }).class} />
+      <div className={styles.block.class} />
+      <div className={css(styles.block, { borderLeft, borderRight }).class} />
+      <div className={styles.block.class} />
     </div>
   );
 };

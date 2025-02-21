@@ -60,7 +60,7 @@ export type VitepressDevArgs = {
 export type VitepressDevServer = t.LifecycleAsync & {
   readonly proc: t.ProcHandle;
   readonly port: number;
-  readonly dirs: Omit<t.ViteBundleDirs, 'out'>;
+  readonly dirs: Omit<t.ViteBundleIO, 'out'>;
   readonly url: t.StringUrl;
   listen(): Promise<void>;
   keyboard(): Promise<void>;
@@ -79,7 +79,7 @@ export type VitepressBuildArgs = {
 export type VitepressBuildResponse = {
   ok: boolean;
   elapsed: t.Msecs;
-  dirs: t.ViteBundleDirs;
+  dirs: t.ViteBundleIO;
   dist: t.DistPkg;
   toString(options?: ToStringOptions): string;
 };

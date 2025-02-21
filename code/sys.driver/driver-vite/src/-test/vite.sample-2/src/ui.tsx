@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import { Foo } from '@sys/tmp/ui';
-import { Color, css } from '@sys/ui-css/react';
-import type { t } from '../../common.ts';
+import { Color, css } from '@sys/ui-css';
+import type { t } from './common.ts';
 
 /**
  * Sample Component demonstrating the fundamentals
@@ -14,7 +14,7 @@ import type { t } from '../../common.ts';
  */
 export type ViewProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const View: React.FC<ViewProps> = (props) => {
@@ -54,7 +54,11 @@ export const View: React.FC<ViewProps> = (props) => {
   );
 
   return (
-    <div {...css(styles.base, props.style)} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+    <div
+      className={css(styles.base, props.style).class}
+      onMouseEnter={over(true)}
+      onMouseLeave={over(false)}
+    >
       <div {...styles.title}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>

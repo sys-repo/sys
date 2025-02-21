@@ -1,7 +1,7 @@
 import type { PropArgs } from './common.types.ts';
 
 import { CtxPanelEdge } from './Ctx.PanelEdge.ts';
-import { DEFAULTS, Edges, Id, type t } from './common.ts';
+import { DEFAULTS, Id, Style, type t } from './common.ts';
 
 const HOST = DEFAULTS.props.host;
 
@@ -81,7 +81,7 @@ const wrangle = {
     }
 
     const url = (input.url || '').trim();
-    const margin = Edges.toArray(input.margin, 0);
+    const margin = Style.Edges.toArray(input.margin, 0);
     const size = input.size ?? HOST.backgroundImage?.size;
     const opacity = input.opacity;
 

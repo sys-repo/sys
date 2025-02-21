@@ -13,7 +13,7 @@ import { walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
 
 export { Path };
-const { join, resolve, basename, dirname } = Path;
+const { join, resolve, basename, dirname, extname } = Path;
 
 /**
  * Filesystem helpers.
@@ -29,8 +29,10 @@ export const Fs: t.FsLib = {
 
   join,
   resolve,
-  basename,
+
   dirname,
+  basename,
+  extname,
 
   glob,
   ls,

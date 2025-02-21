@@ -1,12 +1,12 @@
-node_modules/
-dist/
-.tmp/
+node_modules
+dist
+.tmp
 
 .sys
-.vitepress
 .vscode
+.vitepress
 
--backup/
+-backup
 -backup/**
 .vitepress/cache/**
 .vitepress/dist/**

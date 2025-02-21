@@ -39,23 +39,13 @@ export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
 export type ViteEntryArgsClean = { cmd: 'clean'; dir?: P };
 
 /** The HMR `dev` server. */
-export type ViteEntryArgsDev = { cmd: 'dev'; in?: P; open?: boolean };
+export type ViteEntryArgsDev = { cmd: 'dev'; dir?: P; entry?: P; open?: boolean };
 
 /** The `build` project command. */
-export type ViteEntryArgsBuild = {
-  cmd: 'build';
-  in?: P;
-  out?: P;
-  silent?: boolean;
-};
+export type ViteEntryArgsBuild = { cmd: 'build'; dir?: P; silent?: boolean };
 
 /** The `serve` the built project `/dist` folder command. */
-export type ViteEntryArgsServe = {
-  cmd: 'serve';
-  port?: number;
-  dir?: P;
-  silent?: boolean;
-};
+export type ViteEntryArgsServe = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
 
 /** The `upgrade` command. */
 export type ViteEntryArgsUpgrade = {
@@ -65,6 +55,7 @@ export type ViteEntryArgsUpgrade = {
   version?: t.StringSemver;
   dryRun?: boolean;
 };
+
 /** The `backup` command. */
 export type ViteEntryArgsBackup = {
   cmd: 'backup';
@@ -74,4 +65,4 @@ export type ViteEntryArgsBackup = {
 };
 
 /** The `help` information command. */
-export type ViteEntryArgsHelp = { cmd: 'help'; in?: P; out?: P };
+export type ViteEntryArgsHelp = { cmd: 'help'; dir?: P };

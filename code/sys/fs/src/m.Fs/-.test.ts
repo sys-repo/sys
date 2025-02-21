@@ -19,6 +19,7 @@ describe('Fs: filesystem', () => {
       expect(Fs.resolve).to.eql(Path.resolve);
       expect(Fs.dirname).to.eql(Path.dirname);
       expect(Fs.basename).to.eql(Path.basename);
+      expect(Fs.extname).to.eql(Path.extname);
     });
 
     it('asDir', async () => {

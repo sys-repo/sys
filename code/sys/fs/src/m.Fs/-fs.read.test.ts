@@ -2,7 +2,7 @@ import { type t, describe, Err, expect, it } from '../-test.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: read from the file-system operations', () => {
-  const assertSuccess = (res: t.FsReadResponse<unknown>, path: string) => {
+  const assertSuccess = (res: t.FsReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(true);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));
@@ -10,7 +10,7 @@ describe('Fs: read from the file-system operations', () => {
     expect(res.errorReason).to.eql(undefined);
   };
 
-  const assertNotFound = (res: t.FsReadResponse<unknown>, path: string) => {
+  const assertNotFound = (res: t.FsReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(false);
     expect(res.path).to.eql(Fs.resolve(path));
@@ -20,14 +20,14 @@ describe('Fs: read from the file-system operations', () => {
     expect(Err.Is.stdError(res.error)).to.eql(true);
   };
 
-  const assertParseError = (res: t.FsReadResponse<unknown>, path: string) => {
+  const assertParseError = (res: t.FsReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));
     expect(res.errorReason).to.eql('ParseError');
   };
 
-  const assertDecodingError = (res: t.FsReadResponse<unknown>, path: string) => {
+  const assertDecodingError = (res: t.FsReadResult<unknown>, path: string) => {
     expect(res.ok).to.eql(false);
     expect(res.exists).to.eql(true);
     expect(res.path).to.eql(Fs.resolve(path));

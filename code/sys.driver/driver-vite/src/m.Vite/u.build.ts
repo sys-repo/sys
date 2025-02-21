@@ -1,4 +1,4 @@
-import { Process, Fs, Pkg, Time, type t } from './common.ts';
+import { type t, Fs, Pkg, Process, Time } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -7,13 +7,16 @@ type B = t.ViteLib['build'];
  * Run the <vite:build> command.
  */
 export const build: B = async (input) => {
-  const { silent = true, pkg } = input;
-  const { env, cmd, args, paths } = Wrangle.command(input, 'build');
   const timer = Time.timer();
-  const output = await Process.invoke({ args, env, silent });
+  const paths = await Wrangle.pathsFromConfigfile(input.cwd);
+
+  const { pkg, silent = true } = input;
+  const { cmd, args } = await Wrangle.command(paths, 'build');
+  const dir = Fs.join(paths.cwd, paths.app.outDir);
+
+  const output = await Process.invoke({ args, silent });
   const ok = output.success;
 
-  const dir = paths.outDir;
   if (pkg) {
     const path = Fs.join(dir, 'pkg', '-pkg.json');
     await Fs.ensureDir(Fs.dirname(path));
@@ -39,10 +42,11 @@ export const build: B = async (input) => {
       const { pad } = options;
       const stdio = output.toString();
       const bytes = dist.size.bytes;
-      const dirs = { in: paths.input, out: paths.outDir };
+      const dirs = { in: paths.app.entry, out: paths.app.outDir };
       return Log.Build.toString({ ok, stdio, dirs, pad, pkg, bytes, hash, elapsed });
     },
   };
+
   return res;
 };
 

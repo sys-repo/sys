@@ -9,5 +9,5 @@ export type HarnessProps = {
   env?: t.DevEnvVars;
   allowRubberband?: boolean;
   background?: string | number;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };

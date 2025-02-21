@@ -107,6 +107,9 @@ type StdMethods = {
   /** Return the last portion of a path. */
   readonly basename: typeof StdPath.basename;
 
+  /** Return the last portion of a path. */
+  readonly extname: typeof StdPath.extname;
+
   /** Asynchronously test whether or not the given path exists by checking with the file system. */
   readonly exists: typeof StdFs.exists;
 
@@ -140,7 +143,7 @@ export type FsCopy = (
   from: t.StringPath,
   to: t.StringPath,
   options?: t.FsCopyOptions | t.FsCopyFilter,
-) => Promise<t.FsCopyResponse>;
+) => Promise<t.FsCopyResult>;
 
 /** Copy all files in a directory. */
 export type FsCopyDir = t.FsCopy;
@@ -161,7 +164,7 @@ export type FsCopyOptions = {
 };
 
 /** Response from the `Fs.copy` method. */
-export type FsCopyResponse = { error?: t.StdError };
+export type FsCopyResult = { error?: t.StdError };
 
 /**
  * Delete a file or directory (and it's contents).
@@ -178,7 +181,7 @@ export type FsWriteFile = (
   path: t.StringPath,
   data: string | Uint8Array,
   options?: FsWriteFileOptions,
-) => Promise<FsWriteFileResponse>;
+) => Promise<FsWriteFileResult>;
 
 /** Options passed to the `Fs.write` method. */
 export type FsWriteFileOptions = {
@@ -189,7 +192,7 @@ export type FsWriteFileOptions = {
 };
 
 /** Response from the `Fs.write` method. */
-export type FsWriteFileResponse = {
+export type FsWriteFileResult = {
   readonly overwritten: boolean;
   readonly error?: t.StdError;
 };
@@ -201,32 +204,32 @@ export type FsWriteJson = (
   path: t.StringPath,
   data: t.Json,
   options?: t.FsWriteFileOptions,
-) => Promise<FsWriteFileResponse>;
+) => Promise<FsWriteFileResult>;
 
 /**
  * Asynchronously reads and returns the entire contents of a binary file (Uint8Array).
  */
-export type FsReadBinary = (path: t.StringPath) => Promise<FsReadResponse<Uint8Array>>;
+export type FsReadBinary = (path: t.StringPath) => Promise<FsReadResult<Uint8Array>>;
 
 /**
  * Asynchronously reads and returns the entire contents of a text file.
  */
-export type FsReadText = (path: t.StringPath) => Promise<FsReadResponse<string>>;
+export type FsReadText = (path: t.StringPath) => Promise<FsReadResult<string>>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file
  * as strongly-typed, parsed JSON.
  */
-export type FsReadJson = <T>(path: t.StringPath) => Promise<FsReadResponse<T>>;
+export type FsReadJson = <T>(path: t.StringPath) => Promise<FsReadResult<T>>;
 
 /**
  * Asynchronously reads and returns the entire contents of a file
  * as strongly-typed, parsed YAML.
  */
-export type FsReadYaml = <T>(path: t.StringPath) => Promise<FsReadResponse<T>>;
+export type FsReadYaml = <T>(path: t.StringPath) => Promise<FsReadResult<T>>;
 
 /** A response from a file read operation.  */
-export type FsReadResponse<T> = {
+export type FsReadResult<T> = {
   readonly ok: boolean;
   readonly exists: boolean;
   readonly path: string;
@@ -239,10 +242,10 @@ export type FsReadResponse<T> = {
  * Recursively walk up a directory tree (visitor pattern).
  */
 export type FsWalkUp = (startAt: t.StringPath, onVisit: t.FsWalkUpallback) => Promise<void>;
-export type FsWalkUpallback = (e: FsWalkUpCallbackArgs) => FsWalkUpallbackResponse;
-export type FsWalkUpallbackResponse = Promise<t.IgnoredResponse> | t.IgnoredResponse;
+export type FsWalkUpallback = (e: FsWalkUpCallbackArgs) => FsWalkUpallbackResult;
+export type FsWalkUpallbackResult = Promise<t.IgnoredResult> | t.IgnoredResult;
 export type FsWalkUpCallbackArgs = {
-  dir: t.StringDir;
+  readonly dir: t.StringDir;
   files(): Promise<FsWalkFile[]>;
   stop(): void;
 };

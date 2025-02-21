@@ -1,5 +1,5 @@
 import { Main } from '@sys/main/cmd';
-import { type t, DenoDeps, DenoFile, Esm, Fs, Path, pkg, Pkg } from './common.ts';
+import { type t, c, DenoDeps, DenoFile, Esm, Fs, Path, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -44,6 +44,9 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
         dependencies: modules.latest(pkg?.dependencies ?? {}),
         devDependencies: modules.latest(pkg?.devDependencies ?? {}),
       };
+
+      console.info(c.gray(`Resolved versions:`));
+      console.info(c.brightCyan(c.bold(`./package.json:`)), next, '\n');
 
       const json = `${JSON.stringify(next, null, '  ')}\n`;
       return e.modify(json);

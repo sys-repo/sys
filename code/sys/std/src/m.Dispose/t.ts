@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Callback invoked upon disposal of a lifecycle object  */
-export type LifecycleStageHandler = () => t.IgnoredResponse;
+export type LifecycleStageHandler = () => t.IgnoredResult;
 
 /**
  * Toolkit for working with disposable interfaces.

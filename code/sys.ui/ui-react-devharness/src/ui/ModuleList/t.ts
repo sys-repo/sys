@@ -36,7 +36,7 @@ export type ModuleListProps<T = unknown> = {
   focused?: boolean;
   listMinWidth?: number;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   scroll?: boolean;
   scrollTo$?: t.Observable<t.ModuleListScrollTarget>;
   onItemVisibility?: t.ModuleListItemVisibilityHandler;

@@ -23,7 +23,6 @@ export const SampleSpecs = {
   'dev.sample.DevTools': () => import('../-test/sample.DevTools/-SPEC.tsx'),
   'dev.sample.Size': () => import('../-test/sample.specs/-SPEC.Size.tsx'),
   'dev.sample.Empty': () => import('../-test/sample.specs/-SPEC.Empty.tsx'),
-
   // 'dev.sample.Error': () => import('../-test/sample.specs/-SPEC.Error.tsx'),
   // 'dev.sample.Fail': () => import('../-test/sample.specs/-SPEC.Fail.tsx'),
 } as t.SpecImports;

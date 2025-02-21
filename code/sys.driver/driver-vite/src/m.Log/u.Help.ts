@@ -1,14 +1,11 @@
-import { type t, c, Fs, pkg as modulePkg, PATHS, Pkg, Semver } from './common.ts';
+import { type t, c, pkg as modulePkg, Pkg, Semver } from './common.ts';
 import { API } from './u.API.ts';
 import { Dist } from './u.Dist.ts';
 
 export const Help: t.ViteLogHelpLib = {
-  async log(args = {}) {
+  async log(args) {
     const pkg = args.pkg ?? modulePkg;
-    const dirs = {
-      in: Fs.resolve(args.in ?? '.'),
-      out: args.out ? Fs.resolve(args.out) : Fs.resolve(PATHS.dist),
-    };
+    const dirs = args.dirs;
 
     // API (commands).
     API.log({ ...args.api, minimal: false });
@@ -20,11 +17,12 @@ export const Help: t.ViteLogHelpLib = {
       Dist.log(dist, { dirs });
 
       // Module info.
+      const fmtTargetVer = c.bold(c.brightCyan(Semver.toString(pkg.version)));
       console.info();
-      const fmtTargetVer = c.bold(c.green(Semver.toString(pkg.version)));
       console.info(c.gray(`Project at version:`));
       console.info(c.gray(`${c.white(c.bold(pkg.name))}@${fmtTargetVer}`));
     } else {
+      // NB: not built yet.
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
       const notBuilt = c.italic(c.bold(c.yellow('(no bundle)')));
       console.info(c.gray(`${c.white(c.bold(pkg.name))} ${pkg.version}`));

@@ -1,11 +1,19 @@
 import type { t } from './common.ts';
 
 /**
- * Match: "<npm>:<module-name>@<0.0.0>/path"
+ * Generate a regex to match:
+ *   "<prefix>:<module-name>@<version>/path"
+ *   "<prefix>:<module-name>@<version>"
+ *   "<prefix>:<module-name>/path"
+ *   "<prefix>:<module-name>"
+ *
+ * The regex:
+ *  - Escapes the module name.
+ *  - Optionally matches a version (with an optional modifier and pre-release).
+ *  - Optionally captures a trailing path (starting with a slash) in capture group 1.
  */
-
-export function toAliasRegex(prefix: t.CodeRegistry, moduleName: string): RegExp {
-  const name = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // NB: escape characters.
+export function toAliasRegex(prefix: string, moduleName: string): RegExp {
+  const name = moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape module name.
   const modifier = '(?:\\^|~|>=|<=|>|<)?';
 
   /**
@@ -18,20 +26,29 @@ export function toAliasRegex(prefix: t.CodeRegistry, moduleName: string): RegExp
   const versionPattern = `${modifier}${versionCore}${preRelease}`;
 
   /**
-   * Build the full regex:
-   *  - Starts with the prefix and module name.
-   *  - Followed by "@" and the version (with an optional modifier).
-   *  - Optionally followed by a trailing path.
+   * Build the regex:
+   *  - Starts with "<prefix>:<name>"
+   *  - Optionally followed by "@" and the version (non-capturing)
+   *  - Optionally followed by a trailing path (captured as group 1)
    */
-  return new RegExp(`^${prefix}:${name}@(${versionPattern})(?:\\/.*)?$`);
+  return new RegExp(`^${prefix}:${name}(?:@(?:${versionPattern}))?(\\/.*)?$`);
 }
 
 /**
- * Construct a replacement regex to use an as alias for a module/import lookup
- * within the Vite/Rollup/alias configuration.
+ * Construct a Vite/Rollup alias configuration object.
+ *
+ * The returned alias object uses a regex (via toAliasRegex) to match module references.
+ * The replacement string is built by appending a captured trailing subpath (if any)
+ * to the base moduleName.
+ *
+ * For example:
+ *   Input: "npm:@vidstack/react@1.12.12" yields replacement: "@vidstack/react"
+ *   Input: "npm:@vidstack/react@1.12.12/player/layouts/plyr" yields replacement: "@vidstack/react/player/layouts/plyr"
  */
-export function toAlias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias {
-  const replacement = (moduleName || '').trim();
-  const find = toAliasRegex(prefix, replacement);
-  return { find, replacement };
+export function toAlias(prefix: string, moduleName: string): t.ViteAlias {
+  const trimmed = (moduleName || '').trim();
+  return {
+    find: toAliasRegex(prefix, trimmed),
+    replacement: `${trimmed}$1`, // NB: Append the captured subpath (if any) via "$1" to the base module-name.
+  };
 }

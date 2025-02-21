@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
+
 import { bytes } from './u.bytes.ts';
+import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';
@@ -14,6 +16,7 @@ export const Str: t.StrLib = {
   replace,
   shorten,
   capitalize,
+  camelToKebab,
   plural,
   bytes,
 } as const;

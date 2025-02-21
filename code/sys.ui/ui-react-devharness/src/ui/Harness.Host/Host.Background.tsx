@@ -1,8 +1,10 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 
 export type DevHostBackgroundProps = {
   renderProps?: t.DevRenderProps;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostBackground: React.FC<DevHostBackgroundProps> = (props) => {
@@ -30,8 +32,8 @@ export const HostBackground: React.FC<DevHostBackgroundProps> = (props) => {
     }),
   };
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.body} />
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class} />
     </div>
   );
 };

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// @ts-types="@types/react"
+import React, { useEffect, useState } from 'react';
 
 import { Color, css, DEFAULTS, R, Time, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
@@ -13,7 +14,7 @@ const DEFAULT = DEFAULTS.props.host;
 
 export type HarnessHostProps = {
   instance: t.DevInstance;
-  style?: t.CssValue;
+  style?: t.CssInput;
   baseRef?: React.RefObject<HTMLDivElement>;
   subjectRef?: React.RefObject<HTMLDivElement>;
 };
@@ -74,7 +75,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elMain = (
-    <div {...styles.main}>
+    <div className={styles.main.class}>
       <HostLayers instance={instance} layers={layersBelow} />
       {elGrid}
       <HostLayers instance={instance} layers={layersAbove} />
@@ -82,7 +83,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elBody = (
-    <div {...styles.body}>
+    <div className={styles.body.class}>
       <PanelHeader instance={instance} current={host?.header} />
       {elMain}
       <PanelFooter instance={instance} current={host?.footer} />
@@ -90,13 +91,13 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   );
 
   const elEmpty = isEmpty && (
-    <div {...styles.empty}>
+    <div className={styles.empty.class}>
       <BarSpinner />
     </div>
   );
 
   return (
-    <div ref={props.baseRef} {...css(styles.base, props.style)}>
+    <div ref={props.baseRef} className={css(styles.base, props.style).class}>
       {elBackground}
       {elBody}
       {elEmpty}

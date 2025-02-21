@@ -15,7 +15,7 @@ export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
       .filter((e) => e.target.includes('package.json'));
 
     const toString = (mod: t.EsmImport) => {
-      if (mod.prefix === 'jsr') {
+      if (mod.registry === 'jsr') {
         const split = mod.name.split('/');
         const scope = split[0].replace(/^\@/, '');
         const name = split[1];

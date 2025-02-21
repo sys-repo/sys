@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css } from '../common.ts';
 
 export type HrProps = { marginY?: number };
@@ -9,5 +11,5 @@ export const Hr: React.FC<HrProps> = (props) => {
       MarginY: props.marginY ?? 10,
     }),
   };
-  return <div {...styles.base} />;
+  return <div className={styles.base.class} />;
 };

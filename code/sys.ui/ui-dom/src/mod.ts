@@ -11,13 +11,6 @@
  * ```
  *
  * @example
- * To mock the DOM on the server:
- * ```ts
- * import { Mock } from '@sys/ui-dom/mock';
- * Mock.polyfill();
- * ```
- *
- * @example
  * To work with local-storage in a strongly typed way:
  * ```ts
  * import { LocalStorage } from '@sys/ui-dom/local-storage';

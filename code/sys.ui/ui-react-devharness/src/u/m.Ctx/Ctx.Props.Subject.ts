@@ -1,5 +1,5 @@
 import { Is } from '../m.Is/mod.ts';
-import { DEFAULTS, Edges, Id, type t } from './common.ts';
+import { DEFAULTS, Id, Style, type t } from './common.ts';
 import type { PropArgs } from './common.types.ts';
 
 const SUBJECT = DEFAULTS.props.subject;
@@ -32,7 +32,7 @@ export function CtxPropsSubject(props: PropArgs) {
       }
 
       if (args[0] === 'fill' || args[0] === 'fill-x' || args[0] === 'fill-y') {
-        const margin = Edges.toArray((args[1] as t.CssMarginInput) ?? 50);
+        const margin = Style.Edges.toArray((args[1] as t.CssMarginInput) ?? 50);
         current.size = { mode: 'fill', margin, x: true, y: true };
         if (args[0] === 'fill-x') current.size.y = false;
         if (args[0] === 'fill-y') current.size.x = false;

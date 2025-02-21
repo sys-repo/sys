@@ -44,7 +44,7 @@ export const handleRead = async <T>(args: {
 }) => {
   const { format } = args;
 
-  type R = t.FsReadResponse<T>;
+  type R = t.FsReadResult<T>;
   const path = Path.resolve(args.path);
   const targetExists = await exists(path);
 

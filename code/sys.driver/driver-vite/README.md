@@ -1,11 +1,24 @@
 # Vite Driver
 
-Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and design-time dev harness 
-within a multi-module [Deno](https://docs.deno.com/) workspaces.
+Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and design-time development harness 
+within a multi-module [Deno](https://docs.deno.com/) workspace.
 
-<p>&nbsp;<p>
 
-NB: <UI Framework™️> agnostic.
+#### Philosophy
+
+<UI Framework™️> agnostic.
+
+
+#### Standards
+
+Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade. 
+It's time. Good things happen collectively when everything conforms to the same single common/open ideas. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
+
+
+>> "Fully standardized and finalized as a core part of ECMAScript, maintained by TC39 and ECMA International" (2015)
+[-ref](https://tc39.es/ecma262/#sec-modules)
+
+
 
 ---
 
@@ -20,7 +33,7 @@ NB: <UI Framework™️> agnostic.
 
 ---
 
-### Initialize (New Instance): 🧫
+### Initialize (New): 🧫
 Scaffold a new project within the current-working-directory (`cwd`) on the local file-system:
 
 ```bash
@@ -35,7 +48,8 @@ deno run -A jsr:@sys/driver-vite/init
 
 ### Runtime ← Bundler
 
-![diagram](https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/a720851d-97c8-4feb-439c-6e4a41be6b00/original)
+![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/f76ef3f2-f4f3-40bf-9301-517e21fe5a0d)
+
 
 
 ### Usage (Command Line)

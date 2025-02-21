@@ -1,4 +1,4 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Fs, Path, sortKeys } from './common.ts';
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 
@@ -24,7 +24,7 @@ export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
   });
 
   await Promise.all(wait);
-  return res;
+  return sortKeys(res);
 };
 
 /**

@@ -1,7 +1,20 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
 [![jsr-scope][jsr-scope-image]][jsr-scope-url]
 [![ci][ci-image]][ci-url]
-[![jsr-ci][jsr-ci-image]][jsr-ci-url]
+[![ci-jsr][ci-jsr-image]][ci-jsr-url]
+
+[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: https://opensource.org/licenses/mit
+
+[jsr-scope-image]: https://jsr.io/badges/@sys
+[jsr-scope-url]: https://jsr.io/@sys
+
+[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml/badge.svg
+[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml
+
+[ci-jsr-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
+[ci-jsr-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
+
 
 [mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [mit-url]: https://opensource.org/licenses/mit
@@ -27,20 +40,23 @@ Monorepo comprising the core set of shared `/sys` "system" modules that flexibly
 <p>&nbsp;</p>
 
 [![licence][mit-image]][mit-url]  
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/). ( ✊🏻💯 )
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )
 
 ---
+
+
 
 <p>&nbsp;</p>
 
 
 ![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**  
-Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.  
+Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.
+See also `(0.<0.0.0>)`: "[epoch semantic versioning](https://antfu.me/posts/epoch-semver)".
 
 |     | repo                     | status
 | --- | :---                     | :---
-|  ●  | sys 🧫                    | current
+|  ●  | sys 🧫                   | current
 |  ○  | ↑ platform-0.2.0         | [previous](https://github.com/cellplatform/platform-0.2.0)
 |  ○  | ↑ platform-0.1.0         | [previous](https://github.com/cellplatform/platform-0.1.0)
 
@@ -58,9 +74,9 @@ In its basic usage pattern:
 ```ts
 type T = { count: number }
 
-foo.current                    // === { count: 0 }
-foo.change((d) => d.count++)   //  Σ  | safe mutation
-foo.current                    // === { count: 1 }
+foo.current;                       //  === { count: 0 }    ↓
+foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
+foo.current;                       //  === { count: 123 }  ↓              ..(next instance)
 ```
 
 
@@ -82,8 +98,9 @@ type Immutable<T> = {
 type T = { count: number }
 
 // Generator<T> over some immutability strategy 
-// (typically an external library's implementation, see namespace: `@sys/driver-*`).
+// (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
 const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
+
 
 /**
  * Imutable change pattern.
@@ -96,7 +113,7 @@ foo.current;                       //  === { count: 123 }  ↓
 
 // Strongly typed Event<T> stream observable: 💦
 const events = thing.listen(): Events<T>
-events.$.subscribe((e) => { /* event stream handler */ });
+events.$.subscribe((e) => { /* handle event stream */ });
 
 /**
  * ↑ 💦
@@ -117,7 +134,7 @@ events.dispose();
 <p>&nbsp;</p>
 
 
-# Philosophy ← (Dev)
+# (Development) Philosophy
 
 >> Open System.  
    Open Commons.  
@@ -165,7 +182,7 @@ events.dispose();
 
 <p>&nbsp;</p>
 
-# Philosophy ← (Design)
+# (Design) Philosophy
 "Extracting energy from the [turing tarpit](https://en.wikipedia.org/wiki/Turing_tarpit)" ([Alan Kay](https://www.youtube.com/watch?v=Vt8jyPqsmxE&t=8s))
 
 ![kay-pure-relationships](https://user-images.githubusercontent.com/185555/186360463-cfd81f46-3429-4741-bbb3-b32015a388ac.png)
@@ -242,21 +259,20 @@ The inverse proposition also appears to be true:
 
 ### Runtime, Build Toolchain
 
-"Framework" agnostic. Web standards.
+"Framework" agnostic. [Web standards](https://wintercg.org/).
 
-![image](https://github.com/user-attachments/assets/853a68bb-060d-4c64-be19-094e75b39523)
+![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/bbcb1af8-67f9-4cc8-ba30-d9901ef881f2)
 
-
+Adjacent libs: `@sys/std/esm`, `@sys/driver-deno` (workspace).
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-# License, [MIT](LICENSE.md).
+# [MIT](LICENSE.md).
 
-To understand the legal and historical context around MIT Licence ("an open-source classic")  
-see **Kyle E. Mitchell's**  
-"[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
+To understand the legal and historical context around the MIT Licence  
+and it's enduring importance as "an open-source classic", see **Kyle E. Mitchell**'s "[The MIT License line-by-line.](https://writing.kemitchell.com/2016/09/21/MIT-License-Line-by-Line.html) 171 words every programmer should understand."
 
 <p>&nbsp;</p>
 

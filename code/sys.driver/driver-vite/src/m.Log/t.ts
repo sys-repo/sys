@@ -69,7 +69,7 @@ export type ViteLogModuleLib = {
 export type ViteLogBundleArgs = {
   ok: boolean;
   bytes: number;
-  dirs: t.ViteBundleDirs;
+  dirs: t.ViteBundleIO;
   pkg?: t.Pkg;
   hash?: t.StringHash;
   elapsed?: t.Msecs;
@@ -90,12 +90,12 @@ export type ViteLogDevArgs = {
 export type ViteLogHelpLib = {
   log(args: t.ViteLogHelpArgs): Promise<void>;
 };
+
 /** Arguments passed to `VitLog.help()` method. */
 export type ViteLogHelpArgs = {
+  dirs: t.ViteBundleIO;
   pkg?: t.Pkg;
   api?: t.ViteLogUsageApiArgs;
-  in?: t.StringDir;
-  out?: t.StringDir;
 };
 
 /** Log a `/dist` bundle folder. */

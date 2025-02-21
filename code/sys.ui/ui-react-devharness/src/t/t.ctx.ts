@@ -52,7 +52,7 @@ export type DevCtxIs = {
 /**
  * A safe function mutator.
  */
-export type DevCtxStateMutator<T extends O> = (draft: T) => t.IgnoredResponse;
+export type DevCtxStateMutator<T extends O> = (draft: T) => t.IgnoredResult;
 
 /**
  * Immutable context state.

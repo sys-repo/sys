@@ -11,7 +11,7 @@ export const from: t.DepsLib['from'] = async (input) => {
     errors.push(err);
     return done();
   };
-  const done = (data?: t.Deps): t.DepsResponse => {
+  const done = (data?: t.Deps): t.DepsResult => {
     let error = errors.toError();
     if (!data && !error) error = Err.std('Imports data could not be retrieved');
     return { data, error };

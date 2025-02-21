@@ -7,7 +7,7 @@ export const Dist: t.ViteLogLib['Dist'] = {
   },
 
   toString(dist, options = {}) {
-    const inDir = options.dirs?.in ?? '.';
+    const outDir = options.dirs?.out ?? '.';
     const pkg = dist.pkg;
 
     const title = c.green(c.bold(options.title ?? 'Production Bundle'));
@@ -15,9 +15,9 @@ export const Dist: t.ViteLogLib['Dist'] = {
     console.info(title);
 
     const hx = digest(dist.hash.digest);
-    const distPath = Path.trimCwd(Path.join(inDir, 'dist/dist.json'));
+    const distPath = Path.trimCwd(Path.join(outDir, 'dist.json'));
     const d = Fs.toFile(distPath);
-    const distPathFmt = `${c.green(`${Path.dirname(d.relative)}/`)}${c.dim(d.file.name)}`;
+    const distPathFmt = `${c.gray(`${Path.dirname(d.relative)}/`)}${c.green(d.file.name)}`;
     const pkgNameFmt = c.white(c.bold(pkg.name));
 
     const table = Cli.table([]);

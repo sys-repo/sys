@@ -1,2 +1,2 @@
 export { Color, COLORS } from '@sys/color';
-export { Is, isObject, R } from '@sys/std';
+export { Delete, Is, isObject, isRecord, R, slug, Str, Time, V } from '@sys/std';

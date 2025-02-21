@@ -10,5 +10,4 @@ export type * as t from './types.ts';
  */
 export { ViteEntry } from './-entry/mod.ts';
 export { ViteConfig } from './m.Vite.Config/mod.ts';
-export { Plugin, workspacePlugin } from './m.Vite.Plugin/mod.ts';
 export { Vite } from './m.Vite/mod.ts';

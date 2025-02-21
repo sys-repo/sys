@@ -8,10 +8,14 @@
 import { type t } from './common.ts';
 import { Fmt } from './m.Fmt.ts';
 import { from } from './u.from.ts';
+import { toDep } from './u.toDep.ts';
 import { toJson } from './u.toJson.ts';
+import { toYaml } from './u.toYaml.ts';
 
 export const DenoDeps: t.DepsLib = {
   Fmt,
   from,
-  toJson: (kind, deps) => toJson(kind, deps),
+  toJson,
+  toYaml,
+  toDep,
 };
