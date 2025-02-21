@@ -93,9 +93,9 @@ export type ViteLogHelpLib = {
 
 /** Arguments passed to `VitLog.help()` method. */
 export type ViteLogHelpArgs = {
+  dirs: t.ViteBundleIO;
   pkg?: t.Pkg;
   api?: t.ViteLogUsageApiArgs;
-  dir?: t.StringDir;
 };
 
 /** Log a `/dist` bundle folder. */

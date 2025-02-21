@@ -1,19 +1,11 @@
-import { Wrangle } from '../m.Vite/u.wrangle.ts';
-
-import { type t, c, Fs, pkg as modulePkg, Pkg, Semver } from './common.ts';
+import { type t, c, pkg as modulePkg, Pkg, Semver } from './common.ts';
 import { API } from './u.API.ts';
 import { Dist } from './u.Dist.ts';
 
 export const Help: t.ViteLogHelpLib = {
-  async log(args = {}) {
+  async log(args) {
     const pkg = args.pkg ?? modulePkg;
-    const dir = args.dir ? Fs.resolve(args.dir) : Fs.cwd();
-    const paths = await Wrangle.pathsFromConfigfile(dir);
-
-    const dirs = {
-      in: Fs.join(paths.cwd, paths.app.entry),
-      out: Fs.join(paths.cwd, paths.app.outDir),
-    };
+    const dirs = args.dirs;
 
     // API (commands).
     API.log({ ...args.api, minimal: false });

@@ -2,7 +2,9 @@
  * @module
  * The entry points, when using the module from the command-line [argv].
  */
-import { type t, Args, c, DenoModule, pkg, Vite, ViteLog } from './common.ts';
+import { Wrangle } from '../m.Vite/u.wrangle.ts';
+
+import { type t, Path, Args, c, DenoModule, pkg, Vite, ViteLog } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
@@ -49,7 +51,12 @@ export const ViteEntry: t.ViteEntryLib = {
 
     if (cmd === 'help') {
       const { dir } = args;
-      await ViteLog.Help.log({ pkg, dir });
+      const paths = await Wrangle.pathsFromConfigfile(dir);
+      const dirs = {
+        in: Path.join(paths.cwd, paths.app.entry),
+        out: Path.join(paths.cwd, paths.app.outDir),
+      };
+      await ViteLog.Help.log({ pkg, dirs });
       return;
     }
 
