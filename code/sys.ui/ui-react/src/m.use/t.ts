@@ -32,7 +32,7 @@ export type UseMouseHook = (props?: t.UseMouseProps) => t.UseMouse;
 export type UseMouse = {
   readonly is: { readonly over: boolean; readonly down: boolean; readonly dragging: boolean };
   readonly handlers: { onMouseDown: M; onMouseUp: M; onMouseEnter: M; onMouseLeave: M };
-  readonly drag: t.MouseMovement;
+  readonly drag?: t.MouseMovement;
   reset(): void;
 };
 
@@ -52,7 +52,7 @@ export type UseMouseDragProps = { onDrag?: t.UseMouseDragHandler };
 export type UseMouseDrag = {
   readonly is: { readonly dragging: boolean };
   readonly enabled: boolean;
-  readonly movement: t.MouseMovement;
+  readonly movement?: t.MouseMovement;
   start(): void;
   cancel(): void;
 };
