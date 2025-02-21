@@ -83,10 +83,8 @@ describe('ViteConfig: paths', () => {
     });
 
     it('no params: load from implicit {CWD}', async () => {
-      const path = Path.resolve('vite.config.ts');
       const res = await ViteConfig.fromFile();
-
-      expect(res.path).to.eql(path);
+      expect(res.path).to.eql(Path.resolve('vite.config.ts'));
       expect(res.module.paths?.cwd).to.eql(Path.cwd());
     });
 

@@ -23,6 +23,7 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
  */
 async function loadModule(path: string, errors: t.ErrorCollection) {
   let exists = false;
+  path = `file://${path.replace(/^file\:\/\//, '')}`;
   try {
     const mod = await import(path);
     exists = true;

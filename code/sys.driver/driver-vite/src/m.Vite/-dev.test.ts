@@ -26,7 +26,7 @@ describe('Vite.dev', () => {
    *
    */
   it('process: start → fetch(200) → dispose', async () => {
-    await Testing.retry(3, async () => {
+    await Testing.retry(2, async () => {
       const fs = SAMPLE.fs('Vite.dev');
       await Fs.copy(SAMPLE.Dirs.sample2, fs.dir);
 
