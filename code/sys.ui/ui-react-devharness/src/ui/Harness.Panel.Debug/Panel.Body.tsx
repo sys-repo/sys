@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 import { DebugPanelBodyRow as Row } from './Panel.Body.Row.tsx';
 

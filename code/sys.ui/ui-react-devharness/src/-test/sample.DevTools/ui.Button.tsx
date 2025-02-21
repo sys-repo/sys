@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { RenderCount } from '../../ui/RenderCount/mod.ts';
 import { COLORS, Color, css, useMouse, type t } from '../common.ts';
 

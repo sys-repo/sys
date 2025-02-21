@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, useRenderer, type t } from '../common.ts';
 
 export type HostLayerProps = {

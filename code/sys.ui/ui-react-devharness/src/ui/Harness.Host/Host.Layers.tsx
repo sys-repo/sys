@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 import { HostLayer } from './Host.Layer.tsx';
 

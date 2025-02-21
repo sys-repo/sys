@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { type t, css, Spec } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 

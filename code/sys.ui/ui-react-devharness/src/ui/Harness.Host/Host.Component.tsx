@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 

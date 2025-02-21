@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css, R, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { DebugPanelBody as Body } from './Panel.Body.tsx';

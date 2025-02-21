@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Spec, type t } from '../common.ts';
 import { ButtonSample } from './ui.Button.tsx';
 import { Hr } from './ui.Hr.tsx';

@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { DevArgs, DevKeyboard } from '../u/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';

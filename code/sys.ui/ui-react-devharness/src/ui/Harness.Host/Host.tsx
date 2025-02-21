@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// @ts-types="@types/react"
+import React, { useEffect, useState } from 'react';
 
 import { Color, css, DEFAULTS, R, Time, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';

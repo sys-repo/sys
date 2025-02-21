@@ -1,10 +1,11 @@
-import { expect } from 'chai';
-import { useState } from 'react';
+// @ts-types="@types/react"
+import React, { useState } from 'react';
 
 import { Keyboard } from '@sys/ui-dom';
+import { expect } from 'chai';
 
 import { DevBus } from '../../u/m.Bus/mod.ts';
-import { COLORS, Color, Spec, css, Time } from '../common.ts';
+import { COLORS, Color, Spec, Time, css } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 import { MySample } from './MySample.tsx';
 

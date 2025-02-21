@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+// @ts-types="@types/react"
+import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
 export type RenderCountProps = {
@@ -9,7 +10,7 @@ export type RenderCountProps = {
 
 export const RenderCount: React.FC<RenderCountProps> = (props) => {
   const { prefix = 'render-' } = props;
-  const countRef = useRef(0);
+  const countRef = React.useRef(0);
   countRef.current++;
 
   /**

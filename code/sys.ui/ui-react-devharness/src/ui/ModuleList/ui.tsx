@@ -1,3 +1,6 @@
+// @ts-types="@types/react"
+import React from 'react';
+
 import { useEffect, useRef } from 'react';
 import { Color, DEFAULTS, css, useRubberband, type t } from './common.ts';
 import { Footer } from './ui.Footer.tsx';

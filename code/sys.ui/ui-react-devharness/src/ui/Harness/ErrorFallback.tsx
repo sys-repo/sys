@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 import { COLORS, css, type t } from '../common.ts';
 
