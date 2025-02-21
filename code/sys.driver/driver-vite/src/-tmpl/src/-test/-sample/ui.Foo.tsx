@@ -38,6 +38,8 @@ export const FooSample: React.FC<FooComponent> = (props) => {
       MarginY: 5,
       PaddingX: 30,
       PaddingY: [30, 15],
+      color: 'red',
+      ':hover': { color: 'green' },
     }),
     themeSample: css({
       marginTop: 20,
