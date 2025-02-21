@@ -21,8 +21,9 @@
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
     "types": ["vite/client", "@types/react"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment"
   },
   "nodeModulesDir": "auto",
   "importMap": "./deno.imports.json",
