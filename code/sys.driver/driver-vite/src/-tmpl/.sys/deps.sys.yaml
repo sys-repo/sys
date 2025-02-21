@@ -24,7 +24,7 @@ deno.json:
   - import: jsr:@sys/driver-ollama@0.0.39
   - import: jsr:@sys/driver-orbiter@0.0.62
   - import: jsr:@sys/driver-quilibrium@0.0.75
-  - import: jsr:@sys/driver-vite@0.0.117
+  - import: jsr:@sys/driver-vite@0.0.119
   - import: jsr:@sys/driver-vitepress@0.0.284-alpha.1
   - import: jsr:@sys/sys@0.0.54
   - import: jsr:@sys/main@0.0.56
