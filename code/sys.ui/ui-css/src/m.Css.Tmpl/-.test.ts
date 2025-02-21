@@ -103,7 +103,7 @@ describe('CssTmpl: template transforms', () => {
         assertNoKey('Absolute', transform({ Absolute: 10 }));
         assertNoKey('Margin', transform({ Margin: 10 }));
         assertNoKey('MarginX', transform({ MarginX: [5] }));
-        assertNoKey('MarginY', transform({ MarginY: [1, 2, 3, 4] }));
+        assertNoKey('MarginY', transform({ MarginY: [1, 2] }));
         assertNoKey('Padding', transform({ Padding: 10 }));
         assertNoKey('PaddingX', transform({ PaddingX: [0] }));
         assertNoKey('PaddingY', transform({ PaddingY: 4 }));
@@ -115,7 +115,7 @@ describe('CssTmpl: template transforms', () => {
           Absolute: 10,
           Margin: 9,
           MarginX: [5],
-          MarginY: [1, 2, 3, 4],
+          MarginY: [1, 2],
           Padding: 10,
           PaddingX: [0],
           PaddingY: 4,

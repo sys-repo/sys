@@ -16,7 +16,7 @@ export const CssTmpl: t.CssTmplLib = {
    */
   transform(input?: t.CssValue): t.CssProps {
     if (Is.falsy(input) || !isObject(input)) return {};
-    let o = input as t.CssTemplates;
+    let o = input;
 
     // Absolute → { position: 'absolute' ... }
     if (o.Absolute !== undefined) o = WrangleEdge.absolute(o);

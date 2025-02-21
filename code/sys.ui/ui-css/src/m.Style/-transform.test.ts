@@ -47,7 +47,7 @@ describe('Style.css', () => {
       const b = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
       expect(a.style).to.eql(b);
       expect(a.hx).to.eql(toHash(b));
-      expect(a.style.Absolute).to.eql(undefined); // NB: clean up on object after transform.
+      expect((a.style as any).Absolute).to.eql(undefined); // NB: clean up on object after transform.
     });
 
     it('PaddingX: [10, 20]', () => {
@@ -55,7 +55,7 @@ describe('Style.css', () => {
       const b = { paddingLeft: 10, paddingRight: 20 };
       expect(a.style).to.eql(b);
       expect(a.hx).to.eql(toHash(b));
-      expect(a.style.PaddingX).to.eql(undefined); // NB: clean up on object after transform.
+      expect((a.style as any).PaddingX).to.eql(undefined); // NB: clean up on object after transform.
     });
   });
 
@@ -64,7 +64,7 @@ describe('Style.css', () => {
       const prefix = 'foo';
       const css = Style.transformer({ prefix });
 
-      const input: t.CssProps = { PaddingX: [10, 30] };
+      const input: t.CssValue = { PaddingX: [10, 30] };
       const m = css({ PaddingX: [10, 30] });
       const className = `${prefix}-${m.hx}`;
       expect(findCssRule(className)).to.eql(undefined);

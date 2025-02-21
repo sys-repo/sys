@@ -127,7 +127,7 @@ function mutateEdge(
     if (edge === 'bottom') e.changeField(bottomKey);
     if (edge === 'left') e.changeField(leftKey);
   });
-  const res: t.CssProps = { ...style, ...props };
+  const res = { ...style, ...props };
   delete res[tmplKey];
   return Delete.undefined(res);
 }
