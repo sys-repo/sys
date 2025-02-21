@@ -21,6 +21,7 @@ export const Wrangle = {
 
     if (!paths) {
       const err = `Failed to load paths from [${filename}], ensure it exports "paths". Source: ${path}`;
+      console.error(res.error);
       throw new Error(err);
     }
 
