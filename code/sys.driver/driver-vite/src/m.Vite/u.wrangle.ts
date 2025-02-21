@@ -20,6 +20,9 @@ export const Wrangle = {
     let paths = res.module.paths;
 
     if (!paths) {
+      // TEMP 🐷
+      console.log('res', { ...res });
+
       const err = `Failed to load paths from [${filename}], ensure it exports "paths". Source: ${path}`;
       throw new Error(err);
     }

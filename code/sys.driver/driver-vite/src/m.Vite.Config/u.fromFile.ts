@@ -12,8 +12,8 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   const res = await loadModule(path, errors);
   return {
     path,
-    module: wrangle.module(res.mod),
     exists: res.exists,
+    module: wrangle.module(res.mod),
     error: errors.toError(),
   };
 };
