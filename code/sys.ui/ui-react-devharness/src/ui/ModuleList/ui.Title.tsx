@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { Color, css, type t } from '../common.ts';
 
@@ -8,7 +7,7 @@ export type TitleProps = {
   version?: string;
   badge?: t.ImageBadge;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const Title: React.FC<TitleProps> = (props) => {
