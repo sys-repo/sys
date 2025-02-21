@@ -5,7 +5,7 @@
   "tasks": {
     "lint": "deno     lint",
     "dry": "deno      publish --allow-dirty --dry-run",
-    "test": "deno     test -RWNE --allow-run --allow-ffi",
+    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "reset": "deno    run -RWE ./-scripts/-reset.ts",
     "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init    --dir=./.tmp/sample",
     "dev": "deno      run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev     --dir=./.tmp/sample",
