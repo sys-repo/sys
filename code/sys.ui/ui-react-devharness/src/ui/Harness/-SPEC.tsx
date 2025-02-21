@@ -14,7 +14,6 @@ export default Spec.describe('Harness', (e) => {
       .render((e) => {
         return (
           <Harness
-            //
             style={{ Absolute: 0 }}
             spec={() => bundle}
             // spec={bundle} // NB: This is the same as the line above.

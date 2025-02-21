@@ -1,4 +1,5 @@
-import { DomMock, describe, expect, it } from '../-test.ts';
+import { DomMock } from '@sys/testing/server';
+import { describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
 import { Specs } from './entry.Specs.ts';
 

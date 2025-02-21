@@ -1,4 +1,4 @@
-export { describe, DomMock, expect, it, Testing } from '@sys/testing/server';
+export { describe, expect, it, Testing } from '@sys/testing';
 export { Test } from '@sys/testing/spec';
 
 export * from './common.ts';

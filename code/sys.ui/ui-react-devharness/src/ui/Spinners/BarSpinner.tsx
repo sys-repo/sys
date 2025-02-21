@@ -1,14 +1,10 @@
 // @ts-types="@types/react"
-import React, { type Component } from 'react';
+import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
+export type BarSpinnerProps = { style?: t.CssValue };
 type BarLoaderProps = { color?: string; width?: number };
-type BarLoaderComponent = Component<BarLoaderProps>;
-let BarLoader: BarLoaderComponent | undefined;
-
-export type BarSpinnerProps = {
-  style?: t.CssValue;
-};
+let BarLoader: React.ComponentType<BarLoaderProps> | undefined;
 
 export const BarSpinner: React.FC<BarSpinnerProps> = (props) => {
   React.useEffect(() => {
