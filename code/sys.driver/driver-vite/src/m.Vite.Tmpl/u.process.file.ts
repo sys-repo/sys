@@ -5,6 +5,9 @@ import { type t, c, DenoDeps, DenoFile, Esm, Fs, Path, pkg, Pkg } from './common
  * File processing rules for the template.
  */
 export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFile {
+  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+  console.log('args', args);
+
   const getWorkspace = async () => {
     const ws = await DenoFile.workspace();
     const deps = (await DenoDeps.from(Path.join(ws.dir, 'deps.yaml'))).data;

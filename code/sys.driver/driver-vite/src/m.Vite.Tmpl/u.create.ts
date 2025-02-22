@@ -1,6 +1,6 @@
 import { type t, Fs, PATHS, Tmpl } from './common.ts';
 import { Bundle } from './m.Bundle.ts';
-import { createFileProcessor } from './u.file.ts';
+import { createFileProcessor } from './u.process.file.ts';
 
 /**
  * Create a new instance of the bundled file template.
