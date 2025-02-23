@@ -12,22 +12,31 @@ export type DepsLib = {
   readonly Fmt: t.DepsFmt;
 
   /** Load the imports definitions from YAML. */
-  from(input: t.StringPath | t.StringYaml): Promise<t.DepsResponse>;
+  from(input: t.StringPath | t.StringYaml): Promise<t.DepsResult>;
 
   /** Convert deps to a `deno.json` or `package.json` format. */
   toJson(kind: 'deno.json', deps?: t.Dep[]): t.PkgJsonDeno;
   toJson(kind: 'package.json', deps?: t.Dep[]): t.PkgJsonNode;
+
+  /** Convert deps into YAML.  */
+  toYaml(deps: t.Dep[], options?: t.DepsYamlOptions): t.DepsYaml;
+
+  /** Convert to a dependency representation. */
+  toDep(
+    module: t.EsmImport | t.StringModuleSpecifier,
+    options?: { target?: t.DepTargetFile | t.DepTargetFile[]; dev?: boolean; wildcard?: boolean },
+  ): t.Dep;
 };
 
 /** A response object from a `DenoDeps` constructor function. */
-export type DepsResponse = { data?: t.Deps; error?: t.StdError };
+export type DepsResult = { data?: t.Deps; error?: t.StdError };
 
 /**
  * A common data-structure for expressing an ESM "import"
  * (normalized between 'deno.json' and 'package.json")
  */
 export type Deps = {
-  readonly deps: Dep[];
+  readonly deps: t.Dep[];
   readonly modules: t.EsmModules;
   toYaml(options?: t.DepsYamlOptions): t.DepsYaml;
 };
@@ -43,11 +52,16 @@ export type DepsYaml = {
   toString(): string;
 };
 
-/** Categorize a dependency into a group (Nothing response is ungrouped). */
-export type DepsCategorizeByGroup = (dep: t.Dep) => string | t.Nothing;
-
 /** Options passed to the `DenoDeps.toYaml` method. */
 export type DepsYamlOptions = { groupBy?: DepsCategorizeByGroup };
+
+/** Categorize a dependency into a group (Nothing response is ungrouped). */
+export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.IgnoredResult;
+export type DepsCategorizeByGroupArgs = {
+  dep: t.Dep;
+  target: t.DepTargetFile | t.DepTargetFile[];
+  group(name: string, options?: { wildcard?: boolean; dev?: boolean }): void;
+};
 
 /**
  * A common data-structure for expressing an ESM "import"
@@ -61,12 +75,6 @@ export type Dep = {
   target: DepTargetFile[];
 
   /**
-   * Flag indicating if the import is a development-dependency only.
-   * Only relevant when producing a `package.json` file.
-   */
-  dev?: boolean;
-
-  /**
    * Flag indicating if a wildcard entry should be inserted into an generated import-map.
    * Causes an import (within deno.json), like:
    *
@@ -74,6 +82,12 @@ export type Dep = {
    *    "@noble/hashes/*"
    */
   wildcard?: boolean;
+
+  /**
+   * Flag indicating if the import is a development-dependency only.
+   * Only relevant when producing a `package.json` file.
+   */
+  dev?: boolean;
 };
 
 /**

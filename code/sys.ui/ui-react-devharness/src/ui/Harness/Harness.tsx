@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+// @ts-types="@types/react"
+import React, { useEffect, useRef, type FC } from 'react';
 import { HarnessHost } from '../Harness.Host/mod.ts';
 import { DebugPanel } from '../Harness.Panel.Debug/mod.ts';
 import {
@@ -15,7 +16,7 @@ import { ErrorFallback } from './ErrorFallback.tsx';
 
 type Size = { width: number; height: number };
 
-export const Harness: React.FC<t.HarnessProps> = (props) => {
+export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   useRubberband(props.allowRubberband ?? false);
 
   const baseRef = useRef<HTMLDivElement>(null);
@@ -74,7 +75,7 @@ export const Harness: React.FC<t.HarnessProps> = (props) => {
     <div
       data-component={'dev.harness'}
       ref={baseRef}
-      {...css(styles.reset, styles.base, props.style)}
+      className={css(styles.reset, styles.base, props.style).class}
     >
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <HarnessHost instance={instance} baseRef={hostRef} subjectRef={subjectRef} />

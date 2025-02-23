@@ -47,7 +47,7 @@ export type DenoModuleUpgradeArgs = {
   beforeUpgrade?: (e: { message: string }) => Promise<void>;
 };
 
-/** Resposne from `DenoModule.upgrade` method. */
+/** Response from `DenoModule.upgrade` method. */
 export type DenoModuleUpgrade = {
   readonly version: { from: t.StringSemver; to: t.StringSemver };
   readonly changed: boolean;

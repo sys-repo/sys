@@ -21,4 +21,5 @@
  * });
  */
 export * from './common.ts';
+export { DomMock } from './m.DomMock/mod.ts';
 export { Testing } from './m.Testing/mod.ts';

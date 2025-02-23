@@ -1,7 +1,7 @@
 import { pkg as pkgDeno } from '@sys/driver-deno';
 import { pkg as pkgVite } from '@sys/driver-vite';
 import { Main } from '@sys/main/cmd';
-import { type t, DenoDeps, DenoFile, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
+import { type t, c, DenoDeps, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -10,14 +10,13 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
   const { srcDir = PATHS.srcDir } = args;
 
   const getDeps = async (base: t.StringDir) => {
-    const ws = await DenoFile.workspace();
-
+    const from = DenoDeps.from;
     const join = (...parts: string[]) => Fs.join(base, ...parts);
-    const path = Fs.join(base, '.sys/sys.deps.yaml');
+    const load = async (path: string) => (await from(join(path))).data?.modules.items ?? [];
 
-    const m1 = (await DenoDeps.from(join('.sys/sys.deps.yaml'))).data?.modules;
-    const m2 = (await DenoDeps.from(join('.sys/sys.yaml'))).data?.modules;
-    const modules = Esm.modules([...(m1?.items ?? []), ...(m2?.items ?? [])]);
+    const m1 = await load('.sys/deps.yaml');
+    const m2 = await load('.sys/deps.sys.yaml');
+    const modules = Esm.modules([...m1, ...m2]);
 
     return { modules };
   };
@@ -56,7 +55,13 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
         devDependencies: modules.latest(pkg?.devDependencies ?? {}),
       };
 
-      return e.modify(`${JSON.stringify(next, null, '  ')}\n`);
+      console.info(c.gray(`Resolved versions:`));
+      console.info(c.brightCyan(c.bold(`./package.json:`)));
+      console.info(next);
+      console.info();
+
+      const json = `${JSON.stringify(next, null, '  ')}\n`;
+      return e.modify(json);
     }
 
     if (e.target.relative === 'docs/index.md') {

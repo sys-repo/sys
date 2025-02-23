@@ -7,10 +7,20 @@ export const Fmt: t.DepsFmt = {
     const prefixes = deps.map((dep) => Semver.Prefix.get(dep.module.version)).filter(Boolean);
     const maxPrefixLength = prefixes.reduce((max, prefix) => Math.max(max, prefix.length), 0);
 
+    const sorted = deps.toSorted((a, b) => a.module.registry.localeCompare(b.module.registry));
     const table = Cli.table([]);
-    deps.forEach((dep) => {
+    let prevRegistry: t.EsmRegistry = 'jsr';
+
+    sorted.forEach((dep) => {
       const mod = dep.module;
-      const registry = mod.prefix === 'jsr' ? 'jsr' : mod.prefix || 'npm';
+      const registry = mod.registry === 'jsr' ? 'jsr' : mod.registry || 'npm';
+
+      const isDiff = registry !== prevRegistry;
+      prevRegistry = registry;
+      if (isDiff) {
+        table.push([]); // Blank line between registries.
+        return;
+      }
 
       const [left, right] = mod.name.split('/');
       const name = right ? right : left;
@@ -23,7 +33,7 @@ export const Fmt: t.DepsFmt = {
       table.push([`${indent}${fmtVersion}`, fmtName, fmtRegistry]);
     });
 
-    return `↓${indent}${table.toString().trimEnd()}`;
+    return `${indent}↓${indent}${table.toString().trimEnd()}`;
   },
 };
 
@@ -36,14 +46,15 @@ const wrangle = {
   },
 
   version(version: t.StringSemver, maxLength: number) {
+    const colorize = (version: string) => Semver.Fmt.colorize(version, { highlight: 'major' });
     const prefix = Semver.Prefix.get(version);
     if (prefix) {
       const versionWithoutPrefix = version.slice(prefix.length);
-      const coloredPrefix = c.gray(prefix);
+      const coloredPrefix = c.yellow(prefix);
       const indent = wrangle.indent(maxLength - prefix.length);
-      return `${coloredPrefix}${indent}${Semver.Fmt.colorize(versionWithoutPrefix)}`;
+      return `${coloredPrefix}${indent}${colorize(versionWithoutPrefix)}`;
     } else {
-      return `${wrangle.indent(maxLength)}${Semver.Fmt.colorize(version)}`;
+      return `${wrangle.indent(maxLength)}${colorize(version)}`;
     }
   },
 } as const;

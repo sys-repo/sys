@@ -1,5 +1,7 @@
-import { ModuleList } from './mod.ts';
+// @ts-types="@types/react"
+import React from 'react';
 import { Badges, COLORS, pkg, Spec, type t } from '../../-test.ts';
+import { ModuleList } from './mod.ts';
 
 export default Spec.describe('ModuleList', (e) => {
   e.it('init', (e) => {

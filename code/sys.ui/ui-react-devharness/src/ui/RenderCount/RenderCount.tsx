@@ -1,15 +1,16 @@
-import { useRef } from 'react';
+// @ts-types="@types/react"
+import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
 export type RenderCountProps = {
   absolute?: t.CssValue['Absolute'];
   prefix?: string;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const RenderCount: React.FC<RenderCountProps> = (props) => {
   const { prefix = 'render-' } = props;
-  const countRef = useRef(0);
+  const countRef = React.useRef(0);
   countRef.current++;
 
   /**
@@ -26,7 +27,7 @@ export const RenderCount: React.FC<RenderCountProps> = (props) => {
   };
 
   const text = `${prefix}${countRef.current}`;
-  return <div {...css(styles.base, props.style)}>{text}</div>;
+  return <div className={css(styles.base, props.style).class}>{text}</div>;
 };
 
 /**

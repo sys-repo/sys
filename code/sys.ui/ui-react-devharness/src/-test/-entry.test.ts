@@ -1,5 +1,6 @@
-import { Dev } from '../mod.ts';
+import { DomMock } from '@sys/testing/server';
 import { describe, expect, it } from '../-test.ts';
+import { Dev } from '../mod.ts';
 import { Specs } from './entry.Specs.ts';
 
 /**
@@ -10,7 +11,8 @@ import { Specs } from './entry.Specs.ts';
  *    assertions within the visual specs, to be included and monitored
  *    within the CI pipeline.
  */
-describe('visual specs', () => {
+describe('visual specs', { sanitizeOps: false, sanitizeResources: false }, () => {
+  DomMock.polyfill();
   it('run', async () => {
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(true);

@@ -1,9 +1,11 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Spec, type t } from '../common.ts';
 import { ButtonSample } from './ui.Button.tsx';
 import { Hr } from './ui.Hr.tsx';
 
 type ButtonClickHandler = (e: ButtonHandlerArgs) => void;
-type ButtonHandler = (e: ButtonHandlerArgs) => t.IgnoredResponse;
+type ButtonHandler = (e: ButtonHandlerArgs) => t.IgnoredResult;
 type ButtonHandlerArgs = {
   ctx: t.DevCtx;
   label(value: string): ButtonHandlerArgs;

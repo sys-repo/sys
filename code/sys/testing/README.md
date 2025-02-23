@@ -10,7 +10,7 @@ Import test helpers (all environments, browser AND server):
 import { expect, describe, it, Testing } from '@sys/testing';
 ```
 
-Import helpers with server (posix) extensions:
+or import helpers with server (posix) extensions:
 
 ```ts
 import { expect, describe, it, Testing, Fs, Path } from '@sys/testing/server';
@@ -33,4 +33,25 @@ describe('My Suite', () => {
     expect(123).to.eql(123);
   });
 });
+```
+
+## Mocking the DOM
+The DOM can be simulated on the server using `DomMock`:
+
+```ts
+import { DomMock } from '@sys/testing/server';
+
+// Setup the environment with a browser `window` object (`globalThis`).
+DomMock.polyfill();
+
+// Sample interaction with keyboard:
+document.addEventListener('keydown', (e) => {
+  /* handle keyboard event */
+});
+
+const event = DomMock.Keyboard.keydownEvent('z');
+DomMock.Keyboard.fire(event);
+
+// Restore the server `globalThis` environment.
+DomMock.unpolyfill();
 ```

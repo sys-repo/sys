@@ -1,6 +1,6 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.48",
+  "version": "0.0.64",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",

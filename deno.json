@@ -1,24 +1,28 @@
 {
   "tasks": {
     "info": "deno run -RE --allow-sys --allow-ffi ./scripts/main.ts --info",
+
+    "ci": "deno run -A ./scripts/main.ts --dry --test --info",
     "test": "deno run -A ./scripts/main.ts --test",
     "dry": "deno run -RE --allow-run --allow-sys --allow-ffi ./scripts/main.ts --dry",
-    "ci": "deno run -A ./scripts/main.ts --dry --test --info",
     "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
+
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./scripts/main.ts --clean",
     "reload": "deno task reload:clear && deno task reload:install",
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
-    "prep": "deno run -RWE ./scripts/main.ts --prep",
-    "bump": "deno run -RWE --allow-sys --allow-ffi ./scripts/main.ts --bump",
+
+    "prep": "deno run -RWE --allow-ffi --allow-run              ./scripts/main.ts --prep",
+    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run  ./scripts/main.ts --bump",
+
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "@types/react"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react"
+    "jsxImportSource": "react"
   },
   "nodeModulesDir": "auto",
   "importMap": "./deno.imports.json",

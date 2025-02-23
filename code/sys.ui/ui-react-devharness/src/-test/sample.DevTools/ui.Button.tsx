@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { RenderCount } from '../../ui/RenderCount/mod.ts';
 import { COLORS, Color, css, useMouse, type t } from '../common.ts';
 
@@ -7,7 +9,7 @@ export type ButtonSampleClickHandlerArgs = { ctx: t.DevCtx };
 export type ButtonProps = {
   ctx: t.DevCtx;
   label?: string;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onClick?: ButtonSampleClickHandler;
 };
 
@@ -59,14 +61,14 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
 
   return (
     <div
-      {...css(styles.base, props.style)}
+      className={css(styles.base, props.style).class}
       {...mouse.handlers}
       onClick={() => props.onClick?.({ ctx })}
     >
-      <div {...styles.icon.base}>
-        <div {...styles.icon.image} />
+      <div className={styles.icon.base.class}>
+        <div className={styles.icon.image.class} />
       </div>
-      <div {...styles.body}>{props.label || 'Unnamed'}</div>
+      <div className={styles.body.class}>{props.label || 'Unnamed'}</div>
       <RenderCount />
     </div>
   );

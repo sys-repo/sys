@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css, R, useCurrentState, type t } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { DebugPanelBody as Body } from './Panel.Body.tsx';
@@ -5,7 +7,7 @@ import { DebugPanelBody as Body } from './Panel.Body.tsx';
 export type DebugPanelProps = {
   instance: t.DevInstance;
   baseRef?: React.RefObject<HTMLDivElement>;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
@@ -39,12 +41,12 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
 
   return (
     <div
-      data-component={'dev.harness:Panel.Debug'}
       ref={props.baseRef}
-      {...css(styles.base, props.style)}
+      data-component={'dev.harness:Panel.Debug'}
+      className={css(styles.base, props.style).class}
     >
       <PanelHeader instance={instance} current={debug?.header} />
-      <div {...styles.body}>
+      <div className={styles.body.class}>
         <Body instance={instance} current={current.info} />
       </div>
       <PanelFooter instance={instance} current={debug?.footer} />

@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { describe, expect, it } from '../-test.ts';
 import { FC } from './mod.ts';
 

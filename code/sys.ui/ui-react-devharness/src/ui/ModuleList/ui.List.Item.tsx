@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+// @ts-types="@types/react"
+import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { COLORS, Calc, Color, DEFAULTS, css, type t } from './common.ts';
 
@@ -16,7 +17,7 @@ export type ListItemProps = {
   hrDepth?: number;
   useAnchorLinks?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onReadyChange?: t.ModuleListItemReadyHandler;
   onClick?: t.ModuleListItemHandler;
   onSelect?: t.ModuleListItemHandler;
@@ -121,16 +122,20 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
 
   const linkStyle = css(styles.link, !ns ? styles.linkDimmed : undefined);
   const elLink = (
-    <a href={useAnchorLinks ? url.href : undefined} onClick={handleClick} {...linkStyle}>
-      <div {...styles.row.label}>{title ?? uri}</div>
+    <a
+      href={useAnchorLinks ? url.href : undefined}
+      onClick={handleClick}
+      className={linkStyle.class}
+    >
+      <div className={styles.row.label.class}>{title ?? uri}</div>
     </a>
   );
 
   return (
-    <li ref={baseRef} {...css(styles.base, props.style)}>
-      {showHr && <hr {...styles.hr} />}
-      <div {...styles.row.base}>
-        <div {...styles.row.icon}>{Icon && <VscSymbolClass />}</div>
+    <li ref={baseRef} className={css(styles.base, props.style).class}>
+      {showHr && <hr className={styles.hr.class} />}
+      <div className={styles.row.base.class}>
+        <div className={styles.row.icon.class}>{Icon && <VscSymbolClass />}</div>
         {elLink}
         <div style={{ width: 20 }} />
       </div>

@@ -1,6 +1,6 @@
 import type { PropArgs } from './common.types.ts';
 
-import { DEFAULTS, Edges, Id, type t } from './common.ts';
+import { DEFAULTS, Id, Style, type t } from './common.ts';
 import { CtxPanelEdge } from './Ctx.PanelEdge.ts';
 
 export function CtxPropsDebug(props: PropArgs) {
@@ -24,7 +24,7 @@ export function CtxPropsDebug(props: PropArgs) {
     },
 
     padding(input) {
-      const value = Edges.toArray(input ?? DEBUG.body.padding);
+      const value = Style.Edges.toArray(input ?? DEBUG.body.padding);
       props.current().debug.body.padding = value;
       props.changed();
       return api;

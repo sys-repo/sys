@@ -1,4 +1,4 @@
-import { Edges, Id, type t } from './common.ts';
+import { Id, Style, type t } from './common.ts';
 
 /**
  * The edge of a panel (eg header/footer).
@@ -20,7 +20,7 @@ export function CtxPanelEdge(
       return api;
     },
     padding(input) {
-      const value = Edges.toArray(input ?? defaults.padding);
+      const value = Style.Edges.toArray(input ?? defaults.padding);
       change((e) => (e.padding = value));
       return api;
     },

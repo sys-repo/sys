@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Spec } from '../common.ts';
 
 export const root = Spec.describe('MySample', (e) => {

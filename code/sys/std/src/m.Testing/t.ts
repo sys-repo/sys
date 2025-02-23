@@ -17,7 +17,7 @@ export type TestingLib = {
   retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
 };
 
-export type TestRetryRunner = () => t.IgnoredResponse;
+export type TestRetryRunner = () => t.IgnoredResult;
 export type TestRetryOptions = {
   silent?: boolean;
   delay?: t.Msecs;

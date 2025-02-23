@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+// @ts-types="@types/react"
+import React, { useEffect } from 'react';
 import { Color, css, DEFAULTS, Keyboard, type t } from '../common.ts';
 
 export type MySampleProps = {
   text?: string;
   data?: t.Json;
   throwError?: boolean;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onClick?: () => void;
 };
 
@@ -55,16 +56,16 @@ export const MySample: React.FC<MySampleProps> = (props) => {
   };
 
   _count++;
-  const elRender = <div {...styles.render}>{`render-${_count}`}</div>;
+  const elRender = <div className={styles.render.class}>{`render-${_count}`}</div>;
 
   return (
-    <div {...css(styles.base, props.style)} onClick={props.onClick}>
-      <div {...styles.body}>
+    <div className={css(styles.base, props.style).class} onClick={props.onClick}>
+      <div className={styles.body.class}>
         <div>🐷 {props.text ?? 'MySample'}</div>
-        <div {...styles.data}>
+        <div className={styles.data.class}>
           <pre>state: {props.data ? JSON.stringify(props.data, null, '  ') : 'undefined'} </pre>
         </div>
-        <a href={'?dev'} {...styles.link}>
+        <a href={'?dev'} className={styles.link.class}>
           ?dev
         </a>
         {elRender}

@@ -51,7 +51,7 @@ export function useBusController(
   return {
     instance,
     info,
-    get events(): t.DevEvents {
+    get events() {
       return eventsRef.current;
     },
     get ready(): boolean {

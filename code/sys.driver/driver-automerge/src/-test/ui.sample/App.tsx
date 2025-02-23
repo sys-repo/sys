@@ -3,7 +3,7 @@ import { Color, css, Doc, WebStore, type t } from './common.ts';
 
 export type AppProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 type D = { count: number };
@@ -42,7 +42,7 @@ export const App: React.FC<AppProps> = (props) => {
   console.log(doc);
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       <div>{`🐷 Sample`}</div>
     </div>
   );

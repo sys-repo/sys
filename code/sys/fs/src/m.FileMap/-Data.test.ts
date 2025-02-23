@@ -56,9 +56,15 @@ describe('FileMap.Data (encoding)', () => {
       test('');
       test('foo');
       test('foo/bar.baz');
-      test('foo/file.ts');
-      test('foo/file.tsx');
       test('foo/foo.vue');
+    });
+
+    it('contentType.fromPath: default → "application/typescript"', () => {
+      const test = (path: string, expected: string) => {
+        expect(Data.contentType.fromPath(path)).to.eql(expected);
+      };
+      test('foo/file.ts', 'application/typescript');
+      test('foo/file.tsx', 'application/typescript+jsx');
     });
 
     it('contentType.fromUri', () => {
@@ -67,6 +73,8 @@ describe('FileMap.Data (encoding)', () => {
       };
       test('data:text/plain;base64,abcd', 'text/plain');
       test('data:image/png;base64,abcd', 'image/png');
+      test('data:application/typescipt;base64,abcd', 'application/typescipt');
+      test('data:application/typescipt+jsx;base64,abcd', 'application/typescipt+jsx');
     });
 
     it('contentType.fromUri: not supported/found → "" (empty string)', () => {

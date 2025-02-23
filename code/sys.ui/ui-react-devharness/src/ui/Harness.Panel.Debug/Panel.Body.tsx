@@ -1,10 +1,12 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, type t } from '../common.ts';
 import { DebugPanelBodyRow as Row } from './Panel.Body.Row.tsx';
 
 export type DebugPanelBodyrops = {
   instance: t.DevInstance;
   current?: t.DevInfo;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const DebugPanelBody: React.FC<DebugPanelBodyrops> = (props) => {
@@ -17,5 +19,5 @@ export const DebugPanelBody: React.FC<DebugPanelBodyrops> = (props) => {
     return <Row key={renderer.id} instance={instance} renderer={renderer} />;
   });
 
-  return <div {...css(styles.base, props.style)}>{elements}</div>;
+  return <div className={css(styles.base, props.style).class}>{elements}</div>;
 };
