@@ -52,10 +52,10 @@ export const VitepressEntry: t.VitepressEntryLib = {
     if (args.cmd === 'build') {
       ViteLog.API.log({ cmd: 'build' });
       console.info();
-
       const { dir = PATHS.inDir } = args;
       const res = await Vitepress.build({ inDir: dir, pkg, silent: false });
-      console.info(res.toString({ pad: true }));
+      console.info(res.toString());
+      console.info();
       return;
     }
 
