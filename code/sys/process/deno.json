@@ -1,6 +1,6 @@
 {
   "name": "@sys/process",
-  "version": "0.0.65",
+  "version": "0.0.66",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
