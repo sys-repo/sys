@@ -1,9 +1,11 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css, type t } from '../common.ts';
 
 export type FooterProps = {
   enabled?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 /**
@@ -15,5 +17,5 @@ export const Footer: React.FC<FooterProps> = (props) => {
   const styles = {
     base: css({ height: 80, color }),
   };
-  return <div {...css(styles.base, props.style)}></div>;
+  return <div className={css(styles.base, props.style).class}></div>;
 };

@@ -44,6 +44,11 @@ export type StrLib = {
   plural(count: number, singular: string, plural?: string): string;
 
   /**
+   * Converts a "camelCase" string to "kebab-case".
+   */
+  camelToKebab(text: string): string;
+
+  /**
    * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
    */
   bytes: t.FormatBytes;

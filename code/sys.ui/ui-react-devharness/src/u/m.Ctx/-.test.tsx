@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { TestSample, describe, expect, it, type t } from '../../-test.ts';
 import { DEFAULTS, Id } from './common.ts';
 import { Context } from './mod.ts';

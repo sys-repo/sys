@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, useRenderer, type t } from '../common.ts';
 
 export type DebugPanelBodyRow = {
@@ -16,5 +18,5 @@ export const DebugPanelBodyRow: React.FC<DebugPanelBodyRow> = (props) => {
     }),
   };
 
-  return <div {...styles.base}>{element}</div>;
+  return <div className={styles.base.class}>{element as t.ReactNode}</div>;
 };

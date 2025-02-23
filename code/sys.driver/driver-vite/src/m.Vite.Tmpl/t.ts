@@ -28,7 +28,7 @@ export type ViteBundleLib = {
   toFilemap(): Promise<{ from: t.StringDir; to: t.StringDir }>;
 
   /** Write out the bundled <FileMap> to a target location. */
-  toFilesystem(dir?: t.StringDir): Promise<void>;
+  writeToFile(dir?: t.StringDir): Promise<void>;
 };
 
 /** Arguments passed to the `Vite.Tmpl.update` method. */

@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Spec } from '../common.ts';
 
 export default Spec.describe('Error on initialize', (e) => {

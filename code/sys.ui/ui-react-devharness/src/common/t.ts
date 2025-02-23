@@ -1,7 +1,7 @@
 /**
  * @external
  */
-export type { ReactChildren } from 'react';
+export type { ReactNode } from 'react';
 export type { IconType } from 'react-icons';
 
 /**
@@ -29,6 +29,7 @@ export type {
   CssMarginInput,
   CssPaddingArray,
   CssValue,
+  CssInput,
 } from '@sys/ui-css/t';
 
 export type { KeyboardEventsUntil, KeyboardModifierFlags } from '@sys/ui-dom/t';

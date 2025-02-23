@@ -1,16 +1,13 @@
-import { useEffect, type Component } from 'react';
+// @ts-types="@types/react"
+import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
+export type BarSpinnerProps = { style?: t.CssInput };
 type BarLoaderProps = { color?: string; width?: number };
-type BarLoaderComponent = Component<BarLoaderProps>;
-let BarLoader: BarLoaderComponent | undefined;
-
-export type BarSpinnerProps = {
-  style?: t.CssValue;
-};
+let BarLoader: React.ComponentType<BarLoaderProps> | undefined;
 
 export const BarSpinner: React.FC<BarSpinnerProps> = (props) => {
-  useEffect(() => {
+  React.useEffect(() => {
     /**
      * HACK: Errors when this file is parsed within Deno on the server
      *       (because CJS not ESM (??))
@@ -34,7 +31,7 @@ export const BarSpinner: React.FC<BarSpinnerProps> = (props) => {
   if (!BarLoader) return null;
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div className={css(styles.base, props.style).class}>
       <BarLoader color={COLORS.DARK} width={width} />
     </div>
   );

@@ -1,3 +1,6 @@
+// @ts-types="@types/react"
+import React from 'react';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -33,7 +36,7 @@ export async function main() {
       ...ModuleSpecs,
     };
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-    root.render(<StrictMode>{el}</StrictMode>);
+    root.render(<StrictMode>{el as React.ReactNode}</StrictMode>);
   } else {
     const { MySample } = await import('./sample.specs/MySample.tsx');
     const el = <MySample style={{ Absolute: 0 }} />;

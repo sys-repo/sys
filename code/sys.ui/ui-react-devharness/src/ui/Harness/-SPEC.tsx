@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Spec } from '../../-test.ts';
 import { Harness } from './mod.ts';
 
@@ -12,7 +14,6 @@ export default Spec.describe('Harness', (e) => {
       .render((e) => {
         return (
           <Harness
-            //
             style={{ Absolute: 0 }}
             spec={() => bundle}
             // spec={bundle} // NB: This is the same as the line above.

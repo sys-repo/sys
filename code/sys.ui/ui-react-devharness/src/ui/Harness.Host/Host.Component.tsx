@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { Color, css, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
@@ -6,7 +8,7 @@ export type HostComponentProps = {
   border?: string;
   renderProps?: t.DevRenderProps;
   subjectRef?: React.RefObject<HTMLDivElement>;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostComponent: React.FC<HostComponentProps> = (props) => {
@@ -36,10 +38,14 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
   };
 
   const elBody = element && (
-    <div ref={props.subjectRef} {...styles.body} data-component={'dev.harness:ComponentHost'}>
-      {element}
+    <div
+      ref={props.subjectRef}
+      className={styles.body.class}
+      data-component={'dev.harness:ComponentHost'}
+    >
+      {element as t.ReactNode}
     </div>
   );
 
-  return <div {...css(styles.base, props.style)}>{elBody}</div>;
+  return <div className={css(styles.base, props.style).class}>{elBody}</div>;
 };

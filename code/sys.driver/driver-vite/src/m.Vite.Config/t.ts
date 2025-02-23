@@ -1,6 +1,8 @@
+import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
-type ToStringOptions = { pad?: boolean };
+export type * from './t.app.ts';
+export type * from './t.paths.ts';
 
 /** Flags for major code-registries. */
 export type CodeRegistry = 'jsr' | 'npm';
@@ -10,90 +12,72 @@ export type CodeRegistry = 'jsr' | 'npm';
  * https://vitejs.dev/config
  */
 export type ViteConfigLib = {
-  /** The output directory path (helpers and generators). */
-  readonly outDir: t.ViteConfigOutDir;
-
-  /** Prepare paths for the vite build. */
-  paths(options?: t.ViteConfigPathsOptions): t.ViteConfigPaths;
-
-  /** Retrieve the workspace module-resolution helpers from a `deno.json` workspace. */
-  workspace: t.ViteConfigWorkspaceFactory;
+  readonly Is: t.ViteConfigIsLib;
 
   /**
-   * Construct a replacement regex to use an as alias for a module/import lookup
-   * within the Vite/Rollup/alias configuration.
+   * Construct an "application" configuration (index.html).
    */
-  alias(prefix: t.CodeRegistry, moduleName: string): t.ViteAlias;
-};
-
-/**
- * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
- */
-export type ViteConfigWorkspaceFactory = (
-  options?: t.ViteConfigWorkspaceOptions,
-) => Promise<t.ViteDenoWorkspace>;
-
-/** Options from the {config.workspace} method. */
-export type ViteConfigWorkspaceOptions = {
-  denofile?: t.StringPath;
-  walkup?: boolean;
-  filter?: t.WorkspaceFilter;
-};
-
-/** Paths params inputs. */
-export type ViteConfigPathsOptions = {
-  input?: t.StringPath;
-  outDir?: t.StringPath;
-};
-
-/**
- * Tools for configuring the "output" dir, eg: "./dist"
- */
-export type ViteConfigOutDir = {
-  readonly default: t.StringPath;
-};
-
-/**
- * Paths relating to a Vite child process.
- */
-export type ViteConfigPaths = {
-  input: t.StringPath;
-  outDir: t.StringPath;
-};
-
-export type ViteBundleDirs = {
-  in: t.StringDir;
-  out: t.StringDir;
-};
-
-/**
- * Vite/Deno workspace helpers.
- */
-export type ViteDenoWorkspace = t.DenoWorkspace & {
-  /** List of known module-aliases derived from the Deno workspace. */
-  readonly aliases: t.ViteAlias[];
+  app(options?: t.ViteConfigAppOptions): Promise<t.ViteUserConfig>;
 
   /**
-   * Module filter used by the workspace (default: always returns true, not blocking).
+   * Retrieve the workspace module-resolution helpers from a `deno.json` workspace.
    */
-  readonly filter?: t.WorkspaceFilter;
+  workspace(options?: t.ViteConfigWorkspaceOptions): Promise<t.ViteDenoWorkspace>;
 
-  /** Convert the list of aliases into a flat map. */
-  toAliasMap(): Record<string, t.StringPath>;
+  /**
+   * Construct a replacement regex to use an as alias for a module/import
+   * lookup within the Vite/Rollup/alias configuration.
+   */
+  alias(registry: string, moduleName: string): t.ViteAlias;
 
-  /** Pretty string representation of the workspace. */
-  toString(options?: ToStringOptions): string;
+  /**
+   * Produce a set of standard parts for export from a `vite.config.ts` file.
+   */
+  paths(options?: t.DeepPartial<t.ViteConfigPaths> | t.StringAbsoluteDir): t.ViteConfigPaths;
 
-  /** Pass a toString() on the workspace directly into the log. */
-  log(options?: ToStringOptions): void;
+  /**
+   * Attempts to dynamically load a `vite.config.ts` module.
+   */
+  fromFile(path?: t.StringPath): Promise<ViteConfigFromFile>;
 };
 
 /**
- * Filter a workspace of modules.
+ * Library of boolean evaluation helpers for Vite configuration data.
  */
-export type WorkspaceFilter = (e: t.WorkspaceFilterArgs) => boolean;
-export type WorkspaceFilterArgs = {
-  pkg: string;
-  export: string;
-  subpath: string;
+export type ViteConfigIsLib = {
+  /** Determine if the given input is a paths configuration object. */
+  paths(input?: any): input is t.ViteConfigPaths;
+};
+
+/** Bundle directories. */
+export type ViteBundleIO = { in: t.StringDir; out: t.StringDir };
+
+/**
+ * Common plugins (default: true).
+ */
+export type ViteConfigCommonPlugins = {
+  /** Flag indicating if the "react+swc" plugin should be included. */
+  react?: boolean;
+  /** Flag indicating if the "wasm" plugin should be included. */
+  wasm?: boolean;
+};
+
+/**
+ * Handler for declaring how to chunk a module.
+ */
+export type ViteModuleChunks = (e: ViteModuleChunksArgs) => void;
+/** Arguments passed to the chunk method. */
+export type ViteModuleChunksArgs = {
+  /** Define a chunk. */
+  chunk(alias: string, moduleName?: string | string[]): ViteModuleChunksArgs;
+};
+
+/**
+ * The result from the `Vite.Config.fromFile` method.
+ */
+export type ViteConfigFromFile = {
+  exists: boolean;
+  path: t.StringAbsolutePath;
+  module: { defineConfig?: typeof defineConfig; paths?: t.ViteConfigPaths };
+  error?: t.StdError;
 };

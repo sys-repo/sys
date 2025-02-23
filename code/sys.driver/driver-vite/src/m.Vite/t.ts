@@ -8,8 +8,6 @@ type ToStringOptions = { pad?: boolean };
 export type ViteLib = {
   readonly Tmpl: t.ViteTmplLib;
   readonly Config: t.ViteConfigLib;
-  readonly Plugin: t.VitePluginLib;
-  common: t.VitePluginLib['common'];
 
   /**
    * Run the Vite `build` command to produce an output `/dist` bundle.
@@ -42,8 +40,7 @@ export type ViteLib = {
  * Arguments passed to the [Vite.build] method.
  */
 export type ViteBuildArgs = {
-  input: t.StringPath;
-  outDir?: t.StringPath;
+  cwd?: t.StringAbsoluteDir;
   silent?: boolean;
   pkg?: t.Pkg; // Consumer module.
 };
@@ -52,12 +49,11 @@ export type ViteBuildArgs = {
  * Arguments passed to the [Vite.dev] method.
  */
 export type ViteDevArgs = {
-  dispose$?: t.UntilObservable;
-  input: t.StringPath;
-  outDir?: t.StringPath;
+  cwd?: t.StringAbsoluteDir;
   port?: number;
-  silent?: boolean;
   pkg?: t.Pkg; // Consumer module.
+  silent?: boolean;
+  dispose$?: t.UntilObservable;
 };
 
 /**
@@ -84,14 +80,6 @@ export type ViteConfigMutateArgs = {
   readonly config: t.ViteUserConfig;
   readonly env: t.ViteConfigEnv;
   readonly ws?: t.ViteDenoWorkspace;
-};
-
-/**
- * Environment variables passed to the child process.
- */
-export type ViteProcessEnv = {
-  VITE_INPUT: string;
-  VITE_OUTDIR: string;
 };
 
 /**

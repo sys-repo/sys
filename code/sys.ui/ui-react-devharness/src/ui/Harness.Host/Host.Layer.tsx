@@ -1,9 +1,11 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { css, useRenderer, type t } from '../common.ts';
 
 export type HostLayerProps = {
   instance: t.DevInstance;
   layer: t.DevRenderPropsLayer;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const HostLayer: React.FC<HostLayerProps> = (props) => {
@@ -23,5 +25,5 @@ export const HostLayer: React.FC<HostLayerProps> = (props) => {
     }),
   };
 
-  return <div {...css(styles.base, props.style)}>{element}</div>;
+  return <div className={css(styles.base, props.style).class}>{element as t.ReactNode}</div>;
 };

@@ -1,18 +1,15 @@
-import { describe, expect, it, slug } from '../-test.ts';
-import { Mock } from '../m.Mock/mod.ts';
+import { describe, DomMock, expect, it, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
 describe(
   'LocalStorage',
 
-  /**
-   * NOTE: leaked timers left around by the "happy-dom" module.
-   */
+  /** NOTE: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
 
   () => {
     type T = { count: number; msg?: string };
-    it('(setup)', () => Mock.polyfill());
+    it('(setup)', () => DomMock.polyfill());
 
     const prefix = `test-${slug()}`;
     const localstore = LocalStorage<T>(prefix);

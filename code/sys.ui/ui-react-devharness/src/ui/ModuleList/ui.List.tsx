@@ -1,3 +1,5 @@
+// @ts-types="@types/react"
+import React from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { Color, css, DEFAULTS, type t } from './common.ts';
 import { ListItem } from './ui.List.Item.tsx';
@@ -13,7 +15,7 @@ export type ListProps = {
   hrDepth?: number;
   useAnchorLinks?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onItemReadyChange?: t.ModuleListItemReadyHandler;
   onItemClick?: t.ModuleListItemHandler;
   onItemSelect?: t.ModuleListItemHandler;
@@ -82,15 +84,17 @@ export const List: React.FC<ListProps> = (props) => {
     );
   };
 
-  const elEmpty = importsKeys.length === 0 && <div {...styles.empty}>{'Nothing to display.'}</div>;
+  const elEmpty = importsKeys.length === 0 && (
+    <div className={styles.empty.class}>{'Nothing to display.'}</div>
+  );
   const elList = importsKeys.map((key, i) => item(i, key, { Icon: VscSymbolClass, ns: true }));
 
   return (
-    <ul {...css(styles.base, props.style)}>
+    <ul className={css(styles.base, props.style).class}>
       {elEmpty}
       {elList}
 
-      {showParamDev && <hr {...styles.hrDashed} />}
+      {showParamDev && <hr className={styles.hrDashed.class} />}
       {showParamDev && hasDevParam && item(-1, undefined, { title: '?dev - remove param' })}
       {showParamDev && !hasDevParam && item(-1, 'true', { title: '?dev - add param' })}
     </ul>

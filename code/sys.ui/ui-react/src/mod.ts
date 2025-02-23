@@ -11,7 +11,7 @@
  *
  * export type FooProps = {
  *   theme?: t.CommonTheme;
- *   style?: t.CssValue;
+ *   style?: t.CssInput;
  * }
  *
  * export const Foo: React.FC<FooProps> = (props) => {
@@ -21,7 +21,7 @@
  *   };
  *
  *   return (
- *     <div {...css(styles.base, props.style)}>
+ *     <div style={css(styles.base, props.style)}>
  *       <div>{`👋 Hello World`}</div>
  *     </div>
  *   );

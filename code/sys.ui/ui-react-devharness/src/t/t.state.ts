@@ -26,17 +26,17 @@ export type DevInfoRender = {
 /**
  * Mutates an immutable DevInfo object.
  */
-export type DevInfoMutater = (draft: t.DevInfo) => t.IgnoredResponse;
+export type DevInfoMutater = (draft: t.DevInfo) => t.IgnoredResult;
 
 /**
  * Info state mutator.
  */
-export type DevInfoStateMutater<T extends O> = (draft: T) => t.IgnoredResponse;
+export type DevInfoStateMutater<T extends O> = (draft: T) => t.IgnoredResult;
 
 /**
  * Info props mutator.
  */
-export type DevInfoPropsMutater = (draft: t.DevRenderProps) => t.IgnoredResponse;
+export type DevInfoPropsMutater = (draft: t.DevRenderProps) => t.IgnoredResult;
 
 /**
  * Info change message kinds.
