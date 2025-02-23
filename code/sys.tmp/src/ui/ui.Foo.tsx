@@ -30,7 +30,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   if (!enabled) text += ' (disabled)';
   return (
     <div className={styles.base.class} onMouseEnter={over(true)} onMouseLeave={over(false)}>
-      <code>{text}</code>
+      <code>🐷 {text}</code>
     </div>
   );
 };
