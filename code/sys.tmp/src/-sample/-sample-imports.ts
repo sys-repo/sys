@@ -15,7 +15,7 @@ console.info(`💦 import '${pkg.name}/sample-imports';`);
 /**
  * Namespace: @sys
  */
-console.group('🌳 import: @sys/std');
+console.groupCollapsed('🧫 @sys/std');
 import { Jsr } from '@sys/jsr';
 import { Args, D, Path, rx, Time, Value } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
@@ -37,12 +37,10 @@ console.info('@sys/std:Value.Str.bytes:', Value.Str.bytes(1234));
 
 console.groupEnd();
 
-console.info(' ');
-
 /**
  * Namespace: @sys : driver
  */
-console.group('🌳 import: @sys/driver');
+console.groupCollapsed('🧫 @sys/driver');
 import { Json } from '@sys/driver-immer';
 console.info('@sys/driver-immer', Json);
 console.groupEnd();

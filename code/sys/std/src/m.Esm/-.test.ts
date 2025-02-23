@@ -10,10 +10,11 @@ describe('Jsr.Esm', () => {
 
   describe('Esm.parse', () => {
     it('prefix', () => {
-      const test = (input: string, expectedPrefix: t.EsmImport['prefix']) => {
+      const test = (input: string, expectedRegistry: t.EsmImport['registry']) => {
         const res = Esm.parse(input);
         expect(res.input).to.eql(input);
-        expect(res?.prefix).to.eql(expectedPrefix);
+        expect(res.registry).to.eql(expectedRegistry);
+        expect(res.subpath).to.eql('');
         expect(res.error).to.eql(undefined);
       };
       test('foobar', '');
@@ -28,7 +29,8 @@ describe('Jsr.Esm', () => {
       const test = (input: string, expectedName: string) => {
         const res = Esm.parse(input);
         expect(res.input).to.eql(input);
-        expect(res?.name).to.eql(expectedName);
+        expect(res.name).to.eql(expectedName);
+        expect(res.subpath).to.eql('');
         expect(res.error).to.eql(undefined);
       };
 
@@ -67,13 +69,35 @@ describe('Jsr.Esm', () => {
       test(' foobar@>3.1', '>3.1');
     });
 
+    it('path', () => {
+      const test = (input: string, expectedPath: string) => {
+        const res = Esm.parse(input);
+        expect(res.input).to.eql(input);
+        expect(res?.subpath).to.eql(expectedPath);
+        expect(res.error).to.eql(undefined);
+      };
+
+      test('foobar', '');
+      test('  @foo/bar  ', '');
+      test('  @foo/bar/foo  ', 'foo');
+      test('npm:foobar', '');
+
+      test('npm:foobar/file.css', 'file.css');
+      test('jsr:foobar/foo/bar/z', 'foo/bar/z');
+      test('jsr:foobar@^1.2/foo', 'foo');
+
+      // NB: these internal path's are consiered the `name`.
+      test('./foobar/mod.ts', '');
+      test('/foobar/mod.ts', '');
+    });
+
     describe('error', () => {
       it('non-string input', () => {
         const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
         NON.forEach((value: any) => {
           const res = Esm.parse(value);
           expect(res.input).to.eql(String(value));
-          expect(res.prefix).to.eql('');
+          expect(res.registry).to.eql('');
           expect(res.name).to.eql('');
           expect(res.version).to.eql('');
           expect(res.error?.message).to.include('Given ESM import is not a string');
@@ -84,7 +108,7 @@ describe('Jsr.Esm', () => {
         const test = (input: string) => {
           const res = Esm.parse(input);
           expect(res.input).to.eql(input);
-          expect(res.prefix).to.eql('');
+          expect(res.registry).to.eql('');
           expect(res.name).to.eql('');
           expect(res.version).to.eql('');
           expect(res.error?.message).to.include('Failed to parse ESM module-specifier', input);
@@ -117,8 +141,12 @@ describe('Jsr.Esm', () => {
       };
       test('jsr:@sys/tmp@^0.0.42');
       test('jsr:@sys/tmp');
-      test('rxjs@7');
+      test('jsr:@sys/tmp/foo');
+      test('jsr:@sys/tmp@1.2/foo');
       test('rxjs');
+      test('rxjs/foo/bar');
+      test('rxjs@7');
+      test('rxjs@7/foobar');
       test('npm:rxjs@7');
     });
 
@@ -127,11 +155,12 @@ describe('Jsr.Esm', () => {
       const mod = Esm.parse(input);
 
       const a = Esm.toString(mod);
-      const b = Esm.toString(mod, { prefix: '' });
-      const c = Esm.toString(mod, { prefix: 'npm' });
+      const b = Esm.toString(mod, { registry: '' });
+      const c = Esm.toString(mod, { registry: 'npm' });
       const d = Esm.toString(mod, { name: '  foo  ' });
       const e = Esm.toString(mod, { version: ' 1.2-alpha.1 ' });
-      const f = Esm.toString(mod, { prefix: 'npm', name: 'rxjs', version: '7' });
+      const f = Esm.toString(mod, { registry: 'npm', name: 'rxjs', version: '7' });
+      const g = Esm.toString(mod, { subpath: ' //foo/bar ' });
 
       expect(a).to.eql(input);
       expect(b).to.eql('@sys/tmp@^0.0.42');
@@ -139,6 +168,7 @@ describe('Jsr.Esm', () => {
       expect(d).to.eql('jsr:foo@^0.0.42');
       expect(e).to.eql('jsr:@sys/tmp@1.2-alpha.1');
       expect(f).to.eql('npm:rxjs@7'); // NB: complete rewrite of all values (sample only).
+      expect(g).to.eql('jsr:@sys/tmp@^0.0.42/foo/bar');
     });
   });
 
@@ -158,17 +188,19 @@ describe('Jsr.Esm', () => {
       });
 
       it('from: string[]', () => {
-        const modules = Esm.modules(['foobar', 'jsr:foobar@1', 'npm:@foo/bar@1.2.3']);
+        const input = ['foobar', 'jsr:foobar@1/subpath', 'npm:@foo/bar@1.2.3/subpath'];
+        const modules = Esm.modules(input);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);
         expect(modules.count).to.eql(3);
         expect(modules.items.length).to.eql(modules.count);
         expect(modules.items.map((m) => m.name)).to.eql(['foobar', 'foobar', '@foo/bar']);
+        expect(modules.items.map((m) => m.toString())).to.eql(input);
       });
 
       it('from: <EsmImport>[]', () => {
         const a = Esm.parse('jsr:foobar@1');
-        const b = Esm.parse('npm:@foo/bar@1.2.3');
+        const b = Esm.parse('npm:@foo/bar@1.2.3/subpath');
         const modules = Esm.modules([a, b]);
         expect(modules.ok).to.eql(true);
         expect(modules.error).to.eql(undefined);

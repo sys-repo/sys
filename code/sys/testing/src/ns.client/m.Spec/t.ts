@@ -13,7 +13,6 @@ type Anything = void | any;
 type Milliseconds = number;
 type Timestamp = number;
 type Ctx = Record<string, unknown>;
-type IgnoredResponse = any | Promise<any>;
 
 /**
  * Modifiers that can be applied to a spec while testing.
@@ -237,7 +236,7 @@ export type TestSuiteTotal = {
 /**
  * Handler that run before a test is run.
  */
-export type BeforeRunTest = (e: BeforeRunTestArgs) => IgnoredResponse;
+export type BeforeRunTest = (e: BeforeRunTestArgs) => t.IgnoredResult;
 
 /**
  * Arguments passed to the BeforeRun handler.
@@ -250,7 +249,7 @@ export type BeforeRunTestArgs = {
 /**
  * Handler that run after a test is run.
  */
-export type AfterRunTest = (e: AfterRunTestArgs) => IgnoredResponse;
+export type AfterRunTest = (e: AfterRunTestArgs) => t.IgnoredResult;
 
 /**
  * Arguments passed to the AfterRun handler.

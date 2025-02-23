@@ -1,4 +1,4 @@
-import { type t, c, describe, Esm, expect, Fs, it } from '../../-test.ts';
+import { type t, c, describe, Esm, expect, Fs, it, Yaml } from '../../-test.ts';
 import { Fmt } from './m.Fmt.ts';
 import { DenoDeps } from './mod.ts';
 
@@ -9,6 +9,42 @@ describe('DenoDeps', () => {
 
   it('API', () => {
     expect(DenoDeps.Fmt).to.equal(Fmt);
+  });
+
+  describe('DepDeps.toDep', () => {
+    it('from string', () => {
+      const esm = 'jsr:@sys/tmp@0.1.2';
+      const a = DenoDeps.toDep(esm);
+      const b = DenoDeps.toDep(esm, { target: 'package.json' });
+      const c = DenoDeps.toDep(esm, { target: ['package.json', 'deno.json'] });
+      const d = DenoDeps.toDep(esm, { dev: true, wildcard: true });
+
+      expect(a.module.toString()).to.eql(esm);
+      expect(b.module.input).to.eql(esm);
+      expect(c.module.version).to.eql('0.1.2');
+
+      expect(a.target).to.eql(['deno.json']);
+      expect(b.target).to.eql(['package.json']);
+      expect(c.target).to.eql(['deno.json', 'package.json']); // NB: sorted
+
+      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
+      expect([d.dev, d.wildcard]).to.eql([true, true]);
+    });
+
+    it('from {EsmImport}', () => {
+      const esm = Esm.parse('jsr:@sys/tmp@0.1.2');
+      const a = DenoDeps.toDep(esm);
+      const b = DenoDeps.toDep(esm, { target: 'package.json', dev: true });
+      const c = DenoDeps.toDep(esm, { wildcard: true });
+
+      expect(a.module.toString()).to.eql(esm.toString());
+      expect(b.module.toString()).to.eql(esm.toString());
+      expect(c.module.toString()).to.eql(esm.toString());
+
+      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
+      expect([b.dev, b.wildcard]).to.eql([true, undefined]);
+      expect([c.dev, c.wildcard]).to.eql([undefined, true]);
+    });
   });
 
   describe('DenoDeps.from (YAML)', () => {
@@ -43,7 +79,7 @@ describe('DenoDeps', () => {
       expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
       expect(mod.name).to.eql('@std/assert');
       expect(mod.version).to.eql('1.0.11');
-      expect(mod.prefix).to.eql('jsr');
+      expect(mod.registry).to.eql('jsr');
       expect(deps[0].dev).to.eql(undefined);
       expect(deps[0].wildcard).to.eql(undefined);
 
@@ -181,26 +217,54 @@ describe('DenoDeps', () => {
       title = title || 'deps.toYaml().text:';
       console.info();
       console.info(c.brightCyan(c.bold(type)), c.white(title));
-      console.info(c.yellow(c.italic(yaml.text)));
+      console.info(c.yellow(c.italic(yaml.text.trim())));
       console.info();
     };
 
-    it('empty', async () => {
-      const yaml = `
+    it('toYaml: empty', async () => {
+      const test = async (yaml: string) => {
+        const { data, error } = await DenoDeps.from(yaml);
+        expect(error).to.eql(undefined);
+
+        if (data) {
+          const yaml = data.toYaml();
+          print(yaml, `deps.toYaml() ← (${c.bold('empty')})`);
+          expect(yaml.text).to.not.include('groups: {}');
+          expect(yaml.text).to.include('deno.json: []');
+          expect(yaml.text).to.include('package.json: []');
+          expect(yaml.text).to.eql(yaml.toString());
+        }
+      };
+      test('{}');
+      test(`
         groups:
         deno.json:
         package.json:
-      `;
+      `);
+    });
+
+    it('toYaml: no groups', async () => {
+      const yaml = `
+      deno.json:
+        - import: jsr:@sample/tmp-1
+        - import: jsr:@sample/tmp-2
+        - import: jsr:@sample/foobar-1
+          wildcard: true
+      package.json:
+        - import: jsr:@sample/tmp-1
+        - import: jsr:@sample/foobar-2
+          dev: true
+    `;
+
       const { data, error } = await DenoDeps.from(yaml);
+      expect(data).to.exist;
       expect(error).to.eql(undefined);
 
       if (data) {
         const yaml = data.toYaml();
-        print(yaml, `deps.toYaml() ← (${c.bold('empty')})`);
-        expect(yaml.text).to.include('groups: {}');
-        expect(yaml.text).to.include('deno.json: []');
-        expect(yaml.text).to.include('package.json: []');
-        expect(yaml.text).to.eql(yaml.toString());
+        print(yaml, `data.toYaml ← (${c.bold('ungrouped')})`);
+        expect(yaml.obj.groups).to.eql(undefined); //      NB: no groups.
+        expect(yaml.obj).to.eql(Yaml.parse(yaml.text)); // NB: no data loss (exact match).
       }
     });
 
@@ -211,7 +275,7 @@ describe('DenoDeps', () => {
             - import: jsr:@sample/tmp-1
             - import: jsr:@sample/tmp-2
             - import: jsr:@sample/tmp-3
-              dev: true
+              wildcard: true
             
         deno.json:
           - group: common/foo
@@ -219,32 +283,34 @@ describe('DenoDeps', () => {
             wildcard: true
 
         package.json:
-          - group: common/foo
           - import: jsr:@sample/foobar-2
+          - group: common/foo
             dev: true
 
       `;
 
       const { data, error } = await DenoDeps.from(yaml);
+      expect(data).to.exist;
       expect(error).to.eql(undefined);
 
+      const groupBy: t.DepsCategorizeByGroup = (e) => {
+        const name = e.dep.module.name;
+        if (name.endsWith('/tmp-3')) e.group('common/foo', { wildcard: true, dev: true });
+        if (name.match(/tmp-(\d+)$/)) e.group('common/foo'); // NB: de-duped in algorithm.
+      };
+
       if (data) {
-        const ungrouped = data.toYaml();
-        const grouped = data.toYaml({
-          groupBy(dep) {
-            const name = dep.module.name;
-            if (name.match(/tmp-(\d+)$/)) return 'common/foo';
-          },
-        });
-
-        print(ungrouped, `data.toYaml ← (${c.bold('ungrouped')})`);
-        console.info();
-        print(grouped, `data.toYaml ← (${c.bold('grouped')}):`);
-
-        expect(grouped.text).to.eql(grouped.toString());
-        expect(ungrouped.text).to.eql(ungrouped.toString());
+        const yaml = data.toYaml({ groupBy });
+        print(yaml, `data.toYaml ← (${c.bold('grouped')}):`);
+        expect(yaml.obj).to.eql(Yaml.parse(yaml.text)); // NB: no data loss (exact match).
       }
     });
+
+    /**
+     * TODO 🐷
+     */
+    it.skip('', () => {});
+    it.skip('', () => {});
   });
 
   describe('DenoDeps:toJson("deno.json")', () => {

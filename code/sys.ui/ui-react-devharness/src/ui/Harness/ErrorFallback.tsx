@@ -1,8 +1,10 @@
+// @ts-types="@types/react"
+import React from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 import { COLORS, css, type t } from '../common.ts';
 
 export type ErrorFallbackProps = FallbackProps & {
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const ErrorFallback: React.FC<ErrorFallbackProps> = (props) => {
@@ -27,15 +29,15 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = (props) => {
   };
 
   const elError = (
-    <pre {...styles.pre}>
+    <pre className={styles.pre.class}>
       <div>{error?.message}</div>
       <div>{error?.stack}</div>
     </pre>
   );
 
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.body}>{elError}</div>
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class}>{elError}</div>
     </div>
   );
 };

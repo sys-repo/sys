@@ -5,14 +5,13 @@
     "@sys/types": "npm:@jsr/sys__types",
     "@sys/ui-css": "npm:@jsr/sys__ui-css",
     "react": "",
-    "react-dom": ""
+    "react-dom": "",
+    "valibot": ""
   },
   "devDependencies": {
     "@types/react": "",
     "@types/react-dom": "",
-    "@swc/plugin-emotion": "",
     "@vitejs/plugin-react-swc": "",
-    "@emotion/react": "",
     "rollup": "",
     "vite": "",
     "vite-plugin-wasm": ""

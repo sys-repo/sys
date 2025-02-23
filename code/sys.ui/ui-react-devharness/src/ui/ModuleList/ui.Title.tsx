@@ -1,3 +1,4 @@
+import React from 'react';
 import { Color, css, type t } from '../common.ts';
 
 export type TitleProps = {
@@ -6,7 +7,7 @@ export type TitleProps = {
   version?: string;
   badge?: t.ImageBadge;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const Title: React.FC<TitleProps> = (props) => {
@@ -29,21 +30,21 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elBadge = badge && (
     <a href={badge?.href} target={'_blank'} rel={'noopener noreferrer'}>
-      <img {...styles.block} src={badge?.image} />
+      <img className={styles.block.class} src={badge?.image} />
     </a>
   );
 
   const elTitle = title && (
     <>
       <span>{title}</span>
-      {props.version && <span {...styles.version}>{`@${props.version}`}</span>}
+      {props.version && <span className={styles.version.class}>{`@${props.version}`}</span>}
     </>
   );
 
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.left}>{elTitle}</div>
-      <div {...styles.right}>{elBadge}</div>
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.left.class}>{elTitle}</div>
+      <div className={styles.right.class}>{elBadge}</div>
     </div>
   );
 };

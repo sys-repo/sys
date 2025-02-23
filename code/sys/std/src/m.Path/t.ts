@@ -76,7 +76,7 @@ export type PathFormatLib = {
  * A style agnostic formatter function for converting a string path
  * into a "pretty" display element, eg. formatted to the console with colors.
  */
-export type PathFormatter = (e: PathFormatterArgs) => t.IgnoredResponse;
+export type PathFormatter = (e: PathFormatterArgs) => t.IgnoredResult;
 export type PathFormatterArgs = t.PathFormatterPart & {
   /**
    * Safely mutate the part to a new value.

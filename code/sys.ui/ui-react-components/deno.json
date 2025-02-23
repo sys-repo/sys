@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.22",
+  "version": "0.0.38",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",

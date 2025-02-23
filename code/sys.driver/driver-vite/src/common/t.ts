@@ -4,7 +4,10 @@
 export type {
   Rollup,
   Alias as ViteAlias,
+  BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
+  LibraryOptions as ViteLibraryOptions,
+  Plugin as VitePlugin,
   PluginOption as VitePluginOption,
   UserConfig as ViteUserConfig,
 } from 'vite';
@@ -19,6 +22,8 @@ export type {
   DenoFilePath,
   DenoModuleBackup,
   DenoWorkspace,
+  DenoWorkspaceChild,
+  Dep,
 } from '@sys/driver-deno/t';
 export type { FsPathFilter } from '@sys/fs/t';
 export type { ProcHandle, ProcOutput, ProcReadySignalFilter } from '@sys/process/t';

@@ -1,10 +1,11 @@
-import { expect } from 'chai';
-import { useState } from 'react';
+// @ts-types="@types/react"
+import React, { useState } from 'react';
 
 import { Keyboard } from '@sys/ui-dom';
+import { expect } from 'chai';
 
 import { DevBus } from '../../u/m.Bus/mod.ts';
-import { COLORS, Color, Spec, css, Time } from '../common.ts';
+import { COLORS, Color, Spec, Time, css } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 import { MySample } from './MySample.tsx';
 
@@ -39,8 +40,8 @@ export default Spec.describe('MySample', (e) => {
       above: css({ padding: 20 }),
       below: css({ Absolute: [null, 20, 20, null] }),
     };
-    ctx.host.layer(1).render(() => <div {...styles.above}>Layer Above</div>);
-    ctx.host.layer(-1).render(() => <div {...styles.below}>Layer Below</div>);
+    ctx.host.layer(1).render(() => <div className={styles.above.class}>Layer Above</div>);
+    ctx.host.layer(-1).render(() => <div className={styles.below.class}>Layer Below</div>);
 
     ctx.subject
       .size([300, 200])
@@ -211,8 +212,8 @@ const ComponentSample = (props: P = {}) => {
     }),
   };
   return (
-    <div {...styles.base}>
-      <div {...styles.inner} onMouseEnter={over(true)} onMouseLeave={over(false)}>
+    <div className={styles.base.class}>
+      <div className={styles.inner.class} onMouseEnter={over(true)} onMouseLeave={over(false)}>
         {title}
         {isOver ? ' - over' : ''}
       </div>

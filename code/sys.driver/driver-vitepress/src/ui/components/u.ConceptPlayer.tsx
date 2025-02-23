@@ -3,7 +3,7 @@ import { type t, Color, css, FC, rx } from './common.ts';
 
 export type ConceptPlayerProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const ConceptPlayer: React.FC<ConceptPlayerProps> = (props) => {
@@ -23,7 +23,7 @@ export const ConceptPlayer: React.FC<ConceptPlayerProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       <div>{`🐷 ConceptPlayer`}</div>
     </div>
   );

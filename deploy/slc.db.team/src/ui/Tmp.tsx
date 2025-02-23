@@ -4,7 +4,7 @@ import { type t, Color, COLORS, css, Hash, Pkg, pkg, rx, Str } from './common.ts
 export type TmpProps = {
   digest?: t.StringHash;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const Tmp: React.FC<TmpProps> = (props) => {
@@ -98,7 +98,7 @@ export const Tmp: React.FC<TmpProps> = (props) => {
   );
 
   return (
-    <div {...css(styles.base, props.style)}>
+    <div style={css(styles.base, props.style)}>
       {elBody}
       {elPkg}
     </div>
@@ -112,7 +112,7 @@ const wrangle = {
   digest(dist?: t.DistPkg) {
     const digest = wrangle.fmtHash(dist?.hash.digest);
     const b = dist?.size.bytes;
-    const bytes = Str.bytes(b, { compact: true });
+    const bytes = Str.bytes(b);
     const display = `${digest.display} (${bytes})`;
     return { ...digest, display };
   },

@@ -6,6 +6,8 @@ export { Path } from '../m.Path/mod.ts';
 export const DEFAULTS = {
   contentType: 'text/plain',
   contentTypes: {
+    '.ts': 'application/typescript',
+    '.tsx': 'application/typescript+jsx',
     '.json': 'application/json',
     '.md': 'text/markdown',
     '.png': 'image/png',
