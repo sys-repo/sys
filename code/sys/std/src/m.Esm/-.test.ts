@@ -72,8 +72,6 @@ describe('Jsr.Esm', () => {
     it('path', () => {
       const test = (input: string, expectedPath: string) => {
         const res = Esm.parse(input);
-        console.log('expectedPath', expectedPath);
-        console.log('res', res);
         expect(res.input).to.eql(input);
         expect(res?.subpath).to.eql(expectedPath);
         expect(res.error).to.eql(undefined);
