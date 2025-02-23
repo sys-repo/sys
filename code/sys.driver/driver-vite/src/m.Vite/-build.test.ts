@@ -36,7 +36,6 @@ describe('Vite.build', () => {
     const m = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
 
     const res = await Vite.build({ cwd, pkg });
-    const { paths } = res;
     if (!res.ok) console.warn(res.toString());
 
     expect(res.ok).to.eql(true);
@@ -52,6 +51,7 @@ describe('Vite.build', () => {
 
     // Load file outputs.
     const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
+    const { paths } = res;
     const outDir = Fs.join(paths.cwd, paths.app.outDir);
     const json = await Fs.readJson<t.DistPkg>(Fs.join(outDir, 'dist.json'));
     const html = await readFile(Fs.join(outDir, 'index.html'));
