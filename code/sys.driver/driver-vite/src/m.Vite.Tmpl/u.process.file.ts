@@ -49,7 +49,9 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
       };
 
       console.info(c.gray(`Resolved versions:`));
-      console.info(c.brightCyan(c.bold(`./package.json:`)), next, '\n');
+      console.info(c.brightCyan(c.bold(`./package.json:`)));
+      console.info(next);
+      console.info();
 
       const json = `${JSON.stringify(next, null, '  ')}\n`;
       return e.modify(json);
