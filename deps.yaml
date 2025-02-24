@@ -64,6 +64,9 @@ deno.json:
   - import: jsr:@cliffy/prompt@1.0.0-rc.7
   - import: jsr:@cliffy/table@1.0.0-rc.7
 
+  # Sundry: JSR
+  - import: jsr:@deno/dnt@0.41.3
+
   # Sundry: NPM
   - import: npm:@types/diff@7.0.1
   - import: npm:chai@5
