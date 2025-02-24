@@ -6,7 +6,8 @@
     "test": "deno test -RW",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts"
+    "clean": "deno run -RWE ./-scripts/-clean.ts",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
