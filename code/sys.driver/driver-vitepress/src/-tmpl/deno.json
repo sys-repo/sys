@@ -7,8 +7,7 @@
     "clean": "deno    run -RWE --allow-ffi <ENTRY> --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
     "backup": "deno   run -RWE --allow-run --allow-ffi <ENTRY> --cmd=backup",
-    "help": "deno     run -RE --allow-ffi <ENTRY> --cmd=help",
-    "sys": "deno      run -RWNE <ENTRY_SYS>"
+    "help": "deno     run -RE --allow-ffi <ENTRY> --cmd=help"
   },
   "compilerOptions": {
     "strict": true,
