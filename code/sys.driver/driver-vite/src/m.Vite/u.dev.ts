@@ -31,7 +31,7 @@ export const dev: D = async (input) => {
 
   const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
-    return lines.some((line) => !!REGEX.VITE_STARTED.exec(line));
+    return lines.some((line) => !!REGEX.STARTED.exec(line));
   };
 
   const proc = Process.spawn({ cwd, args, silent, readySignal, dispose$: input.dispose$ });
