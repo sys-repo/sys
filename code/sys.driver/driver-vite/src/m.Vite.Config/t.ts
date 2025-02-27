@@ -38,12 +38,7 @@ export type ViteConfigLib = {
   /**
    * Attempts to dynamically load a `vite.config.ts` module.
    */
-  fromFile(path?: t.StringPath): Promise<ViteConfigFromFile>;
-
-  /**
-   * Attempts to dynamically load a `vite.config.ts` module.
-   */
-  fromFile2(configDir?: t.StringDir): Promise<ViteConfigFromFile2>;
+  fromFile(configDir?: t.StringDir): Promise<ViteConfigFromFile>;
 };
 
 /**
@@ -81,16 +76,6 @@ export type ViteModuleChunksArgs = {
  * The result from the `Vite.Config.fromFile` method.
  */
 export type ViteConfigFromFile = {
-  exists: boolean;
-  path: t.StringAbsolutePath;
-  module: { defineConfig?: typeof defineConfig; paths?: t.ViteConfigPaths };
-  error?: t.StdError;
-};
-
-/**
- * The result from the `Vite.Config.fromFile` method.
- */
-export type ViteConfigFromFile2 = {
   exists: boolean;
   paths?: t.ViteConfigPaths;
   error?: t.StdError;

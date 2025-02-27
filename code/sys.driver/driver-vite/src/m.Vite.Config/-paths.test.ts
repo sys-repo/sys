@@ -69,7 +69,7 @@ describe('ViteConfig: paths', () => {
   describe('ViteConfig.fromFile', () => {
     it('from "/<root-dir>/"', async () => {
       const rootDir = SAMPLE.Dirs.sample2;
-      const res = await ViteConfig.fromFile2(rootDir);
+      const res = await ViteConfig.fromFile(rootDir);
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
 
@@ -81,15 +81,15 @@ describe('ViteConfig: paths', () => {
 
     it('from "/<root-dir>/vite.config.ts" (with config filename)', async () => {
       const rootDir = SAMPLE.Dirs.sample2;
-      const resA = await ViteConfig.fromFile2(Path.join(rootDir, 'vite.config.ts'));
-      const resB = await ViteConfig.fromFile2(rootDir);
+      const resA = await ViteConfig.fromFile(Path.join(rootDir, 'vite.config.ts'));
+      const resB = await ViteConfig.fromFile(rootDir);
       expect(resA.exists).to.eql(true);
       expect(resA.error).to.eql(undefined);
       expect(resA).to.eql(resB);
     });
 
     it('no params: load from implicit {CWD}', async () => {
-      const res = await ViteConfig.fromFile2();
+      const res = await ViteConfig.fromFile();
       expect(res.paths?.cwd).to.eql(Path.cwd());
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
@@ -97,7 +97,7 @@ describe('ViteConfig: paths', () => {
 
     it('loads main samples', async () => {
       const test = async (path: t.StringPath) => {
-        const res = await Vite.Config.fromFile2(path);
+        const res = await Vite.Config.fromFile(path);
         expect(res.error).to.eql(undefined);
         expect(ViteConfig.Is.paths(res.paths)).to.be.true;
       };
@@ -107,58 +107,10 @@ describe('ViteConfig: paths', () => {
     });
 
     it('fail: not found', async () => {
-      const res = await ViteConfig.fromFile2('/foo/404/vite.config.ts');
+      const res = await ViteConfig.fromFile('/foo/404/vite.config.ts');
       expect(res.exists).to.eql(false);
       expect(res.error?.message).to.include('A config file could not be found in directory');
       expect(res.error?.message).to.include(': /foo/404');
-    });
-  });
-
-  describe('ViteConfig.fromFile', () => {
-    it('load from file path', async () => {
-      const rootDir = SAMPLE.Dirs.sample2;
-      const path = Path.join(rootDir, 'vite.config.ts');
-      const res = await ViteConfig.fromFile(path);
-
-      expect(res.error).to.eql(undefined);
-      expect(res.path).to.eql(Path.resolve(path));
-      expect(res.exists).to.eql(true);
-
-      const module = res.module;
-      expect(module.paths?.app.entry).to.eql('src/-entry/index.html');
-      expect(res.module.paths?.cwd).to.eql(Path.resolve(rootDir));
-      expect(typeof module.defineConfig === 'function').to.be.true;
-    });
-
-    it('no params: load from implicit {CWD}', async () => {
-      const res = await ViteConfig.fromFile();
-      expect(res.path).to.eql(Path.resolve('vite.config.ts'));
-      expect(res.module.paths?.cwd).to.eql(Path.cwd());
-    });
-
-    it('no `paths` | no `defineConfig`', async () => {
-      const path = Path.fromFileUrl(import.meta.url); // NB: not a `vite.config.ts` module.
-      const res = await ViteConfig.fromFile(path);
-      expect(res.error).to.eql(undefined);
-      expect(res.module).to.eql({});
-    });
-
-    it('loads main samples', async () => {
-      const test = async (path: t.StringPath) => {
-        const res = await Vite.Config.fromFile(path);
-        expect(res.error).to.eql(undefined);
-        expect(ViteConfig.Is.paths(res.module.paths)).to.be.true;
-      };
-
-      await test('src/-test/vite.sample-config/simple/vite.config.ts');
-      await test('src/-test/vite.sample-config/custom/vite.config.ts');
-    });
-
-    it('fail: not found', async () => {
-      const res = await ViteConfig.fromFile('/foo/404/vite.config.ts');
-      expect(res.error?.message).to.include('Module not found at path');
-      expect(res.error?.cause?.name).to.eql('TypeError');
-      expect(res.module).to.eql({});
     });
   });
 });
