@@ -24,7 +24,7 @@ deno.json:
   - import: jsr:@sys/driver-ollama@0.0.41
   - import: jsr:@sys/driver-orbiter@0.0.64
   - import: jsr:@sys/driver-quilibrium@0.0.77
-  - import: jsr:@sys/driver-vite@0.0.122
+  - import: jsr:@sys/driver-vite@0.0.124
   - import: jsr:@sys/driver-vitepress@0.0.285
   - import: jsr:@sys/sys@0.0.56
   - import: jsr:@sys/main@0.0.58
@@ -32,5 +32,5 @@ deno.json:
   - import: jsr:@tdb/slc@0.0.69
   - import: jsr:@tdb/tmp@0.0.73
   - import: jsr:@sys/name@0.0.0
-  - import: jsr:@sys/tmp@0.0.97
+  - import: jsr:@sys/tmp@0.0.100
 package.json: []

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Foo } from '@sys/tmp/ui';
+// import { Foo } from '@sys/tmp/ui';
 import { Color, css } from '@sys/ui-css';
 import type { t } from '../../common.ts';
 
@@ -70,7 +70,7 @@ export const FooSample: React.FC<FooComponent> = (props) => {
       <div>{`(see console for import samples)`}</div>
       <div style={{ paddingTop: 10 }}>
         {'Imported from ← '}
-        <Foo />
+        {/* <Foo /> */}
         <div>{'🐷🐷 TMP 🐷🐷 import WIP'}</div>
         <code>{'<JSX> → Vite → ESM.js.d.ts → mod.ts → JSR → import'}</code>
       </div>
