@@ -4,6 +4,7 @@ export { pkg } from '../pkg.ts';
 export * from './libs.ts';
 
 export const PATHS = {
+  base: './',
   dist: 'dist/',
   backup: '-backup/',
   tmp: '.tmp/',

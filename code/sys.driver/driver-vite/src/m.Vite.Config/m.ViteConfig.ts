@@ -4,7 +4,7 @@ import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { toAlias as alias } from './u.alias.ts';
 import { app } from './u.app.ts';
-import { fromFile } from './u.fromFile.ts';
+import { fromFile, fromFile2 } from './u.fromFile.ts';
 import { paths } from './u.paths.ts';
 
 /**
@@ -16,5 +16,6 @@ export const ViteConfig: t.ViteConfigLib = {
   alias,
   paths,
   fromFile,
+  fromFile2,
   workspace,
 };

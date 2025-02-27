@@ -67,6 +67,54 @@ describe('ViteConfig: paths', () => {
   });
 
   describe('ViteConfig.fromFile', () => {
+    it('from "/<root-dir>/"', async () => {
+      const rootDir = SAMPLE.Dirs.sample2;
+      const res = await ViteConfig.fromFile2(rootDir);
+      expect(res.exists).to.eql(true);
+      expect(res.error).to.eql(undefined);
+
+      expect(res.paths?.cwd).to.eql(Path.resolve(rootDir));
+      expect(res.paths?.app.entry).to.eql('src/-entry/index.html');
+      expect(res.paths?.app.base).to.eql('./');
+      expect(res.paths?.app.outDir).to.eql('dist');
+    });
+
+    it('from "/<root-dir>/vite.config.ts" (with config filename)', async () => {
+      const rootDir = SAMPLE.Dirs.sample2;
+      const resA = await ViteConfig.fromFile2(Path.join(rootDir, 'vite.config.ts'));
+      const resB = await ViteConfig.fromFile2(rootDir);
+      expect(resA.exists).to.eql(true);
+      expect(resA.error).to.eql(undefined);
+      expect(resA).to.eql(resB);
+    });
+
+    it('no params: load from implicit {CWD}', async () => {
+      const res = await ViteConfig.fromFile2();
+      expect(res.paths?.cwd).to.eql(Path.cwd());
+      expect(res.exists).to.eql(true);
+      expect(res.error).to.eql(undefined);
+    });
+
+    it('loads main samples', async () => {
+      const test = async (path: t.StringPath) => {
+        const res = await Vite.Config.fromFile2(path);
+        expect(res.error).to.eql(undefined);
+        expect(ViteConfig.Is.paths(res.paths)).to.be.true;
+      };
+
+      await test('src/-test/vite.sample-config/simple/vite.config.ts');
+      await test('src/-test/vite.sample-config/custom/vite.config.ts');
+    });
+
+    it('fail: not found', async () => {
+      const res = await ViteConfig.fromFile2('/foo/404/vite.config.ts');
+      expect(res.exists).to.eql(false);
+      expect(res.error?.message).to.include('A config file could not be found in directory');
+      expect(res.error?.message).to.include(': /foo/404');
+    });
+  });
+
+  describe('ViteConfig.fromFile', () => {
     it('load from file path', async () => {
       const rootDir = SAMPLE.Dirs.sample2;
       const path = Path.join(rootDir, 'vite.config.ts');
