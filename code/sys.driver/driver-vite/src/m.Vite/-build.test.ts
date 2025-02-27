@@ -42,7 +42,7 @@ describe('Vite.build', () => {
     expect(res.cmd.input).to.include('deno run');
     expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
     expect(res.elapsed).to.be.greaterThan(0);
-    expect(res.paths).to.eql(m.module.paths);
+    expect(res.paths).to.eql(m.paths);
 
     // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
     const keys = Object.keys(res.dist.hash.parts);
