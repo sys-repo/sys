@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, it, Path, SAMPLE } from '../-test.ts';
+import { type t, c, describe, expect, it } from '../-test.ts';
 import { Vite } from '../mod.ts';
 import { Is } from './m.Is.ts';
 import { ViteConfig } from './mod.ts';
