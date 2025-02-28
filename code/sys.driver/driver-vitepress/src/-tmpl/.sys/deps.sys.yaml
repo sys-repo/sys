@@ -32,5 +32,5 @@ deno.json:
   - import: jsr:@tdb/slc@0.0.70
   - import: jsr:@tdb/tmp@0.0.74
   - import: jsr:@sys/name@0.0.0
-  - import: jsr:@sys/tmp@0.0.101
+  - import: jsr:@sys/tmp@0.0.102
 package.json: []
