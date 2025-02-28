@@ -35,7 +35,7 @@ describe('Config.Build', () => {
     });
 
     it('no plugins', async () => {
-      const config = await ViteConfig.app({ plugins: { wasm: false, react: false } });
+      const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
       expect(config.plugins).to.eql([]);
     });
 

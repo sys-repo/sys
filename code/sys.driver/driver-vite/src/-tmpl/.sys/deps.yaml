@@ -44,6 +44,7 @@ groups:
 
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.8.0
+    - import: npm:@deno/vite-plugin@1.0.4
     - import: npm:rollup@4.34.8
     - import: npm:vite@6.1.1
     - import: npm:vite-plugin-wasm@3.4.1

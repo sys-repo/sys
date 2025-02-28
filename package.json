@@ -21,6 +21,7 @@
     "vue": "3.5.13"
   },
   "devDependencies": {
+    "@deno/vite-plugin": "1.0.4",
     "@vitejs/plugin-react-swc": "3.8.0",
     "rollup": "4.34.8",
     "vite": "6.1.1",
