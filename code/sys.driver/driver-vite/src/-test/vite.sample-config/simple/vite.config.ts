@@ -1,5 +1,5 @@
-import { Vite } from '@sys/driver-vite';
-import { defineConfig } from 'vite';
+import { Vite } from 'jsr:@sys/driver-vite';
+import { defineConfig } from 'npm:vite';
 
 const paths = Vite.Config.paths({
   app: {
