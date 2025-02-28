@@ -11,7 +11,6 @@
     "backup": "deno   run -RWE  --allow-run --allow-ffi <ENTRY> --cmd=backup",
     "help": "deno     run -RE   --allow-ffi             <ENTRY> --cmd=help",
 
-    "sys": "deno      run -RWNE <ENTRY_SYS>",
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
