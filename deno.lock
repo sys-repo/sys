@@ -44,6 +44,7 @@
     "npm:@automerge/automerge-repo-storage-nodefs@1.2.1": "1.2.1",
     "npm:@automerge/automerge-repo@1.2.1": "1.2.1",
     "npm:@automerge/automerge@2.2.8": "2.2.8",
+    "npm:@deno/vite-plugin@1.0.4": "1.0.4_vite@6.1.1__@types+node@22.12.0__yaml@2.7.0_@types+node@22.12.0_yaml@2.7.0",
     "npm:@jsr/std__async@1.0.10": "1.0.10",
     "npm:@jsr/std__datetime@0.225.3": "0.225.3",
     "npm:@jsr/std__dotenv@0.225.3": "0.225.3",
@@ -477,6 +478,12 @@
       "integrity": "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==",
       "dependencies": [
         "@jridgewell/trace-mapping"
+      ]
+    },
+    "@deno/vite-plugin@1.0.4_vite@6.1.1__@types+node@22.12.0__yaml@2.7.0_@types+node@22.12.0_yaml@2.7.0": {
+      "integrity": "sha512-xg8YT8Wn2sGXSnJgiGTpBGX1Dov0c6fd1rAp8VsfrCUtyBRRWzwVMAnd3fQ4yq8h7LSVvJUxEFN4U421k/DQLA==",
+      "dependencies": [
+        "vite@6.1.1_@types+node@22.12.0_yaml@2.7.0"
       ]
     },
     "@docsearch/css@3.8.2": {
@@ -2480,6 +2487,7 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:@deno/vite-plugin@1.0.4",
         "npm:@jsr/std__async@1.0.10",
         "npm:@jsr/std__datetime@0.225.3",
         "npm:@jsr/std__dotenv@0.225.3",
