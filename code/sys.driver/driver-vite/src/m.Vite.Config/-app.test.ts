@@ -2,7 +2,7 @@ import { type t, Fs, c, describe, expect, it } from '../-test.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('Config.Build', () => {
-  const { brightCyan: cyan, bold } = c;
+  const { brightCyan: cyan } = c;
 
   describe('app (application)', () => {
     const includesPlugin = (config: t.ViteUserConfig, name: string) => {
@@ -10,25 +10,28 @@ describe('Config.Build', () => {
       return plugins.some((p) => p.name === name);
     };
 
-    it('default', async () => {
-      const p = ViteConfig.paths();
-      const config = await ViteConfig.app();
-
-      expect(config.root).to.eql(p.cwd);
-      expect(config.build?.rollupOptions?.input).to.eql(Fs.join(p.cwd, p.app.entry));
-      expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
+    const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
+      if (paths) {
+        console.info();
+        console.info(cyan(c.bold('↓ INPUT paths')));
+        console.info(paths);
+        console.info();
+      }
 
       console.info();
-      console.info(bold(cyan('ViteConfig.app (default):')));
+      console.info(cyan(c.bold('↓ ViteConfig.app')), c.gray(titleSuffix ?? ''));
       console.info({
         ...config,
         plugins: ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name),
         resolve: {
           ...config.resolve,
-          alias: `← 🌳 ${config.resolve?.alias?.length} total aliases`,
+          alias: `← 🌳 ${config.resolve?.alias?.length} aliases (across workspace)`,
         },
       });
       console.info();
+      return config;
+    };
+
 
       expect(includesPlugin(config, 'vite-plugin-wasm')).to.be.true;
       expect(includesPlugin(config, 'vite:react-swc')).to.be.true;
