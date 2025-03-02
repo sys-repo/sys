@@ -32,6 +32,14 @@ describe('Config.Build', () => {
       return config;
     };
 
+    it('defaults', async () => {
+      const p = ViteConfig.paths();
+      const config = await ViteConfig.app();
+      print(config, '(defaults)', p);
+
+      expect(config.root).to.eql(p.cwd);
+      expect(config.build?.rollupOptions?.input).to.eql(Fs.join(p.cwd, p.app.entry));
+      expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
 
       expect(includesPlugin(config, 'vite-plugin-wasm')).to.be.true;
       expect(includesPlugin(config, 'vite:react-swc')).to.be.true;
@@ -44,13 +52,15 @@ describe('Config.Build', () => {
 
     it('custom paths', async () => {
       const paths = ViteConfig.paths({
-        cwd: ' /foo/ ',
-        app: { entry: 'src/-foo.html', outDir: 'bar' },
+        cwd: ' /foo/ ', // NB: absolute path (trimmed internally).
+        app: { entry: 'src/-foo.html', outDir: 'foobar/out' },
       });
       const config = await ViteConfig.app({ paths });
+      print(config, '(custom paths)', paths);
+
       expect(config.root).to.eql('/foo/src');
-      expect(config.build?.rollupOptions?.input).to.eql(Fs.join(paths.cwd, paths.app.entry));
-      expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, paths.app.outDir));
+      expect(config.build?.rollupOptions?.input).to.eql(Fs.join(paths.cwd, 'src/-foo.html'));
+      expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, 'foobar/out'));
     });
   });
 });
