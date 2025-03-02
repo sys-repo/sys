@@ -1,4 +1,4 @@
-import { Fs } from '@sys/fs';
+import { Fs } from './common.ts';
 const remove = (path: string) => Fs.remove(Fs.resolve(path), { log: true });
 
 await remove('./dist');
