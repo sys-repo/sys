@@ -1,10 +1,10 @@
 {
   "imports": {
-    "@sys/std": "jsr:@sys/std@0.0.133",
-    "@sys/tmp": "jsr:@sys/tmp@0.0.102",
-    "@sys/types": "jsr:@sys/types@0.0.84",
-    "@sys/ui-css": "jsr:@sys/ui-css@0.0.72",
-    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.126",
+    "@sys/std": "jsr:@sys/std@0.0.134",
+    "@sys/tmp": "jsr:@sys/tmp@0.0.103",
+    "@sys/types": "jsr:@sys/types@0.0.85",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.73",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.127",
     "react": "npm:react@18.3.1",
     "react-dom": "npm:react-dom@18.3.1",
     "@types/react": "npm:@types/react@18.3.18",

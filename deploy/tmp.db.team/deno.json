@@ -1,6 +1,6 @@
 {
   "name": "@tdb/tmp",
-  "version": "0.0.74",
+  "version": "0.0.75",
   "tasks": {
     "dev": "deno run -RNE --watch ./src/main.ts",
     "check": "deno check ./src/main.ts",
