@@ -1,4 +1,4 @@
-import { type t, c, DenoDeps, DenoFile, Fs, Process, Tmpl } from './common.ts';
+import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, Tmpl } from './common.ts';
 const i = c.italic;
 
 /**
@@ -41,11 +41,16 @@ async function processDeps() {
  * to their corresponding current `deno.json` file values.
  */
 async function updatePackages() {
+  const errors = Err.errors();
   const ws = await DenoFile.workspace();
 
   const tmpl = Tmpl.create('./code/-tmpl/pkg', async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
-    if (typeof pkg !== 'object') throw new Error(`Expected a {pkg} on the context`);
+    if (typeof pkg !== 'object') {
+      errors.push(`Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`);
+      return;
+    }
+
     if (e.target.file.name === 'pkg.ts') {
       const text = e.text.tmpl.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
       e.modify(text);
@@ -63,6 +68,7 @@ async function updatePackages() {
   });
 
   await Promise.all(wait);
+  if (!errors.ok) console.error(errors.toError());
 }
 
 /**
