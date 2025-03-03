@@ -29,24 +29,6 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
       return e.modify(text);
     }
 
-    if (e.target.relative === 'package.json') {
-      const { modules } = await getWorkspaceModules();
-      const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
-      const next = {
-        ...pkg,
-        dependencies: modules.latest(pkg?.dependencies ?? {}),
-        devDependencies: modules.latest(pkg?.devDependencies ?? {}),
-      };
-
-      console.info(c.gray(`Resolved versions:`));
-      console.info(c.brightCyan(c.bold(`./package.json:`)));
-      console.info(next);
-      console.info();
-
-      const json = `${JSON.stringify(next, null, '  ')}\n`;
-      return e.modify(json);
-    }
-
     if (e.target.file.name === '.gitignore-') {
       /**
        * Rename to ".gitignore"
