@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Library for copying template files.
  */
@@ -68,6 +70,9 @@ export type TmplProcessFileArgs = {
   /** The text body of the file. */
   readonly text: { tmpl: string; current: string };
 
+  /** Optional context passed to the `Tmpl.write` operation. */
+  readonly ctx?: O;
+
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
 
@@ -83,10 +88,11 @@ export type TmplProcessFileArgs = {
  * Use this to do either clean up, or additional setup actions not handled
  * directly by the template-copy engine.
  */
-export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResult;
-/** Arguments passed to the `afterCopy` callback. */
-export type TmplCopyHandlerArgs = {
+export type TmplWriteHandler = (e: TmplWriteHandlerArgs) => t.IgnoredResult;
+/** Arguments passed to the write handler. */
+export type TmplWriteHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
+  readonly ctx?: O;
 };
 
 /** Options passed to the `tmpl.copy` method. */
@@ -102,6 +108,9 @@ export type TmplWriteOptions = {
 
   /** Handler(s) to run after the copy operation completes. */
   onAfter?: t.TmplWriteHandler | t.TmplWriteHandler[];
+
+  /** Context data passed to the process handler. */
+  ctx?: O;
 };
 
 /**

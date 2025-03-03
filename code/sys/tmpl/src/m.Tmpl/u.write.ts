@@ -1,5 +1,6 @@
 import { type t, Fs } from './common.ts';
 
+type O = Record<string, unknown>;
 type Changes = {
   excluded: t.TmplFileOperation['excluded'];
   filename: string;
@@ -12,6 +13,7 @@ export async function write(
   fn: t.TmplProcessFile | undefined,
   options: t.TmplWriteOptions = {},
 ) {
+  const { ctx } = options;
   const forced = options.force ?? false;
   const ops: t.TmplFileOperation[] = [];
   const res: t.TmplWriteResponse = {
@@ -26,7 +28,8 @@ export async function write(
     },
   };
 
-  const copyArgs: t.TmplCopyHandlerArgs = {
+  const copyArgs: t.TmplWriteHandlerArgs = {
+    ctx,
     get dir() {
       return { source, target };
     },
@@ -35,7 +38,7 @@ export async function write(
   /**
    * Run BEFORE handlers.
    */
-  for (const fn of wrangle.copyHandlers(options.beforeCopy)) {
+  for (const fn of wrangle.copyHandlers(options.onBefore)) {
     await fn(copyArgs);
   }
 
@@ -83,7 +86,7 @@ export async function write(
     ops.push(op);
 
     if (typeof fn === 'function') {
-      const { args, changes } = await wrangle.args(op);
+      const { args, changes } = await wrangle.args(op, ctx);
       await fn(args);
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = wrangle.rename(op.file.target, changes.filename);
@@ -117,7 +120,7 @@ export async function write(
   /**
    * Run AFTER handlers.
    */
-  for (const fn of wrangle.copyHandlers(options.afterCopy)) {
+  for (const fn of wrangle.copyHandlers(options.onAfter)) {
     await fn(copyArgs);
   }
 
@@ -129,11 +132,14 @@ export async function write(
  * Helpers
  */
 const wrangle = {
-  async args(op: t.TmplFileOperation) {
+  async args(op: t.TmplFileOperation, ctx?: O) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const { tmpl, target } = op.file;
     const exists = await Fs.exists(target.absolute);
     const args: t.TmplProcessFileArgs = {
+      get ctx() {
+        return ctx;
+      },
       get tmpl() {
         return tmpl;
       },
@@ -163,7 +169,7 @@ const wrangle = {
     return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
   },
 
-  copyHandlers(input?: t.TmplCopyHandler | t.TmplCopyHandler[]): t.TmplCopyHandler[] {
+  copyHandlers(input?: t.TmplWriteHandler | t.TmplWriteHandler[]): t.TmplWriteHandler[] {
     if (!input) return [];
     const res = Array.isArray(input) ? input : [input];
     return res.flat(Infinity).filter(Boolean);
