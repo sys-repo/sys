@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/**
+ * Representation of paths for a Vite configuration.
+ */
 export type ViteConfigPaths = {
   readonly cwd: t.StringDir;
   readonly app: t.ViteConfigPathsApp;

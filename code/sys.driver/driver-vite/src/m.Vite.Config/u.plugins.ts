@@ -8,6 +8,13 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   const plugins: t.VitePluginOption[] = [];
 
   /**
+   * The official Deno™️ vite-plugin.
+   */
+  if (options.deno ?? true) {
+    plugins.push(deno() as t.VitePlugin[]);
+  }
+
+  /**
    * WASM support.
    */
   if (options.wasm ?? true) {
@@ -23,13 +30,6 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
    */
   if (options.react ?? true) {
     plugins.push(react() as t.VitePluginOption[]);
-  }
-
-  /**
-   * The official Deno™️ vite-plugin.
-   */
-  if (options.deno ?? true) {
-    plugins.push(deno() as t.VitePlugin[]);
   }
 
   // Finish up.

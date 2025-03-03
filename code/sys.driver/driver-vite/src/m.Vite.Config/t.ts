@@ -1,4 +1,3 @@
-import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
@@ -78,9 +77,16 @@ export type ViteModuleChunksArgs = {
 
 /**
  * The result from the `Vite.Config.fromFile` method.
+ * See also:
+ *    https://vite.dev/guide/api-javascript.html#loadconfigfromfile
  */
 export type ViteConfigFromFile = {
+  /** Flag indicating if the config file exists on the filesystem. */
   exists: boolean;
+
+  /** The paths of the Vite configuration. */
   paths?: t.ViteConfigPaths;
+
+  /** Any error details while loading. */
   error?: t.StdError;
 };
