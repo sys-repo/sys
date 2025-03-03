@@ -3,7 +3,7 @@
  */
 export { Args, asArray, Delete, Err, isRecord, R, slug, Str, Time } from '@sys/std';
 export { Esm } from '@sys/std/esm';
-export { Semver } from '@sys/std/semver';
+export { Semver } from '@sys/std/semver/server';
 
 export { c, Cli, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
