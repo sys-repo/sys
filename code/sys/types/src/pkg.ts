@@ -1,8 +1,6 @@
-import type {  t } from '@sys/types';
-import { default as deno } from '../deno.json' with { type: 'json' };
-
+import type { t } from '@sys/std';
 
 /**
  * Package meta-data.
  */
-export const pkg: t.Pkg = {name: deno.name, version: deno.version };
+export const pkg: t.Pkg = { name: '@sys/types', version: '0.0.87' };
