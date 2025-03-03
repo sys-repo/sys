@@ -14,7 +14,7 @@ export type ViteTmplLib = {
   /** Write and process the templates to the local file-system. */
   write(args?: t.ViteTmplWriteArgs): Promise<t.ViteTmplWriteResponse>;
 
-  /** Prepare the template with latest state, including making updates to deps/versions. */
+  /** Prepare the template with latest state and dependency versions. */
   prep(options?: { silent?: boolean }): Promise<t.ViteTmplUpdateResponse>;
 };
 

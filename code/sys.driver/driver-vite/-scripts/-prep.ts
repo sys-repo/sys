@@ -5,17 +5,18 @@ const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..',
 await Fs.remove(resolve('.tmp'));
 
 /**
- * Save latest dependency versions.
+ * Update to latest dependency versions.
  */
 await Vite.Tmpl.prep();
 
 /**
- * Bundle files (for code-registry).
+ * Bundle files inline, base64-string FileMap (NB: so code can be referenfed within the registry).
  */
 const bundle = Vite.Tmpl.Bundle;
 await bundle.toFilemap();
 await bundle.writeToFile(resolve(PATHS.tmpl.tmp)); // NB: test output.
 
-const version = Semver.Fmt.colorize(pkg.version);
-console.info(c.brightCyan('↑ Prep Complete:'), `${pkg.name}${c.dim('@')}${version}`);
+const fmtVersion = Semver.Fmt.colorize(pkg.version);
+const fmtModule = `${pkg.name}${c.dim('@')}${fmtVersion}`;
+console.info(c.brightCyan('↑ Prep Complete:'), fmtModule);
 console.info();
