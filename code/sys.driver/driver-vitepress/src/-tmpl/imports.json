@@ -1,0 +1,18 @@
+{
+  "imports": {
+    "@sys/std": "jsr:@sys/std@0.0.134",
+    "@sys/tmp": "jsr:@sys/tmp@0.0.103",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.73",
+    "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.89",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.127",
+    "@sys/driver-vitepress": "jsr:@sys/driver-vitepress@0.0.287",
+    "yaml": "npm:yaml@2.7.0",
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "react": "npm:react@18.3.1",
+    "react-dom": "npm:react-dom@18.3.1",
+    "@vidstack/react": "npm:@vidstack/react@1.12.12",
+    "vitepress": "@1.6.3",
+    "vue": "npm:vue@3.5.13"
+  }
+}

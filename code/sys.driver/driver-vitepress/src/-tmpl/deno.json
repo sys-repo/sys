@@ -1,13 +1,13 @@
 {
   "version": "0.0.0",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=dev",
-    "build": "deno    run -RWE --allow-run --allow-ffi <ENTRY> --cmd=build",
-    "serve": "deno    run -RNE --allow-run --allow-ffi <ENTRY> --cmd=serve",
-    "clean": "deno    run -RWE --allow-ffi <ENTRY> --cmd=clean",
-    "upgrade": "deno  run -RWNE --allow-run --allow-ffi <ENTRY> --cmd=upgrade",
-    "backup": "deno   run -RWE --allow-run --allow-ffi <ENTRY> --cmd=backup",
-    "help": "deno     run -RE --allow-ffi <ENTRY> --cmd=help"
+    "dev": "deno      run -RWNE --allow-run --allow-ffi   <ENTRY> --cmd=dev",
+    "build": "deno    run -RWE --allow-run --allow-ffi    <ENTRY> --cmd=build",
+    "serve": "deno    run -RNE --allow-run --allow-ffi    <ENTRY> --cmd=serve",
+    "clean": "deno    run -RWE --allow-ffi                <ENTRY> --cmd=clean",
+    "upgrade": "deno  run -RWNE --allow-run --allow-ffi   <ENTRY> --cmd=upgrade",
+    "backup": "deno   run -RWE --allow-run --allow-ffi    <ENTRY> --cmd=backup",
+    "help": "deno     run -RE --allow-ffi                 <ENTRY> --cmd=help"
   },
   "compilerOptions": {
     "strict": true,
@@ -17,9 +17,5 @@
   },
   "workspace": [],
   "nodeModulesDir": "auto",
-  "imports": {
-    "@sys/driver-deno": "<DRIVER_DENO>",
-    "@sys/driver-vite": "<DRIVER_VITE>",
-    "@sys/driver-vitepress": "<DRIVER_VITEPRESS>"
-  }
+  "importMap": "./imports.json"
 }
