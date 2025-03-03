@@ -8,6 +8,10 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
   const errors = Err.errors();
   const configRoot = wrangle.configDir(input);
 
+  /**
+   * TODO 🐷 change configRoot to ./.tmp/sample/<vite.config.ts>
+   */
+
   const command = 'build';
   const mode = 'production';
   const fromFile = await loadConfigFromFile(
@@ -24,18 +28,17 @@ export const fromFile: t.ViteConfigLib['fromFile'] = async (input) => {
 
   let paths: t.ViteConfigPaths | undefined;
   if (exists) {
-    const cwd = Path.dirname(fromFile.path);
     paths = {
-      cwd,
+      cwd: Path.dirname(fromFile.path),
       app: {
-        entry: Path.join(Path.relative(cwd, fromFile.config.root ?? ''), 'index.html'),
+        entry: Path.trimCwd(Path.join(fromFile.config.root ?? '', PATHS.html.index)),
+        outDir: Path.trimCwd(fromFile.config.build?.outDir ?? PATHS.dist),
         base: fromFile.config.base ?? PATHS.base,
-        outDir: Path.relative(cwd, fromFile.config.build?.outDir ?? PATHS.dist),
       },
     };
   }
 
-  return Delete.undefined({
+  return Delete.undefined<t.ViteConfigFromFile>({
     exists,
     paths,
     error: errors.toError(),

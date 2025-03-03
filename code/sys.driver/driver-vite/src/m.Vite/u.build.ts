@@ -13,8 +13,9 @@ export const build: B = async (input) => {
   const { pkg, silent = true } = input;
   const { cmd, args } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);
+  const cwd = paths.cwd;
 
-  const output = await Process.invoke({ args, silent });
+  const output = await Process.invoke({ cwd, args, silent });
   const ok = output.success;
 
   if (pkg) {
