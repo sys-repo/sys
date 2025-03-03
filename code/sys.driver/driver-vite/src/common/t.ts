@@ -20,6 +20,7 @@ export type * from '@sys/std/t';
 export type {
   DenoFileJson,
   DenoFilePath,
+  DenoImportMapJson,
   DenoModuleBackup,
   DenoWorkspace,
   DenoWorkspaceChild,
