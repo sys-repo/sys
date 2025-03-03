@@ -21,9 +21,9 @@ export type TmplFactory = (
 
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
+  beforeWrite?: t.TmplWriteHandler;
   processFile?: t.TmplProcessFile;
-  beforeCopy?: t.TmplCopyHandler;
-  afterCopy?: t.TmplCopyHandler;
+  afterWrite?: t.TmplWriteHandler;
 };
 
 /**
@@ -98,10 +98,10 @@ export type TmplWriteOptions = {
   dryRun?: boolean;
 
   /** Handler(s) to run before the copy operation starts. */
-  beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onBefore?: t.TmplWriteHandler | t.TmplWriteHandler[];
 
   /** Handler(s) to run after the copy operation completes. */
-  afterCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onAfter?: t.TmplWriteHandler | t.TmplWriteHandler[];
 };
 
 /**

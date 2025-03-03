@@ -49,8 +49,8 @@ const wrangle = {
     return input;
   },
 
-  copyHandlers(base?: t.TmplCopyHandler, param?: t.TmplCopyHandler | t.TmplCopyHandler[]) {
-    type T = t.TmplCopyHandler;
+  writeHandlers(base?: t.TmplWriteHandler, param?: t.TmplWriteHandler | t.TmplWriteHandler[]) {
+    type T = t.TmplWriteHandler;
     return [param, base].flat(Infinity).filter(Boolean) as T[];
   },
 } as const;

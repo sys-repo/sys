@@ -11,7 +11,7 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
   /**
    * Ensure the templates are hydrated and ready to use.
    */
-  const beforeCopy: t.TmplCopyHandler = async () => {
+  const beforeCopy: t.TmplWriteHandler = async () => {
     await Fs.remove(templatesDir);
     await Bundle.toFilesystem(templatesDir);
   };
@@ -19,11 +19,11 @@ export const create: t.VitepressTmplLib['create'] = async (args) => {
   /**
    * (🐷) Perform additional setup here (as needed).
    */
-  const afterCopy: t.TmplCopyHandler = async (e) => {};
+  const afterCopy: t.TmplWriteHandler = async (e) => {};
 
   /**
    * Template-engine instance.
    */
   const processFile = createFileProcessor(args);
-  return Tmpl.create(templatesDir, { processFile, beforeCopy, afterCopy });
+  return Tmpl.create(templatesDir, { processFile, beforeWrite, afterWrite });
 };
