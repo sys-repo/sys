@@ -11,7 +11,7 @@ export type ViteTmplLib = {
   /** Creates an instance of the template file generator. */
   create(args?: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
 
-  /** Initialize the local machine environment with latest templates */
+  /** Write and process the templates to the local file-system. */
   write(args?: t.ViteTmplWriteArgs): Promise<t.ViteTmplUpdateResponse>;
 };
 
