@@ -94,8 +94,8 @@ export type TmplCopyOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
   force?: boolean;
 
-  /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
-  write?: boolean;
+  /** Flag indicating if the files should be written. Default: false. */
+  dryRun?: boolean;
 
   /** Handler(s) to run before the copy operation starts. */
   beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];

@@ -242,11 +242,11 @@ describe('Tmpl', () => {
       });
     });
 
-    describe('flag: write (default: true)', () => {
-      it('write: false', async () => {
+    describe('flag: dryRun (default: false)', () => {
+      it('dryRun: true (does not write)', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { write: false });
+        const res = await tmpl.copy(test.target, { dryRun: true });
         expect(res.ops.every((m) => m.written === false)).to.be.true;
         for (const op of res.ops) {
           expect(await Fs.exists(op.file.target.absolute)).to.eql(false);
@@ -256,7 +256,7 @@ describe('Tmpl', () => {
       it('logs as "dry run"', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { write: false });
+        const res = await tmpl.copy(test.target, { dryRun: true });
         const table = Tmpl.Log.table(res.ops);
         expect(table).to.include('dry-run');
         console.info(table);

@@ -106,9 +106,8 @@ export async function copy(
         op.updated = true;
       }
 
-      if ((op.created || op.updated) && (options.write ?? true)) {
+      if ((op.created || op.updated) && !options.dryRun) {
         op.written = true;
-
         await Fs.ensureDir(Fs.dirname(path));
         await Deno.writeTextFile(path, op.text.target.after);
       }
