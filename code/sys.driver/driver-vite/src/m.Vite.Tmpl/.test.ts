@@ -7,7 +7,7 @@ describe('Vite: Template Generation', () => {
     expect(await fs.ls()).to.eql([]);
 
     const tmpl = await Vite.Tmpl.create();
-    const res = await tmpl.copy(fs.dir);
+    const res = await tmpl.write(fs.dir);
 
     const a = (await fs.ls()).toSorted();
     const b = (await res.target.ls()).toSorted();

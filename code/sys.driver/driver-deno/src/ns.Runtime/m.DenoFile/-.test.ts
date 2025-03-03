@@ -103,7 +103,7 @@ describe('DenoFile', () => {
         expect(match?.denofile.version).to.eql(pkg.version);
 
         ws.children.forEach((child) => {
-          expect(child.pkg.name).to.eql(child.denofile.name || '<Unnamed>');
+          expect(child.pkg.name).to.eql(child.denofile.name || '<unnamed>');
           expect(child.pkg.version).to.eql(child.denofile.version || '0.0.0');
         });
       });

@@ -77,7 +77,7 @@ async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
     const dir = Path.dirname(path);
     return {
       path: { dir, denofile: path },
-      pkg: { name: denofile.name ?? '<Unnamed>', version: denofile.version ?? '0.0.0' },
+      pkg: { name: denofile.name ?? '<unnamed>', version: denofile.version ?? '0.0.0' },
       denofile,
     };
   };
