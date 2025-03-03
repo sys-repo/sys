@@ -19,12 +19,8 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
        * Update versions in `deno.json`:
        */
       const version = args.version ?? pkg.version;
-      const importUri = `jsr:${pkg.name}@${version}`;
-      const text = e.text.tmpl
-        .replace(/<ENTRY>/g, `${importUri}/main`)
-        .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
-        .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
+      const entryUri = `jsr:${pkg.name}@${version}`;
+      const text = e.text.tmpl.replace(/<ENTRY>/g, `${entryUri}/main`);
 
       return e.modify(text);
     }
