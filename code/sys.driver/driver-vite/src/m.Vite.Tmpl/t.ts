@@ -15,7 +15,7 @@ export type ViteTmplLib = {
   write(args?: t.ViteTmplWriteArgs): Promise<t.ViteTmplWriteResponse>;
 
   /** Prepare the template with latest state and dependency versions. */
-  prep(options?: { silent?: boolean }): Promise<t.ViteTmplUpdateResponse>;
+  prep(options?: { silent?: boolean }): Promise<t.ViteTmplPrepResponse>;
 };
 
 /** Arguments passed to the `ViteTmpl.create` method. */
@@ -46,4 +46,4 @@ export type ViteTmplWriteArgs = {
 export type ViteTmplWriteResponse = { readonly ops: t.TmplFileOperation[] };
 
 /** The response returned from the `Vite.Tmpl.prep` method */
-export type ViteTmplUpdateResponse = { readonly imports: t.EsmImportMap };
+export type ViteTmplPrepResponse = { readonly deps: t.EsmImportMap };

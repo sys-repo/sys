@@ -15,7 +15,7 @@ export type VitepressTmplLib = {
   write(args?: t.VitepressTmplWriteArgs): Promise<t.VitepressTmplWriteResponse>;
 
   /** Prepare the template with latest state and dependency versions. */
-  prep(options?: { silent?: boolean }): Promise<t.ViteTmplUpdateResponse>;
+  prep(options?: { silent?: boolean }): Promise<t.ViteTmplPrepResponse>;
 };
 
 /** Arguments passed to the `VitepressTmpl.create` method. */

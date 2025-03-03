@@ -1,4 +1,4 @@
-import { Vitepress } from '@sys/driver-vitepress';
+import { Vitepress } from '../src/mod.ts';
 import { c, Fs, PATHS, pkg, Semver } from './common.ts';
 
 const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);

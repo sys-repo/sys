@@ -7,12 +7,12 @@ export const prep: t.ViteTmplLib['prep'] = async (options = {}) => {
   const { modules } = await getWorkspaceModules();
   const path = './src/-tmpl/imports.json';
   const current = (await Fs.readJson<t.DenoImportMapJson>(path)).data;
-  const imports = modules.latest(current?.imports ?? {});
-  await Fs.writeJson(path, { ...current, imports });
+  const deps = modules.latest(current?.imports ?? {});
+  await Fs.writeJson(path, { ...current, deps });
 
   if (!options.silent) {
     const table = Cli.table([]);
-    Object.entries(imports).forEach(([key, value]) => {
+    Object.entries(deps).forEach(([key, value]) => {
       const m = Esm.parse(value);
       const pkg = c.gray(`  ${key}`);
       const registry = c.gray(m.registry.toUpperCase());
@@ -27,5 +27,5 @@ export const prep: t.ViteTmplLib['prep'] = async (options = {}) => {
     console.info();
   }
 
-  return { imports };
+  return { deps };
 };
