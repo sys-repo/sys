@@ -12,7 +12,7 @@ export type ViteTmplLib = {
   create(args?: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
 
   /** Initialize the local machine environment with latest templates */
-  update(args?: t.ViteTmplUpdateArgs): Promise<t.ViteTmplUpdateResponse>;
+  write(args?: t.ViteTmplWriteArgs): Promise<t.ViteTmplUpdateResponse>;
 };
 
 /** Arguments passed to the `ViteTmpl.create` method. */
@@ -32,7 +32,7 @@ export type ViteBundleLib = {
 };
 
 /** Arguments passed to the `Vite.Tmpl.update` method. */
-export type ViteTmplUpdateArgs = {
+export type ViteTmplWriteArgs = {
   force?: boolean;
   in?: t.StringDir;
   version?: t.StringSemver;

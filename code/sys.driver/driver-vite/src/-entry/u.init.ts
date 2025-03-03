@@ -13,7 +13,7 @@ export async function init(args: t.ViteEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await Vite.Tmpl.update({ in: args.dir, silent });
+  await Vite.Tmpl.write({ in: args.dir, silent });
 
   if (!silent) {
     console.info();

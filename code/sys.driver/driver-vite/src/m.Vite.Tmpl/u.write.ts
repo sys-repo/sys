@@ -4,7 +4,7 @@ import { create } from './u.create.ts';
 /**
  * Initialize the local machine environment with latest templates
  */
-export const update: t.ViteTmplLib['update'] = async (args = {}) => {
+export const write: t.ViteTmplLib['write'] = async (args = {}) => {
   const { version, force = false, silent = false } = args;
 
   /**
