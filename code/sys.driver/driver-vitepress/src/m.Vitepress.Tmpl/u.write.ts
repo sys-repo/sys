@@ -20,6 +20,7 @@ export const write: t.VitepressTmplLib['write'] = async (args = {}) => {
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
   // await remove('./path/to/obsolete/file');
+  await remove('./package.json');
 
   /**
    * Finish up.
