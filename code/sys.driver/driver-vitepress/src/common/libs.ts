@@ -7,6 +7,7 @@ export { Process } from '@sys/process';
 export { Args, Date, Err, Is, rx, slug, Str, Time } from '@sys/std';
 export { Esm } from '@sys/std/esm';
 export { Ignore } from '@sys/std/ignore';
+export { Semver } from '@sys/std/semver/server';
 
 export { HashFmt } from '@sys/crypto/fmt';
 export { Hash } from '@sys/crypto/hash';

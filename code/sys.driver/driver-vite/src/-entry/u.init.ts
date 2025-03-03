@@ -1,5 +1,5 @@
 import { Vite } from '../m.Vite/mod.ts';
-import { type t, c, pkg, ViteLog } from './common.ts';
+import { type t, c, pkg, Semver, ViteLog } from './common.ts';
 
 /**
  * Run the initialization templates.

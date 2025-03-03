@@ -5,17 +5,12 @@ const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..',
 await Fs.remove(resolve('.tmp'));
 
 /**
- * Save monorepo deps.
+ * Update to latest dependency versions.
  */
-const ws = await DenoFile.workspace();
-const deps: t.Dep[] = ws.modules.items.map((esm) => DenoDeps.toDep(esm));
-
-const dir = resolve('src/-tmpl/.sys');
-await Fs.copy(Fs.join(ws.dir, 'deps.yaml'), Fs.join(dir, 'deps.yaml'), { force: true });
-await Fs.write(Fs.join(dir, 'deps.sys.yaml'), DenoDeps.toYaml(deps).text);
+await Vitepress.Tmpl.prep();
 
 /**
- * Bundle files (for code-registry).
+ * Bundle files inline, base64-string FileMap (NB: so code can be referenfed within the registry).
  */
 const Bundle = Vitepress.Tmpl.Bundle;
 await Bundle.toFilemap();
