@@ -20,8 +20,9 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
   return (
     <div>
-      <Foo />
-      <VideoPlayer />
+      <h2>Foo → VideoPlayer (Concept Player):</h2>
+      {/* <Foo /> */}
+      {/* <VideoPlayer src={src} /> */}
     </div>
   );
 };
