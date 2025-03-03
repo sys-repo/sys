@@ -1,4 +1,4 @@
-import { type t, c, DenoDeps, Fs, Process, DenoFile, Tmpl } from './common.ts';
+import { type t, c, DenoDeps, DenoFile, Fs, Process, Tmpl } from './common.ts';
 const i = c.italic;
 
 /**
@@ -54,9 +54,12 @@ async function updatePackages() {
 
   const wait = ws.children.map(async (item) => {
     const targetDir = Fs.join(item.path.dir, 'src');
-    const pkg = item.pkg;
-    const ctx = { pkg };
-    await tmpl.write(targetDir, { dryRun: true, ctx });
+    const exists = await Fs.exists(Fs.join(targetDir, 'pkg.ts'));
+    if (exists) {
+      const pkg = item.pkg;
+      const ctx = { pkg };
+      await tmpl.write(targetDir, { ctx });
+    }
   });
 
   await Promise.all(wait);
@@ -79,5 +82,7 @@ async function prepSubmodules() {
  * definitions within the monorepo's `deps.yaml` configuration.
  */
 export async function main() {
+  await processDeps();
   await updatePackages();
+  await prepSubmodules();
 }
