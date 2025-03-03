@@ -5,7 +5,7 @@
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.75",
     "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.91",
     "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.130",
-    "@sys/driver-vitepress": "jsr:@sys/driver-vitepress@0.0.290",
+    "@sys/driver-vitepress": "jsr:@sys/driver-vitepress@0.0.293",
     "yaml": "npm:yaml@2.7.0",
     "@types/react": "npm:@types/react@18.3.18",
     "@types/react-dom": "npm:@types/react-dom@18.3.5",
@@ -13,6 +13,9 @@
     "react-dom": "npm:react-dom@18.3.1",
     "@vidstack/react": "npm:@vidstack/react@1.12.12",
     "vitepress": "npm:vitepress@1.6.3",
-    "vue": "npm:vue@3.5.13"
+    "vite": "npm:vite@6.1.1",
+    "vue": "npm:vue@3.5.13",
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0.4",
+    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.8.0"
   }
 }
