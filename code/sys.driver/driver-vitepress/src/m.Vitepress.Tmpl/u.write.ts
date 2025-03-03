@@ -1,10 +1,10 @@
 import { type t, c, Fs, Tmpl } from './common.ts';
-import { create } from './m.Tmpl.create.ts';
+import { create } from './u.create.ts';
 
 /**
- * Initialize the local machine environment with latest templates
+ * Write and process the templates to the local file-system.
  */
-export const update: t.VitepressTmplLib['update'] = async (args = {}) => {
+export const write: t.VitepressTmplLib['write'] = async (args = {}) => {
   const { inDir = '', srcDir, version, force = false, silent = false } = args;
 
   /**
@@ -19,7 +19,7 @@ export const update: t.VitepressTmplLib['update'] = async (args = {}) => {
    *      eg. migration change patching.
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
-  // await remove('./path/to/obsolete/file');
+  await remove('./package.json');
 
   /**
    * Finish up.

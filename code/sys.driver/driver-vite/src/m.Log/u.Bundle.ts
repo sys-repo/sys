@@ -1,5 +1,4 @@
-import { type t, c, Path, Str, Time } from './common.ts';
-
+import { type t, c, Path, Semver, Str, Time } from './common.ts';
 import { digest, pad } from './u.ts';
 
 export const Bundle: t.ViteLogLib['Bundle'] = {
@@ -24,8 +23,9 @@ ${c.gray(`out:      ${outDir.replace(/\/$/, '')}/dist.json`)} ${tx}
 `;
     text = text.trim();
     if (pkg) {
-      const mod = c.white(c.bold(pkg.name));
-      text += c.gray(`\npkg:      ${mod} ${c.cyan(c.bold(pkg.version))}`);
+      const fmtVersion = Semver.Fmt.colorize(pkg.version);
+      const fmtModule = `${c.white(c.bold(pkg.name))}${c.dim('@')}${fmtVersion}`;
+      text += c.gray(`\npkg:      ${fmtModule}`);
     }
     return pad(text, args.pad);
   },

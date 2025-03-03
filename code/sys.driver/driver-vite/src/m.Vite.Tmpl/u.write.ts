@@ -2,9 +2,9 @@ import { type t, c, Fs, Tmpl } from './common.ts';
 import { create } from './u.create.ts';
 
 /**
- * Initialize the local machine environment with latest templates
+ * Write and process the templates to the local file-system.
  */
-export const update: t.ViteTmplLib['update'] = async (args = {}) => {
+export const write: t.ViteTmplLib['write'] = async (args = {}) => {
   const { version, force = false, silent = false } = args;
 
   /**

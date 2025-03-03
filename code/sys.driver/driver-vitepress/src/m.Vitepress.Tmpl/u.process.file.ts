@@ -9,18 +9,6 @@ import { type t, c, DenoDeps, Esm, Fs, PATHS, pkg, Pkg } from './common.ts';
 export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProcessFile {
   const { srcDir = PATHS.srcDir } = args;
 
-  const getDeps = async (base: t.StringDir) => {
-    const from = DenoDeps.from;
-    const join = (...parts: string[]) => Fs.join(base, ...parts);
-    const load = async (path: string) => (await from(join(path))).data?.modules.items ?? [];
-
-    const m1 = await load('.sys/deps.yaml');
-    const m2 = await load('.sys/deps.sys.yaml');
-    const modules = Esm.modules([...m1, ...m2]);
-
-    return { modules };
-  };
-
   return async (e) => {
     if (e.target.exists && is.userspace(e.target.relative)) {
       /**
@@ -36,32 +24,8 @@ export function createFileProcessor(args: t.VitepressTmplCreateArgs): t.TmplProc
        */
       const version = args.version ?? pkg.version;
       const importUri = `jsr:${pkg.name}@${version}`;
-      const text = e.text.tmpl
-        .replace(/<ENTRY>/g, `${importUri}/main`)
-        .replace(/<ENTRY_MAIN>/, `jsr:${Pkg.toString(Main.pkg)}`)
-        .replace(/<DRIVER_DENO>/, `jsr:${Pkg.toString(pkgDeno)}`)
-        .replace(/<DRIVER_VITE>/, `jsr:${Pkg.toString(pkgVite)}`)
-        .replace(/<DRIVER_VITEPRESS>/, `jsr:${Pkg.toString(pkg)}`);
-
+      const text = e.text.tmpl.replace(/<ENTRY>/g, `${importUri}/main`);
       return e.modify(text);
-    }
-
-    if (e.target.relative === 'package.json') {
-      const { modules } = await getDeps(e.target.base);
-      const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
-      const next = {
-        ...pkg,
-        dependencies: modules.latest(pkg?.dependencies ?? {}),
-        devDependencies: modules.latest(pkg?.devDependencies ?? {}),
-      };
-
-      console.info(c.gray(`Resolved versions:`));
-      console.info(c.brightCyan(c.bold(`./package.json:`)));
-      console.info(next);
-      console.info();
-
-      const json = `${JSON.stringify(next, null, '  ')}\n`;
-      return e.modify(json);
     }
 
     if (e.target.relative === 'docs/index.md') {

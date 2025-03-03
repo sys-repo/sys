@@ -11,8 +11,11 @@ export type ViteTmplLib = {
   /** Creates an instance of the template file generator. */
   create(args?: t.ViteTmplCreateArgs): Promise<t.Tmpl>;
 
-  /** Initialize the local machine environment with latest templates */
-  update(args?: t.ViteTmplUpdateArgs): Promise<t.ViteTmplUpdateResponse>;
+  /** Write and process the templates to the local file-system. */
+  write(args?: t.ViteTmplWriteArgs): Promise<t.ViteTmplWriteResponse>;
+
+  /** Prepare the template with latest state and dependency versions. */
+  prep(options?: { silent?: boolean }): Promise<t.ViteTmplUpdateResponse>;
 };
 
 /** Arguments passed to the `ViteTmpl.create` method. */
@@ -32,14 +35,15 @@ export type ViteBundleLib = {
 };
 
 /** Arguments passed to the `Vite.Tmpl.update` method. */
-export type ViteTmplUpdateArgs = {
+export type ViteTmplWriteArgs = {
   force?: boolean;
   in?: t.StringDir;
   version?: t.StringSemver;
   silent?: boolean;
 };
 
-/**
- * The response returned from an environment update.
- */
-export type ViteTmplUpdateResponse = { readonly ops: t.TmplFileOperation[] };
+/** The response returned from an environment update. */
+export type ViteTmplWriteResponse = { readonly ops: t.TmplFileOperation[] };
+
+/** The response returned from the `Vite.Tmpl.prep` method */
+export type ViteTmplUpdateResponse = { readonly imports: t.EsmImportMap };

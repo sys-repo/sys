@@ -1,4 +1,4 @@
-import { type t, ensureDir, exists, ls, Path } from './common.ts';
+import { type t, ensureDir, exists, ls, Path, ensureSymlink } from './common.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
 import { Watch } from '../m.Watch/mod.ts';
@@ -41,6 +41,7 @@ export const Fs: t.FsLib = {
 
   exists,
   ensureDir,
+  ensureSymlink,
   remove,
 
   read,

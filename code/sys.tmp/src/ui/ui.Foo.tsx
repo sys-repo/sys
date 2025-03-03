@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { type t, css, pkg } from './common.ts';
 
 /**
@@ -16,7 +16,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   const { enabled = true } = props;
   let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
 
-  const [isOver, setOver] = React.useState(false);
+  const [isOver, setOver] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
 
   const styles = {

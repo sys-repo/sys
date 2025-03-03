@@ -21,7 +21,7 @@ export const markdown = {
         if (yaml?.component === 'Video') {
           const defaultHtml = defaultFence(tokens, idx, options, env, self);
           const src = yaml.src || '';
-          let html = `<Video src="${src}"/>`;
+          let html = `<Video src="${src}" />`;
           if (yaml.debug) html = `${html}\n${defaultHtml}`;
           return html;
         }
@@ -29,7 +29,7 @@ export const markdown = {
         if (yaml?.component === 'ConceptPlayer') {
           const defaultHtml = defaultFence(tokens, idx, options, env, self);
           const src = yaml.video || '';
-          let html = `<Video src="${src}"/>`;
+          let html = `<Video src="${src}" />`;
           if (yaml.debug) html = `${html}\n${defaultHtml}`;
           return html;
         }

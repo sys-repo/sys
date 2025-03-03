@@ -116,6 +116,9 @@ type StdMethods = {
   /** Asynchronously ensures that the directory exists, like `mkdir -p.` */
   readonly ensureDir: typeof StdFs.ensureDir;
 
+  /** Asynchronously ensures that the link exists, and points to a valid file. */
+  readonly ensureSymlink: typeof StdFs.ensureSymlink;
+
   /** Recursively walks through a directory and yields information about each file and directory encountered. */
   readonly walk: typeof StdFs.walk;
 };
