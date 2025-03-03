@@ -18,10 +18,10 @@ export const build: B = async (input) => {
   if (!silent) {
     const table = Cli.table([]);
     const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
-    push('directory:', c.gray(cwd));
-    push('- entry:', paths.app.entry);
-    push('- outDir:', paths.app.outDir);
-    push('- base:', paths.app.base);
+    push('Directory:', c.gray(`${cwd.replace(/\/$/, '')}/`));
+    push('  - entry:', paths.app.entry);
+    push('  - outDir:', paths.app.outDir);
+    push('  - base:', paths.app.base);
 
     console.info(c.bold(c.brightGreen('Paths')));
     console.info(table.toString().trim());
