@@ -1,5 +1,5 @@
 import { Vitepress } from '@sys/driver-vitepress';
-import { type t, c, DenoDeps, DenoFile, Fs, PATHS, pkg } from './common.ts';
+import { c, Fs, PATHS, pkg, Semver } from './common.ts';
 
 const resolve = (...parts: string[]) => Fs.join(import.meta.dirname ?? '', '..', ...parts);
 await Fs.remove(resolve('.tmp'));
@@ -21,5 +21,7 @@ const Bundle = Vitepress.Tmpl.Bundle;
 await Bundle.toFilemap();
 await Bundle.toFilesystem(resolve(PATHS.tmpl.tmp)); // NB: test output.
 
-console.info(c.brightCyan('↑ Prep Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+const fmtVersion = Semver.Fmt.colorize(pkg.version);
+const fmtModule = `${pkg.name}${c.dim('@')}${fmtVersion}`;
+console.info(c.brightCyan('↑ Prep Complete:'), fmtModule);
 console.info();
