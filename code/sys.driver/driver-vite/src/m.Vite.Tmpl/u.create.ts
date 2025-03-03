@@ -11,7 +11,7 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
   /**
    * Ensure the templates are hydrated and ready to use.
    */
-  const beforeCopy: t.TmplWriteHandler = async () => {
+  const beforeWrite: t.TmplWriteHandler = async () => {
     await Fs.remove(templatesDir);
     await Bundle.writeToFile(templatesDir);
   };
@@ -19,7 +19,7 @@ export const create: t.ViteTmplLib['create'] = async (args = {}) => {
   /**
    * (🐷) Perform additional setup here (as needed).
    */
-  const afterCopy: t.TmplWriteHandler = async (e) => {};
+  const afterWrite: t.TmplWriteHandler = async (e) => {};
 
   /**
    * Template-engine instance.
