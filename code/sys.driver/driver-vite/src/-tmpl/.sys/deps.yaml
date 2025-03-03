@@ -3,7 +3,7 @@
 #
 #        ./💦
 #          |            deno.json
-#          |(write)  →  deno.imports.json
+#          |(write)  →  imports.json
 #          |(write)  →  package.json
 #
 #  This is the "single-source-of-truth" with regards to dependencies and versioning.

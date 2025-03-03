@@ -11,7 +11,7 @@ export async function main() {
 
   const PATH = {
     package: './package.json',
-    deno: './deno.imports.json',
+    deno: './imports.json',
   };
 
   /**
