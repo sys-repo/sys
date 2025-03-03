@@ -5,7 +5,7 @@ describe('Tmpl', () => {
   const readFile = async (path: string) => (await Fs.readText(path)).data;
 
   const logOps = (
-    res: t.TmplCopyResponse,
+    res: t.TmplWriteResponse,
     title: string,
     options: { indent?: number; hideExcluded?: boolean } = {},
   ) => {
@@ -28,8 +28,8 @@ describe('Tmpl', () => {
       const tmpl = Tmpl.create(test.source);
       expect(await test.ls.target()).to.eql([]);
 
-      const a = await tmpl.copy(test.target);
-      const b = await tmpl.copy(test.target);
+      const a = await tmpl.write(test.target);
+      const b = await tmpl.write(test.target);
 
       expect(a.source.absolute).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
@@ -57,10 +57,10 @@ describe('Tmpl', () => {
         count++;
       });
 
-      const resA = await tmpl.copy(test.target);
+      const resA = await tmpl.write(test.target);
       foo = 123; // NB: cuase change in file.
-      const resB = await tmpl.copy(test.target); // NB: "updated" via change flag.
-      const resC = await tmpl.copy(test.target); // NB: no changes.
+      const resB = await tmpl.write(test.target); // NB: "updated" via change flag.
+      const resC = await tmpl.write(test.target); // NB: no changes.
 
       const a = resA.ops.filter((e) => e.written);
       const b = resB.ops.filter((e) => e.written);
@@ -92,7 +92,7 @@ describe('Tmpl', () => {
           if (e.target.file.name === '.gitignore') e.exclude();
         });
 
-        const res = await tmpl.copy(target);
+        const res = await tmpl.write(target);
 
         for (const op of res.ops) {
           if (op.file.target.file.name.endsWith('.md')) {
@@ -117,7 +117,7 @@ describe('Tmpl', () => {
           expect(e.tmpl.base).to.eql(source);
           expect(e.target.base).to.eql(target);
         });
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(count).to.greaterThan(0); // NB: ensure the callback ran.
       });
 
@@ -126,7 +126,7 @@ describe('Tmpl', () => {
         const tmpl = Tmpl.create(test.source, (e) => {
           if (e.target.file.name === 'mod.ts') e.rename('main.ts');
         });
-        const res = await tmpl.copy(test.target);
+        const res = await tmpl.write(test.target);
         const match = res.ops.find((m) => m.file.target.file.name === 'main.ts');
         expect(match?.file.tmpl.file.name).to.eql('mod.ts');
         expect(match?.file.target.file.name).to.eql('main.ts');
@@ -143,8 +143,8 @@ describe('Tmpl', () => {
           }
         });
 
-        const a = await tmpl.copy(target);
-        const b = await tmpl.copy(target);
+        const a = await tmpl.write(target);
+        const b = await tmpl.write(target);
         const matchA = a.ops.find((m) => m.file.target.file.name === 'mod.ts');
         const matchB = b.ops.find((m) => m.file.target.file.name === 'mod.ts');
 
@@ -174,10 +174,10 @@ describe('Tmpl', () => {
         };
         const tmpl = Tmpl.create(source, { beforeCopy: a });
 
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.copy(target, { beforeCopy: [b] });
+        await tmpl.write(target, { beforeCopy: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
       });
 
@@ -192,10 +192,10 @@ describe('Tmpl', () => {
         };
         const tmpl = Tmpl.create(source, { afterCopy: a });
 
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.copy(target, { afterCopy: [b] });
+        await tmpl.write(target, { afterCopy: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
       });
     });
@@ -205,9 +205,9 @@ describe('Tmpl', () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
 
-        const resA = await tmpl.copy(test.target);
-        const resB = await tmpl.copy(test.target); // NB: no changes (already written).
-        const resC = await tmpl.copy(test.target, { force: true });
+        const resA = await tmpl.write(test.target);
+        const resB = await tmpl.write(test.target); // NB: no changes (already written).
+        const resC = await tmpl.write(test.target, { force: true });
 
         expect(resA.ops.every((m) => m.forced === false)).to.be.true;
         expect(resB.ops.every((m) => m.forced === false)).to.be.true;
@@ -230,8 +230,8 @@ describe('Tmpl', () => {
           if (e.target.file.name === 'doc.md') e.exclude('user-space');
         });
 
-        const resA = await tmpl.copy(test.target);
-        const resB = await tmpl.copy(test.target, { force: true });
+        const resA = await tmpl.write(test.target);
+        const resB = await tmpl.write(test.target, { force: true });
         expect(await test.exists.target('docs/index.md')).to.eql(true);
 
         const indent = 2;
@@ -246,7 +246,7 @@ describe('Tmpl', () => {
       it('dryRun: true (does not write)', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { dryRun: true });
+        const res = await tmpl.write(test.target, { dryRun: true });
         expect(res.ops.every((m) => m.written === false)).to.be.true;
         for (const op of res.ops) {
           expect(await Fs.exists(op.file.target.absolute)).to.eql(false);
@@ -256,7 +256,7 @@ describe('Tmpl', () => {
       it('logs as "dry run"', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { dryRun: true });
+        const res = await tmpl.write(test.target, { dryRun: true });
         const table = Tmpl.Log.table(res.ops);
         expect(table).to.include('dry-run');
         console.info(table);
@@ -289,7 +289,7 @@ describe('Tmpl', () => {
     it('does not copy filtered files', async () => {
       const test = SAMPLE.init();
       const tmpl = Tmpl.create(test.source).filter((e) => !e.file.name.endsWith('.md'));
-      await tmpl.copy(test.target);
+      await tmpl.write(test.target);
 
       const paths = await test.ls.target();
       expect(paths.length).to.greaterThan(2);

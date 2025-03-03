@@ -6,15 +6,15 @@ type Changes = {
   text: string;
 };
 
-export async function copy(
+export async function write(
   source: t.FsDir,
   target: t.FsDir,
   fn: t.TmplProcessFile | undefined,
-  options: t.TmplCopyOptions = {},
+  options: t.TmplWriteOptions = {},
 ) {
   const forced = options.force ?? false;
   const ops: t.TmplFileOperation[] = [];
-  const res: t.TmplCopyResponse = {
+  const res: t.TmplWriteResponse = {
     get source() {
       return source;
     },

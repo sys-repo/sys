@@ -1,5 +1,5 @@
 import { type t, Fs } from './common.ts';
-import { copy } from './u.copy.ts';
+import { write } from './u.write.ts';
 
 /**
  * Create a new directory template.
@@ -25,10 +25,10 @@ function factory(args: {
     get source() {
       return source;
     },
-    copy(target, options = {}) {
+    write(target, options = {}) {
       const beforeCopy = wrangle.copyHandlers(args.beforeCopy, options.beforeCopy);
       const afterCopy = wrangle.copyHandlers(args.afterCopy, options.afterCopy);
-      return copy(source, Fs.toDir(target), processFile, { ...options, beforeCopy, afterCopy });
+      return write(source, Fs.toDir(target), processFile, { ...options, beforeCopy, afterCopy });
     },
     filter(next) {
       const { sourceDir, processFile } = args;

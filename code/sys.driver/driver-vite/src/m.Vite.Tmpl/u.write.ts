@@ -12,7 +12,7 @@ export const write: t.ViteTmplLib['write'] = async (args = {}) => {
    */
   const tmpl = await create({ version });
   const dir = args.in ?? '.';
-  const { ops } = await tmpl.copy(dir, { force });
+  const { ops } = await tmpl.write(dir, { force });
 
   /**
    *  🫵  Clean up helpers here (flesh out as needed: 🐷).

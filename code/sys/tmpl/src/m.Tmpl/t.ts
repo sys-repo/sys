@@ -34,7 +34,7 @@ export type Tmpl = {
   readonly source: t.FsDir;
 
   /** Perform a copy of the templates to a target directory. */
-  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
+  write(target: t.StringDir, options?: t.TmplWriteOptions): Promise<t.TmplWriteResponse>;
 
   /** Clones the template filtering down to a subset of source files. */
   filter(fn: t.TmplFilter): t.Tmpl;
@@ -90,7 +90,7 @@ export type TmplCopyHandlerArgs = {
 };
 
 /** Options passed to the `tmpl.copy` method. */
-export type TmplCopyOptions = {
+export type TmplWriteOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
   force?: boolean;
 
@@ -107,7 +107,7 @@ export type TmplCopyOptions = {
 /**
  * The reponse returned from the `tmpl.copy` method.
  */
-export type TmplCopyResponse = {
+export type TmplWriteResponse = {
   readonly source: t.FsDir;
   readonly target: t.FsDir;
   readonly ops: t.TmplFileOperation[];
