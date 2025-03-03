@@ -12,7 +12,7 @@ export type VitepressTmplLib = {
   create(args: t.VitepressTmplCreateArgs): Promise<t.Tmpl>;
 
   /** Write and process the templates to the local file-system. */
-  write(args?: t.VitepressTmplWriteArgs): Promise<t.VitepressTmplUpdateResponse>;
+  write(args?: t.VitepressTmplWriteArgs): Promise<t.VitepressTmplWriteResponse>;
 };
 
 /** Arguments passed to the `VitepressTmpl.create` method. */
@@ -45,4 +45,4 @@ export type VitepressTmplWriteArgs = {
 /**
  * The response returned from an environment update.
  */
-export type VitepressTmplUpdateResponse = { readonly ops: t.TmplFileOperation[] };
+export type VitepressTmplWriteResponse = { readonly ops: t.TmplFileOperation[] };
