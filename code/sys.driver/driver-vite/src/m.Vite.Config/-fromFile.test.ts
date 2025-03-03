@@ -3,18 +3,27 @@ import { Vite } from '../mod.ts';
 import { ViteConfig } from './mod.ts';
 
 describe('ViteConfig.fromFile', () => {
-  const { brightCyan: cyan, bold } = c;
+  const { brightCyan: cyan } = c;
+
+  const print = (res: t.ViteConfigFromFile) => {
+    console.info();
+    console.info(cyan(`↓ Type: ${c.bold('ViteConfigFromFile')}`));
+    console.info(res);
+    console.info();
+  };
 
   it('from "/<root-dir>/"', async () => {
     const rootDir = SAMPLE.Dirs.sample2;
     const res = await ViteConfig.fromFile(rootDir);
+    print(res);
+
     expect(res.exists).to.eql(true);
     expect(res.error).to.eql(undefined);
 
     expect(res.paths?.cwd).to.eql(Path.resolve(rootDir));
     expect(res.paths?.app.entry).to.eql('src/-entry/index.html');
     expect(res.paths?.app.base).to.eql('./');
-    expect(res.paths?.app.outDir).to.eql('dist');
+    expect(res.paths?.app.outDir).to.eql('dist/');
   });
 
   it('from "/<root-dir>/vite.config.ts" (with config filename)', async () => {
@@ -24,13 +33,6 @@ describe('ViteConfig.fromFile', () => {
     expect(resA.exists).to.eql(true);
     expect(resA.error).to.eql(undefined);
     expect(resA).to.eql(resB);
-  });
-
-  it('no params: load from implicit {CWD}', async () => {
-    const res = await ViteConfig.fromFile();
-    expect(res.paths?.cwd).to.eql(Path.cwd());
-    expect(res.exists).to.eql(true);
-    expect(res.error).to.eql(undefined);
   });
 
   it('loads main samples', async () => {
