@@ -3,7 +3,7 @@
     "@sys/std": "jsr:@sys/std@0.0.136",
     "@sys/tmp": "jsr:@sys/tmp@0.0.105",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.75",
-    "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.91",
+    "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.92",
     "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.130",
     "@sys/driver-vitepress": "jsr:@sys/driver-vitepress@0.0.293",
     "yaml": "npm:yaml@2.7.0",
