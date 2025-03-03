@@ -11,8 +11,8 @@ export type VitepressTmplLib = {
   /** Creates an instance of the template file generator. */
   create(args: t.VitepressTmplCreateArgs): Promise<t.Tmpl>;
 
-  /** Initialize the local machine environment with latest templates */
-  update(args?: t.VitepressTmplUpdateArgs): Promise<t.VitepressTmplUpdateResponse>;
+  /** Write and process the templates to the local file-system. */
+  write(args?: t.VitepressTmplWriteArgs): Promise<t.VitepressTmplUpdateResponse>;
 };
 
 /** Arguments passed to the `VitepressTmpl.create` method. */
@@ -34,7 +34,7 @@ export type VitepressBundleLib = {
 };
 
 /** Arguments passed to the `VitePress.Tmpl.update` method. */
-export type VitepressTmplUpdateArgs = {
+export type VitepressTmplWriteArgs = {
   force?: boolean;
   inDir?: t.StringDir;
   srcDir?: t.StringDir;
