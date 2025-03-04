@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 
 import '@sys/tmp/sample-imports';
@@ -20,9 +19,9 @@ export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
   return (
     <div>
-      <h2>Foo → VideoPlayer (Concept Player):</h2>
+      {/* <h2>Foo → VideoPlayer (Concept Player):</h2> */}
       {/* <Foo /> */}
-      {/* <VideoPlayer src={src} /> */}
+      <VideoPlayer src={src} />
     </div>
   );
 };

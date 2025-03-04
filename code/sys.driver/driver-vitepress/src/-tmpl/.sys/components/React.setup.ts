@@ -1,31 +1,30 @@
-
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { onBeforeUnmount, onMounted, ref as vueRef, type Ref } from 'vue';
+import { NotFound } from './React.NotFound.tsx';
 
 type O = Record<string, unknown>;
-
 export const ref = () => vueRef<HTMLElement | undefined>();
 
 /**
- * Setup a react-in-vue wrapper.
+ * Setup a <react-in-vue> wrapper component.
  */
 export function setup<P extends O>(
   refRoot: Ref<HTMLElement | undefined>,
-  Component: React.FC<P>,
-  props?: P,
+  props: P,
+  getComponent: () => Promise<React.FC<P> | undefined>,
 ) {
-  let root: ReactDOM.Root | undefined;
+  type C = React.FC<P>;
+  let root: Root | undefined;
 
-  onMounted(() => {
+  onMounted(async () => {
     if (refRoot.value) {
+      const Component = ((await getComponent()) || NotFound) as C;
       const el = React.createElement(Component, props);
-      root = ReactDOM.createRoot(refRoot.value);
+      root = createRoot(refRoot.value);
       root.render(el);
     }
   });
 
-  onBeforeUnmount(() => {
-    root?.unmount();
-  });
+  onBeforeUnmount(() => root?.unmount());
 }

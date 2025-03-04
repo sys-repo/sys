@@ -1,9 +1,6 @@
 import type { EnhanceAppContext } from 'vitepress';
-
-import ReactWrapper from './React.Wrapper.vue';
-import Video from './Video.vue';
+import React from './React.vue';
 
 export function registerComponents(ctx: EnhanceAppContext) {
-  ctx.app.component('Video', Video);
-  ctx.app.component('ReactWrapper', ReactWrapper);
+  ctx.app.component('React', React);
 }
