@@ -7,6 +7,8 @@ export async function copyDocs() {
     target: Fs.resolve('code/sys.driver/driver-vitepress/.tmp/sample'),
   } as const;
 
+  const formatPath = (path: string) => `${c.gray(Fs.dirname(path))}/${c.white(Fs.basename(path))}`;
+
   const table = Cli.table([]);
   const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
@@ -14,8 +16,8 @@ export async function copyDocs() {
     from = Fs.join(dir.source, from);
     to = Fs.join(dir.target, to);
     await Fs.copy(from, to, { force: true });
-    push('From', from);
-    push('To', to);
+    push('From', formatPath(Fs.trimCwd(from)));
+    push('To', formatPath(Fs.trimCwd(to)));
     table.push([]);
   };
 
