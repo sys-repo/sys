@@ -1,7 +1,6 @@
 /**
  * @module
  * Common UI Components
- * ```
  */
 export { pkg } from './pkg.ts';
 

@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import { pkg } from './src/pkg.ts';
 
 export default defineConfig(() => {
-  return Vite.Plugin.common({
+  return Vite.Config.app({
     pkg,
     chunks(e) {
       e.chunk('react', 'react');
