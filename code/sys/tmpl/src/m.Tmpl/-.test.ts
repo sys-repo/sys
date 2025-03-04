@@ -5,7 +5,7 @@ describe('Tmpl', () => {
   const readFile = async (path: string) => (await Fs.readText(path)).data;
 
   const logOps = (
-    res: t.TmplCopyResponse,
+    res: t.TmplWriteResponse,
     title: string,
     options: { indent?: number; hideExcluded?: boolean } = {},
   ) => {
@@ -22,14 +22,14 @@ describe('Tmpl', () => {
     tmpl;
   });
 
-  describe('tmpl.copy:', () => {
+  describe('tmpl.write:', () => {
     it('copies all source files', async () => {
       const test = SAMPLE.init();
       const tmpl = Tmpl.create(test.source);
       expect(await test.ls.target()).to.eql([]);
 
-      const a = await tmpl.copy(test.target);
-      const b = await tmpl.copy(test.target);
+      const a = await tmpl.write(test.target);
+      const b = await tmpl.write(test.target);
 
       expect(a.source.absolute).to.eql(test.source);
       expect(await a.target.ls()).to.eql(await test.ls.target());
@@ -46,7 +46,7 @@ describe('Tmpl', () => {
       logOps(a, 'Copy:', { indent: 2 });
     });
 
-    it('tmpl.copy(): → create → update', async () => {
+    it('tmpl.write(): → create → update', async () => {
       const test = SAMPLE.init();
       let foo = 0;
       let count = 0;
@@ -54,13 +54,14 @@ describe('Tmpl', () => {
         if (e.target.file.name !== 'mod.ts') return e.exclude();
         e.modify(`const foo = ${foo}`);
         expect(e.target.exists).to.eql(count === 0 ? false : true);
+        expect(e.ctx).to.eql(undefined);
         count++;
       });
 
-      const resA = await tmpl.copy(test.target);
+      const resA = await tmpl.write(test.target);
       foo = 123; // NB: cuase change in file.
-      const resB = await tmpl.copy(test.target); // NB: "updated" via change flag.
-      const resC = await tmpl.copy(test.target); // NB: no changes.
+      const resB = await tmpl.write(test.target); // NB: "updated" via change flag.
+      const resC = await tmpl.write(test.target); // NB: no changes.
 
       const a = resA.ops.filter((e) => e.written);
       const b = resB.ops.filter((e) => e.written);
@@ -92,7 +93,7 @@ describe('Tmpl', () => {
           if (e.target.file.name === '.gitignore') e.exclude();
         });
 
-        const res = await tmpl.copy(target);
+        const res = await tmpl.write(target);
 
         for (const op of res.ops) {
           if (op.file.target.file.name.endsWith('.md')) {
@@ -117,7 +118,7 @@ describe('Tmpl', () => {
           expect(e.tmpl.base).to.eql(source);
           expect(e.target.base).to.eql(target);
         });
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(count).to.greaterThan(0); // NB: ensure the callback ran.
       });
 
@@ -126,7 +127,7 @@ describe('Tmpl', () => {
         const tmpl = Tmpl.create(test.source, (e) => {
           if (e.target.file.name === 'mod.ts') e.rename('main.ts');
         });
-        const res = await tmpl.copy(test.target);
+        const res = await tmpl.write(test.target);
         const match = res.ops.find((m) => m.file.target.file.name === 'main.ts');
         expect(match?.file.tmpl.file.name).to.eql('mod.ts');
         expect(match?.file.target.file.name).to.eql('main.ts');
@@ -143,8 +144,8 @@ describe('Tmpl', () => {
           }
         });
 
-        const a = await tmpl.copy(target);
-        const b = await tmpl.copy(target);
+        const a = await tmpl.write(target);
+        const b = await tmpl.write(target);
         const matchA = a.ops.find((m) => m.file.target.file.name === 'mod.ts');
         const matchB = b.ops.find((m) => m.file.target.file.name === 'mod.ts');
 
@@ -160,43 +161,87 @@ describe('Tmpl', () => {
         expect(writtenA).to.include(`name: '👋 Hello'`);
         expect(writtenB).to.include(`name: '👋 Hello'`);
       });
+
+      it('fn: {ctx} passed as param', async () => {
+        const { source, target } = SAMPLE.init();
+        const ctx = { foo: 123 };
+        const fired = [] as any[];
+        const tmpl = Tmpl.create(source, (e) => fired.push(e.ctx));
+
+        await tmpl.write(target, { ctx });
+        expect(fired.filter(Boolean).length).to.be.greaterThan(1);
+        expect(fired.every((m) => m === ctx)).to.be.true;
+
+        // No context provided.
+        const beforeLength = fired.filter(Boolean).length;
+        await tmpl.write(target);
+        expect(fired.filter(Boolean).length).to.eql(beforeLength);
+      });
     });
 
-    describe('fn: beforeCopy | afterCopy (callbacks)', () => {
-      it('beforeCopy: sync/async', async () => {
+    describe('fn: beforeWrite | afterWrite (callbacks)', () => {
+      it('beforeWrite: sync/async', async () => {
         const { source, target } = SAMPLE.init();
-        const fired: t.TmplCopyHandlerArgs[] = [];
+        const fired: t.TmplWriteHandlerArgs[] = [];
 
-        const a: t.TmplCopyHandler = (e) => fired.push(e);
-        const b: t.TmplCopyHandler = async (e) => {
+        const a: t.TmplWriteHandler = (e) => fired.push(e);
+        const b: t.TmplWriteHandler = async (e) => {
           expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
           fired.push(e);
         };
-        const tmpl = Tmpl.create(source, { beforeCopy: a });
+        const tmpl = Tmpl.create(source, { beforeWrite: a });
 
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.copy(target, { beforeCopy: [b] });
+        await tmpl.write(target, { onBefore: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
+        expect(fired.every((m) => m.ctx === undefined)).to.eql(true); // NB: {ctx} not passed to the [Tmpl.write] method.
       });
 
-      it('afterCopy: sync/async', async () => {
+      it('afterWrite: sync/async', async () => {
         const { source, target } = SAMPLE.init();
-        const fired: t.TmplCopyHandlerArgs[] = [];
+        const fired: t.TmplWriteHandlerArgs[] = [];
 
-        const a: t.TmplCopyHandler = (e) => fired.push(e);
-        const b: t.TmplCopyHandler = async (e) => {
+        const a: t.TmplWriteHandler = (e) => fired.push(e);
+        const b: t.TmplWriteHandler = async (e) => {
           expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
           fired.push(e);
         };
-        const tmpl = Tmpl.create(source, { afterCopy: a });
+        const tmpl = Tmpl.create(source, { afterWrite: a });
 
-        await tmpl.copy(target);
+        await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.copy(target, { afterCopy: [b] });
+        await tmpl.write(target, { onAfter: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
+        expect(fired.every((m) => m.ctx === undefined)).to.eql(true); // NB: {ctx} not passed to the [Tmpl.write] method.
+      });
+
+      it('{ctx} passed as param', async () => {
+        const { source, target } = SAMPLE.init();
+        const ctx = { foo: 123 };
+        const fired = {
+          before: [] as any[],
+          after: [] as any[],
+        };
+        const onBefore: t.TmplWriteHandler = (e) => fired.before.push(e.ctx);
+        const onAfter: t.TmplWriteHandler = (e) => fired.after.push(e.ctx);
+        const tmpl = Tmpl.create(source);
+
+        // No context provided, so {ctx} not passed through before/after callbacks.
+        await tmpl.write(target, { onBefore, onAfter });
+        expect(fired.before.length).to.greaterThan(0);
+        expect(fired.after.length).to.greaterThan(0);
+        expect(fired.before.filter(Boolean).length).to.eql(0);
+        expect(fired.after.filter(Boolean).length).to.eql(0);
+
+        // Before/after callbacks provided with {ctx}.
+        await tmpl.write(target, { ctx, onBefore, onAfter });
+        expect(fired.before.filter(Boolean).length).to.eql(1);
+        expect(fired.after.filter(Boolean).length).to.eql(1);
+        expect(fired.before.filter(Boolean).every((m) => m === ctx)).to.be.true;
+        expect(fired.after.filter(Boolean).every((m) => m === ctx)).to.be.true;
       });
     });
 
@@ -205,9 +250,9 @@ describe('Tmpl', () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
 
-        const resA = await tmpl.copy(test.target);
-        const resB = await tmpl.copy(test.target); // NB: no changes (already written).
-        const resC = await tmpl.copy(test.target, { force: true });
+        const resA = await tmpl.write(test.target);
+        const resB = await tmpl.write(test.target); // NB: no changes (already written).
+        const resC = await tmpl.write(test.target, { force: true });
 
         expect(resA.ops.every((m) => m.forced === false)).to.be.true;
         expect(resB.ops.every((m) => m.forced === false)).to.be.true;
@@ -230,8 +275,8 @@ describe('Tmpl', () => {
           if (e.target.file.name === 'doc.md') e.exclude('user-space');
         });
 
-        const resA = await tmpl.copy(test.target);
-        const resB = await tmpl.copy(test.target, { force: true });
+        const resA = await tmpl.write(test.target);
+        const resB = await tmpl.write(test.target, { force: true });
         expect(await test.exists.target('docs/index.md')).to.eql(true);
 
         const indent = 2;
@@ -242,11 +287,11 @@ describe('Tmpl', () => {
       });
     });
 
-    describe('flag: write (default: true)', () => {
-      it('write: false', async () => {
+    describe('flag: dryRun (default: false)', () => {
+      it('dryRun: true (does not write)', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { write: false });
+        const res = await tmpl.write(test.target, { dryRun: true });
         expect(res.ops.every((m) => m.written === false)).to.be.true;
         for (const op of res.ops) {
           expect(await Fs.exists(op.file.target.absolute)).to.eql(false);
@@ -256,7 +301,7 @@ describe('Tmpl', () => {
       it('logs as "dry run"', async () => {
         const test = SAMPLE.init();
         const tmpl = Tmpl.create(test.source);
-        const res = await tmpl.copy(test.target, { write: false });
+        const res = await tmpl.write(test.target, { dryRun: true });
         const table = Tmpl.Log.table(res.ops);
         expect(table).to.include('dry-run');
         console.info(table);
@@ -289,7 +334,7 @@ describe('Tmpl', () => {
     it('does not copy filtered files', async () => {
       const test = SAMPLE.init();
       const tmpl = Tmpl.create(test.source).filter((e) => !e.file.name.endsWith('.md'));
-      await tmpl.copy(test.target);
+      await tmpl.write(test.target);
 
       const paths = await test.ls.target();
       expect(paths.length).to.greaterThan(2);

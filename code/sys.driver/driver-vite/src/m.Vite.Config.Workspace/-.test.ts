@@ -8,7 +8,7 @@ describe('ViteConfig.workspace', () => {
   });
 
   it('loads (via path)', async () => {
-    const map = (children: t.DenoWorkspaceChild[]) => children.map((m) => Fs.dirname(m.path));
+    const map = (children: t.DenoWorkspaceChild[]) => children.map((m) => m.path.dir);
 
     const a = await workspace(); // NB: finds root workspace
     const b = await workspace({ denofile: ROOT.denofile.path });

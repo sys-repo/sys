@@ -43,8 +43,8 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
   await assert('.gitignore');
   await assert('.vitepress/config.ts');
   await assert('.vitepress/theme/index.ts');
-  await assert('.sys/-main.ts');
   await assert('deno.json');
+  await assert('imports.json');
   await assert('package.json');
   await assert('docs/index.md');
 };

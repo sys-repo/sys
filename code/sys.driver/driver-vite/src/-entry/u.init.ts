@@ -1,5 +1,5 @@
 import { Vite } from '../m.Vite/mod.ts';
-import { type t, c, pkg, ViteLog } from './common.ts';
+import { type t, c, pkg, Semver, ViteLog } from './common.ts';
 
 /**
  * Run the initialization templates.
@@ -13,13 +13,17 @@ export async function init(args: t.ViteEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await Vite.Tmpl.update({ in: args.dir, silent });
+  await Vite.Tmpl.write({ in: args.dir, silent });
 
   if (!silent) {
     console.info();
     ViteLog.API.log();
+
+    const fmtVersion = Semver.Fmt.colorize(pkg.version);
+    const fmtModule = `${pkg.name}${c.dim('@')}${fmtVersion}`;
+
     console.info();
-    console.info(c.brightCyan('↑ Init Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+    console.info(c.brightCyan('↑ Init Complete:'), `${fmtModule}`);
     console.info();
   }
 }

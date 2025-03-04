@@ -29,7 +29,7 @@ describe('DenoModule.backup', () => {
 
       // Copy in sample project-files to create snapshot/backup of.
       const tmpl = SAMPLE.sample1.tmpl();
-      await tmpl.copy(source);
+      await tmpl.write(source);
       await assertExists(Fs.join(source, PATHS.dist), true);
       await assertExists(Fs.join(source, PATHS.tmp), true);
 
@@ -68,7 +68,7 @@ describe('DenoModule.backup', () => {
     const sample = sampleFs();
     const source = sample.dir;
 
-    await SAMPLE.sample1.tmpl().copy(source);
+    await SAMPLE.sample1.tmpl().write(source);
     await assertExists(Fs.join(source, PATHS.dist), true);
     await assertExists(Fs.join(source, PATHS.tmp), true);
 
@@ -100,7 +100,7 @@ describe('DenoModule.backup', () => {
     const sample = sampleFs();
     const source = sample.dir;
 
-    await SAMPLE.sample1.tmpl().copy(source);
+    await SAMPLE.sample1.tmpl().write(source);
     await assertExists(Fs.join(source, PATHS.dist), true);
     await assertExists(Fs.join(source, PATHS.tmp), true);
 
@@ -131,7 +131,7 @@ describe('DenoModule.backup', () => {
   it('{message} param ← commit details', async () => {
     const sample = sampleFs();
     const source = sample.dir;
-    await SAMPLE.sample1.tmpl().copy(source);
+    await SAMPLE.sample1.tmpl().write(source);
 
     const message = '👋 hello';
 

@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Library for copying template files.
  */
@@ -21,9 +23,9 @@ export type TmplFactory = (
 
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
+  beforeWrite?: t.TmplWriteHandler;
   processFile?: t.TmplProcessFile;
-  beforeCopy?: t.TmplCopyHandler;
-  afterCopy?: t.TmplCopyHandler;
+  afterWrite?: t.TmplWriteHandler;
 };
 
 /**
@@ -34,7 +36,7 @@ export type Tmpl = {
   readonly source: t.FsDir;
 
   /** Perform a copy of the templates to a target directory. */
-  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
+  write(target: t.StringDir, options?: t.TmplWriteOptions): Promise<t.TmplWriteResponse>;
 
   /** Clones the template filtering down to a subset of source files. */
   filter(fn: t.TmplFilter): t.Tmpl;
@@ -68,6 +70,9 @@ export type TmplProcessFileArgs = {
   /** The text body of the file. */
   readonly text: { tmpl: string; current: string };
 
+  /** Optional context passed to the `Tmpl.write` operation. */
+  readonly ctx?: O;
+
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
 
@@ -83,31 +88,35 @@ export type TmplProcessFileArgs = {
  * Use this to do either clean up, or additional setup actions not handled
  * directly by the template-copy engine.
  */
-export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResult;
-/** Arguments passed to the `afterCopy` callback. */
-export type TmplCopyHandlerArgs = {
+export type TmplWriteHandler = (e: TmplWriteHandlerArgs) => t.IgnoredResult;
+/** Arguments passed to the write handler. */
+export type TmplWriteHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
+  readonly ctx?: O;
 };
 
 /** Options passed to the `tmpl.copy` method. */
-export type TmplCopyOptions = {
+export type TmplWriteOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
   force?: boolean;
 
-  /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
-  write?: boolean;
+  /** Flag indicating if the files should be written. Default: false. */
+  dryRun?: boolean;
 
   /** Handler(s) to run before the copy operation starts. */
-  beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onBefore?: t.TmplWriteHandler | t.TmplWriteHandler[];
 
   /** Handler(s) to run after the copy operation completes. */
-  afterCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onAfter?: t.TmplWriteHandler | t.TmplWriteHandler[];
+
+  /** Context data passed to the process handler. */
+  ctx?: O;
 };
 
 /**
  * The reponse returned from the `tmpl.copy` method.
  */
-export type TmplCopyResponse = {
+export type TmplWriteResponse = {
   readonly source: t.FsDir;
   readonly target: t.FsDir;
   readonly ops: t.TmplFileOperation[];

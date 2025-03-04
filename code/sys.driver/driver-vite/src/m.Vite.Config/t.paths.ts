@@ -1,9 +1,11 @@
 import type { t } from './common.ts';
 
+/**
+ * Representation of paths for a Vite configuration.
+ */
 export type ViteConfigPaths = {
   readonly cwd: t.StringDir;
   readonly app: t.ViteConfigPathsApp;
-  readonly lib: t.ViteConfigPathsLib;
 };
 
 /**
@@ -27,9 +29,3 @@ export type ViteConfigPathsApp = {
    */
   readonly base: t.StringDir;
 };
-
-/**
- * Paths for "library mode" bundles.
- * https://vite.dev/guide/build.html#library-mode
- */
-export type ViteConfigPathsLib = {};

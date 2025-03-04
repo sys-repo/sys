@@ -12,10 +12,9 @@ export const paths: F = (input) => {
 
   const app: t.DeepMutable<t.ViteConfigPathsApp> = {
     entry: PATHS.html.index,
-    base: './',
+    base: PATHS.base,
     outDir: PATHS.dist,
   };
-  const lib: t.DeepMutable<t.ViteConfigPathsLib> = {};
 
   if (valueExists(options.app?.entry)) app.entry = options.app?.entry;
   if (valueExists(options.app?.base)) app.base = options.app?.base;
@@ -25,7 +24,7 @@ export const paths: F = (input) => {
   app.base = app.base.trim();
   app.outDir = app.outDir.trim();
 
-  return { cwd, app, lib };
+  return { cwd, app };
 };
 
 /**

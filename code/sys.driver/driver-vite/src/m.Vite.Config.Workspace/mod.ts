@@ -49,7 +49,7 @@ const wrangle = {
   },
 
   async modules(base: t.StringDir, children: t.DenoWorkspaceChild[], filter?: t.WorkspaceFilter) {
-    const wait = children.map((child) => wrangle.exports(base, Fs.dirname(child.path), filter));
+    const wait = children.map((child) => wrangle.exports(base, child.path.dir, filter));
     const res = await Array.fromAsync(wait);
     return res
       .filter((item) => item.exists)

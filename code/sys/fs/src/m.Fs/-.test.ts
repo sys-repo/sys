@@ -1,3 +1,4 @@
+import * as StdFs from '@std/fs';
 import { Path as StdPath } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
 import { Glob } from '../m.Glob/mod.ts';
@@ -9,6 +10,9 @@ describe('Fs: filesystem', () => {
     expect(Fs.glob).to.equal(Glob.create);
     expect(Fs.ls).to.equal(Glob.ls);
     expect(Fs.trimCwd).to.equal(Path.trimCwd);
+
+    expect(Fs.ensureDir).to.eql(StdFs.ensureDir);
+    expect(Fs.ensureSymlink).to.eql(StdFs.ensureSymlink);
   });
 
   describe('Fs.Path', () => {

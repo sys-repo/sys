@@ -1,9 +1,9 @@
-import { Vite } from '@sys/driver-vite';
-import { defineConfig } from 'vite';
-
-export const paths = Vite.Config.paths({ app: { entry: './src/-test/index.html' } });
+import { Vite } from 'jsr:@sys/driver-vite';
+import { defineConfig } from 'npm:vite';
 
 export default defineConfig(() => {
+  const entry = './src/-test/index.html';
+  const paths = Vite.Config.paths({ app: { entry } });
   return Vite.Config.app({
     paths,
     chunks(e) {

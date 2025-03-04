@@ -1,12 +1,12 @@
 import { type t, Fs } from './common.ts';
-import { copy } from './u.copy.ts';
+import { write } from './u.write.ts';
 
 /**
  * Create a new directory template.
  */
 export const create: t.TmplFactory = (sourceDir, opt) => {
-  const { processFile, beforeCopy, afterCopy } = wrangle.options(opt);
-  return factory({ sourceDir, beforeCopy, processFile, afterCopy });
+  const { processFile, beforeWrite, afterWrite } = wrangle.options(opt);
+  return factory({ sourceDir, beforeWrite, processFile, afterWrite });
 };
 
 /**
@@ -14,9 +14,9 @@ export const create: t.TmplFactory = (sourceDir, opt) => {
  */
 function factory(args: {
   sourceDir: t.StringDir;
-  beforeCopy?: t.TmplCopyHandler;
+  beforeWrite?: t.TmplWriteHandler;
   processFile?: t.TmplProcessFile;
-  afterCopy?: t.TmplCopyHandler;
+  afterWrite?: t.TmplWriteHandler;
   filter?: t.FsFileFilter[];
 }): t.Tmpl {
   const { sourceDir, processFile } = args;
@@ -25,10 +25,10 @@ function factory(args: {
     get source() {
       return source;
     },
-    copy(target, options = {}) {
-      const beforeCopy = wrangle.copyHandlers(args.beforeCopy, options.beforeCopy);
-      const afterCopy = wrangle.copyHandlers(args.afterCopy, options.afterCopy);
-      return copy(source, Fs.toDir(target), processFile, { ...options, beforeCopy, afterCopy });
+    write(target, options = {}) {
+      const onBefore = wrangle.writeHandlers(args.beforeWrite, options.onBefore);
+      const onAfter = wrangle.writeHandlers(args.afterWrite, options.onAfter);
+      return write(source, Fs.toDir(target), processFile, { ...options, onBefore, onAfter });
     },
     filter(next) {
       const { sourceDir, processFile } = args;
@@ -49,8 +49,8 @@ const wrangle = {
     return input;
   },
 
-  copyHandlers(base?: t.TmplCopyHandler, param?: t.TmplCopyHandler | t.TmplCopyHandler[]) {
-    type T = t.TmplCopyHandler;
+  writeHandlers(base?: t.TmplWriteHandler, param?: t.TmplWriteHandler | t.TmplWriteHandler[]) {
+    type T = t.TmplWriteHandler;
     return [param, base].flat(Infinity).filter(Boolean) as T[];
   },
 } as const;
