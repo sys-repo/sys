@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { type t, css, pkg } from './common.ts';
 
 /**
