@@ -1,8 +1,5 @@
 import type { ConfigEnv } from 'vite';
 
-import deno from '@deno/vite-plugin';
-import react from '@vitejs/plugin-react-swc';
-
 import { defineConfig } from 'vitepress';
 import { Config } from '../src/config.ts';
 import { sidebar } from '../src/nav.ts';
@@ -19,7 +16,7 @@ export default async (env: ConfigEnv) => {
     markdown,
     themeConfig: { sidebar, search: { provider: 'local' } },
     vite: {
-      plugins: [deno() as any, react()],
+      plugins: [],
       resolve: {
         alias: await getAliases(),
       },
