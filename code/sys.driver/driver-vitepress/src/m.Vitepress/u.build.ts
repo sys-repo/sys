@@ -11,18 +11,31 @@ export const build: B = async (input = {}) => {
   const options = wrangle.options(input);
   const { pkg, srcDir = 'docs', silent = false } = options;
 
-  const spinner = Cli.spinner(c.gray('building...'), { start: false });
-  if (!silent) spinner.start();
-
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
   const outDir = dirs.out;
+
+  if (!silent) {
+    const table = Cli.table([]);
+    const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
+    push('Directory:', c.gray(`${Fs.cwd()}/`));
+    push('       in:', Fs.trimCwd(dirs.in));
+    push('      out:', Fs.trimCwd(dirs.out));
+
+    console.info(c.bold(c.brightGreen('Paths')));
+    console.info(table.toString().trim());
+    console.info();
+  }
 
   let params = `--outDir=${outDir}`;
   if (srcDir) params += ` --srcDir=${srcDir}`;
 
   const cmd = `deno run -A --node-modules-dir npm:vitepress build ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);
+
+  const spinner = Cli.spinner(c.gray('building...'), { start: false });
+  if (!silent) spinner.start();
+
   const output = await Process.invoke({ args, silent: true });
   const ok = output.success;
   spinner?.clear().stop();

@@ -8,8 +8,8 @@ import {
   PATHS,
   pkg,
   ViteEntry,
-  VitepressLog,
   ViteLog,
+  VitepressLog,
 } from './common.ts';
 
 type F = t.VitepressEntryLib['main'];
