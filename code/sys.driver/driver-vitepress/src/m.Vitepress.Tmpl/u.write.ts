@@ -19,7 +19,7 @@ export const write: t.VitepressTmplLib['write'] = async (args = {}) => {
    *      eg. migration change patching.
    */
   const remove = (...path: string[]) => Fs.remove(Fs.join(inDir, ...path));
-  await remove('./package.json');
+  // await remove('./<path>');
 
   /**
    * Finish up.
