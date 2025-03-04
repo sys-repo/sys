@@ -8,6 +8,7 @@ import { markdown } from './config.markdown.ts';
 
 export default async (env: ConfigEnv) => {
   const { title, description } = Config;
+  const alias = await getAliases();
 
   return defineConfig({
     title,
@@ -17,9 +18,7 @@ export default async (env: ConfigEnv) => {
     themeConfig: { sidebar, search: { provider: 'local' } },
     vite: {
       plugins: [],
-      resolve: {
-        alias: await getAliases(),
-      },
+      resolve: { alias },
     },
   });
 };
