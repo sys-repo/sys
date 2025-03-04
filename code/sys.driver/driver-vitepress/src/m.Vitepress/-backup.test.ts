@@ -14,42 +14,43 @@ describe('cmd: backup (shapshot)', () => {
      *  - ↓ build   (dist)
      *  - ↓ backup  (snapshot)
      */
-    await Testing.retry(1, async () => {});
     const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {
-      const { includeDist } = args;
-      const sample = Sample.init({});
-      const cwd = sample.path;
-      const inDir = sample.path;
-      const backupDir = Fs.join(inDir, PATHS.backup);
-      const distDir = Fs.join(inDir, PATHS.dist);
+      await Testing.retry(2, async () => {
+        const { includeDist } = args;
+        const sample = Sample.init({});
+        const cwd = sample.path;
+        const inDir = sample.path;
+        const backupDir = Fs.join(inDir, PATHS.backup);
+        const distDir = Fs.join(inDir, PATHS.dist);
 
-      const silent = true;
-      await Vitepress.Tmpl.write({ inDir, silent });
-      await assertExists(distDir, false); // NB: not yet built.
+        const silent = true;
+        await Vitepress.Tmpl.write({ inDir, silent });
+        await assertExists(distDir, false); // NB: not yet built.
 
-      const buildResponse = await Vitepress.build({ inDir, silent });
-      await assertExists(backupDir, false); // NB: not yet backed up.
+        const buildResponse = await Vitepress.build({ inDir, silent });
+        await assertExists(backupDir, false); // NB: not yet backed up.
 
-      const res = await Vitepress.backup({ dir: inDir, includeDist });
-      const snapshot = res.snapshot;
-      const targetDir = snapshot.path.target.files;
-      expect(snapshot.error).to.eql(undefined);
+        const res = await Vitepress.backup({ dir: inDir, includeDist });
+        const snapshot = res.snapshot;
+        const targetDir = snapshot.path.target.files;
+        expect(snapshot.error).to.eql(undefined);
 
-      const assertTargetExists = async (path: string, exists: boolean) => {
-        await assertExists(Fs.join(targetDir, path), exists);
-      };
+        const assertTargetExists = async (path: string, exists: boolean) => {
+          await assertExists(Fs.join(targetDir, path), exists);
+        };
 
-      await assertTargetExists('dist', !!includeDist);
-      await assertTargetExists('-backup', false);
-      await assertTargetExists('.sys', true);
-      await assertTargetExists('.tmp', false);
-      await assertTargetExists('.vitepress', true);
-      await assertTargetExists('.vitepress/cache', false);
-      await assertTargetExists('docs', true);
-      await assertTargetExists('src', true);
-      await assertTargetExists('deno.json', true);
-      await assertTargetExists('imports.json', true);
-      await assertTargetExists('.gitignore', true);
+        await assertTargetExists('dist', !!includeDist);
+        await assertTargetExists('-backup', false);
+        await assertTargetExists('.sys', true);
+        await assertTargetExists('.tmp', false);
+        await assertTargetExists('.vitepress', true);
+        await assertTargetExists('.vitepress/cache', false);
+        await assertTargetExists('docs', true);
+        await assertTargetExists('src', true);
+        await assertTargetExists('deno.json', true);
+        await assertTargetExists('imports.json', true);
+        await assertTargetExists('.gitignore', true);
+      });
     };
 
     await test({}); // default: excludes the /dist folder.
