@@ -27,7 +27,7 @@ export const markdown = {
         }
       }
 
-      // No orenderDefaultRulehes found, return default rendering.
+      // No match found, return default.
       return renderOriginal();
     };
   },
