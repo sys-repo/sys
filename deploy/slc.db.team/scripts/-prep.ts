@@ -6,4 +6,4 @@ const PATH = {
 };
 
 const res = await Fs.copy(PATH.from, PATH.to, { force: true });
-console.log('res', res);
+// console.log('res', res);

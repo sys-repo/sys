@@ -47,7 +47,8 @@ async function updatePackages() {
   const tmpl = Tmpl.create('./code/-tmpl/pkg', async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
     if (typeof pkg !== 'object') {
-      errors.push(`Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`);
+      const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;
+      errors.push(err);
       return;
     }
 
@@ -57,7 +58,7 @@ async function updatePackages() {
     }
   });
 
-  const wait = ws.children.map(async (item) => {
+  for (const item of ws.children) {
     const targetDir = Fs.join(item.path.dir, 'src');
     const exists = await Fs.exists(Fs.join(targetDir, 'pkg.ts'));
     if (exists) {
@@ -65,22 +66,26 @@ async function updatePackages() {
       const ctx = { pkg };
       await tmpl.write(targetDir, { ctx });
     }
-  });
+  }
 
-  await Promise.all(wait);
-  if (!errors.ok) console.error(errors.toError());
+  const error = errors.toError();
+  if (error) console.error(error);
+  return { error };
 }
 
 /**
  * Run `prep` → `init` commands on sub-modules.
  */
 async function prepSubmodules() {
-  const sh = (path: string) => Process.sh({ path });
-  const module = (...parts: string[]) => sh(Fs.resolve('./code', ...parts));
-
-  const cmd = 'deno task prep && deno task init';
-  await module('sys.driver/driver-vite').run(cmd);
-  await module('sys.driver/driver-vitepress').run(cmd);
+  const ws = await DenoFile.workspace();
+  for (const item of ws.children) {
+    const tasks = item.denofile.tasks;
+    if (tasks) {
+      const sh = Process.sh(item.path.dir);
+      if (tasks.prep) await sh.run('deno task prep');
+      if (tasks.init) await sh.run('deno task init');
+    }
+  }
 }
 
 /**
