@@ -13,6 +13,7 @@ export default async (env: ConfigEnv) => {
   return defineConfig({
     title,
     description,
+    base: '/',
     srcDir: '<SRC_DIR>',
     markdown,
     themeConfig: { sidebar, search: { provider: 'local' } },
