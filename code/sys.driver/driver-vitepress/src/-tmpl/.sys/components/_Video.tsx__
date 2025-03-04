@@ -1,14 +1,14 @@
 import React from 'react';
 
 import '@sys/tmp/sample-imports';
-import { Foo, VideoPlayer } from '@sys/tmp/ui';
+import { VideoPlayer } from '@sys/tmp/ui';
 
 export const DEFAULTS = {
   src: 'vimeo/499921561', // Tubes.
 } as const;
 
 export type VideoProps = {
-  title?: string;
+  video?: string;
   src?: string;
 };
 
@@ -17,6 +17,9 @@ export type VideoProps = {
  */
 export const Video: React.FC<VideoProps> = (props: VideoProps) => {
   const src = props.src || DEFAULTS.src;
+
+  console.log('props---', props);
+
   return (
     <div>
       {/* <h2>Foo → VideoPlayer (Concept Player):</h2> */}

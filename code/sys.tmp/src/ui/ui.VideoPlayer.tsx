@@ -8,15 +8,15 @@ import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
 export const DEFAULTS = {
-  src: 'vimeo/499921561', // Tubes.
+  video: 'vimeo/499921561', // Tubes.
 } as const;
 
 /**
  * Sample properties.
  */
 export type VideoPlayerProps = {
+  video?: string;
   title?: string;
-  src?: string;
   style?: t.CssInput;
 };
 
@@ -24,7 +24,7 @@ export type VideoPlayerProps = {
  * Component (UI).
  */
 export const VideoPlayer: React.FC<VideoPlayerProps> = (props) => {
-  const src = props.src || DEFAULTS.src;
+  const src = props.video || DEFAULTS.video;
 
   const styles = {
     base: css({}),

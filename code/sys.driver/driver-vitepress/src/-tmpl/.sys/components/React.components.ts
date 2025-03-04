@@ -10,8 +10,8 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
   }
 
   if (kind === 'ConceptPlayer') {
-    const { Video } = await import('./_Video.tsx');
-    return Video;
+    const { VideoPlayer } = await import('@sys/tmp/ui');
+    return VideoPlayer;
   }
 
   return; // NB: not found.
