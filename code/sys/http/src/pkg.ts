@@ -1,6 +1,6 @@
-import type { t } from '@sys/std';
+import type { Pkg } from '@sys/types';
 
 /**
  * Package meta-data.
  */
-export const pkg: t.Pkg = { name: '@sys/http', version: '0.0.52' };
+export const pkg: Pkg = { name: '@sys/http', version: '0.0.52' };
