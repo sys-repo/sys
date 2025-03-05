@@ -132,7 +132,7 @@ const wrangle = {
     let count = 0;
     for (const file of files) {
       const stat = await Fs.stat(Fs.join(dir, file));
-      count += stat.size;
+      count += stat?.size ?? 0;
     }
     return count;
   },

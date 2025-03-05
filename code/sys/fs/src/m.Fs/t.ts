@@ -137,7 +137,8 @@ export type FsIsLib = t.PathLib['Is'] & {
 /**
  * Retrieve information about the given path.
  */
-export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
+export type FsGetStat = (path: t.StringPath | URL) => Promise<FsFileInfo | undefined>;
+export type FsFileInfo = Deno.FileInfo;
 
 /**
  * Copy a file or directory.
