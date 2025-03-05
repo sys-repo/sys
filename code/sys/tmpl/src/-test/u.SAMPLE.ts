@@ -2,7 +2,7 @@ import { type t, Fs, slug } from '../common.ts';
 
 export const SAMPLE = {
   init(options: { source?: t.StringDir; slug?: boolean } = {}) {
-    const source = Fs.resolve(options.source ?? './src/-test/-sample');
+    const source = Fs.resolve(options.source ?? './src/-test/sample-1');
     const target = Fs.resolve(`./.tmp/test/m.Tmpl`, options.slug ?? true ? slug() : '');
     const exists = (dir: t.StringDir, path: string[]) => Fs.exists(Fs.join(dir, ...path));
     return {
