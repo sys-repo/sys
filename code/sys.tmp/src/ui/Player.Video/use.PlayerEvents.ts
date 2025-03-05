@@ -35,8 +35,10 @@ export function usePlayerEvents(until$?: t.UntilObservable): t.UseVideoPlayerEve
    */
   const api: R = {
     $,
+    play$: rx.payload<t.VideoPlayEvent>($, 'Video/play'),
+    playing$: rx.payload<t.VideoPlayingEvent>($, 'Video/playing'),
+    pause$: rx.payload<t.VideoPauseEvent>($, 'Video/pause'),
     handlers,
-    takeUntil: (dispose$) => $.pipe(rx.takeUntil(rx.disposable(dispose$).dispose$)),
   };
   return api;
 }

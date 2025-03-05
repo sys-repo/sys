@@ -16,7 +16,9 @@ export type ConceptPlayerProps = {
  * Timestamp images
  */
 export type VideoTimestamps = {
-  [ts: string]: VideoTimestamp;
+  [HH_MM_SS_mmm: string]: VideoTimestamp;
 };
 
-export type VideoTimestamp = {};
+export type VideoTimestamp = {
+  image?: t.StringPath;
+};
