@@ -17,7 +17,14 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   };
 
   const elPlayer = (
-    <MediaPlayer title={props.title} src={src} playsInline={true}>
+    <MediaPlayer
+      title={props.title}
+      src={src}
+      playsInline={true}
+      onPlay={props.onPlay}
+      onPlaying={props.onPlaying}
+      onPause={props.onPause}
+    >
       <MediaProvider />
       <PlyrLayout
         // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"

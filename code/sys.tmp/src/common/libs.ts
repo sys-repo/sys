@@ -1,1 +1,1 @@
-export { rx, Time, Pkg } from '@sys/std';
+export { rx, Time, Pkg, isRecord } from '@sys/std';

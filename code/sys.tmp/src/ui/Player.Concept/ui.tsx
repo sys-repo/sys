@@ -1,5 +1,5 @@
-import React from 'react';
-import { type t, Color, css, VideoPlayer } from './common.ts';
+import React, { useEffect } from 'react';
+import { type t, Color, css, VideoPlayer, usePlayerEvents, rx } from './common.ts';
 
 /**
  * Component.
@@ -7,6 +7,18 @@ import { type t, Color, css, VideoPlayer } from './common.ts';
 export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const {} = props;
   const timestamps = wrangle.timestamps(props);
+  const playerEvents = usePlayerEvents();
+
+  /**
+   * Lifecycle
+   */
+  useEffect(() => {
+    const life = rx.disposable();
+    const $ = playerEvents.takeUntil(life.dispose$);
+
+
+    return life.dispose;
+  }, []);
 
   /**
    * Render
@@ -20,7 +32,7 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <VideoPlayer title={props.title} video={props.video} />
+      <VideoPlayer title={props.title} video={props.video} {...playerEvents.handlers} />
     </div>
   );
 };
