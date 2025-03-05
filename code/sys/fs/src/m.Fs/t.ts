@@ -132,6 +132,9 @@ export type FsIsLib = t.PathLib['Is'] & {
 
   /** Determine if the given path points to a file (not a directory). */
   file(path: t.StringPath | URL): Promise<boolean>;
+
+  /** Determine if the given path points to a binary (non-string) file. */
+  binary(path: t.StringPath | URL): Promise<boolean>;
 };
 
 /**
