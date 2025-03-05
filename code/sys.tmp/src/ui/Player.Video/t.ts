@@ -1,7 +1,8 @@
 import type { t } from './common.ts';
 
 export type VideoPlayerProps = {
-  video?: string;
+  debug?: boolean;
   title?: string;
+  video?: string;
   style?: t.CssInput;
 };

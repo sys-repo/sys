@@ -1,8 +1,12 @@
 import React from 'react';
 import { type t, Color, css, VideoPlayer } from './common.ts';
 
+/**
+ * Component.
+ */
 export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const {} = props;
+  const timestamps = wrangle.timestamps(props);
 
   /**
    * Render
@@ -10,7 +14,6 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
     }),
   };
@@ -21,3 +24,14 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  timestamps(props: t.ConceptPlayerProps) {
+    const { timestamps } = props;
+    if (typeof timestamps !== 'object') return {};
+    return timestamps;
+  },
+} as const;

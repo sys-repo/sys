@@ -8,7 +8,7 @@ import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
 /**
- * Component (UI).
+ * Component.
  */
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const src = props.video || DEFAULTS.video;
