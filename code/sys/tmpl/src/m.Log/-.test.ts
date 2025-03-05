@@ -9,7 +9,7 @@ describe('Tmpl.Log', () => {
 
   describe('Log.table', () => {
     it('log table', async () => {
-      const test = SAMPLE.init();
+      const test = SAMPLE.sample1();
       let change = false;
       const tmpl = Tmpl.create(test.source, (e) => {
         if (change) e.modify('// foo');
@@ -38,7 +38,7 @@ describe('Tmpl.Log', () => {
     });
 
     it('empty (no operations)', async () => {
-      const test = SAMPLE.init();
+      const test = SAMPLE.sample1();
       const tmpl = Tmpl.create(test.source).filter(() => false);
       const res = await tmpl.write(test.target);
       const table = Log.table(res.ops);
@@ -46,7 +46,7 @@ describe('Tmpl.Log', () => {
     });
 
     it('option: { trimBase:<path> }', async () => {
-      const test = SAMPLE.init();
+      const test = SAMPLE.sample1();
       const tmpl = Tmpl.create(test.source, (e) => {});
       const res = await tmpl.write(test.target);
 
@@ -56,7 +56,7 @@ describe('Tmpl.Log', () => {
     });
 
     it('option: { note: ƒn }', async () => {
-      const test = SAMPLE.init();
+      const test = SAMPLE.sample1();
       const tmpl = Tmpl.create(test.source, (e) => {});
       const res = await tmpl.write(test.target);
 
