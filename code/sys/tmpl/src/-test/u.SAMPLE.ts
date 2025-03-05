@@ -2,6 +2,9 @@ import { type t, Fs, slug } from '../common.ts';
 
 type Options = { slug?: boolean };
 
+/**
+ * Initialize a sample folder.
+ */
 function init(source: t.StringDir, options: Options = {}) {
   source = Fs.resolve(source);
   const randomDir = options.slug ?? true ? slug() : '';
@@ -22,7 +25,11 @@ function init(source: t.StringDir, options: Options = {}) {
   } as const;
 }
 
+/**
+ * Test folder/file samples.
+ */
 export const SAMPLE = {
   init,
   sample1: (options?: Options) => init('./src/-test/sample-1', options),
+  sample2: (options?: Options) => init('./src/-test/sample-2', options),
 } as const;
