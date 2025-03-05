@@ -2,4 +2,6 @@
  * @module
  * Module types.
  */
-export {};
+export type * from './ui/Foo/t.ts';
+export type * from './ui/Player.Concept/t.ts';
+export type * from './ui/Player.Video/t.ts';

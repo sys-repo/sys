@@ -2,17 +2,9 @@ import React, { useState } from 'react';
 import { type t, css, pkg } from './common.ts';
 
 /**
- * Sample properties.
- */
-export type FooProps = {
-  enabled?: boolean;
-  style?: t.CssInput;
-};
-
-/**
  * Component (UI).
  */
-export const Foo: React.FC<FooProps> = (props) => {
+export const Foo: React.FC<t.FooProps> = (props) => {
   const { enabled = true } = props;
   let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
 

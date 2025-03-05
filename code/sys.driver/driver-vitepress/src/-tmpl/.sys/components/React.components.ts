@@ -10,6 +10,11 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
   }
 
   if (kind === 'ConceptPlayer') {
+    const { ConceptPlayer } = await import('@sys/tmp/ui');
+    return ConceptPlayer;
+  }
+
+  if (kind === 'VideoPlayer') {
     const { VideoPlayer } = await import('@sys/tmp/ui');
     return VideoPlayer;
   }
