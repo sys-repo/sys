@@ -22,7 +22,6 @@ export const Splash: React.FC<SplashProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      Absolute: 0,
       fontFamily: 'sans-serif',
       display: 'grid',
       placeItems: 'center',
