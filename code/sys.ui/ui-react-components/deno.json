@@ -2,14 +2,15 @@
   "name": "@sys/ui-react-components",
   "version": "0.0.38",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi jsr:@sys/driver-vite@0.0.133/main --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno    run -RWE  --allow-run --allow-ffi jsr:@sys/driver-vite@0.0.133/main --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi jsr:@sys/driver-vite@0.0.133/main --cmd=serve",
+    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
 
-    "clean": "deno    run -RWE  --allow-ffi             jsr:@sys/driver-vite@0.0.133/main --cmd=clean",
-    "upgrade": "deno  run -RWNE --allow-run --allow-ffi jsr:@sys/driver-vite@0.0.133/main --cmd=upgrade",
-    "backup": "deno   run -RWE  --allow-run --allow-ffi jsr:@sys/driver-vite@0.0.133/main --cmd=backup",
-    "help": "deno     run -RE   --allow-ffi             jsr:@sys/driver-vite@0.0.133/main --cmd=help",
+    "dry": "deno      publish --allow-dirty --dry-run",
+    "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
+    "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
+    "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
+    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
 
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
