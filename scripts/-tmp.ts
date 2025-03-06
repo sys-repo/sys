@@ -1,12 +1,21 @@
-import { c, Cli } from '@sys/cli';
+import { rx } from '@sys/std';
+import { c, Cli, Args } from '@sys/cli';
 import { Fs } from '@sys/fs';
 
-export async function copyDocs() {
-  const dir = {
-    source: '/Users/phil/Documents/Notes/tdb/slc/current',
-    target: Fs.resolve('code/sys.driver/driver-vitepress/.tmp/sample'),
-  } as const;
+type TArgs = { watch?: boolean };
+const args = Args.parse<TArgs>(Deno.args, { alias: { w: 'watch' } });
+console.log('args', args);
 
+/**
+ * Copy the SLC project content to the VitePress (driver) development sample directory
+ * from it's external content authoring location.
+ */
+const dir = {
+  source: '/Users/phil/Documents/Notes/tdb/slc/current',
+  target: Fs.resolve('code/sys.driver/driver-vitepress/.tmp/sample'),
+} as const;
+
+export async function copyDocs() {
   const formatPath = (path: string) => `${c.gray(Fs.dirname(path))}/${c.white(Fs.basename(path))}`;
 
   const table = Cli.table([]);
@@ -32,7 +41,16 @@ export async function copyDocs() {
 }
 
 /**
- * Run
+ * Watcher.
+ */
+if (args.watch) {
+  const watcher = await Fs.watch(dir.source);
+  watcher.$.pipe(rx.debounceTime(500)).subscribe(copyDocs);
+  console.info(c.italic(c.brightCyan(`\n(watching for file changes)`)));
+}
+
+/**
+ * Initial Run
  */
 await copyDocs();
-Deno.exit(0);
+if (!args.watch) Deno.exit(0);
