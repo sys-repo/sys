@@ -68,7 +68,7 @@ export type TmplProcessFileArgs = {
   readonly target: t.FsFile & { exists: boolean };
 
   /** The text body of the file. */
-  readonly text: { tmpl: string; current: string };
+  readonly text?: { tmpl: string; current: string };
 
   /** Optional context passed to the `Tmpl.write` operation. */
   readonly ctx?: O;
@@ -125,7 +125,9 @@ export type TmplWriteResponse = {
 /**
  * Details about a file update.
  */
-export type TmplFileOperation = {
+export type TmplFileOperation = TmplTextFileOperation | TmplBinaryFileOperation;
+
+type Operation = {
   /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
 
@@ -143,10 +145,36 @@ export type TmplFileOperation = {
 
   /** File path details. */
   file: { tmpl: t.FsFile; target: t.FsFile };
+};
+
+export type TmplTextFileOperation = Operation & {
+  /** The content-type of the template file. */
+  contentType: 'text';
+  binary: undefined;
 
   /** The text content of the file. */
-  text: {
-    tmpl: string;
-    target: { before: string; after: string; isDiff: boolean };
-  };
+  text: t.TmplFileOperationText;
+};
+
+export type TmplBinaryFileOperation = Operation & {
+  /** The content-type of the template file. */
+  contentType: 'binary';
+  text: undefined;
+
+  /** The binary content of the file. */
+  binary: t.TmplFileOperationBinary;
+};
+
+/** The text content of the file. */
+export type TmplFileOperationText = {
+  /** The source template before transform. */
+  tmpl: string;
+  /** Details about the template file at the target location. */
+  target: { before: string; after: string; isDiff: boolean };
+};
+
+/** The binary content of the file. */
+export type TmplFileOperationBinary = {
+  /** The source template before transform. */
+  tmpl: Uint8Array;
 };

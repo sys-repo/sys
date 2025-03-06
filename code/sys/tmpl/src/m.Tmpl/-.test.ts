@@ -59,7 +59,7 @@ describe('Tmpl', () => {
       });
 
       const resA = await tmpl.write(test.target);
-      foo = 123; // NB: cuase change in file.
+      foo = 123; // NB: cause change in file.
       const resB = await tmpl.write(test.target); // NB: "updated" via change flag.
       const resC = await tmpl.write(test.target); // NB: no changes.
 
@@ -138,6 +138,7 @@ describe('Tmpl', () => {
       it('fn: modify (file text)', async () => {
         const { source, target } = SAMPLE.sample1();
         const tmpl = Tmpl.create(source, (e) => {
+          if (!e.text) return;
           if (e.target.file.name === 'mod.ts') {
             const next = e.text.tmpl.replace(/\{FOO_BAR\}/g, '👋 Hello');
             e.modify(next);
@@ -149,11 +150,15 @@ describe('Tmpl', () => {
         const matchA = a.ops.find((m) => m.file.target.file.name === 'mod.ts');
         const matchB = b.ops.find((m) => m.file.target.file.name === 'mod.ts');
 
-        expect(matchA?.text.tmpl).to.include(`name: '{FOO_BAR}'`);
-        expect(matchA?.text.target.before).to.include(''); // NB: Nothing has been written yet.
-        expect(matchA?.text.target.after).to.include(`name: '👋 Hello'`);
-        expect(matchB?.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
-        expect(await readFile(matchA?.file.target.absolute ?? '')).to.include(`name: '👋 Hello'`);
+        expect(!!(matchA?.text && matchB?.text)).to.be.true;
+
+        if (matchA?.contentType === 'text' && matchB?.contentType === 'text') {
+          expect(matchA.text.tmpl).to.include(`name: '{FOO_BAR}'`);
+          expect(matchA.text.target.before).to.include(''); // NB: Nothing has been written yet.
+          expect(matchA.text.target.after).to.include(`name: '👋 Hello'`);
+          expect(matchB.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
+          expect(await readFile(matchA.file.target.absolute ?? '')).to.include(`name: '👋 Hello'`);
+        }
 
         const writtenA = await readFile(a.target.join('mod.ts'));
         const writtenB = await readFile(a.target.join('mod.ts'));

@@ -49,33 +49,52 @@ export async function write(
     if (await Fs.Is.dir(from)) continue;
 
     const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
-    const sourceText = (await Fs.readText(from)).data ?? '';
-    const targetText = (await Fs.readText(to)).data ?? '';
+    const isBinary = await Fs.Is.binary(to);
+    const isText = !isBinary;
 
-    type T = t.TmplFileOperation;
-    let _file: T['file'];
-    let _text: T['text'];
+    const Lazy = {
+      file() {
+        let _prop: t.TmplFileOperation['file'];
+        return () => {
+          if (_prop) return _prop;
+          return (_prop = {
+            tmpl: Fs.toFile(from, source.absolute),
+            target: Fs.toFile(to, target.absolute),
+          });
+        };
+      },
+      async text() {
+        const sourceText = (await Fs.readText(from)).data ?? '';
+        const targetText = (await Fs.readText(to)).data ?? '';
+        let _prop: t.TmplFileOperation['text'];
+        return () => {
+          if (_prop) return _prop;
+          return (_prop = {
+            tmpl: sourceText,
+            target: {
+              before: targetText,
+              after: targetText || sourceText,
+              get isDiff() {
+                return _prop?.target.before !== _prop?.target.after;
+              },
+            },
+          });
+        };
+      },
+    } as const;
 
-    const op: T = {
+    const fileProp = Lazy.file();
+    const textProp = await Lazy.text();
+    const op: t.TmplFileOperation = {
+      contentType: (isText ? 'text' : 'binary') as any,
       get file() {
-        if (_file) return _file;
-        return (_file = {
-          tmpl: Fs.toFile(from, source.absolute),
-          target: Fs.toFile(to, target.absolute),
-        });
+        return fileProp();
       },
       get text() {
-        if (_text) return _text;
-        return (_text = {
-          tmpl: sourceText,
-          target: {
-            before: targetText,
-            after: targetText || sourceText,
-            get isDiff() {
-              return op.text.target.before !== op.text.target.after;
-            },
-          },
-        });
+        return isText ? textProp() : undefined;
+      },
+      get binary() {
+        return null as any; // TEMP 🐷
       },
       excluded: false,
       written: false,
@@ -86,14 +105,18 @@ export async function write(
     ops.push(op);
 
     if (typeof fn === 'function') {
-      const { args, changes } = await wrangle.args(op, ctx);
+      const { args, changes } = await wrangle.args(isText, op, ctx);
       await fn(args);
+
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = wrangle.rename(op.file.target, changes.filename);
-      if (changes.text) {
-        op.text.target.after = changes.text; // Update to modified output.
+      if (isText) {
+        if (changes.text) {
+          op.text!.target.after = changes.text; // Update to modified output.
+        } else {
+          op.text!.target.after = args.text!.tmpl; // Update to current template.
+        }
       } else {
-        op.text.target.after = args.text.tmpl; // Update to current template.
       }
     }
 
@@ -101,7 +124,9 @@ export async function write(
       const target = op.file.target;
       const path = target.absolute;
       const exists = await Fs.exists(path);
-      const isDiff = op.text.target.isDiff;
+
+      let isDiff = false;
+      if (isText) isDiff = op.text!.target.isDiff;
 
       if (!exists) {
         op.created = true;
@@ -111,8 +136,7 @@ export async function write(
 
       if ((op.created || op.updated) && !options.dryRun) {
         op.written = true;
-        await Fs.ensureDir(Fs.dirname(path));
-        await Deno.writeTextFile(path, op.text.target.after);
+        if (isText) await Fs.write(path, op.text!.target.after, { throw: true });
       }
     }
   }
@@ -132,7 +156,7 @@ export async function write(
  * Helpers
  */
 const wrangle = {
-  async args(op: t.TmplFileOperation, ctx?: O) {
+  async args(isText: boolean, op: t.TmplFileOperation, ctx?: O) {
     const changes: Changes = { excluded: false, filename: '', text: '' };
     const { tmpl, target } = op.file;
     const exists = await Fs.exists(target.absolute);
@@ -147,7 +171,8 @@ const wrangle = {
         return { ...target, exists };
       },
       get text() {
-        return { tmpl: op.text.tmpl, current: op.text.target.before };
+        if (!isText) return undefined;
+        return { tmpl: op.text!.tmpl, current: op.text!.target.before };
       },
       exclude(reason) {
         changes.excluded = typeof reason === 'string' ? { reason } : true;
