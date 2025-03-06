@@ -1,2 +1,2 @@
 # UI Components
-Common `<React>` components.
+Library of common `<React>` components.
