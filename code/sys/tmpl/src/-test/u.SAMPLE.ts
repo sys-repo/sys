@@ -23,7 +23,7 @@ function init(source: t.StringDir, target: t.StringDir, options: Options = {}) {
   source = Fs.resolve(source);
   target = Fs.resolve(target, randomDir);
 
-  const exists = (dir: t.StringDir, path: string[]) => Fs.exists(Fs.join(dir, ...path));
+  const exists = (dir: t.StringDir, path: t.StringPath[]) => Fs.exists(Fs.join(dir, ...path));
   return {
     source,
     target,
@@ -32,8 +32,8 @@ function init(source: t.StringDir, target: t.StringDir, options: Options = {}) {
       target: () => Fs.ls(target),
     },
     exists: {
-      source: (...path: string[]) => exists(source, path),
-      target: (...path: string[]) => exists(target, path),
+      source: (...path: t.StringPath[]) => exists(source, path),
+      target: (...path: t.StringPath[]) => exists(target, path),
     },
   } as const;
 }
