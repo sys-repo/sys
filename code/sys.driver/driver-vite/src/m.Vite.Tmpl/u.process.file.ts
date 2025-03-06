@@ -1,5 +1,4 @@
-import { Main } from '@sys/main/cmd';
-import { type t, c, Fs, getWorkspaceModules, pkg, Pkg } from './common.ts';
+import { type t, pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
@@ -14,6 +13,8 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
       return e.exclude('user-space');
     }
 
+    if (e.contentType !== 'text') return;
+
     if (e.target.relative === 'deno.json') {
       /**
        * Update versions in `deno.json`:
@@ -21,7 +22,6 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
       const version = args.version ?? pkg.version;
       const entryUri = `jsr:${pkg.name}@${version}`;
       const text = e.text.tmpl.replace(/<ENTRY>/g, `${entryUri}/main`);
-
       return e.modify(text);
     }
 
