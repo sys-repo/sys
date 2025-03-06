@@ -1,4 +1,4 @@
-import { pkg } from '../common.ts';
+import { pkg } from '../pkg.ts';
 
 /**
  * Render UI.
