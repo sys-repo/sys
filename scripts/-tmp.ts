@@ -1,6 +1,6 @@
-import { rx } from '@sys/std';
-import { c, Cli, Args } from '@sys/cli';
+import { Args, c, Cli } from '@sys/cli';
 import { Fs } from '@sys/fs';
+import { rx } from '@sys/std';
 
 const { brightCyan: cyan, italic: i } = c;
 
@@ -47,17 +47,19 @@ export async function copyDocs() {
   console.info();
 }
 
-/**
- * Watcher.
- */
 if (args.watch) {
+  /**
+   * Watcher.
+   */
   const watcher = await Fs.watch(dir.source);
   watcher.$.pipe(rx.debounceTime(1000)).subscribe(copyDocs);
   console.info(i(c.gray(`\n  (watching for file changes)`)));
+} else {
+  /**
+   * Initial run.
+   */
+  await copyDocs();
 }
 
-/**
- * Initial Run
- */
-await copyDocs();
+// Finish up.
 if (!args.watch) Deno.exit(0);
