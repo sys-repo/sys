@@ -7,7 +7,7 @@ export async function write(
   fn: t.TmplProcessFile | undefined,
   options: t.TmplWriteOptions = {},
 ) {
-  const { ctx } = options;
+  const { ctx, dryRun } = options;
   const forced = options.force ?? false;
   const ops: t.TmplFileOperation[] = [];
   const res: t.TmplWriteResponse = {
@@ -163,13 +163,13 @@ export async function write(
         op.updated = true;
       }
 
-      if ((op.created || op.updated) && !options.dryRun) {
+      if (!dryRun && (op.created || op.updated)) {
         let data: string | Uint8Array | undefined;
         if (isText) data = op.text!.target.after;
         if (isBinary) data = op.binary!.target.after;
         if (data) {
-          op.written = true;
           await Fs.write(path, data, { throw: true });
+          op.written = true;
         }
       }
     }
