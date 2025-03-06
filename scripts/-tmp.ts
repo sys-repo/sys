@@ -28,16 +28,18 @@ export async function copyDocs() {
   const title = c.bold(c.brightGreen('Copy'));
   const table = Cli.table([title]);
   const push = (label: string, value: string) => table.push([c.gray(label), value]);
+  const blankLine = () => table.push([]);
 
   const copy = async (from: string, to: string) => {
     from = Fs.join(dir.source, from);
     to = Fs.join(dir.target, to);
     await Fs.copy(from, to, { force: true });
-    push('From', Fmt.path(Fs.trimCwd(from)));
-    push('To', Fmt.path(Fs.trimCwd(to)));
-    table.push([]);
+    push(` • from`, Fmt.path(Fs.trimCwd(from)));
+    push(` • ${c.cyan('to')}`, Fmt.path(Fs.trimCwd(to)));
+    blankLine();
   };
 
+  blankLine();
   await copy('docs', 'docs');
   await copy('src', 'src');
 
@@ -47,19 +49,15 @@ export async function copyDocs() {
   console.info();
 }
 
+/**
+ * Watcher.
+ */
 if (args.watch) {
-  /**
-   * Watcher.
-   */
   const watcher = await Fs.watch(dir.source);
   watcher.$.pipe(rx.debounceTime(1000)).subscribe(copyDocs);
   console.info(i(c.gray(`\n  (watching for file changes)`)));
-} else {
-  /**
-   * Initial run.
-   */
-  await copyDocs();
 }
 
 // Finish up.
+await copyDocs();
 if (!args.watch) Deno.exit(0);
