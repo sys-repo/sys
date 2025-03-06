@@ -35,7 +35,7 @@ export async function main() {
       ...ModuleSpecs,
     };
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-    root.render(<StrictMode>{el as React.ReactNode}</StrictMode>);
+    root.render(<StrictMode>{el}</StrictMode>);
   } else {
     const { MySample } = await import('./sample.specs/MySample.tsx');
     const el = <MySample style={{ Absolute: 0 }} />;

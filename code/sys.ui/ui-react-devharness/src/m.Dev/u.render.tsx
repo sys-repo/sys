@@ -1,5 +1,5 @@
-// @ts-types="@types/react"
 import React from 'react';
+
 import { DevArgs, DevKeyboard } from '../u/mod.ts';
 import { Harness } from '../ui/Harness/mod.ts';
 import { ModuleList } from '../ui/ModuleList/mod.ts';
@@ -24,7 +24,7 @@ export type Render = (
   pkg: { name: string; version: string },
   specs: t.SpecImports,
   options?: RenderOptions,
-) => Promise<t.JSXElement>;
+) => Promise<React.ReactElement>;
 
 /**
  * Render a harness with the selected `dev=<namespace>`
