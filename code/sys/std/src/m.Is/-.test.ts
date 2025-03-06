@@ -208,11 +208,16 @@ describe('Is (common flags)', () => {
     });
   });
 
-  it('Is.statusOK', () => {
-    const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
-    NON.forEach((v: any) => expect(Is.statusOK(v)).to.eql(false));
-    expect(Is.statusOK(200)).to.eql(true);
-    expect(Is.statusOK(201)).to.eql(true);
-    expect(Is.statusOK(404)).to.eql(false);
+  describe('Is.statusOK', () => {
+    it('Is.statusOK: true', () => {
+      expect(Is.statusOK(200)).to.eql(true);
+      expect(Is.statusOK(201)).to.eql(true);
+    });
+
+    it('Is.statusOK: false', () => {
+      const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+      NON.forEach((v: any) => expect(Is.statusOK(v)).to.eql(false));
+      expect(Is.statusOK(404)).to.eql(false);
+    });
   });
 });
