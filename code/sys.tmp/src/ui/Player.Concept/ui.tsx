@@ -20,7 +20,7 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
     const life = rx.lifecycle();
     const $ = playerEvents.playing$.pipe(rx.takeUntil(life.dispose$));
 
-    $.pipe(rx.filter(() => !!timestamps)).subscribe((e) => {
+    $.subscribe((e) => {
       const match = findVideoTimestamp(timestamps, e.elapsed);
       const path = match?.image
         ? Path.join(Path.dirname(location.pathname), match.image)
@@ -37,12 +37,13 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
+    img: css({ marginTop: 30 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <VideoPlayer title={props.title} video={props.video} {...playerEvents.handlers} />
-      {imageSrc && <img src={imageSrc} />}
+      {imageSrc && <img className={styles.img.class} src={imageSrc} />}
     </div>
   );
 };
