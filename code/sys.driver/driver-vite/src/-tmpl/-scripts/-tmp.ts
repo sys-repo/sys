@@ -1,1 +1,1 @@
-console.info('👋', import.meta.url);
+console.info(`\n👋 ${import.meta.url}\n`);
