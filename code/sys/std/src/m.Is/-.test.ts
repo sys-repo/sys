@@ -139,6 +139,20 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.uint8Array', () => {
+    const binary = new Uint8Array([1, 2, 3]);
+
+    it('is not Uint8Array', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => expect(Is.uint8Array(v)).to.eql(false));
+      expect(Is.uint8Array(binary.buffer)).to.eql(false);
+    });
+
+    it('is Uint8Array', () => {
+      expect(Is.uint8Array(binary)).to.equal(true);
+    });
+  });
+
   describe('Is.blank', () => {
     describe('blank', () => {
       it('is blank (nothing)', () => {

@@ -51,9 +51,14 @@ export type StdIsLib = {
   json(input?: unknown): input is t.Json;
 
   /**
-   * Determine if the input is ArrayBufferLike.
+   * Determine if the input is [ArrayBufferLike].
    */
   arrayBufferLike(input?: unknown): input is ArrayBufferLike;
+
+  /**
+   * Determine if the inut is a [Uint8Array].
+   */
+  uint8Array(input?: unknown): input is Uint8Array;
 
   /**
    * A safe way to test any value as to wheather is is 'blank'

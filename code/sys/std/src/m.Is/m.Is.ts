@@ -61,7 +61,12 @@ export const Is: t.StdIsLib = {
   },
 
   arrayBufferLike(input?: any): input is ArrayBufferLike {
-    return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
+    const tag = Object.prototype.toString.call(input);
+    return tag === '[object ArrayBuffer]' || tag === '[object SharedArrayBuffer]';
+  },
+
+  uint8Array(input?: any): input is Uint8Array {
+    return Object.prototype.toString.call(input) === '[object Uint8Array]';
   },
 
   /**
