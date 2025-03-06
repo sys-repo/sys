@@ -18,8 +18,7 @@ export async function main() {
   /**
    * Sample entry logic.
    */
-  const rootElement = document.getElementById('root');
-  const root = createRoot(rootElement);
+  const root = createRoot(document.getElementById('root')!);
 
   if (isDev) {
     /**
@@ -44,4 +43,4 @@ export async function main() {
   }
 }
 
-main().catch((err) => console.error(`Failed to render`, err));
+main().catch((err) => console.error(`Failed to render DevHarness`, err));
