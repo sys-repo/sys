@@ -16,7 +16,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./specs": "./src/-test/entry.Specs.ts"
   },
   "license": "MIT"
 }
