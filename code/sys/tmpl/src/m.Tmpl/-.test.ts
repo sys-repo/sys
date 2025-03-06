@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, SAMPLE, Time, type t } from '../-test.ts';
+import { type t, describe, expect, expectError, Fs, it, SAMPLE, Time } from '../-test.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
@@ -44,6 +44,48 @@ describe('Tmpl', () => {
       expect(b.ops.every((m) => m.updated === false)).to.be.true;
 
       logOps(a, 'Copy:', { indent: 2 });
+    });
+
+    it('copies binary files (eg ".jpg")', async () => {
+      const test = SAMPLE.sample2();
+      const tmpl = Tmpl.create(test.source);
+
+      const res = await tmpl.write(test.target);
+      const sourcePath = Fs.join(res.source.absolute, 'images/volcano.jpg');
+      const targetPath = Fs.join(res.target.absolute, 'images/volcano.jpg');
+
+      const source = await Fs.read(sourcePath);
+      const target = await Fs.read(targetPath);
+
+      expect(String(source.data).startsWith('255,216,255,224,0,16')).to.be.true; // NB: source file contains data.
+      expect(target.exists).to.eql(true);
+      expect(target.data).to.eql(source.data);
+    });
+
+    it('writes when file-processor function is NOT specified', async () => {
+      const sample1 = SAMPLE.sample1();
+      const sample2 = SAMPLE.sample2();
+      const tmpl1 = Tmpl.create(sample1.source);
+      const tmpl2 = Tmpl.create(sample2.source);
+
+      await tmpl1.write(sample1.target);
+      await tmpl2.write(sample2.target);
+
+      const assertIncludes = (paths: string[], path: string) => {
+        const match = paths.some((p) => p.endsWith(path));
+        expect(match).to.be.true;
+      };
+
+      const targets1 = await sample1.ls.target();
+      const targets2 = await sample2.ls.target();
+
+      assertIncludes(targets1, '.gitignore');
+      assertIncludes(targets1, 'deno.json');
+      assertIncludes(targets1, 'mod.ts');
+      assertIncludes(targets1, 'docs/index.md');
+
+      assertIncludes(targets2, 'README.md');
+      assertIncludes(targets2, 'images/volcano.jpg');
     });
 
     it('tmpl.write(): → create → update', async () => {
@@ -156,15 +198,67 @@ describe('Tmpl', () => {
           expect(matchA.text.tmpl).to.include(`name: '{FOO_BAR}'`);
           expect(matchA.text.target.before).to.include(''); // NB: Nothing has been written yet.
           expect(matchA.text.target.after).to.include(`name: '👋 Hello'`);
+          expect(matchA.text.target.isDiff).to.eql(true);
           expect(matchB.text.target.before).to.include(`name: '👋 Hello'`); // NB: prior written modification (already exists).
           expect(await readFile(matchA.file.target.absolute ?? '')).to.include(`name: '👋 Hello'`);
         }
 
         const writtenA = await readFile(a.target.join('mod.ts'));
-        const writtenB = await readFile(a.target.join('mod.ts'));
+        const writtenB = await readFile(b.target.join('mod.ts'));
 
         expect(writtenA).to.include(`name: '👋 Hello'`);
         expect(writtenB).to.include(`name: '👋 Hello'`);
+      });
+
+      it('fn: modify (binary file)', async () => {
+        const { source, target } = SAMPLE.sample2();
+        const jpg = (await Fs.read('./src/-test/sample-2/images/volcano.jpg')).data;
+        let replaceWith: Uint8Array | undefined;
+
+        const tmpl = Tmpl.create(source, (e) => {
+          if (e.contentType !== 'binary') return;
+          if (replaceWith) e.modify(replaceWith);
+        });
+
+        const a = await tmpl.write(target);
+        replaceWith = new Uint8Array([1, 2, 3]);
+        const b = await tmpl.write(target);
+
+        const matchA = a.ops.find((m) => m.file.target.file.name === 'volcano.jpg');
+        const matchB = b.ops.find((m) => m.file.target.file.name === 'volcano.jpg');
+
+        if (matchA?.contentType === 'binary' && matchB?.contentType === 'binary') {
+          expect(matchA.binary.tmpl).to.eql(jpg);
+          expect(matchA.binary.target.before).to.eql(new Uint8Array(0)); // NB: Nothing has been written yet.
+          expect(matchA.binary.target.after).to.eql(jpg);
+          expect(matchA.binary.target.isDiff).to.eql(true);
+          expect(matchB.binary.target.after).to.eql(replaceWith);
+        }
+
+        const writtenFile = (await Fs.read(b.target.join('images/volcano.jpg'))).data;
+        expect(writtenFile).to.eql(replaceWith);
+      });
+
+      it('fn: modify with wrong type (throws)', async () => {
+        const sample1 = SAMPLE.sample1();
+        const sample2 = SAMPLE.sample2();
+
+        const a = Tmpl.create(sample1.source, (e) => {
+          if (e.contentType === 'text') e.modify(new Uint8Array([1, 2, 3])); // NB: error.
+        });
+        const b = Tmpl.create(sample2.source, (e) => {
+          if (e.contentType === 'binary') e.modify('fail'); // NB: error.
+        });
+
+        await expectError(
+          () => a.write(sample1.target),
+          'Expected string content to update text-file',
+        );
+
+        await expectError(
+          () => b.write(sample2.target),
+          'Expected Uint8Array content to update binary-file',
+        );
       });
 
       it('fn: {ctx} passed as param', async () => {

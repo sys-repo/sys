@@ -1,11 +1,6 @@
+import { binary } from 'rambda';
 import { type t, Fs } from './common.ts';
-
-type O = Record<string, unknown>;
-type Changes = {
-  excluded: t.TmplFileOperation['excluded'];
-  filename: string;
-  text: string;
-};
+import { createArgs } from './u.write.args.ts';
 
 export async function write(
   source: t.FsDir,
@@ -47,10 +42,9 @@ export async function write(
    */
   for (const from of await source.ls()) {
     if (await Fs.Is.dir(from)) continue;
-
-    const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
-    const isBinary = await Fs.Is.binary(to);
+    const isBinary = await Fs.Is.binary(from);
     const isText = !isBinary;
+    const to = Fs.join(target.absolute, from.slice(source.absolute.length + 1));
 
     const Lazy = {
       file() {
@@ -64,18 +58,39 @@ export async function write(
         };
       },
       async text() {
-        const sourceText = (await Fs.readText(from)).data ?? '';
-        const targetText = (await Fs.readText(to)).data ?? '';
-        let _prop: t.TmplFileOperation['text'];
-        return () => {
+        type R = t.TmplTextFileOperation['text'];
+        const source = isText ? (await Fs.readText(from)).data ?? '' : '';
+        const target = isText ? (await Fs.readText(to)).data ?? '' : '';
+        let _prop: R;
+        return (): R => {
           if (_prop) return _prop;
           return (_prop = {
-            tmpl: sourceText,
+            tmpl: source,
             target: {
-              before: targetText,
-              after: targetText || sourceText,
+              before: target,
+              after: target || source,
               get isDiff() {
                 return _prop?.target.before !== _prop?.target.after;
+              },
+            },
+          });
+        };
+      },
+      async binary() {
+        type R = t.TmplBinaryFileOperation['binary'];
+        const empty = new Uint8Array(0);
+        const source = isBinary ? (await Fs.read(from)).data ?? empty : empty;
+        const target = isBinary ? (await Fs.read(to)).data ?? empty : empty;
+        let _prop: R;
+        return (): R => {
+          if (_prop) return _prop;
+          return (_prop = {
+            tmpl: source,
+            target: {
+              before: target,
+              after: target || source,
+              get isDiff() {
+                return !arraysEqual(_prop?.target.before, _prop?.target.after);
               },
             },
           });
@@ -85,16 +100,18 @@ export async function write(
 
     const fileProp = Lazy.file();
     const textProp = await Lazy.text();
+    const binaryProp = await Lazy.binary();
+
     const op: t.TmplFileOperation = {
       contentType: (isText ? 'text' : 'binary') as any,
       get file() {
         return fileProp();
       },
       get text() {
-        return isText ? textProp() : undefined;
+        return (isText ? textProp() : undefined) as any; // NB: type-hack.
       },
       get binary() {
-        return null as any; // TEMP 🐷
+        return (isBinary ? binaryProp() : undefined) as any; // NB: type-hack.
       },
       excluded: false,
       written: false,
@@ -104,20 +121,32 @@ export async function write(
     };
     ops.push(op);
 
+    /**
+     * Run "process file" handler.
+     */
+    const { args, changes } = await createArgs(op, ctx);
     if (typeof fn === 'function') {
-      const { args, changes } = await wrangle.args(isText, op, ctx);
       await fn(args);
 
       if (changes.excluded) op.excluded = changes.excluded;
       if (changes.filename) op.file.target = wrangle.rename(op.file.target, changes.filename);
       if (isText) {
         if (changes.text) {
-          op.text!.target.after = changes.text; // Update to modified output.
+          op.text!.target.after = changes.text; // Update to: modified output.
         } else {
-          op.text!.target.after = args.text!.tmpl; // Update to current template.
+          op.text!.target.after = args.text!.tmpl; // Update to: current template.
         }
-      } else {
       }
+      if (isBinary) {
+        if (changes.binary) {
+          op.binary!.target.after = changes.binary; // Update to: modified output.
+        } else {
+          op.binary!.target.after = args.binary!.tmpl; // Update to: current template.
+        }
+      }
+    } else {
+      if (isText) op.text!.target.after = args.text!.tmpl; // Update to: current template.
+      if (isBinary) op.binary!.target.after = args.binary!.tmpl; // Update to: current template.
     }
 
     if (!op.excluded) {
@@ -127,6 +156,7 @@ export async function write(
 
       let isDiff = false;
       if (isText) isDiff = op.text!.target.isDiff;
+      if (isBinary) isDiff = op.binary!.target.isDiff;
 
       if (!exists) {
         op.created = true;
@@ -135,8 +165,13 @@ export async function write(
       }
 
       if ((op.created || op.updated) && !options.dryRun) {
-        op.written = true;
-        if (isText) await Fs.write(path, op.text!.target.after, { throw: true });
+        let data: string | Uint8Array | undefined;
+        if (isText) data = op.text!.target.after;
+        if (isBinary) data = op.binary!.target.after;
+        if (data) {
+          op.written = true;
+          await Fs.write(path, data, { throw: true });
+        }
       }
     }
   }
@@ -156,40 +191,6 @@ export async function write(
  * Helpers
  */
 const wrangle = {
-  async args(isText: boolean, op: t.TmplFileOperation, ctx?: O) {
-    const changes: Changes = { excluded: false, filename: '', text: '' };
-    const { tmpl, target } = op.file;
-    const exists = await Fs.exists(target.absolute);
-    const args: t.TmplProcessFileArgs = {
-      get ctx() {
-        return ctx;
-      },
-      get tmpl() {
-        return tmpl;
-      },
-      get target() {
-        return { ...target, exists };
-      },
-      get text() {
-        if (!isText) return undefined;
-        return { tmpl: op.text!.tmpl, current: op.text!.target.before };
-      },
-      exclude(reason) {
-        changes.excluded = typeof reason === 'string' ? { reason } : true;
-        return args;
-      },
-      rename(filename) {
-        changes.filename = filename;
-        return args;
-      },
-      modify(text) {
-        changes.text = text;
-        return args;
-      },
-    };
-    return { args, changes } as const;
-  },
-
   rename(input: t.FsFile, newFilename: string): t.FsFile {
     return Fs.toFile(Fs.join(input.dir, newFilename), input.base);
   },
@@ -200,3 +201,7 @@ const wrangle = {
     return res.flat(Infinity).filter(Boolean);
   },
 } as const;
+
+function arraysEqual(a: Uint8Array, b: Uint8Array): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
