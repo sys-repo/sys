@@ -40,13 +40,17 @@ export const build: B = async (input = {}) => {
   const ok = output.success;
   spinner?.clear().stop();
 
-  // Write {pkg} into /dist so it's included within the digest-hash.
+  /**
+   * Write {pkg} into /dist so it's included within the digest-hash.
+   */
   if (pkg) {
     const path = Fs.join(dirs.out, 'assets', '-pkg.json');
     await Fs.writeJson(path, pkg);
   }
 
-  // Calculate the `/dist.json` file and digest-hash.
+  /**
+   * Calculate the digest-hash and store it in the [dist.json] file.
+   */
   const entry = './index.html';
   const dist = (await Pkg.Dist.compute({ dir: dirs.out, pkg, entry, save: true })).dist;
   const elapsed = timer.elapsed.msec;

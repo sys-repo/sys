@@ -24,6 +24,7 @@ timestamps:
     image: https://wrpcd.net/cdn-cgi/imagedelivery/BXluQx4ige9GuW0Ia56BHw/28f5b7ed-67d1-419d-8db0-d95ae90e8100/rectcontain3
 ```
 
+![image](/images/volcano.jpg)
 
 
 ```yaml
