@@ -3,12 +3,25 @@ import { type t, Fs, slug } from '../common.ts';
 type Options = { slug?: boolean };
 
 /**
- * Initialize a sample folder.
+ * Test folder/file samples.
  */
-function init(source: t.StringDir, options: Options = {}) {
-  source = Fs.resolve(source);
+export const SAMPLE = {
+  fs(namespace: string) {
+    const target = Fs.join('./.tmp', namespace);
+    return {
+      sample1: (options?: Options) => init('./src/-test/sample-1', target, options),
+      sample2: (options?: Options) => init('./src/-test/sample-2', target, options),
+    } as const;
+  },
+} as const;
+
+/**
+ * Initialize a test folder.
+ */
+function init(source: t.StringDir, target: t.StringDir, options: Options = {}) {
   const randomDir = options.slug ?? true ? slug() : '';
-  const target = Fs.resolve(`./.tmp/test/m.Tmpl`, randomDir);
+  source = Fs.resolve(source);
+  target = Fs.resolve(target, randomDir);
 
   const exists = (dir: t.StringDir, path: string[]) => Fs.exists(Fs.join(dir, ...path));
   return {
@@ -24,12 +37,3 @@ function init(source: t.StringDir, options: Options = {}) {
     },
   } as const;
 }
-
-/**
- * Test folder/file samples.
- */
-export const SAMPLE = {
-  init,
-  sample1: (options?: Options) => init('./src/-test/sample-1', options),
-  sample2: (options?: Options) => init('./src/-test/sample-2', options),
-} as const;

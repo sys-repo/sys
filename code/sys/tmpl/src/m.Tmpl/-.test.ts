@@ -3,6 +3,7 @@ import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
   const readFile = async (path: string) => (await Fs.readText(path)).data;
+  const Test = SAMPLE.fs('m.Tmpl');
 
   const logOps = (
     res: t.TmplWriteResponse,
@@ -15,7 +16,7 @@ describe('Tmpl', () => {
   };
 
   it('init: paths', async () => {
-    const test = SAMPLE.sample1();
+    const test = Test.sample1();
     const tmpl = Tmpl.create(test.source);
     expect(tmpl.source.absolute).to.eql(test.source);
     expect(await tmpl.source.ls()).to.eql(await test.ls.source());
@@ -24,7 +25,7 @@ describe('Tmpl', () => {
 
   describe('tmpl.write:', () => {
     it('copies all source files', async () => {
-      const test = SAMPLE.sample1();
+      const test = Test.sample1();
       const tmpl = Tmpl.create(test.source);
       expect(await test.ls.target()).to.eql([]);
 
@@ -47,7 +48,7 @@ describe('Tmpl', () => {
     });
 
     it('copies binary files (eg ".jpg")', async () => {
-      const test = SAMPLE.sample2();
+      const test = Test.sample2();
       const tmpl = Tmpl.create(test.source);
 
       const res = await tmpl.write(test.target);
@@ -63,8 +64,8 @@ describe('Tmpl', () => {
     });
 
     it('writes when file-processor function is NOT specified', async () => {
-      const sample1 = SAMPLE.sample1();
-      const sample2 = SAMPLE.sample2();
+      const sample1 = Test.sample1();
+      const sample2 = Test.sample2();
       const tmpl1 = Tmpl.create(sample1.source);
       const tmpl2 = Tmpl.create(sample2.source);
 
@@ -89,7 +90,7 @@ describe('Tmpl', () => {
     });
 
     it('tmpl.write(): → create → update', async () => {
-      const test = SAMPLE.sample1();
+      const test = Test.sample1();
       let foo = 0;
       let count = 0;
       const tmpl = Tmpl.create(test.source, (e) => {
@@ -128,7 +129,7 @@ describe('Tmpl', () => {
 
     describe('fn: processFile (callback)', () => {
       it('fn: exclude', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const tmpl = Tmpl.create(source, async (e) => {
           await Time.wait(0); // NB: ensure the async variant of the function waits for completion.
           if (e.target.file.name.endsWith('.md')) e.exclude('user-space');
@@ -153,7 +154,7 @@ describe('Tmpl', () => {
       });
 
       it('fn: file source/target', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         let count = 0;
         const tmpl = Tmpl.create(source, (e) => {
           count++;
@@ -165,7 +166,7 @@ describe('Tmpl', () => {
       });
 
       it('fn: rename file', async () => {
-        const test = SAMPLE.sample1();
+        const test = Test.sample1();
         const tmpl = Tmpl.create(test.source, (e) => {
           if (e.target.file.name === 'mod.ts') e.rename('main.ts');
         });
@@ -178,7 +179,7 @@ describe('Tmpl', () => {
       });
 
       it('fn: modify (file text)', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const tmpl = Tmpl.create(source, (e) => {
           if (!e.text) return;
           if (e.target.file.name === 'mod.ts') {
@@ -211,7 +212,7 @@ describe('Tmpl', () => {
       });
 
       it('fn: modify (binary file)', async () => {
-        const { source, target } = SAMPLE.sample2();
+        const { source, target } = Test.sample2();
         const jpg = (await Fs.read('./src/-test/sample-2/images/volcano.jpg')).data;
         let replaceWith: Uint8Array | undefined;
 
@@ -240,8 +241,8 @@ describe('Tmpl', () => {
       });
 
       it('fn: modify with wrong type (throws)', async () => {
-        const sample1 = SAMPLE.sample1();
-        const sample2 = SAMPLE.sample2();
+        const sample1 = Test.sample1();
+        const sample2 = Test.sample2();
 
         const a = Tmpl.create(sample1.source, (e) => {
           if (e.contentType === 'text') e.modify(new Uint8Array([1, 2, 3])); // NB: error.
@@ -262,7 +263,7 @@ describe('Tmpl', () => {
       });
 
       it('fn: {ctx} passed as param', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const ctx = { foo: 123 };
         const fired = [] as any[];
         const tmpl = Tmpl.create(source, (e) => fired.push(e.ctx));
@@ -280,7 +281,7 @@ describe('Tmpl', () => {
 
     describe('fn: beforeWrite | afterWrite (callbacks)', () => {
       it('beforeWrite: sync/async', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const fired: t.TmplWriteHandlerArgs[] = [];
 
         const a: t.TmplWriteHandler = (e) => fired.push(e);
@@ -299,7 +300,7 @@ describe('Tmpl', () => {
       });
 
       it('afterWrite: sync/async', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const fired: t.TmplWriteHandlerArgs[] = [];
 
         const a: t.TmplWriteHandler = (e) => fired.push(e);
@@ -318,7 +319,7 @@ describe('Tmpl', () => {
       });
 
       it('{ctx} passed as param', async () => {
-        const { source, target } = SAMPLE.sample1();
+        const { source, target } = Test.sample1();
         const ctx = { foo: 123 };
         const fired = {
           before: [] as any[],
@@ -346,7 +347,7 @@ describe('Tmpl', () => {
 
     describe('flag: force', () => {
       it('force', async () => {
-        const test = SAMPLE.sample1();
+        const test = Test.sample1();
         const tmpl = Tmpl.create(test.source);
 
         const resA = await tmpl.write(test.target);
@@ -368,7 +369,7 @@ describe('Tmpl', () => {
       });
 
       it('force ← (with exclusions)', async () => {
-        const test = SAMPLE.sample1();
+        const test = Test.sample1();
         const tmpl = Tmpl.create(test.source, (e) => {
           if (!e.target.exists) return; // NB: create the user-space file if it does not yet exist
           if (e.target.file.name === 'doc.md') e.exclude('user-space');
@@ -388,7 +389,7 @@ describe('Tmpl', () => {
 
     describe('flag: dryRun (default: false)', () => {
       it('dryRun: true (does not write)', async () => {
-        const test = SAMPLE.sample1();
+        const test = Test.sample1();
         const tmpl = Tmpl.create(test.source);
         const res = await tmpl.write(test.target, { dryRun: true });
         expect(res.ops.every((m) => m.written === false)).to.be.true;
@@ -398,7 +399,7 @@ describe('Tmpl', () => {
       });
 
       it('logs as "dry run"', async () => {
-        const test = SAMPLE.sample1();
+        const test = Test.sample1();
         const tmpl = Tmpl.create(test.source);
         const res = await tmpl.write(test.target, { dryRun: true });
         const table = Tmpl.Log.table(res.ops);
@@ -414,7 +415,7 @@ describe('Tmpl', () => {
     };
 
     it('single-level filter', async () => {
-      const test = SAMPLE.sample1();
+      const test = Test.sample1();
       const tmpl1 = Tmpl.create(test.source);
       const tmpl2 = Tmpl.create(test.source).filter((e) => e.file.name !== '.gitignore');
       expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.true;
@@ -422,7 +423,7 @@ describe('Tmpl', () => {
     });
 
     it('multi-level filter', async () => {
-      const test = SAMPLE.sample1();
+      const test = Test.sample1();
       const tmpl1 = Tmpl.create(test.source).filter((e) => e.file.name !== '.gitignore');
       const tmpl2 = tmpl1.filter((e) => !e.file.name.endsWith('.md'));
       expect(includes(await tmpl1.source.ls(), '/.gitignore')).to.be.false;
@@ -431,7 +432,7 @@ describe('Tmpl', () => {
     });
 
     it('does not copy filtered files', async () => {
-      const test = SAMPLE.sample1();
+      const test = Test.sample1();
       const tmpl = Tmpl.create(test.source).filter((e) => !e.file.name.endsWith('.md'));
       await tmpl.write(test.target);
 
