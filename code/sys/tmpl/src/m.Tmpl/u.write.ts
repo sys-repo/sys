@@ -1,4 +1,3 @@
-import { binary } from 'rambda';
 import { type t, Fs } from './common.ts';
 import { createArgs } from './u.write.args.ts';
 
