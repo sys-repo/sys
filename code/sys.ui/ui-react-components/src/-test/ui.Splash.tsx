@@ -29,7 +29,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
     }),
     a: css({
       textDecoration: 'none',
-      fontSize: 36,
+      fontSize: 30,
       color: Color.BLUE,
     }),
   };
