@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-
-import { type t, Color, css, Path, rx, usePlayerEvents, VideoPlayer } from './common.ts';
+import { type t, Color, css, rx, usePlayerEvents, VideoPlayer } from './common.ts';
 import { findVideoTimestamp } from './u.ts';
 
 /**
@@ -19,15 +18,10 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   useEffect(() => {
     const life = rx.lifecycle();
     const $ = playerEvents.playing$.pipe(rx.takeUntil(life.dispose$));
-
     $.subscribe((e) => {
       const match = findVideoTimestamp(timestamps, e.elapsed);
-      const path = match?.image
-        ? Path.join(Path.dirname(location.pathname), match.image)
-        : undefined;
-      setImageSrc(path);
+      setImageSrc(match?.image);
     });
-
     return life.dispose;
   }, [props.video, playerEvents, Object.keys(timestamps)]);
 
