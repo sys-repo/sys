@@ -15,4 +15,4 @@ export type * as t from './types.ts';
 /**
  * Components
  */
-export { ConceptPlayer, Foo, VideoPlayer } from './ui/mod.ts';
+export { ConceptPlayer, VideoPlayer } from './ui/mod.ts';
