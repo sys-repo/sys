@@ -19,5 +19,10 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
     return VideoPlayer;
   }
 
-  return; // NB: not found.
+  if (kind === 'Panel') {
+    const { Panel } = await import('@sys/ui-react-components');
+    return Panel;
+  }
+
+  return; // NB: no match.
 }
