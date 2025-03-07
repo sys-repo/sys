@@ -5,18 +5,15 @@ import { rx } from '@sys/std';
 const { brightCyan: cyan, italic: i } = c;
 
 type TArgs = { watch?: boolean };
-const args = Args.parse<TArgs>(Deno.args, {
-  boolean: ['watch'],
-  alias: { w: 'watch' },
-});
-console.log(c.cyan('args:'), args);
+const args = Args.parse<TArgs>(Deno.args, { boolean: ['watch'], alias: { w: 'watch' } });
+console.info(c.cyan('args:'), args);
 
 /**
  * Copy the SLC project content to the VitePress (driver) development sample directory
  * from it's external content authoring location.
  */
 const dir = {
-  source: '/Users/phil/Documents/Notes/tdb/slc/current',
+  source: '/Users/phil/Documents/Notes/tdb/slc/slc-public',
   target: Fs.resolve('code/sys.driver/driver-vitepress/.tmp/sample'),
 } as const;
 
@@ -34,7 +31,7 @@ export async function copyDocs() {
     from = Fs.join(dir.source, from);
     to = Fs.join(dir.target, to);
     await Fs.copy(from, to, { force: true });
-    push(` • from`, Fmt.path(Fs.trimCwd(from)));
+    push(` • from`, c.gray(Fs.trimCwd(from)));
     push(` • ${c.cyan('to')}`, Fmt.path(Fs.trimCwd(to)));
     blankLine();
   };
