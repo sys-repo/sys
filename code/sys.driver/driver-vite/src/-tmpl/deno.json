@@ -20,7 +20,7 @@
     "jsxImportSource": "react"
   },
   "workspace": [],
-  "nodeModulesDir": "auto",
   "importMap": "./imports.json",
+  "nodeModulesDir": "auto",
   "license": "MIT"
 }
