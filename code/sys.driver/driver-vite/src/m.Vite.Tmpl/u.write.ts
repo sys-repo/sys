@@ -10,7 +10,7 @@ export const write: t.ViteTmplLib['write'] = async (args = {}) => {
   /**
    * Update template files.
    */
-  const tmpl = await create({ version });
+  const tmpl = await create({ version, tmpl: args.tmpl ?? 'Default' });
   const dir = args.in ?? '.';
   const { ops } = await tmpl.write(dir, { force });
 

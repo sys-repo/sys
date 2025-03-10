@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Index of strings representing templates variants. */
+export type ViteTmplKind = 'Default' | 'ComponentLib';
+
 /**
  * Template Library:
  * Create (and keep upated) a vanilla "Vite" project.
@@ -21,6 +24,15 @@ export type ViteTmplLib = {
 /** Arguments passed to the `ViteTmpl.create` method. */
 export type ViteTmplCreateArgs = {
   version?: t.StringSemver;
+  tmpl?: t.ViteTmplKind;
+};
+
+/**
+ * The context object passed to the template file-processor.
+ */
+export type ViteTmplCtx = {
+  version: t.StringSemver;
+  tmpl: t.ViteTmplKind;
 };
 
 /**
@@ -39,6 +51,7 @@ export type ViteTmplWriteArgs = {
   force?: boolean;
   in?: t.StringDir;
   version?: t.StringSemver;
+  tmpl?: t.ViteTmplKind;
   silent?: boolean;
 };
 

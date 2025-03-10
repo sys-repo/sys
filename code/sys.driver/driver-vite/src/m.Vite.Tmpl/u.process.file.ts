@@ -5,6 +5,9 @@ import { type t, pkg } from './common.ts';
  */
 export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFile {
   return async (e) => {
+    const ctx = e.ctx as t.ViteTmplCtx;
+    if (!ctx) throw new Error(`Expected a {ctx} to be passed to the template file processor`);
+
     if (e.target.exists && is.userspace(e.target.relative)) {
       /**
        *  🫵  DO NOT adjust user generated
