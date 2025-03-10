@@ -5,6 +5,7 @@
   "tasks": {
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/*",
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "dev": "deno run -RWNE --allow-run --allow-ffi ./-scripts/-dev.ts",
