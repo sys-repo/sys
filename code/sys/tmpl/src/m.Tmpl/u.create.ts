@@ -32,7 +32,6 @@ function factory(args: {
       const onBefore = wrangle.writeHandlers(args.beforeWrite, options.onBefore);
       const onAfter = wrangle.writeHandlers(args.afterWrite, options.onAfter);
       const ctx = wrangle.ctx(args.ctx, options.ctx);
-      console.log('args.ctx', args.ctx);
       return write(source, Fs.toDir(target), processFile, { ...options, onBefore, onAfter, ctx });
     },
     filter(next) {

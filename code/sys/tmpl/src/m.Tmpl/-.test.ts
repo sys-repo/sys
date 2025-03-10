@@ -262,7 +262,7 @@ describe('Tmpl', () => {
         );
       });
 
-      it.only('fn: {ctx} passed constructor param', async () => {
+      it('fn: {ctx} passed constructor param', async () => {
         const { source, target } = Test.sample1();
         const ctx = { foo: 'root' };
         const fired = [] as any[];
@@ -275,7 +275,7 @@ describe('Tmpl', () => {
         expect(fired.every((m) => !!m)).to.be.true;
         expect(a.ctx).to.eql(ctx);
         expect(b.ctx).to.eql({ foo: 'root', bar: 456 });
-        expect(c.ctx).to.eql({ foo: 123, bar: 456 });
+        expect(c.ctx).to.eql({ foo: 123, bar: 456 }); // NB: root {ctx} overwritten.
       });
 
       it('fn: {ctx} passed via .write() param', async () => {
