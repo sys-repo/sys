@@ -23,9 +23,17 @@ export type TmplFactory = (
 
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
+  /** Handler to run after the write operation completes. */
   beforeWrite?: t.TmplWriteHandler;
+
+  /** Handler to process each file in the template. */
   processFile?: t.TmplProcessFile;
+
+  /** Handler to run after the write operation completes. */
   afterWrite?: t.TmplWriteHandler;
+
+  /** Context data passed to the process handler. */
+  ctx?: O;
 };
 
 /**
@@ -137,6 +145,7 @@ export type TmplWriteResponse = {
   readonly source: t.FsDir;
   readonly target: t.FsDir;
   readonly ops: t.TmplFileOperation[];
+  readonly ctx?: O;
 };
 
 /**

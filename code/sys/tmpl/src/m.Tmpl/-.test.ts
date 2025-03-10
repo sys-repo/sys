@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectError, Fs, it, SAMPLE, Time } from '../-test.ts';
+import { type t, describe, expect, expectError, Fs, it, R, SAMPLE, Time } from '../-test.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
@@ -262,20 +262,38 @@ describe('Tmpl', () => {
         );
       });
 
-      it('fn: {ctx} passed as param', async () => {
+      it.only('fn: {ctx} passed constructor param', async () => {
+        const { source, target } = Test.sample1();
+        const ctx = { foo: 'root' };
+        const fired = [] as any[];
+        const tmpl = Tmpl.create(source, { ctx, processFile: (e) => fired.push(e.ctx) });
+
+        const a = await tmpl.write(target);
+        const b = await tmpl.write(target, { ctx: { bar: 456 } });
+        const c = await tmpl.write(target, { ctx: { foo: 123, bar: 456 } });
+
+        expect(fired.every((m) => !!m)).to.be.true;
+        expect(a.ctx).to.eql(ctx);
+        expect(b.ctx).to.eql({ foo: 'root', bar: 456 });
+        expect(c.ctx).to.eql({ foo: 123, bar: 456 });
+      });
+
+      it('fn: {ctx} passed via .write() param', async () => {
         const { source, target } = Test.sample1();
         const ctx = { foo: 123 };
         const fired = [] as any[];
         const tmpl = Tmpl.create(source, (e) => fired.push(e.ctx));
 
-        await tmpl.write(target, { ctx });
+        const a = await tmpl.write(target, { ctx });
         expect(fired.filter(Boolean).length).to.be.greaterThan(1);
-        expect(fired.every((m) => m === ctx)).to.be.true;
+        expect(fired.every((m) => R.equals(m, ctx))).to.be.true;
+        expect(a.ctx).to.eql(ctx);
 
         // No context provided.
         const beforeLength = fired.filter(Boolean).length;
-        await tmpl.write(target);
+        const b = await tmpl.write(target);
         expect(fired.filter(Boolean).length).to.eql(beforeLength);
+        expect(b.ctx).to.eql(undefined);
       });
     });
 
@@ -289,7 +307,7 @@ describe('Tmpl', () => {
           expect((await fired[0].dir.target.ls()).length).to.greaterThan(0); // NB: files already exist.
           fired.push(e);
         };
-        const tmpl = Tmpl.create(source, { beforeWrite: a });
+        const tmpl = Tmpl.create(source, { beforeWrite: a }).filter(() => true); // NB: .filter tests that the before/after handlers are passed through.
 
         await tmpl.write(target);
         expect(fired.length).to.eql(1);
@@ -318,7 +336,7 @@ describe('Tmpl', () => {
         expect(fired.every((m) => m.ctx === undefined)).to.eql(true); // NB: {ctx} not passed to the [Tmpl.write] method.
       });
 
-      it('{ctx} passed as param', async () => {
+      it('{ctx} passed via .write() param', async () => {
         const { source, target } = Test.sample1();
         const ctx = { foo: 123 };
         const fired = {
@@ -340,8 +358,8 @@ describe('Tmpl', () => {
         await tmpl.write(target, { ctx, onBefore, onAfter });
         expect(fired.before.filter(Boolean).length).to.eql(1);
         expect(fired.after.filter(Boolean).length).to.eql(1);
-        expect(fired.before.filter(Boolean).every((m) => m === ctx)).to.be.true;
-        expect(fired.after.filter(Boolean).every((m) => m === ctx)).to.be.true;
+        expect(fired.before.filter(Boolean).every((m) => R.equals(m, ctx))).to.be.true;
+        expect(fired.after.filter(Boolean).every((m) => R.equals(m, ctx))).to.be.true;
       });
     });
 

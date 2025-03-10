@@ -1,6 +1,8 @@
 import { type t, Fs } from './common.ts';
 import { createArgs } from './u.write.args.ts';
 
+type O = Record<string, unknown>;
+
 export async function write(
   source: t.FsDir,
   target: t.FsDir,
@@ -9,6 +11,7 @@ export async function write(
 ) {
   const { ctx, dryRun } = options;
   const forced = options.force ?? false;
+
   const ops: t.TmplFileOperation[] = [];
   const res: t.TmplWriteResponse = {
     get source() {
@@ -19,6 +22,9 @@ export async function write(
     },
     get ops() {
       return ops;
+    },
+    get ctx() {
+      return ctx;
     },
   };
 
