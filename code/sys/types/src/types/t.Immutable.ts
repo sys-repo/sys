@@ -56,6 +56,15 @@ export type ImmutableEvents<
 > = t.Lifecycle & { readonly changed$: t.Observable<C> };
 
 /**
+ * Utility type to infer the event-type contained within the ImmutableEvents type.
+ */
+export type InferImmutableEvent<T extends { changed$: t.Observable<any> }> = T extends {
+  changed$: t.Observable<infer E>;
+}
+  ? E
+  : never;
+
+/**
  * Represents a before/after patched change to the immutable state.
  */
 export type ImmutableChange<D, P> = {
