@@ -17,7 +17,9 @@ describe('T:Immutable', () => {
    * Sample implementation:
    */
   const DEFAULT_ID = `default:${slug()}`;
-  const refs = new Map<string, MyStateImmutable>();
+  let refs: Map<string, MyStateImmutable>;
+  const reset = () => (refs = new Map<string, MyStateImmutable>());
+  reset();
 
   const factory = (instanceId: string = DEFAULT_ID) => {
     if (refs.has(instanceId)) return refs.get(instanceId)!;
@@ -50,12 +52,14 @@ describe('T:Immutable', () => {
 
   describe('Store.state: (sample function)', () => {
     it('default (singleton)', () => {
+      reset();
       const a = Store.state();
       const b = Store.state();
       expect(a).to.equal(b); // NB: same instance
     });
 
     it('custom: instance-id', () => {
+      reset();
       const id = 'foo';
       const a = Store.state(id);
       const b = Store.state(id);
@@ -67,6 +71,7 @@ describe('T:Immutable', () => {
     });
 
     it('change', () => {
+      reset();
       const a = Store.state();
       const b = Store.state();
       expect(a.current.tmp).to.eql(0);
@@ -75,6 +80,7 @@ describe('T:Immutable', () => {
     });
 
     it('shared events', () => {
+      reset();
       const a = Store.state();
       const b = Store.state();
       const bEvents = a.events();
