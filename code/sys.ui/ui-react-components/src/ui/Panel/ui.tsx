@@ -28,12 +28,7 @@ export const Panel: React.FC<t.PanelProps> = (props) => {
         {`🐷 `}
         <b>Panel</b>
       </div>
-      <ul className={styles.ul.class}>
-        <li>Extensions</li>
-        <li>Progress</li>
-        <li>Buy Now (Koha)</li>
-        <li>etc...</li>
-      </ul>
+      <ul className={styles.ul.class}></ul>
     </div>
   );
 };
