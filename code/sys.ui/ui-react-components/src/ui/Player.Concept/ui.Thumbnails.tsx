@@ -30,7 +30,12 @@ export const Thumbnails: React.FC<ThumbnailsProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {times.map((item, i) => (
-        <Thumbnail key={`${i}.${item.timestamp}`} item={item} />
+        <Thumbnail
+          key={`${i}.${item.timestamp}`}
+          item={item}
+          onClick={(e) => {
+          }}
+        />
       ))}
     </div>
   );
