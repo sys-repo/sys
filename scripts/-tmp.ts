@@ -46,6 +46,8 @@ export async function copyDocs() {
   console.info();
 }
 
+await copyDocs();
+
 /**
  * Watcher.
  */
@@ -53,8 +55,12 @@ if (args.watch) {
   const watcher = await Fs.watch(dir.source);
   watcher.$.pipe(rx.debounceTime(1000)).subscribe(copyDocs);
   console.info(i(c.gray(`\n  (watching for file changes)`)));
+
+  for await (const e of Cli.keypress()) {
+    if (e.key === 'return') copyDocs();
+    if ((e.ctrlKey && e.key === 'c') || e.key === 'q') Deno.exit(0);
+  }
 }
 
 // Finish up.
-await copyDocs();
 if (!args.watch) Deno.exit(0);
