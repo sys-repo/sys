@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, rx, usePlayerEvents, VideoPlayer } from './common.ts';
 import { findVideoTimestamp } from './u.ts';
+import { Thumbnails } from './ui.Thumbnails.tsx';
 
 /**
  * Component.
@@ -32,12 +33,14 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const styles = {
     base: css({ color: theme.fg }),
     img: css({ marginTop: 30 }),
+    thumbnails: css({ marginTop: 10 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <VideoPlayer title={props.title} video={props.video} {...playerEvents.handlers} />
       {imageSrc && <img className={styles.img.class} src={imageSrc} />}
+      {props.thumbnails && <Thumbnails style={styles.thumbnails} timestamps={timestamps} />}
     </div>
   );
 };

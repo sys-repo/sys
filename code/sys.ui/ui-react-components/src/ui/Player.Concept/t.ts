@@ -8,17 +8,24 @@ export type ConceptPlayerProps = {
   title?: string;
   video?: string;
   timestamps?: t.VideoTimestamps;
+  thumbnails?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssValue;
 };
 
 /**
- * Timestamp images
+ * Timestamp data.
  */
 export type VideoTimestamps = {
-  [HH_MM_SS_mmm: string]: VideoTimestamp;
+  [HH_MM_SS_mmm: string]: VideoTimestampProps;
 };
 
-export type VideoTimestamp = {
+export type VideoTimestampProps = {
   image?: t.StringPath;
+};
+
+export type VideoTimestampItem = {
+  timestamp: string;
+  total: { secs: t.Secs; msecs: t.Msecs };
+  data: t.VideoTimestampProps;
 };
