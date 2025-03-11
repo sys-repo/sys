@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { Props } from '../u.Props';
+import { Props } from '../u/u.Props';
 import { lookup } from './React.components';
 import { ref, setup } from './React.setup';
 
