@@ -15,7 +15,7 @@ export const NotFound: React.FC<NotFoundProps> = (props) => {
 
   return (
     <div className={styles.base.class}>
-      <div>{`🐷 NotFound`}</div>
+      <div>{`🐷 Component Not Found`}</div>
     </div>
   );
 };
