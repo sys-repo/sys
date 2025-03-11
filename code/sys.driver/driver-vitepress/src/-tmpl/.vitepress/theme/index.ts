@@ -1,7 +1,7 @@
 import type { Theme as ThemeType } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 
-import { registerComponents as registerSystemComponents } from '../../.sys/components/index.ts';
+import { registerComponents as registerSystemComponents } from '../../.sys/ui/mod.ts';
 import Layout from './Layout.vue';
 
 export const Theme: ThemeType = {
