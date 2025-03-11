@@ -6,7 +6,7 @@ import { type t, css, pkg } from './common.ts';
  */
 export const Foo: React.FC<t.FooProps> = (props) => {
   const { enabled = true } = props;
-  let text = `${pkg.name}@${pkg.version}/ui:<Foo>`;
+  let text = `import → ${pkg.name}@${pkg.version}/ui:<Foo>`;
 
   const [isOver, setOver] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
@@ -14,11 +14,12 @@ export const Foo: React.FC<t.FooProps> = (props) => {
   const styles = {
     base: css({
       display: 'inline-block',
-      backgroundColor: `rgba(255, 0, 0, ${isOver ? 0.9 : 0.3})` /* RED */,
+      backgroundColor: `rgba(255, 0, 0, ${isOver ? 0.4 : 0.1})` /* RED */,
     }),
   };
 
   if (!enabled) text += ' (disabled)';
+
   return (
     <div className={styles.base.class} onMouseEnter={over(true)} onMouseLeave={over(false)}>
       <code>🐷 {text}</code>
