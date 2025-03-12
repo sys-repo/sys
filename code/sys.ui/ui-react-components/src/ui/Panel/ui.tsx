@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 
 export const Panel: React.FC<t.PanelProps> = (props) => {
-  const {} = props;
+  const { text = '🐷' } = props;
 
   /**
    * Render
@@ -12,23 +12,15 @@ export const Panel: React.FC<t.PanelProps> = (props) => {
     base: css({
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
-      padding: 10,
+      padding: 3,
       borderRadius: 5,
-      marginTop: 20,
       fontSize: 14,
-    }),
-    ul: css({
-      marginLeft: 20,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>
-        {`🐷 `}
-        <b>Panel</b>
-      </div>
-      <ul className={styles.ul.class}></ul>
+      <div>{text}</div>
     </div>
   );
 };
