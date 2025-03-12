@@ -44,7 +44,7 @@ describe('Time', () => {
       expect(res.timeout).to.eql(0);
     });
 
-    it('()=> | ← handler only, defaults to 0:msecs', async () => {
+    it('()=> | ← handler only, defaults to micro-task ("tick")', async () => {
       let fired = 0;
       const startedAt = new Date();
       const res = Time.delay(() => fired++);
@@ -68,7 +68,7 @@ describe('Time', () => {
   });
 
   describe('Time.wait', () => {
-    it('Time.wait( n ) ← number/msecs param', async () => {
+    it('Time.wait( n ) ← number/msecs param (macro-task queue)', async () => {
       const startedAt = new Date();
       expect(calcDiff(startedAt)).to.be.closeTo(0, 10);
 
@@ -80,15 +80,29 @@ describe('Time', () => {
       expect(res.is).to.eql({ completed: true, cancelled: false, done: true });
     });
 
-    it('Time.wait() ← no param', async () => {
-      const startedAt = new Date();
-      expect(calcDiff(startedAt)).to.be.closeTo(0, 10);
+    it('Time.wait() ← no param (micro-task, aka. "tick")', async () => {
+      await Testing.retry(3, async () => {
+        const timer = Time.timer();
+        let microtaskResolved = false;
+        let macrotaskResolved = false;
 
-      const res = Time.wait();
-      await res;
+        const stop = setTimeout(() => (macrotaskResolved = true), 0); // ← Schedule a macro-task for comparison.
+        const res = Time.wait(); //                                      ← the micro-task delay (no param).
+        await res;
 
-      expect(res.timeout).to.eql(0);
-      expect(calcDiff(startedAt)).to.be.lessThan(10);
+        const elapsed = timer.elapsed.msec;
+        microtaskResolved = true;
+
+        expect(res.is.done).to.eql(true);
+        expect(res.is.completed).to.eql(true);
+        expect(res.is.cancelled).to.eql(false);
+
+        expect(microtaskResolved).to.be.true;
+        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks
+        expect(elapsed).to.eql(0); // Should be ~0ms or very close
+
+        clearTimeout(stop);
+      });
     });
 
     it('Time.wait → cancel', () => {

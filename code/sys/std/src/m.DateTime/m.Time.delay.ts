@@ -12,29 +12,45 @@ export function delay(...args: any[]): t.TimeDelayPromise {
   const { signal } = controller;
 
   const cancel = () => controller.abort('delay cancelled');
-  const is: t.DeepMutable<T['is']> = { completed: false, cancelled: false, done: false };
+  const is: t.DeepMutable<T['is']> = { done: false, completed: false, cancelled: false };
+  let promise: any;
 
-  const promise: any = new Promise<void>((resolve) => {
-    const done = () => {
-      is.done = true;
-      is.cancelled = signal.aborted;
-      resolve();
-    };
-
-    signal.onabort = done;
-    const complete = () => {
+  if (msecs === undefined) {
+    /**
+     * Micro-task queue ("tick").
+     */
+    promise = Promise.resolve();
+    promise.then(() => {
       fn?.();
       is.completed = true;
-      done();
-    };
+      is.done = true;
+    });
+  } else {
+    /**
+     * Macro-task queue.
+     */
+    promise = new Promise<void>((resolve) => {
+      const done = () => {
+        is.done = true;
+        is.cancelled = signal.aborted;
+        resolve();
+      };
 
-    denoDelay(msecs, { signal }).then(complete).catch(done);
-  });
+      signal.onabort = done;
+      const complete = () => {
+        fn?.();
+        is.completed = true;
+        done();
+      };
+
+      denoDelay(msecs, { signal }).then(complete).catch(done);
+    });
+  }
 
   // Decorate the promise with extra time/delay controller fields.
   promise.cancel = cancel;
   promise.is = is;
-  promise.timeout = msecs;
+  promise.timeout = msecs || 0;
   return promise as T;
 }
 
@@ -43,7 +59,7 @@ export function delay(...args: any[]): t.TimeDelayPromise {
  */
 export const Wrangle = {
   delayArgs(input: any[]) {
-    let msecs = 0;
+    let msecs = undefined;
     let fn: t.TimeDelayCallback | undefined;
     if (typeof input[0] === 'number') msecs = input[0];
     if (typeof input[0] === 'function') fn = input[0];

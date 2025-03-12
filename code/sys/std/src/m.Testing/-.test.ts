@@ -86,7 +86,7 @@ describe('Testing', () => {
     });
 
     it('no param (micro-task queue) ← "tick"', async () => {
-      Testing.retry(3, async () => {
+      await Testing.retry(3, async () => {
         const timer = Time.timer();
         let microtaskResolved = false;
         let macrotaskResolved = false;
