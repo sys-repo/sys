@@ -1,12 +1,14 @@
 import { Args, c, Cli } from '@sys/cli';
 import { Fs } from '@sys/fs';
-import { rx } from '@sys/std';
+import { rx, Str } from '@sys/std';
 
 const { brightCyan: cyan, italic: i } = c;
 
 type TArgs = { watch?: boolean };
 const args = Args.parse<TArgs>(Deno.args, { boolean: ['watch'], alias: { w: 'watch' } });
 console.info(c.cyan('args:'), args);
+
+let copyCount = 0;
 
 /**
  * Copy the SLC project content to the VitePress (driver) development sample directory
@@ -21,6 +23,8 @@ export async function copyDocs() {
   const Fmt = {
     path: (path: string) => `${c.gray(Fs.dirname(path))}/${c.white(Fs.basename(path))}`,
   } as const;
+
+  copyCount++;
 
   const title = c.bold(c.brightGreen('Copy'));
   const table = Cli.table([title]);
@@ -44,6 +48,7 @@ export async function copyDocs() {
   console.info();
   console.info(table.toString().trim());
   console.info();
+  console.info(i(`copied ${c.green(String(copyCount))} ${Str.plural(copyCount, 'time', 'times')}`));
 }
 
 await copyDocs();
