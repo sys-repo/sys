@@ -9,7 +9,11 @@ export type TestingLib = {
   readonly FALSY: t.Falsy[];
   readonly Bdd: BddLib;
   slug: t.RandomLib['slug'];
-  wait(delay: t.Msecs): Promise<void>;
+
+  /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
+  wait(delay?: t.Msecs): Promise<void>;
+
+  /** Generate a random (unused) port number. */
   randomPort(): number;
 
   /** Attempt to run the test function <n>-times before throwing. */

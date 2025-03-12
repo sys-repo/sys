@@ -1,5 +1,5 @@
 import { Random } from '../m.Random/mod.ts';
-import { Testing, describe, expect, it, expectError } from './mod.ts';
+import { Time, Testing, describe, expect, it, expectError } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {
@@ -75,6 +75,34 @@ describe('Testing', () => {
         expect(err.message).to.equal('Foo Fail');
       }
       expect(count).to.eql(3);
+    });
+  });
+
+  describe('wait', () => {
+    it('milliseconds (macro-task queue)', async () => {
+      const timer = Time.timer();
+      await Testing.wait(10);
+      expect(timer.elapsed.msec).to.be.above(9);
+    });
+
+    it('no param (micro-task queue) ← "tick"', async () => {
+      Testing.retry(3, async () => {
+        const timer = Time.timer();
+        let microtaskResolved = false;
+        let macrotaskResolved = false;
+
+        const stop = setTimeout(() => (macrotaskResolved = true), 0); // ← Schedule a macro-task for comparison.
+        await Testing.wait(); //                            ← the micro-task delay.
+
+        const elapsed = timer.elapsed.msec;
+        microtaskResolved = true;
+
+        expect(microtaskResolved).to.be.true;
+        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks
+        expect(elapsed).to.eql(0); // Should be ~0ms or very close
+
+        clearTimeout(stop);
+      });
     });
   });
 });
