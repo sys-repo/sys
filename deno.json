@@ -64,7 +64,7 @@
 
     "./code/-samples/deno.vite-react",
     "./deploy/api.db.team",
-    "./deploy/slc.db.team",
+    "./deploy/app.slc",
     "./deploy/tmp.db.team",
 
     "./code/-tmpl/deno",
