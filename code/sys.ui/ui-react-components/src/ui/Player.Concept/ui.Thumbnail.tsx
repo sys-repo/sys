@@ -5,7 +5,7 @@ export type ThumbnailProps = {
   item: t.VideoTimestampItem;
   theme?: t.CommonTheme;
   style?: t.CssValue;
-  onClick?: React.MouseEventHandler;
+  onClick?: (e: { item: t.VideoTimestampItem }) => void;
 };
 
 export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
@@ -75,7 +75,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
       onMouseLeave={over(false)}
       onMouseDown={down(true)}
       onMouseUp={down(false)}
-      onClick={props.onClick}
+      onClick={() => props.onClick?.({ item })}
     >
       <div className={styles.image.class}></div>
       <div className={styles.time.class}>{time}</div>
