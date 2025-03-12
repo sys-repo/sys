@@ -1,7 +1,5 @@
 import { Window } from 'happy-dom';
-
 import type { t } from '../common.ts';
-import { Keyboard } from './m.Keyboard.ts';
 
 const g = globalThis as any;
 let _window: Window | undefined;
