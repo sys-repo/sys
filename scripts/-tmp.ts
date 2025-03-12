@@ -54,7 +54,10 @@ await copyDocs();
 if (args.watch) {
   const watcher = await Fs.watch(dir.source);
   watcher.$.pipe(rx.debounceTime(1000)).subscribe(copyDocs);
-  console.info(i(c.gray(`\n  (watching for file changes)`)));
+  console.info();
+  console.info(i(c.gray(`  (watching for file changes)`)));
+  console.info(i(c.gray(`  ${c.yellow('Enter')} to force copy`)));
+  console.info();
 
   for await (const e of Cli.keypress()) {
     if (e.key === 'return') copyDocs();
