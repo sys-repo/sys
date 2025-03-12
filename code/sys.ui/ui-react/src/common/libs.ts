@@ -1,1 +1,1 @@
-export { Time } from '@sys/std';
+export { rx, Time } from '@sys/std';
