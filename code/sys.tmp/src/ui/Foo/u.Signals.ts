@@ -1,4 +1,3 @@
-import { Time } from './common.ts';
-import { signal } from '@preact/signals-react';
+import { Signal } from '@sys/ui-react';
 
-export const count = signal(0);
+export const count = Signal.signal(0);
