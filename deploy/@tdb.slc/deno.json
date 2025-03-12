@@ -20,6 +20,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./ui": "./src/ui/mod.ts",
     "./specs": "./src/-test/entry.Specs.ts"
   }
 }
