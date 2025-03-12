@@ -13,4 +13,4 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source-control.
  *    - Do NOT manually alter the file (as your work will be lost).
  */
-export const pkg: Pkg = { name: '@sys/driver-ollama', version: '0.0.47' };
+export const pkg: Pkg = { name: '@sys/driver-ollama', version: '0.0.48' };

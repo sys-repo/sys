@@ -13,4 +13,4 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source-control.
  *    - Do NOT manually alter the file (as your work will be lost).
  */
-export const pkg: Pkg = { name: '@sys/ui-react-components', version: '0.0.38' };
+export const pkg: Pkg = { name: '@sys/ui-react-components', version: '0.0.39' };
