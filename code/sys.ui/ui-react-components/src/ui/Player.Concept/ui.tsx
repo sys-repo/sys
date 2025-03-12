@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, rx, usePlayerEvents, VideoPlayer } from './common.ts';
-import { findVideoTimestamp } from './u.ts';
-import { Thumbnails } from './ui.Thumbnails.tsx';
+import {
+  type t,
+  Color,
+  css,
+  rx,
+  Thumbnails,
+  usePlayerEvents,
+  VideoPlayer,
+  findVideoTimestamp,
+} from './common.ts';
 
 /**
  * Component.

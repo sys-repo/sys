@@ -1,25 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * Lookup a timestamp given the current elapsed time.
- */
-export function findVideoTimestamp(
-  timestamps: t.VideoTimestamps,
-  elapsed: number,
-): t.VideoTimestampProps | undefined {
-  const parsedTimes = parseTimes(timestamps);
-
-  // Find the last timestamp with time <= elapsed.
-  let candidate: t.VideoTimestampItem | undefined = undefined;
-  for (const entry of parsedTimes) {
-    if (entry.total.secs <= elapsed) candidate = entry;
-    else break;
-  }
-
-  return candidate ? timestamps[candidate.timestamp] : undefined;
-}
-
-/**
  * Break the "HH:MM:SS:mmm" string a list of sorted stuctures.
  */
 export function parseTimes(timestamps: t.VideoTimestamps): t.VideoTimestampItem[] {
