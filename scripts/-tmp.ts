@@ -2,7 +2,7 @@ import { Args, c, Cli } from '@sys/cli';
 import { Fs } from '@sys/fs';
 import { rx, Str } from '@sys/std';
 
-const { brightCyan: cyan, italic: i } = c;
+const { italic: i } = c;
 
 type TArgs = { watch?: boolean };
 const args = Args.parse<TArgs>(Deno.args, { boolean: ['watch'], alias: { w: 'watch' } });
