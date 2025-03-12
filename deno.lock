@@ -56,8 +56,8 @@
     "npm:@jsr/std__uuid@1.0.4": "1.0.4",
     "npm:@noble/hashes@1.7.1": "1.7.1",
     "npm:@onsetsoftware/automerge-patcher@0.14.0": "0.14.0_@automerge+automerge@2.2.8",
+    "npm:@preact/signals-core@1.8.0": "1.8.0",
     "npm:@preact/signals-react@3.0.1": "3.0.1_react@18.3.1",
-    "npm:@preact/signals@2.0.1": "2.0.1_preact@10.26.2",
     "npm:@types/diff@7.0.1": "7.0.1",
     "npm:@types/node@*": "22.12.0",
     "npm:@types/react-dom@18.3.5": "18.3.5_@types+react@18.3.18",
@@ -785,13 +785,6 @@
         "@preact/signals-core",
         "react",
         "use-sync-external-store"
-      ]
-    },
-    "@preact/signals@2.0.1_preact@10.26.2": {
-      "integrity": "sha512-f9p/utMgttPb9bJ+UgRBkTDZ9uQiZfX1/gV3pXGWz+yGNQj8MrnG55Xo8MAG4IHcb5UXQO6tvt9ZlsM4A2j+Rw==",
-      "dependencies": [
-        "@preact/signals-core",
-        "preact"
       ]
     },
     "@rollup/rollup-android-arm-eabi@4.34.8": {
@@ -2482,8 +2475,8 @@
       "npm:@automerge/automerge@2.2.8",
       "npm:@noble/hashes@1.7.1",
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
+      "npm:@preact/signals-core@1.8.0",
       "npm:@preact/signals-react@3.0.1",
-      "npm:@preact/signals@2.0.1",
       "npm:@types/diff@7.0.1",
       "npm:approx-string-match@2",
       "npm:chai@5",
