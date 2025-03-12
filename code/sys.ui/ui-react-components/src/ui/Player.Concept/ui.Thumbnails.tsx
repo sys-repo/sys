@@ -34,6 +34,7 @@ export const Thumbnails: React.FC<ThumbnailsProps> = (props) => {
           key={`${i}.${item.timestamp}`}
           item={item}
           onClick={(e) => {
+            console.log('🐷 thumbnail click', e);
           }}
         />
       ))}
