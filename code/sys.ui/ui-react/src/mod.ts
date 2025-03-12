@@ -31,6 +31,10 @@
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
+/**
+ * Library
+ */
 export { FC } from './m.FC/mod.ts';
+export { Signal } from './m.Signal/mod.ts';
 export { useClickInside, useClickOutside, useMouse, useMouseDrag } from './m.use/mod.ts';
 export { ReactEvent } from './u/mod.ts';
