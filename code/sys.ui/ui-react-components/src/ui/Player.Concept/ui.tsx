@@ -36,11 +36,20 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
     thumbnails: css({ marginTop: 10 }),
   };
 
+  const elThumbnails = props.thumbnails && (
+    <Thumbnails
+      style={styles.thumbnails}
+      timestamps={timestamps}
+      onTimestampClick={(e) => {
+      }}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <VideoPlayer title={props.title} video={props.video} {...playerEvents.handlers} />
       {imageSrc && <img className={styles.img.class} src={imageSrc} />}
-      {props.thumbnails && <Thumbnails style={styles.thumbnails} timestamps={timestamps} />}
+      {elThumbnails}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { count } from './api.Signals.ts';
 import { type t, css, pkg, Signal } from './common.ts';
-import { count } from './u.Signals.ts';
 
 /**
  * Component (UI).
