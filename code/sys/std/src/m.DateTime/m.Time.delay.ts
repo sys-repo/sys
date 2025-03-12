@@ -20,11 +20,13 @@ export function delay(...args: any[]): t.TimeDelayPromise {
      * Micro-task queue ("tick").
      */
     promise = Promise.resolve();
-    promise.then(() => {
-      fn?.();
-      is.completed = true;
-      is.done = true;
-    });
+    promise
+      .then(() => {
+        fn?.();
+        is.completed = true;
+        is.done = true;
+      })
+      .catch(() => (is.done = true));
   } else {
     /**
      * Macro-task queue.
