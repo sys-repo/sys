@@ -24,8 +24,8 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
     expect(Signal.useSignalEffect).to.equal(Preact.useSignalEffect);
   });
 
-  describe('React: hooks', () => {
-    it('useSignalEffect', async () => {
+  describe('React hooks', () => {
+    it('useSignal | useSignalEffect', async () => {
       let fired: number[] = [];
 
       /**
@@ -73,6 +73,8 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
 
       expect(fired).to.eql([1, 2, 3]);
       expect(span.textContent).to.equal('3');
+
+      dom.dispose();
     });
   });
 });
