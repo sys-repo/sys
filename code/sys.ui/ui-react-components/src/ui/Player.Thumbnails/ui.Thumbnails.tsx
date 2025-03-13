@@ -3,14 +3,8 @@ import { type t, Color, css } from './common.ts';
 import { parseTimes } from './u.ts';
 import { Thumbnail } from './ui.Thumbnail.tsx';
 
-export type ThumbnailsProps = {
-  timestamps?: t.VideoTimestamps;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onTimestampClick?: t.VideoTimestampHandler;
-};
-
-export const Thumbnails: React.FC<ThumbnailsProps> = (props) => {
+type P = t.ThumbnailsProps;
+export const Thumbnails: React.FC<P> = (props) => {
   const { timestamps = {} } = props;
   const times = parseTimes(timestamps);
 

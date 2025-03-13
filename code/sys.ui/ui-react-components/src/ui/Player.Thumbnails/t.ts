@@ -1,20 +1,14 @@
 import type { t } from './common.ts';
+export type * from './t.timestamp.ts';
 
 /**
- * Timestamp data.
+ * <Component>
  */
-export type VideoTimestamps = {
-  [HH_MM_SS_mmm: string]: VideoTimestampProps;
-};
-
-export type VideoTimestampProps = {
-  image?: t.StringPath;
-};
-
-export type VideoTimestampItem = {
-  timestamp: string;
-  total: { secs: t.Secs; msecs: t.Msecs };
-  data: t.VideoTimestampProps;
+export type ThumbnailsProps = {
+  timestamps?: t.VideoTimestamps;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  onTimestampClick?: t.VideoTimestampHandler;
 };
 
 /**
@@ -22,6 +16,6 @@ export type VideoTimestampItem = {
  */
 export type VideoTimestampHandler = (e: VideoTimestampHandlerArgs) => void;
 export type VideoTimestampHandlerArgs = {
-  readonly timestamp: string;
-  readonly data: t.VideoTimestampProps;
+  timestamp: string;
+  data: t.VideoTimestampProps;
 };

@@ -1,12 +1,18 @@
-import { Spec } from '@sys/ui-react-devharness';
-import { Thumbnails } from './mod.ts';
+import { Spec, expect } from '../-ui.test.ts';
+import { Player } from '../../mod.ts';
+
 import { type t } from './common.ts';
+import { Thumbnails } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
+  e.it('API', (e) => {
+    expect(Player.Timestamp.Thumbnails).to.equal(Thumbnails);
+  });
+
   e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
     ctx.subject.size([520, null]).render((e) => {
-      return <Thumbnails timestamps={sampleTimestamps} />;
+      return <Player.Timestamp.Thumbnails timestamps={sampleTimestamps} />;
     });
   });
 });
