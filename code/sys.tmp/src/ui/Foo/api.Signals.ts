@@ -1,3 +1,2 @@
 import { Signal } from '@sys/ui-react';
-
-export const count = Signal.signal(0);
+export const count = Signal.create(0);

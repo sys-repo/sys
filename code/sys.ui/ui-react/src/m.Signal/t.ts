@@ -1,13 +1,16 @@
-import type { t } from './common.ts';
 import type Preact from '@preact/signals-react';
+import type { SignalLib } from '@sys/std/t';
+
+export type { ReadonlySignal, Signal } from '@preact/signals-react';
 
 /**
  * Reactive Signals.
- * Docs (via `preact/signals`): https://preactjs.com/guide/v10/signals
+ * See:
+ *    https://github.com/tc39/proposal-signals
+ *    https://preactjs.com/blog/introducing-signals/
+ *    https://preactjs.com/guide/v10/signals
  */
-export type SignalReactLib = {
-  signal: typeof Preact.signal;
-  effect: typeof Preact.effect;
+export type SignalReactLib = SignalLib & {
   useSignal: typeof Preact.useSignal;
   useSignalEffect: typeof Preact.useSignalEffect;
 };

@@ -3,7 +3,10 @@ export type { ReadonlySignal, Signal } from '@preact/signals-core';
 
 /**
  * Reactive Signals.
- * Docs (via `preact/signals`): https://preactjs.com/guide/v10/signals
+ * See:
+ *    https://github.com/tc39/proposal-signals
+ *    https://preactjs.com/blog/introducing-signals/
+ *    https://preactjs.com/guide/v10/signals
  */
 export type SignalLib = {
   create: typeof Preact.signal;
