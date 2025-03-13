@@ -11,8 +11,15 @@ export type VideoTimestampProps = {
   image?: t.StringPath;
 };
 
-export type VideoTimestampItem = {
-  timestamp: string;
+export type VideoTimestamp = {
+  timestamp: t.StringTimestamp;
+  total: t.VideoTimestampTotal;
   data: t.VideoTimestampProps;
-  total: { secs: t.Secs; msecs: t.Msecs };
+};
+
+export type VideoTimestampTotal = {
+  msecs: t.Msecs;
+  secs: t.Secs;
+  mins: t.Mins;
+  hours: t.Hours;
 };

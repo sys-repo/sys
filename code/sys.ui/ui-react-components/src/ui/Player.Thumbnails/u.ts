@@ -1,2 +1,2 @@
-export * from './u.findVideoTimestamps.ts';
-export * from './u.parseTimes.ts';
+export * from './u.timestamp.find.ts';
+export * from './u.timestamp.parse.ts';
