@@ -1,15 +1,11 @@
-import type { IconType } from 'react-icons';
 import { type t, Color, Style, css } from './common.ts';
 
-export type IconViewProps = t.IconProps & {
-  type: IconType;
-  tabIndex?: number;
-};
+type P = t.IconViewProps;
 
 /**
  * The renderer of the <SVG> icon.
  */
-export const IconView: React.FC<IconViewProps> = (props) => {
+export const IconView: React.FC<P> = (props) => {
   const { size = 24, opacity } = props;
   const Component = props.type;
 
@@ -45,11 +41,11 @@ export const IconView: React.FC<IconViewProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  color(props: IconViewProps) {
+  color(props: P) {
     return props.color ? Color.format(props.color) : undefined;
   },
 
-  transform(props: IconViewProps) {
+  transform(props: P) {
     const { offset, flipX, flipY } = props;
     let res = '';
     if (offset) res += ` translate(${offset[0]}px, ${offset[1]}px)`;

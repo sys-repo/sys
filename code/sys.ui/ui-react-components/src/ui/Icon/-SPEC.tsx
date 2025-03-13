@@ -1,6 +1,6 @@
 import { css, Spec, type t } from '../-test.ui.ts';
 import { Debug } from './-SPEC.Debug.tsx';
-import { Icons } from './-SPEC.icons.ts';
+import { Icons } from './-SPEC.sample.ts';
 
 type T = {
   props: t.IconProps;
@@ -28,7 +28,11 @@ export default Spec.describe('Icon', (e) => {
         };
         return (
           <div className={styles.base.class}>
-            <Icons.Face {...e.state.props} size={150} />
+            <Icons.Face
+              {...e.state.props}
+              size={150}
+              onClick={(e) => console.info(`⚡️ onClick:`, e)}
+            />
           </div>
         );
       });
