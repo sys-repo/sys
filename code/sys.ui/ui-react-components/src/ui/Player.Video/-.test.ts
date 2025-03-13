@@ -19,9 +19,9 @@ describe('VideoPlayer', () => {
     expect(s.props.jumpTo.value).to.eql(undefined);
 
     s.jumpTo(10);
-    expect(s.props.jumpTo.value).to.eql({ time: 10, play: true });
+    expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
 
     s.jumpTo(15, { play: false });
-    expect(s.props.jumpTo.value).to.eql({ time: 15, play: false });
+    expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
   });
 });

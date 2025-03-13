@@ -17,10 +17,11 @@ export type VideoPlayerSignals = {
     jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
     currentTime: t.Signal<t.Secs>;
   };
+  jumpTo(second: t.Secs, options?: { play?: boolean }): void;
 };
 
 /** Structure representing a jump-to ("seek") location */
-export type VideoPlayerJumpTo = { time: t.Secs; play: boolean };
+export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
 
 /**
  * Component: Video Player.

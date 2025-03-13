@@ -14,7 +14,7 @@ export function playerSignalsFactory() {
     },
     jumpTo(time, options = {}) {
       const { play = true } = options;
-      api.props.jumpTo.value = { time, play };
+      api.props.jumpTo.value = { second: time, play };
     },
   };
 
