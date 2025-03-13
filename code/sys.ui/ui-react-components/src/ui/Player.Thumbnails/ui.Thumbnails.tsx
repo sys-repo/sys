@@ -24,10 +24,11 @@ export const Thumbnails: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {times.map((item, i) => (
+      {times.map(({ timestamp, data }, i) => (
         <Thumbnail
-          key={`${i}.${item.timestamp}`}
-          item={item}
+          key={`${i}.${timestamp}`}
+          data={data}
+          timestamp={timestamp}
           onClick={(e) => props.onTimestampClick?.(e)}
         />
       ))}

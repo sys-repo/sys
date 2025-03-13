@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
+
 import { type t, Color, css } from './common.ts';
+import { parseTime } from './u.ts';
 
 export type ThumbnailProps = {
-  item: t.VideoTimestampItem;
+  timestamp: t.StringTimestamp;
+  data: t.VideoTimestampProps;
   theme?: t.CommonTheme;
   style?: t.CssValue;
   onClick?: t.VideoTimestampHandler;
 };
 
 export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
-  const { item, onClick } = props;
-  const { timestamp, data } = item;
-  const time = wrangle.time(item);
-  const src = item.data.image;
+  const { timestamp, data, onClick } = props;
+  const time = wrangle.time(timestamp);
+  const src = data.image;
 
   const [loaded, setLoaded] = useState(false);
   const [isOver, setOver] = useState(false);
@@ -20,11 +22,28 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   const over = (isOver: boolean) => () => setOver(isOver);
   const down = (isDown: boolean) => () => setDown(isDown);
 
+  /**
+   * Lifecycle.
+   */
   useEffect(() => {
     const image = new Image();
     image.src = src ?? '';
     image.onload = () => setLoaded(true);
   }, [src]);
+
+  /**
+   * Handlers.
+   */
+  function handleClick() {
+    let _total: t.VideoTimestampTotal;
+    props.onClick?.({
+      timestamp,
+      data,
+      get total() {
+        return _total || (_total = parseTime(timestamp));
+      },
+    });
+  }
 
   /**
    * Render
@@ -76,7 +95,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
       onMouseLeave={over(false)}
       onMouseDown={down(true)}
       onMouseUp={down(false)}
-      onClick={() => props.onClick?.({ timestamp, data })}
+      onClick={handleClick}
     >
       <div className={styles.image.class}></div>
       <div className={styles.time.class}>{time}</div>
@@ -88,8 +107,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  time(item: t.VideoTimestampItem) {
-    const ts = item.timestamp;
+  time(ts: t.StringTimestamp) {
     const index = ts.indexOf('.');
     return ts.slice(0, index);
   },

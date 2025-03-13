@@ -6,13 +6,18 @@ import { Thumbnails } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
   e.it('API', (e) => {
-    expect(Player.Timestamp.Thumbnails).to.equal(Thumbnails);
+    expect(Player.Timestamp.Thumbnails.View).to.equal(Thumbnails);
   });
 
   e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
     ctx.subject.size([520, null]).render((e) => {
-      return <Player.Timestamp.Thumbnails timestamps={sampleTimestamps} />;
+      return (
+        <Player.Timestamp.Thumbnails.View
+          timestamps={sampleTimestamps}
+          onTimestampClick={(e) => console.info(`⚡️ onTimestampClick:`, e)}
+        />
+      );
     });
   });
 });

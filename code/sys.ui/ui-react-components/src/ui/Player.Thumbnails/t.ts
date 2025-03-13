@@ -15,7 +15,4 @@ export type ThumbnailsProps = {
  * Events.
  */
 export type VideoTimestampHandler = (e: VideoTimestampHandlerArgs) => void;
-export type VideoTimestampHandlerArgs = {
-  timestamp: string;
-  data: t.VideoTimestampProps;
-};
+export type VideoTimestampHandlerArgs = t.VideoTimestamp;
