@@ -15,7 +15,7 @@ export function useSignalBinding(args: {
   const player = playerRef.current || undefined;
   const currentPlayerTime = useMediaState('currentTime', playerRef);
 
-  // Keep current-time synced onto the signals.
+  // Keep the player's current-time synced onto the signals.
   if (props && player && props.currentTime.value !== currentPlayerTime) {
     props.currentTime.value = currentPlayerTime;
   }
@@ -24,14 +24,18 @@ export function useSignalBinding(args: {
    * Handle: reset upon playback finish.
    */
   Signal.useSignalEffect(() => {
-    signals?.props.currentTime.value; // NB: listen to value.
+    // Register listeners.
+    props?.ready.value;
+    props?.currentTime.value;
+
     const isEnded = player?.currentTime === player?.duration;
+    const loop = props?.loop.value ?? false;
 
     if (player && isEnded) {
       // NB: Hack to reset the video to the beginning.
       //     The VidStack player goes into a funny state when ended.
       player.play();
-      Time.delay(100).then(() => player.pause());
+      if (!loop) Time.delay(100).then(() => player.pause());
     }
   });
 
@@ -39,12 +43,31 @@ export function useSignalBinding(args: {
    * Handle: jumpTo (aka "seek").
    */
   Signal.useSignalEffect(() => {
-    const jumpTo = props?.jumpTo.value; // NB: ensure the effect is hooked up to the value.
-    if (!player || !props) return;
-    if (typeof jumpTo?.time === 'number') {
-      player.currentTime = jumpTo.time;
-      if (jumpTo.play) player.play();
-      props.jumpTo.value = undefined; // NB: reset after for next call.
+    // Register listeners.
+    props?.ready.value;
+    const jumpTo = props?.jumpTo.value;
+
+    if (player && props) {
+      if (typeof jumpTo?.second === 'number') {
+        player.currentTime = jumpTo.second;
+        if (jumpTo.play) player.play();
+        if (!jumpTo.play) player.pause();
+        props.jumpTo.value = undefined; // NB: reset after for next call.
+      }
+    }
+  });
+
+  /**
+   * Handle: play/pause
+   */
+  Signal.useSignalEffect(() => {
+    // Register listeners.
+    props?.ready.value;
+    const playing = props?.playing.value ?? false;
+
+    if (player) {
+      if (playing) player.play();
+      if (!playing) player.pause();
     }
   });
 }
