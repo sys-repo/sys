@@ -9,14 +9,12 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
     return Foo;
   }
 
-  if (kind === 'ConceptPlayer') {
-    const { ConceptPlayer } = await import('@sys/ui-react-components');
-    return ConceptPlayer;
-  }
+  const players = ['ConceptPlayer', 'VideoPlayer', 'Panel'];
 
-  if (kind === 'VideoPlayer') {
-    const { VideoPlayer } = await import('@sys/ui-react-components');
-    return VideoPlayer;
+  if (players.includes(kind)) {
+    const { Player } = await import('@sys/ui-react-components');
+    if (kind === 'ConceptPlayer') return Player.Concept.View;
+    if (kind === 'VideoPlayer') return Player.Video.View;
   }
 
   if (kind === 'Panel') {
@@ -24,5 +22,5 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
     return Panel;
   }
 
-  return; // NB: no match.
+  return; // NB: no-match.
 }
