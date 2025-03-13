@@ -1,8 +1,13 @@
-import { Spec } from '@sys/ui-react-devharness';
+import { Spec, expect } from '../-ui.test.ts';
+import { Player } from '../../mod.ts';
 import { VideoPlayer, playerSignalsFactory } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
   const s = playerSignalsFactory();
+
+  e.it('API', (e) => {
+    expect(Player.Video).to.equal(VideoPlayer);
+  });
 
   e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
