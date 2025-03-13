@@ -13,8 +13,10 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 /**
- * Components
+ * Components.
  */
+export { Panel } from './ui/Panel/mod.ts';
+
 export { ConceptPlayer } from './ui/Player.Concept/mod.ts';
 export { VideoPlayer } from './ui/Player.Video/mod.ts';
-export { Panel } from './ui/Panel/mod.ts';
+export { Player } from './ui/Player/mod.ts';

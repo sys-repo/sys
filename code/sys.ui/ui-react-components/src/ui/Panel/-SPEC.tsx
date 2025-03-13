@@ -1,4 +1,4 @@
-import { Spec } from '@sys/ui-react-devharness';
+import { Spec } from '../-ui.test.ts';
 import { Panel } from './mod.ts';
 
 export default Spec.describe('Panel', (e) => {
