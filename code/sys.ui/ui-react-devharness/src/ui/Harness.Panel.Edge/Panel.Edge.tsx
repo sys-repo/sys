@@ -18,7 +18,7 @@ export const PanelEdge: React.FC<PanelBarProps> = (props) => {
   if (!renderer || !element) return <div />;
 
   /**
-   * Render
+   * Render.
    */
   const border = (hasBorder: boolean) => (hasBorder ? Wrangle.borderStyle(current) : undefined);
   const styles = {

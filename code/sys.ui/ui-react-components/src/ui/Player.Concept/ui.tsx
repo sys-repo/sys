@@ -41,7 +41,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   }, [props.video, playerEvents, Object.keys(timestamps)]);
 
   /**
-   * Render
+   * Render.
    */
   const theme = Color.theme(props.theme);
   const styles = {

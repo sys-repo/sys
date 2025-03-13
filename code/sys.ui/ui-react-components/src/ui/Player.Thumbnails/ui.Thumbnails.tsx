@@ -9,7 +9,7 @@ export const Thumbnails: React.FC<P> = (props) => {
   const times = parseTimes(timestamps);
 
   /**
-   * Render
+   * Render.
    */
   const theme = Color.theme(props.theme);
   const styles = {
