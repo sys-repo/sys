@@ -7,7 +7,7 @@ export type ThumbnailsProps = {
   timestamps?: t.VideoTimestamps;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onTimestampClick?: (e: { item: t.VideoTimestampItem }) => void;
+  onTimestampClick?: t.VideoTimestampHandler;
 };
 
 export const Thumbnails: React.FC<ThumbnailsProps> = (props) => {

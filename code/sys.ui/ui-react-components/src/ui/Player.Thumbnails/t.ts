@@ -16,3 +16,12 @@ export type VideoTimestampItem = {
   total: { secs: t.Secs; msecs: t.Msecs };
   data: t.VideoTimestampProps;
 };
+
+/**
+ * Events.
+ */
+export type VideoTimestampHandler = (e: VideoTimestampHandlerArgs) => void;
+export type VideoTimestampHandlerArgs = {
+  readonly timestamp: string;
+  readonly data: t.VideoTimestampProps;
+};
