@@ -1,4 +1,4 @@
-import { Spec, expect } from '../-ui.test.ts';
+import { Spec, expect } from '../-test.ui.ts';
 import { Player } from '../../mod.ts';
 
 import { type t } from './common.ts';

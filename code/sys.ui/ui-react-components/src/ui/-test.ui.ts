@@ -4,5 +4,4 @@
  */
 export { expect } from '@sys/std/testing';
 export { Spec } from '@sys/ui-react-devharness';
-
-export type { t } from '../common.ts';
+export * from '../common.ts';
