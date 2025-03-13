@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * A utility panel.
+ * A content panel.
  */
 export type PanelProps = {
   text?: string;
