@@ -102,4 +102,12 @@ export const Is: t.StdIsLib = {
     if (typeof input !== 'number') return false;
     return String(input)[0] === '2';
   },
+
+  /**
+   * Determines if currently running within a browser environment.
+   */
+  browser() {
+    const g = globalThis;
+    return typeof g.window === 'object' && typeof g.document === 'object';
+  },
 };

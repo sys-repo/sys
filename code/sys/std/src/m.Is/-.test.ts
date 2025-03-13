@@ -220,4 +220,10 @@ describe('Is (common flags)', () => {
       expect(Is.statusOK(404)).to.eql(false);
     });
   });
+
+  describe('Is.browser', () => {
+    it('Is.browser: false', () => {
+      expect(Is.browser()).to.eql(false);
+    });
+  });
 });

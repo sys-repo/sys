@@ -75,4 +75,7 @@ export type StdIsLib = {
 
   /** Determine if the HTTP status code is within the 200 range.  */
   statusOK(status: number): boolean;
+
+  /** Determines if currently running within a browser environment. */
+  browser(): boolean;
 };
