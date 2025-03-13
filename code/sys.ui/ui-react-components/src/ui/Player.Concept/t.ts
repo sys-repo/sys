@@ -11,4 +11,5 @@ export type ConceptPlayerProps = {
   thumbnails?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssValue;
+  videoSignals?: t.VideoPlayerSignals;
 };
