@@ -5,9 +5,14 @@ import type { t } from '../common.ts';
  * Library: Players
  */
 export type PlayerLib = {
-  Concept: React.FC<t.ConceptPlayerProps>;
-  Video: React.FC<t.VideoPlayerProps>;
+  Concept: {
+    View: React.FC<t.ConceptPlayerProps>;
+  };
+  Video: {
+    View: React.FC<t.VideoPlayerProps>;
+    signals(): t.VideoPlayerSignals;
+  };
   Timestamp: {
-    Thumbnails: React.FC<t.ThumbnailsProps>;
+    Thumbnails: { View: React.FC<t.ThumbnailsProps> };
   };
 };

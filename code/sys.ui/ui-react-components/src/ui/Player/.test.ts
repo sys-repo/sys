@@ -5,8 +5,8 @@ import { Thumbnails } from '../Player.Thumbnails/mod.ts';
 
 describe('Player', () => {
   it('API', () => {
-    expect(Player.Concept).to.equal(ConceptPlayer);
-    expect(Player.Video).to.equal(VideoPlayer);
-    expect(Player.Timestamp.Thumbnails).to.equal(Thumbnails);
+    expect(Player.Concept.View).to.equal(ConceptPlayer);
+    expect(Player.Video.View).to.equal(VideoPlayer);
+    expect(Player.Timestamp.Thumbnails.View).to.equal(Thumbnails);
   });
 });

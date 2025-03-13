@@ -7,12 +7,19 @@
  */
 import { type t } from '../common.ts';
 
-import { ConceptPlayer as Concept } from '../Player.Concept/mod.ts';
+import { ConceptPlayer } from '../Player.Concept/mod.ts';
 import { Thumbnails } from '../Player.Thumbnails/mod.ts';
-import { VideoPlayer as Video } from '../Player.Video/mod.ts';
+import { VideoPlayer, playerSignalsFactory } from '../Player.Video/mod.ts';
 
 export const Player: t.PlayerLib = {
-  Concept,
-  Video,
-  Timestamp: { Thumbnails },
+  Concept: {
+    View: ConceptPlayer,
+  },
+  Video: {
+    View: VideoPlayer,
+    signals: playerSignalsFactory,
+  },
+  Timestamp: {
+    Thumbnails: { View: Thumbnails },
+  },
 };
