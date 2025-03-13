@@ -6,6 +6,18 @@ import type {
 } from '@vidstack/react';
 import type { t } from './common.ts';
 
+export type VideoPlayerSignals = {
+  props: {
+    playing: t.Signal<boolean>;
+    jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
+    currentTime: t.Signal<t.Secs>;
+  };
+  jumpTo(time: t.Secs, play?: boolean): void;
+};
+
+/** Structure representing a jump-to ("seek") location */
+export type VideoPlayerJumpTo = { time: t.Secs; play: boolean };
+
 /**
  * Component: Video Player.
  */
@@ -17,6 +29,7 @@ export type VideoPlayerProps = {
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
+  signals?: t.VideoPlayerSignals;
 };
 
 /**
