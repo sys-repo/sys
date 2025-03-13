@@ -1,12 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import type { MediaPlayerInstance } from '@vidstack/react';
+import { MediaPlayer, MediaProvider } from '@vidstack/react';
+import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
+
 import { type t, css, DEFAULTS } from './common.ts';
+import { Styles } from './u.styles.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 
-import { type MediaPlayerInstance, MediaPlayer, MediaProvider } from '@vidstack/react';
-import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
-import { Styles } from './u.styles.ts';
-
-Styles.import(); // NB: dynamic import of .css files.
+Styles.import(); // NB: dynamic import of [.css] files.
 
 /**
  * Component.
@@ -14,10 +16,24 @@ Styles.import(); // NB: dynamic import of .css files.
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
   const src = props.video || DEFAULTS.video;
+  const p = signals?.props;
 
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
+  const [, setRender] = useState(0);
+  const redraw = () => setRender((n) => n + 1);
+
+  /**
+   * Lifecycle.
+   */
+  useEffect(() => {
+    if (!p) return;
+    p.ready.value = Styles.loaded;
+    redraw();
+  }, [Styles.loaded]);
+
+  // NB: avoid a FOUC ("Flash Of Unstyled Content").
   if (!Styles.loaded) return null;
 
   /**

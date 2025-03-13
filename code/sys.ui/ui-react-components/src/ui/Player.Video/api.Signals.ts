@@ -6,11 +6,14 @@ import { type t, Signal } from './common.ts';
 export function playerSignalsFactory() {
   const api: t.VideoPlayerSignals = {
     props: {
+      ready: Signal.create(false),
       playing: Signal.create(false),
+      loop: Signal.create(false),
       jumpTo: Signal.create<t.VideoPlayerJumpTo | undefined>(),
       currentTime: Signal.create<t.Secs>(0),
     },
-    jumpTo(time, play = true) {
+    jumpTo(time, options = {}) {
+      const { play = true } = options;
       api.props.jumpTo.value = { time, play };
     },
   };

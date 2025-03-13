@@ -2,10 +2,19 @@ import { Is } from './common.ts';
 
 /**
  * NOTE: Conditionally load styles only when running within browser.
- *       Throws an import error on the server (Deno).
+ *
+ * Why?  Prevents throwing an import error on the server (Deno)
+ *       which occurs when running unit-tests.
+ *
+ *  🫵 CONSIDER:
+ *       Handling the .css imports within the Vite bundle (?)
+ *       which would prevent a FOUC ("Flash Of Unstyled Content")
+ *       that does not happen, rather the component just renders
+ *       nothing until the `Styles.loaded` is [true].
  */
+
 let loadCount = 0;
-const loaded = () => loadCount++;
+const onLoaded = () => loadCount++;
 
 export const Styles = {
   get loaded() {
@@ -13,7 +22,7 @@ export const Styles = {
   },
   async import() {
     if (!Is.browser()) return;
-    import('@vidstack/react/player/styles/base.css').then(loaded);
-    import('@vidstack/react/player/styles/plyr/theme.css').then(loaded);
+    import('@vidstack/react/player/styles/base.css').then(onLoaded);
+    import('@vidstack/react/player/styles/plyr/theme.css').then(onLoaded);
   },
 };
