@@ -19,16 +19,13 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
-  // NB: avoid a FOUC ("Flash Of Unstyled Content").
-  if (!cssImports.loaded) return null;
-
   /**
    * Render.
    */
   const styles = {
     base: css({
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
-      display: cssImports.loaded ? 'block' : 'none',
+      display: cssImports.loaded ? 'block' : 'none', // NB: avoid a FOUC ("Flash Of Unstyled Content").
     }),
   };
 
