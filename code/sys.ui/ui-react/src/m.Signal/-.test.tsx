@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { describe, expect, it, Testing } from '../-test.ts';
+import { describe, expect, it, Testing, Time } from '../-test.ts';
 import { TestReact } from '../m.Testing.Server/mod.ts';
 import { Signal } from './mod.ts';
 
@@ -53,6 +53,7 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
       }
 
       const dom = await TestReact.render(<TestComponent />);
+      await Time.wait(10);
 
       /**
        * Verify initial state.
