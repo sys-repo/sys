@@ -5,7 +5,7 @@ import { DisplayImage } from './ui.DisplayImage.tsx';
 type P = t.ConceptPlayerProps;
 
 /**
- * Component.
+ * Component
  */
 export const ConceptPlayer: React.FC<P> = (props) => {
   const timestamps = wrangle.timestamps(props);
@@ -13,7 +13,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   const playerSignals = playerSignalsRef.current;
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {
