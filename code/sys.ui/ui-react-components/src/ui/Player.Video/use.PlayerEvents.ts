@@ -1,3 +1,4 @@
+import React from 'react';
 import { type t, isRecord, rx } from './common.ts';
 
 type TEventData = {

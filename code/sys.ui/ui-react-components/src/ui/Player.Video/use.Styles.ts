@@ -1,3 +1,4 @@
+import React from 'react';
 import { Is } from './common.ts';
 
 /**
@@ -12,17 +13,25 @@ import { Is } from './common.ts';
  *       that does not happen, rather the component just renders
  *       nothing until the `Styles.loaded` is [true].
  */
+export function useStyles() {
+  const [loaded, setLoaded] = React.useState(false);
 
-let loadCount = 0;
-const onLoaded = () => loadCount++;
+  React.useEffect(() => {
+    if (!Is.browser()) {
+      setLoaded(true);
+      return;
+    }
 
-export const Styles = {
-  get loaded() {
-    return loadCount === 2;
-  },
-  async import() {
-    if (!Is.browser()) return;
+    let count = 0;
+    const onLoaded = () => {
+      count++;
+      if (count >= 2) setLoaded(true);
+    };
+
     import('@vidstack/react/player/styles/base.css').then(onLoaded);
     import('@vidstack/react/player/styles/plyr/theme.css').then(onLoaded);
-  },
-};
+  }, []);
+
+  // API.
+  return { loaded } as const;
+}

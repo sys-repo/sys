@@ -1,14 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 import type { MediaPlayerInstance } from '@vidstack/react';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
 import { type t, css, DEFAULTS } from './common.ts';
-import { Styles } from './u.styles.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
-
-Styles.import(); // NB: dynamic import of [.css] files.
+import { useStyles } from './use.Styles.ts';
 
 /**
  * Component.
@@ -16,25 +14,13 @@ Styles.import(); // NB: dynamic import of [.css] files.
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
   const src = props.video || DEFAULTS.video;
-  const p = signals?.props;
 
+  const cssImports = useStyles();
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
-
-  /**
-   * Lifecycle.
-   */
-  useEffect(() => {
-    if (!p) return;
-    p.ready.value = Styles.loaded;
-    redraw();
-  }, [Styles.loaded]);
-
   // NB: avoid a FOUC ("Flash Of Unstyled Content").
-  if (!Styles.loaded) return null;
+  if (!cssImports.loaded) return null;
 
   /**
    * Render.
@@ -42,6 +28,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const styles = {
     base: css({
       lineHeight: 0, // NB: ensure no "baseline" gap below the MediaPlayer.
+      display: cssImports.loaded ? 'block' : 'none',
     }),
   };
 
