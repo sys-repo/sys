@@ -48,7 +48,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   }
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const borderRadius = 6;

@@ -68,7 +68,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
   };
 
   /**
-   * Render.
+   * Render
    */
   const { WHITE, BLUE } = COLORS;
   const color = Color.theme(props.theme).fg;

@@ -5,7 +5,7 @@ export const Foo: React.FC<t.FooProps> = (props) => {
   const {} = props;
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {

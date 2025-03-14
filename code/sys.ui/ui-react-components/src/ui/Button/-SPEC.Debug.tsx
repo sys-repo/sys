@@ -16,7 +16,7 @@ export const Debug: React.FC<P> = (props) => {
   const {} = props;
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {

@@ -9,7 +9,7 @@ import { useSignalBinding } from './use.SignalBinding.ts';
 import { useStyles } from './use.Styles.ts';
 
 /**
- * Component.
+ * Component
  */
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
@@ -20,7 +20,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   useSignalBinding({ signals, playerRef });
 
   /**
-   * Render.
+   * Render
    */
   const styles = {
     base: css({

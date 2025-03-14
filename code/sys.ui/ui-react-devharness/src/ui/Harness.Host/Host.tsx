@@ -41,7 +41,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   }, [isEmpty]);
 
   /**
-   * Render.
+   * Render
    */
   const cropmark = wrangle.cropmark(renderProps);
   const backgroundColor =

@@ -17,7 +17,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
   });
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {

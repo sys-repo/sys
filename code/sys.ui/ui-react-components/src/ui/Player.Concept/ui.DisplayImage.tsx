@@ -11,7 +11,7 @@ export type DisplayImageProps = {
 type P = DisplayImageProps;
 
 /**
- * Component.
+ * Component
  */
 export const DisplayImage: React.FC<P> = (props) => {
   const { videoSignals: s, timestamps } = props;
@@ -41,7 +41,7 @@ export const DisplayImage: React.FC<P> = (props) => {
   }, [src]);
 
   /**
-   * Render.
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {

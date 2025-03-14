@@ -17,7 +17,7 @@ export const Title: React.FC<TitleProps> = (props) => {
   if (!(title || badge)) return null;
 
   /**
-   * Render.
+   * Render
    */
   const color = Color.theme(props.theme).fg;
   const styles = {
