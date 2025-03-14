@@ -4,7 +4,7 @@ import { type t, Color, css, Signal, Time } from './common.ts';
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 type P = DebugProps;

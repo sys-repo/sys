@@ -3,7 +3,7 @@ import { type t, Color, css, Keyboard, rx } from './common.ts';
 
 export type SplashProps = {
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 export const Splash: React.FC<SplashProps> = (props) => {

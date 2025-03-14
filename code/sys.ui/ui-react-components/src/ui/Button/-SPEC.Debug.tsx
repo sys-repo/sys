@@ -4,7 +4,7 @@ import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
 export type DebugProps = {
   ctx: {};
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };
 
 type P = DebugProps;

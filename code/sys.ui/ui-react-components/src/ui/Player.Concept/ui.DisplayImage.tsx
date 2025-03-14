@@ -4,7 +4,7 @@ import { type t, Color, css, findTimestamp, Icons, Signal, Time } from './common
 export type DisplayImageProps = {
   timestamps: t.VideoTimestamps;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   videoSignals: t.VideoPlayerSignals;
 };
 

@@ -10,6 +10,6 @@ export type ConceptPlayerProps = {
   timestamps?: t.VideoTimestamps;
   thumbnails?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   videoSignals?: t.VideoPlayerSignals;
 };

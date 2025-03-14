@@ -7,7 +7,7 @@ export type ThumbnailProps = {
   timestamp: t.StringTimestamp;
   data: t.VideoTimestampProps;
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   onClick?: t.VideoTimestampHandler;
 };
 
