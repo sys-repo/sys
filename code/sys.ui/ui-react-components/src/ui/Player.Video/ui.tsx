@@ -6,7 +6,7 @@ import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr
 
 import { type t, css, DEFAULTS } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
-import { useStyles } from './use.Styles.ts';
+import { useThemeStyles } from './use.ThemeStyles.ts';
 
 /**
  * Component
@@ -15,7 +15,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
   const src = props.video || DEFAULTS.video;
 
-  const cssImports = useStyles();
+  const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
@@ -25,7 +25,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const styles = {
     base: css({
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
-      display: cssImports.loaded ? 'block' : 'none', // NB: avoid a FOUC ("Flash Of Unstyled Content").
+      display: themeStyles.loaded ? 'block' : 'none', // NB: avoid a FOUC ("Flash Of Unstyled Content").
     }),
   };
 
