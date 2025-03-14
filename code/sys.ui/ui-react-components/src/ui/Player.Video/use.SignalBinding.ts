@@ -13,21 +13,24 @@ export function useSignalBinding(args: {
   const { playerRef, signals } = args;
   const props = signals?.props;
   const player = playerRef.current || undefined;
-  const currentPlayerTime = useMediaState('currentTime', playerRef);
 
-  // Keep the player's current-time synced onto the signals.
-  if (props && player && props.currentTime.value !== currentPlayerTime) {
-    props.currentTime.value = currentPlayerTime;
+  const currentPlayerTime = useMediaState('currentTime', playerRef);
+  const isPlaying = useMediaState('playing', playerRef);
+
+  /**
+   * Keep the player's current state synced onto the signals.
+   */
+  if (props && player) {
+    if (props.currentTime.value !== currentPlayerTime) props.currentTime.value = currentPlayerTime;
+    if (props.playing.value !== isPlaying) props.playing.value = isPlaying;
   }
 
   /**
    * Handle: reset upon playback finish.
    */
   Signal.useSignalEffect(() => {
-    // Register listeners.
     props?.ready.value;
     props?.currentTime.value;
-
     const isEnded = player?.currentTime === player?.duration;
     const loop = props?.loop.value ?? false;
 
@@ -43,7 +46,6 @@ export function useSignalBinding(args: {
    * Handle: jumpTo (aka "seek").
    */
   Signal.useSignalEffect(() => {
-    // Register listeners.
     props?.ready.value;
     const jumpTo = props?.jumpTo.value;
 
@@ -61,7 +63,6 @@ export function useSignalBinding(args: {
    * Handle: play/pause
    */
   Signal.useSignalEffect(() => {
-    // Register listeners.
     props?.ready.value;
     const playing = props?.playing.value ?? false;
 

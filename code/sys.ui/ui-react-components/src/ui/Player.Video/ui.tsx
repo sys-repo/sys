@@ -27,7 +27,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
    */
   const styles = {
     base: css({
-      lineHeight: 0, // NB: ensure no "baseline" gap below the MediaPlayer.
+      lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
       display: cssImports.loaded ? 'block' : 'none',
     }),
   };

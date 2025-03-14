@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type t, Color, css, Signal } from './common.ts';
+import { type t, Color, css, Signal, Time } from './common.ts';
 
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
@@ -24,7 +24,7 @@ export const Debug: React.FC<P> = (props) => {
     p.ready.value;
     p.loop.value;
     p.playing.value;
-    redraw();
+    Time.delay(redraw);
   });
 
   /**
