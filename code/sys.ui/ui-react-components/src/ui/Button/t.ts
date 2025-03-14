@@ -19,7 +19,7 @@ export type ButtonProps = {
   isDown?: boolean; // force the button into an "is-down" state.
 
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   margin?: t.CssEdgesInput;
   padding?: t.CssEdgesInput;
   minWidth?: number;
