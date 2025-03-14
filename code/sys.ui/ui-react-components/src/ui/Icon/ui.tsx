@@ -1,3 +1,4 @@
+import React from 'react';
 import { type t, Color, Style, css } from './common.ts';
 
 type P = t.IconViewProps;
