@@ -2,6 +2,17 @@ import type { MediaPlayerProps } from '@vidstack/react';
 import type { t } from './common.ts';
 
 /**
+ * Signals factory
+ */
+export type PlayerSignalsFactory = (
+  defaults?: PlayerSignalsFactoryDefaults,
+) => t.VideoPlayerSignals;
+
+export type PlayerSignalsFactoryDefaults = {
+  fullscreenButton?: boolean;
+};
+
+/**
  * Signals API for dynamic control of the VideoPlayer.
  */
 export type VideoPlayerSignals = {
@@ -11,6 +22,7 @@ export type VideoPlayerSignals = {
     loop: t.Signal<boolean>;
     jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
     currentTime: t.Signal<t.Secs>;
+    fullscreenButton: t.ReadonlySignal<boolean>;
   };
   jumpTo(second: t.Secs, options?: { play?: boolean }): void;
 };
@@ -26,8 +38,12 @@ export type VideoPlayerProps = {
   title?: string;
   video?: string;
   style?: t.CssInput;
+
+  // Events.
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
+
+  // State.
   signals?: t.VideoPlayerSignals;
 };

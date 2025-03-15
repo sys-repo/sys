@@ -4,7 +4,7 @@ import { Debug } from './-SPEC.Debug.tsx';
 import { VideoPlayer } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
-  const s = Player.Video.signals();
+  const s = Player.Video.signals({});
 
   e.it('API', (e) => {
     expect(Player.Video.View).to.equal(VideoPlayer);

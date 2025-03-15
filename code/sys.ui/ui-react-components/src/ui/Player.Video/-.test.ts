@@ -1,17 +1,26 @@
 import { describe, expect, it } from '../../-test.ts';
+import { Player } from '../Player/mod.ts';
 import { playerSignalsFactory } from './mod.ts';
 
 describe('VideoPlayer', () => {
-  it('initial values', () => {
+  it('initial values (defaults)', () => {
     const s = playerSignalsFactory();
     expect(s.props.ready.value).to.eql(false);
     expect(s.props.playing.value).to.eql(false);
     expect(s.props.loop.value).to.eql(false);
     expect(s.props.currentTime.value).to.eql(0);
     expect(s.props.jumpTo.value).to.eql(undefined);
+    expect(s.props.fullscreenButton.value).to.eql(false);
 
     s.props.playing.value = true;
     expect(s.props.playing.value).to.eql(true);
+  });
+
+  it('param: custom {defaults}', () => {
+    const s = Player.Video.signals({
+      fullscreenButton: true,
+    });
+    expect(s.props.fullscreenButton.value).to.eql(true);
   });
 
   it('jumpTo() method → props.jumpTo', () => {

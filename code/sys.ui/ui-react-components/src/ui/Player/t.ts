@@ -10,7 +10,7 @@ export type PlayerLib = {
   };
   Video: {
     View: React.FC<t.VideoPlayerProps>;
-    signals(): t.VideoPlayerSignals;
+    signals: t.PlayerSignalsFactory;
   };
   Timestamp: {
     Thumbnails: { View: React.FC<t.ThumbnailsProps> };

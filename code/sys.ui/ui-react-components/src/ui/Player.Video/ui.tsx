@@ -1,10 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { MediaPlayerInstance } from '@vidstack/react';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
-import { type t, css, DEFAULTS } from './common.ts';
+import { type t, Signal, css, DEFAULTS } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
@@ -14,10 +14,20 @@ import { useThemeStyles } from './use.ThemeStyles.ts';
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
   const src = props.video || DEFAULTS.video;
+  const p = signals?.props;
+  const showFullscreenButton = p?.fullscreenButton.value ?? false;
 
   const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
+
+  const [, setRender] = useState(0);
+  const redraw = () => setRender((n) => n + 1);
+
+  Signal.useSignalEffect(() => {
+    p?.fullscreenButton.value;
+    redraw();
+  });
 
   /**
    * Render
@@ -43,7 +53,10 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       <PlyrLayout
         // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
         icons={plyrLayoutIcons}
-        slots={{ settings: false }}
+        slots={{
+          settings: false,
+          fullscreenButton: showFullscreenButton ? undefined : false,
+        }}
       />
     </MediaPlayer>
   );

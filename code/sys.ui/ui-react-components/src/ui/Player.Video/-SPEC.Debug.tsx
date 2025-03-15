@@ -24,6 +24,7 @@ export const Debug: React.FC<P> = (props) => {
     p.ready.value;
     p.loop.value;
     p.playing.value;
+    p.fullscreenButton.value;
     Time.delay(redraw);
   });
 
@@ -39,13 +40,19 @@ export const Debug: React.FC<P> = (props) => {
     }),
   };
 
+  const div = (label: string, onClick: () => void) => {
+    return <div onClick={onClick}>{label}</div>;
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <div onClick={() => s.jumpTo(12)}>jumpTo(12, play)</div>
-      <div onClick={() => s.jumpTo(12, { play: false })}>jumpTo(12, paused)</div>
+      {div(`jumpTo(12, play)`, () => s.jumpTo(12))}
+      {div(`jumpTo(12, paused)`, () => s.jumpTo(12, { play: false }))}
       <hr />
-      <div onClick={() => toggle(p.playing)}>{`play (toggle): ${p.playing}`}</div>
-      <div onClick={() => toggle(p.loop)}>{`loop (toggle): ${p.loop}`}</div>
+      {div(`play (toggle): ${p.playing}`, () => toggle(p.playing))}
+      {div(`loop (toggle): ${p.loop}`, () => toggle(p.loop))}
+      <hr />
+      {div(`fullscreenButton (toggle): ${p.fullscreenButton}`, () => toggle(p.fullscreenButton))}
     </div>
   );
 };
