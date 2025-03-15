@@ -10,6 +10,7 @@ export type PlayerSignalsFactory = (
 
 export type PlayerSignalsFactoryDefaults = {
   fullscreenButton?: boolean;
+  loop?: boolean;
 };
 
 /**

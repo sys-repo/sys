@@ -1,36 +1,47 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Player } from '../Player/mod.ts';
 import { playerSignalsFactory } from './mod.ts';
+import { DEFAULTS } from './common.ts';
 
 describe('VideoPlayer', () => {
-  it('initial values (defaults)', () => {
-    const s = playerSignalsFactory();
-    expect(s.props.ready.value).to.eql(false);
-    expect(s.props.playing.value).to.eql(false);
-    expect(s.props.loop.value).to.eql(false);
-    expect(s.props.currentTime.value).to.eql(0);
-    expect(s.props.jumpTo.value).to.eql(undefined);
-    expect(s.props.fullscreenButton.value).to.eql(false);
+  describe('props', () => {
+    it('initial values (defaults)', () => {
+      const s = playerSignalsFactory();
+      const p = s.props;
 
-    s.props.playing.value = true;
-    expect(s.props.playing.value).to.eql(true);
-  });
+      expect(p.ready.value).to.eql(false);
+      expect(p.playing.value).to.eql(false);
+      expect(p.loop.value).to.eql(DEFAULTS.loop);
+      expect(p.currentTime.value).to.eql(0);
+      expect(p.jumpTo.value).to.eql(undefined);
+      expect(p.fullscreenButton.value).to.eql(DEFAULTS.fullscreenButton);
 
-  it('param: custom {defaults}', () => {
-    const s = Player.Video.signals({
-      fullscreenButton: true,
+      p.playing.value = true;
+      expect(p.playing.value).to.eql(true);
     });
-    expect(s.props.fullscreenButton.value).to.eql(true);
+
+    it('param: custom {defaults}', () => {
+      const s = Player.Video.signals({
+        fullscreenButton: true,
+        loop: true,
+      });
+
+      const p = s.props;
+      expect(p.fullscreenButton.value).to.eql(true);
+      expect(p.loop.value).to.eql(true);
+    });
   });
 
-  it('jumpTo() method → props.jumpTo', () => {
-    const s = playerSignalsFactory();
-    expect(s.props.jumpTo.value).to.eql(undefined);
+  describe('methods', () => {
+    it('jumpTo() method → props.jumpTo', () => {
+      const s = playerSignalsFactory();
+      expect(s.props.jumpTo.value).to.eql(undefined);
 
-    s.jumpTo(10);
-    expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
+      s.jumpTo(10);
+      expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
 
-    s.jumpTo(15, { play: false });
-    expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
+      s.jumpTo(15, { play: false });
+      expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
+    });
   });
 });
