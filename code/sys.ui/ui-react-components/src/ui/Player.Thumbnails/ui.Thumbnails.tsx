@@ -30,7 +30,9 @@ export const Thumbnails: React.FC<P> = (props) => {
           key={`${i}.${timestamp}`}
           data={data}
           timestamp={timestamp}
+          timestamps={timestamps}
           onClick={(e) => props.onTimestampClick?.(e)}
+          videoSignals={props.videoSignals}
         />
       ))}
     </div>

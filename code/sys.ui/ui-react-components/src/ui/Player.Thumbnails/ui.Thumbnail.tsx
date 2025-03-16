@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 
-import { type t, Color, css, Icons } from './common.ts';
-import { parseTime } from './u.ts';
+import { type t, Color, css, DEFAULTS, Icons, Signal, Time } from './common.ts';
+import { isCurrentTimestamp, parseTime } from './u.ts';
 
 export type ThumbnailProps = {
   timestamp: t.StringTimestamp;
-  data: t.VideoTimestampProps;
+  timestamps?: t.VideoTimestamps;
+  data: t.VideoTimestampProp;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: t.VideoTimestampHandler;
+  videoSignals?: t.VideoPlayerSignals;
 };
 
 export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
-  const { timestamp, data, onClick } = props;
+  const { timestamp, timestamps, data, onClick, videoSignals } = props;
   const time = wrangle.time(timestamp);
   const src = data.image;
 
@@ -20,6 +22,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   const [error, setError] = useState(false);
   const [isOver, setOver] = useState(false);
   const [isDown, setDown] = useState(false);
+  const [isCurrent, setIsCurrent] = useState(false);
   const over = (isOver: boolean) => () => setOver(isOver);
   const down = (isDown: boolean) => () => setDown(isDown);
 
@@ -32,6 +35,16 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
     image.onload = () => setLoaded(true);
     image.onerror = () => setError(true);
   }, [src]);
+
+  /**
+   * Highlight when current thumbnail/timestamp.
+   */
+  Signal.useSignalEffect(() => {
+    const currentTime = videoSignals?.props.currentTime.value ?? -1;
+    const set = (value: boolean) => Time.delay(() => setIsCurrent(value));
+    if (timestamps) set(isCurrentTimestamp(currentTime, timestamp, timestamps));
+    else set(false);
+  });
 
   /**
    * Handlers.
@@ -54,6 +67,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   const borderRadius = 6;
   const styles = {
     base: css({
+      position: 'relative',
       userSelect: 'none',
       backgroundColor: Color.alpha(theme.fg, 0.03),
       color: theme.fg,
@@ -93,6 +107,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
       PaddingY: 1,
       display: 'grid',
       placeItems: 'center',
+      backgroundColor: isCurrent ? DEFAULTS.BLUE : undefined,
+      color: isCurrent ? Color.WHITE : undefined,
     }),
   };
 
@@ -121,7 +137,6 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
  */
 const wrangle = {
   time(ts: t.StringTimestamp) {
-    const index = ts.indexOf('.');
-    return ts.slice(0, index);
+    return ts.slice(0, ts.indexOf('.'));
   },
 } as const;

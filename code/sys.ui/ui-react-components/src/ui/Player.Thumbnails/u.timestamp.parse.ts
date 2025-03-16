@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * strings into list of sorted stuctures.
  */
 export function parseTimes(timestamps: t.VideoTimestamps): t.VideoTimestamp[] {
-  const parse = (timestamp: string, data: t.VideoTimestampProps) => {
+  const parse = (timestamp: string, data: t.VideoTimestampProp) => {
     const total = parseTime(timestamp);
     return { timestamp, total, data };
   };

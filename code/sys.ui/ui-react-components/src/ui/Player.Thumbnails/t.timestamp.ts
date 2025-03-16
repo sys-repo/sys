@@ -3,18 +3,16 @@ import type { t } from './common.ts';
 /**
  * Timestamp data.
  */
-export type VideoTimestamps = {
-  [HH_MM_SS_mmm: string]: VideoTimestampProps;
-};
+export type VideoTimestamps = t.Timestamps<t.VideoTimestampProp>;
 
-export type VideoTimestampProps = {
+export type VideoTimestampProp = {
   image?: t.StringPath;
 };
 
 export type VideoTimestamp = {
   timestamp: t.StringTimestamp;
   total: t.VideoTimestampTotal;
-  data: t.VideoTimestampProps;
+  data: t.VideoTimestampProp;
 };
 
 export type VideoTimestampTotal = {

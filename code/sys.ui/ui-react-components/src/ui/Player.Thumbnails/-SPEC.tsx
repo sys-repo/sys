@@ -5,6 +5,8 @@ import { sampleTimestamps } from './-SPEC.sample.ts';
 import { Thumbnails } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
+  const s = Player.Video.signals();
+
   e.it('API', (e) => {
     expect(Player.Timestamp.Thumbnails.View).to.equal(Thumbnails);
   });
@@ -16,6 +18,7 @@ export default Spec.describe('VideoPlayer', (e) => {
         <Player.Timestamp.Thumbnails.View
           timestamps={sampleTimestamps}
           onTimestampClick={(e) => console.info(`⚡️ onTimestampClick:`, e)}
+          videoSignals={s}
         />
       );
     });

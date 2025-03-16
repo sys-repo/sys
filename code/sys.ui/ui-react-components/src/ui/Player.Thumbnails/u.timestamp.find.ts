@@ -7,7 +7,7 @@ import { parseTimes } from './u.timestamp.parse.ts';
 export function findTimestamp(
   timestamps: t.VideoTimestamps,
   elapsed: t.Secs,
-): t.VideoTimestampProps | undefined {
+): t.VideoTimestampProp | undefined {
   const parsedTimes = parseTimes(timestamps);
 
   // Find the last timestamp with time <= elapsed.
