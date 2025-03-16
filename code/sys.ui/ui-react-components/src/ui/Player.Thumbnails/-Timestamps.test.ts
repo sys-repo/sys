@@ -1,6 +1,10 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { parseTime, findTimestamp, isCurrentTimestamp } from './u.ts';
+import { findTimestamp, isCurrentTimestamp, parseTime, parseTimes } from './u.ts';
 
+/**
+ * TODO 🐷
+ * rewrite to: @sys/std/Timestamp
+ */
 describe('Timestamps', () => {
   describe('parseTime', () => {
     it('should parse "00:00:00.000" as 0 msecs and 0 secs', () => {
@@ -56,6 +60,72 @@ describe('Timestamps', () => {
       it('should throw an error for non-numeric values', () => {
         expect(() => parseTime('aa:bb:cc.ddd')).to.throw('Invalid number in timestamp');
       });
+    });
+  });
+
+  describe('parseTimes', () => {
+    it('should return an empty array when given an empty object', () => {
+      const test = (input?: any) => {
+        const a = parseTimes(input);
+        expect(a).to.be.an('array').that.is.empty;
+      };
+      test({});
+      ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []].forEach(test);
+    });
+
+    it('should correctly parse a single timestamp', () => {
+      const input: t.VideoTimestamps = {
+        '00:01:02.003': { image: 'single' },
+      };
+      const result = parseTimes(input);
+      expect(result).to.have.lengthOf(1);
+      const parsed = result[0];
+
+      // The original timestamp should be preserved.
+      expect(parsed.timestamp).to.eql('00:01:02.003');
+
+      // Calculate expected parsed values.
+      //  For "00:01:02.003":
+      //  hours: 0, minutes: 1, seconds: 2, milliseconds: 3
+      const expectedMsecs = 0 * 3600000 + 1 * 60000 + 2 * 1000 + 3; // 62003 msecs
+      const expectedSecs = expectedMsecs / 1000;
+      const expectedMins = expectedMsecs / 60000;
+      const expectedHours = expectedMsecs / 3600000;
+
+      expect(parsed.total.msecs).to.eql(expectedMsecs);
+      expect(parsed.total.secs).to.eql(expectedSecs);
+      expect(parsed.total.mins).to.eql(expectedMins);
+      expect(parsed.total.hours).to.eql(expectedHours);
+
+      // The associated data should be preserved.
+      expect(parsed.data).to.deep.equal({ image: 'single' });
+    });
+
+    it('should correctly parse and sort multiple timestamps', () => {
+      const input: t.VideoTimestamps = {
+        '00:00:10.000': { image: 'second' },
+        '00:00:15.000': { image: 'third' },
+        '00:00:05.000': { image: 'first' },
+      };
+      const result = parseTimes(input);
+      expect(result).to.have.lengthOf(3);
+
+      // Expect the results to be sorted by time in ascending order.
+      expect(result[0].timestamp).to.eql('00:00:05.000');
+      expect(result[1].timestamp).to.eql('00:00:10.000');
+      expect(result[2].timestamp).to.eql('00:00:15.000');
+
+      // Validate the parsed milliseconds for the first timestamp.
+      expect(result[0].total.msecs).to.eql(5000);
+      expect(result[0].data).to.deep.equal({ image: 'first' });
+    });
+
+    it('should throw an error if one of the timestamps has an invalid format', () => {
+      const input: t.VideoTimestamps = {
+        '00:00:05.000': { image: 'first' },
+        invalid: { image: 'broken' },
+      };
+      expect(() => parseTimes(input)).to.throw('Invalid time format');
     });
   });
 

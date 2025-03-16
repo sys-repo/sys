@@ -10,13 +10,13 @@ export function isObject(input: any): input is object {
 /**
  * Determine if the given input is a simple {key:value} record object.
  */
-export function isRecord(input: any): input is O {
+export function isRecord<T extends O>(input: any): input is T {
   return isObject(input) && !Array.isArray(input);
 }
 
 /**
  * Determine if the given object is empty of all fields.
  */
-export function isEmptyRecord(input: any): input is object {
+export function isEmptyRecord<T extends O>(input: any): input is T {
   return isRecord(input) && Object.keys(input).length === 0;
 }

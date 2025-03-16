@@ -1,10 +1,12 @@
-import type { t } from './common.ts';
+import { type t, isRecord } from './common.ts';
 
 /**
  * Convert the set of { "HH:MM:SS:mmm":<value> } timestamp
  * strings into list of sorted stuctures.
  */
-export function parseTimes(timestamps: t.VideoTimestamps): t.VideoTimestamp[] {
+export function parseTimes(timestamps?: t.VideoTimestamps): t.VideoTimestamp[] {
+  if (!isRecord(timestamps)) return [];
+
   const parse = (timestamp: string, data: t.VideoTimestampProp) => {
     const total = parseTime(timestamp);
     return { timestamp, total, data };
