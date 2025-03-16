@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, isRecord } from './common.ts';
 import { Duration } from './m.Time.Duration.ts';
 
 /**
@@ -34,4 +34,20 @@ export function parseTime(timestamp: t.StringTimestamp): t.TimeDuration {
     milliseconds;
 
   return Duration.create(msecs);
+}
+
+/**
+ * Convert the set of { "HH:MM:SS:mmm":<value> } timestamp
+ * strings into list of sorted stuctures.
+ */
+export function parseMap<T>(timestamps: t.Timestamps<T>): t.Timestamp<T>[] {
+  if (!isRecord(timestamps)) return [];
+
+  const parse = (timestamp: string, data: T) => {
+    const total = parseTime(timestamp);
+    return { timestamp, total, data };
+  };
+  return Object.entries(timestamps)
+    .map(([timestamp, data]) => parse(timestamp, data))
+    .sort((a, b) => a.total.sec - b.total.sec);
 }
