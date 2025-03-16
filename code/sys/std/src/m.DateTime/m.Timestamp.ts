@@ -11,7 +11,8 @@ export const Timestamp: t.TimestampLib = {
     throw new Error(`Input type not supported: ${typeof input}`);
   },
 
-  find<T>(timestamps: t.Timestamps<T>, msecs: t.Msecs): T | undefined {
+  find<T>(timestamps: t.Timestamps<T>, time: t.Msecs, options = {}): T | undefined {
+    const msecs = wrangle.msecs(time, options);
     const parsedTimes = parseMap(timestamps);
     let candidate: t.Timestamp<T> | undefined = undefined;
     for (const entry of parsedTimes) {
@@ -22,13 +23,19 @@ export const Timestamp: t.TimestampLib = {
     return candidate?.data;
   },
 
-  isCurrent<T>(current: t.Secs, timestamp: t.StringTimestamp, timestamps: t.Timestamps<T>) {
+  isCurrent<T>(
+    current: t.Secs,
+    timestamp: t.StringTimestamp,
+    timestamps: t.Timestamps<T>,
+    options = {},
+  ) {
+    const msecs = wrangle.msecs(current, options);
     const parsedTimes = parseMap(timestamps);
     let candidate: t.Timestamp<T> | undefined = undefined;
 
     // Find the last timestamp with total time <= currentTime.
     for (const entry of parsedTimes) {
-      if (entry.total.msec <= current) {
+      if (entry.total.msec <= msecs) {
         candidate = entry;
       } else {
         break;
@@ -38,3 +45,14 @@ export const Timestamp: t.TimestampLib = {
     return candidate ? candidate.timestamp === timestamp : false;
   },
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  msecs(value: number, options: t.TimestampOptions = {}) {
+    const { unit = 'msecs' } = options;
+    if (unit === 'secs') value = value * 1000;
+    return value;
+  },
+} as const;

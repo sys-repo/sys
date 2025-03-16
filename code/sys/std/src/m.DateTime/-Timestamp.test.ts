@@ -162,6 +162,15 @@ describe('Timestamp', () => {
       const res = Timestamp.find(timestamps, 20_000);
       expect(res).to.eql({ image: 'third' });
     });
+
+    it('option: should use seconds (instead of milliseconds) as time comparison unit', () => {
+      const a = Timestamp.find(timestamps, 12_000);
+      const b = Timestamp.find(timestamps, 12, { unit: 'secs' });
+      const c = Timestamp.find(timestamps, 12); // expect failure.
+      expect(a).to.eql({ image: 'second' });
+      expect(a).to.eql(b);
+      expect(c).to.not.eql(a);
+    });
   });
 
   describe('isCurrent', () => {
@@ -199,6 +208,15 @@ describe('Timestamp', () => {
     it('should return [false] when the provided timestamp is not present in the timestamps', () => {
       // Provided timestamp does not exist in the timestamps object.
       expect(Timestamp.isCurrent(7_000, '00:00:20.000', timestamps)).to.be.false;
+    });
+
+    it('option: should use seconds (instead of milliseconds) as time comparison unit', () => {
+      const a = Timestamp.isCurrent(5_000, '00:00:05.000', timestamps);
+      const b = Timestamp.isCurrent(5, '00:00:05.000', timestamps, { unit: 'secs' });
+      const c = Timestamp.isCurrent(5, '00:00:05.000', timestamps); // expect failure.
+      expect(a).to.be.true;
+      expect(b).to.be.true;
+      expect(c).to.not.eql(a);
     });
   });
 });
