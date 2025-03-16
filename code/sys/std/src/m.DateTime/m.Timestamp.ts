@@ -21,4 +21,20 @@ export const Timestamp: t.TimestampLib = {
     }
     return candidate?.data;
   },
+
+  isCurrent<T>(current: t.Secs, timestamp: t.StringTimestamp, timestamps: t.Timestamps<T>) {
+    const parsedTimes = parseMap(timestamps);
+    let candidate: t.Timestamp<T> | undefined = undefined;
+
+    // Find the last timestamp with total time <= currentTime.
+    for (const entry of parsedTimes) {
+      if (entry.total.msec <= current) {
+        candidate = entry;
+      } else {
+        break;
+      }
+    }
+
+    return candidate ? candidate.timestamp === timestamp : false;
+  },
 };

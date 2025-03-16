@@ -19,4 +19,9 @@ export type TimestampLib = {
    * Lookup a timestamp from an elapsed time within a {timestamps} map.
    */
   find<T>(timestamps: t.Timestamps<T>, msecs: t.Msecs): T | undefined;
+
+  /**
+   * Check if a given timestamp is the current one based on the elapsed time.
+   */
+  isCurrent<T>(current: t.Secs, timestamp: t.StringTimestamp, timestamps: t.Timestamps<T>): boolean;
 };

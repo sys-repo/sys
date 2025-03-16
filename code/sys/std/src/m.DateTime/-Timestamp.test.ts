@@ -163,4 +163,42 @@ describe('Timestamp', () => {
       expect(res).to.eql({ image: 'third' });
     });
   });
+
+  describe('isCurrent', () => {
+    const timestamps: MyTimestamps = {
+      '00:00:00.000': { image: 'image-0.png' },
+      '00:00:05.000': { image: 'image-5.png' },
+      '00:00:10.000': { image: 'image-10.png' },
+    };
+
+    it('should return [false] when current time is before the first timestamp', () => {
+      // When current time is less than the first timestamp, no candidate is found.
+      expect(Timestamp.isCurrent(-1, '00:00:00.000', timestamps)).to.be.false;
+    });
+
+    it('should return [true] when current time equals the first timestamp', () => {
+      // currentTime is exactly at the first timestamp.
+      expect(Timestamp.isCurrent(0, '00:00:00.000', timestamps)).to.be.true;
+    });
+
+    it('should return [false] if the candidate timestamp does not match the provided timestamp', () => {
+      // For currentTime 3 sec, the candidate should be '00:00:00.000', not '00:00:05.000'
+      expect(Timestamp.isCurrent(3_000, '00:00:05.000', timestamps)).to.be.false;
+    });
+
+    it('should return [true] when current time exactly matches a later timestamp', () => {
+      // For currentTime 5 sec, the candidate should be '00:00:05.000'
+      expect(Timestamp.isCurrent(5_000, '00:00:05.000', timestamps)).to.be.true;
+    });
+
+    it('should return [true] when current time is between two timestamps and candidate remains unchanged', () => {
+      // For currentTime 7 sec, candidate remains '00:00:05.000'
+      expect(Timestamp.isCurrent(7_000, '00:00:05.000', timestamps)).to.be.true;
+    });
+
+    it('should return [false] when the provided timestamp is not present in the timestamps', () => {
+      // Provided timestamp does not exist in the timestamps object.
+      expect(Timestamp.isCurrent(7_000, '00:00:20.000', timestamps)).to.be.false;
+    });
+  });
 });
