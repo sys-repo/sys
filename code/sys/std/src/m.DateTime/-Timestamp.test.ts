@@ -3,6 +3,9 @@ import { Num } from '../m.Value.Num/mod.ts';
 import { Timestamp } from './mod.ts';
 
 describe('Timestamp', () => {
+  type T = { image: string };
+  type MyTimestamps = t.Timestamps<T>;
+
   describe('parse: "HH:MM:SS.mmm"', () => {
     it('should parse "00:00:00.000" as 0 msecs and 0 secs', () => {
       const res = Timestamp.parse('00:00:00.000');
@@ -61,9 +64,6 @@ describe('Timestamp', () => {
   });
 
   describe('parse: timestamp map ← { "HH:MM:SS.mmm": T }', () => {
-    type T = { image: string };
-    type MyTimestamps = t.Timestamps<T>;
-
     it('should return an empty array when given an empty object', () => {
       const test = (input?: any) => {
         expect(Timestamp.parse(input)).to.be.an('array').that.is.empty;
@@ -96,7 +96,7 @@ describe('Timestamp', () => {
       expect(parsed.total.hour).to.eql(Num.round(expectedHours, 1));
 
       // The associated data should be preserved.
-      expect(parsed.data).to.deep.equal({ image: 'single' });
+      expect(parsed.data).to.eql({ image: 'single' });
     });
 
     it('should correctly parse and sort multiple timestamps', () => {
@@ -115,7 +115,7 @@ describe('Timestamp', () => {
 
       // Validate the parsed milliseconds for the first timestamp.
       expect(result[0].total.msec).to.eql(5000);
-      expect(result[0].data).to.deep.equal({ image: 'first' });
+      expect(result[0].data).to.eql({ image: 'first' });
     });
 
     it('should throw an error if one of the timestamps has an invalid format', () => {
@@ -124,6 +124,43 @@ describe('Timestamp', () => {
         invalid: { image: 'broken' },
       };
       expect(() => Timestamp.parse(input)).to.throw('Invalid time format');
+    });
+  });
+
+  describe('find', () => {
+    const timestamps: MyTimestamps = {
+      '00:00:10.000': { image: 'second' },
+      '00:00:15.000': { image: 'third' },
+      '00:00:05.000': { image: 'first' },
+    };
+
+    it('should return [undefined] if elapsed time is before the first timestamp', () => {
+      // Elapsed time of 2 seconds is less than the first timestamp (5 seconds)
+      const res = Timestamp.find(timestamps, 2_000);
+      expect(res).to.be.undefined;
+    });
+
+    it('should return the first timestamp when elapsed equals its time', () => {
+      // Elapsed time exactly 5 seconds.
+      const res = Timestamp.find(timestamps, 5_000);
+      console.log('res', res);
+      expect(res).to.eql({ image: 'first' });
+    });
+
+    it('should return the correct timestamp when elapsed falls between two timestamps', () => {
+      // Elapsed time 7 seconds: the only timestamp <= 7 seconds is the first (5 seconds).
+      const a = Timestamp.find(timestamps, 7_000);
+      expect(a).to.eql({ image: 'first' });
+
+      // Elapsed time 12 seconds: the latest timestamp with time <= 12 seconds is the second (10 seconds).
+      const b = Timestamp.find(timestamps, 12_000);
+      expect(b).to.eql({ image: 'second' });
+    });
+
+    it('should return the last timestamp if elapsed time exceeds all timestamps', () => {
+      // Elapsed time 20 seconds: all timestamps are <= 20 seconds, so it returns the last one.
+      const res = Timestamp.find(timestamps, 20_000);
+      expect(res).to.eql({ image: 'third' });
     });
   });
 });

@@ -7,11 +7,16 @@ export type TimestampLib = {
   /**
    * Parse a "HH:MM:DD:mmm" string into a structured object.
    */
-  parse(input: t.StringTimestamp): t.TimeDuration;
+  parse(timestamp: t.StringTimestamp): t.TimeDuration;
 
   /**
    * Convert the map of { "HH:MM:SS:mmm": <T> } timestamps
    * into a sorted list stuctured objects.
    */
-  parse<T>(input: t.Timestamps<T>): t.Timestamp<T>[];
+  parse<T>(timestamps: t.Timestamps<T>): t.Timestamp<T>[];
+
+  /**
+   * Lookup a timestamp from an elapsed time within a {timestamps} map.
+   */
+  find<T>(timestamps: t.Timestamps<T>, msecs: t.Msecs): T | undefined;
 };

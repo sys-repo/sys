@@ -45,7 +45,13 @@ export function parseMap<T>(timestamps: t.Timestamps<T>): t.Timestamp<T>[] {
 
   const parse = (timestamp: string, data: T) => {
     const total = parseTime(timestamp);
-    return { timestamp, total, data };
+    return {
+      timestamp,
+      data,
+      get total() {
+        return total;
+      },
+    };
   };
   return Object.entries(timestamps)
     .map(([timestamp, data]) => parse(timestamp, data))

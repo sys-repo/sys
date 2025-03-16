@@ -10,4 +10,15 @@ export const Timestamp: t.TimestampLib = {
     if (typeof input === 'string') return parseTime(input);
     throw new Error(`Input type not supported: ${typeof input}`);
   },
+
+  find<T>(timestamps: t.Timestamps<T>, msecs: t.Msecs): T | undefined {
+    const parsedTimes = parseMap(timestamps);
+    let candidate: t.Timestamp<T> | undefined = undefined;
+    for (const entry of parsedTimes) {
+      // Match the last timestamp with time <= elapsed.
+      if (entry.total.msec <= msecs) candidate = entry;
+      else break;
+    }
+    return candidate?.data;
+  },
 };
