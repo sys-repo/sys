@@ -66,9 +66,11 @@ describe('Timestamp', () => {
   describe('parse: timestamp map ← { "HH:MM:SS.mmm": T }', () => {
     it('should return an empty array when given an empty object', () => {
       const test = (input?: any) => {
-        expect(Timestamp.parse(input)).to.be.an('array').that.is.empty;
+        expect(Timestamp.parse(input)).to.eql([]);
       };
       test({});
+      test(undefined);
+      test(null);
     });
 
     it('should correctly parse a single timestamp', () => {

@@ -15,7 +15,7 @@ export type TimestampLib = {
    * Convert the map of { "HH:MM:SS:mmm": <T> } timestamps
    * into a sorted list stuctured objects.
    */
-  parse<T>(timestamps: t.Timestamps<T>): t.Timestamp<T>[];
+  parse<T>(timestamps?: t.Timestamps<T>): t.Timestamp<T>[];
 
   /**
    * Lookup a timestamp from an elapsed time within a {timestamps} map.
