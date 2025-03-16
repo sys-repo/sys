@@ -14,16 +14,22 @@ export function useSignalBinding(args: {
   const props = signals?.props;
   const player = playerRef.current || undefined;
 
-  const currentPlayerTime = useMediaState('currentTime', playerRef);
+  const currentTime = useMediaState('currentTime', playerRef);
   const isPlaying = useMediaState('playing', playerRef);
 
   /**
-   * Keep the player's current state synced onto the signals.
+   * Sync the signals with the <Player>'s current state.
    */
-  if (props && player) {
-    if (props.currentTime.value !== currentPlayerTime) props.currentTime.value = currentPlayerTime;
-    if (props.playing.value !== isPlaying) props.playing.value = isPlaying;
+  if (props) {
+    if (props.currentTime.value !== currentTime) {
+      props.currentTime.value = currentTime;
+    }
   }
+
+  React.useEffect(() => {
+    if (!props) return;
+    if (props.playing.value !== isPlaying) props.playing.value = isPlaying;
+  }, [isPlaying]);
 
   /**
    * Handle: reset upon playback finish.
@@ -31,19 +37,19 @@ export function useSignalBinding(args: {
   Signal.useSignalEffect(() => {
     props?.ready.value;
     props?.currentTime.value;
-    const isEnded = player?.currentTime === player?.duration;
+    const isEnded = props?.currentTime.value === player?.duration;
     const loop = props?.loop.value ?? false;
 
-    if (player && isEnded) {
+    if (isEnded) {
       // NB: Hack to reset the video to the beginning.
       //     The VidStack player goes into a funny state when ended.
-      player.play();
-      if (!loop) Time.delay(100).then(() => player.pause());
+      player?.play();
+      if (!loop) Time.delay(100).then(() => player?.pause());
     }
   });
 
   /**
-   * Handle: jumpTo (aka "seek").
+   * Handle: jumpTo (aka. "seek").
    */
   Signal.useSignalEffect(() => {
     props?.ready.value;
@@ -66,9 +72,11 @@ export function useSignalBinding(args: {
     props?.ready.value;
     const playing = props?.playing.value ?? false;
 
-    if (player) {
-      if (playing) player.play();
-      if (!playing) player.pause();
-    }
+    const syncPlayer = () => {
+      if (!player) return;
+      if (playing && player.paused) player.play();
+      if (!playing && !player.paused) player.pause();
+    };
+    syncPlayer();
   });
 }
