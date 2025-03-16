@@ -6,7 +6,7 @@ import { isCurrentTimestamp, parseTime } from './u.ts';
 export type ThumbnailProps = {
   timestamp: t.StringTimestamp;
   timestamps?: t.VideoTimestamps;
-  data: t.VideoTimestampProp;
+  data: t.VideoTimestampData;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: t.VideoTimestampHandler;
@@ -50,14 +50,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
    * Handlers.
    */
   function handleClick() {
-    let _total: t.VideoTimestampTotal;
-    props.onClick?.({
-      timestamp,
-      data,
-      get total() {
-        return _total || (_total = parseTime(timestamp));
-      },
-    });
+    const total = parseTime(timestamp);
+    props.onClick?.({ timestamp, data, total });
   }
 
   /**

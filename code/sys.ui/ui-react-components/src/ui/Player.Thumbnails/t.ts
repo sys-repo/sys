@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.timestamp.ts';
 
 /**
  * <Component>
@@ -13,6 +12,13 @@ export type ThumbnailsProps = {
   videoSignals?: t.VideoPlayerSignals;
   onTimestampClick?: t.VideoTimestampHandler;
 };
+
+/**
+ * Timestamps.
+ */
+export type VideoTimestamps = t.Timestamps<t.VideoTimestampData>;
+export type VideoTimestamp = t.Timestamp<t.VideoTimestampData>;
+export type VideoTimestampData = { image?: t.StringPath };
 
 /**
  * Events.
