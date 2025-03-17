@@ -4,7 +4,6 @@ import { type t, SVG, SvgElement } from './common.ts';
 /**
  * Hook: SVG image import/renderer.
  */
-
 export function useSvg<T extends HTMLElement>(
   base64Import: string,
   viewboxWidth: number,
@@ -46,6 +45,14 @@ export function useSvg<T extends HTMLElement>(
   /**
    * API
    */
-  const api: t.UseSvgInstance<T> = { ref, draw };
+  const api: t.UseSvgInstance<T> = {
+    ref,
+    draw,
+    find<T extends SVGElement>(id: string) {
+      if (!ref.current) return undefined;
+      const el = ref.current.querySelector<T>(`#${id.replace(/^#/, '')}`);
+      return el || undefined;
+    },
+  };
   return api;
 }

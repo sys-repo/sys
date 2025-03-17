@@ -4,6 +4,7 @@ import Image from '../../-test/sample/images/svg.sample.svg';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 import { Signal } from './common.ts';
 import { Svg } from './mod.ts';
+import { setBigUint64 } from '@noble/hashes/_md';
 
 export type SampleProps = { signals: DebugSignals };
 
@@ -15,6 +16,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const p = signals.props;
 
   const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (d) => d.width(p.width.value));
+  console.info('svg (hook instance):', svg, ' | ', svg.find('tick'));
 
   /**
    * Redraw the component on signal changes.

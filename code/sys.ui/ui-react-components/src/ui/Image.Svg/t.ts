@@ -1,11 +1,12 @@
 import type { Element as SvgElement } from '@svgdotjs/svg.js';
+export { SvgElement };
 
 /**
  * SVG rendering tools.
  */
 export type SvgLib = {
-  Element: SvgElement;
-  useSvg: UseSvg;
+  readonly Element: SvgElement;
+  readonly useSvg: UseSvg;
 };
 
 /**
@@ -21,6 +22,7 @@ export type UseSvg = <T extends HTMLElement>(
 export type UseSvgInstance<T extends HTMLElement> = {
   readonly ref: React.RefObject<T>;
   readonly draw: SvgElement | undefined;
+  find<T extends SVGElement>(id: string): T | undefined;
 };
 
 export type UseSvgInit = (draw: SvgElement) => void;
