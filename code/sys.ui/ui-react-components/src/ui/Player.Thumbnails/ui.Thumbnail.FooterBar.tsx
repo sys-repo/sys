@@ -25,7 +25,6 @@ export const FooterBar: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      // backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       fontSize: 12,
       PaddingY: 1,
