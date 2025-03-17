@@ -48,10 +48,15 @@ export function useSvg<T extends HTMLElement>(
   const api: t.UseSvgInstance<T> = {
     ref,
     draw,
-    find<T extends SVGElement>(id: string) {
+    query(selector) {
       if (!ref.current) return undefined;
-      const el = ref.current.querySelector<T>(`#${id.replace(/^#/, '')}`);
-      return el || undefined;
+      const el = ref.current.querySelector(selector);
+      return el ? SVG(el) : undefined;
+    },
+    queryAll(selector) {
+      if (!ref.current) return [];
+      const matches = ref.current.querySelectorAll(selector);
+      return Array.from(matches).map((el) => SVG(el));
     },
   };
   return api;

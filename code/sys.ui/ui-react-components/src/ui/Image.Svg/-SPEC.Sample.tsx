@@ -16,7 +16,12 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const p = signals.props;
 
   const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (d) => d.width(p.width.value));
-  console.info('svg (hook instance):', svg, ' | ', svg.find('tick'));
+
+  console.groupCollapsed(`🌳 svg (hook instance)`);
+  console.info(svg);
+  console.info(`svg.query('#tick'): `, svg.query('#tick'));
+  console.info(`svg.queryAll('line'): `, svg.queryAll('line'));
+  console.groupEnd();
 
   /**
    * Redraw the component on signal changes.

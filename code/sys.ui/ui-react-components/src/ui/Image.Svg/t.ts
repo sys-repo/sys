@@ -22,7 +22,8 @@ export type UseSvg = <T extends HTMLElement>(
 export type UseSvgInstance<T extends HTMLElement> = {
   readonly ref: React.RefObject<T>;
   readonly draw: SvgElement | undefined;
-  find<T extends SVGElement>(id: string): T | undefined;
+  query(selector: string): SvgElement | undefined;
+  queryAll(selector: string): SvgElement[];
 };
 
 export type UseSvgInit = (draw: SvgElement) => void;
