@@ -13,4 +13,11 @@ export type { ReadonlySignal, Signal } from '@preact/signals-react';
 export type SignalReactLib = SignalLib & {
   useSignal: typeof Preact.useSignal;
   useSignalEffect: typeof Preact.useSignalEffect;
+
+  /**
+   * Causes a redraw (via a useState counter incrementing)
+   * when any of the signals that are hooked into within the
+   * callback change value.
+   */
+  useRedrawEffect(cb: () => void): void;
 };
