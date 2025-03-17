@@ -1,5 +1,6 @@
 import { type t, describe, expect, it } from '../-test.ts';
 import { Num } from '../m.Value.Num/mod.ts';
+import { Time } from './m.Time.ts';
 import { Timestamp } from './mod.ts';
 
 describe('Timestamp', () => {
@@ -43,6 +44,15 @@ describe('Timestamp', () => {
       expect(res.sec).to.eql(Num.round(expectedSecs, 1));
       expect(res.min).to.eql(Num.round(expectedMins, 1));
       expect(res.hour).to.eql(Num.round(expectedHours, 1));
+    });
+
+    it('should fix single-digit unit values', () => {
+      const res = Timestamp.parse('1:2:3.4');
+      expect(res.hour).to.eql(1);
+      expect(res.min).to.eql(62.1);
+      expect(res.sec).to.eql(3723);
+      expect(res.msec).to.eql(3723004);
+      expect(res.toString()).to.eql('1h');
     });
 
     describe('errors', () => {
@@ -219,6 +229,42 @@ describe('Timestamp', () => {
       expect(a).to.be.true;
       expect(b).to.be.true;
       expect(c).to.not.eql(a);
+    });
+  });
+
+  describe('toString', () => {
+    it('should format 0 milliseconds as "00:00:00.000"', () => {
+      const ts = Timestamp.parse('00:00:00.000');
+      expect(Timestamp.toString(ts)).to.eql('00:00:00.000');
+      expect(Timestamp.toString('0:0:0.0')).to.eql('00:00:00.000');
+    });
+
+    it('should format 123 milliseconds as "00:00:00.123"', () => {
+      const ts = '00:00:00.123';
+      expect(Timestamp.toString(ts)).to.eql(ts);
+    });
+
+    it('should format 1000 milliseconds as "00:00:01.000"', () => {
+      const ts = '00:00:01.000';
+      expect(Timestamp.toString(ts)).to.eql(ts);
+    });
+
+    it('should format 61234 milliseconds as "00:01:01.234"', () => {
+      // 61234 ms = 0 hours, 1 minute, 1 second, 234 ms
+      const duration = Time.Duration.create(61234);
+      expect(Timestamp.toString(duration)).to.eql('00:01:01.234');
+    });
+
+    it('should format a duration with days and hours correctly', () => {
+      // Example: 1 day, 7 hours, 6 minutes, 45 seconds, and 123 milliseconds.
+      //    1 day  = 86,400,000 ms
+      //    7 hours = 7 * 3,600,000 = 25,200,000 ms
+      //    6 minutes = 6 * 60,000 = 360,000 ms
+      //    45 seconds = 45 * 1,000 = 45,000 ms
+      // Total = 86,400,000 + 25,200,000 + 360,000 + 45,000 + 123 = 112,005,123 ms.
+      const totalMsec = 112005123;
+      const duration = Time.Duration.create(totalMsec);
+      expect(Timestamp.toString(duration)).to.eql('31:06:45.123');
     });
   });
 });

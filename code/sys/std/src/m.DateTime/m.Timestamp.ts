@@ -45,6 +45,27 @@ export const Timestamp: t.TimestampLib = {
 
     return candidate ? candidate.timestamp === timestamp : false;
   },
+
+  toString(input) {
+    const duration = isRecord(input) ? input : Timestamp.parse(input);
+    const msec = duration.msec;
+
+    // Calculate hours, minutes, seconds and milliseconds from the total milliseconds.
+    const hours = Math.floor(msec / 3600000);
+    const remainderAfterHours = msec % 3600000;
+    const minutes = Math.floor(remainderAfterHours / 60000);
+    const remainderAfterMinutes = remainderAfterHours % 60000;
+    const seconds = Math.floor(remainderAfterMinutes / 1000);
+    const milliseconds = remainderAfterMinutes % 1000;
+
+    // Format with leading zeros.
+    const hoursStr = hours.toString().padStart(2, '0');
+    const minutesStr = minutes.toString().padStart(2, '0');
+    const secondsStr = seconds.toString().padStart(2, '0');
+    const millisStr = milliseconds.toString().padStart(3, '0');
+
+    return `${hoursStr}:${minutesStr}:${secondsStr}.${millisStr}`;
+  },
 };
 
 /**

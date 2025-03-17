@@ -31,4 +31,9 @@ export type TimestampLib = {
     timestamps: t.Timestamps<T>,
     options?: TimestampOptions,
   ): boolean;
+
+  /**
+   * Convert a parsed [TimeDuration] back into a timestamp ("HH:MM:SS.mmm")
+   */
+  toString(input: t.TimeDuration | t.StringTimestamp): string;
 };
