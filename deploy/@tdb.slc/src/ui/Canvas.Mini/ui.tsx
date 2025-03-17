@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS } from './common.ts';
+import { type t, Color, css, Signal, DEFAULTS, Svg } from './common.ts';
+import { SvgImage } from './ui.Svg.Image.tsx';
 
 type P = t.CanvasMiniProps;
 
@@ -7,7 +8,7 @@ type P = t.CanvasMiniProps;
  * Component.
  */
 export const CanvasMini: React.FC<P> = (props) => {
-  const {} = props;
+  const { width = DEFAULTS.width } = props;
 
   /**
    * Render.
@@ -15,14 +16,15 @@ export const CanvasMini: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      cursor: 'default',
+      position: 'relative',
       color: theme.fg,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 CanvasMini`}</div>
+      <SvgImage theme={props.theme} width={props.width} />
     </div>
   );
 };

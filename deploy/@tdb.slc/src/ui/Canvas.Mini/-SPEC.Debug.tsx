@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, Time } from './common.ts';
+import React from 'react';
+import { type t, Color, css, Signal } from './common.ts';
 
 import { Button } from '@sys/ui-react-components';
 
@@ -16,6 +16,7 @@ type P = DebugProps;
 export function createDebugSignals() {
   const props = {
     theme: Signal.create<t.CommonTheme>('Dark'),
+    width: Signal.create(200),
   };
   const api = { props };
   return api;
@@ -30,6 +31,7 @@ export const Debug: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.width.value;
   });
 
   /**
@@ -37,10 +39,7 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
-    }),
+    base: css({ color: theme.fg }),
   };
 
   return (
@@ -48,6 +47,13 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block={true}
+        label={`width: ${p.width}`}
+        onClick={() => {
+          p.width.value = p.width.value === 200 ? 400 : 200;
+        }}
       />
     </div>
   );
