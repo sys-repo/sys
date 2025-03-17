@@ -4,7 +4,11 @@ import { Duration } from './m.Time.Duration.ts';
 /**
  * Parse a "HH:MM:DD:mmm" string into a structured object.
  */
-export function parseTime(timestamp: t.StringTimestamp): t.TimeDuration {
+
+export function parseTime(
+  timestamp: t.StringTimestamp,
+  options: { round?: number } = {},
+): t.TimeDuration {
   // Split the timestamp into "hour", "minute", and "second.millisecond" parts.
   const parts = timestamp.split(':');
   if (parts.length !== 3) throw new Error(`Invalid time format: ${timestamp}`);
@@ -33,18 +37,22 @@ export function parseTime(timestamp: t.StringTimestamp): t.TimeDuration {
     seconds * 1_000 + //   1 second = 1,000 msecs
     milliseconds;
 
-  return Duration.create(msecs);
+  const { round } = options;
+  return Duration.create(msecs, { round });
 }
 
 /**
  * Convert the set of { "HH:MM:SS:mmm":<value> } timestamp
  * strings into list of sorted stuctures.
  */
-export function parseMap<T>(timestamps: t.Timestamps<T>): t.Timestamp<T>[] {
+export function parseMap<T>(
+  timestamps: t.Timestamps<T>,
+  options: { round?: number } = {},
+): t.Timestamp<T>[] {
   if (!isRecord(timestamps)) return [];
 
   const parse = (timestamp: string, data: T) => {
-    const total = parseTime(timestamp);
+    const total = parseTime(timestamp, options);
     return {
       timestamp,
       data,
