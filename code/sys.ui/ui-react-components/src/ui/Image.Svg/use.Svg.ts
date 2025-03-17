@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type t, SVG, SvgElement } from './common.ts';
 
 /**
@@ -15,6 +15,8 @@ export function useSvg<T extends HTMLElement>(
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
+
+  const [ready, setReady] = useState(false);
 
   /**
    * Methods.
@@ -52,6 +54,7 @@ export function useSvg<T extends HTMLElement>(
     // Initialize.
     drawRef.current = draw;
     init?.({ draw, query, queryAll });
+    setReady(true);
 
     // Finish up.
     return () => {
@@ -63,6 +66,6 @@ export function useSvg<T extends HTMLElement>(
   /**
    * API
    */
-  const api: R = { ref, draw, query, queryAll };
+  const api: R = { ready, ref, draw, query, queryAll };
   return api;
 }

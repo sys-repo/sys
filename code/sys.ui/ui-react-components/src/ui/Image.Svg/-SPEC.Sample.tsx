@@ -14,7 +14,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
 
-  const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (svg) => svg.draw.width(p.width.value));
+  const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (e) => e.draw.width(p.width.value));
 
   console.groupCollapsed(`🌳 svg (hook instance)`);
   console.info(svg);
