@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { type t, Color, css, DEFAULTS, Icons, Signal, Time } from './common.ts';
-import { isCurrentTimestamp, parseTime } from './u.ts';
+import { Timestamp } from './u.ts';
 
 export type ThumbnailProps = {
   timestamp: t.StringTimestamp;
@@ -42,7 +42,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   Signal.useSignalEffect(() => {
     const currentTime = videoSignals?.props.currentTime.value ?? -1;
     const set = (value: boolean) => Time.delay(() => setIsCurrent(value));
-    if (timestamps) set(isCurrentTimestamp(currentTime, timestamp, timestamps));
+    if (timestamps) set(Timestamp.isCurrent(currentTime, timestamp, timestamps));
     else set(false);
   });
 
@@ -50,7 +50,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
    * Handlers.
    */
   function handleClick() {
-    const total = parseTime(timestamp);
+    const total = Timestamp.parseTime(timestamp);
     props.onClick?.({ timestamp, data, total });
   }
 

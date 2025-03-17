@@ -9,7 +9,9 @@ export type ConceptPlayerProps = {
   video?: string;
   timestamps?: t.VideoTimestamps;
   thumbnails?: boolean;
+
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
   videoSignals?: t.VideoPlayerSignals;
 };

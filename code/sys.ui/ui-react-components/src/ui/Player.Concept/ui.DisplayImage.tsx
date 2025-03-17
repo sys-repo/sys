@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t, Color, css, findTimestamp, Icons, Signal, Time } from './common.ts';
+import { type t, Color, css, Icons, Signal, Time, Timestamp } from './common.ts';
 
 export type DisplayImageProps = {
   timestamps: t.VideoTimestamps;
@@ -28,7 +28,7 @@ export const DisplayImage: React.FC<P> = (props) => {
    */
   Signal.useSignalEffect(() => {
     const elapsed = s.props.currentTime.value;
-    const match = findTimestamp(timestamps, elapsed);
+    const match = Timestamp.find(timestamps, elapsed);
     if (match?.image !== src) Time.delay(() => updateSrc(match?.image));
   });
 
