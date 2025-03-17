@@ -48,6 +48,9 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       onPlay={props.onPlay}
       onPlaying={props.onPlaying}
       onPause={props.onPause}
+      onCanPlay={() => {
+        if (p) p.ready.value = true;
+      }}
     >
       <MediaProvider />
       <PlyrLayout
