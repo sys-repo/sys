@@ -5,8 +5,8 @@
 import type { t } from './common.ts';
 
 export const Specs = {
-  'sys.ui.react.component.Panel': () => import('../ui/Panel/-SPEC.tsx'),
   'sys.ui.react.component.Button': () => import('../ui/Button/-SPEC.tsx'),
+  'sys.ui.react.component.Panel': () => import('../ui/Panel/-SPEC.tsx'),
   'sys.ui.react.component.Icon': () => import('../ui/Icon/-SPEC.tsx'),
 
   'sys.ui.react.component.Player.Video': () => import('../ui/Player.Video/-SPEC.tsx'),

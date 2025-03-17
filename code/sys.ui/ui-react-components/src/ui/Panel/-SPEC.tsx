@@ -4,13 +4,14 @@ import { Panel } from './mod.ts';
 
 export default Spec.describe('Panel', (e) => {
   const debug = createDebugSignals();
+  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
+    Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject.size([224, null]).render((e) => {
-      return <Panel />;
+      return <Panel theme={p.theme.value} />;
     });
   });
 

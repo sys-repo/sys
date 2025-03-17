@@ -2,12 +2,13 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 
 export const Panel: React.FC<t.PanelProps> = (props) => {
-  const { text = '🐷' } = props;
+  const { text = '🐷 Panel' } = props;
 
   /**
    * Render
    */
   const theme = Color.theme(props.theme);
+  console.log('theme', theme);
   const styles = {
     base: css({
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,

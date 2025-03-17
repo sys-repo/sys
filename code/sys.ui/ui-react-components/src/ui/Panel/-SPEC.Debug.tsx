@@ -27,11 +27,8 @@ export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
   const p = ctx.debug.props;
 
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
-  Signal.useSignalEffect(() => {
+  Signal.useRedrawEffect(() => {
     p.theme.value;
-    Time.delay(redraw);
   });
 
   /**
