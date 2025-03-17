@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Icons, Signal, Time } from './common.ts';
 import { Timestamp } from './u.ts';
 import { FooterBar } from './ui.Thumbnail.FooterBar.tsx';
@@ -16,6 +16,9 @@ export type ThumbnailProps = {
 export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   const { timestamp, timestamps, data, onClick, videoSignals } = props;
   const src = data.image;
+
+  const rangeRef = useRef(Timestamp.range(timestamps, timestamp));
+  const range = rangeRef.current;
 
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -40,9 +43,18 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
    */
   Signal.useSignalEffect(() => {
     const currentTime = videoSignals?.props.currentTime.value ?? -1;
-    const set = (value: boolean) => Time.delay(() => setIsCurrent(value));
-    if (timestamps) set(Timestamp.isCurrent(timestamps, timestamp, currentTime));
-    else set(false);
+    const update = (isCurrent: boolean) => {
+      // NB: state updated after a micro-delay to ensure writing happens on the next render frame.
+      Time.delay(() => setIsCurrent(isCurrent));
+    };
+
+    if (timestamps) {
+      const isCurrent = Timestamp.isCurrent(timestamps, timestamp, currentTime);
+      update(isCurrent);
+
+    } else {
+      update(false);
+    }
   });
 
   /**
@@ -54,7 +66,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   }
 
   /**
-   * Render
+   * Render.
    */
   const theme = Color.theme(props.theme);
   const borderRadius = 6;

@@ -36,11 +36,20 @@ function parseTime(timestamp: string): t.TimeDuration {
   return Std.parse(timestamp, { round });
 }
 
+/**
+ * Generate a sub-range for a timestamp within a map of timestamps.
+ */
+function range(timestamps: t.VideoTimestamps | undefined, location: t.Secs | t.StringTimestamp) {
+  if (!timestamps) return undefined;
+  return Std.range(timestamps, location, { unit, round });
+}
+
 export const Timestamp = {
+  parseTime,
+  parseTimes,
   isCurrent,
   find,
-  parseTimes,
-  parseTime,
+  range,
   toString(input: t.VideoTimestamp | string) {
     const d = typeof input === 'string' ? input : input.total;
     return Std.toString(d);
