@@ -51,7 +51,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
    */
   function handleClick() {
     const total = Timestamp.parseTime(timestamp);
-    props.onClick?.({ timestamp, data, total });
+    props.onClick?.({ timestamp, data, total, isCurrent });
   }
 
   /**
@@ -131,6 +131,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
  */
 const wrangle = {
   time(ts: t.StringTimestamp) {
+    ts = Timestamp.toString(ts);
     return ts.slice(0, ts.indexOf('.'));
   },
 } as const;

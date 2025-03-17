@@ -24,4 +24,4 @@ export type VideoTimestampData = { image?: t.StringPath };
  * Events.
  */
 export type VideoTimestampHandler = (e: VideoTimestampHandlerArgs) => void;
-export type VideoTimestampHandlerArgs = t.VideoTimestamp;
+export type VideoTimestampHandlerArgs = t.VideoTimestamp & { isCurrent: boolean };
