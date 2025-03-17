@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-
-import { type t, Color, css, DEFAULTS, Icons, Signal, Time } from './common.ts';
+import { type t, Color, css, Icons, Signal, Time } from './common.ts';
 import { Timestamp } from './u.ts';
+import { FooterBar } from './ui.Thumbnail.FooterBar.tsx';
 
 export type ThumbnailProps = {
   timestamp: t.StringTimestamp;
@@ -15,7 +15,6 @@ export type ThumbnailProps = {
 
 export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   const { timestamp, timestamps, data, onClick, videoSignals } = props;
-  const time = wrangle.time(timestamp);
   const src = data.image;
 
   const [loaded, setLoaded] = useState(false);
@@ -95,18 +94,24 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         backgroundRepeat: 'no-repeat',
       }),
     },
-    time: css({
-      borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
-      fontSize: 12,
-      PaddingY: 1,
-      display: 'grid',
-      placeItems: 'center',
-      backgroundColor: isCurrent ? DEFAULTS.BLUE : undefined,
-      color: isCurrent ? Color.WHITE : undefined,
-    }),
   };
 
   const tooltip = !error ? '' : `Failed to load image: ${src}`;
+  const elBody = (
+    <div className={styles.image.base.class} title={tooltip}>
+      {loaded && <div className={styles.image.img.class} />}
+      {error && <Icons.Error color={Color.RED} />}
+    </div>
+  );
+
+  const elFooter = (
+    <FooterBar
+      timestamp={timestamp}
+      timestamps={timestamps}
+      isCurrent={isCurrent}
+      theme={theme.name}
+    />
+  );
 
   return (
     <div
@@ -117,21 +122,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
       onMouseUp={down(false)}
       onClick={handleClick}
     >
-      <div className={styles.image.base.class} title={tooltip}>
-        {loaded && <div className={styles.image.img.class} />}
-        {error && <Icons.Error color={Color.RED} />}
-      </div>
-      <div className={styles.time.class}>{time}</div>
+      {elBody}
+      {elFooter}
     </div>
   );
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  time(ts: t.StringTimestamp) {
-    ts = Timestamp.toString(ts);
-    return ts.slice(0, ts.indexOf('.'));
-  },
-} as const;
