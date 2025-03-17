@@ -15,6 +15,7 @@ export type * as t from './types.ts';
 /**
  * Components.
  */
+export { Button } from './ui/Button/mod.ts';
 export { Panel } from './ui/Panel/mod.ts';
 
 export { ConceptPlayer } from './ui/Player.Concept/mod.ts';

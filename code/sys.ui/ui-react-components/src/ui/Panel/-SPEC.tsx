@@ -1,10 +1,14 @@
-import { Spec } from '../-test.ui.ts';
+import { Dev, Spec } from '../-test.ui.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Panel } from './mod.ts';
-import { Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Panel', (e) => {
-  e.it('init', async (e) => {
+  const debug = createDebugSignals();
+
+  e.it('init', (e) => {
     const ctx = Spec.ctx(e);
+    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
+
     ctx.subject.size([224, null]).render((e) => {
       return <Panel />;
     });
@@ -12,6 +16,6 @@ export default Spec.describe('Panel', (e) => {
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{}} />);
+    ctx.debug.row(<Debug ctx={{ debug }} />);
   });
 });
