@@ -49,7 +49,7 @@ export type TimestampLib = {
    */
   range<T>(
     timestamps: t.Timestamps<T>,
-    location: t.NumberTime,
+    location: t.NumberTime | t.StringTimestamp,
     options?: { unit?: t.TimestampUnit; round?: number },
   ): TimestampRange | undefined;
 };

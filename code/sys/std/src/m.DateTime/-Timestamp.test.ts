@@ -309,6 +309,12 @@ describe('Timestamp', () => {
         expect(range?.start).to.eql('00:00:05.000');
         expect(range?.end).to.eql('00:00:10.000');
       });
+
+      it('from "timestamp" string', () => {
+        const range = Timestamp.range(timestamps, '00:00:06.001');
+        expect(range?.start).to.eql('00:00:05.000');
+        expect(range?.end).to.eql('00:00:10.000');
+      });
     });
 
     describe('progress (percentage)', () => {

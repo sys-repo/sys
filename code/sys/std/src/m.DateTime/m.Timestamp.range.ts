@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { parseMap } from './m.Timestamp.parse.ts';
+import { parseMap, parseTime } from './m.Timestamp.parse.ts';
 
 /**
  * Generate a sub-range for a timestamp within a map of timestamps.
@@ -22,7 +22,7 @@ export const range: t.TimestampLib['range'] = (timestamps, location, options = {
         start: map[i].timestamp,
         end: map[i + 1].timestamp,
         progress(time, opt = {}) {
-          const progressTime = wrangle.msecs(time, opt.unit);
+          const progressTime = wrangle.msecs(time, opt.unit ?? unit, round);
           let prog = (progressTime - start) / (end - start);
           if (round !== undefined) {
             const factor = Math.pow(10, round);
@@ -43,7 +43,11 @@ export const range: t.TimestampLib['range'] = (timestamps, location, options = {
  * Helpers
  */
 const wrangle = {
-  msecs(value: number, unit: t.TimestampUnit = 'msecs') {
-    return unit === 'secs' ? value * 1000 : value;
+  msecs(input: t.NumberTime | t.StringTimestamp, unit: t.TimestampUnit, round?: number): t.Msecs {
+    if (typeof input === 'string') {
+      return parseTime(input, { round }).msec;
+    } else {
+      return unit === 'secs' ? input * 1000 : input;
+    }
   },
 } as const;
