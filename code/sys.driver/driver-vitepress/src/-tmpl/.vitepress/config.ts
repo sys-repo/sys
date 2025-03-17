@@ -18,7 +18,11 @@ export default async (env: ConfigEnv) => {
     base: '/',
     srcDir: './docs',
     markdown,
-    themeConfig: { sidebar, search: { provider: 'local' } },
+    themeConfig: {
+      sidebar,
+      // search: { provider: 'local' },
+    },
+    appearance: false, // NB: "light/dark" mode switch.
     vite: {
       plugins: [],
       resolve: { alias },
