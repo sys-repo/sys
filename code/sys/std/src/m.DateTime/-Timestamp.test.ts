@@ -83,6 +83,17 @@ describe('Timestamp', () => {
       test(null);
     });
 
+    it('should ensure "00:00:00.000" entry', () => {
+      const a = Timestamp.parse({});
+      const b = Timestamp.parse({}, { ensureZero: true });
+      expect(a).to.eql([]);
+
+      expect(b.length).to.eql(1);
+      expect(b[0].timestamp).to.eql('00:00:00.000');
+      expect(b[0].data).to.eql({});
+      expect(b[0].total.msec).to.eql(0);
+    });
+
     it('should correctly parse a single timestamp', () => {
       const input: MyTimestamps = {
         '00:01:02.003': { image: 'single' },
@@ -155,7 +166,6 @@ describe('Timestamp', () => {
     it('should return the first timestamp when elapsed equals its time', () => {
       // Elapsed time exactly 5 seconds.
       const res = Timestamp.find(timestamps, 5_000);
-      console.log('res', res);
       expect(res).to.eql({ image: 'first' });
     });
 
@@ -268,5 +278,37 @@ describe('Timestamp', () => {
     });
   });
 
-  describe('range', () => {});
+  describe('range', () => {
+    const timestamps: MyTimestamps = {
+      '00:00:10.000': { image: 'second' },
+      '00:00:15.000': { image: 'third' },
+      '00:00:05.000': { image: 'first' },
+    };
+
+    describe('response: undefined', () => {
+      it('empty {timestamps}', () => {
+        const range = Timestamp.range({}, 0);
+        expect(range).to.eql(undefined);
+      });
+
+      it('out of range', () => {
+        const range = Timestamp.range(timestamps, 99, { unit: 'secs' });
+        expect(range).to.eql(undefined);
+      });
+    });
+
+    describe('create', () => {
+      it('from inferred 0-point', () => {
+        const range = Timestamp.range(timestamps, 3_000);
+        expect(range?.start).to.eql('00:00:00.000');
+        expect(range?.end).to.eql('00:00:05.000');
+      });
+
+      it('between to timestamps', () => {
+        const range = Timestamp.range(timestamps, 6_000);
+        expect(range?.start).to.eql('00:00:05.000');
+        expect(range?.end).to.eql('00:00:10.000');
+      });
+    });
+  });
 });

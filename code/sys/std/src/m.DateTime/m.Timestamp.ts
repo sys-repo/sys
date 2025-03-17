@@ -1,13 +1,16 @@
 import { type t, isRecord } from './common.ts';
 import { parseMap, parseTime } from './m.Timestamp.parse.ts';
+import { range } from './m.Timestamp.range.ts';
 
 /**
  * Tools for working with timestamps ("HH:MM:SS.mmm").
  */
 export const Timestamp: t.TimestampLib = {
-  parse(input: any) {
+  range,
+
+  parse(input: any, options: any) {
     if (input === undefined || input === null) return [];
-    if (isRecord(input)) return parseMap(input) as any; // NB: type-hack.
+    if (isRecord(input)) return parseMap(input, options) as any; // NB: type-hack.
     if (typeof input === 'string') return parseTime(input);
     throw new Error(`Input type not supported: ${typeof input}`);
   },

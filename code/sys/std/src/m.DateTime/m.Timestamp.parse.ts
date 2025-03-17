@@ -4,7 +4,6 @@ import { Duration } from './m.Time.Duration.ts';
 /**
  * Parse a "HH:MM:DD:mmm" string into a structured object.
  */
-
 export function parseTime(
   timestamp: t.StringTimestamp,
   options: { round?: number } = {},
@@ -47,9 +46,14 @@ export function parseTime(
  */
 export function parseMap<T>(
   timestamps: t.Timestamps<T>,
-  options: { round?: number } = {},
+  options: { round?: number; ensureZero?: boolean } = {},
 ): t.Timestamp<T>[] {
   if (!isRecord(timestamps)) return [];
+
+  const ZERO = '00:00:00.000';
+  if (options.ensureZero && !timestamps[ZERO]) {
+    timestamps = { ...timestamps, [ZERO]: {} as T };
+  }
 
   const parse = (timestamp: string, data: T) => {
     const total = parseTime(timestamp, options);

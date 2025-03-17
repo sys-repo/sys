@@ -20,7 +20,10 @@ export type TimestampLib = {
    * Convert the map of { "HH:MM:SS:mmm": <T> } timestamps
    * into a sorted list stuctured objects.
    */
-  parse<T>(timestamps?: t.Timestamps<T>, options?: { round?: number }): t.Timestamp<T>[];
+  parse<T>(
+    timestamps?: t.Timestamps<T>,
+    options?: { round?: number; ensureZero?: boolean },
+  ): t.Timestamp<T>[];
 
   /**
    * Lookup a timestamp from an elapsed time within a {timestamps} map.
@@ -44,4 +47,17 @@ export type TimestampLib = {
   /**
    * Generate a sub-range for a timestamp within a map of timestamps.
    */
+  range<T>(
+    timestamps: t.Timestamps<T>,
+    location: t.NumberTime,
+    options?: { unit?: t.TimestampUnit; round?: number },
+  ): TimestampRange | undefined;
+};
+
+/**
+ * A timestamp range (start/end).
+ */
+export type TimestampRange = {
+  readonly start: t.StringTimestamp;
+  readonly end: t.StringTimestamp;
 };
