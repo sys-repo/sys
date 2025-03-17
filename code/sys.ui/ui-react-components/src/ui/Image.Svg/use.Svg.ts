@@ -8,11 +8,27 @@ export function useSvg<T extends HTMLElement>(
   dataUri: string,
   viewboxWidth: number,
   viewboxHeight: number,
-  init?: t.UseSvgInit,
+  init?: t.UseSvgInit<T>,
 ): t.SvgInstance<T> {
+  type R = t.SvgInstance<T>;
+
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
+
+  /**
+   * Methods.
+   */
+  const query: R['query'] = (selector) => {
+    if (!ref.current) return undefined;
+    const el = ref.current.querySelector(selector);
+    return el ? SVG(el) : undefined;
+  };
+  const queryAll: R['queryAll'] = (selector) => {
+    if (!ref.current) return [];
+    const matches = ref.current.querySelectorAll(selector);
+    return Array.from(matches).map((el) => SVG(el));
+  };
 
   /**
    * Load the SVG data and inject into DOM.
@@ -35,7 +51,7 @@ export function useSvg<T extends HTMLElement>(
 
     // Initialize.
     drawRef.current = draw;
-    init?.(api);
+    init?.({ draw, query, queryAll });
 
     // Finish up.
     return () => {
@@ -47,21 +63,6 @@ export function useSvg<T extends HTMLElement>(
   /**
    * API
    */
-  const api: t.SvgInstance<T> = {
-    ref,
-    get draw() {
-      return draw;
-    },
-    query(selector) {
-      if (!ref.current) return undefined;
-      const el = ref.current.querySelector(selector);
-      return el ? SVG(el) : undefined;
-    },
-    queryAll(selector) {
-      if (!ref.current) return [];
-      const matches = ref.current.querySelectorAll(selector);
-      return Array.from(matches).map((el) => SVG(el));
-    },
-  };
+  const api: R = { ref, draw, query, queryAll };
   return api;
 }

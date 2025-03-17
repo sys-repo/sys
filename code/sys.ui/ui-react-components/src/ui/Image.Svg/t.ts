@@ -21,7 +21,10 @@ export type UseSvg = <T extends HTMLElement>(
 ) => SvgInstance<T>;
 
 /** Callback to initialize the SVG upon creation. */
-export type UseSvgInit<T extends HTMLElement> = (svg: SvgInstance<T>) => void;
+export type UseSvgInit<T extends HTMLElement> = (e: UseSvgInitArgs<T>) => void;
+export type UseSvgInitArgs<T extends HTMLElement> = Pick<SvgInstance<T>, 'query' | 'queryAll'> & {
+  readonly draw: SvgElement;
+};
 
 /**
  * An instance of an SVG image with API for manipulating
@@ -29,7 +32,7 @@ export type UseSvgInit<T extends HTMLElement> = (svg: SvgInstance<T>) => void;
  */
 export type SvgInstance<T extends HTMLElement> = {
   readonly ref: React.RefObject<T>;
-  readonly draw: SvgElement | undefined;
+  readonly draw?: SvgElement;
   query(selector: string): SvgElement | undefined;
   queryAll(selector: string): SvgElement[];
 };
