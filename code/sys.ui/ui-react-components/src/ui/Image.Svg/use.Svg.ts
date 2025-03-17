@@ -33,9 +33,11 @@ export function useSvg<T extends HTMLElement>(
     const svgMarkup = decodeURIComponent(base64Import.split(',')[1]);
     draw.svg(svgMarkup);
 
-    // Finish up.
-    init?.(draw);
+    // Initialize.
     drawRef.current = draw;
+    init?.(draw);
+
+    // Finish up.
     return () => {
       draw.clear();
       draw.remove();
