@@ -35,12 +35,12 @@ export type TimestampLib = {
   ): T | undefined;
 
   /**
-   * Check if a given timestamp is the current one based on the elapsed time.
+   * Check if a given timestamp is the current one within a set based on the given time.
    */
   isCurrent<T>(
     timestamps: t.Timestamps<T>,
     timestamp: t.StringTimestamp,
-    currentTime: number,
+    time: t.NumberTime,
     options?: { unit?: t.TimestampUnit; round?: number },
   ): boolean;
 
@@ -60,4 +60,5 @@ export type TimestampLib = {
 export type TimestampRange = {
   readonly start: t.StringTimestamp;
   readonly end: t.StringTimestamp;
+  progress(time: t.NumberTime, options?: { unit?: t.TimestampUnit }): t.Percent;
 };

@@ -74,7 +74,7 @@ describe('Timestamp', () => {
   });
 
   describe('parse: timestamp map ← { "HH:MM:SS.mmm": T }', () => {
-    it('should return an empty array when given an empty object', () => {
+    it('should return an empty [array] when given an empty object', () => {
       const test = (input?: any) => {
         expect(Timestamp.parse(input)).to.eql([]);
       };
@@ -308,6 +308,57 @@ describe('Timestamp', () => {
         const range = Timestamp.range(timestamps, 6_000);
         expect(range?.start).to.eql('00:00:05.000');
         expect(range?.end).to.eql('00:00:10.000');
+      });
+    });
+
+    describe('progress (percentage)', () => {
+      it('should calculate progress correctly at the bounds', () => {
+        const res = Timestamp.range(timestamps, 7000);
+        expect(res).to.not.be.undefined;
+        if (res) {
+          // At the start of the range (5000 msec), progress should be 0.
+          expect(res.progress(5000)).to.equal(0);
+          // At the end of the range (10000 msec), progress should be 1.
+          expect(res.progress(10000)).to.equal(1);
+        }
+      });
+
+      it('should calculate progress correctly for an intermediate value', () => {
+        const res = Timestamp.range(timestamps, 7000);
+        expect(res).to.not.be.undefined;
+        if (res) {
+          // For a progress time of 7500 msec, progress = (7500 - 5000) / (10000 - 5000) = 0.5
+          expect(res.progress(7500)).to.equal(0.5);
+        }
+      });
+
+      it('should respect unit conversion for progress calculations', () => {
+        // Use seconds instead of milliseconds.
+        //    The location is 7 seconds (7000 msec). In the sorted timestamps,
+        //    the range remains from 5000 msec to 10000 msec.
+        const res = Timestamp.range(timestamps, 7, { unit: 'secs' });
+        expect(res).to.not.be.undefined;
+        if (res) {
+          // When passing times in seconds, progress(5) should be calculated as 5000 msec, so progress = 0.
+          expect(res.progress(5, { unit: 'secs' })).to.equal(0);
+          // progress(10) (i.e. 10000 msec) should equal 1.
+          expect(res.progress(10, { unit: 'secs' })).to.equal(1);
+          // progress(7.5) seconds (7500 msec) should equal 0.5.
+          expect(res.progress(7.5, { unit: 'secs' })).to.equal(0.5);
+        }
+      });
+
+      it('should round progress correctly when the round option is provided', () => {
+        // Use a round option (e.g., 2 decimal places) and choose a time that results in a non-integer fraction.
+        const res = Timestamp.range(timestamps, 7000, { round: 2 });
+        expect(res).to.not.be.undefined;
+        if (res) {
+          // For a progress time of 6666 msec, the unrounded progress is:
+          // (6666 - 5000) / (10000 - 5000) = 1666 / 5000 ≈ 0.3332
+          // With rounding to 2 decimals, we expect ≈ 0.33.
+          const prog = res.progress(6666);
+          expect(prog).to.be.closeTo(0.33, 0.01);
+        }
       });
     });
   });
