@@ -1,2 +1,2 @@
-export { playerSignalsFactory } from './api.Signals.ts';
+export { playerSignalsFactory } from './m.Signals.ts';
 export { VideoPlayer } from './ui.tsx';

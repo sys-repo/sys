@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Player } from '../Player/mod.ts';
-import { playerSignalsFactory } from './mod.ts';
 import { DEFAULTS } from './common.ts';
+import { playerSignalsFactory } from './mod.ts';
 
-describe('VideoPlayer', () => {
+describe('VideoPlayer: Signals', () => {
   describe('props', () => {
     it('initial values (defaults)', () => {
       const s = playerSignalsFactory();
@@ -37,11 +37,52 @@ describe('VideoPlayer', () => {
       const s = playerSignalsFactory();
       expect(s.props.jumpTo.value).to.eql(undefined);
 
-      s.jumpTo(10);
+      const res = s.jumpTo(10);
+      expect(res).to.equal(s);
       expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
 
       s.jumpTo(15, { play: false });
       expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
+    });
+
+    it('play', () => {
+      const s = playerSignalsFactory();
+      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
+      assertPlaying(false);
+
+      const res = s.play();
+      expect(res).to.equal(s);
+      assertPlaying(true);
+    });
+
+    it('pause', () => {
+      const s = playerSignalsFactory();
+      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
+      assertPlaying(false);
+
+      s.play();
+      assertPlaying(true);
+
+      const res = s.play().pause();
+      expect(res).to.equal(s);
+      assertPlaying(false);
+    });
+
+    it('toggle', () => {
+      const s = playerSignalsFactory();
+      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
+      assertPlaying(false);
+
+      const res = s.toggle();
+      expect(res).to.equal(s);
+      assertPlaying(true);
+
+      s.toggle();
+      assertPlaying(false);
+      s.toggle(false);
+      assertPlaying(false);
+      s.toggle(true);
+      assertPlaying(true);
     });
   });
 });

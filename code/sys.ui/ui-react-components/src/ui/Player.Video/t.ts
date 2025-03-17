@@ -8,24 +8,25 @@ export type PlayerSignalsFactory = (
   defaults?: PlayerSignalsFactoryDefaults,
 ) => t.VideoPlayerSignals;
 
-export type PlayerSignalsFactoryDefaults = {
-  fullscreenButton?: boolean;
-  loop?: boolean;
-};
+/** Defaults passed to the signals API factory. */
+export type PlayerSignalsFactoryDefaults = { fullscreenButton?: boolean; loop?: boolean };
 
 /**
- * Signals API for dynamic control of the VideoPlayer.
+ * Signals API for dynamic control of the <VideoPlayer>.
  */
 export type VideoPlayerSignals = {
   props: {
     ready: t.Signal<boolean>;
     playing: t.Signal<boolean>;
     loop: t.Signal<boolean>;
-    jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
     currentTime: t.Signal<t.Secs>;
     fullscreenButton: t.ReadonlySignal<boolean>;
+    jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
   };
-  jumpTo(second: t.Secs, options?: { play?: boolean }): void;
+  jumpTo(second: t.Secs, options?: { play?: boolean }): VideoPlayerSignals;
+  play(): VideoPlayerSignals;
+  pause(): VideoPlayerSignals;
+  toggle(playing?: boolean): VideoPlayerSignals;
 };
 
 /** Structure representing a jump-to ("seek") location */

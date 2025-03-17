@@ -9,7 +9,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
   const s = Signal.create;
 
   const props: T['props'] = {
-    // Fields.
+    // Values.
     ready: s(false),
     playing: s(false),
     loop: s(defaults.loop ?? DEFAULTS.loop),
@@ -24,7 +24,15 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     props,
     jumpTo(second, options = {}) {
       const { play = true } = options;
-      api.props.jumpTo.value = { second, play };
+      props.jumpTo.value = { second, play };
+      return api;
+    },
+    play: () => api.toggle(true),
+    pause: () => api.toggle(false),
+    toggle(playing) {
+      const next = typeof playing === 'boolean' ? playing : !props.playing.value;
+      props.playing.value = next;
+      return api;
     },
   };
 
