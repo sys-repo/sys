@@ -30,9 +30,9 @@ export const Timestamp: t.TimestampLib = {
   },
 
   isCurrent<T>(
-    current: t.Secs,
-    timestamp: t.StringTimestamp,
     timestamps: t.Timestamps<T>,
+    timestamp: t.StringTimestamp,
+    current: t.Secs,
     options: { unit?: t.TimestampUnit; round?: number } = {},
   ) {
     const { unit, round } = options;

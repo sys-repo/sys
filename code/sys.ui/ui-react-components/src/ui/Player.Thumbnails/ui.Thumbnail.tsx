@@ -41,7 +41,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   Signal.useSignalEffect(() => {
     const currentTime = videoSignals?.props.currentTime.value ?? -1;
     const set = (value: boolean) => Time.delay(() => setIsCurrent(value));
-    if (timestamps) set(Timestamp.isCurrent(currentTime, timestamp, timestamps));
+    if (timestamps) set(Timestamp.isCurrent(timestamps, timestamp, currentTime));
     else set(false);
   });
 

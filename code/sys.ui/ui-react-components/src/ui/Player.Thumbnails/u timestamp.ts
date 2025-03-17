@@ -7,11 +7,11 @@ const unit = 'secs';
  * Check if a given timestamp is the current one based on the elapsed time.
  */
 function isCurrent(
-  currentTime: t.Secs,
-  timestamp: t.StringTimestamp,
   timestamps: t.VideoTimestamps,
+  timestamp: t.StringTimestamp,
+  currentTime: t.Secs,
 ): boolean {
-  return Std.isCurrent(currentTime, timestamp, timestamps, { unit, round });
+  return Std.isCurrent(timestamps, timestamp, currentTime, { unit, round });
 }
 
 /**

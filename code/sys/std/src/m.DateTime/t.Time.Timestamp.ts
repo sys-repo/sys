@@ -7,6 +7,11 @@ export type TimestampUnit = 'msecs' | 'secs';
  */
 export type TimestampLib = {
   /**
+   * Convert a parsed [TimeDuration] back into a timestamp ("HH:MM:SS.mmm")
+   */
+  toString(input: t.TimeDuration | t.StringTimestamp): string;
+
+  /**
    * Parse a "HH:MM:DD:mmm" string into a structured object.
    */
   parse(timestamp: t.StringTimestamp, options?: { round?: number }): t.TimeDuration;
@@ -30,14 +35,13 @@ export type TimestampLib = {
    * Check if a given timestamp is the current one based on the elapsed time.
    */
   isCurrent<T>(
-    current: number,
-    timestamp: t.StringTimestamp,
     timestamps: t.Timestamps<T>,
+    timestamp: t.StringTimestamp,
+    currentTime: number,
     options?: { unit?: t.TimestampUnit; round?: number },
   ): boolean;
 
   /**
-   * Convert a parsed [TimeDuration] back into a timestamp ("HH:MM:SS.mmm")
+   * Generate a sub-range for a timestamp within a map of timestamps.
    */
-  toString(input: t.TimeDuration | t.StringTimestamp): string;
 };
