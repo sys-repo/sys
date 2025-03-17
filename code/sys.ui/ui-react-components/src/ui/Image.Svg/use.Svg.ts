@@ -10,7 +10,7 @@ export function useSvg<T extends HTMLElement>(
   viewboxWidth: number,
   viewboxHeight: number,
   init?: t.UseSvgInit,
-) {
+): t.UseSvgInstance<T> {
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
