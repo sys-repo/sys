@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, Svg } from './common.ts';
-import { SvgImage } from './ui.Svg.Image.tsx';
+import React from 'react';
+import { type t, Color, css, DEFAULTS } from './common.ts';
+import { SvgImage } from './ui.Svg.tsx';
 
 type P = t.CanvasMiniProps;
 
@@ -8,23 +8,25 @@ type P = t.CanvasMiniProps;
  * Component.
  */
 export const CanvasMini: React.FC<P> = (props) => {
-  const { width = DEFAULTS.width } = props;
+  const { selected, over, onPanelEvent, width = DEFAULTS.width } = props;
 
   /**
    * Render.
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      cursor: 'default',
-      position: 'relative',
-      color: theme.fg,
-    }),
+    base: css({ position: 'relative', userSelect: 'none', cursor: 'default' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <SvgImage theme={props.theme} width={props.width} />
+      <SvgImage
+        theme={theme.name}
+        width={width}
+        selected={selected}
+        over={over}
+        onPanelEvent={onPanelEvent}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Signal } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
 
 import { Button } from '@sys/ui-react-components';
 
@@ -16,7 +16,9 @@ type P = DebugProps;
 export function createDebugSignals() {
   const props = {
     theme: Signal.create<t.CommonTheme>('Dark'),
-    width: Signal.create(200),
+    width: Signal.create<number>(DEFAULTS.width),
+    selected: Signal.create<t.CanvasPanel | undefined>('purpose'),
+    over: Signal.create<t.CanvasPanel | undefined>(),
   };
   const api = { props };
   return api;
@@ -32,6 +34,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.width.value;
+    p.over.value;
   });
 
   /**
@@ -51,9 +54,7 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block={true}
         label={`width: ${p.width}`}
-        onClick={() => {
-          p.width.value = p.width.value === 200 ? 400 : 200;
-        }}
+        onClick={() => (p.width.value = p.width.value === 200 ? 400 : 200)}
       />
     </div>
   );

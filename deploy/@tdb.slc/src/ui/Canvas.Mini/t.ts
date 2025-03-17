@@ -4,26 +4,13 @@ import type { t } from './common.ts';
  * <Component>: Mini Canvas
  */
 export type CanvasMiniProps = {
+  selected?: t.CanvasPanel;
+  over?: t.CanvasPanel;
   width?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onPanelEvent?: t.CanvasPanelEventHandler;
 };
-
-/**
- * Panels
- */
-export type CanvasPanel =
-  | 'purpose'
-  | 'impact'
-  | 'problem'
-  | 'solution'
-  | 'metrics'
-  | 'uvp'
-  | 'advantage'
-  | 'channels'
-  | 'customers'
-  | 'costs'
-  | 'revenue';
 
 /**
  * Events

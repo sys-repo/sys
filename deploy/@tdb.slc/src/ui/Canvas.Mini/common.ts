@@ -1,5 +1,5 @@
 export * from '../common.ts';
 
 export const DEFAULTS = {
-  width: 300,
+  width: 400,
 } as const;
