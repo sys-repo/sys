@@ -1,1 +1,1 @@
-export * from './u timestamp.ts';
+export * from './u.timestamp.ts';
