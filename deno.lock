@@ -2477,6 +2477,7 @@
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
       "npm:@preact/signals-core@1.8.0",
       "npm:@preact/signals-react@3.0.1",
+      "npm:@svgdotjs/svg.js@3.2.4",
       "npm:@types/diff@7.0.1",
       "npm:approx-string-match@2",
       "npm:chai@5",

@@ -23,6 +23,7 @@
     "@std/semver": "jsr:@std/semver@1.0.4",
     "@std/testing": "jsr:@std/testing@1.0.9",
     "@std/uuid": "jsr:@std/uuid@1.0.4",
+    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
     "@types/diff": "npm:@types/diff@7.0.1",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
