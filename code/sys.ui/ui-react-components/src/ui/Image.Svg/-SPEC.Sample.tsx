@@ -11,7 +11,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
 
-  const svg = Svg.useSvg<HTMLDivElement>(Image, (draw) => draw.width(200));
+  const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (d) => d.width(p.width.value));
   const draw = svg.draw;
 
   Signal.useRedrawEffect(() => {
@@ -20,12 +20,14 @@ export const Sample: React.FC<SampleProps> = (props) => {
     p.color.value;
   });
 
+  // React.useEffect(() => draw?.width(p.width.value ?? 200), [draw]);
+
   Signal.useSignalEffect(() => {
     const width = p.width.value;
     const color = p.color.value;
 
     if (!draw) return;
-    draw.width(p.width.value);
+    draw.width(width);
 
     const tick = draw.findOne('#tick');
     const borderOutline = draw.findOne('#border-outline');

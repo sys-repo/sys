@@ -12,7 +12,9 @@ export type SvgLib = {
  * Hook: SVG image import/renderer.
  */
 export type UseSvg = <T extends HTMLElement>(
-  base64Import: string,
+  base64: string,
+  viewboxWidth?: number,
+  viewboxHeight?: number,
   init?: UseSvgInit,
 ) => UseSvgInstance<T>;
 
