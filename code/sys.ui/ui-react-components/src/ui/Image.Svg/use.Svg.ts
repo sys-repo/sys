@@ -5,11 +5,11 @@ import { type t, SVG, SvgElement } from './common.ts';
  * Hook: SVG image import/renderer.
  */
 export function useSvg<T extends HTMLElement>(
-  base64Import: string,
+  dataUri: string,
   viewboxWidth: number,
   viewboxHeight: number,
   init?: t.UseSvgInit,
-): t.UseSvgInstance<T> {
+): t.SvgInstance<T> {
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
@@ -30,26 +30,28 @@ export function useSvg<T extends HTMLElement>(
 
     // Decode the data URL (the part after the comma is the encoded SVG markup)
     // and inject the SVG markup into the svg.js canvas.
-    const svgMarkup = decodeURIComponent(base64Import.split(',')[1]);
+    const svgMarkup = decodeURIComponent(dataUri.split(',')[1]);
     draw.svg(svgMarkup);
 
     // Initialize.
     drawRef.current = draw;
-    init?.(draw);
+    init?.(api);
 
     // Finish up.
     return () => {
       draw.clear();
       draw.remove();
     };
-  }, [base64Import]);
+  }, [dataUri]);
 
   /**
    * API
    */
-  const api: t.UseSvgInstance<T> = {
+  const api: t.SvgInstance<T> = {
     ref,
-    draw,
+    get draw() {
+      return draw;
+    },
     query(selector) {
       if (!ref.current) return undefined;
       const el = ref.current.querySelector(selector);

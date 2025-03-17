@@ -1,4 +1,5 @@
 import type { Element as SvgElement } from '@svgdotjs/svg.js';
+
 export { SvgElement };
 
 /**
@@ -16,14 +17,19 @@ export type UseSvg = <T extends HTMLElement>(
   base64: string,
   viewboxWidth?: number,
   viewboxHeight?: number,
-  init?: UseSvgInit,
-) => UseSvgInstance<T>;
+  init?: UseSvgInit<T>,
+) => SvgInstance<T>;
 
-export type UseSvgInstance<T extends HTMLElement> = {
+/** Callback to initialize the SVG upon creation. */
+export type UseSvgInit<T extends HTMLElement> = (svg: SvgInstance<T>) => void;
+
+/**
+ * An instance of an SVG image with API for manipulating
+ * the it programatically.
+ */
+export type SvgInstance<T extends HTMLElement> = {
   readonly ref: React.RefObject<T>;
   readonly draw: SvgElement | undefined;
   query(selector: string): SvgElement | undefined;
   queryAll(selector: string): SvgElement[];
 };
-
-export type UseSvgInit = (draw: SvgElement) => void;
