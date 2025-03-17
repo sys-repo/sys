@@ -1,5 +1,7 @@
 import type Preact from '@preact/signals-core';
-export type { ReadonlySignal, Signal } from '@preact/signals-core';
+import type { ReadonlySignal, Signal } from '@preact/signals-core';
+
+export { ReadonlySignal, Signal };
 
 /**
  * Reactive Signals.
@@ -9,6 +11,18 @@ export type { ReadonlySignal, Signal } from '@preact/signals-core';
  *    https://preactjs.com/guide/v10/signals
  */
 export type SignalLib = {
+  /** Create a new plain signal. */
   create: typeof Preact.signal;
+
+  /** Create an effect to run arbitrary code in response to signal changes. */
   effect: typeof Preact.effect;
+
+  /** Combine multiple value updates into one "commit" at the end of the provided callback. */
+  batch: typeof Preact.batch;
+
+  /** Create a new signal that is computed based on the values of other signals. */
+  computed: typeof Preact.computed;
+
+  /** Toggle a boolean signal. */
+  toggle(signal: Signal<boolean>, forceValue?: boolean): boolean;
 };

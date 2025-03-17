@@ -39,9 +39,9 @@ describe('Signal', () => {
 
   describe('signal: computed', () => {
     it('should create a derived signal that updates based on dependencies', () => {
-      const a = Preact.signal(2);
-      const b = Preact.signal(3);
-      const sum = Preact.computed(() => a.value + b.value);
+      const a = Signal.create(2);
+      const b = Signal.create(3);
+      const sum = Signal.computed(() => a.value + b.value);
       expect(sum.value).to.eql(5);
 
       b.value = 10;
@@ -52,10 +52,10 @@ describe('Signal', () => {
   describe('signal: batch (change)', () => {
     it('should group updates so that effects run only once', () => {
       let count = 0;
-      const x = Preact.signal(1);
-      const y = Preact.signal(2);
+      const x = Signal.create(1);
+      const y = Signal.create(2);
 
-      Preact.effect(() => {
+      Signal.effect(() => {
         count++;
         // NB: Access signals so this effect depends on them.
         x.value;
@@ -64,13 +64,41 @@ describe('Signal', () => {
 
       expect(count).to.eql(1);
 
-      Preact.batch(() => {
+      Signal.batch(() => {
         x.value = 10;
         y.value = 20;
       });
 
       // NB: Both updates happened in one batch, so the effect runs only once more.
       expect(count).to.equal(2);
+    });
+  });
+
+  describe('Signal.toggle', () => {
+    it('should toggle boolean', () => {
+      const s = Signal.create(false);
+      expect(s.value).to.eql(false);
+      const res = Signal.toggle(s);
+      expect(s.value).to.eql(true);
+      expect(res).to.eql(true);
+    });
+
+    it('force: true', () => {
+      const s = Signal.create(false);
+      const res1 = Signal.toggle(s, true);
+      const res2 = Signal.toggle(s, true);
+      expect(res1).to.eql(true);
+      expect(res2).to.eql(true);
+      expect(s.value).to.eql(true);
+    });
+
+    it('force: false', () => {
+      const s = Signal.create(true);
+      const res1 = Signal.toggle(s, false);
+      const res2 = Signal.toggle(s, false);
+      expect(res1).to.eql(false);
+      expect(res2).to.eql(false);
+      expect(s.value).to.eql(false);
     });
   });
 });
