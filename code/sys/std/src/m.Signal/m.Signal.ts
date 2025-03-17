@@ -1,5 +1,6 @@
 import { batch, computed, effect, signal } from '@preact/signals-core';
 import type { t } from './common.ts';
+import { cycle } from './u.cycle.ts';
 import { toggle } from './u.toggle.ts';
 
 export { signal };
@@ -17,4 +18,5 @@ export const Signal: t.SignalLib = {
   computed,
   batch,
   toggle,
+  cycle,
 } as const;

@@ -101,4 +101,68 @@ describe('Signal', () => {
       expect(s.value).to.eql(false);
     });
   });
+
+  describe('Signal.cycle', () => {
+    type T = 'a' | 'b' | 'c';
+
+    it('should cycle union string signal', () => {
+      const s = Signal.create<T>('a');
+      expect(s.value).to.eql('a');
+
+      const values: T[] = ['a', 'b', 'c'];
+
+      // Cycle from "a" to "b"
+      const res1 = Signal.cycle(s, values);
+      expect(s.value).to.eql('b');
+      expect(res1).to.eql('b');
+
+      // Cycle from "b" to "c"
+      const res2 = Signal.cycle(s, values);
+      expect(res2).to.eql('c');
+      expect(s.value).to.eql('c');
+
+      // Cycle from "c" back to "a"
+      const res3 = Signal.cycle(s, values);
+      expect(res3).to.eql('a');
+      expect(s.value).to.eql('a');
+    });
+
+    it('cycles from different initial value', () => {
+      const s = Signal.create<T>('b');
+      expect(s.value).to.eql('b');
+
+      const values: T[] = ['a', 'b', 'c'];
+      const res = Signal.cycle(s, values);
+      expect(res).to.eql('c');
+      expect(s.value).to.eql('c');
+    });
+
+    it('force value works', () => {
+      const s = Signal.create<T>('a');
+      expect(s.value).to.eql('a');
+
+      const values: T[] = ['a', 'b', 'c'];
+
+      // Force to "c"
+      const res1 = Signal.cycle(s, values, 'c');
+      expect(res1).to.eql('c');
+      expect(s.value).to.eql('c');
+
+      // Force to "b"
+      const res2 = Signal.cycle(s, values, 'b');
+      expect(res2).to.eql('b');
+      expect(s.value).to.eql('b');
+    });
+
+    it('should default to first element if current value is not in values array', () => {
+      const s = Signal.create('z');
+      expect(s.value).to.eql('z');
+
+      const values: T[] = ['a', 'b', 'c'];
+
+      const res = Signal.cycle(s, values);
+      expect(res).to.eql('a');
+      expect(s.value).to.eql('a');
+    });
+  });
 });

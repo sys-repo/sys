@@ -23,6 +23,16 @@ export type SignalLib = {
   /** Create a new signal that is computed based on the values of other signals. */
   computed: typeof Preact.computed;
 
+  //
+} & SignalValueHelpersLib;
+
+/**
+ * Utility helpers for operating on Signal values.
+ */
+export type SignalValueHelpersLib = {
   /** Toggle a boolean signal. */
   toggle(signal: Signal<boolean>, forceValue?: boolean): boolean;
+
+  /** Cycle a union string signal through a list of possible values. */
+  cycle<T extends string>(signal: { value: T }, values: T[], forceValue?: T): T;
 };
