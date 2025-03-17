@@ -326,10 +326,9 @@ describe('Timestamp', () => {
       it('should calculate progress correctly for an intermediate value', () => {
         const res = Timestamp.range(timestamps, 7000);
         expect(res).to.not.be.undefined;
-        if (res) {
-          // For a progress time of 7500 msec, progress = (7500 - 5000) / (10000 - 5000) = 0.5
-          expect(res.progress(7500)).to.equal(0.5);
-        }
+
+        // For a progress time of 7500 msec, progress = (7500 - 5000) / (10000 - 5000) = 0.5
+        expect(res?.progress(7500)).to.equal(0.5);
       });
 
       it('should respect unit conversion for progress calculations', () => {
@@ -338,27 +337,27 @@ describe('Timestamp', () => {
         //    the range remains from 5000 msec to 10000 msec.
         const res = Timestamp.range(timestamps, 7, { unit: 'secs' });
         expect(res).to.not.be.undefined;
-        if (res) {
-          // When passing times in seconds, progress(5) should be calculated as 5000 msec, so progress = 0.
-          expect(res.progress(5, { unit: 'secs' })).to.equal(0);
-          // progress(10) (i.e. 10000 msec) should equal 1.
-          expect(res.progress(10, { unit: 'secs' })).to.equal(1);
-          // progress(7.5) seconds (7500 msec) should equal 0.5.
-          expect(res.progress(7.5, { unit: 'secs' })).to.equal(0.5);
-        }
+
+        // When passing times in seconds, progress(5) should be calculated as 5000 msec, so progress = 0.
+        expect(res?.progress(5, { unit: 'secs' })).to.equal(0);
+
+        // progress(10) (i.e. 10000 msec) should equal 1.
+        expect(res?.progress(10, { unit: 'secs' })).to.equal(1);
+
+        // progress(7.5) seconds (7500 msec) should equal 0.5.
+        expect(res?.progress(7.5, { unit: 'secs' })).to.equal(0.5);
       });
 
       it('should round progress correctly when the round option is provided', () => {
         // Use a round option (e.g., 2 decimal places) and choose a time that results in a non-integer fraction.
         const res = Timestamp.range(timestamps, 7000, { round: 2 });
         expect(res).to.not.be.undefined;
-        if (res) {
-          // For a progress time of 6666 msec, the unrounded progress is:
-          // (6666 - 5000) / (10000 - 5000) = 1666 / 5000 ≈ 0.3332
-          // With rounding to 2 decimals, we expect ≈ 0.33.
-          const prog = res.progress(6666);
-          expect(prog).to.be.closeTo(0.33, 0.01);
-        }
+
+        // For a progress time of 6666 msec, the unrounded progress is:
+        //    (6666 - 5000) / (10000 - 5000) = 1666 / 5000 ≈ 0.3332
+        //    With rounding to 2 decimals, we expect ≈ 0.33.
+        const prog = res?.progress(6666);
+        expect(prog).to.be.closeTo(0.33, 0.01);
       });
     });
   });
