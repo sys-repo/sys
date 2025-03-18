@@ -8,7 +8,7 @@ let _sheet: CSSStyleSheet | null = null;
 /**
  * Generator factory
  */
-export const createStylesheet: t.CssDomLib['createStylesheet'] = (prefix) => {
+export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
   prefix = ((prefix ?? '').trim() || DEFAULT.prefix).replace(/-*$/, '');
   V.parse(AlphanumericWithHyphens, prefix);
   if (singletons.has(prefix)) return singletons.get(prefix)!;

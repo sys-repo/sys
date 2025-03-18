@@ -14,9 +14,9 @@ describe(
 
     describe('create (instance)', () => {
       it('prefix: default', () => {
-        const a = CssDom.createStylesheet('');
-        const b = CssDom.createStylesheet('   ');
-        const c = CssDom.createStylesheet();
+        const a = CssDom.stylesheet('');
+        const b = CssDom.stylesheet('   ');
+        const c = CssDom.stylesheet();
         expect(a.prefix).to.eql(DEFAULT.prefix);
         expect(b.prefix).to.eql(DEFAULT.prefix);
         expect(c.prefix).to.eql(DEFAULT.prefix);
@@ -24,7 +24,7 @@ describe(
 
       it('custom prefix', () => {
         const test = (prefix: string, expected: string) => {
-          const ns = CssDom.createStylesheet(prefix);
+          const ns = CssDom.stylesheet(prefix);
           expect(ns.prefix).to.eql(expected);
         };
         test('foo', 'foo');
@@ -35,25 +35,25 @@ describe(
         test('foo-123', 'foo-123');
       });
 
-      it('pooling (instance reuse keyed on "prefix")', () => {
-        const a = CssDom.createStylesheet();
-        const b = CssDom.createStylesheet(DEFAULT.prefix);
-        const c = CssDom.createStylesheet('foo');
+      it('singleton pooling (instance reuse keyed on "prefix")', () => {
+        const a = CssDom.stylesheet();
+        const b = CssDom.stylesheet(DEFAULT.prefix);
+        const c = CssDom.stylesheet('foo');
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
       });
 
       it('insert root <style> into DOM (singleton)', () => {
         const find = () => document.querySelector(`style[data-controller="${pkg.name}"]`);
-        CssDom.createStylesheet();
+        CssDom.stylesheet();
         expect(find()).to.exist;
-        CssDom.createStylesheet();
+        CssDom.stylesheet();
         expect(find()).to.equal(find()); // Singleton.
       });
 
       it('throw: invalid prefix', () => {
         const test = (prefix: string) => {
-          const fn = () => CssDom.createStylesheet(prefix);
+          const fn = () => CssDom.stylesheet(prefix);
           expect(fn).to.throw(
             /String must start with a letter and can contain letters, digits, and hyphens \(hyphen not allowed at the beginning\)/,
           );
@@ -71,7 +71,7 @@ describe(
       const setup = (): t.CssDomStylesheet => {
         count++;
         const prefix = `sample${count}`;
-        return CssDom.createStylesheet(prefix);
+        return CssDom.stylesheet(prefix);
       };
 
       it('simple ("hx" not passed)', () => {

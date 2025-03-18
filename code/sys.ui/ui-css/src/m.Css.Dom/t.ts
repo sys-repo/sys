@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * Tools for programatically managing CSS stylesheets within the browser DOM.
  */
 export type CssDomLib = {
-  /** Generator factory. */
-  createStylesheet(prefix?: string): t.CssDomStylesheet;
+  /** Factory for a DOM <style> stylesheet element (singleton instances). */
+  stylesheet(prefix?: string): t.CssDomStylesheet;
 };
 
 /**

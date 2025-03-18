@@ -6,5 +6,5 @@ import { type t } from './common.ts';
 import { createStylesheet } from './u.create.ts';
 
 export const CssDom: t.CssDomLib = {
-  createStylesheet,
+  stylesheet: createStylesheet,
 };
