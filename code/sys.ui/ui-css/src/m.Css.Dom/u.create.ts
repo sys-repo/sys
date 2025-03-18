@@ -1,5 +1,5 @@
-import { type t, DEFAULT, isRecord, pkg, toHash, toString, V } from './common.ts';
-import { AlphanumericWithHyphens } from './u.ts';
+import { type t, DEFAULT, isRecord, pkg, toHash, V } from './common.ts';
+import { AlphanumericWithHyphens, toString } from './u.ts';
 
 type Prefix = string;
 const singletons = new Map<Prefix, t.CssDomStylesheet>();
@@ -56,7 +56,7 @@ function getOrCreateCSSStyleSheet(): CSSStyleSheet {
   if (_sheet) return _sheet;
 
   if (typeof document === 'undefined') {
-    return {} as CSSStyleSheet; // Dummy (NB: safe when running on server).
+    return {} as CSSStyleSheet; // Dummy (safe on server).
   } else {
     const el = document.createElement('style');
     el.setAttribute('data-controller', pkg.name);

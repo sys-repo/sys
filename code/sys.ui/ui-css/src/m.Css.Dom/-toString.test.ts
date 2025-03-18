@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { toString } from './u.toString.ts';
+import { toString } from './mod.ts';
 
 describe('toString', () => {
   it('empty', () => {

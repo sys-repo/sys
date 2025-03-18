@@ -1,6 +1,5 @@
-import { type t, CssDom, CssTmpl, DEFAULT, toHash } from './common.ts';
+import { type t, CssDom, CssTmpl, DEFAULT, toHash, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
-import { toString } from './u.toString.ts';
 
 type M = Map<number, t.CssTransformed>;
 type O = Record<string, unknown>;

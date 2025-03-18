@@ -12,6 +12,13 @@ describe(
   () => {
     DomMock.polyfill();
 
+    let _count = 0;
+    const setup = (): t.CssDomStylesheet => {
+      _count++;
+      const prefix = `sample${_count}`;
+      return CssDom.stylesheet(prefix);
+    };
+
     describe('create (instance)', () => {
       it('prefix: default', () => {
         const a = CssDom.stylesheet('');
@@ -66,14 +73,7 @@ describe(
       });
     });
 
-    describe('class/style DOM insertion', () => {
-      let count = 0;
-      const setup = (): t.CssDomStylesheet => {
-        count++;
-        const prefix = `sample${count}`;
-        return CssDom.stylesheet(prefix);
-      };
-
+    describe('.class() method: class/style DOM insertion', () => {
       it('simple ("hx" not passed)', () => {
         const dom = setup();
         const m = css({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
@@ -116,6 +116,33 @@ describe(
           expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
           expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
         });
+      });
+    });
+
+    describe('.rule() method: arbitrary CSS-selector DOM insertion', () => {
+      it('should insert a simple rule into the stylesheet', () => {
+        const dom = setup();
+        const selector = '.test-rule';
+        const style = { color: 'blue', margin: 10 };
+
+        // Initially, the rule should not be present.
+        expect(FindCss.rule(selector)).to.eql(undefined);
+
+        // Insert the rule.
+        dom.rule(selector, style);
+
+        // Verify that the CSS rule is inserted.
+        const rule = FindCss.rule(selector);
+        expect(rule).to.exist;
+
+        console.log('CssDom.toString', CssDom.toString);
+
+        const m = CssDom.toString(style);
+        console.log('CssDom.toString(style)', CssDom.toString(style));
+
+        console.log('rule?.cssText', rule?.cssText);
+
+        expect(rule?.cssText).to.eql(`${selector} { ${CssDom.toString(style)} }`);
       });
     });
   },
