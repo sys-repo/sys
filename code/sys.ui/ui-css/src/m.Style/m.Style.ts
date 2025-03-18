@@ -14,9 +14,9 @@ export const css: t.CssTransform = transformer({ prefix });
  * CSS styling tools.
  */
 export const Style: t.StyleLib = {
+  Dom,
   Color,
   Edges,
-  Dom,
   Tmpl,
 
   css,
