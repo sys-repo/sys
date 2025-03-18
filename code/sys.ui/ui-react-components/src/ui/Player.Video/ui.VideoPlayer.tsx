@@ -18,15 +18,24 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const src = props.video || D.video;
   const p = signals?.props;
 
-  const showFullscreenButton = p?.showFullscreenButton.value ?? DEFAULTS.showFullscreenButton;
+  const showControls = p?.showControls.value ?? D.showControls;
+  const showFullscreenButton = p?.showFullscreenButton.value ?? D.showFullscreenButton;
   const autoPlay = p?.autoPlay.value ?? D.autoPlay;
   const muted = autoPlay ? true : p?.muted.value ?? D.muted;
+  const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
+  const cornerRadius = p?.cornerRadius.value ?? D.cornerRadius;
 
   const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
   Signal.useRedrawEffect(() => {
+    p?.ready.value;
+
+    p?.muted.value;
+    p?.autoPlay.value;
+    p?.loop.value;
+
     p?.showControls.value;
     p?.showFullscreenButton.value;
     p?.cornerRadius.value;
@@ -59,11 +68,14 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const elPlayer = (
     <MediaPlayer
       ref={playerRef}
-      style={{ '--plyr-border-radius': `${p?.cornerRadius.value ?? D.cornerRadius}px` }}
+      style={{
+        '--plyr-border-radius': `${cornerRadius}px`,
+        '--plyr-aspect-ratio': aspectRatio, // e.g. "16/9" or "9/16"
+      }}
       title={props.title}
       src={src}
       playsInline={true}
-      aspectRatio={p?.aspectRatio.value ?? D.aspectRatio}
+      aspectRatio={aspectRatio}
       autoPlay={autoPlay}
       muted={muted}
       // Handlers:
@@ -75,18 +87,9 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       }}
     >
       <MediaProvider />
-      {p?.showControls.value ?? true ? elPlyrLayout : undefined}
+      {elPlyrLayout}
     </MediaPlayer>
   );
 
   return <div className={css(styles.base, props.style).class}>{elPlayer}</div>;
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  muted(signals: t.VideoPlayerSignals) {
-    const p = signals?.props;
-  },
-} as const;
