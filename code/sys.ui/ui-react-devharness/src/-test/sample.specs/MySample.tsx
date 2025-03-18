@@ -14,7 +14,7 @@ let _count = 0;
 
 export const MySample: React.FC<MySampleProps> = (props) => {
   if (props.throwError) {
-    throw new Error('MySample: Intentional error');
+    throw new Error('MySample: 🐷 Intentional error');
   }
 
   /**
