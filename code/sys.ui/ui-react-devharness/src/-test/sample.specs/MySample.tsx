@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect } from 'react';
 import { Color, css, DEFAULTS, Keyboard, type t } from '../common.ts';
 

@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { COLORS, Calc, Color, DEFAULTS, css, type t } from './common.ts';

@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { Color, css, DEFAULTS, type t } from './common.ts';

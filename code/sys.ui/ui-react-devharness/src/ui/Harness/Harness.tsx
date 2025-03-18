@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect, useRef, type FC } from 'react';
 import { HarnessHost } from '../Harness.Host/mod.ts';
 import { DebugPanel } from '../Harness.Panel.Debug/mod.ts';
