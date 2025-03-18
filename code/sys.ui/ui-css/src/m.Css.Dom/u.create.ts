@@ -13,7 +13,7 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
   V.parse(AlphanumericWithHyphens, prefix);
   if (singletons.has(prefix)) return singletons.get(prefix)!;
 
-  const sheet = getOrCreateStylesheet();
+  const sheet = getOrCreateCSSStyleSheet();
   const inserted = new Set<string>();
   const insertRule = (rule: string) => sheet.insertRule?.(rule, sheet.cssRules.length);
 
@@ -52,7 +52,7 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
  * Singleton <style> element management.
  * If one doesn't exist, we create one and append it to the <head>.
  */
-function getOrCreateStylesheet(): CSSStyleSheet {
+function getOrCreateCSSStyleSheet(): CSSStyleSheet {
   if (_sheet) return _sheet;
 
   if (typeof document === 'undefined') {
