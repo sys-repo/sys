@@ -5,4 +5,5 @@ export const DEFAULTS = {
   loop: false,
   showFullscreenButton: false,
   showControls: true,
+  cornerRadius: 10,
 } as const;

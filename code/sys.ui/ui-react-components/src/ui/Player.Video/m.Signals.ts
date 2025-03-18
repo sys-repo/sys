@@ -1,6 +1,7 @@
 import { type t, DEFAULTS, Signal } from './common.ts';
 
 type T = t.VideoPlayerSignals;
+const D = DEFAULTS;
 
 /**
  * Factory: create a new instance of signals
@@ -12,10 +13,11 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     // Values.
     ready: s(false),
     playing: s(false),
-    loop: s(defaults.loop ?? DEFAULTS.loop),
+    loop: s(defaults.loop ?? D.loop),
     currentTime: s<t.Secs>(0),
-    showFullscreenButton: s(defaults.showFullscreenButton ?? DEFAULTS.showFullscreenButton),
-    showControls: s(defaults.showControls ?? DEFAULTS.showControls),
+    cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
+    showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
+    showControls: s<boolean>(defaults.showControls ?? D.showControls),
 
     // Commands.
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

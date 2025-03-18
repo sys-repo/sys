@@ -16,6 +16,7 @@ describe('VideoPlayer: Signals', () => {
       expect(p.jumpTo.value).to.eql(undefined);
       expect(p.showControls.value).to.eql(true);
       expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
+      expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
 
       p.playing.value = true;
       expect(p.playing.value).to.eql(true);
@@ -23,15 +24,17 @@ describe('VideoPlayer: Signals', () => {
 
     it('param: custom {defaults}', () => {
       const s = Player.Video.signals({
+        loop: true,
         showControls: false,
         showFullscreenButton: true,
-        loop: true,
+        cornerRadius: 0,
       });
 
       const p = s.props;
       expect(p.loop.value).to.eql(true);
       expect(p.showControls.value).to.eql(false);
       expect(p.showFullscreenButton.value).to.eql(true);
+      expect(p.cornerRadius.value).to.eql(0);
     });
   });
 

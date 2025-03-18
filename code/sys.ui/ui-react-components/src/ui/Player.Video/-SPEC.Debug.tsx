@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal, Time } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal, Time } from './common.ts';
 
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
@@ -27,6 +27,7 @@ export const Debug: React.FC<P> = (props) => {
     p.playing.value;
     p.showControls.value;
     p.showFullscreenButton.value;
+    p.cornerRadius.value;
     Time.delay(redraw);
   });
 
@@ -67,6 +68,11 @@ export const Debug: React.FC<P> = (props) => {
         block={true}
         label={`showFullscreenButton: ${p.showFullscreenButton}`}
         onClick={() => toggle(p.showFullscreenButton)}
+      />
+      <Button
+        block={true}
+        label={`cornerRadius: ${p.cornerRadius}`}
+        onClick={() => Signal.cycle(p.cornerRadius, [0, 5, DEFAULTS.cornerRadius, 15])}
       />
     </div>
   );

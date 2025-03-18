@@ -24,6 +24,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p?.showControls.value;
     p?.showFullscreenButton.value;
+    p?.cornerRadius.value;
   });
 
   /**
@@ -50,6 +51,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const elPlayer = (
     <MediaPlayer
       ref={playerRef}
+      style={{ '--plyr-border-radius': `${p?.cornerRadius.value ?? DEFAULTS.cornerRadius}px` }}
       title={props.title}
       src={src}
       playsInline={true}

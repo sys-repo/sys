@@ -10,9 +10,10 @@ export type PlayerSignalsFactory = (
 
 /** Defaults passed to the signals API factory. */
 export type PlayerSignalsFactoryDefaults = {
+  loop?: boolean;
   showControls?: boolean;
   showFullscreenButton?: boolean;
-  loop?: boolean;
+  cornerRadius?: number;
 };
 
 /**
@@ -22,10 +23,13 @@ export type VideoPlayerSignals = {
   props: {
     ready: t.Signal<boolean>;
 
+    // Media.
     playing: t.Signal<boolean>;
-    loop: t.Signal<boolean>;
     currentTime: t.Signal<t.Secs>;
+    loop: t.Signal<boolean>;
+    cornerRadius: t.Signal<number>;
 
+    // Appearance.
     showControls: t.Signal<boolean>;
     showFullscreenButton: t.Signal<boolean>;
 
