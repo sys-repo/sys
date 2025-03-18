@@ -50,6 +50,7 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
       backdropFilter: `blur(${bgBlur})px)`,
       borderRadius: width * 0.08,
       width,
+      lineHeight: 0, // NB: ensure no "baseline" gap below the <svg>.
     }),
   };
 
