@@ -43,6 +43,8 @@ export const Debug: React.FC<P> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
     </div>
   );
 };
