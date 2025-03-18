@@ -8,12 +8,12 @@ export async function main() {
   const run = async (path: string, index: number, total: number) => {
     const cmd = 'dry';
     const command = `deno task ${cmd}`;
-    const commandFmt = `deno task ${c.bold(c.green(cmd))}`;
+    const commandFmt = c.green(`deno task ${c.bold(c.cyan(cmd))}`);
 
     const title = c.gray(`${c.white('Type Checks')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
 
-    const text = `${title}\n  ${c.cyan(commandFmt)}\n${moduleList}`;
+    const text = `${title}\n  ${commandFmt}\n${moduleList}`;
     spinner.text = c.gray(text);
 
     const output = await Process.sh(path).run(command);
