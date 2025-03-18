@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, Svg } from './common.ts';
-import { useTheme } from './use.Theme.ts';
+import React, { useEffect } from 'react';
+import { type t, Color, css, DEFAULTS, Svg } from './common.ts';
 import { useMouse } from './use.Mouse.tsx';
+import { useTheme } from './use.Theme.ts';
 
-import Image from '../../images/canvas/canvas.mini.svg';
+import Image from '../../../images/canvas/canvas.mini.svg';
 
 export type SvgImageProps = {
   width?: number;
