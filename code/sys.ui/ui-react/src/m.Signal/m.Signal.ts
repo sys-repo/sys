@@ -1,4 +1,4 @@
-import { type t, Std, useSignal, useSignalEffect } from './common.ts';
+import { type t, Std, useSignalEffect as useEffect, useSignal } from './common.ts';
 import { useRedrawEffect } from './u.useRedrawEffect.ts';
 
 /**
@@ -11,6 +11,6 @@ import { useRedrawEffect } from './u.useRedrawEffect.ts';
 export const Signal: t.SignalReactLib = {
   ...Std,
   useSignal,
-  useSignalEffect,
+  useEffect,
   useRedrawEffect,
 } as const;
