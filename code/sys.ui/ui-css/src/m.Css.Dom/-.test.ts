@@ -1,4 +1,4 @@
-import { type t, describe, DomMock, expect, FindCss, it, pkg, beforeEach } from '../-test.ts';
+import { type t, describe, DomMock, expect, FindCss, it, pkg, slug } from '../-test.ts';
 import { css } from '../m.Style/mod.ts';
 import { DEFAULT } from './common.ts';
 import { CssDom } from './mod.ts';
@@ -19,13 +19,6 @@ describe(
       _count++;
       const prefix = `sample-${_count}`;
       return CssDom.stylesheet(prefix);
-    };
-
-    const clearStylesheet = () => {
-      const styleElement = document.querySelector('style[data-controller]');
-      if (styleElement) {
-        styleElement.parentElement?.removeChild(styleElement);
-      }
     };
 
     describe('factory: create (instance)', () => {
@@ -145,7 +138,7 @@ describe(
         expect(rule?.cssText).to.eql(`.test-rule { color: blue; margin: 10px; }`); // NB: ↑ (same/same).
       });
 
-      describe.skip('pseudo-classes', () => {
+      describe('pseudo-classes', () => {
         it('should insert pseudo-class rules along with the base rule', () => {
           const dom = setup();
           const selector = '.test-pseudo';
@@ -188,40 +181,77 @@ describe(
           );
         });
 
-        it('should ignore pseudo‑class rules if the value is not an object', () => {
+        it('should ignore pseudo-class rules if the value is not an object', () => {
           const test = (invalidValue: any) => {
             const dom = setup();
-            const selector = '.test-invalid-value';
+            const selector = `.test-invalid-value-${slug()}`;
             const style = {
               color: 'blue',
-              ':hover': invalidValue, // invalid; value must be a record/object.
+              ':hover': invalidValue, // invalid; value must be a {record/object}.
             };
 
             dom.rule(selector, style);
             const rules = FindCss.rules(selector);
 
-            console.log('rules.length', rules.length);
-            console.log('rules[0].cssText', rules[0].cssText);
-            console.log('rules[1]?.cssText', rules[1]?.cssText);
-
             // Only the base rule should be inserted.
-            // expect(rules).to.have.length(1);
+            expect(rules).to.have.length(1);
             expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
           };
 
-          // test('not-an-object');
-          const NON = [
-            'not-an-object',
-            123,
-            // true,
-            // null,
-            // undefined,
-            // BigInt(0),
-            // Symbol('foo'),
-            // {},
-            // [],
-          ];
+          const NON = ['not-an-object', 123, true, null, undefined, BigInt(0), Symbol('foo'), []];
           NON.forEach(test);
+        });
+
+        it('should ignore keys that are not valid pseudo-classes', () => {
+          const dom = setup();
+          const selector = '.test-non-pseudo';
+          const style = {
+            color: 'blue',
+            ':nonexistent': { color: 'red' }, // not in our DEFAULT pseudo-class set.
+          };
+
+          dom.rule(selector, style);
+          const rules = FindCss.rules(selector);
+
+          // Only the base rule should be inserted.
+          expect(rules).to.have.length(1);
+          expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
+        });
+
+        it('should insert an empty pseu0o-class rule when given an empty style object', () => {
+          const dom = setup();
+          const selector = '.test-empty-pseudo';
+          const style = {
+            color: 'blue',
+            ':hover': {}, // empty nested style.
+          };
+
+          dom.rule(selector, style);
+          const rules = FindCss.rules(selector);
+
+          // Expect a base rule and a pseudo-class rule, even if the nested style is empty.
+          expect(rules).to.have.length(2);
+          expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
+          expect(rules[1].cssText).to.eql(`${selector}:hover { ${toString({})} }`);
+        });
+
+        it('should prevent duplicate pseudo-class rules when the same style is inserted twice', () => {
+          const dom = setup();
+          const selector = '.test-duplicate-pseudo';
+          const style = {
+            color: 'blue',
+            ':hover': { color: 'red' },
+          };
+
+          // Call rule() twice with the same selector and style.
+          dom.rule(selector, style);
+          dom.rule(selector, style);
+          const rules = FindCss.rules(selector);
+
+          // If duplicate prevention is implemented, there should be only one base rule and one pseudo-class rule.
+          expect(rules).to.have.length(2);
+          expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
+          expect(rules[1].cssText).to.eql(`${selector}:hover { ${toString({ color: 'red' })} }`);
         });
       });
     });

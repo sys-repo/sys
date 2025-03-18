@@ -14,29 +14,38 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
   if (singletons.has(prefix)) return singletons.get(prefix)!;
 
   const sheet = getOrCreateCSSStyleSheet();
-  const inserted = new Set<string>();
-  const insertRule = (rule: string) => sheet.insertRule?.(rule, sheet.cssRules.length);
+  const insertedClasses = new Set<string>();
+  const insertedRules = new Set<string>();
+  const insertRule = (rule: string) => {
+    if (insertedRules.has(rule)) return;
+    sheet.insertRule?.(rule, sheet.cssRules.length);
+    insertedRules.add(rule);
+  };
 
   const api: t.CssDomStylesheet = {
     prefix,
     get classes() {
-      return Array.from(inserted);
+      return Array.from(insertedClasses);
     },
+
     class(style, hxInput) {
       const hx = hxInput ?? toHash(style);
       const className = `${prefix}-${hx}`;
-      if (inserted.has(className)) return className;
+      if (insertedClasses.has(className)) return className;
 
       // Initial creation.
-      inserted.add(className);
-      insertRule(`.${className} { ${toString(style)} }`);
+      insertedClasses.add(className);
+      api.rule(`.${className}`, style);
 
+      return className;
+    },
+
+    rule(selector, style) {
+      insertRule(`${selector} { ${toString(style)} }`);
       Object.entries(style)
         .filter(([key]) => DEFAULT.pseudoClasses.has(key))
         .filter(([_, value]) => isRecord(value))
-        .forEach(([key, value]) => insertRule(`.${className}${key} { ${toString(value)} }`));
-
-      return className;
+        .forEach(([key, value]) => insertRule(`${selector}${key} { ${toString(value)} }`));
     },
   };
 

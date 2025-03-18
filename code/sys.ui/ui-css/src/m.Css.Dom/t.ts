@@ -6,6 +6,9 @@ import type { t } from './common.ts';
 export type CssDomLib = {
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
   stylesheet(prefix?: string): t.CssDomStylesheet;
+
+  /** Convert a {style} props object to a CSS string. */
+  toString: t.StyleLib['toString'];
 };
 
 /**
@@ -19,6 +22,16 @@ export type CssDomStylesheet = {
   /** List of CSS class-names that have been inserted into the DOM.  */
   readonly classes: Readonly<string[]>;
 
-  /** Generates a CSS class-name and inserts the given {Style} into the DOM. */
+  /**
+   * Generates a CSS classname as the selector and inserts the given
+   * {Style} object as a set of rules into the DOM (with caching).
+   */
   class(style: t.CssProps, hx?: number): string;
+
+  /**
+   * Inserts CSS styles with an arbitrary CSS-selector.
+   * Use this for custom/complex CSS rules
+   * (typically lean on the `CssDom.class` method).
+   */
+  rule(selector: string, style: t.CssProps): void;
 };
