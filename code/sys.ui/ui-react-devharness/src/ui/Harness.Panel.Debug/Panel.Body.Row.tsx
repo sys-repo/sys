@@ -15,6 +15,7 @@ export const DebugPanelBodyRow: React.FC<DebugPanelBodyRow> = (props) => {
     base: css({
       position: 'relative',
       display: 'grid',
+      lineHeight: 1.6,
     }),
   };
 
