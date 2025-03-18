@@ -68,7 +68,7 @@ describe(
 
     describe('class/style DOM insertion', () => {
       let count = 0;
-      const setup = (): t.CssDom => {
+      const setup = (): t.CssDomStylesheet => {
         count++;
         const prefix = `sample${count}`;
         return CssDom.createStylesheet(prefix);

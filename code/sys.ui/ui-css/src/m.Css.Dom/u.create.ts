@@ -2,7 +2,7 @@ import { type t, DEFAULT, isRecord, pkg, toHash, toString, V } from './common.ts
 import { AlphanumericWithHyphens } from './u.ts';
 
 type Prefix = string;
-const singletons = new Map<Prefix, t.CssDom>();
+const singletons = new Map<Prefix, t.CssDomStylesheet>();
 let _sheet: CSSStyleSheet | null = null;
 
 /**
@@ -17,7 +17,7 @@ export const createStylesheet: t.CssDomLib['createStylesheet'] = (prefix) => {
   const inserted = new Set<string>();
   const insertRule = (rule: string) => sheet.insertRule?.(rule, sheet.cssRules.length);
 
-  const api: t.CssDom = {
+  const api: t.CssDomStylesheet = {
     prefix,
     get classes() {
       return Array.from(inserted);

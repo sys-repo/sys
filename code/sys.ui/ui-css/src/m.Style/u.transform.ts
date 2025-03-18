@@ -21,7 +21,11 @@ export const transformer: F = (input) => {
 /**
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
-function transform(args: { dom: t.CssDom; cache: M; input: t.CssInput[] }): t.CssTransformed {
+function transform(args: {
+  dom: t.CssDomStylesheet;
+  cache: M;
+  input: t.CssInput[];
+}): t.CssTransformed {
   const { dom, cache } = args;
   const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
   const hx = toHash(style);

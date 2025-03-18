@@ -5,14 +5,14 @@ import type { t } from './common.ts';
  */
 export type CssDomLib = {
   /** Generator factory. */
-  createStylesheet(prefix?: string): t.CssDom;
+  createStylesheet(prefix?: string): t.CssDomStylesheet;
 };
 
 /**
  * A <style> DOM element used to store and manage CSS-classes
  * generated from CssProps
  */
-export type CssDom = {
+export type CssDomStylesheet = {
   /** The root prefix applied to generated class-names. */
   readonly prefix: string;
 
