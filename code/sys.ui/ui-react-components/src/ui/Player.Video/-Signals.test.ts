@@ -14,7 +14,8 @@ describe('VideoPlayer: Signals', () => {
       expect(p.loop.value).to.eql(DEFAULTS.loop);
       expect(p.currentTime.value).to.eql(0);
       expect(p.jumpTo.value).to.eql(undefined);
-      expect(p.fullscreenButton.value).to.eql(DEFAULTS.fullscreenButton);
+      expect(p.showControls.value).to.eql(true);
+      expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
 
       p.playing.value = true;
       expect(p.playing.value).to.eql(true);
@@ -22,13 +23,15 @@ describe('VideoPlayer: Signals', () => {
 
     it('param: custom {defaults}', () => {
       const s = Player.Video.signals({
-        fullscreenButton: true,
+        showControls: false,
+        showFullscreenButton: true,
         loop: true,
       });
 
       const p = s.props;
-      expect(p.fullscreenButton.value).to.eql(true);
       expect(p.loop.value).to.eql(true);
+      expect(p.showControls.value).to.eql(false);
+      expect(p.showFullscreenButton.value).to.eql(true);
     });
   });
 

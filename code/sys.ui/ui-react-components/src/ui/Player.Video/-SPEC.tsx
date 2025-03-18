@@ -4,7 +4,7 @@ import { Debug } from './-SPEC.Debug.tsx';
 import { VideoPlayer } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
-  const s = Player.Video.signals({});
+  const signals = Player.Video.signals({});
 
   e.it('API', (e) => {
     expect(Player.Video.View).to.equal(VideoPlayer);
@@ -13,12 +13,12 @@ export default Spec.describe('VideoPlayer', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     ctx.subject.size([520, null]).render((e) => {
-      return <VideoPlayer signals={s} />;
+      return <VideoPlayer signals={signals} />;
     });
   });
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ signals: s }} />);
+    ctx.debug.row(<Debug ctx={{ signals }} />);
   });
 });

@@ -14,7 +14,8 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     playing: s(false),
     loop: s(defaults.loop ?? DEFAULTS.loop),
     currentTime: s<t.Secs>(0),
-    fullscreenButton: s(defaults.fullscreenButton ?? DEFAULTS.fullscreenButton),
+    showFullscreenButton: s(defaults.showFullscreenButton ?? DEFAULTS.showFullscreenButton),
+    showControls: s(defaults.showControls ?? DEFAULTS.showControls),
 
     // Commands.
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

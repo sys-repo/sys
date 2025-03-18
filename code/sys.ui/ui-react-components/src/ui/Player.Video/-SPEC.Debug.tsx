@@ -25,7 +25,8 @@ export const Debug: React.FC<P> = (props) => {
     p.ready.value;
     p.loop.value;
     p.playing.value;
-    p.fullscreenButton.value;
+    p.showControls.value;
+    p.showFullscreenButton.value;
     Time.delay(redraw);
   });
 
@@ -59,8 +60,13 @@ export const Debug: React.FC<P> = (props) => {
 
       <Button
         block={true}
-        label={`fullscreenButton: ${p.fullscreenButton}`}
-        onClick={() => toggle(p.fullscreenButton)}
+        label={`showControls: ${p.showControls}`}
+        onClick={() => toggle(p.showControls)}
+      />
+      <Button
+        block={true}
+        label={`showFullscreenButton: ${p.showFullscreenButton}`}
+        onClick={() => toggle(p.showFullscreenButton)}
       />
     </div>
   );
