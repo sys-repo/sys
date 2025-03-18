@@ -44,9 +44,9 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
    */
   const styles = {
     base: css({
-      color: theme.fg,
-      cursor: 'default',
       position: 'relative',
+      cursor: 'default',
+      color: theme.fg,
       backdropFilter: `blur(${bgBlur})px)`,
       borderRadius: width * 0.08,
       width,
