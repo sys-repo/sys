@@ -11,12 +11,12 @@ export async function main() {
   const run = async (path: string, index: number, total: number) => {
     const cmd = 'test';
     const command = `deno task ${cmd}`;
-    const commandFmt = `deno task ${c.bold(cmd)}`;
+    const commandFmt = `deno task ${c.bold(c.green(cmd))}`;
 
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
     spinner.text = c.gray(`${title}\n  ${c.cyan(commandFmt)}\n${moduleList}`);
-    const output = await Process.sh({ silent: true, path }).run(command);
+    const output = await Process.sh({ path, silent: true }).run(command);
     results.push({ output, path });
   };
 
