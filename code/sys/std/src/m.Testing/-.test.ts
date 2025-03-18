@@ -8,10 +8,18 @@ Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
 });
 
 describe('Testing', () => {
-  it('exports BDD semantics', () => {
+  it('exports BDD semantics', async () => {
+    const { describe, it } = await import('@std/testing/bdd');
+    const { afterAll, afterEach, beforeAll, beforeEach } = await import('@std/testing/bdd');
+
+    expect(Testing.Bdd.expect).to.equal(expect);
     expect(Testing.Bdd.describe).to.equal(describe);
     expect(Testing.Bdd.it).to.equal(it);
-    expect(Testing.Bdd.expect).to.equal(expect);
+
+    expect(Testing.Bdd.beforeAll).to.equal(beforeAll);
+    expect(Testing.Bdd.afterAll).to.equal(afterAll);
+    expect(Testing.Bdd.beforeEach).to.equal(beforeEach);
+    expect(Testing.Bdd.afterEach).to.equal(afterEach);
   });
 
   it('randomPort', () => {
