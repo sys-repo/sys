@@ -3,6 +3,8 @@ import { css } from '../m.Style/mod.ts';
 import { DEFAULT } from './common.ts';
 import { CssDom } from './mod.ts';
 
+const toString = CssDom.toString;
+
 describe(
   'Style: CSS ClassName',
 
@@ -15,11 +17,11 @@ describe(
     let _count = 0;
     const setup = (): t.CssDomStylesheet => {
       _count++;
-      const prefix = `sample${_count}`;
+      const prefix = `sample-${_count}`;
       return CssDom.stylesheet(prefix);
     };
 
-    describe('create (instance)', () => {
+    describe('factory: create (instance)', () => {
       it('prefix: default', () => {
         const a = CssDom.stylesheet('');
         const b = CssDom.stylesheet('   ');
@@ -124,25 +126,56 @@ describe(
         const dom = setup();
         const selector = '.test-rule';
         const style = { color: 'blue', margin: 10 };
-
-        // Initially, the rule should not be present.
         expect(FindCss.rule(selector)).to.eql(undefined);
 
         // Insert the rule.
         dom.rule(selector, style);
 
-        // Verify that the CSS rule is inserted.
+        // Verify that the rule is inserted in the DOM.
         const rule = FindCss.rule(selector);
         expect(rule).to.exist;
+        expect(rule?.cssText).to.eql(`${selector} { ${toString(style)} }`);
+        expect(rule?.cssText).to.eql(`.test-rule { color: blue; margin: 10px; }`); // NB: ↑ (same/same).
+      });
 
-        console.log('CssDom.toString', CssDom.toString);
+      it('should insert pseudo-class rules along with the base rule', () => {
+        const dom = setup();
+        const selector = '.test-pseudo';
+        const style = {
+          color: 'red',
+          ':hover': { color: 'green' },
+        };
 
-        const m = CssDom.toString(style);
-        console.log('CssDom.toString(style)', CssDom.toString(style));
+        // Insert the rule.
+        dom.rule(selector, style);
+        const rules = FindCss.rules(selector);
 
-        console.log('rule?.cssText', rule?.cssText);
+        // Expect one base rule and one pseudo-class rule.
+        expect(rules).to.have.length(2);
+        expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'red' })} }`);
+        expect(rules[1].cssText).to.eql(`${selector}:hover { ${toString({ color: 'green' })} }`);
+      });
 
-        expect(rule?.cssText).to.eql(`${selector} { ${CssDom.toString(style)} }`);
+      it('should insert multiple pseudo-class rules', () => {
+        const dom = setup();
+        const selector = '.test-multi';
+        const style = {
+          fontSize: '14px',
+          ':active': { fontSize: '16px' },
+          ':focus': { fontWeight: 'bold' },
+        };
+
+        // Insert the rule.
+        dom.rule(selector, style);
+        const rules = FindCss.rules(selector);
+
+        // Expect 1 base rule and 2 pseudo rules.
+        expect(rules).to.have.length(3);
+        expect(rules[0].cssText).to.eql(`${selector} { ${toString({ fontSize: '14px' })} }`);
+        expect(rules[1].cssText).to.eql(`${selector}:active { ${toString({ fontSize: '16px' })} }`);
+        expect(rules[2].cssText).to.eql(
+          `${selector}:focus { ${toString({ fontWeight: 'bold' })} }`,
+        );
       });
     });
   },
