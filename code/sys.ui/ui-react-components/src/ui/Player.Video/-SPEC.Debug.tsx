@@ -28,6 +28,7 @@ export const Debug: React.FC<P> = (props) => {
     p.showControls.value;
     p.showFullscreenButton.value;
     p.cornerRadius.value;
+    p.aspectRatio.value;
     Time.delay(redraw);
   });
 
@@ -73,6 +74,11 @@ export const Debug: React.FC<P> = (props) => {
         block={true}
         label={`cornerRadius: ${p.cornerRadius}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 5, DEFAULTS.cornerRadius, 15])}
+      />
+      <Button
+        block={true}
+        label={`aspectRatio: ${p.aspectRatio}`}
+        onClick={() => Signal.cycle(p.aspectRatio, [DEFAULTS.aspectRatio, '4/3', '2.39/1', '1/1'])}
       />
     </div>
   );

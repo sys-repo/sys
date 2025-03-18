@@ -12,12 +12,15 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
   const props: T['props'] = {
     // Values.
     ready: s(false),
+
     playing: s(false),
-    loop: s(defaults.loop ?? D.loop),
     currentTime: s<t.Secs>(0),
-    cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
+    loop: s(defaults.loop ?? D.loop),
+
     showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
+    cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
+    aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
 
     // Commands.
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

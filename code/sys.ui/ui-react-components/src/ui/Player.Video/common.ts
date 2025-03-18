@@ -6,4 +6,5 @@ export const DEFAULTS = {
   showFullscreenButton: false,
   showControls: true,
   cornerRadius: 10,
+  aspectRatio: '16/9',
 } as const;

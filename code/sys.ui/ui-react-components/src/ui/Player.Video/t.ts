@@ -14,6 +14,7 @@ export type PlayerSignalsFactoryDefaults = {
   showControls?: boolean;
   showFullscreenButton?: boolean;
   cornerRadius?: number;
+  aspectRatio?: string;
 };
 
 /**
@@ -32,6 +33,7 @@ export type VideoPlayerSignals = {
     // Appearance.
     showControls: t.Signal<boolean>;
     showFullscreenButton: t.Signal<boolean>;
+    aspectRatio: t.Signal<string>;
 
     // Commands.
     jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;

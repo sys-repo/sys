@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 import type { MediaPlayerInstance } from '@vidstack/react';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
@@ -8,12 +8,14 @@ import { type t, css, DEFAULTS, Signal } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
+const D = DEFAULTS;
+
 /**
  * Component
  */
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
-  const src = props.video || DEFAULTS.video;
+  const src = props.video || D.video;
   const p = signals?.props;
   const showFullscreenButton = p?.showFullscreenButton.value ?? false;
 
@@ -25,6 +27,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p?.showControls.value;
     p?.showFullscreenButton.value;
     p?.cornerRadius.value;
+    p?.aspectRatio.value;
   });
 
   /**
@@ -51,9 +54,10 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const elPlayer = (
     <MediaPlayer
       ref={playerRef}
-      style={{ '--plyr-border-radius': `${p?.cornerRadius.value ?? DEFAULTS.cornerRadius}px` }}
+      style={{ '--plyr-border-radius': `${p?.cornerRadius.value ?? D.cornerRadius}px` }}
       title={props.title}
       src={src}
+      aspectRatio={p?.aspectRatio.value ?? D.aspectRatio}
       playsInline={true}
       onPlay={props.onPlay}
       onPlaying={props.onPlaying}

@@ -17,6 +17,7 @@ describe('VideoPlayer: Signals', () => {
       expect(p.showControls.value).to.eql(true);
       expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
       expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
+      expect(p.aspectRatio.value).to.eql(DEFAULTS.aspectRatio);
 
       p.playing.value = true;
       expect(p.playing.value).to.eql(true);
@@ -28,6 +29,7 @@ describe('VideoPlayer: Signals', () => {
         showControls: false,
         showFullscreenButton: true,
         cornerRadius: 0,
+        aspectRatio: '2.39/1',
       });
 
       const p = s.props;
