@@ -9,6 +9,6 @@ import { useSvg } from './use.Svg.ts';
  *    (see [cell.compiler]).
  */
 export const Svg = {
-  Element,
   useSvg,
+  Element,
 };
