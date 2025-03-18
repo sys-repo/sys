@@ -105,26 +105,48 @@ describe('Signal', () => {
   describe('Signal.cycle', () => {
     type T = 'a' | 'b' | 'c';
 
-    it('should cycle union string signal', () => {
+    it('should cycle union [string] signal', () => {
       const s = Signal.create<T>('a');
       expect(s.value).to.eql('a');
 
       const values: T[] = ['a', 'b', 'c'];
 
-      // Cycle from "a" to "b"
+      // Cycle from "a" to "b".
       const res1 = Signal.cycle(s, values);
-      expect(s.value).to.eql('b');
       expect(res1).to.eql('b');
+      expect(s.value).to.eql('b');
 
-      // Cycle from "b" to "c"
+      // Cycle from "b" to "c".
       const res2 = Signal.cycle(s, values);
       expect(res2).to.eql('c');
       expect(s.value).to.eql('c');
 
-      // Cycle from "c" back to "a"
+      // Cycle from "c" back to "a".
       const res3 = Signal.cycle(s, values);
       expect(res3).to.eql('a');
       expect(s.value).to.eql('a');
+    });
+
+    it('should cycle [number] array', () => {
+      const s = Signal.create<number>(1);
+      expect(s.value).to.eql(1);
+
+      const values: number[] = [1, 2, 3];
+
+      // Cycle from 1 to 2.
+      const res1 = Signal.cycle(s, values);
+      expect(res1).to.eql(2);
+      expect(s.value).to.eql(2);
+
+      // Cycle from 2 to 3.
+      const res2 = Signal.cycle(s, values);
+      expect(res2).to.eql(3);
+      expect(s.value).to.eql(3);
+
+      // Cycle from 3 back to 1.
+      const res3 = Signal.cycle(s, values);
+      expect(res3).to.eql(1);
+      expect(s.value).to.eql(1);
     });
 
     it('cycles from different initial value', () => {

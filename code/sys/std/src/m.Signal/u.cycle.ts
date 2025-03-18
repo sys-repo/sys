@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Cycle a union string signal through a list of possible values.
  */
-export const cycle: t.SignalLib['cycle'] = <T extends string>(
+export const cycle: t.SignalLib['cycle'] = <T extends string | number>(
   signal: { value: T },
   values: T[],
   forceValue?: T,

@@ -34,5 +34,5 @@ export type SignalValueHelpersLib = {
   toggle(signal: Signal<boolean>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
-  cycle<T extends string>(signal: { value: T }, values: T[], forceValue?: T): T;
+  cycle<T extends string | number>(signal: { value: T }, values: T[], forceValue?: T): T;
 };
