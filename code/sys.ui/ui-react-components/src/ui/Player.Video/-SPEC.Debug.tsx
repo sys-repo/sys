@@ -57,10 +57,10 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <Button block={true} label={`play: ${p.playing}`} onClick={() => toggle(p.playing)} />
-      <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
-      <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
+      <Button block={true} label={`playing: ${p.playing}`} onClick={() => toggle(p.playing)} />
       <Button block={true} label={`muted: ${p.muted}`} onClick={() => toggle(p.muted)} />
+      <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
+      <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
 
       <hr />
 
