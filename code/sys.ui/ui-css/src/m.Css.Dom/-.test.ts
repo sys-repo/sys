@@ -14,9 +14,9 @@ describe(
 
     describe('create (instance)', () => {
       it('prefix: default', () => {
-        const a = CssDom.create('');
-        const b = CssDom.create('   ');
-        const c = CssDom.create();
+        const a = CssDom.createStylesheet('');
+        const b = CssDom.createStylesheet('   ');
+        const c = CssDom.createStylesheet();
         expect(a.prefix).to.eql(DEFAULT.prefix);
         expect(b.prefix).to.eql(DEFAULT.prefix);
         expect(c.prefix).to.eql(DEFAULT.prefix);
@@ -24,7 +24,7 @@ describe(
 
       it('custom prefix', () => {
         const test = (prefix: string, expected: string) => {
-          const ns = CssDom.create(prefix);
+          const ns = CssDom.createStylesheet(prefix);
           expect(ns.prefix).to.eql(expected);
         };
         test('foo', 'foo');
@@ -36,24 +36,24 @@ describe(
       });
 
       it('pooling (instance reuse keyed on "prefix")', () => {
-        const a = CssDom.create();
-        const b = CssDom.create(DEFAULT.prefix);
-        const c = CssDom.create('foo');
+        const a = CssDom.createStylesheet();
+        const b = CssDom.createStylesheet(DEFAULT.prefix);
+        const c = CssDom.createStylesheet('foo');
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
       });
 
       it('insert root <style> into DOM (singleton)', () => {
         const find = () => document.querySelector(`style[data-controller="${pkg.name}"]`);
-        CssDom.create();
+        CssDom.createStylesheet();
         expect(find()).to.exist;
-        CssDom.create();
+        CssDom.createStylesheet();
         expect(find()).to.equal(find()); // Singleton.
       });
 
       it('throw: invalid prefix', () => {
         const test = (prefix: string) => {
-          const fn = () => CssDom.create(prefix);
+          const fn = () => CssDom.createStylesheet(prefix);
           expect(fn).to.throw(
             /String must start with a letter and can contain letters, digits, and hyphens \(hyphen not allowed at the beginning\)/,
           );
@@ -71,7 +71,7 @@ describe(
       const setup = (): t.CssDom => {
         count++;
         const prefix = `sample${count}`;
-        return CssDom.create(prefix);
+        return CssDom.createStylesheet(prefix);
       };
 
       it('simple ("hx" not passed)', () => {

@@ -12,7 +12,7 @@ type F = t.StyleLib['transformer'];
 export const transformer: F = (input) => {
   const options = wrangle.options(input);
   const { prefix = DEFAULT.prefix } = options;
-  const dom = CssDom.create(prefix);
+  const dom = CssDom.createStylesheet(prefix);
   const cache = new Map<number, t.CssTransformed>();
   const fn: t.CssTransform = (...input) => transform({ dom, cache, input });
   return fn;

@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CssDomLib = {
   /** Generator factory. */
-  create(prefix?: string): t.CssDom;
+  createStylesheet(prefix?: string): t.CssDom;
 };
 
 /**
