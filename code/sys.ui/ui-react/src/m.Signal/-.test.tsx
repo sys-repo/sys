@@ -10,10 +10,10 @@ import * as Preact from '@preact/signals-react';
  * See [@sys/std/signal] unit tests for basic API
  * usage sceanrios:
  *
- *  • signal     ← (update)
- *  • effect     ← (listen and react to change)
- *  • computed   ← (compound signal value)
- *  • batch      ← (multiple changes, single fire of effect listeners)
+ *    • signal     ← (update)
+ *    • effect     ← (listen and react to change)
+ *    • computed   ← (compound signal value)
+ *    • batch      ← (multiple changes, single fire of effect listeners)
  *
  */
 describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -21,7 +21,7 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
     expect(Signal.create).to.equal(Preact.signal);
     expect(Signal.effect).to.equal(Preact.effect);
     expect(Signal.useSignal).to.equal(Preact.useSignal);
-    expect(Signal.useSignalEffect).to.equal(Preact.useSignalEffect);
+    expect(Signal.useEffect).to.equal(Preact.useSignalEffect);
   });
 
   describe('React hooks', () => {
@@ -38,7 +38,7 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
         const redraw = () => setRender((n) => n + 1);
 
         // Runs whenever `count.value` changes.
-        Signal.useSignalEffect(() => {
+        Signal.useEffect(() => {
           fired.push(count.value);
           redraw();
         });
