@@ -34,7 +34,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   /**
    * Dynamically adjust the SVG on signal changes.
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     const width = p.width.value;
     const color = p.color.value;
 

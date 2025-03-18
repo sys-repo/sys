@@ -24,7 +24,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     p?.fullscreenButton.value;
     redraw();
   });

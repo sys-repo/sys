@@ -20,7 +20,7 @@ export const Debug: React.FC<P> = (props) => {
   const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     p.ready.value;
     p.loop.value;
     p.playing.value;

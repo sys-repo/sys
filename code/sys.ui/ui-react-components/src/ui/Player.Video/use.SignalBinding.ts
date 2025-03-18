@@ -34,7 +34,7 @@ export function useSignalBinding(args: {
   /**
    * Handle: reset upon playback finish.
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     props?.ready.value;
     props?.currentTime.value;
     const isEnded = props?.currentTime.value === player?.duration;
@@ -51,7 +51,7 @@ export function useSignalBinding(args: {
   /**
    * Handle: jumpTo (aka. "seek").
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     props?.ready.value;
     const jumpTo = props?.jumpTo.value;
 
@@ -68,7 +68,7 @@ export function useSignalBinding(args: {
   /**
    * Handle: play/pause
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     props?.ready.value;
     const playing = props?.playing.value ?? false;
 

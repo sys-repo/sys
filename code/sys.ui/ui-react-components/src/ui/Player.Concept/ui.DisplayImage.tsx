@@ -26,7 +26,7 @@ export const DisplayImage: React.FC<P> = (props) => {
   /**
    * Lifecycle
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     const elapsed = s.props.currentTime.value;
     const match = Timestamp.find(timestamps, elapsed);
     if (match?.image !== src) Time.delay(() => updateSrc(match?.image));

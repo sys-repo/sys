@@ -12,7 +12,7 @@ export type { ReadonlySignal, Signal } from '@preact/signals-react';
  */
 export type SignalReactLib = SignalLib & {
   useSignal: typeof Preact.useSignal;
-  useSignalEffect: typeof Preact.useSignalEffect;
+  useEffect: typeof Preact.useSignalEffect;
 
   /**
    * Causes a redraw (via a useState counter incrementing)
