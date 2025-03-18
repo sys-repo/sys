@@ -10,13 +10,16 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
   const s = Signal.create;
 
   const props: T['props'] = {
-    // Values.
     ready: s(false),
 
+    // Media.
     playing: s(false),
     currentTime: s<t.Secs>(0),
-    loop: s(defaults.loop ?? D.loop),
+    loop: s<boolean>(defaults.loop ?? D.loop),
+    autoPlay: s<boolean>(defaults.autoPlay ?? D.autoPlay),
+    muted: s<boolean>(defaults.muted ?? D.muted),
 
+    // Appearance.
     showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),

@@ -17,7 +17,10 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
   const src = props.video || D.video;
   const p = signals?.props;
-  const showFullscreenButton = p?.showFullscreenButton.value ?? false;
+
+  const showFullscreenButton = p?.showFullscreenButton.value ?? DEFAULTS.showFullscreenButton;
+  const autoPlay = p?.autoPlay.value ?? D.autoPlay;
+  const muted = autoPlay ? true : p?.muted.value ?? D.muted;
 
   const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
@@ -28,6 +31,8 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p?.showFullscreenButton.value;
     p?.cornerRadius.value;
     p?.aspectRatio.value;
+    p?.muted.value;
+    p?.autoPlay.value;
   });
 
   /**
@@ -57,8 +62,11 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       style={{ '--plyr-border-radius': `${p?.cornerRadius.value ?? D.cornerRadius}px` }}
       title={props.title}
       src={src}
-      aspectRatio={p?.aspectRatio.value ?? D.aspectRatio}
       playsInline={true}
+      aspectRatio={p?.aspectRatio.value ?? D.aspectRatio}
+      autoPlay={autoPlay}
+      muted={muted}
+      // Handlers:
       onPlay={props.onPlay}
       onPlaying={props.onPlaying}
       onPause={props.onPause}
@@ -73,3 +81,12 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
 
   return <div className={css(styles.base, props.style).class}>{elPlayer}</div>;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  muted(signals: t.VideoPlayerSignals) {
+    const p = signals?.props;
+  },
+} as const;

@@ -10,14 +10,19 @@ describe('VideoPlayer: Signals', () => {
       const p = s.props;
 
       expect(p.ready.value).to.eql(false);
+
       expect(p.playing.value).to.eql(false);
-      expect(p.loop.value).to.eql(DEFAULTS.loop);
       expect(p.currentTime.value).to.eql(0);
-      expect(p.jumpTo.value).to.eql(undefined);
+      expect(p.loop.value).to.eql(DEFAULTS.loop);
+      expect(p.autoPlay.value).to.eql(DEFAULTS.autoPlay);
+      expect(p.muted.value).to.eql(DEFAULTS.muted);
+
       expect(p.showControls.value).to.eql(true);
       expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
       expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
       expect(p.aspectRatio.value).to.eql(DEFAULTS.aspectRatio);
+
+      expect(p.jumpTo.value).to.eql(undefined);
 
       p.playing.value = true;
       expect(p.playing.value).to.eql(true);
@@ -30,10 +35,16 @@ describe('VideoPlayer: Signals', () => {
         showFullscreenButton: true,
         cornerRadius: 0,
         aspectRatio: '2.39/1',
+        autoPlay: true,
+        muted: true,
       });
 
       const p = s.props;
       expect(p.loop.value).to.eql(true);
+      expect(p.aspectRatio.value).to.eql('2.39/1');
+      expect(p.autoPlay.value).to.eql(true);
+      expect(p.muted.value).to.eql(true);
+
       expect(p.showControls.value).to.eql(false);
       expect(p.showFullscreenButton.value).to.eql(true);
       expect(p.cornerRadius.value).to.eql(0);

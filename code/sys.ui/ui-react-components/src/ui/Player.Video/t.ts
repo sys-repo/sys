@@ -15,6 +15,8 @@ export type PlayerSignalsFactoryDefaults = {
   showFullscreenButton?: boolean;
   cornerRadius?: number;
   aspectRatio?: string;
+  autoPlay?: boolean;
+  muted?: boolean;
 };
 
 /**
@@ -28,12 +30,14 @@ export type VideoPlayerSignals = {
     playing: t.Signal<boolean>;
     currentTime: t.Signal<t.Secs>;
     loop: t.Signal<boolean>;
-    cornerRadius: t.Signal<number>;
+    autoPlay: t.Signal<boolean>;
+    muted: t.Signal<boolean>;
 
     // Appearance.
     showControls: t.Signal<boolean>;
     showFullscreenButton: t.Signal<boolean>;
     aspectRatio: t.Signal<string>;
+    cornerRadius: t.Signal<number>;
 
     // Commands.
     jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;

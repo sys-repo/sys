@@ -29,6 +29,8 @@ export const Debug: React.FC<P> = (props) => {
     p.showFullscreenButton.value;
     p.cornerRadius.value;
     p.aspectRatio.value;
+    p.muted.value;
+    p.autoPlay.value;
     Time.delay(redraw);
   });
 
@@ -57,6 +59,8 @@ export const Debug: React.FC<P> = (props) => {
 
       <Button block={true} label={`play: ${p.playing}`} onClick={() => toggle(p.playing)} />
       <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
+      <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
+      <Button block={true} label={`muted: ${p.muted}`} onClick={() => toggle(p.muted)} />
 
       <hr />
 
