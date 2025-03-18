@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from '../Button/mod.ts';
 import { type t, Color, css, Signal, Time } from './common.ts';
 
 export type DebugProps = {
@@ -33,11 +34,7 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
-      lineHeight: 1.6,
-    }),
+    base: css({ color: theme.fg }),
   };
 
   const div = (label: string, onClick: () => void) => {
@@ -46,13 +43,25 @@ export const Debug: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {div(`jumpTo(12, play)`, () => s.jumpTo(12))}
-      {div(`jumpTo(12, paused)`, () => s.jumpTo(12, { play: false }))}
+      <Button block={true} label={`method: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
+      <Button
+        block={true}
+        label={`method: jumpTo(12, paused)`}
+        onClick={() => s.jumpTo(12, { play: false })}
+      />
+
       <hr />
-      {div(`play (toggle): ${p.playing}`, () => toggle(p.playing))}
-      {div(`loop (toggle): ${p.loop}`, () => toggle(p.loop))}
+
+      <Button block={true} label={`play: ${p.playing}`} onClick={() => toggle(p.playing)} />
+      <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
+
       <hr />
-      {div(`fullscreenButton (toggle): ${p.fullscreenButton}`, () => toggle(p.fullscreenButton))}
+
+      <Button
+        block={true}
+        label={`fullscreenButton: ${p.fullscreenButton}`}
+        onClick={() => toggle(p.fullscreenButton)}
+      />
     </div>
   );
 };

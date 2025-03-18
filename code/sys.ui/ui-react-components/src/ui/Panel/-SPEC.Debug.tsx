@@ -13,9 +13,7 @@ type P = DebugProps;
  * Signals
  */
 export function createDebugSignals() {
-  const props = {
-    theme: Signal.create<t.CommonTheme>('Light'),
-  };
+  const props = { theme: Signal.create<t.CommonTheme>('Light') };
   const api = { props };
   return api;
 }
@@ -36,10 +34,7 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
-    }),
+    base: css({ color: theme.fg }),
   };
 
   return (

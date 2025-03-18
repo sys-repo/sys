@@ -39,10 +39,7 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
-    }),
+    base: css({ color: theme.fg }),
   };
 
   return (
@@ -55,9 +52,7 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block={true}
         label={`width: ${p.width}`}
-        onClick={() => {
-          p.width.value = p.width.value === 200 ? 80 : 200;
-        }}
+        onClick={() => (p.width.value = p.width.value === 200 ? 80 : 200)}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Color, css, Signal, type t, Time } from './common.ts';
+import { Button } from '../Button/mod.ts';
 
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
@@ -32,20 +33,20 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
-      lineHeight: 1.6,
-    }),
+    base: css({ color: theme.fg }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div onClick={() => s.jumpTo(12)}>jumpTo(12, play)</div>
-      <div onClick={() => s.jumpTo(12, { play: false })}>jumpTo(12, paused)</div>
+      <Button block={true} label={`method: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
+      <Button
+        block={true}
+        label={`method: jumpTo(12, paused)`}
+        onClick={() => s.jumpTo(12, { play: false })}
+      />
       <hr />
-      <div onClick={() => toggle(p.playing)}>{`play (toggle): ${p.playing}`}</div>
-      <div onClick={() => toggle(p.loop)}>{`loop (toggle): ${p.loop}`}</div>
+      <Button block={true} label={`play: ${p.playing}`} onClick={() => toggle(p.playing)} />
+      <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
     </div>
   );
 };
