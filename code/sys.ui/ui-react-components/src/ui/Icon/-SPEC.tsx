@@ -42,6 +42,10 @@ export default Spec.describe('Icon', (e) => {
     const ctx = Spec.ctx(e);
     ctx.debug.row(<Debug ctx={{}} />);
 
+    /**
+     * (prior platform-0.0.2)
+     */
+
     // const dev = Dev.tools<T>(e, initial);
     //     dev.section('Properties', (dev) => {
     //       dev.boolean((btn) => {
