@@ -19,7 +19,17 @@ export const Home: React.FC<t.HomeProps> = (props) => {
   });
 
   /**
-   * Effects.
+   * Effect: Keyboard.
+   */
+  React.useEffect(() => {
+    const life = rx.disposable();
+    const keyboard = Keyboard.until(life.dispose$);
+    keyboard.on('Enter', () => (window.location.search = '?d'));
+    return life.dispose;
+  });
+
+  /**
+   * Effect: Cycle the selected SLC panel.
    */
   React.useEffect(() => {
     const msecs = 2_000;
