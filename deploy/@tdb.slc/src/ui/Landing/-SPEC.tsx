@@ -1,25 +1,26 @@
 import { Dev, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Landing } from './mod.ts';
+import { Landing, signalsFactory } from './mod.ts';
 
 export default Spec.describe('Landing', (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
+  const landing = signalsFactory();
+  const d = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, d.theme, 1);
 
     ctx.subject
       .size('fill')
       .display('grid')
       .render((e) => {
-        return <Landing theme={p.theme.value} />;
+        return <Landing theme={d.theme.value} signals={landing} />;
       });
   });
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug ctx={{ debug, landing }} />);
   });
 });

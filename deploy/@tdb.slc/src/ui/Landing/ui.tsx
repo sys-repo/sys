@@ -13,6 +13,12 @@ import {
 } from './common.ts';
 
 export const Landing: React.FC<t.LandingProps> = (props) => {
+  const { signals } = props;
+  const p = signals?.props;
+
+  const canvasPosition = p?.canvasPosition.value;
+  console.log('canvasPosition', canvasPosition);
+
   /**
    * Signals
    */
@@ -30,6 +36,10 @@ export const Landing: React.FC<t.LandingProps> = (props) => {
   const selectedPanel = Signal.useSignal<t.CanvasPanel>('purpose');
   Signal.useRedrawEffect(() => {
     selectedPanel.value;
+    if (p) {
+      p.ready.value;
+      p.canvasPosition.value;
+    }
   });
 
   /**

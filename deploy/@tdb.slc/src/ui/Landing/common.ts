@@ -1,2 +1,11 @@
+import { type t } from '../common.ts';
 export * from '../common.ts';
-export const DEFAULTS = {} as const;
+
+/**
+ * Constants
+ */
+export const DEFAULTS = {
+  get canvasPosition(): t.LandingCanvasPosition {
+    return 'Center';
+  },
+} as const;

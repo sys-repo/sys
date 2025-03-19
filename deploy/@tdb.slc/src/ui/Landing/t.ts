@@ -1,11 +1,15 @@
 import type { t } from './common.ts';
 
+export type LandingCanvasPosition = 'Center' | 'Center:Bottom';
+
 /**
  * Signals:
  */
 export type LandingSignalsFactory = (defaults?: LandingSignalsFactoryDefaults) => t.LandingSignals;
 /** Defaults passed to the signals API factory. */
-export type LandingSignalsFactoryDefaults = {};
+export type LandingSignalsFactoryDefaults = {
+  canvasPosition?: t.LandingCanvasPosition;
+};
 
 /**
  * Signals API for dynamic control of the <VideoPlayer>.
@@ -13,7 +17,7 @@ export type LandingSignalsFactoryDefaults = {};
 export type LandingSignals = {
   props: {
     ready: t.Signal<boolean>;
-
+    canvasPosition: t.Signal<t.LandingCanvasPosition>;
   };
 };
 
@@ -23,4 +27,5 @@ export type LandingSignals = {
 export type LandingProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  signals?: t.LandingSignals;
 };

@@ -9,7 +9,8 @@ const D = DEFAULTS;
 export const signalsFactory: t.LandingSignalsFactory = (defaults = {}) => {
   const s = Signal.create;
   const props: T['props'] = {
-    ready: s(false),
+    ready: s<boolean>(false),
+    canvasPosition: s<t.LandingCanvasPosition>(defaults.canvasPosition ?? D.canvasPosition),
   };
 
   const api: T = {

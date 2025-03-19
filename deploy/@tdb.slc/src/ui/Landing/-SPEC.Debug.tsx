@@ -4,7 +4,10 @@ import { type t, Color, css, Signal, Time, DEFAULTS, rx, Button } from './common
 /**
  * Types
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
+export type DebugProps = {
+  ctx: { debug: DebugSignals; landing: t.LandingSignals };
+  style?: t.CssValue;
+};
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
@@ -23,16 +26,18 @@ export function createDebugSignals() {
  */
 export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
-  const p = ctx.debug.props;
+  const d = ctx.debug.props;
+  const p = ctx.landing.props;
 
   Signal.useRedrawEffect(() => {
-    p.theme.value;
+    d.theme.value;
+    p.canvasPosition.value;
   });
 
   /**
    * Render
    */
-  const theme = Color.theme(p.theme.value);
+  const theme = Color.theme(d.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
   };
@@ -40,8 +45,17 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
+        label={`theme: ${d.theme}`}
+        onClick={() => Signal.cycle(d.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+
+      <Button
+        label={`canvasPosition: "${p.canvasPosition}"`}
+        onClick={() => {
+          Signal.cycle<t.LandingCanvasPosition>(p.canvasPosition, ['Center', 'Center:Bottom']);
+        }}
       />
 
       <hr />
