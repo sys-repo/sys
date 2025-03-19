@@ -3,7 +3,7 @@ import { Button } from '../Button/mod.ts';
 import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
 
 /**
- * Types
+ * Types:
  */
 export type DebugProps = {
   ctx: { video: t.VideoPlayerSignals; debug: DebugSignals };
@@ -14,19 +14,17 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
 /**
- * Signals
+ * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const props = {
-    fill: s<boolean>(false),
-  };
+  const props = {};
   const api = { props };
   return api;
 }
 
 /**
- * Component
+ * Component:
  */
 export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
@@ -34,17 +32,23 @@ export const Debug: React.FC<P> = (props) => {
   const d = ctx.debug.props;
 
   Signal.useRedrawEffect(() => {
-    d.fill.value;
-
     p.ready.value;
-    p.loop.value;
+
+    // Media.
     p.playing.value;
-    p.showControls.value;
-    p.showFullscreenButton.value;
-    p.cornerRadius.value;
-    p.aspectRatio.value;
     p.muted.value;
     p.autoPlay.value;
+    p.loop.value;
+
+    // Appearance.
+    p.showControls.value;
+    p.showFullscreenButton.value;
+    p.background.value;
+    p.cornerRadius.value;
+    p.aspectRatio.value;
+
+    // Commands.
+    p.jumpTo.value;
   });
 
   /**
@@ -74,6 +78,11 @@ export const Debug: React.FC<P> = (props) => {
       <Button block={true} label={`muted: ${p.muted}`} onClick={() => toggle(p.muted)} />
       <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
       <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
+      <Button
+        block={true}
+        label={`background (video): ${p.background}`}
+        onClick={() => toggle(p.background)}
+      />
 
       <hr />
 
@@ -99,8 +108,6 @@ export const Debug: React.FC<P> = (props) => {
       />
 
       <hr />
-
-      <Button block={true} label={`fill screen: ${d.fill}`} onClick={() => toggle(d.fill)} />
     </div>
   );
 };

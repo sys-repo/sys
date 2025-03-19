@@ -10,4 +10,5 @@ export const DEFAULTS = {
   aspectRatio: '16/9',
   autoPlay: false,
   muted: false,
+  background: false,
 } as const;

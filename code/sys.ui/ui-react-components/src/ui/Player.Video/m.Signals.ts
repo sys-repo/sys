@@ -20,8 +20,9 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     muted: s<boolean>(defaults.muted ?? D.muted),
 
     // Appearance.
-    showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
+    showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
+    background: s<boolean>(defaults.background ?? D.background),
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
 

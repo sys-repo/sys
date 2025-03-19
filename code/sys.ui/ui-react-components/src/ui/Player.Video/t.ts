@@ -17,6 +17,7 @@ export type PlayerSignalsFactoryDefaults = {
   aspectRatio?: string;
   autoPlay?: boolean;
   muted?: boolean;
+  background?: boolean;
 };
 
 /**
@@ -26,20 +27,28 @@ export type VideoPlayerSignals = {
   props: {
     ready: t.Signal<boolean>;
 
-    // Media.
+    /**
+     * Media.
+     */
     playing: t.Signal<boolean>;
     currentTime: t.Signal<t.Secs>;
     loop: t.Signal<boolean>;
     autoPlay: t.Signal<boolean>;
     muted: t.Signal<boolean>;
 
-    // Appearance.
+    /**
+     * Appearance.
+     */
     showControls: t.Signal<boolean>;
     showFullscreenButton: t.Signal<boolean>;
+    /** A background video, covers the container running silently (and generally auto-plays). */
+    background: t.Signal<boolean>;
     aspectRatio: t.Signal<string>;
     cornerRadius: t.Signal<number>;
 
-    // Commands.
+    /**
+     * Commands.
+     */
     jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
   };
   jumpTo(second: t.Secs, options?: { play?: boolean }): VideoPlayerSignals;

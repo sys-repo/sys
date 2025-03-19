@@ -11,7 +11,7 @@ import { useThemeStyles } from './use.ThemeStyles.ts';
 const D = DEFAULTS;
 
 /**
- * Component
+ * Component:
  */
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
@@ -47,7 +47,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
    * HACK: ensure player style-sheets work consistently when deployed (https).
    */
   React.useEffect(() => {
-    const sheet = Style.Dom.stylesheet('Player');
+    const sheet = Style.Dom.stylesheet();
     sheet.rule('[data-media-provider]', {
       width: '100%',
       height: '100%',
@@ -88,7 +88,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       ref={playerRef}
       style={{
         '--plyr-border-radius': `${cornerRadius}px`,
-        '--plyr-aspect-ratio': aspectRatio, // e.g. "16/9" or "9/16"
+        '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}
       title={props.title}
       src={src}

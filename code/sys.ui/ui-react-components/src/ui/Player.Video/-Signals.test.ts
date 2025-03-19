@@ -21,6 +21,7 @@ describe('VideoPlayer: Signals', () => {
       expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
       expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
       expect(p.aspectRatio.value).to.eql(DEFAULTS.aspectRatio);
+      expect(p.background.value).to.eql(DEFAULTS.background);
 
       expect(p.jumpTo.value).to.eql(undefined);
 
@@ -37,6 +38,7 @@ describe('VideoPlayer: Signals', () => {
         aspectRatio: '2.39/1',
         autoPlay: true,
         muted: true,
+        background: true,
       });
 
       const p = s.props;
@@ -48,6 +50,7 @@ describe('VideoPlayer: Signals', () => {
       expect(p.showControls.value).to.eql(false);
       expect(p.showFullscreenButton.value).to.eql(true);
       expect(p.cornerRadius.value).to.eql(0);
+      expect(p.background.value).to.eql(true);
     });
   });
 

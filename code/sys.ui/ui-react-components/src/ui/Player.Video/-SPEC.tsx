@@ -11,6 +11,7 @@ export default Spec.describe('VideoPlayer', (e) => {
     // showControls: false,
     // loop: true,
   });
+  const p = video.props;
 
   e.it('API', (e) => {
     expect(Player.Video.View).to.equal(VideoPlayer);
@@ -20,9 +21,9 @@ export default Spec.describe('VideoPlayer', (e) => {
     const ctx = Spec.ctx(e);
 
     const updateSize = () => {
-      const fill = debug.props.fill.value;
+      const fill = p.background.value;
       if (fill) ctx.subject.size('fill');
-      if (!fill) ctx.subject.size([520, null]);
+      else ctx.subject.size([520, null]);
     };
 
     Signal.effect(updateSize);
