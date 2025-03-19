@@ -24,7 +24,7 @@ export const Foo: React.FC<t.FooProps> = (props) => {
   });
 
   /**
-   * Render
+   * Render:
    */
   const styles = {
     base: css({

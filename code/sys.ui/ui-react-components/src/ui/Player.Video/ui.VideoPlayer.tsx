@@ -63,7 +63,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   }, []);
 
   /**
-   * Render
+   * Render:
    */
   const styles = {
     base: css({

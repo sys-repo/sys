@@ -28,7 +28,7 @@ export const List: React.FC<ListProps> = (props) => {
   const hasDevParam = url.searchParams.has(DEFAULTS.qs.dev);
 
   /**
-   * Render
+   * Render:
    */
   const color = Color.theme(theme).fg;
   const styles = {

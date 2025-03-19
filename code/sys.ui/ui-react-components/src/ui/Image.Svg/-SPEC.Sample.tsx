@@ -54,7 +54,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   });
 
   /**
-   * Render.
+   * Render:.
    */
   return <div ref={svg.ref} />;
 };

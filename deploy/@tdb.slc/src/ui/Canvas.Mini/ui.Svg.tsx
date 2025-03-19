@@ -46,7 +46,7 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
   if (!dataUri) return null;
 
   /**
-   * Render.
+   * Render:.
    */
   const styles = {
     base: css({

@@ -75,7 +75,7 @@ export const Button: React.FC<P> = (props) => {
   };
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

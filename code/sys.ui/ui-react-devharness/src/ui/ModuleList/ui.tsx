@@ -42,7 +42,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   };
 
   /**
-   * Render
+   * Render:
    */
   const color = Color.theme(theme).fg;
   const styles = {

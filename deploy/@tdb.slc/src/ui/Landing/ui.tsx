@@ -70,7 +70,7 @@ export const Landing: React.FC<t.LandingProps> = (props) => {
   }, []);
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

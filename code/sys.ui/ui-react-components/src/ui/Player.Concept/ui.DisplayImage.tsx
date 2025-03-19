@@ -41,7 +41,7 @@ export const DisplayImage: React.FC<P> = (props) => {
   }, [src]);
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

@@ -29,7 +29,7 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
       let fired: number[] = [];
 
       /**
-       * Render into a DOM container.
+       * Render: into a DOM container.
        */
       function TestComponent() {
         const count = Signal.useSignal(0);

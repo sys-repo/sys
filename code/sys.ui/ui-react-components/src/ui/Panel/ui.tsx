@@ -5,7 +5,7 @@ export const Panel: React.FC<t.PanelProps> = (props) => {
   const { text = '🐷 Panel' } = props;
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

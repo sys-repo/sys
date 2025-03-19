@@ -5,7 +5,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const { text = '🐷 Hello' } = props;
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

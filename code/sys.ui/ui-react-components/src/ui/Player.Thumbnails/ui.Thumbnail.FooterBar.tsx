@@ -20,7 +20,7 @@ export const FooterBar: React.FC<P> = (props) => {
   const time = wrangle.time(timestamp);
 
   /**
-   * Render.
+   * Render:.
    */
   const theme = Color.theme(props.theme);
   const styles = {
