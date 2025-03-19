@@ -1,5 +1,14 @@
-import React, { useRef } from 'react';
-import { Color, css, playerSignalsFactory, Thumbnails, VideoPlayer, type t } from './common.ts';
+import React, { useRef, useState } from 'react';
+import { Overlay } from './-tmp.tsx';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  playerSignalsFactory,
+  Thumbnails,
+  VideoPlayer,
+} from './common.ts';
 import { DisplayImage } from './ui.DisplayImage.tsx';
 
 type P = t.ConceptPlayerProps;
@@ -17,10 +26,14 @@ export const ConceptPlayer: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg }),
-    body: css({ display: 'grid', gridTemplateColumns: `1fr 1fr`, columnGap: '5px' }),
+    base: css({ color: theme.fg, fontSize: 14 }),
+    body: css({ display: 'grid', gridTemplateColumns: `1fr 2fr`, columnGap: '5px' }),
     videoPlayer: css({}),
     thumbnails: css({ marginTop: 30 }),
+
+    tmp: css({
+      marginTop: 50,
+    }),
   };
 
   const elThumbnails = props.thumbnails && (
