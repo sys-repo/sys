@@ -1,8 +1,8 @@
 import { Dev, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Home } from './mod.ts';
+import { Landing } from './mod.ts';
 
-export default Spec.describe('Home', (e) => {
+export default Spec.describe('Landing', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -14,7 +14,7 @@ export default Spec.describe('Home', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => {
-        return <Home theme={p.theme.value} />;
+        return <Landing theme={p.theme.value} />;
       });
   });
 

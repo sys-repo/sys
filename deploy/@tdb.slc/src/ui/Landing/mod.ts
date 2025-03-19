@@ -1,1 +1,1 @@
-export { Landing as Home } from './ui.tsx';
+export { Landing } from './ui.tsx';

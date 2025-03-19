@@ -1,6 +1,5 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-
 import { pkg } from '../common.ts';
 
 /**
@@ -26,10 +25,10 @@ export async function main() {
     /**
      * Landing (entry):
      */
-    const { Home } = await import('../ui/Landing/mod.ts');
+    const { Landing } = await import('../ui/Landing/mod.ts');
     root.render(
       <StrictMode>
-        <Home style={{ Absolute: 0 }} />
+        <Landing style={{ Absolute: 0 }} />
       </StrictMode>,
     );
   }
