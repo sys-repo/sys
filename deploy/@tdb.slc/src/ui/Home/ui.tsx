@@ -1,8 +1,21 @@
 import React from 'react';
 import { CanvasMini } from '../Canvas.Mini/mod.ts';
-import { type t, CanvasPanelList, Color, css, Player, rx, Signal, Time } from './common.ts';
+import {
+  type t,
+  CanvasPanelList,
+  Color,
+  css,
+  Keyboard,
+  Player,
+  rx,
+  Signal,
+  Time,
+} from './common.ts';
 
 export const Home: React.FC<t.HomeProps> = (props) => {
+  /**
+   * Signals
+   */
   const videoSignalsRef = React.useRef(
     Player.Video.signals({
       autoPlay: true,
@@ -11,9 +24,9 @@ export const Home: React.FC<t.HomeProps> = (props) => {
       loop: true,
     }),
   );
+  const video = videoSignalsRef.current;
 
   const selectedPanel = Signal.useSignal<t.CanvasPanel>('purpose');
-
   Signal.useRedrawEffect(() => {
     selectedPanel.value;
   });
@@ -32,16 +45,16 @@ export const Home: React.FC<t.HomeProps> = (props) => {
    * Effect: Cycle the selected SLC panel.
    */
   React.useEffect(() => {
-    const msecs = 2_000;
+    const delay = 2_000;
     const life = rx.lifecycle();
 
     const next = async () => {
       if (life.disposed) return;
       Signal.cycle(selectedPanel, CanvasPanelList);
-      Time.delay(msecs, next);
+      Time.delay(delay, next);
     };
 
-    Time.delay(msecs, next);
+    Time.delay(delay, next);
     return life.dispose;
   }, []);
 
