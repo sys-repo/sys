@@ -22,6 +22,7 @@ export const Home: React.FC<t.HomeProps> = (props) => {
       muted: true,
       showControls: false,
       loop: true,
+      src: 'vimeo/499921561', // Tubes.
     }),
   );
   const video = videoSignalsRef.current;
@@ -73,11 +74,7 @@ export const Home: React.FC<t.HomeProps> = (props) => {
 
   const elVideo = (
     <div className={styles.video.base.class}>
-      <Player.Video.View
-        style={styles.video.player}
-        video={'vimeo/499921561'}
-        signals={videoSignalsRef.current}
-      />
+      <Player.Video.View style={styles.video.player} signals={video} />
     </div>
   );
 
