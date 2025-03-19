@@ -14,7 +14,7 @@
 
     "prep": "deno run -RWE --allow-ffi --allow-run ./scripts/main.ts --prep",
     "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./scripts/main.ts --bump",
-    "create": "deno run -RWE ./scripts/main.ts --create",
+    "tmpl": "deno run -RWE ./scripts/main.ts --tmpl",
 
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
