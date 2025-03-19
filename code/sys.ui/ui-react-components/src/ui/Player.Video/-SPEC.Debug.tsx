@@ -6,7 +6,7 @@ import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
  * Types
  */
 export type DebugProps = {
-  ctx: { signals: t.VideoPlayerSignals };
+  ctx: { video: t.VideoPlayerSignals; debug: DebugSignals };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -27,8 +27,8 @@ export function createDebugSignals() {
  */
 export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
-  const s = ctx.signals;
-  const p = s.props;
+  const p = ctx.video.props;
+  const d = ctx.debug.props;
 
   Signal.useRedrawEffect(() => {
     p.ready.value;
@@ -52,11 +52,15 @@ export const Debug: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button block={true} label={`method: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
+      <Button
+        block={true}
+        label={`method: jumpTo(12, play)`}
+        onClick={() => ctx.video.jumpTo(12)}
+      />
       <Button
         block={true}
         label={`method: jumpTo(12, paused)`}
-        onClick={() => s.jumpTo(12, { play: false })}
+        onClick={() => ctx.video.jumpTo(12, { play: false })}
       />
 
       <hr />
