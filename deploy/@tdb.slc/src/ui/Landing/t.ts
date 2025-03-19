@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 
 /**
- * <Component>.
+ * <Component>:
  */
-export type HomeProps = {
+export type LandingProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -15,12 +15,18 @@ export async function main() {
   const root = createRoot(document.getElementById('root')!);
 
   if (isDev) {
+    /**
+     * DevHarness:
+     */
     const { render } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./entry.Specs.ts');
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
     root.render(<StrictMode>{el}</StrictMode>);
   } else {
-    const { Home } = await import('../ui/Home/mod.ts');
+    /**
+     * Landing (entry):
+     */
+    const { Home } = await import('../ui/Landing/mod.ts');
     root.render(
       <StrictMode>
         <Home style={{ Absolute: 0 }} />

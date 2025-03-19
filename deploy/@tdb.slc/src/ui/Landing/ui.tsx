@@ -12,7 +12,7 @@ import {
   Time,
 } from './common.ts';
 
-export const Home: React.FC<t.HomeProps> = (props) => {
+export const Landing: React.FC<t.LandingProps> = (props) => {
   /**
    * Signals
    */
