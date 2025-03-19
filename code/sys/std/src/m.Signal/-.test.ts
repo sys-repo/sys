@@ -42,7 +42,7 @@ describe('Signal', () => {
       await Time.wait();
 
       expect(s.value).to.eql({ count: 456 });
-      expect(fired).to.eql([initial, { count: 456 }]); // ⚠️ NB: the object value is NOT immutable.
+      expect(fired).to.eql([initial, { count: 456 }]); // ⚠️ NB: the object IS NOT immutable.
       expect(fired.length).to.eql(2); // ...and no change event was fired.
 
       stop();
