@@ -41,7 +41,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
   /**
    * Highlight when current thumbnail/timestamp.
    */
-  Signal.useSignalEffect(() => {
+  Signal.useEffect(() => {
     const currentTime = videoSignals?.props.currentTime.value ?? -1;
     const update = (isCurrent: boolean) => {
       // NB: state updated after a micro-delay to ensure writing happens on the next render frame.
@@ -51,7 +51,6 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
     if (timestamps) {
       const isCurrent = Timestamp.isCurrent(timestamps, timestamp, currentTime);
       update(isCurrent);
-
     } else {
       update(false);
     }
