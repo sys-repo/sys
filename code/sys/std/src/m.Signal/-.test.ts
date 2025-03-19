@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { Time, describe, expect, it } from '../-test.ts';
 import { Signal } from './mod.ts';
 
 import * as Preact from '@preact/signals-core';
@@ -16,6 +16,37 @@ describe('Signal', () => {
       s.value = 42;
       expect(s.value).to.eql(42);
     });
+
+    it('updates object', async () => {
+      type T = { count: number };
+      const initial = { count: 0 };
+      const s = Signal.create<T>(initial);
+      expect(s.value).to.eql(initial);
+      expect(s.value).to.equal(initial); // NB: actual instance.
+
+      let fired: T[] = [];
+      const stop = Signal.effect(() => {
+        fired.push(s.value);
+      });
+      expect(fired).to.eql([initial]);
+
+      // Replace object.
+      s.value = { count: 123 };
+
+      await Time.wait();
+      expect(fired.length).to.eql(2);
+      expect(fired).to.eql([initial, { count: 123 }]);
+
+      // Mutate object.
+      s.value.count = 456;
+      await Time.wait();
+
+      expect(s.value).to.eql({ count: 456 });
+      expect(fired).to.eql([initial, { count: 456 }]); // ⚠️ NB: the object value is NOT immutable.
+      expect(fired.length).to.eql(2); // ...and no change event was fired.
+
+      stop();
+    });
   });
 
   describe('signal: effect (reactivity)', () => {
@@ -30,7 +61,7 @@ describe('Signal', () => {
       expect(dummy).to.eql(0);
       s.value = 123;
 
-      await Promise.resolve(); // NB: Wait for the effect to propagate.
+      await Time.wait(); // NB: Wait for the effect to propagate (micro-task queue, aka. "tick").
       expect(dummy).to.eql(123);
 
       stop(); // NB: Stop the effect to release listener (dispose).
