@@ -36,6 +36,7 @@
     "hash-it": "npm:hash-it@6.0.0",
     "ignore": "npm:ignore@7",
     "immer": "npm:immer@10",
+    "motion": "npm:motion@12.5.0",
     "ollama": "npm:ollama@0.5.13",
     "ora": "npm:ora@8.2.0",
     "pretty-bytes": "npm:pretty-bytes@6.1.1",

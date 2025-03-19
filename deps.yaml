@@ -100,11 +100,13 @@ deno.json:
   - import: npm:ua-parser-js@2.0.2
 
   # UI
+  - import: npm:@svgdotjs/svg.js@3.2.4
+  - import: npm:motion@12.5.0
+  # UI:React
   - import: npm:react-error-boundary@5
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.15.0
   - import: npm:@preact/signals-react@3.0.1
-  - import: npm:@svgdotjs/svg.js@3.2.4
 
 package.json:
   - group: std/deno
