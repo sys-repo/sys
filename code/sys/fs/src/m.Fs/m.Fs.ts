@@ -12,6 +12,7 @@ import { toDir } from './u.toDir.ts';
 import { toFile } from './u.toFile.ts';
 import { walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
+import { cwd } from './u.cwd.ts';
 
 export { Path };
 const { join, resolve, basename, dirname, extname } = Path;
@@ -25,7 +26,8 @@ export const Fs: t.FsLib = {
   Size,
   Watch,
   stat,
-  cwd: Deno.cwd,
+
+  cwd,
   trimCwd: Path.trimCwd,
 
   join,

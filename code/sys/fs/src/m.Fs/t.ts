@@ -50,11 +50,11 @@ export type FsLib = Methods & {
   /** Recursively walk up a directory tree (visitor pattern). */
   readonly walkUp: t.FsWalkUp;
 
-  /** Start a file-system watcher */
+  /** Start a file-system watcher. */
   readonly watch: t.FsWatchLib['start'];
 
   /** Current working directory. */
-  cwd(): t.StringDir;
+  cwd(kind?: 'init'): t.StringDir;
 
   /** Removes the CWD (current-working-directory) from the given path if it exists. */
   trimCwd: t.FsPathLib['trimCwd'];

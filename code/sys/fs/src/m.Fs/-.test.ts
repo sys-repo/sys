@@ -40,4 +40,15 @@ describe('Fs: filesystem', () => {
       expect(res3).to.eql(path3); // NB: not-found, no change.
     });
   });
+
+  describe('Fs.cwd', () => {
+    it('returns the CWD', () => {
+      expect(Fs.cwd()).to.eql(Deno.cwd());
+    });
+
+    it('returns the initiating CWD', () => {
+      const dir = Fs.cwd('init');
+      expect(dir).to.eql(Deno.env.get('INIT_CWD'));
+    });
+  });
 });
