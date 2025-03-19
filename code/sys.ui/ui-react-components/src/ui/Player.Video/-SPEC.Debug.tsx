@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, DEFAULTS, Signal, Time } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
 
+/**
+ * Types
+ */
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
-
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
+
+/**
+ * Signals
+ */
+export function createDebugSignals() {
+  const props = { theme: Signal.create<t.CommonTheme>('Light') };
+  const api = { props };
+  return api;
+}
 
 /**
  * Component
@@ -18,10 +30,7 @@ export const Debug: React.FC<P> = (props) => {
   const s = ctx.signals;
   const p = s.props;
 
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
-
-  Signal.useEffect(() => {
+  Signal.useRedrawEffect(() => {
     p.ready.value;
     p.loop.value;
     p.playing.value;
@@ -31,7 +40,6 @@ export const Debug: React.FC<P> = (props) => {
     p.aspectRatio.value;
     p.muted.value;
     p.autoPlay.value;
-    Time.delay(redraw);
   });
 
   /**
@@ -40,10 +48,6 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
-  };
-
-  const div = (label: string, onClick: () => void) => {
-    return <div onClick={onClick}>{label}</div>;
   };
 
   return (

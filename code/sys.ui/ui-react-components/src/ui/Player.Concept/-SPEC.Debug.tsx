@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Color, css, Signal, type t, Time } from './common.ts';
+import React from 'react';
 import { Button } from '../Button/mod.ts';
+import { Color, css, Signal, type t } from './common.ts';
 
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };
@@ -18,14 +18,10 @@ export const Debug: React.FC<P> = (props) => {
   const s = ctx.signals;
   const p = s.props;
 
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
-
-  Signal.useEffect(() => {
+  Signal.useRedrawEffect(() => {
     p.ready.value;
     p.loop.value;
     p.playing.value;
-    Time.delay(redraw);
   });
 
   /**

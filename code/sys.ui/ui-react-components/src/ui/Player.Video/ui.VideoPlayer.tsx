@@ -4,7 +4,7 @@ import type { MediaPlayerInstance } from '@vidstack/react';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 
-import { type t, css, DEFAULTS, Signal } from './common.ts';
+import { type t, css, DEFAULTS, Signal, Style } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
@@ -29,6 +29,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
+  // Ensure redraw on signal changes.
   Signal.useRedrawEffect(() => {
     p?.ready.value;
 
@@ -40,21 +41,35 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p?.showFullscreenButton.value;
     p?.cornerRadius.value;
     p?.aspectRatio.value;
-    p?.muted.value;
-    p?.autoPlay.value;
   });
+
+  /**
+   * HACK: ensure player style-sheets work consistently when deployed (https).
+   */
+  React.useEffect(() => {
+    const sheet = Style.Dom.stylesheet('Player');
+    sheet.rule('[data-media-provider]', { width: '100%', height: '100%' });
+    sheet.rule('[data-media-provider] iframe', {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+    });
+  }, []);
 
   /**
    * Render
    */
   const styles = {
     base: css({
+      display: 'grid',
+      width: '100%',
+      visibility: themeStyles.loaded && p?.ready.value ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
-      display: themeStyles.loaded ? 'block' : 'none', // NB: avoid a FOUC ("Flash Of Unstyled Content").
+      aspectRatio,
     }),
   };
 
-  const elPlyrLayout = (
+  const elPlyrLayout = showControls && (
     <PlyrLayout
       // thumbnails="https://files.vidstack.io/sprite-fight/thumbnails.vtt"
       icons={plyrLayoutIcons}

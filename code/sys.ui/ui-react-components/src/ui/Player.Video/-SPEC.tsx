@@ -4,7 +4,11 @@ import { Debug } from './-SPEC.Debug.tsx';
 import { VideoPlayer } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
-  const signals = Player.Video.signals({});
+  const signals = Player.Video.signals({
+    // autoPlay: true,
+    // showControls: true,
+    // loop: true,
+  });
 
   e.it('API', (e) => {
     expect(Player.Video.View).to.equal(VideoPlayer);
