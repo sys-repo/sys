@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { type t, Color, css, DEFAULTS, Svg } from './common.ts';
 import { useMouse } from './use.Mouse.tsx';
 import { useTheme } from './use.Theme.ts';
-
-import Image from '../../../images/canvas/canvas.mini.svg';
 
 export type SvgImageProps = {
   width?: number;
@@ -24,20 +22,28 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
   const { width = DEFAULTS.width, bgBlur = 20, over, selected, onPanelEvent } = props;
   const theme = Color.theme(props.theme);
 
-  const svg = Svg.useSvg<HTMLDivElement>(Image, 354, 184, (e) => e.draw.width(width));
+  const [dataUri, setDataUri] = useState('');
+  const svg = Svg.useSvg<HTMLDivElement>(dataUri, 354, 184, (e) => e.draw.width(width));
   const draw = svg.draw;
 
   useTheme(svg, theme.name);
-  useMouse(svg, {
-    theme: theme.name,
-    over,
-    selected,
-    onPanelEvent,
-  });
+  useMouse(svg, { theme: theme.name, over, selected, onPanelEvent });
 
-  useEffect(() => {
+  /**
+   * Effect: load the <SVG> image data.
+   */
+  React.useEffect(() => {
+    import('../../../images/canvas/canvas.mini.svg').then((e) => setDataUri(e.default));
+  }, []);
+
+  /**
+   * Effect: keep SVG dimentions in sync.
+   */
+  React.useEffect(() => {
     draw?.width(width);
   }, [draw, width]);
+
+  if (!dataUri) return null;
 
   /**
    * Render.
