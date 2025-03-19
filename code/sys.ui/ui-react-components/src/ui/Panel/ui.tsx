@@ -8,7 +8,6 @@ export const Panel: React.FC<t.PanelProps> = (props) => {
    * Render
    */
   const theme = Color.theme(props.theme);
-  console.log('theme', theme);
   const styles = {
     base: css({
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
