@@ -11,7 +11,7 @@ export default Spec.describe('MyComponent', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([224, null])
+      .size('fill')
       .display('grid')
       .render((e) => <MyComponent theme={p.theme.value} />);
   });
