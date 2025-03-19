@@ -1,10 +1,9 @@
 import React from 'react';
-import { type t, Color, css, Player } from './common.ts';
-
 import { CanvasMini } from '../Canvas.Mini/mod.ts';
+import { type t, CanvasPanelList, Color, css, Player, rx, Signal, Time } from './common.ts';
 
 export const Home: React.FC<t.HomeProps> = (props) => {
-  const signalsRef = React.useRef(
+  const videoSignalsRef = React.useRef(
     Player.Video.signals({
       autoPlay: true,
       muted: true,
@@ -13,21 +12,36 @@ export const Home: React.FC<t.HomeProps> = (props) => {
     }),
   );
 
+  const selectedPanel = Signal.useSignal<t.CanvasPanel>('purpose');
+
+  Signal.useRedrawEffect(() => {
+    selectedPanel.value;
+  });
+
+  /**
+   * Effects.
+   */
+  React.useEffect(() => {
+    const msecs = 2_000;
+    const life = rx.lifecycle();
+
+    const next = async () => {
+      if (life.disposed) return;
+      Signal.cycle(selectedPanel, CanvasPanelList);
+      Time.delay(msecs, next);
+    };
+
+    Time.delay(msecs, next);
+    return life.dispose;
+  }, []);
+
   /**
    * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      backgroundColor: Color.DARK,
-      color: theme.fg,
-    }),
-    body: css({
-      Absolute: 10,
-      display: 'grid',
-      placeItems: 'center',
-    }),
+    base: css({ position: 'relative', backgroundColor: Color.DARK, color: theme.fg }),
+    body: css({ Absolute: 10, display: 'grid', placeItems: 'center' }),
     video: {
       base: css({ Absolute: 0, display: 'grid' }),
       player: css({ opacity: 0.2 }),
@@ -39,14 +53,14 @@ export const Home: React.FC<t.HomeProps> = (props) => {
       <Player.Video.View
         style={styles.video.player}
         video={'vimeo/499921561'}
-        signals={signalsRef.current}
+        signals={videoSignalsRef.current}
       />
     </div>
   );
 
   const elBody = (
     <div className={styles.body.class}>
-      <CanvasMini theme={'Dark'} selected={'purpose'} />
+      <CanvasMini theme={'Dark'} selected={selectedPanel.value} />
     </div>
   );
 

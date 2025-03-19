@@ -14,10 +14,19 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  const { render } = await import('@sys/ui-react-devharness');
-  const { Specs } = await import('./entry.Specs.ts');
-  const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-  root.render(<StrictMode>{el}</StrictMode>);
+  if (isDev) {
+    const { render } = await import('@sys/ui-react-devharness');
+    const { Specs } = await import('./entry.Specs.ts');
+    const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
+    root.render(<StrictMode>{el}</StrictMode>);
+  } else {
+    const { Home } = await import('../ui/Home/mod.ts');
+    root.render(
+      <StrictMode>
+        <Home style={{ Absolute: 0 }} />
+      </StrictMode>,
+    );
+  }
 }
 
 main().catch((err) => console.error(`Failed to render DevHarness`, err));
