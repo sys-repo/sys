@@ -1,6 +1,8 @@
 import type { MediaPlayerProps } from '@vidstack/react';
 import type { t } from './common.ts';
 
+export type StringVideoAddress = string;
+
 /**
  * Signals factory
  */
@@ -10,6 +12,7 @@ export type PlayerSignalsFactory = (
 
 /** Defaults passed to the signals API factory. */
 export type PlayerSignalsFactoryDefaults = {
+  src?: t.StringVideoAddress;
   loop?: boolean;
   showControls?: boolean;
   showFullscreenButton?: boolean;
@@ -26,6 +29,7 @@ export type PlayerSignalsFactoryDefaults = {
 export type VideoPlayerSignals = {
   props: {
     ready: t.Signal<boolean>;
+    src: t.Signal<t.StringVideoAddress>;
 
     /**
      * Media.
@@ -66,7 +70,6 @@ export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
 export type VideoPlayerProps = {
   debug?: boolean;
   title?: string;
-  video?: string;
   style?: t.CssInput;
 
   // Events.

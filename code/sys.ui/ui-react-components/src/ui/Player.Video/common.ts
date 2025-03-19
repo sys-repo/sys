@@ -6,7 +6,7 @@ export const DEFAULTS = {
   loop: false,
   showFullscreenButton: false,
   showControls: true,
-  cornerRadius: 10,
+  cornerRadius: 0,
   aspectRatio: '16/9',
   autoPlay: false,
   muted: false,

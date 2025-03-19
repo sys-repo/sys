@@ -35,6 +35,7 @@ export const Debug: React.FC<P> = (props) => {
     p.ready.value;
 
     // Media.
+    p.src.value;
     p.playing.value;
     p.muted.value;
     p.autoPlay.value;
@@ -71,21 +72,17 @@ export const Debug: React.FC<P> = (props) => {
         label={`method: jumpTo(12, paused)`}
         onClick={() => ctx.video.jumpTo(12, { play: false })}
       />
-
       <hr />
-
       <Button block={true} label={`playing: ${p.playing}`} onClick={() => toggle(p.playing)} />
       <Button block={true} label={`muted: ${p.muted}`} onClick={() => toggle(p.muted)} />
       <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
       <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
       <Button
         block={true}
-        label={`background (video): ${p.background}`}
+        label={`background: ${p.background} ← ${p.background.value ? 'fill' : 'fixed-size'}`}
         onClick={() => toggle(p.background)}
       />
-
       <hr />
-
       <Button
         block={true}
         label={`showControls: ${p.showControls}`}
@@ -99,7 +96,7 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block={true}
         label={`cornerRadius: ${p.cornerRadius}`}
-        onClick={() => Signal.cycle(p.cornerRadius, [0, 5, DEFAULTS.cornerRadius, 15])}
+        onClick={() => Signal.cycle(p.cornerRadius, [0, 5, 10, 15])}
       />
       <Button
         block={true}
@@ -108,6 +105,17 @@ export const Debug: React.FC<P> = (props) => {
       />
 
       <hr />
+
+      <Button
+        block={true}
+        label={`src: ${p.src}`}
+        onClick={() =>
+          Signal.cycle(p.src, [
+            DEFAULTS.video, // Tubes.
+            'vimeo/727951677', // Rowan: "group scale",
+          ])
+        }
+      />
     </div>
   );
 };

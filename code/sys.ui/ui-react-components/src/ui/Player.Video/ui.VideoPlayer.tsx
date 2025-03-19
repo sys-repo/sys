@@ -15,9 +15,9 @@ const D = DEFAULTS;
  */
 export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const { signals } = props;
-  const src = props.video || D.video;
   const p = signals?.props;
 
+  const src = p?.src.value ?? D.video;
   const showControls = p?.showControls.value ?? D.showControls;
   const showFullscreenButton = p?.showFullscreenButton.value ?? D.showFullscreenButton;
   const autoPlay = p?.autoPlay.value ?? D.autoPlay;
@@ -31,16 +31,18 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
 
   // Ensure redraw on signal changes.
   Signal.useRedrawEffect(() => {
-    p?.ready.value;
+    if (!p) return;
+    p.ready.value;
+    p.src.value;
 
-    p?.muted.value;
-    p?.autoPlay.value;
-    p?.loop.value;
+    p.muted.value;
+    p.autoPlay.value;
+    p.loop.value;
 
-    p?.showControls.value;
-    p?.showFullscreenButton.value;
-    p?.cornerRadius.value;
-    p?.aspectRatio.value;
+    p.showControls.value;
+    p.showFullscreenButton.value;
+    p.cornerRadius.value;
+    p.aspectRatio.value;
   });
 
   /**

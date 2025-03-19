@@ -10,6 +10,7 @@ describe('VideoPlayer: Signals', () => {
       const p = s.props;
 
       expect(p.ready.value).to.eql(false);
+      expect(p.src.value).to.eql(DEFAULTS.video);
 
       expect(p.playing.value).to.eql(false);
       expect(p.currentTime.value).to.eql(0);
@@ -31,6 +32,7 @@ describe('VideoPlayer: Signals', () => {
 
     it('param: custom {defaults}', () => {
       const s = Player.Video.signals({
+        src: 'vimeo/foobar',
         loop: true,
         showControls: false,
         showFullscreenButton: true,
@@ -42,6 +44,7 @@ describe('VideoPlayer: Signals', () => {
       });
 
       const p = s.props;
+      expect(p.src.value).to.eql('vimeo/foobar');
       expect(p.loop.value).to.eql(true);
       expect(p.aspectRatio.value).to.eql('2.39/1');
       expect(p.autoPlay.value).to.eql(true);
