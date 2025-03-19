@@ -7,9 +7,9 @@ export default Spec.describe('VideoPlayer', (e) => {
   const debug = createDebugSignals();
   const video = Player.Video.signals({
     // Change defaults: 🐷
+    loop: true,
     // autoPlay: true,
     // showControls: false,
-    // loop: true,
   });
   const p = video.props;
 
