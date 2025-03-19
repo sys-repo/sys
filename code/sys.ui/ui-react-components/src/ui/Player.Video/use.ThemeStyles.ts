@@ -32,9 +32,8 @@ export function useThemeStyles(kind: ThemeKind) {
     };
 
     if (kind === 'Plyr') {
-      max = 2;
-      import('@vidstack/react/player/styles/base.css').then(onLoaded);
-      import('@vidstack/react/player/styles/plyr/theme.css').then(onLoaded);
+      max = 1;
+      import('./use.ThemeStyles.plyr.ts').then(onLoaded);
       return;
     }
 
