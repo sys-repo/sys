@@ -3,23 +3,24 @@ import { type t, Color, css, Signal, Time, DEFAULTS, rx } from './common.ts';
 import { Button } from '../Button/mod.ts';
 
 /**
- * Types
+ * Types:
  */
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
 /**
- * Signals
+ * Signals:
  */
 export function createDebugSignals() {
-  const props = { theme: Signal.create<t.CommonTheme>('Light') };
+  const s = Signal.create;
+  const props = { theme: s<t.CommonTheme>('Light') };
   const api = { props };
   return api;
 }
 
 /**
- * Component
+ * Component:
  */
 export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
