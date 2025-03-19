@@ -10,9 +10,10 @@ export default Spec.describe('Panel', (e) => {
     const ctx = Spec.ctx(e);
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
-    ctx.subject.size([224, null]).render((e) => {
-      return <Panel theme={p.theme.value} />;
-    });
+    ctx.subject
+      .size([224, null])
+      .display('grid')
+      .render((e) => <Panel theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {
