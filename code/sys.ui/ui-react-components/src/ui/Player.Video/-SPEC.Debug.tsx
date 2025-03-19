@@ -17,7 +17,10 @@ type P = DebugProps;
  * Signals
  */
 export function createDebugSignals() {
-  const props = { theme: Signal.create<t.CommonTheme>('Light') };
+  const s = Signal.create;
+  const props = {
+    fill: s<boolean>(false),
+  };
   const api = { props };
   return api;
 }
@@ -31,6 +34,8 @@ export const Debug: React.FC<P> = (props) => {
   const d = ctx.debug.props;
 
   Signal.useRedrawEffect(() => {
+    d.fill.value;
+
     p.ready.value;
     p.loop.value;
     p.playing.value;
@@ -92,6 +97,10 @@ export const Debug: React.FC<P> = (props) => {
         label={`aspectRatio: ${p.aspectRatio}`}
         onClick={() => Signal.cycle(p.aspectRatio, [DEFAULTS.aspectRatio, '4/3', '2.39/1', '1/1'])}
       />
+
+      <hr />
+
+      <Button block={true} label={`fill screen: ${d.fill}`} onClick={() => toggle(d.fill)} />
     </div>
   );
 };

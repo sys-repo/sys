@@ -48,11 +48,15 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
    */
   React.useEffect(() => {
     const sheet = Style.Dom.stylesheet('Player');
-    sheet.rule('[data-media-provider]', { width: '100%', height: '100%' });
+    sheet.rule('[data-media-provider]', {
+      width: '100%',
+      height: '100%',
+    });
     sheet.rule('[data-media-provider] iframe', {
       width: '100%',
       height: '100%',
-      objectFit: 'contain',
+      objectFit: 'cover',
+      // objectPosition: 'center',
     });
   }, []);
 
@@ -61,11 +65,11 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
    */
   const styles = {
     base: css({
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      overflow: 'hidden',
       display: 'grid',
-      width: '100%',
       visibility: themeStyles.loaded && p?.ready.value ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
-      aspectRatio,
     }),
   };
 
