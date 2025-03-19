@@ -7,7 +7,7 @@ import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
 import { main as prep } from './Task.-prep.ts';
 import { main as test } from './Task.-test.ts';
-import { main as create } from './Task.-create.ts';
+import { main as tmpl } from './Task.-tmpl.ts';
 
 type T = {
   dry?: boolean;
@@ -19,7 +19,7 @@ type T = {
   bump?: boolean;
   prep?: boolean;
 
-  create?: boolean;
+  tmpl?: boolean;
 };
 const args = Cli.args<T>(Deno.args);
 
@@ -35,7 +35,7 @@ if (args.bump) await bump();
 if (args.prep) await prep();
 
 // Development:
-if (args.create) await create();
+if (args.tmpl) await tmpl();
 
 // Finish up.
 Deno.exit(0);
