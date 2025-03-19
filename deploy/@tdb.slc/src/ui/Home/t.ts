@@ -1,6 +1,9 @@
 import type { t } from './common.ts';
 
-export type FooProps = {
+/**
+ * <Component>.
+ */
+export type HomeProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

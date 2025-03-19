@@ -2,4 +2,5 @@
  * @module
  * UI Components.
  */
-export { Foo } from './Foo/mod.ts';
+export { CanvasMini } from './Canvas.Mini/mod.ts';
+export { Home } from './Home/mod.ts';
