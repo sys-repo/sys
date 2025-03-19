@@ -25,7 +25,7 @@ export async function main() {
     /**
      * Landing (entry):
      */
-    const { Landing } = await import('../ui/Landing/mod.ts');
+    const { Landing } = await import('../ui/ui.Landing/mod.ts');
     root.render(
       <StrictMode>
         <Landing style={{ Absolute: 0 }} />

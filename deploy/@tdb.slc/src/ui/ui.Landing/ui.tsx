@@ -1,5 +1,5 @@
 import React from 'react';
-import { CanvasMini } from '../Canvas.Mini/mod.ts';
+import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 import {
   type t,
   CanvasPanelList,
