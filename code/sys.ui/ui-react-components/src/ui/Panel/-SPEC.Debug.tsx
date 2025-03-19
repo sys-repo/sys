@@ -42,7 +42,7 @@ export const Debug: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
