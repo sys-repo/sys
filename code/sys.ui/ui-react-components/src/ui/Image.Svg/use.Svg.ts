@@ -16,10 +16,9 @@ export function useSvg<T extends HTMLElement>(
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
+
   const [ready, setReady] = useState(false);
   const [importString, setImportString] = useState('');
-
-  console.log('svgImport', svgImport);
 
   /**
    * Methods.

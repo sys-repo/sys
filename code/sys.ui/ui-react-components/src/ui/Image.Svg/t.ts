@@ -14,11 +14,13 @@ export type SvgLib = {
  * Hook: SVG image import/renderer.
  */
 export type UseSvg = <T extends HTMLElement>(
-  svgImport: string | (() => SvgImportPromise),
+  svgImport: SvgImportInput,
   viewboxWidth?: number,
   viewboxHeight?: number,
   init?: UseSvgInit<T>,
 ) => SvgInstance<T>;
+
+export type SvgImportInput = string | (() => SvgImportPromise);
 
 /** An dynamic import of an SVG file: eg, `import('path/to/file.svg')`. */
 export type SvgImportPromise = Promise<typeof import('*.svg')>;

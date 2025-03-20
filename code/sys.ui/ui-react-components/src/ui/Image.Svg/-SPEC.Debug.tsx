@@ -3,14 +3,15 @@ import { Button } from '../Button/mod.ts';
 import { type t, Color, css, Signal } from './common.ts';
 
 /**
- * Types
+ * Types:
  */
+export type DebugImportStyle = 'Static' | 'Function → Promise';
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
 /**
- * Signals
+ * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
@@ -18,14 +19,14 @@ export function createDebugSignals() {
     theme: s<t.CommonTheme>('Light'),
     width: s(200),
     color: s<'dark' | 'blue'>('dark'),
-    dynamicImport: s<boolean>(true),
+    importStyle: s<DebugImportStyle>('Function → Promise'),
   };
   const api = { props };
   return api;
 }
 
 /**
- * Component
+ * Component:
  */
 export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
@@ -34,7 +35,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.width.value;
-    p.dynamicImport.value;
+    p.importStyle.value;
   });
 
   /**
@@ -60,8 +61,11 @@ export const Debug: React.FC<P> = (props) => {
       />
       <Button
         block={true}
-        label={`dynamicImport: ${p.dynamicImport}`}
-        onClick={() => Signal.toggle(p.dynamicImport)}
+        label={`import style: ${p.importStyle}`}
+        onClick={() => {
+          type T = DebugImportStyle;
+          Signal.cycle<T>(p.importStyle, ['Static', 'Function → Promise']);
+        }}
       />
 
       <hr />

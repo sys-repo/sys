@@ -1,8 +1,8 @@
 import React from 'react';
 import StaticImport from '../../-test/sample/images/svg.sample.svg';
 
-import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { Signal } from './common.ts';
+import type { DebugSignals, DebugImportStyle } from './-SPEC.Debug.tsx';
+import { type t, Signal } from './common.ts';
 import { Svg } from './mod.ts';
 
 export type SampleProps = { signals: DebugSignals };
@@ -13,19 +13,15 @@ export type SampleProps = { signals: DebugSignals };
 export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
-  const dynamic = p.dynamicImport.value;
 
-  const svg = Svg.useSvg<HTMLDivElement>(
-    !dynamic ? StaticImport : () => import('../../-test/sample/images/svg.sample.svg'),
-    1059,
-    1059,
-    (e) => e.draw.width(p.width.value),
-  );
+  const input = wrangle.importInput(p.importStyle.value);
+  const svg = Svg.useSvg<HTMLDivElement>(input, 1059, 1059, (e) => e.draw.width(p.width.value));
 
   console.groupCollapsed(`🌳 SVG (hook)`);
   console.info(svg);
-  console.info(`svg.query('#tick'): `, svg.query('#tick'));
-  console.info(`svg.queryAll('line'): `, svg.queryAll('line'));
+  console.info('input:', input);
+  console.info(`svg.query('#tick'):`, svg.query('#tick'));
+  console.info(`svg.queryAll('line'):`, svg.queryAll('line'));
   console.groupEnd();
 
   /**
@@ -35,7 +31,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     p.width.value;
     p.theme.value;
     p.color.value;
-    p.dynamicImport.value;
+    p.importStyle.value;
   });
 
   /**
@@ -53,7 +49,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     const borderOutline = draw.findOne('#border-outline');
 
     if (tick) {
-      tick?.attr({ opacity: color === 'dark' ? 1 : 0.2 });
+      tick.attr({ opacity: color === 'dark' ? 1 : 0.2 });
     }
     if (borderOutline) {
       borderOutline.attr({ stroke: width === 200 ? '#383057' : '#0000FF' });
@@ -61,7 +57,20 @@ export const Sample: React.FC<SampleProps> = (props) => {
   });
 
   /**
-   * Render:.
+   * Render:
    */
   return <div ref={svg.ref} />;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  importInput(style: DebugImportStyle): t.SvgImportInput {
+    if (style === 'Static') return StaticImport;
+    if (style === 'Function → Promise') {
+      return () => import('../../-test/sample/images/svg.sample.svg');
+    }
+    throw new Error(`Import style "${style}" not supported.`);
+  },
+} as const;
