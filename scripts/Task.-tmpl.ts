@@ -5,19 +5,24 @@ type Options = {
 };
 
 const Templates = {
-  mod: 'code/-tmpl/m.mod/',
-  'mod.ui': 'code/-tmpl/m.mod.ui/',
-  deno: 'code/-tmpl/deno/',
+  'm.mod': 'code/-tmpl/m.mod/',
+  'm.mod.ui': 'code/-tmpl/m.mod.ui/',
+  'pkg.deno': 'code/-tmpl/deno/',
 } as const;
 
 type TArgs = {
-  create?: string | boolean;
+  tmpl?: string | boolean;
 };
 
+/**
+ * COMMAND 🌳 Create from template action.
+ */
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args);
+  console.info(c.gray('args:'), args);
+  console.info();
 
-  let name = typeof args.create === 'string' ? args.create : '';
+  let name = typeof args.tmpl === 'string' ? args.tmpl : '';
   const templates = Object.keys(Templates);
 
   if (!name) {
@@ -31,6 +36,7 @@ export async function main(options: Options = {}) {
     const msg = `${c.yellow('Failed:')} A template named "${c.white(name)}" does not exist.`;
     console.info();
     console.warn(c.gray(msg));
+    console.info(c.gray(c.italic('(Pass nothing to get interactive list.)')));
     console.info();
     return;
   }
