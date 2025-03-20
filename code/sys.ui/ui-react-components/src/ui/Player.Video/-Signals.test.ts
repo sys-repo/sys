@@ -3,7 +3,7 @@ import { Player } from '../Player/mod.ts';
 import { DEFAULTS } from './common.ts';
 import { playerSignalsFactory } from './mod.ts';
 
-describe('VideoPlayer: Signals', () => {
+describe('VideoPlayer: Signals API', () => {
   describe('props', () => {
     it('initial values (defaults)', () => {
       const s = playerSignalsFactory();
@@ -30,7 +30,7 @@ describe('VideoPlayer: Signals', () => {
       expect(p.playing.value).to.eql(true);
     });
 
-    it('param: custom {defaults}', () => {
+    it('param: custom { defaults }', () => {
       const s = Player.Video.signals({
         src: 'vimeo/foobar',
         loop: true,
