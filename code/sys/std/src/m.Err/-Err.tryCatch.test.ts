@@ -9,7 +9,7 @@ describe('Err.catch', () => {
   };
 
   it('success', async () => {
-    const res = await Err.catch(getUser(1));
+    const res = await Err.tryCatch(getUser(1));
     expect(res.ok).to.eql(true);
     expect(res.data).to.eql({ id: 1 });
     expect(res.data?.id).to.equal(1);
@@ -17,7 +17,7 @@ describe('Err.catch', () => {
   });
 
   it('fail (error)', async () => {
-    const res = await Err.catch(getUser(123, true));
+    const res = await Err.tryCatch(getUser(123, true));
     expect(res.ok).to.eql(false);
     expect(res.data).to.eql(undefined);
 

@@ -1,9 +1,7 @@
 import type { t } from './common.ts';
 import { std } from './u.std.ts';
 
-type F = t.ErrLib['catch'];
-
-export const catchError: F = async <T>(promise: Promise<T>) => {
+export const tryCatch: t.ErrLib['tryCatch'] = async <T>(promise: Promise<T>) => {
   try {
     const data = await promise;
     return { ok: true, data, error: undefined };

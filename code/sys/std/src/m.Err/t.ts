@@ -20,19 +20,19 @@ export type ErrLib = {
   errors(): t.ErrorCollection;
 
   /**
-   * Principled way to handle try/catch/(error) execution
-   * on async functions avoiding the proliferation of
-   * try/catch statements.
+   * Function strongly typed way to handle try/catch (error)
+   * execution on async functions avoiding the proliferation of
+   * problematic native try/catch statements around a codebase.
    */
-  catch<T>(promise: Promise<T>): Promise<t.ErrCatch<T>>;
+  tryCatch<T>(promise: Promise<T>): Promise<t.ErrCatch<T>>;
 };
 
 /**
  * The response (and/or error) from an [Err.catch] method call.
  */
-export type ErrCatch<T> = ErrCatchSuccess<T> | ErrCatchFail<T>;
-export type ErrCatchSuccess<T> = { ok: true; data: T; error: undefined };
-export type ErrCatchFail<T> = { ok: false; data?: T; error: t.StdError };
+export type ErrCatch<T> = ErrSuccess<T> | ErrFail<T>;
+export type ErrSuccess<T> = { ok: true; data: T; error: undefined };
+export type ErrFail<T> = { ok: false; data?: T; error: t.StdError };
 
 /**
  * Options passed to the `ErrLib.stdErr` method.
