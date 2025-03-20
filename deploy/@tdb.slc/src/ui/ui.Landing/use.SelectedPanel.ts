@@ -4,10 +4,6 @@ import { type t, Signal, rx, CanvasPanelList, Time } from './common.ts';
 export function useSelectedPanel() {
   const panel = Signal.useSignal<t.CanvasPanel>('purpose');
 
-  Signal.useRedrawEffect(() => {
-    panel.value;
-  });
-
   /**
    * Effect: Cycle the selected SLC panel.
    */
@@ -28,5 +24,5 @@ export function useSelectedPanel() {
   /**
    * API
    */
-  return panel.value;
+  return panel;
 }
