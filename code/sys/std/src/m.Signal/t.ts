@@ -4,6 +4,16 @@ import type { ReadonlySignal, Signal } from '@preact/signals-core';
 export { ReadonlySignal, Signal };
 
 /**
+ * Utility type to extract the type of a signal value.
+ * @example
+ * ```ts
+ * const mySignal = Signal.create<'Foo' | 'Bar'>('Foo');
+ * type T = ExtractSignalValue<typeof mySignal>;
+ * ```
+ */
+export type ExtractSignalValue<T> = T extends t.Signal<infer U> ? U : never;
+
+/**
  * Reactive Signals.
  * See:
  *    https://github.com/tc39/proposal-signals
