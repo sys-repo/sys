@@ -6,6 +6,7 @@ import { type t, Color, css, Signal } from './common.ts';
  * Types:
  */
 export type DebugImportStyle = 'Static' | 'Function → Promise';
+export type DebugImage = 'Small' | 'Larger';
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
@@ -20,6 +21,7 @@ export function createDebugSignals() {
     width: s(200),
     color: s<'dark' | 'blue'>('dark'),
     importStyle: s<DebugImportStyle>('Function → Promise'),
+    image: s<DebugImage>('Small'),
   };
   const api = { props };
   return api;
@@ -35,6 +37,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.width.value;
+    p.image.value;
     p.importStyle.value;
   });
 
@@ -63,8 +66,14 @@ export const Debug: React.FC<P> = (props) => {
         block={true}
         label={`import style: ${p.importStyle}`}
         onClick={() => {
-          type T = DebugImportStyle;
-          Signal.cycle<T>(p.importStyle, ['Static', 'Function → Promise']);
+          Signal.cycle<DebugImportStyle>(p.importStyle, ['Static', 'Function → Promise']);
+        }}
+      />
+      <Button
+        block={true}
+        label={`image: ${p.image}`}
+        onClick={() => {
+          Signal.cycle<DebugImage>(p.image, ['Small', 'Larger']);
         }}
       />
 

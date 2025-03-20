@@ -1,7 +1,9 @@
 import React from 'react';
-import StaticImport from '../../-test/sample/images/svg.sample.svg';
 
-import type { DebugSignals, DebugImportStyle } from './-SPEC.Debug.tsx';
+import StaticLarger from '../../-test/sample/images/sample.larger.svg';
+import StaticSmall from '../../-test/sample/images/sample.small.svg';
+
+import type { DebugImage, DebugImportStyle, DebugSignals } from './-SPEC.Debug.tsx';
 import { type t, Signal } from './common.ts';
 import { Svg } from './mod.ts';
 
@@ -13,9 +15,12 @@ export type SampleProps = { signals: DebugSignals };
 export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
+  const width = p.width.value;
+  const input = wrangle.importInput(p.importStyle.value, p.image.value);
 
-  const input = wrangle.importInput(p.importStyle.value);
-  const svg = Svg.useSvg<HTMLDivElement>(input, 1059, 1059, (e) => e.draw.width(p.width.value));
+  type H = HTMLDivElement;
+  const [viewboxWidth, viewboxHeight] = wrangle.size(p.image.value);
+  const svg = Svg.useSvg<H>(input, viewboxWidth, viewboxHeight, (e) => e.draw.width(width));
 
   console.groupCollapsed(`🌳 SVG (hook)`);
   console.info(svg);
@@ -31,6 +36,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     p.width.value;
     p.theme.value;
     p.color.value;
+    p.image.value;
     p.importStyle.value;
   });
 
@@ -66,11 +72,23 @@ export const Sample: React.FC<SampleProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  importInput(style: DebugImportStyle): t.SvgImportInput {
-    if (style === 'Static') return StaticImport;
-    if (style === 'Function → Promise') {
-      return () => import('../../-test/sample/images/svg.sample.svg');
+  importInput(importStyle: DebugImportStyle, image: DebugImage = 'Small'): t.SvgImportInput {
+    if (importStyle === 'Static') {
+      return image === 'Small' ? StaticSmall : StaticLarger;
     }
-    throw new Error(`Import style "${style}" not supported.`);
+
+    if (importStyle === 'Function → Promise') {
+      return image === 'Small'
+        ? () => import('../../-test/sample/images/sample.small.svg')
+        : () => import('../../-test/sample/images/sample.larger.svg');
+    }
+
+    throw new Error(`Import style "${importStyle}" not supported.`);
+  },
+
+  size(image: DebugImage) {
+    if (image === 'Small') return [1059, 1059];
+    if (image === 'Larger') return [233, 98];
+    throw new Error(`Image "${image}" not supported.`);
   },
 } as const;
