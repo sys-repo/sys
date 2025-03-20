@@ -101,7 +101,6 @@ deno.json:
 
   # UI
   - import: npm:@svgdotjs/svg.js@3.2.4
-  - import: npm:motion@12.5.0
   # UI:React
   - import: npm:react-error-boundary@5
   - import: npm:react-inspector@6
@@ -120,6 +119,7 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.12
+  - import: npm:motion@12.5.0
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
