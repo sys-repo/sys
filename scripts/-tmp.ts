@@ -71,4 +71,9 @@ if (args.watch) {
 }
 
 // Finish up.
-if (!args.watch) Deno.exit(0);
+if (!args.watch) {
+  const y = c.yellow;
+  console.info(c.italic(c.gray(`(pass ${y('--watch')} (${y('-w')}) to re-run on file changes)`)));
+  console.info();
+  Deno.exit(0);
+}
