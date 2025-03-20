@@ -1,10 +1,6 @@
 import { type t, expect, describe, it } from '../../-test.ts';
 import { Timestamp } from './mod.ts';
 
-/**
- * TODO 🐷
- * rewrite to: @sys/std/Timestamp
- */
 describe('Thumbnails', () => {
   describe('Video Timestamps', () => {
     it('has image', () => {
