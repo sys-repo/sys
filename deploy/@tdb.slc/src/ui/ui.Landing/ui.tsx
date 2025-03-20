@@ -1,103 +1,60 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import { useKeyboard } from './use.Keyboard.ts';
+import { VideoBackground } from './ui.Video.Background.tsx';
+import { Layout } from './ui.Layout.tsx';
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
-import {
-  type t,
-  CanvasPanelList,
-  Color,
-  css,
-  Keyboard,
-  Player,
-  rx,
-  Signal,
-  Time,
-} from './common.ts';
+import { useSelectedPanel } from './use.SelectedPanel.ts';
 
-export const Landing: React.FC<t.LandingProps> = (props) => {
+type P = t.LandingProps;
+
+/**
+ * Component:
+ */
+export const Landing: React.FC<P> = (props) => {
   const { signals } = props;
   const p = signals?.props;
 
-  const canvasPosition = p?.canvasPosition.value;
-  console.log('canvasPosition', canvasPosition);
+  useKeyboard();
+  const selectedPanel = useSelectedPanel();
 
   /**
-   * Signals
+   * Effects
    */
-  const videoSignalsRef = React.useRef(
-    Player.Video.signals({
-      autoPlay: true,
-      muted: true,
-      showControls: false,
-      loop: true,
-      src: 'vimeo/499921561', // Tubes.
-    }),
-  );
-  const video = videoSignalsRef.current;
-
-  const selectedPanel = Signal.useSignal<t.CanvasPanel>('purpose');
   Signal.useRedrawEffect(() => {
-    selectedPanel.value;
-    if (p) {
-      p.ready.value;
-      p.canvasPosition.value;
-    }
+    if (!p) return;
+    p.ready.value;
+    p.canvasPosition.value;
   });
 
   /**
-   * Effect: Keyboard.
+   * Render.
    */
-  React.useEffect(() => {
-    const life = rx.disposable();
-    const keyboard = Keyboard.until(life.dispose$);
-    keyboard.on('Enter', () => (window.location.search = '?d'));
-    return life.dispose;
-  });
-
-  /**
-   * Effect: Cycle the selected SLC panel.
-   */
-  React.useEffect(() => {
-    const delay = 2_000;
-    const life = rx.lifecycle();
-
-    const next = async () => {
-      if (life.disposed) return;
-      Signal.cycle(selectedPanel, CanvasPanelList);
-      Time.delay(delay, next);
-    };
-
-    Time.delay(delay, next);
-    return life.dispose;
-  }, []);
-
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
+  const theme = Color.theme(props.theme ?? 'Dark');
   const styles = {
-    base: css({ position: 'relative', backgroundColor: Color.DARK, color: theme.fg }),
-    body: css({ Absolute: 10, display: 'grid', placeItems: 'center' }),
-    video: {
-      base: css({ Absolute: 0, display: 'grid' }),
-      player: css({ opacity: 0.2 }),
-    },
+    base: css({
+      color: theme.fg,
+      backgroundColor: theme.bg,
+      fontFamily: 'sans-serif',
+    }),
+    fill: css({ Absolute: 0 }),
   };
 
-  const elVideo = (
-    <div className={styles.video.base.class}>
-      <Player.Video.View style={styles.video.player} signals={video} />
-    </div>
-  );
-
-  const elBody = (
-    <div className={styles.body.class}>
-      <CanvasMini theme={'Dark'} selected={selectedPanel.value} />
-    </div>
+  const elLayout = (
+    <Layout
+      style={styles.fill}
+      theme={theme.name}
+      canvas={{
+        element: <CanvasMini theme={theme.name} selected={selectedPanel} />,
+        position: signals?.props.canvasPosition.value,
+      }}
+    />
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elVideo}
-      {elBody}
+      <VideoBackground style={styles.fill} />
+      {elLayout}
     </div>
   );
 };
