@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { type t, SVG, SvgElement } from './common.ts';
+import { rx } from '../common.ts';
 
 /**
  * Hook: SVG image import/renderer.
  */
 export function useSvg<T extends HTMLElement>(
-  dataUri: string,
+  svgImport: string | (() => t.SvgImportPromise),
   viewboxWidth: number,
   viewboxHeight: number,
   init?: t.UseSvgInit<T>,
@@ -15,8 +16,10 @@ export function useSvg<T extends HTMLElement>(
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
   const draw = drawRef.current;
-
   const [ready, setReady] = useState(false);
+  const [importString, setImportString] = useState('');
+
+  console.log('svgImport', svgImport);
 
   /**
    * Methods.
@@ -26,6 +29,7 @@ export function useSvg<T extends HTMLElement>(
     const el = ref.current.querySelector(selector);
     return el ? SVG(el) : undefined;
   };
+
   const queryAll: R['queryAll'] = (selector) => {
     if (!ref.current) return [];
     const matches = ref.current.querySelectorAll(selector);
@@ -33,10 +37,21 @@ export function useSvg<T extends HTMLElement>(
   };
 
   /**
-   * Load the SVG data and inject into DOM.
+   * Effect: load/import SVG data.
+   */
+  useEffect(() => {
+    const life = rx.lifecycle();
+    if (typeof svgImport === 'string') setImportString(svgImport);
+    if (typeof svgImport === 'function') svgImport().then((m) => setImportString(m.default));
+    return life.dispose;
+  }, [svgImport]);
+
+  /**
+   * Effect: Load the SVG data and inject into DOM.
    */
   useEffect(() => {
     if (!ref.current) return;
+    if (!importString) return;
 
     // Create an SVG canvas inside the container element.
     const draw: SvgElement = SVG().addTo(ref.current);
@@ -45,6 +60,9 @@ export function useSvg<T extends HTMLElement>(
     //     These values will be the "viewBox" attribute on the <svg> root tag of the [.svg] file.
     const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
     draw.attr({ viewBox });
+
+    console.log('importString', importString);
+    const dataUri = importString;
 
     // Decode the data URL (the part after the comma is the encoded SVG markup)
     // and inject the SVG markup into the svg.js canvas.
@@ -61,7 +79,7 @@ export function useSvg<T extends HTMLElement>(
       draw.clear();
       draw.remove();
     };
-  }, [dataUri]);
+  }, [importString]);
 
   /**
    * API

@@ -13,10 +13,12 @@ type P = DebugProps;
  * Signals
  */
 export function createDebugSignals() {
+  const s = Signal.create;
   const props = {
-    theme: Signal.create<t.CommonTheme>('Light'),
-    width: Signal.create(200),
-    color: Signal.create<'dark' | 'blue'>('dark'),
+    theme: s<t.CommonTheme>('Light'),
+    width: s(200),
+    color: s<'dark' | 'blue'>('dark'),
+    dynamicImport: s<boolean>(true),
   };
   const api = { props };
   return api;
@@ -32,6 +34,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.width.value;
+    p.dynamicImport.value;
   });
 
   /**
@@ -49,11 +52,19 @@ export const Debug: React.FC<P> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
+      <hr />
       <Button
         block={true}
         label={`width: ${p.width}`}
         onClick={() => (p.width.value = p.width.value === 200 ? 80 : 200)}
       />
+      <Button
+        block={true}
+        label={`dynamicImport: ${p.dynamicImport}`}
+        onClick={() => Signal.toggle(p.dynamicImport)}
+      />
+
+      <hr />
     </div>
   );
 };

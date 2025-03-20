@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from '../../-test/sample/images/svg.sample.svg';
+import StaticImport from '../../-test/sample/images/svg.sample.svg';
 
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 import { Signal } from './common.ts';
@@ -13,10 +13,16 @@ export type SampleProps = { signals: DebugSignals };
 export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
+  const dynamic = p.dynamicImport.value;
 
-  const svg = Svg.useSvg<HTMLDivElement>(Image, 1059, 1059, (e) => e.draw.width(p.width.value));
+  const svg = Svg.useSvg<HTMLDivElement>(
+    !dynamic ? StaticImport : () => import('../../-test/sample/images/svg.sample.svg'),
+    1059,
+    1059,
+    (e) => e.draw.width(p.width.value),
+  );
 
-  console.groupCollapsed(`🌳 svg (hook instance)`);
+  console.groupCollapsed(`🌳 SVG (hook)`);
   console.info(svg);
   console.info(`svg.query('#tick'): `, svg.query('#tick'));
   console.info(`svg.queryAll('line'): `, svg.queryAll('line'));
@@ -29,6 +35,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     p.width.value;
     p.theme.value;
     p.color.value;
+    p.dynamicImport.value;
   });
 
   /**
