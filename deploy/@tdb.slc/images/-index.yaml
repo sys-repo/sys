@@ -1,0 +1,4 @@
+# Map of SVG exports from Figma.
+image-source:
+  - logo.slc.svg    → figma:tdb.slc.app/logo.slc
+  - canvas.mini.svg → figma:tdb.slc.app/canvas.mini
