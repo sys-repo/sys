@@ -30,7 +30,7 @@ export const VideoBackground: React.FC<P> = (props) => {
    */
   const styles = {
     base: css({ position: 'relative', display: 'grid' }),
-    player: css({ opacity }),
+    player: css({ opacity, transition: `opacity 0.3ms` }),
   };
 
   return (
