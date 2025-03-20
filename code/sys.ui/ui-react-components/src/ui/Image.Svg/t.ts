@@ -2,6 +2,8 @@ import type { Element as SvgElement } from '@svgdotjs/svg.js';
 
 export { SvgElement };
 
+type NumberWidth = number;
+
 /**
  * SVG rendering tools.
  */
@@ -17,7 +19,7 @@ export type UseSvg = <T extends HTMLElement>(
   svgImport: SvgImportInput,
   viewboxWidth?: number,
   viewboxHeight?: number,
-  init?: UseSvgInit<T>,
+  init?: UseSvgInit<T> | NumberWidth,
 ) => SvgInstance<T>;
 
 export type SvgImportInput = string | (() => SvgImportPromise);

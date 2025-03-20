@@ -8,7 +8,7 @@ export function useSvg<T extends HTMLElement>(
   svgImport: string | (() => t.SvgImportPromise),
   viewboxWidth: number,
   viewboxHeight: number,
-  init?: t.UseSvgInit<T>,
+  init?: t.UseSvgInit<T> | number,
 ): t.SvgInstance<T> {
   type R = t.SvgInstance<T>;
 
@@ -85,10 +85,11 @@ export function useSvg<T extends HTMLElement>(
 
     // Initialize.
     drawRef.current = draw;
-    init?.({ draw, query, queryAll });
-    setReady(true);
+    if (typeof init === 'function') init({ draw, query, queryAll });
+    if (typeof init === 'number') draw.width(init);
 
     // Finish up.
+    setReady(true);
     return () => {
       draw.clear();
       draw.remove();
