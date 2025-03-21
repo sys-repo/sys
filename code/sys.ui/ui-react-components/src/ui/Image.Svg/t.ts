@@ -25,7 +25,7 @@ export type UseSvg = <T extends HTMLElement>(
 export type SvgImportInput = string | (() => SvgImportPromise);
 
 /** An dynamic import of an SVG file: eg, `import('path/to/file.svg')`. */
-export type SvgImportPromise = Promise<typeof import('*.svg')>;
+export type SvgImportPromise = Promise<{ default: string }>;
 
 /** Callback to initialize the SVG upon creation. */
 export type UseSvgInit<T extends HTMLElement> = (e: UseSvgInitArgs<T>) => void;
