@@ -11,7 +11,7 @@ export { ReadonlySignal, Signal };
  * type T = ExtractSignalValue<typeof mySignal>;
  * ```
  */
-export type ExtractSignalValue<T> = T extends t.Signal<infer U> ? U : never;
+export type ExtractSignalValue<T> = T extends Signal<infer U> ? U : never;
 
 /**
  * Reactive Signals.
@@ -41,7 +41,7 @@ export type SignalLib = {
  */
 export type SignalValueHelpersLib = {
   /** Toggle a boolean signal. */
-  toggle(signal: Signal<boolean>, forceValue?: boolean): boolean;
+  toggle(signal: Signal<boolean | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
   cycle<T extends string | number>(signal: Signal<T | undefined>, values: T[], forceValue?: T): T;

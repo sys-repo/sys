@@ -117,6 +117,18 @@ describe('Signal', () => {
         expect(res).to.eql(true);
       });
 
+      it('should toggle boolean from <undefined>', () => {
+        const s = Signal.create<boolean | undefined>();
+        expect(s.value).to.eql(undefined);
+        const res = Signal.toggle(s);
+        expect(s.value).to.eql(true);
+        expect(res).to.eql(true);
+        Signal.toggle(s);
+        expect(s.value).to.eql(false);
+        Signal.toggle(s);
+        expect(s.value).to.eql(true);
+      });
+
       it('force: true', () => {
         const s = Signal.create(false);
         const res1 = Signal.toggle(s, true);
