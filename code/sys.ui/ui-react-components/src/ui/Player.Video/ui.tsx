@@ -118,7 +118,5 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     </MediaPlayer>
   );
 
-  console.log('loop', loop);
-
   return <div className={css(styles.base, props.style).class}>{elPlayer}</div>;
 };
