@@ -5,8 +5,7 @@
 import type { t } from './common.ts';
 const ns = 'sys.ui.react.component';
 
-export const Specs = {
-  // 'sys.ui.react.component.Button': () => import('../ui/Button/-SPEC.tsx'),
+export const SpecsComponents = {
   [`${ns}.Button`]: () => import('../ui/Button/-SPEC.tsx'),
   [`${ns}.Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
   [`${ns}.Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
@@ -18,3 +17,12 @@ export const Specs = {
   [`${ns}.Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 } as t.SpecImports;
+
+export const SpecsSamples = {
+  '-sample.css-container-type': () => import('./-sample/m.css-container-type/-SPEC.tsx'),
+} as t.SpecImports;
+
+/**
+ * Specs
+ */
+export const Specs = { ...SpecsComponents, ...SpecsSamples } as t.SpecImports;
