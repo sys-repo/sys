@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
-export const VideoBackground: React.FC<t.VideoBackgroundProps> = (props) => {
-  const { text = 'VideoBackground' } = props;
+export const VimeoBackground: React.FC<t.VimeoBackgroundProps> = (props) => {
+  const { text = 'VimeoBackground' } = props;
 
   /**
    * Render:

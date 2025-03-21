@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type VideoBackgroundProps = {
+export type VimeoBackgroundProps = {
   text?: string;
   theme?: t.CommonTheme;
   style?: t.CssInput;
