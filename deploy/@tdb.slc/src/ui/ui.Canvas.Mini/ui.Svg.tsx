@@ -33,7 +33,7 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
    * Effect: load the <SVG> image data.
    */
   React.useEffect(() => {
-    import('../../../images/canvas/canvas.mini.svg').then((e) => setDataUri(e.default));
+    import('../../../images/canvas.mini.svg').then((e) => setDataUri(e.default));
   }, []);
 
   /**
