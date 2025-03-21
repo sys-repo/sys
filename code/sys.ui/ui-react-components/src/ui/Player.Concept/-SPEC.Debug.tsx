@@ -34,10 +34,10 @@ export const Debug: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button block={true} label={`method: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
+      <Button block={true} label={`action: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
       <Button
         block={true}
-        label={`method: jumpTo(12, paused)`}
+        label={`action: jumpTo(12, paused)`}
         onClick={() => s.jumpTo(12, { play: false })}
       />
       <hr />
