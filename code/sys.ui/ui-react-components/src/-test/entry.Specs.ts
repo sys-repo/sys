@@ -3,15 +3,18 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
+const ns = 'sys.ui.react.component';
 
 export const Specs = {
-  'sys.ui.react.component.Button': () => import('../ui/Button/-SPEC.tsx'),
-  'sys.ui.react.component.Panel': () => import('../ui/Panel/-SPEC.tsx'),
-  'sys.ui.react.component.Icon': () => import('../ui/Icon/-SPEC.tsx'),
-  'sys.ui.react.component.IFrame': () => import('../ui/IFrame/-SPEC.tsx'),
-  'sys.ui.react.component.Image.Svg': () => import('../ui/Image.Svg/-SPEC.tsx'),
+  // 'sys.ui.react.component.Button': () => import('../ui/Button/-SPEC.tsx'),
+  [`${ns}.Button`]: () => import('../ui/Button/-SPEC.tsx'),
+  [`${ns}.Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
+  [`${ns}.Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
+  [`${ns}.IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
+  [`${ns}.Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
 
-  'sys.ui.react.component.Player.Video': () => import('../ui/Player.Video/-SPEC.tsx'),
-  'sys.ui.react.component.Player.Concept': () => import('../ui/Player.Concept/-SPEC.tsx'),
-  'sys.ui.react.component.Player.Thumbnails': () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
+  [`${ns}.Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
+  [`${ns}.Player.VideoBackground`]: () => import('../ui/Player.VideoBackground/-SPEC.tsx'),
+  [`${ns}.Player.Concept`]: () => import('../ui/Player.Concept/-SPEC.tsx'),
+  [`${ns}.Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
 } as t.SpecImports;
