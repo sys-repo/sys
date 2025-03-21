@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { type t, Color, css, Signal, Time, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { VIMEO } from '../-test.ui.ts';
 import { Button } from '../Button/mod.ts';
+import { type t, Color, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -14,7 +15,12 @@ type P = DebugProps;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = { theme: s<t.CommonTheme>('Light') };
+  const props = {
+    theme: s<t.CommonTheme>('Light'),
+    video: s<t.VimeoBackgroundProps['video']>(VIMEO['app/tubes']),
+    blur: s<t.VimeoBackgroundProps['blur']>(),
+    opacity: s<t.VimeoBackgroundProps['opacity']>(),
+  };
   const api = { props };
   init?.(api);
   return api;
@@ -29,6 +35,9 @@ export const Debug: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.video.value;
+    p.opacity.value;
+    p.blur.value;
   });
 
   /**
@@ -37,6 +46,12 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
+    urlTitle: css({ fontWeight: 'bold' }),
+  };
+
+  const srcVideo = (key?: keyof typeof VIMEO) => {
+    const src = key ? VIMEO[key] : undefined;
+    return <Button block label={key ?? '<undefined>'} onClick={() => (p.video.value = src)} />;
   };
 
   return (
@@ -46,8 +61,36 @@ export const Debug: React.FC<P> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block={true}
+        label={`opacity: ${p.opacity}`}
+        onClick={() => {
+          Signal.cycle<t.VimeoBackgroundProps['opacity']>(p.opacity, [undefined, 0, 0.5, 1]);
+        }}
+      />
+      <Button
+        block={true}
+        label={`blur: ${p.blur}`}
+        onClick={() => {
+          Signal.cycle<t.VimeoBackgroundProps['blur']>(p.blur, [undefined, 3, 5, 15]);
+        }}
+      />
+
+      <hr />
+
+      <div className={styles.urlTitle.class}>{`src: ${truncate(String(p.video.value))}`}</div>
+      {srcVideo('app/tubes')}
+      {srcVideo('stock/running')}
+      {srcVideo('public/helvetica')}
 
       <hr />
     </div>
   );
+};
+
+/**
+ * Helpers
+ */
+const truncate = (s: string, max: number = 40): string => {
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 };

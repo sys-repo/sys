@@ -11,14 +11,23 @@ export default Spec.describe('VimeoBackground', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
+      p.video.value;
+      p.opacity.value;
+      p.blur.value;
       ctx.redraw();
     });
 
     ctx.subject
-      .size([224, null])
+      .size('fill')
       .display('grid')
-      .render((e) => <VimeoBackground theme={p.theme.value} />);
+      .render((e) => (
+        <VimeoBackground
+          theme={p.theme.value}
+          video={p.video.value}
+          opacity={p.opacity.value}
+          blur={p.blur.value}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

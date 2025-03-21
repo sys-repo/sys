@@ -4,7 +4,10 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type VimeoBackgroundProps = {
-  text?: string;
+  video?: number;
+  opacity?: number;
+  blur?: number;
+  opacityTransition?: number; // msecs
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
