@@ -22,3 +22,4 @@ export { Panel } from './ui/Panel/mod.ts';
 export { ConceptPlayer } from './ui/Player.Concept/mod.ts';
 export { VideoPlayer } from './ui/Player.Video/mod.ts';
 export { Player } from './ui/Player/mod.ts';
+export { VimeoBackground } from './ui/VimeoBackground/mod.ts';

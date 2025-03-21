@@ -72,7 +72,7 @@ export const Debug: React.FC<P> = (props) => {
         block={true}
         label={`blur: ${p.blur}`}
         onClick={() => {
-          Signal.cycle<t.VimeoBackgroundProps['blur']>(p.blur, [undefined, 3, 5, 15]);
+          Signal.cycle<t.VimeoBackgroundProps['blur']>(p.blur, [undefined, 5, 15, 60]);
         }}
       />
 
