@@ -195,6 +195,16 @@ describe('Signal', () => {
         expect(s.value).to.eql(1);
       });
 
+      it('cycles from <undefined>', () => {
+        const s = Signal.create<T | undefined>();
+        expect(s.value).to.eql(undefined);
+
+        const values: T[] = ['a', 'b', 'c'];
+        const res = Signal.cycle(s, values);
+        expect(res).to.eql('a');
+        expect(s.value).to.eql('a');
+      });
+
       it('cycles from different initial value', () => {
         const s = Signal.create<T>('b');
         expect(s.value).to.eql('b');
