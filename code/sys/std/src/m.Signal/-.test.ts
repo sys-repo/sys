@@ -1,4 +1,5 @@
 import { Time, describe, expect, it } from '../-test.ts';
+import { value } from 'valibot';
 import { Signal } from './mod.ts';
 
 import * as Preact from '@preact/signals-core';
@@ -195,13 +196,38 @@ describe('Signal', () => {
         expect(s.value).to.eql(1);
       });
 
+      it('cycles array of arrays', () => {
+        const s = Signal.create<number[] | undefined>();
+        expect(s.value).to.eql(undefined);
+
+        const values: number[][] = [
+          [1, 2],
+          [3, 4],
+        ];
+
+        const res = Signal.cycle(s, values);
+        expect(res).to.eql([1, 2]);
+        expect(s.value).to.eql([1, 2]);
+        Signal.cycle(s, values);
+        expect(s.value).to.eql([3, 4]);
+      });
+
       it('cycles from <undefined>', () => {
         const s = Signal.create<T | undefined>();
         expect(s.value).to.eql(undefined);
 
-        const values: T[] = ['a', 'b', 'c'];
+        const values: (T | undefined)[] = [undefined, 'a', 'b'];
         const res = Signal.cycle(s, values);
         expect(res).to.eql('a');
+        expect(s.value).to.eql('a');
+
+        Signal.cycle(s, values);
+        expect(s.value).to.eql('b');
+
+        Signal.cycle(s, values);
+        expect(s.value).to.eql(undefined);
+
+        Signal.cycle(s, values);
         expect(s.value).to.eql('a');
       });
 

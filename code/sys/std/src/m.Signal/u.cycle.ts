@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Cycle a union string signal through a list of possible values.
  */
-export const cycle: t.SignalLib['cycle'] = <T extends string | number | undefined>(
+export const cycle: t.SignalLib['cycle'] = <T>(
   signal: t.Signal<T | undefined>,
   values: T[],
   forceValue?: T,
@@ -12,12 +12,7 @@ export const cycle: t.SignalLib['cycle'] = <T extends string | number | undefine
     forceValue !== undefined
       ? forceValue
       : (() => {
-          const currentIndex = signal.value === undefined ? -1 : values.indexOf(signal.value);
-
-          // If the current value isn't in the list, default to the first element.
-          if (currentIndex === -1) return values[0];
-
-          // Move to the next value, wrapping back to the start if at the end.
+          const currentIndex = values.indexOf(signal.value as T);
           return values[(currentIndex + 1) % values.length];
         })();
 
