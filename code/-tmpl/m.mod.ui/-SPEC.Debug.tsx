@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { type t, Button, Color, css, Signal, Time, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Button, Color, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -41,7 +41,7 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
-        block={true}
+        block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
