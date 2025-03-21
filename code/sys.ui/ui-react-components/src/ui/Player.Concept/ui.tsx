@@ -21,8 +21,10 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   const playerSignalsRef = wrangle.playerSignals(props);
   const playerSignals = playerSignalsRef.current;
 
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
@@ -40,21 +42,35 @@ export const ConceptPlayer: React.FC<P> = (props) => {
     <Thumbnails
       style={styles.thumbnails}
       timestamps={timestamps}
+      videoSignals={props.videoSignals}
       onTimestampClick={(e) => {
-        console.log('playerSignals', playerSignals);
-        console.log('jump to', e.total);
-        playerSignals?.jumpTo(e.total.secs);
+        const isPlaying = playerSignals.props.playing.value;
+        const target = e.total.sec;
+        if (e.isCurrent) {
+          playerSignals.toggle(!isPlaying);
+        } else {
+          playerSignals.jumpTo(target);
+        }
       }}
     />
   );
 
   const elPlayer = (
-    <VideoPlayer
-      title={props.title}
-      video={props.video}
-      style={styles.videoPlayer}
-      signals={playerSignals}
-    />
+    <VideoPlayer title={props.title} style={styles.videoPlayer} signals={playerSignals} />
+  );
+
+  const elTmp = (
+    <div className={styles.tmp.class}>
+      <Button
+        label={'🐷 Full Screen Concept Player'}
+        onClick={() => {
+          /**
+           * TODO 🐷
+           */
+          setShowOverlay(true);
+        }}
+      />
+    </div>
   );
 
   return (
@@ -64,6 +80,9 @@ export const ConceptPlayer: React.FC<P> = (props) => {
         <DisplayImage timestamps={timestamps} videoSignals={playerSignals} />
       </div>
       {elThumbnails}
+
+      {elTmp}
+      {showOverlay && <Overlay ctx={props} onClose={() => setShowOverlay(false)} />}
     </div>
   );
 };
