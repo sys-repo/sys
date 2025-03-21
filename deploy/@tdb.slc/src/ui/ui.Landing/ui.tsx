@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import { Player } from '../common.ts';
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 
-import { type t, Color, css, DEFAULTS, Signal, VimeoBackground } from './common.ts';
+import { type t, Color, css, DEFAULTS, Logo, Signal, VimeoBackground } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
-import { Logo } from './ui.Logo.tsx';
+
 import { useKeyboard } from './use.Keyboard.ts';
 import { useSelectedPanel } from './use.SelectedPanel.ts';
 
@@ -91,6 +91,7 @@ export const Landing: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Logo style={styles.logo} />
       {elVideoBackground}
       {elLayout}
     </div>

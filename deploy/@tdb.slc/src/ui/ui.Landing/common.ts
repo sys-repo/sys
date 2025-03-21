@@ -1,5 +1,7 @@
 import { type t } from '../common.ts';
+
 export * from '../common.ts';
+export { Logo } from '../ui.Logo/mod.ts';
 
 /**
  * Constants
