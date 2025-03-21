@@ -36,7 +36,7 @@ export async function main(options: Options = {}) {
     const msg = `${c.yellow('Failed:')} A template named "${c.white(name)}" does not exist.`;
     console.info();
     console.warn(c.gray(msg));
-    console.info(c.gray(c.italic('(Pass nothing to get interactive list.)')));
+    console.info(c.gray(c.italic('(pass nothing for interactive list)')));
     console.info();
     return;
   }
