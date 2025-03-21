@@ -9,7 +9,7 @@ const defaultTheme: t.CommonTheme = 'Light';
 /**
  * A color theme helper object.
  */
-export function theme(
+export function create(
   input?: t.CommonTheme | t.ColorTheme | null, // NB: loose input.
   defaultLight?: ColorInput,
   defaultDark?: ColorInput,
@@ -28,8 +28,8 @@ function factory(
   defaultDark?: ColorInput,
 ): t.ColorTheme {
   const fg = wrangle.color(name, defaultLight, defaultDark);
-  const bg = wrangle.color(wrangle.invert(name), defaultLight, defaultDark);
-  return {
+  const bg = wrangle.color(invert(name), defaultLight, defaultDark);
+  const theme: t.ColorTheme = {
     name,
     fg,
     bg,
@@ -46,9 +46,26 @@ function factory(
         },
       };
     },
-    invert: () => theme(wrangle.invert(name), defaultLight, defaultDark),
-  } as const;
+    invert: () => create(invert(name), defaultLight, defaultDark),
+    toString: () => name,
+  };
+  return theme;
 }
+
+/**
+ * Invert a color scheme.
+ */
+export function invert(theme: t.CommonTheme = defaultTheme): t.CommonTheme {
+  return theme === 'Dark' ? 'Light' : 'Dark';
+}
+
+/**
+ * API
+ */
+export const Theme: t.ColorThemeLib = {
+  create,
+  invert,
+};
 
 /**
  * Helpers
@@ -58,9 +75,5 @@ const wrangle = {
     const light = defaultLight ?? DARK;
     const dark = defaultDark ?? WHITE;
     return theme === 'Dark' ? dark : light;
-  },
-
-  invert(theme: t.CommonTheme = defaultTheme): t.CommonTheme {
-    return theme === 'Dark' ? 'Light' : 'Dark';
   },
 } as const;
