@@ -1,6 +1,6 @@
 import { type MediaPlayerInstance, useMediaState } from '@vidstack/react';
 import React from 'react';
-import { type t, Signal, Time } from './common.ts';
+import { type t, Signal } from './common.ts';
 
 /**
  * Manages keeping the <VideoPlayer> component in sync with
@@ -26,27 +26,13 @@ export function useSignalBinding(args: {
     }
   }
 
+  /**
+   * Effect: keep the signal updated with the current "is-playing" state.
+   */
   React.useEffect(() => {
     if (!props) return;
     if (props.playing.value !== isPlaying) props.playing.value = isPlaying;
   }, [isPlaying]);
-
-  /**
-   * Handle: reset upon playback finish.
-   */
-  Signal.useEffect(() => {
-    props?.ready.value;
-    props?.currentTime.value;
-    const isEnded = props?.currentTime.value === player?.duration;
-    const loop = props?.loop.value ?? false;
-
-    if (isEnded) {
-      // NB: Hack to reset the video to the beginning.
-      //     The VidStack player goes into a funny state when ended.
-      player?.play();
-      if (!loop) Time.delay(100).then(() => player?.pause());
-    }
-  });
 
   /**
    * Handle: jumpTo (aka. "seek").
@@ -66,17 +52,14 @@ export function useSignalBinding(args: {
   });
 
   /**
-   * Handle: play/pause
+   * Handle: play/pause.
    */
   Signal.useEffect(() => {
     props?.ready.value;
-    const playing = props?.playing.value ?? false;
-
-    const syncPlayer = () => {
-      if (!player) return;
-      if (playing && player.paused) player.play();
-      if (!playing && !player.paused) player.pause();
-    };
-    syncPlayer();
+    const isPlaying = props?.playing.value ?? false;
+    if (player) {
+      if (isPlaying && player.paused) player.play();
+      if (!isPlaying && !player.paused) player.pause();
+    }
   });
 }

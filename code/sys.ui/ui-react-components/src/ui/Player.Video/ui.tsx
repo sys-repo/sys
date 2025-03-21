@@ -24,6 +24,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const muted = autoPlay ? true : p?.muted.value ?? D.muted;
   const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
   const cornerRadius = p?.cornerRadius.value ?? D.cornerRadius;
+  const loop = p?.loop.value ?? D.loop;
 
   const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
@@ -58,7 +59,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      // objectPosition: 'center',
+      objectPosition: 'center',
     });
   }, []);
 
@@ -92,13 +93,19 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
         '--plyr-border-radius': `${cornerRadius}px`,
         '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}
+      /**
+       * Props:
+       */
       title={props.title}
       src={src}
       playsInline={true}
       aspectRatio={aspectRatio}
       autoPlay={autoPlay}
       muted={muted}
-      // Handlers:
+      loop={loop}
+      /**
+       * Handlers:
+       */
       onPlay={props.onPlay}
       onPlaying={props.onPlaying}
       onPause={props.onPause}
@@ -110,6 +117,8 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       {elPlyrLayout}
     </MediaPlayer>
   );
+
+  console.log('loop', loop);
 
   return <div className={css(styles.base, props.style).class}>{elPlayer}</div>;
 };
