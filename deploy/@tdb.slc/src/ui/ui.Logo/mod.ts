@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Logo } from './ui.tsx';
+export { Logo } from './ui.Svg.tsx';

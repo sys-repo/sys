@@ -11,7 +11,7 @@ export const CanvasMini: React.FC<P> = (props) => {
   const { selected, over, onPanelEvent, width = DEFAULTS.width } = props;
 
   /**
-   * Render:.
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

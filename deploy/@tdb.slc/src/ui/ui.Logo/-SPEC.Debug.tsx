@@ -14,7 +14,8 @@ type P = DebugProps;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
-    theme: s<t.CommonTheme>('Dark'),
+    theme: s<t.LogoProps['theme']>('Dark'),
+    width: s<t.LogoProps['width']>(),
   };
   const api = { props };
   init?.(api);
@@ -30,6 +31,7 @@ export const Debug: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.width.value;
   });
 
   /**
@@ -43,9 +45,14 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
-        block={true}
+        block
         label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.LogoProps['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={`width: ${p.width}${p.width.value === undefined ? '' : 'px'}`}
+        onClick={() => Signal.cycle<t.LogoProps['width']>(p.width, [undefined, 300, 60])}
       />
 
       <hr />

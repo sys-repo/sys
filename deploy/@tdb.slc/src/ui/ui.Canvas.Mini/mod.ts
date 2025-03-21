@@ -1,5 +1,5 @@
 /**
  * @module
  */
-import type { t } from './common.ts';
+export { Theme } from './u.ts';
 export { CanvasMini } from './ui.tsx';

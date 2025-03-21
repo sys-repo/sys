@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type LogoProps = {
-  text?: string;
+  width?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
