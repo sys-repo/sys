@@ -10,8 +10,8 @@ type F = t.StyleLib['transformer'];
  */
 export const transformer: F = (input) => {
   const options = wrangle.options(input);
-  const { prefix = DEFAULT.prefix } = options;
-  const dom = CssDom.stylesheet(prefix);
+  const { classPrefix = DEFAULT.classPrefix } = options;
+  const dom = CssDom.stylesheet({ classPrefix });
   const cache = new Map<number, t.CssTransformed>();
   const fn: t.CssTransform = (...input) => transform({ dom, cache, input });
   return fn;
@@ -56,7 +56,7 @@ function transform(args: {
 const wrangle = {
   options(input?: Parameters<F>[0]): t.StyleTransformerOptions {
     if (!input) return {};
-    if (typeof input === 'string') return { prefix: input };
+    if (typeof input === 'string') return { classPrefix: input };
     return input;
   },
 

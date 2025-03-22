@@ -8,8 +8,11 @@ let _sheet: CSSStyleSheet | null = null;
 /**
  * Generator factory
  */
-export const createStylesheet: t.CssDomLib['stylesheet'] = (classPrefix) => {
-  classPrefix = ((classPrefix ?? '').trim() || DEFAULT.classPrefix).replace(/-*$/, '');
+export const createStylesheet: t.CssDomLib['stylesheet'] = (options = {}) => {
+  const classPrefix = ((options.classPrefix ?? '').trim() || DEFAULT.classPrefix).replace(
+    /-*$/,
+    '',
+  );
   V.parse(AlphanumericWithHyphens, classPrefix);
   if (singletons.has(classPrefix)) return singletons.get(classPrefix)!;
 

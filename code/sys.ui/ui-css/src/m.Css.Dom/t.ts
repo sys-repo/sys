@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CssDomLib = {
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
-  stylesheet(prefix?: string): t.CssDomStylesheet;
+  stylesheet(options?: { classPrefix?: string }): t.CssDomStylesheet;
 
   /** Convert a {style} props object to a CSS string. */
   toString: t.StyleLib['toString'];

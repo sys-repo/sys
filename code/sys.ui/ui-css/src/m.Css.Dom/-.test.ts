@@ -17,23 +17,23 @@ describe(
     let _count = 0;
     const setup = (): t.CssDomStylesheet => {
       _count++;
-      const prefix = `sample-${_count}`;
-      return CssDom.stylesheet(prefix);
+      const classPrefix = `sample-${_count}`;
+      return CssDom.stylesheet({ classPrefix });
     };
 
     describe('factory: create (instance)', () => {
-      it('prefix: default class prefix', () => {
-        const a = CssDom.stylesheet('');
-        const b = CssDom.stylesheet('   ');
+      it('prefix: default class-prefix', () => {
+        const a = CssDom.stylesheet({ classPrefix: '' });
+        const b = CssDom.stylesheet({ classPrefix: '   ' });
         const c = CssDom.stylesheet();
         expect(a.classPrefix).to.eql(DEFAULT.classPrefix);
         expect(b.classPrefix).to.eql(DEFAULT.classPrefix);
         expect(c.classPrefix).to.eql(DEFAULT.classPrefix);
       });
 
-      it('custom class prefix', () => {
-        const test = (prefix: string, expected: string) => {
-          const ns = CssDom.stylesheet(prefix);
+      it('custom class-prefix', () => {
+        const test = (classPrefix: string, expected: string) => {
+          const ns = CssDom.stylesheet({ classPrefix });
           expect(ns.classPrefix).to.eql(expected);
         };
         test('foo', 'foo');
@@ -44,10 +44,10 @@ describe(
         test('foo-123', 'foo-123');
       });
 
-      it('singleton pooling (instance reuse keyed on "prefix")', () => {
+      it('singleton pooling (instance reuse on keyed class "prefix")', () => {
         const a = CssDom.stylesheet();
-        const b = CssDom.stylesheet(DEFAULT.classPrefix);
-        const c = CssDom.stylesheet('foo');
+        const b = CssDom.stylesheet({ classPrefix: DEFAULT.classPrefix });
+        const c = CssDom.stylesheet({ classPrefix: 'foo' });
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
       });
@@ -61,8 +61,8 @@ describe(
       });
 
       it('throw: invalid prefix', () => {
-        const test = (prefix: string) => {
-          const fn = () => CssDom.stylesheet(prefix);
+        const test = (classPrefix: string) => {
+          const fn = () => CssDom.stylesheet({ classPrefix });
           expect(fn).to.throw(
             /String must start with a letter and can contain letters, digits, and hyphens \(hyphen not allowed at the beginning\)/,
           );

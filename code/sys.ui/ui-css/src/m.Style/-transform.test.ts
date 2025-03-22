@@ -67,12 +67,12 @@ describe(
 
     describe('css → "class-name" (inserted into DOM)', () => {
       it('simple', () => {
-        const prefix = 'foo';
-        const css = Style.transformer({ prefix });
+        const classPrefix = 'foo';
+        const css = Style.transformer({ classPrefix });
 
         const input: t.CssValue = { PaddingX: [10, 30] };
         const m = css({ PaddingX: [10, 30] });
-        const className = `${prefix}-${m.hx}`;
+        const className = `${classPrefix}-${m.hx}`;
         expect(FindCss.rule(className)).to.eql(undefined);
 
         console.info(c.gray('\nInput:'), input);

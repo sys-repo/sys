@@ -49,12 +49,12 @@ describe('Style', () => {
     it('ƒn: transformer ← <default> class-name prefix', () => {
       const css = Style.transformer();
       const m = css({ display: 'grid' });
-      expect(m.class.startsWith(`${DEFAULT.prefix}-`)).to.be.true;
+      expect(m.class.startsWith(`${DEFAULT.classPrefix}-`)).to.be.true;
       TestPrint.transformed(m);
     });
 
     it('ƒn: transformer ← <custom> class-name prefix', () => {
-      const css = Style.transformer({ prefix: 'foo' });
+      const css = Style.transformer({ classPrefix: 'foo' });
       const m = css({ display: 'grid' });
       expect(m.class.startsWith(`foo-`)).to.be.true;
       TestPrint.transformed(m);

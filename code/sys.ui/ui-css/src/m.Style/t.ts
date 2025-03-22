@@ -18,7 +18,7 @@ export type CssClassname = string;
 export type CssClassPrefix = string;
 
 /** Options passed to `Style.transformer` factory function. */
-export type StyleTransformerOptions = { prefix?: string };
+export type StyleTransformerOptions = { classPrefix?: string };
 
 /**
  * CSS styling tools.

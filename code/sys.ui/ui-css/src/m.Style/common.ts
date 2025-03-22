@@ -9,7 +9,7 @@ export { toHash };
 export * from '../common.ts';
 
 export const DEFAULT = {
-  get prefix() {
+  get classPrefix() {
     return CssDomDefaults.classPrefix;
   },
   get pixelProps() {

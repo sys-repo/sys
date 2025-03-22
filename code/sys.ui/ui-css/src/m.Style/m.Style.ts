@@ -5,10 +5,10 @@ import { toShadow } from './u.toShadow.ts';
 import { transformer } from './u.transform.ts';
 
 const { toPadding, toMargins } = Edges;
-const prefix = DEFAULT.prefix;
+const prefix = DEFAULT.classPrefix;
 
 /** Perform a transformation on a loose set of CSS inputs. */
-export const css: t.CssTransform = transformer({ prefix });
+export const css: t.CssTransform = transformer({ classPrefix: prefix });
 
 /**
  * CSS styling tools.
