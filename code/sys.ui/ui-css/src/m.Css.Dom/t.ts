@@ -20,7 +20,7 @@ export type CssDomStylesheet = {
    * Generates a CSS classname as the selector and inserts the given
    * {Style} object as a set of rules into the DOM (with caching).
    */
-  class(prefix?: string): CssDomClasses;
+  classes(prefix?: string): CssDomClasses;
 
   /**
    * Inserts CSS styles with an arbitrary CSS-selector.

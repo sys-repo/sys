@@ -60,11 +60,11 @@ describe(
       });
     });
 
-    describe('.class() method: class/style DOM insertion', () => {
+    describe('.classes() method: class/style DOM insertion', () => {
       it('should create <classes> API with default prefix', () => {
         const dom = setup();
-        const a = dom.class();
-        const b = dom.class();
+        const a = dom.classes();
+        const b = dom.classes();
         expect(a.prefix).to.eql(DEFAULT.classPrefix);
         expect(a).to.equal(b);
       });
@@ -72,7 +72,7 @@ describe(
       it('should create <classes> API with custom prefix', () => {
         const test = (prefix: string, expected: string) => {
           const dom = setup();
-          const classes = dom.class(prefix);
+          const classes = dom.classes(prefix);
           expect(classes.prefix).to.eql(expected);
         };
         test('foo', 'foo');
@@ -85,13 +85,13 @@ describe(
 
       it('should create <classes> API with default prefix', () => {
         const dom = setup();
-        const classes = dom.class();
+        const classes = dom.classes();
         expect(classes.prefix).to.eql(DEFAULT.classPrefix);
       });
 
       it('add: simple ("hx" hash not passed)', () => {
         const dom = setup();
-        const classes = dom.class();
+        const classes = dom.classes();
         const m = css({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
         expect(classes.names.length).to.eql(0); // NB: no "inserted classes" yet.
 
@@ -111,29 +111,29 @@ describe(
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
       });
 
-      it('hash passed as parameter', () => {
+      it('add: hash passed as parameter', () => {
         const dom = setup();
-        const classes = dom.class();
+        const classes = dom.classes();
         const { style, hx } = css({ fontSize: 32, display: 'grid' });
 
         const className = `${classes.prefix}-${hx}`;
         expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
-        dom.class().add(style, { hx });
+        dom.classes().add(style, { hx });
         const rule = FindCss.rule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${toString(style)} }`);
       });
+    });
 
-      describe('pseudo-class', () => {
-        it(':hover', () => {
-          const dom = setup();
-          const classes = dom.class();
-          const { style, hx } = css({ color: 'red', ':hover': { color: ' salmon ' } });
-          const className = classes.add(style, { hx });
-          const rules = FindCss.rules(className);
-          expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
-          expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
-        });
+    describe('pseudo-class', () => {
+      it(':hover', () => {
+        const dom = setup();
+        const classes = dom.classes();
+        const { style, hx } = css({ color: 'red', ':hover': { color: ' salmon ' } });
+        const className = classes.add(style, { hx });
+        const rules = FindCss.rules(className);
+        expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
+        expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
       });
     });
 

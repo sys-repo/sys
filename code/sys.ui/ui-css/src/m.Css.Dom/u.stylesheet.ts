@@ -32,7 +32,7 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
   };
 
   const api: t.CssDomStylesheet = {
-    class(prefix) {
+    classes(prefix) {
       prefix = wrangleClassPrefix(prefix);
       if (classes.has(prefix)) {
         return classes.get(prefix)!;
