@@ -24,7 +24,6 @@ export const Logo: React.FC<t.LogoProps> = (props) => {
    * Render:
    */
   const styles = { base: css({}) };
-
   return (
     <div ref={svg.ref} className={css(styles.base, props.style).class}>
       <div ref={svg.ref} />

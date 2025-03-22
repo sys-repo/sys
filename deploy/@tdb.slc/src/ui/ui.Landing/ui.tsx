@@ -106,7 +106,7 @@ export const Landing: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Logo style={styles.logo} />
+      <Logo style={styles.logo} width={110} theme={theme.name} />
       <VimeoBackground
         video={DEFAULTS.tubes.id}
         opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
