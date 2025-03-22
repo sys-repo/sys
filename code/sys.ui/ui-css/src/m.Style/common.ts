@@ -10,7 +10,7 @@ export * from '../common.ts';
 
 export const DEFAULT = {
   get prefix() {
-    return CssDomDefaults.prefix;
+    return CssDomDefaults.classPrefix;
   },
   get pixelProps() {
     return CssDomDefaults.pixelProps;

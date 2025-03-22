@@ -17,7 +17,7 @@ export type CssDomLib = {
  */
 export type CssDomStylesheet = {
   /** The root prefix applied to generated class-names. */
-  readonly prefix: string;
+  readonly classPrefix: string;
 
   /** List of CSS class-names that have been inserted into the DOM.  */
   readonly classes: Readonly<string[]>;

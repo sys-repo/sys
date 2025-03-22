@@ -10,7 +10,7 @@ export { toHash };
  * Constants.
  */
 export const DEFAULT = {
-  prefix: 'sys',
+  classPrefix: 'sys',
   get pseudoClasses() {
     return pseudoClasses;
   },

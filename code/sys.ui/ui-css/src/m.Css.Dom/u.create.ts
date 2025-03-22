@@ -8,10 +8,10 @@ let _sheet: CSSStyleSheet | null = null;
 /**
  * Generator factory
  */
-export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
-  prefix = ((prefix ?? '').trim() || DEFAULT.prefix).replace(/-*$/, '');
-  V.parse(AlphanumericWithHyphens, prefix);
-  if (singletons.has(prefix)) return singletons.get(prefix)!;
+export const createStylesheet: t.CssDomLib['stylesheet'] = (classPrefix) => {
+  classPrefix = ((classPrefix ?? '').trim() || DEFAULT.classPrefix).replace(/-*$/, '');
+  V.parse(AlphanumericWithHyphens, classPrefix);
+  if (singletons.has(classPrefix)) return singletons.get(classPrefix)!;
 
   const sheet = getOrCreateCSSStyleSheet();
   const insertedClasses = new Set<string>();
@@ -23,14 +23,13 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
   };
 
   const api: t.CssDomStylesheet = {
-    prefix,
+    classPrefix,
     get classes() {
       return Array.from(insertedClasses);
     },
-
     class(style, hxInput) {
       const hx = hxInput ?? toHash(style);
-      const className = `${prefix}-${hx}`;
+      const className = `${classPrefix}-${hx}`;
       if (insertedClasses.has(className)) return className;
 
       // Initial creation.
@@ -49,7 +48,7 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (prefix) => {
     },
   };
 
-  singletons.set(prefix, api);
+  singletons.set(classPrefix, api);
   return api;
 };
 

@@ -22,19 +22,19 @@ describe(
     };
 
     describe('factory: create (instance)', () => {
-      it('prefix: default', () => {
+      it('prefix: default class prefix', () => {
         const a = CssDom.stylesheet('');
         const b = CssDom.stylesheet('   ');
         const c = CssDom.stylesheet();
-        expect(a.prefix).to.eql(DEFAULT.prefix);
-        expect(b.prefix).to.eql(DEFAULT.prefix);
-        expect(c.prefix).to.eql(DEFAULT.prefix);
+        expect(a.classPrefix).to.eql(DEFAULT.classPrefix);
+        expect(b.classPrefix).to.eql(DEFAULT.classPrefix);
+        expect(c.classPrefix).to.eql(DEFAULT.classPrefix);
       });
 
-      it('custom prefix', () => {
+      it('custom class prefix', () => {
         const test = (prefix: string, expected: string) => {
           const ns = CssDom.stylesheet(prefix);
-          expect(ns.prefix).to.eql(expected);
+          expect(ns.classPrefix).to.eql(expected);
         };
         test('foo', 'foo');
         test('  foo  ', 'foo');
@@ -46,7 +46,7 @@ describe(
 
       it('singleton pooling (instance reuse keyed on "prefix")', () => {
         const a = CssDom.stylesheet();
-        const b = CssDom.stylesheet(DEFAULT.prefix);
+        const b = CssDom.stylesheet(DEFAULT.classPrefix);
         const c = CssDom.stylesheet('foo');
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
@@ -82,7 +82,7 @@ describe(
         expect(dom.classes.length).to.eql(0); // NB: no "inserted classes" yet.
 
         // Baseline: ensure the rule is not yet within the DOM.
-        const className = `${dom.prefix}-${m.hx}`;
+        const className = `${dom.classPrefix}-${m.hx}`;
         expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
         const a = dom.class(m.style);
@@ -101,7 +101,7 @@ describe(
         const dom = setup();
         const m = css({ fontSize: 32, display: 'grid' });
 
-        const className = `${dom.prefix}-${m.hx}`;
+        const className = `${dom.classPrefix}-${m.hx}`;
         expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
         dom.class(m.style, m.hx);
