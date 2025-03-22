@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, css, Style } from './common.ts';
+import './styles.css';
 
 export type ContainerProps = {
   theme?: t.CommonTheme;
@@ -15,19 +16,27 @@ export const Container: React.FC<P> = (props) => {
   const {} = props;
 
   /**
+   * REF: https://chatgpt.com/share/67ddffa7-a668-800b-87f1-4aa855733c7b
+   */
+  React.useEffect(() => {
+    const sheet = Style.Dom.stylesheet();
+    // sheet.rule('.card h2', { fontSize: '1em' });
+  }, []);
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      containerType: 'inline-size',
       color: theme.fg,
     }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Container`}</div>
+    <div className={`${css(styles.base, props.style).class} card`}>
+      <h2> Hello </h2>
     </div>
   );
 };

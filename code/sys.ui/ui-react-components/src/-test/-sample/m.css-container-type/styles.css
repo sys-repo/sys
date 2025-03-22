@@ -1,0 +1,9 @@
+.card h2 {
+  font-size: 1em;
+}
+
+@container (min-width: 700px) {
+  .card h2 {
+    font-size: 2em;
+  }
+}
