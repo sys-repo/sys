@@ -17,13 +17,17 @@ export type SvgImageProps = {
 
 /**
  * Component.
+ *
  */
 export const SvgImage: React.FC<SvgImageProps> = (props) => {
   const { width = DEFAULTS.width, bgBlur = 20, over, selected, onPanelEvent } = props;
   const theme = Color.theme(props.theme);
 
+  /**
+   * Source design, search Figma: "canvas.mini"
+   */
   const svg = Svg.useSvg<HTMLDivElement>(
-    () => import('../../../images/canvas.mini.svg'),
+    () => import('./canvas.mini.svg'),
     [354, 184],
     (e) => e.draw.width(width),
   );

@@ -5,11 +5,10 @@ import { useTheme } from './use.Theme.ts';
 export const Logo: React.FC<t.LogoProps> = (props) => {
   const { width = DEFAULTS.width } = props;
 
-  const svg = Svg.useSvg<HTMLDivElement>(
-    () => import('../../../images/logo.slc.svg'),
-    [112, 81],
-    width,
-  );
+  /**
+   * Source design, search Figma: "logo.slc"
+   */
+  const svg = Svg.useSvg<HTMLDivElement>(() => import('./logo.slc.svg'), [112, 81], width);
   useTheme(svg, props.theme);
 
   /**
@@ -24,7 +23,7 @@ export const Logo: React.FC<t.LogoProps> = (props) => {
    */
   const styles = { base: css({}) };
   return (
-    <div ref={svg.ref} className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class}>
       <div ref={svg.ref} />
     </div>
   );
