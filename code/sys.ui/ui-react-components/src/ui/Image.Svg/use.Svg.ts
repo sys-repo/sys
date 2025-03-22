@@ -6,15 +6,13 @@ import { type t, rx, SVG, SvgElement } from './common.ts';
  */
 export function useSvg<T extends HTMLElement>(
   svgImport: string | (() => t.SvgImportPromise),
-  viewboxWidth: number,
-  viewboxHeight: number,
+  viewBox: [t.Pixels, t.Pixels] | number[],
   init?: t.UseSvgInit<T> | number,
 ): t.SvgInstance<T> {
   type R = t.SvgInstance<T>;
 
   const ref = useRef<T>(null);
   const drawRef = useRef<SvgElement>();
-  const draw = drawRef.current;
 
   const [ready, setReady] = useState(false);
   const [importString, setImportString] = useState('');
@@ -79,8 +77,8 @@ export function useSvg<T extends HTMLElement>(
 
     // NB: Set the viewBox to ensure proper scaling of the inner content.
     //     These values will be the "viewBox" attribute on the <svg> root tag of the [.svg] file.
-    const viewBox = `0 0 ${viewboxWidth} ${viewboxHeight}`;
-    draw.attr({ viewBox });
+    const [width, height] = viewBox;
+    draw.attr({ viewBox: `0 0 ${width} ${height}` });
     draw.svg(svgMarkup);
 
     // Initialize.
@@ -99,6 +97,14 @@ export function useSvg<T extends HTMLElement>(
   /**
    * API:
    */
-  const api: R = { ready, ref, draw, query, queryAll };
+  const api: R = {
+    ready,
+    ref,
+    get draw() {
+      return drawRef.current;
+    },
+    query,
+    queryAll,
+  };
   return api;
 }

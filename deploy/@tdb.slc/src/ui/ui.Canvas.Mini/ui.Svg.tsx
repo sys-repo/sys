@@ -24,8 +24,7 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
 
   const svg = Svg.useSvg<HTMLDivElement>(
     () => import('../../../images/canvas.mini.svg'),
-    354,
-    184,
+    [354, 184],
     (e) => e.draw.width(width),
   );
 

@@ -19,8 +19,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const input = wrangle.importInput(p.importStyle.value, p.image.value);
 
   type H = HTMLDivElement;
-  const [viewboxWidth, viewboxHeight] = wrangle.size(p.image.value);
-  const svg = Svg.useSvg<H>(input, viewboxWidth, viewboxHeight, (e) => e.draw.width(width));
+  const viewbox = wrangle.size(p.image.value);
+  const svg = Svg.useSvg<H>(input, viewbox, (e) => e.draw.width(width));
 
   console.groupCollapsed(`🌳 SVG (hook)`);
   console.info(svg);

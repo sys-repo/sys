@@ -71,7 +71,7 @@ export const Debug: React.FC<P> = (props) => {
       />
       <Button
         block={true}
-        label={`image: ${p.image}`}
+        label={`sample image: ${p.image}`}
         onClick={() => {
           Signal.cycle<DebugImage>(p.image, ['Small', 'Larger']);
         }}

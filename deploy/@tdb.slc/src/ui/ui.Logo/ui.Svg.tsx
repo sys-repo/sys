@@ -7,8 +7,7 @@ export const Logo: React.FC<t.LogoProps> = (props) => {
 
   const svg = Svg.useSvg<HTMLDivElement>(
     () => import('../../../images/logo.slc.svg'),
-    112,
-    81,
+    [112, 81],
     width,
   );
   useTheme(svg, props.theme);

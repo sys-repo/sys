@@ -1,27 +1,37 @@
 import type { Element as SvgElement } from '@svgdotjs/svg.js';
+import type { t } from './common.ts';
 
 export { SvgElement };
 
-type NumberWidth = number;
+type NumberWidth = t.Pixels;
+type NumberHeight = t.Pixels;
 
 /**
  * SVG rendering tools.
  */
 export type SvgLib = {
   readonly Element: SvgElement;
-  readonly useSvg: UseSvg;
+  readonly useSvg: UseSvgFactory;
 };
 
 /**
  * Hook: SVG image import/renderer.
  */
-export type UseSvg = <T extends HTMLElement>(
-  svgImport: SvgImportInput,
-  viewboxWidth?: number,
-  viewboxHeight?: number,
-  init?: UseSvgInit<T> | NumberWidth,
-) => SvgInstance<T>;
+export type UseSvgFactory = {
+  <T extends HTMLElement>(
+    svgImport: SvgImportInput,
+    viewBox: [NumberWidth, NumberHeight],
+    init?: UseSvgInit<T> | NumberWidth,
+  ): SvgInstance<T>;
 
+  <T extends HTMLElement>(
+    svgImport: SvgImportInput,
+    viewBox: number[], // NB: type-hack so typescript does not complain when number-arrays (rather than a tuple) is passed.
+    init?: UseSvgInit<T> | NumberWidth,
+  ): SvgInstance<T>;
+};
+
+/** Input parameter for the `useSvg` hook. */
 export type SvgImportInput = string | (() => SvgImportPromise);
 
 /** An dynamic import of an SVG file: eg, `import('path/to/file.svg')`. */
