@@ -36,7 +36,7 @@ function transform(args: {
       return style;
     },
     get class() {
-      return dom.class(style, hx);
+      return dom.class().add(style, { hx });
     },
     toString(kind = 'CssRule') {
       const rule = toString(style);

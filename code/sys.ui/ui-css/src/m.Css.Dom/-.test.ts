@@ -26,22 +26,7 @@ describe(
         const a = CssDom.stylesheet({ classPrefix: '' });
         const b = CssDom.stylesheet({ classPrefix: '   ' });
         const c = CssDom.stylesheet();
-        expect(a.classPrefix).to.eql(DEFAULT.classPrefix);
-        expect(b.classPrefix).to.eql(DEFAULT.classPrefix);
-        expect(c.classPrefix).to.eql(DEFAULT.classPrefix);
-      });
 
-      it('custom class-prefix', () => {
-        const test = (classPrefix: string, expected: string) => {
-          const ns = CssDom.stylesheet({ classPrefix });
-          expect(ns.classPrefix).to.eql(expected);
-        };
-        test('foo', 'foo');
-        test('  foo  ', 'foo');
-        test(' foo- ', 'foo'); // NB: trimmed.
-        test(' foo-- ', 'foo');
-        test('foo123', 'foo123');
-        test('foo-123', 'foo-123');
       });
 
       it('singleton pooling (instance reuse on keyed class "prefix")', () => {
@@ -76,19 +61,48 @@ describe(
     });
 
     describe('.class() method: class/style DOM insertion', () => {
-      it('simple ("hx" not passed)', () => {
+      it('should create <classes> API with default prefix', () => {
         const dom = setup();
+        const a = dom.class();
+        const b = dom.class();
+        expect(a.prefix).to.eql(DEFAULT.classPrefix);
+        expect(a).to.equal(b);
+      });
+
+      it('should create <classes> API with custom prefix', () => {
+        const test = (prefix: string, expected: string) => {
+          const dom = setup();
+          const classes = dom.class(prefix);
+          expect(classes.prefix).to.eql(expected);
+        };
+        test('foo', 'foo');
+        test('  foo  ', 'foo');
+        test(' foo- ', 'foo'); // NB: trimmed.
+        test(' foo-- ', 'foo');
+        test('foo123', 'foo123');
+        test('foo-123', 'foo-123');
+      });
+
+      it('should create <classes> API with default prefix', () => {
+        const dom = setup();
+        const classes = dom.class();
+        expect(classes.prefix).to.eql(DEFAULT.classPrefix);
+      });
+
+      it('add: simple ("hx" hash not passed)', () => {
+        const dom = setup();
+        const classes = dom.class();
         const m = css({ fontSize: 32, display: 'grid', PaddingX: [5, 10] });
-        expect(dom.classes.length).to.eql(0); // NB: no "inserted classes" yet.
+        expect(classes.names.length).to.eql(0); // NB: no "inserted classes" yet.
 
         // Baseline: ensure the rule is not yet within the DOM.
-        const className = `${dom.classPrefix}-${m.hx}`;
+        const className = `${classes.prefix}-${m.hx}`;
         expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
-        const a = dom.class(m.style);
-        const b = dom.class(m.style);
+        const a = classes.add(m.style);
+        const b = classes.add(m.style);
 
-        expect(dom.classes.length).to.eql(1); // NB: not added twice.
+        expect(classes.names.length).to.eql(1); // NB: not added twice.
         expect(a).to.eql(b);
         expect(a).to.eql(className);
 
@@ -99,21 +113,23 @@ describe(
 
       it('hash passed as parameter', () => {
         const dom = setup();
-        const m = css({ fontSize: 32, display: 'grid' });
+        const classes = dom.class();
+        const { style, hx } = css({ fontSize: 32, display: 'grid' });
 
-        const className = `${dom.classPrefix}-${m.hx}`;
+        const className = `${classes.prefix}-${hx}`;
         expect(FindCss.rule(className)).to.eql(undefined); // NB: nothing inserted yet.
 
-        dom.class(m.style, m.hx);
+        dom.class().add(style, { hx });
         const rule = FindCss.rule(className);
-        expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
+        expect(rule?.cssText).to.eql(`.${className} { ${toString(style)} }`);
       });
 
       describe('pseudo-class', () => {
         it(':hover', () => {
           const dom = setup();
-          const m = css({ color: 'red', ':hover': { color: ' salmon ' } });
-          const className = dom.class(m.style, m.hx);
+          const classes = dom.class();
+          const { style, hx } = css({ color: 'red', ':hover': { color: ' salmon ' } });
+          const className = classes.add(style, { hx });
           const rules = FindCss.rules(className);
           expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
           expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);

@@ -1,4 +1,6 @@
-import { type t, DEFAULT, isRecord, pkg, toHash, V } from './common.ts';
+import { type t, DEFAULT, isRecord, pkg, V } from './common.ts';
+import { createClasses, wrangleClassPrefix } from './u.classes.ts';
+import { createRules } from './u.rules.ts';
 import { AlphanumericWithHyphens, toString } from './u.ts';
 
 type Prefix = string;
@@ -8,7 +10,7 @@ let _sheet: CSSStyleSheet | null = null;
 /**
  * Generator factory
  */
-export const createStylesheet: t.CssDomLib['stylesheet'] = (options = {}) => {
+export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
   const classPrefix = ((options.classPrefix ?? '').trim() || DEFAULT.classPrefix).replace(
     /-*$/,
     '',
@@ -17,7 +19,11 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (options = {}) => {
   if (singletons.has(classPrefix)) return singletons.get(classPrefix)!;
 
   const sheet = getOrCreateCSSStyleSheet();
-  const insertedClasses = new Set<string>();
+  const rules = createRules({ sheet });
+
+  const classes = new Map<string, t.CssDomClasses>();
+
+  // const insertedClasses = new Set<string>();
   const insertedRules = new Set<string>();
   const insertRule = (rule: string) => {
     if (insertedRules.has(rule)) return;
@@ -26,20 +32,15 @@ export const createStylesheet: t.CssDomLib['stylesheet'] = (options = {}) => {
   };
 
   const api: t.CssDomStylesheet = {
-    classPrefix,
-    get classes() {
-      return Array.from(insertedClasses);
-    },
-    class(style, hxInput) {
-      const hx = hxInput ?? toHash(style);
-      const className = `${classPrefix}-${hx}`;
-      if (insertedClasses.has(className)) return className;
-
-      // Initial creation.
-      insertedClasses.add(className);
-      api.rule(`.${className}`, style);
-
-      return className;
+    class(prefix) {
+      prefix = wrangleClassPrefix(prefix);
+      if (classes.has(prefix)) {
+        return classes.get(prefix)!;
+      } else {
+        const res = createClasses({ rules, prefix });
+        classes.set(prefix, res);
+        return res;
+      }
     },
 
     rule(selector, style) {
