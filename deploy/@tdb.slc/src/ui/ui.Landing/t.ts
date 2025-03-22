@@ -9,6 +9,7 @@ export type LandingSignalsFactory = (defaults?: LandingSignalsFactoryDefaults) =
 /** Defaults passed to the signals API factory. */
 export type LandingSignalsFactoryDefaults = {
   canvasPosition?: t.LandingCanvasPosition;
+  sidebarVisible?: boolean;
 };
 
 /**
@@ -18,6 +19,7 @@ export type LandingSignals = {
   props: {
     ready: t.Signal<boolean>;
     canvasPosition: t.Signal<t.LandingCanvasPosition>;
+    sidebarVisible: t.Signal<boolean>;
   };
 };
 

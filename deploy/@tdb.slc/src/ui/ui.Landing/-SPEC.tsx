@@ -1,4 +1,4 @@
-import { Dev, Spec } from '../-test.ui.ts';
+import { Dev, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Landing, signalsFactory } from './mod.ts';
 
@@ -6,10 +6,16 @@ export default Spec.describe('Landing', (e) => {
   const debug = createDebugSignals();
   const landing = signalsFactory();
   const d = debug.props;
+  const p = landing.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     Dev.Theme.signalEffect(ctx, d.theme, 1);
+    Signal.effect(() => {
+      p.ready.value;
+      p.sidebarVisible.value;
+      ctx.redraw();
+    });
 
     ctx.subject
       .size('fill')

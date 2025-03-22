@@ -32,6 +32,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     d.theme.value;
     p.canvasPosition.value;
+    p.sidebarVisible.value;
   });
 
   /**
@@ -45,13 +46,20 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
+        block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle(d.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={`sidebarVisible: ${p.sidebarVisible}`}
+        onClick={() => Signal.toggle(p.sidebarVisible)}
       />
 
       <hr />
 
       <Button
+        block
         label={`canvasPosition: "${p.canvasPosition}"`}
         onClick={() => {
           Signal.cycle<t.LandingCanvasPosition>(p.canvasPosition, ['Center', 'Center:Bottom']);

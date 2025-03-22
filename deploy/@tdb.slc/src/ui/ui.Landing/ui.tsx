@@ -4,11 +4,13 @@ import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 
 import { type t, Color, css, DEFAULTS, Logo, Signal, VimeoBackground } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
+import { Sidebar } from './ui.Sidebar.tsx';
 
 import { useKeyboard } from './use.Keyboard.ts';
 import { useSelectedPanel } from './use.SelectedPanel.ts';
 
 type P = t.LandingProps;
+const D = DEFAULTS;
 
 const signalsFactory = () =>
   Player.Video.signals({
@@ -21,14 +23,14 @@ const signalsFactory = () =>
 export const Landing: React.FC<P> = (props) => {
   const { signals } = props;
   const p = signals?.props;
-  const canvasPosition = p?.canvasPosition.value ?? DEFAULTS.canvasPosition;
+  const canvasPosition = p?.canvasPosition.value ?? D.canvasPosition;
+  const sidebarVisible = p?.sidebarVisible.value ?? D.sidebarVisible;
 
   /**
    * Hooks:
    */
   useKeyboard();
   const selectedPanel = useSelectedPanel();
-
   const playerSignalsRef = useRef(signalsFactory());
   const player = playerSignalsRef.current;
 
@@ -55,7 +57,10 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Render.
    */
+  const sidebarRightWidth = sidebarVisible ? 360 : 0;
   const theme = Color.theme(props.theme ?? 'Dark');
+  const speed = 100;
+
   const styles = {
     base: css({
       position: 'relative',
@@ -63,13 +68,27 @@ export const Landing: React.FC<P> = (props) => {
       backgroundColor: theme.bg,
       fontFamily: 'sans-serif',
     }),
+
     fill: css({ Absolute: 0 }),
     logo: css({ Absolute: [null, 15, 12, null] }),
+
+    body: css({ Absolute: 0, display: 'grid' }),
+    layout: css({
+      Absolute: [0, sidebarRightWidth, 0, 0],
+      transition: `right ${speed}ms ease-in-out`,
+    }),
+    sidebar: {
+      right: css({
+        Absolute: [0, 0, 0, null],
+        width: sidebarRightWidth,
+        transition: `width ${speed}ms ease-in-out`,
+      }),
+    },
   };
 
   const elLayout = (
     <Layout
-      style={styles.fill}
+      style={styles.layout}
       theme={theme.name}
       canvas={{
         element: <CanvasMini theme={theme.name} selected={selectedPanel.value} />,
@@ -81,19 +100,22 @@ export const Landing: React.FC<P> = (props) => {
     />
   );
 
-  const elVideoBackground = (
-    <VimeoBackground
-      video={DEFAULTS.tubes.id}
-      opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
-      style={styles.fill}
-    />
+  const elSidebarRight = (
+    <Sidebar style={styles.sidebar.right} theme={props.theme} width={sidebarRightWidth} />
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Logo style={styles.logo} />
-      {elVideoBackground}
-      {elLayout}
+      <VimeoBackground
+        video={DEFAULTS.tubes.id}
+        opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
+        style={styles.fill}
+      />
+      <div className={styles.body.class}>
+        {elLayout}
+        {elSidebarRight}
+      </div>
     </div>
   );
 };

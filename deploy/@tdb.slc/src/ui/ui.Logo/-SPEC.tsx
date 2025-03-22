@@ -8,7 +8,6 @@ export default Spec.describe('Logo', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       p.width.value;
