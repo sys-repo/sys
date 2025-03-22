@@ -19,5 +19,6 @@ export function useTheme(svg: t.SvgInstance<HTMLDivElement>, theme?: t.CommonThe
       });
     };
     setColor(color, svg.queryAll('path'));
+    setColor(color, svg.queryAll('ellipse'));
   }, [svg.draw, theme]);
 }

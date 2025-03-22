@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type t, css, DEFAULTS, Svg } from './common.ts';
+import { useTheme } from './use.Theme.ts';
 
 export const Logo: React.FC<t.LogoProps> = (props) => {
   const { width = DEFAULTS.width } = props;
 
   const svg = Svg.useSvg<HTMLDivElement>(
     () => import('../../../images/logo.slc.svg'),
-    72,
-    56,
+    112,
+    81,
     width,
   );
-  // useTheme(svg, props.theme);
-
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
+  useTheme(svg, props.theme);
 
   /**
    * Effect: keep SVG dimentions in sync.
