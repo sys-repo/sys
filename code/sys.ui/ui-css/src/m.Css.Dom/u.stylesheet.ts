@@ -1,7 +1,7 @@
-import { type t, DEFAULT, isRecord, pkg, V } from './common.ts';
+import { type t, DEFAULT, pkg, V } from './common.ts';
 import { createClasses, wrangleClassPrefix } from './u.classes.ts';
 import { createRules } from './u.rules.ts';
-import { AlphanumericWithHyphens, toString } from './u.ts';
+import { AlphanumericWithHyphens } from './u.ts';
 
 type Prefix = string;
 const singletons = new Map<Prefix, t.CssDomStylesheet>();
@@ -20,35 +20,22 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
 
   const sheet = getOrCreateCSSStyleSheet();
   const rules = createRules({ sheet });
-
-  const classes = new Map<string, t.CssDomClasses>();
-
-  // const insertedClasses = new Set<string>();
-  const insertedRules = new Set<string>();
-  const insertRule = (rule: string) => {
-    if (insertedRules.has(rule)) return;
-    sheet.insertRule?.(rule, sheet.cssRules.length);
-    insertedRules.add(rule);
-  };
+  const cache = { classes: new Map<string, t.CssDomClasses>() };
 
   const api: t.CssDomStylesheet = {
     classes(prefix) {
       prefix = wrangleClassPrefix(prefix);
-      if (classes.has(prefix)) {
-        return classes.get(prefix)!;
+      if (cache.classes.has(prefix)) {
+        return cache.classes.get(prefix)!;
       } else {
         const res = createClasses({ rules, prefix });
-        classes.set(prefix, res);
+        cache.classes.set(prefix, res);
         return res;
       }
     },
 
     rule(selector, style) {
-      insertRule(`${selector} { ${toString(style)} }`);
-      Object.entries(style)
-        .filter(([key]) => DEFAULT.pseudoClasses.has(key))
-        .filter(([_, value]) => isRecord(value))
-        .forEach(([key, value]) => insertRule(`${selector}${key} { ${toString(value)} }`));
+      return rules.add(selector, style);
     },
   };
 
