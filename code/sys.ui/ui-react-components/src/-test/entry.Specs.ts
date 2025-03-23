@@ -19,7 +19,8 @@ export const SpecsComponents = {
 } as t.SpecImports;
 
 export const SpecsSamples = {
-  '-sample.css-container-type': () => import('../-sample/m.css-container-type/-SPEC.tsx'),
+  '-sample.css-container-type:@container': () =>
+    import('../-sample/m.css-container-type/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
