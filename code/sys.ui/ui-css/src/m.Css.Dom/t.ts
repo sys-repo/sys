@@ -47,7 +47,7 @@ export type CssDomStylesheet = {
    * Retrieve the singleton instance of the "context block" API
    * for specifying style rules within a specific context.
    */
-  context(kind: t.CssDomContextBlock['kind'], condition: string): t.CssDomContextBlock;
+  context(kind: t.CssDomContainerBlock['kind'], condition: string): t.CssDomContainerBlock;
 };
 
 /**
@@ -75,7 +75,7 @@ export type CssDomRules = {
   readonly list: Readonly<string[]>;
 
   /**
-   * Inserts CSS style rules into the stylesheet.
+   * Inserts generic CSS style rules into the stylesheet.
    * Accepts either a single style object or an array of style objects.
    * Optionally, a context string can be provided to wrap the rules.
    *
@@ -97,20 +97,11 @@ export type CssDomRuleOptions = { context?: string };
 
 /**
  * Represents a CSS/DOM context-block that encapsulates a set of CSS rules
- * applied under a specific conditional context.
- *
- * This type abstracts CSS at-rules that create scoped styling contexts,
- * such as:
- *
- *   - `@container`: Container queries for component-based responsiveness.
- *   - `@media`: Media queries based on viewport conditions.
- *   - `@supports`: Feature queries that check for CSS property support.
- *   - `@scope`: Scoped styling for a specific DOM subtree (experimental).
- *
+ * applied within a @container context.
  */
-export type CssDomContextBlock = {
-  /** The type of the context block. */
-  readonly kind: '@container' | '@media' | '@supports' | '@scope';
+export type CssDomContainerBlock = {
+  /** The type of the context-block. */
+  readonly kind: '@container';
 
   /** The conditional rules for the context block, eg "min-width: 700px". */
   readonly condition: string;

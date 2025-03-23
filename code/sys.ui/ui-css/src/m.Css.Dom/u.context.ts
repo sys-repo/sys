@@ -2,13 +2,13 @@ import { type t } from './common.ts';
 
 export function createContext(args: {
   rules: t.CssDomRules;
-  kind: t.CssDomContextBlock['kind'];
+  kind: t.CssDomContainerBlock['kind'];
   condition: string;
-}): t.CssDomContextBlock {
+}): t.CssDomContainerBlock {
   const { rules, kind } = args;
   const condition = wrangle.condition(args.condition);
 
-  const api: t.CssDomContextBlock = {
+  const api: t.CssDomContainerBlock = {
     kind,
     condition,
     rule(selector, style) {

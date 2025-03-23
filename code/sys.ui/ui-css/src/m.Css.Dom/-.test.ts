@@ -334,17 +334,11 @@ describe(
       });
     });
 
-    describe('.context(): scoped contextual rule blocks', () => {
+    describe('.container(): scoped contextual rule block', () => {
       it('create: → kind', () => {
         const { sheet } = setup();
-        const test = (kind: t.CssDomContextBlock['kind']) => {
-          const ctx = sheet.context(kind, 'min-width: 700px');
-          expect(ctx.kind).to.eql(kind);
-        };
-        test('@container');
-        test('@scope');
-        test('@supports');
-        test('@media');
+        const ctx = sheet.context('@container', 'min-width: 700px');
+        expect(ctx.kind).to.eql('@container');
       });
 
       it("create: cleans up the context's <condition> input", () => {
