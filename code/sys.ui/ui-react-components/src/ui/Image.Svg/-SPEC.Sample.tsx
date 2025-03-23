@@ -1,7 +1,7 @@
 import React from 'react';
 
-import StaticLarger from '../../-test/-sample/images/sample.larger.svg';
-import StaticSmall from '../../-test/-sample/images/sample.small.svg';
+import StaticLarger from '../../-sample/images/sample.larger.svg';
+import StaticSmall from '../../-sample/images/sample.small.svg';
 
 import type { DebugImage, DebugImportStyle, DebugSignals } from './-SPEC.Debug.tsx';
 import { type t, Signal } from './common.ts';
@@ -79,8 +79,8 @@ const wrangle = {
 
     if (importStyle === 'Function → Promise') {
       return image === 'Small'
-        ? () => import('../../-test/-sample/images/sample.small.svg')
-        : () => import('../../-test/-sample/images/sample.larger.svg');
+        ? () => import('../../-sample/images/sample.small.svg')
+        : () => import('../../-sample/images/sample.larger.svg');
     }
 
     throw new Error(`Import style "${importStyle}" not supported.`);
