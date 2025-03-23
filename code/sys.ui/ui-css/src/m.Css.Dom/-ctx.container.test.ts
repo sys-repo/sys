@@ -138,6 +138,16 @@ describe(
         expect(rules[0].cssText).to.eql(expected1);
         expect(rules[1].cssText).to.eql(expected2);
       });
+
+      it('scenario: 1', () => {
+        const { sheet } = setup();
+        const container = sheet.container('min-width: 600px');
+        sheet.rule('.card h2', { fontSize: 50 });
+        container.rules.add('.card h2', { fontSize: 200 });
+        expect(container.rules.inserted[0].rule).to.eql(
+          `@container (min-width: 600px) { .card h2 { font-size: 200px; } }`,
+        );
+      });
     });
   },
 );

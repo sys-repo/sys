@@ -1,6 +1,5 @@
 import { type t, DEFAULT, isRecord } from './common.ts';
 import { toString } from './u.ts';
-
 type StringRule = string;
 
 export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
