@@ -44,10 +44,10 @@ export type CssDomStylesheet = {
   classes(prefix?: string): t.CssDomClasses;
 
   /**
-   * Retrieve the singleton instance of the "context block" API
-   * for specifying style rules within a specific context.
+   * Retrieve the singleton instance of an @container API
+   * for specifying style rules within a specific size container.
    */
-  context(kind: t.CssDomContainerBlock['kind'], condition: string): t.CssDomContainerBlock;
+  container(condition: string): t.CssDomContainerBlock;
 };
 
 /**
@@ -57,7 +57,7 @@ export type CssDomClasses = {
   /** The root prefix applied to generated class-names: "<prefix>-<hash>". */
   readonly prefix: string;
 
-  /** List of CSS class-names that have been inserted into the DOM.  */
+  /** List of CSS class-names that have been inserted into the DOM. */
   readonly names: Readonly<string[]>;
 
   /**

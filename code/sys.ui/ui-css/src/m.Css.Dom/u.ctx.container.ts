@@ -1,22 +1,24 @@
 import { type t } from './common.ts';
 
-export function createContext(args: {
+/**
+ * CSS: @container API
+ */
+export function createContainer(args: {
   rules: t.CssDomRules;
-  kind: t.CssDomContainerBlock['kind'];
   condition: string;
 }): t.CssDomContainerBlock {
-  const { rules, kind } = args;
+  const { rules } = args;
   const condition = wrangle.condition(args.condition);
 
   const api: t.CssDomContainerBlock = {
-    kind,
+    kind: '@container',
     condition,
     rule(selector, style) {
       const context = api.toString();
       return rules.add(selector, style, { context });
     },
     toString() {
-      return `${kind} ${condition}`;
+      return `${api.kind} ${condition}`;
     },
   };
 

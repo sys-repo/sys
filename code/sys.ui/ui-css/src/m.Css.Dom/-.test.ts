@@ -337,14 +337,15 @@ describe(
     describe('.container(): scoped contextual rule block', () => {
       it('create: → kind', () => {
         const { sheet } = setup();
-        const ctx = sheet.context('@container', 'min-width: 700px');
+        const ctx = sheet.container('min-width: 700px');
         expect(ctx.kind).to.eql('@container');
+        expect(ctx.condition).to.eql('(min-width: 700px)');
       });
 
       it("create: cleans up the context's <condition> input", () => {
         const { sheet } = setup();
         const test = (condition: string, expected?: string) => {
-          const ctx = sheet.context('@container', condition);
+          const ctx = sheet.container(condition);
           expect(ctx.condition).to.eql(expected ?? condition.trim());
         };
         test('  min-width: 700px  ', '(min-width: 700px)'); // NB: parentheses added.
@@ -353,7 +354,7 @@ describe(
 
       it('toString', () => {
         const { sheet } = setup();
-        const ctx = sheet.context('@container', '  min-width: 700px  ');
+        const ctx = sheet.container('  min-width: 700px  ');
         expect(ctx.toString()).to.eql('@container (min-width: 700px)');
       });
 
@@ -370,7 +371,7 @@ describe(
         // Pre-check: Ensure no rule exists for the selector.
         expect(FindCss.rules(selector)).to.eql([]);
 
-        const container = sheet.context('@container', 'min-width: 700px');
+        const container = sheet.container('min-width: 700px');
         container.rule(selector, styles);
 
         // Retrieve all inserted rules for the selector.

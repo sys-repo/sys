@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { createClasses, wrangleClassPrefix } from './u.classes.ts';
-import { createContext } from './u.context.ts';
+import { createContainer } from './u.ctx.container.ts';
 import { createRules } from './u.rules.ts';
 import { getStylesheetId } from './u.ts';
 
@@ -34,8 +34,8 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
       prefix = prefix ?? options.classPrefix;
       return cache.getOrCreate(key, cache.classes, () => createClasses({ rules, prefix }));
     },
-    context(kind, condition) {
-      return createContext({ rules, kind, condition });
+    container(condition) {
+      return createContainer({ rules, condition });
     },
   };
 
