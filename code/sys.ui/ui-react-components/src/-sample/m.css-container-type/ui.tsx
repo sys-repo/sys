@@ -20,14 +20,13 @@ export const Container: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     const sheet = Style.Dom.stylesheet();
+
     sheet.rule('.card h2', { fontSize: 50 });
     // sheet.rule('.card h2', { fontSize: 100 }, { context: '@container (min-width: 600px)' });
 
     const container = sheet.context('@container', 'min-width: 600px');
     container.rule('.card h2', { fontSize: 200 });
   }, []);
-
-  // css().context('@container', 'min-width: 600px', {});
 
   /**
    * Render:

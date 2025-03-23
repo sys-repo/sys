@@ -1,3 +1,10 @@
+/* 
+  SAMPLE: 
+      See the equivalent programmatic [css-in-js] in "./ui.tsx".
+  
+      @container → MDN Docs:
+      https://developer.mozilla.org/en-US/docs/Web/CSS/@container
+*/
 .card h2 {
   font-size: 1em;
 }
