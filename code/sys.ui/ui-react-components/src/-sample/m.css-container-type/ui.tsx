@@ -50,8 +50,9 @@ export const Container: React.FC<P> = (props) => {
     }),
   };
 
+  const className = css(styles.base, props.style).class;
   return (
-    <div className={`${css(styles.base, props.style).class} card`}>
+    <div className={`${className} card`}>
       <h2> Hello </h2>
     </div>
   );
