@@ -88,7 +88,7 @@ describe(
     describe('toString', () => {
       const style = { fontSize: 30, fontFamily: 'sans-serif' };
 
-      const print = (kind: t.CssTransformStringKind, value: string) => {
+      const print = (kind: t.CssTransformToStringKind, value: string) => {
         console.info();
         console.info(`${c.brightCyan(kind)}: "${c.yellow(value)}"`);
         console.info();

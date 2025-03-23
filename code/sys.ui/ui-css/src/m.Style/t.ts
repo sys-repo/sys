@@ -83,11 +83,11 @@ export type CssTransformed = {
   readonly class: t.CssClassname;
 
   /** Convert the {style} props object to a CSS string. */
-  toString(kind?: t.CssTransformStringKind): string;
+  toString(kind?: t.CssTransformToStringKind): string;
 };
 
 /** Flags indicating the kind of string to export from the `toString` method. */
-export type CssTransformStringKind = 'CssRule' | 'CssSelector';
+export type CssTransformToStringKind = 'CssRule' | 'CssSelector';
 
 /**
  * Shadow
