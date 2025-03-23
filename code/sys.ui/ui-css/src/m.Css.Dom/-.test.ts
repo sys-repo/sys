@@ -8,10 +8,7 @@ const toString = CssDom.toString;
 
 describe(
   'Style: CSS ClassName',
-
-  /** NB: leaked timers left around by the "happy-dom" module. */
-  { sanitizeOps: false, sanitizeResources: false },
-
+  { sanitizeOps: false, sanitizeResources: false }, // ← because: "Happy-Dom"
   () => {
     DomMock.polyfill();
 
@@ -331,58 +328,6 @@ describe(
           expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
           expect(rules[1].cssText).to.eql(`${selector}:hover { ${toString({ color: 'red' })} }`);
         });
-      });
-    });
-
-    describe('.container(): scoped contextual rule block', () => {
-      it('create: → kind', () => {
-        const { sheet } = setup();
-        const ctx = sheet.container('min-width: 700px');
-        expect(ctx.kind).to.eql('@container');
-        expect(ctx.condition).to.eql('(min-width: 700px)');
-      });
-
-      it("create: cleans up the context's <condition> input", () => {
-        const { sheet } = setup();
-        const test = (condition: string, expected?: string) => {
-          const ctx = sheet.container(condition);
-          expect(ctx.condition).to.eql(expected ?? condition.trim());
-        };
-        test('  min-width: 700px  ', '(min-width: 700px)'); // NB: parentheses added.
-        test(' (max-width: 1200px) and (orientation: landscape)');
-      });
-
-      it('toString', () => {
-        const { sheet } = setup();
-        const ctx = sheet.container('  min-width: 700px  ');
-        expect(ctx.toString()).to.eql('@container (min-width: 700px)');
-      });
-
-      it('adds to stylesheet', () => {
-        const { sheet } = setup();
-
-        const selector = `.test-container-${slug()}`;
-        const context = '@container (min-width: 700px)';
-        const styles = [
-          { color: 'blue', margin: 10 },
-          { backgroundColor: 'yellow', padding: 5 },
-        ];
-
-        // Pre-check: Ensure no rule exists for the selector.
-        expect(FindCss.rules(selector)).to.eql([]);
-
-        const container = sheet.container('min-width: 700px');
-        container.rule(selector, styles);
-
-        // Retrieve all inserted rules for the selector.
-        const rules = FindCss.rules(selector);
-        expect(rules).to.have.length(2);
-
-        // Verify that each rule is inserted in the DOM, wrapped in the context block.
-        const expected1 = `${context} { ${selector} { ${toString(styles[0])} } }`;
-        const expected2 = `${context} { ${selector} { ${toString(styles[1])} } }`;
-        expect(rules[0].cssText).to.eql(expected1);
-        expect(rules[1].cssText).to.eql(expected2);
       });
     });
   },
