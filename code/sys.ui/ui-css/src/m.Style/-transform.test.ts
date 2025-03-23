@@ -67,12 +67,12 @@ describe(
 
     describe('css → "class-name" (inserted into DOM)', () => {
       it('simple', () => {
-        const classPrefix = 'foo';
-        const css = Style.transformer({ classPrefix });
+        const classes = Style.Dom.stylesheet().classes('foo');
+        const css = Style.transformer({ classes });
 
         const input: t.CssValue = { PaddingX: [10, 30] };
         const m = css({ PaddingX: [10, 30] });
-        const className = `${classPrefix}-${m.hx}`;
+        const className = `foo-${m.hx}`;
         expect(FindCss.rule(className)).to.eql(undefined);
 
         console.info(c.gray('\nInput:'), input);
@@ -110,7 +110,8 @@ describe(
       });
 
       it('kind: CssSelector', () => {
-        const css = Style.transformer('foo');
+        const classes = Style.Dom.stylesheet().classes('foo');
+        const css = Style.transformer({ classes });
         const m = css(style);
         const str = m.toString('CssSelector');
 

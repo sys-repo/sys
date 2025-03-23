@@ -1,5 +1,10 @@
-import { V } from './common.ts';
+import { V, pkg } from './common.ts';
 export { toString } from './u.toString.ts';
+
+export function getStylesheetId(instance?: string) {
+  instance = (instance || '').trim();
+  return instance ? `${pkg.name}:${instance}` : pkg.name;
+}
 
 /**
  * Validation.

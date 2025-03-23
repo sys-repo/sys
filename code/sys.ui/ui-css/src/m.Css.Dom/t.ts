@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CssDomLib = {
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
-  stylesheet(options?: { classPrefix?: string }): t.CssDomStylesheet;
+  stylesheet(options?: { instance?: string }): t.CssDomStylesheet;
 
   /** Convert a {style} props object to a CSS string. */
   toString: t.StyleLib['toString'];
@@ -16,6 +16,8 @@ export type CssDomLib = {
  * generated from CssProps
  */
 export type CssDomStylesheet = {
+  readonly id: t.StringId;
+
   /**
    * Generates a CSS classname as the selector and inserts the given
    * {Style} object as a set of rules into the DOM (with caching).

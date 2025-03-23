@@ -18,7 +18,7 @@ export type CssClassname = string;
 export type CssClassPrefix = string;
 
 /** Options passed to `Style.transformer` factory function. */
-export type StyleTransformerOptions = { classPrefix?: string };
+export type StyleTransformerOptions = { classes?: t.CssDomClasses };
 
 /**
  * CSS styling tools.
@@ -28,7 +28,7 @@ export type StyleLib = NamespaceLibs & {
   readonly css: t.CssTransform;
 
   /** Factory to produce `transform` function scoped to the given prefix. */
-  transformer(options?: t.CssClassPrefix | t.StyleTransformerOptions): t.CssTransform;
+  transformer(options?: t.StyleTransformerOptions): t.CssTransform;
 
   /** Transform margin spacing. */
   readonly toMargins: t.CssEdgesLib['toMargins'];

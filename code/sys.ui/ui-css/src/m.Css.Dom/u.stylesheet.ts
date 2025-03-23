@@ -1,35 +1,31 @@
-import { type t, DEFAULT, pkg, V } from './common.ts';
+import { type t, DEFAULT } from './common.ts';
 import { createClasses, wrangleClassPrefix } from './u.classes.ts';
 import { createRules } from './u.rules.ts';
-import { AlphanumericWithHyphens } from './u.ts';
+import { getStylesheetId } from './u.ts';
 
-type Prefix = string;
-const singletons = new Map<Prefix, t.CssDomStylesheet>();
-let _sheet: CSSStyleSheet | null = null;
+const singletons = new Map<t.StringId, t.CssDomStylesheet>();
 
 /**
  * Generator factory
  */
 export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
-  const classPrefix = ((options.classPrefix ?? '').trim() || DEFAULT.classPrefix).replace(
-    /-*$/,
-    '',
-  );
-  V.parse(AlphanumericWithHyphens, classPrefix);
-  if (singletons.has(classPrefix)) return singletons.get(classPrefix)!;
+  const id = getStylesheetId(options.instance);
+  if (singletons.has(id)) return singletons.get(id)!;
 
-  const sheet = getOrCreateCSSStyleSheet();
+  const sheet = getOrCreateCSSStyleSheet(id);
   const rules = createRules({ sheet });
   const cache = { classes: new Map<string, t.CssDomClasses>() };
 
   const api: t.CssDomStylesheet = {
+    id,
+
     classes(prefix) {
-      prefix = wrangleClassPrefix(prefix);
-      if (cache.classes.has(prefix)) {
-        return cache.classes.get(prefix)!;
+      const key = wrangleClassPrefix(prefix);
+      if (cache.classes.has(key)) {
+        return cache.classes.get(key)!;
       } else {
         const res = createClasses({ rules, prefix });
-        cache.classes.set(prefix, res);
+        cache.classes.set(res.prefix, res);
         return res;
       }
     },
@@ -39,7 +35,7 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
     },
   };
 
-  singletons.set(classPrefix, api);
+  singletons.set(id, api);
   return api;
 };
 
@@ -51,16 +47,13 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
  * Singleton <style> element management.
  * If one doesn't exist, we create one and append it to the <head>.
  */
-function getOrCreateCSSStyleSheet(): CSSStyleSheet {
-  if (_sheet) return _sheet;
-
+function getOrCreateCSSStyleSheet(id: string): CSSStyleSheet {
   if (typeof document === 'undefined') {
     return {} as CSSStyleSheet; // Dummy (safe on server).
   } else {
     const el = document.createElement('style');
-    el.setAttribute('data-controller', pkg.name);
+    el.setAttribute('data-controller', id);
     document.head.appendChild(el);
-    _sheet = el.sheet as CSSStyleSheet;
-    return _sheet;
+    return el.sheet as CSSStyleSheet;
   }
 }

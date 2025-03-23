@@ -31,7 +31,7 @@ export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): 
 /**
  * Helpers
  */
-export function wrangleClassPrefix(input?: string) {
+export function wrangleClassPrefix(input: string | undefined) {
   const res = (input ?? '').trim() || DEFAULT.classPrefix;
-  return res.replace(/-*$/, '');
+  return res.replace(/^\.*/, '').replace(/-*$/, '');
 }

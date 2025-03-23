@@ -8,12 +8,13 @@ type F = t.StyleLib['transformer'];
 /**
  * Generator (factory).
  */
-export const transformer: F = (input) => {
-  const options = wrangle.options(input);
-  const { classPrefix = DEFAULT.classPrefix } = options;
-  const dom = CssDom.stylesheet({ classPrefix });
+export const transformer: F = (options = {}) => {
   const cache = new Map<number, t.CssTransformed>();
-  const fn: t.CssTransform = (...input) => transform({ dom, cache, input });
+  let _classes: t.CssDomClasses | undefined;
+  const fn: t.CssTransform = (...input) => {
+    const classes = options.classes ?? (_classes = CssDom.stylesheet().classes());
+    return transform({ classes, cache, input });
+  };
   return fn;
 };
 
@@ -21,11 +22,11 @@ export const transformer: F = (input) => {
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 function transform(args: {
-  dom: t.CssDomStylesheet;
+  classes: t.CssDomClasses;
   cache: M;
   input: t.CssInput[];
 }): t.CssTransformed {
-  const { dom, cache } = args;
+  const { classes, cache } = args;
   const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
   const hx = toHash(style);
   if (cache.has(hx)) return cache.get(hx)!;
@@ -36,7 +37,7 @@ function transform(args: {
       return style;
     },
     get class() {
-      return dom.classes().add(style, { hx });
+      return classes.add(style, { hx });
     },
     toString(kind = 'CssRule') {
       const rule = toString(style);
@@ -54,12 +55,6 @@ function transform(args: {
  * Helpers
  */
 const wrangle = {
-  options(input?: Parameters<F>[0]): t.StyleTransformerOptions {
-    if (!input) return {};
-    if (typeof input === 'string') return { classPrefix: input };
-    return input;
-  },
-
   input(input: any): t.CssProps {
     if (Array.isArray(input)) {
       return input.reduce((acc, next) => ({ ...acc, ...wrangle.input(next) }), {} as O);
