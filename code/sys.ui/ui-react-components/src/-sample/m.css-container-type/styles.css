@@ -4,6 +4,9 @@
   
       @container → MDN Docs:
       https://developer.mozilla.org/en-US/docs/Web/CSS/@container
+
+      Baseline compatible "broadly supported across the major browsers as of <2023>"
+      https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility
 */
 .card h2 {
   font-size: 1em;

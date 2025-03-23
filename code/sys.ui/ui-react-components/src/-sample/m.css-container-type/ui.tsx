@@ -1,5 +1,16 @@
 import React from 'react';
 import { type t, Color, css, Style } from './common.ts';
+
+/**
+ * 🌼 NOTE: import the raw stylesheet
+ *
+ * @container → MDN Docs:
+ *    https://developer.mozilla.org/en-US/docs/Web/CSS/@container
+ *    Compatibility:
+ *        Baseline compatible → "broadly supported across the major browsers as of <2023>"
+ *        https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility
+ *
+ */
 // import './styles.css';
 
 export type ContainerProps = {
@@ -33,7 +44,10 @@ export const Container: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ containerType: 'inline-size', color: theme.fg }),
+    base: css({
+      color: theme.fg,
+      containerType: 'inline-size', // 🌼 ← NOTE: turn this on for the @container rules to take effect.
+    }),
   };
 
   return (
