@@ -18,14 +18,12 @@ describe(
     let _count = 0;
     const setup = () => {
       _count++;
-      const instance = `mysheet-${_count}`;
-      const prefix = `myclass-${_count}`;
-      const sheet = CssDom.stylesheet({ instance });
-      const classes = sheet.classes(prefix);
+      const sheet = CssDom.stylesheet({ instance: `mysheet-${_count}` });
+      const classes = sheet.classes(`foo-${_count}`);
       return { sheet, classes } as const;
     };
 
-    describe('factory: create (instance)', () => {
+    describe('factory: create <Stylesheet> instance', () => {
       it('instance id: default and custom', () => {
         const a = CssDom.stylesheet({});
         const b = CssDom.stylesheet({ instance: '  foo  ' });
@@ -56,7 +54,7 @@ describe(
       });
     });
 
-    describe('.classes() method: class/style DOM insertion', () => {
+    describe('.classes(): prefixed class/style DOM insertion', () => {
       it('should create <classes> API with default prefix', () => {
         const dom = CssDom.stylesheet();
         const a = dom.classes();
@@ -129,21 +127,21 @@ describe(
         const rule = FindCss.rule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${toString(style)} }`);
       });
-    });
 
-    describe('pseudo-class', () => {
-      it(':hover', () => {
-        const { sheet } = setup();
-        const classes = sheet.classes();
-        const { style, hx } = css({ color: 'red', ':hover': { color: ' salmon ' } });
-        const className = classes.add(style, { hx });
-        const rules = FindCss.rules(className);
-        expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
-        expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
+      describe('pseudo-classes', () => {
+        it(':hover', () => {
+          const { sheet } = setup();
+          const classes = sheet.classes();
+          const { style, hx } = css({ color: 'red', ':hover': { color: ' salmon ' } });
+          const className = classes.add(style, { hx });
+          const rules = FindCss.rules(className);
+          expect(rules[0].cssText).to.eql(`.${className} { color: red; }`);
+          expect(rules[1].cssText).to.eql(`.${className}:hover { color: salmon; }`);
+        });
       });
     });
 
-    describe('.rule() method: arbitrary CSS-selector DOM insertion', () => {
+    describe('.rule(): arbitrary CSS-selector DOM insertion', () => {
       it('should insert a simple rule into the stylesheet', () => {
         const { sheet } = setup();
         const selector = '.test-rule';
@@ -275,6 +273,29 @@ describe(
           expect(rules[0].cssText).to.eql(`${selector} { ${toString({ color: 'blue' })} }`);
           expect(rules[1].cssText).to.eql(`${selector}:hover { ${toString({ color: 'red' })} }`);
         });
+      });
+    });
+
+    describe('.context(): scoped contextual rule blocks', () => {
+      it('create: → kind', () => {
+        const { sheet } = setup();
+        const test = (kind: t.CssDomContextBlock['kind']) => {
+          const ctx = sheet.context(kind);
+          expect(ctx.kind).to.eql(kind);
+        };
+        test('@container');
+        test('@scope');
+        test('@supports');
+        test('@media');
+      });
+
+      it('singleton pooling (instance reuse @<kind>)', () => {
+        const { sheet } = setup();
+        const a = sheet.context('@container');
+        const b = sheet.context('@container');
+        const c = sheet.context('@scope');
+        expect(a).to.equal(b);
+        expect(a).to.not.equal(c);
       });
     });
   },

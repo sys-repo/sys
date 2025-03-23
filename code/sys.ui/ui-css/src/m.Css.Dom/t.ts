@@ -19,17 +19,23 @@ export type CssDomStylesheet = {
   readonly id: t.StringId;
 
   /**
-   * Generates a CSS classname as the selector and inserts the given
-   * {Style} object as a set of rules into the DOM (with caching).
-   */
-  classes(prefix?: string): CssDomClasses;
-
-  /**
    * Inserts CSS styles with an arbitrary CSS-selector.
    * Use this for custom/complex CSS rules
    * (typically lean on the `CssDom.class` method).
    */
   rule(selector: string, style: t.CssProps): void;
+
+  /**
+   * Retrieve the singleton instance of the classes API
+   * with the given classname "prefix".
+   */
+  classes(prefix?: string): t.CssDomClasses;
+
+  /**
+   * Retrieve the singleton instance of the "context block" API
+   * for specifying style rules within a specific context.
+   */
+  context(kind: t.CssDomContextBlock['kind']): t.CssDomContextBlock;
 };
 
 /**
@@ -61,4 +67,22 @@ export type CssDomRules = {
    * @returns true if the rules was inserted, or false if it already existed.
    */
   add(selector: string, style: t.CssProps): void;
+};
+
+/**
+ * Represents a CSS/DOM context block that encapsulates a set of CSS rules
+ * applied under a specific conditional context.
+ *
+ * This type abstracts CSS at-rules that create scoped styling contexts,
+ * such as:
+ *
+ *   - `@container`: Container queries for component-based responsiveness.
+ *   - `@media`: Media queries based on viewport conditions.
+ *   - `@supports`: Feature queries that check for CSS property support.
+ *   - `@scope`: Scoped styling for a specific DOM subtree (experimental).
+ *
+ */
+export type CssDomContextBlock = {
+  /** The type of the context block. */
+  kind: '@container' | '@media' | '@supports' | '@scope';
 };
