@@ -54,7 +54,8 @@ describe('Style', () => {
     });
 
     it('ƒn: transformer ← <custom> class-name prefix', () => {
-      const css = Style.transformer({ classPrefix: 'foo' });
+      const classes = Style.Dom.stylesheet().classes('foo');
+      const css = Style.transformer({ classes });
       const m = css({ display: 'grid' });
       expect(m.class.startsWith(`foo-`)).to.be.true;
       TestPrint.transformed(m);
