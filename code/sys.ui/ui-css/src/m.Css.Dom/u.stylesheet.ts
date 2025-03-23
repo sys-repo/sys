@@ -34,8 +34,9 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
       prefix = prefix ?? options.classPrefix;
       return cache.getOrCreate(key, cache.classes, () => createClasses({ rules, prefix }));
     },
-    container(condition) {
-      return createContainer({ rules, condition });
+    container(...args: any[]) {
+      const { name, condition } = wrangle.containerArgs(args);
+      return createContainer({ rules, condition, name });
     },
   };
 
@@ -46,6 +47,18 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
 /**
  * Helpers:
  */
+const wrangle = {
+  containerArgs(args: any[]) {
+    const done = (condition: string, name?: string) => {
+      name = name ? name.trim() : name;
+      condition = condition ? condition.trim() : '';
+      return { name, condition };
+    };
+    if (!args || args.length === 0) return done('');
+    if (args.length === 1) return done(args[0]);
+    return done(args[1], args[0]);
+  },
+} as const;
 
 /**
  * Singleton <style> element management.

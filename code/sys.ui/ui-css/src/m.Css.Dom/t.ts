@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.ctx.ts';
 
 /**
  * Tools for programatically managing CSS stylesheets within the browser DOM.
@@ -33,7 +34,11 @@ export type CssDomStylesheet = {
    *     { margin: "1rem", ":hover": { color: "red" } }
    *   ], { context: "@media (min-width: 600px)" });
    */
-  rule(selector: string, style: t.CssProps | t.CssProps[], options?: CssDomRuleOptions): void;
+  rule(
+    selector: string,
+    style: t.CssProps | t.CssProps[],
+    options?: CssDomRuleOptions,
+  ): CssDomInsertedRule[];
   /** Rules API. */
   readonly rules: t.CssDomRules;
 
@@ -48,6 +53,7 @@ export type CssDomStylesheet = {
    * for specifying style rules within a specific size container.
    */
   container(condition: string): t.CssDomContainerBlock;
+  container(name: string, condition: string): t.CssDomContainerBlock;
 };
 
 /**
@@ -72,7 +78,7 @@ export type CssDomClasses = {
  */
 export type CssDomRules = {
   /** List of CSS rules that have been inserted into the DOM.  */
-  readonly list: Readonly<string[]>;
+  readonly inserted: Readonly<CssDomInsertedRule[]>;
 
   /**
    * Inserts generic CSS style rules into the stylesheet.
@@ -88,30 +94,22 @@ export type CssDomRules = {
    *     { color: "blue" },
    *     { margin: "1rem", ":hover": { color: "red" } }
    *   ], { context: "@media (min-width: 600px)" });
+   *
+   * @returns true if inserted, or false if already inserted.
    */
-  add(selector: string, style: t.CssProps | t.CssProps[], options?: CssDomRuleOptions): void;
+  add(
+    selector: string,
+    style: t.CssProps | t.CssProps[],
+    options?: CssDomRuleOptions,
+  ): CssDomInsertedRule[];
 };
 
 /** Options passed to the rule insertion method. */
 export type CssDomRuleOptions = { context?: string };
 
-/**
- * Represents a CSS/DOM context-block that encapsulates a set of CSS rules
- * applied within a @container context.
- */
-export type CssDomContainerBlock = {
-  /** The type of the context-block. */
-  readonly kind: '@container';
-
-  /** The conditional rules for the context block, eg "min-width: 700px". */
-  readonly condition: string;
-
-  /**
-   * Inserts CSS styles with the given selector
-   * within a context-block.
-   */
-  rule(selector: string, style: t.CssProps | t.CssProps[]): void;
-
-  /** String representation of the block. */
-  toString(): string;
+/** The receipt of a rule that has been inserted into the DOM. */
+export type CssDomInsertedRule = {
+  readonly selector: string;
+  readonly style: t.CssProps;
+  readonly rule: string;
 };

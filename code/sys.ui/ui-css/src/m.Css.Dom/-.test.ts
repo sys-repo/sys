@@ -25,7 +25,7 @@ describe(
         const a = CssDom.stylesheet({});
         const b = CssDom.stylesheet({ instance: '  foo  ' });
         expect(a.id).to.eql(pkg.name);
-        expect(a.rules.list).to.eql([]);
+        expect(a.rules.inserted).to.eql([]);
         expect(b.id).to.eql(`${pkg.name}:foo`);
       });
 
@@ -156,10 +156,19 @@ describe(
         const { sheet } = setup();
         const selector = '.test-rule';
         const style = { color: 'blue', margin: 10 };
+
+        // Pre-condition.
         expect(FindCss.rule(selector)).to.eql(undefined);
+        expect(sheet.rules.inserted).to.eql([]);
 
         // Insert the rule.
-        sheet.rule(selector, style);
+        const res = sheet.rule(selector, style);
+        expect(res.length).to.eql(1);
+        expect(res[0].selector).to.eql(selector);
+        expect(res[0].style).to.eql(style);
+
+        expect(sheet.rules.inserted.length).to.eql(1);
+        expect(sheet.rules.inserted).to.eql(res);
 
         // Verify that the rule is inserted in the DOM.
         const rule = FindCss.rule(selector);
@@ -168,8 +177,26 @@ describe(
         expect(rule?.cssText).to.eql(`.test-rule { color: blue; margin: 10px; }`); // NB: ↑ (same/same).
       });
 
+      it('should not insert the same rule twice', () => {
+        const { sheet } = setup();
+        const selector = '.test-rule';
+        const style = { margin: 10 };
+
+        const insert = () => sheet.rule(selector, style);
+        const res = insert();
+
+        expect(res.length).to.eql(1);
+        expect(res[0].selector).to.eql(selector);
+        expect(res[0].style).to.eql(style);
+
+        // NB: further calls do not add more items.
+        expect(insert()).to.eql([]);
+        expect(insert()).to.eql([]);
+        expect(sheet.rules.inserted.length).to.eql(1);
+      });
+
       describe('rules within context-blocks', () => {
-        it('should insert a simple rule within a "@container" context', () => {
+        it('should insert a simple rule within an "@container" context', () => {
           const { sheet } = setup();
           const selector = `.test-container-${slug()}`;
           const style = { color: 'blue', margin: 10 };
@@ -177,7 +204,10 @@ describe(
           expect(FindCss.rule(selector)).to.eql(undefined);
 
           // Insert the rule within an "@container" context.
-          sheet.rule(selector, style, { context });
+          const res = sheet.rule(selector, style, { context });
+          expect(res.length).to.eql(1);
+          expect(res[0].selector).to.eql(selector);
+          expect(res[0].style).to.eql(style);
 
           // Verify that the rule is inserted in the DOM, wrapped in the context block.
           const rule = FindCss.rule(selector);
@@ -199,7 +229,10 @@ describe(
           expect(FindCss.rules(selector)).to.eql([]);
 
           // Insert the rules with an "@container" context.
-          sheet.rule(selector, styles, { context });
+          const res = sheet.rule(selector, styles, { context });
+          expect(res.length).to.eql(2);
+          expect(res[0].style).to.eql(styles[0]);
+          expect(res[1].style).to.eql(styles[1]);
 
           // Retrieve all inserted rules for the selector.
           const rules = FindCss.rules(selector);
