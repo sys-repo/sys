@@ -246,4 +246,35 @@ describe('Str (Text)', () => {
       test('--camel-Case', '--camel-case');
     });
   });
+
+  describe('String.truncate', () => {
+    it('returns the original text when length is less than max', () => {
+      expect(Str.truncate('abc', 5)).to.eql('abc');
+    });
+
+    it('returns the original text when length equals max', () => {
+      expect(Str.truncate('hello', 5)).to.eql('hello');
+    });
+
+    it('truncates the text when length is greater than max', () => {
+      // For max = 5, it takes the first 4 characters and appends an ellipsis.
+      expect(Str.truncate('abcdef', 5)).to.eql('abcd…');
+    });
+
+    it('handles max = 1 correctly', () => {
+      // For a string longer than 1, it returns just the ellipsis.
+      expect(Str.truncate('abc', 1)).to.eql('…');
+      // When the text length equals max, no truncation happens.
+      expect(Str.truncate('a', 1)).to.eql('a');
+    });
+
+    it('returns an empty string when given an empty string', () => {
+      expect(Str.truncate('', 3)).to.eql('');
+    });
+
+    it('handles edge case when max is 0', () => {
+      // With max = 0, "abc" becomes "abc".slice(0, -1) which is "ab", then an ellipsis is appended.
+      expect(Str.truncate('abc', 0)).to.eql('ab…');
+    });
+  });
 });

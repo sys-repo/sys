@@ -52,4 +52,9 @@ export type StrLib = {
    * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
    */
   bytes: t.FormatBytes;
+
+  /**
+   * Truncates a string with ellipsis if over a maximum length.
+   */
+  truncate(text: string, max: number): string;
 };
