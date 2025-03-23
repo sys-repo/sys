@@ -8,12 +8,13 @@
       Baseline compatible "broadly supported across the major browsers as of <2023>"
       https://developer.mozilla.org/en-US/docs/Glossary/Baseline/Compatibility
 */
+
 .card h2 {
-  font-size: 1em;
+  font-size: 2em;
 }
 
 @container (min-width: 700px) {
   .card h2 {
-    font-size: 2em;
+    font-size: 5em;
   }
 }
