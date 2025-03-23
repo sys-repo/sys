@@ -280,7 +280,7 @@ describe(
       it('create: → kind', () => {
         const { sheet } = setup();
         const test = (kind: t.CssDomContextBlock['kind']) => {
-          const ctx = sheet.context(kind);
+          const ctx = sheet.context(kind, 'min-width: 700px');
           expect(ctx.kind).to.eql(kind);
         };
         test('@container');
@@ -289,13 +289,14 @@ describe(
         test('@media');
       });
 
-      it('singleton pooling (instance reuse @<kind>)', () => {
+      it("create: cleans up the context's <condition> input", () => {
         const { sheet } = setup();
-        const a = sheet.context('@container');
-        const b = sheet.context('@container');
-        const c = sheet.context('@scope');
-        expect(a).to.equal(b);
-        expect(a).to.not.equal(c);
+        const test = (condition: string, expected?: string) => {
+          const ctx = sheet.context('@container', condition);
+          expect(ctx.condition).to.eql(expected ?? condition.trim());
+        };
+        test('  min-width: 700px  ', '(min-width: 700px)'); // NB: parentheses added.
+        test(' (max-width: 1200px) and (orientation: landscape)');
       });
     });
   },

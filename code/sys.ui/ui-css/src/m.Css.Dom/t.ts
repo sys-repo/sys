@@ -35,7 +35,7 @@ export type CssDomStylesheet = {
    * Retrieve the singleton instance of the "context block" API
    * for specifying style rules within a specific context.
    */
-  context(kind: t.CssDomContextBlock['kind']): t.CssDomContextBlock;
+  context(kind: t.CssDomContextBlock['kind'], condition: string): t.CssDomContextBlock;
 };
 
 /**
@@ -84,5 +84,8 @@ export type CssDomRules = {
  */
 export type CssDomContextBlock = {
   /** The type of the context block. */
-  kind: '@container' | '@media' | '@supports' | '@scope';
+  readonly kind: '@container' | '@media' | '@supports' | '@scope';
+
+  /** The conditional rules for the context block, eg "min-width: 700px". */
+  readonly condition: string;
 };
