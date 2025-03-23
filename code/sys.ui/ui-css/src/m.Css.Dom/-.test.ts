@@ -28,6 +28,7 @@ describe(
         const a = CssDom.stylesheet({});
         const b = CssDom.stylesheet({ instance: '  foo  ' });
         expect(a.id).to.eql(pkg.name);
+        expect(a.rules.list).to.eql([]);
         expect(b.id).to.eql(`${pkg.name}:foo`);
       });
 
@@ -40,17 +41,20 @@ describe(
       });
 
       it('insert root <style> into DOM (singleton)', () => {
-        const test = (instance?: t.StringId) => {
-          const id = getStylesheetId(instance);
+        const test = (instance?: t.StringId, classPrefix?: string) => {
+          const id = getStylesheetId(instance, classPrefix);
+
           const find = () => document.querySelector(`style[data-controller="${id}"]`);
-          CssDom.stylesheet({ instance });
+          CssDom.stylesheet({ instance, classPrefix });
+
           expect(find()).to.exist;
-          CssDom.stylesheet({ instance });
-          expect(find()).to.equal(find()); // Singleton.
+          CssDom.stylesheet({ instance, classPrefix });
+          expect(find()).to.equal(find()); // NB: Singleton.
         };
 
         test();
         test('foobar');
+        test('foobar', 'my-class-prefix');
       });
     });
 
@@ -76,6 +80,15 @@ describe(
         test(' foo-- ', 'foo');
         test('foo123', 'foo123');
         test('foo-123', 'foo-123');
+      });
+
+      it('should pass default "classPrefix" value to .classes() API', () => {
+        const a = CssDom.stylesheet({ instance: slug() });
+        const b = CssDom.stylesheet({ instance: slug(), classPrefix: 'foo' });
+        const styleA = a.classes().add({ fontSize: 16 });
+        const styleB = b.classes().add({ fontSize: 16 });
+        expect(styleA.startsWith('sys-')).to.eql(true);
+        expect(styleB.startsWith('foo-')).to.eql(true);
       });
 
       it('throw: invalid prefix', () => {

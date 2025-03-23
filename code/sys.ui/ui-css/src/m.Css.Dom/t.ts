@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CssDomLib = {
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
-  stylesheet(options?: { instance?: string }): t.CssDomStylesheet;
+  stylesheet(options?: { instance?: string; classPrefix?: string }): t.CssDomStylesheet;
 
   /** Convert a {style} props object to a CSS string. */
   toString: t.StyleLib['toString'];
@@ -34,6 +34,8 @@ export type CssDomStylesheet = {
    *   ], { context: "@media (min-width: 600px)" });
    */
   rule(selector: string, style: t.CssProps | t.CssProps[], options?: CssDomRuleOptions): void;
+  /** Rules API. */
+  readonly rules: t.CssDomRules;
 
   /**
    * Retrieve the singleton instance of the classes API
@@ -70,7 +72,7 @@ export type CssDomClasses = {
  */
 export type CssDomRules = {
   /** List of CSS rules that have been inserted into the DOM.  */
-  readonly rules: Readonly<string[]>;
+  readonly list: Readonly<string[]>;
 
   /**
    * Inserts CSS style rules into the stylesheet.

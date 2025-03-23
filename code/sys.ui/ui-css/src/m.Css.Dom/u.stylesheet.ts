@@ -10,7 +10,7 @@ const singletons = new Map<t.StringId, t.CssDomStylesheet>();
  * Generator factory
  */
 export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
-  const id = getStylesheetId(options.instance);
+  const id = getStylesheetId(options.instance, options.classPrefix);
   if (singletons.has(id)) return singletons.get(id)!;
 
   const sheet = getOrCreateDomStyleSheet(id);
@@ -25,11 +25,13 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
 
   const api: t.CssDomStylesheet = {
     id,
+    rules,
     rule(selector, style, options) {
       return rules.add(selector, style, options);
     },
     classes(prefix) {
-      const key = wrangleClassPrefix(prefix);
+      const key = wrangleClassPrefix(prefix, options.classPrefix);
+      prefix = prefix ?? options.classPrefix;
       return cache.getOrCreate(key, cache.classes, () => createClasses({ rules, prefix }));
     },
     context(kind, condition) {

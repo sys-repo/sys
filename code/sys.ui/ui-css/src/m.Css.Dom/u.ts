@@ -1,9 +1,12 @@
 import { V, pkg } from './common.ts';
 export { toString } from './u.toString.ts';
 
-export function getStylesheetId(instance?: string) {
+export function getStylesheetId(instance?: string, defaultPrefix?: string) {
   instance = (instance || '').trim();
-  return instance ? `${pkg.name}:${instance}` : pkg.name;
+  let id = pkg.name;
+  if (instance) id += `:${instance}`;
+  if (defaultPrefix) id += `:${defaultPrefix}`;
+  return id;
 }
 
 /**

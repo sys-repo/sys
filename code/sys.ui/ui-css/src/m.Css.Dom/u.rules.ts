@@ -23,7 +23,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
   };
 
   const api: t.CssDomRules = {
-    get rules() {
+    get list() {
       return Array.from(inserted);
     },
 

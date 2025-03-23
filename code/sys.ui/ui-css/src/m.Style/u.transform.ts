@@ -1,4 +1,4 @@
-import { type t, CssDom, CssTmpl, DEFAULT, toHash, toString } from './common.ts';
+import { type t, CssDom, CssTmpl, toHash, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
 
 type M = Map<number, t.CssTransformed>;
@@ -10,10 +10,15 @@ type F = t.StyleLib['transformer'];
  */
 export const transformer: F = (options = {}) => {
   const cache = new Map<number, t.CssTransformed>();
-  let _classes: t.CssDomClasses | undefined;
+
+  let _sheet: t.CssDomStylesheet | undefined;
+  const lazySheet = () => options.sheet ?? _sheet ?? CssDom.stylesheet();
+
   const fn: t.CssTransform = (...input) => {
-    const classes = options.classes ?? (_classes = CssDom.stylesheet().classes());
-    return transform({ classes, cache, input });
+    const sheet = lazySheet();
+    const classes = sheet.classes();
+    const rules = sheet.rules;
+    return transform({ classes, rules, cache, input });
   };
   return fn;
 };
@@ -22,6 +27,7 @@ export const transformer: F = (options = {}) => {
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 function transform(args: {
+  rules: t.CssDomRules;
   classes: t.CssDomClasses;
   cache: M;
   input: t.CssInput[];

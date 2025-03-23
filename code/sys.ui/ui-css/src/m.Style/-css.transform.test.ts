@@ -67,8 +67,8 @@ describe(
 
     describe('css → "class-name" (inserted into DOM)', () => {
       it('simple', () => {
-        const classes = Style.Dom.stylesheet().classes('foo');
-        const css = Style.transformer({ classes });
+        const sheet = Style.Dom.stylesheet({ classPrefix: 'foo' });
+        const css = Style.transformer({ sheet });
 
         const input: t.CssValue = { PaddingX: [10, 30] };
         const m = css({ PaddingX: [10, 30] });
@@ -110,8 +110,8 @@ describe(
       });
 
       it('kind: CssSelector', () => {
-        const classes = Style.Dom.stylesheet().classes('foo');
-        const css = Style.transformer({ classes });
+        const sheet = Style.Dom.stylesheet({ classPrefix: 'foo' });
+        const css = Style.transformer({ sheet });
         const m = css(style);
         const str = m.toString('CssSelector');
 

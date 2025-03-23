@@ -18,7 +18,7 @@ export type CssClassname = string;
 export type CssClassPrefix = string;
 
 /** Options passed to `Style.transformer` factory function. */
-export type StyleTransformerOptions = { classes?: t.CssDomClasses };
+export type StyleTransformerOptions = { sheet?: t.CssDomStylesheet };
 
 /**
  * CSS styling tools.
