@@ -12,13 +12,11 @@ export const transformer: F = (options = {}) => {
   const cache = new Map<number, t.CssTransformed>();
 
   let _sheet: t.CssDomStylesheet | undefined;
-  const lazySheet = () => options.sheet ?? _sheet ?? CssDom.stylesheet();
+  const lazySheet = () => options.sheet ?? _sheet ?? CssDom.stylesheet(/* default config */);
 
   const fn: t.CssTransform = (...input) => {
     const sheet = lazySheet();
-    const classes = sheet.classes();
-    const rules = sheet.rules;
-    return transform({ classes, rules, cache, input });
+    return transform({ sheet, cache, input });
   };
   return fn;
 };
@@ -27,12 +25,11 @@ export const transformer: F = (options = {}) => {
  * Perform a cacheable transformation on a loose set of CSS inputs.
  */
 function transform(args: {
-  rules: t.CssDomRules;
-  classes: t.CssDomClasses;
+  sheet: t.CssDomStylesheet;
   cache: M;
   input: t.CssInput[];
 }): t.CssTransformed {
-  const { classes, cache } = args;
+  const { sheet, cache } = args;
   const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
   const hx = toHash(style);
   if (cache.has(hx)) return cache.get(hx)!;
@@ -43,6 +40,7 @@ function transform(args: {
       return style;
     },
     get class() {
+      const classes = sheet.classes();
       return classes.add(style, { hx });
     },
     toString(kind = 'CssRule') {
