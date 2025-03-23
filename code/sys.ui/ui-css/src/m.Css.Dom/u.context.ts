@@ -11,6 +11,13 @@ export function createContext(args: {
   const api: t.CssDomContextBlock = {
     kind,
     condition,
+    rule(selector, style) {
+      const context = api.toString();
+      return rules.add(selector, style, { context });
+    },
+    toString() {
+      return `${kind} ${condition}`;
+    },
   };
 
   return api;

@@ -161,12 +161,12 @@ describe(
       describe('rules within context-blocks', () => {
         it('should insert a simple rule within a "@container" context', () => {
           const { sheet } = setup();
-          const selector = '.test-container';
+          const selector = `.test-container-${slug()}`;
           const style = { color: 'blue', margin: 10 };
           const context = '@container (min-width: 700px)';
           expect(FindCss.rule(selector)).to.eql(undefined);
 
-          // Insert the rule within a @container context.
+          // Insert the rule within an "@container" context.
           sheet.rule(selector, style, { context });
 
           // Verify that the rule is inserted in the DOM, wrapped in the context block.
@@ -176,9 +176,9 @@ describe(
           expect(rule?.cssText).to.eql(expectedCssText);
         });
 
-        it('should insert multiple rules within a "@container" context', () => {
+        it('should insert multiple rules within an "@container" context', () => {
           const { sheet } = setup();
-          const selector = '.test-container-multi';
+          const selector = `.test-container-${slug()}`;
           const context = '@container (min-width: 700px)';
           const styles = [
             { color: 'blue', margin: 10 },
@@ -188,7 +188,7 @@ describe(
           // Pre-check: Ensure no rule exists for the selector.
           expect(FindCss.rules(selector)).to.eql([]);
 
-          // Insert the rules with a @container context.
+          // Insert the rules with an "@container" context.
           sheet.rule(selector, styles, { context });
 
           // Retrieve all inserted rules for the selector.
@@ -342,6 +342,39 @@ describe(
         };
         test('  min-width: 700px  ', '(min-width: 700px)'); // NB: parentheses added.
         test(' (max-width: 1200px) and (orientation: landscape)');
+      });
+
+      it('toString', () => {
+        const { sheet } = setup();
+        const ctx = sheet.context('@container', '  min-width: 700px  ');
+        expect(ctx.toString()).to.eql('@container (min-width: 700px)');
+      });
+
+      it('adds to stylesheet', () => {
+        const { sheet } = setup();
+
+        const selector = `.test-container-${slug()}`;
+        const context = '@container (min-width: 700px)';
+        const styles = [
+          { color: 'blue', margin: 10 },
+          { backgroundColor: 'yellow', padding: 5 },
+        ];
+
+        // Pre-check: Ensure no rule exists for the selector.
+        expect(FindCss.rules(selector)).to.eql([]);
+
+        const container = sheet.context('@container', 'min-width: 700px');
+        container.rule(selector, styles);
+
+        // Retrieve all inserted rules for the selector.
+        const rules = FindCss.rules(selector);
+        expect(rules).to.have.length(2);
+
+        // Verify that each rule is inserted in the DOM, wrapped in the context block.
+        const expected1 = `${context} { ${selector} { ${toString(styles[0])} } }`;
+        const expected2 = `${context} { ${selector} { ${toString(styles[1])} } }`;
+        expect(rules[0].cssText).to.eql(expected1);
+        expect(rules[1].cssText).to.eql(expected2);
       });
     });
   },

@@ -112,4 +112,13 @@ export type CssDomContextBlock = {
 
   /** The conditional rules for the context block, eg "min-width: 700px". */
   readonly condition: string;
+
+  /**
+   * Inserts CSS styles with the given selector
+   * within a context-block.
+   */
+  rule(selector: string, style: t.CssProps | t.CssProps[]): void;
+
+  /** String representation of the block. */
+  toString(): string;
 };
