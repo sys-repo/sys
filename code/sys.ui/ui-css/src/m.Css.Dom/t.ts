@@ -19,11 +19,21 @@ export type CssDomStylesheet = {
   readonly id: t.StringId;
 
   /**
-   * Inserts CSS styles with an arbitrary CSS-selector.
-   * Use this for custom/complex CSS rules
-   * (typically lean on the `CssDom.class` method).
+   * Inserts CSS style rules into the stylesheet.
+   * Accepts either a single style object or an array of style objects.
+   * Optionally, a context string can be provided to wrap the rules.
+   *
+   * Example:
+   *
+   *   api.add(".card h2", { fontSize: "2em" }, { context: "@container (min-width: 700px)" });
+   *
+   *   // or multiple style objects:
+   *   api.add(".card", [
+   *     { color: "blue" },
+   *     { margin: "1rem", ":hover": { color: "red" } }
+   *   ], { context: "@media (min-width: 600px)" });
    */
-  rule(selector: string, style: t.CssProps): void;
+  rule(selector: string, style: t.CssProps | t.CssProps[], options?: CssDomRuleOptions): void;
 
   /**
    * Retrieve the singleton instance of the classes API
@@ -63,14 +73,28 @@ export type CssDomRules = {
   readonly rules: Readonly<string[]>;
 
   /**
-   * Insert CSS style rule with an arbitrary selector.
-   * @returns true if the rules was inserted, or false if it already existed.
+   * Inserts CSS style rules into the stylesheet.
+   * Accepts either a single style object or an array of style objects.
+   * Optionally, a context string can be provided to wrap the rules.
+   *
+   * Example:
+   *
+   *   api.add(".card h2", { fontSize: "2em" }, { context: "@container (min-width: 700px)" });
+   *
+   *   // or multiple style objects:
+   *   api.add(".card", [
+   *     { color: "blue" },
+   *     { margin: "1rem", ":hover": { color: "red" } }
+   *   ], { context: "@media (min-width: 600px)" });
    */
-  add(selector: string, style: t.CssProps): void;
+  add(selector: string, style: t.CssProps | t.CssProps[], options?: CssDomRuleOptions): void;
 };
 
+/** Options passed to the rule insertion method. */
+export type CssDomRuleOptions = { context?: string };
+
 /**
- * Represents a CSS/DOM context block that encapsulates a set of CSS rules
+ * Represents a CSS/DOM context-block that encapsulates a set of CSS rules
  * applied under a specific conditional context.
  *
  * This type abstracts CSS at-rules that create scoped styling contexts,

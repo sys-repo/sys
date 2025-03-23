@@ -25,8 +25,8 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
 
   const api: t.CssDomStylesheet = {
     id,
-    rule(selector, style) {
-      return rules.add(selector, style);
+    rule(selector, style, options) {
+      return rules.add(selector, style, options);
     },
     classes(prefix) {
       const key = wrangleClassPrefix(prefix);

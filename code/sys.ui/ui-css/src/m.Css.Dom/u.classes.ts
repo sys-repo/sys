@@ -18,8 +18,8 @@ export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): 
       if (inserted.has(className)) {
         return className;
       } else {
-        inserted.add(className);
         rules.add(`.${className}`, style);
+        inserted.add(className);
         return className;
       }
     },

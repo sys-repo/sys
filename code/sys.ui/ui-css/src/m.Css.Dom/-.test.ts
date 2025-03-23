@@ -158,6 +158,51 @@ describe(
         expect(rule?.cssText).to.eql(`.test-rule { color: blue; margin: 10px; }`); // NB: ↑ (same/same).
       });
 
+      describe('rules within context-blocks', () => {
+        it('should insert a simple rule within a "@container" context', () => {
+          const { sheet } = setup();
+          const selector = '.test-container';
+          const style = { color: 'blue', margin: 10 };
+          const context = '@container (min-width: 700px)';
+          expect(FindCss.rule(selector)).to.eql(undefined);
+
+          // Insert the rule within a @container context.
+          sheet.rule(selector, style, { context });
+
+          // Verify that the rule is inserted in the DOM, wrapped in the context block.
+          const rule = FindCss.rule(selector);
+          expect(rule).to.exist;
+          const expectedCssText = `${context} { ${selector} { ${toString(style)} } }`;
+          expect(rule?.cssText).to.eql(expectedCssText);
+        });
+
+        it('should insert multiple rules within a "@container" context', () => {
+          const { sheet } = setup();
+          const selector = '.test-container-multi';
+          const context = '@container (min-width: 700px)';
+          const styles = [
+            { color: 'blue', margin: 10 },
+            { backgroundColor: 'yellow', padding: 5 },
+          ];
+
+          // Pre-check: Ensure no rule exists for the selector.
+          expect(FindCss.rules(selector)).to.eql([]);
+
+          // Insert the rules with a @container context.
+          sheet.rule(selector, styles, { context });
+
+          // Retrieve all inserted rules for the selector.
+          const rules = FindCss.rules(selector);
+          expect(rules).to.have.length(2);
+
+          // Verify that each rule is inserted in the DOM, wrapped in the context block.
+          const expected1 = `${context} { ${selector} { ${toString(styles[0])} } }`;
+          const expected2 = `${context} { ${selector} { ${toString(styles[1])} } }`;
+          expect(rules[0].cssText).to.eql(expected1);
+          expect(rules[1].cssText).to.eql(expected2);
+        });
+      });
+
       describe('pseudo-classes', () => {
         it('should insert pseudo-class rules along with the base rule', () => {
           const { sheet } = setup();
