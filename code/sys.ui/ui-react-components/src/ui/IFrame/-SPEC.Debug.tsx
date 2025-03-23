@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal } from './common.ts';
+import { type t, Str, Color, css, Signal } from './common.ts';
 
 const local = new URL(`${location.origin}${location.pathname}`);
 
@@ -101,7 +101,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <div className={styles.urlTitle.class}>{`src: ${truncate(String(p.src.value))}`}</div>
+      <div className={styles.urlTitle.class}>{`src: ${Str.truncate(String(p.src.value))}`}</div>
       {srcLoader(local.host, local.href)}
       {srcLoader('Wikipedia: "W3C"', `https://en.wikipedia.org/wiki/World_Wide_Web_Consortium`)}
       {srcLoader('Wikipedia: "Foobar" mobile format', `https://en.m.wikipedia.org/wiki/Foobar`)}
@@ -112,11 +112,4 @@ export const Debug: React.FC<P> = (props) => {
       {srcLoader('<undefined> ← unload', undefined)}
     </div>
   );
-};
-
-/**
- * Helpers
- */
-const truncate = (s: string, max: number = 40): string => {
-  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 };

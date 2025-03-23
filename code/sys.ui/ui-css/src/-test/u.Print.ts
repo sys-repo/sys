@@ -1,14 +1,23 @@
-import { type t, c } from './common.ts';
+import { type t, c, Str } from './common.ts';
 
 export const TestPrint = {
   transformed(m: t.CssTransformed) {
-    console.info();
-    console.info(c.brightCyan(`CssTransform:`));
-    console.info(m);
-    console.info();
-    console.info(`↑.${c.brightCyan('style')}:`, m.style);
-    console.info(`↑.${c.brightCyan('class')}:`, `"${c.yellow(m.class)}"`);
-    console.info(`↑.${c.brightCyan('toString()')}:`, `"${c.yellow(m.toString())}"`);
-    console.info();
+    const cyan = c.brightCyan;
+    const y = c.yellow;
+
+    const info = console.info;
+
+    info();
+    info(cyan(`CssTransform:`));
+    info(m);
+    info();
+    info(`↑.${cyan('style')}:`, m.style);
+    info(`↑.${cyan('class')}:`, `"${y(m.class)}"`);
+    info(`↑.${cyan('toString()')}:`, `"${y(m.toString())}" ${c.gray('← default: CssRule')}`);
+    info(
+      `↑.${cyan('toString(CssSelector)')}:`,
+      `"${y(Str.truncate(m.toString('CssSelector'), 50))}"`,
+    );
+    info();
   },
 };

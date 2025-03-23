@@ -1,7 +1,7 @@
 import React from 'react';
 import { VIMEO } from '../-test.ui.ts';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal } from './common.ts';
+import { type t, Color, css, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -78,7 +78,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <div className={styles.urlTitle.class}>{`src: ${truncate(String(p.video.value))}`}</div>
+      <div className={styles.urlTitle.class}>{`src: ${Str.truncate(String(p.video.value))}`}</div>
       {srcVideo('app/tubes')}
       {srcVideo('stock/running')}
       {srcVideo('public/helvetica')}
@@ -86,11 +86,4 @@ export const Debug: React.FC<P> = (props) => {
       <hr />
     </div>
   );
-};
-
-/**
- * Helpers
- */
-const truncate = (s: string, max: number = 40): string => {
-  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 };
