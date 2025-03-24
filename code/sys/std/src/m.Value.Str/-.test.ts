@@ -276,5 +276,10 @@ describe('Str (Text)', () => {
       // With max = 0, "abc" becomes "abc".slice(0, -1) which is "ab", then an ellipsis is appended.
       expect(Str.truncate('abc', 0)).to.eql('ab…');
     });
+
+    it('handles undefined', () => {
+      expect(Str.truncate(undefined, 5)).to.eql('');
+      expect(Str.truncate(undefined, 0)).to.eql('');
+    });
   });
 });

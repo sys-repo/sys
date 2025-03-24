@@ -56,5 +56,5 @@ export type StrLib = {
   /**
    * Truncates a string with ellipsis if over a maximum length.
    */
-  truncate(text: string, max: number): string;
+  truncate(text: string | undefined, max: number): string;
 };
