@@ -1,5 +1,4 @@
 import { type t } from './common.ts';
-import { createRules } from './u.rules.ts';
 
 /**
  * CSS: @container API
