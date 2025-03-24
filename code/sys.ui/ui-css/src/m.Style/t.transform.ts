@@ -30,6 +30,15 @@ export type CssTransformed = {
   /**
    * Retrieve the @container API scoped to the current css-class.
    */
-  container(condition: string, style?: t.CssProps): t.CssDomContainerBlock;
-  container(name: string, condition: string, style?: t.CssProps): t.CssDomContainerBlock;
+  container(condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+  container(name: string, condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+};
+
+/**
+ * A specialised @container block API with concenience
+ * methods for the `CssTransform` functional object.
+ */
+export type CssTransformContainerBlock = {
+  /** The underlying @container block being used by the convenience API. */
+  readonly block: t.CssDomContainerBlock;
 };

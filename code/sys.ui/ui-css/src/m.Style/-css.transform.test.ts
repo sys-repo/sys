@@ -1,4 +1,4 @@
-import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it, slug } from '../-test.ts';
+import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it } from '../-test.ts';
 import { toHash } from './common.ts';
 import { Style, css } from './mod.ts';
 
@@ -196,8 +196,8 @@ describe(
       it('scoped', () => {
         const a = css({ Absolute: 0 });
         const b = a.container('min-width: 500px');
-        expect(b.kind).to.eql('@container');
-        expect(b.scoped).to.eql([`.${a.class}`]);
+        expect(b.block.kind).to.eql('@container');
+        expect(b.block.scoped).to.eql([`.${a.class}`]);
       });
 
       it('scope: with {style} param', () => {
@@ -211,25 +211,25 @@ describe(
         const d = base.container('my-name', condition, style);
 
         [a, b, c, d].forEach((m) => {
-          expect(m.kind).to.eql('@container');
-          expect(m.condition).to.eql(`(${condition})`);
+          expect(m.block.kind).to.eql('@container');
+          expect(m.block.condition).to.eql(`(${condition})`);
         });
 
-        [a, b].forEach((m) => expect(m.name).to.eql(undefined));
-        expect(c.name).to.eql('my-name');
-        expect(d.name).to.eql('my-name');
+        [a, b].forEach((m) => expect(m.block.name).to.eql(undefined));
+        expect(c.block.name).to.eql('my-name');
+        expect(d.block.name).to.eql('my-name');
 
-        [a, c].forEach((m) => expect(m.rules.length).to.eql(0));
+        [a, c].forEach((m) => expect(m.block.rules.length).to.eql(0));
         [b, d].forEach((m) => {
-          expect(m.rules.length).to.eql(1);
-          expect(m.rules.list[0].style).to.eql(style);
+          expect(m.block.rules.length).to.eql(1);
+          expect(m.block.rules.list[0].style).to.eql(style);
         });
       });
 
       it('multi-level', () => {
         const a = css({ Absolute: 0 });
         const b = a.container('min-width: 500px');
-        const c = b.scope('h2');
+        const c = b.block.scope('h2');
         expect(c.kind).to.eql('@container');
         expect(c.scoped).to.eql([`.${a.class}`, `h2`]);
       });

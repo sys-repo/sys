@@ -64,11 +64,15 @@ export const Container: React.FC<P> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
-    h2: css({ fontSize: 50, color: 'red' }),
+    h2: css({
+      fontSize: 50,
+      color: 'red',
+      transition: 'font-size 200ms',
+    }),
     text: css({ fontSize: 20 }),
   };
 
-  const condition = 'min-width: 600px';
+  // const condition = 'min-width: 600px';
   // styles.text.container(condition).rules.add('', { fontSize: 40 });
   // console.log('styles.text.class', styles.text.class);
 
@@ -78,10 +82,11 @@ export const Container: React.FC<P> = (props) => {
   // styles.h2.container(condition).rules.add('', { fontSize: 100 });
   // styles.base.container(condition).rules.add('h2', { fontSize: 100 });
   // styles.base.container('min-width: 600px').rules.add('h2', { fontSize: 100, color: 'blue' });
-  styles.base.container('min-width: 600px').rules.add('h2', {
-    fontSize: 100,
+  styles.base.container('min-width: 600px').block.rules.add('h2', {
+    fontSize: 140,
     color: 'blue',
     letterSpacing: -3,
+    transition: 'font-size 200ms',
   });
 
   const className = css(styles.base, props.style).class;

@@ -1,5 +1,6 @@
 import { type t, CssDom, CssTmpl, toHash, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
+import { createTransformContainer } from './u.transform.container.ts';
 
 type M = Map<number, t.CssTransformed>;
 type O = Record<string, unknown>;
@@ -51,11 +52,9 @@ function transform(args: {
       throw new Error(`Kind '${kind}' not supported`);
     },
     container(...args: any[]) {
+      const className = api.class;
       const { name, condition, style } = wrangle.containerArgs(args);
-      const container = name ? sheet.container(name, condition) : sheet.container(condition);
-      const scope = container.scope(`.${api.class}`);
-      if (style) scope.rules.add('', style);
-      return scope;
+      return createTransformContainer({ sheet, className, name, condition, style });
     },
   };
 

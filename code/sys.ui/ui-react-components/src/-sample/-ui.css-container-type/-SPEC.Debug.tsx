@@ -27,9 +27,7 @@ export const Debug: React.FC<P> = (props) => {
   const { ctx } = props;
   const p = ctx.debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-  });
+  Signal.useRedrawEffect(() => p.theme.value);
 
   /**
    * Render:
