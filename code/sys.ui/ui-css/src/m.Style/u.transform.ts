@@ -30,6 +30,7 @@ function transform(args: {
   input: t.CssInput[];
 }): t.CssTransformed {
   const { sheet, cache } = args;
+
   const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
   const hx = toHash(style);
   if (cache.has(hx)) return cache.get(hx)!;
@@ -49,6 +50,13 @@ function transform(args: {
       if (kind === 'CssSelector') return `.${api.class} { ${rule} }`;
       throw new Error(`Kind '${kind}' not supported`);
     },
+    container(...args: any[]) {
+      const { name, condition, style } = wrangle.containerArgs(args);
+      const container = name ? sheet.container(name, condition) : sheet.container(condition);
+      const scope = container.scope(`.${api.class}`);
+      if (style) scope.rules.add('', style);
+      return scope;
+    },
   };
 
   cache.set(hx, api);
@@ -56,7 +64,7 @@ function transform(args: {
 }
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   input(input: any): t.CssProps {
@@ -67,5 +75,25 @@ const wrangle = {
       if (isTransformed(input)) return input.style;
       return input;
     }
+  },
+
+  containerArgs(args: any[]) {
+    const done = (condition: string, name?: string, style?: t.CssProps) => {
+      name = name ? name.trim() : name;
+      condition = condition ? condition.trim() : '';
+      return { name, condition, style };
+    };
+    if (!args || args.length === 0) return done('');
+    if (args.length === 1) return done(args[0]);
+    if (args.length === 2) {
+      const [p1, p2] = args;
+      if (typeof p2 === 'object') return done(p1, undefined, p2);
+      if (typeof p2 === 'string') return done(p2, p1);
+    }
+    if (args.length === 3) {
+      const [p1, p2, p3] = args;
+      return done(p2, p1, p3);
+    }
+    throw new Error(`Failed to parse [container.scope] arguments: ${args}`);
   },
 } as const;

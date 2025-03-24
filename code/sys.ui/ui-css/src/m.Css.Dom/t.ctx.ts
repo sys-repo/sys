@@ -16,6 +16,8 @@ export type CssDomContainerBlock = {
 
   /** Raw rule API. */
   readonly rules: {
+    /** The total number of inserted rules. */
+    readonly length: number;
     /** List of inserted rules wihtin the container. */
     readonly inserted: Readonly<t.CssDomInsertedRule[]>;
     /** Inserts CSS styles with the given selector within a context-block. */

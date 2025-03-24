@@ -160,6 +160,7 @@ describe(
         // Pre-condition.
         expect(FindCss.rule(selector)).to.eql(undefined);
         expect(sheet.rules.inserted).to.eql([]);
+        expect(sheet.rules.length).to.eql(0);
 
         // Insert the rule.
         const res = sheet.rule(selector, style);
@@ -167,6 +168,7 @@ describe(
         expect(res[0].selector).to.eql(selector);
         expect(res[0].style).to.eql(style);
 
+        expect(sheet.rules.length).to.eql(1);
         expect(sheet.rules.inserted.length).to.eql(1);
         expect(sheet.rules.inserted).to.eql(res);
 

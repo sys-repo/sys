@@ -21,6 +21,9 @@ export function createContainer(args: {
       return toString(api, kind);
     },
     rules: {
+      get length() {
+        return inserted.size;
+      },
       get inserted() {
         return Array.from(inserted);
       },

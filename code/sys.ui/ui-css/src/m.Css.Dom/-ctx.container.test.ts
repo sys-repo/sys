@@ -24,6 +24,7 @@ describe(
         expect(container.kind).to.eql('@container');
         expect(container.condition).to.eql('(min-width: 700px)');
         expect(container.name).to.eql(undefined);
+        expect(container.rules.length).to.eql(0);
         expect(container.rules.inserted).to.eql([]);
         expect(container.scoped).to.eql([]);
       });
@@ -96,10 +97,12 @@ describe(
 
         const container = sheet.container('min-width: 700px');
         expect(container.rules.inserted).to.eql([]);
+        expect(container.rules.length).to.eql(0);
 
         const selector = `.test-${slug()}`;
         const res1 = container.rules.add(selector, styles);
         expect(res1.length).to.eql(2);
+        expect(container.rules.length).to.eql(1);
 
         // Additional calls with the same style content is not inserted.
         expect(container.rules.add(selector, styles)).to.eql([]); // NB: second time - not repeated

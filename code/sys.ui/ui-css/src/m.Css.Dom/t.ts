@@ -77,6 +77,9 @@ export type CssDomClasses = {
  * API for inserting CSS rules into a DOM's stylesheet.
  */
 export type CssDomRules = {
+  /** The total number of inserted rules. */
+  readonly length: number;
+
   /** List of CSS rules that have been inserted into the DOM.  */
   readonly inserted: Readonly<CssDomInsertedRule[]>;
 

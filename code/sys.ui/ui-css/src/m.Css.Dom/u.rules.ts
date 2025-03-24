@@ -36,6 +36,9 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
   };
 
   const api: t.CssDomRules = {
+    get length() {
+      return inserted.size;
+    },
     get inserted() {
       return Array.from(inserted.values());
     },

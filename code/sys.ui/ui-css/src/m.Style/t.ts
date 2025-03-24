@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
+export type * from './t.transform.ts';
 
 /**
  * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
@@ -11,8 +12,21 @@ import type { t } from './common.ts';
 export type CssProps = CSSProperties;
 
 /**
+ * Standard CSS properties with CSS-template extensions.
+ */
+export type CssValue = t.CssProps & t.CssPseudo & t.CssTemplates;
+export type CssInput =
+  | t.CssValue
+  | undefined
+  | null
+  | false
+  | never
+  | t.CssTransformed
+  | CssInput[];
+
+/**
  * A CSS class-name.
- * (no period, eg "foo" not ".foo")
+ * (no period, eg. "foo" not ".foo")
  */
 export type CssClassname = string;
 export type CssClassPrefix = string;
@@ -54,40 +68,6 @@ type NamespaceLibs = {
   /** Tools for programatically managing CSS stylesheets within the browser DOM. */
   readonly Dom: t.CssDomLib;
 };
-
-/**
- * Standard CSS properties with CSS-template extensions.
- */
-export type CssValue = t.CssProps & t.CssPseudo & t.CssTemplates;
-export type CssInput = t.CssValue | undefined | null | false | never | CssTransformed | CssInput[];
-
-/**
- * Function that transforms 1..n CSS inputs into a style
- * object that can be applied to a JSX element.
- *
- * NB: This is the raw transform containing the style along with cache metadata.
- */
-export type CssTransform = (...input: t.CssInput[]) => t.CssTransformed;
-
-/**
- * A transformed CSS properties object.
- */
-export type CssTransformed = {
-  /** The hash of the style (used for caching). */
-  readonly hx: number;
-
-  /** Style properties. */
-  readonly style: t.CssProps;
-
-  /** The CSS class-name. */
-  readonly class: t.CssClassname;
-
-  /** Convert the {style} props object to a CSS string. */
-  toString(kind?: t.CssTransformToStringKind): string;
-};
-
-/** Flags indicating the kind of string to export from the `toString` method. */
-export type CssTransformToStringKind = 'CssRule' | 'CssSelector';
 
 /**
  * Shadow

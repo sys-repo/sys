@@ -1,4 +1,4 @@
-import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it } from '../-test.ts';
+import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it, slug } from '../-test.ts';
 import { toHash } from './common.ts';
 import { Style, css } from './mod.ts';
 
@@ -189,6 +189,49 @@ describe(
         expect(b).to.eql(a);
         expect(c).to.eql(a);
         expect(d).to.eql(a);
+      });
+    });
+
+    describe('.container', () => {
+      it('scoped', () => {
+        const a = css({ Absolute: 0 });
+        const b = a.container('min-width: 500px');
+        expect(b.kind).to.eql('@container');
+        expect(b.scoped).to.eql([`.${a.class}`]);
+      });
+
+      it.only('scope: with {style} param', () => {
+        const condition = 'min-width: 500px';
+        const style = { fontSize: 42 };
+        const base = css({ Absolute: 0 });
+
+        const a = base.container(condition);
+        const b = base.container(condition, style);
+        const c = base.container('my-name', condition);
+        const d = base.container('my-name', condition, style);
+
+        [a, b, c, d].forEach((m) => {
+          expect(m.kind).to.eql('@container');
+          expect(m.condition).to.eql(`(${condition})`);
+        });
+
+        [a, b].forEach((m) => expect(m.name).to.eql(undefined));
+        expect(c.name).to.eql('my-name');
+        expect(d.name).to.eql('my-name');
+
+        [a, c].forEach((m) => expect(m.rules.length).to.eql(0));
+        [b, d].forEach((m) => {
+          expect(m.rules.length).to.eql(1);
+          expect(m.rules.inserted[0].style).to.eql(style);
+        });
+      });
+
+      it('multi-level', () => {
+        const a = css({ Absolute: 0 });
+        const b = a.container('min-width: 500px');
+        const c = b.scope('h2');
+        expect(c.kind).to.eql('@container');
+        expect(c.scoped).to.eql([`.${a.class}`, `h2`]);
       });
     });
   },
