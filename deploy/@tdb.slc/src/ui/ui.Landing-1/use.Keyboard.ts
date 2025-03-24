@@ -13,6 +13,10 @@ export function useKeyboard() {
     });
 
     keyboard.on('Space', () => {
+      /**
+       * TODO 🐷
+       */
+      console.log('🐷 START/STOP player');
     });
 
     return life.dispose;

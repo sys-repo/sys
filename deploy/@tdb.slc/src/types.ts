@@ -3,7 +3,7 @@
  * Module types.
  */
 export type * from './ui/ui.Canvas.Mini/t.ts';
-export type * from './ui/ui.Landing/t.ts';
+export type * from './ui/ui.Landing-1/t.ts';
 export type * from './ui/ui.Logo/t.ts';
 
 /**
