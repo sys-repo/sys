@@ -27,7 +27,6 @@ export function createContainer(args: {
         return Array.from(inserted);
       },
       add(selector, style) {
-        console.log('scope', scope);
         selector = wrangle.selector(selector, scope);
         const context = api.toString();
         const styles = Array.isArray(style) ? style : [style];
