@@ -52,7 +52,7 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
-    urlTitle: css({ fontWeight: 'bold' }),
+    title: css({ fontWeight: 'bold' }),
   };
 
   const srcLoader = (label: string, src?: t.IFrameProps['src']) => {
@@ -101,7 +101,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <div className={styles.urlTitle.class}>{`src: ${Str.truncate(String(p.src.value))}`}</div>
+      <div className={styles.title.class}>{`src: ${Str.truncate(String(p.src.value), 30)}`}</div>
       {srcLoader(local.host, local.href)}
       {srcLoader('Wikipedia: "W3C"', `https://en.wikipedia.org/wiki/World_Wide_Web_Consortium`)}
       {srcLoader('Wikipedia: "Foobar" mobile format', `https://en.m.wikipedia.org/wiki/Foobar`)}

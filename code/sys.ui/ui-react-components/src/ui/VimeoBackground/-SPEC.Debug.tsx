@@ -46,7 +46,7 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
-    urlTitle: css({ fontWeight: 'bold' }),
+    title: css({ fontWeight: 'bold' }),
   };
 
   const srcVideo = (key?: keyof typeof VIMEO) => {
@@ -78,7 +78,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <div className={styles.urlTitle.class}>{`src: ${Str.truncate(String(p.video.value))}`}</div>
+      <div className={styles.title.class}>{`src: ${Str.truncate(String(p.video.value), 40)}`}</div>
       {srcVideo('app/tubes')}
       {srcVideo('stock/running')}
       {srcVideo('public/helvetica')}
