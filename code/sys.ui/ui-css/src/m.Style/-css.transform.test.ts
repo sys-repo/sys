@@ -233,6 +233,42 @@ describe(
         expect(c.kind).to.eql('@container');
         expect(c.scoped).to.eql([`.${a.class}`, `h2`]);
       });
+
+      it('add custom selector: .rule()', () => {
+        const container = css({ Absolute: 0 }).container('min-width: 500px');
+        const rules = container.block.rules;
+        expect(rules.length).to.eql(0);
+
+        const styles = [{ color: 'red' }, { fontSize: 32 }, { color: 'blue' }];
+        const a = container.rule('h2', styles[0]);
+        const b = container.rule('h2', [styles[1], styles[2]]);
+
+        expect(a[0].style).to.eql(styles[0]);
+        expect(b[0].style).to.eql(styles[1]);
+        expect(b[1].style).to.eql(styles[2]);
+
+        expect(rules.length).to.eql(3);
+
+        const root = container.block.scoped[0];
+        rules.list.forEach(({ rule }) => expect(rule).to.include(`{ ${root} h2 {`));
+      });
+
+      it('add rule: .css()', () => {
+        const container = css({ Absolute: 0 }).container('min-width: 500px');
+        const root = container.block.scoped[0];
+        const rules = container.block.rules;
+        expect(rules.length).to.eql(0);
+
+        const a = container.css({ color: 'red' });
+        expect(a).to.equal(container);
+        expect(rules.length).to.eql(1);
+        expect(rules.list[0].rule).to.include(`{ ${root} { color: red; } }`);
+
+        container.css([{ fontSize: 32 }, { color: 'blue' }]);
+        expect(rules.length).to.eql(3);
+        expect(rules.list[1].rule).to.include(`{ ${root} { font-size: 32px; } }`);
+        expect(rules.list[2].rule).to.include(`{ ${root} { color: blue; } }`);
+      });
     });
   },
 );

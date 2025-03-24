@@ -41,4 +41,11 @@ export type CssTransformed = {
 export type CssTransformContainerBlock = {
   /** The underlying @container block being used by the convenience API. */
   readonly block: t.CssDomContainerBlock;
+
+  /** Insert a CSS rule within the @container context with the given arbitrary selector. */
+  rule(selector: t.StringCssSelector, style: t.CssProps | t.CssProps[]): t.CssDomInsertedRule[];
+
+  /** Insert a CSS rule within the @container directly under the CSS class-name scope. */
+  css(style: t.CssProps | t.CssProps[]): CssTransformContainerBlock;
+
 };
