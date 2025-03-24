@@ -17,7 +17,7 @@ describe(
     };
 
     describe('create', () => {
-      it('create: → kind', () => {
+      it('create', () => {
         const { sheet } = setup();
         const container = sheet.container('  min-width: 700px  ');
         TestPrint.container(container);
@@ -25,6 +25,7 @@ describe(
         expect(container.condition).to.eql('(min-width: 700px)');
         expect(container.name).to.eql(undefined);
         expect(container.rules.inserted).to.eql([]);
+        expect(container.scoped).to.eql([]);
       });
 
       it("create: cleans up the context's <condition> input", () => {
@@ -160,6 +161,9 @@ describe(
         expect(b.name).to.eql(a.name);
         expect(b).to.not.equal(a);
 
+        expect(a.scoped).to.eql([]);
+        expect(b.scoped).to.eql(['.foo']);
+
         a.rules.add('h1', { color: 'red' });
         b.rules.add('h1', { color: 'red' });
 
@@ -177,6 +181,7 @@ describe(
         const a = sheet.container('min-width: 700px');
         const b = a.scope('.foo');
         const c = b.scope('.bar');
+        expect(c.scoped).to.eql(['.foo', '.bar']);
 
         b.rules.add('h2', { color: 'red' });
         c.rules.add('h2', { color: 'red' });
