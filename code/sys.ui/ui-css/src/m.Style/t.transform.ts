@@ -48,4 +48,6 @@ export type CssTransformContainerBlock = {
   /** Insert a CSS rule within the @container directly under the CSS class-name scope. */
   css(style: t.CssProps | t.CssProps[]): CssTransformContainerBlock;
 
+  /** Creates a new scoped sub-selector. */
+  scope(selector: t.StringCssSelector): CssTransformContainerBlock;
 };

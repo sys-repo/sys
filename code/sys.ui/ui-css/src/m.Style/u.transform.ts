@@ -52,9 +52,10 @@ function transform(args: {
       throw new Error(`Kind '${kind}' not supported`);
     },
     container(...args: any[]) {
-      const className = api.class;
       const { name, condition, style } = wrangle.containerArgs(args);
-      return createTransformContainer({ sheet, className, name, condition, style });
+      const container = name ? sheet.container(name, condition) : sheet.container(condition);
+      const block = container.scope(`.${api.class}`);
+      return createTransformContainer(block, style);
     },
   };
 

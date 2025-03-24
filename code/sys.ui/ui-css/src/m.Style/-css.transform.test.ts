@@ -226,12 +226,14 @@ describe(
         });
       });
 
-      it('multi-level', () => {
+      it('multi-level descendents', () => {
         const a = css({ Absolute: 0 });
         const b = a.container('min-width: 500px');
-        const c = b.block.scope('h2');
-        expect(c.kind).to.eql('@container');
-        expect(c.scoped).to.eql([`.${a.class}`, `h2`]);
+        const c = b.scope('h2');
+        const d = c.scope('code');
+        [b, c, d].forEach(({ block }) => expect(block.kind).to.eql('@container'));
+        expect(c.block.scoped).to.eql([`.${a.class}`, 'h2']);
+        expect(d.block.scoped).to.eql([`.${a.class}`, 'h2', 'code']);
       });
 
       it('add custom selector: .rule()', () => {

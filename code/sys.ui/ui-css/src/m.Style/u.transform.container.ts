@@ -4,17 +4,10 @@ import { type t } from './common.ts';
  * Factory for creating the CSS @container convenience method
  * for the `CssTransformer` API.
  */
-export function createTransformContainer(args: {
-  sheet: t.CssDomStylesheet;
-  className: string;
-  condition: string;
-  name?: string;
-  style?: t.CssProps;
-}): t.CssTransformContainerBlock {
-  const { sheet, name, condition } = args;
-  const container = name ? sheet.container(name, condition) : sheet.container(condition);
-  const block = container.scope(`.${args.className}`);
-
+export function createTransformContainer(
+  block: t.CssDomContainerBlock,
+  style?: t.CssProps,
+): t.CssTransformContainerBlock {
   const api: t.CssTransformContainerBlock = {
     block,
 
@@ -26,8 +19,12 @@ export function createTransformContainer(args: {
       block.rules.add('', style);
       return api;
     },
+
+    scope(selector) {
+      return createTransformContainer(block.scope(selector));
+    },
   };
 
-  if (args.style) api.css(args.style);
+  if (style) api.css(style);
   return api;
 }
