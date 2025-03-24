@@ -59,6 +59,7 @@ export const Container: React.FC<P> = (props) => {
     base: css({
       padding: 30,
       color: theme.fg,
+      letterSpacing: -0.5,
       containerType: 'inline-size', // 🌼 ← NOTE: turn this on for the @container rules to take effect.
       display: 'grid',
       placeItems: 'center',
@@ -77,7 +78,11 @@ export const Container: React.FC<P> = (props) => {
   // styles.h2.container(condition).rules.add('', { fontSize: 100 });
   // styles.base.container(condition).rules.add('h2', { fontSize: 100 });
   // styles.base.container('min-width: 600px').rules.add('h2', { fontSize: 100, color: 'blue' });
-  styles.base.container('min-width: 600px').rules.add('h2', { fontSize: 100, color: 'blue' });
+  styles.base.container('min-width: 600px').rules.add('h2', {
+    fontSize: 100,
+    color: 'blue',
+    letterSpacing: -3,
+  });
 
   const className = css(styles.base, props.style).class;
   return (

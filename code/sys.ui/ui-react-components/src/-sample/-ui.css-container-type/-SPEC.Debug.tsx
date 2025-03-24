@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Signal } from './common.ts';
 import { Button } from '../-test.ui.ts';
+import { type t, Color, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -36,11 +36,17 @@ export const Debug: React.FC<P> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({
+      // color: theme.fg,
+    }),
+    title: css({ fontWeight: 'bold' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={styles.title.class}>CSS: @container</div>
+      <hr />
+
       <Button
         block
         label={`theme: ${p.theme}`}
