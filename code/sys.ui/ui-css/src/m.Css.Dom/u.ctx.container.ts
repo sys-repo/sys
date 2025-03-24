@@ -1,5 +1,7 @@
 import { type t } from './common.ts';
 
+type StringSelector = string;
+
 /**
  * CSS: @container API
  */
@@ -7,8 +9,9 @@ export function createContainer(args: {
   rules: t.CssDomRules;
   condition: string;
   name?: string;
+  scope?: StringSelector[];
 }): t.CssDomContainerBlock {
-  const { rules, name } = args;
+  const { rules, name, scope = [] } = args;
   const condition = wrangle.condition(args.condition);
   const inserted = new Set<t.CssDomInsertedRule>();
 
@@ -24,12 +27,18 @@ export function createContainer(args: {
         return Array.from(inserted);
       },
       add(selector, style) {
+        console.log('scope', scope);
+        selector = wrangle.selector(selector, scope);
         const context = api.toString();
         const styles = Array.isArray(style) ? style : [style];
         const res = rules.add(selector, styles, { context });
         if (res.length > 0) res.forEach((m) => inserted.add(m));
         return res;
       },
+    },
+
+    scope(selector) {
+      return createContainer({ rules, name, condition, scope: [...scope, selector] });
     },
   };
 
@@ -68,5 +77,9 @@ const wrangle = {
     if (!text.includes('(')) text = `(${text}`;
     if (!text.includes(')')) text = `${text})`;
     return text;
+  },
+
+  selector(selector: string, scope: StringSelector[]) {
+    return `${scope.join(' ')} ${selector}`.trim();
   },
 } as const;

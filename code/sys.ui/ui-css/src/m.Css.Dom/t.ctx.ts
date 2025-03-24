@@ -24,6 +24,9 @@ export type CssDomContainerBlock = {
 
   /** String representation of the block. */
   toString(kind?: t.CssDomContainerToStringKind): string;
+
+  /** Creates a scoped sub-block prefixing the child rules with the given selector. */
+  scope(selector: string): CssDomContainerBlock;
 };
 
 /** Flags indicating the kind of string to export from the `toString` method. */

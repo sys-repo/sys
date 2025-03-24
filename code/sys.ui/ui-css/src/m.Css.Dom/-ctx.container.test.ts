@@ -149,5 +149,44 @@ describe(
         );
       });
     });
+
+    describe('scope', () => {
+      it('nested ".classname" selector', () => {
+        const { sheet } = setup();
+        const a = sheet.container('my-name', 'min-width: 700px');
+        const b = a.scope('.foo');
+
+        expect(b.condition).to.eql(a.condition);
+        expect(b.name).to.eql(a.name);
+        expect(b).to.not.equal(a);
+
+        a.rules.add('h1', { color: 'red' });
+        b.rules.add('h1', { color: 'red' });
+
+        expect(a.toString('CssSelector')).to.eql(
+          '@container my-name (min-width: 700px) { h1 { color: red; } }',
+        );
+
+        expect(b.toString('CssSelector')).to.eql(
+          '@container my-name (min-width: 700px) { .foo h1 { color: red; } }',
+        );
+      });
+
+      it('multi-level nesting', () => {
+        const { sheet } = setup();
+        const a = sheet.container('min-width: 700px');
+        const b = a.scope('.foo');
+        const c = b.scope('.bar');
+
+        b.rules.add('h2', { color: 'red' });
+        c.rules.add('h2', { color: 'red' });
+
+        const str1 = b.toString('CssSelector');
+        const str2 = c.toString('CssSelector');
+
+        expect(str1).to.eql('@container (min-width: 700px) { .foo h2 { color: red; } }');
+        expect(str2).to.eql('@container (min-width: 700px) { .foo .bar h2 { color: red; } }');
+      });
+    });
   },
 );
