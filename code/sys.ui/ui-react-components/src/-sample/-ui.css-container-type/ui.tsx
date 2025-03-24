@@ -82,7 +82,29 @@ export const Container: React.FC<P> = (props) => {
   // styles.h2.container(condition).rules.add('', { fontSize: 100 });
   // styles.base.container(condition).rules.add('h2', { fontSize: 100 });
   // styles.base.container('min-width: 600px').rules.add('h2', { fontSize: 100, color: 'blue' });
-  styles.base.container('min-width: 600px').block.rules.add('h2', {
+  // styles.base.container('min-width: 600px').block.rules.add('h2', {
+  //   fontSize: 140,
+  //   color: 'blue',
+  //   letterSpacing: -3,
+  //   transition: 'font-size 200ms',
+  // });
+
+  const condition = 'min-width: 600px';
+  const container = styles.base.container(condition);
+  // container.rule('h2', {
+  //   fontSize: 140,
+  //   color: 'blue',
+  //   letterSpacing: -3,
+  //   transition: 'font-size 200ms',
+  // });
+
+  const h2 = css({
+    fontSize: 50,
+    color: 'red',
+    transition: 'font-size 200ms',
+  });
+
+  h2.container('min-width: 600px').css({
     fontSize: 140,
     color: 'blue',
     letterSpacing: -3,
