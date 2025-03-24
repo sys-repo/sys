@@ -24,7 +24,7 @@ export function createContainer(args: {
       get length() {
         return inserted.size;
       },
-      get inserted() {
+      get list() {
         return Array.from(inserted);
       },
       add(selector, style) {
@@ -60,7 +60,7 @@ export function toString(
   }
 
   if (kind === 'CssSelector') {
-    const rules = container.rules.inserted;
+    const rules = container.rules.list;
     if (rules.length === 0) return `${toString(container, 'QueryCondition')} {}`;
     return rules.map(({ rule }) => rule).join('\n');
   }

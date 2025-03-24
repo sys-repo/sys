@@ -200,7 +200,7 @@ describe(
         expect(b.scoped).to.eql([`.${a.class}`]);
       });
 
-      it.only('scope: with {style} param', () => {
+      it('scope: with {style} param', () => {
         const condition = 'min-width: 500px';
         const style = { fontSize: 42 };
         const base = css({ Absolute: 0 });
@@ -222,7 +222,7 @@ describe(
         [a, c].forEach((m) => expect(m.rules.length).to.eql(0));
         [b, d].forEach((m) => {
           expect(m.rules.length).to.eql(1);
-          expect(m.rules.inserted[0].style).to.eql(style);
+          expect(m.rules.list[0].style).to.eql(style);
         });
       });
 

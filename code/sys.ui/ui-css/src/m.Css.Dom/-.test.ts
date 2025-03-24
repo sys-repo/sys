@@ -25,7 +25,7 @@ describe(
         const a = CssDom.stylesheet({});
         const b = CssDom.stylesheet({ instance: '  foo  ' });
         expect(a.id).to.eql(pkg.name);
-        expect(a.rules.inserted).to.eql([]);
+        expect(a.rules.list).to.eql([]);
         expect(b.id).to.eql(`${pkg.name}:foo`);
       });
 
@@ -159,7 +159,7 @@ describe(
 
         // Pre-condition.
         expect(FindCss.rule(selector)).to.eql(undefined);
-        expect(sheet.rules.inserted).to.eql([]);
+        expect(sheet.rules.list).to.eql([]);
         expect(sheet.rules.length).to.eql(0);
 
         // Insert the rule.
@@ -169,8 +169,8 @@ describe(
         expect(res[0].style).to.eql(style);
 
         expect(sheet.rules.length).to.eql(1);
-        expect(sheet.rules.inserted.length).to.eql(1);
-        expect(sheet.rules.inserted).to.eql(res);
+        expect(sheet.rules.list.length).to.eql(1);
+        expect(sheet.rules.list).to.eql(res);
 
         // Verify that the rule is inserted in the DOM.
         const rule = FindCss.rule(selector);
@@ -194,7 +194,7 @@ describe(
         // NB: further calls do not add more items.
         expect(insert()).to.eql([]);
         expect(insert()).to.eql([]);
-        expect(sheet.rules.inserted.length).to.eql(1);
+        expect(sheet.rules.list.length).to.eql(1);
       });
 
       describe('rules within context-blocks', () => {

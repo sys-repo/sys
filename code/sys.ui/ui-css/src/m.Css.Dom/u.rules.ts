@@ -39,7 +39,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
     get length() {
       return inserted.size;
     },
-    get inserted() {
+    get list() {
       return Array.from(inserted.values());
     },
 
