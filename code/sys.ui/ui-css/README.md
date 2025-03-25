@@ -12,13 +12,25 @@ Applying within a JSX programming style idiom:
 ```tsx
 import { css } from '@sys/ui-css';
 
-export function Component(props:{}) {
-  const styles = {
-    base: css({ padding: 10 }),
-  };
-  return <div className={style.base.class}>{'👋 Hello World!'}</div>
+export function MyComponent() {
+  const base = css({ padding: 10 })
+  return <div className={base.class}>{'👋 Hello World!'}</div>
 }
 ```
+
+If your component takes styles as an incoming property, these can be merged with 
+internal component styles like so:
+
+
+```tsx
+import { css, type CssInput } from '@sys/ui-css';
+
+export function MyComponent(props: { style?: CssInput } = {}) {
+  const base = css({ padding: 10 })
+  return <div className={css(base, props.style).class}>{'👋 Hello'}</div>
+}
+```
+
 
 
 ### CSSProps
@@ -57,4 +69,36 @@ for the `{style}` based on the hash of the `CssProps` object, and inserted into 
 The CSS class-name is generated from the hash of the style ( `\<prefix\>-<hx>` ) 
 and calls to this function are memoized, keyed on the hash, to ensure the function 
 is safe to use in "render heavy" frameworks like React (et al.).
+
+## Scope
+
+### @container 
+
+The @container contextual rule-block, used for creating media-queries at the component level, can be
+applied like so:
+
+```tsx
+const styles = {
+  base: css({
+    containerType: 'size', //            🌼 ← NB: enable @container rules (width AND height).
+    // containerType: 'inline-size', //  🌼 ← NB: enable @container rules (width only).
+  }),
+
+  h2: css({
+    color: 'red',
+    fontSize: 50,
+    transition: 'font-size 200ms, color 200ms',
+  })
+    .container('min-width: 400px', { fontSize: 90, color: 'blue' })
+    .container('min-width: 600px', { fontSize: 150, color: 'salmon' })
+    .container('max-height: 470px', { display: 'none' }).done,
+
+};
+
+return (
+  <div className={styles.base.class}>
+    <h2 className={styles.h2.class}>👋 Hello</h2>
+  </div>
+);
+```
 

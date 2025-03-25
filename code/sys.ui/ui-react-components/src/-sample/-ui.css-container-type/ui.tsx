@@ -62,13 +62,14 @@ export const Container: React.FC<P> = (props) => {
       padding: 30,
       color: theme.fg,
       letterSpacing: -0.5,
-      containerType: 'inline-size', // 🌼 ← NOTE: turn this on for the @container rules to take effect.
+      containerType: 'size', //           🌼 ← NB: turn this on for the @container rules to take effect (width AND height).
+      // containerType: 'inline-size', // 🌼 ← NB: turn this on for the @container rules to take effect (width only).
       overflow: 'hidden',
       display: 'grid',
       placeItems: 'center',
     }),
 
-    h2: css({
+    h1: css({
       color: 'red',
       fontSize: 50,
       transition: 'font-size 200ms, color 200ms',
@@ -76,12 +77,15 @@ export const Container: React.FC<P> = (props) => {
     })
       .container('min-width: 400px', { fontSize: 90, color: 'blue' })
       .container('min-width: 600px', { fontSize: 150, color: Color.DARK, letterSpacing: -4 }).done,
+
+    h2: css({
+      color: 'blue',
+    }),
   };
 
   /**
    * Equivalent: (sample code)
    */
-
   // const container = styles.base.container('min-width: 600px');
   // container.rule('h2', {
   //   fontSize: 140,
@@ -92,7 +96,8 @@ export const Container: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <h2 className={styles.h2.class}>{`Hello 👋`}</h2>
+      <h1 className={styles.h1.class}>{`Hello 👋`}</h1>
+      <h2>{`H2 Heading`}</h2>
     </div>
   );
 };
