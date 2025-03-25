@@ -102,3 +102,20 @@ return (
 );
 ```
 
+Arbitrary CSS selectors can be scoped within a base container like so:
+
+```tsx
+const base = css({ position: 'relative' })
+  .rule('h2', { color: 'red' })
+  .rule('h2 code', { color: 'blue' })
+ 
+
+return (
+  <div className={base.class}>
+    <h2>
+      {`👋 Hello`} <code>World</code>
+    </h2>
+  </div>
+);
+```
+

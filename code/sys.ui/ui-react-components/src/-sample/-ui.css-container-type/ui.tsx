@@ -67,7 +67,9 @@ export const Container: React.FC<P> = (props) => {
       overflow: 'hidden',
       display: 'grid',
       placeItems: 'center',
-    }),
+    })
+      .rule('h2', { color: 'red' })
+      .rule('h2 code', { color: 'blue' }), // 🌼 NB: aribitrary CSS sub-selector rule.
 
     h1: css({
       color: 'red',
@@ -77,11 +79,9 @@ export const Container: React.FC<P> = (props) => {
     })
       .container('min-width: 400px', { fontSize: 90, color: 'blue' })
       .container('min-width: 600px', { fontSize: 150, color: theme.fg, letterSpacing: -4 }).done,
-
-    h2: css({
-      color: 'blue',
-    }),
   };
+
+  // styles.base.
 
   /**
    * Equivalent: (sample code)
@@ -97,7 +97,9 @@ export const Container: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <h1 className={styles.h1.class}>{`Hello 👋`}</h1>
-      <h2>{`H2 Heading`}</h2>
+      <h2>
+        {`H2 Heading`} <code>Code</code>
+      </h2>
     </div>
   );
 };
