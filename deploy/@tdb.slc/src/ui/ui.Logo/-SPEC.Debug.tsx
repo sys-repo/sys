@@ -15,7 +15,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
     theme: s<t.LogoProps['theme']>('Dark'),
-    width: s<t.LogoProps['width']>(),
+    width: s<number | undefined>(),
   };
   const api = { props };
   init?.(api);
@@ -52,9 +52,8 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block
         label={`width: ${p.width}${p.width.value === undefined ? '' : 'px'}`}
-        onClick={() => Signal.cycle<t.LogoProps['width']>(p.width, [undefined, 300, 60])}
+        onClick={() => Signal.cycle(p.width, [undefined, 90, 150, 300])}
       />
-
       <hr />
     </div>
   );

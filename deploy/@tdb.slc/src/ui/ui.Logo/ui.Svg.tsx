@@ -3,20 +3,13 @@ import { type t, css, DEFAULTS, Svg } from './common.ts';
 import { useTheme } from './use.Theme.ts';
 
 export const Logo: React.FC<t.LogoProps> = (props) => {
-  const { width = DEFAULTS.width } = props;
+  const {} = props;
 
   /**
    * Source design, search Figma: "logo.slc"
    */
-  const svg = Svg.useSvg<HTMLDivElement>(() => import('./logo.slc.svg'), [112, 81], width);
+  const svg = Svg.useSvg<HTMLDivElement>(() => import('./logo.slc.svg'), [112, 81]);
   useTheme(svg, props.theme);
-
-  /**
-   * Effect: keep SVG dimentions in sync.
-   */
-  React.useEffect(() => {
-    svg.draw?.width(width);
-  }, [svg.draw, width]);
 
   /**
    * Render:
