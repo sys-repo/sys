@@ -59,5 +59,5 @@ export type CssTransformContainerBlock = {
   container(name: string, condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
 
   /** Returns the root `CssTransform` used in ending a fluent chain. */
-  readonly complete: CssTransformed;
+  readonly done: CssTransformed;
 };

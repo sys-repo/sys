@@ -27,7 +27,7 @@ export function createTransformContainer(
 
     container: base.container,
 
-    get complete() {
+    get done() {
       return base;
     },
   };

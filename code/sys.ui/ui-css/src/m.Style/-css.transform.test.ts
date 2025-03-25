@@ -275,9 +275,9 @@ describe(
       it('complete (property): end a fluent chain', () => {
         const base = css({ Absolute: 0 });
         const container = base.container('min-width: 500px');
-        expect(container.complete).to.equal(base);
-        expect(container.css({ color: 'red' }).complete).to.eql(base);
-        expect(container.nest('h2').css({ color: 'red' }).complete).to.eql(base);
+        expect(container.done).to.equal(base);
+        expect(container.css({ color: 'red' }).done).to.eql(base);
+        expect(container.nest('h2').css({ color: 'red' }).done).to.eql(base);
       });
 
       it('sample: fluent chaining', () => {
@@ -290,7 +290,7 @@ describe(
           base: css({ containerType: 'inline-size' }),
           h2: css({ fontSize: 50 })
             .container('min-width: 400px', { fontSize: 100 })
-            .container('min-width: 700px', { fontSize: 140 }).complete,
+            .container('min-width: 700px', { fontSize: 140 }).done,
         };
 
         // NB: flush rules.
