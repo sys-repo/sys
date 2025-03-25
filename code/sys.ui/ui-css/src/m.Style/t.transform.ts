@@ -30,8 +30,8 @@ export type CssTransformed = {
   /**
    * Retrieve the @container API scoped to the current css-class.
    */
-  container(condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
-  container(name: string, condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+  container(condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
+  container(name: string, condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
 };
 
 /**
@@ -43,7 +43,7 @@ export type CssTransformContainerBlock = {
   readonly block: t.CssDomContainerBlock;
 
   /** Insert a CSS rule within the @container context with the given arbitrary selector. */
-  rule(selector: t.StringCssSelector, style: t.CssProps | t.CssProps[]): t.CssDomInsertedRule[];
+  rule(selector: t.StringCssSelector, style: t.CssValue | t.CssValue[]): t.CssDomInsertedRule[];
 
   /** Insert a CSS rule within the @container directly under the CSS class-name scope. */
   css(style: t.CssProps | t.CssProps[]): CssTransformContainerBlock;

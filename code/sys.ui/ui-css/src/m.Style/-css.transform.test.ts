@@ -202,7 +202,7 @@ describe(
 
       it('with {style} param', () => {
         const condition = 'min-width: 500px';
-        const style = { fontSize: 42 };
+        const style = { Absolute: 0, fontSize: 42 };
         const base = css({ Absolute: 0 });
 
         const a = base.container(condition);
@@ -222,7 +222,14 @@ describe(
         [a, c].forEach((m) => expect(m.block.rules.length).to.eql(0));
         [b, d].forEach((m) => {
           expect(m.block.rules.length).to.eql(1);
-          expect(m.block.rules.list[0].style).to.eql(style);
+          expect(m.block.rules.list[0].style).to.eql({
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            fontSize: 42,
+          });
         });
       });
 
@@ -253,6 +260,16 @@ describe(
 
         const root = container.block.scoped[0];
         rules.list.forEach(({ rule }) => expect(rule).to.include(`{ ${root} h2 {`));
+      });
+
+      it('add custom selector: .rule() ← CSS template', () => {
+        const container = css({ Absolute: 0 }).container('min-width: 500px');
+        const rules = container.block.rules;
+        expect(rules.length).to.eql(0);
+
+        const res = container.rule('h2', { Absolute: 0 });
+        expect(res[0].style).to.eql({ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 });
+        expect(rules.length).to.eql(1);
       });
 
       it('add rule: .css()', () => {
