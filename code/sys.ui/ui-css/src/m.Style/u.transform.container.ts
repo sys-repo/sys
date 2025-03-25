@@ -12,20 +12,14 @@ export function createTransformContainer(
   const api: t.CssTransformContainerBlock = {
     block,
 
-    rule(selector, style) {
-      return block.rules.add(selector, style);
-    },
+    container: base.container,
+    rule: (selector, style) => block.rules.add(selector, style),
+    nest: (selector) => createTransformContainer(base, block.scope(selector)),
 
     css(style) {
       block.rules.add('', style);
       return api;
     },
-
-    nest(selector) {
-      return createTransformContainer(base, block.scope(selector));
-    },
-
-    container: base.container,
 
     get done() {
       return base;
