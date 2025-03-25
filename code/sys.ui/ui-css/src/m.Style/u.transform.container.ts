@@ -20,7 +20,7 @@ export function createTransformContainer(
       return api;
     },
 
-    scope(selector) {
+    nest(selector) {
       return createTransformContainer(block.scope(selector));
     },
   };

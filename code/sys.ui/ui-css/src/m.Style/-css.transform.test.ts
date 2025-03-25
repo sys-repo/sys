@@ -193,14 +193,14 @@ describe(
     });
 
     describe('.container', () => {
-      it('scoped', () => {
+      it('scoped with root class-name', () => {
         const a = css({ Absolute: 0 });
         const b = a.container('min-width: 500px');
         expect(b.block.kind).to.eql('@container');
         expect(b.block.scoped).to.eql([`.${a.class}`]);
       });
 
-      it('scope: with {style} param', () => {
+      it('with {style} param', () => {
         const condition = 'min-width: 500px';
         const style = { fontSize: 42 };
         const base = css({ Absolute: 0 });
@@ -226,11 +226,11 @@ describe(
         });
       });
 
-      it('multi-level descendents', () => {
+      it('nest: multi-level descendents', () => {
         const a = css({ Absolute: 0 });
         const b = a.container('min-width: 500px');
-        const c = b.scope('h2');
-        const d = c.scope('code');
+        const c = b.nest('h2');
+        const d = c.nest('code');
         [b, c, d].forEach(({ block }) => expect(block.kind).to.eql('@container'));
         expect(c.block.scoped).to.eql([`.${a.class}`, 'h2']);
         expect(d.block.scoped).to.eql([`.${a.class}`, 'h2', 'code']);

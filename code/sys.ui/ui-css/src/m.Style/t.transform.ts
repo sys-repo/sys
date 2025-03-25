@@ -49,5 +49,5 @@ export type CssTransformContainerBlock = {
   css(style: t.CssProps | t.CssProps[]): CssTransformContainerBlock;
 
   /** Creates a new scoped sub-selector. */
-  scope(selector: t.StringCssSelector): CssTransformContainerBlock;
+  nest(selector: t.StringCssSelector): CssTransformContainerBlock;
 };
