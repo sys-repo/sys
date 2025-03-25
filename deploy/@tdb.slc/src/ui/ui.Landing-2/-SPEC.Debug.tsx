@@ -16,6 +16,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Dark'),
     debug: s<P['debug']>(true),
+    backgroundVideo: s<P['backgroundVideo']>(),
   };
   const api = { props };
   init?.(api);
@@ -32,6 +33,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.debug.value;
+    p.backgroundVideo.value;
   });
 
   /**
@@ -51,6 +53,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+
+      <Button
+        block
+        label={`backgroundVideo: ${p.backgroundVideo}`}
+        onClick={() => Signal.cycle(p.backgroundVideo, [undefined, 0, 0.15, 0.3, 0.5])}
+      />
 
       <hr />
     </div>

@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type Landing2Props = {
-  text?: string;
   debug?: boolean;
+  backgroundVideo?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -3,27 +3,32 @@ import { type t, Color, css } from './common.ts';
 
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 import { Logo } from '../ui.Logo/mod.ts';
+import { VideoBackgroundTubes } from '../ui.Video.Background.Tubes/mod.ts';
 
 export const Landing: React.FC<t.Landing2Props> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, backgroundVideo = 0 } = props;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      overflow: 'hidden',
-      display: 'grid',
-      placeItems: 'center',
-    }),
+    base: css({ position: 'relative', color: theme.fg }),
+    background: css({ Absolute: 0 }),
+    body: css({ Absolute: 0, overflow: 'hidden', display: 'grid', placeItems: 'center' }),
   };
+
+  const elBackground = backgroundVideo !== undefined && (
+    <VideoBackgroundTubes opacity={backgroundVideo} style={styles.background} />
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <CanvasMini theme={theme.name} />
-      <Logo theme={theme.name} />
+      {elBackground}
+      <div className={styles.body.class}>
+        <CanvasMini theme={theme.name} />
+        <Logo theme={theme.name} />
+      </div>
     </div>
   );
 };
