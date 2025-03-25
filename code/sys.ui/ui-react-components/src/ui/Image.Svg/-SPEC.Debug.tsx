@@ -22,6 +22,7 @@ export function createDebugSignals() {
     color: s<'dark' | 'blue'>('dark'),
     importStyle: s<DebugImportStyle>('Function → Promise'),
     image: s<DebugImage>('Small'),
+    fill: s<boolean>(false),
   };
   const api = { props };
   return api;
@@ -52,18 +53,19 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
-        block={true}
+        block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
+      <Button block label={`fill: ${p.fill}`} onClick={() => Signal.toggle(p.fill)} />
       <hr />
       <Button
-        block={true}
+        block
         label={`width: ${p.width}`}
         onClick={() => (p.width.value = p.width.value === 200 ? 80 : 200)}
       />
       <Button
-        block={true}
+        block
         label={`import style: ${p.importStyle}`}
         onClick={() => {
           Signal.cycle<DebugImportStyle>(p.importStyle, ['Static', 'Function → Promise']);
