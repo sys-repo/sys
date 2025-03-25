@@ -6,7 +6,6 @@ import { type t, Button, Color, css, Signal } from './common.ts';
  */
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type P = DebugProps;
 
 /**
  * Signals:
@@ -22,7 +21,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 /**
  * Component:
  */
-export const Debug: React.FC<P> = (props) => {
+export const Debug: React.FC<DebugProps> = (props) => {
   const { ctx } = props;
   const p = ctx.debug.props;
 
