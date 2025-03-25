@@ -10,4 +10,6 @@ export const Specs = {
 
   'tdb.slc.ui.Logo': () => import('../ui/ui.Logo/-SPEC.tsx'),
   'tdb.slc.ui.Canvas.Mini': () => import('../ui/ui.Canvas.Mini/-SPEC.tsx'),
+
+  'tdb.slc.videos': () => import('../-sample/-ui.Videos/-SPEC.tsx'),
 } as t.SpecImports;
