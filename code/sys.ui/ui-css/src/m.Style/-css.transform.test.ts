@@ -1,4 +1,4 @@
-import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it } from '../-test.ts';
+import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it, slug } from '../-test.ts';
 import { toHash } from './common.ts';
 import { Style, css } from './mod.ts';
 
@@ -270,6 +270,40 @@ describe(
         expect(rules.length).to.eql(3);
         expect(rules.list[1].rule).to.include(`{ ${root} { font-size: 32px; } }`);
         expect(rules.list[2].rule).to.include(`{ ${root} { color: blue; } }`);
+      });
+
+      it('complete (property): end a fluent chain', () => {
+        const base = css({ Absolute: 0 });
+        const container = base.container('min-width: 500px');
+        expect(container.complete).to.equal(base);
+        expect(container.css({ color: 'red' }).complete).to.eql(base);
+        expect(container.nest('h2').css({ color: 'red' }).complete).to.eql(base);
+      });
+
+      it('sample: fluent chaining', () => {
+        const sheet = Style.Dom.stylesheet(slug());
+        const css = Style.transformer({ sheet });
+
+        expect(sheet.rules.length).to.eql(0);
+
+        const styles = {
+          base: css({ containerType: 'inline-size' }),
+          h2: css({ fontSize: 50 })
+            .container('min-width: 400px', { fontSize: 100 })
+            .container('min-width: 700px', { fontSize: 140 }).complete,
+        };
+
+        // NB: flush rules.
+        styles.base.class;
+        styles.h2.class;
+
+        const list = sheet.rules.list.map((m) => m.style);
+        expect(list).to.eql([
+          { fontSize: 50 },
+          { fontSize: 100 },
+          { fontSize: 140 },
+          { containerType: 'inline-size' },
+        ]);
       });
     });
   },

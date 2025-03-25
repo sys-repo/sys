@@ -50,4 +50,14 @@ export type CssTransformContainerBlock = {
 
   /** Creates a new scoped sub-selector. */
   nest(selector: t.StringCssSelector): CssTransformContainerBlock;
+
+  /**
+   * Generate a new @container block off the root transform,
+   * used to create  fluent chains of containers.
+   */
+  container(condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+  container(name: string, condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+
+  /** Returns the root `CssTransform` used in ending a fluent chain. */
+  readonly complete: CssTransformed;
 };

@@ -9,7 +9,8 @@ const singletons = new Map<t.StringId, t.CssDomStylesheet>();
 /**
  * Generator factory
  */
-export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
+export const create: t.CssDomLib['stylesheet'] = (input) => {
+  const options = wrangle.options(input);
   const id = getStylesheetId(options.instance, options.classPrefix);
   if (singletons.has(id)) return singletons.get(id)!;
 
@@ -48,6 +49,12 @@ export const create: t.CssDomLib['stylesheet'] = (options = {}) => {
  * Helpers:
  */
 const wrangle = {
+  options(input: Parameters<t.CssDomLib['stylesheet']>[0]): t.CssDomStylesheetOptions {
+    if (!input) return {};
+    if (typeof input === 'string') return { instance: input };
+    return input;
+  },
+
   containerArgs(args: any[]) {
     const done = (condition: string, name?: string) => {
       name = name ? name.trim() : name;

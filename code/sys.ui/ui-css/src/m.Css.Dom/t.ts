@@ -6,11 +6,14 @@ export type * from './t.ctx.ts';
  */
 export type CssDomLib = {
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
-  stylesheet(options?: { instance?: string; classPrefix?: string }): t.CssDomStylesheet;
+  stylesheet(options?: CssDomStylesheetOptions | t.StringId): t.CssDomStylesheet;
 
   /** Convert a {style} props object to a CSS string. */
   toString: t.StyleLib['toString'];
 };
+
+/** Options passed to the `Style.Dom.stylesheet` method. */
+export type CssDomStylesheetOptions = { instance?: t.StringId; classPrefix?: string };
 
 /**
  * A <style> DOM element used to store and manage CSS-classes

@@ -29,6 +29,12 @@ describe(
         expect(b.id).to.eql(`${pkg.name}:foo`);
       });
 
+      it('instance id (as string param)', () => {
+        const id = slug();
+        const sheet = CssDom.stylesheet(id);
+        expect(sheet.id).to.eql(`${pkg.name}:${id}`);
+      });
+
       it('singleton pooling (instance reuse on data-id)', () => {
         const a = CssDom.stylesheet();
         const b = CssDom.stylesheet({ instance: '  ' });

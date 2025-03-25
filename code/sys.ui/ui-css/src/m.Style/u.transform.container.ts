@@ -5,8 +5,9 @@ import { type t } from './common.ts';
  * for the `CssTransformer` API.
  */
 export function createTransformContainer(
+  base: t.CssTransformed,
   block: t.CssDomContainerBlock,
-  style?: t.CssProps,
+  style?: t.CssProps | undefined,
 ): t.CssTransformContainerBlock {
   const api: t.CssTransformContainerBlock = {
     block,
@@ -21,7 +22,13 @@ export function createTransformContainer(
     },
 
     nest(selector) {
-      return createTransformContainer(block.scope(selector));
+      return createTransformContainer(base, block.scope(selector));
+    },
+
+    container: base.container,
+
+    get complete() {
+      return base;
     },
   };
 

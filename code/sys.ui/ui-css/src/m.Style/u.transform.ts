@@ -55,7 +55,7 @@ function transform(args: {
       const { name, condition, style } = wrangle.containerArgs(args);
       const container = name ? sheet.container(name, condition) : sheet.container(condition);
       const block = container.scope(`.${api.class}`);
-      return createTransformContainer(block, style);
+      return createTransformContainer(api, block, style);
     },
   };
 
