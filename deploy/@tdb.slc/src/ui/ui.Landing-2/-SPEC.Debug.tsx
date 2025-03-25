@@ -14,8 +14,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing2Props;
   const s = Signal.create;
   const props = {
+    debug: s<P['debug']>(false),
     theme: s<P['theme']>('Dark'),
-    debug: s<P['debug']>(true),
     backgroundVideo: s<P['backgroundVideo']>(),
   };
   const api = { props };
@@ -46,14 +46,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+
+      <hr />
+
       <Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
-      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
-
       <Button
         block
         label={`backgroundVideo: ${p.backgroundVideo}`}

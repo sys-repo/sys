@@ -23,17 +23,31 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
       backgroundColor: theme.bg,
     }),
     background: css({ Absolute: 0 }),
-    body: css({ Absolute: 0, overflow: 'hidden', display: 'grid', placeItems: 'center' }),
+    body: css({
+      Absolute: 0,
+      overflow: 'hidden',
+      backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* DEBUG:RED */ : '',
+      display: 'grid',
+    }),
 
-    canvas: css({
-      width: 400,
+    canvas: {
+      base: css({
+        backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* DEBUG:RED */ : '',
+        display: 'grid',
+        placeItems: 'center',
+      }).container('max-width: 550px', { PaddingX: 75 }).done,
+      subject: css({
+        width: 400,
+        marginBottom: '6%',
+      }).container('max-width: 550px', { width: '100%' }).done,
+    },
+
+    logo: css({
+      Absolute: [null, 10, 15, null],
+      width: 150,
       transition: 'width 200ms',
     })
-      .container('max-width: 550px', { width: 350 })
-      .container('max-width: 450px', { width: 280 }).done,
-
-    logo: css({ Absolute: [null, 15, 12, null] })
-      .container('max-height: 470px', { Absolute: null })
+      .container('max-width: 640px', { width: 110 })
       .container('max-height: 470px', { display: 'none' }).done,
   };
 
@@ -42,18 +56,22 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
   );
 
   const elCanvas = (
-    <div className={styles.canvas.class}>
-      <CanvasMini theme={theme.name} />
+    <div className={styles.canvas.base.class}>
+      <div className={styles.canvas.subject.class}>
+        <CanvasMini theme={theme.name} />
+      </div>
     </div>
   );
 
+  const elLogo = <Logo theme={theme.name} style={styles.logo} />;
+
+  const elBody = <div className={styles.body.class}>{elCanvas}</div>;
+
   return (
     <div className={css(styles.base, props.style).class}>
+      {elLogo}
       {elBackground}
-      <div className={styles.body.class}>
-        {elCanvas}
-        <Logo theme={theme.name} style={styles.logo} />
-      </div>
+      {elBody}
     </div>
   );
 };
