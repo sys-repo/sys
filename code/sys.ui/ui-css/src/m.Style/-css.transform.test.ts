@@ -289,13 +289,14 @@ describe(
         expect(rules.length).to.eql(1);
         expect(rules.list[0].rule).to.include(`{ ${root} { color: red; } }`);
 
-        container.css([{ fontSize: 32 }, { color: 'blue' }]);
+        container.css([{ PaddingX: 10 }, { color: 'blue' }]); // NB: CSS template expansion.
         expect(rules.length).to.eql(3);
-        expect(rules.list[1].rule).to.include(`{ ${root} { font-size: 32px; } }`);
+
+        expect(rules.list[1].rule).to.include(`${root} { padding-right: 10px; padding-left: 10px`);
         expect(rules.list[2].rule).to.include(`{ ${root} { color: blue; } }`);
       });
 
-      it('complete (property): end a fluent chain', () => {
+      it('done (property): end a fluent API chain', () => {
         const base = css({ Absolute: 0 });
         const container = base.container('min-width: 500px');
         expect(container.done).to.equal(base);
@@ -308,10 +309,10 @@ describe(
         expect(sheet.rules.length).to.eql(0);
 
         const styles = {
-          base: css({ containerType: 'inline-size' }),
+          base: css({ containerType: 'size' }),
           h2: css({ fontSize: 50 })
             .container('min-width: 400px', { fontSize: 100 })
-            .container('min-width: 700px', { fontSize: 140 }).done,
+            .container('min-width: 700px', { PaddingX: 10 }).done,
         };
 
         // NB: flush rules.
@@ -322,8 +323,8 @@ describe(
         expect(list).to.eql([
           { fontSize: 50 },
           { fontSize: 100 },
-          { fontSize: 140 },
-          { containerType: 'inline-size' },
+          { paddingLeft: 10, paddingRight: 10 }, // NB: expanded CSS template (PaddingX)
+          { containerType: 'size' },
         ]);
       });
     });

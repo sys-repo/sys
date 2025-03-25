@@ -35,7 +35,9 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
         backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* DEBUG:RED */ : '',
         display: 'grid',
         placeItems: 'center',
-      }).container('max-width: 550px', { PaddingX: 75 }).done,
+      })
+        .container('max-width: 550px', { PaddingX: 75 }).container()
+        // .container('max-width: 550px', { PaddingX: 75 }).done,
       subject: css({
         width: 400,
         marginBottom: '6%',

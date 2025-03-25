@@ -47,7 +47,7 @@ export type CssTransformContainerBlock = {
   rule(selector: t.StringCssSelector, style: t.CssValue | t.CssValue[]): t.CssDomInsertedRule[];
 
   /** Insert a CSS rule within the @container directly under the CSS class-name scope. */
-  css(style: t.CssProps | t.CssProps[]): CssTransformContainerBlock;
+  css(style: t.CssValue | t.CssValue[]): CssTransformContainerBlock;
 
   /** Creates a new scoped sub-selector. */
   nest(selector: t.StringCssSelector): CssTransformContainerBlock;
@@ -56,8 +56,8 @@ export type CssTransformContainerBlock = {
    * Generate a new @container block off the root transform,
    * used to create  fluent chains of containers.
    */
-  container(condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
-  container(name: string, condition: string, style?: t.CssProps): t.CssTransformContainerBlock;
+  container(condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
+  container(name: string, condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
 
   /** Returns the root `CssTransform` used in ending a fluent chain. */
   readonly done: CssTransformed;
