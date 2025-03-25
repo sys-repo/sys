@@ -76,7 +76,7 @@ export const Container: React.FC<P> = (props) => {
       whiteSpace: 'nowrap',
     })
       .container('min-width: 400px', { fontSize: 90, color: 'blue' })
-      .container('min-width: 600px', { fontSize: 150, color: Color.DARK, letterSpacing: -4 }).done,
+      .container('min-width: 600px', { fontSize: 150, color: theme.fg, letterSpacing: -4 }).done,
 
     h2: css({
       color: 'blue',
