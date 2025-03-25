@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { MyComponent } from './ui.tsx';
+export { Landing } from './ui.tsx';

@@ -1,6 +1,6 @@
 import { Dev, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MyComponent } from './mod.ts';
+import { Landing } from './mod.ts';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
@@ -11,14 +11,14 @@ export default Spec.describe('MyComponent', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
+      p.debug.value;
       ctx.redraw();
     });
 
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <MyComponent theme={p.theme.value} />);
+      .render((e) => <Landing theme={p.theme.value} debug={p.debug.value} />);
   });
 
   e.it('ui:debug', (e) => {

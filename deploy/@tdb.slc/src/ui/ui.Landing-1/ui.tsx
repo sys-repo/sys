@@ -9,7 +9,7 @@ import { Sidebar } from './ui.Sidebar.tsx';
 import { useKeyboard } from './use.Keyboard.ts';
 import { useSelectedPanel } from './use.SelectedPanel.ts';
 
-type P = t.LandingProps;
+type P = t.Landing1Props;
 const D = DEFAULTS;
 
 const signalsFactory = () =>

@@ -6,14 +6,17 @@ import { type t, Button, Color, css, Signal } from './common.ts';
  */
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type P = DebugProps;
 
 /**
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
+  type P = t.Landing2Props;
   const s = Signal.create;
-  const props = { theme: s<t.CommonTheme>('Light') };
+  const props = {
+    theme: s<P['theme']>('Dark'),
+    debug: s<P['debug']>(true),
+  };
   const api = { props };
   init?.(api);
   return api;
@@ -22,12 +25,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 /**
  * Component:
  */
-export const Debug: React.FC<P> = (props) => {
+export const Debug: React.FC<DebugProps> = (props) => {
   const { ctx } = props;
   const p = ctx.debug.props;
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.debug.value;
   });
 
   /**
@@ -45,6 +49,8 @@ export const Debug: React.FC<P> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
 
       <hr />
     </div>

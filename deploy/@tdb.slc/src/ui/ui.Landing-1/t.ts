@@ -26,7 +26,7 @@ export type LandingSignals = {
 /**
  * <Component>:
  */
-export type LandingProps = {
+export type Landing1Props = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   signals?: t.LandingSignals;
