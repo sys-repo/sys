@@ -63,6 +63,7 @@ export const Container: React.FC<P> = (props) => {
       color: theme.fg,
       letterSpacing: -0.5,
       containerType: 'inline-size', // 🌼 ← NOTE: turn this on for the @container rules to take effect.
+      overflow: 'hidden',
       display: 'grid',
       placeItems: 'center',
     }),
@@ -71,6 +72,7 @@ export const Container: React.FC<P> = (props) => {
       color: 'red',
       fontSize: 50,
       transition: 'font-size 200ms, color 200ms',
+      whiteSpace: 'nowrap',
     })
       .container('min-width: 400px', { fontSize: 90, color: 'blue' })
       .container('min-width: 600px', { fontSize: 150, color: Color.DARK, letterSpacing: -4 }).done,
