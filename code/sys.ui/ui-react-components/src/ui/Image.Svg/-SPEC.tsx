@@ -9,18 +9,20 @@ export default Spec.describe('Image.Svg', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const updateSize = () => {
+      const width = p.width.value;
+      if (width === undefined) ctx.subject.size('fill');
+      else ctx.subject.size([width, null]);
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       p.width.value;
-      p.fill.value;
-
-      if (p.fill.value) ctx.subject.size('fill');
-      else ctx.subject.size([null, null]);
-
+      updateSize();
       ctx.redraw();
     });
 
-    ctx.subject.size([null, null]).render((e) => {
+    ctx.subject.display('grid').render((e) => {
       return <Sample signals={debug} />;
     });
   });

@@ -78,7 +78,12 @@ export function useSvg<T extends HTMLElement>(
     // NB: Set the viewBox to ensure proper scaling of the inner content.
     //     These values will be the "viewBox" attribute on the <svg> root tag of the [.svg] file.
     const [width, height] = viewBox;
-    draw.attr({ viewBox: `0 0 ${width} ${height}` });
+    draw.attr({
+      viewBox: `0 0 ${width} ${height}`,
+      width: '100%',
+      height: '100%',
+      preserveAspectRatio: 'xMidYMid',
+    });
     draw.svg(svgMarkup);
 
     // Initialize.

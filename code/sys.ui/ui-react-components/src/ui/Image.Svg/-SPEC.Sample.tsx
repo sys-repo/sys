@@ -4,7 +4,7 @@ import StaticLarger from '../../-sample/images/sample.larger.svg';
 import StaticSmall from '../../-sample/images/sample.small.svg';
 
 import type { DebugImage, DebugImportStyle, DebugSignals } from './-SPEC.Debug.tsx';
-import { type t, Signal } from './common.ts';
+import { type t, css, Signal } from './common.ts';
 import { Svg } from './mod.ts';
 
 export type SampleProps = { signals: DebugSignals };
@@ -15,12 +15,19 @@ export type SampleProps = { signals: DebugSignals };
 export const Sample: React.FC<SampleProps> = (props) => {
   const { signals } = props;
   const p = signals.props;
-  const width = p.width.value;
   const input = wrangle.importInput(p.importStyle.value, p.image.value);
+  const width = p.width.value;
+  const isFill = width === undefined;
 
   type H = HTMLDivElement;
   const viewbox = wrangle.size(p.image.value);
-  const svg = Svg.useSvg<H>(input, viewbox, (e) => e.draw.width(width));
+  // const svg = Svg.useSvg<H>(input, viewbox);
+  const svg = Svg.useSvg<H>(input, viewbox, (e) => {
+    /**
+     * Optional: configuration.
+     */
+    // e.draw.width(1234)
+  });
 
   console.groupCollapsed(`🌳 SVG (hook)`);
   console.info(svg);
@@ -50,7 +57,6 @@ export const Sample: React.FC<SampleProps> = (props) => {
     const draw = svg.draw;
     if (!draw) return;
 
-    draw.width(width);
     const tick = draw.findOne('#tick');
     const borderOutline = draw.findOne('#border-outline');
 
@@ -65,7 +71,23 @@ export const Sample: React.FC<SampleProps> = (props) => {
   /**
    * Render:
    */
-  return <div ref={svg.ref} />;
+  const styles = {
+    base: css({
+      position: 'relative',
+      lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
+    }),
+    svg: css({
+      Absolute: isFill ? [0, null, null, 0] : undefined,
+      width: isFill ? '100%' : undefined,
+      height: isFill ? '100%' : undefined,
+    }),
+  };
+
+  return (
+    <div className={styles.base.class}>
+      <div ref={svg.ref} className={styles.svg.class} />
+    </div>
+  );
 };
 
 /**

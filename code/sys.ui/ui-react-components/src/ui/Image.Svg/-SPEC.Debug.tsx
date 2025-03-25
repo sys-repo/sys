@@ -18,11 +18,10 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     theme: s<t.CommonTheme>('Light'),
-    width: s(200),
+    width: s<number | undefined>(350),
     color: s<'dark' | 'blue'>('dark'),
     importStyle: s<DebugImportStyle>('Function → Promise'),
     image: s<DebugImage>('Small'),
-    fill: s<boolean>(false),
   };
   const api = { props };
   return api;
@@ -57,12 +56,11 @@ export const Debug: React.FC<P> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
-      <Button block label={`fill: ${p.fill}`} onClick={() => Signal.toggle(p.fill)} />
       <hr />
       <Button
         block
-        label={`width: ${p.width}`}
-        onClick={() => (p.width.value = p.width.value === 200 ? 80 : 200)}
+        label={`width: ${p.width.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle(p.width, [80, 200, 350, undefined])}
       />
       <Button
         block
@@ -71,9 +69,12 @@ export const Debug: React.FC<P> = (props) => {
           Signal.cycle<DebugImportStyle>(p.importStyle, ['Static', 'Function → Promise']);
         }}
       />
+
+      <hr />
+
       <Button
         block={true}
-        label={`sample image: ${p.image}`}
+        label={`image (src): ${p.image}`}
         onClick={() => {
           Signal.cycle<DebugImage>(p.image, ['Small', 'Larger']);
         }}
