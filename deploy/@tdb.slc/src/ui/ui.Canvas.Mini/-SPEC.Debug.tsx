@@ -8,17 +8,18 @@ import { Button } from '@sys/ui-react-components';
  */
 export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type P = DebugProps;
 
 /**
  * Signals
  */
 export function createDebugSignals() {
+  type P = t.CanvasMiniProps;
+  const s = Signal.create;
   const props = {
-    theme: Signal.create<t.CommonTheme>('Dark'),
-    width: Signal.create<number>(DEFAULTS.width),
-    selected: Signal.create<t.CanvasPanel | undefined>('purpose'),
-    over: Signal.create<t.CanvasPanel | undefined>(),
+    theme: s<P['theme']>('Dark'),
+    width: s<P['width']>(DEFAULTS.width),
+    selected: s<P['selected']>('purpose'),
+    over: s<P['over']>(),
   };
   const api = { props };
   return api;
@@ -27,7 +28,7 @@ export function createDebugSignals() {
 /**
  * Component
  */
-export const Debug: React.FC<P> = (props) => {
+export const Debug: React.FC<DebugProps> = (props) => {
   const { ctx } = props;
   const p = ctx.debug.props;
 
@@ -53,8 +54,8 @@ export const Debug: React.FC<P> = (props) => {
       />
       <Button
         block={true}
-        label={`width: ${p.width}`}
-        onClick={() => (p.width.value = p.width.value === 200 ? 400 : 200)}
+        label={`width: ${p.width.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle(p.width, [undefined, 280, 400])}
       />
     </div>
   );

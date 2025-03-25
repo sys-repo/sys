@@ -26,7 +26,7 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
       aspectRatio: '1.93/1',
       width: 400,
     }).container('max-width: 550px', {
-      // Mobile screen size.
+      // Mobile screen:
       width: 200,
     }).done,
   };

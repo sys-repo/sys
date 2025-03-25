@@ -8,14 +8,18 @@ type P = t.CanvasMiniProps;
  * Component.
  */
 export const CanvasMini: React.FC<P> = (props) => {
-  const { selected, over, onPanelEvent, width = DEFAULTS.width } = props;
+  const { selected, over, onPanelEvent, width } = props;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', userSelect: 'none', cursor: 'default' }),
+    base: css({
+      position: 'relative',
+      userSelect: 'none',
+      cursor: 'default',
+    }),
   };
 
   return (

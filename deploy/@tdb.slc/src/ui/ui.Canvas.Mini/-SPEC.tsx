@@ -1,6 +1,6 @@
 import { Dev, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Signal } from './common.ts';
+import { css, Signal } from './common.ts';
 import { CanvasMini } from './mod.ts';
 
 export default Spec.describe('Canvas', (e) => {
@@ -11,14 +11,21 @@ export default Spec.describe('Canvas', (e) => {
     const ctx = Spec.ctx(e);
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
 
+    const updateSize = () => {
+      const width = p.width.value;
+      if (width === undefined) ctx.subject.size('fill-x');
+      else ctx.subject.size([width, null]);
+    };
+
     Signal.effect(() => {
       p.width.value;
       p.selected.value;
       p.over.value;
+      updateSize();
       ctx.redraw();
     });
 
-    ctx.subject.size([null, null]).render((e) => {
+    ctx.subject.display('grid').render((e) => {
       return (
         <CanvasMini
           theme={p.theme.value}

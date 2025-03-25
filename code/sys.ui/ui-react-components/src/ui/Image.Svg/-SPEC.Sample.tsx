@@ -74,6 +74,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
+      overflow: 'hidden',
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
     }),
     svg: css({

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, DEFAULTS, Svg } from './common.ts';
+import { type t, Color, css, Svg } from './common.ts';
 import { useMouse } from './use.Mouse.tsx';
 import { useTheme } from './use.Theme.ts';
 
@@ -20,27 +20,16 @@ export type SvgImageProps = {
  *
  */
 export const SvgImage: React.FC<SvgImageProps> = (props) => {
-  const { width = DEFAULTS.width, bgBlur = 20, over, selected, onPanelEvent } = props;
+  const { width, bgBlur = 20, over, selected, onPanelEvent } = props;
   const theme = Color.theme(props.theme);
 
   /**
    * Source design, search Figma: "canvas.mini"
    */
-  const svg = Svg.useSvg<HTMLDivElement>(
-    () => import('./canvas.mini.svg'),
-    [354, 184],
-    (e) => e.draw.width(width),
-  );
+  const svg = Svg.useSvg<HTMLDivElement>(() => import('./canvas.mini.svg'), [354, 184]);
 
   useTheme(svg, theme.name);
   useMouse(svg, { theme: theme.name, over, selected, onPanelEvent });
-
-  /**
-   * Effect: keep SVG dimentions in sync.
-   */
-  React.useEffect(() => {
-    svg.draw?.width(width);
-  }, [svg.draw, width]);
 
   /**
    * Render:
@@ -51,8 +40,6 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
       cursor: 'default',
       color: theme.fg,
       backdropFilter: `blur(${bgBlur}px)`,
-      borderRadius: width * 0.08,
-      width,
       lineHeight: 0, // NB: ensure no "baseline" gap below the <svg>.
     }),
   };
