@@ -11,7 +11,8 @@ export default Spec.describe('MyComponent', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
+      // 🐷 TODO: read relevant signal values to hook into change monitor.
+      p.theme.value;
       ctx.redraw();
     });
 
