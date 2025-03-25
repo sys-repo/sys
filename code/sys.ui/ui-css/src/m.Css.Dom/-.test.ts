@@ -37,7 +37,7 @@ describe(
 
       it('singleton pooling (instance reuse on data-id)', () => {
         const a = CssDom.stylesheet();
-        const b = CssDom.stylesheet({ instance: '  ' });
+        const b = CssDom.stylesheet({ instance: '   ' });
         const c = CssDom.stylesheet({ instance: 'bar' });
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
