@@ -25,10 +25,10 @@ export async function main() {
     /**
      * Landing (entry):
      */
-    const { Landing } = await import('../ui/ui.Landing-1/mod.ts');
+    const { Landing } = await import('../ui/ui.Landing-2/mod.ts');
     root.render(
       <StrictMode>
-        <Landing style={{ Absolute: 0 }} />
+        <Landing style={{ Absolute: 0 }} theme={'Dark'} backgroundVideo={0.2} />
       </StrictMode>,
     );
   }
