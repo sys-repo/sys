@@ -55,6 +55,8 @@ export const Container: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const condition = 'min-width: 600px';
+
   const styles = {
     base: css({
       padding: 30,
@@ -64,33 +66,21 @@ export const Container: React.FC<P> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
+
     h2: css({
-      fontSize: 50,
       color: 'red',
-      transition: 'font-size 200ms',
-    }),
-    text: css({ fontSize: 20 }),
+      fontSize: 50,
+      transition: 'font-size 200ms, color 200ms',
+    })
+      .container('min-width: 400px', { fontSize: 90, color: 'blue' })
+      .container('min-width: 600px', { fontSize: 150, color: Color.DARK, letterSpacing: -4 }).done,
   };
 
-  // const condition = 'min-width: 600px';
-  // styles.text.container(condition).rules.add('', { fontSize: 40 });
-  // console.log('styles.text.class', styles.text.class);
-
   /**
-   * Equivalent:
+   * Equivalent: (sample code)
    */
-  // styles.h2.container(condition).rules.add('', { fontSize: 100 });
-  // styles.base.container(condition).rules.add('h2', { fontSize: 100 });
-  // styles.base.container('min-width: 600px').rules.add('h2', { fontSize: 100, color: 'blue' });
-  // styles.base.container('min-width: 600px').block.rules.add('h2', {
-  //   fontSize: 140,
-  //   color: 'blue',
-  //   letterSpacing: -3,
-  //   transition: 'font-size 200ms',
-  // });
 
-  const condition = 'min-width: 600px';
-  const container = styles.base.container(condition);
+  // const container = styles.base.container('min-width: 600px');
   // container.rule('h2', {
   //   fontSize: 140,
   //   color: 'blue',
@@ -98,24 +88,9 @@ export const Container: React.FC<P> = (props) => {
   //   transition: 'font-size 200ms',
   // });
 
-  const h2 = css({
-    fontSize: 50,
-    color: 'red',
-    transition: 'font-size 200ms',
-  });
-
-  h2.container('min-width: 600px').css({
-    fontSize: 140,
-    color: 'blue',
-    letterSpacing: -3,
-    transition: 'font-size 200ms',
-  });
-
-  const className = css(styles.base, props.style).class;
   return (
-    <div className={`${className} card`}>
+    <div className={css(styles.base, props.style).class}>
       <h2 className={styles.h2.class}>{`Hello 👋`}</h2>
-      {/* <div className={styles.text.class}>My Text Hello</div> */}
     </div>
   );
 };
