@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
-export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
+export const MyComponent: React.FC<t.VideosIndexProps> = (props) => {
   const { text = '🐷 Hello' } = props;
 
   /**
