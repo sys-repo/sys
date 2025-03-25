@@ -21,7 +21,7 @@ export type CssDomContainerBlock = {
     /** List of inserted rules wihtin the container. */
     readonly list: Readonly<t.CssDomInsertedRule[]>;
     /** Inserts CSS styles with the given selector within a context-block. */
-    add(selector: t.StringCssSelector, style: t.CssProps | t.CssProps[]): t.CssDomInsertedRule[];
+    add(selector: t.StringCssSelector, style: t.CssValue | t.CssValue[]): t.CssDomInsertedRule[];
   };
 
   /** String representation of the block. */

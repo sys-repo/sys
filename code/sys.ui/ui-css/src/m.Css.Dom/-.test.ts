@@ -131,6 +131,15 @@ describe(
         expect(rule?.cssText).to.eql(`.${className} { ${m.toString()} }`);
       });
 
+      it('add: CSS template ← { Absolute: 0 }', () => {
+        const { sheet } = setup();
+        const classes = sheet.classes();
+        const className = classes.add({ Absolute: 0 });
+        expect(FindCss.rule(className)?.cssText).to.include(
+          '{ position: absolute; top: 0px; right: 0px; bottom: 0px; left: 0px; }',
+        );
+      });
+
       it('add: hash passed as parameter', () => {
         const { sheet } = setup();
         const classes = sheet.classes();
@@ -142,6 +151,16 @@ describe(
         sheet.classes().add(style, { hx });
         const rule = FindCss.rule(className);
         expect(rule?.cssText).to.eql(`.${className} { ${toString(style)} }`);
+      });
+
+      it('add: CSS template ← { Absolute: 0 }', () => {
+        const { sheet } = setup();
+        const a = sheet.rules.add('.foo', { Absolute: 0 });
+        const b = sheet.rule('.bar', { Absolute: 0 });
+
+        const expected = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
+        expect(a[0].style).to.eql(expected);
+        expect(b[0].style).to.eql(expected);
       });
 
       describe('pseudo-classes', () => {

@@ -39,7 +39,7 @@ export type CssDomStylesheet = {
    */
   rule(
     selector: string,
-    style: t.CssProps | t.CssProps[],
+    style: t.CssValue | t.CssValue[],
     options?: CssDomRuleOptions,
   ): CssDomInsertedRule[];
   /** Rules API. */
@@ -73,7 +73,7 @@ export type CssDomClasses = {
    * Generates a CSS classname as the selector and inserts the given
    * {Style} object as a set of rules into the DOM (with caching).
    */
-  add(style: t.CssProps, options?: { hx?: number }): string;
+  add(style: t.CssValue, options?: { hx?: number }): string;
 };
 
 /**
@@ -105,7 +105,7 @@ export type CssDomRules = {
    */
   add(
     selector: string,
-    style: t.CssProps | t.CssProps[],
+    style: t.CssValue | t.CssValue[],
     options?: CssDomRuleOptions,
   ): CssDomInsertedRule[];
 };

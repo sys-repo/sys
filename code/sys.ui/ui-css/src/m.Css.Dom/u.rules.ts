@@ -1,4 +1,4 @@
-import { type t, DEFAULT, isRecord } from './common.ts';
+import { type t, CssTmpl, DEFAULT, isRecord } from './common.ts';
 import { toString } from './u.ts';
 type StringRule = string;
 
@@ -23,11 +23,11 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
 
   const addRule = (
     selector: string,
-    style: t.CssProps,
+    style: t.CssValue,
     context?: string,
   ): t.CssDomInsertedRule[] => {
     const res: (t.CssDomInsertedRule | undefined)[] = [];
-    res.push(insert(selector, style, context));
+    res.push(insert(selector, CssTmpl.transform(style), context));
     Object.entries(style)
       .filter(([key]) => DEFAULT.pseudoClasses.has(key))
       .filter(([, value]) => isRecord(value))
