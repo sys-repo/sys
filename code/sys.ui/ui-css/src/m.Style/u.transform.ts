@@ -57,6 +57,10 @@ function transform(args: {
       const block = container.scope(`.${api.class}`);
       return createTransformContainer(api, block, style);
     },
+    rule(selector, style) {
+      sheet.rules.add(`.${api.class} ${selector}`.trim(), style);
+      return api;
+    },
   };
 
   cache.set(hx, api);

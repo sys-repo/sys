@@ -11,6 +11,12 @@ describe(
   () => {
     DomMock.polyfill();
 
+    const setup = () => {
+      const sheet = Style.Dom.stylesheet(slug());
+      const css = Style.transformer({ sheet });
+      return { sheet, css } as const;
+    };
+
     it('API', () => {
       expect(Style.css).to.equal(css);
     });
@@ -298,9 +304,7 @@ describe(
       });
 
       it('sample: fluent chaining', () => {
-        const sheet = Style.Dom.stylesheet(slug());
-        const css = Style.transformer({ sheet });
-
+        const { sheet, css } = setup();
         expect(sheet.rules.length).to.eql(0);
 
         const styles = {
@@ -321,6 +325,60 @@ describe(
           { fontSize: 140 },
           { containerType: 'inline-size' },
         ]);
+      });
+    });
+
+    describe('.rule (arbitrary sub-selectors)', () => {
+      it('nests the sub-selector', () => {
+        const { sheet, css } = setup();
+        const base = css({ position: 'relative' });
+        expect(sheet.rules.length).to.eql(0);
+
+        const a = base.rule('h2', { color: 'red' });
+        const b = base.rule('h2', { color: 'red' }); // NB: not-added (duplicate).
+
+        expect(a).to.equal(base); // NB: enabled API chaining ("fluent").
+        expect(a).to.equal(b);
+
+        const rules = sheet.rules.list;
+        expect(rules.length).to.eql(2);
+        expect(rules[0].rule).to.include(`.${base.class} { position: relative; }`);
+        expect(rules[1].rule).to.include(`.${base.class} h2 { color: red; }`);
+      });
+
+      it('sample: chaining', () => {
+        const { sheet, css } = setup();
+        const styles = {
+          base: css({ position: 'relative' })
+            .rule('h1', { color: 'red' })
+            .rule('h2', { color: 'blue' })
+            .rule('h2 code', { color: 'green' }),
+        };
+
+        const baseClass = styles.base.class;
+        const rules = sheet.rules.list;
+
+        expect(rules.length).to.eql(4);
+        expect(rules[0].rule).to.include(`.${baseClass} { position: relative; }`);
+        expect(rules[1].rule).to.include(`.${baseClass} h1 { color: red; }`);
+        expect(rules[2].rule).to.include(`.${baseClass} h2 { color: blue; }`);
+        expect(rules[3].rule).to.include(`.${baseClass} h2 code { color: green; }`);
+      });
+
+      it('empty selector', () => {
+        const { sheet, css } = setup();
+
+        const base = css({ position: 'relative' });
+        expect(sheet.rules.length).to.eql(0);
+
+        base.rule('', { color: 'red' });
+        base.rule(' ', { color: 'red' }); // NB: not-added (trimmed → duplicate).
+        base.rule('  ', { color: 'red' });
+
+        const rules = sheet.rules.list;
+        expect(rules.length).to.eql(2);
+        expect(rules[0].rule).to.include(`.${base.class} { position: relative; }`);
+        expect(rules[1].rule).to.include(`.${base.class} { color: red; }`);
       });
     });
   },

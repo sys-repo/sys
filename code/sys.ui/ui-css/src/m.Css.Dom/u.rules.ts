@@ -11,7 +11,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
     style: t.CssProps,
     context?: string,
   ): t.CssDomInsertedRule | undefined => {
-    let rule = `${selector} { ${toString(style)} }`;
+    let rule = `${selector.trim()} { ${toString(style)} }`.trim();
     rule = context ? `${context} { ${rule} }` : rule;
     if (inserted.has(rule)) return undefined;
 

@@ -27,11 +27,12 @@ export type CssTransformed = {
   /** Convert the {style} props object to a CSS string. */
   toString(kind?: t.CssTransformToStringKind): string;
 
-  /**
-   * Retrieve the @container API scoped to the current css-class.
-   */
+  /** Retrieve the @container API scoped to the current css-class. */
   container(condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
   container(name: string, condition: string, style?: t.CssValue): t.CssTransformContainerBlock;
+
+  /** Insert a CSS rule within scope with the current `class` name. */
+  rule(selector: t.StringCssSelector, style: t.CssValue | t.CssValue[]): CssTransformed;
 };
 
 /**
