@@ -17,7 +17,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Dark'),
-    width: s<P['width']>(DEFAULTS.width),
+    width: s<P['width']>(400),
     selected: s<P['selected']>('purpose'),
     over: s<P['over']>(),
   };

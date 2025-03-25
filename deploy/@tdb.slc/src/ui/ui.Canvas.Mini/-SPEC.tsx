@@ -13,7 +13,7 @@ export default Spec.describe('Canvas', (e) => {
 
     const updateSize = () => {
       const width = p.width.value;
-      if (width === undefined) ctx.subject.size('fill-x');
+      if (width === undefined) ctx.subject.size('fill-x', 180);
       else ctx.subject.size([width, null]);
     };
 
