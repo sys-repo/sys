@@ -9,7 +9,6 @@ export default Spec.describe('Canvas', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
 
     const updateSize = () => {
       const width = p.width.value;
@@ -17,6 +16,7 @@ export default Spec.describe('Canvas', (e) => {
       else ctx.subject.size([width, null]);
     };
 
+    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       p.width.value;
       p.selected.value;
