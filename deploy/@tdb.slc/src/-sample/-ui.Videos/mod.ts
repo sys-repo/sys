@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { MyComponent } from './ui.tsx';
+export { VideosIndex } from './ui.tsx';

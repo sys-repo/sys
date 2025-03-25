@@ -1,8 +1,8 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MyComponent } from './mod.ts';
+import { VideosIndex } from './mod.ts';
 
-export default Spec.describe('MyComponent', (e) => {
+export default Spec.describe('VideosIndex', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -11,14 +11,14 @@ export default Spec.describe('MyComponent', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
+      p.theme.value;
       ctx.redraw();
     });
 
     ctx.subject
-      .size([224, null])
+      .size([null, null])
       .display('grid')
-      .render((e) => <MyComponent theme={p.theme.value} />);
+      .render((e) => <VideosIndex theme={p.theme.value} signals={p.video} />);
   });
 
   e.it('ui:debug', (e) => {

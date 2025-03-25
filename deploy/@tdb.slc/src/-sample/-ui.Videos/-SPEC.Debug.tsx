@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, Color, css, Player, Signal } from './common.ts';
 
 /**
  * Types:
@@ -13,7 +13,15 @@ type P = DebugProps;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = { theme: s<t.CommonTheme>('Light') };
+  const video = Player.Video.signals({
+    src: 'vimeo/727951677', // Rowan: "group scale",
+    cornerRadius: 0,
+  });
+  const props = {
+    theme: s<t.CommonTheme>('Light'),
+    video,
+  };
+
   const api = { props };
   init?.(api);
   return api;
@@ -28,6 +36,7 @@ export const Debug: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.video.props.src.value;
   });
 
   /**
@@ -36,17 +45,40 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
+    title: css({ fontWeight: 'bold' }),
+  };
+
+  const selectVideo = (label: string, src: string) => {
+    const s = p.video.props;
+    const isCurrent = s.src.value === src;
+    const styles = {
+      base: css({ display: 'grid', gridTemplateColumns: `1fr auto`, marginLeft: 15 }),
+      label: css({ color: isCurrent ? Color.BLUE : undefined }),
+    };
+    return (
+      <Button block onClick={() => (s.src.value = src)}>
+        <div className={styles.base.class}>
+          <div className={styles.label.class}>{label}</div>
+          <div>{src}</div>
+        </div>
+      </Button>
+    );
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
         block
-        label={`theme: ${p.theme}`}
+        label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
+      <div className={styles.title.class}>Videos</div>
+      {selectVideo('Trailer', 'vimeo/1068502644')}
+      {selectVideo('Overview', 'vimeo/1068653222')}
+      <hr />
+      {selectVideo('ref: "Group Scale"', 'vimeo/727951677')}
     </div>
   );
 };

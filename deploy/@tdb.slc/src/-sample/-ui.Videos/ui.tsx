@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, Player } from './common.ts';
 
-export const MyComponent: React.FC<t.VideosIndexProps> = (props) => {
-  const { text = '🐷 Hello' } = props;
+export const VideosIndex: React.FC<t.VideosIndexProps> = (props) => {
+  const {} = props;
+  const signalsRef = React.useRef(props.signals);
 
   /**
    * Render:
@@ -10,14 +11,14 @@ export const MyComponent: React.FC<t.VideosIndexProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
+      width: 688,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{text}</div>
+      <Player.Video.View signals={signalsRef.current} />
     </div>
   );
 };
