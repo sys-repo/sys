@@ -71,7 +71,10 @@ export const Landing: React.FC<P> = (props) => {
     }),
 
     fill: css({ Absolute: 0 }),
-    logo: css({ Absolute: [null, 15, 12, null] }),
+    logo: css({
+      Absolute: [null, 15, 12, null],
+      width: 110,
+    }),
 
     body: css({ Absolute: 0, display: 'grid' }),
     layout: css({
@@ -107,7 +110,7 @@ export const Landing: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Logo style={styles.logo} width={110} theme={theme.name} />
+      <Logo style={styles.logo} theme={theme.name} />
       <VideoBackgroundTubes
         opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
         style={styles.fill}
