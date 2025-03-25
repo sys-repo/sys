@@ -52,7 +52,7 @@ describe(
 
           expect(find()).to.exist;
           CssDom.stylesheet({ instance, classPrefix });
-          expect(find()).to.equal(find()); // NB: Singleton.
+          expect(find()).to.equal(find()); // NB: singleton.
         };
 
         test();
