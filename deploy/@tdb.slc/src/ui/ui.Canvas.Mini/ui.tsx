@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, DEFAULTS } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { SvgImage } from './ui.Svg.tsx';
 
 type P = t.CanvasMiniProps;
