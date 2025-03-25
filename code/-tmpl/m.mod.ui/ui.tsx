@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 
 export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
-  const { text = '🐷 Hello' } = props;
+  const {} = props;
 
   /**
    * Render:
@@ -17,7 +17,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{text}</div>
+      <div>{'🐷 Hello'}</div>
     </div>
   );
 };

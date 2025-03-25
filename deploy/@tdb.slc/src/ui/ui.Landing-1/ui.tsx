@@ -2,10 +2,11 @@ import React, { useRef } from 'react';
 import { Player } from '../common.ts';
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 
-import { type t, Color, css, DEFAULTS, Logo, Signal, VimeoBackground } from './common.ts';
+import { type t, Color, css, DEFAULTS, Logo, Signal } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { Sidebar } from './ui.Sidebar.tsx';
 
+import { VideoBackgroundTubes } from '../ui.Video.Background.Tubes/mod.ts';
 import { useKeyboard } from './use.Keyboard.ts';
 import { useSelectedPanel } from './use.SelectedPanel.ts';
 
@@ -107,8 +108,7 @@ export const Landing: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Logo style={styles.logo} width={110} theme={theme.name} />
-      <VimeoBackground
-        video={DEFAULTS.tubes.id}
+      <VideoBackgroundTubes
         opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
         style={styles.fill}
       />
