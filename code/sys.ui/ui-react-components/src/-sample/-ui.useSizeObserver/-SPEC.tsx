@@ -1,28 +1,29 @@
 import { Dev, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Container } from './ui.tsx';
+import { Sample } from './ui.tsx';
 
-export default Spec.describe('css:container-type', (e) => {
+export default Spec.describe('useSizeObserver', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
+      // p.theme.value;
       ctx.redraw();
     });
 
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <Container theme={p.theme.value} />);
+      .render((e) => {
+        return <Sample />;
+      });
   });
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug debug={debug} />);
   });
 });

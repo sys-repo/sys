@@ -4,16 +4,15 @@ import { type t, Button, Color, css, Signal } from '../-test.ui.ts';
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type P = DebugProps;
 
 /**
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = { theme: s<t.CommonTheme>('Light') };
+  const props = {};
   const api = { props };
   init?.(api);
   return api;
@@ -22,33 +21,26 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 /**
  * Component:
  */
-export const Debug: React.FC<P> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+export const Debug: React.FC<DebugProps> = (props) => {
+  const { debug } = props;
+  const p = debug.props;
 
-  Signal.useRedrawEffect(() => p.theme.value);
+  Signal.useRedrawEffect(() => {});
 
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({
-      // color: theme.fg,
-    }),
-    title: css({ fontWeight: 'bold' }),
+    base: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>CSS: @container</div>
-      <hr />
-
-      <Button
+      {/* <Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
+      /> */}
 
       <hr />
     </div>

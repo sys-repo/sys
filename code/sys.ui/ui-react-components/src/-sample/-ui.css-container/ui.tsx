@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Style } from './common.ts';
-import { MdNoCell } from 'npm:react-icons@5.5.0/md';
+import { type t, Color, css, Style } from '../-test.ui.ts';
 
 /**
  * 🌼 NOTE: import the raw stylesheet
