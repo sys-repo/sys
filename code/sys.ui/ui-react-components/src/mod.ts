@@ -16,6 +16,7 @@ export type * as t from './types.ts';
  * Components.
  */
 export { Button } from './ui/Button/mod.ts';
+export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { Panel } from './ui/Panel/mod.ts';
 
