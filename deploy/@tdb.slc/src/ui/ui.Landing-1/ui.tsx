@@ -15,7 +15,8 @@ const D = DEFAULTS;
 
 const signalsFactory = () =>
   Player.Video.signals({
-    src: 'vimeo/727951677', // Rowan: "group scale",
+    // src: 'vimeo/727951677', // Rowan: "group scale",
+    src: 'vimeo/1068502644', // Trailer
   });
 
 /**
