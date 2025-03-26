@@ -51,10 +51,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
    */
   React.useEffect(() => {
     const sheet = Style.Dom.stylesheet();
-    sheet.rule('[data-media-provider]', {
-      width: '100%',
-      height: '100%',
-    });
+    sheet.rule('[data-media-provider]', { width: '100%', height: '100%' });
     sheet.rule('[data-media-provider] iframe', {
       width: '100%',
       height: '100%',
