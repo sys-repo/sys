@@ -36,5 +36,12 @@ export type * as t from './types.ts';
  */
 export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
-export { useClickInside, useClickOutside, useMouse, useMouseDrag } from './m.use/mod.ts';
 export { ReactEvent } from './u/mod.ts';
+
+export {
+  useClickInside,
+  useClickOutside,
+  useMouse,
+  useMouseDrag,
+  useSizeObserver,
+} from './m.use/mod.ts';

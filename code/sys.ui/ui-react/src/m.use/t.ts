@@ -18,7 +18,7 @@ export type UseMouseProps = {
 };
 
 /**
- * Hook: keep track of mouse events for an HTML element
+ * Hook Factory: keep track of mouse events for an HTML element
  */
 export type UseMouseHook = (props?: t.UseMouseProps) => t.UseMouse;
 
@@ -37,7 +37,7 @@ export type UseMouse = {
 };
 
 /**
- * Hook: keep track of a mouse drag operation.
+ * Hook Factory: keep track of a mouse drag operation.
  */
 export type UseMouseDragHook = (props?: t.UseMouseDragProps) => t.UseMouseDrag;
 
@@ -124,3 +124,20 @@ export type UseClickProps<T extends E> = {
 };
 
 export type UseClickStage = 'down' | 'up';
+
+/**
+ * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
+ */
+export type UseSizeObserverHook = <T extends HTMLElement>(
+  externalRef?: React.Ref<T>,
+) => t.UseSizeObserver<T>;
+
+/**
+ * Hook: monitor size changes to a DOM element using [ResizeObserver].
+ */
+export type UseSizeObserver<T extends HTMLElement> = {
+  /** Callback ref to be assigned to the element to observe. */
+  ref: React.RefCallback<T>;
+  /** The latest dimensions of the element (or null if not measured yet). */
+  size?: DOMRectReadOnly;
+};
