@@ -20,7 +20,7 @@ export const SpecsComponents = {
 } as t.SpecImports;
 
 export const SpecsSamples = {
-  '-sample.css: @container': () => import('../-sample/-ui.css-container-type/-SPEC.tsx'),
+  '-sample.css: @container': () => import('../-sample/-ui.css-container/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
