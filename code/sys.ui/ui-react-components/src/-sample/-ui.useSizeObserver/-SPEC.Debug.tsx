@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../-test.ui.ts';
+import { type t, css, Signal } from '../-test.ui.ts';
 
 /**
  * Types:
@@ -12,8 +12,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = {};
-  const api = { props };
+  const api = { rect: s<DOMRectReadOnly>() };
   init?.(api);
   return api;
 }
@@ -23,25 +22,22 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
+  const rect = debug.rect.value;
 
-  Signal.useRedrawEffect(() => {});
+  Signal.useRedrawEffect(() => debug.rect.value);
 
   /**
    * Render:
    */
   const styles = {
     base: css({}),
+    pre: css({ marginLeft: 20, fontSize: 12, fontWeight: 600 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {/* <Button
-        block
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      /> */}
-
+      <div>⚡️ via signal:</div>
+      <pre className={styles.pre.class}>{JSON.stringify(rect, null, '  ')}</pre>
       <hr />
     </div>
   );
