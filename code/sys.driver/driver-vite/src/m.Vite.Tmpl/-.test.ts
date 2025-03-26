@@ -13,7 +13,7 @@ describe('Vite: Template Generation', () => {
     } as const;
   };
 
-  it.only('--tmpl: Default', async () => {
+  it('--tmpl: Default', async () => {
     const fs = testFs();
     expect(await fs.ls()).to.eql([]);
 
