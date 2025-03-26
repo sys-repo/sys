@@ -2,7 +2,9 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { Wrangle } from './u.ts';
 
-export const Cropmarks: React.FC<t.CropmarksProps> = (props) => {
+type P = t.CropmarksProps;
+
+export const Cropmarks: React.FC<P> = (props) => {
   const { size } = props;
 
   const fillMargin = Wrangle.fillMargin(size);
@@ -26,7 +28,6 @@ export const Cropmarks: React.FC<t.CropmarksProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
 
   const fill = {
     gridTemplateColumns: is.y ? Grid.Center.columns : Grid.Fill.columns,
@@ -41,7 +42,7 @@ export const Cropmarks: React.FC<t.CropmarksProps> = (props) => {
     fill: sizeMode === 'fill' && fill,
   };
 
-  const border = props.border ?? `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
+  const border = wrangle.border(props);
   const borderLeft = border;
   const borderRight = border;
   const borderTop = border;
@@ -80,3 +81,16 @@ export const Cropmarks: React.FC<t.CropmarksProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  border(props: P) {
+    const theme = Color.theme(props.theme);
+    const { borderWidth = 1, borderOpacity } = props;
+    const opacity = typeof borderOpacity === 'number' ? borderOpacity : theme.is.dark ? 0.1 : 0.07;
+    if (borderWidth <= 0 || opacity <= 0) return;
+    return `solid ${borderWidth}px ${Color.alpha(theme.fg, opacity)}`;
+  },
+} as const;
