@@ -36,8 +36,8 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
         display: 'grid',
         placeItems: 'center',
       })
-        .container('max-width: 550px', { PaddingX: 75 }).container()
-        // .container('max-width: 550px', { PaddingX: 75 }).done,
+        .container('max-width: 550px', { PaddingX: 75 })
+        .container('max-width: 320px', { PaddingX: 50 }).done,
       subject: css({
         width: 400,
         marginBottom: '6%',
