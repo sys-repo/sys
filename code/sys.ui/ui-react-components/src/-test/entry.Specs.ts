@@ -21,6 +21,7 @@ export const SpecsComponents = {
 
 export const SpecsSamples = {
   '-sample.css: @container': () => import('../-sample/-ui.css-container/-SPEC.tsx'),
+  '-sample: useSizeObserver': () => import('../-sample/-ui.useSizeObserver/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

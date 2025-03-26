@@ -5,27 +5,26 @@ export type SampleProps = {
   style?: t.CssInput;
 };
 
-type P = SampleProps;
-
 /**
  * Component:
  */
-export const Sample: React.FC<P> = (props) => {
-  const {} = props;
-
+export const Sample: React.FC<SampleProps> = (props) => {
   const size = useSizeObserver();
-
-  console.log('size.rect', size.rect);
 
   /**
    * Render:
    */
   const styles = {
-    base: css({ padding: 10 }),
+    base: css({ position: 'relative', overflow: 'hidden' }),
+    body: css({ boxSizing: 'border-box', margin: 20 }),
+    pre: css({ marginLeft: 20, fontSize: 14 }),
   };
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
-      <div>{'👋 Hello'}</div>
+      <div className={styles.body.class}>
+        <div>{'👋 useSizeObserver:'}</div>
+        <pre className={styles.pre.class}>{JSON.stringify(size.rect, null, '  ')}</pre>
+      </div>
     </div>
   );
 };

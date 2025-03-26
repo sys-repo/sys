@@ -1,5 +1,7 @@
-import type { RefObject, MouseEventHandler } from 'react';
+import type { MouseEventHandler, RefObject } from 'react';
 import type { t } from '../common.ts';
+
+export type * from './useSizeObserver.t.ts';
 
 type E = HTMLElement;
 type Div = HTMLDivElement;
@@ -122,22 +124,4 @@ export type UseClickProps<T extends E> = {
   ref?: RefObject<T>;
   callback?: MouseCallback;
 };
-
 export type UseClickStage = 'down' | 'up';
-
-/**
- * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
- */
-export type UseSizeObserverHook = <T extends HTMLElement>(
-  externalRef?: React.Ref<T>,
-) => t.UseSizeObserver<T>;
-
-/**
- * Hook: monitor size changes to a DOM element using [ResizeObserver].
- */
-export type UseSizeObserver<T extends HTMLElement> = {
-  /** Callback ref to be assigned to the element to observe. */
-  ref: React.RefCallback<T>;
-  /** The latest dimensions of the element (or null if not measured yet). */
-  size?: DOMRectReadOnly;
-};
