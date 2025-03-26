@@ -1,7 +1,7 @@
-import { type t, describe, it, expect } from '../../-test.ts';
-import { Player } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { ConceptPlayer, VideoPlayer } from '../../mod.ts';
 import { Thumbnails } from '../Player.Thumbnails/mod.ts';
+import { Player } from './mod.ts';
 
 describe('Player', () => {
   it('API', () => {
