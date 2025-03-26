@@ -18,14 +18,15 @@ export default Spec.describe('Logo', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       p.width.value;
+      p.logo.value;
       updateSize();
       ctx.redraw();
     });
 
     ctx.subject
-      //
+      .size()
       .display('grid')
-      .render((e) => <Logo theme={p.theme.value} />);
+      .render((e) => <Logo theme={p.theme.value} logo={p.logo.value} />);
   });
 
   e.it('ui:debug', (e) => {

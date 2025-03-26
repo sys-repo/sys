@@ -1,5 +1,7 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, Color, css, Signal, DEFAULTS } from './common.ts';
+
+const D = DEFAULTS;
 
 /**
  * Types:
@@ -13,9 +15,11 @@ type P = DebugProps;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
+  type P = t.LogoProps;
   const props = {
-    theme: s<t.LogoProps['theme']>('Dark'),
     width: s<number | undefined>(),
+    theme: s<P['theme']>('Dark'),
+    logo: s<P['logo']>(D.logo),
   };
   const api = { props };
   init?.(api);
@@ -32,6 +36,7 @@ export const Debug: React.FC<P> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.width.value;
+    p.logo.value;
   });
 
   /**
@@ -51,9 +56,16 @@ export const Debug: React.FC<P> = (props) => {
       />
       <Button
         block
-        label={`width: ${p.width}${p.width.value === undefined ? '' : 'px'}`}
+        label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [undefined, 90, 150, 300])}
       />
+
+      <Button
+        block
+        label={`logo: "${p.logo}"`}
+        onClick={() => Signal.cycle<t.LogoKind>(p.logo, ['SLC', 'CreativeCommons'])}
+      />
+
       <hr />
     </div>
   );
