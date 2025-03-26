@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal, DEFAULTS } from './common.ts';
+import { type t, Button, Color, css, DEFAULTS, Signal } from './common.ts';
 
 const D = DEFAULTS;
 
