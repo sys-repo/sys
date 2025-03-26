@@ -14,6 +14,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Light'),
     size: s<P['size']>(),
+    subjectOnly: s<P['subjectOnly']>(false),
   };
   const api = { props };
   init?.(api);

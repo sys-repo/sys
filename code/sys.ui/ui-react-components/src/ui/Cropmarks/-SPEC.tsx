@@ -14,6 +14,7 @@ export default Spec.describe('Cropmarks', (e) => {
     Signal.effect(() => {
       p.theme.value;
       p.size.value;
+      p.subjectOnly.value;
       ctx.redraw();
     });
 
@@ -29,7 +30,7 @@ export default Spec.describe('Cropmarks', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => (
-        <Cropmarks theme={p.theme.value} size={p.size.value}>
+        <Cropmarks theme={p.theme.value} size={p.size.value} subjectOnly={p.subjectOnly.value}>
           <div className={styles.subject.class}>{'🐷 Hello Cropmarks'}</div>
         </Cropmarks>
       ));

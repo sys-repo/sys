@@ -15,6 +15,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.size.value;
+    p.subjectOnly.value;
   });
 
   /**
@@ -31,6 +32,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={`subjectOnly: ${p.subjectOnly}`}
+        onClick={() => Signal.toggle(p.subjectOnly)}
       />
 
       <hr />

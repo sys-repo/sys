@@ -5,7 +5,9 @@ import { Wrangle } from './u.ts';
 type P = t.CropmarksProps;
 
 export const Cropmarks: React.FC<P> = (props) => {
-  const { size } = props;
+  const { size, subjectOnly = false } = props;
+
+  if (subjectOnly) return props.children;
 
   const fillMargin = Wrangle.fillMargin(size);
   const sizeMode: t.CropmarksSizeMode = size?.mode ?? 'center';
