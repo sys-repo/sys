@@ -1,7 +1,7 @@
 {
   "imports": {
     "@sys/driver-deno": "jsr:@sys/driver-deno@0.0.95",
-    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.134",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.135",
     "@sys/driver-vitepress": "jsr:@sys/driver-vitepress@0.0.300",
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0.4",
     "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.8.0"
