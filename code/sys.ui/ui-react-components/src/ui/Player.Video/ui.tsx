@@ -1,8 +1,6 @@
-import React, { useRef } from 'react';
-
-import type { MediaPlayerInstance } from '@vidstack/react';
-import { MediaPlayer, MediaProvider } from '@vidstack/react';
+import { type MediaPlayerInstance, MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
+import React, { useRef } from 'react';
 
 import { type t, css, DEFAULTS, Signal, Style } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';

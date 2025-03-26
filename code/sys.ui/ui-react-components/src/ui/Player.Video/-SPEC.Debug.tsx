@@ -6,12 +6,11 @@ import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
  * Types:
  */
 export type DebugProps = {
-  ctx: { video: t.VideoPlayerSignals; debug: DebugSignals };
+  ctx: { debug: DebugSignals; video: t.VideoPlayerSignals };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type P = DebugProps;
 
 /**
  * Signals:
@@ -26,10 +25,11 @@ export function createDebugSignals() {
 /**
  * Component:
  */
-export const Debug: React.FC<P> = (props) => {
+export const Debug: React.FC<DebugProps> = (props) => {
   const { ctx } = props;
-  const p = ctx.video.props;
+  const video = ctx.video;
   const d = ctx.debug.props;
+  const p = video.props;
 
   Signal.useRedrawEffect(() => {
     p.ready.value;
@@ -62,44 +62,40 @@ export const Debug: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
       <Button
-        block={true}
-        label={`method: jumpTo(12, play)`}
-        onClick={() => ctx.video.jumpTo(12)}
-      />
-      <Button
-        block={true}
+        block
         label={`method: jumpTo(12, paused)`}
-        onClick={() => ctx.video.jumpTo(12, { play: false })}
+        onClick={() => video.jumpTo(12, { play: false })}
       />
       <hr />
-      <Button block={true} label={`playing: ${p.playing}`} onClick={() => toggle(p.playing)} />
-      <Button block={true} label={`muted: ${p.muted}`} onClick={() => toggle(p.muted)} />
-      <Button block={true} label={`autoplay: ${p.autoPlay}`} onClick={() => toggle(p.autoPlay)} />
-      <Button block={true} label={`loop: ${p.loop}`} onClick={() => toggle(p.loop)} />
+      <Button block label={`playing: ${p.playing}`} onClick={() => Signal.toggle(p.playing)} />
+      <Button block label={`muted: ${p.muted}`} onClick={() => Signal.toggle(p.muted)} />
+      <Button block label={`autoplay: ${p.autoPlay}`} onClick={() => Signal.toggle(p.autoPlay)} />
+      <Button block label={`loop: ${p.loop}`} onClick={() => Signal.toggle(p.loop)} />
       <Button
-        block={true}
+        block
         label={`background: ${p.background} ← ${p.background.value ? 'fill' : 'fixed-size'}`}
-        onClick={() => toggle(p.background)}
+        onClick={() => Signal.toggle(p.background)}
       />
       <hr />
       <Button
-        block={true}
+        block
         label={`showControls: ${p.showControls}`}
-        onClick={() => toggle(p.showControls)}
+        onClick={() => Signal.toggle(p.showControls)}
       />
       <Button
-        block={true}
+        block
         label={`showFullscreenButton: ${p.showFullscreenButton}`}
-        onClick={() => toggle(p.showFullscreenButton)}
+        onClick={() => Signal.toggle(p.showFullscreenButton)}
       />
       <Button
-        block={true}
+        block
         label={`cornerRadius: ${p.cornerRadius}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 5, 10, 15])}
       />
       <Button
-        block={true}
+        block
         label={`aspectRatio: ${p.aspectRatio}`}
         onClick={() => Signal.cycle(p.aspectRatio, [DEFAULTS.aspectRatio, '4/3', '2.39/1', '1/1'])}
       />
@@ -107,7 +103,7 @@ export const Debug: React.FC<P> = (props) => {
       <hr />
 
       <Button
-        block={true}
+        block
         label={`src: ${p.src}`}
         onClick={() =>
           Signal.cycle(p.src, [
@@ -116,11 +112,8 @@ export const Debug: React.FC<P> = (props) => {
           ])
         }
       />
+
+      <hr />
     </div>
   );
 };
-
-/**
- * Helpers
- */
-const toggle = (signal: t.Signal<boolean>) => (signal.value = !signal.value);

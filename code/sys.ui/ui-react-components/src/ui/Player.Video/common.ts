@@ -1,5 +1,8 @@
 export * from '../common.ts';
 
+/**
+ * Constants
+ */
 export const DEFAULTS = {
   video: 'vimeo/499921561', // Tubes.
 
