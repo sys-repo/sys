@@ -11,11 +11,13 @@ import {
 } from './common.ts';
 import { Content } from './ui.Content.tsx';
 
+type P = t.Landing3Props;
+
 /**
  * Component:
  */
-export const Landing: React.FC<t.Landing3Props> = (props) => {
-  const { debug = false, backgroundVideoOpacity } = props;
+export const Landing: React.FC<P> = (props) => {
+  const { debug, backgroundVideoOpacity } = props;
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
@@ -25,8 +27,7 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
    * Hooks:
    */
   useKeyboard();
-  const dist = useDist({});
-
+  const dist = useDist({ sample: wrangle.showSample(props) });
   console.info('💦 dist.json:', dist);
 
   /**
@@ -55,3 +56,14 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  showSample(props: P) {
+    const { debug } = props;
+    const isLocalhost = location.hostname === 'localhost';
+    return debug ?? (isLocalhost && location.port !== '8080');
+  },
+} as const;
