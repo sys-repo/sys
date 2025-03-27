@@ -36,7 +36,7 @@ export const Dist: t.PkgDistFsLib = {
     const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
     const size: t.DistPkg['size'] = { bytes };
     const dist: t.DistPkg = {
-      '-type:': '@sys/types:DistPkg',
+      '-type:': 'jsr:@sys/types:DistPkg',
       pkg,
       size,
       entry: wrangle.entry(entry),
