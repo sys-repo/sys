@@ -13,7 +13,10 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.MobileLayoutProps;
   const s = Signal.create;
-  const props = { theme: s<P['theme']>('Light') };
+  const props = {
+    theme: s<P['theme']>('Dark'),
+    stage: s<t.Stage>('Trailer'),
+  };
   const api = { props };
   init?.(api);
   return api;
@@ -28,6 +31,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
+    p.stage.value;
   });
 
   /**
@@ -45,7 +49,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
+      <Button
+        block
+        label={`stage: "${p.stage}"`}
+        onClick={() => {
+          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+        }}
+      />
       <hr />
     </div>
   );

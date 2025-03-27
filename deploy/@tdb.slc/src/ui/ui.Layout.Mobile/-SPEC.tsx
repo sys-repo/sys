@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { MobileLayout } from './mod.ts';
 
@@ -12,13 +12,17 @@ export default Spec.describe('MobileLayout', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       p.theme.value;
+      p.stage.value;
       ctx.redraw();
     });
 
     ctx.subject
-      .size('fill')
+      .size([390, 844]) // ← iPhone
       .display('grid')
-      .render((e) => <MobileLayout theme={p.theme.value} />);
+      .render((e) => {
+        const stage = p.stage.value;
+        return <MobileLayout theme={p.theme.value} ctx={{ stage }} />;
+      });
   });
 
   e.it('ui:debug', (e) => {
