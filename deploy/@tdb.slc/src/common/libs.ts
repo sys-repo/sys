@@ -1,2 +1,2 @@
 export { Err, Path, Pkg, rx, Str, Time } from '@sys/std';
-export { Signal } from '@sys/ui-react';
+export { Signal, useSizeObserver } from '@sys/ui-react';
