@@ -4,6 +4,7 @@ import {
   Color,
   css,
   LayoutBreakpoint,
+  useDist,
   useKeyboard,
   useSizeObserver,
   VideoBackgroundTubes,
@@ -24,6 +25,9 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
    * Hooks:
    */
   useKeyboard();
+  const dist = useDist({});
+
+  console.info('💦 dist.json:', dist);
 
   /**
    * Render:
