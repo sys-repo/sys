@@ -10,7 +10,6 @@ export const MobileLayout: React.FC<t.MobileLayoutProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: theme.bg,
       color: theme.fg,
     }),
   };

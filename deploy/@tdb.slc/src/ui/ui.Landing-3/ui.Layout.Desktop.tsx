@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type LayoutDesktopProps = {
+  dist?: t.DistPkg;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

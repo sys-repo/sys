@@ -45,7 +45,7 @@ export const Landing: React.FC<P> = (props) => {
 
   const elBody = (
     <div ref={size.ref} className={styles.fill.class}>
-      <Content breakpoint={breakpoint} theme={theme.name} />
+      <Content breakpoint={breakpoint} theme={theme.name} dist={dist} />
     </div>
   );
 

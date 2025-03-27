@@ -5,14 +5,17 @@ import { LayoutIntermediate } from './ui.Layout.Intermediate.tsx';
 
 export type ContentProps = {
   breakpoint: t.Breakpoint;
+  dist?: t.DistPkg;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
+type P = ContentProps;
+
 /**
  * Component:
  */
-export const Content: React.FC<ContentProps> = (props) => {
+export const Content: React.FC<P> = (props) => {
   const { breakpoint, theme } = props;
 
   /**
@@ -27,16 +30,34 @@ export const Content: React.FC<ContentProps> = (props) => {
     <div className={styles.layout.class}>{/* Not Ready */}</div>
   );
 
-  const elMobile = breakpoint.is.mobile && <MobileLayout theme={theme} />;
-  const elIntermediate = breakpoint.is.intermediate && <LayoutIntermediate theme={theme} />;
-  const elDesktop = breakpoint.is.desktop && <LayoutDesktop theme={theme} />;
-
   return (
     <div className={css(styles.base, props.style).class}>
       {elNotReady}
-      {elMobile}
-      {elIntermediate}
-      {elDesktop}
+      {wrangle.current(props)}
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  current(prop: P) {
+    const { breakpoint, theme, dist } = props;
+    const is = breakpoint.is;
+
+    if (is.mobile) {
+      return <MobileLayout theme={theme} dist={dist} />;
+    }
+
+    if (is.intermediate) {
+      return <LayoutIntermediate theme={theme} dist={dist} />;
+    }
+
+    if (is.desktop) {
+      return <LayoutDesktop theme={theme} dist={dist} />;
+    }
+
+    return;
+  },
+} as const;
