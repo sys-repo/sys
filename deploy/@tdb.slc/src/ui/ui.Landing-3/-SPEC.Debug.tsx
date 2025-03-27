@@ -49,8 +49,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{'Landing-2'}</div>
+      <div className={styles.title.class}>{'Landing-3'}</div>
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={`theme: "${p.theme}"`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
       <hr />
       <Button
         block
@@ -58,11 +63,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
-      />
-      <Button
-        block
-        label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block

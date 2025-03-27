@@ -24,7 +24,7 @@ export const LayoutDesktop: React.FC<LayoutDesktopProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={props.theme}>
+      <Cropmarks theme={props.theme} borderOpacity={0.05}>
         <div>{`🐷 Layout: Desktop`}</div>
       </Cropmarks>
     </div>
