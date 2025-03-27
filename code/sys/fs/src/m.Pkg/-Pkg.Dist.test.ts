@@ -43,6 +43,7 @@ describe('Pkg.Dist', () => {
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
 
+      expect(res.dist['-type:'] === '@sys/types/DistPkg').to.eql(true);
       expect(res.dir).to.eql(Fs.resolve(dir));
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.entry).to.eql(Path.normalize(entry));
