@@ -16,6 +16,7 @@ export function useDist(options: { sample?: boolean } = {}) {
    */
   useEffect(() => {
     const fetch = Http.fetch();
+    setJson(undefined);
     if (is.sample) {
       import('./use.Dist.sample.ts').then((e) => {
         if (fetch.disposed) return;
