@@ -1,5 +1,5 @@
 # Style/CSS
-Tools for working with Styles/CSS programatically (aka "css-in-js").
+Tools for working with strongly-typed styles/css programatically (aka. "css-in-js").
 
 Note: This approach is a pure JS-to-CSS/DOM approach, with zero-dependencies on any other
 special bundler plugin, or post-css processing type dependencies, which inevitably cause 
@@ -17,6 +17,7 @@ export function MyComponent() {
   return <div className={base.class}>{'👋 Hello World!'}</div>
 }
 ```
+
 
 If your component takes styles as an incoming property, these can be merged with 
 internal component styles like so:
@@ -119,3 +120,8 @@ return (
 );
 ```
 
+
+
+---
+
+- [cross-ref:cast](https://warpcast.com/pjc/0x59783042): conversation description, [template expansions](https://warpcast.com/pjc/0xa908939e)
