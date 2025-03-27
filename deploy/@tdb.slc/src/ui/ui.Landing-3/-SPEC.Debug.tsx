@@ -17,6 +17,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Dark'),
     backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
+    stage: s<t.Stage>('Entry'),
   };
   const api = { props };
   init?.(api);
@@ -33,6 +34,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.debug.value;
+    p.stage.value;
     p.backgroundVideoOpacity.value;
   });
 
@@ -50,6 +52,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>{'Landing-2'}</div>
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <hr />
+      <Button
+        block
+        label={`stage: "${p.stage}"`}
+        onClick={() => {
+          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+        }}
+      />
       <Button
         block
         label={`theme: "${p.theme}"`}

@@ -4,8 +4,8 @@ import { LayoutDesktop } from './ui.Layout.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Layout.Intermediate.tsx';
 
 export type ContentProps = {
+  ctx?: { dist?: t.DistPkg; stage?: t.Stage };
   breakpoint: t.Breakpoint;
-  dist?: t.DistPkg;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -42,20 +42,20 @@ export const Content: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  current(prop: P) {
-    const { breakpoint, theme, dist } = props;
+  current(props: P) {
+    const { breakpoint, ctx, theme } = props;
     const is = breakpoint.is;
 
     if (is.mobile) {
-      return <MobileLayout theme={theme} dist={dist} />;
+      return <MobileLayout theme={theme} ctx={ctx} />;
     }
 
     if (is.intermediate) {
-      return <LayoutIntermediate theme={theme} dist={dist} />;
+      return <LayoutIntermediate theme={theme} ctx={ctx} />;
     }
 
     if (is.desktop) {
-      return <LayoutDesktop theme={theme} dist={dist} />;
+      return <LayoutDesktop theme={theme} ctx={ctx} />;
     }
 
     return;

@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type LayoutIntermediateProps = {
-  dist?: t.DistPkg;
+  ctx?: { dist?: t.DistPkg; stage?: t.Stage };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -11,7 +11,8 @@ export type LayoutIntermediateProps = {
  * Component:
  */
 export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => {
-  const {} = props;
+  const { ctx } = props;
+  console.log('ctx', ctx);
 
   /**
    * Render:

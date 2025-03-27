@@ -1,7 +1,6 @@
 import React from 'react';
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { type t, Color, css, useSizeObserver } from './common.ts';
 import { Landing } from './mod.ts';
 
 export default Spec.describe('MyComponent', (e) => {
@@ -14,6 +13,7 @@ export default Spec.describe('MyComponent', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       p.debug.value;
+      p.stage.value;
       p.backgroundVideoOpacity.value;
       ctx.host.tracelineColor(p.theme.value === 'Dark' ? 0.15 : -0.06);
       ctx.redraw();
@@ -22,13 +22,16 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => (
-        <Landing
-          theme={p.theme.value}
-          debug={p.debug.value}
-          backgroundVideoOpacity={p.backgroundVideoOpacity.value}
-        />
-      ));
+      .render((e) => {
+        return (
+          <Landing
+            theme={p.theme.value}
+            debug={p.debug.value}
+            stage={p.stage.value}
+            backgroundVideoOpacity={p.backgroundVideoOpacity.value}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

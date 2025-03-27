@@ -17,7 +17,7 @@ type P = t.Landing3Props;
  * Component:
  */
 export const Landing: React.FC<P> = (props) => {
-  const { debug, backgroundVideoOpacity } = props;
+  const { debug, stage = 'Entry', backgroundVideoOpacity } = props;
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
@@ -28,7 +28,9 @@ export const Landing: React.FC<P> = (props) => {
    */
   useKeyboard();
   const dist = useDist({ sample: wrangle.showSample(props) });
-  console.info('💦 dist.json:', dist);
+  const ctx = { stage, dist: dist.json };
+
+  // console.info('💦 dist.json:', dist);
 
   /**
    * Render:
@@ -45,7 +47,7 @@ export const Landing: React.FC<P> = (props) => {
 
   const elBody = (
     <div ref={size.ref} className={styles.fill.class}>
-      <Content breakpoint={breakpoint} theme={theme.name} dist={dist} />
+      <Content breakpoint={breakpoint} theme={theme.name} ctx={ctx} />
     </div>
   );
 
