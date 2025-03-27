@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, VIDEO, VimeoBackground } from './common.ts';
 
-type P = t.VideoBackgroundTubesProps;
+type P = t.VideoBackgroundProps;
 
-export const VideoBackgroundTubes: React.FC<P> = (props) => {
+export const VideoBackground: React.FC<P> = (props) => {
   /**
    * Render:
    */

@@ -7,7 +7,7 @@ import {
   useDist,
   useKeyboard,
   useSizeObserver,
-  VideoBackgroundTubes,
+  VideoBackground,
 } from './common.ts';
 import { Content } from './ui.Content.tsx';
 
@@ -49,7 +49,7 @@ export const Landing: React.FC<P> = (props) => {
   };
 
   const elBackground = typeof backgroundVideoOpacity === 'number' && (
-    <VideoBackgroundTubes opacity={backgroundVideoOpacity} style={styles.fill} />
+    <VideoBackground opacity={backgroundVideoOpacity} style={styles.fill} />
   );
 
   const elBody = (

@@ -4,7 +4,7 @@ import { type t, Color, css } from './common.ts';
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
 import { useKeyboard } from '../ui.Landing-1/use.Keyboard.ts';
 import { Logo } from '../ui.Logo/mod.ts';
-import { VideoBackgroundTubes } from '../ui.Video.Background.Tubes/mod.ts';
+import { VideoBackground } from '../ui.Video.Background/mod.ts';
 
 export const Landing: React.FC<t.Landing2Props> = (props) => {
   const { debug = false, backgroundVideo = 0 } = props;
@@ -54,7 +54,7 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
   };
 
   const elBackground = backgroundVideo !== undefined && (
-    <VideoBackgroundTubes opacity={backgroundVideo} style={styles.background} />
+    <VideoBackground opacity={backgroundVideo} style={styles.background} />
   );
 
   const elCanvas = (

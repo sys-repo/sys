@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { VideoBackgroundTubes } from './mod.ts';
+import { VideoBackground } from './mod.ts';
 
-export default Spec.describe('VideoBackgroundTubes', (e) => {
+export default Spec.describe('VideoBackground', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -19,7 +19,7 @@ export default Spec.describe('VideoBackgroundTubes', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <VideoBackgroundTubes theme={p.theme.value} opacity={p.opacity.value} />);
+      .render((e) => <VideoBackground theme={p.theme.value} opacity={p.opacity.value} />);
   });
 
   e.it('ui:debug', (e) => {

@@ -12,9 +12,10 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
+  type P = t.VideoBackgroundProps;
   const props = {
-    theme: s<t.VideoBackgroundTubesProps['theme']>('Dark'),
-    opacity: s<t.VideoBackgroundTubesProps['opacity']>(),
+    theme: s<P['theme']>('Dark'),
+    opacity: s<P['opacity']>(),
   };
   const api = { props };
   init?.(api);

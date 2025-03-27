@@ -7,7 +7,7 @@ export type * from './ui/use/t.ts';
 
 export type * from './ui/ui.Canvas.Mini/t.ts';
 export type * from './ui/ui.Logo/t.ts';
-export type * from './ui/ui.Video.Background.Tubes/t.ts';
+export type * from './ui/ui.Video.Background/t.ts';
 
 export type * from './ui/ui.Layout/t.ts';
 
