@@ -5,9 +5,9 @@
 import type { t } from './common.ts';
 
 export const Specs = {
-  'tdb.slc.ui.Landing-1': () => import('../ui/ui.Landing-1/-SPEC.tsx'),
-  'tdb.slc.ui.Landing-2': () => import('../ui/ui.Landing-2/-SPEC.tsx'),
-  'tdb.slc.ui.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
+  'tdb.slc.entry.Landing-1': () => import('../ui/ui.Landing-1/-SPEC.tsx'),
+  'tdb.slc.entry.Landing-2': () => import('../ui/ui.Landing-2/-SPEC.tsx'),
+  'tdb.slc.entry.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
 
   'tdb.slc.ui.Layout.Mobile': () => import('../ui/ui.Layout.Mobile/-SPEC.tsx'),
 

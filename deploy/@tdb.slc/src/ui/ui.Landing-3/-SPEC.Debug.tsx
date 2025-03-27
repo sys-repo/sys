@@ -48,15 +48,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-2'}</div>
-      <hr />
-
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <hr />
       <Button
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <hr />
       <Button
         block
         label={`backgroundVideoOpacity: ${p.backgroundVideoOpacity}`}

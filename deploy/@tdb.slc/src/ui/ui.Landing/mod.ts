@@ -4,3 +4,5 @@
  */
 export { useKeyboard } from './use.Keyboard.ts';
 export { useDist } from './use.Dist.ts';
+
+export { LayoutBreakpoint } from './m.LayoutBreakpoint.ts';
