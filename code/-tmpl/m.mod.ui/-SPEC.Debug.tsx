@@ -14,7 +14,12 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.MyComponentProps;
   const s = Signal.create;
   const props = { theme: s<P['theme']>('Light') };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      props.theme.value;
+    },
+  };
   init?.(api);
   return api;
 }
@@ -26,9 +31,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
