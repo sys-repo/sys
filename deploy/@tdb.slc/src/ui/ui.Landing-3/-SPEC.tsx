@@ -13,7 +13,6 @@ export default Spec.describe('MyComponent', (e) => {
     Dev.Theme.signalEffect(ctx, p.signals.theme, 1);
     Signal.effect(() => {
       p.debug.value;
-      p.backgroundVideoOpacity.value;
       p.signals.listen();
 
       ctx.host.tracelineColor(p.signals.theme.value === 'Dark' ? 0.15 : -0.06);
@@ -24,13 +23,7 @@ export default Spec.describe('MyComponent', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => {
-        return (
-          <Landing
-            signals={p.signals}
-            debug={p.debug.value}
-            backgroundVideoOpacity={p.backgroundVideoOpacity.value}
-          />
-        );
+        return <Landing signals={p.signals} debug={p.debug.value} />;
       });
   });
 

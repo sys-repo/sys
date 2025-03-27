@@ -14,12 +14,9 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing3Props;
   const s = Signal.create;
 
-  const signals = App.signals();
-
   const props = {
-    signals,
     debug: s<P['debug']>(true),
-    backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
+    signals: App.signals(),
   };
   const api = { props };
   init?.(api);
@@ -35,7 +32,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.debug.value;
-    p.backgroundVideoOpacity.value;
     p.signals.listen();
   });
 
@@ -68,8 +64,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`backgroundVideoOpacity: ${p.backgroundVideoOpacity}`}
-        onClick={() => Signal.cycle(p.backgroundVideoOpacity, [undefined, 0.15, 0.3, 1])}
+        label={`backgroundVideoOpacity: ${p.signals.background.video.opacity}`}
+        onClick={() => Signal.cycle(p.signals.background.video.opacity, [undefined, 0.15, 0.3, 1])}
       />
 
       <hr />

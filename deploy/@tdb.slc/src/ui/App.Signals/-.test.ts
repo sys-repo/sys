@@ -10,6 +10,7 @@ describe('App', () => {
       expect(signals.stage.value === 'Entry').to.be.true;
       expect(signals.theme.value === 'Dark').to.be.true;
       expect(signals.dist.value).to.eql(undefined);
+      expect(signals.background.video.opacity.value).to.eql(0.2);
 
       console.info();
       console.info('SLC:Signals:\n', signals);

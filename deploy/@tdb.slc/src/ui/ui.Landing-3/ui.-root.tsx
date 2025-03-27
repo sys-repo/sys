@@ -17,7 +17,7 @@ type P = t.Landing3Props;
  * Component:
  */
 export const Landing: React.FC<P> = (props) => {
-  const { debug, signals, backgroundVideoOpacity } = props;
+  const { debug, signals } = props;
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
@@ -35,10 +35,14 @@ export const Landing: React.FC<P> = (props) => {
     },
   });
 
+  if (!signals) return;
+  const bg = signals.background;
+  const backgroundVideoOpacity = bg.video.opacity.value;
+
   /**
    * Render:
    */
-  const theme = Color.theme(props.signals?.theme.value);
+  const theme = Color.theme(signals.theme.value);
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),
