@@ -25,9 +25,13 @@ export async function main() {
     /**
      * Landing (entry):
      */
-    const { Landing } = await import('../ui/ui.Landing-3/mod.ts');
-    const el = <Landing style={{ Absolute: 0 }} theme={'Dark'} backgroundVideoOpacity={0.2} />;
-    root.render(<StrictMode>{el}</StrictMode>);
+    const { Landing, App } = await import('../ui/ui.Landing-3/mod.ts');
+    const state = App.signals();
+    root.render(
+      <StrictMode>
+        <Landing signals={state} style={{ Absolute: 0 }} />
+      </StrictMode>,
+    );
   }
 }
 
