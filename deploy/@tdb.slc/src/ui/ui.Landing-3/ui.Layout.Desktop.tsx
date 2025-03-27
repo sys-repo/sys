@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type LayoutDesktopProps = {
-  ctx?: { dist?: t.DistPkg; stage?: t.Stage };
+  signals?: t.SlcSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -11,8 +11,7 @@ export type LayoutDesktopProps = {
  * Component:
  */
 export const LayoutDesktop: React.FC<LayoutDesktopProps> = (props) => {
-  const { ctx } = props;
-  console.log('ctx', ctx);
+  const { signals } = props;
 
   /**
    * Render:

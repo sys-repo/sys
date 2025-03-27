@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, Color, createSignals, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -13,11 +13,14 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing3Props;
   const s = Signal.create;
+
+  const signals = createSignals();
+
   const props = {
+    signals,
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Dark'),
     backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
-    stage: s<t.Stage>('Entry'),
   };
   const api = { props };
   init?.(api);
@@ -34,8 +37,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.debug.value;
-    p.stage.value;
     p.backgroundVideoOpacity.value;
+    p.signals.listen();
   });
 
   /**
@@ -45,7 +48,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    dist: css({ fontSize: 12 }),
   };
+
+  // const dist = p.signals.dist
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -59,9 +65,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`stage: "${p.stage}"`}
+        label={`stage: "${p.signals.stage}"`}
         onClick={() => {
-          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+          Signal.cycle<t.Stage>(p.signals.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
       <Button
@@ -71,6 +77,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+
+      <Button
+        block
+        label={`playing: ${p.signals.video.props.playing}`}
+        onClick={() => Signal.toggle(p.signals.video.props.playing)}
+      />
+
+      <hr />
+      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(p.signals), null, '  ')}</pre>
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  dist(signals: t.SlcSignals) {
+    const d = signals.dist.value;
+    if (!d) return {};
+
+    return {
+      'dist:hash': d.hash.digest.slice(-5),
+    };
+  },
+} as const;
