@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type MyComponentProps = {
+export type MobileLayoutProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

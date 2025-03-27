@@ -1,8 +1,8 @@
 import { Dev, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MyComponent } from './mod.ts';
+import { MobileLayout } from './mod.ts';
 
-export default Spec.describe('MyComponent', (e) => {
+export default Spec.describe('MobileLayout', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -18,7 +18,7 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <MyComponent theme={p.theme.value} />);
+      .render((e) => <MobileLayout theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

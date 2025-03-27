@@ -1,16 +1,17 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
-export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
+export const MobileLayout: React.FC<t.MobileLayoutProps> = (props) => {
   const {} = props;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
+
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: theme.bg,
       color: theme.fg,
     }),
   };

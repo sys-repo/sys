@@ -11,7 +11,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.MyComponentProps;
+  type P = t.MobileLayoutProps;
   const s = Signal.create;
   const props = { theme: s<P['theme']>('Light') };
   const api = { props };
