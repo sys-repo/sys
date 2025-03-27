@@ -91,6 +91,7 @@ describe('Pkg', () => {
 
       it('true', () => {
         const dist: t.DistPkg = {
+          '-type:': 'jsr:@sys/types:DistPkg',
           pkg: { name: 'foo', version: '1.2.3' },
           size: { bytes: 123_456 },
           entry: 'pkg/entry.js',
