@@ -1,5 +1,7 @@
 import React from 'react';
 import { type t, css, MobileLayout } from './common.ts';
+import { LayoutDesktop } from './ui.Layout.Desktop.tsx';
+import { LayoutIntermediate } from './ui.Layout.Intermediate.tsx';
 
 export type ContentProps = {
   breakpoint: t.Breakpoint;
@@ -25,14 +27,9 @@ export const Content: React.FC<ContentProps> = (props) => {
     <div className={styles.layout.class}>{/* Not Ready */}</div>
   );
 
-  const elMobile = breakpoint.is.mobile && <MobileLayout style={styles.layout} theme={theme} />;
-
-  const elIntermediate = breakpoint.is.intermediate && (
-    <div className={styles.layout.class}>intermediateContentLayout</div>
-  );
-  const elDesktop = breakpoint.is.desktop && (
-    <div className={styles.layout.class}>desktopContentLayout</div>
-  );
+  const elMobile = breakpoint.is.mobile && <MobileLayout theme={theme} />;
+  const elIntermediate = breakpoint.is.intermediate && <LayoutIntermediate theme={theme} />;
+  const elDesktop = breakpoint.is.desktop && <LayoutDesktop theme={theme} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
