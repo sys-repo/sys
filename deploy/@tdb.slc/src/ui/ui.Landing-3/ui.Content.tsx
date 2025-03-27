@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, MobileLayout } from './common.ts';
+import React from 'react';
+import { type t, css, MobileLayout } from './common.ts';
 
 export type ContentProps = {
   breakpoint: t.Breakpoint;
@@ -25,7 +25,7 @@ export const Content: React.FC<ContentProps> = (props) => {
     <div className={styles.layout.class}>{/* Not Ready */}</div>
   );
 
-  const elMobile = breakpoint.is.mobile && <MobileLayout style={styles.layout} theme={'Light'} />;
+  const elMobile = breakpoint.is.mobile && <MobileLayout style={styles.layout} theme={theme} />;
 
   const elIntermediate = breakpoint.is.intermediate && (
     <div className={styles.layout.class}>intermediateContentLayout</div>

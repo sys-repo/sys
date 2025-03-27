@@ -40,7 +40,7 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
 
   const elBody = (
     <div ref={size.ref} className={styles.fill.class}>
-      <Content breakpoint={breakpoint} />
+      <Content breakpoint={breakpoint} theme={theme.name} />
     </div>
   );
 
