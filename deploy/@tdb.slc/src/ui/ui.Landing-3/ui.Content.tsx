@@ -4,7 +4,7 @@ import { LayoutDesktop } from './ui.Layout.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Layout.Intermediate.tsx';
 
 export type ContentProps = {
-  signals?: t.SlcSignals;
+  signals?: t.AppSignals;
   breakpoint: t.Breakpoint;
   style?: t.CssInput;
 };

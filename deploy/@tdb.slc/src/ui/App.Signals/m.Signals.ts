@@ -1,5 +1,8 @@
 import { type t, Player, Signal } from './common.ts';
 
+/**
+ * Create a new instance of the application-state signals API.
+ */
 export function createSignals() {
   const s = Signal.create;
 
@@ -7,7 +10,7 @@ export function createSignals() {
     src: 'vimeo/1068502644', // Rowan: Trailer (Public).
   });
 
-  type T = t.SlcSignals;
+  type T = t.AppSignals;
   const api: T = {
     get video() {
       return video;

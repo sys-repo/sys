@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, createSignals, css, Signal } from './common.ts';
+import { type t, App, Button, Color, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -15,7 +15,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const props = {
-    signals: createSignals(), // NB: global "Screens" API.
+    signals: App.signals(), // NB: global "Screens" API.
   };
   const api = { props };
   init?.(api);

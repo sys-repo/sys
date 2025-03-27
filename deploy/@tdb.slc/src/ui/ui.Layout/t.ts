@@ -5,6 +5,6 @@ export type * from './t.Layout.ts';
  * <Component>:
  */
 export type MobileLayoutProps = {
-  signals?: t.SlcSignals;
+  signals?: t.AppSignals;
   style?: t.CssInput;
 };

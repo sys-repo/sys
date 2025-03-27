@@ -1,14 +1,14 @@
 import type { t } from './common.ts';
 
 /**
- * Global UI/player signals.
+ * Global application-state signals API.
  */
-export type SlcSignals = {
+export type AppSignals = {
   video: t.VideoPlayerSignals;
   stage: t.Signal<t.Stage>;
   dist: t.Signal<t.DistPkg | undefined>;
   theme: t.Signal<t.CommonTheme>;
 
-  /** Hook into all value listeners. */
+  /** Hook into all relevant value listeners. */
   listen(): void;
 };

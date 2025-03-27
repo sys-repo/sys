@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type LayoutIntermediateProps = {
-  signals?: t.SlcSignals;
+  signals?: t.AppSignals;
   style?: t.CssInput;
 };
 

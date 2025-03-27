@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, createSignals, css, Signal, Str } from './common.ts';
+import { type t, App, Button, Color, css, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -14,7 +14,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing3Props;
   const s = Signal.create;
 
-  const signals = createSignals();
+  const signals = App.signals();
 
   const props = {
     signals,
@@ -90,7 +90,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  dist(signals: t.SlcSignals) {
+  dist(signals: t.AppSignals) {
     const d = signals.dist.value;
     if (!d) return {};
     return {
