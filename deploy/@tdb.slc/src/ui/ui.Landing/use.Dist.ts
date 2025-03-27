@@ -37,7 +37,14 @@ export function useDist(options: { sample?: boolean } = {}) {
   /**
    * API
    */
-  const hash = json?.hash.digest;
   const pkg = json?.pkg;
-  return { is, pkg, hash, json, error } as const;
+  return {
+    is,
+    pkg,
+    get hash() {
+      return json?.hash.digest;
+    },
+    json,
+    error,
+  } as const;
 }
