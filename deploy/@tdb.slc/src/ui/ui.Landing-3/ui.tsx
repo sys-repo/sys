@@ -28,11 +28,7 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: theme.bg,
-      color: theme.fg,
-      fontFamily: 'sans-serif',
-    }),
+    base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     absoluteFill: css({ Absolute: 0, display: 'grid' }),
   };
 
