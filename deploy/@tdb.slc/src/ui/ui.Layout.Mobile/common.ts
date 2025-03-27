@@ -1,5 +1,5 @@
 export * from '../common.ts';
-export { createSignals } from '../m.Signals/mod.ts';
+export { createSignals } from '../API.Signals/mod.ts';
 
 /**
  * Constants:

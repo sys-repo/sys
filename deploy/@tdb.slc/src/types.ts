@@ -2,7 +2,7 @@
  * @module
  * Module types.
  */
-export type * from './ui/m.Signals/t.ts';
+export type * from './ui/API.Signals/t.ts';
 export type * from './ui/use/t.ts';
 
 export type * from './ui/ui.Canvas.Mini/t.ts';
