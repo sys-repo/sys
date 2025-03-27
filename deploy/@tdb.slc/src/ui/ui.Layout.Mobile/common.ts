@@ -1,4 +1,5 @@
 export * from '../common.ts';
+export { createSignals } from '../m.Signals/mod.ts';
 
 /**
  * Constants:

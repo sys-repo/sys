@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, Color, createSignals, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -13,9 +13,10 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.MobileLayoutProps;
   const s = Signal.create;
+
   const props = {
+    signals: createSignals(), // NB: global "Screens" API.
     theme: s<P['theme']>('Dark'),
-    stage: s<t.Stage>('Trailer'),
   };
   const api = { props };
   init?.(api);
@@ -31,7 +32,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
-    p.stage.value;
+    debug.props.signals.listen();
   });
 
   /**
@@ -54,9 +55,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`stage: "${p.stage}"`}
+        label={`stage: "${p.signals.stage}"`}
         onClick={() => {
-          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+          Signal.cycle<t.Stage>(p.signals.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
       <hr />

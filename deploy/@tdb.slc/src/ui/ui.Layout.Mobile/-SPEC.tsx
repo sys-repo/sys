@@ -12,7 +12,8 @@ export default Spec.describe('MobileLayout', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       p.theme.value;
-      p.stage.value;
+      p.signals.stage.value;
+      p.signals.listen();
       ctx.redraw();
     });
 
@@ -20,8 +21,7 @@ export default Spec.describe('MobileLayout', (e) => {
       .size([390, 844]) // ← iPhone
       .display('grid')
       .render((e) => {
-        const stage = p.stage.value;
-        return <MobileLayout theme={p.theme.value} ctx={{ stage }} />;
+        return <MobileLayout theme={p.theme.value} signals={p.signals} />;
       });
   });
 
