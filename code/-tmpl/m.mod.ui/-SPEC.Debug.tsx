@@ -35,7 +35,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
   };
 
   return (
