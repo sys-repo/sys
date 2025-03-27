@@ -7,12 +7,17 @@ export function createSignals() {
   const s = Signal.create;
 
   const video = Player.Video.signals({
-    src: 'vimeo/1068502644', // Trailer
+    src: 'vimeo/1068502644', // Rowan: Trailer (Public).
   });
 
-  const api: t.SlcSignals = {
+  type T = t.SlcSignals;
+  const api: T = {
     stage: s<t.Stage>('Entry'),
-    video,
+    dist: s<t.DistPkg>(),
+    get video() {
+      return video;
+    },
   };
+
   return api;
 }
