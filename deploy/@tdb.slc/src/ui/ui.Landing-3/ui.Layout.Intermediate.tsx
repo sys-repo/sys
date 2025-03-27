@@ -3,7 +3,6 @@ import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type LayoutIntermediateProps = {
   signals?: t.SlcSignals;
-  theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
@@ -17,14 +16,14 @@ export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
+  const theme = Color.theme(props.signals?.theme.value);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={props.theme} borderOpacity={0.05}>
+      <Cropmarks theme={theme.name} borderOpacity={0.05}>
         <div>{`🐷 Layout:Intermediate | stage: ${signals.stage.value}`}</div>
       </Cropmarks>
     </div>

@@ -16,7 +16,6 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 
   const props = {
     signals: createSignals(), // NB: global "Screens" API.
-    theme: s<P['theme']>('Dark'),
   };
   const api = { props };
   init?.(api);
@@ -31,14 +30,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
 
   Signal.useRedrawEffect(() => {
-    p.theme.value;
     debug.props.signals.listen();
   });
 
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
+  const theme = Color.theme(p.signals.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
@@ -50,8 +48,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={`theme: ${p.signals.theme}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.signals.theme, ['Light', 'Dark'])}
       />
       <Button
         block

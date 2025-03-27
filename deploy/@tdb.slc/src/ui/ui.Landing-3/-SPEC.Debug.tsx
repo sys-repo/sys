@@ -19,7 +19,6 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     signals,
     debug: s<P['debug']>(true),
-    theme: s<P['theme']>('Dark'),
     backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
   };
   const api = { props };
@@ -35,7 +34,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = ctx.debug.props;
 
   Signal.useRedrawEffect(() => {
-    p.theme.value;
     p.debug.value;
     p.backgroundVideoOpacity.value;
     p.signals.listen();
@@ -44,14 +42,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
+  const theme = Color.theme(p.signals.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
     dist: css({ fontSize: 12 }),
   };
-
-  // const dist = p.signals.dist
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -59,8 +55,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
-        label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={`theme: "${p.signals.theme}"`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.signals.theme, ['Light', 'Dark'])}
       />
       <hr />
       <Button
@@ -97,7 +93,6 @@ const wrangle = {
   dist(signals: t.SlcSignals) {
     const d = signals.dist.value;
     if (!d) return {};
-
     return {
       'dist:size': Str.bytes(d.size.bytes),
       'dist:hash:sha256': `#${d.hash.digest.slice(-5)}`,

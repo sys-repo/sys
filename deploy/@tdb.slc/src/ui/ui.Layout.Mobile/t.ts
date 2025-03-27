@@ -5,6 +5,5 @@ import type { t } from './common.ts';
  */
 export type MobileLayoutProps = {
   signals?: t.SlcSignals;
-  theme?: t.CommonTheme;
   style?: t.CssInput;
 };

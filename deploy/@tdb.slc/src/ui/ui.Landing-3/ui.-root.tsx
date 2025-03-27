@@ -31,15 +31,14 @@ export const Landing: React.FC<P> = (props) => {
     useSample: wrangle.showSample(props),
     onChanged(e) {
       if (signals) signals.dist.value = e.dist;
+      console.info('💦 ./dist.json:', dist);
     },
   });
-
-  // console.info('💦 dist.json:', dist);
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
+  const theme = Color.theme(props.signals?.theme.value);
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),
@@ -51,7 +50,7 @@ export const Landing: React.FC<P> = (props) => {
 
   const elBody = (
     <div ref={size.ref} className={styles.fill.class}>
-      <Content breakpoint={breakpoint} theme={theme.name} signals={signals} />
+      <Content breakpoint={breakpoint} signals={signals} />
     </div>
   );
 
