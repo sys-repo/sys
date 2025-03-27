@@ -1,12 +1,12 @@
 import { type t } from './common.ts';
 
 /**
- * Layout breakpoint calculation.
+ * Layout breakpoints calculation/helpers.
  */
-export const LayoutBreakpoint = {
+export const Breakpoint = {
   from(width?: number): t.Breakpoint {
-    const name = LayoutBreakpoint.name(width);
-    const is = LayoutBreakpoint.is(name);
+    const name = Breakpoint.name(width);
+    const is = Breakpoint.is(name);
     return { name, is };
   },
 

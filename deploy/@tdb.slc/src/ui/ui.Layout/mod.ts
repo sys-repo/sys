@@ -1,5 +1,5 @@
 /**
  * @module
- * Landing/Entry Screen
  */
-export { LayoutBreakpoint } from './m.LayoutBreakpoint.ts';
+export { Breakpoint } from './m.Breakpoint.ts';
+export { MobileLayout } from './ui.Mobile.tsx';
