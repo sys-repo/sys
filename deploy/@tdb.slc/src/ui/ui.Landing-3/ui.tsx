@@ -3,11 +3,13 @@ import {
   type t,
   Color,
   css,
+  Style,
   Signal,
   DEFAULTS,
   rx,
   useKeyboard,
   VideoBackgroundTubes,
+  Cropmarks,
 } from './common.ts';
 
 /**
@@ -27,10 +29,11 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' : '' /* RED:DEBUG */,
+      backgroundColor: theme.bg,
       color: theme.fg,
+      fontFamily: 'sans-serif',
     }),
-    absoluteFill: css({ Absolute: 0 }),
+    absoluteFill: css({ Absolute: 0, display: 'grid' }),
   };
 
   const elBackground = backgroundVideo !== undefined && (
@@ -40,7 +43,11 @@ export const Landing: React.FC<t.Landing3Props> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elBackground}
-      <div>{`🐷 Landing-3`}</div>
+      <div className={styles.absoluteFill.class}>
+        <Cropmarks theme={theme.name}>
+          <div>{`🐷 Landing-3`}</div>
+        </Cropmarks>
+      </div>
     </div>
   );
 };
