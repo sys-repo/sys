@@ -2,6 +2,7 @@
  * @module
  */
 import { createSignals } from './m.Signals.ts';
+export { VIDEO } from './VIDEO.index.ts';
 
 /**
  * The root level Application (State Model).

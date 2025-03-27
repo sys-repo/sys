@@ -1,8 +1,7 @@
 import React from 'react';
-import { type t, VimeoBackground } from './common.ts';
+import { type t, VIDEO, VimeoBackground } from './common.ts';
 
 type P = t.VideoBackgroundTubesProps;
-const TUBES = { id: 499921561 };
 
 export const VideoBackgroundTubes: React.FC<P> = (props) => {
   /**
@@ -10,10 +9,21 @@ export const VideoBackgroundTubes: React.FC<P> = (props) => {
    */
   return (
     <VimeoBackground
-      video={TUBES.id}
+      video={wrangle.src(props)}
       opacity={props.opacity}
       theme={props.theme}
       style={props.style}
     />
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  src(props: P) {
+    const { kind = 'Tubes' } = props;
+    if (kind === 'Tubes') return VIDEO.Tubes.id;
+    throw new Error(`Background video kind "${kind}" not supported.`);
+  },
+} as const;

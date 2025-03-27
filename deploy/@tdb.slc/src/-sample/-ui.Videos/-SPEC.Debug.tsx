@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Player, Signal } from './common.ts';
+import { type t, Button, Color, css, Player, Signal, VIDEO } from './common.ts';
 
 /**
  * Types:
@@ -14,7 +14,7 @@ type P = DebugProps;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const video = Player.Video.signals({
-    src: 'vimeo/727951677', // Rowan: "group scale",
+    src: VIDEO.Trailer.src, // Rowan: "group scale",
     cornerRadius: 0,
   });
   const props = {
@@ -45,7 +45,7 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg }),
-    title: css({ fontWeight: 'bold' }),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   const selectVideo = (label: string, src: string) => {
@@ -75,10 +75,10 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
       <div className={styles.title.class}>Videos</div>
-      {selectVideo('Trailer', 'vimeo/1068502644')}
-      {selectVideo('Overview', 'vimeo/1068653222')}
+      {selectVideo('Trailer', VIDEO.Trailer.src)}
+      {selectVideo('Overview', VIDEO.Overview.src)}
       <hr />
-      {selectVideo('ref: "Group Scale"', 'vimeo/727951677')}
+      {selectVideo('ref: "Group Scale"', VIDEO.GroupScale.src)}
     </div>
   );
 };
