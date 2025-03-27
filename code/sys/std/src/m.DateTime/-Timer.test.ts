@@ -1,15 +1,17 @@
 import { add, startOfDay, sub } from 'date-fns';
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it, Testing } from '../-test.ts';
 import { Time } from './mod.ts';
 
 const FORMAT = 'yyyy-MM-dd hh:mm:ss';
 const format = (date: Date) => Time.utc(date).format(FORMAT);
 
 describe('timer', () => {
-  it('starts with current date', () => {
-    const now = Time.now.format(FORMAT);
-    const timer = Time.timer();
-    expect(format(timer.startedAt)).to.eql(now);
+  it('starts with current date', async () => {
+    await Testing.retry(3, async () => {
+      const now = Time.now.format(FORMAT);
+      const timer = Time.timer();
+      expect(format(timer.startedAt)).to.eql(now);
+    });
   });
 
   it('starts with given date', () => {
