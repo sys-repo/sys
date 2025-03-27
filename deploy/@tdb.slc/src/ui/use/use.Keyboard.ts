@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { Keyboard, rx } from './common.ts';
+import { type t, Keyboard, rx } from './common.ts';
 
-export function useKeyboard() {
+export function useKeyboard(options: { signals?: t.SlcSignals } = {}) {
   useEffect(() => {
     const life = rx.disposable();
     const keyboard = Keyboard.until(life.dispose$);
@@ -20,5 +20,5 @@ export function useKeyboard() {
     });
 
     return life.dispose;
-  });
+  }, [options.signals]);
 }
