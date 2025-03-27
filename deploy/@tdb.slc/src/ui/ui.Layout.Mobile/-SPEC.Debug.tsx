@@ -39,11 +39,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={styles.title.class}>{'Layout: Mobile'}</div>
+
       <Button
         block
         label={`theme: ${p.theme}`}

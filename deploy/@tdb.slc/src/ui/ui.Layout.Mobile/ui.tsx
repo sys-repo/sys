@@ -1,7 +1,9 @@
 import React from 'react';
-import { type t, Color, css, useSizeObserver } from './common.ts';
+import { type t, Color, css, Player, useSizeObserver } from './common.ts';
 
 type P = t.MobileLayoutProps;
+
+const video = Player.Video.signals({ src: 'vimeo/1068502644' });
 
 export const MobileLayout: React.FC<P> = (props) => {
   const { ctx = {} } = props;
@@ -9,8 +11,6 @@ export const MobileLayout: React.FC<P> = (props) => {
   const showBackgroundColor = stage === 'Trailer';
 
   const size = useSizeObserver();
-
-  console.log('size', size);
 
   /**
    * Render:
@@ -25,14 +25,21 @@ export const MobileLayout: React.FC<P> = (props) => {
     }),
     body: css({
       position: 'relative',
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      display: 'grid',
+      gridTemplateRows: `1fr auto`,
+    }),
+    top: css({
+      padding: 10,
     }),
   };
+
+  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={video} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <div>{`🐷 Hello Mobile Layout: ${ctx.stage}`}</div>
+        <div className={styles.top.class}>{`🐷 top`}</div>
+        {elPlayer}
       </div>
     </div>
   );
