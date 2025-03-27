@@ -14,7 +14,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing3Props;
   const s = Signal.create;
   const props = {
-    debug: s<P['debug']>(false),
+    debug: s<P['debug']>(true),
     theme: s<P['theme']>('Dark'),
     backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
   };
