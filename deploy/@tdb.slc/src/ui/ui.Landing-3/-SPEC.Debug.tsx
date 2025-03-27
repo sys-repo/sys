@@ -100,7 +100,7 @@ const wrangle = {
 
     return {
       'dist:size': Str.bytes(d.size.bytes),
-      'dist:hash:sha256': d.hash.digest.slice(-10),
+      'dist:hash:sha256': `#${d.hash.digest.slice(-5)}`,
     };
   },
 } as const;
