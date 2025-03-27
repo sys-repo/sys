@@ -11,13 +11,21 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.LayoutMobileProps;
   const s = Signal.create;
 
   const props = {
     signals: App.signals(), // NB: global "Screens" API.
+    breakpoint: s<t.BreakpointName>('Mobile'),
   };
-  const api = { props };
+
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.signals.listen();
+      p.breakpoint.value;
+    },
+  };
   init?.(api);
   return api;
 }
@@ -29,9 +37,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    debug.props.signals.listen();
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
@@ -50,6 +56,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`theme: ${p.signals.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.signals.theme, ['Light', 'Dark'])}
+      />
+      <hr />
+      <Button
+        block
+        label={`breakpoint: "${p.breakpoint}"`}
+        onClick={() => {
+          Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
+        }}
       />
       <Button
         block

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, LayoutDesktop, LayoutIntermediate, LayoutMobile } from './common.ts';
+import { type t, css, Layout } from './common.ts';
 
 export type ContentProps = {
   signals?: t.AppSignals;
@@ -13,7 +13,7 @@ type P = ContentProps;
  * Component:
  */
 export const Content: React.FC<P> = (props) => {
-  const { breakpoint } = props;
+  const { breakpoint, signals } = props;
 
   /**
    * Render:
@@ -30,23 +30,7 @@ export const Content: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elNotReady}
-      {wrangle.layoutElement(props)}
+      {Layout.render(breakpoint, signals)}
     </div>
   );
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  layoutElement(props: P) {
-    const { breakpoint, signals } = props;
-    const is = breakpoint.is;
-
-    if (is.mobile) return <LayoutMobile signals={signals} />;
-    if (is.intermediate) return <LayoutIntermediate signals={signals} />;
-    if (is.desktop) return <LayoutDesktop signals={signals} />;
-
-    return <div>{`Unsupported supported breakpoint: "${breakpoint.name}"`}</div>;
-  },
-} as const;

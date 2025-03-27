@@ -1,9 +1,9 @@
 import React from 'react';
 import {
   type t,
-  Breakpoint,
   Color,
   css,
+  Layout,
   useDist,
   useKeyboard,
   useSizeObserver,
@@ -21,7 +21,7 @@ export const Landing: React.FC<P> = (props) => {
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
-  const breakpoint = Breakpoint.from(width);
+  const breakpoint = Layout.Breakpoint.fromWidth(width);
 
   /**
    * Hooks:

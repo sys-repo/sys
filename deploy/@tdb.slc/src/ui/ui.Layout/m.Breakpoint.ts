@@ -4,8 +4,18 @@ import { type t } from './common.ts';
  * Layout breakpoints calculation/helpers.
  */
 export const Breakpoint = {
-  from(width?: number): t.Breakpoint {
+  from(input: t.BreakpointSizeInput): t.Breakpoint {
+    if (typeof input === 'number') return Breakpoint.fromWidth(input);
+    if (typeof input === 'string') return Breakpoint.fromName(input);
+    return input;
+  },
+
+  fromWidth(width?: number): t.Breakpoint {
     const name = Breakpoint.name(width);
+    return Breakpoint.fromName(name);
+  },
+
+  fromName(name: t.BreakpointName): t.Breakpoint {
     const is = Breakpoint.is(name);
     return { name, is };
   },

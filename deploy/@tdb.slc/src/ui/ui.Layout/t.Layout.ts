@@ -1,5 +1,7 @@
 import { type t } from './common.ts';
 
+export type BreakpointSizeInput = t.NumberWidth | t.BreakpointName | t.Breakpoint;
+
 /**
  * Layout breakpoints
  */
