@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, createSignals, css, Signal } from './common.ts';
+import { type t, Button, Color, createSignals, css, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -99,7 +99,8 @@ const wrangle = {
     if (!d) return {};
 
     return {
-      'dist:hash': d.hash.digest.slice(-5),
+      'dist:size': Str.bytes(d.size.bytes),
+      'dist:hash:sha256': d.hash.digest.slice(-10),
     };
   },
 } as const;

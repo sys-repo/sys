@@ -12,6 +12,7 @@ export type LayoutIntermediateProps = {
  */
 export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => {
   const { signals } = props;
+  if (!signals) return null;
 
   /**
    * Render:
@@ -24,7 +25,7 @@ export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => 
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={props.theme} borderOpacity={0.05}>
-        <div>{`🐷 Layout: Intermediate`}</div>
+        <div>{`🐷 Layout:Intermediate | stage: ${signals.stage.value}`}</div>
       </Cropmarks>
     </div>
   );
