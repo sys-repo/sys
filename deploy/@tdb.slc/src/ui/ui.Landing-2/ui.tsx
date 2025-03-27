@@ -26,13 +26,13 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
     body: css({
       Absolute: 0,
       overflow: 'hidden',
-      backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* DEBUG:RED */ : '',
+      backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* RED:DEBUG */ : '',
       display: 'grid',
     }),
 
     canvas: {
       base: css({
-        backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* DEBUG:RED */ : '',
+        backgroundColor: debug ? 'rgba(255, 0, 0, 0.1)' /* RED:DEBUG */ : '',
         display: 'grid',
         placeItems: 'center',
       })

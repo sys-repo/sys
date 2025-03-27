@@ -16,7 +16,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     debug: s<P['debug']>(false),
     theme: s<P['theme']>('Dark'),
-    backgroundVideo: s<P['backgroundVideo']>(),
+    backgroundVideo: s<P['backgroundVideo']>(0.15),
   };
   const api = { props };
   init?.(api);
@@ -41,11 +41,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={styles.title.class}>{'Landing-2'}</div>
+      <hr />
+
       <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
 
       <Button

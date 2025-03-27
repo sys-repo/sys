@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type Landing3Props = {
   debug?: boolean;
-  backgroundVideo?: t.Percent;
+  backgroundVideoOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

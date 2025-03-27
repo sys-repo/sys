@@ -16,7 +16,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     debug: s<P['debug']>(false),
     theme: s<P['theme']>('Dark'),
-    backgroundVideo: s<P['backgroundVideo']>(),
+    backgroundVideoOpacity: s<P['backgroundVideoOpacity']>(0.15),
   };
   const api = { props };
   init?.(api);
@@ -33,7 +33,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => {
     p.theme.value;
     p.debug.value;
-    p.backgroundVideo.value;
+    p.backgroundVideoOpacity.value;
   });
 
   /**
@@ -41,25 +41,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <div className={styles.title.class}>{'Landing-2'}</div>
+      <hr />
 
+      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <hr />
-
       <Button
         block
-        label={`backgroundVideo: ${p.backgroundVideo}`}
-        onClick={() => Signal.cycle(p.backgroundVideo, [undefined, 0, 0.15, 0.3, 0.5])}
+        label={`backgroundVideoOpacity: ${p.backgroundVideoOpacity}`}
+        onClick={() => Signal.cycle(p.backgroundVideoOpacity, [undefined, 0.15, 0.3, 1])}
       />
 
       <hr />
