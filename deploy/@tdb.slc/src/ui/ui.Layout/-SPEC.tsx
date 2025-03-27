@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MobileLayout } from './mod.ts';
+import { LayoutMobile } from './mod.ts';
 
 export default Spec.describe('MobileLayout', (e) => {
   const debug = createDebugSignals();
@@ -19,7 +19,7 @@ export default Spec.describe('MobileLayout', (e) => {
       .size([390, 844]) // ← iPhone
       .display('grid')
       .render((e) => {
-        return <MobileLayout signals={p.signals} />;
+        return <LayoutMobile signals={p.signals} />;
       });
   });
 

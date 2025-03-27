@@ -11,7 +11,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.MobileLayoutProps;
+  type P = t.LayoutMobileProps;
   const s = Signal.create;
 
   const props = {
@@ -44,7 +44,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{'Layout: Mobile'}</div>
+      <div className={styles.title.class}>{'Layout:'}</div>
 
       <Button
         block

@@ -1,15 +1,12 @@
 import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
-export type LayoutIntermediateProps = {
-  signals?: t.AppSignals;
-  style?: t.CssInput;
-};
+type P = t.LayoutDesktopProps;
 
 /**
  * Component:
  */
-export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => {
+export const LayoutDesktop: React.FC<P> = (props) => {
   const { signals } = props;
   if (!signals) return null;
 
@@ -24,7 +21,7 @@ export const LayoutIntermediate: React.FC<LayoutIntermediateProps> = (props) => 
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.05}>
-        <div>{`🐷 Layout:Intermediate | stage: ${signals.stage.value}`}</div>
+        <div>{`🐷 Layout:Desktop | stage: ${signals.stage.value}`}</div>
       </Cropmarks>
     </div>
   );

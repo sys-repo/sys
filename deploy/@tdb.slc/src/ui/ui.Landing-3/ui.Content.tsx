@@ -1,7 +1,5 @@
 import React from 'react';
-import { type t, css, MobileLayout } from './common.ts';
-import { LayoutDesktop } from './ui.Layout.Desktop.tsx';
-import { LayoutIntermediate } from './ui.Layout.Intermediate.tsx';
+import { type t, css, LayoutDesktop, LayoutIntermediate, LayoutMobile } from './common.ts';
 
 export type ContentProps = {
   signals?: t.AppSignals;
@@ -45,7 +43,7 @@ const wrangle = {
     const { breakpoint, signals } = props;
     const is = breakpoint.is;
 
-    if (is.mobile) return <MobileLayout signals={signals} />;
+    if (is.mobile) return <LayoutMobile signals={signals} />;
     if (is.intermediate) return <LayoutIntermediate signals={signals} />;
     if (is.desktop) return <LayoutDesktop signals={signals} />;
 

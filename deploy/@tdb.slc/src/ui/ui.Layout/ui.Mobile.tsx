@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, Color, css, Player, Signal, useSizeObserver } from './common.ts';
 
-type P = t.MobileLayoutProps;
+type P = t.LayoutMobileProps;
 
-export const MobileLayout: React.FC<P> = (props) => {
+export const LayoutMobile: React.FC<P> = (props) => {
   const { signals } = props;
   const { stage } = wrangle.values(props);
   const showBackgroundColor = stage === 'Trailer';
