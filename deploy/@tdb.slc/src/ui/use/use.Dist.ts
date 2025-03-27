@@ -13,6 +13,9 @@ type Options = {
 export function useDist(options: Options = {}) {
   const is = { sample: options.useSample ?? false };
 
+  const [count, setRender] = useState(0);
+  const redraw = () => setRender((n) => n + 1);
+
   const [json, setJson] = useState<t.DistPkg>();
   const [error, setError] = useState<t.StdError>();
 
@@ -23,6 +26,7 @@ export function useDist(options: Options = {}) {
     const fetch = Http.fetch();
 
     const changeDist = (dist?: t.DistPkg) => {
+      redraw();
       setJson(undefined);
       options.onChanged?.({ dist });
     };
@@ -49,13 +53,9 @@ export function useDist(options: Options = {}) {
   /**
    * API
    */
-  const pkg = json?.pkg;
   return {
+    redraw: count,
     is,
-    pkg,
-    get hash() {
-      return json?.hash.digest;
-    },
     json,
     error,
   } as const;
