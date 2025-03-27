@@ -17,6 +17,12 @@ export function createSignals() {
     get video() {
       return video;
     },
+
+    listen() {
+      api.stage.value;
+      api.dist.value;
+      api.video.props.playing.value;
+    },
   };
 
   return api;

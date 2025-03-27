@@ -7,4 +7,7 @@ export type SlcSignals = {
   video: t.VideoPlayerSignals;
   stage: t.Signal<t.Stage>;
   dist: t.Signal<t.DistPkg | undefined>;
+
+  /** Hook into all value listeners. */
+  listen(): void;
 };
