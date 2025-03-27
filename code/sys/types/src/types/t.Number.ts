@@ -27,3 +27,13 @@ export type PixelOrPercent = Pixels | Percent; //
  * A number that represents a "total" (typically 1-based).
  */
 export type NumberTotal = number;
+
+/**
+ * A number that represents a width.
+ */
+export type NumberWidth = number;
+
+/**
+ * A number that represents a height.
+ */
+export type NumberHeight = number;
