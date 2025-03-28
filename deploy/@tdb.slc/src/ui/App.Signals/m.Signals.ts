@@ -1,4 +1,4 @@
-import { type t, VIDEO, Player, Signal } from './common.ts';
+import { Player, Signal, type t, VIDEO } from './common.ts';
 
 /**
  * Create a new instance of the application-state signals API.
@@ -51,6 +51,7 @@ export function createSignals() {
       p.theme.value;
       p.content.value;
       p.breakpoint.value;
+      p.stack.value;
     },
     load(content) {
       props.content.value = content;

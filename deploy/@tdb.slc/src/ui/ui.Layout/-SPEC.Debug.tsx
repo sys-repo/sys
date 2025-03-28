@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, AppContent, Button, Color, css, Signal } from './common.ts';
+import { type t, App, AppContent, Button, css, Signal, slug } from './common.ts';
 
 /**
  * Types:
@@ -82,6 +82,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {load('Overview')}
       {load('Programme')}
       <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
+
+      <hr />
+
+      <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
+
+      <Button
+        block
+        label={`stack.push`}
+        onClick={() => {
+          const id = `screen-${slug()}`;
+          app.stack.push({
+            id,
+            timestamps: {
+              '00:00:00.000': {
+                render(props) {
+                  return <div>{id}</div>;
+                },
+              },
+            },
+          });
+        }}
+      />
+      <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
+      <Button block label={`stack.clear`} onClick={() => app.stack.clear()} />
 
       <hr />
 

@@ -36,7 +36,7 @@ describe('App', () => {
       expect(app.props.content.value).to.eql(undefined);
     });
 
-    describe('(internal) sync effect', () => {
+    describe('sync effect (internal)', () => {
       it('player [video.src] sync on content changes', () => {
         const signals = App.signals();
         const p = signals.props;

@@ -31,6 +31,7 @@ export type AppSignals = {
  * API for managing the screen stack.
  */
 export type AppSignalsStack = {
+  /** The number of items in the stack. */
   readonly length: number;
   /** Add a screen to the top of the stack. */
   push(...content: t.AppContent[]): void;

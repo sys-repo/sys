@@ -59,7 +59,7 @@ export const Landing: React.FC<P> = (props) => {
   };
 
   const elBackground = typeof backgroundVideoOpacity === 'number' && (
-    <VideoBackground opacity={backgroundVideoOpacity} style={styles.fill} />
+    <VideoBackground state={state} style={styles.fill} />
   );
 
   const elBody = (

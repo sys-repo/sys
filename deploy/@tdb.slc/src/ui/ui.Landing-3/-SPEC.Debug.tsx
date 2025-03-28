@@ -15,7 +15,6 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const app = App.signals();
-
   const props = {
     debug: s<P['debug']>(true),
   };
