@@ -1,29 +1,29 @@
 import { describe, expect, it } from '../../-test.ts';
-import { App, VIDEO } from './mod.ts';
+import { AppContent, VIDEO } from './mod.ts';
 
 describe('Content', () => {
   it('Entry', async () => {
-    const res = await App.Content.find('Entry');
+    const res = await AppContent.find('Entry');
     expect(res?.id).to.eql('Entry');
   });
 
   it('Trailer', async () => {
-    const res = await App.Content.find('Trailer');
+    const res = await AppContent.find('Trailer');
     expect(res?.video?.src).to.eql(VIDEO.Trailer.src);
   });
 
   it('Overview', async () => {
-    const res = await App.Content.find('Overview');
+    const res = await AppContent.find('Overview');
     expect(res?.video?.src).to.eql(VIDEO.Overview.src);
   });
 
   it('Programme', async () => {
-    const res = await App.Content.find('Programme');
+    const res = await AppContent.find('Programme');
     expect(res?.id).to.eql('Programme');
   });
 
   it('Not Found', async () => {
-    const res = await App.Content.find('Foobar' as any);
+    const res = await AppContent.find('Foobar' as any);
     expect(res).to.eql(undefined);
   });
 });

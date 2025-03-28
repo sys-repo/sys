@@ -1,4 +1,4 @@
-export { VIDEO } from '../../ui/App.Signals/mod.ts';
+export { VIDEO } from '../../ui/App.Content/mod.ts';
 export * from '../common.ts';
 
 /**

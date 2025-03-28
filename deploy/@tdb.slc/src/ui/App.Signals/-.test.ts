@@ -1,5 +1,6 @@
 import { type t, c, describe, expect, it } from '../../-test.ts';
-import { App, VIDEO } from './mod.ts';
+import { App } from './mod.ts';
+import { VIDEO } from './common.ts';
 
 describe('App', () => {
   describe('App.signals', () => {

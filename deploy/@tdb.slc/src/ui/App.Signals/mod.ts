@@ -1,10 +1,8 @@
 /**
  * @module
  */
-import { type t, Color } from './common.ts';
-import { AppContent } from './m.Content.ts';
+import { type t, AppContent, Color } from './common.ts';
 import { createSignals } from './m.Signals.ts';
-export { VIDEO } from './VIDEO.index.ts';
 
 /**
  * The root level Application (State Model).
