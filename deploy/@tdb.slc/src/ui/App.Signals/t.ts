@@ -9,7 +9,7 @@ export type AppSignals = {
     stage: t.Signal<t.Stage>;
     dist: t.Signal<t.DistPkg | undefined>;
     theme: t.Signal<t.CommonTheme>;
-
+    content: t.Signal<t.AppContent | undefined>;
     background: {
       video: { opacity: t.Signal<number | undefined> };
     };
@@ -24,6 +24,7 @@ export type AppSignals = {
  */
 export type AppContent = {
   id: t.StringId;
+  video?: { src: string };
   timestamps?: AppTimestamps;
 };
 
@@ -34,7 +35,6 @@ export type AppTimestamps = t.Timestamps<AppTimestamp>;
 export type AppTimestamp = {
   /** Render the body content. */
   body?(props: AppTimestampProps): JSX.Element;
-  //
 };
 
 export type AppTimestampProps = {

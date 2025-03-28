@@ -17,7 +17,7 @@ export default Spec.describe('MobileLayout', (e) => {
       if (breakpoint === 'Desktop') ctx.subject.size('fill');
     };
 
-    Dev.Theme.signalEffect(ctx, p.signals.props.theme, 1);
+    Dev.Theme.signalEffect(ctx, debug.app.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       updateSize();
@@ -28,7 +28,7 @@ export default Spec.describe('MobileLayout', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => Layout.render(p.breakpoint.value, p.signals));
+      .render((e) => Layout.render(p.breakpoint.value, debug.app));
 
     updateSize();
   });

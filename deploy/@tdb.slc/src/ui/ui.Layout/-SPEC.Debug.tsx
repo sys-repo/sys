@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Button, css, Signal } from './common.ts';
+import { type t, App, Button, css, Signal, VIDEO } from './common.ts';
 
 /**
  * Types:
@@ -13,19 +13,23 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
+  const app = App.signals();
   const props = {
-    signals: App.signals(), // NB: global "Screens" API.
     breakpoint: s<t.BreakpointName>('Mobile'),
   };
 
   const api = {
+    app,
     props,
     listen() {
-      const p = props;
-      p.signals.listen();
-      p.breakpoint.value;
+      app.listen();
+      props.breakpoint.value;
     },
   };
+
+  // signals.
+  app.props.content.value = { id: 'foo', video: { src: VIDEO.Trailer.src } };
+
   init?.(api);
   return api;
 }
@@ -36,7 +40,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const d = debug.props;
-  const p = d.signals.props;
+  const p = debug.app.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 

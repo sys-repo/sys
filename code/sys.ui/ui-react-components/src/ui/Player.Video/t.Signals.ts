@@ -1,5 +1,3 @@
-import { RefObject } from 'react';
-import type { MediaPlayerProps, MediaPlayerInstance } from '@vidstack/react';
 import type { t } from './common.ts';
 
 /**
@@ -28,7 +26,7 @@ export type PlayerSignalsFactoryDefaults = {
 export type VideoPlayerSignals = {
   props: {
     ready: t.Signal<boolean>;
-    src: t.Signal<t.StringVideoAddress>;
+    src: t.Signal<t.StringVideoAddress | undefined>;
 
     /**
      * Media.

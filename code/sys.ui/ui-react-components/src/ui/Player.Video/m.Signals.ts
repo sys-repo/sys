@@ -32,7 +32,13 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
   };
 
   const api: T = {
-    props,
+    get props() {
+      return props;
+    },
+
+    /**
+     * Methods:
+     */
     jumpTo(second, options = {}) {
       const { play = true } = options;
       props.jumpTo.value = { second, play };
