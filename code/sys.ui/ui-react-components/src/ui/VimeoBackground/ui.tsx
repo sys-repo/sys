@@ -2,17 +2,11 @@ import React, { useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
 import { type t, Color, DEFAULTS, css } from './common.ts';
 
+type P = t.VimeoBackgroundProps;
 type Ref = React.RefObject<HTMLIFrameElement>;
 
-export const VimeoBackground: React.FC<t.VimeoBackgroundProps> = (props) => {
-  const {
-    video,
-    opacity,
-    opacityTransition = DEFAULTS.opacityTransition,
-    blur = DEFAULTS.blur,
-  } = props;
-  const src = `https://player.vimeo.com/video/${video}?background=1&dnt=true`;
-
+export const VimeoBackground: React.FC<P> = (props) => {
+  const { opacity, opacityTransition = DEFAULTS.opacityTransition, blur = DEFAULTS.blur } = props;
   const [ref, setRef] = useState<Ref>();
 
   /**
@@ -57,7 +51,7 @@ export const VimeoBackground: React.FC<t.VimeoBackgroundProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <IFrame
         style={styles.iframe}
-        src={src}
+        src={wrangle.src(props.video)}
         allow={'autoplay'}
         allowFullScreen={false}
         onReady={(e) => setRef(e.ref)}
@@ -66,3 +60,22 @@ export const VimeoBackground: React.FC<t.VimeoBackgroundProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  src(video: P['video']) {
+    const id = wrangle.id(video);
+    return `https://player.vimeo.com/video/${id}?background=1&dnt=true`;
+  },
+
+  id(video: P['video']) {
+    if (typeof video === 'number') return video;
+    if (typeof video === 'string' && video.startsWith('vimeo/')) {
+      const [, id] = video.split('/');
+      return id;
+    }
+    throw new Error(`Failed to parse 'video' prop as a Vimeo ID: ${video}`);
+  },
+} as const;
