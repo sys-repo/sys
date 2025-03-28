@@ -16,12 +16,12 @@ export type AppContent = {
  */
 export type AppTimestamps = t.Timestamps<AppTimestamp>;
 export type AppTimestamp = {
-  tmp?: string;
-
   /** Render the body content. */
   render?(props: AppTimestampProps): JSX.Element;
 };
 
 export type AppTimestampProps = {
   state: t.AppSignals;
+  theme: t.CommonTheme;
+  style?: t.CssInput;
 };
