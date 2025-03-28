@@ -3,8 +3,8 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Color } from './common.ts';
 import { Layout } from './mod.ts';
 
-export default Spec.describe('MobileLayout', (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe('MobileLayout', async (e) => {
+  const debug = await createDebugSignals();
   const p = debug.props;
 
   e.it('init', (e) => {

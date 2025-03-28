@@ -1,13 +1,14 @@
-import { describe, expect, it, c } from '../../-test.ts';
+import { signal } from '@preact/signals-core';
+import { type t, describe, expect, it, c } from '../../-test.ts';
 import { App, VIDEO } from './mod.ts';
 
 describe('App', () => {
   describe('App.signals', () => {
     it('create', () => {
-      const signals = App.signals();
-      const p = signals.props;
+      const app = App.signals();
+      const p = app.props;
 
-      expect(typeof signals.video.play === 'function').to.eql(true);
+      expect(typeof app.video.play === 'function').to.eql(true);
 
       expect(p.stage.value === 'Entry').to.be.true;
       expect(p.theme.value === 'Dark').to.be.true;
@@ -17,17 +18,27 @@ describe('App', () => {
 
       console.info();
       console.info(c.brightGreen('SLC:App.Signals:'));
-      console.info(signals);
+      console.info(app);
       console.info();
     });
 
-    describe('syncing (state integrity)', () => {
-      it('syncs player [video.src] with content changes', () => {
+    it('method: load', () => {
+      const content: t.AppContent = { id: 'foo', video: { src: VIDEO.GroupScale.src } };
+      const app = App.signals();
+      expect(app.props.content.value).to.eql(undefined);
+      app.load(content);
+      expect(app.props.content.value).to.eql(content);
+      app.load();
+      expect(app.props.content.value).to.eql(undefined);
+    });
+
+    describe('syncing', () => {
+      it('player [video.src] sync on content changes', () => {
         const signals = App.signals();
         const p = signals.props;
-        expect(p.content.value).to.eql(undefined);
-
         const getSrc = () => signals.video.props.src.value;
+
+        expect(p.content.value).to.eql(undefined);
         expect(getSrc()).to.eql(undefined);
 
         p.content.value = { id: 'foo', video: { src: VIDEO.GroupScale.src } };

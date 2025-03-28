@@ -1,16 +1,16 @@
 import React from 'react';
-import { type t, App, Button, css, Signal, VIDEO } from './common.ts';
+import { type t, App, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals(init?: (e: DebugSignals) => void) {
+export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const app = App.signals();
@@ -27,9 +27,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     },
   };
 
-  // signals.
-  app.props.content.value = { id: 'foo', video: { src: VIDEO.Trailer.src } };
-
+  app.load(await App.Content.find('Entry'));
   init?.(api);
   return api;
 }
@@ -39,8 +37,9 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const app = debug.app;
   const d = debug.props;
-  const p = debug.app.props;
+  const p = app.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -52,7 +51,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
-  const title = `Layout: ${d.breakpoint.value} → ${p.stage.value}`;
+  const title = `Layout: ${d.breakpoint.value} → ${p.content.value?.id ?? '<unknown>'}`;
+
+  const load = (stage: t.Stage) => {
+    return (
+      <Button
+        block
+        label={`load: "${stage}"`}
+        onClick={async () => {
+          const content = await App.Content.find(stage);
+          await app.load(content);
+        }}
+      />
+    );
+  };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -78,6 +90,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
+      <hr />
+
+      {load('Entry')}
+      {load('Trailer')}
+      {load('Overview')}
+      {load('Programme')}
+      <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
+
       <hr />
     </div>
   );

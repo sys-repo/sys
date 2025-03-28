@@ -17,6 +17,9 @@ export type AppSignals = {
 
   /** Hook into all relevant value listeners. */
   listen(): void;
+
+  /** Load the given content into the model. */
+  load(content?: t.AppContent): void;
 };
 
 /**
