@@ -1,5 +1,5 @@
 import React from 'react';
-import { App, css, Player, Signal, type t } from './common.ts';
+import { type t, App, AppContent, css, Player, Signal } from './common.ts';
 
 type P = t.LayoutMobileProps;
 
@@ -18,7 +18,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
    * Render:
    */
   const theme = App.theme(state);
-  const showBackgroundColor = App.Content.showBackgroundColor(state);
+  const showBackgroundColor = AppContent.showBackgroundColor(state);
   const backgroundColor = showBackgroundColor ? theme.bg : '';
 
   const styles = {
@@ -28,7 +28,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
     bottom: css({}),
   };
 
-  const elBody = App.Content.render(state);
+  const elBody = AppContent.render(state);
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -1,5 +1,5 @@
+export { AppContent, VIDEO } from '../App.Content/mod.ts';
 export { App } from '../App.Signals/mod.ts';
-export { VIDEO } from '../App.Content/mod.ts';
 
 export * from '../common.ts';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Button, css, Signal, Color } from './common.ts';
+import { type t, App, AppContent, Button, Color, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -23,7 +23,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
     },
   };
 
-  app.load(await App.Content.find('Entry'));
+  app.load(await AppContent.find('Entry'));
   init?.(api);
   return api;
 }
@@ -53,7 +53,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={`load: "${stage}"`}
-        onClick={async () => app.load(await App.Content.find(stage))}
+        onClick={async () => app.load(await AppContent.find(stage))}
       />
     );
   };
