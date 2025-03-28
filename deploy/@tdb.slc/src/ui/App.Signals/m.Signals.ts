@@ -12,7 +12,9 @@ export function createSignals() {
   });
 
   type T = t.AppSignals;
-  const api: T = {
+  type P = T['props'];
+
+  const props: P = {
     get video() {
       return video;
     },
@@ -26,13 +28,17 @@ export function createSignals() {
         opacity: s<t.Percent | undefined>(0.2),
       },
     },
+  };
 
+  const api: T = {
+    props,
     listen() {
-      api.stage.value;
-      api.dist.value;
-      api.theme.value;
-      api.video.props.playing.value;
-      api.background.video.opacity.value;
+      const p = props;
+      p.stage.value;
+      p.dist.value;
+      p.theme.value;
+      p.video.props.playing.value;
+      p.background.video.opacity.value;
     },
   };
 

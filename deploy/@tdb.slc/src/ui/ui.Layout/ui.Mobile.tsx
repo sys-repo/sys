@@ -5,12 +5,14 @@ type P = t.LayoutMobileProps;
 
 export const LayoutMobile: React.FC<P> = (props) => {
   const { signals } = props;
+  const p = signals?.props;
+
   const { stage } = wrangle.values(props);
   const showBackgroundColor = stage === 'Trailer';
 
   Signal.useRedrawEffect(() => signals?.listen());
 
-  if (!signals) return null;
+  if (!p) return null;
 
   /**
    * Render:
@@ -23,7 +25,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
     top: css({}),
   };
 
-  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={signals.video} />;
+  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={p.video} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -41,7 +43,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
 const wrangle = {
   values(props: P) {
     const { signals } = props;
-    const stage = signals?.stage.value ?? 'Entry';
+    const stage = signals?.props.stage.value ?? 'Entry';
     return { signals, stage };
   },
 

@@ -8,12 +8,13 @@ type P = t.LayoutDesktopProps;
  */
 export const LayoutDesktop: React.FC<P> = (props) => {
   const { signals } = props;
-  if (!signals) return null;
+  const p = signals?.props;
+  if (!p) return null;
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.signals?.theme.value);
+  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
   };
@@ -21,7 +22,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.05}>
-        <div>{`🐷 Layout:Desktop | stage: ${signals.stage.value}`}</div>
+        <div>{`🐷 Layout:Desktop | stage: ${p.stage.value}`}</div>
       </Cropmarks>
     </div>
   );

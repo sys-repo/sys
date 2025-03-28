@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Button, Color, css, Signal } from './common.ts';
+import { type t, App, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -35,7 +35,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
+  const d = debug.props;
+  const p = d.signals.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -47,7 +48,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
-  const title = `Layout: ${p.breakpoint.value} → ${p.signals.stage.value}`;
+  const title = `Layout: ${d.breakpoint.value} → ${p.stage.value}`;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -55,22 +56,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`theme: ${p.signals.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.signals.theme, ['Light', 'Dark'])}
+        label={`theme: ${p.theme}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <hr />
       <Button
         block
-        label={`size breakpoint: "${p.breakpoint}"`}
+        label={`size breakpoint: "${d.breakpoint}"`}
         onClick={() => {
-          Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
+          Signal.cycle<t.BreakpointName>(d.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
         }}
       />
       <Button
         block
-        label={`stage: "${p.signals.stage}"`}
+        label={`stage: "${p.stage}"`}
         onClick={() => {
-          Signal.cycle<t.Stage>(p.signals.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
       <hr />

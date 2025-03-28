@@ -18,6 +18,7 @@ type P = t.Landing3Props;
  */
 export const Landing: React.FC<P> = (props) => {
   const { debug, signals } = props;
+  const p = signals?.props;
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
@@ -30,19 +31,19 @@ export const Landing: React.FC<P> = (props) => {
   const dist = useDist({
     useSample: wrangle.showSample(props),
     onChanged(e) {
-      if (signals) signals.dist.value = e.dist;
+      if (p) p.dist.value = e.dist;
       console.info('💦 ./dist.json:', dist);
     },
   });
 
-  if (!signals) return;
-  const bg = signals.background;
+  if (!p) return;
+  const bg = p.background;
   const backgroundVideoOpacity = bg.video.opacity.value;
 
   /**
    * Render:
    */
-  const theme = Color.theme(signals.theme.value);
+  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),

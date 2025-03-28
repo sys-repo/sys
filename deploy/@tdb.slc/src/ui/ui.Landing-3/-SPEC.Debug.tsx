@@ -28,17 +28,18 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { ctx } = props;
-  const p = ctx.debug.props;
+  const d = ctx.debug.props;
+  const p = d.signals.props;
 
   Signal.useRedrawEffect(() => {
-    p.debug.value;
-    p.signals.listen();
+    d.debug.value;
+    d.signals.listen();
   });
 
   /**
    * Render:
    */
-  const theme = Color.theme(p.signals.theme.value);
+  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
@@ -48,36 +49,36 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-3'}</div>
-      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
       <Button
         block
-        label={`theme: "${p.signals.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.signals.theme, ['Light', 'Dark'])}
+        label={`theme: "${p.theme}"`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <hr />
       <Button
         block
-        label={`stage: "${p.signals.stage}"`}
+        label={`stage: "${p.stage}"`}
         onClick={() => {
-          Signal.cycle<t.Stage>(p.signals.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
+          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
       <Button
         block
-        label={`backgroundVideoOpacity: ${p.signals.background.video.opacity}`}
-        onClick={() => Signal.cycle(p.signals.background.video.opacity, [undefined, 0.15, 0.3, 1])}
+        label={`backgroundVideoOpacity: ${p.background.video.opacity}`}
+        onClick={() => Signal.cycle(p.background.video.opacity, [undefined, 0.15, 0.3, 1])}
       />
 
       <hr />
 
       <Button
         block
-        label={`API.video.playing: ${p.signals.video.props.playing}`}
-        onClick={() => Signal.toggle(p.signals.video.props.playing)}
+        label={`API.video.playing: ${p.video.props.playing}`}
+        onClick={() => Signal.toggle(p.video.props.playing)}
       />
 
       <hr />
-      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(p.signals), null, '  ')}</pre>
+      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(d.signals), null, '  ')}</pre>
     </div>
   );
 };
@@ -87,11 +88,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 const wrangle = {
   dist(signals: t.AppSignals) {
-    const d = signals.dist.value;
-    if (!d) return {};
+    const dist = signals.props.dist.value;
+    if (!dist) return {};
     return {
-      'dist:size': Str.bytes(d.size.bytes),
-      'dist:hash:sha256': `#${d.hash.digest.slice(-5)}`,
+      'dist:size': Str.bytes(dist.size.bytes),
+      'dist:hash:sha256': `#${dist.hash.digest.slice(-5)}`,
     };
   },
 } as const;

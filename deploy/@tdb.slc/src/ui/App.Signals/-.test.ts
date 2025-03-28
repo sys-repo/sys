@@ -5,12 +5,14 @@ describe('App', () => {
   describe('App.signals', () => {
     it('create', () => {
       const signals = App.signals();
-      expect(typeof signals.video.play === 'function').to.eql(true);
+      const p = signals.props;
 
-      expect(signals.stage.value === 'Entry').to.be.true;
-      expect(signals.theme.value === 'Dark').to.be.true;
-      expect(signals.dist.value).to.eql(undefined);
-      expect(signals.background.video.opacity.value).to.eql(0.2);
+      expect(typeof p.video.play === 'function').to.eql(true);
+
+      expect(p.stage.value === 'Entry').to.be.true;
+      expect(p.theme.value === 'Dark').to.be.true;
+      expect(p.dist.value).to.eql(undefined);
+      expect(p.background.video.opacity.value).to.eql(0.2);
 
       console.info();
       console.info('SLC:Signals:\n', signals);
