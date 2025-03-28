@@ -45,8 +45,8 @@ export const Body: React.FC<BodyProps> = (props) => {
       placeItems: 'center',
       rowGap: '40px',
     }),
-    logo: css({ width: 150 }),
-    canvas: css({}),
+    logo: css({ width: 150, MarginX: 25 }),
+    canvas: css({ MarginX: 25 }),
 
     tmp: css({
       Absolute: [6, 6, null, null],
