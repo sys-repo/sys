@@ -7,7 +7,6 @@ export type AppSignals = {
   readonly video: t.VideoPlayerSignals;
   readonly props: {
     readonly dist: t.Signal<t.DistPkg | undefined>;
-    readonly theme: t.Signal<t.CommonTheme>;
     readonly breakpoint: t.Signal<t.BreakpointName>;
     readonly background: {
       readonly video: {
@@ -15,16 +14,14 @@ export type AppSignals = {
         readonly opacity: t.Signal<number | undefined>;
       };
     };
-    readonly content: t.Signal<t.AppContent | undefined>; // TEMP 🐷
     readonly stack: t.Signal<t.AppContent[]>;
   };
+
+  /** API for interacting with the stack. */
   readonly stack: AppSignalsStack;
 
   /** Hook into all relevant value listeners. */
   listen(): void;
-
-  /** Load the given content into the model. */
-  load(content?: t.AppContent): void;
 };
 
 /**
@@ -33,8 +30,12 @@ export type AppSignals = {
 export type AppSignalsStack = {
   /** The number of items in the stack. */
   readonly length: number;
+
+  /** The list of screens. */
+  readonly items: t.AppContent[];
+
   /** Add a screen to the top of the stack. */
-  push(...content: t.AppContent[]): void;
+  push(...content: (t.AppContent | undefined)[]): void;
 
   /** Remove the highest screen from the stack. */
   pop(): void;

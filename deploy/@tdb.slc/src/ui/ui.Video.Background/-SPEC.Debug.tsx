@@ -13,7 +13,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const app = App.signals();
-  const props = {};
+  const props = { theme: s<t.CommonTheme>('Dark') };
   const api = { props, app };
   init?.(api);
   return api;
@@ -25,7 +25,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const app = debug.app;
-  const p = debug.app.props;
+  const p = app.props;
+  const d = debug.props;
 
   Signal.useRedrawEffect(() => debug.app.listen());
 
@@ -40,8 +41,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         block
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={`theme: ${d.theme}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
       <Button
         block

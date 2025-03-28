@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, CanvasMini, Color, css, Logo, VIDEO, withThemeMethods } from './common.ts';
+import { type t, CanvasMini, Color, css, Logo, VIDEO } from './common.ts';
 
 export function factory() {
   const id: t.Stage = 'Trailer';
@@ -19,7 +19,7 @@ export function factory() {
       },
     },
   };
-  return withThemeMethods(content);
+  return content;
 }
 
 /**

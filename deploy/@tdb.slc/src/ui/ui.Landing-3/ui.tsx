@@ -30,7 +30,7 @@ export const Landing: React.FC<P> = (props) => {
    */
   useKeyboard(state);
   const dist = useDist({
-    useSample: wrangle.showSample(props),
+    useSample: wrangle.showSampleDist(props),
     onChanged(e) {
       if (p) p.dist.value = e.dist;
       console.info('💦 ./dist.json:', dist);
@@ -52,7 +52,7 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = App.theme(state);
+  const theme = Color.theme('Dark');
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),
@@ -80,7 +80,7 @@ export const Landing: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  showSample(props: P) {
+  showSampleDist(props: P) {
     const { debug } = props;
     const isLocalhost = location.hostname === 'localhost';
     return debug ?? (isLocalhost && location.port !== '8080');

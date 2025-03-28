@@ -5,13 +5,11 @@ describe('Content', () => {
   it('Entry', async () => {
     const res = await AppContent.find('Entry');
     expect(res?.id).to.eql('Entry');
-    expect(res?.solidBackground).to.eql(undefined);
   });
 
   it('Trailer', async () => {
     const res = await AppContent.find('Trailer');
     expect(res?.video?.src).to.eql(VIDEO.Trailer.src);
-    expect(typeof res?.solidBackground === 'function').to.be.true;
   });
 
   it('Overview', async () => {

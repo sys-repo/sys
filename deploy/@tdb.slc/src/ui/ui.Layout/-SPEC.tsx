@@ -18,7 +18,7 @@ export default Spec.describe('MobileLayout', async (e) => {
       if (breakpoint === 'Desktop') ctx.subject.size('fill');
     };
 
-    Dev.Theme.signalEffect(ctx, debug.app.props.theme, 1);
+    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       updateSize();

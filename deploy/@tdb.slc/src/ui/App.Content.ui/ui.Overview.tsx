@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, VIDEO, withThemeMethods } from './common.ts';
+import { type t, Color, css, VIDEO } from './common.ts';
 
 export function factory() {
   const id: t.Stage = 'Overview';
@@ -14,7 +14,7 @@ export function factory() {
       },
     },
   };
-  return withThemeMethods(content);
+  return content;
 }
 
 /**
@@ -37,7 +37,7 @@ export const Body: React.FC<BodyProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Body: ${state?.props.content.value?.id}`}</div>
+      <div>{`🐷 Body: Overview`}</div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, AppContent, Button, Color, css, Signal, Str } from './common.ts';
+import { type t, App, AppContent, Button, css, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -15,11 +15,9 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const app = App.signals();
-  const props = {
-    debug: s<P['debug']>(true),
-  };
+  const props = { debug: s<P['debug']>(true) };
   const api = { app, props };
-  app.load(await AppContent.find('Entry'));
+  app.stack.push(await AppContent.find('Entry'));
   init?.(api);
   return api;
 }
@@ -47,25 +45,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     dist: css({ fontSize: 12 }),
   };
 
-  const load = (stage: t.Stage) => {
-    return (
-      <Button
-        block
-        label={`load: "${stage}"`}
-        onClick={async () => app.load(await AppContent.find(stage))}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-3'}</div>
       <Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
-      <Button
-        block
-        label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
       <hr />
       <Button
         block
@@ -83,11 +66,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      {load('Entry')}
+      {/* {load('Entry')}
       {load('Trailer')}
       {load('Overview')}
       {load('Programme')}
-      <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
+      <Button block label={`(unload)`} onClick={() => app.load(undefined)} /> */}
 
       <hr />
       <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>

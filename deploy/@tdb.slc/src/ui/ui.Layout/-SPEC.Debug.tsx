@@ -14,15 +14,18 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const app = App.signals();
 
+  const props = { theme: s<t.CommonTheme>('Dark') };
   const api = {
     app,
+    props,
     listen() {
       app.listen();
+      props.theme.value;
     },
   };
 
   app.props.breakpoint.value = 'Mobile';
-  app.load(await AppContent.find('Trailer'));
+  app.stack.push(await AppContent.find('Trailer'));
 
   init?.(api);
   return api;
@@ -35,6 +38,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const app = debug.app;
   const p = app.props;
+  const d = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -46,26 +50,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
-  const title = `Layout: ${p.breakpoint.value} → ${p.content.value?.id ?? '<unloaded>'}`;
-  const load = (stage: t.Stage) => {
-    return (
-      <Button
-        block
-        label={`load: "${stage}"`}
-        onClick={async () => app.load(await AppContent.find(stage))}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{title}</div>
+      <div className={styles.title.class}>{`Layout: ${p.breakpoint.value}`}</div>
 
       <Button
         block
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={`theme: ${d.theme}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
+
       <hr />
       <Button
         block
@@ -74,14 +68,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
         }}
       />
-
-      <hr />
-
-      {load('Entry')}
-      {load('Trailer')}
-      {load('Overview')}
-      {load('Programme')}
-      <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
 
       <hr />
 

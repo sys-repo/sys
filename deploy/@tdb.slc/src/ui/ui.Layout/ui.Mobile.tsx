@@ -29,6 +29,8 @@ export const LayoutMobile: React.FC<P> = (props) => {
   };
 
   const elBody = AppContent.render(state);
+    const key = `${content.id}.${i}`;
+    return <div key={key}>{key}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>

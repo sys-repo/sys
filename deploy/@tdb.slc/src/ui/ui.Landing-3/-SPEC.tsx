@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dev, Signal, Spec } from '../-test.ui.ts';
+import { Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Landing } from './mod.ts';
 
@@ -12,11 +12,9 @@ export default Spec.describe('MyComponent', async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       app.listen();
       d.debug.value;
-      ctx.host.tracelineColor(p.theme.value === 'Dark' ? 0.15 : -0.06);
       ctx.redraw();
     });
 

@@ -27,7 +27,7 @@ export async function main() {
      */
     const { Landing, App, AppContent } = await import('../ui/ui.Landing-3/mod.ts');
     const state = App.signals();
-    state.load(await AppContent.find('Trailer'));
+    state.stack.push(await AppContent.find('Trailer'));
 
     root.render(
       <StrictMode>

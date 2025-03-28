@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Cropmarks, css } from './common.ts';
+import { type t, Color, Cropmarks, css } from './common.ts';
 
 type P = t.LayoutDesktopProps;
 
@@ -14,15 +14,14 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = App.theme(state);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid' }),
+    base: css({ display: 'grid' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.05}>
-        <div>{`🐷 Layout:Desktop | stage: ${p.content.value?.id}`}</div>
+      <Cropmarks theme={'Dark'} borderOpacity={0.05}>
+        <div>{`🐷 Layout:Desktop`}</div>
       </Cropmarks>
     </div>
   );

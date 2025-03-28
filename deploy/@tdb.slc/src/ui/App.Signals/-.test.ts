@@ -10,47 +10,16 @@ describe('App', () => {
 
       expect(typeof app.video.play === 'function').to.eql(true);
 
-      expect(p.theme.value === 'Dark').to.be.true;
       expect(p.dist.value).to.eql(undefined);
-      expect(p.theme.value).to.eql('Dark');
       expect(p.breakpoint.value).to.eql('UNKNOWN');
       expect(p.background.video.opacity.value).to.eql(0.2);
       expect(p.background.video.src.value).to.eql(VIDEO.Tubes.src);
-
-      expect(p.content.value).to.eql(undefined);
       expect(p.stack.value).to.eql([]);
 
       console.info();
       console.info(c.brightGreen('SLC:App.Signals:'));
       console.info(app);
       console.info();
-    });
-
-    it('method: load', () => {
-      const content: t.AppContent = { id: 'foo', video: { src: VIDEO.GroupScale.src } };
-      const app = App.signals();
-      expect(app.props.content.value).to.eql(undefined);
-      app.load(content);
-      expect(app.props.content.value).to.eql(content);
-      app.load();
-      expect(app.props.content.value).to.eql(undefined);
-    });
-
-    describe('sync effect (internal)', () => {
-      it('player [video.src] sync on content changes', () => {
-        const signals = App.signals();
-        const p = signals.props;
-        const getSrc = () => signals.video.props.src.value;
-
-        expect(p.content.value).to.eql(undefined);
-        expect(getSrc()).to.eql(undefined);
-
-        p.content.value = { id: 'foo', video: { src: VIDEO.GroupScale.src } };
-        expect(getSrc()).to.eql(VIDEO.GroupScale.src);
-
-        p.content.value = undefined;
-        expect(getSrc()).to.eql(undefined);
-      });
     });
 
     describe('stack methods', () => {
@@ -62,6 +31,8 @@ describe('App', () => {
         const app = App.signals();
         expect(app.props.stack.value).to.eql([]);
         expect(app.stack.length).to.eql(0);
+        expect(app.stack.items).to.eql([]);
+        expect(app.stack.items).to.not.equal(app.props.stack.value); // NB: cloned array - protect from mutation.
       });
 
       it('method: push (1) - triggers signal effect', () => {
@@ -98,6 +69,14 @@ describe('App', () => {
         expect(app.stack.length).to.eql(3);
         expect(app.props.stack.value).to.eql([a, b, c]);
         expect(fired).to.eql([0, 1, 3]);
+      });
+
+      it('method: push undefined', () => {
+        const app = App.signals();
+        app.stack.push();
+        app.stack.push(undefined, a, undefined, b);
+        expect(app.stack.length).to.eql(2);
+        expect(app.props.stack.value).to.eql([a, b]);
       });
 
       it('method: clear', () => {

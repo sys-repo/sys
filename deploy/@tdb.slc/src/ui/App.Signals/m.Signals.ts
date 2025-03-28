@@ -14,9 +14,7 @@ export function createSignals() {
   type P = T['props'];
   const props: P = {
     dist: s<t.DistPkg>(),
-    theme: s<t.CommonTheme>('Dark'),
     breakpoint: s<t.BreakpointName>('UNKNOWN'),
-    content: s<t.AppContent | undefined>(),
     stack: s<t.AppContent[]>([]),
     background: {
       video: {
@@ -30,7 +28,13 @@ export function createSignals() {
     get length() {
       return props.stack.value.length;
     },
-    push: (...content) => (props.stack.value = [...props.stack.value, ...content]),
+    get items() {
+      return [...props.stack.value];
+    },
+    push(...content) {
+      const next = [...props.stack.value, ...content].filter(Boolean);
+      props.stack.value = next as t.AppContent[];
+    },
     pop: () => (props.stack.value = props.stack.value.slice(0, -1)),
     clear: () => (props.stack.value = []),
   };
@@ -48,23 +52,15 @@ export function createSignals() {
       video.props.playing.value;
       p.background.video.opacity.value;
       p.dist.value;
-      p.theme.value;
-      p.content.value;
       p.breakpoint.value;
       p.stack.value;
-    },
-    load(content) {
-      props.content.value = content;
     },
   };
 
   /**
    * Sync effects:
    */
-  Signal.effect(() => {
-    const content = props.content.value;
-    video.props.src.value = content?.video?.src;
-  });
+  Signal.effect(() => {});
 
   // Finish up.
   return api;
