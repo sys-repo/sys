@@ -1,5 +1,5 @@
 const vimeo = (id: number) => {
-  return { id, src: `vimeo/${id}` };
+  return { id, src: `vimeo/${id}` } as const;
 };
 
 /**

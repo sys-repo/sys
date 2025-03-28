@@ -8,8 +8,6 @@ import { createSignals } from './m.Signals.ts';
  * The root level Application (State Model).
  */
 export const App = {
-  Content: AppContent,
-
   /**
    * Create a new instance of the application-state signals API.
    */
