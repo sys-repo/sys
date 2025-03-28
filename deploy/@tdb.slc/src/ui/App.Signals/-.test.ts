@@ -7,7 +7,7 @@ describe('App', () => {
       const signals = App.signals();
       const p = signals.props;
 
-      expect(typeof p.video.play === 'function').to.eql(true);
+      expect(typeof signals.video.play === 'function').to.eql(true);
 
       expect(p.stage.value === 'Entry').to.be.true;
       expect(p.theme.value === 'Dark').to.be.true;
@@ -15,7 +15,7 @@ describe('App', () => {
       expect(p.background.video.opacity.value).to.eql(0.2);
 
       console.info();
-      console.info('SLC:Signals:\n', signals);
+      console.info('SLC:App.Signals:\n', signals);
       console.info();
     });
   });

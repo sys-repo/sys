@@ -15,10 +15,6 @@ export function createSignals() {
   type P = T['props'];
 
   const props: P = {
-    get video() {
-      return video;
-    },
-
     stage: s<t.Stage>('Entry'),
     dist: s<t.DistPkg>(),
     theme: s<t.CommonTheme>('Dark'),
@@ -32,9 +28,10 @@ export function createSignals() {
 
   const api: T = {
     props,
+    video,
     listen() {
       const p = props;
-      p.video.props.playing.value;
+      video.props.playing.value;
       p.background.video.opacity.value;
       p.stage.value;
       p.dist.value;

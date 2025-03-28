@@ -4,7 +4,7 @@ import { type t, App, Button, Color, css, Signal, Str } from './common.ts';
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
@@ -27,9 +27,10 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { ctx } = props;
-  const d = ctx.debug.props;
+  const { debug } = props;
+  const d = debug.props;
   const p = d.signals.props;
+  const video = d.signals.video;
 
   Signal.useRedrawEffect(() => {
     d.debug.value;
@@ -73,8 +74,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`API.video.playing: ${p.video.props.playing}`}
-        onClick={() => Signal.toggle(p.video.props.playing)}
+        label={`API.video.playing: ${video.props.playing}`}
+        onClick={() => Signal.toggle(video.props.playing)}
       />
 
       <hr />

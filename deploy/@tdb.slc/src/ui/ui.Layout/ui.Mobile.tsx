@@ -25,7 +25,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
     top: css({}),
   };
 
-  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={p.video} />;
+  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={signals.video} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
