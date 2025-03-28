@@ -1,5 +1,6 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Color } from './common.ts';
 import { Layout } from './mod.ts';
 
 export default Spec.describe('MobileLayout', (e) => {
@@ -23,6 +24,7 @@ export default Spec.describe('MobileLayout', (e) => {
       ctx.redraw();
     });
 
+    ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.3));
     ctx.subject
       .size()
       .display('grid')

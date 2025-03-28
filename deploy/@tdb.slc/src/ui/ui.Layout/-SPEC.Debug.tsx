@@ -42,15 +42,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.signals.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
+  const title = `Layout: ${p.breakpoint.value} → ${p.signals.stage.value}`;
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{'Layout:'}</div>
+      <div className={styles.title.class}>{title}</div>
 
       <Button
         block
@@ -60,7 +61,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`breakpoint: "${p.breakpoint}"`}
+        label={`size breakpoint: "${p.breakpoint}"`}
         onClick={() => {
           Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
         }}
