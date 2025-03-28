@@ -24,8 +24,8 @@ export const LayoutMobile: React.FC<P> = (props) => {
   const styles = {
     base: css({ backgroundColor, color: theme.fg, overflow: 'hidden', display: 'grid' }),
     body: css({ position: 'relative', display: 'grid', gridTemplateRows: `1fr auto` }),
-    top: css({}),
-    bottom: css({}),
+    top: css({ display: 'grid' }),
+    bottom: css({ display: 'grid' }),
   };
 
   const elBody = AppContent.render(state);

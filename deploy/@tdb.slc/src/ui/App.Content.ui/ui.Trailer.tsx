@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, VIDEO, withThemeMethods } from './common.ts';
+import { type t, CanvasMini, Color, css, Logo, VIDEO, withThemeMethods } from './common.ts';
 
 export function factory() {
   const id: t.Stage = 'Trailer';
@@ -35,14 +35,25 @@ export const Body: React.FC<BodyProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
+      display: 'grid',
+      placeItems: 'center',
     }),
+    body: css({
+      display: 'grid',
+      placeItems: 'center',
+      rowGap: '50px',
+    }),
+    logo: css({ width: 150 }),
+    canvas: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Body: ${state?.props.content.value?.id}`}</div>
+      <div className={styles.body.class}>
+        <CanvasMini theme={theme.name} style={styles.canvas} width={300} />
+        <Logo theme={theme.name} style={styles.logo} />
+      </div>
     </div>
   );
 };

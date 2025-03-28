@@ -12,9 +12,7 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-
   const app = App.signals();
-  app.props.breakpoint.value = 'Mobile';
 
   const api = {
     app,
@@ -23,7 +21,9 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
     },
   };
 
-  app.load(await AppContent.find('Entry'));
+  app.props.breakpoint.value = 'Mobile';
+  app.load(await AppContent.find('Trailer'));
+
   init?.(api);
   return api;
 }
@@ -41,7 +41,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
