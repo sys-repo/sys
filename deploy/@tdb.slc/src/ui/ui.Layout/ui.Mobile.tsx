@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Player, Signal, useSizeObserver } from './common.ts';
+import { type t, Color, css, Player, Signal } from './common.ts';
 
 type P = t.LayoutMobileProps;
 
@@ -8,7 +8,6 @@ export const LayoutMobile: React.FC<P> = (props) => {
   const { stage } = wrangle.values(props);
   const showBackgroundColor = stage === 'Trailer';
 
-  const size = useSizeObserver();
   Signal.useRedrawEffect(() => signals?.listen());
 
   if (!signals) return null;
@@ -17,13 +16,9 @@ export const LayoutMobile: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(wrangle.theme(props));
+  const backgroundColor = showBackgroundColor ? theme.bg : '';
   const styles = {
-    base: css({
-      color: theme.fg,
-      backgroundColor: showBackgroundColor ? theme.bg : '',
-      overflow: 'hidden',
-      display: 'grid',
-    }),
+    base: css({ color: theme.fg, backgroundColor, overflow: 'hidden', display: 'grid' }),
     body: css({ position: 'relative', display: 'grid', gridTemplateRows: `1fr auto` }),
     top: css({}),
   };
