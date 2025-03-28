@@ -166,31 +166,31 @@ describe('Timestamp', () => {
     it('should return the first timestamp when elapsed equals its time', () => {
       // Elapsed time exactly 5 seconds.
       const res = Timestamp.find(timestamps, 5_000);
-      expect(res).to.eql({ image: 'first' });
+      expect(res?.data).to.eql({ image: 'first' });
     });
 
     it('should return the correct timestamp when elapsed falls between two timestamps', () => {
       // Elapsed time 7 seconds: the only timestamp <= 7 seconds is the first (5 seconds).
       const a = Timestamp.find(timestamps, 7_000);
-      expect(a).to.eql({ image: 'first' });
+      expect(a?.data).to.eql({ image: 'first' });
 
       // Elapsed time 12 seconds: the latest timestamp with time <= 12 seconds is the second (10 seconds).
       const b = Timestamp.find(timestamps, 12_000);
-      expect(b).to.eql({ image: 'second' });
+      expect(b?.data).to.eql({ image: 'second' });
     });
 
     it('should return the last timestamp if elapsed time exceeds all timestamps', () => {
       // Elapsed time 20 seconds: all timestamps are <= 20 seconds, so it returns the last one.
       const res = Timestamp.find(timestamps, 20_000);
-      expect(res).to.eql({ image: 'third' });
+      expect(res?.data).to.eql({ image: 'third' });
     });
 
     it('option: should use seconds (instead of milliseconds) as time comparison unit', () => {
       const a = Timestamp.find(timestamps, 12_000);
       const b = Timestamp.find(timestamps, 12, { unit: 'secs' });
       const c = Timestamp.find(timestamps, 12); // expect failure.
-      expect(a).to.eql({ image: 'second' });
-      expect(a).to.eql(b);
+      expect(a?.data).to.eql({ image: 'second' });
+      expect(a?.data).to.eql(b?.data);
       expect(c).to.not.eql(a);
     });
   });

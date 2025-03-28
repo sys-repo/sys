@@ -19,7 +19,7 @@ export const Timestamp: t.TimestampLib = {
     timestamps: t.Timestamps<T>,
     time: t.Msecs,
     options: { unit?: t.TimestampUnit; round?: number } = {},
-  ): T | undefined {
+  ): t.Timestamp<T> | undefined {
     const { unit, round } = options;
     const msecs = wrangle.msecs(time, { unit });
     const parsedTimes = parseMap(timestamps, { round });
@@ -29,7 +29,7 @@ export const Timestamp: t.TimestampLib = {
       if (entry.total.msec <= msecs) candidate = entry;
       else break;
     }
-    return candidate?.data;
+    return candidate;
   },
 
   isCurrent<T>(

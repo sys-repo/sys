@@ -18,7 +18,7 @@ function isCurrent(
  * Lookup a timestamp given the current elapsed time.
  */
 function find(timestamps: t.VideoTimestamps, elapsed: t.Secs): t.VideoTimestampData | undefined {
-  return Std.find(timestamps, elapsed, { unit, round });
+  return Std.find(timestamps, elapsed, { unit, round })?.data;
 }
 
 /**

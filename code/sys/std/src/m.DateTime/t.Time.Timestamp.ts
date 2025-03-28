@@ -32,7 +32,7 @@ export type TimestampLib = {
     timestamps: t.Timestamps<T>,
     time: number,
     options?: { unit?: t.TimestampUnit; round?: number },
-  ): T | undefined;
+  ): t.Timestamp<T> | undefined;
 
   /**
    * Check if a given timestamp is the current one within a set based on the given time.
