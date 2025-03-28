@@ -23,9 +23,9 @@ describe('App', () => {
     });
 
     describe('stack methods', () => {
-      const a: t.AppContent = { id: 'a' };
-      const b: t.AppContent = { id: 'b' };
-      const c: t.AppContent = { id: 'b' };
+      const a: t.Content = { id: 'a' };
+      const b: t.Content = { id: 'b' };
+      const c: t.Content = { id: 'b' };
 
       it('empty by default', () => {
         const app = App.signals();

@@ -15,7 +15,7 @@ export function createSignals() {
   const props: P = {
     dist: s<t.DistPkg>(),
     breakpoint: s<t.BreakpointName>('UNKNOWN'),
-    stack: s<t.AppContent[]>([]),
+    stack: s<t.Content[]>([]),
     background: {
       video: {
         src: s<string>(VIDEO.Tubes.src),
@@ -33,7 +33,7 @@ export function createSignals() {
     },
     push(...content) {
       const next = [...props.stack.value, ...content].filter(Boolean);
-      props.stack.value = next as t.AppContent[];
+      props.stack.value = next as t.Content[];
     },
     pop: () => (props.stack.value = props.stack.value.slice(0, -1)),
     clear: () => (props.stack.value = []),

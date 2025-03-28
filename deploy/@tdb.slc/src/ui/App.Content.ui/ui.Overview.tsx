@@ -3,7 +3,7 @@ import { type t, Color, css, VIDEO } from './common.ts';
 
 export function factory() {
   const id: t.Stage = 'Overview';
-  const content: t.AppContent = {
+  const content: t.Content = {
     id,
     video: { src: VIDEO.Overview.src },
     timestamps: {
@@ -20,7 +20,7 @@ export function factory() {
 /**
  * Component:
  */
-export type BodyProps = t.AppTimestampProps;
+export type BodyProps = t.TimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state } = props;
 

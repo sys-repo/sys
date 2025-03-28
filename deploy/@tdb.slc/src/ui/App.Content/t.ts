@@ -3,22 +3,22 @@ import type { t } from './common.ts';
 /**
  * Definition of content structure.
  */
-export type AppContent = {
+export type Content = {
   id: t.StringId;
   video?: { src: string };
-  timestamps?: AppTimestamps;
+  timestamps?: ContentTimestamps;
 };
 
 /**
  * Time based content definition
  */
-export type AppTimestamps = t.Timestamps<AppTimestamp>;
-export type AppTimestamp = {
+export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
+export type ContentTimestamp = {
   /** Render the body content. */
-  render?(props: AppTimestampProps): JSX.Element;
+  render?(props: TimestampProps): JSX.Element;
 };
 
-export type AppTimestampProps = {
+export type TimestampProps = {
   timestamp: t.StringTimestamp;
   state: t.AppSignals;
   theme: t.CommonTheme;

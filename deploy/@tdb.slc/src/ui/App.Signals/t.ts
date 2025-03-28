@@ -14,7 +14,7 @@ export type AppSignals = {
         readonly opacity: t.Signal<number | undefined>;
       };
     };
-    readonly stack: t.Signal<t.AppContent[]>;
+    readonly stack: t.Signal<t.Content[]>;
   };
 
   /** API for interacting with the stack. */
@@ -32,10 +32,10 @@ export type AppSignalsStack = {
   readonly length: number;
 
   /** The list of screens. */
-  readonly items: t.AppContent[];
+  readonly items: t.Content[];
 
   /** Add a screen to the top of the stack. */
-  push(...content: (t.AppContent | undefined)[]): void;
+  push(...content: (t.Content | undefined)[]): void;
 
   /** Remove the highest screen from the stack. */
   pop(): void;
