@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
-import { Player } from '../common.ts';
+import { Player, VimeoBackground } from '../common.ts';
 import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
-import { VideoBackground } from '../ui.Video.Background/mod.ts';
 
 import { type t, Color, css, DEFAULTS, Logo, Signal } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
@@ -111,7 +110,14 @@ export const Landing: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Logo style={styles.logo} theme={theme.name} />
-      <VideoBackground opacity={canvasPosition === 'Center' ? 0.3 : 0.15} style={styles.fill} />
+
+      <VimeoBackground
+        video={499921561} // Tubes.
+        opacity={canvasPosition === 'Center' ? 0.3 : 0.15}
+        theme={theme.name}
+        style={styles.fill}
+      />
+
       <div className={styles.body.class}>
         {elLayout}
         {elSidebarRight}

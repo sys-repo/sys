@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, css } from './common.ts';
 
 export type SidebarProps = {
   width?: t.Pixels;
@@ -15,8 +15,6 @@ type P = SidebarProps;
 export const Sidebar: React.FC<P> = (props) => {
   const { width } = props;
   const bgBlur = 20;
-
-  console.log('width', width);
 
   /**
    * Render:

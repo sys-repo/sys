@@ -1,10 +1,10 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, App, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
@@ -12,12 +12,9 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  type P = t.VideoBackgroundProps;
-  const props = {
-    theme: s<P['theme']>('Dark'),
-    opacity: s<P['opacity']>(),
-  };
-  const api = { props };
+  const app = App.signals();
+  const props = {};
+  const api = { props, app };
   init?.(api);
   return api;
 }
@@ -26,20 +23,17 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const app = debug.app;
+  const p = debug.app.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.opacity.value;
-  });
+  Signal.useRedrawEffect(() => debug.app.listen());
 
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
   };
 
   return (
@@ -49,13 +43,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <Button
         block
-        label={`opacity: ${p.opacity.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<number | undefined>(p.opacity, [undefined, 0.3, 0.6, 1])}
+        label={`background.video.opacity: ${p.background.video.opacity.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<number | undefined>(p.background.video.opacity, [undefined, 0.3, 0.6, 1]);
+        }}
       />
-
       <hr />
     </div>
   );
