@@ -11,7 +11,10 @@ export type AppSignals = {
     breakpoint: t.Signal<t.BreakpointName>;
     content: t.Signal<t.AppContent | undefined>;
     background: {
-      video: { opacity: t.Signal<number | undefined> };
+      video: {
+        src: t.Signal<string>;
+        opacity: t.Signal<number | undefined>;
+      };
     };
   };
 

@@ -1,4 +1,4 @@
-import { type t, Player, Signal } from './common.ts';
+import { type t, VIDEO, Player, Signal } from './common.ts';
 
 /**
  * Create a new instance of the application-state signals API.
@@ -18,7 +18,10 @@ export function createSignals() {
     theme: s<t.CommonTheme>('Dark'),
     breakpoint: s<t.BreakpointName>('UNKNOWN'),
     background: {
-      video: { opacity: s<t.Percent | undefined>(0.2) },
+      video: {
+        opacity: s<t.Percent | undefined>(0.2),
+        src: s<string>(VIDEO.Tubes.src),
+      },
     },
   };
 
