@@ -75,6 +75,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
         }}
       />
+
       <hr />
 
       {load('Entry')}
@@ -82,6 +83,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {load('Overview')}
       {load('Programme')}
       <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
+
+      <hr />
+
+      <Button
+        block
+        label={`API.video.playing: ${app.video.props.playing}`}
+        onClick={() => Signal.toggle(app.video.props.playing)}
+      />
 
       <hr />
     </div>
