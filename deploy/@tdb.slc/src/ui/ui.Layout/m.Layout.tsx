@@ -14,13 +14,13 @@ export const Layout = {
   /**
    * Render factory for the <Layout> component that matches the current size-breakpoint.
    */
-  render(size: t.BreakpointSizeInput, signals?: t.AppSignals) {
+  render(size: t.BreakpointSizeInput, state?: t.AppSignals) {
     const breakpoint = Breakpoint.from(size);
     const is = breakpoint.is;
 
-    if (is.mobile) return <LayoutMobile signals={signals} />;
-    if (is.intermediate) return <LayoutIntermediate signals={signals} />;
-    if (is.desktop) return <LayoutDesktop signals={signals} />;
+    if (is.mobile) return <LayoutMobile state={state} />;
+    if (is.intermediate) return <LayoutIntermediate state={state} />;
+    if (is.desktop) return <LayoutDesktop state={state} />;
 
     return <div>{`Unsupported supported breakpoint: "${breakpoint.name}"`}</div>;
   },

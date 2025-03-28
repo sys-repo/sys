@@ -13,7 +13,6 @@ export function createSignals() {
   type T = t.AppSignals;
   type P = T['props'];
   const props: P = {
-    stage: s<t.Stage>('Entry'),
     dist: s<t.DistPkg>(),
     theme: s<t.CommonTheme>('Dark'),
     content: s<t.AppContent | undefined>(),
@@ -33,7 +32,6 @@ export function createSignals() {
       const p = props;
       video.props.playing.value;
       p.background.video.opacity.value;
-      p.stage.value;
       p.dist.value;
       p.theme.value;
       p.content.value;

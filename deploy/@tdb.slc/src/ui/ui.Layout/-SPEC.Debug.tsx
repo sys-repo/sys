@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Button, css, Signal } from './common.ts';
+import { type t, App, Button, css, Signal, Color } from './common.ts';
 
 /**
  * Types:
@@ -38,30 +38,27 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const app = debug.app;
-  const d = debug.props;
   const p = app.props;
+  const d = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
    */
+  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   const title = `Layout: ${d.breakpoint.value} → ${p.content.value?.id ?? '<unknown>'}`;
-
   const load = (stage: t.Stage) => {
     return (
       <Button
         block
         label={`load: "${stage}"`}
-        onClick={async () => {
-          const content = await App.Content.find(stage);
-          await app.load(content);
-        }}
+        onClick={async () => app.load(await App.Content.find(stage))}
       />
     );
   };
@@ -81,13 +78,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`size breakpoint: "${d.breakpoint}"`}
         onClick={() => {
           Signal.cycle<t.BreakpointName>(d.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
-        }}
-      />
-      <Button
-        block
-        label={`stage: "${p.stage}"`}
-        onClick={() => {
-          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
         }}
       />
       <hr />

@@ -6,7 +6,6 @@ import type { t } from './common.ts';
 export type AppSignals = {
   video: t.VideoPlayerSignals;
   props: {
-    stage: t.Signal<t.Stage>;
     dist: t.Signal<t.DistPkg | undefined>;
     theme: t.Signal<t.CommonTheme>;
     content: t.Signal<t.AppContent | undefined>;
@@ -29,6 +28,7 @@ export type AppContent = {
   id: t.StringId;
   video?: { src: string };
   timestamps?: AppTimestamps;
+  theme?: t.CommonTheme;
 };
 
 /**

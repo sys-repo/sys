@@ -5,7 +5,7 @@ export type * from './t.Layout.ts';
  * <Component>: Mobile
  */
 export type LayoutMobileProps = {
-  signals?: t.AppSignals;
+  state?: t.AppSignals;
   style?: t.CssInput;
 };
 
@@ -13,7 +13,7 @@ export type LayoutMobileProps = {
  * <Component>: Intermediate
  */
 export type LayoutIntermediateProps = {
-  signals?: t.AppSignals;
+  state?: t.AppSignals;
   style?: t.CssInput;
 };
 
@@ -21,6 +21,6 @@ export type LayoutIntermediateProps = {
  * <Component>: Desktop
  */
 export type LayoutDesktopProps = {
-  signals?: t.AppSignals;
+  state?: t.AppSignals;
   style?: t.CssInput;
 };

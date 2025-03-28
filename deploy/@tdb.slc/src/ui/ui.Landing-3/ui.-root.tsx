@@ -17,8 +17,8 @@ type P = t.Landing3Props;
  * Component:
  */
 export const Landing: React.FC<P> = (props) => {
-  const { debug, signals } = props;
-  const p = signals?.props;
+  const { debug, state } = props;
+  const p = state?.props;
 
   const size = useSizeObserver();
   const width = size.rect?.width ?? -1;
@@ -27,7 +27,7 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  useKeyboard({ signals });
+  useKeyboard(state);
   const dist = useDist({
     useSample: wrangle.showSample(props),
     onChanged(e) {
@@ -55,7 +55,7 @@ export const Landing: React.FC<P> = (props) => {
 
   const elBody = (
     <div ref={size.ref} className={styles.fill.class}>
-      <Content breakpoint={breakpoint} signals={signals} />
+      <Content breakpoint={breakpoint} state={state} />
     </div>
   );
 

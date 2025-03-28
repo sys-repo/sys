@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, css, Layout } from './common.ts';
 
 export type ContentProps = {
-  signals?: t.AppSignals;
+  state?: t.AppSignals;
   breakpoint: t.Breakpoint;
   style?: t.CssInput;
 };
@@ -13,7 +13,7 @@ type P = ContentProps;
  * Component:
  */
 export const Content: React.FC<P> = (props) => {
-  const { breakpoint, signals } = props;
+  const { breakpoint, state } = props;
 
   /**
    * Render:
@@ -30,7 +30,7 @@ export const Content: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elNotReady}
-      {Layout.render(breakpoint, signals)}
+      {Layout.render(breakpoint, state)}
     </div>
   );
 };

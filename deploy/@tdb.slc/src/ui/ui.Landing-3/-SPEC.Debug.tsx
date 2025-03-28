@@ -5,20 +5,21 @@ import { type t, App, Button, Color, css, Signal, Str } from './common.ts';
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals(init?: (e: DebugSignals) => void) {
+export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.Landing3Props;
   const s = Signal.create;
 
+  const app = App.signals();
   const props = {
     debug: s<P['debug']>(true),
-    signals: App.signals(),
   };
-  const api = { props };
+  const api = { app, props };
+  app.load(await App.Content.find('Entry'));
   init?.(api);
   return api;
 }
@@ -28,13 +29,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const app = debug.app;
+  const p = app.props;
   const d = debug.props;
-  const p = d.signals.props;
-  const video = d.signals.video;
 
   Signal.useRedrawEffect(() => {
     d.debug.value;
-    d.signals.listen();
+    app.listen();
   });
 
   /**
@@ -45,6 +46,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
     dist: css({ fontSize: 12 }),
+  };
+
+  const load = (stage: t.Stage) => {
+    return (
+      <Button
+        block
+        label={`load: "${stage}"`}
+        onClick={async () => app.load(await App.Content.find(stage))}
+      />
+    );
   };
 
   return (
@@ -59,13 +70,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`stage: "${p.stage}"`}
-        onClick={() => {
-          Signal.cycle<t.Stage>(p.stage, ['Entry', 'Trailer', 'Overview', 'Programme']);
-        }}
-      />
-      <Button
-        block
         label={`backgroundVideoOpacity: ${p.background.video.opacity}`}
         onClick={() => Signal.cycle(p.background.video.opacity, [undefined, 0.15, 0.3, 1])}
       />
@@ -74,12 +78,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`API.video.playing: ${video.props.playing}`}
-        onClick={() => Signal.toggle(video.props.playing)}
+        label={`API.video.playing: ${app.video.props.playing}`}
+        onClick={() => Signal.toggle(app.video.props.playing)}
       />
 
       <hr />
-      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(d.signals), null, '  ')}</pre>
+
+      {load('Entry')}
+      {load('Trailer')}
+      {load('Overview')}
+      {load('Programme')}
+      <Button block label={`(unload)`} onClick={() => app.load(undefined)} />
+
+      <hr />
+      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>
     </div>
   );
 };

@@ -3,19 +3,19 @@ import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Landing } from './mod.ts';
 
-export default Spec.describe('MyComponent', (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe('MyComponent', async (e) => {
+  const debug = await createDebugSignals();
+  const app = debug.app;
   const d = debug.props;
-  const p = d.signals.props;
+  const p = app.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
+      app.listen();
       d.debug.value;
-      d.signals.listen();
-
       ctx.host.tracelineColor(p.theme.value === 'Dark' ? 0.15 : -0.06);
       ctx.redraw();
     });
@@ -24,7 +24,7 @@ export default Spec.describe('MyComponent', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => {
-        return <Landing signals={d.signals} debug={d.debug.value} />;
+        return <Landing state={app} debug={d.debug.value} />;
       });
   });
 

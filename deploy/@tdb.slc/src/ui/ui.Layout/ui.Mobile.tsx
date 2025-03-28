@@ -1,23 +1,25 @@
 import React from 'react';
-import { type t, Color, css, Player, Signal } from './common.ts';
+import { type t, App, css, Player, Signal } from './common.ts';
 
 type P = t.LayoutMobileProps;
 
 export const LayoutMobile: React.FC<P> = (props) => {
-  const { signals } = props;
-  const p = signals?.props;
+  const { state } = props;
+  const p = state?.props;
+
+  const content = p?.content.value;
 
   const { stage } = wrangle.values(props);
   const showBackgroundColor = stage === 'Trailer';
 
-  Signal.useRedrawEffect(() => signals?.listen());
+  Signal.useRedrawEffect(() => state?.listen());
 
   if (!p) return null;
 
   /**
    * Render:
    */
-  const theme = Color.theme(wrangle.theme(props));
+  const theme = App.theme(state);
   const backgroundColor = showBackgroundColor ? theme.bg : '';
   const styles = {
     base: css({ color: theme.fg, backgroundColor, overflow: 'hidden', display: 'grid' }),
@@ -25,7 +27,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
     top: css({}),
   };
 
-  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={signals.video} />;
+  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={state.video} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -42,8 +44,8 @@ export const LayoutMobile: React.FC<P> = (props) => {
  */
 const wrangle = {
   values(props: P) {
-    const { signals } = props;
-    const stage = signals?.props.stage.value ?? 'Entry';
+    const { state: signals } = props;
+    const stage = signals?.props.content.value?.id ?? 'Entry';
     return { signals, stage };
   },
 

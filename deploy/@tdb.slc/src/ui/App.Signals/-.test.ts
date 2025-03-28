@@ -1,5 +1,4 @@
-import { signal } from '@preact/signals-core';
-import { type t, describe, expect, it, c } from '../../-test.ts';
+import { type t, c, describe, expect, it } from '../../-test.ts';
 import { App, VIDEO } from './mod.ts';
 
 describe('App', () => {
@@ -10,10 +9,10 @@ describe('App', () => {
 
       expect(typeof app.video.play === 'function').to.eql(true);
 
-      expect(p.stage.value === 'Entry').to.be.true;
       expect(p.theme.value === 'Dark').to.be.true;
       expect(p.dist.value).to.eql(undefined);
       expect(p.content.value).to.eql(undefined);
+      expect(p.theme.value).to.eql('Dark');
       expect(p.background.video.opacity.value).to.eql(0.2);
 
       console.info();
