@@ -13,15 +13,17 @@ export function render(state?: t.AppSignals): t.ReactNode | null {
    */
   const secs = state?.video.props.currentTime.value ?? -1;
   const timestamps = content?.timestamps ?? {};
+
   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
   if (!match) return null;
-  if (typeof match.render !== 'function') return null;
+  if (typeof match.data?.render !== 'function') return null;
 
   /**
    * Render:
    */
   const theme = wrangle.theme(content, state);
-  return match.render({ state, theme });
+  const timestamp = match.timestamp;
+  return match.data.render({ state, theme, timestamp });
 }
 
 /**

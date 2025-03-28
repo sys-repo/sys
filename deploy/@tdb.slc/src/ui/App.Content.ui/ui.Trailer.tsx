@@ -14,7 +14,7 @@ export function factory() {
       },
       '00:00:03.000': {
         render(props) {
-          return <div>👋</div>;
+          return <Body {...props} />;
         },
       },
     },
@@ -27,7 +27,7 @@ export function factory() {
  */
 export type BodyProps = t.AppTimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
-  const { state } = props;
+  const { state, timestamp } = props;
 
   /**
    * Render:
@@ -35,6 +35,7 @@ export const Body: React.FC<BodyProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       color: theme.fg,
       display: 'grid',
       placeItems: 'center',
@@ -42,14 +43,24 @@ export const Body: React.FC<BodyProps> = (props) => {
     body: css({
       display: 'grid',
       placeItems: 'center',
-      rowGap: '50px',
+      rowGap: '40px',
     }),
     logo: css({ width: 150 }),
     canvas: css({}),
+
+    tmp: css({
+      Absolute: [6, 6, null, null],
+      fontSize: 12,
+      opacity: 0.4,
+      pointerEvents: 'none',
+    }),
   };
+
+  const elTmp = <div className={styles.tmp.class}>{props.timestamp}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
+      {elTmp}
       <div className={styles.body.class}>
         <CanvasMini theme={theme.name} style={styles.canvas} width={300} />
         <Logo theme={theme.name} style={styles.logo} />

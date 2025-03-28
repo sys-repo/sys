@@ -21,6 +21,7 @@ export type AppTimestamp = {
 };
 
 export type AppTimestampProps = {
+  timestamp: t.StringTimestamp;
   state: t.AppSignals;
   theme: t.CommonTheme;
   style?: t.CssInput;
