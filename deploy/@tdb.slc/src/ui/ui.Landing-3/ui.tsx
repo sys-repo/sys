@@ -53,7 +53,6 @@ export const Landing: React.FC<P> = (props) => {
    * Render:
    */
   const theme = App.theme(state);
-  console.log('theme', theme);
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),
