@@ -34,11 +34,11 @@ export function createSignals() {
     props,
     listen() {
       const p = props;
+      p.video.props.playing.value;
+      p.background.video.opacity.value;
       p.stage.value;
       p.dist.value;
       p.theme.value;
-      p.video.props.playing.value;
-      p.background.video.opacity.value;
     },
   };
 

@@ -25,7 +25,7 @@ export type AppSignals = {
  */
 export type AppContent = {
   id: t.StringId;
-  timestamps: AppTimestamps;
+  timestamps?: AppTimestamps;
 };
 
 /**
@@ -33,5 +33,11 @@ export type AppContent = {
  */
 export type AppTimestamps = t.Timestamps<AppTimestamp>;
 export type AppTimestamp = {
+  /** Render the body content. */
+  body?(props: AppTimestampProps): JSX.Element;
   //
+};
+
+export type AppTimestampProps = {
+  state: t.AppSignals;
 };
