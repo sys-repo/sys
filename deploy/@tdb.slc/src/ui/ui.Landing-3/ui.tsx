@@ -5,6 +5,7 @@ import {
   css,
   Layout,
   useDist,
+  App,
   useKeyboard,
   useSizeObserver,
   VideoBackground,
@@ -36,6 +37,14 @@ export const Landing: React.FC<P> = (props) => {
     },
   });
 
+  /**
+   * Effects:
+   */
+  React.useEffect(() => {
+    if (!p) return;
+    p.breakpoint.value = breakpoint.name;
+  }, [breakpoint.name]);
+
   if (!p) return;
   const bg = p.background;
   const backgroundVideoOpacity = bg.video.opacity.value;
@@ -43,7 +52,8 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
+  const theme = App.theme(state);
+  console.log('theme', theme);
   const styles = {
     base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
     fill: css({ Absolute: 0, display: 'grid' }),

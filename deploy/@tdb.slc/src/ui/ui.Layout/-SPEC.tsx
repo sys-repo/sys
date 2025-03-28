@@ -5,7 +5,8 @@ import { Layout } from './mod.ts';
 
 export default Spec.describe('MobileLayout', async (e) => {
   const debug = await createDebugSignals();
-  const p = debug.props;
+  const app = debug.app;
+  const p = app.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);

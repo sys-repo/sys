@@ -14,16 +14,12 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const app = App.signals();
-  const props = {
-    breakpoint: s<t.BreakpointName>('Mobile'),
-  };
+  app.props.breakpoint.value = 'Mobile';
 
   const api = {
     app,
-    props,
     listen() {
       app.listen();
-      props.breakpoint.value;
     },
   };
 
@@ -39,7 +35,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const app = debug.app;
   const p = app.props;
-  const d = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -52,7 +47,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
-  const title = `Layout: ${d.breakpoint.value} → ${p.content.value?.id ?? '<unknown>'}`;
+  const title = `Layout: ${p.breakpoint.value} → ${p.content.value?.id ?? '<unloaded>'}`;
   const load = (stage: t.Stage) => {
     return (
       <Button
@@ -75,9 +70,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`size breakpoint: "${d.breakpoint}"`}
+        label={`size breakpoint: "${p.breakpoint}"`}
         onClick={() => {
-          Signal.cycle<t.BreakpointName>(d.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
+          Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
         }}
       />
       <hr />

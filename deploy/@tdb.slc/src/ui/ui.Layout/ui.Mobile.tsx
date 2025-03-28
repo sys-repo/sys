@@ -6,28 +6,25 @@ type P = t.LayoutMobileProps;
 export const LayoutMobile: React.FC<P> = (props) => {
   const { state } = props;
   const p = state?.props;
-
   const content = p?.content.value;
 
-  const { stage } = wrangle.values(props);
-  const showBackgroundColor = stage === 'Trailer';
-
   Signal.useRedrawEffect(() => state?.listen());
-
   if (!p) return null;
 
   /**
    * Render:
    */
   const theme = App.theme(state);
+  const showBackgroundColor = wrangle.showBackgroundColor(state);
   const backgroundColor = showBackgroundColor ? theme.bg : '';
+
   const styles = {
-    base: css({ color: theme.fg, backgroundColor, overflow: 'hidden', display: 'grid' }),
+    base: css({ backgroundColor, color: theme.fg, overflow: 'hidden', display: 'grid' }),
     body: css({ position: 'relative', display: 'grid', gridTemplateRows: `1fr auto` }),
     top: css({}),
   };
 
-  const elPlayer = stage === 'Trailer' && <Player.Video.View signals={state.video} />;
+  const elPlayer = !!content?.video?.src && <Player.Video.View signals={state.video} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -43,16 +40,8 @@ export const LayoutMobile: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  values(props: P) {
-    const { state: signals } = props;
-    const stage = signals?.props.content.value?.id ?? 'Entry';
-    return { signals, stage };
-  },
-
-  theme(props: P) {
-    const { stage } = wrangle.values(props);
-    let theme: t.CommonTheme = 'Dark';
-    if (stage === 'Trailer') theme = 'Light';
-    return theme;
+  showBackgroundColor(state?: t.AppSignals) {
+    if (!state) return false;
+    return state.props.content.value?.solidBackground?.(state) ?? false;
   },
 } as const;

@@ -18,10 +18,11 @@ export const App = {
   /**
    * Derive the theme from the given app/signals instance.
    */
-  theme(instance?: t.AppSignals) {
-    const p = instance?.props;
+  theme(state: t.AppSignals) {
+    const p = state.props;
     const content = p?.content.value;
-    const name = content?.theme ?? p?.theme.value ?? 'Dark';
+    const value = content?.theme ?? p?.theme.value ?? 'Dark';
+    const name = typeof value === 'function' ? value(state) : value;
     return Color.theme(name);
   },
 } as const;

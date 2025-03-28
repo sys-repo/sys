@@ -1,6 +1,6 @@
 import { type t, c, describe, expect, it } from '../../-test.ts';
-import { App } from './mod.ts';
 import { VIDEO } from './common.ts';
+import { App } from './mod.ts';
 
 describe('App', () => {
   describe('App.signals', () => {
@@ -14,6 +14,7 @@ describe('App', () => {
       expect(p.dist.value).to.eql(undefined);
       expect(p.content.value).to.eql(undefined);
       expect(p.theme.value).to.eql('Dark');
+      expect(p.breakpoint.value).to.eql('UNKNOWN');
       expect(p.background.video.opacity.value).to.eql(0.2);
 
       console.info();

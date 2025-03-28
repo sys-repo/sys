@@ -14,8 +14,9 @@ export function createSignals() {
   type P = T['props'];
   const props: P = {
     dist: s<t.DistPkg>(),
-    theme: s<t.CommonTheme>('Dark'),
     content: s<t.AppContent | undefined>(),
+    theme: s<t.CommonTheme>('Dark'),
+    breakpoint: s<t.BreakpointName>('UNKNOWN'),
     background: {
       video: { opacity: s<t.Percent | undefined>(0.2) },
     },
@@ -35,6 +36,7 @@ export function createSignals() {
       p.dist.value;
       p.theme.value;
       p.content.value;
+      p.breakpoint.value;
     },
     load(content) {
       props.content.value = content;
