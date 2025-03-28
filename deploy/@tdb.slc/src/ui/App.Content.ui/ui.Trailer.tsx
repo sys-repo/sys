@@ -1,9 +1,7 @@
 import React from 'react';
-import { type t } from './common.ts';
-import { withThemeMethods } from './u.ts';
-import { VIDEO } from './VIDEO.index.ts';
+import { type t, VIDEO, withThemeMethods } from './common.ts';
 
-export function create() {
+export function factory() {
   const id: t.Stage = 'Trailer';
   const content: t.AppContent = {
     id,

@@ -5,22 +5,22 @@ import { type t } from './common.ts';
  */
 export async function find(id: t.Stage): Promise<t.AppContent | undefined> {
   if (id === 'Entry') {
-    const { create } = await import('./ui.Entry.tsx');
-    return create();
+    const { factory } = await import('../App.Content.ui/ui.Entry.tsx');
+    return factory();
   }
 
   if (id === 'Trailer') {
-    const { create } = await import('./ui.Trailer.tsx');
-    return create();
+    const { factory } = await import('../App.Content.ui/ui.Trailer.tsx');
+    return factory();
   }
 
   if (id === 'Overview') {
-    const { create } = await import('./ui.Overview.tsx');
-    return create();
+    const { factory } = await import('../App.Content.ui/ui.Overview.tsx');
+    return factory();
   }
 
   if (id === 'Programme') {
-    const { create } = await import('./ui.Programme.tsx');
-    return create();
+    const { factory } = await import('../App.Content.ui/ui.Programme.tsx');
+    return factory();
   }
 }
