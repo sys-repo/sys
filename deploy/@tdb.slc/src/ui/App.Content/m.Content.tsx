@@ -1,6 +1,6 @@
-import { find } from './u.find.tsx';
-import { render } from './u.render.ts';
-import { showBackgroundColor } from './u.style.ts';
+import { find } from './m.Content.find.tsx';
+import { render } from './m.Content.render.ts';
+import { showBackgroundColor } from './m.Content.style.ts';
 
 export const AppContent = {
   find,
