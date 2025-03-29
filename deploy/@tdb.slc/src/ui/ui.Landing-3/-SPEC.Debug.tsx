@@ -68,13 +68,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={`API.video.playing: ${app.video.props.playing}`}
-        onClick={() => Signal.toggle(app.video.props.playing)}
-      />
-
-      <hr />
       {pushStack('Trailer')}
       {pushStack('Overview')}
       {pushStack('Programme')}
