@@ -42,6 +42,7 @@ function renderLevel(args: {
     Absolute: 0,
     display: 'grid',
     pointerEvents: 'none',
+    zIndex: 0, // NB: establish a new stacking context.
   });
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
