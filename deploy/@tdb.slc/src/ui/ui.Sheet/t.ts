@@ -5,7 +5,7 @@ type M = React.MouseEventHandler<HTMLDivElement>;
 /**
  * <Component>:
  */
-export type MobileSheetProps = {
+export type SheetProps = {
   children?: t.ReactNode;
   duration?: t.Secs;
   radius?: t.Pixels;

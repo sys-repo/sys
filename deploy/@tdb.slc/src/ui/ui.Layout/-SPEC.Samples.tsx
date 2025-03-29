@@ -1,4 +1,4 @@
-import { type t, css, MobileSheet } from './common.ts';
+import { type t, css, Sheet } from './common.ts';
 import { Layout } from './mod.ts';
 
 export const Sample = {
@@ -44,12 +44,12 @@ export const Sample = {
           if (!props.isTop) props.state.stack.pop();
         };
         return (
-          <MobileSheet style={{ padding: 10, marginTop }} onClick={onClick}>
+          <Sheet style={{ padding: 10, marginTop }} onClick={onClick}>
             <div>
               <div>{`👋 Hello: ${props.index}`}</div>
               <div>{props.children}</div>
             </div>
-          </MobileSheet>
+          </Sheet>
         );
       },
       timestamps: {

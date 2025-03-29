@@ -1,9 +1,10 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { AnimatePresence, css, Color } from './common.ts';
-import { MobileSheet } from './mod.ts';
+import { Sheet } from './mod.ts';
 
-export default Spec.describe('MobileSheet', (e) => {
+
+export default Spec.describe('Sheet', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -27,7 +28,7 @@ export default Spec.describe('MobileSheet', (e) => {
         };
 
         const elSheet = (
-          <MobileSheet
+          <Sheet
             style={styles.sheet}
             theme={Color.Theme.invert(p.theme.value)}
             onClick={(e) => {
@@ -36,7 +37,7 @@ export default Spec.describe('MobileSheet', (e) => {
             }}
           >
             <div>{'👋 MySheet'}</div>
-          </MobileSheet>
+          </Sheet>
         );
 
         return (

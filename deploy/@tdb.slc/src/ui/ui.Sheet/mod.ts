@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { MobileSheet } from './ui.tsx';
+export { Sheet } from './ui.tsx';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, DEFAULTS as D, M } from './common.ts';
 
-export const MobileSheet: React.FC<t.MobileSheetProps> = (props) => {
+export const Sheet: React.FC<t.SheetProps> = (props) => {
   const { duration = D.duration, radius = D.radius } = props;
 
   /**
