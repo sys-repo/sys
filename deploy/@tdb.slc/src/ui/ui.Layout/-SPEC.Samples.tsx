@@ -2,8 +2,8 @@ import { type t, css, BaseSheet } from './common.ts';
 import { Layout } from './mod.ts';
 
 export const Sample = {
-  content0(): t.Content {
-    const id = 'content-0';
+  sample0(): t.Content {
+    const id = 'sample-0';
     return {
       id,
       render(props) {
@@ -34,8 +34,8 @@ export const Sample = {
     };
   },
 
-  content1(): t.Content {
-    const id = 'content-1';
+  sample1(): t.Content {
+    const id = 'sample-1';
     return {
       id,
       render(props) {

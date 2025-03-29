@@ -27,7 +27,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   };
 
   app.props.screen.breakpoint.value = 'Mobile';
-  app.stack.push(Sample.content0());
+  app.stack.push(Sample.sample0());
 
   init?.(api);
   return api;
@@ -52,6 +52,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
+  const pushSample = (name: string, fn: () => t.Content) => {
+    return <Button block label={`stack.push:( ${name} )`} onClick={() => app.stack.push(fn())} />;
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{`${p.screen.breakpoint.value} Layout`}</div>
@@ -68,10 +72,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
 
-      <Button block label={`stack.push`} onClick={() => app.stack.push(Sample.content1())} />
-      <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
-      <Button block label={`stack.clear( leave: 1 )`} onClick={() => app.stack.clear(1)} />
-      <Button block label={`stack.clear`} onClick={() => app.stack.clear()} />
+      {pushSample('sample-0', Sample.sample0)}
+      {pushSample('sample-1', Sample.sample1)}
+
+      <hr />
+      {pushStackContentButtons(app)}
 
       <hr />
       <Button
@@ -79,9 +84,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`API.video.playing: ${app.video.props.playing}`}
         onClick={() => Signal.toggle(app.video.props.playing)}
       />
-
-      <hr />
-      {pushStackContentButtons(app)}
     </div>
   );
 };
