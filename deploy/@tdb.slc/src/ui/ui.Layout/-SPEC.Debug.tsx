@@ -24,7 +24,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
     },
   };
 
-  app.props.breakpoint.value = 'Mobile';
+  app.props.screen.breakpoint.value = 'Mobile';
   app.stack.push(await AppContent.find('Trailer'));
 
   init?.(api);
@@ -52,7 +52,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{`${p.breakpoint.value} Layout`}</div>
+      <div className={styles.title.class}>{`${p.screen.breakpoint.value} Layout`}</div>
 
       <Button
         block
@@ -63,9 +63,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`size breakpoint: "${p.breakpoint}"`}
+        label={`screen.breakpoint: "${p.screen.breakpoint}"`}
         onClick={() => {
-          Signal.cycle<t.BreakpointName>(p.breakpoint, ['Desktop', 'Intermediate', 'Mobile']);
+          Signal.cycle<t.BreakpointName>(p.screen.breakpoint, [
+            'Desktop',
+            'Intermediate',
+            'Mobile',
+          ]);
         }}
       />
 

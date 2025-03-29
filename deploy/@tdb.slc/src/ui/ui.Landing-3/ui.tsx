@@ -42,7 +42,7 @@ export const Landing: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!p) return;
-    p.breakpoint.value = breakpoint.name;
+    p.screen.breakpoint.value = breakpoint.name;
   }, [breakpoint.name]);
 
   if (!p) return;

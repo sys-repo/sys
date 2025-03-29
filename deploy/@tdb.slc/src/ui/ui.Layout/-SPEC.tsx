@@ -12,7 +12,7 @@ export default Spec.describe('MobileLayout', async (e) => {
     const ctx = Spec.ctx(e);
 
     const updateSize = () => {
-      const breakpoint = p.breakpoint.value;
+      const breakpoint = p.screen.breakpoint.value;
       if (breakpoint === 'Mobile') ctx.subject.size([390, 844]);
       if (breakpoint === 'Intermediate') ctx.subject.size([600, 650]);
       if (breakpoint === 'Desktop') ctx.subject.size('fill');
@@ -29,7 +29,7 @@ export default Spec.describe('MobileLayout', async (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => Layout.render(p.breakpoint.value, debug.app));
+      .render((e) => Layout.render(p.screen.breakpoint.value, debug.app));
 
     updateSize();
   });

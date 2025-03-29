@@ -14,8 +14,8 @@ export function createSignals() {
   type P = T['props'];
   const props: P = {
     dist: s<t.DistPkg>(),
-    breakpoint: s<t.BreakpointName>('UNKNOWN'),
     stack: s<t.Content[]>([]),
+    screen: { breakpoint: s<t.BreakpointName>('UNKNOWN') },
     background: {
       video: {
         src: s<string>(VIDEO.Tubes.src),
@@ -50,10 +50,10 @@ export function createSignals() {
     listen() {
       const p = props;
       video.props.playing.value;
-      p.background.video.opacity.value;
-      p.dist.value;
-      p.breakpoint.value;
       p.stack.value;
+      p.dist.value;
+      p.screen.breakpoint.value;
+      p.background.video.opacity.value;
     },
   };
 

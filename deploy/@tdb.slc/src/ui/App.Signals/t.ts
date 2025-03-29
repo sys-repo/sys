@@ -6,15 +6,15 @@ import type { t } from './common.ts';
 export type AppSignals = {
   readonly video: t.VideoPlayerSignals;
   readonly props: {
+    readonly stack: t.Signal<t.Content[]>;
     readonly dist: t.Signal<t.DistPkg | undefined>;
-    readonly breakpoint: t.Signal<t.BreakpointName>;
+    readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
     readonly background: {
       readonly video: {
         readonly src: t.Signal<string>;
         readonly opacity: t.Signal<number | undefined>;
       };
     };
-    readonly stack: t.Signal<t.Content[]>;
   };
 
   /** API for interacting with the stack. */

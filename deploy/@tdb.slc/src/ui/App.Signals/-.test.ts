@@ -11,7 +11,7 @@ describe('App', () => {
       expect(typeof app.video.play === 'function').to.eql(true);
 
       expect(p.dist.value).to.eql(undefined);
-      expect(p.breakpoint.value).to.eql('UNKNOWN');
+      expect(p.screen.breakpoint.value).to.eql('UNKNOWN');
       expect(p.background.video.opacity.value).to.eql(0.2);
       expect(p.background.video.src.value).to.eql(VIDEO.Tubes.src);
       expect(p.stack.value).to.eql([]);
