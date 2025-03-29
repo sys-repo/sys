@@ -4,9 +4,8 @@ import {
   Color,
   css,
   Layout,
+  pkg,
   useDist,
-  App,
-  useKeyboard,
   useSizeObserver,
   VideoBackground,
 } from './common.ts';
@@ -28,18 +27,17 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  useKeyboard(state);
   const dist = useDist({
     useSample: wrangle.showSampleDist(props),
-    onChanged(e) {
-      if (p) p.dist.value = e.dist;
-      console.info('💦 ./dist.json:', dist);
-    },
   });
 
   /**
    * Effects:
    */
+  React.useEffect(() => {
+    console.info(`💦 ${pkg.name}@${pkg.version}: dist.json →`, dist.json);
+  }, [dist.count]);
+
   React.useEffect(() => {
     if (!p) return;
     p.screen.breakpoint.value = breakpoint.name;

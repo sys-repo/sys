@@ -2,16 +2,11 @@ import { Http } from '@sys/http';
 import { useEffect, useState } from 'react';
 import { type t, Err } from './common.ts';
 
-type Options = {
-  useSample?: boolean;
-  onChanged?: (e: { dist?: t.DistPkg }) => void;
-};
-
 /**
  * Hook: load the ./dist.json package file (if available).
  */
-export function useDist(options: Options = {}) {
-  const is = { sample: options.useSample ?? false };
+export const useDist: t.UseDistFactory = (options = {}) => {
+  const is: t.UseDist['is'] = { useSample: options.useSample ?? false };
 
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
@@ -26,18 +21,18 @@ export function useDist(options: Options = {}) {
     const fetch = Http.fetch();
 
     const changeDist = (dist?: t.DistPkg) => {
+      setJson(dist);
       redraw();
-      setJson(undefined);
-      options.onChanged?.({ dist });
     };
 
-    setJson(undefined);
-    if (is.sample) {
+    if (is.useSample) {
+      setJson(undefined);
       import('./use.Dist.sample.ts').then((e) => {
-        if (fetch.disposed) return;
         changeDist(e.sample);
+        if (fetch.disposed) return;
       });
     } else {
+      setJson(undefined);
       fetch
         .json<t.DistPkg>('./dist.json')
         .then((e) => {
@@ -48,15 +43,16 @@ export function useDist(options: Options = {}) {
         .catch((err: any) => setError(Err.std(err)));
     }
     return fetch.dispose;
-  }, [is.sample]);
+  }, [is.useSample]);
 
   /**
    * API
    */
-  return {
-    redraw: count,
+  const api: t.UseDist = {
+    count,
     is,
     json,
     error,
-  } as const;
-}
+  };
+  return api;
+};
