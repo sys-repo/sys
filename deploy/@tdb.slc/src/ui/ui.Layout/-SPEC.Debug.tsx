@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, App, AppContent, Button, css, Signal, slug } from './common.ts';
-import { SAMPLE } from './-SPEC.sample.tsx';
+import { Sample } from './-SPEC.Samples.tsx';
 
 /**
  * Types:
@@ -26,7 +26,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   };
 
   app.props.screen.breakpoint.value = 'Mobile';
-  app.stack.push(SAMPLE.content1);
+  app.stack.push(Sample.content0());
 
   init?.(api);
   return api;
@@ -82,17 +82,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`stack.push`}
         onClick={() => {
-          const id = `screen-${slug()}`;
-          app.stack.push({
-            id,
-            timestamps: {
-              '00:00:00.000': {
-                render(props) {
-                  return <div>{id}</div>;
-                },
-              },
-            },
-          });
+          app.stack.push(Sample.content1());
         }}
       />
       <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />

@@ -1,4 +1,6 @@
-export { motion as Motion } from 'motion/react';
+import { motion as Motion } from 'motion/react';
+export { Motion, Motion as M };
+export { AnimatePresence } from 'motion/react';
 
 /**
  * System
