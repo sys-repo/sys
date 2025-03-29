@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, Signal } from './common.ts';
+import { Button } from '../Button/mod.ts';
+import { type t, css, Signal } from './common.ts';
 
 /**
  * Types:

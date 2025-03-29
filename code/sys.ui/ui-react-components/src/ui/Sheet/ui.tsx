@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, DEFAULTS as D, M } from './common.ts';
 
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { duration = D.duration, radius = D.radius } = props;
+  const { duration = D.duration, radius = D.radius, bounce = D.bounce } = props;
 
   /**
    * Render:
@@ -33,7 +33,7 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
       initial={{ y: '100%' }} // Offscreen (bottom).
       animate={{ y: '0%' }} //   Slide into view.
       exit={{ y: '100%' }} //    Slide out when unmounting ← (inside <AnimatePresence>)
-      transition={{ duration, type: 'spring', bounce: 0.2 }}
+      transition={{ duration, type: 'spring', bounce }}
       onClick={props.onClick}
       onDoubleClick={props.onDoubleClick}
       onMouseDown={props.onMouseDown}

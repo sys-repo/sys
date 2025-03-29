@@ -7,8 +7,9 @@ type M = React.MouseEventHandler<HTMLDivElement>;
  */
 export type SheetProps = {
   children?: t.ReactNode;
-  duration?: t.Secs;
   radius?: t.Pixels;
+  duration?: t.Secs;
+  bounce?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: M;

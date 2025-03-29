@@ -1,8 +1,7 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { AnimatePresence, css, Color } from './common.ts';
+import { AnimatePresence, Color, css } from './common.ts';
 import { Sheet } from './mod.ts';
-
 
 export default Spec.describe('Sheet', (e) => {
   const debug = createDebugSignals();
@@ -25,6 +24,7 @@ export default Spec.describe('Sheet', (e) => {
         const styles = {
           base: css({ overflow: 'hidden', display: 'grid' }),
           sheet: css({ marginTop: 40, padding: 15, userSelect: 'none' }),
+          dim: css({ opacity: 0.3 }),
         };
 
         const elSheet = (
@@ -36,7 +36,9 @@ export default Spec.describe('Sheet', (e) => {
               p.showing.value = false;
             }}
           >
-            <div>{'👋 MySheet — (click anywhere to hide)'}</div>
+            <div>
+              {'👋 MySheet'} — <span className={styles.dim.class}>{'(click to hide)'}</span>
+            </div>
           </Sheet>
         );
 

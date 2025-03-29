@@ -4,6 +4,7 @@ export * from '../common.ts';
  * Constants:
  */
 export const DEFAULTS = {
-  duration: 0.25,
   radius: 4,
+  duration: 0.25,
+  bounce: 0.2,
 } as const;
