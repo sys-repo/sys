@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, App, AppContent, Button, css, Signal, Str } from './common.ts';
+import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
 
 /**
  * Types:
@@ -45,36 +46,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     dist: css({ fontSize: 12 }),
   };
 
-  const pushStack = (stage: t.Stage) => {
-    return (
-      <Button
-        block
-        label={`stack.push:( "${stage}" )`}
-        onClick={async () => app.stack.push(await AppContent.find(stage))}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-3'}</div>
       <Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
-
       <hr />
+      {screenBreakpointButton(app)}
       <Button
         block
-        label={`backgroundVideoOpacity: ${p.background.video.opacity}`}
+        label={`background.video.opacity: ${p.background.video.opacity}`}
         onClick={() => Signal.cycle(p.background.video.opacity, [undefined, 0.15, 0.3, 1])}
       />
 
       <hr />
-      {pushStack('Trailer')}
-      {pushStack('Overview')}
-      {pushStack('Programme')}
-
-      <hr />
-      <Button block label={`stack.pop`} onClick={() => app.stack.pop(1)} />
-      <Button block label={`stack.clear( leave: 1 )`} onClick={() => app.stack.clear(1)} />
+      {pushStackContentButtons(app)}
 
       <hr />
       <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>

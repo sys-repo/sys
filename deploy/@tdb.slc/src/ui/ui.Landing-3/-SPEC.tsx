@@ -3,6 +3,7 @@ import { Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { css } from './common.ts';
 import { Landing } from './mod.ts';
+import { updateForBreakpointSize } from '../ui.Layout/-SPEC.tsx';
 
 export default Spec.describe('Landing-3', async (e) => {
   const debug = await createDebugSignals();
@@ -12,10 +13,12 @@ export default Spec.describe('Landing-3', async (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
+    const update = { size: () => updateForBreakpointSize(ctx, app) };
 
     Signal.effect(() => {
-      app.listen();
       d.debug.value;
+      app.listen();
+      update.size();
       ctx.redraw();
     });
 
@@ -37,6 +40,8 @@ export default Spec.describe('Landing-3', async (e) => {
           </div>
         );
       });
+
+    update.size();
   });
 
   e.it('ui:debug', (e) => {
