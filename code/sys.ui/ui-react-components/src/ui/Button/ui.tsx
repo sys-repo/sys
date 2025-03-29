@@ -15,10 +15,8 @@ export const Button: React.FC<P> = (props) => {
     userSelect = DEFAULTS.userSelect,
     pressedOffset = DEFAULTS.pressedOffset,
   } = props;
-  // const isBlurred = !!(spinning || overlay);
   const isBlurred = false;
   const isEnabled = enabled;
-  // const spinner = Wrangle.spinner(props.spinner);
 
   const [isOver, setOver] = useState(false);
   const [isDown, setDown] = useState(false);
