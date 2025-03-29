@@ -6,6 +6,21 @@ export function factory() {
   const content: t.Content = {
     id,
     video: { src: VIDEO.Trailer.src },
+    render(props) {
+      const styles = {
+        base: css({ display: 'grid', gridTemplateRows: 'auto 1fr' }),
+        children: css({
+          display: 'grid',
+          backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+        }),
+      };
+      return (
+        <div className={styles.base.class}>
+          <div>Base</div>
+          <div className={styles.children.class}>{props.children}</div>
+        </div>
+      );
+    },
     timestamps: {
       '00:00:00.000': {
         render(props) {
@@ -25,7 +40,7 @@ export function factory() {
 /**
  * Component:
  */
-export type BodyProps = t.TimestampProps;
+export type BodyProps = t.ContentTimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state, timestamp } = props;
 
