@@ -15,6 +15,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const app = App.signals();
   const props = { theme: s<t.CommonTheme>('Dark') };
   const api = { props, app };
+
+  app.props.background.video.opacity.value = 0.6;
   init?.(api);
   return api;
 }
@@ -27,6 +29,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const app = debug.app;
   const p = app.props;
   const d = debug.props;
+  const bg = p.background;
 
   Signal.useRedrawEffect(() => debug.app.listen());
 
@@ -46,9 +49,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`background.video.opacity: ${p.background.video.opacity.value ?? '<undefined>'}`}
+        label={`background.video.opacity: ${bg.video.opacity.value ?? '<undefined> (100%)'}`}
         onClick={() => {
-          Signal.cycle<number | undefined>(p.background.video.opacity, [undefined, 0.3, 0.6, 1]);
+          Signal.cycle<number | undefined>(bg.video.opacity, [0, 0.3, 0.6, undefined]);
         }}
       />
       <hr />
