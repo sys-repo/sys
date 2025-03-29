@@ -52,7 +52,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{`Layout: ${p.breakpoint.value}`}</div>
+      <div className={styles.title.class}>{`${p.breakpoint.value} Layout`}</div>
 
       <Button
         block
