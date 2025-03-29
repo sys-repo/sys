@@ -17,7 +17,7 @@ export const Layout = {
   sheetOffset(index: number, options?: t.NumberOffset | OffsetOptions): t.Pixels {
     const { base = 20 } = wrangle.offsetOptions(options);
     if (index < 1) return base;
-    return base + index * 9;
+    return base + index * 8;
   },
 } as const;
 

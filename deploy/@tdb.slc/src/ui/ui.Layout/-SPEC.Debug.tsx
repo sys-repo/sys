@@ -78,15 +78,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
 
-      <Button
-        block
-        label={`stack.push`}
-        onClick={() => {
-          app.stack.push(Sample.content1());
-        }}
-      />
+      <Button block label={`stack.push`} onClick={() => app.stack.push(Sample.content1())} />
       <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
-      <Button block label={`stack.clear(leave: 1)`} onClick={() => app.stack.clear(1)} />
+      <Button block label={`stack.clear( leave: 1 )`} onClick={() => app.stack.clear(1)} />
       <Button block label={`stack.clear`} onClick={() => app.stack.clear()} />
 
       <hr />

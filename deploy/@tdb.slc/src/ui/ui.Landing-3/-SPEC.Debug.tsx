@@ -45,10 +45,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
     dist: css({ fontSize: 12 }),
   };
 
+  const pushStack = (stage: t.Stage) => {
+    return (
+      <Button
+        block
+        label={`stack.push:( "${stage}" )`}
+        onClick={async () => app.stack.push(await AppContent.find(stage))}
+      />
+    );
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-3'}</div>
       <Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
+
       <hr />
       <Button
         block
@@ -57,7 +68,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-
       <Button
         block
         label={`API.video.playing: ${app.video.props.playing}`}
@@ -65,13 +75,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      {pushStack('Trailer')}
+      {pushStack('Overview')}
+      {pushStack('Programme')}
 
-      {/* {load('Entry')}
-      {load('Trailer')}
-      {load('Overview')}
-      {load('Programme')}
-      <Button block label={`(unload)`} onClick={() => app.load(undefined)} /> */}
+      <hr />
+      <Button block label={`stack.pop`} onClick={() => app.stack.pop(1)} />
+      <Button block label={`stack.clear( leave: 1 )`} onClick={() => app.stack.clear(1)} />
 
+      <hr />
       <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>
     </div>
   );

@@ -1,10 +1,9 @@
 import React from 'react';
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { type t, Color, css, useSizeObserver } from './common.ts';
 import { Landing } from './mod.ts';
 
-export default Spec.describe('MyComponent', (e) => {
+export default Spec.describe('Landing-2', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
