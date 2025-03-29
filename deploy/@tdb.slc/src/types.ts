@@ -39,4 +39,4 @@ export type CanvasPanel =
 /**
  * The content stages of the view.
  */
-export type Stage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
+export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
