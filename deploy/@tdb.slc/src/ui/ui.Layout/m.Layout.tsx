@@ -1,14 +1,14 @@
-import { type t, Breakpoint } from './common.ts';
+import { type t, Layout as Base, Breakpoint } from './common.ts';
 
 import { LayoutDesktop } from './ui.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Intermediate.tsx';
 import { LayoutMobile } from './ui.Mobile.tsx';
 
 /**
- * Main Layout API.
+ * Main Layout API (with UI components).
  */
 export const Layout = {
-  Breakpoint,
+  ...Base,
 
   /**
    * Render factory for the <Layout> component that matches the current size-breakpoint.

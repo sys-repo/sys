@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Color } from './common.ts';
+import { Color, css } from './common.ts';
 import { Layout } from './mod.ts';
 
 export default Spec.describe('MobileLayout', async (e) => {
@@ -29,7 +29,11 @@ export default Spec.describe('MobileLayout', async (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => Layout.render(p.screen.breakpoint.value, debug.app));
+      .render((e) => {
+        const style = css({ display: 'grid', overflow: 'hidden' });
+        const el = Layout.render(p.screen.breakpoint.value, debug.app);
+        return <div className={style.class}>{el}</div>;
+      });
 
     updateSize();
   });

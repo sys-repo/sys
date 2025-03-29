@@ -36,7 +36,7 @@ export function createSignals() {
       props.stack.value = next as t.Content[];
     },
     pop: () => (props.stack.value = props.stack.value.slice(0, -1)),
-    clear: () => (props.stack.value = []),
+    clear: (leave = 0) => (props.stack.value = props.stack.value.slice(0, leave)),
   };
 
   const api: T = {

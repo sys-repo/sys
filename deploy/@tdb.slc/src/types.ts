@@ -8,6 +8,7 @@ export type * from './ui/use/t.ts';
 
 export type * from './ui/ui.Canvas.Mini/t.ts';
 export type * from './ui/ui.Logo/t.ts';
+export type * from './ui/ui.Mobile.Sheet/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
 
 export type * from './ui/m.Layout/t.ts';

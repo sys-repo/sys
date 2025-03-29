@@ -41,5 +41,5 @@ export type AppSignalsStack = {
   pop(): void;
 
   /** Removes all screens from the stack. */
-  clear(): void;
+  clear(leave?: number): void;
 };

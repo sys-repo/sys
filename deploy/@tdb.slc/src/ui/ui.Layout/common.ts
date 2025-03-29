@@ -1,6 +1,8 @@
 export { AppContent, VIDEO } from '../App.Content/mod.ts';
 export { App } from '../App.Signals/mod.ts';
 export { Breakpoint } from '../m.Layout/mod.ts';
+export { MobileSheet } from '../ui.Mobile.Sheet/mod.ts';
+export { Layout } from '../m.Layout/mod.ts';
 
 export * from '../common.ts';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Breakpoint, Timestamp, css } from './common.ts';
+import { type t, AnimatePresence, Breakpoint, Timestamp, css } from './common.ts';
 
 /**
  * Renders the body of the matching timestamp.
@@ -8,7 +8,8 @@ export function render(state?: t.AppSignals): t.ReactNode {
   if (!state) return [];
   const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const stack = state.stack.items ?? [];
-  return stack.map((content, index) => renderLevel({ index, state, content, breakpoint }));
+  const el = stack.map((content, index) => renderLevel({ index, state, content, breakpoint }));
+  return <AnimatePresence>{el}</AnimatePresence>;
 }
 
 /**
@@ -22,9 +23,10 @@ function renderLevel(args: {
 }) {
   const { state, content, index, breakpoint } = args;
   const theme = wrangle.theme(content, state);
+  const isTop = wrangle.isTop(state, index);
   const children = renderTimestamp({ index, state, content, theme, breakpoint });
-  const el = content.render?.({ index, children, content, state, theme, breakpoint });
-  const style = css({ Absolute: 0, display: 'grid' });
+  const el = content.render?.({ index, children, content, state, theme, breakpoint, isTop });
+  const style = css({ Absolute: 0, display: 'grid', pointerEvents: 'none' });
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
       {el ?? children}
@@ -43,6 +45,7 @@ function renderTimestamp(args: {
   breakpoint: t.Breakpoint;
 }) {
   const { index, state, content, theme, breakpoint } = args;
+  const isTop = wrangle.isTop(state, index);
   const secs = state?.video.props.currentTime.value ?? -1;
   const timestamps = content?.timestamps ?? {};
   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
@@ -50,7 +53,7 @@ function renderTimestamp(args: {
   if (typeof match.data.render !== 'function') return null;
 
   const timestamp = match.timestamp;
-  return match.data.render({ index, state, content, timestamp, theme, breakpoint });
+  return match.data.render({ index, state, content, timestamp, theme, breakpoint, isTop });
 }
 
 /**
@@ -61,5 +64,9 @@ const wrangle = {
     return 'Dark'; // TEMP 🐷
     // const theme = typeof content.theme === 'function' ? content.theme(state) : content?.theme;
     // return theme ?? App.theme(state).name;
+  },
+
+  isTop(state: t.AppSignals, index: number) {
+    return index === state.stack.length - 1;
   },
 } as const;

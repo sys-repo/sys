@@ -11,10 +11,12 @@ export const MobileSheet: React.FC<t.MobileSheetProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
+      pointerEvents: 'auto',
       color: theme.fg,
       backgroundColor: theme.bg,
       display: 'grid',
       borderRadius: `${radius}px ${radius}px 0 0`,
+      boxShadow: `0 -5px 6px 0 ${Color.format(-0.2)}`,
     }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.

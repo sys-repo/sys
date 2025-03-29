@@ -96,6 +96,21 @@ describe('App', () => {
         expect(app.stack.length).to.eql(0);
       });
 
+      it('method: clear( leave )', () => {
+        const test = (leave: number) => {
+          const app = App.signals();
+          app.stack.push(a, b, c);
+          expect(app.stack.length).to.eql(3);
+
+          app.stack.clear(leave);
+          expect(app.stack.length).to.eql(leave);
+        };
+
+        test(0);
+        test(1);
+        test(2);
+      });
+
       it('method: pop', () => {
         const app = App.signals();
         const fired: number[] = [];
