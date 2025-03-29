@@ -35,6 +35,7 @@ export const MobileSheet: React.FC<t.MobileSheetProps> = (props) => {
       exit={{ y: '100%' }} //    Slide out when unmounting ← (inside <AnimatePresence>)
       transition={{ duration, type: 'spring', bounce: 0.2 }}
       onClick={props.onClick}
+      onDoubleClick={props.onDoubleClick}
       onMouseDown={props.onMouseEnter}
       onMouseUp={props.onMouseUp}
       onMouseEnter={props.onMouseEnter}

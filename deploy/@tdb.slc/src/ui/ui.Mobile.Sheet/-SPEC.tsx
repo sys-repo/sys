@@ -23,11 +23,7 @@ export default Spec.describe('MobileSheet', (e) => {
       .render((e) => {
         const styles = {
           base: css({ overflow: 'hidden', display: 'grid' }),
-          sheet: css({
-            marginTop: 40,
-            padding: 10,
-            // backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-          }),
+          sheet: css({ marginTop: 40, padding: 10 }),
         };
 
         const elSheet = (

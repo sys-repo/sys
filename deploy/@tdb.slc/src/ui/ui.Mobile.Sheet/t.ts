@@ -12,6 +12,7 @@ export type MobileSheetProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: M;
+  onDoubleClick?: M;
   onMouseDown?: M;
   onMouseUp?: M;
   onMouseEnter?: M;
