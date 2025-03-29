@@ -24,9 +24,25 @@ function renderLevel(args: {
   const { state, content, index, breakpoint } = args;
   const theme = wrangle.theme(content, state);
   const isTop = wrangle.isTop(state, index);
+  const isBottom = index === 0;
+
   const children = renderTimestamp({ index, state, content, theme, breakpoint });
-  const el = content.render?.({ index, children, content, state, theme, breakpoint, isTop });
-  const style = css({ Absolute: 0, display: 'grid', pointerEvents: 'none' });
+  const el = content.render?.({
+    index,
+    children,
+    content,
+    state,
+    theme,
+    breakpoint,
+    isTop,
+    isBottom,
+  });
+
+  const style = css({
+    Absolute: 0,
+    display: 'grid',
+    pointerEvents: 'none',
+  });
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
       {el ?? children}
@@ -46,14 +62,25 @@ function renderTimestamp(args: {
 }) {
   const { index, state, content, theme, breakpoint } = args;
   const isTop = wrangle.isTop(state, index);
+  const isBottom = index === 0;
+
   const secs = state?.video.props.currentTime.value ?? -1;
   const timestamps = content?.timestamps ?? {};
   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
+
   if (!match?.data) return null;
   if (typeof match.data.render !== 'function') return null;
 
-  const timestamp = match.timestamp;
-  return match.data.render({ index, state, content, timestamp, theme, breakpoint, isTop });
+  return match.data.render({
+    timestamp: match.timestamp,
+    index,
+    state,
+    content,
+    theme,
+    breakpoint,
+    isTop,
+    isBottom,
+  });
 }
 
 /**
