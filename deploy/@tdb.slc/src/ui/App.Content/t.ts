@@ -1,6 +1,11 @@
 import type { t } from './common.ts';
 
 /**
+ * The content stages of the view.
+ */
+export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
+
+/**
  * Definition of content structure.
  */
 export type Content = {

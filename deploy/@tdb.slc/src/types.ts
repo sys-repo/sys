@@ -35,8 +35,3 @@ export type CanvasPanel =
   | 'customers'
   | 'costs'
   | 'revenue';
-
-/**
- * The content stages of the view.
- */
-export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
