@@ -1,37 +1,41 @@
 import React from 'react';
 import { type t, CanvasMini, Color, css, Logo, VIDEO } from './common.ts';
+import { Sheet } from './ui.ts';
 
+/**
+ * Content: "Trailer" (30 second intro)
+ */
 export function factory() {
   const id: t.Stage = 'Trailer';
+  const sheetTheme: t.CommonTheme = 'Light';
   const content: t.Content = {
     id,
     video: { src: VIDEO.Trailer.src },
     render(props) {
-      // return null;
       const styles = {
-        base: css({ display: 'grid', gridTemplateRows: 'auto 1fr' }),
-        children: css({
-          display: 'grid',
-          backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-        }),
+        base: css({ display: 'grid', gridTemplateRows: '1fr auto' }),
+        children: css({ display: 'grid' }),
       };
+
       return (
-        <div className={styles.base.class}>
-          <div>Base</div>
-          <div className={styles.children.class}>{props.children}</div>
-        </div>
+        <Sheet {...props} theme={sheetTheme}>
+          <div className={styles.base.class}>
+            <div className={styles.children.class}>{props.children}</div>
+            <div>Video</div>
+          </div>
+        </Sheet>
       );
     },
     timestamps: {
       '00:00:00.000': {
         render(props) {
           // return null;
-          return <Body {...props} />;
+          return <Body {...props} theme={sheetTheme} />;
         },
       },
       '00:00:03.000': {
         render(props) {
-          return <Body {...props} />;
+          return <Body {...props} theme={sheetTheme} />;
         },
       },
     },
@@ -53,7 +57,7 @@ export const Body: React.FC<BodyProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      color: theme.fg,
+      // color: theme.fg,
       display: 'grid',
       placeItems: 'center',
     }),

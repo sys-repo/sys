@@ -1,8 +1,11 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
+/**
+ * Content: "Programme"
+ */
 export function factory() {
-  const id: t.Stage = 'Entry';
+  const id: t.Stage = 'Programme';
   const content: t.Content = {
     id,
     timestamps: {
@@ -36,7 +39,7 @@ export const Body: React.FC<BodyProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Body: Entry`}</div>
+      <div>{`🐷 Body: Programme`}</div>
     </div>
   );
 };

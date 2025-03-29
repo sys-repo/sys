@@ -1,6 +1,9 @@
 import React from 'react';
 import { type t, Color, css, VIDEO } from './common.ts';
 
+/**
+ * Content: "Overview" (2 minute summary).
+ */
 export function factory() {
   const id: t.Stage = 'Overview';
   const content: t.Content = {

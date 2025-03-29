@@ -13,6 +13,9 @@ export type Content = {
   /** Map of content that changes at differing timestamps. */
   timestamps?: ContentTimestamps;
 
+  /** Override the root theme. */
+  theme?: t.CommonTheme;
+
   /**
    * Render the base content.
    *    Additional items (such as the current timestamp) are
@@ -38,6 +41,8 @@ type CommonProps = {
   index: t.Index;
   /** Flag indicating if this is the current top-level view in the stack. */
   isTop: boolean;
+  /** Flag indicating if this is the bottom most view in the stack. */
+  isBottom: boolean;
   content: t.Content;
   state: t.AppSignals;
   breakpoint: t.Breakpoint;
