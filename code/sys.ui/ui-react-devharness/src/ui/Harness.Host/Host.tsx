@@ -56,7 +56,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   const styles = {
     base: css({ position: 'relative', backgroundColor, color }),
     body: css({ Absolute: 0, display: 'grid', gridTemplateRows: 'auto 1fr auto' }),
-    main: css({ position: 'relative', display: 'grid' }),
+    main: css({ position: 'relative', display: 'grid', overflow: 'hidden' }),
     empty: css({ Absolute: 0, display: 'grid', placeContent: 'center', userSelect: 'none' }),
   };
 
