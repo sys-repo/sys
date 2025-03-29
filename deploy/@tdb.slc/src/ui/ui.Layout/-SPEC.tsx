@@ -1,7 +1,10 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { updateForBreakpointSize } from './-SPEC.u.tsx';
 import { Color, css } from './common.ts';
 import { Layout } from './mod.ts';
+
+export * from './-SPEC.u.tsx';
 
 export default Spec.describe('MobileLayout', async (e) => {
   const debug = await createDebugSignals();
@@ -10,18 +13,12 @@ export default Spec.describe('MobileLayout', async (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    const updateSize = () => {
-      const breakpoint = p.screen.breakpoint.value;
-      if (breakpoint === 'Mobile') ctx.subject.size([390, 844]);
-      if (breakpoint === 'Intermediate') ctx.subject.size([600, 650]);
-      if (breakpoint === 'Desktop') ctx.subject.size('fill');
-    };
+    const update = { size: () => updateForBreakpointSize(ctx, app) };
 
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      updateSize();
+      update.size();
       ctx.redraw();
     });
 
@@ -35,7 +32,7 @@ export default Spec.describe('MobileLayout', async (e) => {
         return <div className={style.class}>{el}</div>;
       });
 
-    updateSize();
+    update.size();
   });
 
   e.it('ui:debug', (e) => {

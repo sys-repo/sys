@@ -1,6 +1,7 @@
 import React from 'react';
-import { type t, App, AppContent, Button, css, Signal, slug } from './common.ts';
 import { Sample } from './-SPEC.Samples.tsx';
+import { pushStackContentButtons, screenBreakpointButton } from './-SPEC.u.tsx';
+import { type t, App, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -62,20 +63,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={`screen.breakpoint: "${p.screen.breakpoint}"`}
-        onClick={() => {
-          Signal.cycle<t.BreakpointName>(p.screen.breakpoint, [
-            'Desktop',
-            'Intermediate',
-            'Mobile',
-          ]);
-        }}
-      />
+      {screenBreakpointButton(app)}
 
       <hr />
-
       <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
 
       <Button block label={`stack.push`} onClick={() => app.stack.push(Sample.content1())} />
@@ -84,7 +74,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={`stack.clear`} onClick={() => app.stack.clear()} />
 
       <hr />
-
       <Button
         block
         label={`API.video.playing: ${app.video.props.playing}`}
@@ -92,6 +81,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      {pushStackContentButtons(app)}
     </div>
   );
 };
