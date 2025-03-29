@@ -1,12 +1,11 @@
 import React from 'react';
-import { type t, App, AppContent, css, Player, Signal } from './common.ts';
+import { type t, css, Signal, AppContent } from './common.ts';
 
 type P = t.LayoutMobileProps;
 
 export const LayoutMobile: React.FC<P> = (props) => {
   const { state } = props;
   const p = state?.props;
-  const content = p?.content.value;
 
   Signal.useRedrawEffect(() => {
     state?.listen();
@@ -17,29 +16,10 @@ export const LayoutMobile: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = App.theme(state);
-  const showBackgroundColor = AppContent.showBackgroundColor(state);
-  const backgroundColor = showBackgroundColor ? theme.bg : '';
-
   const styles = {
-    base: css({ backgroundColor, color: theme.fg, overflow: 'hidden', display: 'grid' }),
-    body: css({ position: 'relative', display: 'grid', gridTemplateRows: `1fr auto` }),
-    top: css({ display: 'grid' }),
-    bottom: css({ display: 'grid' }),
+    base: css({ position: 'relative', display: 'grid' }),
   };
 
-  const elBody = AppContent.render(state);
-    const key = `${content.id}.${i}`;
-    return <div key={key}>{key}</div>;
-
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>
-        <div className={styles.top.class}>{elBody}</div>
-        <div className={styles.bottom.class}>
-          {!!content?.video?.src && <Player.Video.View signals={state.video} />}
-        </div>
-      </div>
-    </div>
-  );
+  const el = AppContent.render(state);
+  return <div className={css(styles.base, props.style).class}>{el}</div>;
 };

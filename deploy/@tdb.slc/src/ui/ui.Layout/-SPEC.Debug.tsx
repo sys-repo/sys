@@ -26,7 +26,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   };
 
   app.props.screen.breakpoint.value = 'Mobile';
-  app.stack.push(await AppContent.find('Trailer'));
+  app.stack.push(SAMPLE.content1);
 
   init?.(api);
   return api;
