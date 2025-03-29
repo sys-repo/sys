@@ -1,14 +1,29 @@
 import React from 'react';
-import { type t, Color, css, VIDEO } from './common.ts';
+import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from './ui.ts';
 
 /**
  * Content: "Overview" (2 minute summary).
  */
 export function factory() {
-  const id: t.Stage = 'Overview';
+  const id: t.ContentStage = 'Overview';
+  const sheetTheme = DEFAULTS.sheetTheme;
   const content: t.Content = {
     id,
     video: { src: VIDEO.Overview.src },
+
+    render(props) {
+      const styles = {
+        base: css({ padding: 10 }),
+      };
+
+      return (
+        <Sheet {...props} theme={sheetTheme}>
+          <div className={styles.base.class}>Hello Overview</div>
+          {/* {props.children} */}
+        </Sheet>
+      );
+    },
+
     timestamps: {
       '00:00:00.000': {
         render(props) {

@@ -1,13 +1,28 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from './ui.ts';
 
 /**
  * Content: "Programme"
  */
 export function factory() {
-  const id: t.Stage = 'Programme';
+  const id: t.ContentStage = 'Programme';
+  const sheetTheme = DEFAULTS.sheetTheme;
   const content: t.Content = {
     id,
+
+    render(props) {
+      const styles = {
+        base: css({ padding: 10 }),
+      };
+
+      return (
+        <Sheet {...props} theme={sheetTheme}>
+          <div className={styles.base.class}>Hello Programme</div>
+          {/* {props.children} */}
+        </Sheet>
+      );
+    },
+
     timestamps: {
       '00:00:00.000': {
         render(props) {

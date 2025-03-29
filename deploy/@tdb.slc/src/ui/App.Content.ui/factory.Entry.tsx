@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, AppContent, Button } from './common.ts';
+import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from './ui.ts';
 
 export function factory() {
   const id: t.ContentStage = 'Entry';
