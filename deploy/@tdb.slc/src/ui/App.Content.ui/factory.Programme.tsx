@@ -6,7 +6,7 @@ import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from '
  */
 export function factory() {
   const id: t.ContentStage = 'Programme';
-  const sheetTheme = DEFAULTS.sheetTheme;
+  const sheetTheme = DEFAULTS.theme.sheet;
   const content: t.Content = {
     id,
 

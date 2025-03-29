@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AnimatePresence, Breakpoint, Timestamp, css } from './common.ts';
+import { type t, AnimatePresence, Breakpoint, css, DEFAULTS, Timestamp } from './common.ts';
 
 /**
  * Renders the body of the matching timestamp.
@@ -89,9 +89,9 @@ function renderTimestamp(args: {
  */
 const wrangle = {
   theme(content: t.Content, state: t.AppSignals): t.CommonTheme {
-    return 'Dark'; // TEMP 🐷
-    // const theme = typeof content.theme === 'function' ? content.theme(state) : content?.theme;
-    // return theme ?? App.theme(state).name;
+    // NB: hard-coded from default.
+    // Possibly expand this later to store theme state on the App signals.
+    return DEFAULTS.theme.base;
   },
 
   isTop(state: t.AppSignals, index: number) {
