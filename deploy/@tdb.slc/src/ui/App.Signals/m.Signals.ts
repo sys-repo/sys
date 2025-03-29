@@ -35,8 +35,13 @@ export function createSignals() {
       const next = [...props.stack.value, ...content].filter(Boolean);
       props.stack.value = next as t.Content[];
     },
-    pop: () => (props.stack.value = props.stack.value.slice(0, -1)),
-    clear: (leave = 0) => (props.stack.value = props.stack.value.slice(0, leave)),
+    pop(leave = 0) {
+      const stack = props.stack;
+      if (stack.value.length > leave) stack.value = stack.value.slice(0, -1);
+    },
+    clear(leave = 0) {
+      props.stack.value = props.stack.value.slice(0, leave);
+    },
   };
 
   const api: T = {

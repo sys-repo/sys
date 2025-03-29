@@ -105,7 +105,6 @@ describe('App', () => {
           app.stack.clear(leave);
           expect(app.stack.length).to.eql(leave);
         };
-
         test(0);
         test(1);
         test(2);
@@ -131,8 +130,36 @@ describe('App', () => {
         expect(app.props.stack.value).to.eql([]);
 
         app.stack.pop(); // NB: ← already empty at this point.
-        expect(fired).to.eql([0, 3, 2, 1, 0, 0]);
         expect(app.props.stack.value).to.eql([]);
+
+        expect(fired.length).to.eql(5);
+        app.stack.pop();
+        app.stack.pop();
+        expect(fired.length).to.eql(5); // NB: no change (already empty).
+      });
+
+      it('method: pop( leave )', () => {
+        const app = App.signals();
+        app.stack.push(a, b, c);
+        expect(app.stack.length).to.eql(3);
+
+        app.stack.pop(3);
+        app.stack.pop(3);
+        expect(app.stack.length).to.eql(3);
+
+        app.stack.pop();
+        expect(app.stack.length).to.eql(2);
+
+        app.stack.pop(1);
+        app.stack.pop(1);
+        app.stack.pop(1);
+        expect(app.stack.length).to.eql(1);
+
+        app.stack.pop(-1);
+        expect(app.stack.length).to.eql(0);
+        app.stack.pop(-1);
+        app.stack.pop(-1);
+        expect(app.stack.length).to.eql(0);
       });
     });
   });

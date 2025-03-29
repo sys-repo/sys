@@ -38,7 +38,7 @@ export type AppSignalsStack = {
   push(...content: (t.Content | undefined)[]): void;
 
   /** Remove the highest screen from the stack. */
-  pop(): void;
+  pop(leave?: number): void;
 
   /** Removes all screens from the stack. */
   clear(leave?: number): void;
