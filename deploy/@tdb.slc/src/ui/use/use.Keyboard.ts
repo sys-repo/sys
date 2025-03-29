@@ -6,10 +6,39 @@ export function useKeyboard(signals?: t.AppSignals) {
     const life = rx.disposable();
     const keyboard = Keyboard.until(life.dispose$);
 
-    keyboard.on('Enter', () => {
-      const s = window.location.search;
-      const isDev = s.includes('dev=') || s.includes('d=');
-      if (!isDev) window.location.search = '?d';
+    const is = {
+      get dev() {
+        const q = window.location.search;
+        return q.includes('dev=') || q.includes('d=');
+      },
+    } as const;
+
+    keyboard.on('CMD + Enter', () => {
+      if (!is.dev) window.location.search = '?d';
+    });
+
+    /**
+     * GODO: Root App (step out of DevHarness).
+     */
+    keyboard.on('CMD + Shift + Escape', (e) => {
+      const url = new URL(window.location.href);
+      const q = url.searchParams;
+      q.delete('d');
+      q.delete('dev');
+      window.location.href = url.href;
+    });
+
+    /**
+     * GOTO: DevHarness Root
+     */
+    keyboard.on('CMD + Escape', () => {
+      if (is.dev) {
+        const url = new URL(window.location.href);
+        const q = url.searchParams;
+        q.delete('d');
+        q.set('dev', 'true');
+        window.location.href = url.href;
+      }
     });
 
     keyboard.on('Space', () => {
