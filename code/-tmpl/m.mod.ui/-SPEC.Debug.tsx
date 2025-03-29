@@ -17,7 +17,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const api = {
     props,
     listen() {
-      props.theme.value;
+      const p = props;
+      p.theme.value;
     },
   };
   init?.(api);
@@ -36,7 +37,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
@@ -47,7 +47,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>{'Title'}</div>
       <Button
         block
-        label={`theme: ${p.theme}`}
+        label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
