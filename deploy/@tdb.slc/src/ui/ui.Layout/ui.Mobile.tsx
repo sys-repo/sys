@@ -16,10 +16,7 @@ export const LayoutMobile: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const styles = {
-    base: css({ position: 'relative', display: 'grid' }),
-  };
-
+  const style = css({ position: 'relative', display: 'grid' });
   const el = AppContent.render(state);
-  return <div className={css(styles.base, props.style).class}>{el}</div>;
+  return <div className={css(style, props.style).class}>{el}</div>;
 };
