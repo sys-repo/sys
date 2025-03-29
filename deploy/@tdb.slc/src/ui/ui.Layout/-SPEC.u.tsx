@@ -28,19 +28,27 @@ export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
  * Button Set: content pushing and clearing from the stack.
  */
 export const pushStackContentButtons = (app: t.AppSignals) => {
+  const clear = (leave: number) => {
+    return (
+      <Button
+        block
+        key={`stack.clear(${leave ?? 0})`}
+        label={`stack.clear${leave > 0 ? `( leave: ${leave} )` : ''}`}
+        onClick={() => app.stack.clear(leave)}
+      />
+    );
+  };
+
   return [
+    pushStackButton(app, 'Entry'),
     pushStackButton(app, 'Trailer'),
     pushStackButton(app, 'Overview'),
     pushStackButton(app, 'Programme'),
 
     <hr key={'stack.hr'} />,
     <Button key={'stack.pop'} block label={`stack.pop`} onClick={() => app.stack.pop(1)} />,
-    <Button
-      block
-      key={'stack.clear'}
-      label={`stack.clear( leave: 1 )`}
-      onClick={() => app.stack.clear(1)}
-    />,
+    clear(1),
+    clear(0),
   ];
 };
 

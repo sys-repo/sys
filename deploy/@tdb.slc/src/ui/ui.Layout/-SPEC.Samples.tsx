@@ -23,7 +23,7 @@ export const Sample = {
             className={styles.base.class}
             onDoubleClick={() => state.stack.clear(1)}
             onClick={() => {
-              if (!props.isTop) state.stack.pop();
+              if (!props.isTop) state.stack.pop(1);
             }}
           >
             <div>{`id: "${id}"`}</div>
