@@ -57,6 +57,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [undefined, 280, 400])}
       />
+
+      <hr />
     </div>
   );
 };
