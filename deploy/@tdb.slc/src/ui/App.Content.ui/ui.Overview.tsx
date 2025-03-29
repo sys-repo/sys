@@ -20,7 +20,7 @@ export function factory() {
 /**
  * Component:
  */
-export type BodyProps = t.TimestampProps;
+export type BodyProps = t.ContentTimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state } = props;
 
