@@ -7,6 +7,7 @@ export function factory() {
     id,
     video: { src: VIDEO.Trailer.src },
     render(props) {
+      // return null;
       const styles = {
         base: css({ display: 'grid', gridTemplateRows: 'auto 1fr' }),
         children: css({
@@ -24,6 +25,7 @@ export function factory() {
     timestamps: {
       '00:00:00.000': {
         render(props) {
+          // return null;
           return <Body {...props} />;
         },
       },

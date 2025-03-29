@@ -23,16 +23,11 @@ function renderLevel(args: {
   const { state, content, index, breakpoint } = args;
   const theme = wrangle.theme(content, state);
   const children = renderTimestamp({ index, state, content, theme, breakpoint });
-
-  let elBase: t.ReactNode | undefined;
-  if (typeof content.render === 'function') {
-    elBase = content.render({ index, children, content, state, theme, breakpoint });
-  }
-
-  const base = css({ Absolute: 0, display: 'grid' });
+  const el = content.render?.({ index, children, content, state, theme, breakpoint });
+  const style = css({ Absolute: 0, display: 'grid' });
   return (
-    <div key={`${content.id}.${index}`} className={base.class}>
-      {elBase ?? children}
+    <div key={`${content.id}.${index}`} className={style.class}>
+      {el ?? children}
     </div>
   );
 }
