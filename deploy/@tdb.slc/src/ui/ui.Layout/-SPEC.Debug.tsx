@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, App, AppContent, Button, css, Signal, slug } from './common.ts';
+import { SAMPLE } from './-SPEC.sample.tsx';
 
 /**
  * Types:

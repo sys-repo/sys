@@ -1,7 +1,6 @@
 /**
  * @module
  */
-export { Breakpoint } from './m.Breakpoint.ts';
 export { Layout } from './m.Layout.tsx';
 
 export { LayoutDesktop } from './ui.Desktop.tsx';

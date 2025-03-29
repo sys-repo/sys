@@ -38,6 +38,7 @@ type CommonProps = {
   index: t.Index;
   content: t.Content;
   state: t.AppSignals;
+  breakpoint: t.Breakpoint;
   theme: t.CommonTheme;
   style?: t.CssInput;
 };

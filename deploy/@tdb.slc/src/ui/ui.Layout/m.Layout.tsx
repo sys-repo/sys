@@ -1,5 +1,4 @@
-import { type t } from './common.ts';
-import { Breakpoint } from './m.Breakpoint.ts';
+import { type t, Breakpoint } from './common.ts';
 
 import { LayoutDesktop } from './ui.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Intermediate.tsx';
