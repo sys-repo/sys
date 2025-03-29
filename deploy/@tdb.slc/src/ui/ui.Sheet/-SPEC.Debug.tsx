@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -13,6 +13,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   type P = t.SheetProps;
   const s = Signal.create;
+
   const props = {
     theme: s<P['theme']>('Dark'),
     showing: s(true),
@@ -34,7 +35,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
+  const d = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -51,10 +52,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>{'Mobile Sheet'}</div>
       <Button
         block
-        label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={`debug.theme: "${d.theme}"`}
+        onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
-      <Button block label={`showing: ${p.showing}`} onClick={() => Signal.toggle(p.showing)} />
+      <Button
+        block
+        label={`debug.showing: ${d.showing}`}
+        onClick={() => Signal.toggle(d.showing)}
+      />
       <hr />
     </div>
   );

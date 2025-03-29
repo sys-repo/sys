@@ -24,24 +24,24 @@ export default Spec.describe('Sheet', (e) => {
       .render((e) => {
         const styles = {
           base: css({ overflow: 'hidden', display: 'grid' }),
-          sheet: css({ marginTop: 40, padding: 10 }),
+          sheet: css({ marginTop: 40, padding: 15, userSelect: 'none' }),
         };
 
         const elSheet = (
           <Sheet
             style={styles.sheet}
             theme={Color.Theme.invert(p.theme.value)}
-            onClick={(e) => {
+            onMouseDown={(e) => {
               e.stopPropagation();
               p.showing.value = false;
             }}
           >
-            <div>{'👋 MySheet'}</div>
+            <div>{'👋 MySheet — (click anywhere to hide)'}</div>
           </Sheet>
         );
 
         return (
-          <div className={styles.base.class} onClick={() => (p.showing.value = true)}>
+          <div className={styles.base.class} onMouseDown={() => (p.showing.value = true)}>
             <AnimatePresence>{p.showing.value && elSheet}</AnimatePresence>
           </div>
         );

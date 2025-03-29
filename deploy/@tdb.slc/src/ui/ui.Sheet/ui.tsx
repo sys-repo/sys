@@ -36,7 +36,7 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
       transition={{ duration, type: 'spring', bounce: 0.2 }}
       onClick={props.onClick}
       onDoubleClick={props.onDoubleClick}
-      onMouseDown={props.onMouseEnter}
+      onMouseDown={props.onMouseDown}
       onMouseUp={props.onMouseUp}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
