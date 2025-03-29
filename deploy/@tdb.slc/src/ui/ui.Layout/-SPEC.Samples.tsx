@@ -1,4 +1,4 @@
-import { type t, css, M, AnimatePresence, Color, MobileSheet } from './common.ts';
+import { type t, css, MobileSheet } from './common.ts';
 import { Layout } from './mod.ts';
 
 export const Sample = {
@@ -9,7 +9,13 @@ export const Sample = {
       render(props) {
         const { state } = props;
         const styles = {
-          base: css({ pointerEvents: 'auto', cursor: 'default', userSelect: 'none' }),
+          base: css({
+            pointerEvents: 'auto',
+            cursor: 'default',
+            userSelect: 'none',
+            opacity: 0.3,
+            padding: 6,
+          }),
         };
 
         return (
@@ -20,7 +26,7 @@ export const Sample = {
               if (!props.isTop) state.stack.pop();
             }}
           >
-            <div>{`id: ${id}`}</div>
+            <div>{`id: "${id}"`}</div>
             <div>{props.children}</div>
           </div>
         );
@@ -33,7 +39,7 @@ export const Sample = {
     return {
       id,
       render(props) {
-        const marginTop = Layout.sheetOffset(props.index);
+        const marginTop = Layout.sheetOffset(props.index, { base: 30 });
         const onClick = () => {
           if (!props.isTop) props.state.stack.pop();
         };

@@ -86,6 +86,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
       <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
+      <Button block label={`stack.clear(leave: 1)`} onClick={() => app.stack.clear(1)} />
       <Button block label={`stack.clear`} onClick={() => app.stack.clear()} />
 
       <hr />

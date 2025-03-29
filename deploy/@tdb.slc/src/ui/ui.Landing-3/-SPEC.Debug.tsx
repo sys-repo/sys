@@ -72,7 +72,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {load('Programme')}
       <Button block label={`(unload)`} onClick={() => app.load(undefined)} /> */}
 
-      <hr />
       <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>
     </div>
   );

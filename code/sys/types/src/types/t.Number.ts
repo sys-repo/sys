@@ -24,6 +24,11 @@ export type Percent = number;
 export type PixelOrPercent = Pixels | Percent; //
 
 /**
+ * A number that represents an "offset" of another value.
+ */
+export type NumberOffset = number;
+
+/**
  * A number that represents a "total" (typically 1-based).
  */
 export type NumberTotal = number;
