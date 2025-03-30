@@ -19,7 +19,7 @@ export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
       key={`stack.${stage}`}
       block
       label={`stack.push:( "${stage}" )`}
-      onClick={async () => app.stack.push(await AppContent.find(stage))}
+      onClick={async () => app.stack.push(await AppContent.factory(stage))}
     />
   );
 };

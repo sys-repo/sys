@@ -1,7 +1,7 @@
-import { find } from './m.Content.find.tsx';
+import { factory } from './m.Content.factory.tsx';
 import { Render } from './m.Content.Render.ts';
 
 export const AppContent = {
-  find,
   Render,
+  factory,
 } as const;

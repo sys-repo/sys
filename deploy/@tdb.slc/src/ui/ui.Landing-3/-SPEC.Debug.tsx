@@ -18,7 +18,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const app = App.signals();
   const props = { debug: s<P['debug']>(true) };
   const api = { app, props };
-  app.stack.push(await AppContent.find('Entry'));
+  app.stack.push(await AppContent.factory('Entry'));
   init?.(api);
   return api;
 }

@@ -20,7 +20,7 @@ export function factory() {
       };
 
       const showTrailer = async () => {
-        const content = await AppContent.find('Trailer');
+        const content = await AppContent.factory('Trailer');
         state.stack.push(content);
       };
 

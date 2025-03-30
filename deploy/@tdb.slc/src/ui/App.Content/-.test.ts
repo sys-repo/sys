@@ -5,27 +5,27 @@ import { AppContent, VIDEO } from './mod.ts';
 describe('AppContent', () => {
   describe('.find: (factory)', () => {
     it('Entry', async () => {
-      const res = await AppContent.find('Entry');
+      const res = await AppContent.factory('Entry');
       expect(res?.id).to.eql('Entry');
     });
 
     it('Trailer', async () => {
-      const res = await AppContent.find('Trailer');
+      const res = await AppContent.factory('Trailer');
       expect(res?.video?.src).to.eql(VIDEO.Trailer.src);
     });
 
     it('Overview', async () => {
-      const res = await AppContent.find('Overview');
+      const res = await AppContent.factory('Overview');
       expect(res?.video?.src).to.eql(VIDEO.Overview.src);
     });
 
     it('Programme', async () => {
-      const res = await AppContent.find('Programme');
+      const res = await AppContent.factory('Programme');
       expect(res?.id).to.eql('Programme');
     });
 
     it('Not Found', async () => {
-      const res = await AppContent.find('Foobar' as any);
+      const res = await AppContent.factory('Foobar' as any);
       expect(res).to.eql(undefined);
     });
   });
