@@ -28,7 +28,7 @@ export const Landing: React.FC<P> = (props) => {
    * Hooks:
    */
   const dist = useDist({
-    useSample: wrangle.showSampleDist(props),
+    useSampleFallback: wrangle.showSampleDist(props),
   });
 
   /**

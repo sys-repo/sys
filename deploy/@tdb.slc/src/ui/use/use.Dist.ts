@@ -6,7 +6,8 @@ import { type t, Err } from './common.ts';
  * Hook: load the ./dist.json package file (if available).
  */
 export const useDist: t.UseDistFactory = (options = {}) => {
-  const is: t.UseDist['is'] = { useSample: options.useSample ?? false };
+  const { useSampleFallback = false } = options;
+  const is: t.UseDist['is'] = { sample: useSampleFallback };
 
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
@@ -15,35 +16,37 @@ export const useDist: t.UseDistFactory = (options = {}) => {
   const [error, setError] = useState<t.StdError>();
 
   /**
-   * Effect: Fetch JSON.
+   * Effect: Fetch JSON (or optionally load sample data).
    */
   useEffect(() => {
     const fetch = Http.fetch();
 
-    const changeDist = (dist?: t.DistPkg) => {
+    const update = (dist?: t.DistPkg) => {
       setJson(dist);
       redraw();
     };
 
-    if (is.useSample) {
+    const loadJson = async () => {
       setJson(undefined);
-      import('./use.Dist.sample.ts').then((e) => {
-        changeDist(e.sample);
-        if (fetch.disposed) return;
-      });
-    } else {
+      const e = await fetch.json<t.DistPkg>('./dist.json');
+      if (fetch.disposed) return;
+      if (e.ok) update(e.data);
+      else setError(Err.std(e.error));
+    };
+
+    const loadSample = async () => {
       setJson(undefined);
-      fetch
-        .json<t.DistPkg>('./dist.json')
-        .then((e) => {
-          if (fetch.disposed) return;
-          if (!e.error) changeDist(e.data);
-          else setError(Err.std(e.error));
-        })
-        .catch((err: any) => setError(Err.std(err)));
-    }
+      const m = await import('./use.Dist.sample.ts');
+      update(m?.sample);
+    };
+
+    const finish = () => {
+      if (!json && useSampleFallback) loadSample();
+    };
+
+    loadJson().then(finish).catch(finish);
     return fetch.dispose;
-  }, [is.useSample]);
+  }, [is.sample]);
 
   /**
    * API

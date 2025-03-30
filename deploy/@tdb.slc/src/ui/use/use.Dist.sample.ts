@@ -3,8 +3,8 @@ import { type t } from './common.ts';
 export const sample: t.DistPkg = {
   '-type:': 'jsr:@sys/types:DistPkg',
   pkg: {
-    name: '@sys/driver-vite',
-    version: '0.0.0-dev.0',
+    name: 'sample',
+    version: '0.0.0-sample.0',
   },
   size: {
     bytes: 1119584,

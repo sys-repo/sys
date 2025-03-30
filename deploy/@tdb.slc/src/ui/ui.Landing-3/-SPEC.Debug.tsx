@@ -71,9 +71,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  dist(signals: t.AppSignals) {
-    const dist = signals.props.dist.value;
-    if (!dist) return {};
+  dist(app: t.AppSignals) {
+    const dist = app.props.dist.value;
+    if (!dist) return { err: 'app.props.dist not found' };
     return {
       'dist:size': Str.bytes(dist.size.bytes),
       'dist:hash:sha256': `#${dist.hash.digest.slice(-5)}`,
