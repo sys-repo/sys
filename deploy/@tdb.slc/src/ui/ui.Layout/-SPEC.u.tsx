@@ -1,4 +1,4 @@
-import { type t, Button, AppContent, Signal } from './common.ts';
+import { type t, App, AppContent, Button, Signal } from './common.ts';
 
 /**
  * Used to update a size of a DevHost subject based on the current size-breakpoint.
@@ -18,7 +18,7 @@ export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
     <Button
       key={`stack.${stage}`}
       block
-      label={`stack.push:( ${stage} )`}
+      label={`stack.push:( "${stage}" )`}
       onClick={async () => app.stack.push(await AppContent.find(stage))}
     />
   );
@@ -67,3 +67,31 @@ export const screenBreakpointButton = (app: t.AppSignals) => {
     />
   );
 };
+
+/**
+ * Buttons: play/pause controls for media-player signals-API on the stack.
+ */
+export function layerVideoPlayerButtons(app: t.AppSignals) {
+  const layers = app.stack.items.map((layer, index) => {
+    if (!layer.video) return null;
+
+    const player = App.Signals.Player.find(app, layer.id, index);
+    const isPlaying = player?.props.playing.value;
+    const label = `[ ${layer.id} ]:playing: ${isPlaying}`;
+
+    if (!player) return null;
+
+    return (
+      <Button
+        block
+        key={`${layer.id}.${index}`}
+        label={label}
+        onClick={() => {
+          Signal.toggle(player.props.playing);
+        }}
+      />
+    );
+  });
+
+  return layers;
+}

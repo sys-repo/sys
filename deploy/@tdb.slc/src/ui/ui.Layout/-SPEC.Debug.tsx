@@ -1,6 +1,10 @@
 import React from 'react';
 import { Sample } from './-SPEC.Samples.tsx';
-import { pushStackContentButtons, screenBreakpointButton } from './-SPEC.u.tsx';
+import {
+  layerVideoPlayerButtons,
+  pushStackContentButtons,
+  screenBreakpointButton,
+} from './-SPEC.u.tsx';
 import { type t, App, Button, css, Signal } from './common.ts';
 
 /**
@@ -53,7 +57,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
-    return <Button block label={`stack.push:( ${name} )`} onClick={() => app.stack.push(fn())} />;
+    return <Button block label={`stack.push:( "${name}" )`} onClick={() => app.stack.push(fn())} />;
   };
 
   return (
@@ -72,18 +76,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
 
-      {pushSample('sample-0', Sample.sample0)}
-      {pushSample('sample-1', Sample.sample1)}
+      {pushSample('sample-layer-0', Sample.sample0)}
+      {pushSample('sample-layer-1', Sample.sample1)}
 
       <hr />
       {pushStackContentButtons(app)}
 
       <hr />
-      <Button
-        block
-        label={`API.video.playing: ${app.video.props.playing}`}
-        onClick={() => Signal.toggle(app.video.props.playing)}
-      />
+
+      {layerVideoPlayerButtons(app)}
     </div>
   );
 };
