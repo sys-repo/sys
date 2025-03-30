@@ -5,10 +5,9 @@ type P = t.VideoBackgroundProps;
 
 export const VideoBackground: React.FC<P> = (props) => {
   const { state } = props;
-  const p = state.props;
-  const v = p.background.video;
-  const opacity = v.opacity.value;
-  const src = v.src.value;
+  const video = state.props.background.video;
+  const opacity = video.opacity.value;
+  const src = video.src.value;
 
   /**
    * Render:

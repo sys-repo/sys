@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 export * from '../common.ts';
 
-export { App } from '../App.Signals/mod.ts';
+export { AppSignals } from '../App.Signals/mod.ts';
 export { Breakpoint } from '../m.Layout/mod.ts';
 
 /**

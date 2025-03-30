@@ -1,10 +1,17 @@
 import type { t } from './common.ts';
 
 /**
+ * Library for working with the [AppSignals] model.
+ */
+export type AppSignalsLib = {
+  /** Create a new instance of the application-state signals API. */
+  create(): t.AppSignals;
+};
+
+/**
  * Global application-state signals API.
  */
 export type AppSignals = {
-  readonly video: t.VideoPlayerSignals;
   readonly props: {
     readonly stack: t.Signal<t.Content[]>;
     readonly dist: t.Signal<t.DistPkg | undefined>;

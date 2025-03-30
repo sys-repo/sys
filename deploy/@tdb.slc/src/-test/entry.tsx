@@ -31,7 +31,7 @@ export async function main() {
     /**
      * DevHarness:
      */
-    const { App } = await import('../ui/App.Signals/mod.ts');
+    const { App } = await import('../ui/App/mod.ts');
     const { render } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./entry.Specs.ts');
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Signal, AppContent } from './common.ts';
+import { type t, AppContent, css, Signal } from './common.ts';
 
 type P = t.LayoutMobileProps;
 

@@ -1,6 +1,6 @@
 import { type t, describe, expect, it } from '../../-test.ts';
+import { AppSignals } from '../App.Signals/mod.ts';
 import { AppContent, VIDEO } from './mod.ts';
-import { App } from '../App.Signals/mod.ts';
 
 describe('AppContent', () => {
   describe('.find: (factory)', () => {
@@ -36,7 +36,7 @@ describe('AppContent', () => {
     const b: T = { id: 'foo.bar', video: { src: 'vimeo/1234' } };
 
     const test = (layer: t.StringId | T, index: number, expected: boolean) => {
-      const app = App.signals();
+      const app = AppSignals.create();
       app.stack.push(a);
       app.stack.push(b);
       expect(Object.keys(app.props.players).length).to.eql(1);

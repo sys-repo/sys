@@ -1,6 +1,6 @@
 /**
  * @module
- * Tools for...🐷
+ * The "Social Lean Canvas" product system.
  */
 export { pkg } from './pkg.ts';
 
@@ -10,5 +10,5 @@ export type * as t from './types.ts';
 /**
  * Library
  */
-export { App } from './ui/App.Signals/mod.ts';
 export { AppContent } from './ui/App.Content/mod.ts';
+export { App } from './ui/App/mod.ts';
