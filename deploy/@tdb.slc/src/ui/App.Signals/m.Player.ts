@@ -1,10 +1,14 @@
 import type { t } from './common.ts';
 
-export const Player: t.AppSignalsPlayer = {
+export const AppPlayer: t.AppSignalsPlayer = {
   find(app: t.AppSignals, layer: t.StringId | t.Content, index: number) {
-    const layerId = wrangle.layerId(layer);
-    const key = `${layerId}.${index}`;
+    const key = AppPlayer.key(layer, index);
     return app.props.players[key];
+  },
+
+  key(layer, index) {
+    const layerId = wrangle.layerId(layer);
+    return `${layerId}:[${index}]`;
   },
 } as const;
 

@@ -1,5 +1,6 @@
 import { type t, Player, Signal, TUBES, rx } from './common.ts';
 import { createStack } from './m.Stack.ts';
+import { AppPlayer } from './m.Player.ts';
 
 /**
  * Create a new instance of the application-state signals API.
@@ -64,7 +65,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     // Add players not yet in the stack:
     stack.forEach((layer, i) => {
       if (layer.video) {
-        const key = `${layer.id}.${i}`;
+        const key = AppPlayer.key(layer, i);
         keys.add(key);
 
         if (!players[key]) {

@@ -170,7 +170,8 @@ describe('AppSignals.stack', () => {
       app.stack.push({ id: 'foo' });
       app.stack.push({ id: 'bar.baz', video: { src: VIDEO.GroupScale.src } });
 
-      expect(typeof p.players['bar.baz.1'].play === 'function').to.be.true;
+      const key = AppSignals.Player.key('bar.baz', 1);
+      expect(typeof p.players[key].play === 'function').to.be.true;
 
       // Remove: pop the video layer off the stack.
       expect(Object.keys(p.players).length).to.eql(1);

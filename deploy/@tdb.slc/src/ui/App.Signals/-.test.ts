@@ -1,11 +1,11 @@
 import { type t, c, describe, expect, it, rx, Signal } from '../../-test.ts';
 import { VIDEO } from '../App.Content/mod.ts';
+import { AppPlayer } from './m.Player.ts';
 import { AppSignals } from './mod.ts';
-import { Player } from './m.Player.ts';
 
 describe('AppSignals', () => {
   it('API', () => {
-    expect(AppSignals.Player).to.equal(Player);
+    expect(AppSignals.Player).to.equal(AppPlayer);
   });
 
   describe('lifecycle', () => {
