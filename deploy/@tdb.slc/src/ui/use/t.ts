@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Hook: Load the `dist.json` file from the server.
+ * Hook: Load the `dist.json` file from the server (if avilable).
  */
 export type UseDistFactory = (options?: { useSampleFallback?: boolean }) => UseDist;
 export type UseDist = {
@@ -10,3 +10,9 @@ export type UseDist = {
   readonly json?: t.DistPkg;
   readonly error?: t.StdError;
 };
+
+/**
+ * Hook: Keyboard controller.
+ */
+export type UseKeyboardFactory = (app?: t.AppSignals) => UseKeyboard;
+export type UseKeyboard = {};

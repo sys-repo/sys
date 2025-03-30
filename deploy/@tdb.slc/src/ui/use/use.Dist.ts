@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { type t, Err } from './common.ts';
 
 /**
- * Hook: load the ./dist.json package file (if available).
+ * Hook: Load the `dist.json` file from the server (if avilable).
  */
 export const useDist: t.UseDistFactory = (options = {}) => {
   const { useSampleFallback = false } = options;
