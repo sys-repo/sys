@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { t } from '../common.ts';
 
+/**
+ * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
+ */
 export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
   onChange?: t.SizeObserverChangeHandler,
 ) => {
