@@ -1,4 +1,4 @@
-import { type t, Player, Signal, VIDEO, rx } from './common.ts';
+import { type t, Player, Signal, TUBES, rx } from './common.ts';
 import { createStack } from './m.Signals.stack.ts';
 
 /**
@@ -21,7 +21,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     players: {},
     background: {
       video: {
-        src: s<string>(VIDEO.Tubes.src),
+        src: s<string>(TUBES.src),
         opacity: s<t.Percent | undefined>(0.2),
       },
     },

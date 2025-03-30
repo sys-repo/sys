@@ -1,12 +1,10 @@
-const vimeo = (id: number) => {
-  return { id, src: `vimeo/${id}` } as const;
-};
+import { vimeo, TUBES } from './common.ts';
 
 /**
  * Index of Video IDs.
  */
 export const VIDEO = {
-  Tubes: vimeo(499921561),
+  Tubes: TUBES,
   GroupScale: vimeo(727951677),
   Trailer: vimeo(1068502644),
   Overview: vimeo(1068653222),
