@@ -1,9 +1,12 @@
 import type { t } from './common.ts';
+export type * from './t.Stack.ts';
 
 /**
  * Library for working with the [AppSignals] model.
  */
 export type AppSignalsLib = {
+  readonly Player: t.PlayerStackLib;
+
   /** Create a new instance of the application-state signals API. */
   create(dispose$?: t.UntilObservable): t.AppSignals;
 };

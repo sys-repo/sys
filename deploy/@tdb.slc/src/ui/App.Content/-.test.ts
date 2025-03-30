@@ -41,7 +41,7 @@ describe('AppContent', () => {
       app.stack.push(b);
       expect(Object.keys(app.props.players).length).to.eql(1);
 
-      const player = AppContent.Player.find(app, layer, index);
+      const player = AppSignals.Player.find(app, layer, index);
       expect(typeof player?.play === 'function').to.eql(expected);
     };
 

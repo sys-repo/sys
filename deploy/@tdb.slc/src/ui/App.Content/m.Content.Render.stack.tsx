@@ -1,6 +1,13 @@
 import React from 'react';
-import { type t, AnimatePresence, Breakpoint, css, DEFAULTS, Timestamp } from './common.ts';
-import { Player } from './m.Content.Player.ts';
+import {
+  type t,
+  AnimatePresence,
+  AppSignals,
+  Breakpoint,
+  css,
+  DEFAULTS,
+  Timestamp,
+} from './common.ts';
 
 /**
  * Renders the body of the matching timestamp.
@@ -66,8 +73,7 @@ function renderTimestamp(args: {
   const isTop = wrangle.isTop(state, index);
   const isBottom = index === 0;
 
-  const player = Player.find(state, content, index);
-
+  const player = AppSignals.Player.find(state, content, index);
   const secs = player?.props.currentTime.value ?? -1;
   const timestamps = content?.timestamps ?? {};
   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
