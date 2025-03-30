@@ -1,5 +1,5 @@
 import { type t, c, describe, expect, it, Signal } from '../../-test.ts';
-import { AppContent, VIDEO } from './common.ts';
+import { AppContent, rx, VIDEO } from './common.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals', () => {
@@ -194,7 +194,7 @@ describe('AppSignals', () => {
       expect(app.stack.length).to.eql(0);
     });
 
-    it('adds/removes corresponding <Video.Player> signals to {players}', () => {
+    it('adds/removes corresponding <Video.Player> signals to {players} object', () => {
       const app = AppSignals.create();
       const p = app.props;
       expect(p.players).to.eql({});
@@ -211,28 +211,25 @@ describe('AppSignals', () => {
       expect(p.players).to.eql({});
     });
 
+    it('retains <Player> on layer state after .push() → .pop() over it', () => {
+      const app = AppSignals.create();
+      app.stack.push({ id: 'foo-0' });
+      app.stack.push({ id: 'foo-1', video: { src: VIDEO.GroupScale.src } });
 
-        expect(typeof p.players['bar.baz.1'].play === 'function').to.be.true;
+      const fromLayer1 = () => AppContent.Player.find(app, 'foo-1', 1);
+      const a = fromLayer1();
+      expect(a).to.equal(fromLayer1()); // NB: assert test helpers working as expected.
 
-        // Remove: pop the video layer off the stack.
-        expect(Object.keys(p.players).length).to.eql(1);
-        app.stack.pop();
-        expect(p.players).to.eql({});
-      });
+      app.stack.push({ id: 'foo-2' });
+      const b = fromLayer1();
 
-    describe('App.listen', () => {
-      it('listens to changes', () => {
-        const app = App.signals();
+      app.stack.pop();
+      const c = fromLayer1();
 
-        let count = 0;
-        Signal.effect(() => {
-          app.listen();
-          count++;
-        });
+      [a, b, c].forEach((v) => expect(v?.play).to.be.a('function')); // All are players.
 
-        expect(count).to.eql(1);
-        app.stack.push({ id: 'foo' });
-        expect(count).to.eql(2);
+      expect(b).to.equal(a);
+      expect(c).to.equal(a);
     });
   });
 

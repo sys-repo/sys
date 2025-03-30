@@ -72,12 +72,12 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
           players[key] = Player.Video.signals({ src });
         }
       }
-
-      // Remove players for layers no longer in the stack:
-      Object.keys(players)
-        .filter((key) => !keys.has(key))
-        .forEach((key) => delete players[key]);
     });
+
+    // Remove players for layers no longer in the stack:
+    Object.keys(players)
+      .filter((key) => !keys.has(key))
+      .forEach((key) => delete players[key]);
   });
 
   // Finish up.
