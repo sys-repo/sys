@@ -5,13 +5,13 @@ import type { t } from './common.ts';
  */
 export type AppSignalsLib = {
   /** Create a new instance of the application-state signals API. */
-  create(): t.AppSignals;
+  create(dispose$?: t.UntilObservable): t.AppSignals;
 };
 
 /**
  * Global application-state signals API.
  */
-export type AppSignals = {
+export type AppSignals = t.Lifecycle & {
   readonly props: {
     readonly stack: t.Signal<t.Content[]>;
     readonly dist: t.Signal<t.DistPkg | undefined>;

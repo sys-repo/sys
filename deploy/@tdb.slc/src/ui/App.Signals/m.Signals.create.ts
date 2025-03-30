@@ -1,11 +1,13 @@
-import { type t, Player, Signal, VIDEO } from './common.ts';
+import { type t, Player, Signal, VIDEO, rx } from './common.ts';
 import { createStack } from './m.Signals.stack.ts';
 
 /**
  * Create a new instance of the application-state signals API.
  */
-export const create: t.AppSignalsLib['create'] = () => {
+export const create: t.AppSignalsLib['create'] = (until$) => {
   const s = Signal.create;
+  const life = rx.lifecycle(until$);
+  life.dispose$.subscribe(() => stopSyncing());
 
   /**
    * API:
@@ -40,13 +42,21 @@ export const create: t.AppSignalsLib['create'] = () => {
       p.screen.breakpoint.value;
       p.background.video.opacity.value;
     },
-  };
 
+    /**
+     * Lifecycle:
+     */
+    dispose: life.dispose,
+    dispose$: life.dispose$,
+    get disposed() {
+      return life.disposed;
+    },
+  };
 
   /**
    * Sync: VideoPlayers
    */
-  Signal.effect(() => {
+  const stopSyncing = Signal.effect(() => {
     const stack = props.stack.value;
     const players = props.players;
     const keys = new Set<string>();
