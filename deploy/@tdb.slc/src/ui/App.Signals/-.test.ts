@@ -1,14 +1,12 @@
 import { type t, c, describe, expect, it, Signal } from '../../-test.ts';
-import { VIDEO } from './common.ts';
+import { AppContent, VIDEO } from './common.ts';
 import { App } from './mod.ts';
 
 describe('App', () => {
   describe('App.signals', () => {
-    it('create', () => {
+    it('lifecycle: create', () => {
       const app = App.signals();
       const p = app.props;
-
-      expect(typeof app.video.play === 'function').to.eql(true);
 
       expect(p.dist.value).to.eql(undefined);
       expect(p.screen.breakpoint.value).to.eql('UNKNOWN');
@@ -22,7 +20,7 @@ describe('App', () => {
       console.info();
     });
 
-    describe('stack methods', () => {
+    describe('App.stack', () => {
       const a: t.Content = { id: 'a' };
       const b: t.Content = { id: 'b' };
       const c: t.Content = { id: 'b' };
@@ -177,6 +175,21 @@ describe('App', () => {
         expect(Object.keys(p.players).length).to.eql(1);
         app.stack.pop();
         expect(p.players).to.eql({});
+      });
+
+    describe('App.listen', () => {
+      it('listens to changes', () => {
+        const app = App.signals();
+
+        let count = 0;
+        Signal.effect(() => {
+          app.listen();
+          count++;
+        });
+
+        expect(count).to.eql(1);
+        app.stack.push({ id: 'foo' });
+        expect(count).to.eql(2);
       });
     });
   });
