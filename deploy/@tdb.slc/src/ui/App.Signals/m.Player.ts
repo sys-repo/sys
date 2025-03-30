@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const Player: t.PlayerStackLib = {
+export const Player: t.AppSignalsPlayer = {
   find(app: t.AppSignals, layer: t.StringId | t.Content, index: number) {
     const layerId = wrangle.layerId(layer);
     const key = `${layerId}.${index}`;

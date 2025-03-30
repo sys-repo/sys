@@ -1,5 +1,5 @@
 import { type t, Player, Signal, TUBES, rx } from './common.ts';
-import { createStack } from './m.Signals.stack.ts';
+import { createStack } from './m.Stack.ts';
 
 /**
  * Create a new instance of the application-state signals API.
