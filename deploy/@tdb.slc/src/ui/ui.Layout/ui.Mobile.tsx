@@ -9,7 +9,6 @@ export const LayoutMobile: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => {
     state?.listen();
-    state?.video.props.currentTime.value;
   });
   if (!p) return null;
 
@@ -17,6 +16,6 @@ export const LayoutMobile: React.FC<P> = (props) => {
    * Render:
    */
   const style = css({ position: 'relative', display: 'grid' });
-  const el = AppContent.render(state);
-  return <div className={css(style, props.style).class}>{el}</div>;
+  const elStack = AppContent.Render.stack(state);
+  return <div className={css(style, props.style).class}>{elStack}</div>;
 };

@@ -1,15 +1,16 @@
 import React from 'react';
 import { type t, AnimatePresence, Breakpoint, css, DEFAULTS, Timestamp } from './common.ts';
+import { Player } from './m.Content.Player.ts';
 
 /**
  * Renders the body of the matching timestamp.
  */
-export function render(state?: t.AppSignals): t.ReactNode {
+export function renderStack(state?: t.AppSignals): t.ReactNode {
   if (!state) return [];
   const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const stack = state.stack.items ?? [];
-  const el = stack.map((content, index) => renderLevel({ index, state, content, breakpoint }));
-  return <AnimatePresence>{el}</AnimatePresence>;
+  const nodes = stack.map((content, index) => renderLevel({ index, state, content, breakpoint }));
+  return <AnimatePresence>{nodes}</AnimatePresence>;
 }
 
 /**
@@ -65,7 +66,9 @@ function renderTimestamp(args: {
   const isTop = wrangle.isTop(state, index);
   const isBottom = index === 0;
 
-  const secs = state?.video.props.currentTime.value ?? -1;
+  const player = Player.find(state, content, index);
+
+  const secs = player?.props.currentTime.value ?? -1;
   const timestamps = content?.timestamps ?? {};
   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
 
@@ -90,7 +93,7 @@ function renderTimestamp(args: {
 const wrangle = {
   theme(content: t.Content, state: t.AppSignals): t.CommonTheme {
     // NB: hard-coded from default.
-    // Possibly expand this later to store theme state on the App signals.
+    //     Possibly expand this later to store theme state on the App signals.
     return DEFAULTS.theme.base;
   },
 
