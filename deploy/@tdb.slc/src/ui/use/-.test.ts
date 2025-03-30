@@ -1,10 +1,12 @@
-import { type t, describe, it, expect } from '../../-test.ts';
+import { type t, describe, it, expect, c } from '../../-test.ts';
 
-describe('Landing', () => {
+describe('Hooks', () => {
   it('imports', async () => {
     const m = await import('./mod.ts');
-    console.info('Landing:', m);
+    console.info(c.brightGreen('(Hooks) Module:'));
+    console.info({ ...m });
 
     expect(typeof m.useKeyboard == 'function').to.be.true;
+    expect(typeof m.useDist == 'function').to.be.true;
   });
 });

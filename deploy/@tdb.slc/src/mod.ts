@@ -12,5 +12,3 @@ export type * as t from './types.ts';
  */
 export { App } from './ui/App.Signals/mod.ts';
 export { AppContent } from './ui/App.Content/mod.ts';
-
-import { App } from '@tdb/slc';

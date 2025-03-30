@@ -25,6 +25,7 @@ export function createSignals() {
     },
   };
 
+  const stack = createStack(props.stack);
   const api: T = {
     get props() {
       return props;
@@ -32,7 +33,9 @@ export function createSignals() {
     get video() {
       return video;
     },
-    stack: createStack(props.stack),
+    get stack() {
+      return stack;
+    },
     listen() {
       const p = props;
       video.props.playing.value;
