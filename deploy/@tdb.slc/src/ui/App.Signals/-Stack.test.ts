@@ -33,6 +33,8 @@ describe('AppSignals.stack', () => {
       expect(app.stack.length).to.eql(2);
       expect(app.props.stack.value).to.eql([a, b]);
       expect(fired).to.eql([0, 1, 2]);
+
+      app.dispose();
     });
 
     it('push (many)', () => {
@@ -50,6 +52,8 @@ describe('AppSignals.stack', () => {
       expect(app.stack.length).to.eql(3);
       expect(app.props.stack.value).to.eql([a, b, c]);
       expect(fired).to.eql([0, 1, 3]);
+
+      app.dispose();
     });
 
     it('push <undefined>', () => {
@@ -58,6 +62,8 @@ describe('AppSignals.stack', () => {
       app.stack.push(undefined, a, undefined, b);
       expect(app.stack.length).to.eql(2);
       expect(app.props.stack.value).to.eql([a, b]);
+
+      app.dispose();
     });
   });
 
@@ -77,6 +83,8 @@ describe('AppSignals.stack', () => {
       app.stack.clear();
       expect(fired).to.eql([0, 2, 0]);
       expect(app.stack.length).to.eql(0);
+
+      app.dispose();
     });
 
     it('clear( leave )', () => {
@@ -87,6 +95,8 @@ describe('AppSignals.stack', () => {
 
         app.stack.clear(leave);
         expect(app.stack.length).to.eql(leave);
+
+        app.dispose();
       };
       test(0);
       test(1);
@@ -121,6 +131,8 @@ describe('AppSignals.stack', () => {
       app.stack.pop();
       app.stack.pop();
       expect(fired.length).to.eql(5); // NB: no change (already empty).
+
+      app.dispose();
     });
 
     it('pop( leave ) ← retain minimum level', () => {
@@ -145,6 +157,8 @@ describe('AppSignals.stack', () => {
       app.stack.pop(-1);
       app.stack.pop(-1);
       expect(app.stack.length).to.eql(0);
+
+      app.dispose();
     });
 
     it('adds/removes corresponding <Video.Player> signals to {players} object', () => {
@@ -162,6 +176,8 @@ describe('AppSignals.stack', () => {
       expect(Object.keys(p.players).length).to.eql(1);
       app.stack.pop();
       expect(p.players).to.eql({});
+
+      app.dispose();
     });
 
     it('retains <Player> object on layer state after .push() → .pop() over it', () => {
@@ -182,6 +198,8 @@ describe('AppSignals.stack', () => {
       [a, b, c].forEach((v) => expect(v?.play).to.be.a('function')); // All are players.
       expect(b).to.equal(a);
       expect(c).to.equal(a);
+
+      app.dispose();
     });
   });
 });

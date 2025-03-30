@@ -23,6 +23,8 @@ describe('AppSignals', () => {
       console.info(c.brightGreen('SLC:App.Signals:'));
       console.info(app);
       console.info();
+
+      app.dispose();
     });
 
     it('dispose', () => {
@@ -72,6 +74,8 @@ describe('AppSignals', () => {
       expect(count).to.eql(1);
       app.stack.push({ id: 'foo' });
       expect(count).to.eql(2);
+
+      app.dispose();
     });
   });
 });
