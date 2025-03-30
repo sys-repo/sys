@@ -24,33 +24,33 @@ export type PlayerSignalsFactoryDefaults = {
  * Signals API for dynamic control of the <VideoPlayer>.
  */
 export type VideoPlayerSignals = {
-  props: {
-    ready: t.Signal<boolean>;
-    src: t.Signal<t.StringVideoAddress | undefined>;
+  readonly props: {
+    readonly ready: t.Signal<boolean>;
+    readonly src: t.Signal<t.StringVideoAddress | undefined>;
 
     /**
      * Media.
      */
-    playing: t.Signal<boolean>;
-    currentTime: t.Signal<t.Secs>;
-    loop: t.Signal<boolean>;
-    autoPlay: t.Signal<boolean>;
-    muted: t.Signal<boolean>;
+    readonly playing: t.Signal<boolean>;
+    readonly currentTime: t.Signal<t.Secs>;
+    readonly loop: t.Signal<boolean>;
+    readonly autoPlay: t.Signal<boolean>;
+    readonly muted: t.Signal<boolean>;
 
     /**
      * Appearance.
      */
-    showControls: t.Signal<boolean>;
-    showFullscreenButton: t.Signal<boolean>;
+    readonly showControls: t.Signal<boolean>;
+    readonly showFullscreenButton: t.Signal<boolean>;
     /** A background video, covers the container running silently (and generally auto-plays). */
-    background: t.Signal<boolean>;
-    aspectRatio: t.Signal<string>;
-    cornerRadius: t.Signal<number>;
+    readonly background: t.Signal<boolean>;
+    readonly aspectRatio: t.Signal<string>;
+    readonly cornerRadius: t.Signal<number>;
 
     /**
      * Commands.
      */
-    jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
+    readonly jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
   };
   jumpTo(second: t.Secs, options?: { play?: boolean }): VideoPlayerSignals;
   play(): VideoPlayerSignals;
