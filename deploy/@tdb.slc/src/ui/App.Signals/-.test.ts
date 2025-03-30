@@ -1,4 +1,4 @@
-import { type t, Signal, c, describe, expect, it } from '../../-test.ts';
+import { type t, c, describe, expect, it, Signal } from '../../-test.ts';
 import { VIDEO } from './common.ts';
 import { App } from './mod.ts';
 
@@ -160,6 +160,23 @@ describe('App', () => {
         app.stack.pop(-1);
         app.stack.pop(-1);
         expect(app.stack.length).to.eql(0);
+      });
+
+      it('adds/removes corresponding <Video.Player> signals to {players}', () => {
+        const app = App.signals();
+        const p = app.props;
+        expect(p.players).to.eql({});
+
+        // Add: push a layer with a video to the stack.
+        app.stack.push({ id: 'foo' });
+        app.stack.push({ id: 'bar.baz', video: { src: VIDEO.GroupScale.src } });
+
+        expect(typeof p.players['bar.baz.1'].play === 'function').to.be.true;
+
+        // Remove: pop the video layer off the stack.
+        expect(Object.keys(p.players).length).to.eql(1);
+        app.stack.pop();
+        expect(p.players).to.eql({});
       });
     });
   });

@@ -17,6 +17,7 @@ export function createSignals() {
     dist: s<t.DistPkg>(),
     stack: s<t.Content[]>([]),
     screen: { breakpoint: s<t.BreakpointName>('UNKNOWN') },
+    players: {},
     background: {
       video: {
         src: s<string>(VIDEO.Tubes.src),
@@ -47,9 +48,31 @@ export function createSignals() {
   };
 
   /**
-   * Sync effects:
+   * Sync: VideoPlayers
    */
-  Signal.effect(() => {});
+  Signal.effect(() => {
+    const stack = props.stack.value;
+    const players = props.players;
+    const keys = new Set<string>();
+
+    // Add players not yet in the stack:
+    stack.forEach((layer, i) => {
+      if (layer.video) {
+        const key = `${layer.id}.${i}`;
+        keys.add(key);
+
+        if (!players[key]) {
+          const src = layer.video.src;
+          players[key] = Player.Video.signals({ src });
+        }
+      }
+
+      // Remove players for layers no longer in the stack:
+      Object.keys(players)
+        .filter((key) => !keys.has(key))
+        .forEach((key) => delete players[key]);
+    });
+  });
 
   // Finish up.
   return api;
