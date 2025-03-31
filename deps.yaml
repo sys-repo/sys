@@ -106,6 +106,7 @@ deno.json:
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.15.0
   - import: npm:@preact/signals-react@3.0.1
+  - import: npm:react-inspector@6.0.2
 
 package.json:
   - group: std/deno
