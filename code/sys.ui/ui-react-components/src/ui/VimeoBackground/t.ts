@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type VimeoBackgroundProps = {
   video?: number | t.StringVideoAddress;
+  playing?: boolean;
   opacity?: number;
   blur?: number;
   opacityTransition?: number; // msecs

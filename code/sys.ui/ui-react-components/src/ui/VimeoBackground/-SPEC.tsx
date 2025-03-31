@@ -11,9 +11,7 @@ export default Spec.describe('VimeoBackground', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      p.video.value;
-      p.opacity.value;
-      p.blur.value;
+      debug.listen();
       ctx.redraw();
     });
 
@@ -26,6 +24,7 @@ export default Spec.describe('VimeoBackground', (e) => {
           video={p.video.value}
           opacity={p.opacity.value}
           blur={p.blur.value}
+          playing={p.playing.value}
         />
       ));
   });

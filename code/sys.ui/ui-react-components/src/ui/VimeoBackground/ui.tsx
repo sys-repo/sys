@@ -51,7 +51,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <IFrame
         style={styles.iframe}
-        src={wrangle.src(props.video)}
+        src={wrangle.src(props)}
         allow={'autoplay'}
         allowFullScreen={false}
         onReady={(e) => setRef(e.ref)}
@@ -65,9 +65,11 @@ export const VimeoBackground: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  src(video: P['video']) {
-    const id = wrangle.id(video);
-    return `https://player.vimeo.com/video/${id}?background=1&dnt=true`;
+  src(props: P) {
+    const id = wrangle.id(props.video);
+    const playing = props.playing ?? DEFAULTS.playing;
+    const base = 'https://player.vimeo.com/video';
+    return `${base}/${id}?background=1&dnt=true&autoplay=${playing ? '1' : '0'}`;
   },
 
   id(video: P['video']) {
