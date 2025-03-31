@@ -18,7 +18,7 @@ export default Spec.describe('Obj', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => <Obj theme={p.theme.value} />);
+      .render((e) => <Obj theme={p.theme.value} fontSize={p.fontSize.value} />);
   });
 
   e.it('ui:debug', (e) => {

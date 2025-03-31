@@ -2,6 +2,8 @@ import React from 'react';
 import { Button } from '../Button/mod.ts';
 import { type t, css, Signal } from './common.ts';
 
+type P = t.ObjProp;
+
 /**
  * Types:
  */
@@ -12,14 +14,17 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.ObjProp;
   const s = Signal.create;
-  const props = { theme: s<P['theme']>('Light') };
+  const props = {
+    theme: s<P['theme']>('Light'),
+    fontSize: s<P['fontSize']>(),
+  };
   const api = {
     props,
     listen() {
       const p = props;
       p.theme.value;
+      p.fontSize.value;
     },
   };
   init?.(api);
@@ -56,6 +61,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={`fontSize: ${p.fontSize ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['fontSize']>(p.fontSize, [undefined, 14, 18, 32])}
       />
 
       <hr />

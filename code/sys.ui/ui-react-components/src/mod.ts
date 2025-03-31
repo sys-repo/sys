@@ -20,6 +20,7 @@ export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { Panel } from './ui/Panel/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
+export { Obj } from './ui/Obj/mod.ts';
 
 export { ConceptPlayer } from './ui/Player.Concept/mod.ts';
 export { VideoPlayer } from './ui/Player.Video/mod.ts';
