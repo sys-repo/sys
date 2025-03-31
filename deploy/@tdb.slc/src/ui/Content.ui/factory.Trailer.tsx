@@ -1,33 +1,53 @@
 import React from 'react';
-import { type t, CanvasMini, Color, css, Logo, Player, VIDEO } from './common.ts';
-import { Sheet } from './ui.ts';
-
-const signals = Player.Video.signals({ src: VIDEO.Trailer.src });
+import {
+  type t,
+  AppSignals,
+  CanvasMini,
+  Color,
+  css,
+  DEFAULTS,
+  Logo,
+  Player,
+  Sheet,
+  VIDEO,
+} from './ui.ts';
 
 /**
- * Content: "Trailer" (30 second intro)
+ * Content: "Trailer" (30 second intro).
  */
 export function factory() {
-  const id: t.Stage = 'Trailer';
-  const sheetTheme: t.CommonTheme = 'Light';
+  const id: t.ContentStage = 'Trailer';
+  const sheetTheme = DEFAULTS.theme.sheet;
+
   const content: t.Content = {
     id,
     video: { src: VIDEO.Trailer.src },
+
+    /**
+     * Base component:
+     */
     render(props) {
       const styles = {
         base: css({ display: 'grid', gridTemplateRows: '1fr auto' }),
         children: css({ display: 'grid' }),
       };
 
+      const player = AppSignals.Player.find(props.state, id, props.index);
+      console.log('player', player);
+
       return (
         <Sheet {...props} theme={sheetTheme}>
           <div className={styles.base.class}>
             <div className={styles.children.class}>{props.children}</div>
-            <Player.Video.View signals={signals} />
+            <Player.Video.View signals={player} />
           </div>
         </Sheet>
       );
     },
+
+    /**
+     * Timestamps:
+     */
     timestamps: {
       '00:00:00.000': {
         render(props) {
@@ -52,6 +72,10 @@ export function factory() {
 export type BodyProps = t.ContentTimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state, timestamp } = props;
+
+  // Signal.useRedrawEffect(() => {
+  //   signals.props.currentTime;
+  // });
 
   /**
    * Render:
