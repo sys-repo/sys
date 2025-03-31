@@ -5,7 +5,7 @@ import {
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, Button, css, Signal } from './common.ts';
+import { type t, Str, App, Button, css, Signal } from './common.ts';
 
 /**
  * Types:
@@ -54,6 +54,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    dblcol: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
@@ -74,7 +75,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {screenBreakpointButton(app)}
 
       <hr />
-      <div className={styles.title.class}>{`Stack: ${app.stack.length}`}</div>
+      <div className={css(styles.title, styles.dblcol).class}>
+        <div>{`Stack:`}</div>
+        <div />
+        <div>{`${app.stack.length} ${Str.plural(app.stack.length, 'Layer', 'Layers')}`}</div>
+      </div>
 
       {pushSample('sample-layer-0', Sample.sample0)}
       {pushSample('sample-layer-1', Sample.sample1)}

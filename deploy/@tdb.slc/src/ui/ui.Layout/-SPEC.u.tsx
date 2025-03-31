@@ -77,7 +77,7 @@ export function layerVideoPlayerButtons(app: t.AppSignals) {
 
     const player = App.Signals.Player.find(app, layer.id, index);
     const isPlaying = player?.props.playing.value;
-    const label = `[ ${layer.id} ]:playing: ${isPlaying}`;
+    const label = `[ ${layer.id} ]: playing: ${isPlaying}`;
 
     if (!player) return null;
 
