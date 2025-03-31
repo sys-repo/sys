@@ -11,6 +11,7 @@ export const SpecsComponents = {
   [`${ns}.Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
   [`${ns}.IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}.Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
+  [`${ns}.Obj`]: () => import('../ui/Obj/-SPEC.tsx'),
   [`${ns}.Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
   [`${ns}.Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
 
