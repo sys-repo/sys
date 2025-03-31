@@ -40,11 +40,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{'Title'}</div>
+      <div className={css(styles.title, styles.cols).class}>
+        <div>{'Title'}</div>
+        <div />
+        <div></div>
+      </div>
+
       <Button
         block
         label={`theme: "${p.theme}"`}
