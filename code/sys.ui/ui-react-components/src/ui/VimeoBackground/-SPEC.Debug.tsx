@@ -8,7 +8,7 @@ type P = t.VimeoBackgroundProps;
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
@@ -42,9 +42,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { ctx } = props;
-  const debug = ctx.debug;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
   Signal.useRedrawEffect(() => {
     debug.listen();
