@@ -68,8 +68,17 @@ const wrangle = {
   src(props: P) {
     const id = wrangle.id(props.video);
     const playing = props.playing ?? DEFAULTS.playing;
+    const autoplay = playing ? '1' : '0';
+
+    /**
+     * NOTE: This is a crude way of handling play/pause.
+     *       Future implementation:
+     *
+     *       1) Hook into the JS API of the Vimeo player in the <iframe> (NB: no external libs dependencies!)
+     *       2) Handle play/pause property change without reload.
+     */
     const base = 'https://player.vimeo.com/video';
-    return `${base}/${id}?background=1&dnt=true&autoplay=${playing ? '1' : '0'}`;
+    return `${base}/${id}?background=1&dnt=true&autoplay=${autoplay}`;
   },
 
   id(video: P['video']) {
