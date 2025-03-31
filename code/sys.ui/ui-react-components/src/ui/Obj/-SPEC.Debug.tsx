@@ -18,6 +18,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Light'),
     fontSize: s<P['fontSize']>(),
+    name: s<P['name']>('my-name'),
+    data: s<P['data']>({ msg: '👋', count: 0 }),
   };
   const api = {
     props,
@@ -25,6 +27,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       const p = props;
       p.theme.value;
       p.fontSize.value;
+      p.data.value;
+      p.name.value;
     },
   };
   init?.(api);
