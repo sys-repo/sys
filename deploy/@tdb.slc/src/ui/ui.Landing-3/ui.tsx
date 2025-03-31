@@ -36,7 +36,8 @@ export const Landing: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     console.info(`💦 ${pkg.name}@${pkg.version}: dist.json →`, dist.json);
-  }, [dist.count]);
+    if (state) state.props.dist.value = dist.json;
+  }, [dist.count, !!state]);
 
   React.useEffect(() => {
     if (!p) return;
