@@ -59,6 +59,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
+      <hr />
       <Button
         block
         label={`background.video.opacity: ${bg.video.opacity.value ?? '<undefined> (100%)'}`}

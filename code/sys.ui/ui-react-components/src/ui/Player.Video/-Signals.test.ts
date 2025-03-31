@@ -20,6 +20,7 @@ describe('VideoPlayer: Signals API', () => {
 
       expect(p.showControls.value).to.eql(true);
       expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
+      expect(p.showVolumeControl.value).to.eql(DEFAULTS.showVolumeControl);
       expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
       expect(p.aspectRatio.value).to.eql(DEFAULTS.aspectRatio);
       expect(p.background.value).to.eql(DEFAULTS.background);
@@ -36,6 +37,7 @@ describe('VideoPlayer: Signals API', () => {
         loop: true,
         showControls: false,
         showFullscreenButton: true,
+        showVolumeControl: false,
         cornerRadius: 0,
         aspectRatio: '2.39/1',
         autoPlay: true,
@@ -52,6 +54,7 @@ describe('VideoPlayer: Signals API', () => {
 
       expect(p.showControls.value).to.eql(false);
       expect(p.showFullscreenButton.value).to.eql(true);
+      expect(p.showVolumeControl.value).to.eql(false);
       expect(p.cornerRadius.value).to.eql(0);
       expect(p.background.value).to.eql(true);
     });

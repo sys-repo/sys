@@ -8,6 +8,7 @@ export const DEFAULTS = {
 
   loop: false,
   showFullscreenButton: false,
+  showVolumeControl: true,
   showControls: true,
   cornerRadius: 0,
   aspectRatio: '16/9',

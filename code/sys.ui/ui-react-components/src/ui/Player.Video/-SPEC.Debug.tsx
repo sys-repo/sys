@@ -44,6 +44,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     // Appearance.
     p.showControls.value;
     p.showFullscreenButton.value;
+    p.showVolumeControl.value;
     p.background.value;
     p.cornerRadius.value;
     p.aspectRatio.value;
@@ -88,6 +89,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`showFullscreenButton: ${p.showFullscreenButton}`}
         onClick={() => Signal.toggle(p.showFullscreenButton)}
+      />
+      <Button
+        block
+        label={`showVolumeControl: ${p.showVolumeControl}`}
+        onClick={() => Signal.toggle(p.showVolumeControl)}
       />
       <Button
         block

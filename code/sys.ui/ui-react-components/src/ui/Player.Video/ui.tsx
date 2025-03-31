@@ -18,6 +18,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const src = p?.src.value ?? D.video;
   const showControls = p?.showControls.value ?? D.showControls;
   const showFullscreenButton = p?.showFullscreenButton.value ?? D.showFullscreenButton;
+  const showVolumeControl = p?.showVolumeControl?.value ?? D.showVolumeControl;
   const autoPlay = p?.autoPlay.value ?? D.autoPlay;
   const muted = autoPlay ? true : p?.muted.value ?? D.muted;
   const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
@@ -40,6 +41,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
 
     p.showControls.value;
     p.showFullscreenButton.value;
+    p.showVolumeControl.value;
     p.cornerRadius.value;
     p.aspectRatio.value;
   });
@@ -77,6 +79,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       slots={{
         settings: false,
         fullscreenButton: showFullscreenButton ? undefined : false,
+        volumeSlider: showVolumeControl ? undefined : false,
       }}
     />
   );

@@ -15,5 +15,5 @@ export const Specs = {
   'tdb.slc.ui.Canvas.Mini': () => import('../ui/ui.Canvas.Mini/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 
-  'tdb.slc.videos: index': () => import('../-sample/-ui.Videos/-SPEC.tsx'),
+  'tdb.slc.videos: (index)': () => import('../-sample/-ui.Videos/-SPEC.tsx'),
 } as t.SpecImports;
