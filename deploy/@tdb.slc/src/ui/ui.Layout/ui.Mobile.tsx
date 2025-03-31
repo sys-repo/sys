@@ -4,7 +4,7 @@ import { type t, AppContent, css, Signal } from './common.ts';
 type P = t.LayoutMobileProps;
 
 export const LayoutMobile: React.FC<P> = (props) => {
-  const { state } = props;
+  const { state, sheetMargin = 10 } = props;
   const p = state?.props;
 
   Signal.useRedrawEffect(() => {
@@ -15,7 +15,26 @@ export const LayoutMobile: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const style = css({ position: 'relative', display: 'grid' });
+  const styles = {
+    base: css({
+      position: 'relative',
+      display: 'grid',
+      gridTemplateColumns: `${sheetMargin}px 1fr ${sheetMargin}px`,
+    }),
+    center: css({
+      position: 'relative',
+      display: 'grid',
+    }),
+  };
+
   const elStack = AppContent.Render.stack(state);
-  return <div className={css(style, props.style).class}>{elStack}</div>;
+  const elBody = <div className={styles.center.class}>{elStack}</div>;
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div />
+      {elBody}
+      <div />
+    </div>
+  );
 };
