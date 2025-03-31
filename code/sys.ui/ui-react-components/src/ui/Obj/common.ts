@@ -9,4 +9,5 @@ const theme: t.CommonTheme = 'Light';
 export const DEFAULTS = {
   theme,
   font: { size: 12 },
+  block: false,
 } as const;

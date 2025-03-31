@@ -1,17 +1,25 @@
 import React from 'react';
 import { chromeDark, chromeLight, ObjectInspector } from 'react-inspector';
-
 import { type t, css, DEFAULTS } from './common.ts';
 
+const D = DEFAULTS;
+
 export const Obj: React.FC<t.ObjProp> = (props) => {
-  const {} = props;
+  const { block = D.block } = props;
 
   /**
    * Render:
    */
+
+  const styles = {
+    base: css({
+      display: block ? 'block' : 'inline-block',
+    }),
+  };
+
   const theme = wrangle.theme(props);
   const el = <ObjectInspector data={props.data} name={props.name} theme={theme as any} />;
-  return <div className={css(props.style).class}>{el}</div>;
+  return <div className={css(styles.base, props.style).class}>{el}</div>;
 };
 
 /**
