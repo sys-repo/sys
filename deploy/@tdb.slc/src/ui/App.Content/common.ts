@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 export * from '../common.ts';
 
 export { AppSignals } from '../App.Signals/mod.ts';
-export { Breakpoint } from '../m.Layout/mod.ts';
+export { Breakpoint } from '../App.Layout/mod.ts';
 
 /**
  * Constants

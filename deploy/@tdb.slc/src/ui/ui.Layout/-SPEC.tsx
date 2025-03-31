@@ -2,7 +2,7 @@ import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { updateForBreakpointSize } from './-SPEC.u.tsx';
 import { Color, css } from './common.ts';
-import { Layout } from './mod.ts';
+import { Layout } from './m.Layout.tsx';
 
 export * from './-SPEC.u.tsx';
 

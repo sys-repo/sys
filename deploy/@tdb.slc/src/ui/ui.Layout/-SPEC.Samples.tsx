@@ -1,5 +1,5 @@
 import { type t, css, BaseSheet } from './common.ts';
-import { Layout } from './mod.ts';
+import { Layout } from './m.Layout.tsx';
 
 export const Sample = {
   sample0(): t.Content {

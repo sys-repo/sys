@@ -1,5 +1,6 @@
-import { type t, Layout as Base, Breakpoint } from './common.ts';
+import { type t, Breakpoint } from './common.ts';
 
+import { Layout as Base } from '../App.Layout/mod.ts';
 import { LayoutDesktop } from './ui.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Intermediate.tsx';
 import { LayoutMobile } from './ui.Mobile.tsx';

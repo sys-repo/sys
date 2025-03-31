@@ -3,6 +3,7 @@
  * Module types.
  */
 export type * from './ui/App.Content/t.ts';
+export type * from './ui/App.Layout/t.ts';
 export type * from './ui/App.Signals/t.ts';
 export type * from './ui/App/t.ts';
 
@@ -10,7 +11,6 @@ export type * from './ui/ui.Canvas.Mini/t.ts';
 export type * from './ui/ui.Logo/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
 
-export type * from './ui/m.Layout/t.ts';
 export type * from './ui/ui.Layout/t.ts';
 
 export type * from './ui/ui.Landing-1/t.ts';

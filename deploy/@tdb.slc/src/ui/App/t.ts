@@ -6,4 +6,5 @@ import type { t } from './common.ts';
 export type AppLib = {
   readonly Signals: t.AppSignalsLib;
   readonly signals: t.AppSignalsLib['create'];
+  readonly Layout: t.AppLayoutLib;
 };

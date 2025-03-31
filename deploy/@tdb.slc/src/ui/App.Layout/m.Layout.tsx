@@ -1,20 +1,16 @@
 import { type t } from './common.ts';
 import { Breakpoint } from './m.Breakpoint.ts';
 
-type OffsetOptions = {
-  base?: t.NumberOffset;
-};
-
 /**
  * Main Layout API (logic).
  */
-export const Layout = {
+export const Layout: t.AppLayoutLib = {
   Breakpoint,
 
   /**
    * Calculate the pixel offset of stacked sheets.
    */
-  sheetOffset(index: number, options?: t.NumberOffset | OffsetOptions): t.Pixels {
+  sheetOffset(index, options?) {
     const { base = 20 } = wrangle.offsetOptions(options);
     if (index < 1) return base;
     return base + index * 8;
@@ -25,7 +21,9 @@ export const Layout = {
  * Helpers
  */
 const wrangle = {
-  offsetOptions(input?: t.NumberOffset | OffsetOptions): OffsetOptions {
+  offsetOptions(
+    input?: t.NumberOffset | t.AppLayoutSheetOffsetOptions,
+  ): t.AppLayoutSheetOffsetOptions {
     if (typeof input === 'number') return { base: input };
     return input ?? {};
   },
