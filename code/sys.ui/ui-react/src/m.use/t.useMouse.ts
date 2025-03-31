@@ -1,5 +1,5 @@
 import type { MouseEventHandler } from 'react';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 type M = MouseEventHandler;
 

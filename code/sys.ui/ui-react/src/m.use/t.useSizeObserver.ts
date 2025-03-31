@@ -1,5 +1,5 @@
 import type { RefCallback } from 'react';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Internal hook that trackes mouse movement events (drag).

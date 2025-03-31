@@ -1,5 +1,5 @@
 import type { MouseEventHandler, RefObject } from 'react';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 type E = HTMLElement;
 type Div = HTMLDivElement;

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 type E = HTMLElement;
 type Div = HTMLDivElement;
