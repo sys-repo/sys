@@ -26,6 +26,7 @@ export type AppSignals = t.Lifecycle & {
       readonly video: {
         readonly src: t.Signal<string>;
         readonly opacity: t.Signal<number | undefined>;
+        readonly playing: t.Signal<boolean>;
       };
     };
   };

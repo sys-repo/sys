@@ -12,7 +12,7 @@ export default Spec.describe('VideoBackground', (e) => {
 
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
-      app.listen();
+      debug.listen();
       ctx.redraw();
     });
 

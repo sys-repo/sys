@@ -24,6 +24,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
       video: {
         src: s<string>(TUBES.src),
         opacity: s<t.Percent | undefined>(0.2),
+        playing: s<boolean>(true),
       },
     },
   };
@@ -41,7 +42,9 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
       p.stack.value;
       p.dist.value;
       p.screen.breakpoint.value;
+      p.background.video.src.value;
       p.background.video.opacity.value;
+      p.background.video.playing.value;
     },
 
     /**

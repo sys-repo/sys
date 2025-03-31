@@ -3,4 +3,4 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-export const DEFAULTS = {} as const;
+export const DEFAULTS = { playing: true } as const;
