@@ -10,7 +10,7 @@ import { useMouseDrag } from './useMouse.Drag.ts';
  *     <div {...mouse.handlers} />
  *
  */
-export const useMouse: t.UseMouseHook = (props = {}) => {
+export const useMouse: t.UseMouse = (props = {}) => {
   const { onDrag } = props;
   const [isDown, setDown] = useState(false);
   const [isOver, setOver] = useState(false);
@@ -38,7 +38,7 @@ export const useMouse: t.UseMouseHook = (props = {}) => {
   /**
    * API
    */
-  const api: t.UseMouse = {
+  const api: t.MouseHook = {
     is: { over: isOver, down: isDown, dragging: drag.is.dragging },
     handlers: { onMouseDown, onMouseUp, onMouseEnter, onMouseLeave },
     drag: drag.movement,

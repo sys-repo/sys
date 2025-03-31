@@ -4,7 +4,7 @@ import type { t } from './common.ts';
 /**
  * Internal hook that trackes mouse movement events (drag).
  */
-export const useMouseDrag: t.UseMouseDragHook = (props = {}) => {
+export const useMouseDrag: t.UseMouseDrag = (props = {}) => {
   const enabled = Boolean(props.onDrag);
   const [dragging, setDragging] = useState(false);
   const [movement, setMovement] = useState<t.MouseMovement>();
@@ -47,7 +47,7 @@ export const useMouseDrag: t.UseMouseDragHook = (props = {}) => {
   /**
    * API
    */
-  const api: t.UseMouseDrag = {
+  const api: t.MouseDragHook = {
     is: { dragging },
     enabled,
     movement,

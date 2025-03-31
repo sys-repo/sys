@@ -6,12 +6,12 @@ import type { t } from './common.ts';
  */
 export type UseSizeObserver = <T extends HTMLElement>(
   onChange?: t.SizeObserverChangeHandler,
-) => t.SizeObserver<T>;
+) => t.SizeObserverHook<T>;
 
 /**
  * Hook: monitor size changes to a DOM element using [ResizeObserver].
  */
-export type SizeObserver<T extends HTMLElement> = {
+export type SizeObserverHook<T extends HTMLElement> = {
   /** Callback ref to be assigned to the element to observe. */
   ref: RefCallback<T>;
 

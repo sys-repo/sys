@@ -4,9 +4,13 @@ import type { t } from './common.ts';
 type E = HTMLElement;
 type Div = HTMLDivElement;
 type MouseEventName = 'mousedown' | 'mouseup';
-
 const DEFAULT_STAGE: t.UseClickStage = 'down';
 
+/**
+ * Hook: Monitors for click events outside the given element.
+ * Usage:
+ *    Useful for clicking away from modal dialogs or popups.
+ */
 export const useClickOutside: t.UseClickHook = <T extends E = Div>(input: t.UseClickInput<T>) => {
   const { callback, stage, ref, event } = wrangle.args<T>(input);
 
@@ -18,10 +22,15 @@ export const useClickOutside: t.UseClickHook = <T extends E = Div>(input: t.UseC
     return () => document?.removeEventListener(event, handler, true);
   }, [event, ref, callback]);
 
-  const api: t.UseClick<T> = { ref, stage };
+  const api: t.ClickHook<T> = { ref, stage };
   return api;
 };
 
+/**
+ * Hook: Monitors for click events within the given element.
+ * Usage:
+ *    Useful for clicking away from modal dialogs or popups.
+ */
 export const useClickInside: t.UseClickHook = <T extends E = Div>(input: t.UseClickInput<T>) => {
   const { callback, stage, ref, event } = wrangle.args<T>(input);
 
@@ -46,7 +55,7 @@ const wrangle = {
     return { callback, event, ref, stage };
   },
 
-  input<T extends E>(input: t.UseClickInput<T>): t.UseClickProps<T> {
+  input<T extends E>(input: t.UseClickInput<T>): t.ClickHookProps<T> {
     if (typeof input === 'object') return input;
     if (typeof input === 'function') return { callback: input };
     throw new Error('Unable to parse parameter input');

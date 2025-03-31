@@ -3,17 +3,17 @@ import type { t } from './common.ts';
 /**
  * Hook Factory: keep track of a mouse drag operation.
  */
-export type UseMouseDragHook = (props?: t.UseMouseDragProps) => t.UseMouseDrag;
+export type UseMouseDrag = (props?: t.MouseDragHookProps) => t.MouseDragHook;
 
 /**
  * Properties passed to the `useMouseDrag` hook.
  */
-export type UseMouseDragProps = { onDrag?: t.UseMouseDragHandler };
+export type MouseDragHookProps = { onDrag?: t.UseMouseDragHandler };
 
 /**
  * Hook: information about a mouse drag operation.
  */
-export type UseMouseDrag = {
+export type MouseDragHook = {
   readonly is: { readonly dragging: boolean };
   readonly enabled: boolean;
   readonly movement?: t.MouseMovement;
