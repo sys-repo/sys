@@ -16,7 +16,7 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
       backgroundColor: theme.bg,
       display: 'grid',
       borderRadius: `${radius}px ${radius}px 0 0`,
-      boxShadow: `0 -5px 6px 0 ${Color.format(-0.2)}`,
+      boxShadow: `0 -5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`,
     }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.

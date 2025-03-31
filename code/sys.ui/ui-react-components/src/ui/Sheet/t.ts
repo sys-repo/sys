@@ -12,6 +12,7 @@ export type SheetProps = {
   bounce?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  shadowOpacity?: t.Percent;
   onClick?: M;
   onDoubleClick?: M;
   onMouseDown?: M;
