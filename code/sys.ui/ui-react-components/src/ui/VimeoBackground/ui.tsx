@@ -2,31 +2,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
 import { type t, Color, DEFAULTS, css } from './common.ts';
 
+const D = DEFAULTS;
+
 type P = t.VimeoBackgroundProps;
 type Ref = React.RefObject<HTMLIFrameElement>;
 
 export const VimeoBackground: React.FC<P> = (props) => {
   const {
-    playing = DEFAULTS.playing,
     opacity,
-    opacityTransition = DEFAULTS.opacityTransition,
-    blur = DEFAULTS.blur,
+    blur = D.blur,
+    playing = D.playing,
+    opacityTransition = D.opacityTransition,
   } = props;
 
-  const [iframeRef, setRef] = useState<Ref>();
+  const [iframe, setIframe] = useState<HTMLIFrameElement>();
   const initialPlaying = useRef(playing);
   const src = wrangle.src(props.video, initialPlaying.current);
 
   /**
-   * Effect: Play/Pause the video via the Vimeo API.
+   * Effect: Play/Pause the video via the Vimeo bridge/API.
    */
   useEffect(() => {
-    const contentWindow = iframeRef?.current?.contentWindow;
+    const contentWindow = iframe?.contentWindow;
     if (contentWindow && typeof playing === 'boolean') {
       const method = playing ? 'play' : 'pause';
       contentWindow?.postMessage({ method }, '*');
     }
-  }, [playing, iframeRef]);
+  }, [playing, iframe]);
 
   /**
    * Render:
@@ -73,7 +75,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
         src={src}
         allow={'autoplay'}
         allowFullScreen={false}
-        onReady={(e) => setRef(e.ref)}
+        onReady={(e) => setIframe(e.ref.current ?? undefined)}
       />
       <div className={styles.blurMask.class} />
     </div>
