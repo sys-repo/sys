@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
 import { type t, Color, DEFAULTS, css } from './common.ts';
 
@@ -6,8 +6,27 @@ type P = t.VimeoBackgroundProps;
 type Ref = React.RefObject<HTMLIFrameElement>;
 
 export const VimeoBackground: React.FC<P> = (props) => {
-  const { opacity, opacityTransition = DEFAULTS.opacityTransition, blur = DEFAULTS.blur } = props;
-  const [ref, setRef] = useState<Ref>();
+  const {
+    playing = DEFAULTS.playing,
+    opacity,
+    opacityTransition = DEFAULTS.opacityTransition,
+    blur = DEFAULTS.blur,
+  } = props;
+
+  const [iframeRef, setRef] = useState<Ref>();
+  const initialPlaying = useRef(playing);
+  const src = wrangle.src(props.video, initialPlaying.current);
+
+  /**
+   * Effect: Play/Pause the video via the Vimeo API.
+   */
+  useEffect(() => {
+    const contentWindow = iframeRef?.current?.contentWindow;
+    if (contentWindow && typeof playing === 'boolean') {
+      const method = playing ? 'play' : 'pause';
+      contentWindow?.postMessage({ method }, '*');
+    }
+  }, [playing, iframeRef]);
 
   /**
    * Render:
@@ -51,7 +70,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <IFrame
         style={styles.iframe}
-        src={wrangle.src(props)}
+        src={src}
         allow={'autoplay'}
         allowFullScreen={false}
         onReady={(e) => setRef(e.ref)}
@@ -65,18 +84,9 @@ export const VimeoBackground: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  src(props: P) {
-    const id = wrangle.id(props.video);
-    const playing = props.playing ?? DEFAULTS.playing;
+  src(video: P['video'], playing: P['playing']) {
+    const id = wrangle.id(video);
     const autoplay = playing ? '1' : '0';
-
-    /**
-     * NOTE: This is a crude way of handling play/pause.
-     *       Future implementation:
-     *
-     *       1) Hook into the JS API of the Vimeo player in the <iframe> (NB: no external libs dependencies!)
-     *       2) Handle play/pause property change without reload.
-     */
     const base = 'https://player.vimeo.com/video';
     return `${base}/${id}?background=1&dnt=true&autoplay=${autoplay}`;
   },
