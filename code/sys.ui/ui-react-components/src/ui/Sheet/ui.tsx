@@ -39,10 +39,12 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
   return (
     <M.div
       className={css(styles.base, props.style).class}
+      // Animation:
       initial={{ y: isTopDown ? '-100%' : '100%' }}
       animate={{ y: '0%' }}
       exit={{ y: isTopDown ? '-100%' : '100%' }}
       transition={{ duration, type: 'spring', bounce }}
+      // Handlers:
       onClick={props.onClick}
       onDoubleClick={props.onDoubleClick}
       onMouseDown={props.onMouseDown}
