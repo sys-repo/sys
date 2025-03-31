@@ -12,6 +12,7 @@ export {
   Sheet as BaseSheet,
   Button,
   Cropmarks,
+  Obj,
   Player,
   Svg,
   VimeoBackground,

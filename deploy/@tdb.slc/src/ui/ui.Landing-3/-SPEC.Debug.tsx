@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, AppContent, Button, css, Signal, Str } from './common.ts';
+import { type t, App, AppContent, Button, css, Signal, Str, Obj } from './common.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
 
 /**
@@ -43,7 +43,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({}),
     title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    dist: css({ fontSize: 12 }),
   };
 
   return (
@@ -62,7 +61,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {pushStackContentButtons(app)}
 
       <hr />
-      <pre className={styles.dist.class}>{JSON.stringify(wrangle.dist(app), null, '  ')}</pre>
+
+      <Obj block name={'dist'} data={wrangle.dist(app)} />
     </div>
   );
 };
