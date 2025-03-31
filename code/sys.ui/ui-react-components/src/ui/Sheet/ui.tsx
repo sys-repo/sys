@@ -2,7 +2,14 @@ import React from 'react';
 import { type t, Color, css, DEFAULTS as D, M } from './common.ts';
 
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { duration = D.duration, radius = D.radius, bounce = D.bounce } = props;
+  const {
+    direction = D.direction,
+    duration = D.duration,
+    radius = D.radius,
+    bounce = D.bounce,
+  } = props;
+
+  const isTopDown = direction === 'Top:Down';
 
   /**
    * Render:
@@ -15,13 +22,15 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
       color: theme.fg,
       backgroundColor: theme.bg,
       display: 'grid',
-      borderRadius: `${radius}px ${radius}px 0 0`,
-      boxShadow: `0 -5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`,
+      borderRadius: isTopDown ? `0 0 ${radius}px ${radius}px` : `${radius}px ${radius}px 0 0`,
+      boxShadow: isTopDown
+        ? `0 5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`
+        : `0 -5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`,
     }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.
       //     Ensure this component is within a container with { overflow: 'hidden' }.
-      Absolute: [null, 0, -30, 0],
+      Absolute: isTopDown ? [-30, 0, null, 0] : [null, 0, -30, 0],
       height: 30,
       backgroundColor: theme.bg,
     }),
@@ -30,9 +39,9 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
   return (
     <M.div
       className={css(styles.base, props.style).class}
-      initial={{ y: '100%' }} // Offscreen (bottom).
-      animate={{ y: '0%' }} //   Slide into view.
-      exit={{ y: '100%' }} //    Slide out when unmounting ← (inside <AnimatePresence>)
+      initial={{ y: isTopDown ? '-100%' : '100%' }}
+      animate={{ y: '0%' }}
+      exit={{ y: isTopDown ? '-100%' : '100%' }}
       transition={{ duration, type: 'spring', bounce }}
       onClick={props.onClick}
       onDoubleClick={props.onDoubleClick}

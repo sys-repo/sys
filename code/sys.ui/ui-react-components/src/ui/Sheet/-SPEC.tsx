@@ -21,16 +21,20 @@ export default Spec.describe('Sheet', (e) => {
       .display('grid')
 
       .render((e) => {
+        const direction = p.direction.value;
+        const isShowing = p.showing.value;
+
         const styles = {
           base: css({ overflow: 'hidden', display: 'grid' }),
-          sheet: css({ marginTop: 40, padding: 15, userSelect: 'none' }),
+          sheet: css({ padding: 15, userSelect: 'none' }),
           dim: css({ opacity: 0.3 }),
         };
 
-        const elSheet = (
+        const elSheet = isShowing && (
           <Sheet
             style={styles.sheet}
             theme={Color.Theme.invert(p.theme.value)}
+            direction={direction}
             onMouseDown={(e) => {
               e.stopPropagation();
               p.showing.value = false;
@@ -44,7 +48,7 @@ export default Spec.describe('Sheet', (e) => {
 
         return (
           <div className={styles.base.class} onMouseDown={() => (p.showing.value = true)}>
-            <AnimatePresence>{p.showing.value && elSheet}</AnimatePresence>
+            <AnimatePresence>{elSheet}</AnimatePresence>
           </div>
         );
       });

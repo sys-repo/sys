@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
-
 type M = React.MouseEventHandler<HTMLDivElement>;
+
+export type SheetDirection = 'Bottom:Up' | 'Top:Down';
 
 /**
  * <Component>:
@@ -8,11 +9,14 @@ type M = React.MouseEventHandler<HTMLDivElement>;
 export type SheetProps = {
   children?: t.ReactNode;
   radius?: t.Pixels;
+  direction?: t.SheetDirection;
+
   duration?: t.Secs;
   bounce?: number;
+  shadowOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  shadowOpacity?: t.Percent;
+
   onClick?: M;
   onDoubleClick?: M;
   onMouseDown?: M;

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, css, Signal } from './common.ts';
+import { type t, DEFAULTS, css, Signal } from './common.ts';
+
+type P = t.SheetProps;
 
 /**
  * Types:
@@ -12,12 +14,12 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.SheetProps;
   const s = Signal.create;
 
   const props = {
-    theme: s<P['theme']>('Dark'),
     showing: s(true),
+    theme: s<P['theme']>('Dark'),
+    direction: s<P['direction']>(DEFAULTS.direction),
   };
   const api = {
     props,
@@ -25,6 +27,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       const p = props;
       p.theme.value;
       p.showing.value;
+      p.direction.value;
     },
   };
   init?.(api);
@@ -53,15 +56,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>{'Mobile Sheet'}</div>
       <Button
         block
-        label={`debug.theme: "${d.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
-      />
-      <Button
-        block
         label={`debug.showing: ${d.showing}`}
         onClick={() => Signal.toggle(d.showing)}
       />
       <hr />
+      <Button
+        block
+        label={`theme: "${d.theme}"`}
+        onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={`direction: ${d.direction.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<P['direction']>(d.direction, ['Bottom:Up', 'Top:Down', undefined]);
+        }}
+      />
     </div>
   );
 };

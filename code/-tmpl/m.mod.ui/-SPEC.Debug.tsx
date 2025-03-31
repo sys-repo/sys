@@ -1,6 +1,8 @@
 import React from 'react';
 import { type t, Button, Color, css, Signal } from './common.ts';
 
+type P = t.MyComponentProps;
+
 /**
  * Types:
  */
@@ -11,7 +13,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
-  type P = t.MyComponentProps;
   const s = Signal.create;
   const props = { theme: s<P['theme']>('Light') };
   const api = {
@@ -54,7 +55,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
