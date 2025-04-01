@@ -28,8 +28,8 @@ export const SpecsComponents = {
  * Samples from external libs:
  */
 export const SpecsExternal = {
-  'sys.ui.css: @container': () => import('../-sample/-ui.css-container/-SPEC.tsx'),
-  'sys.ui.dom: useSizeObserver': () => import('../-sample/-ui.useSizeObserver/-SPEC.tsx'),
+  'sys.ui.css: @container': () => import('../-sample/-css-container/-SPEC.tsx'),
+  'sys.ui.dom: useSizeObserver': () => import('../-sample/-dom-useSizeObserver/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
