@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { type t, Color, css, DEFAULTS, Style } from './common.ts';
+import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported } from './common.ts';
+import { Event, toEventState } from './u.events.ts';
 
 type P = t.ButtonProps;
 
@@ -18,8 +19,13 @@ export const Button: React.FC<P> = (props) => {
   const isBlurred = false;
   const isEnabled = enabled;
 
-  const [isOver, setOver] = useState(false);
-  const [isDown, setDown] = useState(false);
+  const over = useState(false);
+  const down = useState(false);
+  const [isOver, setOver] = over;
+  const [isDown, setDown] = down;
+
+  const isMobile = useIsTouchSupported();
+  const eventState = toEventState(props, over, down);
 
   /**
    * Lifecycle
@@ -30,47 +36,6 @@ export const Button: React.FC<P> = (props) => {
       setOver(false);
     }
   }, [active]);
-
-  /**
-   * Handlers
-   */
-  const over = (isOver: boolean): React.MouseEventHandler => {
-    return (e) => {
-      if (!active) return;
-      setOver(isOver);
-      if (!isOver && isDown) setDown(false);
-      if (enabled) {
-        if (isOver && props.onMouseEnter) props.onMouseEnter(e);
-        if (!isOver && props.onMouseLeave) props.onMouseLeave(e);
-      }
-      props.onMouse?.({
-        event: e,
-        isOver,
-        isDown: !isOver ? false : isDown,
-        isEnabled,
-        action: isOver ? 'MouseEnter' : 'MouseLeave',
-      });
-    };
-  };
-
-  const down = (isDown: boolean): React.MouseEventHandler => {
-    return (e) => {
-      if (!active) return;
-      setDown(isDown);
-      if (enabled) {
-        if (isDown && props.onMouseDown) props.onMouseDown(e);
-        if (!isDown && props.onMouseUp) props.onMouseUp(e);
-        if (!isDown && props.onClick && !isBlurred) props.onClick(e);
-      }
-      props.onMouse?.({
-        event: e,
-        isOver,
-        isDown,
-        isEnabled,
-        action: isDown ? 'MouseDown' : 'MouseUp',
-      });
-    };
-  };
 
   /**
    * Render:
@@ -111,11 +76,8 @@ export const Button: React.FC<P> = (props) => {
       className={css(styles.base, props.style).class}
       role={'button'}
       title={props.tooltip}
-      onMouseEnter={over(true)}
-      onMouseLeave={over(false)}
-      onMouseDown={down(true)}
-      onMouseUp={down(false)}
       onDoubleClick={props.onDoubleClick}
+      {...Event.handlers(eventState, isMobile)}
     >
       <div className={styles.body.class}>
         {props.label && <div>{props.label}</div>}
