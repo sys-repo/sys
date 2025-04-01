@@ -1,8 +1,8 @@
+import { useClickInside, useClickOutside, useMouse } from '@sys/ui-react';
 import React from 'react';
+
 import { type t, css } from '../-test.ui.ts';
 import { type DebugSignals } from './-SPEC.Debug.tsx';
-
-import { useMouse } from '@sys/ui-react';
 
 export type SampleProps = {
   debug: DebugSignals;
@@ -11,6 +11,10 @@ export type SampleProps = {
 
 export const Sample: React.FC<SampleProps> = (props) => {
   const { debug } = props;
+
+  const ref = React.useRef<HTMLDivElement>(null);
+  useClickInside({ ref, callback: (e) => console.info(`⚡️ click-inside:`, e) });
+  useClickOutside({ ref, callback: (e) => console.info(`⚡️ click-outside:`, e) });
 
   const mouse = useMouse();
   console.info('mouse.is', mouse.is);
@@ -28,8 +32,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class} {...mouse.handlers}>
-      <div>{'🐷 Hello'}</div>
+    <div ref={ref} className={css(styles.base, props.style).class}>
+      <div {...mouse.handlers}>{'🐷 Hello'}</div>
     </div>
   );
 };

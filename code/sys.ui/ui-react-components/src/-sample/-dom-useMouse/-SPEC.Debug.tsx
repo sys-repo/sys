@@ -49,12 +49,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Hook'}</div>
       </div>
 
-      {/* <Button
-        block
-        label={`theme: "${p.theme}"`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
-      /> */}
-
       <hr />
     </div>
   );
