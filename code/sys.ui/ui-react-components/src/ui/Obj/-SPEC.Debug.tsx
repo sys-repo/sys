@@ -20,6 +20,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     fontSize: s<P['fontSize']>(),
     name: s<P['name']>('my-name'),
     data: s<P['data']>({ msg: '👋', count: 0 }),
+    sortKeys: s<P['sortKeys']>(D.sortKeys),
     showNonenumerable: s<t.ObjShow['nonenumerable']>(D.show.nonenumerable),
     showRootSummary: s<t.ObjShow['rootSummary']>(D.show.rootSummary),
   };
@@ -39,6 +40,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.name.value;
       p.showNonenumerable.value;
       p.showRootSummary.value;
+      p.sortKeys.value;
     },
   };
   init?.(api);
@@ -83,6 +85,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button block label={`sortKeys: ${p.sortKeys}`} onClick={() => Signal.toggle(p.sortKeys)} />
+
       <Button
         block
         label={`showNonenumerable: ${p.showNonenumerable}`}

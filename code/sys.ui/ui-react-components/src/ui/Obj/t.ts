@@ -8,9 +8,12 @@ export type ObjProps = {
   data?: any;
 
   show?: Partial<ObjShow>;
+  sortKeys?: boolean;
+
   block?: boolean;
   fontSize?: number;
   theme?: t.CommonTheme;
+  margin?: t.CssMarginInput;
   style?: t.CssInput;
 };
 

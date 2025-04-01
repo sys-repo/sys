@@ -1,14 +1,14 @@
 import React from 'react';
 import { chromeDark, chromeLight, ObjectInspector } from 'react-inspector';
 
-import { type t, css, DEFAULTS } from './common.ts';
+import { type t, css, DEFAULTS, Style } from './common.ts';
 import { renderer } from './ui.Renderer.tsx';
 
 type P = t.ObjProps;
 const D = DEFAULTS;
 
 export const Obj: React.FC<P> = (props) => {
-  const { block = D.block } = props;
+  const { block = D.block, sortKeys = D.sortKeys } = props;
   const show = wrangle.show(props);
 
   /**
@@ -17,6 +17,7 @@ export const Obj: React.FC<P> = (props) => {
   const styles = {
     base: css({
       display: block ? 'block' : 'inline-block',
+      ...Style.toMargins(props.margin),
     }),
   };
 
@@ -26,6 +27,7 @@ export const Obj: React.FC<P> = (props) => {
       data={props.data}
       name={props.name}
       theme={theme as any}
+      sortObjectKeys={sortKeys}
       showNonenumerable={show?.nonenumerable}
       nodeRenderer={renderer({ rootSummary: show?.rootSummary })}
     />

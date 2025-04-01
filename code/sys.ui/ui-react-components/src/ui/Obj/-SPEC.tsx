@@ -24,6 +24,7 @@ export default Spec.describe('Obj', (e) => {
           fontSize={p.fontSize.value}
           name={p.name.value}
           data={p.data.value}
+          sortKeys={p.sortKeys.value}
           show={debug.show}
         />
       ));
