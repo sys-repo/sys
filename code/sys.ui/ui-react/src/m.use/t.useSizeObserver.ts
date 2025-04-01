@@ -17,10 +17,16 @@ export type SizeObserverHook<T extends HTMLElement> = {
 
   /** The latest dimensions of the element (or null if not measured yet). */
   rect?: DOMRectReadOnly;
+
+  /** Convert to a simple object. */
+  toObject(): t.DomRect;
 };
 
 /**
  * Fires when the size of an observed DOM element changes.
  */
 export type SizeObserverChangeHandler = (e: SizeObserverChangeHandlerArgs) => void;
-export type SizeObserverChangeHandlerArgs = { readonly rect: DOMRectReadOnly };
+export type SizeObserverChangeHandlerArgs = {
+  readonly rect: DOMRectReadOnly;
+  toObject(): t.DomRect;
+};

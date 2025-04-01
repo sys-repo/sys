@@ -33,11 +33,23 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
    * Effect: alert listeners on change.
    */
   useEffect(() => {
-    if (rect) onChange?.({ rect });
+    if (rect) onChange?.({ rect, toObject });
   }, [rect]);
 
   /**
    * API
    */
-  return { ref, rect };
+  const toObject = () => wrangle.asObject(rect);
+  return { ref, rect, toObject };
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  asObject(rect?: DOMRect): t.DomRect {
+    if (!rect) return { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 };
+    const { x, y, width, height, top, right, bottom, left } = rect;
+    return { x, y, width, height, top, right, bottom, left };
+  },
+} as const;

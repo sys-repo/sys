@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Signal } from '../-test.ui.ts';
+import { type t, css, Obj, Signal } from '../-test.ui.ts';
 
 /**
  * Types:
@@ -12,7 +12,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const api = { rect: s<DOMRectReadOnly>() };
+  const api = { rect: s<t.DomRect>() };
   init?.(api);
   return api;
 }
@@ -31,13 +31,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    pre: css({ marginLeft: 20, fontSize: 12, fontWeight: 600 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div>⚡️ via signal:</div>
-      <pre className={styles.pre.class}>{JSON.stringify(rect, null, '  ')}</pre>
+      <Obj name={'rect'} data={rect} />
       <hr />
     </div>
   );
