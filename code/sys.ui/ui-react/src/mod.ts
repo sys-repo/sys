@@ -41,6 +41,7 @@ export { ReactEvent } from './u/mod.ts';
 export {
   useClickInside,
   useClickOutside,
+  useIsTouchSupported,
   useMouse,
   useMouseDrag,
   useSizeObserver,

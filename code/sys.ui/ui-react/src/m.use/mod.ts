@@ -16,6 +16,7 @@
  */
 
 export * from './use.Click.ts';
+export * from './use.Is.TouchSupported.ts';
 export * from './use.Mouse.Drag.ts';
 export * from './use.Mouse.ts';
 export * from './use.SizeObserver.ts';
