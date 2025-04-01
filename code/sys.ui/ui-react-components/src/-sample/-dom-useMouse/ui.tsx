@@ -26,8 +26,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
     base: css({
       position: 'relative',
       overflow: 'hidden',
-      padding: 20,
       userSelect: 'none',
+      padding: 20,
     }),
   };
 
