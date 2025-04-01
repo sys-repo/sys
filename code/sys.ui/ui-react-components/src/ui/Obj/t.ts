@@ -9,6 +9,7 @@ export type ObjProps = {
 
   show?: Partial<ObjShow>;
   sortKeys?: boolean;
+  expand?: number | ObjExpand;
 
   block?: boolean;
   fontSize?: number;
@@ -23,4 +24,9 @@ export type ObjProps = {
 export type ObjShow = {
   nonenumerable: boolean;
   rootSummary: boolean;
+};
+
+export type ObjExpand = {
+  level?: number;
+  paths?: string[] | boolean;
 };

@@ -10,6 +10,16 @@ type P = t.ObjProps;
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
+const DATA = {
+  msg: '👋',
+  count: 0,
+  foo: {
+    yes: true,
+    list: [1, 2, 3],
+    fn: () => 'hello',
+  },
+};
+
 /**
  * Signals:
  */
@@ -19,10 +29,11 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     theme: s<P['theme']>('Light'),
     fontSize: s<P['fontSize']>(),
     name: s<P['name']>('my-name'),
-    data: s<P['data']>({ msg: '👋', count: 0 }),
+    data: s<P['data']>({ ...DATA }),
     sortKeys: s<P['sortKeys']>(D.sortKeys),
     showNonenumerable: s<t.ObjShow['nonenumerable']>(D.show.nonenumerable),
     showRootSummary: s<t.ObjShow['rootSummary']>(D.show.rootSummary),
+    expandPaths: s<string[] | undefined>(),
   };
   const p = props;
   const api = {
@@ -41,6 +52,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.showNonenumerable.value;
       p.showRootSummary.value;
       p.sortKeys.value;
+      p.expandPaths.value;
     },
   };
   init?.(api);
@@ -96,6 +108,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`showRootSummary: ${p.showRootSummary}`}
         onClick={() => Signal.toggle(p.showRootSummary)}
+      />
+
+      <hr />
+      <Button
+        block
+        label={`expandPaths: ${p.expandPaths.value || '[ ]'}`}
+        onClick={() => {
+          const paths = p.expandPaths.value ?? [];
+          const next = paths.length === 0 ? ['$', '$.foo'] : undefined;
+          p.expandPaths.value = next;
+        }}
       />
 
       <hr />

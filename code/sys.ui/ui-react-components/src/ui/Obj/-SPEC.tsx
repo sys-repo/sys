@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Obj } from './mod.ts';
 
@@ -18,16 +18,20 @@ export default Spec.describe('Obj', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => (
-        <Obj
-          theme={p.theme.value}
-          fontSize={p.fontSize.value}
-          name={p.name.value}
-          data={p.data.value}
-          sortKeys={p.sortKeys.value}
-          show={debug.show}
-        />
-      ));
+      .render((e) => {
+        const paths = p.expandPaths.value;
+        return (
+          <Obj
+            theme={p.theme.value}
+            fontSize={p.fontSize.value}
+            name={p.name.value}
+            data={p.data.value}
+            sortKeys={p.sortKeys.value}
+            show={debug.show}
+            expand={{ paths }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {
