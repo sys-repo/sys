@@ -15,24 +15,24 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const backgroundColor = theme.bg;
+  const shadowColor = Color.format(props.shadowOpacity ?? -0.15);
   const styles = {
     base: css({
       position: 'relative',
       pointerEvents: 'auto',
       color: theme.fg,
-      backgroundColor: theme.bg,
+      backgroundColor,
       display: 'grid',
       borderRadius: isTopDown ? `0 0 ${radius}px ${radius}px` : `${radius}px ${radius}px 0 0`,
-      boxShadow: isTopDown
-        ? `0 5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`
-        : `0 -5px 6px 0 ${Color.format(props.shadowOpacity ?? -0.15)}`,
+      boxShadow: isTopDown ? `0 5px 6px 0 ${shadowColor}` : `0 -5px 6px 0 ${shadowColor}`,
     }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.
       //     Ensure this component is within a container with { overflow: 'hidden' }.
       Absolute: isTopDown ? [-30, 0, null, 0] : [null, 0, -30, 0],
+      backgroundColor,
       height: 30,
-      backgroundColor: theme.bg,
     }),
   };
 
