@@ -30,10 +30,13 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={css(styles.title).class}>{'WIP'}</div>
+
       <Button block={true} label={`action: jumpTo(12, play)`} onClick={() => s.jumpTo(12)} />
       <Button
         block={true}
