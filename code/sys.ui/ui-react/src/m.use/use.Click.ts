@@ -12,18 +12,7 @@ const DEFAULT_STAGE: t.UseClickStage = 'down';
  *    Useful for clicking away from modal dialogs or popups.
  */
 export const useClickOutside: t.UseClickHook = <T extends E = Div>(input: t.UseClickInput<T>) => {
-  const { callback, stage, ref, event } = wrangle.args<T>(input);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as E)) callback?.(e);
-    };
-    document?.addEventListener(event, handler, true);
-    return () => document?.removeEventListener(event, handler, true);
-  }, [event, ref, callback]);
-
-  const api: t.ClickHook<T> = { ref, stage };
-  return api;
+  return useHandler<T>(input, (el, e) => !el.contains(e.target as E));
 };
 
 /**
@@ -32,22 +21,28 @@ export const useClickOutside: t.UseClickHook = <T extends E = Div>(input: t.UseC
  *    Useful for clicking away from modal dialogs or popups.
  */
 export const useClickInside: t.UseClickHook = <T extends E = Div>(input: t.UseClickInput<T>) => {
-  const { callback, stage, ref, event } = wrangle.args<T>(input);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current?.contains(e.target as E)) callback?.(e);
-    };
-    document?.addEventListener(event, handler, true);
-    return () => document?.removeEventListener(event, handler, true);
-  }, [event, ref, callback]);
-
-  return { ref, stage } as const;
+  return useHandler<T>(input, (el, e) => el.contains(e.target as E));
 };
 
 /**
  * Helpers
  */
+function useHandler<T extends E = Div>(
+  input: t.UseClickInput<T>,
+  shouldInvoke: (el: E, e: MouseEvent) => boolean,
+): t.ClickHook<T> {
+  const { callback, stage, ref, event } = wrangle.args<T>(input);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const el = ref.current;
+      if (el && shouldInvoke(el, e)) callback?.(e);
+    };
+    document?.addEventListener(event, handler, true);
+    return () => document?.removeEventListener(event, handler, true);
+  }, [event, ref, callback]);
+  return { ref, stage };
+}
+
 const wrangle = {
   args<T extends E>(input: t.UseClickInput<T>) {
     const { callback, stage = DEFAULT_STAGE, ref = useRef<T>(null) } = wrangle.input<T>(input);
