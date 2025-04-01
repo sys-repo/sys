@@ -17,7 +17,7 @@ export async function main() {
   if (isDev) {
     const { render } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./entry.Specs.ts');
-    const el = await render(pkg, Specs, { hrDepth: 3, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
     root.render(<StrictMode>{el}</StrictMode>);
   } else {
     const { Splash } = await import('./ui.Splash.tsx');

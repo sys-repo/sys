@@ -29,7 +29,8 @@ export const SpecsComponents = {
  */
 export const SpecsExternal = {
   'sys.ui.css: @container': () => import('../-sample/-css-container/-SPEC.tsx'),
-  'sys.ui.dom: useSizeObserver': () => import('../-sample/-dom-useSizeObserver/-SPEC.tsx'),
+  'sys.ui.react: useMouse': () => import('../-sample/-dom-useMouse/-SPEC.tsx'),
+  'sys.ui.react: useSizeObserver': () => import('../-sample/-dom-useSizeObserver/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
