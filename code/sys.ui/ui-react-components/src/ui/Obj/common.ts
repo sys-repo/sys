@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-
 export * from '../common.ts';
 
 /**
@@ -10,4 +9,8 @@ export const DEFAULTS = {
   theme,
   font: { size: 12 },
   block: false,
+  show: {
+    rootSummary: false,
+    nonenumerable: false,
+  },
 } as const;
