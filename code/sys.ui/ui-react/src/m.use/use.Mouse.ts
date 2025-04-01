@@ -8,7 +8,6 @@ import { useMouseDrag } from './use.Mouse.Drag.ts';
  *
  *     const mouse = useMouse();
  *     <div {...mouse.handlers} />
- *
  */
 export const useMouse: t.UseMouse = (props = {}) => {
   const { onDrag } = props;
