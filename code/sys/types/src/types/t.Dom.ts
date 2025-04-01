@@ -12,3 +12,6 @@ export type DomRect = {
   bottom: number;
   left: number;
 };
+
+/** Readonly version of the DomRect type. */
+export type DomRectReadonly = Readonly<DomRect>;
