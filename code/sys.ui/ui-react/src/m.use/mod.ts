@@ -13,10 +13,9 @@
  *   useSizeObserver,
  * } from '@sys/ui-react/use';
  * ```
- *
  */
 
-export * from './useClick.ts';
-export * from './useMouse.Drag.ts';
-export * from './useMouse.ts';
-export * from './useSizeObserver.ts';
+export * from './use.Click.ts';
+export * from './use.Mouse.Drag.ts';
+export * from './use.Mouse.ts';
+export * from './use.SizeObserver.ts';

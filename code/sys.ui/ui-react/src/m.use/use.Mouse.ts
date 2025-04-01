@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { t } from './common.ts';
-import { useMouseDrag } from './useMouse.Drag.ts';
+import { useMouseDrag } from './use.Mouse.Drag.ts';
 
 /**
  * Hook: keep track of mouse events for an HTML element

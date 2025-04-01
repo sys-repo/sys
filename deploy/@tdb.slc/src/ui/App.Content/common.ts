@@ -8,7 +8,7 @@ export { Breakpoint } from '../App.Layout/mod.ts';
  * Constants
  */
 export const DEFAULTS = {
-  baseSheetOffset: 40,
+  baseSheetOffset: 48,
   get theme() {
     const base: t.CommonTheme = 'Dark';
     const sheet: t.CommonTheme = 'Light';
