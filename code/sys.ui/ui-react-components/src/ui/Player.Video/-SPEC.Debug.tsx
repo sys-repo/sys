@@ -1,4 +1,5 @@
 import React from 'react';
+import { Player } from '../../mod.ts';
 import { Button } from '../Button/mod.ts';
 import { type t, css, DEFAULTS, Signal } from './common.ts';
 
@@ -6,7 +7,7 @@ import { type t, css, DEFAULTS, Signal } from './common.ts';
  * Types:
  */
 export type DebugProps = {
-  ctx: { debug: DebugSignals; video: t.VideoPlayerSignals };
+  debug: DebugSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -17,8 +18,15 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const video = Player.Video.signals({
+    loop: true,
+    // autoPlay: true,
+    // showControls: false,
+  });
+
   const props = {};
-  const api = { props };
+  const api = { props, video };
   return api;
 }
 
@@ -26,9 +34,9 @@ export function createDebugSignals() {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { ctx } = props;
-  const video = ctx.video;
-  const d = ctx.debug.props;
+  const { debug } = props;
+  const video = debug.video;
+  const d = debug.props;
   const p = video.props;
 
   Signal.useRedrawEffect(() => {
