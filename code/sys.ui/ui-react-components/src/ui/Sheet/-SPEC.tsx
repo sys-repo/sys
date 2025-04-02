@@ -32,15 +32,15 @@ export default Spec.describe('Sheet', (e) => {
 
         const elSheet = isShowing && (
           <Sheet
-            style={styles.sheet}
             theme={Color.Theme.invert(p.theme.value)}
             orientation={orientation}
+            edgeMargin={p.edgeMargin.value}
             onMouseDown={(e) => {
               e.stopPropagation();
               p.showing.value = false;
             }}
           >
-            <div>
+            <div className={styles.sheet.class}>
               {'👋 MySheet'} — <span className={styles.dim.class}>{'(click to hide)'}</span>
             </div>
           </Sheet>

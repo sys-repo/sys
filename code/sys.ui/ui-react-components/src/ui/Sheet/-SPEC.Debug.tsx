@@ -21,6 +21,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     showing: s(true),
     theme: s<P['theme']>('Dark'),
     orientation: s<P['orientation']>(D.orientation.default),
+    edgeMargin: s<P['edgeMargin']>(),
   };
   const api = {
     props,
@@ -29,6 +30,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.theme.value;
       p.showing.value;
       p.orientation.value;
+      p.edgeMargin.value;
     },
   };
   init?.(api);
@@ -71,6 +73,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`orientation: ${d.orientation.value ?? '<undefined>'}`}
         onClick={() => {
           Signal.cycle<P['orientation']>(d.orientation, [...D.orientation.all, undefined]);
+        }}
+      />
+      <Button
+        block
+        label={`edgeMargin: ${d.edgeMargin.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<P['edgeMargin']>(d.edgeMargin, [0, 10, [50, 15], undefined]);
         }}
       />
     </div>

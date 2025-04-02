@@ -6,8 +6,8 @@ type P = t.SheetProps;
 export const Sheet: React.FC<P> = (props) => {
   const { duration = D.duration, bounce = D.bounce } = props;
   const is = wrangle.is(props);
-  const { borderRadius, boxShadow } = wrangle.styles(props);
   const animation = wrangle.animation(props);
+  const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
 
   /**
    * Render:
@@ -18,6 +18,12 @@ export const Sheet: React.FC<P> = (props) => {
     base: css({
       position: 'relative',
       pointerEvents: 'auto',
+      display: 'grid',
+      gridTemplateColumns,
+      gridTemplateRows,
+    }),
+    body: css({
+      position: 'relative',
       color: theme.fg,
       backgroundColor,
       display: 'grid',
@@ -31,6 +37,13 @@ export const Sheet: React.FC<P> = (props) => {
       backgroundColor,
     }),
   };
+
+  const elBody = (
+    <div className={styles.body.class}>
+      <div className={styles.mask.class} />
+      {props.children}
+    </div>
+  );
 
   return (
     <M.div
@@ -52,8 +65,9 @@ export const Sheet: React.FC<P> = (props) => {
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
     >
-      <div className={styles.mask.class} />
-      {props.children}
+      <div />
+      {elBody}
+      <div />
     </M.div>
   );
 };
@@ -76,10 +90,16 @@ const wrangle = {
     const is = wrangle.is(props);
     const shadowColor = Color.format(props.shadowOpacity ?? D.shadowColor);
 
+    const edgeMargin = wrangle.edgeMargin(props);
+    const edgeMarginTemplate = `${edgeMargin[0]}px 1fr ${edgeMargin[1]}px`;
+
     let borderRadius: string;
     let boxShadow: string;
+    let gridTemplateColumns: string | undefined;
+    let gridTemplateRows: string | undefined;
 
     if (is.vertical) {
+      gridTemplateColumns = edgeMarginTemplate;
       if (is.topDown) {
         borderRadius = `0 0 ${radius}px ${radius}px`;
         boxShadow = `0 5px 6px 0 ${shadowColor}`;
@@ -88,6 +108,7 @@ const wrangle = {
         boxShadow = `0 -5px 6px 0 ${shadowColor}`;
       }
     } else {
+      gridTemplateRows = edgeMarginTemplate;
       if (is.leftToRight) {
         borderRadius = `0 ${radius}px ${radius}px 0`;
         boxShadow = `5px 0 6px 0 ${shadowColor}`;
@@ -97,7 +118,14 @@ const wrangle = {
       }
     }
 
-    return { borderRadius, boxShadow } as const;
+    return { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } as const;
+  },
+
+  edgeMargin(props: P): t.SheetEdgeMargins {
+    const v = props.edgeMargin;
+    if (typeof v === 'number') return [v, v];
+    if (Array.isArray(v)) return v as t.SheetEdgeMargins;
+    return [0, 0];
   },
 
   maskOrientation(props: P): t.CssValue {

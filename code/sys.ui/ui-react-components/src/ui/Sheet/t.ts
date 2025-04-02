@@ -12,10 +12,12 @@ export type SheetOrientation = 'Bottom:Up' | 'Top:Down' | 'Left:Right' | 'Right:
 export type SheetProps = {
   children?: t.ReactNode;
   radius?: t.Pixels;
-  orientation?: t.SheetOrientation;
 
+  orientation?: t.SheetOrientation;
   duration?: t.Secs;
   bounce?: number;
+
+  edgeMargin?: t.SheetEdgeMargin | t.SheetEdgeMargins;
   shadowOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -32,5 +34,5 @@ export type SheetProps = {
  * Margins for the sheet edges based on orientation.
  */
 export type SheetEdgeMargin = t.Pixels;
-/** Sheet margin: near/far */
+/** Sheet margin: near/far based on orientation */
 export type SheetEdgeMargins = [t.Pixels, t.Pixels];

@@ -8,6 +8,7 @@ export type {
   CssInput,
   CssMarginArray,
   CssMarginInput,
+  CssProps,
   CssValue,
 } from '@sys/ui-css/t';
 export type { ExtractSignalValue, ReadonlySignal, Signal } from '@sys/ui-react/t';
