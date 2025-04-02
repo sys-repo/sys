@@ -3,6 +3,7 @@ import { Button } from '../Button/mod.ts';
 import { type t, DEFAULTS, css, Signal } from './common.ts';
 
 type P = t.SheetProps;
+const D = DEFAULTS;
 
 /**
  * Types:
@@ -19,7 +20,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     showing: s(true),
     theme: s<P['theme']>('Dark'),
-    direction: s<P['direction']>(DEFAULTS.direction),
+    orientation: s<P['orientation']>(D.orientation.default),
   };
   const api = {
     props,
@@ -27,7 +28,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       const p = props;
       p.theme.value;
       p.showing.value;
-      p.direction.value;
+      p.orientation.value;
     },
   };
   init?.(api);
@@ -62,14 +63,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={`theme: "${d.theme}"`}
+        label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={`direction: ${d.direction.value ?? '<undefined>'}`}
+        label={`orientation: ${d.orientation.value ?? '<undefined>'}`}
         onClick={() => {
-          Signal.cycle<P['direction']>(d.direction, ['Bottom:Up', 'Top:Down', undefined]);
+          Signal.cycle<P['orientation']>(d.orientation, [...D.orientation.all, undefined]);
         }}
       />
     </div>

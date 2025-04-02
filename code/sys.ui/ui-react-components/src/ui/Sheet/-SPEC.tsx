@@ -21,7 +21,7 @@ export default Spec.describe('Sheet', (e) => {
       .display('grid')
 
       .render((e) => {
-        const direction = p.direction.value;
+        const orientation = p.orientation.value;
         const isShowing = p.showing.value;
 
         const styles = {
@@ -34,7 +34,7 @@ export default Spec.describe('Sheet', (e) => {
           <Sheet
             style={styles.sheet}
             theme={Color.Theme.invert(p.theme.value)}
-            direction={direction}
+            orientation={orientation}
             onMouseDown={(e) => {
               e.stopPropagation();
               p.showing.value = false;

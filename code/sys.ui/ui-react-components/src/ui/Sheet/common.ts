@@ -4,11 +4,17 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const direction: t.SheetDirection = 'Bottom:Up';
 
 export const DEFAULTS = {
   radius: 4,
   duration: 0.25,
   bounce: 0.2,
-  direction,
+  shadowColor: -0.15,
+
+  get orientation(): { all: t.SheetOrientation[]; default: t.SheetOrientation } {
+    return {
+      default: 'Bottom:Up',
+      all: ['Bottom:Up', 'Top:Down', 'Left:Right', 'Right:Left'],
+    };
+  },
 } as const;
