@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
+import { type t, css, DEFAULTS, Signal } from './common.ts';
 
 /**
  * Types:
@@ -56,13 +56,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
+    title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={css(styles.title, styles.cols).class}>
+        <div>{'Player.Video'}</div>
+        <div />
+        <CurrentTime video={video} />
+      </div>
+
       <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
       <Button
         block
@@ -113,7 +120,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`src: ${p.src}`}
         onClick={() =>
           Signal.cycle(p.src, [
-            DEFAULTS.video, // Tubes.
+            DEFAULTS.video, //    Tubes.
             'vimeo/727951677', // Rowan: "group scale",
           ])
         }
@@ -123,3 +130,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
+  const { video, prefix = 'elapsed' } = props;
+  const p = video.props;
+  Signal.useRedrawEffect(() => p.currentTime.value);
+  return <div>{`(${prefix}: ${p.currentTime.value.toFixed(2)}s)`}</div>;
+}

@@ -18,21 +18,20 @@ export function useSignalBinding(args: {
   const isPlaying = useMediaState('playing', playerRef);
 
   /**
-   * Sync the signals with the <Player>'s current state.
-   */
-  if (props) {
-    if (props.currentTime.value !== currentTime) {
-      props.currentTime.value = currentTime;
-    }
-  }
-
-  /**
-   * Effect: keep the signal updated with the current "is-playing" state.
+   * Effect: Keep the signal updated with the current "is-playing" state.
    */
   React.useEffect(() => {
     if (!props) return;
     if (props.playing.value !== isPlaying) props.playing.value = isPlaying;
   }, [isPlaying]);
+
+  /**
+   * Effect: Sync the signals with the <Player>'s current state.
+   */
+  React.useEffect(() => {
+    if (!props) return;
+    if (props.currentTime.value !== currentTime) props.currentTime.value = currentTime;
+  }, [currentTime, props]);
 
   /**
    * Handle: jumpTo (aka. "seek").
