@@ -36,7 +36,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div>⚡️ via signal:</div>
-      <Obj name={'rect'} data={rect} />
+      <Obj name={'rect'} data={rect} margin={[5, 22]} expand={1} />
       <hr />
     </div>
   );
