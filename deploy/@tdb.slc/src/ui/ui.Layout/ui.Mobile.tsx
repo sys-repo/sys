@@ -20,6 +20,10 @@ export const LayoutMobile: React.FC<P> = (props) => {
     }),
   };
 
+  /**
+   * The stack of sheets.
+   */
   const elStack = AppContent.Render.stack(state);
+
   return <div className={css(styles.base, props.style).class}>{elStack}</div>;
 };
