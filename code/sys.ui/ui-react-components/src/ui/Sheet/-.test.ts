@@ -171,46 +171,6 @@ describe('Sheet', () => {
         stack.pop(-1);
         expect(stack.length).to.eql(0);
       });
-
-      //       it('adds/removes corresponding <Video.Player> signals to {players} object', () => {
-      //         const signal = Signal.create<T[]>([]);
-      //         const stack = Sheet.Signals.stack(signal);
-      //         const p = app.props;
-      //         expect(p.players).to.eql({});
-      //
-      //         // Add: push a layer with a video to the stack.
-      //         app.stack.push({ id: 'foo' });
-      //         app.stack.push({ id: 'bar.baz', video: { src: VIDEO.GroupScale.src } });
-      //
-      //         const key = AppSignals.Player.key('bar.baz', 1);
-      //         expect(typeof p.players[key].play === 'function').to.be.true;
-      //
-      //         // Remove: pop the video layer off the stack.
-      //         expect(Object.keys(p.players).length).to.eql(1);
-      //         app.stack.pop();
-      //         expect(p.players).to.eql({});
-      //       });
-      //
-      //       it('retains <Player> object on layer state after .push() → .pop() over it', () => {
-      //         const signal = Signal.create<T[]>([]);
-      //         const stack = Sheet.Signals.stack(signal);
-      //         app.stack.push({ id: 'foo-0' });
-      //         app.stack.push({ id: 'foo-1', video: { src: VIDEO.GroupScale.src } });
-      //
-      //         const fromLayer1 = () => AppSignals.Player.find(app, 'foo-1', 1);
-      //         const a = fromLayer1();
-      //         expect(a).to.equal(fromLayer1()); // NB: assert test helpers working as expected.
-      //
-      //         app.stack.push({ id: 'foo-2' });
-      //         const b = fromLayer1();
-      //
-      //         app.stack.pop();
-      //         const c = fromLayer1();
-      //
-      //         [a, b, c].forEach((v) => expect(v?.play).to.be.a('function')); // All are players.
-      //         expect(b).to.equal(a);
-      //         expect(c).to.equal(a);
-      //       });
     });
   });
 });
