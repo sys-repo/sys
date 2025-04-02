@@ -2,4 +2,11 @@
  * @module
  * An animated sliding "sheet" content container.
  */
-export { Sheet } from './ui.tsx';
+import type { t } from './common.ts';
+import { Sheet as View } from './ui.tsx';
+import { Signals } from './m.Signals.ts';
+
+export const Sheet: t.SheetLib = {
+  View,
+  Signals,
+};

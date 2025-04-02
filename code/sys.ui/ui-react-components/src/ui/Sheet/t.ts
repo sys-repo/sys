@@ -1,5 +1,28 @@
+import type React from 'react';
 import type { t } from './common.ts';
+
+export type * from './t.Signal.Stack.ts';
+
 type M = React.MouseEventHandler<HTMLDivElement>;
+
+/**
+ * Library: Sheet
+ */
+export type SheetLib = {
+  /** The UI component of the sheet. */
+  readonly View: React.FC<SheetProps>;
+
+  /** Library: Sheet Signals (State) */
+  readonly Signals: SheetSignalsLib;
+};
+
+/**
+ * Library: Sheet Signals (State).
+ */
+export type SheetSignalsLib = {
+  /** Factory: create a new stack API. */
+  stack<T>(signal?: t.Signal<T[]>): t.SheetSignalStack<T>;
+};
 
 /**
  * The orientation and slide direction of the sheet.

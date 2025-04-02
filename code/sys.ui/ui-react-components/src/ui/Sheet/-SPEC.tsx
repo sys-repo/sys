@@ -31,7 +31,7 @@ export default Spec.describe('Sheet', (e) => {
         };
 
         const elSheet = isShowing && (
-          <Sheet
+          <Sheet.View
             theme={Color.Theme.invert(p.theme.value)}
             orientation={orientation}
             edgeMargin={p.edgeMargin.value}
@@ -43,7 +43,7 @@ export default Spec.describe('Sheet', (e) => {
             <div className={styles.sheet.class}>
               {'👋 MySheet'} — <span className={styles.dim.class}>{'(click to hide)'}</span>
             </div>
-          </Sheet>
+          </Sheet.View>
         );
 
         return (
