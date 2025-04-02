@@ -14,5 +14,4 @@ export type UseDist = {
 /**
  * Hook: Keyboard controller.
  */
-export type UseKeyboardFactory = (app?: t.AppSignals) => UseKeyboard;
-export type UseKeyboard = {};
+export type UseKeyboardFactory = (state?: t.AppSignals) => void;

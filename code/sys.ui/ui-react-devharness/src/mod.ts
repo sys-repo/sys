@@ -40,7 +40,7 @@ export type * as t from './types.ts';
 
 export { Dev, render } from './m.Dev/mod.ts';
 
-export { useRubberband } from './ui.use/useRubberband.ts';
+export { useRubberband, useKeyboard } from './ui.use/mod.ts';
 export { ModuleList } from './ui/ModuleList/mod.ts';
 
 export { Badges, COLORS } from './common.ts';
