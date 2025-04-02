@@ -62,7 +62,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Obj block name={'dist'} data={wrangle.dist(app)} />
+      <Obj block name={'dist'} data={wrangle.dist(app)} expand={1} />
     </div>
   );
 };
