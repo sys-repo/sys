@@ -6,9 +6,6 @@ import type { t } from './common.ts';
 export type LayoutMobileProps = {
   state?: t.AppSignals;
   style?: t.CssInput;
-
-  // Attributes:
-  sheetMargin?: t.Pixels;
 };
 
 /**

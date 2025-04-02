@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, DEFAULTS } from './common.ts';
 import { Breakpoint } from './m.Breakpoint.ts';
 
 /**
@@ -11,7 +11,7 @@ export const Layout: t.AppLayoutLib = {
    * Calculate the pixel offset of stacked sheets.
    */
   sheetOffset(index, options?) {
-    const { base = 20 } = wrangle.offsetOptions(options);
+    const { base = DEFAULTS.baseSheetOffset } = wrangle.offsetOptions(options);
     if (index < 1) return base;
     return base + index * 8;
   },

@@ -46,7 +46,7 @@ export const pushStackContentButtons = (app: t.AppSignals) => {
     pushStackButton(app, 'Programme'),
 
     <hr key={'stack.hr'} />,
-    <Button key={'stack.pop'} block label={`stack.pop`} onClick={() => app.stack.pop(1)} />,
+    <Button key={'stack.pop'} block label={`stack.pop`} onClick={() => app.stack.pop()} />,
     clear(1),
     clear(0),
   ];

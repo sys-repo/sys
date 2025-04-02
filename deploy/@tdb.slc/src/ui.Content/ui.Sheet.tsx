@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BaseSheet, Color, css, DEFAULTS, Layout } from './common.ts';
+import { type t, BaseSheet, Color, css, Layout } from './common.ts';
 
 export type SheetProps = t.ContentProps & {};
 
@@ -21,10 +21,8 @@ export const Sheet: React.FC<SheetProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const base = css({
-    color: theme.fg,
-    backgroundColor: theme.bg,
     pointerEvents: 'auto',
-    marginTop: Layout.sheetOffset(props.index, DEFAULTS.baseSheetOffset),
+    marginTop: Layout.sheetOffset(props.index),
   });
   return (
     <BaseSheet theme={theme.name} style={base} onClick={onClick}>
