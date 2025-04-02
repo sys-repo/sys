@@ -31,6 +31,9 @@ jobs:
         with:
           deno-version: v2
 
+      - name: JSR Install
+        run: deno task info
+
       - name: Deno Info
         run: deno info && deno --version
 
