@@ -9,7 +9,7 @@ export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
 export { Signal, useSizeObserver } from '@sys/ui-react';
 export {
-  Sheet as BaseSheet,
+  Sheet as SheetBase,
   Button,
   Cropmarks,
   Obj,

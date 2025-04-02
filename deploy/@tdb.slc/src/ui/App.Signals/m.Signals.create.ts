@@ -1,5 +1,4 @@
-import { type t, Player, Signal, TUBES, rx } from './common.ts';
-import { createStack } from './m.Stack.ts';
+import { type t, Player, Signal, TUBES, rx, SheetBase } from './common.ts';
 import { AppPlayer } from './m.Player.ts';
 
 /**
@@ -29,7 +28,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     },
   };
 
-  const stack = createStack(props.stack);
+  const stack = SheetBase.Signals.stack(props.stack);
   const api: T = {
     get props() {
       return props;

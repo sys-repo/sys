@@ -1,4 +1,4 @@
-import { type t, css, BaseSheet } from './common.ts';
+import { type t, css, SheetBase } from './common.ts';
 import { Layout } from './m.Layout.tsx';
 
 export const Sample = {
@@ -44,12 +44,12 @@ export const Sample = {
           if (!props.isTop) props.state.stack.pop();
         };
         return (
-          <BaseSheet style={{ padding: 10, marginTop }} onClick={onClick}>
+          <SheetBase.View style={{ padding: 10, marginTop }} onClick={onClick}>
             <div>
               <div>{`👋 Hello: ${props.index}`}</div>
               <div>{props.children}</div>
             </div>
-          </BaseSheet>
+          </SheetBase.View>
         );
       },
       timestamps: {

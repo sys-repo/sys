@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BaseSheet, Color, css, Layout } from './common.ts';
+import { type t, SheetBase, Color, css, Layout } from './common.ts';
 
 export type SheetProps = t.ContentProps & {};
 
@@ -25,8 +25,8 @@ export const Sheet: React.FC<SheetProps> = (props) => {
     marginTop: Layout.sheetOffset(props.index),
   });
   return (
-    <BaseSheet theme={theme.name} style={base} onClick={onClick}>
+    <SheetBase.View theme={theme.name} style={base} onClick={onClick}>
       {props.children}
-    </BaseSheet>
+    </SheetBase.View>
   );
 };
