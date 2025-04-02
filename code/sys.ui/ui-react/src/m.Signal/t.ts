@@ -15,9 +15,12 @@ export type SignalReactLib = SignalLib & {
   useEffect: typeof Preact.useSignalEffect;
 
   /**
-   * Causes a redraw (via a useState counter incrementing)
+   * Safely causes a redraw (via a useState counter incrementing)
    * when any of the signals that are hooked into within the
    * callback change value.
+   *
+   *    Safe: == stops effect listeners on tear-down.
+   *
    */
   useRedrawEffect(cb: () => void): void;
 };
