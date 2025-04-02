@@ -9,8 +9,9 @@ import {
   Logo,
   Player,
   Sheet,
+  Signal,
   VIDEO,
-} from './ui.ts';
+} from '../ui.ts';
 
 /**
  * Content: "Trailer" (30 second intro).
@@ -73,9 +74,10 @@ export type BodyProps = t.ContentTimestampProps;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state, timestamp } = props;
 
-  // Signal.useRedrawEffect(() => {
-  //   signals.props.currentTime;
-  // });
+  Signal.useRedrawEffect(() => {
+    // signals.props.currentTime;
+    // props.state.props.
+  });
 
   /**
    * Render:

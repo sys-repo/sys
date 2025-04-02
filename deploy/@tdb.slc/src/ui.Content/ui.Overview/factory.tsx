@@ -1,14 +1,15 @@
 import React from 'react';
-import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from './ui.ts';
+import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from '../ui.ts';
 
 /**
- * Content: "Programme"
+ * Content: "Overview" (2 minute summary).
  */
 export function factory() {
-  const id: t.ContentStage = 'Programme';
+  const id: t.ContentStage = 'Overview';
   const sheetTheme = DEFAULTS.theme.sheet;
   const content: t.Content = {
     id,
+    video: { src: VIDEO.Overview.src },
 
     render(props) {
       const styles = {
@@ -17,7 +18,7 @@ export function factory() {
 
       return (
         <Sheet {...props} theme={sheetTheme}>
-          <div className={styles.base.class}>Hello Programme</div>
+          <div className={styles.base.class}>Hello Overview</div>
           {/* {props.children} */}
         </Sheet>
       );
@@ -54,7 +55,7 @@ export const Body: React.FC<BodyProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Body: Programme`}</div>
+      <div>{`🐷 Body: Overview`}</div>
     </div>
   );
 };
