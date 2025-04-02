@@ -25,14 +25,24 @@ export async function main() {
      *    module entry to by code-split in such a way that the [Dev Harness]
      *    never gets sent in the normal useage payload.
      */
-    const { render } = await import('../mod.ts');
+    const { render, useKeyboard } = await import('../mod.ts');
     const { ModuleSpecs, SampleSpecs } = await import('./entry.Specs.ts');
     const Specs = {
       ...SampleSpecs,
       ...ModuleSpecs,
     };
+
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-    root.render(<StrictMode>{el}</StrictMode>);
+    function App() {
+      useKeyboard();
+      return el;
+    }
+
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
   } else {
     const { MySample } = await import('./sample.specs/MySample.tsx');
     const el = <MySample style={{ Absolute: 0 }} />;

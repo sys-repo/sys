@@ -15,10 +15,20 @@ export async function main() {
   const root = createRoot(document.getElementById('root')!);
 
   if (isDev) {
-    const { render } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./entry.Specs.ts');
+
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-    root.render(<StrictMode>{el}</StrictMode>);
+    function App() {
+      useKeyboard();
+      return el;
+    }
+
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
   } else {
     const { Splash } = await import('./ui.Splash.tsx');
     root.render(
