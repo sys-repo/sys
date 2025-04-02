@@ -31,7 +31,7 @@ jobs:
         with:
           deno-version: v2
 
-      - name: Install from JSR ― https://jsr.io/@sys
+      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
         run: deno task info
 
       - name: Deno Info
