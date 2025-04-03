@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Player, VimeoBackground } from '../common.ts';
-import { CanvasMini } from '../ui.Canvas.Mini/mod.ts';
+import { CanvasMini } from '../ui.Logo.Canvas/mod.ts';
 
 import { type t, Color, css, DEFAULTS, Logo, Signal } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
