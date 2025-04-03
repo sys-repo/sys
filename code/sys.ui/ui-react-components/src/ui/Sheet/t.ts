@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { t } from './common.ts';
 
-export type * from './t.Signal.Stack.ts';
+export type * from './t.Signals.ts';
 type M = React.MouseEventHandler<HTMLDivElement>;
 
 /**
@@ -12,15 +12,7 @@ export type SheetLib = {
   readonly View: React.FC<SheetProps>;
 
   /** Library: Sheet Signals (State) */
-  readonly Signals: SheetSignalsLib;
-};
-
-/**
- * Library: Sheet Signals (State).
- */
-export type SheetSignalsLib = {
-  /** Factory: create a new stack API. */
-  stack<T>(signal?: t.Signal<T[]>): t.SheetSignalStack<T>;
+  readonly Signals: t.SheetSignalsLib;
 };
 
 /**

@@ -1,6 +1,14 @@
 import type { t } from './common.ts';
 
 /**
+ * Library: Sheet Signals (State).
+ */
+export type SheetSignalsLib = {
+  /** Factory: create a new stack API. */
+  stack<T>(signal?: t.Signal<T[]>): t.SheetSignalStack<T>;
+};
+
+/**
  * API for managing the stack of sheets.
  */
 export type SheetSignalStack<T> = {
