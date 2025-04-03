@@ -1,7 +1,9 @@
 import React from 'react';
-import { type t, SheetBase, Color, css, Layout } from './common.ts';
+import { type t, Color, css, Layout, SheetBase } from './common.ts';
 
-export type SheetProps = t.ContentProps & {};
+export type SheetProps = t.ContentProps & {
+  margin?: t.Pixels | [t.Pixels, t.Pixels];
+};
 
 /**
  * Component:
@@ -25,7 +27,7 @@ export const Sheet: React.FC<SheetProps> = (props) => {
     marginTop: Layout.sheetOffset(props.index),
   });
   return (
-    <SheetBase.View theme={theme.name} style={base} onClick={onClick}>
+    <SheetBase.View theme={theme.name} style={base} margin={props.margin} onClick={onClick}>
       {props.children}
     </SheetBase.View>
   );
