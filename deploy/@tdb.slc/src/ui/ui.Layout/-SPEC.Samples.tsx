@@ -39,13 +39,14 @@ export const Sample = {
     return {
       id,
       render(props) {
-        const marginTop = Layout.sheetOffset(props.index, { base: 30 });
+        const { index } = props;
+        const marginTop = Layout.sheetOffset(index, { base: 44 });
         const onClick = () => {
           if (!props.isTop) props.state.stack.pop();
         };
         return (
-          <SheetBase.View style={{ padding: 10, marginTop }} onClick={onClick}>
-            <div>
+          <SheetBase.View style={{ marginTop }} onClick={onClick}>
+            <div className={css({ padding: 10 }).class}>
               <div>{`👋 Hello: ${props.index}`}</div>
               <div>{props.children}</div>
             </div>
