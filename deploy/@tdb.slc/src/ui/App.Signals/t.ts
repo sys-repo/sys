@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
-
 export type * from './t.Player.ts';
-export type * from './t.Stack.ts';
 
 /**
  * Library for working with the [AppSignals] model.
@@ -19,6 +17,7 @@ export type AppSignalsLib = {
 export type AppSignals = t.Lifecycle & {
   readonly props: {
     readonly stack: t.Signal<t.Content[]>;
+
     readonly dist: t.Signal<t.DistPkg | undefined>;
     readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
     readonly players: { [id: string]: t.VideoPlayerSignals };
@@ -37,3 +36,8 @@ export type AppSignals = t.Lifecycle & {
   /** Hook into all relevant value listeners. */
   listen(): void;
 };
+
+/**
+ * API for managing the screen stack.
+ */
+export type AppSignalsStack = t.SheetSignalStack<t.Content>;

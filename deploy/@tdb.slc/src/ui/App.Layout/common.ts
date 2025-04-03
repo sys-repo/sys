@@ -1,5 +1,3 @@
 export * from '../common.ts';
 
-export const DEFAULTS = {
-  baseSheetOffset: 44,
-};
+export const DEFAULTS = {};
