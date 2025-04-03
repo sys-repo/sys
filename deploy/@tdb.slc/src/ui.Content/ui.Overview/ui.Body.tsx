@@ -2,7 +2,7 @@ import React from 'react';
 import {
   type t,
   AppSignals,
-  CanvasMini,
+  LogoCanvas,
   Color,
   css,
   DEFAULTS,
@@ -28,7 +28,6 @@ export const Body: React.FC<BodyProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({ position: 'relative', display: 'grid', placeItems: 'center' }),
     body: css({ display: 'grid', placeItems: 'center', rowGap: '40px' }),
@@ -53,8 +52,7 @@ export const Body: React.FC<BodyProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {elTmp}
       <div className={styles.body.class}>
-        {/* <CanvasMini theme={theme.name} style={styles.canvas} width={300} />
-        <Logo theme={theme.name} style={styles.logo} /> */}
+        <div>{'Overview: Body'}</div>
       </div>
     </div>
   );

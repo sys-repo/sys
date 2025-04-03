@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Player, VimeoBackground } from '../common.ts';
-import { CanvasMini } from '../ui.Logo.Canvas/mod.ts';
+import { LogoCanvas } from '../ui.Logo.Canvas/mod.ts';
 
 import { type t, Color, css, DEFAULTS, Logo, Signal } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
@@ -94,7 +94,7 @@ export const Landing: React.FC<P> = (props) => {
       style={styles.layout}
       theme={theme.name}
       canvas={{
-        element: <CanvasMini theme={theme.name} selected={selectedPanel.value} />,
+        element: <LogoCanvas theme={theme.name} selected={selectedPanel.value} />,
         position: p?.canvasPosition.value,
       }}
       video={{

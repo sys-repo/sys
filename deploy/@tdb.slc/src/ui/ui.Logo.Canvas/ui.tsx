@@ -2,12 +2,12 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { SvgImage } from './ui.Svg.tsx';
 
-type P = t.CanvasMiniProps;
+type P = t.LogoCanvasProps;
 
 /**
  * Component.
  */
-export const CanvasMini: React.FC<P> = (props) => {
+export const LogoCanvas: React.FC<P> = (props) => {
   const { selected, over, onPanelEvent, width } = props;
 
   /**

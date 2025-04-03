@@ -12,7 +12,7 @@ export type SvgImageProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  onPanelEvent?: t.CanvasPanelEventHandler;
+  onPanelEvent?: t.LogoCanvasPanelHandler;
 };
 
 /**

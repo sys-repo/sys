@@ -7,7 +7,7 @@ type Options = {
   selected?: t.CanvasPanel;
   over?: t.CanvasPanel;
   theme?: t.CommonTheme;
-  onPanelEvent?: t.CanvasPanelEventHandler;
+  onPanelEvent?: t.LogoCanvasPanelHandler;
 };
 
 /**

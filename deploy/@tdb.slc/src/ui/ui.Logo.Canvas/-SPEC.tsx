@@ -1,7 +1,7 @@
 import { type t, Dev, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { css, Signal } from './common.ts';
-import { CanvasMini } from './mod.ts';
+import { LogoCanvas } from './mod.ts';
 
 export default Spec.describe('Canvas', (e) => {
   const debug = createDebugSignals();
@@ -9,7 +9,7 @@ export default Spec.describe('Canvas', (e) => {
 
   const renderCanvas = (options: { theme?: t.CommonTheme } = {}) => {
     return (
-      <CanvasMini
+      <LogoCanvas
         theme={options.theme ?? p.theme.value}
         width={p.width.value}
         selected={p.selected.value}

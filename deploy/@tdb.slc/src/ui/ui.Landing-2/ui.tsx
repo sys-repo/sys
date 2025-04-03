@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, VimeoBackground } from './common.ts';
 
-import { CanvasMini } from '../ui.Logo.Canvas/mod.ts';
+import { LogoCanvas } from '../ui.Logo.Canvas/mod.ts';
 import { useKeyboard } from '../ui.Landing-1/use.Keyboard.ts';
 import { Logo } from '../ui.Logo/mod.ts';
 
@@ -64,7 +64,7 @@ export const Landing: React.FC<t.Landing2Props> = (props) => {
   const elCanvas = (
     <div className={styles.canvas.base.class}>
       <div className={styles.canvas.subject.class}>
-        <CanvasMini theme={theme.name} />
+        <LogoCanvas theme={theme.name} />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AppContent, Button, CanvasMini, Color, css, Icons } from '../ui.ts';
+import { type t, AppContent, Button, LogoCanvas, Color, css, Icons } from '../ui.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
@@ -53,7 +53,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
       </div>
       <div className={styles.body.class}>
         <Button block theme={theme.name} onClick={showTrailer}>
-          <CanvasMini theme={theme.name} style={styles.canvas} />
+          <LogoCanvas theme={theme.name} style={styles.canvas} />
         </Button>
       </div>
       <div className={styles.footer.class}>

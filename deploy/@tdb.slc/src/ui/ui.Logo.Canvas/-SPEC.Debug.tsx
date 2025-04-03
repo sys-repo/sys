@@ -13,7 +13,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals
  */
 export function createDebugSignals() {
-  type P = t.CanvasMiniProps;
+  type P = t.LogoCanvasProps;
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Dark'),

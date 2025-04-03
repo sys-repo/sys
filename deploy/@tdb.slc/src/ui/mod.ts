@@ -2,7 +2,7 @@
  * @module
  * UI Components.
  */
-export { CanvasMini } from './ui.Logo.Canvas/mod.ts';
+export { LogoCanvas } from './ui.Logo.Canvas/mod.ts';
 export { Logo } from './ui.Logo/mod.ts';
 export { VideoBackground } from './ui.Video.Background/mod.ts';
 
