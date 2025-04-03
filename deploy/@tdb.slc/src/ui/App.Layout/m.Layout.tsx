@@ -13,7 +13,7 @@ export const Layout: t.AppLayoutLib = {
   sheetOffset(index, options?) {
     const { base = 44 } = wrangle.offsetOptions(options);
     if (index <= 1) return base;
-    return base + index * 8;
+    return base + (index - 1) * 8;
   },
 } as const;
 
