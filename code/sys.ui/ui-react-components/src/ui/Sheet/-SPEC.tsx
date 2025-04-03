@@ -34,7 +34,7 @@ export default Spec.describe('Sheet', (e) => {
           <Sheet.View
             theme={Color.Theme.invert(p.theme.value)}
             orientation={orientation}
-            edgeMargin={p.edgeMargin.value}
+            margin={p.margin.value}
             onMouseDown={(e) => {
               e.stopPropagation();
               p.showing.value = false;

@@ -2,7 +2,6 @@ import type React from 'react';
 import type { t } from './common.ts';
 
 export type * from './t.Signal.Stack.ts';
-
 type M = React.MouseEventHandler<HTMLDivElement>;
 
 /**
@@ -40,7 +39,7 @@ export type SheetProps = {
   duration?: t.Secs;
   bounce?: number;
 
-  edgeMargin?: t.SheetEdgeMargin | t.SheetEdgeMargins;
+  margin?: t.SheetEdgeMargin | t.SheetEdgeMargins;
   shadowOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;

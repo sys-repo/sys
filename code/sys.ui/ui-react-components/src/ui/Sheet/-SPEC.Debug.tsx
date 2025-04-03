@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, DEFAULTS, css, Signal } from './common.ts';
+import { type t, css, DEFAULTS, Signal } from './common.ts';
 
 type P = t.SheetProps;
 const D = DEFAULTS;
@@ -21,7 +21,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     showing: s(true),
     theme: s<P['theme']>('Dark'),
     orientation: s<P['orientation']>(D.orientation.default),
-    edgeMargin: s<P['edgeMargin']>(),
+    margin: s<P['margin']>(0),
   };
   const api = {
     props,
@@ -30,7 +30,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.theme.value;
       p.showing.value;
       p.orientation.value;
-      p.edgeMargin.value;
+      p.margin.value;
     },
   };
   init?.(api);
@@ -77,9 +77,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`edgeMargin: ${d.edgeMargin.value ?? '<undefined>'}`}
+        label={`margin: ${d.margin.value ?? '<undefined>'}`}
         onClick={() => {
-          Signal.cycle<P['edgeMargin']>(d.edgeMargin, [0, 10, [50, 15], undefined]);
+          Signal.cycle<P['margin']>(d.margin, [undefined, 0, 10, [50, 15]]);
         }}
       />
     </div>

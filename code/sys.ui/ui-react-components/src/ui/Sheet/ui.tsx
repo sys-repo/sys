@@ -122,7 +122,7 @@ const wrangle = {
   },
 
   edgeMargin(props: P): t.SheetEdgeMargins {
-    const v = props.edgeMargin;
+    const v = props.margin;
     if (typeof v === 'number') return [v, v];
     if (Array.isArray(v)) return v as t.SheetEdgeMargins;
     return [0, 0];
