@@ -172,7 +172,7 @@ export function BusController(args: {
       }
 
       if (typeof e.mutate === 'object') {
-        draft.render.state = R.clone(e.mutate); // 🐷 TEMP | SLOW (potentially too slow). Not needed when using immutability plugin.
+        draft.render.state = Obj.clone(e.mutate); // 🐷 TEMP | SLOW (potentially too slow). Not needed when using immutability plugin.
       }
 
       draft.render.revision.state += 1;
