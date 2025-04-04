@@ -31,7 +31,7 @@ export type SheetProps = {
   duration?: t.Secs;
   bounce?: number;
 
-  margin?: t.SheetEdgeMargin | t.SheetEdgeMargins;
+  margin?: t.SheetMarginInput;
   shadowOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -46,7 +46,10 @@ export type SheetProps = {
 
 /**
  * Margins for the sheet edges based on orientation.
+ * A pixel value or a CSS-grid template value (eg. 'auto' or '1fr' etc).
  */
-export type SheetEdgeMargin = t.Pixels;
-/** Sheet margin: near/far based on orientation */
-export type SheetEdgeMargins = [t.Pixels, t.Pixels];
+export type SheetMargin = t.Pixels | string;
+export type SheetMarginInput =
+  | [SheetMargin, SheetMargin, SheetMargin] //  ← near |     middle     | far
+  | [SheetMargin, SheetMargin] //               ← near | (default: 1fr) | far
+  | SheetMargin; //                             ← near | (default: 1fr) | far

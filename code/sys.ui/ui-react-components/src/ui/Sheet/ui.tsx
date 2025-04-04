@@ -89,9 +89,7 @@ const wrangle = {
     const { radius = D.radius } = props;
     const is = wrangle.is(props);
     const shadowColor = Color.format(props.shadowOpacity ?? D.shadowColor);
-
-    const edgeMargin = wrangle.edgeMargin(props);
-    const edgeMarginTemplate = `${edgeMargin[0]}px 1fr ${edgeMargin[1]}px`;
+    const edgeMargin = wrangle.edgeMarginTemplate(props);
 
     let borderRadius: string;
     let boxShadow: string;
@@ -99,7 +97,7 @@ const wrangle = {
     let gridTemplateRows: string | undefined;
 
     if (is.vertical) {
-      gridTemplateColumns = edgeMarginTemplate;
+      gridTemplateColumns = edgeMargin;
       if (is.topDown) {
         borderRadius = `0 0 ${radius}px ${radius}px`;
         boxShadow = `0 5px 6px 0 ${shadowColor}`;
@@ -108,7 +106,7 @@ const wrangle = {
         boxShadow = `0 -5px 6px 0 ${shadowColor}`;
       }
     } else {
-      gridTemplateRows = edgeMarginTemplate;
+      gridTemplateRows = edgeMargin;
       if (is.leftToRight) {
         borderRadius = `0 ${radius}px ${radius}px 0`;
         boxShadow = `5px 0 6px 0 ${shadowColor}`;
@@ -121,11 +119,19 @@ const wrangle = {
     return { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } as const;
   },
 
-  edgeMargin(props: P): t.SheetEdgeMargins {
+  edgeMargin(props: P): [t.SheetMargin, t.SheetMargin, t.SheetMargin] {
     const v = props.margin;
-    if (typeof v === 'number') return [v, v];
-    if (Array.isArray(v)) return v as t.SheetEdgeMargins;
-    return [0, 0];
+    if (typeof v === 'number') return [v, '1fr', v];
+    if (Array.isArray(v)) {
+      if (v.length === 2) return [v[0], '1fr', v[1]];
+      if (v.length === 3) return v;
+    }
+    return [0, '1fr', 0];
+  },
+
+  edgeMarginTemplate(props: P): string {
+    const margin = wrangle.edgeMargin(props);
+    return margin.map((v) => (typeof v === 'number' ? `${v}px` : v)).join(' ');
   },
 
   maskOrientation(props: P): t.CssValue {

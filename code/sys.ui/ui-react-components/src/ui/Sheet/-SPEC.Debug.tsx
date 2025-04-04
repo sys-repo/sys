@@ -79,7 +79,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`margin: ${d.margin.value ?? '<undefined>'}`}
         onClick={() => {
-          Signal.cycle<P['margin']>(d.margin, [undefined, 0, 10, [50, 15]]);
+          Signal.cycle<P['margin']>(d.margin, [undefined, 0, 10, [50, 15], ['1fr', 200, '2em']]);
         }}
       />
     </div>
