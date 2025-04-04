@@ -218,7 +218,7 @@ describe('Signal', () => {
         expect(s.value).to.eql(['1fr', 100, 'auto']);
       });
 
-      it.only('cycle array of arrays (2)', () => {
+      it('cycle array of arrays (2)', () => {
         type V = string | number;
         type T = V | V[] | undefined;
         const s = Signal.create<T>();
