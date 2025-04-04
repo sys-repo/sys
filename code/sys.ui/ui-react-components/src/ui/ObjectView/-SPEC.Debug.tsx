@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../Button/mod.ts';
 import { type t, css, DEFAULTS as D, Signal } from './common.ts';
 
-type P = t.ObjProps;
+type P = t.ObjectViewProps;
 
 /**
  * Types:
@@ -31,14 +31,14 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     name: s<P['name']>('my-name'),
     data: s<P['data']>({ ...DATA }),
     sortKeys: s<P['sortKeys']>(D.sortKeys),
-    showNonenumerable: s<t.ObjShow['nonenumerable']>(D.show.nonenumerable),
-    showRootSummary: s<t.ObjShow['rootSummary']>(D.show.rootSummary),
+    showNonenumerable: s<t.ObjectViewShow['nonenumerable']>(D.show.nonenumerable),
+    showRootSummary: s<t.ObjectViewShow['rootSummary']>(D.show.rootSummary),
     expandPaths: s<string[] | undefined>(),
   };
   const p = props;
   const api = {
     props,
-    get show(): t.ObjShow {
+    get show(): t.ObjectViewShow {
       const nonenumerable = props.showNonenumerable.value;
       const rootSummary = props.showRootSummary.value;
       return { nonenumerable, rootSummary };
@@ -79,11 +79,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
-        <div>{'Obj '}</div>
-        <div />
-        <div>{'(Object View)'}</div>
-      </div>
+      <div className={css(styles.title, styles.cols).class}>{'ObjectView'}</div>
 
       <Button
         block

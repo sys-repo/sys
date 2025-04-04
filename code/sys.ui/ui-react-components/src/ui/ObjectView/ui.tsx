@@ -4,7 +4,7 @@ import { chromeDark, chromeLight, ObjectInspector } from 'react-inspector';
 import { type t, css, DEFAULTS, Style } from './common.ts';
 import { renderer } from './ui.Renderer.tsx';
 
-type P = t.ObjProps;
+type P = t.ObjectViewProps;
 const D = DEFAULTS;
 
 export const Obj: React.FC<P> = (props) => {
@@ -50,12 +50,12 @@ export const Obj: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  key(props: t.ObjProps) {
+  key(props: t.ObjectViewProps) {
     const { expandLevel, expandPaths } = wrangle.expand(props);
     return `obj:${expandLevel ?? 0}:${(expandPaths ?? []).join(',')}`;
   },
 
-  theme(props: t.ObjProps) {
+  theme(props: t.ObjectViewProps) {
     const fontSize = `${props.fontSize ?? DEFAULTS.font.size}px`;
     const lineHeight = '1.5em';
     return {
@@ -75,7 +75,7 @@ const wrangle = {
     throw new Error(`Theme '${theme}' not supported.`);
   },
 
-  show(props: P): t.ObjShow {
+  show(props: P): t.ObjectViewShow {
     const D = DEFAULTS.show;
     const { show = {} } = props;
     const { nonenumerable = D.nonenumerable, rootSummary = D.nonenumerable } = show;

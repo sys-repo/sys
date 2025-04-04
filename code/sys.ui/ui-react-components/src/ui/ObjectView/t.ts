@@ -3,13 +3,13 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type ObjProps = {
+export type ObjectViewProps = {
   name?: string;
   data?: any;
 
-  show?: Partial<ObjShow>;
+  show?: Partial<ObjectViewShow>;
+  expand?: number | ObjectViewExpand;
   sortKeys?: boolean;
-  expand?: number | ObjExpand;
 
   block?: boolean;
   fontSize?: number;
@@ -21,12 +21,12 @@ export type ObjProps = {
 /**
  * Object show feature flags.
  */
-export type ObjShow = {
+export type ObjectViewShow = {
   nonenumerable: boolean;
   rootSummary: boolean;
 };
 
-export type ObjExpand = {
+export type ObjectViewExpand = {
   level?: number;
   paths?: string[] | boolean;
 };
