@@ -7,7 +7,7 @@ const Images = {
   cc: { import: () => import('./images/logo.cc.svg'), size: [345, 84] },
 };
 
-export const Logo: React.FC<t.LogoProps> = (props) => {
+export const LogoWordmark: React.FC<t.LogoWordmarkProps> = (props) => {
   const { theme } = props;
   const kind = props.logo ?? DEFAULTS.logo;
 

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Player, VimeoBackground } from '../common.ts';
 import { LogoCanvas } from '../ui.Logo.Canvas/mod.ts';
 
-import { type t, Color, css, DEFAULTS, Logo, Signal } from './common.ts';
+import { type t, Color, css, DEFAULTS, LogoWordmark, Signal } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { Sidebar } from './ui.Sidebar.tsx';
 import { useKeyboard } from './use.Keyboard.ts';
@@ -109,7 +109,7 @@ export const Landing: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Logo style={styles.logo} theme={theme.name} />
+      <LogoWordmark style={styles.logo} theme={theme.name} />
 
       <VimeoBackground
         video={499921561} // Tubes.

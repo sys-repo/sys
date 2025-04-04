@@ -6,7 +6,7 @@ import {
   Color,
   css,
   DEFAULTS,
-  Logo,
+  LogoWordmark,
   Player,
   Sheet,
   Signal,
@@ -64,7 +64,7 @@ export const Body: React.FC<BodyProps> = (props) => {
           width={300}
           selected={props.selected}
         />
-        <Logo theme={theme.name} style={styles.logo} />
+        <LogoWordmark theme={theme.name} style={styles.logo} />
       </div>
     </div>
   );

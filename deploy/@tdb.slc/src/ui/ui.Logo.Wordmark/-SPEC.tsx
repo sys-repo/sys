@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Logo } from './mod.ts';
+import { LogoWordmark } from './mod.ts';
 
-export default Spec.describe('Logo', (e) => {
+export default Spec.describe('Logo.Wordmark', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -26,7 +26,7 @@ export default Spec.describe('Logo', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => <Logo theme={p.theme.value} logo={p.logo.value} />);
+      .render((e) => <LogoWordmark theme={p.theme.value} logo={p.logo.value} />);
   });
 
   e.it('ui:debug', (e) => {

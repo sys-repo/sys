@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type LogoProps = {
+export type LogoWordmarkProps = {
   logo?: t.LogoKind;
   theme?: t.CommonTheme;
   style?: t.CssInput;

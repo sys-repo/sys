@@ -3,7 +3,7 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { css, Signal } from './common.ts';
 import { LogoCanvas } from './mod.ts';
 
-export default Spec.describe('Canvas', (e) => {
+export default Spec.describe('Logo.Canvas', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 

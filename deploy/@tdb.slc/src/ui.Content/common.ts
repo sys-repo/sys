@@ -7,6 +7,6 @@ export { AppSignals } from '../ui/App.Signals/mod.ts';
 
 export { Layout } from '../ui/App.Layout/mod.ts';
 export { LogoCanvas } from '../ui/ui.Logo.Canvas/mod.ts';
-export { Logo } from '../ui/ui.Logo.Wordmark/mod.ts';
+export { LogoWordmark } from '../ui/ui.Logo.Wordmark/mod.ts';
 
 export * from '../ui/common.ts';

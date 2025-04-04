@@ -6,7 +6,7 @@ import {
   Color,
   css,
   DEFAULTS,
-  Logo,
+  LogoWordmark,
   Player,
   Sheet,
   Signal,

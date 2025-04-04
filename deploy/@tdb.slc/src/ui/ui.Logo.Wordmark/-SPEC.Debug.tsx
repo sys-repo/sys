@@ -15,7 +15,7 @@ type P = DebugProps;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  type P = t.LogoProps;
+  type P = t.LogoWordmarkProps;
   const props = {
     width: s<number | undefined>(),
     theme: s<P['theme']>('Dark'),
@@ -52,7 +52,7 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block
         label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.LogoProps['theme']>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.LogoWordmarkProps['theme']>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
