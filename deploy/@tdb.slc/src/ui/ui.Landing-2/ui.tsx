@@ -3,7 +3,7 @@ import { type t, Color, css, VimeoBackground } from './common.ts';
 
 import { LogoCanvas } from '../ui.Logo.Canvas/mod.ts';
 import { useKeyboard } from '../ui.Landing-1/use.Keyboard.ts';
-import { Logo } from '../ui.Logo/mod.ts';
+import { Logo } from '../ui.Logo.Wordmark/mod.ts';
 
 export const Landing: React.FC<t.Landing2Props> = (props) => {
   const { debug = false, backgroundVideo = 0 } = props;

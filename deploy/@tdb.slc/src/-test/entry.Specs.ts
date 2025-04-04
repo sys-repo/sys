@@ -11,7 +11,7 @@ export const Specs = {
 
   'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
 
-  'tdb.slc.ui.Logo': () => import('../ui/ui.Logo/-SPEC.tsx'),
+  'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 

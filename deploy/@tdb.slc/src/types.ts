@@ -8,7 +8,7 @@ export type * from './ui/App.Signals/t.ts';
 export type * from './ui/App/t.ts';
 
 export type * from './ui/ui.Logo.Canvas/t.ts';
-export type * from './ui/ui.Logo/t.ts';
+export type * from './ui/ui.Logo.Wordmark/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
 
 export type * from './ui/ui.Layout/t.ts';
