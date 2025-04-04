@@ -196,7 +196,7 @@ describe('Signal', () => {
         expect(s.value).to.eql(1);
       });
 
-      it('cycles array of arrays', () => {
+      it('cycles array of arrays (1)', () => {
         type V = string | number;
         const s = Signal.create<V[] | undefined>();
         expect(s.value).to.eql(undefined);
@@ -216,6 +216,24 @@ describe('Signal', () => {
 
         Signal.cycle(s, values);
         expect(s.value).to.eql(['1fr', 100, 'auto']);
+      });
+
+      it.only('cycle array of arrays (2)', () => {
+        type V = string | number;
+        type T = V | V[] | undefined;
+        const s = Signal.create<T>();
+        const values = [undefined, 0, 10, [50, 15], ['1fr', 100, 'auto']];
+
+        const test = (expected: T) => {
+          Signal.cycle(s, values);
+          expect(s.value).to.eql(expected);
+        };
+
+        test(0);
+        test(10);
+        test([50, 15]);
+        test(['1fr', 100, 'auto']);
+        test(undefined);
       });
 
       it('cycles from <undefined>', () => {
