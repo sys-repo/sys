@@ -16,7 +16,7 @@ import {
 export type BodyProps = t.ContentTimestampProps & { selected?: t.CanvasPanel };
 
 export const Body: React.FC<BodyProps> = (props) => {
-  const { content, index, state, timestamp } = props;
+  const { content, index, state, timestamp, selected = 'purpose' } = props;
 
   const player = AppSignals.Player.find(state, content, index);
   const currentTime = player?.props.currentTime;
@@ -37,8 +37,8 @@ export const Body: React.FC<BodyProps> = (props) => {
   const styles = {
     base: css({ position: 'relative', display: 'grid', placeItems: 'center' }),
     body: css({ display: 'grid', placeItems: 'center', rowGap: '40px' }),
+    canvas: css({ MarginX: 60 }),
     logo: css({ width: 130, MarginX: 40 }),
-    canvas: css({ MarginX: 40 }),
 
     tmp: css({
       Absolute: [6, 6, null, null],
@@ -58,12 +58,7 @@ export const Body: React.FC<BodyProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {elTmp}
       <div className={styles.body.class}>
-        <LogoCanvas
-          theme={theme.name}
-          style={styles.canvas}
-          width={300}
-          selected={props.selected}
-        />
+        <LogoCanvas theme={theme.name} style={styles.canvas} selected={selected} />
         <LogoWordmark theme={theme.name} style={styles.logo} />
       </div>
     </div>
