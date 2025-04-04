@@ -22,13 +22,14 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   const styles = {
     base: css({ display: 'grid', gridTemplateRows: '1fr auto' }),
     children: css({ display: 'grid' }),
+    player: css({ marginBottom: -1 }),
   };
 
   return (
     <Sheet {...props} theme={props.theme} margin={10}>
       <div className={styles.base.class}>
         <div className={styles.children.class}>{props.children}</div>
-        <Player.Video.View signals={player} />
+        <Player.Video.View signals={player} style={styles.player} />
       </div>
     </Sheet>
   );
