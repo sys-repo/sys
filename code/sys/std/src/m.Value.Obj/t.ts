@@ -65,6 +65,12 @@ export type ObjLib = {
    * Sort the keys of an object.
    */
   sortKeys<T extends O>(obj: T): T;
+
+  /**
+   * Deeply clone the given object (circular-reference safe)
+   * with support for Date and RegExp.
+   */
+  clone<T>(obj: T): T;
 };
 
 /** A callback passed to the object walker function. */
