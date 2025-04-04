@@ -10,7 +10,6 @@ export type SplashProps = {
 
 export const Splash: React.FC<SplashProps> = (props) => {
   const href = '?dev';
-
   useKeyboard();
 
   /**

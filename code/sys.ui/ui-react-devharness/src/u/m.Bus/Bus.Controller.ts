@@ -1,7 +1,7 @@
 import { Context } from '../m.Ctx/mod.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { BusMemoryState } from './Bus.MemoryState.ts';
-import { DEFAULTS, Id, Is, R, Test, rx, type t } from './common.ts';
+import { type t, Obj, DEFAULTS, Id, Is, R, Test, rx } from './common.ts';
 
 /**
  * Start the controller and return an event API.
