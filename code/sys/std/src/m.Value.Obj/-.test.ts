@@ -7,7 +7,7 @@ describe('Value.Obj', () => {
     expect(Value.Obj).to.equal(Obj);
   });
 
-  describe('Value.Obj.walk', () => {
+  describe('Obj.walk', () => {
     type T = { key: string | number; value: any; path: (string | number)[] };
 
     it('processes object', () => {
@@ -141,7 +141,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.build', () => {
+  describe('Obj.build', () => {
     it('return default root object (no keyPath)', () => {
       expect(Value.Obj.build('', {})).to.eql({});
       expect(Value.Obj.build('  ', {})).to.eql({});
@@ -213,7 +213,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.pluck', () => {
+  describe('Obj.pluck', () => {
     it('returns [undefined] when no match', () => {
       expect(Value.Obj.pluck('foo', {})).to.eql(undefined);
       expect(Value.Obj.pluck('foo.bar', {})).to.eql(undefined);
@@ -244,7 +244,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.remove', () => {
+  describe('Obj.remove', () => {
     const test = (keyPath: string, root: any, expected: any) => {
       const result = Value.Obj.remove(keyPath, root);
       const msg = `keyPath: "${keyPath}"`;
@@ -281,7 +281,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.prune', () => {
+  describe('Obj.prune', () => {
     const test = (keyPath: string, root: any, expected: any) => {
       const result = Value.Obj.prune(keyPath, root);
       const msg = `keyPath: "${keyPath}"`;
@@ -329,7 +329,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.toArray', () => {
+  describe('Obj.toArray', () => {
     type IFoo = { count: number };
     type IFoos = {
       one: IFoo;
@@ -364,7 +364,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.trimStringsDeep', () => {
+  describe('Obj.trimStringsDeep', () => {
     it('shallow', () => {
       const name = 'foo'.repeat(100);
       const obj = {
@@ -437,7 +437,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.pick', () => {
+  describe('Obj.pick', () => {
     type T = { a: number; b: number; c: number };
     const Sample = {
       create(): T {
@@ -475,7 +475,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.sortKeys', () => {
+  describe('Obj.sortKeys', () => {
     it('empty', () => {
       const obj = {};
       const res = Value.Obj.sortKeys(obj);
