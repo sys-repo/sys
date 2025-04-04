@@ -22,6 +22,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     blur: s<P['blur']>(),
     opacity: s<P['opacity']>(),
     playing: s<P['playing']>(DEFAULTS.playing),
+    jumpTo: s<P['jumpTo']>(),
   };
   const api = {
     props,
@@ -32,6 +33,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.opacity.value;
       p.blur.value;
       p.playing.value;
+      p.jumpTo.value;
     },
   };
   init?.(api);
@@ -94,10 +96,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      <hr />
       <Button
         block
         label={`playing: ${p.playing.value}`}
         onClick={() => Signal.toggle(p.playing)}
+      />
+      <Button
+        block
+        label={`jumpTo: ${p.jumpTo.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<P['jumpTo']>(p.jumpTo, [undefined, 0, 10]);
+        }}
       />
 
       <hr />

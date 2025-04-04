@@ -25,6 +25,7 @@ export default Spec.describe('VimeoBackground', (e) => {
           opacity={p.opacity.value}
           blur={p.blur.value}
           playing={p.playing.value}
+          jumpTo={p.jumpTo.value}
         />
       ));
   });

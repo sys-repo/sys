@@ -13,22 +13,31 @@ export const VimeoBackground: React.FC<P> = (props) => {
     blur = D.blur,
     playing = D.playing,
     opacityTransition = D.opacityTransition,
+    jumpTo,
   } = props;
 
   const [iframe, setIframe] = useState<HTMLIFrameElement>();
   const initialPlaying = useRef(playing);
   const src = wrangle.src(props.video, initialPlaying.current);
 
+  const post = (method: string, value?: number | string) => {
+    const targetOrigin = '*'; // NB: Using "*" as targetOrigin is acceptable when not validating the origin.
+    iframe?.contentWindow?.postMessage({ method, value }, targetOrigin);
+  };
+
   /**
    * Effect: Play/Pause the video via the Vimeo bridge/API.
    */
   useEffect(() => {
-    const contentWindow = iframe?.contentWindow;
-    if (contentWindow && typeof playing === 'boolean') {
-      const method = playing ? 'play' : 'pause';
-      contentWindow?.postMessage({ method }, '*');
-    }
-  }, [playing, iframe]);
+    post(playing ? 'play' : 'pause');
+  }, [iframe, playing]);
+
+  /**
+   * Effect: jumpTo
+   */
+  useEffect(() => {
+    if (jumpTo !== undefined) post('setCurrentTime', jumpTo);
+  }, [iframe, jumpTo]);
 
   /**
    * Render:

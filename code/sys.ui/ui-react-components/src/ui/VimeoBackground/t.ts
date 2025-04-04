@@ -5,10 +5,13 @@ import type { t } from './common.ts';
  */
 export type VimeoBackgroundProps = {
   video?: number | t.StringVideoAddress;
+
   playing?: boolean;
+  jumpTo?: t.Secs;
+
   opacity?: number;
   blur?: number;
-  opacityTransition?: number; // msecs
+  opacityTransition?: t.Msecs;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
