@@ -36,7 +36,7 @@ export type TimeLib = {
   utc(input?: t.DateTimeInput): t.DateTime;
 
   /** A Time helper that runs only until it has been disposed. */
-  until(until$?: t.UntilObservable): t.TimeUntil;
+  until(until$?: t.DisposeInput): t.TimeUntil;
 };
 
 /**

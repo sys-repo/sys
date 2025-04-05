@@ -2,11 +2,12 @@ import { Subject } from 'rxjs';
 import { describe, expect, it, type t } from '../-test.ts';
 import { Time } from '../m.DateTime/mod.ts';
 import { Dispose } from './mod.ts';
+import { Is, rx } from '../mod.ts';
 
 describe('Disposable', () => {
   describe('sync', () => {
     it('disposable: create → dispose', () => {
-      const test = (until?: t.UntilObservable) => {
+      const test = (until?: t.DisposeInput) => {
         const obj = Dispose.disposable(until);
 
         let count = 0;
@@ -14,7 +15,12 @@ describe('Disposable', () => {
 
         obj.dispose();
         obj.dispose();
-        until?.forEach((subject) => subject.next());
+
+        if (Is.disposable(until)) {
+          until?.dispose();
+        } else {
+          until?.forEach((subject) => subject.next());
+        }
 
         expect(count).to.eql(1);
       };
@@ -22,10 +28,13 @@ describe('Disposable', () => {
       test();
       test(new Subject<void>());
       test([new Subject<void>(), new Subject<void>()]);
+
+      test(rx.disposable());
+      test(rx.lifecycle());
     });
 
     it('lifecycle: create → dispose', () => {
-      const test = (until?: t.UntilObservable) => {
+      const test = (until?: t.DisposeInput) => {
         const obj = Dispose.lifecycle(until);
         expect(obj.disposed).to.eql(false);
 
@@ -34,13 +43,22 @@ describe('Disposable', () => {
 
         obj.dispose();
         obj.dispose();
-        until?.forEach((subject) => subject.next());
+
+        if (Is.disposable(until)) {
+          until?.dispose();
+        } else {
+          until?.forEach((subject) => subject.next());
+        }
+
         expect(count).to.eql(1); // NB: multiple calls to dispose to not refire the cleanup handler.
       };
 
       test();
       test(new Subject<void>());
       test([new Subject<void>(), new Subject<void>()]);
+
+      test(rx.disposable());
+      test(rx.lifecycle());
     });
   });
 
@@ -215,14 +233,24 @@ describe('Disposable', () => {
   });
 
   describe('Dispose.until', () => {
-    it('single', () => {
+    it('Input: single (observable)', () => {
       const $ = new Subject<void>();
       const res = Dispose.until($);
       expect(res.length).to.eql(1);
       expect(res[0]).to.equal($);
     });
 
-    it('list', () => {
+    it('Input: <t.Disposable>', () => {
+      const test = (input: t.Disposable) => {
+        const res = Dispose.until(input);
+        expect(res.length).to.eql(1);
+        expect(res[0]).to.equal(input.dispose$);
+      };
+      test(rx.disposable());
+      test(rx.lifecycle());
+    });
+
+    it('Input: list', () => {
       const $1 = new Subject<void>();
       const $2 = new Subject<void>();
       const res = Dispose.until([$1, undefined, $2]);
@@ -232,7 +260,7 @@ describe('Disposable', () => {
       expect(res[1]).to.eql($2);
     });
 
-    it('deep list ← flattens', () => {
+    it('Input: deep list ← flattens', () => {
       const $1 = new Subject<void>();
       const $2 = new Subject<void>();
       const res = Dispose.until([$1, undefined, [undefined, [undefined, $2]]]);

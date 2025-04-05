@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Err, Is, Rx } from '../mod.ts';
+import { Err, Is, rx, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('rx: observable | subject', () => {
@@ -224,6 +224,22 @@ describe('Is (common flags)', () => {
   describe('Is.browser', () => {
     it('Is.browser: false', () => {
       expect(Is.browser()).to.eql(false);
+    });
+  });
+
+  describe('Is.disposable', () => {
+    it('Is.disposable: true', () => {
+      const disposable = rx.disposable();
+      const life = rx.lifecycle();
+      expect(Is.disposable(disposable)).to.be.true;
+      expect(Is.disposable(life)).to.be.true;
+    });
+
+    it('Is.disposable: false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => {
+        expect(Is.disposable(value)).to.eql(false);
+      });
     });
   });
 });

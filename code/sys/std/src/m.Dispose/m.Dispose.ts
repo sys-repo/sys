@@ -1,7 +1,7 @@
 import { Delete } from '../m.Delete/mod.ts';
 import { Err } from '../m.Err/mod.ts';
 import { Is } from '../m.Rx/m.Is.ts';
-import { Subject, filter, flatten, take, type t } from './common.ts';
+import { filter, flatten, isObject, Subject, take, type t } from './common.ts';
 
 /**
  * Toolkit for working with disposable interfaces.
@@ -104,9 +104,14 @@ export const Dispose: t.DisposeLib = {
    * Listens to an observable (or set of observbles) and
    * disposes of the target when any of them fire.
    */
-  until($) {
-    const list = Array.isArray($) ? $ : [$];
-    return flatten(list).filter(Boolean) as t.Observable<unknown>[];
+  until(input) {
+    if (isDisposable(input)) {
+      return [input.dispose$];
+    } else {
+      const $ = input;
+      const list = Array.isArray($) ? $ : [$];
+      return flatten(list).filter(Boolean) as t.Observable<unknown>[];
+    }
   },
 
   /**
@@ -136,3 +141,9 @@ export const wrangle = {
     return { onDispose, until$ };
   },
 } as const;
+
+function isDisposable(input: any): input is t.Disposable {
+  if (!isObject(input)) return false;
+  const obj = input as t.Disposable;
+  return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+}

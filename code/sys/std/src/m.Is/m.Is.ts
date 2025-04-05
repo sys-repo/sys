@@ -14,6 +14,12 @@ export const Is: t.StdIsLib = {
   errorLike,
   stdError,
 
+  disposable(input?: any): input is t.Disposable {
+    if (!isObject(input)) return false;
+    const obj = input as t.Disposable;
+    return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+  },
+
   falsy(input?: any): input is t.Falsy | typeof NaN {
     return (
       input === false ||

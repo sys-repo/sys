@@ -9,7 +9,6 @@ import { delay as baseDelay, Wrangle as DelayWrangle } from './m.Time.delay.ts';
  */
 export function until(until$: t.UntilObservable) {
   const life = Dispose.lifecycle(until$);
-  const { dispose$ } = life;
 
   const api: t.TimeUntil = {
     delay(...args: any[]): t.TimeDelayPromise {
@@ -20,6 +19,7 @@ export function until(until$: t.UntilObservable) {
         done$.next();
         return fn?.();
       });
+
       life.dispose$.pipe(takeUntil(done$), take(1)).subscribe(() => res.cancel());
       return res;
     },
@@ -31,7 +31,9 @@ export function until(until$: t.UntilObservable) {
     /**
      * Lifecycle
      */
-    dispose$,
+    get dispose$() {
+      return life.dispose$;
+    },
     get disposed() {
       return life.disposed;
     },
