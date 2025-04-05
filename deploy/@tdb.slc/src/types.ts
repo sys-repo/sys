@@ -12,6 +12,7 @@ export type * from './ui/ui.Logo.Wordmark/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
 
 export type * from './ui/ui.Layout/t.ts';
+export type * from './ui/ui.Sheet/t.ts';
 
 export type * from './ui/ui.Landing-1/t.ts';
 export type * from './ui/ui.Landing-2/t.ts';
