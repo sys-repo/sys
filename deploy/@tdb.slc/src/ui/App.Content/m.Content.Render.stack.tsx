@@ -12,7 +12,7 @@ import {
 /**
  * Renders the body of the matching timestamp.
  */
-export function renderStack(state?: t.AppSignals): t.ReactNode {
+export function renderStack(state: t.AppSignals | undefined): t.ReactNode {
   if (!state) return [];
   const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const stack = state.stack.items ?? [];

@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
+import { type t, Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { updateForBreakpointSize } from './-SPEC.u.tsx';
-import { Color, css } from './common.ts';
+import { Color, css, AppContent } from './common.ts';
 import { Layout } from './m.Layout.tsx';
 
 export * from './-SPEC.u.tsx';
@@ -14,6 +14,11 @@ export default Spec.describe('MobileLayout', async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     const update = { size: () => updateForBreakpointSize(ctx, app) };
+
+    const preload = async (...content: t.ContentStage[]) => {
+      const loading = content.map((content) => AppContent.factory(content));
+      await Promise.all(loading);
+    };
 
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
@@ -32,7 +37,11 @@ export default Spec.describe('MobileLayout', async (e) => {
         return <div className={style.class}>{el}</div>;
       });
 
+    /**
+     * Initialize environment.
+     */
     update.size();
+    preload('Entry', 'Trailer');
   });
 
   e.it('ui:debug', (e) => {

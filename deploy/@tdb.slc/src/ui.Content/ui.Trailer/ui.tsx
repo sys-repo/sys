@@ -10,6 +10,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   const { index, state, content, breakpoint } = props;
 
   const player = AppSignals.Player.find(state, content, index);
+  console.log('player', player);
 
   React.useEffect(() => {
     // player?.play();
