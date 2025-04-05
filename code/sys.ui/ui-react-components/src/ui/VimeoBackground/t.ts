@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.api.ts';
 
 /**
  * <Component>:
@@ -20,4 +21,12 @@ export type VimeoBackgroundProps = {
   blur?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  onReady?: VimeoReadyHandler;
 };
+
+/**
+ * Events
+ */
+export type VimeoReadyHandler = (e: VimeoReadyHandlerArgs) => void;
+export type VimeoReadyHandlerArgs = t.VimeoIFrameApi;

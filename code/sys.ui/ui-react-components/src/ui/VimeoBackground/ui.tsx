@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
+import { Vimeo } from './api.Vimeo.ts';
 import { type t, Color, DEFAULTS, Time, css, rx } from './common.ts';
 
 const D = DEFAULTS;
@@ -16,6 +17,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
     playingTransition = D.playingTransition,
   } = props;
 
+  const vimeoRef = useRef<t.VimeoIFrameApi>();
   const [playing, setPlaying] = useState(props.playing ?? D.playing);
 
   const [iframe, setIframe] = useState<HTMLIFrameElement>();
@@ -26,8 +28,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
    * POST: post a message to the vimeo player embedded in the <IFrame>.
    */
   const post = (method: string, value?: number | string) => {
-    const targetOrigin = '*'; // NB: Using "*" as targetOrigin is acceptable when not validating the origin.
-    iframe?.contentWindow?.postMessage({ method, value }, targetOrigin);
+    if (iframe) Vimeo.create(iframe).post(method, value);
   };
 
   /**
@@ -53,7 +54,18 @@ export const VimeoBackground: React.FC<P> = (props) => {
     }
 
     return life.dispose;
-  }, [props.playing, playing, playingTransition]);
+  }, [iframe, props.playing, playing, playingTransition]);
+
+  /**
+   * Effect
+   */
+  React.useEffect(() => {
+    if (iframe) {
+      const api = Vimeo.create(iframe);
+      vimeoRef.current = api;
+      props.onReady?.(api);
+    }
+  }, [iframe]);
 
   /**
    * Effect: jumpTo (timestamp).

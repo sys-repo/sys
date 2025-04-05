@@ -27,6 +27,10 @@ export default Spec.describe('VimeoBackground', (e) => {
           playing={p.playing.value}
           playingTransition={p.playingTransition.value}
           jumpTo={p.jumpTo.value}
+          onReady={(api) => {
+            console.info(`⚡️ onReady`, api);
+            debug.props.vimeo.value = api;
+          }}
         />
       ));
   });

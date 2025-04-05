@@ -24,6 +24,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     playing: s<P['playing']>(DEFAULTS.playing),
     playingTransition: s<P['playingTransition']>(),
     jumpTo: s<P['jumpTo']>(),
+    vimeo: s<t.VimeoIFrameApi>(),
   };
   const api = {
     props,
@@ -36,6 +37,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.playing.value;
       p.playingTransition.value;
       p.jumpTo.value;
+      p.vimeo.value;
     },
   };
   init?.(api);
@@ -127,7 +129,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {srcVideo('app/tubes')}
       {srcVideo('stock/running')}
       {srcVideo('public/helvetica')}
+
       <hr />
+
+      <Button
+        block
+        label={`get: currentTime`}
+        onClick={async () => {
+          const api = p.vimeo.value;
+          const secs = await api?.get.currentTime();
+          console.info('currentTime (secs):', secs);
+        }}
+      />
     </div>
   );
 };
