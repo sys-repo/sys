@@ -1,14 +1,10 @@
 import React from 'react';
 import { type t, Color, css, Layout, SheetBase } from './common.ts';
 
-export type SheetProps = t.ContentProps & {
-  margin?: t.Pixels | [t.Pixels, t.Pixels];
-};
-
 /**
  * Component:
  */
-export const Sheet: React.FC<SheetProps> = (props) => {
+export const Sheet: React.FC<t.SheetProps> = (props) => {
   const { state, isTop } = props;
 
   /**

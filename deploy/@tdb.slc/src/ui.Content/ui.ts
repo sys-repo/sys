@@ -1,4 +1,4 @@
 export * from './common.ts';
-export * from './ui.Sheet.tsx';
 
+export { Sheet } from '../ui/ui.Sheet/mod.ts';
 export { Icons } from './Icons.ts';
