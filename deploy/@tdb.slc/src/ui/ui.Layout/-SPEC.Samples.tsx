@@ -47,7 +47,7 @@ export const Sample = {
         return (
           <SheetBase.View style={{ marginTop }} onClick={onClick}>
             <div className={css({ padding: 10 }).class}>
-              <div>{`👋 Hello: ${props.index}`}</div>
+              <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
               <div>{props.children}</div>
             </div>
           </SheetBase.View>
@@ -59,6 +59,24 @@ export const Sample = {
             return <div>timestamp: {props.timestamp}</div>;
           },
         },
+      },
+    };
+  },
+
+  sample2(): t.Content {
+    const id = 'sample-3';
+    return {
+      id,
+
+      render(props) {
+        return (
+          <SheetBase.View style={{}} orientation={'Top:Down'} margin={['1pr', 290, '1fr']}>
+            <div className={css({ padding: 10 }).class}>
+              <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
+              <div>{props.children}</div>
+            </div>
+          </SheetBase.View>
+        );
       },
     };
   },

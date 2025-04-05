@@ -33,8 +33,8 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   // app.props.screen.breakpoint.value = 'Mobile';
   app.props.screen.breakpoint.value = 'Desktop';
 
-  // app.stack.push(Sample.sample0());
-  app.stack.push(await AppContent.factory('Entry'));
+  app.stack.push(Sample.sample0());
+  // app.stack.push(await AppContent.factory('Entry'));
 
   init?.(api);
   return api;
@@ -86,6 +86,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       {pushSample('sample-layer-0', Sample.sample0)}
       {pushSample('sample-layer-1', Sample.sample1)}
+      {pushSample('sample: top-down', Sample.sample2)}
 
       <hr />
       {pushStackContentButtons(app)}
