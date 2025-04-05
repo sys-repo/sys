@@ -19,7 +19,7 @@ export default Spec.describe('VideoBackground', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <VideoBackground state={app} fadeDuration={debug.props.fadeDuration.value} />);
+      .render((e) => <VideoBackground state={app} />);
   });
 
   e.it('ui:debug', (e) => {

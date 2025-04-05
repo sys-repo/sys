@@ -5,6 +5,5 @@ export * from '../common.ts';
  */
 export const DEFAULTS = {
   playing: true,
-  fadeDuration: 3,
 } as const;
 export const D = DEFAULTS;

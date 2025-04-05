@@ -18,7 +18,6 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const app = App.signals();
   const props = {
     theme: s<t.CommonTheme>('Dark'),
-    fadeDuration: s<P['fadeDuration']>(),
   };
   const api = {
     props,
@@ -27,7 +26,6 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       app.listen();
       const p = props;
       p.theme.value;
-      p.fadeDuration.value;
     },
   };
 
@@ -61,13 +59,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
-      />
-      <Button
-        block
-        label={`fadeDuration: ${d.fadeDuration.value ?? `<undefined> (${D.fadeDuration}s)`}`}
-        onClick={() => {
-          Signal.cycle<P['fadeDuration']>(d.fadeDuration, [1.5, 0.3]);
-        }}
       />
 
       <hr />
