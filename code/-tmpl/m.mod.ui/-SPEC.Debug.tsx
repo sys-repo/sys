@@ -54,7 +54,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`theme: "${p.theme}"`}
+        label={() => `theme: "${p.theme}"`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
