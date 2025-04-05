@@ -1,6 +1,6 @@
 import React from 'react';
 import { App } from '../App/mod.ts';
-import { type t, Button, css, Signal } from './common.ts';
+import { type t, Button, css, Signal, D } from './common.ts';
 
 type P = t.VideoBackgroundProps;
 
@@ -18,13 +18,16 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const app = App.signals();
   const props = {
     theme: s<t.CommonTheme>('Dark'),
+    fadeDuration: s<P['fadeDuration']>(),
   };
   const api = {
     props,
     app,
     listen() {
-      const p = props;
       app.listen();
+      const p = props;
+      p.theme.value;
+      p.fadeDuration.value;
     },
   };
 
@@ -59,14 +62,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
-      <hr />
       <Button
         block
-        label={`background.video.opacity: ${bg.video.opacity.value ?? '<undefined> (100%)'}`}
+        label={`fadeDuration: ${d.fadeDuration.value ?? `<undefined> (${D.fadeDuration}s)`}`}
         onClick={() => {
-          Signal.cycle<number | undefined>(bg.video.opacity, [0, 0.3, 0.6, undefined]);
+          Signal.cycle<P['fadeDuration']>(d.fadeDuration, [1.5, 0.3]);
         }}
       />
+
+      <hr />
       <Button
         block
         label={`background.video.playing: ${bg.video.playing.value}`}
@@ -74,6 +78,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.toggle(bg.video.playing);
         }}
       />
+      <Button
+        block
+        label={`background.video.opacity: ${bg.video.opacity.value ?? '<undefined> (100%)'}`}
+        onClick={() => {
+          Signal.cycle<number | undefined>(bg.video.opacity, [0, 0.3, 0.6, undefined]);
+        }}
+      />
+
       <hr />
     </div>
   );
