@@ -30,29 +30,36 @@ export const LayoutDesktop: React.FC<P> = (props) => {
    */
   const styles = {
     base: css({ position: 'relative' }),
-    fill: css({ Absolute: 0, display: 'grid' }),
-    body: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
-    cropmarksBody: css({ width: 390, pointerEvents: 'auto' }),
+    bg: css({ Absolute: 0, display: 'grid' }),
+    body: css({ Absolute: 0, display: 'grid' }),
+    stack: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
+    cropmarks: {
+      base: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
+      body: css({ width: 390, pointerEvents: 'auto' }),
+    },
   };
 
-  const elStack = AppContent.Render.stack(state);
-
   const elCropmarks = (
-    <Cropmarks
-      theme={'Dark'}
-      borderOpacity={0.05}
-      size={{ mode: 'fill', x: false, y: true, margin: [0, 40, 0, 40] }}
-    >
-      <div className={styles.cropmarksBody.class}></div>
-    </Cropmarks>
+    <div className={styles.cropmarks.base.class}>
+      <Cropmarks
+        theme={'Dark'}
+        borderOpacity={0.05}
+        size={{ mode: 'fill', x: false, y: true, margin: [0, 40, 0, 40] }}
+      >
+        <div className={styles.cropmarks.body.class}></div>
+      </Cropmarks>
+    </div>
   );
+
+  const elStackItems = AppContent.Render.stack(state);
+  const elStack = <div className={styles.stack.class}>{elStackItems}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.fill.class} onClick={onBackgroundClick} />
+      <div className={styles.bg.class} onClick={onBackgroundClick} />
       <div className={styles.body.class}>
-        <div className={styles.fill.class}>{elCropmarks}</div>
-        <div className={styles.fill.class}>{elStack}</div>
+        {elCropmarks}
+        {elStack}
       </div>
     </div>
   );
