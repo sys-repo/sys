@@ -1,7 +1,7 @@
 import React from 'react';
 import { VIMEO } from '../-test.ui.ts';
 import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal, DEFAULTS } from './common.ts';
+import { type t, Color, css, Signal, DEFAULTS, D } from './common.ts';
 
 type P = t.VimeoBackgroundProps;
 
@@ -22,6 +22,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     blur: s<P['blur']>(),
     opacity: s<P['opacity']>(),
     playing: s<P['playing']>(DEFAULTS.playing),
+    playingTransition: s<P['playingTransition']>(),
     jumpTo: s<P['jumpTo']>(),
   };
   const api = {
@@ -33,6 +34,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.opacity.value;
       p.blur.value;
       p.playing.value;
+      p.playingTransition.value;
       p.jumpTo.value;
     },
   };
@@ -101,6 +103,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`playing: ${p.playing.value}`}
         onClick={() => Signal.toggle(p.playing)}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.playingTransition.value;
+          return `playingTransition (ms): ${v ?? `<undefined> (${D.playingTransition})`}`;
+        }}
+        onClick={() => {
+          Signal.cycle<P['playingTransition']>(p.playingTransition, [1000, 2000, undefined]);
+        }}
       />
       <Button
         block

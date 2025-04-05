@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
-import { type t, Color, DEFAULTS, css } from './common.ts';
+import { type t, Color, DEFAULTS, Time, css, rx } from './common.ts';
 
 const D = DEFAULTS;
 
@@ -10,16 +10,21 @@ type Ref = React.RefObject<HTMLIFrameElement>;
 export const VimeoBackground: React.FC<P> = (props) => {
   const {
     opacity,
-    blur = D.blur,
-    playing = D.playing,
-    opacityTransition = D.opacityTransition,
     jumpTo,
+    blur = D.blur,
+    opacityTransition = D.opacityTransition,
+    playingTransition = D.playingTransition,
   } = props;
+
+  const [playing, setPlaying] = useState(props.playing ?? D.playing);
 
   const [iframe, setIframe] = useState<HTMLIFrameElement>();
   const initialPlaying = useRef(playing);
   const src = wrangle.src(props.video, initialPlaying.current);
 
+  /**
+   * POST: post a message to the vimeo player embedded in the <IFrame>.
+   */
   const post = (method: string, value?: number | string) => {
     const targetOrigin = '*'; // NB: Using "*" as targetOrigin is acceptable when not validating the origin.
     iframe?.contentWindow?.postMessage({ method, value }, targetOrigin);
@@ -33,7 +38,25 @@ export const VimeoBackground: React.FC<P> = (props) => {
   }, [iframe, playing]);
 
   /**
-   * Effect: jumpTo
+   * Effect: playing transition.
+   */
+  React.useEffect(() => {
+    const life = rx.lifecycle();
+    const next = props.playing ?? D.playing;
+
+    if (!playingTransition) {
+      setPlaying(next); // NB: 0 or undefined - immediate change.
+    } else {
+      // Make the change after the specified delay.
+      const time = Time.until(life);
+      time.delay(playingTransition, () => setPlaying(next));
+    }
+
+    return life.dispose;
+  }, [props.playing, playing, playingTransition]);
+
+  /**
+   * Effect: jumpTo (timestamp).
    */
   useEffect(() => {
     if (jumpTo !== undefined) post('setCurrentTime', jumpTo);
