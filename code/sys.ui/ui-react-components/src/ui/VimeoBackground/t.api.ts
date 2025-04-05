@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Vimeo simple IFrame/message API.
  */
-export type VimeoIFrameApi = {
+export type VimeoIFrame = {
   post(method: string, value?: number | string): void;
   readonly get: {
     method<T>(method: string, dispose$?: t.UntilInput): Promise<T>;

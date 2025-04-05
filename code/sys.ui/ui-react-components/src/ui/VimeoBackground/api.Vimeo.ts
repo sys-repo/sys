@@ -4,10 +4,10 @@ import { type t, Time } from './common.ts';
  * Vimeo simple IFrame/message API.
  */
 export const Vimeo = {
-  create(iframe: HTMLIFrameElement, options: { timeout?: t.Msecs } = {}): t.VimeoIFrameApi {
+  create(iframe: HTMLIFrameElement, options: { timeout?: t.Msecs } = {}): t.VimeoIFrame {
     const { timeout = 3_000 } = options;
 
-    const api: t.VimeoIFrameApi = {
+    const api: t.VimeoIFrame = {
       post(method: string, value?: number | string) {
         const targetOrigin = '*'; // NB: Using "*" as targetOrigin is acceptable when not validating the origin.
         iframe?.contentWindow?.postMessage({ method, value }, targetOrigin);

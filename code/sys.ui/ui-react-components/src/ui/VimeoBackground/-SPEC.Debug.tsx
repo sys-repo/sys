@@ -24,7 +24,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     playing: s<P['playing']>(DEFAULTS.playing),
     playingTransition: s<P['playingTransition']>(),
     jumpTo: s<P['jumpTo']>(),
-    vimeo: s<t.VimeoIFrameApi>(),
+    vimeo: s<t.VimeoIFrame>(),
   };
   const api = {
     props,

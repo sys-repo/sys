@@ -29,4 +29,4 @@ export type VimeoBackgroundProps = {
  * Events
  */
 export type VimeoReadyHandler = (e: VimeoReadyHandlerArgs) => void;
-export type VimeoReadyHandlerArgs = t.VimeoIFrameApi;
+export type VimeoReadyHandlerArgs = t.VimeoIFrame;

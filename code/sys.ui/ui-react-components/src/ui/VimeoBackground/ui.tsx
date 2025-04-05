@@ -17,7 +17,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
     playingTransition = D.playingTransition,
   } = props;
 
-  const vimeoRef = useRef<t.VimeoIFrameApi>();
+  const vimeoRef = useRef<t.VimeoIFrame>();
   const [playing, setPlaying] = useState(props.playing ?? D.playing);
 
   const [iframe, setIframe] = useState<HTMLIFrameElement>();
