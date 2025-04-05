@@ -4,9 +4,7 @@ import { Vimeo } from './api.Vimeo.ts';
 import { type t, Color, DEFAULTS, Time, css, rx } from './common.ts';
 
 const D = DEFAULTS;
-
 type P = t.VimeoBackgroundProps;
-type Ref = React.RefObject<HTMLIFrameElement>;
 
 export const VimeoBackground: React.FC<P> = (props) => {
   const {
@@ -25,13 +23,13 @@ export const VimeoBackground: React.FC<P> = (props) => {
   const src = wrangle.src(props.video, initialPlaying.current);
 
   /**
-   * Effect: set API reference on iFrame when ready.
+   * Effect: store API reference when IFrame is ready.
    */
   React.useEffect(() => {
     if (iframe) {
-      const api = Vimeo.create(iframe);
-      setVimeo(api);
-      props.onReady?.(api);
+      const vimeo = Vimeo.create(iframe);
+      setVimeo(vimeo);
+      props.onReady?.(vimeo);
     }
   }, [iframe]);
 
