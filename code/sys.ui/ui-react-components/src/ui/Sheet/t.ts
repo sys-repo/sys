@@ -33,6 +33,7 @@ export type SheetProps = {
 
   margin?: t.SheetMarginInput;
   shadowOpacity?: t.Percent;
+  pointerEvents?: t.CssProps['pointerEvents'];
   theme?: t.CommonTheme;
   style?: t.CssInput;
 

@@ -4,7 +4,7 @@ import { type t, Color, css, DEFAULTS as D, M } from './common.ts';
 type P = t.SheetProps;
 
 export const Sheet: React.FC<P> = (props) => {
-  const { duration = D.duration, bounce = D.bounce } = props;
+  const { duration = D.duration, bounce = D.bounce, pointerEvents = 'auto' } = props;
   const is = wrangle.is(props);
   const animation = wrangle.animation(props);
   const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
@@ -17,19 +17,20 @@ export const Sheet: React.FC<P> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      pointerEvents: 'auto',
       display: 'grid',
       gridTemplateColumns,
       gridTemplateRows,
     }),
     body: css({
       position: 'relative',
+      pointerEvents,
       color: theme.fg,
       backgroundColor,
-      display: 'grid',
       borderRadius,
       boxShadow,
+      display: 'grid',
     }),
+    spacer: css({ pointerEvents: 'none' }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.
       //     Ensure this component is within a container with { overflow: 'hidden' }.
@@ -47,6 +48,7 @@ export const Sheet: React.FC<P> = (props) => {
 
   return (
     <M.div
+      data-component={`sys.ui.sheet`}
       className={css(styles.base, props.style).class}
       /**
        * Animation:
@@ -65,9 +67,9 @@ export const Sheet: React.FC<P> = (props) => {
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
     >
-      <div />
+      <div className={styles.spacer.class} />
       {elBody}
-      <div />
+      <div className={styles.spacer.class} />
     </M.div>
   );
 };
