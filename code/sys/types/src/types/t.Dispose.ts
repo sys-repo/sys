@@ -13,6 +13,10 @@ export type Disposable = {
   dispose(): void;
 };
 
+/** The "until this fires" input for a disposable resource factory. */
+export type DisposeInput = t.UntilObservable | t.Disposable;
+export type UntilInput = DisposeInput;
+
 /**
  * An object that provides a standard asynchronous destructor pattern.
  */

@@ -3,9 +3,6 @@ import type { t } from './common.ts';
 /** Callback invoked upon disposal of a lifecycle object  */
 export type LifecycleStageHandler = () => t.IgnoredResult;
 
-/** The "until this fires" input for a disposable resource factory. */
-export type DisposeInput = t.UntilObservable | t.Disposable;
-
 /**
  * Toolkit for working with disposable interfaces.
  */
