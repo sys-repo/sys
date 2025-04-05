@@ -10,7 +10,7 @@ export type DebugPanelProps = {
   style?: t.CssInput;
 };
 
-const componentAttr = 'sys.dev.harness:Panel.Debug';
+const componentAttr = 'sys.ui.dev.harness:Panel.Debug';
 
 export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   const { instance } = props;
