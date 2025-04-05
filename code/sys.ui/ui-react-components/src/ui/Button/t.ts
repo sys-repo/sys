@@ -9,7 +9,7 @@ type Content = JSX.Element | string | number | false;
  */
 export type ButtonProps = {
   children?: Content;
-  label?: string;
+  label?: string | (() => string);
   enabled?: boolean;
   active?: boolean;
   block?: boolean;

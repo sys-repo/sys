@@ -18,6 +18,7 @@ export const Button: React.FC<P> = (props) => {
   } = props;
   const isBlurred = false;
   const isEnabled = enabled;
+  const label = wrangle.label(props);
 
   const over = useState(false);
   const down = useState(false);
@@ -80,7 +81,7 @@ export const Button: React.FC<P> = (props) => {
       {...Event.handlers(eventState, isMobile)}
     >
       <div className={styles.body.class}>
-        {props.label && <div>{props.label}</div>}
+        {label && <div>{label}</div>}
         {props.children}
       </div>
     </div>
@@ -108,5 +109,10 @@ const wrangle = {
     if (!isOver) return undefined;
     if (!isDown) return undefined;
     return `translateX(${pressedOffset[0]}px) translateY(${pressedOffset[1]}px)`;
+  },
+
+  label(props: P) {
+    const { label } = props;
+    return typeof label === 'function' ? label() : label;
   },
 } as const;
