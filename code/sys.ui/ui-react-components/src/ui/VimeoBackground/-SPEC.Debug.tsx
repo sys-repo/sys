@@ -132,13 +132,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
+      <div className={styles.title.class}>API</div>
+
       <Button
         block
-        label={`get: currentTime`}
+        label={`get: current time (seconds)`}
         onClick={async () => {
           const api = p.vimeo.value;
-          const secs = await api?.get.currentTime();
-          console.info('currentTime (secs):', secs);
+          console.info('get.time:', await api?.get.time());
         }}
       />
     </div>

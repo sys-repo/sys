@@ -17,7 +17,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
     playingTransition = D.playingTransition,
   } = props;
 
-  const vimeoRef = useRef<t.VimeoIFrame>();
+  const [vimeo, setVimeo] = useState<t.VimeoIFrame>();
   const [playing, setPlaying] = useState(props.playing ?? D.playing);
 
   const [iframe, setIframe] = useState<HTMLIFrameElement>();
@@ -25,17 +25,21 @@ export const VimeoBackground: React.FC<P> = (props) => {
   const src = wrangle.src(props.video, initialPlaying.current);
 
   /**
-   * POST: post a message to the vimeo player embedded in the <IFrame>.
+   * Effect: set API reference on iFrame when ready.
    */
-  const post = (method: string, value?: number | string) => {
-    if (iframe) Vimeo.create(iframe).post(method, value);
-  };
+  React.useEffect(() => {
+    if (iframe) {
+      const api = Vimeo.create(iframe);
+      setVimeo(api);
+      props.onReady?.(api);
+    }
+  }, [iframe]);
 
   /**
    * Effect: Play/Pause the video via the Vimeo bridge/API.
    */
   useEffect(() => {
-    post(playing ? 'play' : 'pause');
+    vimeo?.post(playing ? 'play' : 'pause');
   }, [iframe, playing]);
 
   /**
@@ -57,22 +61,11 @@ export const VimeoBackground: React.FC<P> = (props) => {
   }, [iframe, props.playing, playing, playingTransition]);
 
   /**
-   * Effect
-   */
-  React.useEffect(() => {
-    if (iframe) {
-      const api = Vimeo.create(iframe);
-      vimeoRef.current = api;
-      props.onReady?.(api);
-    }
-  }, [iframe]);
-
-  /**
    * Effect: jumpTo (timestamp).
    */
   useEffect(() => {
-    if (jumpTo !== undefined) post('setCurrentTime', jumpTo);
-  }, [iframe, jumpTo]);
+    if (jumpTo !== undefined) vimeo?.post('setCurrentTime', jumpTo);
+  }, [vimeo, iframe, jumpTo]);
 
   /**
    * Render:

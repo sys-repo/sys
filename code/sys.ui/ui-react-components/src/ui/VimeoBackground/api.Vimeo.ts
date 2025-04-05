@@ -15,17 +15,14 @@ export const Vimeo = {
       get: {
         method<T>(method: string, dispose$: t.UntilInput) {
           return new Promise<T>((resolve, reject) => {
-            const origin = 'https://player.vimeo.com';
             const failWith = (message: string) => reject(new Error(message));
             const listener = (event: MessageEvent) => {
-              if (event.origin !== origin) {
-                failWith(`The event did not come from the vimeo iframe. Expected: ${origin}`);
-              } else {
-                const data = event.data || {};
-                if (data.method === method) {
-                  cleanup();
-                  resolve(data.value as T);
-                }
+              if (event.origin !== 'https://player.vimeo.com') return; // Ignore: not the Vimeo player iframe.
+
+              const data = event.data || {};
+              if (data.method === method) {
+                cleanup();
+                resolve(data.value as T);
               }
             };
 
@@ -42,6 +39,18 @@ export const Vimeo = {
 
         currentTime(dispose$) {
           return api.get.method<number>('getCurrentTime', dispose$);
+        },
+
+        duration(dispose$) {
+          return api.get.method<number>('getDuration', dispose$);
+        },
+
+        async time(dispose$) {
+          const [current, duration] = await Promise.all([
+            api.get.currentTime(dispose$),
+            api.get.duration(dispose$),
+          ]);
+          return { current, duration };
         },
       },
     };
