@@ -93,6 +93,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {layerVideoPlayerButtons(app)}
+
+      <div className={styles.title.class}>{`Sample Configurations:`}</div>
+
+      <Button
+        block
+        label={() => `application`}
+        onClick={async () => {
+          app.stack.clear();
+          app.stack.push(await AppContent.factory('Entry'));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `samples`}
+        onClick={() => {
+          app.stack.clear();
+          app.stack.push(Sample.sample0());
+        }}
+      />
     </div>
   );
 };

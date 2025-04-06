@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AppContent, Cropmarks, css, Signal } from './common.ts';
+import { type t, AppContent, Button, Cropmarks, css, Signal } from './common.ts';
 
 type P = t.LayoutDesktopProps;
 
@@ -28,6 +28,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   /**
    * Render:
    */
+  const theme: t.CommonTheme = 'Dark';
   const styles = {
     base: css({ position: 'relative' }),
     bg: css({ Absolute: 0, display: 'grid' }),
@@ -37,6 +38,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
       base: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
       body: css({ width: 390, pointerEvents: 'auto' }),
     },
+    dist: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
   };
 
   const elCropmarks = (
@@ -54,6 +56,16 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   const elStackItems = AppContent.Render.stack(state);
   const elStack = <div className={styles.stack.class}>{elStackItems}</div>;
 
+  const dist = p.dist.value;
+  const elDist = dist && (
+    <Button
+      theme={theme}
+      style={styles.dist}
+      label={() => `version: #${dist.hash.digest.slice(-5)}`}
+      onClick={() => window.open('./dist.json', '_blank')}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.bg.class} onClick={onBackgroundClick} />
@@ -61,6 +73,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
         {elCropmarks}
         {elStack}
       </div>
+      {elDist}
     </div>
   );
 };
