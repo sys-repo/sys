@@ -1,1 +1,1 @@
-export { rx, Time } from '@sys/std';
+export { Err, rx, Time } from '@sys/std';

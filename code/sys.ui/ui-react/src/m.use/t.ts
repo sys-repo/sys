@@ -1,5 +1,6 @@
+export type * from './t.use.Click.ts';
+export type * from './t.use.Dist.ts';
 export type * from './t.use.Is.ts';
-export type * from './t.useClick.ts';
-export type * from './t.useMouse.Drag.ts';
-export type * from './t.useMouse.ts';
-export type * from './t.useSizeObserver.ts';
+export type * from './t.use.Mouse.Drag.ts';
+export type * from './t.use.Mouse.ts';
+export type * from './t.use.SizeObserver.ts';
