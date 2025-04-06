@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useEffect, useRef } from 'react';
-import { Color, DEFAULTS, css, useRubberband, type t } from './common.ts';
+import { type t, useDist, Color, DEFAULTS, css, useRubberband } from './common.ts';
 import { Footer } from './ui.Footer.tsx';
 import { List } from './ui.List.tsx';
 import { Title } from './ui.Title.tsx';
@@ -18,6 +18,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   const baseRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<LiMap>(new Map<number, HTMLLIElement>());
 
+  const dist = useDist({ useSampleFallback: true });
   useRubberband(props.allowRubberband ?? false);
   useScrollObserver(baseRef, itemRefs.current, props.onItemVisibility);
   useScrollController(baseRef, itemRefs.current, props.scrollTo$);
@@ -94,6 +95,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
     <div className={styles.body.class}>
       <Title
         enabled={enabled}
+        dist={dist?.json}
         title={props.title}
         version={props.version}
         badge={props.badge}
