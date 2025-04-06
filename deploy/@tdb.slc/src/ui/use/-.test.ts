@@ -7,6 +7,5 @@ describe('Hooks', () => {
     console.info({ ...m });
 
     expect(typeof m.useKeyboard == 'function').to.be.true;
-    expect(typeof m.useDist == 'function').to.be.true;
   });
 });
