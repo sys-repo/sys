@@ -11,14 +11,9 @@ export default Spec.describe('MobileLayout', async (e) => {
   const app = debug.app;
   const p = app.props;
 
-  e.it('init', (e) => {
+  e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
     const update = { size: () => updateForBreakpointSize(ctx, app) };
-
-    const preload = async (...content: t.ContentStage[]) => {
-      const loading = content.map((content) => AppContent.factory(content));
-      await Promise.all(loading);
-    };
 
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
@@ -41,7 +36,7 @@ export default Spec.describe('MobileLayout', async (e) => {
      * Initialize environment.
      */
     update.size();
-    preload('Entry', 'Trailer');
+    await AppContent.Render.preload(AppContent.factory, 'Entry', 'Trailer');
   });
 
   e.it('ui:debug', (e) => {

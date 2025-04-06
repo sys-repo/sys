@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Looks up the content for the given ID.
  */
-export async function factory(id: t.ContentStage): Promise<t.Content | undefined> {
+export async function factory<T = t.ContentStage>(id: T): Promise<t.Content | undefined> {
   if (id === 'Entry') {
     const { factory } = await import('../../ui.Content/ui.Entry/mod.tsx');
     return factory();
