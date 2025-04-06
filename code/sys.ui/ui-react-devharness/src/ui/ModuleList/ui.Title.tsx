@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, type t } from '../common.ts';
+import { type t, Color, css, Str } from '../common.ts';
 
 export type TitleProps = {
   enabled?: boolean;
@@ -15,7 +15,6 @@ export const Title: React.FC<TitleProps> = (props) => {
   const { dist } = props;
   const title = props.title?.trim();
   const badge = props.badge;
-  const hash = dist?.hash.digest;
 
   if (!(title || badge)) return null;
 
@@ -48,9 +47,9 @@ export const Title: React.FC<TitleProps> = (props) => {
     </a>
   );
 
-  const elDist = hash && (
+  const elDist = dist && (
     <a className={css(styles.hash, styles.link).class} href={'./dist.json'} {...linkProps}>
-      {`dist.pkg: #${hash?.slice(-5)}`}
+      {`${Str.bytes(dist.size.bytes)} → dist.pkg: #${dist.hash.digest.slice(-5)}`}
     </a>
   );
 
