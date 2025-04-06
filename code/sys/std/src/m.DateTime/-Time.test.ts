@@ -98,8 +98,8 @@ describe('Time', () => {
         expect(res.is.cancelled).to.eql(false);
 
         expect(microtaskResolved).to.be.true;
-        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks
-        expect(elapsed).to.eql(0); // Should be ~0ms or very close
+        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks.
+        expect(elapsed).to.be.closeTo(0, 2); // Allow up to 2ms tolerance.
 
         clearTimeout(stop);
       });
