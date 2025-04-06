@@ -23,7 +23,13 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
     marginTop: Layout.sheetOffset(props.index),
   });
   return (
-    <SheetBase.View theme={theme.name} style={base} margin={props.margin} onClick={onClick}>
+    <SheetBase.View
+      theme={theme.name}
+      style={base}
+      margin={props.margin}
+      orientation={props.orientation}
+      onClick={onClick}
+    >
       {props.children}
     </SheetBase.View>
   );

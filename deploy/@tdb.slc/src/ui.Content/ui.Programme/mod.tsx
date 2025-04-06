@@ -16,7 +16,7 @@ export function factory() {
       };
 
       return (
-        <Sheet {...props} theme={sheetTheme}>
+        <Sheet {...props} theme={sheetTheme} orientation={'Top:Down'}>
           <div className={styles.base.class}>Hello Programme</div>
           {/* {props.children} */}
         </Sheet>
