@@ -3,13 +3,18 @@
   "version": "0.0.92",
   "license": "MIT",
   "tasks": {
+    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
+
     "test": "deno test -RWNE --allow-run --allow-ffi",
-    "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts",
-    "dev": "deno run -RWNE --allow-run --allow-ffi ./scripts/-dev.ts",
-    "build": "deno run -RWNE --allow-run --allow-ffi ./scripts/-build.ts",
-    "serve": "deno run -RNE --allow-run jsr:@sys/http/server/start"
+    "dry": "deno      publish --allow-dirty --dry-run",
+    "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
+    "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
+    "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
+
+    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
+    "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
