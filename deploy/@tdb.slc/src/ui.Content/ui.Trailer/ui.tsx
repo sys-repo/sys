@@ -29,7 +29,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   return (
     <Sheet {...props} theme={props.theme} edgeMargin={margin}>
       <div className={styles.base.class}>
-        <div className={styles.children.class}>{props.children}</div>
+        <div className={styles.children.class}>{'props.children 🐷'}</div>
         <Player.Video.View signals={player} style={styles.player} />
       </div>
     </Sheet>

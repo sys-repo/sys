@@ -1,11 +1,11 @@
 import { type t } from './common.ts';
-import { renderStack } from './m.Content.Render.stack.tsx';
+import { stack } from './m.Content.Render.stack.tsx';
 
 /**
  * Render functions for display content.
  */
 export const Render = {
-  stack: renderStack,
+  stack,
 
   /**
    * Ensure the specified ESM content modules have been dyanamically imported.

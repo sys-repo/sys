@@ -27,7 +27,7 @@ export const Sample = {
             }}
           >
             <div>{`id: "${id}"`}</div>
-            <div>{props.children}</div>
+            <div>{'props.children 🐷'}</div>
           </div>
         );
       },
@@ -48,7 +48,7 @@ export const Sample = {
           <SheetBase.View style={{ marginTop }} onClick={onClick}>
             <div className={css({ padding: 10 }).class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
-              <div>{props.children}</div>
+              <div>{'props.children 🐷'}</div>
             </div>
           </SheetBase.View>
         );
@@ -73,7 +73,7 @@ export const Sample = {
           <SheetBase.View style={{}} orientation={'Top:Down'} edgeMargin={['1pr', 290, '1fr']}>
             <div className={css({ padding: 10 }).class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
-              <div>{props.children}</div>
+              <div>{'props.children 🐷'}</div>
             </div>
           </SheetBase.View>
         );

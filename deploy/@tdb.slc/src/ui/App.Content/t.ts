@@ -35,6 +35,9 @@ export type ContentTimestamp = {
   render?(props: ContentTimestampProps): t.ReactNode;
 };
 
+/**
+ * Flags pertaining to content.
+ */
 export type ContentFlags = {
   /** Flag indicating if this is the current top-level view in the stack. */
   top: boolean;
@@ -45,7 +48,7 @@ export type ContentFlags = {
 /**
  * Component Props:
  */
-type CommonProps = {
+export type ContentProps = {
   /** The index within the content-stack. */
   index: t.Index;
   is: t.ContentFlags;
@@ -55,5 +58,5 @@ type CommonProps = {
   theme: t.CommonTheme;
   style?: t.CssInput;
 };
-export type ContentProps = CommonProps & { children?: React.ReactNode };
+
 export type ContentTimestampProps = ContentProps & { timestamp: t.StringTimestamp };

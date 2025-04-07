@@ -12,7 +12,7 @@ import {
 /**
  * Renders the body of the matching timestamp.
  */
-export function renderStack(state: t.AppSignals | undefined): t.ReactNode {
+export function stack(state: t.AppSignals | undefined): t.ReactNode {
   if (!state) return [];
   const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const stack = state.stack.items ?? [];
@@ -32,9 +32,7 @@ function renderLevel(args: {
   const { state, content, index, breakpoint } = args;
   const theme = wrangle.theme(content, state);
   const is = wrangle.is(state, index);
-
-  const children = renderTimestamp({ index, state, content, theme, breakpoint });
-  const el = content.render?.({ index, children, content, state, theme, breakpoint, is });
+  const el = content.render?.({ index, content, state, theme, breakpoint, is });
 
   const style = css({
     Absolute: 0,
@@ -44,7 +42,7 @@ function renderLevel(args: {
   });
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
-      {el ?? children}
+      {el}
     </div>
   );
 }
@@ -91,7 +89,7 @@ const wrangle = {
     return DEFAULTS.theme.base;
   },
 
-  is(state: t.AppSignals, index: number): t.ContentProps['is'] {
+  is(state: t.AppSignals, index: number): t.ContentFlags {
     const top = index === state.stack.length - 1;
     const bottom = index === 0;
     return { top, bottom };
