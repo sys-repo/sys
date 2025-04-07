@@ -44,10 +44,13 @@ export type ContentTimestamp = {
 type CommonProps = {
   /** The index within the content-stack. */
   index: t.Index;
-  /** Flag indicating if this is the current top-level view in the stack. */
-  isTop: boolean;
-  /** Flag indicating if this is the bottom most view in the stack. */
-  isBottom: boolean;
+  /** Flags: */
+  is: {
+    /** Flag indicating if this is the current top-level view in the stack. */
+    top: boolean;
+    /** Flag indicating if this is the bottom most view in the stack. */
+    bottom: boolean;
+  };
   content: t.Content;
   state: t.AppSignals;
   breakpoint: t.Breakpoint;

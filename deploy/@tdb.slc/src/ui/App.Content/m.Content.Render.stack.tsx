@@ -31,20 +31,10 @@ function renderLevel(args: {
 }) {
   const { state, content, index, breakpoint } = args;
   const theme = wrangle.theme(content, state);
-  const isTop = wrangle.isTop(state, index);
-  const isBottom = index === 0;
+  const is = wrangle.is(state, index);
 
   const children = renderTimestamp({ index, state, content, theme, breakpoint });
-  const el = content.render?.({
-    index,
-    children,
-    content,
-    state,
-    theme,
-    breakpoint,
-    isTop,
-    isBottom,
-  });
+  const el = content.render?.({ index, children, content, state, theme, breakpoint, is });
 
   const style = css({
     Absolute: 0,
@@ -70,8 +60,7 @@ function renderTimestamp(args: {
   breakpoint: t.Breakpoint;
 }) {
   const { index, state, content, theme, breakpoint } = args;
-  const isTop = wrangle.isTop(state, index);
-  const isBottom = index === 0;
+  const is = wrangle.is(state, index);
 
   const player = AppSignals.Player.find(state, content, index);
   const secs = player?.props.currentTime.value ?? -1;
@@ -88,8 +77,7 @@ function renderTimestamp(args: {
     content,
     theme,
     breakpoint,
-    isTop,
-    isBottom,
+    is,
   });
 }
 
@@ -103,7 +91,9 @@ const wrangle = {
     return DEFAULTS.theme.base;
   },
 
-  isTop(state: t.AppSignals, index: number) {
-    return index === state.stack.length - 1;
+  is(state: t.AppSignals, index: number): t.ContentProps['is'] {
+    const top = index === state.stack.length - 1;
+    const bottom = index === 0;
+    return { top, bottom };
   },
 } as const;

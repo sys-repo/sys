@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AppContent, Button, LogoCanvas, Color, css, Icons } from '../ui.ts';
+import { type t, AppContent, Button, Color, css, Icons, LogoCanvas } from '../ui.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
@@ -45,7 +45,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
       className={css(styles.base, props.style).class}
       onDoubleClick={() => state.stack.clear(1)}
       onClick={() => {
-        if (!props.isTop) state.stack.pop(1);
+        if (!props.is.top) state.stack.pop(1);
       }}
     >
       <div className={styles.header.class}>

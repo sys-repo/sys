@@ -5,13 +5,13 @@ import { type t, Color, css, Layout, SheetBase } from './common.ts';
  * Component:
  */
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { state, isTop } = props;
+  const { state, is } = props;
 
   /**
    * Handlers:
    */
   const onClick = () => {
-    if (!isTop) state.stack.pop();
+    if (!is.top) state.stack.pop();
   };
 
   /**

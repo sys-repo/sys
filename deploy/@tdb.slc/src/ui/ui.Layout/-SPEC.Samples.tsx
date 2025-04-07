@@ -23,7 +23,7 @@ export const Sample = {
             className={styles.base.class}
             onDoubleClick={() => state.stack.clear(1)}
             onClick={() => {
-              if (!props.isTop) state.stack.pop(1);
+              if (!props.is.top) state.stack.pop(1);
             }}
           >
             <div>{`id: "${id}"`}</div>
@@ -42,7 +42,7 @@ export const Sample = {
         const { index } = props;
         const marginTop = Layout.sheetOffset(index, { base: 44 });
         const onClick = () => {
-          if (!props.isTop) props.state.stack.pop();
+          if (!props.is.top) props.state.stack.pop();
         };
         return (
           <SheetBase.View style={{ marginTop }} onClick={onClick}>
