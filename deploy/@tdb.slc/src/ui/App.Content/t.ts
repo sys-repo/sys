@@ -18,9 +18,6 @@ export type Content = {
   /** Map of content that changes at differing timestamps. */
   timestamps?: ContentTimestamps;
 
-  /** Override the root theme. */
-  theme?: t.CommonTheme;
-
   /**
    * Render the base content.
    *    Additional items (such as the current timestamp) are
@@ -38,19 +35,20 @@ export type ContentTimestamp = {
   render?(props: ContentTimestampProps): t.ReactNode;
 };
 
+export type ContentFlags = {
+  /** Flag indicating if this is the current top-level view in the stack. */
+  top: boolean;
+  /** Flag indicating if this is the bottom most view in the stack. */
+  bottom: boolean;
+};
+
 /**
  * Component Props:
  */
 type CommonProps = {
   /** The index within the content-stack. */
   index: t.Index;
-  /** Flags: */
-  is: {
-    /** Flag indicating if this is the current top-level view in the stack. */
-    top: boolean;
-    /** Flag indicating if this is the bottom most view in the stack. */
-    bottom: boolean;
-  };
+  is: t.ContentFlags;
   content: t.Content;
   state: t.AppSignals;
   breakpoint: t.Breakpoint;
