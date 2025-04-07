@@ -4,7 +4,7 @@ import { type t, AnimatePresence, Breakpoint, css, DEFAULTS } from './common.ts'
 /**
  * Renders the body of the matching timestamp.
  */
-export function stack<C extends t.Content>(state: t.AppSignals | undefined): t.ReactNode {
+export function stack(state: t.AppSignals | undefined): t.ReactNode {
   if (!state) return [];
   const stack = state.stack.items ?? [];
   const nodes = stack.map((content, index) => render({ index, state, content }));
@@ -25,7 +25,7 @@ function render(args: { index: number; state: t.AppSignals; content: t.Content }
     Absolute: 0,
     display: 'grid',
     pointerEvents: 'none',
-    zIndex: 0, // NB: establish a new stacking context.
+    zIndex: 0, // NB: establish a new stacking context (prevents content jumping above higher stack levels).
   });
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
@@ -37,34 +37,34 @@ function render(args: { index: number; state: t.AppSignals; content: t.Content }
 /**
  * Render the current timestamp content.
  */
-function renderTimestamp(args: {
-  index: number;
-  state: t.AppSignals;
-  content: t.Content;
-  theme: t.CommonTheme;
-  breakpoint: t.Breakpoint;
-}) {
-  const { index, state, content, theme, breakpoint } = args;
-  const is = wrangle.is(state, index);
-
-  const player = AppSignals.Player.find(state, content, index);
-  const secs = player?.props.currentTime.value ?? -1;
-  const timestamps = content?.timestamps ?? {};
-  const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
-
-  if (!match?.data) return null;
-  if (typeof match.data.render !== 'function') return null;
-
-  return match.data.render({
-    timestamp: match.timestamp,
-    index,
-    state,
-    content,
-    theme,
-    breakpoint,
-    is,
-  });
-}
+// function renderTimestamp(args: {
+//   index: number;
+//   state: t.AppSignals;
+//   content: t.Content;
+//   theme: t.CommonTheme;
+//   breakpoint: t.Breakpoint;
+// }) {
+//   const { index, state, content, theme, breakpoint } = args;
+//   const is = wrangle.is(state, index);
+//
+//   const player = AppSignals.Player.find(state, content, index);
+//   const secs = player?.props.currentTime.value ?? -1;
+//   const timestamps = content?.timestamps ?? {};
+//   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
+//
+//   if (!match?.data) return null;
+//   if (typeof match.data.render !== 'function') return null;
+//
+//   return match.data.render({
+//     timestamp: match.timestamp,
+//     index,
+//     state,
+//     content,
+//     theme,
+//     breakpoint,
+//     is,
+//   });
+// }
 
 /**
  * Helpers

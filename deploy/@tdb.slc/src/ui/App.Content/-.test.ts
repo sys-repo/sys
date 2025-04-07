@@ -1,31 +1,32 @@
 import { type t, describe, expect, it } from '../../-test.ts';
+import { Content } from '../../ui.Content/mod.ts';
 import { AppSignals } from '../App.Signals/mod.ts';
-import { AppContent, VIDEO } from './mod.ts';
+import { VIDEO } from './mod.ts';
 
 describe('AppContent', () => {
   describe('.find: (factory)', () => {
     it('Entry', async () => {
-      const res = await AppContent.factory('Entry');
+      const res = await Content.factory('Entry');
       expect(res?.id).to.eql('Entry');
     });
 
     it('Trailer', async () => {
-      const res = await AppContent.factory('Trailer');
+      const res = await Content.factory('Trailer');
       expect(res?.video?.src).to.eql(VIDEO.Trailer.src);
     });
 
     it('Overview', async () => {
-      const res = await AppContent.factory('Overview');
+      const res = await Content.factory('Overview');
       expect(res?.video?.src).to.eql(VIDEO.Overview.src);
     });
 
     it('Programme', async () => {
-      const res = await AppContent.factory('Programme');
+      const res = await Content.factory('Programme');
       expect(res?.id).to.eql('Programme');
     });
 
     it('Not Found', async () => {
-      const res = await AppContent.factory('Foobar' as any);
+      const res = await Content.factory('Foobar' as any);
       expect(res).to.eql(undefined);
     });
   });

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Sample } from './-SPEC.Samples.tsx';
 import {
+  Content,
   layerVideoPlayerButtons,
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, AppContent, Button, css, Signal, Str } from './common.ts';
+import { type t, App, Button, css, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -34,7 +35,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   app.props.screen.breakpoint.value = 'Desktop';
 
   app.stack.push(Sample.sample0());
-  // app.stack.push(await AppContent.factory('Entry'));
+  // app.stack.push(await Content.factory('Entry'));
 
   init?.(api);
   return api;
@@ -101,7 +102,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `application`}
         onClick={async () => {
           app.stack.clear();
-          app.stack.push(await AppContent.factory('Entry'));
+          app.stack.push(await Content.factory('Entry'));
         }}
       />
 

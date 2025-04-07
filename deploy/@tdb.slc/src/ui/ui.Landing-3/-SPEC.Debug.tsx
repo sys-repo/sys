@@ -1,6 +1,7 @@
 import React from 'react';
-import { type t, App, AppContent, Button, css, Signal, Str, Obj } from './common.ts';
+import { Content } from '../../ui.Content/mod.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
+import { type t, App, Button, css, Obj, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -18,7 +19,7 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const app = App.signals();
   const props = { debug: s<P['debug']>(true) };
   const api = { app, props };
-  app.stack.push(await AppContent.factory('Entry'));
+  app.stack.push(await Content.factory('Entry'));
   init?.(api);
   return api;
 }

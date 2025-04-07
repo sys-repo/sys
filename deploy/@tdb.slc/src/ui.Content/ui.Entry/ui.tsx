@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, AppContent, Button, Color, css, Icons, LogoCanvas } from '../ui.ts';
+import { factory } from '../m.factory.tsx';
+import { type t, Button, Color, css, Icons, LogoCanvas } from '../ui.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
@@ -14,7 +15,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
    * Handlers:
    */
   const showTrailer = async () => {
-    const content = await AppContent.factory('Trailer');
+    const content = await factory('Trailer');
     state.stack.push(content);
   };
 

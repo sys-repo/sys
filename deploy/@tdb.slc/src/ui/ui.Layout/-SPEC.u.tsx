@@ -1,4 +1,7 @@
-import { type t, App, AppContent, Button, Signal } from './common.ts';
+import { Content } from '../../ui.Content/mod.ts';
+import { type t, App, Button, Signal } from './common.ts';
+
+export { Content };
 
 /**
  * Used to update a size of a DevHost subject based on the current size-breakpoint.
@@ -19,7 +22,7 @@ export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
       key={`stack.${stage}`}
       block
       label={`stack.push:( "${stage}" )`}
-      onClick={async () => app.stack.push(await AppContent.factory(stage))}
+      onClick={async () => app.stack.push(await Content.factory(stage))}
     />
   );
 };
