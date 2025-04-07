@@ -1,17 +1,15 @@
 import React from 'react';
 import { type t, DEFAULTS, VIDEO } from '../ui.ts';
-import { Body } from './ui.Body.tsx';
 import { Trailer } from './ui.tsx';
 
 /**
  * Content: "Trailer" (30 second intro).
  */
 export function factory() {
-  const id: t.ContentStage = 'Trailer';
   const theme = DEFAULTS.theme.sheet;
 
-  const content: t.Content = {
-    id,
+  const content: t.VideoContent = {
+    id: 'Trailer',
     video: { src: VIDEO.Trailer.src },
 
     /**
@@ -27,12 +25,12 @@ export function factory() {
     timestamps: {
       '00:00:00.000': {
         render(props) {
-          return <Body {...props} theme={theme} />;
+          return <div>{`props.timestamp (1): ${props.timestamp}`}</div>;
         },
       },
       '00:00:12.000': {
         render(props) {
-          return <Body {...props} theme={theme} />;
+          return <div>{`props.timestamp (2): ${props.timestamp}`}</div>;
         },
       },
     },

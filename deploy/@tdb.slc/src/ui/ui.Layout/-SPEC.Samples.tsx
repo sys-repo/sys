@@ -53,13 +53,6 @@ export const Sample = {
           </SheetBase.View>
         );
       },
-      timestamps: {
-        '00:00:00.000': {
-          render(props) {
-            return <div>timestamp: {props.timestamp}</div>;
-          },
-        },
-      },
     };
   },
 

@@ -1,38 +1,25 @@
 import React from 'react';
-import {
-  type t,
-  AnimatePresence,
-  AppSignals,
-  Breakpoint,
-  css,
-  DEFAULTS,
-  Timestamp,
-} from './common.ts';
+import { type t, AnimatePresence, Breakpoint, css, DEFAULTS } from './common.ts';
 
 /**
  * Renders the body of the matching timestamp.
  */
-export function stack(state: t.AppSignals | undefined): t.ReactNode {
+export function stack<C extends t.Content>(state: t.AppSignals | undefined): t.ReactNode {
   if (!state) return [];
-  const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const stack = state.stack.items ?? [];
-  const nodes = stack.map((content, index) => renderLevel({ index, state, content, breakpoint }));
+  const nodes = stack.map((content, index) => render({ index, state, content }));
   return <AnimatePresence>{nodes}</AnimatePresence>;
 }
 
 /**
  * Render a single level in the stack.
  */
-function renderLevel(args: {
-  index: number;
-  state: t.AppSignals;
-  content: t.Content;
-  breakpoint: t.Breakpoint;
-}) {
-  const { state, content, index, breakpoint } = args;
+function render(args: { index: number; state: t.AppSignals; content: t.Content }) {
+  const { state, content, index } = args;
+  const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const theme = wrangle.theme(content, state);
   const is = wrangle.is(state, index);
-  const el = content.render?.({ index, content, state, theme, breakpoint, is });
+  const el = content.render?.({ index, content, state, is, theme, breakpoint });
 
   const style = css({
     Absolute: 0,

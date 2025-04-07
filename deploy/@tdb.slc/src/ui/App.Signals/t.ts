@@ -17,7 +17,6 @@ export type AppSignalsLib = {
 export type AppSignals = t.Lifecycle & {
   readonly props: {
     readonly stack: t.Signal<t.Content[]>;
-
     readonly dist: t.Signal<t.DistPkg | undefined>;
     readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
     readonly players: { [id: string]: t.VideoPlayerSignals };

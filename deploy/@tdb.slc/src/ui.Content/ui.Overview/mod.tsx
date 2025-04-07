@@ -1,7 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Sheet, VIDEO, AppContent, Button, DEFAULTS } from '../ui.ts';
 import { Overview } from './ui.tsx';
-import { Body } from './ui.Body.tsx';
 
 /**
  * Content: "Overview" (2 minute summary).
@@ -9,7 +8,8 @@ import { Body } from './ui.Body.tsx';
 export function factory() {
   const id: t.ContentStage = 'Overview';
   const theme = DEFAULTS.theme.sheet;
-  const content: t.Content = {
+
+  const content: t.VideoContent = {
     id,
     video: { src: VIDEO.Overview.src },
 
@@ -19,9 +19,8 @@ export function factory() {
 
     timestamps: {
       '00:00:00.000': {
-        render(props) {
-          return <Body {...props} theme={theme} />;
-        },
+        // render(props) {
+        // },
       },
     },
   };
