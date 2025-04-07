@@ -21,7 +21,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     showing: s(true),
     theme: s<P['theme']>('Dark'),
     orientation: s<P['orientation']>(D.orientation.default),
-    margin: s<P['margin']>(0),
+    edgeMargin: s<P['edgeMargin']>(0),
   };
   const api = {
     props,
@@ -30,7 +30,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.theme.value;
       p.showing.value;
       p.orientation.value;
-      p.margin.value;
+      p.edgeMargin.value;
     },
   };
   init?.(api);
@@ -77,9 +77,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`margin: ${d.margin.value ?? '<undefined>'}`}
+        label={`edgeMargin: ${d.edgeMargin.value ?? '<undefined>'}`}
         onClick={() => {
-          Signal.cycle<P['margin']>(d.margin, [undefined, 0, 10, [50, 15], ['1fr', 200, '2em']]);
+          type T = t.SheetMarginInput;
+          const values: (T | undefined)[] = [undefined, 0, 10, [50, 15], ['1fr', 200, '2em']];
+          Signal.cycle<P['edgeMargin']>(d.edgeMargin, values);
         }}
       />
     </div>

@@ -26,7 +26,7 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
     <SheetBase.View
       theme={theme.name}
       style={base}
-      margin={props.margin}
+      edgeMargin={props.edgeMargin}
       orientation={props.orientation}
       onClick={onClick}
     >

@@ -25,7 +25,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   };
 
   return (
-    <Sheet {...props} theme={props.theme} margin={0} orientation="Top:Down">
+    <Sheet {...props} theme={props.theme} edgeMargin={0} orientation="Top:Down">
       <div className={styles.base.class}>
         <div className={styles.children.class}>{props.children}</div>
         <Player.Video.View signals={player} />

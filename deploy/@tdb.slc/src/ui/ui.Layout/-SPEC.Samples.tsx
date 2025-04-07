@@ -70,7 +70,7 @@ export const Sample = {
 
       render(props) {
         return (
-          <SheetBase.View style={{}} orientation={'Top:Down'} margin={['1pr', 290, '1fr']}>
+          <SheetBase.View style={{}} orientation={'Top:Down'} edgeMargin={['1pr', 290, '1fr']}>
             <div className={css({ padding: 10 }).class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
               <div>{props.children}</div>

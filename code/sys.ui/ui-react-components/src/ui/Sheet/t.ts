@@ -31,7 +31,7 @@ export type SheetProps = {
   duration?: t.Secs;
   bounce?: number;
 
-  margin?: t.SheetMarginInput;
+  edgeMargin?: t.SheetMarginInput;
   shadowOpacity?: t.Percent;
   pointerEvents?: t.CssProps['pointerEvents'];
   theme?: t.CommonTheme;
