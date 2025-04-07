@@ -7,6 +7,9 @@ export type Content<P = {}> = P & {
   /** Content identifier. */
   id: t.StringId;
 
+  /**
+   * TODO 🐷 move to Type: <VideoContent>.
+   */
   /** The video for the content. */
   video?: { src: string };
 

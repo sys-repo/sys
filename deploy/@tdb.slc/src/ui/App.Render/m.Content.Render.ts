@@ -14,7 +14,16 @@ export const Render = {
     factory: (flag: T) => Promise<t.Content | undefined>,
     ...content: T[]
   ) {
+    // const m = renderStack()
+
+    /**
+     * TODO 🐷
+     *    - render into off-screen portal.
+     *
+     */
     const loading = content.map((flag) => factory(flag));
-    await Promise.all(loading);
+    const imports = await Promise.all(loading);
+
+    console.log('imports', imports);
   },
 } as const;

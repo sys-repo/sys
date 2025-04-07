@@ -1,5 +1,5 @@
 import { type t, describe, expect, it, Signal } from '../../-test.ts';
-import { VIDEO } from '../App.Content/mod.ts';
+import { VIDEO } from '../App.Render/mod.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals.stack', () => {

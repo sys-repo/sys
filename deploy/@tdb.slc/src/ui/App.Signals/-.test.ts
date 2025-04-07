@@ -1,5 +1,5 @@
 import { type t, c, describe, expect, it, rx, Signal } from '../../-test.ts';
-import { VIDEO } from '../App.Content/mod.ts';
+import { VIDEO } from '../App.Render/mod.ts';
 import { AppPlayer } from './m.Player.ts';
 import { AppSignals } from './mod.ts';
 

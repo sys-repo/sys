@@ -2,7 +2,7 @@
  * @module
  * Module types.
  */
-export type * from './ui/App.Content/t.ts';
+export type * from './ui/App.Render/t.ts';
 export type * from './ui/App.Layout/t.ts';
 export type * from './ui/App.Signals/t.ts';
 export type * from './ui/App/t.ts';

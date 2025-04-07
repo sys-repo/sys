@@ -1,8 +1,8 @@
 /**
  * Libs:
  */
-export { AppContent, DEFAULTS } from '../ui/App.Content/mod.ts';
-export { VIDEO } from '../ui/App.Content/VIDEOS.ts';
+export { AppContent, DEFAULTS } from '../ui/App.Render/mod.ts';
+export { VIDEO } from '../ui/App.Render/VIDEOS.ts';
 export { AppSignals } from '../ui/App.Signals/mod.ts';
 
 export { Layout } from '../ui/App.Layout/mod.ts';
