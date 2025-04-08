@@ -1,10 +1,11 @@
 /**
  * @module
  */
-import { type t, AppSignals, Layout } from './common.ts';
+import { type t, Layout, AppRender as Render, AppSignals as Signals } from './common.ts';
 
 export const App: t.AppLib = {
-  Signals: AppSignals,
-  signals: AppSignals.create,
   Layout,
+  Render,
+  Signals,
+  signals: Signals.create,
 };

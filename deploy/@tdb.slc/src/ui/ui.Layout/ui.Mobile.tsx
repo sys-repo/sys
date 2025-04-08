@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AppContent, css, Signal } from './common.ts';
+import { type t, App, css, Signal } from './common.ts';
 
 type P = t.LayoutMobileProps;
 
@@ -22,6 +22,6 @@ export const LayoutMobile: React.FC<P> = (props) => {
   /**
    * The stack of sheets.
    */
-  const elStack = AppContent.Render.stack(state);
+  const elStack = App.Render.stack(state);
   return <div className={css(styles.base, props.style).class}>{elStack}</div>;
 };

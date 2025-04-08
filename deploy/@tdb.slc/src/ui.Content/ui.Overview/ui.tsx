@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, Sheet, Player, AppSignals } from '../ui.ts';
+import { type t, Color, css, Signal, DEFAULTS, rx, Sheet, Player, App } from '../ui.ts';
 
 export type OverviewProps = t.ContentProps & {};
 
@@ -9,7 +9,7 @@ export type OverviewProps = t.ContentProps & {};
 export const Overview: React.FC<OverviewProps> = (props) => {
   const { index, state, content } = props;
 
-  const player = AppSignals.Player.find(state, content, index);
+  const player = App.Signals.Player.find(state, content, index);
   console.log('player', player);
 
   React.useEffect(() => {

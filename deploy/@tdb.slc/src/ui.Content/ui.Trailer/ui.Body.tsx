@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   type t,
-  AppSignals,
+  App,
   LogoCanvas,
   Color,
   css,
@@ -18,7 +18,7 @@ export type BodyProps = t.ContentTimestampProps & { selected?: t.CanvasPanel };
 export const Body: React.FC<BodyProps> = (props) => {
   const { content, index, state, timestamp, selected = 'purpose' } = props;
 
-  const player = AppSignals.Player.find(state, content, index);
+  const player = App.Signals.Player.find(state, content, index);
   const currentTime = player?.props.currentTime;
 
   console.log('timestamp', timestamp);

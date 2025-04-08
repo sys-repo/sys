@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AppContent, Button, Cropmarks, css, Signal } from './common.ts';
+import { type t, App, Button, Cropmarks, css, Signal } from './common.ts';
 
 type P = t.LayoutDesktopProps;
 
@@ -53,7 +53,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
     </div>
   );
 
-  const elStackItems = AppContent.Render.stack(state);
+  const elStackItems = App.Render.stack(state);
   const elStack = <div className={styles.stack.class}>{elStackItems}</div>;
 
   const dist = p.dist.value;

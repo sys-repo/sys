@@ -1,7 +1,7 @@
 import { type t, Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { updateForBreakpointSize, Content } from './-SPEC.u.tsx';
-import { Color, css, AppContent } from './common.ts';
+import { Color, css, App } from './common.ts';
 import { Layout } from './m.Layout.tsx';
 
 export * from './-SPEC.u.tsx';
@@ -36,7 +36,7 @@ export default Spec.describe('MobileLayout', async (e) => {
      * Initialize environment.
      */
     update.size();
-    await AppContent.Render.preload(Content.factory, 'Entry', 'Trailer');
+    await App.Render.preload(Content.factory, 'Entry', 'Trailer');
   });
 
   e.it('ui:debug', (e) => {

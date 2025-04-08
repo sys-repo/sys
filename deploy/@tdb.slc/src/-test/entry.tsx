@@ -47,9 +47,10 @@ export async function main() {
     /**
      * Landing (entry):
      */
-    const { Landing, App, AppContent } = await import('../ui/ui.Landing-3/mod.ts');
+    const { Landing, App, Content } = await import('../ui/ui.Landing-3/mod.ts');
     const app = App.signals();
-    app.stack.push(await AppContent.factory('Entry'));
+    app.stack.push(await Content.factory('Entry'));
+    await App.Render.preload(Content.factory, 'Entry', 'Trailer');
 
     root.render(
       <StrictMode>

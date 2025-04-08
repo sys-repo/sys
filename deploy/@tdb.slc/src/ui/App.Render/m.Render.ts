@@ -1,10 +1,10 @@
 import { type t } from './common.ts';
-import { stack } from './m.Content.Render.stack.tsx';
+import { stack } from './m.Render.stack.tsx';
 
 /**
  * Render functions for display content.
  */
-export const Render = {
+export const AppRender: t.AppRenderLib = {
   stack,
 
   /**
@@ -14,13 +14,6 @@ export const Render = {
     factory: (flag: T) => Promise<t.Content | undefined>,
     ...content: T[]
   ) {
-    // const m = renderStack()
-
-    /**
-     * TODO 🐷
-     *    - render into off-screen portal.
-     *
-     */
     const loading = content.map((flag) => factory(flag));
     const imports = await Promise.all(loading);
 
