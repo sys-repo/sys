@@ -71,13 +71,7 @@ export type TimeDelay = {
 /**
  * Exposes timer functions that cease after a dispose signal is received.
  */
-export type TimeUntil = {
-  /** Fires when the transient time helper is disposed. */
-  readonly dispose$: t.Observable<void>;
-
-  /** Flag indicating if the transient time heper is disposed. */
-  readonly disposed: boolean;
-
+export type TimeUntil = t.Lifecycle & {
   /** Delay for the specified milliseconds. */
   delay: t.TimeLib['delay'];
 

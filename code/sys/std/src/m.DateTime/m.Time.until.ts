@@ -31,6 +31,7 @@ export function until(until$: t.UntilObservable) {
     /**
      * Lifecycle
      */
+    dispose: life.dispose,
     get dispose$() {
       return life.dispose$;
     },
