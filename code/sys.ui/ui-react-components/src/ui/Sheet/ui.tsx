@@ -15,12 +15,8 @@ export const Sheet: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const backgroundColor = theme.bg;
   const styles = {
-    base: css({
-      position: 'relative',
-      display: 'grid',
-      gridTemplateColumns,
-      gridTemplateRows,
-    }),
+    base: css({ position: 'relative', display: 'grid', gridTemplateColumns, gridTemplateRows }),
+    spacer: css({ pointerEvents: 'none' }),
     body: css({
       position: 'relative',
       pointerEvents,
@@ -30,7 +26,6 @@ export const Sheet: React.FC<P> = (props) => {
       boxShadow,
       display: 'grid',
     }),
-    spacer: css({ pointerEvents: 'none' }),
     mask: css({
       // NB: Extends the sheet to ensure the physics bounce does not show a flash.
       //     Ensure this component is within a container with { overflow: 'hidden' }.

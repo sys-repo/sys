@@ -18,7 +18,9 @@ export type SheetLib = {
 /**
  * The orientation and slide direction of the sheet.
  */
-export type SheetOrientation = 'Bottom:Up' | 'Top:Down' | 'Left:Right' | 'Right:Left';
+export type SheetOrientation = SheetOrientationX | SheetOrientationY;
+export type SheetOrientationX = 'Left:Right' | 'Right:Left';
+export type SheetOrientationY = 'Bottom:Up' | 'Top:Down';
 
 /**
  * <Component>:
