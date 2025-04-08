@@ -25,6 +25,7 @@ export const createStack: t.SheetSignalsLib['stack'] = <T>(input?: t.Signal<T[]>
     clear(leave = 0) {
       signal.value = signal.value.slice(0, leave);
     },
+
     toSignal() {
       return signal;
     },
