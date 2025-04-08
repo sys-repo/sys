@@ -9,7 +9,8 @@ export type EntryProps = t.ContentProps & {};
  * Component:
  */
 export const Entry: React.FC<EntryProps> = (props) => {
-  const { state, breakpoint } = props;
+  const { state } = props;
+  const breakpoint = state.breakpoint;
 
   /**
    * Handlers:
@@ -31,8 +32,8 @@ export const Entry: React.FC<EntryProps> = (props) => {
       gridTemplateRows: '44px 1fr auto',
     }),
     header: css({
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       MarginX: 10,
+      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       display: 'grid',
       placeItems: 'center',
     }),
