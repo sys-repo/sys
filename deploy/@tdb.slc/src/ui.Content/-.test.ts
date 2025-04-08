@@ -1,9 +1,9 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Content } from '../mod.ts';
-import { VIDEO } from '../VIDEO.ts';
+import { describe, expect, it } from '../-test.ts';
+import { Content } from './mod.ts';
+import { VIDEO } from './VIDEO.ts';
 
-describe('AppContent', () => {
-  describe('.find: (factory)', () => {
+describe('Content', () => {
+  describe('factory', () => {
     it('Entry', async () => {
       const res = await Content.factory('Entry');
       expect(res?.id).to.eql('Entry');
