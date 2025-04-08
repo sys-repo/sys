@@ -1,4 +1,4 @@
-export { AppContent, VIDEO } from '../App.Render/mod.ts';
+export { AppContent } from '../App.Render/mod.ts';
 export { Breakpoint } from '../App.Layout/mod.ts';
 export { App } from '../App/mod.ts';
 export { Sheet } from '../ui.Sheet/mod.ts';

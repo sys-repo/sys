@@ -1,4 +1,4 @@
-import { factory } from './m.factory.tsx';
+import { factory } from './factory/mod.tsx';
 
 export const Content = {
   factory,
