@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, DEFAULTS } from '../common.ts';
 import { VIDEO } from '../VIDEO.ts';
+import { Body } from './ui.Body.tsx';
 import { Trailer } from './ui.tsx';
 
 /**
@@ -9,31 +10,35 @@ import { Trailer } from './ui.tsx';
 export function factory() {
   const theme = DEFAULTS.theme.sheet;
 
+  const panels: t.CanvasPanel[] = [
+    'purpose',
+    'impact',
+    'problem',
+    'solution',
+    'metrics',
+    'uvp',
+    'advantage',
+    'channels',
+    'customers',
+    'costs',
+    'revenue',
+  ];
+
   const content: t.VideoContent = {
     id: 'Trailer',
     video: { src: VIDEO.Trailer.src },
 
-    /**
-     * Base component:
-     */
     render(props) {
       return <Trailer {...props} theme={theme} />;
     },
 
-    /**
-     * Timestamps:
-     */
     timestamps: {
-      '00:00:00.000': {
-        render(props) {
-          return <div>{`props.timestamp (1): ${props.timestamp}`}</div>;
-        },
-      },
-      '00:00:12.000': {
-        render(props) {
-          return <div>{`props.timestamp (2): ${props.timestamp}`}</div>;
-        },
-      },
+      '00:00:00.000': (props) => <Body {...props} />,
+
+      '00:00:11.870': (props) => <Body {...props} selected={'purpose'} />,
+      '00:00:19.600': (props) => <Body {...props} selected={panels} />,
+      '00:00:23.500': (props) => <Body {...props} selected={panels.toReversed()} />,
+      '00:00:29.540': (props) => <Body {...props} selected={'purpose'} showLogo={true} />,
     },
   };
   return content;

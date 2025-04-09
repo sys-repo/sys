@@ -10,7 +10,7 @@ export type * from '@sys/types';
 
 export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
-export type { CssInput, CssMarginArray, CssValue } from '@sys/ui-css/t';
+export type { CssEdgesInput, CssInput, CssMarginArray, CssValue } from '@sys/ui-css/t';
 export type {
   SheetMarginInput,
   SheetOrientation,

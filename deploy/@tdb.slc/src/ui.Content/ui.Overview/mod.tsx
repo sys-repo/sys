@@ -19,9 +19,8 @@ export function factory() {
     },
 
     timestamps: {
-      '00:00:00.000': {
-        // render(props) {
-        // },
+      '00:00:00.000'(props) {
+        return null;
       },
     },
   };
