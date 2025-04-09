@@ -1,8 +1,6 @@
 import { type t } from './common.ts';
 export type * from './t.Breakpoint.ts';
 
-export type AppLayoutSheetOffsetOptions = { base?: t.NumberOffset };
-
 /**
  * Logical helpers for working with layouts.
  */
@@ -12,5 +10,12 @@ export type AppLayoutLib = {
   /**
    * Calculate the pixel offset of stacked sheets.
    */
-  sheetOffset(index: number, options?: t.NumberOffset | t.AppLayoutSheetOffsetOptions): t.Pixels;
+  sheetOffset(args: t.AppLayoutSheetOffsetArgs): t.CssMarginArray;
+};
+
+export type AppLayoutSheetOffsetArgs = {
+  state: t.AppSignals;
+  index: number;
+  orientation?: t.SheetOrientation;
+  base?: t.NumberOffset;
 };
