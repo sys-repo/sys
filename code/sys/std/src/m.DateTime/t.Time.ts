@@ -75,7 +75,7 @@ export type TimeUntil = t.Lifecycle & {
   /** Delay for the specified milliseconds. */
   delay: t.TimeLib['delay'];
 
-  /** Wait for the specified milliseconds pass. */
+  /** Wait for the specified milliseconds to pass. */
   wait: t.TimeLib['wait'];
 };
 
