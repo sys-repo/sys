@@ -19,6 +19,7 @@ describe('AppSignals', () => {
       expect(p.background.video.src.value).to.eql(VIDEO.Tubes.src);
       expect(p.background.video.playing.value).to.eql(true);
       expect(p.stack.value).to.eql([]);
+      expect(p.screen.breakpoint.value).to.eql(app.breakpoint.name);
 
       console.info();
       console.info(c.brightGreen('SLC:App.Signals:'));

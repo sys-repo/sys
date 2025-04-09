@@ -30,7 +30,6 @@ export type ContentProps<P = {}> = {
   is: t.ContentFlags;
   content: t.Content<P>;
   state: t.AppSignals;
-  breakpoint: t.Breakpoint;
   theme: t.CommonTheme;
   style?: t.CssInput;
 };

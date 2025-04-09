@@ -16,17 +16,17 @@ export function stack(state: t.AppSignals | undefined): t.ReactNode {
  */
 function render(args: { index: number; state: t.AppSignals; content: t.Content }) {
   const { state, content, index } = args;
-  const breakpoint = Breakpoint.from(state.props.screen.breakpoint.value);
   const theme = wrangle.theme(content, state);
   const is = wrangle.is(state, index);
-  const el = content.render?.({ index, content, state, is, theme, breakpoint });
+  const el = content.render?.({ index, content, state, is, theme });
 
   const style = css({
     Absolute: 0,
-    display: 'grid',
     pointerEvents: 'none',
     zIndex: 0, // NB: establish a new stacking context (prevents content jumping above higher stack levels).
+    display: 'grid',
   });
+
   return (
     <div key={`${content.id}.${index}`} className={style.class}>
       {el}

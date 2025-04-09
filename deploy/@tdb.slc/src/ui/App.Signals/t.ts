@@ -31,6 +31,7 @@ export type AppSignals = t.Lifecycle & {
 
   /** API for interacting with the stack. */
   readonly stack: t.AppSignalsStack;
+  readonly breakpoint: t.Breakpoint;
 
   /** Hook into all relevant value listeners. */
   listen(): void;

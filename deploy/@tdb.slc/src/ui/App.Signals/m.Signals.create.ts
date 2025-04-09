@@ -1,4 +1,4 @@
-import { type t, Player, Signal, TUBES, rx, SheetBase } from './common.ts';
+import { type t, Breakpoint, Player, rx, SheetBase, Signal, TUBES } from './common.ts';
 import { AppPlayer } from './m.Player.ts';
 
 /**
@@ -35,6 +35,9 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     },
     get stack() {
       return stack;
+    },
+    get breakpoint() {
+      return Breakpoint.from(props.screen.breakpoint.value);
     },
     listen() {
       const p = props;

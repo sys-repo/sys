@@ -4,5 +4,5 @@ import type { t } from './common.ts';
 /**
  * <Sheet> component props.
  */
-export type SheetProps = t.ContentProps & BaseProps;
-type BaseProps = Pick<BaseSheetProps, 'children' | 'orientation' | 'edgeMargin'>;
+export type SheetProps = t.ContentProps & BaseProps & { orientation?: t.SheetOrientationY };
+type BaseProps = Pick<BaseSheetProps, 'children' | 'edgeMargin'>;

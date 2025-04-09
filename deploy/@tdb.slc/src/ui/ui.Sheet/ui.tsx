@@ -5,7 +5,7 @@ import { type t, Color, css, Layout, SheetBase } from './common.ts';
  * Component:
  */
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { state, is, orientation } = props;
+  const { state, is, index, orientation } = props;
 
   /**
    * Handlers:
@@ -24,8 +24,8 @@ export const Sheet: React.FC<t.SheetProps> = (props) => {
   });
   return (
     <SheetBase.View
+      style={css(base, props.style)}
       theme={theme.name}
-      style={base}
       edgeMargin={props.edgeMargin}
       orientation={props.orientation}
       onClick={onClick}

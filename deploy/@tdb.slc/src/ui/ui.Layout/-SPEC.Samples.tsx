@@ -1,4 +1,4 @@
-import { type t, css, SheetBase } from './common.ts';
+import { type t, css, SheetBase, Sheet } from './common.ts';
 import { Layout } from './m.Layout.tsx';
 
 export const Sample = {
@@ -39,14 +39,20 @@ export const Sample = {
     return {
       id,
       render(props) {
-        const { index } = props;
-        const marginTop = Layout.sheetOffset(index, { base: 44 });
+        const { index, state } = props;
+        const Margin = Layout.sheetOffset({ index, base: 44, state });
+        const edge: t.SheetMarginInput =
+          state.breakpoint.name === 'Desktop' ? ['1fr', 390, '1fr'] : 10;
+
         const onClick = () => {
           if (!props.is.top) props.state.stack.pop();
         };
+
+        const styles = { base: css({ padding: 10 }) };
+
         return (
-          <SheetBase.View style={{ marginTop }} onClick={onClick}>
-            <div className={css({ padding: 10 }).class}>
+          <SheetBase.View style={{ Margin }} edgeMargin={edge} onClick={onClick}>
+            <div className={styles.base.class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
             </div>
@@ -57,15 +63,21 @@ export const Sample = {
   },
 
   sample2(): t.Content {
-    const id = 'sample-3';
     return {
-      id,
-
+      id: 'sample-2',
       render(props) {
+        const { index, state } = props;
+
+        const breakpoint = state.breakpoint;
+        const orientation: t.SheetOrientation = 'Top:Down';
+        const Margin = Layout.sheetOffset({ index, orientation, state });
+        const edge: t.SheetMarginInput = breakpoint.name === 'Desktop' ? [30, '1fr', 30] : 10;
+        const styles = { base: css({ padding: 10 }) };
+
         return (
-          <SheetBase.View style={{}} orientation={'Top:Down'} edgeMargin={['1pr', 290, '1fr']}>
-            <div className={css({ padding: 10 }).class}>
-              <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
+          <SheetBase.View style={{ Margin }} orientation={orientation} edgeMargin={edge}>
+            <div className={styles.base.class}>
+              <div>{`👋 Hello: "${props.content.id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
             </div>
           </SheetBase.View>
