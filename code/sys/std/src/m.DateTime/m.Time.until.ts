@@ -25,7 +25,7 @@ export function until(until$: t.UntilObservable) {
     },
 
     wait(msecs) {
-      return api.delay(msecs ?? 0);
+      return typeof msecs === 'number' ? api.delay(msecs) : api.delay();
     },
 
     /**
