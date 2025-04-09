@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Sheet, VIDEO, App, Button, DEFAULTS } from '../ui.ts';
+import { type t, Color, css, Sheet, App, Button, DEFAULTS } from '../common.ts';
+import { VIDEO } from '../VIDEO.ts';
 import { Overview } from './ui.tsx';
 
 /**

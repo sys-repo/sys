@@ -32,6 +32,4 @@ export type VideoContent = t.Content<{
 /**
  * Content variation: Static
  */
-export type StaticContent = t.Content<{
-  id: t.ContentStage;
-}>;
+export type StaticContent = t.Content<{ id: t.ContentStage }>;

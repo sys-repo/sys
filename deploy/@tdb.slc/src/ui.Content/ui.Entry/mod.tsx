@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, DEFAULTS } from '../ui.ts';
+import { type t, DEFAULTS } from '../common.ts';
 import { Entry } from './ui.tsx';
 
 export function factory() {

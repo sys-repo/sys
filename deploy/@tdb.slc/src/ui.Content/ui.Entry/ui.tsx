@@ -1,6 +1,6 @@
 import React from 'react';
+import { type t, Button, Color, css, Icons, LogoCanvas } from '../common.ts';
 import { factory } from '../m.factory.tsx';
-import { type t, Button, Color, css, Icons, LogoCanvas } from '../ui.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};

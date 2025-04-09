@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, DEFAULTS, VIDEO } from '../ui.ts';
+import { type t, DEFAULTS } from '../common.ts';
+import { VIDEO } from '../VIDEO.ts';
 import { Trailer } from './ui.tsx';
 
 /**
