@@ -108,8 +108,8 @@ export const VimeoBackground: React.FC<P> = (props) => {
       <IFrame
         style={styles.iframe}
         src={src}
-        allow={'autoplay'}
-        allowFullScreen={false}
+        allow={'autoplay; fullscreen'}
+        allowFullScreen={true}
         onReady={(e) => setIframe(e.ref.current ?? undefined)}
       />
       <div className={styles.blurMask.class} />
