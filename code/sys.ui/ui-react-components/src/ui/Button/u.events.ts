@@ -119,6 +119,12 @@ export const Event = {
           onMouseLeave: Event.Desktop.over(state, false),
           onMouseDown: Event.Desktop.down(state, true),
           onMouseUp: Event.Desktop.down(state, false),
+          onClick(e: React.MouseEvent) {
+            // NB: "onClick" is sythetically derived from mouse-down/up events
+            //     so prevent the native onClick event from confusingly propgating
+            //     a different version of "onClick" up in the DOM hierarchy.
+            e.stopPropagation();
+          },
         };
   },
 } as const;
