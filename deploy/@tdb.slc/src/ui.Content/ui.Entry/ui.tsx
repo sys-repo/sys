@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, LogoCanvas } from '../common.ts';
+import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from '../common.ts';
 import { factory } from '../m.factory.tsx';
 import { Install } from './ui.Install.tsx';
 
@@ -15,10 +15,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
   /**
    * Handlers:
    */
-  const showTrailer = async () => {
-    const content = await factory('Trailer');
-    state.stack.push(content);
-  };
+  const onCanvasClick = async () => state.stack.push(await factory('Trailer'));
 
   /**
    * Render:
@@ -39,7 +36,11 @@ export const Entry: React.FC<EntryProps> = (props) => {
     }),
     body: css({ display: 'grid', placeItems: 'center' }),
     footer: css({ display: breakpoint.name === 'Mobile' ? 'grid' : 'none' }),
-    canvas: css({ MarginX: 70 }),
+    brand: {
+      base: css({ display: 'grid', placeItems: 'center', rowGap: '35px' }),
+      canvas: css({ MarginX: 70 }),
+      wordmark: css({ width: 120 }),
+    },
   };
 
   return (
@@ -54,8 +55,11 @@ export const Entry: React.FC<EntryProps> = (props) => {
         <Icons.Add.Plus opacity={0.2} />
       </div>
       <div className={styles.body.class}>
-        <Button block theme={theme.name} onClick={showTrailer}>
-          <LogoCanvas theme={theme.name} style={styles.canvas} />
+        <Button block theme={theme.name} onClick={onCanvasClick}>
+          <div className={styles.brand.base.class}>
+            <LogoCanvas theme={theme.name} style={styles.brand.canvas} />
+            <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
+          </div>
         </Button>
       </div>
       <div className={styles.footer.class}>
