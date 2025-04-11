@@ -23,7 +23,6 @@ export default Spec.describe('Sheet', (e) => {
       .render((e) => {
         const orientation = p.orientation.value;
         const isShowing = p.showing.value;
-
         const styles = {
           base: css({ overflow: 'hidden', display: 'grid' }),
           sheet: css({ padding: 15, userSelect: 'none' }),
