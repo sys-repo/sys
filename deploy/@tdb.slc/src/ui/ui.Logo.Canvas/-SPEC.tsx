@@ -1,5 +1,5 @@
 import { type t, Dev, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { css, Signal } from './common.ts';
 import { LogoCanvas } from './mod.ts';
 
@@ -44,7 +44,7 @@ export default Spec.describe('Logo.Canvas', (e) => {
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug debug={debug} />);
   });
 
   e.it('ui:footer', (e) => {

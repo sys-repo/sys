@@ -23,6 +23,6 @@ export default Spec.describe('VideosIndex', (e) => {
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug debug={debug} />);
   });
 });

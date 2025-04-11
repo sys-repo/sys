@@ -1,12 +1,12 @@
 import React from 'react';
-import { type t, Color, css, DEFAULTS, Signal } from './common.ts';
+import { type t, Color, css, Signal } from './common.ts';
 
 import { Button } from '@sys/ui-react-components';
 
 /**
  * Types
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
+export type DebugProps = { debug: DebugSignals; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
@@ -38,8 +38,8 @@ export function createDebugSignals() {
  * Component
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
   Signal.useRedrawEffect(() => {
     p.theme.value;
