@@ -18,7 +18,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
    * Effect: Play on load.
    */
   React.useEffect(() => {
-    player?.play();
+    if (content.playOnLoad) player?.play();
   }, [player]);
 
   /**

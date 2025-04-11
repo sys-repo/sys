@@ -20,6 +20,7 @@ type V = {
   id: t.ContentStage;
   timestamps: ContentTimestamps;
   showElapsed?: boolean;
+  playOnLoad?: boolean;
   // video?: { src: string };
 };
 

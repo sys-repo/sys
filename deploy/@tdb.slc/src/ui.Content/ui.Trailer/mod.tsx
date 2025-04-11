@@ -10,23 +10,10 @@ import { Trailer } from './ui.tsx';
 export function factory() {
   const theme = DEFAULTS.theme.sheet;
 
-  const panels: t.CanvasPanel[] = [
-    'purpose',
-    'impact',
-    'problem',
-    'solution',
-    'metrics',
-    'uvp',
-    'advantage',
-    'channels',
-    'customers',
-    'costs',
-    'revenue',
-  ];
-
   const content: t.VideoContent = {
     id: 'Trailer',
     video: { src: VIDEO.Trailer.src },
+    playOnLoad: true,
 
     render(props) {
       return <Trailer {...props} theme={theme} />;
@@ -43,3 +30,17 @@ export function factory() {
   };
   return content;
 }
+
+const panels: t.CanvasPanel[] = [
+  'purpose',
+  'impact',
+  'problem',
+  'solution',
+  'metrics',
+  'uvp',
+  'advantage',
+  'channels',
+  'customers',
+  'costs',
+  'revenue',
+];
