@@ -18,7 +18,15 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     theme: s<P['theme']>('Dark'),
     backgroundVideo: s<P['backgroundVideo']>(0.15),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.theme.value;
+      p.debug.value;
+      p.backgroundVideo.value;
+    },
+  };
   init?.(api);
   return api;
 }
@@ -31,9 +39,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
 
   Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.debug.value;
-    p.backgroundVideo.value;
+    debug.listen();
   });
 
   /**

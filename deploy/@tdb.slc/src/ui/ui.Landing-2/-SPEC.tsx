@@ -12,8 +12,7 @@ export default Spec.describe('Landing-2', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      p.debug.value;
-      p.backgroundVideo.value;
+      debug.listen();
       ctx.host.tracelineColor(p.theme.value === 'Dark' ? 0.15 : -0.06);
       ctx.redraw();
     });
