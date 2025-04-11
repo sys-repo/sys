@@ -5,7 +5,7 @@ import { Icon } from './mod.ts';
 const icon = Icon.renderer;
 
 /**
- * Icon collection.
+ * Icon collection:
  */
 export const Icons = {
   Face: icon(MdFace),

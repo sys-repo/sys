@@ -22,6 +22,7 @@ export {
  * Local
  */
 export * from '../common.ts';
+export * from './ui.Icons.ts';
 
 /**
  * Common Video Refs
