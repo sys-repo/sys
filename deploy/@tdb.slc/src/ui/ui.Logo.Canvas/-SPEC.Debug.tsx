@@ -21,7 +21,16 @@ export function createDebugSignals() {
     selected: s<P['selected']>('purpose'),
     over: s<P['over']>(),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.width.value;
+      p.selected.value;
+      p.over.value;
+      p.theme.value;
+    },
+  };
   return api;
 }
 

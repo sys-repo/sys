@@ -34,9 +34,7 @@ export default Spec.describe('Logo.Canvas', (e) => {
 
     Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
-      p.width.value;
-      p.selected.value;
-      p.over.value;
+      debug.listen();
       updateSize();
       ctx.redraw();
     });

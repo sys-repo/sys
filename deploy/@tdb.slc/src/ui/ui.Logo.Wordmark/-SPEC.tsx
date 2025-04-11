@@ -17,8 +17,7 @@ export default Spec.describe('Logo.Wordmark', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
-      p.width.value;
-      p.logo.value;
+      debug.listen();
       updateSize();
       ctx.redraw();
     });
@@ -27,10 +26,12 @@ export default Spec.describe('Logo.Wordmark', (e) => {
       .size()
       .display('grid')
       .render((e) => <LogoWordmark theme={p.theme.value} logo={p.logo.value} />);
+
+    updateSize();
   });
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug debug={debug} />);
   });
 });

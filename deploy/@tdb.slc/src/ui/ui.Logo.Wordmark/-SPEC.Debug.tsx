@@ -6,7 +6,7 @@ const D = DEFAULTS;
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
@@ -17,11 +17,19 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   type P = t.LogoWordmarkProps;
   const props = {
-    width: s<number | undefined>(),
+    width: s<number | undefined>(300),
     theme: s<P['theme']>('Dark'),
     logo: s<P['logo']>(D.logo),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.width.value;
+      p.theme.value;
+      p.logo.value;
+    },
+  };
   init?.(api);
   return api;
 }
@@ -30,14 +38,10 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<P> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.width.value;
-    p.logo.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
@@ -60,6 +64,7 @@ export const Debug: React.FC<P> = (props) => {
         onClick={() => Signal.cycle(p.width, [undefined, 90, 150, 300])}
       />
 
+      <hr />
       <Button
         block
         label={`logo: "${p.logo}"`}
