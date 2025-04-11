@@ -6,13 +6,14 @@ const D = DEFAULTS;
 /**
  * Factory: create a new instance of signals
  */
-export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
+export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
+  const defaults = wrangle.defaults(input);
   const s = Signal.create;
 
   const props: T['props'] = {
     ready: s(false),
 
-    // Media.
+    // Media:
     src: s<t.StringVideoAddress>(defaults.src ?? D.video),
     playing: s<boolean>(false),
     currentTime: s<t.Secs>(0),
@@ -20,7 +21,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     autoPlay: s<boolean>(defaults.autoPlay ?? D.autoPlay),
     muted: s<boolean>(defaults.muted ?? D.muted),
 
-    // Appearance.
+    // Appearance:
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
     showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
     showVolumeControl: s<boolean>(defaults.showVolumeControl ?? D.showVolumeControl),
@@ -28,7 +29,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
 
-    // Commands.
+    // Commands:
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),
   };
 
@@ -56,3 +57,16 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (defaults = {}) => {
 
   return api;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  defaults(
+    input?: t.PlayerSignalsFactoryDefaults | t.StringVideoAddress,
+  ): t.PlayerSignalsFactoryDefaults {
+    if (!input) return {};
+    if (typeof input === 'string') return { src: input };
+    return input;
+  },
+} as const;

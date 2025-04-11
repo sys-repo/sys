@@ -58,6 +58,11 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.cornerRadius.value).to.eql(0);
       expect(p.background.value).to.eql(true);
     });
+
+    it('param: src param (string)', () => {
+      const s = Player.Video.signals('vimeo/foobar');
+      expect(s.props.src.value).to.eql('vimeo/foobar');
+    });
   });
 
   describe('methods', () => {

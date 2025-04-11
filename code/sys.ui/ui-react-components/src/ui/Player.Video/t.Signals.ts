@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Signals:
  */
 export type PlayerSignalsFactory = (
-  defaults?: PlayerSignalsFactoryDefaults,
+  defaults?: PlayerSignalsFactoryDefaults | t.StringVideoAddress,
 ) => t.VideoPlayerSignals;
 
 /** Defaults passed to the signals API factory. */
