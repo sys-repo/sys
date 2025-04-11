@@ -8,12 +8,6 @@ export type Content<P = {}> = P & {
   id: t.StringId;
 
   /**
-   * TODO 🐷 move to Type: <VideoContent>.
-   */
-  /** The video for the content. */
-  video?: { src: string };
-
-  /**
    * Render the base content.
    *    Additional items (such as the current timestamp) are
    *    rendered into the {children} property.

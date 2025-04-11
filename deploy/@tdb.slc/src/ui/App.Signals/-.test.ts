@@ -1,13 +1,8 @@
-import { type t, c, describe, expect, it, rx, Signal } from '../../-test.ts';
+import { c, describe, expect, it, rx, Signal } from '../../-test.ts';
 import { VIDEO } from '../../ui.Content/VIDEO.ts';
-import { AppPlayer } from './m.Player.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals', () => {
-  it('API', () => {
-    expect(AppSignals.Player).to.equal(AppPlayer);
-  });
-
   describe('lifecycle', () => {
     it('create', () => {
       const app = AppSignals.create();
@@ -36,30 +31,13 @@ describe('AppSignals', () => {
       expect(a.disposed).to.eql(false);
       expect(b.disposed).to.eql(false);
 
-      const video = { src: 'foo' };
-      const playerCount = (app: t.AppSignals) => Object.keys(app.props.players).length;
-      const playerCounts = () => ({ a: playerCount(a), b: playerCount(b) });
-
-      a.stack.push({ id: '1', video });
-      expect(playerCounts()).to.eql({ a: 1, b: 0 });
-      b.stack.push({ id: '1', video });
-      expect(playerCounts()).to.eql({ a: 1, b: 1 });
-
       life.dispose();
       expect(a.disposed).to.eql(false);
       expect(b.disposed).to.eql(true);
 
-      a.stack.push({ id: '2', video });
-      b.stack.push({ id: '2', video }); // NB: now disposed - no increment.
-      expect(playerCounts()).to.eql({ a: 2, b: 1 });
-
       a.dispose();
       expect(a.disposed).to.eql(true);
       expect(b.disposed).to.eql(true);
-
-      a.stack.push({ id: '3', video }); // NB: now both disposed - no increment.
-      b.stack.push({ id: '3', video });
-      expect(playerCounts()).to.eql({ a: 2, b: 1 }); // NB: no change.
     });
   });
 

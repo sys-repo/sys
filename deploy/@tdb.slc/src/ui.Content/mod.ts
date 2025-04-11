@@ -1,5 +1,19 @@
-import { factory } from './m.factory.tsx';
+import type { t } from './common.ts';
+import { Factory } from './u.Factory.tsx';
 
 export const Content = {
-  factory,
+  Factory,
+
+  /**
+   * Looks up the content for the given ID.
+   */
+  async factory(id: t.ContentStage) {
+    if (id === 'Entry') return Factory.entry();
+    if (id === 'Trailer') return Factory.trailer();
+    if (id === 'Overview') return Factory.overview();
+    if (id === 'Programme') return Factory.programme();
+
+    // Not found.
+    return undefined;
+  },
 } as const;

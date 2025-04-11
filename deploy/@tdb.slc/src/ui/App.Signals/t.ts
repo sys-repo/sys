@@ -1,12 +1,10 @@
 import type { t } from './common.ts';
-export type * from './t.Player.ts';
+export type * from './t.Content.ts';
 
 /**
  * Library for working with the [AppSignals] model.
  */
 export type AppSignalsLib = {
-  readonly Player: t.AppSignalsPlayer;
-
   /** Create a new instance of the application-state signals API. */
   create(dispose$?: t.UntilObservable): t.AppSignals;
 };
@@ -16,10 +14,10 @@ export type AppSignalsLib = {
  */
 export type AppSignals = t.Lifecycle & {
   readonly props: {
-    readonly stack: t.Signal<t.Content[]>;
     readonly dist: t.Signal<t.DistPkg | undefined>;
+    readonly stack: t.Signal<t.Content[]>;
     readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
-    readonly players: { [id: string]: t.VideoPlayerSignals };
+
     readonly background: {
       readonly video: {
         readonly src: t.Signal<string>;

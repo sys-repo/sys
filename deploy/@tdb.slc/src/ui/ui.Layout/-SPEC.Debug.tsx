@@ -95,6 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       {layerVideoPlayerButtons(app)}
 
+      <hr />
       <div className={styles.title.class}>{`Sample Configurations:`}</div>
 
       <Button

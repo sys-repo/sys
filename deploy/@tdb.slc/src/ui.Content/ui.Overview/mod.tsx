@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Sheet, App, Button, DEFAULTS } from '../common.ts';
+import { type t, DEFAULTS, Player } from '../common.ts';
+import { Body } from '../ui.Trailer/ui.Body.tsx';
 import { VIDEO } from '../VIDEO.ts';
 import { Overview } from './ui.tsx';
 
@@ -12,16 +13,15 @@ export function factory() {
 
   const content: t.VideoContent = {
     id,
-    video: { src: VIDEO.Overview.src },
+    video: Player.Video.signals(VIDEO.Overview.src),
+    playOnLoad: true,
 
     render(props) {
       return <Overview {...props} theme={theme} />;
     },
 
     timestamps: {
-      '00:00:00.000'(props) {
-        return null;
-      },
+      '00:00:00.000': (props) => <Body {...props} showLogo={true} />,
     },
   };
   return content;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, css, Player, Sheet } from '../common.ts';
+import { type t, css, Player, Sheet } from '../common.ts';
 import { ElapsedTime, useTimestamps } from '../ui.common/mod.ts';
 
 export type TrailerProps = t.VideoContentProps;
@@ -11,7 +11,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   const { index, state, content } = props;
   const { showElapsed = true } = content;
 
-  const player = App.Signals.Player.find(state, content, index);
+  const player = content.video;
   const timestamp = useTimestamps(props, player);
 
   /**

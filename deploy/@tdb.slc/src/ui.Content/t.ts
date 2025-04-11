@@ -21,7 +21,7 @@ type V = {
   timestamps: ContentTimestamps;
   showElapsed?: boolean;
   playOnLoad?: boolean;
-  // video?: { src: string };
+  video?: t.VideoPlayerSignals;
 };
 
 /**

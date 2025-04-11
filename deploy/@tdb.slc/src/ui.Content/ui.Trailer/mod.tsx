@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, DEFAULTS } from '../common.ts';
+import { type t, DEFAULTS, Player } from '../common.ts';
 import { VIDEO } from '../VIDEO.ts';
 import { Body } from './ui.Body.tsx';
 import { Trailer } from './ui.tsx';
@@ -12,7 +12,7 @@ export function factory() {
 
   const content: t.VideoContent = {
     id: 'Trailer',
-    video: { src: VIDEO.Trailer.src },
+    video: Player.Video.signals(VIDEO.Trailer.src),
     playOnLoad: true,
 
     render(props) {
@@ -31,6 +31,9 @@ export function factory() {
   return content;
 }
 
+/**
+ * Ordered list of SLC panels.
+ */
 const panels: t.CanvasPanel[] = [
   'purpose',
   'impact',
