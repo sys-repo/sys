@@ -12,6 +12,7 @@ export function factory() {
   const theme = DEFAULTS.theme.sheet;
 
   const content: t.VideoContent = {
+    '-type': 'VideoContent',
     id,
     video: Player.Video.signals(VIDEO.Overview.src),
     playOnLoad: true,

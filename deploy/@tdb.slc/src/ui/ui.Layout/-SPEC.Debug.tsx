@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sample } from './-SPEC.Samples.tsx';
+import { Sample } from './-SPEC.u.sample.tsx';
 import {
   Content,
   layerVideoPlayerButtons,
@@ -100,7 +100,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `- application ("SLC product system")`}
+        label={() => `- application ("SLC Product System")`}
         onClick={async () => {
           app.stack.clear();
           app.stack.push(await Content.factory('Entry'));

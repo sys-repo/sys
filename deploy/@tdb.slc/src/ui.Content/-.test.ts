@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
+import { Factory } from './-factory/mod.ts';
 import { Content } from './mod.ts';
-import { Factory } from './u.Factory.tsx';
 import { VIDEO } from './VIDEO.ts';
 
 describe('Content', () => {

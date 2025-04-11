@@ -14,7 +14,7 @@ export type ContentTimestamp = (props: VideoContentProps) => t.ReactNode;
 /**
  * Content variation: Video.
  */
-export type VideoContent = t.Content<V>;
+export type VideoContent = t.Content<V & { '-type': 'VideoContent' }>;
 export type VideoContentProps = t.ContentProps<V>;
 type V = {
   id: t.ContentStage;
@@ -27,4 +27,7 @@ type V = {
 /**
  * Content variation: Static.
  */
-export type StaticContent = t.Content<{ id: t.ContentStage }>;
+export type StaticContent = t.Content<{
+  '-type': 'StaticContent';
+  id: t.ContentStage;
+}>;

@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { Factory } from './u.Factory.tsx';
+import { Factory } from './-factory/mod.ts';
 
 export const Content = {
   Factory,
