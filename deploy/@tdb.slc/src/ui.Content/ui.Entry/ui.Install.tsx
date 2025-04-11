@@ -28,7 +28,7 @@ export const Install: React.FC<InstallProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.label.class}>{`Install ( Application )`}</div>
+      <div className={styles.label.class}>{`Install ( SLC System )`}</div>
       <div className={styles.icon.class}>
         <Icons.Arrow.Down />
       </div>
