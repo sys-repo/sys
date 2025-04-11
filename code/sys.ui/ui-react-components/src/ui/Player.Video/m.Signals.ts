@@ -28,6 +28,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     background: s<boolean>(defaults.background ?? D.background),
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
+    scale: s<number>(defaults.scale ?? D.scale),
 
     // Commands:
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

@@ -23,6 +23,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const muted = autoPlay ? true : p?.muted.value ?? D.muted;
   const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
   const cornerRadius = p?.cornerRadius.value ?? D.cornerRadius;
+  const scale = p?.scale.value ?? D.scale;
   const loop = p?.loop.value ?? D.loop;
 
   const themeStyles = useThemeStyles('Plyr');
@@ -44,6 +45,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p.showVolumeControl.value;
     p.cornerRadius.value;
     p.aspectRatio.value;
+    p.scale.value;
   });
 
   /**
@@ -88,6 +90,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     <MediaPlayer
       ref={playerRef}
       style={{
+        transform: `scale(${scale})`,
         '--plyr-border-radius': `${cornerRadius}px`,
         '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}

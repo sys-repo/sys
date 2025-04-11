@@ -15,4 +15,6 @@ export const DEFAULTS = {
   autoPlay: false,
   muted: false,
   background: false,
+  scale: 1,
 } as const;
+export const D = DEFAULTS;

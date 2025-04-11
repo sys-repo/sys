@@ -22,7 +22,10 @@ export default Spec.describe('VideoPlayer', (e) => {
       else ctx.subject.size([520, null]);
     };
 
-    Signal.effect(updateSize);
+    Signal.effect(() => {
+      updateSize();
+      debug.listen();
+    });
     updateSize();
 
     ctx.subject.display('grid').render((e) => {

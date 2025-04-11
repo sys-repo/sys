@@ -1,7 +1,7 @@
 import React from 'react';
 import { Player } from '../../mod.ts';
 import { Button } from '../Button/mod.ts';
-import { type t, css, DEFAULTS, Signal } from './common.ts';
+import { type t, css, D, Signal } from './common.ts';
 
 /**
  * Types:
@@ -30,8 +30,27 @@ export function createDebugSignals() {
     props,
     video,
     listen() {
-      const p = props;
-      // p.loop.value;
+      const p = video.props;
+      p.ready.value;
+
+      // Media:
+      p.src.value;
+      p.playing.value;
+      p.muted.value;
+      p.autoPlay.value;
+      p.loop.value;
+
+      // Appearance:
+      p.showControls.value;
+      p.showFullscreenButton.value;
+      p.showVolumeControl.value;
+      p.background.value;
+      p.cornerRadius.value;
+      p.aspectRatio.value;
+      p.scale.value;
+
+      // Commands:
+      p.jumpTo.value;
     },
   };
   return api;
@@ -43,30 +62,9 @@ export function createDebugSignals() {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const video = debug.video;
-  const d = debug.props;
   const p = video.props;
 
-  Signal.useRedrawEffect(() => {
-    p.ready.value;
-
-    // Media.
-    p.src.value;
-    p.playing.value;
-    p.muted.value;
-    p.autoPlay.value;
-    p.loop.value;
-
-    // Appearance.
-    p.showControls.value;
-    p.showFullscreenButton.value;
-    p.showVolumeControl.value;
-    p.background.value;
-    p.cornerRadius.value;
-    p.aspectRatio.value;
-
-    // Commands.
-    p.jumpTo.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
@@ -125,7 +123,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={`aspectRatio: ${p.aspectRatio}`}
-        onClick={() => Signal.cycle(p.aspectRatio, [DEFAULTS.aspectRatio, '4/3', '2.39/1', '1/1'])}
+        onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '4/3', '2.39/1', '1/1'])}
+      />
+      <Button
+        block
+        label={`scale: ${p.scale}`}
+        onClick={() => Signal.cycle(p.scale, [undefined, 1, 1.005, 1.01, 2])}
       />
 
       <hr />
@@ -135,8 +138,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`src: ${p.src}`}
         onClick={() =>
           Signal.cycle(p.src, [
-            DEFAULTS.video, //    Tubes.
-            'vimeo/727951677', // Rowan: "group scale",
+            D.video, //           Default:  "tubes"
+            'vimeo/727951677', // Rowan:    "group scale"
           ])
         }
       />

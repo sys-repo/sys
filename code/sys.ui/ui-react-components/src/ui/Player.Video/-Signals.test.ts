@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Player } from '../Player/mod.ts';
-import { DEFAULTS } from './common.ts';
+import { D } from './common.ts';
 import { playerSignalsFactory } from './mod.ts';
 
 describe('VideoPlayer: Signals API', () => {
@@ -10,20 +10,21 @@ describe('VideoPlayer: Signals API', () => {
       const p = s.props;
 
       expect(p.ready.value).to.eql(false);
-      expect(p.src.value).to.eql(DEFAULTS.video);
+      expect(p.src.value).to.eql(D.video);
 
       expect(p.playing.value).to.eql(false);
       expect(p.currentTime.value).to.eql(0);
-      expect(p.loop.value).to.eql(DEFAULTS.loop);
-      expect(p.autoPlay.value).to.eql(DEFAULTS.autoPlay);
-      expect(p.muted.value).to.eql(DEFAULTS.muted);
+      expect(p.loop.value).to.eql(D.loop);
+      expect(p.autoPlay.value).to.eql(D.autoPlay);
+      expect(p.muted.value).to.eql(D.muted);
 
       expect(p.showControls.value).to.eql(true);
-      expect(p.showFullscreenButton.value).to.eql(DEFAULTS.showFullscreenButton);
-      expect(p.showVolumeControl.value).to.eql(DEFAULTS.showVolumeControl);
-      expect(p.cornerRadius.value).to.eql(DEFAULTS.cornerRadius);
-      expect(p.aspectRatio.value).to.eql(DEFAULTS.aspectRatio);
-      expect(p.background.value).to.eql(DEFAULTS.background);
+      expect(p.showFullscreenButton.value).to.eql(D.showFullscreenButton);
+      expect(p.showVolumeControl.value).to.eql(D.showVolumeControl);
+      expect(p.cornerRadius.value).to.eql(D.cornerRadius);
+      expect(p.aspectRatio.value).to.eql(D.aspectRatio);
+      expect(p.background.value).to.eql(D.background);
+      expect(p.scale.value).to.eql(D.scale);
 
       expect(p.jumpTo.value).to.eql(undefined);
 
@@ -43,6 +44,7 @@ describe('VideoPlayer: Signals API', () => {
         autoPlay: true,
         muted: true,
         background: true,
+        scale: 1.01,
       });
 
       const p = s.props;
@@ -57,6 +59,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.showVolumeControl.value).to.eql(false);
       expect(p.cornerRadius.value).to.eql(0);
       expect(p.background.value).to.eql(true);
+      expect(p.scale.value).to.eql(1.01);
     });
 
     it('param: src param (string)', () => {
