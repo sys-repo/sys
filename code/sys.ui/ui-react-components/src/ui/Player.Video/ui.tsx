@@ -1,8 +1,10 @@
-import { type MediaPlayerInstance, MediaPlayer, MediaProvider } from '@vidstack/react';
+import type { MediaPlayerInstance } from '@vidstack/react';
+import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
-import React, { useRef } from 'react';
 
-import { type t, css, DEFAULTS, Signal, Style } from './common.ts';
+import React, { useState, useRef, useEffect } from 'react';
+
+import { type t, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
@@ -26,11 +28,16 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const scale = p?.scale.value ?? D.scale;
   const loop = p?.loop.value ?? D.loop;
 
+  const size = useSizeObserver();
+  const [calcScale, setCalcScale] = useState<number>();
+
   const themeStyles = useThemeStyles('Plyr');
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
-  // Ensure redraw on signal changes.
+  /**
+   * Effect: ensure redraw on signal changes.
+   */
   Signal.useRedrawEffect(() => {
     if (!p) return;
     p.ready.value;
@@ -49,9 +56,24 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   });
 
   /**
-   * HACK: ensure player style-sheets work consistently when deployed (https).
+   * Effect: monitor size differene
    */
-  React.useEffect(() => {
+  useEffect(() => {
+    const { width, height } = size;
+    const fn = p?.scale.value;
+    if (width === undefined || height === undefined) return;
+    if (typeof fn !== 'function') {
+      setCalcScale(undefined);
+    } else {
+      const calc = (increment: t.Pixels) => wrangle.scale(width, height, increment);
+      setCalcScale(fn({ width, height, calc }));
+    }
+  }, [size.width, size.height, scale]);
+
+  /**
+   * Effect (HACK): ensure player style-sheets work consistently when bundled and deployed.
+   */
+  useEffect(() => {
     const sheet = Style.Dom.stylesheet();
     sheet.rule('[data-media-provider]', { width: '100%', height: '100%' });
     sheet.rule('[data-media-provider] iframe', {
@@ -90,7 +112,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     <MediaPlayer
       ref={playerRef}
       style={{
-        transform: `scale(${scale})`,
+        transform: `scale(${calcScale ?? scale ?? 1})`,
         '--plyr-border-radius': `${cornerRadius}px`,
         '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}
@@ -119,5 +141,21 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     </MediaPlayer>
   );
 
-  return <div className={css(styles.base, props.style).class}>{elPlayer}</div>;
+  return (
+    <div ref={size.ref} className={css(styles.base, props.style).class}>
+      {elPlayer}
+    </div>
+  );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  scale(width: t.Pixels, height: t.Pixels, increment: t.Pixels) {
+    if (width === 0 || height === 0) return 1;
+    const scaleX = (width + increment) / width;
+    const scaleY = (height + increment) / height;
+    return Math.max(scaleX, scaleY); // NB: Return the greater scale factor to ensure both dimensions are increased by at least increment.
+  },
+} as const;

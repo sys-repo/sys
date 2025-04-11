@@ -127,8 +127,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`scale: ${p.scale}`}
-        onClick={() => Signal.cycle(p.scale, [undefined, 1, 1.005, 1.01, 2])}
+        label={() => {
+          const current = p.scale.value;
+          return `scale: ${typeof current === 'function' ? 'ƒn' : current}`;
+        }}
+        onClick={() => {
+          const fn: t.VideoPlayerScale = (e) => {
+            const inc = 1;
+            const res = e.calc(inc);
+            console.info(`⚡️ scale (callback):`, e);
+            console.info(`   increment (${inc}px):`, res);
+            return res;
+          };
+          Signal.cycle(p.scale, [undefined, 1, fn, 2]);
+        }}
       />
 
       <hr />

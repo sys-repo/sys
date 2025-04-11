@@ -18,6 +18,12 @@ export type SizeObserverHook<T extends HTMLElement> = {
   /** The latest dimensions of the element (or null if not measured yet). */
   rect?: DOMRectReadOnly;
 
+  /** The `rect.width` value. */
+  readonly width?: t.Pixels | undefined;
+
+  /** The `rect.height` value. */
+  readonly height: t.Pixels | undefined;
+
   /** Convert to a simple object. */
   toObject(): t.DomRect;
 };
