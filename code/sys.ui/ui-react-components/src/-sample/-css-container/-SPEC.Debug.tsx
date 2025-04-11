@@ -4,7 +4,7 @@ import { type t, Button, Color, css, Signal } from '../-test.ui.ts';
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
@@ -23,8 +23,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<P> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
   Signal.useRedrawEffect(() => p.theme.value);
 

@@ -7,7 +7,7 @@ import { type t, Color, css, Signal } from './common.ts';
  */
 export type DebugImportStyle = 'Static' | 'Function → Promise';
 export type DebugImage = 'Small' | 'Larger';
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssValue };
+export type DebugProps = { debug: DebugSignals; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
@@ -23,7 +23,18 @@ export function createDebugSignals() {
     importStyle: s<DebugImportStyle>('Function → Promise'),
     image: s<DebugImage>('Small'),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.theme.value;
+      p.width.value;
+      p.image.value;
+      p.color.value;
+      p.image.value;
+      p.importStyle.value;
+    },
+  };
   return api;
 }
 
@@ -31,15 +42,10 @@ export function createDebugSignals() {
  * Component:
  */
 export const Debug: React.FC<P> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.width.value;
-    p.image.value;
-    p.importStyle.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:

@@ -26,7 +26,14 @@ export function createDebugSignals() {
   });
 
   const props = {};
-  const api = { props, video };
+  const api = {
+    props,
+    video,
+    listen() {
+      const p = props;
+      // p.loop.value;
+    },
+  };
   return api;
 }
 

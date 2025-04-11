@@ -16,7 +16,15 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     size: s<P['size']>(),
     subjectOnly: s<P['subjectOnly']>(false),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.theme.value;
+      p.size.value;
+      p.subjectOnly.value;
+    },
+  };
   init?.(api);
   return api;
 }

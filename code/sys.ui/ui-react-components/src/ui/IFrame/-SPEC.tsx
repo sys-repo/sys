@@ -20,10 +20,7 @@ export default Spec.describe('IFrame', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme);
 
     Signal.effect(() => {
-      p.src.value;
-      p.allowFullScreen.value;
-      p.loading.value;
-      p.sandbox.value;
+      debug.listen();
       ctx.redraw();
     });
 
@@ -58,6 +55,6 @@ export default Spec.describe('IFrame', (e) => {
 
   e.it('ui:debug', (e) => {
     const ctx = Spec.ctx(e);
-    ctx.debug.row(<Debug ctx={{ debug }} />);
+    ctx.debug.row(<Debug debug={debug} />);
   });
 });

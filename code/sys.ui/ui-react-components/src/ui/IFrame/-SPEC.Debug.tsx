@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '../Button/mod.ts';
-import { type t, Str, Color, css, Signal } from './common.ts';
+import { type t, Color, css, Signal, Str } from './common.ts';
 
 const local = new URL(`${location.origin}${location.pathname}`);
 
 /**
  * Types:
  */
-export type DebugProps = { ctx: { debug: DebugSignals }; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 
@@ -25,7 +25,18 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     loading: s<t.IFrameProps['loading']>(),
     sandbox: s<t.IFrameSandbox[] | undefined>(),
   };
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.theme.value;
+      p.src.value;
+      p.showBackground.value;
+      p.allowFullScreen.value;
+      p.loading.value;
+      p.sandbox.value;
+    },
+  };
   init?.(api);
   return api;
 }
@@ -34,16 +45,11 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
  * Component:
  */
 export const Debug: React.FC<P> = (props) => {
-  const { ctx } = props;
-  const p = ctx.debug.props;
+  const { debug } = props;
+  const p = debug.props;
 
   Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.src.value;
-    p.showBackground.value;
-    p.allowFullScreen.value;
-    p.loading.value;
-    p.sandbox.value;
+    debug.listen();
   });
 
   /**

@@ -22,7 +22,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     video,
   };
 
-  const api = { props };
+  const api = {
+    props,
+    listen() {
+      const p = props;
+      p.theme.value;
+    },
+  };
   init?.(api);
   return api;
 }

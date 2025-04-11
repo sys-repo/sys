@@ -12,9 +12,7 @@ export default Spec.describe('Cropmarks', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      p.theme.value;
-      p.size.value;
-      p.subjectOnly.value;
+      debug.listen();
       ctx.redraw();
     });
 
