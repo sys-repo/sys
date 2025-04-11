@@ -99,7 +99,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `application`}
+        label={() => `- application ("SLC product system")`}
         onClick={async () => {
           app.stack.clear();
           app.stack.push(await Content.factory('Entry'));
@@ -108,7 +108,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `samples`}
+        label={() => `- samples`}
         onClick={() => {
           app.stack.clear();
           app.stack.push(Sample.sample0());
