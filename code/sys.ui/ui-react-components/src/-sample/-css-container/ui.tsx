@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Style } from '../-test.ui.ts';
+import { type t, Color, css, Style, useSizeObserver } from '../-test.ui.ts';
 
 /**
  * 🌼 NOTE: import the raw stylesheet
@@ -25,6 +25,8 @@ type P = ContainerProps;
  */
 export const Container: React.FC<P> = (props) => {
   const {} = props;
+
+  const size = useSizeObserver();
 
   /**
    * REF: https://chatgpt.com/share/67ddffa7-a668-800b-87f1-4aa855733c7b
@@ -66,6 +68,8 @@ export const Container: React.FC<P> = (props) => {
       overflow: 'hidden',
       display: 'grid',
       placeItems: 'center',
+
+      // color: 'orange',
     })
       .rule('h2', { color: 'red' })
       .rule('h2 code', { color: 'blue' }), // 🌼 NB: aribitrary CSS sub-selector rule.
@@ -77,7 +81,10 @@ export const Container: React.FC<P> = (props) => {
       whiteSpace: 'nowrap',
     })
       .container('min-width: 400px', { fontSize: 90, color: 'blue' })
-      .container('min-width: 600px', { fontSize: 150, color: theme.fg, letterSpacing: -4 }).done,
+      .container('min-width: 600px', { fontSize: 150, color: theme.fg, letterSpacing: -4 })
+      .container('max-height: 500px', { color: 'orange' }).done,
+
+    size: css({ Absolute: [8, 10, null, null], fontSize: 16 }),
   };
 
   // styles.base.
@@ -93,12 +100,15 @@ export const Container: React.FC<P> = (props) => {
   //   transition: 'font-size 200ms',
   // });
 
+  const elSize = <div className={styles.size.class}>{`${size.toString()}`}</div>;
+
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div ref={size.ref} className={css(styles.base, props.style).class}>
       <h1 className={styles.h1.class}>{`Hello 👋`}</h1>
       <h2>
         {`H2 Heading`} <code>Code</code>
       </h2>
+      {elSize}
     </div>
   );
 };
