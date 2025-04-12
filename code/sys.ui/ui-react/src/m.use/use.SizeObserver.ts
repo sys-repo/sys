@@ -39,7 +39,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
   /**
    * API
    */
-
+  const toObject = () => wrangle.asObject(rect);
   return {
     ref,
     get ready() {
@@ -52,9 +52,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
       return rect?.height;
     },
     rect,
-    toObject() {
-      return wrangle.asObject(rect);
-    },
+    toObject,
     toString() {
       const width = wrangle.sizeString(rect?.width);
       const height = wrangle.sizeString(rect?.height);
