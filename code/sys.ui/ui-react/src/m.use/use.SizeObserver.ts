@@ -42,14 +42,17 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
   const toObject = () => wrangle.asObject(rect);
   return {
     ref,
-    rect,
-    toObject,
+    get ready() {
+      return rect !== undefined;
+    },
     get width() {
       return rect?.width;
     },
     get height() {
       return rect?.height;
     },
+    rect,
+    toObject,
   };
 };
 

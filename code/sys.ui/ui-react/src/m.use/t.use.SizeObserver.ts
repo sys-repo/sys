@@ -13,10 +13,13 @@ export type UseSizeObserver = <T extends HTMLElement>(
  */
 export type SizeObserverHook<T extends HTMLElement> = {
   /** Callback ref to be assigned to the element to observe. */
-  ref: RefCallback<T>;
+  readonly ref: RefCallback<T>;
+
+  /** Flag indicating if the first render-pass has allowed a measurement. */
+  readonly ready: boolean;
 
   /** The latest dimensions of the element (or null if not measured yet). */
-  rect?: DOMRectReadOnly;
+  readonly rect?: DOMRectReadOnly;
 
   /** The `rect.width` value. */
   readonly width?: t.Pixels | undefined;
