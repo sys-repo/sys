@@ -1,6 +1,7 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, css } from './common.ts';
 import { SvgImage } from './ui.Svg.tsx';
+import { useSelection } from './use.Selection.ts';
 
 type P = t.LogoCanvasProps;
 
@@ -8,24 +9,24 @@ type P = t.LogoCanvasProps;
  * Component.
  */
 export const LogoCanvas: React.FC<P> = (props) => {
-  const { selected, over, onPanelEvent, width } = props;
+  const { over, onPanelEvent, width } = props;
+  const { selected } = useSelection(props);
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       position: 'relative',
-      userSelect: 'none',
       cursor: 'default',
+      userSelect: 'none',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <SvgImage
-        theme={theme.name}
+        theme={props.theme}
         width={width}
         selected={selected}
         over={over}

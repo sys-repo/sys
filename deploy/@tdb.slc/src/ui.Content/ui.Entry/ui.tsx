@@ -1,18 +1,21 @@
 import React from 'react';
+import { Factory } from '../-factory/mod.ts';
 import {
   type t,
-  CanvasPanel,
   Button,
+  CanvasPanel,
   Color,
   css,
   Icons,
   LogoCanvas,
   LogoWordmark,
 } from '../common.ts';
-import { Factory } from '../-factory/mod.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
+
+const heartRateBPM = 72;
+const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
 
 /**
  * Component:
@@ -70,6 +73,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
               theme={theme.name}
               style={styles.brand.canvas}
               selected={CanvasPanel.list}
+              selectionAnimation={{ delay, loop: true }}
             />
             <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
           </div>

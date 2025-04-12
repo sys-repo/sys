@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Signal } from './common.ts';
-
-import { Button } from '@sys/ui-react-components';
+import { type t, Button, CanvasPanel, Color, css, Signal, D } from './common.ts';
+import { Selection } from './m.Selection.ts';
 
 /**
  * Types
@@ -18,17 +17,19 @@ export function createDebugSignals() {
   const props = {
     theme: s<P['theme']>('Dark'),
     width: s<P['width']>(400),
-    selected: s<P['selected']>('purpose'),
     over: s<P['over']>(),
+    selected: s<P['selected']>('purpose'),
+    selectionAnimation: s<P['selectionAnimation']>(),
   };
   const api = {
     props,
     listen() {
       const p = props;
       p.width.value;
-      p.selected.value;
       p.over.value;
       p.theme.value;
+      p.selected.value;
+      p.selectionAnimation.value;
     },
   };
   return api;
@@ -41,11 +42,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.width.value;
-    p.over.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
@@ -68,6 +65,28 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block={true}
+        label={() => {
+          const value = p.selected.value;
+          const fmt = Array.isArray(value) ? `array[${value.length}]` : value ?? '<undefined>';
+          return `selected: ${fmt}`;
+        }}
+        onClick={() => Signal.cycle(p.selected, [undefined, CanvasPanel.list, 'purpose'])}
+      />
+
+      <Button
+        block={true}
+        label={() => {
+          const value = Selection.animation(p.selectionAnimation.value);
+          return `selectionAnimation.loop: ${value.loop ?? '<undefined>'}`;
+        }}
+        onClick={() => {
+          const next = Selection.animation(p.selectionAnimation.value);
+          next.loop = !(next.loop ?? D.selectionAnimation.loop);
+          p.selectionAnimation.value = next;
+        }}
+      />
     </div>
   );
 };

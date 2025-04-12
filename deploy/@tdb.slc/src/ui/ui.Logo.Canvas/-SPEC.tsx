@@ -13,6 +13,7 @@ export default Spec.describe('Logo.Canvas', (e) => {
         theme={options.theme ?? p.theme.value}
         width={p.width.value}
         selected={p.selected.value}
+        selectionAnimation={p.selectionAnimation.value}
         over={p.over.value}
         onPanelEvent={(e) => {
           if (e.type === 'leave' && p.over.value === e.panel) p.over.value = undefined;
