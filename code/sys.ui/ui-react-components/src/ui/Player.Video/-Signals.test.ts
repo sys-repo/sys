@@ -33,7 +33,7 @@ describe('VideoPlayer: Signals API', () => {
     });
 
     it('param: custom { defaults }', () => {
-      const scale: t.VideoPlayerScale = (e) => e.calc(1);
+      const scale: t.VideoPlayerScale = (e) => e.enlarge(1);
       const s = Player.Video.signals({
         src: 'vimeo/foobar',
         loop: true,
