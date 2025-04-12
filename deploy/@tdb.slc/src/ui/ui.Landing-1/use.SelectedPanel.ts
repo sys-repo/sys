@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { type t, Signal, rx, CanvasPanelList, Time } from './common.ts';
+import { type t, Signal, rx, CanvasPanel, Time } from './common.ts';
 
 export function useSelectedPanel() {
   const panel = Signal.useSignal<t.CanvasPanel>('purpose');
@@ -13,7 +13,7 @@ export function useSelectedPanel() {
 
     const next = async () => {
       if (life.disposed) return;
-      Signal.cycle(panel, CanvasPanelList);
+      Signal.cycle(panel, CanvasPanel.list);
       Time.delay(delay, next);
     };
 

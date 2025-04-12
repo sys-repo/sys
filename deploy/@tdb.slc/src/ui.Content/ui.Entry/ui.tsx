@@ -1,5 +1,14 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from '../common.ts';
+import {
+  type t,
+  CanvasPanel,
+  Button,
+  Color,
+  css,
+  Icons,
+  LogoCanvas,
+  LogoWordmark,
+} from '../common.ts';
 import { Factory } from '../-factory/mod.ts';
 import { Install } from './ui.Install.tsx';
 
@@ -57,7 +66,11 @@ export const Entry: React.FC<EntryProps> = (props) => {
       <div className={styles.body.class}>
         <Button block theme={theme.name} onClick={onCanvasClick}>
           <div className={styles.brand.base.class}>
-            <LogoCanvas theme={theme.name} style={styles.brand.canvas} />
+            <LogoCanvas
+              theme={theme.name}
+              style={styles.brand.canvas}
+              selected={CanvasPanel.list}
+            />
             <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
           </div>
         </Button>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, DEFAULTS, Player } from '../common.ts';
+
+import { type t, CanvasPanel, DEFAULTS, Player } from '../common.ts';
 import { VIDEO } from '../VIDEO.ts';
 import { Body } from './ui.Body.tsx';
 import { Trailer } from './ui.tsx';
@@ -9,12 +10,17 @@ import { Trailer } from './ui.tsx';
  */
 export function factory() {
   const theme = DEFAULTS.theme.sheet;
+  const src = VIDEO.Trailer.src;
+  const panels = CanvasPanel.list;
 
   const content: t.VideoContent = {
     '-type': 'VideoContent',
     id: 'Trailer',
-    video: Player.Video.signals(VIDEO.Trailer.src),
-    playOnLoad: true,
+    video: Player.Video.signals({
+      src,
+      scale: (e) => e.calc(2),
+    }),
+    playOnLoad: false,
 
     render(props) {
       return <Trailer {...props} theme={theme} />;
@@ -31,20 +37,3 @@ export function factory() {
   };
   return content;
 }
-
-/**
- * Ordered list of SLC panels.
- */
-const panels: t.CanvasPanel[] = [
-  'purpose',
-  'impact',
-  'problem',
-  'solution',
-  'metrics',
-  'uvp',
-  'advantage',
-  'channels',
-  'customers',
-  'costs',
-  'revenue',
-];

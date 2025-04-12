@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { type t, Color, css, LogoCanvas, LogoWordmark, Time } from '../common.ts';
+import React from 'react';
+import { type t, Color, css, LogoCanvas, LogoWordmark } from '../common.ts';
 
 export type BodyProps = {
   selected?: t.CanvasPanel | t.CanvasPanel[];
@@ -11,27 +11,7 @@ export type BodyProps = {
 type P = BodyProps;
 
 export const Body: React.FC<P> = (props) => {
-  const { selected, showLogo = false } = props;
-  const [currentSelected, setCurrentSelected] = useState<t.CanvasPanel>();
-
-  /**
-   * Effect:
-   */
-  useEffect(() => {
-    const time = Time.until();
-    async function animateSelected(list: t.CanvasPanel[]) {
-      for (const value of list) {
-        if (time.disposed) break;
-        setCurrentSelected(value);
-        await time.wait(200);
-      }
-    }
-
-    if (Array.isArray(selected)) animateSelected(selected);
-    else setCurrentSelected(selected);
-
-    return time.dispose;
-  }, [wrangle.selected(props).join(':')]);
+  const { showLogo = false } = props;
 
   /**
    * Render:
@@ -52,20 +32,9 @@ export const Body: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <LogoCanvas theme={theme.name} style={styles.canvas} selected={currentSelected} />
+        <LogoCanvas theme={theme.name} style={styles.canvas} selected={props.selected} />
         <LogoWordmark theme={theme.name} style={styles.logo} />
       </div>
     </div>
   );
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  selected(props: P): t.CanvasPanel[] {
-    const { selected } = props;
-    if (!selected) return [];
-    return Array.isArray(selected) ? selected : [selected];
-  },
-} as const;
