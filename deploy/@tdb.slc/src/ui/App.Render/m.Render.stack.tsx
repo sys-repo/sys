@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, AnimatePresence, Breakpoint, css, DEFAULTS } from './common.ts';
+import { type t, AnimatePresence, css, DEFAULTS } from './common.ts';
 
 /**
  * Renders the body of the matching timestamp.
@@ -14,7 +14,7 @@ export function stack(state: t.AppSignals | undefined): t.ReactNode {
 /**
  * Render a single level in the stack.
  */
-function render(args: { index: number; state: t.AppSignals; content: t.Content }) {
+export function render(args: { index: number; state: t.AppSignals; content: t.Content }) {
   const { state, content, index } = args;
   const theme = wrangle.theme(content, state);
   const is = wrangle.is(state, index);
@@ -33,38 +33,6 @@ function render(args: { index: number; state: t.AppSignals; content: t.Content }
     </div>
   );
 }
-
-/**
- * Render the current timestamp content.
- */
-// function renderTimestamp(args: {
-//   index: number;
-//   state: t.AppSignals;
-//   content: t.Content;
-//   theme: t.CommonTheme;
-//   breakpoint: t.Breakpoint;
-// }) {
-//   const { index, state, content, theme, breakpoint } = args;
-//   const is = wrangle.is(state, index);
-//
-//   const player = AppSignals.Player.find(state, content, index);
-//   const secs = player?.props.currentTime.value ?? -1;
-//   const timestamps = content?.timestamps ?? {};
-//   const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
-//
-//   if (!match?.data) return null;
-//   if (typeof match.data.render !== 'function') return null;
-//
-//   return match.data.render({
-//     timestamp: match.timestamp,
-//     index,
-//     state,
-//     content,
-//     theme,
-//     breakpoint,
-//     is,
-//   });
-// }
 
 /**
  * Helpers

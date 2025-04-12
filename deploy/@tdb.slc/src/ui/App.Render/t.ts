@@ -7,9 +7,10 @@ export type AppRenderLib = {
   stack: (state: t.AppSignals | undefined) => t.ReactNode;
 
   /**
-   * TODO 🐷 move to Type: <VideoContent>.
+   * Ensure the specified ESM content modules have been dyanamically imported.
    */
   preload<T extends string>(
+    state: t.AppSignals,
     factory: (flag: T) => Promise<t.Content | undefined>,
     ...content: T[]
   ): Promise<void>;
