@@ -1,6 +1,7 @@
 import { type t, DEFAULTS, Signal } from './common.ts';
 
 type T = t.VideoPlayerSignals;
+type P = t.VideoPlayerSignalProps;
 const D = DEFAULTS;
 
 /**
@@ -28,7 +29,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     background: s<boolean>(defaults.background ?? D.background),
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
-    scale: s<number>(defaults.scale ?? D.scale),
+    scale: s<number | t.VideoPlayerScale>(defaults.scale ?? D.scale),
 
     // Commands:
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 import { Player } from '../Player/mod.ts';
 import { D } from './common.ts';
 import { playerSignalsFactory } from './mod.ts';
@@ -33,6 +33,7 @@ describe('VideoPlayer: Signals API', () => {
     });
 
     it('param: custom { defaults }', () => {
+      const scale: t.VideoPlayerScale = (e) => e.calc(1);
       const s = Player.Video.signals({
         src: 'vimeo/foobar',
         loop: true,
@@ -44,7 +45,7 @@ describe('VideoPlayer: Signals API', () => {
         autoPlay: true,
         muted: true,
         background: true,
-        scale: 1.01,
+        scale,
       });
 
       const p = s.props;
@@ -59,7 +60,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.showVolumeControl.value).to.eql(false);
       expect(p.cornerRadius.value).to.eql(0);
       expect(p.background.value).to.eql(true);
-      expect(p.scale.value).to.eql(1.01);
+      expect(p.scale.value).to.equal(scale);
     });
 
     it('param: src param (string)', () => {

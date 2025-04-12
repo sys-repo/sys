@@ -87,11 +87,12 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   /**
    * Render:
    */
+  const isReady = Boolean(themeStyles.loaded && !!p?.ready.value && size.ready);
   const styles = {
     base: css({
       overflow: 'hidden',
       display: 'grid',
-      visibility: themeStyles.loaded && p?.ready.value ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
+      visibility: isReady ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
     }),
   };

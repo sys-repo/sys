@@ -16,7 +16,7 @@ export type PlayerSignalsFactoryDefaults = {
   showVolumeControl?: boolean;
   cornerRadius?: number;
   aspectRatio?: string;
-  scale?: number;
+  scale?: number | t.VideoPlayerScale;
   autoPlay?: boolean;
   muted?: boolean;
   background?: boolean;
