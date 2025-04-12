@@ -85,6 +85,7 @@ export const Debug: React.FC<P> = (props) => {
       {selectVideo('Overview', VIDEO.Overview.src)}
       <hr />
       {selectVideo('ref: "Group Scale"', VIDEO.GroupScale.src)}
+      {selectVideo('sample: Hindi Translation', 'vimeo/1074559094')}
     </div>
   );
 };
