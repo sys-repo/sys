@@ -18,7 +18,7 @@ export function factory() {
     id: 'Trailer',
     video: Player.Video.signals({
       src,
-      scale: (e) => e.calc(2),
+      scale: (e) => e.calc(2), // NB: enlarge 2px to crop out noise/line at top of video.
     }),
     playOnLoad: false,
 
