@@ -39,7 +39,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
   /**
    * API
    */
-  const toObject = () => wrangle.asObject(rect);
+
   return {
     ref,
     get ready() {
@@ -52,7 +52,14 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
       return rect?.height;
     },
     rect,
-    toObject,
+    toObject() {
+      return wrangle.asObject(rect);
+    },
+    toString() {
+      const width = wrangle.sizeString(rect?.width);
+      const height = wrangle.sizeString(rect?.height);
+      return `${width} x ${height}`;
+    },
   };
 };
 
@@ -64,5 +71,10 @@ const wrangle = {
     if (!rect) return { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 };
     const { x, y, width, height, top, right, bottom, left } = rect;
     return { x, y, width, height, top, right, bottom, left };
+  },
+
+  sizeString(input?: number) {
+    if (input === undefined) return '-';
+    return input.toFixed(0);
   },
 } as const;

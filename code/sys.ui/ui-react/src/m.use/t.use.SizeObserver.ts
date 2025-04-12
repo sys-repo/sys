@@ -29,6 +29,9 @@ export type SizeObserverHook<T extends HTMLElement> = {
 
   /** Convert to a simple object. */
   toObject(): t.DomRect;
+
+  /** Create a string representation of the size. */
+  toString(): string;
 };
 
 /**
