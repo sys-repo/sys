@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { t } from './common.ts';
+import { type t, css } from './common.ts';
 
 /**
  * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
@@ -40,7 +40,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
    * API
    */
   const toObject = () => wrangle.asObject(rect);
-  return {
+  const api: t.SizeObserverHook<T> = {
     ref,
     get ready() {
       return rect !== undefined;
@@ -58,7 +58,15 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
       const height = wrangle.sizeString(rect?.height);
       return `${width} x ${height}`;
     },
+    toElement(input) {
+      const props = wrangle.elementProps(input);
+      const { opacity, fontSize = 14, Absolute } = props;
+      let display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
+      const base = css({ Absolute, display, fontSize, opacity });
+      return <div className={css(base, props.style).class}>{`${api.toString()}`}</div>;
+    },
   };
+  return api;
 };
 
 /**
@@ -74,5 +82,11 @@ const wrangle = {
   sizeString(input?: number) {
     if (input === undefined) return '-';
     return input.toFixed(0);
+  },
+
+  elementProps(input?: t.SizeObserverElementProps | t.CssEdgesArray): t.SizeObserverElementProps {
+    if (!input) return {};
+    if (Array.isArray(input)) return { Absolute: input };
+    return input;
   },
 } as const;

@@ -32,6 +32,9 @@ export type SizeObserverHook<T extends HTMLElement> = {
 
   /** Create a string representation of the size. */
   toString(): string;
+
+  /** Renders a react element "<width> x <height>". */
+  toElement(props?: SizeObserverElementProps | t.CssEdgesArray): t.ReactNode;
 };
 
 /**
@@ -41,4 +44,17 @@ export type SizeObserverChangeHandler = (e: SizeObserverChangeHandlerArgs) => vo
 export type SizeObserverChangeHandlerArgs = {
   readonly rect: DOMRectReadOnly;
   toObject(): t.DomRect;
+};
+
+/**
+ * Properties for the size rendered as an element ("<width> x <height>").
+ */
+export type SizeObserverElementProps = {
+  /** Display: "block" (false, default) or inline-block (true). */
+  inline?: boolean;
+  visible?: boolean;
+  fontSize?: number;
+  opacity?: number;
+  style?: t.CssInput;
+  Absolute?: t.CssEdgesInput;
 };
