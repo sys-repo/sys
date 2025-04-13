@@ -2,8 +2,8 @@
  * @module
  * Module types.
  */
-export type * from './ui/App.Render/t.ts';
 export type * from './ui/App.Layout/t.ts';
+export type * from './ui/App.Render/t.ts';
 export type * from './ui/App.Signals/t.ts';
 export type * from './ui/App/t.ts';
 
@@ -19,8 +19,9 @@ export type * from './ui/ui.Landing-3/t.ts';
 
 export type * from './ui/use/t.ts';
 
-export type * from './-sample/-ui.Videos/t.ts';
+export type * from './ui.Content/-sample/ui.Videos/t.ts';
 export type * from './ui.Content/t.ts';
+export type * from './ui.Content/ui/ui.CanvasSlug/t.ts';
 
 /**
  * Panels.
