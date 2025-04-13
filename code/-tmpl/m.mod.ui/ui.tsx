@@ -17,7 +17,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{'🐷 Hello'}</div>
+      <div>{'🐷 Hello MyComponent'}</div>
     </div>
   );
 };
