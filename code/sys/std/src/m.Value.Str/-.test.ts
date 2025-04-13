@@ -282,4 +282,14 @@ describe('Str (Text)', () => {
       expect(Str.truncate(undefined, 0)).to.eql('');
     });
   });
+
+  describe('Str.Lorem', () => {
+    const LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec quam lorem. Praesent fermentum, augue ut porta varius, eros nisl euismod ante, ac suscipit elit libero nec dolor. Morbi magna enim, molestie non arcu id, varius sollicitudin neque. In sed quam mauris. Aenean mi nisl, elementum non arcu quis, ultrices tincidunt augue. Vivamus fermentum iaculis tellus finibus porttitor. Nulla eu purus id dolor auctor suscipit. Integer lacinia sapien at ante tempus volutpat.`;
+
+    it('Lorem.text | toString', () => {
+      expect(Str.Lorem.text).to.eql(LOREM);
+      expect(Str.Lorem.toString()).to.eql(LOREM);
+      expect(String(Str.Lorem)).to.eql(LOREM);
+    });
+  });
 });

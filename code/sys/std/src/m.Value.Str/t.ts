@@ -13,6 +13,8 @@ export type FormatBytesOptions = FormatOptions & {};
  * Tools for working on strings of text.
  */
 export type StrLib = {
+  readonly Lorem: StrLoremLib;
+
   /**
    * Calculate a difference between two strings.
    */
@@ -57,4 +59,12 @@ export type StrLib = {
    * Truncates a string with ellipsis if over a maximum length.
    */
   truncate(text: string | undefined, max: number): string;
+};
+
+/**
+ * Tools for working with sample "lorem ipsum..." text.
+ */
+export type StrLoremLib = {
+  readonly text: string;
+  toString(): string;
 };
