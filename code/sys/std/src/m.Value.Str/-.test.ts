@@ -286,14 +286,65 @@ describe('Str (Text)', () => {
   describe('Str.Lorem', () => {
     const LOREM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec quam lorem. Praesent fermentum, augue ut porta varius, eros nisl euismod ante, ac suscipit elit libero nec dolor. Morbi magna enim, molestie non arcu id, varius sollicitudin neque. In sed quam mauris. Aenean mi nisl, elementum non arcu quis, ultrices tincidunt augue. Vivamus fermentum iaculis tellus finibus porttitor. Nulla eu purus id dolor auctor suscipit. Integer lacinia sapien at ante tempus volutpat.`;
 
+    it('Str.lorem (string)', () => {
+      expect(Str.lorem).to.eql(Str.Lorem.text);
+    });
+
     it('Lorem.text | toString', () => {
       expect(Str.Lorem.text).to.eql(LOREM);
       expect(Str.Lorem.toString()).to.eql(LOREM);
       expect(String(Str.Lorem)).to.eql(LOREM);
     });
 
-    it('Str.lorem (string)', () => {
-      expect(Str.lorem).to.eql(Str.Lorem.text);
+    describe('Str.Lorem.words', () => {
+      it('should return an empty string when count is negative', () => {
+        const result = Str.Lorem.words(-5);
+        expect(result).to.equal('');
+      });
+
+      it('should return an empty string when count is zero', () => {
+        const result = Str.Lorem.words(0);
+        expect(result).to.equal('');
+      });
+
+      it('should return the first N words with a trailing period when count > 0', () => {
+        // For example, if count = 5, we expect the result to have 5 words and end with a period.
+        const count = 5;
+        const result = Str.Lorem.words(count);
+
+        // Remove the final character (period) to check the word count.
+        const words = result.split(' ');
+        expect(words.length).to.equal(count);
+        expect(result.endsWith('.')).to.be.true;
+      });
+
+      it('should repeat the text if count exceeds the total number of words', () => {
+        const count = 1000;
+        const result = Str.Lorem.words(count);
+
+        // Remove the trailing period (if present) and split the result into words.
+        const resultWords = result.endsWith('.')
+          ? result.slice(0, -1).split(' ')
+          : result.split(' ');
+        expect(resultWords.length).to.equal(count);
+
+        // Get the original words from Lorem.text (removing the trailing period).
+        const originalWords = Str.Lorem.text.endsWith('.')
+          ? Str.Lorem.text.slice(0, -1).split(' ')
+          : Str.Lorem.text.split(' ');
+
+        const trimPeriod = (input: string) => input.replace(/\.$/, '');
+
+        // Verify that the output words repeat the original words in sequence.
+        for (let i = 0; i < resultWords.length; i++) {
+          const a = resultWords[i];
+          const b = originalWords[i % originalWords.length];
+          expect(trimPeriod(a)).to.equal(trimPeriod(b));
+        }
+
+        // Ensure the result ends with a period.
+        expect(result.endsWith('.')).to.be.true;
+      });
     });
   });
 });

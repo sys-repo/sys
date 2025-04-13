@@ -10,4 +10,13 @@ export const Lorem: t.StrLoremLib = {
   toString() {
     return LOREM;
   },
+
+  words(count) {
+    if (count < 0) return '';
+    const list = LOREM.split(/\s+/).filter((word) => word.length > 0);
+    const repeats = Math.ceil(count / list.length);
+    const repeatedWords = Array(repeats).fill(list).flat();
+    const result = repeatedWords.slice(0, count).join(' ').trim();
+    return result && !result.endsWith('.') ? result + '.' : result;
+  },
 };
