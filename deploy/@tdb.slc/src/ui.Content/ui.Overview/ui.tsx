@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Signal, DEFAULTS, rx, Sheet, Player, App, Time } from '../common.ts';
 import { PullDown } from './ui.PullDown.tsx';
-import { ElapsedTime, useTimestamps } from '../ui.common/mod.ts';
+import { ElapsedTime, useTimestamps } from '../ui/mod.ts';
 
 export type OverviewProps = t.VideoContentProps;
 

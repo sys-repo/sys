@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, css, Player, Sheet } from '../common.ts';
-import { ElapsedTime, useTimestamps } from '../ui.common/mod.ts';
+import { ElapsedTime, useTimestamps } from '../ui/mod.ts';
 
 export type TrailerProps = t.VideoContentProps;
 
