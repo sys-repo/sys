@@ -65,8 +65,8 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     if (typeof fn !== 'function') {
       setCalcScale(undefined);
     } else {
-      const calc = (increment: t.Pixels) => wrangle.scale(width, height, increment);
-      setCalcScale(fn({ width, height, calc }));
+      const enlarge = (increment: t.Pixels) => wrangle.scale(width, height, increment);
+      setCalcScale(fn({ width, height, enlarge }));
     }
   }, [size.width, size.height, scale]);
 

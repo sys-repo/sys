@@ -21,11 +21,11 @@ export type VideoPlayerProps = {
   title?: string;
   style?: t.CssInput;
 
-  // Events.
+  // Events:
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
 
-  // State.
+  // State:
   signals?: t.VideoPlayerSignals;
 };
