@@ -14,6 +14,7 @@ export { bytes, capitalize, diff, plural, replace, shorten, splice };
 
 export const Str: t.StrLib = {
   Lorem,
+  lorem: Lorem.text,
   diff,
   splice,
   replace,

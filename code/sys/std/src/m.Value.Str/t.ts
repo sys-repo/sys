@@ -13,7 +13,10 @@ export type FormatBytesOptions = FormatOptions & {};
  * Tools for working on strings of text.
  */
 export type StrLib = {
+  /** The "lorem ipsum" helper library. */
   readonly Lorem: StrLoremLib;
+  /** The "lorem ipsum" string. */
+  readonly lorem: string;
 
   /**
    * Calculate a difference between two strings.

@@ -291,5 +291,9 @@ describe('Str (Text)', () => {
       expect(Str.Lorem.toString()).to.eql(LOREM);
       expect(String(Str.Lorem)).to.eql(LOREM);
     });
+
+    it('Str.lorem (string)', () => {
+      expect(Str.lorem).to.eql(Str.Lorem.text);
+    });
   });
 });
