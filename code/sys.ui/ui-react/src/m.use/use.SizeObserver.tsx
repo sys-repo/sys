@@ -46,10 +46,10 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
       return rect !== undefined;
     },
     get width() {
-      return rect?.width;
+      return rect?.width ?? 0;
     },
     get height() {
-      return rect?.height;
+      return rect?.height ?? 0;
     },
     rect,
     toObject,
@@ -60,7 +60,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
     },
     toElement(input) {
       const props = wrangle.elementProps(input);
-      const { opacity, fontSize = 14, Absolute } = props;
+      const { opacity = 0.3, fontSize = 12, Absolute } = props;
       let display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
       const base = css({ Absolute, display, fontSize, opacity });
       return <div className={css(base, props.style).class}>{`${api.toString()}`}</div>;
