@@ -1,7 +1,7 @@
-import { describe, expect, it } from '../-test.ts';
-import { Factory } from './-factory/mod.ts';
-import { Content } from './mod.ts';
-import { VIDEO } from './VIDEO.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Factory } from './mod.ts';
+import { Content } from '../mod.ts';
+import { VIDEO } from '../VIDEO.ts';
 
 describe('Content', () => {
   it('API', () => {
