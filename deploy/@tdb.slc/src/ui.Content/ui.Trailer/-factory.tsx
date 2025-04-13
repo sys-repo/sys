@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { type t, CanvasPanel, DEFAULTS, Player } from '../common.ts';
 import { VIDEO } from '../VIDEO.ts';
-import { Body } from './ui.Body.tsx';
+import { type t, CanvasPanel, CanvasSlug, DEFAULTS, Player } from './common.ts';
 import { Trailer } from './ui.tsx';
 
 /**
@@ -12,6 +11,7 @@ export function factory() {
   const theme = DEFAULTS.theme.sheet;
   const src = VIDEO.Trailer.src;
   const panels = CanvasPanel.list;
+  const Slug = CanvasSlug;
 
   const content: t.VideoContent = {
     '-type': 'VideoContent',
@@ -27,12 +27,20 @@ export function factory() {
     },
 
     timestamps: {
-      '00:00:00.000': (props) => <Body {...props} />,
+      '00:00:00.000': (p) => <Slug {...p} logo={'SLC'} />,
+      '00:00:00.001': (p) => <Slug {...p} text={'👋'} />,
+      '00:00:03.560': (p) => <Slug {...p} text={'ideas'} />,
+      '00:00:07.000': (p) => <Slug {...p} text={'priority'} />,
 
-      '00:00:11.870': (props) => <Body {...props} selected={'purpose'} />,
-      '00:00:19.600': (props) => <Body {...props} selected={panels} />,
-      '00:00:23.500': (props) => <Body {...props} selected={panels.toReversed()} />,
-      '00:00:29.540': (props) => <Body {...props} selected={'purpose'} showLogo={true} />,
+      '00:00:11.870': (p) => <Slug {...p} selected={'purpose'} text={'purpose'} />,
+      '00:00:19.600': (p) => <Slug {...p} selected={panels} text={'decompose'} />,
+      '00:00:23.500': (p) => <Slug {...p} selected={panels.toReversed()} text={'recompose'} />,
+      '00:00:29.540': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
+      '00:00:34.000': (p) => <Slug {...p} selected={'purpose'} text={'coherence'} />,
+      '00:00:37.590': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
+      '00:00:47.350': (p) => <Slug {...p} selected={'purpose'} text={'truth'} />,
+      '00:00:55.620': (p) => <Slug {...p} selected={'purpose'} logo={'CreativeCommons'} />,
+      '00:00:59.000': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
     },
   };
   return content;
