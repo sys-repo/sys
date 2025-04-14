@@ -27,7 +27,4 @@ type V = {
 /**
  * Content variation: Static.
  */
-export type StaticContent = t.Content<{
-  '-type': 'StaticContent';
-  id: t.ContentStage;
-}>;
+export type StaticContent = t.Content<{ '-type': 'StaticContent'; id: t.ContentStage }>;
