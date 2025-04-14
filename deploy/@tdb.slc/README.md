@@ -22,6 +22,3 @@ Prior deployment:
 - https://slc-phil-tdb.vercel.app/ember-slc
 
 
-### Design Inputs
-- search figma: "slc/canvas.mini" ← `./src/images
-
