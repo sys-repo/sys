@@ -1,7 +1,9 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, Icons } from './common.ts';
 
-export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
+type P = t.TooSmallProps;
+
+export const TooSmall: React.FC<P> = (props) => {
   const {} = props;
 
   /**
@@ -10,14 +12,59 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      position: 'relative',
       color: theme.fg,
+      userSelect: 'none',
+      Padding: [20, 40],
+      fontSize: 16,
+      display: 'grid',
+      placeItems: 'center',
     }),
+    body: css({ display: 'grid', gridTemplateRows: 'auto auto', rowGap: '1em', lineHeight: 1.5 }),
+    header: css({ display: 'grid', placeItems: 'center' }),
+    children: css({ textAlign: 'center' }),
   };
+
+  const elHeader = (
+    <div className={styles.header.class}>
+      <Icons.ProjectorScreen size={50} />
+    </div>
+  );
+
+  const elBody = <div className={styles.children.class}>{wrangle.body(props.children)}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{'🐷 Hello'}</div>
+      <div className={styles.body.class}>
+        {elHeader}
+        {elBody}
+      </div>
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  body(children?: t.ReactNode): t.ReactNode {
+    if (!children) return wrangle.body('Please make your window bigger.');
+
+    if (typeof children === 'string') {
+      return children
+        .trim()
+        .split('\n')
+        .map((line, index, array) => {
+          const isLast = index === array.length - 1;
+          return (
+            <React.Fragment key={index}>
+              <span>{line.trim()}</span>
+              {!isLast && <br />}
+            </React.Fragment>
+          );
+        });
+    }
+
+    return children;
+  },
+} as const;

@@ -3,7 +3,8 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type MyComponentProps = {
+export type TooSmallProps = {
+  children?: t.ReactNode;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
