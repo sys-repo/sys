@@ -38,9 +38,9 @@ export const LogoWordmark: React.FC<t.LogoWordmarkProps> = (props) => {
  * Helpers
  */
 const wrangle = {
-  svg(kind: 'SLC' | 'CreativeCommons') {
+  svg(kind: 'SLC' | 'CC') {
     if (kind === 'SLC') return Images.slc;
-    if (kind === 'CreativeCommons') return Images.cc;
+    if (kind === 'CC') return Images.cc;
     throw new Error(`Not supported: "${kind}"`);
   },
 } as const;

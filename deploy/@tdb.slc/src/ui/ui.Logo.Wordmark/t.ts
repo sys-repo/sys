@@ -10,4 +10,4 @@ export type LogoWordmarkProps = {
 };
 
 /** List of supported logos. */
-export type LogoKind = 'SLC' | 'CreativeCommons';
+export type LogoKind = 'SLC' | 'CC';

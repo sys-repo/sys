@@ -68,7 +68,7 @@ export const Debug: React.FC<P> = (props) => {
       <Button
         block
         label={`logo: "${p.logo}"`}
-        onClick={() => Signal.cycle<t.LogoKind>(p.logo, ['SLC', 'CreativeCommons'])}
+        onClick={() => Signal.cycle<t.LogoKind>(p.logo, ['SLC', 'CC'])}
       />
 
       <hr />
