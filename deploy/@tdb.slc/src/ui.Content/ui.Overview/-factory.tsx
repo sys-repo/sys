@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, DEFAULTS, Player } from '../common.ts';
-import { Body } from '../ui.Trailer/ui.Body.tsx';
+
 import { VIDEO } from '../VIDEO.ts';
+import { type t, CanvasSlug, DEFAULTS, Player } from './common.ts';
 import { Overview } from './ui.tsx';
 
 /**
@@ -22,7 +22,7 @@ export function factory() {
     },
 
     timestamps: {
-      '00:00:00.000': (props) => <Body {...props} showLogo={true} />,
+      '00:00:00.000': (props) => <CanvasSlug {...props} logo={'SLC'} />,
     },
   };
   return content;

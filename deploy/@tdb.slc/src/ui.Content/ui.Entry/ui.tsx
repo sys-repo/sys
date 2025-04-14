@@ -1,15 +1,6 @@
 import React from 'react';
-import { Factory } from '../-factory/mod.ts';
-import {
-  type t,
-  Button,
-  CanvasPanel,
-  Color,
-  css,
-  Icons,
-  LogoCanvas,
-  LogoWordmark,
-} from '../common.ts';
+import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from '../common.ts';
+import { Factory } from '../m.Factory/mod.ts';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
@@ -72,7 +63,8 @@ export const Entry: React.FC<EntryProps> = (props) => {
             <LogoCanvas
               theme={theme.name}
               style={styles.brand.canvas}
-              selected={CanvasPanel.list}
+              // selected={CanvasPanel.list}
+              selected={'purpose'}
               selectionAnimation={{ delay, loop: true }}
             />
             <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />

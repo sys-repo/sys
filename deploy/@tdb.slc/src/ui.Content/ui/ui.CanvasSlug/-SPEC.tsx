@@ -1,8 +1,8 @@
-import { Dev, Spec, Signal } from '../../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MyComponent } from './mod.ts';
+import { CanvasSlug } from './mod.ts';
 
-export default Spec.describe('MyComponent', (e) => {
+export default Spec.describe('CanvasSlug', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -16,9 +16,18 @@ export default Spec.describe('MyComponent', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill-y', 150)
       .display('grid')
-      .render((e) => <MyComponent theme={p.theme.value} />);
+      .render((e) => (
+        <CanvasSlug
+          style={{ width: 390 }}
+          debug={p.debug.value}
+          theme={p.theme.value}
+          selected={p.selected.value}
+          logo={p.logo.value}
+          text={p.text.value}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

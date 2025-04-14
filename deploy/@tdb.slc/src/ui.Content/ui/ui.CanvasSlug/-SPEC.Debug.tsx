@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { canvasSelectedButton } from '../../../ui/ui.Logo.Canvas/-SPEC.Debug.tsx';
+import { type t, Button, css, D, Signal } from './common.ts';
 
-type P = t.MyComponentProps;
+type P = t.CanvasSlugProps;
 
 /**
  * Types:
@@ -14,12 +15,22 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = { theme: s<P['theme']>('Light') };
+  const props = {
+    debug: s<P['debug']>(true),
+    theme: s<P['theme']>('Light'),
+    selected: s<P['selected']>(),
+    logo: s<P['logo']>(D.logo),
+    text: s<P['text']>(),
+  };
   const api = {
     props,
     listen() {
       const p = props;
+      p.debug.value;
       p.theme.value;
+      p.selected.value;
+      p.logo.value;
+      p.text.value;
     },
   };
   init?.(api);
@@ -46,17 +57,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
-        <div>{'Title'}</div>
-        <div />
-        <div></div>
-      </div>
+      <div className={css(styles.title, styles.cols).class}>{'CanvasSlug'}</div>
 
+      <Button block label={() => `debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
-        label={() => `theme: "${p.theme}"`}
+        label={() => `theme: ${p.theme}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <Button
+        block
+        label={() => `logo: "${p.logo}"`}
+        onClick={() => Signal.cycle<P['logo']>(p.logo, [undefined, 'SLC', 'CC'])}
+      />
+      <Button
+        block
+        label={() => `text: ${p.text.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['text']>(p.text, [undefined, '👋', 'hello', 'purpose'])}
+      />
+      {canvasSelectedButton(p.selected)}
 
       <hr />
     </div>
