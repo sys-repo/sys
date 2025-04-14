@@ -16,11 +16,12 @@ export function factory() {
   const content: t.VideoContent = {
     '-type': 'VideoContent',
     id: 'Trailer',
+
+    playOnLoad: true,
     video: Player.Video.signals({
       src,
-      scale: (e) => e.enlarge(2), // NB: enlarge 2px to crop out noise/line at top of video.
+      scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
     }),
-    playOnLoad: false,
 
     render(props) {
       return <Trailer {...props} theme={theme} />;
@@ -38,10 +39,11 @@ export function factory() {
       '00:00:29.540': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
       '00:00:34.000': (p) => <Slug {...p} selected={'purpose'} text={'coherence'} />,
       '00:00:37.590': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
-      '00:00:47.350': (p) => <Slug {...p} selected={'purpose'} text={'truth'} />,
-      '00:00:55.620': (p) => <Slug {...p} selected={'purpose'} logo={'CreativeCommons'} />,
+      '00:00:47.350': (p) => <Slug {...p} selected={'purpose'} text={'shared clarity'} />,
+      '00:00:55.620': (p) => <Slug {...p} selected={'purpose'} logo={'CC'} />,
       '00:00:59.000': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
     },
   };
+
   return content;
 }

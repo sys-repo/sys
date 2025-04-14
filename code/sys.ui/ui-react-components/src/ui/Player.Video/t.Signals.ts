@@ -77,5 +77,5 @@ export type VideoPlayerScale = (e: VideoPlayerScaleArgs) => t.Percent;
 export type VideoPlayerScaleArgs = {
   readonly width: t.Pixels;
   readonly height: t.Pixels;
-  enlarge(increment: t.Pixels): t.Percent;
+  enlargeBy(increment: t.Pixels): t.Percent;
 };

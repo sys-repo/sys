@@ -20,7 +20,7 @@ export function createDebugSignals() {
   const s = Signal.create;
 
   const video = Player.Video.signals({
-    loop: true,
+    // loop: true,
     // autoPlay: true,
     // showControls: false,
   });
@@ -133,10 +133,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => {
           const fn: t.VideoPlayerScale = (e) => {
-            const inc = 1;
-            const res = e.calc(inc);
+            const pixels = 1;
+            const res = e.enlargeBy(pixels);
             console.info(`⚡️ scale (callback):`, e);
-            console.info(`   increment (${inc}px):`, res);
+            console.info(`   increment (${pixels}px):`, res);
             return res;
           };
           Signal.cycle(p.scale, [undefined, 1, fn, 2]);

@@ -1,8 +1,7 @@
 import type { MediaPlayerInstance } from '@vidstack/react';
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { type t, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
@@ -31,7 +30,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const size = useSizeObserver();
   const [calcScale, setCalcScale] = useState<number>();
 
-  const themeStyles = useThemeStyles('Plyr');
+  const [playerKey, setPlayerKey] = useState(0);
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
@@ -65,8 +64,8 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     if (typeof fn !== 'function') {
       setCalcScale(undefined);
     } else {
-      const enlarge = (increment: t.Pixels) => wrangle.scale(width, height, increment);
-      setCalcScale(fn({ width, height, enlarge }));
+      const enlargeBy = (increment: t.Pixels) => wrangle.scale(width, height, increment);
+      setCalcScale(fn({ width, height, enlargeBy }));
     }
   }, [size.width, size.height, scale]);
 
@@ -87,6 +86,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   /**
    * Render:
    */
+  const themeStyles = useThemeStyles('Plyr');
   const isReady = Boolean(themeStyles.loaded && !!p?.ready.value && size.ready);
   const styles = {
     base: css({
@@ -111,6 +111,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
 
   const elPlayer = (
     <MediaPlayer
+      key={playerKey}
       ref={playerRef}
       style={{
         transform: `scale(${calcScale ?? scale ?? 1})`,
@@ -135,6 +136,10 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       onPause={props.onPause}
       onCanPlay={() => {
         if (p) p.ready.value = true;
+      }}
+      onEnded={(e) => {
+        // Hack: force the Player back to the first-frame.
+        if (!loop) setPlayerKey((n) => n + 1);
       }}
     >
       <MediaProvider />
