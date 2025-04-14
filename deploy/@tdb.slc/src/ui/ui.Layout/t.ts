@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type LayoutMobileProps = {
   state?: t.AppSignals;
   style?: t.CssInput;
+  theme?: t.CommonTheme;
 };
 
 /**
@@ -14,6 +15,7 @@ export type LayoutMobileProps = {
 export type LayoutIntermediateProps = {
   state?: t.AppSignals;
   style?: t.CssInput;
+  theme?: t.CommonTheme;
 };
 
 /**
@@ -22,4 +24,5 @@ export type LayoutIntermediateProps = {
 export type LayoutDesktopProps = {
   state?: t.AppSignals;
   style?: t.CssInput;
+  theme?: t.CommonTheme;
 };

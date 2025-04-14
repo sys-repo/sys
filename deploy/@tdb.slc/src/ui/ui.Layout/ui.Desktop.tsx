@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Button, Cropmarks, css, Signal } from './common.ts';
+import { type t, App, Button, Cropmarks, css, Signal, LogoWordmark } from './common.ts';
 
 type P = t.LayoutDesktopProps;
 
@@ -39,6 +39,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
       body: css({ width: 390, pointerEvents: 'auto' }),
     },
     dist: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
+    cc: css({ Absolute: [null, 20, 15, null], width: 100 }),
   };
 
   const elCropmarks = (
@@ -66,6 +67,8 @@ export const LayoutDesktop: React.FC<P> = (props) => {
     />
   );
 
+  const elLogos = <LogoWordmark logo={'CC'} theme={theme} style={styles.cc} />;
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.bg.class} onClick={onBackgroundClick} />
@@ -74,6 +77,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
         {elStack}
       </div>
       {elDist}
+      {elLogos}
     </div>
   );
 };

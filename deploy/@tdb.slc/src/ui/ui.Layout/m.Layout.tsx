@@ -18,9 +18,11 @@ export const Layout = {
     const breakpoint = Breakpoint.from(size);
     const is = breakpoint.is;
 
-    if (is.mobile) return <LayoutMobile state={state} />;
-    if (is.intermediate) return <LayoutIntermediate state={state} />;
-    if (is.desktop) return <LayoutDesktop state={state} />;
+    const theme: t.CommonTheme = 'Dark';
+
+    if (is.mobile) return <LayoutMobile state={state} theme={theme} />;
+    if (is.intermediate) return <LayoutIntermediate state={state} theme={theme} />;
+    if (is.desktop) return <LayoutDesktop state={state} theme={theme} />;
 
     return <div>{`Unsupported supported breakpoint: "${breakpoint.name}"`}</div>;
   },
