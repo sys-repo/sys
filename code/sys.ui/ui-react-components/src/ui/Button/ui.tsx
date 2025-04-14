@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported } from './common.ts';
+import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported, Signal } from './common.ts';
 import { Event, toEventState } from './u.events.ts';
 
 type P = t.ButtonProps;
@@ -29,8 +29,9 @@ export const Button: React.FC<P> = (props) => {
   const eventState = toEventState(props, over, down);
 
   /**
-   * Lifecycle
+   * Effects:
    */
+  Signal.useRedrawEffect(() => props.subscribe?.());
   useEffect(() => {
     if (!active) {
       setDown(false);

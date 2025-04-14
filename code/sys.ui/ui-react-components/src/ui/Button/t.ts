@@ -28,6 +28,9 @@ export type ButtonProps = {
   userSelect?: boolean;
   pressedOffset?: [number, number];
 
+  /** Subscribe to signals that cause the button to redraw. */
+  subscribe?: () => void;
+
   onClick?: MouseHandler;
   onMouseDown?: MouseHandler;
   onMouseUp?: MouseHandler;
