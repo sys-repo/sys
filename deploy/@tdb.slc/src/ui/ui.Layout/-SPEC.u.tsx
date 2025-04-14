@@ -1,5 +1,6 @@
+import React from 'react';
 import { Content } from '../../ui.Content/mod.ts';
-import { type t, App, Button, Signal } from './common.ts';
+import { type t, Button, Signal } from './common.ts';
 
 export { Content };
 
@@ -47,9 +48,10 @@ export const pushStackContentButtons = (app: t.AppSignals) => {
     pushStackButton(app, 'Trailer'),
     pushStackButton(app, 'Overview'),
     pushStackButton(app, 'Programme'),
-
-    <hr key={'stack.hr'} />,
-    <Button key={'stack.pop'} block label={`stack.pop`} onClick={() => app.stack.pop()} />,
+    <React.Fragment key={'hr:pop'}>
+      <hr />
+      <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
+    </React.Fragment>,
     clear(1),
     clear(0),
   ];
@@ -75,26 +77,20 @@ export const screenBreakpointButton = (app: t.AppSignals) => {
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
 export function layerVideoPlayerButtons(app: t.AppSignals) {
-  const layers = app.stack.items.map((layer, index) => {
-    if (!layer.video) return null;
+  const videoLayers = app.stack.items.filter((layer) => Content.Is.video(layer));
+  if (videoLayers.length === 0) return <div>{`(no video layers)`}</div>;
 
-    const player = App.Signals.Player.find(app, layer.id, index);
-    const isPlaying = player?.props.playing.value;
-    const label = `[ ${layer.id} ]: playing: ${isPlaying}`;
-
-    if (!player) return null;
-
+  return videoLayers.map((layer, index) => {
+    const p = layer.video?.props;
+    if (!p) return null;
     return (
       <Button
         block
         key={`${layer.id}.${index}`}
-        label={label}
-        onClick={() => {
-          Signal.toggle(player.props.playing);
-        }}
+        label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}
+        onClick={() => Signal.toggle(p.playing)}
+        subscribe={() => p.playing.value}
       />
     );
   });
-
-  return layers;
 }
