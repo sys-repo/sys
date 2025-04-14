@@ -7,12 +7,12 @@ import { Selection } from './m.Selection.ts';
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssValue };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+type P = t.LogoCanvasProps;
 
 /**
  * Signals
  */
 export function createDebugSignals() {
-  type P = t.LogoCanvasProps;
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Dark'),
@@ -65,15 +65,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block={true}
-        label={() => {
-          const value = p.selected.value;
-          const fmt = Array.isArray(value) ? `array[${value.length}]` : value ?? '<undefined>';
-          return `selected: ${fmt}`;
-        }}
-        onClick={() => Signal.cycle(p.selected, [undefined, CanvasPanel.list, 'purpose'])}
-      />
+      {canvasSelectedButton(p.selected)}
 
       <Button
         block={true}
@@ -90,3 +82,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev: selected panel(s) test button.
+ */
+export function canvasSelectedButton(signal: t.Signal<P['selected']>) {
+  return (
+    <Button
+      block={true}
+      label={() => {
+        const value = signal.value;
+        const fmt = Array.isArray(value) ? `array[${value.length}]` : value ?? '<undefined>';
+        return `selected: ${fmt}`;
+      }}
+      onClick={() => Signal.cycle(signal, [undefined, CanvasPanel.list, 'purpose'])}
+    />
+  );
+}
