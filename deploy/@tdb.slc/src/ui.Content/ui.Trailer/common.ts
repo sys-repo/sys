@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { CanvasSlug } from '../ui/ui.CanvasSlug/mod.ts';
+export { CanvasSlug } from '../ui/mod.ts';

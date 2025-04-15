@@ -62,8 +62,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {pushStackContentButtons(app)}
 
       <hr />
-
       <ObjectView block name={'dist'} data={wrangle.dist(app)} expand={1} />
+      <ObjectView name={'stack'} data={app.stack.items} expand={1} style={{ marginTop: 10 }} />
     </div>
   );
 };
@@ -74,7 +74,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 const wrangle = {
   dist(app: t.AppSignals) {
     const dist = app.props.dist.value;
-    if (!dist) return { err: 'app.props.dist not found' };
+    if (!dist) return { err: '[app.props.dist] not found' };
     return {
       'dist:size': Str.bytes(dist.size.bytes),
       'dist:hash:sha256': `#${dist.hash.digest.slice(-5)}`,

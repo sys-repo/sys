@@ -15,6 +15,7 @@ export {
   Player,
   Preload,
   Sheet as SheetBase,
+  Spinners,
   Svg,
   VimeoBackground,
 } from '@sys/ui-react-components';

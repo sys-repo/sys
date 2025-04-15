@@ -18,7 +18,9 @@ export default Spec.describe('Image', (e) => {
     ctx.subject
       .size('fill', [150, 100])
       .display('grid')
-      .render((e) => <Image.View theme={p.theme.value} src={p.src.value} />);
+      .render((e) => {
+        return <Image.View theme={p.theme.value} src={p.src.value} padding={p.padding.value} />;
+      });
   });
 
   e.it('ui:debug', (e) => {

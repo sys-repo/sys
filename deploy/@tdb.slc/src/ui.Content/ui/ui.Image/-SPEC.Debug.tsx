@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Str, Button, Color, css, Signal } from './common.ts';
 import { Images } from '../../ui.Overview/mod.ts';
-import { forEach } from 'rambda';
+import { type t, Button, css, Signal } from './common.ts';
 
 type P = t.ImageViewProps;
 
@@ -18,7 +17,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Light'),
-    src: s<P['src']>(),
+    padding: s<P['padding']>(),
+    src: s<string>(),
   };
   const api = {
     props,
@@ -26,6 +26,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       const p = props;
       p.theme.value;
       p.src.value;
+      p.padding.value;
     },
   };
   init?.(api);
@@ -71,6 +72,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={async () => {
           const images = await Promise.all(Object.values(Images).map((loader) => loader()));
           Signal.cycle<P['src']>(p.src, images);
+        }}
+      />
+
+      <Button
+        block
+        label={() => `padding: ${p.padding.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<P['padding']>(p.padding, [undefined, 30, '20%', [10, 20, 50, 80]]);
         }}
       />
 

@@ -22,7 +22,7 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
   const edge: t.SheetMarginInput = breakpoint.name === 'Desktop' ? [30, '1fr', 30] : 0;
   const styles = {
     base: css({ position: 'relative', marginBottom: 218 }),
-    body: css({ Absolute: 20, display: 'grid' }),
+    body: css({ Absolute: 30, display: 'grid' }),
   };
 
   return (

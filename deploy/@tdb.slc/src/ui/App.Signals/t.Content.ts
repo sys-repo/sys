@@ -37,3 +37,10 @@ export type ContentFlags = {
   /** Flag indicating if this is the bottom most view in the stack. */
   bottom: boolean;
 };
+
+/**
+ * Syncronous of asynchronous content renderer.
+ */
+export type ContentRenderer<P extends t.ContentProps = t.ContentProps> = (
+  props: P,
+) => t.ReactNode | Promise<t.ReactNode>;

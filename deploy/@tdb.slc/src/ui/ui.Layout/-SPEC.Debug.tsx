@@ -6,7 +6,7 @@ import {
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, Button, css, Signal, Str } from './common.ts';
+import { type t, App, Button, css, Signal, Str, ObjectView } from './common.ts';
 
 /**
  * Types:
@@ -115,6 +115,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
           app.stack.push(Sample.sample0());
         }}
       />
+
+      <hr />
+      <ObjectView name={'stack'} data={app.stack.items} expand={1} />
     </div>
   );
 };

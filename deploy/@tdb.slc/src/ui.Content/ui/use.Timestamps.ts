@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type t, Signal, Timestamp } from './common.ts';
+import { type t, Is, Signal, Timestamp } from './common.ts';
 
 export const useTimestamps: t.UseTimestamps = (props, player) => {
   const [column, setColumn] = useState<t.ReactNode>();
@@ -13,8 +13,8 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
 
     const renderer = wrangle.renderer(match?.data);
-    setColumn(renderer.column?.(props));
-    setPulldown(renderer.pulldown?.(props));
+    render(props, setColumn, renderer.column);
+    render(props, setPulldown, renderer.pulldown);
   });
 
   return {
@@ -33,3 +33,12 @@ const wrangle = {
     return data;
   },
 } as const;
+
+async function render(
+  props: t.VideoContentProps,
+  setState: (value: t.ReactNode) => void,
+  renderer?: t.VideoContentRenderer,
+) {
+  const res = renderer?.(props);
+  setState(Is.promise(res) ? await res : res);
+}

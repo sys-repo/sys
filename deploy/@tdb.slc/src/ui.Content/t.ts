@@ -11,8 +11,8 @@ export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
 export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
 export type ContentTimestamp = ContentTimestampProps | ContentTimestampProps['column'];
 export type ContentTimestampProps = {
-  column?: (props: VideoContentProps) => t.ReactNode;
-  pulldown?: (props: VideoContentProps) => t.ReactNode;
+  column?: t.VideoContentRenderer;
+  pulldown?: t.VideoContentRenderer;
 };
 
 /**
@@ -27,6 +27,8 @@ type V = {
   playOnLoad?: boolean;
   video?: t.VideoPlayerSignals;
 };
+
+export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;
 
 /**
  * Content variation: Static.

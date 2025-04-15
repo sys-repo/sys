@@ -11,8 +11,8 @@ export type ImageLib = {
  * <Component>:
  */
 export type ImageViewProps = {
-  src?: string;
-  alt?: string;
+  src?: string | Promise<string>;
+  padding?: t.CssEdgesInput;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

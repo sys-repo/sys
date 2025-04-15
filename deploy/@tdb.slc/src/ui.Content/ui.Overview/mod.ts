@@ -1,1 +1,2 @@
-export * from './-factory.tsx';
+export * from './m.Factory.tsx';
+export * from './m.Images.ts';
