@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, Signal } from './common.ts';
 
-type P = t.MyComponentProps;
+type P = t.ImageProps;
 
 /**
  * Types:
@@ -49,9 +49,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={css(styles.title, styles.cols).class}>
-        <div>{'Title'}</div>
-        <div />
-        <div></div>
+        <div>{'Image'}</div>
       </div>
 
       <Button

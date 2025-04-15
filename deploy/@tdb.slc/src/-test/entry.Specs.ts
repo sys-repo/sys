@@ -19,4 +19,5 @@ export const Specs = {
   'tdb.slc.content.videos: (index)': () => import('../ui.Content/-sample/ui.Videos/-SPEC.tsx'),
   'tdb.slc.content.CanvasSlug': () => import('../ui.Content/ui/ui.CanvasSlug/-SPEC.tsx'),
   'tdb.slc.content.FadeText': () => import('../ui.Content/ui/ui.FadeText/-SPEC.tsx'),
+  'tdb.slc.content.Image': () => import('../ui.Content/ui/ui.Image/-SPEC.tsx'),
 } as t.SpecImports;
