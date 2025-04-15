@@ -20,8 +20,11 @@ export type PreloadPortalProps = {
 /**
  * Preload function that performs all DOM insertion and clean up.
  */
-export type Preload = (children: React.ReactNode, options?: PreloadOptions) => Promise<t.Lifecycle>;
+export type Preload = (
+  children: React.ReactNode,
+  options?: t.PreloadOptions | t.Msecs,
+) => Promise<t.Lifecycle>;
 export type PreloadOptions = {
-  disposeAfter?: t.Msecs;
+  disposeDelay?: t.Msecs;
   size?: t.SizeTuple;
 };

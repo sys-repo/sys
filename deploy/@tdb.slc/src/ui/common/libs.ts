@@ -13,6 +13,7 @@ export {
   Cropmarks,
   Obj,
   Player,
+  Preload,
   Sheet as SheetBase,
   Svg,
   VimeoBackground,

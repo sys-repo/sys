@@ -1,8 +1,4 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-
-import { type t, Time } from './common.ts';
-import { PreloadPortal } from './m.Render.PreloadPortal.tsx';
+import { type t, Preload } from './common.ts';
 import { render } from './m.Render.stack.tsx';
 
 /**
@@ -13,7 +9,7 @@ export const preload: t.AppRenderLib['preload'] = async <T extends string>(
   factory: (flag: T) => Promise<t.Content | undefined>,
   ...content: T[]
 ) => {
-  if (typeof document === undefined) return;
+  if (typeof document === 'undefined') return;
 
   /**
    * Dynamic import of ESM:
@@ -25,14 +21,5 @@ export const preload: t.AppRenderLib['preload'] = async <T extends string>(
   /**
    * Render Portal:
    */
-  const div = document.createElement('div');
-  document.body.appendChild(div);
-  const root = createRoot(div);
-  root.render(<PreloadPortal>{elements}</PreloadPortal>);
-
-  // Clean up.
-  Time.delay(1_000, () => {
-    root.unmount();
-    document.body.removeChild(div);
-  });
+  Preload.render(elements, 5_000);
 };
