@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { chromeDark, chromeLight, ObjectInspector } from 'react-inspector';
-
 import { type t, css, DEFAULTS, Style } from './common.ts';
 import { renderer } from './ui.Renderer.tsx';
 
 type P = t.ObjectViewProps;
 const D = DEFAULTS;
 
-export const Obj: React.FC<P> = (props) => {
+export const ObjectView: React.FC<P> = (props) => {
   const { block = D.block, sortKeys = D.sortKeys } = props;
   const { expandLevel, expandPaths } = wrangle.expand(props);
   const show = wrangle.show(props);

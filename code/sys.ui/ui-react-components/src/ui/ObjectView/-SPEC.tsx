@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Obj } from './mod.ts';
+import { ObjectView } from './mod.ts';
 
 export default Spec.describe('Obj', (e) => {
   const debug = createDebugSignals();
@@ -21,7 +21,7 @@ export default Spec.describe('Obj', (e) => {
       .render((e) => {
         const paths = p.expandPaths.value;
         return (
-          <Obj
+          <ObjectView
             theme={p.theme.value}
             fontSize={p.fontSize.value}
             name={p.name.value}

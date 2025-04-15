@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Obj, Signal } from '../-test.ui.ts';
+import { type t, css, ObjectView, Signal } from '../-test.ui.ts';
 
 /**
  * Types:
@@ -36,7 +36,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div>⚡️ via signal:</div>
-      <Obj name={'rect'} data={rect} margin={[5, 22]} expand={1} />
+      <ObjectView name={'rect'} data={rect} margin={[5, 22]} expand={1} />
       <hr />
     </div>
   );

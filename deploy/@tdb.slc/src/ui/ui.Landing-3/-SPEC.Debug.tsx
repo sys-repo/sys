@@ -1,7 +1,7 @@
 import React from 'react';
 import { Content } from '../../ui.Content/mod.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
-import { type t, App, Button, css, Obj, Signal, Str } from './common.ts';
+import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -63,7 +63,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Obj block name={'dist'} data={wrangle.dist(app)} expand={1} />
+      <ObjectView block name={'dist'} data={wrangle.dist(app)} expand={1} />
     </div>
   );
 };

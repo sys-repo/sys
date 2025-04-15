@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Obj, useSizeObserver } from '../-test.ui.ts';
+import { type t, css, ObjectView, useSizeObserver } from '../-test.ui.ts';
 import { type DebugSignals } from './-SPEC.Debug.tsx';
 
 export type SampleProps = {
@@ -26,7 +26,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div>{'👋 useSizeObserver:'}</div>
-        <Obj name={'size.rect'} data={size.toObject()} block margin={[10, 20]} />
+        <ObjectView name={'size.rect'} data={size.toObject()} block margin={[10, 20]} />
       </div>
     </div>
   );

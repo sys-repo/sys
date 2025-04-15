@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Obj } from './ui.tsx';
+export { ObjectView } from './ui.tsx';

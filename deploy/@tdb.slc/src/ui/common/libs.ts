@@ -11,7 +11,7 @@ export { ReactString, useDist, useIsTouchSupported, useSizeObserver } from '@sys
 export {
   Button,
   Cropmarks,
-  Obj,
+  ObjectView,
   Player,
   Preload,
   Sheet as SheetBase,
