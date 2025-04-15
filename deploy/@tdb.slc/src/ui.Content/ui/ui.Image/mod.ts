@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Image } from './ui.tsx';
+export { Image } from './m.Image.ts';

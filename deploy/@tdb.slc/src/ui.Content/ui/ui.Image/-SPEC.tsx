@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Image } from './mod.ts';
 
@@ -18,7 +18,7 @@ export default Spec.describe('Image', (e) => {
     ctx.subject
       .size('fill', [150, 100])
       .display('grid')
-      .render((e) => <Image theme={p.theme.value} />);
+      .render((e) => <Image.View theme={p.theme.value} src={p.src.value} />);
   });
 
   e.it('ui:debug', (e) => {
