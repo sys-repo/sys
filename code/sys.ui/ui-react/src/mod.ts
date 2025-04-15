@@ -36,7 +36,7 @@ export type * as t from './types.ts';
  */
 export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
-export { ReactEvent } from './u/mod.ts';
+export { ReactEvent, ReactString } from './u/mod.ts';
 
 export {
   useClickInside,

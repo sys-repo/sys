@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons } from './common.ts';
+import { type t, Color, css, Icons, ReactString } from './common.ts';
 
 type P = t.TooSmallProps;
 
@@ -49,22 +49,7 @@ export const TooSmall: React.FC<P> = (props) => {
 const wrangle = {
   body(children?: t.ReactNode): t.ReactNode {
     if (!children) return wrangle.body('Please make your window bigger.');
-
-    if (typeof children === 'string') {
-      return children
-        .trim()
-        .split('\n')
-        .map((line, index, array) => {
-          const isLast = index === array.length - 1;
-          return (
-            <React.Fragment key={index}>
-              <span>{line.trim()}</span>
-              {!isLast && <br />}
-            </React.Fragment>
-          );
-        });
-    }
-
+    if (typeof children === 'string') return ReactString.break(children);
     return children;
   },
 } as const;
