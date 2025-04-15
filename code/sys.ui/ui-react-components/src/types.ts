@@ -15,4 +15,6 @@ export type * from './ui/Player.Video/t.ts';
 export type * from './ui/Player/t.ts';
 export type * from './ui/Preload/t.ts';
 export type * from './ui/Sheet/t.ts';
+export type * from './ui/Spinners.Bar/t.ts';
+export type * from './ui/Spinners/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
