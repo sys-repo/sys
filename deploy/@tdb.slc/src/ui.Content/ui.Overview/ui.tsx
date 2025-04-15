@@ -36,7 +36,11 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       <div className={styles.content.class}>{timestamp.column}</div>
-      <Player.Video.View signals={player} style={styles.player} />
+      <Player.Video.View
+        signals={player}
+        style={styles.player}
+        onEnded={() => state.stack.clear(1)}
+      />
     </div>
   );
 

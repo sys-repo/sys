@@ -25,6 +25,7 @@ export type VideoPlayerProps = {
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
+  onEnded?: MediaPlayerProps['onEnded'];
 
   // State:
   signals?: t.VideoPlayerSignals;

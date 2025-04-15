@@ -140,6 +140,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       onEnded={(e) => {
         // Hack: force the Player back to the first-frame.
         if (!loop) setPlayerKey((n) => n + 1);
+        props.onEnded?.(e);
       }}
     >
       <MediaProvider />
