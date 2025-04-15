@@ -9,9 +9,10 @@ export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
  * Time based content definition.
  */
 export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
-export type ContentTimestamp = ContentTimestampMap | ContentTimestampMap['body'];
-export type ContentTimestampMap = {
-  body: (props: VideoContentProps) => t.ReactNode;
+export type ContentTimestamp = ContentTimestampProps | ContentTimestampProps['column'];
+export type ContentTimestampProps = {
+  column?: (props: VideoContentProps) => t.ReactNode;
+  pulldown?: (props: VideoContentProps) => t.ReactNode;
 };
 
 /**

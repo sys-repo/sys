@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { VIDEO } from '../VIDEO.ts';
-import { type t, CanvasSlug, DEFAULTS, Player } from './common.ts';
+import { type t, css, CanvasSlug, DEFAULTS, Player } from './common.ts';
 import { Overview } from './ui.tsx';
 
 /**
@@ -27,17 +27,41 @@ export function factory() {
 
     timestamps: {
       '00:00:00.000': (p) => <Slug {...p} />,
-      '00:00:02.300': (p) => <Slug {...p} text={'slow'} />,
-      '00:00:03.210': (p) => <Slug {...p} text={'risky'} />,
-      '00:00:04.300': (p) => <Slug {...p} text={'mostly\nunsuccessful'} />,
-      '00:00:06.350': (p) => <Slug {...p} />,
-      '00:00:16.850': (p) => <Slug {...p} text={'business model'} />,
-      '00:00:18.580': (p) => <Slug {...p} text={'economic\nfoundation'} />,
-      '00:00:23.550': (p) => <Slug {...p} text={'lasting\nmeasuable\nimpact'} />,
-      '00:00:36.000': (p) => <Slug {...p} />,
-      '00:00:42.000': (p) => <Slug {...p} text={'living dead'} />,
-      '00:00:53.000': (p) => <Slug {...p} />,
-      '00:01:04.000': (p) => <Slug {...p} logo={'SLC'} />,
+
+      '00:00:01.000': {
+        column: (p) => <Slug {...p} logo={'SLC'} />,
+        pulldown: (p) => {
+          const styles = {
+            base: css({ backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */ }),
+          };
+
+          return <div className={styles.base.class}>Hello</div>;
+        },
+      },
+
+      '00:00:04.000': {
+        column: (p) => <Slug {...p} logo={'SLC'} />,
+        pulldown: (p) => <div>There</div>,
+      },
+
+      '00:00:08.000': (p) => <Slug {...p} />,
+
+      // '00:00:00.000': (p) => <Slug {...p} />,
+      // '00:00:02.300': (p) => <Slug {...p} text={'slow'} />,
+      // '00:00:03.210': (p) => <Slug {...p} text={'risky'} />,
+      // '00:00:04.300': (p) => <Slug {...p} text={'mostly\nunsuccessful'} />,
+      // '00:00:06.350': (p) => <Slug {...p} />,
+      // '00:00:16.850': (p) => <Slug {...p} text={'business model'} />,
+      // '00:00:18.580': (p) => <Slug {...p} text={'economic\nfoundation'} />,
+      // '00:00:23.550': (p) => <Slug {...p} text={'lasting\nmeasuable\nimpact'} />,
+      // '00:00:36.000': (p) => <Slug {...p} />,
+      // '00:00:42.000': (p) => <Slug {...p} text={'living dead'} />,
+      // '00:00:53.000': (p) => <Slug {...p} />,
+      // '00:01:04.000': (p) => <Slug {...p} logo={'SLC'} />,
+      // '00:01:10.000': {
+      //   column: (p) => <Slug {...p} logo={'SLC'} />,
+      //   pulldown: (p) => <div>Hello</div>
+      // },
     },
   };
   return content;

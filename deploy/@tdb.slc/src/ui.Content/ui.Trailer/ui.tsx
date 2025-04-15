@@ -10,7 +10,6 @@ export type TrailerProps = t.VideoContentProps;
 export const Trailer: React.FC<TrailerProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
-
   const player = content.video;
   const timestamp = useTimestamps(props, player);
 
@@ -41,10 +40,10 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
       orientation={'Bottom:Up'}
     >
       <div className={styles.body.class}>
-        <div className={styles.content.class}>{timestamp.content}</div>
+        <div className={styles.content.class}>{timestamp.column}</div>
         <Player.Video.View signals={player} style={styles.player} />
       </div>
-      <ElapsedTime player={player} abs={[6, 6, null, null]} show={showElapsed} />
+      <ElapsedTime player={player} abs={true} show={showElapsed} />
     </Sheet>
   );
 };
