@@ -16,6 +16,7 @@ export const SpecsComponents = {
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
+  [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
 
   [`${ns}: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),

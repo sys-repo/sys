@@ -13,5 +13,6 @@ export type * from './ui/Player.Concept/t.ts';
 export type * from './ui/Player.Thumbnails/t.ts';
 export type * from './ui/Player.Video/t.ts';
 export type * from './ui/Player/t.ts';
+export type * from './ui/Preload/t.ts';
 export type * from './ui/Sheet/t.ts';
 export type * from './ui/VimeoBackground/t.ts';

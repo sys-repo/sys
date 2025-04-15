@@ -14,8 +14,10 @@ export const Dispose: t.DisposeLib = {
   disposable(until$): t.Disposable {
     const dispose$ = new Subject<void>();
     const disposable: t.Disposable = {
-      dispose$: dispose$.asObservable(),
       dispose: () => Dispose.done(dispose$),
+      get dispose$() {
+        return dispose$.asObservable();
+      },
     };
     Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
     return disposable;
@@ -73,8 +75,10 @@ export const Dispose: t.DisposeLib = {
     let _disposed = false;
     dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
     return {
-      dispose$,
       dispose,
+      get dispose$() {
+        return dispose$;
+      },
       get disposed() {
         return _disposed;
       },
