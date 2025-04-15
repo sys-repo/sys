@@ -6,4 +6,4 @@ export { isEmptyRecord, isObject, isRecord } from '../common.ts';
 export { V } from '../m.Validation/mod.ts';
 export { asArray } from '../m.Value.Array/mod.ts';
 export { Obj, sortKeys } from '../m.Value.Obj/mod.ts';
-export { Array, Num, Str, Value } from './m.Value.ts';
+export { Array, Num, Str, Value, Lorem } from './m.Value.ts';

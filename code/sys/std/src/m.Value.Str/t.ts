@@ -70,5 +70,5 @@ export type StrLib = {
 export type StrLoremLib = {
   readonly text: string;
   toString(): string;
-  words(count: number): string;
+  words(count?: number): string;
 };
