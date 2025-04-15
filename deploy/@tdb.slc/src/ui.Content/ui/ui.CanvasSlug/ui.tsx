@@ -8,6 +8,7 @@ import {
   Time,
   TooSmall,
   useSizeObserver,
+  ReactString,
 } from './common.ts';
 
 export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
@@ -40,11 +41,13 @@ export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
     layout: css({ display: 'grid', placeItems: 'center', rowGap: '30px' }),
     canvas: css({ position: 'relative', width: 280 }),
     logo: css({ width: 130, MarginX: 40 }),
-    footer: css({ position: 'relative', minHeight: 100, display: 'grid', alignContent: 'center' }),
-    text: css({ fontSize: 36, fontWeight: 'bold', letterSpacing: '-0.02em' }),
+    footer: css({ position: 'relative', minHeight: 115, display: 'grid', alignContent: 'center' }),
+    text: css({ fontSize: 36, fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05 }),
   };
 
-  const elText = props.text && <div className={styles.text.class}>{props.text}</div>;
+  const elText = props.text && (
+    <div className={styles.text.class}>{ReactString.break(props.text)}</div>
+  );
   const elWordmark = props.logo && (
     <LogoWordmark theme={theme.name} logo={props.logo} style={styles.logo} />
   );
