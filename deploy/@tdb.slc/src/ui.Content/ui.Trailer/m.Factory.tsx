@@ -17,7 +17,7 @@ export function factory() {
     '-type': 'VideoContent',
     id: 'Trailer',
 
-    playOnLoad: false,
+    playOnLoad: true,
     video: Player.Video.signals({
       src,
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.

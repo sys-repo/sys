@@ -1,1 +1,1 @@
-export * from './-factory.tsx';
+export * from './m.Factory.tsx';

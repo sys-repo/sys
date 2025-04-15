@@ -12,6 +12,12 @@ export const VideoBackground: React.FC<P> = (props) => {
   const playing = backgroundVideo.playing.value ?? DEFAULTS.playing;
   const playerRef = React.useRef<t.VimeoIFrame>();
 
+  const layerTotal = state?.stack.length ?? 0;
+  const blur = layerTotal > 1 ? 4 : 0;
+
+  console.log('layerTotal', layerTotal);
+  console.log('blur', blur);
+
   /**
    * Render:
    */
@@ -26,7 +32,7 @@ export const VideoBackground: React.FC<P> = (props) => {
         style={styles.video}
         video={src}
         playing={playing}
-        blur={playing ? 0 : 10}
+        blur={blur}
         opacity={opacity}
         onReady={(api) => (playerRef.current = api)}
       />

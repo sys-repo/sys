@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   type t,
   Color,
@@ -34,12 +34,12 @@ export const Landing: React.FC<P> = (props) => {
   /**
    * Effects:
    */
-  React.useEffect(() => {
+  useEffect(() => {
     console.info(`💦 ${pkg.name}@${pkg.version}: dist.json →`, dist.json);
     if (state) state.props.dist.value = dist.json;
   }, [dist.count, !!state]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!p) return;
     p.screen.breakpoint.value = breakpoint.name;
   }, [breakpoint.name]);

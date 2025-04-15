@@ -33,6 +33,13 @@ export const Overview: React.FC<OverviewProps> = (props) => {
     player: css({ marginBottom: -1 }),
   };
 
+  const elBody = (
+    <div className={styles.body.class}>
+      <div className={styles.content.class}>{timestamp.column}</div>
+      <Player.Video.View signals={player} style={styles.player} />
+    </div>
+  );
+
   return (
     <Sheet
       {...props}
@@ -41,10 +48,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       edgeMargin={edge}
       orientation={'Bottom:Up'}
     >
-      <div className={styles.body.class}>
-        <div className={styles.content.class}>{timestamp.column}</div>
-        <Player.Video.View signals={player} style={styles.player} />
-      </div>
+      {elBody}
       <ElapsedTime player={player} abs={true} show={showElapsed} />
     </Sheet>
   );
