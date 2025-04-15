@@ -18,6 +18,9 @@ export type SheetSignalStack<T> = {
   /** The list of screens. */
   readonly items: T[];
 
+  /** Determine if the item exists within the stack. */
+  exists(fn: (e: T) => boolean): boolean;
+
   /** Add a screen to the top of the stack. */
   push(...content: (T | undefined)[]): void;
 

@@ -26,6 +26,10 @@ export const createStack: t.SheetSignalsLib['stack'] = <T>(input?: t.Signal<T[]>
       signal.value = signal.value.slice(0, leave);
     },
 
+    exists(fn) {
+      return api.items.some(fn);
+    },
+
     toSignal() {
       return signal;
     },

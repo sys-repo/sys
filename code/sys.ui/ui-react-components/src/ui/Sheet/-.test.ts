@@ -8,7 +8,7 @@ describe('Sheet', () => {
   describe('Sheet.Signals:stack', () => {
     const a: T = { id: 'a' };
     const b: T = { id: 'b' };
-    const c: T = { id: 'b' };
+    const c: T = { id: 'c' };
 
     describe('factory', () => {
       it('passed in signal (param)', () => {
@@ -115,6 +115,16 @@ describe('Sheet', () => {
         test(1);
         test(2);
       });
+    });
+
+    it('method: exists', () => {
+      const signal = Signal.create<T[]>([]);
+      const stack = Sheet.Signals.stack(signal);
+      stack.push(a, b);
+
+      expect(stack.exists((m) => m.id === a.id)).to.eql(true);
+      expect(stack.exists((m) => m.id === b.id)).to.eql(true);
+      expect(stack.exists((m) => m.id === c.id)).to.eql(false);
     });
 
     describe('method: pop', () => {
