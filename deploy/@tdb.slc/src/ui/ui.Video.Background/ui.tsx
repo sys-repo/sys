@@ -15,9 +15,6 @@ export const VideoBackground: React.FC<P> = (props) => {
   const layerTotal = state?.stack.length ?? 0;
   const blur = layerTotal > 1 ? 4 : 0;
 
-  console.log('layerTotal', layerTotal);
-  console.log('blur', blur);
-
   /**
    * Render:
    */
