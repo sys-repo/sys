@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Icons } from '../common.ts';
+import { type t, css, Icons } from './common.ts';
 
 export type InstallProps = {
   theme?: t.CommonTheme;

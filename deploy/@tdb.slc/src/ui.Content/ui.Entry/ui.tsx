@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from '../common.ts';
-import { Factory } from '../m.Factory/mod.ts';
+import { type t, Color, css, Icons, LogoCanvas, LogoWordmark } from './common.ts';
+import { Buttons } from './ui.Buttons.tsx';
 import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
@@ -14,11 +14,7 @@ const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
 export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
   const breakpoint = state.breakpoint;
-
-  /**
-   * Handlers:
-   */
-  const onCanvasClick = async () => state.stack.push(await Factory.trailer());
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
   /**
    * Render:
@@ -58,22 +54,18 @@ export const Entry: React.FC<EntryProps> = (props) => {
         <Icons.Add.Plus opacity={0.2} />
       </div>
       <div className={styles.body.class}>
-        <Button block theme={theme.name} onClick={onCanvasClick}>
-          <div className={styles.brand.base.class}>
-            <LogoCanvas
-              theme={theme.name}
-              style={styles.brand.canvas}
-              // selected={CanvasPanel.list}
-              selected={'purpose'}
-              selectionAnimation={{ delay, loop: true }}
-            />
-            <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
-          </div>
-        </Button>
+        <div className={styles.brand.base.class}>
+          <LogoCanvas
+            theme={theme.name}
+            style={styles.brand.canvas}
+            selected={'purpose'}
+            selectionAnimation={{ delay, loop: true }}
+          />
+          <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
+          <Buttons theme={theme.name} state={state} style={{ marginTop: 100 }} />
+        </div>
       </div>
-      <div className={styles.footer.class}>
-        <Install theme={theme.name} />
-      </div>
+      <div className={styles.footer.class}>{!isStandalone && <Install theme={theme.name} />}</div>
     </div>
   );
 };

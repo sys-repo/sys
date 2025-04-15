@@ -1,7 +1,7 @@
 import React from 'react';
 import { ElapsedTime } from '../ui.ElapsedTime.tsx';
 import { useTimestamps } from '../use.Timestamps.ts';
-import { type t, css, Sheet } from './common.ts';
+import { type t, Cropmarks, css, Sheet } from './common.ts';
 
 export type PullDownProps = t.VideoContentProps;
 
@@ -19,11 +19,23 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
   /**
    * Render:
    */
-  const edge: t.SheetMarginInput = breakpoint.name === 'Desktop' ? [30, '1fr', 30] : 0;
+  const gutter = breakpoint.name === 'Desktop' ? 40 : 10;
+  const edge: t.SheetMarginInput = [gutter, '1fr', gutter];
   const styles = {
     base: css({ position: 'relative', marginBottom: 218 }),
-    body: css({ Absolute: 30, display: 'grid' }),
+    body: css({ Absolute: 0, display: 'grid' }),
   };
+
+  const elBody = (
+    <div className={styles.body.class}>
+      <Cropmarks
+        size={{ mode: 'fill', x: true, y: true, margin: [30, 30, 30, 30] }}
+        borderOpacity={0.06}
+      >
+        {timestamp.pulldown}
+      </Cropmarks>
+    </div>
+  );
 
   return (
     <Sheet
@@ -33,8 +45,8 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
       edgeMargin={edge}
       orientation={'Top:Down'}
     >
-      <div className={styles.body.class}>{timestamp.pulldown}</div>
-      <ElapsedTime player={player} abs={true} show={showElapsed} />
+      {elBody}
+      <ElapsedTime player={player} abs={[null, 15, 10, null]} show={showElapsed} />
     </Sheet>
   );
 };

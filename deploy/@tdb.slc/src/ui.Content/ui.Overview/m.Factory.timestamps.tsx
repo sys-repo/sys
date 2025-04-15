@@ -26,16 +26,16 @@ export const timestamps: t.ContentTimestamps = {
   '00:01:04.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:09.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.build()} padding={30} />,
+    pulldown: (p) => <Image.View src={Images.build()} padding={'5%'} />,
   },
   '00:01:23.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:25.250': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.definingPurpose()} padding={'5%'} />,
+    pulldown: (p) => <Image.View src={Images.definingPurpose()} />,
   },
   '00:01:37.900': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.modelParts()} padding={'5%'} />,
+    pulldown: (p) => <Image.View src={Images.modelParts()} />,
   },
   '00:01:49.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:50.810': {
