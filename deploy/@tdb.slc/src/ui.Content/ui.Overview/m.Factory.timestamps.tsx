@@ -35,7 +35,7 @@ export const timestamps: t.ContentTimestamps = {
   },
   '00:01:37.900': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.modelParts()} />,
+    pulldown: (p) => <Image.View src={Images.modelParts()} padding={'10%'} />,
   },
   '00:01:49.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:50.810': {

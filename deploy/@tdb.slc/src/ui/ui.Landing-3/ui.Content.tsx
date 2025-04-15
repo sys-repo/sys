@@ -20,17 +20,9 @@ export const Content: React.FC<P> = (props) => {
    */
   const styles = {
     base: css({ display: 'grid' }),
-    layout: css({}),
   };
 
-  const elNotReady = !breakpoint.is.ready && (
-    <div className={styles.layout.class}>{/* Not Ready */}</div>
-  );
-
   return (
-    <div className={css(styles.base, props.style).class}>
-      {elNotReady}
-      {Layout.render(breakpoint, state)}
-    </div>
+    <div className={css(styles.base, props.style).class}>{Layout.render(breakpoint, state)}</div>
   );
 };

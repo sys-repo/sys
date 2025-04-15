@@ -1,19 +1,26 @@
-import React from 'react';
-import { type t, css, DEFAULTS, VimeoBackground } from './common.ts';
+import React, { useState } from 'react';
+import { type t, css, DEFAULTS, VimeoBackground, Signal } from './common.ts';
 
 type P = t.VideoBackgroundProps;
 
 export const VideoBackground: React.FC<P> = (props) => {
   const { state } = props;
-
   const backgroundVideo = state.props.background.video;
   const opacity = backgroundVideo.opacity.value;
   const src = backgroundVideo.src.value;
   const playing = backgroundVideo.playing.value ?? DEFAULTS.playing;
-  const playerRef = React.useRef<t.VimeoIFrame>();
 
-  const layerTotal = state?.stack.length ?? 0;
-  const blur = layerTotal > 1 ? 4 : 0;
+  const playerRef = React.useRef<t.VimeoIFrame>();
+  const [blur, setBlur] = useState(0);
+
+  /**
+   * Effects:
+   */
+  Signal.useEffect(() => {
+    const layerTotal = state?.stack.length ?? 0;
+    const blur = layerTotal > 1 ? 6 : 0;
+    setBlur(blur);
+  });
 
   /**
    * Render:

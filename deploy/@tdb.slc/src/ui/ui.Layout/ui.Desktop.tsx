@@ -14,16 +14,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => {
-    state.listen();
-  });
-
-  /**
-   * Handlers:
-   */
-  const onBackgroundClick = () => {
-    state.stack.pop(1);
-  };
+  Signal.useRedrawEffect(() => state.listen());
 
   /**
    * Render:
@@ -71,7 +62,7 @@ export const LayoutDesktop: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.bg.class} onClick={onBackgroundClick} />
+      <div className={styles.bg.class} />
       <div className={styles.body.class}>
         {elCropmarks}
         {elStack}

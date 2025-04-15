@@ -2,11 +2,20 @@ import { useState } from 'react';
 import { type t, Is, Signal, Timestamp } from './common.ts';
 
 export const useTimestamps: t.UseTimestamps = (props, player) => {
+  const { state, content } = props;
+
   const [column, setColumn] = useState<t.ReactNode>();
   const [pulldown, setPulldown] = useState<t.ReactNode>();
 
   Signal.useEffect(() => {
     if (!player || !props.content?.timestamps) return;
+
+    const exists = state.stack.exists((e) => e.id === content.id);
+    if (!exists) {
+      setColumn(undefined);
+      setPulldown(undefined);
+      return;
+    }
 
     const timestamps = props.content.timestamps;
     const secs = player.props.currentTime.value;

@@ -43,13 +43,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
   };
 
   return (
-    <div
-      className={css(styles.base, props.style).class}
-      onDoubleClick={() => state.stack.clear(1)}
-      onClick={() => {
-        if (!props.is.top) state.stack.pop(1);
-      }}
-    >
+    <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
       <div className={styles.header.class}>
         <Icons.Add.Plus opacity={0.2} />
       </div>
