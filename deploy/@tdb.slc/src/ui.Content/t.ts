@@ -9,7 +9,10 @@ export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
  * Time based content definition.
  */
 export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
-export type ContentTimestamp = (props: VideoContentProps) => t.ReactNode;
+export type ContentTimestamp = ContentTimestampMap | ContentTimestampMap['body'];
+export type ContentTimestampMap = {
+  body: (props: VideoContentProps) => t.ReactNode;
+};
 
 /**
  * Content variation: Video.
@@ -27,4 +30,7 @@ type V = {
 /**
  * Content variation: Static.
  */
-export type StaticContent = t.Content<{ '-type': 'StaticContent'; id: t.ContentStage }>;
+export type StaticContent = t.Content<{
+  '-type': 'StaticContent';
+  id: t.ContentStage;
+}>;

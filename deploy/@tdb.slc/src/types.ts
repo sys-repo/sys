@@ -34,6 +34,7 @@ export type * from './ui.Content/m.Content/t.ts';
 export type * from './ui.Content/m.Factory/t.ts';
 export type * from './ui.Content/t.ts';
 export type * from './ui.Content/ui/ui.CanvasSlug/t.ts';
+export type * from './ui.Content/ui/ui.FadeText/t.ts';
 
 export type * from './ui.Content/-sample/ui.Videos/t.ts';
 

@@ -31,5 +31,16 @@ export const ElapsedTime: React.FC<ElapsedTimeProps> = (props) => {
     }),
   };
 
-  return <div className={css(styles.base, props.style).class}>{`${currentTime.toFixed(2)}s`}</div>;
+  return <div className={css(styles.base, props.style).class}>{formatTime(currentTime)}</div>;
+};
+
+/**
+ * Helpers
+ */
+const formatTime = (timeInSeconds: number): string => {
+  const mins = Math.floor(timeInSeconds / 60);
+  const secs = Math.floor(timeInSeconds % 60);
+  const centi = Math.floor((timeInSeconds % 1) * 100);
+  const fmt = (value: number) => String(value).padStart(2, '0');
+  return `${fmt(mins)}:${fmt(secs)}:${fmt(centi)}`;
 };

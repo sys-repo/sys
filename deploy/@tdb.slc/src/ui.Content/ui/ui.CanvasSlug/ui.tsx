@@ -54,7 +54,12 @@ export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
 
   const elText = <FadeText text={logo ? '' : props.text} style={styles.text} />;
   const elWordmark = logo && <LogoWordmark theme={theme.name} logo={logo} style={styles.logo} />;
-  const elFooter = <div className={styles.footer.class}>{elText ?? elWordmark}</div>;
+  const elFooter = (
+    <div className={styles.footer.class}>
+      {elText}
+      {elWordmark}
+    </div>
+  );
 
   const elBody = (
     <div className={styles.body.class}>

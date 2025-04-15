@@ -9,9 +9,21 @@ export const useTimestamps = (props: t.VideoContentProps, player?: t.VideoPlayer
     const timestamps = props.content.timestamps;
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
-    const el = match?.data?.(props);
+    const renderer = wrangle.bodyRenderer(match?.data);
+    const el = renderer?.(props);
     setContent(el);
   });
 
   return { content } as const;
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  bodyRenderer(data?: t.ContentTimestamp): t.ContentTimestampMap['body'] | undefined {
+    if (!data) return;
+    if (typeof data === 'function') return data;
+    return data.body;
+  },
+} as const;
