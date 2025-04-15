@@ -17,5 +17,5 @@ export type ReactStringLib = {
    * Breaks a string with newline ("\n") characters into a fragment
    * of <span>'s and <br> elements.
    */
-  break(text: string): t.ReactNode;
+  break(text: string | t.ReactNode): t.ReactNode;
 };

@@ -2,8 +2,9 @@ import { Fragment } from 'react';
 import { type t } from './common.ts';
 
 export const ReactString: t.ReactStringLib = {
-  break(text: string) {
-    return text
+  break(input: string | t.ReactNode) {
+    if (typeof input !== 'string') return input;
+    return input
       .trim()
       .split('\n')
       .map((line, index, array) => {
