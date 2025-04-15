@@ -1,5 +1,4 @@
-import { type t, css, SheetBase, Sheet } from './common.ts';
-import { Layout } from './m.Layout.tsx';
+import { type t, css, SheetBase } from './common.ts';
 
 export const Sample = {
   sample0(): t.Content {
@@ -39,8 +38,7 @@ export const Sample = {
     return {
       id,
       render(props) {
-        const { index, state } = props;
-        const Margin = Layout.sheetOffset({ index, base: 44, state });
+        const { state } = props;
         const edge: t.SheetMarginInput =
           state.breakpoint.name === 'Desktop' ? ['1fr', 390, '1fr'] : 10;
 
@@ -51,7 +49,7 @@ export const Sample = {
         const styles = { base: css({ padding: 10 }) };
 
         return (
-          <SheetBase.View style={{ Margin }} edgeMargin={edge} onClick={onClick}>
+          <SheetBase.View edgeMargin={edge} onClick={onClick}>
             <div className={styles.base.class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
@@ -66,16 +64,14 @@ export const Sample = {
     return {
       id: 'sample-2',
       render(props) {
-        const { index, state } = props;
-
+        const { state } = props;
         const breakpoint = state.breakpoint;
         const orientation: t.SheetOrientation = 'Top:Down';
-        const Margin = Layout.sheetOffset({ index, orientation, state });
         const edge: t.SheetMarginInput = breakpoint.name === 'Desktop' ? [30, '1fr', 30] : 10;
         const styles = { base: css({ padding: 10 }) };
 
         return (
-          <SheetBase.View style={{ Margin }} orientation={orientation} edgeMargin={edge}>
+          <SheetBase.View orientation={orientation} edgeMargin={edge}>
             <div className={styles.base.class}>
               <div>{`👋 Hello: "${props.content.id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
