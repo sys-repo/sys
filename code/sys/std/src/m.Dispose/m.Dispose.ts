@@ -12,11 +12,12 @@ export const Dispose: t.DisposeLib = {
    * typically mixed into a wider interface of some kind.
    */
   disposable(until$): t.Disposable {
-    const dispose$ = new Subject<void>();
+    const subject$ = new Subject<void>();
+    const dispose$ = subject$.asObservable();
     const disposable: t.Disposable = {
-      dispose: () => Dispose.done(dispose$),
+      dispose: () => Dispose.done(subject$),
       get dispose$() {
-        return dispose$.asObservable();
+        return dispose$;
       },
     };
     Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
