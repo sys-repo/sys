@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { Lorem } from '../../-test.ui.ts';
+import { type t, Button, css, Signal } from './common.ts';
 
 type P = t.FadeTextProps;
 
@@ -14,12 +15,18 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const props = { theme: s<P['theme']>('Light') };
+  const props = {
+    theme: s<P['theme']>('Light'),
+    text: s<P['text']>('Lorem'),
+    loremIndex: s(0),
+  };
   const api = {
     props,
     listen() {
       const p = props;
       p.theme.value;
+      p.text.value;
+      p.loremIndex.value;
     },
   };
   init?.(api);
@@ -57,6 +64,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+
+      <Button
+        block
+        label={() => {
+          const value = p.text.value;
+          return `text: ${value ? `"${value}"` : '<undefined>'}`;
+        }}
+        onClick={() => {
+          const index = (p.loremIndex.value += 1);
+          p.text.value = Lorem.text.split(' ')[index];
+        }}
+      />
+
+      <Button
+        block
+        label={() => `text: (clear)`}
+        onClick={() => {
+          p.text.value = undefined;
+        }}
+      />
+
+      <Button
+        block
+        label={() => `text: (multi-line)`}
+        onClick={() => {
+          p.text.value = 'multi\nline';
+        }}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../../-test.ui.ts';
+import { Dev, Spec, Signal, Lorem } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { FadeText } from './mod.ts';
 
@@ -16,9 +16,9 @@ export default Spec.describe('FadeText', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([390, 200])
       .display('grid')
-      .render((e) => <FadeText theme={p.theme.value} />);
+      .render((e) => <FadeText theme={p.theme.value} text={p.text.value} />);
   });
 
   e.it('ui:debug', (e) => {

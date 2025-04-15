@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export type CanvasSlugProps = {
   selected?: t.CanvasPanel | t.CanvasPanel[];
   logo?: t.LogoKind;
-  text?: t.ReactNode;
+  text?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

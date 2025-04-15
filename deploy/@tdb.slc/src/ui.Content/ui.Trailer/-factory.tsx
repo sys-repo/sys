@@ -8,16 +8,16 @@ import { Trailer } from './ui.tsx';
  * Content: "Trailer" (30 second intro).
  */
 export function factory() {
+  const Slug = CanvasSlug;
   const theme = DEFAULTS.theme.sheet;
   const src = VIDEO.Trailer.src;
   const panels = CanvasPanel.list;
-  const Slug = CanvasSlug;
 
   const content: t.VideoContent = {
     '-type': 'VideoContent',
     id: 'Trailer',
 
-    playOnLoad: true,
+    playOnLoad: false,
     video: Player.Video.signals({
       src,
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
@@ -29,9 +29,9 @@ export function factory() {
 
     timestamps: {
       '00:00:00.000': (p) => <Slug {...p} logo={'SLC'} />,
-      '00:00:00.001': (p) => <Slug {...p} text={'👋'} />,
+      '00:00:00.001': (p) => <Slug {...p} text={'social ventures'} />,
       '00:00:03.560': (p) => <Slug {...p} text={'ideas'} />,
-      '00:00:07.000': (p) => <Slug {...p} text={'priority'} />,
+      '00:00:07.000': (p) => <Slug {...p} text={'priorities'} />,
 
       '00:00:11.870': (p) => <Slug {...p} selected={'purpose'} text={'purpose'} />,
       '00:00:19.600': (p) => <Slug {...p} selected={panels} text={'decompose'} />,

@@ -76,9 +76,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `text: ${p.text.value ?? '<undefined>'}`}
         onClick={() => {
-          const base = css({ backgroundColor: 'rgba(255, 0, 0, 0.1)', color: 'red' });
-          const el = <div className={base.class}>component</div>;
-          Signal.cycle<P['text']>(p.text, [undefined, 'hello', 'purpose\nimpact', el]);
+          Signal.cycle<P['text']>(p.text, [undefined, 'hello', 'purpose\nimpact']);
         }}
       />
       {canvasSelectedButton(p.selected)}

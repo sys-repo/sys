@@ -10,9 +10,10 @@ import {
   useSizeObserver,
   ReactString,
 } from './common.ts';
+import { FadeText } from '../ui.FadeText/mod.ts';
 
 export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, logo } = props;
   const size = useSizeObserver();
 
   const [ready, setReady] = useState(false);
@@ -40,17 +41,19 @@ export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
     body: css({ position: 'relative', display: 'grid', placeItems: 'center' }),
     layout: css({ display: 'grid', placeItems: 'center', rowGap: '30px' }),
     canvas: css({ position: 'relative', width: 280 }),
-    logo: css({ width: 130, MarginX: 40 }),
-    footer: css({ position: 'relative', minHeight: 115, display: 'grid', alignContent: 'center' }),
-    text: css({ fontSize: 36, fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05 }),
+    logo: css({ width: logo === 'SLC' ? 130 : 200 }),
+    footer: css({
+      position: 'relative',
+      height: 115,
+      width: '100%',
+      display: 'grid',
+      placeItems: 'center',
+    }),
+    text: css({ Absolute: 0 }),
   };
 
-  const elText = props.text && (
-    <div className={styles.text.class}>{ReactString.break(props.text)}</div>
-  );
-  const elWordmark = props.logo && (
-    <LogoWordmark theme={theme.name} logo={props.logo} style={styles.logo} />
-  );
+  const elText = <FadeText text={logo ? '' : props.text} style={styles.text} />;
+  const elWordmark = logo && <LogoWordmark theme={theme.name} logo={logo} style={styles.logo} />;
   const elFooter = <div className={styles.footer.class}>{elText ?? elWordmark}</div>;
 
   const elBody = (
