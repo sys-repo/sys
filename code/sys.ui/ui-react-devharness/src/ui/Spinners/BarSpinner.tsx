@@ -2,6 +2,7 @@ import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 
 export type BarSpinnerProps = { style?: t.CssInput };
+
 type BarLoaderProps = { color?: string; width?: number };
 let BarLoader: React.ComponentType<BarLoaderProps> | undefined;
 

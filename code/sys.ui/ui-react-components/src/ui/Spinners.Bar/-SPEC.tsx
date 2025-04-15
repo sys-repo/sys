@@ -1,6 +1,6 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { css, Dev, Signal, Spec } from '../-test.ui.ts';
 import { Spinners } from '../Spinners/mod.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Spinners', (e) => {
   const debug = createDebugSignals();
@@ -16,9 +16,15 @@ export default Spec.describe('Spinners', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
-      .render((e) => <Spinners.Bar theme={p.theme.value} />);
+      .render((e) => {
+        return (
+          <div className={css({ display: 'grid', placeItems: 'center' }).class}>
+            <Spinners.Bar theme={p.theme.value} width={p.width.value} />
+          </div>
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

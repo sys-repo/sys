@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Signal } from './common.ts';
 import { Button } from '../Button/mod.ts';
+import { type t, css, D, Signal } from './common.ts';
 
 type P = t.BarSpinnerProps;
 
@@ -17,12 +17,14 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Light'),
+    width: s<P['width']>(),
   };
   const api = {
     props,
     listen() {
       const p = props;
       p.theme.value;
+      p.width.value;
     },
   };
   init?.(api);
@@ -50,7 +52,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={css(styles.title, styles.cols).class}>
-        <div>{'Title'}</div>
+        <div>{'Spinners.Bar'}</div>
         <div />
         <div></div>
       </div>
@@ -59,6 +61,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `width: ${p.width.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['width']>(p.width, [undefined, 30, D.width, 300])}
       />
 
       <hr />
