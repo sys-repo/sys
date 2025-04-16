@@ -51,7 +51,7 @@ export async function main() {
     const app = App.signals();
     app.stack.push(await Content.Factory.entry());
 
-    await App.Render.preload(app, Content.factory, 'Entry', 'Trailer');
+    await App.Render.preload(app, Content.factory, 'Entry', 'Trailer', 'Overview');
 
     root.render(
       <StrictMode>
