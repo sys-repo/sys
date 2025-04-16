@@ -1,7 +1,8 @@
 import React from 'react';
 import { VIDEO } from '../VIDEO.ts';
+
 import { type t, DEFAULTS, Player } from './common.ts';
-import { timestamps } from './m.Factory.timestamps.tsx';
+import { timestamps } from './u.timestamps.tsx';
 import { Overview } from './ui.tsx';
 
 /**
@@ -13,6 +14,7 @@ export function factory() {
 
   const content: t.VideoContent = {
     '-type': 'VideoContent',
+
     id: 'Overview',
     playOnLoad: true,
     video: Player.Video.signals({
