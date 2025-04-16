@@ -15,10 +15,9 @@ export const Layout = {
    * Render factory for the <Layout> component that matches the current size-breakpoint.
    */
   render(size: t.BreakpointSizeInput, state?: t.AppSignals) {
+    const theme: t.CommonTheme = 'Dark';
     const breakpoint = Breakpoint.from(size);
     const is = breakpoint.is;
-
-    const theme: t.CommonTheme = 'Dark';
 
     if (is.mobile) return <LayoutMobile state={state} theme={theme} />;
     if (is.intermediate) return <LayoutIntermediate state={state} theme={theme} />;

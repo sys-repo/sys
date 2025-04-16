@@ -22,7 +22,7 @@ export const Content: React.FC<P> = (props) => {
     base: css({ display: 'grid' }),
   };
 
-  return (
-    <div className={css(styles.base, props.style).class}>{Layout.render(breakpoint, state)}</div>
-  );
+  const className = css(styles.base, props.style).class;
+  const el = Layout.render(breakpoint, state);
+  return <div className={className}>{el}</div>;
 };
