@@ -41,7 +41,7 @@ export const Buttons: React.FC<ButtonsProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <RoundedButton theme={theme.name} label={'Trailer'} onClick={showTrailer} />
+      <RoundedButton theme={theme.name} label={'Trailer'} onClick={showTrailer} pulse />
       <RoundedButton theme={theme.name} label={'Overview'} onClick={showOverview} />
     </div>
   );
