@@ -30,8 +30,8 @@ export function factory() {
     timestamps: {
       '00:00:00.000': (p) => <Slug {...p} logo={'SLC'} />,
       '00:00:00.001': (p) => <Slug {...p} text={'social ventures'} />,
-      '00:00:03.560': (p) => <Slug {...p} text={'ideas'} />,
-      '00:00:07.000': (p) => <Slug {...p} text={'priorities'} />,
+      '00:00:03.560': (p) => <Slug {...p} text={'good ideas'} />,
+      '00:00:07.000': (p) => <Slug {...p} text={'wrong priorities'} />,
 
       '00:00:11.870': (p) => <Slug {...p} selected={'purpose'} text={'purpose'} />,
       '00:00:19.600': (p) => <Slug {...p} selected={panels} text={'decompose'} />,
