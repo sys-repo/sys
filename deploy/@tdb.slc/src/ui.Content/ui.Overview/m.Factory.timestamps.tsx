@@ -23,7 +23,7 @@ export const timestamps: t.ContentTimestamps = {
   '00:00:38.250': (p) => <Slug {...p} text={'fast fail'} />,
   '00:00:42.000': (p) => <Slug {...p} text={'living dead'} />,
   '00:00:53.000': (p) => <Slug {...p} />,
-  '00:00:58.300': (p) => <Slug {...p} text={'sense-making'} />,
+  '00:00:58.300': (p) => <Slug {...p} text={'shared\nsense-making'} />,
   '00:01:04.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:09.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
