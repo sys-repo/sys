@@ -35,8 +35,8 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   app.props.screen.breakpoint.value = 'Desktop';
 
   app.stack.push(Sample.sample0());
-  // app.stack.push(await Content.factory('Entry'));
-  app.stack.push(await Content.factory('Overview'));
+  app.stack.push(await Content.factory('Entry'));
+  // app.stack.push(await Content.factory('Overview'));
 
   init?.(api);
   return api;
