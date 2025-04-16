@@ -89,7 +89,7 @@ export const RoundedButton: React.FC<P> = (props) => {
  */
 const wrangle = {
   pulse(input?: P['pulse']): Required<Pulse> {
-    const DEFAULT: Required<Pulse> = { duration: 1500, pulsing: false, opacity: 0.2 };
+    const DEFAULT: Required<Pulse> = { duration: 1500, pulsing: false, opacity: 0.3 };
     if (!input) return DEFAULT;
     if (input === true) return { ...DEFAULT, pulsing: true };
     return { ...DEFAULT, ...input };
