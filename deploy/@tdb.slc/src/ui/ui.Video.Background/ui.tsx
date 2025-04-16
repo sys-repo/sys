@@ -18,7 +18,7 @@ export const VideoBackground: React.FC<P> = (props) => {
    */
   Signal.useEffect(() => {
     const layerTotal = state?.stack.length ?? 0;
-    const blur = layerTotal > 1 ? 6 : 0;
+    const blur = layerTotal > 1 ? 20 : 0;
     setBlur(blur);
   });
 
@@ -33,12 +33,12 @@ export const VideoBackground: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <VimeoBackground
-        style={styles.video}
         video={src}
         playing={playing}
         blur={blur}
         opacity={opacity}
         onReady={(api) => (playerRef.current = api)}
+        style={styles.video}
       />
     </div>
   );
