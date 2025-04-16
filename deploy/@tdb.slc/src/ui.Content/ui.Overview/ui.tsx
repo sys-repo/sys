@@ -1,6 +1,6 @@
 import React from 'react';
 import { ElapsedTime, usePulldown, useTimestamps } from '../ui/mod.ts';
-import { css, Player, Sheet, type t } from './common.ts';
+import { type t, css, Player, Sheet, Time } from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 
@@ -39,7 +39,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       <Player.Video.View
         signals={player}
         style={styles.player}
-        onEnded={() => state.stack.clear(1)}
+        onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
       />
     </div>
   );

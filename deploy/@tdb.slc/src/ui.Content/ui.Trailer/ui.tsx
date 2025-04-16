@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Player, Sheet } from '../common.ts';
+import { css, Player, Sheet, type t, Time } from '../common.ts';
 import { ElapsedTime, useTimestamps } from '../ui/mod.ts';
 
 export type TrailerProps = t.VideoContentProps;
@@ -44,7 +44,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
         <Player.Video.View
           signals={player}
           style={styles.player}
-          onEnded={() => state.stack.clear(1)}
+          onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
         />
       </div>
       <ElapsedTime player={player} abs={true} show={showElapsed} />
