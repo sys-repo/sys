@@ -12,7 +12,7 @@ export type AppSignalsLib = {
 /**
  * Global application-state signals API.
  */
-export type AppSignals = t.Lifecycle & {
+export type AppSignals = {
   readonly props: {
     readonly dist: t.Signal<t.DistPkg | undefined>;
     readonly stack: t.Signal<t.Content[]>;
@@ -21,8 +21,9 @@ export type AppSignals = t.Lifecycle & {
     readonly background: {
       readonly video: {
         readonly src: t.Signal<string>;
-        readonly opacity: t.Signal<number | undefined>;
         readonly playing: t.Signal<boolean>;
+        readonly opacity: t.Signal<t.Percent | undefined>;
+        readonly blur: t.Signal<t.Percent | undefined>;
       };
     };
   };

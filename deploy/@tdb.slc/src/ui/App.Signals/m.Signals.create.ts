@@ -19,8 +19,9 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     background: {
       video: {
         src: s<string>(TUBES.src),
-        opacity: s<t.Percent | undefined>(0.2),
         playing: s<boolean>(true),
+        opacity: s<t.Percent | undefined>(0.2),
+        blur: s<t.Percent | undefined>(0),
       },
     },
   };
@@ -42,19 +43,9 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
       p.dist.value;
       p.screen.breakpoint.value;
       p.background.video.src.value;
-      p.background.video.opacity.value;
       p.background.video.playing.value;
-    },
-
-    /**
-     * Lifecycle:
-     */
-    dispose: life.dispose,
-    get dispose$() {
-      return life.dispose$;
-    },
-    get disposed() {
-      return life.disposed;
+      p.background.video.opacity.value;
+      p.background.video.blur.value;
     },
   };
 

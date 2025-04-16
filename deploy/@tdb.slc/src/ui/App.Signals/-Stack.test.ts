@@ -12,7 +12,7 @@ describe('AppSignals.stack', () => {
   it('push → pop → clear', () => {
     const app = AppSignals.create();
     const fired: number[] = [];
-    Signal.effect(() => {
+    const dispose = Signal.effect(() => {
       fired.push(app.props.stack.value.length);
     });
 
@@ -41,6 +41,6 @@ describe('AppSignals.stack', () => {
     app.stack.clear();
     expect(app.props.stack.value).to.eql([]);
 
-    app.dispose();
+    dispose();
   });
 });
