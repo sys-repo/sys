@@ -49,7 +49,7 @@ export function lifecycleAsync(...args: any[]) {
  */
 export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: any[]): T => {
   const { api, life } = wrangle.toLifecycleParams(input);
-  const obj = api as T & t.Lifecycle;
+  const obj = api as T & L;
 
   Object.defineProperties(obj, {
     dispose: {

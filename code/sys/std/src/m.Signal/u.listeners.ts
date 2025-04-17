@@ -26,23 +26,13 @@ export const listeners: t.SignalLib['listeners'] = (until$) => {
   /**
    * API:
    */
-  const api: t.SignalListeners = {
+
+  const api = Dispose.toLifecycle<t.SignalListeners>(life, {
     effect,
     get count() {
       return disposers.size;
     },
-
-    /**
-     * Lifecycle:
-     */
-    dispose: life.dispose,
-    get dispose$() {
-      return life.dispose$;
-    },
-    get disposed() {
-      return life.disposed;
-    },
-  };
+  });
 
   return api;
 };

@@ -287,9 +287,8 @@ describe('Disposable', () => {
   });
 
   describe('Dispose.toLifecycle', () => {
-    type T = t.Lifecycle & { count: number };
-
-    it('attaches properties: pass param', () => {
+    it('lifecycle', () => {
+      type T = t.Lifecycle & { count: number };
       const life = rx.lifecycle();
       const api = Dispose.toLifecycle<T>(life, { count: 123 });
 
@@ -305,7 +304,8 @@ describe('Disposable', () => {
       expect(api.disposed).to.eql(true);
     });
 
-    it('attaches properties: generate lifecycle (no param)', () => {
+    it('(no param) generate lifecycle', () => {
+      type T = t.Lifecycle & { count: number };
       const api = Dispose.toLifecycle<T>({ count: 123 });
       let fired = 0;
       api.dispose$.subscribe(() => fired++);

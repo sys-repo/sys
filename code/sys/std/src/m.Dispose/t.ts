@@ -49,5 +49,5 @@ export type DisposeLib = {
    * NB: useful for surfacing from an API where you don't want
    *     callers to be able to disose of the resource.
    */
-  omitDispose<T extends t.Disposable>(obj: T): Omit<T, 'dispose'>;
+  omitDispose<T extends t.Disposable | t.DisposableAsync>(obj: T): Omit<T, 'dispose'>;
 };

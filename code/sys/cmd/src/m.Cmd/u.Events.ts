@@ -1,4 +1,4 @@
-import { R, rx, type t, type u } from './common.ts';
+import { type t, type u, Dispose, R, rx } from './common.ts';
 import { Patch } from './u.Patch.ts';
 import { Path } from './u.Path.ts';
 
@@ -73,9 +73,9 @@ export const Events: t.CmdEventsLib = {
     }
 
     /**
-     * API
+     * API:
      */
-    const api: t.CmdEvents<C> = {
+    const api = rx.toLifecycle<t.CmdEvents<C>>(life, {
       $,
       tx$,
       error$,
@@ -92,17 +92,10 @@ export const Events: t.CmdEventsLib = {
         type R = ReturnType<t.CmdEvents<C>['issuer']>;
         const issuer = [...issuers, ...wrangle.issuers(input)];
         const res = Events.create(doc, { ...options, issuer, dispose$ });
-        delete (res as any).dispose;
-        return res as unknown as R;
+        return Dispose.omitDispose(res) as R;
       },
+    });
 
-      // Lifecycle.
-      dispose,
-      dispose$,
-      get disposed() {
-        return life.disposed;
-      },
-    };
     return api;
   },
 
