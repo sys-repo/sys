@@ -11,7 +11,7 @@ export const sample: t.DistPkg = {
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   hash: {
-    digest: `sha256-8664b01f11a1c3b7944b6ff4e4c13e002733af671ca97c7ab97703320a43a7ca`,
+    digest: `sha256-0000000000000000000000000000000000000000000000000000000000000000`,
     parts: {
       'index.html': `sha256-73118ead01ff731394195389afe6b3fef53f366c92013f90d4098523ef783dc1`,
       'pkg/-entry.CsmS4pX8.js': `sha256-d7c1df2d1d7ccadd611582d340245b446930d9c552b9a6e390e573fcb8069281`,

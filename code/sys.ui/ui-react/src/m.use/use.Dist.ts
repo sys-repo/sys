@@ -1,5 +1,5 @@
 import { Http } from '@sys/http';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type t, Err } from './common.ts';
 
 /**
@@ -12,7 +12,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
-  const [json, setJson] = useState<t.DistPkg>();
+  const jsonRef = useRef<t.DistPkg>();
   const [error, setError] = useState<t.StdError>();
 
   /**
@@ -22,26 +22,28 @@ export const useDist: t.UseDistFactory = (options = {}) => {
     const fetch = Http.fetch();
 
     const update = (dist?: t.DistPkg) => {
-      setJson(dist);
+      jsonRef.current = dist;
       redraw();
     };
 
     const loadJson = async () => {
-      setJson(undefined);
-      const e = await fetch.json<t.DistPkg>('./dist.json');
+      jsonRef.current = undefined;
+      const res = await fetch.json<t.DistPkg>('./dist.json');
       if (fetch.disposed) return;
-      if (e.ok) update(e.data);
-      else setError(Err.std(e.error));
+      if (res.ok) update(res.data);
+      else {
+        setError(Err.std(res.error));
+      }
     };
 
     const loadSample = async () => {
-      setJson(undefined);
+      jsonRef.current = undefined;
       const m = await import('./use.Dist.sample.ts');
       update(m?.sample);
     };
 
-    const finish = () => {
-      if (!json && useSampleFallback) loadSample();
+    const finish = async () => {
+      if (!jsonRef.current && is.sample) loadSample();
     };
 
     loadJson().then(finish).catch(finish);
@@ -54,8 +56,10 @@ export const useDist: t.UseDistFactory = (options = {}) => {
   const api: t.UseDist = {
     count,
     is,
-    json,
     error,
+    get json() {
+      return jsonRef.current;
+    },
   };
   return api;
 };
