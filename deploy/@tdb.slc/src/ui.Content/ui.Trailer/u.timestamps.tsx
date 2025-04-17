@@ -21,5 +21,4 @@ export const timestamps: t.ContentTimestamps = {
   '00:00:37.590': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
   '00:00:47.350': (p) => <Slug {...p} selected={'purpose'} text={'shared clarity'} />,
   '00:00:55.620': (p) => <Slug {...p} selected={'purpose'} logo={'CC'} />,
-  '00:00:59.000': (p) => <Slug {...p} selected={'purpose'} logo={'SLC'} />,
 };
