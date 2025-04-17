@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
+import { Controllers } from './m.Controllers.ts';
 import { create } from './m.Signals.create.ts';
-import { controller } from './m.Signals.controller.ts';
 
 export const AppSignals: t.AppSignalsLib = {
+  Controllers,
   create,
-  controller,
 };
