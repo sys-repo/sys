@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Svg, DEFAULTS } from './common.ts';
+import { type t, css, Svg, D } from './common.ts';
 import { useTheme, setColors } from './use.Theme.ts';
 
 const Images = {
@@ -9,7 +9,7 @@ const Images = {
 
 export const LogoWordmark: React.FC<t.LogoWordmarkProps> = (props) => {
   const { theme } = props;
-  const kind = props.logo ?? DEFAULTS.logo;
+  const kind = props.logo ?? D.logo;
 
   /**
    * Source design, search Figma: "logo.slc"
@@ -35,7 +35,7 @@ export const LogoWordmark: React.FC<t.LogoWordmarkProps> = (props) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   svg(kind: 'SLC' | 'CC') {

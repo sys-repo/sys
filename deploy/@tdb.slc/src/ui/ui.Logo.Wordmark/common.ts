@@ -12,3 +12,4 @@ export const DEFAULTS = {
     return 'SLC';
   },
 } as const;
+export const D = DEFAULTS;
