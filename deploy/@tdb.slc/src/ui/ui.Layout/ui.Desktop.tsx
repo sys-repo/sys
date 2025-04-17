@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, App, Button, Cropmarks, css, Signal, LogoWordmark } from './common.ts';
+import { type t, App, Cropmarks, css, Signal } from './common.ts';
+import { DesktopFooter } from './ui.Desktop.Footer.tsx';
 
 type P = t.LayoutDesktopProps;
 
@@ -25,12 +26,15 @@ export const LayoutDesktop: React.FC<P> = (props) => {
     bg: css({ Absolute: 0, display: 'grid' }),
     body: css({ Absolute: 0, display: 'grid' }),
     stack: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
-    dist: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
-    cc: css({ Absolute: [null, 20, 15, null], width: 100 }),
     cropmarks: {
       base: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
       body: css({ width: 390, pointerEvents: 'auto' }),
     },
+    footer1: {
+      left: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
+      right: css({ Absolute: [null, 20, 15, null], width: 100 }),
+    },
+    footer: css({ Absolute: [null, 0, 0, 0] }),
   };
 
   const elCropmarks = (
@@ -47,28 +51,16 @@ export const LayoutDesktop: React.FC<P> = (props) => {
 
   const elStackItems = App.Render.stack(state);
   const elStack = <div className={styles.stack.class}>{elStackItems}</div>;
-
-  const dist = p.dist.value;
-  const elDist = dist && (
-    <Button
-      theme={theme}
-      style={styles.dist}
-      label={() => `version: #${dist.hash.digest.slice(-5)}`}
-      onClick={() => window.open('./dist.json', '_blank')}
-    />
-  );
-
-  const elLogos = <LogoWordmark logo={'CC'} theme={theme} style={styles.cc} />;
+  const elFooter = <DesktopFooter theme={props.theme} style={styles.footer} state={state} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.bg.class} />
+      {elFooter}
       <div className={styles.body.class}>
         {elCropmarks}
         {elStack}
       </div>
-      {elDist}
-      {elLogos}
     </div>
   );
 };
