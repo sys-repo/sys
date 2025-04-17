@@ -9,6 +9,7 @@ export type * from './t.Signals.ts';
  */
 export type AppSignalsLib = {
   readonly Controllers: t.AppControllersLib;
+  readonly controller: t.AppControllersLib['main'];
 
   /** Create a new instance of the application-state signals API. */
   create(dispose$?: t.UntilObservable): t.AppSignals;

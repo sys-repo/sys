@@ -2,11 +2,15 @@ import { describe, expect, it, rx } from '../../-test.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals.Controllers', () => {
-  describe('Controller.listen (base)', () => {
+  it('API', () => {
+    expect(AppSignals.controller).to.equal(AppSignals.Controllers.main);
+  });
+
+  describe('main', () => {
     it('should add all children', () => {
       const state = AppSignals.create();
 
-      const root = AppSignals.Controllers.listen(state);
+      const root = AppSignals.Controllers.main(state);
       expect(root.disposed).to.eql(false);
       expect(root.id).to.eql('Controller:App');
 
@@ -19,7 +23,7 @@ describe('AppSignals.Controllers', () => {
     });
   });
 
-  describe('Controllers.background', () => {
+  describe('background', () => {
     it('adjusts backbround blur when stack changes', () => {
       const life = rx.disposable();
       const state = AppSignals.create();

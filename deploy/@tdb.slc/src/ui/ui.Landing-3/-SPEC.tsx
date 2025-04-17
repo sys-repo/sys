@@ -1,7 +1,7 @@
 import React from 'react';
 import { Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { css } from './common.ts';
+import { css, App } from './common.ts';
 import { Landing } from './mod.ts';
 import { updateForBreakpointSize } from '../ui.Layout/-SPEC.tsx';
 
@@ -10,6 +10,8 @@ export default Spec.describe('Landing-3', async (e) => {
   const app = debug.app;
   const d = debug.props;
   const p = app.props;
+
+  App.Signals.Controllers.main(app);
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);

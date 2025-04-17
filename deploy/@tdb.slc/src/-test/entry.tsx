@@ -36,6 +36,7 @@ export async function main() {
     const { Specs } = await import('./entry.Specs.ts');
 
     const app = App.signals();
+    App.Signals.controller(app);
     const el = await render(pkg, Specs, { hrDepth: 3, style: { Absolute: 0 } });
 
     root.render(

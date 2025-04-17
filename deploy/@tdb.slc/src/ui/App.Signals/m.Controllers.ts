@@ -4,7 +4,7 @@ import { background } from './m.Controllers.background.ts';
 export const Controllers: t.AppControllersLib = {
   background,
 
-  listen(state, until$) {
+  main(state, until$) {
     const children = new Set<t.AppController>();
     const listeners = Signal.listeners(until$);
     const dispose$ = listeners.dispose$;

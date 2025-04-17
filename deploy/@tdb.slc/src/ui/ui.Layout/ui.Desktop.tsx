@@ -25,12 +25,12 @@ export const LayoutDesktop: React.FC<P> = (props) => {
     bg: css({ Absolute: 0, display: 'grid' }),
     body: css({ Absolute: 0, display: 'grid' }),
     stack: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
+    dist: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
+    cc: css({ Absolute: [null, 20, 15, null], width: 100 }),
     cropmarks: {
       base: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
       body: css({ width: 390, pointerEvents: 'auto' }),
     },
-    dist: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
-    cc: css({ Absolute: [null, 20, 15, null], width: 100 }),
   };
 
   const elCropmarks = (

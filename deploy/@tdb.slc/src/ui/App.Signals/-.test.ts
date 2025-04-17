@@ -1,4 +1,4 @@
-import { c, describe, expect, it, rx, Signal } from '../../-test.ts';
+import { c, describe, expect, it, Signal } from '../../-test.ts';
 import { VIDEO } from '../../ui.Content/VIDEO.ts';
 import { AppSignals } from './mod.ts';
 
