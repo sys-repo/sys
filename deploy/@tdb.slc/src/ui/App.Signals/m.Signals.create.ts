@@ -23,6 +23,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
         blur: s<t.Percent | undefined>(0),
       },
     },
+    controllers: { listening: s<t.AppControllerKind[]>([]) },
   };
 
   const stack = SheetBase.Signals.stack(props.stack);

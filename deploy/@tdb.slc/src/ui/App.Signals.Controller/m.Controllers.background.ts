@@ -1,7 +1,10 @@
 import { type t, Signal, rx } from './common.ts';
 
 export const background: t.AppControllersLib['background'] = (state, until$) => {
+  const kind: t.AppControllerKind = 'Controller:App:Background';
   const listeners = Signal.listeners(until$);
+  const controllers = state.props.controllers;
+  controllers.listening.value = [...controllers.listening.value, kind];
 
   /**
    * Blur background when higher layers are visible.
@@ -16,7 +19,7 @@ export const background: t.AppControllersLib['background'] = (state, until$) => 
    * API
    */
   return rx.toLifecycle<t.AppController>(listeners, {
-    kind: 'Controller:App:Background',
+    kind,
     children: [],
   });
 };

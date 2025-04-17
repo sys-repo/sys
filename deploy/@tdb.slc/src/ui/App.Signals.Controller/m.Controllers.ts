@@ -5,18 +5,20 @@ export const Controllers: t.AppControllersLib = {
   background,
 
   start(state, until$) {
+    const kind: t.AppControllerKind = 'Controller:App';
     const children = new Set<t.AppController>();
     const listeners = Signal.listeners(until$);
-    const dispose$ = listeners.dispose$;
+    const controllers = state.props.controllers;
+    controllers.listening.value = [...controllers.listening.value, kind];
 
     // Initialize child controllers.
-    children.add(background(state, dispose$));
+    children.add(background(state, listeners.dispose$));
 
     /**
      * API:
      */
     return rx.toLifecycle<t.AppController>(listeners, {
-      kind: 'Controller:App',
+      kind,
       get children() {
         return [...children];
       },

@@ -20,6 +20,9 @@ export type AppSignals = {
         readonly blur: t.Signal<t.Pixels | undefined>;
       };
     };
+    readonly controllers: {
+      listening: t.Signal<t.AppControllerKind[]>;
+    };
   };
 
   /** API for interacting with the stack. */

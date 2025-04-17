@@ -13,6 +13,10 @@ describe('AppSignals.Controllers', () => {
       expect(root.children.map((e) => e.kind)).to.eql(['Controller:App:Background']);
       root.children.forEach((child) => expect(child.disposed).to.eql(false));
 
+      const listening = state.props.controllers.listening.value;
+      expect(listening.includes('Controller:App')).to.eql(true);
+      expect(listening.includes('Controller:App:Background')).to.eql(true);
+
       root.dispose();
       expect(root.disposed).to.eql(true);
       root.children.forEach((child) => expect(child.disposed).to.eql(true));
@@ -30,6 +34,9 @@ describe('AppSignals.Controllers', () => {
       expect(ctrl.disposed).to.eql(false);
       expect(ctrl.kind).to.eql('Controller:App:Background');
       expect(ctrl.children).to.eql([]);
+
+      const listening = state.props.controllers.listening.value;
+      expect(listening.includes('Controller:App:Background')).to.eql(true);
 
       // Add to the stack.
       state.stack.push({ id: 'base' });

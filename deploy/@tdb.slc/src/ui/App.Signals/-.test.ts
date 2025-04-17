@@ -12,6 +12,7 @@ describe('AppSignals', () => {
       expect(p.screen.breakpoint.value).to.eql('UNKNOWN');
       expect(p.stack.value).to.eql([]);
       expect(p.screen.breakpoint.value).to.eql(app.breakpoint.name);
+      expect(p.controllers.listening).to.eql([]);
 
       expect(p.background.video.src.value).to.eql(VIDEO.Tubes.src);
       expect(p.background.video.playing.value).to.eql(true);
