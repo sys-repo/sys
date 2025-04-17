@@ -20,7 +20,10 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
    * Render:
    */
   const gutter = breakpoint.name === 'Desktop' ? 40 : 10;
-  const edge: t.SheetMarginInput = [gutter, '1fr', gutter];
+  const edgeTrack = `minmax(${gutter}px, 1fr)`;
+  const centerTrack = `minmax(0px, 960px)`;
+  const edge: t.SheetMarginInput = [edgeTrack, centerTrack, edgeTrack];
+
   const styles = {
     base: css({ position: 'relative', marginBottom: 218 }),
     body: css({ Absolute: 0, display: 'grid' }),
