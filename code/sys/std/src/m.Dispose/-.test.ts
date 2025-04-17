@@ -318,4 +318,26 @@ describe('Disposable', () => {
       expect(api.disposed).to.eql(true);
     });
   });
+
+  describe('Dispose.omitDispose', () => {
+    type T = t.Lifecycle & { count: number };
+
+    it('from lifecycle', () => {
+      const life = Dispose.lifecycle();
+      const a = Dispose.toLifecycle<T>(life, { count: 123 });
+      expect(typeof a.dispose === 'function').to.be.true;
+
+      const b = Dispose.omitDispose(a);
+      expect(a).to.not.equal(b);
+      expect((b as any).dispose === undefined).to.be.true;
+
+      let fired = 0;
+      b.dispose$.subscribe(() => fired++);
+
+      expect(b.disposed).to.eql(false);
+      life.dispose();
+      expect(b.disposed).to.eql(true);
+      expect(fired).to.eql(1);
+    });
+  });
 });

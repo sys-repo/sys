@@ -43,4 +43,11 @@ export type DisposeLib = {
    *    2. subject.complete();
    */
   done(dispose$?: t.Subject<void>): void;
+
+  /**
+   * Safely remove the `dispose` method from a disposable.
+   * NB: useful for surfacing from an API where you don't want
+   *     callers to be able to disose of the resource.
+   */
+  omitDispose<T extends t.Disposable>(obj: T): Omit<T, 'dispose'>;
 };
