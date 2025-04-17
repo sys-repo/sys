@@ -8,6 +8,7 @@
  */
 export type * from './ui/App.Layout/t.ts';
 export type * from './ui/App.Render/t.ts';
+export type * from './ui/App.Signals.Controller/t.ts';
 export type * from './ui/App.Signals/t.ts';
 export type * from './ui/App/t.ts';
 

@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 export type * from './t.Content.ts';
-export type * from './t.Controllers.ts';
 export type * from './t.Signals.ts';
 
 /**
