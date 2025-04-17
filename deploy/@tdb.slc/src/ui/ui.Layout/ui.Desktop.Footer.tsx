@@ -36,7 +36,7 @@ export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
       columnGap: '10px',
     }),
     right: css({ pointerEvents: 'auto' }),
-    logo: { cc: { width: 100, marginRight: 6 } },
+    logo: { cc: { width: 100, marginRight: 4 } },
   };
 
   const elDiv = <div>{'•'}</div>;
