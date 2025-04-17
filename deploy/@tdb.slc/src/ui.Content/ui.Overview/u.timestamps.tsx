@@ -4,6 +4,9 @@ import { Images } from './m.Images.ts';
 
 const Slug = CanvasSlug;
 
+/**
+ * Overview:
+ */
 export const timestamps: t.ContentTimestamps = {
   '00:00:00.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:00:01.000': (p) => <Slug {...p} />,
@@ -15,12 +18,12 @@ export const timestamps: t.ContentTimestamps = {
     column: (p) => <Slug {...p} logo={'SLC'} />,
     pulldown: (p) => <Image.View src={Images.failure()} />,
   },
-  '00:00:13.650': (p) => <Slug {...p} />,
+  '00:00:16.000': (p) => <Slug {...p} />,
   '00:00:16.850': (p) => <Slug {...p} text={'business model'} />,
   '00:00:18.580': (p) => <Slug {...p} text={'economic\nfoundation'} />,
   '00:00:23.550': (p) => <Slug {...p} text={'lasting\nmeasurable\nimpact'} selected={'impact'} />,
   '00:00:36.000': (p) => <Slug {...p} />,
-  '00:00:38.250': (p) => <Slug {...p} text={'fast fail'} />,
+  '00:00:36.250': (p) => <Slug {...p} text={'fast fail'} />,
   '00:00:42.000': (p) => <Slug {...p} text={'living dead'} />,
   '00:00:53.000': (p) => <Slug {...p} />,
   '00:00:58.300': (p) => <Slug {...p} text={'shared\nsense-making'} />,

@@ -1,10 +1,12 @@
 import React from 'react';
-
 import { type t, CanvasPanel, CanvasSlug } from './common.ts';
 
 const Slug = CanvasSlug;
 const panels = CanvasPanel.list;
 
+/**
+ * Trailer:
+ */
 export const timestamps: t.ContentTimestamps = {
   '00:00:00.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:00:00.001': (p) => <Slug {...p} text={'social ventures'} />,
