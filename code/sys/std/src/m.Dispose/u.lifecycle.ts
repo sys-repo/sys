@@ -1,6 +1,8 @@
 import { type t, filter, take } from './common.ts';
 import { disposable, disposableAsync, toDisposableAsyncArgs } from './u.dispose.ts';
 
+type L = t.Lifecycle;
+
 /**
  * Generates a disposable interface that maintains
  * and exposes it's disposed state.
@@ -41,3 +43,39 @@ export function lifecycleAsync(...args: any[]) {
     },
   };
 }
+
+/**
+ * Extend the given object to be expose the lifecycle API.
+ */
+export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: any[]): T => {
+  const { api, life } = wrangle.toLifecycleParams(input);
+  const obj = api as T & t.Lifecycle;
+
+  Object.defineProperties(obj, {
+    dispose: {
+      value: life.dispose.bind(life),
+      enumerable: true,
+    },
+    dispose$: {
+      get: () => life.dispose$,
+      enumerable: true,
+    },
+    disposed: {
+      get: () => life.disposed,
+      enumerable: true,
+    },
+  });
+
+  return obj;
+};
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  toLifecycleParams<T extends t.Lifecycle>(input: any[]): { api: T; life: t.Lifecycle } {
+    if (input.length === 1) return { api: input[0] as T, life: lifecycle() };
+    if (input.length >= 2) return { api: input[1], life: input[0] };
+    throw new Error('Failed to parse overloads (toLifecycle)');
+  },
+} as const;

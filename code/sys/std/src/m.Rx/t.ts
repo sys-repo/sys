@@ -24,6 +24,7 @@ export type RxLib = Rxjs & {
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
+  toLifecycle: t.DisposeLib['toLifecycle'];
 
   withinTimeThreshold<T>(
     $: t.Observable<T>,

@@ -1,8 +1,8 @@
 import { Subject } from 'rxjs';
 import { describe, expect, it, type t } from '../-test.ts';
 import { Time } from '../m.DateTime/mod.ts';
-import { Dispose } from './mod.ts';
 import { Is, rx } from '../mod.ts';
+import { Dispose } from './mod.ts';
 
 describe('Disposable', () => {
   describe('sync', () => {
@@ -283,6 +283,39 @@ describe('Disposable', () => {
       Dispose.done(dispose$);
 
       expect(count).to.eql(1);
+    });
+  });
+
+  describe('Dispose.toLifecycle', () => {
+    type T = t.Lifecycle & { count: number };
+
+    it('attaches properties: pass param', () => {
+      const life = rx.lifecycle();
+      const api = Dispose.toLifecycle<T>(life, { count: 123 });
+
+      let fired = 0;
+      api.dispose$.subscribe(() => fired++);
+
+      expect(api.count).to.eql(123);
+      expect(api.disposed).to.eql(false);
+
+      life.dispose();
+      api.dispose();
+      expect(fired).to.eql(1);
+      expect(api.disposed).to.eql(true);
+    });
+
+    it('attaches properties: generate lifecycle (no param)', () => {
+      const api = Dispose.toLifecycle<T>({ count: 123 });
+      let fired = 0;
+      api.dispose$.subscribe(() => fired++);
+
+      expect(api.count).to.eql(123);
+      expect(api.disposed).to.eql(false);
+
+      api.dispose();
+      expect(fired).to.eql(1);
+      expect(api.disposed).to.eql(true);
     });
   });
 });

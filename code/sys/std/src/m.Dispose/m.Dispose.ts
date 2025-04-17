@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 import { disposable, disposableAsync } from './u.dispose.ts';
 import { done } from './u.done.ts';
-import { lifecycle, lifecycleAsync } from './u.lifecycle.ts';
+import { lifecycle, lifecycleAsync, toLifecycle } from './u.lifecycle.ts';
 import { until } from './u.until.ts';
 
 /**
@@ -17,4 +17,5 @@ export const Dispose: t.DisposeLib = {
 
   lifecycle,
   lifecycleAsync,
+  toLifecycle,
 };

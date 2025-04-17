@@ -27,6 +27,10 @@ export type DisposeLib = {
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
   lifecycleAsync(until$?: t.DisposeInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
 
+  /** Extend the given object to be expose the lifecycle API. */
+  toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
+  toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
+
   /**
    * Listens to an observable and disposes of the object when fires.
    */
