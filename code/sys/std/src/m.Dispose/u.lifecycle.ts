@@ -73,9 +73,9 @@ export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: 
  * Helpers
  */
 const wrangle = {
-  toLifecycleParams<T extends t.Lifecycle>(input: any[]): { api: T; life: t.Lifecycle } {
-    if (input.length === 1) return { api: input[0] as T, life: lifecycle() };
-    if (input.length >= 2) return { api: input[1], life: input[0] };
-    throw new Error('Failed to parse overloads (toLifecycle)');
+  toLifecycleParams<T extends t.Lifecycle>(input: any[]): { life: t.Lifecycle; api: T } {
+    if (input.length === 1) return { life: lifecycle(), api: input[0] as T };
+    if (input.length >= 2) return { life: input[0], api: input[1] };
+    throw new Error('Failed to parse overloads: toLifecycle');
   },
 } as const;

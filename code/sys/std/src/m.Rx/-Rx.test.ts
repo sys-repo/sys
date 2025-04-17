@@ -1,4 +1,4 @@
-import { describe, expect, it, Time, Testing } from '../-test.ts';
+import { describe, expect, it, Testing, Time } from '../-test.ts';
 import { Dispose, rx, Rx } from '../mod.ts';
 
 describe('Observable/rx', () => {
