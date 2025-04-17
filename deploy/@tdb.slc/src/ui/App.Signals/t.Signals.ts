@@ -4,11 +4,14 @@ import type { t } from './common.ts';
  * Global application-state signals API.
  */
 export type AppSignals = {
+  /** Unique instance of the signals. */
+  readonly instance: t.StringId;
+
+  /** Signal properties: */
   readonly props: {
     readonly dist: t.Signal<t.DistPkg | undefined>;
     readonly stack: t.Signal<t.Content[]>;
     readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
-
     readonly background: {
       readonly video: {
         readonly src: t.Signal<string>;

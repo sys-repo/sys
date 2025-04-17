@@ -1,11 +1,10 @@
-import { type t, Breakpoint, rx, SheetBase, Signal, TUBES } from './common.ts';
+import { type t, Breakpoint, SheetBase, Signal, slug, TUBES } from './common.ts';
 
 /**
  * Create a new instance of the application-state signals API.
  */
 export const create: t.AppSignalsLib['create'] = (until$) => {
   const s = Signal.create;
-  const life = rx.lifecycle(until$);
 
   /**
    * API:
@@ -28,6 +27,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
 
   const stack = SheetBase.Signals.stack(props.stack);
   const api: T = {
+    instance: `signals-${slug()}`,
     get props() {
       return props;
     },
