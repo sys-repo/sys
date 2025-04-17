@@ -20,7 +20,6 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme: t.CommonTheme = 'Dark';
   const styles = {
     base: css({ position: 'relative' }),
     bg: css({ Absolute: 0, display: 'grid' }),
@@ -29,10 +28,6 @@ export const LayoutDesktop: React.FC<P> = (props) => {
     cropmarks: {
       base: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
       body: css({ width: 390, pointerEvents: 'auto' }),
-    },
-    footer1: {
-      left: css({ Absolute: [null, null, 10, 10], fontSize: 11 }),
-      right: css({ Absolute: [null, 20, 15, null], width: 100 }),
     },
     footer: css({ Absolute: [null, 0, 0, 0] }),
   };
