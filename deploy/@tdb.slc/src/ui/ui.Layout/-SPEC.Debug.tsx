@@ -101,19 +101,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `- application ("SLC Product System")`}
-        onClick={async () => {
-          app.stack.clear();
-          app.stack.push(await Content.factory('Entry'));
-        }}
-      />
-
-      <Button
-        block
         label={() => `- debug samples`}
         onClick={() => {
           app.stack.clear();
           app.stack.push(Sample.sample0());
+        }}
+      />
+      <Button
+        block
+        label={() => `- application ("SLC Product System")`}
+        onClick={async () => {
+          app.stack.clear();
+          app.stack.push(await Content.factory('Entry'));
         }}
       />
 

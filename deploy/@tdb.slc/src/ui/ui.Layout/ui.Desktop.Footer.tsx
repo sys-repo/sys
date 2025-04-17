@@ -7,10 +7,12 @@ export type DesktopFooterProps = {
   style?: t.CssInput;
 };
 
+type P = DesktopFooterProps;
+
 /**
  * Component:
  */
-export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
+export const DesktopFooter: React.FC<P> = (props) => {
   const { state } = props;
   const p = state?.props;
   if (!p) return null;
@@ -45,7 +47,7 @@ export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
   const elDist = dist && (
     <Button
       theme={theme.name}
-      label={() => `version: #${dist.hash.digest.slice(-5)}`}
+      label={() => `version: #${wrangle.versionHash(state)}`}
       onClick={() => window.open('./dist.json', '_blank')}
     />
   );
@@ -72,3 +74,14 @@ export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  versionHash(state: t.AppSignals) {
+    const dist = state.props.dist.value;
+    const hx = dist?.hash.digest ?? '000000';
+    return hx.slice(-5);
+  },
+} as const;
