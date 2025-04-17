@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, D, VimeoBackground } from './common.ts';
+import { type t, css, D, VimeoBackground, Signal } from './common.ts';
 
 type P = t.VideoBackgroundProps;
 
@@ -13,6 +13,16 @@ export const VideoBackground: React.FC<P> = (props) => {
   const playing = p.playing.value ?? D.playing;
 
   const playerRef = React.useRef<t.VimeoIFrame>();
+
+  /**
+   * Effect: redraw (watch).
+   */
+  Signal.useRedrawEffect(() => {
+    p.src.value;
+    p.opacity.value;
+    p.blur.value;
+    p.playing.value;
+  });
 
   /**
    * Render:

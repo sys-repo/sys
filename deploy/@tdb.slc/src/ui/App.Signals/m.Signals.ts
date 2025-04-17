@@ -5,5 +5,4 @@ import { create } from './m.Signals.create.ts';
 export const AppSignals: t.AppSignalsLib = {
   create,
   Controllers,
-  controller: Controllers.main,
 };

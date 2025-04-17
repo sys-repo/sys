@@ -28,8 +28,8 @@ describe('AppSignals', () => {
       const a = AppSignals.create();
       const b = AppSignals.create();
 
-      expect(a.instance.startsWith('signals-')).to.eql(true);
-      expect(a.instance.length).to.be.greaterThan('signals-1ss9zk'.length - 3);
+      expect(a.instance.startsWith('app-')).to.eql(true);
+      expect(a.instance.length).to.be.greaterThan('app-1ss9'.length);
       expect(a.instance).to.not.eql(b.instance);
     });
   });

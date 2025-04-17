@@ -27,7 +27,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
 
   const stack = SheetBase.Signals.stack(props.stack);
   const api: T = {
-    instance: `signals-${slug()}`,
+    instance: `app-${slug()}`,
     get props() {
       return props;
     },

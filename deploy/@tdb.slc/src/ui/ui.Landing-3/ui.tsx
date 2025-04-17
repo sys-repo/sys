@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import {
   type t,
+  App,
   Color,
   css,
   Layout,
   pkg,
+  rx,
   useDist,
   useSizeObserver,
   VideoBackground,
@@ -30,6 +32,15 @@ export const Landing: React.FC<P> = (props) => {
   const dist = useDist({
     useSampleFallback: wrangle.showSampleDist(props),
   });
+
+  /**
+   * Effect:
+   */
+  useEffect(() => {
+    const life = rx.lifecycle();
+    if (state) App.Signals.Controllers.start(state, life);
+    return life.dispose;
+  }, [state]);
 
   /**
    * Effects:

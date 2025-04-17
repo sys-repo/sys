@@ -11,8 +11,6 @@ export default Spec.describe('Landing-3', async (e) => {
   const d = debug.props;
   const p = app.props;
 
-  App.Signals.Controllers.main(app);
-
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     const update = { size: () => updateForBreakpointSize(ctx, app) };

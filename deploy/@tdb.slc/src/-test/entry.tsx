@@ -14,6 +14,9 @@ if (document) {
   document.body.style.overflow = 'hidden'; // NB: suppress rubber-band effect.
 }
 
+/**
+ * Setup mounter:
+ */
 const Root = (props: { state: t.AppSignals; children?: t.ReactNode }) => {
   useKeyboard(props.state);
   return props.children;
@@ -36,7 +39,6 @@ export async function main() {
     const { Specs } = await import('./entry.Specs.ts');
 
     const app = App.signals();
-    App.Signals.controller(app);
     const el = await render(pkg, Specs, { hrDepth: 3, style: { Absolute: 0 } });
 
     root.render(
@@ -50,8 +52,8 @@ export async function main() {
      */
     const { Landing, App, Content } = await import('../ui/ui.Landing-3/mod.ts');
     const app = App.signals();
-    app.stack.push(await Content.Factory.entry());
 
+    app.stack.push(await Content.Factory.entry());
     await App.Render.preload(app, Content.factory, 'Entry', 'Trailer', 'Overview');
 
     root.render(

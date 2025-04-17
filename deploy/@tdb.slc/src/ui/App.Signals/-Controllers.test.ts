@@ -2,15 +2,11 @@ import { describe, expect, it, rx } from '../../-test.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals.Controllers', () => {
-  it('API', () => {
-    expect(AppSignals.controller).to.equal(AppSignals.Controllers.main);
-  });
-
-  describe('main', () => {
+  describe('start', () => {
     it('should add all children', () => {
       const state = AppSignals.create();
 
-      const root = AppSignals.Controllers.main(state);
+      const root = AppSignals.Controllers.start(state);
       expect(root.disposed).to.eql(false);
       expect(root.id).to.eql('Controller:App');
 

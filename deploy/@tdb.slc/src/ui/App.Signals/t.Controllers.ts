@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type AppControllersLib = {
   /** Hooks up all baseline controllers */
-  main(state: t.AppSignals, until$?: t.UntilObservable): AppController;
+  start(state: t.AppSignals, until$?: t.UntilInput): AppController;
 
   /**
    * Hook into the given state and apply controller logic

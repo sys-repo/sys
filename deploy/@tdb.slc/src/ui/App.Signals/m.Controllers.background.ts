@@ -7,8 +7,9 @@ export const background: t.AppControllersLib['background'] = (state, until$) => 
    * Blur background when higher layers are visible.
    */
   listeners.effect(() => {
-    const layers = state.stack.length;
-    state.props.background.video.blur.value = layers > 1 ? 20 : 0;
+    const totalLayers = state.stack.length;
+    const blur = state.props.background.video.blur;
+    blur.value = totalLayers > 1 ? 20 : 0;
   });
 
   /**
