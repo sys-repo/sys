@@ -18,6 +18,9 @@ export type AppControllersLib = {
  * Common interface for application controllers.
  */
 export type AppController = t.Lifecycle & {
-  readonly id: t.StringId;
+  readonly kind: AppControllerKind;
   readonly children: AppController[];
 };
+
+/** Controller identification codes. */
+export type AppControllerKind = 'Controller:App' | 'Controller:App:Background';

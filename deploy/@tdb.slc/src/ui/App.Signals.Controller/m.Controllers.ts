@@ -16,7 +16,7 @@ export const Controllers: t.AppControllersLib = {
      * API:
      */
     return rx.toLifecycle<t.AppController>(listeners, {
-      id: 'Controller:App',
+      kind: 'Controller:App',
       get children() {
         return [...children];
       },

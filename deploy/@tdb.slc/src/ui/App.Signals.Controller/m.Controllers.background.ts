@@ -16,7 +16,7 @@ export const background: t.AppControllersLib['background'] = (state, until$) => 
    * API
    */
   return rx.toLifecycle<t.AppController>(listeners, {
-    id: 'Controller:App:Background',
+    kind: 'Controller:App:Background',
     children: [],
   });
 };

@@ -8,9 +8,9 @@ describe('AppSignals.Controllers', () => {
 
       const root = AppSignals.Controllers.start(state);
       expect(root.disposed).to.eql(false);
-      expect(root.id).to.eql('Controller:App');
+      expect(root.kind).to.eql('Controller:App');
 
-      expect(root.children.map(({ id }) => id)).to.eql(['Controller:App:Background']);
+      expect(root.children.map(({ kind: id }) => id)).to.eql(['Controller:App:Background']);
       root.children.forEach((child) => expect(child.disposed).to.eql(false));
 
       root.dispose();
@@ -28,7 +28,7 @@ describe('AppSignals.Controllers', () => {
 
       const ctrl = AppSignals.Controllers.background(state, life);
       expect(ctrl.disposed).to.eql(false);
-      expect(ctrl.id).to.eql('Controller:App:Background');
+      expect(ctrl.kind).to.eql('Controller:App:Background');
       expect(ctrl.children).to.eql([]);
 
       // Add to the stack.
