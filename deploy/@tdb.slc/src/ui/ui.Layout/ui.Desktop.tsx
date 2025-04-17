@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, App, Cropmarks, css, Signal } from './common.ts';
+import { type t, App, Cropmarks, css, Signal, TooSmall, useSizeObserver } from './common.ts';
 import { DesktopFooter } from './ui.Desktop.Footer.tsx';
 
 type P = t.LayoutDesktopProps;
@@ -12,6 +12,10 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   const p = state?.props;
   if (!p) return null;
 
+  const size = useSizeObserver();
+  const isReady = size.ready;
+  let isTooSmall = wrangle.tooSmall(size.rect);
+
   /**
    * Effects:
    */
@@ -21,7 +25,11 @@ export const LayoutDesktop: React.FC<P> = (props) => {
    * Render:
    */
   const styles = {
-    base: css({ position: 'relative' }),
+    base: css({
+      opacity: isReady ? 1 : 0,
+      position: 'relative',
+      display: 'grid',
+    }),
     bg: css({ Absolute: 0, display: 'grid' }),
     body: css({ Absolute: 0, display: 'grid' }),
     stack: css({ Absolute: 0, display: 'grid', pointerEvents: 'none' }),
@@ -48,14 +56,34 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   const elStack = <div className={styles.stack.class}>{elStackItems}</div>;
   const elFooter = <DesktopFooter theme={props.theme} style={styles.footer} state={state} />;
 
-  return (
-    <div className={css(styles.base, props.style).class}>
+  const elBody = (
+    <React.Fragment>
       <div className={styles.bg.class} />
       <div className={styles.body.class}>
         {elCropmarks}
         {elStack}
       </div>
       {elFooter}
+    </React.Fragment>
+  );
+
+  const elTooSmall = <TooSmall theme={props.theme} />;
+
+  return (
+    <div ref={size.ref} className={css(styles.base, props.style).class}>
+      {isTooSmall ? elTooSmall : elBody}
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  tooSmall(size?: t.DomRect) {
+    if (!size) return null;
+    if (size.height < 520) return true;
+    if (size.width < 630) return true;
+    return false;
+  },
+} as const;

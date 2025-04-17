@@ -110,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `- samples`}
+        label={() => `- debug samples`}
         onClick={() => {
           app.stack.clear();
           app.stack.push(Sample.sample0());

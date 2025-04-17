@@ -26,6 +26,8 @@ export const Landing: React.FC<P> = (props) => {
   const width = size.rect?.width ?? -1;
   const breakpoint = Layout.Breakpoint.fromWidth(width);
 
+  const isReady = size.ready && breakpoint.is.ready;
+
   /**
    * Hooks:
    */
@@ -64,7 +66,12 @@ export const Landing: React.FC<P> = (props) => {
    */
   const theme = Color.theme('Dark');
   const styles = {
-    base: css({ backgroundColor: theme.bg, color: theme.fg, fontFamily: 'sans-serif' }),
+    base: css({
+      backgroundColor: theme.bg,
+      color: theme.fg,
+      fontFamily: 'sans-serif',
+      opacity: isReady ? 1 : 0,
+    }),
     fill: css({ Absolute: 0, display: 'grid' }),
   };
 
