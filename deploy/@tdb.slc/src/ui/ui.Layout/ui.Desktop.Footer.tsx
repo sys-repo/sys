@@ -26,18 +26,34 @@ export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       gridTemplateColumns: `auto 1fr auto`,
+      pointerEvents: 'none',
     }),
-    left: css({ display: 'grid', alignContent: 'end' }),
-    right: css({}),
+    left: css({
+      pointerEvents: 'auto',
+      display: 'grid',
+      gridAutoFlow: 'column',
+      alignContent: 'end',
+      columnGap: '10px',
+    }),
+    right: css({ pointerEvents: 'auto' }),
   };
+
+  const elDiv = <div>{'•'}</div>;
 
   const dist = p.dist.value;
   const elDist = dist && (
     <Button
       theme={theme.name}
-      // style={styles.footer1.left}
       label={() => `version: #${dist.hash.digest.slice(-5)}`}
       onClick={() => window.open('./dist.json', '_blank')}
+    />
+  );
+
+  const elPdfDownload = (
+    <Button
+      theme={theme.name}
+      label={() => `pdf worksheet`}
+      onClick={() => window.open('./pdf/slc.pdf', '_blank')}
     />
   );
 
@@ -45,7 +61,11 @@ export const DesktopFooter: React.FC<DesktopFooterProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.left.class}>{elDist}</div>
+      <div className={styles.left.class}>
+        {elDist}
+        {elDiv}
+        {elPdfDownload}
+      </div>
       <div />
       <div className={styles.right.class}>{elLogos}</div>
     </div>

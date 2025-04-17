@@ -56,11 +56,11 @@ export const LayoutDesktop: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.bg.class} />
-      {elFooter}
       <div className={styles.body.class}>
         {elCropmarks}
         {elStack}
       </div>
+      {elFooter}
     </div>
   );
 };
