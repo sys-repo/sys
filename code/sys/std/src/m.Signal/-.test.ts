@@ -1,6 +1,6 @@
 import { Time, describe, expect, it } from '../-test.ts';
-import { value } from 'valibot';
 import { Signal } from './mod.ts';
+import { rx } from '../m.Rx/mod.ts';
 
 import * as Preact from '@preact/signals-core';
 
@@ -108,7 +108,7 @@ describe('Signal', () => {
     });
   });
 
-  describe('Helpers', () => {
+  describe('value helpers', () => {
     describe('Signal.toggle', () => {
       it('should toggle boolean', () => {
         const s = Signal.create(false);
@@ -314,6 +314,55 @@ describe('Signal', () => {
         expect(res).to.eql('a');
         expect(s.value).to.eql('a');
       });
+    });
+  });
+
+  describe('Listeners', () => {
+    it('create → <change> → dispose', () => {
+      const life = rx.disposable();
+      const a = Signal.listeners();
+      const b = Signal.listeners(life);
+
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(false);
+
+      expect(a.count).to.eql(0);
+      expect(b.count).to.eql(0);
+
+      const signal = Signal.create(0);
+      const fired = { a: 0, b: 0 };
+      const resA = a.effect(() => {
+        signal.value;
+        fired.a++;
+      });
+      const resB = b.effect(() => {
+        signal.value;
+        fired.b++;
+      });
+
+      expect(resA.count).to.eql(1);
+      expect(resB.count).to.eql(1);
+
+      expect(fired).to.eql({ a: 1, b: 1 }); // NB: initial run.
+      signal.value++;
+      expect(fired).to.eql({ a: 2, b: 2 });
+
+      life.dispose();
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(true);
+      expect(b.count).to.eql(0);
+
+      signal.value++;
+      expect(fired).to.eql({ a: 3, b: 2 });
+
+      a.dispose();
+      signal.value++;
+      expect(fired).to.eql({ a: 3, b: 2 }); // NB: no change.
+
+      expect(a.disposed).to.eql(true);
+      expect(b.disposed).to.eql(true);
+      expect(a.count).to.eql(0);
+      expect(b.count).to.eql(0);
     });
   });
 });

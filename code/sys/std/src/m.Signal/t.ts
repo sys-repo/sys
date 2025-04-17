@@ -1,3 +1,4 @@
+import type { t } from './common.ts';
 import type Preact from '@preact/signals-core';
 import type { ReadonlySignal, Signal } from '@preact/signals-core';
 
@@ -12,6 +13,9 @@ export { ReadonlySignal, Signal };
  * ```
  */
 export type ExtractSignalValue<T> = T extends Signal<infer U> ? U : never;
+
+/** Callback passed into a signal effect. */
+export type SignalEffectFn = () => void | (() => void);
 
 /**
  * Reactive Signals.
@@ -33,8 +37,11 @@ export type SignalLib = {
   /** Create a new signal that is computed based on the values of other signals. */
   computed: typeof Preact.computed;
 
+  /** Create a new listeners collection. */
+  listeners(dispose$?: t.UntilInput): t.SignalListeners;
+
   //
-} & SignalValueHelpersLib;
+} & t.SignalValueHelpersLib;
 
 /**
  * Utility helpers for operating on Signal values.
@@ -45,4 +52,13 @@ export type SignalValueHelpersLib = {
 
   /** Cycle a union string signal through a list of possible values. */
   cycle<T>(signal: Signal<T | undefined>, values: T[], forceValue?: T): T;
+};
+
+/**
+ * Helper for managing the disposal of a collection
+ * of signal effect listeners.
+ */
+export type SignalListeners = t.Lifecycle & {
+  readonly count: number;
+  effect(fn: t.SignalEffectFn): SignalListeners;
 };
