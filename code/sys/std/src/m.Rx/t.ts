@@ -56,8 +56,8 @@ export type RxPromiseResponse<E extends Event> = {
  */
 export type RxIs = {
   event(input: any, type?: string | { startsWith: string }): boolean;
-  observable<T = unknown>(input?: any): input is t.Observable<T>;
-  subject<T = unknown>(input?: any): input is t.Subject<T>;
+  observable: t.StdIsLib['observable'];
+  subject: t.StdIsLib['subject'];
 };
 
 /**

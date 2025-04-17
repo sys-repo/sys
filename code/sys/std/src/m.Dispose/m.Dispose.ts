@@ -1,154 +1,20 @@
-import { Delete } from '../m.Delete/mod.ts';
-import { Err } from '../m.Err/mod.ts';
-import { Is } from '../m.Rx/m.Is.ts';
-import { filter, flatten, isObject, Subject, take, type t } from './common.ts';
+import { type t } from './common.ts';
+
+import { disposable, disposableAsync } from './u.dispose.ts';
+import { done } from './u.done.ts';
+import { lifecycle, lifecycleAsync } from './u.lifecycle.ts';
+import { until } from './u.until.ts';
 
 /**
  * Toolkit for working with disposable interfaces.
  */
 export const Dispose: t.DisposeLib = {
-  /**
-   * Generates a generic disposable interface that is
-   * typically mixed into a wider interface of some kind.
-   */
-  disposable(until$): t.Disposable {
-    const subject$ = new Subject<void>();
-    const dispose$ = subject$.asObservable();
-    const disposable: t.Disposable = {
-      dispose: () => Dispose.done(subject$),
-      get dispose$() {
-        return dispose$;
-      },
-    };
-    Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
-    return disposable;
-  },
+  done,
+  until,
 
-  /**
-   * Generates an asnchronous Disposable interface.
-   */
-  disposableAsync(...args: any[]) {
-    const { until$, onDispose } = wrangle.disposableAsyncArgs(args);
-    const dispose$ = new Subject<t.DisposeAsyncEvent>();
-    let _disposing = false;
+  disposable,
+  disposableAsync,
 
-    type P = t.DisposeAsyncEventArgs;
-    const asPayload = (stage: t.DisposeAsyncStage, error?: t.DisposeError): P => {
-      const ok = !error;
-      const done = stage === 'complete' || stage === 'error';
-      return Delete.undefined({ stage, is: { ok, done }, error });
-    };
-    const fire = (stage: t.DisposeAsyncStage, error?: t.DisposeError) => {
-      const payload = asPayload(stage, error);
-      dispose$.next({ type: 'dispose', payload });
-    };
-
-    const disposable: t.DisposableAsync = {
-      dispose$: dispose$.asObservable(),
-      async dispose() {
-        if (_disposing) return;
-        _disposing = true;
-
-        fire('start');
-        try {
-          await onDispose?.(); // Invoke handler ("clean up resources").
-          fire('complete');
-        } catch (err: any) {
-          fire('error', {
-            name: 'DisposeError',
-            message: 'Failed while disposing asynchronously',
-            cause: Err.std(err),
-          });
-        }
-      },
-    };
-
-    Dispose.until(until$).forEach(($) => $.subscribe(disposable.dispose));
-    return disposable;
-  },
-
-  /**
-   * Generates a disposable interface that maintains
-   * and exposes it's disposed state.
-   */
-  lifecycle(until$) {
-    const { dispose, dispose$ } = Dispose.disposable(until$);
-    let _disposed = false;
-    dispose$.pipe(take(1)).subscribe(() => (_disposed = true));
-    return {
-      dispose,
-      get dispose$() {
-        return dispose$;
-      },
-      get disposed() {
-        return _disposed;
-      },
-    };
-  },
-
-  lifecycleAsync(...args) {
-    const { until$, onDispose } = wrangle.disposableAsyncArgs(args);
-    const { dispose, dispose$ } = Dispose.disposableAsync(until$, onDispose);
-    let _disposed = false;
-    dispose$
-      .pipe(
-        filter((e) => e.payload.stage === 'complete' || e.payload.stage === 'error'),
-        take(1),
-      )
-      .subscribe(() => (_disposed = true));
-    return {
-      dispose$,
-      dispose,
-      get disposed() {
-        return _disposed;
-      },
-    };
-  },
-
-  /**
-   * Listens to an observable (or set of observbles) and
-   * disposes of the target when any of them fire.
-   */
-  until(input) {
-    if (isDisposable(input)) {
-      return [input.dispose$];
-    } else {
-      const $ = input;
-      const list = Array.isArray($) ? $ : [$];
-      return flatten(list).filter(Boolean) as t.Observable<unknown>[];
-    }
-  },
-
-  /**
-   * "Completes" a subject by running:
-   *    1. subject.next();
-   *    2. subject.complete();
-   */
-  done(dispose$) {
-    dispose$?.next?.();
-    dispose$?.complete?.();
-  },
+  lifecycle,
+  lifecycleAsync,
 };
-
-/**
- * Helpers
- */
-export const wrangle = {
-  disposableAsyncArgs(args: any[]) {
-    type Fn = () => Promise<void>;
-    let onDispose: Fn | undefined;
-    let until$: t.UntilObservable | undefined;
-
-    if (typeof args[0] === 'function') onDispose = args[0];
-    if (typeof args[1] === 'function') onDispose = args[1];
-    if (Is.observable(args[0]) || Array.isArray(args[0])) until$ = Dispose.until(args[0]);
-
-    return { onDispose, until$ };
-  },
-} as const;
-
-function isDisposable(input: any): input is t.Disposable {
-  if (!isObject(input)) return false;
-  const obj = input as t.Disposable;
-  return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
-}

@@ -58,7 +58,7 @@ export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
 /**
  * Utility Type: remove fields from composite Dispose object.
  */
-export type OmitDisposable<T extends Disposable | DisposableAsync> = Omit<
+export type OmitDisposable<T extends Disposable | DisposableAsync | object> = Omit<
   T,
   'dispose' | 'dispose$'
 >;
@@ -66,7 +66,7 @@ export type OmitDisposable<T extends Disposable | DisposableAsync> = Omit<
 /**
  * Utility Type: remove fields from composite Lifecycle object.
  */
-export type OmitLifecycle<T extends Lifecycle | LifecycleAsync> = Omit<
+export type OmitLifecycle<T extends Lifecycle | LifecycleAsync | object> = Omit<
   T,
   'dispose' | 'dispose$' | 'disposed'
 >;

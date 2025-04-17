@@ -1,16 +1,12 @@
 import { type t, isObject } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
-import { Is as RxIs } from '../m.Rx/mod.ts';
 
-const { observable, subject } = RxIs;
 const { errorLike, stdError } = Err.Is;
 
 /**
  * Common flag evaluators.
  */
 export const Is: t.StdIsLib = {
-  observable,
-  subject,
   errorLike,
   stdError,
 
@@ -18,6 +14,20 @@ export const Is: t.StdIsLib = {
     if (!isObject(input)) return false;
     const obj = input as t.Disposable;
     return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+  },
+
+  /**
+   * Determine if the given input is an Observable.
+   */
+  observable<T = unknown>(input?: any): input is t.Observable<T> {
+    return typeof input === 'object' && typeof input?.subscribe === 'function';
+  },
+
+  /**
+   * Determine if the given input is an observable Subject.
+   */
+  subject<T = unknown>(input?: any): input is t.Subject<T> {
+    return Is.observable(input) && typeof (input as any)?.next === 'function';
   },
 
   falsy(input?: any): input is t.Falsy | typeof NaN {

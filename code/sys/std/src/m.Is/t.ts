@@ -28,12 +28,12 @@ export type StdIsLib = {
   /**
    * Determine if the value is an observable Subject.
    */
-  subject: t.RxIs['subject'];
+  subject<T = unknown>(input?: any): input is t.Subject<T>;
 
   /**
    * Determine if the value is an Observable.
    */
-  observable: t.RxIs['observable'];
+  observable<T = unknown>(input?: any): input is t.Observable<T>;
 
   /**
    * Determine if the value is like an Error object.
