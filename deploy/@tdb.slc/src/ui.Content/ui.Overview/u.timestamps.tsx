@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, CanvasSlug, Image } from './common.ts';
-import { Images } from './m.Images.ts';
+import { type t, CanvasSlug, Image, IMAGE } from './common.ts';
 
 const Slug = CanvasSlug;
 
@@ -16,7 +15,7 @@ export const timestamps: t.ContentTimestamps = {
   '00:00:06.350': (p) => <Slug {...p} />,
   '00:00:08.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.failure()} />,
+    pulldown: (p) => <Image.View src={IMAGE.failure} />,
   },
   '00:00:16.000': (p) => <Slug {...p} />,
   '00:00:16.850': (p) => <Slug {...p} text={'business model'} />,
@@ -30,21 +29,21 @@ export const timestamps: t.ContentTimestamps = {
   '00:01:04.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:09.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.build()} padding={'5%'} />,
+    pulldown: (p) => <Image.View src={IMAGE.build} padding={'5%'} />,
   },
   '00:01:23.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:25.250': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.definingPurpose()} />,
+    pulldown: (p) => <Image.View src={IMAGE.definingPurpose} />,
   },
   '00:01:37.900': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.modelParts()} padding={'10%'} />,
+    pulldown: (p) => <Image.View src={IMAGE.modelParts} padding={'10%'} />,
   },
   '00:01:49.000': (p) => <Slug {...p} logo={'SLC'} />,
   '00:01:50.810': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.customerModel()} />,
+    pulldown: (p) => <Image.View src={IMAGE.customerModel} />,
   },
   '00:02:11.000': (p) => <Slug {...p} text={'simple'} />,
   '00:02:16.000': (p) => <Slug {...p} text={'complex'} />,
@@ -52,22 +51,22 @@ export const timestamps: t.ContentTimestamps = {
   '00:02:33.460': (p) => <Slug {...p} />,
   '00:02:37.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.impactModel()} />,
+    pulldown: (p) => <Image.View src={IMAGE.impactModel} />,
   },
   '00:02:43.660': (p) => <Slug {...p} text={'proveable\nimpact'} />,
   '00:02:48.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.economicModel()} />,
+    pulldown: (p) => <Image.View src={IMAGE.economicModel} />,
   },
   '00:03:04.660': (p) => <Slug {...p} logo={'SLC'} />,
   '00:03:10.000': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.refine()} />,
+    pulldown: (p) => <Image.View src={IMAGE.refine} />,
   },
   '00:03:15.730': (p) => <Slug {...p} text={'genuinely\nhigh\npotential'} />,
   '00:03:19.250': {
     column: (p) => <Slug {...p} logo={'SLC'} />,
-    pulldown: (p) => <Image.View src={Images.strategy()} />,
+    pulldown: (p) => <Image.View src={IMAGE.strategy} />,
   },
   '00:03:33.000': (p) => <Slug {...p} logo={'CC'} />,
 };
