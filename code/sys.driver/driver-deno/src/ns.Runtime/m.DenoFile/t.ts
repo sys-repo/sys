@@ -39,7 +39,15 @@ export type DenoFileJson = {
   licence?: string;
   tasks?: Record<string, string>;
   importMap?: t.StringPath;
-  imports?: Record<string, string>;
+  imports?: Record<string, t.StringModuleSpecifier>;
   exports?: Record<string, string>;
   workspace?: t.StringPath[];
+};
+
+/**
+ * A JSON file containing an import-map.
+ * Referenced by `importMap` path in `deno.json` file.
+ */
+export type DenoImportMapJson = {
+  imports?: Record<string, t.StringModuleSpecifier>;
 };

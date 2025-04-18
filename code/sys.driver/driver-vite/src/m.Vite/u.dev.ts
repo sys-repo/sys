@@ -4,12 +4,11 @@ import { Log, Wrangle } from './u.ts';
 
 type D = t.ViteLib['dev'];
 
-/**
- * Matches (example):
- *   VITE v6.0.11  ready in 839 ms
- */
 export const REGEX = {
-  VITE_STARTED: /VITE v(?:\d+\.\d+\.\d+)\s+ready in\s+(\d+)\s+ms/,
+  /**
+   * Matches (example): "VITE v6.0.11  ready in 839 ms"
+   */
+  STARTED: /VITE v(?:\d+\.\d+\.\d+)\s+ready in\s+(\d+)\s+ms/,
 } as const;
 
 /**
@@ -32,7 +31,7 @@ export const dev: D = async (input) => {
 
   const readySignal: t.ProcReadySignalFilter = (e) => {
     const lines = stripAnsi(e.toString()).split('\n');
-    return lines.some((line) => !!REGEX.VITE_STARTED.exec(line));
+    return lines.some((line) => !!REGEX.STARTED.exec(line));
   };
 
   const proc = Process.spawn({ cwd, args, silent, readySignal, dispose$: input.dispose$ });

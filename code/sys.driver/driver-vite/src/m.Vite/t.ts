@@ -41,8 +41,9 @@ export type ViteLib = {
  */
 export type ViteBuildArgs = {
   cwd?: t.StringAbsoluteDir;
-  silent?: boolean;
   pkg?: t.Pkg; // Consumer module.
+  silent?: boolean;
+  spinner?: boolean;
 };
 
 /**

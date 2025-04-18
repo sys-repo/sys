@@ -24,6 +24,7 @@ export type RxLib = Rxjs & {
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
+  toLifecycle: t.DisposeLib['toLifecycle'];
 
   withinTimeThreshold<T>(
     $: t.Observable<T>,
@@ -56,8 +57,8 @@ export type RxPromiseResponse<E extends Event> = {
  */
 export type RxIs = {
   event(input: any, type?: string | { startsWith: string }): boolean;
-  observable<T = unknown>(input?: any): input is t.Observable<T>;
-  subject<T = unknown>(input?: any): input is t.Subject<T>;
+  observable: t.StdIsLib['observable'];
+  subject: t.StdIsLib['subject'];
 };
 
 /**

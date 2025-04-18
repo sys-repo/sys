@@ -1,10 +1,11 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.121",
+  "version": "0.0.137",
   "license": "MIT",
   "tasks": {
     "lint": "deno     lint",
     "dry": "deno      publish --allow-dirty --dry-run",
+    "check": "deno    check src/*",
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "reset": "deno    run -RWE ./-scripts/-reset.ts",
     "init": "deno     run -RWNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=init    --dir=./.tmp/sample",

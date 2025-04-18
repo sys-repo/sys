@@ -25,9 +25,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v1
         with:
           deno-version: v2
+
+      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
+        run: deno task info
+
+      - name: Deno Info
+        run: deno info && deno --version
+
+      - name: System Info
+        run: deno task info
 
       - name: publish module → "@sys/types"
         run: |
@@ -134,6 +145,12 @@ jobs:
       - name: publish module → "@sys/ui-react-devharness"
         run: |
           cd code/sys.ui/ui-react-devharness
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/ui-react-components"
+        run: |
+          cd code/sys.ui/ui-react-components
           deno task test --parallel
           deno publish --allow-dirty
 

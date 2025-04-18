@@ -56,7 +56,7 @@ describe('DenoFile', () => {
     describe('path', () => {
       it('from path: exists', async () => {
         const res = await DenoFile.workspace(rootPath);
-        const dirs = res.children.map((child) => Fs.dirname(child.path));
+        const dirs = res.children.map((child) => child.path.dir);
         expect(res.exists).to.eql(true);
         expect(dirs.some((p) => p === 'code/sys/std')).to.be.true;
         expect(res.file).to.eql(rootPath);
@@ -70,7 +70,7 @@ describe('DenoFile', () => {
         const dirs = root.data?.workspace?.map((p) => p.replace(/^\.\//, ''));
 
         expect(a.exists).to.eql(true);
-        expect(a.children.map((m) => Fs.dirname(m.path))).to.eql(dirs);
+        expect(a.children.map((m) => m.path.dir)).to.eql(dirs);
 
         expect(b.exists).to.eql(false);
         expect(b.children).to.eql([]);
@@ -84,12 +84,27 @@ describe('DenoFile', () => {
     });
 
     describe('workspace.children', () => {
-      it('children.files (paths)', async () => {
+      it('child.path', async () => {
         const ws = await DenoFile.workspace();
-        const dirs = ws.children.map((child) => Fs.dirname(child.path));
+        const dirs = ws.children.map((child) => child.path.dir);
         const paths = dirs.map((subdir) => Fs.join('./', subdir, 'deno.json'));
         ws.children.forEach((child) => {
-          expect(paths.includes(child.path)).to.eql(true);
+          expect(paths.includes(child.path.denofile)).to.eql(true);
+        });
+      });
+
+      it('child.pkg', async () => {
+        const ws = await DenoFile.workspace();
+        const match = ws.children.find((m) => m.denofile.name === pkg.name);
+
+        expect(match).to.exist;
+        expect(match?.pkg).to.eql(pkg);
+        expect(match?.denofile.name).to.eql(pkg.name);
+        expect(match?.denofile.version).to.eql(pkg.version);
+
+        ws.children.forEach((child) => {
+          expect(child.pkg.name).to.eql(child.denofile.name || '<unnamed>');
+          expect(child.pkg.version).to.eql(child.denofile.version || '0.0.0');
         });
       });
     });
@@ -100,7 +115,7 @@ describe('DenoFile', () => {
         expect(ws.modules.ok).to.eql(true);
         expect(ws.modules.error).to.eql(undefined);
 
-        const namesA = ws.children.map((m) => m.file.name ?? '');
+        const namesA = ws.children.map((m) => m.denofile.name ?? '');
         const namesB = ws.modules.items.map((m) => m.name);
         expect(namesA.filter(Boolean).toSorted()).to.eql(namesB.filter(Boolean).toSorted());
       });

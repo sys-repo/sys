@@ -1,8 +1,0 @@
-{
-  "name": "@tdb/slc",
-  "short_name": "@tdb/slc",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#FE0064",
-  "theme_color": "#FE0064"
-}

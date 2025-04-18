@@ -1,7 +1,15 @@
-import { describe, expect, it, Time, Testing } from '../-test.ts';
+import { describe, expect, it, Testing, Time } from '../-test.ts';
 import { Dispose, rx, Rx } from '../mod.ts';
 
 describe('Observable/rx', () => {
+  describe('API', () => {
+    expect(rx.toLifecycle).to.equal(Dispose.toLifecycle);
+    expect(rx.lifecycle).to.equal(Dispose.lifecycle);
+    expect(rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
+    expect(rx.disposable).to.equal(Dispose.disposable);
+    expect(rx.disposableAsync).to.equal(Dispose.disposableAsync);
+  });
+
   it('dual cased names', () => {
     expect(Rx).to.equal(rx);
   });

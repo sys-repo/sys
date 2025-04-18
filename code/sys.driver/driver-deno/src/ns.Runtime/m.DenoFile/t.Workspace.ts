@@ -15,6 +15,7 @@ export type DenoWorkspace = {
  * Represents a single child of a workspace.
  */
 export type DenoWorkspaceChild = {
-  readonly file: t.DenoFileJson;
-  readonly path: t.StringPath;
+  readonly path: { readonly dir: t.StringDir; readonly denofile: t.StringPath };
+  readonly denofile: t.DenoFileJson;
+  readonly pkg: t.Pkg;
 };

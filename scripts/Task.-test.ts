@@ -9,11 +9,14 @@ export async function main() {
    */
   const results: CmdResult[] = [];
   const run = async (path: string, index: number, total: number) => {
-    const command = `deno task test`;
+    const cmd = 'test';
+    const command = `deno task ${cmd}`;
+    const commandFmt = c.green(`deno task ${c.bold(c.cyan(cmd))}`);
+
     const title = c.gray(`${c.white('Tests')} (${c.white(String(index + 1))} of ${total})`);
     const moduleList = Log.moduleList({ index, indent: 3 });
-    spinner.text = c.gray(`${title}\n  ${c.cyan(command)}\n${moduleList}`);
-    const output = await Process.sh({ silent: true, path }).run(command);
+    spinner.text = c.gray(`${title}\n  ${commandFmt}\n${moduleList}`);
+    const output = await Process.sh({ path, silent: true }).run(command);
     results.push({ output, path });
   };
 

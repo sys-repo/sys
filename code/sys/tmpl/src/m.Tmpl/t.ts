@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Library for copying template files.
  */
@@ -21,9 +23,17 @@ export type TmplFactory = (
 
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
+  /** Handler to run after the write operation completes. */
+  beforeWrite?: t.TmplWriteHandler;
+
+  /** Handler to process each file in the template. */
   processFile?: t.TmplProcessFile;
-  beforeCopy?: t.TmplCopyHandler;
-  afterCopy?: t.TmplCopyHandler;
+
+  /** Handler to run after the write operation completes. */
+  afterWrite?: t.TmplWriteHandler;
+
+  /** Context data passed to the process handler. */
+  ctx?: O;
 };
 
 /**
@@ -34,7 +44,7 @@ export type Tmpl = {
   readonly source: t.FsDir;
 
   /** Perform a copy of the templates to a target directory. */
-  copy(target: t.StringDir, options?: t.TmplCopyOptions): Promise<t.TmplCopyResponse>;
+  write(target: t.StringDir, options?: t.TmplWriteOptions): Promise<t.TmplWriteResponse>;
 
   /** Clones the template filtering down to a subset of source files. */
   filter(fn: t.TmplFilter): t.Tmpl;
@@ -58,15 +68,17 @@ export type TmplFilter = t.FsFileFilter;
  */
 export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResponse;
 export type TmplProcessFileResponse = t.IgnoredResult | Promise<t.IgnoredResult>;
-export type TmplProcessFileArgs = {
+export type TmplProcessFileArgs = t.TmplProcessTextFileArgs | TmplProcessBinaryFileArgs;
+
+type FileArgs = {
+  /** Optional context passed to the `Tmpl.write` operation. */
+  readonly ctx?: O;
+
   /** The source template file. */
   readonly tmpl: t.FsFile;
 
   /** The target location being copied to. */
   readonly target: t.FsFile & { exists: boolean };
-
-  /** The text body of the file. */
-  readonly text: { tmpl: string; current: string };
 
   /** Filter out the file from being copied. */
   exclude(reason?: string): TmplProcessFileArgs;
@@ -74,8 +86,26 @@ export type TmplProcessFileArgs = {
   /** Adjust the name of the file. */
   rename(filename: string): TmplProcessFileArgs;
 
-  /** Adjust the text within the file. */
-  modify(text: string): TmplProcessFileArgs;
+  /** Adjust the content of the file. */
+  modify(next: string | Uint8Array): TmplProcessTextFileArgs;
+};
+
+/** Arguments passed to a text-file for processing. */
+export type TmplProcessTextFileArgs = FileArgs & {
+  /** The content-type of the template file. */
+  readonly contentType: t.TmplTextFileOperation['contentType'];
+  /** The text body of the file. */
+  readonly text: { tmpl: string; current: string };
+  readonly binary: undefined;
+};
+
+/** Arguments passed to a binary-file for processing. */
+export type TmplProcessBinaryFileArgs = FileArgs & {
+  /** The content-type of the template file. */
+  readonly contentType: t.TmplBinaryFileOperation['contentType'];
+  /** The text body of the file. */
+  readonly binary: { tmpl: Uint8Array; current: Uint8Array };
+  readonly text: undefined;
 };
 
 /**
@@ -83,40 +113,46 @@ export type TmplProcessFileArgs = {
  * Use this to do either clean up, or additional setup actions not handled
  * directly by the template-copy engine.
  */
-export type TmplCopyHandler = (e: TmplCopyHandlerArgs) => t.IgnoredResult;
-/** Arguments passed to the `afterCopy` callback. */
-export type TmplCopyHandlerArgs = {
+export type TmplWriteHandler = (e: TmplWriteHandlerArgs) => t.IgnoredResult;
+/** Arguments passed to the write handler. */
+export type TmplWriteHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
+  readonly ctx?: O;
 };
 
 /** Options passed to the `tmpl.copy` method. */
-export type TmplCopyOptions = {
+export type TmplWriteOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
   force?: boolean;
 
-  /** Flag indicating if the files should be written. Default: true (pass false for a "dry-run"). */
-  write?: boolean;
+  /** Flag indicating if the files should be written. Default: false. */
+  dryRun?: boolean;
 
   /** Handler(s) to run before the copy operation starts. */
-  beforeCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onBefore?: t.TmplWriteHandler | t.TmplWriteHandler[];
 
   /** Handler(s) to run after the copy operation completes. */
-  afterCopy?: t.TmplCopyHandler | t.TmplCopyHandler[];
+  onAfter?: t.TmplWriteHandler | t.TmplWriteHandler[];
+
+  /** Context data passed to the process handler. */
+  ctx?: O;
 };
 
 /**
  * The reponse returned from the `tmpl.copy` method.
  */
-export type TmplCopyResponse = {
+export type TmplWriteResponse = {
   readonly source: t.FsDir;
   readonly target: t.FsDir;
   readonly ops: t.TmplFileOperation[];
+  readonly ctx?: O;
 };
 
 /**
  * Details about a file update.
  */
-export type TmplFileOperation = {
+export type TmplFileOperation = TmplTextFileOperation | TmplBinaryFileOperation;
+type Operation = {
   /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
 
@@ -134,10 +170,42 @@ export type TmplFileOperation = {
 
   /** File path details. */
   file: { tmpl: t.FsFile; target: t.FsFile };
+};
+
+/** The content-type contained within the template file. */
+export type TmplFileContentType = TmplFileOperation['contentType'];
+
+export type TmplTextFileOperation = Operation & {
+  /** The content-type of the template file. */
+  readonly contentType: 'text';
+  readonly binary: undefined;
 
   /** The text content of the file. */
-  text: {
-    tmpl: string;
-    target: { before: string; after: string; isDiff: boolean };
-  };
+  readonly text: t.TmplFileOperationText;
+};
+
+export type TmplBinaryFileOperation = Operation & {
+  /** The content-type of the template file. */
+  readonly contentType: 'binary';
+  readonly text: undefined;
+
+  /** The binary content of the file. */
+  readonly binary: t.TmplFileOperationBinary;
+};
+
+/** The text content of the file. */
+export type TmplFileOperationText = {
+  /** The source template before transform. */
+  readonly tmpl: string;
+  /** Details about the template file at the target location. */
+  readonly target: { before: string; after: string; isDiff: boolean };
+};
+
+/** The binary content of the file. */
+export type TmplFileOperationBinary = {
+  /** The source template before transform. */
+  readonly tmpl: Uint8Array;
+
+  /** Details about the template file at the target location. */
+  readonly target: { before: Uint8Array; after: Uint8Array; isDiff: boolean };
 };

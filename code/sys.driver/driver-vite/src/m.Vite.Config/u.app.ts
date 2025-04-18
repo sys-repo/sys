@@ -15,6 +15,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
 
   const input = Path.join(paths.cwd, paths.app.entry);
   const outDir = Path.join(paths.cwd, paths.app.outDir);
+  const publicDir = Path.join(paths.cwd, 'public');
   const root = Path.dirname(input);
 
   /**
@@ -55,6 +56,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
 
   const res: t.ViteUserConfig = {
     root,
+    publicDir,
     base: paths.app.base,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
     worker: { format },

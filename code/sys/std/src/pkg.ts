@@ -1,8 +1,16 @@
-import type { Pkg as TPkg } from '@sys/types';
-import { default as deno } from '../deno.json' with { type: 'json' };
-import { Pkg } from './m.Pkg/mod.ts';
+import type { Pkg } from '@sys/types';
 
 /**
  * Package meta-data.
-*/
-export const pkg: TPkg = Pkg.fromJson(deno)
+ *
+ * AUTO-GENERATED:
+ *    This file is generated via the `prep` command across the
+ *    @system monorepo. See command:
+ *
+ *        cd ./<system-repo-root>
+ *        deno task prep
+ *
+ *    - DO check this file in to source-control.
+ *    - Do NOT manually alter the file (as your work will be lost).
+ */
+export const pkg: Pkg = { name: '@sys/std', version: '0.0.141' };

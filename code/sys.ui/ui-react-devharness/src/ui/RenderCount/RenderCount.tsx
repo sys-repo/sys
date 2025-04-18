@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { COLORS, css, type t } from '../common.ts';
 

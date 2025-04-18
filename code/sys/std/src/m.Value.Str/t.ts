@@ -13,6 +13,11 @@ export type FormatBytesOptions = FormatOptions & {};
  * Tools for working on strings of text.
  */
 export type StrLib = {
+  /** The "lorem ipsum" helper library. */
+  readonly Lorem: StrLoremLib;
+  /** The "lorem ipsum" string. */
+  readonly lorem: string;
+
   /**
    * Calculate a difference between two strings.
    */
@@ -52,4 +57,18 @@ export type StrLib = {
    * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
    */
   bytes: t.FormatBytes;
+
+  /**
+   * Truncates a string with ellipsis if over a maximum length.
+   */
+  truncate(text: string | undefined, max: number): string;
+};
+
+/**
+ * Tools for working with sample "lorem ipsum..." text.
+ */
+export type StrLoremLib = {
+  readonly text: string;
+  toString(): string;
+  words(count?: number): string;
 };

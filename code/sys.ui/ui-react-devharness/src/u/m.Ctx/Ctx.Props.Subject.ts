@@ -17,6 +17,8 @@ export function CtxPropsSubject(props: PropArgs) {
       const current = props.current().subject;
       current.size = undefined;
 
+      if (args[0] === undefined) return api;
+
       if (Array.isArray(args[0])) {
         const [width, height] = args[0];
         if (Is.nil(width) && Is.nil(height)) {

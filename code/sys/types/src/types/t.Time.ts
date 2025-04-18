@@ -1,27 +1,34 @@
+import type { t } from './common.ts';
+
+/**
+ * A number representing a time (eg. msecs, secs etc).
+ */
+export type NumberTime = number;
+
 /**
  * A number representing milliseconds.
  */
-export type Msecs = number;
+export type Msecs = NumberTime;
 
 /**
  * Number represening seconds.
  */
-export type Secs = number;
+export type Secs = NumberTime;
 
 /**
  * Number represening minutes.
  */
-export type Mins = number;
+export type Mins = NumberTime;
 
 /**
  * Number represening hours.
  */
-export type Hours = number;
+export type Hours = NumberTime;
 
 /**
  * Number represening days.
  */
-export type Days = number;
+export type Days = NumberTime;
 
 /**
  * Represents a Unix Epoch timestamp in seconds. The Unix Epoch time is
@@ -51,4 +58,20 @@ export type TimeDuration = {
   readonly hour: Hours;
   readonly day: Days;
   toString(unit?: TimeUnit | { unit?: TimeUnit; round?: number }): string;
+};
+
+/**
+ * A index/map of timestamp related data-objects.
+ */
+export type Timestamps<T> = {
+  [HH_MM_SS_mmm: t.StringTimestamp]: T;
+};
+
+/**
+ * A single timestamp with data and duration props.
+ */
+export type Timestamp<T> = {
+  timestamp: t.StringTimestamp;
+  total: t.TimeDuration;
+  data: T;
 };

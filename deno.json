@@ -12,8 +12,9 @@
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
 
-    "prep": "deno run -RWE --allow-ffi --allow-run              ./scripts/main.ts --prep",
-    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run  ./scripts/main.ts --bump",
+    "prep": "deno run -RWE --allow-ffi --allow-run ./scripts/main.ts --prep",
+    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./scripts/main.ts --bump",
+    "tmpl": "deno run -RWE ./scripts/main.ts --tmpl",
 
     "tmp": "deno run -A ./scripts/-tmp.ts"
   },
@@ -25,7 +26,7 @@
     "jsxImportSource": "react"
   },
   "nodeModulesDir": "auto",
-  "importMap": "./deno.imports.json",
+  "importMap": "./imports.json",
   "workspace": [
     "./code/sys/types",
     "./code/sys/std",
@@ -63,8 +64,8 @@
     "./code/sys/main",
 
     "./code/-samples/deno.vite-react",
+    "./deploy/@tdb.slc",
     "./deploy/api.db.team",
-    "./deploy/slc.db.team",
     "./deploy/tmp.db.team",
 
     "./code/-tmpl/deno",

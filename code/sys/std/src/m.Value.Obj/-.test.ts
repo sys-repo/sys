@@ -7,7 +7,7 @@ describe('Value.Obj', () => {
     expect(Value.Obj).to.equal(Obj);
   });
 
-  describe('Value.Obj.walk', () => {
+  describe('Obj.walk', () => {
     type T = { key: string | number; value: any; path: (string | number)[] };
 
     it('processes object', () => {
@@ -141,7 +141,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.build', () => {
+  describe('Obj.build', () => {
     it('return default root object (no keyPath)', () => {
       expect(Value.Obj.build('', {})).to.eql({});
       expect(Value.Obj.build('  ', {})).to.eql({});
@@ -213,7 +213,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.pluck', () => {
+  describe('Obj.pluck', () => {
     it('returns [undefined] when no match', () => {
       expect(Value.Obj.pluck('foo', {})).to.eql(undefined);
       expect(Value.Obj.pluck('foo.bar', {})).to.eql(undefined);
@@ -244,7 +244,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.remove', () => {
+  describe('Obj.remove', () => {
     const test = (keyPath: string, root: any, expected: any) => {
       const result = Value.Obj.remove(keyPath, root);
       const msg = `keyPath: "${keyPath}"`;
@@ -281,7 +281,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.prune', () => {
+  describe('Obj.prune', () => {
     const test = (keyPath: string, root: any, expected: any) => {
       const result = Value.Obj.prune(keyPath, root);
       const msg = `keyPath: "${keyPath}"`;
@@ -329,7 +329,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.toArray', () => {
+  describe('Obj.toArray', () => {
     type IFoo = { count: number };
     type IFoos = {
       one: IFoo;
@@ -364,7 +364,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.trimStringsDeep', () => {
+  describe('Obj.trimStringsDeep', () => {
     it('shallow', () => {
       const name = 'foo'.repeat(100);
       const obj = {
@@ -437,7 +437,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.pick', () => {
+  describe('Obj.pick', () => {
     type T = { a: number; b: number; c: number };
     const Sample = {
       create(): T {
@@ -475,7 +475,7 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Value.Obj.sortKeys', () => {
+  describe('Obj.sortKeys', () => {
     it('empty', () => {
       const obj = {};
       const res = Value.Obj.sortKeys(obj);
@@ -487,6 +487,169 @@ describe('Value.Obj', () => {
       const res = Value.Obj.sortKeys(obj);
       expect(Object.keys(res)).to.not.eql(Object.keys(obj));
       expect(Object.keys(res).sort()).to.eql(Object.keys(obj).sort());
+    });
+  });
+
+  describe('Obj.clone', () => {
+    it('return different instance', () => {
+      const obj = { foo: 123, bar: { msg: 'hello' } };
+      const res = Obj.clone(obj);
+      expect(res).to.eql(obj);
+      expect(res).to.not.equal(obj); // NB: different instance.
+      expect(res.bar).to.not.equal(obj.bar);
+    });
+
+    it('circular-reference safe', () => {
+      type Cycle = { self?: Cycle; msg: string; list: (number | Cycle)[] };
+
+      const obj: Cycle = { msg: '👋', list: [1] };
+      obj.self = obj;
+      obj.list.push(obj);
+      obj.list.push(2);
+      obj.list.push(obj.list[1]);
+
+      const res = Obj.clone(obj);
+      expect(res).to.eql(obj);
+      expect(res).to.not.equal(obj);
+      expect(res.list).to.not.equal(obj.list);
+      expect(res.list[1]).to.not.equal(obj.list[1]);
+    });
+
+    it('should return the same value for primitives', () => {
+      expect(Obj.clone(null)).to.equal(null);
+      expect(Obj.clone(undefined)).to.equal(undefined);
+      expect(Obj.clone(42)).to.equal(42);
+      expect(Obj.clone('hello')).to.equal('hello');
+      expect(Obj.clone(true)).to.equal(true);
+    });
+
+    it('should clone arrays properly', () => {
+      const arr = [1, 2, { a: 3 }];
+      const clonedArr = Obj.clone(arr);
+      expect(clonedArr).to.eql(arr);
+      expect(clonedArr).to.not.equal(arr);
+      expect(clonedArr[2]).to.not.equal(arr[2]);
+    });
+
+    it('should clone plain objects deeply', () => {
+      const obj = { a: 1, b: { c: 2 } };
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj).to.eql(obj);
+      expect(clonedObj).to.not.equal(obj);
+      expect(clonedObj.b).to.not.equal(obj.b);
+    });
+
+    it('should clone objects with symbol keys', () => {
+      const sym = Symbol('key');
+      const obj = { foo: 'bar', [sym]: 'baz' };
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj).to.eql(obj);
+      expect(clonedObj).to.not.equal(obj);
+    });
+
+    it('should clone objects with non-enumerable properties', () => {
+      const obj: any = { visible: 'yes' };
+      Object.defineProperty(obj, 'hidden', {
+        value: 'secret',
+        enumerable: false,
+        configurable: true,
+        writable: true,
+      });
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj.visible).to.equal('yes');
+      const desc = Object.getOwnPropertyDescriptor(clonedObj, 'hidden');
+      expect(desc).to.exist;
+      expect(desc!.value).to.equal('secret');
+    });
+
+    it('should preserve custom prototypes', () => {
+      class Custom {
+        prop: number;
+        constructor(prop: number) {
+          this.prop = prop;
+        }
+      }
+      const obj = new Custom(10);
+      (obj as any).extra = 'test';
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj).to.eql(obj);
+      expect(clonedObj).to.not.equal(obj);
+      expect(Object.getPrototypeOf(clonedObj)).to.equal(Custom.prototype);
+    });
+
+    it('should not clone functions, but preserve the same function reference', () => {
+      const fn = function () {
+        return 'test';
+      };
+      const obj = { fn };
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj.fn).to.equal(fn);
+    });
+
+    it('should handle circular references in objects', () => {
+      type Cycle = { self?: Cycle; msg: string; list: (number | Cycle)[] };
+      const obj: Cycle = { msg: '👋', list: [1] };
+      obj.self = obj;
+      obj.list.push(obj);
+      obj.list.push(2);
+      obj.list.push(obj.list[1]); // Add an additional cycle: list[1] is the same as obj.
+
+      const cloned = Obj.clone(obj);
+      expect(cloned).to.eql(obj);
+      expect(cloned).to.not.equal(obj);
+      expect(cloned.list).to.not.equal(obj.list);
+
+      // NB: The cloned object's self reference should point to the cloned object.
+      expect(cloned.self).to.equal(cloned);
+
+      // NB: Verify that cyclic references within the array are maintained.
+      expect(cloned.list[1]).to.equal(cloned);
+    });
+
+    it('should handle circular references in arrays', () => {
+      const arr: any[] = [1, 2];
+      arr.push(arr);
+      const clonedArr = Obj.clone(arr);
+      expect(clonedArr).to.eql(arr);
+      expect(clonedArr).to.not.equal(arr);
+
+      // The cloned array's third element should reference the cloned array itself.
+      expect(clonedArr[2]).to.equal(clonedArr);
+    });
+
+    it('should clone nested objects and arrays', () => {
+      const obj = {
+        a: { b: [1, { c: 'hello' }] },
+        d: 'world',
+      };
+      const clonedObj = Obj.clone(obj);
+      expect(clonedObj).to.eql(obj);
+      expect(clonedObj.a).to.not.equal(obj.a);
+      expect(clonedObj.a.b).to.not.equal(obj.a.b);
+      expect(clonedObj.a.b[1]).to.not.equal(obj.a.b[1]);
+    });
+
+    it('should clone Date objects (note: date value may not be preserved)', () => {
+      const date = new Date();
+      (date as any).extra = 'data';
+      const clonedDate = Obj.clone(date);
+      expect(clonedDate).to.be.an.instanceof(Date);
+
+      // NB: Extra properties are cloned.
+      expect((clonedDate as any).extra).to.equal('data');
+      expect(clonedDate.getTime()).to.equal(date.getTime());
+    });
+
+    it('should clone RegExp objects (note: pattern and flags may not be preserved)', () => {
+      const regex = /abc/gi;
+      (regex as any).extra = 'data';
+      const clonedRegex = Obj.clone(regex);
+      expect(clonedRegex).to.be.an.instanceof(RegExp);
+
+      // NB: The source and flags should match if cloned correctly.
+      expect(clonedRegex.source).to.equal(regex.source);
+      expect(clonedRegex.flags).to.equal(regex.flags);
+      expect((clonedRegex as any).extra).to.equal('data');
     });
   });
 });

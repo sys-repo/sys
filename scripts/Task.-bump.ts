@@ -36,13 +36,13 @@ export async function main(options: Options = {}) {
    * Retrieve the child modules within the workspace.
    */
   const children = ws.children
-    .filter((child) => !exclude(child.path))
-    .filter((child) => !!child.file.version)
-    .filter((child) => typeof child.file.version === 'string')
-    .filter((child) => typeof child.file.name === 'string')
+    .filter((child) => !exclude(child.path.denofile))
+    .filter((child) => !!child.denofile.version)
+    .filter((child) => typeof child.denofile.version === 'string')
+    .filter((child) => typeof child.denofile.name === 'string')
     .map((child) => {
-      const json = child.file;
-      const path = child.path;
+      const json = child.denofile;
+      const path = child.path.denofile;
       const { name = '', version = '' } = json;
       const current = Semver.parse(version).version;
       const next = wrangle.increment(current, release);
@@ -59,9 +59,9 @@ export async function main(options: Options = {}) {
     const pkg = `${c.gray(modScope)}/${c.white(c.bold(modName))}`;
 
     const vCurrent = Semver.toString(version.current);
-    const vNext = Semver.Fmt.colorize(version.next, { highlight: release, baseColor: c.green });
+    const vNext = Semver.Fmt.colorize(version.next, { highlight: release });
 
-    const title = `${c.green(' •')} ${pkg}`;
+    const title = `${c.cyan(' •')} ${pkg}`;
     table.push([title, vCurrent, '→', vNext]);
   });
 

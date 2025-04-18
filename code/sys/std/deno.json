@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.131",
+  "version": "0.0.141",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWN",
@@ -25,6 +25,7 @@
     "./rx": "./src/m.Rx/mod.ts",
     "./semver": "./src/m.Semver/mod.ts",
     "./semver/server": "./src/m.Semver.Server/mod.ts",
+    "./signal": "./src/m.Signal/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./value": "./src/m.Value/mod.ts"

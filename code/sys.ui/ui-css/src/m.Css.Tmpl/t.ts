@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Helpers for working with the [CssTemplates] DSL.
+ * Helpers for working with the template patterns (a DSL for css of sorts).
  */
 export type CssTmplLib = {
   /**

@@ -1,1 +1,1 @@
-export { Immutable, ObjectPath, R, Time, Value, rx, slug, isObject } from '@sys/std';
+export { Dispose, Immutable, isObject, ObjectPath, R, rx, slug, Time, Value } from '@sys/std';

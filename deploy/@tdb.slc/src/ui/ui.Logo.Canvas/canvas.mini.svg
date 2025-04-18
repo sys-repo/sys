@@ -1,0 +1,37 @@
+<svg width="354" height="184" viewBox="0 0 354 184" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="canvas.mini" clip-path="url(#clip0_1_15)">
+<g id="panels">
+<path id="panel.impact" opacity="0.3" d="M350.697 22.1289C350.697 11.6355 342.19 3.12891 331.697 3.12891H177V38.0391H350.697V22.1289Z" fill="white"/>
+<rect id="panel.problem" opacity="0.3" x="2.39258" y="37.8516" width="73.4749" height="106.705" fill="white"/>
+<rect id="panel.solution" opacity="0.3" x="75.8672" y="37.5206" width="67.7266" height="51.2861" fill="white"/>
+<rect id="panel.metrics" opacity="0.3" x="75.8672" y="88.2812" width="67.7266" height="56.4634" fill="white"/>
+<rect id="panel.uvp" opacity="0.3" x="143.594" y="37.8516" width="70.5621" height="106.705" fill="white"/>
+<rect id="panel.advantage" opacity="0.3" x="214.156" y="37.8516" width="67.5486" height="50.9541" fill="white"/>
+<rect id="panel.channels" opacity="0.3" x="214.156" y="88.4758" width="67.5482" height="56.0801" fill="white"/>
+<rect id="panel.customers" opacity="0.3" x="281.704" y="38.0391" width="69.5714" height="106.068" fill="white"/>
+<path id="panel.costs" opacity="0.3" d="M3.30273 161.718C3.30273 172.212 11.8093 180.718 22.3027 180.718H176.999V144.557H3.30273V161.718Z" fill="white"/>
+<path id="panel.revenue" opacity="0.3" d="M351.276 161.719C351.276 172.212 342.77 180.719 332.276 180.719H176.999V144.745H351.276V161.719Z" fill="white"/>
+<path id="panel.purpose" opacity="0.3" d="M3.30365 22.1289C3.30365 11.6355 11.8102 3.12891 22.3036 3.12891H177V38.0391H3.30365V22.1289Z" fill="white"/>
+</g>
+<g id="outline">
+<rect id="border" x="3" y="3" width="348.248" height="177.711" rx="17" fill="white" fill-opacity="0.1" stroke="white" stroke-width="6"/>
+<g id="grid-lines">
+<line id="Line 445" x1="5.28125" y1="38.0703" x2="348.718" y2="38.0703" stroke="white" stroke-width="6"/>
+<line id="Line 446" x1="5.28125" y1="144.795" x2="348.718" y2="144.795" stroke="white" stroke-width="6"/>
+<line id="Line 447" x1="75.9106" y1="37.8496" x2="75.9106" y2="144.555" stroke="white" stroke-width="6"/>
+<line id="Line 448" x1="143.303" y1="37.8496" x2="143.303" y2="144.555" stroke="white" stroke-width="6"/>
+<line id="Line 451" x1="78.5269" y1="88.5293" x2="142.72" y2="88.5293" stroke="white" stroke-width="6"/>
+<line id="Line 447_2" x1="213.896" y1="37.8496" x2="213.896" y2="144.555" stroke="white" stroke-width="6"/>
+<line id="Line 448_2" x1="281.288" y1="37.8496" x2="281.288" y2="144.555" stroke="white" stroke-width="6"/>
+<line id="Line 451_2" x1="216.512" y1="88.5293" x2="280.704" y2="88.5293" stroke="white" stroke-width="6"/>
+<line id="Line 454" x1="176.904" y1="144.795" x2="176.904" y2="180.716" stroke="white" stroke-width="6"/>
+<line id="Line 455" x1="176.904" y1="3.28125" x2="176.904" y2="39.2026" stroke="white" stroke-width="6"/>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_1_15">
+<rect width="354" height="184" fill="white"/>
+</clipPath>
+</defs>
+</svg>

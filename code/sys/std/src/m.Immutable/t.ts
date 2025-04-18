@@ -17,12 +17,12 @@ type ClonerRef = <T>(
 
 type EventsViaOverride = <T, P = t.PatchOperation>(
   source: t.Immutable<T, P>,
-  dispose$?: t.UntilObservable,
+  dispose$?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
 
 type EventsViaObservable = <T, P = t.PatchOperation>(
   $: t.Observable<t.ImmutableChange<T, P>>,
-  dispose$?: t.UntilObservable,
+  dispose$?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
 
 /**

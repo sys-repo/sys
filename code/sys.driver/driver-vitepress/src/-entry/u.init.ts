@@ -1,5 +1,5 @@
 import { Vitepress } from '../m.Vitepress/mod.ts';
-import { type t, c, PATHS, pkg, ViteLog } from './common.ts';
+import { type t, c, PATHS, pkg, Semver, ViteLog } from './common.ts';
 
 /**
  * Run the initialization templates.
@@ -13,13 +13,17 @@ export async function init(args: t.VitepressEntryArgsInit) {
     console.info(`${pkg.name} ${c.gray(pkg.version)}`);
   }
 
-  await Vitepress.Tmpl.update({ inDir: dir });
+  await Vitepress.Tmpl.write({ inDir: dir });
 
   if (!silent) {
     console.info();
     ViteLog.API.log();
+
+    const fmtVersion = Semver.Fmt.colorize(pkg.version);
+    const fmtModule = `${pkg.name}${c.dim('@')}${fmtVersion}`;
+
     console.info();
-    console.info(c.brightCyan('↑ Init Complete:'), `${pkg.name}@${c.brightCyan(pkg.version)}`);
+    console.info(c.brightCyan('↑ Init Complete:'), `${fmtModule}`);
     console.info();
   }
 }

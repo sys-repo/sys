@@ -1,7 +1,4 @@
-// @ts-types="@types/react"
-import React from 'react';
-
-import { StrictMode } from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { pkg } from '../pkg.ts';
@@ -18,25 +15,37 @@ export async function main() {
   /**
    * Sample entry logic.
    */
-  const rootElement = document.getElementById('root');
-  const root = createRoot(rootElement);
+  const root = createRoot(document.getElementById('root')!);
 
   if (isDev) {
     /**
      * NOTE:
      *    The import of the [Dev] module happens dynamically here AFTER
      *    the URL query-string has been interpreted.  This allows the base
-     *    module entry to by code-split in such a way that the [Dev Harness]
-     *    never gets sent in the normal useage payload.
+     *    module entry to be code-split in such a way that the [Dev Harness]
+     *    never gets sent in the normal usage payload.
      */
-    const { render } = await import('../mod.ts');
+    const { render, useKeyboard } = await import('../mod.ts');
     const { ModuleSpecs, SampleSpecs } = await import('./entry.Specs.ts');
+
+    // Dynamic "runnable specifications" Library:
     const Specs = {
       ...SampleSpecs,
       ...ModuleSpecs,
     };
+
     const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
-    root.render(<StrictMode>{el as React.ReactNode}</StrictMode>);
+    function App() {
+      // NB: Any other environment setup here.
+      useKeyboard();
+      return el;
+    }
+
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    );
   } else {
     const { MySample } = await import('./sample.specs/MySample.tsx');
     const el = <MySample style={{ Absolute: 0 }} />;
@@ -44,4 +53,4 @@ export async function main() {
   }
 }
 
-main().catch((err) => console.error(`Failed to render`, err));
+main().catch((err) => console.error(`Failed to render DevHarness`, err));

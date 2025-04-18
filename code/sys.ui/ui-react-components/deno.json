@@ -1,19 +1,23 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.38",
-  "license": "MIT",
+  "version": "0.0.41",
   "tasks": {
-    "lint": "deno lint",
-    "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi",
-    "dev": "deno   run -A ./-scripts/-main.ts --cmd=dev   --in=./src/-test/index.html",
-    "build": "deno run -A ./-scripts/-main.ts --cmd=build --in=./src/-test/index.html",
-    "serve": "deno run -A ./-scripts/-main.ts --cmd=serve --in=./src/-test/index.html"
+    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
+    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
+    "dry": "deno      publish --allow-dirty --dry-run",
+    "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
+    "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
+    "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
+    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
+    "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
-  }
+    "./types": "./src/types.ts",
+    "./specs": "./src/-test/entry.Specs.ts"
+  },
+  "license": "MIT"
 }

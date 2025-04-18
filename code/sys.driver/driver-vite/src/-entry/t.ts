@@ -33,7 +33,12 @@ export type ViteEntryArgs =
   | ViteEntryArgsHelp;
 
 /** The `init` command. */
-export type ViteEntryArgsInit = { cmd: 'init'; dir?: P; silent?: boolean };
+export type ViteEntryArgsInit = {
+  cmd: 'init';
+  dir?: P;
+  silent?: boolean;
+  tmpl?: t.ViteTmplKind | boolean;
+};
 
 /** The `clean` command. */
 export type ViteEntryArgsClean = { cmd: 'clean'; dir?: P };

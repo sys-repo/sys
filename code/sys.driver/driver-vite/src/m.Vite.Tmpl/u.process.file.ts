@@ -1,21 +1,13 @@
-import { Main } from '@sys/main/cmd';
-import { type t, c, DenoDeps, DenoFile, Esm, Fs, Path, pkg, Pkg } from './common.ts';
+import { type t, pkg } from './common.ts';
 
 /**
  * File processing rules for the template.
  */
 export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFile {
-  console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
-  console.log('args', args);
-
-  const getWorkspace = async () => {
-    const ws = await DenoFile.workspace();
-    const deps = (await DenoDeps.from(Path.join(ws.dir, 'deps.yaml'))).data;
-    const modules = Esm.modules([...(deps?.modules.items ?? []), ...ws.modules.items]);
-    return { ws, modules };
-  };
-
   return async (e) => {
+    const ctx = e.ctx as t.ViteTmplCtx;
+    if (!ctx) throw new Error(`Expected a {ctx} to be passed to the template file processor`);
+
     if (e.target.exists && is.userspace(e.target.relative)) {
       /**
        *  🫵  DO NOT adjust user generated
@@ -24,37 +16,16 @@ export function createFileProcessor(args: t.ViteTmplCreateArgs): t.TmplProcessFi
       return e.exclude('user-space');
     }
 
+    if (e.contentType !== 'text') return;
+
     if (e.target.relative === 'deno.json') {
       /**
        * Update versions in `deno.json`:
        */
       const version = args.version ?? pkg.version;
-      const importUri = `jsr:${pkg.name}@${version}`;
-      const text = e.text.tmpl
-        .replace(/<ENTRY>/g, `${importUri}/main`)
-        .replace(/<ENTRY_SYS>/, `jsr:${Pkg.toString(Main.pkg)}`)
-        .replace(/<SELF_IMPORT_URI>/, importUri)
-        .replace(/<SELF_IMPORT_NAME>/, pkg.name);
-
+      const entryUri = `jsr:${pkg.name}@${version}`;
+      const text = e.text.tmpl.replace(/<ENTRY>/g, `${entryUri}/main`);
       return e.modify(text);
-    }
-
-    if (e.target.relative === 'package.json') {
-      const { modules } = await getWorkspace();
-      const pkg = (await Fs.readJson<t.PkgJsonNode>(e.tmpl.absolute)).data;
-      const next = {
-        ...pkg,
-        dependencies: modules.latest(pkg?.dependencies ?? {}),
-        devDependencies: modules.latest(pkg?.devDependencies ?? {}),
-      };
-
-      console.info(c.gray(`Resolved versions:`));
-      console.info(c.brightCyan(c.bold(`./package.json:`)));
-      console.info(next);
-      console.info();
-
-      const json = `${JSON.stringify(next, null, '  ')}\n`;
-      return e.modify(json);
     }
 
     if (e.target.file.name === '.gitignore-') {

@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { Spec } from '../common.ts';
 import { DevTools } from './DevTools.tsx';

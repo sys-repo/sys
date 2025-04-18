@@ -11,7 +11,7 @@ export type DisposeLib = {
    * Generates a generic disposable interface that is
    * typically mixed into a wider interface of some kind.
    */
-  disposable(until$?: t.UntilObservable): t.Disposable;
+  disposable(until$?: t.DisposeInput): t.Disposable;
 
   /** An async variant of the dispose pattern. */
   disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
@@ -21,16 +21,20 @@ export type DisposeLib = {
    * Generates a disposable interface that maintains
    * and exposes it's disposed state.
    */
-  lifecycle(until$?: t.UntilObservable): t.Lifecycle;
+  lifecycle(until$?: t.DisposeInput): t.Lifecycle;
 
   /** An async variant of the lifecycle pattern. */
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
-  lifecycleAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+  lifecycleAsync(until$?: t.DisposeInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+
+  /** Extend the given object to be expose the lifecycle API. */
+  toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
+  toLifecycle<T extends t.Lifecycle>(api: t.OmitLifecycle<T>): T;
 
   /**
    * Listens to an observable and disposes of the object when fires.
    */
-  until($?: t.UntilObservable): t.Observable<unknown>[];
+  until(dispose$?: t.DisposeInput): t.Observable<unknown>[];
 
   /**
    * "Completes" a subject by running:
@@ -39,4 +43,11 @@ export type DisposeLib = {
    *    2. subject.complete();
    */
   done(dispose$?: t.Subject<void>): void;
+
+  /**
+   * Safely remove the `dispose` method from a disposable.
+   * NB: useful for surfacing from an API where you don't want
+   *     callers to be able to disose of the resource.
+   */
+  omitDispose<T extends t.Disposable | t.DisposableAsync>(obj: T): Omit<T, 'dispose'>;
 };

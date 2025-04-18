@@ -11,9 +11,10 @@ export const Testing: t.TestingLib = {
   slug,
 
   /**
-   * Wait for n-milliseconds
+   * Wait for n-milliseconds.
    */
   wait(msecs): Promise<void> {
+    if (msecs === undefined) return Promise.resolve();
     return new Promise((resolve) => setTimeout(resolve, msecs));
   },
 

@@ -1,4 +1,4 @@
-import { type t, Fs, Pkg, Process, Time } from './common.ts';
+import { type t, c, Cli, Fs, Pkg, Process, Time } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -10,11 +10,28 @@ export const build: B = async (input) => {
   const timer = Time.timer();
   const paths = await Wrangle.pathsFromConfigfile(input.cwd);
 
-  const { pkg, silent = true } = input;
+  const { pkg, silent = false } = input;
   const { cmd, args } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);
+  const cwd = paths.cwd;
 
-  const output = await Process.invoke({ args, silent });
+  if (!silent) {
+    const table = Cli.table([]);
+    const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
+    push('Directory:', c.gray(`${cwd.replace(/\/$/, '')}/`));
+    push('  - entry:', paths.app.entry);
+    push('  - outDir:', paths.app.outDir);
+    push('  - base:', paths.app.base);
+
+    console.info(c.bold(c.brightGreen('Paths')));
+    console.info(table.toString().trim());
+    console.info();
+  }
+
+  const spinner = Cli.Spinner.create('building', { silent, start: false });
+  if ((input.spinner ?? true) && !silent) spinner.start();
+
+  const output = await Process.invoke({ cwd, args, silent: true });
   const ok = output.success;
 
   if (pkg) {
@@ -47,6 +64,7 @@ export const build: B = async (input) => {
     },
   };
 
+  spinner.stop();
   return res;
 };
 

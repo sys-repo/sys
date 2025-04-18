@@ -7,10 +7,12 @@ describe('ViteConfig: common plugins', () => {
     const includes = (name: string) => res.some((p) => p.name === name);
     expect(includes('vite-plugin-wasm')).to.be.true;
     expect(includes('vite:react-swc')).to.be.true;
+    expect(includes('deno')).to.be.true;
+    expect(includes('deno:prefix')).to.be.true;
   });
 
   it('none (via options)', async () => {
-    const res = await commonPlugins({ wasm: false, react: false });
+    const res = await commonPlugins({ wasm: false, react: false, deno: false });
     expect(res.length).to.eql(0);
   });
 });

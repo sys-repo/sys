@@ -29,7 +29,7 @@ export const App: React.FC<AppProps> = (props) => {
   }, []);
 
   /**
-   * Render
+   * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {

@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { Spec } from '../../-test.ts';
 import { Harness } from './mod.ts';

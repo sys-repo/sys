@@ -31,9 +31,10 @@ describe('Vite.build', () => {
 
   const testBuild = async (sample: t.StringDir) => {
     const fs = SAMPLE.fs('Vite.build');
+    await Fs.copy(sample, fs.dir);
+
     const cwd = fs.dir;
-    await Fs.copy(sample, cwd);
-    const m = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
+    const fromFile = await Vite.Config.fromFile(Fs.join(cwd, 'vite.config.ts'));
 
     const res = await Vite.build({ cwd, pkg });
     if (!res.ok) console.warn(res.toString());
@@ -42,7 +43,7 @@ describe('Vite.build', () => {
     expect(res.cmd.input).to.include('deno run');
     expect(res.cmd.input).to.include('--node-modules-dir npm:vite');
     expect(res.elapsed).to.be.greaterThan(0);
-    expect(res.paths).to.eql(m.module.paths);
+    expect(res.paths).to.eql(fromFile.paths);
 
     // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
     const keys = Object.keys(res.dist.hash.parts);
@@ -69,7 +70,6 @@ describe('Vite.build', () => {
 
   it('sample-1: simple', async () => {
     const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample1);
-
     printHtml(files.html, 'sample-1', outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
     expect(files.entry).to.include(`Hello World 👋`);

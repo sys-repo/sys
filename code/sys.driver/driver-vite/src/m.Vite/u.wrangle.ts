@@ -17,7 +17,7 @@ export const Wrangle = {
     const path = Path.join(rootDir, filename);
 
     const res = await ViteConfig.fromFile(path);
-    let paths = res.module.paths;
+    let paths = res.paths;
 
     if (!paths) {
       const err = `Failed to load paths from [${filename}], ensure it exports "paths". Source: ${path}`;
