@@ -6,6 +6,6 @@ import { delay } from './m.Time.delay.ts';
  * (NB: use with `await`.)
  * @param msecs: delay in milliseconds.
  */
-export const wait: t.TimeLib['wait'] = (msecs = 0) => {
+export const wait: t.TimeLib['wait'] = (msecs) => {
   return delay(msecs);
 };

@@ -1,0 +1,17 @@
+{
+  "imports": {
+    "@sys/std": "jsr:@sys/std@0.0.141",
+    "@sys/tmp": "jsr:@sys/tmp@0.0.110",
+    "@sys/types": "jsr:@sys/types@0.0.92",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.81",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.137",
+    "react": "npm:react@18.3.1",
+    "react-dom": "npm:react-dom@18.3.1",
+    "@types/react": "npm:@types/react@18.3.18",
+    "@types/react-dom": "npm:@types/react-dom@18.3.5",
+    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.8.0",
+    "rollup": "npm:rollup@4.34.8",
+    "vite": "npm:vite@6.1.1",
+    "vite-plugin-wasm": "npm:vite-plugin-wasm@3.4.1"
+  }
+}

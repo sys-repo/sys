@@ -9,8 +9,10 @@ import { Subject, filter, take, takeUntil } from './u.Rx.libs.ts';
 export function withinTimeThreshold<T>(
   $: t.Observable<T>,
   timeout: t.Msecs,
-  options: { dispose$?: t.UntilObservable } = {},
+  options: { dispose$?: t.UntilInput } = {},
 ): t.TimeThreshold<T> {
+  const life = Dispose.lifecycle(options.dispose$);
+
   const listen = (timeout: number) => {
     type R = { result: boolean; value?: T };
     const startedAt = Date.now();
@@ -36,32 +38,23 @@ export function withinTimeThreshold<T>(
   };
 
   /**
-   * Response listener.
+   * Response listener:
    */
   const timeout$ = new Subject<void>();
   const $$ = new Subject<T>();
   $.subscribe((e) => {
     const listen$ = listen(timeout).pipe(
-      takeUntil(dispose$),
+      takeUntil(life.dispose$),
       filter((e) => !!e.result),
     );
     listen$.subscribe((e) => $$.next(e.value!));
   });
 
-  let _disposed = false;
-  const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
-  dispose$.subscribe(() => {
-    $$.complete();
-    _disposed = true;
+  /**
+   * API:
+   */
+  return Dispose.toLifecycle<t.TimeThreshold<T>>(life, {
+    $: $$.pipe(takeUntil(life.dispose$)),
+    timeout$: timeout$.pipe(takeUntil(life.dispose$)),
   });
-
-  return {
-    $: $$.pipe(takeUntil(dispose$)),
-    timeout$: timeout$.pipe(takeUntil(dispose$)),
-    dispose,
-    dispose$,
-    get disposed() {
-      return _disposed;
-    },
-  };
 }

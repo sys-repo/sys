@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.84",
+  "version": "0.0.94",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",

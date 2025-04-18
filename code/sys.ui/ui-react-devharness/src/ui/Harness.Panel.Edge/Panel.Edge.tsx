@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { css, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
@@ -18,7 +17,7 @@ export const PanelEdge: React.FC<PanelBarProps> = (props) => {
   if (!renderer || !element) return <div />;
 
   /**
-   * Render
+   * Render:
    */
   const border = (hasBorder: boolean) => (hasBorder ? Wrangle.borderStyle(current) : undefined);
   const styles = {

@@ -7,8 +7,8 @@ export type { IconType } from 'react-icons';
 /**
  * @system
  */
-export type { ColorConstants } from '@sys/color/t';
-export type { ModuleImport, ModuleImporter, ModuleImports } from '@sys/std/t';
+export type { ColorConstants, ColorTheme } from '@sys/color/t';
+export type { ModuleImport, ModuleImporter, ModuleImports, Signal } from '@sys/std/t';
 export type * from '@sys/types/t';
 
 export type {
@@ -25,11 +25,11 @@ export type {
 
 export type {
   CssEdgesArray,
+  CssInput,
   CssMarginArray,
   CssMarginInput,
   CssPaddingArray,
   CssValue,
-  CssInput,
 } from '@sys/ui-css/t';
 
 export type { KeyboardEventsUntil, KeyboardModifierFlags } from '@sys/ui-dom/t';

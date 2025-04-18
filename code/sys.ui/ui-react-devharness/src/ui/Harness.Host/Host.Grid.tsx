@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { css, type t } from '../common.ts';
 import { Wrangle } from './u.ts';

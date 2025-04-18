@@ -11,29 +11,46 @@ export const build: B = async (input = {}) => {
   const options = wrangle.options(input);
   const { pkg, srcDir = 'docs', silent = false } = options;
 
-  const spinner = Cli.spinner(c.gray('building...'), { start: false });
-  if (!silent) spinner.start();
-
   const dirs = wrangle.dirs(options);
   const inDir = dirs.in;
   const outDir = dirs.out;
+
+  if (!silent) {
+    const table = Cli.table([]);
+    const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
+    push('Directory:', c.gray(`${Fs.cwd()}/`));
+    push('       in:', Fs.trimCwd(dirs.in));
+    push('      out:', Fs.trimCwd(dirs.out));
+
+    console.info(c.bold(c.brightGreen('Paths')));
+    console.info(table.toString().trim());
+    console.info();
+  }
 
   let params = `--outDir=${outDir}`;
   if (srcDir) params += ` --srcDir=${srcDir}`;
 
   const cmd = `deno run -A --node-modules-dir npm:vitepress build ${inDir} ${params}`;
   const args = cmd.split(' ').slice(1);
+
+  const spinner = Cli.spinner(c.gray('building...'), { start: false });
+  if (!silent) spinner.start();
+
   const output = await Process.invoke({ args, silent: true });
   const ok = output.success;
   spinner?.clear().stop();
 
-  // Write {pkg} into /dist so it's included within the digest-hash.
+  /**
+   * Write {pkg} into /dist so it's included within the digest-hash.
+   */
   if (pkg) {
     const path = Fs.join(dirs.out, 'assets', '-pkg.json');
     await Fs.writeJson(path, pkg);
   }
 
-  // Calculate the `/dist.json` file and digest-hash.
+  /**
+   * Calculate the digest-hash and store it in the [dist.json] file.
+   */
   const entry = './index.html';
   const dist = (await Pkg.Dist.compute({ dir: dirs.out, pkg, entry, save: true })).dist;
   const elapsed = timer.elapsed.msec;

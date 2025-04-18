@@ -30,14 +30,29 @@ export type ColorLib = t.ColorConstants & {
    */
   darken(color: string, amount: number): string;
 
+  /** ColorThemeLib */
+  readonly Theme: ColorThemeLib;
+  /** Create a color theme instance. */
+  theme: ColorThemeLib['create'];
+};
+
+/**
+ * Tools for working with the basic color theme ("Light" / "Dark").
+ */
+export type ColorThemeLib = {
   /**
    * Create a color theme instance.
    */
-  theme(
+  create(
     input?: t.CommonTheme | t.ColorTheme | null, // NB: loose input.
     defaultLight?: ColorInput,
     defaultDark?: ColorInput,
   ): t.ColorTheme;
+
+  /**
+   * Invert a color scheme.
+   */
+  invert(theme?: t.CommonTheme): t.CommonTheme;
 };
 
 /**
@@ -61,6 +76,9 @@ export type ColorTheme = ColorThemeColors & {
 
   /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
   invert(): ColorTheme;
+
+  /** Convert to string. */
+  toString(): string;
 };
 
 /**

@@ -13,4 +13,5 @@
  * expect(Value.Str).to.equal(Str);
  * ```
  */
-export { Str, bytes, capitalize, diff, plural, replace, shorten, splice } from './m.Str.ts';
+export { Lorem } from './m.Lorem.ts';
+export { bytes, capitalize, diff, plural, replace, shorten, splice, Str } from './m.Str.ts';

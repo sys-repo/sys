@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect, useState } from 'react';
 
 import { Color, css, DEFAULTS, R, Time, useCurrentState, type t } from '../common.ts';
@@ -41,7 +40,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   }, [isEmpty]);
 
   /**
-   * Render
+   * Render:
    */
   const cropmark = wrangle.cropmark(renderProps);
   const backgroundColor =
@@ -57,7 +56,7 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   const styles = {
     base: css({ position: 'relative', backgroundColor, color }),
     body: css({ Absolute: 0, display: 'grid', gridTemplateRows: 'auto 1fr auto' }),
-    main: css({ position: 'relative', display: 'grid' }),
+    main: css({ position: 'relative', display: 'grid', overflow: 'hidden' }),
     empty: css({ Absolute: 0, display: 'grid', placeContent: 'center', userSelect: 'none' }),
   };
 

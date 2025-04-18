@@ -1,4 +1,3 @@
-import type { defineConfig } from 'vite';
 import type { t } from './common.ts';
 
 export type * from './t.app.ts';
@@ -38,7 +37,7 @@ export type ViteConfigLib = {
   /**
    * Attempts to dynamically load a `vite.config.ts` module.
    */
-  fromFile(path?: t.StringPath): Promise<ViteConfigFromFile>;
+  fromFile(configDir?: t.StringDir): Promise<ViteConfigFromFile>;
 };
 
 /**
@@ -56,8 +55,12 @@ export type ViteBundleIO = { in: t.StringDir; out: t.StringDir };
  * Common plugins (default: true).
  */
 export type ViteConfigCommonPlugins = {
+  /** Flag indicating if the official `deno-vite` plugin should be included. */
+  deno?: boolean;
+
   /** Flag indicating if the "react+swc" plugin should be included. */
   react?: boolean;
+
   /** Flag indicating if the "wasm" plugin should be included. */
   wasm?: boolean;
 };
@@ -74,10 +77,16 @@ export type ViteModuleChunksArgs = {
 
 /**
  * The result from the `Vite.Config.fromFile` method.
+ * See also:
+ *    https://vite.dev/guide/api-javascript.html#loadconfigfromfile
  */
 export type ViteConfigFromFile = {
+  /** Flag indicating if the config file exists on the filesystem. */
   exists: boolean;
-  path: t.StringAbsolutePath;
-  module: { defineConfig?: typeof defineConfig; paths?: t.ViteConfigPaths };
+
+  /** The paths of the Vite configuration. */
+  paths?: t.ViteConfigPaths;
+
+  /** Any error details while loading. */
   error?: t.StdError;
 };

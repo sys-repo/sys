@@ -105,12 +105,11 @@ export const create: F = (input: Parameters<F>[0]) => {
     } as t.FetchResponse<T>;
   };
 
-  const api: t.HttpFetch = {
+  const api: t.HttpFetch = rx.toLifecycle<t.HttpFetch>(life, {
+    header: (name) => (api.headers as any)[name],
     get headers() {
       return wrangle.headers(options);
     },
-
-    header: (name) => (api.headers as any)[name],
 
     async json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<T>('application/json', input, init, options, (res) => res.json());
@@ -119,18 +118,7 @@ export const create: F = (input: Parameters<F>[0]) => {
     async text(input: RequestInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<string>('text/plain', input, init, options, (res) => res.text());
     },
-
-    /**
-     * Lifecycle.
-     */
-    dispose: life.dispose,
-    get dispose$() {
-      return life.dispose$;
-    },
-    get disposed() {
-      return life.disposed;
-    },
-  };
+  });
 
   return api;
 };

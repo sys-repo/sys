@@ -35,7 +35,13 @@ export const Dist: t.PkgDistFsLib = {
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
     const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
     const size: t.DistPkg['size'] = { bytes };
-    const dist: t.DistPkg = { pkg, size, entry: wrangle.entry(entry), hash };
+    const dist: t.DistPkg = {
+      '-type:': 'jsr:@sys/types:DistPkg',
+      pkg,
+      size,
+      entry: wrangle.entry(entry),
+      hash,
+    };
 
     /**
      * Prepare response.
@@ -132,7 +138,7 @@ const wrangle = {
     let count = 0;
     for (const file of files) {
       const stat = await Fs.stat(Fs.join(dir, file));
-      count += stat.size;
+      count += stat?.size ?? 0;
     }
     return count;
   },

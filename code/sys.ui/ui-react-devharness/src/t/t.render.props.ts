@@ -120,7 +120,7 @@ export type DevRenderSizeCenter = {
 };
 
 /**
- * Render size foa an element filling the container.
+ * Render size for an element filling the container.
  */
 export type DevRenderSizeFill = {
   mode: 'fill';

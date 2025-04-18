@@ -64,6 +64,9 @@ export type StringJson = string;
 /** A raw string of unparsed YAML. */
 export type StringYaml = string;
 
+/** String representing a timestamp in the form "HH:MM:SS:mmm". */
+export type StringTimestamp = string;
+
 /**
  * The name (module-specifier) of an ESM import.
  * eg:

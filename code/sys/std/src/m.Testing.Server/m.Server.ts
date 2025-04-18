@@ -1,5 +1,6 @@
-import type { t } from '../common/mod.ts';
+import type { t } from '../common.ts';
 import { Url } from '../m.Url/mod.ts';
+import { Dispose } from '../m.Dispose/mod.ts';
 
 type M = 'GET' | 'PUT' | 'POST' | 'DELETE';
 type H = { method: M; handler: Deno.ServeHandler };

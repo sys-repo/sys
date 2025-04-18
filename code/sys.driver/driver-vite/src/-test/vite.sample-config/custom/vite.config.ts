@@ -2,17 +2,17 @@
 import { Vite } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
 
-export const paths = Vite.Config.paths({
-  app: {
-    entry: '.tmp/sample/src/-test/index.html',
-    outDir: '.tmp/sample/dist',
-  },
-});
-
 /**
  * SAMPLE: Custom plugin (no customization).
  */
 export default defineConfig(async () => {
+  const paths = Vite.Config.paths({
+    app: {
+      entry: '.tmp/sample/src/-test/index.html',
+      outDir: '.tmp/sample/dist',
+    },
+  });
+
   const app = await Vite.Config.app({
     paths,
 

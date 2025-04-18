@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Err, Is, Rx } from '../mod.ts';
+import { Err, Is, rx, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('rx: observable | subject', () => {
@@ -139,6 +139,20 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.uint8Array', () => {
+    const binary = new Uint8Array([1, 2, 3]);
+
+    it('is not Uint8Array', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((v) => expect(Is.uint8Array(v)).to.eql(false));
+      expect(Is.uint8Array(binary.buffer)).to.eql(false);
+    });
+
+    it('is Uint8Array', () => {
+      expect(Is.uint8Array(binary)).to.equal(true);
+    });
+  });
+
   describe('Is.blank', () => {
     describe('blank', () => {
       it('is blank (nothing)', () => {
@@ -194,11 +208,38 @@ describe('Is (common flags)', () => {
     });
   });
 
-  it('Is.statusOK', () => {
-    const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
-    NON.forEach((v: any) => expect(Is.statusOK(v)).to.eql(false));
-    expect(Is.statusOK(200)).to.eql(true);
-    expect(Is.statusOK(201)).to.eql(true);
-    expect(Is.statusOK(404)).to.eql(false);
+  describe('Is.statusOK', () => {
+    it('Is.statusOK: true', () => {
+      expect(Is.statusOK(200)).to.eql(true);
+      expect(Is.statusOK(201)).to.eql(true);
+    });
+
+    it('Is.statusOK: false', () => {
+      const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
+      NON.forEach((v: any) => expect(Is.statusOK(v)).to.eql(false));
+      expect(Is.statusOK(404)).to.eql(false);
+    });
+  });
+
+  describe('Is.browser', () => {
+    it('Is.browser: false', () => {
+      expect(Is.browser()).to.eql(false);
+    });
+  });
+
+  describe('Is.disposable', () => {
+    it('Is.disposable: true', () => {
+      const disposable = rx.disposable();
+      const life = rx.lifecycle();
+      expect(Is.disposable(disposable)).to.be.true;
+      expect(Is.disposable(life)).to.be.true;
+    });
+
+    it('Is.disposable: false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => {
+        expect(Is.disposable(value)).to.eql(false);
+      });
+    });
   });
 });

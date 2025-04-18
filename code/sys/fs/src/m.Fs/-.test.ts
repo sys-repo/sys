@@ -1,3 +1,4 @@
+import * as StdFs from '@std/fs';
 import { Path as StdPath } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
 import { Glob } from '../m.Glob/mod.ts';
@@ -9,6 +10,9 @@ describe('Fs: filesystem', () => {
     expect(Fs.glob).to.equal(Glob.create);
     expect(Fs.ls).to.equal(Glob.ls);
     expect(Fs.trimCwd).to.equal(Path.trimCwd);
+
+    expect(Fs.ensureDir).to.eql(StdFs.ensureDir);
+    expect(Fs.ensureSymlink).to.eql(StdFs.ensureSymlink);
   });
 
   describe('Fs.Path', () => {
@@ -34,6 +38,17 @@ describe('Fs: filesystem', () => {
       expect(res1).to.eql(path1);
       expect(res2).to.eql(path1); // NB: stepped up to parent.
       expect(res3).to.eql(path3); // NB: not-found, no change.
+    });
+  });
+
+  describe('Fs.cwd', () => {
+    it('returns the CWD', () => {
+      expect(Fs.cwd()).to.eql(Deno.cwd());
+    });
+
+    it('returns the initiating CWD', () => {
+      const dir = Fs.cwd('init');
+      expect(dir).to.eql(Deno.env.get('INIT_CWD'));
     });
   });
 });

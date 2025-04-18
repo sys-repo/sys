@@ -68,19 +68,12 @@ export const Queue: t.CmdQueueLib = {
     /**
      * API
      */
-    const api: t.CmdQueueMonitor = {
+    const api = rx.toLifecycle<t.CmdQueueMonitor>(events, {
       bounds: { min, max },
       get total() {
         return Queue.totals(cmd);
       },
-
-      // Lifecycle.
-      dispose,
-      dispose$,
-      get disposed() {
-        return events.disposed;
-      },
-    };
+    });
     return api;
   },
 } as const;

@@ -3,22 +3,24 @@ import { Tmpl } from '../m.Tmpl/mod.ts';
 import { Log } from './mod.ts';
 
 describe('Tmpl.Log', () => {
+  const Test = SAMPLE.fs('m.Log');
+
   it('API', () => {
     expect(Tmpl.Log).to.equal(Log);
   });
 
   describe('Log.table', () => {
     it('log table', async () => {
-      const test = SAMPLE.init();
+      const test = Test.sample1();
       let change = false;
       const tmpl = Tmpl.create(test.source, (e) => {
         if (change) e.modify('// foo');
       });
 
-      const res1 = await tmpl.copy(test.target);
-      const res2 = await tmpl.copy(test.target);
+      const res1 = await tmpl.write(test.target);
+      const res2 = await tmpl.write(test.target);
       change = true;
-      const res3 = await tmpl.copy(test.target);
+      const res3 = await tmpl.write(test.target);
 
       const table1 = Log.table(res1.ops);
       const table2 = Log.table(res2.ops);
@@ -38,17 +40,17 @@ describe('Tmpl.Log', () => {
     });
 
     it('empty (no operations)', async () => {
-      const test = SAMPLE.init();
+      const test = Test.sample1();
       const tmpl = Tmpl.create(test.source).filter(() => false);
-      const res = await tmpl.copy(test.target);
+      const res = await tmpl.write(test.target);
       const table = Log.table(res.ops);
       expect(table).to.include('No items to display');
     });
 
     it('option: { trimBase:<path> }', async () => {
-      const test = SAMPLE.init();
+      const test = Test.sample1();
       const tmpl = Tmpl.create(test.source, (e) => {});
-      const res = await tmpl.copy(test.target);
+      const res = await tmpl.write(test.target);
 
       const trimPathLeft = Path.trimCwd(test.target) + '/';
       const table = Log.table(res.ops, { trimPathLeft });
@@ -56,9 +58,9 @@ describe('Tmpl.Log', () => {
     });
 
     it('option: { note: ƒn }', async () => {
-      const test = SAMPLE.init();
+      const test = Test.sample1();
       const tmpl = Tmpl.create(test.source, (e) => {});
-      const res = await tmpl.copy(test.target);
+      const res = await tmpl.write(test.target);
 
       const table = Log.table(res.ops, {
         note(op) {

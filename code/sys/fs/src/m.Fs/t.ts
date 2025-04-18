@@ -50,11 +50,11 @@ export type FsLib = Methods & {
   /** Recursively walk up a directory tree (visitor pattern). */
   readonly walkUp: t.FsWalkUp;
 
-  /** Start a file-system watcher */
+  /** Start a file-system watcher. */
   readonly watch: t.FsWatchLib['start'];
 
   /** Current working directory. */
-  cwd(): t.StringDir;
+  cwd(kind?: 'init'): t.StringDir;
 
   /** Removes the CWD (current-working-directory) from the given path if it exists. */
   trimCwd: t.FsPathLib['trimCwd'];
@@ -116,6 +116,9 @@ type StdMethods = {
   /** Asynchronously ensures that the directory exists, like `mkdir -p.` */
   readonly ensureDir: typeof StdFs.ensureDir;
 
+  /** Asynchronously ensures that the link exists, and points to a valid file. */
+  readonly ensureSymlink: typeof StdFs.ensureSymlink;
+
   /** Recursively walks through a directory and yields information about each file and directory encountered. */
   readonly walk: typeof StdFs.walk;
 };
@@ -129,12 +132,16 @@ export type FsIsLib = t.PathLib['Is'] & {
 
   /** Determine if the given path points to a file (not a directory). */
   file(path: t.StringPath | URL): Promise<boolean>;
+
+  /** Determine if the given path points to a binary (non-string) file. */
+  binary(path: t.StringPath | URL): Promise<boolean>;
 };
 
 /**
  * Retrieve information about the given path.
  */
-export type FsGetStat = (path: t.StringPath | URL) => Promise<Deno.FileInfo>;
+export type FsGetStat = (path: t.StringPath | URL) => Promise<FsFileInfo | undefined>;
+export type FsFileInfo = Deno.FileInfo;
 
 /**
  * Copy a file or directory.

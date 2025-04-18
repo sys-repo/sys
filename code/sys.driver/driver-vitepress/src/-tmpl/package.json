@@ -1,17 +1,18 @@
 {
   "dependencies": {
-    "@vidstack/react": "",
-    "@sys/std": "npm:@jsr/sys__std",
-    "@sys/tmp": "npm:@jsr/sys__tmp",
-    "@sys/ui-css": "npm:@jsr/sys__ui-css",
-    "react": "",
-    "react-dom": "",
-    "yaml": ""
+    "@vidstack/react": "npm:@vidstack/react@1.12.12",
+    "@sys/std": "npm:@jsr/sys__std@0.0.141",
+    "@sys/tmp": "npm:@jsr/sys__tmp@0.0.110",
+    "@sys/ui-css": "npm:@jsr/sys__ui-css@0.0.81",
+    "react": "npm:react@18.3.1",
+    "react-dom": "npm:react-dom@18.3.1",
+    "yaml": "npm:yaml@2.7.0"
   },
   "devDependencies": {
-    "@types/react": "",
-    "@types/react-dom": "",
-    "vitepress": "",
-    "vue": ""
+    "@types/react": "npm:@types/react@18.3.18",
+    "@types/react-dom": "npm:@types/react-dom@18.3.5",
+    "vite": "npm:vite@6.1.1",
+    "vitepress": "npm:vitepress@1.6.3",
+    "vue": "npm:vue@3.5.13"
   }
 }

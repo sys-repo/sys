@@ -79,7 +79,7 @@ export const upgrade: t.DenoModuleLib['upgrade'] = async (args) => {
   /**
    * Finish up.
    */
-  const fmtTargetVer = c.bold(c.green(Semver.toString(targetVersion)));
+  const fmtTargetVer = c.bold(c.brightCyan(Semver.toString(targetVersion)));
   console.info(c.green(`Project at version:`));
   console.info(c.gray(`${c.white(c.bold(moduleName))}@${fmtTargetVer}`));
   console.info();

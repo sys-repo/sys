@@ -7,28 +7,35 @@ import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
 import { main as prep } from './Task.-prep.ts';
 import { main as test } from './Task.-test.ts';
+import { main as tmpl } from './Task.-tmpl.ts';
 
 type T = {
   dry?: boolean;
   test?: boolean;
-  clean?: boolean;
   info?: boolean;
+
+  clean?: boolean;
   lint?: boolean;
   bump?: boolean;
   prep?: boolean;
+
+  tmpl?: boolean;
 };
 const args = Cli.args<T>(Deno.args);
 
-// Maintenance.
+// CI:
+if (args.dry) await dry();
+if (args.test) await test();
+if (args.info) await info();
+
+// Maintenance:
 if (args.clean) await clean();
 if (args.lint) await lint();
 if (args.bump) await bump();
 if (args.prep) await prep();
 
-// CI.
-if (args.dry) await dry();
-if (args.test) await test();
-if (args.info) await info();
+// Development:
+if (args.tmpl) await tmpl();
 
 // Finish up.
 Deno.exit(0);

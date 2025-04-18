@@ -8,6 +8,9 @@ import { formatSize } from './u.formatSize.ts';
 import { toEdges, WrangleEdge } from './u.toEdges.ts';
 import { formatScroll } from './u.formatScroll.ts';
 
+/**
+ * Helpers for working with the template patterns (a DSL for css of sorts).
+ */
 export const CssTmpl: t.CssTmplLib = {
   toEdges,
 

@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { COLORS, Calc, Color, DEFAULTS, css, type t } from './common.ts';
@@ -68,7 +67,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
   };
 
   /**
-   * Render
+   * Render:
    */
   const { WHITE, BLUE } = COLORS;
   const color = Color.theme(props.theme).fg;

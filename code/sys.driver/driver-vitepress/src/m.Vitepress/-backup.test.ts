@@ -3,8 +3,8 @@ import { Sample } from '../m.Vitepress/-u.ts';
 import { Vitepress } from '../m.Vitepress/mod.ts';
 
 describe('cmd: backup (shapshot)', () => {
-  const assertExists = async (dir: string, exists = true) => {
-    expect(await Fs.exists(dir)).to.eql(exists, dir);
+  const assertExists = async (path: string, exists = true) => {
+    expect(await Fs.exists(path)).to.eql(exists, `path should exist: ${path}`);
   };
 
   it('perform backup copy', { sanitizeResources: false, sanitizeOps: false }, async () => {
@@ -14,19 +14,20 @@ describe('cmd: backup (shapshot)', () => {
      *  - ↓ build   (dist)
      *  - ↓ backup  (snapshot)
      */
-    await Testing.retry(3, async () => {
-      const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {
+    const test = async (args: Pick<t.VitepressBackupArgs, 'includeDist'> = {}) => {
+      await Testing.retry(2, async () => {
         const { includeDist } = args;
         const sample = Sample.init({});
+        const cwd = sample.path;
         const inDir = sample.path;
         const backupDir = Fs.join(inDir, PATHS.backup);
         const distDir = Fs.join(inDir, PATHS.dist);
 
         const silent = true;
-        await Vitepress.Tmpl.update({ inDir, silent });
+        await Vitepress.Tmpl.write({ inDir, silent });
         await assertExists(distDir, false); // NB: not yet built.
 
-        await Vitepress.build({ inDir, silent });
+        const buildResponse = await Vitepress.build({ inDir, silent });
         await assertExists(backupDir, false); // NB: not yet backed up.
 
         const res = await Vitepress.backup({ dir: inDir, includeDist });
@@ -47,12 +48,12 @@ describe('cmd: backup (shapshot)', () => {
         await assertTargetExists('docs', true);
         await assertTargetExists('src', true);
         await assertTargetExists('deno.json', true);
-        await assertTargetExists('package.json', true);
+        await assertTargetExists('imports.json', true);
         await assertTargetExists('.gitignore', true);
-      };
+      });
+    };
 
-      await test({}); // default: excludes the /dist folder.
-      await test({ includeDist: true });
-    });
+    await test({}); // default: excludes the /dist folder.
+    await test({ includeDist: true });
   });
 });

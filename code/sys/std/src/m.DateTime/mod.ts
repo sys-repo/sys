@@ -26,6 +26,7 @@
  * elapsed.toString('m');   //  ← "210m"
  * ```
  */
-export { Date, Date as D, Day, Format } from './m.Date.ts';
+export { Date as D, Date, Day, Format } from './m.Date.ts';
 export { Duration } from './m.Time.Duration.ts';
 export { Time } from './m.Time.ts';
+export { Timestamp } from './m.Timestamp.ts';

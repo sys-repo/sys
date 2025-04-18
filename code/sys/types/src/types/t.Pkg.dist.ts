@@ -7,6 +7,8 @@ import type { t } from './common.ts';
  * produced during a build/bundle operation for a module.
  */
 export type DistPkg = {
+  '-type:': 'jsr:@sys/types:DistPkg';
+
   /** The package meta-data info. */
   pkg: t.Pkg;
 

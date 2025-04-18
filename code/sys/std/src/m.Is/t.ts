@@ -16,6 +16,11 @@ export type StdIsLib = {
   nil(input?: unknown): boolean;
 
   /**
+   * Determine if the input is an object implementing the <t.Disposable> interface.
+   */
+  disposable(input?: unknown): input is t.Disposable;
+
+  /**
    * Determine if the value is a Promise.
    */
   promise<T = any>(input?: unknown): input is Promise<T>;
@@ -23,12 +28,12 @@ export type StdIsLib = {
   /**
    * Determine if the value is an observable Subject.
    */
-  subject: t.RxIs['subject'];
+  subject<T = unknown>(input?: any): input is t.Subject<T>;
 
   /**
    * Determine if the value is an Observable.
    */
-  observable: t.RxIs['observable'];
+  observable<T = unknown>(input?: any): input is t.Observable<T>;
 
   /**
    * Determine if the value is like an Error object.
@@ -51,9 +56,14 @@ export type StdIsLib = {
   json(input?: unknown): input is t.Json;
 
   /**
-   * Determine if the input is ArrayBufferLike.
+   * Determine if the input is [ArrayBufferLike].
    */
   arrayBufferLike(input?: unknown): input is ArrayBufferLike;
+
+  /**
+   * Determine if the inut is a [Uint8Array].
+   */
+  uint8Array(input?: unknown): input is Uint8Array;
 
   /**
    * A safe way to test any value as to wheather is is 'blank'
@@ -70,4 +80,7 @@ export type StdIsLib = {
 
   /** Determine if the HTTP status code is within the 200 range.  */
   statusOK(status: number): boolean;
+
+  /** Determines if currently running within a browser environment. */
+  browser(): boolean;
 };

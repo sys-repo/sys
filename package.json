@@ -14,6 +14,7 @@
     "@types/react-dom": "18.3.5",
     "@vidstack/react": "1.12.12",
     "hono": "4.7.2",
+    "motion": "12.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.5.0",
@@ -21,6 +22,7 @@
     "vue": "3.5.13"
   },
   "devDependencies": {
+    "@deno/vite-plugin": "1.0.4",
     "@vitejs/plugin-react-swc": "3.8.0",
     "rollup": "4.34.8",
     "vite": "6.1.1",

@@ -12,13 +12,12 @@ export const Watch: t.FsWatchLib = {
     const paths = asArray(pathInput);
     const errors = Err.errors();
     const life = rx.lifecycle(options.dispose$);
-    const { dispose, dispose$ } = life;
 
     const $$ = rx.subject<t.FsWatchEvent>();
-    const $ = $$.pipe(rx.takeUntil(dispose$));
+    const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
     let _watcher: Deno.FsWatcher | undefined;
-    dispose$.subscribe(() => _watcher?.close());
+    life.dispose$.subscribe(() => _watcher?.close());
 
     const exists = await wrangle.exists(paths);
     if (!exists.ok) {
@@ -46,7 +45,7 @@ export const Watch: t.FsWatchLib = {
     /**
      * API
      */
-    const api: t.FsWatcher = {
+    const api = rx.toLifecycle<t.FsWatcher>(life, {
       get $() {
         return $;
       },
@@ -62,20 +61,7 @@ export const Watch: t.FsWatchLib = {
       get error() {
         return errors.toError('Several errors occured while watching file-system paths.');
       },
-
-      /** Lifecycle: disposes of the watches. */
-      dispose,
-
-      /** Lifecycle: observable that fires when the watcher disposes. */
-      get dispose$() {
-        return dispose$;
-      },
-
-      /** Lifecycle: flag indicating if the watcher has been disposed. */
-      get disposed() {
-        return life.disposed;
-      },
-    };
+    });
     return api;
   },
 };

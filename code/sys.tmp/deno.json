@@ -1,18 +1,18 @@
 {
   "name": "@sys/tmp",
-  "version": "0.0.95",
+  "version": "0.0.110",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RW",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts"
+    "clean": "deno run -RWE ./-scripts/-clean.ts",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./tmp": "./src/mod.tmp.ts",
     "./ui": "./src/ui/mod.ts",
     "./sample-imports": "./src/-sample/-sample-imports.ts"
   }

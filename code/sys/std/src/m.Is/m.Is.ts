@@ -1,18 +1,34 @@
 import { type t, isObject } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
-import { Is as RxIs } from '../m.Rx/mod.ts';
 
-const { observable, subject } = RxIs;
 const { errorLike, stdError } = Err.Is;
 
 /**
  * Common flag evaluators.
  */
 export const Is: t.StdIsLib = {
-  observable,
-  subject,
   errorLike,
   stdError,
+
+  disposable(input?: any): input is t.Disposable {
+    if (!isObject(input)) return false;
+    const obj = input as t.Disposable;
+    return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+  },
+
+  /**
+   * Determine if the given input is an Observable.
+   */
+  observable<T = unknown>(input?: any): input is t.Observable<T> {
+    return typeof input === 'object' && typeof input?.subscribe === 'function';
+  },
+
+  /**
+   * Determine if the given input is an observable Subject.
+   */
+  subject<T = unknown>(input?: any): input is t.Subject<T> {
+    return Is.observable(input) && typeof (input as any)?.next === 'function';
+  },
 
   falsy(input?: any): input is t.Falsy | typeof NaN {
     return (
@@ -61,7 +77,12 @@ export const Is: t.StdIsLib = {
   },
 
   arrayBufferLike(input?: any): input is ArrayBufferLike {
-    return input instanceof ArrayBuffer || input instanceof SharedArrayBuffer;
+    const tag = Object.prototype.toString.call(input);
+    return tag === '[object ArrayBuffer]' || tag === '[object SharedArrayBuffer]';
+  },
+
+  uint8Array(input?: any): input is Uint8Array {
+    return Object.prototype.toString.call(input) === '[object Uint8Array]';
   },
 
   /**
@@ -96,5 +117,13 @@ export const Is: t.StdIsLib = {
   statusOK(input) {
     if (typeof input !== 'number') return false;
     return String(input)[0] === '2';
+  },
+
+  /**
+   * Determines if currently running within a browser environment.
+   */
+  browser() {
+    const g = globalThis;
+    return typeof g.window === 'object' && typeof g.document === 'object';
   },
 };

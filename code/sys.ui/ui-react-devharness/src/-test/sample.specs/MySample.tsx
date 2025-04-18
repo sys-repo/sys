@@ -1,6 +1,6 @@
-// @ts-types="@types/react"
-import React, { useEffect } from 'react';
-import { Color, css, DEFAULTS, Keyboard, type t } from '../common.ts';
+import React from 'react';
+import { useKeyboard } from '../../ui.use/mod.ts';
+import { type t, Color, css } from '../common.ts';
 
 export type MySampleProps = {
   text?: string;
@@ -14,25 +14,13 @@ let _count = 0;
 
 export const MySample: React.FC<MySampleProps> = (props) => {
   if (props.throwError) {
-    throw new Error('MySample: Intentional error');
+    throw new Error('MySample: 🐷 Intentional error');
   }
 
-  /**
-   * [Effects]
-   */
-  useEffect(() => {
-    const keyboard = Keyboard.on({
-      Enter(e) {
-        const url = new URL(globalThis.location.href);
-        url.searchParams.set(DEFAULTS.qs.dev, 'true');
-        globalThis.location.href = url.href;
-      },
-    });
-    return () => keyboard.dispose();
-  }, []);
+  useKeyboard();
 
   /**
-   * [Render]
+   * Render:
    */
   const styles = {
     base: css({

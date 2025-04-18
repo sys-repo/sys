@@ -1,4 +1,4 @@
-import { pkg } from '../common.ts';
+import { pkg } from '../pkg.ts';
 
 /**
  * Render UI.
@@ -14,7 +14,7 @@ import { FooSample } from './-sample/ui.Foo.tsx';
  * 🐷 Test " @sys " module imports from across the
  *    namespace (monorepo/workspace).
  */
-import '@sys/tmp/sample-imports';
+// import '@sys/tmp/sample-imports';
 
 /**
  * Sample: render react component.

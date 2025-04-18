@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useEffect, useRef, type FC } from 'react';
 import { HarnessHost } from '../Harness.Host/mod.ts';
 import { DebugPanel } from '../Harness.Panel.Debug/mod.ts';
@@ -73,7 +72,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
 
   return (
     <div
-      data-component={'dev.harness'}
+      data-component={'sys.ui.dev.harness'}
       ref={baseRef}
       className={css(styles.reset, styles.base, props.style).class}
     >

@@ -1,2 +1,2 @@
-export { c, describe, DomMock, expect, it, Testing } from '@sys/testing/server';
+export { c } from '@sys/color/ansi';
 export * from '../common.ts';

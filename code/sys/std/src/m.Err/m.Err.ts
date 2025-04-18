@@ -3,7 +3,7 @@ import { Is } from './m.Is.ts';
 import { Name } from './m.Name.ts';
 import { errors } from './u.errors.ts';
 import { std } from './u.std.ts';
-import { catchError } from './u.catchError.ts';
+import { tryCatch } from './u.tryCatchError.ts';
 
 /**
  * Helpers for working with errors.
@@ -13,5 +13,5 @@ export const Err: t.ErrLib = {
   Name,
   std,
   errors,
-  catch: catchError,
+  tryCatch,
 };

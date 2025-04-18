@@ -1,4 +1,4 @@
-import { type t, ensureDir, exists, ls, Path } from './common.ts';
+import { type t, ensureDir, ensureSymlink, exists, ls, Path } from './common.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
 import { Watch } from '../m.Watch/mod.ts';
@@ -7,10 +7,12 @@ import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { read, readJson, readText, readYaml } from './u.read.ts';
 import { remove } from './u.remove.ts';
+import { stat } from './u.stat.ts';
 import { toDir } from './u.toDir.ts';
 import { toFile } from './u.toFile.ts';
 import { walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
+import { cwd } from './u.cwd.ts';
 
 export { Path };
 const { join, resolve, basename, dirname, extname } = Path;
@@ -23,8 +25,9 @@ export const Fs: t.FsLib = {
   Path,
   Size,
   Watch,
-  stat: Deno.stat,
-  cwd: Deno.cwd,
+  stat,
+
+  cwd,
   trimCwd: Path.trimCwd,
 
   join,
@@ -41,6 +44,7 @@ export const Fs: t.FsLib = {
 
   exists,
   ensureDir,
+  ensureSymlink,
   remove,
 
   read,

@@ -1,12 +1,14 @@
-import { type t, Fs } from './common.ts';
-import { copy } from './u.copy.ts';
+import { type t, Fs, isRecord } from './common.ts';
+import { write } from './u.write.ts';
+
+type O = Record<string, unknown>;
 
 /**
  * Create a new directory template.
  */
 export const create: t.TmplFactory = (sourceDir, opt) => {
-  const { processFile, beforeCopy, afterCopy } = wrangle.options(opt);
-  return factory({ sourceDir, beforeCopy, processFile, afterCopy });
+  const { processFile, beforeWrite, afterWrite, ctx } = wrangle.options(opt);
+  return factory({ sourceDir, beforeWrite, processFile, afterWrite, ctx });
 };
 
 /**
@@ -14,10 +16,11 @@ export const create: t.TmplFactory = (sourceDir, opt) => {
  */
 function factory(args: {
   sourceDir: t.StringDir;
-  beforeCopy?: t.TmplCopyHandler;
+  beforeWrite?: t.TmplWriteHandler;
   processFile?: t.TmplProcessFile;
-  afterCopy?: t.TmplCopyHandler;
+  afterWrite?: t.TmplWriteHandler;
   filter?: t.FsFileFilter[];
+  ctx?: O;
 }): t.Tmpl {
   const { sourceDir, processFile } = args;
   const source = Fs.toDir(sourceDir, args.filter);
@@ -25,15 +28,16 @@ function factory(args: {
     get source() {
       return source;
     },
-    copy(target, options = {}) {
-      const beforeCopy = wrangle.copyHandlers(args.beforeCopy, options.beforeCopy);
-      const afterCopy = wrangle.copyHandlers(args.afterCopy, options.afterCopy);
-      return copy(source, Fs.toDir(target), processFile, { ...options, beforeCopy, afterCopy });
+    write(target, options = {}) {
+      const onBefore = wrangle.writeHandlers(args.beforeWrite, options.onBefore);
+      const onAfter = wrangle.writeHandlers(args.afterWrite, options.onAfter);
+      const ctx = wrangle.ctx(args.ctx, options.ctx);
+      return write(source, Fs.toDir(target), processFile, { ...options, onBefore, onAfter, ctx });
     },
     filter(next) {
-      const { sourceDir, processFile } = args;
+      const { sourceDir, processFile, beforeWrite, afterWrite } = args;
       const filter = [...(args.filter ?? []), next];
-      return factory({ sourceDir, processFile, filter });
+      return factory({ sourceDir, processFile, beforeWrite, afterWrite, filter });
     },
   };
   return tmpl;
@@ -49,8 +53,12 @@ const wrangle = {
     return input;
   },
 
-  copyHandlers(base?: t.TmplCopyHandler, param?: t.TmplCopyHandler | t.TmplCopyHandler[]) {
-    type T = t.TmplCopyHandler;
+  writeHandlers(base?: t.TmplWriteHandler, param?: t.TmplWriteHandler | t.TmplWriteHandler[]) {
+    type T = t.TmplWriteHandler;
     return [param, base].flat(Infinity).filter(Boolean) as T[];
+  },
+
+  ctx(root?: O, write?: O): O | undefined {
+    return isRecord(root) || isRecord(write) ? { ...root, ...write } : undefined;
   },
 } as const;

@@ -1,17 +1,20 @@
-export * from '../common.ts';
-
-export { toHash };
 import toHash from 'hash-it';
+import { pixelProps } from './const.pixelProps.ts';
+import { pseudoClasses } from './const.pseudoClasses.ts';
 
 export * from '../common.ts';
 export { CssTmpl } from '../m.Css.Tmpl/mod.ts';
-export { toString } from '../m.Style/u.toString.ts';
+export { toHash };
 
+/**
+ * Constants.
+ */
 export const DEFAULT = {
-  prefix: 'sys',
+  classPrefix: 'sys',
   get pseudoClasses() {
     return pseudoClasses;
   },
+  get pixelProps() {
+    return pixelProps;
+  },
 } as const;
-
-const pseudoClasses = new Set<string>([':hover']);

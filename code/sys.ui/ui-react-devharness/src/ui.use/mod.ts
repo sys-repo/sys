@@ -4,3 +4,4 @@ export * from './useRedrawEvent.ts';
 export * from './useRenderer.ts';
 export * from './useRubberband.ts';
 export * from './useSizeObserver.ts';
+export * from './use.Keyboard.ts';

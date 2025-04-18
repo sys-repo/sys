@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React from 'react';
 import { Badges, COLORS, pkg, Spec, type t } from '../../-test.ts';
 import { ModuleList } from './mod.ts';

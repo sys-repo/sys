@@ -13,17 +13,11 @@ type DefaultPatch = t.PatchOperation;
  */
 export function viaObservable<T, P = DefaultPatch>(
   $: t.Observable<t.ImmutableChange<T, P>>,
-  dispose$?: t.UntilObservable,
+  dispose$?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
   const life = rx.lifecycle(dispose$);
-  return {
-    changed$: $.pipe(rx.takeUntil(life.dispose$)),
-    dispose: life.dispose,
-    dispose$: life.dispose$,
-    get disposed() {
-      return life.disposed;
-    },
-  };
+  const changed$ = $.pipe(rx.takeUntil(life.dispose$));
+  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { changed$ });
 }
 
 /**
@@ -32,7 +26,7 @@ export function viaObservable<T, P = DefaultPatch>(
  */
 export function viaOverride<T, P = DefaultPatch>(
   source: t.Immutable<T, P>,
-  dispose$?: t.UntilObservable,
+  dispose$?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
   const $ = rx.subject<t.ImmutableChange<T, P>>();
   const api = viaObservable<T, P>($, dispose$);

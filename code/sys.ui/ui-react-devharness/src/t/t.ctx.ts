@@ -80,7 +80,7 @@ export type DevCtxSubject = {
   color(value?: Color | null): DevCtxSubject;
   backgroundColor(value?: Color | null): DevCtxSubject;
   size(value: DevSubjectSize): DevCtxSubject;
-  size(mode: DevFillMode, margin?: t.CssMarginInput): DevCtxSubject;
+  size(mode?: DevFillMode, margin?: t.CssMarginInput): DevCtxSubject;
   render<T extends O = O>(fn: t.DevRenderer<T>): DevCtxSubject;
 };
 

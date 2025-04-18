@@ -31,11 +31,27 @@ describe('Time.until', () => {
       let count = 0;
       const time = Time.until(dispose$);
       time.dispose$.subscribe(() => disposeFired++);
-
       expect(time.disposed).to.eql(false);
 
       const res = time.delay(10, () => (count += 1));
       dispose();
+
+      await res;
+      await Time.wait(20);
+      expect(count).to.eql(0);
+      expect(time.disposed).to.eql(true);
+      expect(disposeFired).to.eql(1);
+    });
+
+    it('is a disposable', async () => {
+      let disposeFired = 0;
+      let count = 0;
+      const time = Time.until();
+      time.dispose$.subscribe(() => disposeFired++);
+      expect(time.disposed).to.eql(false);
+
+      const res = time.delay(10, () => (count += 1));
+      time.dispose();
 
       await res;
       await Time.wait(20);

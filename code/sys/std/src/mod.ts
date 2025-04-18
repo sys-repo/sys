@@ -8,7 +8,7 @@ export type * as t from './types.ts';
 
 export { Args } from './m.Args/mod.ts';
 export { Async } from './m.Async/mod.ts';
-export { D, Date, Duration, Time } from './m.DateTime/mod.ts';
+export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
@@ -22,7 +22,8 @@ export { maybeWait, Promise } from './m.Promise/mod.ts';
 export { slug } from './m.Random/mod.ts';
 export { Regex } from './m.Regex/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
+export { Signal } from './m.Signal/mod.ts';
 export { Url } from './m.Url/mod.ts';
-export { Array, asArray, isObject, isRecord, Num, Str, V, Value } from './m.Value/mod.ts';
+export { Array, asArray, isObject, isRecord, Num, Obj, Str, V, Value } from './m.Value/mod.ts';
 
 export { R } from './common.ts';

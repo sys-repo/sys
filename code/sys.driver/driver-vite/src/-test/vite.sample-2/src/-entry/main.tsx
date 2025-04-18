@@ -16,7 +16,7 @@ dynamic.then((mod) => console.info('💦 dynmaic import', mod));
 /**
  * Sample: render react component.
  */
-const root = createRoot(document.getElementById('root'));
+const root = createRoot(document.getElementById('root')!);
 root.render(
   <StrictMode>
     <View style={{ border: `solid 1px blue` }} />

@@ -1,27 +1,21 @@
 import { describe, expect, it } from '../-test.ts';
-import { Path } from './common.ts';
 import { Fs } from './mod.ts';
 
 describe('Fs: info/meta-data operations on the file-system', () => {
-  describe('Fs.Is (flags)', () => {
-    const Is = Fs.Is;
-
-    it('has mapped Path methods', () => {
-      // NB: mapped helpers (convenience).
-      expect(Is.absolute).to.equal(Fs.Path.Is.absolute);
-      expect(Is.glob).to.equal(Fs.Path.Is.glob);
+  describe('Fs.stat', () => {
+    it('file does not exist → <undefined>', async () => {
+      const path = Fs.resolve('./404.json');
+      const res = await Fs.stat(path);
+      expect(res).to.eql(undefined);
     });
 
-    it('Is.dir', async () => {
-      expect(await Is.dir(Path.resolve('.'))).to.eql(true);
-      expect(await Is.dir(Path.resolve('./deno.json'))).to.eql(false);
-      expect(await Is.dir(Path.resolve('./404.json'))).to.eql(false); // NB: target does not exist.
-    });
-
-    it('Is.file', async () => {
-      expect(await Is.file(Path.resolve('.'))).to.eql(false);
-      expect(await Is.file(Path.resolve('./deno.json'))).to.eql(true);
-      expect(await Is.file(Path.resolve('./404.json'))).to.eql(false); // NB: target does not exist.
+    it('file exists', async () => {
+      const path = './src/-test/-sample-1/foo.txt';
+      const a = await Fs.stat(Fs.resolve(path));
+      const b = await Fs.stat(path);
+      expect(a?.isFile).to.eql(true);
+      expect(a?.size).to.be.greaterThan(10);
+      expect(a).to.eql(b); // NB: auto-resolves path internally.
     });
   });
 

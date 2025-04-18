@@ -9,17 +9,21 @@ import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
 import { serve } from './u.serve.ts';
 
+type O = Record<string, unknown>;
+
 export const ViteEntry: t.ViteEntryLib = {
   dev,
   build,
   serve,
 
   async main(input) {
-    const args = wrangle.args(input ?? Deno.args);
+    const argsAsType = <T extends O>() => wrangle.args<T>((input ?? Deno.args) as string[]);
+    const args = argsAsType<t.ViteEntryArgs>();
     const cmd = args.cmd;
 
     if (cmd === 'init') {
       const { init } = await import('./u.init.ts');
+      console.log('args', args);
       await init(args);
       return;
     }
@@ -94,8 +98,7 @@ export const ViteEntry: t.ViteEntryLib = {
  * Helpers
  */
 const wrangle = {
-  args(argv: string[] | t.ViteEntryArgs) {
-    type T = t.ViteEntryArgs;
+  args<T extends O>(argv: string[] | T) {
     return Array.isArray(argv) ? Args.parse<T>(argv) : (argv as T);
   },
 } as const;

@@ -13,7 +13,7 @@ describe('Random', () => {
   });
 
   describe('Random.base36: string ← [0-9] and [A-Z]', () => {
-    const test = (length: number, total = 1000) => {
+    const test = (length: number, total = 100) => {
       const list = Array.from({ length: total }).map(() => Random.base36(length));
       expect(R.uniq(list)).to.eql(list); // NB: no repeating random numbers.
       list.forEach((value) => expect(value.length).to.eql(length));

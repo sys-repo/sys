@@ -1,7 +1,11 @@
 import { describe, expect, it } from '../-test.ts';
-import { Color } from './m.Color.ts';
+import { Color, Theme } from './mod.ts';
 
 describe('Color', () => {
+  it('API', () => {
+    expect(Color.Theme).to.equal(Theme);
+  });
+
   describe('Color.format', () => {
     const test = (value: string | number | boolean | undefined, output?: string) => {
       expect(Color.format(value)).to.eql(output);
@@ -65,11 +69,24 @@ describe('Color', () => {
   });
 
   describe('Color.theme', () => {
+    it('create from root API', () => {
+      const a = Color.Theme.create();
+      const b = Color.theme();
+      expect(a.name).to.eql(b.name);
+    });
+
+    it('toString', () => {
+      const a = Color.theme();
+      const b = Color.theme('Dark');
+      expect(a.toString()).to.eql('Light');
+      expect(b.toString()).to.eql('Dark');
+    });
+
     it('name: Light (default)', () => {
       const res1 = Color.theme();
       const res2 = Color.theme('Light');
       const res3 = Color.theme('Light', 'red', 'salmon');
-      expect(res1.name).to.eql('Light');
+      expect(res1.toString()).to.eql(res1.name);
       expect(res1.is.light).to.eql(true);
       expect(res1.is.dark).to.eql(false);
       expect(res1.fg).to.eql(Color.DARK);
@@ -135,6 +152,15 @@ describe('Color', () => {
       expect(dark.invert().name).to.eql('Light');
 
       expect(light.invert()).to.not.equal(light); // NB: monad.
+    });
+
+    it('Theme.invert (static method)', () => {
+      const a = Color.theme();
+      expect(a.toString()).to.eql('Light');
+
+      const b = Theme.invert(a.name);
+      expect(b).to.eql('Dark');
+      expect(Theme.invert()).to.eql('Dark');
     });
 
     it('invert: custom colors', () => {

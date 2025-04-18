@@ -1,4 +1,3 @@
-// @ts-types="@types/react"
 import React, { useState } from 'react';
 
 import { Keyboard } from '@sys/ui-dom';

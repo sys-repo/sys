@@ -1,4 +1,4 @@
-import { DEFAULTS, Id, Is, R, rx, type t } from './common.ts';
+import { type t, DEFAULTS, Id, Is, Obj, R, rx } from './common.ts';
 
 type Revision = { number: number; message: string };
 
@@ -40,7 +40,7 @@ export function BusMemoryState(args: {
        *   Make these options available as an injected plugin (IoC).
        */
       const before = api.revision;
-      const clone = R.clone(_current); // TEMP | SLOW (potentially too slow)  🐷
+      const clone = Obj.clone(_current); // TEMP | SLOW (potentially too slow)  🐷
 
       if (typeof change === 'function') {
         const res = change(clone);

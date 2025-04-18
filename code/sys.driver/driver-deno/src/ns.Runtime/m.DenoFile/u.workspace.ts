@@ -32,7 +32,7 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
     file,
     children,
     get modules() {
-      return _modules || (_modules = Esm.modules(toModuleSpecifiers(children.map((m) => m.file))));
+      return _modules || (_modules = Esm.modules(toSpecifiers(children.map((m) => m.denofile))));
     },
   };
   return api;
@@ -72,12 +72,22 @@ async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
   const promises = subpaths
     .map((subpath) => Path.join(root, subpath, 'deno.json'))
     .map((path) => load(path));
+
+  const toChild = (path: t.StringPath, denofile: t.DenoFileJson): t.DenoWorkspaceChild => {
+    const dir = Path.dirname(path);
+    return {
+      path: { dir, denofile: path },
+      pkg: { name: denofile.name ?? '<unnamed>', version: denofile.version ?? '0.0.0' },
+      denofile,
+    };
+  };
+
   return (await Promise.all(promises))
-    .map((m): t.DenoWorkspaceChild => ({ file: m.data!, path: trimPath(m.path) }))
-    .filter((m) => !!m.file);
+    .filter((m) => !!m.data)
+    .map((m) => toChild(trimPath(m.path), m.data!));
 }
 
-function toModuleSpecifiers(files: t.DenoFileJson[]) {
+function toSpecifiers(files: t.DenoFileJson[]): t.StringModuleSpecifier[] {
   return files
     .filter((file) => !!file.name)
     .map((file) => {

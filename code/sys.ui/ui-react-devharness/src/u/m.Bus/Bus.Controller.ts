@@ -1,7 +1,7 @@
 import { Context } from '../m.Ctx/mod.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { BusMemoryState } from './Bus.MemoryState.ts';
-import { DEFAULTS, Id, Is, R, Test, rx, type t } from './common.ts';
+import { type t, Obj, DEFAULTS, Id, Is, R, Test, rx } from './common.ts';
 
 /**
  * Start the controller and return an event API.
@@ -172,7 +172,7 @@ export function BusController(args: {
       }
 
       if (typeof e.mutate === 'object') {
-        draft.render.state = R.clone(e.mutate); // 🐷 TEMP | SLOW (potentially too slow). Not needed when using immutability plugin.
+        draft.render.state = Obj.clone(e.mutate); // 🐷 TEMP | SLOW (potentially too slow). Not needed when using immutability plugin.
       }
 
       draft.render.revision.state += 1;

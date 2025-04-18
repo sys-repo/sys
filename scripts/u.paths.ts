@@ -5,7 +5,7 @@ export const Paths = {
   workspace: denojson.workspace,
   modules: [
     /**
-     * @sys: standard libs.
+     * @sys: standard-libs:
      */
     'code/sys/types',
     'code/sys/std',
@@ -29,7 +29,7 @@ export const Paths = {
     'code/sys.tmp',
 
     /**
-     * UI
+     * UI:
      */
     'code/sys.ui/ui-css',
     'code/sys.ui/ui-dom',
@@ -38,7 +38,7 @@ export const Paths = {
     'code/sys.ui/ui-react-components',
 
     /**
-     * Drivers
+     * Drivers:
      */
     // 'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-deno',
@@ -53,9 +53,14 @@ export const Paths = {
     'code/sys.driver/driver-quilibrium',
 
     /**
-     * Barrels
+     * Barrels:
      */
     'code/sys/sys',
     'code/sys/main',
+
+    /**
+     * Instance Apps:
+     */
+    'deploy/@tdb.slc',
   ],
 } as const;

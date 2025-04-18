@@ -91,7 +91,7 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
   /**
    * API
    */
-  const api: L = {
+  const api: L = rx.toLifecycle<L>(life, {
     $,
     tx,
     issuer,
@@ -136,14 +136,7 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
       handlers.timeout.add(fn);
       return api;
     },
-
-    // Lifecycle.
-    dispose,
-    dispose$,
-    get disposed() {
-      return life.disposed;
-    },
-  };
+  });
 
   return api;
 }
