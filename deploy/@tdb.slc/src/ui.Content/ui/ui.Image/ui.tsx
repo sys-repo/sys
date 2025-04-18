@@ -92,7 +92,7 @@ export const ImageView: React.FC<P> = (props) => {
   const elError = error && (
     <div className={styles.error.base.class}>
       <div className={styles.error.body.class}>
-        <Icons.Error size={38} />
+        <Icons.Sad size={38} />
         <div>{'( failed to load image )'}</div>
       </div>
     </div>
