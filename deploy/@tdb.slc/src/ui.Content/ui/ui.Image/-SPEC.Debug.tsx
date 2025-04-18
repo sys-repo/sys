@@ -1,5 +1,5 @@
 import React from 'react';
-import { Images } from '../../ui.Overview/mod.ts';
+import { IMAGE } from '../../ui.Overview/common.ts';
 import { type t, Button, css, Signal } from './common.ts';
 
 type P = t.ImageViewProps;
@@ -69,9 +69,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const value = p.src.value;
           return `src: ${value ? `...${value.slice(-36)}` : '<undefined>'}`;
         }}
-        onClick={async () => {
-          const images = await Promise.all(Object.values(Images).map((loader) => loader()));
-          Signal.cycle<P['src']>(p.src, images);
+        onClick={() => {
+          Signal.cycle<P['src']>(p.src, Object.values(IMAGE));
         }}
       />
 
