@@ -29,7 +29,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
     scale: s<number | t.VideoPlayerScale>(defaults.scale ?? D.scale),
-    fadeDirection: s<undefined | t.VideoPlayerMaskFadeDirection>('Top:Down'),
+    fadeMask: s<undefined | t.VideoPlayerFadeMask>(defaults.fadeMask),
 
     // Commands:
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),

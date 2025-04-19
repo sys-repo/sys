@@ -57,7 +57,7 @@ export function createDebugSignals() {
       p.cornerRadius.value;
       p.aspectRatio.value;
       p.scale.value;
-      p.fadeDirection.value;
+      p.fadeMask.value;
 
       // Commands:
       p.jumpTo.value;
@@ -171,14 +171,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={`fadeDirection: ${p.fadeDirection.value ?? '<undefined>'}`}
+        label={() => {
+          const value = p.fadeMask.value;
+          return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
+        }}
         onClick={() => {
-          type T = t.VideoPlayerMaskFadeDirection | undefined;
-          Signal.cycle<T>(p.fadeDirection, [
-            'Top:Down',
-            'Bottom:Up',
-            'Left:Right',
-            'Right:Left',
+          type T = t.VideoPlayerFadeMask | undefined;
+          Signal.cycle<T>(p.fadeMask, [
+            { direction: 'Top:Down' },
+            { direction: 'Bottom:Up' },
+            { direction: 'Left:Right' },
+            { direction: 'Right:Left' },
             undefined,
           ]);
         }}

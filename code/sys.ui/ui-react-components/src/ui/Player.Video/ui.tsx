@@ -54,7 +54,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
     p.cornerRadius.value;
     p.aspectRatio.value;
     p.scale.value;
-    p.fadeDirection.value;
+    p.fadeMask.value;
   });
 
   /**
@@ -94,6 +94,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const isReady = Boolean(themeStyles.loaded && !!p?.ready.value && size.ready);
   const styles = {
     base: css({
+      position: 'relative',
       overflow: 'hidden',
       display: 'grid',
       visibility: isReady ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
@@ -152,9 +153,8 @@ export const VideoPlayer: React.FC<P> = (props) => {
     </MediaPlayer>
   );
 
-  const elTopMask = p?.fadeDirection.value && (
-    <FadeMask direction={p.fadeDirection.value} size={20} theme={theme.name} />
-  );
+  const mask = p?.fadeMask.value;
+  const elTopMask = mask && <FadeMask mask={mask} theme={theme.name} />;
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>

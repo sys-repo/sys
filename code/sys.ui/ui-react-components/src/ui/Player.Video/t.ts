@@ -4,7 +4,13 @@ import type { t } from './common.ts';
 
 export type * from './t.Signals.ts';
 
-export type VideoPlayerMaskFadeDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+export type VideoPlayerFadeMask = {
+  direction: VideoPlayerFadeMaskDirection;
+  size?: t.Pixels;
+  color?: string;
+  opacity?: t.Percent;
+};
 
 /** The address of a video (eg. "vimeo/499921561"). */
 export type StringVideoAddress = string;

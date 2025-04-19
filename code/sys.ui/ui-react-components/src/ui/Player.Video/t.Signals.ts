@@ -22,6 +22,7 @@ export type PlayerSignalsFactoryDefaults = {
   aspectRatio?: string;
   scale?: number | t.VideoPlayerScale;
   background?: boolean;
+  fadeMask?: t.VideoPlayerFadeMask;
 };
 
 /**
@@ -60,7 +61,7 @@ export type VideoPlayerSignalProps = {
   readonly aspectRatio: t.Signal<string>;
   readonly cornerRadius: t.Signal<number>;
   readonly scale: t.Signal<number | t.VideoPlayerScale>;
-  readonly fadeDirection: t.Signal<undefined | t.VideoPlayerMaskFadeDirection>;
+  readonly fadeMask: t.Signal<undefined | t.VideoPlayerFadeMask>;
 
   /**
    * Commands:

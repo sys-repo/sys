@@ -25,7 +25,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.aspectRatio.value).to.eql(D.aspectRatio);
       expect(p.background.value).to.eql(D.background);
       expect(p.scale.value).to.eql(D.scale);
-      expect(p.fadeDirection.value).to.eql(undefined);
+      expect(p.fadeMask.value).to.eql(undefined);
 
       expect(p.jumpTo.value).to.eql(undefined);
 
@@ -47,6 +47,7 @@ describe('VideoPlayer: Signals API', () => {
         muted: true,
         background: true,
         scale,
+        fadeMask: { direction: 'Top:Down', size: 123 },
       });
 
       const p = s.props;
@@ -62,6 +63,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.cornerRadius.value).to.eql(0);
       expect(p.background.value).to.eql(true);
       expect(p.scale.value).to.equal(scale);
+      expect(p.fadeMask.value).to.eql({ direction: 'Top:Down', size: 123 });
     });
 
     it('param: src param (string)', () => {

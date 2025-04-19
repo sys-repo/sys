@@ -2,8 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 
 export type FadeMaskProps = {
-  direction: t.VideoPlayerMaskFadeDirection;
-  size?: t.Pixels;
+  mask: t.VideoPlayerFadeMask;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -33,8 +32,8 @@ export const FadeMask: React.FC<P> = (props) => {
  */
 const wrangle = {
   mask(props: P) {
-    const { direction, size = 30 } = props;
-    const theme = Color.theme(props.theme);
+    const { mask } = props;
+    const { direction, size = 30 } = mask;
     const is = {
       vertical: direction === 'Top:Down' || direction === 'Bottom:Up',
       horizontal: direction === 'Left:Right' || direction === 'Right:Left',
@@ -46,17 +45,21 @@ const wrangle = {
     if (direction === 'Left:Right') Absolute = [0, null, 0, 0];
     if (direction === 'Right:Left') Absolute = [0, 0, 0, null];
 
+    const theme = Color.theme(props.theme);
+    const color = mask.color ?? theme.bg;
     const style = {
       Absolute,
       width: is.horizontal ? size : undefined,
       height: is.vertical ? size : undefined,
-      backgroundImage: wrangle.cssFade(direction, theme.bg),
+      backgroundImage: wrangle.cssFade(direction, color),
+      opacity: mask.opacity,
+      transition: `opacity 200ms`,
     };
 
     return { is, style } as const;
   },
 
-  cssFade(direction: t.VideoPlayerMaskFadeDirection, color: string) {
+  cssFade(direction: t.VideoPlayerFadeMaskDirection, color: string) {
     const deg = {
       'Top:Down': 'to bottom',
       'Bottom:Up': 'to top',
