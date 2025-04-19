@@ -13,8 +13,8 @@ export function factory() {
   const src = VIDEO.Trailer.src;
 
   const content: t.VideoContent = {
-    '-type': 'VideoContent',
     id: 'Trailer',
+    kind: 'VideoContent',
 
     playOnLoad: true,
     video: Player.Video.signals({

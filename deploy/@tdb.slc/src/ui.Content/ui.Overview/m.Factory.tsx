@@ -13,15 +13,16 @@ export function factory() {
   const src = VIDEO.Overview.src;
 
   const content: t.VideoContent = {
-    '-type': 'VideoContent',
-
     id: 'Overview',
+    kind: 'VideoContent',
+
     playOnLoad: true,
     video: Player.Video.signals({
       src,
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
       fadeMask: { direction: 'Top:Down', size: 30 },
     }),
+
     render: (props) => <Overview {...props} theme={theme} />,
     timestamps,
   };

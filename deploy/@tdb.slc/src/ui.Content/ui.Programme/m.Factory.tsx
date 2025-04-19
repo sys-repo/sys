@@ -7,8 +7,8 @@ import { type t, Color, css, Sheet, App, Button, DEFAULTS } from '../common.ts';
 export function factory() {
   const sheetTheme = DEFAULTS.theme.sheet;
   const content: t.StaticContent = {
-    '-type': 'StaticContent',
     id: 'Programme',
+    kind: 'StaticContent',
 
     render(props) {
       const styles = {
