@@ -58,8 +58,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
@@ -80,7 +84,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {screenBreakpointButton(app)}
 
       <hr />
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={styles.title.class}>
         <div>{`Stack:`}</div>
         <div />
         <div>{`${app.stack.length} ${Str.plural(app.stack.length, 'Layer', 'Layers')}`}</div>
