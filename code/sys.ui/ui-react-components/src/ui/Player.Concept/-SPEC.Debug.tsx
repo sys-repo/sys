@@ -30,7 +30,12 @@ export const Debug: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (

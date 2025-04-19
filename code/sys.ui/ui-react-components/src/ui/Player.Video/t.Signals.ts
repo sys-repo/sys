@@ -11,15 +11,18 @@ export type PlayerSignalsFactory = (
 export type PlayerSignalsFactoryDefaults = {
   src?: t.StringVideoAddress;
   loop?: boolean;
+  autoPlay?: boolean;
+  muted?: boolean;
+
+  // Apperance:
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
   cornerRadius?: number;
   aspectRatio?: string;
   scale?: number | t.VideoPlayerScale;
-  autoPlay?: boolean;
-  muted?: boolean;
   background?: boolean;
+  fadeMask?: t.VideoPlayerFadeMask;
 };
 
 /**
@@ -58,6 +61,7 @@ export type VideoPlayerSignalProps = {
   readonly aspectRatio: t.Signal<string>;
   readonly cornerRadius: t.Signal<number>;
   readonly scale: t.Signal<number | t.VideoPlayerScale>;
+  readonly fadeMask: t.Signal<undefined | t.VideoPlayerFadeMask>;
 
   /**
    * Commands:

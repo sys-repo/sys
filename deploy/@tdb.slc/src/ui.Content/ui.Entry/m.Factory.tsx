@@ -4,8 +4,8 @@ import { Entry } from './ui.tsx';
 
 export function factory() {
   const content: t.StaticContent = {
-    '-type': 'StaticContent',
     id: 'Entry',
+    kind: 'StaticContent',
     render: (props) => <Entry {...props} theme={DEFAULTS.theme.base} />,
   };
   return content;
