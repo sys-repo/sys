@@ -3,6 +3,8 @@ import { Player } from '../../mod.ts';
 import { Button } from '../Button/mod.ts';
 import { type t, css, D, Signal } from './common.ts';
 
+type P = t.VideoPlayerProps;
+
 /**
  * Types:
  */
@@ -25,11 +27,18 @@ export function createDebugSignals() {
     // showControls: false,
   });
 
-  const props = {};
+  const props = {
+    theme: s<P['theme']>('Light'),
+  };
   const api = {
     props,
     video,
     listen() {
+      props.theme.value;
+
+      /**
+       * Video Player:
+       */
       const p = video.props;
       p.ready.value;
 
@@ -48,6 +57,7 @@ export function createDebugSignals() {
       p.cornerRadius.value;
       p.aspectRatio.value;
       p.scale.value;
+      p.fadeDirection.value;
 
       // Commands:
       p.jumpTo.value;
@@ -62,6 +72,7 @@ export function createDebugSignals() {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const video = debug.video;
+  const d = debug.props;
   const p = video.props;
 
   Signal.useRedrawEffect(() => debug.listen());
@@ -71,17 +82,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={styles.title.class}>
         <div>{'Player.Video'}</div>
         <div />
         <CurrentTime video={video} />
       </div>
+
+      <Button
+        block
+        label={() => `theme: ${d.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
 
       <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
       <Button
@@ -99,7 +122,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`background: ${p.background} ← ${p.background.value ? 'fill' : 'fixed-size'}`}
         onClick={() => Signal.toggle(p.background)}
       />
+
       <hr />
+      <div className={styles.title.class}>{'Appearance:'}</div>
+
       <Button
         block
         label={`showControls: ${p.showControls}`}
@@ -139,11 +165,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
             console.info(`   increment (${pixels}px):`, res);
             return res;
           };
-          Signal.cycle(p.scale, [undefined, 1, fn, 2]);
+          Signal.cycle(p.scale, [undefined, 1, fn, 1.5]);
+        }}
+      />
+
+      <Button
+        block
+        label={`fadeDirection: ${p.fadeDirection.value ?? '<undefined>'}`}
+        onClick={() => {
+          type T = t.VideoPlayerMaskFadeDirection | undefined;
+          Signal.cycle<T>(p.fadeDirection, [
+            'Top:Down',
+            'Bottom:Up',
+            'Left:Right',
+            'Right:Left',
+            undefined,
+          ]);
         }}
       />
 
       <hr />
+      <div className={styles.title.class}>{'Video:'}</div>
 
       <Button
         block

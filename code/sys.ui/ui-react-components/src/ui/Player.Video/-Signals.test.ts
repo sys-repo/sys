@@ -25,6 +25,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.aspectRatio.value).to.eql(D.aspectRatio);
       expect(p.background.value).to.eql(D.background);
       expect(p.scale.value).to.eql(D.scale);
+      expect(p.fadeDirection.value).to.eql(undefined);
 
       expect(p.jumpTo.value).to.eql(undefined);
 

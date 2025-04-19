@@ -4,6 +4,8 @@ import type { t } from './common.ts';
 
 export type * from './t.Signals.ts';
 
+export type VideoPlayerMaskFadeDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+
 /** The address of a video (eg. "vimeo/499921561"). */
 export type StringVideoAddress = string;
 
@@ -19,14 +21,17 @@ export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
 export type VideoPlayerProps = {
   debug?: boolean;
   title?: string;
+
+  // State:
+  signals?: t.VideoPlayerSignals;
+
+  // Appearance:
   style?: t.CssInput;
+  theme?: t.CommonTheme;
 
   // Events:
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
   onEnded?: MediaPlayerProps['onEnded'];
-
-  // State:
-  signals?: t.VideoPlayerSignals;
 };

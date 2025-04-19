@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Signal, Spec, expect } from '../-test.ui.ts';
+import { Dev, Signal, Spec, expect } from '../-test.ui.ts';
 import { Player } from '../../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { VideoPlayer } from './mod.ts';
@@ -22,6 +22,7 @@ export default Spec.describe('VideoPlayer', (e) => {
       else ctx.subject.size([520, null]);
     };
 
+    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       updateSize();
       debug.listen();
@@ -29,7 +30,7 @@ export default Spec.describe('VideoPlayer', (e) => {
     updateSize();
 
     ctx.subject.display('grid').render((e) => {
-      return <VideoPlayer signals={video} />;
+      return <VideoPlayer signals={video} theme={debug.props.theme.value} />;
     });
   });
 

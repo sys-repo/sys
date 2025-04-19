@@ -3,16 +3,18 @@ import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { type t, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
+import { FadeMask } from './ui.FadeMask.tsx';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
 const D = DEFAULTS;
+type P = t.VideoPlayerProps;
 
 /**
  * Component:
  */
-export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
+export const VideoPlayer: React.FC<P> = (props) => {
   const { signals } = props;
   const p = signals?.props;
 
@@ -52,6 +54,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p.cornerRadius.value;
     p.aspectRatio.value;
     p.scale.value;
+    p.fadeDirection.value;
   });
 
   /**
@@ -86,6 +89,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme(props.theme);
   const themeStyles = useThemeStyles('Plyr');
   const isReady = Boolean(themeStyles.loaded && !!p?.ready.value && size.ready);
   const styles = {
@@ -148,9 +152,14 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     </MediaPlayer>
   );
 
+  const elTopMask = p?.fadeDirection.value && (
+    <FadeMask direction={p.fadeDirection.value} size={20} theme={theme.name} />
+  );
+
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elPlayer}
+      {elTopMask}
     </div>
   );
 };
