@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Icons, LogoCanvas, LogoWordmark } from './common.ts';
+import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from './common.ts';
 import { Buttons } from './ui.Buttons.tsx';
-import { Install } from './ui.Install.tsx';
 
 export type EntryProps = t.ContentProps & {};
 
@@ -13,8 +12,6 @@ const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
  */
 export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
-  const breakpoint = state.breakpoint;
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
   /**
    * Render:
@@ -34,7 +31,6 @@ export const Entry: React.FC<EntryProps> = (props) => {
       placeItems: 'center',
     }),
     body: css({ display: 'grid', placeItems: 'center' }),
-    footer: css({ display: breakpoint.name === 'Mobile' ? 'grid' : 'none' }),
     brand: {
       base: css({ display: 'grid', placeItems: 'center', rowGap: '35px' }),
       canvas: css({ MarginX: 70 }),
@@ -56,10 +52,12 @@ export const Entry: React.FC<EntryProps> = (props) => {
             selectionAnimation={{ delay, loop: true }}
           />
           <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
-          <Buttons theme={theme.name} state={state} style={{ marginTop: 100 }} />
+          <Buttons theme={theme.name} state={state} style={{ marginTop: 150 }} />
+          <div>
+            <Button label={'Start Programme'} theme={theme.name} />
+          </div>
         </div>
       </div>
-      <div className={styles.footer.class}>{!isStandalone && <Install theme={theme.name} />}</div>
     </div>
   );
 };
