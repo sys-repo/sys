@@ -1,18 +1,18 @@
 import React from 'react';
+import { type t, Color, css, Button } from './common.ts';
+
 import { Factory } from '../m.Factory/mod.ts';
-import { type t, Color, css } from './common.ts';
 import { RoundedButton } from './ui.Button.Rounded.tsx';
 
-export type ButtonsProps = {
+/**
+ * Component: Intro - "Trailer" | "Overview" (Buttons)
+ */
+export type IntroButtonsProps = {
   state: t.AppSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
-
-/**
- * Component:
- */
-export const Buttons: React.FC<ButtonsProps> = (props) => {
+export const IntroButtons: React.FC<IntroButtonsProps> = (props) => {
   const { state } = props;
 
   /**
@@ -45,4 +45,27 @@ export const Buttons: React.FC<ButtonsProps> = (props) => {
       <RoundedButton theme={theme.name} label={'Overview'} onClick={showOverview} />
     </div>
   );
+};
+
+/**
+ * Component: Start Programme (Button).
+ */
+export type StartProgrammeButtonProps = {
+  state: t.AppSignals;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+export const StartProgrammeButton: React.FC<StartProgrammeButtonProps> = (props) => {
+  const { state } = props;
+
+  /**
+   * Handlers:
+   */
+  const stack = state.stack;
+  const enterProgramme = async () => stack.push(await Factory.programme());
+
+  /**
+   * Render:
+   */
+  return <Button label={'Start Programme'} theme={props.theme} onClick={enterProgramme} />;
 };

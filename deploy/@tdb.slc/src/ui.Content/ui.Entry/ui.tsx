@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark, Signal } from './common.ts';
-import { Buttons } from './ui.Buttons.tsx';
+import { type t, Color, css, Icons, LogoCanvas, LogoWordmark, Signal } from './common.ts';
+import { IntroButtons, StartProgrammeButton } from './ui.Buttons.tsx';
 
 export type EntryProps = t.StaticContentProps & {};
 
@@ -61,9 +61,9 @@ export const Entry: React.FC<EntryProps> = (props) => {
             selectionAnimation={{ delay, loop: true }}
           />
           <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
-          <Buttons theme={theme.name} state={state} style={{ marginTop: 150 }} />
+          <IntroButtons theme={theme.name} state={state} style={{ marginTop: 150 }} />
           <div>
-            <Button label={'Start Programme'} theme={theme.name} />
+            <StartProgrammeButton state={state} theme={theme.name} />
           </div>
         </div>
       </div>
