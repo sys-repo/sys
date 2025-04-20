@@ -28,8 +28,6 @@ export const Entry: React.FC<EntryProps> = (props) => {
     base: css({
       color: theme.fg,
       pointerEvents: 'auto',
-      opacity: props.is.top ? 1 : 0,
-      transition: 'opacity 200ms',
       display: 'grid',
       gridTemplateRows: '44px 1fr auto',
     }),
@@ -39,7 +37,12 @@ export const Entry: React.FC<EntryProps> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
-    body: css({ display: 'grid', placeItems: 'center' }),
+    body: css({
+      display: 'grid',
+      placeItems: 'center',
+      opacity: props.is.top ? 1 : 0,
+      transition: 'opacity 200ms',
+    }),
     brand: {
       base: css({ display: 'grid', placeItems: 'center', rowGap: '35px' }),
       canvas: css({ MarginX: 70 }),
@@ -47,26 +50,34 @@ export const Entry: React.FC<EntryProps> = (props) => {
     },
   };
 
-  return (
-    <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
-      <div className={styles.header.class}>
-        <Icons.Add.Plus opacity={0.2} />
-      </div>
-      <div className={styles.body.class}>
-        <div className={styles.brand.base.class}>
-          <LogoCanvas
-            theme={theme.name}
-            style={styles.brand.canvas}
-            selected={'purpose'}
-            selectionAnimation={{ delay, loop: true }}
-          />
-          <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
-          <IntroButtons theme={theme.name} state={state} style={{ marginTop: 150 }} />
-          <div>
-            <StartProgrammeButton state={state} theme={theme.name} />
-          </div>
+  const elHeader = (
+    <div className={styles.header.class}>
+      <Icons.Add.Plus opacity={0.2} />
+    </div>
+  );
+
+  const elBody = (
+    <div className={styles.body.class}>
+      <div className={styles.brand.base.class}>
+        <LogoCanvas
+          theme={theme.name}
+          style={styles.brand.canvas}
+          selected={'purpose'}
+          selectionAnimation={{ delay, loop: true }}
+        />
+        <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
+        <IntroButtons theme={theme.name} state={state} style={{ marginTop: 150 }} />
+        <div>
+          <StartProgrammeButton state={state} theme={theme.name} />
         </div>
       </div>
+    </div>
+  );
+
+  return (
+    <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
+      {elHeader}
+      {elBody}
     </div>
   );
 };
