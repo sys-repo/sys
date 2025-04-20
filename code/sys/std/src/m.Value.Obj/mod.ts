@@ -1,6 +1,7 @@
 import type { t } from '../common.ts';
 
 import { clone } from './m.Obj.clone.ts';
+import { extend } from './m.Obj.extend.ts';
 import { build, pluck, prune, remove } from './m.Obj.path.ts';
 import { pick, sortKeys, toArray, trimStringsDeep, walk } from './m.Obj.ts';
 
@@ -17,4 +18,5 @@ export const Obj: t.ObjLib = {
   prune,
   sortKeys,
   clone,
+  extend,
 };

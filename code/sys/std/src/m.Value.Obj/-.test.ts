@@ -674,6 +674,8 @@ describe('Value.Obj', () => {
 
       const res = Obj.clone(obj);
       expect(res.count).to.eql(456); // NB: cloned value
+      expect(res).to.not.equal(obj);
+      expect(res.child).to.not.equal(obj.child);
 
       // Ensure setter and getter are preseved.
       _value = 888;
@@ -685,6 +687,54 @@ describe('Value.Obj', () => {
       expect(res.child.count).to.eql(0);
       _value = 123;
       expect(res.child.count).to.eql(123);
+    });
+  });
+
+  describe('Obj.extend', () => {
+    it('deeply clones and preseves dynamic properties', () => {
+      let _value = 0;
+      let _msg = 'hello';
+      const obj = {
+        get count() {
+          return _value;
+        },
+        set count(v) {
+          _value = v;
+        },
+        get msg() {
+          return _msg;
+        },
+        child: { count: 0 },
+      };
+      obj.child = obj;
+
+      const res = Obj.extend(obj, { foo: 'hello' });
+      expect(res).to.not.equal(obj);
+      expect(res.child).to.not.equal(obj.child);
+      expect(res.child).to.equal(res);
+
+      _value = 123;
+      _msg = '👋';
+      expect(res.foo).to.eql('hello');
+      expect(res.count).to.eql(123);
+      expect(res.child.count).to.eql(123);
+      expect(res.msg).to.eql('👋');
+
+      res.count = 42;
+      expect(_value).to.eql(42);
+
+      // NB: new extended properties not sneaking back onto source object.
+      expect((obj as any).foo).to.be.undefined;
+
+      const foo = Object.getOwnPropertyDescriptor(res, 'foo')!;
+      expect(foo.enumerable).to.be.true;
+      expect(foo.configurable).to.be.true;
+      expect(foo.writable).to.be.true;
+
+      const msg = Object.getOwnPropertyDescriptor(res, 'msg')!;
+      expect(msg.enumerable).to.be.true;
+      expect(msg.configurable).to.be.true;
+      expect(msg.writable).to.be.undefined;
     });
   });
 });

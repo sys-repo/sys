@@ -4,6 +4,9 @@ type O = Record<string, unknown>;
 type PathArray = (string | number)[];
 type KeyMap = { [key: string]: any };
 
+/** An object extended with additional properties. */
+export type ObjExtend<T extends object, U extends object> = T & U;
+
 /**
  * Tools for working with objects.
  */
@@ -68,9 +71,14 @@ export type ObjLib = {
 
   /**
    * Deeply clone the given object (circular-reference safe)
-   * with support for Date and RegExp.
+   * with support for Date, RegExp, and dynamic getter/setter presevation.
    */
   clone<T>(obj: T): T;
+
+  /**
+   * Deeply clones and extends the given object with a set of extra properties.
+   */
+  extend<T extends object, U extends object>(src: T, extra: U): ObjExtend<T, U>;
 };
 
 /** A callback passed to the object walker function. */
