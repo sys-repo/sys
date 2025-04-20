@@ -4,6 +4,7 @@ import { Layout as Base } from '../App.Layout/mod.ts';
 import { LayoutDesktop } from './ui.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Intermediate.tsx';
 import { LayoutMobile } from './ui.Mobile.tsx';
+import { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
 
 /**
  * Main Layout API (with UI components).
@@ -24,5 +25,12 @@ export const Layout = {
     if (is.desktop) return <LayoutDesktop state={state} theme={theme} />;
 
     return <div>{`Unsupported supported breakpoint: "${breakpoint.name}"`}</div>;
+  },
+
+  View: {
+    Mobile: LayoutMobile,
+    Intermediate: LayoutIntermediate,
+    Desktop: LayoutDesktop,
+    HGrid: LayoutHGrid,
   },
 } as const;

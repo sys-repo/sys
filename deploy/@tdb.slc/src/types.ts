@@ -18,6 +18,7 @@ export type * from './ui/App/t.ts';
 export type * from './ui/ui.ConceptPlayer/t.ts';
 export type * from './ui/ui.Image/t.ts';
 export type * from './ui/ui.Layout/t.ts';
+export type * from './ui/ui.Layout.HGrid/t.ts';
 export type * from './ui/ui.Logo.Canvas/t.ts';
 export type * from './ui/ui.Logo.Wordmark/t.ts';
 export type * from './ui/ui.Sheet/t.ts';

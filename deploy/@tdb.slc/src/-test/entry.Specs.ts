@@ -9,8 +9,9 @@ export const Specs = {
   'tdb.slc.entry.Landing-2': () => import('../ui/ui.Landing-2/-SPEC.tsx'),
   'tdb.slc.entry.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
 
-  'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
   'tdb.slc.ui.ConceptPlayer': () => import('../ui/ui.ConceptPlayer/-SPEC.tsx'),
+  'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
+  'tdb.slc.ui.Layout.HGrid': () => import('../ui/ui.Layout.HGrid/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
   'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),

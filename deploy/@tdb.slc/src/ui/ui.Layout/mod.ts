@@ -1,6 +1,8 @@
 /**
  * @module
  */
+export { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
+
 export { Layout } from './m.Layout.tsx';
 
 export { LayoutDesktop } from './ui.Desktop.tsx';
