@@ -5,8 +5,6 @@ import { type t, Color, css, SheetBase } from './common.ts';
  * Component:
  */
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { state, is, index, orientation } = props;
-
   /**
    * Render:
    */
