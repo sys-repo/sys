@@ -2,6 +2,9 @@ import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 export type * from './t.transform.ts';
 
+export type CssNumberOrStringInput = number | string | null | undefined;
+type N = CssNumberOrStringInput;
+
 /**
  * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
  * For example:
@@ -53,6 +56,9 @@ export type StyleLib = NamespaceLibs & {
 
   /** Convert a {style} props object to a CSS string. */
   toString(style?: t.CssValue): string;
+
+  /** Determine if the CSS value input amounts to 0. */
+  isZero(value?: N): boolean;
 };
 
 type NamespaceLibs = {

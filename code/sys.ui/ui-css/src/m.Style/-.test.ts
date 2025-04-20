@@ -61,4 +61,20 @@ describe('Style', () => {
       TestPrint.transformed(m);
     });
   });
+
+  describe('Style.is', () => {
+    it('Style.isZero', () => {
+      // False:
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(Style.isZero(value)).to.eql(false));
+
+      // True:
+      expect(Style.isZero(0)).to.eql(true);
+      expect(Style.isZero('0')).to.eql(true);
+      expect(Style.isZero('0px')).to.eql(true);
+      expect(Style.isZero('0em')).to.eql(true);
+      expect(Style.isZero('0rem')).to.eql(true);
+      expect(Style.isZero('0%')).to.eql(true);
+    });
+  });
 });
