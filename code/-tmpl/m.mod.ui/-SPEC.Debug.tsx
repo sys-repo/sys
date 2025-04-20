@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { type t, Button, css, Signal } from './common.ts';
 
 type P = t.MyComponentProps;
 
@@ -17,16 +17,25 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Light'),
   };
+  const p = props;
   const api = {
     props,
     listen() {
-      const p = props;
       p.theme.value;
     },
   };
   init?.(api);
   return api;
 }
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr auto',
+  }),
+};
 
 /**
  * Component:
@@ -42,17 +51,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({
-      fontWeight: 'bold',
-      marginBottom: 10,
-      display: 'grid',
-      gridTemplateColumns: 'auto 1fr auto',
-    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>
+      <div className={Styles.title.class}>
         <div>{'Title'}</div>
         <div />
         <div></div>
