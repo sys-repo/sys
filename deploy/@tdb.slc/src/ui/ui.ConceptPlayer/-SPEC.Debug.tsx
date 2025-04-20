@@ -14,7 +14,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-
   const children = <div style={{ padding: 10 }}>{'👋 Hello Column'}</div>;
 
   const props = {
@@ -26,12 +25,11 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const api = {
     props,
     listen() {
-      p.theme.value;
       p.debug.value;
+      p.theme.value;
       p.column.value;
     },
   };
-
   init?.(api);
   return api;
 }
@@ -101,7 +99,7 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
 
   const btn = (
     label: string,
-    fn: (e: { column: t.ConceptPlayerColumn; clear(): void }) => t.IgnoredResult,
+    fn: (e: { column: t.HGridColumnProps; clear(): void }) => t.IgnoredResult,
   ) => {
     return (
       <Button
@@ -109,7 +107,7 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
         label={label}
         onClick={() => {
           const signal = p.column;
-          const column = { ...(signal.value ?? {}) };
+          const column: t.HGridColumnProps = { ...(signal.value ?? {}) };
           let clear = false;
           fn({ column, clear: () => (clear = true) });
           signal.value = clear ? undefined : column;
@@ -118,7 +116,7 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
     );
   };
 
-  const align = (align: t.ConceptPlayerColumn['align']) => {
+  const align = (align: t.HGridColumn['align']) => {
     return btn(`align: ${align}`, (e) => (e.column.align = align));
   };
 

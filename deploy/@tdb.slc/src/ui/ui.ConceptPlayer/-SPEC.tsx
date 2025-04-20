@@ -12,8 +12,8 @@ export default Spec.describe('ConceptPlayer', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
-      debug.listen();
       ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.5));
+      debug.listen();
       ctx.redraw();
     });
 

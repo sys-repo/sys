@@ -1,5 +1,6 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Color, LayoutGroup } from './common.ts';
 import { LayoutHGrid } from './mod.ts';
 
 export default Spec.describe('LayoutHGrid', (e) => {
@@ -11,14 +12,19 @@ export default Spec.describe('LayoutHGrid', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
+      ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.5));
       debug.listen();
       ctx.redraw();
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
-      .render((e) => <LayoutHGrid theme={p.theme.value} />);
+      .render((e) => (
+        <LayoutGroup>
+          <LayoutHGrid theme={p.theme.value} debug={p.debug.value} column={p.column.value} />
+        </LayoutGroup>
+      ));
   });
 
   e.it('ui:debug', (e) => {
