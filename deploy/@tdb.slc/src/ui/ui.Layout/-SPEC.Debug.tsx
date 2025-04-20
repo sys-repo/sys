@@ -6,7 +6,7 @@ import {
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, Button, css, Signal, Str, ObjectView } from './common.ts';
+import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
 
 /**
  * Types:
@@ -34,9 +34,10 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   // app.props.screen.breakpoint.value = 'Mobile';
   app.props.screen.breakpoint.value = 'Desktop';
 
-  app.stack.push(Sample.sample0());
+  // app.stack.push(Sample.sample0());
   app.stack.push(await Content.factory('Entry'));
   // app.stack.push(await Content.factory('Overview'));
+  app.stack.push(await Content.factory('Programme'));
 
   init?.(api);
   return api;

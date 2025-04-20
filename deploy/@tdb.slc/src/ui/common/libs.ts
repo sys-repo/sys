@@ -7,13 +7,7 @@ export { Motion as M, Motion };
  */
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
-export {
-  ReactString,
-  useClickOutside,
-  useDist,
-  useIsTouchSupported,
-  useSizeObserver,
-} from '@sys/ui-react';
+export { ReactString, useClickOutside, useIsTouchSupported, useSizeObserver } from '@sys/ui-react';
 export {
   Button,
   Cropmarks,
