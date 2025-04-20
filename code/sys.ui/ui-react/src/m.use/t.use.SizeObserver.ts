@@ -22,7 +22,7 @@ export type SizeObserverHook<T extends HTMLElement> = {
   readonly rect?: DOMRectReadOnly;
 
   /** The `rect.width` value. */
-  readonly width?: t.Pixels;
+  readonly width: t.Pixels;
 
   /** The `rect.height` value. */
   readonly height: t.Pixels;

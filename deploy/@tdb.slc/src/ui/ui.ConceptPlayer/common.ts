@@ -1,4 +1,5 @@
 export * from '../common.ts';
+export { TooSmall } from '../ui.TooSmall/mod.ts';
 
 /**
  * Constants:
