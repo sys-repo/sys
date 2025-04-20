@@ -1,8 +1,8 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark } from './common.ts';
+import { type t, Button, Color, css, Icons, LogoCanvas, LogoWordmark, Signal } from './common.ts';
 import { Buttons } from './ui.Buttons.tsx';
 
-export type EntryProps = t.ContentProps & {};
+export type EntryProps = t.StaticContentProps & {};
 
 const heartRateBPM = 72;
 const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
@@ -14,6 +14,13 @@ export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
 
   /**
+   * Effects:
+   */
+  Signal.useRedrawEffect(() => {
+    state.stack.length;
+  });
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
@@ -21,6 +28,8 @@ export const Entry: React.FC<EntryProps> = (props) => {
     base: css({
       color: theme.fg,
       pointerEvents: 'auto',
+      opacity: props.is.top ? 1 : 0,
+      transition: 'opacity 200ms',
       display: 'grid',
       gridTemplateRows: '44px 1fr auto',
     }),
