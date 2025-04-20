@@ -78,7 +78,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <DebugColumn debug={debug} />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={3} />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
     </div>
   );
 };
@@ -130,10 +130,6 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
       {align('Left')}
       {align('Center')}
       {align('Right')}
-
-      <hr />
-      {btn('marginTop: 0', (e) => (e.column.marginTop = 0))}
-      {btn('marginTop: 46', (e) => (e.column.marginTop = 46))}
     </div>
   );
 };

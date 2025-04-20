@@ -10,8 +10,6 @@ export { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
 const column: t.HGridColumn = {
   align: 'Center',
   width: 390,
-  marginTop: 0,
-  gap: 0,
 };
 
 export const DEFAULTS = { column } as const;
