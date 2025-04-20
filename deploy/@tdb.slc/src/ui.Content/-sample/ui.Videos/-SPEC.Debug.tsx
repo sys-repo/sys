@@ -27,6 +27,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     listen() {
       const p = props;
       p.theme.value;
+      p.video.props.src.value;
+      p.video.props.playing.value;
     },
   };
   init?.(api);
@@ -40,10 +42,7 @@ export const Debug: React.FC<P> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.video.props.src.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
@@ -59,7 +58,7 @@ export const Debug: React.FC<P> = (props) => {
     }),
   };
 
-  const selectVideo = (label: string, src: string) => {
+  const video = (label: string, src: string) => {
     const s = p.video.props;
     const isCurrent = s.src.value === src;
     const styles = {
@@ -80,17 +79,26 @@ export const Debug: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         block
-        label={`theme: "${p.theme}"`}
+        label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={`playing: ${p.video.props.playing.value ?? '<undefined>'}`}
+        onClick={() => Signal.toggle(p.video.props.playing)}
       />
 
       <hr />
       <div className={styles.title.class}>Videos</div>
-      {selectVideo('Trailer', VIDEO.Trailer.src)}
-      {selectVideo('Overview', VIDEO.Overview.src)}
+      {video('Trailer', VIDEO.Trailer.src)}
+      {video('Overview', VIDEO.Overview.src)}
       <hr />
-      {selectVideo('ref: "Group Scale"', VIDEO.GroupScale.src)}
-      {selectVideo('sample: Hindi Translation', 'vimeo/1074559094')}
+      {video('Programme: Intro', 'vimeo/851209192')}
+
+      <hr />
+      {video('ref: "Group Scale"', VIDEO.GroupScale.src)}
+      {video('sample: Hindi Translation', 'vimeo/1074559094')}
     </div>
   );
 };
