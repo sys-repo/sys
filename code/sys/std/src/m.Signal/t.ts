@@ -5,6 +5,20 @@ import type { ReadonlySignal, Signal } from '@preact/signals-core';
 export { ReadonlySignal, Signal };
 
 /**
+ * Converts any `Signal<X>` (at any depth) to its plain value `X`,
+ * while leaving functions/primitives unchanged.
+ */
+export type SignalValue<T> = T extends t.Signal<infer U>
+  ? U
+  : T extends (...args: any[]) => any
+  ? T
+  : T extends readonly [unknown, ...unknown[]]
+  ? { [K in keyof T]: SignalValue<T[K]> }
+  : T extends object
+  ? { [K in keyof T]: SignalValue<T[K]> }
+  : T;
+
+/**
  * Utility type to extract the type of a signal value.
  * @example
  * ```ts
@@ -41,6 +55,16 @@ export type SignalLib = {
 
   /** Create a new listeners collection. */
   listeners(dispose$?: t.UntilInput): t.SignalListeners;
+
+  /**
+   * Recursively converts an object/array of `Signal`s into
+   * a plain JSON‑safe structure by replacing every `signal` with
+   * its current `.value`.
+   *
+   * @param input  Any value: primitives, arrays, objects, Signals, or a mix.
+   * @returns      The same structure with every `Signal<X>` replaced by `X`.
+   */
+  toObject<T>(input: T): SignalValue<T>;
 
   //
 } & t.SignalValueHelpersLib;

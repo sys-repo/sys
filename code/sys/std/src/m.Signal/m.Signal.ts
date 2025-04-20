@@ -5,6 +5,7 @@ import { Is } from './m.Is.ts';
 import { cycle } from './u.cycle.ts';
 import { listeners } from './u.listeners.ts';
 import { toggle } from './u.toggle.ts';
+import { toObject } from './u.toObject.ts';
 
 export { signal };
 
@@ -32,4 +33,5 @@ export const Signal: t.SignalLib = {
   listeners,
   toggle,
   cycle,
+  toObject,
 } as const;
