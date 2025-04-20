@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, ObjectView, Signal } from './common.ts';
+import { type t, Button, Color, css, ObjectView, Signal } from './common.ts';
 
 type P = t.LayoutHGridProps;
 
@@ -14,12 +14,28 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const children = <div style={{ padding: 10 }}>{'👋 Hello Column'}</div>;
+
+  const styles = {
+    column: css({ padding: 10 }),
+    edge: css({
+      padding: 10,
+      backgroundColor: Color.alpha(Color.DARK, 0.04),
+      display: 'grid',
+      placeItems: 'center',
+    }),
+  };
+
+  const left = <div className={styles.edge.class}>{'Left'}</div>;
+  const children = <div className={styles.column.class}>{'👋 Hello Column'}</div>;
+  const right = <div className={styles.edge.class}>{'Right'}</div>;
 
   const props = {
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Light'),
+    left: s<P['left']>(left),
     column: s<P['column']>({ children }),
+    right: s<P['right']>(right),
+    gap: s<P['gap']>(1),
   };
   const p = props;
   const api = {
@@ -28,6 +44,9 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.debug.value;
       p.theme.value;
       p.column.value;
+      p.left.value;
+      p.right.value;
+      p.gap.value;
     },
   };
   init?.(api);
@@ -78,11 +97,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
+      <Button
+        block
+        label={`gap: ${p.gap.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle(p.gap, [1, 15, undefined])}
+      />
+
       <hr />
       <DebugColumn debug={debug} />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={2} />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
     </div>
   );
 };
@@ -112,9 +137,9 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
         onClick={() => {
           const signal = p.column;
           const column = { ...(signal.value ?? {}) };
-          let clear = false;
-          fn({ column, clear: () => (clear = true) });
-          signal.value = clear ? undefined : column;
+          let cleared = false;
+          fn({ column, clear: () => (cleared = true) });
+          signal.value = cleared ? undefined : column;
         }}
       />
     );
@@ -134,10 +159,6 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
       {align('Left')}
       {align('Center')}
       {align('Right')}
-
-      <hr />
-      {btn('marginTop: 0', (e) => (e.column.marginTop = 0))}
-      {btn('marginTop: 46', (e) => (e.column.marginTop = 46))}
     </div>
   );
 };

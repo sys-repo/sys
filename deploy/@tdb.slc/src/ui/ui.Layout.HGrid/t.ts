@@ -6,6 +6,9 @@ import type { t } from './common.ts';
 export type LayoutHGridProps = {
   debug?: boolean;
   column?: t.HGridColumnProps;
+  left?: t.ReactNode;
+  right?: t.ReactNode;
+  gap?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -16,7 +19,5 @@ export type LayoutHGridProps = {
 export type HGridColumnProps = Partial<HGridColumn> & { children?: t.ReactNode };
 export type HGridColumn = {
   align: 'Left' | 'Center' | 'Right';
-  marginTop: t.Pixels;
-  gap: t.Pixels;
   width: t.Pixels;
 };

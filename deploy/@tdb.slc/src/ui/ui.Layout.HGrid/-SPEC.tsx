@@ -12,7 +12,7 @@ export default Spec.describe('LayoutHGrid', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
-      ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.5));
+      ctx.host.tracelineColor(Color.alpha(Color.DARK, 0.12));
       debug.listen();
       ctx.redraw();
     });
@@ -22,7 +22,14 @@ export default Spec.describe('LayoutHGrid', (e) => {
       .display('grid')
       .render((e) => (
         <LayoutGroup>
-          <LayoutHGrid theme={p.theme.value} debug={p.debug.value} column={p.column.value} />
+          <LayoutHGrid
+            theme={p.theme.value}
+            debug={p.debug.value}
+            left={p.left.value}
+            column={p.column.value}
+            right={p.right.value}
+            gap={p.gap.value}
+          />
         </LayoutGroup>
       ));
   });
