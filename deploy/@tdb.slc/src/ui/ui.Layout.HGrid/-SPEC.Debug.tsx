@@ -34,7 +34,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 
   const edgeDiv = (edge: t.HGridAlign) => {
     return (
-      <div className={styles.edge.class} onClick={alignHandler(edge)}>
+      <div className={styles.edge.class} onMouseDown={alignHandler(edge)}>
         {edge}
       </div>
     );
@@ -43,7 +43,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const left = edgeDiv('Left');
   const right = edgeDiv('Right');
   const children = (
-    <div className={styles.column.class} onClick={alignHandler('Center')}>
+    <div className={styles.column.class} onMouseDown={alignHandler('Center')}>
       {'👋 Hello Column'}
     </div>
   );
@@ -126,7 +126,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <DebugColumn debug={debug} />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
+      <ObjectView
+        name={'props'}
+        data={Signal.toObject(debug.props)}
+        expand={{ level: 1, paths: ['$', '$.column'] }}
+      />
     </div>
   );
 };
