@@ -7,7 +7,6 @@ type C = t.HGridColumn;
 export const LayoutHGrid: React.FC<P> = (props) => {
   const { debug = false, gap = D.gap } = props;
   const column = wrangle.column(props.column);
-  const spring = { type: 'spring' as const, stiffness: 600, damping: 35 };
 
   /**
    * Styles:
@@ -35,18 +34,19 @@ export const LayoutHGrid: React.FC<P> = (props) => {
   /**
    * Render:
    */
+  const layout = { type: 'spring' as const, stiffness: 600, damping: 35 };
   return (
     <div className={css(styles.base, props.style).class}>
-      <M.section layout transition={{ layout: spring }} className={styles.section.class}>
-        <M.div layout className={css(styles.edge, styles.left).class}>
+      <M.section layout transition={{ layout }} className={styles.section.class}>
+        <M.div layout transition={{ layout }} className={css(styles.edge, styles.left).class}>
           {props.left}
         </M.div>
 
-        <M.div layout className={styles.column.class} transition={{ layout: spring }}>
+        <M.div layout transition={{ layout }} className={styles.column.class}>
           {props.column?.children}
         </M.div>
 
-        <M.div layout className={css(styles.edge, styles.right).class}>
+        <M.div layout transition={{ layout }} className={css(styles.edge, styles.right).class}>
           {props.right}
         </M.div>
       </M.section>
