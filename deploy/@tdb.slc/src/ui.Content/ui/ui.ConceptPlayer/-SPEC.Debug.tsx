@@ -14,7 +14,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const children = <div style={{ padding: 10 }}>{'👋 Hello Column'}</div>;
+  const children = <div style={{ padding: 10 }}>{'👋 Hello ConceptPlayer'}</div>;
 
   const props = {
     debug: s<P['debug']>(true),

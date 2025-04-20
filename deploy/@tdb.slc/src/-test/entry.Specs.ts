@@ -9,7 +9,6 @@ export const Specs = {
   'tdb.slc.entry.Landing-2': () => import('../ui/ui.Landing-2/-SPEC.tsx'),
   'tdb.slc.entry.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
 
-  'tdb.slc.ui.ConceptPlayer': () => import('../ui/ui.ConceptPlayer/-SPEC.tsx'),
   'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
   'tdb.slc.ui.Layout.HGrid': () => import('../ui/ui.Layout.HGrid/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
@@ -19,6 +18,7 @@ export const Specs = {
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 
   'tdb.slc.content.videos: (index)': () => import('../ui.Content/-sample/ui.Videos/-SPEC.tsx'),
+  'tdb.slc.content.ConceptPlayer': () => import('../ui.Content/ui/ui.ConceptPlayer/-SPEC.tsx'),
   'tdb.slc.content.CanvasSlug': () => import('../ui.Content/ui/ui.CanvasSlug/-SPEC.tsx'),
   'tdb.slc.content.FadeText': () => import('../ui.Content/ui/ui.FadeText/-SPEC.tsx'),
 } as t.SpecImports;

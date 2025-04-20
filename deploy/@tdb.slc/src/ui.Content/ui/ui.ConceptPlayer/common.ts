@@ -1,8 +1,5 @@
 import type { t } from './common.ts';
-
 export * from '../common.ts';
-export { TooSmall } from '../ui.TooSmall/mod.ts';
-export { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
 
 /**
  * Constants:
