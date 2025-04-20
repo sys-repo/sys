@@ -692,14 +692,14 @@ describe('Value.Obj', () => {
 
   describe('Obj.extend', () => {
     it('deeply clones and preseves dynamic properties', () => {
-      let _value = 0;
+      let _count = 0;
       let _msg = 'hello';
       const obj = {
         get count() {
-          return _value;
+          return _count;
         },
         set count(v) {
-          _value = v;
+          _count = v;
         },
         get msg() {
           return _msg;
@@ -708,20 +708,27 @@ describe('Value.Obj', () => {
       };
       obj.child = obj;
 
-      const res = Obj.extend(obj, { foo: 'hello' });
+      const res = Obj.extend(obj, {
+        foo: 'hello',
+        get bar() {
+          return _msg + _count;
+        },
+      });
+
       expect(res).to.not.equal(obj);
       expect(res.child).to.not.equal(obj.child);
       expect(res.child).to.equal(res);
 
-      _value = 123;
+      _count = 123;
       _msg = '👋';
       expect(res.foo).to.eql('hello');
       expect(res.count).to.eql(123);
       expect(res.child.count).to.eql(123);
       expect(res.msg).to.eql('👋');
+      expect(res.bar).to.eql('👋123');
 
       res.count = 42;
-      expect(_value).to.eql(42);
+      expect(_count).to.eql(42);
 
       // NB: new extended properties not sneaking back onto source object.
       expect((obj as any).foo).to.be.undefined;
