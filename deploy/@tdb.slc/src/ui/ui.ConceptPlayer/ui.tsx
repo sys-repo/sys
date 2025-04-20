@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, TooSmall, useSizeObserver } from './common.ts';
-import { Body } from './u.Body.tsx';
+import { GridLayout } from './ui.GridLayout.tsx';
 
 export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
   const { debug = false } = props;
@@ -21,7 +21,8 @@ export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
     }),
   };
 
-  const elBody = !isTooSmall && <Body {...props} size={size.toObject()} />;
+  const elBody = !isTooSmall && <GridLayout column={props.column} debug={debug} />;
+  const elTooSmall = isTooSmall && <TooSmall theme={theme.name} />;
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>

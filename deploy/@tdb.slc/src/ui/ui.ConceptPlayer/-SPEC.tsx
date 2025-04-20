@@ -1,7 +1,7 @@
 import { Dev, Spec, Signal } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { ConceptPlayer } from './mod.ts';
-import { Color } from './common.ts';
+import { Color, LayoutGroup } from './common.ts';
 
 export default Spec.describe('ConceptPlayer', (e) => {
   const debug = createDebugSignals();
@@ -20,7 +20,11 @@ export default Spec.describe('ConceptPlayer', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => <ConceptPlayer theme={p.theme.value} debug={p.debug.value} />);
+      .render((e) => (
+        <LayoutGroup>
+          <ConceptPlayer theme={p.theme.value} debug={p.debug.value} column={p.column.value} />
+        </LayoutGroup>
+      ));
   });
 
   e.it('ui:debug', (e) => {

@@ -1,5 +1,5 @@
 import { motion as Motion } from 'motion/react';
-export { AnimatePresence } from 'motion/react';
+export { AnimatePresence, LayoutGroup } from 'motion/react';
 export { Motion as M, Motion };
 
 /**
