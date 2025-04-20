@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Sheet, App, Button, DEFAULTS } from '../common.ts';
+import { ProgrammeRoot } from './ui.tsx';
 
 /**
  * Content: "Programme"
@@ -10,18 +11,7 @@ export function factory() {
     id: 'Programme',
     kind: 'StaticContent',
 
-    render(props) {
-      const styles = {
-        base: css({ padding: 10 }),
-      };
-
-      return (
-        <Sheet {...props} theme={sheetTheme} orientation={'Top:Down'}>
-          <div className={styles.base.class}>Hello Programme</div>
-          {/* {props.children} */}
-        </Sheet>
-      );
-    },
+    render: (props) => <ProgrammeRoot {...props} theme={sheetTheme} />,
   };
   return content;
 }
