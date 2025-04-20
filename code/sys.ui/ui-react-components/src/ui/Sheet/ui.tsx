@@ -7,13 +7,13 @@ export const Sheet: React.FC<P> = (props) => {
   const { duration = D.duration, bounce = D.bounce, pointerEvents = 'auto' } = props;
   const is = wrangle.is(props);
   const animation = wrangle.animation(props);
-  const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const backgroundColor = theme.bg;
+  const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
   const styles = {
     base: css({ position: 'relative', display: 'grid', gridTemplateColumns, gridTemplateRows }),
     spacer: css({ pointerEvents: 'none' }),
@@ -51,7 +51,7 @@ export const Sheet: React.FC<P> = (props) => {
       initial={animation.initial}
       animate={is.vertical ? { y: '0%' } : { x: '0%' }}
       exit={animation.exit}
-      transition={{ duration, type: 'spring', bounce }}
+      transition={{ type: 'spring', bounce, duration }}
       /**
        * Handlers:
        */
