@@ -13,11 +13,11 @@ export const Specs = {
 
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
-  'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
+  'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
+  'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 
   'tdb.slc.content.videos: (index)': () => import('../ui.Content/-sample/ui.Videos/-SPEC.tsx'),
   'tdb.slc.content.CanvasSlug': () => import('../ui.Content/ui/ui.CanvasSlug/-SPEC.tsx'),
   'tdb.slc.content.FadeText': () => import('../ui.Content/ui/ui.FadeText/-SPEC.tsx'),
-  'tdb.slc.content.Image': () => import('../ui.Content/ui/ui.Image/-SPEC.tsx'),
 } as t.SpecImports;
