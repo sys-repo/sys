@@ -18,6 +18,9 @@ export type LayoutHGridProps = {
  */
 export type HGridColumnProps = Partial<HGridColumn> & { children?: t.ReactNode };
 export type HGridColumn = {
-  align: 'Left' | 'Center' | 'Right';
+  align: t.HGridAlign;
   width: t.Pixels;
 };
+
+/** Horizontal alignment options. */
+export type HGridAlign = 'Left' | 'Center' | 'Right';

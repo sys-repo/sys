@@ -25,9 +25,28 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     }),
   };
 
-  const left = <div className={styles.edge.class}>{'Left'}</div>;
-  const children = <div className={styles.column.class}>{'👋 Hello Column'}</div>;
-  const right = <div className={styles.edge.class}>{'Right'}</div>;
+  const alignHandler = (align: t.HGridAlign) => {
+    return () => {
+      const value = p.column.value ?? {};
+      p.column.value = { ...value, align };
+    };
+  };
+
+  const edgeDiv = (edge: t.HGridAlign) => {
+    return (
+      <div className={styles.edge.class} onClick={alignHandler(edge)}>
+        {edge}
+      </div>
+    );
+  };
+
+  const left = edgeDiv('Left');
+  const right = edgeDiv('Right');
+  const children = (
+    <div className={styles.column.class} onClick={alignHandler('Center')}>
+      {'👋 Hello Column'}
+    </div>
+  );
 
   const props = {
     debug: s<P['debug']>(true),
