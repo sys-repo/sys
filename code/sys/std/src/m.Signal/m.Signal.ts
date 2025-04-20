@@ -1,9 +1,10 @@
 import { batch, computed, effect, signal } from '@preact/signals-core';
 
 import type { t } from './common.ts';
+import { Is } from './m.Is.ts';
 import { cycle } from './u.cycle.ts';
-import { toggle } from './u.toggle.ts';
 import { listeners } from './u.listeners.ts';
+import { toggle } from './u.toggle.ts';
 
 export { signal };
 
@@ -15,6 +16,8 @@ export { signal };
  *    https://preactjs.com/guide/v10/signals
  */
 export const Signal: t.SignalLib = {
+  Is,
+
   /**
    * Primary API:
    */

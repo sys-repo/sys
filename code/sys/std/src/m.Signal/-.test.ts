@@ -1,6 +1,7 @@
 import { Time, describe, expect, it } from '../-test.ts';
 import { Signal } from './mod.ts';
 import { rx } from '../m.Rx/mod.ts';
+import { Is } from './m.Is.ts';
 
 import * as Preact from '@preact/signals-core';
 
@@ -8,6 +9,7 @@ describe('Signal', () => {
   it('API', () => {
     expect(Signal.create).to.equal(Preact.signal);
     expect(Signal.effect).to.equal(Preact.effect);
+    expect(Signal.Is).to.equal(Is);
   });
 
   describe('Core "Signal" API', () => {
@@ -363,6 +365,18 @@ describe('Signal', () => {
       expect(b.disposed).to.eql(true);
       expect(a.count).to.eql(0);
       expect(b.count).to.eql(0);
+    });
+  });
+
+  describe('Signal.Is', () => {
+    const Is = Signal.Is;
+
+    it('Is.signal', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.signal(value)).to.be.false);
+
+      const count = Signal.create(0);
+      expect(Is.signal(count)).to.be.true;
     });
   });
 });

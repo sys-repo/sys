@@ -25,6 +25,8 @@ export type SignalEffectFn = () => void | (() => void);
  *    https://preactjs.com/guide/v10/signals
  */
 export type SignalLib = {
+  readonly Is: SignalIsLib;
+
   /** Create a new plain signal. */
   create: typeof Preact.signal;
 
@@ -61,4 +63,11 @@ export type SignalValueHelpersLib = {
 export type SignalListeners = t.Lifecycle & {
   readonly count: number;
   effect(fn: t.SignalEffectFn): SignalListeners;
+};
+
+/**
+ * Flag helpers for working with Signals.
+ */
+export type SignalIsLib = {
+  signal<T = unknown>(val: unknown): val is t.Signal<T>;
 };
