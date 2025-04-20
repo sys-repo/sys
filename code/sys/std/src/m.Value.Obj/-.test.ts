@@ -651,5 +651,40 @@ describe('Value.Obj', () => {
       expect(clonedRegex.flags).to.equal(regex.flags);
       expect((clonedRegex as any).extra).to.equal('data');
     });
+
+    it('should preserve dynamic properties', () => {
+      let _value = 0;
+      const obj = {
+        get count() {
+          return _value;
+        },
+        set count(v) {
+          _value = v;
+        },
+        child: { count: 0 },
+      };
+      obj.child = obj;
+
+      expect(obj.count).to.eql(0);
+
+      _value = 123;
+      expect(obj.count).to.eql(123);
+      obj.count = 456;
+      expect(obj.count).to.eql(456); // NB: setter (write).
+
+      const res = Obj.clone(obj);
+      expect(res.count).to.eql(456); // NB: cloned value
+
+      // Ensure setter and getter are preseved.
+      _value = 888;
+      expect(res.count).to.eql(888);
+      res.count = 0;
+      expect(_value).to.eql(0);
+
+      // Deep clone.
+      expect(res.child.count).to.eql(0);
+      _value = 123;
+      expect(res.child.count).to.eql(123);
+    });
   });
 });

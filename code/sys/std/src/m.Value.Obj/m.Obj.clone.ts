@@ -9,7 +9,6 @@ export const clone: t.ObjLib['clone'] = (obj) => deepClone(obj);
 /**
  * Helpers
  */
-
 function deepClone<T>(obj: T, visited = new WeakMap()): T {
   // Primitives and functions not cloned.
   if (obj === null || typeof obj !== 'object') return obj;
@@ -58,10 +57,16 @@ function deepClone<T>(obj: T, visited = new WeakMap()): T {
   const cloneObj = Object.create(Object.getPrototypeOf(obj));
   visited.set(obj, cloneObj);
 
+  // Copy value, and preserve dyanmic getter/setter properties.
   for (const key of Reflect.ownKeys(obj)) {
-    // Ensure proper copying of both string and symbol keys.
-    // Also, copying non-enumerable properties might be necessary in some cases:
-    (cloneObj as any)[key] = deepClone((obj as any)[key], visited); // ← 🌳 RECURSION
+    const desc = Object.getOwnPropertyDescriptor(obj, key);
+    if (!desc) continue;
+
+    const clonedDesc = { ...desc };
+    if ('value' in desc) clonedDesc.value = deepClone(desc.value, visited); // ← 🌳 RECURSION
+
+    // NB: Getter/setter functions assigned as-is (not cloned).
+    Object.defineProperty(cloneObj, key, clonedDesc);
   }
 
   // Finish up.
