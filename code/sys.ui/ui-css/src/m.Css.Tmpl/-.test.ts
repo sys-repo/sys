@@ -297,4 +297,26 @@ describe('CssTmpl: template transforms', () => {
       assertKeyExists(false, 'Scroll', CssTmpl.transform({ Scroll: false }));
     });
   });
+
+  describe('Grid: gap | columnCap | rowGap', () => {
+    it('transforms numbers to pixel', () => {
+      const a = CssTmpl.transform({ rowGap: 0 });
+      const b = CssTmpl.transform({ columnGap: 123 });
+      const c = CssTmpl.transform({ gap: 10 });
+
+      expect(a.rowGap).to.eql('0px');
+      expect(b.columnGap).to.eql('123px');
+      expect(c.gap).to.eql('10px');
+    });
+
+    it('leaves non-numbers untouched', () => {
+      const a = CssTmpl.transform({ rowGap: '0' });
+      const b = CssTmpl.transform({ columnGap: '10%' });
+      const c = CssTmpl.transform({ gap: '5rem' });
+
+      expect(a.rowGap).to.eql('0');
+      expect(b.columnGap).to.eql('10%');
+      expect(c.gap).to.eql('5rem');
+    });
+  });
 });
