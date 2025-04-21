@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Color, css } from './common.ts';
+import { Color, css, Button, Str } from './common.ts';
 import { ConceptPlayer } from './mod.ts';
 
 export default Spec.describe('ConceptPlayer', (e) => {
@@ -21,22 +21,50 @@ export default Spec.describe('ConceptPlayer', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => {
-        const styles = {
-          content: css({ padding: 10 }),
-          column: css({ padding: 10 }),
+        const isCenter = p.columnAlign.value === 'Center';
+
+        const load = (title: string) => {
+          return () => {
+            p.columnAlign.value = 'Right';
+            p.contentTitle.value = title;
+            p.contentBody.value = (
+              <div>
+                <strong>{title}</strong> <span>{Str.lorem}</span> <span>{Str.lorem}</span>
+              </div>
+            );
+          };
         };
 
-        const elContentBody = <div className={styles.content.class}>👋 Content Body</div>;
-        const elColumnBody = <div className={styles.column.class}>👋 Content Body</div>;
+        const styles = {
+          content: css({ padding: 30, lineHeight: 1.7, fontSize: 14 }),
+          rightBody: css({ padding: 10 }),
+          centerBody: css({ padding: 10 }),
+          buttons: css({ marginTop: 15, marginLeft: 20, lineHeight: 1.65 }),
+        };
+
+        const elContentBody = <div className={styles.content.class}>{p.contentBody.value}</div>;
+        const elRightBody = <div className={styles.rightBody.class}>👋 Right Body</div>;
+        const elCenterBody = (
+          <div className={styles.centerBody.class}>
+            <div>
+              <strong>👋 Center Body</strong>
+            </div>
+            <div className={styles.buttons.class}>
+              <Button block label={'Module One'} onClick={load('Module One')} />
+              <Button block label={'Module Two'} onClick={load('Module Two')} />
+              <Button block label={'Module Three'} onClick={load('Module Three')} />
+            </div>
+          </div>
+        );
 
         return (
           <ConceptPlayer
             theme={'Light'}
             debug={p.debug.value}
-            contentTitle={'My Title'}
+            contentTitle={p.contentTitle.value}
             contentBody={elContentBody}
             columnAlign={p.columnAlign.value}
-            columnBody={elColumnBody}
+            columnBody={isCenter ? elCenterBody : elRightBody}
             onBackClick={() => (p.columnAlign.value = 'Center')}
           />
         );

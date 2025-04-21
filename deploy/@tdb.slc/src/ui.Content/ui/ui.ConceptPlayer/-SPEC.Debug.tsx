@@ -19,6 +19,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Dark'),
     columnAlign: s<P['columnAlign']>(D.columnAlign),
+    contentTitle: s<P['contentTitle']>(),
+    contentBody: s<P['contentBody']>(),
   };
   const p = props;
   const api = {
@@ -27,6 +29,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.debug.value;
       p.theme.value;
       p.columnAlign.value;
+      p.contentTitle.value;
+      p.contentBody.value;
     },
   };
   init?.(api);
