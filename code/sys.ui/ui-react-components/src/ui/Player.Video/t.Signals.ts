@@ -29,11 +29,20 @@ export type PlayerSignalsFactoryDefaults = {
  * Signals API for dynamic control of the <VideoPlayer>.
  */
 export type VideoPlayerSignals = {
+  readonly is: VideoPlayerIs;
   readonly props: VideoPlayerSignalProps;
   jumpTo(second: t.Secs, options?: { play?: boolean }): VideoPlayerSignals;
   play(): VideoPlayerSignals;
   pause(): VideoPlayerSignals;
   toggle(playing?: boolean): VideoPlayerSignals;
+};
+
+/**
+ * Boolean flags for the video player.
+ */
+export type VideoPlayerIs = {
+  readonly playing: boolean;
+  readonly paused: boolean;
 };
 
 /** The raw signal properties that make up the VideoPlayer signals API/. */
