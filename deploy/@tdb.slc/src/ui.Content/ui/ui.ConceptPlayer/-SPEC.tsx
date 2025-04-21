@@ -23,6 +23,14 @@ export default Spec.describe('ConceptPlayer', (e) => {
       .render((e) => {
         const isCenter = p.columnAlign.value === 'Center';
 
+        const styles = {
+          content: css({ padding: 30, lineHeight: 1.7, fontSize: 14 }),
+          rightBody: css({ padding: 10 }),
+          centerBody: css({ padding: 10 }),
+          buttons: css({ marginTop: 15, lineHeight: 1.65 }),
+          title: css({ fontWeight: 'bold' }),
+        };
+
         const load = (title: string) => {
           return () => {
             p.columnAlign.value = 'Right';
@@ -35,31 +43,24 @@ export default Spec.describe('ConceptPlayer', (e) => {
           };
         };
 
-        const styles = {
-          content: css({ padding: 30, lineHeight: 1.7, fontSize: 14 }),
-          rightBody: css({ padding: 10 }),
-          centerBody: css({ padding: 10 }),
-          buttons: css({ marginTop: 15, lineHeight: 1.65 }),
+        const li = (label: string) => {
+          return (
+            <li>
+              <Button label={label} onClick={load(`${label} Title`)} />
+            </li>
+          );
         };
 
         const elContentBody = <div className={styles.content.class}>{p.contentBody.value}</div>;
-        const elRightBody = <div className={styles.rightBody.class}>👋 Right Body</div>;
+        const elRightBody = <div className={styles.rightBody.class}>{'👋 Right Body'}</div>;
         const elCenterBody = (
           <div className={styles.centerBody.class}>
-            <div>
-              <strong>👋 Center Body</strong>
-            </div>
+            <div className={styles.title.class}>{'👋 Center Body'}</div>
             <div className={styles.buttons.class}>
               <ul>
-                <li>
-                  <Button block label={'Module One'} onClick={load('Module One')} />
-                </li>
-                <li>
-                  <Button block label={'Module Two'} onClick={load('Module Two')} />
-                </li>
-                <li>
-                  <Button block label={'Module Three'} onClick={load('Module Three')} />
-                </li>
+                {li('Module One')}
+                {li('Module Two')}
+                {li('Module Three')}
               </ul>
             </div>
           </div>
