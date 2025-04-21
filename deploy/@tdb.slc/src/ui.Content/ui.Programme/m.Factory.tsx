@@ -1,5 +1,7 @@
 import React from 'react';
-import { type t, Color, css, Sheet, App, Button, DEFAULTS } from '../common.ts';
+import { VIDEO } from '../VIDEO.ts';
+import { type t, DEFAULTS, Player } from './common.ts';
+import { timestamps } from './m.Factory.timestamps.tsx';
 import { ProgrammeRoot } from './ui.tsx';
 
 /**
@@ -7,11 +9,22 @@ import { ProgrammeRoot } from './ui.tsx';
  */
 export function factory() {
   const sheetTheme = DEFAULTS.theme.sheet;
-  const content: t.StaticContent = {
-    id: 'Programme',
-    kind: 'StaticContent',
 
-    render: (props) => <ProgrammeRoot {...props} theme={sheetTheme} />,
+  const content: t.VideoContent = {
+    id: 'Programme',
+    kind: 'VideoContent',
+
+    playOnLoad: true,
+    video: Player.Video.signals({
+      src: VIDEO.Programme.Intro.About.src,
+      fadeMask: { direction: 'Top:Down', size: 20 },
+      scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
+    }),
+
+    timestamps,
+    render(props) {
+      return <ProgrammeRoot {...props} theme={sheetTheme} />;
+    },
   };
   return content;
 }
