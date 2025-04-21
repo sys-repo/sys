@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { LayoutHGrid } from './ui.tsx';
+export { LayoutCenterColumn } from './ui.tsx';

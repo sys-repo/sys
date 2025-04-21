@@ -3,7 +3,7 @@ export { DEFAULTS } from '../../ui/App.Render/mod.ts';
 export {
   App,
   Image,
-  LayoutHGrid,
+  LayoutCenterColumn,
   LogoCanvas,
   LogoWordmark,
   Sheet,

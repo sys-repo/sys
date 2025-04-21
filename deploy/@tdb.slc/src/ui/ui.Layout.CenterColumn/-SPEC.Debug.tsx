@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, ObjectView, Signal } from './common.ts';
 
-type P = t.LayoutHGridProps;
+type P = t.LayoutCenterColumnProps;
 
 /**
  * Types:
@@ -25,14 +25,14 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     }),
   };
 
-  const alignHandler = (align: t.HGridAlign) => {
+  const alignHandler = (align: t.CenterColumnAlign) => {
     return () => {
       const value = p.center.value ?? {};
       p.center.value = { ...value, align };
     };
   };
 
-  const edgeDiv = (edge: t.HGridAlign) => {
+  const edgeDiv = (edge: t.CenterColumnAlign) => {
     return (
       <div className={styles.edge.class} onMouseDown={alignHandler(edge)}>
         {edge}
@@ -100,9 +100,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{'HGrid'}</div>
+        <div>{'CenterColumn'}</div>
         <div />
-        <div>{'Horizontal Grid Layout'}</div>
+        <div>{'Layout'}</div>
       </div>
 
       <Button
@@ -151,7 +151,7 @@ export const DebugCenter: React.FC<DebugProps> = (props) => {
 
   const btn = (
     label: string,
-    fn: (e: { center: t.HGridCenterProps; clear(): void }) => t.IgnoredResult,
+    fn: (e: { center: t.CenterColumnProps; clear(): void }) => t.IgnoredResult,
   ) => {
     return (
       <Button
@@ -159,7 +159,7 @@ export const DebugCenter: React.FC<DebugProps> = (props) => {
         label={label}
         onClick={() => {
           const signal = p.center;
-          const center: t.HGridCenterProps = { ...(signal.value ?? {}) };
+          const center: t.CenterColumnProps = { ...(signal.value ?? {}) };
           let cleared = false;
           fn({ center, clear: () => (cleared = true) });
           signal.value = cleared ? undefined : center;
@@ -168,7 +168,7 @@ export const DebugCenter: React.FC<DebugProps> = (props) => {
     );
   };
 
-  const align = (align: t.HGridColumn['align']) => {
+  const align = (align: t.CenterColumn['align']) => {
     return btn(`align: ${align}`, (e) => (e.center.align = align));
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, LayoutHGrid, TooSmall, useSizeObserver } from './common.ts';
+import { type t, Color, css, D, LayoutCenterColumn, TooSmall, useSizeObserver } from './common.ts';
 import { Column } from './ui.Column.tsx';
 import { Content } from './ui.Content.tsx';
 
@@ -59,7 +59,9 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   );
 
   const elTooSmall = isTooSmall && <TooSmall theme={theme.name} />;
-  const elGrid = !isTooSmall && <LayoutHGrid center={column} left={elContent} debug={debug} />;
+  const elGrid = !isTooSmall && (
+    <LayoutCenterColumn center={column} left={elContent} debug={debug} />
+  );
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
@@ -73,7 +75,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  column(props: P): t.HGridColumn {
+  column(props: P): t.CenterColumn {
     const align = props.columnAlign ?? D.columnAlign;
     const width = D.width;
     return { align, width };

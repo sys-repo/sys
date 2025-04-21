@@ -1,11 +1,14 @@
 import type { t } from './common.ts';
 
+/** Horizontal alignment options. */
+export type CenterColumnAlign = 'Left' | 'Center' | 'Right';
+
 /**
  * <Component>:
  */
-export type LayoutHGridProps = {
+export type LayoutCenterColumnProps = {
   debug?: boolean;
-  center?: t.HGridCenterProps;
+  center?: t.CenterColumnProps;
   left?: t.ReactNode;
   right?: t.ReactNode;
   gap?: t.Pixels;
@@ -16,11 +19,8 @@ export type LayoutHGridProps = {
 /**
  * Properties for the main/center content column.
  */
-export type HGridCenterProps = Partial<HGridColumn> & { children?: t.ReactNode };
-export type HGridColumn = {
-  align: t.HGridAlign;
+export type CenterColumnProps = Partial<CenterColumn> & { children?: t.ReactNode };
+export type CenterColumn = {
+  align: t.CenterColumnAlign;
   width: t.Pixels;
 };
-
-/** Horizontal alignment options. */
-export type HGridAlign = 'Left' | 'Center' | 'Right';

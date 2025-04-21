@@ -21,4 +21,4 @@ export type ConceptPlayerProps = {
 /**
  * Defines the player column.
  */
-export type ConceptPlayerColumn = Omit<t.HGridColumn, 'width'> & { children?: t.ReactNode };
+export type ConceptPlayerColumn = Omit<t.CenterColumn, 'width'> & { children?: t.ReactNode };

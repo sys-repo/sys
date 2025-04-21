@@ -1,9 +1,9 @@
 import { Dev, Signal, Spec } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Color } from './common.ts';
-import { LayoutHGrid } from './mod.ts';
+import { LayoutCenterColumn } from './mod.ts';
 
-export default Spec.describe('LayoutHGrid', (e) => {
+export default Spec.describe('LayoutCenterColumn', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -21,7 +21,7 @@ export default Spec.describe('LayoutHGrid', (e) => {
       .size('fill')
       .display('grid')
       .render((e) => (
-        <LayoutHGrid
+        <LayoutCenterColumn
           theme={p.theme.value}
           debug={p.debug.value}
           left={p.left.value}

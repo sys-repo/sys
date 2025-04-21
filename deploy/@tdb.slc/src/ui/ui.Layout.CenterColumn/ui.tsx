@@ -1,10 +1,10 @@
 import React from 'react';
 import { type t, Color, css, D, M } from './common.ts';
 
-type P = t.LayoutHGridProps;
-type C = t.HGridColumn;
+type P = t.LayoutCenterColumnProps;
+type C = t.CenterColumn;
 
-export const LayoutHGrid: React.FC<P> = (props) => {
+export const LayoutCenterColumn: React.FC<P> = (props) => {
   const { debug = false, gap = D.gap } = props;
   const center = wrangle.center(props.center);
 

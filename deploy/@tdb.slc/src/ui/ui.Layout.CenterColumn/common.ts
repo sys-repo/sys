@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const center: t.HGridColumn = {
+const center: t.CenterColumn = {
   align: 'Center',
   width: 390,
 };
