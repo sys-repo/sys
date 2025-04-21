@@ -9,7 +9,7 @@ export { VideoBackground } from './ui.Video.Background/mod.ts';
 export { Image } from './ui.Image/mod.ts';
 export { Landing as Landing1 } from './ui.Landing-1/mod.ts';
 export { Landing as Landing2 } from './ui.Landing-2/mod.ts';
-export { LayoutHGrid } from './ui.Layout.HGrid/mod.ts';
+export { LayoutHGrid } from './ui.Layout.CenterColumn/mod.ts';
 export { Sheet } from './ui.Sheet/mod.ts';
 export { TooSmall } from './ui.TooSmall/mod.ts';
 

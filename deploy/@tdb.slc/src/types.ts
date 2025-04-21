@@ -16,7 +16,7 @@ export type * from './ui/App/t.ts';
  * UI Structure:
  */
 export type * from './ui/ui.Image/t.ts';
-export type * from './ui/ui.Layout.HGrid/t.ts';
+export type * from './ui/ui.Layout.CenterColumn/t.ts';
 export type * from './ui/ui.Layout/t.ts';
 export type * from './ui/ui.Logo.Canvas/t.ts';
 export type * from './ui/ui.Logo.Wordmark/t.ts';

@@ -1,7 +1,7 @@
 /**
  * @module
  */
-export { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
+export { LayoutHGrid } from '../ui.Layout.CenterColumn/mod.ts';
 
 export { Layout } from './m.Layout.tsx';
 

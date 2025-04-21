@@ -4,7 +4,7 @@ import { Layout as Base } from '../App.Layout/mod.ts';
 import { LayoutDesktop } from './ui.Desktop.tsx';
 import { LayoutIntermediate } from './ui.Intermediate.tsx';
 import { LayoutMobile } from './ui.Mobile.tsx';
-import { LayoutHGrid } from '../ui.Layout.HGrid/mod.ts';
+import { LayoutHGrid } from '../ui.Layout.CenterColumn/mod.ts';
 
 /**
  * Main Layout API (with UI components).
