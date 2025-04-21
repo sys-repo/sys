@@ -1,7 +1,7 @@
 /**
  * @external
  */
-export type { ReactElement, ReactNode } from 'react';
+export type { ReactElement, ReactNode, MouseEventHandler } from 'react';
 
 /**
  * @system

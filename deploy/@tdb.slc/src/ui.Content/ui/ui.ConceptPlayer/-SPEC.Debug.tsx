@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, ObjectView, Signal } from './common.ts';
+import { type t, Button, css, D, ObjectView, Signal } from './common.ts';
 
 type P = t.ConceptPlayerProps;
 
@@ -14,12 +14,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const children = <div style={{ padding: 10 }}>{'👋 Hello ConceptPlayer'}</div>;
 
   const props = {
     debug: s<P['debug']>(true),
-    theme: s<P['theme']>('Light'),
-    column: s<P['column']>({ children }),
+    theme: s<P['theme']>('Dark'),
+    columnAlign: s<P['columnAlign']>(D.columnAlign),
   };
   const p = props;
   const api = {
@@ -27,7 +26,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     listen() {
       p.debug.value;
       p.theme.value;
-      p.column.value;
+      p.columnAlign.value;
     },
   };
   init?.(api);
@@ -75,61 +74,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <DebugColumn debug={debug} />
+      <Button
+        block
+        label={`align: ${p.columnAlign.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['columnAlign']>(p.columnAlign, ['Center', 'Right'])}
+      />
 
       <hr />
       <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
-    </div>
-  );
-};
-
-/**
- * Component: <ControlColumn>
- */
-export const DebugColumn: React.FC<DebugProps> = (props) => {
-  const { debug } = props;
-  const p = debug.props;
-
-  /**
-   * Render:
-   */
-  const styles = {
-    base: css({}),
-  };
-
-  const btn = (
-    label: string,
-    fn: (e: { column: t.HGridColumnProps; clear(): void }) => t.IgnoredResult,
-  ) => {
-    return (
-      <Button
-        block
-        label={label}
-        onClick={() => {
-          const signal = p.column;
-          const column: t.HGridColumnProps = { ...(signal.value ?? {}) };
-          let clear = false;
-          fn({ column, clear: () => (clear = true) });
-          signal.value = clear ? undefined : column;
-        }}
-      />
-    );
-  };
-
-  const align = (align: t.HGridColumn['align']) => {
-    return btn(`align: ${align}`, (e) => (e.column.align = align));
-  };
-
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{'MainColumn:'}</div>
-
-      {btn('reset: <undefined>', (e) => e.clear())}
-
-      <hr />
-      {align('Left')}
-      {align('Center')}
-      {align('Right')}
     </div>
   );
 };

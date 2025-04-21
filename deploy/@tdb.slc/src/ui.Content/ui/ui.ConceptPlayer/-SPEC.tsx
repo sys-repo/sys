@@ -1,7 +1,7 @@
-import { Dev, Spec, Signal } from '../../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Color, css } from './common.ts';
 import { ConceptPlayer } from './mod.ts';
-import { Color, LayoutGroup } from './common.ts';
 
 export default Spec.describe('ConceptPlayer', (e) => {
   const debug = createDebugSignals();
@@ -12,7 +12,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
 
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
-      ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.5));
+      ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.2));
       debug.listen();
       ctx.redraw();
     });
@@ -20,11 +20,27 @@ export default Spec.describe('ConceptPlayer', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => (
-        <LayoutGroup>
-          <ConceptPlayer theme={p.theme.value} debug={p.debug.value} column={p.column.value} />
-        </LayoutGroup>
-      ));
+      .render((e) => {
+        const styles = {
+          content: css({ padding: 10 }),
+          column: css({ padding: 10 }),
+        };
+
+        const elContentBody = <div className={styles.content.class}>👋 Content Body</div>;
+        const elColumnBody = <div className={styles.column.class}>👋 Content Body</div>;
+
+        return (
+          <ConceptPlayer
+            theme={'Light'}
+            debug={p.debug.value}
+            contentTitle={'My Title'}
+            contentBody={elContentBody}
+            columnAlign={p.columnAlign.value}
+            columnBody={elColumnBody}
+            onBackClick={() => (p.columnAlign.value = 'Center')}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {
