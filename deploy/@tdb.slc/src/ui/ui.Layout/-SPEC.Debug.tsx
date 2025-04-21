@@ -110,6 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           app.stack.clear();
           app.stack.push(Sample.sample0());
+          app.stack.push(Sample.sample1());
         }}
       />
       <Button

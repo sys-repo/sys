@@ -44,7 +44,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const right = edgeDiv('Right');
   const children = (
     <div className={styles.column.class} onMouseDown={alignHandler('Center')}>
-      {'👋 Hello Column'}
+      {'👋 Hello Column (Center)'}
     </div>
   );
 
