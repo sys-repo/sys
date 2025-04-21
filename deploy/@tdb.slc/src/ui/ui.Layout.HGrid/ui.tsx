@@ -34,7 +34,7 @@ export const LayoutHGrid: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const layout = { type: 'spring' as const, stiffness: 600, damping: 35 };
+  const layout = { type: 'spring' as const, stiffness: 600, damping: 36 };
   return (
     <div className={css(styles.base, props.style).class}>
       <M.section layout transition={{ layout }} className={styles.section.class}>
