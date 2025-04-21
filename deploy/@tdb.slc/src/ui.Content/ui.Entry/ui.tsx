@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Icons, LogoCanvas, LogoWordmark, Signal } from './common.ts';
 import { IntroButtons, StartProgrammeButton } from './ui.Buttons.tsx';
+import { Footer } from './ui.Footer.tsx';
 
 export type EntryProps = t.StaticContentProps & {};
 
@@ -62,7 +63,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
         <LogoCanvas
           theme={theme.name}
           style={styles.brand.canvas}
-          selected={'purpose'}
+          // selected={'purpose'}
           selectionAnimation={{ delay, loop: true }}
         />
         <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
@@ -74,10 +75,15 @@ export const Entry: React.FC<EntryProps> = (props) => {
     </div>
   );
 
+  const elFooter = (
+    <Footer state={state} theme={theme.name} style={{ Absolute: [null, 0, 0, 0] }} />
+  );
+
   return (
     <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
       {elHeader}
       {elBody}
+      {elFooter}
     </div>
   );
 };

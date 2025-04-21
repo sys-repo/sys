@@ -1,18 +1,18 @@
 import React from 'react';
 import { type t, Button, Color, css, LogoWordmark } from './common.ts';
 
-export type DesktopFooterProps = {
+export type FooterProps = {
   state?: t.AppSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
-type P = DesktopFooterProps;
+type P = FooterProps;
 
 /**
  * Component:
  */
-export const DesktopFooter: React.FC<P> = (props) => {
+export const Footer: React.FC<P> = (props) => {
   const { state } = props;
   const p = state?.props;
   if (!p) return null;
