@@ -10,7 +10,6 @@ import { Overview } from './ui.tsx';
  */
 export function factory() {
   const theme = DEFAULTS.theme.sheet;
-  const src = VIDEO.Overview.src;
 
   const content: t.VideoContent = {
     id: 'Overview',
@@ -18,7 +17,7 @@ export function factory() {
 
     playOnLoad: true,
     video: Player.Video.signals({
-      src,
+      src: VIDEO.Overview.src,
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
       fadeMask: { direction: 'Top:Down', size: 30 },
     }),
