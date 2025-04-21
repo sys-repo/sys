@@ -15,7 +15,4 @@ export const DEFAULT = {
   get pixelProps() {
     return CssDomDefaults.pixelProps;
   },
-  get pseudoClasses() {
-    return CssDomDefaults.pseudoClasses;
-  },
 } as const;

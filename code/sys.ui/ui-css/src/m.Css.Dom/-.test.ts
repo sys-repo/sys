@@ -1,7 +1,7 @@
 import { type t, describe, DomMock, expect, FindCss, it, pkg, slug } from '../-test.ts';
 import { css } from '../m.Style/mod.ts';
 import { DEFAULT } from './common.ts';
-import { CssDom } from './mod.ts';
+import { CssDom, CssPseudoClass } from './mod.ts';
 import { getStylesheetId } from './u.ts';
 
 const toString = CssDom.toString;
@@ -19,6 +19,10 @@ describe(
       const classes = sheet.classes(`foo-${_count}`);
       return { sheet, classes } as const;
     };
+
+    it('API', () => {
+      expect(CssDom.PseudoClass).to.equal(CssPseudoClass);
+    });
 
     describe('factory: create <Stylesheet> instance', () => {
       it('instance id: default and custom', () => {

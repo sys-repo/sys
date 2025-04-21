@@ -1,5 +1,7 @@
 import { type t, CssTmpl, DEFAULT, isRecord } from './common.ts';
 import { toString } from './u.ts';
+import { CssPseudoClass } from './m.CssPseudoClass.ts';
+
 type StringRule = string;
 
 export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
@@ -29,7 +31,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
     const res: (t.CssDomInsertedRule | undefined)[] = [];
     res.push(insert(selector, CssTmpl.transform(style), context));
     Object.entries(style)
-      .filter(([key]) => DEFAULT.pseudoClasses.has(key))
+      .filter(([key]) => CssPseudoClass.isClass(key))
       .filter(([, value]) => isRecord(value))
       .forEach(([key, style]) => res.push(insert(`${selector}${key}`, style, context)));
     return res.filter(Boolean) as t.CssDomInsertedRule[];
