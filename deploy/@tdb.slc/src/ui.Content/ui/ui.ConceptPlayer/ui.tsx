@@ -7,7 +7,9 @@ type P = t.ConceptPlayerProps;
 
 export const ConceptPlayer: React.FC<P> = (props) => {
   const { debug = false } = props;
-  const align = wrangle.column(props).align;
+  const align = props.columnAlign ?? D.columnAlign;
+  const columnWidth = props.columnWidth ?? D.columnWidth;
+
   const size = useSizeObserver();
   const isReady = size.ready;
   const isTooSmall = size.width < 960 && size.height < 480;
@@ -37,17 +39,14 @@ export const ConceptPlayer: React.FC<P> = (props) => {
     }),
   };
 
-  const column = {
-    ...wrangle.column(props),
-    children: (
-      <Column
-        body={props.columnBody}
-        video={props.columnVideo}
-        theme={theme.name}
-        style={styles.column}
-      />
-    ),
-  };
+  const elColumn = (
+    <Column
+      body={props.columnBody}
+      video={props.columnVideo}
+      theme={theme.name}
+      style={styles.column}
+    />
+  );
 
   const elContent = (
     <Content
@@ -60,7 +59,13 @@ export const ConceptPlayer: React.FC<P> = (props) => {
 
   const elTooSmall = isTooSmall && <TooSmall theme={theme.name} />;
   const elGrid = !isTooSmall && (
-    <LayoutCenterColumn center={column} left={elContent} debug={debug} />
+    <LayoutCenterColumn
+      align={align}
+      centerWidth={columnWidth}
+      center={elColumn}
+      left={elContent}
+      debug={debug}
+    />
   );
 
   return (
@@ -70,14 +75,3 @@ export const ConceptPlayer: React.FC<P> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  column(props: P): t.CenterColumn {
-    const align = props.columnAlign ?? D.columnAlign;
-    const width = D.width;
-    return { align, width };
-  },
-} as const;

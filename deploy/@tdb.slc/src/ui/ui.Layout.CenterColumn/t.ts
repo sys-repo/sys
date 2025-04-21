@@ -8,19 +8,14 @@ export type CenterColumnAlign = 'Left' | 'Center' | 'Right';
  */
 export type LayoutCenterColumnProps = {
   debug?: boolean;
-  center?: t.CenterColumnProps;
+  align?: t.CenterColumnAlign;
+  centerWidth?: t.Pixels;
+
   left?: t.ReactNode;
+  center?: t.ReactNode;
   right?: t.ReactNode;
+
   gap?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-};
-
-/**
- * Properties for the main/center content column.
- */
-export type CenterColumnProps = Partial<CenterColumn> & { children?: t.ReactNode };
-export type CenterColumn = {
-  align: t.CenterColumnAlign;
-  width: t.Pixels;
 };

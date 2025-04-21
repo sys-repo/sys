@@ -25,13 +25,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     }),
   };
 
-  const alignHandler = (align: t.CenterColumnAlign) => {
-    return () => {
-      const value = p.center.value ?? {};
-      p.center.value = { ...value, align };
-    };
-  };
-
+  const alignHandler = (align: t.CenterColumnAlign) => () => (p.align.value = align);
   const edgeDiv = (edge: t.CenterColumnAlign) => {
     return (
       <div className={styles.edge.class} onMouseDown={alignHandler(edge)}>
@@ -40,9 +34,9 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     );
   };
 
-  const left = edgeDiv('Left');
-  const right = edgeDiv('Right');
-  const children = (
+  const elLeft = edgeDiv('Left');
+  const elRight = edgeDiv('Right');
+  const elCenter = (
     <div className={styles.center.class} onMouseDown={alignHandler('Center')}>
       {'👋 Hello Center (Column)'}
     </div>
@@ -51,9 +45,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Light'),
-    left: s<P['left']>(left),
-    center: s<P['center']>({ children }),
-    right: s<P['right']>(right),
+
+    left: s<P['left']>(elLeft),
+    center: s<P['center']>(elCenter),
+    right: s<P['right']>(elRight),
+
+    centerWidth: s<P['centerWidth']>(),
+    align: s<P['align']>(),
     gap: s<P['gap']>(1),
   };
   const p = props;
@@ -65,6 +63,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.center.value;
       p.left.value;
       p.right.value;
+      p.align.value;
+      p.centerWidth.value;
       p.gap.value;
     },
   };
@@ -97,6 +97,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
+  const align = (align: t.CenterColumnAlign) => {
+    return <Button block label={`align: ${align}`} onClick={() => (p.align.value = align)} />;
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
@@ -122,66 +126,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.gap, [1, 15, undefined])}
       />
 
-      <hr />
-      <DebugCenter debug={debug} />
-
-      <hr />
-      <ObjectView
-        name={'props'}
-        data={Signal.toObject(debug.props)}
-        expand={{ level: 1, paths: ['$', '$.center'] }}
-      />
-    </div>
-  );
-};
-
-/**
- * Component: <DebugCenter> options.
- */
-export const DebugCenter: React.FC<DebugProps> = (props) => {
-  const { debug } = props;
-  const p = debug.props;
-
-  /**
-   * Render:
-   */
-  const styles = {
-    base: css({}),
-  };
-
-  const btn = (
-    label: string,
-    fn: (e: { center: t.CenterColumnProps; clear(): void }) => t.IgnoredResult,
-  ) => {
-    return (
       <Button
         block
-        label={label}
-        onClick={() => {
-          const signal = p.center;
-          const center: t.CenterColumnProps = { ...(signal.value ?? {}) };
-          let cleared = false;
-          fn({ center, clear: () => (cleared = true) });
-          signal.value = cleared ? undefined : center;
-        }}
+        label={`centerWidth: ${p.centerWidth.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle(p.centerWidth, [0, 100, undefined])}
       />
-    );
-  };
 
-  const align = (align: t.CenterColumn['align']) => {
-    return btn(`align: ${align}`, (e) => (e.center.align = align));
-  };
-
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{'Column:'}</div>
-
-      {btn('reset: <undefined>', (e) => e.clear())}
+      <hr />
 
       <hr />
       {align('Left')}
       {align('Center')}
       {align('Right')}
+
+      <hr />
+
+      <Button
+        block
+        label={`reset`}
+        onClick={() => {
+          p.align.value = undefined;
+          p.centerWidth.value = undefined;
+        }}
+      />
+
+      <ObjectView
+        name={'props'}
+        data={Signal.toObject(debug.props)}
+        expand={{ level: 1, paths: ['$', '$.center'] }}
+      />
     </div>
   );
 };

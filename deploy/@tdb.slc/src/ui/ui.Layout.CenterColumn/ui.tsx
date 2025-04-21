@@ -2,16 +2,14 @@ import React from 'react';
 import { type t, Color, css, D, M } from './common.ts';
 
 type P = t.LayoutCenterColumnProps;
-type C = t.CenterColumn;
 
 export const LayoutCenterColumn: React.FC<P> = (props) => {
-  const { debug = false, gap = D.gap } = props;
-  const center = wrangle.center(props.center);
+  const { debug = false, gap = D.gap, centerWidth = D.center.width } = props;
 
   /**
    * Styles:
    */
-  const gridTemplateColumns = wrangle.gridTemplateColumns(center);
+  const gridTemplateColumns = wrangle.gridTemplateColumns(props);
   const styles = {
     base: css({ position: 'relative', display: 'grid' }),
     section: css({
@@ -21,7 +19,7 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
     }),
     column: css({
       backgroundColor: !debug ? undefined : Color.RUBY,
-      width: center.width,
+      width: centerWidth,
       zIndex: 1,
       display: 'grid',
     }),
@@ -43,7 +41,7 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
         </M.div>
 
         <M.div layout transition={{ layout }} className={styles.column.class}>
-          {props.center?.children}
+          {props.center}
         </M.div>
 
         <M.div layout transition={{ layout }} className={css(styles.edge, styles.right).class}>
@@ -58,16 +56,11 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  center(prop?: P['center']): Required<Omit<C, 'children'>> {
-    return { ...D.center, ...prop };
-  },
-
-  gridTemplateColumns(prop: C) {
-    const props = wrangle.center(prop);
-    const width = props.width;
-    const W = `${width}px`;
-    if (prop.align === 'Left') return `0px ${W} 1fr`;
-    if (prop.align === 'Right') return `1fr ${W} 0px`;
+  gridTemplateColumns(props: P) {
+    const { centerWidth = D.center.width, align = D.center.align } = props;
+    const W = `${centerWidth}px`;
+    if (align === 'Left') return `0px ${W} 1fr`;
+    if (align === 'Right') return `1fr ${W} 0px`;
     return `1fr ${W} 1fr`;
   },
 } as const;

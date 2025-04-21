@@ -7,6 +7,6 @@ export * from '../common.ts';
 
 export const DEFAULTS = {
   columnAlign: 'Center',
-  width: 390,
+  columnWidth: 390,
 } as const;
 export const D = DEFAULTS;

@@ -9,6 +9,7 @@ export type ConceptPlayerAlign = 'Center' | 'Right';
 export type ConceptPlayerProps = {
   debug?: boolean;
   columnAlign?: ConceptPlayerAlign;
+  columnWidth?: t.Pixels;
   columnBody?: t.ReactNode;
   columnVideo?: t.VideoPlayerSignals;
   contentTitle?: t.ReactNode;
@@ -17,8 +18,3 @@ export type ConceptPlayerProps = {
   style?: t.CssInput;
   onBackClick?: t.MouseEventHandler;
 };
-
-/**
- * Defines the player column.
- */
-export type ConceptPlayerColumn = Omit<t.CenterColumn, 'width'> & { children?: t.ReactNode };

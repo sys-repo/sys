@@ -28,6 +28,8 @@ export default Spec.describe('LayoutCenterColumn', (e) => {
           center={p.center.value}
           right={p.right.value}
           gap={p.gap.value}
+          centerWidth={p.centerWidth.value}
+          align={p.align.value}
         />
       ));
   });
