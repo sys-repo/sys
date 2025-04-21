@@ -86,13 +86,3 @@ export type CssShadow = {
   y?: number;
   inner?: boolean;
 };
-
-/**
- * CSS psuedo-classes.
- */
-export type CssPseudo = {
-  ':hover'?: t.CssValue;
-  // ':active'?: t.CssValue;
-  // ':focus'?: t.CssValue;
-  // ':visited'?: t.CssValue;
-};

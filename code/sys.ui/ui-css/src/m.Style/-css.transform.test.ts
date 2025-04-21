@@ -51,6 +51,15 @@ describe(
         expect(a).to.equal(b);
         expect(a).to.not.equal(c);
       });
+
+      it('pseudo‑classes on css({ input }}', () => {
+        const a = css({ color: 'blue', ':hover': { color: 'red' } });
+        const b = css({ color: 'blue', ':first-child': { color: 'red' } });
+
+        // NB: this mostly forces a type check on the inputs to `css({})`.
+        expect(a.style).to.eql({ color: 'blue', ':hover': { color: 'red' } });
+        expect(b.style).to.eql({ color: 'blue', ':first-child': { color: 'red' } });
+      });
     });
 
     describe('{ Template } → {styles} | known templates starting with a capital-letter', () => {

@@ -139,3 +139,10 @@ export type CssPseudoClassLib = {
 export type CssPseudoClassLevel3 = (typeof level3)[number];
 export type CssPseudoClassLevel4 = (typeof level4)[number];
 export type CssPseudoClass = CssPseudoClassLevel3 | CssPseudoClassLevel4;
+
+/**
+ * Map of CSS psuedo-classes values.
+ */
+export type CssPseudo = {
+  [K in t.CssPseudoClass]?: t.CssValue;
+};
