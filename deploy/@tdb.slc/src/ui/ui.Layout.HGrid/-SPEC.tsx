@@ -25,7 +25,7 @@ export default Spec.describe('LayoutHGrid', (e) => {
           theme={p.theme.value}
           debug={p.debug.value}
           left={p.left.value}
-          column={p.column.value}
+          center={p.center.value}
           right={p.right.value}
           gap={p.gap.value}
         />

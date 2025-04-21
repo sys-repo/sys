@@ -59,7 +59,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   );
 
   const elTooSmall = isTooSmall && <TooSmall theme={theme.name} />;
-  const elGrid = !isTooSmall && <LayoutHGrid column={column} left={elContent} debug={debug} />;
+  const elGrid = !isTooSmall && <LayoutHGrid center={column} left={elContent} debug={debug} />;
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>

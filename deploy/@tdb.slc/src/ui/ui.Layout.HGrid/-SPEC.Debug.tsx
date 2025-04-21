@@ -16,7 +16,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const styles = {
-    column: css({ padding: 10 }),
+    center: css({ padding: 10 }),
     edge: css({
       padding: 10,
       backgroundColor: Color.alpha(Color.DARK, 0.04),
@@ -27,8 +27,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 
   const alignHandler = (align: t.HGridAlign) => {
     return () => {
-      const value = p.column.value ?? {};
-      p.column.value = { ...value, align };
+      const value = p.center.value ?? {};
+      p.center.value = { ...value, align };
     };
   };
 
@@ -43,8 +43,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const left = edgeDiv('Left');
   const right = edgeDiv('Right');
   const children = (
-    <div className={styles.column.class} onMouseDown={alignHandler('Center')}>
-      {'👋 Hello Column (Center)'}
+    <div className={styles.center.class} onMouseDown={alignHandler('Center')}>
+      {'👋 Hello Center (Column)'}
     </div>
   );
 
@@ -52,7 +52,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     debug: s<P['debug']>(true),
     theme: s<P['theme']>('Light'),
     left: s<P['left']>(left),
-    column: s<P['column']>({ children }),
+    center: s<P['center']>({ children }),
     right: s<P['right']>(right),
     gap: s<P['gap']>(1),
   };
@@ -62,7 +62,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     listen() {
       p.debug.value;
       p.theme.value;
-      p.column.value;
+      p.center.value;
       p.left.value;
       p.right.value;
       p.gap.value;
@@ -123,22 +123,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <DebugColumn debug={debug} />
+      <DebugCenter debug={debug} />
 
       <hr />
       <ObjectView
         name={'props'}
         data={Signal.toObject(debug.props)}
-        expand={{ level: 1, paths: ['$', '$.column'] }}
+        expand={{ level: 1, paths: ['$', '$.center'] }}
       />
     </div>
   );
 };
 
 /**
- * Component: <ControlColumn>
+ * Component: <DebugCenter> options.
  */
-export const DebugColumn: React.FC<DebugProps> = (props) => {
+export const DebugCenter: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
@@ -151,25 +151,25 @@ export const DebugColumn: React.FC<DebugProps> = (props) => {
 
   const btn = (
     label: string,
-    fn: (e: { column: t.HGridColumnProps; clear(): void }) => t.IgnoredResult,
+    fn: (e: { center: t.HGridCenterProps; clear(): void }) => t.IgnoredResult,
   ) => {
     return (
       <Button
         block
         label={label}
         onClick={() => {
-          const signal = p.column;
-          const column = { ...(signal.value ?? {}) };
+          const signal = p.center;
+          const center: t.HGridCenterProps = { ...(signal.value ?? {}) };
           let cleared = false;
-          fn({ column, clear: () => (cleared = true) });
-          signal.value = cleared ? undefined : column;
+          fn({ center, clear: () => (cleared = true) });
+          signal.value = cleared ? undefined : center;
         }}
       />
     );
   };
 
   const align = (align: t.HGridColumn['align']) => {
-    return btn(`align: ${align}`, (e) => (e.column.align = align));
+    return btn(`align: ${align}`, (e) => (e.center.align = align));
   };
 
   return (

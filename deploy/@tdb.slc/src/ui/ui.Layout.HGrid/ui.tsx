@@ -6,12 +6,12 @@ type C = t.HGridColumn;
 
 export const LayoutHGrid: React.FC<P> = (props) => {
   const { debug = false, gap = D.gap } = props;
-  const column = wrangle.column(props.column);
+  const center = wrangle.center(props.center);
 
   /**
    * Styles:
    */
-  const gridTemplateColumns = wrangle.gridTemplateColumns(column);
+  const gridTemplateColumns = wrangle.gridTemplateColumns(center);
   const styles = {
     base: css({ position: 'relative', display: 'grid' }),
     section: css({
@@ -21,7 +21,7 @@ export const LayoutHGrid: React.FC<P> = (props) => {
     }),
     column: css({
       backgroundColor: !debug ? undefined : Color.RUBY,
-      width: column.width,
+      width: center.width,
       zIndex: 1,
       display: 'grid',
     }),
@@ -43,7 +43,7 @@ export const LayoutHGrid: React.FC<P> = (props) => {
         </M.div>
 
         <M.div layout transition={{ layout }} className={styles.column.class}>
-          {props.column?.children}
+          {props.center?.children}
         </M.div>
 
         <M.div layout transition={{ layout }} className={css(styles.edge, styles.right).class}>
@@ -58,12 +58,12 @@ export const LayoutHGrid: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  column(prop?: P['column']): Required<Omit<C, 'children'>> {
-    return { ...D.column, ...prop };
+  center(prop?: P['center']): Required<Omit<C, 'children'>> {
+    return { ...D.center, ...prop };
   },
 
   gridTemplateColumns(prop: C) {
-    const props = wrangle.column(prop);
+    const props = wrangle.center(prop);
     const width = props.width;
     const W = `${width}px`;
     if (prop.align === 'Left') return `0px ${W} 1fr`;
