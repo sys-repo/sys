@@ -27,7 +27,7 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
     }),
     body: css({
       lineHeight: 0, // NB: prevent descender gap.
-      height: 44,
+      height: 60,
       display: 'grid',
       gridAutoFlow: 'column',
       gridAutoColumns: 'max-content',
@@ -36,13 +36,14 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
       columnGap: '10px',
       padding: '0 10px',
     }),
+    title: css({ fontSize: 16 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <BackButton theme={theme.name} onClick={props.onBackClick} />
-        <div>{title}</div>
+        <div className={styles.title.class}>{title}</div>
       </div>
     </div>
   );

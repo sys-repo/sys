@@ -1,11 +1,14 @@
 import type { t } from './common.ts';
 
+/** Column alignment options */
+export type ConceptPlayerAlign = 'Center' | 'Right';
+
 /**
  * <Component>:
  */
 export type ConceptPlayerProps = {
   debug?: boolean;
-  columnAlign?: 'Center' | 'Right';
+  columnAlign?: ConceptPlayerAlign;
   columnBody?: t.ReactNode;
   columnVideo?: t.VideoPlayerSignals;
   contentTitle?: t.ReactNode;
