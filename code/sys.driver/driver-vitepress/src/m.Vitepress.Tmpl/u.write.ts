@@ -25,7 +25,8 @@ export const write: t.VitepressTmplLib['write'] = async (args = {}) => {
    * Finish up.
    */
   if (!silent) {
-    console.info(c.green('Updated Environment'));
+    console.info(c.cyan('Updated Environment'));
+    console.info(c.white('  ↓'));
     console.info(Tmpl.Log.table(ops, { indent: 2 }));
   }
 
