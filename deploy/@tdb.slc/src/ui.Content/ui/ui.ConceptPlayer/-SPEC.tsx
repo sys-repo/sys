@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Color, css, Button, Str } from './common.ts';
+import { Button, Color, Str, css } from './common.ts';
 import { ConceptPlayer } from './mod.ts';
 
 export default Spec.describe('ConceptPlayer', (e) => {
@@ -39,7 +39,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
           content: css({ padding: 30, lineHeight: 1.7, fontSize: 14 }),
           rightBody: css({ padding: 10 }),
           centerBody: css({ padding: 10 }),
-          buttons: css({ marginTop: 15, marginLeft: 20, lineHeight: 1.65 }),
+          buttons: css({ marginTop: 15, lineHeight: 1.65 }),
         };
 
         const elContentBody = <div className={styles.content.class}>{p.contentBody.value}</div>;
@@ -50,9 +50,17 @@ export default Spec.describe('ConceptPlayer', (e) => {
               <strong>👋 Center Body</strong>
             </div>
             <div className={styles.buttons.class}>
-              <Button block label={'Module One'} onClick={load('Module One')} />
-              <Button block label={'Module Two'} onClick={load('Module Two')} />
-              <Button block label={'Module Three'} onClick={load('Module Three')} />
+              <ul>
+                <li>
+                  <Button block label={'Module One'} onClick={load('Module One')} />
+                </li>
+                <li>
+                  <Button block label={'Module Two'} onClick={load('Module Two')} />
+                </li>
+                <li>
+                  <Button block label={'Module Three'} onClick={load('Module Three')} />
+                </li>
+              </ul>
             </div>
           </div>
         );
@@ -65,6 +73,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
             contentBody={elContentBody}
             columnAlign={p.columnAlign.value}
             columnBody={isCenter ? elCenterBody : elRightBody}
+            columnVideo={p.columnVideo.value}
             onBackClick={() => (p.columnAlign.value = 'Center')}
           />
         );

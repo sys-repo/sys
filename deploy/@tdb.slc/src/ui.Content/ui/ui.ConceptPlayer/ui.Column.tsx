@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, Sheet, Player, VIDEO } from './common.ts';
+import React, { useRef } from 'react';
+import { type t, Color, css, Player, Sheet, VIDEO } from './common.ts';
 
 export type ColumnProps = {
   body?: t.ReactNode;
+  video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -12,8 +13,6 @@ export type ColumnProps = {
  */
 export const Column: React.FC<ColumnProps> = (props) => {
   const {} = props;
-
-  const player = playerRef.current;
 
   /**
    * Render:
@@ -27,19 +26,19 @@ export const Column: React.FC<ColumnProps> = (props) => {
       gridTemplateRows: `1fr auto`,
     }),
     body: css({}),
-    top: css({}),
-    player: css({}),
+    footer: css({}),
   };
 
   return (
     <Sheet theme={theme.name} orientation={'Bottom:Up'} style={props.style}>
       <div className={styles.base.class}>
-        <div className={styles.top.class}>{props.body}</div>
-
-        <Player.Video.View
-          signals={player}
-          style={styles.player}
-        />
+        <div className={styles.body.class}>{props.body}</div>
+        <div className={styles.footer.class}>
+          <Player.Video.View
+            signals={props.video}
+            // onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
+          />
+        </div>
       </div>
     </Sheet>
   );

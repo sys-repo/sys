@@ -23,10 +23,8 @@ export const ConceptPlayer: React.FC<P> = (props) => {
       color: theme.fg,
       opacity: isReady ? 1 : 0,
       overflow: 'hidden',
-
       backgroundColor: Color.alpha(theme.bg, isCenter ? 0 : 1),
       transition: `background-color 500ms`,
-
       display: 'grid',
     }),
     column: css({
@@ -41,7 +39,14 @@ export const ConceptPlayer: React.FC<P> = (props) => {
 
   const column = {
     ...wrangle.column(props),
-    children: <Column body={props.columnBody} theme={theme.name} style={styles.column} />,
+    children: (
+      <Column
+        body={props.columnBody}
+        video={props.columnVideo}
+        theme={theme.name}
+        style={styles.column}
+      />
+    ),
   };
 
   const elContent = (

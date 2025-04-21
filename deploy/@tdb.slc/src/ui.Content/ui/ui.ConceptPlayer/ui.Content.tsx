@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, css } from './common.ts';
 import { BodyHeader } from './ui.Content.Header.tsx';
 
 export type ContentProps = {

@@ -7,6 +7,7 @@ export type ConceptPlayerProps = {
   debug?: boolean;
   columnAlign?: 'Center' | 'Right';
   columnBody?: t.ReactNode;
+  columnVideo?: t.VideoPlayerSignals;
   contentTitle?: t.ReactNode;
   contentBody?: t.ReactNode;
   theme?: t.CommonTheme;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from './common.ts';
+import { type t, Button, css, D, ObjectView, Player, Signal, VIDEO } from './common.ts';
 
 type P = t.ConceptPlayerProps;
 
@@ -15,12 +15,19 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
+  const video = Player.Video.signals({
+    src: VIDEO.GroupScale.src,
+    fadeMask: { direction: 'Top:Down', size: 10 },
+    scale: (e) => e.enlargeBy(2),
+  });
+
   const props = {
-    debug: s<P['debug']>(true),
+    debug: s<P['debug']>(false),
     theme: s<P['theme']>('Dark'),
-    columnAlign: s<P['columnAlign']>(D.columnAlign),
     contentTitle: s<P['contentTitle']>(),
     contentBody: s<P['contentBody']>(),
+    columnAlign: s<P['columnAlign']>(D.columnAlign),
+    columnVideo: s<P['columnVideo']>(video),
   };
   const p = props;
   const api = {
@@ -31,6 +38,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.columnAlign.value;
       p.contentTitle.value;
       p.contentBody.value;
+      video.props.playing.value;
     },
   };
   init?.(api);
@@ -82,6 +90,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={`align: ${p.columnAlign.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['columnAlign']>(p.columnAlign, ['Center', 'Right'])}
+      />
+
+      <hr />
+
+      <Button
+        block
+        label={`video.playing: ${p.columnVideo.value?.is.playing}`}
+        onClick={() => {
+          p.columnVideo.value?.toggle();
+        }}
       />
 
       <hr />
