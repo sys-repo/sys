@@ -7,7 +7,7 @@ export type ContentFactoryLib = {
   entry(): Promise<t.StaticContent>;
   trailer(): Promise<t.VideoContent>;
   overview(): Promise<t.VideoContent>;
-  programme(): Promise<t.StaticContent>;
+  programme(): Promise<t.VideoContent>;
 };
 
 /**
