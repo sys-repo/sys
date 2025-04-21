@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { type t, css } from './common.ts';
+import { type t, Color, css } from './common.ts';
 
 /**
  * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
@@ -61,8 +61,10 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
     toElement(input) {
       const props = wrangle.elementProps(input);
       const { opacity = 0.3, fontSize = 12, Absolute } = props;
+      const theme = props.theme ? Color.theme(props.theme) : undefined;
+      const color = theme?.fg;
       let display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
-      const base = css({ Absolute, display, fontSize, opacity });
+      const base = css({ Absolute, display, fontSize, opacity, color });
       return <div className={css(base, props.style).class}>{`${api.toString()}`}</div>;
     },
   };

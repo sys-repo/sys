@@ -56,5 +56,6 @@ export type SizeObserverElementProps = {
   fontSize?: number;
   opacity?: number;
   style?: t.CssInput;
+  theme?: t.CommonTheme;
   Absolute?: t.CssEdgesInput;
 };
