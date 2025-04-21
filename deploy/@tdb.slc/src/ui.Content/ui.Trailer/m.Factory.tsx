@@ -10,7 +10,6 @@ import { Trailer } from './ui.tsx';
  */
 export function factory() {
   const theme = DEFAULTS.theme.sheet;
-  const src = VIDEO.Trailer.src;
 
   const content: t.VideoContent = {
     id: 'Trailer',
@@ -18,7 +17,7 @@ export function factory() {
 
     playOnLoad: true,
     video: Player.Video.signals({
-      src,
+      src: VIDEO.Trailer.src,
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
       fadeMask: { direction: 'Top:Down', size: 18 },
     }),
