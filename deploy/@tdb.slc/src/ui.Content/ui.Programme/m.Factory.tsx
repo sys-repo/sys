@@ -17,7 +17,7 @@ export function factory() {
     playOnLoad: true,
     video: Player.Video.signals({
       src: VIDEO.Programme.Intro.About.src,
-      fadeMask: { direction: 'Top:Down', size: 20 },
+      fadeMask: { direction: 'Top:Down', size: 10 },
       scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
     }),
 
