@@ -17,3 +17,4 @@ const add = (name: string) => {
 };
 
 add('Layout.CenterColumn');
+add('Fade.Text');
