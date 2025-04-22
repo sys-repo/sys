@@ -38,7 +38,10 @@ export const Column: React.FC<ColumnProps> = (props) => {
           <Player.Video.View
             key={playerKey}
             signals={props.video}
-            // onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
+            onEnded={() => {
+              // Hack: force player to reset to start.
+              setPlayerKey((n) => n + 1);
+            }}
           />
         </div>
       </div>
