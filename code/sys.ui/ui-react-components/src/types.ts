@@ -4,6 +4,7 @@
  */
 export type * from './ui/Button/t.ts';
 export type * from './ui/Cropmarks/t.ts';
+export type * from './ui/FadeElement/t.ts';
 export type * from './ui/Icon/t.ts';
 export type * from './ui/IFrame/t.ts';
 export type * from './ui/Image.Svg/t.ts';
