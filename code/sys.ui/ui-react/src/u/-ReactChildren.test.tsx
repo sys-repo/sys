@@ -1,4 +1,5 @@
-import { type t, describe, it, expect } from '../-test.ts';
+import React from 'react';
+import { describe, expect, it } from '../-test.ts';
 import { ReactChildren } from './mod.ts';
 
 describe('ReactChildren', () => {
@@ -6,7 +7,6 @@ describe('ReactChildren', () => {
     const deps = ReactChildren.deps;
 
     it('returns empty string when there are no valid element children', () => {
-      console.log(deps(undefined));
       expect(deps(undefined)).to.eql('');
       expect(deps(null)).to.eql('');
     });
@@ -27,13 +27,40 @@ describe('ReactChildren', () => {
     });
 
     it('returns a pipeseparated list of keys for multiple keyed children', () => {
-      const result = deps([<header key={'h'} />, <footer key={'f'} />]);
-      expect(result).to.eql('h|f');
+      const res = deps([<header key={'h'} />, <footer key={'f'} />]);
+      expect(res).to.eql('h|f');
     });
 
     it('includes string and number children before elements, in order', () => {
-      const result = deps(['hello', 123, <section key={'s'} />, null, <article />]);
-      expect(result).to.eql('hello|123|s|article');
+      const res = deps(['hello', 123, <section key={'s'} />, null, false, <article />]);
+      expect(res).to.eql('hello|123|s|article');
+    });
+
+    it('includes all keys within <Fragment>', () => {
+      const el1 = (
+        <React.Fragment>
+          {'hello'}
+          {123}
+          <section key={'s'} />
+          {null}
+          {false}
+          <article />
+        </React.Fragment>
+      );
+
+      const el2 = (
+        <>
+          {'hello'}
+          {123}
+          <section key={'s'} />
+          {null}
+          {false}
+          <article />
+        </>
+      );
+
+      expect(deps(el1)).to.eql('hello|123|s|article');
+      expect(deps(el2)).to.eql('hello|123|s|article');
     });
   });
 });
