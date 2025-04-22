@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-export type FadeItem = { id: number; text: string; fadingOut: boolean };
-
 /**
  * <Component>:
  */
@@ -17,3 +15,6 @@ export type FadeElementProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
+
+/** Internal state on an item within the <FadeElement>. */
+export type FadeElementItem = { id: number; text: string; fadingOut: boolean };

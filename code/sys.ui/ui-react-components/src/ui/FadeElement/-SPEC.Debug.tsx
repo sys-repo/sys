@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Str, css, Signal } from './common.ts';
+import { type t, Str, css, Signal, D } from './common.ts';
 import { Button } from '../Button/mod.ts';
 
 type P = t.FadeElementProps;
@@ -18,6 +18,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Light'),
     text: s<P['text']>('Lorem'),
+    duration: s<P['duration']>(),
     loremIndex: s(0),
   };
   const api = {
@@ -27,6 +28,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.theme.value;
       p.text.value;
       p.loremIndex.value;
+      p.duration.value;
     },
   };
   init?.(api);
@@ -67,8 +69,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
-      <hr />
+      <Button
+        block
+        label={() => `duration: ${p.duration.value ?? `<undefined> (${D.duration})`}`}
+        onClick={() => Signal.cycle(p.duration, [100, 300, D.duration, 1500, undefined])}
+      />
 
+      <hr />
       <Button
         block
         label={() => `text: <undefined>`}
@@ -76,7 +83,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.text.value = undefined;
         }}
       />
-
       <Button
         block
         label={() => {
@@ -90,7 +96,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.text.value = Str.Lorem.text.split(' ')[index];
         }}
       />
-
       <Button
         block
         label={() => `text: multi-line`}

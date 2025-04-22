@@ -12,7 +12,7 @@ export const FadeElement: React.FC<t.FadeElementProps> = (props) => {
     duration = D.duration,
   } = props;
 
-  const [items, setItems] = useState<t.FadeItem[]>([{ id: 0, text, fadingOut: false }]);
+  const [items, setItems] = useState<t.FadeElementItem[]>([{ id: 0, text, fadingOut: false }]);
   const next = useRef(1);
 
   /**

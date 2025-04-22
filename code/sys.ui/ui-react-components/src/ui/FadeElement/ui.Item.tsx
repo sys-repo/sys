@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { type t, css, ReactString, Time } from './common.ts';
 
 export type ItemProps = {
-  item: t.FadeItem;
+  item: t.FadeElementItem;
   duration: number;
   style?: t.CssInput;
 };
