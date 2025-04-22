@@ -19,3 +19,22 @@ export type ReactStringLib = {
    */
   break(text: string | t.ReactNode): t.ReactNode;
 };
+
+/**
+ * Helpers for working with react children.
+ */
+export type ReactChildrenLib = {
+  /**
+   * Generate a “key” string representing the
+   * set and order of component types in `children`.
+   */
+  deps(children?: t.ReactNode): ReactChildrenDepsKey;
+
+  /**
+   * Generate a memoized “key” string representing the
+   * set and order of component types in `children`.
+   */
+  useDeps(children?: t.ReactNode): ReactChildrenDepsKey;
+};
+
+export type ReactChildrenDepsKey = string;
