@@ -6,7 +6,6 @@
 /** Deno Cloud */
 export type * from './ns.Cloud/ns.client/t.ts';
 export type * from './ns.Cloud/ns.server/r.root/t.ts';
-export type * from './ns.Cloud/ns.server/r.subhosting/t.ts';
 export type * from './ns.Cloud/ns.server/t.ts';
 
 /** Deno Runtime */
