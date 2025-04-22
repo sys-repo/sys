@@ -1,7 +1,7 @@
 /**
  * @external
  */
-export type { ReactElement, ReactNode, MouseEventHandler } from 'react';
+export type { ReactElement, ReactNode, MouseEventHandler as ReactMouseEventHandler } from 'react';
 
 /**
  * @system
@@ -11,6 +11,7 @@ export type * from '@sys/types';
 export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
+
 export type {
   SheetMarginInput,
   SheetOrientation,

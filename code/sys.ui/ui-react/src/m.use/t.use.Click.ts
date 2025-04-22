@@ -9,7 +9,7 @@ type Div = HTMLDivElement;
  */
 export type UseClickHook<T extends E = Div> = (input: t.UseClickInput<T>) => ClickHook<T>;
 /** Loose input passed to the UseClick hook. */
-export type UseClickInput<T extends E> = t.ClickHookProps<T> | t.MouseEventHandler;
+export type UseClickInput<T extends E> = t.ClickHookProps<T> | t.DomMouseEventHandler;
 
 /**
  * Hook: information about a mouse click operations
@@ -25,6 +25,6 @@ export type ClickHook<T extends E> = {
 export type ClickHookProps<T extends E> = {
   ref?: RefObject<T>;
   stage?: t.UseClickStage;
-  callback?: t.MouseEventHandler;
+  callback?: t.DomMouseEventHandler;
 };
 export type UseClickStage = 'down' | 'up';

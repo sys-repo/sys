@@ -6,7 +6,7 @@ export type ColumnProps = {
   video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onClickOutside?: t.MouseEventHandler;
+  onClickOutside?: t.DomMouseEventHandler;
 };
 
 /**

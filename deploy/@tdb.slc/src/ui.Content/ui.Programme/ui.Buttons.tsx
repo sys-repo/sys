@@ -5,7 +5,7 @@ export type SectionButtonProps = {
   label: t.ReactNode;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onClick?: t.MouseEventHandler;
+  onClick?: t.ReactMouseEventHandler;
 };
 
 /**

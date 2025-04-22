@@ -8,7 +8,7 @@ export type BackButtonProps = {
   theme?: t.CommonTheme;
   size?: t.Pixels;
   style?: t.CssInput;
-  onClick?: t.MouseEventHandler;
+  onClick?: t.ReactMouseEventHandler;
 };
 export const BackButton: React.FC<BackButtonProps> = (props) => {
   const { size = 26 } = props;
