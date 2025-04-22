@@ -18,7 +18,6 @@ export type * as t from './types.ts';
 export { Button } from './ui/Button/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { FadeElement } from './ui/Fade.Element/mod.ts';
-export { FadeText } from './ui/Fade.Text/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';

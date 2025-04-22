@@ -21,7 +21,6 @@ export const SpecsComponents = {
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: Fade.Element`]: () => import('../ui/Fade.Element/-SPEC.tsx'),
-  [`${ns}: Fade.Text`]: () => import('../ui/Fade.Text/-SPEC.tsx'),
 
   [`${ns}: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
   [`${ns}: Player.Concept`]: () => import('../ui/Player.Concept/-SPEC.tsx'),
