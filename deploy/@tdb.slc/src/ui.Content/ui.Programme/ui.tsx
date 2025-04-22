@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom } from './common.ts';
 import { MenuList } from './ui.Menu.tsx';
+import { Section } from './ui.Section.tsx';
 
 export type ProgrammeRootProps = t.VideoContentProps & {};
 
@@ -26,7 +27,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
     }),
   };
 
-  const elIndex = (
+  const elRootMenu = (
     <MenuList
       {...props}
       onModuleSelect={(e) => {
@@ -36,24 +37,25 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
     />
   );
 
+  const elSection = <Section />;
+
   return (
     <div className={css(styles.base).class}>
       <ConceptPlayer
         theme={'Light'}
         columnAlign={align}
         columnVideo={content.video}
-        columnBody={elIndex}
+        columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={title}
         onBackClick={() => {
           setAlign('Center');
           setTitle(undefined);
         }}
-        onClickOutsideColumn={() => {
-          if (isCenter && is.top) state.stack.pop(1);
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column, within the SLC app registeres.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.
           const isWithinApp = Dom.Event.isWithin(e, App.type);
+          if (isWithinApp && isCenter && is.top) state.stack.pop();
         }}
       />
     </div>
