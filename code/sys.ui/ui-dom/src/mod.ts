@@ -39,7 +39,7 @@
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
-export { Color } from './common.ts';
+export { Dom } from './m.Dom/mod.ts';
 export { File } from './m.File/mod.ts';
 export { Keyboard } from './m.Keyboard/mod.ts';
 export { LocalStorage } from './m.LocalStorage/mod.ts';
