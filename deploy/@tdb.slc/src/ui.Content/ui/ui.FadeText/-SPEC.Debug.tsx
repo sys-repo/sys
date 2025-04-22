@@ -71,9 +71,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `text: <undefined>`}
+        onClick={() => {
+          p.text.value = undefined;
+        }}
+      />
+
+      <Button
+        block
         label={() => {
           const value = p.text.value;
-          return `text: ${value ? `"${value}"` : '<undefined>'}`;
+          const isWord = !(value?.includes('\n') ?? false);
+          const word = isWord ? ' (word)' : '';
+          return `text: ${value ? `"${value}" ${word}` : '<undefined>'}`;
         }}
         onClick={() => {
           const index = (p.loremIndex.value += 1);
@@ -83,15 +93,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `text: (clear)`}
-        onClick={() => {
-          p.text.value = undefined;
-        }}
-      />
-
-      <Button
-        block
-        label={() => `text: (multi-line)`}
+        label={() => `text: multi-line`}
         onClick={() => {
           p.text.value = 'multi\nline';
         }}
