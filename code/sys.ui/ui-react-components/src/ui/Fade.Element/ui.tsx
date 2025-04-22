@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t, css, D, ReactChildren, Time } from './common.ts';
+import { type t, css, D, ReactChildren } from './common.ts';
 import { Item } from './ui.Item.tsx';
 
 type S = { key: string; children: t.ReactNode };
@@ -15,17 +15,11 @@ export const FadeElement: React.FC<t.FadeElementProps> = (props) => {
    * Effect: Manage cross-fade.
    */
   useEffect(() => {
-    const nextKey = ReactChildren.deps(children);
-    if (nextKey === curr.key) return;
+    const key = ReactChildren.deps(children);
+    if (key === curr.key) return;
 
-    // Cross‑fade: hold onto the old, swap in the new item.
     setPrev(curr);
-    setCurr({ key: nextKey, children: children });
-
-    // After the fade duration, forget the old item.
-    const time = Time.until();
-    time.delay(duration, () => setPrev(undefined));
-    return time.dispose;
+    setCurr({ key, children });
   }, [children, duration, curr]);
 
   /**
@@ -54,6 +48,7 @@ export const FadeElement: React.FC<t.FadeElementProps> = (props) => {
       show={false}
       style={styles.item}
       children={prev.children}
+      onTransitionEnd={() => setPrev(undefined)}
     />
   );
 

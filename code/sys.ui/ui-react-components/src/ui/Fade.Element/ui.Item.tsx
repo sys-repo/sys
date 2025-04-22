@@ -6,6 +6,7 @@ export type ItemProps = {
   duration: t.Msecs;
   show: boolean;
   style?: t.CssInput;
+  onTransitionEnd?: () => void;
 };
 
 export const Item: React.FC<ItemProps> = (props) => {
@@ -45,7 +46,12 @@ export const Item: React.FC<ItemProps> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, style).class}>
+    <div
+      className={css(styles.base, style).class}
+      onTransitionEnd={(e) => {
+        if (e.propertyName === 'opacity' && !visible) props.onTransitionEnd?.();
+      }}
+    >
       <div className={styles.body.class}>{children}</div>
     </div>
   );
