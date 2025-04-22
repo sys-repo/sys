@@ -1,4 +1,4 @@
-export type { ReactNode } from 'react';
+export type { MouseEventHandler, ReactNode } from 'react';
 
 export type { CssEdgesArray, CssEdgesInput, CssInput } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
