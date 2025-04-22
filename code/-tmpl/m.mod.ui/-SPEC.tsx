@@ -18,7 +18,7 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => <MyComponent theme={p.theme.value} />);
+      .render(() => <MyComponent theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

@@ -12,7 +12,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 /**
  * Signals:
  */
-export function createDebugSignals(init?: (e: DebugSignals) => void) {
+export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     theme: s<P['theme']>('Light'),
@@ -24,7 +24,6 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.theme.value;
     },
   };
-  init?.(api);
   return api;
 }
 
