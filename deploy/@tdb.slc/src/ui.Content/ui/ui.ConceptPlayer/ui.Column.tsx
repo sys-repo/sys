@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { type t, Color, css, Player, Sheet } from './common.ts';
+import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
   body?: t.ReactNode;
   video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onClickOutside?: t.MouseEventHandler;
 };
 
 /**
@@ -14,6 +15,11 @@ export type ColumnProps = {
 export const Column: React.FC<ColumnProps> = (props) => {
   const {} = props;
   const [playerKey, setPlayerKey] = useState(0);
+
+  const clickOutside = useClickOutside({
+    stage: 'down',
+    callback: props.onClickOutside,
+  });
 
   /**
    * Render:
@@ -32,7 +38,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
 
   return (
     <Sheet theme={theme.name} orientation={'Bottom:Up'} style={props.style}>
-      <div className={styles.base.class}>
+      <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>
           <Player.Video.View

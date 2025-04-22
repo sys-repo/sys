@@ -8,10 +8,11 @@ export type ProgrammeRootProps = t.VideoContentProps & {};
  * Component:
  */
 export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
-  const { state, content } = props;
+  const { state, content, is } = props;
 
   const [align, setAlign] = useState<t.ConceptPlayerAlign>('Center');
   const [title, setTitle] = useState<string>();
+  const isCenter = align === 'Center';
 
   /**
    * Render:
@@ -29,7 +30,6 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
     <Index
       {...props}
       onModuleSelect={(e) => {
-        console.log('e', e);
         setAlign('Right');
         setTitle(e.label);
       }}
@@ -47,6 +47,9 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
         onBackClick={() => {
           setAlign('Center');
           setTitle(undefined);
+        }}
+        onClickOutsideColumn={() => {
+          if (isCenter && is.top) state.stack.pop(1);
         }}
       />
     </div>

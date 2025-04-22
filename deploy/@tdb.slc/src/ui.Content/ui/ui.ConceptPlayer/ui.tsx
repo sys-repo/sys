@@ -45,6 +45,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
       video={props.columnVideo}
       theme={theme.name}
       style={styles.column}
+      onClickOutside={props.onClickOutsideColumn}
     />
   );
 

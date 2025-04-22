@@ -17,4 +17,5 @@ export type ConceptPlayerProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onBackClick?: t.MouseEventHandler;
+  onClickOutsideColumn?: t.MouseEventHandler;
 };
