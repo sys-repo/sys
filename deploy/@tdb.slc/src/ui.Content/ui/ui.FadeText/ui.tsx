@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Color, css, D, Time, type t } from './common.ts';
-import { Item, type FadeItem } from './ui.Item.tsx';
+import { type t, Color, css, D, Time } from './common.ts';
+import { type FadeItem, Item } from './ui.Item.tsx';
 
 export const FadeText: React.FC<t.FadeTextProps> = (props) => {
   const {
@@ -20,9 +20,12 @@ export const FadeText: React.FC<t.FadeTextProps> = (props) => {
    */
   useEffect(() => {
     setItems((prev) => {
-      if (prev.length && prev[prev.length - 1].text === text) return prev; // ← If the latest item already shows the same text, do nothing.
-      const updated = prev.map((item) => ({ ...item, fadingOut: true })); //  ← Mark all existing items as fading out.
-      return [...updated, { id: next.current++, text, fadingOut: false }]; // ← Add the new text item with a unique id.
+      const lastItem = prev[prev.length - 1];
+      const isSame = prev.length && lastItem.text === text;
+
+      if (isSame) return prev; //                                             ←   If the latest item already shows the same text, do nothing.
+      const updated = prev.map((item) => ({ ...item, fadingOut: true })); //  ←   Mark all existing items as fading out.
+      return [...updated, { id: next.current++, text, fadingOut: false }]; // ←   Add the new text item with a unique id.
     });
 
     // Schedule removal of items that have faded out.
