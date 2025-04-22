@@ -33,8 +33,19 @@ export type ReactChildrenLib = {
   /**
    * Generate a memoized “key” string representing the
    * set and order of component types in `children`.
+   *
+   * Usage:
+   *
+   *    const deps = ReactChildren.useDeps(props.children);
+   *    React.useEffect(() => {
+   *      // ...
+   *    }, [deps]);
+   *
    */
   useDeps(children?: t.ReactNode): ReactChildrenDepsKey;
 };
 
+/**
+ * A pipe-seperated ("|") dependency key built from `ReactChildren.deps()`.
+ */
 export type ReactChildrenDepsKey = string;
