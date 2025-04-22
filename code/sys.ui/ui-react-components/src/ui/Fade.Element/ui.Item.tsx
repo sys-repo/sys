@@ -1,48 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { type t, css, Time } from './common.ts';
+import { type t, css } from './common.ts';
 
 export type ItemProps = {
-  item: t.FadeElementItem;
+  children: React.ReactNode;
   duration: t.Msecs;
+  show: boolean;
   style?: t.CssInput;
 };
 
-/**
- * Component:
- */
 export const Item: React.FC<ItemProps> = (props) => {
-  const { item, duration } = props;
-  const [visible, setVisible] = useState<boolean>(false);
+  const { children, duration, show, style } = props;
+  const [visible, setVisible] = useState(() => !show);
 
   /**
-   * Effect: fade-out.
+   * Effect: manage fade-in/out.
    */
   useEffect(() => {
-    if (!item.fadingOut) {
-      const time = Time.until();
-      time.delay(0, () => setVisible(true));
-      return time.dispose;
-    }
-  }, [item.fadingOut]);
+    // Reset to opposite state immediately.
+    setVisible(!show);
 
-  /**
-   * Effect: When the item is marked as fading out, update the visible flag.
-   */
-  useEffect(() => {
-    if (item.fadingOut) setVisible(false);
-  }, [item.fadingOut]);
+    let rafA: number;
+    let rafB: number;
+
+    // Next frame → schedule another frame → flip to `show`.
+    rafA = requestAnimationFrame(() => {
+      rafB = requestAnimationFrame(() => setVisible(show));
+    });
+
+    return () => {
+      cancelAnimationFrame(rafA);
+      cancelAnimationFrame(rafB);
+    };
+  }, [show]);
 
   /**
    * Render:
    */
   const styles = {
     base: css({ display: 'grid', placeItems: 'center' }),
-    body: css({ transition: `opacity ${duration}ms`, opacity: visible ? 1 : 0 }),
+    body: css({
+      transition: `opacity ${duration}ms`,
+      opacity: visible ? 1 : 0,
+    }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{item.children}</div>
+    <div className={css(styles.base, style).class}>
+      <div className={styles.body.class}>{children}</div>
     </div>
   );
 };
