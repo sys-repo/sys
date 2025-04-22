@@ -73,7 +73,6 @@ deno.json:
   - import: npm:chai@5
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
-  - import: npm:subhosting@0.1.0-alpha.1
   - import: npm:diff@7
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.0
@@ -87,7 +86,6 @@ deno.json:
   - import: npm:ramda@0.30.1
   - import: npm:rxjs@7.8.2
   - import: npm:strip-ansi@7
-  - import: npm:subhosting@0.1.0-alpha.1
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.0.4
   - import: npm:valibot@1.0.0

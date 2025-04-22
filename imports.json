@@ -45,7 +45,6 @@
     "react-spinners": "npm:react-spinners@0.17.0",
     "rxjs": "npm:rxjs@7.8.2",
     "strip-ansi": "npm:strip-ansi@7",
-    "subhosting": "npm:subhosting@0.1.0-alpha.1",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
     "ua-parser-js": "npm:ua-parser-js@2.0.3",
