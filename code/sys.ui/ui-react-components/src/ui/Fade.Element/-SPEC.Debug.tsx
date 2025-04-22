@@ -14,23 +14,24 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 /**
  * Signals:
  */
-export function createDebugSignals(init?: (e: DebugSignals) => void) {
+export function createDebugSignals() {
   const s = Signal.create;
   const props = {
+    fixedSize: s(false),
     theme: s<t.CommonTheme>('Light'),
-    children: s<P['children']>(),
-    duration: s<P['duration']>(),
+    duration: s<P['duration']>(1500), // NB: super slow for clarity while debugging.
+    children: s<P['children']>('👋 Hello'),
   };
   const api = {
     props,
     listen() {
       const p = props;
+      p.fixedSize.value;
       p.theme.value;
       p.children.value;
       p.duration.value;
     },
   };
-  init?.(api);
   return api;
 }
 
@@ -96,11 +97,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {childrenButton(`children: {element} - 1`, child1)}
       {childrenButton(`children: {element} - 2`, child2)}
       {childrenButton(`children: {element} - [1, 2, 3]`, [child1, child2, child3])}
-      {childrenButton(`children: string - 1`, '👋 hello')}
+      {childrenButton(`children: string - 1`, '👋 Hello')}
       {childrenButton(`children: string - 2`, '🐷')}
       {childrenButton(`children: number`, 123)}
 
       <hr />
+      <Button
+        block
+        label={() => `debug - fixed size: ${p.fixedSize.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.fixedSize)}
+      />
+
+      <hr />
+      <div className={styles.title.class}>{'Debug:'}</div>
       <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );

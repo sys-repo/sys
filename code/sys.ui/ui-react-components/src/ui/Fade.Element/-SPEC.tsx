@@ -12,13 +12,13 @@ export default Spec.describe('FadeElement', (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
+      ctx.subject.size(p.fixedSize.value ? [390, 200] : [null, null]);
       ctx.redraw();
     });
 
     ctx.subject
-      .size([390, 200])
       .display('grid')
-      .render((e) => <FadeElement duration={p.duration.value} children={p.children.value} />);
+      .render(() => <FadeElement duration={p.duration.value} children={p.children.value} />);
   });
 
   e.it('ui:debug', (e) => {
