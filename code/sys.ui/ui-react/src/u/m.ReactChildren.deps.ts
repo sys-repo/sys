@@ -27,6 +27,26 @@ export const deps: t.ReactChildrenLib['deps'] = (children) => {
 };
 
 /**
+ * Helpers:
+ */
+function flattenChildren(children: t.ReactNode) {
+  const res: t.ReactNode[] = [];
+
+  const flatten = (nodes: t.ReactNode) => {
+    Children.forEach(nodes, (child) => {
+      if (isValidElement(child) && child.type === Fragment) {
+        flatten(child.props.children);
+      } else {
+        res.push(child);
+      }
+    });
+  };
+
+  flatten(children);
+  return res;
+}
+
+/**
  * Strip any leading non‑alphanumeric chars from React’s internal key
  * escaping (e.g. “.0”, “.$foo”), then drop pure‑numeric strings
  * (the auto‑generated indices). Return the raw user key, or
@@ -51,19 +71,4 @@ function getExplicitKey(key: React.Key | null): string | undefined {
   const raw = key.slice(i);
   if (!raw || /^[0-9]+$/.test(raw)) return undefined;
   return raw;
-}
-
-function flattenChildren(children: t.ReactNode) {
-  const res: React.ReactNode[] = [];
-  function flatten(nodes: t.ReactNode) {
-    Children.forEach(nodes, (child) => {
-      if (isValidElement(child) && child.type === Fragment) {
-        flatten(child.props.children);
-      } else {
-        res.push(child);
-      }
-    });
-  }
-  flatten(children);
-  return res;
 }
