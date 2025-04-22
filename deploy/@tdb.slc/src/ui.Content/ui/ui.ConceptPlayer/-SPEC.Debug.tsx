@@ -40,6 +40,12 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       p.contentBody.value;
       video.props.playing.value;
     },
+    get is() {
+      return {
+        debug: p.debug.value ?? false,
+        center: p.columnAlign.value === 'Center',
+      };
+    },
   };
   init?.(api);
   return api;
