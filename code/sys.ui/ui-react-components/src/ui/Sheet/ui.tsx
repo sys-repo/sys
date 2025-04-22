@@ -43,7 +43,7 @@ export const Sheet: React.FC<P> = (props) => {
 
   return (
     <M.div
-      data-component={`sys.ui.sheet`}
+      data-component={`sys.ui.Sheet`}
       className={css(styles.base, props.style).class}
       /**
        * Animation:

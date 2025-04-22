@@ -11,7 +11,10 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
    */
   const gridTemplateColumns = wrangle.gridTemplateColumns(props);
   const styles = {
-    base: css({ position: 'relative', display: 'grid' }),
+    base: css({
+      position: 'relative',
+      display: 'grid',
+    }),
     section: css({
       display: 'grid',
       gridTemplateColumns,
@@ -36,7 +39,10 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
    */
   const layout = { type: 'spring' as const, stiffness: 600, damping: 36 };
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div
+      className={css(styles.base, props.style).class}
+      data-component={`sys.ui.Layout.CenterColumn`}
+    >
       <M.section layout transition={{ layout }} className={styles.section.class}>
         <M.div layout transition={{ layout }} className={styles.edge.class}>
           {props.left}
