@@ -1,20 +1,20 @@
 {
   "dependencies": {
-    "@noble/hashes": "1.7.1",
-    "@std/async": "npm:@jsr/std__async@1.0.10",
-    "@std/datetime": "npm:@jsr/std__datetime@0.225.3",
+    "@noble/hashes": "1.8.0",
+    "@std/async": "npm:@jsr/std__async@1.0.12",
+    "@std/datetime": "npm:@jsr/std__datetime@0.225.4",
     "@std/dotenv": "npm:@jsr/std__dotenv@0.225.3",
-    "@std/encoding": "npm:@jsr/std__encoding@1.0.7",
-    "@std/fs": "npm:@jsr/std__fs@1.0.13",
+    "@std/encoding": "npm:@jsr/std__encoding@1.0.9",
+    "@std/fs": "npm:@jsr/std__fs@1.0.16",
     "@std/path": "npm:@jsr/std__path@1.0.8",
-    "@std/semver": "npm:@jsr/std__semver@1.0.4",
-    "@std/testing": "npm:@jsr/std__testing@1.0.9",
-    "@std/uuid": "npm:@jsr/std__uuid@1.0.4",
+    "@std/semver": "npm:@jsr/std__semver@1.0.5",
+    "@std/testing": "npm:@jsr/std__testing@1.0.11",
+    "@std/uuid": "npm:@jsr/std__uuid@1.0.6",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
     "@vidstack/react": "1.12.13",
-    "hono": "4.7.2",
-    "motion": "12.5.0",
+    "hono": "4.7.7",
+    "motion": "12.7.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.5.0",
@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "1.0.4",
-    "@vitejs/plugin-react-swc": "3.8.0",
-    "rollup": "4.34.8",
-    "vite": "6.1.1",
+    "@vitejs/plugin-react-swc": "3.9.0",
+    "rollup": "4.40.0",
+    "vite": "6.3.2",
     "vite-plugin-wasm": "3.4.1"
   }
 }

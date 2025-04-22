@@ -16,13 +16,13 @@ describe('Content', () => {
       const test = (input: any, expected: boolean) => expect(Is.video(input)).to.eql(expected);
       test(await factory('Trailer'), true);
       test(await factory('Overview'), true);
+      test(await factory('Programme'), true);
       NON.forEach((value) => test(value, false));
     });
 
     it('Is.static', async () => {
       const test = (input: any, expected: boolean) => expect(Is.static(input)).to.eql(expected);
       test(await factory('Entry'), true);
-      test(await factory('Programme'), true);
       NON.forEach((value) => test(value, false));
     });
   });

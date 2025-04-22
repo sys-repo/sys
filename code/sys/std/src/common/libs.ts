@@ -5,6 +5,7 @@ import type * as t from './t.ts';
  */
 import {
   clamp,
+  clone,
   equals,
   flatten,
   is,
@@ -15,8 +16,7 @@ import {
   toString,
   uniq,
   uniqBy,
-} from 'rambda';
-import { clone } from 'ramda'; // NB: clone from "rambda" causes errors on circular-references.
+} from 'ramda';
 
 /**
  * Ramda functional utilities.
