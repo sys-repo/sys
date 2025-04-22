@@ -2,14 +2,14 @@ import React from 'react';
 import { type t, Color, css, LogoCanvas } from './common.ts';
 import { SectionButton } from './ui.Buttons.tsx';
 
-export type IndexProps = t.VideoContentProps & {
+export type MenuListProps = t.VideoContentProps & {
   onModuleSelect?: (e: { label: string }) => void;
 };
 
 /**
  * Component:
  */
-export const Index: React.FC<IndexProps> = (props) => {
+export const MenuList: React.FC<MenuListProps> = (props) => {
   const {} = props;
 
   const button = (label: string) => {

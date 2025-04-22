@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { type t, Color, ConceptPlayer, css } from './common.ts';
-import { Index } from './ui.Index.tsx';
+import { MenuList } from './ui.Menu.tsx';
 
 export type ProgrammeRootProps = t.VideoContentProps & {};
 
@@ -27,7 +27,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   };
 
   const elIndex = (
-    <Index
+    <MenuList
       {...props}
       onModuleSelect={(e) => {
         setAlign('Right');
