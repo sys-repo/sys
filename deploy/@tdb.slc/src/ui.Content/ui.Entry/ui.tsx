@@ -33,8 +33,8 @@ export const Entry: React.FC<EntryProps> = (props) => {
       gridTemplateRows: '44px 1fr auto',
     }),
     header: css({
-      MarginX: 10,
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      MarginX: 20,
+      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.06)}`,
       display: 'grid',
       placeItems: 'center',
     }),
