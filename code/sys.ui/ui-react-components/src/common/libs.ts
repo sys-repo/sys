@@ -8,4 +8,10 @@ export { Motion as M, Motion };
 export { Err, Is, isRecord, Path, Pkg, rx, slug, Str, Time, Timestamp } from '@sys/std';
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
-export { ReactString, Signal, useIsTouchSupported, useSizeObserver } from '@sys/ui-react';
+export {
+  ReactChildren,
+  ReactString,
+  Signal,
+  useIsTouchSupported,
+  useSizeObserver,
+} from '@sys/ui-react';
