@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx, LogoCanvas } from './common.ts';
+import React from 'react';
+import { type t, Color, css, LogoCanvas } from './common.ts';
 import { SectionButton } from './ui.Buttons.tsx';
 
 export type IndexProps = t.VideoContentProps & {
@@ -13,15 +13,8 @@ export const Index: React.FC<IndexProps> = (props) => {
   const {} = props;
 
   const button = (label: string) => {
-    return (
-      <SectionButton
-        label={label}
-        onClick={() => {
-          console.log('hello');
-          props.onModuleSelect?.({ label });
-        }}
-      />
-    );
+    const handleClick = () => props.onModuleSelect?.({ label });
+    return <SectionButton label={label} onClick={handleClick} />;
   };
 
   /**
