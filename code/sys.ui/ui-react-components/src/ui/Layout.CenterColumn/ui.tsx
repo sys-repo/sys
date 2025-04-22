@@ -18,16 +18,17 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
       columnGap: `${gap}px`,
     }),
     center: css({
+      zIndex: 1,
       backgroundColor: !debug ? undefined : Color.RUBY,
       width: centerWidth,
-      zIndex: 1,
-      overflow: 'hidden',
       display: 'grid',
     }),
-
-    edge: css({ display: 'grid', zIndex: 0, overflow: 'hidden' }),
-    left: css({}),
-    right: css({}),
+    edge: css({
+      position: 'relative',
+      overflow: 'hidden',
+      zIndex: 0,
+      display: 'grid',
+    }),
   };
 
   /**
@@ -37,7 +38,7 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <M.section layout transition={{ layout }} className={styles.section.class}>
-        <M.div layout transition={{ layout }} className={css(styles.edge, styles.left).class}>
+        <M.div layout transition={{ layout }} className={styles.edge.class}>
           {props.left}
         </M.div>
 
@@ -45,7 +46,7 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
           {props.center}
         </M.div>
 
-        <M.div layout transition={{ layout }} className={css(styles.edge, styles.right).class}>
+        <M.div layout transition={{ layout }} className={styles.edge.class}>
           {props.right}
         </M.div>
       </M.section>

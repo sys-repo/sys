@@ -18,9 +18,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
 
   const styles = {
-    center: css({ padding: 10 }),
+    center: css({ overflow: 'hidden' }),
     edge: css({
-      padding: 10,
       backgroundColor: Color.alpha(Color.DARK, 0.04),
       display: 'grid',
       placeItems: 'center',
@@ -40,7 +39,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const elRight = edgeDiv('Right');
   const elCenter = (
     <div className={styles.center.class} onMouseDown={alignHandler('Center')}>
-      {'👋 Hello Center (Column)'}
+      <div style={{ padding: 10 }}>{'👋 Hello Center (Column)'}</div>
     </div>
   );
 
