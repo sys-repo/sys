@@ -3,14 +3,17 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
+import { SpecsExternal } from './entry.Specs.External.ts';
 
-export const Specs = {
+/**
+ * Module Components
+ */
+export const SpecsComponents = {
   'tdb.slc.entry.Landing-1': () => import('../ui/ui.Landing-1/-SPEC.tsx'),
   'tdb.slc.entry.Landing-2': () => import('../ui/ui.Landing-2/-SPEC.tsx'),
   'tdb.slc.entry.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
 
   'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
-  'tdb.slc.ui.Layout.CenterColumn': () => import('../ui/ui.Layout.CenterColumn/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
   'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),
@@ -22,3 +25,9 @@ export const Specs = {
   'tdb.slc.content.CanvasSlug': () => import('../ui.Content/ui/ui.CanvasSlug/-SPEC.tsx'),
   'tdb.slc.content.FadeText': () => import('../ui.Content/ui/ui.FadeText/-SPEC.tsx'),
 } as t.SpecImports;
+
+/**
+ * Specs:
+ */
+export const Specs = { ...SpecsComponents, ...SpecsExternal } as t.SpecImports;
+export { SpecsExternal };

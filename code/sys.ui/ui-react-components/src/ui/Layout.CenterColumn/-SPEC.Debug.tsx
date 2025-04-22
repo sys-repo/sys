@@ -1,5 +1,7 @@
 import React from 'react';
-import { type t, Button, Color, css, ObjectView, Signal } from './common.ts';
+import { Button } from '../Button/mod.ts';
+import { ObjectView } from '../ObjectView/mod.ts';
+import { type t, Color, css, Signal } from './common.ts';
 
 type P = t.LayoutCenterColumnProps;
 
@@ -129,10 +131,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={`centerWidth: ${p.centerWidth.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle(p.centerWidth, [0, 100, undefined])}
+        onClick={() => Signal.cycle(p.centerWidth, [0, 200, 600, undefined])}
       />
-
-      <hr />
 
       <hr />
       {align('Left')}
@@ -150,11 +150,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView
-        name={'props'}
-        data={Signal.toObject(debug.props)}
-        expand={{ level: 1, paths: ['$', '$.center'] }}
-      />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
     </div>
   );
 };

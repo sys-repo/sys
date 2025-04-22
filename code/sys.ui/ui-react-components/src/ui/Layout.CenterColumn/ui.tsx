@@ -17,10 +17,11 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
       gridTemplateColumns,
       columnGap: `${gap}px`,
     }),
-    column: css({
+    center: css({
       backgroundColor: !debug ? undefined : Color.RUBY,
       width: centerWidth,
       zIndex: 1,
+      overflow: 'hidden',
       display: 'grid',
     }),
 
@@ -40,7 +41,7 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
           {props.left}
         </M.div>
 
-        <M.div layout transition={{ layout }} className={styles.column.class}>
+        <M.div layout transition={{ layout }} className={styles.center.class}>
           {props.center}
         </M.div>
 
@@ -56,11 +57,23 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
+  // gridTemplateColumns(props: P) {
+  //   const { centerWidth = D.center.width, align = D.center.align } = props;
+  //   const W = `${centerWidth}px`;
+  //   if (align === 'Left') return `0px ${W} 1fr`;
+  //   if (align === 'Right') return `1fr ${W} 0px`;
+  //   return `1fr ${W} 1fr`;
+  // },
+
   gridTemplateColumns(props: P) {
     const { centerWidth = D.center.width, align = D.center.align } = props;
+
     const W = `${centerWidth}px`;
-    if (align === 'Left') return `0px ${W} 1fr`;
-    if (align === 'Right') return `1fr ${W} 0px`;
-    return `1fr ${W} 1fr`;
+    const side = 'minmax(0, 1fr)';
+    const center = `minmax(0, ${W})`; // ← allow this track to go to 0px
+
+    if (align === 'Left') return `0px ${center} ${side}`;
+    if (align === 'Right') return `${side} ${center} 0px`;
+    return `${side} ${center} ${side}`;
   },
 } as const;

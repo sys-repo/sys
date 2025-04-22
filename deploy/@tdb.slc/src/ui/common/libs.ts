@@ -11,6 +11,7 @@ export { ReactString, useClickOutside, useIsTouchSupported, useSizeObserver } fr
 export {
   Button,
   Cropmarks,
+  LayoutCenterColumn,
   ObjectView,
   Player,
   Preload,

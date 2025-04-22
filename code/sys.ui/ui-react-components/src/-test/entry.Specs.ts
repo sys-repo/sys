@@ -3,7 +3,7 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-const ns = 'sys.ui.react.component';
+export const ns = 'sys.ui.react.component';
 
 /**
  * Components:
@@ -15,6 +15,7 @@ export const SpecsComponents = {
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
+  [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-SPEC.tsx'),
   [`${ns}: Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),

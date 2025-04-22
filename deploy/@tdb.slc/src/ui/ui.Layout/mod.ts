@@ -1,7 +1,6 @@
 /**
  * @module
  */
-export { LayoutCenterColumn } from '../ui.Layout.CenterColumn/mod.ts';
 export { Layout } from './m.Layout.tsx';
 
 export { LayoutDesktop } from './ui.Desktop.tsx';
