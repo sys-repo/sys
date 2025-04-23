@@ -16,9 +16,9 @@ export default Spec.describe('Playlist', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([390, 500])
       .display('grid')
-      .render(() => <Playlist theme={p.theme.value} />);
+      .render(() => <Playlist theme={p.theme.value} items={p.items.value} />);
   });
 
   e.it('ui:debug', (e) => {

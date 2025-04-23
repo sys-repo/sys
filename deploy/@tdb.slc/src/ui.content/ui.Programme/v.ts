@@ -14,3 +14,5 @@ export const children: t.VideoMediaContent[] = [
   metrics,
   conculsion,
 ];
+
+export const Programme = { children } as const;
