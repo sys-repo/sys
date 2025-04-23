@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
-import { Playlist } from './ui.Playlist.tsx';
+import { type t, Color, css, Playlist } from './common.ts';
 
 export type SectionProps = {
   media: t.VideoMediaContent;
