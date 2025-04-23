@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, LogoCanvas } from './common.ts';
+import { type t, Color, css, LogoCanvas, Obj } from './common.ts';
 import { SectionButton } from './ui.Buttons.tsx';
 
 export type MenuListProps = t.VideoContentProps & {
@@ -10,12 +10,7 @@ export type MenuListProps = t.VideoContentProps & {
  * Component:
  */
 export const MenuList: React.FC<MenuListProps> = (props) => {
-  const {} = props;
-
-  const button = (label: string) => {
-    const handleClick = () => props.onModuleSelect?.({ label });
-    return <SectionButton label={label} onClick={handleClick} />;
-  };
+  const { content } = props;
 
   /**
    * Render:
@@ -33,16 +28,16 @@ export const MenuList: React.FC<MenuListProps> = (props) => {
     buttons: css({ marginTop: 40 }),
   };
 
+  const renderButton = (label: string = 'Untitled') => {
+    const onClick = () => props.onModuleSelect?.({ label });
+    return <SectionButton key={Obj.hash(label)} label={label} onClick={onClick} />;
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <LogoCanvas theme={theme.name} style={styles.canvas} />
       <div className={styles.buttons.class}>
-        {button('Getting Started')}
-        {button('Customer Model')}
-        {button('Impact Model')}
-        {button('Economic Model')}
-        {button('Key Metrics')}
-        {button('Conclusion')}
+        {content.media?.children?.map((m) => renderButton(m.title))}
       </div>
     </div>
   );

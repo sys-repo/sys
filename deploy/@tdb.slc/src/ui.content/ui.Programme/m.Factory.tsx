@@ -1,7 +1,6 @@
 import React from 'react';
 import { VIDEO } from '../VIDEO.ts';
 import { type t, DEFAULTS, Player } from './common.ts';
-import { timestamps } from './m.Factory.timestamps.tsx';
 import { ProgrammeRoot } from './ui.tsx';
 
 /**
@@ -10,18 +9,30 @@ import { ProgrammeRoot } from './ui.tsx';
 export function factory() {
   const sheetTheme = DEFAULTS.theme.sheet;
 
+  const DUMMY = VIDEO.Programme.Intro.About.src; // TEMP 🐷
+  const v = (src: string) =>
+    Player.Video.signals({
+      src,
+      fadeMask: 10,
+      scale: (e) => e.enlargeBy(2),
+    });
+
   const content: t.VideoContent = {
     id: 'Programme',
     kind: 'VideoContent',
 
     playOnLoad: false,
     media: {
-      timestamps,
-      video: Player.Video.signals({
-        src: VIDEO.Programme.Intro.About.src,
-        fadeMask: { direction: 'Top:Down', size: 10 },
-        scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
-      }),
+      video: v(VIDEO.Programme.Intro.About.src),
+      timestamps: {},
+      children: [
+        { title: 'Getting Started', video: v(DUMMY), timestamps: {} },
+        { title: 'Customer Model', video: v(DUMMY), timestamps: {} },
+        { title: 'Impact Model', video: v(DUMMY), timestamps: {} },
+        { title: 'Economic Model', video: v(DUMMY), timestamps: {} },
+        { title: 'Key Metrics', video: v(DUMMY), timestamps: {} },
+        { title: 'Conclusion', video: v(DUMMY), timestamps: {} },
+      ],
     },
     render(props) {
       return <ProgrammeRoot {...props} theme={sheetTheme} />;
