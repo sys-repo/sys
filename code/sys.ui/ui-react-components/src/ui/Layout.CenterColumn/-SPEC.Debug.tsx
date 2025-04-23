@@ -23,6 +23,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       backgroundColor: Color.alpha(Color.DARK, 0.04),
       display: 'grid',
       placeItems: 'center',
+      userSelect: 'none',
     }),
   };
 
