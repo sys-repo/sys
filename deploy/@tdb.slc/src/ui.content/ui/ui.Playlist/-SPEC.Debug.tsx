@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Button, css, ObjectView, Signal } from './common.ts';
-
 import { Programme } from '../../ui.Programme/v.ts';
+import { type t, Button, css, ObjectView, Signal } from './common.ts';
 
 type P = t.PlaylistProps;
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom } from './common.ts';
-import { MenuList } from './ui.Menu.tsx';
+import { RootMenu } from './ui.RootMenu.tsx';
 import { Section } from './ui.Section.tsx';
 
 export type ProgrammeRootProps = t.VideoContentProps & {};
@@ -30,11 +30,11 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   };
 
   const elRootMenu = (
-    <MenuList
+    <RootMenu
       {...props}
-      onModuleSelect={(e) => {
+      onSelect={(e) => {
         setAlign('Right');
-        setMedia(e.media);
+        setMedia(e.item);
       }}
     />
   );

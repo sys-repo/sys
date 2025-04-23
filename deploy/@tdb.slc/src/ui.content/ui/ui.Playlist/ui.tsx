@@ -3,8 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
-  const { items = [], debug, gap = D.gap } = props;
-
+  const { items = [], debug = false, gap = D.gap } = props;
   if (items.length === 0) return null;
 
   /**

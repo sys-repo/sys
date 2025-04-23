@@ -3,7 +3,7 @@ import { type t, Color, css } from './common.ts';
 import { MenuButton } from './ui.Button.tsx';
 
 export const MenuList: React.FC<t.MenuListProps> = (props) => {
-  const { debug, items = [] } = props;
+  const { debug = false, items = [] } = props;
 
   /**
    * Render:
@@ -16,7 +16,7 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
       alignContent: 'start',
     }),
     body: css({
-      backgroundColor: Color.ruby(debug ? 0.1 : 0),
+      backgroundColor: Color.ruby(debug),
     }),
   };
 
