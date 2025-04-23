@@ -37,7 +37,7 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
       columnGap: '10px',
       padding: '0 10px',
     }),
-    title: css({ fontSize: 16 }),
+    title: css({ fontSize: 18 }),
   };
 
   return (

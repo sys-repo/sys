@@ -23,7 +23,7 @@ export const Item: React.FC<ItemProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: 'auto 1fr',
       alignItems: 'center',
-      columnGap: 10,
+      columnGap: 12,
     }),
   };
 
