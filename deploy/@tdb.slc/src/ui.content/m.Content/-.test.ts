@@ -47,7 +47,7 @@ describe('Content', () => {
       });
 
       it('single item', () => {
-        const res = Content.Video.media({ kind, id, media });
+        const res = Content.Video.media({ kind, id, media: [media] });
         expect(res.current).to.equal(media);
         expect(res.items).to.eql([media]);
       });

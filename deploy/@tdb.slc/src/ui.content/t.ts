@@ -33,7 +33,7 @@ type VideoProps = {
   id: t.StringId;
   playOnLoad?: boolean;
   showElapsed?: boolean;
-  media?: VideoContentMedia | VideoContentMedia[];
+  media?: VideoContentMedia[];
   mediaIndex?: t.Index;
 };
 
