@@ -1,5 +1,5 @@
 import React from 'react';
-import { IMAGE } from '../../ui.Content/ui.Overview/common.ts';
+import { IMAGE } from '../../ui.content/ui.Overview/common.ts';
 import { type t, Button, css, Signal } from './common.ts';
 
 type P = t.ImageViewProps;

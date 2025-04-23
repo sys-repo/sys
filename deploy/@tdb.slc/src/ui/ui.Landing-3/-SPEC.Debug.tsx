@@ -1,5 +1,5 @@
 import React from 'react';
-import { Content } from '../../ui.Content/mod.ts';
+import { Content } from '../../ui.content/mod.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
 import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
 

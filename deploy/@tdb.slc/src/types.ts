@@ -33,15 +33,15 @@ export type * from './ui/use/t.ts';
 /**
  * UI Content:
  */
-export type * from './ui.Content/m.Content/t.ts';
-export type * from './ui.Content/m.Factory/t.ts';
-export type * from './ui.Content/t.ts';
-export type * from './ui.Content/ui/t.ts';
-export type * from './ui.Content/ui/ui.CanvasSlug/t.ts';
-export type * from './ui.Content/ui/ui.ConceptPlayer/t.ts';
-export type * from './ui.Content/ui/ui.Pulldown/t.ts';
+export type * from './ui.content/m.Content/t.ts';
+export type * from './ui.content/m.Factory/t.ts';
+export type * from './ui.content/t.ts';
+export type * from './ui.content/ui/t.ts';
+export type * from './ui.content/ui/ui.CanvasSlug/t.ts';
+export type * from './ui.content/ui/ui.ConceptPlayer/t.ts';
+export type * from './ui.content/ui/ui.Pulldown/t.ts';
 
-export type * from './ui.Content/-sample/ui.Videos/t.ts';
+export type * from './ui.content/-sample/ui.Videos/t.ts';
 
 /**
  * SLC Panels.

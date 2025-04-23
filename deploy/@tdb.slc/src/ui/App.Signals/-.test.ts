@@ -1,5 +1,5 @@
 import { c, describe, expect, it, Signal } from '../../-test.ts';
-import { VIDEO } from '../../ui.Content/VIDEO.ts';
+import { VIDEO } from '../../ui.content/VIDEO.ts';
 import { AppSignals } from './mod.ts';
 
 describe('AppSignals', () => {

@@ -21,9 +21,9 @@ export const SpecsComponents = {
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 
-  'tdb.slc.content.videos: (index)': () => import('../ui.Content/-sample/ui.Videos/-SPEC.tsx'),
-  'tdb.slc.content.ConceptPlayer': () => import('../ui.Content/ui/ui.ConceptPlayer/-SPEC.tsx'),
-  'tdb.slc.content.CanvasSlug': () => import('../ui.Content/ui/ui.CanvasSlug/-SPEC.tsx'),
+  'tdb.slc.content.videos: (index)': () => import('../ui.content/-sample/ui.Videos/-SPEC.tsx'),
+  'tdb.slc.content.ConceptPlayer': () => import('../ui.content/ui/ui.ConceptPlayer/-SPEC.tsx'),
+  'tdb.slc.content.CanvasSlug': () => import('../ui.content/ui/ui.CanvasSlug/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

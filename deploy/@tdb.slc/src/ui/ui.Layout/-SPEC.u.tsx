@@ -1,5 +1,5 @@
 import React from 'react';
-import { Content } from '../../ui.Content/mod.ts';
+import { Content } from '../../ui.content/mod.ts';
 import { type t, Button, Signal } from './common.ts';
 
 export { Content };
