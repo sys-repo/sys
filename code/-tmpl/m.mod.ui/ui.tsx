@@ -10,7 +10,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug ? 0.1 : 0),
+      backgroundColor: Color.ruby(debug),
       color: theme.fg,
     }),
   };

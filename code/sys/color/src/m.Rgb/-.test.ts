@@ -78,8 +78,14 @@ describe('Color', () => {
       expect(res1).to.eql(Color.alpha(Color.RED, 1));
       expect(res2).to.eql(Color.alpha(Color.RED, 0));
       expect(res3).to.eql(Color.alpha(Color.RED, 0.1));
-
       expect(res3).to.eql(res4);
+    });
+
+    it('boolean parameter (eg. debug flag)', () => {
+      const res1 = Color.ruby(true);
+      const res2 = Color.ruby(false);
+      expect(res1).to.eql(Color.alpha(Color.RED, 0.1));
+      expect(res2).to.eql(Color.alpha(Color.RED, 0));
     });
   });
 
