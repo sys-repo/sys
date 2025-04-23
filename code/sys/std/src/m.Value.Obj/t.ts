@@ -79,6 +79,12 @@ export type ObjLib = {
    * Deeply clones and extends the given object with a set of extra properties.
    */
   extend<T extends object, U extends object>(src: T, extra: U): ObjExtend<T, U>;
+
+  /**
+   * Convert the value to a simple number-hash.
+   * "fast, consistent, unique hashCode" on any JS value object.
+   */
+  hash<T>(value: T): number;
 };
 
 /** A callback passed to the object walker function. */
