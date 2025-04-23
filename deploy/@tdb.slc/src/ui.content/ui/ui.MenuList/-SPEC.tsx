@@ -18,7 +18,15 @@ export default Spec.describe('MenuList', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => <MenuList theme={p.theme.value} style={{ width: 390 }} />);
+      .render(() => (
+        <MenuList
+          style={{ width: 390, Padding: [20, 40] }}
+          theme={p.theme.value}
+          debug={p.debug.value}
+          items={p.items.value}
+          onSelect={(e) => console.info(`⚡️ onSelect:`, e)}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

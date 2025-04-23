@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css } from './common.ts';
+import { MenuButton } from './ui.Button.tsx';
 
 export const MenuList: React.FC<t.MenuListProps> = (props) => {
-  const {} = props;
+  const { debug, items = [] } = props;
 
   /**
    * Render:
@@ -10,15 +11,24 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
+      display: 'grid',
+      alignContent: 'start',
     }),
-    body: css({}),
+    body: css({
+      backgroundColor: Color.ruby(debug ? 0.1 : 0),
+    }),
+  };
+
+  const button = (item: t.VideoMediaContent) => {
+    const label = item.title ?? 'Untitled';
+    const onClick = () => props.onSelect?.({ item });
+    return <MenuButton key={item.id} label={label} onClick={onClick} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{`🐷 ${D.displayName}`}</div>
+      <div className={styles.body.class}>{items.map((m) => button(m))}</div>
     </div>
   );
 };

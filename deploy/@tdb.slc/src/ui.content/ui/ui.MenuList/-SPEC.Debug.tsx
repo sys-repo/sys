@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, D, Signal } from './common.ts';
+import { Programme } from '../../ui.Programme/v.ts';
+import { type t, Button, css, D, ObjectView, Signal } from './common.ts';
 
 type P = t.MenuListProps;
 
@@ -17,6 +18,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    items: s<P['items']>(Programme.children[0].children),
   };
   const p = props;
   const api = {
@@ -24,6 +26,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.items.value;
     },
   };
   return api;
@@ -71,6 +74,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => {
+          const items = p.items.value;
+          return `items: ${items ? `array [${items.length}]` : `<undefined>`}`;
+        }}
+        onClick={() => {
+          type T = t.VideoMediaContent[] | undefined;
+          const m = Programme.children.map((m) => m.children).filter(Boolean);
+          Signal.cycle<T>(p.items, [...m, undefined]);
+        }}
+      />
+
+      <hr />
+      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );
 };
