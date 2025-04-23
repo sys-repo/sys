@@ -272,7 +272,7 @@ describe('Err (Error)', () => {
       const err = Err.errors();
       expect(err.ok).to.eql(true);
       expect(err.length).to.eql(0);
-      expect(err.list.length).to.eql(0);
+      expect(err.items.length).to.eql(0);
       expect(err.is.empty).to.eql(true);
     });
 
@@ -284,7 +284,7 @@ describe('Err (Error)', () => {
       errors.push('foo').push('foo'); // NB: this will resovle to a new {StdError} and hence increment.
       expect(errors.ok).to.eql(false); // NB: greater-than no errors.
       expect(errors.length).to.eql(3);
-      expect(errors.list.length).to.eql(3);
+      expect(errors.items.length).to.eql(3);
     });
 
     it('add an array of errors', () => {
@@ -292,9 +292,9 @@ describe('Err (Error)', () => {
       const errors = Err.errors();
       errors.push([err, 'foo', err, err, 'bar']);
       expect(errors.length).to.eql(3);
-      expect(errors.list[0].message).to.eql('my-std-err');
-      expect(errors.list[1].message).to.eql('foo');
-      expect(errors.list[2].message).to.eql('bar');
+      expect(errors.items[0].message).to.eql('my-std-err');
+      expect(errors.items[1].message).to.eql('foo');
+      expect(errors.items[2].message).to.eql('bar');
     });
 
     it('add with two params (error and cause)', () => {
@@ -302,7 +302,7 @@ describe('Err (Error)', () => {
 
       errors.push('foo', 'bar');
       errors.push(Err.std('hello'), Err.std('fail'));
-      const list = errors.list;
+      const list = errors.items;
 
       expect(list[0].message).to.eql('foo');
       expect(list[0].cause?.message).to.eql('bar');
