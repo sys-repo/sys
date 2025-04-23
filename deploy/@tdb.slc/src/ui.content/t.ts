@@ -33,10 +33,18 @@ type VideoProps = {
   id: t.StringId;
   playOnLoad?: boolean;
   showElapsed?: boolean;
-  media?: {
-    video: t.VideoPlayerSignals;
-    timestamps: ContentTimestamps;
-  };
+  media?: VideoContentMedia | VideoContentMedia[];
+  mediaIndex?: t.Index;
 };
 
+/** A unit of playable video-media. */
+export type VideoContentMedia = {
+  title?: string;
+  video: t.VideoPlayerSignals;
+  timestamps: ContentTimestamps;
+};
+
+/**
+ * Renders a video with a map of timestamps.
+ */
 export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;
