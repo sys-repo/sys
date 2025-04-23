@@ -15,6 +15,7 @@ export type * from './ui/App/t.ts';
 /**
  * UI Structure:
  */
+export type * from './ui/ui.Bullet/t.ts';
 export type * from './ui/ui.FadeText/t.ts';
 export type * from './ui/ui.Image/t.ts';
 export type * from './ui/ui.Layout/t.ts';
@@ -28,6 +29,7 @@ export type * from './ui/ui.Landing-1/t.ts';
 export type * from './ui/ui.Landing-2/t.ts';
 export type * from './ui/ui.Landing-3/t.ts';
 
+// Hooks:
 export type * from './ui/use/t.ts';
 
 /**
