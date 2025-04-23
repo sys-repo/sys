@@ -15,7 +15,11 @@ export default Spec.describe('MobileLayout', async (e) => {
     useControllers(app);
     const style = css({ display: 'grid', overflow: 'hidden' });
     const el = Layout.render(p.screen.breakpoint.value, debug.app);
-    return <div className={style.class}>{el}</div>;
+    return (
+      <div className={style.class} data-component={App.type}>
+        {el}
+      </div>
+    );
   };
 
   e.it('init', async (e) => {

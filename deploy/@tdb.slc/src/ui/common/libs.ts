@@ -11,7 +11,7 @@ export { ReactString, useClickOutside, useIsTouchSupported, useSizeObserver } fr
 export {
   Button,
   Cropmarks,
-  FadeText,
+  FadeElement,
   LayoutCenterColumn,
   ObjectView,
   Player,

@@ -1,5 +1,13 @@
 import React from 'react';
-import { type t, Color, css, useControllers, useScreensize, VideoBackground } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  useControllers,
+  useScreensize,
+  VideoBackground,
+  App,
+} from './common.ts';
 import { Content } from './ui.Content.tsx';
 
 type P = t.Landing3Props;
@@ -49,7 +57,7 @@ export const Landing: React.FC<P> = (props) => {
   );
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={App.type}>
       {elBackground}
       {elBody}
     </div>
