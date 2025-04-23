@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lorem } from '../../-test.ui.ts';
+import { Lorem } from '../-test.ui.ts';
 import { type t, Button, css, D, Signal } from './common.ts';
 
 type P = t.FadeTextProps;

@@ -3,12 +3,12 @@ import {
   type t,
   Color,
   css,
-  FadeText,
   LogoCanvas,
   LogoWordmark,
   Time,
   TooSmall,
   useSizeObserver,
+  FadeText,
 } from './common.ts';
 
 export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
