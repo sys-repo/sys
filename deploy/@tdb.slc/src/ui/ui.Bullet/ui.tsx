@@ -17,7 +17,8 @@ export const Bullet: React.FC<t.BulletProps> = (props) => {
     }),
     body: css({
       borderRadius: Size,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: theme.bg,
+      border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
     }),
   };
 

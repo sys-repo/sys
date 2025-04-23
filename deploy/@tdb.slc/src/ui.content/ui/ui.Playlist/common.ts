@@ -1,7 +1,14 @@
+import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
  * Constants:
  */
-export const DEFAULTS = {} as const;
+const name = 'PlayList';
+export const DEFAULTS = {
+  name,
+  displayName: Pkg.toString(pkg, name),
+  gap: 20,
+  bulletSize: 9,
+} as const;
 export const D = DEFAULTS;

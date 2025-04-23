@@ -17,6 +17,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const props = {
+    debug: s(false),
     theme: s<P['theme']>('Light'),
     items: s<P['items']>(Programme.children[0].children),
   };
@@ -24,6 +25,7 @@ export function createDebugSignals() {
   const api = {
     props,
     listen() {
+      p.debug.value;
       p.theme.value;
       p.items.value;
     },
@@ -59,6 +61,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Playlist'}</div>
+
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
 
       <Button
         block

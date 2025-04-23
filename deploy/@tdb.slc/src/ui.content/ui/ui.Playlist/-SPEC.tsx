@@ -1,4 +1,4 @@
-import { Dev, Spec, Signal } from '../../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Playlist } from './mod.ts';
 
@@ -17,8 +17,14 @@ export default Spec.describe('Playlist', (e) => {
 
     ctx.subject
       .size([390, 500])
-      .display('grid')
-      .render(() => <Playlist theme={p.theme.value} items={p.items.value} />);
+      .render(() => (
+        <Playlist
+          theme={p.theme.value}
+          debug={p.debug.value}
+          items={p.items.value}
+          style={{ Margin: [0, 30, 30, 30], paddingTop: 50 }}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

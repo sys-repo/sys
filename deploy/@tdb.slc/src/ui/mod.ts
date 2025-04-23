@@ -6,6 +6,7 @@ export { LogoCanvas } from './ui.Logo.Canvas/mod.ts';
 export { LogoWordmark } from './ui.Logo.Wordmark/mod.ts';
 export { VideoBackground } from './ui.Video.Background/mod.ts';
 
+export { Bullet } from './ui.Bullet/mod.ts';
 export { FadeText } from './ui.FadeText/mod.ts';
 export { Image } from './ui.Image/mod.ts';
 export { Landing as Landing1 } from './ui.Landing-1/mod.ts';

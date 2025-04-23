@@ -1,8 +1,10 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
-  const { items = [] } = props;
+  const { items = [], debug, gap = D.gap } = props;
+
   if (items.length === 0) return null;
 
   /**
@@ -11,21 +13,32 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
+      backgroundColor: Color.alpha(Color.RUBY, debug ? 0.08 : 0),
       color: theme.fg,
-      lineHeight: 2.5,
+      fontSize: 16,
       userSelect: 'none',
       display: 'grid',
     }),
-    list: css({}),
+    list: css({
+      display: 'grid',
+      alignContent: 'start',
+      rowGap: gap,
+    }),
+    line: css({
+      Absolute: [0, null, 12, D.bulletSize / 2 - 0.5],
+      backgroundColor: Color.alpha(theme.fg, 0.12),
+      width: 1,
+    }),
   };
 
   const row = (media: t.VideoMediaContent) => {
-    const label = media.title ?? 'Untitled';
-    return <div key={media.id}>{label}</div>;
+    return <Item key={media.id} media={media} theme={theme.name} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={styles.line.class} />
       <div className={styles.list.class}>{items.map((media) => row(media))}</div>
     </div>
   );

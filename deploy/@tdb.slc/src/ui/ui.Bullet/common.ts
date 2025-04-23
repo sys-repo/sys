@@ -1,4 +1,4 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
