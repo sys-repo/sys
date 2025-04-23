@@ -6,11 +6,16 @@ export const Pkg: t.PkgLib = {
   Is,
   Dist,
 
-  toString(pkg) {
+  toString(pkg, suffix) {
     const UNKNOWN = DEFAULTS.UNKNOWN;
     if (!pkg || !isObject(pkg)) return Pkg.toString(UNKNOWN);
     const { name = UNKNOWN.name, version = UNKNOWN.version } = pkg;
-    return `${name}@${version}`;
+    let res = `${name}@${version}`;
+    if (typeof suffix === 'string') {
+      suffix = suffix.trim().replace(/^\:+/, '').trimStart();
+      if (suffix) res = `${res}:${suffix}`;
+    }
+    return res;
   },
 
   fromJson(input, defName, defVersion) {

@@ -19,6 +19,14 @@ describe('Pkg', () => {
       const res = Pkg.toString(pkg);
       expect(res).to.eql(`${pkg.name}@${pkg.version}`);
     });
+
+    it('suffix param', () => {
+      const base = Pkg.toString(pkg);
+      const a = Pkg.toString(pkg, 'FooBar');
+      const b = Pkg.toString(pkg, '  ::: ns.foo.bar  ');
+      expect(a).to.eql(`${base}:FooBar`);
+      expect(b).to.eql(`${base}:ns.foo.bar`);
+    });
   });
 
   describe('Pkg.fromJson', () => {

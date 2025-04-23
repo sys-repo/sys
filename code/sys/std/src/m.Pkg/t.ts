@@ -14,7 +14,7 @@ export type PkgLib = {
   readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
-  toString(input?: t.Pkg): string;
+  toString(input?: t.Pkg, suffix?: string): string;
 
   /**
    * Convert a JSON import to a simple <Pkg> structure.
