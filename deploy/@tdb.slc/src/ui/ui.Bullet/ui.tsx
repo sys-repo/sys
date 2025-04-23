@@ -3,6 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 
 export const Bullet: React.FC<t.BulletProps> = (props) => {
   const {} = props;
+  const Size = props.size ?? D.size;
 
   /**
    * Render:
@@ -10,14 +11,19 @@ export const Bullet: React.FC<t.BulletProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      Size,
+      position: 'relative',
+      display: 'grid',
+    }),
+    body: css({
+      borderRadius: Size,
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      color: theme.fg,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <div className={styles.body.class}></div>
     </div>
   );
 };

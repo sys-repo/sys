@@ -17,6 +17,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    size: s<P['size']>(),
   };
   const p = props;
   const api = {
@@ -24,6 +25,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.size.value;
     },
   };
   return api;
@@ -68,6 +70,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `size: ${p.size.value ?? `<undefined> - ${D.size}`}`}
+        onClick={() => Signal.cycle(p.size, [16, 22, undefined])}
       />
 
       <hr />
