@@ -41,6 +41,7 @@ export type * from './ui.content/t.ts';
 export type * from './ui.content/ui/t.ts';
 export type * from './ui.content/ui/ui.CanvasSlug/t.ts';
 export type * from './ui.content/ui/ui.ConceptPlayer/t.ts';
+export type * from './ui.content/ui/ui.MenuList/t.ts';
 export type * from './ui.content/ui/ui.Playlist/t.ts';
 export type * from './ui.content/ui/ui.Pulldown/t.ts';
 
