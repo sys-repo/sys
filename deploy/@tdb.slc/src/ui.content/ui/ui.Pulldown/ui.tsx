@@ -1,7 +1,7 @@
 import React from 'react';
 import { ElapsedTime } from '../ui.ElapsedTime.tsx';
 import { useTimestamps } from '../use.Timestamps.ts';
-import { type t, Content, Cropmarks, css, Sheet } from './common.ts';
+import { type t, Cropmarks, css, Sheet } from './common.ts';
 
 export type PullDownProps = t.VideoContentProps;
 
@@ -12,8 +12,7 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const media = Content.Video.media(props)?.current;
-  const player = media?.video;
+  const player = content.media?.video;
   const breakpoint = state.breakpoint;
   const timestamp = useTimestamps(props, player);
 

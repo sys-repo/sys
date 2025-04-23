@@ -1,6 +1,6 @@
 import React from 'react';
 import { ElapsedTime, usePulldown, useTimestamps } from '../ui/mod.ts';
-import { type t, Content, css, Player, Sheet, Time } from './common.ts';
+import { type t, css, Player, Sheet, Time } from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 
@@ -11,8 +11,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const media = Content.Video.media(props);
-  const player = media?.current?.video;
+  const player = content.media?.video;
   const timestamp = useTimestamps(props, player);
   usePulldown(props, timestamp);
 

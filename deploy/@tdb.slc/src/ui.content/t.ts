@@ -33,8 +33,7 @@ type VideoProps = {
   id: t.StringId;
   playOnLoad?: boolean;
   showElapsed?: boolean;
-  media?: VideoContentMedia[];
-  mediaIndex?: t.Index;
+  media?: VideoContentMedia;
 };
 
 /** A unit of playable video-media. */
@@ -42,6 +41,7 @@ export type VideoContentMedia = {
   title?: string;
   video: t.VideoPlayerSignals;
   timestamps: ContentTimestamps;
+  children?: VideoContentMedia[];
 };
 
 /**

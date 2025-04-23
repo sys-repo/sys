@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type t, Content, Is, Signal, Timestamp } from './common.ts';
+import { type t, Is, Signal, Timestamp } from './common.ts';
 
 export const useTimestamps: t.UseTimestamps = (props, player) => {
   const { state, content } = props;
@@ -11,8 +11,8 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
    * Effect:
    */
   Signal.useEffect(() => {
-    const media = Content.Video.media(props)?.current;
-    if (!player || !media?.timestamps) return;
+    const timestamps = content.media?.timestamps;
+    if (!player || !timestamps) return;
 
     const exists = state.stack.exists((e) => e.id === content.id);
     if (!exists) {
@@ -21,7 +21,6 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
       return;
     }
 
-    const timestamps = media.timestamps;
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
 
@@ -50,6 +49,9 @@ const wrangle = {
   },
 } as const;
 
+/**
+ * Render the accompanying video content.
+ */
 async function render(
   props: t.VideoContentProps,
   setState: (value: t.ReactNode) => void,
