@@ -84,6 +84,7 @@ export function alpha(color: string, alpha: t.Percent) {
 export function ruby(input?: t.Percent | boolean) {
   let percent = 0.1;
   if (input === false) percent = 0;
+  if (input === true) percent = 0.1;
   if (typeof input === 'number') percent = input;
   return alpha(RED, percent);
 }
