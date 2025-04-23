@@ -23,7 +23,7 @@ export const BackButton: React.FC<BackButtonProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button onClick={props.onClick} onMouse={(e) => setOver(e.isOver)}>
+      <Button onMouseDown={props.onClick} onMouse={(e) => setOver(e.isOver)}>
         <Icons.Arrow.Back color={color} size={size} />
       </Button>
     </div>
