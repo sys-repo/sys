@@ -99,13 +99,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-
+      <div className={Styles.title.class}>{'Media:'}</div>
       <Button
         block
         label={`video.playing: ${p.columnVideo.value?.is.playing}`}
-        onClick={() => {
-          p.columnVideo.value?.toggle();
-        }}
+        onClick={() => p.columnVideo.value?.toggle()}
       />
 
       <hr />

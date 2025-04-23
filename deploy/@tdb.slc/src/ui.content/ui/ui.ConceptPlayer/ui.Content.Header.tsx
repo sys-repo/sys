@@ -24,6 +24,7 @@ export const BodyHeader: React.FC<BodyHeaderProps> = (props) => {
       color: theme.fg,
       borderBottom: `solid 8px ${Color.alpha(theme.fg, 0.05)}`,
       display: 'grid',
+      userSelect: 'none',
     }),
     body: css({
       lineHeight: 0, // NB: prevent descender gap.
