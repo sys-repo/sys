@@ -48,7 +48,7 @@ export const CanvasSlug: React.FC<t.CanvasSlugProps> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
-    text: css({ Absolute: 0 }),
+    text: css({ Absolute: 0, userSelect: 'none' }),
   };
 
   const elText = <FadeText text={logo ? '' : props.text} style={styles.text} />;
