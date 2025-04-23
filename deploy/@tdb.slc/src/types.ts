@@ -15,6 +15,7 @@ export type * from './ui/App/t.ts';
 /**
  * UI Structure:
  */
+export type * from './ui/ui.FadeText/t.ts';
 export type * from './ui/ui.Image/t.ts';
 export type * from './ui/ui.Layout/t.ts';
 export type * from './ui/ui.Logo.Canvas/t.ts';
@@ -22,7 +23,6 @@ export type * from './ui/ui.Logo.Wordmark/t.ts';
 export type * from './ui/ui.Sheet/t.ts';
 export type * from './ui/ui.TooSmall/t.ts';
 export type * from './ui/ui.Video.Background/t.ts';
-export type * from './ui/ui.FadeText/t.ts';
 
 export type * from './ui/ui.Landing-1/t.ts';
 export type * from './ui/ui.Landing-2/t.ts';
@@ -39,6 +39,7 @@ export type * from './ui.content/t.ts';
 export type * from './ui.content/ui/t.ts';
 export type * from './ui.content/ui/ui.CanvasSlug/t.ts';
 export type * from './ui.content/ui/ui.ConceptPlayer/t.ts';
+export type * from './ui.content/ui/ui.Playlist/t.ts';
 export type * from './ui.content/ui/ui.Pulldown/t.ts';
 
 export type * from './ui.content/-sample/ui.Videos/t.ts';
