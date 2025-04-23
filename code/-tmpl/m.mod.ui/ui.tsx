@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
 export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
-  const { debug } = props;
+  const { debug = false } = props;
 
   /**
    * Render:
