@@ -18,7 +18,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
 
   const clickOutside = useClickOutside({
     stage: 'down',
-    callback: props.onClickOutside,
+    callback: (e) => props.onClickOutside?.(e),
   });
 
   /**

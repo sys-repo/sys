@@ -11,7 +11,7 @@ export type BackButtonProps = {
   onClick?: t.ReactMouseEventHandler;
 };
 export const BackButton: React.FC<BackButtonProps> = (props) => {
-  const { size = 26 } = props;
+  const { size = 42 } = props;
   const [isOver, setOver] = useState(false);
 
   /**
