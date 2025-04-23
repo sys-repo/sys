@@ -9,7 +9,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
 
   const size = useSizeObserver();
   const isReady = size.ready;
-  const isTooSmall = size.width < 960 || size.height < 480;
+  const isTooSmall = size.width < 920 || size.height < 480;
 
   /**
    * Render:
