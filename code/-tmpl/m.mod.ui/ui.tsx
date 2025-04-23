@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
 export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
-  const {} = props;
+  const { debug } = props;
 
   /**
    * Render:
@@ -10,7 +10,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: Color.ruby(debug ? 0.1 : 0),
       color: theme.fg,
     }),
   };
