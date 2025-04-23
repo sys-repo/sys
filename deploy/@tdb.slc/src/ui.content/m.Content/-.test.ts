@@ -42,19 +42,22 @@ describe('Content', () => {
     describe('Video.media', () => {
       it('undefined', () => {
         const res = Content.Video.media({ kind, id });
-        expect(res).to.be.undefined;
+        expect(res.current).to.be.undefined;
+        expect(res.list).to.eql([]);
       });
 
       it('single item', () => {
         const res = Content.Video.media({ kind, id, media });
-        expect(res).to.equal(media);
+        expect(res.current).to.equal(media);
+        expect(res.list).to.eql([]);
       });
 
       it('first (of several) - no index on model', () => {
         const a: M = { video, timestamps: {} };
         const b: M = { video, timestamps: {} };
         const res = Content.Video.media({ kind, id, media: [a, b] });
-        expect(res).to.equal(a);
+        expect(res.current).to.equal(a);
+        expect(res.list).to.eql([]);
       });
 
       it('index set model', () => {
@@ -67,10 +70,10 @@ describe('Content', () => {
         const res2 = Content.Video.media({ kind, id, media, mediaIndex: 2 });
         const res3 = Content.Video.media({ kind, id, media, mediaIndex: 99 });
         const res4 = Content.Video.media({ kind, id, media, mediaIndex: -1 });
-        expect(res1).to.equal(a);
-        expect(res2).to.equal(c);
-        expect(res3).to.equal(undefined);
-        expect(res4).to.equal(undefined);
+        expect(res1.current).to.equal(a);
+        expect(res2.current).to.equal(c);
+        expect(res3.current).to.equal(undefined);
+        expect(res4.current).to.equal(undefined);
       });
     });
   });

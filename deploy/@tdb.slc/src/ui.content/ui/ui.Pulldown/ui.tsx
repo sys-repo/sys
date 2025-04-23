@@ -12,7 +12,7 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const media = Content.Video.media(props);
+  const media = Content.Video.media(props)?.current;
   const player = media?.video;
   const breakpoint = state.breakpoint;
   const timestamp = useTimestamps(props, player);

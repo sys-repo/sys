@@ -2,6 +2,7 @@ import type { t } from '../common.ts';
 
 /**
  * Content factory library.
+ * NB: Dynamic code splitting happens here.
  */
 export type ContentFactoryLib = {
   entry(): Promise<t.StaticContent>;

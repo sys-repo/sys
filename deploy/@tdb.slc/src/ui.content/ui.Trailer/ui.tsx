@@ -11,7 +11,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const media = Content.Video.media(props);
+  const media = Content.Video.media(props)?.current;
   const player = media?.video;
   const timestamp = useTimestamps(props, player);
 

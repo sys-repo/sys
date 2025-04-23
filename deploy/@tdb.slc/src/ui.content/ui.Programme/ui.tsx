@@ -45,7 +45,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
       <ConceptPlayer
         theme={'Light'}
         columnAlign={align}
-        columnVideo={media?.video}
+        columnVideo={media?.current?.video}
         columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={title}
         onBackClick={() => {

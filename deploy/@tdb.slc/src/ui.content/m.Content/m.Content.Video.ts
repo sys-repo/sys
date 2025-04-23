@@ -3,10 +3,11 @@ import { Is } from './m.Content.Is.ts';
 
 export const Video: t.ContentVideoLib = {
   media(input) {
-    if (!input) return undefined;
+    if (!input) return { list: [] };
     const content = Is.video(input) ? input : input.content;
     const m = content.media;
-    const media = !m ? [] : Array.isArray(m) ? m : [m];
-    return media[content.mediaIndex ?? 0];
+    const list = !m ? [] : Array.isArray(m) ? m : [m];
+    const current = list[content.mediaIndex ?? 0];
+    return { list, current };
   },
 };

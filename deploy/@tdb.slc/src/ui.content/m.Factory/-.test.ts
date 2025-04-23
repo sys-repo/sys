@@ -16,7 +16,7 @@ describe('Content.Factory', () => {
     expect(a?.id).to.eql('Trailer');
     expect(b?.id).to.equal(a?.id);
 
-    const video = Content.Video.media(a)?.video;
+    const video = Content.Video.media(a)?.current?.video;
     expect(video?.props.src.value).to.eql(VIDEO.Trailer.src);
   });
 
@@ -26,7 +26,7 @@ describe('Content.Factory', () => {
     expect(a?.id).to.eql('Overview');
     expect(b?.id).to.equal(a?.id);
 
-    const video = Content.Video.media(a)?.video;
+    const video = Content.Video.media(a)?.current?.video;
     expect(video?.props.src.value).to.eql(VIDEO.Overview.src);
   });
 

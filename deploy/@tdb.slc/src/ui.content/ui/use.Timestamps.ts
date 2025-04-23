@@ -11,7 +11,7 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
    * Effect:
    */
   Signal.useEffect(() => {
-    const media = Content.Video.media(props);
+    const media = Content.Video.media(props)?.current;
     if (!player || !media?.timestamps) return;
 
     const exists = state.stack.exists((e) => e.id === content.id);

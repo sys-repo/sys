@@ -26,5 +26,8 @@ export type ContentVideoLib = {
    * Retrieve the current media item.
    * Resolves single item, or array list, and performs automatic index lookup.
    */
-  media(content?: t.VideoContent | t.VideoContentProps): t.VideoContentMedia | undefined;
+  media(content?: t.VideoContent | t.VideoContentProps): {
+    readonly list: t.VideoContentMedia[];
+    readonly current?: t.VideoContentMedia;
+  };
 };
