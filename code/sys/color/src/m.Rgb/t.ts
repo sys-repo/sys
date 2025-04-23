@@ -17,6 +17,8 @@ export type ColorLib = t.ColorConstants & {
    * @param: alpha: 0..1
    */
   alpha(color: string, alpha: t.Percent): string;
+  /** Returns an alpha percentage of red. */
+  ruby(alpha?: t.Percent): string;
 
   /**
    * Lightens the given color.

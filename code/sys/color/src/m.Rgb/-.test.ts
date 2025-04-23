@@ -68,6 +68,21 @@ describe('Color', () => {
     });
   });
 
+  describe('Color.ruby', () => {
+    it('percentage of red', () => {
+      const res1 = Color.ruby(1);
+      const res2 = Color.ruby(0);
+      const res3 = Color.ruby(0.1);
+      const res4 = Color.ruby();
+
+      expect(res1).to.eql(Color.alpha(Color.RED, 1));
+      expect(res2).to.eql(Color.alpha(Color.RED, 0));
+      expect(res3).to.eql(Color.alpha(Color.RED, 0.1));
+
+      expect(res3).to.eql(res4);
+    });
+  });
+
   describe('Color.theme', () => {
     it('create from root API', () => {
       const a = Color.Theme.create();
