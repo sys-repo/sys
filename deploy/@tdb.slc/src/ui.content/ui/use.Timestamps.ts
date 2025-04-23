@@ -8,7 +8,7 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
   const [pulldown, setPulldown] = useState<t.ReactNode>();
 
   Signal.useEffect(() => {
-    if (!player || !props.content?.timestamps) return;
+    if (!player || !props.content?.media?.timestamps) return;
 
     const exists = state.stack.exists((e) => e.id === content.id);
     if (!exists) {
@@ -17,7 +17,7 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
       return;
     }
 
-    const timestamps = props.content.timestamps;
+    const timestamps = props.content.media.timestamps;
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
 

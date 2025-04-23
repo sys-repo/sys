@@ -6,7 +6,9 @@ export function factory() {
   const content: t.StaticContent = {
     id: 'Entry',
     kind: 'StaticContent',
-    render: (props) => <Entry {...props} theme={DEFAULTS.theme.base} />,
+    render(props) {
+      return <Entry {...props} theme={DEFAULTS.theme.base} />;
+    },
   };
   return content;
 }

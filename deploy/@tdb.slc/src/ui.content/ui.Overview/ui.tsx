@@ -11,7 +11,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const player = content.video;
+  const player = content.media?.video;
   const timestamp = useTimestamps(props, player);
   usePulldown(props, timestamp);
 

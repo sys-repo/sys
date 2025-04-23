@@ -14,14 +14,15 @@ export function factory() {
     id: 'Programme',
     kind: 'VideoContent',
 
-    playOnLoad: true,
-    video: Player.Video.signals({
-      src: VIDEO.Programme.Intro.About.src,
-      fadeMask: { direction: 'Top:Down', size: 10 },
-      scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
-    }),
-
-    timestamps,
+    playOnLoad: false,
+    media: {
+      timestamps,
+      video: Player.Video.signals({
+        src: VIDEO.Programme.Intro.About.src,
+        fadeMask: { direction: 'Top:Down', size: 10 },
+        scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
+      }),
+    },
     render(props) {
       return <ProgrammeRoot {...props} theme={sheetTheme} />;
     },

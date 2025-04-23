@@ -16,14 +16,17 @@ export function factory() {
     kind: 'VideoContent',
 
     playOnLoad: true,
-    video: Player.Video.signals({
-      src: VIDEO.Overview.src,
-      scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
-      fadeMask: { direction: 'Top:Down', size: 30 },
-    }),
-
-    render: (props) => <Overview {...props} theme={theme} />,
-    timestamps,
+    media: {
+      timestamps,
+      video: Player.Video.signals({
+        src: VIDEO.Overview.src,
+        scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
+        fadeMask: { direction: 'Top:Down', size: 30 },
+      }),
+    },
+    render(props) {
+      return <Overview {...props} theme={theme} />;
+    },
   };
   return content;
 }

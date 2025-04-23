@@ -16,25 +16,27 @@ export type ContentTimestampProps = {
 };
 
 /**
- * Content variation: Video.
- */
-export type VideoContent = t.Content<VideoProps & { kind: 'VideoContent' }>;
-export type VideoContentProps = t.ContentProps<VideoProps>;
-type VideoProps = {
-  id: t.ContentStage;
-  video?: t.VideoPlayerSignals;
-  timestamps: ContentTimestamps;
-  playOnLoad?: boolean;
-  showElapsed?: boolean;
-};
-
-export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;
-
-/**
- * Content variation: Static.
+ * Content Variation: Static.
  */
 export type StaticContent = t.Content<StaticProps & { kind: 'StaticContent' }>;
 export type StaticContentProps = t.ContentProps<StaticProps>;
 type StaticProps = {
-  id: t.ContentStage;
+  id: t.StringId;
 };
+
+/**
+ * Content Variation: Video.
+ */
+export type VideoContent = t.Content<VideoProps & { kind: 'VideoContent' }>;
+export type VideoContentProps = t.ContentProps<VideoProps>;
+type VideoProps = {
+  id: t.StringId;
+  playOnLoad?: boolean;
+  showElapsed?: boolean;
+  media?: {
+    video: t.VideoPlayerSignals;
+    timestamps: ContentTimestamps;
+  };
+};
+
+export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;

@@ -81,7 +81,7 @@ export function layerVideoPlayerButtons(app: t.AppSignals) {
   if (videoLayers.length === 0) return <div>{`(no video layers)`}</div>;
 
   return videoLayers.map((layer, index) => {
-    const p = layer.video?.props;
+    const p = layer.media?.video.props;
     if (!p) return null;
     return (
       <Button
