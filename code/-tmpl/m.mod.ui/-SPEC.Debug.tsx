@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from './common.ts';
+import { type t, Button, css, D, Signal } from './common.ts';
 
 type P = t.MyComponentProps;
 
@@ -15,12 +15,14 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const props = {
+    debug: s(false),
     theme: s<P['theme']>('Light'),
   };
   const p = props;
   const api = {
     props,
     listen() {
+      p.debug.value;
       p.theme.value;
     },
   };
@@ -31,8 +33,9 @@ const Styles = {
   title: css({
     fontWeight: 'bold',
     marginBottom: 10,
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   }),
 };
 
@@ -54,12 +57,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>
-        {'Title'}
-        <div />
-        {''}
-      </div>
+      <div className={Styles.title.class}>{D.name}</div>
 
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
