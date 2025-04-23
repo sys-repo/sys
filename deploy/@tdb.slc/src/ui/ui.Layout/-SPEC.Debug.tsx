@@ -73,7 +73,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{`${p.screen.breakpoint.value} Layout`}</div>
+      <div className={styles.title.class}>
+        <div>{`Layout`}</div>
+        <div />
+        <div>{p.screen.breakpoint.value}</div>
+      </div>
 
       <Button
         block
@@ -123,7 +127,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'stack'} data={app.stack.items} expand={1} />
+      <ObjectView
+        name={'stack'}
+        data={app.stack.items}
+        expand={1}
+        margin={[null, null, 20, null]}
+      />
+      <ObjectView name={'state:app'} data={app} expand={1} />
     </div>
   );
 };
