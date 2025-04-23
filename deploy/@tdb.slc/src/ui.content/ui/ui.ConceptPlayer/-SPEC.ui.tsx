@@ -46,7 +46,7 @@ export const SampleCenterBody: React.FC<SampleProps> = (props) => {
   const styles = {
     base: css({ paddingTop: 5 }),
     title: css({ fontWeight: 'bold' }),
-    buttons: css({ marginTop: 20, lineHeight: 1.65 }),
+    buttons: css({ Margin: [27, 0, 0, -7], lineHeight: 2 }),
   };
 
   const li = (label: string) => {

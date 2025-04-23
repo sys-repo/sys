@@ -35,6 +35,7 @@ export const Body: React.FC<P> = (props) => {
 
   const elColumn = (
     <Column
+      align={align}
       body={props.columnBody}
       video={props.columnVideo}
       theme={theme.name}

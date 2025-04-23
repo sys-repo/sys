@@ -85,13 +85,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`debug: ${p.debug.value ?? '<undefined>'}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-
-      <hr />
       <Button
         block
         label={`align: ${p.columnAlign.value ?? '<undefined>'}`}

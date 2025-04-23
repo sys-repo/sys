@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
+  align: t.ConceptPlayerAlign;
   body?: t.ReactNode;
   video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
@@ -13,7 +14,9 @@ export type ColumnProps = {
  * Component:
  */
 export const Column: React.FC<ColumnProps> = (props) => {
-  const {} = props;
+  const { align } = props;
+  const isCenter = align === 'Center';
+
   const [playerKey, setPlayerKey] = useState(0);
 
   const clickOutside = useClickOutside({
@@ -37,7 +40,12 @@ export const Column: React.FC<ColumnProps> = (props) => {
   };
 
   return (
-    <Sheet theme={theme.name} orientation={'Bottom:Up'} style={props.style}>
+    <Sheet
+      theme={theme.name}
+      orientation={'Bottom:Up'}
+      shadowBlurRadius={isCenter ? undefined : 25}
+      style={props.style}
+    >
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>
