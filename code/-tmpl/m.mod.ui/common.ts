@@ -5,8 +5,5 @@ export * from '../common.ts';
  * Constants:
  */
 const name = 'MyComponent';
-export const DEFAULTS = {
-  name,
-  displayName: Pkg.toString(pkg, name),
-} as const;
+export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
 export const D = DEFAULTS;
