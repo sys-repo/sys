@@ -55,9 +55,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{'Title'}</div>
+        {'Title'}
         <div />
-        <div></div>
+        {''}
       </div>
 
       <Button
