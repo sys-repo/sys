@@ -41,7 +41,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
     get length() {
       return inserted.size;
     },
-    get list() {
+    get items() {
       return Array.from(inserted.values());
     },
 

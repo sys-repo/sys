@@ -237,7 +237,7 @@ describe(
         [a, c].forEach((m) => expect(m.block.rules.length).to.eql(0));
         [b, d].forEach((m) => {
           expect(m.block.rules.length).to.eql(1);
-          expect(m.block.rules.list[0].style).to.eql({
+          expect(m.block.rules.items[0].style).to.eql({
             position: 'absolute',
             top: 0,
             right: 0,
@@ -274,7 +274,7 @@ describe(
         expect(rules.length).to.eql(3);
 
         const root = container.block.scoped[0];
-        rules.list.forEach(({ rule }) => expect(rule).to.include(`{ ${root} h2 {`));
+        rules.items.forEach(({ rule }) => expect(rule).to.include(`{ ${root} h2 {`));
       });
 
       it('add custom selector: .rule() ← CSS template', () => {
@@ -296,13 +296,13 @@ describe(
         const a = container.css({ color: 'red' });
         expect(a).to.equal(container);
         expect(rules.length).to.eql(1);
-        expect(rules.list[0].rule).to.include(`{ ${root} { color: red; } }`);
+        expect(rules.items[0].rule).to.include(`{ ${root} { color: red; } }`);
 
         container.css([{ PaddingX: 10 }, { color: 'blue' }]); // NB: CSS template expansion.
         expect(rules.length).to.eql(3);
 
-        expect(rules.list[1].rule).to.include(`${root} { padding-right: 10px; padding-left: 10px`);
-        expect(rules.list[2].rule).to.include(`{ ${root} { color: blue; } }`);
+        expect(rules.items[1].rule).to.include(`${root} { padding-right: 10px; padding-left: 10px`);
+        expect(rules.items[2].rule).to.include(`{ ${root} { color: blue; } }`);
       });
 
       it('done (property): end a fluent API chain', () => {
@@ -328,7 +328,7 @@ describe(
         styles.base.class;
         styles.h2.class;
 
-        const list = sheet.rules.list.map((m) => m.style);
+        const list = sheet.rules.items.map((m) => m.style);
         expect(list).to.eql([
           { fontSize: 50 },
           { fontSize: 100 },
@@ -350,7 +350,7 @@ describe(
         expect(a).to.equal(base); // NB: enabled API chaining ("fluent").
         expect(a).to.equal(b);
 
-        const rules = sheet.rules.list;
+        const rules = sheet.rules.items;
         expect(rules.length).to.eql(2);
         expect(rules[0].rule).to.include(`.${base.class} { position: relative; }`);
         expect(rules[1].rule).to.include(`.${base.class} h2 { color: red; }`);
@@ -366,7 +366,7 @@ describe(
         };
 
         const baseClass = styles.base.class;
-        const rules = sheet.rules.list;
+        const rules = sheet.rules.items;
 
         expect(rules.length).to.eql(4);
         expect(rules[0].rule).to.include(`.${baseClass} { position: relative; }`);
@@ -385,7 +385,7 @@ describe(
         base.rule(' ', { color: 'red' }); // NB: not-added (trimmed → duplicate).
         base.rule('  ', { color: 'red' });
 
-        const rules = sheet.rules.list;
+        const rules = sheet.rules.items;
         expect(rules.length).to.eql(2);
         expect(rules[0].rule).to.include(`.${base.class} { position: relative; }`);
         expect(rules[1].rule).to.include(`.${base.class} { color: red; }`);

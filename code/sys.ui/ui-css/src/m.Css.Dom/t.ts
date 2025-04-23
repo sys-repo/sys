@@ -86,7 +86,7 @@ export type CssDomRules = {
   readonly length: number;
 
   /** List of CSS rules that have been inserted into the DOM.  */
-  readonly list: Readonly<CssDomInsertedRule[]>;
+  readonly items: Readonly<CssDomInsertedRule[]>;
 
   /**
    * Inserts generic CSS style rules into the stylesheet.
