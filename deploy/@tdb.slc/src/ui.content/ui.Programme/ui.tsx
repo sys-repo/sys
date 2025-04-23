@@ -12,8 +12,10 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   const { state, is, content } = props;
 
   const [align, setAlign] = useState<t.ConceptPlayerAlign>('Center');
-  const [title, setTitle] = useState<string>();
+  const [media, setMedia] = useState<t.VideoMediaContent>();
+
   const isCenter = align === 'Center';
+  const title = media?.title ?? 'Untitled';
 
   /**
    * Render:
@@ -32,12 +34,12 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
       {...props}
       onModuleSelect={(e) => {
         setAlign('Right');
-        setTitle(e.label);
+        setMedia(e.media);
       }}
     />
   );
 
-  const elSection = <Section />;
+  const elSection = media && <Section media={media} />;
 
   return (
     <div className={css(styles.base).class}>
@@ -49,7 +51,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
         contentTitle={title}
         onBackClick={() => {
           setAlign('Center');
-          setTitle(undefined);
+          setMedia(undefined);
         }}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column, within the SLC app registeres.

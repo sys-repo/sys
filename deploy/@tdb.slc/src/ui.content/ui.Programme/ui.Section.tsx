@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, css, ObjectView } from './common.ts';
 
 export type SectionProps = {
+  media: t.VideoMediaContent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -10,7 +11,8 @@ export type SectionProps = {
  * Component:
  */
 export const Section: React.FC<SectionProps> = (props) => {
-  const {} = props;
+  const { media } = props;
+
 
   /**
    * Render:
@@ -22,11 +24,14 @@ export const Section: React.FC<SectionProps> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
+    body: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 Section`}</div>
+      <div className={styles.body.class}>
+        <ObjectView name={'media'} data={media} expand={1} />
+      </div>
     </div>
   );
 };

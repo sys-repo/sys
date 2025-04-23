@@ -17,21 +17,24 @@ export function factory() {
       scale: (e) => e.enlargeBy(2),
     });
 
+  const timestamps = {};
+
   const content: t.VideoContent = {
     id: 'Programme',
     kind: 'VideoContent',
 
     playOnLoad: false,
     media: {
+      id: 'programme.root',
       video: v(VIDEO.Programme.Intro.About.src),
       timestamps: {},
       children: [
-        { title: 'Getting Started', video: v(DUMMY), timestamps: {} },
-        { title: 'Customer Model', video: v(DUMMY), timestamps: {} },
-        { title: 'Impact Model', video: v(DUMMY), timestamps: {} },
-        { title: 'Economic Model', video: v(DUMMY), timestamps: {} },
-        { title: 'Key Metrics', video: v(DUMMY), timestamps: {} },
-        { title: 'Conclusion', video: v(DUMMY), timestamps: {} },
+        { id: 'start', title: 'Getting Started', video: v(DUMMY), timestamps },
+        { id: 'model.customer', title: 'Customer Model', video: v(DUMMY), timestamps },
+        { id: 'model.impact', title: 'Impact Model', video: v(DUMMY), timestamps },
+        { id: 'model.econ', title: 'Economic Model', video: v(DUMMY), timestamps },
+        { id: 'key-metrics', title: 'Key Metrics', video: v(DUMMY), timestamps },
+        { id: 'conclusion', title: 'Conclusion', video: v(DUMMY), timestamps },
       ],
     },
     render(props) {

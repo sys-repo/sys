@@ -43,6 +43,7 @@ export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;
 
 /** A unit of playable video-media. */
 export type VideoMediaContent = {
+  id: t.StringId;
   title?: string;
   video: t.VideoPlayerSignals;
   timestamps: ContentTimestamps;

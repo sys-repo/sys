@@ -17,6 +17,7 @@ export function factory() {
 
     playOnLoad: true,
     media: {
+      id: 'overview.root',
       timestamps,
       video: Player.Video.signals({
         src: VIDEO.Overview.src,
