@@ -1,6 +1,6 @@
 import React from 'react';
 import { ElapsedTime, usePulldown, useTimestamps } from '../ui/mod.ts';
-import { type t, css, Player, Sheet, Time } from './common.ts';
+import { type t, Content, css, Player, Sheet, Time } from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 
@@ -11,7 +11,8 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const player = content.media?.video;
+  const media = Content.Video.media(props);
+  const player = media?.video;
   const timestamp = useTimestamps(props, player);
   usePulldown(props, timestamp);
 
@@ -39,7 +40,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       <Player.Video.View
         signals={player}
         style={styles.player}
-        onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
+        onEnded={() => Time.delay(1_000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
       />
     </div>
   );

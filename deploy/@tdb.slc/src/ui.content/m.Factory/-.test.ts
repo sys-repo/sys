@@ -15,7 +15,9 @@ describe('Content.Factory', () => {
     const b = await Content.factory('Trailer');
     expect(a?.id).to.eql('Trailer');
     expect(b?.id).to.equal(a?.id);
-    expect(a?.media?.video.props.src.value).to.eql(VIDEO.Trailer.src);
+
+    const video = Content.Video.media(a)?.video;
+    expect(video?.props.src.value).to.eql(VIDEO.Trailer.src);
   });
 
   it('Overview', async () => {
@@ -23,7 +25,9 @@ describe('Content.Factory', () => {
     const b = await Content.factory('Overview');
     expect(a?.id).to.eql('Overview');
     expect(b?.id).to.equal(a?.id);
-    expect(a?.media?.video.props.src.value).to.eql(VIDEO.Overview.src);
+
+    const video = Content.Video.media(a)?.video;
+    expect(video?.props.src.value).to.eql(VIDEO.Overview.src);
   });
 
   it('Programme', async () => {

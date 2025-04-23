@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type t, App, Color, ConceptPlayer, css, Dom } from './common.ts';
+import { type t, App, Color, ConceptPlayer, Content, css, Dom } from './common.ts';
 import { MenuList } from './ui.Menu.tsx';
 import { Section } from './ui.Section.tsx';
 
@@ -9,7 +9,8 @@ export type ProgrammeRootProps = t.VideoContentProps & {};
  * Component:
  */
 export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
-  const { state, content, is } = props;
+  const { state, is } = props;
+  const media = Content.Video.media(props);
 
   const [align, setAlign] = useState<t.ConceptPlayerAlign>('Center');
   const [title, setTitle] = useState<string>();
@@ -44,7 +45,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
       <ConceptPlayer
         theme={'Light'}
         columnAlign={align}
-        columnVideo={content.media?.video}
+        columnVideo={media?.video}
         columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={title}
         onBackClick={() => {

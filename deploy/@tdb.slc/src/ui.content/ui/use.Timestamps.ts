@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type t, Is, Signal, Timestamp } from './common.ts';
+import { type t, Content, Is, Signal, Timestamp } from './common.ts';
 
 export const useTimestamps: t.UseTimestamps = (props, player) => {
   const { state, content } = props;
@@ -7,8 +7,12 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
   const [column, setColumn] = useState<t.ReactNode>();
   const [pulldown, setPulldown] = useState<t.ReactNode>();
 
+  /**
+   * Effect:
+   */
   Signal.useEffect(() => {
-    if (!player || !props.content?.media?.timestamps) return;
+    const media = Content.Video.media(props);
+    if (!player || !media?.timestamps) return;
 
     const exists = state.stack.exists((e) => e.id === content.id);
     if (!exists) {
@@ -17,7 +21,7 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
       return;
     }
 
-    const timestamps = props.content.media.timestamps;
+    const timestamps = media.timestamps;
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
 
@@ -26,6 +30,9 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
     render(props, setPulldown, renderer.pulldown);
   });
 
+  /**
+   * API:
+   */
   return {
     column,
     pulldown,
@@ -33,7 +40,7 @@ export const useTimestamps: t.UseTimestamps = (props, player) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   renderer(data?: t.ContentTimestamp): t.ContentTimestampProps {

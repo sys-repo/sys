@@ -77,11 +77,13 @@ export const screenBreakpointButton = (app: t.AppSignals) => {
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
 export function layerVideoPlayerButtons(app: t.AppSignals) {
-  const videoLayers = app.stack.items.filter((layer) => Content.Is.video(layer));
-  if (videoLayers.length === 0) return <div>{`(no video layers)`}</div>;
+  const layers = app.stack.items.filter((layer) => Content.Is.video(layer));
+  if (layers.length === 0) return <div>{`(no video layers)`}</div>;
 
-  return videoLayers.map((layer, index) => {
-    const p = layer.media?.video.props;
+  return layers.map((layer, index) => {
+    if (!layer.media) return null;
+    const media = Content.Video.media(layer);
+    const p = media?.video.props;
     if (!p) return null;
     return (
       <Button

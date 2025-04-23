@@ -1,6 +1,6 @@
 import React from 'react';
-import { css, Player, Sheet, type t, Time } from '../common.ts';
 import { ElapsedTime, useTimestamps } from '../ui/mod.ts';
+import { type t, Content, css, Player, Sheet, Time } from './common.ts';
 
 export type TrailerProps = t.VideoContentProps;
 
@@ -10,7 +10,9 @@ export type TrailerProps = t.VideoContentProps;
 export const Trailer: React.FC<TrailerProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
-  const player = content.media?.video;
+
+  const media = Content.Video.media(props);
+  const player = media?.video;
   const timestamp = useTimestamps(props, player);
 
   /**
@@ -44,7 +46,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
         <Player.Video.View
           signals={player}
           style={styles.player}
-          onEnded={() => Time.delay(1000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
+          onEnded={() => Time.delay(1_000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
         />
       </div>
       <ElapsedTime player={player} abs={true} show={showElapsed} />
