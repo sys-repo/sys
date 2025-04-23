@@ -26,7 +26,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
       opacity: isReady ? 1 : 0,
       overflow: 'hidden',
       backgroundColor: Color.alpha(theme.bg, isCenter ? 0 : 1),
-      transition: `background-color 300ms`,
+      transition: `background-color 150ms, opacity 150ms`,
       display: 'grid',
     }),
     column: css({
@@ -35,7 +35,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
     }),
     content: css({
       opacity: isCenter ? 0 : 1,
-      transition: `opacity 300ms`,
+      transition: `opacity 150ms`,
     }),
   };
 
