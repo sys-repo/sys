@@ -9,7 +9,11 @@ export const DEFAULTS = {
   radius: 4,
   duration: 0.25,
   bounce: 0.2,
-  shadowColor: -0.15,
+  shadow: {
+    color: -0.15,
+    blurRadius: 6,
+    spreadRadius: 0,
+  },
 
   get orientation(): { all: t.SheetOrientation[]; default: t.SheetOrientation } {
     return {
