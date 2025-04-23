@@ -1,5 +1,15 @@
-import { type t, DomMock, FindCss, TestPrint, c, describe, expect, it, slug } from '../-test.ts';
-import { toHash } from './common.ts';
+import {
+  type t,
+  DomMock,
+  FindCss,
+  Obj,
+  TestPrint,
+  c,
+  describe,
+  expect,
+  it,
+  slug,
+} from '../-test.ts';
 import { Style, css } from './mod.ts';
 
 describe(
@@ -67,7 +77,7 @@ describe(
         const a = css({ Absolute: 0 });
         const b = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
         expect(a.style).to.eql(b);
-        expect(a.hx).to.eql(toHash(b));
+        expect(a.hx).to.eql(Obj.hash(b));
         expect((a.style as any).Absolute).to.eql(undefined); // NB: clean up on object after transform.
       });
 
@@ -75,7 +85,7 @@ describe(
         const a = css({ PaddingX: [10, 20] });
         const b = { paddingLeft: 10, paddingRight: 20 };
         expect(a.style).to.eql(b);
-        expect(a.hx).to.eql(toHash(b));
+        expect(a.hx).to.eql(Obj.hash(b));
         expect((a.style as any).PaddingX).to.eql(undefined); // NB: clean up on object after transform.
       });
     });
