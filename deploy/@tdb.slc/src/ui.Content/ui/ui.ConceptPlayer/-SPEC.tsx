@@ -24,7 +24,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
       .render((e) => {
         return (
           <ConceptPlayer
-            theme={'Light'}
+            theme={p.theme.value}
             debug={p.debug.value}
             // Content:
             contentTitle={p.contentTitle.value}

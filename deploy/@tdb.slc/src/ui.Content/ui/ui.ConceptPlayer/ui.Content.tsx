@@ -21,12 +21,8 @@ export const Content: React.FC<ContentProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-      gridTemplateRows: 'auto 1fr',
-    }),
-    body: css({}),
+    base: css({ color: theme.fg, display: 'grid', gridTemplateRows: 'auto 1fr' }),
+    body: css({ display: 'grid' }),
   };
 
   return (
