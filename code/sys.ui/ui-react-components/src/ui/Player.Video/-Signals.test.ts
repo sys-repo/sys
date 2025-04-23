@@ -33,42 +33,61 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.playing.value).to.eql(true);
     });
 
-    it('param: custom { defaults }', () => {
-      const scale: t.VideoPlayerScale = (e) => e.enlargeBy(1);
-      const s = Player.Video.signals({
-        src: 'vimeo/foobar',
-        loop: true,
-        showControls: false,
-        showFullscreenButton: true,
-        showVolumeControl: false,
-        cornerRadius: 0,
-        aspectRatio: '2.39/1',
-        autoPlay: true,
-        muted: true,
-        background: true,
-        scale,
-        fadeMask: { direction: 'Top:Down', size: 123 },
+    describe('custom params', () => {
+      it('defaults', () => {
+        const scale: t.VideoPlayerScale = (e) => e.enlargeBy(1);
+        const s = Player.Video.signals({
+          src: 'vimeo/foobar',
+          loop: true,
+          showControls: false,
+          showFullscreenButton: true,
+          showVolumeControl: false,
+          cornerRadius: 0,
+          aspectRatio: '2.39/1',
+          autoPlay: true,
+          muted: true,
+          background: true,
+          scale,
+          fadeMask: { direction: 'Top:Down', size: 123 },
+        });
+
+        const p = s.props;
+        expect(p.src.value).to.eql('vimeo/foobar');
+        expect(p.loop.value).to.eql(true);
+        expect(p.aspectRatio.value).to.eql('2.39/1');
+        expect(p.autoPlay.value).to.eql(true);
+        expect(p.muted.value).to.eql(true);
+
+        expect(p.showControls.value).to.eql(false);
+        expect(p.showFullscreenButton.value).to.eql(true);
+        expect(p.showVolumeControl.value).to.eql(false);
+        expect(p.cornerRadius.value).to.eql(0);
+        expect(p.background.value).to.eql(true);
+        expect(p.scale.value).to.equal(scale);
+        expect(p.fadeMask.value).to.eql({ direction: 'Top:Down', size: 123 });
       });
 
-      const p = s.props;
-      expect(p.src.value).to.eql('vimeo/foobar');
-      expect(p.loop.value).to.eql(true);
-      expect(p.aspectRatio.value).to.eql('2.39/1');
-      expect(p.autoPlay.value).to.eql(true);
-      expect(p.muted.value).to.eql(true);
+      it('param: src param (string)', () => {
+        const s = Player.Video.signals('vimeo/foobar');
+        expect(s.props.src.value).to.eql('vimeo/foobar');
+      });
 
-      expect(p.showControls.value).to.eql(false);
-      expect(p.showFullscreenButton.value).to.eql(true);
-      expect(p.showVolumeControl.value).to.eql(false);
-      expect(p.cornerRadius.value).to.eql(0);
-      expect(p.background.value).to.eql(true);
-      expect(p.scale.value).to.equal(scale);
-      expect(p.fadeMask.value).to.eql({ direction: 'Top:Down', size: 123 });
-    });
+      it('param: fadeMask ← number - expands to { Top:Down, <number>: pixels} ', () => {
+        const a = Player.Video.signals({});
+        const b = Player.Video.signals({ fadeMask: 123 });
+        const c = Player.Video.signals({ fadeMask: { direction: 'Bottom:Up' } });
 
-    it('param: src param (string)', () => {
-      const s = Player.Video.signals('vimeo/foobar');
-      expect(s.props.src.value).to.eql('vimeo/foobar');
+        const maskA = a.props.fadeMask.value;
+        const maskB = b.props.fadeMask.value!;
+        const maskC = c.props.fadeMask.value!;
+
+        type T = t.VideoPlayerFadeMask;
+        const assert = (value: T, expected: T) => expect(value).to.eql(expected);
+
+        expect(maskA).to.be.undefined;
+        assert(maskB, { direction: 'Top:Down', size: 123 });
+        assert(maskC, { direction: 'Bottom:Up' });
+      });
     });
   });
 

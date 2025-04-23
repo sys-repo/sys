@@ -22,7 +22,7 @@ export type PlayerSignalsFactoryDefaults = {
   aspectRatio?: string;
   scale?: number | t.VideoPlayerScale;
   background?: boolean;
-  fadeMask?: t.VideoPlayerFadeMask;
+  fadeMask?: t.VideoPlayerFadeMask | t.Pixels;
 };
 
 /**
