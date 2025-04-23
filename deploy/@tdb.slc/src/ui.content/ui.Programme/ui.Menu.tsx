@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, LogoCanvas, Obj } from './common.ts';
+import { type t, Color, css, LogoCanvas } from './common.ts';
 import { SectionButton } from './ui.Buttons.tsx';
 
 export type MenuListProps = t.VideoContentProps & {
@@ -11,6 +11,7 @@ export type MenuListProps = t.VideoContentProps & {
  */
 export const MenuList: React.FC<MenuListProps> = (props) => {
   const { content } = props;
+  const children = content.media?.children ?? [];
 
   /**
    * Render:
@@ -28,18 +29,16 @@ export const MenuList: React.FC<MenuListProps> = (props) => {
     buttons: css({ marginTop: 40 }),
   };
 
-  const renderButton = (media: t.VideoMediaContent) => {
+  const button = (media: t.VideoMediaContent) => {
     const label = media.title ?? 'Untitled';
     const onClick = () => props.onModuleSelect?.({ media });
-    return <SectionButton key={Obj.hash(label)} label={label} onClick={onClick} />;
+    return <SectionButton key={media.id} label={label} onClick={onClick} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <LogoCanvas theme={theme.name} style={styles.canvas} />
-      <div className={styles.buttons.class}>
-        {content.media?.children?.map((m) => renderButton(m))}
-      </div>
+      <div className={styles.buttons.class}>{children.map((m) => button(m))}</div>
     </div>
   );
 };
