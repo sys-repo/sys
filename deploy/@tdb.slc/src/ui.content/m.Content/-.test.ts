@@ -43,13 +43,13 @@ describe('Content', () => {
       it('undefined', () => {
         const res = Content.Video.media({ kind, id });
         expect(res.current).to.be.undefined;
-        expect(res.list).to.eql([]);
+        expect(res.items).to.eql([]);
       });
 
       it('single item', () => {
         const res = Content.Video.media({ kind, id, media });
         expect(res.current).to.equal(media);
-        expect(res.list).to.eql([]);
+        expect(res.items).to.eql([media]);
       });
 
       it('first (of several) - no index on model', () => {
@@ -57,7 +57,7 @@ describe('Content', () => {
         const b: M = { video, timestamps: {} };
         const res = Content.Video.media({ kind, id, media: [a, b] });
         expect(res.current).to.equal(a);
-        expect(res.list).to.eql([]);
+        expect(res.items).to.eql([a, b]);
       });
 
       it('index set model', () => {
