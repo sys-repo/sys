@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type t, App, Color, ConceptPlayer, css, Dom } from './common.ts';
+import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
 import { RootMenu } from './ui.RootMenu.tsx';
 import { Section } from './ui.Section.tsx';
 
@@ -10,12 +10,20 @@ export type ProgrammeRootProps = t.VideoContentProps & {};
  */
 export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   const { state, is, content } = props;
+  const debug = state.props.debug.value ?? false;
 
   const [align, setAlign] = useState<t.ConceptPlayerAlign>('Center');
   const [media, setMedia] = useState<t.VideoMediaContent>();
 
   const isCenter = align === 'Center';
   const title = media?.title ?? 'Untitled';
+
+  /**
+   * Effects:
+   */
+  Signal.useRedrawEffect(() => {
+    state.props.debug.value;
+  });
 
   /**
    * Render:
@@ -32,6 +40,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   const elRootMenu = (
     <RootMenu
       {...props}
+      debug={debug}
       onSelect={(e) => {
         setAlign('Right');
         setMedia(e.item);
