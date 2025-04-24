@@ -19,19 +19,21 @@ export const Section: React.FC<SectionProps> = (props) => {
 
   const size = useSizeObserver();
   const [threshold, setThreshold] = useState(0);
-  const [isMounted, setMounted] = useState(false);
+  const [isCanvasReady, setCanvasReady] = useState(false);
+  const isMounted = isCanvasReady;
   const isReady = size.ready && isMounted;
   const isCanvasVisible = size.height > threshold;
 
   /**
    * Effect: calculate size thresholds.
    */
+  const depsChildren = media.children?.map((m) => m.id).join('|');
   React.useLayoutEffect(() => {
     if (!isReady) return;
     const canvas = canvasRef.current?.offsetHeight ?? 0;
     const playlist = playlistRef.current?.offsetHeight ?? 0;
     setThreshold(canvas + playlist + 20);
-  }, [isReady, media.children?.map((m) => m.id).join('|')]);
+  }, [isReady, depsChildren]);
 
   /**
    * Render:
@@ -61,7 +63,11 @@ export const Section: React.FC<SectionProps> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       <div ref={canvasRef} className={styles.canvas.class}>
-        <LogoCanvas theme={theme.name} onReady={() => setMounted(true)} />
+        <LogoCanvas
+          theme={theme.name}
+          onReady={() => setCanvasReady(true)}
+          onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.type}`, e)}
+        />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
         <Playlist

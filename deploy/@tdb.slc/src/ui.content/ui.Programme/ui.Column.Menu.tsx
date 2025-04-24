@@ -43,7 +43,11 @@ export const Menu: React.FC<MenuProps> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <LogoCanvas theme={theme.name} style={styles.canvas} />
+        <LogoCanvas
+          theme={theme.name}
+          style={styles.canvas}
+          onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.type}`, e)}
+        />
         <MenuList items={items} onSelect={props.onSelect} style={styles.buttons} />
       </div>
       {debug && size.toElement([4, 6, null, null])}
