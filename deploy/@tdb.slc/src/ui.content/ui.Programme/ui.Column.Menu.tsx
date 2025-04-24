@@ -26,17 +26,17 @@ export const Menu: React.FC<MenuProps> = (props) => {
       display: 'grid',
     }),
     body: css({
-      PaddingX: 45,
       paddingTop: size.height > 455 ? 60 : 10,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
     }),
     canvas: css({
-      MarginX: 30,
+      MarginX: 75,
       display: size.height > 570 ? 'block' : 'none',
     }),
-    buttons: css({
+    menu: css({
       marginTop: 40,
+      MarginX: 50,
     }),
   };
 
@@ -48,7 +48,7 @@ export const Menu: React.FC<MenuProps> = (props) => {
     />
   );
 
-  const elMenuList = <MenuList items={items} onSelect={props.onSelect} style={styles.buttons} />;
+  const elMenuList = <MenuList items={items} onSelect={props.onSelect} style={styles.menu} />;
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
