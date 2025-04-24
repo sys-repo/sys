@@ -94,9 +94,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `selected: ${p.selected.value ?? `<undefined>`}`}
         onClick={() => {
-          const items = p.items.value ?? [];
-          const indexes = [...Array(items.length).keys()];
+          const indexes = wrangle.asIndexes(p.items.value);
           Signal.cycle(p.selected, [...indexes, undefined]);
+        }}
+      />
+      <Button
+        block
+        label={() => `filled: ${p.filled.value ?? `<undefined>`}`}
+        onClick={() => {
+          const indexes = wrangle.asIndexes(p.items.value);
+          Signal.cycle(p.filled, [[0], [0, 1], indexes, undefined]);
         }}
       />
 
@@ -105,3 +112,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  asIndexes<T>(arr: T[] = []): t.Index[] {
+    return [...Array(arr.length).keys()];
+  },
+} as const;

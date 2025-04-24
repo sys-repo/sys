@@ -3,7 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
-  const { items = [], debug = false, gap = D.gap, paddingTop } = props;
+  const { debug = false, items = [], filled, gap = D.gap, paddingTop } = props;
   if (items.length === 0) return null;
 
   /**
@@ -36,8 +36,17 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
   };
 
   const row = (media: t.VideoMediaContent, index: number) => {
-    const selected = index === props.selected;
-    return <Item key={media.id} media={media} selected={selected} theme={theme.name} />;
+    const isSelected = index === props.selected;
+    const isFilled = filled ? filled.includes(index) : false;
+    return (
+      <Item
+        key={media.id}
+        media={media}
+        selected={isSelected}
+        filled={isFilled}
+        theme={theme.name}
+      />
+    );
   };
 
   return (

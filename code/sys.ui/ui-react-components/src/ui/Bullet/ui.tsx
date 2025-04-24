@@ -16,6 +16,8 @@ export const Bullet: React.FC<P> = (props) => {
     base: css({
       Size,
       position: 'relative',
+      borderRadius: '50%',
+      backgroundColor: theme.bg,
       display: 'grid',
     }),
     body: css({

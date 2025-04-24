@@ -3,6 +3,7 @@ import { type t, Bullet, css, D } from './common.ts';
 
 export type ItemProps = {
   selected?: boolean;
+  filled?: boolean;
   media: t.VideoMediaContent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -30,7 +31,12 @@ export const Item: React.FC<ItemProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Bullet size={bulletSize} selected={props.selected} theme={props.theme} />
+      <Bullet
+        size={bulletSize}
+        selected={props.selected}
+        filled={props.filled}
+        theme={props.theme}
+      />
       <div>{label}</div>
     </div>
   );
