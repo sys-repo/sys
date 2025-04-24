@@ -21,7 +21,9 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const app = App.signals();
 
-  const props = { theme: s<t.CommonTheme>('Dark') };
+  const props = {
+    theme: s<t.CommonTheme>('Dark'),
+  };
   const api = {
     app,
     props,
@@ -43,6 +45,16 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   return api;
 }
 
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
 /**
  * Component:
  */
@@ -59,12 +71,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({
-      fontWeight: 'bold',
-      marginBottom: 10,
-      display: 'grid',
-      gridTemplateColumns: 'auto 1fr auto',
-    }),
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
@@ -73,12 +79,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>
+      <div className={Styles.title.class}>
         <div>{`Layout`}</div>
-        <div />
         <div>{p.screen.breakpoint.value}</div>
       </div>
 
+      <Button
+        block
+        label={() => `debug: ${app.props.debug.value}`}
+        onClick={() => Signal.toggle(app.props.debug)}
+      />
       <Button
         block
         label={`theme: ${d.theme}`}
@@ -89,7 +99,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {screenBreakpointButton(app)}
 
       <hr />
-      <div className={styles.title.class}>
+      <div className={Styles.title.class}>
         <div>{`Stack:`}</div>
         <div />
         <div>{`${app.stack.length} ${Str.plural(app.stack.length, 'Layer', 'Layers')}`}</div>
@@ -106,7 +116,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {layerVideoPlayerButtons(app)}
 
       <hr />
-      <div className={styles.title.class}>{`Sample Configurations:`}</div>
+      <div className={Styles.title.class}>{`Sample Configurations:`}</div>
 
       <Button
         block

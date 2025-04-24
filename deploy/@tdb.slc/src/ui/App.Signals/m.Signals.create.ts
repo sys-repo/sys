@@ -12,6 +12,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
   type T = t.AppSignals;
   type P = T['props'];
   const props: P = {
+    debug: s(false),
     dist: s<t.DistPkg>(),
     stack: s<t.Content[]>([]),
     screen: { breakpoint: s<t.BreakpointName>('UNKNOWN') },
@@ -40,6 +41,7 @@ export const create: t.AppSignalsLib['create'] = (until$) => {
     },
     listen() {
       const p = props;
+      p.debug.value;
       p.stack.value;
       p.dist.value;
       p.screen.breakpoint.value;

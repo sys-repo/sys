@@ -8,6 +8,7 @@ describe('AppSignals', () => {
       const app = AppSignals.create();
       const p = app.props;
 
+      expect(p.debug.value).to.eql(false);
       expect(p.dist.value).to.eql(undefined);
       expect(p.screen.breakpoint.value).to.eql('UNKNOWN');
       expect(p.stack.value).to.eql([]);

@@ -9,6 +9,7 @@ export type AppSignals = {
 
   /** Signal properties: */
   readonly props: {
+    readonly debug: t.Signal<boolean>;
     readonly dist: t.Signal<t.DistPkg | undefined>;
     readonly stack: t.Signal<t.Content[]>;
     readonly screen: { readonly breakpoint: t.Signal<t.BreakpointName> };
