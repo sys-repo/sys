@@ -20,6 +20,7 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Light'),
     size: s<P['size']>(),
     selected: s<P['selected']>(),
+    filled: s<P['filled']>(),
   };
   const p = props;
   const api = {
@@ -29,6 +30,7 @@ export function createDebugSignals() {
       p.theme.value;
       p.size.value;
       p.selected.value;
+      p.filled.value;
     },
   };
   return api;
@@ -85,6 +87,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `selected: ${p.selected.value ?? `<undefined> (defaut: ${D.selected})`}`}
         onClick={() => Signal.toggle(p.selected)}
+      />
+      <Button
+        block
+        label={() => `filled: ${p.filled.value ?? `<undefined> (defaut: ${D.filled})`}`}
+        onClick={() => Signal.toggle(p.filled)}
       />
       <hr />
     </div>

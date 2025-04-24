@@ -1,14 +1,17 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
-export const Bullet: React.FC<t.BulletProps> = (props) => {
-  const { selected = D.selected } = props;
+type P = t.BulletProps;
+
+export const Bullet: React.FC<P> = (props) => {
+  const {} = props;
   const Size = props.size ?? D.size;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const backgroundColor = wrangle.backgroundColor(props, theme);
   const styles = {
     base: css({
       Size,
@@ -16,8 +19,8 @@ export const Bullet: React.FC<t.BulletProps> = (props) => {
       display: 'grid',
     }),
     body: css({
-      borderRadius: Size,
-      backgroundColor: selected ? Color.BLUE : theme.bg,
+      borderRadius: '50%',
+      backgroundColor,
       border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
     }),
   };
@@ -28,3 +31,15 @@ export const Bullet: React.FC<t.BulletProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  backgroundColor(props: P, theme: t.ColorTheme) {
+    const { selected = D.selected, filled = D.filled } = props;
+    if (selected) return Color.BLUE;
+    if (filled) return Color.alpha(theme.fg, 0.16);
+    return theme.bg;
+  },
+} as const;

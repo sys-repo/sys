@@ -10,5 +10,6 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name),
   size: 8,
   selected: false,
+  filled: false,
 } as const;
 export const D = DEFAULTS;

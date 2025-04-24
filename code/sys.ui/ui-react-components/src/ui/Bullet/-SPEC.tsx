@@ -19,7 +19,14 @@ export default Spec.describe('Bullet', (e) => {
       .size()
       .display('grid')
       .render(() => {
-        return <Bullet theme={p.theme.value} size={p.size.value} selected={p.selected.value} />;
+        return (
+          <Bullet
+            theme={p.theme.value}
+            size={p.size.value}
+            selected={p.selected.value}
+            filled={p.filled.value}
+          />
+        );
       });
   });
 

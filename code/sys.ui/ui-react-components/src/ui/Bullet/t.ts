@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type BulletProps = {
   selected?: boolean;
+  filled?: boolean;
 
   // Appearance:
   size?: t.Pixels;
