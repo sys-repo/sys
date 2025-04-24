@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Icons, LogoCanvas, LogoWordmark, Signal } from './common.ts';
-import { IntroButtons, StartProgrammeButton } from './ui.Buttons.tsx';
+import { type t, Color, css, Icons, Signal } from './common.ts';
+import { Body } from './ui.Body.tsx';
 import { Footer } from './ui.Footer.tsx';
 
 export type EntryProps = t.StaticContentProps & {};
@@ -39,16 +39,12 @@ export const Entry: React.FC<EntryProps> = (props) => {
       placeItems: 'center',
     }),
     body: css({
-      display: 'grid',
-      placeItems: 'center',
       opacity: props.is.top ? 1 : 0,
       transition: 'opacity 200ms',
     }),
-    brand: {
-      base: css({ display: 'grid', placeItems: 'center', rowGap: '35px' }),
-      canvas: css({ MarginX: 70 }),
-      wordmark: css({ width: 120 }),
-    },
+    footer: css({
+      Absolute: [null, 0, 0, 0],
+    }),
   };
 
   const elHeader = (
@@ -57,27 +53,8 @@ export const Entry: React.FC<EntryProps> = (props) => {
     </div>
   );
 
-  const elBody = (
-    <div className={styles.body.class}>
-      <div className={styles.brand.base.class}>
-        <LogoCanvas
-          theme={theme.name}
-          style={styles.brand.canvas}
-          // selected={'purpose'}
-          selectionAnimation={{ delay, loop: true }}
-        />
-        <LogoWordmark theme={theme.name} style={styles.brand.wordmark} />
-        <IntroButtons theme={theme.name} state={state} style={{ marginTop: 150 }} />
-        <div>
-          <StartProgrammeButton state={state} theme={theme.name} />
-        </div>
-      </div>
-    </div>
-  );
-
-  const elFooter = (
-    <Footer state={state} theme={theme.name} style={{ Absolute: [null, 0, 0, 0] }} />
-  );
+  const elBody = <Body state={state} theme={theme.name} style={styles.body} />;
+  const elFooter = <Footer state={state} theme={theme.name} style={styles.footer} />;
 
   return (
     <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
