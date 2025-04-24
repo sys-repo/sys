@@ -3,6 +3,8 @@
  * Module types.
  */
 
+export type * from './ui.tmp/t.ts';
+
 /**
  * UI: logical "App" state.
  */
