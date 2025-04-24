@@ -26,7 +26,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
     }),
   };
 
-  const elTooSmall = isTooSmall && <TooSmall theme={theme.name} />;
+  const elTooSmall = isTooSmall && <TooSmall theme={'Dark'} />;
   const elBody = !isTooSmall && <Body {...props} theme={'Light'} debug={debug} />;
 
   return (
