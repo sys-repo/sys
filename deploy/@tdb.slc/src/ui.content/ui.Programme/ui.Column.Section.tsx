@@ -52,7 +52,7 @@ export const Section: React.FC<SectionProps> = (props) => {
       alignContent: 'start',
     }),
     canvas: css({
-      Padding: [35, 60, 0, 60],
+      Padding: [35, '18%', 0, '18%'],
       display: isCanvasVisible ? 'block' : 'none',
     }),
     playlist: css({

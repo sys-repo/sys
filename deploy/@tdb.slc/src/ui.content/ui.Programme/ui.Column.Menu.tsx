@@ -31,7 +31,7 @@ export const Menu: React.FC<MenuProps> = (props) => {
       gridTemplateRows: 'auto 1fr',
     }),
     canvas: css({
-      MarginX: 75,
+      MarginX: '18.5%',
       display: size.height > 570 ? 'block' : 'none',
     }),
     menu: css({
