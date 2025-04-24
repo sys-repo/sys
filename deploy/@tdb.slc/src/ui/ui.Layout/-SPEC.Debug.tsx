@@ -137,13 +137,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView
-        name={'stack'}
-        data={app.stack.items}
-        expand={1}
-        margin={[null, null, 20, null]}
-      />
-      <ObjectView name={'state:app'} data={app} expand={1} />
+      <ObjectView name={'state:app'} data={app} expand={0} margin={[null, null, 4, null]} />
+      <ObjectView name={'stack'} data={app.stack.items} expand={1} />
     </div>
   );
 };
