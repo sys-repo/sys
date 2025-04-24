@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Factory, factory } from '../m.Factory/mod.ts';
 import { Is } from './m.Content.Is.ts';
 import { Content } from './mod.ts';

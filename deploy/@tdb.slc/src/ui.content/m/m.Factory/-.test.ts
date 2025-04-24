@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Content } from '../mod.ts';
-import { VIDEO } from '../VIDEO.ts';
+import { VIDEO } from '../../VIDEO.ts';
 
 describe('Content.Factory', () => {
   it('Entry', async () => {

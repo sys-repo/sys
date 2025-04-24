@@ -34,8 +34,8 @@ export type * from './ui/use/t.ts';
 /**
  * UI Content:
  */
-export type * from './ui.content/m.Content/t.ts';
-export type * from './ui.content/m.Factory/t.ts';
+export type * from './ui.content/m/m.Content/t.ts';
+export type * from './ui.content/m/m.Factory/t.ts';
 export type * from './ui.content/t.ts';
 export type * from './ui.content/ui/t.ts';
 export type * from './ui.content/ui/ui.CanvasSlug/t.ts';

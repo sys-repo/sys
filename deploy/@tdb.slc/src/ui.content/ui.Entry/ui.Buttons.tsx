@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Button } from './common.ts';
 
-import { Factory } from '../m.Factory/mod.ts';
+import { Factory } from '../m/mod.ts';
 import { RoundedButton } from './ui.Button.Rounded.tsx';
 
 /**
