@@ -18,6 +18,7 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s<P['theme']>('Light'),
     size: s<P['size']>(),
+    selected: s<P['selected']>(),
   };
   const p = props;
   const api = {
@@ -26,6 +27,7 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.size.value;
+      p.selected.value;
     },
   };
   return api;
@@ -66,18 +68,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-
       <Button
         block
-        label={() => `size: ${p.size.value ?? `<undefined> - ${D.size}`}`}
+        label={() => `size: ${p.size.value ?? `<undefined> (default: ${D.size})`}`}
         onClick={() => Signal.cycle(p.size, [16, 22, undefined])}
       />
-
+      <Button
+        block
+        label={() => `selected: ${p.selected.value ?? `<undefined> (defaut: ${D.selected})`}`}
+        onClick={() => Signal.toggle(p.selected)}
+      />
       <hr />
     </div>
   );

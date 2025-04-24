@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
 export const Bullet: React.FC<t.BulletProps> = (props) => {
-  const {} = props;
+  const { selected = D.selected } = props;
   const Size = props.size ?? D.size;
 
   /**
@@ -17,7 +17,7 @@ export const Bullet: React.FC<t.BulletProps> = (props) => {
     }),
     body: css({
       borderRadius: Size,
-      backgroundColor: theme.bg,
+      backgroundColor: selected ? Color.BLUE : theme.bg,
       border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
     }),
   };

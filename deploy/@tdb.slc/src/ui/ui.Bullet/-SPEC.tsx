@@ -18,7 +18,9 @@ export default Spec.describe('Bullet', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <Bullet theme={p.theme.value} size={p.size.value} />);
+      .render(() => {
+        return <Bullet theme={p.theme.value} size={p.size.value} selected={p.selected.value} />;
+      });
   });
 
   e.it('ui:debug', (e) => {
