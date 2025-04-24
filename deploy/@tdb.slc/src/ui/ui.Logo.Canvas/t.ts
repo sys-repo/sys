@@ -7,10 +7,10 @@ export type LogoCanvasProps = {
   selected?: t.CanvasPanel | t.CanvasPanel[];
   selectionAnimation?: LogoCanvasSelectionAnimation;
   over?: t.CanvasPanel;
-  width?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onPanelEvent?: t.LogoCanvasPanelHandler;
+  onReady?: () => void;
 };
 
 /** Selection animation options */

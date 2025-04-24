@@ -11,7 +11,6 @@ export default Spec.describe('Logo.Canvas', (e) => {
     return (
       <LogoCanvas
         theme={options.theme ?? p.theme.value}
-        width={p.width.value}
         selected={p.selected.value}
         selectionAnimation={p.selectionAnimation.value}
         over={p.over.value}
@@ -20,6 +19,7 @@ export default Spec.describe('Logo.Canvas', (e) => {
           if (e.type === 'enter') p.over.value = e.panel;
           if (e.type === 'click') p.selected.value = e.panel;
         }}
+        onReady={() => console.info(`⚡️ onReady`)}
       />
     );
   };

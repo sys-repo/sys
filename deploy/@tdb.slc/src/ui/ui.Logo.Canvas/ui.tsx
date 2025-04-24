@@ -9,7 +9,7 @@ type P = t.LogoCanvasProps;
  * Component.
  */
 export const LogoCanvas: React.FC<P> = (props) => {
-  const { over, onPanelEvent, width } = props;
+  const { over, onPanelEvent } = props;
   const { selected } = useSelection(props);
 
   /**
@@ -27,10 +27,10 @@ export const LogoCanvas: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <SvgImage
         theme={props.theme}
-        width={width}
         selected={selected}
         over={over}
         onPanelEvent={onPanelEvent}
+        onReady={props.onReady}
       />
     </div>
   );
