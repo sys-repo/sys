@@ -24,7 +24,7 @@ export default Spec.describe('Playlist', (e) => {
           items={p.items.value}
           selected={p.selected.value}
           filled={p.filled.value}
-          paddingTop={50}
+          paddingTop={p.paddingTop.value}
           style={{ Margin: [0, 30, 30, 30] }}
         />
       ));

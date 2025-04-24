@@ -10,5 +10,6 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name),
   gap: 20,
   bulletSize: 9,
+  paddingTop: 0,
 } as const;
 export const D = DEFAULTS;

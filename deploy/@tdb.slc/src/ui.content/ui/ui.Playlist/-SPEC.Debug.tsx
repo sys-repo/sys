@@ -1,6 +1,6 @@
 import React from 'react';
 import { Programme } from '../../ui.Programme/v.ts';
-import { type t, Button, css, ObjectView, Signal } from './common.ts';
+import { type t, Button, css, ObjectView, Signal, D } from './common.ts';
 
 type P = t.PlaylistProps;
 
@@ -21,6 +21,7 @@ export function createDebugSignals() {
     items: s<P['items']>(Programme.children[0].children),
     selected: s<P['selected']>(),
     filled: s<P['filled']>(),
+    paddingTop: s<P['paddingTop']>(50),
   };
   const p = props;
   const api = {
@@ -31,6 +32,7 @@ export function createDebugSignals() {
       p.items.value;
       p.selected.value;
       p.filled.value;
+      p.paddingTop.value;
     },
   };
   return api;
@@ -71,13 +73,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
 
+      <hr />
+
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
-      <hr />
       <Button
         block
         label={() => {
@@ -105,6 +108,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const indexes = wrangle.asIndexes(p.items.value);
           Signal.cycle(p.filled, [[0], [0, 1], indexes, undefined]);
         }}
+      />
+
+      <Button
+        block
+        label={() => `paddingTop: ${p.paddingTop.value ?? `<undefined> (defaut: ${D.paddingTop})`}`}
+        onClick={() => Signal.cycle(p.paddingTop, [D.paddingTop, 50, 200, undefined])}
       />
 
       <hr />
