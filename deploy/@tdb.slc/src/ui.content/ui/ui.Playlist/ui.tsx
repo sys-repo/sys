@@ -36,14 +36,8 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
   };
 
   const row = (media: t.VideoMediaContent, index: number) => {
-    return (
-      <Item
-        key={media.id}
-        media={media}
-        selected={index === props.selectedIndex}
-        theme={theme.name}
-      />
-    );
+    const selected = index === props.selected;
+    return <Item key={media.id} media={media} selected={selected} theme={theme.name} />;
   };
 
   return (

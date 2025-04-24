@@ -22,7 +22,7 @@ export default Spec.describe('Playlist', (e) => {
           theme={p.theme.value}
           debug={p.debug.value}
           items={p.items.value}
-          selectedIndex={p.selectedIndex.value}
+          selected={p.selected.value}
           paddingTop={50}
           style={{ Margin: [0, 30, 30, 30] }}
         />

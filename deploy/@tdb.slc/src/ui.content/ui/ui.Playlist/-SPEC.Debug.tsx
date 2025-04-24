@@ -19,7 +19,8 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s<P['theme']>('Light'),
     items: s<P['items']>(Programme.children[0].children),
-    selectedIndex: s<P['selectedIndex']>(),
+    selected: s<P['selected']>(),
+    filled: s<P['filled']>(),
   };
   const p = props;
   const api = {
@@ -28,7 +29,8 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.items.value;
-      p.selectedIndex.value;
+      p.selected.value;
+      p.filled.value;
     },
   };
   return api;
@@ -90,11 +92,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `selectedIndex: ${p.selectedIndex.value ?? `<undefined>`}`}
+        label={() => `selected: ${p.selected.value ?? `<undefined>`}`}
         onClick={() => {
           const items = p.items.value ?? [];
           const indexes = [...Array(items.length).keys()];
-          Signal.cycle(p.selectedIndex, [...indexes, undefined]);
+          Signal.cycle(p.selected, [...indexes, undefined]);
         }}
       />
 
