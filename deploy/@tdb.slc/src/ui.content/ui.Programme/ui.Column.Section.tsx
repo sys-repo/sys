@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Color, css, LogoCanvas, Playlist, type t, Time, useSizeObserver } from './common.ts';
+import { type t, Color, css, LogoCanvas, Playlist, useSizeObserver } from './common.ts';
 
 export type SectionProps = {
   debug?: boolean;
@@ -24,13 +24,6 @@ export const Section: React.FC<SectionProps> = (props) => {
   const isCanvasVisible = size.height > threshold;
 
   /**
-   * Effect: ensure mounted before size calculations.
-   */
-  React.useEffect(() => {
-    Time.delay(0, () => setMounted(true));
-  }, []);
-
-  /**
    * Effect: calculate size thresholds.
    */
   React.useLayoutEffect(() => {
@@ -38,7 +31,7 @@ export const Section: React.FC<SectionProps> = (props) => {
     const canvas = canvasRef.current?.offsetHeight ?? 0;
     const playlist = playlistRef.current?.offsetHeight ?? 0;
     setThreshold(canvas + playlist + 20);
-  }, [isReady, media.children]);
+  }, [isReady, media.children?.map((m) => m.id).join('|')]);
 
   /**
    * Render:
@@ -68,7 +61,7 @@ export const Section: React.FC<SectionProps> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       <div ref={canvasRef} className={styles.canvas.class}>
-        <LogoCanvas theme={theme.name} />
+        <LogoCanvas theme={theme.name} onReady={() => setMounted(true)} />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
         <Playlist items={media.children} theme={theme.name} paddingTop={50} />
@@ -79,7 +72,7 @@ export const Section: React.FC<SectionProps> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elBody}
-      {debug && size.toElement([4, 6, null, null])}
+      {debug && size.toElement([4, null, null, 6])}
     </div>
   );
 };
