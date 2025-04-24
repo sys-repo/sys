@@ -53,6 +53,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   return (
     <div className={css(styles.base).class}>
       <ConceptPlayer
+        debug={debug}
         theme={'Light'}
         columnAlign={align}
         columnVideo={content.media?.video}

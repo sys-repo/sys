@@ -1,5 +1,7 @@
 export { VIDEO } from '../../VIDEO.ts';
+
 export * from '../common.ts';
+export { ElapsedTime } from '../ui.ElapsedTime.tsx';
 
 /**
  * Constants:

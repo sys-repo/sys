@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
+import { type t, Color, css, ElapsedTime, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
+  debug?: boolean;
   align: t.ConceptPlayerAlign;
   body?: t.ReactNode;
   video?: t.VideoPlayerSignals;
@@ -14,8 +15,9 @@ export type ColumnProps = {
  * Component:
  */
 export const Column: React.FC<ColumnProps> = (props) => {
-  const { align } = props;
+  const { align, debug = false } = props;
   const isCenter = align === 'Center';
+  const player = props.video;
 
   const [playerKey, setPlayerKey] = useState(0);
 
@@ -51,12 +53,13 @@ export const Column: React.FC<ColumnProps> = (props) => {
         <div className={styles.video.class}>
           <Player.Video.View
             key={playerKey}
-            signals={props.video}
+            signals={player}
             onEnded={() => {
               setPlayerKey((n) => n + 1); // Hack: force player to reset to start.
             }}
           />
         </div>
+        <ElapsedTime player={player} abs={true} show={debug} />
       </div>
     </Sheet>
   );
