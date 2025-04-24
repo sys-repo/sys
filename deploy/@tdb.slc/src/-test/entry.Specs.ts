@@ -17,7 +17,6 @@ export const SpecsComponents = {
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
 
-  'tdb.slc.ui.Bullet': () => import('../ui/ui.Bullet/-SPEC.tsx'),
   'tdb.slc.ui.FadeText': () => import('../ui/ui.FadeText/-SPEC.tsx'),
   'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),

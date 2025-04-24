@@ -9,6 +9,7 @@ export const ns = 'sys.ui.react.component';
  * Components:
  */
 export const SpecsComponents = {
+  [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-SPEC.tsx'),

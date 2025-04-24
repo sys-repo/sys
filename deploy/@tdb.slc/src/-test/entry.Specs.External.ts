@@ -16,5 +16,9 @@ const add = (name: string) => {
   if (external in SpecsComponents) SpecsExternal[local] = SpecsComponents[external];
 };
 
+/**
+ * Core "System" components employed by this module.
+ */
 add('Layout.CenterColumn');
 add('FadeElement');
+add('Bullet');

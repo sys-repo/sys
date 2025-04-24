@@ -15,6 +15,7 @@ export type * as t from './types.ts';
 /**
  * Components.
  */
+export { Bullet } from './ui/Bullet/mod.ts';
 export { Button } from './ui/Button/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';

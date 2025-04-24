@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, D, Signal } from './common.ts';
+import { Button } from '../Button/mod.ts';
+import { type t, css, D, Signal } from './common.ts';
 
 type P = t.BulletProps;
 
@@ -78,7 +79,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `size: ${p.size.value ?? `<undefined> (default: ${D.size})`}`}
-        onClick={() => Signal.cycle(p.size, [16, 22, undefined])}
+        onClick={() => Signal.cycle(p.size, [16, 22, 64, undefined])}
       />
       <Button
         block

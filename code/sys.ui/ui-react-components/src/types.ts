@@ -2,6 +2,7 @@
  * @module
  * Module types.
  */
+export type * from './ui/Bullet/t.ts';
 export type * from './ui/Button/t.ts';
 export type * from './ui/Cropmarks/t.ts';
 export type * from './ui/FadeElement/t.ts';

@@ -9,6 +9,7 @@ export { Color, css, Style } from '@sys/ui-css';
 export { Dom, Keyboard } from '@sys/ui-dom';
 export { ReactString, useClickOutside, useIsTouchSupported, useSizeObserver } from '@sys/ui-react';
 export {
+  Bullet,
   Button,
   Cropmarks,
   FadeElement,
