@@ -35,15 +35,22 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
     }),
   };
 
-  const row = (media: t.VideoMediaContent) => {
-    return <Item key={media.id} media={media} theme={theme.name} />;
+  const row = (media: t.VideoMediaContent, index: number) => {
+    return (
+      <Item
+        key={media.id}
+        media={media}
+        selected={index === props.selectedIndex}
+        theme={theme.name}
+      />
+    );
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div className={styles.line.class} />
-        <div className={styles.list.class}>{items.map((media) => row(media))}</div>
+        <div className={styles.list.class}>{items.map((media, i) => row(media, i))}</div>
       </div>
     </div>
   );

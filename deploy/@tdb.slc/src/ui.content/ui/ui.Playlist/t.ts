@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type PlaylistProps = {
   debug?: boolean;
   items?: t.VideoMediaContent[];
+  selectedIndex?: t.Index;
 
   // Appearance.
   paddingTop?: t.Pixels;

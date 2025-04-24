@@ -19,6 +19,7 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s<P['theme']>('Light'),
     items: s<P['items']>(Programme.children[0].children),
+    selectedIndex: s<P['selectedIndex']>(),
   };
   const p = props;
   const api = {
@@ -27,6 +28,7 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.items.value;
+      p.selectedIndex.value;
     },
   };
   return api;
@@ -84,6 +86,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           type T = t.VideoMediaContent[] | undefined;
           const m = Programme.children.map((m) => m.children).filter(Boolean);
           Signal.cycle<T>(p.items, [...m, undefined]);
+        }}
+      />
+      <Button
+        block
+        label={() => `selectedIndex: ${p.selectedIndex.value ?? `<undefined>`}`}
+        onClick={() => {
+          const items = p.items.value ?? [];
+          const indexes = [...Array(items.length).keys()];
+          Signal.cycle(p.selectedIndex, [...indexes, undefined]);
         }}
       />
 
