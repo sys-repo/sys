@@ -60,7 +60,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
     },
     toElement(input) {
       const props = wrangle.elementProps(input);
-      const { opacity = 0.3, fontSize = 12, Absolute } = props;
+      const { opacity = 0.3, fontSize = 11, Absolute } = props;
       const theme = props.theme ? Color.theme(props.theme) : undefined;
       const color = theme?.fg;
       let display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
