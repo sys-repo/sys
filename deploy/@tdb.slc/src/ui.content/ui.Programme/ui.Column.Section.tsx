@@ -64,7 +64,11 @@ export const Section: React.FC<SectionProps> = (props) => {
         <LogoCanvas theme={theme.name} onReady={() => setMounted(true)} />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
-        <Playlist items={media.children} theme={theme.name} paddingTop={50} />
+        <Playlist
+          items={media.children}
+          theme={theme.name}
+          paddingTop={isCanvasVisible ? 50 : 30}
+        />
       </div>
     </div>
   );
