@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
-import { RootMenu } from './ui.RootMenu.tsx';
-import { Section } from './ui.Section.tsx';
+import { Menu } from './ui.Column.Menu.tsx';
+import { Section } from './ui.Column.Section.tsx';
 
 export type ProgrammeRootProps = t.VideoContentProps & {};
 
@@ -38,7 +38,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
   };
 
   const elRootMenu = (
-    <RootMenu
+    <Menu
       {...props}
       debug={debug}
       onSelect={(e) => {
@@ -48,7 +48,7 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
     />
   );
 
-  const elSection = media && <Section media={media} />;
+  const elSection = media && <Section media={media} debug={debug} />;
 
   return (
     <div className={css(styles.base).class}>

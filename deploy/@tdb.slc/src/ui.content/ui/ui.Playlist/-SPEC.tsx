@@ -22,7 +22,8 @@ export default Spec.describe('Playlist', (e) => {
           theme={p.theme.value}
           debug={p.debug.value}
           items={p.items.value}
-          style={{ Margin: [0, 30, 30, 30], paddingTop: 50 }}
+          paddingTop={50}
+          style={{ Margin: [0, 30, 30, 30] }}
         />
       ));
   });

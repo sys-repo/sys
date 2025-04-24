@@ -8,6 +8,7 @@ export type PlaylistProps = {
   items?: t.VideoMediaContent[];
 
   // Appearance.
+  paddingTop?: t.Pixels;
   gap?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;

@@ -3,7 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
-  const { items = [], debug = false, gap = D.gap } = props;
+  const { items = [], debug = false, gap = D.gap, paddingTop } = props;
   if (items.length === 0) return null;
 
   /**
@@ -17,7 +17,11 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
       color: theme.fg,
       fontSize: 16,
       userSelect: 'none',
+    }),
+    body: css({
+      position: 'relative',
       display: 'grid',
+      paddingTop,
     }),
     list: css({
       display: 'grid',
@@ -37,8 +41,10 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.line.class} />
-      <div className={styles.list.class}>{items.map((media) => row(media))}</div>
+      <div className={styles.body.class}>
+        <div className={styles.line.class} />
+        <div className={styles.list.class}>{items.map((media) => row(media))}</div>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, LogoCanvas, MenuList, useSizeObserver } from './common.ts';
 
-export type RootMenuProps = t.VideoContentProps & {
+export type MenuProps = t.VideoContentProps & {
   debug?: boolean;
   onSelect: t.MenuListProps['onSelect'];
 };
@@ -9,7 +9,7 @@ export type RootMenuProps = t.VideoContentProps & {
 /**
  * Component:
  */
-export const RootMenu: React.FC<RootMenuProps> = (props) => {
+export const Menu: React.FC<MenuProps> = (props) => {
   const { content, debug = false } = props;
   const items = content.media?.children ?? [];
   const size = useSizeObserver();
