@@ -56,7 +56,7 @@ export const Section: React.FC<SectionProps> = (props) => {
       display: isCanvasVisible ? 'block' : 'none',
     }),
     playlist: css({
-      marginLeft: 70,
+      marginLeft: 85,
     }),
   };
 
