@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, CanvasPanel, Color, css, Signal, D } from './common.ts';
+import { type t, Button, CanvasPanel, Color, css, D, Signal } from './common.ts';
 import { Selection } from './m.Selection.ts';
 
 /**
@@ -15,8 +15,9 @@ type P = t.LogoCanvasProps;
 export function createDebugSignals() {
   const s = Signal.create;
   const props = {
+    width: s<t.Pixels>(400),
+    // Props:
     theme: s<P['theme']>('Dark'),
-    width: s<P['width']>(400),
     over: s<P['over']>(),
     selected: s<P['selected']>('purpose'),
     selectionAnimation: s<P['selectionAnimation']>(),
