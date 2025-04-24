@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, DEFAULTS, Signal } from './common.ts';
+import { type t, Button, css, DEFAULTS, Signal } from './common.ts';
 
 const D = DEFAULTS;
 
@@ -34,6 +34,16 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   return api;
 }
 
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
 /**
  * Component:
  */
@@ -46,18 +56,13 @@ export const Debug: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
-        block
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle<t.LogoWordmarkProps['theme']>(p.theme, ['Light', 'Dark'])}
-      />
+      <div className={Styles.title.class}>{D.name}</div>
       <Button
         block
         label={`width: ${p.width.value ?? '<undefined>'}`}
@@ -65,6 +70,11 @@ export const Debug: React.FC<P> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={`theme: ${p.theme}`}
+        onClick={() => Signal.cycle<t.LogoWordmarkProps['theme']>(p.theme, ['Light', 'Dark'])}
+      />
       <Button
         block
         label={`logo: "${p.logo}"`}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, CanvasPanel, Color, css, D, Signal } from './common.ts';
+import { type t, Button, CanvasPanel, css, D, Signal } from './common.ts';
 import { Selection } from './m.Selection.ts';
 
 /**
@@ -36,6 +36,16 @@ export function createDebugSignals() {
   return api;
 }
 
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
 /**
  * Component
  */
@@ -48,17 +58,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
-        label={`theme: ${p.theme}`}
-        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
-      />
+      <div className={Styles.title.class}>{D.name}</div>
+
       <Button
         block={true}
         label={`width: ${p.width.value ?? '<undefined>'}`}
@@ -66,6 +73,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        label={`theme: ${p.theme}`}
+        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
+      />
+
       {canvasSelectedButton(p.selected)}
 
       <Button
