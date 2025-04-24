@@ -28,7 +28,7 @@ export const SpecsComponents = {
   'tdb.slc.content.ui.Playlist': () => import('../ui.content/ui/ui.Playlist/-SPEC.tsx'),
   'tdb.slc.content.ui.MenuList': () => import('../ui.content/ui/ui.MenuList/-SPEC.tsx'),
 
-  'tmp.🐷': () => import('../ui.tmp/-SPEC.tsx'),
+  'tmp.🐷 (mandelbrot)': () => import('../ui.tmp/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
