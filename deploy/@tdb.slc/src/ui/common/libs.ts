@@ -7,7 +7,13 @@ export { Motion as M, Motion };
  */
 export { Color, css, Style } from '@sys/ui-css';
 export { Dom, Keyboard } from '@sys/ui-dom';
-export { ReactString, useClickOutside, useIsTouchSupported, useSizeObserver } from '@sys/ui-react';
+export {
+  ReactString,
+  useClickOutside,
+  useIsTouchSupported,
+  useSizeObserver,
+  useLoading,
+} from '@sys/ui-react';
 export {
   Bullet,
   Button,

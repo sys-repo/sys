@@ -32,7 +32,7 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 /**
- * Library
+ * Library:
  */
 export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
@@ -43,6 +43,7 @@ export {
   useClickOutside,
   useDist,
   useIsTouchSupported,
+  useLoading,
   useMouse,
   useMouseDrag,
   useSizeObserver,
