@@ -17,7 +17,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
-    running: s<P['running']>(),
+    running: s<P['running']>(true),
   };
   const p = props;
   const api = {
