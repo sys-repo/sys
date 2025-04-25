@@ -17,8 +17,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
 
   const video = Player.Video.signals({
     src: VIDEO.GroupScale.src,
-    fadeMask: { direction: 'Top:Down', size: 10 },
     scale: (e) => e.enlargeBy(2),
+    fadeMask: 10,
   });
 
   const props = {

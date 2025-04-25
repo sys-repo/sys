@@ -22,7 +22,7 @@ export function factory() {
       video: Player.Video.signals({
         src: VIDEO.Overview.src,
         scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
-        fadeMask: { direction: 'Top:Down', size: 30 },
+        fadeMask: 20,
       }),
     },
 
