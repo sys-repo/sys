@@ -1,5 +1,14 @@
 import React, { useRef, useState } from 'react';
-import { type t, Color, css, LogoCanvas, Playlist, useSizeObserver } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  LogoCanvas,
+  Playlist,
+  useSizeObserver,
+  useLoading,
+  Time,
+} from './common.ts';
 
 export type SectionProps = {
   debug?: boolean;
@@ -8,20 +17,21 @@ export type SectionProps = {
   style?: t.CssInput;
 };
 
+type Part = 'Canvas';
+
 /**
  * Component:
  */
 export const Section: React.FC<SectionProps> = (props) => {
   const { media, debug = false } = props;
 
+  const loading = useLoading<Part>(['Canvas']);
   const playlistRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const size = useSizeObserver();
   const [threshold, setThreshold] = useState(0);
-  const [isCanvasReady, setCanvasReady] = useState(false);
-  const isMounted = isCanvasReady;
-  const isReady = size.ready && isMounted;
+  const isReady = size.ready && loading.ready;
   const isCanvasVisible = size.height > threshold;
 
   /**
@@ -65,7 +75,7 @@ export const Section: React.FC<SectionProps> = (props) => {
       <div ref={canvasRef} className={styles.canvas.class}>
         <LogoCanvas
           theme={theme.name}
-          onReady={() => setCanvasReady(true)}
+          onReady={() => loading.ready('Canvas')}
           onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.type}`, e)}
         />
       </div>

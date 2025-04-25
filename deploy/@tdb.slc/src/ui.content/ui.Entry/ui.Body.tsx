@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 
-import { type t, Color, css, LogoCanvas, LogoWordmark } from './common.ts';
+import { type t, Color, css, LogoCanvas, LogoWordmark, useLoading } from './common.ts';
 import { IntroButtons, StartProgrammeButton } from './ui.Buttons.tsx';
 
 export type BodyProps = {
@@ -11,9 +11,7 @@ export type BodyProps = {
 
 const heartRateBPM = 72;
 const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
-
-type Part = 'Canvas' | 'Workmark';
-const PARTS: Part[] = ['Canvas', 'Workmark'] as const;
+type Part = 'Canvas' | 'Wordmark';
 
 /**
  * Component:
@@ -21,15 +19,8 @@ const PARTS: Part[] = ['Canvas', 'Workmark'] as const;
 export const Body: React.FC<BodyProps> = (props) => {
   const { state } = props;
 
-  const readyRef = useRef(new Set<Part>());
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
-  const registerReady = (component: Part) => {
-    readyRef.current.add(component);
-    redraw();
-  };
-
-  const isReady: boolean = PARTS.every((part) => readyRef.current.has(part));
+  const loading = useLoading<Part>(['Canvas', 'Wordmark']);
+  const isReady = loading.is.complete;
 
   /**
    * Render:
@@ -58,12 +49,12 @@ export const Body: React.FC<BodyProps> = (props) => {
           style={styles.brand.canvas}
           // selected={'purpose'}
           selectionAnimation={{ delay, loop: true }}
-          onReady={() => registerReady('Canvas')}
+          onReady={() => loading.ready('Canvas')}
         />
         <LogoWordmark
           theme={theme.name}
           style={styles.brand.wordmark}
-          onReady={() => registerReady('Workmark')}
+          onReady={() => loading.ready('Wordmark')}
         />
         <IntroButtons theme={theme.name} state={state} style={{ marginTop: 150 }} />
         <div>
