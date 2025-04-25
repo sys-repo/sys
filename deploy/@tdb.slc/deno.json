@@ -7,7 +7,7 @@
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
-    "deploy": "orbiter deploy",
+    "deploy": "orbiter deploy && deno task help --info",
 
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
