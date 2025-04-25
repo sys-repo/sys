@@ -28,6 +28,8 @@ export const SpecsComponents = {
   'tdb.slc.content.ui.Playlist': () => import('../ui.content/ui/ui.Playlist/-SPEC.tsx'),
   'tdb.slc.content.ui.MenuList': () => import('../ui.content/ui/ui.MenuList/-SPEC.tsx'),
 
+  'tdb.slc.content:Programme': () => import('../ui.content/ui.Programme/-spec/-SPEC.tsx'),
+
   // Scratchpad:
   'tmp.sample.🐷 (mandelbrot set)': () => import('../ui.tmp/-SPEC.tsx'),
 } as t.SpecImports;
