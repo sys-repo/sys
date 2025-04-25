@@ -7,17 +7,16 @@ import { type t } from './common.ts';
 export const useLoading: t.UseLoading = <P extends string>(parts: P[]) => {
   const loadedRef = useRef(new Set<P>());
   const loaded = loadedRef.current;
-  let _parts: t.LoadingHookPart<P>[] | undefined;
 
   const [, setCount] = useState(0);
-  const [ready, seteReady] = useState(false);
-  const percent: t.Percent = Math.min(1, Math.max(0, loaded.size / parts.length));
+  const [complete, setComplete] = useState(false);
+  const percent = wrangle.percent(parts, loaded);
 
   /**
    * Effect: redraw when ready.
    */
   useEffect(() => {
-    if (percent === 1) seteReady(true);
+    if (percent === 1) setComplete(true);
   }, [percent]);
 
   /**
@@ -26,16 +25,28 @@ export const useLoading: t.UseLoading = <P extends string>(parts: P[]) => {
   return {
     percent,
     get is() {
-      return { ready, loading: !ready };
+      return { complete, loading: !complete };
     },
 
     get parts() {
-      return _parts ?? (_parts = parts.map((part) => ({ part, loaded: loaded.has(part) })));
+      return parts.map((name) => ({ name, loaded: loaded.has(name) }));
     },
 
-    loaded(part: P) {
-      loaded.add(part);
-      setCount((n) => n + 1);
+    ready(part?: P) {
+      if (part !== undefined) {
+        loaded.add(part);
+        setCount((n) => n + 1);
+      }
+      return wrangle.percent(parts, loaded) === 1;
     },
   };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  percent<P extends string>(parts: P[], loaded: Set<P>): t.Percent {
+    return Math.min(1, Math.max(0, loaded.size / parts.length));
+  },
+} as const;
