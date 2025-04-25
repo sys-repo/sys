@@ -8,7 +8,7 @@ export const Help: t.ViteLogHelpLib = {
     const dirs = args.dirs;
 
     // API (commands).
-    API.log({ ...args.api, minimal: false });
+    if (args.api !== false) API.log({ ...args.api, minimal: false });
     console.info();
 
     // Dist bundle.

@@ -95,7 +95,7 @@ export type ViteLogHelpLib = {
 export type ViteLogHelpArgs = {
   dirs: t.ViteBundleIO;
   pkg?: t.Pkg;
-  api?: t.ViteLogUsageApiArgs;
+  api?: t.ViteLogUsageApiArgs | false;
 };
 
 /** Log a `/dist` bundle folder. */

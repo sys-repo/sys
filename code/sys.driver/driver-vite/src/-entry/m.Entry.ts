@@ -21,6 +21,8 @@ export const ViteEntry: t.ViteEntryLib = {
     const args = argsAsType<t.ViteEntryArgs>();
     const cmd = args.cmd;
 
+    console.log('input', input);
+
     if (cmd === 'init') {
       const { init } = await import('./u.init.ts');
       console.log('args', args);
@@ -54,13 +56,17 @@ export const ViteEntry: t.ViteEntryLib = {
     }
 
     if (cmd === 'help') {
-      const { dir } = args;
+      const { dir, info } = args;
       const paths = await Wrangle.pathsFromConfigfile(dir);
       const dirs = {
         in: Path.join(paths.cwd, paths.app.entry),
         out: Path.join(paths.cwd, paths.app.outDir),
       };
-      await ViteLog.Help.log({ pkg, dirs });
+
+      let api: false | undefined;
+      if (info === true) api = false; // NB: don't show the API if specific "info" was requested.
+
+      await ViteLog.Help.log({ pkg, dirs, api });
       return;
     }
 
