@@ -23,8 +23,8 @@ export type LoadingHook<P extends string> = {
   readonly parts: t.LoadingHookPart<P>[];
 
   /**
-   * Mark a part as loaded. No param returns complete/ready status.
-   *
+   * Mark a single part done when you pass its name.
+   * Always returns `true` once *all* parts are loaded.
    */
   ready(part?: P): boolean;
 };

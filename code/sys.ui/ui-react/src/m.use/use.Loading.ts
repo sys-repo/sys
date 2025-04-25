@@ -33,11 +33,11 @@ export const useLoading: t.UseLoading = <P extends string>(parts: P[]) => {
     },
 
     ready(part?: P) {
-      if (part !== undefined) {
+      if (part != null) {
         loaded.add(part);
         setCount((n) => n + 1);
       }
-      return wrangle.percent(parts, loaded) === 1;
+      return part == null ? complete : wrangle.percent(parts, loaded) === 1;
     },
   };
 };
