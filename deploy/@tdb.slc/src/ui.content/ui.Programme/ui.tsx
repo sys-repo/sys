@@ -14,12 +14,12 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const p = state.component?.props;
   const debug = p?.debug.value;
   const align = p?.align.value;
-  const media = p?.media.value;
-  const selectedMedia = media?.children?.[p?.section?.value?.index ?? -1];
-  const title = selectedMedia?.title ?? 'Untitled';
   const isCenter = align === 'Center';
 
-  const controller = useProgrammeController(state);
+  /**
+   * State controller.
+   */
+  const controller = useProgrammeController(state.component);
 
   /**
    * Effects:
@@ -41,16 +41,26 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const elRootMenu = (
     <Menu
       //
-      media={media}
       debug={debug}
-      onSelect={(e) => controller.onMenuSelect(e.index)}
+      media={controller.media}
+      onSelect={(e) => controller.onSectionSelect(e.index)}
     />
   );
 
-  const player = selectedMedia?.video;
-  const elSection = selectedMedia && <Section media={selectedMedia} debug={debug} />;
-  const elTimestamps = selectedMedia && (
-    <Timestamps timestamps={selectedMedia.timestamps} player={player} />
+  const player = controller.section.player;
+  const elSection = controller.section.media && (
+    <Section
+      media={controller.section.media.section}
+      selected={controller.section.index.child}
+      debug={debug}
+      onSelect={(e) => {
+        controller.section.onChildSelect(e);
+      }}
+    />
+  );
+
+  const elTimestamps = controller.section.media && (
+    <Timestamps timestamps={controller.section.media.root?.timestamps} player={player} />
   );
 
   return (
@@ -61,9 +71,9 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         columnAlign={align}
         columnVideo={player}
         columnBody={isCenter ? elRootMenu : elSection}
-        contentTitle={title}
+        contentTitle={controller.section.title}
         contentBody={elTimestamps}
-        onBackClick={() => controller.onBlackClick()}
+        onBackClick={() => controller.onBackClick()}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column but within the SLC app.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.

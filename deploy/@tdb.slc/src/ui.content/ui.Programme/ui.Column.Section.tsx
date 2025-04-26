@@ -77,6 +77,12 @@ export const Section: React.FC<P> = (props) => {
           items={media?.children}
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
+          selected={props.selected}
+
+          onChildSelect={(e) => {
+            const { index } = e;
+            props.onSelect?.({ index });
+          }}
         />
       </div>
     </div>

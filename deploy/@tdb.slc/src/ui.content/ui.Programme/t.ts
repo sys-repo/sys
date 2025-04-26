@@ -17,7 +17,7 @@ export type ProgrammeSignals = {
   };
 };
 /** SelectedSection */
-export type ProgrammeSignalsSelectedSection = { index: t.Index };
+export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.Index };
 
 /**
  * <Commponent>: Root.
@@ -34,9 +34,10 @@ export type ProgrammeProps = {
  * <Component>: Section
  */
 export type ProgrammeSectionProps = {
-  index?: t.Index;
+  selected?: t.Index;
   media?: t.VideoMediaContent;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onSelect?: (e: { index: t.Index }) => void;
 };

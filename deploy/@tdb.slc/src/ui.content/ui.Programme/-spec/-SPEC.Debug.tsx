@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, App, Button, css, D, ObjectView, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
-import { videoPlayerButton } from './-SPEC.u.tsx';
+import { programmeSectionButtons, Styles, videoPlayerButton } from './-SPEC.u.tsx';
 
-export { videoPlayerButton };
+export { programmeSectionButtons as configButtonSections, videoPlayerButton };
 
 /**
  * Types:
@@ -26,7 +26,6 @@ export function createDebugSignals() {
    * Properties:
    */
   const props = {
-    debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
   };
   const p = props;
@@ -35,7 +34,6 @@ export function createDebugSignals() {
     content,
     props,
     listen() {
-      p.debug.value;
       p.theme.value;
       global.listen();
       component.listen();
@@ -47,16 +45,6 @@ export function createDebugSignals() {
   };
   return api;
 }
-
-const Styles = {
-  title: css({
-    fontWeight: 'bold',
-    marginBottom: 10,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-};
 
 /**
  * Component:
@@ -81,8 +69,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
+        label={() => `debug: ${c.debug.value}`}
+        onClick={() => Signal.toggle(c.debug)}
       />
       <Button
         block
@@ -98,7 +86,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {configButtonSections(debug.content, debug.state.component)}
+      {programmeSectionButtons(debug.content, debug.state.component)}
 
       <hr />
       {videoPlayerButton(debug.state.component)}
@@ -107,47 +95,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={Signal.toObject(debug)}
-        expand={{ paths: ['$', '$.state'] }}
+        expand={{ paths: ['$', '$.state', '$.state.component', '$.state.component.props'] }}
         margin={[20, 0]}
       />
     </div>
   );
 };
-
-/**
- * Dev Helpers
- */
-export function configButtonSections(
-  content: t.VideoContent,
-  programme: t.ProgrammeSignals,
-  options: { title?: string } = {},
-) {
-  const title = options.title ?? 'Programme Sections:';
-
-  const config = (index: number) => {
-    const children = content.media?.children ?? [];
-    return (
-      <Button
-        block
-        label={() => `Programme: ${children[index]?.title ?? '<undefined>'}`}
-        onClick={() => {
-          programme.props.align.value = 'Right';
-          programme.props.section.value = { index };
-        }}
-      />
-    );
-  };
-
-  return (
-    <React.Fragment key={'dev-programme-sections'}>
-      <div className={Styles.title.class}>{title}</div>
-      {config(0)}
-      {config(1)}
-      {config(2)}
-      {config(3)}
-      {config(4)}
-      {config(5)}
-      {config(-1)}
-    </React.Fragment>
-  );
-}

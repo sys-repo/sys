@@ -24,8 +24,8 @@ export default Spec.describe('Playlist', (e) => {
         filled={p.filled.value}
         paddingTop={p.paddingTop.value}
         style={{ Margin: [0, 30, 30, 30] }}
-        onItemClick={(e) => {
-          console.info(`⚡️ onItemClick:`, e);
+        onChildSelect={(e) => {
+          console.info(`⚡️ onChildSelect:`, e);
           p.selected.value = e.index;
         }}
       />

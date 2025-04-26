@@ -46,7 +46,7 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
         selected={isSelected}
         filled={isFilled}
         theme={theme.name}
-        onClick={props.onItemClick}
+        onClick={props.onChildSelect}
       />
     );
   };

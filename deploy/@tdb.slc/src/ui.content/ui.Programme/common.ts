@@ -15,5 +15,7 @@ export const DEFAULTS = Obj.extend(AppRenderDefaults, {
   name,
   displayName: Pkg.toString(pkg, name),
   align,
+  media: undefined,
+  section: undefined,
 });
 export const D = DEFAULTS;

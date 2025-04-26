@@ -16,5 +16,5 @@ export type PlaylistProps = {
   style?: t.CssInput;
 
   // Events:
-  onItemClick?: (e: { item: t.VideoMediaContent; index: t.Index }) => void;
+  onChildSelect?: (e: { item: t.VideoMediaContent; index: t.Index }) => void;
 };

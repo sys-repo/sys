@@ -1,7 +1,11 @@
 import type { DebugProps, DebugSignals } from '../-spec/-SPEC.Debug.tsx';
 
 import React from 'react';
-import { createDebugSignals, videoPlayerButton } from '../-spec/-SPEC.Debug.tsx';
+import {
+  createDebugSignals,
+  videoPlayerButton,
+  configButtonSections,
+} from '../-spec/-SPEC.Debug.tsx';
 import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
 
 type P = t.ProgrammeSectionProps;
@@ -28,6 +32,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const c = debug.state.component.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -47,8 +52,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
+        label={() => `debug: ${c.debug.value}`}
+        onClick={() => Signal.toggle(c.debug)}
       />
       <Button
         block
@@ -58,6 +63,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {videoPlayerButton(debug.state.component)}
+
+      <hr />
+      {configButtonSections(debug.content, debug.state.component)}
 
       <hr />
       <ObjectView
