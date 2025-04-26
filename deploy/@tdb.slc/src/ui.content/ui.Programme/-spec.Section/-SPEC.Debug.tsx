@@ -1,5 +1,7 @@
+import type { DebugProps, DebugSignals } from '../-spec/-SPEC.Debug.tsx';
+
 import React from 'react';
-import { createDebugSignals, type DebugProps, type DebugSignals } from '../-spec/-SPEC.Debug.tsx';
+import { createDebugSignals } from '../-spec/-SPEC.Debug.tsx';
 import { Button, css, D, ObjectView, Signal, type t } from '../common.ts';
 
 type P = t.ProgrammeSectionProps;
