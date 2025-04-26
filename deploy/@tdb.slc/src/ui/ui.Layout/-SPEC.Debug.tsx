@@ -8,6 +8,8 @@ import {
 } from './-SPEC.u.tsx';
 import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
 
+export { layerVideoPlayerButtons };
+
 /**
  * Types:
  */

@@ -1,8 +1,8 @@
 import type { DebugProps, DebugSignals } from '../-spec/-SPEC.Debug.tsx';
 
 import React from 'react';
-import { createDebugSignals, configButtonSections } from '../-spec/-SPEC.Debug.tsx';
-import { Button, css, D, ObjectView, Signal, type t } from '../common.ts';
+import { createDebugSignals, videoPlayerButton } from '../-spec/-SPEC.Debug.tsx';
+import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
 
 type P = t.ProgrammeSectionProps;
 
@@ -57,7 +57,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {configButtonSections(debug.content, debug.state.component)}
+      {videoPlayerButton(debug.state.component)}
 
       <hr />
       <ObjectView name={'state'} data={Signal.toObject(debug)} expand={1} />

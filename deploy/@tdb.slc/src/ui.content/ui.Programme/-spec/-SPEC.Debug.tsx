@@ -1,6 +1,9 @@
 import React from 'react';
 import { type t, App, Button, css, D, ObjectView, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
+import { videoPlayerButton } from './-SPEC.u.tsx';
+
+export { videoPlayerButton };
 
 /**
  * Types:
@@ -96,6 +99,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {configButtonSections(debug.content, debug.state.component)}
+
+      <hr />
+      {videoPlayerButton(debug.state.component)}
 
       <hr />
       <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[20, 0]} />
