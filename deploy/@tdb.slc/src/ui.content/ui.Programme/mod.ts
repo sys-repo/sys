@@ -3,7 +3,7 @@
  */
 import { factory } from './m.Factory.tsx';
 import { createProgrammeSignals as signals } from './m.Signals.ts';
-import { Programme } from './ui.tsx';
+import { Programme as Main } from './ui.tsx';
 
 export { factory };
 
@@ -12,6 +12,6 @@ export { factory };
  */
 export const Programme = {
   factory,
-  View: { Main: Programme },
+  View: { Main },
   signals,
 } as const;
