@@ -31,8 +31,8 @@ export function createDebugSignals() {
   };
   const p = props;
   const api = {
-    content,
     state,
+    content,
     props,
     listen() {
       p.debug.value;
@@ -104,7 +104,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {videoPlayerButton(debug.state.component)}
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[20, 0]} />
+      <ObjectView
+        name={'debug'}
+        data={Signal.toObject(debug)}
+        expand={{ paths: ['$', '$.state'] }}
+        margin={[20, 0]}
+      />
     </div>
   );
 };
