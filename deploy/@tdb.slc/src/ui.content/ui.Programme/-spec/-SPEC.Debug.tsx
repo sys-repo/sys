@@ -13,11 +13,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const app = App.signals();
-  const programme = Programme.signals();
+  const global = App.signals();
 
   const content = Programme.factory(); // Factory → content definition 🌳.
-  programme.props.media.value = content.media;
+  const component = content.state;
+  const state: t.ProgrammeState = { global, component };
 
   /**
    * Properties:
@@ -28,15 +28,14 @@ export function createDebugSignals() {
   };
   const p = props;
   const api = {
-    app,
-    programme,
     content,
+    state,
     props,
     listen() {
       p.debug.value;
       p.theme.value;
-      app.listen();
-      programme.listen();
+      global.listen();
+      component.listen();
     },
     getMedia(index: t.Index) {
       const media = content.media;
@@ -62,7 +61,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const c = debug.programme.props;
+  const c = debug.state.component.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -96,7 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {configButtonSections(debug.content, debug.programme)}
+      {configButtonSections(debug.content, debug.state.component)}
 
       <hr />
       <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[20, 0]} />

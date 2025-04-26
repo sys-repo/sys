@@ -57,7 +57,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {configButtonSections(debug.content, debug.programme)}
+      {configButtonSections(debug.content, debug.state.component)}
 
       <hr />
       <ObjectView name={'state'} data={Signal.toObject(debug)} expand={1} />

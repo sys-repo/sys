@@ -1,5 +1,9 @@
 import { type t } from './common.ts';
 
+export type ProgrammeContent = t.VideoContent & {
+  state: ProgrammeSignals;
+};
+
 /**
  * <Component> Signal State:
  */

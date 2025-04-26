@@ -6,10 +6,7 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.name, async (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-
-  const global = debug.app;
-  const component = debug.programme;
-  const state = { global, component };
+  const state = debug.state;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);

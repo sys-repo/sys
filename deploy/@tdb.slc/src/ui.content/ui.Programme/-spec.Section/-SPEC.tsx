@@ -8,12 +8,13 @@ export default Spec.describe('MyComponent', (e) => {
   const p = debug.props;
 
   const Root = () => {
-    const index = debug.programme.props.section?.value?.index ?? -1;
-    const media = debug.programme.props.media.value?.children?.[index];
+    const programme = debug.state.component;
+    const index = programme.props.section?.value?.index ?? -1;
+    const media = programme.props.media.value?.children?.[index];
     const labelSrc = `${media?.video.props.src ?? '<undefined>'}`;
 
     Signal.useRedrawEffect(() => {
-      debug.programme.listen();
+      programme.listen();
     });
 
     /**
@@ -64,7 +65,7 @@ export default Spec.describe('MyComponent', (e) => {
      * Initial state:
      */
     p.theme.value = 'Light';
-    debug.programme.props.section.value = { index: 0 };
+    debug.state.component.props.section.value = { index: 0 };
   });
 
   e.it('ui:debug', (e) => {
