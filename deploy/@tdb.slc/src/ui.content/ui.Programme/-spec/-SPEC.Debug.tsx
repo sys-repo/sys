@@ -1,9 +1,9 @@
 import React from 'react';
-import { type t, App, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
 import { programmeSectionButtons, Styles, videoPlayerButton } from './-SPEC.u.tsx';
 
-export { programmeSectionButtons as configButtonSections, videoPlayerButton };
+export { programmeSectionButtons, videoPlayerButton };
 
 /**
  * Types:
@@ -16,11 +16,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const global = App.signals();
-
   const content = Programme.factory(); // Factory → content definition 🌳.
-  const component = content.state;
-  const state: t.ProgrammeState = { component };
 
   /**
    * Properties:
@@ -30,13 +26,11 @@ export function createDebugSignals() {
   };
   const p = props;
   const api = {
-    state,
     content,
     props,
     listen() {
       p.theme.value;
-      global.listen();
-      component.listen();
+      content.state.listen();
     },
     getMedia(index: t.Index) {
       const media = content.media;
@@ -51,8 +45,7 @@ export function createDebugSignals() {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
-  const c = debug.state.component.props;
+  const p = debug.content.state.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -69,27 +62,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${c.debug.value}`}
-        onClick={() => Signal.toggle(c.debug)}
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
       />
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        label={() => `theme: ${debug.props.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(debug.props.theme, ['Light', 'Dark'])}
       />
 
       <hr />
       <Button
         block
-        label={() => `align: ${c.align.value ?? `<undefined> (defaut: ${D.align})`}`}
-        onClick={() => Signal.cycle(c.align, ['Center', 'Right'])}
+        label={() => `align: ${p.align.value ?? `<undefined> (defaut: ${D.align})`}`}
+        onClick={() => Signal.cycle(p.align, ['Center', 'Right'])}
       />
 
       <hr />
-      {programmeSectionButtons(debug.content, debug.state.component)}
+      {programmeSectionButtons(debug.content)}
 
       <hr />
-      {videoPlayerButton(debug.state.component)}
+      {videoPlayerButton(debug.content.state)}
 
       <hr />
       <ObjectView

@@ -11,20 +11,20 @@ import { useProgrammeController } from './use.Programme.Controller.ts';
 export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const { state, isTop } = props;
 
-  const p = state.component?.props;
-  const debug = p?.debug.value;
-  const align = p?.align.value;
+  const p = state.props;
+  const debug = p.debug.value;
+  const align = p.align.value;
   const isCenter = align === 'Center';
 
   /**
    * State controller.
    */
-  const controller = useProgrammeController(state.component);
+  const controller = useProgrammeController(state);
 
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => state.component.listen());
+  Signal.useRedrawEffect(() => state.listen());
 
   /**
    * Render:

@@ -3,8 +3,8 @@ import type { DebugProps, DebugSignals } from '../-spec/-SPEC.Debug.tsx';
 import React from 'react';
 import {
   createDebugSignals,
+  programmeSectionButtons,
   videoPlayerButton,
-  configButtonSections,
 } from '../-spec/-SPEC.Debug.tsx';
 import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
 
@@ -31,8 +31,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
-  const c = debug.state.component.props;
+  const p = debug.content.state.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -52,20 +51,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${c.debug.value}`}
-        onClick={() => Signal.toggle(c.debug)}
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
       />
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        label={() => `theme: ${debug.props.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['theme']>(debug.props.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      {videoPlayerButton(debug.state.component)}
+      {videoPlayerButton(debug.content.state)}
 
       <hr />
-      {configButtonSections(debug.content, debug.state.component)}
+      {programmeSectionButtons(debug.content)}
 
       <hr />
       <ObjectView

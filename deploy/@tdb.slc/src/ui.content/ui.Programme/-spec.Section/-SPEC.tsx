@@ -5,12 +5,11 @@ import { Root } from './-SPEC.ui.tsx';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Dev.Theme.signalEffect(ctx, debug.props.theme);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
@@ -19,13 +18,13 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => <Root state={debug.state.component} />);
+      .render(() => <Root state={debug.content.state} />);
 
     /**
      * Initial state:
      */
-    p.theme.value = 'Light';
-    debug.state.component.props.section.value = { index: 0 };
+    debug.props.theme.value = 'Light';
+    debug.content.state.props.section.value = { index: 0 };
   });
 
   e.it('ui:debug', (e) => {

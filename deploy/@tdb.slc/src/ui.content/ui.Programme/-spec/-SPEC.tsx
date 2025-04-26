@@ -6,7 +6,6 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.name, async (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-  const state = debug.state;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -21,6 +20,7 @@ export default Spec.describe(D.name, async (e) => {
       .size('fill')
       .display('grid')
       .render(() => {
+        const state = debug.content.state;
         return <Programme.View.Main state={state} theme={'Light'} />;
       });
   });

@@ -1,8 +1,9 @@
 import { type t } from './common.ts';
 
-export type ProgrammeContent = t.VideoContent & {
-  state: ProgrammeSignals;
-};
+/**
+ * Programm content definition.
+ */
+export type ProgrammeContent = t.VideoContent & { state: ProgrammeSignals };
 
 /**
  * <Component> Signal State:
@@ -22,11 +23,8 @@ export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.I
 /**
  * <Commponent>: Root.
  */
-export type ProgrammeState = {
-  component: t.ProgrammeSignals;
-};
 export type ProgrammeProps = {
-  state: t.ProgrammeState;
+  state: t.ProgrammeSignals;
   isTop?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

@@ -36,11 +36,11 @@ export function videoPlayerButton(component: t.ProgrammeSignals) {
  * Buttons: Programme Sections
  */
 export function programmeSectionButtons(
-  content: t.VideoContent,
-  state: t.ProgrammeSignals,
+  content: t.ProgrammeContent,
   options: { title?: string } = {},
 ) {
   const title = options.title ?? 'Programme Sections:';
+  const state = content.state;
   const p = state.props;
 
   const config = (index: number) => {

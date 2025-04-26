@@ -12,12 +12,14 @@ import { children } from './v.ts';
  */
 export function factory() {
   const sheetTheme = DEFAULTS.theme.sheet;
-  const state = createProgrammeSignals();
 
+  /**
+   * Content definition:
+   */
   const content: t.ProgrammeContent = {
     id: 'Programme',
     kind: 'VideoContent',
-    state,
+    state: createProgrammeSignals(),
 
     playOnLoad: false,
     media: {
@@ -29,11 +31,9 @@ export function factory() {
 
     render(props) {
       const global = props.state;
-      const component = content.state;
-      const state = { component };
       return (
         <Programme
-          state={state}
+          state={content.state}
           theme={sheetTheme}
           isTop={props.is.top}
           onCloseRequest={() => global.stack.pop()}
@@ -42,6 +42,12 @@ export function factory() {
     },
   };
 
-  state.props.media.value = content.media;
+  /**
+   * Setup initial state.
+   */
+  const p = content.state.props;
+  p.media.value = content.media;
+
+  // Finish up.
   return content;
 }
