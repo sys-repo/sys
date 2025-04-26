@@ -1,5 +1,6 @@
 import { DEFAULTS as AppRenderDefaults } from '../../ui/App.Render/mod.ts';
 import { type t, Obj, Pkg, pkg } from '../common.ts';
+export { useTimestamps } from '../ui/mod.ts';
 
 export * from '../common.ts';
 export { Content } from '../m/mod.ts';

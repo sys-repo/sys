@@ -34,6 +34,7 @@ export type ProgrammeProps = {
  * <Component>: Section
  */
 export type ProgrammeSectionProps = {
+  index?: t.Index;
   media?: t.VideoMediaContent;
   debug?: boolean;
   theme?: t.CommonTheme;

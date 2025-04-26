@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
 import { Menu } from './ui.Column.Menu.tsx';
 import { Section } from './ui.Column.Section.tsx';
+import { Timestamps } from './ui.Timestamps.tsx';
 import { useProgrammeController } from './use.Programme.Controller.ts';
 
 /**
@@ -46,7 +47,11 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     />
   );
 
+  const player = selectedMedia?.video;
   const elSection = selectedMedia && <Section media={selectedMedia} debug={debug} />;
+  const elTimestamps = selectedMedia && (
+    <Timestamps timestamps={selectedMedia.timestamps} player={player} />
+  );
 
   return (
     <div className={css(styles.base).class}>
@@ -54,9 +59,10 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         debug={debug}
         theme={'Light'}
         columnAlign={align}
-        columnVideo={selectedMedia?.video}
+        columnVideo={player}
         columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={title}
+        contentBody={elTimestamps}
         onBackClick={() => controller.onBlackClick()}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column, within the SLC app registeres.
