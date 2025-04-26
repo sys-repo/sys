@@ -21,8 +21,6 @@ export const ViteEntry: t.ViteEntryLib = {
     const args = argsAsType<t.ViteEntryArgs>();
     const cmd = args.cmd;
 
-    console.log('input', input);
-
     if (cmd === 'init') {
       const { init } = await import('./u.init.ts');
       console.log('args', args);
