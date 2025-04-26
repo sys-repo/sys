@@ -1,9 +1,9 @@
-import { type t } from './common.ts';
-import { DUMMY, v } from './u.ts';
+import { type t, VIDEO } from './common.ts';
+import { v } from './u.ts';
 
 export const metrics: t.VideoMediaContent = {
   id: 'metrics',
   title: 'Key Metrics',
-  video: v(DUMMY),
+  video: v(VIDEO.KeyMetrics.src),
   timestamps: {},
 };

@@ -1,18 +1,35 @@
-import { type t } from './common.ts';
-import { DUMMY, v } from './u.ts';
+import { type t, VIDEO } from './common.ts';
+import { v } from './u.ts';
+
+const Economic = VIDEO.Model.Economic;
 
 export const econ: t.VideoMediaContent = {
   id: 'model.econ',
   title: 'Economic Model',
-  video: v(DUMMY),
+  video: v(Economic.Entry.src),
   timestamps: {},
   children: [
-    { id: 'channels', title: `Channels`, video: v(DUMMY), timestamps: {} },
-    { id: 'financial', title: `Financial Model`, video: v(DUMMY), timestamps: {} },
-    { id: 'revenue', title: `Revenue`, video: v(DUMMY), timestamps: {} },
-    { id: 'costs', title: `Costs`, video: v(DUMMY), timestamps: {} },
-    { id: 'advantage.leverage', title: `Advantage: Leverage`, video: v(DUMMY), timestamps: {} },
-    { id: 'advantage.innovate', title: `Advantage: Innovate`, video: v(DUMMY), timestamps: {} },
-    { id: 'example', title: `Example`, video: v(DUMMY), timestamps: {} },
+    { id: 'channels', title: `Channels`, video: v(Economic.Channels.src), timestamps: {} },
+    {
+      id: 'financial',
+      title: `Financial Model`,
+      video: v(Economic.Financial.src),
+      timestamps: {},
+    },
+    { id: 'revenue', title: `Revenue`, video: v(Economic.Revenue.src), timestamps: {} },
+    { id: 'costs', title: `Costs`, video: v(Economic.Costs.src), timestamps: {} },
+    {
+      id: 'advantage.leverage',
+      title: `Advantage: Leverage`,
+      video: v(Economic.Advantage.Leverage.src),
+      timestamps: {},
+    },
+    {
+      id: 'advantage.innovate',
+      title: `Advantage: Innovate`,
+      video: v(Economic.Advantage.Innovate.src),
+      timestamps: {},
+    },
+    { id: 'example', title: `Example`, video: v(Economic.Example.src), timestamps: {} },
   ],
 };

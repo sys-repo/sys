@@ -133,6 +133,9 @@ export function configButtonSections(
       {config(0)}
       {config(1)}
       {config(2)}
+      {config(3)}
+      {config(4)}
+      {config(5)}
       {config(-1)}
     </React.Fragment>
   );
