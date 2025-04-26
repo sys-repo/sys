@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, Signal, ObjectView } from './common.ts';
+import { type t, Button, css, D, ObjectView, Signal } from './common.ts';
 
 type P = t.MyComponentProps;
 
@@ -71,7 +71,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      <ObjectView name={'state'} data={Signal.toObject(debug)} expand={1} />
     </div>
   );
 };
