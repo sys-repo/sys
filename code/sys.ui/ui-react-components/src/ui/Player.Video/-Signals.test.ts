@@ -11,6 +11,7 @@ describe('VideoPlayer: Signals API', () => {
 
       expect(p.ready.value).to.eql(false);
       expect(p.src.value).to.eql(D.video);
+      expect(s.src).to.eql(p.src.value);
 
       expect(p.playing.value).to.eql(false);
       expect(p.currentTime.value).to.eql(0);

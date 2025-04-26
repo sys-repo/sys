@@ -45,6 +45,9 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
       const paused = !playing;
       return { playing, paused };
     },
+    get src() {
+      return props.src.value;
+    },
 
     /**
      * Methods:
