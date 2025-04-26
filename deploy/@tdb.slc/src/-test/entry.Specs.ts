@@ -21,15 +21,27 @@ export const SpecsComponents = {
   'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
+} as t.SpecImports;
 
+/**
+ * Content Modules
+ */
+export const SpecsContent = {
   'tdb.slc.content.videos: (index)': () => import('../ui.content/-sample/ui.Videos/-SPEC.tsx'),
   'tdb.slc.content.ui.ConceptPlayer': () => import('../ui.content/ui/ui.ConceptPlayer/-SPEC.tsx'),
   'tdb.slc.content.ui.CanvasSlug': () => import('../ui.content/ui/ui.CanvasSlug/-SPEC.tsx'),
   'tdb.slc.content.ui.Playlist': () => import('../ui.content/ui/ui.Playlist/-SPEC.tsx'),
   'tdb.slc.content.ui.MenuList': () => import('../ui.content/ui/ui.MenuList/-SPEC.tsx'),
 
-  'tdb.slc.content:Programme': () => import('../ui.content/ui.Programme/-spec/-SPEC.tsx'),
+  'tdb.slc.content: Programme': () => import('../ui.content/ui.Programme/-spec/-SPEC.tsx'),
+  'tdb.slc.content: Programme.Section': () =>
+    import('../ui.content/ui.Programme/-spec.Section/-SPEC.tsx'),
+} as t.SpecImports;
 
+/**
+ * Temporary 🐷
+ */
+export const SpecsTmp = {
   // Scratchpad:
   'tmp.sample.🐷 (mandelbrot set)': () => import('../ui.tmp/-SPEC.tsx'),
 } as t.SpecImports;
@@ -37,5 +49,10 @@ export const SpecsComponents = {
 /**
  * Specs:
  */
-export const Specs = { ...SpecsComponents, ...SpecsExternal } as t.SpecImports;
+export const Specs = {
+  ...SpecsComponents,
+  ...SpecsContent,
+  ...SpecsExternal,
+  ...SpecsTmp,
+} as t.SpecImports;
 export { SpecsExternal };

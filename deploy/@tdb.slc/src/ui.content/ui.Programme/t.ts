@@ -22,3 +22,13 @@ export type ProgrammeRootProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
+
+/**
+ * <Component>: Section
+ */
+export type ProgrammeSectionProps = {
+  media?: t.VideoMediaContent;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};

@@ -33,7 +33,6 @@ export default Spec.describe(D.name, async (e) => {
      */
     console.info('💦 state:app:', Signal.toObject(debug.app));
     console.info('💦 content:("Programme"):', debug.content);
-
     state.component.props.align.value = 'Right';
     state.component.props.media.value = content.media?.children?.[1];
   });

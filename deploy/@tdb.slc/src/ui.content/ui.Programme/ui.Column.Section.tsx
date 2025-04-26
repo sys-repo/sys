@@ -10,19 +10,13 @@ import {
   useVisibilityThresholdY,
 } from './common.ts';
 
-export type SectionProps = {
-  debug?: boolean;
-  media: t.VideoMediaContent;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
-
+type P = t.ProgrammeSectionProps;
 type Part = 'Canvas';
 
 /**
  * Component:
  */
-export const Section: React.FC<SectionProps> = (props) => {
+export const Section: React.FC<P> = (props) => {
   const { media, debug = false } = props;
 
   const loading = useLoading<Part>(['Canvas']);
