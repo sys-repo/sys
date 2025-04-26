@@ -20,7 +20,7 @@ export function createDebugSignals() {
 
   const content = Programme.factory(); // Factory → content definition 🌳.
   const component = content.state;
-  const state: t.ProgrammeState = { global, component };
+  const state: t.ProgrammeState = { component };
 
   /**
    * Properties:

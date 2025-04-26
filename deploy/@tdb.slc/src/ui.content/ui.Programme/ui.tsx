@@ -43,19 +43,17 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
       //
       debug={debug}
       media={controller.media}
-      onSelect={(e) => controller.onSectionSelect(e.index)}
+      onSelect={(e) => controller.onSelectSection(e.index)}
     />
   );
 
   const player = controller.section.player;
   const elSection = controller.section.media && (
     <Section
+      debug={debug}
       media={controller.section.media.section}
       selected={controller.section.index.child}
-      debug={debug}
-      onSelect={(e) => {
-        controller.section.onChildSelect(e);
-      }}
+      onSelect={(e) => controller.section.onSelectChild(e.index)}
     />
   );
 
@@ -78,7 +76,9 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
           // NB: Only clicking outside the column but within the SLC app.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.
           const isWithinApp = Dom.Event.isWithin(e, App.type);
-          if (state && isWithinApp && isCenter && isTop) state.global.stack.pop();
+          if (state && isWithinApp && isCenter && isTop) {
+            props.onCloseRequest?.();
+          }
         }}
       />
     </div>

@@ -46,7 +46,7 @@ export const Root: React.FC<RootProps> = (props) => {
           selected={controller.index.child}
           onSelect={(e) => {
             console.info(`Section.onSelect:`, e);
-            controller.onChildSelect(e.index);
+            controller.onSelectChild(e.index);
           }}
         />
       </div>

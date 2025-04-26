@@ -22,12 +22,15 @@ export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.I
 /**
  * <Commponent>: Root.
  */
-export type ProgrammeState = { global: t.AppSignals; component: t.ProgrammeSignals };
+export type ProgrammeState = {
+  component: t.ProgrammeSignals;
+};
 export type ProgrammeProps = {
   state: t.ProgrammeState;
   isTop?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onCloseRequest?: () => void;
 };
 
 /**

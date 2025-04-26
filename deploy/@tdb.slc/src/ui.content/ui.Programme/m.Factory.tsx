@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { VIDEO } from '../VIDEO.ts';
 import { type t, DEFAULTS } from './common.ts';
 import { createProgrammeSignals } from './m.Signals.ts';
@@ -21,7 +22,7 @@ export function factory() {
     playOnLoad: false,
     media: {
       id: 'programme.root',
-      video: v(VIDEO.Programme.Intro.About.src),
+      video: v(VIDEO.Programme.Intro.Entry.src),
       timestamps: {},
       children,
     },
@@ -29,8 +30,15 @@ export function factory() {
     render(props) {
       const global = props.state;
       const component = content.state;
-      const state = { global, component };
-      return <Programme state={state} theme={sheetTheme} isTop={props.is.top} />;
+      const state = { component };
+      return (
+        <Programme
+          state={state}
+          theme={sheetTheme}
+          isTop={props.is.top}
+          onCloseRequest={() => global.stack.pop()}
+        />
+      );
     },
   };
 

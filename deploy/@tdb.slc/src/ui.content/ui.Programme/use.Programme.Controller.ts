@@ -23,7 +23,7 @@ export function useProgrammeController(state: t.ProgrammeSignals) {
     /**
      * Event Actions:
      */
-    onSectionSelect(index: t.Index) {
+    onSelectSection(index: t.Index) {
       p.align.value = 'Right';
       p.section.value = { index };
     },
