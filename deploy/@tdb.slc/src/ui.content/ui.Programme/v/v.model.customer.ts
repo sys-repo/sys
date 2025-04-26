@@ -1,10 +1,10 @@
-import { type t } from './common.ts';
+import { type t, VIDEO } from './common.ts';
 import { DUMMY, v } from './u.ts';
 
 export const customer: t.VideoMediaContent = {
   id: 'model.customer',
   title: 'Customer Model',
-  video: v(DUMMY),
+  video: v(VIDEO.Model.Customer.Customers.src),
   timestamps: {},
   children: [
     { id: 'customers', title: `Customers`, video: v(DUMMY), timestamps: {} },
