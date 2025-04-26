@@ -21,7 +21,7 @@ eusic.socialleancanvas.com
 Prior deployment: 
 - https://slc-phil-tdb.vercel.app/
 - https://slc-phil-tdb.vercel.app/ember-slc
-
+- https://dev.socialleancanvas.com/ember-slc/
 
 ### Structure
 
