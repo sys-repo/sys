@@ -1,17 +1,18 @@
-import { Pkg, pkg, Obj } from '../common.ts';
+import { DEFAULTS as AppRenderDefaults } from '../../ui/App.Render/mod.ts';
+import { type t, Obj, Pkg, pkg } from '../common.ts';
 
 export * from '../common.ts';
 export { Content } from '../m/mod.ts';
 export { CanvasSlug, ConceptPlayer, ElapsedTime, MenuList, Playlist } from '../ui/mod.ts';
 
-import { DEFAULTS as AppRender_DEFAULTS } from '../../ui/App.Render/mod.ts';
-
 /**
  * Constants:
  */
 const name = 'Content:Programme';
-export const DEFAULTS = Obj.extend(AppRender_DEFAULTS, {
+const align: t.ConceptPlayerAlign = 'Center';
+export const DEFAULTS = Obj.extend(AppRenderDefaults, {
   name,
   displayName: Pkg.toString(pkg, name),
+  align,
 });
 export const D = DEFAULTS;

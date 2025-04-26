@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, App, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { Programme } from '../mod.ts';
 
 /**
  * Types:
@@ -13,7 +14,12 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const app = App.signals();
+  const programme = Programme.signals();
+  const content = Programme.factory(); // Factory → content definition 🌳.
 
+  /**
+   * Properties:
+   */
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
@@ -21,10 +27,14 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     app,
+    programme,
+    content,
     props,
     listen() {
       p.debug.value;
       p.theme.value;
+      app.listen();
+      programme.listen();
     },
   };
   return api;
@@ -46,6 +56,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const c = debug.programme.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -54,6 +65,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
+  };
+
+  const config = (index: number) => {
+    const children = debug.content.media?.children ?? [];
+    return (
+      <Button
+        block
+        label={() => `Programme: ${children[index]?.title ?? '<undefined>'}`}
+        onClick={() => {
+          c.align.value = 'Right';
+          c.media.value = children[index];
+        }}
+      />
+    );
   };
 
   return (
@@ -72,8 +97,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[10, 0]} />
+      <Button
+        block
+        label={() => `align: ${c.align.value ?? `<undefined> (defaut: ${D.align})`}`}
+        onClick={() => Signal.cycle(c.align, ['Center', 'Right'])}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Sample Configurations:'}</div>
+
+      {config(0)}
+      {config(1)}
+      {config(2)}
+      {config(-1)}
+
+      <hr />
+      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[20, 0]} />
     </div>
   );
 };

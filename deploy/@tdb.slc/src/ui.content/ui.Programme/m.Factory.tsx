@@ -4,12 +4,14 @@ import { type t, DEFAULTS } from './common.ts';
 import { v } from './u.ts';
 import { ProgrammeRoot } from './ui.tsx';
 import { children } from './v.ts';
+import { createProgrammeSignals } from './m.Signals.ts';
 
 /**
  * Content: "Programme"
  */
 export function factory() {
   const sheetTheme = DEFAULTS.theme.sheet;
+  const component = createProgrammeSignals();
 
   const content: t.VideoContent = {
     id: 'Programme',
@@ -24,7 +26,15 @@ export function factory() {
     },
 
     render(props) {
-      return <ProgrammeRoot {...props} theme={sheetTheme} />;
+      const global = props.state;
+      return (
+        <ProgrammeRoot
+          state={{ global, component }}
+          content={content}
+          theme={sheetTheme}
+          isTop={props.is.top}
+        />
+      );
     },
   };
   return content;

@@ -1,9 +1,12 @@
 import React from 'react';
 import { type t, Color, css, LogoCanvas, MenuList, useSizeObserver } from './common.ts';
 
-export type MenuProps = t.VideoContentProps & {
+export type MenuProps = {
+  content: t.VideoContent;
   debug?: boolean;
   onSelect: t.MenuListProps['onSelect'];
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
 /**

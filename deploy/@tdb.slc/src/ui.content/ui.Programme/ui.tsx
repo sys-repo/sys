@@ -1,28 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
 import { Menu } from './ui.Column.Menu.tsx';
 import { Section } from './ui.Column.Section.tsx';
-
-export type ProgrammeRootProps = t.VideoContentProps & {};
+import { useProgrammeController } from './use.Programme.Controller.ts';
 
 /**
  * Component:
  */
-export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
-  const { state, is, content } = props;
-  const debug = state.props.debug.value ?? false;
+export const ProgrammeRoot: React.FC<t.ProgrammeRootProps> = (props) => {
+  const { content, state, isTop } = props;
+  const p = state.component?.props;
 
-  const [align, setAlign] = useState<t.ConceptPlayerAlign>('Center');
-  const [media, setMedia] = useState<t.VideoMediaContent>();
+  const debug = p?.debug.value;
+  const align = p?.align.value;
+  const media = p?.media.value;
 
   const isCenter = align === 'Center';
   const title = media?.title ?? 'Untitled';
+
+  useProgrammeController(content, state);
 
   /**
    * Effects:
    */
   Signal.useRedrawEffect(() => {
-    state.props.debug.value;
+    state.component.listen();
   });
 
   /**
@@ -39,11 +41,13 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
 
   const elRootMenu = (
     <Menu
-      {...props}
+      content={content}
       debug={debug}
       onSelect={(e) => {
-        setAlign('Right');
-        setMedia(e.item);
+        if (p) {
+          p.align.value = 'Right';
+          p.media.value = e.item;
+        }
       }}
     />
   );
@@ -60,14 +64,16 @@ export const ProgrammeRoot: React.FC<ProgrammeRootProps> = (props) => {
         columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={title}
         onBackClick={() => {
-          setAlign('Center');
-          setMedia(undefined);
+          if (p) {
+            p.align.value = 'Center';
+            p.media.value = undefined;
+          }
         }}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column, within the SLC app registeres.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.
           const isWithinApp = Dom.Event.isWithin(e, App.type);
-          if (isWithinApp && isCenter && is.top) state.stack.pop();
+          if (state && isWithinApp && isCenter && isTop) state.global.stack.pop();
         }}
       />
     </div>
