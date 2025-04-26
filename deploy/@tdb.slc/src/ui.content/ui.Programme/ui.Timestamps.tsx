@@ -21,8 +21,8 @@ export const Timestamps: React.FC<TimestampsProps> = (props) => {
   const styles = {
     base: css({
       color: theme.fg,
-      display: 'grid',
       padding: 30,
+      display: 'grid',
     }),
   };
 

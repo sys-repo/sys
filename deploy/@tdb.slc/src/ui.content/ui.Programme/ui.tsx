@@ -65,7 +65,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         contentBody={elTimestamps}
         onBackClick={() => controller.onBlackClick()}
         onClickOutsideColumn={(e) => {
-          // NB: Only clicking outside the column, within the SLC app registeres.
+          // NB: Only clicking outside the column but within the SLC app.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.
           const isWithinApp = Dom.Event.isWithin(e, App.type);
           if (state && isWithinApp && isCenter && isTop) state.global.stack.pop();
