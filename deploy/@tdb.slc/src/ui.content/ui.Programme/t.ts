@@ -4,19 +4,21 @@ import { type t } from './common.ts';
  * <Component> Signal State:
  */
 export type ProgrammeSignals = {
+  listen(): void;
   props: {
     debug: t.Signal<boolean>;
     align: t.Signal<t.ConceptPlayerAlign>;
     media: t.Signal<t.VideoMediaContent | undefined>;
   };
-  listen(): void;
 };
 
+export type ProgrammeState = { global: t.AppSignals; component: t.ProgrammeSignals };
+
 /**
- * <Commponent>
+ * <Commponent>: Root.
  */
 export type ProgrammeRootProps = {
-  state: { global: t.AppSignals; component: t.ProgrammeSignals };
+  state: t.ProgrammeState;
   content: t.VideoContent;
   isTop?: boolean;
   theme?: t.CommonTheme;
