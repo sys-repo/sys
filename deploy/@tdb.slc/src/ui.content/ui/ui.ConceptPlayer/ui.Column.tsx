@@ -18,9 +18,9 @@ export const Column: React.FC<ColumnProps> = (props) => {
   const { align, debug = false } = props;
   const isCenter = align === 'Center';
   const player = props.video;
+  const src = player?.props.src?.value ?? '';
 
   const [playerKey, setPlayerKey] = useState(0);
-
   const clickOutside = useClickOutside({
     stage: 'down',
     callback: (e) => props.onClickOutside?.(e),
@@ -38,7 +38,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
       gridTemplateRows: `1fr auto`,
     }),
     body: css({ display: 'grid' }),
-    video: css({}),
+    video: css({ display: 'grid' }),
   };
 
   return (
@@ -52,7 +52,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>
           <Player.Video.View
-            key={playerKey}
+            key={`${playerKey}.${src}`}
             signals={player}
             onEnded={() => {
               setPlayerKey((n) => n + 1); // Hack: force player to reset to start.

@@ -23,9 +23,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => {
-    state.component.listen();
-  });
+  Signal.useRedrawEffect(() => state.component.listen());
 
   /**
    * Render:
