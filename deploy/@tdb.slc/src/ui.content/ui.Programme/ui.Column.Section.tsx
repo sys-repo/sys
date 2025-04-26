@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   type t,
   Color,
   css,
   LogoCanvas,
   Playlist,
-  useSizeObserver,
   useLoading,
-  Time,
+  useSizeObserver,
+  useVisibilityThresholdY,
 } from './common.ts';
 
 export type SectionProps = {
@@ -30,20 +30,17 @@ export const Section: React.FC<SectionProps> = (props) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const size = useSizeObserver();
-  const [threshold, setThreshold] = useState(0);
-  const isReady = size.ready && loading.ready;
-  const isCanvasVisible = size.height > threshold;
-
-  /**
-   * Effect: calculate size thresholds.
-   */
+  const isReady = size.ready && loading.ready();
   const depsChildren = media.children?.map((m) => m.id).join('|');
-  React.useLayoutEffect(() => {
-    if (!isReady) return;
-    const canvas = canvasRef.current?.offsetHeight ?? 0;
-    const playlist = playlistRef.current?.offsetHeight ?? 0;
-    setThreshold(canvas + playlist + 20);
-  }, [isReady, depsChildren]);
+  const canvas = useVisibilityThresholdY(
+    {
+      refs: [canvasRef, playlistRef],
+      containerReady: isReady,
+      containerHeight: size.height,
+      offsetY: 30,
+    },
+    [depsChildren],
+  );
 
   /**
    * Render:
@@ -58,12 +55,14 @@ export const Section: React.FC<SectionProps> = (props) => {
       alignContent: 'start',
     }),
     body: css({
+      position: 'relative',
       display: 'grid',
       alignContent: 'start',
+      overflow: 'hidden',
     }),
     canvas: css({
       Padding: [35, '18%', 0, '18%'],
-      display: isCanvasVisible ? 'block' : 'none',
+      Absolute: canvas.visible ? undefined : [-9999, null, null, -9999],
     }),
     playlist: css({
       marginLeft: 85,
@@ -76,15 +75,11 @@ export const Section: React.FC<SectionProps> = (props) => {
         <LogoCanvas
           theme={theme.name}
           onReady={() => loading.ready('Canvas')}
-          onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.type}`, e)}
+          onPanelEvent={(e) => console.log(e.type, e)}
         />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
-        <Playlist
-          items={media.children}
-          theme={theme.name}
-          paddingTop={isCanvasVisible ? 50 : 30}
-        />
+        <Playlist items={media.children} theme={theme.name} paddingTop={canvas.visible ? 50 : 30} />
       </div>
     </div>
   );
