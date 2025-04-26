@@ -2,7 +2,7 @@ import React from 'react';
 import { VIDEO } from '../VIDEO.ts';
 import { type t, DEFAULTS } from './common.ts';
 import { v } from './u.ts';
-import { ProgrammeRoot } from './ui.tsx';
+import { Programme } from './ui.tsx';
 import { children } from './v.ts';
 import { createProgrammeSignals } from './m.Signals.ts';
 
@@ -28,7 +28,7 @@ export function factory() {
     render(props) {
       const global = props.state;
       return (
-        <ProgrammeRoot
+        <Programme
           state={{ global, component }}
           content={content}
           theme={sheetTheme}

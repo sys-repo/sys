@@ -17,7 +17,7 @@ export type ProgrammeState = { global: t.AppSignals; component: t.ProgrammeSigna
 /**
  * <Commponent>: Root.
  */
-export type ProgrammeRootProps = {
+export type ProgrammeProps = {
   state: t.ProgrammeState;
   content: t.VideoContent;
   isTop?: boolean;

@@ -7,7 +7,7 @@ import { useProgrammeController } from './use.Programme.Controller.ts';
 /**
  * Component:
  */
-export const ProgrammeRoot: React.FC<t.ProgrammeRootProps> = (props) => {
+export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const { content, state, isTop } = props;
   const p = state.component?.props;
 
