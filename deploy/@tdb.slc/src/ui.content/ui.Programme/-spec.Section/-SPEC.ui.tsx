@@ -15,16 +15,12 @@ export const Root: React.FC<RootProps> = (props) => {
   const { state } = props;
   const p = state.props;
   const controller = Programme.useSectionController(state);
-
-  const videoSrc = `${controller.media.root?.video.props.src ?? '<undefined>'}`;
+  const videoSrc = `${controller.player?.src ?? '<undefined>'}`;
 
   /**
    * Effect: Redraw.
    */
-  Signal.useRedrawEffect(() => {
-    state.listen();
-
-  });
+  Signal.useRedrawEffect(() => state.listen());
 
   /**
    * Render:
@@ -50,13 +46,14 @@ export const Root: React.FC<RootProps> = (props) => {
           selected={controller.index.child}
           onSelect={(e) => {
             console.info(`Section.onSelect:`, e);
-            controller.onChildSelect(e);
+            controller.onChildSelect(e.index);
           }}
         />
       </div>
       <div className={styles.video.base.class}>
         <div className={styles.video.label.class}>{`video:src: ${videoSrc}`}</div>
         <Player.Video.View
+          key={videoSrc}
           signals={controller.player}
           onEnded={() => {
             console.info(`⚡️ onEneded`);

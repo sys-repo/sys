@@ -37,8 +37,7 @@ export function useSectionController(state: t.ProgrammeSignals) {
     /**
      * Event Actions:
      */
-    onChildSelect(e: { index: t.Index }) {
-      const childIndex = e.index;
+    onChildSelect(childIndex: t.Index) {
       const section = p.section;
       if (section.value) section.value = { ...section.value, childIndex };
     },

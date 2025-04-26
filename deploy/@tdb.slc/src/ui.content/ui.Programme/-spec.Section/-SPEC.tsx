@@ -25,8 +25,7 @@ export default Spec.describe('MyComponent', (e) => {
      * Initial state:
      */
     p.theme.value = 'Light';
-    // debug.state.component.props.section.value = { index: 0 };
-    // debug.state.component.props.
+    debug.state.component.props.section.value = { index: 0 };
   });
 
   e.it('ui:debug', (e) => {

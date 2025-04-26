@@ -8,7 +8,7 @@ export type ItemProps = {
   media: t.VideoMediaContent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onClick?: t.PlaylistProps['onItemClick'];
+  onClick?: t.PlaylistProps['onChildSelect'];
 };
 
 /**

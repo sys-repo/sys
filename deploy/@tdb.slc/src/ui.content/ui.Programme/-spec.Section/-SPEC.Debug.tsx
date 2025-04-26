@@ -71,7 +71,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'state'}
         data={Signal.toObject(debug)}
-        expand={{ paths: ['$', '$.state'] }}
+        expand={{ paths: ['$', '$.state', '$.state.component', '$.state.component.props'] }}
         margin={[20, 0]}
       />
     </div>
