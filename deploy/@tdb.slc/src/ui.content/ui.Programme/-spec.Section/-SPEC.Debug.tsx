@@ -1,7 +1,7 @@
 import type { DebugProps, DebugSignals } from '../-spec/-SPEC.Debug.tsx';
 
 import React from 'react';
-import { createDebugSignals } from '../-spec/-SPEC.Debug.tsx';
+import { createDebugSignals, configButtonSections } from '../-spec/-SPEC.Debug.tsx';
 import { Button, css, D, ObjectView, Signal, type t } from '../common.ts';
 
 type P = t.ProgrammeSectionProps;
@@ -40,7 +40,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <span>{D.name}</span>
+        <span>{`Section`}</span>
+      </div>
 
       <Button
         block
@@ -54,7 +57,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      {configButtonSections(debug.content, debug.programme)}
+
+      <hr />
+      <ObjectView name={'state'} data={Signal.toObject(debug)} expand={1} />
     </div>
   );
 };

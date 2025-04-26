@@ -1,15 +1,20 @@
-import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
-import { css, Player, Color } from '../common.ts';
+import { Dev, Spec } from '../../-test.ui.ts';
+import { Color, css, Player, Signal } from '../common.ts';
 import { Section } from '../ui.Column.Section.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
-  const content = debug.content;
   const p = debug.props;
 
-  const Root = (props: { media?: t.VideoMediaContent }) => {
-    const { media } = props;
+  const Root = () => {
+    const index = debug.programme.props.section?.value?.index ?? -1;
+    const media = debug.programme.props.media.value?.children?.[index];
+    const labelSrc = `${media?.video.props.src ?? '<undefined>'}`;
+
+    Signal.useRedrawEffect(() => {
+      debug.programme.listen();
+    });
 
     /**
      * Render:
@@ -19,18 +24,24 @@ export default Spec.describe('MyComponent', (e) => {
     const styles = {
       base: css({ width: 390, display: 'grid', gridTemplateRows: `1fr auto`, rowGap: 30 }),
       section: css({ backgroundColor: theme.bg, borderBottom: border, display: 'grid' }),
-      video: css({ borderTop: border }),
+      video: {
+        base: css({ position: 'relative', borderTop: border }),
+        label: css({
+          Absolute: [null, null, -20, 8],
+          fontSize: 11,
+          opacity: 0.5,
+        }),
+      },
     };
     return (
       <div className={styles.base.class}>
         <div className={styles.section.class}>
           <Section debug={p.debug.value} theme={p.theme.value} media={media} />
         </div>
-        <Player.Video.View
-          style={styles.video}
-          signals={media?.video}
-          onEnded={() => console.info(`⚡️ onEneded`)}
-        />
+        <div className={styles.video.base.class}>
+          <div className={styles.video.label.class}>{`video:src: ${labelSrc}`}</div>
+          <Player.Video.View signals={media?.video} onEnded={() => console.info(`⚡️ onEneded`)} />
+        </div>
       </div>
     );
   };
@@ -47,17 +58,13 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => {
-        const media = content.media?.children?.[1];
-        return <Root media={media} />;
-      });
+      .render(() => <Root />);
 
     /**
-     * Initial:
+     * Initial state:
      */
-    console.info('💦 state:app:', Signal.toObject(debug.app));
-    console.info('💦 content:("Programme"):', debug.content);
     p.theme.value = 'Light';
+    debug.programme.props.section.value = { index: 0 };
   });
 
   e.it('ui:debug', (e) => {

@@ -27,14 +27,8 @@ export function factory() {
 
     render(props) {
       const global = props.state;
-      return (
-        <Programme
-          state={{ global, component }}
-          content={content}
-          theme={sheetTheme}
-          isTop={props.is.top}
-        />
-      );
+      const state = { global, component };
+      return <Programme state={state} theme={sheetTheme} isTop={props.is.top} />;
     },
   };
   return content;

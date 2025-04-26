@@ -15,7 +15,9 @@ export function createDebugSignals() {
   const s = Signal.create;
   const app = App.signals();
   const programme = Programme.signals();
+
   const content = Programme.factory(); // Factory → content definition 🌳.
+  programme.props.media.value = content.media;
 
   /**
    * Properties:
@@ -35,6 +37,10 @@ export function createDebugSignals() {
       p.theme.value;
       app.listen();
       programme.listen();
+    },
+    getMedia(index: t.Index) {
+      const media = content.media;
+      return media ? media.children?.[index] : undefined;
     },
   };
   return api;
@@ -67,20 +73,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
-  const config = (index: number) => {
-    const children = debug.content.media?.children ?? [];
-    return (
-      <Button
-        block
-        label={() => `Programme: ${children[index]?.title ?? '<undefined>'}`}
-        onClick={() => {
-          c.align.value = 'Right';
-          c.media.value = children[index];
-        }}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -104,15 +96,45 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Sample Configurations:'}</div>
-
-      {config(0)}
-      {config(1)}
-      {config(2)}
-      {config(-1)}
+      {configButtonSections(debug.content, debug.programme)}
 
       <hr />
       <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} margin={[20, 0]} />
     </div>
   );
 };
+
+/**
+ * Dev Helpers
+ */
+export function configButtonSections(
+  content: t.VideoContent,
+  programme: t.ProgrammeSignals,
+  options: { title?: string } = {},
+) {
+  const title = options.title ?? 'Programme Sections:';
+
+  const config = (index: number) => {
+    const children = content.media?.children ?? [];
+    return (
+      <Button
+        block
+        label={() => `Programme: ${children[index]?.title ?? '<undefined>'}`}
+        onClick={() => {
+          programme.props.align.value = 'Right';
+          programme.props.section.value = { index };
+        }}
+      />
+    );
+  };
+
+  return (
+    <React.Fragment key={'dev-programme-sections'}>
+      <div className={Styles.title.class}>{title}</div>
+      {config(0)}
+      {config(1)}
+      {config(2)}
+      {config(-1)}
+    </React.Fragment>
+  );
+}

@@ -20,15 +20,15 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
     }),
   };
 
-  const button = (item: t.VideoMediaContent) => {
+  const button = (item: t.VideoMediaContent, index: t.Index) => {
     const label = item.title ?? 'Untitled';
-    const onClick = () => props.onSelect?.({ item });
+    const onClick = () => props.onSelect?.({ item, index });
     return <MenuButton key={item.id} label={label} onClick={onClick} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{items.map((m) => button(m))}</div>
+      <div className={styles.body.class}>{items.map((v, i) => button(v, i))}</div>
     </div>
   );
 };

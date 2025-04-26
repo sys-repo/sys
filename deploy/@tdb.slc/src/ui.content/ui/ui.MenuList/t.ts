@@ -8,5 +8,5 @@ export type MenuListProps = {
   items?: t.VideoMediaContent[];
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSelect?: (e: { item: t.VideoMediaContent }) => void;
+  onSelect?: (e: { item: t.VideoMediaContent; index: t.Index }) => void;
 };

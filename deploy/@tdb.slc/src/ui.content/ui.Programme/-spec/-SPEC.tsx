@@ -8,7 +8,6 @@ export default Spec.describe(D.name, async (e) => {
   const p = debug.props;
 
   const global = debug.app;
-  const content = debug.content;
   const component = debug.programme;
   const state = { global, component };
 
@@ -25,16 +24,8 @@ export default Spec.describe(D.name, async (e) => {
       .size('fill')
       .display('grid')
       .render(() => {
-        return <Programme.View.Main state={state} content={debug.content} theme={'Light'} />;
+        return <Programme.View.Main state={state} theme={'Light'} />;
       });
-
-    /**
-     * Initial:
-     */
-    console.info('💦 state:app:', Signal.toObject(debug.app));
-    console.info('💦 content:("Programme"):', debug.content);
-    state.component.props.align.value = 'Right';
-    state.component.props.media.value = content.media?.children?.[1];
   });
 
   e.it('ui:debug', (e) => {

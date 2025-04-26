@@ -9,17 +9,18 @@ export type ProgrammeSignals = {
     debug: t.Signal<boolean>;
     align: t.Signal<t.ConceptPlayerAlign>;
     media: t.Signal<t.VideoMediaContent | undefined>;
+    section: t.Signal<t.ProgrammeSignalsSelectedSection | undefined>;
   };
 };
-
-export type ProgrammeState = { global: t.AppSignals; component: t.ProgrammeSignals };
+/** SelectedSection */
+export type ProgrammeSignalsSelectedSection = { index: t.Index };
 
 /**
  * <Commponent>: Root.
  */
+export type ProgrammeState = { global: t.AppSignals; component: t.ProgrammeSignals };
 export type ProgrammeProps = {
   state: t.ProgrammeState;
-  content: t.VideoContent;
   isTop?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

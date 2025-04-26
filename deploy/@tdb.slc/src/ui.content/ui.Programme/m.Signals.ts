@@ -7,12 +7,14 @@ export function createProgrammeSignals(): t.ProgrammeSignals {
       debug: s(false),
       align: s('Center'),
       media: s(),
+      section: s(),
     },
     listen() {
       const p = api.props;
       p.debug.value;
       p.align.value;
       p.media.value;
+      p.section.value;
     },
   };
   return api;

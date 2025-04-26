@@ -2,19 +2,19 @@ import React from 'react';
 import { type t, Color, css, LogoCanvas, MenuList, useSizeObserver } from './common.ts';
 
 export type MenuProps = {
-  content: t.VideoContent;
+  media?: t.VideoMediaContent;
   debug?: boolean;
-  onSelect: t.MenuListProps['onSelect'];
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onSelect: t.MenuListProps['onSelect'];
 };
 
 /**
  * Component:
  */
 export const Menu: React.FC<MenuProps> = (props) => {
-  const { content, debug = false } = props;
-  const items = content.media?.children ?? [];
+  const { debug = false, media } = props;
+  const items = media?.children ?? [];
   const size = useSizeObserver();
 
   /**
@@ -53,12 +53,16 @@ export const Menu: React.FC<MenuProps> = (props) => {
 
   const elMenuList = <MenuList items={items} onSelect={props.onSelect} style={styles.menu} />;
 
+  const elBody = (
+    <div className={styles.body.class}>
+      {elCanvas}
+      {elMenuList}
+    </div>
+  );
+
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>
-        {elCanvas}
-        {elMenuList}
-      </div>
+      {elBody}
       {debug && size.toElement([4, 6, null, null])}
     </div>
   );
