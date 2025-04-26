@@ -22,3 +22,8 @@ export { useLoading } from './use.Loading.ts';
 export { useMouseDrag } from './use.Mouse.Drag.ts';
 export { useMouse } from './use.Mouse.ts';
 export { useSizeObserver } from './use.SizeObserver.tsx';
+export {
+  useVisibilityThreshold,
+  useVisibilityThresholdX,
+  useVisibilityThresholdY,
+} from './use.VisibilityThreshold.ts';

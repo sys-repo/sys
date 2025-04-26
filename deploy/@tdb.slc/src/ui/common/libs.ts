@@ -11,8 +11,11 @@ export {
   ReactString,
   useClickOutside,
   useIsTouchSupported,
-  useSizeObserver,
   useLoading,
+  useSizeObserver,
+  useVisibilityThreshold,
+  useVisibilityThresholdX,
+  useVisibilityThresholdY,
 } from '@sys/ui-react';
 export {
   Bullet,

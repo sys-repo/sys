@@ -47,4 +47,7 @@ export {
   useMouse,
   useMouseDrag,
   useSizeObserver,
+  useVisibilityThreshold,
+  useVisibilityThresholdX,
+  useVisibilityThresholdY,
 } from './m.use/mod.ts';
