@@ -25,7 +25,7 @@ export const Section: React.FC<P> = (props) => {
 
   const size = useSizeObserver();
   const isReady = size.ready && loading.ready();
-  const depsChildren = media.children?.map((m) => m.id).join('|');
+  const depsChildren = media?.children?.map((m) => m.id).join('|');
   const canvas = useVisibilityThresholdY(
     {
       refs: [canvasRef, playlistRef],
@@ -73,7 +73,11 @@ export const Section: React.FC<P> = (props) => {
         />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
-        <Playlist items={media.children} theme={theme.name} paddingTop={canvas.visible ? 50 : 30} />
+        <Playlist
+          items={media?.children}
+          theme={theme.name}
+          paddingTop={canvas.visible ? 50 : 30}
+        />
       </div>
     </div>
   );
