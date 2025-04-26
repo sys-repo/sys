@@ -41,10 +41,12 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
     return (
       <Item
         key={media.id}
+        index={index}
         media={media}
         selected={isSelected}
         filled={isFilled}
         theme={theme.name}
+        onClick={props.onItemClick}
       />
     );
   };

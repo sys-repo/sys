@@ -1,19 +1,21 @@
 import React from 'react';
-import { type t, Bullet, css, D } from './common.ts';
+import { type t, Bullet, Button, css, D } from './common.ts';
 
 export type ItemProps = {
+  index: t.Index;
   selected?: boolean;
   filled?: boolean;
   media: t.VideoMediaContent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onClick?: t.PlaylistProps['onItemClick'];
 };
 
 /**
  * Component:
  */
 export const Item: React.FC<ItemProps> = (props) => {
-  const { media } = props;
+  const { media, index } = props;
   const label = media.title ?? 'Untitled';
   const bulletSize = D.bulletSize;
 
@@ -37,7 +39,9 @@ export const Item: React.FC<ItemProps> = (props) => {
         filled={props.filled}
         theme={props.theme}
       />
-      <div>{label}</div>
+      <Button onClick={() => props.onClick?.({ item: media, index })}>
+        <div>{label}</div>
+      </Button>
     </div>
   );
 };

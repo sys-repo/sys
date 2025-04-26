@@ -9,9 +9,12 @@ export type PlaylistProps = {
   selected?: t.Index;
   filled?: t.Index[];
 
-  // Appearance.
+  // Appearance:
   paddingTop?: t.Pixels;
   gap?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  // Events:
+  onItemClick?: (e: { item: t.VideoMediaConten; index: t.Index }) => void;
 };
