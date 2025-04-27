@@ -6,3 +6,4 @@ export { Timestamp, Thumbnails } from '../Player.Thumbnails/mod.ts';
 export { playerSignalsFactory, VideoPlayer } from '../Player.Video/mod.ts';
 
 export const DEFAULTS = {} as const;
+export const D = DEFAULTS;

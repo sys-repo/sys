@@ -54,6 +54,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
           <Player.Video.View
             key={`${playerKey}.${src}`}
             signals={player}
+            debug={debug}
             onEnded={() => {
               setPlayerKey((n) => n + 1); // Hack: force player to reset to start.
               console.info(`⚡️ Video:onEnd:`, src);
