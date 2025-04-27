@@ -11,7 +11,7 @@
     "@types/react-dom": "npm:@types/react-dom@18.3.5",
     "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.9.0",
     "rollup": "npm:rollup@4.40.0",
-    "vite": "npm:vite@6.3.2",
+    "vite": "npm:vite@6.3.3",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.4.1"
   }
 }

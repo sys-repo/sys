@@ -22,12 +22,12 @@ groups:
     - import: jsr:@std/async@1.0.12
     - import: jsr:@std/datetime@0.225.4
     - import: jsr:@std/dotenv@0.225.3
-    - import: jsr:@std/encoding@1.0.9
-    - import: jsr:@std/fs@1.0.16
-    - import: jsr:@std/path@1.0.8
+    - import: jsr:@std/encoding@1.0.10
+    - import: jsr:@std/fs@1.0.17
+    - import: jsr:@std/path@1.0.9
     - import: jsr:@std/semver@1.0.5
     - import: jsr:@std/testing@1.0.11
-    - import: jsr:@std/uuid@1.0.6
+    - import: jsr:@std/uuid@1.0.7
 
   automerge:
     # https://automerge.org
@@ -46,7 +46,7 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@3.9.0
     - import: npm:@deno/vite-plugin@1.0.4
     - import: npm:rollup@4.40.0
-    - import: npm:vite@6.3.2
+    - import: npm:vite@6.3.3
     - import: npm:vite-plugin-wasm@3.4.1
 
   ui/react:
@@ -78,7 +78,7 @@ deno.json:
   - import: npm:fake-indexeddb@6.0.0
   - import: npm:happy-dom@17.4.4
   - import: npm:hash-it@6.0.0
-  - import: npm:ignore@7
+  - import: npm:ignore@7.0.4
   - import: npm:immer@10
   - import: npm:ora@8.2.0
   - import: npm:ollama@0.5.15
@@ -117,7 +117,7 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.7.4
+  - import: npm:motion@12.9.2
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
