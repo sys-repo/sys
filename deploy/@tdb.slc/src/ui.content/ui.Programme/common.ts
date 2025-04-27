@@ -6,7 +6,6 @@ export { Content } from '../m/mod.ts';
 export {
   CanvasSlug,
   ConceptPlayer,
-  ElapsedTime,
   MenuList,
   Playlist,
   usePulldown,

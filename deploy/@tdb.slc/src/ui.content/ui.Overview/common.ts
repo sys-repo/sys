@@ -1,6 +1,6 @@
 export * from '../common.ts';
 export { Content } from '../m/mod.ts';
-export { CanvasSlug, ElapsedTime, usePulldown, useTimestamps } from '../ui/mod.ts';
+export { CanvasSlug, usePulldown, useTimestamps } from '../ui/mod.ts';
 
 /**
  * Constants:

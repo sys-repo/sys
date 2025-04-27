@@ -2,7 +2,7 @@ import { type t } from '../common.ts';
 
 import { ConceptPlayer } from '../Player.Concept/mod.ts';
 import { Thumbnails } from '../Player.Thumbnails/mod.ts';
-import { VideoPlayer, playerSignalsFactory } from '../Player.Video/mod.ts';
+import { VideoPlayer, playerSignalsFactory, ElapsedTime } from '../Player.Video/mod.ts';
 
 export const Player: t.PlayerLib = {
   Concept: {
@@ -14,5 +14,6 @@ export const Player: t.PlayerLib = {
   },
   Timestamp: {
     Thumbnails: { View: Thumbnails },
+    Elapsed: { View: ElapsedTime },
   },
 };

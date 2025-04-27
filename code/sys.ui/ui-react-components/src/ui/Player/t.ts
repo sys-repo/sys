@@ -14,5 +14,6 @@ export type PlayerLib = {
   };
   Timestamp: {
     Thumbnails: { View: React.FC<t.ThumbnailsProps> };
+    Elapsed: { View: React.FC<t.ElapsedTimeProps> };
   };
 };

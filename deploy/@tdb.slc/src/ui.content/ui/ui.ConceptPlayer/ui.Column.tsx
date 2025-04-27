@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type t, Color, css, ElapsedTime, Player, Sheet, useClickOutside } from './common.ts';
+import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
   debug?: boolean;
@@ -61,7 +61,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
             }}
           />
         </div>
-        <ElapsedTime player={player} abs={true} show={debug} />
+        <Player.Timestamp.Elapsed.View player={player} abs={true} show={debug} />
       </div>
     </Sheet>
   );

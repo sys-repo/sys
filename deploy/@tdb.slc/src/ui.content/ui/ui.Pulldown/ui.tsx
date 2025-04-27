@@ -1,7 +1,6 @@
 import React from 'react';
-import { ElapsedTime } from '../ui.ElapsedTime.tsx';
 import { useTimestamps } from '../use.Timestamps.ts';
-import { type t, Cropmarks, css, Sheet } from './common.ts';
+import { type t, Cropmarks, css, Player, Sheet } from './common.ts';
 
 export type PullDownProps = t.VideoContentProps;
 
@@ -50,7 +49,11 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
       orientation={'Top:Down'}
     >
       {elBody}
-      <ElapsedTime player={player} abs={[null, 15, 10, null]} show={showElapsed} />
+      <Player.Timestamp.Elapsed.View
+        player={player}
+        abs={[null, 15, 10, null]}
+        show={showElapsed}
+      />
     </Sheet>
   );
 };

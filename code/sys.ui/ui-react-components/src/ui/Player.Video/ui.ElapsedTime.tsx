@@ -1,14 +1,7 @@
 import React from 'react';
 import { type t, css, Signal } from './common.ts';
 
-export type ElapsedTimeProps = {
-  player?: t.VideoPlayerSignals;
-  abs?: t.CssEdgesInput | boolean;
-  show?: boolean;
-  style?: t.CssInput;
-};
-
-type P = ElapsedTimeProps;
+type P = t.ElapsedTimeProps;
 
 /**
  * Component:

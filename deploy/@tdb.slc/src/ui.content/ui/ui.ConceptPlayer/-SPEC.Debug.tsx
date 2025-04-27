@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Player, Signal, VIDEO } from './common.ts';
+import { type t, Button, css, D, ObjectView, Player, Signal } from './common.ts';
+import { VIDEO } from '../../-VIDEO.ts';
 
 type P = t.ConceptPlayerProps;
 

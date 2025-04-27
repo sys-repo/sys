@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  css,
-  ElapsedTime,
-  Player,
-  Sheet,
-  Time,
-  usePulldown,
-  useTimestamps,
-} from './common.ts';
+import { type t, css, Player, Sheet, Time, usePulldown, useTimestamps } from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 
@@ -62,7 +53,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       orientation={'Bottom:Up'}
     >
       {elBody}
-      <ElapsedTime player={player} abs={true} show={showElapsed} />
+      <Player.Timestamp.Elapsed.View player={player} abs={true} show={showElapsed} />
     </Sheet>
   );
 };
