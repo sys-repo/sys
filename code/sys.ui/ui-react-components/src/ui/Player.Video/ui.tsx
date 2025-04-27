@@ -15,7 +15,7 @@ type P = t.VideoPlayerProps;
  * Component:
  */
 export const VideoPlayer: React.FC<P> = (props) => {
-  const { signals } = props;
+  const { signals, debug = false } = props;
   const p = signals?.props;
 
   const src = p?.src.value ?? D.video;
@@ -95,10 +95,19 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
+      display: 'grid',
+    }),
+    body: css({
       overflow: 'hidden',
       display: 'grid',
       visibility: isReady ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
+    }),
+    debug: css({
+      Absolute: [-20, null, null, 8],
+      color: theme.fg,
+      fontSize: 11,
+      opacity: 0.4,
     }),
   };
 
@@ -156,10 +165,14 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const mask = p?.fadeMask.value;
   const elTopMask = mask && <FadeMask mask={mask} theme={theme.name} />;
 
+  console.log('debug', debug);
+  const elDebug = debug && <div className={styles.debug.class}>{`src: ${src}`}</div>;
+
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
-      {elPlayer}
+      <div className={styles.body.class}>{elPlayer}</div>
       {elTopMask}
+      {elDebug}
     </div>
   );
 };
