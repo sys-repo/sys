@@ -30,7 +30,13 @@ export default Spec.describe('VideoPlayer', (e) => {
     updateSize();
 
     ctx.subject.display('grid').render((e) => {
-      return <VideoPlayer signals={video} theme={debug.props.theme.value} />;
+      return (
+        <VideoPlayer
+          signals={video}
+          debug={debug.props.debug.value}
+          theme={debug.props.theme.value}
+        />
+      );
     });
   });
 

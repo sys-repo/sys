@@ -29,11 +29,13 @@ export function createDebugSignals() {
 
   const props = {
     theme: s<P['theme']>('Light'),
+    debug: s<P['debug']>(true),
   };
   const api = {
     props,
     video,
     listen() {
+      props.debug.value;
       props.theme.value;
 
       /**
@@ -98,6 +100,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <CurrentTime video={video} />
       </div>
 
+      <Button
+        block
+        label={() => `debug: ${d.debug.value}`}
+        onClick={() => Signal.toggle(d.debug)}
+      />
       <Button
         block
         label={() => `theme: ${d.theme.value ?? '<undefined>'}`}
