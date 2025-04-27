@@ -11,9 +11,9 @@ export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
 export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
 export type ContentTimestamp = ContentTimestampProps | ContentTimestampProps['column'];
 export type ContentTimestampProps = {
-  column?: t.VideoContentRenderer;
-  pulldown?: t.VideoContentRenderer;
-  main?: t.VideoContentRenderer;
+  column?: t.ContentRenderer;
+  pulldown?: t.ContentRenderer;
+  main?: t.ContentRenderer;
 };
 
 /**
@@ -21,9 +21,7 @@ export type ContentTimestampProps = {
  */
 export type StaticContent = t.Content<StaticProps & { kind: 'StaticContent' }>;
 export type StaticContentProps = t.ContentProps<StaticProps>;
-type StaticProps = {
-  id: t.StringId;
-};
+type StaticProps = { id: t.StringId };
 
 /**
  * Content Variation: Video.
@@ -36,11 +34,6 @@ type VideoProps = {
   showElapsed?: boolean;
   media?: VideoMediaContent;
 };
-
-/**
- * Renders a video with a map of timestamps.
- */
-export type VideoContentRenderer = t.ContentRenderer<t.VideoContentProps>;
 
 /** A unit of playable video-media. */
 export type VideoMediaContent = {

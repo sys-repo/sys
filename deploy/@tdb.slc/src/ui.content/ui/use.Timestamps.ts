@@ -46,9 +46,9 @@ export const useTimestamps: t.UseTimestamps = (player, getContentProps) => {
 async function render(
   props: t.VideoContentProps,
   setState: (value: t.ReactNode) => void,
-  renderer?: t.VideoContentRenderer,
+  renderer?: t.ContentRenderer,
 ) {
-  const res = renderer?.(props);
+  const res = renderer?.();
   setState(Is.promise(res) ? await res : res);
 }
 
