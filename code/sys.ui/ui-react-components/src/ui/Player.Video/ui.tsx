@@ -104,7 +104,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
     }),
     debug: css({
-      Absolute: [-20, null, null, 8],
+      Absolute: [-20, null, null, 6],
       color: theme.fg,
       fontSize: 11,
       opacity: 0.4,
