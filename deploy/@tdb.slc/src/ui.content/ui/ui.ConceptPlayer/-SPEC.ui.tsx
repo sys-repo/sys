@@ -13,10 +13,10 @@ export const SampleBody: React.FC<SampleProps> = (props) => {
 
   const styles = {
     base: css({
-      backgroundColor: Color.alpha(Color.RUBY, is.debug ? 0.1 : 0),
+      backgroundColor: Color.ruby(is.debug),
       borderRadius: 4,
-      Margin: 10,
-      Padding: 8,
+      Margin: [30, 30],
+      Padding: [0, 4],
     }),
   };
 
