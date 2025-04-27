@@ -5,10 +5,8 @@ import { vimeo } from './common.ts';
  */
 export const VIDEO = {
   Intro: {
-    Entry: vimeo(851209192),
     About: vimeo(577856505),
-    HowToUse: vimeo(851212258),
-    WhenFinished: vimeo(851212258),
+    HowToUse: vimeo(577857924),
     Purpose: vimeo(577945255),
   },
   Model: {
@@ -21,6 +19,9 @@ export const VIDEO = {
       Alternatives: vimeo(577933435),
       UVP: vimeo(577937937),
       Solution: vimeo(577937777),
+      Example: {
+        // Entry: vimeo(),
+      },
     },
     Impact: {
       Entry: vimeo(577955565),
@@ -35,20 +36,25 @@ export const VIDEO = {
         Long: vimeo(577955408),
       },
       Impact: vimeo(577955192),
+      Example: {
+        // Entry: vimeo(),
+      },
     },
     Economic: {
-      Entry: vimeo(),
-      Channels: vimeo(),
-      Financial: vimeo(),
-      Revenue: vimeo(),
-      Costs: vimeo(),
+      Entry: vimeo(577954558),
+      Channels: vimeo(577938360),
+      Financial: vimeo(577954346),
+      Revenue: vimeo(577954492),
+      Costs: vimeo(577954228),
       Advantage: {
-        Leverage: vimeo(),
-        Innovate: vimeo(),
+        Leverage: vimeo(577938084),
+        Innovate: vimeo(577938331),
       },
-      Example: vimeo(),
+      Example: {
+        // Entry: vimeo(),
+      },
     },
   },
-  KeyMetrics: vimeo(),
-  Conclusion: vimeo(),
+  KeyMetrics: vimeo(577945041),
+  Conclusion: vimeo(577926288),
 };

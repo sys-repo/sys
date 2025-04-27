@@ -1,5 +1,5 @@
 import { TUBES, vimeo } from './common.ts';
-import { VIDEO as Programme } from './ui.Programme/v/VIDEO.ts';
+import { VIDEO as Programme } from './ui.Programme/-VIDEO.ts';
 
 /**
  * Index of Video IDs.
