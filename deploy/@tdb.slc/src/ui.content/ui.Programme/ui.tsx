@@ -57,14 +57,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     />
   );
 
-  const elContentBody = controller.section.media && (
-    <Main
-      //
-      debug={debug}
-      player={player}
-      timestamps={controller.section.media.child?.timestamps}
-    />
-  );
+  const elContentBody = controller.section.media && <Main state={state} />;
 
   return (
     <div className={css(styles.base).class}>

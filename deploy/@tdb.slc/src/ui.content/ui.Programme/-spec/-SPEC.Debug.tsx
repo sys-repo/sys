@@ -18,7 +18,6 @@ export function createDebugSignals() {
   const s = Signal.create;
   const content = Programme.factory(); // Factory → content definition (🌳).
   const p = content.state.props;
-  p.debug.value = true;
 
   /**
    * Properties:

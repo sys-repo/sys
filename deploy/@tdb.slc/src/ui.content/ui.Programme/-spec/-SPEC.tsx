@@ -5,12 +5,11 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.name, async (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
@@ -23,6 +22,13 @@ export default Spec.describe(D.name, async (e) => {
         const state = debug.content.state;
         return <Programme.View.Main state={state} theme={'Light'} />;
       });
+
+    /**
+     * Initial state:
+     */
+    const p = debug.content.state.props;
+    p.debug.value = true;
+    p.align.value = 'Right';
   });
 
   e.it('ui:debug', (e) => {

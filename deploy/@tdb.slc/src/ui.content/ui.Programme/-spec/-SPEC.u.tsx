@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Button, css } from '../common.ts';
-import { Calc } from '../use.Section.Controller.ts';
+import { CalcSection } from '../use.Section.Controller.ts';
 
 export const Styles = {
   title: css({
@@ -16,7 +16,7 @@ export const Styles = {
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
 export function videoPlayerButton(state: t.ProgrammeSignals) {
-  const player = Calc.player(state);
+  const player = CalcSection.player(state);
   if (!player) return <div>{`(no video player)`}</div>;
 
   const p = player.props;
