@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
-import { conculsion } from './v.conclusion.ts';
-import { metrics } from './v.metrics.ts';
-import { model } from './v.model.ts';
-import { start } from './v.start.ts';
+import { conculsion } from './v.conclusion.tsx';
+import { metrics } from './v.metrics.tsx';
+import { model } from './v.model.tsx';
+import { start } from './v.start.tsx';
 
 export { conculsion, metrics, model, start };
 
