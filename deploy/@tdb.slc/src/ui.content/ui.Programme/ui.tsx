@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
 import { Menu } from './ui.Column.Menu.tsx';
 import { Section } from './ui.Column.Section.tsx';
-import { Timestamps } from './ui.Timestamps.tsx';
+import { Main } from './ui.Main.tsx';
 import { useProgrammeController } from './use.Programme.Controller.ts';
 
 /**
@@ -17,7 +17,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const isCenter = align === 'Center';
 
   /**
-   * State controller.
+   * Hooks:
    */
   const controller = useProgrammeController(state);
 
@@ -57,8 +57,13 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     />
   );
 
-  const elTimestamps = controller.section.media && (
-    <Timestamps timestamps={controller.section.media.root?.timestamps} player={player} />
+  const elContentBody = controller.section.media && (
+    <Main
+      //
+      debug={debug}
+      player={player}
+      timestamps={controller.section.media.child?.timestamps}
+    />
   );
 
   return (
@@ -70,15 +75,13 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         columnVideo={player}
         columnBody={isCenter ? elRootMenu : elSection}
         contentTitle={controller.section.title}
-        contentBody={elTimestamps}
+        contentBody={elContentBody}
         onBackClick={() => controller.onBackClick()}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column but within the SLC app.
           //     Wider contexts, like say the DevHarness, do not trigger the close/pop action.
           const isWithinApp = Dom.Event.isWithin(e, App.type);
-          if (state && isWithinApp && isCenter && isTop) {
-            props.onCloseRequest?.();
-          }
+          if (isWithinApp && isCenter && isTop) props.onCloseRequest?.();
         }}
       />
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, M } from './common.ts';
+import { type t, css, D, M } from './common.ts';
 
 type P = t.LayoutCenterColumnProps;
 
@@ -23,7 +23,6 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
     }),
     center: css({
       zIndex: 1,
-      backgroundColor: !debug ? undefined : Color.RUBY,
       width: centerWidth,
       pointerEvents: 'auto',
       display: 'grid',
@@ -74,14 +73,6 @@ export const LayoutCenterColumn: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  // gridTemplateColumns(props: P) {
-  //   const { centerWidth = D.center.width, align = D.center.align } = props;
-  //   const W = `${centerWidth}px`;
-  //   if (align === 'Left') return `0px ${W} 1fr`;
-  //   if (align === 'Right') return `1fr ${W} 0px`;
-  //   return `1fr ${W} 1fr`;
-  // },
-
   gridTemplateColumns(props: P) {
     const { centerWidth = D.center.width, align = D.center.align } = props;
 

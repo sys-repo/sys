@@ -63,7 +63,7 @@ export const Menu: React.FC<MenuProps> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elBody}
-      {debug && size.toElement([4, 6, null, null])}
+      {debug && size.toElement([4, null, null, 6])}
     </div>
   );
 };

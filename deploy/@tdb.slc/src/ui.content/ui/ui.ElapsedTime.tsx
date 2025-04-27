@@ -19,7 +19,6 @@ export const ElapsedTime: React.FC<P> = (props) => {
 
   Signal.useRedrawEffect(() => player?.props.currentTime.value);
   if (!show) return null;
-  if (currentTime <= 0) return null;
 
   /**
    * Render:
@@ -29,7 +28,7 @@ export const ElapsedTime: React.FC<P> = (props) => {
       Absolute: wrangle.abs(props),
       userSelect: 'none',
       fontSize: 11,
-      opacity: 0.5,
+      opacity: 0.3,
     }),
   };
 
@@ -40,6 +39,7 @@ export const ElapsedTime: React.FC<P> = (props) => {
  * Helpers
  */
 const formatTime = (timeInSeconds: number): string => {
+  if (timeInSeconds < 0) timeInSeconds = 0;
   const mins = Math.floor(timeInSeconds / 60);
   const secs = Math.floor(timeInSeconds % 60);
   const centi = Math.floor((timeInSeconds % 1) * 100);

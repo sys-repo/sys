@@ -17,6 +17,8 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const content = Programme.factory(); // Factory → content definition 🌳.
+  const p = content.state.props;
+  p.debug.value = true;
 
   /**
    * Properties:
@@ -24,12 +26,11 @@ export function createDebugSignals() {
   const props = {
     theme: s<t.CommonTheme>('Dark'),
   };
-  const p = props;
   const api = {
     content,
     props,
     listen() {
-      p.theme.value;
+      props.theme.value;
       content.state.listen();
     },
     getMedia(index: t.Index) {
@@ -70,8 +71,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${debug.props.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(debug.props.theme, ['Light', 'Dark'])}
       />
-
-      <hr />
       <Button
         block
         label={() => `align: ${p.align.value ?? `<undefined> (defaut: ${D.align})`}`}
@@ -80,9 +79,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {programmeSectionButtons(debug.content)}
-
-      <hr />
-      {videoPlayerButton(debug.content.state)}
 
       <hr />
       <ObjectView

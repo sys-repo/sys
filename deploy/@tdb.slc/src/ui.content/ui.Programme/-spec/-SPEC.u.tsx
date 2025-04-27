@@ -48,7 +48,7 @@ export function programmeSectionButtons(
     return (
       <Button
         block
-        label={() => `Programme: ${children[index]?.title ?? '<undefined>'}`}
+        label={() => `${children[index]?.title ?? '<undefined>'}`}
         onClick={() => {
           p.align.value = 'Right';
           p.section.value = { index };

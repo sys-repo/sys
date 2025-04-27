@@ -1,6 +1,14 @@
 import React from 'react';
-import { ElapsedTime, usePulldown, useTimestamps } from '../ui/mod.ts';
-import { type t, css, Player, Sheet, Time } from './common.ts';
+import {
+  type t,
+  css,
+  ElapsedTime,
+  Player,
+  Sheet,
+  Time,
+  usePulldown,
+  useTimestamps,
+} from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 

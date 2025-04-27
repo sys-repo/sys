@@ -56,6 +56,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
             signals={player}
             onEnded={() => {
               setPlayerKey((n) => n + 1); // Hack: force player to reset to start.
+              console.info(`⚡️ Video:onEnd:`, src);
             }}
           />
         </div>

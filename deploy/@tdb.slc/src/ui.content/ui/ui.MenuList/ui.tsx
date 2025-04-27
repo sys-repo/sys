@@ -15,9 +15,7 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
       display: 'grid',
       alignContent: 'start',
     }),
-    body: css({
-      backgroundColor: Color.ruby(debug),
-    }),
+    body: css({}),
   };
 
   const button = (item: t.VideoMediaContent, index: t.Index) => {
