@@ -15,6 +15,14 @@ export const build: B = async (input) => {
   const dir = Fs.join(paths.cwd, paths.app.outDir);
   const cwd = paths.cwd;
 
+  const clean = async (dir: t.StringPath) => {
+    const remove = async (pattern: string) => {
+      const paths = await Fs.glob(dir).find(pattern);
+      for (const p of paths) await Fs.remove(p.path, { log: false });
+    };
+    await remove('**/.DS_Store');
+  };
+
   if (!silent) {
     const table = Cli.table([]);
     const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
@@ -39,6 +47,8 @@ export const build: B = async (input) => {
     await Fs.ensureDir(Fs.dirname(path));
     await Deno.writeTextFile(path, JSON.stringify(pkg, null, '  '));
   }
+
+  await clean(paths.app.outDir);
 
   const entry = await wrangle.entryPath(dir);
   const dist = (await Pkg.Dist.compute({ dir, pkg, entry, save: true })).dist;
