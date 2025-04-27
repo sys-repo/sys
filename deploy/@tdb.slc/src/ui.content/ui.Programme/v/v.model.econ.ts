@@ -30,6 +30,6 @@ export const econ: t.VideoMediaContent = {
       video: v(Economic.Advantage.Innovate.src),
       timestamps: {},
     },
-    { id: 'example', title: `Example`, video: v(Economic.Example.src), timestamps: {} },
+    // { id: 'example', title: `Example`, video: v(Economic.Example.src), timestamps: {} },
   ],
 };

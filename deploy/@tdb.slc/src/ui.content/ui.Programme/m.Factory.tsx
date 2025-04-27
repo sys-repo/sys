@@ -24,7 +24,7 @@ export function factory() {
     playOnLoad: false,
     media: {
       id: 'programme.root',
-      video: v(VIDEO.Programme.Intro.Entry.src),
+      video: v(VIDEO.Programme.Root.src),
       timestamps: {},
       children,
     },
