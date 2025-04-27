@@ -14,7 +14,8 @@ export const useTimestamps: t.UseTimestamps = (player, timestamps) => {
 
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
-    const renderer = wrangle.renderer(match?.data);
+    const timestamp = match?.data;
+    const renderer = wrangle.renderer(timestamp);
 
     render(setColumn, renderer.column);
     render(setPulldown, renderer.pulldown);
