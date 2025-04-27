@@ -81,6 +81,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {programmeSectionButtons(debug.content)}
 
       <hr />
+      {videoPlayerButton(debug.content.state)}
+
+      <hr />
       <ObjectView
         name={'debug'}
         data={Signal.toObject(debug)}
