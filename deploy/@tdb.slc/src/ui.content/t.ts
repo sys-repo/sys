@@ -13,6 +13,7 @@ export type ContentTimestamp = ContentTimestampProps | ContentTimestampProps['co
 export type ContentTimestampProps = {
   column?: t.VideoContentRenderer;
   pulldown?: t.VideoContentRenderer;
+  main?: t.VideoContentRenderer;
 };
 
 /**
