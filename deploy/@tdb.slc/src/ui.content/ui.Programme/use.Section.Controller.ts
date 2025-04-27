@@ -1,6 +1,43 @@
 import { type t } from './common.ts';
 
-export function useSectionController(state: t.ProgrammeSignals) {
+type S = t.ProgrammeSignals;
+
+/**
+ * The property calculations as pure functions.
+ */
+export const Calc = {
+  index(state: S) {
+    const section = state.props.section.value;
+    return {
+      section: section?.index ?? 0,
+      child: section?.childIndex ?? 0,
+    } as const;
+  },
+
+  media(state: S) {
+    const root = state.props.media.value;
+    const index = Calc.index(state);
+    const section = wrangle.child(root, index.section);
+    const child = wrangle.child(section, index.child);
+    return { root, section, child };
+  },
+
+  player(state: S) {
+    const media = Calc.media(state);
+    return media.child?.video ?? media.root?.video;
+  },
+
+  title(state: S) {
+    const { section, child } = Calc.media(state);
+    if (!section) return 'Untitled';
+    return !child?.title ? section.title : `${section.title}: ${child.title}`;
+  },
+} as const;
+
+/**
+ * Controls an individual section
+ */
+export function useSectionController(state: S) {
   const p = state.props;
 
   /**
@@ -8,30 +45,19 @@ export function useSectionController(state: t.ProgrammeSignals) {
    */
   const api = {
     get index() {
-      const section = state.props.section.value;
-      return {
-        section: section?.index ?? 0,
-        child: section?.childIndex ?? 0,
-      } as const;
+      return Calc.index(state);
     },
 
     get media() {
-      const root = p.media.value;
-      const index = api.index;
-      const section = wrangle.child(root, index.section);
-      const child = wrangle.child(section, index.child);
-      return { root, section, child };
+      return Calc.media(state);
     },
 
     get player() {
-      const media = api.media;
-      return media.child?.video ?? media.root?.video;
+      return Calc.player(state);
     },
 
     get title() {
-      const { section, child } = api.media;
-      if (!section) return 'Untitled';
-      return !child?.title ? section.title : `${section.title}: ${child.title}`;
+      return Calc.title(state);
     },
 
     /**
