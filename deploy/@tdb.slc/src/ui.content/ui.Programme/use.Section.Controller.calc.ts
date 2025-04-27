@@ -27,10 +27,15 @@ export const CalcSection = {
     return media.child?.video ?? media.root?.video;
   },
 
-  title(state: S) {
+  title(state: S, options: { long?: boolean } = {}) {
     const { section, child } = CalcSection.media(state);
-    if (!section) return 'Untitled';
-    return !child?.title ? section.title : `${section.title}: ${child.title}`;
+    const UNTITLED = 'Untitled';
+    if (!section) return UNTITLED;
+    if (options.long ?? false) {
+      return !child?.title ? section.title : `${section.title ?? UNTITLED}: ${child.title}`;
+    } else {
+      return section.title ?? UNTITLED;
+    }
   },
 } as const;
 
