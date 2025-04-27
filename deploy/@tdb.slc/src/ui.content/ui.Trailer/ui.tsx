@@ -11,8 +11,9 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
   const { state, content } = props;
   const { showElapsed = true } = content;
 
-  const player = content.media?.video;
-  const timestamp = useTimestamps(player, () => props);
+  const media = content.media;
+  const player = media?.video;
+  const timestamp = useTimestamps(player, media?.timestamps);
 
   /**
    * Effect: Play on load.

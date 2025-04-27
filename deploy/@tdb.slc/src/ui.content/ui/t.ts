@@ -1,13 +1,12 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
+
+type P = t.VideoPlayerSignals;
+type T = t.ContentTimestamps;
 
 /**
  * Hook for managing content.
  */
-export type UseTimestamps = (
-  player?: t.VideoPlayerSignals,
-  getContentProps?: () => t.VideoContentProps,
-) => TimestampsHook;
-
+export type UseTimestamps = (player?: P, timestamps?: T) => TimestampsHook;
 export type TimestampsHook = {
   readonly column?: t.ReactNode;
   readonly pulldown?: t.ReactNode;

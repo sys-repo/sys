@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { type t, Is, Signal, Timestamp } from './common.ts';
 
-export const useTimestamps: t.UseTimestamps = (player, getContentProps) => {
+export const useTimestamps: t.UseTimestamps = (player, timestamps) => {
   const [column, setColumn] = useState<t.ReactNode>();
   const [pulldown, setPulldown] = useState<t.ReactNode>();
   const [main, setMain] = useState<t.ReactNode>();
@@ -10,24 +10,15 @@ export const useTimestamps: t.UseTimestamps = (player, getContentProps) => {
    * Effect: Render current timestamp.
    */
   Signal.useEffect(() => {
-    if (!player) return;
-
-    const p = getContentProps?.();
-    if (!p) {
-      console.warn(`useTimestamps: No content-props were returned from the getter.`);
-      return;
-    }
-
-    const timestamps = p.content.media?.timestamps;
-    if (!timestamps) return;
+    if (!player || !timestamps) return;
 
     const secs = player.props.currentTime.value;
     const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
     const renderer = wrangle.renderer(match?.data);
 
-    render(p, setColumn, renderer.column);
-    render(p, setPulldown, renderer.pulldown);
-    render(p, setMain, renderer.main);
+    render(setColumn, renderer.column);
+    render(setPulldown, renderer.pulldown);
+    render(setMain, renderer.main);
   });
 
   /**
@@ -43,13 +34,13 @@ export const useTimestamps: t.UseTimestamps = (player, getContentProps) => {
 /**
  * Render the accompanying video content.
  */
-async function render(
-  props: t.VideoContentProps,
-  setState: (value: t.ReactNode) => void,
-  renderer?: t.ContentRenderer,
-) {
-  const res = renderer?.();
-  setState(Is.promise(res) ? await res : res);
+async function render(setState: (value: t.ReactNode) => void, renderer?: t.ContentRenderer) {
+  if (renderer) {
+    const res = renderer();
+    setState(Is.promise(res) ? await res : res);
+  } else {
+    setState(undefined);
+  }
 }
 
 /**
