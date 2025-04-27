@@ -1,56 +1,23 @@
 import { useState } from 'react';
-import { type t, Is, Signal, Timestamp } from './common.ts';
+import { type t, Signal } from './common.ts';
+import { CalcTimestamp } from './use.Timestamps.calc.ts';
+
+export { CalcTimestamp };
 
 export const useTimestamps: t.UseTimestamps = (player, timestamps) => {
-  const [column, setColumn] = useState<t.ReactNode>();
-  const [pulldown, setPulldown] = useState<t.ReactNode>();
-  const [main, setMain] = useState<t.ReactNode>();
+  const [rendered, setRendered] = useState<t.RenderedTimestamp>();
 
   /**
    * Effect: Render current timestamp.
    */
   Signal.useEffect(() => {
-    if (!player || !timestamps) return;
-
-    const secs = player.props.currentTime.value;
-    const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
-    const timestamp = match?.data;
-    const renderer = wrangle.renderer(timestamp);
-
-    render(setColumn, renderer.column);
-    render(setPulldown, renderer.pulldown);
-    render(setMain, renderer.main);
+    player?.props.src.value;
+    player?.props.currentTime.value;
+    CalcTimestamp.render(player, timestamps).then((m) => setRendered(m));
   });
 
   /**
    * API:
    */
-  return {
-    column,
-    pulldown,
-    main,
-  };
+  return rendered ?? {};
 };
-
-/**
- * Render the accompanying video content.
- */
-async function render(setState: (value: t.ReactNode) => void, renderer?: t.ContentRenderer) {
-  if (renderer) {
-    const res = renderer();
-    setState(Is.promise(res) ? await res : res);
-  } else {
-    setState(undefined);
-  }
-}
-
-/**
- * Helpers:
- */
-const wrangle = {
-  renderer(data?: t.ContentTimestamp): t.ContentTimestampProps {
-    if (!data) return {};
-    if (typeof data === 'function') return { column: data };
-    return data;
-  },
-} as const;
