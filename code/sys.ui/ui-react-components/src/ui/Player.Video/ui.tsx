@@ -164,8 +164,6 @@ export const VideoPlayer: React.FC<P> = (props) => {
 
   const mask = p?.fadeMask.value;
   const elTopMask = mask && <FadeMask mask={mask} theme={theme.name} />;
-
-  console.log('debug', debug);
   const elDebug = debug && <div className={styles.debug.class}>{`src: ${src}`}</div>;
 
   return (

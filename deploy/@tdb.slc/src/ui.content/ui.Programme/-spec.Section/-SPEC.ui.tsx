@@ -16,6 +16,7 @@ export const Root: React.FC<RootProps> = (props) => {
   const p = state.props;
   const controller = Programme.useSectionController(state);
   const videoSrc = `${controller.player?.src ?? '<undefined>'}`;
+  const debug = p.debug.value;
 
   /**
    * Effect: Redraw.
@@ -30,17 +31,14 @@ export const Root: React.FC<RootProps> = (props) => {
   const styles = {
     base: css({ width: 390, display: 'grid', gridTemplateRows: `1fr auto`, rowGap: 30 }),
     section: css({ backgroundColor: theme.bg, borderBottom: border, display: 'grid' }),
-    video: {
-      base: css({ position: 'relative', borderTop: border }),
-      label: css({ Absolute: [null, null, -20, 8], fontSize: 11, opacity: 0.5 }),
-    },
+    video: css({ position: 'relative', borderTop: border }),
   };
 
   return (
     <div className={styles.base.class}>
       <div className={styles.section.class}>
         <Section
-          debug={p.debug.value}
+          debug={debug}
           theme={theme.name}
           media={controller.media.section}
           selected={controller.index.child}
@@ -50,14 +48,12 @@ export const Root: React.FC<RootProps> = (props) => {
           }}
         />
       </div>
-      <div className={styles.video.base.class}>
-        <div className={styles.video.label.class}>{`video:src: ${videoSrc}`}</div>
+      <div className={styles.video.class}>
         <Player.Video.View
           key={videoSrc}
+          debug={debug}
           signals={controller.player}
-          onEnded={() => {
-            console.info(`⚡️ onEneded`);
-          }}
+          onEnded={() => console.info(`⚡️ onEneded`)}
         />
       </div>
     </div>
