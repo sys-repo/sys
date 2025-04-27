@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { VIDEO } from '../VIDEO.ts';
+import { VIDEO } from '../-VIDEO.ts';
 import { type t, DEFAULTS } from './common.ts';
 import { createProgrammeSignals } from './m.Signals.ts';
 import { v } from './u.ts';

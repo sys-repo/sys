@@ -1,5 +1,5 @@
 import React from 'react';
-import { VIDEO } from '../VIDEO.ts';
+import { VIDEO } from '../-VIDEO.ts';
 
 import { type t, DEFAULTS, Player } from './common.ts';
 import { timestamps } from './m.Factory.timestamps.tsx';

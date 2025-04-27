@@ -1,4 +1,4 @@
-import { VIDEO } from '../VIDEO.ts';
+import { VIDEO } from '../-VIDEO.ts';
 import { Player } from './common.ts';
 
 export const DUMMY = VIDEO.Programme.Intro.About.src; // TEMP 🐷
