@@ -1,4 +1,4 @@
-import { type t, VIDEO } from './common.ts';
+import { type t, VIDEO, Image, CanvasSlug, LogoCanvas, LogoWordmark, Center } from './common.ts';
 import { v } from './u.ts';
 
 const Intro = VIDEO.Intro;
@@ -15,10 +15,24 @@ export const start: t.VideoMediaContent = {
       video: v(Intro.About.src),
       timestamps: {
         '00:00:00.000': {
-          main: () => <div style={{ fontSize: 64 }}>🌳</div>,
+          main: () => (
+            <Center>
+              <LogoWordmark style={{ width: 200 }} />
+            </Center>
+          ),
         },
-        '00:00:02.000': {
-          main: () => <div style={{ fontSize: 64 }}>🐷</div>,
+        '00:00:06.100': {
+          main: () => <Image.View src={'/images/ui.Programme/start/slc-image.png'} />,
+        },
+        '00:00:10.000': {
+          main: () => <Image.View src={'/images/ui.Programme/start/models.png'} />,
+        },
+        '00:00:32.290': {
+          main: () => (
+            <Center>
+              <LogoWordmark logo={'CC'} style={{ width: 400 }} />
+            </Center>
+          ),
         },
       },
     },

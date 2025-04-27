@@ -9,6 +9,7 @@ import {
   ObjectView,
   Player,
   Signal,
+  FadeElement,
 } from './common.ts';
 import { CalcSection } from './use.Section.Controller.ts';
 
@@ -46,11 +47,7 @@ export const Main: React.FC<MainProps> = (props) => {
     body: css({ display: 'grid' }),
   };
 
-  const elBody = (
-    <div className={styles.body.class}>
-      <div>{timestamp.main}</div>
-    </div>
-  );
+  const elBody = <div className={styles.body.class}>{timestamp.main}</div>;
 
   const elDebug = debug && (
     <>
@@ -65,7 +62,11 @@ export const Main: React.FC<MainProps> = (props) => {
   );
 
   const elCropmarks = timestamp.main && (
-    <Cropmarks borderOpacity={debug ? 0.05 : 0} theme={props.theme}>
+    <Cropmarks
+      borderOpacity={debug ? 0.05 : 0}
+      theme={props.theme}
+      size={{ mode: 'fill', margin: [50, 50, 50, 50], x: true, y: true }}
+    >
       {elBody}
     </Cropmarks>
   );

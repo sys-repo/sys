@@ -4,6 +4,8 @@ import { type t, Is, Color, css, Icons, Spinners } from './common.ts';
 type P = t.ImageViewProps;
 
 export const ImageView: React.FC<P> = (props) => {
+  const { debug = false } = props;
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [src, setSrc] = useState<string>();
@@ -37,7 +39,11 @@ export const ImageView: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid' }),
+    base: css({
+      color: theme.fg,
+      display: 'grid',
+      backgroundColor: Color.ruby(debug),
+    }),
     img: css({
       Absolute: [-99999, null, null, -99999],
       opacity: 0,
