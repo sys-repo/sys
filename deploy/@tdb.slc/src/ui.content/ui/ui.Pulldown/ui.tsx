@@ -51,8 +51,8 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
       {elBody}
       <Player.Timestamp.Elapsed.View
         player={player}
-        abs={[null, 15, 10, null]}
         show={showElapsed}
+        abs={[null, 15, 10, null]}
       />
     </Sheet>
   );
