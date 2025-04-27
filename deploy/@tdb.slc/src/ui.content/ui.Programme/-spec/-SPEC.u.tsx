@@ -2,6 +2,8 @@ import React from 'react';
 import { type t, Button, css } from '../common.ts';
 import { CalcSection } from '../use.Section.Controller.ts';
 
+export { CalcSection };
+
 export const Styles = {
   title: css({
     fontWeight: 'bold',
