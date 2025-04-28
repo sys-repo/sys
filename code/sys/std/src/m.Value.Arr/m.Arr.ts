@@ -1,13 +1,13 @@
 import type { t } from '../common.ts';
 import { asArray } from './u.asArray.ts';
 
-export const ArrayLib: t.ArrayLib = {
+export const Arr: t.ArrayLib = {
   asArray,
 
   flatten<T>(list: any): T[] {
     if (!Array.isArray(list)) return list;
     const result: any = list.reduce((a, b) => {
-      const value: any = Array.isArray(b) ? ArrayLib.flatten(b) : b;
+      const value: any = Array.isArray(b) ? Arr.flatten(b) : b;
       return a.concat(value);
     }, []);
     return result as T[];

@@ -44,7 +44,7 @@ export function history<T extends O>(doc?: t.Doc<T>): t.DocHistory<T> {
 
       const total = commits.length;
       const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
-      const items = Value.Array.page(list, index, limit);
+      const items = Value.Arr.page(list, index, limit);
       let _commits: t.DocHistoryCommit<T>[] | undefined;
 
       type S = t.DocHistoryPageScope;

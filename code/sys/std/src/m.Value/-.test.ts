@@ -1,11 +1,11 @@
 import { describe, expect, it } from '../-test.ts';
 import { isObject, isRecord } from '../common.ts';
-import { ArrayLib } from '../m.Value.Arr/m.Array.ts';
+import { Arr } from '../m.Value.Arr/m.Arr.ts';
 import { Num, Value } from './mod.ts';
 
 describe('Value', () => {
   it('API', () => {
-    expect(Value.Array).to.equal(ArrayLib);
+    expect(Value.Arr).to.equal(Arr);
     expect(Value.Num).to.equal(Num);
     expect(Value.round).to.equal(Num.round);
     expect(Value.isObject).to.equal(isObject);

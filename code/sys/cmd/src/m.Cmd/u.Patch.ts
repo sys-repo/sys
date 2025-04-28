@@ -6,7 +6,7 @@ import { Value, type t } from './common.ts';
 export const Patch: t.CmdPatchLib = {
   startsWith(patch: t.CmdPatch, def: t.ObjectPath) {
     const path = Patch.path(patch);
-    return !path ? false : Value.Array.compare(path).startsWith(def);
+    return !path ? false : Value.Arr.compare(path).startsWith(def);
   },
 
   path(patch: t.CmdPatch): t.ObjectPath {
