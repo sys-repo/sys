@@ -19,10 +19,10 @@ type Part = 'Canvas';
 export const Section: React.FC<P> = (props) => {
   const { media, debug = false } = props;
 
-  const loading = useLoading<Part>(['Canvas']);
   const playlistRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  const loading = useLoading<Part>(['Canvas']);
   const size = useSizeObserver();
   const isReady = size.ready && loading.ready();
   const depsChildren = media?.children?.map((m) => m.id).join('|');
