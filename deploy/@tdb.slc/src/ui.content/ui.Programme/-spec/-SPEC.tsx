@@ -28,7 +28,7 @@ export default Spec.describe(D.name, async (e) => {
      */
     const p = debug.content.state.props;
     p.debug.value = true;
-    p.section.value = { index: 1, childIndex: 0 };
+    p.section.value = { index: 2, childIndex: 0 };
     p.align.value = 'Right';
   });
 
