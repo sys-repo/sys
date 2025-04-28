@@ -1,7 +1,7 @@
 import React from 'react';
 import { Player } from '../../mod.ts';
 import { Button } from '../Button/mod.ts';
-import { type t, css, D, Signal } from './common.ts';
+import { type t, css, D, Signal, Str } from './common.ts';
 
 type P = t.VideoPlayerProps;
 
@@ -20,7 +20,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
   const video = Player.Video.signals({
     // loop: true,
     // autoPlay: true,
@@ -197,21 +196,46 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={styles.title.class}>{'Video:'}</div>
 
-      <Button
-        block
-        label={`src: ${p.src}`}
-        onClick={() =>
-          Signal.cycle(p.src, [
-            D.video, //           Default:  "tubes"
-            'vimeo/727951677', // Rowan:    "group scale"
-          ])
-        }
-      />
+      {videoButton(video, D.video)}
+      {videoButton(video, 'vimeo/727951677')}
+      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
+      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
 
       <hr />
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  srcLabel(input: string) {
+    if (!input.startsWith('https:')) return input;
+
+    // Shorten URL:
+    const path = new URL(input).pathname;
+    const filename = path.substring(path.lastIndexOf('/') + 1);
+    return `https: → ${filename}`;
+  },
+} as const;
+
+export function videoButton(video: t.VideoPlayerSignals, src: string) {
+  const p = video.props;
+  return (
+    <Button
+      block
+      label={`src: ${Str.truncate(wrangle.srcLabel(src), 30)}`}
+      onClick={() => {
+        p.src.value = src;
+      }}
+    />
+  );
+}
 
 function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
   const { video, prefix = 'elapsed' } = props;

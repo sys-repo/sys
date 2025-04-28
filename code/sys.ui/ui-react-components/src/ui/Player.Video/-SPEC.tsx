@@ -32,7 +32,14 @@ export default Spec.describe('VideoPlayer', (e) => {
 
     ctx.subject.display('grid').render((e) => {
       const p = debug.props;
-      return <VideoPlayer signals={video} debug={p.debug.value} theme={p.theme.value} />;
+      return (
+        <VideoPlayer
+          signals={video}
+          debug={p.debug.value}
+          theme={p.theme.value}
+          onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
+        />
+      );
     });
   });
 
