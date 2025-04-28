@@ -23,8 +23,10 @@ export default Spec.describe('MyComponent', (e) => {
     /**
      * Initial state:
      */
+    const p = debug.content.state.props;
+    p.debug.value = true;
+    p.section.value = { index: 0 };
     debug.props.theme.value = 'Light';
-    debug.content.state.props.section.value = { index: 0 };
   });
 
   e.it('ui:debug', (e) => {
