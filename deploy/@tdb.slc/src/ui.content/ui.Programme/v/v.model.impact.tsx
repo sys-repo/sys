@@ -10,8 +10,8 @@ export const impact: t.VideoMediaContent = {
   video: v(Impact.Entry.src),
   panel: 'impact',
   timestamps: {
-    '00:00:00.000': { main: () => image(dir.path('impact-model')) },
-    '00:00:05.000': { main: () => image(dir.path('impact-model-diagram')) },
+    '00:00:00.000': { main: () => image(dir.path('impact-model.png')) },
+    '00:00:05.000': { main: () => image(dir.path('impact-model-diagram.png')) },
   },
 
   children: [
@@ -19,7 +19,9 @@ export const impact: t.VideoMediaContent = {
       id: 'context',
       title: `Context`,
       video: v(Impact.Context.src),
-      timestamps: { '00:00:00.000': { main: () => image(dir.path('impact-model-diagram.png')) } },
+      timestamps: {
+        '00:00:00.000': { main: () => image(dir.path('impact-model-diagram.png')) },
+      },
     },
     {
       id: 'disclaimer',
