@@ -158,7 +158,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
       }}
       onEnded={(e) => {
         // Hack: force the Player back to the first-frame.
-        if (!loop) setPlayerKey((n) => n + 1);
+        if (!loop) setPlayerKeyCount((n) => n + 1);
         props.onEnded?.(e);
       }}
     >
