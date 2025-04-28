@@ -9,7 +9,6 @@ import {
   ObjectView,
   Player,
   Signal,
-  FadeElement,
 } from './common.ts';
 import { CalcSection } from './use.Section.Controller.ts';
 
@@ -48,16 +47,18 @@ export const Main: React.FC<MainProps> = (props) => {
   };
 
   const elBody = <div className={styles.body.class}>{timestamp.main}</div>;
-
   const elDebug = debug && (
     <>
       <ObjectView
         name={`${D.name}.Main`}
         data={{ props, timestamp }}
-        style={{ Absolute: [null, 25, 15, null] }}
-        expand={{ level: 1, paths: ['$', '$.timestamp'] }}
+        style={{ Absolute: [null, null, 15, 15] }}
+        expand={{
+          level: 0,
+          // paths: ['$', '$.timestamp'],
+        }}
       />
-      <Player.Timestamp.Elapsed.View player={player} abs={[5, 10, null, null]} show={debug} />
+      <Player.Timestamp.Elapsed.View player={player} abs={[null, 10, 5, null]} show={debug} />
     </>
   );
 
