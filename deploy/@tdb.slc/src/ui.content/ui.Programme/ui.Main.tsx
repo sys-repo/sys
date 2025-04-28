@@ -26,15 +26,19 @@ export const Main: React.FC<MainProps> = (props) => {
   const debug = state.props.debug.value ?? false;
   const player = CalcSection.player(state);
 
+  const [media, setMedia] = useState<t.VideoMediaContent>();
   const [timestamp, setTimestamp] = useState<t.RenderedTimestamp>({});
 
   /**
    * Effect: render current timestamp content.
    */
   Signal.useEffect(() => {
-    const media = CalcSection.media(state);
+    const media = CalcSection.media(state).child;
     const player = CalcSection.player(state);
-    CalcTimestamp.render(player, media.child?.timestamps).then((e) => setTimestamp(e));
+    CalcTimestamp.render(player, media?.timestamps).then((e) => {
+      setMedia(media);
+      setTimestamp(e);
+    });
   });
 
   /**

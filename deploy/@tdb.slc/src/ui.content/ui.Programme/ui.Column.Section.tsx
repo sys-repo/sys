@@ -68,6 +68,7 @@ export const Section: React.FC<P> = (props) => {
       <div ref={canvasRef} className={styles.canvas.class}>
         <LogoCanvas
           theme={theme.name}
+          selected={media?.panel}
           onReady={() => loading.ready('Canvas')}
           onPanelEvent={(e) => console.log(e.type, e)}
         />
@@ -78,7 +79,6 @@ export const Section: React.FC<P> = (props) => {
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
           selected={props.selected}
-
           onChildSelect={(e) => {
             const { index } = e;
             props.onSelect?.({ index });

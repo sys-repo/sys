@@ -76,6 +76,7 @@ export const ImageView: React.FC<P> = (props) => {
         placeItems: 'center',
       }),
       body: css({ display: 'grid', placeItems: 'center', rowGap: '12px' }),
+      src: css({ fontSize: 11, opacity: 0.5 }),
     },
   };
 
@@ -99,7 +100,7 @@ export const ImageView: React.FC<P> = (props) => {
     <div className={styles.error.base.class}>
       <div className={styles.error.body.class}>
         <Icons.Sad size={38} />
-        <div>{'( failed to load image )'}</div>
+        <div className={styles.error.src.class}>{`failed to load: ${src}`}</div>
       </div>
     </div>
   );
