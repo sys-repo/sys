@@ -1,4 +1,5 @@
-import type { MediaPlayerInstance } from '@vidstack/react';
+import type { MediaPlayerInstance, PlayerSrc } from '@vidstack/react';
+
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 import React, { useEffect, useRef, useState } from 'react';
@@ -32,7 +33,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const size = useSizeObserver();
   const [calcScale, setCalcScale] = useState<number>();
 
-  const [playerKey, setPlayerKey] = useState(0);
+  const [playerKeyCount, setPlayerKeyCount] = useState(0);
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
 
@@ -125,18 +126,22 @@ export const VideoPlayer: React.FC<P> = (props) => {
 
   const elPlayer = (
     <MediaPlayer
-      key={playerKey}
+      key={`${src}:${playerKeyCount}`}
       ref={playerRef}
       style={{
         transform: `scale(${calcScale ?? scale ?? 1})`,
         '--plyr-border-radius': `${cornerRadius}px`,
         '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}
+      // Hacks:
+      streamType={'on-demand'}
+      preload={'metadata'}
+      crossOrigin={'anonymous'}
       /**
        * Props:
        */
       title={props.title}
-      src={src}
+      src={wrangle.src(src)}
       playsInline={true}
       aspectRatio={aspectRatio}
       autoPlay={autoPlay}
@@ -184,5 +189,14 @@ const wrangle = {
     const scaleX = (width + increment) / width;
     const scaleY = (height + increment) / height;
     return Math.max(scaleX, scaleY); // NB: Return the greater scale factor to ensure both dimensions are increased by at least increment.
+  },
+
+  src(src: string): string | PlayerSrc {
+    if (src.startsWith('vimeo/')) return src;
+
+    const ext = src.split(/[?#]/, 1)[0].toLowerCase(); // NB: strip query/hash on URL.
+    if (ext.endsWith('.webm')) return { src, type: 'video/webm' };
+    if (ext.endsWith('.mp4')) return { src, type: 'video/mp4' };
+    return src;
   },
 } as const;
