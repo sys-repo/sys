@@ -1,6 +1,6 @@
 import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
 
-import { Array } from '../m.Value.Array/mod.ts';
+import { Array } from '../m.Value.Arr/mod.ts';
 import { Num } from '../m.Value.Num/mod.ts';
 import { Obj } from '../m.Value.Obj/mod.ts';
 import { Lorem, Str } from '../m.Value.Str/mod.ts';
