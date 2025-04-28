@@ -1,7 +1,8 @@
 import { Center, LogoWordmark, type t, VIDEO } from './common.ts';
-import { image, v, center } from './u.tsx';
+import { image, v, center, Dir } from './u.tsx';
 
 const Intro = VIDEO.Intro;
+const dir = Dir.programme.dir('start');
 
 export const start: t.VideoMediaContent = {
   id: 'start',
@@ -15,8 +16,8 @@ export const start: t.VideoMediaContent = {
       video: v(Intro.About.src),
       timestamps: {
         '00:00:00.000': { main: () => center(<LogoWordmark style={{ width: 200 }} />) },
-        '00:00:06.100': { main: () => image('/images/ui.Programme/start/slc-image.png') },
-        '00:00:10.000': { main: () => image('/images/ui.Programme/start/models.png') },
+        '00:00:06.100': { main: () => image(dir.path('slc-image.png')) },
+        '00:00:10.000': { main: () => image(dir.path('models.png')) },
         '00:00:32.290': {
           main: () => (
             <Center>
@@ -26,7 +27,22 @@ export const start: t.VideoMediaContent = {
         },
       },
     },
-    { id: 'how', title: `How to use the Canvas`, video: v(Intro.HowToUse.src), timestamps: {} },
-    { id: 'purpose', title: `Purpose`, video: v(Intro.Purpose.src), timestamps: {} },
+    {
+      id: 'how',
+      title: `How to use the Canvas`,
+      video: v(Intro.HowToUse.src),
+      timestamps: {
+        '00:00:00.000': { main: () => image(dir.path('slc-image.png')) },
+        '00:00:04.000': { main: () => image(dir.path('models.png')) },
+        '00:00:21.000': { main: () => image(dir.path('models-impact.png')) },
+      },
+    },
+    {
+      id: 'purpose',
+      title: `Purpose`,
+      video: v(Intro.Purpose.src),
+      panel: 'purpose',
+      timestamps: { '00:00:00.000': { main: () => image(dir.path('purpose.png')) } },
+    },
   ],
 };
