@@ -1,5 +1,5 @@
-import { Center, LogoWordmark, type t, VIDEO } from './common.ts';
-import { image, v, center, Dir } from './u.tsx';
+import { LogoWordmark, type t, VIDEO } from './common.ts';
+import { center, Dir, image, v } from './u.tsx';
 
 const Intro = VIDEO.Intro;
 const dir = Dir.programme.dir('start');
@@ -18,13 +18,7 @@ export const start: t.VideoMediaContent = {
         '00:00:00.000': { main: () => center(<LogoWordmark style={{ width: 200 }} />) },
         '00:00:06.100': { main: () => image(dir.path('slc-image.png')) },
         '00:00:10.000': { main: () => image(dir.path('models.png')) },
-        '00:00:32.290': {
-          main: () => (
-            <Center>
-              <LogoWordmark logo={'CC'} style={{ width: 400 }} />
-            </Center>
-          ),
-        },
+        '00:00:32.290': { main: () => center(<LogoWordmark logo={'CC'} style={{ width: 400 }} />) },
       },
     },
     {
