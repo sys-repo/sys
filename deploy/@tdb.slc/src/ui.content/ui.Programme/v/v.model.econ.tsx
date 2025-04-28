@@ -8,6 +8,7 @@ export const econ: t.VideoMediaContent = {
   id: 'model.econ',
   title: 'Economic Model',
   video: v(Economic.Entry.src),
+  panel: ['revenue', 'costs', 'channels', 'advantage'],
   timestamps: {
     '00:00:00.000': { main: () => image(dir.path('economic-model-1.png')) },
     '00:00:18.000': { main: () => image(dir.path('economic-model-2.png')) },

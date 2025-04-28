@@ -48,7 +48,11 @@ export function programmeSectionButtons(
     return (
       <Button
         block
-        label={() => `${children[index]?.title ?? '<undefined>'}`}
+        label={() => {
+          const title = children[index]?.title;
+          const bullet = title ? '- ' : '';
+          return `${bullet}${title ?? '<undefined>'}`;
+        }}
         onClick={() => {
           p.align.value = 'Right';
           p.section.value = { index };
@@ -61,13 +65,13 @@ export function programmeSectionButtons(
   return (
     <React.Fragment key={'dev.programme-sections'}>
       <div className={Styles.title.class}>{title}</div>
+      {config(-1)}
       {config(0)}
       {config(1)}
       {config(2)}
       {config(3)}
       {config(4)}
       {config(5)}
-      {config(-1)}
     </React.Fragment>
   );
 }

@@ -69,8 +69,9 @@ export const Section: React.FC<P> = (props) => {
         <LogoCanvas
           theme={theme.name}
           selected={wrangle.selectedPanel(props)}
+          selectionAnimation={false}
           onReady={() => loading.ready('Canvas')}
-          onPanelEvent={(e) => console.log(e.type, e)}
+          onPanelEvent={(e) => console.log(e.event, e)}
         />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>

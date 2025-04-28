@@ -47,7 +47,7 @@ export const Menu: React.FC<MenuProps> = (props) => {
     <LogoCanvas
       theme={theme.name}
       style={styles.canvas}
-      onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.type}`, e)}
+      onPanelEvent={(e) => console.log(`⚡️ onPanelEvent:${e.event}`, e)}
     />
   );
 

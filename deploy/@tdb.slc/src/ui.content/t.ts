@@ -40,7 +40,7 @@ export type VideoMediaContent = {
   id: t.StringId;
   title?: string;
   video: t.VideoPlayerSignals;
-  panel?: t.CanvasPanel;
+  panel?: t.CanvasPanel | t.CanvasPanel[];
   timestamps: ContentTimestamps;
   children?: VideoMediaContent[]; // ← Deep hierarhcy of media.
 };
