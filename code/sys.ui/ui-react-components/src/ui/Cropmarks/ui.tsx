@@ -91,7 +91,7 @@ const wrangle = {
     const [top, right, bottom, left] = wrangle.borderWidth(props);
     const { borderOpacity } = props;
     const opacity = typeof borderOpacity === 'number' ? borderOpacity : theme.is.dark ? 0.1 : 0.07;
-    const color = Color.alpha(theme.fg, opacity);
+    const color = Color.alpha(props.borderColor ?? theme.fg, opacity);
 
     if (opacity <= 0) return [];
 
