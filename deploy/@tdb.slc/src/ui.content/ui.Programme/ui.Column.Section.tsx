@@ -68,7 +68,7 @@ export const Section: React.FC<P> = (props) => {
       <div ref={canvasRef} className={styles.canvas.class}>
         <LogoCanvas
           theme={theme.name}
-          selected={media?.panel}
+          selected={wrangle.selectedPanel(props)}
           onReady={() => loading.ready('Canvas')}
           onPanelEvent={(e) => console.log(e.type, e)}
         />
@@ -95,3 +95,14 @@ export const Section: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  selectedPanel(props: P) {
+    const { media, selected } = props;
+    const child = typeof selected === 'number' ? media?.children?.[selected] : undefined;
+    return child?.panel ?? media?.panel;
+  },
+} as const;
