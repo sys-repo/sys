@@ -15,7 +15,7 @@ export const VIDEO = {
     Customer: {
       Entry: vimeo(577933592),
       Customers: vimeo(577928799),
-      Segments: vimeo(577928799),
+      Segments: vimeo(577928965),
       EarlyAdopters: vimeo(577929214),
       Jobs: vimeo(577933180),
       Alternatives: vimeo(577933435),
