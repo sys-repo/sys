@@ -1,5 +1,5 @@
 import { type t, VIDEO } from './common.ts';
-import { v } from './u.ts';
+import { v } from './u.tsx';
 
 const Economic = VIDEO.Model.Economic;
 

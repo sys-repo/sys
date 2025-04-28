@@ -1,5 +1,5 @@
 import { type t, VIDEO } from './common.ts';
-import { v } from './u.ts';
+import { v } from './u.tsx';
 
 export const conculsion: t.VideoMediaContent = {
   id: 'conculsion',
