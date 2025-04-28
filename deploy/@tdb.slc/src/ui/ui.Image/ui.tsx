@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { type t, Is, Color, css, Icons, Spinners } from './common.ts';
+import React, { useEffect, useState } from 'react';
+import { type t, Color, css, Is, Spinners } from './common.ts';
+import { ErrorMessage } from './ui.Error.tsx';
 
 type P = t.ImageViewProps;
 
@@ -66,18 +67,12 @@ export const ImageView: React.FC<P> = (props) => {
       placeItems: 'center',
       pointerEvents: 'none',
     }),
-    error: {
-      base: css({
-        Absolute: 0,
-        pointerEvents: 'none',
-        opacity: error ? 1 : 0,
-        transition: `opacity 400ms`,
-        display: 'grid',
-        placeItems: 'center',
-      }),
-      body: css({ display: 'grid', placeItems: 'center', rowGap: '12px' }),
-      src: css({ fontSize: 11, opacity: 0.5 }),
-    },
+    error: css({
+      Absolute: 0,
+      pointerEvents: 'none',
+      opacity: error ? 1 : 0,
+      transition: `opacity 400ms`,
+    }),
   };
 
   const elImg = (
@@ -96,14 +91,7 @@ export const ImageView: React.FC<P> = (props) => {
     </div>
   );
 
-  const elError = error && (
-    <div className={styles.error.base.class}>
-      <div className={styles.error.body.class}>
-        <Icons.Sad size={38} />
-        <div className={styles.error.src.class}>{`failed to load: ${src}`}</div>
-      </div>
-    </div>
-  );
+  const elError = error && <ErrorMessage src={src} theme={theme.name} style={styles.error} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
