@@ -68,8 +68,9 @@ export const Main: React.FC<MainProps> = (props) => {
 
   const elCropmarks = timestamp.main && (
     <Cropmarks
-      borderOpacity={debug ? 0.05 : 0}
       theme={props.theme}
+      borderOpacity={debug ? 0.2 : 0.02}
+      borderColor={debug ? Color.CYAN : undefined}
       size={{ mode: 'fill', margin: [50, 50, 50, 50], x: true, y: true }}
     >
       {elBody}
