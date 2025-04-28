@@ -1,5 +1,15 @@
 import React from 'react';
-import { type t, Button, CanvasPanel, css, D, Signal } from './common.ts';
+import {
+  type t,
+  asArray,
+  Button,
+  CanvasPanel,
+  css,
+  D,
+  ObjectView,
+  ReactEvent,
+  Signal,
+} from './common.ts';
 import { Selection } from './m.Selection.ts';
 
 /**
@@ -67,7 +77,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{D.name}</div>
 
       <Button
-        block={true}
+        block
         label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [undefined, 280, 400])}
       />
@@ -80,18 +90,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       {canvasSelectedButton(p.selected)}
 
+      <hr />
       <Button
-        block={true}
+        block
         label={() => {
           const value = Selection.animation(p.selectionAnimation.value);
-          return `selectionAnimation.loop: ${value.loop ?? '<undefined>'}`;
+          return `selectionAnimation.loop: ${value?.loop ?? '<undefined>'}`;
         }}
         onClick={() => {
-          const next = Selection.animation(p.selectionAnimation.value);
+          let next = Selection.animation(p.selectionAnimation.value);
+          if (!next) next = D.selectionAnimation;
           next.loop = !(next.loop ?? D.selectionAnimation.loop);
           p.selectionAnimation.value = next;
         }}
       />
+      <Button
+        block
+        label={() => `selectionAnimation: (set false)`}
+        onClick={() => (p.selectionAnimation.value = false)}
+      />
+
+      <hr />
+      {canvasSelectedButtonList(p.selected, p.selectionAnimation)}
+
+      <hr />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={{ paths: ['$'] }} />
     </div>
   );
 };
@@ -102,7 +125,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 export function canvasSelectedButton(signal: t.Signal<P['selected']>) {
   return (
     <Button
-      block={true}
+      block
       label={() => {
         const value = signal.value;
         const fmt = Array.isArray(value) ? `array[${value.length}]` : value ?? '<undefined>';
@@ -110,5 +133,39 @@ export function canvasSelectedButton(signal: t.Signal<P['selected']>) {
       }}
       onClick={() => Signal.cycle(signal, [undefined, CanvasPanel.list, 'purpose'])}
     />
+  );
+}
+
+/**
+ * Dev: List of "Canvas Panel" selectiron buttons.
+ */
+export function canvasSelectedButtonList(
+  selected: t.Signal<P['selected']>,
+  selectionAnimation: t.Signal<P['selectionAnimation']>,
+) {
+  const buttons = CanvasPanel.list.map((panel) => {
+    return (
+      <Button
+        block
+        key={panel}
+        label={() => `- ${panel}`}
+        onClick={(e) => {
+          const key = ReactEvent.modifiers(e);
+          if (key.shift) {
+            selected.value = CanvasPanel.merge(selected.value, panel);
+            selectionAnimation.value = false; // NB: disabled animation on manual selection.
+          } else {
+            selected.value = panel;
+          }
+        }}
+      />
+    );
+  });
+
+  return (
+    <React.Fragment key={'canvas-selected-button-list'}>
+      <div className={Styles.title.class}>{'Panels:'}</div>
+      {buttons}
+    </React.Fragment>
   );
 }

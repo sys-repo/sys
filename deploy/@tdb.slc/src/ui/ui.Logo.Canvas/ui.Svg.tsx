@@ -4,7 +4,7 @@ import { useMouse } from './use.Mouse.tsx';
 import { useTheme } from './use.Theme.ts';
 
 export type SvgImageProps = {
-  selected?: t.CanvasPanel;
+  selected?: t.CanvasPanel | t.CanvasPanel[];
   over?: t.CanvasPanel;
   bgBlur?: number;
 

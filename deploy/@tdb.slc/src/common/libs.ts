@@ -1,4 +1,5 @@
 export {
+  asArray,
   Err,
   Is,
   isRecord,

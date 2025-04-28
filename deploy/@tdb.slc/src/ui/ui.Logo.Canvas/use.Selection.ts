@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { type t, Time } from './common.ts';
 import { Selection } from './m.Selection.ts';
 
-type P = t.LogoCanvasProps;
-
 export function useSelection(props: t.LogoCanvasProps) {
   const animation = Selection.animation(props.selectionAnimation);
-  const [selected, setSeleted] = useState<t.CanvasPanel>();
+  const [selected, setSeleted] = useState<t.CanvasPanel | t.CanvasPanel[]>();
 
   /**
    * Effect: keep selected state up-to-date.
@@ -15,7 +13,8 @@ export function useSelection(props: t.LogoCanvasProps) {
     const time = Time.until();
 
     async function animateSelected(list: t.CanvasPanel[]) {
-      if (time.disposed) return;
+      if (time.disposed || !animation) return;
+
       for (const value of list) {
         if (time.disposed) break;
         setSeleted(value);
@@ -25,7 +24,11 @@ export function useSelection(props: t.LogoCanvasProps) {
     }
 
     if (Array.isArray(props.selected)) {
-      animateSelected(props.selected);
+      if (animation) {
+        animateSelected(props.selected);
+      } else {
+        setSeleted(props.selected);
+      }
     } else {
       setSeleted(props.selected);
     }
@@ -33,9 +36,9 @@ export function useSelection(props: t.LogoCanvasProps) {
     return time.dispose;
   }, [
     // Deps:
-    Selection.selected(props.selected).join(':'),
-    animation.delay,
-    animation.loop,
+    Selection.selected(props.selected).join('|'),
+    animation?.delay,
+    animation?.loop,
   ]);
 
   /**

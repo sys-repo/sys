@@ -1,6 +1,6 @@
 import { type t, Dev, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { css, Signal } from './common.ts';
+import { css, Signal, ReactEvent, CanvasPanel } from './common.ts';
 import { LogoCanvas } from './mod.ts';
 
 export default Spec.describe('Logo.Canvas', (e) => {
@@ -15,9 +15,14 @@ export default Spec.describe('Logo.Canvas', (e) => {
         selectionAnimation={p.selectionAnimation.value}
         over={p.over.value}
         onPanelEvent={(e) => {
-          if (e.type === 'leave' && p.over.value === e.panel) p.over.value = undefined;
-          if (e.type === 'enter') p.over.value = e.panel;
-          if (e.type === 'click') p.selected.value = e.panel;
+          if (e.event === 'leave' && p.over.value === e.panel) p.over.value = undefined;
+          if (e.event === 'enter') p.over.value = e.panel;
+          if (e.event === 'click') {
+            const current = p.selected.value;
+            const next = e.modifier.shift ? CanvasPanel.merge(current, e.panel) : e.panel;
+            p.selected.value = next;
+            p.selectionAnimation.value = false; // NB: disabled animation on manual selection.
+          }
         }}
         onReady={() => console.info(`⚡️ onReady`)}
       />
