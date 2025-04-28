@@ -11,8 +11,6 @@ import { children } from './v.ts';
  * Content: "Programme"
  */
 export function factory() {
-  const sheetTheme = DEFAULTS.theme.sheet;
-
   /**
    * Content definition:
    */
@@ -34,7 +32,7 @@ export function factory() {
       return (
         <Programme
           state={content.state}
-          theme={sheetTheme}
+          theme={DEFAULTS.theme.sheet}
           isTop={props.is.top}
           onCloseRequest={() => global.stack.pop()}
         />
