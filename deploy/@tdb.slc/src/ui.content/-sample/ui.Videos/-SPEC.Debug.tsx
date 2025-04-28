@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Player, Signal, VIDEO } from './common.ts';
+import { type t, Button, Color, css, Player, Signal, VIDEO, Str } from './common.ts';
 
 /**
  * Types:
@@ -68,8 +68,8 @@ export const Debug: React.FC<P> = (props) => {
     return (
       <Button block onClick={() => (s.src.value = src)}>
         <div className={styles.base.class}>
-          <div className={styles.label.class}>{label}</div>
-          <div>{src}</div>
+          <div className={styles.label.class}>{Str.truncate(label, 30)}</div>
+          <div>{Str.truncate(src, 30)}</div>
         </div>
       </Button>
     );
@@ -99,6 +99,7 @@ export const Debug: React.FC<P> = (props) => {
       <hr />
       {video('ref: "Group Scale"', VIDEO.GroupScale.src)}
       {video('sample: Hindi Translation', 'vimeo/1074559094')}
+      {video('orbiter', 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
     </div>
   );
 };
