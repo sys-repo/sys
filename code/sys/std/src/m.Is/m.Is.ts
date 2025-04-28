@@ -42,8 +42,8 @@ export const Is: t.StdIsLib = {
     );
   },
 
-  nil(input?: any) {
-    return input === undefined || input === null;
+  nil(input?: any): input is null | undefined {
+    return input == null;
   },
 
   promise<T = any>(input?: any): input is Promise<T> {

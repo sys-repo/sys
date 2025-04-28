@@ -11,9 +11,9 @@ export type StdIsLib = {
   falsy(input?: unknown): input is t.Falsy | typeof NaN;
 
   /**
-   * Determine if the input is undefined or null.
+   * Determine if the input is nill (undefined or null).
    */
-  nil(input?: unknown): boolean;
+  nil(input?: unknown): input is null | undefined;
 
   /**
    * Determine if the input is an object implementing the <t.Disposable> interface.
