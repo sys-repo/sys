@@ -1,9 +1,14 @@
 import { type t, VIDEO } from './common.ts';
-import { v } from './u.tsx';
+import { Dir, image, v } from './u.tsx';
+
+const dir = Dir.programme.dir('metrics');
 
 export const metrics: t.VideoMediaContent = {
   id: 'metrics',
   title: 'Key Metrics',
+  panel: 'metrics',
   video: v(VIDEO.KeyMetrics.src),
-  timestamps: {},
+  timestamps: {
+    '00:00:00.000': { main: () => image(dir.path('key-metrics.png')) },
+  },
 };
