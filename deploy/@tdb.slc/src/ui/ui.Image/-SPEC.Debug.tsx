@@ -1,6 +1,6 @@
 import React from 'react';
 import { IMAGE } from '../../ui.content/ui.Overview/common.ts';
-import { type t, Button, css, Signal } from './common.ts';
+import { type t, Button, css, Signal, ObjectView } from './common.ts';
 
 type P = t.ImageViewProps;
 
@@ -66,6 +66,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `padding: ${p.padding.value ?? '<undefined>'}`}
+        onClick={() => {
+          Signal.cycle<P['padding']>(p.padding, [undefined, 30, '20%', [10, 20, 50, 80]]);
+        }}
+      />
+
+      <hr />
 
       <Button
         block
@@ -80,13 +89,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `padding: ${p.padding.value ?? '<undefined>'}`}
+        label={() => `src = 💥 ← error`}
         onClick={() => {
-          Signal.cycle<P['padding']>(p.padding, [undefined, 30, '20%', [10, 20, 50, 80]]);
+          p.src.value = 'path/to/404.png';
         }}
       />
 
       <hr />
+      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} />
     </div>
   );
 };
