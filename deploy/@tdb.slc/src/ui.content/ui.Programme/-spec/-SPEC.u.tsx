@@ -20,14 +20,12 @@ export const Styles = {
 export function videoPlayerButton(state: t.ProgrammeSignals) {
   const player = CalcSection.player(state);
   if (!player) return <div>{`(no video player)`}</div>;
-
-  const p = player.props;
   return (
     <Button
       block
-      label={() => `[ Video ]: playing: ${p.playing.value}`}
+      label={() => `[ Video ]: playing: ${player.props.playing.value}`}
       onClick={() => player.toggle()}
-      subscribe={() => p.playing.value}
+      subscribe={() => player.props.playing.value}
     />
   );
 }

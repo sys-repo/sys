@@ -64,11 +64,15 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
       <ConceptPlayer
         debug={debug}
         theme={'Light'}
+        // Column:
         columnAlign={align}
         columnVideo={player}
+        columnVideoVisible={!isCenter}
         columnBody={isCenter ? elRootMenu : elSection}
+        // Content:
         contentTitle={controller.section.title}
         contentBody={elContentBody}
+        // Event handlers:
         onBackClick={() => controller.onBackClick()}
         onClickOutsideColumn={(e) => {
           // NB: Only clicking outside the column but within the SLC app.
