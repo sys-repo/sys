@@ -89,6 +89,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         expand={{ paths: ['$', '$.state', '$.state.component', '$.state.component.props'] }}
         margin={[20, 0]}
       />
+
+      <ObjectView
+        name={':state'}
+        data={Signal.toObject(debug.content.state.props)}
+        expand={{ paths: ['$', '$.section'] }}
+        margin={[20, 0]}
+      />
     </div>
   );
 };
