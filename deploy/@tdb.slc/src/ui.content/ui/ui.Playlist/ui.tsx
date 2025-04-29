@@ -19,11 +19,7 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
       fontSize: 16,
       userSelect: 'none',
     }),
-    body: css({
-      position: 'relative',
-      display: 'grid',
-      paddingTop,
-    }),
+    body: css({ position: 'relative', display: 'grid', paddingTop }),
     list: css({ display: 'grid', alignContent: 'start' }),
     line: css({
       Absolute: [0, null, 18, D.bulletSize / 2 - 0.5],
