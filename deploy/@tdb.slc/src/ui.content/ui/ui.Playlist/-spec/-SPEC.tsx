@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Playlist } from './mod.ts';
+import { Playlist } from '../mod.ts';
 
 export default Spec.describe('Playlist', (e) => {
   const debug = createDebugSignals();

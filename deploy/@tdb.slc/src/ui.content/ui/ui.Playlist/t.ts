@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type PlaylistProps = {
   debug?: boolean;
-  items?: t.VideoMediaContent[];
+  items?: (t.PlaylistItem | undefined)[];
   selected?: t.Index;
   filled?: t.Index[];
 
@@ -18,3 +18,8 @@ export type PlaylistProps = {
   // Events:
   onChildSelect?: (e: { item: t.VideoMediaContent; index: t.Index }) => void;
 };
+
+/**
+ * Item within a playlist.
+ */
+export type PlaylistItem = t.VideoMediaContent | '---';

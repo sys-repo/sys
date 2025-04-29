@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { Hr } from './ui.Hr.tsx';
 import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
@@ -23,19 +24,24 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
       display: 'grid',
       paddingTop,
     }),
-    list: css({
-      display: 'grid',
-      alignContent: 'start',
-      rowGap: gap,
-    }),
+    list: css({ display: 'grid', alignContent: 'start' }),
     line: css({
       Absolute: [0, null, 12, D.bulletSize / 2 - 0.5],
       backgroundColor: Color.alpha(theme.fg, 0.12),
       width: 1,
     }),
+    item: css({ MarginY: gap / 2 }),
+    hr: css({ marginLeft: 20 }),
   };
 
-  const row = (media: t.VideoMediaContent, index: number) => {
+  const row = (item: t.PlaylistItem | undefined, index: number) => {
+    if (!item) return null;
+
+    if (typeof item === 'string') {
+      return <Hr key={`hr.${index}`} theme={theme.name} style={styles.hr} />;
+    }
+
+    const media = item;
     const isSelected = index === props.selected;
     const isFilled = filled ? filled.includes(index) : false;
     return (
@@ -46,6 +52,7 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
         selected={isSelected}
         filled={isFilled}
         theme={theme.name}
+        style={styles.item}
         onClick={props.onChildSelect}
       />
     );
@@ -55,7 +62,7 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div className={styles.line.class} />
-        <div className={styles.list.class}>{items.map((media, i) => row(media, i))}</div>
+        <div className={styles.list.class}>{items.map((item, i) => row(item, i))}</div>
       </div>
     </div>
   );
