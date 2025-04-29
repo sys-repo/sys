@@ -26,7 +26,7 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
     }),
     list: css({ display: 'grid', alignContent: 'start' }),
     line: css({
-      Absolute: [0, null, 12, D.bulletSize / 2 - 0.5],
+      Absolute: [0, null, 18, D.bulletSize / 2 - 0.5],
       backgroundColor: Color.alpha(theme.fg, 0.12),
       width: 1,
     }),
