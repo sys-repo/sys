@@ -7,7 +7,7 @@ const dir = Dir.programme.dir('model.customer');
 export const customer: t.VideoMediaContent = {
   id: 'model.customer',
   title: 'Customer Model',
-  panel: 'customers',
+  panel: ['problem', 'solution', 'uvp', 'customers'],
   video: v(Customer.Entry.src),
   timestamps: {
     '00:00:00.000': { main: () => image(dir.path('customer-model.png')) },
