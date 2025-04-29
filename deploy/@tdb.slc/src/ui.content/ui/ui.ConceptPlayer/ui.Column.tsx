@@ -6,6 +6,7 @@ export type ColumnProps = {
   align: t.ConceptPlayerAlign;
   body?: t.ReactNode;
   video?: t.VideoPlayerSignals;
+  videoVisible?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClickOutside?: t.DomMouseEventHandler;
@@ -15,7 +16,7 @@ export type ColumnProps = {
  * Component:
  */
 export const Column: React.FC<ColumnProps> = (props) => {
-  const { align, debug = false } = props;
+  const { align, debug = false, videoVisible = true } = props;
   const isCenter = align === 'Center';
   const player = props.video;
   const src = player?.props.src?.value ?? '';
@@ -38,7 +39,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
       gridTemplateRows: `1fr auto`,
     }),
     body: css({ display: 'grid' }),
-    video: css({ display: 'grid' }),
+    video: css({ display: videoVisible ? 'grid' : 'none' }),
   };
 
   return (

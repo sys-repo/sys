@@ -6,9 +6,9 @@ import { Content } from './ui.Content.tsx';
 type P = t.ConceptPlayerProps;
 
 export const Body: React.FC<P> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, columnWidth = D.columnWidth } = props;
+  const videoVisible = props.columnVideoVisible ?? D.columnVideoVisible;
   const align = props.columnAlign ?? D.columnAlign;
-  const columnWidth = props.columnWidth ?? D.columnWidth;
   const isCenter = align === 'Center';
 
   /**
@@ -39,6 +39,7 @@ export const Body: React.FC<P> = (props) => {
       align={align}
       body={props.columnBody}
       video={props.columnVideo}
+      videoVisible={videoVisible}
       theme={theme.name}
       style={styles.column}
       onClickOutside={props.onClickOutsideColumn}

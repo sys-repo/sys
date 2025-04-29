@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Player, Signal } from './common.ts';
 import { VIDEO } from '../../-VIDEO.ts';
+import { type t, Button, css, D, ObjectView, Player, Signal } from './common.ts';
 
 type P = t.ConceptPlayerProps;
 
@@ -29,19 +29,22 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     contentBody: s<P['contentBody']>(),
     columnAlign: s<P['columnAlign']>(D.columnAlign),
     columnVideo: s<P['columnVideo']>(video),
+    columnVideoVisible: s<P['columnVideoVisible']>(D.columnVideoVisible),
   };
-  const p = props;
   const api = {
     props,
     listen() {
+      const p = props;
       p.debug.value;
       p.theme.value;
-      p.columnAlign.value;
       p.contentTitle.value;
       p.contentBody.value;
+      p.columnAlign.value;
+      p.columnVideoVisible.value;
       video.props.playing.value;
     },
     get is() {
+      const p = props;
       return {
         debug: p.debug.value ?? false,
         center: p.columnAlign.value === 'Center',
@@ -95,8 +98,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={`align: ${p.columnAlign.value ?? '<undefined>'}`}
+        label={`columnAlign: ${p.columnAlign.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['columnAlign']>(p.columnAlign, ['Center', 'Right'])}
+      />
+      <Button
+        block
+        label={`columnVideoVisible: ${p.columnVideoVisible.value ?? '<undefined>'}`}
+        onClick={() => Signal.toggle(p.columnVideoVisible)}
       />
 
       <hr />

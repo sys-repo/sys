@@ -33,6 +33,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
             columnAlign={p.columnAlign.value}
             columnBody={<SampleBody debug={debug} />}
             columnVideo={p.columnVideo.value}
+            columnVideoVisible={p.columnVideoVisible.value}
             // Events:
             onBackClick={() => (p.columnAlign.value = 'Center')}
           />

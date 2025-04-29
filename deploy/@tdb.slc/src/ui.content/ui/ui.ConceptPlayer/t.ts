@@ -12,6 +12,7 @@ export type ConceptPlayerProps = {
   columnWidth?: t.Pixels;
   columnBody?: t.ReactNode;
   columnVideo?: t.VideoPlayerSignals;
+  columnVideoVisible?: boolean;
   contentTitle?: t.ReactNode;
   contentBody?: t.ReactNode;
   theme?: t.CommonTheme;
