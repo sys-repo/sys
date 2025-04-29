@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 import { SpecsExternal } from './entry.Specs.External.ts';
 
 /**
- * Module Components
+ * Module Components:
  */
 export const SpecsComponents = {
   'tdb.slc.entry.Landing-1': () => import('../ui/ui.Landing-1/-SPEC.tsx'),
@@ -24,13 +24,13 @@ export const SpecsComponents = {
 } as t.SpecImports;
 
 /**
- * Content Modules
+ * Content Modules:
  */
 export const SpecsContent = {
   'tdb.slc.content.videos: (index)': () => import('../ui.content/-sample/ui.Videos/-SPEC.tsx'),
   'tdb.slc.content.ui.ConceptPlayer': () => import('../ui.content/ui/ui.ConceptPlayer/-SPEC.tsx'),
   'tdb.slc.content.ui.CanvasSlug': () => import('../ui.content/ui/ui.CanvasSlug/-SPEC.tsx'),
-  'tdb.slc.content.ui.Playlist': () => import('../ui.content/ui/ui.Playlist/-SPEC.tsx'),
+  'tdb.slc.content.ui.Playlist': () => import('../ui.content/ui/ui.Playlist/-spec/-SPEC.tsx'),
   'tdb.slc.content.ui.MenuList': () => import('../ui.content/ui/ui.MenuList/-SPEC.tsx'),
 
   'tdb.slc.content: Programme': () => import('../ui.content/ui.Programme/-spec/-SPEC.tsx'),
