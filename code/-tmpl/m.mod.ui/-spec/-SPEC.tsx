@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MyComponent } from './mod.ts';
+import { MyComponent } from '../mod.ts';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
