@@ -9,6 +9,7 @@ import {
   useSizeObserver,
   useVisibilityThresholdY,
 } from './common.ts';
+import { toSectionPlaylist } from './u.ts';
 
 type P = t.ProgrammeSectionProps;
 type Part = 'Canvas';
@@ -58,9 +59,7 @@ export const Section: React.FC<P> = (props) => {
       Padding: [35, '18%', 0, '18%'],
       Absolute: canvas.visible ? undefined : [-9999, null, null, -9999],
     }),
-    playlist: css({
-      marginLeft: 85,
-    }),
+    playlist: css({ marginLeft: 85 }),
   };
 
   const elBody = (
@@ -71,12 +70,12 @@ export const Section: React.FC<P> = (props) => {
           selected={wrangle.selectedPanel(props)}
           selectionAnimation={false}
           onReady={() => loading.ready('Canvas')}
-          onPanelEvent={(e) => console.log(e.event, e)}
+          onPanelEvent={(e) => console.info(`⚡️ Canvas.onPanelEvent:`, e)}
         />
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
         <Playlist
-          items={media?.children}
+          items={toSectionPlaylist(media)}
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
           selected={props.selected}

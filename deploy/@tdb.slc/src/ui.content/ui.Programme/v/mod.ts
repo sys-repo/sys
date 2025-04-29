@@ -1,3 +1,4 @@
+import { toSectionPlaylist } from '../u.ts';
 import type { t } from './common.ts';
 import { conculsion } from './v.conclusion.tsx';
 import { metrics } from './v.metrics.tsx';
@@ -15,4 +16,7 @@ export const children: t.VideoMediaContent[] = [
   conculsion,
 ];
 
-export const Programme = { children } as const;
+export const Programme = {
+  children,
+  toSectionPlaylist,
+} as const;
