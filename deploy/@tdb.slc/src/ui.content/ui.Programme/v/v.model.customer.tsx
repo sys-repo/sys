@@ -10,13 +10,13 @@ export const customer: t.VideoMediaContent = {
   panel: 'customers',
   video: v(Customer.Entry.src),
   timestamps: {
-    '00:00:00.000': { main: () => image(dir.path('customer-model-image.png')) },
-    '00:00:12.000': { main: () => image(dir.path('model-overview-image.png')) },
-    '00:00:14.000': { main: () => image(dir.path('model-customers-image.png')) },
-    '00:00:15.000': { main: () => image(dir.path('model-jobs-image.png')) },
-    '00:00:16.000': { main: () => image(dir.path('model-uvp-image.png')) },
-    '00:00:21.000': { main: () => image(dir.path('model-solution-image.png')) },
-    '00:00:26.000': { main: () => image(dir.path('model-overview-image.png')) },
+    '00:00:00.000': { main: () => image(dir.path('customer-model.png')) },
+    '00:00:12.000': { main: () => image(dir.path('model-overview.png')) },
+    '00:00:14.000': { main: () => image(dir.path('model-customers.png')) },
+    '00:00:15.000': { main: () => image(dir.path('model-jobs.png')) },
+    '00:00:16.000': { main: () => image(dir.path('model-uvp.png')) },
+    '00:00:21.000': { main: () => image(dir.path('model-solution.png')) },
+    '00:00:26.000': { main: () => image(dir.path('model-overview.png')) },
   },
   children: [
     {

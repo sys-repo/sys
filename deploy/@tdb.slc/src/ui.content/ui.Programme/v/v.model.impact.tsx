@@ -8,7 +8,7 @@ export const impact: t.VideoMediaContent = {
   id: 'model.impact',
   title: 'Impact Model',
   video: v(Impact.Entry.src),
-  panel: 'impact',
+  panel: ['impact', 'solution', 'uvp', 'customers'],
   timestamps: {
     '00:00:00.000': { main: () => image(dir.path('impact-model.png')) },
     '00:00:05.000': { main: () => image(dir.path('impact-model-diagram.png')) },
