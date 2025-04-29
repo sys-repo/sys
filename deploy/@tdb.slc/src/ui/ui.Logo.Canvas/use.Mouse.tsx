@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-
 import { type t, ReactEvent } from './common.ts';
 import { Theme } from './u.ts';
 
@@ -46,8 +45,7 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
     const color = Theme.color(theme);
 
     const updateOpacity = () => {
-      const isOver = over === panel;
-      const opacity = isSelected ? 1 : isOver ? 0.2 : 0;
+      const opacity = wrangle.selectionOpacity(panel, options);
       svgPanel?.opacity(opacity);
       svgPanel?.fill(color);
     };
@@ -84,5 +82,17 @@ const wrangle = {
     if (!selected) return false;
     if (Array.isArray(selected)) return selected.includes(panel);
     return selected === panel;
+  },
+
+  selectionOpacity(panel: t.CanvasPanel, options: Options = {}): t.Percent {
+    const { selected, over } = options;
+    const isOver = over === panel;
+    const isSelected = wrangle.isSelected(panel, options);
+    if (isSelected) {
+      const isMultiSelect = Array.isArray(selected);
+      return isMultiSelect ? 0.7 : 1;
+    } else {
+      return isOver ? 0.2 : 0;
+    }
   },
 } as const;
