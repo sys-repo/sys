@@ -40,14 +40,12 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
 
   const elRootMenu = (
     <Menu
-      //
       debug={debug}
       media={controller.media}
       onSelect={(e) => controller.onSelectSection(e.index)}
     />
   );
 
-  const player = controller.section.player;
   const elSection = controller.section.media && (
     <Section
       debug={debug}
@@ -57,7 +55,13 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     />
   );
 
-  const elContentBody = controller.section.media && <Main state={state} />;
+  const elContentBody = controller.section.media && (
+    <Main
+      debug={debug}
+      media={controller.section.media.section}
+      selected={controller.section.index.child}
+    />
+  );
 
   return (
     <div className={css(styles.base).class}>
@@ -66,7 +70,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         theme={'Light'}
         // Column:
         columnAlign={align}
-        columnVideo={player}
+        columnVideo={controller.section.player}
         columnVideoVisible={!isCenter}
         columnBody={isCenter ? elRootMenu : elSection}
         // Content:

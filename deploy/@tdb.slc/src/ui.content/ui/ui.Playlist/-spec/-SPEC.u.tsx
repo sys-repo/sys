@@ -42,7 +42,8 @@ export function itemsButtons(signal: t.Signal<P['items']>, options: { title?: st
   };
 
   const Media = Programme.Media;
-  Media.children.forEach((m) => btn(Media.toSectionPlaylist(m), `${m.title ?? 'Untitled'}`));
+  const Calc = Programme.Calc;
+  Media.children.forEach((m) => btn(Calc.Section.toPlaylist(m), `${m.title ?? 'Untitled'}`));
   btn();
 
   return (

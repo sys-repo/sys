@@ -1,45 +1,35 @@
 import React, { useState } from 'react';
-import {
-  type t,
-  CalcTimestamp,
-  Color,
-  Cropmarks,
-  css,
-  D,
-  ObjectView,
-  Player,
-  Signal,
-} from './common.ts';
-import { CalcSection } from './use.Section.Controller.ts';
+import { type t, Color, Cropmarks, css, D, ObjectView, Player, rx, Signal } from './common.ts';
+import { Calc } from './u.ts';
 
-export type MainProps = {
-  state: t.ProgrammeSignals;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
+type P = t.ProgrammeMainProps;
 
 /**
  * Component:
  */
-export const Main: React.FC<MainProps> = (props) => {
-  const { state } = props;
-  const debug = state.props.debug.value ?? false;
-  const player = CalcSection.player(state);
+export const Main: React.FC<P> = (props) => {
+  const { media, selected, debug = false } = props;
 
-  const [media, setMedia] = useState<t.VideoMediaContent>();
+  const [player, setPlayer] = useState<t.VideoPlayerSignals>();
   const [timestamp, setTimestamp] = useState<t.RenderedTimestamp>({});
 
   /**
    * Effect: render current timestamp content.
    */
-  Signal.useEffect(() => {
-    const media = CalcSection.media(state).child;
-    const player = CalcSection.player(state);
-    CalcTimestamp.render(player, media?.timestamps).then((e) => {
-      setMedia(media);
+  React.useEffect(() => {
+    const life = rx.lifecycle();
+    const playlist = Calc.Section.toPlaylist(media);
+    const current = playlist[selected ?? 0];
+    const player = current?.video;
+
+    Calc.Timestamp.render(player, current?.timestamps).then((e) => {
+      if (life.disposed) return;
       setTimestamp(e);
+      setPlayer(player);
     });
-  });
+
+    return life.dispose;
+  }, [selected, media?.id]);
 
   /**
    * Render:
@@ -55,7 +45,7 @@ export const Main: React.FC<MainProps> = (props) => {
     <>
       <ObjectView
         name={`${D.name}.Main`}
-        data={{ props, timestamp }}
+        data={Signal.toObject({ props, timestamp })}
         style={{ Absolute: [null, null, 15, 15] }}
         expand={{
           level: 0,

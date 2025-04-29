@@ -1,4 +1,4 @@
-import { type t, Signal } from './common.ts';
+import { type t } from './common.ts';
 import { useSectionController } from './use.Section.Controller.ts';
 
 export function useProgrammeController(state: t.ProgrammeSignals) {
@@ -15,7 +15,6 @@ export function useProgrammeController(state: t.ProgrammeSignals) {
    */
   const api = {
     section,
-
     get media() {
       return media.value;
     },

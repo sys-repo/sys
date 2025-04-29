@@ -1,7 +1,5 @@
 import { type t } from './common.ts';
-import { CalcSection } from './use.Section.Controller.calc.ts';
-
-export { CalcSection };
+import { CalcSection } from './u.ts';
 
 /**
  * Controls an individual section

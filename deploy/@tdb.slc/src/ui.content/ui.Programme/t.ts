@@ -35,10 +35,21 @@ export type ProgrammeProps = {
  * <Component>: Section
  */
 export type ProgrammeSectionProps = {
+  debug?: boolean;
   selected?: t.Index;
   media?: t.VideoMediaContent;
-  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onSelect?: (e: { index: t.Index }) => void;
+};
+
+/**
+ * <Component>: Main
+ */
+export type ProgrammeMainProps = {
+  debug?: boolean;
+  selected?: t.Index;
+  media?: t.VideoMediaContent;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };

@@ -9,7 +9,7 @@ import {
   useSizeObserver,
   useVisibilityThresholdY,
 } from './common.ts';
-import { toSectionPlaylist } from './u.ts';
+import { Calc } from './u.ts';
 
 type P = t.ProgrammeSectionProps;
 type Part = 'Canvas';
@@ -77,7 +77,7 @@ export const Section: React.FC<P> = (props) => {
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
         <Playlist
-          items={toSectionPlaylist(media)}
+          items={Calc.Section.toPlaylist(media)}
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
           selected={props.selected}
@@ -102,9 +102,13 @@ export const Section: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  selectedPanel(props: P) {
+  media(props: P) {
     const { media, selected } = props;
     const child = typeof selected === 'number' ? media?.children?.[selected] : undefined;
-    return child?.panel ?? media?.panel;
+    return child ?? media;
+  },
+  selectedPanel(props: P) {
+    const media = wrangle.media(props);
+    return media?.panel;
   },
 } as const;
