@@ -59,7 +59,9 @@ export const Section: React.FC<P> = (props) => {
       Padding: [35, '18%', 0, '18%'],
       Absolute: canvas.visible ? undefined : [-9999, null, null, -9999],
     }),
-    playlist: css({ marginLeft: 85 }),
+    playlist: css({
+      MarginX: [85, 50],
+    }),
   };
 
   const elBody = (

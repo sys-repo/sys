@@ -8,19 +8,13 @@ export const start: t.VideoMediaContent = {
   id: 'start',
   title: 'Getting Started',
   video: v(Intro.About.src),
-  timestamps: {},
+  timestamps: {
+    '00:00:00.000': { main: () => center(<LogoWordmark style={{ width: 200 }} />) },
+    '00:00:06.100': { main: () => image(dir.path('slc-image.png')) },
+    '00:00:10.000': { main: () => image(dir.path('models.png')) },
+    '00:00:32.290': { main: () => center(<LogoWordmark logo={'CC'} style={{ width: 400 }} />) },
+  },
   children: [
-    {
-      id: 'about',
-      title: `About this Programme`,
-      video: v(Intro.About.src),
-      timestamps: {
-        '00:00:00.000': { main: () => center(<LogoWordmark style={{ width: 200 }} />) },
-        '00:00:06.100': { main: () => image(dir.path('slc-image.png')) },
-        '00:00:10.000': { main: () => image(dir.path('models.png')) },
-        '00:00:32.290': { main: () => center(<LogoWordmark logo={'CC'} style={{ width: 400 }} />) },
-      },
-    },
     {
       id: 'how',
       title: `How to use the Canvas`,
