@@ -71,7 +71,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} />
+      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={['$']} />
     </div>
   );
 };
