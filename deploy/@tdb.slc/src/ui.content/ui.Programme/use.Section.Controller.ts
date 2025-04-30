@@ -1,6 +1,6 @@
 import { useState } from 'react';
-
 import { type t, Signal } from './common.ts';
+import { toPlaylist } from './u.playlist.ts';
 import { CalcSection } from './u.ts';
 
 type M = {
@@ -12,14 +12,26 @@ type M = {
 /**
  * Controls an individual section
  */
-export function useSectionController(state: t.ProgrammeSignals) {
+export function useSectionController(props: {
+  content: t.ProgrammeContent;
+  state: t.ProgrammeSignals;
+  player: t.VideoPlayerSignals;
+}) {
+  const { content, state, player } = props;
   const [media, setMedia] = useState<M>({});
+  const [playlist, setPlaylist] = useState<t.VideoMediaContent[]>([]);
 
   /**
    * Effects
    */
   Signal.useEffect(() => {
-    setMedia(CalcSection.media(state));
+    const index = CalcSection.index(state);
+    const media = CalcSection.media(state);
+    const playlist = toPlaylist(media.section);
+    player.props.src.value = playlist[index.child]?.video.src;
+
+    setMedia(media);
+    setPlaylist(playlist);
   });
 
   /**
@@ -27,6 +39,7 @@ export function useSectionController(state: t.ProgrammeSignals) {
    */
   const api = {
     media,
+    playlist,
 
     /**
      * Event Actions:

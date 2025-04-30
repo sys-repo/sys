@@ -29,13 +29,13 @@ export const Programme: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const controller = useController(state);
+  const controller = useController({ content, state, player });
 
   /**
    * Effects:
    */
   Signal.useRedrawEffect(() => state.listen());
-  useEffect(() => props.onReady?.({ state, content, player }), []);
+  useEffect(() => props.onReady?.({ content, state, player }), []);
 
   /**
    * Render:

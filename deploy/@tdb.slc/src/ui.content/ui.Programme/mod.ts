@@ -3,6 +3,7 @@
  */
 import { factory } from './m.Factory.tsx';
 import { ProgrammeSignals as Signals } from './m.Signals.ts';
+import { toPlaylist } from './u.playlist.ts';
 import { Calc } from './u.ts';
 import { Programme as Main } from './ui.tsx';
 import { useController } from './use.Controller.ts';
@@ -22,4 +23,7 @@ export const Programme = {
   // UI Components:
   View: { Main },
   useController,
+
+  // Helpers:
+  toPlaylist,
 } as const;

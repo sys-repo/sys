@@ -14,10 +14,10 @@ export type RootProps = {
  * Component:
  */
 export const Root: React.FC<RootProps> = (props) => {
-  const { state, content, player } = props;
+  const { content, state, player } = props;
   const p = state.props;
 
-  const controller = Programme.useController(state);
+  const controller = Programme.useController({ content, state, player });
   const debug = p.debug.value;
 
   /**

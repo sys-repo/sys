@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { type t, Color, Cropmarks, css, D, ObjectView, Player, rx, Signal } from './common.ts';
 import { Calc } from './u.ts';
+import { toPlaylist } from './u.playlist.ts';
 
 type P = t.ProgrammeMainProps;
 
@@ -22,7 +23,7 @@ export const Main: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     const life = rx.lifecycle();
-    const playlist = Calc.Section.toPlaylist(media);
+    const playlist = toPlaylist(media);
     const current = playlist[selected ?? 0];
     const player = current?.video;
 
@@ -49,7 +50,7 @@ export const Main: React.FC<P> = (props) => {
       <ObjectView
         name={`${D.name}.Main`}
         style={{ Absolute: [null, null, 15, 15] }}
-        expand={1}
+        expand={0}
         data={Signal.toObject({
           player: player.src,
           'state:<ProgrammeSignals>': state.props,

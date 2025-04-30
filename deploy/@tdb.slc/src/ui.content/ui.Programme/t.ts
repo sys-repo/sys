@@ -32,8 +32,8 @@ export type ProgrammeProps = {
   style?: t.CssInput;
   onCloseRequest?: () => void;
   onReady?: (e: {
-    state: t.ProgrammeSignals;
     content: t.ProgrammeContent;
+    state: t.ProgrammeSignals;
     player: t.VideoPlayerSignals;
   }) => void;
 };

@@ -13,6 +13,7 @@ import {
   useVisibilityThresholdY,
 } from './common.ts';
 import { Calc } from './u.ts';
+import { toPlaylist } from './u.playlist.ts';
 
 type P = t.ProgrammeSectionProps;
 type Part = 'Canvas';
@@ -22,7 +23,7 @@ type Part = 'Canvas';
  */
 export const Section: React.FC<P> = (props) => {
   const { content, state, player, debug = false } = props;
-  const media = Calc.Section.media(state).section;
+  const section = Calc.Section.media(state).section;
   const selected = Calc.Section.index(state).child;
 
   /**
@@ -34,7 +35,7 @@ export const Section: React.FC<P> = (props) => {
   const loading = useLoading<Part>(['Canvas']);
   const size = useSizeObserver();
   const isReady = size.ready && loading.ready();
-  const depsChildren = media?.children?.map((m) => m.id).join('|');
+  const depsChildren = section?.children?.map((m) => m.id).join('|');
   const canvas = useVisibilityThresholdY(
     {
       refs: [canvasRef, playlistRef],
@@ -77,7 +78,7 @@ export const Section: React.FC<P> = (props) => {
       <ObjectView
         name={'Content:Programme.Section'}
         style={{ Absolute: [null, null, 6, 6] }}
-        expand={['$']}
+        expand={0}
         data={Signal.toObject({
           player: player.src,
           'state:<ProgrammeSignals>': state.props,
@@ -102,7 +103,7 @@ export const Section: React.FC<P> = (props) => {
       </div>
       <div ref={playlistRef} className={styles.playlist.class}>
         <Playlist
-          items={Calc.Section.toPlaylist(media)}
+          items={toPlaylist(section)}
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
           selected={selected}
