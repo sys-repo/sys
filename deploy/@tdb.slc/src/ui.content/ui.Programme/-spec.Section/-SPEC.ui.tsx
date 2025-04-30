@@ -17,7 +17,7 @@ export const Root: React.FC<RootProps> = (props) => {
   const { content, state, player } = props;
   const p = state.props;
 
-  const controller = Programme.useController({ content, state, player });
+  const controller = Programme.useController({ state, player });
   const debug = p.debug.value;
 
   /**

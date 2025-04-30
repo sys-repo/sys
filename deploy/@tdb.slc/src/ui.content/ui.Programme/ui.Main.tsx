@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { type t, Color, Cropmarks, css, D, ObjectView, Player, rx, Signal } from './common.ts';
-import { Calc } from './u.ts';
-import { toPlaylist } from './u.playlist.ts';
+import React from 'react';
+import { type t, Color, Cropmarks, css, D, ObjectView, Player, Signal } from './common.ts';
+import { useTimestamp } from './use.Timestamp.ts';
 
 type P = t.ProgrammeMainProps;
 
@@ -10,30 +9,11 @@ type P = t.ProgrammeMainProps;
  */
 export const Main: React.FC<P> = (props) => {
   const { content, state, player, debug = false } = props;
-  const media = Calc.Section.media(state).section;
-  const selected = Calc.Section.index(state).child;
 
   /**
    * Hooks:
    */
-  const [timestamp, setTimestamp] = useState<t.RenderedTimestamp>({});
-
-  /**
-   * Effect: render current timestamp content.
-   */
-  React.useEffect(() => {
-    const life = rx.lifecycle();
-    const playlist = toPlaylist(media);
-    const current = playlist[selected ?? 0];
-    const player = current?.video;
-
-    Calc.Timestamp.render(player, current?.timestamps).then((e) => {
-      if (life.disposed) return;
-      setTimestamp(e);
-    });
-
-    return life.dispose;
-  }, [selected, media?.id]);
+  const timestamp = useTimestamp({ state, player });
 
   /**
    * Render:
@@ -44,13 +24,13 @@ export const Main: React.FC<P> = (props) => {
     body: css({ display: 'grid' }),
   };
 
-  const elBody = <div className={styles.body.class}>{timestamp.main}</div>;
+  const elBody = <div className={styles.body.class}>{timestamp.current?.main}</div>;
   const elDebug = debug && (
     <>
       <ObjectView
         name={`${D.name}.Main`}
         style={{ Absolute: [null, null, 15, 15] }}
-        expand={0}
+        expand={1}
         data={Signal.toObject({
           player: player.src,
           'state:<ProgrammeSignals>': state.props,
@@ -62,7 +42,7 @@ export const Main: React.FC<P> = (props) => {
     </>
   );
 
-  const elCropmarks = timestamp.main && (
+  const elCropmarks = timestamp.current?.main && (
     <Cropmarks
       theme={props.theme}
       borderOpacity={debug ? 0.2 : 0.02}

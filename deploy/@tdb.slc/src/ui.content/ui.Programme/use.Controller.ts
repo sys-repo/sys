@@ -1,19 +1,15 @@
 import { type t } from './common.ts';
-import { useSectionController } from './use.Section.Controller.ts';
+import { useSection } from './use.Section.ts';
 
-export function useController(props: {
-  content: t.ProgrammeContent;
-  state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
-}) {
-  const { content, state, player } = props;
+export function useController(props: { state: t.ProgrammeSignals; player: t.VideoPlayerSignals }) {
+  const { state, player } = props;
   const media = state.props.media;
   const p = state.props;
 
   /**
    * Child controllers:
    */
-  const section = useSectionController({ content, state, player });
+  const section = useSection({ state, player });
 
   /**
    * API:

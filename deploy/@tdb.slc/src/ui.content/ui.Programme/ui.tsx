@@ -29,7 +29,7 @@ export const Programme: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const controller = useController({ content, state, player });
+  const controller = useController({ state, player });
 
   /**
    * Effects:
@@ -67,7 +67,7 @@ export const Programme: React.FC<P> = (props) => {
     />
   );
 
-  const elContentBody = controller.section.media && (
+  const elContentBody = controller.section.current && (
     <Main
       //
       debug={debug}

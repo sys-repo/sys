@@ -1,5 +1,7 @@
 import { Player } from './common.ts';
+
 export * from './u.Calc.ts';
+export * from './u.playlist.ts';
 
 /**
  * Standard video/media configuration setup.

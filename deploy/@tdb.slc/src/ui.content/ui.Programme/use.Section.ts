@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { type t, Signal } from './common.ts';
-import { toPlaylist } from './u.playlist.ts';
-import { CalcSection } from './u.ts';
+import { Calc, toPlaylist } from './u.ts';
 
 type M = {
   root?: t.VideoMediaContent;
@@ -12,34 +11,36 @@ type M = {
 /**
  * Controls an individual section
  */
-export function useSectionController(props: {
-  content: t.ProgrammeContent;
-  state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
-}) {
-  const { content, state, player } = props;
-  const [media, setMedia] = useState<M>({});
+export function useSection(props: { state: t.ProgrammeSignals; player: t.VideoPlayerSignals }) {
+  const { state, player } = props;
+
   const [playlist, setPlaylist] = useState<t.VideoMediaContent[]>([]);
+  const [media, setMedia] = useState<M>({});
+  const [current, setCurrent] = useState<t.VideoMediaContent>();
 
   /**
-   * Effects
+   * Effect: Current Media.
    */
   Signal.useEffect(() => {
-    const index = CalcSection.index(state);
-    const media = CalcSection.media(state);
+    const index = Calc.Section.index(state);
+    const media = Calc.Section.media(state);
     const playlist = toPlaylist(media.section);
-    player.props.src.value = playlist[index.child]?.video.src;
+    const current = playlist[index.child];
 
     setMedia(media);
+    setCurrent(current);
     setPlaylist(playlist);
+
+    player.props.src.value = current?.video.src;
   });
 
   /**
    * API:
    */
-  const api = {
-    media,
+  return {
     playlist,
+    media,
+    current,
 
     /**
      * Event Actions:
@@ -49,5 +50,4 @@ export function useSectionController(props: {
       if (section.value) section.value = { ...section.value, childIndex };
     },
   } as const;
-  return api;
 }

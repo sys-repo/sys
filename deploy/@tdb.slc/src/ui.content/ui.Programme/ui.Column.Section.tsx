@@ -12,8 +12,7 @@ import {
   useSizeObserver,
   useVisibilityThresholdY,
 } from './common.ts';
-import { Calc } from './u.ts';
-import { toPlaylist } from './u.playlist.ts';
+import { Calc, toPlaylist } from './u.ts';
 
 type P = t.ProgrammeSectionProps;
 type Part = 'Canvas';
