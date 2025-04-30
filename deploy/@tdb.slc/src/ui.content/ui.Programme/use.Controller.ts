@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { useSectionController } from './use.Section.Controller.ts';
 
-export function useProgrammeController(state: t.ProgrammeSignals) {
+export function useController(state: t.ProgrammeSignals) {
   const media = state.props.media;
   const p = state.props;
 
@@ -22,9 +22,9 @@ export function useProgrammeController(state: t.ProgrammeSignals) {
     /**
      * Event Actions:
      */
-    onSelectSection(index: t.Index) {
-      p.align.value = 'Right';
+    onSectionSelected(index: t.Index) {
       p.section.value = { index };
+      p.align.value = 'Right';
     },
 
     onBackClick() {

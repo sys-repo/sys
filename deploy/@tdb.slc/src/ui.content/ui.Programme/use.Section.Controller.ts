@@ -1,37 +1,38 @@
-import { type t } from './common.ts';
+import { useState } from 'react';
+
+import { type t, Signal } from './common.ts';
 import { CalcSection } from './u.ts';
+
+type M = {
+  root?: t.VideoMediaContent;
+  section?: t.VideoMediaContent;
+  child?: t.VideoMediaContent;
+};
 
 /**
  * Controls an individual section
  */
 export function useSectionController(state: t.ProgrammeSignals) {
-  const p = state.props;
+  const [media, setMedia] = useState<M>({});
+
+  /**
+   * Effects
+   */
+  Signal.useEffect(() => {
+    setMedia(CalcSection.media(state));
+  });
 
   /**
    * API:
    */
   const api = {
-    get index() {
-      return CalcSection.index(state);
-    },
-
-    get media() {
-      return CalcSection.media(state);
-    },
-
-    get player() {
-      return CalcSection.player(state);
-    },
-
-    get title() {
-      return CalcSection.title(state);
-    },
+    media,
 
     /**
      * Event Actions:
      */
-    onSelectChild(childIndex: t.Index) {
-      const section = p.section;
+    onChildSelected(childIndex: t.Index) {
+      const section = state.props.section;
       if (section.value) section.value = { ...section.value, childIndex };
     },
   } as const;

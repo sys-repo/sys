@@ -26,22 +26,27 @@ export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.I
 export type ProgrammeProps = {
   state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  player?: t.VideoPlayerSignals;
   isTop?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onCloseRequest?: () => void;
+  onReady?: (e: {
+    state: t.ProgrammeSignals;
+    content: t.ProgrammeContent;
+    player: t.VideoPlayerSignals;
+  }) => void;
 };
 
 /**
  * <Component>: Section
  */
 export type ProgrammeSectionProps = {
-  debug?: boolean;
   state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  player: t.VideoPlayerSignals;
 
-  selected?: t.Index;
-  media?: t.VideoMediaContent;
+  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onSelect?: (e: { index: t.Index }) => void;
@@ -51,12 +56,11 @@ export type ProgrammeSectionProps = {
  * <Component>: Main
  */
 export type ProgrammeMainProps = {
-  debug?: boolean;
   state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  player: t.VideoPlayerSignals;
 
-  selected?: t.Index;
-  media?: t.VideoMediaContent;
+  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

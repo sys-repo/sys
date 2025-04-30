@@ -5,10 +5,8 @@ import { factory } from './m.Factory.tsx';
 import { createProgrammeSignals as signals } from './m.Signals.ts';
 import { Calc } from './u.ts';
 import { Programme as Main } from './ui.tsx';
+import { useController } from './use.Controller.ts';
 import { Programme as Media } from './v/mod.ts';
-
-import { useProgrammeController } from './use.Programme.Controller.ts';
-import { useSectionController } from './use.Section.Controller.ts';
 
 export { factory };
 
@@ -19,10 +17,11 @@ export const Programme = {
   factory,
   signals,
   Media,
-  View: { Main },
   Calc,
 
+  // UI Components:
+  View: { Main },
+
   // Hooks:
-  useProgrammeController,
-  useSectionController,
+  useController,
 } as const;

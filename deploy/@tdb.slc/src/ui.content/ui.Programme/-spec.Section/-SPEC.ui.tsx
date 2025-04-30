@@ -2,10 +2,12 @@ import { type t } from '../../-test.ui.ts';
 import { Color, css, Player, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
 import { Section } from '../ui.Column.Section.tsx';
+import { Calc } from '../u.Calc.ts';
 
 export type RootProps = {
   state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  player: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
 };
 
@@ -13,10 +15,10 @@ export type RootProps = {
  * Component:
  */
 export const Root: React.FC<RootProps> = (props) => {
-  const { state, content } = props;
+  const { state, content, player } = props;
   const p = state.props;
-  const controller = Programme.useSectionController(state);
-  const videoSrc = `${controller.player?.src ?? '<undefined>'}`;
+
+  const controller = Programme.useController(state);
   const debug = p.debug.value;
 
   /**
@@ -41,22 +43,22 @@ export const Root: React.FC<RootProps> = (props) => {
         <Section
           debug={debug}
           theme={theme.name}
+          //
           state={state}
           content={content}
-          media={controller.media.section}
-          selected={controller.index.child}
+          player={player}
+          //
           onSelect={(e) => {
-            console.info(`Section.onSelect:`, e);
-            controller.onSelectChild(e.index);
+            console.info(`⚡️ Section.onSelect:`, e);
+            controller.section.onChildSelected(e.index);
           }}
         />
       </div>
       <div className={styles.video.class}>
         <Player.Video.View
-          key={videoSrc}
           debug={debug}
-          signals={controller.player}
-          onEnded={() => console.info(`⚡️ onEneded`)}
+          signals={player}
+          onEnded={() => console.info(`⚡️ onEnded`)}
         />
       </div>
     </div>

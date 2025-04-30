@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, ObjectView, Player, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
 import { programmeSectionButtons, Styles, videoPlayerButton } from './-SPEC.u.tsx';
 
@@ -16,8 +16,9 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const content = Programme.factory(); // Factory → content definition (🌳).
-  const p = content.state.props;
+  const content = Programme.factory();
+  const state = Programme.signals();
+  const player = Player.Video.signals({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
 
   /**
    * Properties:
@@ -27,14 +28,13 @@ export function createDebugSignals() {
   };
   const api = {
     content,
+    state,
+    player,
     props,
     listen() {
       props.theme.value;
       content.state.listen();
-    },
-    getMedia(index: t.Index) {
-      const media = content.media;
-      return media ? media.children?.[index] : undefined;
+      state.listen();
     },
   };
   return api;

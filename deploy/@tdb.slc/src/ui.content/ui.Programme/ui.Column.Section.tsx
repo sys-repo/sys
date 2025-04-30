@@ -5,6 +5,7 @@ import {
   css,
   LogoCanvas,
   ObjectView,
+  Player,
   Playlist,
   Signal,
   useLoading,
@@ -20,8 +21,13 @@ type Part = 'Canvas';
  * Component:
  */
 export const Section: React.FC<P> = (props) => {
-  const { content, state, media, debug = false } = props;
+  const { content, state, player, debug = false } = props;
+  const media = Calc.Section.media(state).section;
+  const selected = Calc.Section.index(state).child;
 
+  /**
+   * Hooks:
+   */
   const playlistRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -73,11 +79,13 @@ export const Section: React.FC<P> = (props) => {
         style={{ Absolute: [null, null, 6, 6] }}
         expand={['$']}
         data={Signal.toObject({
+          player: player.src,
           'state:<ProgrammeSignals>': state.props,
           'content:<ProgrammeContent>': content,
         })}
       />
       {size.toElement([4, null, null, 6])}
+      <Player.Timestamp.Elapsed.View player={player} abs={[6, 6, null, null]} />
     </>
   );
 
@@ -86,7 +94,7 @@ export const Section: React.FC<P> = (props) => {
       <div ref={canvasRef} className={styles.canvas.class}>
         <LogoCanvas
           theme={theme.name}
-          selected={wrangle.selectedPanel(props)}
+          selected={wrangle.selectedPanel(state)}
           selectionAnimation={false}
           onReady={() => loading.ready('Canvas')}
           onPanelEvent={(e) => console.info(`⚡️ Canvas.onPanelEvent:`, e)}
@@ -97,7 +105,7 @@ export const Section: React.FC<P> = (props) => {
           items={Calc.Section.toPlaylist(media)}
           theme={theme.name}
           paddingTop={canvas.visible ? 50 : 30}
-          selected={props.selected}
+          selected={selected}
           onChildSelect={(e) => {
             const { index } = e;
             props.onSelect?.({ index });
@@ -119,13 +127,8 @@ export const Section: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  media(props: P) {
-    const { media, selected } = props;
-    const child = typeof selected === 'number' ? media?.children?.[selected] : undefined;
-    return child ?? media;
-  },
-  selectedPanel(props: P) {
-    const media = wrangle.media(props);
-    return media?.panel;
+  selectedPanel(state: t.ProgrammeSignals) {
+    const media = Calc.Section.media(state);
+    return media.child?.panel ?? media.section?.panel;
   },
 } as const;

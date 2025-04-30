@@ -19,8 +19,13 @@ export default Spec.describe(D.name, async (e) => {
       .size('fill')
       .display('grid')
       .render(() => {
-        const state = debug.content.state;
-        return <Programme.View.Main content={debug.content} state={state} theme={'Light'} />;
+        return (
+          <Programme.View.Main
+            content={debug.content}
+            theme={'Light'}
+            onReady={(e) => console.info(`⚡️ onReady:`, e)}
+          />
+        );
       });
 
     /**

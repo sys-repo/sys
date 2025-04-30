@@ -1,15 +1,19 @@
 import React from 'react';
-import { type t, App, Color, ConceptPlayer, css, Dom, Signal } from './common.ts';
+import { type t, App, Color, ConceptPlayer, css, Dom, Player, Signal } from './common.ts';
+import { Calc } from './u.Calc.ts';
 import { Menu } from './ui.Column.Menu.tsx';
 import { Section } from './ui.Column.Section.tsx';
 import { Main } from './ui.Main.tsx';
-import { useProgrammeController } from './use.Programme.Controller.ts';
+import { useController } from './use.Controller.ts';
 
 /**
  * Component:
  */
 export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const { state, content, isTop } = props;
+
+  const playerRef = React.useRef(props.player ?? Player.Video.signals());
+  const player = playerRef.current;
 
   const p = state.props;
   const debug = p.debug.value;
@@ -19,12 +23,13 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   /**
    * Hooks:
    */
-  const controller = useProgrammeController(state);
+  const controller = useController(state);
 
   /**
    * Effects:
    */
   Signal.useRedrawEffect(() => state.listen());
+  React.useEffect(() => props.onReady?.({ state, content, player }), []);
 
   /**
    * Render:
@@ -42,7 +47,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     <Menu
       debug={debug}
       media={controller.media}
-      onSelect={(e) => controller.onSelectSection(e.index)}
+      onSelect={(e) => controller.onSectionSelected(e.index)}
     />
   );
 
@@ -51,19 +56,18 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
       debug={debug}
       state={state}
       content={content}
-      media={controller.section.media.section}
-      selected={controller.section.index.child}
-      onSelect={(e) => controller.section.onSelectChild(e.index)}
+      player={player}
+      onSelect={(e) => controller.section.onChildSelected(e.index)}
     />
   );
 
   const elContentBody = controller.section.media && (
     <Main
+      //
       debug={debug}
       state={state}
       content={content}
-      media={controller.section.media.section}
-      selected={controller.section.index.child}
+      player={player}
     />
   );
 
@@ -74,11 +78,11 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
         theme={'Light'}
         // Column:
         columnAlign={align}
-        columnVideo={controller.section.player}
+        columnVideo={player}
         columnVideoVisible={!isCenter}
         columnBody={isCenter ? elRootMenu : elSection}
         // Content:
-        contentTitle={controller.section.title}
+        contentTitle={wrangle.title(state)}
         contentBody={elContentBody}
         // Event handlers:
         onBackClick={() => controller.onBackClick()}
@@ -92,3 +96,19 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  title(state: t.ProgrammeSignals, options: { long?: boolean } = {}) {
+    const { section, child } = Calc.Section.media(state);
+    const UNTITLED = 'Untitled';
+    if (!section) return UNTITLED;
+    if (options.long ?? false) {
+      return !child?.title ? section.title : `${section.title ?? UNTITLED}: ${child.title}`;
+    } else {
+      return section.title ?? UNTITLED;
+    }
+  },
+} as const;

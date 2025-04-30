@@ -8,9 +8,13 @@ type P = t.ProgrammeMainProps;
  * Component:
  */
 export const Main: React.FC<P> = (props) => {
-  const { content, state, media, selected, debug = false } = props;
+  const { content, state, player, debug = false } = props;
+  const media = Calc.Section.media(state).section;
+  const selected = Calc.Section.index(state).child;
 
-  const [player, setPlayer] = useState<t.VideoPlayerSignals>();
+  /**
+   * Hooks:
+   */
   const [timestamp, setTimestamp] = useState<t.RenderedTimestamp>({});
 
   /**
@@ -25,7 +29,6 @@ export const Main: React.FC<P> = (props) => {
     Calc.Timestamp.render(player, current?.timestamps).then((e) => {
       if (life.disposed) return;
       setTimestamp(e);
-      setPlayer(player);
     });
 
     return life.dispose;
@@ -48,6 +51,7 @@ export const Main: React.FC<P> = (props) => {
         style={{ Absolute: [null, null, 15, 15] }}
         expand={1}
         data={Signal.toObject({
+          player: player.src,
           'state:<ProgrammeSignals>': state.props,
           'content:<ProgrammeContent>': content,
           timestamp,
