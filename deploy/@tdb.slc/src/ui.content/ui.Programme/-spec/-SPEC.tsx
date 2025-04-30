@@ -29,7 +29,7 @@ export default Spec.describe(D.name, async (e) => {
     const p = debug.content.state.props;
     p.debug.value = true;
     p.align.value = 'Right';
-    p.section.value = { index: 1, childIndex: 0 };
+    p.section.value = { index: 0, childIndex: 0 };
   });
 
   e.it('ui:debug', (e) => {
