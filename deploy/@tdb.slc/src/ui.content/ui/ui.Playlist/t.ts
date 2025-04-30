@@ -22,4 +22,4 @@ export type PlaylistProps = {
 /**
  * Item within a playlist.
  */
-export type PlaylistItem = t.VideoMediaContent | '---';
+export type PlaylistItem = t.VideoMediaContent;

@@ -1,6 +1,5 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { Hr } from './ui.Hr.tsx';
 import { Item } from './ui.Item.tsx';
 
 export const Playlist: React.FC<t.PlaylistProps> = (props) => {
@@ -32,10 +31,6 @@ export const Playlist: React.FC<t.PlaylistProps> = (props) => {
 
   const row = (item: t.PlaylistItem | undefined, index: number) => {
     if (!item) return null;
-
-    if (typeof item === 'string') {
-      return <Hr key={`hr.${index}`} theme={theme.name} style={styles.hr} />;
-    }
 
     const media = item;
     const isSelected = index === props.selected;
