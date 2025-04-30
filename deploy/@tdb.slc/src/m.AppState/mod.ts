@@ -1,0 +1,4 @@
+/**
+ * @module
+ * Application state.
+ */
