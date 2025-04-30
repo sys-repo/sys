@@ -8,7 +8,7 @@ export type ObjectViewProps = {
   data?: any;
 
   show?: Partial<ObjectViewShow>;
-  expand?: number | ObjectViewExpand;
+  expand?: number | ObjectViewExpand | string[];
   sortKeys?: boolean;
 
   block?: boolean;
