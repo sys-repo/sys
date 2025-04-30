@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { type t, App, Color, ConceptPlayer, css, Dom, Player, Signal } from './common.ts';
+import { ProgrammeSignals } from './m.Signals.ts';
 import { Calc } from './u.Calc.ts';
 import { Menu } from './ui.Column.Menu.tsx';
 import { Section } from './ui.Column.Section.tsx';
 import { Main } from './ui.Main.tsx';
 import { useController } from './use.Controller.ts';
 
+type P = t.ProgrammeProps;
+
 /**
  * Component:
  */
-export const Programme: React.FC<t.ProgrammeProps> = (props) => {
-  const { state, content, isTop } = props;
+export const Programme: React.FC<P> = (props) => {
+  const { content, isTop } = props;
 
-  const playerRef = React.useRef(props.player ?? Player.Video.signals());
+  const playerRef = useRef(props.player ?? Player.Video.signals());
+  const stateRef = useRef(ProgrammeSignals.init(props));
+
   const player = playerRef.current;
+  const state = stateRef.current;
 
   const p = state.props;
   const debug = p.debug.value;
@@ -29,7 +35,7 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
    * Effects:
    */
   Signal.useRedrawEffect(() => state.listen());
-  React.useEffect(() => props.onReady?.({ state, content, player }), []);
+  useEffect(() => props.onReady?.({ state, content, player }), []);
 
   /**
    * Render:

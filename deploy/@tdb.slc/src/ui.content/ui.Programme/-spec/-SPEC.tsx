@@ -21,6 +21,7 @@ export default Spec.describe(D.name, async (e) => {
       .render(() => {
         return (
           <Programme.View.Main
+            state={debug.state}
             content={debug.content}
             theme={'Light'}
             onReady={(e) => console.info(`⚡️ onReady:`, e)}
@@ -31,7 +32,7 @@ export default Spec.describe(D.name, async (e) => {
     /**
      * Initial state:
      */
-    const p = debug.content.state.props;
+    const p = debug.state.props;
     p.debug.value = true;
     p.align.value = 'Right';
     p.section.value = { index: 0, childIndex: 0 };

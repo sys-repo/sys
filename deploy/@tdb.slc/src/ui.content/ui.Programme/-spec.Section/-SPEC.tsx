@@ -18,18 +18,12 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => (
-        <Root
-          //
-          content={debug.content}
-          player={debug.player}
-        />
-      ));
+      .render(() => <Root content={debug.content} state={debug.state} player={debug.player} />);
 
     /**
      * Initial state:
      */
-    const p = debug.content.state.props;
+    const p = debug.state.props;
     p.debug.value = true;
     p.section.value = { index: 0 };
     debug.props.theme.value = 'Light';

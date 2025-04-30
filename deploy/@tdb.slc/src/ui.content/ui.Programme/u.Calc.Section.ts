@@ -22,11 +22,6 @@ export const CalcSection = {
     return { root, section, child };
   },
 
-  player(state: S) {
-    const media = CalcSection.media(state);
-    return media.child?.video ?? media.root?.video;
-  },
-
   /**
    * Merges a media element into a "section" level playlist.
    */

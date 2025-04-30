@@ -17,8 +17,7 @@ export const Styles = {
 /**
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
-export function videoPlayerButton(state: t.ProgrammeSignals) {
-  const player = Calc.Section.player(state);
+export function videoPlayerButton(player?: t.VideoPlayerSignals) {
   if (!player) return <div>{`(no video player)`}</div>;
   return (
     <Button
@@ -35,10 +34,10 @@ export function videoPlayerButton(state: t.ProgrammeSignals) {
  */
 export function programmeSectionButtons(
   content: t.ProgrammeContent,
+  state: t.ProgrammeSignals,
   options: { title?: string } = {},
 ) {
   const title = options.title ?? 'Programme Sections:';
-  const state = content.state;
   const p = state.props;
 
   const config = (index: number) => {

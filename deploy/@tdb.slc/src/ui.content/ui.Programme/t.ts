@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Programm content definition.
  */
-export type ProgrammeContent = t.VideoContent & { state: ProgrammeSignals };
+export type ProgrammeContent = t.VideoContent;
 
 /**
  * <Component> Signal State:
@@ -24,8 +24,8 @@ export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.I
  * <Commponent>: Root.
  */
 export type ProgrammeProps = {
-  state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  state?: t.ProgrammeSignals;
   player?: t.VideoPlayerSignals;
   isTop?: boolean;
   theme?: t.CommonTheme;
@@ -42,8 +42,8 @@ export type ProgrammeProps = {
  * <Component>: Section
  */
 export type ProgrammeSectionProps = {
-  state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  state: t.ProgrammeSignals;
   player: t.VideoPlayerSignals;
 
   debug?: boolean;
@@ -56,8 +56,8 @@ export type ProgrammeSectionProps = {
  * <Component>: Main
  */
 export type ProgrammeMainProps = {
-  state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
+  state: t.ProgrammeSignals;
   player: t.VideoPlayerSignals;
 
   debug?: boolean;

@@ -17,7 +17,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const content = Programme.factory();
-  const state = Programme.signals();
+  const state = Programme.Signals.init({ content });
   const player = Player.Video.signals({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
 
   /**
@@ -33,10 +33,10 @@ export function createDebugSignals() {
     props,
     listen() {
       props.theme.value;
-      content.state.listen();
       state.listen();
     },
   };
+
   return api;
 }
 
@@ -45,7 +45,7 @@ export function createDebugSignals() {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.content.state.props;
+  const p = debug.state.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -77,10 +77,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {programmeSectionButtons(debug.content)}
+      {programmeSectionButtons(debug.content, debug.state)}
 
       <hr />
-      {videoPlayerButton(debug.content.state)}
+      {videoPlayerButton(debug.player)}
 
       <hr />
       <ObjectView
@@ -92,7 +92,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <ObjectView
         name={':state'}
-        data={Signal.toObject(debug.content.state.props)}
+        data={Signal.toObject(debug.state.props)}
         expand={{ paths: ['$', '$.section'] }}
         margin={[20, 0]}
       />

@@ -2,7 +2,6 @@ import { type t } from '../../-test.ui.ts';
 import { Color, css, Player, Signal } from '../common.ts';
 import { Programme } from '../mod.ts';
 import { Section } from '../ui.Column.Section.tsx';
-import { Calc } from '../u.Calc.ts';
 
 export type RootProps = {
   state: t.ProgrammeSignals;

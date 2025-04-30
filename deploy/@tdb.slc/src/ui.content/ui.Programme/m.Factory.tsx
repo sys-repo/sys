@@ -2,7 +2,6 @@ import React from 'react';
 
 import { VIDEO } from '../-VIDEO.ts';
 import { type t, DEFAULTS } from './common.ts';
-import { createProgrammeSignals } from './m.Signals.ts';
 import { v } from './u.ts';
 import { Programme } from './ui.tsx';
 import { children } from './v.ts';
@@ -17,7 +16,6 @@ export function factory() {
   const content: t.ProgrammeContent = {
     id: 'Programme',
     kind: 'VideoContent',
-    state: createProgrammeSignals(),
 
     playOnLoad: false,
     media: {
@@ -31,7 +29,6 @@ export function factory() {
       const global = props.state;
       return (
         <Programme
-          state={content.state}
           content={content}
           theme={DEFAULTS.theme.sheet}
           isTop={props.is.top}
@@ -41,12 +38,5 @@ export function factory() {
     },
   };
 
-  /**
-   * Setup initial state.
-   */
-  const p = content.state.props;
-  p.media.value = content.media;
-
-  // Finish up.
   return content;
 }

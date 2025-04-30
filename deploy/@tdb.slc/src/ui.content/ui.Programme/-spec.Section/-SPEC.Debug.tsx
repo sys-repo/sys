@@ -31,7 +31,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.content.state.props;
+  const p = debug.state.props;
 
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -61,10 +61,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {videoPlayerButton(debug.content.state)}
+      {videoPlayerButton(debug.player)}
 
       <hr />
-      {programmeSectionButtons(debug.content)}
+      {programmeSectionButtons(debug.content, debug.state)}
 
       <hr />
       <ObjectView
