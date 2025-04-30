@@ -31,6 +31,7 @@ export function useController(props: { state: t.ProgrammeSignals; player: t.Vide
     onBackClick() {
       p.align.value = 'Center';
       p.section.value = undefined;
+      player.pause();
     },
   } as const;
   return api;
