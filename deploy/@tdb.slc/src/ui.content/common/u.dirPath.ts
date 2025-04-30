@@ -6,6 +6,6 @@ import { Path } from '../common.ts';
 export const dirPath = (...dir: string[]) =>
   ({
     dir: (path: string) => dirPath(...dir, path),
-    path: (path: string) => Path.join(...dir, path),
+    path: (...path: string[]) => Path.join(...dir, ...path),
     toString: () => dir,
   } as const);
