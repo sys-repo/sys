@@ -9,7 +9,7 @@ import { useProgrammeController } from './use.Programme.Controller.ts';
  * Component:
  */
 export const Programme: React.FC<t.ProgrammeProps> = (props) => {
-  const { state, isTop } = props;
+  const { state, content, isTop } = props;
 
   const p = state.props;
   const debug = p.debug.value;
@@ -49,6 +49,8 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const elSection = controller.section.media && (
     <Section
       debug={debug}
+      state={state}
+      content={content}
       media={controller.section.media.section}
       selected={controller.section.index.child}
       onSelect={(e) => controller.section.onSelectChild(e.index)}
@@ -58,6 +60,8 @@ export const Programme: React.FC<t.ProgrammeProps> = (props) => {
   const elContentBody = controller.section.media && (
     <Main
       debug={debug}
+      state={state}
+      content={content}
       media={controller.section.media.section}
       selected={controller.section.index.child}
     />

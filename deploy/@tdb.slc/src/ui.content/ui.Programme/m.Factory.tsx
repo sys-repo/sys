@@ -32,6 +32,7 @@ export function factory() {
       return (
         <Programme
           state={content.state}
+          content={content}
           theme={DEFAULTS.theme.sheet}
           isTop={props.is.top}
           onCloseRequest={() => global.stack.pop()}

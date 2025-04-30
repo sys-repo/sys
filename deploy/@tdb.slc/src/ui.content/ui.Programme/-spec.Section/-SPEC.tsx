@@ -18,7 +18,7 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => <Root state={debug.content.state} />);
+      .render(() => <Root content={debug.content} state={debug.content.state} />);
 
     /**
      * Initial state:

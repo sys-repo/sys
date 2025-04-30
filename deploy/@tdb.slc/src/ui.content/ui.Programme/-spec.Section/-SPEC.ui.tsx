@@ -5,6 +5,7 @@ import { Section } from '../ui.Column.Section.tsx';
 
 export type RootProps = {
   state: t.ProgrammeSignals;
+  content: t.ProgrammeContent;
   theme?: t.CommonTheme;
 };
 
@@ -12,7 +13,7 @@ export type RootProps = {
  * Component:
  */
 export const Root: React.FC<RootProps> = (props) => {
-  const { state } = props;
+  const { state, content } = props;
   const p = state.props;
   const controller = Programme.useSectionController(state);
   const videoSrc = `${controller.player?.src ?? '<undefined>'}`;
@@ -40,6 +41,8 @@ export const Root: React.FC<RootProps> = (props) => {
         <Section
           debug={debug}
           theme={theme.name}
+          state={state}
+          content={content}
           media={controller.media.section}
           selected={controller.index.child}
           onSelect={(e) => {

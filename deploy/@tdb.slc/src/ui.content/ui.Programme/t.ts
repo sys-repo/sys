@@ -25,6 +25,7 @@ export type ProgrammeSignalsSelectedSection = { index: t.Index; childIndex?: t.I
  */
 export type ProgrammeProps = {
   state: t.ProgrammeSignals;
+  content: t.ProgrammeContent;
   isTop?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -36,6 +37,9 @@ export type ProgrammeProps = {
  */
 export type ProgrammeSectionProps = {
   debug?: boolean;
+  state: t.ProgrammeSignals;
+  content: t.ProgrammeContent;
+
   selected?: t.Index;
   media?: t.VideoMediaContent;
   theme?: t.CommonTheme;
@@ -48,6 +52,9 @@ export type ProgrammeSectionProps = {
  */
 export type ProgrammeMainProps = {
   debug?: boolean;
+  state: t.ProgrammeSignals;
+  content: t.ProgrammeContent;
+
   selected?: t.Index;
   media?: t.VideoMediaContent;
   theme?: t.CommonTheme;

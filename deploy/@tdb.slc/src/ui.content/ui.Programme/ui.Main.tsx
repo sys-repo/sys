@@ -8,7 +8,7 @@ type P = t.ProgrammeMainProps;
  * Component:
  */
 export const Main: React.FC<P> = (props) => {
-  const { media, selected, debug = false } = props;
+  const { content, state, media, selected, debug = false } = props;
 
   const [player, setPlayer] = useState<t.VideoPlayerSignals>();
   const [timestamp, setTimestamp] = useState<t.RenderedTimestamp>({});
@@ -45,12 +45,13 @@ export const Main: React.FC<P> = (props) => {
     <>
       <ObjectView
         name={`${D.name}.Main`}
-        data={Signal.toObject({ props, timestamp })}
         style={{ Absolute: [null, null, 15, 15] }}
-        expand={{
-          level: 0,
-          // paths: ['$', '$.timestamp'],
-        }}
+        expand={1}
+        data={Signal.toObject({
+          'state:<ProgrammeSignals>': state.props,
+          'content:<ProgrammeContent>': content,
+          timestamp,
+        })}
       />
       <Player.Timestamp.Elapsed.View player={player} abs={[null, 10, 5, null]} show={debug} />
     </>

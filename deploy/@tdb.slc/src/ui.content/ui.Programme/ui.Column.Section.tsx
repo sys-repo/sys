@@ -4,7 +4,9 @@ import {
   Color,
   css,
   LogoCanvas,
+  ObjectView,
   Playlist,
+  Signal,
   useLoading,
   useSizeObserver,
   useVisibilityThresholdY,
@@ -18,7 +20,7 @@ type Part = 'Canvas';
  * Component:
  */
 export const Section: React.FC<P> = (props) => {
-  const { media, debug = false } = props;
+  const { content, state, media, debug = false } = props;
 
   const playlistRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -64,6 +66,21 @@ export const Section: React.FC<P> = (props) => {
     }),
   };
 
+  const elDebug = debug && (
+    <>
+      <ObjectView
+        name={'Content:Programme.Section'}
+        style={{ Absolute: [null, null, 6, 6] }}
+        expand={['$']}
+        data={Signal.toObject({
+          'state:<ProgrammeSignals>': state.props,
+          'content:<ProgrammeContent>': content,
+        })}
+      />
+      {size.toElement([4, null, null, 6])}
+    </>
+  );
+
   const elBody = (
     <div className={styles.body.class}>
       <div ref={canvasRef} className={styles.canvas.class}>
@@ -93,7 +110,7 @@ export const Section: React.FC<P> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elBody}
-      {debug && size.toElement([4, null, null, 6])}
+      {elDebug}
     </div>
   );
 };

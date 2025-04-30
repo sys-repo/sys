@@ -20,7 +20,7 @@ export default Spec.describe(D.name, async (e) => {
       .display('grid')
       .render(() => {
         const state = debug.content.state;
-        return <Programme.View.Main state={state} theme={'Light'} />;
+        return <Programme.View.Main content={debug.content} state={state} theme={'Light'} />;
       });
 
     /**
