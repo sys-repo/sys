@@ -31,11 +31,15 @@ export type ProgrammeProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onCloseRequest?: () => void;
-  onReady?: (e: {
-    content: t.ProgrammeContent;
-    state: t.ProgrammeSignals;
-    player: t.VideoPlayerSignals;
-  }) => void;
+  onReady?: t.ProgrammeReadyHandler;
+};
+
+/** Event: Fires when the "Programme" becomes ready. */
+export type ProgrammeReadyHandler = (e: ProgrammeReadyHandlerArgs) => void;
+export type ProgrammeReadyHandlerArgs = {
+  content: t.ProgrammeContent;
+  state: t.ProgrammeSignals;
+  player: t.VideoPlayerSignals;
 };
 
 /**
