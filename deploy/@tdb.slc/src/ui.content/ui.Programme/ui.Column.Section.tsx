@@ -136,6 +136,6 @@ const wrangle = {
   },
 
   selectedPanel(state: S) {
-    return wrangle.selected(state).panel;
+    return wrangle.selected(state)?.panel;
   },
 } as const;

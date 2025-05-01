@@ -1,5 +1,5 @@
 import React from 'react';
-import { Programme } from '../../ui.Programme/v.ts';
+import { Programme } from '../../ui.content/ui.Programme/v.ts';
 import { type t, Button, css, D, Is, ObjectView, Signal } from './common.ts';
 
 type P = t.MenuListProps;

@@ -1,4 +1,4 @@
-import { Dev, Is, Signal, Spec, asArray } from '../../-test.ui.ts';
+import { Dev, Is, Signal, Spec, asArray } from '../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { MenuList } from './mod.ts';
 
