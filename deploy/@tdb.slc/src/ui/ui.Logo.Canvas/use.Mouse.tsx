@@ -90,7 +90,7 @@ const wrangle = {
     const isSelected = wrangle.isSelected(panel, options);
     if (isSelected) {
       const isMultiSelect = Array.isArray(selected);
-      return isMultiSelect ? 0.7 : 1;
+      return isMultiSelect ? 0.85 : 1;
     } else {
       return isOver ? 0.2 : 0;
     }
