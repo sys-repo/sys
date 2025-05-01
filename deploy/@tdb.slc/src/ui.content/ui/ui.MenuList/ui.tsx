@@ -1,12 +1,13 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Is, Color, css } from './common.ts';
 import { MenuButton } from './ui.Button.tsx';
 
 type P = t.MenuListProps;
 
 export const MenuList: React.FC<P> = (props) => {
-  const { debug = false, items = [] } = props;
+  const { debug = false } = props;
   const selected = wrangle.selected(props);
+  const items = wrangle.items(props);
 
   /**
    * Render:
@@ -21,12 +22,12 @@ export const MenuList: React.FC<P> = (props) => {
     body: css({}),
   };
 
-  const button = (item: t.VideoMediaContent, index: t.Index) => {
-    const label = item.title ?? 'Untitled';
+  const button = (item: t.MenuListItem, index: t.Index) => {
+    const label = item.label ?? 'Untitled';
     const onClick = () => props.onSelect?.({ item, index });
     return (
       <MenuButton
-        key={item.id}
+        key={item.id ?? index}
         label={label}
         selected={selected.includes(index)}
         onClick={onClick}
@@ -48,5 +49,11 @@ const wrangle = {
   selected(props: P): t.Index[] {
     const { selected = [] } = props;
     return Array.isArray(selected) ? selected : [selected];
+  },
+
+  items(props: P): t.MenuListItem[] {
+    if (props.items == null) return [];
+    const items = props.items.filter((m) => !Is.nil(m));
+    return items.map((m) => (typeof m === 'string' ? { label: m } : m));
   },
 } as const;

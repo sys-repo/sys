@@ -51,7 +51,14 @@ export const Menu: React.FC<MenuProps> = (props) => {
     />
   );
 
-  const elMenuList = <MenuList items={items} onSelect={props.onSelect} style={styles.menu} />;
+  const elMenuList = (
+    <MenuList
+      //
+      items={items.map((m) => m.title)}
+      style={styles.menu}
+      onSelect={props.onSelect}
+    />
+  );
 
   const elBody = (
     <div className={styles.body.class}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Programme } from '../../ui.Programme/v.ts';
-import { type t, Button, css, D, ObjectView, Signal } from './common.ts';
+import { type t, Button, css, D, Is, ObjectView, Signal } from './common.ts';
 
 type P = t.MenuListProps;
 
@@ -21,7 +21,7 @@ export function createDebugSignals() {
     debugStateful: s(true),
     debugMultiselect: s(true),
     theme: s<P['theme']>('Light'),
-    items: s<P['items']>(Programme.children[1].children),
+    items: s<P['items']>(Programme.children[1].children?.map((m) => m.title)),
     selected: s<P['selected']>(),
   };
   const p = props;
@@ -77,7 +77,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `debug:stateful: ${p.debugStateful.value}`}
-        onClick={() => Signal.toggle(p.debugStateful)}
+        onClick={() => {
+          Signal.toggle(p.debugStateful);
+          if (!p.debugStateful.value) p.selected.value = undefined;
+        }}
       />
       <Button
         block
@@ -105,8 +108,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `items: ${items ? `array [${items.length}]` : `<undefined>`}`;
         }}
         onClick={() => {
-          type T = t.VideoMediaContent[] | undefined;
-          const m = Programme.children.map((m) => m.children).filter(Boolean);
+          type T = P['items'] | undefined;
+          const m = Programme.children
+            .map((m) => m.children?.map((m) => m.title))
+            .filter((m) => !Is.nil(m));
           Signal.cycle<T>(p.items, [...m, undefined]);
         }}
       />
