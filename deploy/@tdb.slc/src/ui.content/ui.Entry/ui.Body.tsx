@@ -26,7 +26,11 @@ type Part = 'Canvas' | 'Wordmark';
  */
 export const Body: React.FC<BodyProps> = (props) => {
   const { state } = props;
+  const breakpoint = state.breakpoint;
 
+  /**
+   * Hooks:
+   */
   const size = useSizeObserver();
   const loading = useLoading<Part>(['Canvas', 'Wordmark']);
   const isReady = size.ready && loading.is.complete;
@@ -45,12 +49,16 @@ export const Body: React.FC<BodyProps> = (props) => {
     }),
     brand: {
       base: css({ display: 'grid', placeItems: 'center', rowGap: '35px' }),
-      canvas: css({
-        MarginX: 70,
-      }),
+      canvas: css({ MarginX: 70 }),
       wordmark: css({ width: 120 }),
     },
   };
+
+  const elStartProgramme = breakpoint.is.desktop && (
+    <div>
+      <StartProgrammeButton state={state} theme={theme.name} />
+    </div>
+  );
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
@@ -58,7 +66,6 @@ export const Body: React.FC<BodyProps> = (props) => {
         <LogoCanvas
           theme={theme.name}
           style={styles.brand.canvas}
-          // selected={'purpose'}
           selectionAnimation={{ delay, loop: true }}
           onReady={() => loading.ready('Canvas')}
         />
@@ -73,9 +80,7 @@ export const Body: React.FC<BodyProps> = (props) => {
           state={state}
           style={{ marginTop: wrangle.introButtonsMarginTop(size) }}
         />
-        <div>
-          <StartProgrammeButton state={state} theme={theme.name} />
-        </div>
+        {elStartProgramme}
       </div>
     </div>
   );

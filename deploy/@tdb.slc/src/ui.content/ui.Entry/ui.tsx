@@ -1,20 +1,9 @@
 import React from 'react';
-import {
-  type t,
-  Color,
-  css,
-  Icons,
-  Signal,
-  useVisibilityThresholdY,
-  useSizeObserver,
-} from './common.ts';
+import { type t, Color, css, Icons, Signal, useSizeObserver } from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { Footer } from './ui.Footer.tsx';
 
 export type EntryProps = t.StaticContentProps & {};
-
-const heartRateBPM = 72;
-const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
 
 /**
  * Component:
@@ -22,6 +11,9 @@ const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
 export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
 
+  /**
+   * Hooks:
+   */
   const size = useSizeObserver();
   const isReady = size.ready;
 
