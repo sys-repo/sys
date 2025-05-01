@@ -65,7 +65,7 @@ export const Section: React.FC<P> = (props) => {
       overflow: 'hidden',
     }),
     canvas: css({
-      Padding: [35, '18%', 0, '18%'],
+      Padding: [60, '20%', 0, '20%'],
       Absolute: canvas.visible ? undefined : [-9999, null, null, -9999],
     }),
     playlist: css({
