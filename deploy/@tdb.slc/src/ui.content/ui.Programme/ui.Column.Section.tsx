@@ -15,6 +15,7 @@ import {
 import { Calc, toPlaylist } from './u.ts';
 
 type P = t.ProgrammeSectionProps;
+type S = t.ProgrammeSignals;
 type Part = 'Canvas';
 
 /**
@@ -127,8 +128,14 @@ export const Section: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  selectedPanel(state: t.ProgrammeSignals) {
-    const media = Calc.Section.media(state);
-    return media.child?.panel ?? media.section?.panel;
+  selected(state: S) {
+    const section = Calc.Section.media(state).section;
+    const selected = Calc.Section.index(state).child;
+    const playlist = toPlaylist(section);
+    return playlist[selected];
+  },
+
+  selectedPanel(state: S) {
+    return wrangle.selected(state).panel;
   },
 } as const;

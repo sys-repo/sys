@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { type t } from './common.ts';
 
 type S = t.ProgrammeSignals;
 
