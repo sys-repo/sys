@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { type t, Button, Color, css, Icons } from './common.ts';
+
+import { type t, Button, Color, css } from './common.ts';
+import { toLabel } from './u.ts';
+import { Chevron } from './ui.Chevron.tsx';
 
 export type MenuButtonProps = {
-  label: t.ReactNode;
+  item: t.MenuListItem;
   selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -13,7 +16,12 @@ export type MenuButtonProps = {
  * Component:
  */
 export const MenuButton: React.FC<MenuButtonProps> = (props) => {
-  const { label = 'Untitled', selected = false } = props;
+  const { item, selected = false } = props;
+  const label = toLabel(item);
+
+  /**
+   * Hooks:
+   */
   const [isOver, setOver] = useState(false);
 
   /**
@@ -46,7 +54,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
       <Button onMouse={(e) => setOver(e.isOver)} onClick={props.onClick}>
         <div className={styles.body.class}>
           <div className={styles.button.label.class}>{label}</div>
-          <Icons.Chevron.Right size={26} color={color} />
+          <Chevron item={item} color={color} theme={theme.name} />
         </div>
       </Button>
     </div>
@@ -58,7 +66,6 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
  */
 const wrangle = {
   color(theme: t.ColorTheme, isSelected: boolean, isOver: boolean) {
-    //
     let color = isOver ? Color.BLUE : theme.fg;
     if (isSelected) color = Color.BLUE;
     return color;

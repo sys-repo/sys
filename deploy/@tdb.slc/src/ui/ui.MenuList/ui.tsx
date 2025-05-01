@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Is, Color, css } from './common.ts';
 import { MenuButton } from './ui.Button.tsx';
+import { toLabel } from './u.ts';
 
 type P = t.MenuListProps;
 
@@ -23,13 +24,13 @@ export const MenuList: React.FC<P> = (props) => {
   };
 
   const button = (item: t.MenuListItem, index: t.Index) => {
-    const label = wrangle.label(item);
     const id = item.id;
-    const onClick = () => props.onSelect?.({ index, label, id });
+    const label = toLabel(item);
+    const onClick = () => props.onSelect?.({ index, id, label });
     return (
       <MenuButton
         key={item.id ?? index}
-        label={label}
+        item={item}
         selected={selected.includes(index)}
         onClick={onClick}
       />
@@ -56,11 +57,5 @@ const wrangle = {
     if (props.items == null) return [];
     const items = props.items.filter((m) => !Is.nil(m));
     return items.map((m) => (typeof m === 'string' ? { label: m } : m));
-  },
-
-  label(item: t.MenuListItem) {
-    const label = item.label ?? 'Untitled';
-    if (typeof label === 'function') return label();
-    return label;
   },
 } as const;

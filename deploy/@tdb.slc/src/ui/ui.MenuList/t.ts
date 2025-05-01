@@ -18,6 +18,7 @@ export type MenuListProps = {
 export type MenuListItem = {
   id?: string;
   label?: string | (() => string);
+  chevron?: boolean | t.ReactNode | (() => t.ReactNode);
 };
 
 /**
@@ -25,7 +26,7 @@ export type MenuListItem = {
  */
 export type MenuListItemHandler = (e: MenuListItemHandlerArgs) => void;
 export type MenuListItemHandlerArgs = {
+  id?: string;
   index: t.Index;
   label: string;
-  id?: string;
 };

@@ -79,13 +79,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug:stateful: ${p.debugStateful.value}`}
         onClick={() => {
           Signal.toggle(p.debugStateful);
-          if (!p.debugStateful.value) p.selected.value = undefined;
+          const isStateful = p.debugStateful.value;
+          if (!isStateful) {
+            p.selected.value = undefined;
+            p.debugMultiselect.value = false;
+          }
         }}
       />
       <Button
         block
         label={() => `debug:multiselect: ${p.debugMultiselect.value}`}
-        onClick={() => Signal.toggle(p.debugMultiselect)}
+        onClick={() => {
+          Signal.toggle(p.debugMultiselect);
+          const isMultiselect = p.debugMultiselect.value;
+          if (isMultiselect) p.debugStateful.value = true;
+        }}
       />
 
       <hr />
