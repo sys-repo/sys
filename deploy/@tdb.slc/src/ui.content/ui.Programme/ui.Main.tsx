@@ -29,7 +29,7 @@ export const Main: React.FC<P> = (props) => {
     <>
       <ObjectView
         name={`${D.name}.Main`}
-        style={{ Absolute: [null, null, 15, 15] }}
+        style={{ Absolute: [null, null, 16, 22] }}
         expand={0}
         data={Signal.toObject({
           player: player.src,
