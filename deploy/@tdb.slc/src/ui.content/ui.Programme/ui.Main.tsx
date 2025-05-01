@@ -30,7 +30,7 @@ export const Main: React.FC<P> = (props) => {
       <ObjectView
         name={`${D.name}.Main`}
         style={{ Absolute: [null, null, 15, 15] }}
-        expand={1}
+        expand={0}
         data={Signal.toObject({
           player: player.src,
           'state:<ProgrammeSignals>': state.props,
