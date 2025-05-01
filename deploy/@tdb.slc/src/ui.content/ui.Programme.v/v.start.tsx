@@ -1,5 +1,5 @@
-import { LogoWordmark, type t, VIDEO } from './common.ts';
-import { center, Dir, image, v } from './u.tsx';
+import { type t, Dir, LogoWordmark, VIDEO } from './common.ts';
+import { center, image, v } from './u.tsx';
 
 const Intro = VIDEO.Intro;
 const dir = Dir.programme.dir('start');
