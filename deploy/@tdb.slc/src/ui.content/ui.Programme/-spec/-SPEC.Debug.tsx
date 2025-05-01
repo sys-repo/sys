@@ -83,18 +83,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {videoPlayerButton(debug.player)}
 
       <hr />
+      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={0} margin={[5, 0]} />
       <ObjectView
-        name={'debug'}
-        data={Signal.toObject(debug)}
-        expand={{ paths: ['$', '$.state', '$.state.component', '$.state.component.props'] }}
-        margin={[20, 0]}
-      />
-
-      <ObjectView
-        name={':state'}
+        name={'state'}
         data={Signal.toObject(debug.state.props)}
         expand={{ paths: ['$', '$.section'] }}
-        margin={[20, 0]}
+        margin={[5, 0]}
       />
     </div>
   );
