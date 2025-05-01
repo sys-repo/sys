@@ -184,7 +184,7 @@ events.dispose();
 
 [Open/Closed Principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle)
 
->> Software entities ( ƒx ) should be open for extension but closed for modification.
+>> Software entities ( ƒn:🧫 ) should be open for extension but closed for modification.
 
 
 <p>&nbsp;</p>
