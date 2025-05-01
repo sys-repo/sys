@@ -9,7 +9,7 @@ export type MenuListProps = {
   selected?: t.Index | t.Index[];
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSelect?: (e: { index: t.Index; item: t.MenuListItem }) => void;
+  onSelect?: t.MenuListItemHandler;
 };
 
 /**
@@ -17,5 +17,15 @@ export type MenuListProps = {
  */
 export type MenuListItem = {
   id?: string;
-  label?: string;
+  label?: string | (() => string);
+};
+
+/**
+ * Event: MenuItem
+ */
+export type MenuListItemHandler = (e: MenuListItemHandlerArgs) => void;
+export type MenuListItemHandlerArgs = {
+  index: t.Index;
+  label: string;
+  id?: string;
 };
