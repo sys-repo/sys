@@ -68,9 +68,7 @@ export const Section: React.FC<P> = (props) => {
       Padding: [60, '20%', 0, '20%'],
       Absolute: canvas.visible ? undefined : [-9999, null, null, -9999],
     }),
-    playlist: css({
-      MarginX: [85, 50],
-    }),
+    playlist: css({ MarginX: [85, 50] }),
   };
 
   const elDebug = debug && (
@@ -105,7 +103,7 @@ export const Section: React.FC<P> = (props) => {
         <Playlist
           items={toPlaylist(section)}
           theme={theme.name}
-          paddingTop={canvas.visible ? 50 : 30}
+          paddingTop={canvas.visible ? 50 : 45}
           selected={selected}
           onChildSelect={(e) => {
             const { index } = e;

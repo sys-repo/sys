@@ -181,6 +181,14 @@ events.dispose();
 
 <p>&nbsp;</p>
 
+
+[Open/Closed Principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle)
+
+>> Software entities ( ƒx ) should be open for extension but closed for modification.
+
+
+<p>&nbsp;</p>
+
 # (Design) Philosophy
 "Extracting energy from the [turing tarpit](https://en.wikipedia.org/wiki/Turing_tarpit)" ([Alan Kay](https://www.youtube.com/watch?v=Vt8jyPqsmxE&t=8s))
 
