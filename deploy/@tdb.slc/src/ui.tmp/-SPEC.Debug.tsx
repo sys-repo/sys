@@ -76,7 +76,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `running: ${p.running.value ?? `<undefined> (defaut: ${D.running})`}`}
+        label={() => `running: ${p.running.value ?? `<undefined> (default: ${D.running})`}`}
         onClick={() => Signal.toggle(p.running)}
       />
 

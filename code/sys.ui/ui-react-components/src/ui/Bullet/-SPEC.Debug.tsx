@@ -85,12 +85,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `selected: ${p.selected.value ?? `<undefined> (defaut: ${D.selected})`}`}
+        label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
         onClick={() => Signal.toggle(p.selected)}
       />
       <Button
         block
-        label={() => `filled: ${p.filled.value ?? `<undefined> (defaut: ${D.filled})`}`}
+        label={() => `filled: ${p.filled.value ?? `<undefined> (default: ${D.filled})`}`}
         onClick={() => Signal.toggle(p.filled)}
       />
       <hr />

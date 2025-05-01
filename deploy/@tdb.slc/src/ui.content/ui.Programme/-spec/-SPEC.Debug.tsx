@@ -72,7 +72,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `align: ${p.align.value ?? `<undefined> (defaut: ${D.align})`}`}
+        label={() => `align: ${p.align.value ?? `<undefined> (default: ${D.align})`}`}
         onClick={() => Signal.cycle(p.align, ['Center', 'Right'])}
       />
 

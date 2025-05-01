@@ -96,7 +96,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `selected: ${p.selected.value ?? `<undefined> (defaut: ${D.selected})`}`}
+        label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
         onClick={() => Signal.cycle(p.selected, [D.selected, 0, [1, 2], undefined])}
       />
 

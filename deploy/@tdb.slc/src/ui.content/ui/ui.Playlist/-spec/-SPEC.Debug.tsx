@@ -91,7 +91,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `paddingTop: ${p.paddingTop.value ?? `<undefined> (defaut: ${D.paddingTop})`}`}
+        label={() => {
+          const v = p.paddingTop.value;
+          return `paddingTop: ${v ?? `<undefined> (default: ${D.paddingTop})`}`;
+        }}
         onClick={() => Signal.cycle(p.paddingTop, [D.paddingTop, 50, 200, undefined])}
       />
 
