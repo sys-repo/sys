@@ -2,8 +2,11 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { MenuButton } from './ui.Button.tsx';
 
-export const MenuList: React.FC<t.MenuListProps> = (props) => {
+type P = t.MenuListProps;
+
+export const MenuList: React.FC<P> = (props) => {
   const { debug = false, items = [] } = props;
+  const selected = wrangle.selected(props);
 
   /**
    * Render:
@@ -21,7 +24,14 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
   const button = (item: t.VideoMediaContent, index: t.Index) => {
     const label = item.title ?? 'Untitled';
     const onClick = () => props.onSelect?.({ item, index });
-    return <MenuButton key={item.id} label={label} onClick={onClick} />;
+    return (
+      <MenuButton
+        key={item.id}
+        label={label}
+        selected={selected.includes(index)}
+        onClick={onClick}
+      />
+    );
   };
 
   return (
@@ -30,3 +40,13 @@ export const MenuList: React.FC<t.MenuListProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  selected(props: P): t.Index[] {
+    const { selected = [] } = props;
+    return Array.isArray(selected) ? selected : [selected];
+  },
+} as const;

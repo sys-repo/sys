@@ -3,6 +3,7 @@ import { type t, Button, Color, css, Icons } from './common.ts';
 
 export type MenuButtonProps = {
   label: t.ReactNode;
+  selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: t.ReactMouseEventHandler;
@@ -12,17 +13,18 @@ export type MenuButtonProps = {
  * Component:
  */
 export const MenuButton: React.FC<MenuButtonProps> = (props) => {
-  const { label = 'Untitled' } = props;
+  const { label = 'Untitled', selected = false } = props;
   const [isOver, setOver] = useState(false);
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const color = isOver ? Color.BLUE : theme.fg;
+  const color = wrangle.color(theme, selected, isOver);
+
   const styles = {
     base: css({
-      color: theme.fg,
+      color,
       display: 'grid',
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       ':last-child': { borderBottom: 'none' },
@@ -34,17 +36,31 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
       alignItems: 'center',
       columnGap: '10px',
     }),
-    button: css({ color }),
+    button: {
+      label: css({ color }),
+    },
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button onMouse={(e) => setOver(e.isOver)} style={styles.button} onClick={props.onClick}>
+      <Button onMouse={(e) => setOver(e.isOver)} onClick={props.onClick}>
         <div className={styles.body.class}>
-          <div>{label}</div>
-          <Icons.Chevron.Right size={26} />
+          <div className={styles.button.label.class}>{label}</div>
+          <Icons.Chevron.Right size={26} color={color} />
         </div>
       </Button>
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  color(theme: t.ColorTheme, isSelected: boolean, isOver: boolean) {
+    //
+    let color = isOver ? Color.BLUE : theme.fg;
+    if (isSelected) color = Color.BLUE;
+    return color;
+  },
+} as const;

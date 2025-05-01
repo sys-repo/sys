@@ -18,16 +18,22 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(false),
+    debugStateful: s(true),
+    debugMultiselect: s(true),
     theme: s<P['theme']>('Light'),
     items: s<P['items']>(Programme.children[1].children),
+    selected: s<P['selected']>(),
   };
   const p = props;
   const api = {
     props,
     listen() {
       p.debug.value;
+      p.debugStateful.value;
+      p.debugMultiselect.value;
       p.theme.value;
       p.items.value;
+      p.selected.value;
     },
   };
   return api;
@@ -70,8 +76,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `debug:stateful: ${p.debugStateful.value}`}
+        onClick={() => Signal.toggle(p.debugStateful)}
+      />
+      <Button
+        block
+        label={() => `debug:multiselect: ${p.debugMultiselect.value}`}
+        onClick={() => Signal.toggle(p.debugMultiselect)}
+      />
+
+      <hr />
+      <Button
+        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `selected: ${p.selected.value ?? `<undefined> (defaut: ${D.selected})`}`}
+        onClick={() => Signal.cycle(p.selected, [D.selected, 0, [1, 2], undefined])}
       />
 
       <hr />
@@ -89,7 +112,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={2} />
+      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );
 };
