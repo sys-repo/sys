@@ -6,7 +6,7 @@
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RW",
+    "test": "deno test -RWE",
     "dir": "deno run -RWE ./scripts/-dir.ts"
   },
   "exports": {
