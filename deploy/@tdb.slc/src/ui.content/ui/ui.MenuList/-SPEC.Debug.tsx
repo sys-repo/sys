@@ -15,10 +15,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
-    items: s<P['items']>(Programme.children[0].children),
+    items: s<P['items']>(Programme.children[1].children),
   };
   const p = props;
   const api = {
@@ -88,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      <ObjectView name={'props'} data={Signal.toObject(p)} expand={2} />
     </div>
   );
 };
