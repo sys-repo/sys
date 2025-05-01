@@ -1,5 +1,13 @@
 import React from 'react';
-import { type t, Color, css, Icons, Signal } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  Icons,
+  Signal,
+  useVisibilityThresholdY,
+  useSizeObserver,
+} from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { Footer } from './ui.Footer.tsx';
 
@@ -13,6 +21,9 @@ const delay = 60_000 / heartRateBPM; // NB: 60_000 ms in a minute.
  */
 export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
+
+  const size = useSizeObserver();
+  const isReady = size.ready;
 
   /**
    * Effects:
@@ -31,6 +42,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
       pointerEvents: 'auto',
       display: 'grid',
       gridTemplateRows: '44px 1fr auto',
+      opacity: isReady ? 1 : 0,
     }),
     header: css({
       MarginX: 20,
@@ -57,7 +69,11 @@ export const Entry: React.FC<EntryProps> = (props) => {
   const elFooter = <Footer state={state} theme={theme.name} style={styles.footer} />;
 
   return (
-    <div className={css(styles.base, props.style).class} onClick={() => state.stack.clear(1)}>
+    <div
+      ref={size.ref}
+      className={css(styles.base, props.style).class}
+      onClick={() => state.stack.clear(1)}
+    >
       {elHeader}
       {elBody}
       {elFooter}
