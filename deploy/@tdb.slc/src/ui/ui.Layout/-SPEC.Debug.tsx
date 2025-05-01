@@ -40,8 +40,9 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
 
   // app.stack.push(Sample.sample0());
   app.stack.push(await Content.factory('Entry'));
+  // app.stack.push(await Content.factory('Trailer'));
   // app.stack.push(await Content.factory('Overview'));
-  app.stack.push(await Content.factory('Programme'));
+  // app.stack.push(await Content.factory('Programme'));
 
   init?.(api);
   return api;
