@@ -4,7 +4,7 @@ import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { type t, Color, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal, Style, Time, useSizeObserver } from './common.ts';
 import { FadeMask } from './ui.FadeMask.tsx';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
@@ -19,7 +19,6 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const { signals, debug = false } = props;
   const p = signals?.props;
 
-  const src = p?.src.value ?? D.video;
   const showControls = p?.showControls.value ?? D.showControls;
   const showFullscreenButton = p?.showFullscreenButton.value ?? D.showFullscreenButton;
   const showVolumeControl = p?.showVolumeControl?.value ?? D.showVolumeControl;
@@ -31,11 +30,23 @@ export const VideoPlayer: React.FC<P> = (props) => {
   const loop = p?.loop.value ?? D.loop;
 
   const size = useSizeObserver();
+  const [src, setSrc] = useState('');
   const [calcScale, setCalcScale] = useState<number>();
 
   const [playerKeyCount, setPlayerKeyCount] = useState(0);
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
+
+  /**
+   * Effect: video "src" address as state.
+   * NB:
+   *    Staggering the change to src behind a mico-delay event.
+   */
+  React.useEffect(() => {
+    const time = Time.until();
+    time.delay(0, () => setSrc(p?.src.value ?? ''));
+    return time.dispose;
+  }, [p?.src.value]);
 
   /**
    * Effect: ensure redraw on signal changes.
