@@ -116,7 +116,7 @@ describe('Value.Arr (Array)', () => {
     });
   });
 
-  describe.only('Arr.uniq', () => {
+  describe('Arr.uniq', () => {
     it('returns an empty array for empty input', () => {
       const input: number[] = [];
       const out = Arr.uniq(input);
