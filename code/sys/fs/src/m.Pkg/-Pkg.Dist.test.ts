@@ -37,13 +37,17 @@ describe('Pkg.Dist', () => {
     it('Dist.compute(): → success', async () => {
       const sample = await Sample.init();
       const { dir, entry } = sample.path;
+
       const res = await Pkg.Dist.compute({ dir, pkg, entry });
       renderDist(res.dist);
 
       expect(res.exists).to.eql(true);
       expect(res.error).to.eql(undefined);
 
-      expect(res.dist['-type:'] === 'jsr:@sys/types:DistPkg').to.eql(true);
+      const typeUrl = res.dist.type;
+      expect(typeUrl.startsWith('https://jsr.io/@sys/types')).to.eql(true);
+      expect(typeUrl.endsWith('src/types/t.Pkg.dist.ts')).to.eql(true);
+
       expect(res.dir).to.eql(Fs.resolve(dir));
       expect(res.dist.pkg).to.eql(pkg);
       expect(res.dist.entry).to.eql(Path.normalize(entry));

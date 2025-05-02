@@ -12,7 +12,7 @@ describe('Pkg.Dist', () => {
     const SAMPLE = {
       dist(): t.DistPkg {
         return {
-          '-type:': 'jsr:@sys/types:DistPkg',
+          type: 'https://jsr.io/@sample/foo',
           pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
           size: { bytes: 1234 },
           entry: './main.js',

@@ -1,6 +1,9 @@
+import { Jsr } from '@sys/jsr/client';
 import { Pkg } from '@sys/std/pkg';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { type t, Delete, Err, Fs, Path } from './common.ts';
+
+import { pkg as typesPkg } from '@sys/types';
 
 /**
  * Tools for working with "distribution-package"
@@ -36,7 +39,7 @@ export const Dist: t.PkgDistFsLib = {
     const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
     const size: t.DistPkg['size'] = { bytes };
     const dist: t.DistPkg = {
-      '-type:': 'jsr:@sys/types:DistPkg',
+      type: Jsr.Url.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg,
       size,
       entry: wrangle.entry(entry),
