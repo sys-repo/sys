@@ -19,6 +19,8 @@ export type CompositeHashVerifyArgsInput = t.CompositeHashVerifyOptions | t.Hash
  * Tools for building composite hashes.
  */
 export type CompositeHashLib = {
+  readonly Uri: { readonly File: FileHashUriLib };
+
   /** Create a new Composite-Hash builder. */
   builder(options?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuilder;
 
@@ -97,4 +99,12 @@ export type CompositeHashBuilder = t.CompositeHash & {
 
   /** Convert the builder into the digest string. */
   toString(): string;
+};
+
+/**
+ * URIs:
+ */
+export type FileHashUriLib = {
+  toUri(hash: string, bytes?: number): t.FileHashUri;
+  fromUri(input: string): { hash: t.StringHash; bytes?: number };
 };

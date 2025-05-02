@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import { sha1, sha256 } from '../m.Hash/u.hash.ts';
 
 /**
- * Helpers
+ * Helpers:
  */
 export const Wrangle = {
   hash(value: unknown, algo?: t.HashAlgoInput) {

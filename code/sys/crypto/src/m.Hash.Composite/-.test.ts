@@ -1,11 +1,16 @@
 import { type t, describe, expect, it, Time } from '../-test.ts';
 import { Hash } from '../m.Hash/mod.ts';
+import { FileHashUri } from './m.Uri.ts';
 import { CompositeHash } from './mod.ts';
 
 const circular: any = { foo: 123 };
 circular.ref = circular;
 
 describe('hash', () => {
+  it('API', () => {
+    expect(CompositeHash.Uri.FileHash).to.equal(FileHashUri);
+  });
+
   describe('CompositeHash: <CompositeHash>', () => {
     it('toComposite', () => {
       const builder = CompositeHash.builder().add('foo', '1234');
@@ -228,6 +233,47 @@ describe('hash', () => {
             if (e.part === './apple/a') return a;
           });
           expect(res.error?.message).to.include('loader did not return content for part');
+        });
+      });
+    });
+  });
+
+  describe('FileHashUri', () => {
+    it('toUri', () => {
+      const a = FileHashUri.toUri('sha256-0000');
+      const b = FileHashUri.toUri('sha256-0000', 1234);
+      expect(a).to.eql('sha256-0000');
+      expect(b).to.eql('sha256-0000:bytes-1234');
+    });
+
+    describe('FileHashUri.fromUri', () => {
+      const { fromUri } = FileHashUri;
+
+      it('returns empty hash for non-string inputs', () => {
+        const bads = [123, true, null, {}, [], BigInt(0), Symbol()];
+        bads.forEach((v: any) => {
+          expect(fromUri(v)).to.eql({ hash: '' });
+        });
+      });
+
+      it('returns empty hash for invalid format strings', () => {
+        expect(fromUri('')).to.eql({ hash: '' });
+        expect(fromUri('sha256-')).to.eql({ hash: '' });
+        expect(fromUri('sha256-XYZ:bytes-123')).to.eql({ hash: '' }); // non-hex.
+        expect(fromUri('sha256-abc123:bytes-12three')).to.eql({ hash: '' }); // bad bytes.
+        expect(fromUri('totally-not-it')).to.eql({ hash: '' });
+      });
+
+      it('parses a valid hash without bytes', () => {
+        expect(fromUri('sha256-abcdef012345')).to.eql({
+          hash: 'sha256-abcdef012345',
+        });
+      });
+
+      it('parses a valid hash with bytes', () => {
+        expect(fromUri('sha256-abcdef012345:bytes-4096')).to.eql({
+          hash: 'sha256-abcdef012345',
+          bytes: 4096,
         });
       });
     });

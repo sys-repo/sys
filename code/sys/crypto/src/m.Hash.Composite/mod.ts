@@ -1,1 +1,1 @@
-export { CompositeHash } from './m.Composite.ts';
+export { CompositeHash } from './m.CompositeHash.ts';
