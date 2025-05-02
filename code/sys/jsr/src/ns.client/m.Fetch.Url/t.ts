@@ -27,4 +27,5 @@ export type JsrUrlPkgLib = {
    * https://jsr.io/docs/api#modules
    */
   file(name: t.StringPkgName, version: t.StringSemver, path: string): t.StringUrl;
+  file(pkg: t.Pkg, path: string): t.StringUrl;
 };

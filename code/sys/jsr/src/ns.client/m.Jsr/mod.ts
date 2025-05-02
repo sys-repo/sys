@@ -7,4 +7,5 @@ import { type t, Fetch } from './common.ts';
 
 export const Jsr: t.JsrClientLib = {
   Fetch,
+  Url: Fetch.Url,
 };

@@ -34,15 +34,23 @@ describe('Jsr.Fetch.Url', () => {
     print('Url.Pkg.version', formatUrl(url, 'meta.json'));
   });
 
-  it('Url.Pkg.file', () => {
-    const test = (path: string, options: { silent?: boolean } = {}) => {
-      const url = Url.Pkg.file('@sys/std', '0.0.42', path);
-      expect(url).to.eql('https://jsr.io/@sys/std/0.0.42/src/pkg.ts');
-      if (!options.silent) print('Url.Pkg.file', formatUrl(url, path));
-    };
+  describe('Url.Pkg.file', () => {
+    it('file(name, version)', () => {
+      const test = (path: string, options: { silent?: boolean } = {}) => {
+        const url = Url.Pkg.file('@sys/std', '0.0.42', path);
+        expect(url).to.eql('https://jsr.io/@sys/std/0.0.42/src/pkg.ts');
+        if (!options.silent) print('Url.Pkg.file', formatUrl(url, path));
+      };
 
-    const silent = true;
-    test('/src/pkg.ts');
-    test('src/pkg.ts', { silent });
+      const silent = true;
+      test('/src/pkg.ts');
+      test('src/pkg.ts', { silent });
+    });
+
+    it('file(pkg)', () => {
+      const pkg = { name: '@ns/foo', version: '1.2.3' };
+      const res = Url.Pkg.file(pkg, 'foo/bar.ts');
+      expect(res).to.eql('https://jsr.io/@ns/foo/1.2.3/foo/bar.ts');
+    });
   });
 });
