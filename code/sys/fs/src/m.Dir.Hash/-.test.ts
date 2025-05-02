@@ -1,18 +1,22 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Hash, HashFmt } from './common.ts';
+import { CompositeHash, Fs, Hash, HashFmt } from './common.ts';
 
 import { DirHash } from './mod.ts';
 
 describe('Dir.Hash', () => {
   const expectHash = (value: t.StringHash, expected: t.StringHash) => {
+    expected = CompositeHash.Uri.File.fromUri(expected).hash;
     expect(value.endsWith(expected)).to.eql(true, value);
   };
 
-  const verifyFileHash = async (path: t.StringPath, expected: t.StringHash) => {
+  const verifyFileHash = async (path: t.StringPath, expected: t.FileHashUri) => {
+    const uri = CompositeHash.Uri.File.fromUri(expected);
     const binary = (await Fs.read(path)).data;
-    expect(Hash.sha256(binary)).to.eql(expected);
+    const hash = Hash.sha256(binary);
+    expect(hash).to.eql(uri.hash);
+    if (uri.bytes !== null) expect(binary?.byteLength).to.eql(uri.bytes);
   };
 
   it('API', () => {

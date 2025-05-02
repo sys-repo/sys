@@ -8,7 +8,7 @@ circular.ref = circular;
 
 describe('hash', () => {
   it('API', () => {
-    expect(CompositeHash.Uri.FileHash).to.equal(FileHashUri);
+    expect(CompositeHash.Uri.File).to.equal(FileHashUri);
   });
 
   describe('CompositeHash: <CompositeHash>', () => {

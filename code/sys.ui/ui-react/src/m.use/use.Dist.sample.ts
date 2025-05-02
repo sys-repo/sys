@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 export const sample: t.DistPkg = {
-  '-type:': 'jsr:@sys/types:DistPkg',
+  type: 'https://jsr.io/@sample/foo',
   pkg: {
     name: 'sample',
     version: '0.0.0-sample.0',
