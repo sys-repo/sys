@@ -32,6 +32,10 @@ export const Arr: t.ArrayLib = {
       startsWith: (compare: T[]) => startsWith(subject, compare),
     };
   },
+
+  uniq<T>(list: readonly T[]): T[] {
+    return [...new Set(list)];
+  },
 };
 
 /**

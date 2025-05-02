@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Time, Value, asArray } from '../mod.ts';
+import { Arr, Time, Value, asArray } from '../mod.ts';
 
 describe('Value.Arr (Array)', () => {
   it('API', async () => {
@@ -113,6 +113,46 @@ describe('Value.Arr (Array)', () => {
       it('empty', () => {
         test([], [], true);
       });
+    });
+  });
+
+  describe.only('Arr.uniq', () => {
+    it('returns an empty array for empty input', () => {
+      const input: number[] = [];
+      const out = Arr.uniq(input);
+      expect(out).to.eql([]);
+    });
+
+    it('removes duplicate primitives and keeps original order', () => {
+      const input = [1, 2, 2, 3, 1, 4];
+      const out = Arr.uniq(input);
+      expect(out).to.eql([1, 2, 3, 4]);
+    });
+
+    it('does not mutate the original array', () => {
+      const input = ['a', 'b', 'a'];
+      const copy = [...input];
+      void Arr.uniq(input);
+      expect(input).to.eql(copy);
+    });
+
+    it('accepts readonly input', () => {
+      const tuple = [1, 2, 2] as const; // readonly [1, 2, 2]
+      const out = Arr.uniq(tuple);
+      expect(out).to.eql([1, 2]);
+    });
+
+    it('deduplicates by reference, not deep equality', () => {
+      const a = { id: 1 };
+      const b = { id: 1 }; // same shape, different reference
+      const out = Arr.uniq([a, a, b]);
+      expect(out).to.eql([a, b]); // only the ref-dup removed
+    });
+
+    it('returns a new array instance every time', () => {
+      const input = [99, 99];
+      const out = Arr.uniq(input);
+      expect(out).to.not.equal(input);
     });
   });
 });

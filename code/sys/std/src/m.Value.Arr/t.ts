@@ -33,4 +33,9 @@ export type ArrayLib = {
    * @param subject - The array whose elements are being examined.
    */
   compare<T>(subject: T[]): { subject: T[]; startsWith: (compare: T[]) => boolean };
+
+  /**
+   * Returns a new array with duplicates removed.
+   */
+  uniq<T>(values: readonly T[]): T[];
 };
