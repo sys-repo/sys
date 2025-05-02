@@ -243,7 +243,7 @@ describe('hash', () => {
       const a = FileHashUri.toUri('sha256-0000');
       const b = FileHashUri.toUri('sha256-0000', 1234);
       expect(a).to.eql('sha256-0000');
-      expect(b).to.eql('sha256-0000:bytes-1234');
+      expect(b).to.eql('sha256-0000:size=1234');
     });
 
     describe('FileHashUri.fromUri', () => {
@@ -259,8 +259,8 @@ describe('hash', () => {
       it('returns empty hash for invalid format strings', () => {
         expect(fromUri('')).to.eql({ hash: '' });
         expect(fromUri('sha256-')).to.eql({ hash: '' });
-        expect(fromUri('sha256-XYZ:bytes-123')).to.eql({ hash: '' }); // non-hex.
-        expect(fromUri('sha256-abc123:bytes-12three')).to.eql({ hash: '' }); // bad bytes.
+        expect(fromUri('sha256-XYZ:size=123')).to.eql({ hash: '' }); // non-hex.
+        expect(fromUri('sha256-abc123:size=12three')).to.eql({ hash: '' }); // bad bytes.
         expect(fromUri('totally-not-it')).to.eql({ hash: '' });
       });
 
@@ -271,7 +271,7 @@ describe('hash', () => {
       });
 
       it('parses a valid hash with bytes', () => {
-        expect(fromUri('sha256-abcdef012345:bytes-4096')).to.eql({
+        expect(fromUri('sha256-abcdef012345:size=4096')).to.eql({
           hash: 'sha256-abcdef012345',
           bytes: 4096,
         });
