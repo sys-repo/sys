@@ -137,16 +137,16 @@ describe('Value.Arr (Array)', () => {
     });
 
     it('accepts readonly input', () => {
-      const tuple = [1, 2, 2] as const; // readonly [1, 2, 2]
+      const tuple = [1, 2, 2] as const; // readonly [1, 2, 2].
       const out = Arr.uniq(tuple);
       expect(out).to.eql([1, 2]);
     });
 
     it('deduplicates by reference, not deep equality', () => {
       const a = { id: 1 };
-      const b = { id: 1 }; // same shape, different reference
+      const b = { id: 1 }; // same shape, different reference.
       const out = Arr.uniq([a, a, b]);
-      expect(out).to.eql([a, b]); // only the ref-dup removed
+      expect(out).to.eql([a, b]); // only the ref-dup removed.
     });
 
     it('returns a new array instance every time', () => {
