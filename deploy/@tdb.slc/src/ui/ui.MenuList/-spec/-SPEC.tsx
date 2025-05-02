@@ -1,6 +1,6 @@
-import { Dev, Is, Signal, Spec, asArray } from '../-test.ui.ts';
+import { Arr, Dev, Is, Signal, Spec } from '../../-test.ui.ts';
+import { MenuList } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { MenuList } from './mod.ts';
 
 export default Spec.describe('MenuList', (e) => {
   const debug = createDebugSignals();
@@ -27,15 +27,16 @@ export default Spec.describe('MenuList', (e) => {
           selected={p.selected.value}
           onSelect={(e) => {
             console.info(`⚡️ onSelect:`, e);
+
             const isStateful = p.debugStateful.value;
             const isMultiselect = p.debugMultiselect.value;
             if (isStateful) {
               if (!isMultiselect) {
-                debug.props.selected.value = e.index;
+                p.selected.value = e.index;
               } else {
-                const current = asArray(p.selected.value).filter((m) => !Is.nil(m));
+                const current = Arr.asArray(p.selected.value).filter((m) => !Is.nil(m));
                 const next = [...current, e.index];
-                debug.props.selected.value = next;
+                p.selected.value = Arr.uniq(next);
               }
             }
           }}

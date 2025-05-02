@@ -19,7 +19,7 @@ export const SpecsComponents = {
 
   'tdb.slc.ui.FadeText': () => import('../ui/ui.FadeText/-SPEC.tsx'),
   'tdb.slc.ui.Image': () => import('../ui/ui.Image/-SPEC.tsx'),
-  'tdb.slc.ui.MenuList': () => import('../ui/ui.MenuList/-SPEC.tsx'),
+  'tdb.slc.ui.MenuList': () => import('../ui/ui.MenuList/-spec/-SPEC.tsx'),
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 } as t.SpecImports;

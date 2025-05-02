@@ -1,6 +1,6 @@
 import React from 'react';
-import { Programme } from '../../ui.content/ui.Programme/v.ts';
-import { type t, Button, css, D, Is, ObjectView, Signal } from './common.ts';
+import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { Sample } from './-SPEC.sample.tsx';
 
 type P = t.MenuListProps;
 
@@ -21,7 +21,7 @@ export function createDebugSignals() {
     debugStateful: s(true),
     debugMultiselect: s(true),
     theme: s<P['theme']>('Light'),
-    items: s<P['items']>(Programme.children[1].children?.map((m) => m.title)),
+    items: s<P['items']>(Sample.items),
     selected: s<P['selected']>(),
   };
   const p = props;
@@ -88,7 +88,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `debug:multiselect: ${p.debugMultiselect.value}`}
+        label={() => `debug:multi-select: ${p.debugMultiselect.value}`}
         onClick={() => {
           Signal.toggle(p.debugMultiselect);
           const isMultiselect = p.debugMultiselect.value;
@@ -116,11 +116,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `items: ${items ? `array [${items.length}]` : `<undefined>`}`;
         }}
         onClick={() => {
-          type T = P['items'] | undefined;
-          const m = Programme.children
-            .map((m) => m.children?.map((m) => m.title))
-            .filter((m) => !Is.nil(m));
-          Signal.cycle<T>(p.items, [...m, undefined]);
+          type T = P['items'];
+          const items = Sample.items;
+          Signal.cycle<T>(p.items, [items, items.toReversed(), undefined]);
         }}
       />
 
