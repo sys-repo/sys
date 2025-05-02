@@ -1,5 +1,4 @@
-import { type t, Player, Center, Image, dirPath } from './common.ts';
-// export * from '../u.ts';
+import { type t, Center, Image, Player } from './common.ts';
 
 /**
  * Standard video/media configuration setup.
@@ -7,7 +6,7 @@ import { type t, Player, Center, Image, dirPath } from './common.ts';
 export const v = (src: string) => {
   return Player.Video.signals({
     src,
-    fadeMask: 10,
+    fadeMask: 15,
     scale: (e) => e.enlargeBy(2),
   });
 };
