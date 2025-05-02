@@ -35,8 +35,8 @@ export default Spec.describe('MenuList', (e) => {
                 p.selected.value = e.index;
               } else {
                 const current = Arr.asArray(p.selected.value).filter((m) => !Is.nil(m));
-                const next = [...current, e.index];
-                p.selected.value = Arr.uniq(next);
+                const next = Arr.uniq([...current, e.index]);
+                p.selected.value = next;
               }
             }
           }}
