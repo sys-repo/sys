@@ -55,6 +55,7 @@ export async function main() {
     console.info('            v8  ', c.green(Deno.version.v8));
 
     console.info(c.bold('  ↓'));
+    console.info(c.yellow('  System'));
     console.info(c.dim('  code.pattern  '), c.dim(pattern));
     console.info('         files  ', c.yellow(files.length.toLocaleString()));
     if (options.lines) {
