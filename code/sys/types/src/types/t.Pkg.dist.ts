@@ -25,4 +25,4 @@ export type DistPkg = {
 /**
  * Distribution-package size statistics.
  */
-export type DistPkgSize = { bytes: number };
+export type DistPkgSize = { total: t.NumberBytes };

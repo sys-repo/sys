@@ -36,8 +36,8 @@ export const Dist: t.PkgDistFsLib = {
      * Prepare the "distributeion-package" json.
      */
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
-    const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
-    const size: t.DistPkg['size'] = { bytes };
+    const total = await wrangle.bytes(dir, Object.keys(hash.parts));
+    const size: t.DistPkg['size'] = { total };
     const dist: t.DistPkg = {
       type: Jsr.Url.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg,

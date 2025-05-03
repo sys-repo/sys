@@ -7,7 +7,7 @@ export const sample: t.DistPkg = {
     version: '0.0.0-sample.0',
   },
   size: {
-    bytes: 1119584,
+    total: 1119584,
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   hash: {
