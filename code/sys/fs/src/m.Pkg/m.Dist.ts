@@ -1,7 +1,6 @@
-import { Jsr } from '@sys/jsr/client';
 import { Pkg } from '@sys/std/pkg';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, CompositeHash, Delete, Err, Fs, Path } from './common.ts';
+import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path } from './common.ts';
 
 import { pkg as typesPkg } from '@sys/types';
 
@@ -41,7 +40,7 @@ export const Dist: t.PkgDistFsLib = {
       pkg: CompositeHash.size(hash.parts, (m) => m.path.startsWith('pkg/')) ?? 0,
     };
     const dist: t.DistPkg = {
-      type: Jsr.Url.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
+      type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg,
       size,
       entry: wrangle.entry(entry),

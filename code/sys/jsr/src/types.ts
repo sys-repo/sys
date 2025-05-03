@@ -2,7 +2,8 @@
  * @module
  * Module types.
  */
-export type * from './ns.client/m.Fetch.Url/t.ts';
+export type { JsrUrlLib, JsrUrlPkgLib } from '@sys/std/t';
+
 export type * from './ns.client/m.Fetch/t.ts';
 export type * from './ns.client/m.Jsr/t.ts';
 
