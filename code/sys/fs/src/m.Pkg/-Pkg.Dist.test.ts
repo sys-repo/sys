@@ -79,7 +79,7 @@ describe('Pkg.Dist', () => {
       const { dir } = sample.path;
       const res = await Pkg.Dist.compute(dir);
       expect(res.dir).to.eql(Fs.resolve(dir));
-      expect(res.dist.size.bytes).to.greaterThan(0);
+      expect(res.dist.size.total).to.greaterThan(0);
     });
 
     it('{save:true} → saves to file-system', async () => {

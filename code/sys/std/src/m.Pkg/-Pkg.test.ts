@@ -101,7 +101,7 @@ describe('Pkg', () => {
         const dist: t.DistPkg = {
           type: 'https://jsr.io/@sample/foo',
           pkg: { name: 'foo', version: '1.2.3' },
-          size: { bytes: 123_456 },
+          size: { total: 123_456 },
           entry: 'pkg/entry.js',
           hash: {
             digest: 'acbc',
