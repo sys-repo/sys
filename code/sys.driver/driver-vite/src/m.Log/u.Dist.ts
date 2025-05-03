@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Path, Str } from './common.ts';
+import { type t, c, Cli, CompositeHash, Fs, Path, Str } from './common.ts';
 import { digest } from './u.ts';
 
 export const Dist: t.ViteLogLib['Dist'] = {
@@ -9,9 +9,11 @@ export const Dist: t.ViteLogLib['Dist'] = {
   toString(dist, options = {}) {
     const outDir = options.dirs?.out ?? '.';
     const pkg = dist.pkg;
+    const pkgBytes = CompositeHash.size(dist.hash.parts, (e) => e.path.startsWith('pkg/'));
 
     const title = c.green(c.bold(options.title ?? 'Production Bundle'));
-    const size = c.white(`${Str.bytes(dist.size.bytes)}`);
+    const totalSize = c.white(Str.bytes(dist.size.bytes));
+    const pkgSize = c.gray(Str.bytes(pkgBytes));
     console.info(title);
 
     const hx = digest(dist.hash.digest);
@@ -23,7 +25,8 @@ export const Dist: t.ViteLogLib['Dist'] = {
     const table = Cli.table([]);
     const push = (label: string, value: string) => table.push([c.gray(label), value]);
 
-    push('size:', size);
+    push('size:', totalSize);
+    push('size:/pkg', pkgSize);
     push('dist:', c.gray(`${distPathFmt} ${hx}`));
     push('builder:', c.gray(`https://jsr.io/${pkgNameFmt}@${c.cyan(c.bold(pkg.version))}`));
 

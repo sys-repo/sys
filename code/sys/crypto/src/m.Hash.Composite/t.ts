@@ -47,7 +47,10 @@ export type CompositeHashLib = {
    * @returns The sum of all bytes extracted from the URIs, or `undefined`
    *          if `parts` is empty or none include byte-size data.
    */
-  size(parts: t.CompositeHashParts): t.NumberBytes | undefined;
+  size(
+    parts: t.CompositeHashParts,
+    filter?: (e: { path: string; uri: t.FileHashUriParts }) => boolean,
+  ): t.NumberBytes | undefined;
 };
 
 /** Options passed to the Composite-Hash.verify method. */
@@ -113,5 +116,11 @@ export type CompositeHashBuilder = t.CompositeHash & {
  */
 export type FileHashUriLib = {
   toUri(hash: string, bytes?: number): t.StringFileHashUri;
-  fromUri(input: string): { hash: t.StringHash; bytes?: number };
+  fromUri(input: string): FileHashUriParts;
+};
+
+/** A decomposed file-hash URI. */
+export type FileHashUriParts = {
+  hash: t.StringHash;
+  bytes?: number;
 };

@@ -241,12 +241,22 @@ describe('hash', () => {
   describe('CompositeHash.size ← parts', () => {
     it('sum: 3-files', () => {
       const builder = CompositeHash.builder()
-        .add('pkg/a.ts', new Uint8Array([1, 2, 3]))
-        .add('pkg/b.ts', new Uint8Array([1, 2]))
-        .add('pkg/c.ts', new Uint8Array([1]));
+        .add('a.ts', new Uint8Array([1, 2, 3]))
+        .add('b.ts', new Uint8Array([1, 2]))
+        .add('c.ts', new Uint8Array([1]));
       const hash = CompositeHash.toComposite(builder);
       const result = CompositeHash.size(hash.parts);
       expect(result).to.eql(6);
+    });
+
+    it('sum: filterd to 2-files', () => {
+      const builder = CompositeHash.builder()
+        .add('pkg/a.ts', new Uint8Array([1, 2, 3]))
+        .add('pkg/b.ts', new Uint8Array([1, 2]))
+        .add('foo.ts', new Uint8Array([1]));
+      const hash = CompositeHash.toComposite(builder);
+      const result = CompositeHash.size(hash.parts, (e) => e.path.startsWith('pkg/'));
+      expect(result).to.eql(5);
     });
 
     it('sum: no file content in URI', () => {

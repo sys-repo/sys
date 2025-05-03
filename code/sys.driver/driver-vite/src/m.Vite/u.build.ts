@@ -85,7 +85,7 @@ export const build: B = async (input) => {
         dirs: { in: paths.app.entry, out: paths.app.outDir },
         totalSize: dist.size.bytes,
         pkg,
-        pkgSize: CompositeHash.size(dist.hash.parts),
+        pkgSize: CompositeHash.size(dist.hash.parts, (e) => e.path.startsWith('pkg/')),
         hash,
         pad,
         elapsed,
