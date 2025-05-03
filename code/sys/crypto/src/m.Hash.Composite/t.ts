@@ -112,6 +112,6 @@ export type CompositeHashBuilder = t.CompositeHash & {
  * URIs:
  */
 export type FileHashUriLib = {
-  toUri(hash: string, bytes?: number): t.FileHashUri;
+  toUri(hash: string, bytes?: number): t.StringFileHashUri;
   fromUri(input: string): { hash: t.StringHash; bytes?: number };
 };

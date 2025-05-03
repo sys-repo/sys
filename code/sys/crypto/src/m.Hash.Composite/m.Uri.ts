@@ -10,8 +10,8 @@ import { type t } from './common.ts';
  * where <algo> is "sha1" or "sha256".
  */
 export const FileHashUri: t.FileHashUriLib = {
-  toUri(hash: string, bytes?: number): t.FileHashUri {
-    return (bytes == null ? hash : `${hash}:size=${bytes}`) as t.FileHashUri;
+  toUri(hash: string, bytes?: number): t.StringFileHashUri {
+    return (bytes == null ? hash : `${hash}:size=${bytes}`) as t.StringFileHashUri;
   },
 
   fromUri(input: string) {
