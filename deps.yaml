@@ -82,7 +82,7 @@ deno.json:
   - import: npm:immer@10
   - import: npm:ora@8.2.0
   - import: npm:ollama@0.5.15
-  - import: npm:pretty-bytes@6.1.1
+  - import: npm:pretty-bytes@7.0.0
   - import: npm:ramda@0.30.1
   - import: npm:rxjs@7.8.2
   - import: npm:strip-ansi@7
