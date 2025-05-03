@@ -68,9 +68,10 @@ export type ViteLogModuleLib = {
  */
 export type ViteLogBundleArgs = {
   ok: boolean;
-  bytes: number;
+  totalSize: t.NumberBytes;
   dirs: t.ViteBundleIO;
   pkg?: t.Pkg;
+  pkgSize?: t.NumberBytes;
   hash?: t.StringHash;
   elapsed?: t.Msecs;
   pad?: boolean;

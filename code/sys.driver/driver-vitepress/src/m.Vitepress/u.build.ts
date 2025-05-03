@@ -71,9 +71,9 @@ export const build: B = async (input = {}) => {
     },
     toString(options = {}) {
       const { pad } = options;
-      const bytes = dist.size.bytes;
+      const totalSize = dist.size.bytes;
       const hash = dist.hash.digest;
-      return VitepressLog.Build.toString({ ok, pad, bytes, dirs, hash, pkg, elapsed });
+      return VitepressLog.Build.toString({ ok, pad, totalSize, dirs, hash, pkg, elapsed });
     },
   };
 

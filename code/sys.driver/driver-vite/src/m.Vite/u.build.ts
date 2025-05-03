@@ -1,4 +1,15 @@
-import { type t, c, Cli, Fs, Pkg, Process, Time } from './common.ts';
+import {
+  type t,
+  CompositeHash,
+  c,
+  Cli,
+  Fs,
+  Pkg,
+  Process,
+  Time,
+  FileHashUri,
+  Hash,
+} from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -68,9 +79,17 @@ export const build: B = async (input) => {
     toString(options = {}) {
       const { pad } = options;
       const stdio = output.toString();
-      const bytes = dist.size.bytes;
-      const dirs = { in: paths.app.entry, out: paths.app.outDir };
-      return Log.Build.toString({ ok, stdio, dirs, pad, pkg, bytes, hash, elapsed });
+      return Log.Build.toString({
+        ok,
+        stdio,
+        dirs: { in: paths.app.entry, out: paths.app.outDir },
+        totalSize: dist.size.bytes,
+        pkg,
+        pkgSize: CompositeHash.size(dist.hash.parts),
+        hash,
+        pad,
+        elapsed,
+      });
     },
   };
 
