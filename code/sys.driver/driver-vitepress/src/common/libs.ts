@@ -10,7 +10,7 @@ export { Ignore } from '@sys/std/ignore';
 export { Semver } from '@sys/std/semver/server';
 
 export { HashFmt } from '@sys/crypto/fmt';
-export { Hash } from '@sys/crypto/hash';
+export { CompositeHash, Hash } from '@sys/crypto/hash';
 
 export { Pkg } from '@sys/fs/pkg';
 export { HttpServer, Net } from '@sys/http/server';
