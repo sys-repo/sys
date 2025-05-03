@@ -3,15 +3,19 @@ import { builder } from './u.builder.ts';
 import { digest } from './u.digest.ts';
 import { toComposite } from './u.toComposite.ts';
 import { verify } from './u.verify.ts';
-import { Uri } from './m.Uri.ts';
+import { FileHashUri as File } from './m.Uri.ts';
+import { size } from './u.size.ts';
+
+export { FileHashUri } from './m.Uri.ts';
 
 /**
  * Tools for building composite hashes.
  */
 export const CompositeHash: t.CompositeHashLib = {
-  Uri,
+  Uri: { File },
   toComposite,
   builder,
   digest,
   verify,
+  size,
 };

@@ -29,10 +29,3 @@ export const FileHashUri: t.FileHashUriLib = {
     return bytes != null ? { hash, bytes } : { hash };
   },
 } as const;
-
-/**
- * URI namespace
- */
-export const Uri = {
-  File: FileHashUri,
-} as const;

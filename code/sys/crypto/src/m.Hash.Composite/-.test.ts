@@ -11,7 +11,7 @@ describe('hash', () => {
     expect(CompositeHash.Uri.File).to.equal(FileHashUri);
   });
 
-  describe('CompositeHash: <CompositeHash>', () => {
+  describe('CompositeHash: <CompositeHash> ← generate', () => {
     it('toComposite', () => {
       const builder = CompositeHash.builder().add('foo', '1234');
       const a = CompositeHash.toComposite(builder);
@@ -235,6 +235,28 @@ describe('hash', () => {
           expect(res.error?.message).to.include('loader did not return content for part');
         });
       });
+    });
+  });
+
+  describe('CompositeHash.size ← parts', () => {
+    it('sum: 3-files', () => {
+      const builder = CompositeHash.builder()
+        .add('pkg/a.ts', new Uint8Array([1, 2, 3]))
+        .add('pkg/b.ts', new Uint8Array([1, 2]))
+        .add('pkg/c.ts', new Uint8Array([1]));
+      const hash = CompositeHash.toComposite(builder);
+      const result = CompositeHash.size(hash.parts);
+      expect(result).to.eql(6);
+    });
+
+    it('sum: no file content in URI', () => {
+      const builder = CompositeHash.builder()
+        .add('pkg/a.ts', 'string')
+        .add('pkg/b.ts', 'not-file-no-size');
+
+      const hash = CompositeHash.toComposite(builder);
+      const res = CompositeHash.size(hash.parts);
+      expect(res).to.eql(undefined);
     });
   });
 

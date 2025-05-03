@@ -41,6 +41,13 @@ export type CompositeHashLib = {
    * Pass nothing to retrieve an empty version of the structure.
    */
   toComposite(input?: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
+
+  /**
+   * Sums the total byte-size of the given parts.
+   * @returns The sum of all bytes extracted from the URIs, or `undefined`
+   *          if `parts` is empty or none include byte-size data.
+   */
+  size(parts: t.CompositeHashParts): t.NumberBytes | undefined;
 };
 
 /** Options passed to the Composite-Hash.verify method. */
