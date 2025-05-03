@@ -11,7 +11,7 @@ describe('Dir.Hash', () => {
     expect(value.endsWith(expected)).to.eql(true, value);
   };
 
-  const verifyFileHash = async (path: t.StringPath, expected: t.FileHashUri) => {
+  const verifyFileHash = async (path: t.StringPath, expected: t.StringFileHashUri) => {
     const uri = CompositeHash.Uri.File.fromUri(expected);
     const binary = (await Fs.read(path)).data;
     const hash = Hash.sha256(binary);
