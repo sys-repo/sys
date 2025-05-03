@@ -1,18 +1,16 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
-
     "test": "deno test -RWNE --allow-run --allow-ffi",
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
     "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
-
     "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },

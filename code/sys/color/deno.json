@@ -1,6 +1,6 @@
 {
   "name": "@sys/color",
-  "version": "0.0.45",
+  "version": "0.0.46",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
