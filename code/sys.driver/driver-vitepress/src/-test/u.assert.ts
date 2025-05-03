@@ -32,6 +32,6 @@ export const assertEnvExists = async (dir: t.StringDir, expected = true) => {
     'docs/index.md',
   ];
 
-  await Time.wait(0);
+  await Time.wait(0); // NB: (resilience) ensure test files have fully finished writing to the file-system.
   await Promise.all(paths.map((path) => assert(path)));
 };
