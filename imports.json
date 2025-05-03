@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@automerge/automerge": "npm:@automerge/automerge@2.2.8",
+    "@automerge/automerge": "npm:@automerge/automerge@2.2.9",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@1.2.1",
     "@automerge/automerge-repo-network-broadcastchannel": "npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1",
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@1.2.1",
@@ -32,7 +32,7 @@
     "diff": "npm:diff@7",
     "fake-indexeddb": "npm:fake-indexeddb@6.0.0",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
-    "happy-dom": "npm:happy-dom@17.4.4",
+    "happy-dom": "npm:happy-dom@17.4.6",
     "hash-it": "npm:hash-it@6.0.0",
     "ignore": "npm:ignore@7.0.4",
     "immer": "npm:immer@10",

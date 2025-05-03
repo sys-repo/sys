@@ -31,7 +31,7 @@ groups:
 
   automerge:
     # https://automerge.org
-    - import: npm:@automerge/automerge@2.2.8
+    - import: npm:@automerge/automerge@2.2.9
     - import: npm:@automerge/automerge-repo@1.2.1
     - import: npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1
     - import: npm:@automerge/automerge-repo-storage-indexeddb@1.2.1
@@ -45,8 +45,8 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.9.0
     - import: npm:@deno/vite-plugin@1.0.4
-    - import: npm:rollup@4.40.0
-    - import: npm:vite@6.3.3
+    - import: npm:rollup@4.40.1
+    - import: npm:vite@6.3.4
     - import: npm:vite-plugin-wasm@3.4.1
 
   ui/react:
@@ -76,7 +76,7 @@ deno.json:
   - import: npm:diff@7
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.0
-  - import: npm:happy-dom@17.4.4
+  - import: npm:happy-dom@17.4.6
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.4
   - import: npm:immer@10
@@ -111,13 +111,13 @@ package.json:
   - group: build/tools
     dev: true
 
-  - import: npm:hono@4.7.7
+  - import: npm:hono@4.7.8
 
   # UI
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.9.2
+  - import: npm:motion@12.9.4
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
