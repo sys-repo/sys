@@ -1,7 +1,7 @@
 import { Jsr } from '@sys/jsr/client';
 import { Pkg } from '@sys/std/pkg';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, Delete, Err, Fs, Path } from './common.ts';
+import { type t, CompositeHash, Delete, Err, Fs, Path } from './common.ts';
 
 import { pkg as typesPkg } from '@sys/types';
 
@@ -33,11 +33,13 @@ export const Dist: t.PkgDistFsLib = {
     }
 
     /**
-     * Prepare the "distributeion-package" json.
+     * Prepare the "distribution-package" json.
      */
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
-    const total = await wrangle.bytes(dir, Object.keys(hash.parts));
-    const size: t.DistPkg['size'] = { total };
+    const size: t.DistPkg['size'] = {
+      total: await wrangle.bytes(dir, Object.keys(hash.parts)),
+      pkg: CompositeHash.size(hash.parts, (m) => m.path.startsWith('pkg/')) ?? 0,
+    };
     const dist: t.DistPkg = {
       type: Jsr.Url.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg,

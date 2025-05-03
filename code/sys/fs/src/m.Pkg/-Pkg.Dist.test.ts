@@ -1,7 +1,7 @@
 import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Path, R, c } from './common.ts';
+import { CompositeHash, Fs, Path, R, c } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -79,7 +79,13 @@ describe('Pkg.Dist', () => {
       const { dir } = sample.path;
       const res = await Pkg.Dist.compute(dir);
       expect(res.dir).to.eql(Fs.resolve(dir));
-      expect(res.dist.size.total).to.greaterThan(0);
+
+      const dist = res.dist;
+      const { size, hash } = dist;
+      expect(size.total).to.greaterThan(0);
+      expect(size.pkg).to.greaterThan(0);
+      expect(size.total).to.eql(CompositeHash.size(dist.hash.parts));
+      expect(size.pkg).to.eql(CompositeHash.size(hash.parts, (e) => e.path.startsWith('pkg/')));
     });
 
     it('{save:true} → saves to file-system', async () => {

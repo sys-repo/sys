@@ -9,5 +9,6 @@ export const digest: t.CompositeHashLib['digest'] = (parts, options = {}) => {
     .map((key) => parts[key])
     .map((uri) => FileHashUri.fromUri(uri).hash)
     .forEach((hash) => hashes.push(hash));
+
   return Wrangle.hash(hashes.join('\n'), options.algo);
 };
