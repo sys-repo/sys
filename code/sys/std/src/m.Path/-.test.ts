@@ -2,18 +2,34 @@ import { describe, expect, it } from '../-test.ts';
 import { Path } from './mod.ts';
 
 describe('Path', () => {
-  it('join', () => {
-    expect(Path.join('foo', 'bar')).to.eql('foo/bar');
+  describe('join', () => {
+    it('API', () => {
+      expect(Path.join).to.equal(Path.Join.auto);
+    });
+
+    it('join', () => {
+      expect(Path.join('foo', 'bar')).to.eql('foo/bar');
+    });
+
+    it('absolute', () => {
+      expect(Path.absolute('./foo')).to.eql(Path.resolve('./foo'));
+      expect(Path.absolute('/foo')).to.eql('/foo');
+    });
+
+    it('Join.posix', () => {
+      expect(Path.Join.posix('foo', 'bar')).to.eql('foo/bar');
+    });
+
+    it('Join.windows', () => {
+      expect(Path.Join.windows('foo', 'bar')).to.eql('foo\\bar');
+    });
   });
 
-  it('joinGlobs', () => {
-    const res = Path.joinGlobs(['src', '**', '*.ts']);
-    expect(res).to.eql('src/**/*.ts');
-  });
-
-  it('absolute', () => {
-    expect(Path.absolute('./foo')).to.eql(Path.resolve('./foo'));
-    expect(Path.absolute('/foo')).to.eql('/foo');
+  describe('joinGlobs', () => {
+    it('joinGlobs', () => {
+      const res = Path.joinGlobs(['src', '**', '*.ts']);
+      expect(res).to.eql('src/**/*.ts');
+    });
   });
 
   describe('Path.Is', () => {

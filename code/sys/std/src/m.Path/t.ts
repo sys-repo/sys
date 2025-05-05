@@ -12,6 +12,9 @@ export type PathLib = {
   /** Tools for formatting standard output (strings) within a CLI. */
   Format: t.PathFormatLib;
 
+  /** Granular, platform specific, path joining tools. */
+  Join: t.PathJoinLib;
+
   /** Joins a sequence of paths, then normalizes the resulting path. */
   join: typeof StdPath.join;
 
@@ -56,19 +59,27 @@ export type PathIsLib = {
   /** Determine if the provided path is relative (not absolute). */
   relative(path: t.StringPath): boolean;
 
-  /**
-   * Test whether the given string is a glob.
-   */
+  /** Test whether the given string is a glob. */
   glob: typeof StdPath.isGlob;
+};
+
+/**
+ * Helpers for joining and normalizing paths on multiple platforms.
+ */
+export type PathJoinLib = {
+  /** Joins a sequence of paths an normalize result on Posix (forward-slash "/"). */
+  posix(...paths: string[]): t.StringPath;
+  /** Joins a sequence of paths an normalize result on Windows (back-slash "/"). */
+  windows(...paths: string[]): t.StringPath;
+  /** Detects the OS and joins/normalizes a sequence of paths with the correct divider character. */
+  auto(...paths: string[]): t.StringPath;
 };
 
 /**
  * Tools for formatting standard output (strings) within a CLI.
  */
 export type PathFormatLib = {
-  /**
-   * Path display formatting.
-   */
+  /** Path display formatting. */
   string(path: string, fmt?: PathFormatter): string;
 };
 
