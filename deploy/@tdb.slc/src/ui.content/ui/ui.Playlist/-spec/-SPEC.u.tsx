@@ -42,7 +42,7 @@ export function itemsButtons(signal: t.Signal<P['items']>, options: { title?: st
   };
 
   const Media = Programme.Media;
-  Media.children.forEach((m) => btn(Programme.toPlaylist(m), `${m.title ?? 'Untitled'}`));
+  Media.children().forEach((m) => btn(Programme.toPlaylist(m), `${m.title ?? 'Untitled'}`));
   btn();
 
   return (

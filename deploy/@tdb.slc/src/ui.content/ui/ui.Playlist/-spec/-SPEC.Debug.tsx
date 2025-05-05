@@ -20,7 +20,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
-    items: s<P['items']>(Programme.toPlaylist(Programme.Media.children[0])),
+    items: s<P['items']>(Programme.toPlaylist(Programme.Media.children()[0])),
     selected: s<P['selected']>(),
     filled: s<P['filled']>(),
     paddingTop: s<P['paddingTop']>(50),

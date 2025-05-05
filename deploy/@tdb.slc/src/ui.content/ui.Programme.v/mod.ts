@@ -15,4 +15,8 @@ export const children: t.VideoMediaContent[] = [
   conculsion,
 ];
 
-export const Programme = { children } as const;
+export const Programme = {
+  children() {
+    return children;
+  },
+} as const;
