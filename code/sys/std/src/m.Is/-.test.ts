@@ -244,9 +244,7 @@ describe('Is (common flags)', () => {
 
     it('Is.disposable: false', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((value) => {
-        expect(Is.disposable(value)).to.eql(false);
-      });
+      NON.forEach((value) => expect(Is.disposable(value)).to.eql(false));
     });
   });
 
@@ -260,9 +258,7 @@ describe('Is (common flags)', () => {
 
     it('Is.func: false', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((value) => {
-        expect(Is.func(value)).to.eql(false);
-      });
+      NON.forEach((value) => expect(Is.func(value)).to.eql(false));
     });
   });
 
@@ -274,9 +270,7 @@ describe('Is (common flags)', () => {
 
     it('Is.object: false', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo')];
-      NON.forEach((value) => {
-        expect(Is.object(value)).to.eql(false);
-      });
+      NON.forEach((value) => expect(Is.object(value)).to.eql(false));
     });
   });
 
@@ -288,9 +282,7 @@ describe('Is (common flags)', () => {
 
     it('Is.record: false', () => {
       const NON = ['', 123, true, null, undefined, [], BigInt(0), Symbol('foo')];
-      NON.forEach((value) => {
-        expect(Is.record(value)).to.eql(false);
-      });
+      NON.forEach((value) => expect(Is.record(value)).to.eql(false));
     });
   });
 
@@ -301,9 +293,7 @@ describe('Is (common flags)', () => {
 
     it('Is.emptyRecord: false', () => {
       const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
-      NON.forEach((value) => {
-        expect(Is.emptyRecord(value)).to.eql(false);
-      });
+      NON.forEach((value) => expect(Is.emptyRecord(value)).to.eql(false));
     });
   });
 });
