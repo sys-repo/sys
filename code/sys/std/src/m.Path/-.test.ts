@@ -85,15 +85,17 @@ describe('Path', () => {
 
       // No:
       expect(img.is('')).to.eql(false);
+      expect(img.is('  ')).to.eql(false);
       expect(img.is('png')).to.eql(false);
       expect(img.is('foopng')).to.eql(false);
       expect(img.is('/foo.bar')).to.eql(false);
-      expect(img.is('file.png', 'bar')).to.eql(false);
+      expect(img.is('foo', 'bar')).to.eql(false);
+      expect(img.is('foo.png', 'bar')).to.eql(false);
 
       // Yes:
       expect(img.is('.png')).to.eql(true);
       expect(img.is('/foo.bar/file.png')).to.eql(true);
-      expect(img.is('file.png', 'file.jpg')).to.eql(true);
+      expect(img.is('foo.png', 'bar.jpg')).to.eql(true);
     });
   });
 });
