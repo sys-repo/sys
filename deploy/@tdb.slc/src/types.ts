@@ -6,6 +6,11 @@
 export type * from './ui.tmp/t.ts';
 
 /**
+ * State:
+ */
+export type * from './m.state/mod.ts';
+
+/**
  * UI: logical "App" state.
  */
 export type * from './ui/App.Layout/t.ts';
