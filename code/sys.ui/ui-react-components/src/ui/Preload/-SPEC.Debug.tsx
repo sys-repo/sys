@@ -18,7 +18,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
-    disposeDelay: s<O['disposeDelay']>(500),
+    disposeDelay: s<O['disposeDelay']>(2000),
   };
   const api = {
     props,
@@ -63,16 +63,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const msecs = p.disposeDelay.value;
-          return `disposeAfter: ${msecs !== undefined ? `${msecs}ms` : '<undefined>'}`;
+          return `disposeAfter: ${msecs !== undefined ? `${msecs}ms` : '<undefined> (never)'}`;
         }}
-        onClick={() => Signal.cycle<O['disposeDelay']>(p.disposeDelay, [undefined, 0, 500, 2000])}
+        onClick={() => Signal.cycle<O['disposeDelay']>(p.disposeDelay, [undefined, 500, 2000])}
       />
 
       <hr />
 
       <Button
         block
-        label={() => 'Preload.render'}
+        label={() => 'Preload.render( 🌳 )'}
         onClick={async () => {
           const disposeAfter = p.disposeDelay.value;
           const el = <div>Hello</div>;
