@@ -1,5 +1,5 @@
 import type * as StdPath from '@std/path';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Tools for for working with string paths.
@@ -47,6 +47,9 @@ export type PathLib = {
 
   /** Return the extension of the path with leading period (".") */
   extname: typeof StdPath.extname;
+
+  /** Create a helper for evaluating file-path extensions. */
+  ext(...suffixes: string[]): PathExtension;
 };
 
 /**
@@ -126,4 +129,12 @@ export type PathFormatterPartIs = {
   readonly slash: boolean;
   readonly dirname: boolean;
   readonly basename: boolean;
+};
+
+/**
+ * Helper for evaluating file-path extensions.
+ */
+export type PathExtension = {
+  readonly suffixes: string[];
+  is(...path: t.StringPath[]): boolean;
 };

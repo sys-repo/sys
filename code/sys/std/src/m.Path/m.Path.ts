@@ -1,10 +1,10 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 import { Join } from './m.Join.ts';
+import { ext, extname } from './u.ext.ts';
 
 import {
   basename,
   dirname,
-  extname,
   fromFileUrl,
   joinGlobs,
   normalize,
@@ -33,5 +33,6 @@ export const Path: t.PathLib = {
   dirname,
   basename,
   absolute: (path) => (Is.absolute(path) ? path : resolve(path)),
-  extname: (input: string) => (typeof input === 'string' ? extname(input) : ''),
+  extname,
+  ext,
 } as const;

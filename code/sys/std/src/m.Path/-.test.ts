@@ -68,4 +68,32 @@ describe('Path', () => {
       NON.forEach((v: any) => expect(Path.extname(v)).to.eql(''));
     });
   });
+
+  describe('Path.ext', () => {
+    it('create: nothing', () => {
+      const ext = Path.ext();
+      expect(ext.suffixes).to.eql([]);
+    });
+
+    it('create: normalizes suffixes', () => {
+      const ext = Path.ext('.txt', 'txt', '', '  ', '....foo');
+      expect(ext.suffixes).to.eql(['.txt', '.foo']);
+    });
+
+    it('is: (match)', () => {
+      const img = Path.ext('.png', 'jpg', '.webp');
+
+      // No:
+      expect(img.is('')).to.eql(false);
+      expect(img.is('png')).to.eql(false);
+      expect(img.is('foopng')).to.eql(false);
+      expect(img.is('/foo.bar')).to.eql(false);
+      expect(img.is('file.png', 'bar')).to.eql(false);
+
+      // Yes:
+      expect(img.is('.png')).to.eql(true);
+      expect(img.is('/foo.bar/file.png')).to.eql(true);
+      expect(img.is('file.png', 'file.jpg')).to.eql(true);
+    });
+  });
 });
