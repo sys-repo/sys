@@ -1,5 +1,4 @@
-import type { t } from '../common.ts';
-
+import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
 import { clone } from './m.Obj.clone.ts';
 import { extend } from './m.Obj.extend.ts';
 import { hash } from './m.Obj.hash.ts';
@@ -21,4 +20,8 @@ export const Obj: t.ObjLib = {
   clone,
   extend,
   hash,
+
+  isObject,
+  isRecord,
+  isEmptyRecord,
 };

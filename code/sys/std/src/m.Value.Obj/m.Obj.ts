@@ -1,4 +1,4 @@
-import { R, type t } from '../common.ts';
+import { type t, R, isRecord, isObject } from '../common.ts';
 
 type O = Record<string, unknown>;
 type PathArray = (string | number)[];

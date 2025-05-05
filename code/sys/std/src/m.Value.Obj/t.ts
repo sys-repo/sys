@@ -85,6 +85,13 @@ export type ObjLib = {
    * "fast, consistent, unique hashCode" on any JS value object.
    */
   hash<T>(value: T): number;
+
+  /** Determine if the given input is typeof {object} and not Null. */
+  isObject(input?: unknown): input is object;
+  /** Determine if the given input is a simple {key:value} record object. */
+  isRecord<T extends O>(input?: unknown): input is T;
+  /** Determine if the given object is empty of all fields. */
+  isEmptyRecord<T extends O>(input?: unknown): input is T;
 };
 
 /** A callback passed to the object walker function. */

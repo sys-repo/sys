@@ -1,7 +1,14 @@
 import { describe, expect, it } from '../-test.ts';
+import { isEmptyRecord, isObject, isRecord } from '../common.ts';
 import { Err, Is, rx, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
+  it('API', () => {
+    expect(Is.object).to.equal(isObject);
+    expect(Is.record).to.eql(isRecord);
+    expect(Is.emptyRecord).to.eql(isEmptyRecord);
+  });
+
   it('rx: observable | subject', () => {
     // NB: tested in the corresponding module file.
     expect(Is.observable).to.equal(Rx.Is.observable);
@@ -239,6 +246,63 @@ describe('Is (common flags)', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value) => {
         expect(Is.disposable(value)).to.eql(false);
+      });
+    });
+  });
+
+  describe('Is.func', () => {
+    it('Is.func: true', () => {
+      function a() {}
+      const b = () => null;
+      expect(Is.func(a)).to.eql(true);
+      expect(Is.func(b)).to.eql(true);
+    });
+
+    it('Is.func: false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => {
+        expect(Is.func(value)).to.eql(false);
+      });
+    });
+  });
+
+  describe('Is.object', () => {
+    it('Is.object: true', () => {
+      expect(Is.object({})).to.eql(true);
+      expect(Is.object([])).to.eql(true);
+    });
+
+    it('Is.object: false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo')];
+      NON.forEach((value) => {
+        expect(Is.object(value)).to.eql(false);
+      });
+    });
+  });
+
+  describe('Is.record', () => {
+    it('Is.record: true', () => {
+      expect(Is.record({})).to.eql(true);
+      expect(Is.record({ foo: 123 })).to.eql(true);
+    });
+
+    it('Is.record: false', () => {
+      const NON = ['', 123, true, null, undefined, [], BigInt(0), Symbol('foo')];
+      NON.forEach((value) => {
+        expect(Is.record(value)).to.eql(false);
+      });
+    });
+  });
+
+  describe('Is.emptyRecord', () => {
+    it('Is.emptyRecord: true', () => {
+      expect(Is.emptyRecord({})).to.eql(true);
+    });
+
+    it('Is.emptyRecord: false', () => {
+      const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
+      NON.forEach((value) => {
+        expect(Is.emptyRecord(value)).to.eql(false);
       });
     });
   });
