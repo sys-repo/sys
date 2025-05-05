@@ -14,11 +14,9 @@ export const ImageView: React.FC<P> = (props) => {
   /**
    * Handlers:
    */
-  const handleLoad = () => {
-    setLoading(false);
-  };
-
+  const handleLoad = () => setLoading(false);
   const handleError = () => {
+    console.warn('Error while loading image:', src);
     setLoading(false);
     setError(true);
   };
