@@ -135,6 +135,6 @@ export type PathFormatterPartIs = {
  * Helper for evaluating file-path extensions.
  */
 export type PathExtension = {
-  readonly suffixes: string[];
+  readonly suffixes: readonly string[];
   is(...path: t.StringPath[]): boolean;
 };
