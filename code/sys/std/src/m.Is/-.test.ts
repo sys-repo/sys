@@ -262,6 +262,42 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.number', () => {
+    it('Is.number: true', () => {
+      expect(Is.number(0)).to.eql(true);
+      expect(Is.number(123)).to.eql(true);
+    });
+
+    it('Is.number: false', () => {
+      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.number(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.string', () => {
+    it('Is.string: true', () => {
+      expect(Is.string('')).to.eql(true);
+      expect(Is.string('hello')).to.eql(true);
+    });
+
+    it('Is.string: false', () => {
+      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.string(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.array', () => {
+    it('Is.array: true', () => {
+      expect(Is.array([])).to.eql(true);
+      expect(Is.array([123])).to.eql(true);
+    });
+
+    it('Is.array: false', () => {
+      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}];
+      NON.forEach((value) => expect(Is.number(value)).to.eql(false));
+    });
+  });
+
   describe('Is.object', () => {
     it('Is.object: true', () => {
       expect(Is.object({})).to.eql(true);

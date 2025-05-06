@@ -100,6 +100,18 @@ export const Is: t.StdIsLib = {
     return typeof input === 'function';
   },
 
+  number(input?: any): input is number {
+    return typeof input === 'number';
+  },
+
+  string(input?: any): input is string {
+    return typeof input === 'string';
+  },
+
+  array<T>(input?: any): input is T[] {
+    return Array.isArray(input);
+  },
+
   json(input?: any): input is t.Json {
     if (typeof input !== 'string') return false;
     input = input.trim();

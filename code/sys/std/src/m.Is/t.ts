@@ -86,13 +86,33 @@ export type StdIsLib = {
   /** Determines if currently running within a browser environment. */
   browser(): boolean;
 
-  /** Determine if the value is a function */
-  func(input?: unknown): input is Function;
-
   /** Determine if the given input is typeof {object} and not Null. */
   object(input?: unknown): input is object;
   /** Determine if the given input is a simple {key:value} record object. */
   record<T extends O>(input?: unknown): input is T;
   /** Determine if the given object is empty of all fields. */
   emptyRecord<T extends O>(input?: unknown): input is T;
+
+  /**
+   * Determine if the value is a function.
+   * typeof === 'function'
+   */
+  func(input?: unknown): input is Function;
+
+  /**
+   * Determine if the value is a string.
+   * typeof === 'string'
+   */
+  string(input?: unknown): input is string;
+
+  /**
+   * Determine if the value is a number.
+   * typeof === 'number'
+   */
+  number(input?: unknown): input is number;
+
+  /**
+   * Determine if the value is an array.
+   */
+  array<T>(input?: unknown): input is T[];
 };
