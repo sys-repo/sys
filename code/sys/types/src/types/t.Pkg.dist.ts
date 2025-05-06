@@ -9,11 +9,15 @@ import type { t } from './common.ts';
 export type DistPkg = {
   type: t.StringUrl;
 
-  /** The package meta-data info. */
+  /** The package info. */
   pkg: t.Pkg;
 
-  /** Distribution-package size statistics. */
-  size: t.DistPkgSize;
+  /** Build meta-data. */
+  build: {
+
+    /** Distribution-package size statistics. */
+    size: t.DistPkgSize;
+  };
 
   /** Path to the main JS entry point. */
   entry: t.StringPath;

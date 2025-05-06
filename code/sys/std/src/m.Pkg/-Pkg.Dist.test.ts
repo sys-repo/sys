@@ -14,7 +14,9 @@ describe('Pkg.Dist', () => {
         return {
           type: 'https://jsr.io/@sample/foo',
           pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
-          size: { total: 1234, pkg: 1234 },
+          build: {
+            size: { total: 1234, pkg: 1234 },
+          },
           entry: './main.js',
           hash: {
             digest: 'sha256-0000',

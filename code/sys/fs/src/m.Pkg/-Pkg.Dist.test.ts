@@ -81,7 +81,8 @@ describe('Pkg.Dist', () => {
       expect(res.dir).to.eql(Fs.resolve(dir));
 
       const dist = res.dist;
-      const { size, hash } = dist;
+      const { build, hash } = dist;
+      const size = build.size;
       expect(size.total).to.greaterThan(0);
       expect(size.pkg).to.greaterThan(0);
       expect(size.total).to.eql(CompositeHash.size(dist.hash.parts));
