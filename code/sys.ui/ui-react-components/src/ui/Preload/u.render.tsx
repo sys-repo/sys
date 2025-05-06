@@ -1,11 +1,10 @@
 import { createRoot } from 'react-dom/client';
-
 import { type t, Time, rx } from './common.ts';
 import { PreloadPortal } from './ui.tsx';
 
 export const render: t.Preload = async (children, op) => {
   const life = rx.lifecycle();
-  const { size, disposeDelay } = wrangle.options(op);
+  const { size, lifetime, description } = wrangle.options(op);
 
   if (typeof document === 'undefined') {
     life.dispose();
@@ -23,10 +22,10 @@ export const render: t.Preload = async (children, op) => {
   const div = document.createElement('div');
   document.body.appendChild(div);
   const root = createRoot(div);
-  root.render(<PreloadPortal size={size}>{children}</PreloadPortal>);
+  root.render(<PreloadPortal size={size} description={description} children={children} />);
 
   // Finish up.
-  if (typeof disposeDelay === 'number') await Time.delay(disposeDelay, life.dispose);
+  if (typeof lifetime === 'number') await Time.delay(lifetime, life.dispose);
   return life;
 };
 
@@ -36,7 +35,7 @@ export const render: t.Preload = async (children, op) => {
 const wrangle = {
   options(input?: t.PreloadOptions | t.Msecs): t.PreloadOptions {
     if (!input) return {};
-    if (typeof input === 'number') return { disposeDelay: input };
+    if (typeof input === 'number') return { lifetime: input };
     return input;
   },
 } as const;
