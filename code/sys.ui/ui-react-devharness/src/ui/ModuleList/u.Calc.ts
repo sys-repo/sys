@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 export const Calc = {
   /**
-   * Master entry: decide whether an <hr> should appear between `prev`/`next`.
+   * Master entry: decide whether an <hr> should appear between [prev/next].
    */
   showHr(prop: t.ModuleListProps['hr'], prev: string, next: string): boolean {
     /* 1. Pure depth number. */
@@ -26,7 +26,7 @@ export const Calc = {
   },
 
   /**
-   * Legacy depth‑based rule (unchanged).
+   * Depth‑based rule.
    */
   showHrByDepth(depth: number, prev: string, next: string): boolean {
     if (depth > 1 && prev && next) {
@@ -40,27 +40,57 @@ export const Calc = {
 /**
  * Helpers:
  */
-const createHrArgs = (prev?: string, next?: string) => {
-  const rules: t.ModuleListHrRule[] = []; // collected via `add(...)`
+export function createHrArgs(prev?: string, next?: string) {
+  const rules: t.ModuleListHrRule[] = [];
 
-  /** Normalise `roots` once, return a rule. */
+  /** Normalise `roots` once, then return a rule. */
   const buildByRoots = (roots: string[]): t.ModuleListHrRule => {
-    const clean = (s: string) => s.replace(/[.:]$/, '');
-    const rootSet = new Set(roots.map(clean));
+    // Split the config into “static” and “prefix‑with‑dot” roots.
+    const STATIC = roots.filter((r) => !/[.:]$/.test(r)); // e.g. 'sys.ui'
+    const PREFIXES = roots
+      .filter((r) => /[.:]$/.test(r)) // e.g. 'tdb.slc.'
+      .map((r) => r.replace(/[.:]$/, '')); // strip the dot
 
-    const rootOf = (val?: string): string => {
-      if (!val) return '';
-      const segs = val.split(/[.:]/);
-      const parts: string[] = [];
-      for (const seg of segs) {
-        parts.push(seg);
-        const candidate = parts.join('.');
-        if (rootSet.has(candidate)) return candidate;
-      }
-      return '';
+    /**
+     * Helpers:
+     */
+    const startsWithNs = (str = '', ns: string) => {
+      return str === ns || str.startsWith(ns + '.') || str.startsWith(ns + ':');
     };
 
-    return (p?: string, n?: string) => rootOf(p) !== rootOf(n);
+    const firstSegAfter = (str = '', ns: string) => {
+      const rest = str.slice(ns.length + 1); // skip the dot/colon
+      return rest.split(/[.:]/)[0] ?? '';
+    };
+
+    /**
+     * Rule:
+     */
+    return (prev?: string, next?: string): boolean => {
+      /* 1 · Different static roots → break */
+      for (const ns of STATIC) {
+        const inPrev = startsWithNs(prev, ns);
+        const inNext = startsWithNs(next, ns);
+        if (inPrev !== inNext) return true; // entered or left ns
+      }
+
+      /* 2 · For each “prefix.” root, compare first sub‑segment */
+      for (const ns of PREFIXES) {
+        const inPrev = startsWithNs(prev, ns);
+        const inNext = startsWithNs(next, ns);
+
+        if (inPrev && inNext) {
+          const segPrev = firstSegAfter(prev, ns);
+          const segNext = firstSegAfter(next, ns);
+          if (segPrev !== segNext) return true; // ui ↔ entry etc.
+        } else if (inPrev !== inNext) {
+          return true; // crossed boundary
+        }
+      }
+
+      /* 3 · No rule matched → keep the list continuous */
+      return false;
+    };
   };
 
   /** Regex rule builder. */
@@ -115,5 +145,6 @@ const createHrArgs = (prev?: string, next?: string) => {
     segment: (s, n) => s?.split(/[.:]/)[n] ?? '',
   };
 
-  return { args, evaluate };
-};
+  // Finish up.
+  return { args, evaluate } as const;
+}

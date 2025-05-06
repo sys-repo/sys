@@ -43,7 +43,7 @@ export default Spec.describe('ModuleList', (e) => {
             // hr={2}
             hr={(e) => {
               // e.depth(2);
-              e.byRoots(['dev.sample', 'sys.ui.dev', 'foo.bar.', 'zoo']);
+              e.byRoots(['dev.sample', 'sys.ui.dev', 'foo.', 'zoo']);
               // e.byRegex(/^foo\.bar\./); //   foo.bar.* stays together
               // hrSegmentExample(e);
             }}

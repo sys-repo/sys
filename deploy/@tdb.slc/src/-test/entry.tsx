@@ -40,7 +40,7 @@ export async function main() {
 
     const app = App.signals();
     const el = await render(pkg, Specs, {
-      hr: (e) => e.byRoots(['tdb.slc.', 'sys.ui.']),
+      hr: (e) => e.byRoots(['tdb.slc.', 'sys.ui']),
       style: { Absolute: 0 },
     });
 
