@@ -6,7 +6,7 @@ import { dbl } from './m.Keyboard.dbl.ts';
  * Exposes keyboard functions that cease after a
  * dispose signal is received.
  */
-export function until(until$?: t.UntilObservable): t.KeyboardEventsUntil {
+export function until(until$?: t.UntilInput): t.KeyboardEventsUntil {
   const life = rx.lifecycle(until$);
   const { dispose, dispose$ } = life;
 
