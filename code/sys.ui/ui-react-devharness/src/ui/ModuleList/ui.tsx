@@ -11,7 +11,7 @@ import { useScrollObserver } from './use.ScrollObserver.ts';
 type LiMap = Map<number, HTMLLIElement>;
 
 export const View: React.FC<t.ModuleListProps> = (props) => {
-  const { theme, scroll = false, focused = true, enabled = true } = props;
+  const { theme, scroll = true, focused = true, enabled = true } = props;
   const url = new URL(props.href ?? window.location.href);
   const imports = (props.imports ?? {}) as t.ModuleImports;
 
