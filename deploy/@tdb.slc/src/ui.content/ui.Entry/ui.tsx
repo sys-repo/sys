@@ -10,6 +10,7 @@ export type EntryProps = t.StaticContentProps & {};
  */
 export const Entry: React.FC<EntryProps> = (props) => {
   const { state } = props;
+  const isTop = props.index === state.stack.length - 1;
 
   /**
    * Hooks:
@@ -43,7 +44,7 @@ export const Entry: React.FC<EntryProps> = (props) => {
       placeItems: 'center',
     }),
     body: css({
-      opacity: props.is.top ? 1 : 0,
+      opacity: isTop ? 1 : 0,
       transition: 'opacity 200ms',
     }),
     footer: css({

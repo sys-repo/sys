@@ -13,6 +13,6 @@ export type ContentLib = {
  * Content flags.
  */
 export type ContentIs = {
-  video(input: any): input is t.VideoContent;
-  static(input: any): input is t.StaticContent;
+  video(input: unknown): input is t.VideoContent;
+  static(input: unknown): input is t.StaticContent;
 };

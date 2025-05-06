@@ -31,7 +31,7 @@ export function factory() {
         <Programme
           content={content}
           theme={DEFAULTS.theme.sheet}
-          isTop={props.is.top}
+          isTop={isTop}
           onCloseRequest={() => global.stack.pop()}
         />
       );

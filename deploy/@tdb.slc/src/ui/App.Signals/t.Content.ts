@@ -21,7 +21,6 @@ export type Content<P = {}> = P & {
 export type ContentProps<P = {}> = {
   /** The index within the content-stack. */
   index: t.Index;
-  is: t.ContentFlags;
   content: t.Content<P>;
   state: t.AppSignals;
   theme: t.CommonTheme;
