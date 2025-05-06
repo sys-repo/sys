@@ -34,7 +34,7 @@ export const Fmt: t.DirSnapshotFmtLib = {
     const date = new Date(snapshot.timestamp);
     const dateFmt = D.format(date, 'd MMM yyyy');
 
-    const distJson = await Pkg.Dist.compute(snapshot.path.target.files);
+    const distJson = await Pkg.Dist.compute({ dir: snapshot.path.target.files });
     const digest = distJson.dist?.hash.digest;
     const targetRight = `${c.white(dateFmt)} | ${HashFmt.digest(digest, { algo: false })}`;
 

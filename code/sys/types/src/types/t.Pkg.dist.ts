@@ -14,6 +14,8 @@ export type DistPkg = {
 
   /** Build meta-data. */
   build: {
+    /** The builder module. */
+    pkg: t.Pkg;
 
     /** Distribution-package size statistics. */
     size: t.DistPkgSize;

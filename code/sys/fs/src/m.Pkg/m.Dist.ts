@@ -1,8 +1,7 @@
 import { Pkg } from '@sys/std/pkg';
+import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path } from './common.ts';
-
-import { pkg as typesPkg } from '@sys/types';
 
 /**
  * Tools for working with "distribution-package"
@@ -11,11 +10,9 @@ import { pkg as typesPkg } from '@sys/types';
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
 
-  async compute(input) {
-    const args = wrangle.computeArgs(input);
+  async compute(args) {
     const { entry = '', save = false } = args;
     const dir = Fs.resolve(args.dir);
-    const pkg = args.pkg ?? Pkg.unknown();
     let error: t.StdError | undefined;
 
     const exists = await Fs.exists(dir);
@@ -41,8 +38,8 @@ export const Dist: t.PkgDistFsLib = {
     };
     const dist: t.DistPkg = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
-      pkg,
-      build: { size },
+      pkg: args.pkg ?? Pkg.unknown(),
+      build: { size, pkg: args.builder ?? Pkg.unknown() },
       entry: wrangle.entry(entry),
       hash,
     };
@@ -150,11 +147,6 @@ const wrangle = {
   filepath(path: t.StringPath) {
     if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
     return path;
-  },
-
-  computeArgs(input: Parameters<t.PkgDistFsLib['compute']>[0]): t.PkgDistComputeArgs {
-    if (typeof input === 'string') return { dir: input };
-    return input;
   },
 
   entry(input: string) {

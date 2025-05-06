@@ -1,15 +1,4 @@
-import {
-  type t,
-  CompositeHash,
-  c,
-  Cli,
-  Fs,
-  Pkg,
-  Process,
-  Time,
-  FileHashUri,
-  Hash,
-} from './common.ts';
+import { type t, c, Cli, CompositeHash, Fs, Pkg, Process, Time, pkg as builder } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
@@ -62,7 +51,7 @@ export const build: B = async (input) => {
   await clean(paths.app.outDir);
 
   const entry = await wrangle.entryPath(dir);
-  const dist = (await Pkg.Dist.compute({ dir, pkg, entry, save: true })).dist;
+  const dist = (await Pkg.Dist.compute({ dir, pkg, builder, entry, save: true })).dist;
   const hash = dist.hash.digest;
   const elapsed = timer.elapsed.msec;
 

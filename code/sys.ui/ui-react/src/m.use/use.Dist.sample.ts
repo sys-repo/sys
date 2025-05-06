@@ -1,29 +1,25 @@
 import { type t } from './common.ts';
 
 export const sample: t.DistPkg = {
-  type: 'https://jsr.io/@sample/foo',
+  type: 'https://jsr.io/@sample/foo/src/type.ts',
   pkg: {
     name: 'sample',
     version: '0.0.0-sample.0',
   },
   build: {
+    pkg: { name: '@sys/sample', version: '0.0.0' },
     size: { total: 123456, pkg: 1234 },
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   hash: {
     digest: `sha256-0000000000000000000000000000000000000000000000000000000000000000`,
     parts: {
-      'index.html': `sha256-73118ead01ff731394195389afe6b3fef53f366c92013f90d4098523ef783dc1`,
-      'pkg/-entry.CsmS4pX8.js': `sha256-d7c1df2d1d7ccadd611582d340245b446930d9c552b9a6e390e573fcb8069281`,
-      'pkg/-pkg.json': `sha256-5cb551c509271d47374b378e56b137f2c30b4ad629fa12836be67f2c896e4565`,
-      'pkg/a.CzfbkkOd.svg': `sha256-03dc57becc131b98626bf145a3827966fec98f60e6c284bce7d73a0f137904b7`,
-      'pkg/a.DytWQd0P.svg': `sha256-548482b24965277eadcafc4cb299c9b37f7a6583f7ec624dff76b7a4501022f1`,
-      'pkg/a.ccVBcAen.css': `sha256-1d6d1a552eabe1df220ee93e445c4f5eb150fdfae998996cdf1f9c60d662c35b`,
-      'pkg/m.2f5gzOW6.js': `sha256-5f08d0a5ed787b51ff0e3c8a140668b95fe77cfbabb9fa1b8df085029479bcf5`,
-      'pkg/m.6enj-n6N.js': `sha256-3c1100938d2bb3674f3cb696df5b5096151115c024752f7401e84af9327c01d1`,
-      'pkg/m.6tNfJC1I.js': `sha256-ae42722c296c1f201a48042a6eaeed858de98585c6d7e44114124b63d1dd5708`,
-      'pkg/m.B07hVUpE.js': `sha256-ac6c000836d8e949047f0f367987c38ea81ef14e4963d1e722b291b0bd6ebda3`,
-      'pkg/m.B0X5Tzpk.js': `sha256-c4131f76f53fdb76802f60bf7679ccd79a0e390c77b15e7f91b0508a99f954cb`,
+      'index.html': `sha256-9629110785e01983cce73ef3c3f8e5a6900069123b92b3ac63f4d653674f13e6:size=537`,
+      'pkg/-entry.BEgRUrsO.js': `sha256-3e12732ef86f9cdc62463533fdc4e7a34815c05407777c3eea48394eb41d3042:size=16`,
+      'pkg/m.B2RI71A8.js': `sha256-98959e816d3bbec5875d19fc523fc7e9641272b80a0c62d3ddb34dbda273da86:size=12`,
+      'pkg/m.DW3RxxEf.js': `sha256-43601688ba8a60f2f3858cf3368c8ce6393ab27b4cedd2c643c2c723193814fb:size=12`,
+      'pkg/m.Du7RzsRq.js': `sha256-c0306ea8c45cf303877563c619c367436966a792a3d536d2a4bc38019fbea1f0:size=12`,
+      'pkg/m.IecpGBwa.js': `sha256-78981db162de77a4b293d09883efdd5dbb7b8a9f87fc5a4c3aa2971ee40e934c:size=12`,
     },
   },
 };

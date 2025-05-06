@@ -1,7 +1,7 @@
 import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { CompositeHash, Fs, Path, R, c } from './common.ts';
+import { Fs, Path, R, c } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -38,7 +38,10 @@ describe('Pkg.Dist', () => {
       const sample = await Sample.init();
       const { dir, entry } = sample.path;
 
-      const res = await Pkg.Dist.compute({ dir, pkg, entry });
+      const pkg = { name: 'my-package', version: '0.0.0' };
+      const builder = { name: 'my-builder', version: '0.0.0' };
+
+      const res = await Pkg.Dist.compute({ dir, pkg, builder, entry });
       renderDist(res.dist);
 
       expect(res.exists).to.eql(true);
@@ -50,6 +53,7 @@ describe('Pkg.Dist', () => {
 
       expect(res.dir).to.eql(Fs.resolve(dir));
       expect(res.dist.pkg).to.eql(pkg);
+      expect(res.dist.build.pkg).to.eql(builder);
       expect(res.dist.entry).to.eql(Path.normalize(entry));
 
       const dirhash = await Dir.Hash.compute(dir, (p) => p !== './dist.json');
@@ -62,6 +66,7 @@ describe('Pkg.Dist', () => {
       const { dir, entry } = sample.path;
       const res = await Pkg.Dist.compute({ dir, entry });
       expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
+      expect(Pkg.Is.unknown(res.dist.build.pkg)).to.eql(true);
     });
 
     it('default: does not save to file', async () => {
@@ -72,21 +77,6 @@ describe('Pkg.Dist', () => {
       expect(await exists()).to.eql(false);
       await Pkg.Dist.compute({ dir, pkg, entry });
       expect(await exists()).to.eql(false); // NB: never written
-    });
-
-    it('param: string → { inDir }', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const res = await Pkg.Dist.compute(dir);
-      expect(res.dir).to.eql(Fs.resolve(dir));
-
-      const dist = res.dist;
-      const { build, hash } = dist;
-      const size = build.size;
-      expect(size.total).to.greaterThan(0);
-      expect(size.pkg).to.greaterThan(0);
-      expect(size.total).to.eql(CompositeHash.size(dist.hash.parts));
-      expect(size.pkg).to.eql(CompositeHash.size(hash.parts, (e) => e.path.startsWith('pkg/')));
     });
 
     it('{save:true} → saves to file-system', async () => {

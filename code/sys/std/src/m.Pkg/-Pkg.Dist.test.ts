@@ -15,6 +15,7 @@ describe('Pkg.Dist', () => {
           type: 'https://jsr.io/@sample/foo',
           pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
           build: {
+            pkg: { name: '@sys/sample', version: '0.0.0' },
             size: { total: 1234, pkg: 1234 },
           },
           entry: './main.js',
