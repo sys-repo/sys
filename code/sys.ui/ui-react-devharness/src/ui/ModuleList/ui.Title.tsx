@@ -24,15 +24,31 @@ export const Title: React.FC<TitleProps> = (props) => {
   const theme = Color.theme(props.theme);
   const color = theme.fg;
   const styles = {
-    base: css({ display: 'grid', gridTemplateColumns: `auto 1fr auto`, color }),
+    base: css({
+      color,
+      display: 'grid',
+      gridTemplateColumns: 'min-content minmax(0, 1fr) min-content',
+      alignItems: 'center',
+      columnGap: 10,
+    }),
     left: css({
       fontWeight: 'bold',
       display: 'grid',
       gridAutoFlow: 'column',
       alignItems: 'center',
       columnGap: 3,
+      minWidth: 0,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     }),
-    right: css({ display: 'grid', gridAutoFlow: 'column', alignItems: 'center', columnGap: 10 }),
+    right: css({
+      display: 'grid',
+      gridAutoFlow: 'column',
+      alignItems: 'center',
+      columnGap: 10,
+      whiteSpace: 'nowrap',
+    }),
     block: css({ display: 'block' }),
     version: css({ color: Color.alpha(color, 0.3) }),
     dist: css({ fontWeight: 'normal' }),
@@ -52,7 +68,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elDist = dist && (
     <a className={css(styles.dist, styles.link).class} href={'./dist.json'} {...linkProps}>
-      {wrangle.distString(dist)}
+      {wrangle.dist(dist)}
     </a>
   );
 
@@ -83,7 +99,7 @@ export const Title: React.FC<TitleProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  distString(dist: t.DistPkg) {
+  dist(dist: t.DistPkg): string {
     const size = dist.build.size;
     const strSize = `${Str.bytes(size.total)}, /pkg:${Str.bytes(size.pkg)}`;
     return `dist:version:#${dist.hash.digest.slice(-5)} → ${strSize}`;
