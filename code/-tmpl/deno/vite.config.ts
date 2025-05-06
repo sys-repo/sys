@@ -1,14 +1,16 @@
-import { Vite } from '@sys/driver-vite';
-import { defineConfig } from 'vite';
-import { pkg } from './src/pkg.ts';
+import { Vite } from 'jsr:@sys/driver-vite';
+import { defineConfig } from 'npm:vite';
 
 export default defineConfig(() => {
-  return Vite.Plugin.common({
-    pkg,
+  const entry = './src/-test/index.html';
+  const paths = Vite.Config.paths({ app: { entry } });
+  return Vite.Config.app({
+    paths,
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');
       e.chunk('sys', ['@sys/std']);
+      e.chunk('css', ['@sys/ui-css']);
     },
   });
 });
