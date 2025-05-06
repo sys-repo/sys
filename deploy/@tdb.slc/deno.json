@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
