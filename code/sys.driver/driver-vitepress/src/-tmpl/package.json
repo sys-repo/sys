@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "@vidstack/react": "npm:@vidstack/react@1.12.13",
-    "@sys/std": "npm:@jsr/sys__std@0.0.142",
-    "@sys/tmp": "npm:@jsr/sys__tmp@0.0.111",
-    "@sys/ui-css": "npm:@jsr/sys__ui-css@0.0.82",
+    "@sys/std": "npm:@jsr/sys__std@0.0.143",
+    "@sys/tmp": "npm:@jsr/sys__tmp@0.0.112",
+    "@sys/ui-css": "npm:@jsr/sys__ui-css@0.0.83",
     "react": "npm:react@18.3.1",
     "react-dom": "npm:react-dom@18.3.1",
     "yaml": "npm:yaml@2.7.1"
