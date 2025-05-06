@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type * from './t.Content.ts';
+
 /**
  * Root Application (logic) API.
  */

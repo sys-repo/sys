@@ -3,7 +3,7 @@ import { type t, Breakpoint, SheetBase, Signal, slug, TUBES } from './common.ts'
 /**
  * Create a new instance of the application-state signals API.
  */
-export const create: t.AppSignalsLib['create'] = (until$) => {
+export const create: t.AppSignalsLib['create'] = (dispose$) => {
   const s = Signal.create;
 
   /**

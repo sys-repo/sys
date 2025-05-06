@@ -19,7 +19,7 @@ export type Content<P = {}> = P & {
  * Component Props:
  */
 export type ContentProps<P = {}> = {
-  /** The index within the content-stack. */
+  /** The index within the (env) content-stack. */
   index: t.Index;
   content: t.Content<P>;
   state: t.AppSignals;
