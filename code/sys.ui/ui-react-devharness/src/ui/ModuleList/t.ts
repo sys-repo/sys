@@ -18,9 +18,30 @@ export type ModuleListDefaults = {
 export type ModuleListComponent = React.FC<t.ModuleListProps> & ModuleListComponentFields;
 export type ModuleListComponentFields = { DEFAULTS: t.ModuleListDefaults };
 
-/** Return `true` when a horizontal rule should be shown between `prev` → `next`. */
-export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean;
-export type ModuleListShowHrArgs = { prev?: string; next?: string };
+/**
+ * Calculate where to split the list with HR's.
+ * Return `true` when a horizontal rule should be shown between `prev` → `next`.
+ * Return a number to use depth calculation.
+ */
+export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean | number | void;
+export type ModuleListShowHrArgs = {
+  prev?: string;
+  next?: string;
+
+  /** Store a rule for later evaluation. */
+  rule: (rule: ModuleListHrRule) => void;
+
+  /** Convenience builders automatically pushed via `rule(...)`. */
+  byRoots: (roots: string[]) => ModuleListHrRule;
+  depth: (n: number) => ModuleListHrRule;
+  byRegex: (re: RegExp) => ModuleListHrRule;
+
+  /** Return the n‑th dot/colon segment of a namespace string. */
+  segment: (s: string | undefined, n: number) => string;
+};
+
+/** (`prev`,`next`) → `true` to break, or a depth number for upstream calculation. */
+export type ModuleListHrRule = number | ((prev?: string, next?: string) => boolean);
 
 /**
  * Component properties
