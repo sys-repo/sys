@@ -49,7 +49,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elDist = dist && (
     <a className={css(styles.hash, styles.link).class} href={'./dist.json'} {...linkProps}>
-      {`dist.pkg:#${dist.hash.digest.slice(-5)} → ${Str.bytes(dist.build.size.total)}`}
+      {wrangle.distString(dist)}
     </a>
   );
 
@@ -71,3 +71,14 @@ export const Title: React.FC<TitleProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  distString(dist: t.DistPkg) {
+    const size = dist.build.size;
+    const strSize = `${Str.bytes(size.total)}, /pkg:${Str.bytes(size.pkg)}`;
+    return `dist:version:#${dist.hash.digest.slice(-5)} → ${strSize}`;
+  },
+} as const;
