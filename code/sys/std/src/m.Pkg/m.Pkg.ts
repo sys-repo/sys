@@ -1,13 +1,14 @@
-import { type t, DEFAULTS, isObject } from './common.ts';
+import { type t, DEFAULTS, isObject, isRecord } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Is } from './m.Is.ts';
+
+const UNKNOWN = DEFAULTS.UNKNOWN;
 
 export const Pkg: t.PkgLib = {
   Is,
   Dist,
 
   toString(pkg, suffix) {
-    const UNKNOWN = DEFAULTS.UNKNOWN;
     if (!pkg || !isObject(pkg)) return Pkg.toString(UNKNOWN);
     const { name = UNKNOWN.name, version = UNKNOWN.version } = pkg;
     let res = `${name}@${version}`;
@@ -19,8 +20,7 @@ export const Pkg: t.PkgLib = {
   },
 
   fromJson(input, defName, defVersion) {
-    const UNKNOWN = DEFAULTS.UNKNOWN;
-    if (!isObject(input)) return UNKNOWN;
+    if (!isObject(input)) return { ...UNKNOWN };
 
     const pkg = input as t.Pkg;
     const name = typeof pkg.name === 'string' ? pkg.name : defName ?? UNKNOWN.name;
@@ -30,6 +30,13 @@ export const Pkg: t.PkgLib = {
   },
 
   unknown() {
-    return DEFAULTS.UNKNOWN;
+    return { ...DEFAULTS.UNKNOWN };
+  },
+
+  toPkg(input) {
+    if (!isRecord(input)) return Pkg.unknown();
+    const { name, version } = input;
+    if (typeof name !== 'string' || typeof version !== 'string') return Pkg.unknown();
+    return { name, version };
   },
 };

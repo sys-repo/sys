@@ -32,6 +32,12 @@ export type PkgLib = {
    * Generate a new { \<unknown\>@0.0.0 } package object.
    */
   unknown(): t.Pkg;
+
+  /**
+   * Extracts the name/version from the gtiven object if found,
+   * otherwise returns standard <Unknown> package.
+   */
+  toPkg(input?: O): t.Pkg;
 };
 
 /**
