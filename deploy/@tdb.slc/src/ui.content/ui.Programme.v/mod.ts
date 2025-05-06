@@ -8,6 +8,14 @@ export { conculsion, metrics, model, start };
 
 export const Programme = {
   children(): t.VideoMediaContent[] {
-    return [start(), model.customer(), model.impact(), model.econ(), metrics(), conculsion()];
+    return [
+      //
+      start,
+      model.customer,
+      model.impact,
+      model.econ,
+      metrics,
+      conculsion,
+    ];
   },
 } as const;
