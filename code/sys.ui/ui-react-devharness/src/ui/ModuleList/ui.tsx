@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useEffect, useRef } from 'react';
-import { type t, useDist, Color, DEFAULTS, css, useRubberband } from './common.ts';
+import { type t, Color, DEFAULTS, css, useDist, useRubberband } from './common.ts';
 import { Footer } from './ui.Footer.tsx';
 import { List } from './ui.List.tsx';
 import { Title } from './ui.Title.tsx';
