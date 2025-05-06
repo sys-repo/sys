@@ -24,7 +24,7 @@ export async function main() {
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./entry.Specs.ts');
 
-    const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, { hr: 2, style: { Absolute: 0 } });
     function App() {
       useKeyboard();
       return el;

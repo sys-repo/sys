@@ -33,7 +33,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
 
   const prev = importsKeys[index - 1];
   const next = importsKeys[index];
-  const showHr = !beyondBounds && Calc.showHr(props.hr, prev, next);
+  const showHr = !beyondBounds && index > 0 && Calc.showHr(props.hr, prev, next);
 
   if (uri) params.set(DEFAULTS.qs.dev, uri);
   if (!uri) params.delete(DEFAULTS.qs.dev);

@@ -23,7 +23,7 @@ export type ModuleListComponentFields = { DEFAULTS: t.ModuleListDefaults };
  * Return `true` when a horizontal rule should be shown between `prev` → `next`.
  * Return a number to use depth calculation.
  */
-export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean | number | void;
+export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean | number | t.IgnoredResult;
 export type ModuleListShowHrArgs = {
   prev?: string;
   next?: string;
@@ -32,9 +32,9 @@ export type ModuleListShowHrArgs = {
   rule: (rule: ModuleListHrRule) => void;
 
   /** Convenience builders automatically pushed via `rule(...)`. */
-  byRoots: (roots: string[]) => ModuleListHrRule;
-  depth: (n: number) => ModuleListHrRule;
-  byRegex: (re: RegExp) => ModuleListHrRule;
+  byRoots: (roots: string[]) => ModuleListShowHrArgs;
+  depth: (n: number) => ModuleListShowHrArgs;
+  byRegex: (re: RegExp) => ModuleListShowHrArgs;
 
   /** Return the n‑th dot/colon segment of a namespace string. */
   segment: (s: string | undefined, n: number) => string;

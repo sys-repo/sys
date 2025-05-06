@@ -97,19 +97,19 @@ const createHrArgs = (prev?: string, next?: string) => {
     byRoots(roots) {
       const r = buildByRoots(roots);
       rules.push(r);
-      return r;
+      return args;
     },
 
     depth(n) {
       const r = buildDepth(n);
       rules.push(r);
-      return r;
+      return args;
     },
 
     byRegex(regex) {
       const r = buildByRegex(regex);
       rules.push(r);
-      return r;
+      return args;
     },
 
     segment: (s, n) => s?.split(/[.:]/)[n] ?? '',

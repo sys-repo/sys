@@ -20,7 +20,7 @@
  * import { SampleSpecs } from './src/-test/entry.Specs.ts';
  *
  * const root = createRoot(document.getElementById('root')!);
- * const el = await render(Pkg, Specs, { hrDepth: 2 });
+ * const el = await render(Pkg, Specs, { hr: 2 });
  * root.render(el);
  * ```
  *

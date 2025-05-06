@@ -8,7 +8,7 @@ import { type t, COLORS, css } from './common.ts';
 export type RenderOptions = {
   location?: t.UrlInput;
   badge?: t.ImageBadge;
-  hrDepth?: number;
+  hr?: number | t.ModuleListShowHr;
   style?: t.CssInput;
 };
 
@@ -44,7 +44,7 @@ export const render: Render = async (pkg, specs, options = {}) => {
       version={pkg.version}
       imports={specs}
       badge={options.badge}
-      hr={options.hrDepth}
+      hr={options.hr}
       style={style}
     />
   );
