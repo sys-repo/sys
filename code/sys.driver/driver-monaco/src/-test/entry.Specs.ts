@@ -2,11 +2,12 @@
  * @module
  * DevHarness visual specs.
  */
-import type { t } from './common.ts';
+import type { t, pkg } from './common.ts';
+export const ns = 'sys.driver.ui.react.monaco';
 
 /**
  * Specs:
  */
 export const Specs = {
-  // 'namespace.component': () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}.tmp`]: () => import('../ui/ui.tmp/-spec/-SPEC.tsx'),
 } as t.SpecImports;
