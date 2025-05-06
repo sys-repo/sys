@@ -10,7 +10,7 @@ export const HrCalc = {
 
     /* 2. Callback supplied. */
     if (typeof prop === 'function') {
-      const { evaluate, args } = createHrArgs(prev, next);
+      const { evaluate, args } = createArgs(prev, next);
       const result = prop(args);
 
       /* 2a. Caller explicitly returned a value. */
@@ -40,7 +40,7 @@ export const HrCalc = {
 /**
  * Helpers:
  */
-export function createHrArgs(prev?: string, next?: string) {
+export function createArgs(prev?: string, next?: string) {
   const rules: t.ModuleListHrRule[] = [];
 
   /** Normalise `roots` once, then return a rule. */
