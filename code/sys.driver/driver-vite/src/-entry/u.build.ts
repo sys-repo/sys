@@ -1,4 +1,4 @@
-import { type t, Fs, Path, Pkg, Vite } from './common.ts';
+import { type t, DenoFile, Fs, Path, Pkg, Vite } from './common.ts';
 
 /**
  * Run a local HTTP server from entry command-args.
@@ -9,7 +9,7 @@ export async function build(args: t.ViteEntryArgsBuild) {
   if (!silent) console.info();
 
   const cwd = args.dir ? Path.resolve(args.dir) : Path.cwd();
-  const pkg = await wrangle.pkg(cwd);
+  const pkg = Pkg.toPkg((await DenoFile.load(cwd)).data);
   const bundle = await Vite.build({ cwd, pkg, silent, spinner: true });
 
   if (!silent) {
