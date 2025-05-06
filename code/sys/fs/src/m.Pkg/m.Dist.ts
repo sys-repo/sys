@@ -1,7 +1,7 @@
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path } from './common.ts';
+import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -39,7 +39,7 @@ export const Dist: t.PkgDistFsLib = {
     const dist: t.DistPkg = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg: args.pkg ?? Pkg.unknown(),
-      build: { size, pkg: args.builder ?? Pkg.unknown() },
+      build: { size, pkg: args.builder ?? Pkg.unknown(), time: Time.now.timestamp },
       entry: wrangle.entry(entry),
       hash,
     };

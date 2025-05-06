@@ -1,7 +1,7 @@
 import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Path, R, c } from './common.ts';
+import { Fs, Is, Path, R, Time, c } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -52,13 +52,20 @@ describe('Pkg.Dist', () => {
       expect(typeUrl.endsWith('src/types/t.Pkg.dist.ts')).to.eql(true);
 
       expect(res.dir).to.eql(Fs.resolve(dir));
-      expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.build.pkg).to.eql(builder);
-      expect(res.dist.entry).to.eql(Path.normalize(entry));
+
+      const dist = res.dist;
+      expect(dist.pkg).to.eql(pkg);
+      expect(dist.entry).to.eql(Path.normalize(entry));
+
+      expect(dist.build.pkg).to.eql(builder);
+      expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
+
+      expect(Is.number(dist.build.size.total)).to.be.true;
+      expect(Is.number(dist.build.size.pkg)).to.be.true;
 
       const dirhash = await Dir.Hash.compute(dir, (p) => p !== './dist.json');
-      expect(res.dist.hash.digest).to.eql(dirhash.hash.digest);
-      expect(res.dist.hash.parts).to.eql(dirhash.hash.parts);
+      expect(dist.hash.digest).to.eql(dirhash.hash.digest);
+      expect(dist.hash.parts).to.eql(dirhash.hash.parts);
     });
 
     it('{pkg} not passed → <unknown> package', async () => {

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, pkg } from '../-test.ts';
+import { type t, describe, expect, it, pkg, Time } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
 import { Pkg } from './mod.ts';
 
@@ -102,6 +102,7 @@ describe('Pkg', () => {
           type: 'https://jsr.io/@sample/foo',
           pkg: { name: 'foo', version: '1.2.3' },
           build: {
+            time: 1746520471244,
             pkg: { name: '@sys/driver-vite', version: '0.0.0' },
             size: { total: 123_456, pkg: 123 },
           },

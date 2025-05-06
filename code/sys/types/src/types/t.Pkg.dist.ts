@@ -14,6 +14,8 @@ export type DistPkg = {
 
   /** Build meta-data. */
   build: {
+    time: t.UnixTimestamp;
+
     /** The builder module. */
     pkg: t.Pkg;
 
