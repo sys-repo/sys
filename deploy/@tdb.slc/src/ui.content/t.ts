@@ -9,7 +9,7 @@ export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';
  * Time based content definition.
  */
 export type ContentTimestamps = t.Timestamps<ContentTimestamp>;
-export type ContentTimestamp = ContentTimestampProps | ContentTimestampProps['column'];
+export type ContentTimestamp = ContentTimestampProps;
 export type ContentTimestampProps = {
   column?: t.ContentRenderer;
   pulldown?: t.ContentRenderer;
