@@ -44,4 +44,4 @@ export { useKeyboard, useRubberband } from './ui.use/mod.ts';
 export { ModuleList } from './ui/ModuleList/mod.ts';
 
 export { Badges, COLORS, Lorem } from './common.ts';
-export { DevArgs, DevKeyboard, Is, Spec, ValueHandler } from './u/mod.ts';
+export { DevArgs, Is, Spec, ValueHandler } from './u/mod.ts';
