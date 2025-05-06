@@ -1,7 +1,7 @@
 import React from 'react';
 import { VIDEO } from '../-VIDEO.ts';
 
-import { type t, DEFAULTS, Player } from './common.ts';
+import { type t, App, DEFAULTS, Player } from './common.ts';
 import { timestamps } from './m.Factory.timestamps.tsx';
 import { Overview } from './ui.tsx';
 
@@ -30,5 +30,7 @@ export function factory() {
       return <Overview {...props} theme={theme} />;
     },
   };
+
+  App.Render.preloadTimestamps(content.media);
   return content;
 }

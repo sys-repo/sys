@@ -5,11 +5,6 @@ import { type t } from './common.ts';
  */
 export type ProgrammeContent = t.VideoContent;
 
-/** Options passed to programme content factories. */
-export type ProgrammeContentOptions = {
-  onPath?: t.PathHandler;
-};
-
 /** Callback handler for when a path is generated. */
 export type PathHandler = (e: PathHandlerArgs) => void;
 export type PathHandlerArgs = { path: t.StringPath };

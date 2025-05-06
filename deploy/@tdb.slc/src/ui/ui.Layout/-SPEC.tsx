@@ -43,7 +43,7 @@ export default Spec.describe('MobileLayout', async (e) => {
      * Initialize environment.
      */
     update.size();
-    await App.Render.preload(debug.app, Content.factory, 'Entry', 'Trailer');
+    await App.Render.preloadModule(debug.app, Content.factory, ['Entry', 'Trailer']);
   });
 
   e.it('ui:debug', (e) => {

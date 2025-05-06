@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { VIDEO } from '../-VIDEO.ts';
-import { type t, DEFAULTS } from './common.ts';
+import { type t, App, DEFAULTS } from './common.ts';
 import { v } from './u.ts';
 import { Programme } from './ui.tsx';
-import { children } from './v.ts';
+import { Programme as Media } from './v.ts';
 
 /**
  * Content: "Programme"
@@ -22,11 +22,13 @@ export function factory() {
       id: 'programme.root',
       video: v(VIDEO.Programme.Root.src),
       timestamps: {},
-      children,
+      children: Media.children(),
     },
 
     render(props) {
       const global = props.state;
+      const isTop = props.index === global.stack.length - 1;
+
       return (
         <Programme
           content={content}
@@ -38,5 +40,6 @@ export function factory() {
     },
   };
 
+  App.Render.preloadTimestamps(content.media);
   return content;
 }

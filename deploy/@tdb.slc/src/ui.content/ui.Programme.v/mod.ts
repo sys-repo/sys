@@ -6,17 +6,8 @@ import { start } from './v.start.tsx';
 
 export { conculsion, metrics, model, start };
 
-export const children: t.VideoMediaContent[] = [
-  start,
-  model.customer,
-  model.impact,
-  model.econ,
-  metrics,
-  conculsion,
-];
-
 export const Programme = {
-  children() {
-    return children;
+  children(): t.VideoMediaContent[] {
+    return [start(), model.customer(), model.impact(), model.econ(), metrics(), conculsion()];
   },
 } as const;
