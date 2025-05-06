@@ -41,4 +41,4 @@ export type ContentFlags = {
 /**
  * Syncronous of asynchronous content renderer.
  */
-export type ContentRenderer = () => t.ReactNode | Promise<t.ReactNode>;
+export type ContentRenderer = () => t.ReactNode;
