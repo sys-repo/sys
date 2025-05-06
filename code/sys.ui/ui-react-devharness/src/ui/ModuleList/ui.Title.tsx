@@ -49,7 +49,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 
   const elDist = dist && (
     <a className={css(styles.hash, styles.link).class} href={'./dist.json'} {...linkProps}>
-      {`dist.pkg:#${dist.hash.digest.slice(-5)} → ${Str.bytes(dist.size.total)}`}
+      {`dist.pkg:#${dist.hash.digest.slice(-5)} → ${Str.bytes(dist.build.size.total)}`}
     </a>
   );
 

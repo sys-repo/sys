@@ -82,7 +82,7 @@ export const build: B = async (input = {}) => {
     },
     toString(options = {}) {
       const { pad } = options;
-      const totalSize = dist.size.total;
+      const totalSize = dist.build.size.total;
       const hash = dist.hash.digest;
 
       return VitepressLog.Build.toString({

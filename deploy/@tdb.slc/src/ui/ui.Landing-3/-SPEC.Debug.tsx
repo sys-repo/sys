@@ -81,7 +81,7 @@ const wrangle = {
     const dist = app.props.dist.value;
     if (!dist) return { err: '[app.props.dist] not found' };
     return {
-      'dist:size': Str.bytes(dist.size.total),
+      'dist:build:size': Str.bytes(dist.build.size.total),
       'dist:hash:sha256': `#${dist.hash.digest.slice(-5)}`,
     };
   },

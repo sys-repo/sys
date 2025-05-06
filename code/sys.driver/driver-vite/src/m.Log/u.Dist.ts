@@ -12,7 +12,7 @@ export const Dist: t.ViteLogLib['Dist'] = {
     const pkgBytes = CompositeHash.size(dist.hash.parts, (e) => e.path.startsWith('pkg/'));
 
     const title = c.green(c.bold(options.title ?? 'Production Bundle'));
-    const totalSize = c.white(Str.bytes(dist.size.total));
+    const totalSize = c.white(Str.bytes(dist.build.size.total));
     const pkgSize = c.gray(Str.bytes(pkgBytes));
     console.info(title);
 
