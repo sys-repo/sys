@@ -1,12 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
-import type { t } from '../common.ts';
 import { pkg } from '../pkg.ts';
 
 /**
- * Render UI.
+ * Render UI:
  */
+console.info('🐷 ./entry.tsx → Pkg:💦', pkg);
 const document = globalThis.document;
 if (document) {
   document.title = pkg.name;
@@ -14,14 +13,7 @@ if (document) {
 }
 
 /**
- * Setup mounter:
- */
-const Root = (props: { children?: t.ReactNode }) => {
-  return props.children;
-};
-
-/**
- * MAIN entry.
+ * MAIN entry:
  */
 export async function main() {
   const params = new URL(location.href).searchParams;
@@ -31,13 +23,17 @@ export async function main() {
   /**
    * DevHarness:
    */
-  const { render } = await import('@sys/ui-react-devharness');
+  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
   const { Specs } = await import('./entry.Specs.ts');
-  const el = await render(pkg, Specs, { hrDepth: 3, keyboard: true, style: { Absolute: 0 } });
+  const el = await render(pkg, Specs, { hrDepth: 3, style: { Absolute: 0 } });
+  function App() {
+    useKeyboard();
+    return el;
+  }
 
   root.render(
     <React.StrictMode>
-      <Root>{el}</Root>
+      <App />
     </React.StrictMode>,
   );
 }
