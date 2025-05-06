@@ -12,9 +12,22 @@ export type TimestampLib = {
   toString(input: t.TimeDuration | t.StringTimestamp): string;
 
   /**
+   * Determine if the given string is a valid timestamp format.
+   *
+   * @param input    The string to test, e.g. "HH:MM:SS.mmm"
+   * @param options  { strict?: boolean }
+   *                 - strict (default `true`): enforces exactly two digits for MM and SS, and exactly three for mmm
+   *                 - loose  (strict = `false`): allows 1–2 digits for MM/SS and 1–3 digits for mmm
+   */
+  isValid(input?: t.StringTimestamp, options?: { strict?: boolean }): input is t.StringTimestamp;
+
+  /**
    * Parse a "HH:MM:DD:mmm" string into a structured object.
    */
-  parse(timestamp: t.StringTimestamp, options?: { round?: number }): t.TimeDuration;
+  parse(
+    timestamp: t.StringTimestamp,
+    options?: { round?: number; strict?: boolean },
+  ): t.TimeDuration;
 
   /**
    * Convert the map of { "HH:MM:SS:mmm": <T> } timestamps
