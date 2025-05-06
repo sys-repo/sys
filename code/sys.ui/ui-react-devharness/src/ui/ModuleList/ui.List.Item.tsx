@@ -13,7 +13,7 @@ export type ListItemProps = {
   focused: boolean;
   Icon?: t.IconType;
   ns?: boolean;
-  hrDepth?: number;
+  hr?: t.ModuleListProps['hr'];
   useAnchorLinks?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -24,7 +24,7 @@ export type ListItemProps = {
 
 export const ListItem: React.FC<ListItemProps> = (props) => {
   const { uri, url, selected, focused, enabled = true } = props;
-  const { index, Icon, hrDepth = -1, ns } = props;
+  const { index, Icon, ns } = props;
   const { title, imports, useAnchorLinks = DEFAULTS.useAnchorLinks } = props;
   const importsKeys = Object.keys(imports);
 
@@ -33,7 +33,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
 
   const prev = importsKeys[index - 1];
   const next = importsKeys[index];
-  const showHr = !beyondBounds && Calc.showHr(hrDepth, prev, next);
+  const showHr = !beyondBounds && Calc.showHr(props.hr, prev, next);
 
   if (uri) params.set(DEFAULTS.qs.dev, uri);
   if (!uri) params.delete(DEFAULTS.qs.dev);

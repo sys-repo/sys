@@ -80,7 +80,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
           enabled={enabled}
           selectedIndex={props.selectedIndex}
           focused={focused}
-          hrDepth={props.hrDepth}
+          hr={props.hr}
           useAnchorLinks={props.useAnchorLinks}
           showParamDev={props.showParamDev}
           onItemReadyChange={handleItemReadyChange}

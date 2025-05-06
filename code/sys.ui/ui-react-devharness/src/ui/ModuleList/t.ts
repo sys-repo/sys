@@ -18,6 +18,10 @@ export type ModuleListDefaults = {
 export type ModuleListComponent = React.FC<t.ModuleListProps> & ModuleListComponentFields;
 export type ModuleListComponentFields = { DEFAULTS: t.ModuleListDefaults };
 
+/** Return `true` when a horizontal rule should be shown between `prev` → `next`. */
+export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean;
+export type ModuleListShowHrArgs = { prev?: string; next?: string };
+
 /**
  * Component properties
  */
@@ -27,7 +31,7 @@ export type ModuleListProps<T = unknown> = {
   imports?: t.ModuleImports<T>;
   selectedIndex?: number;
   href?: string;
-  hrDepth?: number;
+  hr?: number | ModuleListShowHr;
   badge?: t.ImageBadge;
   showParamDev?: boolean;
   allowRubberband?: boolean;

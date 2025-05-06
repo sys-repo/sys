@@ -11,7 +11,7 @@ export type ListProps = {
   scroll?: boolean;
   selectedIndex?: number;
   showParamDev?: boolean;
-  hrDepth?: number;
+  hr?: t.ModuleListProps['hr'];
   useAnchorLinks?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -73,7 +73,7 @@ export const List: React.FC<ListProps> = (props) => {
         title={options.title}
         ns={options.ns}
         Icon={options.Icon}
-        hrDepth={props.hrDepth}
+        hr={props.hr}
         useAnchorLinks={props.useAnchorLinks}
         theme={theme}
         onReadyChange={props.onItemReadyChange}

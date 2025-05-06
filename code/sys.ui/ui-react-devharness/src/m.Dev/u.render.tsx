@@ -44,7 +44,7 @@ export const render: Render = async (pkg, specs, options = {}) => {
       version={pkg.version}
       imports={specs}
       badge={options.badge}
-      hrDepth={options.hrDepth}
+      hr={options.hrDepth}
       style={style}
     />
   );
