@@ -1,12 +1,12 @@
 import type { t } from './common.ts';
 
-export const Calc = {
+export const HrCalc = {
   /**
    * Master entry: decide whether an <hr> should appear between [prev/next].
    */
-  showHr(prop: t.ModuleListProps['hr'], prev: string, next: string): boolean {
+  show(prop: t.ModuleListProps['hr'], prev: string, next: string): boolean {
     /* 1. Pure depth number. */
-    if (typeof prop === 'number') return Calc.showHrByDepth(prop, prev, next);
+    if (typeof prop === 'number') return HrCalc.showByDepth(prop, prev, next);
 
     /* 2. Callback supplied. */
     if (typeof prop === 'function') {
@@ -14,7 +14,7 @@ export const Calc = {
       const result = prop(args);
 
       /* 2a. Caller explicitly returned a value. */
-      if (typeof result === 'number') return Calc.showHrByDepth(result, prev, next);
+      if (typeof result === 'number') return HrCalc.showByDepth(result, prev, next);
       if (typeof result === 'boolean') return result;
 
       /* 2b. No return → fall back to accumulated rules. */
@@ -28,7 +28,7 @@ export const Calc = {
   /**
    * Depth‑based rule.
    */
-  showHrByDepth(depth: number, prev: string, next: string): boolean {
+  showByDepth(depth: number, prev: string, next: string): boolean {
     if (depth > 1 && prev && next) {
       const split = (s: string) => s.split('.').slice(0, depth).join('.');
       return split(prev) !== split(next);
@@ -103,13 +103,13 @@ export function createHrArgs(prev?: string, next?: string) {
   const buildDepth =
     (n: number): t.ModuleListHrRule =>
     (p, nxt) =>
-      Calc.showHrByDepth(n, p ?? '', nxt ?? '');
+      HrCalc.showByDepth(n, p ?? '', nxt ?? '');
 
   /** Evaluate collected rules in order until one matches. */
   const evaluate = (): boolean => {
     for (const r of rules) {
       if (typeof r === 'number') {
-        if (Calc.showHrByDepth(r, prev ?? '', next ?? '')) return true;
+        if (HrCalc.showByDepth(r, prev ?? '', next ?? '')) return true;
       } else if (r(prev, next)) {
         return true;
       }
