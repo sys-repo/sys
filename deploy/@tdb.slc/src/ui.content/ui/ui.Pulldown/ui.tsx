@@ -2,18 +2,17 @@ import React from 'react';
 import { useTimestamps } from '../use.Timestamps.ts';
 import { type t, Cropmarks, css, Player, Sheet } from './common.ts';
 
-export type PullDownProps = t.VideoContentProps;
+export type PullDownProps = t.VideoContentProps & { player: t.VideoPlayerSignals };
 
 /**
  * Component:
  */
 export const Pulldown: React.FC<PullDownProps> = (props) => {
-  const { state, content } = props;
+  const { state, content, player } = props;
   const { showElapsed = true } = content;
 
   const breakpoint = state.breakpoint;
   const media = content.media;
-  const player = media?.video;
   const timestamp = useTimestamps(player, media?.timestamps);
 
   /**

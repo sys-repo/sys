@@ -1,4 +1,3 @@
-import React from 'react';
 import { VIDEO } from '../-VIDEO.ts';
 import { type t, App, DEFAULTS, v } from './common.ts';
 import { Programme } from './ui.tsx';

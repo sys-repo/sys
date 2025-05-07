@@ -10,6 +10,7 @@ export {
   Playlist,
   usePulldown,
   useTimestamps,
+  useVideoPlayer,
 } from '../ui/mod.ts';
 
 /**

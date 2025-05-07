@@ -5,6 +5,7 @@ import { type t } from './common.ts';
  */
 export type UsePulldown = (
   props: t.VideoContentProps,
+  player: t.VideoPlayerSignals,
   timestamp: t.RenderedTimestamp,
 ) => PulldownHook;
 export type PulldownHook = {

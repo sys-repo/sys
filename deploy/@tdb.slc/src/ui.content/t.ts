@@ -39,8 +39,8 @@ type VideoProps = {
 export type VideoMediaContent = {
   id: t.StringId;
   title?: string;
-  video: t.VideoPlayerSignals;
   panel?: t.CanvasPanel | t.CanvasPanel[];
+  video: { src: string; fadeMask?: number; enlargeBy?: t.Pixels };
   timestamps: ContentTimestamps;
   children?: VideoMediaContent[]; // ← Deep hierarhcy of media.
 };

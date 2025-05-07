@@ -1,5 +1,14 @@
 import React from 'react';
-import { type t, css, Player, Sheet, Time, usePulldown, useTimestamps } from './common.ts';
+import {
+  type t,
+  css,
+  Player,
+  Sheet,
+  Time,
+  usePulldown,
+  useTimestamps,
+  useVideoPlayer,
+} from './common.ts';
 
 export type OverviewProps = t.VideoContentProps;
 
@@ -8,19 +17,11 @@ export type OverviewProps = t.VideoContentProps;
  */
 export const Overview: React.FC<OverviewProps> = (props) => {
   const { state, content } = props;
-  const { showElapsed = true } = content;
+  const { media, showElapsed = true } = content;
 
-  const media = content.media;
-  const player = media?.video;
+  const player = useVideoPlayer(media, content.playOnLoad);
   const timestamp = useTimestamps(player, media?.timestamps);
-  usePulldown(props, timestamp);
-
-  /**
-   * Effect: Play on load.
-   */
-  React.useEffect(() => {
-    if (content.playOnLoad) player?.play();
-  }, [player]);
+  usePulldown(props, player, timestamp);
 
   /**
    * Render:

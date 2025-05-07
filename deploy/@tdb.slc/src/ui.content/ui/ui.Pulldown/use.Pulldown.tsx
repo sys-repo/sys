@@ -1,15 +1,20 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
+
 import { type t } from './common.ts';
 import { Pulldown } from './ui.tsx';
 
-export const usePulldown: t.UsePulldown = (props, timestamp) => {
+export const usePulldown: t.UsePulldown = (props, player, timestamp) => {
   const { state, content } = props;
-  const render = useCallback(() => <Pulldown {...props} />, [props, timestamp]);
+
+  const render = React.useCallback(
+    () => <Pulldown {...props} player={player} />,
+    [props, timestamp],
+  );
 
   /**
    * Effect: show/hide.
    */
-  useEffect(() => {
+  React.useEffect(() => {
     const id = `${content.id}:pulldown`;
     const exists = state.stack.exists((m) => m.id === id);
 
@@ -29,5 +34,6 @@ export const usePulldown: t.UsePulldown = (props, timestamp) => {
    */
   return {
     is: { showing: !!timestamp.pulldown },
+    player,
   };
 };

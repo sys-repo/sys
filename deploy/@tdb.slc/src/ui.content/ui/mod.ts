@@ -5,3 +5,4 @@ export * from './ui.Playlist/mod.ts';
 export * from './ui.Pulldown/mod.ts';
 
 export * from './use.Timestamps.ts';
+export * from './use.VideoPlayer.ts';

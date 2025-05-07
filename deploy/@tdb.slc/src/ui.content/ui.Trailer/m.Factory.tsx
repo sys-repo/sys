@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { VIDEO } from '../-VIDEO.ts';
-import { type t, DEFAULTS, Player } from './common.ts';
+import { type t, DEFAULTS } from './common.ts';
 import { timestamps } from './m.Factory.timestamps.tsx';
 import { Trailer } from './ui.tsx';
 
@@ -19,11 +19,11 @@ export function factory() {
     media: {
       id: 'trailer.root',
       timestamps,
-      video: Player.Video.signals({
+      video: {
         src: VIDEO.Trailer.src,
-        scale: (e) => e.enlargeBy(2), // NB: enlarge 2px to crop out noise/line at top of video.
+        enlargeBy: 2,
         fadeMask: 18,
-      }),
+      },
     },
 
     render(props) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Player, Sheet, Time, useTimestamps } from './common.ts';
+import { type t, css, Player, Sheet, Time, useTimestamps, useVideoPlayer } from './common.ts';
 
 export type TrailerProps = t.VideoContentProps;
 
@@ -8,18 +8,10 @@ export type TrailerProps = t.VideoContentProps;
  */
 export const Trailer: React.FC<TrailerProps> = (props) => {
   const { state, content } = props;
-  const { showElapsed = true } = content;
+  const { media, showElapsed = true } = content;
 
-  const media = content.media;
-  const player = media?.video;
+  const player = useVideoPlayer(media, content.playOnLoad);
   const timestamp = useTimestamps(player, media?.timestamps);
-
-  /**
-   * Effect: Play on load.
-   */
-  React.useEffect(() => {
-    if (content.playOnLoad) player?.play();
-  }, [player]);
 
   /**
    * Render:
