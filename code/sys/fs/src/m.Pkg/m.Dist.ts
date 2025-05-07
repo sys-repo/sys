@@ -36,10 +36,17 @@ export const Dist: t.PkgDistFsLib = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
       pkg: CompositeHash.size(hash.parts, (m) => m.path.startsWith('pkg/')) ?? 0,
     };
+
+    const build: t.DistPkg['build'] = {
+      time: Time.now.timestamp,
+      size,
+      builder: args.builder ?? Pkg.unknown(),
+    };
+
     const dist: t.DistPkg = {
       type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
       pkg: args.pkg ?? Pkg.unknown(),
-      build: { size, pkg: args.builder ?? Pkg.unknown(), time: Time.now.timestamp },
+      build,
       entry: wrangle.entry(entry),
       hash,
     };

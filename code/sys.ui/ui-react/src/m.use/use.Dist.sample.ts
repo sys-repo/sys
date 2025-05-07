@@ -7,9 +7,9 @@ export const sample: t.DistPkg = {
     version: '0.0.0-sample.0',
   },
   build: {
-    pkg: { name: '@sys/sample', version: '0.0.0' },
-    size: { total: 0, pkg: 0 },
     time: 1746521593787,
+    size: { total: 0, pkg: 0 },
+    builder: { name: '@sys/sample', version: '0.0.0' },
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   hash: {
