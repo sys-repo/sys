@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal, Str } from './common.ts';
+import { type t, Button, Color, css, Signal, Str } from '../u.ts';
 
 const local = new URL(`${location.origin}${location.pathname}`);
 

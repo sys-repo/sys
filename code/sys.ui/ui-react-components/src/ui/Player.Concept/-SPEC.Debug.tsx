@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { Color, css, Signal, type t } from './common.ts';
+import { type t, Button, Color, css, Signal } from '../u.ts';
 
 export type DebugProps = {
   ctx: { signals: t.VideoPlayerSignals };

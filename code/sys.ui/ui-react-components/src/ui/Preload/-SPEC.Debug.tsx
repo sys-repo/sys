@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, css, Signal } from './common.ts';
+import { type t, Button, css, Signal } from '../u.ts';
 import { Preload } from './mod.ts';
 
 type O = t.PreloadOptions;

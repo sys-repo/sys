@@ -22,3 +22,4 @@ export const DEFAULTS = {
     };
   },
 } as const;
+export const D = DEFAULTS;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, css, D, Signal } from './common.ts';
+import { type t, Button, css, Signal } from '../u.ts';
+import { D } from './common.ts';
 
 type P = t.BulletProps;
 

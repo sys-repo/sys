@@ -10,3 +10,4 @@ export const DEFAULTS = {
     return 'eager';
   },
 } as const;
+export const D = DEFAULTS;

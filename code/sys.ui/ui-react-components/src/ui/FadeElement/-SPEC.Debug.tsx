@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { ObjectView } from '../ObjectView/mod.ts';
-import { type t, Color, css, D, Signal } from './common.ts';
+import { type t, Button, Color, css, ObjectView, Signal } from '../u.ts';
+import { D } from './common.ts';
 
 type P = t.FadeElementProps;
 
