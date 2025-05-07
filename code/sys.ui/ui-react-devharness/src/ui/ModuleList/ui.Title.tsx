@@ -101,7 +101,7 @@ export const Title: React.FC<TitleProps> = (props) => {
 const wrangle = {
   dist(dist: t.DistPkg): string {
     const size = dist.build.size;
-    const strSize = `${Str.bytes(size.total)}, /pkg:${Str.bytes(size.pkg)}`;
+    const strSize = `${Str.bytes(size.total)}, pkg/:${Str.bytes(size.pkg)}`;
     return `dist:version:#${dist.hash.digest.slice(-5)} → ${strSize}`;
   },
 } as const;
