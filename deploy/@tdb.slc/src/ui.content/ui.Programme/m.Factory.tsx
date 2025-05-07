@@ -14,7 +14,7 @@ export function factory() {
     id: 'Programme',
     kind: 'VideoContent',
 
-    playOnLoad: false,
+    playOnLoad: true,
     media: {
       id: 'programme.root',
       video: v(VIDEO.Programme.Root.src),
