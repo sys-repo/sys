@@ -49,7 +49,8 @@ export type PathLib = {
   extname: typeof StdPath.extname;
 
   /** Create a helper for evaluating file-path extensions. */
-  ext(...suffixes: string[]): PathExtension;
+  ext(...suffixes: string[]): PathFileExtension;
+
   /** Creates a directory path builder. */
   dir(base: t.StringDir): PathDirBuilder;
 };
@@ -136,7 +137,7 @@ export type PathFormatterPartIs = {
 /**
  * Helper for evaluating file-path extensions.
  */
-export type PathExtension = {
+export type PathFileExtension = {
   readonly suffixes: readonly string[];
   is(...path: t.StringPath[]): boolean;
 };

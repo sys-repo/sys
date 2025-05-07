@@ -15,7 +15,7 @@ export const ext: t.PathLib['ext'] = (...exts) => {
     ),
   ];
 
-  const api: t.PathExtension = {
+  const api: t.PathFileExtension = {
     suffixes: Array.from(suffixes) as readonly string[],
     is(...path) {
       return path.every((path) => suffixes.some((ext) => path.endsWith(ext)));
