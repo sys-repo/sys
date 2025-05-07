@@ -1,5 +1,5 @@
-import { type t, Dir, VIDEO } from './common.ts';
-import { image, v } from './u.tsx';
+import { type t, Dir, VIDEO, v } from './common.ts';
+import { image } from './u.tsx';
 
 const Economic = VIDEO.Model.Economic;
 const url = Dir.programme.dir('model.econ');

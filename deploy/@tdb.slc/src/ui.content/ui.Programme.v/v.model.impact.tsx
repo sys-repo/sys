@@ -1,5 +1,5 @@
-import { type t, Dir, VIDEO } from './common.ts';
-import { image, v } from './u.tsx';
+import { type t, Dir, v, VIDEO } from './common.ts';
+import { image } from './u.tsx';
 
 const Impact = VIDEO.Model.Impact;
 const dir = Dir.programme.dir('model.impact');

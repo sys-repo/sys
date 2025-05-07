@@ -1,15 +1,4 @@
-import { type t, Center, Image, Player } from './common.ts';
-
-/**
- * Standard video/media configuration setup.
- */
-export const v = (src: string) => {
-  return Player.Video.signals({
-    src,
-    fadeMask: 15,
-    scale: (e) => e.enlargeBy(2),
-  });
-};
+import { type t, Center, Image } from './common.ts';
 
 /**
  * Shorthand for an <Image.View>
