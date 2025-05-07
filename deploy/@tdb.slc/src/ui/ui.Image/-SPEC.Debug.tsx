@@ -1,9 +1,8 @@
 import React from 'react';
-import { type t, dirPath, Button, css, Signal, ObjectView } from './common.ts';
+import { type t, Button, css, ObjectView, Path, Signal } from './common.ts';
 
 type P = t.ImageViewProps;
-
-const dir = dirPath('/images/ui.Overview');
+const dir = Path.dir('/images/ui.Overview', 'posix');
 
 /**
  * Types:
