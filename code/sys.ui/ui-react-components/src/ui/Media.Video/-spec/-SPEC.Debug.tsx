@@ -2,8 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
 
-type P = t.MediaRecorderProps;
-type Fit = t.MediaRecorderProps['fit'];
+type P = t.VideoProps;
 
 /**
  * Types:
@@ -90,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `fit: ${p.fit.value ?? `<undefined> (default: ${D.fit})`}`}
-        onClick={() => Signal.cycle<Fit>(p.fit, ['cover', 'contain', undefined])}
+        onClick={() => Signal.cycle<P['fit']>(p.fit, ['cover', 'contain', undefined])}
       />
 
       <hr />
@@ -107,7 +106,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function aspectRatioButtons(props: {
   aspectRatio: t.Signal<number | undefined>;
-  fit: t.Signal<Fit | undefined>;
+  fit: t.Signal<P['fit'] | undefined>;
 }) {
   const RATIOS = {
     'wide - 16:9': 16 / 9,

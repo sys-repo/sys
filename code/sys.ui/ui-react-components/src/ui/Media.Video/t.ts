@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type MediaRecorderProps = {
+export type VideoProps = {
   /** Augment the component with debug info when true. */
   debug?: boolean;
 

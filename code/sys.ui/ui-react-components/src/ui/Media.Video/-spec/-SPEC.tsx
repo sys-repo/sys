@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { MediaRecorder } from '../mod.ts';
+import { Video } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { D } from '../common.ts';
 
@@ -27,7 +27,7 @@ export default Spec.describe('MediaRecorder', (e) => {
     ctx.subject
       .display('grid')
       .render(() => (
-        <MediaRecorder
+        <Video
           debug={p.debug.value}
           theme={p.theme.value}
           fit={p.fit.value}
