@@ -10,6 +10,7 @@ export type * from './ui/Icon/t.ts';
 export type * from './ui/IFrame/t.ts';
 export type * from './ui/Image.Svg/t.ts';
 export type * from './ui/Layout.CenterColumn/t.ts';
+export type * from './ui/Media.Recorder/t.ts';
 export type * from './ui/ObjectView/t.ts';
 export type * from './ui/Panel/t.ts';
 export type * from './ui/Player.Concept/t.ts';
