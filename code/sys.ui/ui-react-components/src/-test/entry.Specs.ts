@@ -22,12 +22,11 @@ export const SpecsComponents = {
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
-  [`${ns}: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
 
-  [`${ns}: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
-  [`${ns}: Player.Concept`]: () => import('../ui/Player.Concept/-SPEC.tsx'),
-  [`${ns}: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
-  [`${ns}: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
+  [`${ns}.media: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
+  [`${ns}.media: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
+  [`${ns}.media: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
+  [`${ns}.media: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

@@ -27,7 +27,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr: (e) => {
-        e.byRoots(['sys.ui.react.component']);
+        e.byRoots(['sys.ui.react.component', 'sys.ui.react.component.media']);
       },
     });
     function App() {

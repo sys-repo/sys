@@ -28,7 +28,6 @@ export { Preload } from './ui/Preload/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
 
-export { ConceptPlayer } from './ui/Player.Concept/mod.ts';
 export { VideoPlayer } from './ui/Player.Video/mod.ts';
 export { Player } from './ui/Player/mod.ts';
 export { VimeoBackground } from './ui/VimeoBackground/mod.ts';
