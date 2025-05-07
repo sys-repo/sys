@@ -7,20 +7,20 @@ import type { t } from './common.ts';
  * produced during a build/bundle operation for a module.
  */
 export type DistPkg = {
-  type: t.StringUrl;
+  /** Type definition. */
+  type: t.StringTypeUrl;
 
   /** The package info. */
   pkg: t.Pkg;
 
   /** Build meta-data. */
   build: {
+    /** Timestamp of build. */
     time: t.UnixTimestamp;
-
-    /** The builder module. */
-    pkg: t.Pkg;
-
     /** Distribution-package size statistics. */
     size: t.DistPkgSize;
+    /** The builder module. */
+    pkg: t.Pkg;
   };
 
   /** Path to the main JS entry point. */
