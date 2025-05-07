@@ -1,5 +1,4 @@
 import type { t } from '../common.ts';
-export * from './u.dirPath.ts';
 
 /**
  * Standard video/media configuration setup.

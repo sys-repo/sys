@@ -1,8 +1,9 @@
 import React from 'react';
-import { IMAGE } from '../../ui.content/ui.Overview/common.ts';
-import { type t, Button, css, Signal, ObjectView } from './common.ts';
+import { type t, dirPath, Button, css, Signal, ObjectView } from './common.ts';
 
 type P = t.ImageViewProps;
+
+const dir = dirPath('/images/ui.Overview');
 
 /**
  * Types:
@@ -83,7 +84,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `src: ${value ? `...${value.slice(-36)}` : '<undefined>'}`;
         }}
         onClick={() => {
-          Signal.cycle<P['src']>(p.src, Object.values(IMAGE));
+          const images = [
+            dir.path('customer-model.png'),
+            dir.path('impact-model.png'),
+            dir.path('economic-model.png'),
+          ];
+
+          Signal.cycle<P['src']>(p.src, [...images, undefined]);
         }}
       />
 

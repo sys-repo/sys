@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, CanvasSlug, Image, IMAGE, Dir } from './common.ts';
+import { type t, CanvasSlug, Dir, Image } from './common.ts';
 
 const Slug = CanvasSlug;
 const dir = Dir.overview;
