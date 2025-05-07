@@ -7,4 +7,10 @@ export const Join: t.PathJoinLib = {
   auto,
   posix,
   windows,
+  platform(flag = 'auto') {
+    if (flag === 'auto') return auto;
+    if (flag === 'posix') return posix;
+    if (flag === 'windows') return windows;
+    throw new Error(`Platform flag not supported: ${flag}`);
+  },
 };

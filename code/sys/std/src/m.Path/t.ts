@@ -52,8 +52,11 @@ export type PathLib = {
   ext(...suffixes: string[]): PathFileExtension;
 
   /** Creates a directory path builder. */
-  dir(base: t.StringDir): PathDirBuilder;
+  dir(base: t.StringDir, options?: PathDirOptions | PathJoinPlatform): PathDirBuilder;
 };
+
+/** Options passed to the `Path.dir` method. */
+export type PathDirOptions = { platform?: PathJoinPlatform };
 
 /**
  * Path verification flags.
@@ -74,12 +77,20 @@ export type PathIsLib = {
  */
 export type PathJoinLib = {
   /** Joins a sequence of paths an normalize result on Posix (forward-slash "/"). */
-  posix(...paths: string[]): t.StringPath;
+  readonly posix: PathJoiner;
   /** Joins a sequence of paths an normalize result on Windows (back-slash "/"). */
-  windows(...paths: string[]): t.StringPath;
+  readonly windows: PathJoiner;
   /** Detects the OS and joins/normalizes a sequence of paths with the correct divider character. */
-  auto(...paths: string[]): t.StringPath;
+  readonly auto: PathJoiner;
+  /** Retrieve the appropriate path joiner based on platform. */
+  platform(flag?: PathJoinPlatform): PathJoiner;
 };
+
+/** Flag used to specify the style of path joiner ("\" or "/"). */
+export type PathJoinPlatform = 'auto' | 'posix' | 'windows';
+
+/** A function that joins paths. */
+export type PathJoiner = (...parts: string[]) => t.StringPath;
 
 /**
  * Tools for formatting standard output (strings) within a CLI.

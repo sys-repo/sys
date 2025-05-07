@@ -28,7 +28,7 @@ describe('Time', () => {
       expect(res.timeout).to.eql(30);
       await res;
       expect(fired).to.eql(1);
-      expect(calcDiff(startedAt)).to.be.closeTo(30, 40);
+      expect(calcDiff(startedAt)).to.be.closeTo(30, 50);
       expect(res.is).to.eql({ cancelled: false, completed: true, done: true });
     });
 

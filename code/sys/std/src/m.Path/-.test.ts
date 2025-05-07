@@ -23,6 +23,13 @@ describe('Path', () => {
     it('Join.windows', () => {
       expect(Path.Join.windows('foo', 'bar')).to.eql('foo\\bar');
     });
+
+    it('Join.platform (selector)', () => {
+      expect(Path.Join.platform()).to.equal(Path.Join.auto);
+      expect(Path.Join.platform('auto')).to.equal(Path.Join.auto);
+      expect(Path.Join.platform('posix')).to.equal(Path.Join.posix);
+      expect(Path.Join.platform('windows')).to.equal(Path.Join.windows);
+    });
   });
 
   describe('joinGlobs', () => {
@@ -121,6 +128,17 @@ describe('Path', () => {
       const dir = Path.dir('foo').dir('bar').dir('baz');
       expect(String(dir)).to.eql('foo/bar/baz');
       expect(dir.path('qux', 'quux')).to.eql('foo/bar/baz/qux/quux');
+    });
+
+    it('change platform', () => {
+      const a = Path.dir('foo', { platform: 'auto' });
+      const b = Path.dir('foo', { platform: 'posix' });
+      const c = Path.dir('foo', 'windows');
+
+      expect(a.path('bar')).to.eql(Path.join('foo', 'bar'));
+      expect(b.path('bar')).to.eql(Path.Join.posix('foo', 'bar'));
+      expect(c.path('bar')).to.eql(Path.Join.windows('foo', 'bar'));
+      expect(c.dir('zoo').path('bar')).to.eql(Path.Join.windows('foo', 'zoo', 'bar'));
     });
   });
 });
