@@ -16,7 +16,7 @@ export default Spec.describe('MediaRecorder', (e) => {
     });
 
     ctx.subject
-      .size('fill')
+      .size('fill-x', 100)
       .display('grid')
       .render(() => <MediaRecorder debug={p.debug.value} theme={p.theme.value} />);
   });

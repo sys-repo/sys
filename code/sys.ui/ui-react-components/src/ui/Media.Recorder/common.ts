@@ -5,5 +5,10 @@ export * from '../common.ts';
  * Constants:
  */
 const name = 'MediaRecorder';
-export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+const constraints: MediaStreamConstraints = { video: true, audio: true };
+export const DEFAULTS = {
+  name,
+  displayName: Pkg.toString(pkg, name),
+  constraints,
+} as const;
 export const D = DEFAULTS;
