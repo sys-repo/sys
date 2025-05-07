@@ -23,10 +23,10 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
 
-  [`${ns}.media: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
   [`${ns}.media: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
   [`${ns}.media: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.media: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
+  [`${ns}.media: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
