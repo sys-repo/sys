@@ -15,7 +15,7 @@ export type PreloadLib = {
 export type PreloadPortalProps = {
   children: React.ReactNode;
   size?: t.SizeTuple;
-  description?: string;
+  name?: string;
 };
 
 /**
@@ -30,5 +30,5 @@ export type Preload = (
 export type PreloadOptions = {
   lifetime?: t.Msecs;
   size?: t.SizeTuple;
-  description?: string;
+  name?: string;
 };

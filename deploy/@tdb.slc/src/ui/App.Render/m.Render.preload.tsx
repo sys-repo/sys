@@ -53,6 +53,6 @@ export const preloadTimestamps: t.AppRenderLib['preloadTimestamps'] = (content) 
     }
   });
 
-  const description = 'preload:timestamps';
-  Preload.render(elements, { lifetime: 30_000, description });
+  const name = 'preload:timestamps';
+  Preload.render(elements, { lifetime: 30_000, name });
 };

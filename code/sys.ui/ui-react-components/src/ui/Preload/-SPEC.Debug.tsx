@@ -74,7 +74,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={async () => {
           const lifetime = p.lifetime.value;
           const el = <div>Hello</div>;
-          const res = await Preload.render(el, { lifetime });
+          const name = '🐷-foo';
+          const res = await Preload.render(el, { lifetime, name });
           console.info(res);
         }}
       />

@@ -4,7 +4,7 @@ import { PreloadPortal } from './ui.tsx';
 
 export const render: t.Preload = async (children, op) => {
   const life = rx.lifecycle();
-  const { size, lifetime, description } = wrangle.options(op);
+  const { size, lifetime, name } = wrangle.options(op);
 
   if (typeof document === 'undefined') {
     life.dispose();
@@ -22,7 +22,7 @@ export const render: t.Preload = async (children, op) => {
   const div = document.createElement('div');
   document.body.appendChild(div);
   const root = createRoot(div);
-  root.render(<PreloadPortal size={size} description={description} children={children} />);
+  root.render(<PreloadPortal size={size} name={name} children={children} />);
 
   // Finish up.
   if (typeof lifetime === 'number') await Time.delay(lifetime, life.dispose);
