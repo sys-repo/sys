@@ -5,7 +5,7 @@ import { useUserMedia } from './use.UseMedia.ts';
 type P = t.MediaRecorderProps;
 
 export const MediaRecorder: React.FC<P> = (props) => {
-  const { debug = false, onReady } = props;
+  const { debug = false, fit = D.fit, aspectRatio = D.aspectRatio, onReady } = props;
   const constraints = wrangle.constraints(props);
 
   const { stream, error } = useUserMedia(constraints);
@@ -30,16 +30,13 @@ export const MediaRecorder: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-      placeItems: 'center',
-    }),
+    base: css({ color: theme.fg, display: 'grid' }),
     video: css({
+      borderRadius: props.borderRadius ?? D.borderRadius,
       width: '100%',
-      height: 'auto',
-      borderRadius: 4,
+      height: fit === 'responsive' ? 'auto' : '100%',
+      objectFit: fit === 'cover' ? 'cover' : props.fit === 'contain' ? 'contain' : 'unset',
+      ...(aspectRatio && { aspectRatio }),
     }),
     error: css({ padding: 8 }),
   };

@@ -3,6 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
 
 type P = t.MediaRecorderProps;
+type Fit = t.MediaRecorderProps['fit'];
 
 /**
  * Types:
@@ -18,6 +19,9 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    borderRadius: s<P['borderRadius']>(),
+    aspectRatio: s<P['aspectRatio']>(),
+    fit: s<P['fit']>(),
   };
   const p = props;
   const api = {
@@ -25,6 +29,9 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.borderRadius.value;
+      p.fit.value;
+      p.aspectRatio.value;
     },
   };
   return api;
@@ -65,14 +72,70 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => {
+          const v = p.borderRadius.value;
+          return `borderRadius: ${v ?? `<undefined> (default: ${D.borderRadius})`}`;
+        }}
+        onClick={() => Signal.cycle(p.borderRadius, [undefined, 5, 15])}
+      />
+      <Button
+        block
+        label={() => `fit: ${p.fit.value ?? `<undefined> (default: ${D.fit})`}`}
+        onClick={() => Signal.cycle<Fit>(p.fit, ['cover', 'contain', undefined])}
+      />
+
+      <hr />
+      {aspectRatioButtons(p)}
 
       <hr />
       <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+export function aspectRatioButtons(props: {
+  aspectRatio: t.Signal<number | undefined>;
+  fit: t.Signal<Fit | undefined>;
+}) {
+  const RATIOS = {
+    'wide - 16:9': 16 / 9,
+    'standard - 4:3': 4 / 3,
+    'square - 1': 1,
+    'portrait - 9:16': 9 / 16,
+    'ultrawide - 21:9': 21 / 9,
+  } as const;
+
+  const btn = (label: string, value?: number) => {
+    return (
+      <Button
+        key={label}
+        block
+        label={label}
+        onClick={() => {
+          props.aspectRatio.value = value;
+          props.fit.value = undefined;
+        }}
+      />
+    );
+  };
+
+  return (
+    <React.Fragment>
+      <div className={Styles.title.class}>{'Aspect Ratio:'}</div>
+      {Object.entries(RATIOS).map(([name, value]) => btn(name, value))}
+      {btn('<undefined>', undefined)}
+    </React.Fragment>
+  );
+}

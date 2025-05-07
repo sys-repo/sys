@@ -1,6 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { MediaRecorder } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { D } from '../common.ts';
 
 export default Spec.describe('MediaRecorder', (e) => {
   const debug = createDebugSignals();
@@ -9,16 +10,36 @@ export default Spec.describe('MediaRecorder', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const updateSize = () => {
+      const subject = ctx.subject;
+      const fit = p.fit.value ?? D.fit;
+      if (fit === 'responsive') subject.size('fill-x', 150);
+      if (fit === 'cover' || fit === 'contain') subject.size('fill');
+      ctx.redraw();
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      updateSize();
     });
 
     ctx.subject
-      .size('fill-x', 100)
       .display('grid')
-      .render(() => <MediaRecorder debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <MediaRecorder
+          debug={p.debug.value}
+          theme={p.theme.value}
+          fit={p.fit.value}
+          borderRadius={p.borderRadius.value}
+          aspectRatio={p.aspectRatio.value}
+        />
+      ));
+
+    /**
+     * Initial state:
+     */
+    updateSize();
   });
 
   e.it('ui:debug', (e) => {
