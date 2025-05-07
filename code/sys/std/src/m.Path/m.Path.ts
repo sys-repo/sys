@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import { Join } from './m.Join.ts';
+import { dir } from './u.dir.ts';
 import { ext, extname } from './u.ext.ts';
 
 import {
@@ -35,4 +36,5 @@ export const Path: t.PathLib = {
   absolute: (path) => (Is.absolute(path) ? path : resolve(path)),
   extname,
   ext,
+  dir,
 } as const;

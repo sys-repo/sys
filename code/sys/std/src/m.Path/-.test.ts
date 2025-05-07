@@ -98,4 +98,29 @@ describe('Path', () => {
       expect(img.is('foo.png', 'bar.jpg')).to.eql(true);
     });
   });
+
+  describe('Path.dir (builder)', () => {
+    it('returns the base path when coerced to string', () => {
+      const dir = Path.dir('foo');
+      expect(String(dir)).to.eql('foo');
+    });
+
+    it('joins parts onto the base with path()', () => {
+      const dir = Path.dir('foo');
+      const result = dir.path('bar', 'baz');
+      expect(result).to.eql('foo/bar/baz');
+    });
+
+    it('creates a new scoped builder with dir()', () => {
+      const dir = Path.dir('foo').dir('bar');
+      expect(String(dir)).to.eql('foo/bar');
+      expect(dir.path('baz')).to.eql('foo/bar/baz');
+    });
+
+    it('supports nesting dir() calls', () => {
+      const dir = Path.dir('foo').dir('bar').dir('baz');
+      expect(String(dir)).to.eql('foo/bar/baz');
+      expect(dir.path('qux', 'quux')).to.eql('foo/bar/baz/qux/quux');
+    });
+  });
 });
