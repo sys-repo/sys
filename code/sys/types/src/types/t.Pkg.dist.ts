@@ -20,7 +20,9 @@ export type DistPkg = {
     /** Distribution-package size statistics. */
     size: t.DistPkgSize;
     /** The builder module. */
-    pkg: t.Pkg;
+    builder: t.Pkg;
+    /** URI containing the runtime versions the builder ran on. */
+    runtime: t.StringUri;
   };
 
   /** Path to the main JS entry point. */

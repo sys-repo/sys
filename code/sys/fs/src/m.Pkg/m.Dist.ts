@@ -41,6 +41,7 @@ export const Dist: t.PkgDistFsLib = {
       time: Time.now.timestamp,
       size,
       builder: args.builder ?? Pkg.unknown(),
+      runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
     };
 
     const dist: t.DistPkg = {

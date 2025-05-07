@@ -10,6 +10,7 @@ export const sample: t.DistPkg = {
     time: 1746521593787,
     size: { total: 0, pkg: 0 },
     builder: { name: '@sys/sample', version: '0.0.0' },
+    runtime: 'deno=<version>:v8=<version>:typescript=<version>',
   },
   entry: 'pkg/-entry.CsmS4pX8.js',
   hash: {

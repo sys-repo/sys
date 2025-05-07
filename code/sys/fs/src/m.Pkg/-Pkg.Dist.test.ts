@@ -57,8 +57,11 @@ describe('Pkg.Dist', () => {
       expect(dist.pkg).to.eql(pkg);
       expect(dist.entry).to.eql(Path.normalize(entry));
 
-      expect(dist.build.pkg).to.eql(builder);
       expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
+      expect(dist.build.builder).to.eql(builder);
+      expect(dist.build.runtime.includes('deno=')).to.be.true;
+      expect(dist.build.runtime.includes('v8=')).to.be.true;
+      expect(dist.build.runtime.includes('typescript=')).to.be.true;
 
       expect(Is.number(dist.build.size.total)).to.be.true;
       expect(Is.number(dist.build.size.pkg)).to.be.true;
@@ -73,7 +76,7 @@ describe('Pkg.Dist', () => {
       const { dir, entry } = sample.path;
       const res = await Pkg.Dist.compute({ dir, entry });
       expect(Pkg.Is.unknown(res.dist.pkg)).to.eql(true);
-      expect(Pkg.Is.unknown(res.dist.build.pkg)).to.eql(true);
+      expect(Pkg.Is.unknown(res.dist.build.builder)).to.eql(true);
     });
 
     it('default: does not save to file', async () => {
