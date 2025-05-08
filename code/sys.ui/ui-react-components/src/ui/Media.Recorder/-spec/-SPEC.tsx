@@ -21,9 +21,13 @@ export default Spec.describe('MediaRecorder', (e) => {
       .size('fill-x', 150)
       .display('grid')
       .render(() => {
+        const waveHeight = 150;
         const styles = {
           base: css({ display: 'grid' }),
-          waveform: css({ Absolute: [null, 0, -60, 0], height: 50 }),
+          waveform: css({
+            Absolute: [null, 0, -(waveHeight + 10), 0],
+            height: waveHeight,
+          }),
         };
         return (
           <div className={styles.base.class}>
