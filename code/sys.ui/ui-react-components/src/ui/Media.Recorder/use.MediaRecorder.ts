@@ -28,18 +28,20 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   /**
    * API Methods:
    */
-  const start = useCallback(() => {
-    if (!stream || status === 'recording') return;
+  const start = () => {
+    if (!stream || status === 'recording') return api;
     if (!recorderRef.current) init();
     recorderRef.current!.start(); // optional: `timeslice` arg for chunks.
     setStatus('recording');
-  }, [stream, status, init]);
+    return api;
+  };
 
   const pause = () => {
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.pause();
       setStatus('paused');
     }
+    return api;
   };
 
   const resume = () => {
@@ -47,6 +49,7 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       recorderRef.current.resume();
       setStatus('recording');
     }
+    return api;
   };
 
   const stop = () => {
@@ -54,13 +57,22 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       recorderRef.current.stop();
       setStatus('stopped');
     }
+    return api;
+  };
+
+  const clear = () => {
+    stop();
+    setStatus('idle');
+    setBlob(undefined);
+    return api;
   };
 
   /**
    * Public API:
    */
   const is = wrangle.is(status);
-  return { start, stop, pause, resume, status, is, blob };
+  const api: t.UseMediaRecorderHook = { start, stop, pause, resume, status, is, blob, clear };
+  return api;
 };
 
 /**

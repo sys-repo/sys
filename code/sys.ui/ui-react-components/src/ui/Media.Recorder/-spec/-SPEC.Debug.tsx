@@ -101,7 +101,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers
  */
 export function recorderButtons(recorder: t.UseMediaRecorderHook) {
-  const { status, start, pause, resume, stop, is } = recorder;
+  const { status, start, pause, resume, is } = recorder;
   const canStart = !is.recording && status !== 'paused';
   const bullet = is.recording ? '💦' : '🌳';
   const elBullet = <span style={{ opacity: is.idle ? 0.1 : 1 }}>{bullet}</span>;
@@ -126,9 +126,9 @@ export function recorderButtons(recorder: t.UseMediaRecorderHook) {
 
       <div style={{ marginTop: 8, opacity: 0.7 }}>{}</div>
       {!is.started && <Button block label="start recording" onClick={start} enabled={canStart} />}
-      {is.recording && <Button block label="pause" onClick={pause} />}
-      {is.paused && <Button block label="resume" onClick={resume} />}
-      <Button block label="stop & save" onClick={stop} enabled={!is.idle} />
+      {is.recording && <Button block label="pause" onClick={recorder.pause} />}
+      {is.paused && <Button block label="resume" onClick={recorder.resume} />}
+      <Button block label="stop & save" onClick={() => recorder.stop()} enabled={!is.idle} />
     </React.Fragment>
   );
 }
