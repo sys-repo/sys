@@ -5,6 +5,7 @@ import { MediaRecorder, useMediaRecorder } from '../mod.ts';
 import { Media } from '../../Media/mod.ts';
 
 type P = t.MediaRecorderProps;
+type Fit = t.MediaVideoProps['fit'];
 
 /**
  * Types:
@@ -28,6 +29,7 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
+    fit: s<Fit>('responsive'),
   };
   const p = props;
   const api = {
@@ -37,6 +39,7 @@ export function createDebugSignals() {
       p.theme.value;
       p.stream.value;
       p.recorder.value;
+      p.fit.value;
     },
   };
   return api;
@@ -90,6 +93,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `fit: ${p.fit.value}`}
+        onClick={() => Signal.cycle<Fit>(p.fit, ['responsive', 'cover'])}
       />
 
       <hr />
