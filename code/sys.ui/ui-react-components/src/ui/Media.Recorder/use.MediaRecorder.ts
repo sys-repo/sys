@@ -7,6 +7,7 @@ import { type t } from './common.ts';
 export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const { mimeType = 'video/webm;codecs=vp9,opus' } = options;
 
+  const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>();
   const [status, setStatus] = useState<t.MediaRecorderStatus>('idle');
   const [blob, setBlob] = useState<Blob>();
@@ -14,14 +15,13 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   /**
    * Helpers:
    */
-  let chunks: BlobPart[] = [];
   const init = useCallback(() => {
     if (!stream) return;
-    recorderRef.current = new MediaRecorder(stream, options);
-    recorderRef.current.ondataavailable = (e) => chunks.push(e.data);
+    recorderRef.current = new MediaRecorder(stream, { mimeType });
+    recorderRef.current.ondataavailable = (e) => chunksRef.current.push(e.data);
     recorderRef.current.onstop = () => {
-      setBlob(new Blob(chunks, { type: mimeType }));
-      chunks = [];
+      setBlob(new Blob(chunksRef.current, { type: mimeType }));
+      chunksRef.current = [];
     };
   }, [stream]);
 
@@ -55,14 +55,6 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       setStatus('stopped');
     }
   };
-
-  /**
-   * Effect: Initialize
-   */
-  useEffect(() => {
-    if (stream) init();
-    return () => recorderRef.current?.stop();
-  }, [stream, init]);
 
   /**
    * Public API:
