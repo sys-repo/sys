@@ -11,6 +11,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
 
   const [element, setElement] = useState<T | null>(null);
   const [rect, setRect] = useState<DOMRectReadOnly | undefined>();
+  const [count, setCount] = useState(0);
 
   /**
    * Effect: monitor DOM element size.
@@ -37,6 +38,13 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
   }, [rect]);
 
   /**
+   * Effect: single number to track changes (deps).
+   */
+  useEffect(() => {
+    if (rect) setCount((n) => n + 1);
+  }, [rect?.height, rect?.width]);
+
+  /**
    * API
    */
   const toObject = () => wrangle.asObject(rect);
@@ -51,6 +59,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
     get height() {
       return rect?.height ?? 0;
     },
+    count,
     rect,
     toObject,
     toString() {

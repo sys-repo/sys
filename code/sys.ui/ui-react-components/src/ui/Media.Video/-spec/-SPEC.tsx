@@ -18,7 +18,7 @@ export default Spec.describe('Media.Video', (e) => {
       ctx.redraw();
     };
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       updateSize();

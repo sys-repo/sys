@@ -18,6 +18,9 @@ export type SizeObserverHook<T extends HTMLElement> = {
   /** Flag indicating if the first render-pass has allowed a measurement. */
   readonly ready: boolean;
 
+  /** Change count (use for deps tracking). */
+  readonly count: number;
+
   /** The latest dimensions of the element (or null if not measured yet). */
   readonly rect?: DOMRectReadOnly;
 
