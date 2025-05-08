@@ -71,13 +71,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-
-      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
       <Button
         block
         label={() => {
@@ -108,6 +108,8 @@ export function aspectRatioButtons(props: {
   aspectRatio: t.Signal<number | undefined>;
   fit: t.Signal<P['fit'] | undefined>;
 }) {
+  const p = props;
+
   const RATIOS = {
     'wide - 16:9': 16 / 9,
     'standard - 4:3': 4 / 3,
@@ -123,8 +125,8 @@ export function aspectRatioButtons(props: {
         block
         label={label}
         onClick={() => {
-          props.aspectRatio.value = value;
-          props.fit.value = undefined;
+          p.aspectRatio.value = value;
+          p.fit.value = undefined;
         }}
       />
     );
@@ -132,9 +134,12 @@ export function aspectRatioButtons(props: {
 
   return (
     <React.Fragment>
-      <div className={Styles.title.class}>{'Aspect Ratio:'}</div>
-      {Object.entries(RATIOS).map(([name, value]) => btn(name, value))}
+      <div className={Styles.title.class}>
+        <div>{'Aspect Ratio:'}</div>
+        <div>{p.aspectRatio.value?.toFixed(2) ?? '-'}</div>
+      </div>
       {btn('<undefined>', undefined)}
+      {Object.entries(RATIOS).map(([name, value]) => btn(name, value))}
     </React.Fragment>
   );
 }

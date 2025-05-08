@@ -25,7 +25,7 @@ export default Spec.describe('Audio', (e) => {
             debug={p.debug.value}
             theme={p.theme.value}
             stream={p.stream.value}
-            style={{ height: 100 }}
+            style={{ height: 200 }}
           />
         );
       });

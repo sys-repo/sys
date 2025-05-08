@@ -35,7 +35,11 @@ export default Spec.describe('MediaRecorder', (e) => {
                 p.stream.value = e.stream;
               }}
             />
-            <Media.AudioWaveform stream={p.stream.value} style={styles.waveform} />
+            <Media.AudioWaveform
+              stream={p.stream.value}
+              style={styles.waveform}
+              theme={p.theme.value}
+            />
           </div>
         );
       });
