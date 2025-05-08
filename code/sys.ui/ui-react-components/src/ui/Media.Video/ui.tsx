@@ -20,7 +20,7 @@ export const MediaVideo: React.FC<P> = (props) => {
       video.play().catch(() => {
         /* ignored (autoplay/etc) */
       });
-      onReady?.(stream);
+      onReady?.({ stream });
     }
   }, [stream, onReady]);
 
@@ -30,14 +30,16 @@ export const MediaVideo: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
+    error: css({ padding: 8 }),
     video: css({
+      inlineSize: '100%',
+      maxBlockSize: '100%', // NB: ↕ cap height at container edge
       borderRadius: props.borderRadius ?? D.borderRadius,
       width: '100%',
       height: fit === 'responsive' ? 'auto' : '100%',
       objectFit: fit === 'cover' ? 'cover' : props.fit === 'contain' ? 'contain' : 'unset',
       ...(aspectRatio && { aspectRatio }),
     }),
-    error: css({ padding: 8 }),
   };
 
   return (

@@ -1,6 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { MediaRecorder } from '../mod.ts';
+import { MediaVideo } from '../common.ts';
 
 export default Spec.describe('MediaRecorder', (e) => {
   const debug = createDebugSignals();
@@ -16,9 +17,18 @@ export default Spec.describe('MediaRecorder', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill-x', 150)
       .display('grid')
-      .render(() => <MediaRecorder debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <MediaVideo
+          debug={p.debug.value}
+          theme={p.theme.value}
+          onReady={(e) => {
+            console.info(`⚡️ onReady:`, e);
+            p.stream.value = e.stream;
+          }}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

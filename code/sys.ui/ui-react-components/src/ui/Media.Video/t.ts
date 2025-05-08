@@ -26,5 +26,5 @@ export type MediaVideoProps = {
    * Handlers:
    */
   /** Called once when the stream is live and assigned to <video>. */
-  onReady?: (stream: MediaStream) => void;
+  onReady?: (e: { stream: MediaStream }) => void;
 };

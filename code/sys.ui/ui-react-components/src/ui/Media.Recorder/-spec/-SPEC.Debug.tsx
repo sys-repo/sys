@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Button, ObjectView } from '../../u.ts';
 import { css, D, Signal } from '../common.ts';
+import { MediaRecorder } from '../mod.ts';
 
 type P = t.MediaRecorderProps;
 
@@ -17,6 +18,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
+    stream: s<MediaStream>(),
     theme: s<P['theme']>('Light'),
   };
   const p = props;
@@ -25,6 +27,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.stream.value;
     },
   };
   return api;
@@ -72,7 +75,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={['$']} />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
+
+      <hr />
+      <MediaRecorder debug={p.debug.value} />
     </div>
   );
 };

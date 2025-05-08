@@ -33,6 +33,7 @@ export default Spec.describe('Media.Video', (e) => {
           fit={p.fit.value}
           borderRadius={p.borderRadius.value}
           aspectRatio={p.aspectRatio.value}
+          onReady={(e) => console.info(`⚡️ onReady:`, e)}
         />
       ));
 

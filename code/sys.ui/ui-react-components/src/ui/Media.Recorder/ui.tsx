@@ -10,14 +10,15 @@ export const MediaRecorder: React.FC<t.MediaRecorderProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
+      padding: 10,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <div>{`🐷 ${D.name}`}</div>
     </div>
   );
 };
