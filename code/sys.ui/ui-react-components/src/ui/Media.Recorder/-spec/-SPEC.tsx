@@ -1,6 +1,6 @@
 import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Media } from '../../Media/mod.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MediaRecorder', (e) => {
   const debug = createDebugSignals();
@@ -23,12 +23,12 @@ export default Spec.describe('MediaRecorder', (e) => {
     });
 
     ctx.subject.display('grid').render(() => {
-      const waveHeight = 100;
+      const height = 100;
       const styles = {
         base: css({ display: 'grid' }),
         waveform: css({
-          Absolute: [null, 0, -(waveHeight + 10), 0],
-          height: waveHeight,
+          Absolute: [null, 0, -(height + 10), 0],
+          height,
         }),
       };
       return (
