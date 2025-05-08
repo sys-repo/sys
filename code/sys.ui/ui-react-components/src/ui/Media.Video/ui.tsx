@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, Color, css, D, useUserMedia } from './common.ts';
 
-type P = t.VideoProps;
+type P = t.MediaVideoProps;
 
-export const Video: React.FC<P> = (props) => {
+export const MediaVideo: React.FC<P> = (props) => {
   const { debug = false, fit = D.fit, aspectRatio = D.aspectRatio, onReady } = props;
   const constraints = wrangle.constraints(props);
 
@@ -48,7 +48,7 @@ export const Video: React.FC<P> = (props) => {
   );
 };
 
-Video.displayName = D.displayName;
+MediaVideo.displayName = D.displayName;
 
 /**
  * Helpers:

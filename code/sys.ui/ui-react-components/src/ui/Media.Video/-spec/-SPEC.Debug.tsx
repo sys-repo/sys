@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
 
-type P = t.VideoProps;
+type P = t.MediaVideoProps;
 
 /**
  * Types:

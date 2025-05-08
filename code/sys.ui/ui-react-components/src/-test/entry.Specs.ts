@@ -27,6 +27,7 @@ export const SpecsComponents = {
   [`${ns}.media: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.media: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
   [`${ns}.media: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
+  [`${ns}.media: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
