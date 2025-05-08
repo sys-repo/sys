@@ -17,7 +17,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    theme: s<P['theme']>('Dark'),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
     fit: s<P['fit']>(),
