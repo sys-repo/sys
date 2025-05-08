@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, useUserMedia } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
+import { useUserMedia } from './use.UserMedia.ts';
 
 type P = t.MediaVideoProps;
 

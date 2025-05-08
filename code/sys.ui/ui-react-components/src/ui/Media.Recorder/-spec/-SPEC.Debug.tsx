@@ -1,7 +1,8 @@
 import React from 'react';
 import { type t, Button, ObjectView } from '../../u.ts';
 import { css, D, Signal } from '../common.ts';
-import { MediaRecorder } from '../mod.ts';
+import { MediaRecorder, useMediaRecorder } from '../mod.ts';
+import { Media } from '../../Media/mod.ts';
 
 type P = t.MediaRecorderProps;
 
@@ -50,7 +51,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
+  const recorder = useMediaRecorder(p.stream.value);
   Signal.useRedrawEffect(() => debug.listen());
+
+  /**
+   * Effect: download when finished.
+   */
+  React.useEffect(() => {
+    const { status, blob } = recorder;
+    if (status === 'stopped' && blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'recording.webm';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }, [recorder.status, recorder.blob]);
 
   /**
    * Render:
@@ -75,6 +92,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      {recorderButtons(recorder)}
+
+      <hr />
       <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
 
       <hr />
@@ -82,3 +102,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+export function recorderButtons(recorder: t.UseMediaRecorderHook) {
+  const { status, start, pause, resume, stop } = recorder;
+  const canStart = status !== 'recording' && status !== 'paused';
+  return (
+    <React.Fragment>
+      <Button block label="start recording" onClick={start} enabled={canStart} />
+      <Button block label="pause" onClick={pause} enabled={status === 'recording'} />
+      <Button block label="resume" onClick={resume} enabled={status === 'paused'} />
+      <Button block label="stop & save" onClick={stop} enabled={status !== 'idle'} />
+      <div style={{ marginTop: 8, opacity: 0.7 }}>{`🌳 status: ${status}`}</div>
+    </React.Fragment>
+  );
+}

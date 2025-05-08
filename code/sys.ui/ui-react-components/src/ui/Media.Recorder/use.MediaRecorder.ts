@@ -1,0 +1,71 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type t } from './common.ts';
+
+/**
+ * Records user-media.
+ */
+export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
+  const { mimeType = 'video/webm;codecs=vp9,opus' } = options;
+
+  const recorderRef = useRef<MediaRecorder>();
+  const [status, setStatus] = useState<t.MediaRecorderStatus>('idle');
+  const [blob, setBlob] = useState<Blob>();
+
+  /**
+   * Helpers:
+   */
+  let chunks: BlobPart[] = [];
+  const init = useCallback(() => {
+    if (!stream) return;
+    recorderRef.current = new MediaRecorder(stream, options);
+    recorderRef.current.ondataavailable = (e) => chunks.push(e.data);
+    recorderRef.current.onstop = () => {
+      setBlob(new Blob(chunks, { type: mimeType }));
+      chunks = [];
+    };
+  }, [stream]);
+
+  /**
+   * API Methods:
+   */
+  const start = useCallback(() => {
+    if (!stream || status === 'recording') return;
+    if (!recorderRef.current) init();
+    recorderRef.current!.start(); // optional: `timeslice` arg for chunks.
+    setStatus('recording');
+  }, [stream, status, init]);
+
+  const pause = () => {
+    if (recorderRef.current?.state === 'recording') {
+      recorderRef.current.pause();
+      setStatus('paused');
+    }
+  };
+
+  const resume = () => {
+    if (recorderRef.current?.state === 'paused') {
+      recorderRef.current.resume();
+      setStatus('recording');
+    }
+  };
+
+  const stop = () => {
+    if (recorderRef.current && status !== 'idle') {
+      recorderRef.current.stop();
+      setStatus('stopped');
+    }
+  };
+
+  /**
+   * Effect: Initialize
+   */
+  useEffect(() => {
+    if (stream) init();
+    return () => recorderRef.current?.stop();
+  }, [stream, init]);
+
+  /**
+   * Public API:
+   */
+  return { start, stop, pause, resume, status, blob };
+};

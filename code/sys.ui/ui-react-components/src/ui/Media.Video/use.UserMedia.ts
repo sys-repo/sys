@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Obj } from './common.ts';
+import { Obj, type t } from './common.ts';
 
 /**
  * Acquire/cleanup device media.
  */
-export function useUserMedia(constraints: MediaStreamConstraints) {
+export const useUserMedia: t.UseUserMedia = (constraints: MediaStreamConstraints) => {
   const [stream, setStream] = useState<MediaStream>();
   const [error, setError] = useState<DOMException>();
 
+  /**
+   * Effect: retrieve the user-media based on given constraints.
+   */
   useEffect(() => {
     let cancelled = false;
 
@@ -26,5 +29,8 @@ export function useUserMedia(constraints: MediaStreamConstraints) {
     };
   }, [Obj.hash(constraints)]);
 
+  /**
+   * Public API:
+   */
   return { stream, error };
-}
+};

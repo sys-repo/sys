@@ -4,6 +4,10 @@ import type { t } from './common.ts';
  * Media stream UI and helpers.
  */
 export type MediaLib = {
-  Video: React.FC<t.MediaVideoProps>;
-  Recorder: React.FC<t.MediaRecorderProps>;
+  readonly Video: React.FC<t.MediaVideoProps>;
+  readonly Recorder: React.FC<t.MediaRecorderProps>;
+
+  // Hooks:
+  readonly useUserMedia: t.UseUserMedia;
+  readonly useMediaRecorder: t.UseMediaRecorder;
 };

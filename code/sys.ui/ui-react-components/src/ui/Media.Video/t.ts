@@ -28,3 +28,12 @@ export type MediaVideoProps = {
   /** Called once when the stream is live and assigned to <video>. */
   onReady?: (e: { stream: MediaStream }) => void;
 };
+
+/**
+ * Hook: Acquire/cleanup device media.
+ */
+export type UseUserMedia = (constraints: MediaStreamConstraints) => UserMediaHook;
+export type UserMediaHook = {
+  readonly stream?: MediaStream;
+  readonly error?: DOMException;
+};
