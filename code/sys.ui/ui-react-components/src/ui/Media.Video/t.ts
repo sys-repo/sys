@@ -22,9 +22,6 @@ export type MediaVideoProps = {
   /** How the video should fill its box (default `"responsive"`). */
   fit?: 'responsive' | 'cover' | 'contain';
 
-  /**
-   * Handlers:
-   */
   /** Called once when the stream is live and assigned to <video>. */
   onReady?: (e: { stream: MediaStream }) => void;
 };
