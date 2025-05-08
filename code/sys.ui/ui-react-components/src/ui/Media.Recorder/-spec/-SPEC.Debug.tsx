@@ -107,12 +107,12 @@ export function recorderButtons(recorder: t.UseMediaRecorderHook) {
   const elBullet = <span style={{ opacity: is.idle ? 0.1 : 1 }}>{bullet}</span>;
 
   const theme = Color.theme();
-  let color = theme.fg;
-  if (is.recording) color = Color.RED;
-  if (is.paused) color = Color.BLUE;
-  if (is.idle || is.stopped) color = Color.alpha(theme.fg, 0.3);
+  let statusColor = theme.fg;
+  const dim = Color.alpha(theme.fg, 0.3);
+  if (is.recording) statusColor = Color.RED;
+  if (is.paused || is.idle || is.stopped) statusColor = dim;
 
-  const elStatus = <span style={{ color }}>{status}</span>;
+  const elStatus = <span style={{ color: statusColor }}>{status}</span>;
   return (
     <React.Fragment>
       <div className={Styles.title.class}>
