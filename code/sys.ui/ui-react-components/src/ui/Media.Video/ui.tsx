@@ -5,14 +5,23 @@ import { useUserMedia } from './use.UserMedia.ts';
 type P = t.MediaVideoProps;
 
 export const MediaVideo: React.FC<P> = (props) => {
-  const { debug = false, fit = D.fit, aspectRatio = D.aspectRatio, onReady } = props;
+  const { debug = false, fit = D.fit, aspectRatio = D.aspectRatio } = props;
   const constraints = wrangle.constraints(props);
 
+  const onReadyRef = React.useRef<P['onReady']>();
   const videoRef = React.useRef<HTMLVideoElement>(null);
+
   const { stream, error } = useUserMedia(constraints);
   const [isResizing, setResizing] = React.useState(false);
   const size = useSizeObserver();
   const isReady = size.ready;
+
+  /**
+   * Effect: store latest `onReady` function reference.
+   */
+  React.useEffect(() => {
+    onReadyRef.current = props.onReady;
+  }, [props.onReady]);
 
   /**
    * Effect: track resizing (allow hide to avoid flashing).
@@ -35,9 +44,9 @@ export const MediaVideo: React.FC<P> = (props) => {
       video.play().catch(() => {
         /* ignored (autoplay/etc) */
       });
-      onReady?.({ stream });
+      onReadyRef.current?.({ stream });
     }
-  }, [stream, onReady]);
+  }, [stream?.id]);
 
   /**
    * Render:
