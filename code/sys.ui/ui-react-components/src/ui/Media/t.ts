@@ -13,5 +13,5 @@ export type MediaLib = {
   readonly useMediaRecorder: t.UseMediaRecorder;
 
   // Helpers:
-  download(blob: Blob, filename?: string): void;
+  download(blob?: Blob, filename?: string): void;
 };
