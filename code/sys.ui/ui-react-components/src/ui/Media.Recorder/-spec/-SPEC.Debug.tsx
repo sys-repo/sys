@@ -19,7 +19,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
   };
   const p = props;
