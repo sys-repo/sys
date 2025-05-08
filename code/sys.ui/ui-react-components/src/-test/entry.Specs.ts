@@ -9,13 +9,13 @@ export const ns = 'sys.ui.react.component';
  * Components:
  */
 export const SpecsComponents = {
-  [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
+  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
+  [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
-  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-SPEC.tsx'),
   [`${ns}: Panel`]: () => import('../ui/Panel/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
@@ -23,12 +23,12 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
 
-  [`${ns}.media: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
-  [`${ns}.media: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
-  [`${ns}.media: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
-  [`${ns}.media: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
-  [`${ns}.media: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
-  [`${ns}.media: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
+  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
+  [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
+  [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
+  [`${ns}.io: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
+  [`${ns}.io: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
+  [`${ns}.io: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

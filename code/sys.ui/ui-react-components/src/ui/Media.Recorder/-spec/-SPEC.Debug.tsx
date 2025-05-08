@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView } from '../../u.ts';
-import { css, D, Signal } from '../common.ts';
+import { Color, css, D, Signal } from '../common.ts';
 import { MediaRecorder, useMediaRecorder } from '../mod.ts';
 
 type P = t.MediaRecorderProps;
@@ -65,6 +65,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = {
     base: css({}),
   };
@@ -101,14 +102,39 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function recorderButtons(recorder: t.UseMediaRecorderHook) {
   const { status, start, pause, resume, stop } = recorder;
-  const canStart = status !== 'recording' && status !== 'paused';
+  const is = {
+    recording: status === 'recording',
+    paused: status === 'paused',
+    started: status === 'paused' || status === 'recording',
+    stopped: status === 'stopped',
+  };
+  const canStart = !is.recording && status !== 'paused';
+  const bullet = is.recording ? '💦' : '🌳';
+  const elBullet = <span style={{ opacity: is.started ? 1 : 0.1 }}>{bullet}</span>;
+
+  const theme = Color.theme();
+  let color = theme.fg;
+  if (is.recording) color = Color.RED;
+  if (is.paused) color = Color.BLUE;
+  if (!is.started || is.stopped) color = Color.alpha(theme.fg, 0.3);
+
+  const elStatus = <span style={{ color }}>{status}</span>;
   return (
     <React.Fragment>
+      <div className={Styles.title.class}>
+        <div>{'useMediaRecorder'}</div>
+        <div>
+          {elBullet}
+          {` status: `}
+          {elStatus}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 8, opacity: 0.7 }}>{}</div>
       <Button block label="start recording" onClick={start} enabled={canStart} />
       <Button block label="pause" onClick={pause} enabled={status === 'recording'} />
       <Button block label="resume" onClick={resume} enabled={status === 'paused'} />
       <Button block label="stop & save" onClick={stop} enabled={status !== 'idle'} />
-      <div style={{ marginTop: 8, opacity: 0.7 }}>{`🌳 status: ${status}`}</div>
     </React.Fragment>
   );
 }

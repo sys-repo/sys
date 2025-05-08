@@ -27,7 +27,12 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr: (e) => {
-        e.byRoots(['sys.ui.react.component', 'sys.ui.react.component.media']);
+        if (e.prev?.endsWith(': ObjectView')) return true;
+        e.byRoots([
+          'sys.ui.react.component',
+          'sys.ui.react.component.player',
+          'sys.ui.react.component.io',
+        ]);
       },
     });
     function App() {
