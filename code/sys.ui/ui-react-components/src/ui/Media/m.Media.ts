@@ -6,7 +6,24 @@ export const Media: t.MediaLib = {
   Video,
   Recorder,
 
-  // Hooks:
+  /**
+   * Hooks:
+   */
   useUserMedia,
   useMediaRecorder,
+
+  /**
+   * Helpers:
+   */
+  download(blob, filename = 'recording') {
+    filename = filename.trim().replace(/\.webm$/, '');
+    filename = `${filename}.webm`;
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
 };

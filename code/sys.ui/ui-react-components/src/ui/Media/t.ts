@@ -10,4 +10,7 @@ export type MediaLib = {
   // Hooks:
   readonly useUserMedia: t.UseUserMedia;
   readonly useMediaRecorder: t.UseMediaRecorder;
+
+  // Helpers:
+  download(blob: Blob, filename?: string): void;
 };

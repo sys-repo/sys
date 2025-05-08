@@ -1,8 +1,8 @@
 import React from 'react';
+import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView } from '../../u.ts';
 import { css, D, Signal } from '../common.ts';
 import { MediaRecorder, useMediaRecorder } from '../mod.ts';
-import { Media } from '../../Media/mod.ts';
 
 type P = t.MediaRecorderProps;
 
@@ -59,14 +59,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   React.useEffect(() => {
     const { status, blob } = recorder;
-    if (status === 'stopped' && blob) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'recording.webm';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    if (status === 'stopped' && blob) Media.download(blob);
   }, [recorder.status, recorder.blob]);
 
   /**
