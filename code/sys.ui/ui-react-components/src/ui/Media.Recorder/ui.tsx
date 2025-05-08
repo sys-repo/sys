@@ -18,7 +18,7 @@ export const MediaRecorder: React.FC<t.MediaRecorderProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.name}`}</div>
+      <div>{`🐷 ${D.name}.state`}</div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type MediaRecorderStatus = 'idle' | 'recording' | 'paused' | 'stopped';
+export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
 
 /**
  * <Component>:
@@ -17,29 +17,43 @@ export type MediaRecorderProps = {
 export type UseMediaRecorder = (
   stream?: MediaStream,
   options?: UseMediaRecorderOptions,
-) => UseMediaRecorderHook;
-
+) => MediaRecorderHook;
 /** Options passed to the `UseMediaRecorder` hook. */
 export type UseMediaRecorderOptions = { mimeType?: 'video/webm;codecs=vp9,opus' };
 
 /**
- * UseMediaRecorder hook API.
+ * UseMediaRecorder hook API:
  */
-export type UseMediaRecorderHook = {
+export type MediaRecorderHook = {
   readonly status: t.MediaRecorderStatus;
+  readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
-  readonly is: Readonly<UseMediaRecorderHookFlags>;
-  start(): UseMediaRecorderHook;
-  stop(): UseMediaRecorderHook;
-  pause(): UseMediaRecorderHook;
-  resume(): UseMediaRecorderHook;
-  clear(): UseMediaRecorderHook;
+  readonly bytes: t.NumberBytes;
+  /** Start recording. */
+  start(): void;
+  /** Pause recording. */
+  pause(): void;
+  resume(): void;
+  /**
+   * Stop recording and return a promise that resolves
+   * once the <MediaRecorder> has fully flushed the blob.
+   */
+  stop(): Promise<MediaRecorderHookStopped>;
+  /** Reset the recorder clearing it of all prior recorded state. */
+  reset(): Promise<void>;
 };
 
-export type UseMediaRecorderHookFlags = {
+/** Recorder state translated into boolean flags. */
+export type MediaRecorderHookFlags = {
   idle: boolean;
   recording: boolean;
   paused: boolean;
   stopped: boolean;
   started: boolean;
+};
+
+/** Response from a recorder stop method call. */
+export type MediaRecorderHookStopped = {
+  blob?: Blob;
+  bytes: t.NumberBytes;
 };

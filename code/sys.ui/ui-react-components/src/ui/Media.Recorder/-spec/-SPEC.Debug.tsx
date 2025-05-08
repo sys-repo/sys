@@ -1,8 +1,8 @@
 import React from 'react';
-import { Media } from '../../Media/mod.ts';
-import { type t, Button, ObjectView } from '../../u.ts';
-import { Color, css, D, Signal } from '../common.ts';
+import { type t, Button, ObjectView, Str } from '../../u.ts';
+import { Color, css, D, Icons, Signal } from '../common.ts';
 import { MediaRecorder, useMediaRecorder } from '../mod.ts';
+import { Media } from '../../Media/mod.ts';
 
 type P = t.MediaRecorderProps;
 
@@ -16,11 +16,18 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  type R = {
+    status: t.MediaRecorderStatus;
+    is: t.MediaRecorderHookFlags;
+    bytes: number;
+    blob?: Blob;
+  };
   const s = Signal.create;
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
+    recorder: s<R>(),
   };
   const p = props;
   const api = {
@@ -29,6 +36,7 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.stream.value;
+      p.recorder.value;
     },
   };
   return api;
@@ -50,17 +58,16 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
-  const recorder = useMediaRecorder(p.stream.value);
-  Signal.useRedrawEffect(() => debug.listen());
+  const recorder = useMediaRecorder(p.stream.value, {});
 
   /**
-   * Effect: download when finished.
+   * Effects:
    */
+  Signal.useRedrawEffect(() => debug.listen());
   React.useEffect(() => {
-    const { status, blob } = recorder;
-    if (status === 'stopped' && blob) Media.download(blob);
-  }, [recorder.status, recorder.blob]);
+    const { status, is, bytes, blob } = recorder;
+    p.recorder.value = { status, is, bytes, blob };
+  }, [recorder.status, recorder.bytes]);
 
   /**
    * Render:
@@ -89,10 +96,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {recorderButtons(recorder)}
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
+      <MediaRecorder debug={p.debug.value} />
 
       <hr />
-      <MediaRecorder debug={p.debug.value} />
+      <ObjectView name={'recorder'} data={Signal.toObject(debug.props.recorder)} expand={['$']} />
     </div>
   );
 };
@@ -100,35 +107,58 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Helpers
  */
-export function recorderButtons(recorder: t.UseMediaRecorderHook) {
-  const { status, start, pause, resume, is } = recorder;
-  const canStart = !is.recording && status !== 'paused';
-  const bullet = is.recording ? '💦' : '🌳';
-  const elBullet = <span style={{ opacity: is.idle ? 0.1 : 1 }}>{bullet}</span>;
-
+export function recorderButtons(recorder: t.MediaRecorderHook) {
+  const { status, start, is } = recorder;
+  const canStart = !is.recording && status !== 'Paused';
   const theme = Color.theme();
+
+  let BulletIcon = Icons.Face;
+  if (status === 'Recording') BulletIcon = Icons.Recorder.Recording;
+  if (status === 'Paused') BulletIcon = Icons.Recorder.Paused;
+
+  const styles = {
+    base: css({ display: 'grid', gridTemplateColumns: `1fr auto`, alignItems: 'center' }),
+    title: css({ fontWeight: 'bold' }),
+    icon: css({
+      opacity: is.recording || is.paused ? 1 : 0,
+      color: is.recording ? Color.RED : theme.fg,
+    }),
+  };
+
   let statusColor = theme.fg;
   const dim = Color.alpha(theme.fg, 0.3);
   if (is.recording) statusColor = Color.RED;
   if (is.paused || is.idle || is.stopped) statusColor = dim;
 
   const elStatus = <span style={{ color: statusColor }}>{status}</span>;
+  const strBytes = recorder.bytes > 0 ? ` (${Str.bytes(recorder.bytes)})` : '';
+
   return (
     <React.Fragment>
-      <div className={Styles.title.class}>
-        <div>{'useMediaRecorder'}</div>
-        <div>
-          {elBullet}
-          {` status: `}
+      <div className={styles.base.class}>
+        <div className={styles.title.class}>
+          <span>{`useMediaRecorder: `}</span>
           {elStatus}
         </div>
+        <BulletIcon size={18} style={styles.icon} />
       </div>
 
-      <div style={{ marginTop: 8, opacity: 0.7 }}>{}</div>
-      {!is.started && <Button block label="start recording" onClick={start} enabled={canStart} />}
-      {is.recording && <Button block label="pause" onClick={recorder.pause} />}
-      {is.paused && <Button block label="resume" onClick={recorder.resume} />}
-      <Button block label="stop & save" onClick={() => recorder.stop()} enabled={!is.idle} />
+      {!is.started && <Button block label={'start recording'} onClick={start} enabled={canStart} />}
+      {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
+      {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
+      <div className={styles.base.class}>
+        <Button
+          block
+          label={`stop & save ${strBytes}`}
+          enabled={is.started}
+          onClick={async () => {
+            const res = await recorder.stop();
+            console.log('⚡️ stopped', res);
+            Media.download(res.blob);
+          }}
+        />
+        <Button block label={is.started ? 'cancel' : 'reset'} onClick={recorder.reset} />
+      </div>
     </React.Fragment>
   );
 }

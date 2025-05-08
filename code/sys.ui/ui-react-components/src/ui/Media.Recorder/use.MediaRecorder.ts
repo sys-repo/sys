@@ -1,27 +1,53 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type t } from './common.ts';
 
 /**
  * Records user-media.
  */
 export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
-  const { mimeType = 'video/webm;codecs=vp9,opus' } = options;
-
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>();
-  const [status, setStatus] = useState<t.MediaRecorderStatus>('idle');
+  const optionsRef = useRef<t.UseMediaRecorderOptions>(options);
+  const stopResolversRef = useRef<((e: t.MediaRecorderHookStopped) => void)[]>([]);
+
+  const [status, setStatus] = useState<t.MediaRecorderStatus>('Idle');
+  const [bytes, setBytes] = useState(0);
   const [blob, setBlob] = useState<Blob>();
+
+  /**
+   * Effects:
+   */
+  useEffect(() => {
+    optionsRef.current = options; // Keep refs in sync.
+  }, [options]);
 
   /**
    * Helpers:
    */
   const init = useCallback(() => {
     if (!stream) return;
-    recorderRef.current = new MediaRecorder(stream, { mimeType });
-    recorderRef.current.ondataavailable = (e) => chunksRef.current.push(e.data);
-    recorderRef.current.onstop = () => {
-      setBlob(new Blob(chunksRef.current, { type: mimeType }));
+    const mimeType = optionsRef.current.mimeType ?? 'video/webm;codecs=vp9,opus';
+    const recorder = (recorderRef.current = new MediaRecorder(stream, { mimeType }));
+    recorder.ondataavailable = (e) => {
+      const bytes = e.data.size;
+      chunksRef.current.push(e.data);
+      setBytes((n) => n + bytes);
+    };
+    recorder.onstop = () => {
+      const type = mimeType;
+      const blob = new Blob(chunksRef.current, { type });
+      const bytes = blob.size;
+      const res: t.MediaRecorderHookStopped = { blob, bytes };
+      setBytes(bytes);
+      setBlob(blob);
+
+      // Resolve "stop" promise callbacks.
+      stopResolversRef.current.forEach((resolve) => resolve(res));
+
+      // Reset state.
+      stopResolversRef.current = [];
       chunksRef.current = [];
+      recorderRef.current = undefined;
     };
   }, [stream]);
 
@@ -29,49 +55,70 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
    * API Methods:
    */
   const start = () => {
-    if (!stream || status === 'recording') return api;
+    if (!stream || status === 'Recording') return api;
     if (!recorderRef.current) init();
-    recorderRef.current!.start(); // optional: `timeslice` arg for chunks.
-    setStatus('recording');
-    return api;
+    setBytes(0);
+    recorderRef.current!.start(250);
+    setStatus('Recording');
   };
 
   const pause = () => {
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.pause();
-      setStatus('paused');
+      setStatus('Paused');
     }
-    return api;
   };
 
   const resume = () => {
     if (recorderRef.current?.state === 'paused') {
       recorderRef.current.resume();
-      setStatus('recording');
+      setStatus('Recording');
     }
-    return api;
   };
 
   const stop = () => {
-    if (recorderRef.current && status !== 'idle') {
-      recorderRef.current.stop();
-      setStatus('stopped');
+    type R = t.MediaRecorderHookStopped;
+    if (!recorderRef.current || status === 'Idle') {
+      return Promise.resolve<R>({ blob: undefined, bytes: 0 });
+    } else {
+      return new Promise<R>((resolve) => {
+        stopResolversRef.current.push(resolve);
+        recorderRef.current?.stop();
+        setStatus('Stopped');
+      });
     }
-    return api;
   };
 
-  const clear = () => {
-    stop();
-    setStatus('idle');
+  const reset = async () => {
+    if (recorderRef.current) await stop();
+
+    chunksRef.current = [];
+    stopResolversRef.current = [];
+    recorderRef.current = undefined;
+    setStatus('Idle');
     setBlob(undefined);
-    return api;
+    setBytes(0);
   };
 
   /**
    * Public API:
    */
   const is = wrangle.is(status);
-  const api: t.UseMediaRecorderHook = { start, stop, pause, resume, status, is, blob, clear };
+  const api: t.MediaRecorderHook = {
+    status,
+    is,
+    get bytes() {
+      if (is.started) return bytes;
+      return blob?.size ?? 0;
+    },
+
+    blob,
+    start,
+    stop,
+    pause,
+    resume,
+    reset,
+  };
   return api;
 };
 
@@ -79,13 +126,13 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
  * Helpers:
  */
 const wrangle = {
-  is(status: t.MediaRecorderStatus): t.UseMediaRecorderHookFlags {
+  is(status: t.MediaRecorderStatus): t.MediaRecorderHookFlags {
     return {
-      recording: status === 'recording',
-      paused: status === 'paused',
-      started: status === 'paused' || status === 'recording',
-      stopped: status === 'stopped',
-      idle: status === 'idle',
+      idle: status === 'Idle',
+      recording: status === 'Recording',
+      paused: status === 'Paused',
+      started: status === 'Paused' || status === 'Recording',
+      stopped: status === 'Stopped',
     };
   },
 } as const;
