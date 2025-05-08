@@ -59,5 +59,21 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   /**
    * Public API:
    */
-  return { start, stop, pause, resume, status, blob };
+  const is = wrangle.is(status);
+  return { start, stop, pause, resume, status, is, blob };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  is(status: t.MediaRecorderStatus): t.UseMediaRecorderHookFlags {
+    return {
+      recording: status === 'recording',
+      paused: status === 'paused',
+      started: status === 'paused' || status === 'recording',
+      stopped: status === 'stopped',
+      idle: status === 'idle',
+    };
+  },
+} as const;

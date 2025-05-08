@@ -28,8 +28,17 @@ export type UseMediaRecorderOptions = { mimeType?: 'video/webm;codecs=vp9,opus' 
 export type UseMediaRecorderHook = {
   readonly status: t.MediaRecorderStatus;
   readonly blob: Blob | undefined;
+  readonly is: Readonly<UseMediaRecorderHookFlags>;
   start(): void;
   stop(): void;
   pause(): void;
   resume(): void;
+};
+
+export type UseMediaRecorderHookFlags = {
+  idle: boolean;
+  recording: boolean;
+  paused: boolean;
+  stopped: boolean;
+  started: boolean;
 };
