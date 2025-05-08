@@ -13,5 +13,5 @@ export type AudioWaveformProps = {
   lineWidth?: number;
 
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
 };

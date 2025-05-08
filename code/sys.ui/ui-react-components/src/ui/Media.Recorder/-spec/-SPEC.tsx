@@ -1,5 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Media } from '../../Media/mod.ts';
 import { MediaRecorder } from '../mod.ts';
 import { MediaVideo } from '../common.ts';
 
@@ -19,16 +20,25 @@ export default Spec.describe('MediaRecorder', (e) => {
     ctx.subject
       .size('fill-x', 150)
       .display('grid')
-      .render(() => (
-        <MediaVideo
-          debug={p.debug.value}
-          theme={p.theme.value}
-          onReady={(e) => {
-            console.info(`⚡️ onReady:`, e);
-            p.stream.value = e.stream;
-          }}
-        />
-      ));
+      .render(() => {
+        const styles = {
+          base: css({ display: 'grid' }),
+          waveform: css({ Absolute: [null, 0, -60, 0], height: 50 }),
+        };
+        return (
+          <div className={styles.base.class}>
+            <Media.Video
+              debug={p.debug.value}
+              theme={p.theme.value}
+              onReady={(e) => {
+                console.info(`⚡️ onReady:`, e);
+                p.stream.value = e.stream;
+              }}
+            />
+            <Media.AudioWaveform stream={p.stream.value} style={styles.waveform} />
+          </div>
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

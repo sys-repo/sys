@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type MediaLib = {
   readonly Video: React.FC<t.MediaVideoProps>;
   readonly Recorder: React.FC<t.MediaRecorderProps>;
+  readonly AudioWaveform: React.FC<t.AudioWaveformProps>;
 
   // Hooks:
   readonly useUserMedia: t.UseUserMedia;
