@@ -4,6 +4,6 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'MyComponent';
+const name = 'Media.AudioWaveform';
 export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
 export const D = DEFAULTS;

@@ -76,7 +76,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Media.Video borderRadius={5} onReady={(e) => (p.stream.value = e.stream)} />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={['$']} />
+      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
     </div>
   );
 };
