@@ -2206,6 +2206,7 @@
       "npm:@automerge/automerge-repo-storage-nodefs@1.2.1",
       "npm:@automerge/automerge-repo@1.2.1",
       "npm:@automerge/automerge@2.2.9",
+      "npm:@monaco-editor/react@4.7.0",
       "npm:@noble/hashes@1.8.0",
       "npm:@onsetsoftware/automerge-patcher@0.14.0",
       "npm:@preact/signals-core@1.8.0",

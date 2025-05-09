@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
-export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
+export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const { debug = false } = props;
 
   /**

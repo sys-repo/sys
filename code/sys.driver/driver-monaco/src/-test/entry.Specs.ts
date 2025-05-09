@@ -9,5 +9,5 @@ export const ns = 'sys.driver.ui.react.monaco';
  * Specs:
  */
 export const Specs = {
-  [`${ns}.tmp`]: () => import('../ui/ui.tmp/-spec/-SPEC.tsx'),
+  [`${ns}.ui.MonacoEditor`]: () => import('../ui/ui.MonacoEditor/-spec/-SPEC.tsx'),
 } as t.SpecImports;

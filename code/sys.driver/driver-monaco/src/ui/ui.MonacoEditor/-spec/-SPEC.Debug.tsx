@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
 
-type P = t.MyComponentProps;
+type P = t.MonacoEditorProps;
 
 /**
  * Types:
