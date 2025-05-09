@@ -78,7 +78,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({}),
+    center: css({ display: 'grid', placeItems: 'center' }),
   };
+
+  const center = (el: JSX.Element) => <div className={styles.center.class}>{el}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -105,6 +108,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {recorderButtons(recorder)}
 
       <hr />
+      {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
+
       <MediaRecorder debug={p.debug.value} />
 
       <hr />

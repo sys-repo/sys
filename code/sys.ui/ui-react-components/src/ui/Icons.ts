@@ -1,6 +1,8 @@
 import {
-  MdFace,
+  MdArrowBack,
+  MdArrowDownward,
   MdErrorOutline,
+  MdFace,
   MdPause,
   MdRadioButtonChecked,
   MdStopCircle,
@@ -17,6 +19,7 @@ export const Icons = {
   Face: icon(MdFace),
   Object: icon(VscSymbolClass),
   Error: icon(MdErrorOutline),
+  Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },
   Recorder: {
     Recording: icon(MdRadioButtonChecked),
     Paused: icon(MdPause),
