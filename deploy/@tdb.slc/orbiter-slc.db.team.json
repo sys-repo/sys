@@ -1,0 +1,6 @@
+{
+  "siteId": "c34e35cf-fe2f-4625-a534-77694b2ab213",
+  "domain": "slc",
+  "buildCommand": "deno task build",
+  "buildDir": "dist"
+}
