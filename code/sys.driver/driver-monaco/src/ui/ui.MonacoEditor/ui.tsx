@@ -3,7 +3,7 @@ import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 import React from 'react';
 
-import { EditorCarets } from '../u.Editor.Carets/mod.ts';
+import { EditorCarets } from '../m.Editor.Carets/mod.ts';
 import { type t, Color, D, Spinners, Wrangle, css, rx } from './common.ts';
 import { Theme } from './u.Theme.ts';
 
