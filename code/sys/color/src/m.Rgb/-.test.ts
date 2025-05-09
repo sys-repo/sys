@@ -211,4 +211,33 @@ describe('Color', () => {
       expect(b).to.eql('rgb(0, 0, 0)');
     });
   });
+
+  describe('Color.toHex', () => {
+    const test = (input: string, expected?: string) => {
+      const res = Color.toHex(input);
+      expect(res).to.eql(expected);
+    };
+
+    it('converts named colors to hex', () => {
+      test('white', '#ffffff');
+      test('black', '#000000');
+      test('red', '#ff0000');
+    });
+
+    it('converts rgb/rgba to hex', () => {
+      test('rgb(255, 0, 0)', '#ff0000');
+      test('rgba(255, 0, 0, 1)', '#ff0000');
+      test('rgba(255, 0, 0, 0.5)', '#ff0000');
+    });
+
+    it('handles hex input', () => {
+      test('#00ff00', '#00ff00');
+      test('#fff', '#ffffff');
+    });
+
+    it('returns undefined for invalid input', () => {
+      test('not-a-color', undefined);
+      test('', undefined);
+    });
+  });
 });

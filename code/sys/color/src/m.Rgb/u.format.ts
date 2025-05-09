@@ -106,6 +106,14 @@ export function darken(color: string, amount: number) {
 }
 
 /**
+ * Convert the given string input as a color.
+ */
+export function toHex(input: string) {
+  const color = tinycolor(input);
+  return color.isValid() ? color.toHexString() : undefined;
+}
+
+/**
  * A curried function that returns a "red/ruby" color shade based on the given debug flag.
  */
 export function debug(debug?: boolean) {

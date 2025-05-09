@@ -4,7 +4,7 @@ export * from './u.format.ts';
 import type { t } from './common.ts';
 import { Theme } from './m.Theme.ts';
 import { COLORS } from './u.const.ts';
-import { alpha, darken, format, lighten, ruby } from './u.format.ts';
+import { alpha, darken, format, lighten, ruby, toHex } from './u.format.ts';
 
 /**
  * Library: Helpers for working with colors.
@@ -18,4 +18,5 @@ export const Color: t.ColorLib = {
   ruby,
   lighten,
   darken,
+  toHex,
 };
