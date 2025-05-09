@@ -1,4 +1,4 @@
-import { type t, c, Cli, CompositeHash, Fs, Pkg, Process, Time, pkg as builder } from './common.ts';
+import { type t, pkg as builder, c, Cli, CompositeHash, Fs, Pkg, Process, Time } from './common.ts';
 import { Log, Wrangle } from './u.ts';
 
 type B = t.ViteLib['build'];
