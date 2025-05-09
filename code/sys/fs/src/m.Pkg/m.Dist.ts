@@ -49,6 +49,7 @@ export const Dist: t.PkgDistFsLib = {
       pkg: args.pkg ?? Pkg.unknown(),
       build,
       entry: wrangle.entry(entry),
+      url: args.url ?? { base: '/' },
       hash,
     };
 

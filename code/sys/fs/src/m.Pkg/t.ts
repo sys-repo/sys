@@ -45,6 +45,7 @@ export type PkgDistComputeArgs = {
   pkg?: t.Pkg;
   builder?: t.Pkg;
   entry?: string;
+  url?: t.DistPkg['url'];
   save?: boolean;
 };
 

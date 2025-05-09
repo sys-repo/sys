@@ -28,6 +28,12 @@ export type DistPkg = {
   /** Path to the main JS entry point. */
   entry: t.StringPath;
 
+  /** URL pathing meta-dat. */
+  url: {
+    /** Base file path expected for HTTP/Web loading.  */
+    base: t.StringDir;
+  };
+
   /** Map of hashes of the binary contents of the package. */
   hash: t.CompositeHash;
 };

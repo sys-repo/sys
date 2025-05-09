@@ -10,6 +10,7 @@ export {
   Err,
   Is,
   isRecord,
+  Jsr,
   Num,
   Obj,
   Path,

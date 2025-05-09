@@ -56,6 +56,7 @@ describe('Pkg.Dist', () => {
       const dist = res.dist;
       expect(dist.pkg).to.eql(pkg);
       expect(dist.entry).to.eql(Path.normalize(entry));
+      expect(dist.url.base).to.eql('/');
 
       expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
       expect(dist.build.builder).to.eql(builder);
@@ -69,6 +70,18 @@ describe('Pkg.Dist', () => {
       const dirhash = await Dir.Hash.compute(dir, (p) => p !== './dist.json');
       expect(dist.hash.digest).to.eql(dirhash.hash.digest);
       expect(dist.hash.parts).to.eql(dirhash.hash.parts);
+    });
+
+    it('custom: url/base (compiled pathing)', async () => {
+      const pkg = { name: 'my-package', version: '0.0.0' };
+      const builder = { name: 'my-builder', version: '0.0.0' };
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
+
+      const url: t.DistPkg['url'] = { base: '/foo/' };
+      const res = await Pkg.Dist.compute({ dir, pkg, builder, url, entry });
+
+      expect(res.dist.url).to.eql(url);
     });
 
     it('{pkg} not passed → <unknown> package', async () => {
@@ -86,7 +99,7 @@ describe('Pkg.Dist', () => {
 
       expect(await exists()).to.eql(false);
       await Pkg.Dist.compute({ dir, pkg, entry });
-      expect(await exists()).to.eql(false); // NB: never written
+      expect(await exists()).to.eql(false); // NB: never written.
     });
 
     it('{save:true} → saves to file-system', async () => {

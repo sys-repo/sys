@@ -108,6 +108,7 @@ describe('Pkg', () => {
             runtime: '<runtime-uri>',
           },
           entry: 'pkg/entry.js',
+          url: { base: '/' },
           hash: {
             digest: 'acbc',
             parts: {
