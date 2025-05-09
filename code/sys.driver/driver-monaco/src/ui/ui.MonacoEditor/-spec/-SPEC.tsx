@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { MonacoEditor } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MonacoEditor', (e) => {
   const debug = createDebugSignals();
@@ -21,7 +21,15 @@ export default Spec.describe('MonacoEditor', (e) => {
       .render(() => {
         if (!p.render.value) return null;
 
-        return <MonacoEditor debug={p.debug.value} theme={p.theme.value} />;
+        return (
+          <MonacoEditor
+            debug={p.debug.value}
+            theme={p.theme.value}
+            enabled={p.enabled.value}
+            minimap={p.minimap.value}
+            readOnly={p.readOnly.value}
+          />
+        );
       });
   });
 

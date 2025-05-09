@@ -18,6 +18,9 @@ export function createDebugSignals() {
     debug: s(false),
     render: s(true),
     theme: s<P['theme']>('Dark'),
+    enabled: s<P['enabled']>(D.props.enabled),
+    readOnly: s<P['readOnly']>(D.props.readOnly),
+    minimap: s<P['minimap']>(D.props.minimap),
   };
   const p = props;
   const api = {
@@ -26,6 +29,9 @@ export function createDebugSignals() {
       p.debug.value;
       p.render.value;
       p.theme.value;
+      p.readOnly.value;
+      p.minimap.value;
+      p.enabled.value;
     },
   };
   return api;
@@ -76,6 +82,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value}`}
+        onClick={() => Signal.toggle(p.enabled)}
+      />
+      <Button
+        block
+        label={() => `readOnly: ${p.readOnly.value}`}
+        onClick={() => Signal.toggle(p.readOnly)}
+      />
+      <Button
+        block
+        label={() => `minimap: ${p.minimap.value}`}
+        onClick={() => Signal.toggle(p.minimap)}
       />
 
       <hr />
