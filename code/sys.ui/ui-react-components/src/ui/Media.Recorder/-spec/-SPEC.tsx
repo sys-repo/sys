@@ -11,7 +11,7 @@ export default Spec.describe('MediaRecorder', (e) => {
 
     const updateSize = () => {
       const fit = p.fit.value;
-      if (fit === 'responsive') ctx.subject.size('fill-x', 150);
+      if (fit === 'AspectRatio') ctx.subject.size('fill-x', 150);
       else ctx.subject.size('fill', 150);
       ctx.redraw();
     };

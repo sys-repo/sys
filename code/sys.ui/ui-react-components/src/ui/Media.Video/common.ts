@@ -8,7 +8,7 @@ type P = t.MediaVideoProps;
  */
 const name = 'Media.Video';
 const constraints: MediaStreamConstraints = { video: true, audio: true };
-const fit: P['fit'] = 'responsive';
+const fit: t.MediaVideoFit = 'AspectRatio';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),

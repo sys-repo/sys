@@ -68,8 +68,8 @@ export const MediaVideo: React.FC<P> = (props) => {
       maxBlockSize: '100%', // NB: ↕ cap height at container edge
       borderRadius: props.borderRadius ?? D.borderRadius,
       width: '100%',
-      height: fit === 'responsive' ? 'auto' : '100%',
-      objectFit: fit === 'cover' ? 'cover' : props.fit === 'contain' ? 'contain' : 'unset',
+      height: fit === 'AspectRatio' ? 'auto' : '100%',
+      objectFit: fit === 'Cover' ? 'cover' : props.fit === 'Contain' ? 'contain' : 'unset',
       willChange: `transform`, //       ← (pre-promote to GPU).
       backfaceVisibility: 'hidden', //  ← Chrome/Safari sometimes need this nudge
       aspectRatio,

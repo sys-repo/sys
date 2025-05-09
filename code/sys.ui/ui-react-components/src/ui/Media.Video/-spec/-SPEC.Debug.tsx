@@ -89,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `fit: ${p.fit.value ?? `<undefined> (default: ${D.fit})`}`}
-        onClick={() => Signal.cycle<P['fit']>(p.fit, ['cover', 'contain', undefined])}
+        onClick={() => Signal.cycle<P['fit']>(p.fit, ['Cover', 'Contain', undefined])}
       />
 
       <hr />

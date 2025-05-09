@@ -20,11 +20,14 @@ export type MediaVideoProps = {
   /** Explicit aspect ratio (`width / height`). */
   aspectRatio?: number;
   /** How the video should fill its box (default `"responsive"`). */
-  fit?: 'responsive' | 'cover' | 'contain';
+  fit?: t.MediaVideoFit;
 
   /** Called once when the stream is live and assigned to <video>. */
   onReady?: (e: { stream: MediaStream }) => void;
 };
+
+/** Layout fit modes for the <MediaVideo> component. */
+export type MediaVideoFit = 'AspectRatio' | 'Cover' | 'Contain';
 
 /**
  * Hook: Acquire/cleanup device media.

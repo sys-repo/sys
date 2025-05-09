@@ -10,7 +10,7 @@ export {
   Err,
   Is,
   isRecord,
-  Jsr,
+  JsrUrl,
   Num,
   Obj,
   Path,
@@ -21,6 +21,7 @@ export {
   Time,
   Timestamp,
 } from '@sys/std';
+
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
 export {

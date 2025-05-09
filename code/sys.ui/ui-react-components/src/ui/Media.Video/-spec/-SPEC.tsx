@@ -13,8 +13,8 @@ export default Spec.describe('Media.Video', (e) => {
     const updateSize = () => {
       const subject = ctx.subject;
       const fit = p.fit.value ?? D.fit;
-      if (fit === 'responsive') subject.size('fill-x', 150);
-      if (fit === 'cover' || fit === 'contain') subject.size('fill');
+      if (fit === 'AspectRatio') subject.size('fill-x', 150);
+      if (fit === 'Cover' || fit === 'Contain') subject.size('fill');
       ctx.redraw();
     };
 
