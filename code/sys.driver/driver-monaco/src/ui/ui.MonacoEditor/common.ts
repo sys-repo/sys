@@ -14,7 +14,7 @@ const props: t.PickRequired<
   readOnly: false,
   minimap: true,
   tabSize: 2,
-  language: BASE.languages[0],
+  language: 'typescript',
 };
 export const DEFAULTS = {
   ...BASE,

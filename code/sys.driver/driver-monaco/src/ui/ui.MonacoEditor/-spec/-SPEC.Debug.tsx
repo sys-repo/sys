@@ -29,8 +29,8 @@ export function createDebugSignals() {
     minimap: s<P['minimap']>(D.props.minimap),
     tabSize: s<P['tabSize']>(D.props.tabSize),
 
-    language: s<P['language']>(),
     text: s<P['text']>(),
+    language: s<P['language']>(),
     placeholder: s<P['placeholder']>(),
   };
   const p = props;
