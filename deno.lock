@@ -2224,6 +2224,7 @@
       "npm:hash-it@6.0.0",
       "npm:ignore@7.0.4",
       "npm:immer@10",
+      "npm:monaco-editor@0.52.2",
       "npm:ollama@0.5.15",
       "npm:ora@8.2.0",
       "npm:pretty-bytes@7.0.0",

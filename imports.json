@@ -36,6 +36,7 @@
     "hash-it": "npm:hash-it@6.0.0",
     "ignore": "npm:ignore@7.0.4",
     "immer": "npm:immer@10",
+    "monaco-editor": "npm:monaco-editor@0.52.2",
     "ollama": "npm:ollama@0.5.15",
     "ora": "npm:ora@8.2.0",
     "pretty-bytes": "npm:pretty-bytes@7.0.0",
