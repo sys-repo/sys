@@ -4,14 +4,10 @@ import { Keyboard } from './mod.ts';
 
 describe(
   'Keyboard',
-
   /** NB: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
-
   () => {
-    it('(before)', () => {
-      DomMock.polyfill();
-    });
+    it('(polyfill)', () => DomMock.polyfill());
 
     describe('KeyListener', () => {
       it('fires (keydown | keyup)', async () => {

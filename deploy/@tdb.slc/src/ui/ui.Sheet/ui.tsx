@@ -1,28 +1,22 @@
 import React from 'react';
-import { type t, Color, css, SheetBase } from './common.ts';
+import { type t, css, SheetBase } from './common.ts';
 
 /**
  * Component:
  */
 export const Sheet: React.FC<t.SheetProps> = (props) => {
-  const { state, is, index, orientation } = props;
-
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
-    base: css({}),
     body: css({ display: 'grid', pointerEvents: 'auto' }),
   };
 
+  const inherit = { ...props };
+  delete inherit.children;
+
   return (
-    <SheetBase.View
-      style={css(styles.base, props.style)}
-      theme={theme.name}
-      edgeMargin={props.edgeMargin}
-      orientation={props.orientation}
-    >
+    <SheetBase.View {...inherit} style={props.style}>
       <div className={styles.body.class}>{props.children}</div>
     </SheetBase.View>
   );

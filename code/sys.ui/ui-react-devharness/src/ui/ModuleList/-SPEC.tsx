@@ -40,7 +40,13 @@ export default Spec.describe('ModuleList', (e) => {
             version={pkg.version}
             badge={Badges.ci.jsr}
             imports={specs}
-            hrDepth={2}
+            // hr={2}
+            hr={(e) => {
+              // e.depth(2);
+              e.byRoots(['dev.sample', 'sys.ui.dev', 'foo.', 'zoo']);
+              // e.byRegex(/^foo\.bar\./); //   foo.bar.* stays together
+              // hrSegmentExample(e);
+            }}
             scroll={true}
             // enabled={false}
             // filter={'foo'}
@@ -54,3 +60,18 @@ export default Spec.describe('ModuleList', (e) => {
       });
   });
 });
+
+/**
+ * Samples:
+ */
+const hrSegmentExample: t.ModuleListShowHr = (e) => {
+  const topPrev = e.segment(e.prev, 0); // segment depth‑0
+  const secondPrev = e.segment(e.prev, 1); // segment depth‑1
+  const secondNext = e.segment(e.next, 1);
+
+  // Match:
+  if (topPrev === 'sys' && secondPrev !== secondNext) return true;
+
+  // Fall back to depth‑2 grouping for everything else.
+  e.depth(2);
+};

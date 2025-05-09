@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, pkg } from '../-test.ts';
+import { type t, describe, expect, it, pkg, Time } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
 import { Pkg } from './mod.ts';
 
@@ -18,6 +18,14 @@ describe('Pkg', () => {
     it('{pkg} → "<name>@<version>"', () => {
       const res = Pkg.toString(pkg);
       expect(res).to.eql(`${pkg.name}@${pkg.version}`);
+    });
+
+    it('suffix param', () => {
+      const base = Pkg.toString(pkg);
+      const a = Pkg.toString(pkg, 'FooBar');
+      const b = Pkg.toString(pkg, '  ::: ns.foo.bar  ');
+      expect(a).to.eql(`${base}:FooBar`);
+      expect(b).to.eql(`${base}:ns.foo.bar`);
     });
   });
 
@@ -91,9 +99,14 @@ describe('Pkg', () => {
 
       it('true', () => {
         const dist: t.DistPkg = {
-          '-type:': 'jsr:@sys/types:DistPkg',
+          type: 'https://jsr.io/@sample/foo',
           pkg: { name: 'foo', version: '1.2.3' },
-          size: { bytes: 123_456 },
+          build: {
+            time: 1746520471244,
+            size: { total: 123_456, pkg: 123 },
+            builder: { name: '@sys/driver-vite', version: '0.0.0' },
+            runtime: '<runtime-uri>',
+          },
           entry: 'pkg/entry.js',
           hash: {
             digest: 'acbc',
@@ -115,5 +128,41 @@ describe('Pkg', () => {
     expect(a).to.eql(DEFAULTS.UNKNOWN);
     expect(a).to.eql(b);
     expect(a).to.not.equal(b);
+  });
+
+  describe('Pkg.toPkg', () => {
+    it('invalid → <unknown>', () => {
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [],
+        { name: 123, version: '0.0.0' },
+        { name: 'foo', version: 123 },
+      ];
+      NON.forEach((value: any) => {
+        const res = Pkg.toPkg(value);
+        console.log('res', res);
+        expect(res).to.eql(DEFAULTS.UNKNOWN);
+      });
+    });
+
+    it('strips wider object to yield clean {pkg}', () => {
+      const source = { name: 'foo', version: '0.0.0', tasks: {} };
+      const a = Pkg.toPkg(source);
+      const b = Pkg.toPkg(source);
+
+      expect(a).to.eql(b);
+      expect(a).to.not.equal(b);
+
+      expect(Object.keys(a)).to.eql(['name', 'version']);
+      expect(a.name).to.eql('foo');
+      expect(a.version).to.eql('0.0.0');
+    });
   });
 });

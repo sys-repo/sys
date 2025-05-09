@@ -1,10 +1,10 @@
-import { handlerOn } from './m.Keyboard.Monitor.ts';
 import { rx, type t } from './common.ts';
+import { handlerOn } from './m.Keyboard.Monitor.ts';
 
 /**
  * A "multi event" monitor scoped to 2-keypresses.
  */
-export function dbl(threshold = 500, options: { dispose$?: t.UntilObservable } = {}) {
+export function dbl(threshold = 500, options: { dispose$?: t.UntilInput } = {}) {
   const life = rx.lifecycle(options.dispose$);
   const { dispose, dispose$ } = life;
 

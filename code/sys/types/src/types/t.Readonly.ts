@@ -22,7 +22,7 @@ export type DeepMutable<T> = {
 };
 
 /**
- * A version of <Partial> allowing an entire
+ * A version of <Partial> (optional) allowing an entire
  * tree hierarchy to be considered <Partial>.
  *
  * See:

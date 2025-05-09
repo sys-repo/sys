@@ -1,7 +1,7 @@
 import { type t, describe, DomMock, expect, FindCss, it, pkg, slug } from '../-test.ts';
 import { css } from '../m.Style/mod.ts';
 import { DEFAULT } from './common.ts';
-import { CssDom } from './mod.ts';
+import { CssDom, CssPseudoClass } from './mod.ts';
 import { getStylesheetId } from './u.ts';
 
 const toString = CssDom.toString;
@@ -20,12 +20,16 @@ describe(
       return { sheet, classes } as const;
     };
 
+    it('API', () => {
+      expect(CssDom.PseudoClass).to.equal(CssPseudoClass);
+    });
+
     describe('factory: create <Stylesheet> instance', () => {
       it('instance id: default and custom', () => {
         const a = CssDom.stylesheet({});
         const b = CssDom.stylesheet({ instance: '  foo  ' });
         expect(a.id).to.eql(pkg.name);
-        expect(a.rules.list).to.eql([]);
+        expect(a.rules.items).to.eql([]);
         expect(b.id).to.eql(`${pkg.name}:foo`);
       });
 
@@ -184,7 +188,7 @@ describe(
 
         // Pre-condition.
         expect(FindCss.rule(selector)).to.eql(undefined);
-        expect(sheet.rules.list).to.eql([]);
+        expect(sheet.rules.items).to.eql([]);
         expect(sheet.rules.length).to.eql(0);
 
         // Insert the rule.
@@ -194,8 +198,8 @@ describe(
         expect(res[0].style).to.eql(style);
 
         expect(sheet.rules.length).to.eql(1);
-        expect(sheet.rules.list.length).to.eql(1);
-        expect(sheet.rules.list).to.eql(res);
+        expect(sheet.rules.items.length).to.eql(1);
+        expect(sheet.rules.items).to.eql(res);
 
         // Verify that the rule is inserted in the DOM.
         const rule = FindCss.rule(selector);
@@ -219,7 +223,7 @@ describe(
         // NB: further calls do not add more items.
         expect(insert()).to.eql([]);
         expect(insert()).to.eql([]);
-        expect(sheet.rules.list.length).to.eql(1);
+        expect(sheet.rules.items.length).to.eql(1);
       });
 
       describe('rules within context-blocks', () => {

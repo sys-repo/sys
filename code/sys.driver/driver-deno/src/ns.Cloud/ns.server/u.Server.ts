@@ -16,7 +16,6 @@ export function server(args: A) {
   // Configure HTTP server.
   app.use('*', wrangle.authMiddleware(args, ctx));
   Routes.root(ctx);
-  Routes.subhosting('/subhosting', ctx);
 
   // Finish up.
   return app;

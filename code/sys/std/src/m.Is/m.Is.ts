@@ -1,4 +1,4 @@
-import { type t, isObject } from '../common.ts';
+import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 
 const { errorLike, stdError } = Err.Is;
@@ -9,6 +9,10 @@ const { errorLike, stdError } = Err.Is;
 export const Is: t.StdIsLib = {
   errorLike,
   stdError,
+
+  object: isObject,
+  record: isRecord,
+  emptyRecord: isEmptyRecord,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -30,7 +34,11 @@ export const Is: t.StdIsLib = {
     return Is.observable(input) && typeof (input as any)?.next === 'function';
   },
 
-  falsy(input?: any): input is t.Falsy | typeof NaN {
+  /**
+   * Determine if the value is "falsey".
+   * https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+   */
+  falsy(input?: any): input is t.Falsy {
     return (
       input === false ||
       input === 0 ||
@@ -42,16 +50,34 @@ export const Is: t.StdIsLib = {
     );
   },
 
-  nil(input?: any) {
-    return input === undefined || input === null;
+  /** Determine if the value is <null> or <undefined>. */
+  nil(input?: any): input is null | undefined {
+    return input == null;
   },
 
+  /**
+   * A safe way to test any value as to wheather is is 'blank'
+   * meaning it can be either:
+   *   - null
+   *   - undefined
+   *   - empty-string ('')
+   *   - empty-array ([]).
+   */
+  blank(value?: any) {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
+    return false;
+  },
+
+  /** Determine if the value is a promise. */
   promise<T = any>(input?: any): input is Promise<T> {
     return input !== null && input
       ? typeof input === 'object' && typeof input.then === 'function'
       : false;
   },
 
+  /** Determine if the value is numeric, whether it be a number or a number in a string. */
   numeric(input?: any) {
     if (typeof input === 'number') {
       return Number.isFinite(input); // Ensure not: NaN, Infinity, or -Infinity.
@@ -70,6 +96,22 @@ export const Is: t.StdIsLib = {
     return false;
   },
 
+  func(input?: any): input is Function {
+    return typeof input === 'function';
+  },
+
+  number(input?: any): input is number {
+    return typeof input === 'number';
+  },
+
+  string(input?: any): input is string {
+    return typeof input === 'string';
+  },
+
+  array<T>(input?: any): input is T[] {
+    return Array.isArray(input);
+  },
+
   json(input?: any): input is t.Json {
     if (typeof input !== 'string') return false;
     input = input.trim();
@@ -83,21 +125,6 @@ export const Is: t.StdIsLib = {
 
   uint8Array(input?: any): input is Uint8Array {
     return Object.prototype.toString.call(input) === '[object Uint8Array]';
-  },
-
-  /**
-   * A safe way to test any value as to wheather is is 'blank'
-   * meaning it can be either:
-   *   - null
-   *   - undefined
-   *   - empty-string ('')
-   *   - empty-array ([]).
-   */
-  blank(value?: any) {
-    if (value === null || value === undefined) return true;
-    if (typeof value === 'string' && value.trim() === '') return true;
-    if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
-    return false;
   },
 
   /**

@@ -2,7 +2,7 @@ import type { ColorInput } from 'tinycolor2';
 import type { t } from './common.ts';
 
 import tinycolor from 'tinycolor2';
-import { RUBY } from './u.const.ts';
+import { RED, RUBY } from './u.const.ts';
 
 /**
  * Creates a new tiny-color instance.
@@ -74,8 +74,19 @@ export function toGrayHex(value: number): string {
 /**
  * Converts a color to an alpha RGB value.
  */
-export function alpha(color: string, alpha: number) {
+export function alpha(color: string, alpha: t.Percent) {
   return create(color).setAlpha(alpha).toRgbString();
+}
+
+/**
+ * Returns an alpha percentage of red.
+ */
+export function ruby(input?: t.Percent | boolean) {
+  let percent = 0.1;
+  if (input === false) percent = 0;
+  if (input === true) percent = 0.1;
+  if (typeof input === 'number') percent = input;
+  return alpha(RED, percent);
 }
 
 /**
@@ -92,6 +103,14 @@ export function lighten(color: string, amount: number) {
  */
 export function darken(color: string, amount: number) {
   return create(color).darken(amount).toRgbString();
+}
+
+/**
+ * Convert the given string input as a color.
+ */
+export function toHex(input: string) {
+  const color = tinycolor(input);
+  return color.isValid() ? color.toHexString() : undefined;
 }
 
 /**

@@ -11,15 +11,18 @@ export type PlayerSignalsFactory = (
 export type PlayerSignalsFactoryDefaults = {
   src?: t.StringVideoAddress;
   loop?: boolean;
+  autoPlay?: boolean;
+  muted?: boolean;
+
+  // Apperance:
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
   cornerRadius?: number;
   aspectRatio?: string;
   scale?: number | t.VideoPlayerScale;
-  autoPlay?: boolean;
-  muted?: boolean;
   background?: boolean;
+  fadeMask?: t.VideoPlayerFadeMask | t.Pixels;
 };
 
 /**
@@ -27,10 +30,20 @@ export type PlayerSignalsFactoryDefaults = {
  */
 export type VideoPlayerSignals = {
   readonly props: VideoPlayerSignalProps;
+  readonly is: VideoPlayerIs;
+  readonly src: t.StringVideoAddress | undefined;
   jumpTo(second: t.Secs, options?: { play?: boolean }): VideoPlayerSignals;
   play(): VideoPlayerSignals;
   pause(): VideoPlayerSignals;
   toggle(playing?: boolean): VideoPlayerSignals;
+};
+
+/**
+ * Boolean flags for the video player.
+ */
+export type VideoPlayerIs = {
+  readonly playing: boolean;
+  readonly paused: boolean;
 };
 
 /** The raw signal properties that make up the VideoPlayer signals API/. */
@@ -58,6 +71,7 @@ export type VideoPlayerSignalProps = {
   readonly aspectRatio: t.Signal<string>;
   readonly cornerRadius: t.Signal<number>;
   readonly scale: t.Signal<number | t.VideoPlayerScale>;
+  readonly fadeMask: t.Signal<undefined | t.VideoPlayerFadeMask>;
 
   /**
    * Commands:

@@ -1,6 +1,7 @@
 import { Pkg } from '@sys/std/pkg';
+import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
-import { type t, Delete, Err, Fs, Path } from './common.ts';
+import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -9,11 +10,9 @@ import { type t, Delete, Err, Fs, Path } from './common.ts';
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
 
-  async compute(input) {
-    const args = wrangle.computeArgs(input);
+  async compute(args) {
     const { entry = '', save = false } = args;
     const dir = Fs.resolve(args.dir);
-    const pkg = args.pkg ?? Pkg.unknown();
     let error: t.StdError | undefined;
 
     const exists = await Fs.exists(dir);
@@ -30,15 +29,25 @@ export const Dist: t.PkgDistFsLib = {
     }
 
     /**
-     * Prepare the "distributeion-package" json.
+     * Prepare the "distribution-package" json.
      */
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
-    const bytes = await wrangle.bytes(dir, Object.keys(hash.parts));
-    const size: t.DistPkg['size'] = { bytes };
-    const dist: t.DistPkg = {
-      '-type:': 'jsr:@sys/types:DistPkg',
-      pkg,
+    const size: t.DistPkg['build']['size'] = {
+      total: await wrangle.bytes(dir, Object.keys(hash.parts)),
+      pkg: CompositeHash.size(hash.parts, (m) => m.path.startsWith('pkg/')) ?? 0,
+    };
+
+    const build: t.DistPkg['build'] = {
+      time: Time.now.timestamp,
       size,
+      builder: args.builder ?? Pkg.unknown(),
+      runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
+    };
+
+    const dist: t.DistPkg = {
+      type: JsrUrl.Pkg.file(typesPkg, 'src/types/t.Pkg.dist.ts'),
+      pkg: args.pkg ?? Pkg.unknown(),
+      build,
       entry: wrangle.entry(entry),
       hash,
     };
@@ -146,11 +155,6 @@ const wrangle = {
   filepath(path: t.StringPath) {
     if (!path.endsWith('/dist.json')) path = Fs.join(path, 'dist.json');
     return path;
-  },
-
-  computeArgs(input: Parameters<t.PkgDistFsLib['compute']>[0]): t.PkgDistComputeArgs {
-    if (typeof input === 'string') return { dir: input };
-    return input;
   },
 
   entry(input: string) {

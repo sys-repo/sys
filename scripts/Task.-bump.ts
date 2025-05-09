@@ -29,6 +29,7 @@ export async function main(options: Options = {}) {
 
   const exclude = (path: t.StringPath) => {
     if (path.includes('code/-tmpl/')) return true;
+    if (path.includes('deploy/@tdb.slc/')) return true;
     return false;
   };
 

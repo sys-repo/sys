@@ -1,7 +1,5 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal } from './common.ts';
-
+import { type t, Button, Color, css, Signal } from '../u.ts';
 import { type DebugSignals } from './-SPEC.signals.tsx';
 
 /**
@@ -26,6 +24,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
+  const setSize = (label: string, size?: t.CropmarksSize) => {
+    return (
+      <Button
+        block
+        label={`set size: ${label}`}
+        onClick={() => {
+          p.size.value = size;
+        }}
+      />
+    );
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
@@ -40,25 +50,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-
-      <Button block label={`set size: <undefined>`} onClick={() => (p.size.value = undefined)} />
-      <Button
-        block
-        label={`set size: "fill"`}
-        onClick={() => {
-          p.size.value = { mode: 'fill', x: true, y: true, margin: [40, 40, 40, 40] };
-        }}
-      />
-      <Button
-        block
-        label={`set size: "center"`}
-        onClick={() => {
-          p.size.value = { mode: 'center' };
-        }}
-      />
+      {setSize('<undefined>', undefined)}
+      {setSize('center', { mode: 'center' })}
+      {setSize('fill', { mode: 'fill', x: true, y: true, margin: [40, 40, 40, 40] })}
 
       <hr />
-
       {p.size.value?.mode === 'center' && <DebugCenter debug={debug} />}
       {p.size.value?.mode === 'fill' && <DebugFill debug={debug} />}
     </div>
@@ -93,6 +89,8 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
           if (current === 40) next = [80, 60, 30, 10];
           if (current === 80) next = [100, 100, 100, 100];
           if (current === 100) next = [40, 40, 40, 40];
+          if (current === 40) next = [0, 40, 0, 40];
+          if (current === 0) next = [40, 0, 40, 0];
           p.size.value = { ...size, margin: next as t.CssMarginArray };
         }}
       />

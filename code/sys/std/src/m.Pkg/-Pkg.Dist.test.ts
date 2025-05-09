@@ -12,9 +12,14 @@ describe('Pkg.Dist', () => {
     const SAMPLE = {
       dist(): t.DistPkg {
         return {
-          '-type:': 'jsr:@sys/types:DistPkg',
+          type: 'https://jsr.io/@sample/foo',
           pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
-          size: { bytes: 1234 },
+          build: {
+            time: 1746520471244,
+            size: { total: 1234, pkg: 1234 },
+            builder: { name: '@sys/sample', version: '0.0.0' },
+            runtime: '<runtime-uri>',
+          },
           entry: './main.js',
           hash: {
             digest: 'sha256-0000',

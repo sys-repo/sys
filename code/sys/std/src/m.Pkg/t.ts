@@ -14,7 +14,7 @@ export type PkgLib = {
   readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
-  toString(input?: t.Pkg): string;
+  toString(input?: t.Pkg, suffix?: string): string;
 
   /**
    * Convert a JSON import to a simple <Pkg> structure.
@@ -32,6 +32,12 @@ export type PkgLib = {
    * Generate a new { \<unknown\>@0.0.0 } package object.
    */
   unknown(): t.Pkg;
+
+  /**
+   * Extracts the name/version from the gtiven object if found,
+   * otherwise returns standard <Unknown> package.
+   */
+  toPkg(input?: O): t.Pkg;
 };
 
 /**

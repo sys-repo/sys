@@ -5,7 +5,27 @@ export { Motion as M, Motion };
 /**
  * System
  */
-export { Err, Is, isRecord, Path, Pkg, rx, slug, Str, Time, Timestamp } from '@sys/std';
+export {
+  Arr,
+  Err,
+  Is,
+  isRecord,
+  Num,
+  Obj,
+  Path,
+  Pkg,
+  rx,
+  slug,
+  Str,
+  Time,
+  Timestamp,
+} from '@sys/std';
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
-export { Signal, useSizeObserver, useIsTouchSupported } from '@sys/ui-react';
+export {
+  ReactChildren,
+  ReactString,
+  Signal,
+  useIsTouchSupported,
+  useSizeObserver,
+} from '@sys/ui-react';

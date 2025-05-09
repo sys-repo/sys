@@ -39,7 +39,10 @@ export async function main() {
     const { Specs } = await import('./entry.Specs.ts');
 
     const app = App.signals();
-    const el = await render(pkg, Specs, { hrDepth: 3, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, {
+      hr: (e) => e.byRoots(['tdb.slc.', 'sys.ui']),
+      style: { Absolute: 0 },
+    });
 
     root.render(
       <StrictMode>
@@ -54,7 +57,12 @@ export async function main() {
     const app = App.signals();
 
     app.stack.push(await Content.Factory.entry());
-    await App.Render.preload(app, Content.factory, 'Entry', 'Trailer', 'Overview');
+    await App.Render.preloadModule(app, Content.factory, [
+      'Entry',
+      'Trailer',
+      'Overview',
+      'Programme',
+    ]);
 
     root.render(
       <StrictMode>

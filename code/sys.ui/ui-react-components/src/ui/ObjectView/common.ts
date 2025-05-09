@@ -12,3 +12,4 @@ export const DEFAULTS = {
   sortKeys: false,
   show: { rootSummary: false, nonenumerable: false },
 } as const;
+export const D = DEFAULTS;

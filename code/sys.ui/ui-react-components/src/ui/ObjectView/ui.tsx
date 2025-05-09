@@ -91,8 +91,12 @@ const wrangle = {
     }
 
     if (typeof expand === 'object') {
-      expandLevel = expand.level;
-      expandPaths = Array.isArray(expand.paths) ? expand.paths : undefined;
+      if (Array.isArray(expand)) {
+        expandPaths = expand;
+      } else {
+        expandLevel = expand.level;
+        expandPaths = Array.isArray(expand.paths) ? expand.paths : undefined;
+      }
     }
 
     return { expandLevel, expandPaths };
