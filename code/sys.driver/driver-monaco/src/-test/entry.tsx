@@ -20,22 +20,35 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  /**
-   * DevHarness:
-   */
-  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
-  const { Specs } = await import('./entry.Specs.ts');
-  const el = await render(pkg, Specs, { hr: 3, style: { Absolute: 0 } });
-  function App() {
-    useKeyboard();
-    return el;
-  }
+  if (isDev) {
+    /**
+     * DevHarness:
+     */
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { Specs } = await import('./entry.Specs.ts');
+    const el = await render(pkg, Specs, { hr: 3, style: { Absolute: 0 } });
+    function App() {
+      useKeyboard();
+      return el;
+    }
 
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
+  } else {
+    /**
+     * Main:
+     */
+    const { MonacoEditor } = await import('@sys/driver-monaco');
+
+    root.render(
+      <React.StrictMode>
+        <MonacoEditor style={{ Absolute: 0 }} theme={'Dark'} />
+      </React.StrictMode>,
+    );
+  }
 }
 
 main().catch((err) => console.error(`Failed to render DevHarness`, err));
