@@ -16,13 +16,15 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    render: s(true),
+    theme: s<P['theme']>('Dark'),
   };
   const p = props;
   const api = {
     props,
     listen() {
       p.debug.value;
+      p.render.value;
       p.theme.value;
     },
   };
@@ -64,6 +66,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}

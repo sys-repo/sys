@@ -18,7 +18,11 @@ export default Spec.describe('MonacoEditor', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render(() => <MonacoEditor debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => {
+        if (!p.render.value) return null;
+
+        return <MonacoEditor debug={p.debug.value} theme={p.theme.value} />;
+      });
   });
 
   e.it('ui:debug', (e) => {
