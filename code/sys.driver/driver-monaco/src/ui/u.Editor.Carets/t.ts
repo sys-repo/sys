@@ -1,5 +1,24 @@
 import type { t } from '../common.ts';
 
+/**
+ * Editor carets libraryL
+ */
+export type EditorCaretsLib = {
+  readonly Color: t.EditorCaretColorLib;
+  create(editor: t.MonacoCodeEditor, options?: { dispose$?: t.UntilInput }): t.EditorCarets;
+};
+
+/**
+ * Tools for workking with caret colors.
+ */
+export type EditorCaretColorLib = {
+  /** Iterate through a set of colors. */
+  next(): string;
+};
+
+/**
+ * Instance of an editors carets.
+ */
 export type EditorCarets = t.Lifecycle & {
   readonly $: t.Observable<EditorCaretChanged>;
   readonly editor: t.MonacoCodeEditor;
@@ -9,6 +28,9 @@ export type EditorCarets = t.Lifecycle & {
   clear(): EditorCarets;
 };
 
+/**
+ * Represents a single caret within the editor.
+ */
 export type EditorCaret = t.Lifecycle & {
   readonly $: t.Observable<EditorCaretChanged>;
   readonly id: string;
@@ -20,12 +42,14 @@ export type EditorCaret = t.Lifecycle & {
   eq(args: EditorCaretChangeArgs): boolean;
 };
 
+/** Arguments passed to the [EditorCaret.change] method. */
 export type EditorCaretChangeArgs = {
   selections?: t.EditorRangesInput;
   color?: string;
   opacity?: number; // 0..1
 };
 
+/** Caret changed event data. */
 export type EditorCaretChanged = {
   id: string;
   current: t.EditorRange[];

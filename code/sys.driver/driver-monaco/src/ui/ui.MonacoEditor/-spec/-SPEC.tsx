@@ -28,6 +28,15 @@ export default Spec.describe('MonacoEditor', (e) => {
             enabled={p.enabled.value}
             minimap={p.minimap.value}
             readOnly={p.readOnly.value}
+            tabSize={p.tabSize.value}
+            placeholder={p.placeholder.value}
+            text={p.text.value}
+            language={p.language.value}
+            onReady={(e) => {
+              console.info(`⚡️ MonacoEditor.onReady:`, e);
+              p.editor.value = e.editor;
+              p.carets.value = e.carets;
+            }}
           />
         );
       });

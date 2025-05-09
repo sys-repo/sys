@@ -8,4 +8,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { MonacoEditor } from './ui/ui.MonacoEditor/mod.ts';
+export { EditorCarets, Monaco, MonacoEditor } from './m.Monaco/mod.ts';
