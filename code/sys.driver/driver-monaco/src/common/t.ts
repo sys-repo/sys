@@ -2,6 +2,7 @@
  * @external
  */
 export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNode } from 'react';
+export type * from '../t.def.monaco.ts';
 
 /**
  * @system
