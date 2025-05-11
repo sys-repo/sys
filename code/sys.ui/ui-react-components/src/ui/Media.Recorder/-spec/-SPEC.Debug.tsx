@@ -1,7 +1,4 @@
 import React from 'react';
-import { type t, Button, ObjectView, Str } from '../../u.ts';
-import { Color, css, D, Icons, Signal } from '../common.ts';
-import { MediaRecorder, useMediaRecorder } from '../mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
 import { Color, css, D, Icons, JsrUrl, Signal } from '../common.ts';
@@ -123,6 +120,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Helpers
  */
+export type ExternalLinkProps = {
+  children?: t.ReactNode;
+  href?: string;
+  style?: t.CssInput;
+  theme?: t.CommonTheme;
+};
+export const ExternalLink: React.FC<ExternalLinkProps> = (props) => {
+  const { children, href } = props;
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      color: theme.fg,
+      textDecoration: 'none',
+      ':hover': { textDecoration: 'underline' },
+    }),
+  };
+  return (
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      href={href}
+      className={css(styles.base, props.style).class}
+    >
+      {children}
+    </a>
+  );
+};
+
 export function recorderButtons(recorder: t.MediaRecorderHook) {
   const { status, start, is } = recorder;
   const canStart = !is.recording && status !== 'Paused';
@@ -146,14 +171,15 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
   if (is.recording) statusColor = Color.RED;
   if (is.paused || is.idle || is.stopped) statusColor = dim;
 
-  const elStatus = <span style={{ color: statusColor }}>{status}</span>;
+  const elStatus = <span style={{ color: statusColor, marginLeft: 5 }}>{status}</span>;
   const strBytes = recorder.bytes > 0 ? ` (${Str.bytes(recorder.bytes)})` : '';
+  const urlUseMediaRecorder = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.MediaRecorder.ts');
 
   return (
     <React.Fragment>
       <div className={styles.base.class}>
         <div className={styles.title.class}>
-          <span>{`useMediaRecorder: `}</span>
+          <ExternalLink href={urlUseMediaRecorder} children={'useMediaRecorder:'} />
           {elStatus}
         </div>
         <BulletIcon size={18} style={styles.icon} />
