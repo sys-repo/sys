@@ -2,7 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { type t } from './common.ts';
 
 /**
- * Records user-media.
+ * Hook: Manages a standard [MediaRecorder] video/audio stream recorder.
+ *       Camera/Mic → (request:constraints) → 💦 → Binary (File).
+ *
+ *       W3C:Ref:
+ *          https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder
  */
 export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const chunksRef = useRef<BlobPart[]>([]);
