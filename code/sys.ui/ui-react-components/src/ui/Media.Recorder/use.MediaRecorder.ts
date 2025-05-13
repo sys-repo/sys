@@ -26,10 +26,11 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   }, [options]);
 
   /**
-   * Helpers:
+   * Helper: Recorder API.
    */
   const init = useCallback(() => {
     if (!stream) return;
+
     const mimeType = optionsRef.current.mimeType ?? 'video/webm;codecs=vp9,opus';
     const recorder = (recorderRef.current = new MediaRecorder(stream, { mimeType }));
     recorder.ondataavailable = (e) => {
@@ -42,8 +43,8 @@ export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       const blob = new Blob(chunksRef.current, { type });
       const bytes = blob.size;
       const res: t.MediaRecorderHookStopped = { blob, bytes };
-      setBytes(bytes);
       setBlob(blob);
+      setBytes(bytes);
 
       // Resolve "stop" promise callbacks.
       stopResolversRef.current.forEach((resolve) => resolve(res));
