@@ -25,6 +25,7 @@ export {
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
 export {
+  FC,
   ReactChildren,
   ReactString,
   Signal,

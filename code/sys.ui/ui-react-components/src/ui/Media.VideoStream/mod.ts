@@ -1,6 +1,6 @@
 /**
  * @module
+ * Tools for working with video streams.
  */
-export { Filter } from './m.Filter.ts';
-export { VideoStream } from './ui.tsx';
+export { VideoStream } from './m.VideoStream.ts';
 export { useVideoStream } from './use.VideoStream.ts';

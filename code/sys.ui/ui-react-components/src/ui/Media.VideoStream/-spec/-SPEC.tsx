@@ -27,14 +27,16 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       .display('grid')
       .render(() => {
         return (
-          <VideoStream
-            //
+          <VideoStream.View
             debug={p.debug.value}
             theme={p.theme.value}
             filter={p.filter.value}
             borderRadius={p.borderRadius.value}
             aspectRatio={p.aspectRatio.value}
-            onReady={(e) => console.info(`⚡️ VideoStream.onReady:`, e)}
+            onReady={(e) => {
+              console.info(`⚡️ VideoStream.onReady:`, e);
+              // p.aspectRatio.value = e.aspectRatio;
+            }}
           />
         );
       });

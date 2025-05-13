@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { type t, D, Err, Obj } from './common.ts';
-import { Filter } from './m.Filter.ts';
+import { getStream } from './u.getStream.ts';
+import { AspectRatio } from './m.AspectRatio.ts';
 
 export const useVideoStream: t.UseVideoStream = (
   c: MediaStreamConstraints = D.constraints,
@@ -17,11 +18,11 @@ export const useVideoStream: t.UseVideoStream = (
   useEffect(() => {
     let cancelled = false;
 
-    Filter.getStream(constraints, filter)
+    getStream(constraints, filter)
       .then((stream) => {
         if (cancelled) return;
         setStream(stream);
-        setAspectRatio(wrangle.ratio(stream));
+        setAspectRatio(AspectRatio.toString(stream));
       })
       .catch((err: unknown) => {
         console.error(err);
@@ -43,15 +44,3 @@ export const useVideoStream: t.UseVideoStream = (
     error,
   };
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  ratio(stream: MediaStream) {
-    const [video] = stream.getVideoTracks();
-    const { width, height, aspectRatio } = video.getSettings();
-    const ratio = aspectRatio ?? width! / height!;
-    return `${Math.round(ratio * 1000) / 1000} / 1`; // "1.778 / 1"
-  },
-} as const;
