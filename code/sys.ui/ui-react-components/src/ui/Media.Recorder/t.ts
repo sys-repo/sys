@@ -19,7 +19,9 @@ export type UseMediaRecorder = (
   options?: UseMediaRecorderOptions,
 ) => MediaRecorderHook;
 /** Options passed to the `UseMediaRecorder` hook. */
-export type UseMediaRecorderOptions = { mimeType?: 'video/webm;codecs=vp9,opus' };
+export type UseMediaRecorderOptions = {
+  mimeType?: 'video/webm;codecs=vp9,opus';
+};
 
 /**
  * UseMediaRecorder hook API:

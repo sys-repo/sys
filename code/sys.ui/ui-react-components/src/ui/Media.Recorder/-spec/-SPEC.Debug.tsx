@@ -1,8 +1,8 @@
 import React from 'react';
+import { filterSampleButtons } from '../../Media.VideoStream/-spec/-SPEC.Debug.tsx';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
 import { Color, css, D, Icons, JsrUrl, Signal } from '../common.ts';
-import { MediaRecorder, useMediaRecorder } from '../mod.ts';
 
 type P = t.MediaRecorderProps;
 
@@ -28,7 +28,7 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
-    fit: s<t.MediaVideoFit>('AspectRatio'),
+    filter: s<string>(),
   };
   const p = props;
   const api = {
@@ -38,7 +38,7 @@ export function createDebugSignals() {
       p.theme.value;
       p.stream.value;
       p.recorder.value;
-      p.fit.value;
+      p.filter.value;
     },
   };
   return api;
@@ -60,7 +60,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const recorder = useMediaRecorder(p.stream.value, {});
+  const recorder = Media.useRecorder(p.stream.value, {});
 
   /**
    * Effects:
@@ -97,22 +97,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
-        block
-        label={() => `size.fit: ${p.fit.value}`}
-        onClick={() => Signal.cycle<t.MediaVideoFit>(p.fit, ['AspectRatio', 'Cover'])}
-      />
-
       <hr />
       {recorderButtons(recorder)}
 
       <hr />
       {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
-
-      <MediaRecorder debug={p.debug.value} />
+      <Media.Recorder debug={p.debug.value} />
 
       <hr />
-      <ObjectView name={'recorder'} data={Signal.toObject(debug.props.recorder)} expand={['$']} />
+      {filterSampleButtons(p.filter)}
+
+      <hr />
+      <ObjectView
+        name={'recorder'}
+        data={Signal.toObject({ recorder: p.recorder, filter: p.filter.value })}
+        expand={['$']}
+      />
     </div>
   );
 };

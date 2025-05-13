@@ -1,4 +1,5 @@
 import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { VideoStream } from '../../Media.VideoStream/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -33,10 +34,10 @@ export default Spec.describe('MediaRecorder', (e) => {
       };
       return (
         <div className={styles.base.class}>
-          <Media.Video
+          <VideoStream
             debug={p.debug.value}
             theme={p.theme.value}
-            fit={p.fit.value}
+            filter={p.filter.value}
             onReady={(e) => {
               console.info(`⚡️ onReady:`, e);
               p.stream.value = e.stream;

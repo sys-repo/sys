@@ -1,23 +1,26 @@
 import { AudioWaveform } from '../Media.AudioWaveform/mod.ts';
-import { MediaRecorder as Recorder, useMediaRecorder } from '../Media.Recorder/mod.ts';
-import { MediaVideo as Video, useUserMedia } from '../Media.Video/mod.ts';
+import {
+  MediaRecorder as Recorder,
+  useMediaRecorder as useRecorder,
+} from '../Media.Recorder/mod.ts';
+import { VideoStream, useVideoStream } from '../Media.VideoStream/mod.ts';
 
 import type { t } from './common.ts';
 import { download } from './u.download.ts';
 
 export const Media: t.MediaLib = {
-  Video,
+  VideoStream,
   Recorder,
   AudioWaveform,
 
   /**
    * Hooks:
    */
-  useUserMedia,
-  useMediaRecorder,
+  useVideoStream,
+  useRecorder,
 
   /**
-   * Helpers:
+   * Helper (util):
    */
   download,
 };
