@@ -1,20 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { useVideoStream } from './use.VideoStream.ts';
+import { useUserVideo } from './use.UserVideo.ts';
 
 export const VideoStream: React.FC<t.VideoStreamProps> = (props) => {
-  const { debug = false, filter, constraints, borderRadius = D.borderRadius, aspectRatio } = props;
-  const video = useVideoStream(constraints, filter);
+  const { debug = false, filter, constraints, borderRadius = D.borderRadius } = props;
+  const { stream } = useUserVideo(constraints, filter);
 
   /**
    * Effect: keep video synced with current stream.
    */
   const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
-    const { stream, aspectRatio } = video;
     if (videoRef.current) videoRef.current.srcObject = stream ?? null;
-    if (stream) props.onReady?.({ stream, aspectRatio });
-  }, [video.stream?.id]);
+    if (stream) props.onReady?.({ stream });
+  }, [stream]);
 
   /**
    * Render:
@@ -26,7 +25,6 @@ export const VideoStream: React.FC<t.VideoStreamProps> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       borderRadius,
-      aspectRatio,
     }),
     video: css({
       Absolute: 0,

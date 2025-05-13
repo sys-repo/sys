@@ -20,7 +20,7 @@ export type VideoFilterLib = {
 /**
  * <Component>:
  */
-export type MediaVideoStreamProps = {
+export type VideoStreamProps = {
   debug?: boolean;
 
   /** Optional filter to apply. */
@@ -31,11 +31,12 @@ export type MediaVideoStreamProps = {
 
   // Appearance:
   borderRadius?: t.Pixels;
+  aspectRatio?: string | number; // eg:  16/9
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   /** Called once when the stream is live and assigned to <video>. */
-  onReady?: (e: { stream: MediaStream }) => void;
+  onReady?: (e: { stream: MediaStream; aspectRatio: string }) => void;
 };
 
 /**
@@ -47,5 +48,6 @@ export type UseVideoStream = (
 ) => VideoStreamHook;
 export type VideoStreamHook = {
   readonly stream?: MediaStream;
+  readonly aspectRatio: string;
   readonly error?: t.StdError;
 };

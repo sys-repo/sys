@@ -9,10 +9,17 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const updateSize = () => {
+      const aspectRatio = p.aspectRatio.value;
+      if (aspectRatio == null) ctx.subject.size('fill', 150);
+      else ctx.subject.size('fill-x', 200);
+      ctx.redraw();
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      updateSize();
     });
 
     ctx.subject
@@ -26,9 +33,15 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
             theme={p.theme.value}
             filter={p.filter.value}
             borderRadius={p.borderRadius.value}
+            aspectRatio={p.aspectRatio.value}
+            onReady={(e) => console.info(`⚡️ VideoStream.onReady:`, e)}
           />
         );
       });
+
+    /**
+     * Initial state:
+     */
   });
 
   e.it('ui:debug', (e) => {

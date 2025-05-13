@@ -20,7 +20,6 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Dark'),
     filter: s<P['filter']>(),
     borderRadius: s<P['borderRadius']>(),
-    aspectRatio: s<P['aspectRatio']>(),
   };
   const p = props;
   const api = {
@@ -30,7 +29,6 @@ export function createDebugSignals() {
       p.theme.value;
       p.filter.value;
       p.borderRadius.value;
-      p.aspectRatio.value;
     },
   };
   return api;
@@ -84,14 +82,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.borderRadius, [undefined, 5, 10])}
       />
-      <Button
-        block
-        label={() => {
-          const v = p.aspectRatio.value;
-          return `aspectRatio: ${v ?? `<undefined>`}`;
-        }}
-        onClick={() => Signal.cycle(p.aspectRatio, [undefined, '16/9', '16/10', '21/9'])}
-      />
 
       <hr />
       {filterSampleButtons(p.filter)}
@@ -106,7 +96,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Dev Helpers:
  */
 export function filterSampleButtons(signal: t.Signal<P['filter']>) {
-  const btn = (label: string, filter?: string) => {
+  const btn = (label: string, filter: string) => {
     return (
       <Button
         key={`${label}.${filter}`}
@@ -123,40 +113,40 @@ export function filterSampleButtons(signal: t.Signal<P['filter']>) {
         <div>{'Filter'}</div>
         <div>{'(Samples)'}</div>
       </div>
-      {btn('none - <undefined>', undefined)}
-      {Object.entries(FILTER_SAMPLES).map(([key, value]) => btn(key, value))}
+      {Object.entries(FILTER_PRESETS).map(([key, value]) => btn(key, value))}
+      {btn('empty ("")', '')}
     </React.Fragment>
   );
 }
 
-export const FILTER_SAMPLES = {
-  /** “Blown-out spotlight” (extreme) */
+export const FILTER_PRESETS = {
+  /** 1. “Blown-out spotlight” (extreme) */
   blowOut: 'brightness(180%) contrast(130%) saturate(70%)',
 
-  /** High-key over-exposure (strong but still usable for faces) */
+  /** 2. High-key over-exposure (strong but still usable for faces) */
   highKey: 'brightness(160%) contrast(120%) saturate(80%)',
 
-  /** Neutral daylight pop (balanced, vivid) */
+  /** 3. Neutral daylight pop (balanced, vivid) */
   vividPop: 'brightness(115%) contrast(110%) saturate(150%)',
 
-  /** Soft pastel wash (desaturated, low contrast) */
+  /** 4. Soft pastel wash (desaturated, low contrast) */
   pastelSoft: 'brightness(110%) contrast(90%) saturate(70%)',
 
-  /** Classic noir (monochrome with punchy tones) */
+  /** 5. Classic noir (monochrome with punchy tones) */
   noir: 'grayscale(100%) contrast(125%) brightness(110%)',
 
-  /** Vintage sepia */
+  /** 6. Vintage sepia */
   sepia: 'sepia(85%) contrast(100%) brightness(105%)',
 
-  /** Warm sunset tint */
+  /** 7. Warm sunset tint */
   warmTint: 'hue-rotate(-20deg) saturate(120%) brightness(110%)',
 
-  /** Cool arctic tint */
+  /** 8. Cool arctic tint */
   coolTint: 'hue-rotate(190deg) saturate(120%) brightness(110%)',
 
-  /** Muted documentary (flat, slightly desat) */
+  /** 9. Muted documentary (flat, slightly desat) */
   muted: 'saturate(60%) contrast(95%) brightness(105%)',
 
-  /** Dreamy blur-soft focus */
+  /** 10. Dreamy blur-soft focus */
   dreamyBlur: 'blur(4px) brightness(120%) contrast(105%)',
 };

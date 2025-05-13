@@ -9,6 +9,7 @@ export const useVideoStream: t.UseVideoStream = (
   const constraints = useMemo<MediaStreamConstraints>(() => c, [Obj.hash(c)]);
   const [stream, setStream] = useState<MediaStream>();
   const [error, setError] = useState<t.StdError>();
+  const [aspectRatio, setAspectRatio] = useState<string>('');
 
   /**
    * Effect: retrieve stream.
@@ -17,7 +18,11 @@ export const useVideoStream: t.UseVideoStream = (
     let cancelled = false;
 
     Filter.getStream(constraints, filter)
-      .then((s) => !cancelled && setStream(s))
+      .then((stream) => {
+        if (cancelled) return;
+        setStream(stream);
+        setAspectRatio(wrangle.ratio(stream));
+      })
       .catch((err: unknown) => {
         console.error(err);
         if (!cancelled) setError(Err.std(err));
@@ -32,5 +37,21 @@ export const useVideoStream: t.UseVideoStream = (
   /**
    * API:
    */
-  return { stream, error };
+  return {
+    stream,
+    aspectRatio,
+    error,
+  };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  ratio(stream: MediaStream) {
+    const [video] = stream.getVideoTracks();
+    const { width, height, aspectRatio } = video.getSettings();
+    const ratio = aspectRatio ?? width! / height!;
+    return `${Math.round(ratio * 1000) / 1000} / 1`; // "1.778 / 1"
+  },
+} as const;

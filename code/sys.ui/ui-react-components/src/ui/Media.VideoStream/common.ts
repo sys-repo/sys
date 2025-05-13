@@ -11,5 +11,6 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name),
   constraints,
   borderRadius: 0,
+  aspectRatio: undefined,
 } as const;
 export const D = DEFAULTS;
