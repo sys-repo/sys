@@ -82,15 +82,15 @@ export function layerVideoPlayerButtons(app: t.AppSignals) {
 
   return layers.map((layer, index) => {
     if (!layer.media) return null;
-    const p = layer.media?.video.props;
-    if (!p) return null;
+    // const p = layer.media?.video.props;
+    // if (!p) return null;
     return (
       <Button
         block
         key={`${layer.id}.${index}`}
-        label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}
-        onClick={() => Signal.toggle(p.playing)}
-        subscribe={() => p.playing.value}
+        // label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}
+        // onClick={() => Signal.toggle(p.playing)}
+        // subscribe={() => p.playing.value}
       />
     );
   });
