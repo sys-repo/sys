@@ -7,6 +7,7 @@
     "build": "deno    run -RWE  --allow-run --allow-ffi ./src/build/mod.ts",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
 
+    "dry": "deno      publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "tmp": "deno      run -A ./-scripts/-tmp.ts"
   },

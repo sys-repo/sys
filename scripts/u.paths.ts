@@ -62,7 +62,7 @@ export const Paths = {
     /**
      * Instance Apps:
      */
-    'deploy/@sys.fs.db.team',
+    'deploy/@tdb.fs',
     'deploy/@tdb.slc',
   ],
 } as const;
