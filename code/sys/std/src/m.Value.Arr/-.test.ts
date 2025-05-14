@@ -155,4 +155,26 @@ describe('Value.Arr (Array)', () => {
       expect(out).to.not.equal(input);
     });
   });
+
+  describe('Arr.sortBy', () => {
+    it('sorts', () => {
+      type Row = { count: number; tag?: string };
+
+      const rows: Row[] = [
+        { count: 5, tag: 'A' },
+        { count: 0, tag: 'B' },
+        { count: 3, tag: 'C' },
+      ];
+
+      const a = Arr.sortBy(rows, 'count');
+      const b = Arr.sortBy(rows, 'count', 'desc');
+      const c = Arr.sortBy(rows, 'tag');
+      const d = Arr.sortBy(rows, 'tag', 'desc');
+
+      expect(a.map((e) => e.count)).to.eql([0, 3, 5]);
+      expect(b.map((e) => e.count)).to.eql([5, 3, 0]);
+      expect(c.map((e) => e.tag)).to.eql(['A', 'B', 'C']);
+      expect(d.map((e) => e.tag)).to.eql(['C', 'B', 'A']);
+    });
+  });
 });

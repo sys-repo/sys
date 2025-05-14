@@ -1,6 +1,6 @@
 export { ensureDir, ensureSymlink, exists } from '@std/fs';
 
-export { Date, Delete, Is, JsrUrl, R, rx, slug, Time } from '@sys/std';
+export { Arr, Date, Delete, Is, JsrUrl, Obj, R, rx, slug, Time } from '@sys/std';
 export { Err } from '@sys/std/error';
 export { Ignore } from '@sys/std/ignore';
 export { Path as StdPath } from '@sys/std/path';

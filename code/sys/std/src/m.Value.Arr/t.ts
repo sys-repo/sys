@@ -38,4 +38,18 @@ export type ArrayLib = {
    * Returns a new array with duplicates removed.
    */
   uniq<T>(values: readonly T[]): T[];
+
+  /**
+   * Return a NEW array sorted by the given key.
+   *
+   * @param items – source array (readonly is fine).
+   * @param key   – property to sort on.
+   * @param dir   – 'asc' | 'desc'  (default: 'asc').
+   *
+   * • `undefined` values are pushed to the end for 'asc'
+   *   (and to the front for 'desc').
+   * • Numbers use arithmetic compare; everything else falls
+   *   back to String-compare (`localeCompare`).
+   */
+  sortBy<T, K extends keyof T>(items: readonly T[], key: K, dir?: 'asc' | 'desc'): T[];
 };

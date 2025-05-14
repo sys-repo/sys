@@ -1,8 +1,10 @@
 import type { t } from '../common.ts';
 import { asArray } from './u.asArray.ts';
+import { sortBy } from './u.sortBy.ts';
 
 export const Arr: t.ArrayLib = {
   asArray,
+  sortBy,
 
   flatten<T>(list: any): T[] {
     if (!Array.isArray(list)) return list;
