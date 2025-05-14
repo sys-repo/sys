@@ -9,7 +9,7 @@ import type { t } from './common.ts';
 import { download } from './u.download.ts';
 
 export const Media: t.MediaLib = {
-  VideoStream,
+  Video: VideoStream,
   Recorder,
   AudioWaveform,
 

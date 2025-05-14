@@ -7,7 +7,7 @@ describe('Media', () => {
   it('API', async () => {
     const { Media: RootImport } = await import('@sys/ui-react-components');
     expect(Media).to.equal(RootImport);
-    expect(Media.VideoStream).to.equal(VideoStream);
+    expect(Media.Video).to.equal(VideoStream);
     expect(Media.Recorder).to.equal(MediaRecorder);
   });
 });

@@ -34,7 +34,7 @@ export default Spec.describe('MediaRecorder', (e) => {
       };
       return (
         <div className={styles.base.class}>
-          <VideoStream.View
+          <Media.Video.View.Stream
             debug={p.debug.value}
             theme={p.theme.value}
             filter={p.filter.value}

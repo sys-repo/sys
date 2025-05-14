@@ -24,7 +24,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
 
     ctx.subject.display('grid').render(() => {
       return (
-        <VideoStream.View
+        <VideoStream.View.Stream
           debug={p.debug.value}
           theme={p.theme.value}
           filter={p.filter.value}

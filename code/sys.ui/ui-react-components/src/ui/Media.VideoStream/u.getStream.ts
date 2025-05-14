@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, D } from './common.ts';
 
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -7,11 +7,12 @@ import { type t } from './common.ts';
  * @param filter      – any CSS filter string, eg 'brightness(120%) contrast(110%)'
  *
  * The returned stream has:
- *   • filtered video track (from the canvas)
- *   • original audio track(s) from the raw camera
+ *   • filtered video track (from the canvas).
+ *   • original audio track(s) from the raw camera.
  */
-export const getStream: t.VideoStreamLib['getStream'] = async (constraints, filter = '') => {
-  filter = filter.trim();
+export const getStream: t.VideoStreamLib['getStream'] = async (args) => {
+  const { constraints = D.constraints, preferPhoneCamera } = args;
+  const filter = (args.filter ?? '').trim();
 
   /**
    * Retrieve the raw camera/mic stream.

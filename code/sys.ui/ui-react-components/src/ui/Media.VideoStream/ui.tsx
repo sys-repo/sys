@@ -4,7 +4,7 @@ import { useVideoStream } from './use.VideoStream.ts';
 
 export const VideoStream: React.FC<t.VideoStreamProps> = (props) => {
   const { debug = false, filter, constraints, borderRadius = D.borderRadius, aspectRatio } = props;
-  const video = useVideoStream(constraints, filter);
+  const video = useVideoStream({ constraints, filter });
 
   /**
    * Effect: keep video synced with current stream.

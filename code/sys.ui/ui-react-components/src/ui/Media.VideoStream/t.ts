@@ -10,11 +10,6 @@ export type VideoStreamLib = {
   readonly AspectRatio: VideoAspectRatioLib;
 
   /**
-   * UI component.
-   */
-  readonly View: React.FC<t.VideoStreamProps>;
-
-  /**
    * Build a MediaStream whose video is run through a CSS-filter pipeline.
    *
    * @param constraints – any valid getUserMedia constraints (eg { video: true, audio: true })
@@ -24,7 +19,18 @@ export type VideoStreamLib = {
    *   • filtered video track (from the canvas).
    *   • original audio track(s) from the raw camera.
    */
-  getStream(constraints: MediaStreamConstraints, filter?: string): Promise<MediaStream>;
+  getStream(args: {
+    constraints?: MediaStreamConstraints;
+    filter?: string;
+    preferPhoneCamera?: boolean;
+  }): Promise<MediaStream>;
+
+  /**
+   * UI components
+   */
+  readonly View: {
+    Stream: React.FC<t.VideoStreamProps>;
+  };
 };
 
 /**
@@ -60,10 +66,10 @@ export type VideoStreamProps = {
 /**
  * Hook: Acquire/cleanup device media with visual filter pass-through via <canvas>.
  */
-export type UseVideoStream = (
-  constraints?: MediaStreamConstraints,
-  filter?: string,
-) => VideoStreamHook;
+export type UseVideoStream = (args: {
+  constraints?: MediaStreamConstraints;
+  filter?: string;
+}) => VideoStreamHook;
 export type VideoStreamHook = {
   readonly stream?: MediaStream;
   readonly aspectRatio: string;

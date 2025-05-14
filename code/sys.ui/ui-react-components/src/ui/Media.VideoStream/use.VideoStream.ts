@@ -3,11 +3,13 @@ import { type t, D, Err, Obj } from './common.ts';
 import { getStream } from './u.getStream.ts';
 import { AspectRatio } from './m.AspectRatio.ts';
 
-export const useVideoStream: t.UseVideoStream = (
-  c: MediaStreamConstraints = D.constraints,
-  filter,
-) => {
-  const constraints = useMemo<MediaStreamConstraints>(() => c, [Obj.hash(c)]);
+export const useVideoStream: t.UseVideoStream = (args) => {
+  const { filter } = args;
+  const constraints = useMemo<MediaStreamConstraints>(
+    () => args.constraints ?? D.constraints,
+    [Obj.hash(args.constraints)],
+  );
+
   const [stream, setStream] = useState<MediaStream>();
   const [error, setError] = useState<t.StdError>();
   const [aspectRatio, setAspectRatio] = useState<string>('');
@@ -18,7 +20,7 @@ export const useVideoStream: t.UseVideoStream = (
   useEffect(() => {
     let cancelled = false;
 
-    getStream(constraints, filter)
+    getStream({ constraints, filter })
       .then((stream) => {
         if (cancelled) return;
         setStream(stream);
