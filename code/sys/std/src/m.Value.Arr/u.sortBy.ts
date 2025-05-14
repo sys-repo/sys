@@ -19,7 +19,7 @@ export const sortBy = <T, K extends keyof T>(
 
   const compare = (x: unknown, y: unknown): number => {
     if (x === y) return 0;
-    if (x === undefined) return 1 * factor; // undefined ⇢ after (asc)
+    if (x === undefined) return 1 * factor; //  undefined ⇢ after  (asc)
     if (y === undefined) return -1 * factor; // undefined ⇢ before (desc)
 
     if (typeof x === 'number' && typeof y === 'number') {
