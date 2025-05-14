@@ -8,7 +8,7 @@ import { getStream } from './u.getStream.ts';
 import { VideoStream as Stream } from './ui.tsx';
 import { useVideoStream } from './use.VideoStream.ts';
 
-export const Video: t.VideoLib = {
+export const Video: t.MediaVideoLib = {
   AspectRatio,
   getStream,
   useVideoStream,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
-export const MediaRecorder: React.FC<t.MediaRecorderProps> = (props) => {
+export const Files: React.FC<t.MediaRecorderFilesProps> = (props) => {
   const { debug = false } = props;
 
   /**

@@ -8,7 +8,7 @@ import { type t } from './common.ts';
  *       W3C:Ref:
  *          https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder
  */
-export const useMediaRecorder: t.UseMediaRecorder = (stream, options = {}) => {
+export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>();
   const optionsRef = useRef<t.UseMediaRecorderOptions>(options);

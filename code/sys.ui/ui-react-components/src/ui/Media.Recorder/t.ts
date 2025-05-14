@@ -3,9 +3,24 @@ import type { t } from './common.ts';
 export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
 
 /**
+ * Library: Media recordeing tools.
+ */
+export type MediaRecorderLib = {
+  /** Hook: Controller for recording a media-stream. */
+  readonly useRecorder: t.UseMediaRecorder;
+
+  /**
+   * UI Components:
+   */
+  readonly View: {
+    Files: React.FC<t.MediaRecorderFilesProps>;
+  };
+};
+
+/**
  * <Component>:
  */
-export type MediaRecorderProps = {
+export type MediaRecorderFilesProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

@@ -4,7 +4,7 @@ import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
 import { Color, css, D, Icons, JsrUrl, Signal } from '../common.ts';
 
-type P = t.MediaRecorderProps;
+type P = t.MediaRecorderFilesProps;
 
 /**
  * Types:
@@ -62,7 +62,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const recorder = Media.useRecorder(p.stream.value, {});
+  const recorder = Media.Recorder.useRecorder(p.stream.value, {});
 
   /**
    * Effects:
@@ -86,7 +86,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{`AspectRatio: ${p.aspectRatio.value}`}</div>
+      </div>
 
       <Button
         block
@@ -104,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
-      <Media.Recorder debug={p.debug.value} />
+      <Media.Recorder.View.Files debug={p.debug.value} />
 
       <hr />
       {filterSampleButtons(p.filter)}

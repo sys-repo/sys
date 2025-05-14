@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'Media.VideoStream';
+const name = 'Media.Video';
 const constraints: MediaStreamConstraints = { video: true, audio: true };
 export const DEFAULTS = {
   name,

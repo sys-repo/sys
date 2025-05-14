@@ -10,7 +10,7 @@ import { type t, D } from './common.ts';
  *   • filtered video track (from the canvas).
  *   • original audio track(s) from the raw camera.
  */
-export const getStream: t.VideoLib['getStream'] = async (args) => {
+export const getStream: t.MediaVideoLib['getStream'] = async (args) => {
   const { constraints = D.constraints, preferPhoneCamera } = args;
   const filter = (args.filter ?? '').trim();
 

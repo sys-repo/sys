@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Tools for visually filtering over a media streams.
  */
-export type VideoLib = {
+export type MediaVideoLib = {
   /**
    * Calculate the aspect ratio for a media stream.
    */
