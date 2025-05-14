@@ -29,7 +29,7 @@ export type MediaVideoLib = {
    * UI components:
    */
   readonly View: {
-    Stream: React.FC<t.VideoStreamProps>;
+    Stream: React.FC<t.MediaVideoStreamProps>;
   };
 
   /**
@@ -49,7 +49,7 @@ export type MediaAspectRatioLib = {
 /**
  * <Component>:
  */
-export type VideoStreamProps = {
+export type MediaVideoStreamProps = {
   debug?: boolean;
 
   /** Optional filter to apply. */

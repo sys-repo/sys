@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { type t, Color, css, D } from './common.ts';
 import { useVideoStream } from './use.VideoStream.ts';
 
-export const VideoStream: React.FC<t.VideoStreamProps> = (props) => {
+export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   const { debug = false, filter, constraints, borderRadius = D.borderRadius, aspectRatio } = props;
   const video = useVideoStream({ constraints, filter });
 
