@@ -29,6 +29,7 @@ export function createDebugSignals() {
     stream: s<MediaStream>(),
     recorder: s<R>(),
     filter: s<string>(),
+    aspectRatio: s<string | number>('4/3'),
   };
   const p = props;
   const api = {
@@ -39,6 +40,7 @@ export function createDebugSignals() {
       p.stream.value;
       p.recorder.value;
       p.filter.value;
+      p.aspectRatio.value;
     },
   };
   return api;

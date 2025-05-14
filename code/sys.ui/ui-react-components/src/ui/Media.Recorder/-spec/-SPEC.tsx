@@ -11,9 +11,9 @@ export default Spec.describe('MediaRecorder', (e) => {
     const ctx = Spec.ctx(e);
 
     const updateSize = () => {
-      const fit = p.fit.value;
-      if (fit === 'AspectRatio') ctx.subject.size('fill-x', 150);
-      else ctx.subject.size('fill', 150);
+      const aspectRatio = p.aspectRatio.value;
+      if (aspectRatio == null) ctx.subject.size('fill', 100);
+      else ctx.subject.size('fill-x', 150);
       ctx.redraw();
     };
 
@@ -34,10 +34,11 @@ export default Spec.describe('MediaRecorder', (e) => {
       };
       return (
         <div className={styles.base.class}>
-          <VideoStream
+          <VideoStream.View
             debug={p.debug.value}
             theme={p.theme.value}
             filter={p.filter.value}
+            aspectRatio={p.aspectRatio.value}
             onReady={(e) => {
               console.info(`⚡️ onReady:`, e);
               p.stream.value = e.stream;
