@@ -9,7 +9,6 @@ type B = t.ViteLib['build'];
 export const build: B = async (input) => {
   const timer = Time.timer();
   const paths = await Wrangle.pathsFromConfigfile(input.cwd);
-
   const { pkg, silent = false } = input;
   const { cmd, args } = await Wrangle.command(paths, 'build');
   const dir = Fs.join(paths.cwd, paths.app.outDir);
@@ -27,10 +26,9 @@ export const build: B = async (input) => {
     const table = Cli.table([]);
     const push = (label: string, ...value: string[]) => table.push([c.gray(label), ...value]);
     push('Directory:', c.gray(`${cwd.replace(/\/$/, '')}/`));
-    push('  - entry:', paths.app.entry);
-    push('  - outDir:', paths.app.outDir);
-    push('  - base:', paths.app.base);
-
+    push('  • entry:', wrangle.cleanPath(paths.app.entry));
+    push('  • outDir:', wrangle.cleanPath(paths.app.outDir) + '/');
+    push('  • base:', wrangle.cleanPath(paths.app.base) + '/');
     console.info(c.bold(c.brightGreen('Paths')));
     console.info(table.toString().trim());
     console.info();
@@ -94,5 +92,12 @@ const wrangle = {
     const paths = await Fs.glob(dist).find('pkg/-entry.*');
     const filename = paths[0]?.name ?? '';
     return filename ? `./pkg/${filename}` : '';
+  },
+
+  cleanPath(input: t.StringPath = '') {
+    return input
+      .trim()
+      .replace(/^(?:\.\/)+/, '') // ← strip any leading "./" segments.
+      .replace(/\/+$/, ''); //      ← strip any trailing "/" characters.
   },
 } as const;

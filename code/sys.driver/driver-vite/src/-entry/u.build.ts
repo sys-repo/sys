@@ -1,4 +1,4 @@
-import { type t, DenoFile, Fs, Path, Pkg, Vite } from './common.ts';
+import { type t, DenoFile, Path, Pkg, Vite } from './common.ts';
 
 /**
  * Run a local HTTP server from entry command-args.
@@ -16,17 +16,3 @@ export async function build(args: t.ViteEntryArgsBuild) {
     console.info(bundle.toString({ pad: true }));
   }
 }
-
-/**
- * Helpers:
- */
-const wrangle = {
-  async pkg(cwd: t.StringDir) {
-    const unknown = Pkg.unknown();
-    const res = await Fs.readJson<t.Pkg>(Path.join(cwd, 'deno.json'));
-    if (!res.data) return unknown;
-
-    const { name, version } = res.data;
-    return { ...unknown, name, version };
-  },
-} as const;

@@ -27,10 +27,20 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
     let text = `
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
 ${c.gray(`pkg:      ${strPkg}`)}
-${c.gray(`in:       ${input}`)}
-${c.gray(`out:      ${outDir.replace(/\/$/, '')}/dist.json`)} ${tx}
+${c.gray(`in:       ${clean(input)}`)}
+${c.gray(`out:      ${clean(outDir)}/dist.json`)} ${tx}
 `;
 
     return pad(text.trim(), args.pad);
   },
 };
+
+/**
+ * Helpers:
+ */
+function clean(input: t.StringPath = '') {
+  return input
+    .trim()
+    .replace(/^(?:\.\/)+/, '') // ← strip any leading "./" segments.
+    .replace(/\/+$/, ''); //      ← strip any trailing "/" characters.
+}
