@@ -21,31 +21,39 @@ export const Row: React.FC<RowProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const color = selected ? Color.BLUE : theme.fg;
   const styles = {
     base: css({
       color: theme.fg,
       userSelect: 'none',
       display: 'grid',
+    }),
+    body: css({
+      display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
       alignItems: 'center',
       columnGap: 10,
     }),
-    label: css({ fontSize: 14 }),
+    label: css({
+      fontSize: 14,
+      color: selected ? color : undefined,
+    }),
   };
 
   const Icon = wrangle.icon(info);
-
-  const elLabel = (
-    <Button theme={theme.name} onClick={() => props.onSelect?.({ info, index })}>
+  const elBody = (
+    <div className={styles.body.class}>
+      <Bullet theme={theme.name} selected={selected} />
       <div className={styles.label.class}>{info.label}</div>
-    </Button>
+      <Icon color={color} size={18} />
+    </div>
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Bullet theme={theme.name} selected={selected} />
-      {elLabel}
-      <Icon color={selected ? Color.BLUE : theme.fg} size={18} />
+      <Button theme={theme.name} onClick={() => props.onSelect?.({ info, index })}>
+        {elBody}
+      </Button>
     </div>
   );
 };

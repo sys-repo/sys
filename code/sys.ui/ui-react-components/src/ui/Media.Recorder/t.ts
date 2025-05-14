@@ -6,14 +6,12 @@ export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
  * Library: Media recordeing tools.
  */
 export type MediaRecorderLib = {
-  /** Hook: Controller for recording a media-stream. */
-  readonly useRecorder: t.UseMediaRecorder;
-
   /**
    * UI Components:
    */
-  readonly View: {
-    Files: React.FC<t.MediaRecorderFilesProps>;
+  readonly UI: {
+    readonly Files: React.FC<t.MediaRecorderFilesProps>;
+    readonly useRecorder: t.UseMediaRecorder;
   };
 };
 

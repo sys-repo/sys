@@ -33,14 +33,19 @@ export default Spec.describe('MediaRecorder', (e) => {
       };
       return (
         <div className={styles.base.class}>
-          <Media.Video.View.Stream
+          <Media.Video.UI.Stream
             debug={p.debug.value}
             theme={p.theme.value}
             filter={p.filter.value}
             aspectRatio={p.aspectRatio.value}
+            constraints={{
+              audio: true,
+              video: { deviceId: p.selectedCamera.value?.deviceId },
+            }}
             onReady={(e) => {
               console.info(`⚡️ onReady:`, e);
-              p.stream.value = e.stream;
+              p.stream.value = e.stream.filtered;
+              p.selectedCamera.value = e.device;
             }}
           />
           <Media.AudioWaveform

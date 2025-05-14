@@ -17,7 +17,9 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    filter: s(true),
+    theme: s<P['theme']>('Dark'),
+    rowGap: s<number>(),
     selected: s<P['selected']>(),
   };
   const p = props;
@@ -25,6 +27,8 @@ export function createDebugSignals() {
     props,
     listen() {
       p.debug.value;
+      p.filter.value;
+      p.rowGap.value;
       p.theme.value;
       p.selected.value;
     },
@@ -67,10 +71,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.filter.value;
+          return `filter: ${v} ${v ? "← io.kind === 'videoinput'" : ''}`;
+        }}
+        onClick={() => Signal.toggle(p.filter)}
+      />
+      <Button
+        block
+        label={() => `rowGap: ${p.rowGap.value ?? `<undefined> (default: ${D.rowGap})`}`}
+        onClick={() => Signal.cycle(p.rowGap, [undefined, 15, 30, undefined])}
       />
 
       <hr />

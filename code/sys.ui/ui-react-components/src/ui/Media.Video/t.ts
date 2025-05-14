@@ -5,6 +5,14 @@ import type { t } from './common.ts';
  */
 export type MediaVideoLib = {
   /**
+   * UI components:
+   */
+  readonly UI: {
+    readonly Stream: React.FC<t.MediaVideoStreamProps>;
+    readonly useVideoStream: t.UseVideoStream;
+  };
+
+  /**
    * Calculate the aspect ratio for a media stream.
    */
   readonly AspectRatio: MediaAspectRatioLib;
@@ -19,23 +27,19 @@ export type MediaVideoLib = {
    *   • filtered video track (from the canvas).
    *   • original audio track(s) from the raw camera.
    */
-  getStream(args: {
-    constraints?: MediaStreamConstraints;
-    filter?: string;
-    preferPhoneCamera?: boolean;
-  }): Promise<MediaStream>;
+  getStream(
+    constraints?: MediaStreamConstraints,
+    options?: { filter?: string },
+  ): Promise<{ raw: MediaStream; filtered: MediaStream }>;
 
   /**
-   * UI components:
+   * Given any MediaStream, return the MediaDeviceInfo that
+   * corresponds to the video track (if discoverable).
    */
-  readonly View: {
-    Stream: React.FC<t.MediaVideoStreamProps>;
-  };
-
-  /**
-   * Hooks:
-   */
-  readonly useVideoStream: t.UseVideoStream;
+  getDevice(
+    stream: MediaStream,
+    kind?: MediaDeviceInfo['kind'],
+  ): Promise<MediaDeviceInfo | undefined>;
 };
 
 /**
@@ -65,7 +69,11 @@ export type MediaVideoStreamProps = {
   style?: t.CssInput;
 
   /** Called once when the stream is live and assigned to <video>. */
-  onReady?: (e: { stream: MediaStream; aspectRatio: string }) => void;
+  onReady?: (e: {
+    stream: VideoStreamHook['stream'];
+    aspectRatio: string;
+    device: MediaDeviceInfo;
+  }) => void;
 };
 
 /**
@@ -76,7 +84,11 @@ export type UseVideoStream = (args: {
   filter?: string;
 }) => VideoStreamHook;
 export type VideoStreamHook = {
-  readonly stream?: MediaStream;
+  readonly stream: {
+    readonly filtered?: MediaStream;
+    readonly raw?: MediaStream;
+  };
   readonly aspectRatio: string;
+  readonly device?: MediaDeviceInfo;
   readonly error?: t.StdError;
 };

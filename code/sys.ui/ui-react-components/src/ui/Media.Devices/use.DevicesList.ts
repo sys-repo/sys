@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { type t, rx } from './common.ts';
 import { getDevices } from './u.getDevices.ts';
 
@@ -8,7 +8,7 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
   /**
    * Effect:
    */
-  useEffect(() => {
+  React.useEffect(() => {
     const life = rx.lifecycle();
 
     getDevices().then((list) => {

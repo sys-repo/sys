@@ -30,7 +30,8 @@ export function createDebugSignals() {
     stream: s<MediaStream>(),
     recorder: s<R>(),
     filter: s<string>(),
-    aspectRatio: s<string | number>('4/3'),
+    aspectRatio: s<string | number>('4 / 3'),
+    selectedCamera: s<MediaDeviceInfo>(),
   };
   const p = props;
   const api = {
@@ -42,6 +43,7 @@ export function createDebugSignals() {
       p.recorder.value;
       p.filter.value;
       p.aspectRatio.value;
+      p.selectedCamera.value;
     },
   };
   return api;
@@ -63,7 +65,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const recorder = Media.Recorder.useRecorder(p.stream.value, {});
+  const recorder = Media.Recorder.UI.useRecorder(p.stream.value, {});
 
   /**
    * Effects:
@@ -104,11 +106,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Camera'}</div>
+      <Media.Devices.View.List
+        filter={(e) => e.kind === 'videoinput'}
+        selected={p.selectedCamera.value}
+        onSelect={(e) => (p.selectedCamera.value = e.info)}
+      />
+
+      {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
+      <hr />
       {recorderButtons(recorder)}
 
       <hr />
       {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
-      <Media.Recorder.View.Files debug={p.debug.value} />
+      <Media.Recorder.UI.Files debug={p.debug.value} />
 
       <hr />
       {filterSampleButtons(p.filter)}

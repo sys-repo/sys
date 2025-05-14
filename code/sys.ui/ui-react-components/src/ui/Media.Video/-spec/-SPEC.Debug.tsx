@@ -1,4 +1,5 @@
 import React from 'react';
+import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
 
@@ -17,6 +18,8 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
+    selectedCamera: s<MediaDeviceInfo>(),
+
     theme: s<P['theme']>('Dark'),
     filter: s<P['filter']>(),
     borderRadius: s<P['borderRadius']>(),
@@ -27,6 +30,7 @@ export function createDebugSignals() {
     props,
     listen() {
       p.debug.value;
+      p.selectedCamera.value;
       p.theme.value;
       p.filter.value;
       p.borderRadius.value;
@@ -66,6 +70,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
+      <Media.Devices.View.List
+        filter={(e) => e.kind === 'videoinput'}
+        selected={p.selectedCamera.value}
+        onSelect={(e) => (p.selectedCamera.value = e.info)}
+      />
+      <hr />
+
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -76,13 +87,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
       <Button
         block
         label={() => {
           const v = p.borderRadius.value;
           return `borderRadius: ${v ?? `<undefined> (default: ${D.borderRadius})`}`;
         }}
-        onClick={() => Signal.cycle(p.borderRadius, [undefined, 5, 10])}
+        onClick={() => Signal.cycle(p.borderRadius, [undefined, 5, 10, 30])}
       />
       <Button
         block

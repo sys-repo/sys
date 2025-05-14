@@ -23,6 +23,11 @@ export default Spec.describe('Devices', (e) => {
           debug={p.debug.value}
           theme={p.theme.value}
           selected={p.selected.value}
+          rowGap={p.rowGap.value}
+          filter={(e) => {
+            if (!p.filter.value) return true;
+            return e.kind === 'videoinput';
+          }}
           onSelect={(e) => {
             console.info(`⚡️ onSelect:`, e);
             p.selected.value = e.index;

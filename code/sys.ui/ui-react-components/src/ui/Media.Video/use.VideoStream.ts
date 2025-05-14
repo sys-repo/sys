@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { type t, D, Err, Obj } from './common.ts';
-import { getStream } from './u.getStream.ts';
 import { AspectRatio } from './m.AspectRatio.ts';
+import { getStream } from './u.getStream.ts';
 
 export const useVideoStream: t.UseVideoStream = (args) => {
   const { filter } = args;
@@ -10,7 +10,8 @@ export const useVideoStream: t.UseVideoStream = (args) => {
     [Obj.hash(args.constraints)],
   );
 
-  const [stream, setStream] = useState<MediaStream>();
+  const [filtered, setFiltered] = useState<MediaStream>();
+  const [raw, setRaw] = useState<MediaStream>();
   const [error, setError] = useState<t.StdError>();
   const [aspectRatio, setAspectRatio] = useState<string>('');
 
@@ -20,11 +21,12 @@ export const useVideoStream: t.UseVideoStream = (args) => {
   useEffect(() => {
     let cancelled = false;
 
-    getStream({ constraints, filter })
-      .then((stream) => {
+    getStream(constraints, { filter })
+      .then(async (e) => {
         if (cancelled) return;
-        setStream(stream);
-        setAspectRatio(AspectRatio.toString(stream));
+        setFiltered(e.filtered);
+        setRaw(e.raw);
+        setAspectRatio(AspectRatio.toString(e.filtered));
       })
       .catch((err: unknown) => {
         console.error(err);
@@ -33,16 +35,17 @@ export const useVideoStream: t.UseVideoStream = (args) => {
 
     return () => {
       cancelled = true;
-      stream?.getTracks().forEach((t) => t.stop());
+      filtered?.getTracks().forEach((t) => t.stop());
     };
   }, [constraints, filter]);
 
   /**
    * API:
    */
-  return {
-    stream,
+  const api: t.VideoStreamHook = {
+    stream: { raw, filtered },
     aspectRatio,
     error,
   };
+  return api;
 };

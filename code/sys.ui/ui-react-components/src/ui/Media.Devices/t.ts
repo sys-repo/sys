@@ -14,6 +14,7 @@ export type MediaDevicesLib = {
  */
 export type DevicesProps = {
   selected?: t.Index | MediaDeviceInfo;
+  filter?: (info: MediaDeviceInfo) => boolean;
   debug?: boolean;
   rowGap?: t.Pixels;
   theme?: t.CommonTheme;
