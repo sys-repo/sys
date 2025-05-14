@@ -15,6 +15,7 @@ export {
   Obj,
   Path,
   Pkg,
+  R,
   rx,
   slug,
   Str,

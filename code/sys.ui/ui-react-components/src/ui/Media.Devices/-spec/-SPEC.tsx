@@ -9,16 +9,26 @@ export default Spec.describe('Devices', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
     });
 
     ctx.subject
-      .size()
+      .size([400, null])
       .display('grid')
-      .render(() => <Devices.View.List debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <Devices.View.List
+          debug={p.debug.value}
+          theme={p.theme.value}
+          selected={p.selected.value}
+          onSelect={(e) => {
+            console.info(`⚡️ onSelect:`, e);
+            p.selected.value = e.index;
+          }}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

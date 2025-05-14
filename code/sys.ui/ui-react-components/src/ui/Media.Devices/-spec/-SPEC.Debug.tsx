@@ -18,6 +18,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    selected: s<P['selected']>(),
   };
   const p = props;
   const api = {
@@ -25,6 +26,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.selected.value;
     },
   };
   return api;

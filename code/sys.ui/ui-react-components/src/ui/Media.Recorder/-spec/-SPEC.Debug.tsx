@@ -2,7 +2,8 @@ import React from 'react';
 import { filterSampleButtons } from '../../Media.Video/-spec/-SPEC.Debug.tsx';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
-import { Color, css, D, Icons, JsrUrl, Signal } from '../common.ts';
+import { Color, css, D, JsrUrl, Signal } from '../common.ts';
+import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
 
@@ -159,8 +160,8 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
   const theme = Color.theme();
 
   let BulletIcon = Icons.Face;
-  if (status === 'Recording') BulletIcon = Icons.Recorder.Recording;
-  if (status === 'Paused') BulletIcon = Icons.Recorder.Paused;
+  if (status === 'Recording') BulletIcon = Icons.Recording;
+  if (status === 'Paused') BulletIcon = Icons.Paused;
 
   const styles = {
     base: css({ display: 'grid', gridTemplateColumns: `1fr auto`, alignItems: 'center' }),
