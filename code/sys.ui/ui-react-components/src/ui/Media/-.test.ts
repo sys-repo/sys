@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { Recorder } from '../Media.Recorder/mod.ts';
 import { Video } from '../Media.Video/mod.ts';
 import { Media } from './mod.ts';
+import { Devices } from '../Media.Devices/mod.ts';
 
 describe('Media', () => {
   it('API', async () => {
@@ -9,5 +10,6 @@ describe('Media', () => {
     expect(Media).to.equal(RootImport);
     expect(Media.Video).to.equal(Video);
     expect(Media.Recorder).to.equal(Recorder);
+    expect(Media.Devices).to.equal(Devices);
   });
 });
