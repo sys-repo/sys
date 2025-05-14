@@ -28,7 +28,7 @@ export function create(options: Optionsions = {}) {
 
       // Once the response is prepared assign the "pkg" header.
       if (pkg?.name && pkg?.version) c.header('pkg', `${pkg.name}@${pkg.version}`);
-      if (hash) c.header('pkg-digest', hash);
+      if (hash) c.header('pkg-digest', encodeURIComponent(hash));
     });
   }
 
