@@ -3,11 +3,11 @@ import type { t } from './common.ts';
 /**
  * Tools for visually filtering over a media streams.
  */
-export type VideoStreamLib = {
+export type VideoLib = {
   /**
    * Calculate the aspect ratio for a media stream.
    */
-  readonly AspectRatio: VideoAspectRatioLib;
+  readonly AspectRatio: MediaAspectRatioLib;
 
   /**
    * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -26,17 +26,22 @@ export type VideoStreamLib = {
   }): Promise<MediaStream>;
 
   /**
-   * UI components
+   * UI components:
    */
   readonly View: {
     Stream: React.FC<t.VideoStreamProps>;
   };
+
+  /**
+   * Hooks:
+   */
+  readonly useVideoStream: t.UseVideoStream;
 };
 
 /**
  * Tools for calculating aspect ratios from media streams.
  */
-export type VideoAspectRatioLib = {
+export type MediaAspectRatioLib = {
   toNumber(stream: MediaStream): number;
   toString(stream: MediaStream, options?: { maxDenominator?: number }): string;
 };

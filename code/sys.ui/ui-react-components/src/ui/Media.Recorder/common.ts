@@ -2,7 +2,7 @@ import { type t, pkg, Pkg } from '../common.ts';
 import { Icons } from '../Icons.ts';
 
 export * from '../common.ts';
-export { VideoStream } from '../Media.VideoStream/mod.ts';
+export { Video } from '../Media.Video/mod.ts';
 export { Icons };
 
 /**

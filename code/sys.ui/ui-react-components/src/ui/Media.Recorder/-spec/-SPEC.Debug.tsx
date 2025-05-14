@@ -1,5 +1,5 @@
 import React from 'react';
-import { filterSampleButtons } from '../../Media.VideoStream/-spec/-SPEC.Debug.tsx';
+import { filterSampleButtons } from '../../Media.Video/-spec/-SPEC.Debug.tsx';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
 import { Color, css, D, Icons, JsrUrl, Signal } from '../common.ts';

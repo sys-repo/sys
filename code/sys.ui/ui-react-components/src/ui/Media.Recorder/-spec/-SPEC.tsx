@@ -1,5 +1,4 @@
 import { css, Dev, Signal, Spec } from '../../-test.ui.ts';
-import { VideoStream } from '../../Media.VideoStream/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 

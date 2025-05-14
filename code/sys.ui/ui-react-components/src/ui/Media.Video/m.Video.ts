@@ -6,10 +6,11 @@ import { type t } from './common.ts';
 import { AspectRatio } from './m.AspectRatio.ts';
 import { getStream } from './u.getStream.ts';
 import { VideoStream as Stream } from './ui.tsx';
-export { useVideoStream } from './use.VideoStream.ts';
+import { useVideoStream } from './use.VideoStream.ts';
 
-export const VideoStream: t.VideoStreamLib = {
+export const Video: t.VideoLib = {
   AspectRatio,
   getStream,
+  useVideoStream,
   View: { Stream },
 };

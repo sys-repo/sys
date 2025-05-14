@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { VideoStream } from '../mod.ts';
+import { Video } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MediaVideoFiltered', (e) => {
@@ -24,7 +24,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
 
     ctx.subject.display('grid').render(() => {
       return (
-        <VideoStream.View.Stream
+        <Video.View.Stream
           debug={p.debug.value}
           theme={p.theme.value}
           filter={p.filter.value}
