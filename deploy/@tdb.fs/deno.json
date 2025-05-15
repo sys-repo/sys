@@ -1,12 +1,11 @@
 {
   "name": "@sys/public-fs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "tasks": {
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
-
     "deploy": "deno task build && orbiter deploy",
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/-clean.ts",
     "dry": "deno      publish --allow-dirty --dry-run",

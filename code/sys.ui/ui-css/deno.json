@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-css",
-  "version": "0.0.83",
+  "version": "0.0.84",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
