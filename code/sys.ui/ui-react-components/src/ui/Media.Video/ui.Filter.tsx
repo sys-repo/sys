@@ -1,14 +1,17 @@
 import React from 'react';
-import { type t, Color, css, Slider } from './common.ts';
+import { type t, Color, css, Num, Slider } from './common.ts';
+
+const { toPercent, fromPercent } = Num.Percent.Range;
 
 /**
  * Component:
  */
 export const Filter: React.FC<t.FilterProps> = (props) => {
-  const { min, max } = props;
+  const { range } = props;
+  const [min, max] = range;
 
-  const percent = RangePercent.toPercent(props.value ?? 0, [min, max]); // → 0.75
-  const value = RangePercent.fromPercent(percent, [min, max]); // → 150
+  const percent = toPercent(props.value ?? 0, [min, max]);
+  const value = fromPercent(percent, range);
 
   /**
    * Render:
@@ -42,11 +45,10 @@ export const Filter: React.FC<t.FilterProps> = (props) => {
         thumb={{ size: 15 }}
         onChange={(e) => {
           const { percent } = e;
-          const value = RangePercent.fromPercent(percent, [min, max]);
+          const value = fromPercent(percent, [min, max]);
           props.onChange?.({ percent, value });
         }}
       />
     </div>
   );
 };
-

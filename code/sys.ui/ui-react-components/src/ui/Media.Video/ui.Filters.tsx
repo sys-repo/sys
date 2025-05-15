@@ -2,21 +2,21 @@ import React from 'react';
 import { type t, Color, css, rx } from './common.ts';
 import { Filter } from './ui.Filter.tsx';
 
+export type ReactState<T> = readonly [T, React.Dispatch<React.SetStateAction<T>>];
+
 /**
  * Component:
  */
 export const Filters: React.FC<t.FiltersProps> = (props) => {
-  const {} = props;
+  const { onChangeDebounce = 250 } = props;
 
-  type S = [number, React.Dispatch<React.SetStateAction<number>>];
   const brightness = React.useState(100);
   const contrast = React.useState(100);
   const saturate = React.useState(100);
-
   const changedRef = React.useRef(rx.subject<string>());
 
   /**
-   * Effects
+   * Effect: update "filter" on state change.
    */
   React.useEffect(() => {
     let filter = '';
@@ -27,9 +27,15 @@ export const Filters: React.FC<t.FiltersProps> = (props) => {
     changedRef.current.next(filter);
   }, [brightness[0], contrast[0], saturate[0]]);
 
+  /**
+   * Effect: (debounced) fire 'onChange' callback.
+   */
   React.useEffect(() => {
     const life = rx.lifecycle();
-    const $ = changedRef.current.pipe(rx.takeUntil(life.dispose$), rx.debounceTime(250));
+    const $ = changedRef.current.pipe(
+      rx.takeUntil(life.dispose$),
+      rx.debounceTime(onChangeDebounce),
+    );
     $.subscribe((filter) => props.onChange?.({ filter }));
     return life.dispose;
   }, []);
@@ -46,13 +52,18 @@ export const Filters: React.FC<t.FiltersProps> = (props) => {
     }),
   };
 
-  const filter = (label: string, min: number, max: number, unit: string, state: S) => {
+  const filter = (
+    label: string,
+    min: number,
+    max: number,
+    unit: string,
+    state: ReactState<number>,
+  ) => {
     return (
       <Filter
         label={label}
         value={state[0]}
-        min={min}
-        max={max}
+        range={[min, max]}
         unit={unit}
         theme={theme.name}
         style={styles.filter}
