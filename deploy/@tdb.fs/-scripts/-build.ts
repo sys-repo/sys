@@ -42,8 +42,8 @@ async function buildAndCopy(moduleDir: t.StringDir, targetDir: t.StringRelativeD
 }
 
 console.info();
-await buildAndCopy('../../code/sys.ui/ui-react-components', 'ui.components');
-await buildAndCopy('../../code/sys.driver/driver-monaco', 'ui.driver.monaco');
+await buildAndCopy('../../code/sys.ui/ui-react-components', 'sys/ui');
+await buildAndCopy('../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco');
 
 // Write entry HTML.
 const tmpl = Tmpl.create('src/-tmpl');
