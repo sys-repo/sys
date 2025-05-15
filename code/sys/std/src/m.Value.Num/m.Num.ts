@@ -1,9 +1,12 @@
 import type { t } from '../common.ts';
+import { Percent } from './m.Percent.ts';
 
 /**
  * Tools for working with numbers.
  */
 export const Num: t.NumLib = {
+  Percent,
+
   /**
    * Rounds a number to the specified number of decimal places.
    */
