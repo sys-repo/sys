@@ -4,6 +4,13 @@ import { walk } from './u.walk.ts';
 type O = Record<string, unknown>;
 
 /**
+ * Typed variant of the native [Object.keys].
+ */
+export function keys<T extends object>(obj?: T): Array<keyof T> {
+  return isRecord(obj) ? (Object.keys(obj) as Array<keyof T>) : [];
+}
+
+/**
  * Sort the keys of an object.
  */
 export function sortKeys<T extends O>(obj: T): T {
@@ -63,11 +70,4 @@ export function pick<T extends O>(subject: T, ...fields: (keyof T)[]): T {
     acc[next] = subject[next];
     return acc;
   }, {} as T);
-}
-
-/**
- * Typed variant of the native [Object.keys].
- */
-export function keys<T extends object>(obj: T): Array<keyof T> {
-  return isRecord(obj) ? (Object.keys(obj) as Array<keyof T>) : [];
 }

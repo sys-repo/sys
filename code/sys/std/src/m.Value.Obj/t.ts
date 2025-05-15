@@ -67,7 +67,7 @@ export type ObjLib = {
   /**
    * Typed variant of the native [Object.keys].
    */
-  keys<T extends object>(obj: T): Array<keyof T>;
+  keys<T extends object>(obj?: T): Array<keyof T>;
 
   /**
    * Sort the keys of an object.
