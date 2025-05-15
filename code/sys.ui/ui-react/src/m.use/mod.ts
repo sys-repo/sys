@@ -10,6 +10,7 @@
  *   useMouseDrag,
  *   useClickInside,
  *   useClickOutside,
+ *   useRedraw,
  *   useSizeObserver,
  *   useLoading,
  * } from '@sys/ui-react/use';
@@ -21,6 +22,7 @@ export { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 export { useLoading } from './use.Loading.ts';
 export { useMouseDrag } from './use.Mouse.Drag.ts';
 export { useMouse } from './use.Mouse.ts';
+export { useRedraw } from './use.Redraw.ts';
 export { useSizeObserver } from './use.SizeObserver.tsx';
 export {
   useVisibilityThreshold,

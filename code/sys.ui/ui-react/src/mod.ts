@@ -46,6 +46,7 @@ export {
   useLoading,
   useMouse,
   useMouseDrag,
+  useRedraw,
   useSizeObserver,
   useVisibilityThreshold,
   useVisibilityThresholdX,

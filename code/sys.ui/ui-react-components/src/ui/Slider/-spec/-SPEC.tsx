@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Slider } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Slider', (e) => {
   const debug = createDebugSignals();
@@ -16,7 +16,7 @@ export default Spec.describe('Slider', (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([350, null])
       .display('grid')
       .render(() => <Slider debug={p.debug.value} theme={p.theme.value} />);
   });
