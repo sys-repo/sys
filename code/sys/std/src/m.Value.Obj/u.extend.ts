@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { clone as deepClone } from './m.Obj.clone.ts';
+import { clone as deepClone } from './u.clone.ts';
 
 /**
  * Deeply clones and extends the given object with a set of extra properties.
