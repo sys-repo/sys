@@ -19,7 +19,7 @@ export default Spec.describe('Devices', (e) => {
       .size([400, null])
       .display('grid')
       .render(() => (
-        <Devices.View.List
+        <Devices.UI.List
           debug={p.debug.value}
           theme={p.theme.value}
           selected={p.selected.value}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, Signal, rx } from '../common.ts';
+import { Filters } from '../ui.Filters.tsx';
 
 type P = t.MediaVideoStreamProps;
 
@@ -70,11 +71,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Media.Devices.View.List
+      <Media.Devices.UI.List
         filter={(e) => e.kind === 'videoinput'}
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
+      <Filters
+        style={{ margin: 20 }}
+        onChange={(e) => {
+          console.info('⚡️ Filters.onChange:', e);
+          p.filter.value = e.filter;
+        }}
+      />
+
       <hr />
 
       <Button
@@ -132,10 +141,7 @@ export function filterSampleButtons(signal: t.Signal<P['filter']>) {
   };
   return (
     <React.Fragment>
-      <div className={Styles.title.class}>
-        <div>{'Filter'}</div>
-        <div>{'(Samples)'}</div>
-      </div>
+      <div className={Styles.title.class}>{'Filter Samples'}</div>
       {btn('none - <undefined>', undefined)}
       {Object.entries(FILTER_SAMPLES).map(([key, value]) => btn(key, value))}
     </React.Fragment>

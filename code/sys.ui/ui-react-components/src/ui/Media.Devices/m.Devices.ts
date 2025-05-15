@@ -4,7 +4,7 @@ import { List } from './ui.tsx';
 import { useDevicesList } from './use.DevicesList.ts';
 
 export const Devices: t.MediaDevicesLib = {
-  View: { List },
+  UI: { List },
   getDevices,
   useDevicesList,
 };

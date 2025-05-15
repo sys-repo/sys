@@ -107,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Camera'}</div>
-      <Media.Devices.View.List
+      <Media.Devices.UI.List
         filter={(e) => e.kind === 'videoinput'}
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}

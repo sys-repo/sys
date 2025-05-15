@@ -1,5 +1,7 @@
 import { pkg, Pkg } from '../common.ts';
+
 export * from '../common.ts';
+export { Slider } from '../Slider/mod.ts';
 
 /**
  * Constants:

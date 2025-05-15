@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.Filters.ts';
 
 /**
  * Tools for visually filtering over a media streams.
