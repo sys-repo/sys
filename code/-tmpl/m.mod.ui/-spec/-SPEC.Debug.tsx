@@ -61,17 +61,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={['$']}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
