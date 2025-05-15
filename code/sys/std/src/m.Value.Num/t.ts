@@ -16,6 +16,8 @@ export type NumLib = {
  * Tools for working with numbers that represent percentages.
  */
 export type PercentLib = {
+  readonly Range: t.PercentRangeLib;
+
   /**
    * Convert a value to a percentage.
    */
@@ -35,4 +37,21 @@ export type PercentLib = {
    * Convert a percentage to a "100%" string
    */
   toString(value?: t.Percent): string;
+};
+
+/**
+ * Tools for working with percentage ranges (eg, min/max).
+ */
+export type PercentRangeLib = {
+  /**
+   * Convert a real value (eg brightness) → slider percent.
+   * Returns 0 ..1, clamped if the input is outside the range.
+   */
+  toPercent(value: number, range: t.MinMaxNumberRange): number;
+
+  /**
+   * Convert a slider percent (0 … 1) → real value within the range.
+   * Percent is clamped, output is always within [min, max].
+   */
+  fromPercent(percent: number, range: t.MinMaxNumberRange): number;
 };

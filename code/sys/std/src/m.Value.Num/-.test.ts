@@ -2,11 +2,13 @@ import { describe, expect, it } from '../-test.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Num } from './mod.ts';
 import { Percent } from './m.Percent.ts';
+import { PercentRange } from './m.Percent.Range.ts';
 
 describe('Value.Num', () => {
   it('API', () => {
     expect(Value.Num).to.equal(Num);
     expect(Num.Percent).to.equal(Percent);
+    expect(Num.Percent.Range).to.eql(PercentRange);
   });
 
   describe('Number', () => {

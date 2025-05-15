@@ -75,3 +75,52 @@ describe('Num.Percent', () => {
     expect(Percent.toString(1)).to.eql('100%');
   });
 });
+
+describe('Num.Percent.Range', () => {
+  type R = t.MinMaxNumberRange;
+  const R1: R = [0, 200];
+  const R2: R = [50, 100];
+
+  it('round-trips value → percent → value', () => {
+    const value = 135;
+    const p = Percent.Range.toPercent(value, R1);
+    expect(Percent.Range.fromPercent(p, R1)).to.equal(value);
+  });
+
+  describe('toPercent', () => {
+    it('maps min → 0 and max → 1', () => {
+      expect(Percent.Range.toPercent(R1[0], R1)).to.equal(0);
+      expect(Percent.Range.toPercent(R1[1], R1)).to.equal(1);
+    });
+
+    it('maps an in-range value to the correct percent', () => {
+      expect(Percent.Range.toPercent(100, R1)).to.equal(0.5);
+    });
+
+    it('clamps out-of-range inputs', () => {
+      expect(Percent.Range.toPercent(-10, R1)).to.equal(0);
+      expect(Percent.Range.toPercent(250, R1)).to.equal(1);
+    });
+
+    it('returns 0 when min === max (degenerate range)', () => {
+      expect(Percent.Range.toPercent(42, [5, 5])).to.equal(0);
+    });
+  });
+
+  describe('fromPercent', () => {
+    it('maps 0 .. 1 back to the real range', () => {
+      expect(Percent.Range.fromPercent(0, R2)).to.equal(50);
+      expect(Percent.Range.fromPercent(1, R2)).to.equal(100);
+      expect(Percent.Range.fromPercent(0.5, R2)).to.equal(75);
+    });
+
+    it('clamps percent values outside 0 … 1', () => {
+      expect(Percent.Range.fromPercent(-1, R2)).to.equal(50);
+      expect(Percent.Range.fromPercent(2, R2)).to.equal(100);
+    });
+
+    it('handles min === max (degenerate range)', () => {
+      expect(Percent.Range.fromPercent(0.5, [5, 5])).to.equal(5);
+    });
+  });
+});
