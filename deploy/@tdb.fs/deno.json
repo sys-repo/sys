@@ -1,5 +1,5 @@
 {
-  "name": "@sys/public-fs",
+  "name": "@tdb/public-fs",
   "version": "0.0.1",
   "license": "MIT",
   "tasks": {
