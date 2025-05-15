@@ -1,4 +1,4 @@
-import { R } from '../common.ts';
+import { R, isRecord } from '../common.ts';
 import { walk } from './u.walk.ts';
 
 type O = Record<string, unknown>;
@@ -63,4 +63,11 @@ export function pick<T extends O>(subject: T, ...fields: (keyof T)[]): T {
     acc[next] = subject[next];
     return acc;
   }, {} as T);
+}
+
+/**
+ * Typed variant of the native [Object.keys].
+ */
+export function keys<T extends object>(obj: T): Array<keyof T> {
+  return isRecord(obj) ? (Object.keys(obj) as Array<keyof T>) : [];
 }

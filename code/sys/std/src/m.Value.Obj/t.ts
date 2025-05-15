@@ -65,6 +65,11 @@ export type ObjLib = {
   prune(keyPath: string, root: { [key: string]: any }): KeyMap;
 
   /**
+   * Typed variant of the native [Object.keys].
+   */
+  keys<T extends object>(obj: T): Array<keyof T>;
+
+  /**
    * Sort the keys of an object.
    */
   sortKeys<T extends O>(obj: T): T;
