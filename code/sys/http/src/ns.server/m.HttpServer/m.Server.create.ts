@@ -1,4 +1,5 @@
 import { Hono, cors, type t } from './common.ts';
+import { forceDirSlash } from './u.middleware.ts';
 import { serveStatic } from './u.serveStatic.ts';
 
 type Optionsions = t.HttpServerCreateOptions;
@@ -17,7 +18,7 @@ export function create(options: Optionsions = {}) {
         origin: '*', // Allowed origin or use '*' to allow all origins.
         allowMethods: ['GET', 'POST'],
         allowHeaders: ['Content-Type', 'Authorization'],
-        maxAge: 86400, // Preflight cache age in seconds.
+        maxAge: 86_400, // Preflight cache age in seconds.
       }),
     );
   }
@@ -34,7 +35,8 @@ export function create(options: Optionsions = {}) {
 
   if (options.static ?? true) {
     const { route, root } = wrangle.static(options.static);
-    app.use(route, serveStatic({ root }));
+    app.use(route, forceDirSlash(root));
+    app.use(route, serveStatic(root));
   }
 
   return app;
