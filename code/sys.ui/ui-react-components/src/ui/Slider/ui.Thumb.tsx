@@ -43,8 +43,8 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.body} />
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class} />
     </div>
   );
 };

@@ -54,10 +54,10 @@ export const Track: React.FC<TrackProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)}>
-      <div {...styles.body}>
-        <div {...styles.progress} />
-        {track.color.border !== 0 && <div {...styles.border} />}
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class}>
+        <div className={styles.progress.class} />
+        {track.color.border !== 0 && <div className={styles.border.class} />}
       </div>
     </div>
   );

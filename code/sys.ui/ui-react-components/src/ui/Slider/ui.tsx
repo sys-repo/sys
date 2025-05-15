@@ -65,7 +65,7 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
   );
 
   return (
-    <div ref={monitor.ref} {...css(styles.base, props.style)} {...monitor.handlers}>
+    <div ref={monitor.ref} className={css(styles.base, props.style).class} {...monitor.handlers}>
       {elTracks}
       {elTicks}
       {elThumb}

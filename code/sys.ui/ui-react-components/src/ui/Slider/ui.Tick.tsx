@@ -26,7 +26,7 @@ export const Tick: React.FC<TickProps> = (props) => {
   };
 
   return (
-    <div {...css(styles.base, props.style)} title={tick.label}>
+    <div className={css(styles.base, props.style).class} title={tick.label}>
       <div {...styles.inner} />
     </div>
   );

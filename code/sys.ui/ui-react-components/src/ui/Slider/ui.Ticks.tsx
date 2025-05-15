@@ -26,13 +26,13 @@ export const Ticks: React.FC<TicksProps> = (props) => {
     const left = Num.Percent.toString(item.value);
     const style = css(styles.item, { left });
     return (
-      <div key={i} {...style}>
+      <div key={i} className={style.class}>
         {item.el ?? <Tick tick={item} />}
       </div>
     );
   });
 
-  return <div {...css(styles.base, props.style)}>{elItems}</div>;
+  return <div className={css(styles.base, props.style).class}>{elItems}</div>;
 };
 
 /**

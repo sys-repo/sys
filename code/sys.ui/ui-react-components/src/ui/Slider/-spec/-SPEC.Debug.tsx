@@ -112,12 +112,13 @@ export function configSampleButtons(debug: DebugSignals) {
   const p = debug.props;
   const elButtons: JSX.Element[] = [];
 
-  const hr = () => elButtons.push(<hr />);
+  const hr = () => elButtons.push(<hr key={elButtons.length} />);
   const push = (label: string, fn?: Fn) => elButtons.push(btn(label, fn));
   const btn = (label: string, fn?: Fn) => {
     return (
       <Button
         block
+        key={elButtons.length}
         label={label}
         onClick={() => {
           const partial = {
