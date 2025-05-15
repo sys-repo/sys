@@ -18,7 +18,18 @@ export default Spec.describe('Slider', (e) => {
     ctx.subject
       .size([350, null])
       .display('grid')
-      .render(() => <Slider debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <Slider
+          debug={p.debug.value}
+          theme={p.theme.value}
+          enabled={p.enabled.value}
+          percent={p.percent.value}
+          onChange={(e) => {
+            console.info('⚡️ onChange', e);
+            p.percent.value = e.percent;
+          }}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

@@ -1,6 +1,6 @@
 import React from 'react';
+import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
-import { ObjectView, Button } from '../../u.ts';
 
 type P = t.SliderProps;
 
@@ -18,6 +18,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    enabled: s<P['enabled']>(D.enabled),
+    percent: s<P['percent']>(),
   };
   const p = props;
   const api = {
@@ -25,6 +27,8 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.enabled.value;
+      p.percent.value;
     },
   };
   return api;
@@ -69,6 +73,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
+        onClick={() => Signal.toggle(p.enabled)}
       />
 
       <hr />
