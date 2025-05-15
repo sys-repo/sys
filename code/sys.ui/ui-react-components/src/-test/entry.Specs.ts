@@ -33,6 +33,7 @@ export const SpecsComponents = {
   [`${ns}.io: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.Filters`]: () => import('../ui/Media.Filters/-spec/-SPEC.tsx'),
+  [`${ns}.io: Media.Filter`]: () => import('../ui/Media.Filters/-spec.filter/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

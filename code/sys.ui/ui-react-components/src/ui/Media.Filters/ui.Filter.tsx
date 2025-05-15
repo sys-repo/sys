@@ -27,7 +27,7 @@ export const Filter: React.FC<P> = (props) => {
     title: css({
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
-      marginBottom: 0,
+      marginBottom: 3,
     }),
   };
 
