@@ -1,13 +1,17 @@
 import type { t } from './common.ts';
 
-export type FiltersProps = {
+/**
+ * <Component>:
+ */
+export type MediaFiltersProps = {
+  debug?: boolean;
   onChangeDebounce?: t.Msecs;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onChange?: (e: { filter: string }) => void;
 };
 
-export type FilterProps = {
+export type MediaFilterProps = {
   label: string;
   value?: number;
   unit: string;

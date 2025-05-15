@@ -1,8 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal, rx } from '../common.ts';
-import { Filters } from '../ui.Filters.tsx';
+import { type t, css, D, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
 
@@ -76,7 +75,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
-      <Filters
+      <Media.UI.Filters
         style={{ margin: 20 }}
         onChange={(e) => {
           console.info('⚡️ Filters.onChange:', e);

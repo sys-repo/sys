@@ -2,14 +2,14 @@ import React from 'react';
 import { type t, Color, css, Num, Slider } from './common.ts';
 
 const { toPercent, fromPercent } = Num.Percent.Range;
+type P = t.MediaFilterProps;
 
 /**
  * Component:
  */
-export const Filter: React.FC<t.FilterProps> = (props) => {
+export const Filter: React.FC<P> = (props) => {
   const { range } = props;
   const [min, max] = range;
-
   const percent = toPercent(props.value ?? 0, [min, max]);
   const value = fromPercent(percent, range);
 

@@ -3,11 +3,12 @@ import { type t, Color, css, rx } from './common.ts';
 import { Filter } from './ui.Filter.tsx';
 
 export type ReactState<T> = readonly [T, React.Dispatch<React.SetStateAction<T>>];
+type P = t.MediaFiltersProps;
 
 /**
  * Component:
  */
-export const Filters: React.FC<t.FiltersProps> = (props) => {
+export const Filters: React.FC<P> = (props) => {
   const { onChangeDebounce = 250 } = props;
 
   const brightness = React.useState(100);
