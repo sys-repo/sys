@@ -24,6 +24,9 @@ export default Spec.describe('Slider', (e) => {
           theme={p.theme.value}
           enabled={p.enabled.value}
           percent={p.percent.value}
+          thumb={p.thumb.value}
+          track={p.track.value}
+          ticks={p.ticks.value}
           onChange={(e) => {
             console.info('⚡️ onChange', e);
             p.percent.value = e.percent;
