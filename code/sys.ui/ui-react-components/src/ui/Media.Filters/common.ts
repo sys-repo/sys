@@ -8,15 +8,15 @@ export { Slider } from '../Slider/mod.ts';
 const name = 'Media.Filters';
 
 const config: t.MediaFilterConfigMap = {
-  blur: { range: [0, 50], unit: 'px', initial: 0 },
   brightness: { range: [0, 200], unit: '%', initial: 100 },
   contrast: { range: [0, 200], unit: '%', initial: 100 },
+  saturate: { range: [0, 200], unit: '%', initial: 100 },
   grayscale: { range: [0, 200], unit: '%', initial: 0 },
+  sepia: { range: [0, 200], unit: '%', initial: 100 },
   'hue-rotate': { range: [0, 200], unit: '°', initial: 0 },
   invert: { range: [0, 200], unit: '%', initial: 0 },
   opacity: { range: [0, 100], unit: '%', initial: 100 },
-  saturate: { range: [0, 200], unit: '%', initial: 100 },
-  sepia: { range: [0, 200], unit: '%', initial: 100 },
+  blur: { range: [0, 50], unit: 'px', initial: 0 },
 };
 
 export const DEFAULTS = {

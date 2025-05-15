@@ -115,6 +115,7 @@ export function filterValuesButtons(debug: DebugSignals) {
       <Button block label={`clear → <undefined>`} onClick={() => (p.values.value = undefined)} />
       {btn(Obj.keys(Filters.config), 'all')}
       {btn(['brightness', 'contrast', 'saturate'])}
+      {btn(['saturate', 'contrast', 'brightness'])}
       {btn(['grayscale', 'contrast', 'brightness'])}
     </React.Fragment>
   );

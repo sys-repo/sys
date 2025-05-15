@@ -9,7 +9,7 @@ export default Spec.describe('Media.Filters', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
@@ -20,10 +20,12 @@ export default Spec.describe('Media.Filters', (e) => {
       .display('grid')
       .render(() => (
         <Filters.UI.List
-          //
           debug={p.debug.value}
           theme={p.theme.value}
           values={p.values.value}
+          onChange={(e) => {
+            console.info(`⚡️ Filters.onChange:`, e);
+          }}
         />
       ));
   });
