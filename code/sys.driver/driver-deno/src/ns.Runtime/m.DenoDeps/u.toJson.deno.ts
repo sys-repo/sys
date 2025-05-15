@@ -1,4 +1,4 @@
-import { type t, Esm, isEmptyRecord, sortKeys } from './common.ts';
+import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
 
 type D = { [key: string]: string };
 
@@ -19,6 +19,6 @@ export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
   }
 
   const res: t.PkgJsonDeno = {};
-  if (!isEmptyRecord(imports)) res.imports = sortKeys(imports);
+  if (!isEmptyRecord(imports)) res.imports = Obj.sortKeys(imports);
   return res;
 }
