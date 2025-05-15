@@ -33,6 +33,7 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
       position: 'relative',
       width,
       height,
+      color: theme.fg,
       filter: `grayscale(${enabled ? 0 : 100}%)`,
       opacity: enabled ? 1 : 0.6,
       transition: 'filter 0.2s, opacity 0.2s',
@@ -48,10 +49,11 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
       track={track}
       thumb={thumb}
       enabled={enabled}
+      theme={theme.name}
     />
   ));
 
-  const elTicks = <Ticks ticks={ticks} />;
+  const elTicks = <Ticks ticks={ticks} theme={theme.name} />;
 
   const elThumb = totalWidth > -1 && (
     <Thumb
@@ -61,6 +63,7 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
       thumb={thumb}
       enabled={enabled}
       pressed={monitor.pressed}
+      theme={theme.name}
     />
   );
 

@@ -1,11 +1,12 @@
 import React from 'react';
-import { Num, css, type t } from './common.ts';
+import { type t, Color, Num, css } from './common.ts';
 import { Wrangle } from './u.ts';
 import { Tick } from './ui.Tick.tsx';
 
 export type TicksProps = {
   ticks: t.SliderTickProps;
-  style?: t.CssValue;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
 export const Ticks: React.FC<TicksProps> = (props) => {
@@ -13,7 +14,7 @@ export const Ticks: React.FC<TicksProps> = (props) => {
   const items = Wrangle.tickItems(ticks.items);
 
   /**
-   * [Render]
+   * Render:
    */
   const top = toOffset(ticks.offset.top);
   const bottom = toOffset(ticks.offset.bottom);
@@ -36,8 +37,8 @@ export const Ticks: React.FC<TicksProps> = (props) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
-export function toOffset(input: t.Pixels) {
+function toOffset(input: t.Pixels) {
   return 0 - Math.abs(input);
 }

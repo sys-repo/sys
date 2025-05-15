@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, type t } from './common.ts';
+import { type t, Color, css, Is } from './common.ts';
 import { Wrangle } from './u.ts';
 
 export type TrackProps = {
@@ -8,7 +8,8 @@ export type TrackProps = {
   totalWidth: t.Pixels;
   track: t.SliderTrackProps;
   thumb: t.SliderThumbProps;
-  style?: t.CssValue;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
 export const Track: React.FC<TrackProps> = (props) => {
@@ -19,8 +20,9 @@ export const Track: React.FC<TrackProps> = (props) => {
   const progressWidth = percent === 1 ? totalWidth : thumbLeft + thumb.size / 2;
 
   /**
-   * [Render]
+   * Render:
    */
+  const theme = Color.theme(props.theme);
   const borderRadius = height / 2;
   const progressRadius = [borderRadius, 0, 0, borderRadius];
   if (percent !== props.percent || thumb.opacity === 0) {
@@ -33,12 +35,16 @@ export const Track: React.FC<TrackProps> = (props) => {
     body: css({
       position: 'relative',
       overflow: 'hidden',
-      backgroundColor: Color.format(track.color.default),
+      backgroundColor: Is.string(track.color.default)
+        ? track.color.default
+        : Color.alpha(theme.bg, track.color.default),
       borderRadius,
       height,
     }),
     progress: css({
-      backgroundColor: Color.format(track.color.highlight),
+      backgroundColor: Is.string(track.color.highlight)
+        ? track.color.highlight
+        : Color.alpha(theme.bg, track.color.highlight),
       borderRadius: progressRadius.map((num) => num + 'px').join(' '),
       height,
       Absolute: [0, null, 0, 0],
@@ -48,7 +54,7 @@ export const Track: React.FC<TrackProps> = (props) => {
     }),
     border: css({
       Absolute: 0,
-      border: `solid 1px ${Color.format(track.color.border)}`,
+      border: `solid 1px ${Color.alpha(theme.fg, track.color.border)}`,
       borderRadius,
     }),
   };

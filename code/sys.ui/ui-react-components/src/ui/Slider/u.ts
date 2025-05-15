@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Num } from './common.ts';
+import { type t, D, DEFAULTS, Num, Color } from './common.ts';
 
 /**
  * Helpers
@@ -9,9 +9,10 @@ export const Wrangle = {
   },
 
   props(props: t.SliderProps) {
-    const tracks = Wrangle.tracks(props.track);
-    const thumb = Wrangle.thumb(props.thumb);
-    const ticks = Wrangle.ticks(props.ticks);
+    const theme = Color.theme(props.theme);
+    const tracks = Wrangle.tracks(theme, props.track);
+    const thumb = Wrangle.thumb(theme, props.thumb);
+    const ticks = Wrangle.ticks(theme, props.ticks);
     return { tracks, thumb, ticks } as const;
   },
 
@@ -25,20 +26,20 @@ export const Wrangle = {
   /**
    * Track
    */
-  tracks(input?: t.SliderProps['track']): t.SliderTrackProps[] {
+  tracks(theme: t.ColorTheme, input?: t.SliderProps['track']): t.SliderTrackProps[] {
     const tracks = Array.isArray(input) ? input : [input];
-    return tracks.map((track) => Wrangle.track(track));
+    return tracks.map((track) => Wrangle.track(theme, track));
   },
 
-  track(track?: Partial<t.SliderTrackProps>): t.SliderTrackProps {
-    const DEFAULT = DEFAULTS.track();
+  track(theme: t.ColorTheme, track?: Partial<t.SliderTrackProps>): t.SliderTrackProps {
+    const D = DEFAULTS.track(theme);
     return {
-      height: track?.height ?? DEFAULT.height,
+      height: track?.height ?? D.height,
       percent: track?.percent,
       color: {
-        default: track?.color?.default ?? DEFAULT.color.default,
-        highlight: track?.color?.highlight ?? DEFAULT.color.highlight,
-        border: track?.color?.border ?? DEFAULT.color.border,
+        default: track?.color?.default ?? D.color.default,
+        highlight: track?.color?.highlight ?? D.color.highlight,
+        border: track?.color?.border ?? D.color.border,
       },
     };
   },
@@ -46,8 +47,8 @@ export const Wrangle = {
   /**
    * Thumb
    */
-  thumb(thumb?: t.SliderProps['thumb']): t.SliderThumbProps {
-    const DEFAULT = DEFAULTS.thumb();
+  thumb(theme: t.ColorTheme, thumb?: t.SliderProps['thumb']): t.SliderThumbProps {
+    const DEFAULT = D.thumb(theme);
     return {
       size: thumb?.size ?? DEFAULT.size,
       opacity: thumb?.opacity ?? DEFAULT.opacity,
@@ -63,8 +64,8 @@ export const Wrangle = {
   /**
    * Ticks
    */
-  ticks(ticks?: t.SliderProps['ticks']): t.SliderTickProps {
-    const DEFAULT = DEFAULTS.ticks();
+  ticks(theme: t.ColorTheme, ticks?: t.SliderProps['ticks']): t.SliderTickProps {
+    const DEFAULT = D.ticks(theme);
     return {
       offset: ticks?.offset ?? DEFAULT.offset,
       items: ticks?.items ?? DEFAULT.items,

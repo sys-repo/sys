@@ -73,11 +73,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
@@ -111,6 +106,7 @@ export function configSampleButtons(debug: DebugSignals) {
 
   const p = debug.props;
   const elButtons: JSX.Element[] = [];
+  const theme = Color.theme(p.theme.value);
 
   const hr = () => elButtons.push(<hr key={elButtons.length} />);
   const push = (label: string, fn?: Fn) => elButtons.push(btn(label, fn));
@@ -122,16 +118,15 @@ export function configSampleButtons(debug: DebugSignals) {
         label={label}
         onClick={() => {
           const partial = {
-            thumb: p.thumb.value ?? (p.thumb.value = D.thumb()),
-            track: p.track.value ?? (p.track.value = D.track()),
-            ticks: p.ticks.value ?? (p.ticks.value = D.ticks()),
+            thumb: p.thumb.value ?? (p.thumb.value = D.thumb(theme)),
+            track: p.track.value ?? (p.track.value = D.track(theme)),
+            ticks: p.ticks.value ?? (p.ticks.value = D.ticks(theme)),
           };
 
-          console.log('partial', partial);
-          const thumb = Wrangle.thumb(partial.thumb);
-          const tracks = Wrangle.tracks(partial.track);
+          const thumb = Wrangle.thumb(theme, partial.thumb);
+          const tracks = Wrangle.tracks(theme, partial.track);
           const track = tracks[0];
-          const ticks = Wrangle.ticks(partial.ticks);
+          const ticks = Wrangle.ticks(theme, partial.ticks);
 
           fn?.({ tracks, track, thumb, ticks });
           p.thumb.value = thumb;
@@ -143,9 +138,9 @@ export function configSampleButtons(debug: DebugSignals) {
   };
 
   push('(reset)', (e) => {
-    const track = D.track();
-    const ticks = D.ticks();
-    const thumb = D.thumb();
+    const track = D.track(theme);
+    const ticks = D.ticks(theme);
+    const thumb = D.thumb(theme);
 
     e.track.height = track.height;
     e.track.percent = track.percent;
@@ -174,7 +169,7 @@ export function configSampleButtons(debug: DebugSignals) {
     e.ticks.items = [
       0.25,
       { value: 0.5, label: 'Midway' },
-      { value: 0.75, el: <div {...style} /> },
+      { value: 0.75, el: <div className={style.class} /> },
       undefined,
       false,
     ];
@@ -187,10 +182,9 @@ export function configSampleButtons(debug: DebugSignals) {
   hr();
   push('progress track overshoots thumb', (e) => (e.track.percent = 0.5));
   push('multiple tracks (eg. "buffered")', (e) => {
-    const buffer = D.track();
-    buffer.color.default = 0;
-    buffer.color.highlight = Color.alpha(Color.DARK, 0.15);
-    buffer.color.border = 0;
+    const theme = Color.theme(p.theme.value);
+    const buffer = D.track(theme);
+    buffer.color.highlight = Color.alpha(theme.fg, 0.15);
     buffer.percent = 0.75;
     e.tracks.unshift(buffer);
   });

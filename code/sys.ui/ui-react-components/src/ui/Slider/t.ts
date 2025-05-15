@@ -24,7 +24,7 @@ export type SliderProps = {
 export type SliderTrackProps = {
   height: t.Pixels;
   percent?: t.Percent; // If present, overrides the parent "percent" prop.
-  color: { default: Color; highlight: Color; border: Color };
+  color: { default: t.Percent; highlight: Color; border: t.Percent };
 };
 
 /**
@@ -34,7 +34,7 @@ export type SliderThumbProps = {
   size: t.Pixels;
   opacity: t.Percent;
   pressedScale: number; // eg: 1.1
-  color: { default: Color; border: Color };
+  color: { default: Color; border: t.Percent };
 };
 
 /**

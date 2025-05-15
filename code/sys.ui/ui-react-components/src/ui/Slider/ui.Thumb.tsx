@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, type t } from './common.ts';
+import { type t, Color, css, Is } from './common.ts';
 import { Wrangle } from './u.ts';
 
 export type ThumbProps = {
@@ -9,7 +9,8 @@ export type ThumbProps = {
   totalWidth: t.Pixels;
   thumb: t.SliderThumbProps;
   height: t.Pixels;
-  style?: t.CssValue;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
 };
 
 export const Thumb: React.FC<ThumbProps> = (props) => {
@@ -18,8 +19,10 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
   const pressed = enabled && props.pressed;
 
   /**
-   * [Render]
+   * Render
    */
+  const theme = Color.theme(props.theme);
+  const defaultThumbColor = thumb.color.default;
   const styles = {
     base: css({
       Absolute: [null, null, null, left],
@@ -35,8 +38,10 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
       Size: thumb.size,
       overflow: 'hidden',
       borderRadius: thumb.size / 2,
-      backgroundColor: Color.format(thumb.color.default),
-      border: `solid 1px ${thumb.color.border}`,
+      backgroundColor: Is.string(defaultThumbColor)
+        ? defaultThumbColor
+        : Color.alpha(Color.WHITE, defaultThumbColor),
+      border: `solid 1px ${Color.alpha(Color.DARK, thumb.color.border)}`,
       boxSizing: 'border-box',
       boxShadow: `0 1px 5px 0 ${Color.format(-0.1)}`,
     }),
