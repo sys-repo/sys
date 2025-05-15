@@ -94,17 +94,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{`AspectRatio: ${p.aspectRatio.value}`}</div>
       </div>
 
-      <Button
-        block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
-      />
-
       <hr />
       <div className={Styles.title.class}>{'Camera'}</div>
       <Media.Devices.UI.List
@@ -130,7 +119,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
       <hr />
-      {filterSampleButtons(p.filter)}
+      <Button
+        block
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
 
       <hr />
       <ObjectView
