@@ -113,6 +113,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
 
+      <Media.UI.Filters
+        style={{ margin: 20 }}
+        onChange={(e) => {
+          console.info('⚡️ Filters.onChange:', e);
+          p.filter.value = e.filter;
+        }}
+      />
+
       {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
       <hr />
       {recorderButtons(recorder)}
