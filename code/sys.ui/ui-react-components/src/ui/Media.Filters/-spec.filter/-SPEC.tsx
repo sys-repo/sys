@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Filter } from '../mod.ts';
+import { Filters } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe('Filter', (e) => {
+export default Spec.describe('Media.Filter', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -19,7 +19,8 @@ export default Spec.describe('Filter', (e) => {
       .size([350, null])
       .display('grid')
       .render(() => (
-        <Filter
+        <Filters.UI.Filter
+          name={p.name.value}
           label={p.label.value}
           value={p.value.value}
           unit={p.unit.value}

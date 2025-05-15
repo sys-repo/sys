@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, Obj, Signal } from '../common.ts';
+import { Filters } from '../mod.ts';
 
 type P = t.MediaFiltersProps;
 
@@ -18,6 +19,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    values: s<P['values']>(Filters.values(Obj.keys(Filters.config))),
   };
   const p = props;
   const api = {
@@ -25,6 +27,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.values.value;
     },
   };
   return api;
@@ -58,13 +61,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{'(List)'}</div>
+      </div>
 
-      <Button
-        block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -72,7 +73,49 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} />
+      {filterValuesButtons(debug)}
+
+      <hr />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={['$', '$.values']}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
+
+/**
+ * Dev Buttons
+ */
+
+export function filterValuesButtons(debug: DebugSignals) {
+  const p = debug.props;
+
+  const btn = (filters: t.MediaFilterName[], label?: string) => {
+    return (
+      <Button
+        block
+        label={() => label ?? filters.join(', ')}
+        onClick={() => (p.values.value = Filters.values(filters))}
+      />
+    );
+  };
+
+  return (
+    <React.Fragment>
+      <div className={Styles.title.class}>{'Values'}</div>
+
+      <Button block label={`clear → <undefined>`} onClick={() => (p.values.value = undefined)} />
+      {btn(Obj.keys(Filters.config), 'all')}
+      {btn(['brightness', 'contrast', 'saturate'])}
+      {btn(['grayscale', 'contrast', 'brightness'])}
+    </React.Fragment>
+  );
+}

@@ -1,5 +1,17 @@
 import type { t } from './common.ts';
 
+/**
+ * Tools for working with media filters.
+ */
+export type MediaFiltersLib = {
+  readonly UI: {
+    readonly List: React.FC<t.MediaFiltersProps>;
+    readonly Filter: React.FC<t.MediaFilterProps>;
+  };
+  readonly config: t.MediaFilterConfigMap;
+  values(filters: t.MediaFilterName[]): Partial<t.MediaFilterValueMap>;
+};
+
 /** Names of visual filters that can be applied to a MediaStream. */
 export type MediaFilterName =
   | 'blur'
@@ -16,6 +28,11 @@ export type MediaFilterName =
  * Map <T> values against filter names.
  */
 export type MediaFilterMap<T> = Record<MediaFilterName, T>;
+
+/** A map of filter values. */
+export type MediaFilterValueMap = MediaFilterMap<number>;
+
+/** A map of filter configuration settings. */
 export type MediaFilterConfigMap = MediaFilterMap<MediaFilterConfig>;
 export type MediaFilterConfig = {
   range: t.MinMaxNumberRange;
@@ -28,9 +45,8 @@ export type MediaFilterConfig = {
  */
 export type MediaFiltersProps = {
   debug?: boolean;
-  onChangeDebounce?: t.Msecs;
-  include?: t.MediaFilterName[];
   config?: Partial<t.MediaFilterConfigMap>;
+  values?: Partial<t.MediaFilterValueMap>;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onChange?: (e: { filter: string }) => void;
@@ -41,11 +57,12 @@ export type MediaFiltersProps = {
  */
 export type MediaFilterProps = {
   debug?: boolean;
-  label: string;
+  name: t.MediaFilterName;
+  label?: string;
   value?: number;
   unit: string;
   range: t.MinMaxNumberRange;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onChange?: (e: { percent: t.Percent; value: number }) => void;
+  onChange?: (e: { name: t.MediaFilterName; percent: t.Percent; value: number }) => void;
 };

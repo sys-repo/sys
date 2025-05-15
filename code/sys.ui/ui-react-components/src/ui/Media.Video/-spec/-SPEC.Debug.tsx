@@ -75,7 +75,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
-      <Media.UI.Filters
+      <Media.Filters.UI.List
         style={{ margin: 20 }}
         onChange={(e) => {
           console.info('⚡️ Filters.onChange:', e);

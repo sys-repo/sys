@@ -6,12 +6,12 @@ import type { t } from './common.ts';
 export type MediaLib = {
   readonly UI: {
     readonly AudioWaveform: React.FC<t.AudioWaveformProps>;
-    readonly Filters: React.FC<t.MediaFiltersProps>;
   };
 
   readonly Video: t.MediaVideoLib;
   readonly Recorder: t.MediaRecorderLib;
   readonly Devices: t.MediaDevicesLib;
+  readonly Filters: t.MediaFiltersLib;
 
   // Helpers:
   download(blob?: Blob, filename?: string): void;

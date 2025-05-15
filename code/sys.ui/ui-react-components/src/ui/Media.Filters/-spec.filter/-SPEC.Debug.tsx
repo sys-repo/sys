@@ -18,6 +18,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
+    name: s<P['name']>('brightness'),
     label: s<P['label']>('my-label'),
     value: s<P['value']>(),
     unit: s<P['unit']>('%'),
@@ -30,6 +31,7 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.label.value;
+      p.name.value;
       p.unit.value;
       p.range.value;
       p.value.value;
@@ -66,7 +68,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{'Media.Filter'}</div>
+        <div>{'(Single)'}</div>
+      </div>
 
       <Button
         block
@@ -75,7 +80,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `value: ${p.value.value ?? `<undefined>`}`}
+        label={() => `value: ${p.value.value?.toFixed() ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.value, [0, 100, 200, undefined])}
       />
 

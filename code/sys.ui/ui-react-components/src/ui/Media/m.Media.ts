@@ -8,14 +8,12 @@ import type { t } from './common.ts';
 import { download } from './u.download.ts';
 
 export const Media: t.MediaLib = {
-  UI: {
-    AudioWaveform,
-    Filters,
-  },
+  UI: { AudioWaveform },
 
   Devices,
   Video,
   Recorder,
+  Filters,
 
   /**
    * Helper (util):

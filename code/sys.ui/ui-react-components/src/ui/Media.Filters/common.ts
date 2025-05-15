@@ -19,12 +19,9 @@ const config: t.MediaFilterConfigMap = {
   sepia: { range: [0, 200], unit: '%', initial: 100 },
 };
 
-const include = Object.keys(config) as t.MediaFilterName[];
-
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
   config,
-  include,
 } as const;
 export const D = DEFAULTS;

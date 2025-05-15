@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Filters } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe('Filters', (e) => {
+export default Spec.describe('Media.Filters', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -18,7 +18,14 @@ export default Spec.describe('Filters', (e) => {
     ctx.subject
       .size([350, null])
       .display('grid')
-      .render(() => <Filters debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <Filters.UI.List
+          //
+          debug={p.debug.value}
+          theme={p.theme.value}
+          values={p.values.value}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {
