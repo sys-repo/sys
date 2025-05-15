@@ -19,7 +19,7 @@ export const DEFAULTS = {
       percent: undefined,
       height: 20,
       color: {
-        default: 0.06,
+        default: theme.is.light ? 1 : 0.06,
         border: 0.06,
         highlight: Color.BLUE,
       },

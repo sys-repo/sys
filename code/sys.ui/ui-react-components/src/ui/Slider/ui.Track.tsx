@@ -37,7 +37,7 @@ export const Track: React.FC<TrackProps> = (props) => {
       overflow: 'hidden',
       backgroundColor: Is.string(track.color.default)
         ? track.color.default
-        : Color.alpha(theme.bg, track.color.default),
+        : Color.alpha(Color.WHITE, track.color.default),
       borderRadius,
       height,
     }),
