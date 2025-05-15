@@ -23,5 +23,6 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
   config,
+  debounce: 250,
 } as const;
 export const D = DEFAULTS;

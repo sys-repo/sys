@@ -20,6 +20,7 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s<P['theme']>('Light'),
     values: s<P['values']>(Filters.values(Obj.keys(Filters.config))),
+    debounce: s<P['debounce']>(250),
   };
   const p = props;
   const api = {
@@ -28,6 +29,7 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.values.value;
+      p.debounce.value;
     },
   };
   return api;
@@ -70,6 +72,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `debounce: ${p.debounce.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.debounce, [0, 250, 800, undefined])}
       />
 
       <hr />

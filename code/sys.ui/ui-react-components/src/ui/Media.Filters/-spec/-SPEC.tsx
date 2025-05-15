@@ -23,8 +23,13 @@ export default Spec.describe('Media.Filters', (e) => {
           debug={p.debug.value}
           theme={p.theme.value}
           values={p.values.value}
+          debounce={p.debounce.value}
           onChange={(e) => {
             console.info(`⚡️ Filters.onChange:`, e);
+            p.values.value = e.values;
+          }}
+          onChanged={(e) => {
+            console.info(`🌳 Filters.onChanged:`, e);
           }}
         />
       ));

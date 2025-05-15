@@ -60,6 +60,7 @@ export type MediaFiltersProps = {
 
   // Handlers:
   onChange?: t.MediaFiltersChangeHandler;
+  onChanged?: t.MediaFiltersChangeHandler;
 };
 
 /**
@@ -92,6 +93,7 @@ export type MediaFilterChangeHandlerArgs = {
  */
 export type MediaFiltersChangeHandler = (e: MediaFiltersChangeHandlerArgs) => void;
 export type MediaFiltersChangeHandlerArgs = {
-  readonly item: MediaFilterChangeHandlerArgs;
+  readonly change: MediaFilterChangeHandlerArgs;
+  readonly values: Partial<t.MediaFilterValueMap>;
   readonly filter: string;
 };
