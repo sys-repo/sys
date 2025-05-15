@@ -3,9 +3,8 @@ import { clone } from './u.clone.ts';
 import { extend } from './u.extend.ts';
 import { hash } from './u.hash.ts';
 import { build, pluck, prune, remove } from './u.path.ts';
-import { pick, sortKeys, toArray, trimStringsDeep, walk } from './u.ts';
-
-export { sortKeys };
+import { pick, sortKeys, toArray, trimStringsDeep } from './u.ts';
+import { walk } from './u.walk.ts';
 
 export const Obj: t.ObjLib = {
   walk,
