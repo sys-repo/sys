@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Tools for working with numbers.
@@ -54,4 +54,9 @@ export type PercentRangeLib = {
    * Percent is clamped, output is always within [min, max].
    */
   fromPercent(percent: number, range: t.MinMaxNumberRange): number;
+
+  /**
+   * Determine if the given input is a valid range.
+   */
+  isRange(input?: unknown): input is t.MinMaxNumberRange;
 };

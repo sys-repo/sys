@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { type t } from './common.ts';
 import { PercentRange as Range } from './m.Percent.Range.ts';
 
 /**

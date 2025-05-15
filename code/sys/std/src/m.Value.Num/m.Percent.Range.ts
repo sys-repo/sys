@@ -1,29 +1,28 @@
-import { type t } from '../common.ts';
+import { type t, Is } from './common.ts';
 
 export const PercentRange: t.PercentRangeLib = {
-  /**
-   * Convert a real value (eg brightness) → slider percent.
-   * Returns 0..1, clamped if the input is outside the range.
-   */
   toPercent(value, range) {
+    if (!PercentRange.isRange(range)) return 0;
     const [min, max] = range;
     return min === max ? 0 : clamp((value - min) / (max - min));
   },
 
-  /**
-   * Convert a slider percent (0 … 1) → real value within the range.
-   * Percent is clamped, output is always within [min, max].
-   */
   fromPercent(percent, range) {
+    if (!PercentRange.isRange(range)) return 0;
     const [min, max] = range;
     const p = clamp(percent);
     return min + (max - min) * p;
+  },
+
+  isRange(input): input is t.MinMaxNumberRange {
+    if (!Array.isArray(input)) return false;
+    return Is.number(input[0]) && Is.number(input[1]);
   },
 } as const;
 
 /**
  * Helpers:
  */
-
-/** Clamp a number to an interval. */
-const clamp = (n: number, low = 0, high = 1) => Math.min(Math.max(n, low), high);
+function clamp(n: number, low = 0, high = 1) {
+  return Math.min(Math.max(n, low), high);
+}
