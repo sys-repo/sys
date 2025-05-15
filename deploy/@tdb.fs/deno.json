@@ -4,9 +4,10 @@
   "license": "MIT",
   "tasks": {
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "prep": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-prep.ts",
+    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
 
+    "deploy": "deno task build && orbiter deploy",
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/-clean.ts",
     "dry": "deno      publish --allow-dirty --dry-run",
     "check": "deno check src/*",
