@@ -103,14 +103,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Camera'}</div>
+
       <Media.Devices.UI.List
         filter={(e) => e.kind === 'videoinput'}
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
-
+      {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
       <Media.Filters.UI.List
-        style={{ margin: 20 }}
+        style={{ MarginX: 20 }}
         values={p.filters.value}
         onChange={(e) => (p.filters.value = e.values)}
         onChanged={(e) => {
@@ -119,12 +120,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
-      <hr />
+      {center(<Icons.Arrow.Down style={{ MarginY: [15, 20] }} />)}
       {recorderButtons(recorder)}
-
-      <hr />
       {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
+
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
       <hr />
