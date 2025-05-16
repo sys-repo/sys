@@ -1,8 +1,5 @@
 import { Pkg as PkgBase } from '@sys/std/pkg';
-
-import { type t, c, Cli, CompositeHash, Fs, HashFmt, Path, Str } from './common.ts';
-
-const isCodePath = (path: string) => path.startsWith('pkg/') || path.includes('/pkg/');
+import { type t, c, Cli, Fs, HashFmt, Num, Path, Str } from './common.ts';
 
 /**
  * String:
@@ -14,11 +11,15 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
   const pkg = dist.pkg;
   const builder = dist.build.builder;
   const builderPkg = PkgBase.toPkg(builder);
-  const pkgBytes = CompositeHash.size(dist.hash.parts, (e) => isCodePath(e.path));
 
   const title = c.green(options.title ?? 'Production Bundle');
   const totalSize = c.white(Str.bytes(dist.build.size.total));
-  const pkgSize = c.gray(Str.bytes(pkgBytes));
+  const pkgSize = c.gray(Str.bytes(dist.build.size.pkg));
+
+  const a = dist.build.size.total;
+  const b = dist.build.size.pkg;
+  const diff = a === 0 ? 0 : Num.toString((b / a) * 100, 0);
+  const percentDiff = c.gray(`↑ ${diff}%`);
 
   const hx = digest(dist.hash.digest);
   const distPath = Path.trimCwd(Path.join(outDir, 'dist.json'));
@@ -31,7 +32,7 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
 
   push(c.bold(fmtPkg), '');
   push('size:', totalSize);
-  push('size:/pkg/', pkgSize);
+  push('size:/pkg/', c.gray(`${pkgSize} ${percentDiff}`));
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
   push('builder:', c.gray(`${c.white(builderPkg.name)}@${c.cyan(builderPkg.version)}`));
 
