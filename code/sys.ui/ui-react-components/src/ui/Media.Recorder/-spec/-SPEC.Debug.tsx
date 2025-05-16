@@ -24,7 +24,9 @@ export function createDebugSignals() {
     blob?: Blob;
   };
   const s = Signal.create;
-  const initial = { filters: Filters.values(['brightness', 'contrast', 'saturate']) } as const;
+  const initial = {
+    filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
+  } as const;
 
   const props = {
     debug: s(false),
