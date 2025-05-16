@@ -4,6 +4,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Obj, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
+const Filters = Media.Filters;
 
 /**
  * Types:
@@ -16,9 +17,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const initial = {
-    filters: Media.Filters.values(Obj.keys(Media.Filters.config)),
-  } as const;
+  const initial = { filters: Filters.values(Obj.keys(Filters.config)) } as const;
 
   const props = {
     debug: s(false),
@@ -26,7 +25,7 @@ export function createDebugSignals() {
     filters: s(initial.filters),
 
     theme: s<P['theme']>('Dark'),
-    filter: s<P['filter']>(Media.Filters.toString(initial.filters)),
+    filter: s<P['filter']>(Filters.toString(initial.filters)),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
   };

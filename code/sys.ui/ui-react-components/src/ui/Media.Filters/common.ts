@@ -15,8 +15,7 @@ const config: t.MediaFilterConfigMap = {
   sepia: { range: [0, 200], unit: '%', initial: 0 },
   'hue-rotate': { range: [0, 200], unit: 'deg', initial: 0 },
   invert: { range: [0, 200], unit: '%', initial: 0 },
-  opacity: { range: [0, 100], unit: '%', initial: 100 },
-  blur: { range: [0, 50], unit: 'px', initial: 0 },
+  blur: { range: [0, 20], unit: 'px', initial: 0 },
 };
 
 export const DEFAULTS = {

@@ -26,7 +26,6 @@ export type MediaFilterName =
   | 'sepia'
   | 'hue-rotate'
   | 'invert'
-  | 'opacity'
   | 'blur';
 
 /**

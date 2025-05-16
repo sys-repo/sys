@@ -5,6 +5,7 @@ import { Color, css, D, JsrUrl, Signal } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
+const Filters = Media.Filters;
 
 /**
  * Types:
@@ -23,12 +24,16 @@ export function createDebugSignals() {
     blob?: Blob;
   };
   const s = Signal.create;
+  const initial = { filters: Filters.values(['brightness', 'contrast', 'saturate']) } as const;
+
   const props = {
     debug: s(false),
+    filters: s(initial.filters),
+
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
-    filter: s<string>(),
+    filter: s<string>(Filters.toString(initial.filters)),
     aspectRatio: s<string | number>('4 / 3'),
     selectedCamera: s<MediaDeviceInfo>(),
   };
@@ -41,6 +46,7 @@ export function createDebugSignals() {
       p.stream.value;
       p.recorder.value;
       p.filter.value;
+      p.filters.value;
       p.aspectRatio.value;
       p.selectedCamera.value;
     },
@@ -103,8 +109,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Media.Filters.UI.List
         style={{ margin: 20 }}
-        onChange={(e) => {
-          console.info('⚡️ Filters.onChange:', e);
+        values={p.filters.value}
+        onChange={(e) => (p.filters.value = e.values)}
+        onChanged={(e) => {
+          console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
         }}
       />
