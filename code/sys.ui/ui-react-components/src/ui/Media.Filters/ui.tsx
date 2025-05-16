@@ -48,7 +48,15 @@ export const List: React.FC<P> = (props) => {
           onChange={(change) => {
             const values = wrangle.next(props.values, change);
             const filter = toString(values);
-            const e: t.MediaFiltersChangeHandlerArgs = { change, filter, values };
+            const e: t.MediaFiltersChangeHandlerArgs = {
+              change,
+              get filter() {
+                return filter;
+              },
+              get values() {
+                return values;
+              },
+            };
             props.onChange?.(e);
             changed$Ref.current.next(e);
           }}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, Obj, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
 
@@ -16,16 +16,22 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+  const initial = {
+    filters: Media.Filters.values(Obj.keys(Media.Filters.config)),
+  } as const;
+
   const props = {
     debug: s(false),
     selectedCamera: s<MediaDeviceInfo>(),
+    filters: s(initial.filters),
 
     theme: s<P['theme']>('Dark'),
-    filter: s<P['filter']>(),
+    filter: s<P['filter']>(Media.Filters.toString(initial.filters)),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
   };
   const p = props;
+
   const api = {
     props,
     listen() {
@@ -33,6 +39,7 @@ export function createDebugSignals() {
       p.selectedCamera.value;
       p.theme.value;
       p.filter.value;
+      p.filters.value;
       p.borderRadius.value;
       p.aspectRatio.value;
     },
@@ -77,8 +84,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Media.Filters.UI.List
         style={{ margin: 20 }}
-        onChange={(e) => {
-          console.info('⚡️ Filters.onChange:', e);
+        values={p.filters.value}
+        onChange={(e) => (p.filters.value = e.values)}
+        onChanged={(e) => {
+          console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
         }}
       />

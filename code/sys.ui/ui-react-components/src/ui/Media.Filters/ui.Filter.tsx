@@ -37,7 +37,7 @@ export const Filter: React.FC<P> = (props) => {
       <div className={styles.title.class}>
         <div>{label}</div>
         <div />
-        <div>{`${value.toFixed()}${props.unit}`}</div>
+        <div>{`${value.toFixed()}${wrangle.displayUnit(props)}`}</div>
       </div>
       <Slider
         theme={theme.name}
@@ -53,3 +53,14 @@ export const Filter: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  displayUnit(props: P) {
+    const { unit } = props;
+    if (unit === 'deg') return '°';
+    return unit;
+  },
+} as const;
