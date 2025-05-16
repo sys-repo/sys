@@ -18,7 +18,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    theme: s<P['theme']>('Dark'),
     values: s<P['values']>(Filters.values(Obj.keys(Filters.config))),
     debounce: s<P['debounce']>(250),
   };
