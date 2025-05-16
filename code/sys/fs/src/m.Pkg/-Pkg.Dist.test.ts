@@ -59,7 +59,7 @@ describe('Pkg.Dist', () => {
       expect(dist.url.base).to.eql('/');
 
       expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
-      expect(dist.build.builder).to.eql(builder);
+      expect(dist.build.builder).to.eql(Pkg.toString(builder));
       expect(dist.build.runtime.includes('deno=')).to.be.true;
       expect(dist.build.runtime.includes('v8=')).to.be.true;
       expect(dist.build.runtime.includes('typescript=')).to.be.true;

@@ -43,7 +43,7 @@ export const Dist: t.PkgDistFsLib = {
     const build: t.DistPkg['build'] = {
       time: Time.now.timestamp,
       size,
-      builder: args.builder ?? Pkg.unknown(),
+      builder: Pkg.toString(args.builder ?? Pkg.unknown()) as t.StringScopedPkgNameVer,
       runtime: `deno=${Deno.version.deno}:v8=${Deno.version.v8}:typescript=${Deno.version.typescript}`,
     };
 

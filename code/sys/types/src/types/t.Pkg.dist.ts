@@ -20,7 +20,7 @@ export type DistPkg = {
     /** Distribution-package size statistics. */
     size: t.DistPkgSize;
     /** The builder module. */
-    builder: t.Pkg;
+    builder: t.StringPkgNameVer;
     /** URI containing the runtime versions the builder ran on. */
     runtime: t.StringUri;
   };

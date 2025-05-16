@@ -17,7 +17,7 @@ describe('Pkg.Dist', () => {
           build: {
             time: 1746520471244,
             size: { total: 1234, pkg: 1234 },
-            builder: { name: '@sys/sample', version: '0.0.0' },
+            builder: '@scope/sample@0.0.0',
             runtime: '<runtime-uri>',
           },
           entry: './main.js',

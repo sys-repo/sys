@@ -1,3 +1,5 @@
+import { Pkg as PkgBase } from '@sys/std/pkg';
+
 import { type t, c, Cli, CompositeHash, Fs, HashFmt, Path, Str } from './common.ts';
 
 const isCodePath = (path: string) => path.startsWith('pkg/') || path.includes('/pkg/');
@@ -11,6 +13,7 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
   const outDir = options.dir ?? './dist';
   const pkg = dist.pkg;
   const builder = dist.build.builder;
+  const builderPkg = PkgBase.toPkg(builder);
   const pkgBytes = CompositeHash.size(dist.hash.parts, (e) => isCodePath(e.path));
 
   const title = c.green(options.title ?? 'Production Bundle');
@@ -28,9 +31,9 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
 
   push(c.bold(fmtPkg), '');
   push('size:', totalSize);
-  push('size:/pkg', pkgSize);
+  push('size:/pkg/', pkgSize);
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
-  push('builder:', c.gray(`${c.white(builder.name)}@${c.cyan(builder.version)}`));
+  push('builder:', c.gray(`${c.white(builderPkg.name)}@${c.cyan(builderPkg.version)}`));
 
   let res = '';
   const line = (text: string) => (res += text + '\n');
