@@ -36,10 +36,11 @@ export type PkgDistFsLib = t.PkgDistLib & {
     hash?: t.StringHash | t.CompositeHash,
   ): Promise<t.PkgDistVerifyResponse>;
 
-  /**
-   * Convert the given dist to a string for logging.
-   */
+  /** Convert a <DistPkg> to a string for logging. */
   toString(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): string;
+
+  /** Log a `toString()` of the given <DistPkg> to the console. */
+  log(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): void;
 };
 
 /**

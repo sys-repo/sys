@@ -2,7 +2,7 @@ import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
-import { toString } from './u.toString.ts';
+import { log, toString } from './u.toString.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -11,6 +11,7 @@ import { toString } from './u.toString.ts';
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
   toString,
+  log,
 
   async compute(args) {
     const { entry = '', save = false } = args;

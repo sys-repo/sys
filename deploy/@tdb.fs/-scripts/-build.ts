@@ -22,7 +22,9 @@ await tmpl.write('dist');
  * Calculate [PkgDist].
  */
 await Fs.remove('dist/dist.json');
-await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg });
+const computed = await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg });
+Pkg.Dist.log(computed.dist, { dir: 'dist' });
+console.info();
 
 // Finish.
 Deno.exit(0);
