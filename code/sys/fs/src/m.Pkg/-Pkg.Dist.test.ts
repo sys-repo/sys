@@ -2,7 +2,7 @@ import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
 import { Fs, Is, Path, R, Time, c } from './common.ts';
-import { Dist } from './m.Dist.ts';
+import { Dist } from './m.Pkg.Dist.ts';
 import { Pkg } from './mod.ts';
 
 describe('Pkg.Dist', () => {
