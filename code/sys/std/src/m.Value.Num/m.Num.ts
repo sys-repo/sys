@@ -14,4 +14,15 @@ export const Num: t.NumLib = {
     const multiplier = Math.pow(10, precision || 0);
     return Math.round(value * multiplier) / multiplier;
   },
+
+  /**
+   * Formats a number into a display string.
+   */
+  toString(value = 0, maxDecimals = 2) {
+    const fmt = new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxDecimals,
+    });
+    return fmt.format(value);
+  },
 };

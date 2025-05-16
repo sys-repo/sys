@@ -6,10 +6,11 @@ import type { t } from './common.ts';
 export type NumLib = {
   readonly Percent: t.PercentLib;
 
-  /**
-   * Rounds a number to the specified number of decimal places.
-   */
+  /** Rounds a number to the specified number of decimal places. */
   round(value: number, precision?: number): number;
+
+  /** Formats a number into a display string. */
+  toString(value?: number, maxDecimals?: number): string;
 };
 
 /**
@@ -18,24 +19,16 @@ export type NumLib = {
 export type PercentLib = {
   readonly Range: t.PercentRangeLib;
 
-  /**
-   * Convert a value to a percentage.
-   */
+  /** Convert a value to a percentage. */
   clamp(value?: string | number, min?: string | number, max?: string | number): t.Percent;
 
-  /**
-   * Determine if the number represents a percentage (0..1).
-   */
+  /** Determine if the number represents a percentage (0..1). */
   isPercent(value?: t.PixelOrPercent): value is number;
 
-  /**
-   * Determine if the number represents pixels (> 1).
-   */
+  /** Determine if the number represents pixels (> 1). */
   isPixels(value?: t.PixelOrPercent): value is number;
 
-  /**
-   * Convert a percentage to a "100%" string
-   */
+  /** Convert a percentage to a "100%" string */
   toString(value?: t.Percent): string;
 };
 
