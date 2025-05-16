@@ -36,7 +36,7 @@ export function createDebugSignals() {
     stream: s<MediaStream>(),
     recorder: s<R>(),
     filter: s<string>(Filters.toString(initial.filters)),
-    aspectRatio: s<string | number>('4 / 3'),
+    aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
   };
   const p = props;
@@ -137,7 +137,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'recorder'}
         data={Signal.toObject({ recorder: p.recorder, filter: p.filter.value })}
-        expand={['$']}
+        expand={[]}
       />
     </div>
   );
@@ -211,21 +211,25 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
         <BulletIcon size={18} style={styles.icon} />
       </div>
 
-      {!is.started && <Button block label={'start recording'} onClick={start} enabled={canStart} />}
-      {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
-      {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
-      <div className={styles.base.class}>
-        <Button
-          block
-          label={`stop & save ${strBytes}`}
-          enabled={is.started}
-          onClick={async () => {
-            const res = await recorder.stop();
-            console.log('⚡️ stopped', res);
-            Media.download(res.blob);
-          }}
-        />
-        <Button block label={is.started ? 'cancel' : 'reset'} onClick={recorder.reset} />
+      <div style={{ marginLeft: 20 }}>
+        {!is.started && (
+          <Button block label={'start recording'} onClick={start} enabled={canStart} />
+        )}
+        {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
+        {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
+        <div className={styles.base.class}>
+          <Button
+            block
+            label={`stop & save ${strBytes}`}
+            enabled={is.started}
+            onClick={async () => {
+              const res = await recorder.stop();
+              console.log('⚡️ stopped', res);
+              Media.download(res.blob);
+            }}
+          />
+          <Button block label={is.started ? 'cancel' : 'reset'} onClick={recorder.reset} />
+        </div>
       </div>
     </React.Fragment>
   );
