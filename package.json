@@ -1,25 +1,25 @@
 {
   "dependencies": {
     "@noble/hashes": "1.8.0",
-    "@std/async": "npm:@jsr/std__async@1.0.12",
+    "@std/async": "npm:@jsr/std__async@1.0.13",
     "@std/datetime": "npm:@jsr/std__datetime@0.225.4",
-    "@std/dotenv": "npm:@jsr/std__dotenv@0.225.3",
+    "@std/dotenv": "npm:@jsr/std__dotenv@0.225.4",
     "@std/encoding": "npm:@jsr/std__encoding@1.0.10",
     "@std/fs": "npm:@jsr/std__fs@1.0.17",
     "@std/path": "npm:@jsr/std__path@1.0.9",
     "@std/semver": "npm:@jsr/std__semver@1.0.5",
-    "@std/testing": "npm:@jsr/std__testing@1.0.11",
+    "@std/testing": "npm:@jsr/std__testing@1.0.12",
     "@std/uuid": "npm:@jsr/std__uuid@1.0.7",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
     "@vidstack/react": "1.12.13",
-    "hono": "4.7.8",
-    "motion": "12.10.4",
+    "hono": "4.7.9",
+    "motion": "12.11.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.5.0",
     "vitepress": "1.6.3",
-    "vue": "3.5.13"
+    "vue": "3.5.14"
   },
   "devDependencies": {
     "@deno/vite-plugin": "1.0.4",

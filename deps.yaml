@@ -19,14 +19,14 @@
 groups:
   std/deno:
     # Deno standard libs ("std").
-    - import: jsr:@std/async@1.0.12
+    - import: jsr:@std/async@1.0.13
     - import: jsr:@std/datetime@0.225.4
-    - import: jsr:@std/dotenv@0.225.3
+    - import: jsr:@std/dotenv@0.225.4
     - import: jsr:@std/encoding@1.0.10
     - import: jsr:@std/fs@1.0.17
     - import: jsr:@std/path@1.0.9
     - import: jsr:@std/semver@1.0.5
-    - import: jsr:@std/testing@1.0.11
+    - import: jsr:@std/testing@1.0.12
     - import: jsr:@std/uuid@1.0.7
 
   automerge:
@@ -70,10 +70,10 @@ deno.json:
   - import: npm:chai@5
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
-  - import: npm:diff@7
+  - import: npm:diff@8.0.1
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:fake-indexeddb@6.0.0
-  - import: npm:happy-dom@17.4.6
+  - import: npm:fake-indexeddb@6.0.1
+  - import: npm:happy-dom@17.4.7
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.4
   - import: npm:immer@10
@@ -87,7 +87,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.0.4
   - import: npm:valibot@1.1.0
-  - import: npm:yaml@2.7.1
+  - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.8.0
 
   # Browser
@@ -111,14 +111,14 @@ package.json:
   - group: build/tools
     dev: true
 
-  - import: npm:hono@4.7.8
+  - import: npm:hono@4.7.9
 
   # UI
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.10.4
+  - import: npm:motion@12.11.4
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
-  - import: npm:vue@3.5.13
+  - import: npm:vue@3.5.14

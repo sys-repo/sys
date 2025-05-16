@@ -6,13 +6,13 @@
     "@sys/ui-css": "npm:@jsr/sys__ui-css@0.0.84",
     "react": "npm:react@18.3.1",
     "react-dom": "npm:react-dom@18.3.1",
-    "yaml": "npm:yaml@2.7.1"
+    "yaml": "npm:yaml@2.8.0"
   },
   "devDependencies": {
     "@types/react": "npm:@types/react@18.3.18",
     "@types/react-dom": "npm:@types/react-dom@18.3.5",
     "vite": "npm:vite@6.3.5",
     "vitepress": "npm:vitepress@1.6.3",
-    "vue": "npm:vue@3.5.13"
+    "vue": "npm:vue@3.5.14"
   }
 }
