@@ -8,14 +8,14 @@ const NO_SANITIZE = {
   sanitizeResources: false,
 };
 
-describe('Net', () => {
+describe('Net', NO_SANITIZE, () => {
   it('API', () => {
     expect(Net.Port).to.equal(Port);
     expect(Net.port).to.equal(Port.get);
   });
 
   describe('Net.Port', () => {
-    it('Port.random()', NO_SANITIZE, async () => {
+    it('Port.random()', async () => {
       await Testing.retry(3, () => {
         const ports = [...Array(30)].map(() => Port.random());
         expect(R.equals(R.uniq(ports), ports)).to.eql(true);
@@ -23,7 +23,7 @@ describe('Net', () => {
       });
     });
 
-    it('Port.inUse: false', NO_SANITIZE, async () => {
+    it('Port.inUse: false', async () => {
       await Testing.retry(3, () => {
         // NB: check that none of the randomly generated ports are in use.
         const ports = [...Array(10)].map(() => Port.random());
