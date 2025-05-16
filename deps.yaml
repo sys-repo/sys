@@ -32,10 +32,10 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@2.2.9
-    - import: npm:@automerge/automerge-repo@1.2.1
-    - import: npm:@automerge/automerge-repo-network-broadcastchannel@1.2.1
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@1.2.1
-    - import: npm:@automerge/automerge-repo-storage-nodefs@1.2.1
+    - import: npm:@automerge/automerge-repo@2.0.0
+    - import: npm:@automerge/automerge-repo-network-broadcastchannel@2.0.0
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.0
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.0
     - import: npm:@onsetsoftware/automerge-patcher@0.14.0
 
   crypto:
