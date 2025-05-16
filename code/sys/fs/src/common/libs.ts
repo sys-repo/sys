@@ -9,3 +9,4 @@ export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, Hash } from '@sys/crypto/hash';
 
 export { c, stripAnsi } from '@sys/cli/fmt';
+export { Cli } from '@sys/cli';

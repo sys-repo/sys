@@ -8,9 +8,10 @@
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
     "deploy": "deno task build && orbiter deploy",
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/-clean.ts",
-    "dry": "deno      publish --allow-dirty --dry-run",
+    "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+    "help": "deno run -RE ./-scripts/-help.ts",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

@@ -1,7 +1,5 @@
-import { Fs, Pkg } from '@sys/fs';
-import { Tmpl } from '@sys/tmpl/fs';
 import { buildAndCopy } from './-build.u.ts';
-import { pkg } from './common.ts';
+import { Fs, pkg, Pkg, Tmpl } from './common.ts';
 
 /**
  * Ensure dist.

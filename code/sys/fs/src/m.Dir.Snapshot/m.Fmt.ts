@@ -1,4 +1,4 @@
-import { type t, c, Date as D, Fs, HashFmt, Path, Pkg, Str } from './common.ts';
+import { type t, c, Cli, Date as D, Fs, HashFmt, Path, Pkg, Str } from './common.ts';
 
 export const Fmt: t.DirSnapshotFmtLib = {
   async log(snapshot: t.DirSnapshot, options) {
@@ -6,8 +6,6 @@ export const Fmt: t.DirSnapshotFmtLib = {
   },
 
   async toString(snapshot: t.DirSnapshot, options = {}) {
-    const { Cli } = await import('@sys/cli');
-
     const target = snapshot.path.target.root;
     const size = await Fs.Size.dir(Path.resolve(target));
 
