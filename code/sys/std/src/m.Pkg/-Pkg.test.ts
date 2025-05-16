@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, pkg, Time } from '../-test.ts';
+import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { DEFAULTS } from './common.ts';
 import { Pkg } from './mod.ts';
 
@@ -104,7 +104,7 @@ describe('Pkg', () => {
           build: {
             time: 1746520471244,
             size: { total: 123_456, pkg: 123 },
-            builder: { name: '@sys/driver-vite', version: '0.0.0' },
+            builder: '@sys/driver-vite@0.0.0',
             runtime: '<runtime-uri>',
           },
           entry: 'pkg/entry.js',
@@ -164,6 +164,29 @@ describe('Pkg', () => {
       expect(Object.keys(a)).to.eql(['name', 'version']);
       expect(a.name).to.eql('foo');
       expect(a.version).to.eql('0.0.0');
+    });
+
+    describe('parsing from string', () => {
+      it('valid', () => {
+        const res = Pkg.toPkg('  @scope/pkg@0.0.0  ');
+        expect(res.name).to.eql('@scope/pkg');
+        expect(res.version).to.eql('0.0.0');
+      });
+
+      it('invalid: → returns {UNKNOWN} version of {pkg}', () => {
+        const test = (input: string) => {
+          const res = Pkg.toPkg(input);
+          expect(res).to.eql(Pkg.unknown());
+        };
+
+        test('');
+        test('  ');
+        test('foobar');
+        test('🐷');
+
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((value: any) => test(value));
+      });
     });
   });
 });
