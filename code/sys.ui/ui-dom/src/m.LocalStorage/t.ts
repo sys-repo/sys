@@ -1,11 +1,16 @@
 import type { t } from '../common.ts';
 
 /**
- * Generates a new `LocalStorage<T>` strongly typed wrapper
- * around the browser's local-storage.
- * @param {string} prefix - the namespace prepended to the keys written to underlying local-storage.
+ * Helpers for working with a strongly typed local-storage object.
  */
-export type LocalStorageFactory = <T extends t.JsonMapU>(prefix: string) => LocalStorage<T>;
+export type LocalStorageLib = {
+  /**
+   * Generates a new `LocalStorage<T>` strongly typed wrapper
+   * around the browser's local-storage.
+   * @param {string} prefix - the namespace prepended to the keys written to underlying local-storage.
+   */
+  ns<T extends t.JsonMapU>(prefix: string): LocalStorage<T>;
+};
 
 /**
  * A strongly typed wrapper around the browser's local-storage.
