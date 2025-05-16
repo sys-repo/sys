@@ -1,5 +1,5 @@
-import { viaObservable, curryChangeFunction } from './Immutable.events.ts';
-import { R, rx, slug, type t } from './common.ts';
+import { curryChangeFunction, viaObservable } from './Immutable.events.ts';
+import { Obj, rx, slug, type t } from './common.ts';
 import { Wrangle } from './u.ts';
 
 /**
@@ -18,7 +18,7 @@ export function cloner<T>(
   initial: T,
   options: { clone?: <T>(input: T) => T } = {},
 ): t.Immutable<T, P> {
-  const { clone = R.clone } = options;
+  const { clone = Obj.clone } = options;
   let _current = clone(initial);
   return {
     get current() {
