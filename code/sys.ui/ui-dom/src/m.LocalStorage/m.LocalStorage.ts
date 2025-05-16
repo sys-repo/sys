@@ -7,12 +7,12 @@ export const LocalStorage: t.LocalStorageLib = {
   /**
    * Factory:
    */
-  ns<T extends t.JsonMapU>(prefix: string): t.LocalStorage<T> {
-    prefix = prefix.replace(/\/$/, '');
-    const toKey = (name: keyof T) => `${prefix}/${String(name)}`;
+  ns<T extends t.JsonMapU>(namespace: string): t.LocalStorage<T> {
+    namespace = namespace.replace(/\/+$/, '');
+    const toKey = (name: keyof T) => `${namespace}/${String(name)}`;
 
     const local: t.LocalStorage<T> = {
-      prefix,
+      namespace,
 
       get<K extends keyof T>(key: K, defaultValue: T[K]) {
         const value = localStorage.getItem(toKey(key));

@@ -17,7 +17,7 @@ export type LocalStorageLib = {
  */
 export type LocalStorage<T extends t.JsonMapU> = {
   /** A prefix for keys in the local-storage. */
-  readonly prefix: string;
+  readonly namespace: string;
 
   /** Retrieves a value from local-storage by key, or returns a default value if not present. */
   get<K extends keyof T>(key: K, defaultValue: T[K]): T[K];

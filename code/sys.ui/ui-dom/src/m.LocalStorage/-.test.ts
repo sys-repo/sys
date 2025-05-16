@@ -4,19 +4,27 @@ import { LocalStorage } from './mod.ts';
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('(setup)', () => DomMock.polyfill());
 
-  type T = { count: number; msg?: string };
-  const prefix = `test-${slug()}`;
-  const store = LocalStorage.ns<T>(prefix);
+  describe('ns', () => {
+    type T = { count: number; msg?: string };
+    const prefix = `test-${slug()}`;
 
-  it('set/get', () => {
-    const local = store.object({ count: 0 });
-    expect(local.count).to.eql(0);
-    expect(local.msg).to.eql(undefined);
+    it('cleans prefix', () => {
+      const ns = LocalStorage.ns<T>('foo/bar////');
+      console.log('ns', ns);
+      expect(ns.namespace).to.eql('foo/bar');
+    });
 
-    local.count = 456;
-    local.msg = 'hello';
+    it('set/get', () => {
+      const ns = LocalStorage.ns<T>(prefix);
+      const local = ns.object({ count: 0 });
+      expect(local.count).to.eql(0);
+      expect(local.msg).to.eql(undefined);
 
-    expect(local.count).to.eql(456);
-    expect(local.msg).to.eql('hello');
+      local.count = 456;
+      local.msg = 'hello';
+
+      expect(local.count).to.eql(456);
+      expect(local.msg).to.eql('hello');
+    });
   });
 });
