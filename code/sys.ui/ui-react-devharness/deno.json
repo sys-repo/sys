@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
