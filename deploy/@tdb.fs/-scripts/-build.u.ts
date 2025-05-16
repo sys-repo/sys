@@ -46,5 +46,5 @@ export async function buildAndCopy(
   /**
    * Copy build to local /dist.
    */
-  await Fs.copy(Path.join(path, 'dist'), Path.resolve('dist', targetDir));
+  await Fs.copy(Path.join(path, 'dist'), Path.resolve('dist', targetDir), { force: true });
 }

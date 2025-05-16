@@ -4,7 +4,7 @@ import { Fs, pkg, Pkg, Tmpl } from './common.ts';
 /**
  * Ensure dist.
  */
-await Fs.ensureDir('./dist');
+await Fs.remove('dist');
 
 /**
  * Pull in modules.

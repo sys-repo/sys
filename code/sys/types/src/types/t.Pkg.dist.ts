@@ -28,7 +28,7 @@ export type DistPkg = {
   /** Path to the main JS entry point. */
   entry: t.StringPath;
 
-  /** URL pathing meta-dat. */
+  /** URL pathing metadata. */
   url: {
     /** Base file path expected for HTTP/Web loading.  */
     base: t.StringDir;
