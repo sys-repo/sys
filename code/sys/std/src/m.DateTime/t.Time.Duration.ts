@@ -21,8 +21,8 @@ export type TimeDurationLib = {
 
   /**
    * Time elapsed between two instants.
-   * @param start earlier instant (ms or ISO string)
-   * @param end   later instant (default `Date.now()`)
+   * @param start earlier instant (ms or ISO string).
+   * @param end   later instant (default `Date.now()`).
    */
   elapsed(start: TimeInput, end?: TimeInput, options?: t.TimeDurationOptions): t.TimeDuration;
 };
