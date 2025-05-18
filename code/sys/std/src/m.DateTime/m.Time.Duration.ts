@@ -51,6 +51,16 @@ export const Duration: t.TimeDurationLib = {
   },
 
   /**
+   * Time elapsed between two instants.
+   * @param start earlier instant (ms or ISO string)
+   * @param end   later instant (default `Date.now()`)
+   */
+  elapsed(start, end = Date.now(), options) {
+    const diff = wrangle.msecs(end) - wrangle.msecs(start);
+    return Duration.create(diff, options);
+  },
+
+  /**
    * Parses a string or a number (eg. "3.5h") into a Duration helper.
    */
   parse(input, options = {}) {
@@ -123,3 +133,22 @@ export const Duration: t.TimeDurationLib = {
     }
   },
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  msecs(input: t.TimeInput): t.Msecs {
+    if (typeof input === 'number') return input as t.Msecs;
+
+    // Try a purely numeric string first.
+    const asNum = Number(input);
+    if (!Number.isNaN(asNum)) return asNum as t.Msecs;
+
+    // Fallback to ISO-8601 parsing.
+    const parsed = Date.parse(input);
+    if (!Number.isNaN(parsed)) return parsed as t.Msecs;
+
+    throw new Error(`Invalid TimeInput: “${input}”`);
+  },
+} as const;
