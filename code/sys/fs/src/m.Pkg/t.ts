@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
 import type { PkgLib } from '@sys/std/t';
+import type { t } from './common.ts';
 
 /**
  * PkgLib (server extenions)

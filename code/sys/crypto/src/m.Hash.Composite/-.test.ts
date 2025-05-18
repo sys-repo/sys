@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Time } from '../-test.ts';
+import { type t, describe, expect, it, Pkg, Time } from '../-test.ts';
 import { Hash } from '../m.Hash/mod.ts';
 import { FileHashUri } from './m.Uri.ts';
 import { CompositeHash } from './mod.ts';
@@ -253,9 +253,9 @@ describe('hash', () => {
       const builder = CompositeHash.builder()
         .add('pkg/a.ts', new Uint8Array([1, 2, 3]))
         .add('pkg/b.ts', new Uint8Array([1, 2]))
-        .add('foo.ts', new Uint8Array([1]));
+        .add('foo.ts', new Uint8Array([999]));
       const hash = CompositeHash.toComposite(builder);
-      const result = CompositeHash.size(hash.parts, (e) => e.path.startsWith('pkg/'));
+      const result = CompositeHash.size(hash.parts, (e) => Pkg.Dist.Is.codePath(e.path));
       expect(result).to.eql(5);
     });
 

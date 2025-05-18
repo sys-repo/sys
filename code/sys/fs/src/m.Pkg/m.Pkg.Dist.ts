@@ -37,7 +37,7 @@ export const Dist: t.PkgDistFsLib = {
     const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
     const size: t.DistPkg['build']['size'] = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
-      pkg: CompositeHash.size(hash.parts, (m) => m.path.startsWith('pkg/')) ?? 0,
+      pkg: CompositeHash.size(hash.parts, (m) => Pkg.Dist.Is.codePath(m.path)) ?? 0,
     };
 
     const build: t.DistPkg['build'] = {

@@ -59,7 +59,14 @@ export type PkgIsLib = {
  * ie. an ESM output typically written to a `/dist` folder.
  */
 export type PkgDistLib = {
+  /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions): Promise<PkgDistFetchResponse>;
+
+  /** Boolean checks */
+  readonly Is: {
+    /** Determine if the given path represents a commoly known /pkg/ path pattern. */
+    codePath(path: t.StringPath): boolean;
+  };
 };
 
 /** Options passed to the [Pkg.Dist.fetch] method. */

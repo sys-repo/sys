@@ -64,4 +64,25 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include('/foo.json');
     });
   });
+
+  describe('Dist.Is', () => {
+    it('Is.codePath: true', () => {
+      const test = (path: string, expected: boolean) => {
+        expect(Pkg.Dist.Is.codePath(path)).to.eql(expected);
+      };
+
+      test('pkg', false);
+      test('pkg/', true);
+      test('/pkg/', true);
+      test('/pkg/foo', true);
+      test('/pkg/foo/pkg/bar', true);
+      test('/pkg/bar', true);
+
+      test('', false);
+      test('foo', false);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
+    });
+  });
 });
