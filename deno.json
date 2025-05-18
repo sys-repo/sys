@@ -64,7 +64,6 @@
     "./code/sys/sys",
     "./code/sys/main",
 
-    "./code/-samples/deno.vite-react",
     "./deploy/@tdb.fs",
     "./deploy/@tdb.slc",
     "./deploy/api.db.team",
