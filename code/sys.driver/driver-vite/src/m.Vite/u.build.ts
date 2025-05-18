@@ -72,7 +72,7 @@ export const build: B = async (input) => {
         dirs: { in: paths.app.entry, out: paths.app.outDir },
         totalSize: dist.build.size.total,
         pkg,
-        pkgSize: CompositeHash.size(dist.hash.parts, (e) => isCodePath(e.path)),
+        pkgSize: CompositeHash.size(dist.hash.parts, (e) => Pkg.Dist.Is.codePath(e.path)),
         hash,
         pad,
         elapsed,
@@ -87,8 +87,6 @@ export const build: B = async (input) => {
 /**
  * Helpers
  */
-const isCodePath = (path: string) => path.startsWith('pkg/') || path.includes('/pkg/');
-
 const wrangle = {
   async entryPath(dist: t.StringDir) {
     const paths = await Fs.glob(dist).find('pkg/-entry.*');
