@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
-
 import { Duration } from './m.Time.Duration.ts';
-import { utc } from './m.Time.utc.ts';
 
 /**
  * Starts a timer.
@@ -15,22 +13,10 @@ export function timer(start?: Date, options: { round?: number } = {}) {
       return api;
     },
     get elapsed() {
-      return elapsed(startedAt, options);
+      const start = startedAt.getTime();
+      const end = Date.now();
+      return Duration.elapsed(start, end, options);
     },
   };
   return api;
-}
-
-/**
- * Retrieves the elapsed milliseconds from the given date.
- */
-export function elapsed(
-  from: t.DateTimeInput,
-  options: { to?: t.DateTimeInput; round?: number } = {},
-): t.TimeDuration {
-  const start = utc(from).date;
-  const end = options.to ? utc(options.to).date : new Date();
-  const msec = end.getTime() - start.getTime();
-  const precision = options.round === undefined ? 1 : options.round;
-  return Duration.create(msec, { round: precision });
 }

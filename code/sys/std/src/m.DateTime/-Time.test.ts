@@ -1,5 +1,5 @@
-import { Time } from '../mod.ts';
 import { Testing, describe, expect, it } from '../-test.ts';
+import { Time } from '../mod.ts';
 import { Duration } from './m.Time.Duration.ts';
 
 describe('Time', () => {
@@ -8,6 +8,7 @@ describe('Time', () => {
   it('API', () => {
     expect(Time.Duration).to.equal(Duration);
     expect(Time.duration).to.equal(Duration.create);
+    expect(Time.elapsed).to.equal(Duration.elapsed);
   });
 
   describe('Time.delay', () => {

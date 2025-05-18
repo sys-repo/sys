@@ -13,8 +13,8 @@ export type TimeLib = {
   /** Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
 
-  /** Generates a TimeDuration from the given time until now (or a specified other endpoint). */
-  elapsed(from: t.DateTimeInput, options: { to?: t.DateTimeInput; round?: number }): t.TimeDuration;
+  /** Time elapsed between two instants. */
+  elapsed: t.TimeDurationLib['elapsed'];
 
   /** Generates a new timer. */
   timer(start?: Date, options?: { round?: number }): Timer;
