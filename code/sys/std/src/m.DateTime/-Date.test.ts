@@ -4,7 +4,7 @@ import * as DateFns from 'date-fns';
 import { StdDate } from './common.ts';
 import { Format } from './m.Date.Format.ts';
 import { Is } from './m.Date.Is.ts';
-import { D, Day, Time } from './mod.ts';
+import { D, Day } from './mod.ts';
 
 describe('Date', () => {
   describe('constants (milliseconds)', () => {
@@ -18,7 +18,6 @@ describe('Date', () => {
   it('API', () => {
     expect(D.parse).to.equal(StdDate.parse);
     expect(D.difference).to.equal(StdDate.difference);
-    expect(D.Time).to.equal(Time);
   });
 
   describe('Day', () => {

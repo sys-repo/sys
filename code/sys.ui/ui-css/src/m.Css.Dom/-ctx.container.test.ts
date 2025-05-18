@@ -25,7 +25,7 @@ describe(
         expect(container.condition).to.eql('(min-width: 700px)');
         expect(container.name).to.eql(undefined);
         expect(container.rules.length).to.eql(0);
-        expect(container.rules.list).to.eql([]);
+        expect(container.rules.items).to.eql([]);
         expect(container.scoped).to.eql([]);
       });
 
@@ -96,7 +96,7 @@ describe(
         ];
 
         const container = sheet.container('min-width: 700px');
-        expect(container.rules.list).to.eql([]);
+        expect(container.rules.items).to.eql([]);
         expect(container.rules.length).to.eql(0);
 
         const selector = `.test-${slug()}`;
@@ -110,17 +110,17 @@ describe(
         expect(container.rules.add(selector, styles[1])).to.eql([]);
         expect(container.rules.add(selector, [])).to.eql([]);
 
-        expect(container.rules.list.length).to.eql(2);
-        expect(container.rules.list[0].selector).to.eql(selector);
-        expect(container.rules.list[0].style).to.eql(styles[0]);
-        expect(container.rules.list[1].selector).to.eql(selector);
-        expect(container.rules.list[1].style).to.eql(styles[1]);
+        expect(container.rules.items.length).to.eql(2);
+        expect(container.rules.items[0].selector).to.eql(selector);
+        expect(container.rules.items[0].style).to.eql(styles[0]);
+        expect(container.rules.items[1].selector).to.eql(selector);
+        expect(container.rules.items[1].style).to.eql(styles[1]);
       });
 
       it('add: CSS template ← { Absolute: 0 }', () => {
         const { sheet } = setup();
         const container = sheet.container('min-width: 700px');
-        expect(container.rules.list).to.eql([]);
+        expect(container.rules.items).to.eql([]);
 
         const selector = `.test-${slug()}`;
         const res = container.rules.add(selector, { Absolute: 0 });
@@ -158,7 +158,7 @@ describe(
         const container = sheet.container('min-width: 600px');
         sheet.rule('.card h2', { fontSize: 50 });
         container.rules.add('.card h2', { fontSize: 200 });
-        expect(container.rules.list[0].rule).to.eql(
+        expect(container.rules.items[0].rule).to.eql(
           `@container (min-width: 600px) { .card h2 { font-size: 200px; } }`,
         );
       });

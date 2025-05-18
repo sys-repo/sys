@@ -5,9 +5,6 @@ import type { StdDate, t } from './common.ts';
  * Library: Tools for working with Dates.
  */
 export type DateLib = {
-  /** Tools for working with time. */
-  readonly Time: t.TimeLib;
-
   /** Date value type verification flags. */
   readonly Is: t.DateIsLib;
 

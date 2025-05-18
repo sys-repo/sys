@@ -35,5 +35,5 @@
  *  .toObject();
  * ```
  */
-export { CompositeHash } from '../m.Hash.Composite/mod.ts';
+export { CompositeHash, FileHashUri } from '../m.Hash.Composite/mod.ts';
 export { Hash, sha1, sha256 } from './m.Hash.ts';

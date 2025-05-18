@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 const selectionAnimation: Required<t.LogoCanvasSelectionAnimation> = {
@@ -6,7 +6,10 @@ const selectionAnimation: Required<t.LogoCanvasSelectionAnimation> = {
   delay: 200,
 };
 
+const name = 'Logo.Canvas';
 export const DEFAULTS = {
+  name,
+  displayName: Pkg.toString(pkg, name),
   selectionAnimation,
 } as const;
 export const D = DEFAULTS;

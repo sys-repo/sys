@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { t } from './common.ts';
+import { type t } from './common.ts';
 
 type E = HTMLElement;
 type Div = HTMLDivElement;
@@ -33,7 +33,7 @@ function useHandler<T extends E = Div>(
 ): t.ClickHook<T> {
   const { callback, stage, ref, event } = wrangle.args<T>(input);
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler: t.DomMouseEventHandler = (e) => {
       const el = ref.current;
       if (el && shouldInvoke(el, e)) callback?.(e);
     };

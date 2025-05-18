@@ -17,8 +17,7 @@ export function stack(state: t.AppSignals | undefined): t.ReactNode {
 export function render(args: { index: number; state: t.AppSignals; content: t.Content }) {
   const { state, content, index } = args;
   const theme = wrangle.theme(content, state);
-  const is = wrangle.is(state, index);
-  const el = content.render?.({ index, content, state, is, theme });
+  const el = content.render?.({ index, content, state, theme });
 
   const style = css({
     Absolute: 0,
@@ -42,11 +41,5 @@ const wrangle = {
     // NB: hard-coded from default.
     //     Possibly expand this later to store theme state on the App signals.
     return DEFAULTS.theme.base;
-  },
-
-  is(state: t.AppSignals, index: number): t.ContentFlags {
-    const top = index === state.stack.length - 1;
-    const bottom = index === 0;
-    return { top, bottom };
   },
 } as const;

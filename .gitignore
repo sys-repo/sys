@@ -13,3 +13,6 @@ node_modules
 vite.config.ts.timestamp-*
 **/.vitepress/cache/
 **/.vitepress/dist/
+
+# Deployment config from https://docs.orbiter.host/cli
+orbiter.json

@@ -13,7 +13,7 @@ export const errors: t.ErrLib['errors'] = () => {
     get length() {
       return set.size;
     },
-    get list() {
+    get items() {
       return Array.from(set);
     },
     get is() {

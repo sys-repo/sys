@@ -1,22 +1,24 @@
-import type { MediaPlayerInstance } from '@vidstack/react';
+import type { MediaPlayerInstance, PlayerSrc } from '@vidstack/react';
+
 import { MediaPlayer, MediaProvider } from '@vidstack/react';
 import { PlyrLayout, plyrLayoutIcons } from '@vidstack/react/player/layouts/plyr';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { type t, css, DEFAULTS, Signal, Style, useSizeObserver } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal, Style, Time, useSizeObserver } from './common.ts';
+import { FadeMask } from './ui.FadeMask.tsx';
 import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
 const D = DEFAULTS;
+type P = t.VideoPlayerProps;
 
 /**
  * Component:
  */
-export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
-  const { signals } = props;
+export const VideoPlayer: React.FC<P> = (props) => {
+  const { signals, debug = false } = props;
   const p = signals?.props;
 
-  const src = p?.src.value ?? D.video;
   const showControls = p?.showControls.value ?? D.showControls;
   const showFullscreenButton = p?.showFullscreenButton.value ?? D.showFullscreenButton;
   const showVolumeControl = p?.showVolumeControl?.value ?? D.showVolumeControl;
@@ -28,11 +30,23 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   const loop = p?.loop.value ?? D.loop;
 
   const size = useSizeObserver();
+  const [src, setSrc] = useState('');
   const [calcScale, setCalcScale] = useState<number>();
 
-  const [playerKey, setPlayerKey] = useState(0);
+  const [playerKeyCount, setPlayerKeyCount] = useState(0);
   const playerRef = useRef<MediaPlayerInstance>(null);
   useSignalBinding({ signals, playerRef });
+
+  /**
+   * Effect: video "src" address as state.
+   * NB:
+   *    Staggering the change to src behind a mico-delay event.
+   */
+  React.useEffect(() => {
+    const time = Time.until();
+    time.delay(0, () => setSrc(p?.src.value ?? ''));
+    return time.dispose;
+  }, [p?.src.value]);
 
   /**
    * Effect: ensure redraw on signal changes.
@@ -52,6 +66,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     p.cornerRadius.value;
     p.aspectRatio.value;
     p.scale.value;
+    p.fadeMask.value;
   });
 
   /**
@@ -86,14 +101,25 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme(props.theme);
   const themeStyles = useThemeStyles('Plyr');
   const isReady = Boolean(themeStyles.loaded && !!p?.ready.value && size.ready);
   const styles = {
     base: css({
+      position: 'relative',
+      display: 'grid',
+    }),
+    body: css({
       overflow: 'hidden',
       display: 'grid',
       visibility: isReady ? 'visible' : 'hidden', // NB: avoid a FOUC ("Flash Of Unstyled Content").
       lineHeight: 0, // NB: ensure no "baseline" gap below the <MediaPlayer>.
+    }),
+    debug: css({
+      Absolute: [6, null, null, 6],
+      color: theme.fg,
+      fontSize: 11,
+      opacity: 0.4,
     }),
   };
 
@@ -111,18 +137,22 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
 
   const elPlayer = (
     <MediaPlayer
-      key={playerKey}
+      key={`${src}:${playerKeyCount}`}
       ref={playerRef}
       style={{
         transform: `scale(${calcScale ?? scale ?? 1})`,
         '--plyr-border-radius': `${cornerRadius}px`,
         '--plyr-aspect-ratio': aspectRatio, // e.g. '4/3', '2.39/1', '1/1', etc...
       }}
+      // Hacks:
+      streamType={'on-demand'}
+      preload={'metadata'}
+      crossOrigin={'anonymous'}
       /**
        * Props:
        */
       title={props.title}
-      src={src}
+      src={wrangle.src(src)}
       playsInline={true}
       aspectRatio={aspectRatio}
       autoPlay={autoPlay}
@@ -139,7 +169,7 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
       }}
       onEnded={(e) => {
         // Hack: force the Player back to the first-frame.
-        if (!loop) setPlayerKey((n) => n + 1);
+        if (!loop) setPlayerKeyCount((n) => n + 1);
         props.onEnded?.(e);
       }}
     >
@@ -148,9 +178,15 @@ export const VideoPlayer: React.FC<t.VideoPlayerProps> = (props) => {
     </MediaPlayer>
   );
 
+  const mask = p?.fadeMask.value;
+  const elTopMask = mask && <FadeMask mask={mask} theme={theme.name} />;
+  const elDebug = debug && <div className={styles.debug.class}>{`src: ${src}`}</div>;
+
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
-      {elPlayer}
+      <div className={styles.body.class}>{elPlayer}</div>
+      {elTopMask}
+      {elDebug}
     </div>
   );
 };
@@ -164,5 +200,14 @@ const wrangle = {
     const scaleX = (width + increment) / width;
     const scaleY = (height + increment) / height;
     return Math.max(scaleX, scaleY); // NB: Return the greater scale factor to ensure both dimensions are increased by at least increment.
+  },
+
+  src(src: string): string | PlayerSrc {
+    if (src.startsWith('vimeo/')) return src;
+
+    const ext = src.split(/[?#]/, 1)[0].toLowerCase(); // NB: strip query/hash on URL.
+    if (ext.endsWith('.webm')) return { src, type: 'video/webm' };
+    if (ext.endsWith('.mp4')) return { src, type: 'video/mp4' };
+    return src;
   },
 } as const;

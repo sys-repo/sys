@@ -7,12 +7,15 @@ export type Pkg = { name: t.StringPkgName; version: t.StringSemver };
 
 /** The name of a package. */
 export type StringPkgName = string;
+export type StringPkgNameVer = string;
 
 /**
  * Module identifier: @<scope>/<package-name>.
  * eg: "@sys/std"
+ *     "@sys/std@0.0.0"
  */
 export type StringScopedPkgName = `@${string}/${string}`;
+export type StringScopedPkgNameVer = `@${string}/${string}@${string}`;
 
 /**
  * A version of Pkg with a more tightly scoped "name" type.

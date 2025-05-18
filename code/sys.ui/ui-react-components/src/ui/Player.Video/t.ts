@@ -19,14 +19,38 @@ export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
 export type VideoPlayerProps = {
   debug?: boolean;
   title?: string;
+
+  // State:
+  signals?: t.VideoPlayerSignals;
+
+  // Appearance:
   style?: t.CssInput;
+  theme?: t.CommonTheme;
 
   // Events:
   onPlay?: MediaPlayerProps['onPlay'];
   onPlaying?: MediaPlayerProps['onPlaying'];
   onPause?: MediaPlayerProps['onPause'];
   onEnded?: MediaPlayerProps['onEnded'];
+};
 
-  // State:
-  signals?: t.VideoPlayerSignals;
+/**
+ * Component: Elapsed Time (Debug).
+ */
+export type ElapsedTimeProps = {
+  player?: t.VideoPlayerSignals;
+  abs?: t.CssEdgesInput | boolean;
+  show?: boolean;
+  style?: t.CssInput;
+};
+
+/**
+ * Fade mask.
+ */
+export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+export type VideoPlayerFadeMask = {
+  direction: VideoPlayerFadeMaskDirection;
+  size?: t.Pixels;
+  color?: string;
+  opacity?: t.Percent;
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Content } from '../../ui.Content/mod.ts';
+import { Content } from '../../ui.content/mod.ts';
 import { type t, Button, Signal } from './common.ts';
 
 export { Content };
@@ -77,19 +77,20 @@ export const screenBreakpointButton = (app: t.AppSignals) => {
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
 export function layerVideoPlayerButtons(app: t.AppSignals) {
-  const videoLayers = app.stack.items.filter((layer) => Content.Is.video(layer));
-  if (videoLayers.length === 0) return <div>{`(no video layers)`}</div>;
+  const layers = app.stack.items.filter((layer) => Content.Is.video(layer));
+  if (layers.length === 0) return <div>{`(no video layers)`}</div>;
 
-  return videoLayers.map((layer, index) => {
-    const p = layer.video?.props;
-    if (!p) return null;
+  return layers.map((layer, index) => {
+    if (!layer.media) return null;
+    // const p = layer.media?.video.props;
+    // if (!p) return null;
     return (
       <Button
         block
         key={`${layer.id}.${index}`}
-        label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}
-        onClick={() => Signal.toggle(p.playing)}
-        subscribe={() => p.playing.value}
+        // label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}
+        // onClick={() => Signal.toggle(p.playing)}
+        // subscribe={() => p.playing.value}
       />
     );
   });

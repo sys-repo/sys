@@ -34,7 +34,10 @@ export async function main() {
       ...ModuleSpecs,
     };
 
-    const el = await render(pkg, Specs, { hrDepth: 2, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, {
+      hr: (e) => e.byRoots(['dev.', 'sys.ui']),
+      style: { Absolute: 0 },
+    });
     function App() {
       // NB: Any other environment setup here.
       useKeyboard();

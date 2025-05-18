@@ -54,12 +54,12 @@ export type KeyboardLib = {
    * @param fn - A function that defines the condition for stopping the listener.
    * @returns A promise that resolves when the condition is met.
    */
-  until(dispose$?: t.UntilObservable): t.KeyboardEventsUntil;
+  until(dispose$?: t.UntilInput): t.KeyboardEventsUntil;
 
   /**
    * Start a multi-key listener waiting for a "double-press" event.
    */
-  dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilObservable }): t.KeyboardMonitorMulti;
+  dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
 };
 
 /**

@@ -20,5 +20,10 @@ export type CompositeHash = {
  * A map of the constituent parts that make up a Compsite-Hash digest.
  */
 export type CompositeHashParts = {
-  readonly [key: string]: t.StringHash;
+  readonly [key: string]: StringFileHashUri;
 };
+
+/**
+ * A URI format of: "<algo>-<hash>:bytes-<total>"
+ */
+export type StringFileHashUri = t.StringUri;

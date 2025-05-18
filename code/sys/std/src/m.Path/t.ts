@@ -1,5 +1,5 @@
 import type * as StdPath from '@std/path';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Tools for for working with string paths.
@@ -11,6 +11,9 @@ export type PathLib = {
 
   /** Tools for formatting standard output (strings) within a CLI. */
   Format: t.PathFormatLib;
+
+  /** Granular, platform specific, path joining tools. */
+  Join: t.PathJoinLib;
 
   /** Joins a sequence of paths, then normalizes the resulting path. */
   join: typeof StdPath.join;
@@ -44,7 +47,16 @@ export type PathLib = {
 
   /** Return the extension of the path with leading period (".") */
   extname: typeof StdPath.extname;
+
+  /** Create a helper for evaluating file-path extensions. */
+  ext(...suffixes: string[]): PathFileExtension;
+
+  /** Creates a directory path builder. */
+  dir(base: t.StringDir, options?: PathDirOptions | PathJoinPlatform): PathDirBuilder;
 };
+
+/** Options passed to the `Path.dir` method. */
+export type PathDirOptions = { platform?: PathJoinPlatform };
 
 /**
  * Path verification flags.
@@ -56,19 +68,35 @@ export type PathIsLib = {
   /** Determine if the provided path is relative (not absolute). */
   relative(path: t.StringPath): boolean;
 
-  /**
-   * Test whether the given string is a glob.
-   */
+  /** Test whether the given string is a glob. */
   glob: typeof StdPath.isGlob;
 };
+
+/**
+ * Helpers for joining and normalizing paths on multiple platforms.
+ */
+export type PathJoinLib = {
+  /** Joins a sequence of paths an normalize result on Posix (forward-slash "/"). */
+  readonly posix: PathJoiner;
+  /** Joins a sequence of paths an normalize result on Windows (back-slash "/"). */
+  readonly windows: PathJoiner;
+  /** Detects the OS and joins/normalizes a sequence of paths with the correct divider character. */
+  readonly auto: PathJoiner;
+  /** Retrieve the appropriate path joiner based on platform. */
+  platform(flag?: PathJoinPlatform): PathJoiner;
+};
+
+/** Flag used to specify the style of path joiner ("\" or "/"). */
+export type PathJoinPlatform = 'auto' | 'posix' | 'windows';
+
+/** A function that joins paths. */
+export type PathJoiner = (...parts: string[]) => t.StringPath;
 
 /**
  * Tools for formatting standard output (strings) within a CLI.
  */
 export type PathFormatLib = {
-  /**
-   * Path display formatting.
-   */
+  /** Path display formatting. */
   string(path: string, fmt?: PathFormatter): string;
 };
 
@@ -115,4 +143,21 @@ export type PathFormatterPartIs = {
   readonly slash: boolean;
   readonly dirname: boolean;
   readonly basename: boolean;
+};
+
+/**
+ * Helper for evaluating file-path extensions.
+ */
+export type PathFileExtension = {
+  readonly suffixes: readonly string[];
+  is(...path: t.StringPath[]): boolean;
+};
+
+/**
+ * Builds paths from a root dir
+ */
+export type PathDirBuilder = {
+  dir(path: string): PathDirBuilder;
+  path(...parts: string[]): t.StringPath;
+  toString(): t.StringDir;
 };

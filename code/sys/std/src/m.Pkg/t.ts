@@ -14,7 +14,13 @@ export type PkgLib = {
   readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
-  toString(input?: t.Pkg): string;
+  toString(input?: t.Pkg, suffix?: string): string;
+
+  /**
+   * Extracts the name/version from the gtiven object if found,
+   * otherwise returns standard <Unknown> package.
+   */
+  toPkg(input?: O | string): t.Pkg;
 
   /**
    * Convert a JSON import to a simple <Pkg> structure.
@@ -53,7 +59,14 @@ export type PkgIsLib = {
  * ie. an ESM output typically written to a `/dist` folder.
  */
 export type PkgDistLib = {
+  /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions): Promise<PkgDistFetchResponse>;
+
+  /** Boolean checks */
+  readonly Is: {
+    /** Determine if the given path represents a commoly known /pkg/ path pattern. */
+    codePath(path: t.StringPath): boolean;
+  };
 };
 
 /** Options passed to the [Pkg.Dist.fetch] method. */

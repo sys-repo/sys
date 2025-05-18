@@ -1,7 +1,5 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-
-import { type t, css, Signal } from './common.ts';
+import { type t, Button, css, Signal } from '../u.ts';
 import { Preload } from './mod.ts';
 
 type O = t.PreloadOptions;
@@ -18,13 +16,13 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
-    disposeDelay: s<O['disposeDelay']>(500),
+    lifetime: s<O['lifetime']>(2000),
   };
   const api = {
     props,
     listen() {
       const p = props;
-      p.disposeDelay.value;
+      p.lifetime.value;
     },
   };
   init?.(api);
@@ -45,34 +43,39 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={styles.title.class}>
         <div>{'PreloadPortal'}</div>
       </div>
 
       <Button
         block
         label={() => {
-          const msecs = p.disposeDelay.value;
-          return `disposeAfter: ${msecs !== undefined ? `${msecs}ms` : '<undefined>'}`;
+          const msecs = p.lifetime.value;
+          return `lifetime: ${msecs !== undefined ? `${msecs}ms` : '<undefined> (never)'}`;
         }}
-        onClick={() => Signal.cycle<O['disposeDelay']>(p.disposeDelay, [undefined, 0, 500, 2000])}
+        onClick={() => Signal.cycle<O['lifetime']>(p.lifetime, [undefined, 500, 2000])}
       />
 
       <hr />
 
       <Button
         block
-        label={() => 'Preload.render'}
+        label={() => 'Preload.render( 🌳 )'}
         onClick={async () => {
-          const disposeAfter = p.disposeDelay.value;
+          const lifetime = p.lifetime.value;
           const el = <div>Hello</div>;
-          const res = await Preload.render(el, { disposeDelay: disposeAfter });
+          const name = '🐷-foo';
+          const res = await Preload.render(el, { lifetime, name });
           console.info(res);
         }}
       />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { VIMEO } from '../-test.ui.ts';
-import { Button } from '../Button/mod.ts';
-import { type t, Color, css, Signal, DEFAULTS, D } from './common.ts';
+import { type t, Button, Color, css, Signal } from '../u.ts';
+import { D } from './common.ts';
 
 type P = t.VimeoBackgroundProps;
 
@@ -21,7 +21,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     video: s<P['video']>(VIMEO['app/tubes']),
     blur: s<P['blur']>(),
     opacity: s<P['opacity']>(),
-    playing: s<P['playing']>(DEFAULTS.playing),
+    playing: s<P['playing']>(D.playing),
     playingTransition: s<P['playingTransition']>(),
     jumpTo: s<P['jumpTo']>(),
     vimeo: s<t.VimeoIFrame>(),

@@ -8,7 +8,7 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
 
   toString(args) {
     const { ok, dirs, pkg, hash } = args;
-    const size = Str.bytes(args.bytes);
+    const size = Str.bytes(args.totalSize);
     const titleColor = ok ? c.brightGreen : c.brightYellow;
 
     const input = Path.trimCwd(dirs.in) || './';
@@ -16,17 +16,31 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
     const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
     const tx = digest(hash);
 
+    let strPkg = ``;
+    if (pkg) {
+      const strVersion = Semver.Fmt.colorize(pkg.version);
+      const strModule = `${c.white(c.bold(pkg.name))}${c.dim('@')}${strVersion}`;
+      strPkg = strModule;
+      if (args.pkgSize) strPkg += ` /pkg:${c.white(Str.bytes(args.pkgSize))}`;
+    }
+
     let text = `
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
-${c.gray(`in:       ${input}`)}
-${c.gray(`out:      ${outDir.replace(/\/$/, '')}/dist.json`)} ${tx}
+${c.gray(`pkg:      ${strPkg}`)}
+${c.gray(`in:       ${clean(input)}`)}
+${c.gray(`out:      ${clean(outDir)}/dist.json`)} ${tx}
 `;
-    text = text.trim();
-    if (pkg) {
-      const fmtVersion = Semver.Fmt.colorize(pkg.version);
-      const fmtModule = `${c.white(c.bold(pkg.name))}${c.dim('@')}${fmtVersion}`;
-      text += c.gray(`\npkg:      ${fmtModule}`);
-    }
-    return pad(text, args.pad);
+
+    return pad(text.trim(), args.pad);
   },
 };
+
+/**
+ * Helpers:
+ */
+function clean(input: t.StringPath = '') {
+  return input
+    .trim()
+    .replace(/^(?:\.\/)+/, '') // ← strip any leading "./" segments.
+    .replace(/\/+$/, ''); //      ← strip any trailing "/" characters.
+}

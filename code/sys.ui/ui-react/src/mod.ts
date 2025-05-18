@@ -32,18 +32,23 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 /**
- * Library
+ * Library:
  */
 export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
-export { ReactEvent, ReactString } from './u/mod.ts';
+export { ReactChildren, ReactEvent, ReactString } from './u/mod.ts';
 
 export {
   useClickInside,
   useClickOutside,
   useDist,
   useIsTouchSupported,
+  useLoading,
   useMouse,
   useMouseDrag,
+  useRedraw,
   useSizeObserver,
+  useVisibilityThreshold,
+  useVisibilityThresholdX,
+  useVisibilityThresholdY,
 } from './m.use/mod.ts';

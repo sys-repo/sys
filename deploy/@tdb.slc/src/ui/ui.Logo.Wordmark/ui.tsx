@@ -19,7 +19,14 @@ export const LogoWordmark: React.FC<t.LogoWordmarkProps> = (props) => {
   useTheme(svg, theme);
 
   /**
-   * Keep SVG colors in sync with the current props.
+   * Effect: ready.
+   */
+  React.useEffect(() => {
+    if (svg.ready) props.onReady?.();
+  }, [svg.ready]);
+
+  /**
+   * Effect: Keep SVG colors in sync with the current props.
    */
   React.useEffect(() => setColors(svg, theme), [kind, svg, theme]);
 

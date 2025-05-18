@@ -1,9 +1,9 @@
 {
   "name": "@sys/ui-react",
-  "version": "0.0.94",
+  "version": "0.0.100",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RW",
+    "test": "deno test -RWE",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -RWE ./scripts/-clean.ts"

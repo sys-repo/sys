@@ -10,7 +10,7 @@ export type VimeoBackgroundProps = {
   playing?: boolean;
   /**
    * The delay before the play/stop change takes effect.
-   * Useful when composing into bigger transitioning baesd compositions.
+   * Useful when composing into bigger transitioning based compositions.
    */
   playingTransition?: t.Msecs;
   jumpTo?: t.Secs;

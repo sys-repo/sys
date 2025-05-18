@@ -1,0 +1,6 @@
+{
+  "siteId": "60556989-2bcb-4b7b-bd2c-ef1ae00d459d",
+  "domain": "socialleancanvas",
+  "buildCommand": "echo no-op",
+  "buildDir": "dist"
+}

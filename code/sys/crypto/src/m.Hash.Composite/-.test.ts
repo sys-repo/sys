@@ -1,12 +1,17 @@
-import { type t, describe, expect, it, Time } from '../-test.ts';
+import { type t, describe, expect, it, Pkg, Time } from '../-test.ts';
 import { Hash } from '../m.Hash/mod.ts';
+import { FileHashUri } from './m.Uri.ts';
 import { CompositeHash } from './mod.ts';
 
 const circular: any = { foo: 123 };
 circular.ref = circular;
 
 describe('hash', () => {
-  describe('CompositeHash: <CompositeHash>', () => {
+  it('API', () => {
+    expect(CompositeHash.Uri.File).to.equal(FileHashUri);
+  });
+
+  describe('CompositeHash: <CompositeHash> ← generate', () => {
     it('toComposite', () => {
       const builder = CompositeHash.builder().add('foo', '1234');
       const a = CompositeHash.toComposite(builder);
@@ -228,6 +233,79 @@ describe('hash', () => {
             if (e.part === './apple/a') return a;
           });
           expect(res.error?.message).to.include('loader did not return content for part');
+        });
+      });
+    });
+  });
+
+  describe('CompositeHash.size ← parts', () => {
+    it('sum: 3-files', () => {
+      const builder = CompositeHash.builder()
+        .add('a.ts', new Uint8Array([1, 2, 3]))
+        .add('b.ts', new Uint8Array([1, 2]))
+        .add('c.ts', new Uint8Array([1]));
+      const hash = CompositeHash.toComposite(builder);
+      const result = CompositeHash.size(hash.parts);
+      expect(result).to.eql(6);
+    });
+
+    it('sum: filterd to 2-files', () => {
+      const builder = CompositeHash.builder()
+        .add('pkg/a.ts', new Uint8Array([1, 2, 3]))
+        .add('pkg/b.ts', new Uint8Array([1, 2]))
+        .add('foo.ts', new Uint8Array([999]));
+      const hash = CompositeHash.toComposite(builder);
+      const result = CompositeHash.size(hash.parts, (e) => Pkg.Dist.Is.codePath(e.path));
+      expect(result).to.eql(5);
+    });
+
+    it('sum: no file content in URI', () => {
+      const builder = CompositeHash.builder()
+        .add('pkg/a.ts', 'string')
+        .add('pkg/b.ts', 'not-file-no-size');
+
+      const hash = CompositeHash.toComposite(builder);
+      const res = CompositeHash.size(hash.parts);
+      expect(res).to.eql(undefined);
+    });
+  });
+
+  describe('FileHashUri', () => {
+    it('toUri', () => {
+      const a = FileHashUri.toUri('sha256-0000');
+      const b = FileHashUri.toUri('sha256-0000', 1234);
+      expect(a).to.eql('sha256-0000');
+      expect(b).to.eql('sha256-0000:size=1234');
+    });
+
+    describe('FileHashUri.fromUri', () => {
+      const { fromUri } = FileHashUri;
+
+      it('returns empty hash for non-string inputs', () => {
+        const bads = [123, true, null, {}, [], BigInt(0), Symbol()];
+        bads.forEach((v: any) => {
+          expect(fromUri(v)).to.eql({ hash: '' });
+        });
+      });
+
+      it('returns empty hash for invalid format strings', () => {
+        expect(fromUri('')).to.eql({ hash: '' });
+        expect(fromUri('sha256-')).to.eql({ hash: '' });
+        expect(fromUri('sha256-XYZ:size=123')).to.eql({ hash: '' }); // non-hex.
+        expect(fromUri('sha256-abc123:size=12three')).to.eql({ hash: '' }); // bad bytes.
+        expect(fromUri('totally-not-it')).to.eql({ hash: '' });
+      });
+
+      it('parses a valid hash without bytes', () => {
+        expect(fromUri('sha256-abcdef012345')).to.eql({
+          hash: 'sha256-abcdef012345',
+        });
+      });
+
+      it('parses a valid hash with bytes', () => {
+        expect(fromUri('sha256-abcdef012345:size=4096')).to.eql({
+          hash: 'sha256-abcdef012345',
+          bytes: 4096,
         });
       });
     });

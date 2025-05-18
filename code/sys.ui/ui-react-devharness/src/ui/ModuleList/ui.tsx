@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useEffect, useRef } from 'react';
-import { type t, useDist, Color, DEFAULTS, css, useRubberband } from './common.ts';
+import { type t, Color, DEFAULTS, css, useDist, useRubberband } from './common.ts';
 import { Footer } from './ui.Footer.tsx';
 import { List } from './ui.List.tsx';
 import { Title } from './ui.Title.tsx';
@@ -11,7 +11,7 @@ import { useScrollObserver } from './use.ScrollObserver.ts';
 type LiMap = Map<number, HTMLLIElement>;
 
 export const View: React.FC<t.ModuleListProps> = (props) => {
-  const { theme, scroll = false, focused = true, enabled = true } = props;
+  const { theme, scroll = true, focused = true, enabled = true } = props;
   const url = new URL(props.href ?? window.location.href);
   const imports = (props.imports ?? {}) as t.ModuleImports;
 
@@ -80,7 +80,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
           enabled={enabled}
           selectedIndex={props.selectedIndex}
           focused={focused}
-          hrDepth={props.hrDepth}
+          hr={props.hr}
           useAnchorLinks={props.useAnchorLinks}
           showParamDev={props.showParamDev}
           onItemReadyChange={handleItemReadyChange}

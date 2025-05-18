@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 import { digest } from './u.digest.ts';
 import { Wrangle } from './u.wrangle.ts';
+import { FileHashUri } from './m.Uri.ts';
 
 type Parts = t.DeepMutable<t.CompositeHashParts>;
 
@@ -28,7 +29,11 @@ export const builder: t.CompositeHashLib['builder'] = (input = {}) => {
 
     add(key, value) {
       reset();
-      parts[key] = Wrangle.hash(value, options.algo);
+
+      const hash = Wrangle.hash(value, options.algo);
+      const bytes = wrangle.bytes(value);
+      parts[key] = FileHashUri.toUri(hash, bytes);
+
       return api;
     },
 
@@ -66,4 +71,21 @@ const wrangle = {
     }
     return input ?? {};
   },
+
+  bytes(value: unknown) {
+    if (value instanceof ArrayBuffer) {
+      return value.byteLength;
+    } else if (ArrayBuffer.isView(value)) {
+      // any TypedArray or DataView (e.g. Uint8Array)
+      return (value as ArrayBufferView).byteLength;
+    } else if (hasBytes(value)) {
+      return value.bytes;
+    }
+    return undefined;
+  },
 } as const;
+
+type HasBytes = { bytes: number };
+function hasBytes(v: unknown): v is HasBytes {
+  return Boolean(v && typeof (v as HasBytes).bytes === 'number');
+}

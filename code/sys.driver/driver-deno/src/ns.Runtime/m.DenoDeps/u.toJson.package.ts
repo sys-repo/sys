@@ -1,4 +1,4 @@
-import { type t, isEmptyRecord, sortKeys } from './common.ts';
+import { type t, isEmptyRecord, Obj } from './common.ts';
 
 type D = { [key: string]: string };
 
@@ -35,7 +35,7 @@ export function toPackageJson(deps?: t.Dep[]): t.PkgJsonNode {
   }
 
   const res: t.PkgJsonNode = {};
-  if (!isEmptyRecord(dependencies)) res.dependencies = sortKeys(dependencies);
-  if (!isEmptyRecord(devDependencies)) res.devDependencies = sortKeys(devDependencies);
+  if (!isEmptyRecord(dependencies)) res.dependencies = Obj.sortKeys(dependencies);
+  if (!isEmptyRecord(devDependencies)) res.devDependencies = Obj.sortKeys(devDependencies);
   return res;
 }

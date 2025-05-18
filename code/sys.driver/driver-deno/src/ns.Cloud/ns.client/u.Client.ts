@@ -24,16 +24,6 @@ export const client: t.DenoCloudClientLib['client'] = (base, options = {}) => {
       const url = api.url.join('/');
       return fetch.json<t.RootResponse>(url);
     },
-    subhosting: {
-      async info() {
-        const url = api.url.join('/subhosting');
-        return fetch.json<t.SubhostingInfo>(url);
-      },
-      async projects() {
-        const url = api.url.join('/subhosting/projects');
-        return fetch.json<t.SubhostingProjectsInfo>(url);
-      },
-    },
   };
   return api;
 };

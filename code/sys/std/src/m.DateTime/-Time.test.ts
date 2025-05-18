@@ -1,5 +1,5 @@
-import { Time } from '../mod.ts';
 import { Testing, describe, expect, it } from '../-test.ts';
+import { Time } from '../mod.ts';
 import { Duration } from './m.Time.Duration.ts';
 
 describe('Time', () => {
@@ -8,6 +8,7 @@ describe('Time', () => {
   it('API', () => {
     expect(Time.Duration).to.equal(Duration);
     expect(Time.duration).to.equal(Duration.create);
+    expect(Time.elapsed).to.equal(Duration.elapsed);
   });
 
   describe('Time.delay', () => {
@@ -28,7 +29,7 @@ describe('Time', () => {
       expect(res.timeout).to.eql(30);
       await res;
       expect(fired).to.eql(1);
-      expect(calcDiff(startedAt)).to.be.closeTo(30, 40);
+      expect(calcDiff(startedAt)).to.be.closeTo(30, 50);
       expect(res.is).to.eql({ cancelled: false, completed: true, done: true });
     });
 

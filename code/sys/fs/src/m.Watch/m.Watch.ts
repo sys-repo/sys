@@ -1,4 +1,4 @@
-import { type t, asArray, Err, exists, Path, rx } from './common.ts';
+import { type t, Arr, Err, exists, Path, rx } from './common.ts';
 
 /**
  * Tools for watching file-system changes.
@@ -9,7 +9,7 @@ export const Watch: t.FsWatchLib = {
    */
   async start(pathInput, options = {}) {
     const { recursive = true } = options;
-    const paths = asArray(pathInput);
+    const paths = Arr.asArray(pathInput);
     const errors = Err.errors();
     const life = rx.lifecycle(options.dispose$);
 

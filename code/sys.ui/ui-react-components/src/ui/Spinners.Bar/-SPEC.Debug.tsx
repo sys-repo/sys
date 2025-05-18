@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, css, D, Signal } from './common.ts';
+import { type t, Button, css, Signal } from '../u.ts';
+import { D } from './common.ts';
 
 type P = t.BarSpinnerProps;
 
@@ -45,13 +45,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={styles.title.class}>
         <div>{'Spinners.Bar'}</div>
         <div />
         <div></div>

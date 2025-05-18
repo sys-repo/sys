@@ -16,6 +16,9 @@ export type StringUri = string;
 /** String that represents a URL (uniform resource locator). */
 export type StringUrl = string;
 
+/** String URL that references a canonical type-definition on the web. */
+export type StringTypeUrl = string;
+
 /** String that represents a URL route (eg: '/foo/:bar') */
 export type StringUrlRoute = string;
 

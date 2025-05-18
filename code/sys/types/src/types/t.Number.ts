@@ -24,3 +24,9 @@ export type NumberWidth = number;
 
 /** A number that represents a height. */
 export type NumberHeight = number;
+
+/** A number representing bytes, */
+export type NumberBytes = number;
+
+/** [min, max] inclusive range. */
+export type MinMaxNumberRange = readonly [number, number];

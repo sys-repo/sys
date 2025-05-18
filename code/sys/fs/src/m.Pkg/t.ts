@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
 import type { PkgLib } from '@sys/std/t';
+import type { t } from './common.ts';
 
 /**
  * PkgLib (server extenions)
@@ -26,9 +26,7 @@ export type PkgDistFsLib = t.PkgDistLib & {
    * Prepare and save a "distribution package"
    * meta-data file, `pkg.json`.
    */
-  compute(
-    args: t.PkgDistComputeArgs | t.PkgDistComputeArgs['dir'],
-  ): Promise<t.PkgDistComputeResponse>;
+  compute(args: t.PkgDistComputeArgs): Promise<t.PkgDistComputeResponse>;
 
   /**
    * Verify a folder with hash definitions of the distribution-package.
@@ -37,6 +35,12 @@ export type PkgDistFsLib = t.PkgDistLib & {
     dir: t.StringPath,
     hash?: t.StringHash | t.CompositeHash,
   ): Promise<t.PkgDistVerifyResponse>;
+
+  /** Convert a <DistPkg> to a string for logging. */
+  toString(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): string;
+
+  /** Log a `toString()` of the given <DistPkg> to the console. */
+  log(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): void;
 };
 
 /**
@@ -45,7 +49,9 @@ export type PkgDistFsLib = t.PkgDistLib & {
 export type PkgDistComputeArgs = {
   dir: t.StringPath;
   pkg?: t.Pkg;
+  builder?: t.Pkg;
   entry?: string;
+  url?: t.DistPkg['url'];
   save?: boolean;
 };
 

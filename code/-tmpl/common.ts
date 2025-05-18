@@ -10,4 +10,4 @@ export * from './deno/src/common.ts';
  */
 export { Color, css } from '@sys/ui-css';
 export { Signal } from '@sys/ui-react';
-export { Button } from '@sys/ui-react-components';
+export { Button, ObjectView } from '@sys/ui-react-components';

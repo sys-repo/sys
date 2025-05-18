@@ -1,10 +1,10 @@
-import type * as Rambda from 'rambda';
+import type * as ramda from 'ramda';
 export * from '../types.ts';
 
-type R = typeof Rambda;
+type R = typeof ramda;
 
 /**
- * Subset of common rambda helpers.
+ * Subset of common ramda helpers.
  */
 export type RLib = {
   readonly clone: R['clone'];

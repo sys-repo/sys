@@ -8,7 +8,7 @@ describe('Timestamp', () => {
   type MyTimestamps = t.Timestamps<T>;
 
   describe('parse: "HH:MM:SS.mmm"', () => {
-    it('should parse "00:00:00.000" as 0 msecs and 0 secs', () => {
+    it('parses "00:00:00.000" as 0 msecs and 0 secs', () => {
       const res = Timestamp.parse('00:00:00.000');
       expect(res.msec).to.eql(0);
       expect(res.sec).to.eql(0);
@@ -16,7 +16,7 @@ describe('Timestamp', () => {
       expect(res.min).to.eql(0);
     });
 
-    it('should parse "01:02:03.004" correctly', () => {
+    it('parses "01:02:03.004" correctly', () => {
       // Expected values:
       // hours: 1, minutes: 2, seconds: 3, milliseconds: 4
       const expectedMsecs = 1 * 3600000 + 2 * 60000 + 3 * 1000 + 4; // 3,723,004 msecs
@@ -31,7 +31,7 @@ describe('Timestamp', () => {
       expect(res.hour).to.eql(Num.round(expectedHours, 1));
     });
 
-    it('should parse "12:34:56.789" correctly', () => {
+    it('parses "12:34:56.789" correctly', () => {
       // Expected values:
       // hours: 12, minutes: 34, seconds: 56, milliseconds: 789
       const expectedMsecs = 12 * 3600000 + 34 * 60000 + 56 * 1000 + 789;
@@ -46,7 +46,7 @@ describe('Timestamp', () => {
       expect(res.hour).to.eql(Num.round(expectedHours, 1));
     });
 
-    it('should fix single-digit unit values', () => {
+    it('fixes single-digit unit values', () => {
       const res = Timestamp.parse('1:2:3.4');
       expect(res.hour).to.eql(1);
       expect(res.min).to.eql(62.1);
@@ -56,19 +56,26 @@ describe('Timestamp', () => {
     });
 
     describe('errors', () => {
-      it('should throw an error for invalid time format with missing parts', () => {
-        expect(() => Timestamp.parse('12:34')).to.throw('Invalid time format');
+      it('throws when sing-digit unit values in strict mode', () => {
+        Timestamp.parse('1:2:3.4'); // Works: not strict (by default).
+        const fn = () => Timestamp.parse('12:34', { strict: true });
+        expect(fn).to.throw('Invalid timestamp format');
       });
 
-      it('should throw an error for invalid seconds/milliseconds format', () => {
-        expect(() => Timestamp.parse('12:34:56')).to.throw('Invalid seconds/milliseconds format');
+      it('throws an error for invalid time format with missing parts', () => {
+        expect(() => Timestamp.parse('12:34')).to.throw('Invalid timestamp format');
+      });
+
+      it('throws an error for invalid seconds/milliseconds format', () => {
+        expect(() => Timestamp.parse('12:34:56')).to.throw('Invalid timestamp format');
 
         // This test expects that an empty millisecond part will eventually result in an invalid number error.
-        expect(() => Timestamp.parse('12:34:56.')).to.throw('Invalid number in timestamp');
+        expect(() => Timestamp.parse('12:34:56.')).to.throw('Invalid timestamp format');
       });
 
-      it('should throw an error for non-numeric values', () => {
-        expect(() => Timestamp.parse('aa:bb:cc.ddd')).to.throw('Invalid number in timestamp');
+      it('throws an error for non-numeric values', () => {
+        // expect(() => Timestamp.parse('aa:bb:cc.ddd')).to.throw('Invalid number in timestamp');
+        expect(() => Timestamp.parse('aa:bb:cc.ddd')).to.throw('Invalid timestamp format');
       });
     });
   });
@@ -146,7 +153,7 @@ describe('Timestamp', () => {
         '00:00:05.000': { image: 'first' },
         invalid: { image: 'broken' },
       };
-      expect(() => Timestamp.parse(input)).to.throw('Invalid time format');
+      expect(() => Timestamp.parse(input)).to.throw('Invalid timestamp format');
     });
   });
 
@@ -157,19 +164,19 @@ describe('Timestamp', () => {
       '00:00:05.000': { image: 'first' },
     };
 
-    it('should return [undefined] if elapsed time is before the first timestamp', () => {
+    it('returns [undefined] if elapsed time is before the first timestamp', () => {
       // Elapsed time of 2 seconds is less than the first timestamp (5 seconds)
       const res = Timestamp.find(timestamps, 2_000);
       expect(res).to.be.undefined;
     });
 
-    it('should return the first timestamp when elapsed equals its time', () => {
+    it('returns the first timestamp when elapsed equals its time', () => {
       // Elapsed time exactly 5 seconds.
       const res = Timestamp.find(timestamps, 5_000);
       expect(res?.data).to.eql({ image: 'first' });
     });
 
-    it('should return the correct timestamp when elapsed falls between two timestamps', () => {
+    it('returns the correct timestamp when elapsed falls between two timestamps', () => {
       // Elapsed time 7 seconds: the only timestamp <= 7 seconds is the first (5 seconds).
       const a = Timestamp.find(timestamps, 7_000);
       expect(a?.data).to.eql({ image: 'first' });
@@ -179,13 +186,13 @@ describe('Timestamp', () => {
       expect(b?.data).to.eql({ image: 'second' });
     });
 
-    it('should return the last timestamp if elapsed time exceeds all timestamps', () => {
+    it('returns the last timestamp if elapsed time exceeds all timestamps', () => {
       // Elapsed time 20 seconds: all timestamps are <= 20 seconds, so it returns the last one.
       const res = Timestamp.find(timestamps, 20_000);
       expect(res?.data).to.eql({ image: 'third' });
     });
 
-    it('option: should use seconds (instead of milliseconds) as time comparison unit', () => {
+    it('option: use seconds (instead of milliseconds) as time comparison unit', () => {
       const a = Timestamp.find(timestamps, 12_000);
       const b = Timestamp.find(timestamps, 12, { unit: 'secs' });
       const c = Timestamp.find(timestamps, 12); // expect failure.
@@ -364,6 +371,88 @@ describe('Timestamp', () => {
         //    With rounding to 2 decimals, we expect ≈ 0.33.
         const prog = res?.progress(6666);
         expect(prog).to.be.closeTo(0.33, 0.01);
+      });
+    });
+  });
+
+  describe('isValid', () => {
+    describe('strict mode', () => {
+      it('returns true for the zero timestamp', () => {
+        expect(Timestamp.isValid('00:00:00.000')).to.be.true;
+      });
+
+      it('returns true for a typical valid timestamp', () => {
+        expect(Timestamp.isValid('12:34:56.789')).to.be.true;
+      });
+
+      it('returns true for maximum reasonable values', () => {
+        expect(Timestamp.isValid('99:59:59.999')).to.be.true;
+      });
+
+      it('returns false when milliseconds are missing', () => {
+        expect(Timestamp.isValid('12:34:56')).to.be.false;
+      });
+
+      it('returns false when format is malformed', () => {
+        expect(Timestamp.isValid('123:456:789.012')).to.be.false;
+        expect(Timestamp.isValid('ab:cd:ef.ghi')).to.be.false;
+        expect(Timestamp.isValid('12-34-56.789')).to.be.false;
+      });
+
+      it('returns false for empty or blank strings', () => {
+        expect(Timestamp.isValid('')).to.be.false;
+        expect(Timestamp.isValid('   ')).to.be.false;
+      });
+
+      it('returns false for strings with extra characters', () => {
+        expect(Timestamp.isValid('00:00:00.000Z')).to.be.false;
+        expect(Timestamp.isValid('time:00:00:00.000')).to.be.false;
+      });
+
+      it('returns false for inputs that are not strings', () => {
+        expect(Timestamp.isValid(12345 as any)).to.be.false;
+        expect(Timestamp.isValid(null as any)).to.be.false;
+        expect(Timestamp.isValid({} as any)).to.be.false;
+      });
+    });
+
+    describe('loose mode (not strict)', () => {
+      it('returns true for single-digit minutes, seconds, and milliseconds', () => {
+        expect(Timestamp.isValid('1:2:3.4', { strict: false })).to.be.true;
+      });
+
+      it('returns true for one-digit hours and two-digit mm/ss with one-digit ms', () => {
+        expect(Timestamp.isValid('9:08:07.6', { strict: false })).to.be.true;
+      });
+
+      it('returns true for two-digit mm/ss and two-digit ms', () => {
+        expect(Timestamp.isValid('12:34:56.78', { strict: false })).to.be.true;
+      });
+
+      it('returns true for maximum loose values within range', () => {
+        expect(Timestamp.isValid('3:59:59.999', { strict: false })).to.be.true;
+      });
+
+      it('returns false when milliseconds are missing even in loose mode', () => {
+        expect(Timestamp.isValid('12:34:56', { strict: false })).to.be.false;
+      });
+
+      it('returns false when ms has zero digits after the dot', () => {
+        expect(Timestamp.isValid('12:34:56.', { strict: false })).to.be.false;
+      });
+
+      it('returns false when minutes or seconds exceed 59', () => {
+        expect(Timestamp.isValid('0:60:00.000', { strict: false })).to.be.false;
+        expect(Timestamp.isValid('0:00:60.000', { strict: false })).to.be.false;
+      });
+
+      it('returns false when milliseconds exceed three digits', () => {
+        expect(Timestamp.isValid('00:00:00.0000', { strict: false })).to.be.false;
+      });
+
+      it('returns false for non-string inputs even in loose mode', () => {
+        expect(Timestamp.isValid(123 as any, { strict: false })).to.be.false;
+        expect(Timestamp.isValid(null as any, { strict: false })).to.be.false;
       });
     });
   });

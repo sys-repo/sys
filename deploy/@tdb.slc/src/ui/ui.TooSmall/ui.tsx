@@ -48,7 +48,7 @@ export const TooSmall: React.FC<P> = (props) => {
  */
 const wrangle = {
   body(children?: t.ReactNode): t.ReactNode {
-    if (!children) return wrangle.body('Please make your window bigger.');
+    if (!children) return wrangle.body('Please make your window larger.');
     if (typeof children === 'string') return ReactString.break(children);
     return children;
   },

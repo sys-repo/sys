@@ -12,10 +12,16 @@ describe('Pkg.Dist', () => {
     const SAMPLE = {
       dist(): t.DistPkg {
         return {
-          '-type:': 'jsr:@sys/types:DistPkg',
+          type: 'https://jsr.io/@sample/foo',
           pkg: { name: `@ns/foo-${slug()}`, version: '1.2.3' },
-          size: { bytes: 1234 },
+          build: {
+            time: 1746520471244,
+            size: { total: 1234, pkg: 1234 },
+            builder: '@scope/sample@0.0.0',
+            runtime: '<runtime-uri>',
+          },
           entry: './main.js',
+          url: { base: '/' },
           hash: {
             digest: 'sha256-0000',
             parts: { './index.html': 'sha256-0000', './-entry.js': 'sha256-0000' },
@@ -56,6 +62,27 @@ describe('Pkg.Dist', () => {
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('Failed while loading');
       expect(res.error?.message).to.include('/foo.json');
+    });
+  });
+
+  describe('Dist.Is', () => {
+    it('Is.codePath: true', () => {
+      const test = (path: string, expected: boolean) => {
+        expect(Pkg.Dist.Is.codePath(path)).to.eql(expected);
+      };
+
+      test('pkg', false);
+      test('pkg/', true);
+      test('/pkg/', true);
+      test('/pkg/foo', true);
+      test('/pkg/foo/pkg/bar', true);
+      test('/pkg/bar', true);
+
+      test('', false);
+      test('foo', false);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
     });
   });
 });
