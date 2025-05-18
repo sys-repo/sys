@@ -1,5 +1,5 @@
 import { Pkg as PkgBase } from '@sys/std/pkg';
-import { type t, c, Cli, Fs, HashFmt, Num, Path, Str } from './common.ts';
+import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Str, Time } from './common.ts';
 
 /**
  * String:
@@ -15,6 +15,9 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
   const title = c.green(options.title ?? 'Production Bundle');
   const totalSize = c.white(Str.bytes(dist.build.size.total));
   const pkgSize = c.gray(Str.bytes(dist.build.size.pkg));
+  const timeAgo = Time.elapsed(dist.build.time);
+
+  const buildTime = Date.format(dist.build.time, 'y MMM d, h:mmaaa');
 
   const a = dist.build.size.total;
   const b = dist.build.size.pkg;
@@ -32,8 +35,9 @@ export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
 
   push(c.bold(fmtPkg), '');
   push('size:', totalSize);
-  push('size:/pkg/', c.gray(`${pkgSize} ${percentDiff}`));
+  push('size:/pkg/*', c.gray(`${pkgSize} (${percentDiff})`));
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
+  push('timestamp:', c.gray(`${buildTime} | ${timeAgo} ago`));
   push('builder:', c.gray(`${c.white(builderPkg.name)}@${c.cyan(builderPkg.version)}`));
 
   let res = '';
