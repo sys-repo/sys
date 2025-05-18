@@ -1,6 +1,6 @@
 {
   "name": "@tdb/public-fs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "tasks": {
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
