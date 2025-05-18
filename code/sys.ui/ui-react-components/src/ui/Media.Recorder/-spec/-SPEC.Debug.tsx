@@ -105,11 +105,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Camera'}</div>
 
       <Media.Devices.UI.List
+        style={{ MarginX: 20 }}
         filter={(e) => e.kind === 'videoinput'}
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
+
+      <div className={Styles.title.class}>{'Filter'}</div>
       <Media.Filters.UI.List
         style={{ MarginX: 20 }}
         values={p.filters.value}
@@ -120,9 +123,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      {center(<Icons.Arrow.Down style={{ MarginY: [15, 20] }} />)}
-      {recorderButtons(recorder)}
-      {center(<Icons.Arrow.Down style={{ marginBottom: 10 }} />)}
+      {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
+      <div className={Styles.title.class}>{'Stream'}</div>
+      <div style={{ marginLeft: 20 }}>{recorderButtons(recorder)}</div>
+      {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
 
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
@@ -194,24 +198,28 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
 
   let statusColor = theme.fg;
   const dim = Color.alpha(theme.fg, 0.3);
-  if (is.recording) statusColor = Color.RED;
+  if (is.recording) statusColor = Color.DARK;
   if (is.paused || is.idle || is.stopped) statusColor = dim;
 
   const elStatus = <span style={{ color: statusColor, marginLeft: 5 }}>{status}</span>;
   const strBytes = recorder.bytes > 0 ? ` (${Str.bytes(recorder.bytes)})` : '';
-  const urlUseMediaRecorder = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.MediaRecorder.ts');
+  const urlUseMediaRecorder = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
 
   return (
     <React.Fragment>
       <div className={styles.base.class}>
         <div className={styles.title.class}>
-          <ExternalLink href={urlUseMediaRecorder} children={'useMediaRecorder:'} />
+          <ExternalLink
+            style={{ color: Color.MAGENTA }}
+            href={urlUseMediaRecorder}
+            children={'ƒ useMediaRecorder:'}
+          />
           {elStatus}
         </div>
         <BulletIcon size={18} style={styles.icon} />
       </div>
 
-      <div style={{ marginLeft: 20 }}>
+      <div style={{ marginLeft: 14 }}>
         {!is.started && (
           <Button block label={'start recording'} onClick={start} enabled={canStart} />
         )}
