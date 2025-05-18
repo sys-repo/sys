@@ -15,8 +15,9 @@ await Fs.ensureDir('./dist');
 export async function buildAndCopy(
   moduleDir: t.StringDir,
   targetDir: t.StringRelativeDir,
-  options: { build?: boolean } = {},
+  options: { build?: boolean; exitOnError?: boolean } = {},
 ) {
+  const { exitOnError = true } = options;
   const path = Fs.resolve(moduleDir);
   const silent = true;
   const sh = Process.sh({ path, silent });
@@ -29,6 +30,8 @@ export async function buildAndCopy(
   /**
    * Build
    */
+  let stderr: string | undefined;
+
   if (options.build ?? true) {
     const pkg: t.Pkg = { name: denofile.name ?? 'Unnamed', version: denofile.version ?? '0.0.0' };
     let label = c.gray(`building: ${c.green(pkg.name)} → ${c.cyan(`/${targetDir}`)}`);
@@ -37,14 +40,28 @@ export async function buildAndCopy(
     spinner.stop();
 
     if (!res.success) {
-      console.info(res.text.stderr);
+      stderr = res.text.stderr;
+      console.info(stderr);
       console.info();
-      console.error(`Failed while building: ${path}`);
+      console.info(c.yellow('─'.repeat(21)));
+      console.error(`${c.red(c.bold('Failed'))} while building ${c.yellow(pkg.name)}\n`);
+      if (exitOnError) Deno.exit(1);
     }
   }
 
   /**
    * Copy build to local /dist.
    */
-  await Fs.copy(Path.join(path, 'dist'), Path.resolve('dist', targetDir), { force: true });
+  const dir = {
+    src: Path.join(path, 'dist'),
+    target: targetDir,
+  };
+  await Fs.copy(dir.src, Path.resolve('dist', dir.target), { force: true });
+
+  // Finish up.
+  return {
+    ok: !stderr,
+    dir,
+    stderr,
+  } as const;
 }
