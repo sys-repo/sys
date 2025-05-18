@@ -1,6 +1,10 @@
-# Module
+# Sample: Deno LLM
 
-### Example
-```ts
-import { pkg } from 'jsr:@sys/🐷';
-```
+Source: https://www.youtube.com/watch?v=abkZuYUbx8w
+
+Environment:
+- Jupyter
+- Ollama
+- LangChain (modular orchestration framework for provider-agnostic LLM workflows.)
+- Model: deepseek-r1:7b
+
