@@ -15,3 +15,8 @@ export type DomRect = {
 
 /** Readonly version of the DomRect type. */
 export type DomRectReadonly = Readonly<DomRect>;
+
+/**
+ * A mouse event initiating from the DOM.
+ */
+export type DomMouseEventHandler = (e: MouseEvent) => void;

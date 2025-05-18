@@ -5,12 +5,12 @@ import type { t } from './common.ts';
  */
 export type LogoCanvasProps = {
   selected?: t.CanvasPanel | t.CanvasPanel[];
-  selectionAnimation?: LogoCanvasSelectionAnimation;
+  selectionAnimation?: LogoCanvasSelectionAnimation | boolean;
   over?: t.CanvasPanel;
-  width?: number;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onPanelEvent?: t.LogoCanvasPanelHandler;
+  onReady?: () => void;
 };
 
 /** Selection animation options */
@@ -25,6 +25,7 @@ export type LogoCanvasSelectionAnimation = {
  */
 export type LogoCanvasPanelHandler = (e: LogoCanvasPanelHandlerArgs) => void;
 export type LogoCanvasPanelHandlerArgs = {
-  type: 'enter' | 'leave' | 'click';
+  event: 'enter' | 'leave' | 'click';
   panel: t.CanvasPanel;
+  modifier: t.KeyboardModifierFlags;
 };

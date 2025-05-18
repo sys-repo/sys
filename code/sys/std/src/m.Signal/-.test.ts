@@ -1,6 +1,7 @@
 import { Time, describe, expect, it } from '../-test.ts';
 import { Signal } from './mod.ts';
 import { rx } from '../m.Rx/mod.ts';
+import { Is } from './m.Is.ts';
 
 import * as Preact from '@preact/signals-core';
 
@@ -8,6 +9,7 @@ describe('Signal', () => {
   it('API', () => {
     expect(Signal.create).to.equal(Preact.signal);
     expect(Signal.effect).to.equal(Preact.effect);
+    expect(Signal.Is).to.equal(Is);
   });
 
   describe('Core "Signal" API', () => {
@@ -363,6 +365,90 @@ describe('Signal', () => {
       expect(b.disposed).to.eql(true);
       expect(a.count).to.eql(0);
       expect(b.count).to.eql(0);
+    });
+  });
+
+  describe('Signal.Is', () => {
+    const Is = Signal.Is;
+
+    it('Is.signal', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.signal(value)).to.be.false);
+
+      const count = Signal.create(0);
+      expect(Is.signal(count)).to.be.true;
+    });
+  });
+
+  describe('Signal.toObject', () => {
+    const s = Signal.create;
+    const toObject = Signal.toObject;
+
+    /**
+     * Pass‑through for primitives (no wrapping, no cloning).
+     */
+    it('returns primitives unchanged', () => {
+      expect(toObject(42)).to.eql(42);
+      expect(toObject('foo')).to.eql('foo');
+      expect(toObject(true)).to.eql(true);
+      expect(toObject(null)).to.eql(null);
+      expect(toObject(undefined)).to.eql(undefined);
+    });
+
+    /**
+     * Unwraps a single `Signal` to its `.value`.
+     */
+    it('unwraps a lone signal', () => {
+      const num = s(123);
+      expect(toObject(num)).to.eql(123);
+    });
+
+    /**
+     * Handles arrays, tuples, and deeply nested objects.
+     */
+    it('unwraps signals at any depth', () => {
+      const input = {
+        a: s(1),
+        b: {
+          c: s('x'),
+          d: [s(true), 5] as const,
+        },
+        e: [1, s(2)],
+      };
+
+      const result = toObject(input);
+
+      expect(result).to.deep.eql({
+        a: 1,
+        b: { c: 'x', d: [true, 5] },
+        e: [1, 2],
+      });
+    });
+
+    /**
+     * Leaves functions and other non‑signal values intact.
+     */
+    it('preserves function references', () => {
+      const fn = () => 'hi';
+      const obj = { fn, val: s(10) };
+
+      const out = toObject(obj);
+
+      expect(out.fn).to.eql(fn); //  Same reference.
+      expect(out.val).to.eql(10); // signal unwrapped
+    });
+
+    /**
+     * toObject is snapshot‑style: it never mutates the input
+     * and returns wholly new container objects.
+     */
+    it('does not mutate the original structure', () => {
+      const src = { nested: { x: s(7) } };
+      const snap = toObject(src);
+
+      expect(snap).to.not.equal(src); //                ← top‑level object copy.
+      expect(snap.nested).to.not.equal(src.nested); //  ← deep copy.
+      expect(snap.nested.x).to.equal(7);
     });
   });
 });

@@ -68,6 +68,27 @@ describe('Color', () => {
     });
   });
 
+  describe('Color.ruby', () => {
+    it('percentage of red', () => {
+      const res1 = Color.ruby(1);
+      const res2 = Color.ruby(0);
+      const res3 = Color.ruby(0.1);
+      const res4 = Color.ruby();
+
+      expect(res1).to.eql(Color.alpha(Color.RED, 1));
+      expect(res2).to.eql(Color.alpha(Color.RED, 0));
+      expect(res3).to.eql(Color.alpha(Color.RED, 0.1));
+      expect(res3).to.eql(res4);
+    });
+
+    it('boolean parameter (eg. debug flag)', () => {
+      const res1 = Color.ruby(true);
+      const res2 = Color.ruby(false);
+      expect(res1).to.eql(Color.alpha(Color.RED, 0.1));
+      expect(res2).to.eql(Color.alpha(Color.RED, 0));
+    });
+  });
+
   describe('Color.theme', () => {
     it('create from root API', () => {
       const a = Color.Theme.create();
@@ -188,6 +209,35 @@ describe('Color', () => {
       const b = Color.darken(Color.BLACK, 10);
       expect(a).to.eql('rgb(230, 230, 230)');
       expect(b).to.eql('rgb(0, 0, 0)');
+    });
+  });
+
+  describe('Color.toHex', () => {
+    const test = (input: string, expected?: string) => {
+      const res = Color.toHex(input);
+      expect(res).to.eql(expected);
+    };
+
+    it('converts named colors to hex', () => {
+      test('white', '#ffffff');
+      test('black', '#000000');
+      test('red', '#ff0000');
+    });
+
+    it('converts rgb/rgba to hex', () => {
+      test('rgb(255, 0, 0)', '#ff0000');
+      test('rgba(255, 0, 0, 1)', '#ff0000');
+      test('rgba(255, 0, 0, 0.5)', '#ff0000');
+    });
+
+    it('handles hex input', () => {
+      test('#00ff00', '#00ff00');
+      test('#fff', '#ffffff');
+    });
+
+    it('returns undefined for invalid input', () => {
+      test('not-a-color', undefined);
+      test('', undefined);
     });
   });
 });

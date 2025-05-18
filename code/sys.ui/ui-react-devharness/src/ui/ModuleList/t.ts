@@ -19,6 +19,31 @@ export type ModuleListComponent = React.FC<t.ModuleListProps> & ModuleListCompon
 export type ModuleListComponentFields = { DEFAULTS: t.ModuleListDefaults };
 
 /**
+ * Calculate where to split the list with HR's.
+ * Return `true` when a horizontal rule should be shown between `prev` → `next`.
+ * Return a number to use depth calculation.
+ */
+export type ModuleListShowHr = (e: ModuleListShowHrArgs) => boolean | number | t.IgnoredResult;
+export type ModuleListShowHrArgs = {
+  prev?: string;
+  next?: string;
+
+  /** Store a rule for later evaluation. */
+  rule: (rule: ModuleListHrRule) => void;
+
+  /** Convenience builders automatically pushed via `rule(...)`. */
+  byRoots: (roots: string[]) => ModuleListShowHrArgs;
+  depth: (n: number) => ModuleListShowHrArgs;
+  byRegex: (re: RegExp) => ModuleListShowHrArgs;
+
+  /** Return the n‑th dot/colon segment of a namespace string. */
+  segment: (s: string | undefined, n: number) => string;
+};
+
+/** (`prev`,`next`) → `true` to break, or a depth number for upstream calculation. */
+export type ModuleListHrRule = number | ((prev?: string, next?: string) => boolean);
+
+/**
  * Component properties
  */
 export type ModuleListProps<T = unknown> = {
@@ -27,7 +52,7 @@ export type ModuleListProps<T = unknown> = {
   imports?: t.ModuleImports<T>;
   selectedIndex?: number;
   href?: string;
-  hrDepth?: number;
+  hr?: number | ModuleListShowHr;
   badge?: t.ImageBadge;
   showParamDev?: boolean;
   allowRubberband?: boolean;

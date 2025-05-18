@@ -5,7 +5,7 @@ import { type t } from './common.ts';
 const OFFSCREEN = '-99999px';
 
 export const PreloadPortal: React.FC<t.PreloadPortalProps> = (props) => {
-  const { size = [0, 0] } = props;
+  const { size = [0, 0], name } = props;
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   /**
@@ -14,6 +14,7 @@ export const PreloadPortal: React.FC<t.PreloadPortalProps> = (props) => {
   useEffect(() => {
     const el = document.createElement('div');
     el.setAttribute('data-component', 'sys.preload');
+    if (name) el.setAttribute('data-name', name);
 
     el.style.position = 'absolute';
     el.style.left = OFFSCREEN;
@@ -35,7 +36,7 @@ export const PreloadPortal: React.FC<t.PreloadPortalProps> = (props) => {
 
     // Finish up.
     return dispose;
-  }, [size.join()]);
+  }, [size.join(), name]);
 
   /**
    * Render:

@@ -1,10 +1,9 @@
-import type { t } from './common.ts';
-
 import { useEffect } from 'react';
+import { type t, ReactEvent } from './common.ts';
 import { Theme } from './u.ts';
 
 type Options = {
-  selected?: t.CanvasPanel;
+  selected?: t.CanvasPanel | t.CanvasPanel[];
   over?: t.CanvasPanel;
   theme?: t.CommonTheme;
   onPanelEvent?: t.LogoCanvasPanelHandler;
@@ -36,7 +35,7 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
   options: Options = {},
 ) {
   const { selected, over, theme, onPanelEvent } = options;
-  const isSelected = selected === panel;
+  const isSelected = wrangle.isSelected(panel, options);
 
   useEffect(() => {
     if (!svg.ready) return;
@@ -46,8 +45,7 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
     const color = Theme.color(theme);
 
     const updateOpacity = () => {
-      const isOver = over === panel;
-      const opacity = isSelected ? 1 : isOver ? 0.2 : 0;
+      const opacity = wrangle.selectionOpacity(panel, options);
       svgPanel?.opacity(opacity);
       svgPanel?.fill(color);
     };
@@ -56,15 +54,45 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
     updateOpacity(); // Set default opacity.
 
     /**
-     * Event Handlers.
+     * Event Handlers:
      */
-    const onOver = (isOver: boolean) => {
-      updateOpacity();
-      onPanelEvent?.({ panel, type: isOver ? 'enter' : 'leave' });
+    type E = t.LogoCanvasPanelHandlerArgs;
+    const fire = (e: Event, event: E['event']) => {
+      const modifier = ReactEvent.modifiers(e);
+      onPanelEvent?.({ panel, event, modifier });
     };
+    const onOver = (e: Event, isOver: boolean) => {
+      updateOpacity();
+      fire(e, isOver ? 'enter' : 'leave');
+    };
+
     svgPanel?.off();
-    svgPanel?.on('mouseover', () => onOver(true));
-    svgPanel?.on('mouseleave', () => onOver(false));
-    svgPanel?.on('mousedown', () => onPanelEvent?.({ panel, type: 'click' }));
+    svgPanel?.on('mouseover', (e) => onOver(e, true));
+    svgPanel?.on('mouseleave', (e) => onOver(e, false));
+    svgPanel?.on('mousedown', (e) => fire(e, 'click'));
   }, [svg.ready, panel, selected, over, theme, isSelected]);
 }
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  isSelected(panel: t.CanvasPanel, options: Options) {
+    const { selected } = options;
+    if (!selected) return false;
+    if (Array.isArray(selected)) return selected.includes(panel);
+    return selected === panel;
+  },
+
+  selectionOpacity(panel: t.CanvasPanel, options: Options = {}): t.Percent {
+    const { selected, over } = options;
+    const isOver = over === panel;
+    const isSelected = wrangle.isSelected(panel, options);
+    if (isSelected) {
+      const isMultiSelect = Array.isArray(selected);
+      return isMultiSelect ? 0.85 : 1;
+    } else {
+      return isOver ? 0.2 : 0;
+    }
+  },
+} as const;

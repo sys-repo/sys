@@ -1,9 +1,9 @@
 {
   "name": "@sys/std",
-  "version": "0.0.141",
+  "version": "0.0.147",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RWN",
+    "test": "deno test -RWNE",
     "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run"
   },

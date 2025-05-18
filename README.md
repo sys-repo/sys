@@ -28,8 +28,8 @@
 [jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
 [jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
-
-Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
+Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into 
+varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
 
 - modules: [sys](/code/sys/) ← standard libs
 - modules: [sys.ui](/code/sys.ui/)
@@ -178,6 +178,14 @@ events.dispose();
 >> **"libraries not frameworks"**  
 >> An orientation toward framework agnosticism (which is the choise **default** in most circumstances). 
 >> Then levered by a simple/strict extensino pattern, (eg. "drivers") as appropriate to the module's domain, technology, and constraints.
+
+<p>&nbsp;</p>
+
+
+[Open/Closed Principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle)
+
+>> Software entities ( ƒn:🧫 ) should be open for extension but closed for modification.
+
 
 <p>&nbsp;</p>
 

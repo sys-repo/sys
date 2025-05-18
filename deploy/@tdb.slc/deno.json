@@ -1,12 +1,20 @@
 {
   "name": "@tdb/slc",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
+
+    "d-ipfs-staging": "orbiter deploy --config=orbiter-slc.db.team.json",
+    "d-ipfs-prod": "orbiter deploy --config=orbiter-socialleancanvas.com.json",
+
+    "deploy": "        deno task deploy-staging",
+    "deploy-staging": "deno task test  &&  deno task d-ipfs-staging  &&  deno task help --info",
+    "deploy-prod": "   deno task test  &&  deno task d-ipfs-prod     &&  deno task help --info",
+
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",

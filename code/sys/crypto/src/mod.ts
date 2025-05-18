@@ -15,3 +15,8 @@
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
+
+/**
+ * Helpers:
+ */
+export { FileHashUri } from './m.Hash.Composite/m.Uri.ts';

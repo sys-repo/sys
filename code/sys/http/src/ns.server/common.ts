@@ -6,4 +6,4 @@ export { Http } from '../ns.client/mod.ts';
  */
 export { c, Cli } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
-export { Pkg } from '@sys/fs/pkg';
+export { Fs, Pkg } from '@sys/fs';

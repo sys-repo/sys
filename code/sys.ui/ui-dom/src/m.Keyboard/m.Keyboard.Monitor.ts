@@ -1,5 +1,5 @@
-import { Match } from './m.Match.ts';
 import { DEFAULTS, R, rx, type t } from './common.ts';
+import { Match } from './m.Match.ts';
 import { Util } from './u.ts';
 
 const singleton = {
@@ -195,7 +195,7 @@ function updatePressedKeys(e: t.KeyboardKeypress) {
 
 export function handlerFiltered(
   filter: () => boolean,
-  options: { dispose$?: t.UntilObservable } = {},
+  options: { dispose$?: t.UntilInput } = {},
 ): t.KeyboardMonitorOn {
   const { dispose$ } = options;
   return {
@@ -207,7 +207,7 @@ export function handlerFiltered(
 
 export function handlerOnOverloaded(
   args: any[],
-  options: { filter?: () => boolean; dispose$?: t.UntilObservable } = {},
+  options: { filter?: () => boolean; dispose$?: t.UntilInput } = {},
 ): t.Lifecycle {
   const { filter } = options;
   const life = rx.lifecycle(options.dispose$);
@@ -231,7 +231,7 @@ export function handlerOnOverloaded(
 export function handlerOn(
   pattern: t.KeyPattern,
   fn: t.KeyMatchSubscriberHandler,
-  options: { dispose$?: t.UntilObservable; filter?: () => boolean } = {},
+  options: { dispose$?: t.UntilInput; filter?: () => boolean } = {},
 ) {
   const { filter } = options;
   const life = rx.lifecycle(options.dispose$);

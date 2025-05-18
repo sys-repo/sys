@@ -9,10 +9,10 @@ export const serveStatic: t.HttpServeStatic = (input: Input) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
-  options(input: Input) {
+  options(input: Input): t.HttpServeStaticOptions<t.HonoEnv> {
     if (typeof input === 'string') return { root: input };
     return input;
   },

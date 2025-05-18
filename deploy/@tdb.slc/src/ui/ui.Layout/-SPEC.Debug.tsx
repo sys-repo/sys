@@ -6,7 +6,9 @@ import {
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, Button, css, Signal, Str, ObjectView } from './common.ts';
+import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
+
+export { layerVideoPlayerButtons };
 
 /**
  * Types:
@@ -21,7 +23,9 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const app = App.signals();
 
-  const props = { theme: s<t.CommonTheme>('Dark') };
+  const props = {
+    theme: s<t.CommonTheme>('Dark'),
+  };
   const api = {
     app,
     props,
@@ -34,13 +38,25 @@ export async function createDebugSignals(init?: (e: DebugSignals) => void) {
   // app.props.screen.breakpoint.value = 'Mobile';
   app.props.screen.breakpoint.value = 'Desktop';
 
-  app.stack.push(Sample.sample0());
+  // app.stack.push(Sample.sample0());
   app.stack.push(await Content.factory('Entry'));
+  // app.stack.push(await Content.factory('Trailer'));
   // app.stack.push(await Content.factory('Overview'));
+  // app.stack.push(await Content.factory('Programme'));
 
   init?.(api);
   return api;
 }
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
 
 /**
  * Component:
@@ -58,8 +74,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
@@ -68,8 +82,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.class}>{`${p.screen.breakpoint.value} Layout`}</div>
+      <div className={Styles.title.class}>
+        <div>{`Layout`}</div>
+        <div>{p.screen.breakpoint.value}</div>
+      </div>
 
+      <Button
+        block
+        label={() => `debug: ${app.props.debug.value}`}
+        onClick={() => Signal.toggle(app.props.debug)}
+      />
       <Button
         block
         label={`theme: ${d.theme}`}
@@ -80,7 +102,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {screenBreakpointButton(app)}
 
       <hr />
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={Styles.title.class}>
         <div>{`Stack:`}</div>
         <div />
         <div>{`${app.stack.length} ${Str.plural(app.stack.length, 'Layer', 'Layers')}`}</div>
@@ -97,7 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {layerVideoPlayerButtons(app)}
 
       <hr />
-      <div className={styles.title.class}>{`Sample Configurations:`}</div>
+      <div className={Styles.title.class}>{`Sample Configurations:`}</div>
 
       <Button
         block
@@ -105,6 +127,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           app.stack.clear();
           app.stack.push(Sample.sample0());
+          app.stack.push(Sample.sample1());
         }}
       />
       <Button
@@ -117,6 +140,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <ObjectView name={'state:app'} data={app} expand={0} margin={[null, null, 4, null]} />
       <ObjectView name={'stack'} data={app.stack.items} expand={1} />
     </div>
   );

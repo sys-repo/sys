@@ -1,11 +1,11 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.41",
+  "version": "0.0.50",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
+    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
     "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Player } from '../../mod.ts';
-import { Button } from '../Button/mod.ts';
-import { type t, css, D, Signal } from './common.ts';
+import { type t, Button, css, Signal, Str } from '../u.ts';
+import { D } from './common.ts';
+
+type P = t.VideoPlayerProps;
 
 /**
  * Types:
@@ -18,18 +20,26 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
   const video = Player.Video.signals({
     // loop: true,
     // autoPlay: true,
     // showControls: false,
   });
 
-  const props = {};
+  const props = {
+    theme: s<P['theme']>('Light'),
+    debug: s<P['debug']>(true),
+  };
   const api = {
     props,
     video,
     listen() {
+      props.debug.value;
+      props.theme.value;
+
+      /**
+       * Video Player:
+       */
       const p = video.props;
       p.ready.value;
 
@@ -48,6 +58,7 @@ export function createDebugSignals() {
       p.cornerRadius.value;
       p.aspectRatio.value;
       p.scale.value;
+      p.fadeMask.value;
 
       // Commands:
       p.jumpTo.value;
@@ -62,6 +73,7 @@ export function createDebugSignals() {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const video = debug.video;
+  const d = debug.props;
   const p = video.props;
 
   Signal.useRedrawEffect(() => debug.listen());
@@ -71,17 +83,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
-    cols: css({ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={css(styles.title, styles.cols).class}>
+      <div className={styles.title.class}>
         <div>{'Player.Video'}</div>
         <div />
         <CurrentTime video={video} />
       </div>
+
+      <Button
+        block
+        label={() => `debug: ${d.debug.value}`}
+        onClick={() => Signal.toggle(d.debug)}
+      />
+      <Button
+        block
+        label={() => `theme: ${d.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
 
       <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
       <Button
@@ -99,7 +128,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={`background: ${p.background} ← ${p.background.value ? 'fill' : 'fixed-size'}`}
         onClick={() => Signal.toggle(p.background)}
       />
+
       <hr />
+      <div className={styles.title.class}>{'Appearance:'}</div>
+
       <Button
         block
         label={`showControls: ${p.showControls}`}
@@ -139,27 +171,71 @@ export const Debug: React.FC<DebugProps> = (props) => {
             console.info(`   increment (${pixels}px):`, res);
             return res;
           };
-          Signal.cycle(p.scale, [undefined, 1, fn, 2]);
+          Signal.cycle(p.scale, [undefined, 1, fn, 1.5]);
+        }}
+      />
+
+      <Button
+        block
+        label={() => {
+          const value = p.fadeMask.value;
+          return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
+        }}
+        onClick={() => {
+          type T = t.VideoPlayerFadeMask | undefined;
+          Signal.cycle<T>(p.fadeMask, [
+            { direction: 'Top:Down' },
+            { direction: 'Bottom:Up' },
+            { direction: 'Left:Right' },
+            { direction: 'Right:Left' },
+            undefined,
+          ]);
         }}
       />
 
       <hr />
+      <div className={styles.title.class}>{'Video:'}</div>
 
-      <Button
-        block
-        label={`src: ${p.src}`}
-        onClick={() =>
-          Signal.cycle(p.src, [
-            D.video, //           Default:  "tubes"
-            'vimeo/727951677', // Rowan:    "group scale"
-          ])
-        }
-      />
+      {videoButton(video, D.video)}
+      {videoButton(video, 'vimeo/727951677')}
+      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
+      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
 
       <hr />
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  srcLabel(input: string) {
+    if (!input.startsWith('https:')) return input;
+
+    // Shorten URL:
+    const path = new URL(input).pathname;
+    const filename = path.substring(path.lastIndexOf('/') + 1);
+    return `https: → ${filename}`;
+  },
+} as const;
+
+export function videoButton(video: t.VideoPlayerSignals, src: string) {
+  const p = video.props;
+  return (
+    <Button
+      block
+      label={`src: ${Str.truncate(wrangle.srcLabel(src), 30)}`}
+      onClick={() => {
+        p.src.value = src;
+      }}
+    />
+  );
+}
 
 function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
   const { video, prefix = 'elapsed' } = props;

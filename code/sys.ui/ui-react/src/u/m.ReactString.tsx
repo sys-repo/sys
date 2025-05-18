@@ -9,10 +9,11 @@ export const ReactString: t.ReactStringLib = {
       .split('\n')
       .map((line, index, array) => {
         const isLast = index === array.length - 1;
+        const text = line.trim();
         return (
           <Fragment key={index}>
-            <span>{line.trim()}</span>
-            {!isLast && <br />}
+            <span key={text}>{text}</span>
+            {!isLast && <br key={`br-${index}`} />}
           </Fragment>
         );
       });

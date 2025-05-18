@@ -1,4 +1,4 @@
-import { type t, CssDom, CssTmpl, toHash, toString } from './common.ts';
+import { type t, CssDom, CssTmpl, Obj, toString } from './common.ts';
 import { isTransformed } from './u.is.ts';
 import { createTransformContainer } from './u.transform.container.ts';
 
@@ -33,7 +33,7 @@ function transform(args: {
   const { sheet, cache } = args;
 
   const style: t.CssProps = CssTmpl.transform(wrangle.input(args.input));
-  const hx = toHash(style);
+  const hx = Obj.hash(style);
   if (cache.has(hx)) return cache.get(hx)!;
 
   const api: t.CssTransformed = {

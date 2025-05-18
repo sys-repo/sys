@@ -1,4 +1,4 @@
-import { type t, Err, Fetch, Hash, Url } from './common.ts';
+import { type t, Err, Fetch, JsrUrl } from './common.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
@@ -8,7 +8,7 @@ export const Pkg: t.JsrFetchPkgLib = {
    * https://jsr.io/docs/api#package-metadata
    */
   async versions(name, options = {}) {
-    const url = Url.Pkg.metadata(name);
+    const url = JsrUrl.Pkg.metadata(name);
     const fetch = Fetch.create(options.dispose$);
     const res = await fetch.json<t.JsrPkgMetaVersions>(url);
     const data = res.data
@@ -34,7 +34,7 @@ export const Pkg: t.JsrFetchPkgLib = {
    */
   async info(name, vInput, options = {}) {
     const version = vInput ? vInput : (await Pkg.versions(name)).data?.latest ?? '';
-    const url = Url.Pkg.version(name, version);
+    const url = JsrUrl.Pkg.version(name, version);
     const fetch = Fetch.create(options.dispose$);
     const res = await fetch.json<t.JsrPkgVersionInfo>(url);
     if (!res.data) return res;
@@ -77,7 +77,7 @@ export const Pkg: t.JsrFetchPkgLib = {
         const { checksum } = options;
         const errors = Err.errors();
         const fetch = Fetch.create([opt.dispose$, options.dispose$]);
-        const url = Url.Pkg.file(name, version, path);
+        const url = JsrUrl.Pkg.file(name, version, path);
 
         let res = await fetch.text(url, {}, { checksum });
         let status = res.status;

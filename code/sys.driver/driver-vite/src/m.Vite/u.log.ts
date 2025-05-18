@@ -35,8 +35,8 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
       console.info(Log.Build.toString(args));
     },
     toString(args: BuildArgs) {
-      const { ok, stdio, dirs, pkg, hash, bytes, elapsed } = args;
-      const bundle = ViteLog.Bundle.toString({ ok, bytes, dirs, pkg, hash, elapsed });
+      const { ok, stdio, dirs, pkg, pkgSize, hash, totalSize, elapsed } = args;
+      const bundle = ViteLog.Bundle.toString({ ok, dirs, totalSize, pkg, pkgSize, hash, elapsed });
       const text = `${stdio}\n${bundle}`;
       return ViteLog.pad(text, args.pad);
     },

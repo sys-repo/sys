@@ -4,8 +4,7 @@ import { useMouse } from './use.Mouse.tsx';
 import { useTheme } from './use.Theme.ts';
 
 export type SvgImageProps = {
-  width?: number;
-  selected?: t.CanvasPanel;
+  selected?: t.CanvasPanel | t.CanvasPanel[];
   over?: t.CanvasPanel;
   bgBlur?: number;
 
@@ -13,6 +12,7 @@ export type SvgImageProps = {
   style?: t.CssInput;
 
   onPanelEvent?: t.LogoCanvasPanelHandler;
+  onReady?: () => void;
 };
 
 /**
@@ -20,7 +20,7 @@ export type SvgImageProps = {
  *
  */
 export const SvgImage: React.FC<SvgImageProps> = (props) => {
-  const { width, bgBlur = 20, over, selected, onPanelEvent } = props;
+  const { bgBlur = 20, over, selected, onPanelEvent } = props;
   const theme = Color.theme(props.theme);
 
   /**
@@ -30,6 +30,13 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
 
   useTheme(svg, theme.name);
   useMouse(svg, { theme: theme.name, over, selected, onPanelEvent });
+
+  /**
+   * Effect: ready.
+   */
+  React.useEffect(() => {
+    if (svg.ready) props.onReady?.();
+  }, [svg.ready]);
 
   /**
    * Render:

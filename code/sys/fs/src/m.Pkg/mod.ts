@@ -8,5 +8,5 @@
  * import { Pkg, Dist } from '@sys/fs/pkg';
  * ```
  */
-export { Dist } from './m.Dist.ts';
+export { Dist } from './m.Pkg.Dist.ts';
 export { Pkg } from './m.Pkg.ts';

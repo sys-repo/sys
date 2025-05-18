@@ -9,6 +9,7 @@ export type CropmarksProps = {
   size?: t.CropmarksSize;
   borderWidth?: number;
   borderOpacity?: number;
+  borderColor?: string;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

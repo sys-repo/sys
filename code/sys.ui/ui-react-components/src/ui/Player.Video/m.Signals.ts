@@ -1,7 +1,7 @@
 import { type t, DEFAULTS, Signal } from './common.ts';
+import { FadeMask } from './ui.FadeMask.tsx';
 
 type T = t.VideoPlayerSignals;
-type P = t.VideoPlayerSignalProps;
 const D = DEFAULTS;
 
 /**
@@ -30,6 +30,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
     scale: s<number | t.VideoPlayerScale>(defaults.scale ?? D.scale),
+    fadeMask: s<undefined | t.VideoPlayerFadeMask>(wrangle.fadeMask(defaults.fadeMask)),
 
     // Commands:
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),
@@ -38,6 +39,14 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
   const api: T = {
     get props() {
       return props;
+    },
+    get is() {
+      const playing = props.playing.value;
+      const paused = !playing;
+      return { playing, paused };
+    },
+    get src() {
+      return props.src.value;
     },
 
     /**
@@ -69,6 +78,12 @@ const wrangle = {
   ): t.PlayerSignalsFactoryDefaults {
     if (!input) return {};
     if (typeof input === 'string') return { src: input };
+    return input;
+  },
+
+  fadeMask(input?: t.Pixels | t.VideoPlayerFadeMask): t.VideoPlayerFadeMask | undefined {
+    if (!input) return undefined;
+    if (typeof input === 'number') return { direction: 'Top:Down', size: input };
     return input;
   },
 } as const;

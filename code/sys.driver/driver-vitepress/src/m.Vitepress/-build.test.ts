@@ -1,4 +1,4 @@
-import { c, describe, expect, Fs, it, Testing } from '../-test.ts';
+import { Time, c, describe, expect, Fs, it, Testing } from '../-test.ts';
 import { type t, HttpServer, Pkg, slug } from './common.ts';
 
 import { Sample } from './-u.ts';
@@ -25,6 +25,7 @@ describe('Vitepress.build', () => {
       const outDir = Fs.resolve(sample.path, 'dist');
 
       await Vitepress.Tmpl.write({ inDir });
+      await Time.wait(100); // NB: test resilience.
       const res = await Vitepress.build({ pkg, inDir, silent: false });
 
       expect(res.ok).to.eql(true);
@@ -66,6 +67,7 @@ describe('Vitepress.build', () => {
       expect(await Fs.exists(outDir)).to.eql(false); // NB: clean initial condition.
 
       await Vitepress.Tmpl.write({ inDir });
+      await Time.wait(100); // NB: test resilience.
       const res = await Vitepress.build({ pkg, inDir, outDir, silent: true });
 
       expect(res.ok).to.eql(true);

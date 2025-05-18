@@ -76,7 +76,7 @@ describe('Vite.build', () => {
 
     expect(res.dist).to.eql(files.json.dist);
     expect(res.dist.pkg).to.eql(pkg);
-    expect(res.dist.size.bytes).to.be.greaterThan(100_000);
+    expect(res.dist.build.size.total).to.be.greaterThan(100_000);
     expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
   });
 
@@ -87,7 +87,7 @@ describe('Vite.build', () => {
 
     expect(files.html).to.include(`<title>Sample-2</title>`);
     expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
-    expect(res.dist.size.bytes).to.be.greaterThan(10_000);
+    expect(res.dist.build.size.total).to.be.greaterThan(10_000);
 
     const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));

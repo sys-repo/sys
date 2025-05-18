@@ -1,9 +1,10 @@
 import { type t, DEFAULT, isRecord, Str } from './common.ts';
+import { CssPseudoClass } from './m.CssPseudoClass.ts';
 
 export const toString: t.StyleLib['toString'] = (style) => {
   if (!isRecord(style)) return '';
   return Object.entries(style)
-    .filter(([prop]) => !DEFAULT.pseudoClasses.has(prop))
+    .filter(([prop]) => !CssPseudoClass.isClass(prop))
     .map(([prop, value]) => `${Str.camelToKebab(prop)}: ${formatValue(prop, value)};`)
     .join(' ');
 };

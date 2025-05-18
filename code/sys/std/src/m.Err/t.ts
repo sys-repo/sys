@@ -101,7 +101,7 @@ export type ErrorCollection = {
   readonly length: number;
 
   /** The list of errors. */
-  readonly list: ReadonlyArray<t.StdError>;
+  readonly items: ReadonlyArray<t.StdError>;
 
   /** Boolean status flags. */
   readonly is: { readonly empty: boolean };

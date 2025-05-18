@@ -11,5 +11,6 @@ export * from '../ui.Icons.ts';
 /**
  * Common Video Refs
  */
-export const vimeo = (id: number) => ({ id, src: `vimeo/${id}` } as const);
-export const TUBES = vimeo(499921561);
+const tubes = 499921561;
+export const vimeo = (id?: number) => ({ id, src: `vimeo/${id ?? tubes}` } as const);
+export const TUBES = vimeo(tubes);

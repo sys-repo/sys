@@ -1,5 +1,5 @@
 import React from 'react';
-import { Content } from '../../ui.Content/mod.ts';
+import { Content } from '../../ui.content/mod.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
 import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
 
@@ -43,7 +43,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (
@@ -76,7 +81,7 @@ const wrangle = {
     const dist = app.props.dist.value;
     if (!dist) return { err: '[app.props.dist] not found' };
     return {
-      'dist:size': Str.bytes(dist.size.bytes),
+      'dist:build:size': Str.bytes(dist.build.size.total),
       'dist:hash:sha256': `#${dist.hash.digest.slice(-5)}`,
     };
   },

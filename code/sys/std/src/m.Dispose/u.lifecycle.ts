@@ -45,7 +45,7 @@ export function lifecycleAsync(...args: any[]) {
 }
 
 /**
- * Extend the given object to be expose the lifecycle API.
+ * Extend the given object to expose the lifecycle API.
  */
 export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: any[]): T => {
   const { api, life } = wrangle.toLifecycleParams(input);

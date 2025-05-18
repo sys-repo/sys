@@ -1,9 +1,8 @@
 import React from 'react';
-import { Button } from '../Button/mod.ts';
-import { type t, css, DEFAULTS, Signal } from './common.ts';
+import { type t, Button, css, Signal } from '../u.ts';
+import { D } from './common.ts';
 
 type P = t.SheetProps;
-const D = DEFAULTS;
 
 /**
  * Types:
@@ -51,7 +50,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
-    title: css({ fontWeight: 'bold', marginBottom: 10 }),
+    title: css({
+      fontWeight: 'bold',
+      marginBottom: 10,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
+    }),
   };
 
   return (

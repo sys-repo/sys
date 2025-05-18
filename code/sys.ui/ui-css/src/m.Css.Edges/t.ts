@@ -1,11 +1,11 @@
 import type { t } from './common.ts';
 
-type N = number | string | null | undefined;
+type N = t.CssNumberOrStringInput;
 
 /**
  * Types a default value for an edge can be.
  */
-export type CssEdgeDefault = null | string | number;
+export type CssEdgeDefault = t.CssNumberOrStringInput;
 
 /**
  * Callback that mutates the results of the toEdges function.

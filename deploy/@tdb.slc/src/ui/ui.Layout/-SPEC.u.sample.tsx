@@ -7,6 +7,7 @@ export const Sample = {
       id,
       render(props) {
         const { state } = props;
+        const isTop = props.index === state.stack.length - 1;
         const styles = {
           base: css({
             pointerEvents: 'auto',
@@ -22,7 +23,7 @@ export const Sample = {
             className={styles.base.class}
             onDoubleClick={() => state.stack.clear(1)}
             onClick={() => {
-              if (!props.is.top) state.stack.pop(1);
+              if (!isTop) state.stack.pop(1);
             }}
           >
             <div>{`id: "${id}"`}</div>
@@ -39,11 +40,12 @@ export const Sample = {
       id,
       render(props) {
         const { state } = props;
+        const isTop = props.index === state.stack.length - 1;
         const edge: t.SheetMarginInput =
           state.breakpoint.name === 'Desktop' ? ['1fr', 390, '1fr'] : 10;
 
         const onClick = () => {
-          if (!props.is.top) props.state.stack.pop();
+          if (!isTop) props.state.stack.pop();
         };
 
         const styles = { base: css({ padding: 10 }) };

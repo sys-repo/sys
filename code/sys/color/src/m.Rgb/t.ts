@@ -3,6 +3,9 @@ import type { t } from './common.ts';
 type HexColor = string;
 type ColorInput = string | null;
 
+export type StringRgb = string;
+export type StringRgba = string;
+
 /**
  * Library: Helpers for working with colors.
  */
@@ -16,19 +19,26 @@ export type ColorLib = t.ColorConstants & {
    * Converts a color to an alpha RGB value.
    * @param: alpha: 0..1
    */
-  alpha(color: string, alpha: t.Percent): string;
+  alpha(color: string, alpha: t.Percent): t.StringRgba;
+  /** Returns an alpha percentage of red. */
+  ruby(alpha?: t.Percent | boolean): t.StringRgba;
 
   /**
    * Lightens the given color.
    * @param amount: 0..100
    */
-  lighten(color: string, amount: number): string;
+  lighten(color: string, amount: number): t.StringRgb;
 
   /**
    * Darkens the given color.
    * @param amount: 0..100
    */
-  darken(color: string, amount: number): string;
+  darken(color: string, amount: number): t.StringRgb;
+
+  /**
+   * Convert the given color into a hex.
+   */
+  toHex(color: string): t.StringHex;
 
   /** ColorThemeLib */
   readonly Theme: ColorThemeLib;

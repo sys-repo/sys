@@ -1,21 +1,22 @@
 import { describe, DomMock, expect, it, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
-describe(
-  'LocalStorage',
+describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
+  it('(setup)', () => DomMock.polyfill());
 
-  /** NOTE: leaked timers left around by the "happy-dom" module. */
-  { sanitizeOps: false, sanitizeResources: false },
-
-  () => {
+  describe('ns', () => {
     type T = { count: number; msg?: string };
-    it('(setup)', () => DomMock.polyfill());
-
     const prefix = `test-${slug()}`;
-    const localstore = LocalStorage<T>(prefix);
+
+    it('cleans prefix', () => {
+      const ns = LocalStorage.ns<T>('foo/bar////');
+      console.log('ns', ns);
+      expect(ns.namespace).to.eql('foo/bar');
+    });
 
     it('set/get', () => {
-      const local = localstore.object({ count: 0 });
+      const ns = LocalStorage.ns<T>(prefix);
+      const local = ns.object({ count: 0 });
       expect(local.count).to.eql(0);
       expect(local.msg).to.eql(undefined);
 
@@ -25,5 +26,5 @@ describe(
       expect(local.count).to.eql(456);
       expect(local.msg).to.eql('hello');
     });
-  },
-);
+  });
+});

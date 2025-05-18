@@ -1,10 +1,14 @@
 import { describe, expect, it } from '../-test.ts';
+import { isEmptyRecord, isObject, isRecord } from '../common.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
 
 describe('Value.Obj', () => {
   it('API', () => {
     expect(Value.Obj).to.equal(Obj);
+    expect(Value.isObject).to.equal(isObject);
+    expect(Value.isRecord).to.equal(isRecord);
+    expect(Value.isEmptyRecord).to.equal(isEmptyRecord);
   });
 
   describe('Obj.walk', () => {
@@ -650,6 +654,164 @@ describe('Value.Obj', () => {
       expect(clonedRegex.source).to.equal(regex.source);
       expect(clonedRegex.flags).to.equal(regex.flags);
       expect((clonedRegex as any).extra).to.equal('data');
+    });
+
+    it('should preserve dynamic properties', () => {
+      let _value = 0;
+      const obj = {
+        get count() {
+          return _value;
+        },
+        set count(v) {
+          _value = v;
+        },
+        child: { count: 0 },
+      };
+      obj.child = obj;
+
+      expect(obj.count).to.eql(0);
+
+      _value = 123;
+      expect(obj.count).to.eql(123);
+      obj.count = 456;
+      expect(obj.count).to.eql(456); // NB: setter (write).
+
+      const res = Obj.clone(obj);
+      expect(res.count).to.eql(456); // NB: cloned value
+      expect(res).to.not.equal(obj);
+      expect(res.child).to.not.equal(obj.child);
+
+      // Ensure setter and getter are preseved.
+      _value = 888;
+      expect(res.count).to.eql(888);
+      res.count = 0;
+      expect(_value).to.eql(0);
+
+      // Deep clone.
+      expect(res.child.count).to.eql(0);
+      _value = 123;
+      expect(res.child.count).to.eql(123);
+    });
+  });
+
+  describe('Obj.extend', () => {
+    it('deeply clones and preseves dynamic properties', () => {
+      let _count = 0;
+      let _msg = 'hello';
+      const obj = {
+        get count() {
+          return _count;
+        },
+        set count(v) {
+          _count = v;
+        },
+        get msg() {
+          return _msg;
+        },
+        child: { count: 0 },
+      };
+      obj.child = obj;
+
+      const res = Obj.extend(obj, {
+        foo: 'hello',
+        get bar() {
+          return _msg + _count;
+        },
+      });
+
+      expect(res).to.not.equal(obj);
+      expect(res.child).to.not.equal(obj.child);
+      expect(res.child).to.equal(res);
+
+      _count = 123;
+      _msg = '👋';
+      expect(res.foo).to.eql('hello');
+      expect(res.count).to.eql(123);
+      expect(res.child.count).to.eql(123);
+      expect(res.msg).to.eql('👋');
+      expect(res.bar).to.eql('👋123');
+
+      res.count = 42;
+      expect(_count).to.eql(42);
+
+      // NB: new extended properties not sneaking back onto source object.
+      expect((obj as any).foo).to.be.undefined;
+
+      const foo = Object.getOwnPropertyDescriptor(res, 'foo')!;
+      expect(foo.enumerable).to.be.true;
+      expect(foo.configurable).to.be.true;
+      expect(foo.writable).to.be.true;
+
+      const msg = Object.getOwnPropertyDescriptor(res, 'msg')!;
+      expect(msg.enumerable).to.be.true;
+      expect(msg.configurable).to.be.true;
+      expect(msg.writable).to.be.undefined;
+    });
+  });
+
+  describe('Obj.hash', () => {
+    const test = (input: any, expected?: number) => {
+      const res = Obj.hash(input);
+      if (expected != null) expect(res).to.eql(expected);
+      if (expected == null) console.info(`Num.hash( ${input} ):`, res);
+    };
+
+    it('simple', () => {
+      test('hello', 6927037667158);
+      test('', 729279156);
+      test(123, 8546431076729);
+      test(true, 24057694676);
+    });
+
+    it('complex', () => {
+      test({}, 15861746468527);
+      test([], 8556010191289);
+      test([123, true, 'foo', {}, []], 5994549667863);
+      test(BigInt(0), 24057588158);
+    });
+
+    it('(nothing)', () => {
+      test(null, 711079339769);
+      test(undefined, 4721361581144);
+    });
+  });
+
+  describe('Obj.keys', () => {
+    it('returns own enumerable keys of the object', () => {
+      const obj = { a: 1, b: 2, c: 3 };
+      const result = Obj.keys(obj);
+      expect(result).to.eql(['a', 'b', 'c']);
+    });
+
+    it('excludes inherited keys', () => {
+      const parent = { inherited: true };
+      const obj = Object.create(parent);
+      obj.own = false;
+      const result = Obj.keys(obj);
+      expect(result).to.eql(['own']);
+    });
+
+    it('handles numeric-like keys', () => {
+      const obj = { 1: 'one', two: '2' } as Record<string, string>;
+      const result = Obj.keys(obj);
+      expect(result).to.eql(['1', 'two']);
+    });
+
+    it('returns empty array for empty object', () => {
+      expect(Obj.keys({})).to.eql([]);
+    });
+
+    it('returns empty array for invalid input types', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(Obj.keys(value)).to.eql([]));
+    });
+
+    it('union string type', () => {
+      type S = 'One' | 'Two';
+      type T = Record<S, number>;
+      const obj: T = { One: 0, Two: 2 };
+      const res = Obj.keys(obj);
+      expect(res).to.eql(['One', 'Two']);
     });
   });
 });

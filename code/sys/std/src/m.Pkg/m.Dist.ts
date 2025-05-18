@@ -32,4 +32,11 @@ export const Dist: t.PkgDistLib = {
 
     return { ok, status, dist, error: errors.toError() };
   },
+
+  Is: {
+    codePath(path) {
+      if (typeof path !== 'string') return false;
+      return path.startsWith('pkg/') || path.includes('/pkg/');
+    },
+  },
 };

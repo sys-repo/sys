@@ -12,7 +12,7 @@ import {
   Testing,
 } from '../../-test.ts';
 import { assertFetchDisposed } from './-u.ts';
-import { Url } from './common.ts';
+import { JsrUrl } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Jsr.Fetch.Pkg.file', () => {
@@ -44,7 +44,7 @@ describe('Jsr.Fetch.Pkg.file', () => {
 
       expect(res.status).to.eql(200);
       expect(res.error).to.eql(undefined);
-      expect(res.url).to.eql(Url.Pkg.file(name, version, path));
+      expect(res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
       expect(hx).to.eql(SAMPLE.def[path].checksum);
       expectText.forEach((text) => {
         expect(res.data).to.include(text);

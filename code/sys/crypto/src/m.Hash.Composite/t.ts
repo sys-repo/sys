@@ -19,6 +19,8 @@ export type CompositeHashVerifyArgsInput = t.CompositeHashVerifyOptions | t.Hash
  * Tools for building composite hashes.
  */
 export type CompositeHashLib = {
+  readonly Uri: { readonly File: FileHashUriLib };
+
   /** Create a new Composite-Hash builder. */
   builder(options?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuilder;
 
@@ -39,6 +41,16 @@ export type CompositeHashLib = {
    * Pass nothing to retrieve an empty version of the structure.
    */
   toComposite(input?: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
+
+  /**
+   * Sums the total byte-size of the given parts.
+   * @returns The sum of all bytes extracted from the URIs, or `undefined`
+   *          if `parts` is empty or none include byte-size data.
+   */
+  size(
+    parts: t.CompositeHashParts,
+    filter?: (e: { path: string; uri: t.FileHashUriParts }) => boolean,
+  ): t.NumberBytes | undefined;
 };
 
 /** Options passed to the Composite-Hash.verify method. */
@@ -97,4 +109,18 @@ export type CompositeHashBuilder = t.CompositeHash & {
 
   /** Convert the builder into the digest string. */
   toString(): string;
+};
+
+/**
+ * URIs:
+ */
+export type FileHashUriLib = {
+  toUri(hash: string, bytes?: number): t.StringFileHashUri;
+  fromUri(input: string): FileHashUriParts;
+};
+
+/** A decomposed file-hash URI. */
+export type FileHashUriParts = {
+  hash: t.StringHash;
+  bytes?: number;
 };

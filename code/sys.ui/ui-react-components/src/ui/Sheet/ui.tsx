@@ -7,13 +7,13 @@ export const Sheet: React.FC<P> = (props) => {
   const { duration = D.duration, bounce = D.bounce, pointerEvents = 'auto' } = props;
   const is = wrangle.is(props);
   const animation = wrangle.animation(props);
-  const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const backgroundColor = theme.bg;
+  const { borderRadius, boxShadow, gridTemplateColumns, gridTemplateRows } = wrangle.styles(props);
   const styles = {
     base: css({ position: 'relative', display: 'grid', gridTemplateColumns, gridTemplateRows }),
     spacer: css({ pointerEvents: 'none' }),
@@ -43,7 +43,7 @@ export const Sheet: React.FC<P> = (props) => {
 
   return (
     <M.div
-      data-component={`sys.ui.sheet`}
+      data-component={`sys.ui.Sheet`}
       className={css(styles.base, props.style).class}
       /**
        * Animation:
@@ -51,7 +51,7 @@ export const Sheet: React.FC<P> = (props) => {
       initial={animation.initial}
       animate={is.vertical ? { y: '0%' } : { x: '0%' }}
       exit={animation.exit}
-      transition={{ duration, type: 'spring', bounce }}
+      transition={{ type: 'spring', bounce, duration }}
       /**
        * Handlers:
        */
@@ -85,7 +85,9 @@ const wrangle = {
   styles(props: P) {
     const { radius = D.radius } = props;
     const is = wrangle.is(props);
-    const shadowColor = Color.format(props.shadowOpacity ?? D.shadowColor);
+    const shadowColor = Color.format(props.shadowOpacity ?? D.shadow.color);
+    const blurRadius = props.shadowBlurRadius ?? D.shadow.blurRadius;
+    const spreadRadius = props.shadowSpreadRadius ?? D.shadow.spreadRadius;
     const edgeMargin = wrangle.edgeMarginTemplate(props);
 
     let borderRadius: string;
@@ -93,23 +95,27 @@ const wrangle = {
     let gridTemplateColumns: string | undefined;
     let gridTemplateRows: string | undefined;
 
+    const toBoxShadow = (x: number, y: number) => {
+      return `${x}px ${y}px ${blurRadius}px ${spreadRadius} ${shadowColor}`;
+    };
+
     if (is.vertical) {
       gridTemplateColumns = edgeMargin;
       if (is.topDown) {
         borderRadius = `0 0 ${radius}px ${radius}px`;
-        boxShadow = `0 5px 6px 0 ${shadowColor}`;
+        boxShadow = toBoxShadow(0, 5);
       } else {
         borderRadius = `${radius}px ${radius}px 0 0`;
-        boxShadow = `0 -5px 6px 0 ${shadowColor}`;
+        boxShadow = toBoxShadow(0, -5);
       }
     } else {
       gridTemplateRows = edgeMargin;
       if (is.leftToRight) {
         borderRadius = `0 ${radius}px ${radius}px 0`;
-        boxShadow = `5px 0 6px 0 ${shadowColor}`;
+        boxShadow = toBoxShadow(5, 0);
       } else {
         borderRadius = `${radius}px 0 0 ${radius}px`;
-        boxShadow = `-5px 0 6px 0 ${shadowColor}`;
+        boxShadow = toBoxShadow(-5, 0);
       }
     }
 

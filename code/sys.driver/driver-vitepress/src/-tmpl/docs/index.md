@@ -17,9 +17,8 @@ notes: |
 
 ```yaml
 debug: true
-component: ConceptPlayer
+component: Video
 video: vimeo/727951677
-thumbnails: true
 timestamps: 
   '00:00:00.000': 
     image: /images/volcano.jpg

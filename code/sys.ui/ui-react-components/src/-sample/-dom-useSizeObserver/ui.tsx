@@ -25,7 +25,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <div>{'👋 useSizeObserver:'}</div>
+        <div>{`👋 useSizeObserver: ${size.toString()}`}</div>
         <ObjectView name={'size.rect'} data={size.toObject()} block margin={[10, 20]} />
       </div>
     </div>

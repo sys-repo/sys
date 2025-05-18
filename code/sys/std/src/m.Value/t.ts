@@ -7,7 +7,7 @@ type O = Record<string, unknown>;
  */
 export type ValueLib = {
   /** Tools for working with arrays. */
-  Array: t.ArrayLib;
+  Arr: t.ArrayLib;
 
   /** Tools for working with numbers. */
   Num: t.NumLib;

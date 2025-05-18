@@ -5,6 +5,8 @@ export type * from './t.ctx.ts';
  * Tools for programatically managing CSS stylesheets within the browser DOM.
  */
 export type CssDomLib = {
+  readonly PseudoClass: t.CssPseudoClassLib;
+
   /** Factory for a DOM <style> stylesheet element (singleton instances). */
   stylesheet(options?: CssDomStylesheetOptions | t.StringId): t.CssDomStylesheet;
 
@@ -84,7 +86,7 @@ export type CssDomRules = {
   readonly length: number;
 
   /** List of CSS rules that have been inserted into the DOM.  */
-  readonly list: Readonly<CssDomInsertedRule[]>;
+  readonly items: Readonly<CssDomInsertedRule[]>;
 
   /**
    * Inserts generic CSS style rules into the stylesheet.
@@ -118,4 +120,29 @@ export type CssDomInsertedRule = {
   readonly selector: string;
   readonly style: t.CssProps;
   readonly rule: string;
+};
+
+import type { level3, level4 } from './m.CssPseudoClass.ts';
+
+/**
+ * CSS Pseudo-Classes (Levels 3 & 4).
+ * Ref:
+ *    https://www.w3.org/TR/selectors-3
+ *    https://www.w3.org/TR/selectors-4
+ */
+export type CssPseudoClassLib = {
+  level3: ReadonlySet<CssPseudoClassLevel3>;
+  level4: ReadonlySet<CssPseudoClassLevel4>;
+  all: ReadonlySet<CssPseudoClass>;
+  isClass(input: unknown): input is CssPseudoClass;
+};
+export type CssPseudoClassLevel3 = (typeof level3)[number];
+export type CssPseudoClassLevel4 = (typeof level4)[number];
+export type CssPseudoClass = CssPseudoClassLevel3 | CssPseudoClassLevel4;
+
+/**
+ * Map of CSS psuedo-classes values.
+ */
+export type CssPseudo = {
+  [K in t.CssPseudoClass]?: t.CssValue;
 };
