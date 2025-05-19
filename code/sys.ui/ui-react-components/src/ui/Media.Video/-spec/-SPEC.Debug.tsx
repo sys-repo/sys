@@ -4,7 +4,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
-const Filters = Media.Filters;
+const Filters = Media.Config.Filters;
 
 /**
  * Types:
@@ -83,7 +83,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
-      <Media.Filters.UI.List
+      <Media.Config.Filters.UI.List
         style={{ margin: 20 }}
         values={p.filters.value}
         onChange={(e) => (p.filters.value = e.values)}

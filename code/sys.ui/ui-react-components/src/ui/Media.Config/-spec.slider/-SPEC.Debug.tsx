@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, Signal } from '../common.ts';
 
-type P = t.MediaFilterProps;
+type P = t.MediaConfigSliderProps;
 
 /**
  * Types:
@@ -56,7 +56,6 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -68,10 +67,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>
-        <div>{'Media.Filter'}</div>
-        <div>{'(Single)'}</div>
-      </div>
+      <div className={Styles.title.class}>{'Media.Config.Slider'}</div>
 
       <Button
         block

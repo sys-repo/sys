@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Filters } from '../mod.ts';
+import { Config } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe('Media.Filter', (e) => {
+export default Spec.describe('Media.Config.Filters', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -19,17 +19,18 @@ export default Spec.describe('Media.Filter', (e) => {
       .size([350, null])
       .display('grid')
       .render(() => (
-        <Filters.UI.Filter
-          name={p.name.value}
-          label={p.label.value}
-          value={p.value.value}
-          unit={p.unit.value}
-          range={p.range.value}
+        <Config.Filters.UI.List
           debug={p.debug.value}
           theme={p.theme.value}
+          values={p.values.value}
+          debounce={p.debounce.value}
           onChange={(e) => {
-            console.info(`⚡️ Filter.onChange:`, e);
-            p.value.value = e.value;
+            console.info(`⚡️ Filters.onChange:`, e);
+            p.values.value = e.values;
+          }}
+          onChanged={(e) => {
+            console.info(`🌳 Filters.onChanged:`, e);
+            debug.localstore.change((d) => (d.values = e.values));
           }}
         />
       ));

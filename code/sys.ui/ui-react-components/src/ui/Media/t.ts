@@ -11,7 +11,7 @@ export type MediaLib = {
   readonly Video: t.MediaVideoLib;
   readonly Recorder: t.MediaRecorderLib;
   readonly Devices: t.MediaDevicesLib;
-  readonly Filters: t.MediaFiltersLib;
+  readonly Config: t.MediaConfigLib;
   readonly Zoom: t.MediaZoomLib;
 
   // Helpers:

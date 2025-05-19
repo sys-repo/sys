@@ -1,14 +1,19 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with media filters.
+ * Tools for managing the configuration of a media-stream.
+ */
+export type MediaConfigLib = {
+  readonly Filters: MediaFiltersLib;
+  readonly UI: { readonly Slider: React.FC<t.MediaConfigSliderProps> };
+};
+
+/**
+ * Tools for working with media-stream filters.
  */
 export type MediaFiltersLib = {
   readonly config: t.MediaFilterConfigMap;
-  readonly UI: {
-    readonly List: React.FC<t.MediaFiltersProps>;
-    readonly Filter: React.FC<t.MediaFilterProps>;
-  };
+  readonly UI: { readonly List: React.FC<t.MediaFiltersProps> };
 
   /** Construct a partial map of filter values. */
   values(filters: t.MediaFilterName[]): Partial<t.MediaFilterValueMap>;
@@ -45,6 +50,21 @@ export type MediaFilterConfig = {
 };
 
 /**
+ * <Component>: Single configuration slider.
+ */
+export type MediaConfigSliderProps = {
+  debug?: boolean;
+  name: t.MediaFilterName;
+  label?: string;
+  value?: number;
+  unit: string;
+  range: t.MinMaxNumberRange;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  onChange?: t.MediaFilterChangeHandler;
+};
+
+/**
  * <Component>: List
  */
 export type MediaFiltersProps = {
@@ -63,25 +83,10 @@ export type MediaFiltersProps = {
 };
 
 /**
- * <Component>: Single
- */
-export type MediaFilterProps = {
-  debug?: boolean;
-  name: t.MediaFilterName;
-  label?: string;
-  value?: number;
-  unit: string;
-  range: t.MinMaxNumberRange;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onChange?: t.MediaFilterChangeHandler;
-};
-
-/**
  * Event: fires when a single media-filter changes.
  */
-export type MediaFilterChangeHandler = (e: MediaFilterChangeHandlerArgs) => void;
-export type MediaFilterChangeHandlerArgs = {
+export type MediaFilterChangeHandler = (e: MediaFilterChangeArgs) => void;
+export type MediaFilterChangeArgs = {
   readonly name: t.MediaFilterName;
   readonly percent: t.Percent;
   readonly value: number;
@@ -90,9 +95,9 @@ export type MediaFilterChangeHandlerArgs = {
 /**
  * Event: fires when a single media-filter changes.
  */
-export type MediaFiltersChangeHandler = (e: MediaFiltersChangeHandlerArgs) => void;
-export type MediaFiltersChangeHandlerArgs = {
-  readonly change: MediaFilterChangeHandlerArgs;
+export type MediaFiltersChangeHandler = (e: MediaFiltersChangeArgs) => void;
+export type MediaFiltersChangeArgs = {
+  readonly change: MediaFilterChangeArgs;
   readonly values: Partial<t.MediaFilterValueMap>;
   readonly filter: string;
 };

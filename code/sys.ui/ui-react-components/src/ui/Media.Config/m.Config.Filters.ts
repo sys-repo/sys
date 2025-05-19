@@ -1,10 +1,9 @@
 import { type t, D } from './common.ts';
 import { toString, values } from './u.ts';
-import { Filter } from './ui.Filter.tsx';
-import { List } from './ui.tsx';
+import { List } from './ui.Filters.tsx';
 
 export const Filters: t.MediaFiltersLib = {
-  UI: { List, Filter },
+  UI: { List },
   config: D.config,
   values,
   toString,

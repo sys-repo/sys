@@ -5,7 +5,7 @@ import { Color, css, D, JsrUrl, Signal, LocalStorage } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
-const Filters = Media.Filters;
+const Filters = Media.Config.Filters;
 
 /**
  * Types:
@@ -117,7 +117,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
 
       <div className={Styles.title.class}>{'Filter'}</div>
-      <Media.Filters.UI.List
+      <Media.Config.Filters.UI.List
         style={{ MarginX: 20 }}
         values={p.filters.value}
         onChange={(e) => (p.filters.value = e.values)}
