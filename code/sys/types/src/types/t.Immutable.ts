@@ -39,7 +39,7 @@ export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
   readonly instance: string; // Unique ID of the reference handle.
 
   /** Generate a new Events object. */
-  events(dispose$?: t.UntilObservable): E;
+  events(dispose$?: t.UntilInput): E;
 };
 
 /**
