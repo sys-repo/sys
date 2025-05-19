@@ -16,7 +16,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   type L = { values: P['values'] };
-  const localstore = LocalStorage.immutable<L>(`${D.name}.fitlers`, {
+  const localstore = LocalStorage.immutable<L>(`${D.name}.filters`, {
     values: Filters.values(Obj.keys(Filters.config)),
   });
 
