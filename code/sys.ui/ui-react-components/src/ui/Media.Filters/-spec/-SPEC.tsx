@@ -30,6 +30,7 @@ export default Spec.describe('Media.Filters', (e) => {
           }}
           onChanged={(e) => {
             console.info(`🌳 Filters.onChanged:`, e);
+            debug.localstore.change((d) => (d.values = e.values));
           }}
         />
       ));
