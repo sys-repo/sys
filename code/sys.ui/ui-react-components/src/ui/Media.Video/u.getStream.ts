@@ -49,10 +49,10 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
     ctx.clearRect(0, 0, w, h);
     if (filter) ctx.filter = filter;
     if (zoom) {
-      // Compute centered crop.
+      // Normalize center coords → absolute pixels.
+      const cx = (zoom.centerX ?? 0.5) * w;
+      const cy = (zoom.centerY ?? 0.5) * h;
       const f = zoom.factor;
-      const cx = zoom.centerX ?? w / 2;
-      const cy = zoom.centerY ?? h / 2;
       const sw = w / f;
       const sh = h / f;
       const sx = cx - sw / 2;
