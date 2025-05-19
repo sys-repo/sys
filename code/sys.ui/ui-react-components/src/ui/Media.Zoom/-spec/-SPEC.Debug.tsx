@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
-
-type P = t.MyComponentProps;
+import { Button, ObjectView } from '../../u.ts';
+import { type t, css, D, Signal } from '../common.ts';
+import { Zoom } from '../mod.ts';
+import { Media } from '../../Media/mod.ts';
 
 /**
  * Types:
@@ -16,13 +17,15 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    selectedCamera: s<MediaDeviceInfo>(),
+    theme: s<t.CommonTheme>('Dark'),
   };
   const p = props;
   const api = {
     props,
     listen() {
       p.debug.value;
+      p.selectedCamera.value;
       p.theme.value;
     },
   };
@@ -59,13 +62,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
+      <Media.Devices.UI.List
+        filter={(e) => e.kind === 'videoinput'}
+        selected={p.selectedCamera.value}
+        onSelect={(e) => (p.selectedCamera.value = e.info)}
+      />
+
+      <hr />
+      <Media.Zoom.UI.Sliders />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
-      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}

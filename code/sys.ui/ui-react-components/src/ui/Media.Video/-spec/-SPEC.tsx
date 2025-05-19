@@ -22,26 +22,29 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       updateSize();
     });
 
-    ctx.subject.display('grid').render(() => {
-      return (
-        <Video.UI.Stream
-          debug={p.debug.value}
-          theme={p.theme.value}
-          filter={p.filter.value}
-          borderRadius={p.borderRadius.value}
-          aspectRatio={p.aspectRatio.value}
-          constraints={{
-            audio: true,
-            video: { deviceId: p.selectedCamera.value?.deviceId },
-          }}
-          onReady={(e) => {
-            console.info(`⚡️ VideoStream.onReady:`, e);
-            p.selectedCamera.value = e.device;
-            // p.aspectRatio.value = e.aspectRatio;
-          }}
-        />
-      );
-    });
+    ctx.subject
+      .size()
+      .display('grid')
+      .render(() => {
+        return (
+          <Video.UI.Stream
+            debug={p.debug.value}
+            theme={p.theme.value}
+            filter={p.filter.value}
+            borderRadius={p.borderRadius.value}
+            aspectRatio={p.aspectRatio.value}
+            constraints={{
+              audio: true,
+              video: { deviceId: p.selectedCamera.value?.deviceId },
+            }}
+            onReady={(e) => {
+              console.info(`⚡️ Media.Video.onReady:`, e);
+              p.selectedCamera.value = e.device;
+              // p.aspectRatio.value = e.aspectRatio;
+            }}
+          />
+        );
+      });
 
     /**
      * Initial state:
