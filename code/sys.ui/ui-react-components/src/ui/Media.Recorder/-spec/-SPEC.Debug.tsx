@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
-import { Color, css, D, JsrUrl, Signal } from '../common.ts';
+import { Color, css, D, JsrUrl, Signal, LocalStorage } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
@@ -17,6 +17,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  type L = { filters: Partial<t.MediaFilterValueMap> };
+  const filters = Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']);
+  const initial = { filters } as const;
+  const localstore = LocalStorage.immutable<L>(`${D.displayName}.fitlers`, { filters });
+
   type R = {
     status: t.MediaRecorderStatus;
     is: t.MediaRecorderHookFlags;
@@ -24,13 +29,10 @@ export function createDebugSignals() {
     blob?: Blob;
   };
   const s = Signal.create;
-  const initial = {
-    filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
-  } as const;
 
   const props = {
     debug: s(false),
-    filters: s(initial.filters),
+    filters: s(localstore.current.filters),
 
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
@@ -42,7 +44,9 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    localstore,
     listen() {
+      localstore;
       p.debug.value;
       p.theme.value;
       p.stream.value;
@@ -120,6 +124,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
+          debug.localstore.change((d) => (d.filters = e.values));
         }}
       />
 

@@ -24,7 +24,7 @@ export {
 } from '@sys/std';
 
 export { Color, css, Style } from '@sys/ui-css';
-export { Keyboard } from '@sys/ui-dom';
+export { Keyboard, LocalStorage } from '@sys/ui-dom';
 export {
   FC,
   ReactChildren,
