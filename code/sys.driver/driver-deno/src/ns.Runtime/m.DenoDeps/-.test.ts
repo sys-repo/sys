@@ -17,7 +17,7 @@ describe('DenoDeps', () => {
       const a = DenoDeps.toDep(esm);
       const b = DenoDeps.toDep(esm, { target: 'package.json' });
       const c = DenoDeps.toDep(esm, { target: ['package.json', 'deno.json'] });
-      const d = DenoDeps.toDep(esm, { dev: true, wildcard: true });
+      const d = DenoDeps.toDep(esm, { dev: true, wildcard: true, subpaths: ['v2', 'http'] });
 
       expect(a.module.toString()).to.eql(esm);
       expect(b.module.input).to.eql(esm);
@@ -27,15 +27,16 @@ describe('DenoDeps', () => {
       expect(b.target).to.eql(['package.json']);
       expect(c.target).to.eql(['deno.json', 'package.json']); // NB: sorted
 
-      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
-      expect([d.dev, d.wildcard]).to.eql([true, true]);
+      expect([a.dev, a.wildcard, a.subpaths]).to.eql([undefined, undefined, undefined]);
+      expect([d.dev, d.wildcard, d.subpaths]).to.eql([true, true, ['v2', 'http']]);
     });
 
     it('from {EsmImport}', () => {
       const esm = Esm.parse('jsr:@sys/tmp@0.1.2');
       const a = DenoDeps.toDep(esm);
       const b = DenoDeps.toDep(esm, { target: 'package.json', dev: true });
-      const c = DenoDeps.toDep(esm, { wildcard: true });
+      const c = DenoDeps.toDep(esm, { wildcard: true, subpaths: ['  '] });
+      const d = DenoDeps.toDep(esm, { subpaths: ['', '//foo/bar//', ' v2 '] });
 
       expect(a.module.toString()).to.eql(esm.toString());
       expect(b.module.toString()).to.eql(esm.toString());
@@ -43,7 +44,8 @@ describe('DenoDeps', () => {
 
       expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
       expect([b.dev, b.wildcard]).to.eql([true, undefined]);
-      expect([c.dev, c.wildcard]).to.eql([undefined, true]);
+      expect([c.dev, c.wildcard, c.subpaths]).to.eql([undefined, true, undefined]);
+      expect(d.subpaths).to.eql(['foo/bar', 'v2']);
     });
   });
 
@@ -58,7 +60,7 @@ describe('DenoDeps', () => {
 
       const deps = res.data?.deps ?? [];
       expect(res.error).to.eql(undefined);
-      expect(deps.length).to.eql(10); // NB: de-duped.
+      expect(deps.length).to.eql(11); // NB: de-duped.
 
       const names = deps.map((m) => Esm.toString(m.module));
       expect(names).to.eql([...new Set(names)]); // NB: unique (no duplicates).
@@ -70,10 +72,10 @@ describe('DenoDeps', () => {
       expect(deps[4].target).to.eql(['deno.json']);
       expect(deps[5].target).to.eql(['deno.json']);
 
-      expect(deps[6].target).to.eql(['package.json']);
       expect(deps[7].target).to.eql(['package.json']);
       expect(deps[8].target).to.eql(['package.json']);
       expect(deps[9].target).to.eql(['package.json']);
+      expect(deps[10].target).to.eql(['package.json']);
 
       const mod = deps[0].module;
       expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
@@ -93,6 +95,7 @@ describe('DenoDeps', () => {
       find('@std/http', (dep) => expect(dep.dev).to.eql(true));
       find('@noble/hashes', (dep) => expect(dep.wildcard).to.eql(true));
       find('@automerge/automerge-repo', (dep) => expect(dep.wildcard).to.eql(true));
+      find('zod', (dep) => expect(dep.subpaths).to.eql(['v4-mini']));
     });
 
     it('input: YAML (string)', async () => {
@@ -305,12 +308,6 @@ describe('DenoDeps', () => {
         expect(yaml.obj).to.eql(Yaml.parse(yaml.text)); // NB: no data loss (exact match).
       }
     });
-
-    /**
-     * TODO 🐷
-     */
-    it.skip('', () => {});
-    it.skip('', () => {});
   });
 
   describe('DenoDeps:toJson("deno.json")', () => {
@@ -324,7 +321,6 @@ describe('DenoDeps', () => {
     it('imports', async () => {
       const res = await DenoDeps.from(SAMPLE.path);
       const json = DenoDeps.toJson('deno.json', res.data?.deps);
-
       expect(json).to.eql({
         imports: {
           '@automerge/automerge': 'npm:@automerge/automerge@2',
@@ -335,6 +331,8 @@ describe('DenoDeps', () => {
           '@std/assert': 'jsr:@std/assert@1.0.11',
           '@std/fs': 'jsr:@std/fs@1.0.11',
           '@std/http': 'jsr:@std/http@1.0.13',
+          zod: 'npm:zod@4',
+          'zod/v4-mini': 'npm:zod@4/v4-mini',
         },
       });
     });

@@ -52,8 +52,8 @@ async function updatePackages() {
       return;
     }
 
-    if (e.target.file.name === 'pkg.ts') {
-      const text = e.text.tmpl.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
+    if (e.text && e.target.file.name === 'pkg.ts') {
+      const text = e.text?.tmpl.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
       e.modify(text);
     }
   });

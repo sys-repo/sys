@@ -34,6 +34,9 @@ export type YamlDep = {
   /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
   wildcard?: boolean;
 
+  /** Array of sub-paths for the module. */
+  subpaths?: t.StringDir[];
+
   /**
    * Flag indicating if the import is a development-dependency only.
    * Only relevant when producing a `package.json` file.
