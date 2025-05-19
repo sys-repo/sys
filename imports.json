@@ -50,7 +50,6 @@
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
     "ua-parser-js": "npm:ua-parser-js@2.0.3",
-    "valibot": "npm:valibot@1.1.0",
     "yaml": "npm:yaml@2.8.0",
     "zod": "npm:zod@3.25.0-beta.20250518T233617",
     "zod/v4-mini": "npm:zod@3.25.0-beta.20250518T233617/v4-mini"

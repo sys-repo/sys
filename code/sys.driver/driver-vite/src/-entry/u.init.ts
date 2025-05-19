@@ -1,16 +1,5 @@
 import { Vite } from '../m.Vite/mod.ts';
-import { type t, c, pkg, Semver, ViteLog, V } from './common.ts';
-
-/**
- * Args validation:
- */
-export const TmplKindSchema = V.union([V.literal('Default'), V.literal('ComponentLib')]);
-export const InitSchema = V.object({
-  cmd: V.literal('init'),
-  dir: V.optional(V.string()),
-  silent: V.optional(V.boolean()),
-  tmpl: V.optional(TmplKindSchema, 'Default'),
-});
+import { type t, c, pkg, Semver, ViteLog } from './common.ts';
 
 /**
  * Run the initialization templates.
@@ -49,9 +38,6 @@ export async function init(args: t.ViteEntryArgsInit) {
 const wrangle = {
   tmplKind(args: t.ViteEntryArgsInit): t.ViteTmplKind {
     if (!args.tmpl || args.tmpl === true) return 'Default';
-    const validated = V.safeParse(TmplKindSchema, args.tmpl);
-    const issues = validated.issues;
-    issues?.forEach((issue) => console.warn(c.yellow('Parse Error: --tmpl:'), issue.message));
-    return issues ? 'Default' : validated.output;
+    return args.tmpl;
   },
 } as const;

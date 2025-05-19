@@ -9,16 +9,11 @@ export async function lookup(kind: string): Promise<React.FC | undefined> {
     return Foo;
   }
 
-  const players = ['VideoPlayer', 'Panel'];
+  const players = ['VideoPlayer'];
 
   if (players.includes(kind)) {
     const { Player } = await import('@sys/ui-react-components');
     if (kind === 'VideoPlayer') return Player.Video.View;
-  }
-
-  if (kind === 'Panel') {
-    const { Panel } = await import('@sys/ui-react-components');
-    return Panel;
   }
 
   return; // NB: no-match.
