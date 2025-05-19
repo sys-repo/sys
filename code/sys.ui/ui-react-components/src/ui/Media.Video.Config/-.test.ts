@@ -1,7 +1,7 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Filters } from './mod.ts';
 
-describe('Media.Filters', () => {
+describe('Media.Config', () => {
   describe('Filters.values', () => {
     it('returns empty object for empty filters array', () => {
       const result = Filters.values([]);
