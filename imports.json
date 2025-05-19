@@ -52,6 +52,7 @@
     "ua-parser-js": "npm:ua-parser-js@2.0.3",
     "yaml": "npm:yaml@2.8.0",
     "zod": "npm:zod@3.25.0-beta.20250518T233617",
+    "zod/v4": "npm:zod@3.25.0-beta.20250518T233617/v4",
     "zod/v4-mini": "npm:zod@3.25.0-beta.20250518T233617/v4-mini"
   }
 }

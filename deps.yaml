@@ -90,6 +90,7 @@ deno.json:
   - import: npm:@preact/signals-core@1.8.0
   - import: npm:zod@3.25.0-beta.20250518T233617
     subpaths:
+      - v4
       - v4-mini
 
   # Browser
@@ -114,6 +115,10 @@ package.json:
     dev: true
 
   - import: npm:hono@4.7.10
+
+  # LLM
+  - import: npm:@langchain/ollama@0.2.0
+  - import: npm:@langchain/core@0.3.56
 
   # UI
   - group: ui/react
