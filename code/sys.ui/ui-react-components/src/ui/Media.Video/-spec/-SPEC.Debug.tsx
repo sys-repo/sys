@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Obj, Signal } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
 const Filters = Media.Filters;
@@ -16,16 +16,18 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  const s = Signal.create;
-  const initial = { filters: Filters.values(Obj.keys(Filters.config)) } as const;
+  type L = { filters: Partial<t.MediaFilterValueMap> };
+  const initial: L = { filters: Filters.values(Obj.keys(Filters.config)) } as const;
+  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
 
+  const s = Signal.create;
   const props = {
     debug: s(false),
     selectedCamera: s<MediaDeviceInfo>(),
-    filters: s(initial.filters),
+    filters: s(localstore.current.filters),
 
     theme: s<P['theme']>('Dark'),
-    filter: s<P['filter']>(Filters.toString(initial.filters)),
+    filter: s<P['filter']>(Filters.toString(localstore.current.filters)),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
   };
@@ -33,6 +35,7 @@ export function createDebugSignals() {
 
   const api = {
     props,
+    localstore,
     listen() {
       p.debug.value;
       p.selectedCamera.value;
@@ -88,6 +91,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
+          debug.localstore.change((d) => (d.filters = e.values));
         }}
       />
 
