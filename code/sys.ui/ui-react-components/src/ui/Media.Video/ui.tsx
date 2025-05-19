@@ -4,8 +4,15 @@ import { getDevice } from './u.getDevice.ts';
 import { useVideoStream } from './use.VideoStream.ts';
 
 export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
-  const { debug = false, filter, constraints, borderRadius = D.borderRadius, aspectRatio } = props;
-  const video = useVideoStream({ constraints, filter });
+  const {
+    debug = false,
+    borderRadius = D.borderRadius,
+    filter,
+    constraints,
+    aspectRatio,
+    zoom,
+  } = props;
+  const video = useVideoStream({ constraints, filter, zoom });
 
   /**
    * Effect: fire onReady when stream acquired.

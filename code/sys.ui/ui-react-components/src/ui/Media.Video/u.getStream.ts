@@ -14,6 +14,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   constraints = D.constraints,
   options = {},
 ) => {
+  const { zoom } = options;
   const filter = (options.filter ?? '').trim();
 
   /**
@@ -32,9 +33,11 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   }) as HTMLVideoElement;
   await video.play(); // NB: wait until metadata ready.
 
+  const w = video.videoWidth;
+  const h = video.videoHeight;
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = w;
+  canvas.height = h;
 
   const ctx = canvas.getContext('2d')!;
   if (filter) ctx.filter = filter;
@@ -43,10 +46,24 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Copy each video frame into the canvas.
    */
   function draw() {
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, w, h);
+    if (filter) ctx.filter = filter;
+    if (zoom) {
+      // Compute centered crop.
+      const f = zoom.factor;
+      const cx = zoom.centerX ?? w / 2;
+      const cy = zoom.centerY ?? h / 2;
+      const sw = w / f;
+      const sh = h / f;
+      const sx = cx - sw / 2;
+      const sy = cy - sh / 2;
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
+    } else {
+      ctx.drawImage(video, 0, 0, w, h);
+    }
+    requestAnimationFrame(draw); // ← RECURSION 🌳
   }
-  draw(); // NB: Kick off the loop.
+  draw(); // NB: Kick off the draw-loop.
 
   /**
    * Capture the canvas as a MediaStream and
