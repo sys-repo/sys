@@ -14,7 +14,7 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       expect(ns.namespace).to.eql('foo/bar');
     });
 
-    it('set/get', () => {
+    it('object: set/get', () => {
       const ns = LocalStorage.ns<T>(prefix);
       const local = ns.object({ count: 0 });
       expect(local.count).to.eql(0);
