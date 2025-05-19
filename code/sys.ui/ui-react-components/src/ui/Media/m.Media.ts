@@ -1,7 +1,7 @@
 import { AudioWaveform } from '../Media.AudioWaveform/mod.ts';
 import { Devices } from '../Media.Devices/mod.ts';
-import { Filters } from '../Media.Filters/mod.ts';
 import { Recorder } from '../Media.Recorder/mod.ts';
+import { Filters } from '../Media.Video.Config/mod.ts';
 import { Video } from '../Media.Video/mod.ts';
 import { Zoom } from '../Media.Zoom/mod.ts';
 
