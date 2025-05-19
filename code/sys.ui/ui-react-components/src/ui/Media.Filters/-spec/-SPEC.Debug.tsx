@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Obj, Signal, LocalStorage } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Filters } from '../mod.ts';
 
 type P = t.MediaFiltersProps;
@@ -16,7 +16,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   type L = { values: P['values'] };
-  const localstore = LocalStorage.immutable<L>(`${D.displayName}.fitlers`, {
+  const localstore = LocalStorage.immutable<L>(`${D.name}.fitlers`, {
     values: Filters.values(Obj.keys(Filters.config)),
   });
 

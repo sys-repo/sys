@@ -20,7 +20,7 @@ export function createDebugSignals() {
   type L = { filters: Partial<t.MediaFilterValueMap> };
   const filters = Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']);
   const initial = { filters } as const;
-  const localstore = LocalStorage.immutable<L>(`${D.displayName}.fitlers`, { filters });
+  const localstore = LocalStorage.immutable<L>(`${D.name}.fitlers`, { filters });
 
   type R = {
     status: t.MediaRecorderStatus;
