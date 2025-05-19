@@ -33,6 +33,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
             filter={p.filter.value}
             borderRadius={p.borderRadius.value}
             aspectRatio={p.aspectRatio.value}
+            zoom={{ factor: 2, centerX: 0.5, centerY: 0.7 }}
             constraints={{
               audio: true,
               video: { deviceId: p.selectedCamera.value?.deviceId },

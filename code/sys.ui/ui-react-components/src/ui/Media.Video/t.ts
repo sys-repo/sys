@@ -83,9 +83,10 @@ export type MediaVideoStreamProps = {
 export type MediaZoomOptions = {
   /** Zoom factor: e.g. 2 = 2× zoom; 1 = no zoom. */
   factor: t.Percent;
-  /** Override zoom center (px from top-left) */
-  centerX?: t.Pixels;
-  centerY?: t.Pixels;
+  /** Zoom center offset as fraction of width: 0 = far left, 0.5 = center, 1 = far right. */
+  centerX?: t.Percent;
+  /** Zoom center offset as fraction of height: 0 = top, 0.5 = middle, 1 = bottom. */
+  centerY?: t.Percent;
 };
 
 /**
