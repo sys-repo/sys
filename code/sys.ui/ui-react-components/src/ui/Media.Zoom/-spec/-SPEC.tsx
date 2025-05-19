@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { MyComponent } from '../mod.ts';
+import { Media } from '../../Media/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -17,9 +17,24 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill', 150)
       .display('grid')
-      .render(() => <MyComponent debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => {
+        return (
+          <Media.Video.UI.Stream
+            debug={p.debug.value}
+            theme={p.theme.value}
+            constraints={{
+              audio: false,
+              video: { deviceId: p.selectedCamera.value?.deviceId },
+            }}
+            onReady={(e) => {
+              console.info(`⚡️ Media.Video.onReady:`, e);
+              p.selectedCamera.value = e.device;
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

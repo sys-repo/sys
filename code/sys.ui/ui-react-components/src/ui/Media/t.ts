@@ -12,6 +12,7 @@ export type MediaLib = {
   readonly Recorder: t.MediaRecorderLib;
   readonly Devices: t.MediaDevicesLib;
   readonly Filters: t.MediaFiltersLib;
+  readonly Zoom: t.MediaZoomLib;
 
   // Helpers:
   download(blob?: Blob, filename?: string): void;
