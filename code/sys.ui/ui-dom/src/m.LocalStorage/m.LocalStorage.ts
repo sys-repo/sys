@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import { type t, Immutable } from '../common.ts';
 
 /**
  * Helpers for working with a strongly typed local-storage object.
@@ -48,5 +48,19 @@ export const LocalStorage: t.LocalStorageLib = {
     };
 
     return local;
+  },
+
+  /**
+   * Factory: Immutable<T> interface to local-storage.
+   */
+  immutable<T extends t.JsonMapU>(key: string, initial: T, dispose$?: t.UntilInput) {
+    key = String(key);
+    const existing = localStorage.getItem(key);
+    const save = (obj: T) => localStorage.setItem(key, JSON.stringify(obj));
+    if (!existing) save(initial);
+
+    const obj = Immutable.clonerRef<T>(existing ? JSON.parse(existing) : initial);
+    obj.events(dispose$).changed$.subscribe((e) => save(e.after));
+    return obj;
   },
 };
