@@ -45,7 +45,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.9.0
     - import: npm:@deno/vite-plugin@1.0.4
-    - import: npm:rollup@4.40.2
+    - import: npm:rollup@4.41.0
     - import: npm:vite@6.3.5
     - import: npm:vite-plugin-wasm@3.4.1
 
@@ -89,6 +89,9 @@ deno.json:
   - import: npm:valibot@1.1.0
   - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.8.0
+  - import: npm:zod@3.25.0-beta.20250518T233617
+    subpaths:
+      - v4-mini
 
   # Browser
   - import: npm:csstype@3
@@ -111,13 +114,13 @@ package.json:
   - group: build/tools
     dev: true
 
-  - import: npm:hono@4.7.9
+  - import: npm:hono@4.7.10
 
   # UI
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.11.4
+  - import: npm:motion@12.12.1
 
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
