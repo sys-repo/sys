@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
-import { Color, css, D, JsrUrl, Signal, LocalStorage } from '../common.ts';
+import { Color, css, D, JsrUrl, LocalStorage, Signal } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
@@ -20,7 +20,7 @@ export function createDebugSignals() {
   type L = { filters: Partial<t.MediaFilterValueMap> };
   const filters = Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']);
   const initial = { filters } as const;
-  const localstore = LocalStorage.immutable<L>(`dev:${D.name}.filters`, { filters });
+  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
 
   type R = {
     status: t.MediaRecorderStatus;
@@ -37,7 +37,7 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
-    filter: s<string>(Filters.toString(initial.filters)),
+    filter: s<string>(Filters.toString(localstore.current.filters)),
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
   };

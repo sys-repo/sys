@@ -43,7 +43,7 @@ export default Spec.describe('MediaRecorder', (e) => {
               video: { deviceId: p.selectedCamera.value?.deviceId },
             }}
             onReady={(e) => {
-              console.info(`⚡️ onReady:`, e);
+              console.info(`⚡️ Video.Stream.onReady:`, e);
               p.stream.value = e.stream.filtered;
               p.selectedCamera.value = e.device;
             }}

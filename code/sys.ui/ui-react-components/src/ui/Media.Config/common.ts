@@ -5,7 +5,7 @@ export { Slider } from '../Slider/mod.ts';
 /**
  * Constants:
  */
-const name = 'Media.Filters';
+const name = 'Media.Config';
 
 const config: t.MediaFilterConfigMap = {
   brightness: { range: [0, 200], unit: '%', initial: 100 },
