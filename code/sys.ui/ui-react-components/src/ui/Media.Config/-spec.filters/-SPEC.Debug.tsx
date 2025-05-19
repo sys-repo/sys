@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Filters } from '../mod.ts';
+import { Config } from '../mod.ts';
 
 type P = t.MediaFiltersProps;
+const Filters = Config.Filters;
 
 /**
  * Types:
@@ -16,9 +17,8 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   type L = { values: P['values'] };
-  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, {
-    values: Filters.values(Obj.keys(Filters.config)),
-  });
+  const values = Filters.values(Obj.keys(Filters.config));
+  const localstore = LocalStorage.immutable<L>(`dev:${D.name}.Filters`, { values });
 
   const s = Signal.create;
   const props = {
@@ -69,10 +69,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>
-        <div>{D.name}</div>
-        <div>{'(List)'}</div>
-      </div>
+      <div className={Styles.title.class}>{'Media.Config.Filters'}</div>
 
       <Button
         block

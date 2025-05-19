@@ -13,7 +13,7 @@ export type * from './ui/Layout.CenterColumn/t.ts';
 export type * from './ui/Media.AudioWaveform/t.ts';
 export type * from './ui/Media.Devices/t.ts';
 export type * from './ui/Media.Recorder/t.ts';
-export type * from './ui/Media.Video.Config/t.ts';
+export type * from './ui/Media.Config/t.ts';
 export type * from './ui/Media.Video/t.ts';
 export type * from './ui/Media.Zoom/t.ts';
 export type * from './ui/Media/t.ts';

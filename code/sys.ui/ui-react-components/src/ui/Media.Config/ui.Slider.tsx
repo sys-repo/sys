@@ -1,13 +1,13 @@
 import React from 'react';
-import { type t, Color, css, Num, Slider } from './common.ts';
+import { type t, Color, css, Num, Slider as BaseSlider } from './common.ts';
 
-type P = t.MediaFilterProps;
+type P = t.MediaConfigSliderProps;
 const { toPercent, fromPercent } = Num.Percent.Range;
 
 /**
  * Component:
  */
-export const Filter: React.FC<P> = (props) => {
+export const Slider: React.FC<P> = (props) => {
   const { name, range, debug = false } = props;
   const label = props.label ?? props.name ?? 'Unnamed';
   const percent = toPercent(props.value ?? 0, range);
@@ -39,7 +39,7 @@ export const Filter: React.FC<P> = (props) => {
         <div />
         <div>{`${value.toFixed()}${wrangle.displayUnit(props)}`}</div>
       </div>
-      <Slider
+      <BaseSlider
         theme={theme.name}
         percent={percent}
         track={{ height: 5 }}

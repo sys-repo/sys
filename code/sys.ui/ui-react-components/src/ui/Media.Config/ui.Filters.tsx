@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, Obj, rx } from './common.ts';
 import { toString } from './u.ts';
-import { Filter } from './ui.Filter.tsx';
+import { Slider } from './ui.Slider.tsx';
 
 type P = t.MediaFiltersProps;
 
@@ -10,7 +10,7 @@ type P = t.MediaFiltersProps;
  */
 export const List: React.FC<P> = (props) => {
   const { debounce = D.debounce } = props;
-  const changed$Ref = React.useRef(rx.subject<t.MediaFiltersChangeHandlerArgs>());
+  const changed$Ref = React.useRef(rx.subject<t.MediaFiltersChangeArgs>());
 
   /**
    * Effect: fire debounced 'onChanged' event.
@@ -37,7 +37,7 @@ export const List: React.FC<P> = (props) => {
       const { name, value } = e;
       const config = wrangle.config(props, name);
       return (
-        <Filter
+        <Slider
           key={`${name}.${i}`}
           name={name}
           value={value}
@@ -48,7 +48,7 @@ export const List: React.FC<P> = (props) => {
           onChange={(change) => {
             const values = wrangle.next(props.values, change);
             const filter = toString(values);
-            const e: t.MediaFiltersChangeHandlerArgs = {
+            const e: t.MediaFiltersChangeArgs = {
               change,
               get filter() {
                 return filter;
@@ -78,7 +78,7 @@ const wrangle = {
 
   next(
     prev: Partial<t.MediaFilterValueMap> = {},
-    change: t.MediaFilterChangeHandlerArgs,
+    change: t.MediaFilterChangeArgs,
   ): Partial<t.MediaFilterValueMap> {
     return { ...prev, [change.name]: change.value };
   },
