@@ -2,7 +2,6 @@ import { describe, expect, it } from '../../-test.ts';
 import { Devices } from '../Media.Devices/mod.ts';
 import { Recorder } from '../Media.Recorder/mod.ts';
 import { Video } from '../Media.Video/mod.ts';
-import { Zoom } from '../Media.Zoom/mod.ts';
 import { Media } from './mod.ts';
 
 describe('Media', () => {
@@ -12,6 +11,5 @@ describe('Media', () => {
     expect(Media.Video).to.equal(Video);
     expect(Media.Recorder).to.equal(Recorder);
     expect(Media.Devices).to.equal(Devices);
-    expect(Media.Zoom).to.equal(Zoom);
   });
 });

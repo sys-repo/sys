@@ -102,9 +102,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 };
 
 /**
- * Dev Buttons
+ * Dev Buttons:
  */
-
 export function filterValuesButtons(debug: DebugSignals) {
   const p = debug.props;
 

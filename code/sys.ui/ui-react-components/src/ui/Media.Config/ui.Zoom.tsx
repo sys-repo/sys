@@ -1,16 +1,15 @@
 import React from 'react';
 import { type t, Color, css, D, Obj, rx } from './common.ts';
-import { toString } from './u.filter.ts';
 import { Slider } from './ui.Slider.tsx';
 
-type P = t.MediaFiltersProps;
+type P = t.MediaZoomProps;
 
 /**
  * Component:
  */
 export const List: React.FC<P> = (props) => {
   const { debounce = D.debounce } = props;
-  const changed$Ref = React.useRef(rx.subject<t.MediaFiltersChangeArgs>());
+  const changed$Ref = React.useRef(rx.subject<t.MediaZoomChangeArgs>());
 
   /**
    * Effect: fire debounced 'onChanged' event.
@@ -47,12 +46,8 @@ export const List: React.FC<P> = (props) => {
           style={styles.filter}
           onChange={(change) => {
             const values = wrangle.next(props.values, change);
-            const filter = toString(values);
-            const e: t.MediaFiltersChangeArgs = {
+            const e: t.MediaZoomChangeArgs = {
               change,
-              get filter() {
-                return filter;
-              },
               get values() {
                 return values;
               },
@@ -71,15 +66,15 @@ export const List: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  config(props: P, name: t.MediaFilterName): t.MediaFilterConfig {
+  config(props: P, name: keyof t.MediaZoomValues): t.MediaZoomConfig {
     const { config = {} } = props;
-    return config[name] ?? D.config[name];
+    return config[name] ?? D.zoom[name];
   },
 
   next(
-    prev: Partial<t.MediaFilterValueMap> = {},
+    prev: Partial<t.MediaZoomValues> = {},
     change: t.MediaSliderChangeArgs,
-  ): Partial<t.MediaFilterValueMap> {
+  ): Partial<t.MediaZoomValues> {
     return { ...prev, [change.label]: change.value };
   },
 } as const;

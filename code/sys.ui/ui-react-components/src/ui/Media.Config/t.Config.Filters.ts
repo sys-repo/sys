@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * Tools for working with media-stream filters.
  */
 export type MediaFiltersLib = {
-  readonly config: t.MediaFilterConfigMap;
   readonly UI: { readonly List: React.FC<t.MediaFiltersProps> };
+
+  /** A map of the default configuration settings. */
+  readonly config: t.MediaFilterConfigMap;
 
   /** Construct a partial map of filter values. */
   values(filters: t.MediaFilterName[]): Partial<t.MediaFilterValueMap>;
@@ -60,21 +62,11 @@ export type MediaFiltersProps = {
 };
 
 /**
- * Event: fires when a single media-filter changes.
- */
-export type MediaFilterChangeHandler = (e: MediaFilterChangeArgs) => void;
-export type MediaFilterChangeArgs = {
-  readonly name: t.MediaFilterName;
-  readonly percent: t.Percent;
-  readonly value: number;
-};
-
-/**
- * Event: fires when a single media-filter changes.
+ * Event: fires when a single media-filter settings change.
  */
 export type MediaFiltersChangeHandler = (e: MediaFiltersChangeArgs) => void;
 export type MediaFiltersChangeArgs = {
-  readonly change: MediaFilterChangeArgs;
+  readonly change: t.MediaSliderChangeArgs;
   readonly values: Partial<t.MediaFilterValueMap>;
   readonly filter: string;
 };

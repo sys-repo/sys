@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Num, Slider as BaseSlider } from './common.ts';
+import { type t, Slider as BaseSlider, Color, css, Num } from './common.ts';
 
 type P = t.MediaConfigSliderProps;
 const { toPercent, fromPercent } = Num.Percent.Range;
@@ -8,8 +8,8 @@ const { toPercent, fromPercent } = Num.Percent.Range;
  * Component:
  */
 export const Slider: React.FC<P> = (props) => {
-  const { name, range, debug = false } = props;
-  const label = props.label ?? props.name ?? 'Unnamed';
+  const { range, debug = false } = props;
+  const label = props.label ?? 'Unnamed';
   const percent = toPercent(props.value ?? 0, range);
   const value = fromPercent(percent, range);
 
@@ -47,7 +47,7 @@ export const Slider: React.FC<P> = (props) => {
         onChange={(e) => {
           const { percent } = e;
           const value = fromPercent(percent, range);
-          props.onChange?.({ name, percent, value });
+          props.onChange?.({ label, percent, value });
         }}
       />
     </div>

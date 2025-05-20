@@ -29,7 +29,7 @@ export type MediaVideoLib = {
    */
   getStream(
     constraints?: MediaStreamConstraints,
-    options?: { filter?: string; zoom?: t.MediaZoomOptions },
+    options?: { filter?: string; zoom?: t.MediaZoomValues },
   ): Promise<{ raw: MediaStream; filtered: MediaStream }>;
 
   /**
@@ -61,7 +61,7 @@ export type MediaVideoStreamProps = {
   /** Media constraints for `getUserMedia`. Defaults: `{ video: true, audio: true }`. */
   constraints?: MediaStreamConstraints;
   /** Options for applying a zoom effect to the media-stream. */
-  zoom?: t.MediaZoomOptions;
+  zoom?: t.MediaZoomValues;
 
   // Appearance:
   borderRadius?: t.Pixels;
@@ -78,24 +78,12 @@ export type MediaVideoStreamProps = {
 };
 
 /**
- * Options for applying a zoom effect to a media-stream.
- */
-export type MediaZoomOptions = {
-  /** Zoom factor: e.g. 2 = 2× zoom; 1 = no zoom. */
-  factor: t.Percent;
-  /** Zoom center offset as fraction of width: 0 = far left, 0.5 = center, 1 = far right. */
-  centerX?: t.Percent;
-  /** Zoom center offset as fraction of height: 0 = top, 0.5 = middle, 1 = bottom. */
-  centerY?: t.Percent;
-};
-
-/**
  * Hook: Acquire/cleanup device media with visual filter pass-through via <canvas>.
  */
 export type UseVideoStream = (args: {
   constraints?: MediaStreamConstraints;
   filter?: string;
-  zoom?: t.MediaZoomOptions;
+  zoom?: t.MediaZoomValues;
 }) => VideoStreamHook;
 export type VideoStreamHook = {
   readonly stream: {
