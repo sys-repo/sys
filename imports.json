@@ -24,7 +24,7 @@
     "@std/testing": "jsr:@std/testing@1.0.12",
     "@std/uuid": "jsr:@std/uuid@1.0.7",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
-    "@types/diff": "npm:@types/diff@7.0.2",
+    "@types/diff": "npm:@types/diff@8.0.0",
     "@types/ramda": "npm:@types/ramda@0.30.2",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
