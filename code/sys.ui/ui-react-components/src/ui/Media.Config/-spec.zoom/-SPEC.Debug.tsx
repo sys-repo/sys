@@ -1,8 +1,10 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
-import { Zoom } from '../mod.ts';
-import { Media } from '../../Media/mod.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Config } from '../mod.ts';
+
+type P = t.MediaZoomProps;
+const Zoom = Config.Zoom;
 
 /**
  * Types:
@@ -14,19 +16,26 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  type L = { values: P['values'] };
+  const values = Zoom.values(Obj.keys(Zoom.config));
+  const localstore = LocalStorage.immutable<L>(`dev:${D.name}.Zoom`, { values });
+
   const s = Signal.create;
   const props = {
     debug: s(false),
-    selectedCamera: s<MediaDeviceInfo>(),
-    theme: s<t.CommonTheme>('Dark'),
+    theme: s<P['theme']>('Dark'),
+    values: s<P['values']>(localstore.current.values),
+    debounce: s<P['debounce']>(250),
   };
   const p = props;
   const api = {
     props,
+    localstore,
     listen() {
       p.debug.value;
-      p.selectedCamera.value;
       p.theme.value;
+      p.values.value;
+      p.debounce.value;
     },
   };
   return api;
@@ -60,23 +69,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>{'Media.Config.Zoom'}</div>
 
-      <Media.Devices.UI.List
-        filter={(e) => e.kind === 'videoinput'}
-        selected={p.selectedCamera.value}
-        onSelect={(e) => (p.selectedCamera.value = e.info)}
-      />
-
-      <hr />
-      <Media.Zoom.UI.Sliders />
-
-      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `debounce: ${p.debounce.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.debounce, [0, 250, 800, undefined])}
+      />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -85,7 +91,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
-        expand={['$']}
+        expand={['$', '$.values']}
         style={{ marginTop: 10 }}
       />
     </div>

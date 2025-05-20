@@ -1,10 +1,10 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Config } from './mod.ts';
 
+const { Filters, Zoom } = Config;
+
 describe('Media.Config', () => {
   describe('Config.Filters', () => {
-    const Filters = Config.Filters;
-
     describe('Filters.values', () => {
       it('returns empty object for empty filters array', () => {
         const result = Filters.values([]);
@@ -47,6 +47,29 @@ describe('Media.Config', () => {
         };
         const result = Filters.toString(values);
         expect(result).to.eql('contrast(150%) grayscale(25%) blur(10px)'); // NB: ordered.
+      });
+    });
+  });
+
+  describe('Config.Zoom', () => {
+    describe('Zoom.values', () => {
+      it('returns empty object for empty array', () => {
+        const result = Zoom.values([]);
+        expect(result).to.eql({});
+      });
+
+      it('maps single filter to its initial value', () => {
+        const result = Zoom.values(['factor']);
+        const factor = Zoom.config.factor.initial;
+        expect(result).to.eql({ factor });
+      });
+
+      it('maps multiple filters to their initial values', () => {
+        const result = Zoom.values(['factor', 'centerY']);
+        expect(result).to.eql({
+          factor: Zoom.config.factor.initial,
+          centerY: Zoom.config.centerY.initial,
+        });
       });
     });
   });

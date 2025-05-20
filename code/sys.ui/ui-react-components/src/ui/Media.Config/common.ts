@@ -7,7 +7,7 @@ export { Slider } from '../Slider/mod.ts';
  */
 const name = 'Media.Config';
 
-const config: t.MediaFilterConfigMap = {
+const filters: t.MediaFilterConfigMap = {
   brightness: { range: [0, 200], unit: '%', initial: 100 },
   contrast: { range: [0, 200], unit: '%', initial: 100 },
   saturate: { range: [0, 200], unit: '%', initial: 100 },
@@ -18,10 +18,17 @@ const config: t.MediaFilterConfigMap = {
   blur: { range: [0, 20], unit: 'px', initial: 0 },
 };
 
+const zoom: t.MediaZoomConfigMap = {
+  factor: { range: [0, 200], unit: '%', initial: 100 },
+  centerX: { range: [0, 200], unit: '%', initial: 100 },
+  centerY: { range: [0, 200], unit: '%', initial: 100 },
+};
+
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
-  config,
   debounce: 250,
+  config: filters,
+  zoom,
 } as const;
 export const D = DEFAULTS;

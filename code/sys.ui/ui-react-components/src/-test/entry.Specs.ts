@@ -34,6 +34,7 @@ export const SpecsComponents = {
   [`${ns}.io: Media.Zoom`]: () => import('../ui/Media.Zoom/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.Config.Filters`]: () => import('../ui/Media.Config/-spec.filters/-SPEC.tsx'),
+  [`${ns}.io: Media.Config.Zoom`]: () => import('../ui/Media.Config/-spec.zoom/-SPEC.tsx'),
   [`${ns}.io: Media.Config.Slider`]: () => import('../ui/Media.Config/-spec.slider/-SPEC.tsx'),
 } as t.SpecImports;
 
