@@ -143,7 +143,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
 
-      <div className={Styles.title.class}>{'Zoom/Crop'}</div>
+      <div className={Styles.title.class}>{'Zoom'}</div>
       <Media.Config.Zoom.UI.List
         style={{ margin: 20 }}
         values={p.config.zoom.value}
