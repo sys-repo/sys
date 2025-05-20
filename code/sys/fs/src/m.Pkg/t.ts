@@ -37,11 +37,13 @@ export type PkgDistFsLib = t.PkgDistLib & {
   ): Promise<t.PkgDistVerifyResponse>;
 
   /** Convert a <DistPkg> to a string for logging. */
-  toString(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): string;
+  toString(dist?: t.DistPkg, options?: LogOptions): string;
 
   /** Log a `toString()` of the given <DistPkg> to the console. */
-  log(dist?: t.DistPkg, options?: { title?: string; dir?: t.StringDir }): void;
+  log(dist?: t.DistPkg, options?: LogOptions): void;
 };
+
+type LogOptions = { title?: string | false; dir?: t.StringDir; indent?: number };
 
 /**
  * Arguments passed to the `Pkg.Dist.compute` method.
