@@ -2,16 +2,9 @@ import { Pkg } from '@sys/std/pkg';
 import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Str, Time } from './common.ts';
 
 /**
- * Log `toString` to the console.
- */
-export const log: t.PkgDistFsLib['log'] = async (dist, options = {}) => {
-  console.info(toString(dist, options));
-};
-
-/**
  * String:
  */
-export const toString: t.PkgDistFsLib['toString'] = (dist, options = {}) => {
+export const toString: t.PkgDistLog['toString'] = (dist, options = {}) => {
   if (!dist) return c.yellow(`dist: nothing to display`);
 
   // Input:

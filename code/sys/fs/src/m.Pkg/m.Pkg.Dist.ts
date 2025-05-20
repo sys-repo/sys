@@ -1,8 +1,9 @@
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
+
 import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
-import { log, toString } from './u.toString.ts';
+import { log, Log } from './m.Log.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -10,9 +11,12 @@ import { log, toString } from './u.toString.ts';
  */
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
-  toString,
+  Log,
   log,
 
+  /**
+   * Prepare and save a "distribution package" meta-data file `pkg.json`.
+   */
   async compute(args) {
     const { entry = '', save = false } = args;
     const dir = Fs.resolve(args.dir);
