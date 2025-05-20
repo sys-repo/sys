@@ -12,6 +12,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
     aspectRatio,
     zoom,
   } = props;
+
   const video = useVideoStream({ constraints, filter, zoom });
 
   /**

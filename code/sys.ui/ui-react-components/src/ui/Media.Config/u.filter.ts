@@ -1,7 +1,7 @@
 import { type t, D, Num, Obj } from './common.ts';
 
 export const values: t.MediaFiltersLib['values'] = (filters) => {
-  const res: Partial<t.MediaFilterValueMap> = {};
+  const res: Partial<t.MediaFilterValues> = {};
   filters.forEach((k) => (res[k] = D.config[k].initial));
   return res;
 };

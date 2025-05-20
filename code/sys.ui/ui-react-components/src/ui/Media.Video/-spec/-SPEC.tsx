@@ -1,4 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Media } from '../../Media/mod.ts';
 import { Video } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -33,7 +34,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
             filter={p.filter.value}
             borderRadius={p.borderRadius.value}
             aspectRatio={p.aspectRatio.value}
-            zoom={{ factor: 2, centerX: 0.5, centerY: 0.7 }}
+            zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
             constraints={{
               audio: true,
               video: { deviceId: p.selectedCamera.value?.deviceId },

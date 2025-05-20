@@ -17,7 +17,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  type L = { filters: Partial<t.MediaFilterValueMap> };
+  type L = { filters: Partial<t.MediaFilterValues> };
   const filters = Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']);
   const initial = { filters } as const;
   const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
@@ -237,7 +237,7 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
             enabled={is.started}
             onClick={async () => {
               const res = await recorder.stop();
-              console.log('⚡️ stopped', res);
+              console.info('⚡️ stopped', res);
               Media.download(res.blob);
             }}
           />

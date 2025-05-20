@@ -14,8 +14,8 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   constraints = D.constraints,
   options = {},
 ) => {
-  const { zoom } = options;
   const filter = (options.filter ?? '').trim();
+  const zoom = wrangle.zoom(options.zoom);
 
   /**
    * Retrieve the raw camera/mic stream.
@@ -83,3 +83,13 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   // Finish up.
   return { raw, filtered };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  zoom(input: Partial<t.MediaZoomValues> = {}): t.MediaZoomValues {
+    const { factor = 1, centerX = 0.5, centerY = 0.4 } = input;
+    return { factor, centerX, centerY };
+  },
+} as const;

@@ -10,10 +10,10 @@ export type MediaFiltersLib = {
   readonly config: t.MediaFilterConfigMap;
 
   /** Construct a partial map of filter values. */
-  values(filters: t.MediaFilterName[]): Partial<t.MediaFilterValueMap>;
+  values(filters: t.MediaFilterName[]): Partial<t.MediaFilterValues>;
 
   /** Convert a partial map of filter values → CSS filter string. */
-  toString(values?: Partial<t.MediaFilterValueMap>): string;
+  toString(values?: Partial<t.MediaFilterValues>): string;
 };
 
 /** Names of visual filters that can be applied to a MediaStream. */
@@ -33,7 +33,7 @@ export type MediaFilterName =
 export type MediaFilterMap<T> = Record<MediaFilterName, T>;
 
 /** A map of filter values. */
-export type MediaFilterValueMap = MediaFilterMap<number>;
+export type MediaFilterValues = MediaFilterMap<number>;
 
 /** A map of filter configuration settings. */
 export type MediaFilterConfigMap = MediaFilterMap<MediaFilterConfig>;
@@ -49,7 +49,7 @@ export type MediaFilterConfig = {
 export type MediaFiltersProps = {
   debug?: boolean;
   config?: Partial<t.MediaFilterConfigMap>;
-  values?: Partial<t.MediaFilterValueMap>;
+  values?: Partial<t.MediaFilterValues>;
   debounce?: t.Msecs;
 
   // Appearance:
@@ -67,6 +67,6 @@ export type MediaFiltersProps = {
 export type MediaFiltersChangeHandler = (e: MediaFiltersChangeArgs) => void;
 export type MediaFiltersChangeArgs = {
   readonly change: t.MediaSliderChangeArgs;
-  readonly values: Partial<t.MediaFilterValueMap>;
+  readonly values: Partial<t.MediaFilterValues>;
   readonly filter: string;
 };

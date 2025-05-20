@@ -4,7 +4,12 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.MediaVideoStreamProps;
-const Filters = Media.Config.Filters;
+type L = {
+  filters: Partial<t.MediaFilterValues>;
+  zoom: Partial<t.MediaZoomValues>;
+};
+
+const { Filters, Zoom } = Media.Config;
 
 /**
  * Types:
@@ -16,18 +21,24 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  type L = { filters: Partial<t.MediaFilterValueMap> };
-  const initial: L = { filters: Filters.values(Obj.keys(Filters.config)) } as const;
+  const initial: L = {
+    filters: Filters.values(Obj.keys(Filters.config)),
+    zoom: Zoom.values(Obj.keys(Zoom.config)),
+  } as const;
   const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
 
   const s = Signal.create;
   const props = {
     debug: s(false),
     selectedCamera: s<MediaDeviceInfo>(),
-    filters: s(localstore.current.filters),
+    config: {
+      filters: s(localstore.current.filters),
+      zoom: s(localstore.current.zoom),
+    },
 
     theme: s<P['theme']>('Dark'),
     filter: s<P['filter']>(Filters.toString(localstore.current.filters)),
+    zoom: s<P['zoom']>(localstore.current.zoom),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
   };
@@ -39,9 +50,12 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.selectedCamera.value;
+      p.config.filters.value;
+      p.config.zoom.value;
+
       p.theme.value;
       p.filter.value;
-      p.filters.value;
+      p.zoom.value;
       p.borderRadius.value;
       p.aspectRatio.value;
     },
@@ -85,8 +99,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Media.Config.Filters.UI.List
         style={{ margin: 20 }}
-        values={p.filters.value}
-        onChange={(e) => (p.filters.value = e.values)}
+        values={p.config.filters.value}
+        onChange={(e) => (p.config.filters.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
@@ -95,7 +109,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Media.Config.Zoom.UI.List
+        style={{ margin: 20 }}
+        values={p.config.zoom.value}
+        onChange={(e) => (p.config.zoom.value = e.values)}
+        onChanged={(e) => {
+          console.info('⚡️ Zoom.onChanged:', e);
+          debug.localstore.change((d) => (d.zoom = e.values));
+          p.zoom.value = e.values;
+        }}
+      />
 
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}

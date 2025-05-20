@@ -40,7 +40,7 @@ describe('Media.Config', () => {
       });
 
       it('formats multiple filters in config order', () => {
-        const values: Partial<t.MediaFilterValueMap> = {
+        const values: Partial<t.MediaFilterValues> = {
           contrast: 150,
           grayscale: 25,
           blur: 10,
@@ -70,6 +70,34 @@ describe('Media.Config', () => {
           factor: Zoom.config.factor.initial,
           centerY: Zoom.config.centerY.initial,
         });
+      });
+    });
+
+    describe('to/from ratio', () => {
+      it('converts default percent values to ratio', () => {
+        const ratio = Zoom.toRatio({});
+        expect(ratio).to.eql({ factor: 1, centerX: 0.5, centerY: 0.5 });
+      });
+
+      it('converts custom percent values to ratio', () => {
+        const ratio = Zoom.toRatio({ factor: 200, centerX: 0, centerY: 100 });
+        expect(ratio).to.eql({ factor: 2, centerX: 0, centerY: 1 });
+      });
+
+      it('converts default ratio values to percent', () => {
+        const percent = Zoom.fromRatio({});
+        expect(percent).to.eql({ factor: 100, centerX: 50, centerY: 50 });
+      });
+
+      it('converts custom ratio values to percent', () => {
+        const percent = Zoom.fromRatio({ factor: 2, centerX: 0, centerY: 1 });
+        expect(percent).to.eql({ factor: 200, centerX: 0, centerY: 100 });
+      });
+
+      it('round-trips percent → ratio → percent', () => {
+        const original = { factor: 150, centerX: 25, centerY: 75 };
+        const roundTripped = Zoom.fromRatio(Zoom.toRatio(original));
+        expect(roundTripped).to.eql(original);
       });
     });
   });
