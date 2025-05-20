@@ -23,8 +23,7 @@ export type PkgDistFsLib = t.PkgDistLib & {
   load(dir: t.StringPath): Promise<t.PkgDistLoadResponse>;
 
   /**
-   * Prepare and save a "distribution package"
-   * meta-data file, `pkg.json`.
+   * Prepare and save a "distribution package" meta-data file, `pkg.json`.
    */
   compute(args: t.PkgDistComputeArgs): Promise<t.PkgDistComputeResponse>;
 
@@ -36,13 +35,19 @@ export type PkgDistFsLib = t.PkgDistLib & {
     hash?: t.StringHash | t.CompositeHash,
   ): Promise<t.PkgDistVerifyResponse>;
 
-  /** Convert a <DistPkg> to a string for logging. */
-  toString(dist?: t.DistPkg, options?: LogOptions): string;
-
+  /** Logging helpers for the PkgDist data. */
+  readonly Log: PkgDistLog;
   /** Log a `toString()` of the given <DistPkg> to the console. */
   log(dist?: t.DistPkg, options?: LogOptions): void;
 };
 
+/**
+ * Logging helpers for the PkgDist data.
+ */
+export type PkgDistLog = {
+  /** Convert a <DistPkg> to a string for logging. */
+  toString(dist?: t.DistPkg, options?: LogOptions): string;
+};
 type LogOptions = { title?: string | false; dir?: t.StringDir; indent?: number };
 
 /**
