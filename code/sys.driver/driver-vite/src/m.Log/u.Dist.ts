@@ -8,6 +8,6 @@ export const Dist: t.ViteLogLib['Dist'] = {
   toString(dist, options = {}) {
     const { title } = options;
     const dir = options.dirs?.out ?? '.';
-    return Pkg.Dist.Log.toString(dist, { title, dir });
+    return Pkg.Dist.Log.dist(dist, { title, dir });
   },
 };
