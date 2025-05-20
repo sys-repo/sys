@@ -29,7 +29,7 @@ export type MediaVideoLib = {
    */
   getStream(
     constraints?: MediaStreamConstraints,
-    options?: { filter?: string; zoom?: t.MediaZoomValues },
+    options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
   ): Promise<{ raw: MediaStream; filtered: MediaStream }>;
 
   /**
@@ -61,7 +61,7 @@ export type MediaVideoStreamProps = {
   /** Media constraints for `getUserMedia`. Defaults: `{ video: true, audio: true }`. */
   constraints?: MediaStreamConstraints;
   /** Options for applying a zoom effect to the media-stream. */
-  zoom?: t.MediaZoomValues;
+  zoom?: Partial<t.MediaZoomValues>;
 
   // Appearance:
   borderRadius?: t.Pixels;
@@ -83,7 +83,7 @@ export type MediaVideoStreamProps = {
 export type UseVideoStream = (args: {
   constraints?: MediaStreamConstraints;
   filter?: string;
-  zoom?: t.MediaZoomValues;
+  zoom?: Partial<t.MediaZoomValues>;
 }) => VideoStreamHook;
 export type VideoStreamHook = {
   readonly stream: {

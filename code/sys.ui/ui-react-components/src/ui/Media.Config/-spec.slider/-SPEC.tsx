@@ -20,7 +20,6 @@ export default Spec.describe('Media.Config.Slider', (e) => {
       .display('grid')
       .render(() => (
         <Config.UI.Slider
-          name={p.name.value}
           label={p.label.value}
           value={p.value.value}
           unit={p.unit.value}

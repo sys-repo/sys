@@ -77,9 +77,9 @@ const wrangle = {
   },
 
   next(
-    prev: Partial<t.MediaFilterValueMap> = {},
+    prev: Partial<t.MediaFilterValues> = {},
     change: t.MediaSliderChangeArgs,
-  ): Partial<t.MediaFilterValueMap> {
+  ): Partial<t.MediaFilterValues> {
     return { ...prev, [change.label]: change.value };
   },
 } as const;

@@ -18,7 +18,6 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<P['theme']>('Light'),
-    name: s<P['name']>('brightness'),
     label: s<P['label']>('my-label'),
     value: s<P['value']>(),
     unit: s<P['unit']>('%'),
@@ -31,7 +30,6 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.label.value;
-      p.name.value;
       p.unit.value;
       p.range.value;
       p.value.value;
