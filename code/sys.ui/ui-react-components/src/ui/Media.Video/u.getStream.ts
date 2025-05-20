@@ -48,7 +48,9 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   function draw() {
     ctx.clearRect(0, 0, w, h);
     if (filter) ctx.filter = filter;
-    if (zoom) {
+    if (zoom.factor === 1) {
+      ctx.drawImage(video, 0, 0, w, h);
+    } else {
       // Normalize center coords → absolute pixels.
       const cx = (zoom.centerX ?? 0.5) * w;
       const cy = (zoom.centerY ?? 0.5) * h;
@@ -58,8 +60,6 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
       const sx = cx - sw / 2;
       const sy = cy - sh / 2;
       ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
-    } else {
-      ctx.drawImage(video, 0, 0, w, h);
     }
     requestAnimationFrame(draw); // ← RECURSION 🌳
   }

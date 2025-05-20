@@ -31,6 +31,7 @@ export default Spec.describe('MediaRecorder', (e) => {
           height,
         }),
       };
+
       return (
         <div className={styles.base.class}>
           <Media.Video.UI.Stream
@@ -38,6 +39,7 @@ export default Spec.describe('MediaRecorder', (e) => {
             theme={p.theme.value}
             filter={p.filter.value}
             aspectRatio={p.aspectRatio.value}
+            zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
             constraints={{
               audio: true,
               video: { deviceId: p.selectedCamera.value?.deviceId },
