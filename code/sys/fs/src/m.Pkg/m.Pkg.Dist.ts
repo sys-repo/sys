@@ -3,7 +3,7 @@ import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 
 import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
-import { log, Log } from './m.Log.ts';
+import { Log } from './m.Log.ts';
 
 /**
  * Tools for working with "distribution-package"
@@ -12,7 +12,6 @@ import { log, Log } from './m.Log.ts';
 export const Dist: t.PkgDistFsLib = {
   ...Pkg.Dist,
   Log,
-  log,
 
   /**
    * Prepare and save a "distribution package" meta-data file `pkg.json`.

@@ -1,10 +1,11 @@
 import { Pkg } from '@sys/std/pkg';
 import { type t, c, Cli, Date, Fs, HashFmt, Num, Path, Str, Time } from './common.ts';
+import { toModuleString } from './u.log.ts';
 
 /**
  * String:
  */
-export const toString: t.PkgDistLog['toString'] = (dist, options = {}) => {
+export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   if (!dist) return c.yellow(`dist: nothing to display`);
 
   // Input:
@@ -70,7 +71,6 @@ export const toString: t.PkgDistLog['toString'] = (dist, options = {}) => {
 /**
  * Helpers:
  */
-const toModuleString = (pkg: t.Pkg) => c.gray(`${c.white(pkg.name)}@${c.cyan(pkg.version)}`);
 const digest = (hash?: t.StringHash): string => {
   if (!hash) return '';
   const uri = HashFmt.digest(hash);

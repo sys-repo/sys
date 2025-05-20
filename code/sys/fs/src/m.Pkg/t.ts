@@ -37,8 +37,6 @@ export type PkgDistFsLib = t.PkgDistLib & {
 
   /** Logging helpers for the PkgDist data. */
   readonly Log: PkgDistLog;
-  /** Log a `toString()` of the given <DistPkg> to the console. */
-  log(dist?: t.DistPkg, options?: LogOptions): void;
 };
 
 /**
@@ -46,7 +44,9 @@ export type PkgDistFsLib = t.PkgDistLib & {
  */
 export type PkgDistLog = {
   /** Convert a <DistPkg> to a string for logging. */
-  toString(dist?: t.DistPkg, options?: LogOptions): string;
+  dist(dist?: t.DistPkg, options?: LogOptions): string;
+  /** Prepare a string showing a tree child-packages for logging. */
+  children(dir: t.StringDir, dist: t.DistPkg): Promise<string>;
 };
 type LogOptions = { title?: string | false; dir?: t.StringDir; indent?: number };
 
