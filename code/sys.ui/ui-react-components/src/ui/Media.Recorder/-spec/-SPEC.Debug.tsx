@@ -1,11 +1,16 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
-import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
+import { type t, Button, Obj, ObjectView, pkg, Str } from '../../u.ts';
 import { Color, css, D, JsrUrl, LocalStorage, Signal } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
-const Filters = Media.Config.Filters;
+type L = {
+  filters: Partial<t.MediaFilterValues>;
+  zoom: Partial<t.MediaZoomValues>;
+};
+
+const { Filters, Zoom } = Media.Config;
 
 /**
  * Types:
@@ -17,9 +22,10 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  type L = { filters: Partial<t.MediaFilterValues> };
-  const filters = Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']);
-  const initial = { filters } as const;
+  const initial: L = {
+    filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
+    zoom: Zoom.values(Obj.keys(Zoom.config)),
+  } as const;
   const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
 
   type R = {
@@ -32,12 +38,16 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(false),
-    filters: s(localstore.current.filters),
+    config: {
+      filters: s(localstore.current.filters),
+      zoom: s(localstore.current.zoom),
+    },
 
-    theme: s<P['theme']>('Dark'),
+    theme: s<t.CommonTheme>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
     filter: s<string>(Filters.toString(localstore.current.filters)),
+    zoom: s<Partial<t.MediaZoomValues>>(localstore.current.zoom),
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
   };
@@ -46,13 +56,15 @@ export function createDebugSignals() {
     props,
     localstore,
     listen() {
-      localstore;
       p.debug.value;
+      p.config.filters.value;
+      p.config.zoom.value;
+
       p.theme.value;
       p.stream.value;
       p.recorder.value;
       p.filter.value;
-      p.filters.value;
+      p.zoom.value;
       p.aspectRatio.value;
       p.selectedCamera.value;
     },
@@ -114,13 +126,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
+
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
 
       <div className={Styles.title.class}>{'Filter'}</div>
       <Media.Config.Filters.UI.List
         style={{ MarginX: 20 }}
-        values={p.filters.value}
-        onChange={(e) => (p.filters.value = e.values)}
+        values={p.config.filters.value}
+        onChange={(e) => (p.config.filters.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
@@ -128,7 +141,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
+
+      <div className={Styles.title.class}>{'Zoom/Crop'}</div>
+      <Media.Config.Zoom.UI.List
+        style={{ margin: 20 }}
+        values={p.config.zoom.value}
+        onChange={(e) => (p.config.zoom.value = e.values)}
+        onChanged={(e) => {
+          console.info('⚡️ Zoom.onChanged:', e);
+          debug.localstore.change((d) => (d.zoom = e.values));
+          p.zoom.value = e.values;
+        }}
+      />
+
       {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
+
       <div className={Styles.title.class}>{'Stream'}</div>
       <div style={{ marginLeft: 20 }}>{recorderButtons(recorder)}</div>
       {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
