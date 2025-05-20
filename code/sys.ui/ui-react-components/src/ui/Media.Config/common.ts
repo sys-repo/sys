@@ -19,7 +19,7 @@ const filters: t.MediaFilterConfigMap = {
 };
 
 const zoom: t.MediaZoomConfigMap = {
-  factor: { range: [0, 200], unit: '%', initial: 100 },
+  factor: { range: [100, 200], unit: '%', initial: 100 },
   centerX: { range: [0, 100], unit: '%', initial: 50 },
   centerY: { range: [0, 100], unit: '%', initial: 50 },
 };
