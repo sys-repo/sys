@@ -13,7 +13,7 @@ export type LocalStorageLib = {
 
   /** Returns an Immutable<T> representation of the local-storage. */
   immutable<T extends t.JsonMapU>(
-    namespace: string,
+    key: string,
     initial: T,
     dispose$?: t.UntilInput,
   ): t.LocalStorageImmutable<T>;
