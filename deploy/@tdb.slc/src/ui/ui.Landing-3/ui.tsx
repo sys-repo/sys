@@ -1,12 +1,13 @@
 import React from 'react';
 import {
   type t,
+  App,
   Color,
   css,
   useControllers,
+  useMiniApp,
   useScreensize,
   VideoBackground,
-  App,
 } from './common.ts';
 import { Content } from './ui.Content.tsx';
 
@@ -27,6 +28,7 @@ export const Landing: React.FC<P> = (props) => {
    * Hooks:
    */
   useControllers(state);
+  useMiniApp();
 
   if (!p) return;
   const bg = p.background;
