@@ -2,4 +2,4 @@
  * @module
  * Module types.
  */
-export {};
+export type {};
