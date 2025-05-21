@@ -8,6 +8,7 @@
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7",
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.7",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.7",
+    "@farcaster/frame-sdk": "npm:@farcaster/frame-sdk@0.0.45",
     "@monaco-editor/react": "npm:@monaco-editor/react@4.7.0",
     "@noble/hashes": "npm:@noble/hashes@1.8.0",
     "@noble/hashes/*": "npm:@noble/hashes@1.8.0/*",
