@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.0",
+  "version": "0.0.9",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
