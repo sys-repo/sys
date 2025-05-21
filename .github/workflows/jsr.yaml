@@ -154,12 +154,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      #  🐷
-      # - name: publish module → "@sys/driver-automerge"
-      #   run: |
-      #     cd code/sys.driver/driver-automerge
-      #     deno task test --parallel
-      #     deno publish --allow-dirty
+      - name: publish module → "@sys/driver-automerge"
+        run: |
+          cd code/sys.driver/driver-automerge
+          deno task test --parallel
+          #  🐷
+          # deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-deno"
         run: |

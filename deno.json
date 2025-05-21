@@ -50,6 +50,7 @@
     "./code/sys.ui/ui-react-devharness",
     "./code/sys.ui/ui-react-components",
 
+    "./code/sys.driver/driver-automerge",
     "./code/sys.driver/driver-automerge.01",
     "./code/sys.driver/driver-deno",
     "./code/sys.driver/driver-immer",
