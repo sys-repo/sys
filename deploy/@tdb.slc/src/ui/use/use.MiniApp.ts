@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { type t } from './common.ts';
 
+const Singleton = { isReadyCalled: false };
+
 /**
- *
+ * Detects whether the code is running inside a Farcaster Mini App.
+ * If so, dynamically loads the Frame SDK and calls `ready()`.
  */
 export function useMiniApp(): t.MiniAppHook {
   const [state, setState] = useState<t.MiniAppHook>({ isMiniApp: false });
 
   useEffect(() => {
     let cancelled = false;
+    if (Singleton.isReadyCalled) return;
 
     const bootstrap = async () => {
       // Fast bail-outs: SSR or not inside an iframe / RN WebView.
@@ -22,16 +26,15 @@ export function useMiniApp(): t.MiniAppHook {
       if (await sdk.isInMiniApp()) {
         if (!cancelled) {
           await sdk.actions.ready(); // Dismiss splash screen (environment).
+          Singleton.isReadyCalled = true;
           setState({ isMiniApp: true, sdk });
-          console.info(`Farcaster MiniApp: start | ⚡️ ready()`);
+          console.info(`sys → Farcaster MiniApp: ⚡️ ready()`);
         }
       }
     };
 
     void bootstrap();
-    return () => {
-      cancelled = true;
-    };
+    return () => void (cancelled = true);
   }, []);
 
   /**

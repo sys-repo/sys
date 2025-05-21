@@ -8,4 +8,5 @@ export {
   MenuList,
   Sheet,
   TooSmall,
+  useMiniApp,
 } from '../../ui/mod.ts';
