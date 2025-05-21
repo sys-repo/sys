@@ -1,5 +1,5 @@
-# Automerge
-System tools and standard `Immutable<T>` wrapper around Automerge CRDT library.
+# Automerge (CRDT)
+An `Immutable<T>` implementation using Automerge (CRDT) as the immutability strategy.
 
 - https://automerge.org
 - https://github.com/automerge (MIT)
