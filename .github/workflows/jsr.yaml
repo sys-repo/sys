@@ -158,8 +158,7 @@ jobs:
         run: |
           cd code/sys.driver/driver-automerge
           deno task test --parallel
-          #  🐷
-          # deno publish --allow-dirty
+          deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-deno"
         run: |
