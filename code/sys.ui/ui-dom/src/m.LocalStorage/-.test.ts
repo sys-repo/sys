@@ -56,6 +56,17 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       expect(state.current).to.eql({ count: 1, msg: '👋' });
     });
 
+    it('create → existing "undefined" value (unparsable JSON, does not fail)', () => {
+      const key = `test-${slug()}`;
+      localStorage.setItem(key, 'undefined');
+
+      const a = LocalStorage.immutable(key, { count: 123 });
+      expect(a.current).to.eql({ count: 123 });
+
+      const b = LocalStorage.immutable(key, { count: 0 });
+      expect(b.current).to.eql({ count: 123 });
+    });
+
     it('dispose$', () => {
       const life = rx.lifecycle();
       const key = `test-${slug()}`;
