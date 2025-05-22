@@ -216,10 +216,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 };
 
 /**
- * Helpers
- */
-
-/**
  * Helpers:
  */
 const wrangle = {
