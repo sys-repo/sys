@@ -17,4 +17,4 @@ export default async function setup(e: t.TmplWriteHandlerArgs) {
       if (res.changed) await Fs.write(path, res.after, { force: true });
     }
   }
-}
+
