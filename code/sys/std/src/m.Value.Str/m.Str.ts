@@ -7,6 +7,7 @@ import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';
+import { replaceAll } from './u.replace.ts';
 import { shorten } from './u.shorten.ts';
 import { truncate } from './u.truncate.ts';
 
@@ -23,4 +24,5 @@ export const Str: t.StrLib = {
   plural,
   bytes,
   truncate,
+  replaceAll,
 } as const;
