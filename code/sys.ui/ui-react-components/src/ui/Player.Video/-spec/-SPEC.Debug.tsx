@@ -1,9 +1,10 @@
 import React from 'react';
 import { Player } from '../../../mod.ts';
-import { type t, Button, css, Signal, Str } from '../../u.ts';
+import { type t, Button, css, LocalStorage, Signal, Str } from '../../u.ts';
 import { D } from '../common.ts';
 
 type P = t.VideoPlayerProps;
+type Storage = { src?: string };
 
 /**
  * Types:
@@ -19,11 +20,19 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
   const s = Signal.create;
   const video = Player.Video.signals({
+    src: localstore.current.src,
     // loop: true,
     // autoPlay: true,
     // showControls: false,
+  });
+
+  Signal.effect(() => {
+    const src = video.src;
+    localstore.change((d) => (d.src = src));
   });
 
   const props = {
