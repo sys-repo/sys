@@ -10,6 +10,7 @@ export const ns = 'sys.ui.react.component';
  */
 export const SpecsComponents = {
   [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
+  [`${ns}: Switch`]: () => import('../ui/Button.Switch/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
@@ -23,8 +24,9 @@ export const SpecsComponents = {
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
+  [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
 
-  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
+  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
   [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 
@@ -32,8 +34,9 @@ export const SpecsComponents = {
   [`${ns}.io: Media.Devices`]: () => import('../ui/Media.Devices/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
   [`${ns}.io: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.Filters`]: () => import('../ui/Media.Filters/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.Filter`]: () => import('../ui/Media.Filters/-spec.filter/-SPEC.tsx'),
+  [`${ns}.io: Media.Config.Filters`]: () => import('../ui/Media.Config/-spec.filters/-SPEC.tsx'),
+  [`${ns}.io: Media.Config.Zoom`]: () => import('../ui/Media.Config/-spec.zoom/-SPEC.tsx'),
+  [`${ns}.io: Media.Config.Slider`]: () => import('../ui/Media.Config/-spec.slider/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

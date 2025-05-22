@@ -15,6 +15,11 @@ export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
         const value = Esm.toString(e.module);
         imports[e.module.name] = value;
         if (e.wildcard) imports[`${e.module.name}/*`] = `${value}/*`;
+        if (Array.isArray(e.subpaths)) {
+          e.subpaths.forEach((subpath) => {
+            imports[`${e.module.name}/${subpath}`] = `${value}/${subpath}`;
+          });
+        }
       });
   }
 

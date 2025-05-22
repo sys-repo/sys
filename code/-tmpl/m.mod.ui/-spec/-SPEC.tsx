@@ -1,8 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { D } from '../common.ts';
 import { MyComponent } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe('MyComponent', (e) => {
+export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 

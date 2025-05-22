@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../-test.ts';
+import { Devices } from '../Media.Devices/mod.ts';
 import { Recorder } from '../Media.Recorder/mod.ts';
 import { Video } from '../Media.Video/mod.ts';
 import { Media } from './mod.ts';
-import { Devices } from '../Media.Devices/mod.ts';
 
 describe('Media', () => {
   it('API', async () => {

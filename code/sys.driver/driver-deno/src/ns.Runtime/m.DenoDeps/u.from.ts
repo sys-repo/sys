@@ -48,13 +48,14 @@ export const from: t.DepsLib['from'] = async (input) => {
     target: t.DepTargetFile,
     dev?: boolean,
     wildcard?: boolean,
+    subpaths?: t.StringDir[],
   ): t.Dep | undefined => {
     if (typeof item?.group === 'string') {
       const group = groups[item.group];
       if (Array.isArray(group)) {
         group.forEach((m) => {
           const item = m as t.YamlDep;
-          addDep(item, target, item.dev ?? dev, item.wildcard);
+          addDep(item, target, item.dev ?? dev, item.wildcard, item.subpaths);
         });
       }
     }
@@ -73,11 +74,12 @@ export const from: t.DepsLib['from'] = async (input) => {
 
     if (dev) res.dev = true;
     if (wildcard) res.wildcard = true;
+    if (Array.isArray(subpaths)) res.subpaths = subpaths;
     deps.push(res);
   };
 
   if (Array.isArray(yaml['deno.json'])) {
-    yaml['deno.json'].forEach((m) => addDep(m, 'deno.json', false, m.wildcard)!);
+    yaml['deno.json'].forEach((m) => addDep(m, 'deno.json', false, m.wildcard, m.subpaths)!);
   }
   if (Array.isArray(yaml['package.json'])) {
     yaml['package.json'].forEach((m) => addDep(m, 'package.json', m.dev)!);

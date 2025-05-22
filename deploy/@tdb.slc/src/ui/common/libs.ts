@@ -3,7 +3,7 @@ export { AnimatePresence, LayoutGroup } from 'motion/react';
 export { Motion as M, Motion };
 
 /**
- * System
+ * @system
  */
 export { Color, css, Style } from '@sys/ui-css';
 export { Dom, Keyboard } from '@sys/ui-dom';
@@ -32,3 +32,8 @@ export {
   Svg,
   VimeoBackground,
 } from '@sys/ui-react-components';
+
+/**
+ * @drivers
+ */
+export { useMiniApp } from '@sys/driver-farcaster/ui';

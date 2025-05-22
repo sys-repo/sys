@@ -16,7 +16,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const props = {
     debug: s(false),
-    theme: s<P['theme']>('Light'),
+    theme: s<t.CommonTheme>('Light'),
   };
   const p = props;
   const api = {
@@ -45,7 +45,6 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -62,7 +61,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
