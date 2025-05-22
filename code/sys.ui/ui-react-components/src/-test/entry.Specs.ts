@@ -24,6 +24,7 @@ export const SpecsComponents = {
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
+  [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
 
   [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
   [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),

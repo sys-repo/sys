@@ -21,6 +21,7 @@ export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { Media } from './ui/Media/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { Preload } from './ui/Preload/mod.ts';
+export { PropsGrid } from './ui/PropsGrid/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
