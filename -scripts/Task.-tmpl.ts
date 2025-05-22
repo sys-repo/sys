@@ -1,21 +1,16 @@
 import { c, Cli, Fs, Tmpl } from './common.ts';
 
-type Options = {
-  argv?: string[];
-};
+type Options = { argv?: string[] };
+type TArgs = { tmpl?: string | boolean };
 
 const Templates = {
-  'm.mod': 'code/-tmpl/m.mod/',
-  'm.mod.ui': 'code/-tmpl/m.mod.ui/',
-  'pkg.deno': 'code/-tmpl/deno/',
+  'm.mod': () => import('../code/-tmpl/m.mod/-.tmpl.ts'),
+  'm.mod.ui': () => import('../code/-tmpl/m.mod.ui/-.tmpl.ts'),
+  'pkg.deno': () => import('../code/-tmpl/pkg.deno/-.tmpl.ts'),
 } as const;
 
-type TArgs = {
-  tmpl?: string | boolean;
-};
-
 /**
- * COMMAND 🌳 Create from template action.
+ * COMMAND 🌳 Create selected template:
  */
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args);
@@ -54,9 +49,28 @@ export async function main(options: Options = {}) {
     return;
   }
 
-  const sourceDir = Fs.resolve(Templates[name as keyof typeof Templates]);
-  const tmpl = Tmpl.create(sourceDir);
-  const res = await tmpl.write(targetDir);
+  const source = await Templates[name as keyof typeof Templates]();
+  if (!source.dir) {
+    const whiteName = c.white(name);
+    const err = `The template named "${whiteName}" does not export a "dir" from the -.tmpl.ts file.`;
+    const msg = `${c.yellow('Failed:')} ${err}`;
+    console.info();
+    console.warn(c.gray(msg));
+    console.info();
+    return;
+  }
+
+  const sourceDir = Fs.resolve(source.dir);
+  const tmpl = Tmpl.create(sourceDir).filter((e) => {
+    if (e.file.name === '-.tmpl.ts') return false; // NB: the initialization script for the template, not content.
+    return true;
+  });
+
+  const res = await tmpl.write(targetDir, {
+    async onAfter(e) {
+      if (typeof source.default === 'function') await source.default(e);
+    },
+  });
 
   console.info(c.gray(`Target: ${Fs.trimCwd(targetDir)}`));
   console.info();
