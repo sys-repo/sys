@@ -41,6 +41,13 @@ export type StrLib = {
 
   /** Truncates a string with ellipsis if over a maximum length. */
   truncate(text: string | undefined, max: number): string;
+
+  /** Replace all matches of the given pattern in a single or multi-line string. */
+  replaceAll(
+    before: string,
+    pattern: string | RegExp,
+    replacement: string,
+  ): { readonly changed: boolean; readonly before: string; readonly after: string };
 };
 
 /**

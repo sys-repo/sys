@@ -353,4 +353,44 @@ describe('Str (Text)', () => {
       });
     });
   });
+
+  describe('Str.replaceAll', () => {
+    it('replaces all occurrences when pattern is string', () => {
+      const input = 'foo foo foo';
+      const { changed, before, after } = Str.replaceAll(input, 'foo', 'bar');
+      expect(before).to.eql(input);
+      expect(after).to.eql('bar bar bar');
+      expect(changed).to.be.true;
+    });
+
+    it('return no change when pattern does not match', () => {
+      const input = 'hello world';
+      const { changed, after } = Str.replaceAll(input, 'xyz', '123');
+      expect(after).to.eql(input);
+      expect(changed).to.be.false;
+    });
+
+    it('replaces all occurrences when pattern is regex without g flag', () => {
+      const input = 'banana';
+      const { after } = Str.replaceAll(input, /a/, 'o');
+
+      // Without g, native replace would only replace first "a",
+      // but our normalizeRegex adds "g" so all "a"s become "o".
+      expect(after).to.eql('bonono');
+    });
+
+    it('replace ignoring case when regex has i flag', () => {
+      const input = 'Foo foo FOO';
+      const { after } = Str.replaceAll(input, /foo/gi, 'bar');
+      expect(after).to.eql('bar bar bar');
+    });
+
+    it('supports multiline patterns for string patterns', () => {
+      const input = 'start\nstart\nmiddle\nstart';
+      const { after } = Str.replaceAll(input, '^start', 'X');
+
+      // string pattern compiles to /ˆstart/gm, so it hits each line.
+      expect(after).to.eql('X\nX\nmiddle\nX');
+    });
+  });
 });
