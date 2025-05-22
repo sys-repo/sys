@@ -1,9 +1,7 @@
-import React from 'react';
-
-import { Dev, Signal, Spec, expect } from '../-test.ui.ts';
-import { Player } from '../../mod.ts';
+import { Dev, Signal, Spec, expect } from '../../-test.ui.ts';
+import { Player } from '../../../mod.ts';
+import { VideoPlayer } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { VideoPlayer } from './mod.ts';
 
 export default Spec.describe('VideoPlayer', (e) => {
   const debug = createDebugSignals();

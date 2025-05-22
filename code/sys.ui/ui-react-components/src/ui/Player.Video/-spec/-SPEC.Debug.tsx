@@ -1,7 +1,7 @@
 import React from 'react';
-import { Player } from '../../mod.ts';
-import { type t, Button, css, Signal, Str } from '../u.ts';
-import { D } from './common.ts';
+import { Player } from '../../../mod.ts';
+import { type t, Button, css, Signal, Str } from '../../u.ts';
+import { D } from '../common.ts';
 
 type P = t.VideoPlayerProps;
 

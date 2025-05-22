@@ -1,7 +1,7 @@
-import { type t, describe, expect, it } from '../../-test.ts';
-import { Player } from '../Player/mod.ts';
-import { D } from './common.ts';
-import { playerSignalsFactory } from './mod.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
+import { Player } from '../../Player/mod.ts';
+import { D } from '../common.ts';
+import { playerSignalsFactory } from '../mod.ts';
 
 describe('VideoPlayer: Signals API', () => {
   describe('props', () => {
