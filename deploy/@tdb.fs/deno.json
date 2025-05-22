@@ -4,7 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts",
+    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts && deno task help",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
     "deploy": "deno task build && orbiter deploy",
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/-clean.ts",
