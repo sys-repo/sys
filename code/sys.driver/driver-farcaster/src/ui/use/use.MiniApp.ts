@@ -38,7 +38,7 @@ export function useMiniApp(): t.MiniAppHook {
   }, []);
 
   /**
-   * API
+   * API:
    */
   return state;
 }
