@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './use.MiniApp.t.ts';
 
 /**
  * Hook: Keyboard controller.
