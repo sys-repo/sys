@@ -18,7 +18,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <ObjectView data={props.doc} />
+      <ObjectView name={'T:SampleDoc'} data={props.doc} expand={1} theme={theme.name} />
     </div>
   );
 };
