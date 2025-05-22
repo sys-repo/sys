@@ -71,7 +71,6 @@
     "./deploy/tmp.db.team",
 
     "./code/-sample/@sample.deno.llm",
-    "./code/-tmpl/deno",
     "./code/sys.tmp"
   ],
   "lint": {
