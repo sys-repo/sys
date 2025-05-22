@@ -1,9 +1,13 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
 import { Player } from '../../Player/mod.ts';
 import { D } from '../common.ts';
-import { playerSignalsFactory } from '../mod.ts';
+import { playerSignalsFactory, VideoPlayer } from '../mod.ts';
 
 describe('VideoPlayer: Signals API', () => {
+  it('API', () => {
+    expect(Player.Video.View).to.equal(VideoPlayer);
+  });
+
   describe('props', () => {
     it('initial values (defaults)', () => {
       const s = playerSignalsFactory();
