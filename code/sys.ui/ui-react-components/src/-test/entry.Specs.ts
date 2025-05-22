@@ -9,10 +9,10 @@ export const ns = 'sys.ui.react.component';
  * Components:
  */
 export const SpecsComponents = {
+  [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
+  [`${ns}: Switch`]: () => import('../ui/Button.Switch/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
 
-  [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
-  [`${ns}: Button.Switch`]: () => import('../ui/Button.Switch/-spec/-SPEC.tsx'),
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
