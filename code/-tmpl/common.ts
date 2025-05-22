@@ -8,6 +8,7 @@ export * from './pkg.deno/src/common.ts';
 /**
  * UI Refs:
  */
+export { c, Cli } from '@sys/cli';
 export { Fs, Path } from '@sys/fs';
 export { Color, css } from '@sys/ui-css';
 export { Signal } from '@sys/ui-react';
