@@ -166,6 +166,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/driver-farcaster"
+        run: |
+          cd code/sys.driver/driver-farcaster
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-immer"
         run: |
           cd code/sys.driver/driver-immer
