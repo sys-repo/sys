@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
-import { Switch } from '../mod.ts';
+import { Switch, SwitchTheme } from '../mod.ts';
 
 type P = t.SwitchProps;
 
@@ -35,7 +35,7 @@ export function createDebugSignals() {
       p.enabled.value;
     },
     updateTheme(color: 'green' | 'blue') {
-      const m = p.baseTheme.value === 'Dark' ? Switch.Theme.dark : Switch.Theme.light;
+      const m = p.baseTheme.value === 'Dark' ? SwitchTheme.dark : SwitchTheme.light;
       let value = m.default;
       if (color === 'green') value = m.green;
       if (color === 'blue') value = m.blue;
