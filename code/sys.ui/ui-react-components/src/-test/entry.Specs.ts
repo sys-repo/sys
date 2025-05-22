@@ -25,7 +25,7 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
 
-  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-SPEC.tsx'),
+  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
   [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 
