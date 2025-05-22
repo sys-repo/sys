@@ -18,49 +18,28 @@ export type StrLib = {
   /** The "lorem ipsum" string. */
   readonly lorem: string;
 
-  /**
-   * Calculate a difference between two strings.
-   */
+  /** Helpers for replacing strings within immutable documents. */
+  readonly Doc: StringDocLib;
+
+  /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
 
-  /**
-   * Safely modify a string stored on an immutable object <T>.
-   */
-  splice: t.TextSplice;
-
-  /**
-   * Replace all of a string using splice.
-   */
-  replace: t.TextReplace;
-
-  /**
-   * Limit the length of a string inserting ellipsis when needed.
-   */
+  /** Limit the length of a string inserting ellipsis when needed. */
   shorten(input?: string, maxLength?: number, options?: { ellipsis?: string }): string;
 
-  /**
-   * Capitalize the given word.
-   */
+  /** Capitalize the given word. */
   capitalize(word: string): string;
 
-  /**
-   * Return the "singular" or "plural" version of a word based on a number.
-   */
+  /** Return the "singular" or "plural" version of a word based on a number. */
   plural(count: number, singular: string, plural?: string): string;
 
-  /**
-   * Converts a "camelCase" string to "kebab-case".
-   */
+  /** Converts a "camelCase" string to "kebab-case". */
   camelToKebab(text: string): string;
 
-  /**
-   * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
-   */
+  /** Convert bytes to a human-readable string, eg: 1337 → "1.34 kB". */
   bytes: t.FormatBytes;
 
-  /**
-   * Truncates a string with ellipsis if over a maximum length.
-   */
+  /** Truncates a string with ellipsis if over a maximum length. */
   truncate(text: string | undefined, max: number): string;
 };
 
@@ -71,4 +50,14 @@ export type StrLoremLib = {
   readonly text: string;
   toString(): string;
   words(count?: number): string;
+};
+
+/**
+ * Helpers for replacing strings within immutable documents.
+ */
+export type StringDocLib = {
+  /** Safely modify a string stored on an immutable object <T>. */
+  splice: t.TextSplice;
+  /** Replace all of a string using splice. */
+  replace: t.TextReplace;
 };

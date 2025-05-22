@@ -37,3 +37,11 @@ export const replace: t.TextReplace = <T extends O>(doc: T, path: t.ObjectPath, 
   const current = ObjectPath.resolve(doc, path);
   if (typeof current === 'string') splice(doc, path, 0, current.length, next);
 };
+
+/**
+ * Helpers for replacing strings within immutable documents.
+ */
+export const Doc: t.StrLib['Doc'] = {
+  splice,
+  replace,
+};
