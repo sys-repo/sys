@@ -1,7 +1,18 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  IndexedDBStorageAdapter,
+  LocalStorage,
+  ObjectView,
+  Repo,
+  Signal,
+} from '../common.ts';
 
 type P = t.SampleProps;
+type LocalStore = { docUri?: t.AutomergeUrl };
 
 /**
  * Types:
@@ -14,14 +25,19 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+  const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
+  const repo = new Repo({ storage: new IndexedDBStorageAdapter() });
+
   const props = {
     debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    theme: s<t.CommonTheme>('Dark'),
     doc: s<P['doc']>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
+    localstore,
     listen() {
       p.debug.value;
       p.theme.value;
@@ -46,8 +62,14 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const repo = debug.repo;
   const p = debug.props;
   Signal.useRedrawEffect(() => debug.listen());
+
+  /**
+   * Setup sample document.
+   */
+  React.useEffect(() => void initDoc(debug), []);
 
   /**
    * Render:
@@ -70,6 +92,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      {sampleDocButtons(debug)}
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -79,3 +104,50 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev Helpers:
+ */
+export async function initDoc(debug: DebugSignals) {
+  const { repo, localstore } = debug;
+  const p = debug.props;
+
+  const listen = (doc: t.DocHandle<t.SampleDoc>) => {
+    doc.addListener('change', (e) => {
+      p.doc.value = e.doc;
+    });
+  };
+
+  const uri = localstore.current.docUri;
+  if (!uri) {
+    // Create:
+    const doc = repo.create<t.SampleDoc>({ cards: [], count: 0 });
+    await doc.whenReady();
+    listen(doc);
+    localstore.change((d) => (d.docUri = doc.url));
+    p.doc.value = doc.doc();
+  } else {
+    // Retrieve:
+    const doc = await repo.find<t.SampleDoc>(uri);
+    listen(doc);
+    p.doc.value = doc.doc();
+  }
+}
+
+export function sampleDocButtons(debug: DebugSignals) {
+  const { repo, localstore } = debug;
+
+  const increment = async (by: number) => {
+    const uri = localstore.current.docUri;
+    if (!uri) return;
+    const doc = await repo.find<t.SampleDoc>(uri);
+    doc.change((d) => (d.count += by));
+  };
+
+  return (
+    <React.Fragment>
+      <Button block label={() => `increment`} onClick={() => increment(1)} />
+      <Button block label={() => `decrement`} onClick={() => increment(-1)} />
+    </React.Fragment>
+  );
+}
