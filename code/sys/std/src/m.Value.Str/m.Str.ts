@@ -1,23 +1,22 @@
 import type { t } from './common.ts';
 
+import { Doc } from './m.Doc.ts';
+import { Lorem } from './m.Lorem.ts';
 import { bytes } from './u.bytes.ts';
 import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
 import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';
 import { shorten } from './u.shorten.ts';
-import { replace, splice } from './u.splice.ts';
 import { truncate } from './u.truncate.ts';
-import { Lorem } from './m.Lorem.ts';
 
-export { bytes, capitalize, diff, plural, replace, shorten, splice };
+export { bytes, capitalize, diff, plural, shorten };
 
 export const Str: t.StrLib = {
+  Doc,
   Lorem,
   lorem: Lorem.text,
   diff,
-  splice,
-  replace,
   shorten,
   capitalize,
   camelToKebab,
