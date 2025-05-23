@@ -42,6 +42,13 @@ export type HttpFetch = t.Lifecycle & {
     init?: RequestInit,
     options?: t.HttpFetchOptions,
   ): Promise<t.FetchResponse<string>>;
+
+  /** Invoke a fetch to retrieve "application/octet-stream" binary file data. */
+  blob(
+    input: RequestInput,
+    init?: RequestInit,
+    options?: t.HttpFetchOptions,
+  ): Promise<t.FetchResponse<Blob>>;
 };
 
 /** Options passed to the `fetch.text` method. */

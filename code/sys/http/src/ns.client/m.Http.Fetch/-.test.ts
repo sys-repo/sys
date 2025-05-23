@@ -58,13 +58,12 @@ describe('Http.Fetch', () => {
 
   describe('fetch: success', () => {
     it('200: json', async () => {
-      const life = rx.disposable();
       const server = Testing.Http.server((req) => {
         expect(req.headers.get('content-type')).to.eql('application/json');
         return Testing.Http.json({ foo: 123 });
       });
       const url = server.url.base;
-      const fetch = Fetch.create(life.dispose$);
+      const fetch = Fetch.create();
       expect(fetch.disposed).to.eql(false);
 
       const res = await fetch.json(url);
@@ -80,16 +79,13 @@ describe('Http.Fetch', () => {
     });
 
     it('200: text', async () => {
-      const life = rx.disposable();
       const text = 'foo-👋';
       const server = Testing.Http.server((req) => {
         expect(req.headers.get('content-type')).to.eql('text/plain');
         return Testing.Http.text(text);
       });
       const url = server.url.base;
-      const fetch = Fetch.create(life.dispose$);
-      expect(fetch.disposed).to.eql(false);
-
+      const fetch = Fetch.create();
       const res = await fetch.text(url);
 
       expect(res.ok).to.eql(true);
@@ -99,7 +95,27 @@ describe('Http.Fetch', () => {
       expect(res.error).to.eql(undefined);
       expect(res.headers.get('content-type')).to.eql('text/plain');
 
-      expect(fetch.disposed).to.eql(false);
+      await server.dispose();
+    });
+
+    it('200: blob (binary)', async () => {
+      const dataIn = new Uint8Array([1, 2, 3]);
+      const server = Testing.Http.server((req) => {
+        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        return Testing.Http.blob(dataIn);
+      });
+      const url = server.url.base;
+      const fetch = Fetch.create();
+
+      const res = await fetch.blob(url);
+      const dataOut = new Uint8Array(res.data ? await res.data?.arrayBuffer() : []);
+
+      expect(res.ok).to.eql(true);
+      expect(res.status).to.eql(200);
+      expect(res.url).to.eql(url);
+      expect(dataOut).to.eql(dataIn);
+      expect(res.error).to.eql(undefined);
+      expect(res.headers.get('content-type')).to.eql('application/octet-stream');
       await server.dispose();
     });
   });
@@ -154,8 +170,6 @@ describe('Http.Fetch', () => {
       });
 
       const fetch = Fetch.create({ headers: (e) => e.set('x-foo', 123).set('x-bar', 456) });
-      expect(fetch.disposed).to.eql(false);
-
       await fetch.text(server.url.base);
       expect(count).to.eql(1); // NB: server was called.
 

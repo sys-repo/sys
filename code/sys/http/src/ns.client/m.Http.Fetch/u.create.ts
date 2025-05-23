@@ -111,12 +111,16 @@ export const create: F = (input: Parameters<F>[0]) => {
       return wrangle.headers(options);
     },
 
-    async json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
-      return invokeFetch<T>('application/json', input, init, options, (res) => res.json());
+    json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<T>('application/json', input, init, options, (r) => r.json());
     },
 
-    async text(input: RequestInput, init: RequestInit = {}, options = {}) {
-      return invokeFetch<string>('text/plain', input, init, options, (res) => res.text());
+    text(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<string>('text/plain', input, init, options, (r) => r.text());
+    },
+
+    blob(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<Blob>('application/octet-stream', input, init, options, (r) => r.blob());
     },
   });
 
