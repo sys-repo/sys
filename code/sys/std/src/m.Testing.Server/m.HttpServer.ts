@@ -18,6 +18,11 @@ export const TestHttpServer: t.TestHttpServer = {
     return new Response(String(body), { headers });
   },
 
+  blob(...args: any[]) {
+    const { body, headers } = wrangle.args(args, 'application/octet-stream');
+    return new Response(body as any, { headers });
+  },
+
   error(status, statusText) {
     return new Response(null, { status, statusText });
   },

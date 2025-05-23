@@ -21,6 +21,10 @@ export type TestHttpServer = {
   text(body: unknown): Response;
   text(req: Request, body: unknown): Response;
 
+  /** Convert the given binary value to a Response object. */
+  blob(body: unknown): Response;
+  blob(req: Request, body: unknown): Response;
+
   /** Produce an error response */
   error(status: number, statusText: string): Response;
 };

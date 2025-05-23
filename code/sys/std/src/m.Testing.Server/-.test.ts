@@ -24,7 +24,7 @@ describe('Testing.HttpServer', () => {
     await server.dispose();
   });
 
-  it('response: application/json', async () => {
+  it('Http.json →response: application/json', async () => {
     const server1 = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
     const server2 = Testing.Http.server((req) => Testing.Http.json(req, { foo: 456 }));
     const url1 = server1.url.join('foo');
@@ -43,7 +43,7 @@ describe('Testing.HttpServer', () => {
     await server2.dispose();
   });
 
-  it('response: text/plain', async () => {
+  it('Http.text →response: text/plain', async () => {
     const server = Testing.Http.server(() => Testing.Http.text('foobar'));
     const url = server.url.join('foo');
     const res = await fetch(url);
@@ -52,7 +52,18 @@ describe('Testing.HttpServer', () => {
     await server.dispose();
   });
 
-  it('response: error', () => {
+  it('Http.blob → response: application/octet-stream', async () => {
+    const dataIn = new Uint8Array([1, 2, 3]);
+    const server = Testing.Http.server(() => Testing.Http.blob(dataIn));
+    const url = server.url.join('foo');
+    const res = await fetch(url);
+    expect(res.headers.get('content-type')).to.eql('application/octet-stream');
+    const dataOut = new Uint8Array(await res.arrayBuffer());
+    expect(dataOut).to.eql(dataIn);
+    await server.dispose();
+  });
+
+  it('Http.error → response:404', () => {
     const res = Testing.Http.error(404, 'Not Found');
     expect(res.ok).to.eql(false);
     expect(res.status).to.eql(404);
