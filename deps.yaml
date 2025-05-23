@@ -15,7 +15,6 @@
 #  file to calculate the "latest" versions to inject into, say,
 #  a `package.json` file for a scaffolded project.
 #
-
 groups:
   std/deno:
     # Deno standard libs ("std").
