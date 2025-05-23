@@ -1,5 +1,4 @@
 import type { t } from '../common.ts';
-
 type O = Record<string, unknown>;
 
 /**
@@ -11,11 +10,6 @@ export type HttpLib = {
   readonly Fetch: t.HttpFetchLib;
   /** Generator function for a new fetch client. */
   readonly fetch: t.HttpFetchLib['create'];
-
-  /** HTTP client tools (GET, PUT, POST, DELETE over Fetch). */
-  // readonly Client: t.HttpClientLib;
-  /** Generator function for a new HTTP/fetch client. */
-  // readonly client: t.HttpClientLib['create'];
 
   /** URL helpers for working with the HTTP lib. */
   readonly Url: t.UrlLib;
@@ -30,4 +24,7 @@ export type HttpLib = {
 
   /** Convert a `Response` into a standard HTTP fetch response. */
   toResponse<T extends O>(input: Response): Promise<t.FetchResponse<T>>;
+
+  /** Convert the `Blob` response to a `Uint8Array`. */
+  toUint8Array(input?: Blob): Promise<Uint8Array>;
 };

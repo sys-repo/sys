@@ -89,4 +89,20 @@ describe('Http', () => {
       expect(b).to.eql({ foo: 'xyz', bar: '123' });
     });
   });
+
+  describe('Http.toUint8Array', () => {
+    it('empty Uint8Array when input is undefined', async () => {
+      const result = await Http.toUint8Array(undefined);
+      expect(result).to.be.instanceOf(Uint8Array);
+      expect(result.length).to.eql(0);
+    });
+
+    it('converts Blob to Uint8Array correctly', async () => {
+      const data = new TextEncoder().encode('hello');
+      const blob = new Blob([data]);
+      const result = await Http.toUint8Array(blob);
+      expect(result).to.be.instanceOf(Uint8Array);
+      expect(Array.from(result)).to.eql(Array.from(data));
+    });
+  });
 });

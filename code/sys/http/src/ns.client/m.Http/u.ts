@@ -45,3 +45,10 @@ export async function toResponse<T extends O>(res: Response) {
   const url = res.url;
   return { ok, status, url, data, error } as t.FetchResponse<T>;
 }
+
+/**
+ * Convert the `Blob` response to a `Uint8Array`.
+ */
+export async function toUint8Array(input?: Blob) {
+  return input ? new Uint8Array(await input.arrayBuffer()) : new Uint8Array();
+}
