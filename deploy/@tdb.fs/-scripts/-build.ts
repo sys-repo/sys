@@ -8,6 +8,7 @@ console.info();
 const build = true;
 await buildAndCopy('../../code/sys.ui/ui-react-components', 'sys/ui', { build });
 await buildAndCopy('../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco', { build });
+await buildAndCopy('../@tdb.slc', 'tdb/slc', { build });
 await copyPublic('public', 'dist');
 
 // Write entry HTML.
