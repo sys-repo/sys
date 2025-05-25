@@ -18,7 +18,6 @@ export { FadeElement } from './ui/FadeElement/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';
-export { Media } from './ui/Media/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { Preload } from './ui/Preload/mod.ts';
 export { PropsGrid } from './ui/PropsGrid/mod.ts';
@@ -26,6 +25,8 @@ export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
 
+// Media:
+export { Media } from './ui/Media/mod.ts';
 export { VideoPlayer } from './ui/Player.Video/mod.ts';
 export { Player } from './ui/Player/mod.ts';
 export { VimeoBackground } from './ui/VimeoBackground/mod.ts';
