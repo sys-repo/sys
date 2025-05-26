@@ -1,2 +1,2 @@
-console.info('👋', import.meta.url);
-import { Env } from '@sys/fs/env';
+const file = import.meta.filename ?? '';
+console.info('👋', file.split(/[/\\]/).slice(-2).join('/'));
