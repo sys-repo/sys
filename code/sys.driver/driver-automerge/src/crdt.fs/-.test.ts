@@ -1,14 +1,14 @@
 import { Repo } from '@automerge/automerge-repo';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-import { Testing, describe, expect, it, slug } from '../-test.ts';
+import { Testing, describe, expect, it } from '../-test.ts';
 
 describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, () => {
-  describe('raw: underlying automerge/repo library', () => {
+  describe('raw: underlying automerge library', () => {
     /**
      * Ref:
      * https://automerge.org/docs/repositories/
      */
-    it('repo: sample fs persistence', async () => {
+    it('repo → persistence: file-system', async () => {
       type T = { msg?: string };
       const fs = await Testing.dir('crdt.fs').create();
       const repoA = new Repo({ storage: new NodeFSStorageAdapter(fs.dir) });
