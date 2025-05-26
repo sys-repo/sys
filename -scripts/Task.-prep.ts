@@ -44,7 +44,7 @@ async function updatePackages() {
   const errors = Err.errors();
   const ws = await DenoFile.workspace();
 
-  const tmpl = Tmpl.create('./code/-tmpl/templates/pkg', async (e) => {
+  const tmpl = Tmpl.create('./code/-tmpl/src/pkg', async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
     if (typeof pkg !== 'object') {
       const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;

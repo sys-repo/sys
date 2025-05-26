@@ -4,9 +4,9 @@ type Options = { argv?: string[] };
 type TArgs = { tmpl?: string | boolean };
 
 const Templates = {
-  'm.mod': () => import('../code/-tmpl/templates/m.mod/.tmpl.ts'),
-  'm.mod.ui': () => import('../code/-tmpl/templates/m.mod.ui/.tmpl.ts'),
-  'pkg.deno': () => import('../code/-tmpl/templates/pkg.deno/.tmpl.ts'),
+  'm.mod': () => import('../code/-tmpl/src/m.mod/.tmpl.ts'),
+  'm.mod.ui': () => import('../code/-tmpl/src/m.mod.ui/.tmpl.ts'),
+  'pkg.deno': () => import('../code/-tmpl/src/pkg.deno/.tmpl.ts'),
 } as const;
 
 /**

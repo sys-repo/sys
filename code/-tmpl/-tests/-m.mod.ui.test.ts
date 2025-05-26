@@ -1,4 +1,4 @@
-import { type t, describe, it, expect, Testing, Tmpl } from '../-test.ts';
+import { type t, describe, it, expect, Testing, Tmpl } from '../src/-test.ts';
 
 describe('Template: m.mod.ui', () => {
   const getDir = async () => Testing.dir('m.mod.ui').create();
