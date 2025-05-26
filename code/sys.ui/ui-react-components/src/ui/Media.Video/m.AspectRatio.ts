@@ -11,7 +11,7 @@ export const AspectRatio: t.MediaAspectRatioLib = {
 
   toString(stream, options = {}) {
     const ratio = AspectRatio.toNumber(stream);
-    if (!ratio || !isFinite(ratio)) return '0 / 1';
+    if (!ratio || !isFinite(ratio)) return '0/1';
 
     const maxDen = options.maxDenominator ?? 32;
     const eps = 1e-4; // Acceptable error.
@@ -40,11 +40,11 @@ export const AspectRatio: t.MediaAspectRatioLib = {
 
     // Decide on fraction or rounded decimal.
     if (bestDen <= maxDen && bestErr < eps * 10) {
-      return `${bestNum} / ${bestDen}`; // e.g. "16 / 9"
+      return `${bestNum}/${bestDen}`; // e.g. "16 / 9"
     }
 
     // Fallback: rounded decimal as "1.778 / 1"
     const rounded = Math.round(ratio * 1000) / 1000;
-    return `${rounded} / 1`;
+    return `${rounded}/1`;
   },
 };
