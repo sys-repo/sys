@@ -72,6 +72,7 @@
     "./deploy/tmp.db.team",
 
     "./code/sys.tmp",
+    "./code/-tmpl",
     "./code/-sample/@sample.deno.llm",
     "./code/-sample/@sample.mcp"
   ],

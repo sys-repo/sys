@@ -1,2 +1,2 @@
-// NB: placeholder to ensure template imports don't error.
-export * from './deno/src/-test.ts';
+export { Tmpl } from '@sys/tmpl/fs';
+export * from './pkg.deno/src/-test.ts';
