@@ -50,6 +50,7 @@ export function createDebugSignals() {
     zoom: s<Partial<t.MediaZoomValues>>(localstore.current.zoom),
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
+    selectAudio: s<MediaDeviceInfo>(),
   };
   const p = props;
   const api = {
@@ -67,6 +68,7 @@ export function createDebugSignals() {
       p.zoom.value;
       p.aspectRatio.value;
       p.selectedCamera.value;
+      p.selectAudio.value;
     },
   };
   return api;
@@ -125,6 +127,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         filter={(e) => e.kind === 'videoinput'}
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
+      />
+
+      <hr />
+
+      <Media.Devices.UI.List
+        style={{ MarginX: 20 }}
+        filter={(e) => e.kind === 'audioinput'}
+        selected={p.selectAudio.value}
+        onSelect={(e) => (p.selectAudio.value = e.info)}
       />
 
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}

@@ -32,7 +32,11 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     if (!stream) return;
 
     const mimeType = optionsRef.current.mimeType ?? 'video/webm;codecs=vp9,opus';
-    const recorder = (recorderRef.current = new MediaRecorder(stream, { mimeType }));
+    const recorder = (recorderRef.current = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: 4_000_000,
+      audioBitsPerSecond: 128_000,
+    }));
     recorder.ondataavailable = (e) => {
       const bytes = e.data.size;
       chunksRef.current.push(e.data);
