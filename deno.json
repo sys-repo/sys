@@ -71,8 +71,9 @@
     "./deploy/api.db.team",
     "./deploy/tmp.db.team",
 
+    "./code/sys.tmp",
     "./code/-sample/@sample.deno.llm",
-    "./code/sys.tmp"
+    "./code/-sample/@sample.mcp"
   ],
   "lint": {
     "rules": {
