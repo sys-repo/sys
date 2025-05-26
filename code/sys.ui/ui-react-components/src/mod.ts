@@ -8,7 +8,7 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 /**
- * Components.
+ * Components:
  */
 export { Bullet } from './ui/Bullet/mod.ts';
 export { Switch } from './ui/Button.Switch/mod.ts';
