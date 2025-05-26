@@ -9,7 +9,6 @@ export default async function setup(e: t.TmplWriteHandlerArgs) {
 
   const dir = Fs.glob(e.dir.target.absolute);
   const paths = await dir.find('**/*.{ts,tsx}', { includeDirs: false });
-
   for (const { path } of paths) {
     const text = (await Fs.readText(path)).data;
     if (text) {
@@ -18,3 +17,9 @@ export default async function setup(e: t.TmplWriteHandlerArgs) {
     }
   }
 
+  /**
+   * TODO 🐷
+   * - insert entry/spec (index)
+   * - export ../types.ts
+   */
+}
