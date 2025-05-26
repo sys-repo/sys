@@ -36,6 +36,7 @@
     "date-fns": "npm:date-fns@4",
     "diff": "npm:diff@8.0.1",
     "fake-indexeddb": "npm:fake-indexeddb@6.0.1",
+    "fake-indexeddb/auto": "npm:fake-indexeddb@6.0.1/auto",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "happy-dom": "npm:happy-dom@17.4.7",
     "hash-it": "npm:hash-it@6.0.0",
