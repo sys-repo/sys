@@ -9,6 +9,9 @@ export type TmplLib = {
   /** Tools for converting a Tmpl to console/log output. */
   readonly Log: t.TmplLogLib;
 
+  /** Tools for modifying template files once written to the file-system. */
+  readonly File: t.TmplFileLib;
+
   /** Create a new directory template. */
   create: t.TmplFactory;
 };

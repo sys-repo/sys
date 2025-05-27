@@ -1,12 +1,10 @@
-# Automerge
-Standardised API wrapper around [`automerge`](https://github.com/automerge) and [`automerge-repo`](https://github.com/automerge/automerge-repo) CRDT persistence and sync libraries.
+# Automerge (CRDT)
+An `Immutable<T>` implementation using Automerge (CRDT) as the immutability strategy.
 
-Surfaces the CRDT using the common system `Immutable<T>` interfaces.
-
+- https://automerge.org
+- https://github.com/automerge (MIT)
 
 ### Example
-
 ```ts
-import { pkg } from '@sys/driver-automerge';
+import { } from 'jsr:@sys/driver-automerge';
 ```
-

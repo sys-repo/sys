@@ -1,22 +1,22 @@
 {
   "tasks": {
-    "info": "deno run -RE --allow-sys --allow-ffi ./scripts/main.ts --info",
+    "info": "deno run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
 
-    "ci": "deno run -A ./scripts/main.ts --dry --test --info",
-    "test": "deno run -A ./scripts/main.ts --test",
-    "dry": "deno run -RE --allow-run --allow-sys --allow-ffi ./scripts/main.ts --dry",
-    "lint": "deno run -RE --allow-run=sh ./scripts/main.ts --lint",
+    "ci": "deno run -A ./-scripts/main.ts --dry --test --info",
+    "test": "deno run -A ./-scripts/main.ts --test",
+    "dry": "deno run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
+    "lint": "deno run -RE --allow-run=sh ./-scripts/main.ts --lint",
 
-    "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./scripts/main.ts --clean",
+    "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
     "reload": "deno task reload:clear && deno task reload:install",
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
 
-    "prep": "deno run -RWE --allow-ffi --allow-run ./scripts/main.ts --prep",
-    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./scripts/main.ts --bump",
-    "tmpl": "deno run -RWE ./scripts/main.ts --tmpl",
+    "prep": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
+    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
+    "tmpl": "deno run -RWE ./-scripts/main.ts --tmpl",
 
-    "tmp": "deno run -A ./scripts/-tmp.ts"
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
     "strict": true,
@@ -51,7 +51,9 @@
     "./code/sys.ui/ui-react-components",
 
     "./code/sys.driver/driver-automerge",
+    "./code/sys.driver/driver-automerge.01",
     "./code/sys.driver/driver-deno",
+    "./code/sys.driver/driver-farcaster",
     "./code/sys.driver/driver-immer",
     "./code/sys.driver/driver-monaco",
     "./code/sys.driver/driver-obsidian",
@@ -64,14 +66,15 @@
     "./code/sys/sys",
     "./code/sys/main",
 
-    "./code/-samples/deno.vite-react",
     "./deploy/@tdb.fs",
     "./deploy/@tdb.slc",
     "./deploy/api.db.team",
     "./deploy/tmp.db.team",
 
-    "./code/-tmpl/deno",
-    "./code/sys.tmp"
+    "./code/sys.tmp",
+    "./code/-tmpl",
+    "./code/-sample/@sample.deno.llm",
+    "./code/-sample/@sample.mcp"
   ],
   "lint": {
     "rules": {

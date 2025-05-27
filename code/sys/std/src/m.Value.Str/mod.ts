@@ -14,4 +14,4 @@
  * ```
  */
 export { Lorem } from './m.Lorem.ts';
-export { bytes, capitalize, diff, plural, replace, shorten, splice, Str } from './m.Str.ts';
+export { bytes, capitalize, diff, plural, shorten, Str } from './m.Str.ts';

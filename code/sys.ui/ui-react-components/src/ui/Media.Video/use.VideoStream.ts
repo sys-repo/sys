@@ -5,6 +5,10 @@ import { getStream } from './u.getStream.ts';
 
 export const useVideoStream: t.UseVideoStream = (args) => {
   const { filter } = args;
+  const zoom = useMemo<Partial<t.MediaZoomValues> | undefined>(
+    () => args.zoom,
+    [Obj.hash(args.zoom)],
+  );
   const constraints = useMemo<MediaStreamConstraints>(
     () => args.constraints ?? D.constraints,
     [Obj.hash(args.constraints)],
@@ -21,7 +25,7 @@ export const useVideoStream: t.UseVideoStream = (args) => {
   useEffect(() => {
     let cancelled = false;
 
-    getStream(constraints, { filter })
+    getStream(constraints, { filter, zoom })
       .then(async (e) => {
         if (cancelled) return;
         setFiltered(e.filtered);
@@ -37,7 +41,7 @@ export const useVideoStream: t.UseVideoStream = (args) => {
       cancelled = true;
       filtered?.getTracks().forEach((t) => t.stop());
     };
-  }, [constraints, filter]);
+  }, [constraints, filter, zoom]);
 
   /**
    * API:

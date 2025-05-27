@@ -71,15 +71,15 @@ describe('Str (Text)', () => {
     });
   });
 
-  describe('Str.splice', () => {
+  describe('Str.Doc.splice', () => {
     it('splice: new text', () => {
       const doc = { foo: {} };
       const path = ['foo', 'text'];
 
-      Str.splice(doc, path, 0, 0, 'hello');
+      Str.Doc.splice(doc, path, 0, 0, 'hello');
       expect(doc.foo).to.eql({ text: 'hello' });
 
-      Str.splice(doc, path, 4, 0, ' n');
+      Str.Doc.splice(doc, path, 4, 0, ' n');
       expect(doc.foo).to.eql({ text: 'hell no' });
     });
 
@@ -87,10 +87,10 @@ describe('Str (Text)', () => {
       const doc = { foo: { text: 'hello' } };
       const path = ['foo', 'text'];
 
-      Str.splice(doc, path, 0, 1);
+      Str.Doc.splice(doc, path, 0, 1);
       expect(doc.foo).to.eql({ text: 'ello' });
 
-      Str.splice(doc, path, 1, 2);
+      Str.Doc.splice(doc, path, 1, 2);
       expect(doc.foo).to.eql({ text: 'eo' });
     });
 
@@ -98,35 +98,35 @@ describe('Str (Text)', () => {
       const doc = Immutable.clonerRef({ text: '' });
 
       const path = ['text'];
-      doc.change((d) => Str.splice(d, path, 0, 0, 'hello'));
+      doc.change((d) => Str.Doc.splice(d, path, 0, 0, 'hello'));
       expect(doc.current.text).to.eql('hello');
 
-      doc.change((d) => Str.replace(d, path, ''));
+      doc.change((d) => Str.Doc.replace(d, path, ''));
       expect(doc.current.text).to.eql('');
     });
 
     it('diff then splice', () => {
       const doc = { text: 'hello' };
       const diff = Str.diff(doc.text, 'z', 1);
-      Str.splice(doc, ['text'], diff.index, diff.delCount, diff.newText);
+      Str.Doc.splice(doc, ['text'], diff.index, diff.delCount, diff.newText);
       expect(doc.text).to.eql('z');
     });
 
     it('throw: path is empty', () => {
       const doc = {};
-      const fn = () => Str.splice(doc, [], 0, 0, 'hello');
+      const fn = () => Str.Doc.splice(doc, [], 0, 0, 'hello');
       expect(fn).to.throw(/Target path is empty/);
     });
 
     it('throw: target parent not an object', () => {
       const doc = {};
-      const fn = () => Str.splice(doc, ['foo', 'text'], 0, 0, 'hello');
+      const fn = () => Str.Doc.splice(doc, ['foo', 'text'], 0, 0, 'hello');
       expect(fn).to.throw(/Target path "foo\.text" is not within an object/);
     });
 
     it('throw: target is not a string', () => {
       const test = (doc: any) => {
-        const fn = () => Str.splice(doc, ['text'], 0, 0, 'hello');
+        const fn = () => Str.Doc.splice(doc, ['text'], 0, 0, 'hello');
         expect(fn).to.throw(/Target path "text" is not a string/);
       };
       const INVALID = [123, false, null, {}, [], Symbol('foo'), BigInt(0)];
@@ -134,16 +134,16 @@ describe('Str (Text)', () => {
     });
   });
 
-  describe('Str.replace', () => {
+  describe('Str.Doc.replace', () => {
     it('replace: "hello" → "foobar"', () => {
       const doc = { text: 'hello' };
-      Str.replace(doc, ['text'], 'foobar');
+      Str.Doc.replace(doc, ['text'], 'foobar');
       expect(doc).to.eql({ text: 'foobar' });
     });
 
     it('replace: "hello" → "" (clear)', () => {
       const doc = { text: 'hello' };
-      Str.replace(doc, ['text'], '');
+      Str.Doc.replace(doc, ['text'], '');
       expect(doc).to.eql({ text: '' });
     });
   });
@@ -351,6 +351,46 @@ describe('Str (Text)', () => {
         const result = Str.Lorem.words();
         expect(result.split(' ').length).to.eql(Lorem.text.split(' ').length);
       });
+    });
+  });
+
+  describe('Str.replaceAll', () => {
+    it('replaces all occurrences when pattern is string', () => {
+      const input = 'foo foo foo';
+      const { changed, before, after } = Str.replaceAll(input, 'foo', 'bar');
+      expect(before).to.eql(input);
+      expect(after).to.eql('bar bar bar');
+      expect(changed).to.be.true;
+    });
+
+    it('return no change when pattern does not match', () => {
+      const input = 'hello world';
+      const { changed, after } = Str.replaceAll(input, 'xyz', '123');
+      expect(after).to.eql(input);
+      expect(changed).to.be.false;
+    });
+
+    it('replaces all occurrences when pattern is regex without g flag', () => {
+      const input = 'banana';
+      const { after } = Str.replaceAll(input, /a/, 'o');
+
+      // Without g, native replace would only replace first "a",
+      // but our normalizeRegex adds "g" so all "a"s become "o".
+      expect(after).to.eql('bonono');
+    });
+
+    it('replace ignoring case when regex has i flag', () => {
+      const input = 'Foo foo FOO';
+      const { after } = Str.replaceAll(input, /foo/gi, 'bar');
+      expect(after).to.eql('bar bar bar');
+    });
+
+    it('supports multiline patterns for string patterns', () => {
+      const input = 'start\nstart\nmiddle\nstart';
+      const { after } = Str.replaceAll(input, '^start', 'X');
+
+      // string pattern compiles to /ˆstart/gm, so it hits each line.
+      expect(after).to.eql('X\nX\nmiddle\nX');
     });
   });
 });

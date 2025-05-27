@@ -1,11 +1,16 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
-import { type t, Button, ObjectView, pkg, Str } from '../../u.ts';
-import { Color, css, D, JsrUrl, Signal } from '../common.ts';
+import { type t, Button, Obj, ObjectView, pkg, Str } from '../../u.ts';
+import { Color, css, D, JsrUrl, LocalStorage, Signal } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
-const Filters = Media.Filters;
+type L = {
+  filters: Partial<t.MediaFilterValues>;
+  zoom: Partial<t.MediaZoomValues>;
+};
+
+const { Filters, Zoom } = Media.Config;
 
 /**
  * Types:
@@ -17,6 +22,12 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  const initial: L = {
+    filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
+    zoom: Zoom.values(Obj.keys(Zoom.config)),
+  } as const;
+  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
+
   type R = {
     status: t.MediaRecorderStatus;
     is: t.MediaRecorderHookFlags;
@@ -24,33 +35,40 @@ export function createDebugSignals() {
     blob?: Blob;
   };
   const s = Signal.create;
-  const initial = {
-    filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
-  } as const;
 
   const props = {
     debug: s(false),
-    filters: s(initial.filters),
+    config: {
+      filters: s(localstore.current.filters),
+      zoom: s(localstore.current.zoom),
+    },
 
-    theme: s<P['theme']>('Dark'),
+    theme: s<t.CommonTheme>('Dark'),
     stream: s<MediaStream>(),
     recorder: s<R>(),
-    filter: s<string>(Filters.toString(initial.filters)),
+    filter: s<string>(Filters.toString(localstore.current.filters)),
+    zoom: s<Partial<t.MediaZoomValues>>(localstore.current.zoom),
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
+    selectAudio: s<MediaDeviceInfo>(),
   };
   const p = props;
   const api = {
     props,
+    localstore,
     listen() {
       p.debug.value;
+      p.config.filters.value;
+      p.config.zoom.value;
+
       p.theme.value;
       p.stream.value;
       p.recorder.value;
       p.filter.value;
-      p.filters.value;
+      p.zoom.value;
       p.aspectRatio.value;
       p.selectedCamera.value;
+      p.selectAudio.value;
     },
   };
   return api;
@@ -110,20 +128,46 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selected={p.selectedCamera.value}
         onSelect={(e) => (p.selectedCamera.value = e.info)}
       />
+
+      <hr />
+
+      <Media.Devices.UI.List
+        style={{ MarginX: 20 }}
+        filter={(e) => e.kind === 'audioinput'}
+        selected={p.selectAudio.value}
+        onSelect={(e) => (p.selectAudio.value = e.info)}
+      />
+
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
 
       <div className={Styles.title.class}>{'Filter'}</div>
-      <Media.Filters.UI.List
+      <Media.Config.Filters.UI.List
         style={{ MarginX: 20 }}
-        values={p.filters.value}
-        onChange={(e) => (p.filters.value = e.values)}
+        values={p.config.filters.value}
+        onChange={(e) => (p.config.filters.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
+          debug.localstore.change((d) => (d.filters = e.values));
+        }}
+      />
+
+      {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
+
+      <div className={Styles.title.class}>{'Zoom'}</div>
+      <Media.Config.Zoom.UI.List
+        style={{ margin: 20 }}
+        values={p.config.zoom.value}
+        onChange={(e) => (p.config.zoom.value = e.values)}
+        onChanged={(e) => {
+          console.info('⚡️ Zoom.onChanged:', e);
+          debug.localstore.change((d) => (d.zoom = e.values));
+          p.zoom.value = e.values;
         }}
       />
 
       {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
+
       <div className={Styles.title.class}>{'Stream'}</div>
       <div style={{ marginLeft: 20 }}>{recorderButtons(recorder)}</div>
       {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
@@ -232,7 +276,7 @@ export function recorderButtons(recorder: t.MediaRecorderHook) {
             enabled={is.started}
             onClick={async () => {
               const res = await recorder.stop();
-              console.log('⚡️ stopped', res);
+              console.info('⚡️ stopped', res);
               Media.download(res.blob);
             }}
           />

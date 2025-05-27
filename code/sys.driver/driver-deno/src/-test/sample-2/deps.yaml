@@ -21,6 +21,9 @@ deno.json:
   - import: jsr:@std/http@1.0.5 # Duplicate (in group, same version).
   - import: npm:@noble/hashes@1.7.1
     wildcard: true
+  - import: npm:zod@4
+    subpaths:
+      - v4-mini
 
 package.json:
   - group: deno/std

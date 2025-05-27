@@ -31,6 +31,7 @@ export default Spec.describe('MediaRecorder', (e) => {
           height,
         }),
       };
+
       return (
         <div className={styles.base.class}>
           <Media.Video.UI.Stream
@@ -38,12 +39,26 @@ export default Spec.describe('MediaRecorder', (e) => {
             theme={p.theme.value}
             filter={p.filter.value}
             aspectRatio={p.aspectRatio.value}
+            zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
             constraints={{
-              audio: true,
-              video: { deviceId: p.selectedCamera.value?.deviceId },
+              audio: {
+                deviceId: p.selectAudio.value?.deviceId,
+                channelCount: { ideal: 2 },
+                sampleRate: { ideal: 48_000 },
+                sampleSize: { ideal: 16 },
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+              video: {
+                deviceId: p.selectedCamera.value?.deviceId,
+                width: { ideal: 1280 }, // 1280×720 HD
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 }, // 30 fps
+              },
             }}
             onReady={(e) => {
-              console.info(`⚡️ onReady:`, e);
+              console.info(`⚡️ Video.Stream.onReady:`, e);
               p.stream.value = e.stream.filtered;
               p.selectedCamera.value = e.device;
             }}

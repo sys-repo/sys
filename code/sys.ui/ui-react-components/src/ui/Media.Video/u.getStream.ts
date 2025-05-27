@@ -15,6 +15,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   options = {},
 ) => {
   const filter = (options.filter ?? '').trim();
+  const zoom = wrangle.zoom(options.zoom);
 
   /**
    * Retrieve the raw camera/mic stream.
@@ -32,9 +33,11 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   }) as HTMLVideoElement;
   await video.play(); // NB: wait until metadata ready.
 
+  const w = video.videoWidth;
+  const h = video.videoHeight;
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = w;
+  canvas.height = h;
 
   const ctx = canvas.getContext('2d')!;
   if (filter) ctx.filter = filter;
@@ -43,10 +46,24 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Copy each video frame into the canvas.
    */
   function draw() {
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, w, h);
+    if (filter) ctx.filter = filter;
+    if (zoom.factor === 1) {
+      ctx.drawImage(video, 0, 0, w, h);
+    } else {
+      // Normalize center coords → absolute pixels.
+      const cx = (zoom.centerX ?? 0.5) * w;
+      const cy = (zoom.centerY ?? 0.5) * h;
+      const f = zoom.factor;
+      const sw = w / f;
+      const sh = h / f;
+      const sx = cx - sw / 2;
+      const sy = cy - sh / 2;
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
+    }
+    requestAnimationFrame(draw); // ← RECURSION 🌳
   }
-  draw(); // NB: Kick off the loop.
+  draw(); // NB: Kick off the draw-loop.
 
   /**
    * Capture the canvas as a MediaStream and
@@ -66,3 +83,13 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   // Finish up.
   return { raw, filtered };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  zoom(input: Partial<t.MediaZoomValues> = {}): t.MediaZoomValues {
+    const { factor = 1, centerX = 0.5, centerY = 0.4 } = input;
+    return { factor, centerX, centerY };
+  },
+} as const;

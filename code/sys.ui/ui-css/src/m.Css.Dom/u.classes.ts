@@ -1,11 +1,19 @@
-import { type t, DEFAULT, Obj, V } from './common.ts';
+import { type t, DEFAULT, Obj } from './common.ts';
 import { AlphanumericWithHyphens } from './u.ts';
 
 export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): t.CssDomClasses {
   const { rules } = args;
   const inserted = new Set<string>();
   const prefix = wrangleClassPrefix(args.prefix);
-  V.parse(AlphanumericWithHyphens, prefix);
+
+  const validation = AlphanumericWithHyphens.safeParse(prefix);
+  if (!validation.success) {
+    const err = validation.error.issues
+      .map((m) => m.message)
+      .join('. ')
+      .trim();
+    throw new Error(err);
+  }
 
   const api: t.CssDomClasses = {
     prefix,
@@ -29,7 +37,7 @@ export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): 
 }
 
 /**
- * Helpers
+ * Helpers:
  */
 export function wrangleClassPrefix(input: string | undefined, defaultPrefix?: string) {
   const res = (input ?? '').trim() || (defaultPrefix ?? DEFAULT.classPrefix);
