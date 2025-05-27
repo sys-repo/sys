@@ -1,4 +1,6 @@
 import { type t, describe, expect, expectError, Fs, it, R, SAMPLE, Time } from '../-test.ts';
+import { File } from '../m.File/mod.ts';
+import { Log } from '../m.Log/mod.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
@@ -14,6 +16,11 @@ describe('Tmpl', () => {
     console.info(title);
     console.info(Tmpl.Log.table(res.ops, { hideExcluded, indent }));
   };
+
+  it('API', () => {
+    expect(Tmpl.File).to.equal(File);
+    expect(Tmpl.Log).to.equal(Log);
+  });
 
   it('init: paths', async () => {
     const test = Test.sample1();
