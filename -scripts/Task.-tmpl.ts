@@ -1,13 +1,8 @@
+import { Templates, tmplFilter } from '../code/-tmpl/src/mod.ts';
 import { c, Cli, Fs, Tmpl } from './common.ts';
 
 type Options = { argv?: string[] };
 type TArgs = { tmpl?: string | boolean };
-
-const Templates = {
-  'm.mod': () => import('../code/-tmpl/src/m.mod/.tmpl.ts'),
-  'm.mod.ui': () => import('../code/-tmpl/src/m.mod.ui/.tmpl.ts'),
-  'pkg.deno': () => import('../code/-tmpl/src/pkg.deno/.tmpl.ts'),
-} as const;
 
 /**
  * COMMAND 🌳 Create selected template:
@@ -61,16 +56,8 @@ export async function main(options: Options = {}) {
   }
 
   const sourceDir = Fs.resolve(source.dir);
-  const tmpl = Tmpl.create(sourceDir).filter((e) => {
-    if (e.file.name === '-.tmpl.ts') return false; // NB: the initialization script for the template, not content.
-    return true;
-  });
-
-  const res = await tmpl.write(targetDir, {
-    async onAfter(e) {
-      if (typeof source.default === 'function') await source.default(e);
-    },
-  });
+  const tmpl = Tmpl.create(sourceDir).filter(tmplFilter);
+  const res = await tmpl.write(targetDir, { onAfter: (e) => source.default(e) });
 
   console.info(c.gray(`Target: ${Fs.trimCwd(targetDir)}`));
   console.info();
