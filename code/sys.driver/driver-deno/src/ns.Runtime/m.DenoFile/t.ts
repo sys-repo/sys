@@ -20,6 +20,12 @@ export type DenoFileLib = {
    * that contains a "workspace":[] configuration.
    */
   isWorkspace(src?: t.StringPath): Promise<boolean>;
+
+  /** Helpers for wrangling deno.json file paths */
+  readonly Path: {
+    /** Walks up from the starting path looking for the nearest ancestor `deno.json` file. */
+    nearest(start: t.StringPath): Promise<t.StringAbsolutePath | undefined>;
+  };
 };
 
 /** The async response from a `deno.json` file load request. */

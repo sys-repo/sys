@@ -1,5 +1,6 @@
-import { type t, Esm, Fs, Path } from './common.ts';
+import { type t, Esm, Fs } from './common.ts';
 import { load } from './u.load.ts';
+import { Path } from './m.DenoFile.Path.ts';
 
 /**
  * Determine if the given input is a `deno.json` file
@@ -20,7 +21,7 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
   const denofile = await load(src);
   const exists = denofile.exists && Array.isArray(denofile.data?.workspace);
   const file = denofile.path;
-  const dir = Path.dirname(file);
+  const dir = Fs.dirname(file);
   const dirs = denofile.data?.workspace ?? [];
 
   let _modules: t.EsmModules | undefined; // NB: lazy-load.
@@ -54,7 +55,7 @@ async function findFirstWorkspaceAncestor() {
     // Look for the existence of the [deno.json] file.
     const files = await e.files();
     const denofile = files.find((e) => e.name === 'deno.json');
-    if (!denofile) return;
+    if (!denofile) return; // Continue ↑
 
     // Load the {JSON} and determine if it is a "workspace".
     const { path } = await load(denofile.path);
@@ -63,18 +64,17 @@ async function findFirstWorkspaceAncestor() {
       e.stop();
     }
   });
-
   return root;
 }
 
 async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
   const trimPath = (path: t.StringPath) => path.slice(root.length + 1);
   const promises = subpaths
-    .map((subpath) => Path.join(root, subpath, 'deno.json'))
+    .map((subpath) => Fs.join(root, subpath, 'deno.json'))
     .map((path) => load(path));
 
   const toChild = (path: t.StringPath, denofile: t.DenoFileJson): t.DenoWorkspaceChild => {
-    const dir = Path.dirname(path);
+    const dir = Fs.dirname(path);
     return {
       path: { dir, denofile: path },
       pkg: { name: denofile.name ?? '<unnamed>', version: denofile.version ?? '0.0.0' },
