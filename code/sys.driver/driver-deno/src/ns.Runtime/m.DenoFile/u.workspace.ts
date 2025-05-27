@@ -1,6 +1,5 @@
 import { type t, Esm, Fs } from './common.ts';
 import { load } from './u.load.ts';
-import { Path } from './m.DenoFile.Path.ts';
 
 /**
  * Determine if the given input is a `deno.json` file
