@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for modifying template files once written to the file-system.
  */
 export type TmplFileLib = {
-  update(path: t.StringPath, modifier?: t.TmplFileUpdate): Promise<TmplFileUpdateResponse>;
+  update(path: t.StringPath, modify?: t.TmplFileUpdate): Promise<TmplFileUpdateResponse>;
 };
 
 /** Response from the `Tmpl.File.update` method. */
@@ -21,6 +21,7 @@ export type TmplFileChange = {
   readonly line: { readonly index: t.Index };
   readonly before: string;
   readonly after: string;
+  readonly op: 'insert' | 'modify';
 };
 
 /**
@@ -36,4 +37,6 @@ export type TmplFileUpdateArgs = {
   readonly lines: readonly string[];
   /** Modify the line with the given text. */
   modify(line: string): void;
+  /** Insert a line relative (before) to the current one. */
+  insert(text: string): void;
 };
