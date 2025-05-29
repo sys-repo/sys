@@ -44,10 +44,11 @@ export const update: t.TmplFileLib['update'] = async (path, modify) => {
    * Core traversal:
    */
   const lines: string[] = res.before.split('\n');
-  lines.pop(); // remove trailing new-line (EOF) from core traversal loop.
 
   for (let i = 0; i < lines.length; ) {
     if (i >= lines.length) throw new Error('Overstepped array bounds.');
+
+    let _lines: string[] | undefined;
 
     const payload: t.TmplFileUpdateArgs = {
       is: { first: i === 0, last: i === lines.length - 1 },
@@ -59,7 +60,9 @@ export const update: t.TmplFileLib['update'] = async (path, modify) => {
           return i;
         },
       },
-      lines: [...lines], // ← (immutable snapshot).
+      get lines() {
+        return _lines || (_lines = [...lines]); // ← (immutable snapshot).
+      },
       modify(next) {
         const text = payload.line.text;
         if (next !== text) {
@@ -72,6 +75,7 @@ export const update: t.TmplFileLib['update'] = async (path, modify) => {
         const op = 'insert';
         lines.splice(i, 0, insertText);
         res.changes.push({ op, line: { index: i }, before: '', after: insertText });
+        _lines = undefined;
         i += 1;
       },
     };

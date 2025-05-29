@@ -49,12 +49,11 @@ describe('Tmpl.File', () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
           if (e.line.text.includes('-2')) e.modify(`${e.line.text} (🌳)`);
-          if (e.is.last) e.modify('last');
         });
 
         const lines = res.after.split('\n');
-        expect(lines).to.eql(['line-1', 'line-2 (🌳)', 'last', '']);
-        expect(res.changes.map((m) => m.op)).to.eql(['modify', 'modify']);
+        expect(lines).to.eql(['line-1', 'line-2 (🌳)', 'line-3', '']);
+        expect(res.changes.map((m) => m.op)).to.eql(['modify']);
         expect((await Fs.readText(file.path)).data).to.eql(res.after); // NB: changes written to fs.
       });
 
@@ -67,7 +66,7 @@ describe('Tmpl.File', () => {
         });
 
         const lines = res.after.split('\n');
-        expect(lines).to.eql(['first', 'line-2', 'last', '']);
+        expect(lines).to.eql(['first', 'line-2', 'line-3', 'last', '']); // NB: last line modified to include content, so an additional empty EOF line added.
         expect(res.changes.map((m) => m.op)).to.eql(['modify', 'modify']);
         expect((await Fs.readText(file.path)).data).to.eql(res.after); // NB: changes written to fs.
       });
@@ -131,6 +130,25 @@ describe('Tmpl.File', () => {
           '',
         ]);
         expect(res.changes.map((m) => m.op)).to.eql(Array(4).fill('insert'));
+      });
+
+      it('insert - accurate return of `lines` array', async () => {
+        const file = await getFile();
+        const lines: (readonly string[])[] = [];
+        await File.update(file.path, (e) => {
+          if (e.line.text === 'line-1') {
+            lines.push(e.lines); // Before.
+            lines.push(e.lines); // After: same as before
+          }
+          if (e.line.text === 'line-2') {
+            lines.push(e.lines); // Before.
+            e.insert('modified!');
+            lines.push(e.lines); // After: same as before
+          }
+        });
+        expect(lines[0]).to.equal(lines[1]);
+        expect(lines[2]).to.not.equal(lines[3]);
+        expect(lines[3].length).to.eql(lines[2].length + 1);
       });
     });
 
