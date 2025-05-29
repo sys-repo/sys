@@ -5,6 +5,16 @@ import { type t, Err, Fs, Is } from './common.ts';
  * laid down on the file-system within a template.
  */
 export const update: t.TmplFileLib['update'] = async (path, modify) => {
+  return updatePath(path, modify);
+};
+
+/**
+ * Implementation (single path):
+ */
+async function updatePath(
+  path: t.StringPath,
+  modify?: t.TmplLineUpdate,
+): Promise<t.TmplFileUpdateResponse> {
   /**
    * Response scaffold:
    */
@@ -50,7 +60,8 @@ export const update: t.TmplFileLib['update'] = async (path, modify) => {
 
     let _lines: string[] | undefined;
 
-    const payload: t.TmplFileUpdateArgs = {
+    const payload: t.TmplLineUpdateArgs = {
+      path,
       is: { first: i === 0, last: i === lines.length - 1 },
       line: {
         get text() {
@@ -87,12 +98,12 @@ export const update: t.TmplFileLib['update'] = async (path, modify) => {
   }
 
   /**
-   * Persist:
+   * Persist (file-system):
    */
   res.after = ensureEOF(lines.join('\n'));
   if (res.changed) await Fs.write(path, res.after, { force: true });
   return res;
-};
+}
 
 /**
  * Helpers:

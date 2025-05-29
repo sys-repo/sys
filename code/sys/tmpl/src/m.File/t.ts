@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for modifying template files once written to the file-system.
  */
 export type TmplFileLib = {
-  update(path: t.StringPath, modify?: t.TmplFileUpdate): Promise<TmplFileUpdateResponse>;
+  update(path: t.StringPath, modify?: t.TmplLineUpdate): Promise<TmplFileUpdateResponse>;
 };
 
 /** Response from the `Tmpl.File.update` method. */
@@ -27,8 +27,10 @@ export type TmplFileChange = {
 /**
  * Handler for updating lines within a text file.
  */
-export type TmplFileUpdate = (e: TmplFileUpdateArgs) => t.IgnoredResult;
-export type TmplFileUpdateArgs = {
+export type TmplLineUpdate = (e: TmplLineUpdateArgs) => t.IgnoredResult;
+export type TmplLineUpdateArgs = {
+  /** Path of the file the line exists within. */
+  readonly path: t.StringPath;
   /** Informational flags. */
   readonly is: { readonly first: boolean; readonly last: boolean };
   /** The current line being evaluated. */
