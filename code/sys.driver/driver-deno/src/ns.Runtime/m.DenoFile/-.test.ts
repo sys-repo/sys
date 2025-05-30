@@ -1,3 +1,4 @@
+import type { TestingDir } from '@sys/testing/t';
 import { type t, describe, expect, Fs, it, pkg, slug, Testing } from '../../-test.ts';
 import { DenoFile } from './mod.ts';
 
@@ -53,6 +54,16 @@ describe('DenoFile', () => {
   });
 
   describe('DenoFile.Path.nearest (ancestor)', () => {
+    const getDir = () => Testing.dir('DenoFile.Path.findNearest').create();
+    const setup = async (options: { fs?: TestingDir } = {}) => {
+      const fs = options.fs || (await getDir());
+      const version = '0.0.0';
+      await Fs.writeJson(fs.join('deno.json'), { name: 'root', version, workspace: [] });
+      await Fs.write(fs.join('src/foo/bar/baz.txt'), 'baz');
+      await Fs.writeJson(fs.join('src/foo/deno.json'), { name: 'foo', version });
+      return fs;
+    };
+
     it('not found', async () => {
       const noExist = Fs.resolve('/', slug());
       const res = await DenoFile.Path.nearest(noExist);
@@ -60,11 +71,7 @@ describe('DenoFile', () => {
     });
 
     it('finds nearest', async () => {
-      const fs = await Testing.dir('DenoFile.nearestAncestor').create();
-      await Fs.writeJson(fs.join('deno.json'), { name: 'root', version: '0.0.0' });
-      await Fs.write(fs.join('src/foo/bar/baz.txt'), 'baz');
-      await Fs.writeJson(fs.join('src/foo/deno.json'), { name: 'foo', version: '1.2.3' });
-
+      const fs = await setup();
       const test = async (start: t.StringPath, expected?: t.StringPath) => {
         start = fs.join(start);
         if (typeof expected === 'string') expected = fs.join(expected);
@@ -78,6 +85,27 @@ describe('DenoFile', () => {
       await test('src/foo/deno.json', 'src/foo/deno.json');
       await test('src/', 'deno.json');
       await test('.', 'deno.json');
+    });
+
+    it('skips nearest match via `shouldStop` parameter', async () => {
+      const fs = await setup();
+      const start = fs.join('src/foo');
+
+      const test = async (
+        start: t.StringPath,
+        expected?: t.StringPath,
+        shouldStop?: t.DenoFileNearestStop,
+      ) => {
+        start = fs.join(start);
+        if (typeof expected === 'string') expected = fs.join(expected);
+        const res = await DenoFile.Path.nearest(start, shouldStop);
+        expect(res).to.eql(expected);
+      };
+
+      await test('src/foo', 'src/foo/deno.json', undefined);
+      await test('src/foo', 'deno.json', (e) => Array.isArray(e.file.workspace));
+      await test('src/foo/deno.json', 'deno.json', (e) => Array.isArray(e.file.workspace));
+      await test('src/foo/deno.json', undefined, (e) => false);
     });
   });
 

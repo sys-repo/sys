@@ -1,4 +1,4 @@
-export { ensureDir, ensureSymlink, exists } from '@std/fs';
+export { ensureDir, ensureSymlink, exists, move } from '@std/fs';
 
 export { Arr, Date, Delete, Is, JsrUrl, Num, Obj, R, rx, slug, Str, Time } from '@sys/std';
 export { Err } from '@sys/std/error';

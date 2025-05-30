@@ -1,5 +1,6 @@
 import { type t, Esm, Fs } from './common.ts';
 import { load } from './u.load.ts';
+import { Path } from './m.DenoFile.Path.ts';
 
 /**
  * Determine if the given input is a `deno.json` file
@@ -44,27 +45,9 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
 const wrangle = {
   async workspaceSource(src?: t.StringPath, walkup?: boolean) {
     if (typeof src === 'string') return src;
-    return walkup ? await findFirstWorkspaceAncestor() : undefined;
+    return !walkup ? undefined : Path.nearest('.', (e) => Array.isArray(e.file.workspace));
   },
 } as const;
-
-async function findFirstWorkspaceAncestor() {
-  let root: t.StringPath | undefined;
-  await Fs.walkUp('.', async (e) => {
-    // Look for the existence of the [deno.json] file.
-    const files = await e.files();
-    const denofile = files.find((e) => e.name === 'deno.json');
-    if (!denofile) return; // Continue ↑
-
-    // Load the {JSON} and determine if it is a "workspace".
-    const { path } = await load(denofile.path);
-    if (await isWorkspace(path)) {
-      root = path;
-      e.stop();
-    }
-  });
-  return root;
-}
 
 async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
   const trimPath = (path: t.StringPath) => path.slice(root.length + 1);

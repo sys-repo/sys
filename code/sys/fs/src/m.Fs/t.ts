@@ -121,6 +121,9 @@ type StdMethods = {
 
   /** Recursively walks through a directory and yields information about each file and directory encountered. */
   readonly walk: typeof StdFs.walk;
+
+  /** Asynchronously moves a file or directory (along with its contents). */
+  readonly move: typeof StdFs.move;
 };
 
 /**
