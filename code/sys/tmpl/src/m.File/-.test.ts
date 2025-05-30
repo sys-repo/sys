@@ -74,8 +74,8 @@ describe('Tmpl.File', () => {
 
       it('changes lines: sync', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text.includes('-2')) e.modify(`${e.text} (🌳)`);
+        const res = await File.update(file.path, (line) => {
+          if (line.text.includes('-2')) line.modify(`${line.text} (🌳)`);
         });
 
         const lines = res.after.split('\n');
@@ -86,10 +86,10 @@ describe('Tmpl.File', () => {
 
       it('changes lines: async', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, async (e) => {
+        const res = await File.update(file.path, async (line) => {
           await Testing.wait(25);
-          if (e.is.first) e.modify('first');
-          if (e.is.last) e.modify('last');
+          if (line.is.first) line.modify('first');
+          if (line.is.last) line.modify('last');
         });
 
         const lines = res.after.split('\n');
@@ -102,8 +102,8 @@ describe('Tmpl.File', () => {
     describe('File.insert()', () => {
       it('inserts before a middle line (single insert)', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text === 'line-2') e.insert('inserted');
+        const res = await File.update(file.path, (line) => {
+          if (line.text === 'line-2') line.insert('inserted');
         });
 
         expect(res.after.split('\n')).to.eql(['line-1', 'inserted', 'line-2', 'line-3', '']);
@@ -113,8 +113,8 @@ describe('Tmpl.File', () => {
 
       it('insert before first line', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.is.first) e.insert('head');
+        const res = await File.update(file.path, (line) => {
+          if (line.is.first) line.insert('head');
         });
 
         await file.expectFileMatches(res);
@@ -127,9 +127,9 @@ describe('Tmpl.File', () => {
 
       it('insert then modify newly-inserted line (no infinite loop)', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text === 'line-1') e.insert('head');
-          if (e.text === 'line-1') e.modify('my-mod');
+        const res = await File.update(file.path, (line) => {
+          if (line.text === 'line-1') line.insert('head');
+          if (line.text === 'line-1') line.modify('my-mod');
         });
         const lines = res.after.split('\n');
         expect(lines).to.eql(['head', 'my-mod', 'line-2', 'line-3', '']);
@@ -139,11 +139,11 @@ describe('Tmpl.File', () => {
 
       it('insert two lines', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text === 'line-1') e.insert('pre-1');
-          if (e.text === 'line-1') e.insert('pre-2');
-          if (e.text === 'line-3') e.insert('mid-1');
-          if (e.text === 'line-3') e.insert('mid-2');
+        const res = await File.update(file.path, (line) => {
+          if (line.text === 'line-1') line.insert('pre-1');
+          if (line.text === 'line-1') line.insert('pre-2');
+          if (line.text === 'line-3') line.insert('mid-1');
+          if (line.text === 'line-3') line.insert('mid-2');
         });
 
         expect(res.after.split('\n')).to.eql([
@@ -163,15 +163,15 @@ describe('Tmpl.File', () => {
       it('accurately returns of immutable `lines` array after insert', async () => {
         const file = await getFile();
         const lines: (readonly string[])[] = [];
-        await File.update(file.path, (e) => {
-          if (e.text === 'line-1') {
-            lines.push(e.file.lines); // Before.
-            lines.push(e.file.lines); // After: same as before
+        await File.update(file.path, (line) => {
+          if (line.text === 'line-1') {
+            lines.push(line.file.lines); // Before.
+            lines.push(line.file.lines); // After: same as before
           }
-          if (e.text === 'line-2') {
-            lines.push(e.file.lines); // Before.
-            e.insert('modified!');
-            lines.push(e.file.lines); // After: same as before
+          if (line.text === 'line-2') {
+            lines.push(line.file.lines); // Before.
+            line.insert('modified!');
+            lines.push(line.file.lines); // After: same as before
           }
         });
         expect(lines[0]).to.equal(lines[1]);
@@ -181,9 +181,9 @@ describe('Tmpl.File', () => {
 
       it('insert after', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text === 'line-1') e.insert('foo', 'after');
-          if (e.text === 'foo') e.insert('bar'); // NB: insert before the other newly inserted line.
+        const res = await File.update(file.path, (line) => {
+          if (line.text === 'line-1') line.insert('foo', 'after');
+          if (line.text === 'foo') line.insert('bar'); // NB: insert before the other newly inserted line.
         });
 
         const lines = res.after.split('\n');
@@ -196,9 +196,9 @@ describe('Tmpl.File', () => {
     describe('File.delete()', () => {
       it('deletes a line', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          if (e.text === 'line-1') e.delete();
-          if (e.text === 'line-2') e.modify('foo-2'); // NB: ensure other operations continue working.
+        const res = await File.update(file.path, (line) => {
+          if (line.text === 'line-1') line.delete();
+          if (line.text === 'line-2') line.modify('foo-2'); // NB: ensure other operations continue working.
         });
         const lines = res.after.split('\n');
         expect(lines).to.eql(['foo-2', 'line-3', '']);
@@ -208,8 +208,8 @@ describe('Tmpl.File', () => {
 
       it('deletes all lines', async () => {
         const file = await getFile();
-        const res = await File.update(file.path, (e) => {
-          e.delete();
+        const res = await File.update(file.path, (line) => {
+          line.delete();
         });
         expect(res.after).to.eql('\n');
         expect(res.changes.map((m) => m.op)).to.eql(Array(4).fill('delete'));
