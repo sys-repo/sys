@@ -31,23 +31,24 @@ export type TmplFileChange = {
 };
 
 /**
- * Handler for updating lines within a text file.
+ * Handler for updating a single line within a text file.
  */
 export type TmplLineUpdate = (e: TmplLineUpdateArgs) => t.IgnoredResult;
 export type TmplLineUpdateArgs = {
-  /** Path of the file the line exists within. */
-  readonly path: t.StringPath;
-  /** The current line being evaluated. */
-  readonly line: {
-    /** The text of the line. */
-    readonly text: string;
-    /** The index number of the line within the file. */
-    readonly index: t.Index;
-    /** Informational flags. */
-    readonly is: { readonly first: boolean; readonly last: boolean };
+  /** Metadata about the file the line is within. */
+  readonly file: {
+    /** Path of the file the line exists within. */
+    readonly path: t.StringPath;
+    /** The complete set of lines. */
+    readonly lines: readonly string[];
   };
-  /** The complete set of lines. */
-  readonly lines: readonly string[];
+
+  /** The text of the line. */
+  readonly text: string;
+  /** The index number of the line within the file. */
+  readonly index: t.Index;
+  /** Informational flags. */
+  readonly is: { readonly first: boolean; readonly last: boolean };
   /** Modify the line with the given text. */
   modify(line: string): void;
   /** Insert a line relative (before) to the current one. */

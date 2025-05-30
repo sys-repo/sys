@@ -35,7 +35,7 @@ describe('Tmpl.File', () => {
       it('single path', async () => {
         const file = await getFile();
         const fired: string[] = [];
-        await File.update(file.path, (e) => fired.push(e.path));
+        await File.update(file.path, (e) => fired.push(e.file.path));
         expect(fired.every((p) => p === file.path)).to.be.true;
       });
 
@@ -48,7 +48,7 @@ describe('Tmpl.File', () => {
 
         const paths = [file1, file2].map((f) => f.path);
         const fired: string[] = [];
-        await File.update(paths, (e) => fired.push(e.path));
+        await File.update(paths, (e) => fired.push(e.file.path));
         expect(Arr.uniq(fired)).to.eql(paths);
       });
     });
@@ -74,7 +74,7 @@ describe('Tmpl.File', () => {
       it('changes lines: sync', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.line.text.includes('-2')) e.modify(`${e.line.text} (🌳)`);
+          if (e.text.includes('-2')) e.modify(`${e.text} (🌳)`);
         });
 
         const lines = res.after.split('\n');
@@ -87,8 +87,8 @@ describe('Tmpl.File', () => {
         const file = await getFile();
         const res = await File.update(file.path, async (e) => {
           await Testing.wait(25);
-          if (e.line.is.first) e.modify('first');
-          if (e.line.is.last) e.modify('last');
+          if (e.is.first) e.modify('first');
+          if (e.is.last) e.modify('last');
         });
 
         const lines = res.after.split('\n');
@@ -102,7 +102,7 @@ describe('Tmpl.File', () => {
       it('inserts before a middle line (single insert)', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.line.text === 'line-2') e.insert('inserted');
+          if (e.text === 'line-2') e.insert('inserted');
         });
 
         expect(res.after.split('\n')).to.eql(['line-1', 'inserted', 'line-2', 'line-3', '']);
@@ -113,7 +113,7 @@ describe('Tmpl.File', () => {
       it('insert before first line', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.line.is.first) e.insert('head');
+          if (e.is.first) e.insert('head');
         });
 
         await file.expectFileMatches(res);
@@ -127,8 +127,8 @@ describe('Tmpl.File', () => {
       it('insert then modify newly-inserted line (no infinite loop)', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.line.text === 'line-1') e.insert('head');
-          if (e.line.text === 'line-1') e.modify('my-mod');
+          if (e.text === 'line-1') e.insert('head');
+          if (e.text === 'line-1') e.modify('my-mod');
         });
 
         const lines = res.after.split('\n');
@@ -139,10 +139,10 @@ describe('Tmpl.File', () => {
       it('insert two lines', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.line.text === 'line-1') e.insert('pre-1');
-          if (e.line.text === 'line-1') e.insert('pre-2');
-          if (e.line.text === 'line-3') e.insert('mid-1');
-          if (e.line.text === 'line-3') e.insert('mid-2');
+          if (e.text === 'line-1') e.insert('pre-1');
+          if (e.text === 'line-1') e.insert('pre-2');
+          if (e.text === 'line-3') e.insert('mid-1');
+          if (e.text === 'line-3') e.insert('mid-2');
         });
 
         expect(res.after.split('\n')).to.eql([
@@ -162,14 +162,14 @@ describe('Tmpl.File', () => {
         const file = await getFile();
         const lines: (readonly string[])[] = [];
         await File.update(file.path, (e) => {
-          if (e.line.text === 'line-1') {
-            lines.push(e.lines); // Before.
-            lines.push(e.lines); // After: same as before
+          if (e.text === 'line-1') {
+            lines.push(e.file.lines); // Before.
+            lines.push(e.file.lines); // After: same as before
           }
-          if (e.line.text === 'line-2') {
-            lines.push(e.lines); // Before.
+          if (e.text === 'line-2') {
+            lines.push(e.file.lines); // Before.
             e.insert('modified!');
-            lines.push(e.lines); // After: same as before
+            lines.push(e.file.lines); // After: same as before
           }
         });
         expect(lines[0]).to.equal(lines[1]);

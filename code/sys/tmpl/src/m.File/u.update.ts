@@ -65,23 +65,23 @@ async function updatePath(
     let _lines: string[] | undefined;
 
     const payload: t.TmplLineUpdateArgs = {
-      get path() {
-        return path;
+      get file() {
+        return {
+          path,
+          get lines() {
+            return _lines || (_lines = [...lines]); // ← (immutable snapshot).
+          },
+        };
       },
-      line: {
-        is: { first: i === 0, last: i === lines.length - 1 },
-        get text() {
-          return lines[i];
-        },
-        get index() {
-          return i;
-        },
+      is: { first: i === 0, last: i === lines.length - 1 },
+      get text() {
+        return lines[i];
       },
-      get lines() {
-        return _lines || (_lines = [...lines]); // ← (immutable snapshot).
+      get index() {
+        return i;
       },
       modify(next) {
-        const text = payload.line.text;
+        const text = payload.text;
         if (next !== text) {
           const op = 'modify';
           lines[i] = next;
