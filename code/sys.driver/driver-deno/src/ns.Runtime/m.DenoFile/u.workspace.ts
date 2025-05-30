@@ -31,7 +31,9 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
     exists,
     dir,
     file,
-    children,
+    get children() {
+      return children;
+    },
     get modules() {
       return _modules || (_modules = Esm.modules(toSpecifiers(children.map((m) => m.denofile))));
     },

@@ -1,5 +1,9 @@
 import type { t } from '../common.ts';
+export type * from './t.Path.ts';
 export type * from './t.Workspace.ts';
+
+/** A file-path to a `deno.json` file. */
+export type DenoFilePath = t.StringPath;
 
 /**
  * Library: `deno.json` file tools.
@@ -23,33 +27,19 @@ export type DenoFileLib = {
    * that contains a "workspace":[] configuration.
    */
   isWorkspace(src?: t.StringPath): Promise<boolean>;
-};
 
-/**
- * Helpers for wrangling `deno.json` file paths.
- */
-export type DenoFilePathLib = {
-  /** Walks up from the starting path looking for the nearest ancestor `deno.json` file. */
+  /**
+   * Walks up from the starting path looking for the nearest
+   * ancestor `deno.json` file.
+   */
   nearest(
     start: t.StringPath,
     shouldStop?: t.DenoFileNearestStop,
-  ): Promise<t.StringAbsolutePath | undefined>;
-};
-
-/** Callback used to keep traversing up the ancestor hierarachy looking for a specific `deno.json` file. */
-export type DenoFileNearestStop = (e: t.DenoFileNearestStopArgs) => boolean | Promise<boolean>;
-export type DenoFileNearestStopArgs = {
-  readonly path: t.StringAbsolutePath;
-  readonly file: t.DenoFileJson;
+  ): Promise<{ path: t.StringPath; file: t.DenoFileJson } | undefined>;
 };
 
 /** The async response from a `deno.json` file load request. */
 export type DenoFileLoadResult = t.FsReadResult<t.DenoFileJson>;
-
-/**
- * A file-path to a `deno.json` file.
- */
-export type DenoFilePath = t.StringPath;
 
 /**
  * A parsed `deno.json` file.
