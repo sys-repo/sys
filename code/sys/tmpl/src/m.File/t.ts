@@ -27,7 +27,7 @@ export type TmplFileChange = {
   readonly line: { readonly index: t.Index };
   readonly before: string;
   readonly after: string;
-  readonly op: 'insert' | 'modify';
+  readonly op: 'insert' | 'modify' | 'delete';
 };
 
 /**
@@ -53,4 +53,6 @@ export type TmplLineUpdateArgs = {
   modify(line: string): void;
   /** Insert a line relative (before) to the current one. */
   insert(text: string, position?: 'before' | 'after'): void;
+  /** Removes the line. */
+  delete(): void;
 };

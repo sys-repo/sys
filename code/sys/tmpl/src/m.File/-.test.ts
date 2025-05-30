@@ -26,7 +26,8 @@ describe('Tmpl.File', () => {
         path,
         text,
         async expectFileMatches(res: t.TmplFileUpdateResponse) {
-          expect((await Fs.readText(path)).data).to.eql(res.after);
+          const text = (await Fs.readText(path)).data;
+          expect(text).to.eql(res.after);
         },
       } as const;
     };
@@ -188,6 +189,30 @@ describe('Tmpl.File', () => {
         const lines = res.after.split('\n');
         expect(lines).to.eql(['line-1', 'bar', 'foo', 'line-2', 'line-3', '']);
         expect(res.changes.map((m) => m.op)).to.eql(['insert', 'insert']);
+        await file.expectFileMatches(res);
+      });
+    });
+
+    describe('File.delete()', () => {
+      it('deletes a line', async () => {
+        const file = await getFile();
+        const res = await File.update(file.path, (e) => {
+          if (e.text === 'line-1') e.delete();
+          if (e.text === 'line-2') e.modify('foo-2'); // NB: ensure other operations continue working.
+        });
+        const lines = res.after.split('\n');
+        expect(lines).to.eql(['foo-2', 'line-3', '']);
+        expect(res.changes.map((m) => m.op)).to.eql(['delete', 'modify']);
+        await file.expectFileMatches(res);
+      });
+
+      it('deletes all lines', async () => {
+        const file = await getFile();
+        const res = await File.update(file.path, (e) => {
+          e.delete();
+        });
+        expect(res.after).to.eql('\n');
+        expect(res.changes.map((m) => m.op)).to.eql(Array(4).fill('delete'));
         await file.expectFileMatches(res);
       });
     });

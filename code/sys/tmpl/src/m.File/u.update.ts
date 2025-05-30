@@ -95,6 +95,14 @@ async function updatePath(
         _lines = undefined;
         i += 1;
       },
+      delete() {
+        const op = 'delete';
+        const before = payload.text;
+        lines.splice(i, 1);
+        res.changes.push({ op, line: { index: i }, before, after: '' });
+        _lines = undefined;
+        i -= 1;
+      },
     };
 
     const maybePromise = modify(payload);
