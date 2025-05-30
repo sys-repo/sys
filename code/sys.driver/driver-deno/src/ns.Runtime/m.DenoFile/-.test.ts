@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, describe, expect, Fs, it, pkg, slug, Testing } from '../../-test.ts';
+import { type t, c, describe, expect, Fs, it, pkg, slug, Testing } from '../../-test.ts';
 import { DenoFile } from './mod.ts';
 
 describe('DenoFile', () => {
@@ -63,6 +63,23 @@ describe('DenoFile', () => {
       await Fs.writeJson(fs.join('src/foo/deno.json'), { name: 'foo', version });
       return fs;
     };
+
+    it('print object:', async () => {
+      const fs = await setup();
+
+      const a = await DenoFile.nearest(Fs.join(fs.dir, 'src/foo/'));
+      const b = await DenoFile.nearest(fs.dir, (e) => Array.isArray(e.file.workspace));
+
+      console.info();
+      console.info(c.bold(c.brightCyan('T:DenoFileNearestResult')));
+      console.info();
+      console.info(c.green('path:'), Fs.trimCwd(a?.path ?? ''));
+      console.info(a);
+      console.info();
+      console.info(c.green('path:'), Fs.trimCwd(b?.path ?? ''));
+      console.info(b);
+      console.info();
+    });
 
     it('finds nearest file', async () => {
       const fs = await setup();

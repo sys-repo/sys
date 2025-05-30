@@ -35,7 +35,15 @@ export type DenoFileLib = {
   nearest(
     start: t.StringPath,
     shouldStop?: t.DenoFileNearestStop,
-  ): Promise<{ path: t.StringPath; file: t.DenoFileJson } | undefined>;
+  ): Promise<t.DenoFileNearestResult | undefined>;
+};
+
+/** Result from the `DenoFile.nearest` method. */
+export type DenoFileNearestResult = {
+  readonly path: t.StringPath;
+  readonly dir: t.StringDir;
+  readonly file: t.DenoFileJson;
+  readonly is: { readonly workspace: boolean };
 };
 
 /** The async response from a `deno.json` file load request. */
