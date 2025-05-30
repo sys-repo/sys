@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, describe, expect, Fs, it, Testing, slug, Arr } from '../-test.ts';
+import { type t, Arr, describe, expect, Fs, it, slug, Testing } from '../-test.ts';
 import { File } from './mod.ts';
 
 describe('Tmpl.File', () => {
@@ -58,7 +58,7 @@ describe('Tmpl.File', () => {
       it('no change', async () => {
         const file = await getFile();
         const a = await File.update(file.path); // NB: no modifier param.
-        const b = await File.update(file.path, (e) => null);
+        const b = await File.update(file.path, (line) => null);
 
         expect(a.changed).to.eql(false);
         expect(b.changed).to.eql(false);
@@ -70,6 +70,13 @@ describe('Tmpl.File', () => {
         expect(b.before).to.eql(file.text);
         expect(a.after).to.eql(file.text);
         expect(b.after).to.eql(file.text);
+      });
+
+      it('no change: modify called with same value', async () => {
+        const file = await getFile();
+        const res = await File.update(file.path, (line) => line.modify(line.text));
+        expect(res.changed).to.eql(false);
+        expect(res.changes).to.eql([]);
       });
 
       it('changes lines: sync', async () => {
