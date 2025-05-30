@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, describe, expect, Fs, it, Testing } from '../-test.ts';
+import { type t, describe, expect, Fs, it, Testing, slug, Arr } from '../-test.ts';
 import { File } from './mod.ts';
 
 describe('Tmpl.File', () => {
@@ -10,7 +10,7 @@ describe('Tmpl.File', () => {
     const getDir = () => Testing.dir('Tmpl.File.update').create();
     const getFile = async (options: { dir?: TestingDir } = {}) => {
       const dir = options.dir ?? (await getDir());
-      const path = dir.join('file.txt');
+      const path = dir.join(`file-${slug()}.txt`);
       const text = `
         line-1
         line-2
@@ -31,12 +31,25 @@ describe('Tmpl.File', () => {
       } as const;
     };
 
-    describe.only('path(s)', () => {
+    describe('path(s)', () => {
       it('single path', async () => {
         const file = await getFile();
-        const paths: string[] = [];
-        await File.update(file.path, (e) => paths.push(e.path));
-        expect(paths.every((p) => p === file.path)).to.be.true;
+        const fired: string[] = [];
+        await File.update(file.path, (e) => fired.push(e.path));
+        expect(fired.every((p) => p === file.path)).to.be.true;
+      });
+
+      it('multiple paths', async () => {
+        const dir = await getDir();
+        const file1 = await getFile({ dir });
+        const file2 = await getFile({ dir });
+        expect(file1.path).to.not.eql(file2.path);
+        expect(Fs.dirname(file1.path)).to.eql(Fs.dirname(file2.path));
+
+        const paths = [file1, file2].map((f) => f.path);
+        const fired: string[] = [];
+        await File.update(paths, (e) => fired.push(e.path));
+        expect(Arr.uniq(fired)).to.eql(paths);
       });
     });
 

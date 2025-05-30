@@ -4,9 +4,13 @@ import { type t, Err, Fs, Is } from './common.ts';
  * Update a file's content after it has been
  * laid down on the file-system within a template.
  */
-export const update: t.TmplFileLib['update'] = async (path, modify) => {
-  return updatePath(path, modify);
-};
+export const update = (<P extends t.StringPath | t.StringPath[]>(
+  path: P,
+  modify?: t.TmplLineUpdate,
+) =>
+  Array.isArray(path)
+    ? Promise.all(path.map((p) => updatePath(p, modify)))
+    : updatePath(path, modify)) as t.TmplFileLib['update'];
 
 /**
  * Implementation (single path):

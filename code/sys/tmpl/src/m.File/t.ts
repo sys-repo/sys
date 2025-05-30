@@ -4,7 +4,13 @@ import type { t } from './common.ts';
  * Tools for modifying template files once written to the file-system.
  */
 export type TmplFileLib = {
-  update(path: t.StringPath, modify?: t.TmplLineUpdate): Promise<TmplFileUpdateResponse>;
+  /**
+   * Update one or many template files in-place.
+   */
+  update<P extends t.StringPath | t.StringPath[]>(
+    path: P,
+    modify?: t.TmplLineUpdate,
+  ): Promise<P extends t.StringPath[] ? TmplFileUpdateResponse[] : TmplFileUpdateResponse>;
 };
 
 /** Response from the `Tmpl.File.update` method. */
