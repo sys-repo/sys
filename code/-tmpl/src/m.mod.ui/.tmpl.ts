@@ -7,6 +7,7 @@ import { type t, Cli, DenoFile, Fs, Str } from '../common.ts';
 export const dir = import.meta.dirname;
 export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?: string } = {}) {
   const name = options.name ?? (await Cli.Prompt.Input.prompt({ message: 'Component Name:' }));
+
   const dir = e.dir.target.absolute;
   const denofile = await DenoFile.Path.nearest(dir);
   const pkgDir = denofile ? Fs.dirname(denofile) : undefined;
@@ -20,24 +21,31 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?:
     if (res.changed) line.modify(res.after);
   });
 
+  // Update pointer refs:
   if (pkgDir) {
-    // Update types files:
     const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
-    const typesPath = Fs.join(pkgDir, 'src/types.ts');
-    const specsPath = Fs.join(pkgDir, 'src/-test/entry.Specs.ts');
 
-    await Tmpl.File.update(typesPath, (line) => {
+    // Update types files:
+    await Tmpl.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
       if (line.is.last) {
         const path = Fs.join(moduleDir, 't.ts');
         const text = `export type * from './${path}';`;
         line.modify(text);
       }
     });
-  }
 
-  /**
-   * TODO 🐷
-   * - insert entry/spec (index)
-   * - export ../types.ts
-   */
+    await Tmpl.File.update(Fs.join(pkgDir, 'src/-test/entry.Specs.ts'), (line) => {
+      const index = line.file.lines.findIndex((line) => line.includes('[`${ns}:'));
+      if (line.index === index) {
+        const name = moduleDir.replace(/^ui\//, '');
+        const text = `  [\`\${ns}: ${name}\`]: () => import('../${moduleDir}/-spec/-SPEC.tsx'),`;
+        line.insert(text);
+      }
+
+      // NB: sample stub, no longer necessary to leave around.
+      if (line.text.includes('// [`${ns}: name`]:')) {
+        line.delete();
+      }
+    });
+  }
 }
