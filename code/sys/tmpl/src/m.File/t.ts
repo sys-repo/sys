@@ -37,10 +37,15 @@ export type TmplLineUpdate = (e: TmplLineUpdateArgs) => t.IgnoredResult;
 export type TmplLineUpdateArgs = {
   /** Path of the file the line exists within. */
   readonly path: t.StringPath;
-  /** Informational flags. */
-  readonly is: { readonly first: boolean; readonly last: boolean };
   /** The current line being evaluated. */
-  readonly line: { readonly text: string; readonly index: t.Index };
+  readonly line: {
+    /** The text of the line. */
+    readonly text: string;
+    /** The index number of the line within the file. */
+    readonly index: t.Index;
+    /** Informational flags. */
+    readonly is: { readonly first: boolean; readonly last: boolean };
+  };
   /** The complete set of lines. */
   readonly lines: readonly string[];
   /** Modify the line with the given text. */

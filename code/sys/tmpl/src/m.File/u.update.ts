@@ -65,9 +65,11 @@ async function updatePath(
     let _lines: string[] | undefined;
 
     const payload: t.TmplLineUpdateArgs = {
-      path,
-      is: { first: i === 0, last: i === lines.length - 1 },
+      get path() {
+        return path;
+      },
       line: {
+        is: { first: i === 0, last: i === lines.length - 1 },
         get text() {
           return lines[i];
         },

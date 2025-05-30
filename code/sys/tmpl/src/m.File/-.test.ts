@@ -87,8 +87,8 @@ describe('Tmpl.File', () => {
         const file = await getFile();
         const res = await File.update(file.path, async (e) => {
           await Testing.wait(25);
-          if (e.is.first) e.modify('first');
-          if (e.is.last) e.modify('last');
+          if (e.line.is.first) e.modify('first');
+          if (e.line.is.last) e.modify('last');
         });
 
         const lines = res.after.split('\n');
@@ -113,7 +113,7 @@ describe('Tmpl.File', () => {
       it('insert before first line', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (e) => {
-          if (e.is.first) e.insert('head');
+          if (e.line.is.first) e.insert('head');
         });
 
         await file.expectFileMatches(res);
