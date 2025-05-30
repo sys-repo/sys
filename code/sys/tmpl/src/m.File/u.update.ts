@@ -88,9 +88,9 @@ async function updatePath(
           res.changes.push({ op, line: { index: i }, before: text, after: next });
         }
       },
-      insert(insertText: string) {
+      insert(insertText: string, position = 'before') {
         const op = 'insert';
-        lines.splice(i, 0, insertText);
+        lines.splice(position === 'before' ? i : i + 1, 0, insertText);
         res.changes.push({ op, line: { index: i }, before: '', after: insertText });
         _lines = undefined;
         i += 1;

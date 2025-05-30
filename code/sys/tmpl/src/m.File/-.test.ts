@@ -130,10 +130,10 @@ describe('Tmpl.File', () => {
           if (e.text === 'line-1') e.insert('head');
           if (e.text === 'line-1') e.modify('my-mod');
         });
-
         const lines = res.after.split('\n');
         expect(lines).to.eql(['head', 'my-mod', 'line-2', 'line-3', '']);
         expect(res.changes.map((m) => m.op)).to.eql(['insert', 'modify']);
+        await file.expectFileMatches(res);
       });
 
       it('insert two lines', async () => {
@@ -156,9 +156,10 @@ describe('Tmpl.File', () => {
           '',
         ]);
         expect(res.changes.map((m) => m.op)).to.eql(Array(4).fill('insert'));
+        await file.expectFileMatches(res);
       });
 
-      it('insert - accurate return of `lines` array', async () => {
+      it('accurately returns of immutable `lines` array after insert', async () => {
         const file = await getFile();
         const lines: (readonly string[])[] = [];
         await File.update(file.path, (e) => {
@@ -175,6 +176,19 @@ describe('Tmpl.File', () => {
         expect(lines[0]).to.equal(lines[1]);
         expect(lines[2]).to.not.equal(lines[3]);
         expect(lines[3].length).to.eql(lines[2].length + 1);
+      });
+
+      it('insert after', async () => {
+        const file = await getFile();
+        const res = await File.update(file.path, (e) => {
+          if (e.text === 'line-1') e.insert('foo', 'after');
+          if (e.text === 'foo') e.insert('bar'); // NB: insert before the other newly inserted line.
+        });
+
+        const lines = res.after.split('\n');
+        expect(lines).to.eql(['line-1', 'bar', 'foo', 'line-2', 'line-3', '']);
+        expect(res.changes.map((m) => m.op)).to.eql(['insert', 'insert']);
+        await file.expectFileMatches(res);
       });
     });
 

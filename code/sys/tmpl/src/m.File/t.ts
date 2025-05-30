@@ -52,5 +52,5 @@ export type TmplLineUpdateArgs = {
   /** Modify the line with the given text. */
   modify(line: string): void;
   /** Insert a line relative (before) to the current one. */
-  insert(text: string): void;
+  insert(text: string, position?: 'before' | 'after'): void;
 };
