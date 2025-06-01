@@ -27,6 +27,7 @@ export const SpecsComponents = {
   [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
 
   [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
+  [`${ns}.player: Player.VideoElement`]: () => import('../ui/Player.VideoElement/-spec/-SPEC.tsx'),
   [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 
