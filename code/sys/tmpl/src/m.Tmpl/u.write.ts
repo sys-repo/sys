@@ -38,7 +38,7 @@ export async function write(
   /**
    * Run BEFORE handlers.
    */
-  for (const fn of wrangle.copyHandlers(options.onBefore)) {
+  for (const fn of wrangle.copyHandlers(options.beforeWrite)) {
     await fn(copyArgs);
   }
 
@@ -184,7 +184,7 @@ export async function write(
   /**
    * Run AFTER handlers.
    */
-  for (const fn of wrangle.copyHandlers(options.onAfter)) {
+  for (const fn of wrangle.copyHandlers(options.afterWrite)) {
     await fn(copyArgs);
   }
 

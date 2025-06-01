@@ -27,13 +27,13 @@ export type TmplFactory = (
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
   /** Handler to run after the write operation completes. */
-  beforeWrite?: t.TmplWriteHandler;
+  beforeWrite?: t.TmplWriteHandlerBefore;
 
   /** Handler to process each file in the template. */
   processFile?: t.TmplProcessFile;
 
   /** Handler to run after the write operation completes. */
-  afterWrite?: t.TmplWriteHandler;
+  afterWrite?: t.TmplWriteHandlerAfter;
 
   /** Context data passed to the process handler. */
   ctx?: O;
@@ -117,6 +117,8 @@ export type TmplProcessBinaryFileArgs = FileArgs & {
  * directly by the template-copy engine.
  */
 export type TmplWriteHandler = (e: TmplWriteHandlerArgs) => t.IgnoredResult;
+export type TmplWriteHandlerBefore = TmplWriteHandler;
+export type TmplWriteHandlerAfter = TmplWriteHandler;
 /** Arguments passed to the write handler. */
 export type TmplWriteHandlerArgs = {
   readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
@@ -132,10 +134,10 @@ export type TmplWriteOptions = {
   dryRun?: boolean;
 
   /** Handler(s) to run before the copy operation starts. */
-  onBefore?: t.TmplWriteHandler | t.TmplWriteHandler[];
+  beforeWrite?: t.TmplWriteHandler | t.TmplWriteHandler[];
 
   /** Handler(s) to run after the copy operation completes. */
-  onAfter?: t.TmplWriteHandler | t.TmplWriteHandler[];
+  afterWrite?: t.TmplWriteHandler | t.TmplWriteHandler[];
 
   /** Context data passed to the process handler. */
   ctx?: O;

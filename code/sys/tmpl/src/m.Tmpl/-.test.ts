@@ -319,7 +319,7 @@ describe('Tmpl', () => {
         await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.write(target, { onBefore: [b] });
+        await tmpl.write(target, { beforeWrite: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
         expect(fired.every((m) => m.ctx === undefined)).to.eql(true); // NB: {ctx} not passed to the [Tmpl.write] method.
       });
@@ -338,7 +338,7 @@ describe('Tmpl', () => {
         await tmpl.write(target);
         expect(fired.length).to.eql(1);
 
-        await tmpl.write(target, { onAfter: [b] });
+        await tmpl.write(target, { beforeWrite: [b] });
         expect(fired.length).to.eql(3); // NB: 2-more (the constructor callback PLUS callback passed to the copy paramemter).
         expect(fired.every((m) => m.ctx === undefined)).to.eql(true); // NB: {ctx} not passed to the [Tmpl.write] method.
       });
@@ -350,19 +350,19 @@ describe('Tmpl', () => {
           before: [] as any[],
           after: [] as any[],
         };
-        const onBefore: t.TmplWriteHandler = (e) => fired.before.push(e.ctx);
-        const onAfter: t.TmplWriteHandler = (e) => fired.after.push(e.ctx);
+        const beforeWrite: t.TmplWriteHandlerBefore = (e) => fired.before.push(e.ctx);
+        const afterWrite: t.TmplWriteHandlerAfter = (e) => fired.after.push(e.ctx);
         const tmpl = Tmpl.create(source);
 
         // No context provided, so {ctx} not passed through before/after callbacks.
-        await tmpl.write(target, { onBefore, onAfter });
+        await tmpl.write(target, { beforeWrite, afterWrite });
         expect(fired.before.length).to.greaterThan(0);
         expect(fired.after.length).to.greaterThan(0);
         expect(fired.before.filter(Boolean).length).to.eql(0);
         expect(fired.after.filter(Boolean).length).to.eql(0);
 
         // Before/after callbacks provided with {ctx}.
-        await tmpl.write(target, { ctx, onBefore, onAfter });
+        await tmpl.write(target, { ctx, beforeWrite, afterWrite });
         expect(fired.before.filter(Boolean).length).to.eql(1);
         expect(fired.after.filter(Boolean).length).to.eql(1);
         expect(fired.before.filter(Boolean).every((m) => R.equals(m, ctx))).to.be.true;

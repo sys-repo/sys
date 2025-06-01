@@ -29,10 +29,15 @@ function factory(args: {
       return source;
     },
     write(target, options = {}) {
-      const onBefore = wrangle.writeHandlers(args.beforeWrite, options.onBefore);
-      const onAfter = wrangle.writeHandlers(args.afterWrite, options.onAfter);
+      const beforeWrite = wrangle.writeHandlers(args.beforeWrite, options.beforeWrite);
+      const afterWrite = wrangle.writeHandlers(args.afterWrite, options.afterWrite);
       const ctx = wrangle.ctx(args.ctx, options.ctx);
-      return write(source, Fs.toDir(target), processFile, { ...options, onBefore, onAfter, ctx });
+      return write(source, Fs.toDir(target), processFile, {
+        ...options,
+        beforeWrite,
+        afterWrite,
+        ctx,
+      });
     },
     filter(next) {
       const { sourceDir, processFile, beforeWrite, afterWrite } = args;
