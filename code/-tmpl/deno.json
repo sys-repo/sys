@@ -2,6 +2,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWNE --allow-run --allow-ffi --allow-sys ./-tests",
-    "clean": "rm -rf .tmp"
+    "clean": "rm -rf .tmp",
+    "dry": "echo no-op"
   }
 }
