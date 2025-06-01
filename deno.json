@@ -8,7 +8,7 @@
     "lint": "deno run -RE --allow-run=sh ./-scripts/main.ts --lint",
 
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
-    "reload": "deno task reload:clear && deno task reload:install",
+    "reload": "deno task reload:install",
     "reload:clear": "rm -rf node_modules",
     "reload:install": "deno install --reload",
 
