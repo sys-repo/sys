@@ -28,4 +28,4 @@ export type * from './ui/Slider/t.ts';
 export type * from './ui/Spinners.Bar/t.ts';
 export type * from './ui/Spinners/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
-export type * from './ui/Player.VideoElement/t.ts';
+export type * from './ui/Player.Video.Element/t.ts';

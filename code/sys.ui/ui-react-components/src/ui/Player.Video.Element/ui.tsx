@@ -17,7 +17,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <div>{`${D.displayName}: Source Orbiter 🐷 (Test)`}</div>
     </div>
   );
 };
