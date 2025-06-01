@@ -13,11 +13,6 @@ export type MediaVideoLib = {
   };
 
   /**
-   * Calculate the aspect ratio for a media stream.
-   */
-  readonly AspectRatio: MediaAspectRatioLib;
-
-  /**
    * Build a MediaStream whose video is run through a CSS-filter pipeline.
    *
    * @param constraints – any valid getUserMedia constraints (eg { video: true, audio: true })
@@ -40,14 +35,6 @@ export type MediaVideoLib = {
     stream: MediaStream,
     kind?: MediaDeviceInfo['kind'],
   ): Promise<MediaDeviceInfo | undefined>;
-};
-
-/**
- * Tools for calculating aspect ratios from media streams.
- */
-export type MediaAspectRatioLib = {
-  toNumber(stream: MediaStream): number;
-  toString(stream: MediaStream, options?: { maxDenominator?: number }): string;
 };
 
 /**

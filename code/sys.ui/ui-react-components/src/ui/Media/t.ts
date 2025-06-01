@@ -12,7 +12,8 @@ export type MediaLib = {
   readonly Recorder: t.MediaRecorderLib;
   readonly Devices: t.MediaDevicesLib;
   readonly Config: t.MediaConfigLib;
+  readonly AspectRatio: t.MediaAspectRatioLib;
 
-  // Helpers:
+  // Helper methods:
   download(blob?: Blob, filename?: string): void;
 };

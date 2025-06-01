@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Devices } from '../Media.Devices/mod.ts';
 import { Recorder } from '../Media.Recorder/mod.ts';
+import { AspectRatio } from '../Media.u/mod.ts';
 import { Video } from '../Media.Video/mod.ts';
 import { Media } from './mod.ts';
 
@@ -11,5 +12,6 @@ describe('Media', () => {
     expect(Media.Video).to.equal(Video);
     expect(Media.Recorder).to.equal(Recorder);
     expect(Media.Devices).to.equal(Devices);
+    expect(Media.AspectRatio).to.equal(AspectRatio);
   });
 });

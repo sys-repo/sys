@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { type t, D, Err, Obj } from './common.ts';
-import { AspectRatio } from './m.AspectRatio.ts';
+import { type t, AspectRatio, D, Err, Obj } from './common.ts';
 import { getStream } from './u.getStream.ts';
 
 export const useVideoStream: t.UseVideoStream = (args) => {
