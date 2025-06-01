@@ -19,16 +19,16 @@ groups:
   std/deno:
     # Deno standard libs ("std").
     - import: jsr:@std/async@1.0.13
-    - import: jsr:@std/datetime@0.225.4
-    - import: jsr:@std/dotenv@0.225.4
+    - import: jsr:@std/datetime@0.225.5
+    - import: jsr:@std/dotenv@0.225.5
     - import: jsr:@std/encoding@1.0.10
-    - import: jsr:@std/fs@1.0.17
-    - import: jsr:@std/path@1.0.9
-    - import: jsr:@std/semver@1.0.5
-    - import: jsr:@std/testing@1.0.12
-    - import: jsr:@std/uuid@1.0.7
-    - import: jsr:@std/http@1.0.16
+    - import: jsr:@std/fs@1.0.18
+    - import: jsr:@std/http@1.0.17
       subpaths: [file-server]
+    - import: jsr:@std/path@1.1.0
+    - import: jsr:@std/semver@1.0.5
+    - import: jsr:@std/testing@1.0.13
+    - import: jsr:@std/uuid@1.0.8
 
   automerge:
     # https://automerge.org
@@ -74,7 +74,7 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.0.45
+  - import: npm:@farcaster/frame-sdk@0.0.53
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.1
     subpaths: ['auto']
@@ -83,7 +83,7 @@ deno.json:
   - import: npm:ignore@7.0.5
   - import: npm:immer@10
   - import: npm:ora@8.2.0
-  - import: npm:ollama@0.5.15
+  - import: npm:ollama@0.5.16
   - import: npm:pretty-bytes@7.0.0
   - import: npm:ramda@0.30.1
   - import: npm:@types/ramda@0.30.2
@@ -93,7 +93,7 @@ deno.json:
   - import: npm:ts-essentials@10.0.4
   - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.9.0
-  - import: npm:zod@3.25.45
+  - import: npm:zod@3.25.46
     subpaths: [v4, v4-mini]
 
   # Browser
@@ -121,7 +121,7 @@ package.json:
 
   # LLM
   - import: npm:@langchain/ollama@0.2.0
-  - import: npm:@langchain/core@0.3.56
+  - import: npm:@langchain/core@0.3.57
   - import: npm:@modelcontextprotocol/sdk@1.12.1
 
   # UI

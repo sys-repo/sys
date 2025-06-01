@@ -16,7 +16,7 @@ export type PathLib = {
   Join: t.PathJoinLib;
 
   /** Joins a sequence of paths, then normalizes the resulting path. */
-  join: typeof StdPath.join;
+  join: t.PathJoinLib['auto'];
 
   /** Joins a sequence of globs, then normalizes the resulting glob. */
   joinGlobs: typeof StdPath.joinGlobs;

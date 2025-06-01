@@ -96,7 +96,7 @@ type GlobMethods = {
  */
 type StdMethods = {
   /** Joins a sequence of paths, then normalizes the resulting path. */
-  readonly join: typeof StdPath.join;
+  readonly join: t.PathLib['join'];
 
   /** Resolves path segments into a path. */
   readonly resolve: typeof StdPath.resolve;
