@@ -41,10 +41,10 @@
     "jsr:@std/testing@1.0.13": "1.0.13",
     "jsr:@std/text@~1.0.7": "1.0.13",
     "jsr:@std/uuid@1.0.8": "1.0.8",
-    "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.0": "2.0.0",
-    "npm:@automerge/automerge-repo-storage-indexeddb@2.0.0": "2.0.0",
-    "npm:@automerge/automerge-repo-storage-nodefs@2.0.0": "2.0.0",
-    "npm:@automerge/automerge-repo@2.0.0": "2.0.0",
+    "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1": "2.0.1",
+    "npm:@automerge/automerge-repo-storage-indexeddb@2.0.1": "2.0.1",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.0.1": "2.0.1",
+    "npm:@automerge/automerge-repo@2.0.1": "2.0.1",
     "npm:@automerge/automerge@2.2.9": "2.2.9",
     "npm:@deno/vite-plugin@1.0.4": "1.0.4_vite@6.3.5__picomatch@4.0.2_yaml@2.8.0_@types+node@22.15.15",
     "npm:@farcaster/frame-sdk@0.0.53": "0.0.53_zod@3.25.46",
@@ -390,27 +390,27 @@
         "@algolia/client-common"
       ]
     },
-    "@automerge/automerge-repo-network-broadcastchannel@2.0.0": {
-      "integrity": "sha512-jVgDiywmrMAtD77JFxH7ZyCiS8DT5t6C0Ya9G3v+UyRID+3sK8WJHr+LHKX/Tkim9y3mazpHE1Arknrmb/YIiA==",
+    "@automerge/automerge-repo-network-broadcastchannel@2.0.1": {
+      "integrity": "sha512-YnnO6WStkOj7vPEB6B9IdcxBbUHCxAUttePzSbNALNdEchhPZF6PbEQhhddjqfYzX4LnEAoGpkQvVnPop3w4Gg==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-indexeddb@2.0.0": {
-      "integrity": "sha512-Dka8WnVWWgK7+kSxwizrXGoUtvOPvFVJlGMpXAkvWC9z/9NEHKazkdjFkaMO+uiTGwp+w51xEeZ2gIqB3wgWoA==",
+    "@automerge/automerge-repo-storage-indexeddb@2.0.1": {
+      "integrity": "sha512-4e7fnA0rwQ8KJSZV7HsntOixgvh+YkW1pLs1h3XGMGRARKvSo+xZ6bcf3D8jzR/BPawpJkeu9BExH585X+UC8w==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-nodefs@2.0.0": {
-      "integrity": "sha512-Qz7xTbkA7Z+kSsfPL9hjWIWYAPF4cE5kXxgqSwm7/caa9JCWM2Cpcs5WBd8VylQVucTQMeEMb5tAkIpLAtW5rQ==",
+    "@automerge/automerge-repo-storage-nodefs@2.0.1": {
+      "integrity": "sha512-bcNn9vSSuWGp0z27FRBLlSaIWPN5B09D0gmxh0M4C2J97pBW0dUkgzURwp8Cp3Dxo7+ADk4qeAEhLFAZ3zv3qQ==",
       "dependencies": [
         "@automerge/automerge-repo",
         "rimraf"
       ]
     },
-    "@automerge/automerge-repo@2.0.0": {
-      "integrity": "sha512-c1VDrR6s8BE36m6xDcSC8f4ECccPcaK1E6q3vIlBHOEyyLvLQbFmlmFIZulaV//S0B0HW2lLSrK/2cFwQblQ+A==",
+    "@automerge/automerge-repo@2.0.1": {
+      "integrity": "sha512-1V8pyX5s8PtyPDKmkdEaK/lSuwc9j1HWRYxiWwx2/7FYshfKjl3+mMTAEemzKrwQNE3f3+0zKlI4gChBebAevg==",
       "dependencies": [
         "@automerge/automerge",
         "bs58check",
@@ -3572,10 +3572,10 @@
       "jsr:@std/semver@1.0.5",
       "jsr:@std/testing@1.0.13",
       "jsr:@std/uuid@1.0.8",
-      "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.0",
-      "npm:@automerge/automerge-repo-storage-indexeddb@2.0.0",
-      "npm:@automerge/automerge-repo-storage-nodefs@2.0.0",
-      "npm:@automerge/automerge-repo@2.0.0",
+      "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1",
+      "npm:@automerge/automerge-repo-storage-indexeddb@2.0.1",
+      "npm:@automerge/automerge-repo-storage-nodefs@2.0.1",
+      "npm:@automerge/automerge-repo@2.0.1",
       "npm:@automerge/automerge@2.2.9",
       "npm:@farcaster/frame-sdk@0.0.53",
       "npm:@monaco-editor/react@4.7.0",
