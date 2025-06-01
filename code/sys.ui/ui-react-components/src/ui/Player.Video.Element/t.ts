@@ -5,6 +5,11 @@ import type { t } from './common.ts';
  */
 export type VideoElementProps = {
   debug?: boolean;
+
+  // State:
+  signals?: t.VideoPlayerSignals;
+
+  // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

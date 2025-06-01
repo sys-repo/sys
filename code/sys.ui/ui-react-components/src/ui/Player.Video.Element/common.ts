@@ -4,6 +4,10 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'VideoElement';
-export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+const name = 'Media.Video.Element';
+export const DEFAULTS = {
+  name,
+  displayName: Pkg.toString(pkg, name),
+  aspectRatio: '16/9',
+} as const;
 export const D = DEFAULTS;
