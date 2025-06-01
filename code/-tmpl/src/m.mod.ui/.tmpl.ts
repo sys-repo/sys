@@ -1,9 +1,14 @@
-import { type t, Cli, DenoFile, Fs, Str, Tmpl } from '../common.ts';
+import { type t, Cli, DenoFile, Fs, Str, Tmpl, tmplFilter } from '../common.ts';
+
+/**
+ * Define the template:
+ */
+export const dir = import.meta.dirname!;
+export const tmpl = Tmpl.create(dir).filter(tmplFilter);
 
 /**
  * Setup the template:
  */
-export const dir = import.meta.dirname;
 export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?: string } = {}) {
   const name = options.name ?? (await Cli.Prompt.Input.prompt({ message: 'Component Name:' }));
 
@@ -28,8 +33,7 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?:
     await Tmpl.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
       if (line.is.last) {
         const path = Fs.join(moduleDir, 't.ts');
-        const text = `export type * from './${path}';`;
-        line.modify(text);
+        line.modify(`export type * from './${path}';`);
       }
     });
 

@@ -1,6 +1,6 @@
 import { type t, Esm, Fs } from './common.ts';
-import { load } from './u.load.ts';
 import { Path } from './m.DenoFile.Path.ts';
+import { load } from './u.load.ts';
 
 /**
  * Load a deno workspace.
