@@ -7,7 +7,7 @@ export const dir = import.meta.dirname!;
 export const tmpl = Tmpl.create(dir).filter(tmplFilter);
 
 /**
- * Setup the template:
+ * Setup the template (after copy):
  */
 export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgName?: string } = {}) {
   const pkgName = options.pkgName ?? (await Cli.Prompt.Input.prompt({ message: '@scope/name:' }));
