@@ -55,9 +55,8 @@ export async function main(options: Options = {}) {
     return;
   }
 
-  const sourceDir = Fs.resolve(source.dir);
-  const tmpl = Tmpl.create(sourceDir).filter(tmplFilter);
-  const res = await tmpl.write(targetDir, { onAfter: (e) => source.default(e) });
+  const tmpl = Tmpl.create(source.dir).filter(tmplFilter);
+  const res = await tmpl.write(targetDir, { afterWrite: (e) => source.default(e) });
 
   console.info(c.gray(`Target: ${Fs.trimCwd(targetDir)}`));
   console.info();
