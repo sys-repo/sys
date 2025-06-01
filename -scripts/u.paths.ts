@@ -5,6 +5,11 @@ export const Paths = {
   workspace: denojson.workspace,
   modules: [
     /**
+     * Monorepo:
+     */
+    'code/-tmpl',
+
+    /**
      * @sys: standard-libs:
      */
     'code/sys/types',
