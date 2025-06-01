@@ -6,6 +6,10 @@ export const Arr: t.ArrayLib = {
   asArray,
   sortBy,
 
+  isArray(input: unknown) {
+    return Array.isArray(input);
+  },
+
   flatten<T>(list: any): T[] {
     if (!Array.isArray(list)) return list;
     const result: any = list.reduce((a, b) => {

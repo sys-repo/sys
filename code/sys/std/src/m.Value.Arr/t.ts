@@ -1,5 +1,7 @@
 import type { t } from '../common.ts';
 
+Array.isArray;
+
 /**
  * Tools for evaluating and manipulating arrays.
  */
@@ -8,6 +10,11 @@ export type ArrayLib = {
    * Ensure a value is an array.
    */
   asArray: <T>(input: T | T[]) => T[];
+
+  /**
+   * Type‑guard wrapper for the built‑in {@link Array.isArray}.
+   */
+  isArray<T = unknown>(input: unknown): input is T[];
 
   /**
    * Converts a nested set of arrays into a flat single-level array.

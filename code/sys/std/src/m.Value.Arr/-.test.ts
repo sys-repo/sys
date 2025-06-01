@@ -9,7 +9,7 @@ describe('Value.Arr (Array)', () => {
     expect(Value.Arr).to.eql(Lib);
   });
 
-  describe('Array.flatten', () => {
+  describe('Arr.flatten', () => {
     it('makes no change', () => {
       expect(Value.Arr.flatten([1, 2, 3])).to.eql([1, 2, 3]);
     });
@@ -27,7 +27,19 @@ describe('Value.Arr (Array)', () => {
     });
   });
 
-  describe('Array.asArray', () => {
+  describe('Arr.isArray', () => {
+    it('true', () => {
+      expect(Arr.isArray([])).to.eql(true);
+      expect(Arr.isArray([1, 'two', '🐷🐷🐷'])).to.eql(true);
+    });
+
+    it('false', () => {
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}];
+      NON.forEach((value: any) => expect(Arr.isArray(value)).to.eql(false));
+    });
+  });
+
+  describe('Arr.asArray', () => {
     it('same function as index', () => {
       expect(Value.Arr.asArray).to.equal(asArray);
     });
@@ -49,7 +61,7 @@ describe('Value.Arr (Array)', () => {
     });
   });
 
-  describe('Array.asyncFilter', () => {
+  describe('Arr.asyncFilter', () => {
     it('filters (async)', async () => {
       const list = ['cat', 'hello cat', 'foobar'];
       const res = await Value.Arr.asyncFilter(list, async (value) => {
@@ -60,7 +72,7 @@ describe('Value.Arr (Array)', () => {
     });
   });
 
-  describe('Array.page', () => {
+  describe('Arr.page', () => {
     it('(undefined)', () => {
       const res = Value.Arr.page(undefined, 1, 10);
       expect(res).to.eql([]);
@@ -86,7 +98,7 @@ describe('Value.Arr (Array)', () => {
     });
   });
 
-  describe('Array.compare', () => {
+  describe('Arr.compare', () => {
     const compare = Value.Arr.compare;
 
     it('init', () => {
