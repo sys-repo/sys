@@ -31,7 +31,7 @@ export function createDebugSignals() {
   });
 
   const props = {
-    debug: s(false),
+    debug: s(true),
     theme: s<t.CommonTheme>('Light'),
   };
   const api = {
@@ -119,12 +119,28 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.aspectRatio, [undefined, '21/9', '4/3'])}
       />
 
+      <Button
+        block
+        label={() => {
+          const v = p.cornerRadius.value;
+          return `cornerRadius: ${v ?? `<undefined> (default: ${D.cornerRadius})`}`;
+        }}
+        onClick={() => Signal.cycle(p.cornerRadius, [D.cornerRadius, 5, 20, undefined])}
+      />
+
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
       {videoButton(video, 'vimeo/727951677')}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
       {videoButton(video, '/sample/group-scale.webm')}
+
+      <hr />
+      <div className={Styles.title.class}>{'Controls'}</div>
+      <Button block label={`playing: ${p.playing}`} onClick={() => Signal.toggle(p.playing)} />
+      <Button block label={`muted: ${p.muted}`} onClick={() => Signal.toggle(p.muted)} />
+      <Button block label={`autoplay: ${p.autoPlay}`} onClick={() => Signal.toggle(p.autoPlay)} />
+      <Button block label={`loop: ${p.loop}`} onClick={() => Signal.toggle(p.loop)} />
 
       <hr />
       <Button

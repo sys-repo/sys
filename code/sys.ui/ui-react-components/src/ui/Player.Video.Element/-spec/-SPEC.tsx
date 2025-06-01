@@ -10,7 +10,7 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
