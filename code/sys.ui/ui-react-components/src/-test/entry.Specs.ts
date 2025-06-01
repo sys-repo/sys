@@ -3,7 +3,7 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-export const ns = 'sys.ui.react.component';
+export const ns = 'sys.ui.component';
 
 /**
  * Components:
@@ -26,18 +26,18 @@ export const SpecsComponents = {
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
 
-  [`${ns}.player: Player.Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
-  [`${ns}.player: Player.VideoElement`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
-  [`${ns}.player: Player.Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
+  [`${ns}.player: Video`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
+  [`${ns}.player: Video.Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
+  [`${ns}.player: Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
   [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 
-  [`${ns}.io: Media.Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.Devices`]: () => import('../ui/Media.Devices/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
-  [`${ns}.io: Media.Config.Filters`]: () => import('../ui/Media.Config/-spec.filters/-SPEC.tsx'),
-  [`${ns}.io: Media.Config.Zoom`]: () => import('../ui/Media.Config/-spec.zoom/-SPEC.tsx'),
-  [`${ns}.io: Media.Config.Slider`]: () => import('../ui/Media.Config/-spec.slider/-SPEC.tsx'),
+  [`${ns}.media: Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
+  [`${ns}.media: Devices`]: () => import('../ui/Media.Devices/-spec/-SPEC.tsx'),
+  [`${ns}.media: Video`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
+  [`${ns}.media: AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
+  [`${ns}.media: Config.Filters`]: () => import('../ui/Media.Config/-spec.filters/-SPEC.tsx'),
+  [`${ns}.media: Config.Zoom`]: () => import('../ui/Media.Config/-spec.zoom/-SPEC.tsx'),
+  [`${ns}.media: Config.Slider`]: () => import('../ui/Media.Config/-spec.slider/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**

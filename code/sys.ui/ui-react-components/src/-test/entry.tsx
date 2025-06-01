@@ -28,11 +28,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr: (e) => {
         if (e.prev?.endsWith(': ObjectView')) return true;
-        e.byRoots([
-          'sys.ui.react.component',
-          'sys.ui.react.component.player',
-          'sys.ui.react.component.io',
-        ]);
+        e.byRoots(['sys.ui.component', 'sys.ui.component.player', 'sys.ui.component.media']);
       },
     });
     function App() {
