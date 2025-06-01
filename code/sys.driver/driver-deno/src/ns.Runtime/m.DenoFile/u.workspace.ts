@@ -3,15 +3,6 @@ import { load } from './u.load.ts';
 import { Path } from './m.DenoFile.Path.ts';
 
 /**
- * Determine if the given input is a `deno.json` file
- * that contains a "workspace":[] configuration.
- */
-export const isWorkspace: t.DenoFileLib['isWorkspace'] = async (input) => {
-  const { exists, data } = await load(input);
-  return exists ? Array.isArray(data?.workspace) : false;
-};
-
-/**
  * Load a deno workspace.
  * NB: pass nothing to walk up to the nearest ancestor workspace.
  */

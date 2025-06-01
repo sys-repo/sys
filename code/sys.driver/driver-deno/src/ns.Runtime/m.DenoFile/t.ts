@@ -12,6 +12,9 @@ export type DenoFileLib = {
   /** Helpers for wrangling `deno.json` file paths. */
   readonly Path: t.DenoFilePathLib;
 
+  /** Boolean evaluators for `deno.json` files. */
+  readonly Is: t.DenoFileIsLib;
+
   /**
    * Load a `deno.json` file at the given file path.
    */
@@ -21,12 +24,6 @@ export type DenoFileLib = {
    * Load a deno workspace.
    */
   workspace(src?: t.StringPath, options?: { walkup?: boolean }): Promise<t.DenoWorkspace>;
-
-  /**
-   * Determine if the given input is a `deno.json` file
-   * that contains a "workspace":[] configuration.
-   */
-  isWorkspace(src?: t.StringPath): Promise<boolean>;
 
   /**
    * Walks up from the starting path looking for the nearest
@@ -44,6 +41,17 @@ export type DenoFileNearestResult = {
   readonly dir: t.StringDir;
   readonly file: t.DenoFileJson;
   readonly is: { readonly workspace: boolean };
+};
+
+/**
+ * Boolean evaluators for `deno.json` files.
+ */
+export type DenoFileIsLib = {
+  /**
+   * Determine if the given input is a `deno.json` file
+   * that contains a "workspace":[] configuration.
+   */
+  workspace(src?: t.StringPath): Promise<boolean>;
 };
 
 /** The async response from a `deno.json` file load request. */

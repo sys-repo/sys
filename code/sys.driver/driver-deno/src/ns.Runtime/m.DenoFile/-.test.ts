@@ -39,17 +39,19 @@ describe('DenoFile', () => {
     });
   });
 
-  describe('DenoFile.isWorkspace', () => {
-    const isWorkspace = DenoFile.isWorkspace;
+  describe('DenoFile.Is', () => {
+    const Is = DenoFile.Is;
 
-    it('is a workspace', async () => {
-      expect(await isWorkspace(rootPath)).to.eql(true);
-    });
+    describe('Is.workspace', () => {
+      it('true', async () => {
+        expect(await Is.workspace(rootPath)).to.eql(true);
+      });
 
-    it('is not a workspace', async () => {
-      expect(await isWorkspace(undefined)).to.eql(false);
-      expect(await isWorkspace('./404.json')).to.eql(false);
-      expect(await isWorkspace('./deno.json')).to.eql(false);
+      it('false', async () => {
+        expect(await Is.workspace(undefined)).to.eql(false);
+        expect(await Is.workspace('./404.json')).to.eql(false);
+        expect(await Is.workspace('./deno.json')).to.eql(false);
+      });
     });
   });
 
