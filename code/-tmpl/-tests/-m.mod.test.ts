@@ -2,7 +2,7 @@ import { describe, expect, it, Templates, Testing } from '../src/-test.ts';
 import { setup as pkgSetup } from './-pkg.deno.test.ts';
 import { Fs } from './common.ts';
 
-describe('Template: m.mod.ui', () => {
+describe('Template: m.mod', () => {
   const getDir = () => Testing.dir('m.mod.ui').create();
   const setup = async () => {
     const fs = await getDir();
@@ -12,16 +12,15 @@ describe('Template: m.mod.ui', () => {
 
   it('setup', async () => {
     const { fs, pkgDir } = await setup();
-    const def = await Templates['m.mod.ui']();
+    const def = await Templates['m.mod']();
 
-    const name = 'MyFooBar';
-    const dir = 'src/ui/ui.FooBar';
-    await def.tmpl.write(fs.join(pkgDir, dir), { afterWrite: (e) => def.default(e, { name }) });
+    const dir = 'src/m.MyModule';
+    await def.tmpl.write(fs.join(pkgDir, dir), { afterWrite: (e) => def.default(e) });
 
     const glob = await Fs.glob(def.dir!).find('**', { trimCwd: true, includeDirs: false });
     const paths = glob
       .map((m) => m.path)
-      .map((p) => p.slice('src/m.mod.ui/'.length))
+      .map((p) => p.slice('src/m.mod/'.length))
       .map((p) => Fs.join(pkgDir, dir, p))
       .filter((p) => !p.endsWith('/.tmpl.ts'));
 
@@ -32,10 +31,6 @@ describe('Template: m.mod.ui', () => {
 
     const read = async (path: string) => (await Fs.readText(fs.join(pkgDir, path))).data!;
     const typesFile = await read('src/types.ts');
-    expect(typesFile).to.include(`export type * from './ui/ui.FooBar/t.ts';`);
-
-    const specsFile = await read('src/-test/entry.Specs.ts');
-    expect(specsFile).to.include('[`${ns}: ui.FooBar`]:');
-    expect(specsFile).to.include(`() => import('../ui/ui.FooBar/-spec/-SPEC.tsx'),`);
+    expect(typesFile).to.include(`export type * from './m.MyModule/t.ts';`);
   });
 });

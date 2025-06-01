@@ -1,4 +1,5 @@
 import { type t, Cli, DenoFile, Fs, Str, Tmpl, tmplFilter } from '../common.ts';
+import { updateTypesFile } from '../m.mod/.tmpl.ts';
 
 /**
  * Define the template:
@@ -27,20 +28,13 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?:
 
   // Update pointer refs:
   if (pkgDir) {
-    const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
-
-    // Update `types` file reference:
-    await Tmpl.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
-      if (line.is.last) {
-        const path = Fs.join(moduleDir, 't.ts');
-        line.modify(`export type * from './${path}';`);
-      }
-    });
+    await updateTypesFile(dir);
 
     // Update dev-harness spec entry:
     await Tmpl.File.update(Fs.join(pkgDir, 'src/-test/entry.Specs.ts'), (line) => {
       const index = line.file.lines.findIndex((line) => line.includes('[`${ns}:'));
       if (line.index === index) {
+        const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
         const name = moduleDir.replace(/^ui\//, '');
         const text = `  [\`\${ns}: ${name}\`]: () => import('../${moduleDir}/-spec/-SPEC.tsx'),`;
         line.insert(text);

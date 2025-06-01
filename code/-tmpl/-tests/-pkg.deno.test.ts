@@ -8,6 +8,9 @@ export const setup = async (
   options: { pkgName?: string; pkgDir?: string; write?: boolean; fs?: t.TestingDir } = {},
 ) => {
   const fs = options.fs ?? (await Testing.dir('pkg.deno').create());
+  const pkgDir = options.pkgDir ?? 'code/pkg-dir';
+  const pkgName = options.pkgName ?? '@sample/foo';
+
   const def = await Templates['pkg.deno']();
 
   // Simulate key mono-repo environment:
@@ -21,12 +24,10 @@ export const setup = async (
   }
 
   if (options.write ?? true) {
-    const pkgDir = options.pkgDir ?? 'code/pkg-dir';
-    const pkgName = options.pkgName ?? '@sample/foo';
     await def.tmpl.write(fs.join(pkgDir), { afterWrite: (e) => def.default(e, { pkgName }) });
   }
 
-  return { fs, def } as const;
+  return { fs, def, pkgName, pkgDir } as const;
 };
 
 describe('Template: pkg.deno', () => {
