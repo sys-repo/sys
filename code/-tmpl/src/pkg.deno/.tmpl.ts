@@ -15,7 +15,6 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgNam
   const dir = e.dir.target.absolute;
   const monorepo = await DenoFile.nearest(dir, (e) => Array.isArray(e.file.workspace));
   if (!monorepo) throw new Error(`Failed to find the host monorepo.`);
-  const pkgDir = dir.slice(monorepo.dir.length + 1);
 
   /**
    * Clean up filenames:
@@ -37,6 +36,7 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgNam
   /**
    * Update monorepo environment:
    */
+  const pkgDir = dir.slice(monorepo.dir.length + 1);
   await Tmpl.File.update(Fs.join(monorepo.dir, '-scripts/u.paths.ts'), (line) => {
     if (line.text.includes('modules: [')) {
       line.insert(`    '${pkgDir}',\n`, 'after');
