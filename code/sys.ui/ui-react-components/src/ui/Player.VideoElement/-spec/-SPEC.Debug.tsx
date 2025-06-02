@@ -43,6 +43,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(true),
     render: s(true),
+    width: s(500),
     theme: s<t.CommonTheme>('Light'),
   };
   const api = {
@@ -52,6 +53,7 @@ export function createDebugSignals() {
       props.debug.value;
       props.render.value;
       props.theme.value;
+      props.width.value;
 
       /**
        * Video Player:
@@ -159,6 +161,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      <Button
+        block
+        label={() => {
+          const current = p.scale.value;
+          return `scale: ${typeof current === 'function' ? 'ƒn' : current}`;
+        }}
+        onClick={() => {
+          const fn: t.VideoPlayerScale = (e) => {
+            const pixels = 1;
+            const res = e.enlargeBy(pixels);
+            console.info(`⚡️ scale (callback):`, e);
+            console.info(`   increment (${pixels}px):`, res);
+            return res;
+          };
+          Signal.cycle(p.scale, [undefined, D.scale, 1.5, fn]);
+        }}
+      />
+
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
       {/* {videoButton(video, 'vimeo/727951677')} */}
@@ -195,6 +215,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `render: ${d.render.value}`}
         onClick={() => Signal.toggle(d.render)}
+      />
+      <Button
+        block
+        label={() => `width: ${d.width.value}`}
+        onClick={() => Signal.cycle(d.width, [420, 500, 600])}
       />
       <ObjectView
         name={'debug'}

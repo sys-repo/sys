@@ -73,7 +73,7 @@ export type VideoPlayerSignalProps = {
   readonly background: t.Signal<boolean>;
   readonly aspectRatio: t.Signal<string>;
   readonly cornerRadius: t.Signal<number>;
-  readonly scale: t.Signal<number | t.VideoPlayerScale>;
+  readonly scale: t.Signal<t.Percent | t.VideoPlayerScale>;
   readonly fadeMask: t.Signal<undefined | t.VideoPlayerFadeMask>;
 
   /**

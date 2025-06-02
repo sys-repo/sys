@@ -12,5 +12,6 @@ export const DEFAULTS = {
   cornerRadius: 0,
   autoPlay: false,
   showControls: true,
+  scale: 1,
 } as const;
 export const D = DEFAULTS;

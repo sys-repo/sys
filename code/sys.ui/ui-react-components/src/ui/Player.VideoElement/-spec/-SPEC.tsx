@@ -10,26 +10,32 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const updateSize = () => {
+      const width = debug.props.width.value;
+      ctx.subject.size([width, null]);
+      ctx.redraw();
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      updateSize();
     });
 
-    ctx.subject
-      .size([500, null])
-      .display('grid')
-      .render(() => {
-        if (!p.render.value) return null;
-        return (
-          <VideoElement
-            debug={p.debug.value}
-            theme={p.theme.value}
-            video={debug.video}
-            onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
-          />
-        );
-      });
+    ctx.subject.display('grid').render(() => {
+      if (!p.render.value) return null;
+      return (
+        <VideoElement
+          debug={p.debug.value}
+          theme={p.theme.value}
+          video={debug.video}
+          onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
+        />
+      );
+    });
+
+    // Init:
+    updateSize();
   });
 
   e.it('ui:debug', (e) => {

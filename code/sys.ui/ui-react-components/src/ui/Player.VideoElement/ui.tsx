@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
-import { type t, Color, css, D, Signal } from './common.ts';
+import { type t, Color, css, D, Signal, useSizeObserver } from './common.ts';
 import { FadeMask } from './ui.FadeMask.tsx';
+import { useScale } from './use.Scale.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
@@ -11,6 +12,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const borderRadius = p?.cornerRadius.value ?? D.cornerRadius;
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const size = useSizeObserver();
+  const scale = useScale(size, p?.scale.value);
   useSignalBinding(videoRef, signals);
 
   /**
@@ -35,43 +38,18 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   });
 
   /**
-   * Effect: ensure redraw on signal changes.
-   */
-  Signal.useRedrawEffect(() => {
-    if (!p) return;
-    p.ready.value;
-    p.src.value;
-
-    p.muted.value;
-    p.autoPlay.value;
-    p.loop.value;
-
-    p.showControls.value;
-    p.showFullscreenButton.value;
-    p.showVolumeControl.value;
-    p.cornerRadius.value;
-    p.aspectRatio.value;
-    p.scale.value;
-    p.fadeMask.value;
-  });
-
-  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      aspectRatio,
-      borderRadius,
-      overflow: 'hidden',
-    }),
+    base: css({ color: theme.fg, aspectRatio, borderRadius, overflow: 'hidden' }),
     video: css({
       width: '100%',
       aspectRatio,
       display: 'block',
       objectFit: 'cover',
       borderRadius,
+      transform: `scale(${scale.percent})`,
     }),
     debug: css({
       Absolute: [6, null, null, 6],
@@ -104,7 +82,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   );
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elVideo}
       {elMask}
       {elDebug}
