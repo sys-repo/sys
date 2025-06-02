@@ -15,9 +15,7 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgNam
   const dir = e.dir.target.absolute;
   const monorepo = await DenoFile.nearest(dir, (e) => Array.isArray(e.file.workspace));
   if (!monorepo) throw new Error(`Failed to find the host monorepo.`);
-
-  const glob = Fs.glob(dir);
-  const paths = (await glob.find('**', { includeDirs: false })).map((m) => m.path);
+  const pkgDir = dir.slice(monorepo.dir.length + 1);
 
   /**
    * Clean up filenames:
@@ -27,7 +25,8 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgNam
   /**
    * Update files within template:
    */
-  const pkgDir = dir.slice(monorepo.dir.length + 1);
+  const glob = Fs.glob(dir);
+  const paths = (await glob.find('**', { includeDirs: false })).map((m) => m.path);
   await Tmpl.File.update(paths, (line) => {
     if (line.text.includes('@sample/foo')) {
       const text = Str.replaceAll(line.text, '@sample/foo', pkgName).after;
