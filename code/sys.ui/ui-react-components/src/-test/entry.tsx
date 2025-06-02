@@ -14,14 +14,14 @@ if (document) {
 
 if ('serviceWorker' in navigator) {
   /**
-   * NB: Wait until window.load so that Vite’s HMR
+   * NB: Wait until `window.load` so that Vite’s HMR
    *     or other scripts don’t get in the way.
    */
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('sw.js')
-      .then((reg) => console.info(`[main] Service Worker registered with scope: ${reg.scope}`))
-      .catch((err) => console.error('[main] SW registration failed:', err));
+      .then((reg) => console.info(`🌳 [main] Service Worker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error('💥 [main] SW registration failed:', err));
   });
 }
 
