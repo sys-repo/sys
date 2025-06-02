@@ -55,6 +55,8 @@
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.0.4",
     "ua-parser-js": "npm:ua-parser-js@2.0.3",
+    "workbox-core": "npm:workbox-core@7.3.0",
+    "workbox-expiration": "npm:workbox-expiration@7.3.0",
     "workbox-range-requests": "npm:workbox-range-requests@7.3.0",
     "workbox-routing": "npm:workbox-routing@7.3.0",
     "workbox-strategies": "npm:workbox-strategies@7.3.0",
