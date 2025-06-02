@@ -70,7 +70,7 @@ export const VideoPlayer: React.FC<P> = (props) => {
   });
 
   /**
-   * Effect: monitor size differene
+   * Effect: monitor size difference
    */
   useEffect(() => {
     const { width, height } = size;
