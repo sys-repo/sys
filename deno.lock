@@ -111,6 +111,9 @@
     "npm:vitepress@*": "1.6.3_vite@5.4.19_vue@3.5.16_focus-trap@7.6.5_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1_@types+node@22.15.15",
     "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19_vue@3.5.16_focus-trap@7.6.5_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1_@types+node@22.15.15",
     "npm:vue@3.5.16": "3.5.16",
+    "npm:workbox-range-requests@7.3.0": "7.3.0",
+    "npm:workbox-routing@7.3.0": "7.3.0",
+    "npm:workbox-strategies@7.3.0": "7.3.0",
     "npm:yaml@2.8.0": "2.8.0",
     "npm:zod@3.25.46": "3.25.46"
   },
@@ -3501,6 +3504,27 @@
       ],
       "bin": true
     },
+    "workbox-core@7.3.0": {
+      "integrity": "sha512-Z+mYrErfh4t3zi7NVTvOuACB0A/jA3bgxUN3PwtAVHvfEsZxV9Iju580VEETug3zYJRc0Dmii/aixI/Uxj8fmw=="
+    },
+    "workbox-range-requests@7.3.0": {
+      "integrity": "sha512-EyFmM1KpDzzAouNF3+EWa15yDEenwxoeXu9bgxOEYnFfCxns7eAxA9WSSaVd8kujFFt3eIbShNqa4hLQNFvmVQ==",
+      "dependencies": [
+        "workbox-core"
+      ]
+    },
+    "workbox-routing@7.3.0": {
+      "integrity": "sha512-ZUlysUVn5ZUzMOmQN3bqu+gK98vNfgX/gSTZ127izJg/pMMy4LryAthnYtjuqcjkN4HEAx1mdgxNiKJMZQM76A==",
+      "dependencies": [
+        "workbox-core"
+      ]
+    },
+    "workbox-strategies@7.3.0": {
+      "integrity": "sha512-tmZydug+qzDFATwX7QiEL5Hdf7FrkhjaF9db1CbB39sDmEZJg3l9ayDvPxy8Y18C3Y66Nrr9kkN1f/RlkDgllg==",
+      "dependencies": [
+        "workbox-core"
+      ]
+    },
     "wrap-ansi@7.0.0": {
       "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
       "dependencies": [
@@ -3610,6 +3634,9 @@
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.0.4",
       "npm:ua-parser-js@2.0.3",
+      "npm:workbox-range-requests@7.3.0",
+      "npm:workbox-routing@7.3.0",
+      "npm:workbox-strategies@7.3.0",
       "npm:yaml@2.8.0",
       "npm:zod@3.25.46"
     ],

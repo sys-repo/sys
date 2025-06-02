@@ -58,10 +58,16 @@ groups:
     - import: npm:react@18.3.1
     - import: npm:react-dom@18.3.1
 
+  ui/service-worker:
+    - import: npm:workbox-routing@7.3.0
+    - import: npm:workbox-strategies@7.3.0
+    - import: npm:workbox-range-requests@7.3.0
+
 deno.json:
   - group: std/deno
   - group: crypto
   - group: automerge
+  - group: ui/service-worker
 
   # CLI tools
   - import: jsr:@cliffy/keypress@1.0.0-rc.7
@@ -117,8 +123,6 @@ package.json:
   - group: build/tools
     dev: true
 
-  - import: npm:hono@4.7.11
-
   # LLM
   - import: npm:@langchain/ollama@0.2.0
   - import: npm:@langchain/core@0.3.57
@@ -133,3 +137,4 @@ package.json:
   # UI:Frameworks
   - import: npm:vitepress@1.6.3
   - import: npm:vue@3.5.16
+  - import: npm:hono@4.7.11
