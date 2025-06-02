@@ -56,10 +56,12 @@ export type VideoPlayerSignalProps = {
    * Media:
    */
   readonly playing: t.Signal<boolean>;
-  readonly currentTime: t.Signal<t.Secs>;
   readonly loop: t.Signal<boolean>;
   readonly autoPlay: t.Signal<boolean>;
   readonly muted: t.Signal<boolean>;
+
+  readonly currentTime: t.Signal<t.Secs>;
+  readonly duration: t.Signal<t.Secs>;
 
   /**
    * Appearance:

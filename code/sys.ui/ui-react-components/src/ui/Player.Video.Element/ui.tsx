@@ -52,6 +52,10 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
         playsInline={true}
         autoPlay={p?.autoPlay.value}
         muted={p?.muted.value}
+        loop={p?.loop.value}
+        onEnded={(e) => {
+          if (props.onEnded && signals) props.onEnded({ video: signals });
+        }}
       />
       {elDebug}
     </div>

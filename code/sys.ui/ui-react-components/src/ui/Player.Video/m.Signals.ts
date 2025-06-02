@@ -16,10 +16,12 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     // Media:
     src: s<t.StringVideoAddress>(defaults.src ?? D.video),
     playing: s<boolean>(false),
-    currentTime: s<t.Secs>(0),
     loop: s<boolean>(defaults.loop ?? D.loop),
     autoPlay: s<boolean>(defaults.autoPlay ?? D.autoPlay),
     muted: s<boolean>(defaults.muted ?? D.muted),
+
+    currentTime: s<t.Secs>(0),
+    duration: s<t.Secs>(0),
 
     // Appearance:
     showControls: s<boolean>(defaults.showControls ?? D.showControls),

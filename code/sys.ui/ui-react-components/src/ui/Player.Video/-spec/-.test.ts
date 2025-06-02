@@ -20,6 +20,7 @@ describe('VideoPlayer: Signals API', () => {
 
       expect(p.playing.value).to.eql(false);
       expect(p.currentTime.value).to.eql(0);
+      expect(p.duration.value).to.eql(0);
       expect(p.loop.value).to.eql(D.loop);
       expect(p.autoPlay.value).to.eql(D.autoPlay);
       expect(p.muted.value).to.eql(D.muted);

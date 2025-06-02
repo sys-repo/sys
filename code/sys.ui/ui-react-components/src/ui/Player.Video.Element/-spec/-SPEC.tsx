@@ -21,7 +21,14 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         if (!p.render.value) return null;
-        return <VideoElement debug={p.debug.value} theme={p.theme.value} signals={debug.video} />;
+        return (
+          <VideoElement
+            debug={p.debug.value}
+            theme={p.theme.value}
+            signals={debug.video}
+            onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
+          />
+        );
       });
   });
 

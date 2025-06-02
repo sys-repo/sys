@@ -4,7 +4,7 @@ import { type t, Button, css, LocalStorage, ObjectView, Signal, Str } from '../.
 import { D } from '../common.ts';
 
 type P = t.VideoElementProps;
-type Storage = { src?: string; autoPlay?: boolean; muted?: boolean };
+type Storage = { src?: string; autoPlay?: boolean; muted?: boolean; loop?: boolean };
 
 /**
  * Types:
@@ -23,8 +23,7 @@ export function createDebugSignals() {
     src: localstore.current.src ?? '/sample/group-scale.webm',
     autoPlay: localstore.current.autoPlay,
     muted: localstore.current.muted,
-    // loop: true,
-    // showControls: false,
+    loop: localstore.current.loop,
   });
 
   Signal.effect(() => {
@@ -32,10 +31,12 @@ export function createDebugSignals() {
     const src = p.src.value;
     const autoPlay = p.autoPlay.value;
     const muted = p.muted.value;
+    const loop = p.loop.value;
     localstore.change((d) => {
       d.src = src;
       d.autoPlay = autoPlay;
       d.muted = muted;
+      d.loop = loop;
     });
   });
 
@@ -142,10 +143,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
-      {videoButton(video, 'vimeo/727951677')}
+      {/* {videoButton(video, 'vimeo/727951677')} */}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
       {videoButton(video, '/sample/group-scale.webm')}
+      {videoButton(video, '/sample/group-scale.mp4')}
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
@@ -153,6 +155,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={`muted: ${p.muted}`} onClick={() => Signal.toggle(p.muted)} />
       <Button block label={`autoplay: ${p.autoPlay}`} onClick={() => Signal.toggle(p.autoPlay)} />
       <Button block label={`loop: ${p.loop}`} onClick={() => Signal.toggle(p.loop)} />
+
+      <hr />
+      <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
+      <Button
+        block
+        label={`method: jumpTo(12, paused)`}
+        onClick={() => video.jumpTo(12, { play: false })}
+      />
 
       <hr />
       <Button
@@ -201,8 +211,18 @@ export function videoButton(video: t.VideoPlayerSignals, src: string) {
 }
 
 function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
-  const { video, prefix = 'elapsed' } = props;
+  const { video, prefix = '' } = props;
   const p = video.props;
-  Signal.useRedrawEffect(() => p.currentTime.value);
-  return <div>{`(${prefix}: ${p.currentTime.value.toFixed(2)}s)`}</div>;
+  Signal.useRedrawEffect(() => {
+    p.currentTime.value;
+    p.duration.value;
+    p.ready.value;
+  });
+
+  if (!p.ready.value) return null;
+
+  const elapsed = p.currentTime.value.toFixed(0);
+  const duration = p.duration.value.toFixed();
+
+  return <div>{`${prefix} ${elapsed}s / ${duration}s`}</div>;
 }
