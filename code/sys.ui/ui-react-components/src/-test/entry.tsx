@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { pkg } from '../common.ts';
 
@@ -10,6 +10,19 @@ const document = globalThis.document;
 if (document) {
   document.title = pkg.name;
   document.body.style.overflow = 'hidden'; // NB: suppress rubber-band effect.
+}
+
+if ('serviceWorker' in navigator) {
+  /**
+   * NB: Wait until window.load so that Vite’s HMR
+   *     or other scripts don’t get in the way.
+   */
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('sw.js')
+      .then((reg) => console.info(`[main] Service Worker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error('[main] SW registration failed:', err));
+  });
 }
 
 /**
