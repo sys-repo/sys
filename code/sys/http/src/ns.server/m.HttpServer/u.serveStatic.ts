@@ -1,7 +1,17 @@
 import { serveFile } from '@std/http/file-server';
-import { type t, Path, Fs } from './common.ts';
+import { serveStatic as honoStatic } from 'hono/deno';
+import { type t, Fs, Path } from './common.ts';
 
 type Input = Parameters<t.HttpServeStatic>[0];
+
+/**
+ * The Hono version of static-file server
+ * (NOTE does not support `206 Partial Content` responses).
+ */
+export const serveStaticHono: t.HttpServeStatic = (input: Input) => {
+  const options = wrangle.options(input);
+  return honoStatic(options);
+};
 
 /**
  * Serve static files.

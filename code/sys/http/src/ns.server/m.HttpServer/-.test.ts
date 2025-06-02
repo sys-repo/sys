@@ -144,9 +144,6 @@ describe('HTTP: Server', () => {
       const url = Http.url(listener.addr);
       const res = await fetch.blob(url.join(filename));
 
-      console.log('res', res);
-      console.log('res.headers', res.headers);
-
       expect(res.status).to.eql(206);
       expect(res.statusText).to.eql('Partial Content');
       expect(res.headers.get('accept-ranges')).to.eql('bytes');
