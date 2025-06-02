@@ -25,7 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
           <VideoElement
             debug={p.debug.value}
             theme={p.theme.value}
-            signals={debug.video}
+            video={debug.video}
             onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
           />
         );

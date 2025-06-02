@@ -141,13 +141,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.cornerRadius, [D.cornerRadius, 5, 20, undefined])}
       />
 
+      <Button
+        block
+        label={() => {
+          const value = p.fadeMask.value;
+          return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
+        }}
+        onClick={() => {
+          type T = t.VideoPlayerFadeMask | undefined;
+          Signal.cycle<T>(p.fadeMask, [
+            { direction: 'Top:Down' },
+            { direction: 'Bottom:Up' },
+            { direction: 'Left:Right' },
+            { direction: 'Right:Left' },
+            undefined,
+          ]);
+        }}
+      />
+
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
       {/* {videoButton(video, 'vimeo/727951677')} */}
-      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
-      {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
-      {videoButton(video, '/sample/group-scale.webm')}
-      {videoButton(video, '/sample/group-scale.mp4')}
+      {videoButton(video, './sample/group-scale.webm')}
+      {videoButton(video, './sample/group-scale.mp4')}
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
@@ -155,6 +171,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={`muted: ${p.muted}`} onClick={() => Signal.toggle(p.muted)} />
       <Button block label={`autoplay: ${p.autoPlay}`} onClick={() => Signal.toggle(p.autoPlay)} />
       <Button block label={`loop: ${p.loop}`} onClick={() => Signal.toggle(p.loop)} />
+      <Button
+        block
+        label={`showControls: ${p.showControls}`}
+        onClick={() => Signal.toggle(p.showControls)}
+      />
 
       <hr />
       <Button block label={`method: jumpTo(12, play)`} onClick={() => video.jumpTo(12)} />
@@ -178,7 +199,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={Signal.toObject({ 'video(signals)': p })}
-        expand={2}
+        expand={1}
         style={{ marginTop: 10 }}
       />
     </div>
@@ -213,6 +234,9 @@ export function videoButton(video: t.VideoPlayerSignals, src: string) {
 function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
   const { video, prefix = '' } = props;
   const p = video.props;
+  const elapsed = p.currentTime.value.toFixed(0);
+  const duration = p.duration.value.toFixed();
+
   Signal.useRedrawEffect(() => {
     p.currentTime.value;
     p.duration.value;
@@ -220,9 +244,5 @@ function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
   });
 
   if (!p.ready.value) return null;
-
-  const elapsed = p.currentTime.value.toFixed(0);
-  const duration = p.duration.value.toFixed();
-
   return <div>{`${prefix} ${elapsed}s / ${duration}s`}</div>;
 }

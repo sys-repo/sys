@@ -7,7 +7,7 @@ export type VideoElementProps = {
   debug?: boolean;
 
   // State:
-  signals?: t.VideoPlayerSignals;
+  video?: t.VideoPlayerSignals;
 
   // Appearance:
   theme?: t.CommonTheme;
