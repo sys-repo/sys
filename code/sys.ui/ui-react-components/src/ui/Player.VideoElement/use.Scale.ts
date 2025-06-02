@@ -32,10 +32,10 @@ export function useScale(size: t.Size, scaleProp?: t.Percent | t.VideoPlayerScal
  * Helpers:
  */
 const wrangle = {
-  scale(width: t.Pixels, height: t.Pixels, increment: t.Pixels) {
+  scale(width: t.Pixels, height: t.Pixels, inc: t.Pixels) {
     if (width === 0 || height === 0) return 1;
-    const scaleX = (width + increment) / width;
-    const scaleY = (height + increment) / height;
+    const scaleX = (width + inc) / width;
+    const scaleY = (height + inc) / height;
     return Math.max(scaleX, scaleY); // NB: Return the greater scale factor to ensure both dimensions are increased by at least increment.
   },
 } as const;
