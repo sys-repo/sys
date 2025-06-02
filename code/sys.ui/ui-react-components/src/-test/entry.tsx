@@ -18,10 +18,13 @@ if ('serviceWorker' in navigator) {
    *     or other scripts don’t get in the way.
    */
   window.addEventListener('load', () => {
+    const devmode = import.meta.env.DEV;
+    const prefix = devmode ? `[main:dev]` : `[main]`;
+    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
     navigator.serviceWorker
       .register('sw.js')
-      .then((reg) => console.info(`🌳 [main] Service Worker registered with scope: ${reg.scope}`))
-      .catch((err) => console.error('💥 [main] SW registration failed:', err));
+      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
   });
 }
 
