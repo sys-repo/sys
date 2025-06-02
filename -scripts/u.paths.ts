@@ -4,6 +4,8 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
+    'deploy/@tdb.slc.fs',
+
     /**
      * Monorepo:
      */
