@@ -1,5 +1,6 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE } from '../-test.ts';
 import { Vite } from './mod.ts';
+import { extractModulePreloadLinks } from './-u.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
@@ -73,11 +74,14 @@ describe('Vite.build', () => {
     printHtml(files.html, 'sample-1', outDir);
     expect(files.html).to.include(`<title>Sample-1</title>`);
     expect(files.entry).to.include(`Hello World 👋`);
+    expect(extractModulePreloadLinks(files.html).length).to.eql(2);
 
     expect(res.dist).to.eql(files.json.dist);
     expect(res.dist.pkg).to.eql(pkg);
     expect(res.dist.build.size.total).to.be.greaterThan(100_000);
     expect(res.dist.hash.parts[res.dist.entry].startsWith('sha256-')).to.eql(true);
+
+    expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js'); // NB: not specified in vite.json (see: sample-3).
   });
 
   it('sample-2: monorepo imports | Module-B  ←  Module-A', async () => {
@@ -92,5 +96,12 @@ describe('Vite.build', () => {
     const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));
     expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
+  });
+
+  it('sample-3: sw.js (service-worker)', async () => {
+    const { res, files, outDir } = await testBuild(SAMPLE.Dirs.sample3);
+    printHtml(files.html, 'sample-3', outDir);
+    expect(extractModulePreloadLinks(files.html).length).to.eql(2);
+    expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');
   });
 });

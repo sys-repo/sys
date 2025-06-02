@@ -12,10 +12,11 @@ export type ViteConfigPaths = {
  * Paths for "application" bundles.
  */
 export type ViteConfigPathsApp = {
-  /**
-   * The entry path to an HTML file.
-   */
+  /** The main entry path to an HTML file. */
   readonly entry: t.StringPath;
+
+  /** The service-worker entry point. */
+  readonly sw?: t.StringPath;
 
   /**
    * The directory the bundle output is targetted at.

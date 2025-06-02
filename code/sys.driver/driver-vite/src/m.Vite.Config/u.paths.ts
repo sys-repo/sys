@@ -16,9 +16,10 @@ export const paths: F = (input) => {
     outDir: PATHS.dist,
   };
 
-  if (valueExists(options.app?.entry)) app.entry = options.app?.entry;
-  if (valueExists(options.app?.base)) app.base = options.app?.base;
-  if (valueExists(options.app?.outDir)) app.outDir = options.app?.outDir;
+  if (valueExists(options.app?.entry)) app.entry = options.app.entry;
+  if (valueExists(options.app?.base)) app.base = options.app.base;
+  if (valueExists(options.app?.outDir)) app.outDir = options.app.outDir;
+  if (valueExists(options.app?.sw)) app.sw = options.app.sw;
 
   app.entry = app.entry.trim();
   app.base = app.base.trim();

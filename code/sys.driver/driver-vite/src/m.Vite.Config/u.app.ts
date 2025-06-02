@@ -1,7 +1,7 @@
 import type { ManualChunksOption } from 'rollup';
-
 import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
-import { type t, asArray, Path, R } from './common.ts';
+
+import { type t, asArray, Path, R, Delete } from './common.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
@@ -13,10 +13,11 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   const ws = await wrangle.workspace(options);
   const paths = formatPaths(options.paths);
 
-  const input = Path.join(paths.cwd, paths.app.entry);
+  const main = Path.join(paths.cwd, paths.app.entry);
+  const sw = paths.app.sw ? Path.join(paths.cwd, paths.app.sw) : undefined;
   const outDir = Path.join(paths.cwd, paths.app.outDir);
   const publicDir = Path.join(paths.cwd, 'public');
-  const root = Path.dirname(input);
+  const root = Path.dirname(main);
 
   /**
    * Chunking.
@@ -43,13 +44,16 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     emptyOutDir: true,
     outDir,
     rollupOptions: {
-      input,
+      input: Delete.undefined<{}>({ main, sw }),
       output: {
         format,
         manualChunks,
-        entryFileNames: 'pkg/-entry.[hash].js',
         chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
         assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
+        entryFileNames(chunkInfo) {
+          if (chunkInfo.name === 'sw') return 'sw.js';
+          return 'pkg/-entry.[hash].js';
+        },
       },
     },
   };
