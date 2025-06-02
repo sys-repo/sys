@@ -19,9 +19,10 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size([500, null])
       .display('grid')
-      .render(() => (
-        <VideoElement debug={p.debug.value} theme={p.theme.value} signals={debug.video} />
-      ));
+      .render(() => {
+        if (!p.render.value) return null;
+        return <VideoElement debug={p.debug.value} theme={p.theme.value} signals={debug.video} />;
+      });
   });
 
   e.it('ui:debug', (e) => {

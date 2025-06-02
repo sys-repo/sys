@@ -4,7 +4,7 @@ import { type t, Button, css, LocalStorage, ObjectView, Signal, Str } from '../.
 import { D } from '../common.ts';
 
 type P = t.VideoElementProps;
-type Storage = { src?: string };
+type Storage = { src?: string; autoPlay?: boolean; muted?: boolean };
 
 /**
  * Types:
@@ -21,17 +21,27 @@ export function createDebugSignals() {
   const s = Signal.create;
   const video = Player.Video.signals({
     src: localstore.current.src ?? '/sample/group-scale.webm',
+    autoPlay: localstore.current.autoPlay,
+    muted: localstore.current.muted,
     // loop: true,
-    // autoPlay: true,
     // showControls: false,
   });
 
   Signal.effect(() => {
-    localstore.change((d) => (d.src = video.src));
+    const p = video.props;
+    const src = p.src.value;
+    const autoPlay = p.autoPlay.value;
+    const muted = p.muted.value;
+    localstore.change((d) => {
+      d.src = src;
+      d.autoPlay = autoPlay;
+      d.muted = muted;
+    });
   });
 
   const props = {
     debug: s(true),
+    render: s(true),
     theme: s<t.CommonTheme>('Light'),
   };
   const api = {
@@ -39,6 +49,7 @@ export function createDebugSignals() {
     video,
     listen() {
       props.debug.value;
+      props.render.value;
       props.theme.value;
 
       /**
@@ -53,6 +64,7 @@ export function createDebugSignals() {
       p.muted.value;
       p.autoPlay.value;
       p.loop.value;
+      p.currentTime.value;
 
       // Appearance:
       p.showControls.value;
@@ -102,7 +114,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>{video.props.aspectRatio.value ?? D.aspectRatio}</div>
+        <CurrentTime video={video} />
       </div>
 
       <Button
@@ -148,10 +160,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${d.debug.value}`}
         onClick={() => Signal.toggle(d.debug)}
       />
+      <Button
+        block
+        label={() => `render: ${d.render.value}`}
+        onClick={() => Signal.toggle(d.render)}
+      />
       <ObjectView
         name={'debug'}
-        data={Signal.toObject({ video: p })}
-        expand={0}
+        data={Signal.toObject({ 'video(signals)': p })}
+        expand={2}
         style={{ marginTop: 10 }}
       />
     </div>
@@ -178,9 +195,14 @@ export function videoButton(video: t.VideoPlayerSignals, src: string) {
     <Button
       block
       label={`src: ${Str.truncate(wrangle.srcLabel(src), 30)}`}
-      onClick={() => {
-        p.src.value = src;
-      }}
+      onClick={() => (p.src.value = src)}
     />
   );
+}
+
+function CurrentTime(props: { video: t.VideoPlayerSignals; prefix?: string }) {
+  const { video, prefix = 'elapsed' } = props;
+  const p = video.props;
+  Signal.useRedrawEffect(() => p.currentTime.value);
+  return <div>{`(${prefix}: ${p.currentTime.value.toFixed(2)}s)`}</div>;
 }

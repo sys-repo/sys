@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { useSignals } from './use.Signals.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const { signals, debug = false } = props;
@@ -7,6 +8,9 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const src = p?.src.value;
   const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
   const borderRadius = p?.cornerRadius.value ?? D.cornerRadius;
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useSignals(videoRef, signals);
 
   /**
    * Render:
@@ -39,12 +43,15 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <video
+        ref={videoRef}
         className={styles.video.class}
         src={src}
         preload={'metadata'} // NB: faster paint → grabs just the headers first.
         controls={true}
         disablePictureInPicture={true}
         playsInline={true}
+        autoPlay={p?.autoPlay.value}
+        muted={p?.muted.value}
       />
       {elDebug}
     </div>

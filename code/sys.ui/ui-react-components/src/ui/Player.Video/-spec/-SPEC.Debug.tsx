@@ -24,7 +24,7 @@ export function createDebugSignals() {
 
   const s = Signal.create;
   const video = Player.Video.signals({
-    src: localstore.current.src,
+    src: localstore.current.src ?? '/sample/group-scale.webm',
     // loop: true,
     // autoPlay: true,
     // showControls: false,
@@ -204,11 +204,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={styles.title.class}>{'Video:'}</div>
-
       {videoButton(video, D.video)}
       {videoButton(video, 'vimeo/727951677')}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.webm')}
       {videoButton(video, 'https://slc-media.orbiter.website/sample/group-scale.mp4')}
+      {videoButton(video, '/sample/group-scale.webm')}
 
       <hr />
     </div>

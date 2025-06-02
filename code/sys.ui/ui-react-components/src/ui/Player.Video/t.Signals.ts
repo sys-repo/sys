@@ -29,6 +29,7 @@ export type PlayerSignalsFactoryDefaults = {
  * Signals API for dynamic control of the <VideoPlayer>.
  */
 export type VideoPlayerSignals = {
+  readonly instance: t.StringId;
   readonly props: VideoPlayerSignalProps;
   readonly is: VideoPlayerIs;
   readonly src: t.StringVideoAddress | undefined;

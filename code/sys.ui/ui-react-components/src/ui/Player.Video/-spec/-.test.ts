@@ -13,6 +13,7 @@ describe('VideoPlayer: Signals API', () => {
       const s = playerSignalsFactory();
       const p = s.props;
 
+      expect(s.instance.length).to.be.greaterThan(4);
       expect(p.ready.value).to.eql(false);
       expect(p.src.value).to.eql(D.video);
       expect(s.src).to.eql(p.src.value);

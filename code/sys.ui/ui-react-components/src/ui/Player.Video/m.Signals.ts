@@ -1,5 +1,4 @@
-import { type t, DEFAULTS, Signal } from './common.ts';
-import { FadeMask } from './ui.FadeMask.tsx';
+import { type t, slug, DEFAULTS, Signal } from './common.ts';
 
 type T = t.VideoPlayerSignals;
 const D = DEFAULTS;
@@ -36,7 +35,9 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     jumpTo: s<t.VideoPlayerJumpTo | undefined>(),
   };
 
+  const instance = slug();
   const api: T = {
+    instance,
     get props() {
       return props;
     },

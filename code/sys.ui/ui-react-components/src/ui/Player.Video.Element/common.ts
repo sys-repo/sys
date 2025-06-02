@@ -10,5 +10,6 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name),
   aspectRatio: '16/9',
   cornerRadius: 0,
+  autoPlay: false,
 } as const;
 export const D = DEFAULTS;
