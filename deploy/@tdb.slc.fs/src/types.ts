@@ -2,4 +2,4 @@
  * @module
  * Module types.
  */
-export type {};
+export type * from '@sys/types';

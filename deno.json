@@ -28,8 +28,6 @@
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "workspace": [
-    "deploy/@tdb.slc.fs",
-
     "code/sys/types",
     "code/sys/std",
     "code/sys/color",
@@ -70,6 +68,7 @@
 
     "deploy/@tdb.fs",
     "deploy/@tdb.slc",
+    "deploy/@tdb.slc.fs",
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 
