@@ -20,6 +20,7 @@ export type * from './ui/Media.Video/t.ts';
 export type * from './ui/Media/t.ts';
 export type * from './ui/ObjectView/t.ts';
 export type * from './ui/Player.Thumbnails/t.ts';
+export type * from './ui/Player.Video.Controls/t.ts';
 export type * from './ui/Player.Video/t.ts';
 export type * from './ui/Player.VideoElement/t.ts';
 export type * from './ui/Player/t.ts';

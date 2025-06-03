@@ -44,7 +44,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr: (e) => {
         if (e.prev?.endsWith(': ObjectView')) return true;
-        e.byRoots(['sys.ui.component', 'sys.ui.component.player', 'sys.ui.component.media']);
+        if (e.prev?.endsWith('Config.Slider')) return true;
       },
     });
     function App() {

@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'Media.VideoElement';
+const name = 'Media.Player.Video';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
