@@ -1,4 +1,5 @@
-import { type t, ensureDir, ensureSymlink, exists, ls, move, Path } from './common.ts';
+import { ensureDir, ensureSymlink, exists, ls, move, Path } from './common.ts';
+import type { FsLib } from './t.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
 import { Watch } from '../m.Watch/mod.ts';
@@ -20,7 +21,7 @@ const { join, resolve, basename, dirname, extname } = Path;
 /**
  * Filesystem helpers.
  */
-export const Fs: t.FsLib = {
+export const Fs: FsLib = {
   Is,
   Path,
   Size,

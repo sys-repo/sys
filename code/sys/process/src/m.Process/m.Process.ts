@@ -1,4 +1,6 @@
 import type { t } from './common.ts';
+import type { ProcLib } from './t.ts';
+
 import { spawn } from './m.Process.spawn.ts';
 import { Wrangle, printOutput, toProcOutput } from './u.ts';
 
@@ -6,7 +8,7 @@ import { Wrangle, printOutput, toProcOutput } from './u.ts';
  * Unix child process.
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
-export const Process: t.Proc = {
+export const Process: ProcLib = {
   Signal: { ready: 'PROCESS_READY' },
 
   /**
