@@ -1,6 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { css, D } from '../common.ts';
 import { PlayerControls } from '../mod.ts';
+import { Mask } from '../ui.Mask.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -29,34 +30,27 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const styles = {
           base: css({ position: 'relative' }),
-          mask: css({
-            Absolute: [-30, 0, 0, 0],
-            backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0) 100%)`,
-            opacity: 0.9,
-            zIndex: 0,
-          }),
-          body: css({
-            position: 'relative',
-            zIndex: 10,
-          }),
+          mask: css({ Absolute: [-30, 0, 0, 0], zIndex: 0 }),
+          body: css({ position: 'relative', zIndex: 10 }),
         };
         return (
-          <div className={styles.base.class}>
-            <div className={styles.mask.class} />
-            <div className={styles.body.class}>
-              <PlayerControls
-                debug={p.debug.value}
-                theme={p.theme.value}
-                playing={v.playing.value}
-                muted={v.muted.value}
-                onClick={(e) => {
-                  console.info(`⚡️ onClick:`, e);
-                  if (e.control === 'Play') Signal.toggle(v.playing);
-                  if (e.control === 'Mute') Signal.toggle(v.muted);
-                }}
-              />
-            </div>
-          </div>
+          <PlayerControls
+            debug={p.debug.value}
+            theme={p.theme.value}
+            playing={v.playing.value}
+            muted={v.muted.value}
+            currentTime={v.currentTime.value}
+            duration={v.duration.value}
+            onClick={(e) => {
+              console.info(`⚡️ onClick:`, e);
+              if (e.control === 'Play') Signal.toggle(v.playing);
+              if (e.control === 'Mute') Signal.toggle(v.muted);
+            }}
+            onSeek={(e) => {
+              console.info(`⚡️ onSeek:`, e);
+              v.currentTime.value = e.currentTime;
+            }}
+          />
         );
       });
 

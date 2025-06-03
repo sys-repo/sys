@@ -20,6 +20,9 @@ export function createDebugSignals() {
   const s = Signal.create;
   const video = Player.Video.signals({});
 
+  video.props.currentTime.value = 0;
+  video.props.duration.value = 20;
+
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>(localstore.current.theme ?? 'Light'),
@@ -37,6 +40,8 @@ export function createDebugSignals() {
       const v = video.props;
       v.playing.value;
       v.muted.value;
+      v.currentTime.value;
+      v.duration.value;
     },
   };
 
@@ -89,6 +94,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Controls'}</div>
       <Button block label={`playing: ${v.playing}`} onClick={() => Signal.toggle(v.playing)} />
       <Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
+
+      <Button block label={() => `jump to: 10s`} onClick={() => (v.currentTime.value = 10)} />
 
       <hr />
       <Button

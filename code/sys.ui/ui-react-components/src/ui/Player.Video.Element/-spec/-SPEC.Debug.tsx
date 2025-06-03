@@ -67,6 +67,9 @@ export function createDebugSignals() {
       p.muted.value;
       p.autoPlay.value;
       p.loop.value;
+
+      // Progress:
+      p.duration.value;
       p.currentTime.value;
 
       // Appearance:

@@ -1,10 +1,11 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
+export { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 /**
  * Constants:
  */
-const name = 'Media.Player.Video';
+const name = 'Media.Player.VideoElement';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),

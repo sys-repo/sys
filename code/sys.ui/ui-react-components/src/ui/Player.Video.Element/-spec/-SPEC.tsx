@@ -6,6 +6,7 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
+  const v = debug.video.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -30,6 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
           theme={p.theme.value}
           video={debug.video}
           onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
+          onSeek={(e) => (v.currentTime.value = e.currentTime)}
         />
       );
     });

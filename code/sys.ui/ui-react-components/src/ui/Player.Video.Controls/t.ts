@@ -13,16 +13,30 @@ export type PlayerControlsProps = {
   playing?: boolean;
   muted?: boolean;
 
+  currentTime?: t.Secs;
+  duration?: t.Secs;
+
   // Appearance:
+  maskHeight?: t.Percent;
+  maskOpacity?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   // Handlers:
   onClick?: t.PlayerControlsButtonHandler;
+  onSeek?: t.PlayerControlSeekChangeHandler;
 };
 
 /**
  * Events:
  */
 export type PlayerControlsButtonHandler = (e: PlayerControlsButtonHandlerArgs) => void;
-export type PlayerControlsButtonHandlerArgs = { control: PlayerControlButton };
+export type PlayerControlsButtonHandlerArgs = { readonly control: PlayerControlButton };
+
+export type PlayerControlSeekChangeHandler = (e: PlayerControlSeekChangeHandlerArgs) => void;
+export type PlayerControlSeekChangeHandlerArgs = {
+  readonly currentTime: t.Secs;
+  readonly duration: t.Secs;
+  readonly percent: t.Percent;
+  readonly complete: boolean;
+};

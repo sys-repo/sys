@@ -15,6 +15,7 @@ export type VideoElementProps = {
 
   // Events:
   onEnded?: t.VideoPlayerEndedHandler;
+  onSeek?: t.PlayerControlSeekChangeHandler;
 };
 
 /**

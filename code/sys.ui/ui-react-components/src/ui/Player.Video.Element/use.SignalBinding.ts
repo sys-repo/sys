@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { type t, Signal } from './common.ts';
 
 /**
  * Manages keeping the <VideoPlayer> component in-sync
  * with the current state of the Signals API.
  */
-export function useSignalBinding(
-  videoRef: React.RefObject<HTMLVideoElement>,
-  signals?: t.VideoPlayerSignals,
-) {
-  const p = signals?.props;
-  const instance = signals?.instance;
+export function useSignalBinding(args: {
+  video?: t.VideoPlayerSignals;
+  videoRef: React.RefObject<HTMLVideoElement>;
+  isSeeking: boolean;
+}) {
+  const { videoRef, video, isSeeking } = args;
+  const p = video?.props;
+  const instance = video?.instance;
 
-  const [readyState, setReadyState] = React.useState(0);
+  const [readyState, setReadyState] = useState(0);
 
   /**
    * Listen: <video> element events.
@@ -34,11 +36,11 @@ export function useSignalBinding(
     };
 
     const onPlay = () => {
-      if (!p) return;
+      if (!p || isSeeking) return;
       if (!(p.playing.value ?? false)) p.playing.value = true;
     };
     const onPause = () => {
-      if (!p) return;
+      if (!p || isSeeking) return;
       if (p.playing.value ?? false) p.playing.value = false;
     };
     const onTimeUpdate = () => {
@@ -58,7 +60,15 @@ export function useSignalBinding(
     video.addEventListener('timeupdate', onTimeUpdate, life);
 
     return () => void life.abort();
-  }, [videoRef, instance]);
+  }, [videoRef, instance, isSeeking]);
+
+  /**
+   * Effect: seeking behavior.
+   */
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (isSeeking === true) video?.pause();
+  }, [isSeeking, instance]);
 
   /**
    * Effect: sync ready-state.
