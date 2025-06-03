@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal, LocalStorage } from '../common.ts';
 import { Player } from '../../Player/mod.ts';
+import { Button, ObjectView } from '../../u.ts';
+import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.PlayerControlsProps;
 type Storage = { theme?: t.CommonTheme };
@@ -17,16 +17,20 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
-  const s = Signal.create;
+
   const video = Player.Video.signals({});
+  const v = video.props;
+  v.currentTime.value = 0;
+  v.duration.value = 20;
 
-  video.props.currentTime.value = 0;
-  video.props.duration.value = 20;
-
+  const s = Signal.create;
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>(localstore.current.theme ?? 'Light'),
     width: s(500),
+    maskHeight: s<P['maskHeight']>(D.maskHeight),
+    maskOpacity: s<P['maskOpacity']>(D.maskOpacity),
+    buffering: s<P['buffering']>(D.buffering),
   };
   const api = {
     props,
@@ -36,6 +40,9 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.width.value;
+      p.maskHeight.value;
+      p.maskOpacity.value;
+      p.buffering.value;
 
       const v = video.props;
       v.playing.value;
@@ -89,13 +96,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `maskOpacity: ${p.maskOpacity.value}`}
+        onClick={() => Signal.cycle(p.maskOpacity, [0, 0.6, 1])}
+      />
+      <Button
+        block
+        label={() => `buffering: ${p.buffering.value}`}
+        onClick={() => Signal.toggle(p.buffering)}
+      />
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
       <Button block label={`playing: ${v.playing}`} onClick={() => Signal.toggle(v.playing)} />
       <Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
-
-      <Button block label={() => `jump to: 10s`} onClick={() => (v.currentTime.value = 10)} />
+      <hr />
+      <Button block label={() => `currentTime: → 10s`} onClick={() => (v.currentTime.value = 10)} />
 
       <hr />
       <Button

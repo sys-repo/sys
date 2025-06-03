@@ -1,7 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { css, D } from '../common.ts';
 import { PlayerControls } from '../mod.ts';
-import { Mask } from '../ui.Mask.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -28,15 +27,13 @@ export default Spec.describe(D.displayName, (e) => {
       .size()
       .display('grid')
       .render(() => {
-        const styles = {
-          base: css({ position: 'relative' }),
-          mask: css({ Absolute: [-30, 0, 0, 0], zIndex: 0 }),
-          body: css({ position: 'relative', zIndex: 10 }),
-        };
         return (
           <PlayerControls
             debug={p.debug.value}
             theme={p.theme.value}
+            maskOpacity={p.maskOpacity.value}
+            maskHeight={p.maskHeight.value}
+            buffering={p.buffering.value}
             playing={v.playing.value}
             muted={v.muted.value}
             currentTime={v.currentTime.value}

@@ -15,6 +15,7 @@ export type PlayerControlsProps = {
 
   currentTime?: t.Secs;
   duration?: t.Secs;
+  buffering?: boolean;
 
   // Appearance:
   maskHeight?: t.Percent;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css } from './common.ts';
+import { type t, css, D } from './common.ts';
 
 export type MaskProps = {
   opacity?: t.Percent;
@@ -11,7 +11,7 @@ export type MaskProps = {
  * Component:
  */
 export const Mask: React.FC<MaskProps> = (props) => {
-  const { opacity = 1, height = 80 } = props;
+  const { opacity = D.maskOpacity, height = D.maskHeight } = props;
 
   /**
    * Render:
