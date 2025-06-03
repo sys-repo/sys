@@ -34,7 +34,7 @@ export default Spec.describe(D.displayName, (e) => {
       );
     });
 
-    // Init:
+    // Initialize:
     updateSize();
   });
 

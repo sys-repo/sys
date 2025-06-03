@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, Signal } from '../common.ts';
+import { Player } from '../../Player/mod.ts';
 
 type P = t.PlayerControlsProps;
 
@@ -15,16 +16,26 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const video = Player.Video.signals({});
+
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Light'),
+    width: s(500),
   };
-  const p = props;
   const api = {
     props,
+    video,
     listen() {
+      const p = props;
       p.debug.value;
       p.theme.value;
+      p.width.value;
+
+      const v = video.props;
+      v.playing.value;
+      v.muted.value;
     },
   };
   return api;
@@ -46,6 +57,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const v = debug.video.props;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -66,10 +78,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Controls'}</div>
+      <Button block label={`playing: ${v.playing}`} onClick={() => Signal.toggle(v.playing)} />
+      <Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `width: ${p.width.value}`}
+        onClick={() => Signal.cycle(p.width, [420, 500, 600])}
       />
       <ObjectView
         name={'debug'}

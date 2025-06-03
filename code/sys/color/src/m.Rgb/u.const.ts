@@ -8,6 +8,7 @@ export const DARK = '#293042'; // Inky blue/black.
 export const CYAN = '#00C2FF';
 export const MAGENTA = '#FE0064';
 export const BLUE = '#4D7EF7';
+export const LIGHT_BLUE = '#00B5FB';
 export const GREEN = '#00BB47';
 export const YELLOW = '#FCC400';
 export const LIME = '#A6E130';
@@ -21,6 +22,7 @@ export const COLORS: t.ColorConstants = {
   CYAN,
   MAGENTA,
   BLUE,
+  LIGHT_BLUE,
   GREEN,
   YELLOW,
   LIME,
