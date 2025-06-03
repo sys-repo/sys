@@ -70,7 +70,7 @@ export const PlayButton: React.FC<PlayButtonProps> = (props) => {
 export type MuteButtonProps = Omit<ControlButtonProps, 'children'> & { muted?: boolean };
 export const MuteButton: React.FC<MuteButtonProps> = (props) => {
   const { muted = D.muted } = props;
-  const marginLeft = muted ? 0 : -9;
+  const marginLeft = muted ? 1 : -8;
   const marginBottom = -3;
   const Icon = muted ? Icons.Mute.On : Icons.Mute.Off;
   return (

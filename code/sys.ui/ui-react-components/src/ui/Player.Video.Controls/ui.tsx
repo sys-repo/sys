@@ -1,11 +1,9 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { PlayButton, MuteButton } from './ui.Buttons.tsx';
+import { MuteButton, PlayButton } from './ui.Buttons.tsx';
 
 export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
   const { debug = false, playing = D.playing, muted = D.muted } = props;
-
-  console.log('playing', playing);
 
   /**
    * Render:

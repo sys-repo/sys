@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, Signal, LocalStorage } from '../common.ts';
 import { Player } from '../../Player/mod.ts';
 
 type P = t.PlayerControlsProps;
+type Storage = { theme?: t.CommonTheme };
 
 /**
  * Types:
@@ -15,13 +16,13 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
   const s = Signal.create;
-
   const video = Player.Video.signals({});
 
   const props = {
     debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    theme: s<t.CommonTheme>(localstore.current.theme ?? 'Light'),
     width: s(500),
   };
   const api = {
@@ -38,6 +39,13 @@ export function createDebugSignals() {
       v.muted.value;
     },
   };
+
+  Signal.effect(() => {
+    const p = props;
+    const theme = p.theme.value;
+    localstore.change((d) => (d.theme = theme));
+  });
+
   return api;
 }
 
