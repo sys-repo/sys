@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "tasks": {
+    "test": "no-op",
     "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts && deno task help",
     "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
     "deploy": "orbiter deploy && deno task help",
