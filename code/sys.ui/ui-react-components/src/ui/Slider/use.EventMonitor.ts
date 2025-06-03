@@ -27,7 +27,7 @@ export function useEventMonitor(args: Args = {}) {
   });
 
   /**
-   * API
+   * API:
    */
   const dragging = mouse.is.dragging;
   const pressed = mouse.is.down || dragging;
