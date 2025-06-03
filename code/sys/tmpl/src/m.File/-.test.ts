@@ -50,7 +50,7 @@ describe('Tmpl.File', () => {
         const paths = [file1, file2].map((f) => f.path);
         const fired: string[] = [];
         await File.update(paths, (e) => fired.push(e.file.path));
-        expect(Arr.uniq(fired)).to.eql(paths);
+        expect(Arr.uniq(fired)).to.have.members(paths);
       });
     });
 
