@@ -2,7 +2,7 @@ import type { PlayerLib } from './t.ts';
 
 import { Thumbnails } from '../Player.Thumbnails/mod.ts';
 import { ElapsedTime, VideoPlayer, playerSignalsFactory } from '../Player.Video/mod.ts';
-import { VideoElement } from '../Player.VideoElement/mod.ts';
+import { VideoElement } from '../Player.Video.Element/mod.ts';
 
 export const Player: PlayerLib = {
   Video: {

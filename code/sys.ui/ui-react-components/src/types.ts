@@ -22,7 +22,7 @@ export type * from './ui/ObjectView/t.ts';
 export type * from './ui/Player.Thumbnails/t.ts';
 export type * from './ui/Player.Video.Controls/t.ts';
 export type * from './ui/Player.Video/t.ts';
-export type * from './ui/Player.VideoElement/t.ts';
+export type * from './ui/Player.Video.Element/t.ts';
 export type * from './ui/Player/t.ts';
 export type * from './ui/Preload/t.ts';
 export type * from './ui/PropsGrid/t.ts';
