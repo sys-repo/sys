@@ -1,8 +1,10 @@
+import type { TestStatsLib } from './t.ts';
+
 import type { t } from './common.ts';
 import { Is } from './Is.ts';
 import { Tree } from './Tree.ts';
 
-export const Stats: t.TestStatsLib = {
+export const Stats: TestStatsLib = {
   /**
    * Default empty stats.
    */

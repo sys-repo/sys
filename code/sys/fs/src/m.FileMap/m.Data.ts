@@ -1,11 +1,13 @@
+import type { FileMapDataLib } from './t.ts';
+
 import { decodeBase64, encodeBase64 } from '@std/encoding';
-import { type t, DEFAULTS, Path } from './common.ts';
+import { DEFAULTS, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 
 const contentTypes = DEFAULTS.contentTypes;
 type Ext = keyof typeof contentTypes;
 
-export const Data: t.FileMapDataLib = {
+export const Data: FileMapDataLib = {
   contentType: {
     fromPath(path) {
       const filename = Path.basename(path);

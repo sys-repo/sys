@@ -1,4 +1,6 @@
-import { Hono, cors, type t } from './common.ts';
+import type { HttpServerLib } from './t.ts';
+
+import { Hono, cors } from './common.ts';
 import { create } from './m.Server.create.ts';
 import { keyboard } from './u.keyboard.ts';
 import { serveStatic } from './u.serveStatic.ts';
@@ -7,7 +9,7 @@ import { options, print } from './u.ts';
 /**
  * HTTP Server.
  */
-export const HttpServer: t.HttpServerLib = {
+export const HttpServer: HttpServerLib = {
   Hono,
   cors,
   static: serveStatic,

@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { ImmutableLib } from './t.ts';
 
 import { cloner, clonerRef } from './Immutable.cloner.ts';
 import { viaObservable, viaOverride } from './Immutable.events.ts';
@@ -10,7 +10,7 @@ const map = Map.create;
 /**
  * Helpers for working with raw Immutable<T> objects.
  */
-export const Immutable: t.ImmutableLib = {
+export const Immutable: ImmutableLib = {
   Is,
   cloner,
   clonerRef,

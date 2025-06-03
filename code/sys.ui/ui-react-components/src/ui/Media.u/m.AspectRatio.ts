@@ -1,6 +1,7 @@
-import { type t, Is } from './common.ts';
+import { Is } from './common.ts';
+import type { MediaAspectRatioLib } from './t.ts';
 
-export const AspectRatio: t.MediaAspectRatioLib = {
+export const AspectRatio: MediaAspectRatioLib = {
   toNumber(stream) {
     const [track] = stream.getVideoTracks();
     const { width, height, aspectRatio } = track?.getSettings?.() ?? {};

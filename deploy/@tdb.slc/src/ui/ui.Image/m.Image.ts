@@ -1,6 +1,6 @@
-import { type t } from './common.ts';
+import type { ImageLib } from './t.ts';
 import { ImageView as View } from './ui.tsx';
 
-export const Image: t.ImageLib = {
+export const Image: ImageLib = {
   View,
 };

@@ -1,10 +1,12 @@
-import { diffChars } from 'diff';
 import type { t } from '../common.ts';
+import type { DiffLib } from './t.ts';
+
+import { diffChars } from 'diff';
 
 /**
  * Helpers for determining differences between text strings.
  */
-export const Diff: t.DiffLib = {
+export const Diff: DiffLib = {
   /**
    * Calculate a list of diffs between two strings.
    */

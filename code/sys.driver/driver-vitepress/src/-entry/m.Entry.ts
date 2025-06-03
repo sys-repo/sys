@@ -1,3 +1,5 @@
+import type { VitepressEntryLib } from './t.ts';
+
 import { Vitepress } from '../m.Vitepress/mod.ts';
 import {
   type t,
@@ -14,7 +16,7 @@ import {
 
 type F = t.VitepressEntryLib['main'];
 
-export const VitepressEntry: t.VitepressEntryLib = {
+export const VitepressEntry: VitepressEntryLib = {
   /**
    * Main command entry point.
    *

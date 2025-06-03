@@ -1,8 +1,10 @@
+import type { CmdQueueLib } from './t.ts';
+
 import { DEFAULTS, ObjectPath, rx, type t } from './common.ts';
 import { Path } from './u.Path.ts';
 import { toPaths, toTransport } from './u.To.ts';
 
-export const Queue: t.CmdQueueLib = {
+export const Queue: CmdQueueLib = {
   purge<C extends t.CmdType>(cmd: t.Cmd<C>, options: { min?: number } = {}) {
     const { min = DEFAULTS.queue.bounds.min } = options;
     const doc = toTransport(cmd);

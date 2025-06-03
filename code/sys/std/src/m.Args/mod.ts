@@ -8,11 +8,11 @@
  * const argv = Args.parse(Deno.args);
  * ```
  */
-import { type t } from './common.ts';
+import type { ArgsLib } from './t.ts';
 import { parseArgs } from './u.parseArgs.ts';
 
 export { parseArgs };
 
-export const Args: t.ArgsLib = {
+export const Args: ArgsLib = {
   parse: parseArgs,
 };

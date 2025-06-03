@@ -1,10 +1,10 @@
-import type { t } from './common.ts';
 import { Percent } from './m.Percent.ts';
+import type { NumberLib } from './t.ts';
 
 /**
  * Tools for working with numbers.
  */
-export const Num: t.NumLib = {
+export const Num: NumberLib = {
   Percent,
 
   /**

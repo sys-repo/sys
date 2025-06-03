@@ -1,3 +1,5 @@
+import type { ImmutableMapLib } from './t.ts';
+
 import { Delete, ObjectPath, R, Symbols, rx, slug, type t } from './common.ts';
 import { viaObservable } from './Immutable.events.ts';
 import { Is, Wrangle, toObject } from './u.ts';
@@ -10,7 +12,7 @@ const Mutate = ObjectPath.Mutate;
 /**
  * Tools for creating composite objects.
  */
-export const Map: t.ImmutableMapLib = {
+export const Map: ImmutableMapLib = {
   toObject,
 
   /**

@@ -1,4 +1,5 @@
-import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import type { ValueLib } from './t.ts';
 
 import { Arr } from '../m.Value.Arr/mod.ts';
 import { Num } from '../m.Value.Num/mod.ts';
@@ -11,7 +12,7 @@ export { Arr, isEmptyRecord, Lorem, Num, Obj, Str };
 /**
  * Tools for evaluating and manipulating types of values.
  */
-export const Value: t.ValueLib = {
+export const Value: ValueLib = {
   Arr,
   Num,
   Str,

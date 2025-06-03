@@ -1,13 +1,15 @@
+import type { ImmerPatchStateLib } from './t.ts';
+
 import { Command } from './Command.ts';
 import { Is } from './PatchState.Is.ts';
 import { create } from './PatchState.impl.ts';
-import { toObject, type t } from './common.ts';
+import { toObject } from './common.ts';
 
 /**
  * Simple/safe JSON/Patch driven Immutable<T> object
  * using Immer as the underlying immutability implementation.
  */
-export const PatchState: t.ImmerPatchStateLib = {
+export const PatchState: ImmerPatchStateLib = {
   /** Type validation helpers. */
   Is,
 

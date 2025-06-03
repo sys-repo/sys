@@ -1,10 +1,11 @@
 import type { t } from '../common.ts';
+import type { JsonLib } from './t.ts';
 
 /**
  * Helpers for working with JavaScript Object Notation (JSON)
  * (RFC-8259).
  */
-export const Json: t.JsonLib = {
+export const Json: JsonLib = {
   stringify(input: any, space: string | number = 2) {
     if (input === undefined) throw new Error(`[undefined] is not valid JSON input`);
     const replacer = getCircularReplacer();

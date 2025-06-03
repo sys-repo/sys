@@ -1,7 +1,9 @@
-import { type t, origin } from './common.ts';
+import type { JsrUrlLib } from './t.ts';
+
+import { origin } from './common.ts';
 import { Pkg } from './m.Url.Pkg.ts';
 
-export const JsrUrl: t.JsrUrlLib = {
+export const JsrUrl: JsrUrlLib = {
   origin,
   Pkg,
 };

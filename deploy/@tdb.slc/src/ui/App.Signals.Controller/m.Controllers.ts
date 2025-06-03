@@ -1,7 +1,9 @@
+import type { AppControllersLib } from './t.ts';
+
 import { type t, Signal, rx } from './common.ts';
 import { background } from './m.Controllers.background.ts';
 
-export const Controllers: t.AppControllersLib = {
+export const Controllers: AppControllersLib = {
   background,
 
   start(state, until$) {

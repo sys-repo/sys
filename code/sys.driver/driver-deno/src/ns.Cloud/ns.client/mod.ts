@@ -7,12 +7,12 @@
  * import { DenoCloud } from '@sys/driver-deno/cloud/client';
  * ```
  */
-import type { t } from './common.ts';
+import type { DenoCloudClientLib } from './t.ts';
 import { client } from './u.Client.ts';
 
 /**
  * Client for working with a DenoCloud server HTTP endpoint.
  */
-export const DenoCloud: t.DenoCloudClientLib = {
+export const DenoCloud: DenoCloudClientLib = {
   client,
 };

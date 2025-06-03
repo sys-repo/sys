@@ -2,6 +2,7 @@
  * @module
  */
 import { type t, Color, Signal } from './common.ts';
+import type { DevThemeLib } from './t.ts';
 
 type Color = string | number;
 const DEFAULT_THEME: t.CommonTheme = 'Light';
@@ -9,7 +10,7 @@ const DEFAULT_THEME: t.CommonTheme = 'Light';
 /**
  * Helpers for working with common themes within the harness.
  */
-export const Theme: t.DevThemeLib = {
+export const Theme: DevThemeLib = {
   /**
    * Adjust the theme of the DevHarness.
    */

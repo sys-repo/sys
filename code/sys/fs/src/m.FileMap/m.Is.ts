@@ -1,6 +1,7 @@
-import { type t, DEFAULTS, Path } from './common.ts';
+import { DEFAULTS, Path } from './common.ts';
+import type { FileMapIsLib } from './t.ts';
 
-export const Is: t.FileMapIsLib = {
+export const Is: FileMapIsLib = {
   dataUri(input) {
     if (typeof input !== 'string') return false;
     if (!input.startsWith('data:')) return false;

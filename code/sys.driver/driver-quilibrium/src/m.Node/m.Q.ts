@@ -1,9 +1,9 @@
-import type { t } from './common.ts';
 import { Release } from './m.Release.ts';
+import type { QNodeLib } from './t.ts';
 
 /**
  * Tools for installing, monitoring and managing Quilibrium nodes.
  */
-export const Q: t.QNodeLib = {
+export const Q: QNodeLib = {
   Release,
 };

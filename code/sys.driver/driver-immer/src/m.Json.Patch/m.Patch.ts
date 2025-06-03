@@ -1,3 +1,6 @@
+import type { t } from '../common.ts';
+import type { PatchToolLib } from './t.ts';
+
 import {
   applyPatches,
   createDraft,
@@ -8,7 +11,6 @@ import {
   produceWithPatches,
 } from 'immer';
 
-import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 if (typeof enablePatches === 'function') enablePatches();
@@ -30,7 +32,7 @@ export function toObject<T extends O>(input: any): T {
  *    This subset of `op` values is what the [immer] state library uses.
  *    https://github.com/immerjs/immer
  */
-export const Patch: t.PatchToolLib = {
+export const Patch: PatchToolLib = {
   /** Convert the given input to a simple object. */
   toObject,
 

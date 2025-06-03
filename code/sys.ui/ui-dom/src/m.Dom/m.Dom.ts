@@ -1,6 +1,6 @@
-import { type t } from './common.ts';
 import { Event } from './m.Dom.Event.ts';
+import type { DomLib } from './t.ts';
 
-export const Dom: t.DomLib = {
+export const Dom: DomLib = {
   Event,
 };

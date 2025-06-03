@@ -1,9 +1,10 @@
 import { Value, type t } from './common.ts';
+import type { CmdPatchLib } from './t.ts';
 
 /**
  * Helpers for working with change patches.
  */
-export const Patch: t.CmdPatchLib = {
+export const Patch: CmdPatchLib = {
   startsWith(patch: t.CmdPatch, def: t.ObjectPath) {
     const path = Patch.path(patch);
     return !path ? false : Value.Arr.compare(path).startsWith(def);

@@ -1,9 +1,10 @@
 import { type t, Arr, Err, exists, Path, rx } from './common.ts';
+import type { FsWatchLib } from './t.ts';
 
 /**
  * Tools for watching file-system changes.
  */
-export const Watch: t.FsWatchLib = {
+export const Watch: FsWatchLib = {
   /**
    * Start a file-system watcher instance.
    */

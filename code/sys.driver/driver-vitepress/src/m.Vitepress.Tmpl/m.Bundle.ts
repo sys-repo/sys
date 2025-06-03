@@ -1,8 +1,10 @@
+import type { VitepressBundleLib } from './t.ts';
+
 import bundle from './-bundle.json' with { type: 'json' };
 import { c, FileMap, Fs, PATHS, type t } from './common.ts';
 
 
-export const Bundle: t.VitepressBundleLib = {
+export const Bundle: VitepressBundleLib = {
   /**
    * Read in the current source code of the templates and bundle it into a file-map
    */

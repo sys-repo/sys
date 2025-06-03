@@ -13,8 +13,9 @@
  *
  * ```
  */
+import type { ImmerJsonLib } from './t.ts';
 
-import { Is, ObjectPath as Path, Json as Util, type t } from '../common.ts';
+import { Is, ObjectPath as Path, Json as Util } from '../common.ts';
 import { Patch } from '../m.Json.Patch/mod.ts';
 import { PatchState } from '../m.Json.PatchState/mod.ts';
 
@@ -22,7 +23,7 @@ import { PatchState } from '../m.Json.PatchState/mod.ts';
  * Library: Immutable Json/Patch/ObjectPath tools using Immer-js as the
  * underlying Immutable<T> implementation.
  */
-export const Json: t.ImmerJsonLib = {
+export const Json: ImmerJsonLib = {
   /** Tools for working with patches */
   Patch,
   /** Immutable<T> implemetation over Immer.  */

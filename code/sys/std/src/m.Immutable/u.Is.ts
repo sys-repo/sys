@@ -1,3 +1,4 @@
+import type { ImmutableIsLib } from './t.ts';
 import { type t, Symbols, isObject } from './common.ts';
 
 type O = Record<string, unknown>;
@@ -5,7 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Flag helpers for Immutable objects.
  */
-export const Is: t.ImmutableIsLib = {
+export const Is: ImmutableIsLib = {
   immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {
     if (!isObject(input)) return false;
     const o = input as t.Immutable<D, P>;

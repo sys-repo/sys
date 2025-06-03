@@ -1,4 +1,5 @@
 import { DEFAULTS, isObject, ObjectPath, type t } from './common.ts';
+import type { CmdPathLib } from './t.ts';
 
 type S = string;
 type O = Record<string, unknown>;
@@ -6,7 +7,7 @@ type O = Record<string, unknown>;
 /**
  * Helpers for resolving and mutating paths.
  */
-export const Path: t.CmdPathLib = {
+export const Path: CmdPathLib = {
   wrangle(input?: t.CmdPaths | t.ObjectPath) {
     const DEF = DEFAULTS.paths;
     if (!input) return DEF;

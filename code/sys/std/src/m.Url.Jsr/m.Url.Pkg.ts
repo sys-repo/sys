@@ -1,6 +1,7 @@
 import { type t, origin } from './common.ts';
+import type { JsrUrlPkgLib } from './t.ts';
 
-export const Pkg: t.JsrUrlPkgLib = {
+export const Pkg: JsrUrlPkgLib = {
   metadata(name) {
     return `${origin}/${name}/meta.json`;
   },

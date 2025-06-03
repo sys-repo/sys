@@ -1,10 +1,12 @@
-import { DEFAULTS, type t, Time } from './common.ts';
+import type { FileLib } from './t.ts';
+
+import { DEFAULTS, Time } from './common.ts';
 import { FileSize as Size } from './m.FileSize.ts';
 
 /**
  * Helpers for working with binary files in the browser.
  */
-export const File: t.FileLib = {
+export const File: FileLib = {
   DEFAULTS,
   Size,
 

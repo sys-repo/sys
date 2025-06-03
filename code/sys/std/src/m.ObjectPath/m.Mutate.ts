@@ -1,10 +1,11 @@
 import type { t } from './common.ts';
+import type { ObjectPathMutateLib } from './t.ts';
 import { resolve, Validate } from './u.ts';
 
 /**
  * Helpers for mutating value via an [ObjectPath].
  */
-export const Mutate: t.ObjectPathMutateLib = {
+export const Mutate: ObjectPathMutateLib = {
   /**
    * Write a value to the given path on the root object.
    * If parts of the path do not exist, they are created as objects.

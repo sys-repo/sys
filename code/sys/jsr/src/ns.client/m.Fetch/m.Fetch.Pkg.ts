@@ -1,9 +1,10 @@
 import { type t, Err, Fetch, JsrUrl } from './common.ts';
+import type { JsrFetchPkgLib } from './t.ts';
 
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: t.JsrFetchPkgLib = {
+export const Pkg: JsrFetchPkgLib = {
   /**
    * https://jsr.io/docs/api#package-metadata
    */
