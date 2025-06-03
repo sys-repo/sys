@@ -24,7 +24,13 @@ export type SliderProps = {
 export type SliderTrackProps = {
   height: t.Pixels;
   percent?: t.Percent; // If present, overrides the parent "percent" prop.
-  color: { default: t.Percent; highlight: Color; border: t.Percent };
+  color: {
+    default: t.Percent;
+    highlight: Color;
+    background: Color;
+    border: t.Percent;
+    blur?: t.Pixels;
+  };
 };
 
 /**
@@ -56,4 +62,4 @@ export type SliderTick = {
  * Events
  */
 export type SliderChangeHandler = (e: SliderChangeHandlerArgs) => void;
-export type SliderChangeHandlerArgs = { percent: t.Percent };
+export type SliderChangeHandlerArgs = { percent: t.Percent; complete: boolean };

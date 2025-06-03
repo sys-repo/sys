@@ -22,6 +22,8 @@ export const DEFAULTS = {
         default: theme.is.light ? 1 : 0.06,
         border: 0.1,
         highlight: Color.BLUE,
+        background: theme.bg,
+        blur: 0,
       },
     };
     edit?.(obj);

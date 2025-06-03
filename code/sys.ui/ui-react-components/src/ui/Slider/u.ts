@@ -38,8 +38,10 @@ export const Wrangle = {
       percent: track?.percent,
       color: {
         default: track?.color?.default ?? D.color.default,
-        highlight: track?.color?.highlight ?? D.color.highlight,
         border: track?.color?.border ?? D.color.border,
+        highlight: track?.color?.highlight ?? D.color.highlight,
+        background: track?.color?.background ?? D.color.background,
+        blur: track?.color?.blur ?? D.color.blur,
       },
     };
   },

@@ -162,6 +162,7 @@ export function configSampleButtons(debug: DebugSignals) {
 
   push('blue', (e) => (e.track.color.highlight = Color.BLUE));
   push('green', (e) => (e.track.color.highlight = Color.GREEN));
+  push('track background (0.3)', (e) => (e.track.color.default = 0.3));
 
   hr();
   push('ticks', (e) => {

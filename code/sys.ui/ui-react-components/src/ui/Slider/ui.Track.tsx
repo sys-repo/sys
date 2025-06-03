@@ -30,14 +30,17 @@ export const Track: React.FC<TrackProps> = (props) => {
     progressRadius[2] = borderRadius;
   }
 
+  const bg = Is.number(track.color.background)
+    ? Color.alpha(theme.bg, track.color.background)
+    : track.color.background;
+
   const styles = {
     base: css({ Absolute: 0, display: 'grid', alignContent: 'center' }),
     body: css({
       position: 'relative',
       overflow: 'hidden',
-      backgroundColor: Is.string(track.color.default)
-        ? track.color.default
-        : Color.alpha(Color.WHITE, track.color.default),
+      backgroundColor: Color.alpha(bg, track.color.default),
+      backdropFilter: `blur(${track.color.blur ?? 0}px)`,
       borderRadius,
       height,
     }),
