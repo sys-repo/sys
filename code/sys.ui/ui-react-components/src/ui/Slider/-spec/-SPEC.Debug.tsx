@@ -20,10 +20,11 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s<P['theme']>('Light'),
     enabled: s<P['enabled']>(D.enabled),
-    percent: s<P['percent']>(),
+    percent: s<P['percent']>(0.3),
     thumb: s<P['thumb']>(),
     track: s<P['track']>(),
     ticks: s<P['ticks']>(),
+    background: s<P['background']>(),
   };
   const p = props;
   const api = {
@@ -36,6 +37,7 @@ export function createDebugSignals() {
       p.thumb.value;
       p.track.value;
       p.ticks.value;
+      p.background.value;
     },
   };
   return api;
@@ -160,9 +162,10 @@ export function configSampleButtons(debug: DebugSignals) {
   });
   hr();
 
-  push('blue', (e) => (e.track.color.highlight = Color.BLUE));
-  push('green', (e) => (e.track.color.highlight = Color.GREEN));
-  push('track background (0.3)', (e) => (e.track.color.default = 0.3));
+  push('blue', (e) => (e.track.highlight = Color.BLUE));
+  push('blue (light)', (e) => (e.track.highlight = Color.LIGHT_BLUE));
+  push('green', (e) => (e.track.highlight = Color.GREEN));
+  push('track background (0.3)', (e) => (p.background.value = 0.3));
 
   hr();
   push('ticks', (e) => {
@@ -185,7 +188,7 @@ export function configSampleButtons(debug: DebugSignals) {
   push('multiple tracks (eg. "buffered")', (e) => {
     const theme = Color.theme(p.theme.value);
     const buffer = D.track(theme);
-    buffer.color.highlight = Color.alpha(theme.fg, 0.15);
+    buffer.highlight = Color.alpha(theme.fg, 0.15);
     buffer.percent = 0.75;
     e.tracks.unshift(buffer);
   });

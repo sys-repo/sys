@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, DEFAULTS, css, useRedraw, Color } from './common.ts';
+import { type t, Color, DEFAULTS, css, useRedraw } from './common.ts';
 
 import { Wrangle } from './u.ts';
 import { Thumb } from './ui.Thumb.tsx';
@@ -41,17 +41,21 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
     }),
   };
 
-  const elTracks = tracks.map((track, i) => (
-    <Track
-      key={i}
-      totalWidth={totalWidth}
-      percent={percent}
-      track={track}
-      thumb={thumb}
-      enabled={enabled}
-      theme={theme.name}
-    />
-  ));
+  const elTracks = tracks.map((track, i) => {
+    return (
+      <Track
+        key={i}
+        index={i}
+        totalWidth={totalWidth}
+        percent={percent}
+        track={track}
+        thumb={thumb}
+        enabled={enabled}
+        theme={theme.name}
+        background={props.background}
+      />
+    );
+  });
 
   const elTicks = <Ticks ticks={ticks} theme={theme.name} />;
 

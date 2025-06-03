@@ -36,13 +36,9 @@ export const Wrangle = {
     return {
       height: track?.height ?? D.height,
       percent: track?.percent,
-      color: {
-        default: track?.color?.default ?? D.color.default,
-        border: track?.color?.border ?? D.color.border,
-        highlight: track?.color?.highlight ?? D.color.highlight,
-        background: track?.color?.background ?? D.color.background,
-        blur: track?.color?.blur ?? D.color.blur,
-      },
+      border: track?.border ?? D.border,
+      highlight: track?.highlight ?? D.highlight,
+      highlightBorder: track?.highlightBorder ?? D.highlightBorder,
     };
   },
 
@@ -54,8 +50,9 @@ export const Wrangle = {
     return {
       size: thumb?.size ?? DEFAULT.size,
       opacity: thumb?.opacity ?? DEFAULT.opacity,
-      color: thumb?.color ?? DEFAULT.color,
       pressedScale: thumb?.pressedScale ?? DEFAULT.pressedScale,
+      color: thumb?.color ?? DEFAULT.color,
+      border: thumb?.border ?? DEFAULT.border,
     };
   },
 

@@ -2,18 +2,23 @@ import React from 'react';
 import { type t, Color, css, Is } from './common.ts';
 import { Wrangle } from './u.ts';
 
+type Color = string | t.Percent;
+
 export type TrackProps = {
+  index: t.Index;
   enabled: boolean;
   percent: t.Percent;
   totalWidth: t.Pixels;
   track: t.SliderTrackProps;
   thumb: t.SliderThumbProps;
+  background?: t.SliderProps['background'];
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
 export const Track: React.FC<TrackProps> = (props) => {
-  const { totalWidth, thumb, track, enabled } = props;
+  const { totalWidth, thumb, track, enabled, index } = props;
+  const isBottom = index === 0;
   const height = track.height;
   const percent = track.percent ?? props.percent;
   const thumbLeft = Wrangle.thumbLeft(percent, totalWidth, thumb.size);
@@ -23,6 +28,7 @@ export const Track: React.FC<TrackProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+
   const borderRadius = height / 2;
   const progressRadius = [borderRadius, 0, 0, borderRadius];
   if (percent !== props.percent || thumb.opacity === 0) {
@@ -30,26 +36,31 @@ export const Track: React.FC<TrackProps> = (props) => {
     progressRadius[2] = borderRadius;
   }
 
-  const bg = Is.number(track.color.background)
-    ? Color.alpha(theme.bg, track.color.background)
-    : track.color.background;
+  const bg = props.background ?? 1;
+  const bgColor = Is.number(bg) ? Color.alpha(theme.bg, bg) : bg;
+
+  const progressBorderColor = Is.string(track.highlightBorder)
+    ? track.highlightBorder
+    : Color.alpha(theme.fg, track.highlightBorder);
+
+  const progressBgColor = Is.string(track.highlight)
+    ? track.highlight
+    : Color.alpha(theme.bg, track.highlight);
 
   const styles = {
     base: css({ Absolute: 0, display: 'grid', alignContent: 'center' }),
     body: css({
       position: 'relative',
       overflow: 'hidden',
-      backgroundColor: Color.alpha(bg, track.color.default),
-      backdropFilter: `blur(${track.color.blur ?? 0}px)`,
+      backgroundColor: isBottom ? bgColor : undefined,
       borderRadius,
       height,
     }),
     progress: css({
-      backgroundColor: Is.string(track.color.highlight)
-        ? track.color.highlight
-        : Color.alpha(theme.bg, track.color.highlight),
+      backgroundColor: progressBgColor,
       borderRadius: progressRadius.map((num) => num + 'px').join(' '),
-      height,
+      border: `solid 1px ${progressBorderColor ?? 'transparent'}`,
+      height: height - 2,
       Absolute: [0, null, 0, 0],
       width: progressWidth,
       opacity: percent == 0 ? 0 : enabled ? 1 : 0.3,
@@ -57,8 +68,8 @@ export const Track: React.FC<TrackProps> = (props) => {
     }),
     border: css({
       Absolute: 0,
-      border: `solid 1px ${Color.alpha(theme.fg, track.color.border)}`,
       borderRadius,
+      border: `solid 1px ${Color.alpha(theme.fg, track.border)}`,
     }),
   };
 
@@ -66,7 +77,7 @@ export const Track: React.FC<TrackProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div className={styles.progress.class} />
-        {track.color.border !== 0 && <div className={styles.border.class} />}
+        {track.border !== 0 && <div className={styles.border.class} />}
       </div>
     </div>
   );

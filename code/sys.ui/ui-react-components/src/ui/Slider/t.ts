@@ -1,50 +1,52 @@
 import type { t } from './common.ts';
 
-type Color = string | number;
+type Color = string | t.Percent;
 
 /**
- * Component
+ * Component:
  */
 export type SliderProps = {
   debug?: boolean;
   enabled?: boolean;
   width?: number;
   percent?: t.Percent;
+
+  // Appearance:
   track?: Partial<t.SliderTrackProps> | Partial<t.SliderTrackProps>[];
   ticks?: Partial<t.SliderTickProps>;
   thumb?: Partial<t.SliderThumbProps>;
+  background?: Color;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  // Handlers:
   onChange?: t.SliderChangeHandler;
 };
 
 /**
- * Slider → Track
+ * Slider → Track:
  */
 export type SliderTrackProps = {
   height: t.Pixels;
   percent?: t.Percent; // If present, overrides the parent "percent" prop.
-  color: {
-    default: t.Percent;
-    highlight: Color;
-    background: Color;
-    border: t.Percent;
-    blur?: t.Pixels;
-  };
+  border: t.Percent;
+  highlight: Color;
+  highlightBorder: Color;
 };
 
 /**
- * Slider → Thumb
+ * Slider → Thumb:
  */
 export type SliderThumbProps = {
   size: t.Pixels;
   opacity: t.Percent;
   pressedScale: number; // eg: 1.1
-  color: { default: Color; border: t.Percent };
+  color: Color;
+  border: t.Percent;
 };
 
 /**
- * Slider → Tick Marks
+ * Slider → Tick Marks:
  */
 export type SliderTickProps = {
   offset: { top: t.Pixels; bottom: t.Pixels };
@@ -59,7 +61,7 @@ export type SliderTick = {
 };
 
 /**
- * Events
+ * Events:
  */
 export type SliderChangeHandler = (e: SliderChangeHandlerArgs) => void;
 export type SliderChangeHandlerArgs = { percent: t.Percent; complete: boolean };
