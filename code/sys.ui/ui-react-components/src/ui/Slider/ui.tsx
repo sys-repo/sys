@@ -17,7 +17,7 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
    */
   const monitor = useEventMonitor({ enabled, onChange });
   const redraw = useRedraw();
-  useEffect(redraw, [Boolean(monitor.el)]); // NB: ensure the thumb renders (which is waiting for the [ref] → totalWidth).
+  useEffect(redraw, [!!monitor.el]); // NB: ensure the thumb renders (which is waiting for the [ref] → totalWidth).
 
   /**
    * Render:
