@@ -21,8 +21,8 @@ export type PlayerSignalsFactoryDefaults = {
   cornerRadius?: number;
   aspectRatio?: string;
   scale?: number | t.VideoPlayerScale;
-  background?: boolean;
   fadeMask?: t.VideoPlayerFadeMask | t.Pixels;
+  background?: boolean;
 };
 
 /**
@@ -37,14 +37,6 @@ export type VideoPlayerSignals = {
   play(): VideoPlayerSignals;
   pause(): VideoPlayerSignals;
   toggle(playing?: boolean): VideoPlayerSignals;
-};
-
-/**
- * Boolean flags for the video player.
- */
-export type VideoPlayerIs = {
-  readonly playing: boolean;
-  readonly paused: boolean;
 };
 
 /** The raw signal properties that make up the VideoPlayer signals API/. */
@@ -62,6 +54,8 @@ export type VideoPlayerSignalProps = {
 
   readonly currentTime: t.Signal<t.Secs>;
   readonly duration: t.Signal<t.Secs>;
+  readonly buffering: t.Signal<boolean>;
+  readonly buffered: t.Signal<t.Secs | undefined>;
 
   /**
    * Appearance:
@@ -84,6 +78,14 @@ export type VideoPlayerSignalProps = {
 
 /** Structure representing a jump-to ("seek") location */
 export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
+
+/**
+ * Boolean flags for the video player.
+ */
+export type VideoPlayerIs = {
+  readonly playing: boolean;
+  readonly paused: boolean;
+};
 
 /**
  * A function that calculates the scale transform to apply to the

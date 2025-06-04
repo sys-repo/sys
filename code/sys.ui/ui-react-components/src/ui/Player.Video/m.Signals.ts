@@ -22,6 +22,8 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
 
     currentTime: s<t.Secs>(0),
     duration: s<t.Secs>(0),
+    buffering: s<boolean>(false),
+    buffered: s<t.Secs>(),
 
     // Appearance:
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
