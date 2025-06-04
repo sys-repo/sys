@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { type t, Color, css, D, PlayerControls, Signal, useSizeObserver } from './common.ts';
+import { type t, Color, css, D, M, PlayerControls, Signal, useSizeObserver } from './common.ts';
 import { FadeMask } from './ui.FadeMask.tsx';
 import { useControlsVisibility } from './use.ControlsVisibility.ts';
 import { useScale } from './use.Scale.ts';
@@ -22,16 +22,15 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const buffering = p?.buffering.value ?? D.buffering;
   const buffered = p?.buffered.value;
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   /**
    * Hooks:
    */
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [isOver, setOver] = React.useState(false);
   const [isSeeking, setSeeking] = React.useState(false);
   const size = useSizeObserver();
   const scale = useScale(size, p?.scale.value);
-  const controlsVisibile = useControlsVisibility({ video, isOver });
+  const controlsVisible = useControlsVisibility({ video, isOver });
   useSignalBinding({ video, videoRef, isSeeking });
 
   let spinning = buffering;
@@ -82,11 +81,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       opacity: !ready && currentTime === 0 ? 0 : 1,
       transition: 'opacity 300ms',
     }),
-    controls: css({
-      Absolute: [null, 0, controlsVisibile ? 0 : -20, 0],
-      opacity: controlsVisibile ? 1 : 0,
-      transition: `opacity 300ms, top 300ms`,
-    }),
+    controls: css({ Absolute: [null, 0, null, 0] }),
     debug: css({ Absolute: [6, null, null, 6], color: theme.fg, fontSize: 11, opacity: 0.4 }),
   };
 
@@ -95,26 +90,32 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const elDebug = debug && <div className={styles.debug.class}>{`src: ${src}`}</div>;
 
   const elControls = showControls && (
-    <PlayerControls
-      theme={theme.name}
-      style={styles.controls}
-      playing={playing}
-      muted={muted}
-      duration={duration}
-      currentTime={currentTime}
-      buffering={spinning}
-      buffered={buffered}
-      onClick={(e) => {
-        if (!p) return;
-        if (e.control === 'Play') Signal.toggle(p.playing);
-        if (e.control === 'Mute') Signal.toggle(p.muted);
-      }}
-      onSeeking={(e) => {
-        setSeeking(!e.complete);
-        if (video && e.complete) video.jumpTo(e.currentTime, { play: playing });
-        props.onSeek?.(e);
-      }}
-    />
+    <M.div
+      className={styles.controls.class}
+      initial={{ bottom: -20, opacity: 0 }}
+      animate={{ bottom: controlsVisible ? 0 : -20, opacity: controlsVisible ? 1 : 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <PlayerControls
+        theme={theme.name}
+        playing={playing}
+        muted={muted}
+        duration={duration}
+        currentTime={currentTime}
+        buffering={spinning}
+        buffered={buffered}
+        onClick={(e) => {
+          if (!p) return;
+          if (e.control === 'Play') Signal.toggle(p.playing);
+          if (e.control === 'Mute') Signal.toggle(p.muted);
+        }}
+        onSeeking={(e) => {
+          setSeeking(!e.complete);
+          if (video && e.complete) video.jumpTo(e.currentTime, { play: playing });
+          props.onSeek?.(e);
+        }}
+      />
+    </M.div>
   );
 
   const elVideo = (
