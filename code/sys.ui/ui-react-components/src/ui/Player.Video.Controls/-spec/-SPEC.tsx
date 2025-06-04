@@ -41,8 +41,8 @@ export default Spec.describe(D.displayName, (e) => {
             duration={v.duration.value}
             onClick={(e) => {
               console.info(`⚡️ onClick:`, e);
-              if (e.control === 'Play') Signal.toggle(v.playing);
-              if (e.control === 'Mute') Signal.toggle(v.muted);
+              if (e.button === 'Play') Signal.toggle(v.playing);
+              if (e.button === 'Mute') Signal.toggle(v.muted);
             }}
             onSeeking={(e) => {
               console.info(`⚡️ onSeeking:`, e);
