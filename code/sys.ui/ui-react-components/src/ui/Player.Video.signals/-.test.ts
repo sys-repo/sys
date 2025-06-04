@@ -1,13 +1,9 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
-import { Player } from '../../Player/mod.ts';
-import { D } from '../common.ts';
-import { playerSignalsFactory, VideoPlayer } from '../mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Player } from '../Player/mod.ts';
+import { D } from './common.ts';
+import { playerSignalsFactory } from './mod.ts';
 
 describe('VideoPlayer: Signals API', () => {
-  it('API', () => {
-    expect(Player.Video.View).to.equal(VideoPlayer);
-  });
-
   describe('props', () => {
     it('initial values (defaults)', () => {
       const s = playerSignalsFactory();
@@ -15,7 +11,7 @@ describe('VideoPlayer: Signals API', () => {
 
       expect(s.instance.length).to.be.greaterThan(4);
       expect(p.ready.value).to.eql(false);
-      expect(p.src.value).to.eql(D.video);
+      expect(p.src.value).to.eql(undefined);
       expect(s.src).to.eql(p.src.value);
 
       expect(p.playing.value).to.eql(false);

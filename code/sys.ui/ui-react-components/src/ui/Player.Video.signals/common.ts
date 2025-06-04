@@ -1,18 +1,6 @@
-import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
-export { playerSignalsFactory } from '../Player.Video.signals/mod.ts';
-
-/**
- * Constants
- */
-const name = 'Player.Video';
 
 export const DEFAULTS = {
-  name,
-  displayName: Pkg.toString(pkg, name),
-
-  video: 'vimeo/499921561', // Tubes.
-
   loop: false,
   showFullscreenButton: false,
   showVolumeControl: true,

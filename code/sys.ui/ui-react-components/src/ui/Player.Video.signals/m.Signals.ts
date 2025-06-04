@@ -1,4 +1,4 @@
-import { type t, slug, DEFAULTS, Signal } from './common.ts';
+import { type t, DEFAULTS, Signal, slug } from './common.ts';
 
 type T = t.VideoPlayerSignals;
 const D = DEFAULTS;
@@ -14,7 +14,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     ready: s(false),
 
     // Media:
-    src: s<t.StringVideoAddress>(defaults.src ?? D.video),
+    src: s<t.StringVideoAddress | undefined>(defaults.src),
     playing: s<boolean>(false),
     loop: s<boolean>(defaults.loop ?? D.loop),
     autoPlay: s<boolean>(defaults.autoPlay ?? D.autoPlay),
@@ -75,7 +75,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   defaults(
