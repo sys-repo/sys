@@ -14,7 +14,7 @@ export * from '../ui.Icons.ts';
 const tubes = 499921561;
 export const TUBES = { id: tubes, src: `vimeo/${tubes}` };
 
-export const v = (id: number) => {
+export const videoUrl = (id: number) => {
   const src = `https://fs.socialleancanvas.com/video/540p/${id}.mp4`;
   return { id, src } as const;
 };
