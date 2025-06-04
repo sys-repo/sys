@@ -49,6 +49,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     p.loop.value;
     p.buffering.value;
     p.buffered.value;
+    p.currentTime.value;
 
     p.showControls.value;
     p.showFullscreenButton.value;
