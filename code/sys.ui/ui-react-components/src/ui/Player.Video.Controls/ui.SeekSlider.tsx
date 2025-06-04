@@ -39,10 +39,7 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
       display: 'grid',
       alignContent: 'center',
     }),
-    slider: css({
-      position: 'relative',
-      zIndex: 10,
-    }),
+    slider: css({ zIndex: 10 }),
     spinner: css({
       Absolute: 0,
       zIndex: 0,
@@ -67,6 +64,7 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       {elSpinner}
       <Slider
+        style={styles.slider}
         percent={percent}
         thumb={{ size: 13, color: Color.WHITE, border: 0 }}
         background={0.4}
