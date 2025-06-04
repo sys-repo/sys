@@ -107,8 +107,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
         buffered={buffered}
         onClick={(e) => {
           if (!p) return;
-          if (e.control === 'Play') Signal.toggle(p.playing);
-          if (e.control === 'Mute') Signal.toggle(p.muted);
+          if (e.button === 'Play') Signal.toggle(p.playing);
+          if (e.button === 'Mute') Signal.toggle(p.muted);
         }}
         onSeeking={(e) => {
           setSeeking(!e.complete);
@@ -128,7 +128,6 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       controls={false}
       disablePictureInPicture={true}
       playsInline={true}
-      autoPlay={p?.autoPlay.value}
       muted={p?.muted.value}
       loop={p?.loop.value}
       onEnded={(e) => {

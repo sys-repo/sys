@@ -34,7 +34,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Mask style={styles.mask} opacity={props.maskOpacity} height={props.maskHeight} />
       <div className={styles.body.class}>
-        <PlayButton playing={playing} onClick={() => props.onClick?.({ control: 'Play' })} />
+        <PlayButton playing={playing} onClick={() => props.onClick?.({ button: 'Play' })} />
         <SeekSlider
           duration={duration}
           currentTime={currentTime}
@@ -43,7 +43,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
           onSeeking={props.onSeeking}
         />
         <Timestamp currentTime={currentTime} duration={duration} />
-        <MuteButton muted={muted} onClick={() => props.onClick?.({ control: 'Mute' })} />
+        <MuteButton muted={muted} onClick={() => props.onClick?.({ button: 'Mute' })} />
       </div>
     </div>
   );

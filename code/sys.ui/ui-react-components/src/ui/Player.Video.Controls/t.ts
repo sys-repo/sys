@@ -33,7 +33,7 @@ export type PlayerControlsProps = {
  * Events:
  */
 export type PlayerControlsButtonHandler = (e: PlayerControlsButtonHandlerArgs) => void;
-export type PlayerControlsButtonHandlerArgs = { readonly control: PlayerControlButton };
+export type PlayerControlsButtonHandlerArgs = { readonly button: PlayerControlButton };
 
 export type PlayerControlSeekChangeHandler = (e: PlayerControlSeekChangeHandlerArgs) => void;
 export type PlayerControlSeekChangeHandlerArgs = {
