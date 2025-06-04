@@ -64,6 +64,7 @@ groups:
     - import: npm:workbox-strategies@7.3.0
     - import: npm:workbox-range-requests@7.3.0
     - import: npm:workbox-expiration@7.3.0
+    - import: npm:workbox-cacheable-response@7.3.0
 
 deno.json:
   - group: std/deno

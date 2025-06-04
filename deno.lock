@@ -111,6 +111,7 @@
     "npm:vitepress@*": "1.6.3_vite@5.4.19_vue@3.5.16_focus-trap@7.6.5_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1_@types+node@22.15.15",
     "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19_vue@3.5.16_focus-trap@7.6.5_@types+react@18.3.18_react@18.3.1_react-dom@18.3.1__react@18.3.1_@types+node@22.15.15",
     "npm:vue@3.5.16": "3.5.16",
+    "npm:workbox-cacheable-response@7.3.0": "7.3.0",
     "npm:workbox-core@7.3.0": "7.3.0",
     "npm:workbox-expiration@7.3.0": "7.3.0",
     "npm:workbox-range-requests@7.3.0": "7.3.0",
@@ -3509,6 +3510,12 @@
       ],
       "bin": true
     },
+    "workbox-cacheable-response@7.3.0": {
+      "integrity": "sha512-eAFERIg6J2LuyELhLlmeRcJFa5e16Mj8kL2yCDbhWE+HUun9skRQrGIFVUagqWj4DMaaPSMWfAolM7XZZxNmxA==",
+      "dependencies": [
+        "workbox-core"
+      ]
+    },
     "workbox-core@7.3.0": {
       "integrity": "sha512-Z+mYrErfh4t3zi7NVTvOuACB0A/jA3bgxUN3PwtAVHvfEsZxV9Iju580VEETug3zYJRc0Dmii/aixI/Uxj8fmw=="
     },
@@ -3646,6 +3653,7 @@
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.0.4",
       "npm:ua-parser-js@2.0.3",
+      "npm:workbox-cacheable-response@7.3.0",
       "npm:workbox-core@7.3.0",
       "npm:workbox-expiration@7.3.0",
       "npm:workbox-range-requests@7.3.0",
