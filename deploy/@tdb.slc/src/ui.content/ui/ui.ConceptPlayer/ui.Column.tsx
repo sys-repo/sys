@@ -52,9 +52,9 @@ export const Column: React.FC<ColumnProps> = (props) => {
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>
-          <Player.Video.View
+          <Player.Video.Element
             key={`${playerKey}.${src}`}
-            signals={player}
+            video={player}
             debug={debug}
             onEnded={() => {
               setPlayerKey((n) => n + 1); // Hack: force player to reset to start.

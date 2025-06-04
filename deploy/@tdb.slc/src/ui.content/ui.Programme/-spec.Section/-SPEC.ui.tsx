@@ -54,9 +54,9 @@ export const Root: React.FC<RootProps> = (props) => {
         />
       </div>
       <div className={styles.video.class}>
-        <Player.Video.View
+        <Player.Video.Element
           debug={debug}
-          signals={player}
+          video={player}
           onEnded={() => console.info(`⚡️ onEnded`)}
         />
       </div>

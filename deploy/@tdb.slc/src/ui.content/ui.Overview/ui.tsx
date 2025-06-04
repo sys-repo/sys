@@ -37,8 +37,8 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       <div className={styles.content.class}>{timestamp.column}</div>
-      <Player.Video.View
-        signals={player}
+      <Player.Video.Element
+        video={player}
         style={styles.player}
         onEnded={() => Time.delay(1_000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
       />
