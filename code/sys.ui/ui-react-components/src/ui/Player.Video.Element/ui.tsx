@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+
 import { type t, Color, css, D, PlayerControls, Signal, useSizeObserver } from './common.ts';
 import { FadeMask } from './ui.FadeMask.tsx';
 import { useScale } from './use.Scale.ts';
@@ -11,16 +12,23 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const aspectRatio = p?.aspectRatio.value ?? D.aspectRatio;
   const borderRadius = p?.cornerRadius.value ?? D.cornerRadius;
   const showControls = p?.showControls.value ?? D.showControls;
-  const duration = p?.duration.value;
-  const currentTime = p?.currentTime.value;
   const muted = p?.muted.value;
   const playing = p?.playing.value;
+
+  const ready = p?.ready.value;
+  const currentTime = p?.currentTime.value;
+  const duration = p?.duration.value;
+  const buffering = p?.buffering.value ?? D.buffering;
+  const buffered = p?.buffered.value;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const size = useSizeObserver();
   const scale = useScale(size, p?.scale.value);
   const [isSeeking, setSeeking] = React.useState(false);
   useSignalBinding({ video, videoRef, isSeeking });
+
+  let spinning = buffering;
+  if (!spinning && src && !ready) spinning = true;
 
   /**
    * Effect: ensure redraw on relevant signal changes.
@@ -33,6 +41,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     p.muted.value;
     p.autoPlay.value;
     p.loop.value;
+    p.buffering.value;
+    p.buffered.value;
 
     p.showControls.value;
     p.showFullscreenButton.value;
@@ -62,6 +72,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       objectFit: 'cover',
       borderRadius,
       transform: `scale(${scale.percent})`,
+      opacity: !ready && currentTime === 0 ? 0 : 1,
+      transition: 'opacity 300ms',
     }),
     debug: css({
       Absolute: [6, null, null, 6],
@@ -84,15 +96,17 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       style={styles.controls}
       playing={playing}
       muted={muted}
-      currentTime={currentTime}
       duration={duration}
+      currentTime={currentTime}
+      buffering={spinning}
+      buffered={buffered}
       onClick={(e) => {
         if (p) {
           if (e.control === 'Play') Signal.toggle(p.playing);
           if (e.control === 'Mute') Signal.toggle(p.muted);
         }
       }}
-      onSeek={(e) => {
+      onSeeking={(e) => {
         setSeeking(!e.complete);
         if (video && e.complete) video.jumpTo(e.currentTime, { play: playing });
         props.onSeek?.(e);

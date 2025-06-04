@@ -1,23 +1,30 @@
 import React from 'react';
-import { type t, BarSpinner, Color, css, D, Num, Slider, useSizeObserver } from './common.ts';
+import { type t, BarSpinner, Color, css, D, Is, Num, Slider, useSizeObserver } from './common.ts';
+
+const Range = Num.Percent.Range;
 
 export type SeekSliderProps = {
   currentTime: t.Secs;
   duration: t.Secs;
   buffering?: boolean;
+  buffered?: t.Secs;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSeek?: t.PlayerControlSeekChangeHandler;
+  onSeeking?: t.PlayerControlSeekChangeHandler;
 };
 
 /**
  * Component:
  */
 export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
-  const { currentTime, duration, buffering = D.buffering } = props;
+  const { currentTime, duration, buffering = D.buffering, buffered } = props;
   const range: t.MinMaxNumberRange = [0, duration];
-  const percent = Num.Percent.Range.toPercent(currentTime, range);
+  const percent = Range.toPercent(currentTime, range);
+  const bufferedPercent = Is.number(buffered) ? Range.toPercent(buffered, range) : undefined;
 
+  /**
+   * Hooks:
+   */
   const size = useSizeObserver();
 
   /**
@@ -61,23 +68,44 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
       {elSpinner}
       <Slider
         percent={percent}
-        thumb={{ size: 13, color: { default: Color.WHITE, border: 0 } }}
-        track={{
-          height: 5,
-          color: {
-            default: 0.4,
-            border: 0,
-            blur: 3,
-            highlight: Color.LIGHT_BLUE,
-            background: Color.alpha(Color.WHITE, 1),
-          },
-        }}
+        thumb={{ size: 13, color: Color.WHITE, border: 0 }}
+        background={0.4}
+        track={wrangle.track(bufferedPercent)}
         onChange={(e) => {
           const { percent, complete } = e;
-          const currentTime = Num.Percent.Range.fromPercent(percent, range);
-          props.onSeek?.({ currentTime, duration, percent, complete });
+          const currentTime = Range.fromPercent(percent, range);
+          props.onSeeking?.({ currentTime, duration, percent, complete });
         }}
       />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  track(buffered?: t.Percent): Partial<t.SliderTrackProps>[] {
+    const height = 5;
+    const border = 0;
+    const res: Partial<t.SliderTrackProps>[] = [
+      {
+        height,
+        border,
+        highlight: Color.LIGHT_BLUE,
+        highlightBorder: Color.alpha(Color.WHITE, 0.3),
+      },
+    ];
+
+    if (Is.number(buffered)) {
+      res.unshift({
+        height,
+        border,
+        highlight: Color.alpha(Color.WHITE, 0.5),
+        percent: buffered,
+      });
+    }
+
+    return res;
+  },
+} as const;

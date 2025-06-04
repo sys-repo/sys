@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { css, D } from '../common.ts';
+import { D } from '../common.ts';
 import { PlayerControls } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -33,7 +33,8 @@ export default Spec.describe(D.displayName, (e) => {
             theme={p.theme.value}
             maskOpacity={p.maskOpacity.value}
             maskHeight={p.maskHeight.value}
-            buffering={p.buffering.value}
+            buffering={v.buffering.value}
+            buffered={v.buffered.value}
             playing={v.playing.value}
             muted={v.muted.value}
             currentTime={v.currentTime.value}
@@ -43,8 +44,8 @@ export default Spec.describe(D.displayName, (e) => {
               if (e.control === 'Play') Signal.toggle(v.playing);
               if (e.control === 'Mute') Signal.toggle(v.muted);
             }}
-            onSeek={(e) => {
-              console.info(`⚡️ onSeek:`, e);
+            onSeeking={(e) => {
+              console.info(`⚡️ onSeeking:`, e);
               v.currentTime.value = e.currentTime;
             }}
           />

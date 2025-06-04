@@ -16,6 +16,7 @@ export type PlayerControlsProps = {
   currentTime?: t.Secs;
   duration?: t.Secs;
   buffering?: boolean;
+  buffered?: t.Secs;
 
   // Appearance:
   maskHeight?: t.Percent;
@@ -25,7 +26,7 @@ export type PlayerControlsProps = {
 
   // Handlers:
   onClick?: t.PlayerControlsButtonHandler;
-  onSeek?: t.PlayerControlSeekChangeHandler;
+  onSeeking?: t.PlayerControlSeekChangeHandler;
 };
 
 /**

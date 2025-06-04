@@ -14,5 +14,6 @@ export const DEFAULTS = {
   autoPlay: false,
   showControls: true,
   scale: 1,
+  buffering: false,
 } as const;
 export const D = DEFAULTS;

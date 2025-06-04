@@ -18,10 +18,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
-  const video = Player.Video.signals({});
+  const video = Player.Video.signals();
   const v = video.props;
-  v.currentTime.value = 0;
+  v.currentTime.value = 5;
   v.duration.value = 20;
+  v.buffered.value = 15;
 
   const s = Signal.create;
   const props = {
@@ -30,7 +31,6 @@ export function createDebugSignals() {
     width: s(500),
     maskHeight: s<P['maskHeight']>(D.maskHeight),
     maskOpacity: s<P['maskOpacity']>(D.maskOpacity),
-    buffering: s<P['buffering']>(D.buffering),
   };
   const api = {
     props,
@@ -42,13 +42,14 @@ export function createDebugSignals() {
       p.width.value;
       p.maskHeight.value;
       p.maskOpacity.value;
-      p.buffering.value;
 
       const v = video.props;
       v.playing.value;
       v.muted.value;
       v.currentTime.value;
       v.duration.value;
+      v.buffering.value;
+      v.buffered.value;
     },
   };
 
@@ -101,11 +102,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `maskOpacity: ${p.maskOpacity.value}`}
         onClick={() => Signal.cycle(p.maskOpacity, [0, 0.6, 1])}
       />
-      <Button
-        block
-        label={() => `buffering: ${p.buffering.value}`}
-        onClick={() => Signal.toggle(p.buffering)}
-      />
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
@@ -113,6 +109,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
       <hr />
       <Button block label={() => `currentTime: → 10s`} onClick={() => (v.currentTime.value = 10)} />
+      <Button
+        block
+        label={() => `buffering: ${v.buffering.value}`}
+        onClick={() => Signal.toggle(v.buffering)}
+      />
 
       <hr />
       <Button

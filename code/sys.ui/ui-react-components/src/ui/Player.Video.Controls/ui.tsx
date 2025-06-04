@@ -12,6 +12,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     currentTime = 0,
     duration = 0,
     buffering = false,
+    buffered,
   } = props;
 
   /**
@@ -36,10 +37,11 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
       <div className={styles.body.class}>
         <PlayButton playing={playing} onClick={() => props.onClick?.({ control: 'Play' })} />
         <SeekSlider
-          currentTime={currentTime}
           duration={duration}
-          onSeek={props.onSeek}
+          currentTime={currentTime}
           buffering={buffering}
+          buffered={buffered}
+          onSeeking={props.onSeeking}
         />
         <MuteButton muted={muted} onClick={() => props.onClick?.({ control: 'Mute' })} />
       </div>

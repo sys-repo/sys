@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type t, Signal } from './common.ts';
 
 /**
@@ -11,10 +11,8 @@ export function useSignalBinding(args: {
   isSeeking: boolean;
 }) {
   const { videoRef, video, isSeeking } = args;
-  const p = video?.props;
   const instance = video?.instance;
-
-  const [readyState, setReadyState] = useState(0);
+  const p = video?.props;
 
   /**
    * Listen: <video> element events.
@@ -28,8 +26,10 @@ export function useSignalBinding(args: {
       if (!p) return;
       if (p.duration.value !== video.duration) p.duration.value = video.duration;
     };
-
-    const onReadyChange = () => setReadyState(video.readyState);
+    const onReadyChange = () => {
+      if (!p) return;
+      p.ready.value = video.readyState === 4;
+    };
     const onMetadata = () => {
       updateDuration();
       onReadyChange();
@@ -48,6 +48,27 @@ export function useSignalBinding(args: {
       p.currentTime.value = video.currentTime;
     };
 
+    const onBufferingStart = () => {
+      // NB: Called when seeking or playback stalls.
+      if (!p) return;
+      p.buffering.value = true;
+    };
+
+    const onBufferingEnd = () => {
+      // NB: Called when resumed playing after buffering.
+      if (!p) return;
+      p.buffering.value = false;
+    };
+
+    const onProgress = () => {
+      if (!p) return;
+      if (video.buffered.length > 0 && video.duration > 0) {
+        // NB: get the last buffered range's end‐time.
+        const secs = video.buffered.end(video.buffered.length - 1);
+        p.buffered.value = Math.min(secs, video.duration);
+      }
+    };
+
     // Events: ready-state:
     video.addEventListener('loadedmetadata', onMetadata, life);
     video.addEventListener('canplay', onReadyChange, life);
@@ -59,8 +80,16 @@ export function useSignalBinding(args: {
     video.addEventListener('pause', onPause, life);
     video.addEventListener('timeupdate', onTimeUpdate, life);
 
+    // Events: buffering & progress:
+    video.addEventListener('seeking', onBufferingStart, life);
+    video.addEventListener('waiting', onBufferingStart, life);
+    video.addEventListener('playing', onBufferingEnd, life);
+    video.addEventListener('seeked', onBufferingEnd, life);
+    video.addEventListener('progress', onProgress, life);
+
+    onReadyChange();
     return () => void life.abort();
-  }, [videoRef, instance, isSeeking]);
+  }, [videoRef, instance, isSeeking, p?.src]);
 
   /**
    * Effect: seeking behavior.
@@ -69,13 +98,6 @@ export function useSignalBinding(args: {
     const video = videoRef.current;
     if (isSeeking === true) video?.pause();
   }, [isSeeking, instance]);
-
-  /**
-   * Effect: sync ready-state.
-   */
-  React.useEffect(() => {
-    if (p && readyState === 4 && !p?.ready.value) p.ready.value = true;
-  }, [readyState, instance]);
 
   /**
    * Signal: isPlaying
@@ -105,9 +127,4 @@ export function useSignalBinding(args: {
       }
     }
   });
-
-  /**
-   * API:
-   */
-  return { readyState } as const;
 }
