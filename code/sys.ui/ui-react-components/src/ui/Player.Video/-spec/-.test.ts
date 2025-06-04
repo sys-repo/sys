@@ -34,6 +34,9 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.scale.value).to.eql(D.scale);
       expect(p.fadeMask.value).to.eql(undefined);
 
+      expect(p.buffering.value).to.eql(false);
+      expect(p.buffered.value).to.eql(undefined);
+
       expect(p.jumpTo.value).to.eql(undefined);
 
       p.playing.value = true;
@@ -54,8 +57,8 @@ describe('VideoPlayer: Signals API', () => {
           autoPlay: true,
           muted: true,
           background: true,
-          scale,
           fadeMask: { direction: 'Top:Down', size: 123 },
+          scale,
         });
 
         const p = s.props;
