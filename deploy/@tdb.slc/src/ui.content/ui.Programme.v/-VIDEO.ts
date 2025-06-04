@@ -1,62 +1,62 @@
-import { vimeo } from './common.ts';
+import { v } from './common.ts';
 
 /**
  * Programme Vimeo ID index.
  */
 export const VIDEO = {
-  Root: vimeo(727951677),
+  Root: v(727951677),
 
   Intro: {
-    About: vimeo(577856505),
-    HowToUse: vimeo(577857924),
-    Purpose: vimeo(577945255),
+    About: v(577856505),
+    HowToUse: v(577857924),
+    Purpose: v(577945255),
   },
   Model: {
     Customer: {
-      Entry: vimeo(577933592),
-      Customers: vimeo(577928799),
-      Segments: vimeo(577928965),
-      EarlyAdopters: vimeo(577929214),
-      Jobs: vimeo(577933180),
-      Alternatives: vimeo(577933435),
-      UVP: vimeo(577937937),
-      Solution: vimeo(577937777),
+      Entry: v(577933592),
+      Customers: v(577928799),
+      Segments: v(577928965),
+      EarlyAdopters: v(577929214),
+      Jobs: v(577933180),
+      Alternatives: v(577933435),
+      UVP: v(577937937),
+      Solution: v(577937777),
       Example: {
         // Entry: vimeo(),
       },
     },
     Impact: {
-      Entry: vimeo(577955565),
-      Context: vimeo(577955697),
-      Disclaimer: vimeo(577955864),
-      Issue: vimeo(577955305),
-      Participants: vimeo(577955976),
-      Activities: vimeo(577943744),
+      Entry: v(577955565),
+      Context: v(577955697),
+      Disclaimer: v(577955864),
+      Issue: v(577955305),
+      Participants: v(577955976),
+      Activities: v(577943744),
       Outcome: {
-        Short: vimeo(577956096),
-        Medium: vimeo(577955482),
-        Long: vimeo(577955408),
+        Short: v(577956096),
+        Medium: v(577955482),
+        Long: v(577955408),
       },
-      Impact: vimeo(577955192),
+      Impact: v(577955192),
       Example: {
         // Entry: vimeo(),
       },
     },
     Economic: {
-      Entry: vimeo(577954558),
-      Channels: vimeo(577938360),
-      Financial: vimeo(577954346),
-      Revenue: vimeo(577954492),
-      Costs: vimeo(577954228),
+      Entry: v(577954558),
+      Channels: v(577938360),
+      Financial: v(577954346),
+      Revenue: v(577954492),
+      Costs: v(577954228),
       Advantage: {
-        Leverage: vimeo(577938084),
-        Innovate: vimeo(577938331),
+        Leverage: v(577938084),
+        Innovate: v(577938331),
       },
       Example: {
         // Entry: vimeo(),
       },
     },
   },
-  KeyMetrics: vimeo(577945041),
-  Conclusion: vimeo(577926288),
+  KeyMetrics: v(577945041),
+  Conclusion: v(577926288),
 };
