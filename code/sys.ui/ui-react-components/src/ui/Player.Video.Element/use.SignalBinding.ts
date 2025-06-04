@@ -24,7 +24,7 @@ export function useSignalBinding(args: {
     if (!Dom.UserHas.interacted) {
       if (p) p.playing.value = false;
       const detail = 'User has not interacted with the window yet. (no action taken)';
-      console.info(`🫵 Cannot ${play ? 'play' : 'pause'} the video. ${detail}`);
+      console.info(`🫵 Cannot ${play ? 'auto-play' : 'pause'} the video. ${detail}`);
       return;
     }
 
