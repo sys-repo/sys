@@ -188,6 +188,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {videoButton(video, './sample/group-scale.webm')}
       {videoButton(video, './sample/group-scale.mp4')}
       {videoButton(video, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
+      {videoButton(video, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
