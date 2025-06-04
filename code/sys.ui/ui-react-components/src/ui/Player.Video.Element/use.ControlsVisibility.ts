@@ -6,7 +6,7 @@ export function useControlsVisibility(args: {
   isOver?: boolean;
   hideAfter?: t.Msecs;
 }) {
-  const { video, isOver, hideAfter = 1000 } = args;
+  const { video, isOver, hideAfter = 200 } = args;
 
   const timeoutRef = useRef<number | null>(null);
   const [visible, setVisible] = React.useState(true);
