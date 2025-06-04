@@ -14,8 +14,7 @@ if (document) {
 
 if ('serviceWorker' in navigator) {
   /**
-   * NB: Wait until `window.load` so that Vite’s HMR
-   *     or other scripts don’t get in the way.
+   * NB: Wait until `window.load` so that Vite’s HMR or other scripts don’t get in the way.
    */
   window.addEventListener('load', () => {
     const devmode = import.meta.env.DEV;
@@ -38,7 +37,7 @@ export async function main() {
 
   if (isDev) {
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
-    const { Specs } = await import('./entry.Specs.ts');
+    const { Specs } = await import('./-specs.ts');
 
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
