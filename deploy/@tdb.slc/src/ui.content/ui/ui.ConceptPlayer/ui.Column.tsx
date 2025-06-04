@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
@@ -10,6 +10,7 @@ export type ColumnProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClickOutside?: t.DomMouseEventHandler;
+  onVideoEnd?: t.VideoPlayerEndedHandler;
 };
 
 /**
@@ -19,9 +20,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
   const { align, debug = false, videoVisible = true } = props;
   const isCenter = align === 'Center';
   const player = props.video;
-  const src = player?.props.src?.value ?? '';
 
-  const [playerKey, setPlayerKey] = useState(0);
   const clickOutside = useClickOutside({
     stage: 'down',
     callback: (e) => props.onClickOutside?.(e),
@@ -52,15 +51,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>
-          <Player.Video.Element
-            key={`${playerKey}.${src}`}
-            video={player}
-            debug={debug}
-            onEnded={() => {
-              setPlayerKey((n) => n + 1); // Hack: force player to reset to start.
-              console.info(`⚡️ Video:onEnd:`, src);
-            }}
-          />
+          <Player.Video.Element video={player} debug={debug} onEnded={props.onVideoEnd} />
         </div>
         <Player.Timestamp.Elapsed.View player={player} abs={true} show={debug} />
       </div>
