@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 
 import { type t, Color, css, D, PlayerControls, Signal, useSizeObserver } from './common.ts';
 import { FadeMask } from './ui.FadeMask.tsx';
+import { useControlsVisibility } from './use.ControlsVisibility.ts';
 import { useScale } from './use.Scale.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 
@@ -22,9 +23,15 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const buffered = p?.buffered.value;
 
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  /**
+   * Hooks:
+   */
+  const [isOver, setOver] = React.useState(false);
+  const [isSeeking, setSeeking] = React.useState(false);
   const size = useSizeObserver();
   const scale = useScale(size, p?.scale.value);
-  const [isSeeking, setSeeking] = React.useState(false);
+  const controlsVisibile = useControlsVisibility({ video, isOver });
   useSignalBinding({ video, videoRef, isSeeking });
 
   let spinning = buffering;
@@ -75,15 +82,12 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       opacity: !ready && currentTime === 0 ? 0 : 1,
       transition: 'opacity 300ms',
     }),
-    debug: css({
-      Absolute: [6, null, null, 6],
-      color: theme.fg,
-      fontSize: 11,
-      opacity: 0.4,
-    }),
     controls: css({
-      Absolute: [null, 0, 0, 0],
+      Absolute: [null, 0, controlsVisibile ? 0 : -20, 0],
+      opacity: controlsVisibile ? 1 : 0,
+      transition: `opacity 300ms, top 300ms`,
     }),
+    debug: css({ Absolute: [6, null, null, 6], color: theme.fg, fontSize: 11, opacity: 0.4 }),
   };
 
   const mask = p?.fadeMask.value;
@@ -101,10 +105,9 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       buffering={spinning}
       buffered={buffered}
       onClick={(e) => {
-        if (p) {
-          if (e.control === 'Play') Signal.toggle(p.playing);
-          if (e.control === 'Mute') Signal.toggle(p.muted);
-        }
+        if (!p) return;
+        if (e.control === 'Play') Signal.toggle(p.playing);
+        if (e.control === 'Mute') Signal.toggle(p.muted);
       }}
       onSeeking={(e) => {
         setSeeking(!e.complete);
@@ -133,7 +136,12 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   );
 
   return (
-    <div ref={size.ref} className={css(styles.base, props.style).class}>
+    <div
+      ref={size.ref}
+      className={css(styles.base, props.style).class}
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => setOver(false)}
+    >
       {elVideo}
       {elMask}
       {elControls}
