@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Signal } from './common.ts';
+import { type t, Dom, Signal, Time } from './common.ts';
 
 /**
  * Manages keeping the <VideoPlayer> component in-sync
@@ -15,7 +15,25 @@ export function useSignalBinding(args: {
   const p = video?.props;
 
   /**
-   * Listen: <video> element events.
+   * Action: play/pause the <video> element.
+   */
+  function play(play = true) {
+    const el = videoRef.current;
+    if (!el) return;
+
+    if (!Dom.UserHas.interacted) {
+      if (p) p.playing.value = false;
+      const detail = 'User has not interacted with the window yet. (no action taken)';
+      console.info(`🫵 Cannot ${play ? 'play' : 'pause'} the video. ${detail}`);
+      return;
+    }
+
+    if (play) el.play();
+    if (!play) el.pause();
+  }
+
+  /**
+   * Listen: <video> element events (⚡️).
    */
   React.useEffect(() => {
     const life = new AbortController();
@@ -92,6 +110,18 @@ export function useSignalBinding(args: {
   }, [videoRef, instance, isSeeking, p?.src]);
 
   /**
+   * Effect: Auto-Play.
+   */
+  React.useEffect(() => {
+    const time = Time.until();
+    const autoPlay = p?.autoPlay.value;
+
+    // NB: after delay to prevent race condition with other callers during initial load.
+    if (autoPlay) time.delay(0, () => play(true));
+    return time.dispose;
+  }, []);
+
+  /**
    * Effect: seeking behavior.
    */
   React.useEffect(() => {
@@ -106,8 +136,9 @@ export function useSignalBinding(args: {
     const video = videoRef.current;
     const isPlaying = p?.playing.value ?? false;
     if (!video) return;
-    if (isPlaying && video.paused) video.play();
-    if (!isPlaying && !video.paused) video.pause();
+
+    if (isPlaying && video.paused) play(true);
+    if (!isPlaying && !video.paused) play(false);
   });
 
   /**
