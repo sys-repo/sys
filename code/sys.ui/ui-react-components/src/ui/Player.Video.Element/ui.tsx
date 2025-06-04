@@ -133,6 +133,9 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       onEnded={(e) => {
         if (video) props.onEnded?.({ video });
       }}
+      onClick={(e) => {
+        if (video) Signal.toggle(video.props.playing);
+      }}
     />
   );
 

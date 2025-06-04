@@ -3,6 +3,7 @@ import { type t, Color, css, D } from './common.ts';
 import { MuteButton, PlayButton } from './ui.Buttons.tsx';
 import { Mask } from './ui.Mask.tsx';
 import { SeekSlider } from './ui.SeekSlider.tsx';
+import { Timestamp } from './ui.Timestamp.tsx';
 
 export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
   const {
@@ -11,8 +12,6 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     muted = D.muted,
     currentTime = 0,
     duration = 0,
-    buffering = false,
-    buffered,
   } = props;
 
   /**
@@ -20,12 +19,12 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, padding: 10 }),
+    base: css({ position: 'relative', color: theme.bg, padding: 10 }),
     mask: css({ Absolute: [null, 0, 0, 0], zIndex: 0 }),
     body: css({
       position: 'relative',
       display: 'grid',
-      gridTemplateColumns: `auto 1fr auto`,
+      gridTemplateColumns: `auto 1fr auto auto`,
       columnGap: 10,
       zIndex: 10,
     }),
@@ -39,10 +38,11 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
         <SeekSlider
           duration={duration}
           currentTime={currentTime}
-          buffering={buffering}
-          buffered={buffered}
+          buffering={props.buffering}
+          buffered={props.buffered}
           onSeeking={props.onSeeking}
         />
+        <Timestamp currentTime={currentTime} duration={duration} />
         <MuteButton muted={muted} onClick={() => props.onClick?.({ control: 'Mute' })} />
       </div>
     </div>
