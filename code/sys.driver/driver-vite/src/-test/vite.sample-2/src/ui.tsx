@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { Foo } from '@sys/tmp/ui';
 import { Color, css } from '@sys/ui-css';
 import type { t } from './common.ts';
 
@@ -62,10 +61,6 @@ export const View: React.FC<ViewProps> = (props) => {
       <div {...styles.title}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>
-      </div>
-      <div style={{ paddingTop: 10 }}>
-        {'Imported from ← '}
-        <Foo />
       </div>
       {elThemeSample}
     </div>

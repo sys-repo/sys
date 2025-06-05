@@ -34,7 +34,7 @@ describe('Template: m.mod.ui', () => {
     const typesFile = await read('src/types.ts');
     expect(typesFile).to.include(`export type * from './ui/ui.FooBar/t.ts';`);
 
-    const specsFile = await read('src/-test/entry.Specs.ts');
+    const specsFile = await read('src/-test/-specs.ts');
     expect(specsFile).to.include('[`${ns}: ui.FooBar`]:');
     expect(specsFile).to.include(`() => import('../ui/ui.FooBar/-spec/-SPEC.tsx'),`);
   });

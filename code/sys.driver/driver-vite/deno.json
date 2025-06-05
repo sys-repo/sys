@@ -28,6 +28,7 @@
     "./entry": "./src/-entry/mod.ts",
     "./log": "./src/m.Log/mod.ts",
     "./main": "./src/-entry/-main.ts",
-    "./init": "./src/-entry/-init.ts"
+    "./init": "./src/-entry/-init.ts",
+    "./sample-imports": "./src/-test/-sample-imports.ts"
   }
 }

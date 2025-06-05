@@ -31,11 +31,6 @@ export const Paths = {
     'code/sys/jsr',
 
     /**
-     * →| dev/null
-     */
-    'code/sys.tmp',
-
-    /**
      * UI:
      */
     'code/sys.ui/ui-css',
