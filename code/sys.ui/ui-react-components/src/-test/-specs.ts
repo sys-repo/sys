@@ -26,7 +26,7 @@ export const SpecsComponents = {
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
 
-  [`${ns}.player: Video (VidStack)`]: () => import('../ui/Player.Video/-spec/-SPEC.tsx'),
+  [`${ns}.player: Video.VidStack`]: () => import('../ui/Player.Video.Vidstack/-spec/-SPEC.tsx'),
   [`${ns}.player: Video.Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
   [`${ns}:player: Video.Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),
   [`${ns}.player: Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),

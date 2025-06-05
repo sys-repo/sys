@@ -27,6 +27,5 @@ export { Spinners } from './ui/Spinners/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';
-export { VideoPlayer } from './ui/Player.Video/mod.ts';
 export { Player } from './ui/Player/mod.ts';
 export { VimeoBackground } from './ui/VimeoBackground/mod.ts';
