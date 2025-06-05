@@ -1,7 +1,7 @@
-import type { MouseEventHandler } from 'react';
 import type { t } from './common.ts';
 
-type M = MouseEventHandler;
+type M = React.MouseEventHandler;
+type T = React.TouchEventHandler;
 
 /**
  * Hook Factory: keep track of mouse events for an HTML element
@@ -16,8 +16,17 @@ export type UseMouse = (props?: t.MouseHookProps) => t.MouseHook;
  *     <div {...mouse.handlers} />
  */
 export type MouseHook = {
-  readonly is: { readonly over: boolean; readonly down: boolean; readonly dragging: boolean };
-  readonly handlers: { onMouseDown: M; onMouseUp: M; onMouseEnter: M; onMouseLeave: M };
+  readonly is: {
+    readonly over: boolean;
+    readonly down: boolean;
+    readonly dragging: boolean;
+  };
+  readonly handlers: {
+    readonly onMouseDown: M;
+    readonly onMouseUp: M;
+    readonly onMouseEnter: M;
+    readonly onMouseLeave: M;
+  };
   readonly drag?: t.MouseMovement;
   reset(): void;
 };
