@@ -144,7 +144,7 @@ export type TmplWriteOptions = {
 };
 
 /**
- * The reponse returned from the `tmpl.copy` method.
+ * The response returned from the `tmpl.copy` method.
  */
 export type TmplWriteResponse = {
   readonly source: t.FsDir;
