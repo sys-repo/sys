@@ -2,16 +2,13 @@ import type { MediaPlayerInstance, MediaPlayerProps } from '@vidstack/react';
 import type { RefObject } from 'react';
 import type { t } from './common.ts';
 
-/** The address of a video (eg. "vimeo/499921561"). */
-export type StringVideoAddress = string;
-
 /** A React reference to the MediaPlayer instance. */
-export type VideoPlayerRef = RefObject<MediaPlayerInstance>;
+export type VidstackPlayerRef = RefObject<MediaPlayerInstance>;
 
 /**
  * Component: Video Player.
  */
-export type VideoPlayerProps = {
+export type VidstackPlayerProps = {
   debug?: boolean;
   title?: string;
 
@@ -37,15 +34,4 @@ export type ElapsedTimeProps = {
   abs?: t.CssEdgesInput | boolean;
   show?: boolean;
   style?: t.CssInput;
-};
-
-/**
- * Fade mask.
- */
-export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
-export type VideoPlayerFadeMask = {
-  direction: VideoPlayerFadeMaskDirection;
-  size?: t.Pixels;
-  color?: string;
-  opacity?: t.Percent;
 };

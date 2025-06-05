@@ -10,7 +10,7 @@ import { useSignalBinding } from './use.SignalBinding.ts';
 import { useThemeStyles } from './use.ThemeStyles.ts';
 
 const D = DEFAULTS;
-type P = t.VideoPlayerProps;
+type P = t.VidstackPlayerProps;
 
 /**
  * Component:

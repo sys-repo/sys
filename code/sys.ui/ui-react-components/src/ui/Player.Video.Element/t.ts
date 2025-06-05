@@ -19,6 +19,17 @@ export type VideoElementProps = {
 };
 
 /**
+ * VideoPlayer fade mask.
+ */
+export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+export type VideoPlayerFadeMask = {
+  direction: VideoPlayerFadeMaskDirection;
+  size?: t.Pixels;
+  color?: string;
+  opacity?: t.Percent;
+};
+
+/**
  * Events:
  */
 export type VideoPlayerEndedHandler = (e: VideoPlayerEndedHandlerArgs) => void;

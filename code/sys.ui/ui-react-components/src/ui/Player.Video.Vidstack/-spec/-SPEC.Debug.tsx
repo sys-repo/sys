@@ -3,7 +3,7 @@ import { Player } from '../../../mod.ts';
 import { type t, Button, css, LocalStorage, Signal, Str } from '../../u.ts';
 import { D } from '../common.ts';
 
-type P = t.VideoPlayerProps;
+type P = t.VidstackPlayerProps;
 type Storage = { src?: string };
 
 /**

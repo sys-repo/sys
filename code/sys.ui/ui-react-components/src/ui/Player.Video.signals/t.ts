@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** The address of a video (eg. "vimeo/499921561"). */
+export type StringVideoAddress = string;
+
 /**
  * Signals:
  */

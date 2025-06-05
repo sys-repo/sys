@@ -5,7 +5,7 @@ import { Player } from './mod.ts';
 
 describe('Player', () => {
   it('API', () => {
-    expect(Player.Video.View).to.equal(VideoPlayer);
+    expect(Player.Video.Vidstack).to.equal(VideoPlayer);
     expect(Player.Timestamp.Thumbnails.View).to.equal(Thumbnails);
   });
 });

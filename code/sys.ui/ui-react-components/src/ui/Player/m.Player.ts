@@ -8,7 +8,7 @@ import { playerSignalsFactory } from '../Player.Video.signals/mod.ts';
 export const Player: PlayerLib = {
   Video: {
     signals: playerSignalsFactory,
-    View: VideoPlayer,
+    Vidstack: VideoPlayer,
     Element: VideoElement,
   },
   Timestamp: {

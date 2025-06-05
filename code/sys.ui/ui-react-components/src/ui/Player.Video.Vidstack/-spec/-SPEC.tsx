@@ -8,7 +8,7 @@ export default Spec.describe('VideoPlayer', (e) => {
   const video = debug.video;
 
   e.it('API', (e) => {
-    expect(Player.Video.View).to.equal(VideoPlayer);
+    expect(Player.Video.Vidstack).to.equal(VideoPlayer);
   });
 
   e.it('init', (e) => {
