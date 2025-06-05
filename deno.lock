@@ -80,6 +80,7 @@
     "npm:immer@10": "10.1.1",
     "npm:monaco-editor@0.52.2": "0.52.2",
     "npm:motion@12.16.0": "12.16.0_react@18.3.1_react-dom@18.3.1__react@18.3.1",
+    "npm:ollama-ai-provider@1.2.0": "1.2.0_zod@3.25.51",
     "npm:ollama@0.5.16": "0.5.16",
     "npm:ora@8.2.0": "8.2.0",
     "npm:pretty-bytes@7.0.0": "7.0.0",
@@ -4035,6 +4036,18 @@
     "object-inspect@1.13.4": {
       "integrity": "sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew=="
     },
+    "ollama-ai-provider@1.2.0_zod@3.25.51": {
+      "integrity": "sha512-jTNFruwe3O/ruJeppI/quoOUxG7NA6blG3ZyQj3lei4+NnJo7bi3eIRWqlVpRlu/mbzbFXeJSBuYQWF6pzGKww==",
+      "dependencies": [
+        "@ai-sdk/provider",
+        "@ai-sdk/provider-utils",
+        "partial-json",
+        "zod"
+      ],
+      "optionalPeers": [
+        "zod"
+      ]
+    },
     "ollama@0.5.16": {
       "integrity": "sha512-OEbxxOIUZtdZgOaTPAULo051F5y+Z1vosxEYOoABPnQKeW7i4O8tJNlxCB+xioyoorVqgjkdj+TA1f1Hy2ug/w==",
       "dependencies": [
@@ -4087,6 +4100,9 @@
     },
     "package-json-from-dist@1.0.1": {
       "integrity": "sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw=="
+    },
+    "partial-json@0.1.7": {
+      "integrity": "sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA=="
     },
     "path-key@3.1.1": {
       "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q=="
@@ -4948,6 +4964,7 @@
       "npm:ignore@7.0.5",
       "npm:immer@10",
       "npm:monaco-editor@0.52.2",
+      "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.5.16",
       "npm:ora@8.2.0",
       "npm:pretty-bytes@7.0.0",
