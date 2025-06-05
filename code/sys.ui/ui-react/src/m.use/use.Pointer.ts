@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
 import type { t } from './common.ts';
-import { useMouseDrag } from './use.Mouse.Drag.ts';
+import { useMouseDrag } from './use.Pointer.Drag.ts';
 
 /**
  * Hook: keep track of mouse events for an HTML element
  * Usage:
  *
- *     const mouse = useMouse();
- *     <div {...mouse.handlers} />
+ *     const pointer = usePointer();
+ *     <div {...pointer.handlers} />
  */
 export const useMouse: t.UseMouse = (props = {}) => {
   const { onDrag } = props;
