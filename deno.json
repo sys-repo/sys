@@ -61,7 +61,6 @@
     "code/sys.driver/driver-orbiter",
     "code/sys.driver/driver-quilibrium",
     "code/sys.driver/driver-vite",
-    "code/sys.driver/driver-vitepress",
 
     "code/sys/sys",
     "code/sys/main",

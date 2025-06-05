@@ -3,7 +3,7 @@
  * Entry point for initializing from templates.
  *
  * ```bash
- * deno run -RWNE --allow-run jsr:@sys/driver-vitepress/init
+ * deno run -RWNE --allow-run jsr:@sys/driver-vite/init
  * ```
  */
 import { type t, Args } from './common.ts';
