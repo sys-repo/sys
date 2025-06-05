@@ -78,6 +78,7 @@ groups:
 deno.json:
   - group: std/deno
   - group: crypto
+  - group: ai
   - group: automerge
   - group: ui/service-worker
 
