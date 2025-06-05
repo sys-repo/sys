@@ -72,8 +72,7 @@
     "deploy/tmp.db.team",
 
     "code/-tmpl",
-    "code/-sample/@sample.deno.llm",
-    "code/-sample/@sample.mcp"
+    "code/-sample/@sample.deno.llm"
   ],
   "lint": {
     "rules": {
