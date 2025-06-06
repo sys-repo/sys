@@ -12,24 +12,24 @@ type Options = {
 /**
  * Manages mouse behavior on a Canvas.
  */
-export function useMouse<T extends HTMLElement>(svg: t.SvgInstance<T>, options: Options = {}) {
-  useCanvasPanelMouse('purpose', svg, options);
-  useCanvasPanelMouse('customers', svg, options);
-  useCanvasPanelMouse('problem', svg, options);
-  useCanvasPanelMouse('uvp', svg, options);
-  useCanvasPanelMouse('solution', svg, options);
-  useCanvasPanelMouse('channels', svg, options);
-  useCanvasPanelMouse('revenue', svg, options);
-  useCanvasPanelMouse('costs', svg, options);
-  useCanvasPanelMouse('metrics', svg, options);
-  useCanvasPanelMouse('advantage', svg, options);
-  useCanvasPanelMouse('impact', svg, options);
+export function usePointer<T extends HTMLElement>(svg: t.SvgInstance<T>, options: Options = {}) {
+  useCanvasPanelPointer('purpose', svg, options);
+  useCanvasPanelPointer('customers', svg, options);
+  useCanvasPanelPointer('problem', svg, options);
+  useCanvasPanelPointer('uvp', svg, options);
+  useCanvasPanelPointer('solution', svg, options);
+  useCanvasPanelPointer('channels', svg, options);
+  useCanvasPanelPointer('revenue', svg, options);
+  useCanvasPanelPointer('costs', svg, options);
+  useCanvasPanelPointer('metrics', svg, options);
+  useCanvasPanelPointer('advantage', svg, options);
+  useCanvasPanelPointer('impact', svg, options);
 }
 
 /**
  * Manages mouse behavior on an individual Canvas panel.
  */
-export function useCanvasPanelMouse<T extends HTMLElement>(
+export function useCanvasPanelPointer<T extends HTMLElement>(
   panel: t.CanvasPanel,
   svg: t.SvgInstance<T>,
   options: Options = {},

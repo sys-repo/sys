@@ -1,6 +1,7 @@
 import React from 'react';
+
 import { type t, Color, css, Svg } from './common.ts';
-import { useMouse } from './use.Mouse.tsx';
+import { usePointer } from './use.Pointer.tsx';
 import { useTheme } from './use.Theme.ts';
 
 export type SvgImageProps = {
@@ -29,7 +30,7 @@ export const SvgImage: React.FC<SvgImageProps> = (props) => {
   const svg = Svg.useSvg<HTMLDivElement>(() => import('./canvas.mini.svg'), [354, 184]);
 
   useTheme(svg, theme.name);
-  useMouse(svg, { theme: theme.name, over, selected, onPanelEvent });
+  usePointer(svg, { theme: theme.name, over, selected, onPanelEvent });
 
   /**
    * Effect: ready.
