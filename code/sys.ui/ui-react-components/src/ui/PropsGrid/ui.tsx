@@ -17,7 +17,7 @@ export const PropsGrid: React.FC<t.PropsGridProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <div>{`🐷`}</div>
     </div>
   );
 };

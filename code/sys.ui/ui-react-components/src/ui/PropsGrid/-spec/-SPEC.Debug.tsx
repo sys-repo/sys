@@ -18,6 +18,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Light'),
+    width: s(330),
   };
   const p = props;
   const api = {
@@ -25,6 +26,7 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.width.value;
     },
   };
   return api;
@@ -70,6 +72,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `width: ${p.width.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.width, [220, 330, 420, 550, undefined])}
       />
       <ObjectView
         name={'debug'}

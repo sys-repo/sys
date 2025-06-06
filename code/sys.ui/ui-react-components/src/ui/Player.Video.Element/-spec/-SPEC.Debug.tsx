@@ -191,7 +191,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {videoButton(video, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
 
       <hr />
-      <div className={Styles.title.class}>{'Controls'}</div>
+      <div className={Styles.title.class}>{'Controls:'}</div>
       <Button block label={`playing: ${p.playing}`} onClick={() => Signal.toggle(p.playing)} />
       <Button block label={`muted: ${p.muted}`} onClick={() => Signal.toggle(p.muted)} />
       <Button block label={`autoplay: ${p.autoPlay}`} onClick={() => Signal.toggle(p.autoPlay)} />
