@@ -2,7 +2,6 @@ import type { t } from './common.ts';
 
 type M = React.MouseEventHandler;
 type T = React.TouchEventHandler;
-type P = React.PointerEventHandler;
 
 /**
  * Hook Factory: keep track of mouse events for an HTML element
