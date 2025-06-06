@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.PropsGridProps;
-type Storage = { width?: number };
+type Storage = { width?: number; theme?: t.CommonTheme };
 
 /**
  * Types:
@@ -20,8 +20,9 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    theme: s(localstore.current.theme),
     width: s(localstore.current.width),
+    data: s<P['data']>(),
   };
   const p = props;
   const api = {
@@ -30,12 +31,15 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.width.value;
+      p.data.value;
     },
   };
 
   Signal.effect(() => {
+    p.theme.value;
     p.width.value;
     localstore.change((d) => {
+      d.theme = p.theme.value ?? 'Light';
       d.width = p.width.value ?? 330;
     });
   });
@@ -79,6 +83,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      {sampleButtons({ debug })}
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -98,3 +105,28 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev Tools:
+ */
+export function sampleButtons(args: { debug: DebugSignals }) {
+  const p = args.debug.props;
+  const elements: JSX.Element[] = [];
+
+  const btn = (label: string, data?: t.PropsGridRows) => {
+    const btn = (
+      <Button
+        key={elements.length}
+        block
+        label={() => `sample: ${label}`}
+        onClick={() => (p.data.value = data)}
+      />
+    );
+
+    elements.push(btn);
+  };
+
+  btn('<undefined>', undefined);
+
+  return <React.Fragment>{elements}</React.Fragment>;
+}

@@ -25,7 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <PropsGrid debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <PropsGrid debug={p.debug.value} theme={p.theme.value} data={p.data.value} />);
 
     // Init:
     update();
