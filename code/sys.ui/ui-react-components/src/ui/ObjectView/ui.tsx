@@ -11,12 +11,15 @@ export const ObjectView: React.FC<P> = (props) => {
   const { expandLevel, expandPaths } = wrangle.expand(props);
   const show = wrangle.show(props);
 
+  /**
+   * Hooks:
+   */
   const [key, setKey] = useState(wrangle.key(props));
 
   /**
    * Effect: ensure key/render when the expand level changes.
    */
-  useEffect(() => setKey(wrangle.key(props)), [expandPaths?.join(), expandLevel]);
+  useEffect(() => void setKey(wrangle.key(props)), [expandPaths?.join(), expandLevel]);
 
   /**
    * Render:
