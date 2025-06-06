@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import type { t } from './common.ts';
 
 /**
- * Internal hook that trackes mouse movement events (drag).
+ * Internal hook that trackes mouse/touch movement events (drag).
  */
-export const useMouseDrag: t.UseMouseDrag = (props = {}) => {
+export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   const enabled = Boolean(props.onDrag);
   const [dragging, setDragging] = useState(false);
-  const [movement, setMovement] = useState<t.MouseMovement>();
+  const [movement, setMovement] = useState<t.PointerMovement>();
 
   const handleMove = (e: MouseEvent) => {
     if (!enabled) return;
@@ -47,7 +47,7 @@ export const useMouseDrag: t.UseMouseDrag = (props = {}) => {
   /**
    * API
    */
-  const api: t.MouseDragHook = {
+  const api: t.PointerDragHook = {
     is: { dragging },
     enabled,
     movement,
@@ -61,8 +61,7 @@ export const useMouseDrag: t.UseMouseDrag = (props = {}) => {
  * Helpers
  */
 const Wrangle = {
-  toMouseMovement(e: MouseEvent): t.MouseMovement {
-    const { x, y } = e;
+  toMouseMovement(e: MouseEvent): t.PointerMovement {
     const modifiers: t.KeyboardModifierFlags = {
       shift: e.shiftKey,
       ctrl: e.ctrlKey,
@@ -70,8 +69,6 @@ const Wrangle = {
       meta: e.metaKey,
     };
     return {
-      x,
-      y,
       movement: { x: e.movementX, y: e.movementY },
       client: { x: e.clientX, y: e.clientY },
       page: { x: e.pageX, y: e.pageY },

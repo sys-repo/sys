@@ -3,30 +3,28 @@ import type { t } from './common.ts';
 /**
  * Hook Factory: keep track of a mouse drag operation.
  */
-export type UseMouseDrag = (props?: t.MouseDragHookProps) => t.MouseDragHook;
+export type UsePointerDrag = (props?: t.PointerDragHookProps) => t.PointerDragHook;
 
 /**
- * Properties passed to the `useMouseDrag` hook.
+ * Properties passed to the `usePointerDrag` hook.
  */
-export type MouseDragHookProps = { onDrag?: t.UseMouseDragHandler };
+export type PointerDragHookProps = { onDrag?: t.UsePointerDragHandler };
 
 /**
  * Hook: information about a mouse drag operation.
  */
-export type MouseDragHook = {
+export type PointerDragHook = {
   readonly is: { readonly dragging: boolean };
   readonly enabled: boolean;
-  readonly movement?: t.MouseMovement;
+  readonly movement?: t.PointerMovement;
   start(): void;
   cancel(): void;
 };
 
 /**
- * Hook: information about the movement of a mouse cursor.
+ * Information about the movement of a mouse cursor.
  */
-export type MouseMovement = {
-  readonly x: number;
-  readonly y: number;
+export type PointerMovement = {
   readonly movement: t.Point;
   readonly client: t.Point;
   readonly page: t.Point;
@@ -39,9 +37,9 @@ export type MouseMovement = {
 /**
  * Event handler for a mouse-drag operation.
  */
-export type UseMouseDragHandler = (e: UseMouseDragHandlerArgs) => void;
+export type UsePointerDragHandler = (e: UsePointerDragHandlerArgs) => void;
 
 /**
  * Agrument supplied to the mouse-drag handler.
  */
-export type UseMouseDragHandlerArgs = MouseMovement & { cancel(): void };
+export type UsePointerDragHandlerArgs = PointerMovement & { cancel(): void };
