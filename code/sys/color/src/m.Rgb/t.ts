@@ -118,6 +118,8 @@ export type ColorConstants = {
   MAGENTA: t.StringHex;
   /** The color blue. */
   BLUE: t.StringHex;
+  /** A lighter blue color. */
+  LIGHT_BLUE: t.StringHex;
   /** The color green. */
   GREEN: t.StringHex;
   /** The color yellow. */

@@ -1,4 +1,6 @@
 import type { t } from './common.ts';
+import type { ColorThemeLib } from './t.ts';
+
 import { DARK, WHITE } from './u.const.ts';
 import { alpha } from './u.format.ts';
 
@@ -62,7 +64,7 @@ export function invert(theme: t.CommonTheme = defaultTheme): t.CommonTheme {
 /**
  * API
  */
-export const Theme: t.ColorThemeLib = {
+export const Theme: ColorThemeLib = {
   create,
   invert,
 };

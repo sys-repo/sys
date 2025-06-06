@@ -9,5 +9,4 @@ const pull = async (name: string, version: string) => {
   }
 };
 
-await pull('@sys/driver-vitepress', '0.0.25');
 await pull('@sys/std', '0.0.42');

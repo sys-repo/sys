@@ -5,6 +5,8 @@ import type { t } from './common.ts';
  */
 export type BarSpinnerProps = {
   width?: number;
+  height?: number;
+  transparentTrack?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

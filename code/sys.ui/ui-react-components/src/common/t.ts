@@ -7,9 +7,11 @@ export type { ColorTheme } from '@sys/color/t';
 export type { SpecImports } from '@sys/testing/t';
 export type {
   ExtractSignalValue,
+  PointerHookFlags,
   ReactChildrenDepsKey,
   ReadonlySignal,
   Signal,
+  UsePointerDragHandlerArgs,
 } from '@sys/ui-react/t';
 
 export type * from '../types.ts';

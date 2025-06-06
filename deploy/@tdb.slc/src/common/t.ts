@@ -21,6 +21,7 @@ export type {
   SheetSignalStack,
   SvgElement,
   SvgInstance,
+  VideoPlayerEndedHandler,
   VideoPlayerSignals,
   VimeoIFrame,
 } from '@sys/ui-react-components/t';

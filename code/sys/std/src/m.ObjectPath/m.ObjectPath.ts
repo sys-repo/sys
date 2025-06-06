@@ -1,3 +1,5 @@
+import type { ObjectPathLib } from './t.ts';
+
 import { type t, isObject } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Mutate } from './m.Mutate.ts';
@@ -6,7 +8,7 @@ import { Validate } from './u.ts';
 /**
  * Helpers for working with arrays that represent object paths.
  */
-export const ObjectPath: t.ObjectPathLib = {
+export const ObjectPath: ObjectPathLib = {
   Is,
   Mutate,
 

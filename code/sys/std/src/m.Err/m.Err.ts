@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
+import type { ErrLib } from './t.ts';
+
 import { Is } from './m.Is.ts';
 import { Name } from './m.Name.ts';
 import { errors } from './u.errors.ts';
@@ -8,7 +9,7 @@ import { tryCatch } from './u.tryCatchError.ts';
 /**
  * Helpers for working with errors.
  */
-export const Err: t.ErrLib = {
+export const Err: ErrLib = {
   Is,
   Name,
   std,

@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Tools for working with numbers.
  */
-export type NumLib = {
+export type NumberLib = {
   readonly Percent: t.PercentLib;
 
   /** Rounds a number to the specified number of decimal places. */

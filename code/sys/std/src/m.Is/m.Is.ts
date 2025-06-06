@@ -1,3 +1,5 @@
+import type { StdIsLib } from './t.ts';
+
 import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 
@@ -6,7 +8,7 @@ const { errorLike, stdError } = Err.Is;
 /**
  * Common flag evaluators.
  */
-export const Is: t.StdIsLib = {
+export const Is: StdIsLib = {
   errorLike,
   stdError,
 

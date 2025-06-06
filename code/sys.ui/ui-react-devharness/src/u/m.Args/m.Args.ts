@@ -1,8 +1,9 @@
 import { type t, DEFAULTS } from '../common.ts';
+import type { DevArgsLib, DevUrlLib, DevUrlParamsLib } from './t.ts';
 
 const QS = DEFAULTS.qs;
 
-export const DevUrlParams: t.DevUrlParamsLib = {
+export const DevUrlParams: DevUrlParamsLib = {
   isDev(location?: t.UrlInput) {
     const params = DevUrl.location(location).searchParams;
     return params.has(QS.d) || params.has(QS.dev);
@@ -52,7 +53,7 @@ export const DevUrlParams: t.DevUrlParamsLib = {
   },
 };
 
-export const DevUrl: t.DevUrlLib = {
+export const DevUrl: DevUrlLib = {
   navigate: DevUrlParams,
 
   location(value?: t.UrlInput): URL {
@@ -86,7 +87,7 @@ export const DevUrl: t.DevUrlLib = {
   },
 };
 
-export const DevArgs: t.DevArgsLib = {
+export const DevArgs: DevArgsLib = {
   Url: DevUrl,
   Params: DevUrlParams,
 };

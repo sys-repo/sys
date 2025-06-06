@@ -2,11 +2,12 @@
  * @module
  * Edge value formatting tools.
  */
-import type { t } from './common.ts';
+import type { CssEdgesLib } from './t.ts';
+
 import { toArray, toArrayX, toArrayY } from './u.toArray.ts';
 import { toEdges, toMargins, toPadding } from './u.toEdges.ts';
 
-export const CssEdges: t.CssEdgesLib = {
+export const CssEdges: CssEdgesLib = {
   toArray,
   toArrayX,
   toArrayY,

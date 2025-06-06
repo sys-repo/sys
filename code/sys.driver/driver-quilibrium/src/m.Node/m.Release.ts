@@ -1,9 +1,10 @@
-import { type t, c, Fs, Cli } from './common.ts';
+import { type t, c, Cli, Fs } from './common.ts';
+import type { ReleaseLib } from './t.ts';
 
 /**
  * Tools for pulling and managing Quilbrium nodes releases.
  */
-export const Release: t.ReleaseLib = {
+export const Release: ReleaseLib = {
   get env() {
     const os = Deno.build.os;
     let arch = Deno.build.arch as string;

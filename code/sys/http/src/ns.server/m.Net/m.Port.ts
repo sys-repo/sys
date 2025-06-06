@@ -1,6 +1,7 @@
 import { type t, Err } from './common.ts';
+import type { PortLib } from './t.ts';
 
-export const Port: t.PortLib = {
+export const Port: PortLib = {
   random() {
     // NB: attempting to listen on port 0 allows the OS to assign an available port.
     const listener = Deno.listen({ port: 0 });

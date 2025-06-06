@@ -1,4 +1,4 @@
-import type * as t from './t.ts';
+import type { RLib } from './t.ts';
 
 /**
  * @ext
@@ -21,7 +21,7 @@ import {
 /**
  * Ramda functional utilities.
  */
-export const R: t.RLib = {
+export const R: RLib = {
   clone,
   clamp,
   equals,

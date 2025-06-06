@@ -1,7 +1,9 @@
+import type { PkgDistLib } from './t.ts';
+
 import { type t, Err, Path, rx } from './common.ts';
 import { Is } from './m.Is.ts';
 
-export const Dist: t.PkgDistLib = {
+export const Dist: PkgDistLib = {
   async fetch(options = {}) {
     const { origin = location.origin, pathname = 'dist.json' } = options;
     const errors = Err.errors();

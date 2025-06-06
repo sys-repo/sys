@@ -2,9 +2,9 @@
  * @module
  * UI load spinners.
  */
-import type { t } from './common.ts';
 import { BarSpinner as Bar } from '../Spinners.Bar/mod.ts';
+import type { SpinnerLib } from './t.ts';
 
-export const Spinners: t.SpinnerLib = {
+export const Spinners: SpinnerLib = {
   Bar,
 };

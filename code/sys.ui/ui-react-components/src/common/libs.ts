@@ -24,14 +24,14 @@ export {
 } from '@sys/std';
 
 export { Color, css, Style } from '@sys/ui-css';
-export { Keyboard, LocalStorage } from '@sys/ui-dom';
+export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
 export {
   FC,
   ReactChildren,
   ReactString,
   Signal,
   useIsTouchSupported,
-  useMouse,
+  usePointer,
   useRedraw,
   useSizeObserver,
 } from '@sys/ui-react';
