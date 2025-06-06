@@ -37,7 +37,7 @@ res.steps.forEach((step) => {
   console.info(c.cyan(`- step.reasoning:`), step.reasoning);
   console.info(c.cyan(`- step.reasoningDetails:`), step.reasoningDetails);
   console.info(c.cyan(`- step.usage:`), step.usage);
-  console.info(c.cyan(`- step.text:\n`), Str.truncate(step.text, 30));
+  console.info(c.cyan(`- step.text:\n`), c.yellow(Str.truncate(step.text, 30)));
 });
 
 const parsed = Obj.Json.safeParse(res.text);
