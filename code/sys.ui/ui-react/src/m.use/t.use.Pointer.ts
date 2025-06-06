@@ -17,13 +17,16 @@ export type UsePointer = (props?: t.PointerHookProps) => t.PointerHook;
  */
 export type PointerHook = {
   readonly handlers: t.PointerHookHandlers;
-  readonly is: {
-    readonly over: boolean;
-    readonly down: boolean;
-    readonly dragging: boolean;
-  };
+  readonly is: t.PointerHookFlags;
   readonly drag?: t.PointerMovement;
   reset(): void;
+};
+
+/** Pointer (mouse/touch) flags. */
+export type PointerHookFlags = {
+  readonly over: boolean;
+  readonly down: boolean;
+  readonly dragging: boolean;
 };
 
 /** Handlers used by the mouse pointer */

@@ -1,7 +1,7 @@
 import { useClickInside, useClickOutside, usePointer } from '@sys/ui-react';
 import React from 'react';
 
-import { type t, css } from '../-test.ui.ts';
+import { type t, css, Obj } from '../-test.ui.ts';
 import { type DebugSignals } from './-SPEC.Debug.tsx';
 
 export type SampleProps = {
@@ -11,13 +11,25 @@ export type SampleProps = {
 
 export const Sample: React.FC<SampleProps> = (props) => {
   const { debug } = props;
+  const p = debug.props;
 
+  /**
+   * Hooks:
+   */
   const ref = React.useRef<HTMLDivElement>(null);
   useClickInside({ ref, callback: (e) => console.info(`⚡️ inside:`, e) });
   useClickOutside({ ref, callback: (e) => console.info(`⚡️ outside:`, e) });
 
-  const pointer = usePointer();
-  console.info('pointer.is', pointer.is);
+  const pointer = usePointer({
+    onDown: (e) => {},
+    onUp: (e) => {},
+    onDrag: (e) => (p.dragArgs.value = e),
+  });
+
+  /**
+   * Effects:
+   */
+  React.useEffect(() => void (p.pointerIs.value = pointer.is), [Obj.hash(pointer.is)]);
 
   /**
    * Render:

@@ -45,7 +45,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   };
 
   /**
-   * API
+   * API:
    */
   const api: t.PointerDragHook = {
     is: { dragging },
