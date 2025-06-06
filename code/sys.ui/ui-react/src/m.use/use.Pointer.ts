@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 import type { t } from './common.ts';
-import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
+import { usePointerDrag } from './use.Pointer.Drag.ts';
 
 /**
  * Hook: keep track of mouse/touch events for an HTML element
@@ -101,7 +101,7 @@ const wrangle = {
       type: e.type,
       synthetic: e,
       client: wrangle.point(e),
-      modifiers: { alt: e.altKey, ctrl: e.ctrlKey, meta: e.metaKey, shift: e.shiftKey },
+      modifiers: wrangle.modifiers(e),
       preventDefault: () => e.preventDefault(),
       stopPropagation: () => e.stopPropagation(),
       cancel() {
@@ -111,19 +111,28 @@ const wrangle = {
     };
   },
 
-  point(ev: React.PointerEvent) {
+  point(e: React.PointerEvent) {
     type T = React.TouchEvent;
 
-    if (ev.type === 'touchstart') {
-      const touch = (ev as unknown as T).touches[0];
+    if (e.type === 'touchstart') {
+      const touch = (e as unknown as T).touches[0];
       return { x: touch.clientX, y: touch.clientY };
     }
 
-    if (ev.type === 'touchend') {
-      const touch = (ev as unknown as T).changedTouches[0];
+    if (e.type === 'touchend') {
+      const touch = (e as unknown as T).changedTouches[0];
       return { x: touch.clientX, y: touch.clientY };
     }
 
-    return { x: ev.clientX ?? -1, y: ev.clientY ?? -1 };
+    return { x: e.clientX ?? -1, y: e.clientY ?? -1 };
+  },
+
+  modifiers(e: React.PointerEvent): t.KeyboardModifierFlags {
+    return {
+      shift: e.shiftKey,
+      ctrl: e.ctrlKey,
+      alt: e.altKey,
+      meta: e.metaKey,
+    };
   },
 } as const;
