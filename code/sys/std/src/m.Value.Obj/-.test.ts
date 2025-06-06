@@ -1,14 +1,12 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { Json } from '../m.Json/mod.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
 
 describe('Value.Obj', () => {
   it('API', () => {
     expect(Value.Obj).to.equal(Obj);
-    expect(Value.isObject).to.equal(isObject);
-    expect(Value.isRecord).to.equal(isRecord);
-    expect(Value.isEmptyRecord).to.equal(isEmptyRecord);
+    expect(Obj.Json).to.equal(Json);
   });
 
   describe('Obj.walk', () => {

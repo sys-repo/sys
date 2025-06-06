@@ -84,5 +84,51 @@ describe('Json', () => {
       expect(res1).to.equal(obj);
       expect(res2).to.equal(obj);
     });
+
+    it('throws', () => {
+      const fn = () => Json.parse(`$-FAIL`, {});
+      expect(fn).to.throw(/Unexpected token/);
+    });
+  });
+
+  describe('Json.safeParse', () => {
+    it('parses simple values', () => {
+      const test = (input: any) => {
+        const text = Json.stringify(input);
+        const res = Json.safeParse(text, input);
+        expect(res.ok).to.eql(true);
+        expect(res.data).to.eql(input);
+        expect(res.error).to.eql(undefined);
+      };
+      test(true);
+      test('hello');
+      test(123);
+      test([123]);
+      test({ msg: 123 });
+      test(null);
+    });
+
+    it('undefined: returns default value', () => {
+      const obj = { foo: 123 };
+      const res1 = Json.safeParse(undefined, obj);
+      const res2 = Json.safeParse(undefined, () => obj);
+
+      expect(res1.ok).to.equal(true);
+      expect(res2.ok).to.equal(true);
+
+      expect(res1.data).to.equal(obj);
+      expect(res2.data).to.equal(obj);
+
+      expect(res1.error).to.eql(undefined);
+      expect(res2.error).to.eql(undefined);
+    });
+
+    it('returns error', () => {
+      const res = Json.safeParse(`$-FAIL`, {});
+      expect(res.ok).to.eql(false);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.message).to.include(`Unexpected token '$', "$-FAIL" is not valid JSON`);
+      expect(res.error?.name).to.eql('SyntaxError');
+    });
   });
 });

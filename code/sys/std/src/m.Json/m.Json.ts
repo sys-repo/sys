@@ -1,5 +1,7 @@
-import type { t } from '../common.ts';
+import { type t, Delete, Err } from './common.ts';
 import type { JsonLib } from './t.ts';
+
+type JsonInput = t.JsonString | undefined;
 
 /**
  * Helpers for working with JavaScript Object Notation (JSON)
@@ -13,13 +15,29 @@ export const Json: JsonLib = {
     return text.includes('\n') ? `${text}\n` : text; // NB: trailing "new-line" only added if the JSON spans more than a single line
   },
 
-  parse<T>(input: t.JsonString | undefined, defaultValue: T | (() => T)): T {
+  parse<T>(input: JsonInput, defaultValue: t.JsonParseDefault<T>): T {
     return input === undefined ? wrangle.default(defaultValue) : JSON.parse(input);
+  },
+
+  safeParse<T>(input: JsonInput, defaultValue: t.JsonParseDefault<T>) {
+    const done = (data?: T, error?: t.StdError) => {
+      type R = t.JsonParseResult<T>;
+      const ok = !error;
+      return Delete.undefined({ ok, data, error }) as R;
+    };
+
+    if (input == null) return done(wrangle.default(defaultValue));
+
+    try {
+      return done(Json.parse(input, defaultValue));
+    } catch (err) {
+      return done(undefined, Err.std(err));
+    }
   },
 } as const;
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   default<T>(input: T | (() => T)): T {

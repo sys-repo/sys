@@ -11,6 +11,9 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Tools for working with objects.
  */
 export type ObjLib = {
+  /** Tool for working with JSON safely. */
+  readonly Json: t.JsonLib;
+
   /**
    * Walks an object tree (recursive descent) implementing
    * a visitor callback for each item.
