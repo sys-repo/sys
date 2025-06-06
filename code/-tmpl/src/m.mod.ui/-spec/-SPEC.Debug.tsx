@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
+type Storage = { theme?: t.CommonTheme };
 
 /**
  * Types:
@@ -14,9 +15,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
   const props = {
     debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    theme: s(localstore.current.theme),
   };
   const p = props;
   const api = {
@@ -26,6 +29,14 @@ export function createDebugSignals() {
       p.theme.value;
     },
   };
+
+  Signal.effect(() => {
+    p.theme.value;
+    localstore.change((d) => {
+      d.theme = p.theme.value ?? 'Light';
+    });
+  });
+
   return api;
 }
 
