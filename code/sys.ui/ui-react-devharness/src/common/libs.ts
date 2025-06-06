@@ -8,4 +8,4 @@ export { Lorem, Str, Value } from '@sys/std/value';
 
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard } from '@sys/ui-dom';
-export { FC, Signal, useDist, useMouse } from '@sys/ui-react';
+export { FC, Signal, useDist, usePointer } from '@sys/ui-react';
