@@ -48,7 +48,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>
-        <div>{'useMouse'}</div>
+        <div>{'usePointer'}</div>
         <div />
         <div>{'Hook'}</div>
       </div>

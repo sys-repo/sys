@@ -1,4 +1,4 @@
-import { useClickInside, useClickOutside, useMouse } from '@sys/ui-react';
+import { useClickInside, useClickOutside, usePointer } from '@sys/ui-react';
 import React from 'react';
 
 import { type t, css } from '../-test.ui.ts';
@@ -13,11 +13,11 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const { debug } = props;
 
   const ref = React.useRef<HTMLDivElement>(null);
-  useClickInside({ ref, callback: (e) => console.info(`⚡️ click-inside:`, e) });
-  useClickOutside({ ref, callback: (e) => console.info(`⚡️ click-outside:`, e) });
+  useClickInside({ ref, callback: (e) => console.info(`⚡️ inside:`, e) });
+  useClickOutside({ ref, callback: (e) => console.info(`⚡️ outside:`, e) });
 
-  const mouse = useMouse();
-  console.info('mouse.is', mouse.is);
+  const pointer = usePointer();
+  console.info('pointer.is', pointer.is);
 
   /**
    * Render:
@@ -33,7 +33,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
 
   return (
     <div ref={ref} className={css(styles.base, props.style).class}>
-      <div {...mouse.handlers}>{'🐷 Hello'}</div>
+      <div {...pointer.handlers}>{'🐷 Hello'}</div>
     </div>
   );
 };
