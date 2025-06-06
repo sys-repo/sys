@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, ReactEvent } from './common.ts';
+import { type t, ReactEvent, useIsTouchSupported } from './common.ts';
 import { Theme } from './u.ts';
 
 type Options = {
@@ -37,8 +37,17 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
   const { selected, over, theme, onPanelEvent } = options;
   const isSelected = wrangle.isSelected(panel, options);
 
+  /**
+   * Hooks:
+   */
+  const isTouch = useIsTouchSupported();
+
+  /**
+   * Effect:
+   */
   useEffect(() => {
     if (!svg.ready) return;
+    const life = new AbortController();
 
     const query = `#panel\\.${panel}`;
     const svgPanel = svg.query(query);
@@ -66,10 +75,24 @@ export function useCanvasPanelMouse<T extends HTMLElement>(
       fire(e, isOver ? 'enter' : 'leave');
     };
 
-    svgPanel?.off();
-    svgPanel?.on('mouseover', (e) => onOver(e, true));
-    svgPanel?.on('mouseleave', (e) => onOver(e, false));
-    svgPanel?.on('mousedown', (e) => fire(e, 'click'));
+    if (svgPanel) {
+      svgPanel.off();
+      if (isTouch) {
+        const touchClick: EventListener = (e) => {
+          onOver(e, true); //  Treat as "enter".
+          fire(e, 'click'); // Treat tap as "click".
+        };
+        svgPanel.on('touchstart', touchClick, life);
+        svgPanel.on('touchend', (e) => onOver(e, false), life);
+        svgPanel.on('touchcancel', (e) => onOver(e, false), life);
+      } else {
+        svgPanel.on('mouseover', (e) => onOver(e, true), life);
+        svgPanel.on('mouseleave', (e) => onOver(e, false), life);
+        svgPanel.on('mousedown', (e) => fire(e, 'click'), life);
+      }
+    }
+
+    return () => void life.abort();
   }, [svg.ready, panel, selected, over, theme, isSelected]);
 }
 
