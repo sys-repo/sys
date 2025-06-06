@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.PropsGridProps;
+type Storage = { width?: number };
 
 /**
  * Types:
@@ -15,10 +16,12 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Light'),
-    width: s(330),
+    width: s(localstore.current.width),
   };
   const p = props;
   const api = {
@@ -29,6 +32,14 @@ export function createDebugSignals() {
       p.width.value;
     },
   };
+
+  Signal.effect(() => {
+    p.width.value;
+    localstore.change((d) => {
+      d.width = p.width.value ?? 330;
+    });
+  });
+
   return api;
 }
 
@@ -81,8 +92,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
-        expand={['$']}
         style={{ marginTop: 10 }}
+        expand={['$']}
       />
     </div>
   );

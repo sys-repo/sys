@@ -16,9 +16,9 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
+  const s = Signal.create;
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
-  const s = Signal.create;
   const video = Player.Video.signals({
     src: localstore.current.src ?? '/sample/group-scale.webm',
     autoPlay: localstore.current.autoPlay,
