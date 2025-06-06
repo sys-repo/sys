@@ -15,11 +15,33 @@ export const Json: JsonLib = {
     return text.includes('\n') ? `${text}\n` : text; // NB: trailing "new-line" only added if the JSON spans more than a single line
   },
 
-  parse<T>(input: JsonInput, defaultValue: t.JsonParseDefault<T>): T {
-    return input === undefined ? wrangle.default(defaultValue) : JSON.parse(input);
+  /**
+   * Parse a JSON string (or return the default/undefined) - throws.
+   *
+   * Overload 1: `parse<T>(input)` → `T | undefined`
+   * Overload 2: `parse<T>(input, default)` → `T`
+   */
+  parse<T>(...args: any[]) {
+    const input = args[0] as JsonInput;
+    const defaultValue = args[1] as t.JsonParseDefault<T>;
+
+    if (input === undefined) {
+      return defaultValue !== undefined ? (wrangle.default(defaultValue) as T) : undefined;
+    } else {
+      return JSON.parse(input) as T;
+    }
   },
 
-  safeParse<T>(input: JsonInput, defaultValue: t.JsonParseDefault<T>) {
+  /**
+   * Parse with error capture.
+   *
+   * Overload 1: `safeParse<T>(input)` → `{ ok: true; data: T | undefined } | { ok: false; error }`
+   * Overload 2: `safeParse<T>(input, default)` → `{ ok: true; data: T } | { ok: false; error }`
+   */
+  safeParse<T>(...args: any[]) {
+    const input = args[0] as JsonInput;
+    const defaultValue = args[1] as t.JsonParseDefault<T>;
+
     const done = (data?: T, error?: t.StdError) => {
       type R = t.JsonParseResult<T>;
       const ok = !error;
@@ -27,7 +49,6 @@ export const Json: JsonLib = {
     };
 
     if (input == null) return done(wrangle.default(defaultValue));
-
     try {
       return done(Json.parse(input, defaultValue));
     } catch (err) {

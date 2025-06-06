@@ -77,6 +77,18 @@ describe('Json', () => {
       test(null);
     });
 
+    it('param types (variants)', () => {
+      type T = { foo: number };
+      const obj: T = { foo: 123 };
+      const text = Json.stringify(obj);
+
+      const a = Json.parse<T>(text);
+      const b = Json.parse<T>(text, { foo: 0 });
+
+      expect(a?.foo).to.eql(123);
+      expect(b.foo).to.eql(123);
+    });
+
     it('undefined: returns default value', () => {
       const obj = { foo: 123 };
       const res1 = Json.parse(undefined, obj);
@@ -121,6 +133,18 @@ describe('Json', () => {
 
       expect(res1.error).to.eql(undefined);
       expect(res2.error).to.eql(undefined);
+    });
+
+    it('param types (variants)', () => {
+      type T = { foo: number };
+      const obj: T = { foo: 123 };
+      const text = Json.stringify(obj);
+
+      const a = Json.safeParse<T>(text);
+      const b = Json.safeParse<T>(text, { foo: 0 });
+
+      expect(a.data?.foo).to.eql(123);
+      expect(b.data.foo).to.eql(123);
     });
 
     it('returns error', () => {
