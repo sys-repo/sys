@@ -95,7 +95,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
 /**
  * Helpers:
  */
-const toSize = (el?: HTMLDivElement | null): Size & { ready?: boolean } => {
+const toSize = (el?: HTMLDivElement | null): Size & { ready: boolean } => {
   if (!el) return { ready: false, width: -1, height: -1 };
   const { width, height } = el.getBoundingClientRect();
   return { ready: true, width, height };
