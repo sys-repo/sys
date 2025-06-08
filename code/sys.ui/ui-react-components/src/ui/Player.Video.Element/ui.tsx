@@ -124,18 +124,14 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       ref={videoRef}
       className={styles.video.class}
       src={src}
-      preload={'metadata'} // NB: faster paint → grabs just video/http headers first.
+      preload={'auto'}
       controls={false}
       disablePictureInPicture={true}
       playsInline={true}
       muted={p?.muted.value}
       loop={p?.loop.value}
-      onEnded={(e) => {
-        if (video) props.onEnded?.({ video });
-      }}
-      onClick={(e) => {
-        if (video) Signal.toggle(video.props.playing);
-      }}
+      onEnded={() => video && props.onEnded?.({ video })}
+      onClick={() => video && Signal.toggle(video.props.playing)}
     />
   );
 

@@ -172,7 +172,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => {
           const fn: t.VideoPlayerScale = (e) => {
-            const pixels = 1;
+            const pixels = 2;
             const res = e.enlargeBy(pixels);
             console.info(`⚡️ scale (callback):`, e);
             console.info(`   increment (${pixels}px):`, res);
