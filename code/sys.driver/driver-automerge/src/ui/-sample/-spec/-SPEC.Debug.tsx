@@ -19,7 +19,6 @@ export function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
   const repo = Crdt.repo();
-
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
