@@ -13,10 +13,10 @@ type RepoArgs = {
 export type CrdtLibFs = {
   readonly kind: 'FileSystem';
   readonly Is: t.CrdtIsLib;
-  repo(args: t.StringDir | t.CrdtFsRepoArgs): Promise<t.CrdtRepo>;
+  repo(args?: t.StringDir | t.CrdtFsRepoArgs): Promise<t.CrdtRepo>;
 };
 /** Arguments for file-system `Crdt.repo` method. */
-export type CrdtFsRepoArgs = { dir: t.StringDir } & RepoArgs;
+export type CrdtFsRepoArgs = { dir?: t.StringDir } & RepoArgs;
 
 /**
  * API for CRDT's on IndexedDB (browser):

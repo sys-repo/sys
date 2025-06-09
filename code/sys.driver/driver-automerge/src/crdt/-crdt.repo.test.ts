@@ -13,10 +13,10 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 
-  it('create', async () => {
+  it('create', () => {
     const repo = toRepo();
-    const a = repo.create<T>({ count: 0 });
-    expect(a.current).to.eql({ count: 0 });
+    const doc = repo.create<T>({ count: 0 });
+    expect(doc.current).to.eql({ count: 0 });
   });
 
   it('get', async () => {

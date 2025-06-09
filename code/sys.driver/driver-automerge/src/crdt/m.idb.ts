@@ -12,6 +12,7 @@ export const Crdt: t.CrdtLibIdb = {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
     const storage = new IndexedDBStorageAdapter();
+
     const base = new Repo({ storage, network, sharePolicy, denylist });
     return toRepo(base);
   },
