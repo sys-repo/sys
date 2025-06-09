@@ -1,53 +1,67 @@
-import type { ChangeFn } from '@automerge/automerge-repo';
+import type { ChangeFn, DocHandleChangePayload } from '@automerge/automerge-repo';
 import { type t, Dispose, rx, slug } from './common.ts';
 
 type O = Record<string, unknown>;
-const cache = new Map<string, t.CrdtRef<any>>();
-const REF_HANDLE = Symbol('ref:handle');
+const REF = Symbol('ref:automerge:handle');
+
+/**
+ * Extract the hidden handle from a [CrdtRef] document.
+ */
+export function toAutomergeHandle<T extends O>(doc: t.CrdtRef<T>): t.DocHandle<T> | undefined {
+  return (doc as any)[REF];
+}
 
 /**
  * Convert an automerge DocHandle to an immutable CRDT reference.
  */
 export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput): t.CrdtRef<T> {
-  if (cache.has(handle.documentId)) return cache.get(handle.documentId)!;
-
   const instance = slug();
+  const id = handle.documentId;
   const $ = rx.subject<t.CrdtChange<T>>();
-  const cacheLifecycle = rx.disposable(until$);
+  let _final: T;
 
-  handle.on('change', (e) => {
+  /**
+   * Event Monitor:
+   */
+  const onChange = (e: DocHandleChangePayload<T>) => {
     const { patches, patchInfo } = e;
     const { before, after, source } = patchInfo;
     $.next({ source, before, after, patches });
+  };
+
+  /**
+   * Lifecycle:
+   */
+  const life = rx.lifecycle(until$);
+  life.dispose$.subscribe(() => {
+    _final = handle.doc();
+    handle.off('change', onChange);
   });
 
   /**
    * API:
    */
-  const ref: t.CrdtRef<T> = {
+  const ref: t.CrdtRef<T> = Dispose.toLifecycle(life, {
+    id,
     instance,
     get current() {
+      if (life.disposed) return _final;
       return handle.doc();
     },
-    change(fn, op) {
-      const options = wrangle.changeOptions(op);
-      handle.change(fn as ChangeFn<T>, { patchCallback: (patches) => options.patches?.(patches) });
+    change(fn, options) {
+      if (life.disposed) return;
+      const op = wrangle.changeOptions(options);
+      handle.change(fn as ChangeFn<T>, { patchCallback: (patches) => op.patches?.(patches) });
     },
     events(dispose$) {
-      const life = rx.lifecycle(dispose$);
-      const changed$ = $.pipe(rx.takeUntil(life.dispose$));
+      const until = rx.disposable([dispose$, life.dispose$]);
+      const changed$ = $.pipe(rx.takeUntil(until.dispose$));
       return Dispose.toLifecycle(life, { changed$ });
     },
-  };
+  });
 
-  /**
-   * Cache:
-   */
-  cache.set(handle.documentId, ref);
-  cacheLifecycle.dispose$.subscribe(() => cache.delete(handle.documentId));
-
-  // Hidden handle reference.
-  Object.defineProperty(ref, REF_HANDLE, {
+  // Hidden handle reference (automerge).
+  Object.defineProperty(ref, REF, {
     value: handle,
     writable: false,
     enumerable: false,
@@ -55,14 +69,8 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
   });
 
   // Finish up.
+  handle.on('change', onChange);
   return ref;
-}
-
-/**
- * Extract the hidden handle from a [CrdtRef] document.
- */
-export function toHandle<T extends O>(doc: t.CrdtRef<T>): t.DocHandle<T> | undefined {
-  return (doc as any)[REF_HANDLE];
 }
 
 /**

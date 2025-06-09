@@ -1,11 +1,12 @@
 import { Repo } from '@automerge/automerge-repo';
-import { type t, describe, expect, it, rx } from '../-test.ts';
-import { toRef, toHandle } from './u.toRef.ts';
+import { type t, describe, expect, it, rx, c, Time } from '../-test.ts';
+import { toRef, toAutomergeHandle } from './u.toRef.ts';
+import { toRepo, toAutomergeRepo } from './u.toRepo.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
-  describe('toRef', () => {
-    type T = { count: number };
+  type T = { count: number };
 
+  describe('toRef', () => {
     it('create → change → patches (sequence)', async () => {
       const repo = new Repo();
       const handle = repo.create<T>({ count: 0 });
@@ -13,6 +14,12 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       const doc = toRef(handle);
       expect(doc.current).to.eql({ count: 0 });
       expect(typeof doc.instance).to.eql('string');
+      expect(doc.disposed).to.eql(false);
+
+      console.info();
+      console.info(c.bold(c.cyan(`CrdtRef<T>:`)));
+      console.info(doc);
+      console.info();
 
       let patches: t.CrdtPatch[] = [];
       doc.change((d) => (d.count += 1));
@@ -31,38 +38,18 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(patches[1].path).to.eql(['count']);
     });
 
-    it('toHandle', () => {
+    it('toAutomergeHandle', () => {
       const repo = new Repo();
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle);
-      expect(toHandle(doc)).to.equal(handle);
-      expect(toHandle({} as any)).to.eql(undefined);
-    });
-
-    describe('cache', () => {
-      it('retreives from cache', () => {
-        const repo = new Repo();
-        const handle = repo.create<T>({ count: 0 });
-        const a = toRef(handle);
-        const b = toRef(handle);
-        expect(a).to.equal(b); // NB: cached instance.
-      });
-
-      it('removed from cache', () => {
-        const life = rx.disposable();
-        const repo = new Repo();
-        const handle = repo.create<T>({ count: 0 });
-        const a = toRef(handle, life);
-        life.dispose();
-        const b = toRef(handle);
-        expect(b).to.not.equal(a);
-      });
+      expect(toAutomergeHandle(doc)).to.equal(handle);
+      expect(toAutomergeHandle({} as any)).to.eql(undefined);
     });
 
     describe('events', () => {
       type T = { count: number; foo: string[] };
 
-      it('fires event', () => {
+      it('fires event: change$', () => {
         const repo = new Repo();
         const handle = repo.create<T>({ count: 0, foo: [] });
         const doc = toRef(handle);
@@ -88,7 +75,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
         ]);
       });
 
-      it('dispose (via param)', () => {
+      it('dispose events (via param)', () => {
         const life = rx.disposable();
         const repo = new Repo();
         const handle = repo.create<T>({ count: 0, foo: [] });
@@ -102,7 +89,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
         expect(fired).to.eql(1);
       });
 
-      it('dispose (via method)', () => {
+      it('dispose events (via method)', () => {
         const repo = new Repo();
         const handle = repo.create<T>({ count: 0, foo: [] });
         const doc = toRef(handle);
@@ -113,8 +100,125 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
         doc.change((d) => (d.count += 1));
         events.dispose();
         doc.change((d) => (d.count += 1));
-        expect(fired).to.eql(1);
+        expect(fired).to.eql(1); // NB: no change after disposal.
+      });
+
+      it('dispose events (via doc)', () => {
+        const repo = new Repo();
+        const handle = repo.create<T>({ count: 0, foo: [] });
+        const doc = toRef(handle);
+        expect(doc.disposed).to.eql(false);
+
+        let fired = 0;
+        doc.events().changed$.subscribe(() => fired++);
+
+        doc.change((d) => (d.count += 1));
+        doc.dispose();
+        doc.change((d) => (d.count += 1));
+        expect(fired).to.eql(1); // NB: no change after disposal.
       });
     });
+
+    describe('dispose', () => {
+      it('disposed from toRef param', async () => {
+        const life = rx.disposable();
+        const repo = new Repo();
+        const handle = repo.create<T>({ count: 0 });
+        const doc = toRef(handle, life);
+
+        life.dispose();
+        expect(doc.disposed).to.eql(true);
+      });
+
+      it('does not change after disposal', () => {
+        const repo = new Repo();
+        const handle = repo.create<T>({ count: 0 });
+        const doc = toRef(handle);
+        expect(doc.disposed).to.eql(false);
+        expect(doc.current).to.eql({ count: 0 });
+
+        doc.dispose();
+        expect(doc.disposed).to.eql(true);
+
+        doc.change((d) => (d.count = 1234));
+        expect(doc.current).to.eql({ count: 0 });
+      });
+
+      it('events do not fire when created after disposal', () => {
+        const repo = new Repo();
+        const handle = repo.create<T>({ count: 0 });
+        const doc = toRef(handle);
+        doc.dispose();
+
+        let fired = 0;
+        const events = doc.events();
+        events.changed$.subscribe((d) => fired++);
+        expect(events.disposed).to.eql(true);
+
+        doc.change((d) => d.count++);
+        expect(fired).to.eql(0);
+      });
+    });
+  });
+
+  describe('Repo', () => {
+    it('create', async () => {
+      const repo = toRepo();
+      const a = repo.create<T>({ count: 0 });
+      expect(a.current).to.eql({ count: 0 });
+    });
+
+    it('get', async () => {
+      const base = new Repo();
+      const repoA = toRepo(base);
+      const repoB = toRepo(base);
+      const a = repoA.create<T>({ count: 0 });
+      expect(a.current).to.eql({ count: 0 });
+
+      const b = (await repoB.get<T>(` ${a.id}   `))!; // NB: test input address cleanup.
+      expect(a).to.not.equal(b); // NB: difference repo (not-cached).
+      expect(a.id).to.eql(b.id);
+      expect(a.instance).to.not.eql(b.instance);
+
+      a.change((d) => (d.count = 1234));
+      expect(b.current.count).to.eql(1234);
+    });
+
+    it('get: automerge-URL', async () => {
+      const repo = toRepo();
+      const a = repo.create<T>({ count: 0 });
+      const b = (await repo.get<T>(`automerge:${a.id}`))!;
+      expect(b.instance).to.not.eql(a.instance);
+      expect(b.id).to.eql(a.id);
+      expect(b.current).to.eql({ count: 0 });
+    });
+
+    it('get: 404', async () => {
+      const repo = toRepo();
+      const doc = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+      expect(doc).to.eql(undefined);
+    });
+
+    it('toAutomergeRepo', () => {
+      const base = new Repo();
+      const repo = toRepo(base);
+      expect(toAutomergeRepo(repo)).to.equal(base);
+      expect(toAutomergeRepo({} as any)).to.eql(undefined);
+    });
+
+    it('syncing between different instances', async () => {
+      const base = new Repo();
+      const repoA = toRepo(base);
+      const repoB = toRepo(base);
+      const a = repoA.create<T>({ count: 0 });
+      const b = (await repoB.get<T>(a.id))!;
+
+      expect(a).to.not.equal(b);
+      expect(a.current).to.eql(b.current);
+
+      a.change((d) => d.count++);
+      expect(a.current).to.eql(b.current);
+    });
+
   });
 });
