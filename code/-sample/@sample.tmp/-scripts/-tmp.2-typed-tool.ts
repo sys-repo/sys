@@ -31,7 +31,7 @@ export type Foo = z.infer<typeof FooSchema>;
 let echoCalls: Foo[] = [];
 
 export const echo = tool({
-  description: 'Echo back whatever message the user provided.',
+  description: 'Sample that does something.',
   parameters: FooJsonSchema,
   execute: async (args) => {
     echoCalls.push(args);
