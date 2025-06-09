@@ -27,6 +27,7 @@ describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, 
 
     // Create a secondary repo pointing at the same dir (prove filesystem save)
     await Testing.wait(100); // NB: hack ← typically don't do this on the same process, write are not real-time updated.
+
     const repoB = new Repo({ storage: new NodeFSStorageAdapter(fs.dir) });
     const docC = await repoB.find<T>(docA.url);
     expect(docC.doc()).to.eql({ msg });

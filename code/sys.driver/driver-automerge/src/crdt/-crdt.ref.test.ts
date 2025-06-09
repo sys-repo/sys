@@ -16,10 +16,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(doc.disposed).to.eql(false);
     expect(doc.deleted).to.eql(false);
 
-    console.info();
-    console.info(c.bold(c.cyan(`CrdtRef<T>:`)));
-    console.info(doc);
-    console.info();
+    console.info(c.bold(c.cyan(`\nCrdtRef<T>:\n`)), doc, '\n');
 
     let patches: t.CrdtPatch[] = [];
     doc.change((d) => (d.count += 1));
