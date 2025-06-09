@@ -14,7 +14,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
       expect(Crdt.kind).to.eql('FileSystem');
 
-      const dir = `.tmp/fs.${slug()}`;
+      const dir = `.tmp/test/crdt.import/${slug()}`;
       const repoA = Crdt.repo({ dir });
       const a = repoA.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));

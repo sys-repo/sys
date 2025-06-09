@@ -37,7 +37,7 @@ export type CrdtRepo = {
 };
 
 /**
- * API for CRDT's on a file-system.
+ * API for CRDT's on a file-system:
  */
 export type CrdtLibFs = {
   readonly kind: 'FileSystem';
@@ -48,7 +48,7 @@ export type CrdtLibFs = {
 export type CrdtFsRepoArgs = { dir: t.StringDir } & RepoArgs;
 
 /**
- * API for CRDT's on IndexedDB (browser).
+ * API for CRDT's on IndexedDB (browser):
  */
 export type CrdtLibIdb = {
   readonly kind: 'IndexedDb';
@@ -59,7 +59,7 @@ export type CrdtLibIdb = {
 export type CrdtIdbRepoArgs = RepoArgs;
 
 /**
- * Boolean flag evaluators.
+ * Boolean flag evaluators:
  */
 export type CrdtIsLib = {
   ref<T extends O>(input?: unknown): input is t.CrdtRef<T>;
