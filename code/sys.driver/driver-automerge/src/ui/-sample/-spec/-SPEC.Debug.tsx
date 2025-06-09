@@ -1,18 +1,10 @@
+import { Crdt } from '@sys/driver-automerge/idb';
 import React from 'react';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  IndexedDBStorageAdapter,
-  LocalStorage,
-  ObjectView,
-  Repo,
-  Signal,
-} from '../common.ts';
+
+import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleProps;
-type LocalStore = { docUri?: t.AutomergeUrl };
+type LocalStore = { docId?: string };
 
 /**
  * Types:
@@ -26,7 +18,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
-  const repo = new Repo({ storage: new IndexedDBStorageAdapter() });
+  const repo = Crdt.repo();
 
   const props = {
     debug: s(false),
@@ -44,6 +36,7 @@ export function createDebugSignals() {
       p.doc.value;
     },
   };
+
   return api;
 }
 
@@ -112,25 +105,24 @@ export async function initDoc(debug: DebugSignals) {
   const { repo, localstore } = debug;
   const p = debug.props;
 
-  const listen = (doc: t.DocHandle<t.SampleDoc>) => {
-    doc.addListener('change', (e) => {
-      p.doc.value = e.doc;
+  const listen = (doc: t.CrdtRef<t.SampleDoc>) => {
+    doc.events().changed$.subscribe((e) => {
+      p.doc.value = e.after;
     });
   };
 
-  const uri = localstore.current.docUri;
+  const uri = localstore.current.docId;
   if (!uri) {
     // Create:
     const doc = repo.create<t.SampleDoc>({ cards: [], count: 0 });
-    await doc.whenReady();
     listen(doc);
-    localstore.change((d) => (d.docUri = doc.url));
-    p.doc.value = doc.doc();
+    localstore.change((d) => (d.docId = doc.id));
+    p.doc.value = doc.current;
   } else {
     // Retrieve:
-    const doc = await repo.find<t.SampleDoc>(uri);
+    const doc = (await repo.get<t.SampleDoc>(uri))!;
     listen(doc);
-    p.doc.value = doc.doc();
+    p.doc.value = doc.current;
   }
 }
 
@@ -138,9 +130,9 @@ export function sampleDocButtons(debug: DebugSignals) {
   const { repo, localstore } = debug;
 
   const increment = async (by: number) => {
-    const uri = localstore.current.docUri;
+    const uri = localstore.current.docId;
     if (!uri) return;
-    const doc = await repo.find<t.SampleDoc>(uri);
+    const doc = (await repo.get<t.SampleDoc>(uri))!;
     doc.change((d) => (d.count += by));
   };
 
