@@ -19,7 +19,7 @@ describe('Disposable', () => {
         if (Is.disposable(until)) {
           until?.dispose();
         } else {
-          until?.forEach((subject) => subject.next());
+          until?.forEach((m) => (Is.disposable(m) ? m.dispose() : m.next()));
         }
 
         expect(count).to.eql(1);
@@ -28,7 +28,6 @@ describe('Disposable', () => {
       test();
       test(new Subject<void>());
       test([new Subject<void>(), new Subject<void>()]);
-
       test(rx.disposable());
       test(rx.lifecycle());
     });
@@ -252,12 +251,14 @@ describe('Disposable', () => {
 
     it('Input: list', () => {
       const $1 = new Subject<void>();
-      const $2 = new Subject<void>();
-      const res = Dispose.until([$1, undefined, $2]);
+      const $2 = rx.disposable();
+      const $3 = [undefined, rx.disposable()];
+      const res = Dispose.until([$1, undefined, $2, $3]);
 
-      expect(res.length).to.eql(2);
-      expect(res[0]).to.eql($1);
-      expect(res[1]).to.eql($2);
+      expect(res.length).to.eql(3);
+      expect(res[0]).to.equal($1);
+      expect(res[1]).to.equal($2.dispose$);
+      expect(res[2]).to.equal($3[1]?.dispose$);
     });
 
     it('Input: deep list ← flattens', () => {
