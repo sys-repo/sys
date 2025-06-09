@@ -286,6 +286,18 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.bool', () => {
+    it('Is.bool: true', () => {
+      expect(Is.bool(true)).to.eql(true);
+      expect(Is.bool(false)).to.eql(true);
+    });
+
+    it('Is.bool: false', () => {
+      const NON = [123, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.bool(value)).to.eql(false));
+    });
+  });
+
   describe('Is.array', () => {
     it('Is.array: true', () => {
       expect(Is.array([])).to.eql(true);

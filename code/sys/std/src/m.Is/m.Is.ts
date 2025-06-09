@@ -110,6 +110,10 @@ export const Is: StdIsLib = {
     return typeof input === 'string';
   },
 
+  bool(input?: any): input is boolean {
+    return typeof input === 'boolean';
+  },
+
   array<T>(input?: any): input is T[] {
     return Array.isArray(input);
   },

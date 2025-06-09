@@ -106,6 +106,12 @@ export type StdIsLib = {
   string(input?: unknown): input is string;
 
   /**
+   * Determine if the value is a boolean.
+   * typeof === 'boolean'
+   */
+  bool(input?: unknown): input is boolean;
+
+  /**
    * Determine if the value is a number.
    * typeof === 'number'
    */
