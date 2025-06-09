@@ -1,11 +1,46 @@
 import { Repo } from '@automerge/automerge-repo';
-import { type t, describe, expect, it, rx, c, Time } from '../-test.ts';
-import { toRef, toAutomergeHandle } from './u.toRef.ts';
-import { toRepo, toAutomergeRepo } from './u.toRepo.ts';
+import 'fake-indexeddb/auto';
+
+import { type t, c, describe, expect, it, rx, slug, Time } from '../-test.ts';
 import { CrdtIs } from './mod.ts';
+import { toAutomergeHandle, toRef } from './u.toRef.ts';
+import { toAutomergeRepo, toRepo } from './u.toRepo.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
+
+  describe('import', () => {
+    it('fs (FileSystem)', async () => {
+      const { Crdt } = await import('@sys/driver-automerge/fs');
+      expect(Crdt.kind).to.eql('FileSystem');
+
+      const dir = `.tmp/fs.${slug()}`;
+      const repoA = Crdt.repo({ dir });
+      const a = repoA.create<T>({ count: 0 });
+      a.change((d) => (d.count = 1234));
+
+      await Time.wait(100);
+
+      const repoB = Crdt.repo(dir);
+      const b = (await repoB.get<T>(a.id))!;
+      expect(b.current).to.eql({ count: 1234 }); // NB: read from disk.
+    });
+
+    it('idb (IndexedDb)', async () => {
+      const { Crdt } = await import('@sys/driver-automerge/idb');
+      expect(Crdt.kind).to.eql('IndexedDb');
+
+      const repoA = Crdt.repo({});
+      const a = repoA.create<T>({ count: 0 });
+      a.change((d) => (d.count = 1234));
+
+      await Time.wait(100);
+
+      const repoB = Crdt.repo();
+      const b = (await repoB.get<T>(a.id))!;
+      expect(b.current).to.eql({ count: 1234 }); // NB: read from IndexedDb.
+    });
+  });
 
   describe('toRef', () => {
     it('create → change → patches (sequence)', async () => {
@@ -222,7 +257,6 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       a.change((d) => d.count++);
       expect(a.current).to.eql(b.current);
     });
-
   });
 
   describe('Is', () => {
@@ -233,6 +267,15 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.eql(false));
+    });
+  });
+
+  describe('Registry', () => {
+    type Registry = { docs: string[] };
+
+    it('id: "regsitry-id"', async () => {
+      const repo = toRepo();
+      const doc = repo.create<Registry>({ docs: [] });
     });
   });
 });
