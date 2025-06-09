@@ -1,6 +1,7 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
 import { type t } from './common.ts';
-import { toAutomergeHandle, toRef } from './u.toRef.ts';
+import { CrdtIs } from './m.Is.ts';
+import { toRef } from './u.toRef.ts';
 
 const REF = Symbol('ref:automerge:handle');
 type O = Record<string, unknown>;
@@ -24,6 +25,7 @@ export function toRepo(repo: Repo = new Repo()): t.CrdtRepo {
       const handle = repo.create<T>(initial);
       return toRef(handle);
     },
+
     async get<T extends O>(id: t.StringId) {
       id = wrangle.id(id);
       try {
@@ -52,9 +54,11 @@ export function toRepo(repo: Repo = new Repo()): t.CrdtRepo {
  * Helpers:
  */
 const wrangle = {
-  id(input: string) {
-    if (typeof input !== 'string') return '';
-    input = input.trim();
-    return isValidAutomergeUrl(input) ? input.replace(/^automerge\:/, '') : input;
+  id(input: string | t.CrdtRef<O>): DocumentId {
+    let id = CrdtIs.ref(input) ? input.id : input;
+    if (typeof id !== 'string') return '' as DocumentId;
+    id = id.trim();
+    id = isValidAutomergeUrl(id) ? id.replace(/^automerge\:/, '') : id;
+    return id as DocumentId;
   },
 } as const;

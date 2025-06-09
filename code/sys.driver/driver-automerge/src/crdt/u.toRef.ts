@@ -19,6 +19,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
   const id = handle.documentId;
   const $ = rx.subject<t.CrdtChange<T>>();
   let _final: T;
+  let _deleted = false;
 
   /**
    * Event Monitor:
@@ -48,6 +49,9 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
       if (life.disposed) return _final;
       return handle.doc();
     },
+    get deleted() {
+      return _deleted;
+    },
     change(fn, options) {
       if (life.disposed) return;
       const op = wrangle.changeOptions(options);
@@ -68,8 +72,10 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
     configurable: false,
   });
 
-  // Finish up.
+  // Wire up events:
   handle.on('change', onChange);
+
+  // Finish up.
   return ref;
 }
 

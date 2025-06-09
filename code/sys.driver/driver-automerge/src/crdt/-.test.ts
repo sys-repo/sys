@@ -2,6 +2,7 @@ import { Repo } from '@automerge/automerge-repo';
 import { type t, describe, expect, it, rx, c, Time } from '../-test.ts';
 import { toRef, toAutomergeHandle } from './u.toRef.ts';
 import { toRepo, toAutomergeRepo } from './u.toRepo.ts';
+import { CrdtIs } from './mod.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -15,6 +16,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.current).to.eql({ count: 0 });
       expect(typeof doc.instance).to.eql('string');
       expect(doc.disposed).to.eql(false);
+      expect(doc.deleted).to.eql(false);
 
       console.info();
       console.info(c.bold(c.cyan(`CrdtRef<T>:`)));
@@ -162,6 +164,13 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('Repo', () => {
+    it('toAutomergeRepo', () => {
+      const base = new Repo();
+      const repo = toRepo(base);
+      expect(toAutomergeRepo(repo)).to.equal(base);
+      expect(toAutomergeRepo({} as any)).to.eql(undefined);
+    });
+
     it('create', async () => {
       const repo = toRepo();
       const a = repo.create<T>({ count: 0 });
@@ -199,19 +208,13 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc).to.eql(undefined);
     });
 
-    it('toAutomergeRepo', () => {
-      const base = new Repo();
-      const repo = toRepo(base);
-      expect(toAutomergeRepo(repo)).to.equal(base);
-      expect(toAutomergeRepo({} as any)).to.eql(undefined);
-    });
-
     it('syncing between different instances', async () => {
       const base = new Repo();
       const repoA = toRepo(base);
       const repoB = toRepo(base);
       const a = repoA.create<T>({ count: 0 });
       const b = (await repoB.get<T>(a.id))!;
+      expect(a.instance).to.not.eql(b.instance);
 
       expect(a).to.not.equal(b);
       expect(a.current).to.eql(b.current);
@@ -220,5 +223,16 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(a.current).to.eql(b.current);
     });
 
+  });
+
+  describe('Is', () => {
+    it('Is.ref', () => {
+      const repo = toRepo();
+      const doc = repo.create<T>({ count: 0 });
+      expect(CrdtIs.ref(doc)).to.eql(true);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.eql(false));
+    });
   });
 });
