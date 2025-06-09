@@ -59,7 +59,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
-   * Setup sample document.
+   * Setup sample document:
    */
   React.useEffect(() => void initDoc(debug), []);
 
@@ -110,8 +110,8 @@ export async function initDoc(debug: DebugSignals) {
     });
   };
 
-  const uri = localstore.current.docId;
-  if (!uri) {
+  const id = localstore.current.docId;
+  if (!id) {
     // Create:
     const doc = repo.create<t.SampleDoc>({ cards: [], count: 0 });
     listen(doc);
@@ -119,7 +119,7 @@ export async function initDoc(debug: DebugSignals) {
     p.doc.value = doc.current;
   } else {
     // Retrieve:
-    const doc = (await repo.get<t.SampleDoc>(uri))!;
+    const doc = (await repo.get<t.SampleDoc>(id))!;
     listen(doc);
     p.doc.value = doc.current;
   }
@@ -129,9 +129,9 @@ export function sampleDocButtons(debug: DebugSignals) {
   const { repo, localstore } = debug;
 
   const increment = async (by: number) => {
-    const uri = localstore.current.docId;
-    if (!uri) return;
-    const doc = (await repo.get<t.SampleDoc>(uri))!;
+    const id = localstore.current.docId;
+    if (!id) return;
+    const doc = (await repo.get<t.SampleDoc>(id))!;
     doc.change((d) => (d.count += by));
   };
 
