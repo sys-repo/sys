@@ -1,2 +1,1 @@
-console.info('👋', import.meta.url);
-import { Env } from '@sys/fs/env';
+import { Crdt } from '@sys/driver-automerge/fs';

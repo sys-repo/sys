@@ -1,11 +1,10 @@
 import { Repo } from '@automerge/automerge-repo';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import 'fake-indexeddb/auto';
 
 import { describe, expect, it, Testing } from '../-test.ts';
 
 describe('CRDT: IndexedDB', { sanitizeResources: false, sanitizeOps: false }, () => {
-  it('repo → persistence: IndexedDB', async () => {
+  it('repo → persistence', async () => {
     type T = { msg?: string };
     const repoA = new Repo({ storage: new IndexedDBStorageAdapter() });
 

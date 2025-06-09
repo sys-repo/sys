@@ -8,7 +8,7 @@ import { toRepo } from './u.toRepo.ts';
 export const Crdt: t.CrdtLibFs = {
   Is,
   kind: 'FileSystem',
-  repo(input) {
+  async repo(input) {
     const args = wrangle.dir(input);
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);

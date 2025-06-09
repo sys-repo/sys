@@ -7,7 +7,7 @@ describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, 
    * Ref:
    * https://automerge.org/docs/repositories/
    */
-  it('repo → persistence: file-system', async () => {
+  it('repo → persistence', async () => {
     type T = { msg?: string };
     const fs = await Testing.dir('crdt.fs').create();
     const repoA = new Repo({ storage: new NodeFSStorageAdapter(fs.dir) });

@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 import { CrdtIs } from './m.Is.ts';
 import { toRef } from './u.toRef.ts';
 
-const REF = Symbol('ref:automerge:handle');
+const REF = Symbol('ref:handle');
 type O = Record<string, unknown>;
 
 /**

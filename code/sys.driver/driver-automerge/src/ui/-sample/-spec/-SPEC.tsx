@@ -1,11 +1,19 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { type t, D } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
-  const debug = createDebugSignals();
+// Add the repo to the global window object so it can be accessed in the browser console.
+declare global {
+  interface Window {
+    repo: t.CrdtRepo;
+  }
+}
+
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
   const p = debug.props;
+  window.repo = debug.repo;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);

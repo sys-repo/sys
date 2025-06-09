@@ -8,7 +8,7 @@ import { toRepo } from './u.toRepo.ts';
 export const Crdt: t.CrdtLibIdb = {
   Is,
   kind: 'IndexedDb',
-  repo(args = {}) {
+  async repo(args = {}) {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
     const storage = new IndexedDBStorageAdapter();

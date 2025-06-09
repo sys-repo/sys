@@ -10,15 +10,14 @@ type LocalStore = { docId?: string };
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
-  const repo = Crdt.repo();
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
@@ -27,7 +26,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo,
+    repo: await Crdt.repo(),
     localstore,
     listen() {
       p.debug.value;

@@ -2,7 +2,7 @@ import type { ChangeFn, DocHandleChangePayload } from '@automerge/automerge-repo
 import { type t, Dispose, rx, slug } from './common.ts';
 
 type O = Record<string, unknown>;
-const REF = Symbol('ref:automerge:handle');
+const REF = Symbol('ref:handle');
 
 /**
  * Extract the hidden handle from a [CrdtRef] document.
