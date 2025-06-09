@@ -17,7 +17,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fs": "./src/crdt/m.Crdt.fs.ts",
-    "./idb": "./src/crdt/m.Crdt.idb.ts"
+    "./fs": "./src/crdt/m.fs.ts",
+    "./idb": "./src/crdt/m.idb.ts"
   }
 }
