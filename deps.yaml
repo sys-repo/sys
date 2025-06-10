@@ -41,15 +41,16 @@ groups:
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.1
     - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.1
     - import: npm:@onsetsoftware/automerge-patcher@0.14.0
+    - import: npm:@automerge/prosemirror@0.0.13
 
   crypto:
     - import: npm:@noble/hashes@1.8.0
       wildcard: true
 
   build/tools:
-    - import: npm:@vitejs/plugin-react-swc@3.10.1
+    - import: npm:@vitejs/plugin-react-swc@3.10.2
     - import: npm:@deno/vite-plugin@1.0.4
-    - import: npm:rollup@4.41.1
+    - import: npm:rollup@4.42.0
     - import: npm:vite@6.3.5
     - import: npm:vite-plugin-wasm@3.4.1
 
@@ -66,6 +67,12 @@ groups:
     - import: npm:workbox-range-requests@7.3.0
     - import: npm:workbox-expiration@7.3.0
     - import: npm:workbox-cacheable-response@7.3.0
+
+  ui/prosemirror:
+    - import: npm:prosemirror-example-setup@1.2.3
+    - import: npm:prosemirror-model@1.25.1
+    - import: npm:prosemirror-state@1.4.3
+    - import: npm:prosemirror-view@1.40.0
 
   ai:
     - import: npm:ai@4.3.16
@@ -84,6 +91,7 @@ deno.json:
   - group: ai
   - group: automerge
   - group: ui/service-worker
+  - group: ui/prosemirror
 
   # CLI tools
   - import: jsr:@cliffy/keypress@1.0.0-rc.7
