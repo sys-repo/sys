@@ -9,7 +9,8 @@ type O = Record<string, unknown>;
 /**
  * Extract the hidden automerge Repo from a [CrdtRepo].
  */
-export function toAutomergeRepo(repo: t.CrdtRepo): Repo | undefined {
+export function toAutomergeRepo(repo?: t.CrdtRepo): Repo | undefined {
+  if (!repo) return;
   return (repo as any)[REF];
 }
 

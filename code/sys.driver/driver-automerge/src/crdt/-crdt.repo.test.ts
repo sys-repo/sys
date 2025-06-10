@@ -10,6 +10,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     const base = new Repo();
     const repo = toRepo(base);
     expect(toAutomergeRepo(repo)).to.equal(base);
+    expect(toAutomergeRepo()).to.eql(undefined);
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 

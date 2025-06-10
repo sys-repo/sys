@@ -6,7 +6,16 @@ import { toAutomergeHandle, toRef } from './u.ref.ts';
 describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
 
-  it('create → change → patches (sequence)', async () => {
+  it('toAutomergeHandle', () => {
+    const repo = new Repo();
+    const handle = repo.create<T>({ count: 0 });
+    const doc = toRef(handle);
+    expect(toAutomergeHandle(doc)).to.equal(handle);
+    expect(toAutomergeHandle()).to.eql(undefined);
+    expect(toAutomergeHandle({} as any)).to.eql(undefined);
+  });
+
+  it('create → change → patches (sequence)', () => {
     const repo = new Repo();
     const handle = repo.create<T>({ count: 0 });
 
@@ -33,14 +42,6 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(patches[1].action).to.eql('put');
     expect(patches[0].path).to.eql(['count']);
     expect(patches[1].path).to.eql(['count']);
-  });
-
-  it('toAutomergeHandle', () => {
-    const repo = new Repo();
-    const handle = repo.create<T>({ count: 0 });
-    const doc = toRef(handle);
-    expect(toAutomergeHandle(doc)).to.equal(handle);
-    expect(toAutomergeHandle({} as any)).to.eql(undefined);
   });
 
   describe('events', () => {
@@ -117,7 +118,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('dispose', () => {
-    it('disposed from toRef param', async () => {
+    it('disposed from toRef param', () => {
       const life = rx.disposable();
       const repo = new Repo();
       const handle = repo.create<T>({ count: 0 });
