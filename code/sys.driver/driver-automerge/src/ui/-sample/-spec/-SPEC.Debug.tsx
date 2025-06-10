@@ -1,6 +1,6 @@
-import { Crdt } from '@sys/driver-automerge/browser';
 import React from 'react';
 
+import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleProps;
@@ -18,15 +18,26 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
+
+  const repo = Crdt.repo({
+    storage: 'IndexedDb',
+    network: [
+      'BroadcastChannel',
+      { wss: 'localhost:8080' },
+      // { wss: 'sync.automerge.org' },
+    ],
+  });
+
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
     doc: s<P['doc']>(),
   };
+
   const p = props;
   const api = {
     props,
-    repo: await Crdt.repo({ storage: 'IndexedDb', network: { wss: ' sync.automerge.org ' } }),
+    repo,
     localstore,
     listen() {
       p.debug.value;

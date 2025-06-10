@@ -23,6 +23,7 @@ export const CrdtServer: t.CrdtServerLib = {
     const url1 = c.cyan(`http://localhost:${c.bold(String(port))}`);
     const url2 = c.cyan(`  ws://localhost:${c.bold(String(port))}`);
     table.push([c.gray('Module:'), module]);
+    table.push([c.gray('Storage:'), c.gray(dir ?? '<no storage>')]);
     table.push([c.gray('Endpoint:'), url1]);
     table.push(['', url2]);
 
