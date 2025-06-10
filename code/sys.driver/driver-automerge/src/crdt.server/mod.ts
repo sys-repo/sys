@@ -2,15 +2,20 @@
  * @module
  * Tools for working with CRDT sync servers.
  */
-import { type t, Cli, Crdt, NodeWSServerAdapter, WebSocketServer, c, pkg } from './common.ts';
+import type { t } from './common.ts';
+import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg } from './common.ts';
 
 /**
  * Tools for working with CRDT sync servers:
  */
 export const CrdtServer: t.CrdtServerLib = {
   async start(options = {}) {
-    const { port, dir, sharePolicy, denylist, keepAliveInterval } = options;
+    const { dir, sharePolicy, denylist, keepAliveInterval } = options;
+    const port = Is.number(options.port) ? Net.port(options.port) : undefined;
 
+    /**
+     * Create WSS server and bind to CRDT repo:
+     */
     const wss = new WebSocketServer({ port });
     const network = new NodeWSServerAdapter(wss as any, keepAliveInterval); // NB: any → type-hack.
     const repo = Crdt.repo({ dir, network, sharePolicy, denylist });
