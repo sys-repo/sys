@@ -12,8 +12,9 @@ const ORIGINAL = {
 /**
  * Ensure `globalThis` is polyfilled with window/document.
  */
-export const polyfill: t.DomMockLib['polyfill'] = () => {
-  const window = _window || (_window = new Window());
+export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
+  const { url = 'http://localhost:1234' } = options;
+  const window = _window || (_window = new Window({ url }));
   g.window = window;
   g.document = window.document;
 };
@@ -24,4 +25,5 @@ export const polyfill: t.DomMockLib['polyfill'] = () => {
 export const unpolyfill: t.DomMockLib['polyfill'] = () => {
   g.window = ORIGINAL.window;
   g.document = ORIGINAL.document;
+  _window = undefined;
 };
