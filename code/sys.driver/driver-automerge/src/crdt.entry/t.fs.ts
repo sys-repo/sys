@@ -7,7 +7,7 @@ import type { t } from './common.ts';
 export type CrdtFilesystemLib = {
   readonly kind: 'Crdt:FileSystem';
   readonly Is: t.CrdtIsLib;
-  repo(args?: t.StringDir | t.CrdtFsRepoArgs): Promise<t.CrdtRepo>;
+  repo(args?: t.StringDir | t.CrdtFsRepoArgs): t.CrdtRepo;
 };
 
 /** Arguments for file-system `Crdt.repo` method. */

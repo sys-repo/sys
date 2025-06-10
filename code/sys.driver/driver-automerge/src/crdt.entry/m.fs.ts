@@ -7,7 +7,7 @@ type A = t.CrdtFsRepoArgs;
 export const Crdt: t.CrdtFilesystemLib = {
   kind: 'Crdt:FileSystem',
   Is: CrdtIs,
-  async repo(input) {
+  repo(input) {
     const args = wrangle.dir(input);
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);

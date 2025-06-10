@@ -12,7 +12,7 @@ import type { t } from './common.ts';
 export type CrdtBrowserLib = {
   readonly kind: 'Crdt:Browser';
   readonly Is: t.CrdtIsLib;
-  repo(args?: CrdtBrowserRepoArgs): Promise<t.CrdtRepo>;
+  repo(args?: CrdtBrowserRepoArgs): t.CrdtRepo;
 };
 
 /** Arguments for browser `Crdt.repo` method. */

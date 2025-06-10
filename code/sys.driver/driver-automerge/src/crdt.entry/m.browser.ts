@@ -7,7 +7,7 @@ import { type t, Arr, CrdtIs, Is, toRepo } from './common.ts';
 export const Crdt: t.CrdtBrowserLib = {
   kind: 'Crdt:Browser',
   Is: CrdtIs,
-  async repo(args = {}) {
+  repo(args = {}) {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
     const storage = wrangle.storage(args);

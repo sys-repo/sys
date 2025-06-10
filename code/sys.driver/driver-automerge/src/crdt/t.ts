@@ -2,9 +2,6 @@ import type { Patch as P, PatchSource } from '@automerge/automerge';
 import type { DocumentId } from '@automerge/automerge-repo';
 import type { t } from './common.ts';
 
-export type * from './t.browser.ts';
-export type * from './t.fs.ts';
-
 type O = Record<string, unknown>;
 type Id = DocumentId;
 type RefProps = t.Lifecycle & { readonly id: Id; readonly deleted: boolean };
