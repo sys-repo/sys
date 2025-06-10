@@ -23,7 +23,7 @@ export async function createDebugSignals() {
     storage: 'IndexedDb',
     network: [
       'BroadcastChannel',
-      { wss: 'localhost:8080' },
+      { wss: 'localhost:3030' },
       // { wss: 'sync.automerge.org' },
     ],
   });
