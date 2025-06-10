@@ -3,6 +3,8 @@ import { D } from '../common.ts';
 import { TextEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
+import type * as t from './-t.ts';
+
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
@@ -17,9 +19,9 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
-      .render(() => <TextEditor debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <TextEditor debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />);
   });
 
   e.it('ui:debug', (e) => {

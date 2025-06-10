@@ -1,8 +1,11 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+
+import { Crdt } from '@sys/driver-automerge/browser';
+import { Button, css, D, LocalStorage, ObjectView, Signal, Is } from '../common.ts';
+import type * as t from './-t.ts';
 
 type P = t.TextEditorProps;
-type Storage = { theme?: t.CommonTheme };
+type Storage = { theme?: t.CommonTheme; docId?: string };
 
 /**
  * Types:
@@ -17,16 +20,28 @@ export function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
+  const repo = Crdt.repo({
+    storage: 'IndexedDb',
+    network: [
+      // 'BroadcastChannel',
+      { wss: Is.localhost() ? 'localhost:3030' : 'sync.automerge.org' },
+    ],
+  });
+
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    doc: s<t.CrdtRef<t.SampleTextDoc>>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
+    localstore,
     listen() {
       p.debug.value;
       p.theme.value;
+      p.doc.value;
     },
   };
 
@@ -57,6 +72,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   Signal.useRedrawEffect(() => debug.listen());
+
+  /**
+   * Setup sample CRDT document:
+   */
+  React.useEffect(() => void initDoc(debug), []);
 
   /**
    * Render:
@@ -90,3 +110,33 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev Helpers:
+ */
+export async function initDoc(debug: DebugSignals) {
+  type T = t.SampleTextDoc;
+
+  const { repo, localstore } = debug;
+  const p = debug.props;
+
+  const listen = (doc: t.CrdtRef<T>) => {
+    doc.events().changed$.subscribe((e) => {
+      console.info('⚡️ crdt:changed$', e);
+    });
+  };
+
+  const id = localstore.current.docId;
+  if (!id) {
+    // Create:
+    const doc = repo.create<T>({ text: '' });
+    listen(doc);
+    localstore.change((d) => (d.docId = doc.id));
+    p.doc.value = doc;
+  } else {
+    // Retrieve:
+    const doc = (await repo.get<T>(id))!;
+    listen(doc);
+    p.doc.value = doc;
+  }
+}
