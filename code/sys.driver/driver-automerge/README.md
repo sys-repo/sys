@@ -4,7 +4,57 @@ An `Immutable<T>` implementation using Automerge (CRDT) as the immutability stra
 - https://automerge.org
 - https://github.com/automerge (MIT)
 
-### Example
+
+
+
+### FileSytem Environment
+
 ```ts
-import { } from 'jsr:@sys/driver-automerge';
+import { Crdt } from 'jsr:@sys/driver-automerge/fs';
+
+type T = { count: number };
+const repo = Crdt.repo('path/to/dir');
+const doc = repo.create<T>({ count: 0 });
+
+doc.change((d) => (d.count = 1234)); // ← Immutable<T>
+console.info(doc.current);           // ← { count:1234 }
 ```
+
+
+
+### Browser Environment
+Start UI dev-harness:
+```bash
+deno task dev
+```
+```ts
+import { Crdt } from '@sys/driver-automerge/browser';
+
+const repo = Crdt.repo({
+  storage: 'IndexedDb',
+  network: [
+    'BroadcastChannel',
+    { wss: 'localhost:8080' },       // or:↓
+    { wss: 'sync.automerge.org' },
+  ],
+});
+
+
+```
+
+
+### Local WebSocket Server
+Start sample on `localhost:8080`:
+
+```bash
+deno task wss
+```
+```ts
+import { CrdtServer } from '@sys/driver-automerge/wss';
+
+CrdtServer.start({
+  port: 8080,
+  dir: '.tmp/wss',
+});
+```
+
