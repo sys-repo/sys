@@ -9,7 +9,7 @@ type RefProps = t.Lifecycle & { readonly id: Id; readonly deleted: boolean };
 /**
  * An immutable CRDT document reference:
  */
-export type CrdtRef<T extends O> = t.ImmutableRef<T, P, CrdtEvents<T>> & RefProps;
+export type CrdtRef<T extends O = O> = t.ImmutableRef<T, P, CrdtEvents<T>> & RefProps;
 /** Data thrown off when a CRDT document changes */
 export type CrdtChange<T extends O> = t.ImmutableChange<T, P> & { readonly source: PatchSource };
 /** Event interface for a CrdtRef. */

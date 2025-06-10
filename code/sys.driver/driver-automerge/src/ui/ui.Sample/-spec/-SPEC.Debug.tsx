@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import type * as t from './-t.ts';
 
 type P = t.SampleProps;
 type LocalStore = { docId?: string };
@@ -19,17 +20,21 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
 
+  const wss = Is.localhost() ? 'localhost:3030' : 'sync.automerge.org';
+  console.info(`wss: ${wss}`);
+
   const repo = Crdt.repo({
     storage: 'IndexedDb',
     network: [
       // 'BroadcastChannel',
-      { wss: Is.localhost() ? 'localhost:3030' : 'sync.automerge.org' },
+      { wss },
     ],
   });
 
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
+    count: s(0),
     doc: s<P['doc']>(),
   };
 
@@ -42,6 +47,7 @@ export async function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.doc.value;
+      p.count.value;
     },
   };
 
@@ -101,7 +107,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={[]} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'debug'}
+        data={{ ...Signal.toObject(p), doc: p.doc?.value?.current }}
+        expand={1}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
@@ -116,7 +127,8 @@ export async function initDoc(debug: DebugSignals) {
 
   const listen = (doc: t.CrdtRef<T>) => {
     doc.events().changed$.subscribe((e) => {
-      p.doc.value = e.after;
+      console.info('⚡️ crdt:changed$', e);
+      p.count.value += 1;
     });
   };
 
@@ -126,12 +138,12 @@ export async function initDoc(debug: DebugSignals) {
     const doc = repo.create<T>({ cards: [], count: 0 });
     listen(doc);
     localstore.change((d) => (d.docId = doc.id));
-    p.doc.value = doc.current;
+    p.doc.value = doc;
   } else {
     // Retrieve:
     const doc = (await repo.get<T>(id))!;
     listen(doc);
-    p.doc.value = doc.current;
+    p.doc.value = doc;
   }
 }
 

@@ -1,7 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from '../common.ts';
+import { D } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+
+import type * as t from './-t.ts';
 
 // Add the repo to the global window object so it can be accessed in the browser console.
 declare global {
