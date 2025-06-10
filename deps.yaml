@@ -69,10 +69,13 @@ groups:
     - import: npm:workbox-cacheable-response@7.3.0
 
   ui/prosemirror:
-    - import: npm:prosemirror-example-setup@1.2.3
     - import: npm:prosemirror-model@1.25.1
     - import: npm:prosemirror-state@1.4.3
     - import: npm:prosemirror-view@1.40.0
+      subpaths: [style/prosemirror.css]
+    - import: npm:prosemirror-example-setup@1.2.3
+      subpaths: [style/style.css]
+    - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
     - import: npm:ai@4.3.16
