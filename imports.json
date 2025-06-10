@@ -4,6 +4,7 @@
     "@automerge/automerge": "npm:@automerge/automerge@2.2.9",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.0.1",
     "@automerge/automerge-repo-network-broadcastchannel": "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1",
+    "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.0.1",
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@2.0.1",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@2.0.1",
     "@automerge/automerge/next": "npm:@automerge/automerge@2.2.9/next",

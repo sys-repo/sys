@@ -1,5 +1,6 @@
 /**
  * @module
+ * Core CRDT primitives.
  */
-import type { t } from './common.ts';
 export { CrdtIs } from './m.Is.ts';
+export { toRepo } from './u.repo.ts';

@@ -1,0 +1,5 @@
+/**
+ * @module
+ * Platform entry
+ */
+export {};

@@ -26,7 +26,7 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: await Crdt.repo({ storage: 'IndexedDb', network: 'BroadcastChannel' }),
+    repo: await Crdt.repo({ storage: 'IndexedDb', network: { wss: ' sync.automerge.org ' } }),
     localstore,
     listen() {
       p.debug.value;

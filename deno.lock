@@ -31,6 +31,7 @@
     "jsr:@std/text@~1.0.7": "1.0.14",
     "npm:@ai-sdk/openai@1.3.22": "1.3.22_zod@3.25.51",
     "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1": "2.0.1",
+    "npm:@automerge/automerge-repo-network-websocket@2.0.1": "2.0.1_ws@8.18.2__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.0.1": "2.0.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.0.1": "2.0.1",
     "npm:@automerge/automerge-repo@2.0.1": "2.0.1",
@@ -280,6 +281,17 @@
       "integrity": "sha512-YnnO6WStkOj7vPEB6B9IdcxBbUHCxAUttePzSbNALNdEchhPZF6PbEQhhddjqfYzX4LnEAoGpkQvVnPop3w4Gg==",
       "dependencies": [
         "@automerge/automerge-repo"
+      ]
+    },
+    "@automerge/automerge-repo-network-websocket@2.0.1_ws@8.18.2__bufferutil@4.0.9__utf-8-validate@5.0.10": {
+      "integrity": "sha512-bO1itzPw6z6+rHKRV6ItEOnGReAoEuk9dRbxQPRKZKg+StyowNBLaOl4R4/yVO49roxMRh+OrFYKfEuZ+B/M3w==",
+      "dependencies": [
+        "@automerge/automerge-repo",
+        "cbor-x",
+        "debug",
+        "eventemitter3",
+        "isomorphic-ws@5.0.0_ws@8.18.2__bufferutil@4.0.9__utf-8-validate@5.0.10",
+        "ws@8.18.2_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ]
     },
     "@automerge/automerge-repo-storage-indexeddb@2.0.1": {
@@ -3803,6 +3815,12 @@
         "ws@7.5.10"
       ]
     },
+    "isomorphic-ws@5.0.0_ws@8.18.2__bufferutil@4.0.9__utf-8-validate@5.0.10": {
+      "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
+      "dependencies": [
+        "ws@8.18.2_bufferutil@4.0.9_utf-8-validate@5.0.10"
+      ]
+    },
     "jackspeak@3.4.3": {
       "integrity": "sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==",
       "dependencies": [
@@ -3822,7 +3840,7 @@
         "delay",
         "es6-promisify",
         "eyes",
-        "isomorphic-ws",
+        "isomorphic-ws@4.0.1_ws@7.5.10",
         "json-stringify-safe",
         "stream-json",
         "uuid@8.3.2",
@@ -4934,6 +4952,7 @@
       "jsr:@std/uuid@1.0.8",
       "npm:@ai-sdk/openai@1.3.22",
       "npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1",
+      "npm:@automerge/automerge-repo-network-websocket@2.0.1",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.0.1",
       "npm:@automerge/automerge-repo-storage-nodefs@2.0.1",
       "npm:@automerge/automerge-repo@2.0.1",

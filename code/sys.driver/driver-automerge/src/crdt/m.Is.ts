@@ -1,5 +1,5 @@
 import { type t, Obj } from './common.ts';
-import { toAutomergeHandle } from './u.toRef.ts';
+import { toAutomergeHandle } from './u.ref.ts';
 
 type O = Record<string, unknown>;
 

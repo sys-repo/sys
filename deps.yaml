@@ -37,6 +37,7 @@ groups:
 
     - import: npm:@automerge/automerge-repo@2.0.1
     - import: npm:@automerge/automerge-repo-network-broadcastchannel@2.0.1
+    - import: npm:@automerge/automerge-repo-network-websocket@2.0.1
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.1
     - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.1
     - import: npm:@onsetsoftware/automerge-patcher@0.14.0

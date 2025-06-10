@@ -1,15 +1,12 @@
 import { Repo } from '@automerge/automerge-repo';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-
-import { type t } from './common.ts';
-import { CrdtIs as Is } from './m.Is.ts';
-import { toRepo } from './u.toRepo.ts';
+import { CrdtIs, type t, toRepo } from './common.ts';
 
 type A = t.CrdtFsRepoArgs;
 
 export const Crdt: t.CrdtFilesystemLib = {
-  Is,
-  kind: 'FileSystem',
+  kind: 'Crdt:FileSystem',
+  Is: CrdtIs,
   async repo(input) {
     const args = wrangle.dir(input);
     const { sharePolicy, denylist } = args;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { CrdtIs } from './mod.ts';
-import { toRepo } from './u.toRepo.ts';
+import { toRepo } from './u.repo.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };

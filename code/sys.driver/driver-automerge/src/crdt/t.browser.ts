@@ -10,7 +10,7 @@ import type { t } from './common.ts';
  * API for CRDT's on IndexedDB (browser):
  */
 export type CrdtBrowserLib = {
-  readonly kind: 'Browser';
+  readonly kind: 'Crdt:Browser';
   readonly Is: t.CrdtIsLib;
   repo(args?: CrdtBrowserRepoArgs): Promise<t.CrdtRepo>;
 };
@@ -23,5 +23,5 @@ export type CrdtBrowserRepoArgs = {
   denylist?: AutomergeUrl[];
 };
 
-type NetworkArg = NetworkAdapterInterface | 'BroadcastChannel';
+type NetworkArg = NetworkAdapterInterface | 'BroadcastChannel' | { wss: t.StringUrl };
 type StorageArg = StorageAdapterInterface | 'IndexedDb';

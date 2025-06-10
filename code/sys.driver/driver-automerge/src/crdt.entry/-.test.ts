@@ -1,3 +1,4 @@
+import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 import { describe, expect, it, slug, Time } from '../-test.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -14,14 +15,14 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     it('import: with path', async () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
-      expect(Crdt.kind).to.eql('FileSystem');
+      expect(Crdt.kind).to.eql('Crdt:FileSystem');
 
       const dir = `.tmp/test/crdt.import/${slug()}`;
       const repoA = await Crdt.repo({ dir });
       const a = repoA.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));
 
-      await Time.wait(100);
+      await Time.wait(500);
 
       const repoB = await Crdt.repo(dir);
       const b = (await repoB.get<T>(a.id))!;
@@ -32,15 +33,15 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   describe('browser', () => {
     it('imports', async () => {
       const { Crdt } = await import('@sys/driver-automerge/browser');
-      expect(Crdt.kind).to.eql('IndexedDb');
+      expect(Crdt.kind).to.eql('Crdt:Browser');
 
-      const repoA = await Crdt.repo({});
+      const repoA = await Crdt.repo({ storage: 'IndexedDb' });
       const a = repoA.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));
 
-      await Time.wait(100);
+      await Time.wait(500);
 
-      const repoB = await Crdt.repo();
+      const repoB = await Crdt.repo({ storage: new IndexedDBStorageAdapter() });
       const b = (await repoB.get<T>(a.id))!;
       expect(b.current).to.eql({ count: 1234 }); // NB: read from IndexedDb.
     });
