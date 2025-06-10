@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleProps;
 type LocalStore = { docId?: string };
@@ -22,9 +22,8 @@ export async function createDebugSignals() {
   const repo = Crdt.repo({
     storage: 'IndexedDb',
     network: [
-      'BroadcastChannel',
-      { wss: 'localhost:3030' },
-      // { wss: 'sync.automerge.org' },
+      // 'BroadcastChannel',
+      { wss: Is.localhost() ? 'localhost:3030' : 'sync.automerge.org' },
     ],
   });
 

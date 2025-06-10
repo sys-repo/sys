@@ -27,7 +27,15 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size([460, 350])
       .display('grid')
-      .render(() => <Sample debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />);
+      .render(() => (
+        <Sample
+          //
+          debug={p.debug.value}
+          theme={p.theme.value}
+          doc={p.doc.value}
+          repo={debug.repo}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type SampleProps = {
   doc?: any;
+  repo?: t.CrdtRepo;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
