@@ -1,3 +1,5 @@
+import { Repo } from '@automerge/automerge-repo';
+
 import { describe, expect, it } from '../-test.ts';
 import { CrdtIs } from './mod.ts';
 import { toRepo } from './u.repo.ts';
@@ -7,7 +9,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('Is', () => {
     it('Is.ref', () => {
-      const repo = toRepo();
+      const repo = toRepo(new Repo());
       const doc = repo.create<T>({ count: 0 });
       expect(CrdtIs.ref(doc)).to.eql(true);
 

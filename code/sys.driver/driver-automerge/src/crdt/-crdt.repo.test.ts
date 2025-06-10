@@ -14,9 +14,17 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   it('create', () => {
-    const repo = toRepo();
+    const repo = toRepo(new Repo());
+    expect(repo.id.peer).to.eql('UNKNOWN');
+
     const doc = repo.create<T>({ count: 0 });
     expect(doc.current).to.eql({ count: 0 });
+  });
+
+  it('creates with  { peerId }', async () => {
+    const peerId = 'foo:bar';
+    const repo = toRepo(new Repo(), { peerId });
+    expect(repo.id.peer).to.eql(peerId);
   });
 
   it('get', async () => {
@@ -36,7 +44,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   it('get: automerge-URL', async () => {
-    const repo = toRepo();
+    const repo = toRepo(new Repo());
     const a = repo.create<T>({ count: 0 });
     const b = (await repo.get<T>(`automerge:${a.id}`))!;
     expect(b.instance).to.not.eql(a.instance);
@@ -45,7 +53,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   it('get: 404', async () => {
-    const repo = toRepo();
+    const repo = toRepo(new Repo());
     const doc = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
     expect(doc).to.eql(undefined);
   });

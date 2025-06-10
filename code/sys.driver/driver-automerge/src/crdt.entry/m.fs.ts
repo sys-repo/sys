@@ -1,6 +1,6 @@
 import { Repo } from '@automerge/automerge-repo';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-import { CrdtIs, type t, toRepo } from './common.ts';
+import { type t, CrdtIs, slug, toRepo } from './common.ts';
 
 type A = t.CrdtFsRepoArgs;
 
@@ -12,8 +12,9 @@ export const Crdt: t.CrdtFilesystemLib = {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
     const storage = wrangle.storage(args);
-    const base = new Repo({ storage, network, sharePolicy, denylist });
-    return toRepo(base);
+    const peerId = `peer:fs:${slug()}` as t.PeerId;
+    const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
+    return toRepo(base, { peerId });
   },
 };
 

@@ -8,6 +8,8 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('import: no file-system', async () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
       const repo = Crdt.repo();
+      expect(repo.id.peer.startsWith('peer:fs:')).to.be.true;
+
       const a = repo.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));
       expect(a.current).to.eql({ count: 1234 });
@@ -36,6 +38,8 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(Crdt.kind).to.eql('Crdt:Browser');
 
       const repoA = Crdt.repo({ storage: 'IndexedDb' });
+      expect(repoA.id.peer.startsWith('peer:browser:')).to.be.true;
+
       const a = repoA.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));
 

@@ -13,7 +13,7 @@ export const CrdtServer: t.CrdtServerLib = {
 
     const wss = new WebSocketServer({ port });
     const network = new NodeWSServerAdapter(wss as any, keepAliveInterval); // NB: any → type-hack.
-    Crdt.repo({ dir, network, sharePolicy, denylist });
+    const repo = Crdt.repo({ dir, network, sharePolicy, denylist });
 
     /**
      * Print status:
@@ -38,5 +38,14 @@ export const CrdtServer: t.CrdtServerLib = {
     network.on('peer-disconnected', (e) => {
       console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
     });
+
+    /**
+     * API:
+     */
+    return {
+      get repo() {
+        return repo;
+      },
+    };
   },
 };

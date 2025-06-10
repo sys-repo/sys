@@ -16,11 +16,13 @@ export function toAutomergeRepo(repo: t.CrdtRepo): Repo | undefined {
 /**
  * Wrap an Automerge repo in a lightweight functional API.
  */
-export function toRepo(repo: Repo = new Repo()): t.CrdtRepo {
+export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRepo {
   /**
    * API:
    */
   const api: t.CrdtRepo = {
+    id: { peer: options.peerId ?? 'UNKNOWN' },
+
     create<T extends O>(initial: T) {
       const handle = repo.create<T>(initial);
       return toRef(handle);

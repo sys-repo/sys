@@ -5,6 +5,7 @@ export type {
   AutomergeUrl,
   DocHandle,
   NetworkAdapterInterface,
+  PeerId,
   StorageAdapterInterface,
 } from '@automerge/automerge-repo';
 

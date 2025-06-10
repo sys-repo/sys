@@ -21,6 +21,7 @@ export type CrdtPatch = P;
  * A repository of CRDT documents:
  */
 export type CrdtRepo = {
+  readonly id: { peer: string };
   create<T extends O>(initial: T): CrdtRef<T>;
   get<T extends O>(id: t.StringId): Promise<CrdtRef<T> | undefined>;
 };
