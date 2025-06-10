@@ -3,7 +3,7 @@ import { describe, expect, it, slug, Time } from '../-test.ts';
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
 
-  describe('fs (File-System)', () => {
+  describe('fs', () => {
     it('import: no file-system', async () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
       const repo = await Crdt.repo();
@@ -29,9 +29,9 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
   });
 
-  describe('idb (IndexedDb)', () => {
+  describe('browser', () => {
     it('imports', async () => {
-      const { Crdt } = await import('@sys/driver-automerge/idb');
+      const { Crdt } = await import('@sys/driver-automerge/browser');
       expect(Crdt.kind).to.eql('IndexedDb');
 
       const repoA = await Crdt.repo({});

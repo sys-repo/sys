@@ -1,7 +1,13 @@
 /**
  * @external
  */
-export type { AutomergeUrl, DocHandle, NetworkAdapterInterface } from '@automerge/automerge-repo';
+export type {
+  AutomergeUrl,
+  DocHandle,
+  NetworkAdapterInterface,
+  StorageAdapterInterface,
+} from '@automerge/automerge-repo';
+
 export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNode } from 'react';
 
 /**

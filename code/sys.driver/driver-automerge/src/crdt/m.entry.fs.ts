@@ -7,7 +7,7 @@ import { toRepo } from './u.toRepo.ts';
 
 type A = t.CrdtFsRepoArgs;
 
-export const Crdt: t.CrdtLibFs = {
+export const Crdt: t.CrdtFilesystemLib = {
   Is,
   kind: 'FileSystem',
   async repo(input) {

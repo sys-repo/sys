@@ -1,4 +1,4 @@
-import { Crdt } from '@sys/driver-automerge/idb';
+import { Crdt } from '@sys/driver-automerge/browser';
 import React from 'react';
 
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
@@ -26,7 +26,7 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: await Crdt.repo(),
+    repo: await Crdt.repo({ storage: 'IndexedDb', network: 'BroadcastChannel' }),
     localstore,
     listen() {
       p.debug.value;
