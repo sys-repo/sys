@@ -121,4 +121,9 @@ export type StdIsLib = {
    * Determine if the value is an array.
    */
   array<T>(input?: unknown): input is T[];
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value?: string | Location): boolean;
 };

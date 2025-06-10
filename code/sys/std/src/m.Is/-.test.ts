@@ -228,12 +228,6 @@ describe('Is (common flags)', () => {
     });
   });
 
-  describe('Is.browser', () => {
-    it('Is.browser: false', () => {
-      expect(Is.browser()).to.eql(false);
-    });
-  });
-
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
       const disposable = rx.disposable();
@@ -342,6 +336,12 @@ describe('Is (common flags)', () => {
     it('Is.emptyRecord: false', () => {
       const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
       NON.forEach((value) => expect(Is.emptyRecord(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.localhost (non-browser)', () => {
+    it('Is.localhost: false', () => {
+      expect(Is.localhost()).to.eql(false);
     });
   });
 });

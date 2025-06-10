@@ -159,4 +159,22 @@ export const Is: StdIsLib = {
     const g = globalThis;
     return typeof g.window === 'object' && typeof g.document === 'object';
   },
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value) {
+    if (value == null) {
+      if (!Is.browser()) return false;
+      return window.location.hostname === 'localhost';
+    } else {
+      try {
+        if (Is.string(value)) return new URL(value).hostname === 'localhost';
+        if (Is.object(value)) return value.hostname === 'localhost';
+      } catch (error) {
+        return false;
+      }
+    }
+    return false;
+  },
 };
