@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 import 'prosemirror-example-setup/style/style.css';
 import 'prosemirror-view/style/prosemirror.css';
-import 'prosemirror-menu/style/menu.css';
 
 import { exampleSetup } from 'prosemirror-example-setup';
 import { DOMParser as PMDOMParser } from 'prosemirror-model';
