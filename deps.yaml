@@ -112,6 +112,7 @@ deno.json:
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.0.4
+  - import: npm:ws@8.18.2
   - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.9.0
   - import: npm:zod@3.25.51

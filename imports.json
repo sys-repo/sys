@@ -70,6 +70,7 @@
     "workbox-range-requests": "npm:workbox-range-requests@7.3.0",
     "workbox-routing": "npm:workbox-routing@7.3.0",
     "workbox-strategies": "npm:workbox-strategies@7.3.0",
+    "ws": "npm:ws@8.18.2",
     "yaml": "npm:yaml@2.8.0",
     "zod": "npm:zod@3.25.51",
     "zod/v4": "npm:zod@3.25.51/v4",
