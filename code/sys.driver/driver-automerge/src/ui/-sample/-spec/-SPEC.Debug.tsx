@@ -68,7 +68,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
-   * Setup sample document:
+   * Setup sample CRDT document:
    */
   React.useEffect(() => void initDoc(debug), []);
 
@@ -110,10 +110,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Dev Helpers:
  */
 export async function initDoc(debug: DebugSignals) {
+  type T = t.SampleDoc;
   const { repo, localstore } = debug;
   const p = debug.props;
 
-  const listen = (doc: t.CrdtRef<t.SampleDoc>) => {
+  const listen = (doc: t.CrdtRef<T>) => {
     doc.events().changed$.subscribe((e) => {
       p.doc.value = e.after;
     });
@@ -122,13 +123,13 @@ export async function initDoc(debug: DebugSignals) {
   const id = localstore.current.docId;
   if (!id) {
     // Create:
-    const doc = repo.create<t.SampleDoc>({ cards: [], count: 0 });
+    const doc = repo.create<T>({ cards: [], count: 0 });
     listen(doc);
     localstore.change((d) => (d.docId = doc.id));
     p.doc.value = doc.current;
   } else {
     // Retrieve:
-    const doc = (await repo.get<t.SampleDoc>(id))!;
+    const doc = (await repo.get<T>(id))!;
     listen(doc);
     p.doc.value = doc.current;
   }
