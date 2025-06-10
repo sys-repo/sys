@@ -39,6 +39,7 @@ const wrangle = {
 
   wss(text: string): WebSocketClientAdapter {
     const host = text.trim().replace(/^wss\:\/\//, '');
-    return new WebSocketClientAdapter(`wss://${host}`);
+    const protocol = host.startsWith('localhost') ? 'ws' : 'wss';
+    return new WebSocketClientAdapter(`${protocol}://${host}`);
   },
 } as const;
