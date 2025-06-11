@@ -17,9 +17,18 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill-x', 150)
       .display('grid')
-      .render(() => <TextInput debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => (
+        <TextInput
+          debug={p.debug.value}
+          theme={p.theme.value}
+          value={p.value.value}
+          autoFocus={p.autoFocus.value}
+          disabled={p.disabled.value}
+          onChange={(e) => (p.value.value = e.value)}
+        />
+      ));
   });
 
   e.it('ui:debug', (e) => {

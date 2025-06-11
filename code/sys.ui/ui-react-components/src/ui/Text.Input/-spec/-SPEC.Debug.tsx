@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.TextInputProps;
-type Storage = { theme?: t.CommonTheme };
+type Storage = { theme?: t.CommonTheme; autoFocus?: boolean; disabled?: boolean; value?: string };
 
 /**
  * Types:
@@ -21,6 +21,9 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    value: s<P['value']>(localstore.current.value),
+    disabled: s<P['disabled']>(localstore.current.disabled),
+    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
   };
   const p = props;
   const api = {
@@ -28,6 +31,9 @@ export function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.value.value;
+      p.disabled.value;
+      p.autoFocus.value;
     },
   };
 
@@ -35,6 +41,9 @@ export function createDebugSignals() {
     p.theme.value;
     localstore.change((d) => {
       d.theme = p.theme.value ?? 'Light';
+      d.value = p.value.value;
+      d.autoFocus = p.autoFocus.value ?? D.autoFocus;
+      d.disabled = p.disabled.value ?? D.disabled;
     });
   });
 
@@ -74,6 +83,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `disabled: ${p.disabled.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.disabled)}
+      />
+      <Button
+        block
+        label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.autoFocus)}
       />
 
       <hr />
