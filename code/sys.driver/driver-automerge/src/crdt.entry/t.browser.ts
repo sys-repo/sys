@@ -17,7 +17,7 @@ export type CrdtBrowserLib = {
 
 /** Arguments for browser `Crdt.repo` method. */
 export type CrdtBrowserRepoArgs = {
-  storage?: StorageArg;
+  storage?: StorageArg | boolean;
   network?: NetworkArg | NetworkArg[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];

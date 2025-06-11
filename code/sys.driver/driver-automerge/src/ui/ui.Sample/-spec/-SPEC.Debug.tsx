@@ -26,7 +26,7 @@ export async function createDebugSignals() {
   console.info(`wss: ${wss}`);
 
   const repo = Crdt.repo({
-    storage: 'IndexedDb',
+    storage: true, // ← 'IndexedDb',
     network: [
       // 'BroadcastChannel',
       { wss },
@@ -101,7 +101,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div>{debug.wss}</div>
       {sampleDocButtons(debug)}
 
       <hr />

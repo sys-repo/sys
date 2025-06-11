@@ -36,6 +36,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           doc={p.doc.value}
           repo={debug.repo}
+          syncUrl={debug.wss}
         />
       ));
   });

@@ -20,7 +20,7 @@ export const Uri: React.FC<UriProps> = (props) => {
       display: 'grid',
       gridAutoFlow: 'column',
       gridAutoColumns: 'auto',
-      columnGap: 3,
+      columnGap: 2,
     }),
   };
 

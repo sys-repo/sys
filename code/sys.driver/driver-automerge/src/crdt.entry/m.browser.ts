@@ -23,7 +23,7 @@ export const Crdt: t.CrdtBrowserLib = {
 const wrangle = {
   storage(args?: t.CrdtBrowserRepoArgs): t.StorageAdapterInterface | undefined {
     if (!args?.storage) return;
-    if (args.storage === 'IndexedDb') return new IndexedDBStorageAdapter();
+    if (args.storage === 'IndexedDb' || args.storage === true) return new IndexedDBStorageAdapter();
     return args.storage;
   },
 
