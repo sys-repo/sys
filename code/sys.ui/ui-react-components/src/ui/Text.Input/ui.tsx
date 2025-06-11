@@ -49,7 +49,7 @@ export const TextInput: React.FC<t.TextInputProps> = (props) => {
       display: 'grid',
       boxSizing: 'border-box',
     }),
-    input: css({
+    input: css({}),
     debug: css({
       outline: `1px dashed ${Color.PURPLE}`,
     }),
