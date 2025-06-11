@@ -75,6 +75,7 @@ export function toGrayHex(value: number): string {
  * Converts a color to an alpha RGB value.
  */
 export function alpha(color: string, alpha: t.Percent) {
+  alpha = Math.max(0, Math.min(1, alpha));
   return create(color).setAlpha(alpha).toRgbString();
 }
 

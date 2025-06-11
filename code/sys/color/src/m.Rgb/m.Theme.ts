@@ -48,8 +48,15 @@ function factory(
         },
       };
     },
+    format(input) {
+      if (!input || input == null) return theme.toColors();
+      if (typeof input === 'number') return theme.alpha(input);
+      if (typeof input === 'string') return { fg: input, bg: input };
+      return theme.toColors();
+    },
     invert: () => create(invert(name), defaultLight, defaultDark),
     toString: () => name,
+    toColors: () => ({ fg, bg }),
   };
   return theme;
 }
