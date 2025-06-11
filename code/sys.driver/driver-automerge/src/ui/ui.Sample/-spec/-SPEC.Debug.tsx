@@ -20,7 +20,9 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
 
-  const wss = Is.localhost() ? 'localhost:3030' : 'sync.automerge.org';
+  // const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
+  // const wss = 'wss://sync.automerge.org'; // ← ref: https://automerge.org/docs/tutorial/local-sync
+  const wss = 'sync.db.team';
   console.info(`wss: ${wss}`);
 
   const repo = Crdt.repo({
@@ -43,6 +45,7 @@ export async function createDebugSignals() {
     props,
     repo,
     localstore,
+    wss,
     listen() {
       p.debug.value;
       p.theme.value;
@@ -69,7 +72,6 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const repo = debug.repo;
   const p = debug.props;
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -99,6 +101,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div>{debug.wss}</div>
       {sampleDocButtons(debug)}
 
       <hr />
@@ -124,6 +127,7 @@ export async function initDoc(debug: DebugSignals) {
   type T = t.SampleDoc;
   const { repo, localstore } = debug;
   const p = debug.props;
+  const key = 'doc';
 
   const listen = (doc: t.CrdtRef<T>) => {
     doc.events().changed$.subscribe((e) => {
@@ -132,19 +136,31 @@ export async function initDoc(debug: DebugSignals) {
     });
   };
 
-  const id = localstore.current.docId;
-  if (!id) {
-    // Create:
-    const doc = repo.create<T>({ cards: [], count: 0 });
-    listen(doc);
+  const remember = (doc: t.CrdtRef<T>) => {
+    p.doc.value = doc;
     localstore.change((d) => (d.docId = doc.id));
-    p.doc.value = doc;
-  } else {
-    // Retrieve:
-    const doc = (await repo.get<T>(id))!;
-    listen(doc);
-    p.doc.value = doc;
-  }
+    addQueryParam(key, doc.id);
+  };
+
+  const setup = async (id?: string) => {
+    console.log('id', id);
+    if (!id) {
+      // Create:
+      const doc = repo.create<T>({ count: 0 });
+      listen(doc);
+      remember(doc);
+
+    } else {
+      // Retrieve:
+      const doc = (await repo.get<T>(id))!;
+      console.log('doc', doc);
+      listen(doc);
+      remember(doc);
+    }
+  };
+
+  const id = getQueryParam(key) ?? localstore.current.docId;
+  await setup(id);
 }
 
 export function sampleDocButtons(debug: DebugSignals) {
@@ -164,3 +180,16 @@ export function sampleDocButtons(debug: DebugSignals) {
     </React.Fragment>
   );
 }
+
+// type AddQueryParam = (key: string, value: string) => void;
+
+const addQueryParam = (key: string, value: string) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set(key, value);
+  window.history.replaceState(null, '', url.toString());
+};
+
+const getQueryParam = (key: string) => {
+  const url = new URL(window.location.href);
+  return url.searchParams.get(key) ?? undefined;
+};
