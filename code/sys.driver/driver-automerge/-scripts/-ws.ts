@@ -1,6 +1,6 @@
-import { CrdtServer } from '@sys/driver-automerge/wss';
+import { Server } from '@sys/driver-automerge/wss';
 
-CrdtServer.start({
+Server.start({
   port: 3030,
   dir: '.tmp/wss',
 });
