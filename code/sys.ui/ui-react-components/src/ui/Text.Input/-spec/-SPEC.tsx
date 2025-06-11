@@ -26,7 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
           value={p.value.value}
           autoFocus={p.autoFocus.value}
           disabled={p.disabled.value}
-          onChange={(e) => (p.value.value = e.value)}
+          // onChange={(e) => (p.value.value = e.value)}
         />
       ));
   });
