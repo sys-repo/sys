@@ -3,8 +3,7 @@ export type { SampleProps } from '../ui.tsx';
 
 export type SampleDoc = {
   count: number;
-  msg?: string;
-  cards: SampleCard[];
+  text?: string;
 };
 
 export type SampleCard = { title: string };
