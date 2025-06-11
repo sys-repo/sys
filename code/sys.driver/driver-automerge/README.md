@@ -1,5 +1,5 @@
 # Automerge (CRDT)
-An `Immutable<T>` implementation using Automerge (CRDT) as the immutability strategy.
+An `Immutable<T>` implementation using [Automerge](https://automerge.org/) as the [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) data-structure.
 
 - https://automerge.org
 - https://github.com/automerge (MIT)
