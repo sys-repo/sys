@@ -6,9 +6,9 @@ import type { t } from './common.ts';
  */
 export type CrdtServerLib = {
   /**
-   * Start a new web-socket sync server.
+   * Start a new web-sockets CRDT syncronization-server.
    */
-  start(options?: CrdtServerStartOptions): Promise<t.CrdtServerStartResponse>;
+  sync(options?: CrdtServerStartOptions): Promise<t.CrdtServerStartResponse>;
 };
 
 /** Response from the `CrdtServer.start` method. */
