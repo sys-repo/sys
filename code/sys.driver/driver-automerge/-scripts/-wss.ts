@@ -1,6 +1,6 @@
 import { Server } from '@sys/driver-automerge/wss';
 
-Server.sync({
+Server.wss({
   port: 3030,
-  dir: '.tmp/wss',
+  dir: '.tmp/wss.crdt',
 });
