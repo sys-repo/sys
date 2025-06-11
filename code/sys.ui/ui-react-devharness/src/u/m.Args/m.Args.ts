@@ -1,4 +1,4 @@
-import { type t, DEFAULTS } from '../common.ts';
+import { type t, DEFAULTS, Obj } from '../common.ts';
 import type { DevArgsLib, DevUrlLib, DevUrlParamsLib } from './t.ts';
 
 const QS = DEFAULTS.qs;
@@ -81,7 +81,7 @@ export const DevUrl: DevUrlLib = {
   moduleMatches(field: string, specs: t.SpecImports) {
     if (!field) return [];
     return Object.keys(specs)
-      .filter((key) => key === field)
+      .filter((key) => key === field || String(Obj.hash(key)) === field)
       .map((namespace) => ({ namespace, fn: (specs as any)[namespace] }))
       .filter(({ fn }) => typeof fn === 'function');
   },
