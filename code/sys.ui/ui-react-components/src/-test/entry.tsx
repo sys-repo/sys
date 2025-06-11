@@ -41,7 +41,7 @@ export async function main() {
       hr: (e) => {
         if (e.prev?.endsWith(': ObjectView')) return true;
         if (e.prev?.endsWith(': Config.Slider')) return true;
-        if (e.prev?.endsWith(': Text.Input')) return true;
+        if (e.next?.endsWith('.player: Video.VidStack')) return true;
         if (e.prev?.endsWith(': Recorder')) return true;
       },
     });
