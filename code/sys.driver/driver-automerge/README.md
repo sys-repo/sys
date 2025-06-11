@@ -43,8 +43,8 @@ const repo = Crdt.repo({
 ```
 
 
-### Local WebSocket Server
-Start sample on `localhost:8080`:
+### WebSocket Sync Server
+Start sample on `localhost:8080` (local-dev):
 
 ```bash
 deno task wss
@@ -54,7 +54,7 @@ import { CrdtServer } from '@sys/driver-automerge/wss';
 
 CrdtServer.start({
   port: 8080,
-  dir: '.tmp/wss',
+  dir: '.tmp/wss.crdt',
 });
 ```
 
