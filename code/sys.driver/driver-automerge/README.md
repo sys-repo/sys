@@ -35,7 +35,7 @@ const repo = Crdt.repo({
   network: [
     'BroadcastChannel',
     { wss: 'localhost:8080' },       // or:↓
-    { wss: 'sync.automerge.org' },
+    { wss: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/wss` to stand-up an server.
   ],
 });
 
