@@ -40,7 +40,9 @@ export async function main() {
       style: { Absolute: 0 },
       hr: (e) => {
         if (e.prev?.endsWith(': ObjectView')) return true;
-        if (e.prev?.endsWith('Config.Slider')) return true;
+        if (e.prev?.endsWith(': Config.Slider')) return true;
+        if (e.prev?.endsWith(': Text.Input')) return true;
+        if (e.prev?.endsWith(': Recorder')) return true;
       },
     });
     function App() {
