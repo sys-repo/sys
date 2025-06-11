@@ -47,7 +47,7 @@ const repo = Crdt.repo({
 Start sample on `localhost:8080` (local-dev):
 
 ```bash
-deno task ws
+deno task wss
 ```
 ```ts
 import { CrdtServer } from '@sys/driver-automerge/wss';
