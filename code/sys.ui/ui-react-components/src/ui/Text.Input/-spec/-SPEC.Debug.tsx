@@ -67,10 +67,9 @@ export function createDebugSignals() {
       d.placeholder = p.placeholder.value;
       d.autoFocus = p.autoFocus.value ?? true;
       d.disabled = p.disabled.value ?? D.disabled;
-      d.background = p.background.value ?? D.background;
+      d.background = p.background.value ?? -0.05;
       d.border = p.border.value ?? D.border;
       d.borderRadius = p.borderRadius.value ?? 4;
-
       d.spellCheck = p.spellCheck.value ?? D.spellCheck;
     });
   });

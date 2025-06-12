@@ -36,7 +36,13 @@ export default Spec.describe(D.displayName, (e) => {
           border={p.border.value}
           borderRadius={p.borderRadius.value}
           // ⚡️
-          onChange={(e) => (p.value.value = e.value)}
+          onKeyDown={(e) => console.info(`⚡️ onKeyDown:`, e)}
+          onKeyUp={(e) => console.info(`⚡️ onKeyUp:`, e)}
+          onFocusChange={(e) => console.info(`⚡️ onFocusChange`, e)}
+          onChange={(e) => {
+            console.info(`⚡️ onChange:`, e);
+            p.value.value = e.value;
+          }}
         />
       ));
   });

@@ -19,13 +19,18 @@ export type TextInputProps = {
   /** Maximum character length allowed. */
   maxLength?: number;
 
+  /** Controls keyboard focus order in the tab sequence. */
+  tabIndex?: number;
+
+  // Flags:
   spellCheck?: boolean;
   autoCapitalize?: boolean;
   autoCorrect?: boolean;
   autoComplete?: boolean;
-  // selectionBackground?: number | string;
 
-  // Appearance:
+  /**
+   * Appearance:
+   */
   padding?: t.CssPaddingInput;
   background?: t.Percent | string;
   border?: Partial<t.TextInputBorder> | boolean;
@@ -33,9 +38,21 @@ export type TextInputProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  // Handlers:
-  onChange?: t.TextInputHandler;
+  /**
+   * Handlers:
+   */
+  /** Fires when the textbox value changes. */
+  onChange?: t.TextInputChangeHandler;
+  /** Fires on key presses within the textbox. */
   onKeyDown?: t.TextInputKeyHandler;
+  onKeyUp?: t.TextInputKeyHandler;
+
+  /** Fires on focus or blur of the text. */
+  onFocusChange?: t.TextInputFocusHandler;
+  /** Fires when the textbox receives focus. */
+  onFocus?: t.TextInputFocusHandler;
+  /** Fires when the textbox loses focus. */
+  onBlur?: t.TextInputFocusHandler;
 };
 
 /**
@@ -50,15 +67,25 @@ export type TextInputBorder = {
 /**
  * Events:
  */
-export type TextInputHandler = (e: TextInputHandlerArgs) => void;
-export type TextInputHandlerArgs = {
+type BaseArgs<E> = {
+  readonly synthetic: E;
   readonly value: string;
-  readonly synthetic: React.ChangeEvent<HTMLInputElement>;
+  readonly focused: boolean;
 };
 
-export type TextInputKeyHandler = (e: TextInputKeyHandlerArgs) => void;
-export type TextInputKeyHandlerArgs = {
-  readonly value: string;
-  readonly key: string;
-  readonly synthetic: React.KeyboardEvent<HTMLInputElement>;
+/** General change events. */
+export type TextInputChangeHandler = (e: TextInputChangeArgs) => void;
+export type TextInputChangeArgs = BaseArgs<React.ChangeEvent<HTMLInputElement>>;
+
+/** Focus events. */
+export type TextInputFocusHandler = (e: TextInputFocusArgs) => void;
+export type TextInputFocusArgs = BaseArgs<React.FocusEvent<HTMLInputElement>>;
+
+/** Keyboard events. */
+export type TextInputKeyHandler = (e: TextInputKeyArgs) => void;
+export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> & {
+  readonly key: string; //  ← HINT: typically use this one over `code`.
+  readonly code: string;
+  readonly modifiers: t.KeyboardModifierFlags;
+  readonly repeat: boolean;
 };
