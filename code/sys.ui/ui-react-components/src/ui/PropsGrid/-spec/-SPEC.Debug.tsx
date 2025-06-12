@@ -127,6 +127,7 @@ export function sampleButtons(args: { debug: DebugSignals }) {
   };
 
   btn('<undefined>', undefined);
+  btn('simple', [[{ value: 123 }]]);
 
   return <React.Fragment>{elements}</React.Fragment>;
 }

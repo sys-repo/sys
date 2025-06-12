@@ -1,14 +1,24 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { type t, Color, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
  * Constants:
  */
+const border: t.TextInputBorder = {
+  mode: 'outline',
+  defaultColor: 0.3,
+  focusColor: Color.BLUE,
+};
+
 const name = 'Text.Input';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
   disabled: false,
   autoFocus: false,
+  padding: 6,
+  background: 1,
+  border,
+  borderRadius: 4,
 } as const;
 export const D = DEFAULTS;

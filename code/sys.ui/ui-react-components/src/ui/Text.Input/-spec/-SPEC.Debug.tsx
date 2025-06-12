@@ -1,9 +1,12 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { type t, Is, Color, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.TextInputProps;
-type Storage = { theme?: t.CommonTheme; autoFocus?: boolean; disabled?: boolean; value?: string };
+type Storage = Pick<
+  P,
+  'theme' | 'autoFocus' | 'disabled' | 'value' | 'placeholder' | 'background' | 'border'
+>;
 
 /**
  * Types:
@@ -21,7 +24,12 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    background: s<P['background']>(localstore.current.background),
+    border: s<P['border']>(localstore.current.border),
+
     value: s<P['value']>(localstore.current.value),
+    placeholder: s<P['placeholder']>(localstore.current.placeholder),
+
     disabled: s<P['disabled']>(localstore.current.disabled),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
   };
@@ -32,18 +40,23 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.value.value;
+      p.placeholder.value;
       p.disabled.value;
       p.autoFocus.value;
+      p.background.value;
+      p.border.value;
     },
   };
 
   Signal.effect(() => {
-    p.theme.value;
     localstore.change((d) => {
       d.theme = p.theme.value ?? 'Light';
       d.value = p.value.value;
-      d.autoFocus = p.autoFocus.value ?? D.autoFocus;
+      d.placeholder = p.placeholder.value;
+      d.autoFocus = p.autoFocus.value ?? true;
       d.disabled = p.disabled.value ?? D.disabled;
+      d.background = p.background.value ?? D.background;
+      d.border = p.border.value ?? D.border;
     });
   });
 
@@ -86,6 +99,46 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.background.value;
+          return `background: ${v ?? `<undefined> (default: ${D.background})`}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.background, [undefined, 0, -0.05, Color.ruby(0.08)]);
+        }}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.border.value;
+          const print = Is.record(v)
+            ? v.mode
+              ? `{ mode: '${v.mode}', ... }`
+              : `{ focusColor: '${v.focusColor}' }`
+            : v;
+          return `border: ${print ?? `<undefined>`}`;
+        }}
+        onClick={() =>
+          Signal.cycle(p.border, [
+            true,
+            false,
+            D.border,
+            { mode: 'none' },
+            { mode: 'underline' },
+            { focusColor: 'red', defaultColor: Color.ruby(0.15) },
+            undefined,
+          ])
+        }
+      />
+
+      <hr />
+      <Button
+        block
         label={() => `disabled: ${p.disabled.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.disabled)}
       />
@@ -104,8 +157,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
-        expand={['$']}
         style={{ marginTop: 10 }}
+        expand={['$']}
       />
     </div>
   );

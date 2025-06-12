@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type Color = string | t.Percent;
+
 /**
  * <Component>:
  */
@@ -10,18 +12,32 @@ export type TextInputProps = {
   value?: string;
   /** Placeholder text shown when value is empty. */
   placeholder?: string;
+
   /** Auto-focus the input on mount. */
   autoFocus?: boolean;
   /** Disable user interaction. */
   disabled?: boolean;
 
   // Appearance:
+  padding?: t.CssPaddingInput;
+  background?: t.Percent | string;
+  border?: Partial<t.TextInputBorder> | boolean;
+  borderRadius?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   // Handlers:
   onChange?: t.TextInputHandler;
   onKeyDown?: t.TextInputKeyHandler;
+};
+
+/**
+ * Border configuration for a textbox input.
+ */
+export type TextInputBorder = {
+  mode: 'underline' | 'outline' | 'none';
+  defaultColor: Color;
+  focusColor: Color;
 };
 
 /**

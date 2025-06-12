@@ -44,6 +44,7 @@ export const level4 = [
   ':optional',
   ':out-of-range',
   ':placeholder-shown',
+  '::placeholder',
   ':read-only',
   ':read-write',
   ':required',
