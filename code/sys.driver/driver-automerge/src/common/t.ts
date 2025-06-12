@@ -4,6 +4,7 @@
 export type {
   AutomergeUrl,
   DocHandle,
+  DocumentId,
   NetworkAdapterInterface,
   PeerId,
   StorageAdapterInterface,
@@ -21,6 +22,7 @@ export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
+export type { TextInputHandler } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
 /**
