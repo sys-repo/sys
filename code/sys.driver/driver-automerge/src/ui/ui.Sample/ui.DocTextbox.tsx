@@ -8,7 +8,7 @@ export type DocTextboxProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onCreateNew?: () => void;
-  onTextChange?: t.TextInputHandler;
+  onTextChange?: t.TextInputChangeHandler;
 };
 
 /**

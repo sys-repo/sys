@@ -14,7 +14,7 @@ export type SampleProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onActionClick?: () => void;
-  onDocIdTextChange?: t.TextInputHandler;
+  onDocIdTextChange?: t.TextInputChangeHandler;
 };
 
 export const Sample: React.FC<SampleProps> = (props) => {
