@@ -16,6 +16,13 @@ export const Num: NumberLib = {
   },
 
   /**
+   * Clamps a number between a minimum and maximum value.
+   */
+  clamp(min, max, value) {
+    return Math.max(min, Math.min(max, value));
+  },
+
+  /**
    * Formats a number into a display string.
    */
   toString(value = 0, maxDecimals = 2) {

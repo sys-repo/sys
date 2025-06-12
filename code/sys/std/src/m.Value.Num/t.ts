@@ -11,6 +11,9 @@ export type NumberLib = {
 
   /** Formats a number into a display string. */
   toString(value?: number, maxDecimals?: number): string;
+
+  /** Clamps a number between a minimum and maximum value. */
+  clamp(min: number, max: number, value: number): number;
 };
 
 /**
