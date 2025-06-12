@@ -14,7 +14,7 @@ describe('Signal', () => {
 
   describe('Core "Signal" API', () => {
     describe('signal: update', () => {
-      it('should create a signal with an initial value and update correctly', () => {
+      it('create a signal with an initial value and update correctly', () => {
         const s = Signal.create(0);
         expect(s.value).to.eql(0);
         s.value = 42;
@@ -54,7 +54,7 @@ describe('Signal', () => {
     });
 
     describe('signal: effect (reactivity)', () => {
-      it('should run the effect whenever the signal value changes', async () => {
+      it('run the effect whenever the signal value changes', async () => {
         let dummy = 0;
         const s = Signal.create(0);
 
@@ -73,7 +73,7 @@ describe('Signal', () => {
     });
 
     describe('signal: computed', () => {
-      it('should create a derived signal that updates based on dependencies', () => {
+      it('create a derived signal that updates based on dependencies', () => {
         const a = Signal.create(2);
         const b = Signal.create(3);
         const sum = Signal.computed(() => a.value + b.value);
@@ -85,7 +85,7 @@ describe('Signal', () => {
     });
 
     describe('signal: batch (change)', () => {
-      it('should group updates so that effects run only once', () => {
+      it('group updates so that effects run only once', () => {
         let count = 0;
         const x = Signal.create(1);
         const y = Signal.create(2);
@@ -112,7 +112,7 @@ describe('Signal', () => {
 
   describe('value helpers', () => {
     describe('Signal.toggle', () => {
-      it('should toggle boolean', () => {
+      it('toggle boolean', () => {
         const s = Signal.create(false);
         expect(s.value).to.eql(false);
         const res = Signal.toggle(s);
@@ -120,7 +120,7 @@ describe('Signal', () => {
         expect(res).to.eql(true);
       });
 
-      it('should toggle boolean from <undefined>', () => {
+      it('toggle boolean from <undefined>', () => {
         const s = Signal.create<boolean | undefined>();
         expect(s.value).to.eql(undefined);
         const res = Signal.toggle(s);
@@ -154,7 +154,7 @@ describe('Signal', () => {
     describe('Signal.cycle', () => {
       type T = 'a' | 'b' | 'c';
 
-      it('should cycle union [string] signal', () => {
+      it('cycle union [string] signal', () => {
         const s = Signal.create<T>('a');
         expect(s.value).to.eql('a');
 
@@ -306,7 +306,7 @@ describe('Signal', () => {
         expect(s.value).to.eql('b');
       });
 
-      it('should default to first element if current value is not in values array', () => {
+      it('default to first element if current value is not in values array', () => {
         const s = Signal.create('z');
         expect(s.value).to.eql('z');
 
