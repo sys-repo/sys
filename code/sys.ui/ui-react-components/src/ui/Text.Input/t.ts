@@ -18,9 +18,13 @@ export type TextInputProps = {
   disabled?: boolean;
   /** Maximum character length allowed. */
   maxLength?: number;
-
   /** Controls keyboard focus order in the tab sequence. */
   tabIndex?: number;
+
+  /** Element to render before the textbox (left). */
+  prefix?: JSX.Element;
+  /** Element to render after the textbox (right). */
+  suffix?: JSX.Element;
 
   // Flags:
   spellCheck?: boolean;

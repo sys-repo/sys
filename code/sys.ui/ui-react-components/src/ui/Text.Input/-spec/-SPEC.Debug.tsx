@@ -42,6 +42,9 @@ export function createDebugSignals() {
     disabled: s<P['disabled']>(localstore.current.disabled),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
     spellCheck: s<P['spellCheck']>(localstore.current.spellCheck),
+
+    prefix: s<P['prefix']>(),
+    suffix: s<P['suffix']>(),
   };
   const p = props;
   const api = {
@@ -57,6 +60,8 @@ export function createDebugSignals() {
       p.border.value;
       p.borderRadius.value;
       p.spellCheck.value;
+      p.prefix.value;
+      p.suffix.value;
     },
   };
 
@@ -182,10 +187,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          return `spellCheck: ${p.spellCheck.value ?? `<undefined> (default: ${D.spellCheck})`}`;
+          const v = p.spellCheck.value;
+          return `spellCheck: ${v ?? `<undefined> (default: ${D.spellCheck})`}`;
         }}
         onClick={() => Signal.toggle(p.spellCheck)}
       />
+
+      <hr />
+      <div className={Styles.title.class}>{'Suffix / Prefix'}</div>
+      {prefixSuffixButtons(debug)}
 
       <hr />
       <Button
@@ -202,3 +212,41 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev Helpers:
+ */
+export function prefixSuffixButtons(debug: DebugSignals) {
+  const p = debug.props;
+  const render = (children: t.ReactNode) => {
+    const style = css({
+      backgroundColor: Color.RUBY,
+      PaddingX: 20,
+      display: 'grid',
+      placeItems: 'center',
+    });
+    return <div className={style.class}>{children}</div>;
+  };
+  return (
+    <React.Fragment>
+      <Button
+        block
+        label={() => `prefix: <element>`}
+        onClick={() => (p.prefix.value = render('🐷'))}
+      />
+      <Button
+        block
+        label={() => `suffix: <element>`}
+        onClick={() => (p.suffix.value = render('🌳'))}
+      />
+      <Button
+        block
+        label={() => `(clear)`}
+        onClick={() => {
+          p.prefix.value = undefined;
+          p.suffix.value = undefined;
+        }}
+      />
+    </React.Fragment>
+  );
+}

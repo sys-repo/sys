@@ -29,6 +29,9 @@ export default Spec.describe(D.displayName, (e) => {
           theme={p.theme.value}
           value={p.value.value}
           placeholder={p.placeholder.value}
+          prefix={p.prefix.value}
+          suffix={p.suffix.value}
+          //
           disabled={p.disabled.value}
           autoFocus={p.autoFocus.value}
           spellCheck={p.spellCheck.value}
