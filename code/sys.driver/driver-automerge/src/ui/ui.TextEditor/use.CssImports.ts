@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-let singleton = { isImported: false };
+let _singleton = { isImported: false };
 
 export function useCssImports() {
-  const [ready, setReady] = React.useState(singleton.isImported);
+  const [ready, setReady] = React.useState(_singleton.isImported);
 
   /**
-   * Effect: import CSS once-only.
+   * Effect: import CSS (once-only).
    */
   useEffect(() => {
-    if (singleton.isImported) return;
+    if (_singleton.isImported) return;
     importStylesheets().then(() => setReady(true));
   }, []);
 

@@ -24,6 +24,7 @@ export { PropsGrid } from './ui/PropsGrid/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
+export { TextInput } from './ui/Text.Input/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';
