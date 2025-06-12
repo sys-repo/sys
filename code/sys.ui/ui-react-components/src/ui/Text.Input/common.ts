@@ -19,6 +19,7 @@ export const DEFAULTS = {
   border,
   borderRadius: 0,
   disabled: false,
+  readOnly: false,
   spellCheck: false,
   autoFocus: false,
 } as const;

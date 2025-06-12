@@ -33,6 +33,7 @@ export default Spec.describe(D.displayName, (e) => {
           suffix={p.suffix.value}
           //
           disabled={p.disabled.value}
+          readOnly={p.readOnly.value}
           autoFocus={p.autoFocus.value}
           spellCheck={p.spellCheck.value}
           background={p.background.value}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
+import { readonly } from 'zod/v4-mini';
 
 type P = t.TextInputProps;
 type Storage = Pick<
@@ -8,6 +9,7 @@ type Storage = Pick<
   | 'theme'
   | 'autoFocus'
   | 'disabled'
+  | 'readOnly'
   | 'value'
   | 'placeholder'
   | 'background'
@@ -40,6 +42,7 @@ export function createDebugSignals() {
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
 
     disabled: s<P['disabled']>(localstore.current.disabled),
+    readOnly: s<P['readOnly']>(localstore.current.readOnly),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
     spellCheck: s<P['spellCheck']>(localstore.current.spellCheck),
 
@@ -55,6 +58,7 @@ export function createDebugSignals() {
       p.value.value;
       p.placeholder.value;
       p.disabled.value;
+      p.readOnly.value;
       p.autoFocus.value;
       p.background.value;
       p.border.value;
@@ -72,6 +76,7 @@ export function createDebugSignals() {
       d.placeholder = p.placeholder.value;
       d.autoFocus = p.autoFocus.value ?? true;
       d.disabled = p.disabled.value ?? D.disabled;
+      d.readOnly = p.readOnly.value ?? D.readOnly;
       d.background = p.background.value ?? -0.05;
       d.border = p.border.value ?? D.border;
       d.borderRadius = p.borderRadius.value ?? 4;
@@ -169,6 +174,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `disabled: ${p.disabled.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.disabled)}
+      />
+      <Button
+        block
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
+        onClick={() => Signal.toggle(p.readOnly)}
       />
       <Button
         block

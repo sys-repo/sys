@@ -16,6 +16,8 @@ export type TextInputProps = {
   autoFocus?: boolean | number;
   /** Disable user interaction. */
   disabled?: boolean;
+  /** Supress user input (without fully disabling the input). */
+  readOnly?: boolean;
   /** Maximum character length allowed. */
   maxLength?: number;
   /** Controls keyboard focus order in the tab sequence. */

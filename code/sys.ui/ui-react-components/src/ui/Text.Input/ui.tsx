@@ -14,6 +14,7 @@ export const TextInput: React.FC<P> = (props) => {
     placeholder = '',
     autoFocus = D.autoFocus,
     disabled = D.disabled,
+    readOnly = D.readOnly,
     prefix,
     suffix,
   } = props;
@@ -48,6 +49,7 @@ export const TextInput: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateColumns: wrangle.columns(props),
     }),
+    edge: css({ display: 'grid' }),
     input: css({
       ...Style.toPadding(props.padding ?? D.padding),
       font: 'inherit',
@@ -59,7 +61,6 @@ export const TextInput: React.FC<P> = (props) => {
       '::placeholder': { color: theme.alpha(0.2).fg },
       ':disabled': { cursor: 'not-allowed', color: theme.alpha(0.35).fg },
     }),
-    edge: css({ display: 'grid' }),
   };
 
   return (
@@ -74,6 +75,7 @@ export const TextInput: React.FC<P> = (props) => {
         placeholder={placeholder}
         maxLength={props.maxLength}
         disabled={disabled}
+        readOnly={readOnly}
         spellCheck={props.spellCheck ?? D.spellCheck}
         {...events.handlers}
       />
