@@ -17,7 +17,7 @@ export const UrlTitle: React.FC<UrlTitleProps> = (props) => {
    * Render:
    */
   const styles = {
-    base: css({ display: 'grid', placeItems: 'center', fontSize: 12 }),
+    base: css({ display: 'grid', placeItems: 'center' }),
     body: css({ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'auto', columnGap: 6 }),
     label: css({ opacity: 0.5, userSelect: 'none' }),
   };

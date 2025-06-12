@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { type t, Color, css, ObjectView } from './common.ts';
+import { DocTextbox } from './ui.DocTextbox.tsx';
+import { UrlTitle } from './ui.Title.tsx';
 import { Uri } from './ui.Uri.tsx';
-import { UrlTitle } from './ui.Url.Title.tsx';
 
 export type SampleProps = {
   syncUrl?: t.StringUrl;
@@ -22,22 +24,21 @@ export const Sample: React.FC<SampleProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, padding: 25 }),
-    title: css({ Absolute: [-30, 0, null, 0] }),
-    docId: css({ Absolute: [null, null, -23, 10], fontSize: 11 }),
-    peerId: css({ Absolute: [null, 10, -23, null], fontSize: 11 }),
+    base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
+    title: css({ Absolute: [null, null, -22, 10] }),
+    peerId: css({ Absolute: [null, 10, -22, null] }),
+    textbox: css({ Absolute: [-31, 0, null, 0] }),
   };
 
   const elTitle = <UrlTitle style={styles.title} url={props.syncUrl} />;
-
-  const elDoc = <Uri text={docId} style={styles.docId} />;
-  const elPeer = <Uri text={peerId} style={styles.peerId} />;
+  const elPeer = <Uri prefix={'peer-id = “'} text={peerId} suffix={'”'} style={styles.peerId} />;
+  const elDocTextbox = <DocTextbox doc={doc} theme={theme.name} style={styles.textbox} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
       {elTitle}
-      {elDoc}
       {elPeer}
+      {elDocTextbox}
       <ObjectView
         name={'T:CrdtRef'}
         data={doc?.current}

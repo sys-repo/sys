@@ -2,7 +2,9 @@ import React from 'react';
 import { type t, css } from './common.ts';
 
 export type UriProps = {
+  prefix?: string;
   text?: string;
+  suffix?: string;
   style?: t.CssInput;
 };
 
@@ -10,6 +12,7 @@ export type UriProps = {
  * Component:
  */
 export const Uri: React.FC<UriProps> = (props) => {
+  const { prefix, suffix } = props;
   const text = wrangle.text(props.text);
 
   /**
@@ -26,19 +29,23 @@ export const Uri: React.FC<UriProps> = (props) => {
 
   if (!text) return null;
 
+  const elParts = text.parts.map((part, i, items) => {
+    const isFirst = i === 0;
+    const isLast = i === items.length - 1;
+    const opacity = isLast ? 1 : 0.5;
+    return (
+      <React.Fragment key={i}>
+        {!isFirst && <span style={{ opacity: 0.5 }}>{':'}</span>}
+        <span style={{ opacity }}>{part}</span>
+      </React.Fragment>
+    );
+  });
+
   return (
     <div className={css(styles.base, props.style).class}>
-      {text.parts.map((part, i, items) => {
-        const isFirst = i === 0;
-        const isLast = i === items.length - 1;
-        const opacity = isLast ? 1 : 0.3;
-        return (
-          <React.Fragment key={i}>
-            {!isFirst && <span>{':'}</span>}
-            <span style={{ opacity }}>{part}</span>
-          </React.Fragment>
-        );
-      })}
+      {prefix && <span>{prefix}</span>}
+      {elParts}
+      {suffix && <span>{suffix}</span>}
     </div>
   );
 };
