@@ -1,8 +1,5 @@
 import React, { useRef } from 'react';
 
-import 'prosemirror-example-setup/style/style.css';
-import 'prosemirror-view/style/prosemirror.css';
-
 import { exampleSetup } from 'prosemirror-example-setup';
 import { DOMParser as PMDOMParser } from 'prosemirror-model';
 import { schema as basicSchema } from 'prosemirror-schema-basic';
@@ -11,6 +8,7 @@ import { EditorView } from 'prosemirror-view';
 
 import { toAutomergeHandle } from '../../crdt/mod.ts';
 import { type t, Color, css } from './common.ts';
+import { useCssImports } from './use.CssImports.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   const { debug = false, doc } = props;
@@ -18,6 +16,7 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   /**
    * Hooks:
    */
+  const cssImports = useCssImports();
   const editorRoot = useRef<HTMLDivElement>(null);
 
   /**
@@ -26,6 +25,7 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   React.useEffect(() => {
     const handle = toAutomergeHandle(doc);
     if (!handle) return;
+    if (!cssImports.ready) return;
     if (editorRoot.current == null || doc?.current == null) return;
 
     const plugins = exampleSetup({
@@ -47,7 +47,7 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
 
     // Finish up.
     return () => void view?.destroy();
-  }, [editorRoot, doc?.instance]);
+  }, [editorRoot, doc?.instance, cssImports.ready]);
 
   /**
    * Render:

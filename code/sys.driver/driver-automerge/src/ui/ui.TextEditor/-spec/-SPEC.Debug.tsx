@@ -24,7 +24,7 @@ export function createDebugSignals() {
     storage: 'IndexedDb',
     network: [
       // 'BroadcastChannel',
-      { wss: Is.localhost() ? 'localhost:3030' : 'sync.automerge.org' },
+      { wss: 'sync.db.team' },
     ],
   });
 
