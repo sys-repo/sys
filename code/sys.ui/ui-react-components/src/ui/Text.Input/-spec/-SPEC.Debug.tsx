@@ -170,6 +170,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
+      <Button
+        block
+        label={() => `autoFocus: (increment number)`}
+        onClick={() => {
+          if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
+          (p.autoFocus.value as number) += 1;
+        }}
+      />
 
       <Button
         block

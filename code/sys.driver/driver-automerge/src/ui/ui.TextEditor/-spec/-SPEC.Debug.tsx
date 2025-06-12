@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.TextEditorProps;
@@ -45,6 +45,7 @@ export function createDebugSignals() {
       p.theme.value;
       p.doc.value;
       p.readOnly.value;
+      p.autoFocus.value;
     },
   };
 
@@ -100,13 +101,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.disabled})`}`}
+        onClick={() => Signal.toggle(p.readOnly)}
+      />
+      <Button
+        block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined> (default: ${D.autoFocus})`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
       <Button
         block
-        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.disabled})`}`}
-        onClick={() => Signal.toggle(p.readOnly)}
+        label={() => `autoFocus: (increment number)`}
+        onClick={() => {
+          if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
+          (p.autoFocus.value as number) += 1;
+        }}
       />
 
       <hr />

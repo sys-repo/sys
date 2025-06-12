@@ -12,8 +12,8 @@ export type TextInputProps = {
   value?: string;
   /** Placeholder text shown when value is empty. */
   placeholder?: string;
-  /** Auto-focus the input on mount. */
-  autoFocus?: boolean;
+  /** Auto-focus the input on mount (pass incrementing number to re-apply focus over time). */
+  autoFocus?: boolean | number;
   /** Disable user interaction. */
   disabled?: boolean;
   /** Maximum character length allowed. */

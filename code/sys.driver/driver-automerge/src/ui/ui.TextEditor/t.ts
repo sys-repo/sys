@@ -5,10 +5,18 @@ import type { t } from './common.ts';
  */
 export type TextEditorProps = {
   doc?: t.CrdtRef<any>;
-  autoFocus?: boolean;
-  readOnly?: boolean;
 
-  // Appearance:
+  /**
+   * Flags:
+   */
+  /** Supress editing of the document. */
+  readOnly?: boolean;
+  /** Auto-focus the input on mount (pass incrementing number to re-apply focus over time). */
+  autoFocus?: boolean | number;
+
+  /**
+   * Appearance:
+   */
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
