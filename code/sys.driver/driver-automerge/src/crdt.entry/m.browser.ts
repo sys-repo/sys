@@ -2,8 +2,17 @@ import { Repo } from '@automerge/automerge-repo';
 import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';
 import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { type t, Arr, CrdtIs, Is, toRepo, slug } from './common.ts';
 
+import { type t, Arr, CrdtIs, Is, slug, toRepo } from './common.ts';
+
+/**
+ * Exports:
+ */
+export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
+
+/**
+ * Library:
+ */
 export const Crdt: t.CrdtBrowserLib = {
   kind: 'Crdt:Browser',
   Is: CrdtIs,
