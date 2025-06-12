@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, LocalStorage, ObjectView, Signal, Is } from '../common.ts';
+import { Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.TextEditorProps;
-type Storage = { theme?: t.CommonTheme; docId?: string };
+type Storage = { theme?: t.CommonTheme; docId?: string } & Pick<P, 'autoFocus' | 'readOnly'>;
 
 /**
  * Types:
@@ -32,6 +32,8 @@ export function createDebugSignals() {
     debug: s(false),
     theme: s(localstore.current.theme),
     doc: s<t.CrdtRef<t.SampleTextDoc>>(),
+    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
+    readOnly: s<P['readOnly']>(localstore.current.readOnly),
   };
   const p = props;
   const api = {
@@ -42,13 +44,15 @@ export function createDebugSignals() {
       p.debug.value;
       p.theme.value;
       p.doc.value;
+      p.readOnly.value;
     },
   };
 
   Signal.effect(() => {
-    p.theme.value;
     localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Light';
+      d.theme = p.theme.value ?? 'Dark';
+      d.autoFocus = p.autoFocus.value ?? true;
+      d.readOnly = p.readOnly.value ?? D.disabled;
     });
   });
 
@@ -93,6 +97,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined> (default: ${D.autoFocus})`}`}
+        onClick={() => Signal.toggle(p.autoFocus)}
+      />
+      <Button
+        block
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.disabled})`}`}
+        onClick={() => Signal.toggle(p.readOnly)}
       />
 
       <hr />

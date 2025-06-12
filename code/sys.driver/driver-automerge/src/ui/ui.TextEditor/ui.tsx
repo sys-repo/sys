@@ -7,26 +7,37 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 import { toAutomergeHandle } from '../../crdt/mod.ts';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { useCssImports } from './use.CssImports.ts';
 
+/**
+ * https://fonts.google.com/specimen/Cormorant+Garamond
+ */
+export const Headline = {
+  DmSerif: {
+    regular: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'normal' }),
+    italic: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'italic' }),
+  },
+};
+
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
-  const { debug = false, doc } = props;
+  const { doc, readOnly: disabled = D.disabled, debug = false } = props;
 
   /**
    * Hooks:
    */
   const cssImports = useCssImports();
-  const editorRoot = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [editor, setEditor] = React.useState<EditorView>();
 
   /**
-   * Effects:
+   * Effect: Load and configure <ProseMirror> text editor.
    */
   React.useEffect(() => {
     const handle = toAutomergeHandle(doc);
     if (!handle) return;
     if (!cssImports.ready) return;
-    if (editorRoot.current == null || doc?.current == null) return;
+    if (rootRef.current == null || doc?.current == null) return;
 
     const plugins = exampleSetup({
       schema: basicSchema,
@@ -43,11 +54,29 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       doc: node,
     });
 
-    const view = new EditorView(editorRoot.current, { state });
+    const view = new EditorView(rootRef.current, { state });
+    setEditor(view);
 
     // Finish up.
-    return () => void view?.destroy();
-  }, [editorRoot, doc?.instance, cssImports.ready]);
+    return () => {
+      view?.destroy();
+      setEditor(undefined);
+    };
+  }, [rootRef, doc?.instance, cssImports.ready]);
+
+  /**
+   * Effect: sync/autoFocus.
+   */
+  React.useEffect(() => {
+    if (props.autoFocus) editor?.focus();
+  }, [editor, props.autoFocus]);
+
+  /**
+   * Effect: sync/readOnly.
+   */
+  React.useEffect(() => {
+    if (editor) editor.setProps({ editable: () => !props.readOnly });
+  }, [editor, props.readOnly]);
 
   /**
    * Render:
@@ -70,12 +99,16 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       })
       .rule('.ProseMirror > :first-child', {
         marginBlockStart: 0, // NB: supress first element top-margin.
+      })
+      .rule('.ProseMirror > H1', {
+        fontSize: '4.3em',
+        ...Headline.DmSerif.regular.style,
       }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div ref={editorRoot} className={styles.body.class} />
+      <div ref={rootRef} className={styles.body.class} />
     </div>
   );
 };
