@@ -139,11 +139,11 @@ describe('Signal', () => {
         expect(Signal.toggle(s)).to.eql(true);
         expect(s.value).to.eql(true);
 
-        s.value = 0;
+        s.value = 0; // NB: falsey.
         expect(Signal.toggle(s)).to.eql(true);
         expect(s.value).to.eql(true);
 
-        s.value = 1;
+        s.value = 1; // NB: truthy.
         expect(Signal.toggle(s)).to.eql(false);
         expect(s.value).to.eql(false);
 
