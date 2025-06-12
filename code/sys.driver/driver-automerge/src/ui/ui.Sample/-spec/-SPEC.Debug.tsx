@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
@@ -23,8 +23,6 @@ export async function createDebugSignals() {
   // const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
   // const wss = 'wss://sync.automerge.org'; // ← ref: https://automerge.org/docs/tutorial/local-sync
   const wss = 'sync.db.team';
-  console.info(`wss: ${wss}`);
-
   const repo = Crdt.repo({
     storage: true, // ← 'IndexedDb',
     network: [
@@ -36,7 +34,9 @@ export async function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
-    count: s(0),
+    redraw: s(0),
+
+    docId: s(localstore.current.docId),
     doc: s<P['doc']>(),
   };
 
@@ -49,10 +49,17 @@ export async function createDebugSignals() {
     listen() {
       p.debug.value;
       p.theme.value;
+      p.redraw.value;
+      p.docId.value;
       p.doc.value;
-      p.count.value;
     },
   };
+
+  Signal.effect(() => {
+    localstore.change((d) => {
+      d.docId = p.docId.value;
+    });
+  });
 
   return api;
 }
@@ -73,12 +80,41 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const repo = debug.repo;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Setup sample CRDT document:
    */
-  React.useEffect(() => void initDoc(debug), []);
+  type D = t.SampleDoc;
+  const listen = (doc?: t.CrdtRef<D>) => {
+    if (!doc) return;
+    doc.events().changed$.subscribe((e) => {
+      console.info('⚡️ crdt:changed$', e);
+      p.redraw.value += 1;
+    });
+  };
+
+  const loadDoc = async (id?: string) => {
+    if (!Crdt.Is.id(id)) {
+      p.doc.value = undefined;
+      return;
+    }
+
+    /**
+     * TODO 🐷
+     * - handle not found error
+     */
+
+    const doc = await repo.get<D>(id);
+    p.doc.value = doc;
+    listen(doc);
+  };
+
+  Signal.useEffect(() => {
+    const docId = p.docId.value;
+    if (docId !== p.doc.value?.id) loadDoc(docId);
+  });
 
   /**
    * Render:
@@ -90,8 +126,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{`${D.name}: CRDT`}</div>
-        <div>{'IndexedDB'}</div>
+        <div>{`Sample`}</div>
+        <div>{'CRDT / IndexedDB'}</div>
       </div>
 
       <Button
@@ -101,7 +137,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {sampleDocButtons(debug)}
+      {editSampleDocButtons(debug)}
 
       <hr />
       <Button
@@ -122,47 +158,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Dev Helpers:
  */
-export async function initDoc(debug: DebugSignals) {
-  type T = t.SampleDoc;
-  const { repo, localstore } = debug;
-  const p = debug.props;
-  const key = 'doc';
-
-  const listen = (doc: t.CrdtRef<T>) => {
-    doc.events().changed$.subscribe((e) => {
-      console.info('⚡️ crdt:changed$', e);
-      p.count.value += 1;
-    });
-  };
-
-  const remember = (doc: t.CrdtRef<T>) => {
-    p.doc.value = doc;
-    localstore.change((d) => (d.docId = doc.id));
-    addQueryParam(key, doc.id);
-  };
-
-  const setup = async (id?: string) => {
-    console.log('id', id);
-    if (!id) {
-      // Create:
-      const doc = repo.create<T>({ count: 0 });
-      listen(doc);
-      remember(doc);
-
-    } else {
-      // Retrieve:
-      const doc = (await repo.get<T>(id))!;
-      console.log('doc', doc);
-      listen(doc);
-      remember(doc);
-    }
-  };
-
-  const id = getQueryParam(key) ?? localstore.current.docId;
-  await setup(id);
-}
-
-export function sampleDocButtons(debug: DebugSignals) {
+export function editSampleDocButtons(debug: DebugSignals) {
   const { repo, localstore } = debug;
 
   const increment = async (by: number) => {
@@ -179,16 +175,3 @@ export function sampleDocButtons(debug: DebugSignals) {
     </React.Fragment>
   );
 }
-
-// type AddQueryParam = (key: string, value: string) => void;
-
-const addQueryParam = (key: string, value: string) => {
-  const url = new URL(window.location.href);
-  url.searchParams.set(key, value);
-  window.history.replaceState(null, '', url.toString());
-};
-
-const getQueryParam = (key: string) => {
-  const url = new URL(window.location.href);
-  return url.searchParams.get(key) ?? undefined;
-};

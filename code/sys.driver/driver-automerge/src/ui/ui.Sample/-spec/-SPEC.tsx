@@ -5,7 +5,10 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 import type * as t from './-t.ts';
 
-// Add the repo to the global window object so it can be accessed in the browser console.
+/**
+ * Add the repo to the global window object so
+ * it can be accessed in the browser console.
+ */
 declare global {
   interface Window {
     repo: t.CrdtRepo;
@@ -15,7 +18,8 @@ declare global {
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
-  window.repo = debug.repo;
+  const repo = debug.repo;
+  window.repo = repo; // NB: ← global access in debug console.
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -31,12 +35,19 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => (
         <Sample
-          //
           debug={p.debug.value}
           theme={p.theme.value}
+          docId={p.docId.value}
           doc={p.doc.value}
           repo={debug.repo}
           syncUrl={debug.wss}
+          // ⚡️ Handlers:
+          onDocIdTextChange={(e) => (p.docId.value = e.value)}
+          onActionClick={() => {
+            const next = repo.create<t.SampleDoc>({ count: 0, text: '' });
+            console.info('⚡️ created → doc:', next);
+            p.docId.value = next.id;
+          }}
         />
       ));
   });

@@ -5,5 +5,3 @@ export type SampleDoc = {
   count: number;
   text?: string;
 };
-
-export type SampleCard = { title: string };
