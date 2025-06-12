@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
-type Storage = { theme?: t.CommonTheme };
+type Storage = Pick<P, 'theme'>;
 
 /**
  * Types:
@@ -31,7 +31,6 @@ export function createDebugSignals() {
   };
 
   Signal.effect(() => {
-    p.theme.value;
     localstore.change((d) => {
       d.theme = p.theme.value ?? 'Light';
     });
