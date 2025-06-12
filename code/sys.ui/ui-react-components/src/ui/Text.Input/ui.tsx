@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type t, Style, Color, css, D, DEFAULTS, Is } from './common.ts';
+import { type t, Color, css, D, DEFAULTS, Is, Style } from './common.ts';
 
 type P = t.TextInputProps;
 type C = string | t.Percent;
@@ -87,9 +87,14 @@ export const TextInput: React.FC<P> = (props) => {
         ref={inputRef}
         className={styles.input.class}
         type={'text'}
+        //
         value={value}
         placeholder={placeholder}
+        maxLength={props.maxLength}
+        //
         disabled={disabled}
+        spellCheck={props.spellCheck ?? D.spellCheck}
+        //
         onChange={handleChange}
         onKeyDown={handleKeyDown}
       />

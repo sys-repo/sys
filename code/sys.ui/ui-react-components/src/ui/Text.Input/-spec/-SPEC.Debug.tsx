@@ -1,11 +1,18 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Is, Color, css, D, LocalStorage, Signal } from '../common.ts';
+import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.TextInputProps;
 type Storage = Pick<
   P,
-  'theme' | 'autoFocus' | 'disabled' | 'value' | 'placeholder' | 'background' | 'border'
+  | 'theme'
+  | 'autoFocus'
+  | 'disabled'
+  | 'value'
+  | 'placeholder'
+  | 'background'
+  | 'border'
+  | 'spellCheck'
 >;
 
 /**
@@ -32,6 +39,7 @@ export function createDebugSignals() {
 
     disabled: s<P['disabled']>(localstore.current.disabled),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
+    spellCheck: s<P['spellCheck']>(localstore.current.spellCheck),
   };
   const p = props;
   const api = {
@@ -45,6 +53,7 @@ export function createDebugSignals() {
       p.autoFocus.value;
       p.background.value;
       p.border.value;
+      p.spellCheck.value;
     },
   };
 
@@ -57,6 +66,7 @@ export function createDebugSignals() {
       d.disabled = p.disabled.value ?? D.disabled;
       d.background = p.background.value ?? D.background;
       d.border = p.border.value ?? D.border;
+      d.spellCheck = p.spellCheck.value ?? D.spellCheck;
     });
   });
 
@@ -134,6 +144,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
             undefined,
           ])
         }
+      />
+      <Button
+        block
+        label={() => {
+          return `spellCheck: ${p.spellCheck.value ?? `<undefined> (default: ${D.spellCheck})`}`;
+        }}
+        onClick={() => Signal.toggle(p.spellCheck)}
       />
 
       <hr />

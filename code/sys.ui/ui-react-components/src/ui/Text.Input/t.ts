@@ -12,11 +12,18 @@ export type TextInputProps = {
   value?: string;
   /** Placeholder text shown when value is empty. */
   placeholder?: string;
-
   /** Auto-focus the input on mount. */
   autoFocus?: boolean;
   /** Disable user interaction. */
   disabled?: boolean;
+  /** Maximum character length allowed. */
+  maxLength?: number;
+
+  spellCheck?: boolean;
+  autoCapitalize?: boolean;
+  autoCorrect?: boolean;
+  autoComplete?: boolean;
+  // selectionBackground?: number | string;
 
   // Appearance:
   padding?: t.CssPaddingInput;
