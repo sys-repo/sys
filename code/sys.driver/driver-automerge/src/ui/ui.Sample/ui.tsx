@@ -7,17 +7,19 @@ import { Uri } from './ui.Uri.tsx';
 
 export type SampleProps = {
   syncUrl?: t.StringUrl;
+  docId?: string;
   doc?: t.CrdtRef;
   repo?: t.CrdtRepo;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onActionClick?: () => void;
+  onDocIdTextChange?: t.TextInputHandler;
 };
 
 export const Sample: React.FC<SampleProps> = (props) => {
   const { debug = false, repo, doc } = props;
   const peerId = repo?.id.peer;
-  const docId = doc?.id ? `crdt:doc:${doc.id}` : undefined;
 
   /**
    * Render:
@@ -31,8 +33,16 @@ export const Sample: React.FC<SampleProps> = (props) => {
   };
 
   const elTitle = <UrlTitle style={styles.title} url={props.syncUrl} />;
-  const elPeer = <Uri prefix={'peer-id = “'} text={peerId} suffix={'”'} style={styles.peerId} />;
-  const elDocTextbox = <DocTextbox doc={doc} theme={theme.name} style={styles.textbox} />;
+  const elPeer = <Uri prefix={'peer-id: “'} text={peerId} suffix={'”'} style={styles.peerId} />;
+  const elDocTextbox = (
+    <DocTextbox
+      docId={props.docId}
+      theme={theme.name}
+      style={styles.textbox}
+      onCreateNew={props.onActionClick}
+      onTextChange={props.onDocIdTextChange}
+    />
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
