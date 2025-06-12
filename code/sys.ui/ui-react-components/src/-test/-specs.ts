@@ -25,7 +25,7 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
-  [`${ns}: Text.Input (🐷 WIP)`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Input`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
   [`${ns}.player: Video.VidStack`]: () => import('../ui/Player.Video.Vidstack/-spec/-SPEC.tsx'),
   [`${ns}.player: Video.Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
