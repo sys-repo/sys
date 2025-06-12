@@ -152,26 +152,38 @@ describe('Color', () => {
         const light = Color.theme();
         const dark = Color.theme('Dark');
 
-        const res1 = light.alpha().fg;
-        const res2 = light.alpha(0.5).fg;
-        const res3 = dark.alpha(0.3).fg;
+        const a = light.alpha().fg; // NB: default → 1.
+        const b = light.alpha(0.5).fg;
+        const c = dark.alpha(0.3).fg;
 
-        expect(res1).to.eql('rgb(41, 48, 66)');
-        expect(res2).to.eql('rgba(41, 48, 66, 0.5)');
-        expect(res3).to.eql('rgba(255, 255, 255, 0.3)');
+        expect(a).to.eql('rgb(41, 48, 66)');
+        expect(b).to.eql('rgba(41, 48, 66, 0.5)');
+        expect(c).to.eql('rgba(255, 255, 255, 0.3)');
       });
 
       it('alpha.bg (background)', () => {
         const light = Color.theme();
         const dark = Color.theme('Dark');
 
-        const res1 = light.alpha().bg;
-        const res2 = light.alpha(0.5).bg;
-        const res3 = dark.alpha(0.3).bg;
+        const a = light.alpha().bg;
+        const b = light.alpha(0.5).bg;
+        const c = dark.alpha(0.3).bg;
 
-        expect(res1).to.eql('rgb(255, 255, 255)');
-        expect(res2).to.eql('rgba(255, 255, 255, 0.5)');
-        expect(res3).to.eql('rgba(41, 48, 66, 0.3)');
+        expect(a).to.eql('rgb(255, 255, 255)');
+        expect(b).to.eql('rgba(255, 255, 255, 0.5)');
+        expect(c).to.eql('rgba(41, 48, 66, 0.3)');
+      });
+
+      it('alpha: negative → invert theme', () => {
+        const theme = Color.theme();
+        const a = theme.alpha(-0.1);
+        const b = theme.alpha(-99);
+
+        expect(a.fg).to.eql(theme.invert().alpha(0.1).fg);
+        expect(a.bg).to.eql(theme.invert().alpha(0.1).bg);
+
+        expect(b.fg).to.eql(theme.invert().alpha(1).fg);
+        expect(b.bg).to.eql(theme.invert().alpha(1).bg);
       });
     });
 
@@ -190,6 +202,8 @@ describe('Color', () => {
         const theme = Color.theme();
         expect(theme.format(0.3)).to.eql(theme.alpha(0.3));
         expect(theme.format(2)).to.eql(theme.alpha(1)); // NB: clamped 0..1
+        expect(theme.format(0)).to.eql(theme.alpha(0));
+        expect(theme.format(-0.15)).to.eql(theme.alpha(-0.15));
       });
 
       it('input: string (color)', () => {

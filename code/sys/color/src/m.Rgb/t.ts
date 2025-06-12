@@ -83,10 +83,10 @@ export type ColorTheme = ColorThemeColors & {
   /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
   invert(): ColorTheme;
 
-  /** Retrieve an alpha-percent of the current theme colors. */
+  /** Retrieve an alpha-percent (-1..1) of the current theme colors (pass negative to invert). */
   alpha(percent?: t.Percent): ColorThemeColors;
 
-  /** Retrieves an alpha-percent of the current theme, or locked to the given string-color if provided. */
+  /** Retrieves an alpha-percent of the current theme, or locked to the given string-color if provided (pass negative to invert). */
   format(input?: t.Percent | string): ColorThemeColors;
 
   /** Convert to string. */
