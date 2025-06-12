@@ -106,6 +106,11 @@ export const TextInput: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
+  borderRadius(props: P, mode: t.TextInputBorder['mode']) {
+    const px = props.borderRadius ?? D.borderRadius;
+    return mode === 'underline' ? `${px}px ${px}px ${0}px ${0}px` : px;
+  },
+
   border(props: P, theme: t.ColorTheme) {
     const D = DEFAULTS.border;
     let defaultColor = D.defaultColor;
@@ -143,10 +148,5 @@ const wrangle = {
         bottom: border(incl('outline', 'underline') ? focusColor : undefined),
       },
     } as const;
-  },
-
-  borderRadius(props: P, mode: t.TextInputBorder['mode']) {
-    const px = props.borderRadius ?? D.borderRadius;
-    return mode === 'underline' ? `${px}px ${px}px ${0}px ${0}px` : px;
   },
 } as const;
