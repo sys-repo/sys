@@ -12,6 +12,7 @@ type Storage = Pick<
   | 'placeholder'
   | 'background'
   | 'border'
+  | 'borderRadius'
   | 'spellCheck'
 >;
 
@@ -33,6 +34,7 @@ export function createDebugSignals() {
     theme: s(localstore.current.theme),
     background: s<P['background']>(localstore.current.background),
     border: s<P['border']>(localstore.current.border),
+    borderRadius: s<P['borderRadius']>(localstore.current.borderRadius),
 
     value: s<P['value']>(localstore.current.value),
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
@@ -53,6 +55,7 @@ export function createDebugSignals() {
       p.autoFocus.value;
       p.background.value;
       p.border.value;
+      p.borderRadius.value;
       p.spellCheck.value;
     },
   };
@@ -66,6 +69,8 @@ export function createDebugSignals() {
       d.disabled = p.disabled.value ?? D.disabled;
       d.background = p.background.value ?? D.background;
       d.border = p.border.value ?? D.border;
+      d.borderRadius = p.borderRadius.value ?? 4;
+
       d.spellCheck = p.spellCheck.value ?? D.spellCheck;
     });
   });
@@ -112,6 +117,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
+
       <Button
         block
         label={() => {
@@ -148,9 +154,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          return `spellCheck: ${p.spellCheck.value ?? `<undefined> (default: ${D.spellCheck})`}`;
+          const v = p.borderRadius.value;
+          return `borderRadius: ${v ?? `<undefined> (default: ${D.borderRadius})`}`;
         }}
-        onClick={() => Signal.toggle(p.spellCheck)}
+        onClick={() => Signal.cycle(p.borderRadius, [4, 8, undefined])}
       />
 
       <hr />
@@ -163,6 +170,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
+      />
+
+      <Button
+        block
+        label={() => {
+          return `spellCheck: ${p.spellCheck.value ?? `<undefined> (default: ${D.spellCheck})`}`;
+        }}
+        onClick={() => Signal.toggle(p.spellCheck)}
       />
 
       <hr />

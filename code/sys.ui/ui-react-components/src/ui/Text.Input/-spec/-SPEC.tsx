@@ -34,6 +34,8 @@ export default Spec.describe(D.displayName, (e) => {
           spellCheck={p.spellCheck.value}
           background={p.background.value}
           border={p.border.value}
+          borderRadius={p.borderRadius.value}
+          // ⚡️
           onChange={(e) => (p.value.value = e.value)}
         />
       ));

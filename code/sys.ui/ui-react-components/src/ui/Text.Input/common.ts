@@ -17,7 +17,7 @@ export const DEFAULTS = {
   padding: 6,
   background: 1,
   border,
-  borderRadius: 4,
+  borderRadius: 0,
   disabled: false,
   spellCheck: false,
   autoFocus: false,
