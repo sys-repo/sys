@@ -132,6 +132,26 @@ describe('Signal', () => {
         expect(s.value).to.eql(true);
       });
 
+      it('toggle from number', () => {
+        const s = Signal.create<boolean | number | undefined>();
+        expect(s.value).to.eql(undefined);
+
+        expect(Signal.toggle(s)).to.eql(true);
+        expect(s.value).to.eql(true);
+
+        s.value = 0;
+        expect(Signal.toggle(s)).to.eql(true);
+        expect(s.value).to.eql(true);
+
+        s.value = 1;
+        expect(Signal.toggle(s)).to.eql(false);
+        expect(s.value).to.eql(false);
+
+        s.value = 99;
+        expect(Signal.toggle(s)).to.eql(false);
+        expect(s.value).to.eql(false);
+      });
+
       it('force: true', () => {
         const s = Signal.create(false);
         const res1 = Signal.toggle(s, true);

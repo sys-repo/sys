@@ -74,7 +74,7 @@ export type SignalLib = {
  */
 export type SignalValueHelpersLib = {
   /** Toggle a boolean signal. */
-  toggle(signal: Signal<boolean | undefined>, forceValue?: boolean): boolean;
+  toggle(signal: Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
   cycle<T>(signal: Signal<T | undefined>, values: T[], forceValue?: T): T;
