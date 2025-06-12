@@ -22,8 +22,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, padding: 10 }),
-    title: css({ Absolute: [-50, 0, null, 0] }),
+    base: css({ position: 'relative', color: theme.fg, padding: 25 }),
+    title: css({ Absolute: [-30, 0, null, 0] }),
     docId: css({ Absolute: [null, null, -23, 10], fontSize: 11 }),
     peerId: css({ Absolute: [null, 10, -23, null], fontSize: 11 }),
   };
@@ -39,7 +39,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       {elDoc}
       {elPeer}
       <ObjectView
-        name={'T:SampleDoc'}
+        name={'T:CrdtRef'}
         data={doc?.current}
         expand={1}
         fontSize={24}
