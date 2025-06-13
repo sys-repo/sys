@@ -21,7 +21,7 @@ export const Headline = {
 };
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
-  const { doc, readOnly: disabled = D.disabled, debug = false } = props;
+  const { doc, readOnly = D.readOnly, scroll = D.scroll, debug = false } = props;
 
   /**
    * Hooks:
@@ -75,8 +75,8 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
    * Effect: sync/readOnly.
    */
   React.useEffect(() => {
-    if (editor) editor.setProps({ editable: () => !props.readOnly });
-  }, [editor, props.readOnly]);
+    if (editor) editor.setProps({ editable: () => !readOnly });
+  }, [editor, readOnly]);
 
   /**
    * Render:
@@ -89,7 +89,7 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       display: 'grid',
       zIndex: 0,
     }),
-    body: css({ Absolute: 0, Scroll: true })
+    body: css({ Absolute: 0, Scroll: scroll })
       .rule('.ProseMirror', {
         height: '100%',
         outline: 'none', // NB: remove blue outline glow.

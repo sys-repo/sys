@@ -13,6 +13,8 @@ export type TextEditorProps = {
   readOnly?: boolean;
   /** Auto-focus the input on mount (pass incrementing number to re-apply focus over time). */
   autoFocus?: boolean | number;
+  /** Scroll enabled.  */
+  scroll?: boolean;
 
   /**
    * Appearance:

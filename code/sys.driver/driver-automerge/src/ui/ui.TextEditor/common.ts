@@ -9,6 +9,7 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
   autoFocus: false,
-  disabled: false,
+  readOnly: false,
+  scroll: true,
 } as const;
 export const D = DEFAULTS;

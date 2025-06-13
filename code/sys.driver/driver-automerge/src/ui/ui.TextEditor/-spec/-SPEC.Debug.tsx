@@ -5,7 +5,10 @@ import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.
 import type * as t from './-t.ts';
 
 type P = t.TextEditorProps;
-type Storage = { theme?: t.CommonTheme; docId?: string } & Pick<P, 'autoFocus' | 'readOnly'>;
+type Storage = { theme?: t.CommonTheme; docId?: string } & Pick<
+  P,
+  'autoFocus' | 'readOnly' | 'scroll'
+>;
 
 /**
  * Types:
@@ -34,6 +37,7 @@ export function createDebugSignals() {
     doc: s<t.CrdtRef<t.SampleTextDoc>>(),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
     readOnly: s<P['readOnly']>(localstore.current.readOnly),
+    scroll: s<P['scroll']>(localstore.current.scroll),
   };
   const p = props;
   const api = {
@@ -46,6 +50,7 @@ export function createDebugSignals() {
       p.doc.value;
       p.readOnly.value;
       p.autoFocus.value;
+      p.scroll.value;
     },
   };
 
@@ -53,7 +58,8 @@ export function createDebugSignals() {
     localstore.change((d) => {
       d.theme = p.theme.value ?? 'Dark';
       d.autoFocus = p.autoFocus.value ?? true;
-      d.readOnly = p.readOnly.value ?? D.disabled;
+      d.readOnly = p.readOnly.value ?? D.readOnly;
+      d.scroll = p.scroll.value ?? D.scroll;
     });
   });
 
@@ -101,8 +107,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.disabled})`}`}
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
         onClick={() => Signal.toggle(p.readOnly)}
+      />
+      <Button
+        block
+        label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
+        onClick={() => Signal.toggle(p.scroll)}
       />
       <Button
         block

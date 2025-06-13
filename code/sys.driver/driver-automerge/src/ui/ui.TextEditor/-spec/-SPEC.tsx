@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
           doc={p.doc.value}
           autoFocus={p.autoFocus.value}
           readOnly={p.readOnly.value}
+          scroll={p.scroll.value}
         />
       ));
   });
