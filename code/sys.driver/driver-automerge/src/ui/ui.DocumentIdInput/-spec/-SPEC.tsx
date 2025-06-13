@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { RepoDocTextbox } from '../mod.ts';
+import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -17,9 +17,9 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([480, null])
       .display('grid')
-      .render(() => <RepoDocTextbox debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <DocumentIdInput debug={p.debug.value} theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

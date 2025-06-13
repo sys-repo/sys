@@ -11,5 +11,5 @@ export const ns = 'driver.automerge';
 export const Specs = {
   [`${ns}: sample`]: () => import('../ui/ui.Sample/-spec/-SPEC.tsx'),
   [`${ns}: ui.TextEditor (ProseMirror)`]: () => import('../ui/ui.TextEditor/-spec/-SPEC.tsx'),
-  [`${ns}: ui.RepoDocTextbox`]: () => import('../ui/ui.RepoDocTextbox/-spec/-SPEC.tsx'),
+  [`${ns}: ui.DocumentIdInput`]: () => import('../ui/ui.DocumentIdInput/-spec/-SPEC.tsx'),
 } as t.SpecImports;

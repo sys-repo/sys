@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.RepoDocTextboxProps;
+type P = t.DocumentIdInputProps;
 type Storage = Pick<P, 'theme'>;
 
 /**

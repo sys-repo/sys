@@ -4,6 +4,6 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'RepoDocTextbox';
+const name = 'DocumentIdInput';
 export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
 export const D = DEFAULTS;
