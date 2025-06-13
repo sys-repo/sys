@@ -19,7 +19,7 @@ export const Crdt: t.CrdtFilesystemLib = {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
     const storage = wrangle.storage(args);
-    const peerId = `peer:fs:${slug()}` as t.PeerId;
+    const peerId = `peer.${slug()}` as t.PeerId;
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
