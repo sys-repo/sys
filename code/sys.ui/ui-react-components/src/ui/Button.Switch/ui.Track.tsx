@@ -43,7 +43,7 @@ export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
       overflow: 'hidden',
     }),
   };
-  return <div {...styles.base} />;
+  return <div className={styles.base.class} />;
 };
 
 /**
