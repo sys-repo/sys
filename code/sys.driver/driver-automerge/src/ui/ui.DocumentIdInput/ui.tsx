@@ -2,9 +2,15 @@ import React from 'react';
 
 import { type t, Color, css, TextInput } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
+import { useDocumentIdInput } from './use.DocumentIdInput.ts';
 
 export const DocumentIdInput: React.FC<t.DocumentIdInputProps> = (props) => {
-  const { label = 'document-id:', docId } = props;
+  const { label, value: docId, placeholder = 'document-id' } = props;
+
+  /**
+   * Hooks:
+   */
+  const controller = useDocumentIdInput(props.state);
 
   /**
    * Render:
@@ -12,6 +18,7 @@ export const DocumentIdInput: React.FC<t.DocumentIdInputProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       color: theme.fg,
       fontSize: 14,
       display: 'grid',
@@ -19,8 +26,13 @@ export const DocumentIdInput: React.FC<t.DocumentIdInputProps> = (props) => {
       alignItems: 'stretch',
       columnGap: 5,
     }),
-    label: css({ Absolute: [-20, null, null, 5], opacity: 0.5 }),
     textbox: css({ fontSize: 14 }),
+    label: css({
+      Absolute: [-20, null, null, 5],
+      opacity: 0.5,
+      fontSize: 11,
+      userSelect: 'none',
+    }),
   };
 
   return (
@@ -28,13 +40,25 @@ export const DocumentIdInput: React.FC<t.DocumentIdInputProps> = (props) => {
       <div className={styles.label.class}>{label}</div>
       <TextInput
         value={docId}
+        placeholder={placeholder}
         border={{ mode: 'underline', defaultColor: 0 }}
         background={theme.is.dark ? -0.08 : 0}
         theme={theme.name}
         style={styles.textbox}
-        onChange={props.onTextChange}
+        onChange={(e) => {
+          controller.handlers.onValueChange(e);
+          props.onValueChange?.(e);
+        }}
       />
-      <ActionButton />
+      <ActionButton
+        style={{ fontSize: 12 }}
+        onClick={() => {
+          const { action } = controller;
+          const payload: t.DocumentIdInputActionArgs = { action };
+          controller.handlers.onActionClick(payload);
+          props.onActionClick?.(payload);
+        }}
+      />
     </div>
   );
 };

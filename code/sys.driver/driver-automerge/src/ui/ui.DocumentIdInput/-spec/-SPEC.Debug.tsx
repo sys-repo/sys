@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Is, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Crdt } from '@sys/driver-automerge/browser';
 
 type P = t.DocumentIdInputProps;
-type Storage = Pick<P, 'theme'>;
+type Storage = Pick<P, 'theme' | 'label' | 'placeholder'>;
 
 /**
  * Types:
@@ -17,22 +18,34 @@ export function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
+  const repo = Crdt.repo({
+    storage: 'IndexedDb',
+    network: [{ wss: 'sync.db.team' }],
+  });
+
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    label: s<P['label']>(localstore.current.label),
+    placeholder: s<P['placeholder']>(localstore.current.placeholder),
   };
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       p.debug.value;
       p.theme.value;
+      p.label.value;
+      p.placeholder.value;
     },
   };
 
   Signal.effect(() => {
     localstore.change((d) => {
       d.theme = p.theme.value ?? 'Dark';
+      d.label = p.label.value;
+      d.placeholder = p.placeholder.value;
     });
   });
 
@@ -72,6 +85,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `label: ${p.label.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.label, [undefined, 'My Descriptive Label:'])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.placeholder.value;
+          return `placeholder: ${Is.string(v) ? v || '""' : `<undefined>`}`;
+        }}
+        onClick={() => Signal.cycle(p.placeholder, [undefined, 'My Placeholder', ''])}
       />
 
       <hr />

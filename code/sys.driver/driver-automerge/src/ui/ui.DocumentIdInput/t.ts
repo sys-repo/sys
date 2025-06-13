@@ -7,12 +7,14 @@ export type DocumentIdInputAction = 'Load' | 'Create';
  */
 export type DocumentIdInputProps = {
   label?: string;
-  docId?: t.StringId;
+  value?: t.StringId;
+  placeholder?: string;
+  state?: DocumentIdHook | UseDocumentIdHookArgs;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onActionClick?: () => t.DocumentIdInputActionHandler;
-  onTextChange?: t.TextInputChangeHandler;
+  onActionClick?: t.DocumentIdInputActionHandler;
+  onValueChange?: t.TextInputChangeHandler;
 };
 
 /**
@@ -21,4 +23,18 @@ export type DocumentIdInputProps = {
 export type DocumentIdInputActionHandler = (e: DocumentIdInputActionArgs) => void;
 export type DocumentIdInputActionArgs = {
   readonly action: DocumentIdInputAction;
+};
+
+/**
+ * Controller Hook:
+ */
+export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) => DocumentIdHook;
+export type UseDocumentIdHookArgs = { repo?: t.CrdtRepo };
+export type DocumentIdHook = {
+  readonly instance: t.StringId;
+  readonly action: DocumentIdInputAction;
+  readonly handlers: {
+    onActionClick: t.DocumentIdInputActionHandler;
+    onValueChange: t.TextInputChangeHandler;
+  };
 };
