@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
@@ -20,9 +20,10 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
 
-  // const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
+  const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
+  // const wss = 'sync.db.team';
   // const wss = 'wss://sync.automerge.org'; // ← ref: https://automerge.org/docs/tutorial/local-sync
-  const wss = 'sync.db.team';
+
   const repo = Crdt.repo({
     storage: true, // ← 'IndexedDb',
     network: [
@@ -148,8 +149,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={{ ...Signal.toObject(p), doc: p.doc?.value?.current }}
-        expand={1}
         style={{ marginTop: 10 }}
+        expand={0}
       />
     </div>
   );

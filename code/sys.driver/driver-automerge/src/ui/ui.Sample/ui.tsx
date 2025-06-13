@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { type t, Color, css, ObjectView } from './common.ts';
-import { DocTextbox } from './ui.DocTextbox.tsx';
-import { UrlTitle } from './ui.Title.tsx';
-import { Uri } from './ui.Uri.tsx';
+import { type t, Color, css, DocumentIdInput, ObjectView } from './common.ts';
+import { DocTextbox } from './ui.DocTextbox__.tsx';
+import { SyncServer } from './ui.SyncServer.tsx';
 
 export type SampleProps = {
   syncUrl?: t.StringUrl;
@@ -19,7 +18,6 @@ export type SampleProps = {
 
 export const Sample: React.FC<SampleProps> = (props) => {
   const { debug = false, repo, doc } = props;
-  const peerId = repo?.id.peer;
 
   /**
    * Render:
@@ -27,14 +25,22 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
-    title: css({ Absolute: [null, null, -22, 10] }),
-    peerId: css({ Absolute: [null, 10, -22, null] }),
-    textbox: css({ Absolute: [-30, 0, null, 0] }),
+    docInput: css({ Absolute: [-30, 0, null, 0] }),
+    syncServer: css({ Absolute: [null, null, -25, 7] }),
+
+    }),
   };
 
-  const elTitle = <UrlTitle style={styles.title} url={props.syncUrl} />;
-  const elPeer = <Uri prefix={'peer-id: “'} text={peerId} suffix={'”'} style={styles.peerId} />;
-  const elDocTextbox = (
+  const elSyncServer = (
+    <SyncServer
+      style={styles.syncServer}
+      endpoint={props.syncUrl}
+      theme={theme.name}
+      peerId={repo?.id.peer}
+    />
+  );
+
+  const elDocTextbox____OLD = (
     <DocTextbox
       docId={props.docId}
       theme={theme.name}
@@ -44,13 +50,21 @@ export const Sample: React.FC<SampleProps> = (props) => {
     />
   );
 
+  const elDocInput = (
+    <DocumentIdInput
+      style={styles.docInput}
+      label={'document-id:'}
+      placeholder={''}
+      theme={theme.name}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
-      {elTitle}
-      {elPeer}
-      {elDocTextbox}
+      {elSyncServer}
+      {elDocInput}
       <ObjectView
-        name={'T:CrdtRef'}
+        name={'T:Memory<Crdt>'}
         data={doc?.current}
         expand={1}
         fontSize={24}
