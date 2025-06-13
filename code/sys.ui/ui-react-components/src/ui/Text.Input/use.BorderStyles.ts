@@ -48,22 +48,20 @@ const wrangle = {
 
     const incl = (...modes: t.TextInputBorder['mode'][]) => modes.includes(mode);
     const format = (color: C) => theme.format(color).fg;
-    const border = (color: C = 0) => {
-      return color === 0 ? 'none' : `1px solid ${format(color)}`;
-    };
+    const border = (color: C | false) => (color === false ? 'none' : `1px solid ${format(color)}`);
 
     return {
       mode,
       base: {
-        borderLeft: border(incl('outline') ? defaultColor : 0),
-        borderRight: border(incl('outline') ? defaultColor : 0),
-        borderTop: border(incl('outline') ? defaultColor : 0),
+        borderLeft: border(incl('outline') ? defaultColor : false),
+        borderRight: border(incl('outline') ? defaultColor : false),
+        borderTop: border(incl('outline') ? defaultColor : false),
         borderBottom: border(incl('outline', 'underline') ? defaultColor : 0),
       },
       focus: {
-        borderLeft: border(incl('outline') ? focusColor : 0),
-        borderRight: border(incl('outline') ? focusColor : 0),
-        borderTop: border(incl('outline') ? focusColor : 0),
+        borderLeft: border(incl('outline') ? focusColor : false),
+        borderRight: border(incl('outline') ? focusColor : false),
+        borderTop: border(incl('outline') ? focusColor : false),
         borderBottom: border(incl('outline', 'underline') ? focusColor : 0),
       },
     } as const;

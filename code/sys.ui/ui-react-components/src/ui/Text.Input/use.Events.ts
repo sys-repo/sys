@@ -25,7 +25,6 @@ export function useEvents(props: P) {
   };
   const focusHandler = (focused: boolean, ...cb: (t.TextInputFocusHandler | undefined)[]) => {
     cb = cb.filter(Boolean);
-    if (cb.length === 0) return;
     return (e: React.FocusEvent<H>) => {
       setFocused(focused);
       const value = e.currentTarget.value;

@@ -29,7 +29,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
     title: css({ Absolute: [null, null, -22, 10] }),
     peerId: css({ Absolute: [null, 10, -22, null] }),
-    textbox: css({ Absolute: [-31, 0, null, 0] }),
+    textbox: css({ Absolute: [-30, 0, null, 0] }),
   };
 
   const elTitle = <UrlTitle style={styles.title} url={props.syncUrl} />;
