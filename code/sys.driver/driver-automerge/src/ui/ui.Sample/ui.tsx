@@ -54,7 +54,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   );
 
   const elDocInput = (
-    <DocumentIdInput
+    <DocumentIdInput.View
       style={styles.docInput}
       label={'document-id:'}
       placeholder={''}
