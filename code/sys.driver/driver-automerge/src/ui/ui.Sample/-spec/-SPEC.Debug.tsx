@@ -5,7 +5,7 @@ import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
-type LocalStore = { docId?: string };
+type LocalStore = { docId?: string; syncServerUrl?: string; syncServerEnabled?: boolean };
 
 /**
  * Types:
@@ -20,22 +20,14 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
 
-  const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
-  // const wss = 'sync.db.team';
-  // const wss = 'wss://sync.automerge.org'; // ← ref: https://automerge.org/docs/tutorial/local-sync
-
-  const repo = Crdt.repo({
-    storage: true, // ← 'IndexedDb',
-    network: [
-      // 'BroadcastChannel',
-      { wss },
-    ],
-  });
-
   const props = {
     debug: s(false),
     theme: s<t.CommonTheme>('Dark'),
     redraw: s(0),
+
+    repo: s<t.CrdtRepo>(),
+    syncServerUrl: s(localstore.current.syncServerUrl),
+    syncServerEnabled: s(localstore.current.syncServerEnabled),
 
     docId: s(localstore.current.docId),
     doc: s<P['doc']>(),
@@ -44,21 +36,38 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo,
     localstore,
-    wss,
     listen() {
       p.debug.value;
       p.theme.value;
       p.redraw.value;
       p.docId.value;
       p.doc.value;
+      p.repo.value;
+      p.syncServerUrl.value;
+      p.syncServerEnabled.value;
     },
   };
 
   Signal.effect(() => {
+    const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
     localstore.change((d) => {
       d.docId = p.docId.value;
+      d.syncServerUrl = p.syncServerUrl.value ?? wss;
+      d.syncServerEnabled = p.syncServerEnabled.value ?? true;
+    });
+  });
+
+  Signal.effect(() => {
+    const wss = p.syncServerUrl.value;
+    const isWebsockets = p.syncServerEnabled.value;
+
+    const network: t.CrdtBrowserNetworkArg[] = [];
+    if (wss && isWebsockets) network.push({ wss });
+
+    p.repo.value = Crdt.repo({
+      storage: true, // ← 'IndexedDb',
+      network,
     });
   });
 
@@ -81,7 +90,6 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const repo = debug.repo;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -102,27 +110,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       return;
     }
 
-    /**
-     * TODO 🐷
-     * - handle not found error
-     */
-
-    const doc = await repo.get<D>(id);
+    const repo = p.repo.value;
+    const doc = await repo?.get<D>(id);
     p.doc.value = doc;
     listen(doc);
   };
 
   Signal.useEffect(() => {
     const docId = p.docId.value;
-    if (docId !== p.doc.value?.id) loadDoc(docId);
+    loadDoc(docId);
   });
 
   /**
    * Render:
    */
-  const styles = {
-    base: css({}),
-  };
+  const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -160,12 +162,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Dev Helpers:
  */
 export function editSampleDocButtons(debug: DebugSignals) {
-  const { repo, localstore } = debug;
+  const { props: p, localstore } = debug;
 
   const increment = async (by: number) => {
-    const id = localstore.current.docId;
-    if (!id) return;
-    const doc = (await repo.get<t.SampleDoc>(id))!;
+    const repo = p.repo.value;
+    const docId = localstore.current.docId;
+    if (!docId || !repo) return;
+
+    const doc = (await repo.get<t.SampleDoc>(docId))!;
     doc.change((d) => (d.count += by));
   };
 

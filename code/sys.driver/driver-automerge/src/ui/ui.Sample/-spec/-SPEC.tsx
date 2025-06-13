@@ -18,8 +18,11 @@ declare global {
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
-  const repo = debug.repo;
-  window.repo = repo; // NB: ← global access in debug console.
+
+  /**
+   * Put repo in global/window namespace (debug console).
+   */
+  Signal.effect(() => void (window.repo = p.repo.value!));
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -39,15 +42,20 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           docId={p.docId.value}
           doc={p.doc.value}
-          repo={debug.repo}
-          syncUrl={debug.wss}
+          repo={p.repo.value}
+          syncServer={{
+            url: p.syncServerUrl.value,
+            enabled: p.syncServerEnabled.value,
+          }}
           // ⚡️ Handlers:
           onDocIdTextChange={(e) => (p.docId.value = e.value)}
           onActionClick={() => {
-            const next = repo.create<t.SampleDoc>({ count: 0, text: '' });
+            const repo = p.repo.value;
+            const next = repo?.create<t.SampleDoc>({ count: 0, text: '' });
             console.info('⚡️ created → doc:', next);
-            p.docId.value = next.id;
+            p.docId.value = next?.id;
           }}
+          onSyncServerEnabledChange={(e) => (p.syncServerEnabled.value = e.next)}
         />
       ));
   });
