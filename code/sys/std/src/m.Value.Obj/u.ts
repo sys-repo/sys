@@ -11,6 +11,14 @@ export function keys<T extends object>(obj?: T): Array<keyof T> {
 }
 
 /**
+ * Retrieve a typed JS-entries collection for the given object.
+ */
+export function entries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
+  type Entries = [keyof T, T[keyof T]][];
+  return Object.entries(obj) as Entries;
+}
+
+/**
  * Sort the keys of an object.
  */
 export function sortKeys<T extends O>(obj: T): T {

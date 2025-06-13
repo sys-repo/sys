@@ -492,6 +492,27 @@ describe('Value.Obj', () => {
     });
   });
 
+  describe('Object.entries', () => {
+    it('empty', () => {
+      const obj = {};
+      const res = Value.Obj.entries(obj);
+      expect(res).to.eql([]);
+    });
+
+    it('typed', () => {
+      type T = { foo: number; bar: string };
+      const obj: T = { foo: 0, bar: 'hello' };
+      const entries = Obj.entries<T>(obj);
+      expect(entries).to.eql([
+        ['foo', 0],
+        ['bar', 'hello'],
+      ]);
+
+      // NB: prove type safety (no ts errors):
+      entries.forEach(([key]) => delete obj[key]);
+    });
+  });
+
   describe('Obj.clone', () => {
     it('return different instance', () => {
       const obj = { foo: 123, bar: { msg: 'hello' } };

@@ -73,6 +73,11 @@ export type ObjLib = {
   keys<T extends object>(obj?: T): Array<keyof T>;
 
   /**
+   * Retrieve a typed JS-entries collection for the given object.
+   */
+  entries<T extends object>(obj: T): [keyof T, T[keyof T]][];
+
+  /**
    * Sort the keys of an object.
    */
   sortKeys<T extends O>(obj: T): T;
