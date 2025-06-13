@@ -39,7 +39,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr: (e) => {
-        if (e.prev?.endsWith(': ObjectView')) return true;
+        if (e.prev?.endsWith(': Buttons.Switch')) return true;
         if (e.prev?.endsWith(': Config.Slider')) return true;
         if (e.next?.endsWith('.player: Video.VidStack')) return true;
         if (e.prev?.endsWith(': Recorder')) return true;
