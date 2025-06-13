@@ -1,6 +1,8 @@
 import { buildAndCopy, copyPublic } from './-build.u.ts';
 import { Fs, pkg, Pkg, Tmpl } from './common.ts';
 
+await Fs.remove('dist');
+
 /**
  * Pull in modules:
  */
