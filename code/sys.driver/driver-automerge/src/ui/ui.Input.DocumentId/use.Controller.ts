@@ -4,13 +4,13 @@ import { type t, Is, slug } from './common.ts';
 type P = t.DocumentIdInputProps;
 type H = t.DocumentIdHook;
 
-export const useDocumentIdInput: t.UseDocumentIdHook = (input = {}) => {
+export const useController: t.UseDocumentIdHook = (input = {}) => {
   /**
    * Hooks:
    */
   const instanceRef = useRef(slug());
 
-  // [Exit] if an existing hook intance was passed.
+  // Exit if an existing hook intance was passed.
   if (Is.record<H>(input) && Is.string(input.instance)) return input;
 
   /**
@@ -19,6 +19,7 @@ export const useDocumentIdInput: t.UseDocumentIdHook = (input = {}) => {
   const args = input as t.UseDocumentIdHookArgs;
   const { repo } = args ?? {};
 
+  // console.log('repo', repo);
   const action: t.DocumentIdInputAction = 'Create'; // TODO 🐷
 
   /**

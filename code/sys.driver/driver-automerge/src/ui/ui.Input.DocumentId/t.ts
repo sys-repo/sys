@@ -3,6 +3,14 @@ import type { t } from './common.ts';
 export type DocumentIdInputAction = 'Load' | 'Create';
 
 /**
+ * Library: editor for repo-document ID loader.
+ */
+export type DocumentIdInputLib = {
+  readonly View: React.FC<DocumentIdInputProps>;
+  readonly useController: UseDocumentIdHook;
+};
+
+/**
  * <Component>:
  */
 export type DocumentIdInputProps = {
@@ -21,9 +29,7 @@ export type DocumentIdInputProps = {
  * Events:
  */
 export type DocumentIdInputActionHandler = (e: DocumentIdInputActionArgs) => void;
-export type DocumentIdInputActionArgs = {
-  readonly action: DocumentIdInputAction;
-};
+export type DocumentIdInputActionArgs = { readonly action: DocumentIdInputAction };
 
 /**
  * Controller Hook:

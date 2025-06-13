@@ -1,6 +1,6 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { DocumentIdInput, useDocumentIdInput } from '../mod.ts';
+import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -14,11 +14,11 @@ export default Spec.describe(D.displayName, (e) => {
      *       setup arguments for the hook.
      */
     const args: t.UseDocumentIdHookArgs = { repo };
-    const state = useDocumentIdInput(args);
+    const controller = DocumentIdInput.useController(args);
 
     return (
-      <DocumentIdInput
-        state={state}
+      <DocumentIdInput.View
+        state={controller}
         // state={args} // ← NB: pass instance OR args.
         debug={p.debug.value}
         theme={p.theme.value}

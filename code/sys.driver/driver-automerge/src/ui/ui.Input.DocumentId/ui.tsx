@@ -2,15 +2,15 @@ import React from 'react';
 
 import { type t, Color, css, TextInput } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
-import { useDocumentIdInput } from './use.DocumentIdInput.ts';
+import { useController } from './use.Controller.ts';
 
-export const DocumentIdInput: React.FC<t.DocumentIdInputProps> = (props) => {
+export const View: React.FC<t.DocumentIdInputProps> = (props) => {
   const { label, value: docId, placeholder = 'document-id' } = props;
 
   /**
    * Hooks:
    */
-  const controller = useDocumentIdInput(props.state);
+  const controller = useController(props.state);
 
   /**
    * Render:
