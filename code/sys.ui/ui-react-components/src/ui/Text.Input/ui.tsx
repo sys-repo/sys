@@ -27,6 +27,21 @@ export const TextInput: React.FC<P> = (props) => {
   const { border, borderRadius, theme } = useBorderStyles(props);
   const { focused } = events;
 
+  const [ready, setReady] = React.useState(false);
+
+  /**
+   * Effect: mounted → ready.
+   */
+  useEffect(() => {
+    const element = inputRef.current;
+
+    if (ready) return;
+    if (element) {
+      props.onReady?.({ input: element });
+      setReady(true);
+    }
+  }, [inputRef]);
+
   /**
    * Effect: Auto-focus when requested.
    */

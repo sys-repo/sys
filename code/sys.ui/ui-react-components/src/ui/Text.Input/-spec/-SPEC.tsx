@@ -40,6 +40,7 @@ export default Spec.describe(D.displayName, (e) => {
           border={p.border.value}
           borderRadius={p.borderRadius.value}
           // ⚡️
+          onReady={(e) => console.info(`🌳 onReady:`, e)}
           onKeyDown={(e) => console.info(`⚡️ onKeyDown:`, e)}
           onKeyUp={(e) => console.info(`⚡️ onKeyUp:`, e)}
           onFocusChange={(e) => console.info(`⚡️ onFocusChange`, e)}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
-import { readonly } from 'zod/v4-mini';
+import { type t, slug, Color, css, D, Is, LocalStorage, Signal, Time } from '../common.ts';
 
 type P = t.TextInputProps;
 type Storage = Pick<
@@ -32,6 +31,7 @@ export function createDebugSignals() {
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
   const props = {
+    redraw: s(0),
     debug: s(false),
     theme: s(localstore.current.theme),
     background: s<P['background']>(localstore.current.background),
@@ -49,10 +49,15 @@ export function createDebugSignals() {
     prefix: s<P['prefix']>(),
     suffix: s<P['suffix']>(),
   };
-  const p = props;
+
   const api = {
-    props,
+    get props() {
+      return props;
+    },
+    localstore,
     listen() {
+      const p = api.props;
+      p.redraw.value;
       p.debug.value;
       p.theme.value;
       p.value.value;
@@ -70,15 +75,16 @@ export function createDebugSignals() {
   };
 
   Signal.effect(() => {
+    const p = props;
     localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Light';
+      d.theme = p.theme.value ?? 'Dark';
       d.value = p.value.value;
       d.placeholder = p.placeholder.value;
       d.autoFocus = p.autoFocus.value ?? true;
       d.disabled = p.disabled.value ?? D.disabled;
       d.readOnly = p.readOnly.value ?? D.readOnly;
       d.background = p.background.value ?? -0.05;
-      d.border = p.border.value ?? D.border;
+      d.border = p.border.value ?? { mode: 'underline' };
       d.borderRadius = p.borderRadius.value ?? 4;
       d.spellCheck = p.spellCheck.value ?? D.spellCheck;
     });

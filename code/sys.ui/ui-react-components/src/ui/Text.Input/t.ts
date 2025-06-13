@@ -22,7 +22,6 @@ export type TextInputProps = {
   maxLength?: number;
   /** Controls keyboard focus order in the tab sequence. */
   tabIndex?: number;
-
   /** Element to render before the textbox (left). */
   prefix?: JSX.Element;
   /** Element to render after the textbox (right). */
@@ -47,6 +46,8 @@ export type TextInputProps = {
   /**
    * Handlers:
    */
+  /** Fires when the textbox is mounted and ready. */
+  onReady?: TextInputReadyHandler;
   /** Fires when the textbox value changes. */
   onChange?: t.TextInputChangeHandler;
   /** Fires on key presses within the textbox. */
@@ -94,4 +95,10 @@ export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> &
   readonly code: string;
   readonly modifiers: t.KeyboardModifierFlags;
   readonly repeat: boolean;
+};
+
+/** Fires when the textbox is mounted and ready. */
+export type TextInputReadyHandler = (e: TextInputReadyArgs) => void;
+export type TextInputReadyArgs = {
+  readonly input: HTMLInputElement;
 };
