@@ -35,7 +35,7 @@ const repo = Crdt.repo({
   network: [
     'BroadcastChannel',
     { wss: 'localhost:3030' },       // or:↓
-    { wss: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/wss` to stand-up an server.
+    { wss: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/ws` to stand-up dedicated server.
   ],
 });
 
@@ -50,11 +50,11 @@ During development, you can start the local web-socket server on `localhost`:
 deno task wss
 ```
 ```ts
-import { Server } from '@sys/driver-automerge/wss';
+import { Server } from '@sys/driver-automerge/ws';
 
 Server.wss({
   port: 3030,
-  dir: '.tmp/wss.crdt',
+  dir: '.tmp/sync.crdt',
 });
 ```
 
