@@ -9,6 +9,7 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
       const repo = Crdt.repo();
       expect(repo.id.peer.startsWith('peer.')).to.be.true;
+      expect(repo.id.instance).to.be.a('string');
 
       const a = repo.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));

@@ -13,9 +13,10 @@ export type CrdtFilesystemLib = {
 /** Arguments for file-system `Crdt.repo` method. */
 export type CrdtFsRepoArgs = {
   dir?: t.StringDir;
-  network?: NetworkArg | NetworkArg[];
+  network?: CrdtFsNetworkArg | CrdtFsNetworkArg[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
 };
 
-type NetworkArg = NetworkAdapterInterface;
+/** Network interface argument. */
+export type CrdtFsNetworkArg = NetworkAdapterInterface;

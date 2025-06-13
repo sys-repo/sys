@@ -17,11 +17,16 @@ export type CrdtBrowserLib = {
 
 /** Arguments for browser `Crdt.repo` method. */
 export type CrdtBrowserRepoArgs = {
-  storage?: StorageArg | boolean;
-  network?: NetworkArg | NetworkArg[];
+  storage?: CrdtBrowserStorageArg | boolean;
+  network?: CrdtBrowserNetworkArg | CrdtBrowserNetworkArg[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
 };
 
-type NetworkArg = NetworkAdapterInterface | 'BroadcastChannel' | { wss: t.StringUrl };
-type StorageArg = StorageAdapterInterface | 'IndexedDb';
+/** Storage argument. */
+export type CrdtBrowserStorageArg = StorageAdapterInterface | 'IndexedDb';
+/** Network argument. */
+export type CrdtBrowserNetworkArg =
+  | NetworkAdapterInterface
+  | 'BroadcastChannel'
+  | { wss: t.StringUrl };

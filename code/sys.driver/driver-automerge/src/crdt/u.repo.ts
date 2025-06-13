@@ -1,5 +1,5 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-import { type t } from './common.ts';
+import { type t, slug } from './common.ts';
 import { CrdtIs } from './m.Is.ts';
 import { toRef } from './u.ref.ts';
 
@@ -22,7 +22,7 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
    * API:
    */
   const api: t.CrdtRepo = {
-    id: { peer: options.peerId ?? 'UNKNOWN' },
+    id: { peer: options.peerId ?? 'UNKNOWN', instance: slug() },
 
     create<T extends O>(initial: T) {
       const handle = repo.create<T>(initial);

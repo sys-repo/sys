@@ -17,6 +17,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('create', () => {
     const repo = toRepo(new Repo());
     expect(repo.id.peer).to.eql('UNKNOWN');
+    expect(repo.id.instance).to.be.a('string');
 
     const doc = repo.create<T>({ count: 0 });
     expect(doc.current).to.eql({ count: 0 });
