@@ -58,6 +58,7 @@ export const TextInput: React.FC<P> = (props) => {
       background: theme.format(props.background ?? D.background).bg,
       color: theme.fg,
       boxSizing: 'border-box',
+      lineHeight: 'normal',
       borderRadius,
       transition: 'border-color 120ms ease',
       ...(focused ? border.focus : border.base),
