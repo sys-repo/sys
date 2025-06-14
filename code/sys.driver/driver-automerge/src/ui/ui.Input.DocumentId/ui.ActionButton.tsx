@@ -36,7 +36,6 @@ export const ActionButton: React.FC<ActionButtonProps> = (props) => {
       backgroundColor: isOver && enabled ? Color.BLUE : undefined,
       color: isOver && enabled ? Color.WHITE : Color.BLUE,
       width: 70,
-      margin: 1,
       display: 'grid',
       placeItems: 'center',
     }),

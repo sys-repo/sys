@@ -3,6 +3,7 @@ import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Input } from '../../ui.Input/mod.ts';
 
 type SampleDoc = { count: number; text?: string };
 
@@ -50,6 +51,25 @@ export default Spec.describe(D.displayName, (e) => {
       .size([480, null])
       .display('grid')
       .render(() => <Root />);
+
+    ctx.debug.header
+      .padding(0)
+      .border(-0.1)
+      .render(() => {
+        return (
+          <Input.DocumentId.View
+            theme={'Light'}
+            buttonStyle={{ margin: 4 }}
+            columnGap={0}
+            textboxBackground={0}
+            controller={{
+              repo,
+              signals: { id: p.docId, doc: p.docRef },
+              initial: { count: 0, text: '' },
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

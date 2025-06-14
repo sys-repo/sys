@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, Input, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Color, Button, css, D, Input, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
@@ -105,20 +105,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Input.DocumentId.View
-        theme={'Light'}
-        style={{ MarginX: [-15, -10], marginTop: -15, marginBottom: 15 }}
-        controller={{
-          repo: p.repo.value,
-          signals: { doc: p.doc, id: p.docId },
-          initial: { count: 0, text: '' },
-        }}
-      />
-
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}

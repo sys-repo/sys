@@ -17,6 +17,7 @@ export type DocumentIdInputLib = {
  * <Component>:
  */
 export type DocumentIdInputProps = {
+  debug?: boolean;
   controller?:
     | DocumentIdHook /* ← controlled */
     | UseDocumentIdHookArgs /* ← uncontrolled (auto-create) */;
@@ -25,9 +26,12 @@ export type DocumentIdInputProps = {
   autoFocus?: boolean | number;
   textboxBackground?: t.TextInputProps['background'];
   enabled?: boolean;
-  debug?: boolean;
+
+  // Appearance:
   theme?: t.CommonTheme;
+  columnGap?: number;
   style?: t.CssInput;
+  buttonStyle?: t.CssInput;
 };
 
 /**

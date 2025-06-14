@@ -46,6 +46,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     <Input.DocumentId.View
       theme={theme.name}
       style={styles.docInput}
+      buttonStyle={{ margin: 1 }}
       controller={{
         repo,
         signals: { doc, id: props.docId },

@@ -6,7 +6,9 @@ import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
 
-export const View: React.FC<t.DocumentIdInputProps> = (props) => {
+type P = t.DocumentIdInputProps;
+
+export const View: React.FC<P> = (props) => {
   const {
     label,
     placeholder = D.placeholder,
@@ -36,15 +38,18 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: '1fr auto',
       alignItems: 'stretch',
-      columnGap: 5,
+      columnGap: props.columnGap ?? 5,
     }),
     textbox: css({ fontSize: 14 }),
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
-    btn: css({ fontSize: 12 }),
+    btn: css({
+      fontSize: 12,
+      ...props.buttonStyle,
+    }),
   };
 
   const elPrefix = <Prefix theme={theme.name} doc={doc} repo={repo} />;
-  const elSuffix = <Suffix spinning={is.spinning} theme={theme.name} />;
+  const elSuffix = is.spinning && <Suffix spinning={is.spinning} theme={theme.name} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -56,7 +61,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
         prefix={elPrefix}
         suffix={elSuffix}
         border={{ mode: 'underline', defaultColor: 0 }}
-        background={props.textboxBackground ?? theme.is.dark ? -0.08 : -0.04}
+        background={wrangle.textboxBackground(props)}
         autoFocus={autoFocus}
         theme={theme.name}
         style={styles.textbox}
@@ -76,3 +81,15 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  textboxBackground(props: P) {
+    const theme = Color.theme(props.theme);
+    const prop = props.textboxBackground;
+    if (prop == null) return theme.is.dark ? -0.08 : -0.04;
+    return 0;
+  },
+} as const;
