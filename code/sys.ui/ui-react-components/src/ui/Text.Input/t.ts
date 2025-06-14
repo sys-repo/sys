@@ -23,9 +23,9 @@ export type TextInputProps = {
   /** Controls keyboard focus order in the tab sequence. */
   tabIndex?: number;
   /** Element to render before the textbox (left). */
-  prefix?: JSX.Element;
+  prefix?: JSX.Element | false;
   /** Element to render after the textbox (right). */
-  suffix?: JSX.Element;
+  suffix?: JSX.Element | false;
 
   // Flags:
   spellCheck?: boolean;

@@ -1,7 +1,10 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
+
 import { D } from '../common.ts';
 import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+
+type SampleDoc = { count: number; text?: string };
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -13,13 +16,17 @@ export default Spec.describe(D.displayName, (e) => {
      * NOTE: either pass down the hook (instance) OR the
      *       setup arguments for the hook.
      */
-    const args: t.UseDocumentIdHookArgs = { repo };
-    const controller = DocumentIdInput.useController(args);
+    const signals: Partial<t.DocumentIdHookSignals> = { id: p.docId, doc: p.docRef };
+    const args: t.UseDocumentIdHookArgs<SampleDoc> = {
+      signals,
+      repo: p.passRepo.value ? repo : undefined,
+      initial: () => ({ count: 0 }),
+    };
+    const hook = DocumentIdInput.useController(args);
 
     return (
       <DocumentIdInput.View
-        state={controller}
-        // state={args} // ← NB: pass instance OR args.
+        controller={p.controlled.value ? hook : args}
         debug={p.debug.value}
         theme={p.theme.value}
         label={p.label.value}

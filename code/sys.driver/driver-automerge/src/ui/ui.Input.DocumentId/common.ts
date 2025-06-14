@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'DocumentIdInput';
+const name = 'Input.DocumentId';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),

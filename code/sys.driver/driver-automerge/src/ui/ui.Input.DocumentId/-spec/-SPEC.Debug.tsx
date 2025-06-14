@@ -1,9 +1,13 @@
 import React from 'react';
-import { type t, Is, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+
 import { Crdt } from '@sys/driver-automerge/browser';
+import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal, slug } from '../common.ts';
 
 type P = t.DocumentIdInputProps;
-type Storage = Pick<P, 'theme' | 'label' | 'placeholder'>;
+type Storage = { docId?: string; controlled?: boolean; passRepo?: boolean } & Pick<
+  P,
+  'theme' | 'label' | 'placeholder'
+>;
 
 /**
  * Types:
@@ -26,6 +30,12 @@ export function createDebugSignals() {
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    controlled: s(localstore.current.controlled),
+    passRepo: s(localstore.current.passRepo),
+
+    docId: s(localstore.current.docId),
+    docRef: s<t.CrdtRef>(),
+
     label: s<P['label']>(localstore.current.label),
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
   };
@@ -38,6 +48,10 @@ export function createDebugSignals() {
       p.theme.value;
       p.label.value;
       p.placeholder.value;
+      p.controlled.value;
+      p.passRepo.value;
+      p.docId.value;
+      p.docRef.value;
     },
   };
 
@@ -46,6 +60,9 @@ export function createDebugSignals() {
       d.theme = p.theme.value ?? 'Dark';
       d.label = p.label.value;
       d.placeholder = p.placeholder.value;
+      d.controlled = p.controlled.value ?? true;
+      d.passRepo = p.passRepo.value ?? true;
+      d.docId = p.docId.value;
     });
   });
 
@@ -106,12 +123,42 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <Button
+        block
+        label={() => {
+          const v = Boolean(p.controlled.value);
+          return `controlled: ${v} 🌳 toggle → ${!v} (reload)`;
+        }}
+        onClick={() => {
+          Signal.toggle(p.controlled);
+          location.reload();
+        }}
+      />
+
+      <Button
+        block
+        label={() => `pass repo: ${p.passRepo.value}`}
+        onClick={() => Signal.toggle(p.passRepo)}
+      />
+
       <ObjectView
         name={'debug'}
-        data={Signal.toObject(p)}
+        data={wrangle.data(debug)}
         expand={['$']}
         style={{ marginTop: 10 }}
       />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  data(debug: DebugSignals) {
+    const p = debug.props;
+    const doc = p.docRef.value;
+    return Signal.toObject({ ...p, docRef: doc?.current });
+  },
+} as const;
