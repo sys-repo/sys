@@ -75,7 +75,7 @@ export const TextInput: React.FC<P> = (props) => {
       border: 'none',
       outline: 'none',
       '::placeholder': { color: theme.alpha(0.2).fg },
-      ':disabled': { cursor: 'not-allowed', color: theme.alpha(0.35).fg },
+      ':disabled': { color: theme.alpha(0.35).fg },
     }),
   };
 
