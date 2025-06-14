@@ -114,7 +114,8 @@ const wrangle = {
   props(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps {
     const id = wrangle.id(p);
     const is = wrangle.is(p, repo);
-    return { id, is, action: wrangle.action(p) };
+    const doc = p.doc.value;
+    return { id, doc, is, action: wrangle.action(p) };
   },
 
   id(p: P) {

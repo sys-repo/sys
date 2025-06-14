@@ -57,6 +57,7 @@ export type DocumentIdHook = {
 export type DocumentIdHookProps = {
   readonly action: DocumentIdInputAction;
   readonly id?: string;
+  readonly doc?: t.CrdtRef;
   readonly is: {
     readonly valid: boolean;
     readonly enabled: { readonly action: boolean; readonly input: boolean };

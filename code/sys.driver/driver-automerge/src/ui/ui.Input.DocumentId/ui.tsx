@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { type t, Color, css, D, Spinners, TextInput } from './common.ts';
+import { type t, Color, css, D, TextInput } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
+import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
 
 export const View: React.FC<t.DocumentIdInputProps> = (props) => {
@@ -12,6 +13,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
    */
   const controller = useController(props.controller);
   const docId = controller.props.id;
+  const doc = controller.props.doc;
   const is = controller.props.is;
 
   /**
@@ -36,18 +38,9 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
       userSelect: 'none',
     }),
     btn: css({ fontSize: 12 }),
-    spinner: css({
-      display: 'grid',
-      placeItems: 'center',
-      paddingRight: 10,
-    }),
   };
 
-  const elSpinner = is.spinning && (
-    <div className={styles.spinner.class}>
-      <Spinners.Bar theme={theme.name} width={20} />
-    </div>
-  );
+  const elSuffix = <Suffix spinning={is.spinning} doc={doc} theme={theme.name} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -56,7 +49,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
         disabled={!is.enabled.input}
         value={docId}
         placeholder={placeholder}
-        suffix={elSpinner}
+        suffix={elSuffix}
         border={{ mode: 'underline', defaultColor: 0 }}
         background={theme.is.dark ? -0.08 : 0}
         autoFocus={autoFocus}
