@@ -19,14 +19,18 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(repo.id.peer).to.eql('UNKNOWN');
     expect(repo.id.instance).to.be.a('string');
 
-    const doc = repo.create<T>({ count: 0 });
-    expect(doc.current).to.eql({ count: 0 });
+    const initial = { count: 0 };
+    const doc = repo.create<T>(initial);
+    expect(doc.current).to.eql(initial);
+    expect(doc.current).to.not.equal(initial);
   });
 
   it('create (doc) → initial as function', () => {
     const repo = toRepo(new Repo());
-    const doc = repo.create<T>(() => ({ count: 1234 }));
-    expect(doc.current).to.eql({ count: 1234 });
+    const initial: T = { count: 1234 };
+    const doc = repo.create<T>(() => initial);
+    expect(doc.current).to.eql(initial);
+    expect(doc.current).to.not.equal(initial);
   });
 
   it('creates with  { peerId }', async () => {
