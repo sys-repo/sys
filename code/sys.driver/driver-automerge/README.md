@@ -52,7 +52,7 @@ deno task wss
 ```ts
 import { Server } from '@sys/driver-automerge/ws';
 
-Server.wss({
+Server.ws({
   port: 3030,
   dir: '.tmp/sync.crdt',
 });

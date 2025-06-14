@@ -41,13 +41,13 @@ const wrangle = {
     return Arr.asArray(args.network)
       .map((arg) => {
         if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
-        if (Is.record(arg) && Is.string(arg.wss)) return wrangle.wss(arg.wss);
+        if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
         return arg;
       })
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
-  wss(text: string): WebSocketClientAdapter {
+  ws(text: string): WebSocketClientAdapter {
     const host = text.trim().replace(/^wss\:\/\//, '');
     const protocol = host.startsWith('localhost') ? 'ws' : 'wss';
     return new WebSocketClientAdapter(`${protocol}://${host}`);

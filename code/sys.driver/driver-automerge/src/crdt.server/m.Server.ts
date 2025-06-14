@@ -5,7 +5,7 @@ import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg } from
  * Tools for working with CRDT sync servers:
  */
 export const Server: t.CrdtServerLib = {
-  async wss(options = {}) {
+  async ws(options = {}) {
     const { dir, sharePolicy, denylist, keepAliveInterval } = options;
     const port = Is.number(options.port) ? Net.port(options.port) : undefined;
 

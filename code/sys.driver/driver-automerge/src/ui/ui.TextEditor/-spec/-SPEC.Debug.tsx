@@ -27,7 +27,7 @@ export function createDebugSignals() {
     storage: 'IndexedDb',
     network: [
       // 'BroadcastChannel',
-      { wss: 'sync.db.team' },
+      { ws: 'sync.db.team' },
     ],
   });
 

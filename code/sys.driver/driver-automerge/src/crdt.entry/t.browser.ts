@@ -29,4 +29,4 @@ export type CrdtBrowserStorageArg = StorageAdapterInterface | 'IndexedDb';
 export type CrdtBrowserNetworkArg =
   | NetworkAdapterInterface
   | 'BroadcastChannel'
-  | { wss: t.StringUrl };
+  | { ws: t.StringUrl };

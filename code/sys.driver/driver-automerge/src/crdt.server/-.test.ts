@@ -6,7 +6,7 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
 
   it('start', async () => {
     const port = Testing.randomPort();
-    const res = await Server.wss({ dir, port });
+    const res = await Server.ws({ dir, port });
     expect(res.repo.id.peer.startsWith('peer.')).to.eql(true);
   });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Color, Button, css, D, Input, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, Color, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
@@ -51,20 +51,20 @@ export async function createDebugSignals() {
   };
 
   Signal.effect(() => {
-    const wss = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
+    const ws = Is.localhost() ? 'localhost:3030' : 'sync.db.team';
     localstore.change((d) => {
       d.docId = p.docId.value;
-      d.syncServerUrl = p.syncServerUrl.value ?? wss;
+      d.syncServerUrl = p.syncServerUrl.value ?? ws;
       d.syncServerEnabled = p.syncServerEnabled.value ?? true;
     });
   });
 
   Signal.effect(() => {
-    const wss = p.syncServerUrl.value;
+    const ws = p.syncServerUrl.value;
     const isWebsockets = p.syncServerEnabled.value;
 
     const network: t.CrdtBrowserNetworkArg[] = [];
-    if (wss && isWebsockets) network.push({ wss });
+    if (ws && isWebsockets) network.push({ ws });
 
     p.doc.value = undefined;
     p.repo.value = Crdt.repo({

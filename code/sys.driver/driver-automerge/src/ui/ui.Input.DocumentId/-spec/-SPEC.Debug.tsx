@@ -24,7 +24,7 @@ export function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: 'IndexedDb',
-    network: [{ wss: 'sync.db.team' }],
+    network: [{ ws: 'sync.db.team' }],
   });
 
   const props = {

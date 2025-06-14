@@ -8,7 +8,7 @@ export type CrdtServerLib = {
   /**
    * Start a new web-sockets CRDT syncronization-server.
    */
-  wss(options?: CrdtServerStartOptions): Promise<t.CrdtServerStartResponse>;
+  ws(options?: CrdtServerStartOptions): Promise<t.CrdtServerStartResponse>;
 };
 
 /** Response from the `CrdtServer.start` method. */
