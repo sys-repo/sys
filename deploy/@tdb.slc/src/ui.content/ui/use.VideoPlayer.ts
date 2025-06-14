@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { type t, Is, Player } from './common.ts';
+import { type t, Is, Player, Time } from './common.ts';
 
 export function useVideoPlayer(media?: t.VideoMediaContent, autoPlay?: boolean) {
   const src = media?.video.src;
@@ -23,7 +23,9 @@ export function useVideoPlayer(media?: t.VideoMediaContent, autoPlay?: boolean) 
    * Effect: play on load
    */
   useEffect(() => {
-    if (autoPlay) player?.play();
+    const time = Time.until();
+    if (autoPlay) time.delay(0, () => player?.play());
+    return time.dispose;
   }, [player, autoPlay]);
 
   /**

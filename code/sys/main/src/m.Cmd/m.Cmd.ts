@@ -1,9 +1,10 @@
-import { type t, pkg, Pkg } from './common.ts';
+import { pkg, Pkg } from './common.ts';
+import type { SysCmdLib } from './t.ts';
 
 /**
  * Common system "Cmd" (Command Line) API.
  */
-export const Cmd: t.SysCmdLib = {
+export const Cmd: SysCmdLib = {
   async main(argv) {
     /**
      * TODO 🐷

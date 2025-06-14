@@ -44,7 +44,7 @@ export const SwitchThumb: React.FC<SwitchThumbProps> = (props) => {
     }),
   };
 
-  return <div {...styles.base} />;
+  return <div className={styles.base.class} />;
 };
 
 /**

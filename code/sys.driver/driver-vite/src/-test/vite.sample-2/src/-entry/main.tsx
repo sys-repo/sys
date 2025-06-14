@@ -5,7 +5,7 @@ import { View } from '../ui.tsx';
 /**
  * Test imports from across the workspace.
  */
-import '@sys/tmp/sample-imports';
+import '@sys/driver-vite/sample-imports';
 
 /**
  * Sample: dynamic import (code-splitting).

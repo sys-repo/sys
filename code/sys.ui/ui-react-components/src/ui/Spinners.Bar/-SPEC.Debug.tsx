@@ -18,6 +18,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     theme: s<P['theme']>('Light'),
     width: s<P['width']>(),
+    transparentTrack: s<P['transparentTrack']>(false),
   };
   const api = {
     props,
@@ -25,6 +26,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
       const p = props;
       p.theme.value;
       p.width.value;
+      p.transparentTrack.value;
     },
   };
   init?.(api);
@@ -71,6 +73,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['width']>(p.width, [undefined, 30, D.width, 300])}
+      />
+
+      <Button
+        block
+        label={() => `transparentTrack: ${p.transparentTrack.value}`}
+        onClick={() => Signal.toggle(p.transparentTrack)}
       />
 
       <hr />

@@ -1,31 +1,30 @@
-import { A, describe, expect, it } from '../-test.ts';
+import { Repo } from '@automerge/automerge-repo';
 
-describe('CRDT: common (runtime platform agnostic)', () => {
-  describe('Automerge: raw underlying API assertions', () => {
-    /**
-     * Ref:
-     * https://automerge.org/docs/cookbook/modeling-data/#setting-up-an-initial-document-structure
-     */
-    it('simple: init → change → merge', () => {
-      type Card = { title: string };
-      type T = { cards: Card[] };
-      let doc1 = A.change<T>(A.init<T>(), (d) => (d.cards = []));
-      let doc2 = A.merge<T>(A.init<T>(), doc1);
+import { describe, expect, it } from '../-test.ts';
+import { CrdtIs } from './mod.ts';
+import { toRepo } from './u.repo.ts';
 
-      expect(doc1).to.eql({ cards: [] });
-      expect(doc2).to.eql({ cards: [] });
+describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
+  type T = { count: number };
+  const repo = toRepo(new Repo());
+  const Is = CrdtIs;
 
-      doc1 = A.change(doc1, (d) => d.cards.push({ title: '👋' }));
-      doc2 = A.change(doc2, (d) => d.cards.push({ title: '💦' }));
+  describe('Is', () => {
+    it('Is.ref', () => {
+      const doc = repo.create<T>({ count: 0 });
+      expect(Is.ref(doc)).to.be.true;
 
-      expect(doc1).to.eql({ cards: [{ title: '👋' }] });
-      expect(doc2).to.eql({ cards: [{ title: '💦' }] });
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.be.false);
+    });
 
-      doc1 = A.merge(doc1, doc2);
-      doc2 = A.merge(doc2, doc1);
+    it('Is.id', () => {
+      const doc = repo.create<T>({ count: 0 });
+      expect(Is.id(doc.id)).to.be.true;
+      expect(Is.id(String(doc.id))).to.be.true;
 
-      expect(doc2.cards).to.have.deep.members([{ title: '💦' }, { title: '👋' }]);
-      expect(doc1.cards).to.have.deep.members([{ title: '💦' }, { title: '👋' }]);
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.be.false);
     });
   });
 });

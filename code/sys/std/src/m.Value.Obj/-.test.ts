@@ -1,14 +1,12 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { Json } from '../m.Json/mod.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
 
 describe('Value.Obj', () => {
   it('API', () => {
     expect(Value.Obj).to.equal(Obj);
-    expect(Value.isObject).to.equal(isObject);
-    expect(Value.isRecord).to.equal(isRecord);
-    expect(Value.isEmptyRecord).to.equal(isEmptyRecord);
+    expect(Obj.Json).to.equal(Json);
   });
 
   describe('Obj.walk', () => {
@@ -491,6 +489,27 @@ describe('Value.Obj', () => {
       const res = Value.Obj.sortKeys(obj);
       expect(Object.keys(res)).to.not.eql(Object.keys(obj));
       expect(Object.keys(res).sort()).to.eql(Object.keys(obj).sort());
+    });
+  });
+
+  describe('Object.entries', () => {
+    it('empty', () => {
+      const obj = {};
+      const res = Value.Obj.entries(obj);
+      expect(res).to.eql([]);
+    });
+
+    it('typed', () => {
+      type T = { foo: number; bar: string };
+      const obj: T = { foo: 0, bar: 'hello' };
+      const entries = Obj.entries<T>(obj);
+      expect(entries).to.eql([
+        ['foo', 0],
+        ['bar', 'hello'],
+      ]);
+
+      // NB: prove type safety (no ts errors):
+      entries.forEach(([key]) => delete obj[key]);
     });
   });
 

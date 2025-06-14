@@ -1,4 +1,7 @@
 /**
  * @module
+ * Core CRDT primitives.
  */
-import type { t } from './common.ts';
+export { CrdtIs } from './m.Is.ts';
+export { toAutomergeHandle, toRef } from './u.ref.ts';
+export { toAutomergeRepo, toRepo } from './u.repo.ts';

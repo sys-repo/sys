@@ -1,11 +1,12 @@
-import type { t } from './common.ts';
+import type { EditorCaretsLib } from './t.ts';
+
 import { create } from './m.EditorCarets.factory.ts';
 import { Color } from './u.ts';
 
 /**
  * Manages a set of carets for an editor.
  */
-export const EditorCarets: t.EditorCaretsLib = {
+export const EditorCarets: EditorCaretsLib = {
   Color,
   create,
 } as const;

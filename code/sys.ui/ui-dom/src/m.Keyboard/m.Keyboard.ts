@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { KeyboardLib } from './t.ts';
 
 import { KeyListener } from './m.KeyListener.ts';
 import { KeyboardMonitor as Monitor } from './m.Keyboard.Monitor.ts';
@@ -12,7 +13,7 @@ const toKeypress = Util.toKeypress as t.KeyboardLib['toKeypress'];
 /**
  * Tools for working with a keyboard-input device.
  */
-export const Keyboard: t.KeyboardLib = {
+export const Keyboard: KeyboardLib = {
   Monitor,
   Match,
 

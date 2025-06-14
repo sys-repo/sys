@@ -3,17 +3,17 @@
  * Tools for working with semantic-versions.
  * https://semver.org
  */
+import type { SemverLib } from './t.ts';
 
 import { compare, format, increment } from '@std/semver';
-
-import { type t, Release } from './common.ts';
+import { Release } from './common.ts';
 import { Is } from './m.Is.ts';
+import { Prefix } from './m.Prefix.ts';
 import { coerce } from './u.coerce.ts';
 import { parse, range } from './u.parse.ts';
 import { sort } from './u.sort.ts';
-import { Prefix } from './m.Prefix.ts';
 
-export const Semver: t.SemverLib = {
+export const Semver: SemverLib = {
   /** Semver value assertions. */
   Is,
 

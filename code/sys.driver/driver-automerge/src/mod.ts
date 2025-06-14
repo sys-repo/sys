@@ -1,6 +1,12 @@
 /**
  * @module
- * Tools for...🐷
+ * An `Immutable<T>` implementation using [Automerge](https://automerge.org/)
+ * as the [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) data-structure.
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
+
+/**
+ * Library:
+ */
+export { toAutomergeHandle, toAutomergeRepo } from './crdt/mod.ts';

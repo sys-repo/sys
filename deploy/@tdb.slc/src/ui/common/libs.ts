@@ -13,6 +13,7 @@ export {
   useClickOutside,
   useIsTouchSupported,
   useLoading,
+  usePointer,
   useSizeObserver,
   useVisibilityThreshold,
   useVisibilityThresholdX,

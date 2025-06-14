@@ -1,6 +1,7 @@
+import type { ViteConfigIsLib } from './t.ts';
 import { type t, isRecord } from './common.ts';
 
-export const Is: t.ViteConfigIsLib = {
+export const Is: ViteConfigIsLib = {
   paths(input: any): input is t.ViteConfigPaths {
     if (!isRecord(input)) return false;
     const o = input as t.ViteConfigPaths;

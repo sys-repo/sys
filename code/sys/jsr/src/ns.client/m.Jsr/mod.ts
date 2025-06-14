@@ -3,9 +3,10 @@
  * Tools for working with the JSR module registry (on the client).
  * https://jsr.io/docs
  */
-import { type t, Fetch } from './common.ts';
+import { Fetch } from './common.ts';
+import type { JsrClientLib } from './t.ts';
 
-export const Jsr: t.JsrClientLib = {
+export const Jsr: JsrClientLib = {
   Fetch,
   Url: Fetch.Url,
 };

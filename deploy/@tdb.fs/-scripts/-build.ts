@@ -1,6 +1,8 @@
 import { buildAndCopy, copyPublic } from './-build.u.ts';
 import { Fs, pkg, Pkg, Tmpl } from './common.ts';
 
+await Fs.remove('dist');
+
 /**
  * Pull in modules:
  */
@@ -8,6 +10,7 @@ console.info();
 const build = true;
 await buildAndCopy('../../code/sys.ui/ui-react-components', 'sys/ui', { build });
 await buildAndCopy('../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco', { build });
+await buildAndCopy('../../code/sys.driver/driver-automerge', 'sys/ui.driver.automerge', { build });
 await copyPublic('public', 'dist');
 
 // Write entry HTML.

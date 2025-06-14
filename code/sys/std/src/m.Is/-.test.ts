@@ -228,12 +228,6 @@ describe('Is (common flags)', () => {
     });
   });
 
-  describe('Is.browser', () => {
-    it('Is.browser: false', () => {
-      expect(Is.browser()).to.eql(false);
-    });
-  });
-
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
       const disposable = rx.disposable();
@@ -286,6 +280,18 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.bool', () => {
+    it('Is.bool: true', () => {
+      expect(Is.bool(true)).to.eql(true);
+      expect(Is.bool(false)).to.eql(true);
+    });
+
+    it('Is.bool: false', () => {
+      const NON = [123, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.bool(value)).to.eql(false));
+    });
+  });
+
   describe('Is.array', () => {
     it('Is.array: true', () => {
       expect(Is.array([])).to.eql(true);
@@ -330,6 +336,12 @@ describe('Is (common flags)', () => {
     it('Is.emptyRecord: false', () => {
       const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
       NON.forEach((value) => expect(Is.emptyRecord(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.localhost (non-browser)', () => {
+    it('Is.localhost: false', () => {
+      expect(Is.localhost()).to.eql(false);
     });
   });
 });
