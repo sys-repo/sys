@@ -1,16 +1,16 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { D } from '../common.ts';
+import { Input } from '../../ui.Input/mod.ts';
+import { Color, D } from '../common.ts';
 import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Input } from '../../ui.Input/mod.ts';
 
 type SampleDoc = { count: number; text?: string };
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
   const repo = debug.repo;
+  const p = debug.props;
 
   function Root() {
     /**
@@ -25,6 +25,10 @@ export default Spec.describe(D.displayName, (e) => {
     };
     const hook = DocumentIdInput.useController(args);
 
+    /**
+     * Render:
+     */
+    const theme = Color.theme(p.theme.value);
     return (
       <DocumentIdInput.View
         controller={p.controlled.value ? hook : args}
@@ -34,6 +38,7 @@ export default Spec.describe(D.displayName, (e) => {
         debug={p.debug.value}
         theme={p.theme.value}
         enabled={p.enabled.value}
+        textboxBackground={theme.is.dark ? -0.06 : -0.04}
       />
     );
   }
@@ -61,7 +66,6 @@ export default Spec.describe(D.displayName, (e) => {
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
             columnGap={0}
-            textboxBackground={0}
             controller={{
               repo,
               signals: { id: p.docId, doc: p.docRef },

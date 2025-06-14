@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, TextInput, usePointer } from './common.ts';
+import { type t, Color, css, D, TextInput, Time, usePointer } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -19,8 +19,12 @@ export const View: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const [isOver, setOver] = React.useState(false);
-  const pointer = usePointer({ onEnter: () => setOver(true), onLeave: () => setOver(false) });
+  const [copied, setCopied] = React.useState(false);
+  const [overTextbox, setOverTextbox] = React.useState(false);
+  const pointer = usePointer({
+    onEnter: () => setOverTextbox(true),
+    onLeave: () => setOverTextbox(false),
+  });
 
   /**
    * Hook: Controller/State.
@@ -28,8 +32,8 @@ export const View: React.FC<P> = (props) => {
   const controller = useController(props.controller);
   const docId = controller.props.id;
   const doc = controller.props.doc;
-  const repo = controller.props.repo;
   const is = controller.props.is;
+  const showAction = controller.ready && is.enabled.action;
 
   /**
    * Render:
@@ -42,60 +46,82 @@ export const View: React.FC<P> = (props) => {
       fontSize: 14,
       lineHeight: 'normal',
       display: 'grid',
-      gridTemplateColumns: '1fr auto',
+      gridTemplateColumns: showAction ? '1fr auto' : '1fr',
       alignItems: 'stretch',
       columnGap: props.columnGap ?? 5,
     }),
     textbox: css({ fontSize: 14 }),
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
-    btn: css({
-      fontSize: 12,
-      ...props.buttonStyle,
+    btn: css({ fontSize: 12, ...props.buttonStyle }),
+    copied: css({
+      Absolute: [0, null, 0, 30],
+      pointerEvents: 'none',
+      display: 'grid',
+      placeItems: 'center',
+      opacity: 0.3,
     }),
   };
 
-  const elPrefix = <Prefix theme={theme.name} doc={doc} repo={repo} isOverParent={isOver} />;
-  const elSuffix = <Suffix spinning={is.spinning} theme={theme.name} />;
+  const elPrefix = (
+    <Prefix
+      doc={doc}
+      over={overTextbox}
+      copied={copied}
+      theme={theme.name}
+      onCopied={() => {
+        setCopied(true);
+        Time.delay(1_500, () => setCopied(false));
+      }}
+    />
+  );
+  const elSuffix = (
+    <Suffix
+      doc={doc}
+      spinning={is.spinning}
+      over={overTextbox}
+      theme={theme.name}
+      onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
+    />
+  );
+
+  const elCopied = copied && <div className={styles.copied.class}>{'copied'}</div>;
+
+  const elActionButton = showAction && (
+    <ActionButton
+      style={styles.btn}
+      action={controller.props.action}
+      enabled={enabled && is.enabled.action}
+      onClick={() => {
+        const { action } = controller.props;
+        const payload: t.DocumentIdInputActionArgs = { action };
+        controller.handlers.onAction(payload);
+      }}
+    />
+  );
 
   return (
-    <div className={css(styles.base, props.style).class} {...pointer.handlers}>
+    <div className={css(styles.base, props.style).class}>
       <div className={styles.label.class}>{label}</div>
-      <TextInput
-        disabled={!(enabled && is.enabled.input)}
-        value={docId}
-        placeholder={placeholder}
-        prefix={elPrefix}
-        suffix={elSuffix}
-        border={{ mode: 'underline', defaultColor: 0 }}
-        background={wrangle.textboxBackground(props)}
-        autoFocus={autoFocus}
-        theme={theme.name}
-        style={styles.textbox}
-        onChange={(e) => controller.handlers.onTextChange(e)}
-        onKeyDown={(e) => controller.handlers.onKeyDown(e)}
-      />
-      <ActionButton
-        style={styles.btn}
-        action={controller.props.action}
-        enabled={enabled && is.enabled.action}
-        onClick={() => {
-          const { action } = controller.props;
-          const payload: t.DocumentIdInputActionArgs = { action };
-          controller.handlers.onActionClick(payload);
-        }}
-      />
+      <div {...pointer.handlers}>
+        <TextInput
+          disabled={!(enabled && is.enabled.input)}
+          value={docId}
+          placeholder={placeholder}
+          prefix={elPrefix}
+          suffix={elSuffix}
+          border={{ mode: 'underline', defaultColor: 0 }}
+          background={props.textboxBackground}
+          autoFocus={autoFocus}
+          theme={theme.name}
+          style={styles.textbox}
+          inputStyle={{ opacity: copied ? 0 : 1 }}
+          onChange={(e) => controller.handlers.onTextChange(e)}
+          onKeyDown={(e) => controller.handlers.onKeyDown(e)}
+          onFocus={(e) => Time.delay(0, () => e.input.select())}
+        />
+      </div>
+      {elActionButton}
+      {elCopied}
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  textboxBackground(props: P) {
-    const theme = Color.theme(props.theme);
-    const prop = props.textboxBackground;
-    if (prop == null) return theme.is.dark ? -0.08 : -0.04;
-    return 0;
-  },
-} as const;

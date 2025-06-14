@@ -32,6 +32,11 @@ function useInternal(args: Args = {}): Hook {
   });
 
   /**
+   * Hooks:
+   */
+  const [ready, setReady] = React.useState(false);
+
+  /**
    * Effect: (hook into redraw listeners).
    */
   Signal.useRedrawEffect(() => {
@@ -42,33 +47,53 @@ function useInternal(args: Args = {}): Hook {
   });
 
   /**
+   * Effect: clear {doc} when doc-id is empty.
+   */
+  Signal.useEffect(() => {
+    const p = signalsRef.current;
+    p.doc.value;
+    if (!p.id.value) p.doc.value = undefined;
+  });
+
+  /**
    * Effect: mount.
    */
   React.useEffect(() => {
+    const force = true;
     const props = api.props;
-    if (props.id && !props.doc) run('Load');
+    if (props.id && !props.doc) run('Load', { force }).then(() => setReady(true));
+    else setReady(true);
   }, [repoId]);
 
   /**
    * Handlers:
    */
   const run = useCallback(
-    async (action: t.DocumentIdInputAction) => {
+    async (action: t.DocumentIdInputAction, options: { force?: boolean } = {}) => {
+      const { force } = options;
+
       if (!repo) return;
       const p = signalsRef.current;
-      const props = wrangle.props(p, repo);
-      if (!props.is.enabled.action) return;
+      const props = wrangle.props(p, ready, repo);
+      const enabled = props.is.enabled.action;
 
-      if (action === 'Load' && props.id) {
-        p.spinning.value = true;
-        p.doc.value = await repo.get(props.id);
-        p.spinning.value = false;
+      if (action === 'Clear') {
+        p.id.value = undefined;
+        return;
       }
 
-      if (action === 'Create') {
+      if (action === 'Create' && enabled) {
         const doc = repo.create(args.initial ?? {});
         p.id.value = doc.id;
         p.doc.value = doc;
+        return;
+      }
+
+      if (action === 'Load' && props.id && enabled) {
+        p.spinning.value = true;
+        p.doc.value = await repo.get(props.id);
+        p.spinning.value = false;
+        return;
       }
     },
     [repoId],
@@ -87,26 +112,26 @@ function useInternal(args: Args = {}): Hook {
   const onKeyDown = useCallback<t.TextInputKeyHandler>(
     (e) => {
       if (e.key === 'Enter') {
-        const props = wrangle.props(signalsRef.current, repo);
+        const props = wrangle.props(signalsRef.current, ready, repo);
         run(props.action);
       }
     },
     [repoId],
   );
 
-  const onActionClick = useCallback<t.DocumentIdInputActionHandler>((e) => run(e.action), [repoId]);
+  const onAction = useCallback<t.DocumentIdInputActionHandler>((e) => run(e.action), [repoId]);
 
   /**
    * API:
    */
-  let _props: t.DocumentIdHookProps | undefined; // NB: lazy-load.
   const signals = signalsRef.current;
   const api: t.DocumentIdHook = {
+    ready,
     instance,
     signals,
-    handlers: { onActionClick, onTextChange, onKeyDown },
+    handlers: { onAction, onTextChange, onKeyDown },
     get props() {
-      return _props || (_props = wrangle.props(signals, repo));
+      return wrangle.props(signals, ready, repo);
     },
   };
 
@@ -121,18 +146,14 @@ function isHook(input: unknown): input is Hook {
 }
 
 const wrangle = {
-  props(p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
+  props(p: P, ready: boolean, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
     const id = wrangle.id(p);
-    const is = wrangle.is(p, repo);
+    const is = wrangle.is(p, ready, repo);
     const doc = p.doc.value;
     return { id, repo, doc, is, action: wrangle.action(p) };
   },
 
-  id(p: P) {
-    return (p.id.value ?? '').trim();
-  },
-
-  is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
+  is(p: P, ready: boolean, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
     const id = wrangle.id(p);
     const doc = p.doc.value;
     const valid = CrdtIs.id(id);
@@ -150,6 +171,10 @@ const wrangle = {
       enabled: { action, input },
       spinning: p.spinning.value,
     };
+  },
+
+  id(p: P) {
+    return (p.id.value ?? '').trim();
   },
 
   action(p: P): t.DocumentIdInputAction {

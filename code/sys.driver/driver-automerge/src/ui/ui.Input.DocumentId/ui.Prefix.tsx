@@ -2,28 +2,31 @@ import React from 'react';
 import { type t, Button, Color, css, Icons } from './common.ts';
 
 export type PrefixProps = {
-  repo?: t.CrdtRepo;
   doc?: t.CrdtRef;
   //
-  isOverParent?: boolean;
+  over?: boolean;
+  copied?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  //
+  onCopied?: () => void;
 };
 
 /**
  * Component:
  */
 export const Prefix: React.FC<PrefixProps> = (props) => {
-  const { repo, doc, isOverParent: isOver } = props;
-  const hasData = repo && doc;
+  const { doc, copied, over } = props;
+  const CopyIcon = copied ? Icons.Tick : Icons.Copy;
 
   /**
-   * Handlers
+   * Handlers:
    */
   const copyToClipboard = () => {
     const id = doc?.id;
     if (id) navigator.clipboard.writeText(id);
+    props.onCopied?.();
   };
 
   /**
@@ -39,15 +42,12 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
       paddingRight: 1,
     }),
     btn: css({ display: 'grid' }),
-    icon: css({
-      opacity: hasData ? 1 : 0.3,
-      transition: `opacity 120ms ease`,
-    }),
+    icon: css({ opacity: !!doc ? 1 : 0.3, transition: `opacity 120ms ease` }),
   };
 
-  const elCopy = doc && isOver && (
+  const elCopy = doc && over && (
     <Button style={styles.btn} onClick={copyToClipboard}>
-      <Icons.Copy color={theme.fg} size={18} />
+      <CopyIcon size={18} color={over ? Color.BLUE : theme.fg} />
     </Button>
   );
   const elDatabase = !elCopy && <Icons.Database color={theme.fg} size={18} style={styles.icon} />;

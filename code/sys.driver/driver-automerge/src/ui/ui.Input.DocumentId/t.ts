@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 type O = Record<string, unknown>;
 
 /** The various states the action button can assume. */
-export type DocumentIdInputAction = 'Load' | 'Create';
+export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear';
 
 /**
  * Library: editor for repo-document ID loader.
@@ -50,11 +50,12 @@ export type UseDocumentIdHookArgs<T = O> = {
   initial?: T | (() => T);
 };
 export type DocumentIdHook = {
+  readonly ready: boolean;
   readonly instance: t.StringId;
   readonly signals: t.DocumentIdHookSignals;
   readonly props: DocumentIdHookProps;
   readonly handlers: {
-    onActionClick: t.DocumentIdInputActionHandler;
+    onAction: t.DocumentIdInputActionHandler;
     onTextChange: t.TextInputChangeHandler;
     onKeyDown: t.TextInputKeyHandler;
   };
