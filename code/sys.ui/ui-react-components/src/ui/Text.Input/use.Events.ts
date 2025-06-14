@@ -11,24 +11,27 @@ export function useEvents(props: P) {
    * Handlers:
    */
   const onChange = (e: React.ChangeEvent<H>) => {
-    const value = e.currentTarget.value;
-    props.onChange?.({ synthetic: e, value, focused });
+    const input = e.currentTarget;
+    const value = input.value;
+    props.onChange?.({ value, focused, synthetic: e, input });
   };
   const keyHandler = (cb?: t.TextInputKeyHandler) => {
     if (!cb) return;
     return (e: React.KeyboardEvent<H>) => {
-      const value = e.currentTarget.value;
+      const input = e.currentTarget;
+      const value = input.value;
       const { key, code, repeat } = e;
       const modifiers = wrangle.modifiers(e);
-      cb({ synthetic: e, key, code, modifiers, repeat, value, focused });
+      cb({ key, code, modifiers, repeat, value, focused, synthetic: e, input });
     };
   };
   const focusHandler = (focused: boolean, ...cb: (t.TextInputFocusHandler | undefined)[]) => {
     cb = cb.filter(Boolean);
     return (e: React.FocusEvent<H>) => {
       setFocused(focused);
-      const value = e.currentTarget.value;
-      const payload: t.TextInputFocusArgs = { synthetic: e, value, focused };
+      const input = e.currentTarget;
+      const value = input.value;
+      const payload: t.TextInputFocusArgs = { value, focused, synthetic: e, input };
       cb.forEach((cb) => cb?.(payload));
     };
   };

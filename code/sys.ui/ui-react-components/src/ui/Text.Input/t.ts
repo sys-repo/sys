@@ -42,6 +42,7 @@ export type TextInputProps = {
   borderRadius?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  inputStyle?: { opacity?: t.Percent };
 
   /**
    * Handlers:
@@ -75,6 +76,7 @@ export type TextInputBorder = {
  * Events:
  */
 type BaseArgs<E> = {
+  readonly input: HTMLInputElement;
   readonly synthetic: E;
   readonly value: string;
   readonly focused: boolean;
@@ -91,6 +93,7 @@ export type TextInputFocusArgs = BaseArgs<React.FocusEvent<HTMLInputElement>>;
 /** Keyboard events. */
 export type TextInputKeyHandler = (e: TextInputKeyArgs) => void;
 export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> & {
+  readonly input: HTMLInputElement;
   readonly key: string; //  ← HINT: typically use this one over `code`.
   readonly code: string;
   readonly modifiers: t.KeyboardModifierFlags;

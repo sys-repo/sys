@@ -17,6 +17,7 @@ export const TextInput: React.FC<P> = (props) => {
     readOnly = D.readOnly,
     prefix,
     suffix,
+    inputStyle = {},
   } = props;
 
   /**
@@ -76,6 +77,10 @@ export const TextInput: React.FC<P> = (props) => {
       outline: 'none',
       '::placeholder': { color: theme.alpha(0.2).fg },
       ':disabled': { color: theme.alpha(0.35).fg },
+
+      // Passed in style preferences:
+      opacity: inputStyle.opacity,
+      transition: 'opacity 120ms ease',
     }),
   };
 
