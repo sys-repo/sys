@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, TextInput } from './common.ts';
+import { type t, Color, css, D, TextInput, usePointer } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -15,6 +15,12 @@ export const View: React.FC<P> = (props) => {
     autoFocus = D.autoFocus,
     enabled = D.enabled,
   } = props;
+
+  /**
+   * Hooks:
+   */
+  const [isOver, setOver] = React.useState(false);
+  const pointer = usePointer({ onEnter: () => setOver(true), onLeave: () => setOver(false) });
 
   /**
    * Hook: Controller/State.
@@ -48,11 +54,11 @@ export const View: React.FC<P> = (props) => {
     }),
   };
 
-  const elPrefix = <Prefix theme={theme.name} doc={doc} repo={repo} />;
-  const elSuffix = is.spinning && <Suffix spinning={is.spinning} theme={theme.name} />;
+  const elPrefix = <Prefix theme={theme.name} doc={doc} repo={repo} isOverParent={isOver} />;
+  const elSuffix = <Suffix spinning={is.spinning} theme={theme.name} />;
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} {...pointer.handlers}>
       <div className={styles.label.class}>{label}</div>
       <TextInput
         disabled={!(enabled && is.enabled.input)}

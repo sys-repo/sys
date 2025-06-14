@@ -12,7 +12,7 @@ export type SuffixProps = {
  * Component:
  */
 export const Suffix: React.FC<SuffixProps> = (props) => {
-  let spinning = props.spinning ?? D.spinning;
+  const { spinning = D.spinning } = props;
 
   /**
    * Render:
@@ -20,11 +20,10 @@ export const Suffix: React.FC<SuffixProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      width: 35,
+      width: 30,
       color: theme.fg,
       display: 'grid',
       placeItems: 'center',
-      paddingBottom: 1,
     }),
   };
 
