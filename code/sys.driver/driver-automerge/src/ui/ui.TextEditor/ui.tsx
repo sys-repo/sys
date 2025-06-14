@@ -9,13 +9,6 @@ import { EditorView } from 'prosemirror-view';
 import { toAutomergeHandle } from '../../crdt/mod.ts';
 import { type t, Color, css, D } from './common.ts';
 import { useCssImports } from './use.CssImports.ts';
-
- * https://fonts.google.com/specimen/Cormorant+Garamond
- */
-export const Headline = {
-  DmSerif: {
-    regular: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'normal' }),
-    italic: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'italic' }),
 import { EditorStyles } from './u.styles.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
