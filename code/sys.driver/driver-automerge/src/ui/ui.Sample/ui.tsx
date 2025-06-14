@@ -15,7 +15,7 @@ export type SampleProps = {
   //
   onActionClick?: () => void;
   onDocIdTextChange?: t.TextInputChangeHandler;
-  onSyncServerEnabledChange?: (e: { next: boolean }) => void;
+  onSyncEnabledChange?: (e: { next: boolean }) => void;
 };
 
 export const Sample: React.FC<SampleProps> = (props) => {
@@ -27,28 +27,46 @@ export const Sample: React.FC<SampleProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
-    docInput: css({ Absolute: [-30, 0, null, 0] }),
-    doc: css({ opacity: current === undefined ? 0.25 : 1 }),
-    syncServer: css({ Absolute: [null, null, -25, 7] }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      fontSize: 11,
+      display: 'grid',
+      gridTemplateRows: `auto 1fr auto`,
+    }),
+    docInput: css({
+      marginTop: -29,
+    }),
+    doc: css({
+      opacity: current === undefined ? 0.25 : 1,
+      Margin: 30,
+    }),
+    syncServer: css({
+      padding: 10,
+      display: 'grid',
+      justifyItems: 'start',
+      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
+    }),
   };
 
-  const elSyncServer = (
-    <SyncServer
-      style={styles.syncServer}
-      endpoint={syncServer.url}
-      enabled={syncServer.enabled}
-      theme={theme.name}
-      peerId={repo?.id.peer}
-      onEnabledChange={props.onSyncServerEnabledChange}
-    />
+  const elFooter = (
+    <div className={styles.syncServer.class}>
+      <SyncServer
+        endpoint={syncServer.url}
+        enabled={syncServer.enabled}
+        theme={theme.name}
+        peerId={repo?.id.peer}
+        onSyncEnabledChange={props.onSyncEnabledChange}
+      />
+    </div>
   );
 
   const elDocumentId = (
     <Input.DocumentId.View
       theme={theme.name}
       style={styles.docInput}
-      buttonStyle={{ margin: 1 }}
+      buttonStyle={{ marginRight: 1, marginBottom: 2 }}
+      textboxBackground={-0.04}
       controller={{
         repo,
         signals: { doc, id: props.docId },
@@ -70,9 +88,9 @@ export const Sample: React.FC<SampleProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elSyncServer}
       {elDocumentId}
       {elDoc}
+      {elFooter}
     </div>
   );
 };

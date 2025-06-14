@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, TextInput, Time, usePointer } from './common.ts';
+import { type t, Color, css, D, TextInput, Time, useDebouncedValue, usePointer } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -33,7 +33,7 @@ export const View: React.FC<P> = (props) => {
   const docId = controller.props.id;
   const doc = controller.props.doc;
   const is = controller.props.is;
-  const showAction = controller.ready && is.enabled.action;
+  const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
 
   /**
    * Render:
@@ -48,11 +48,15 @@ export const View: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateColumns: showAction ? '1fr auto' : '1fr',
       alignItems: 'stretch',
-      columnGap: props.columnGap ?? 5,
+      height: 29,
     }),
     textbox: css({ fontSize: 14 }),
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
-    btn: css({ fontSize: 12, ...props.buttonStyle }),
+    actionButton: css({
+      fontSize: 12,
+      marginLeft: props.columnGap ?? 5,
+      ...props.buttonStyle,
+    }),
     copied: css({
       Absolute: [0, null, 0, 30],
       pointerEvents: 'none',
@@ -88,7 +92,7 @@ export const View: React.FC<P> = (props) => {
 
   const elActionButton = showAction && (
     <ActionButton
-      style={styles.btn}
+      style={styles.actionButton}
       action={controller.props.action}
       enabled={enabled && is.enabled.action}
       onClick={() => {

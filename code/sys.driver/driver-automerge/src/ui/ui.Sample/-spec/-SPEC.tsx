@@ -55,7 +55,7 @@ export default Spec.describe(D.displayName, async (e) => {
             console.info('⚡️ created → doc:', next);
             p.docId.value = next?.id;
           }}
-          onSyncServerEnabledChange={(e) => (p.syncServerEnabled.value = e.next)}
+          onSyncEnabledChange={(e) => (p.syncServerEnabled.value = e.next)}
         />
       ));
   });

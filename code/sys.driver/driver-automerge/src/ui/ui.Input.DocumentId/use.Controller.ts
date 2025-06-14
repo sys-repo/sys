@@ -37,6 +37,24 @@ function useInternal(args: Args = {}): Hook {
   const [ready, setReady] = React.useState(false);
 
   /**
+   * Effect: repo changed.
+   */
+  React.useEffect(() => {
+    setReady(false);
+    signalsRef.current.doc.value = undefined;
+  }, [repoId]);
+
+  /**
+   * Effect: mount.
+   */
+  React.useEffect(() => {
+    if (ready) return;
+    const { id, doc } = api.props;
+    if (id && !doc) run('Load').then(() => setReady(true));
+    else setReady(true);
+  }, [repoId, ready]);
+
+  /**
    * Effect: (hook into redraw listeners).
    */
   Signal.useRedrawEffect(() => {
@@ -56,22 +74,10 @@ function useInternal(args: Args = {}): Hook {
   });
 
   /**
-   * Effect: mount.
-   */
-  React.useEffect(() => {
-    const force = true;
-    const props = api.props;
-    if (props.id && !props.doc) run('Load', { force }).then(() => setReady(true));
-    else setReady(true);
-  }, [repoId]);
-
-  /**
    * Handlers:
    */
   const run = useCallback(
-    async (action: t.DocumentIdInputAction, options: { force?: boolean } = {}) => {
-      const { force } = options;
-
+    async (action: t.DocumentIdInputAction) => {
       if (!repo) return;
       const p = signalsRef.current;
       const props = wrangle.props(p, ready, repo);

@@ -8,7 +8,7 @@ export type SyncServerProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onEnabledChange?: (e: { next: boolean }) => void;
+  onSyncEnabledChange?: (e: { next: boolean }) => void;
 };
 
 type P = SyncServerProps;
@@ -24,9 +24,7 @@ export const SyncServer: React.FC<P> = (props) => {
   /**
    * Handlers:
    */
-  const toggleEnabled = () => {
-    props.onEnabledChange?.({ next: !enabled });
-  };
+  const toggleEnabled = () => props.onSyncEnabledChange?.({ next: !enabled });
 
   /**
    * Render:
