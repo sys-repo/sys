@@ -22,7 +22,11 @@ export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
-export type { TextInputChangeHandler, TextInputKeyHandler } from '@sys/ui-react-components/t';
+export type {
+  TextInputChangeHandler,
+  TextInputKeyHandler,
+  TextInputProps,
+} from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
 /**

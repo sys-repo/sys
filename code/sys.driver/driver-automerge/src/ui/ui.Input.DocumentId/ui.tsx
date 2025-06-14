@@ -25,6 +25,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       fontSize: 14,
+      lineHeight: 'normal',
       display: 'grid',
       gridTemplateColumns: '1fr auto',
       alignItems: 'stretch',
@@ -51,7 +52,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
         placeholder={placeholder}
         suffix={elSuffix}
         border={{ mode: 'underline', defaultColor: 0 }}
-        background={theme.is.dark ? -0.08 : 0}
+        background={props.textboxBackground ?? theme.is.dark ? -0.08 : -0.04}
         autoFocus={autoFocus}
         theme={theme.name}
         style={styles.textbox}

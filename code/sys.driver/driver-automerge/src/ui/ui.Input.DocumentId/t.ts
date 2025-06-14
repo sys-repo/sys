@@ -23,6 +23,7 @@ export type DocumentIdInputProps = {
   label?: string;
   placeholder?: string;
   autoFocus?: boolean | number;
+  textboxBackground?: t.TextInputProps['background'];
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

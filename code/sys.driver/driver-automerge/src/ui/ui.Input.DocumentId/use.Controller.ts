@@ -45,8 +45,9 @@ function useInternal(args: Args = {}): Hook {
    * Effect: mount.
    */
   React.useEffect(() => {
-    if (api.props.id && !api.props.doc) invoke('Load');
-  }, []);
+    const props = api.props;
+    if (props.id && !props.doc) invoke('Load');
+  }, [repoId]);
 
   /**
    * Handlers:

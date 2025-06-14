@@ -35,7 +35,7 @@ export const ActionButton: React.FC<ActionButtonProps> = (props) => {
       borderRadius: 4,
       backgroundColor: isOver && enabled ? Color.BLUE : undefined,
       color: isOver && enabled ? Color.WHITE : Color.BLUE,
-      width: 80,
+      width: 70,
       margin: 1,
       display: 'grid',
       placeItems: 'center',
