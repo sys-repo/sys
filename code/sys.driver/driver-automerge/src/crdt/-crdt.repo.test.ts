@@ -14,13 +14,19 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 
-  it('create', () => {
+  it('create (doc)', () => {
     const repo = toRepo(new Repo());
     expect(repo.id.peer).to.eql('UNKNOWN');
     expect(repo.id.instance).to.be.a('string');
 
     const doc = repo.create<T>({ count: 0 });
     expect(doc.current).to.eql({ count: 0 });
+  });
+
+  it('create (doc) → initial as function', () => {
+    const repo = toRepo(new Repo());
+    const doc = repo.create<T>(() => ({ count: 1234 }));
+    expect(doc.current).to.eql({ count: 1234 });
   });
 
   it('creates with  { peerId }', async () => {
