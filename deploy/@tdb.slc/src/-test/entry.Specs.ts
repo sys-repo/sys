@@ -39,20 +39,11 @@ export const SpecsContent = {
 } as t.SpecImports;
 
 /**
- * Temporary 🐷
- */
-export const SpecsTmp = {
-  // Scratchpad:
-  'tmp.sample.🐷 (mandelbrot set)': () => import('../ui.tmp/-SPEC.tsx'),
-} as t.SpecImports;
-
-/**
  * Specs:
  */
 export const Specs = {
   ...SpecsComponents,
   ...SpecsContent,
   ...SpecsExternal,
-  ...SpecsTmp,
 } as t.SpecImports;
 export { SpecsExternal };

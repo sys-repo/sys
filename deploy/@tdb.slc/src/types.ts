@@ -3,8 +3,6 @@
  * Module types.
  */
 
-export type * from './ui.tmp/t.ts';
-
 /**
  * State:
  */
