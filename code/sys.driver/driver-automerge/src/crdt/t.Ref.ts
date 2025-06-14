@@ -13,6 +13,6 @@ export type CrdtRef<T extends O = O> = t.ImmutableRef<T, P, CrdtEvents<T>> & Ref
 /** Data thrown off when a CRDT document changes */
 export type CrdtChange<T extends O> = t.ImmutableChange<T, P> & { readonly source: PatchSource };
 /** Event interface for a CrdtRef. */
-export type CrdtEvents<T extends O> = t.ImmutableEvents<T, P, CrdtChange<T>>;
+export type CrdtEvents<T extends O = O> = t.ImmutableEvents<T, P, CrdtChange<T>>;
 /** A single change patch within a CRDT change. */
 export type CrdtPatch = P;
