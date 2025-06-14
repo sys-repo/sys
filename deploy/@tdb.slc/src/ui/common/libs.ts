@@ -6,7 +6,7 @@ export { Motion as M, Motion };
  * @system
  */
 export { Color, css, Style } from '@sys/ui-css';
-export { Dom, Keyboard } from '@sys/ui-dom';
+export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
 export {
   ReactEvent,
   ReactString,
