@@ -10,10 +10,17 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const updateSize = () => {
+      const scroll = p.scroll.value;
+      if (scroll) ctx.subject.size('fill');
+      else ctx.subject.size('fill-x', 100);
+      ctx.redraw();
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      updateSize();
     });
 
     ctx.subject
@@ -29,6 +36,9 @@ export default Spec.describe(D.displayName, (e) => {
           scroll={p.scroll.value}
         />
       ));
+
+    // Init:
+    updateSize();
   });
 
   e.it('ui:debug', (e) => {

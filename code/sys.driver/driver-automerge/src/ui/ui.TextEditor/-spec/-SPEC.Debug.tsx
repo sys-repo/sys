@@ -5,7 +5,7 @@ import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.
 import type * as t from './-t.ts';
 
 type P = t.TextEditorProps;
-type Storage = { theme?: t.CommonTheme; docId?: string } & Pick<
+type Storage = { theme?: t.CommonTheme; docId?: string; debug?: boolean } & Pick<
   P,
   'autoFocus' | 'readOnly' | 'scroll'
 >;
@@ -32,7 +32,7 @@ export function createDebugSignals() {
   });
 
   const props = {
-    debug: s(false),
+    debug: s(localstore.current.debug),
     theme: s(localstore.current.theme),
     doc: s<t.CrdtRef<t.SampleTextDoc>>(),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
@@ -56,6 +56,7 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     localstore.change((d) => {
+      d.debug = p.debug.value;
       d.theme = p.theme.value ?? 'Dark';
       d.autoFocus = p.autoFocus.value ?? true;
       d.readOnly = p.readOnly.value ?? D.readOnly;

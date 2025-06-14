@@ -10,15 +10,13 @@ import { toAutomergeHandle } from '../../crdt/mod.ts';
 import { type t, Color, css, D } from './common.ts';
 import { useCssImports } from './use.CssImports.ts';
 
-/**
  * https://fonts.google.com/specimen/Cormorant+Garamond
  */
 export const Headline = {
   DmSerif: {
     regular: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'normal' }),
     italic: css({ fontFamily: '"DM Serif Display", serif', fontWeight: 400, fontStyle: 'italic' }),
-  },
-};
+import { EditorStyles } from './u.styles.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   const { doc, readOnly = D.readOnly, scroll = D.scroll, debug = false } = props;
@@ -86,24 +84,14 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
-      display: 'grid',
       zIndex: 0,
+      display: scroll ? 'grid' : undefined,
     }),
-    body: css({ Absolute: 0, Scroll: scroll })
-      .rule('.ProseMirror', {
-        height: '100%',
-        outline: 'none', // NB: remove blue outline glow.
-        font: 'inherit',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-      })
-      .rule('.ProseMirror > :first-child', {
-        marginBlockStart: 0, // NB: supress first element top-margin.
-      })
-      .rule('.ProseMirror > H1', {
-        fontSize: '4.3em',
-        ...Headline.DmSerif.regular.style,
-      }),
+    body: EditorStyles.body({
+      backgroundColor: Color.ruby(debug),
+      Absolute: scroll ? 0 : undefined,
+      Scroll: scroll,
+    }),
   };
 
   return (
