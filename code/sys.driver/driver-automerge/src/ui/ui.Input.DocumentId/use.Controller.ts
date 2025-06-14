@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
 
 type Args = t.UseDocumentIdHookArgs;
@@ -40,6 +40,13 @@ function useInternal(args: Args = {}): Hook {
     p.doc.value;
     p.spinning.value;
   });
+
+  /**
+   * Effect: mount.
+   */
+  React.useEffect(() => {
+    if (api.props.id && !api.props.doc) invoke('Load');
+  }, []);
 
   /**
    * Handlers:
@@ -94,13 +101,17 @@ function useInternal(args: Args = {}): Hook {
   /**
    * API:
    */
+  let _props: t.DocumentIdHookProps | undefined; // NB: lazy-load.
   const signals = signalsRef.current;
-  return {
+  const api: t.DocumentIdHook = {
     instance,
     signals,
-    props: wrangle.props(signals, repo),
     handlers: { onActionClick, onTextChange, onKeyDown },
+    get props() {
+      return _props || (_props = wrangle.props(signals, repo));
+    },
   };
+  return api;
 }
 
 /**
