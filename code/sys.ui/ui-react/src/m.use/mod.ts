@@ -17,6 +17,7 @@
  * ```
  */
 export { useClickInside, useClickOutside } from './use.Click.ts';
+export { useDebouncedValue } from './use.DebouncedValue.ts';
 export { useDist } from './use.Dist.ts';
 export { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 export { useLoading } from './use.Loading.ts';

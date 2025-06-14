@@ -41,6 +41,7 @@ export { ReactChildren, ReactEvent, ReactString } from './u/mod.ts';
 export {
   useClickInside,
   useClickOutside,
+  useDebouncedValue,
   useDist,
   useIsTouchSupported,
   useLoading,
