@@ -22,6 +22,13 @@ export const SyncServer: React.FC<P> = (props) => {
   const peerParts = (peerId ?? '').split('.');
 
   /**
+   * Handlers:
+   */
+  const toggleEnabled = () => {
+    props.onEnabledChange?.({ next: !enabled });
+  };
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
@@ -42,7 +49,7 @@ export const SyncServer: React.FC<P> = (props) => {
     }),
     peer: css({ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'auto' }),
     label: css({ opacity: 0.5 }),
-    address: css({ opacity: enabled ? 1 : 0.2 }),
+    address: css({ opacity: enabled ? 1 : 0.2, transition: 'opacity 120ms ease' }),
   };
 
   const elPeer = peerId && enabled && (
@@ -56,14 +63,17 @@ export const SyncServer: React.FC<P> = (props) => {
   );
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch
           value={enabled}
           theme={theme.name}
           height={16}
           style={{ top: 1 }}
-          onClick={() => props.onEnabledChange?.({ next: !enabled })}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            toggleEnabled();
+          }}
         />
         <span className={styles.label.class}>{'sync-server:'}</span>
         <span className={styles.address.class}>{address}</span>
