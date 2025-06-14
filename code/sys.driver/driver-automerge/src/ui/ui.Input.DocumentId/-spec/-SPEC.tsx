@@ -32,6 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
         autoFocus={p.autoFocus.value}
         debug={p.debug.value}
         theme={p.theme.value}
+        enabled={p.enabled.value}
       />
     );
   }

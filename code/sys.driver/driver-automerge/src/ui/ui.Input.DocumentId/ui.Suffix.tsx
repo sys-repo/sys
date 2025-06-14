@@ -1,9 +1,8 @@
 import React from 'react';
-import { type t, Color, css, Icons, Spinners } from './common.ts';
+import { type t, Color, css, D, Spinners } from './common.ts';
 
 export type SuffixProps = {
   spinning?: boolean;
-  doc?: t.CrdtRef;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -13,7 +12,7 @@ export type SuffixProps = {
  * Component:
  */
 export const Suffix: React.FC<SuffixProps> = (props) => {
-  const { spinning = false, doc } = props;
+  let spinning = props.spinning ?? D.spinning;
 
   /**
    * Render:
@@ -21,17 +20,17 @@ export const Suffix: React.FC<SuffixProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      width: 30,
+      width: 35,
       color: theme.fg,
       display: 'grid',
       placeItems: 'center',
+      paddingBottom: 1,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       {spinning && <Spinners.Bar theme={theme.name} width={18} />}
-      {!spinning && doc && <Icons.Database color={theme.fg} size={18} />}
     </div>
   );
 };

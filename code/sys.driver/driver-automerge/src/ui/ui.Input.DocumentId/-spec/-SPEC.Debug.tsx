@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal, slug } from '../common.ts';
+import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdInputProps;
 type Storage = { docId?: string; controlled?: boolean; passRepo?: boolean } & Pick<
   P,
-  'theme' | 'label' | 'placeholder' | 'autoFocus'
+  'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'
 >;
 
 /**
@@ -28,6 +28,7 @@ export function createDebugSignals() {
   });
 
   const props = {
+    redraw: s(0),
     debug: s(false),
     theme: s(localstore.current.theme),
     controlled: s(localstore.current.controlled),
@@ -39,12 +40,14 @@ export function createDebugSignals() {
     label: s<P['label']>(localstore.current.label),
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
     autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
+    enabled: s<P['enabled']>(localstore.current.enabled),
   };
   const p = props;
   const api = {
     props,
     repo,
     listen() {
+      p.redraw.value;
       p.debug.value;
       p.theme.value;
       p.label.value;
@@ -54,6 +57,7 @@ export function createDebugSignals() {
       p.docId.value;
       p.docRef.value;
       p.autoFocus.value;
+      p.enabled.value;
     },
   };
 
@@ -66,7 +70,16 @@ export function createDebugSignals() {
       d.controlled = p.controlled.value ?? true;
       d.passRepo = p.passRepo.value ?? true;
       d.docId = p.docId.value;
+      d.enabled = p.enabled.value ?? D.enabled;
     });
+  });
+
+  // Listen to current document → redraw.
+  let events: t.CrdtEvents | undefined;
+  Signal.effect(() => {
+    events?.dispose();
+    events = p.docRef.value?.events();
+    events?.changed$.subscribe((e) => p.redraw.value++);
   });
 
   return api;
@@ -124,6 +137,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.enabled)}
+      />
 
       <hr />
       <Button
@@ -153,7 +171,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={wrangle.data(debug)}
-        expand={['$']}
+        expand={['$', '$.docRef']}
         style={{ marginTop: 10 }}
       />
     </div>

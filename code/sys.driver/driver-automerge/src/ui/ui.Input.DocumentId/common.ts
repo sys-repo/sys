@@ -9,7 +9,9 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
   label: undefined,
+  enabled: true,
   autoFocus: false,
   placeholder: 'document-id',
+  spinning: false,
 } as const;
 export const D = DEFAULTS;

@@ -24,6 +24,7 @@ export type DocumentIdInputProps = {
   placeholder?: string;
   autoFocus?: boolean | number;
   textboxBackground?: t.TextInputProps['background'];
+  enabled?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -59,6 +60,7 @@ export type DocumentIdHookProps = {
   readonly action: DocumentIdInputAction;
   readonly id?: string;
   readonly doc?: t.CrdtRef;
+  readonly repo?: t.CrdtRepo;
   readonly is: {
     readonly valid: boolean;
     readonly enabled: { readonly action: boolean; readonly input: boolean };
