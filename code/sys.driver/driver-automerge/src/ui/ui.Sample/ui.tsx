@@ -20,6 +20,7 @@ export type SampleProps = {
 
 export const Sample: React.FC<SampleProps> = (props) => {
   const { debug = false, repo, doc, syncServer = {} } = props;
+  const current = doc?.value?.current;
 
   /**
    * Render:
@@ -28,6 +29,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const styles = {
     base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
     docInput: css({ Absolute: [-30, 0, null, 0] }),
+    doc: css({ opacity: current === undefined ? 0.25 : 1 }),
     syncServer: css({ Absolute: [null, null, -25, 7] }),
   };
 
@@ -42,7 +44,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     />
   );
 
-  const elDocInput = (
+  const elDocumentId = (
     <Input.DocumentId.View
       theme={theme.name}
       style={styles.docInput}
@@ -55,17 +57,22 @@ export const Sample: React.FC<SampleProps> = (props) => {
     />
   );
 
+  const elDoc = (
+    <ObjectView
+      name={'T:Memory<Crdt>'}
+      data={current}
+      expand={1}
+      fontSize={24}
+      theme={theme.name}
+      style={styles.doc}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       {elSyncServer}
-      {elDocInput}
-      <ObjectView
-        name={'T:Memory<Crdt>'}
-        data={doc?.value?.current}
-        expand={1}
-        fontSize={24}
-        theme={theme.name}
-      />
+      {elDocumentId}
+      {elDoc}
     </div>
   );
 };
