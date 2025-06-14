@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Button, css, D, Input, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
 type P = t.SampleProps;
@@ -30,7 +30,7 @@ export async function createDebugSignals() {
     syncServerEnabled: s(localstore.current.syncServerEnabled),
 
     docId: s(localstore.current.docId),
-    doc: s<P['doc']>(),
+    doc: s<t.CrdtRef<t.SampleDoc>>(),
   };
 
   const p = props;
@@ -38,6 +38,7 @@ export async function createDebugSignals() {
     props,
     localstore,
     listen() {
+      p.redraw.value;
       p.debug.value;
       p.theme.value;
       p.redraw.value;
@@ -65,10 +66,19 @@ export async function createDebugSignals() {
     const network: t.CrdtBrowserNetworkArg[] = [];
     if (wss && isWebsockets) network.push({ wss });
 
+    p.doc.value = undefined;
     p.repo.value = Crdt.repo({
       storage: true, // ← 'IndexedDb',
       network,
     });
+  });
+
+  // Listen to current document → redraw.
+  let events: t.CrdtEvents<t.SampleDoc> | undefined;
+  Signal.effect(() => {
+    events?.dispose();
+    events = p.doc.value?.events();
+    events?.changed$.subscribe((e) => p.redraw.value++);
   });
 
   return api;
@@ -93,45 +103,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
-   * Setup sample CRDT document:
-   */
-  type D = t.SampleDoc;
-  const listen = (doc?: t.CrdtRef<D>) => {
-    if (!doc) return;
-    doc.events().changed$.subscribe((e) => {
-      console.info('⚡️ crdt:changed$', e);
-      p.redraw.value += 1;
-    });
-  };
-
-  const loadDoc = async (id?: string) => {
-    if (!Crdt.Is.id(id)) {
-      p.doc.value = undefined;
-      return;
-    }
-
-    const repo = p.repo.value;
-    const doc = await repo?.get<D>(id);
-    p.doc.value = doc;
-    listen(doc);
-  };
-
-  Signal.useEffect(() => {
-    const docId = p.docId.value;
-    loadDoc(docId);
-  });
-
-  /**
    * Render:
    */
   const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>
-        <div>{`Sample`}</div>
-        <div>{'CRDT / IndexedDB'}</div>
-      </div>
+      <Input.DocumentId.View
+        theme={'Light'}
+        style={{ MarginX: [-15, -10], marginTop: -15, marginBottom: 15 }}
+        controller={{
+          repo: p.repo.value,
+          signals: { doc: p.doc, id: p.docId },
+          initial: { count: 0, text: '' },
+        }}
+      />
 
       <Button
         block

@@ -1,17 +1,18 @@
 import React from 'react';
 
-import { type t, Color, css, DocumentIdInput, ObjectView } from './common.ts';
-import { DocTextbox } from './ui.DocTextbox__.tsx';
+import { type t, Color, css, Input, ObjectView } from './common.ts';
 import { SyncServer } from './ui.SyncServer.tsx';
 
 export type SampleProps = {
   syncServer?: { url?: t.StringUrl; enabled?: boolean };
-  docId?: string;
-  doc?: t.CrdtRef;
   repo?: t.CrdtRepo;
+  docId?: t.Signal<t.StringId | undefined>;
+  doc?: t.Signal<t.CrdtRef | undefined>;
+  //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  //
   onActionClick?: () => void;
   onDocIdTextChange?: t.TextInputChangeHandler;
   onSyncServerEnabledChange?: (e: { next: boolean }) => void;
@@ -28,8 +29,6 @@ export const Sample: React.FC<SampleProps> = (props) => {
     base: css({ position: 'relative', color: theme.fg, padding: 25, fontSize: 11 }),
     docInput: css({ Absolute: [-30, 0, null, 0] }),
     syncServer: css({ Absolute: [null, null, -25, 7] }),
-
-    }),
   };
 
   const elSyncServer = (
@@ -43,22 +42,15 @@ export const Sample: React.FC<SampleProps> = (props) => {
     />
   );
 
-  const elDocTextbox____OLD = (
-    <DocTextbox
-      docId={props.docId}
-      theme={theme.name}
-      style={styles.textbox}
-      onCreateNew={props.onActionClick}
-      onTextChange={props.onDocIdTextChange}
-    />
-  );
-
   const elDocInput = (
-    <DocumentIdInput.View
-      style={styles.docInput}
-      label={'document-id:'}
-      placeholder={''}
+    <Input.DocumentId.View
       theme={theme.name}
+      style={styles.docInput}
+      controller={{
+        repo,
+        signals: { doc, id: props.docId },
+        initial: { count: 0, text: '' },
+      }}
     />
   );
 
@@ -68,7 +60,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       {elDocInput}
       <ObjectView
         name={'T:Memory<Crdt>'}
-        data={doc?.current}
+        data={doc?.value?.current}
         expand={1}
         fontSize={24}
         theme={theme.name}

@@ -40,9 +40,9 @@ export default Spec.describe(D.displayName, async (e) => {
         <Sample
           debug={p.debug.value}
           theme={p.theme.value}
-          docId={p.docId.value}
-          doc={p.doc.value}
           repo={p.repo.value}
+          docId={p.docId}
+          doc={p.doc}
           syncServer={{
             url: p.syncServerUrl.value,
             enabled: p.syncServerEnabled.value,
