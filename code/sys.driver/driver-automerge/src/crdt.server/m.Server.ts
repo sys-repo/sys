@@ -20,7 +20,7 @@ export const Server: t.CrdtServerLib = {
      * Print status:
      */
     const table = Cli.table([]);
-    const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('wss')} ${pkg.version}`);
+    const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('ws')} ${pkg.version}`);
     const url1 = c.cyan(`http://localhost:${c.bold(String(port))}`);
     const url2 = c.cyan(`  ws://localhost:${c.bold(String(port))}`);
     table.push([c.gray('Module:'), module]);
