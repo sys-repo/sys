@@ -46,13 +46,13 @@ function useInternal(args: Args = {}): Hook {
    */
   React.useEffect(() => {
     const props = api.props;
-    if (props.id && !props.doc) invoke('Load');
+    if (props.id && !props.doc) run('Load');
   }, [repoId]);
 
   /**
    * Handlers:
    */
-  const invoke = useCallback(
+  const run = useCallback(
     async (action: t.DocumentIdInputAction) => {
       if (!repo) return;
       const p = signalsRef.current;
@@ -88,16 +88,13 @@ function useInternal(args: Args = {}): Hook {
     (e) => {
       if (e.key === 'Enter') {
         const props = wrangle.props(signalsRef.current, repo);
-        invoke(props.action);
+        run(props.action);
       }
     },
     [repoId],
   );
 
-  const onActionClick = useCallback<t.DocumentIdInputActionHandler>(
-    (e) => invoke(e.action),
-    [repoId],
-  );
+  const onActionClick = useCallback<t.DocumentIdInputActionHandler>((e) => run(e.action), [repoId]);
 
   /**
    * API:
@@ -112,6 +109,7 @@ function useInternal(args: Args = {}): Hook {
       return _props || (_props = wrangle.props(signals, repo));
     },
   };
+
   return api;
 }
 
@@ -123,11 +121,11 @@ function isHook(input: unknown): input is Hook {
 }
 
 const wrangle = {
-  props(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps {
+  props(p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
     const id = wrangle.id(p);
     const is = wrangle.is(p, repo);
     const doc = p.doc.value;
-    return { id, doc, is, action: wrangle.action(p) };
+    return { id, repo, doc, is, action: wrangle.action(p) };
   },
 
   id(p: P) {
