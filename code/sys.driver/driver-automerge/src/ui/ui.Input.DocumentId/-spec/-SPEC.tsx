@@ -27,10 +27,11 @@ export default Spec.describe(D.displayName, (e) => {
     return (
       <DocumentIdInput.View
         controller={p.controlled.value ? hook : args}
-        debug={p.debug.value}
-        theme={p.theme.value}
         label={p.label.value}
         placeholder={p.placeholder.value}
+        autoFocus={p.autoFocus.value}
+        debug={p.debug.value}
+        theme={p.theme.value}
       />
     );
   }

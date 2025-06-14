@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { type t, Color, css, Spinners, TextInput } from './common.ts';
+import { type t, Color, css, D, Spinners, TextInput } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { useController } from './use.Controller.ts';
 
 export const View: React.FC<t.DocumentIdInputProps> = (props) => {
-  const { label, placeholder = 'document-id' } = props;
+  const { label, placeholder = D.placeholder, autoFocus = D.autoFocus } = props;
 
   /**
    * Hooks:
@@ -59,6 +59,7 @@ export const View: React.FC<t.DocumentIdInputProps> = (props) => {
         suffix={elSpinner}
         border={{ mode: 'underline', defaultColor: 0 }}
         background={theme.is.dark ? -0.08 : 0}
+        autoFocus={autoFocus}
         theme={theme.name}
         style={styles.textbox}
         onChange={(e) => controller.handlers.onTextChange(e)}

@@ -22,6 +22,7 @@ export type DocumentIdInputProps = {
     | UseDocumentIdHookArgs /* ← uncontrolled (auto-create) */;
   label?: string;
   placeholder?: string;
+  autoFocus?: boolean | number;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

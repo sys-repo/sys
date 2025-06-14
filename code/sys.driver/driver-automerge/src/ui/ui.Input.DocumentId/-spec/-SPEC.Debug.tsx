@@ -6,7 +6,7 @@ import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal, slug } fr
 type P = t.DocumentIdInputProps;
 type Storage = { docId?: string; controlled?: boolean; passRepo?: boolean } & Pick<
   P,
-  'theme' | 'label' | 'placeholder'
+  'theme' | 'label' | 'placeholder' | 'autoFocus'
 >;
 
 /**
@@ -38,6 +38,7 @@ export function createDebugSignals() {
 
     label: s<P['label']>(localstore.current.label),
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
+    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
   };
   const p = props;
   const api = {
@@ -52,6 +53,7 @@ export function createDebugSignals() {
       p.passRepo.value;
       p.docId.value;
       p.docRef.value;
+      p.autoFocus.value;
     },
   };
 
@@ -60,6 +62,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value ?? 'Dark';
       d.label = p.label.value;
       d.placeholder = p.placeholder.value;
+      d.autoFocus = p.autoFocus.value ?? D.autoFocus;
       d.controlled = p.controlled.value ?? true;
       d.passRepo = p.passRepo.value ?? true;
       d.docId = p.docId.value;
@@ -115,6 +118,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `placeholder: ${Is.string(v) ? v || '""' : `<undefined>`}`;
         }}
         onClick={() => Signal.cycle(p.placeholder, [undefined, 'My Placeholder', ''])}
+      />
+      <Button
+        block
+        label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.autoFocus)}
       />
 
       <hr />
