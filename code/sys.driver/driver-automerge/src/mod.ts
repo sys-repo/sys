@@ -9,4 +9,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { toAutomergeHandle, toAutomergeRepo } from './crdt/mod.ts';
+export { toAutomergeHandle, toAutomergeRepo } from './m.crdt/mod.ts';
