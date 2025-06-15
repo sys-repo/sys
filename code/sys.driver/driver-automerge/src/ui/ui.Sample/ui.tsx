@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, Input, ObjectView } from './common.ts';
+import { type t, Color, css, D, Input, ObjectView } from './common.ts';
 import { SyncServer } from './ui.SyncServer.tsx';
 
 export type SampleProps = {
@@ -71,6 +71,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
         repo,
         signals: { doc, id: props.docId },
         initial: { count: 0, text: '' },
+        localstorageKey: `dev:${D.name}.localstore`,
       }}
     />
   );
