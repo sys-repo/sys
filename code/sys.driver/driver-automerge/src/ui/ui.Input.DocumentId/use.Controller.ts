@@ -1,5 +1,7 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
+
 import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
+import { useLocalStorage } from './use.LocalStorage.ts';
 
 type Args = t.UseDocumentIdHookArgs;
 type Hook = t.DocumentIdHook;
@@ -10,8 +12,8 @@ type P = t.DocumentIdHookSignals;
  */
 export const useController: t.UseDocumentIdHook = (input: Hook | Args = {}) => {
   return isHook(input)
-    ? input //                ← Controlled.
-    : useInternal(input); //  ← Uncontrolled.
+    ? input //                ← Controlled   (passed in hook)
+    : useInternal(input); //  ← Uncontrolled (manage hook locally)
 };
 
 /**
@@ -35,9 +37,10 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
+  useLocalStorage(args.localstorageKey, signalsRef.current.id);
 
   /**
-   * Effect: repo changed.
+   * Effect: (repo changed → reset).
    */
   React.useEffect(() => {
     setReady(false);
@@ -45,12 +48,12 @@ function useInternal(args: Args = {}): Hook {
   }, [repoId]);
 
   /**
-   * Effect: mount.
+   * Effect: (init on mount or reset).
    */
   React.useEffect(() => {
     if (ready) return;
-    const { id, doc } = api.props;
-    if (id && !doc) run('Load').then(() => setReady(true));
+    const props = api.props;
+    if (props.id && !props.doc) run('Load').then(() => setReady(true));
     else setReady(true);
   }, [repoId, ready]);
 
@@ -65,67 +68,50 @@ function useInternal(args: Args = {}): Hook {
   });
 
   /**
-   * Effect: clear {doc} when doc-id is empty.
-   */
-  Signal.useEffect(() => {
-    const p = signalsRef.current;
-    p.doc.value;
-    if (!p.id.value) p.doc.value = undefined;
-  });
-
-  /**
    * Handlers:
    */
-  const run = useCallback(
-    async (action: t.DocumentIdInputAction) => {
-      if (!repo) return;
-      const p = signalsRef.current;
-      const props = wrangle.props(p, ready, repo);
-      const enabled = props.is.enabled.action;
+  const run = async (action: t.DocumentIdInputAction) => {
+    if (!repo) return;
+    const p = signalsRef.current;
+    const props = wrangle.props(p, ready, repo);
+    const enabled = props.is.enabled.action;
 
-      if (action === 'Clear') {
-        p.id.value = undefined;
-        return;
-      }
+    if (action === 'Clear') {
+      p.id.value = undefined;
+      p.doc.value = undefined;
+      return;
+    }
 
-      if (action === 'Create' && enabled) {
-        const doc = repo.create(args.initial ?? {});
-        p.id.value = doc.id;
-        p.doc.value = doc;
-        return;
-      }
+    if (action === 'Create' && enabled) {
+      const doc = repo.create(args.initial ?? {});
+      p.id.value = doc.id;
+      p.doc.value = doc;
+      return;
+    }
 
-      if (action === 'Load' && props.id && enabled) {
-        p.spinning.value = true;
-        p.doc.value = await repo.get(props.id);
-        p.spinning.value = false;
-        return;
-      }
-    },
-    [repoId],
-  );
+    if (action === 'Load' && props.id && enabled) {
+      p.spinning.value = true;
+      p.doc.value = await repo.get(props.id);
+      p.spinning.value = false;
+      return;
+    }
+  };
 
-  const onTextChange = useCallback<t.TextInputChangeHandler>(
-    (e) => {
-      const p = signalsRef.current;
-      const doc = p.doc.value;
-      if (doc && doc.id !== e.value) p.doc.value = undefined;
-      p.id.value = e.value;
-    },
-    [repoId],
-  );
+  const onTextChange: t.TextInputChangeHandler = (e) => {
+    const p = signalsRef.current;
+    const doc = p.doc.value;
+    if (doc && doc.id !== e.value) p.doc.value = undefined;
+    p.id.value = e.value;
+  };
 
-  const onKeyDown = useCallback<t.TextInputKeyHandler>(
-    (e) => {
-      if (e.key === 'Enter') {
-        const props = wrangle.props(signalsRef.current, ready, repo);
-        run(props.action);
-      }
-    },
-    [repoId],
-  );
+  const onKeyDown: t.TextInputKeyHandler = (e) => {
+    if (e.key === 'Enter') {
+      const props = wrangle.props(signalsRef.current, ready, repo);
+      run(props.action);
+    }
+  };
 
-  const onAction = useCallback<t.DocumentIdInputActionHandler>((e) => run(e.action), [repoId]);
+  const onAction: t.DocumentIdInputActionHandler = (e) => run(e.action);
 
   /**
    * API:
