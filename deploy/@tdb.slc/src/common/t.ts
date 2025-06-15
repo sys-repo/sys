@@ -27,6 +27,8 @@ export type {
 } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
+export type { CrdtRef, CrdtRepo } from '@sys/driver-automerge/t';
+
 /**
  * @local
  */
