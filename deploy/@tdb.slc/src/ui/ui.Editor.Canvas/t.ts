@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type EditorCanvasProps = {
   debug?: boolean;
+  doc?: t.CrdtRef;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -20,7 +20,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render(() => <EditorCanvas debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <EditorCanvas debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />);
 
     ctx.debug.header
       .padding(0)

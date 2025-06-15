@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, TextEditor } from './common.ts';
 
 export const EditorCanvas: React.FC<t.EditorCanvasProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, doc } = props;
 
   /**
    * Render:
@@ -18,7 +18,7 @@ export const EditorCanvas: React.FC<t.EditorCanvasProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <TextEditor debug={true} theme={theme.name} />
+      <TextEditor doc={doc} theme={theme.name} />
     </div>
   );
 };
