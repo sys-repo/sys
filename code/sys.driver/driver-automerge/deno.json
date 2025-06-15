@@ -20,7 +20,7 @@
     "./types": "./src/types.ts",
     "./fs": "./src/crdt.entry/m.fs.ts",
     "./browser": "./src/crdt.entry/m.browser.ts",
-    "./ws": "./src/crdt.server/mod.ts",
+    "./ws": "./src/m.crdt.server/mod.ts",
     "./ui": "./src/ui/mod.ts"
   }
 }
