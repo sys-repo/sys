@@ -32,13 +32,13 @@ jobs:
           deno-version: v2
 
       - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
-        run: deno task info
+        run: deno task help
 
       - name: Deno Info
         run: deno info && deno --version
 
       - name: System Info
-        run: deno task info
+        run: deno task help
 
       - name: publish module → "@sys/types"
         run: |
