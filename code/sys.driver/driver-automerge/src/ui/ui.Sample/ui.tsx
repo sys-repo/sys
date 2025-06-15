@@ -66,7 +66,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       theme={theme.name}
       style={styles.docInput}
       buttonStyle={{ marginRight: 1, marginBottom: 2 }}
-      textboxBackground={-0.04}
+      background={-0.04}
       controller={{
         repo,
         signals: { doc, id: props.docId },
