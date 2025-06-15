@@ -40,6 +40,7 @@ export default Spec.describe(D.displayName, async (e) => {
         <Sample
           debug={p.debug.value}
           theme={p.theme.value}
+          headerStyle={{ topOffset: -29 }}
           repo={p.repo.value}
           docId={p.docId}
           doc={p.doc}

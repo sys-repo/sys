@@ -2,16 +2,20 @@ import React from 'react';
 
 import { type t, Color, css, D, Input, ObjectView } from './common.ts';
 import { SyncServer } from './ui.SyncServer.tsx';
+import { FooterTools } from './ui.FooterTools.tsx';
 
 export type SampleProps = {
   syncServer?: { url?: t.StringUrl; enabled?: boolean };
   repo?: t.CrdtRepo;
   docId?: t.Signal<t.StringId | undefined>;
   doc?: t.Signal<t.CrdtRef | undefined>;
+
   //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  headerStyle?: { topOffset?: number };
+
   //
   onActionClick?: () => void;
   onDocIdTextChange?: t.TextInputChangeHandler;
@@ -34,23 +38,23 @@ export const Sample: React.FC<SampleProps> = (props) => {
       display: 'grid',
       gridTemplateRows: `auto 1fr auto`,
     }),
-    docInput: css({
-      marginTop: -29,
+    header: css({
+      marginTop: props.headerStyle?.topOffset,
     }),
     doc: css({
       opacity: current === undefined ? 0.25 : 1,
       Margin: 30,
     }),
-    syncServer: css({
-      padding: 10,
-      display: 'grid',
-      justifyItems: 'start',
+    footer: css({
+      Padding: [6, 10],
       borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
     }),
   };
 
   const elFooter = (
-    <div className={styles.syncServer.class}>
+    <div className={styles.footer.class}>
       <SyncServer
         endpoint={syncServer.url}
         enabled={syncServer.enabled}
@@ -58,13 +62,15 @@ export const Sample: React.FC<SampleProps> = (props) => {
         peerId={repo?.id.peer}
         onSyncEnabledChange={props.onSyncEnabledChange}
       />
+      <div />
+      <FooterTools theme={theme.name} doc={doc?.value} />
     </div>
   );
 
   const elDocumentId = (
     <Input.DocumentId.View
       theme={theme.name}
-      style={styles.docInput}
+      style={styles.header}
       buttonStyle={{ marginRight: 1, marginBottom: 2 }}
       background={-0.04}
       controller={{
