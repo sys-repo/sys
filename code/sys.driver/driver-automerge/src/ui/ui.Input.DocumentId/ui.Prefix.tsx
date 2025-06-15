@@ -49,7 +49,7 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
       paddingRight: 1,
     }),
     btn: css({ display: 'grid' }),
-    icon: css({ opacity: !!docId ? 1 : 0.3, transition: `opacity 120ms ease` }),
+    icon: css({ opacity: !!docId ? 1 : 0.25, transition: `opacity 120ms ease` }),
   };
 
   const elCopy = docId && over && (
