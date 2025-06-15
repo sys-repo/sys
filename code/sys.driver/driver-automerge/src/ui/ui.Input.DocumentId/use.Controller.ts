@@ -37,7 +37,7 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
-  useLocalStorage(args.localstorageKey, signalsRef.current.id);
+  const localstore = useLocalStorage(args.localstorageKey, signalsRef.current.id);
 
   /**
    * Effect: (repo changed → reset).
@@ -84,8 +84,9 @@ function useInternal(args: Args = {}): Hook {
 
     if (action === 'Create' && enabled) {
       const doc = repo.create(args.initial ?? {});
-      p.id.value = doc.id;
       p.doc.value = doc;
+      p.id.value = doc.id;
+      localstore.history.push(doc.id);
       return;
     }
 
@@ -93,6 +94,7 @@ function useInternal(args: Args = {}): Hook {
       p.spinning.value = true;
       p.doc.value = await repo.get(props.id);
       p.spinning.value = false;
+      localstore.history.push(props.id);
       return;
     }
   };
@@ -105,9 +107,15 @@ function useInternal(args: Args = {}): Hook {
   };
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
+    const p = signalsRef.current;
+
     if (e.key === 'Enter') {
       const props = wrangle.props(signalsRef.current, ready, repo);
       run(props.action);
+    }
+
+    if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+      localstore.handlers.onArrowKey(e);
     }
   };
 
