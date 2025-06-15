@@ -13,7 +13,6 @@ export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
  */
 export const Crdt: t.CrdtFilesystemLib = {
   kind: 'Crdt:FileSystem',
-  Is: CrdtIs,
   repo(input) {
     const args = wrangle.dir(input);
     const { sharePolicy, denylist } = args;
@@ -23,6 +22,7 @@ export const Crdt: t.CrdtFilesystemLib = {
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
+  Is: CrdtIs,
 };
 
 /**

@@ -15,7 +15,6 @@ export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
  */
 export const Crdt: t.CrdtBrowserLib = {
   kind: 'Crdt:Browser',
-  Is: CrdtIs,
   repo(args = {}) {
     const { sharePolicy, denylist } = args;
     const network = wrangle.network(args);
@@ -24,6 +23,7 @@ export const Crdt: t.CrdtBrowserLib = {
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
+  Is: CrdtIs,
 };
 
 /**
