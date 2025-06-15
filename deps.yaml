@@ -23,12 +23,12 @@ groups:
     - import: jsr:@std/dotenv@0.225.5
     - import: jsr:@std/encoding@1.0.10
     - import: jsr:@std/fs@1.0.18
-    - import: jsr:@std/http@1.0.17
+    - import: jsr:@std/http@1.0.18
       subpaths: [file-server]
     - import: jsr:@std/path@1.1.0
     - import: jsr:@std/semver@1.0.5
-    - import: jsr:@std/testing@1.0.13
-    - import: jsr:@std/uuid@1.0.8
+    - import: jsr:@std/testing@1.0.14
+    - import: jsr:@std/uuid@1.0.9
 
   automerge:
     # https://automerge.org
@@ -50,7 +50,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.10.2
     - import: npm:@deno/vite-plugin@1.0.4
-    - import: npm:rollup@4.42.0
+    - import: npm:rollup@4.43.0
     - import: npm:vite@6.3.5
     - import: npm:vite-plugin-wasm@3.4.1
 
@@ -81,11 +81,11 @@ groups:
     - import: npm:ai@4.3.16
     - import: npm:@ai-sdk/openai@1.3.22
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.10.2
+    - import: npm:@mastra/core@0.10.5
       subpaths: ['agent']
-    - import: npm:@mastra/libsql@0.10.1
-    - import: npm:@mastra/loggers@0.10.1
-    - import: npm:@mastra/memory@0.10.2
+    - import: npm:@mastra/libsql@0.10.2
+    - import: npm:@mastra/loggers@0.10.2
+    - import: npm:@mastra/memory@0.10.3
     - import: npm:ollama@0.5.16
 
 deno.json:
@@ -107,11 +107,11 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.0.57
+  - import: npm:@farcaster/frame-sdk@0.0.63
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.1
     subpaths: ['auto']
-  - import: npm:happy-dom@17.6.3
+  - import: npm:happy-dom@18.0.1
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10
@@ -122,12 +122,12 @@ deno.json:
   - import: npm:rxjs@7.8.2
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
-  - import: npm:ts-essentials@10.0.4
+  - import: npm:ts-essentials@10.1.1
   - import: npm:ws@8.18.2
   - import: npm:@types/ws@8.18.1
   - import: npm:yaml@2.8.0
-  - import: npm:@preact/signals-core@1.9.0
-  - import: npm:zod@3.25.51
+  - import: npm:@preact/signals-core@1.10.0
+  - import: npm:zod@3.25.64
     subpaths: [v4, v4-mini]
 
   # Browser
@@ -155,6 +155,6 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.16.0
+  - import: npm:motion@12.18.1
   # Server
   - import: npm:hono@4.7.11
