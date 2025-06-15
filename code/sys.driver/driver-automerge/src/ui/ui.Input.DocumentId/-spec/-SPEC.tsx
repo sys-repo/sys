@@ -2,7 +2,6 @@ import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
 import { Input } from '../../ui.Input/mod.ts';
 import { Color, D } from '../common.ts';
-import { DocumentIdInput } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 type SampleDoc = { count: number; text?: string };
@@ -17,20 +16,22 @@ export default Spec.describe(D.displayName, (e) => {
      * NOTE: either pass down the hook (instance) OR the
      *       setup arguments for the hook.
      */
-    const signals: Partial<t.DocumentIdHookSignals> = { id: p.docId, doc: p.docRef };
+    const signals: Partial<t.DocumentIdHookSignals> = { doc: p.doc };
+    const localstorageKey = p.localstorageKey.value;
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       signals,
       repo: p.passRepo.value ? repo : undefined,
-      initial: () => ({ count: 0 }),
+      localstorageKey,
+      initial: () => ({ count: 0 }), // NB: dynamic generator.
     };
-    const hook = DocumentIdInput.useController(args);
+    const hook = Input.DocumentId.useController(args);
 
     /**
      * Render:
      */
     const theme = Color.theme(p.theme.value);
     return (
-      <DocumentIdInput.View
+      <Input.DocumentId.View
         controller={p.controlled.value ? hook : args}
         label={p.label.value}
         placeholder={p.placeholder.value}
@@ -38,7 +39,7 @@ export default Spec.describe(D.displayName, (e) => {
         debug={p.debug.value}
         theme={p.theme.value}
         enabled={p.enabled.value}
-        textboxBackground={theme.is.dark ? -0.06 : -0.04}
+        background={theme.is.dark ? -0.06 : -0.04}
       />
     );
   }
@@ -61,15 +62,16 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .border(-0.1)
       .render(() => {
+        const localstorageKey = p.localstorageKey.value;
         return (
           <Input.DocumentId.View
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
-            columnGap={0}
             controller={{
               repo,
-              signals: { id: p.docId, doc: p.docRef },
-              initial: { count: 0, text: '' },
+              signals: { doc: p.doc },
+              initial: { count: 0, text: '' }, // NB: static version.
+              localstorageKey,
             }}
           />
         );

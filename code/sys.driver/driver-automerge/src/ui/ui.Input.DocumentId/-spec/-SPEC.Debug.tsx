@@ -4,16 +4,18 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdInputProps;
-type Storage = { docId?: string; controlled?: boolean; passRepo?: boolean } & Pick<
-  P,
-  'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'
->;
+type Storage = {
+  controlled?: boolean;
+  passRepo?: boolean;
+  localstorageKey?: string;
+} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+const STORAGE_KEY = `dev:${D.name}.localstore`;
 
 /**
  * Signals:
@@ -33,9 +35,9 @@ export function createDebugSignals() {
     theme: s(localstore.current.theme),
     controlled: s(localstore.current.controlled),
     passRepo: s(localstore.current.passRepo),
+    localstorageKey: s(localstore.current.localstorageKey),
 
-    docId: s(localstore.current.docId),
-    docRef: s<t.CrdtRef>(),
+    doc: s<t.CrdtRef>(),
 
     label: s<P['label']>(localstore.current.label),
     placeholder: s<P['placeholder']>(localstore.current.placeholder),
@@ -54,10 +56,10 @@ export function createDebugSignals() {
       p.placeholder.value;
       p.controlled.value;
       p.passRepo.value;
-      p.docId.value;
-      p.docRef.value;
+      p.doc.value;
       p.autoFocus.value;
       p.enabled.value;
+      p.localstorageKey.value;
     },
   };
 
@@ -69,8 +71,8 @@ export function createDebugSignals() {
       d.autoFocus = p.autoFocus.value ?? D.autoFocus;
       d.controlled = p.controlled.value ?? true;
       d.passRepo = p.passRepo.value ?? true;
-      d.docId = p.docId.value;
       d.enabled = p.enabled.value ?? D.enabled;
+      d.localstorageKey = p.localstorageKey.value;
     });
   });
 
@@ -78,7 +80,7 @@ export function createDebugSignals() {
   let events: t.CrdtEvents | undefined;
   Signal.effect(() => {
     events?.dispose();
-    events = p.docRef.value?.events();
+    events = p.doc.value?.events();
     events?.changed$.subscribe((e) => p.redraw.value++);
   });
 
@@ -167,7 +169,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `pass repo: ${p.passRepo.value}`}
         onClick={() => Signal.toggle(p.passRepo)}
       />
+      <Button
+        block
+        label={() => `localstorageKey: ${p.localstorageKey.value}`}
+        onClick={() => {
+          const s = p.localstorageKey;
+          s.value = s.value ? undefined : STORAGE_KEY;
+        }}
+      />
 
+      <hr />
       <ObjectView
         name={'debug'}
         data={wrangle.data(debug)}
@@ -184,7 +195,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 const wrangle = {
   data(debug: DebugSignals) {
     const p = debug.props;
-    const doc = p.docRef.value;
+    const doc = p.doc.value;
     return Signal.toObject({ ...p, docRef: doc?.current });
   },
 } as const;

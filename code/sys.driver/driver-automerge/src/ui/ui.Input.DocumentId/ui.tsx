@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 
 import { type t, Color, css, D, TextInput, Time, useDebouncedValue, usePointer } from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
@@ -17,19 +17,23 @@ export const View: React.FC<P> = (props) => {
   } = props;
 
   /**
+   * Refs:
+   */
+  const inputRef = useRef<HTMLInputElement>();
+  const focus = () => inputRef.current?.focus();
+
+  /**
    * Hooks:
    */
-  const [copied, setCopied] = React.useState(false);
-  const [overTextbox, setOverTextbox] = React.useState(false);
-  const pointer = usePointer({
-    onEnter: () => setOverTextbox(true),
-    onLeave: () => setOverTextbox(false),
-  });
+  const [copied, setCopied] = useState(false);
+  const [overTextbox, setOverTextbox] = useState(false);
+  const pointer = usePointer((e) => setOverTextbox(e.is.over));
 
   /**
    * Hook: Controller/State.
    */
   const controller = useController(props.controller);
+
   const docId = controller.props.id;
   const doc = controller.props.doc;
   const is = controller.props.is;
@@ -43,6 +47,7 @@ export const View: React.FC<P> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
+      backgroundColor: theme.format(props.background).bg,
       fontSize: 14,
       lineHeight: 'normal',
       display: 'grid',
@@ -54,24 +59,26 @@ export const View: React.FC<P> = (props) => {
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
     actionButton: css({
       fontSize: 12,
-      marginLeft: props.columnGap ?? 5,
+      marginLeft: 5,
       ...props.buttonStyle,
     }),
     copied: css({
       Absolute: [0, null, 0, 30],
       pointerEvents: 'none',
+      paddingBottom: 3,
+      opacity: 0.3,
       display: 'grid',
       placeItems: 'center',
-      opacity: 0.3,
     }),
   };
 
   const elPrefix = (
     <Prefix
-      doc={doc}
+      docId={docId}
       over={overTextbox}
       copied={copied}
       theme={theme.name}
+      onPointer={(e) => e.is.down && focus()}
       onCopied={() => {
         setCopied(true);
         Time.delay(1_500, () => setCopied(false));
@@ -80,10 +87,11 @@ export const View: React.FC<P> = (props) => {
   );
   const elSuffix = (
     <Suffix
-      doc={doc}
+      docId={docId}
       spinning={is.spinning}
       over={overTextbox}
       theme={theme.name}
+      onPointer={(e) => e.is.down && focus()}
       onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
     />
   );
@@ -108,20 +116,22 @@ export const View: React.FC<P> = (props) => {
       <div className={styles.label.class}>{label}</div>
       <div {...pointer.handlers}>
         <TextInput
-          disabled={!(enabled && is.enabled.input)}
           value={docId}
-          placeholder={placeholder}
           prefix={elPrefix}
           suffix={elSuffix}
-          border={{ mode: 'underline', defaultColor: 0 }}
-          background={props.textboxBackground}
-          autoFocus={autoFocus}
+          placeholder={placeholder}
+          disabled={!(enabled && is.enabled.input)}
+          //
           theme={theme.name}
           style={styles.textbox}
           inputStyle={{ opacity: copied ? 0 : 1 }}
+          border={{ mode: 'underline', defaultColor: 0 }}
+          background={0}
+          autoFocus={autoFocus}
+          //
+          onReady={(e) => (inputRef.current = e.input)}
           onChange={(e) => controller.handlers.onTextChange(e)}
           onKeyDown={(e) => controller.handlers.onKeyDown(e)}
-          onFocus={(e) => Time.delay(0, () => e.input.select())}
         />
       </div>
       {elActionButton}

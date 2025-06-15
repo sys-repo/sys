@@ -1,15 +1,15 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons } from './common.ts';
+import { type t, Button, Color, css, Icons, usePointer } from './common.ts';
 
 export type PrefixProps = {
-  doc?: t.CrdtRef;
-  //
+  docId?: string;
   over?: boolean;
   copied?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   //
+  onPointer?: t.PointerEventsHandler;
   onCopied?: () => void;
 };
 
@@ -17,15 +17,21 @@ export type PrefixProps = {
  * Component:
  */
 export const Prefix: React.FC<PrefixProps> = (props) => {
-  const { doc, copied, over } = props;
+  const { copied, over } = props;
+  const docId = (props.docId || '').trim();
+
   const CopyIcon = copied ? Icons.Tick : Icons.Copy;
+
+  /**
+   * Hooks:
+   */
+  const pointer = usePointer(props.onPointer);
 
   /**
    * Handlers:
    */
   const copyToClipboard = () => {
-    const id = doc?.id;
-    if (id) navigator.clipboard.writeText(id);
+    if (docId) navigator.clipboard.writeText(docId);
     props.onCopied?.();
   };
 
@@ -42,10 +48,10 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
       paddingRight: 1,
     }),
     btn: css({ display: 'grid' }),
-    icon: css({ opacity: !!doc ? 1 : 0.3, transition: `opacity 120ms ease` }),
+    icon: css({ opacity: !!docId ? 1 : 0.3, transition: `opacity 120ms ease` }),
   };
 
-  const elCopy = doc && over && (
+  const elCopy = docId && over && (
     <Button style={styles.btn} onClick={copyToClipboard}>
       <CopyIcon size={18} color={over ? Color.BLUE : theme.fg} />
     </Button>
@@ -53,7 +59,7 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
   const elDatabase = !elCopy && <Icons.Database color={theme.fg} size={18} style={styles.icon} />;
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} {...pointer.handlers}>
       {elCopy}
       {elDatabase}
     </div>

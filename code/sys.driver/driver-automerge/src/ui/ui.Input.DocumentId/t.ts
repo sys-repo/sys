@@ -19,19 +19,18 @@ export type DocumentIdInputLib = {
 export type DocumentIdInputProps = {
   debug?: boolean;
   controller?:
-    | DocumentIdHook /* ← controlled */
-    | UseDocumentIdHookArgs /* ← uncontrolled (auto-create) */;
+    | DocumentIdHook //         ← controlled
+    | UseDocumentIdHookArgs; // ← uncontrolled (auto-create)
   label?: string;
   placeholder?: string;
-  autoFocus?: boolean | number;
-  textboxBackground?: t.TextInputProps['background'];
   enabled?: boolean;
+  autoFocus?: boolean | number;
 
   // Appearance:
   theme?: t.CommonTheme;
-  columnGap?: number;
   style?: t.CssInput;
   buttonStyle?: t.CssInput;
+  background?: string | number;
 };
 
 /**
@@ -47,6 +46,7 @@ export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) 
 export type UseDocumentIdHookArgs<T = O> = {
   repo?: t.CrdtRepo;
   signals?: Partial<DocumentIdHookSignals>;
+  localstorageKey?: t.StringId;
   initial?: T | (() => T);
 };
 export type DocumentIdHook = {
