@@ -8,6 +8,7 @@ import {
   MdArrowForward,
   MdArrowDownward,
   MdArrowUpward,
+  MdFace,
 } from 'react-icons/md';
 import { TbDatabase } from 'react-icons/tb';
 
@@ -28,4 +29,5 @@ export const Icons = {
   Error: icon(MdErrorOutline),
   Clear: icon(MdClose),
   Tick: icon(MdCheck),
+  Face: icon(MdFace),
 } as const;

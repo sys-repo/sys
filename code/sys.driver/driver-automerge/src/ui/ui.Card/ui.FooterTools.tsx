@@ -48,6 +48,9 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Button theme={theme.name} onClick={() => {}}>
+        <Icons.Face color={color} />
+      </Button>
       <Button theme={theme.name} onClick={clickHandler(1)}>
         <Icons.Arrow.Up color={color} />
       </Button>
