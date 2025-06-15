@@ -196,6 +196,6 @@ const wrangle = {
   data(debug: DebugSignals) {
     const p = debug.props;
     const doc = p.doc.value;
-    return Signal.toObject({ ...p, docRef: doc?.current });
+    return Signal.toObject({ ...p, doc: doc?.current });
   },
 } as const;
