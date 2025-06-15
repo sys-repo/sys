@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { Sample } from '../mod.ts';
+import { Card } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 import type * as t from './-t.ts';
@@ -20,7 +20,7 @@ export default Spec.describe(D.displayName, async (e) => {
   const p = debug.props;
 
   /**
-   * Put repo in global/window namespace (debug console).
+   * Effect: Put repo in global/window namespace (debug console).
    */
   Signal.effect(() => void (window.repo = p.repo.value!));
 
@@ -34,10 +34,10 @@ export default Spec.describe(D.displayName, async (e) => {
     });
 
     ctx.subject
-      .size([480, 350])
+      .size([520, 350])
       .display('grid')
       .render(() => (
-        <Sample
+        <Card
           debug={p.debug.value}
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
@@ -52,7 +52,7 @@ export default Spec.describe(D.displayName, async (e) => {
           onDocIdTextChange={(e) => (p.docId.value = e.value)}
           onActionClick={() => {
             const repo = p.repo.value;
-            const next = repo?.create<t.SampleDoc>({ count: 0, text: '' });
+            const next = repo?.create<t.TDoc>({ count: 0, text: '' });
             console.info('⚡️ created → doc:', next);
             p.docId.value = next?.id;
           }}

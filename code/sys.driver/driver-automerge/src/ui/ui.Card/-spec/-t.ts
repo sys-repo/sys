@@ -1,7 +1,6 @@
 export * from '../../../common/t.ts';
-export type { SampleProps } from '../ui.tsx';
 
-export type SampleDoc = {
+export type TDoc = {
   count: number;
   text?: string;
 };

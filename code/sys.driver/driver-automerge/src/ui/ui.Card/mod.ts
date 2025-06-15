@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Sample } from './ui.tsx';
+export { Card } from './ui.tsx';

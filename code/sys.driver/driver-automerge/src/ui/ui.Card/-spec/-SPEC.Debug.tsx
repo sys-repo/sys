@@ -4,7 +4,7 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 import type * as t from './-t.ts';
 
-type P = t.SampleProps;
+type P = t.CardProps;
 type LocalStore = {
   docId?: string;
   syncServerUrl?: string;
@@ -34,7 +34,7 @@ export async function createDebugSignals() {
     syncServerEnabled: s(localstore.current.syncServerEnabled),
 
     docId: s(localstore.current.docId),
-    doc: s<t.CrdtRef<t.SampleDoc>>(),
+    doc: s<t.CrdtRef<t.TDoc>>(),
   };
 
   const p = props;
@@ -84,7 +84,7 @@ export async function createDebugSignals() {
   });
 
   // Listen to current document → (redraw).
-  let events: t.CrdtEvents<t.SampleDoc> | undefined;
+  let events: t.CrdtEvents<t.TDoc> | undefined;
   Signal.effect(() => {
     events?.dispose();
     events = p.doc.value?.events();
@@ -127,7 +127,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {editSampleDocButtons(debug)}
+      {valueEditorButtons(debug)}
 
       <hr />
       <Button
@@ -150,7 +150,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <ObjectView
         name={'debug'}
-        data={{ ...Signal.toObject(p), doc: p.doc?.value?.current }}
+        data={{
+          ...Signal.toObject(p),
+          doc: p.doc?.value?.current,
+        }}
         style={{ marginTop: 10 }}
         expand={0}
       />
@@ -161,7 +164,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Dev Helpers:
  */
-export function editSampleDocButtons(debug: DebugSignals) {
+export function valueEditorButtons(debug: DebugSignals) {
   const { props: p, localstore } = debug;
 
   const increment = async (by: number) => {
@@ -169,7 +172,7 @@ export function editSampleDocButtons(debug: DebugSignals) {
     const docId = localstore.current.docId;
     if (!docId || !repo) return;
 
-    const doc = (await repo.get<t.SampleDoc>(docId))!;
+    const doc = (await repo.get<t.TDoc>(docId))!;
     doc.change((d) => (d.count += by));
   };
 

@@ -4,25 +4,7 @@ import { type t, Color, css, D, Input, ObjectView } from './common.ts';
 import { SyncServer } from './ui.SyncServer.tsx';
 import { FooterTools } from './ui.FooterTools.tsx';
 
-export type SampleProps = {
-  syncServer?: { url?: t.StringUrl; enabled?: boolean };
-  repo?: t.CrdtRepo;
-  docId?: t.Signal<t.StringId | undefined>;
-  doc?: t.Signal<t.CrdtRef | undefined>;
-
-  //
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  headerStyle?: { topOffset?: number };
-
-  //
-  onActionClick?: () => void;
-  onDocIdTextChange?: t.TextInputChangeHandler;
-  onSyncEnabledChange?: (e: { next: boolean }) => void;
-};
-
-export const Sample: React.FC<SampleProps> = (props) => {
+export const Card: React.FC<t.CardProps> = (props) => {
   const { debug = false, repo, doc, syncServer = {} } = props;
   const current = doc?.value?.current;
 
@@ -46,10 +28,12 @@ export const Sample: React.FC<SampleProps> = (props) => {
       Margin: 30,
     }),
     footer: css({
-      Padding: [6, 10],
+      height: 30,
+      Padding: [6, 10, 8, 10],
       borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
+      alignItems: 'center',
     }),
   };
 
@@ -87,7 +71,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       name={'Memory<T>'}
       data={current}
       expand={1}
-      fontSize={24}
+      fontSize={28}
       theme={theme.name}
       style={styles.doc}
     />

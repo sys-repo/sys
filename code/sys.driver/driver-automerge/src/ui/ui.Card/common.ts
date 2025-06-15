@@ -6,7 +6,7 @@ import { pkg, Pkg } from '../common.ts';
 /**
  * Constants:
  */
-const name = 'Crdt.Sample';
+const name = 'Crdt.Card';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name),
