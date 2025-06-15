@@ -19,6 +19,7 @@ export const View: React.FC<P> = (props) => {
   /**
    * Refs:
    */
+  const timeoutRef = useRef<() => void>();
   const inputRef = useRef<HTMLInputElement>();
   const focus = () => inputRef.current?.focus();
 
@@ -82,8 +83,9 @@ export const View: React.FC<P> = (props) => {
       theme={theme.name}
       onPointer={(e) => e.is.down && focus()}
       onCopied={() => {
+        timeoutRef.current?.();
         setCopied(true);
-        Time.delay(1_500, () => setCopied(false));
+        timeoutRef.current = Time.delay(1_500, () => setCopied(false)).cancel;
       }}
     />
   );
