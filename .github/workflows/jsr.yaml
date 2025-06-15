@@ -28,6 +28,7 @@ jobs:
         with:
           fetch-depth: 0
           clean: true
+      - run: git clean -ffdx
 
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
