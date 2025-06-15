@@ -32,4 +32,18 @@ export type HistoryStack = {
    * "Down arrow" → newer entry (drops to live prompt when past newest).
    */
   forward(): string | undefined;
+
+  /**
+   * Registers an event handler to call when the stack changes.
+   */
+  onChange(fn: HistoryStackChangeHandler): void;
+};
+
+/**
+ * Events:
+ */
+export type HistoryStackChangeHandler = (e: HistoryStackChange) => void;
+export type HistoryStackChange = {
+  readonly before: readonly string[];
+  readonly after: readonly string[];
 };

@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { History } from './mod.ts';
 
 describe('History', () => {
@@ -56,6 +56,30 @@ describe('History', () => {
       h.push('bar'); //                       ← new push resets cursor.
       expect(h.forward()).to.be.undefined; // ← already live.
       expect(h.back()).to.eql('bar'); //      ← newest again.
+    });
+
+    it('does not add head more than once', () => {
+      const h = History.stack();
+      h.push('a');
+      h.push('a');
+      expect(h.items).to.eql(['a']);
+    });
+
+    it('onChange: listener', () => {
+      const h = History.stack();
+
+      const fired: t.HistoryStackChange[] = [];
+      const handler: t.HistoryStackChangeHandler = (e) => fired.push(e);
+      h.onChange(handler);
+      h.onChange(handler); // NB: repeat registrations do not double up.
+
+      h.push('a');
+      expect(fired.length).to.eql(1);
+      expect(fired[0]).to.eql({ before: [], after: ['a'] });
+
+      h.push('b');
+      expect(fired.length).to.eql(2);
+      expect(fired[1]).to.eql({ before: ['a'], after: ['b', 'a'] });
     });
   });
 });
