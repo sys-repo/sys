@@ -79,6 +79,7 @@ export const TextInput: React.FC<P> = (props) => {
       ':disabled': { color: theme.alpha(0.35).fg },
 
       // Passed in style preferences:
+      filter: inputStyle.blur ? `blur(${inputStyle.blur}px)` : undefined,
       opacity: inputStyle.opacity,
       transition: 'opacity 120ms ease',
     }),

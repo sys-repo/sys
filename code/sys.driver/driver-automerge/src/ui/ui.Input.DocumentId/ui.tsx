@@ -127,7 +127,10 @@ export const View: React.FC<P> = (props) => {
           //
           theme={theme.name}
           style={styles.textbox}
-          inputStyle={{ opacity: copied ? 0 : 1 }}
+          inputStyle={{
+            opacity: copied ? 0.1 : 1,
+            blur: copied ? 8 : 0,
+          }}
           border={{ mode: 'underline', defaultColor: 0 }}
           background={0}
           autoFocus={autoFocus}

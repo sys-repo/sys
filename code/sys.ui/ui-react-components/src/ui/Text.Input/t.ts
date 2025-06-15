@@ -42,7 +42,7 @@ export type TextInputProps = {
   borderRadius?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  inputStyle?: { opacity?: t.Percent };
+  inputStyle?: { opacity?: t.Percent; blur?: t.Pixels };
 
   /**
    * Handlers:
