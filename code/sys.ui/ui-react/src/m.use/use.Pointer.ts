@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { type t, Is } from './common.ts';
 import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
@@ -23,30 +23,42 @@ export const usePointer: t.UsePointer = (input) => {
   const isTouch = useIsTouchSupported();
   const drag = usePointerDrag({ onDrag });
 
-  const fireGeneral = useCallback((trigger: t.PointerEvent) => {
-    const is = api.is;
-    args.on?.({ is, trigger });
-  }, []);
+  /**
+   * Handlers:
+   */
+  const getFlags = (known?: {
+    isOver?: boolean;
+    isDown?: boolean;
+    isDragging?: boolean;
+  }): t.PointerHookFlags => {
+    return {
+      over: known?.isOver ?? isOver,
+      down: known?.isDown ?? isDown,
+      dragging: known?.isDragging ?? drag.is.dragging,
+    };
+  };
 
-  const down = (isDown: boolean) =>
-    useCallback((ev: React.PointerEvent) => {
-      const e = wrangle.pointerEvent(ev);
-      setDown(isDown);
-      if (isDown) args.onDown?.(e);
-      if (!isDown) args.onUp?.(e);
-      if (!isDown) drag.cancel();
-      if (isDown && drag.enabled) drag.start();
-      fireGeneral(e);
-    }, []);
-  const over = (isOver: boolean) =>
-    useCallback((ev: React.PointerEvent) => {
-      const e = wrangle.pointerEvent(ev);
-      setOver(isOver);
-      if (isOver === false) setDown(false);
-      if (isOver) args.onEnter?.(e);
-      if (!isOver) args.onLeave?.(e);
-      fireGeneral(e);
-    }, []);
+  const fireGeneral = (trigger: t.PointerEvent, known: { isOver?: boolean; isDown?: boolean }) => {
+    args.on?.({ is: getFlags(known), trigger });
+  };
+
+  const down = (isDown: boolean) => (ev: React.PointerEvent) => {
+    const e = wrangle.pointerEvent(ev);
+    setDown(isDown);
+    if (isDown) args.onDown?.(e);
+    if (!isDown) args.onUp?.(e);
+    if (!isDown) drag.cancel();
+    if (isDown && drag.enabled) drag.start();
+    fireGeneral(e, { isDown });
+  };
+  const over = (isOver: boolean) => (ev: React.PointerEvent) => {
+    const e = wrangle.pointerEvent(ev);
+    setOver(isOver);
+    if (isOver === false) setDown(false);
+    if (isOver) args.onEnter?.(e);
+    if (!isOver) args.onLeave?.(e);
+    fireGeneral(e, { isOver });
+  };
 
   /**
    * Mouse handlers:
@@ -87,11 +99,7 @@ export const usePointer: t.UsePointer = (input) => {
     handlers: isTouch
       ? { onTouchStart, onTouchEnd, onTouchCancel }
       : { onMouseDown, onMouseUp, onMouseEnter, onMouseLeave },
-    is: {
-      over: isOver,
-      down: isDown,
-      dragging: drag.is.dragging,
-    },
+    is: getFlags(),
     drag: drag.movement,
     reset() {
       setDown(false);
