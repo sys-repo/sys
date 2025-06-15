@@ -3,7 +3,7 @@ import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-networ
 import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 
-import { type t, Arr, CrdtIs, Is, slug, toRepo } from './common.ts';
+import { type t, Arr, CrdtIs, D, Is, slug, toRepo } from './common.ts';
 
 /**
  * Exports:
@@ -30,10 +30,18 @@ export const Crdt: t.CrdtBrowserLib = {
  * Helpers:
  */
 const wrangle = {
+  indexedDb(options: { database?: string } = {}) {
+    const { database = D.database } = options;
+    return new IndexedDBStorageAdapter(database);
+  },
+
   storage(args?: t.CrdtBrowserRepoArgs): t.StorageAdapterInterface | undefined {
     if (!args?.storage) return;
-    if (args.storage === 'IndexedDb' || args.storage === true) return new IndexedDBStorageAdapter();
-    return args.storage;
+    const arg = args?.storage;
+    if (arg === 'IndexedDb' || arg === true) return wrangle.indexedDb();
+    if (arg instanceof IndexedDBStorageAdapter) return arg;
+    if (Is.record(arg) && Is.string(arg.database)) return wrangle.indexedDb(arg);
+    return;
   },
 
   network(args?: t.CrdtBrowserRepoArgs): t.NetworkAdapterInterface[] | undefined {

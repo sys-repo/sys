@@ -6,6 +6,8 @@ import type {
 } from '@automerge/automerge-repo';
 import type { t } from './common.ts';
 
+type StringDatabaseName = string;
+
 /**
  * API for CRDT's on IndexedDB (browser):
  */
@@ -24,7 +26,11 @@ export type CrdtBrowserRepoArgs = {
 };
 
 /** Storage argument. */
-export type CrdtBrowserStorageArg = StorageAdapterInterface | 'IndexedDb';
+export type CrdtBrowserStorageArg =
+  | StorageAdapterInterface
+  | 'IndexedDb'
+  | { database?: StringDatabaseName };
+
 /** Network argument. */
 export type CrdtBrowserNetworkArg =
   | NetworkAdapterInterface
