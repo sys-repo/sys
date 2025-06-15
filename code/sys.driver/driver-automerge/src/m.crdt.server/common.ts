@@ -5,4 +5,4 @@ export { c, Cli } from '@sys/cli';
 export { Net } from '@sys/http/server';
 
 export * from '../common.ts';
-export { Crdt } from '../crdt.entry/m.fs.ts';
+export { Crdt } from '../m.crdt.-entry/m.fs.ts';
