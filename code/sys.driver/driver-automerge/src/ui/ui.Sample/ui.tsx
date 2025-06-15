@@ -78,7 +78,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
 
   const elDoc = (
     <ObjectView
-      name={'T:Memory<Crdt>'}
+      name={'Memory<T>'}
       data={current}
       expand={1}
       fontSize={24}
