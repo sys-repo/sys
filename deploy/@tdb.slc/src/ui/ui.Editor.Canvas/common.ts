@@ -1,4 +1,6 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
+
+export { Crdt, Input, TextEditor } from '@sys/driver-automerge/ui';
 export * from '../common.ts';
 
 /**

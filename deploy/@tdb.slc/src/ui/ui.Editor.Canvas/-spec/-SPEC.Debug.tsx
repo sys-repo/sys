@@ -1,8 +1,10 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme'>;
+
+type Doc = { text: string };
 
 /**
  * Types:
@@ -17,16 +19,21 @@ export function createDebugSignals() {
   const s = Signal.create;
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
+  const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
+
   const props = {
     debug: s(false),
     theme: s(localstore.current.theme),
+    doc: s<t.CrdtRef<Doc>>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       p.debug.value;
       p.theme.value;
+      p.doc.value;
     },
   };
 
@@ -82,8 +89,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <ObjectView
         name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
+        data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
+        expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
     </div>
