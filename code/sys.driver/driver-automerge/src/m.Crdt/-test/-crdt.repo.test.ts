@@ -1,7 +1,7 @@
 import { Repo } from '@automerge/automerge-repo';
 
-import { describe, expect, it } from '../-test.ts';
-import { toAutomergeRepo, toRepo } from './u.repo.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { toAutomergeRepo, toRepo } from '../u.repo.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
