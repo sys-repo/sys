@@ -13,7 +13,16 @@ export function useEvents(props: P) {
   const onChange = (e: React.ChangeEvent<H>) => {
     const input = e.currentTarget;
     const value = input.value;
-    props.onChange?.({ value, focused, synthetic: e, input });
+    props.onChange?.({
+      value,
+      focused,
+      synthetic: e,
+      input,
+      cancel() {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+    });
   };
   const keyHandler = (cb?: t.TextInputKeyHandler) => {
     if (!cb) return;
@@ -22,7 +31,20 @@ export function useEvents(props: P) {
       const value = input.value;
       const { key, code, repeat } = e;
       const modifiers = wrangle.modifiers(e);
-      cb({ key, code, modifiers, repeat, value, focused, synthetic: e, input });
+      cb({
+        key,
+        code,
+        modifiers,
+        repeat,
+        value,
+        focused,
+        synthetic: e,
+        input,
+        cancel() {
+          e.preventDefault();
+          e.stopPropagation();
+        },
+      });
     };
   };
   const focusHandler = (focused: boolean, ...cb: (t.TextInputFocusHandler | undefined)[]) => {
@@ -31,7 +53,16 @@ export function useEvents(props: P) {
       setFocused(focused);
       const input = e.currentTarget;
       const value = input.value;
-      const payload: t.TextInputFocusArgs = { value, focused, synthetic: e, input };
+      const payload: t.TextInputFocusArgs = {
+        value,
+        focused,
+        synthetic: e,
+        input,
+        cancel() {
+          e.preventDefault();
+          e.stopPropagation();
+        },
+      };
       cb.forEach((cb) => cb?.(payload));
     };
   };

@@ -80,6 +80,7 @@ type BaseArgs<E> = {
   readonly synthetic: E;
   readonly value: string;
   readonly focused: boolean;
+  cancel(): void;
 };
 
 /** General change events. */
