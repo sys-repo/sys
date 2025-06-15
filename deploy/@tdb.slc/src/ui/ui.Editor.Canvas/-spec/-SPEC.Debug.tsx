@@ -32,7 +32,7 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Light';
+      d.theme = p.theme.value ?? 'Dark';
     });
   });
 

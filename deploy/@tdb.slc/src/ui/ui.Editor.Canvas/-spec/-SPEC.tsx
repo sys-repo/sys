@@ -17,7 +17,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
       .render(() => <EditorCanvas debug={p.debug.value} theme={p.theme.value} />);
   });
