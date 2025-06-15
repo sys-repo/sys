@@ -15,7 +15,7 @@ type Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-const STORAGE_KEY = `dev:${D.name}.localstore`;
+const STORAGE_KEY = `dev:${D.name}.local`;
 
 /**
  * Signals:
