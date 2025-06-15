@@ -68,7 +68,7 @@ export default Spec.describe(D.displayName, (e) => {
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
             controller={{
-              repo,
+              repo: p.passRepo.value ? repo : undefined,
               signals: { doc: p.doc },
               initial: { count: 0, text: '' }, // NB: static version.
               localstorageKey,

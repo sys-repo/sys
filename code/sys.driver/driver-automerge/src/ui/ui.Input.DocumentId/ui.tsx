@@ -35,9 +35,10 @@ export const View: React.FC<P> = (props) => {
   const controller = useController(props.controller);
 
   const docId = controller.props.id;
-  const doc = controller.props.doc;
+  const repo = controller.props.repo;
   const is = controller.props.is;
   const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
+  const active = enabled && !!repo;
 
   /**
    * Render:
@@ -46,14 +47,14 @@ export const View: React.FC<P> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
+      height: 29,
+      fontSize: 14,
       color: theme.fg,
       backgroundColor: theme.format(props.background).bg,
-      fontSize: 14,
       lineHeight: 'normal',
       display: 'grid',
       gridTemplateColumns: showAction ? '1fr auto' : '1fr',
       alignItems: 'stretch',
-      height: 29,
     }),
     textbox: css({ fontSize: 14 }),
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
@@ -75,7 +76,8 @@ export const View: React.FC<P> = (props) => {
   const elPrefix = (
     <Prefix
       docId={docId}
-      over={overTextbox}
+      over={active && overTextbox}
+      enabled={active}
       copied={copied}
       theme={theme.name}
       onPointer={(e) => e.is.down && focus()}
@@ -89,7 +91,8 @@ export const View: React.FC<P> = (props) => {
     <Suffix
       docId={docId}
       spinning={is.spinning}
-      over={overTextbox}
+      over={active && overTextbox}
+      enabled={active}
       theme={theme.name}
       onPointer={(e) => e.is.down && focus()}
       onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
@@ -102,7 +105,7 @@ export const View: React.FC<P> = (props) => {
     <ActionButton
       style={styles.actionButton}
       action={controller.props.action}
-      enabled={enabled && is.enabled.action}
+      enabled={active && is.enabled.action}
       onClick={() => {
         const { action } = controller.props;
         const payload: t.DocumentIdInputActionArgs = { action };
@@ -120,7 +123,7 @@ export const View: React.FC<P> = (props) => {
           prefix={elPrefix}
           suffix={elSuffix}
           placeholder={placeholder}
-          disabled={!(enabled && is.enabled.input)}
+          disabled={!(active && is.enabled.input)}
           //
           theme={theme.name}
           style={styles.textbox}

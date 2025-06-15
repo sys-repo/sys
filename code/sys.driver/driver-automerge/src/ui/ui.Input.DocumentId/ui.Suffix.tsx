@@ -5,6 +5,7 @@ export type SuffixProps = {
   docId?: string;
   over?: boolean;
   spinning?: boolean;
+  enabled?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -17,7 +18,7 @@ export type SuffixProps = {
  * Component:
  */
 export const Suffix: React.FC<SuffixProps> = (props) => {
-  const { docId, over, spinning = D.spinning } = props;
+  const { docId, over, spinning = D.spinning, enabled = true } = props;
   const showClearBtn = docId && over && !spinning;
   const active = over && (spinning || showClearBtn);
 
@@ -42,7 +43,7 @@ export const Suffix: React.FC<SuffixProps> = (props) => {
   };
 
   const elClearBtn = showClearBtn && (
-    <Button style={styles.btn} onClick={props.onClearClick}>
+    <Button enabled={enabled} style={styles.btn} onClick={props.onClearClick}>
       <Icons.Clear size={20} color={Color.BLUE} />
     </Button>
   );
