@@ -63,7 +63,7 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   }, [editor, props.autoFocus]);
 
   /**
-   * Effect: sync/readOnly.
+   * Effect: sync/read-only.
    */
   React.useEffect(() => {
     if (editor) editor.setProps({ editable: () => !readOnly });
