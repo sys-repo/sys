@@ -4,4 +4,4 @@ export { Keyboard, LocalStorage } from '@sys/ui-dom';
 export { useDebouncedValue, usePointer, useSizeObserver } from '@sys/ui-react';
 export { Button, ObjectView, Spinners, Switch, TextInput } from '@sys/ui-react-components';
 
-export { CrdtIs } from '../../m.crdt/mod.ts';
+export { CrdtIs, toAutomergeHandle } from '../../m.Crdt/mod.ts';
