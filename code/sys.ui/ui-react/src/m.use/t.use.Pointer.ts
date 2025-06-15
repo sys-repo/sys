@@ -6,7 +6,7 @@ type T = React.TouchEventHandler;
 /**
  * Hook Factory: keep track of mouse events for an HTML element
  */
-export type UsePointer = (props?: t.PointerHookProps) => t.PointerHook;
+export type UsePointer = (input?: t.PointerHookArgs | t.PointerEventsHandler) => t.PointerHook;
 
 /**
  * Hook: keep track of mouse events for an HTML element.
@@ -46,7 +46,8 @@ export type PointerHookTouchHandlers = {
 /**
  * Properties passed to the `userPointer` hook.
  */
-export type PointerHookProps = {
+export type PointerHookArgs = {
+  on?: PointerEventsHandler;
   onDown?: PointerEventHandler;
   onUp?: PointerEventHandler;
   onEnter?: PointerEventHandler;
@@ -66,4 +67,13 @@ export type PointerEvent = {
   cancel(): void;
   preventDefault(): void;
   stopPropagation(): void;
+};
+
+/**
+ * General event fired on every kind of event.
+ */
+export type PointerEventsHandler = (e: PointerEventsArgs) => void;
+export type PointerEventsArgs = {
+  readonly is: PointerHookFlags;
+  readonly trigger: t.PointerEvent;
 };
