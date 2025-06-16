@@ -25,11 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          clean: true
-      - run: git clean -ffdx
-
+Ø
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
         with:
