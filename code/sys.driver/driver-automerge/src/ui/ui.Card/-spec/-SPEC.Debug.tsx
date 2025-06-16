@@ -72,7 +72,7 @@ export async function createDebugSignals() {
     if (ws && isWebsockets) network.push({ ws });
 
     const repo = Crdt.repo({
-      storage: { database: 'crdt.dev' }, // ← 'IndexedDb' or (true).
+      storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
       network,
     });
 
