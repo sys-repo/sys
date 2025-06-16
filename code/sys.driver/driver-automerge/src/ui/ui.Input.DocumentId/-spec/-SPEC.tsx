@@ -16,7 +16,7 @@ export default Spec.describe(D.displayName, (e) => {
      * NOTE: either pass down the hook (instance) OR the
      *       setup arguments for the hook.
      */
-    const signals: Partial<t.DocumentIdHookSignals> = { doc: p.doc };
+    const signals: Partial<t.DocumentIdHookSignals> = { doc: p.doc, id: p.docId };
     const localstorageKey = p.localstorageKey.value;
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       signals,
@@ -69,7 +69,7 @@ export default Spec.describe(D.displayName, (e) => {
             buttonStyle={{ margin: 4 }}
             controller={{
               repo: p.passRepo.value ? repo : undefined,
-              signals: { doc: p.doc },
+              signals: { doc: p.doc, id: p.docId },
               initial: { count: 0, text: '' }, // NB: static version.
               localstorageKey,
             }}

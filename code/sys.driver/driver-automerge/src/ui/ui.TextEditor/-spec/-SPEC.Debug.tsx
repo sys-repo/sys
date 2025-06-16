@@ -24,7 +24,7 @@ export function createDebugSignals() {
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
   const repo = Crdt.repo({
-    storage: 'IndexedDb',
+    storage: { database: 'crdt.dev' },
     network: [
       // 'BroadcastChannel',
       { ws: 'sync.db.team' },

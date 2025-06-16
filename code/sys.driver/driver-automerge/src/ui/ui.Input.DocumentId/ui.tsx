@@ -93,7 +93,7 @@ export const View: React.FC<P> = (props) => {
     <Suffix
       docId={docId}
       spinning={is.spinning}
-      over={active && overTextbox}
+      over={active && (overTextbox || is.spinning)}
       enabled={active}
       theme={theme.name}
       onPointer={(e) => e.is.down && focus()}

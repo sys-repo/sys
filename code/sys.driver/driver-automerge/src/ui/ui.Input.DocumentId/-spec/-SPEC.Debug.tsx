@@ -25,7 +25,7 @@ export function createDebugSignals() {
   const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
 
   const repo = Crdt.repo({
-    storage: 'IndexedDb',
+    storage: { database: 'crdt.dev' },
     network: [{ ws: 'sync.db.team' }],
   });
 
@@ -37,6 +37,7 @@ export function createDebugSignals() {
     passRepo: s(localstore.current.passRepo),
     localstorageKey: s(localstore.current.localstorageKey),
 
+    docId: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
 
     label: s<P['label']>(localstore.current.label),
@@ -56,10 +57,12 @@ export function createDebugSignals() {
       p.placeholder.value;
       p.controlled.value;
       p.passRepo.value;
-      p.doc.value;
       p.autoFocus.value;
       p.enabled.value;
       p.localstorageKey.value;
+
+      p.docId.value;
+      p.doc.value;
     },
   };
 
