@@ -1,0 +1,63 @@
+import { Repo } from '@automerge/automerge-repo';
+import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';
+import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
+import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
+
+import { type t, Arr, CrdtIs, D, Is, slug, toRepo } from './common.ts';
+
+/**
+ * Exports:
+ */
+export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
+
+/**
+ * Library:
+ */
+export const Crdt: t.CrdtBrowserLib = {
+  kind: 'Crdt:Browser',
+  repo(args = {}) {
+    const { sharePolicy, denylist } = args;
+    const network = wrangle.network(args);
+    const storage = wrangle.storage(args);
+    const peerId = `peer.${slug()}` as t.PeerId;
+    const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
+    return toRepo(base, { peerId });
+  },
+  Is: CrdtIs,
+};
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  indexedDb(options: { database?: string } = {}) {
+    const { database = D.database } = options;
+    return new IndexedDBStorageAdapter(database);
+  },
+
+  storage(args?: t.CrdtBrowserRepoArgs): t.StorageAdapterInterface | undefined {
+    if (!args?.storage) return;
+    const arg = args?.storage;
+    if (arg === 'IndexedDb' || arg === true) return wrangle.indexedDb();
+    if (arg instanceof IndexedDBStorageAdapter) return arg;
+    if (Is.record(arg) && Is.string(arg.database)) return wrangle.indexedDb(arg);
+    return;
+  },
+
+  network(args?: t.CrdtBrowserRepoArgs): t.NetworkAdapterInterface[] | undefined {
+    if (!args?.network) return;
+    return Arr.asArray(args.network)
+      .map((arg) => {
+        if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
+        if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
+        return arg;
+      })
+      .filter(Boolean) as t.NetworkAdapterInterface[];
+  },
+
+  ws(text: string): WebSocketClientAdapter {
+    const host = text.trim().replace(/^wss\:\/\//, '');
+    const protocol = host.startsWith('localhost') ? 'ws' : 'wss';
+    return new WebSocketClientAdapter(`${protocol}://${host}`);
+  },
+} as const;

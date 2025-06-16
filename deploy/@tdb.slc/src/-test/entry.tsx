@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import type { t } from '../common.ts';
@@ -36,7 +36,7 @@ export async function main() {
      */
     const { App } = await import('../ui/App/mod.ts');
     const { render } = await import('@sys/ui-react-devharness');
-    const { Specs } = await import('./entry.Specs.ts');
+    const { Specs } = await import('./-specs.ts');
 
     const app = App.signals();
     const el = await render(pkg, Specs, {

@@ -1,10 +1,12 @@
+import type { SpecLib } from './t.ts';
+
 import { Test, maybeWait, type t } from '../common.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
 /**
  * Root API to the UI Spec Runner system.
  */
-export const Spec: t.SpecLib = {
+export const Spec: SpecLib = {
   Wrangle,
 
   /**

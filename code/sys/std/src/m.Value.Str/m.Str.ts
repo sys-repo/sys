@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { StrLib } from './t.ts';
 
 import { Doc } from './m.Doc.ts';
 import { Lorem } from './m.Lorem.ts';
@@ -13,7 +13,7 @@ import { truncate } from './u.truncate.ts';
 
 export { bytes, capitalize, diff, plural, shorten };
 
-export const Str: t.StrLib = {
+export const Str: StrLib = {
   Doc,
   Lorem,
   lorem: Lorem.text,

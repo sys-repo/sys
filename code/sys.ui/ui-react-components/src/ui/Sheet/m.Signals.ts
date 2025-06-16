@@ -1,9 +1,9 @@
-import { type t } from './common.ts';
 import { createStack } from './m.Signals.Stack.ts';
+import type { SheetSignalsLib } from './t.ts';
 
 /**
  * Library: Sheet Signals (State).
  */
-export const Signals: t.SheetSignalsLib = {
+export const Signals: SheetSignalsLib = {
   stack: createStack,
 };

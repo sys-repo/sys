@@ -17,6 +17,7 @@ export type ConceptPlayerProps = {
   contentBody?: t.ReactNode;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onVideoEnd?: t.VideoPlayerEndedHandler;
   onBackClick?: () => void;
   onClickOutsideColumn?: t.DomMouseEventHandler;
 };

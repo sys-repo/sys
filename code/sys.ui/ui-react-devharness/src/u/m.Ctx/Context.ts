@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import type { ContextLib } from './t.ts';
 
 import { BusEvents } from '../m.Bus/Bus.Events.ts';
 import { ContextState } from './Context.State.ts';
@@ -6,7 +7,7 @@ import { CtxProps } from './Ctx.Props.ts';
 
 type O = Record<string, unknown>;
 
-export const Context: t.ContextLib = {
+export const Context: ContextLib = {
   /**
    * Create a new instance of the Context logic.
    */

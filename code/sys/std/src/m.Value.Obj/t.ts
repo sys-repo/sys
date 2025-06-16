@@ -11,6 +11,9 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Tools for working with objects.
  */
 export type ObjLib = {
+  /** Tool for working with JSON safely. */
+  readonly Json: t.JsonLib;
+
   /**
    * Walks an object tree (recursive descent) implementing
    * a visitor callback for each item.
@@ -68,6 +71,11 @@ export type ObjLib = {
    * Typed variant of the native [Object.keys].
    */
   keys<T extends object>(obj?: T): Array<keyof T>;
+
+  /**
+   * Retrieve a typed JS-entries collection for the given object.
+   */
+  entries<T extends object>(obj: T): [keyof T, T[keyof T]][];
 
   /**
    * Sort the keys of an object.

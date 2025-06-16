@@ -52,7 +52,8 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
     if (text) res += text + '\n';
   };
   if (title) line(c.bold(title));
-  line(c.bold(toModuleString(pkg)));
+  line(c.bold(toModuleString(pkg, dist.hash.digest.slice(-5))));
+  line(' ↓');
   line(table.toString());
   res = res.trim();
 

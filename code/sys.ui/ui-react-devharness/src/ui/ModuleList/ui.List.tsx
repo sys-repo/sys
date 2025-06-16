@@ -67,9 +67,9 @@ export const List: React.FC<ListProps> = (props) => {
         enabled={enabled}
         selected={selected}
         focused={focused}
-        url={url}
-        imports={imports}
+        url={url.href}
         uri={uri}
+        imports={imports}
         title={options.title}
         ns={options.ns}
         Icon={options.Icon}

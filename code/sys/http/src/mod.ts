@@ -10,4 +10,4 @@ export type * as t from './types.ts';
 /**
  * Library
  */
-export { Http, Fetch } from './ns.client/m.Http/mod.ts';
+export { Http, Fetch } from './m.client/m.Http/mod.ts';

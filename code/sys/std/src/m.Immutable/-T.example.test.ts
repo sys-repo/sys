@@ -1,5 +1,4 @@
 import { type t, describe, expect, it, slug } from '../-test.ts';
-import { single } from 'rxjs';
 import { Immutable } from './mod.ts';
 
 describe('T:Immutable', () => {

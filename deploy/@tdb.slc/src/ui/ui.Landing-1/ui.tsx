@@ -98,7 +98,7 @@ export const Landing: React.FC<P> = (props) => {
         position: p?.canvasPosition.value,
       }}
       video={{
-        element: <Player.Video.View signals={playerSignalsRef.current} />,
+        element: <Player.Video.Element video={playerSignalsRef.current} />,
       }}
     />
   );

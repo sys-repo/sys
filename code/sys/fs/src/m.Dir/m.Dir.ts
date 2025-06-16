@@ -1,11 +1,12 @@
+import type { FsDirLib } from './t.ts';
+
 import { DirHash as Hash } from '../m.Dir.Hash/mod.ts';
 import { DirSnapshot as Snapshot } from '../m.Dir.Snapshot/mod.ts';
-import type { t } from './common.ts';
 
 /**
  * Helpers for working with file-system directories.
  */
-export const Dir: t.FsDirLib = {
+export const Dir: FsDirLib = {
   /** Tools for working hashes of a file-system directory. */
   Hash,
 

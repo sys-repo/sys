@@ -1,4 +1,4 @@
-import { describe, DomMock, expect, it, rx, slug } from '../-test.ts';
+import { describe, DomMock, expect, it, rx, slug, c } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -10,7 +10,7 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
 
     it('cleans prefix', () => {
       const ns = LocalStorage.ns<T>('foo/bar////');
-      console.info('LocalStorage.ns<T>:\n', ns);
+      console.info(c.bold(c.cyan('\nLocalStorage.ns<T>:\n')), ns, '\n');
       expect(ns.namespace).to.eql('foo/bar');
     });
 
@@ -42,7 +42,10 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       // Create:
       expect(localStorage.getItem(key)).to.eql(null);
       const initial: T = { count: 0 };
+
       const state = LocalStorage.immutable(key, initial);
+      console.info(c.bold(c.cyan('\nLocalStorage.immutable<T>:\n')), state, '\n');
+
       expect(state.current).to.eql(initial);
       expectSaved(initial);
 
@@ -67,18 +70,53 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       expect(b.current).to.eql({ count: 123 });
     });
 
+    it('create → reset (to defaults)', () => {
+      type T = { count: number; msg?: string };
+      const initial: T = { count: 0 };
+      const key = `test-${slug()}`;
+      const store = LocalStorage.immutable<T>(key, initial);
+
+      let fired = 0;
+      store.events().changed$.subscribe(() => fired++);
+
+      expect(store.current).to.eql({ count: 0 });
+      store.change((d) => {
+        d.count = 1234;
+        d.msg = 'hello-👋';
+      });
+      expect(store.current).to.eql({ count: 1234, msg: 'hello-👋' });
+
+      // Reset (prior initial):
+      fired = 0;
+      store.reset();
+      expect(fired).to.eql(1);
+      expect(store.current).to.eql(initial);
+      expectJsonSaved(key, store.current);
+
+      // Reset (new initial):
+      const updated: T = { count: 123 };
+      store.reset(updated);
+      expect(store.current).to.eql(updated);
+      expectJsonSaved(key, store.current);
+
+      store.change((d) => (d.count = 888));
+      store.reset(); // NB: the new initial value is used.
+      expect(store.current).to.eql(updated);
+      expectJsonSaved(key, store.current);
+    });
+
     it('dispose$', () => {
       const life = rx.lifecycle();
       const key = `test-${slug()}`;
       const expectSaved = (value: T) => expectJsonSaved(key, value);
 
-      const state = LocalStorage.immutable(key, { count: 123 }, life.dispose$);
+      const store = LocalStorage.immutable(key, { count: 123 }, life.dispose$);
       expectSaved({ count: 123 });
-      state.change((d) => (d.count = 888));
+      store.change((d) => (d.count = 888));
       expectSaved({ count: 888 });
 
       life.dispose();
-      state.change((d) => (d.count += 1));
+      store.change((d) => (d.count += 1));
       expectSaved({ count: 888 });
     });
   });
