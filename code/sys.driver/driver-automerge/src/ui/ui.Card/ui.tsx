@@ -1,12 +1,19 @@
 import React from 'react';
 
 import { type t, Color, css, D, Input, ObjectView } from './common.ts';
-import { SyncServer } from './ui.SyncServer.tsx';
 import { FooterTools } from './ui.FooterTools.tsx';
+import { SyncServer } from './ui.SyncServer.tsx';
 
 export const Card: React.FC<t.CardProps> = (props) => {
-  const { debug = false, repo, doc, syncServer = {} } = props;
+  const { debug = false, repo, signals = {}, sync, headerStyle = {} } = props;
+  const doc = signals.doc;
   const current = doc?.value?.current;
+
+  /**
+   * Hools:
+   */
+  const [, setRender] = React.useState(0);
+  const redraw = () => setRender((n) => n + 1);
 
   /**
    * Render:
@@ -21,7 +28,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
       gridTemplateRows: `auto 1fr auto`,
     }),
     header: css({
-      marginTop: props.headerStyle?.topOffset,
+      marginTop: headerStyle.topOffset,
     }),
     doc: css({
       opacity: current === undefined ? 0.25 : 1,
@@ -30,7 +37,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
     footer: css({
       height: 30,
       Padding: [6, 10, 8, 10],
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
+      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.2)}`,
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
       alignItems: 'center',
@@ -40,8 +47,8 @@ export const Card: React.FC<t.CardProps> = (props) => {
   const elFooter = (
     <div className={styles.footer.class}>
       <SyncServer
-        endpoint={syncServer.url}
-        enabled={syncServer.enabled}
+        endpoint={sync?.url}
+        enabled={sync?.enabled}
         theme={theme.name}
         peerId={repo?.id.peer}
         onSyncEnabledChange={props.onSyncEnabledChange}
@@ -59,10 +66,13 @@ export const Card: React.FC<t.CardProps> = (props) => {
       background={-0.04}
       controller={{
         repo,
-        signals: { doc, id: props.docId },
+        signals: { doc, id: props.signals?.docId },
         initial: { count: 0, text: '' },
         localstorageKey: `dev:${D.name}.localstore`,
       }}
+      // Mounted:
+      onReady={(e) => props.onReady?.(e)}
+      onChange={(e) => redraw()}
     />
   );
 

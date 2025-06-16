@@ -42,11 +42,10 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
           repo={p.repo.value}
-          docId={p.docId}
-          doc={p.doc}
-          syncServer={{
-            url: p.syncServerUrl.value,
-            enabled: p.syncServerEnabled.value,
+          signals={{ docId: p.docId, doc: p.doc }}
+          sync={{
+            url: p.syncUrl.value,
+            enabled: p.syncEnabled.value,
           }}
           // ⚡️ Handlers:
           onDocIdTextChange={(e) => (p.docId.value = e.value)}
@@ -56,7 +55,7 @@ export default Spec.describe(D.displayName, async (e) => {
             console.info('⚡️ created → doc:', next);
             p.docId.value = next?.id;
           }}
-          onSyncEnabledChange={(e) => (p.syncServerEnabled.value = e.next)}
+          onSyncEnabledChange={(e) => (p.syncEnabled.value = e.enabled)}
         />
       ));
   });

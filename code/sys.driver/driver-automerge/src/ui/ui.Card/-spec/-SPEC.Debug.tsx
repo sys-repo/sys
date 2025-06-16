@@ -7,8 +7,8 @@ import type * as t from './-t.ts';
 type P = t.CardProps;
 type LocalStore = {
   docId?: string;
-  syncServerUrl?: string;
-  syncServerEnabled?: boolean;
+  syncUrl?: string;
+  syncEnabled?: boolean;
 };
 
 /**
@@ -30,8 +30,8 @@ export async function createDebugSignals() {
     redraw: s(0),
 
     repo: s<t.CrdtRepo>(),
-    syncServerUrl: s(localstore.current.syncServerUrl),
-    syncServerEnabled: s(localstore.current.syncServerEnabled),
+    syncUrl: s(localstore.current.syncUrl),
+    syncEnabled: s(localstore.current.syncEnabled),
 
     docId: s(localstore.current.docId),
     doc: s<t.CrdtRef<t.TDoc>>(),
@@ -49,24 +49,24 @@ export async function createDebugSignals() {
       p.docId.value;
       p.doc.value;
       p.repo.value;
-      p.syncServerUrl.value;
-      p.syncServerEnabled.value;
+      p.syncUrl.value;
+      p.syncEnabled.value;
     },
   };
 
   Signal.effect(() => {
-    const ws = p.syncServerUrl.value;
+    const ws = p.syncUrl.value;
 
     localstore.change((d) => {
       d.docId = p.docId.value;
-      d.syncServerUrl = p.syncServerUrl.value ?? ws;
-      d.syncServerEnabled = p.syncServerEnabled.value ?? true;
+      d.syncUrl = p.syncUrl.value ?? ws;
+      d.syncEnabled = p.syncEnabled.value ?? true;
     });
   });
 
   Signal.effect(() => {
-    const ws = p.syncServerUrl.value;
-    const isWebsockets = p.syncServerEnabled.value;
+    const ws = p.syncUrl.value;
+    const isWebsockets = p.syncEnabled.value;
 
     const network: t.CrdtBrowserNetworkArg[] = [];
     if (ws && isWebsockets) network.push({ ws });
@@ -81,14 +81,6 @@ export async function createDebugSignals() {
 
     p.doc.value = undefined;
     p.repo.value = repo;
-  });
-
-  // Listen to current document → (redraw).
-  let events: t.CrdtEvents<t.TDoc> | undefined;
-  Signal.effect(() => {
-    events?.dispose();
-    events = p.doc.value?.events();
-    events?.changed$.subscribe((e) => p.redraw.value++);
   });
 
   return api;
@@ -139,13 +131,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.syncServerUrl.value;
+          const v = p.syncUrl.value;
           return `sync-server (endpoint): ${v}`;
         }}
         onClick={() => {
-          const current = p.syncServerUrl.value;
+          const current = p.syncUrl.value;
           const next = current === 'sync.db.team' ? 'localhost:3030' : 'sync.db.team';
-          p.syncServerUrl.value = next;
+          p.syncUrl.value = next;
         }}
       />
       <ObjectView

@@ -52,14 +52,13 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     btn: css({ display: 'grid' }),
     strBtn: css({}),
     strBody: css({
-      fontSize: 18,
+      fontSize: 16,
       filter: !!doc?.current.text ? 'grayscale(100%)' : undefined,
       opacity: !!doc?.current.text ? 0.3 : 1,
     }),
     div: css({
-      backgroundColor: theme.fg,
-      opacity: 0.2,
       width: 1,
+      borderLeft: `dashed 1px ${Color.alpha(theme.fg, 0.25)}`,
       MarginX: 15,
     }),
   };
@@ -80,11 +79,11 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {elStrBtn}
       {elDiv}
-      <Button theme={theme.name} onClick={incrementHandler(-1)}>
-        <Icons.Arrow.Down color={color} />
-      </Button>
       <Button theme={theme.name} onClick={incrementHandler(1)}>
-        <Icons.Arrow.Up color={color} />
+        <Icons.Arrow.Up color={color} size={20} />
+      </Button>
+      <Button theme={theme.name} onClick={incrementHandler(-1)}>
+        <Icons.Arrow.Down color={color} size={20} />
       </Button>
     </div>
   );
