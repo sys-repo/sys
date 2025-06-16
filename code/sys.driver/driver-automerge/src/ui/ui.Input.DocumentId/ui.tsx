@@ -5,6 +5,7 @@ import {
   Color,
   css,
   D,
+  Is,
   rx,
   TextInput,
   Time,
@@ -19,12 +20,7 @@ import { useController } from './use.Controller.ts';
 type P = t.DocumentIdInputProps;
 
 export const View: React.FC<P> = (props) => {
-  const {
-    label,
-    placeholder = D.placeholder,
-    autoFocus = D.autoFocus,
-    enabled = D.enabled,
-  } = props;
+  const { label, autoFocus = D.autoFocus, enabled = D.enabled } = props;
 
   /**
    * Refs:
@@ -158,7 +154,7 @@ export const View: React.FC<P> = (props) => {
           value={docId}
           prefix={elPrefix}
           suffix={elSuffix}
-          placeholder={placeholder}
+          placeholder={wrangle.placeholder(props, controller, focused)}
           disabled={!(active && is.enabled.input)}
           //
           theme={theme.name}
@@ -182,3 +178,14 @@ export const View: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  placeholder(props: P, controller: t.DocumentIdHook, focused: boolean) {
+    if (Is.string(props.placeholder)) return props.placeholder;
+    if (focused && controller.history.length > 0) return `${D.placeholder}   •   ↑↓ for history`;
+    return D.placeholder;
+  },
+} as const;

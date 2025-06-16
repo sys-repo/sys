@@ -17,6 +17,7 @@ export type DocumentIdHook = {
   readonly instance: t.StringId;
   readonly signals: t.DocumentIdHookSignals;
   readonly props: DocumentIdHookProps;
+  readonly history: readonly t.StringId[];
   readonly handlers: {
     onAction: t.DocumentIdInputActionHandler;
     onTextChange: t.TextInputChangeHandler;
