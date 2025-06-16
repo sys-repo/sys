@@ -39,11 +39,7 @@ export type DocumentIdInputProps = {
 /**
  * Events:
  */
-export type DocumentIdInputReadyHandler = (e: DocumentIdInputReady) => void;
-export type DocumentIdInputReady = {
-  readonly signals: t.DocumentIdHookSignals;
-  readonly values: t.DocumentIdHookSignalValues;
-};
+export type DocumentIdInputReadyHandler = (e: DocumentIdInputChanged) => void;
 
 export type DocumentIdInputActionHandler = (e: DocumentIdInputActionArgs) => void;
 export type DocumentIdInputActionArgs = { readonly action: DocumentIdInputAction };

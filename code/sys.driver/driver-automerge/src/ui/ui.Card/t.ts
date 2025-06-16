@@ -18,6 +18,8 @@ export type CardProps = {
 
   //
   onReady?: CardReadyHandler;
+  onChange?: CardChangedHandler;
+
   onActionClick?: () => void;
   onDocIdTextChange?: t.TextInputChangeHandler;
   onSyncEnabledChange?: (e: { enabled: boolean }) => void;
@@ -26,8 +28,5 @@ export type CardProps = {
 /**
  * Events:
  */
-export type CardReadyHandler = (e: CardReadyArgs) => void;
-export type CardReadyArgs = {
-  readonly signals: t.DocumentIdHookSignals;
-  readonly values: t.DocumentIdHookSignalValues;
-};
+export type CardReadyHandler = t.DocumentIdInputReadyHandler;
+export type CardChangedHandler = t.DocumentIdInputChangedHandler;

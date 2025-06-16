@@ -71,8 +71,14 @@ export const Card: React.FC<t.CardProps> = (props) => {
         localstorageKey: `dev:${D.name}.localstore`,
       }}
       // Mounted:
-      onReady={(e) => props.onReady?.(e)}
-      onChange={(e) => redraw()}
+      onChange={(e) => {
+        redraw();
+        props.onChange?.(e);
+      }}
+      onReady={(e) => {
+        redraw();
+        props.onReady?.(e);
+      }}
     />
   );
 
