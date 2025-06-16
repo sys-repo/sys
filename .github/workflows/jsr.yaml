@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-Ø
+
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
         with:
