@@ -18,8 +18,8 @@ export type DocumentIdInputLib = {
 export type DocumentIdInputProps = {
   debug?: boolean;
   controller?:
-    | t.DocumentIdHook //         ← controlled
-    | t.UseDocumentIdHookArgs; // ← uncontrolled (auto-create)
+    | t.DocumentIdHook //         ← controlled.
+    | t.UseDocumentIdHookArgs; // ← uncontrolled (auto-create).
   label?: string;
   placeholder?: string;
   enabled?: boolean;
