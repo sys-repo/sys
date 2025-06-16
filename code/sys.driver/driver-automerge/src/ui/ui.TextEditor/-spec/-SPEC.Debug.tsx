@@ -156,8 +156,8 @@ export async function initDoc(debug: DebugSignals) {
   const p = debug.props;
 
   const listen = (doc: t.CrdtRef<T>) => {
-    doc.events().changed$.subscribe((e) => {
-      console.info('⚡️ crdt:changed$', e);
+    doc.events().$.subscribe((e) => {
+      console.info('⚡️ crdt:$ (changed)', e);
     });
   };
 

@@ -21,7 +21,7 @@ export function immutable<T extends t.JsonMapU>(key: string, initial: T, dispose
   if (!existing) save(initial);
 
   const api = Immutable.clonerRef<T>(existing ? JSON.parse(existing) : initial) as R;
-  api.events(dispose$).changed$.subscribe((e) => save(e.after));
+  api.events(dispose$).$.subscribe((e) => save(e.after));
   api.reset = reset;
 
   return api;

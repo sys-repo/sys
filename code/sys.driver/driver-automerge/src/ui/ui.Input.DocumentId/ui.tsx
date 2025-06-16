@@ -64,7 +64,7 @@ export const View: React.FC<P> = (props) => {
     // Bubble change events.
     const doc = signals.doc.value;
     const events = doc?.events(life);
-    events?.changed$.subscribe(firedChanged);
+    events?.$.subscribe(firedChanged);
 
     // Alert listeners.
     props.onReady?.({ signals, values: signals.toValues() });

@@ -38,7 +38,7 @@ export const Events: CmdEventsLib = {
 
     if (doc) {
       const events = doc.events(dispose$);
-      const $ = events.changed$.pipe(
+      const $ = events.$.pipe(
         rx.map((e) => {
           const { patches, after } = e;
           const doc = resolve.toObject(after);

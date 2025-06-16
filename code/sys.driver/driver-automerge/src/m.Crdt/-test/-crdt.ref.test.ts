@@ -53,7 +53,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
       const doc = toRef(handle);
 
       const fired: t.CrdtChange<T>[] = [];
-      doc.events().changed$.subscribe((e) => fired.push(e));
+      doc.events().$.subscribe((e) => fired.push(e));
       doc.change((d) => (d.count += 1));
       doc.change((d) => d.foo.push('bar'));
 
@@ -80,7 +80,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
       const doc = toRef(handle);
 
       let fired = 0;
-      doc.events(life).changed$.subscribe(() => fired++);
+      doc.events(life).$.subscribe(() => fired++);
       doc.change((d) => (d.count += 1));
       life.dispose();
       doc.change((d) => (d.count += 1));
@@ -94,7 +94,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
       const events = doc.events();
 
       let fired = 0;
-      events.changed$.subscribe(() => fired++);
+      events.$.subscribe(() => fired++);
       doc.change((d) => (d.count += 1));
       events.dispose();
       doc.change((d) => (d.count += 1));
@@ -108,7 +108,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.disposed).to.eql(false);
 
       let fired = 0;
-      doc.events().changed$.subscribe(() => fired++);
+      doc.events().$.subscribe(() => fired++);
 
       doc.change((d) => (d.count += 1));
       doc.dispose();
@@ -150,7 +150,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       let fired = 0;
       const events = doc.events();
-      events.changed$.subscribe((d) => fired++);
+      events.$.subscribe((d) => fired++);
       expect(events.disposed).to.eql(true);
 
       doc.change((d) => d.count++);

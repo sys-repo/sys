@@ -12,12 +12,12 @@ type DefaultPatch = t.PatchOperation;
  * ImmutableEvents<T> structure.
  */
 export function viaObservable<T, P = DefaultPatch>(
-  $: t.Observable<t.ImmutableChange<T, P>>,
+  input$: t.Observable<t.ImmutableChange<T, P>>,
   dispose$?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
   const life = rx.lifecycle(dispose$);
-  const changed$ = $.pipe(rx.takeUntil(life.dispose$));
-  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { changed$ });
+  const $ = input$.pipe(rx.takeUntil(life.dispose$));
+  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { $ });
 }
 
 /**

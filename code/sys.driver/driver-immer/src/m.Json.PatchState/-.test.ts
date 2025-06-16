@@ -110,7 +110,7 @@ describe('PatchState', () => {
       const state = PatchState.create(initial);
       const fired: t.PatchChange<T>[] = [];
       const events = state.events();
-      events.$.subscribe((e) => fired.push(e));
+      events.patch$.subscribe((e) => fired.push(e));
 
       state.change((draft) => (draft.label = 'hello'));
       expect(fired.length).to.eql(1);
@@ -125,7 +125,7 @@ describe('PatchState', () => {
       const state = PatchState.create(initial);
       const fired: t.PatchChange<T>[] = [];
       const events = state.events();
-      events.$.subscribe((e) => fired.push(e));
+      events.patch$.subscribe((e) => fired.push(e));
       events.dispose();
       state.change((draft) => (draft.label = 'hello'));
       expect(fired.length).to.eql(0);
@@ -137,7 +137,7 @@ describe('PatchState', () => {
       const fired: t.PatchChange<T>[] = [];
       const dispose$ = rx.subject();
       const events = state.events(dispose$);
-      events.$.subscribe((e) => fired.push(e));
+      events.patch$.subscribe((e) => fired.push(e));
       dispose$.next();
       state.change((draft) => (draft.label = 'hello'));
       expect(fired.length).to.eql(0);

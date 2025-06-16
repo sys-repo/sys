@@ -77,7 +77,7 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       const store = LocalStorage.immutable<T>(key, initial);
 
       let fired = 0;
-      store.events().changed$.subscribe(() => fired++);
+      store.events().$.subscribe(() => fired++);
 
       expect(store.current).to.eql({ count: 0 });
       store.change((d) => {

@@ -26,5 +26,5 @@ const repo = Crdt.repo({ dir, network: { ws: 'sync.db.team' } });
 const id = '6EYQPyrnUw8BYR4vffMcotnrcAn';
 const doc = await repo.get(id);
 
-doc?.events().changed$.subscribe(print);
+doc?.events().$.subscribe(print);
 print();

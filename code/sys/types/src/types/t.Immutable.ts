@@ -53,13 +53,13 @@ export type ImmutableEvents<
   D,
   P,
   C extends ImmutableChange<D, P> = ImmutableChange<D, P>,
-> = t.Lifecycle & { readonly changed$: t.Observable<C> };
+> = t.Lifecycle & { readonly $: t.Observable<C> };
 
 /**
  * Utility type to infer the event-type contained within the ImmutableEvents type.
  */
-export type InferImmutableEvent<T extends { changed$: t.Observable<any> }> = T extends {
-  changed$: t.Observable<infer E>;
+export type InferImmutableEvent<T extends { $: t.Observable<any> }> = T extends {
+  $: t.Observable<infer E>;
 }
   ? E
   : never;

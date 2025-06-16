@@ -18,7 +18,7 @@ export function toAutomergeHandle<T extends O>(doc?: t.CrdtRef<T>): t.DocHandle<
 export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput): t.CrdtRef<T> {
   const instance = slug();
   const id = handle.documentId;
-  const $ = rx.subject<t.CrdtChange<T>>();
+  const $$ = rx.subject<t.CrdtChange<T>>();
   let _final: T;
   let _deleted = false;
 
@@ -28,7 +28,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
   const onChange = (e: DocHandleChangePayload<T>) => {
     const { patches, patchInfo } = e;
     const { before, after, source } = patchInfo;
-    $.next({ source, before, after, patches });
+    $$.next({ source, before, after, patches });
   };
 
   /**
@@ -60,8 +60,8 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
     },
     events(dispose$) {
       const until = rx.disposable([dispose$, life.dispose$]);
-      const changed$ = $.pipe(rx.takeUntil(until.dispose$));
-      return Dispose.toLifecycle(life, { changed$ });
+      const $ = $$.pipe(rx.takeUntil(until.dispose$));
+      return Dispose.toLifecycle(life, { $ });
     },
   });
 

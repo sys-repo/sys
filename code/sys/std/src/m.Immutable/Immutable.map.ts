@@ -256,9 +256,8 @@ function monitorSourceChanges<T extends O, P>(
     .filter(({ prop, origin }) => !!prop && !!origin)
     .forEach(({ prop, origin }) => {
       const events = origin.doc.events(dispose$);
-      events.changed$
-        .pipe(rx.distinctWhile((prev, next) => R.equals(prev.after, next.after)))
-        .subscribe((e) => {
+      events.$.pipe(rx.distinctWhile((prev, next) => R.equals(prev.after, next.after))).subscribe(
+        (e) => {
           const paths = e.patches.map((p) => ObjectPath.from(p));
           if (paths.length > 0) {
             const before = wrangle.pluckAndMap(map, e.before, paths);
@@ -266,6 +265,7 @@ function monitorSourceChanges<T extends O, P>(
             const patches = wrangle.patches(e.patches, prop.key, prop.doc, formatPatch);
             next({ before, after, patches });
           }
-        });
+        },
+      );
     });
 }
