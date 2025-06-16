@@ -34,7 +34,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
     const ws = 'sync.db.team';
     const repo = Crdt.repo({
       storage: { database: 'crdt.dev' },
-      network: { ws },
+      network: isSyncEnabled ? { ws } : undefined,
     });
 
     setRepo(repo);
