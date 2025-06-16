@@ -1,8 +1,7 @@
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { IndexedDb } from '@sys/std/indexeddb';
 
-import { type t, describe, expect, it, slug, Time, Err } from '../-test.ts';
-import { D, toAutomergeHandle } from './common.ts';
+import { type t, describe, expect, it, slug, Time } from '../-test.ts';
+import { D } from './common.ts';
 import { Crdt } from './mod.ts';
 
 describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () => {
