@@ -67,7 +67,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
       controller={{
         repo,
         signals: { doc, id: props.signals?.docId },
-        initial: { count: 0, text: '' },
+        initial: { count: 0 },
         localstorageKey: `dev:${D.name}.localstore`,
       }}
       // Mounted:
@@ -84,7 +84,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
 
   const elDoc = (
     <ObjectView
-      name={'Memory<T>'}
+      name={'Doc<T>'}
       data={current}
       expand={1}
       fontSize={28}
