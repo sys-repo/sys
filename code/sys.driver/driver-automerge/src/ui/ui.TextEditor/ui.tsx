@@ -34,14 +34,6 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       menuBar: false,
     });
 
-    /**
-     * TODO 🐷 put in Automerge binding here ↓
-     *
-     * Refs:
-     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-vanilla/
-     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-react/
-     *
-     */
     const node = PMDOMParser.fromSchema(basicSchema).parse(
       document.createElement('div'), // start with empty document.
     );

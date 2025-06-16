@@ -14,4 +14,4 @@
  * const db = await IndexedDb.init<T>({ name, store: (db) => ({ name, db }) })
  * ```
  */
-export * from './m.IndexedDb.ts';
+export { IndexedDb } from './m.IndexedDb.ts';
