@@ -48,11 +48,7 @@ const wrangle = {
   network(args?: t.CrdtBrowserRepoArgs): t.NetworkAdapterInterface[] | undefined {
     if (!args?.network) return;
     return Arr.asArray(args.network)
-      .map((arg) => {
-        if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
-        if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
-        return arg;
-      })
+      .map(toNetworkAdapter)
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
@@ -61,3 +57,9 @@ const wrangle = {
     return new WebSocketClientAdapter(url);
   },
 } as const;
+
+const toNetworkAdapter = (arg: t.CrdtBrowserNetworkArg) => {
+  if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
+  if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
+  return arg;
+};
