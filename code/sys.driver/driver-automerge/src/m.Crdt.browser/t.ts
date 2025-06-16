@@ -14,6 +14,7 @@ type StringDatabaseName = string;
 export type CrdtBrowserLib = {
   readonly kind: 'Crdt:Browser';
   readonly Is: t.CrdtIsLib;
+  readonly Url: t.CrdtUrlLib;
   repo(args?: CrdtBrowserRepoArgs): t.CrdtRepo;
 };
 
@@ -31,7 +32,7 @@ export type CrdtBrowserStorageArg =
   | 'IndexedDb'
   | { database?: StringDatabaseName };
 
-/** Network argument. */
+/** Network connection argument. */
 export type CrdtBrowserNetworkArg =
   | NetworkAdapterInterface
   | 'BroadcastChannel'

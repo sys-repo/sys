@@ -1,7 +1,7 @@
 import { Repo } from '@automerge/automerge-repo';
 
 import { describe, expect, it } from '../../-test.ts';
-import { CrdtIs } from '../mod.ts';
+import { CrdtIs, CrdtUrl } from '../mod.ts';
 import { toRepo } from '../u.repo.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -25,6 +25,26 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.be.false);
+    });
+  });
+
+  describe('Url', () => {
+    it('Url.ws (websockets prefix)', () => {
+      const test = (input: string | undefined, expected: string) => {
+        const url = CrdtUrl.ws(input);
+        expect(url).to.eql(expected);
+      };
+
+      test('', '');
+
+      test('sync.db.team', 'wss://sync.db.team');
+      test('  sync.db.team  ', 'wss://sync.db.team');
+      test('wss://sync.automerge.org', 'wss://sync.automerge.org');
+      test('ws://sync.automerge.org', 'wss://sync.automerge.org');
+
+      test('localhost:3030', 'ws://localhost:3030');
+      test('ws://localhost:3030', 'ws://localhost:3030');
+      test('wss://localhost:3030', 'ws://localhost:3030');
     });
   });
 });

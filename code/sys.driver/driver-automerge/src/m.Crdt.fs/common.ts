@@ -1,2 +1,2 @@
 export * from '../common.ts';
-export { CrdtIs, toAutomergeHandle, toAutomergeRepo, toRepo } from '../m.Crdt/mod.ts';
+export { CrdtIs, CrdtUrl, toAutomergeHandle, toAutomergeRepo, toRepo } from '../m.Crdt/mod.ts';

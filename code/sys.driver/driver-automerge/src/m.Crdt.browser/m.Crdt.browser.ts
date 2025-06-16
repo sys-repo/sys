@@ -3,7 +3,7 @@ import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-networ
 import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 
-import { type t, Arr, CrdtIs, D, Is, slug, toRepo } from './common.ts';
+import { type t, Arr, CrdtIs, D, Is, slug, toRepo, CrdtUrl } from './common.ts';
 
 /**
  * Exports:
@@ -24,6 +24,7 @@ export const Crdt: t.CrdtBrowserLib = {
     return toRepo(base, { peerId });
   },
   Is: CrdtIs,
+  Url: CrdtUrl,
 };
 
 /**
@@ -56,8 +57,7 @@ const wrangle = {
   },
 
   ws(text: string): WebSocketClientAdapter {
-    const host = text.trim().replace(/^wss\:\/\//, '');
-    const protocol = host.startsWith('localhost') ? 'ws' : 'wss';
-    return new WebSocketClientAdapter(`${protocol}://${host}`);
+    const url = Crdt.Url.ws(text);
+    return new WebSocketClientAdapter(url);
   },
 } as const;

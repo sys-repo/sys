@@ -46,4 +46,9 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(names).to.include(D.database);
     expect(names).to.include(database);
   });
+
+  it('Crdt.Url.ws', () => {
+    const url = Crdt.Url.ws('sync.db.team');
+    expect(url).to.eql('wss://sync.db.team');
+  });
 });

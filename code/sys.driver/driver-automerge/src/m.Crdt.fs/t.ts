@@ -7,6 +7,7 @@ import type { t } from './common.ts';
 export type CrdtFilesystemLib = {
   readonly kind: 'Crdt:FileSystem';
   readonly Is: t.CrdtIsLib;
+  readonly Url: t.CrdtUrlLib;
   repo(args?: t.StringDir | t.CrdtFsRepoArgs): t.CrdtRepo;
 };
 
@@ -18,5 +19,5 @@ export type CrdtFsRepoArgs = {
   denylist?: AutomergeUrl[];
 };
 
-/** Network interface argument. */
-export type CrdtFsNetworkArg = NetworkAdapterInterface;
+/** Network connection argument. */
+export type CrdtFsNetworkArg = NetworkAdapterInterface | { ws: t.StringUrl };

@@ -15,3 +15,10 @@ export type CrdtIsLib = {
   /** Determind if the given value is a valid CRDT document id. */
   id(input?: unknown): input is t.DocumentId;
 };
+
+/**
+ * URL helpers:
+ */
+export type CrdtUrlLib = {
+  ws(input?: string): t.StringUrl;
+};
