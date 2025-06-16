@@ -75,6 +75,7 @@ function useInternal(args: Args = {}): Hook {
     if (action === 'Clear') {
       p.id.value = undefined;
       p.doc.value = undefined;
+      p.spinning.value = false;
       return;
     }
 
@@ -82,6 +83,7 @@ function useInternal(args: Args = {}): Hook {
       const doc = repo.create(args.initial ?? {});
       p.doc.value = doc;
       p.id.value = doc.id;
+      p.spinning.value = false;
       localstore.history.push(doc.id);
       return;
     }
