@@ -9,7 +9,8 @@ const print = () => {
   table.push([c.gray('  doc.id:'), c.green(id)]);
   table.push([c.gray('  doc:')]);
 
-  console.info('🌳');
+  console.info();
+  console.info('  🌳');
   console.info(table.toString().trim());
   console.info();
   console.info(doc?.current);
