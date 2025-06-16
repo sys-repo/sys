@@ -54,7 +54,7 @@ export const SyncServer: React.FC<P> = (props) => {
     <React.Fragment>
       <span className={styles.label.class}>{'•'}</span>
       <div className={styles.peer.class}>
-        <span className={styles.label.class}>{`client.${peerParts.slice(0, -1)}.`}</span>
+        <span className={styles.label.class}>{`${peerParts.slice(0, -1)}.`}</span>
         <span>{peerParts.slice(-1)}</span>
       </div>
     </React.Fragment>
