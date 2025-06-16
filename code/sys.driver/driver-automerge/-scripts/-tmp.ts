@@ -13,18 +13,22 @@ const doc = await repo.get(id);
 /**
  * Listen and print:
  */
-const print = () => {
-  const table = Cli.table([]);
-  table.push([c.gray('path:'), c.gray(dir)]);
-  table.push([c.gray('doc.id:'), c.green(id)]);
-  table.push([c.gray('doc:')]);
+const print = (options: { clear?: boolean } = {}) => {
+  const { clear = true } = options;
+  if (clear) console.clear();
 
-  console.clear();
-  console.info('\n🌳');
+  const table = Cli.table([]);
+  table.push([c.gray('  path:'), c.gray(dir)]);
+  table.push([c.gray('  doc.id:'), c.green(id)]);
+  table.push([c.gray('  doc:')]);
+
+  if (!clear) console.info();
+  console.info('🌳');
   console.info(table.toString().trim());
+  console.info();
   console.info(doc?.current);
   console.info();
 };
 
-doc?.events().changed$.subscribe(print);
+doc?.events().changed$.subscribe(() => print());
 print();
