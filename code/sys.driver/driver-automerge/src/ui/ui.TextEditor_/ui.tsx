@@ -6,10 +6,9 @@ import { schema as basicSchema } from 'prosemirror-schema-basic';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
-import { toAutomergeHandle } from '../../crdt/mod.ts';
-import { type t, Color, css, D } from './common.ts';
-import { useCssImports } from './use.CssImports.ts';
+import { type t, Color, css, D, toAutomergeHandle } from './common.ts';
 import { EditorStyles } from './u.styles.ts';
+import { useCssImports } from './use.CssImports.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   const { doc, readOnly = D.readOnly, scroll = D.scroll, debug = false } = props;
@@ -35,6 +34,14 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       menuBar: false,
     });
 
+    /**
+     * TODO 🐷 put in Automerge binding here ↓
+     *
+     * Refs:
+     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-vanilla/
+     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-react/
+     *
+     */
     const node = PMDOMParser.fromSchema(basicSchema).parse(
       document.createElement('div'), // start with empty document.
     );
