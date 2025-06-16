@@ -18,9 +18,8 @@ export type PrefixProps = {
  * Component:
  */
 export const Prefix: React.FC<PrefixProps> = (props) => {
-  const { copied, over, enabled = true } = props;
+  const { copied, enabled = true } = props;
   const docId = (props.docId || '').trim();
-
   const CopyIcon = copied ? Icons.Tick : Icons.Copy;
 
   /**
@@ -52,9 +51,9 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
     icon: css({ opacity: !!docId ? 1 : 0.25, transition: `opacity 120ms ease` }),
   };
 
-  const elCopy = docId && over && (
+  const elCopy = docId && props.over && pointer.is.over && (
     <Button enabled={enabled} style={styles.btn} onClick={copyToClipboard}>
-      <CopyIcon size={18} color={over ? Color.BLUE : theme.fg} />
+      <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
     </Button>
   );
   const elDatabase = !elCopy && <Icons.Database color={theme.fg} size={18} style={styles.icon} />;

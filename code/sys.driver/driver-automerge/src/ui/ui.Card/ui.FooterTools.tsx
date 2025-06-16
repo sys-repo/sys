@@ -24,8 +24,16 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
   const incrementHandler = (by: number) => {
     return (e: React.MouseEvent) => {
       const next = (current: number) => {
-        if (e.metaKey && e.shiftKey) return 0;
-        return current + (e.metaKey ? by * 10 : by);
+        let delta = 1;
+
+        if (e.metaKey) {
+          if (e.shiftKey) delta += 100;
+          else return 0;
+        } else {
+          if (e.shiftKey) delta += 10;
+        }
+
+        return current + by * delta;
       };
       doc?.change((d) => {
         if (!Is.number(d.count)) d.count = 0;
@@ -40,6 +48,7 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const hasText = !!doc?.current.text;
   const color = theme.fg;
   const styles = {
     base: css({
@@ -51,10 +60,11 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     }),
     btn: css({ display: 'grid' }),
     strBtn: css({}),
-    strBody: css({
-      fontSize: 16,
-      filter: !!doc?.current.text ? 'grayscale(100%)' : undefined,
-      opacity: !!doc?.current.text ? 0.3 : 1,
+    strBody: css({ fontSize: 16 }),
+    strText: css({
+      opacity: hasText ? 0.1 : 1,
+      transition: 'opacity 120ms ease',
+      filter: hasText ? 'grayscale(100%)' : undefined,
     }),
     div: css({
       width: 1,
@@ -67,7 +77,7 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     <Button theme={theme.name} style={styles.strBtn} onClick={toggleText}>
       <div className={styles.strBody.class}>
         <span>"</span>
-        <span>{'👋'}</span>
+        <span className={styles.strText.class}>{'👋'}</span>
         <span>"</span>
       </div>
     </Button>

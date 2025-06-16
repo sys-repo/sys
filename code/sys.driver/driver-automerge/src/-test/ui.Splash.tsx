@@ -1,6 +1,6 @@
+import { Card, Crdt } from '@sys/driver-automerge/ui';
 import React from 'react';
 
-import { Card, Crdt } from '@sys/driver-automerge/ui';
 import { type t, Color, Cropmarks, css } from './common.ts';
 
 export type SplashProps = {
