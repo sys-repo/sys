@@ -79,14 +79,6 @@ export function createDebugSignals() {
     });
   });
 
-  // Listen to current document → redraw.
-  let events: t.CrdtEvents | undefined;
-  Signal.effect(() => {
-    events?.dispose();
-    events = p.doc.value?.events();
-    events?.changed$.subscribe((e) => p.redraw.value++);
-  });
-
   return api;
 }
 

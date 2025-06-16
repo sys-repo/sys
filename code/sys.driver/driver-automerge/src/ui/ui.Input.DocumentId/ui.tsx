@@ -1,6 +1,16 @@
 import React, { useRef, useState } from 'react';
 
-import { type t, Color, css, D, TextInput, Time, useDebouncedValue, usePointer } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  D,
+  rx,
+  TextInput,
+  Time,
+  useDebouncedValue,
+  usePointer,
+} from './common.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -36,10 +46,31 @@ export const View: React.FC<P> = (props) => {
   const controller = useController(props.controller);
 
   const docId = controller.props.id;
+  const doc = controller.props.doc;
   const repo = controller.props.repo;
   const is = controller.props.is;
   const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
   const active = enabled && !!repo;
+
+  /**
+   * Effect: (mounted).
+   */
+  React.useEffect(() => {
+    const life = rx.disposable();
+    const signals = controller.signals;
+    const firedChanged = () => props.onChange?.({ signals, values: signals.toValues() });
+
+    // Bubble change events.
+    const doc = signals.doc.value;
+    const events = doc?.events(life);
+    events?.changed$.subscribe(firedChanged);
+
+    // Alert listeners.
+    props.onReady?.({ signals, values: signals.toValues() });
+    firedChanged();
+
+    return life.dispose;
+  }, [repo?.id.instance, doc?.id]);
 
   /**
    * Render:
@@ -61,7 +92,7 @@ export const View: React.FC<P> = (props) => {
     label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
     actionButton: css({
       fontSize: 12,
-      marginLeft: 5,
+      marginLeft: 3,
       ...props.buttonStyle,
     }),
     copied: css({

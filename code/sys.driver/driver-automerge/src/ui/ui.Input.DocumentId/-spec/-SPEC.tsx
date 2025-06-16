@@ -40,6 +40,8 @@ export default Spec.describe(D.displayName, (e) => {
         theme={p.theme.value}
         enabled={p.enabled.value}
         background={theme.is.dark ? -0.06 : -0.04}
+        onReady={(e) => console.info(`⚡️ Input.DocumentId.onReady:`, e)}
+        onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
       />
     );
   }

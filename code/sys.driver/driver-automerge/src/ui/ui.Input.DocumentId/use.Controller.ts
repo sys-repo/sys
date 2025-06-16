@@ -27,11 +27,7 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Refs:
    */
-  const signalsRef = useRef<t.DocumentIdHookSignals>({
-    id: args.signals?.id ?? Signal.create<string>(),
-    doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
-    spinning: args.signals?.spinning ?? Signal.create(false),
-  });
+  const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
 
   /**
    * Hooks:
@@ -181,5 +177,20 @@ const wrangle = {
     const id = wrangle.id(p);
     if (!id) return 'Create';
     return 'Load';
+  },
+
+  signals(args: Args) {
+    const api: t.DocumentIdHookSignals = {
+      id: args.signals?.id ?? Signal.create<string>(),
+      doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
+      spinning: args.signals?.spinning ?? Signal.create(false),
+      toValues() {
+        const spinning = api.spinning.value;
+        const doc = api.doc.value;
+        const id = api.id.value;
+        return { id, doc, spinning };
+      },
+    };
+    return api;
   },
 } as const;

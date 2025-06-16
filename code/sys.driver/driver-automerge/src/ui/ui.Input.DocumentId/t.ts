@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
-
-type O = Record<string, unknown>;
+export type * from './t.hook.ts';
 
 /** The various states the action button can assume. */
 export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear';
@@ -9,8 +8,8 @@ export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear';
  * Library: editor for repo-document ID loader.
  */
 export type DocumentIdInputLib = {
-  readonly View: React.FC<DocumentIdInputProps>;
-  readonly useController: UseDocumentIdHook;
+  readonly View: React.FC<t.DocumentIdInputProps>;
+  readonly useController: t.UseDocumentIdHook;
 };
 
 /**
@@ -19,8 +18,8 @@ export type DocumentIdInputLib = {
 export type DocumentIdInputProps = {
   debug?: boolean;
   controller?:
-    | DocumentIdHook //         ← controlled
-    | UseDocumentIdHookArgs; // ← uncontrolled (auto-create)
+    | t.DocumentIdHook //         ← controlled
+    | t.UseDocumentIdHookArgs; // ← uncontrolled (auto-create)
   label?: string;
   placeholder?: string;
   enabled?: boolean;
@@ -31,49 +30,26 @@ export type DocumentIdInputProps = {
   style?: t.CssInput;
   buttonStyle?: t.CssInput;
   background?: string | number;
+
+  // Events:
+  onReady?: t.DocumentIdInputReadyHandler;
+  onChange?: t.DocumentIdInputChangedHandler;
 };
 
 /**
  * Events:
  */
+export type DocumentIdInputReadyHandler = (e: DocumentIdInputReady) => void;
+export type DocumentIdInputReady = {
+  readonly signals: t.DocumentIdHookSignals;
+  readonly values: t.DocumentIdHookSignalValues;
+};
+
 export type DocumentIdInputActionHandler = (e: DocumentIdInputActionArgs) => void;
 export type DocumentIdInputActionArgs = { readonly action: DocumentIdInputAction };
 
-/**
- * Controller Hook:
- */
-export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) => DocumentIdHook;
-export type UseDocumentIdHookArgs<T = O> = {
-  repo?: t.CrdtRepo;
-  signals?: Partial<DocumentIdHookSignals>;
-  localstorageKey?: t.StringId;
-  initial?: T | (() => T);
-};
-export type DocumentIdHook = {
-  readonly ready: boolean;
-  readonly instance: t.StringId;
+export type DocumentIdInputChangedHandler = (e: DocumentIdInputChanged) => void;
+export type DocumentIdInputChanged = {
   readonly signals: t.DocumentIdHookSignals;
-  readonly props: DocumentIdHookProps;
-  readonly handlers: {
-    onAction: t.DocumentIdInputActionHandler;
-    onTextChange: t.TextInputChangeHandler;
-    onKeyDown: t.TextInputKeyHandler;
-  };
-};
-
-export type DocumentIdHookProps = {
-  readonly action: DocumentIdInputAction;
-  readonly id?: string;
-  readonly doc?: t.CrdtRef;
-  readonly repo?: t.CrdtRepo;
-  readonly is: {
-    readonly valid: boolean;
-    readonly enabled: { readonly action: boolean; readonly input: boolean };
-    readonly spinning: boolean;
-  };
-};
-export type DocumentIdHookSignals = {
-  readonly id: t.Signal<string | undefined>;
-  readonly doc: t.Signal<t.CrdtRef | undefined>;
-  readonly spinning: t.Signal<boolean>;
+  readonly values: t.DocumentIdHookSignalValues;
 };
