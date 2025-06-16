@@ -37,7 +37,8 @@ export const View: React.FC<P> = (props) => {
    * Hooks:
    */
   const [copied, setCopied] = useState(false);
-  const [overTextbox, setOverTextbox] = useState(false);
+  const [textboxOver, setOverTextbox] = useState(false);
+  const [focused, setFocused] = React.useState(false);
   const pointer = usePointer((e) => setOverTextbox(e.is.over));
 
   /**
@@ -108,7 +109,7 @@ export const View: React.FC<P> = (props) => {
   const elPrefix = (
     <Prefix
       docId={docId}
-      over={active && overTextbox}
+      over={active && textboxOver}
       enabled={active}
       copied={copied}
       theme={theme.name}
@@ -124,7 +125,7 @@ export const View: React.FC<P> = (props) => {
     <Suffix
       docId={docId}
       spinning={is.spinning}
-      over={active && (overTextbox || is.spinning)}
+      over={active && (textboxOver || is.spinning)}
       enabled={active}
       theme={theme.name}
       onPointer={(e) => e.is.down && focus()}
@@ -139,6 +140,8 @@ export const View: React.FC<P> = (props) => {
       style={styles.actionButton}
       action={controller.props.action}
       enabled={active && is.enabled.action}
+      parentOver={textboxOver}
+      parentFocused={focused}
       onClick={() => {
         const { action } = controller.props;
         const payload: t.DocumentIdInputActionArgs = { action };
@@ -171,6 +174,7 @@ export const View: React.FC<P> = (props) => {
           onReady={(e) => (inputRef.current = e.input)}
           onChange={(e) => controller.handlers.onTextChange(e)}
           onKeyDown={(e) => controller.handlers.onKeyDown(e)}
+          onFocusChange={(e) => setFocused(e.focused)}
         />
       </div>
       {elActionButton}

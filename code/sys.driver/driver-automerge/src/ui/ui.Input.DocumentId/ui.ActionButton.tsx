@@ -3,6 +3,8 @@ import { type t, Button, Color, css } from './common.ts';
 
 export type ActionButtonProps = {
   action: t.DocumentIdInputAction;
+  parentOver?: boolean;
+  parentFocused?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   enabled?: boolean;
@@ -14,7 +16,7 @@ export type ActionButtonProps = {
  * Component:
  */
 export const ActionButton: React.FC<ActionButtonProps> = (props) => {
-  const { enabled = false, action } = props;
+  const { action, enabled = false, parentOver, parentFocused } = props;
 
   /**
    * Hooks:
@@ -25,6 +27,7 @@ export const ActionButton: React.FC<ActionButtonProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const isButtonSolid = enabled && (isOver || parentFocused);
   const styles = {
     base: css({
       color: theme.fg,
@@ -33,8 +36,8 @@ export const ActionButton: React.FC<ActionButtonProps> = (props) => {
     }),
     body: css({
       borderRadius: 4,
-      backgroundColor: isOver && enabled ? Color.BLUE : theme.alpha(0.03).bg,
-      color: isOver && enabled ? Color.WHITE : Color.BLUE,
+      backgroundColor: isButtonSolid ? Color.BLUE : theme.alpha(parentOver ? 0.03 : 0).bg,
+      color: isButtonSolid ? Color.WHITE : Color.BLUE,
       width: 70,
       display: 'grid',
       placeItems: 'center',
