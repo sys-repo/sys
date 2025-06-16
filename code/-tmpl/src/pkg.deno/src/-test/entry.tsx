@@ -32,22 +32,36 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  /**
-   * DevHarness:
-   */
-  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
-  const { Specs } = await import('./-specs.ts');
-  const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
-  function App() {
-    useKeyboard();
-    return el;
-  }
+  if (isDev) {
+    /**
+     * DevHarness:
+     */
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { Specs } = await import('./-specs.ts');
+    const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
 
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+    function App() {
+      useKeyboard();
+      return el;
+    }
+
+    const app = <App />;
+    root.render(<React.StrictMode>{app}</React.StrictMode>);
+  } else {
+    /**
+     * Entry/Splash:
+     */
+    const { useKeyboard } = await import('@sys/ui-react-devharness');
+    const { Splash } = await import('./ui.Splash.tsx');
+
+    function App() {
+      useKeyboard();
+      return <Splash />;
+    }
+
+    const app = <App />;
+    root.render(<React.StrictMode>{app}</React.StrictMode>);
+  }
 }
 
 main().catch((err) => console.error(`💥 Failed to render DevHarness`, err));
