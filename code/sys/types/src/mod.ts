@@ -8,8 +8,8 @@
  * import { pkg } from '@sys/types'; // ← the concrete package meta-data.
  * import type { Pkg } from '@sys/types'; // the <Pkg> type that defines the {pkg}.
  *
- * import type { Immutable } from '@sys/t';        ←
- * import type { Immutable } from '@sys/types';    ↑ (alias)
+ * import type { Immutable } from '@sys/t';        ↓
+ * import type { Immutable } from '@sys/types';    ← (alias)
  * ```
  *
  */
