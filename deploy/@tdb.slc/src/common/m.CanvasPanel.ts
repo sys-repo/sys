@@ -1,9 +1,9 @@
-import type * as t from './t.ts';
 import { asArray } from './libs.ts';
+import type * as t from './t.ts';
 
 type P = t.CanvasPanel;
 
-const list: P[] = [
+const all: P[] = [
   'purpose',
   'impact',
   'problem',
@@ -21,7 +21,7 @@ export const CanvasPanel = {
   /**
    * All canvas panels, in order.
    */
-  list,
+  all,
 
   /**
    * Merge a set of canvas panels values together.
