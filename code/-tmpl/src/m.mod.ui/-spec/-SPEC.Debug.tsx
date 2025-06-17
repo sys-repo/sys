@@ -24,13 +24,10 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
   };
-  const p = props;
 
-  /**
-   * Persist subsequent changes.
-   */
   Signal.effect(() => {
     store.change((d) => {
+      const p = props;
       d.theme = p.theme.value;
       d.debug = p.debug.value;
     });
@@ -39,7 +36,7 @@ export function createDebugSignals() {
   const api = {
     props,
     listen() {
-      Object.values(p)
+      Object.values(props)
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
