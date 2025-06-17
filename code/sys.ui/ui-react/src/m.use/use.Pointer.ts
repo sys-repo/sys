@@ -38,26 +38,34 @@ export const usePointer: t.UsePointer = (input) => {
     };
   };
 
-  const fireGeneral = (trigger: t.PointerEvent, known: { isOver?: boolean; isDown?: boolean }) => {
-    args.on?.({ is: getFlags(known), trigger });
+  const fireGeneral = (
+    synthetic: React.PointerEvent,
+    trigger: t.PointerEvent,
+    known: { isOver?: boolean; isDown?: boolean },
+  ) => {
+    const cancel = () => {
+      synthetic.stopPropagation();
+      synthetic.preventDefault();
+    };
+    args.on?.({ is: getFlags(known), trigger, cancel });
   };
 
-  const down = (isDown: boolean) => (ev: React.PointerEvent) => {
-    const e = wrangle.pointerEvent(ev);
+  const down = (isDown: boolean) => (synthetic: React.PointerEvent) => {
+    const e = wrangle.pointerEvent(synthetic);
     setDown(isDown);
     if (isDown) args.onDown?.(e);
     if (!isDown) args.onUp?.(e);
     if (!isDown) drag.cancel();
     if (isDown && drag.enabled) drag.start();
-    fireGeneral(e, { isDown });
+    fireGeneral(synthetic, e, { isDown });
   };
-  const over = (isOver: boolean) => (ev: React.PointerEvent) => {
-    const e = wrangle.pointerEvent(ev);
+  const over = (isOver: boolean) => (synthetic: React.PointerEvent) => {
+    const e = wrangle.pointerEvent(synthetic);
     setOver(isOver);
     if (isOver === false) setDown(false);
     if (isOver) args.onEnter?.(e);
     if (!isOver) args.onLeave?.(e);
-    fireGeneral(e, { isOver });
+    fireGeneral(synthetic, e, { isOver });
   };
 
   /**
