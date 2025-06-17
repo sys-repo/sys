@@ -1,7 +1,7 @@
 import { Card, Crdt } from '@sys/driver-automerge/ui';
 import React from 'react';
 
-import { type t, Color, Cropmarks, css } from './common.ts';
+import { type t, Color, Cropmarks, css, pkg } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
@@ -65,8 +65,9 @@ export const Splash: React.FC<SplashProps> = (props) => {
             //
             repo={repo}
             signals={{ doc: signals?.doc }}
-            headerStyle={{ topOffset: -30 }}
             theme={theme.name}
+            headerStyle={{ topOffset: -30 }}
+            localstorageKey={`${pkg.name}.splash`}
             //
             // Sync:
             onSyncEnabledChange={(e) => setSyncEnabled(e.enabled)}
