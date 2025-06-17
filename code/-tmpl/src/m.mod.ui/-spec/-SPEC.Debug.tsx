@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
-type Storage = Pick<P, 'theme'>;
+type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
  * Types:
@@ -15,26 +15,35 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = { theme: 'Dark', debug: false };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const props = {
-    debug: s(false),
-    theme: s(localstore.current.theme),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
   };
   const p = props;
+
+  /**
+   * Persist subsequent changes.
+   */
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   const api = {
     props,
     listen() {
-      p.debug.value;
-      p.theme.value;
+      Object.values(p)
+        .filter((s) => Signal.Is.signal(s))
+        .forEach((s) => s.value);
     },
   };
-
-  Signal.effect(() => {
-    localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Light';
-    });
-  });
 
   return api;
 }
