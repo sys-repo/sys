@@ -19,7 +19,16 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render(() => <CanvasLayout debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => {
+        console.log('p.debug.value', p.debug.value);
+        return (
+          <CanvasLayout
+            debug={p.debug.value}
+            theme={p.theme.value}
+            debugSize={{ style: { Absolute: [-25, 5, null, null] } }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {
