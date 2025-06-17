@@ -33,10 +33,12 @@ export default Spec.describe(D.displayName, (e) => {
         <TextEditor
           debug={p.debug.value}
           theme={p.theme.value}
+          style={{ minHeight: 30 }}
           doc={p.doc.value}
           autoFocus={p.autoFocus.value}
           readOnly={p.readOnly.value}
           scroll={p.scroll.value}
+          singleLine={p.singleLine.value}
         />
       ));
 
@@ -57,7 +59,7 @@ export default Spec.describe(D.displayName, (e) => {
         );
       });
 
-    // Init:
+    // Initialize:
     updateSize();
   });
 

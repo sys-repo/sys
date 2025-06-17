@@ -1,18 +1,33 @@
 import React, { useRef } from 'react';
 
+/**
+ * Automerge:
+ */
 import { init as automergeInit } from '@automerge/prosemirror';
+
+/**
+ * ProseMirror:
+ */
 import { exampleSetup } from 'prosemirror-example-setup';
-import { DOMParser as PMDOMParser } from 'prosemirror-model';
 import { schema as basicSchema } from 'prosemirror-schema-basic';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
+/**
+ * @sys:
+ */
 import { type t, Color, css, D, toAutomergeHandle } from './common.ts';
 import { EditorStyles } from './u.styles.ts';
 import { useCssImports } from './use.CssImports.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
-  const { doc, readOnly = D.readOnly, scroll = D.scroll, debug = false } = props;
+  const {
+    doc,
+    readOnly = D.readOnly,
+    scroll = D.scroll,
+    singleLine = D.singleLine,
+    debug = false,
+  } = props;
 
   /**
    * Hooks:
@@ -30,23 +45,37 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
     if (!cssImports.ready) return;
     if (rootRef.current == null || doc?.current == null) return;
 
+
+    /**
+     * Refs:
+     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-vanilla/
+     *    https://automerge.org/docs/cookbook/rich-text-prosemirror-react/
+     */
+    const automerge = automergeInit(handle!, ['text']);
     const schema = basicSchema;
     const plugins = exampleSetup({
       schema,
       menuBar: false,
+      mapKeys: {
+        Escape: false, // ← remove the default ESC binding
+      },
     });
-    const crdt = automergeInit(handle!, ['text']);
-    plugins.push(crdt.plugin);
-
+    plugins.push(automerge.plugin);
 
     const state = EditorState.create({
       schema,
       plugins,
-      // doc: node,
-      doc: crdt.pmDoc,
+      doc: automerge.pmDoc,
     });
 
-    const view = new EditorView(rootRef.current, { state });
+    const view = new EditorView(rootRef.current, {
+      state,
+      handleKeyDown(_view, e) {
+        let handled = false;
+        if (e.key === 'Enter' && singleLine) handled = true; // NB: suppress-new line characters when in "single-line" mode.
+        return handled;
+      },
+    });
     setEditor(view);
 
     // Finish up.
@@ -54,13 +83,13 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       view?.destroy();
       setEditor(undefined);
     };
-  }, [rootRef, doc?.instance, cssImports.ready]);
+  }, [rootRef, doc?.instance, cssImports.ready, singleLine]);
 
   /**
    * Effect: sync/autoFocus.
    */
   React.useEffect(() => {
-    if (props.autoFocus) editor?.focus();
+    if (props.autoFocus) editor?.focus?.();
   }, [editor, props.autoFocus]);
 
   /**

@@ -11,5 +11,6 @@ export const DEFAULTS = {
   autoFocus: false,
   readOnly: false,
   scroll: true,
+  singleLine: false,
 } as const;
 export const D = DEFAULTS;

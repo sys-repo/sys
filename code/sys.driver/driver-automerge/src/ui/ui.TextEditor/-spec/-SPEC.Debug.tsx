@@ -6,7 +6,7 @@ import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '..
 export type SampleDoc = { text?: string };
 
 type P = t.TextEditorProps;
-type Storage = Pick<P, 'autoFocus' | 'readOnly' | 'scroll' | 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'autoFocus' | 'readOnly' | 'scroll' | 'singleLine'>;
 
 export const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -27,7 +27,8 @@ export function createDebugSignals() {
     theme: 'Dark',
     autoFocus: true,
     readOnly: D.readOnly,
-    scroll: D.scroll,
+    scroll: false,
+    singleLine: true,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -38,12 +39,16 @@ export function createDebugSignals() {
   });
 
   const props = {
+    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    autoFocus: s<P['autoFocus']>(snap.autoFocus),
+
+    doc: s<t.CrdtRef<SampleDoc>>(),
+
     readOnly: s<P['readOnly']>(snap.readOnly),
     scroll: s<P['scroll']>(snap.scroll),
-    doc: s<t.CrdtRef<SampleDoc>>(),
+    singleLine: s<P['singleLine']>(snap.singleLine),
+    autoFocus: s<P['autoFocus']>(snap.autoFocus),
   };
   const p = props;
   const api = {
@@ -51,11 +56,19 @@ export function createDebugSignals() {
     repo,
     localstore: store,
     listen() {
-      Object.values(p)
+      Object.values(props)
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
   };
+
+  let events: t.CrdtEvents | undefined;
+  Signal.effect(() => {
+    const doc = p.doc.value;
+    events?.dispose();
+    events = doc?.events();
+    events?.$.subscribe(() => p.redraw.value++);
+  });
 
   Signal.effect(() => {
     store.change((d) => {
@@ -64,6 +77,7 @@ export function createDebugSignals() {
       d.autoFocus = p.autoFocus.value;
       d.readOnly = p.readOnly.value;
       d.scroll = p.scroll.value;
+      d.singleLine = p.singleLine.value;
     });
   });
 
@@ -109,10 +123,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
+      <hr />
       <Button
         block
         label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
         onClick={() => Signal.toggle(p.scroll)}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.singleLine.value;
+          return `singleLine: ${v ?? `<undefined> (default: ${D.singleLine})`}`;
+        }}
+        onClick={() => Signal.toggle(p.singleLine)}
       />
       <hr />
       <Button
@@ -130,6 +153,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      {samplesButtons(debug)}
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -138,9 +165,33 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={{ ...Signal.toObject(p), doc: p.doc.value?.current }}
-        expand={['$', '$.doc']}
+        // expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
     </div>
   );
 };
+
+export function samplesButtons(debug: DebugSignals) {
+  const p = debug.props;
+  return (
+    <React.Fragment>
+      <Button
+        block
+        label={() => '- single-line'}
+        onClick={() => {
+          p.singleLine.value = true;
+          p.scroll.value = false;
+        }}
+      />
+      <Button
+        block
+        label={() => '- multi-line'}
+        onClick={() => {
+          p.singleLine.value = false;
+          p.scroll.value = true;
+        }}
+      />
+    </React.Fragment>
+  );
+}

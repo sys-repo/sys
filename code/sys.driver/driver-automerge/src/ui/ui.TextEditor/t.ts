@@ -15,6 +15,8 @@ export type TextEditorProps = {
   autoFocus?: boolean | number;
   /** Scroll enabled.  */
   scroll?: boolean;
+  /** Single or multi-line text. */
+  singleLine?: boolean;
 
   /**
    * Appearance:
