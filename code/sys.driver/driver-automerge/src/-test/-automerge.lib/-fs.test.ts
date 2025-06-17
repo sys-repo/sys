@@ -1,6 +1,6 @@
 import { Repo } from '@automerge/automerge-repo';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-import { Testing, describe, expect, it } from '../-test.ts';
+import { Testing, describe, expect, it } from '../mod.ts';
 
 describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, () => {
   /**

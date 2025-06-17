@@ -1,4 +1,4 @@
-import { A, describe, expect, it } from '../-test.ts';
+import { A, describe, expect, it } from '../mod.ts';
 
 describe('CRDT: common (runtime platform agnostic)', () => {
   describe('Automerge: raw underlying API assertions', () => {
