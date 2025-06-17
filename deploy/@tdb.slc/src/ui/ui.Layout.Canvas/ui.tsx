@@ -20,11 +20,12 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
     row: css({
       borderBottom: border,
       ':last-child': { borderBottom: 'none' },
+      display: 'grid',
     }),
     cell: css({
-      padding: 8,
       borderRight: border,
       ':last-child': { borderRight: 'none' },
+      display: 'grid',
     }),
     top: css({
       display: 'grid',
@@ -43,19 +44,25 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={css(styles.row, styles.top).class}>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
+        <div className={styles.cell.class}>🐷 purpose</div>
+        <div className={styles.cell.class}>🐷 impact</div>
       </div>
       <div className={css(styles.row, styles.middle).class}>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
+        <div className={styles.cell.class}>🐷 problem</div>
+        <div className={styles.cell.class}>
+          <div className={css(styles.row).class}>🐷 solution</div>
+          <div className={styles.row.class}>🐷 key-metrics</div>
+        </div>
+        <div className={styles.cell.class}>🐷 UVP</div>
+        <div className={styles.cell.class}>
+          <div className={css(styles.row).class}>🐷 unfair advantage</div>
+          <div className={styles.row.class}>🐷 channels</div>
+        </div>
+        <div className={styles.cell.class}>🐷 customer segments</div>
       </div>
       <div className={css(styles.row, styles.bottom).class}>
-        <div className={styles.cell.class}>🐷</div>
-        <div className={styles.cell.class}>🐷</div>
+        <div className={styles.cell.class}>🐷 cost</div>
+        <div className={styles.cell.class}>🐷 revenue</div>
       </div>
     </div>
   );
