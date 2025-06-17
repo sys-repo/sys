@@ -14,6 +14,7 @@ export const SpecsComponents = {
   'tdb.slc.entry.Landing-3': () => import('../ui/ui.Landing-3/-SPEC.tsx'),
 
   'tdb.slc.ui.Layout': () => import('../ui/ui.Layout/-SPEC.tsx'),
+  'tdb.slc.ui.Layout.Canvas': () => import('../ui/ui.Layout.Canvas/-spec/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Canvas': () => import('../ui/ui.Logo.Canvas/-SPEC.tsx'),
   'tdb.slc.ui.Logo.Wordmark': () => import('../ui/ui.Logo.Wordmark/-SPEC.tsx'),
 
