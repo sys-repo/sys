@@ -4,7 +4,7 @@ import { Fs, Time } from './common.ts';
 
 describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('API', async () => {
-    const m = await import('@sys/driver-automerge/ws');
+    const m = await import('@sys/driver-automerge/server');
     expect(m.Server).to.equal(Server);
   });
 

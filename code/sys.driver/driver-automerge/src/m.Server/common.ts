@@ -6,4 +6,4 @@ export { Fs } from '@sys/fs';
 export { Net } from '@sys/http/server';
 
 export * from '../common.ts';
-export { Crdt } from '../m.Crdt.fs/mod.ts';
+export { Crdt } from '../m.Crdt.-fs/mod.ts';
