@@ -60,6 +60,7 @@ const wrangle = {
 
 const toNetworkAdapter = (arg: t.CrdtFsNetworkArg): t.NetworkAdapterInterface | undefined => {
   if (arg instanceof BrowserWebSocketClientAdapter) return arg;
+  if (Is.string(arg)) return wrangle.ws(arg);
   if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
   return undefined;
 };

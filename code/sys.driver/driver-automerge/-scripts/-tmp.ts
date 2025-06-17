@@ -21,7 +21,7 @@ const print = () => {
  * Pull document:
  */
 const dir = '.tmp/sync.crdt';
-const repo = Crdt.repo({ dir, network: { ws: 'sync.db.team' } });
+const repo = Crdt.repo({ dir, network: 'sync.db.team' });
 
 const id = '6EYQPyrnUw8BYR4vffMcotnrcAn';
 const doc = await repo.get(id);
