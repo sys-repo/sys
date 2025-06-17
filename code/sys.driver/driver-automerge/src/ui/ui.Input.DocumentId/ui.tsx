@@ -105,11 +105,17 @@ export const View: React.FC<P> = (props) => {
   const elPrefix = (
     <Prefix
       docId={docId}
+      doc={doc}
       over={active && textboxOver}
       enabled={active}
       copied={copied}
       theme={theme.name}
-      onPointer={(e) => e.is.down && focus()}
+      onPointer={(e) => {
+        if (e.is.down) {
+          e.cancel();
+          focus();
+        }
+      }}
       onCopied={() => {
         timeoutRef.current?.();
         setCopied(true);

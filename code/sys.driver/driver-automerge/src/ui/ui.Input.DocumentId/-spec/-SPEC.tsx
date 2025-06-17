@@ -17,12 +17,11 @@ export default Spec.describe(D.displayName, (e) => {
      *       setup arguments for the hook.
      */
     const signals: Partial<t.DocumentIdHookSignals> = { doc: p.doc, id: p.docId };
-    const localstorageKey = p.localstorageKey.value;
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       signals,
       repo: p.passRepo.value ? repo : undefined,
+      localstorageKey: p.localstorageKey.value,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
-      localstorageKey,
     };
     const hook = Input.DocumentId.useController(args);
 

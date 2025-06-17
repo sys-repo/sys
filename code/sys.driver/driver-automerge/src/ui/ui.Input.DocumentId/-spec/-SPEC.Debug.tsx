@@ -167,7 +167,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `localstorageKey: ${p.localstorageKey.value}`}
+        label={() => {
+          const v = p.localstorageKey.value;
+          return `localstorageKey: ${v ? `"${v}"` : ''}`;
+        }}
         onClick={() => {
           const s = p.localstorageKey;
           s.value = s.value ? undefined : STORAGE_KEY;

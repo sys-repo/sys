@@ -3,6 +3,7 @@ import { type t, Button, Color, css, Icons, usePointer } from './common.ts';
 
 export type PrefixProps = {
   docId?: string;
+  doc?: t.CrdtRef;
   over?: boolean;
   copied?: boolean;
   enabled?: boolean;
@@ -18,9 +19,11 @@ export type PrefixProps = {
  * Component:
  */
 export const Prefix: React.FC<PrefixProps> = (props) => {
-  const { copied, enabled = true } = props;
+  const { doc, copied, enabled = true } = props;
   const docId = (props.docId || '').trim();
-  const CopyIcon = copied ? Icons.Tick : Icons.Copy;
+  const is = {
+    current: doc && docId ? doc.id === docId : false,
+  };
 
   /**
    * Hooks:
@@ -38,6 +41,7 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
   /**
    * Render:
    */
+  const CopyIcon = copied ? Icons.Tick : Icons.Copy;
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
@@ -48,7 +52,10 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
       paddingRight: 1,
     }),
     btn: css({ display: 'grid' }),
-    icon: css({ opacity: !!docId ? 1 : 0.25, transition: `opacity 120ms ease` }),
+    icon: css({
+      opacity: is.current ? 1 : 0.25,
+      transition: `opacity 120ms ease`,
+    }),
   };
 
   const elCopy = docId && props.over && pointer.is.over && (
