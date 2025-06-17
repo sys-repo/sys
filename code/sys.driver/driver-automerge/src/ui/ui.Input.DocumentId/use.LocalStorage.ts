@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { type t, LocalStorage, Signal, History } from './common.ts';
+import { type t, History, LocalStorage, Signal } from './common.ts';
 
 type Storage = { docId?: string; history: string[] };
 type StorageImmutable = t.LocalStorageImmutable<Storage>;

@@ -21,8 +21,8 @@ export default Spec.describe(D.displayName, (e) => {
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       signals,
       repo: p.passRepo.value ? repo : undefined,
-      localstorageKey,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
+      localstorageKey,
     };
     const hook = Input.DocumentId.useController(args);
 

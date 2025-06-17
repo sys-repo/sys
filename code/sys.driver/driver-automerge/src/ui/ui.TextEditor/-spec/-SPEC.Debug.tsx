@@ -46,7 +46,6 @@ export function createDebugSignals() {
     autoFocus: s<P['autoFocus']>(snap.autoFocus),
     readOnly: s<P['readOnly']>(snap.readOnly),
     scroll: s<P['scroll']>(snap.scroll),
-
     doc: s<t.CrdtRef<t.SampleTextDoc>>(),
   };
   const p = props;

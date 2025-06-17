@@ -105,8 +105,6 @@ function useInternal(args: Args = {}): Hook {
   };
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
-    const p = signalsRef.current;
-
     if (e.key === 'Enter') {
       const props = wrangle.props(signalsRef.current, ready, repo);
       run(props.action);
@@ -130,6 +128,9 @@ function useInternal(args: Args = {}): Hook {
     handlers: { onAction, onTextChange, onKeyDown },
     get props() {
       return wrangle.props(signals, ready, repo);
+    },
+    get history() {
+      return localstore.history?.items ?? [];
     },
   };
 

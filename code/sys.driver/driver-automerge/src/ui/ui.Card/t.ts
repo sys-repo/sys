@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 export type CardProps = {
   repo: t.CrdtRepo | undefined;
   sync?: { url?: t.StringUrl; enabled?: boolean };
+  localstorageKey?: string;
 
   // Signals:
   signals?: {

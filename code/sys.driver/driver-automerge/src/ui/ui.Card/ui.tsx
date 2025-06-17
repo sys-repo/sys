@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Input, ObjectView } from './common.ts';
+import { type t, Color, css, Input, ObjectView } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 import { SyncServer } from './ui.SyncServer.tsx';
 
@@ -68,7 +68,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
         repo,
         signals: { doc, id: props.signals?.docId },
         initial: { count: 0 },
-        localstorageKey: `dev:${D.name}.localstore`,
+        localstorageKey: props.localstorageKey,
       }}
       // Mounted:
       onChange={(e) => {

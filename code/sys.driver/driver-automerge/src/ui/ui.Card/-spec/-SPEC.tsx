@@ -15,6 +15,8 @@ declare global {
   }
 }
 
+const STORAGE_KEY = `dev:${D.name}.input`;
+
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
@@ -41,6 +43,7 @@ export default Spec.describe(D.displayName, async (e) => {
           debug={p.debug.value}
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
+          localstorageKey={STORAGE_KEY}
           repo={p.repo.value}
           signals={{ docId: p.docId, doc: p.doc }}
           sync={{
