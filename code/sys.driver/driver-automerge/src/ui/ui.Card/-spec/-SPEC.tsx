@@ -3,7 +3,7 @@ import { Input } from '../../ui.Input/mod.ts';
 
 import { type t, D } from '../common.ts';
 import { Card } from '../mod.ts';
-import { Debug, createDebugSignals, type TDoc } from './-SPEC.Debug.tsx';
+import { type TDoc, Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 /**
  * Add the repo to the global window object so
@@ -73,7 +73,7 @@ export default Spec.describe(D.displayName, async (e) => {
             controller={{
               repo,
               signals: { doc: p.doc, id: p.docId },
-              initial: { text: '' },
+              initial: { count: 0 },
               localstorageKey: STORAGE_KEY,
             }}
           />

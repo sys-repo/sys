@@ -1,10 +1,13 @@
 import React from 'react';
 
-import { type t, Color, css, Input, ObjectView } from './common.ts';
+import { type t, Color, css, Input, ObjectView, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 import { SyncServer } from './ui.SyncServer.tsx';
 
-export const Card: React.FC<t.CardProps> = (props) => {
+type P = t.CardProps;
+type O = Record<string, unknown>;
+
+export const Card: React.FC<P> = (props) => {
   const { debug = false, repo, signals = {}, sync, headerStyle = {} } = props;
   const doc = signals.doc;
   const current = doc?.value?.current;
@@ -71,13 +74,13 @@ export const Card: React.FC<t.CardProps> = (props) => {
         localstorageKey: props.localstorageKey,
       }}
       // Mounted:
-      onChange={(e) => {
-        redraw();
-        props.onChange?.(e);
-      }}
       onReady={(e) => {
         redraw();
         props.onReady?.(e);
+      }}
+      onChange={(e) => {
+        redraw();
+        props.onChange?.(e);
       }}
     />
   );
@@ -85,7 +88,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
   const elDoc = (
     <ObjectView
       name={'Doc:T'}
-      data={current}
+      data={wrangle.data(props)}
       expand={1}
       fontSize={28}
       theme={theme.name}
@@ -101,3 +104,19 @@ export const Card: React.FC<t.CardProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  data(props: P) {
+    const doc = props.signals?.doc?.value?.current;
+    if (doc?.text == null) return doc;
+
+    const { textMaxLength = 16 } = props;
+    let text = (doc?.text ?? '') as string;
+    if (text) text = Str.shorten(text, textMaxLength);
+
+    return { ...doc, text };
+  },
+} as const;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, Icons, Is } from './common.ts';
+import { type t, Button, Color, css, D, Icons, Is, Str } from './common.ts';
 
 type D = { count?: number; text?: string };
 
@@ -20,7 +20,9 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
   /**
    * Handlers:
    */
-  const toggleText = () => doc?.change((d) => (d.text = d.text ? '' : '👋'));
+  const toggleText = () => {
+  };
+
   const incrementHandler = (by: number) => {
     return (e: React.MouseEvent) => {
       const next = (current: number) => {

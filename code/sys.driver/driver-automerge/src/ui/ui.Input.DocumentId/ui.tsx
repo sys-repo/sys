@@ -55,16 +55,16 @@ export const View: React.FC<P> = (props) => {
   React.useEffect(() => {
     const life = rx.disposable();
     const signals = controller.signals;
-    const firedChanged = () => props.onChange?.({ signals, values: signals.toValues() });
+    const fireChanged = () => props.onChange?.({ signals, values: signals.toValues() });
 
     // Bubble change events.
     const doc = signals.doc.value;
     const events = doc?.events(life);
-    events?.$.subscribe(firedChanged);
+    events?.$.subscribe(fireChanged);
 
     // Alert listeners.
     props.onReady?.({ signals, values: signals.toValues() });
-    firedChanged();
+    fireChanged();
 
     return life.dispose;
   }, [repo?.id.instance, doc?.id]);

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal, Str } from '../common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
@@ -146,17 +146,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
       <ObjectView
+        //
         name={'debug'}
-        data={{
-          ...Signal.toObject(p),
-          doc: p.doc?.value?.current,
-        }}
+        data={wrangle.data(debug)}
         style={{ marginTop: 10 }}
         expand={0}
       />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  data(debug: DebugSignals) {
+    const p = debug.props;
+    const doc = p.doc.value;
+    return Signal.toObject({ ...p, doc: doc?.current });
+  },
+} as const;
 
 /**
  * Dev Helpers:
