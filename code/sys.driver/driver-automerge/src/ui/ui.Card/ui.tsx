@@ -84,7 +84,7 @@ export const Card: React.FC<t.CardProps> = (props) => {
 
   const elDoc = (
     <ObjectView
-      name={'Doc<T>'}
+      name={'Doc:T'}
       data={current}
       expand={1}
       fontSize={28}
