@@ -1,4 +1,4 @@
-import { describe, DomMock, expect, it, rx, slug, c } from '../-test.ts';
+import { c, describe, DomMock, expect, it, rx, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -103,6 +103,14 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       store.reset(); // NB: the new initial value is used.
       expect(store.current).to.eql(updated);
       expectJsonSaved(key, store.current);
+    });
+
+    it('flag: is.new', () => {
+      const key = `test-${slug()}`;
+      const a = LocalStorage.immutable<T>(key, { count: 0 });
+      const b = LocalStorage.immutable<T>(key, { count: 0 });
+      expect(a.is.new).to.eql(true);
+      expect(b.is.new).to.eql(false);
     });
 
     it('dispose$', () => {

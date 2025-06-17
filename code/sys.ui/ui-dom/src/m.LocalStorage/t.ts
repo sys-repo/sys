@@ -27,6 +27,11 @@ export type LocalStorageImmutable<T> = t.ImmutableRef<
   t.PatchOperation,
   t.ImmutableEvents<T, t.PatchOperation, t.ImmutableChange<T, t.PatchOperation>>
 > & {
+  /** Info flags related to the local-storage instance. */
+  readonly is: {
+    /** Flag indicating if the local-storage entry was newly created (true) or already existed (false). */
+    readonly new: boolean;
+  };
   /** Clears the local-storage entry and resets to the default values passed in at creation. */
   reset(initial?: T): void;
 };
