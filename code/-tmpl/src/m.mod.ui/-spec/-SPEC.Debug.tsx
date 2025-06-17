@@ -25,14 +25,6 @@ export function createDebugSignals() {
     theme: s(snap.theme),
   };
 
-  Signal.effect(() => {
-    store.change((d) => {
-      const p = props;
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-    });
-  });
-
   const api = {
     props,
     listen() {
@@ -41,6 +33,14 @@ export function createDebugSignals() {
         .forEach((s) => s.value);
     },
   };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      const p = props;
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
 
   return api;
 }
