@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 
+import { init as automergeInit } from '@automerge/prosemirror';
 import { exampleSetup } from 'prosemirror-example-setup';
 import { DOMParser as PMDOMParser } from 'prosemirror-model';
 import { schema as basicSchema } from 'prosemirror-schema-basic';
@@ -29,19 +30,20 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
     if (!cssImports.ready) return;
     if (rootRef.current == null || doc?.current == null) return;
 
+    const schema = basicSchema;
     const plugins = exampleSetup({
-      schema: basicSchema,
+      schema,
       menuBar: false,
     });
+    const crdt = automergeInit(handle!, ['text']);
+    plugins.push(crdt.plugin);
 
-    const node = PMDOMParser.fromSchema(basicSchema).parse(
-      document.createElement('div'), // start with empty document.
-    );
 
     const state = EditorState.create({
-      schema: basicSchema,
+      schema,
       plugins,
-      doc: node,
+      // doc: node,
+      doc: crdt.pmDoc,
     });
 
     const view = new EditorView(rootRef.current, { state });

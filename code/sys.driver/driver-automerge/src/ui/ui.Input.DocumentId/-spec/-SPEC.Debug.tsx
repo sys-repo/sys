@@ -4,17 +4,17 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdInputProps;
-type Storage = {
-  controlled?: boolean;
-  passRepo?: boolean;
-  localstorageKey?: string;
-} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+type Storage = {
+  controlled?: boolean;
+  passRepo?: boolean;
+  localstorageKey?: string;
+} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
 
 const STORAGE_KEY = `dev:${D.name}.input`;
 

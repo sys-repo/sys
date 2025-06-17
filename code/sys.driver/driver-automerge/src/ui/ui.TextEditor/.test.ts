@@ -1,4 +1,4 @@
-import { describe, DomMock, expect, it } from '../../../-test.ts';
+import { describe, DomMock, expect, it } from '../../-test.ts';
 import { TextEditor } from '../mod.ts';
 
 describe('UI: Rich TextEditor', () => {

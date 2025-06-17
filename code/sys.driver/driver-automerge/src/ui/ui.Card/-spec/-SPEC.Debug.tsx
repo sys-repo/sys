@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
-import type * as t from './-t.ts';
+import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
@@ -16,6 +15,10 @@ type Storage = Pick<P, 'theme' | 'debug'> & {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+export type TDoc = {
+  count: number;
+  text?: string;
+};
 
 /**
  * Signals:
@@ -42,7 +45,7 @@ export async function createDebugSignals() {
     syncEnabled: s(snap.syncEnabled),
 
     docId: s(store.current.docId),
-    doc: s<t.CrdtRef<t.TDoc>>(),
+    doc: s<t.CrdtRef<TDoc>>(),
   };
 
   const p = props;
@@ -166,7 +169,7 @@ export function valueEditorButtons(debug: DebugSignals) {
     const docId = localstore.current.docId;
     if (!docId || !repo) return;
 
-    const doc = (await repo.get<t.TDoc>(docId))!;
+    const doc = (await repo.get<TDoc>(docId))!;
     doc.change((d) => (d.count += by));
   };
 

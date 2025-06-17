@@ -1,9 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
-import { Card } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Input } from '../../ui.Input/mod.ts';
 
-import type * as t from './-t.ts';
+import { type t, D } from '../common.ts';
+import { Card } from '../mod.ts';
+import { Debug, createDebugSignals, type TDoc } from './-SPEC.Debug.tsx';
 
 /**
  * Add the repo to the global window object so
@@ -51,16 +51,34 @@ export default Spec.describe(D.displayName, async (e) => {
             enabled: p.syncEnabled.value,
           }}
           // ⚡️ Handlers:
+          onSyncEnabledChange={(e) => (p.syncEnabled.value = e.enabled)}
           onDocIdTextChange={(e) => (p.docId.value = e.value)}
           onActionClick={() => {
             const repo = p.repo.value;
-            const next = repo?.create<t.TDoc>({ count: 0, text: '' });
+            const next = repo?.create<TDoc>({ count: 0, text: '' });
             console.info('⚡️ created → doc:', next);
             p.docId.value = next?.id;
           }}
-          onSyncEnabledChange={(e) => (p.syncEnabled.value = e.enabled)}
         />
       ));
+
+    ctx.debug.header
+      .padding(0)
+      .border(-0.1)
+      .render(() => {
+        const repo = p.repo.value;
+        return (
+          <Input.DocumentId.View
+            buttonStyle={{ margin: 4 }}
+            controller={{
+              repo,
+              signals: { doc: p.doc, id: p.docId },
+              initial: { text: '' },
+              localstorageKey: STORAGE_KEY,
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

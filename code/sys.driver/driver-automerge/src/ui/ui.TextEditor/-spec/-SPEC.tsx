@@ -1,10 +1,13 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Input } from '../../ui.Input/mod.ts';
+
 import { D } from '../common.ts';
 import { TextEditor } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
@@ -36,6 +39,23 @@ export default Spec.describe(D.displayName, (e) => {
           scroll={p.scroll.value}
         />
       ));
+
+    ctx.debug.header
+      .padding(0)
+      .border(-0.1)
+      .render(() => {
+        return (
+          <Input.DocumentId.View
+            buttonStyle={{ margin: 4 }}
+            controller={{
+              repo,
+              signals: { doc: p.doc },
+              initial: { text: '' },
+              localstorageKey: STORAGE_KEY,
+            }}
+          />
+        );
+      });
 
     // Init:
     updateSize();

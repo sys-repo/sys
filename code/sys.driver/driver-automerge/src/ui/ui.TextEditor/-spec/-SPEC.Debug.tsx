@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
-import type * as t from './-t.ts';
+import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+
+export type SampleDoc = { text?: string };
 
 type P = t.TextEditorProps;
-type Storage = { theme?: t.CommonTheme; docId?: string; debug?: boolean } & Pick<
-  P,
-  'autoFocus' | 'readOnly' | 'scroll'
->;
+type Storage = Pick<P, 'autoFocus' | 'readOnly' | 'scroll' | 'theme' | 'debug'>;
+
+export const STORAGE_KEY = `dev:${D.name}.input`;
 
 /**
  * Types:
@@ -34,10 +34,7 @@ export function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: [
-      // 'BroadcastChannel',
-      { ws: 'sync.db.team' },
-    ],
+    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
   });
 
   const props = {
@@ -46,7 +43,7 @@ export function createDebugSignals() {
     autoFocus: s<P['autoFocus']>(snap.autoFocus),
     readOnly: s<P['readOnly']>(snap.readOnly),
     scroll: s<P['scroll']>(snap.scroll),
-    doc: s<t.CrdtRef<t.SampleTextDoc>>(),
+    doc: s<t.CrdtRef<SampleDoc>>(),
   };
   const p = props;
   const api = {
@@ -92,11 +89,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
-   * Setup sample CRDT document:
-   */
-  React.useEffect(() => void initDoc(debug), []);
-
-  /**
    * Render:
    */
   const styles = {
@@ -122,6 +114,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
         onClick={() => Signal.toggle(p.scroll)}
       />
+      <hr />
       <Button
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined> (default: ${D.autoFocus})`}`}
@@ -144,40 +137,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <ObjectView
         name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
+        data={{ ...Signal.toObject(p), doc: p.doc.value?.current }}
+        expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
     </div>
   );
 };
-
-/**
- * Dev Helpers:
- */
-export async function initDoc(debug: DebugSignals) {
-  type T = t.SampleTextDoc;
-
-  const { repo, localstore } = debug;
-  const p = debug.props;
-
-  const listen = (doc: t.CrdtRef<T>) => {
-    doc.events().$.subscribe((e) => {
-      console.info('⚡️ crdt:$ (changed)', e);
-    });
-  };
-
-  const id = localstore.current.docId;
-  if (!id) {
-    // Create:
-    const doc = repo.create<T>({ text: '' });
-    listen(doc);
-    localstore.change((d) => (d.docId = doc.id));
-    p.doc.value = doc;
-  } else {
-    // Retrieve:
-    const doc = (await repo.get<T>(id))!;
-    listen(doc);
-    p.doc.value = doc;
-  }
-}
