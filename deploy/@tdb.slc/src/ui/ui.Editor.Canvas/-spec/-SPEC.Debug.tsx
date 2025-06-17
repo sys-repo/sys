@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.EditorCanvasProps;
-type Storage = Pick<P, 'theme'>;
+type Storage = Pick<P, 'theme' | 'debug'>;
 
 type Doc = { text: string };
 
@@ -17,31 +17,36 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = { theme: 'Dark', debug: false };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
 
   const props = {
-    debug: s(false),
-    theme: s(localstore.current.theme),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
     doc: s<t.CrdtRef<Doc>>(),
   };
-  const p = props;
+
+  Signal.effect(() => {
+    store.change((d) => {
+      const p = props;
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   const api = {
     props,
     repo,
     listen() {
-      p.debug.value;
-      p.theme.value;
-      p.doc.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
-
-  Signal.effect(() => {
-    localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Dark';
-    });
-  });
 
   return api;
 }

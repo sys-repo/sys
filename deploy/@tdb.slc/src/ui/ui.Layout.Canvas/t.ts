@@ -5,6 +5,9 @@ import type { t } from './common.ts';
  */
 export type CanvasLayoutProps = {
   debug?: boolean;
+
+  // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  border?: t.CssProps['border'];
 };

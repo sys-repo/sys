@@ -1,8 +1,17 @@
-import React from 'react';
-import { type t, Color, css, TextEditor } from './common.ts';
+import React, { useEffect, useRef, useState } from 'react';
+import { type t, Color, css, Signal, D, DEFAULTS, rx, CanvasLayout } from './common.ts';
 
-export const EditorCanvas: React.FC<t.EditorCanvasProps> = (props) => {
-  const { debug = false, doc } = props;
+export type EditorCanvasProps = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+/**
+ * Component:
+ */
+export const EditorCanvas: React.FC<EditorCanvasProps> = (props) => {
+  const { debug = false } = props;
 
   /**
    * Render:
@@ -18,7 +27,7 @@ export const EditorCanvas: React.FC<t.EditorCanvasProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <TextEditor doc={doc} theme={theme.name} />
+      <CanvasLayout theme={theme.name} />
     </div>
   );
 };

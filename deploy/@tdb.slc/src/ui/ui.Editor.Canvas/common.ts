@@ -2,6 +2,7 @@ import { pkg, Pkg } from '../common.ts';
 
 export { Crdt, Input, TextEditor } from '@sys/driver-automerge/ui';
 export * from '../common.ts';
+export { CanvasLayout } from '../ui.Layout.Canvas/mod.ts';
 
 /**
  * Constants:
