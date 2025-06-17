@@ -24,7 +24,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
   };
-
+  const p = props;
   const api = {
     props,
     listen() {
@@ -36,7 +36,6 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      const p = props;
       d.theme = p.theme.value;
       d.debug = p.debug.value;
     });
