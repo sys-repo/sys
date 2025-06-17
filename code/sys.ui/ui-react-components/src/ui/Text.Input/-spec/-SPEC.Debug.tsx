@@ -6,6 +6,7 @@ type P = t.TextInputProps;
 type Storage = Pick<
   P,
   | 'theme'
+  | 'debug'
   | 'autoFocus'
   | 'disabled'
   | 'readOnly'
@@ -28,23 +29,36 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: false,
+    background: -0.05,
+    border: { mode: 'underline' },
+    borderRadius: 4,
+    autoFocus: true,
+    disabled: D.disabled,
+    readOnly: D.readOnly,
+    spellCheck: D.spellCheck,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const props = {
     redraw: s(0),
-    debug: s(false),
-    theme: s(localstore.current.theme),
-    background: s<P['background']>(localstore.current.background),
-    border: s<P['border']>(localstore.current.border),
-    borderRadius: s<P['borderRadius']>(localstore.current.borderRadius),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    background: s<P['background']>(snap.background),
+    border: s<P['border']>(snap.border),
+    borderRadius: s<P['borderRadius']>(snap.borderRadius),
 
-    value: s<P['value']>(localstore.current.value),
-    placeholder: s<P['placeholder']>(localstore.current.placeholder),
+    value: s<P['value']>(snap.value),
+    placeholder: s<P['placeholder']>(snap.placeholder),
 
-    disabled: s<P['disabled']>(localstore.current.disabled),
-    readOnly: s<P['readOnly']>(localstore.current.readOnly),
-    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
-    spellCheck: s<P['spellCheck']>(localstore.current.spellCheck),
+    disabled: s<P['disabled']>(snap.disabled),
+    readOnly: s<P['readOnly']>(snap.readOnly),
+    autoFocus: s<P['autoFocus']>(snap.autoFocus),
+    spellCheck: s<P['spellCheck']>(snap.spellCheck),
 
     prefix: s<P['prefix']>(),
     suffix: s<P['suffix']>(),
@@ -54,39 +68,27 @@ export function createDebugSignals() {
     get props() {
       return props;
     },
-    localstore,
+    localstore: store,
     listen() {
-      const p = api.props;
-      p.redraw.value;
-      p.debug.value;
-      p.theme.value;
-      p.value.value;
-      p.placeholder.value;
-      p.disabled.value;
-      p.readOnly.value;
-      p.autoFocus.value;
-      p.background.value;
-      p.border.value;
-      p.borderRadius.value;
-      p.spellCheck.value;
-      p.prefix.value;
-      p.suffix.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
 
   Signal.effect(() => {
-    const p = props;
-    localstore.change((d) => {
-      d.theme = p.theme.value ?? 'Dark';
+    store.change((d) => {
+      const p = props;
+      d.theme = p.theme.value;
       d.value = p.value.value;
       d.placeholder = p.placeholder.value;
-      d.autoFocus = p.autoFocus.value ?? true;
-      d.disabled = p.disabled.value ?? D.disabled;
-      d.readOnly = p.readOnly.value ?? D.readOnly;
-      d.background = p.background.value ?? -0.05;
-      d.border = p.border.value ?? { mode: 'underline' };
-      d.borderRadius = p.borderRadius.value ?? 4;
-      d.spellCheck = p.spellCheck.value ?? D.spellCheck;
+      d.autoFocus = p.autoFocus.value;
+      d.disabled = p.disabled.value;
+      d.readOnly = p.readOnly.value;
+      d.background = p.background.value;
+      d.border = p.border.value;
+      d.borderRadius = p.borderRadius.value;
+      d.spellCheck = p.spellCheck.value;
     });
   });
 
