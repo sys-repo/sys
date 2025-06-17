@@ -2,7 +2,7 @@
  * @module
  * User Interface Components.
  */
-export { Crdt } from '../m.Crdt.browser/mod.ts';
+export { Crdt } from '../m.Crdt.-browser/mod.ts';
 
 /**
  * UI:

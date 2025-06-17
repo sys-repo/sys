@@ -1,3 +1,6 @@
+/**
+ * @sys:
+ */
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
 
@@ -11,4 +14,7 @@ export {
   TextInput,
 } from '@sys/ui-react-components';
 
+/**
+ * local:
+ */
 export { CrdtIs, toAutomergeHandle } from '../../m.Crdt/mod.ts';
