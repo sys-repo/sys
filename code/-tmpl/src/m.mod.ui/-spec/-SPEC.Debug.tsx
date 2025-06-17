@@ -40,7 +40,7 @@ export function createDebugSignals() {
     props,
     listen() {
       Object.values(p)
-        .filter((s) => Signal.Is.signal(s))
+        .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
   };

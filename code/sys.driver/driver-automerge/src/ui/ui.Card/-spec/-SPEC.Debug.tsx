@@ -5,7 +5,7 @@ import { Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../comm
 import type * as t from './-t.ts';
 
 type P = t.CardProps;
-type LocalStore = {
+type Storage = Pick<P, 'theme' | 'debug'> & {
   docId?: string;
   syncUrl?: string;
   syncEnabled?: boolean;
@@ -22,45 +22,47 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<LocalStore>(`${D.name}`, {});
+
+  const defaults: Storage = {
+    debug: false,
+    theme: 'Dark',
+    syncUrl: 'sync.db.team',
+    syncEnabled: true,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const props = {
-    debug: s(false),
-    theme: s<t.CommonTheme>('Dark'),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
     redraw: s(0),
 
     repo: s<t.CrdtRepo>(),
-    syncUrl: s(localstore.current.syncUrl),
-    syncEnabled: s(localstore.current.syncEnabled),
+    syncUrl: s(snap.syncUrl),
+    syncEnabled: s(snap.syncEnabled),
 
-    docId: s(localstore.current.docId),
+    docId: s(store.current.docId),
     doc: s<t.CrdtRef<t.TDoc>>(),
   };
 
   const p = props;
   const api = {
     props,
-    localstore,
+    localstore: store,
     listen() {
-      p.redraw.value;
-      p.debug.value;
-      p.theme.value;
-      p.redraw.value;
-      p.docId.value;
-      p.doc.value;
-      p.repo.value;
-      p.syncUrl.value;
-      p.syncEnabled.value;
+      Object.values(p)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
 
   Signal.effect(() => {
-    const ws = p.syncUrl.value;
-
-    localstore.change((d) => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
       d.docId = p.docId.value;
-      d.syncUrl = p.syncUrl.value ?? ws;
-      d.syncEnabled = p.syncEnabled.value ?? true;
+      d.syncUrl = p.syncUrl.value;
+      d.syncEnabled = p.syncEnabled.value;
     });
   });
 

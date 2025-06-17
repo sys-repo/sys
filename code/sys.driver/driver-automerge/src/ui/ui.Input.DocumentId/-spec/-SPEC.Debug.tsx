@@ -15,14 +15,25 @@ type Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-const STORAGE_KEY = `dev:${D.name}.local`;
+
+const STORAGE_KEY = `dev:${D.name}.input`;
 
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = {
+    theme: 'Dark',
+    autoFocus: D.autoFocus,
+    enabled: D.enabled,
+    controlled: true,
+    passRepo: true,
+    localstorageKey: STORAGE_KEY,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
@@ -32,42 +43,32 @@ export function createDebugSignals() {
   const props = {
     redraw: s(0),
     debug: s(false),
-    theme: s(localstore.current.theme),
-    controlled: s(localstore.current.controlled),
-    passRepo: s(localstore.current.passRepo),
-    localstorageKey: s(localstore.current.localstorageKey),
+    theme: s(snap.theme),
+    controlled: s(snap.controlled),
+    passRepo: s(snap.passRepo),
+    localstorageKey: s(snap.localstorageKey),
 
     docId: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
 
-    label: s<P['label']>(localstore.current.label),
-    placeholder: s<P['placeholder']>(localstore.current.placeholder),
-    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
-    enabled: s<P['enabled']>(localstore.current.enabled),
+    label: s<P['label']>(store.current.label),
+    placeholder: s<P['placeholder']>(store.current.placeholder),
+    autoFocus: s<P['autoFocus']>(store.current.autoFocus),
+    enabled: s<P['enabled']>(store.current.enabled),
   };
   const p = props;
   const api = {
     props,
     repo,
     listen() {
-      p.redraw.value;
-      p.debug.value;
-      p.theme.value;
-      p.label.value;
-      p.placeholder.value;
-      p.controlled.value;
-      p.passRepo.value;
-      p.autoFocus.value;
-      p.enabled.value;
-      p.localstorageKey.value;
-
-      p.docId.value;
-      p.doc.value;
+      Object.values(p)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
 
   Signal.effect(() => {
-    localstore.change((d) => {
+    store.change((d) => {
       d.theme = p.theme.value ?? 'Dark';
       d.label = p.label.value;
       d.placeholder = p.placeholder.value;

@@ -21,7 +21,16 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = {
+    debug: false,
+    theme: 'Dark',
+    autoFocus: true,
+    readOnly: D.readOnly,
+    scroll: D.scroll,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
@@ -32,35 +41,33 @@ export function createDebugSignals() {
   });
 
   const props = {
-    debug: s(localstore.current.debug),
-    theme: s(localstore.current.theme),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    autoFocus: s<P['autoFocus']>(snap.autoFocus),
+    readOnly: s<P['readOnly']>(snap.readOnly),
+    scroll: s<P['scroll']>(snap.scroll),
+
     doc: s<t.CrdtRef<t.SampleTextDoc>>(),
-    autoFocus: s<P['autoFocus']>(localstore.current.autoFocus),
-    readOnly: s<P['readOnly']>(localstore.current.readOnly),
-    scroll: s<P['scroll']>(localstore.current.scroll),
   };
   const p = props;
   const api = {
     props,
     repo,
-    localstore,
+    localstore: store,
     listen() {
-      p.debug.value;
-      p.theme.value;
-      p.doc.value;
-      p.readOnly.value;
-      p.autoFocus.value;
-      p.scroll.value;
+      Object.values(p)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
 
   Signal.effect(() => {
-    localstore.change((d) => {
+    store.change((d) => {
       d.debug = p.debug.value;
-      d.theme = p.theme.value ?? 'Dark';
-      d.autoFocus = p.autoFocus.value ?? true;
-      d.readOnly = p.readOnly.value ?? D.readOnly;
-      d.scroll = p.scroll.value ?? D.scroll;
+      d.theme = p.theme.value;
+      d.autoFocus = p.autoFocus.value;
+      d.readOnly = p.readOnly.value;
+      d.scroll = p.scroll.value;
     });
   });
 
