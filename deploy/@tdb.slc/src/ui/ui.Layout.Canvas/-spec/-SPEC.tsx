@@ -17,15 +17,18 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size('fill')
+      .size('fill', 100)
       .display('grid')
       .render(() => {
-        console.log('p.debug.value', p.debug.value);
+        const v = Signal.toObject(p);
+        const { borderRadius } = v;
         return (
           <CanvasLayout
-            debug={p.debug.value}
-            theme={p.theme.value}
-            debugSize={{ style: { Absolute: [-25, 5, null, null] } }}
+            style={{ borderRadius }}
+            panels={v.panels}
+            theme={v.theme}
+            debug={v.debug}
+            debugSize={{ style: { Absolute: [-30, 3, null, null] } }}
           />
         );
       });

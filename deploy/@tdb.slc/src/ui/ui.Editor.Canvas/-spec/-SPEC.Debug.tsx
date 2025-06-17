@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal, Str } from '../common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -28,6 +28,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     doc: s<t.CrdtRef<Doc>>(),
+    panels: s<P['panels']>(),
   };
 
   Signal.effect(() => {
@@ -94,7 +95,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <ObjectView
         name={'debug'}
-        data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
+        data={Signal.toObject({
+          ...p,
+          doc: p.doc.value?.current,
+        })}
         expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />

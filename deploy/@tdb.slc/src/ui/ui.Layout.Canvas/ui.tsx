@@ -1,8 +1,10 @@
 import React from 'react';
-import { type t, Color, css, useSizeObserver } from './common.ts';
+import { type t, D, Is, Color, css, useSizeObserver } from './common.ts';
 
 export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, panels = {} } = props;
+
+  console.log('layout/panels', panels);
 
   /**
    * Hooks:
@@ -14,16 +16,20 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const border = props.border ?? `solid 5px ${Color.alpha(theme.fg, 1)}`;
+  const borderWidth = props.borderWidth ?? D.borderWidth;
+  const border = `solid ${borderWidth}px ${Color.alpha(theme.fg, 1)}`;
   const styles = {
     base: css({
       position: 'relative',
-      backgroundColor: Color.ruby(debug ? 0.08 : 0),
+      backgroundColor: Color.ruby(debug ? 0 : 0),
       color: theme.fg,
       border,
       opacity: ready ? 1 : 0,
       display: 'grid',
     }),
+    /**
+     * Grid layout:
+     */
     body: css({
       position: 'relative',
       display: 'grid',
@@ -52,39 +58,55 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
       gridTemplateColumns: `repeat(2, 1fr)`,
     }),
 
+    /**
+     * Panel/Cell Content:
+     */
+    content: css({ display: 'grid' }),
+
+    /**
+     * Debug:
+     */
     debug: {
       size: css({
         Absolute: [5, 8, null, null],
         fontSize: 11,
         pointerEvents: 'none',
-        opacity: 0.5,
+        opacity: 0.2,
         ...props.debugSize?.style,
       }),
     },
   };
 
+  const render = (name: t.CanvasPanel) => {
+    const panel = panels[name];
+    if (!panel?.el) return null;
+
+    const el = Is.func(panel.el) ? panel.el() : panel.el;
+    return <div className={styles.content.class}>{el}</div>;
+  };
+
   const elBody = (
     <div className={styles.body.class}>
       <div className={css(styles.row, styles.top).class}>
-        <div className={styles.cell.class}>{'🐷 purpose'}</div>
-        <div className={styles.cell.class}>{'🐷 impact'}</div>
+        <div className={styles.cell.class}>{render('purpose')}</div>
+        <div className={styles.cell.class}>{render('impact')}</div>
       </div>
       <div className={css(styles.row, styles.middle).class}>
-        <div className={styles.cell.class}>{'🐷 problem'}</div>
+        <div className={styles.cell.class}>{render('problem')}</div>
         <div className={styles.cell.class}>
-          <div className={css(styles.row).class}>{'🐷 solution'}</div>
-          <div className={styles.row.class}>{'🐷 key-metrics'}</div>
+          <div className={css(styles.row).class}>{render('solution')}</div>
+          <div className={styles.row.class}>{render('metrics')}</div>
         </div>
-        <div className={styles.cell.class}>{'🐷 UVP'}</div>
+        <div className={styles.cell.class}>{render('uvp')}</div>
         <div className={styles.cell.class}>
-          <div className={css(styles.row).class}>{'🐷 unfair advantage'}</div>
-          <div className={styles.row.class}>{'🐷 channels'}</div>
+          <div className={css(styles.row).class}>{render('advantage')}</div>
+          <div className={styles.row.class}>{render('channels')}</div>
         </div>
-        <div className={styles.cell.class}>{'🐷 customer segments'}</div>
+        <div className={styles.cell.class}>{render('customers')}</div>
       </div>
       <div className={css(styles.row, styles.bottom).class}>
-        <div className={styles.cell.class}>{'🐷 cost'}</div>
-        <div className={styles.cell.class}>{'🐷 revenue'}</div>
+        <div className={styles.cell.class}>{render('costs')}</div>
+        <div className={styles.cell.class}>{render('revenue')}</div>
       </div>
     </div>
   );

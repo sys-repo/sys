@@ -1,8 +1,17 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  CanvasPanel,
+  Button,
+  css,
+  D,
+  LocalStorage,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 
 type P = t.CanvasLayoutProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = { borderRadius?: number } & Pick<P, 'theme' | 'debug'>;
 
 /**
  * Types:
@@ -16,13 +25,19 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = { theme: 'Dark', debug: false };
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: false,
+    borderRadius: D.borderRadius,
+  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    borderRadius: s(snap.borderRadius),
+    panels: s<P['panels']>(),
   };
   const p = props;
 
@@ -31,8 +46,9 @@ export function createDebugSignals() {
    */
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.theme = p.theme.value;
+      d.borderRadius = p.borderRadius.value;
     });
   });
 
@@ -83,6 +99,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
+      <Button
+        block
+        label={() => `borderRadius: ${p.borderRadius.value ?? D.borderRadius}`}
+        onClick={() => Signal.cycle(p.borderRadius, [0, 5, 15, 30])}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      {samplesButtons(debug)}
+
       <hr />
       <Button
         block
@@ -98,3 +124,45 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Dev Helpers:
+ */
+export function samplesButtons(debug: DebugSignals) {
+  const p = debug.props;
+  const styles = {
+    emoji: css({ fontSize: 32, padding: 8, display: 'grid', placeItems: 'center' }),
+  };
+
+  const elements: t.ReactNode[] = [];
+  const el = <div className={styles.emoji.class}>{'🌳'}</div>;
+
+  const sample = (label: string, fn?: () => t.CanvasPanelContentMap | undefined) => {
+    const btn = (
+      <Button
+        block
+        key={elements.length}
+        label={() => label}
+        onClick={() => (p.panels.value = fn?.())}
+      />
+    );
+    elements.push(btn);
+  };
+
+  sample('- all', () => {
+    const panels: t.CanvasPanelContentMap = {};
+    CanvasPanel.all.forEach((panel) => (panels[panel] = { el }));
+    return panels;
+  });
+
+  sample('- selective', () => {
+    return {
+      purpose: { el: '👋 hello' },
+      uvp: { el },
+    };
+  });
+
+  sample('(reset)', () => undefined);
+
+  return <React.Fragment>{elements}</React.Fragment>;
+}

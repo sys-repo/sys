@@ -1,17 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, DEFAULTS, rx, CanvasLayout } from './common.ts';
+import React from 'react';
+import { type t, CanvasLayout, Color, css } from './common.ts';
 
-export type EditorCanvasProps = {
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
+type P = t.EditorCanvasProps;
 
 /**
  * Component:
  */
-export const EditorCanvas: React.FC<EditorCanvasProps> = (props) => {
-  const { debug = false } = props;
+export const EditorCanvas: React.FC<P> = (props) => {
+  const { debug = false, panels = {}, doc } = props;
+
+  console.log('editor/panels', panels);
+  console.log('doc', doc);
+
+  const active = !!doc;
 
   /**
    * Render:
@@ -19,15 +20,18 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      position: 'relative',
       color: theme.fg,
       display: 'grid',
+      opacity: active ? 1 : 0.3,
+      transition: `opacity 120ms ease`,
+      pointerEvents: active ? 'auto' : 'none',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <CanvasLayout theme={theme.name} />
+      <CanvasLayout theme={theme.name} panels={panels} debug={debug} debugSize={props.debugSize} />
     </div>
   );
 };

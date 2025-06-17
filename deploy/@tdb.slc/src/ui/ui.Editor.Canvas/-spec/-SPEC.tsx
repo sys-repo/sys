@@ -18,9 +18,20 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size('fill')
+      .size('fill', 100)
       .display('grid')
-      .render(() => <EditorCanvas debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />);
+      .render(() => {
+        const v = Signal.toObject(p);
+        return (
+          <EditorCanvas
+            theme={v.theme}
+            doc={v.doc}
+            panels={v.panels}
+            debug={v.debug}
+            debugSize={{ style: { Absolute: [-30, 3, null, null] } }}
+          />
+        );
+      });
 
     ctx.debug.header
       .padding(0)
