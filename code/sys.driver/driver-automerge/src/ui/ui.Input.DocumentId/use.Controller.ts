@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 
 import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
+import { useTransientMessage } from './use.TransientMessage.ts';
 
 type Args = t.UseDocumentIdHookArgs;
 type Hook = t.DocumentIdHook;
@@ -34,6 +35,7 @@ function useInternal(args: Args = {}): Hook {
    */
   const [ready, setReady] = React.useState(false);
   const localstore = useLocalStorage(args.localstorageKey, signalsRef.current.id);
+  const transient = useTransientMessage();
 
   /**
    * Effect: (repo changed → reset).
@@ -72,6 +74,15 @@ function useInternal(args: Args = {}): Hook {
     const props = wrangle.props(p, ready, repo);
     const enabled = props.is.enabled.action;
 
+    if (action === 'Copy') {
+      const id = p.id.value;
+      if (id) {
+        navigator.clipboard.writeText(id);
+        transient.write('Copy', 'Copied');
+      }
+      return;
+    }
+
     if (action === 'Clear') {
       p.id.value = undefined;
       p.doc.value = undefined;
@@ -90,9 +101,11 @@ function useInternal(args: Args = {}): Hook {
 
     if (action === 'Load' && props.id && enabled) {
       p.spinning.value = true;
-      p.doc.value = await repo.get(props.id);
+      const res = await repo.get(props.id);
       p.spinning.value = false;
-      localstore.history.push(props.id);
+
+      p.doc.value = res.doc;
+      if (res.doc) localstore.history.push(props.id);
       return;
     }
   };
@@ -126,6 +139,9 @@ function useInternal(args: Args = {}): Hook {
     instance,
     signals,
     handlers: { onAction, onTextChange, onKeyDown },
+    get transient() {
+      return transient.toObject();
+    },
     get props() {
       return wrangle.props(signals, ready, repo);
     },

@@ -8,7 +8,6 @@ import {
   Is,
   rx,
   TextInput,
-  Time,
   useDebouncedValue,
   usePointer,
 } from './common.ts';
@@ -25,14 +24,12 @@ export const View: React.FC<P> = (props) => {
   /**
    * Refs:
    */
-  const timeoutRef = useRef<() => void>();
   const inputRef = useRef<HTMLInputElement>();
   const focus = () => inputRef.current?.focus();
 
   /**
    * Hooks:
    */
-  const [copied, setCopied] = useState(false);
   const [textboxOver, setOverTextbox] = useState(false);
   const [focused, setFocused] = React.useState(false);
   const pointer = usePointer((e) => setOverTextbox(e.is.over));
@@ -48,6 +45,8 @@ export const View: React.FC<P> = (props) => {
   const is = controller.props.is;
   const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
   const active = enabled && !!repo;
+  const transient = controller.transient;
+  const copied = transient.kind === 'Copy';
 
   /**
    * Effect: (mounted).
@@ -110,16 +109,12 @@ export const View: React.FC<P> = (props) => {
       enabled={active}
       copied={copied}
       theme={theme.name}
+      onCopy={() => controller.handlers.onAction({ action: 'Copy' })}
       onPointer={(e) => {
         if (e.is.down) {
           e.cancel();
           focus();
         }
-      }}
-      onCopied={() => {
-        timeoutRef.current?.();
-        setCopied(true);
-        timeoutRef.current = Time.delay(1_500, () => setCopied(false)).cancel;
       }}
     />
   );

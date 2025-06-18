@@ -27,7 +27,7 @@ const print = () => {
  */
 const repo = Crdt.repo({ dir, network: ws });
 const id = '45BjzPsQM7UJJ66hgsrnF7gsR9D5';
-const doc = await repo.get(id);
+const doc = (await repo.get(id)).doc;
 
 doc?.events().$.subscribe(print);
 print();

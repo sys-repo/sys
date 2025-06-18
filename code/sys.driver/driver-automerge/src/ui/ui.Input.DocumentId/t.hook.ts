@@ -18,6 +18,7 @@ export type DocumentIdHook = {
   readonly signals: t.DocumentIdHookSignals;
   readonly props: DocumentIdHookProps;
   readonly history: readonly t.StringId[];
+  readonly transient: { kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs };
   readonly handlers: {
     onAction: t.DocumentIdInputActionHandler;
     onTextChange: t.TextInputChangeHandler;

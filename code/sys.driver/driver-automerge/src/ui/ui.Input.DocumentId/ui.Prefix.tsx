@@ -11,8 +11,8 @@ export type PrefixProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   //
+  onCopy?: () => void;
   onPointer?: t.PointerEventsHandler;
-  onCopied?: () => void;
 };
 
 /**
@@ -21,22 +21,12 @@ export type PrefixProps = {
 export const Prefix: React.FC<PrefixProps> = (props) => {
   const { doc, copied, enabled = true } = props;
   const docId = (props.docId || '').trim();
-  const is = {
-    current: doc && docId ? doc.id === docId : false,
-  };
+  const is = { current: doc && docId ? doc.id === docId : false } as const;
 
   /**
    * Hooks:
    */
   const pointer = usePointer(props.onPointer);
-
-  /**
-   * Handlers:
-   */
-  const copyToClipboard = () => {
-    if (docId) navigator.clipboard.writeText(docId);
-    props.onCopied?.();
-  };
 
   /**
    * Render:
@@ -59,7 +49,7 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
   };
 
   const elCopy = docId && props.over && pointer.is.over && (
-    <Button enabled={enabled} style={styles.btn} onClick={copyToClipboard}>
+    <Button enabled={enabled} style={styles.btn} onClick={props.onCopy}>
       <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
     </Button>
   );

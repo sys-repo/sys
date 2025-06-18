@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 export type * from './t.hook.ts';
 
 /** The various states the action button can assume. */
-export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear';
+export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear' | 'Copy';
 
 /**
  * Library: editor for repo-document ID loader.
