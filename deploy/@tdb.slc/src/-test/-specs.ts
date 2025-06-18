@@ -23,7 +23,9 @@ export const SpecsComponents = {
   'tdb.slc.ui.MenuList': () => import('../ui/ui.MenuList/-spec/-SPEC.tsx'),
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
-  'tdb.slc.ui.Editor.Canvas': () => import('../ui/ui.Editor.Canvas/-spec/-SPEC.tsx'),
+
+  'tdb.slc.ui.Canvas.Cell': () => import('../ui/ui.Canvas.Cell/-spec/-SPEC.tsx'),
+  'tdb.slc.ui.Canvas.Editor': () => import('../ui/ui.Editor.Canvas/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 
 /**
