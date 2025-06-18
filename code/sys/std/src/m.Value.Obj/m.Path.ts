@@ -1,4 +1,4 @@
-import { R } from '../common.ts';
+import { type t, R } from '../common.ts';
 
 /**
  * Builds an object from the given path
@@ -36,7 +36,7 @@ export function build<T>(
 }
 
 /**
- * Walks the given (period seperated) key-path to retrieve a value.
+ * Walks the given key-path to retrieve a value.
  */
 export function pluck<T>(keyPath: string, root: { [key: string]: any }) {
   const parts = prepareKeyPath(keyPath);
@@ -140,6 +140,13 @@ export function remove(
 export function prune(keyPath: string, root: { [key: string]: any }) {
   return remove(keyPath, root, { type: 'PRUNE' });
 }
+
+export const Path: t.ObjPathLib = {
+  build,
+  pluck,
+  remove,
+  prune,
+};
 
 /**
  * Helpers
