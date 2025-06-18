@@ -1,6 +1,6 @@
 import { Repo } from '@automerge/automerge-repo';
 
-import { describe, expect, it } from '../../-test.ts';
+import { Time, describe, expect, it } from '../../-test.ts';
 import { toAutomergeRepo, toRepo } from '../u.repo.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -80,12 +80,32 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('errors', () => {
-    it('error: document not found', async () => {
+    it('control: ensure monkey-patching is non-destructive', () => {
+      const a = new Repo();
+      const b = new Repo();
+      (a as any).find = 0;
+      expect(a.find).to.not.equal(b.find);
+      expect(typeof b.find === 'function').to.be.true;
+    });
+
+    it('error: NotFound', async () => {
       const repo = toRepo(new Repo());
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
       expect(res.doc).to.eql(undefined);
       expect(res.error?.kind === 'NotFound').to.be.true;
       expect(res.error?.message).to.include('Document Juwryn74i3Aia5Kb529XUm3hU4Y is unavailable');
+    });
+
+    it('error: Timeout', async () => {
+      const base = new Repo();
+      const repo = toRepo(base);
+
+      // Monkey-patch the internal `find` method to simulate a too long retrieval.
+      (base as any).find = async () => Time.wait(50_000);
+
+      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 5 });
+      expect(res.error?.kind === 'Timeout').to.be.true;
+      expect(res.error?.message).to.include('Timed out retrieving document');
     });
 
     it('error: UNKNOWN - bork the repo', async () => {

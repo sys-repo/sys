@@ -1,10 +1,11 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-import { type t, Err, Is, slug } from './common.ts';
+import { type t, Err, Is, slug, Time } from './common.ts';
 import { CrdtIs } from './m.Is.ts';
 import { toRef } from './u.ref.ts';
 
-const REF = Symbol('ref:handle');
 type O = Record<string, unknown>;
+const REF = Symbol('ref:handle');
+const D = { timeout: 5_000 };
 
 /**
  * Extract the hidden automerge Repo from a [CrdtRepo].
@@ -30,29 +31,30 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
       return toRef(handle);
     },
 
-    async get<T extends O>(id: t.StringId) {
-      try {
-        /**
-         * Find:
-         */
+    get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {
+      return new Promise<t.CrdtRepoGetResponse<T>>(async (resolve) => {
+        const fail = (error: t.CrdtRepoError) => resolve({ error });
         id = wrangle.id(id);
-        const handle = await repo.find<T>(id as DocumentId);
-        await handle.whenReady();
-        return { doc: toRef(handle) };
-      } catch (err: any) {
-        /**
-         * Failure:
-         */
-        const message = err?.message ?? '';
 
-        if (message.includes('is unavailable')) {
-          const error = wrangle.error(message, 'NotFound');
-          return { error };
+        try {
+          const msecs = options.timeout ?? D.timeout;
+          const timeout = Time.delay(msecs, () => {
+            const error = wrangle.error('Timeout', Err.std(`Timed out retrieving document ${id}`));
+            return fail(error);
+          });
+
+          const handle = await repo.find<T>(id as DocumentId);
+          await handle.whenReady();
+          const doc = toRef(handle);
+
+          timeout.cancel();
+          if (!timeout.is.completed) resolve({ doc });
+        } catch (err: any) {
+          const message = err?.message ?? '';
+          if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));
+          return fail(wrangle.error('UNKNOWN', err));
         }
-
-        const error = wrangle.error(err, 'UNKNOWN');
-        return { error };
-      }
+      });
     },
   };
 
@@ -79,7 +81,7 @@ const wrangle = {
     return id as DocumentId;
   },
 
-  error(err: any, kind: t.CrdtRepoErrorKind): t.CrdtRepoError {
+  error(kind: t.CrdtRepoErrorKind, err: any): t.CrdtRepoError {
     const res = Err.std(err);
     return { ...res, kind };
   },

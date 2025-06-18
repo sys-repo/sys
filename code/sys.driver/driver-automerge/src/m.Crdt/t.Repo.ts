@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
+
 type O = Record<string, unknown>;
+export type CrdtRepoGetOptions = { timeout?: t.Msecs };
 
 /**
  * A repository of CRDT documents:
@@ -7,7 +9,7 @@ type O = Record<string, unknown>;
 export type CrdtRepo = {
   readonly id: { readonly instance?: t.StringId; readonly peer: t.StringId };
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
-  get<T extends O>(id: t.StringId): Promise<CrdtRepoGetResponse<T>>;
+  get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRepoGetResponse<T>>;
 };
 
 /** Response from the `repo.get` method. */
@@ -19,5 +21,5 @@ export type CrdtRepoGetResponse<T extends O> = {
 /**
  * Repo related errors.
  */
-export type CrdtRepoErrorKind = 'NotFound' | 'UNKNOWN';
+export type CrdtRepoErrorKind = 'NotFound' | 'Timeout' | 'UNKNOWN';
 export type CrdtRepoError = t.StdError & { kind: t.CrdtRepoErrorKind };
