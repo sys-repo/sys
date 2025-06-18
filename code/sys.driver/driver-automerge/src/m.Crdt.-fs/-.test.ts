@@ -28,7 +28,7 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
       await Time.wait(500);
 
       const repoB = Crdt.repo(dir);
-      const b = (await repoB.get<T>(a.id))!;
+      const b = (await repoB.get<T>(a.id)).doc!;
       expect(b.current).to.eql({ count: 1234 }); // NB: read from disk.
     });
   });

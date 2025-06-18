@@ -1,5 +1,5 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-import { type t, Is, slug } from './common.ts';
+import { type t, Err, Is, slug } from './common.ts';
 import { CrdtIs } from './m.Is.ts';
 import { toRef } from './u.ref.ts';
 
@@ -31,14 +31,15 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
     },
 
     async get<T extends O>(id: t.StringId) {
-      id = wrangle.id(id);
       try {
+        id = wrangle.id(id);
         const handle = await repo.find<T>(id as DocumentId);
         await handle.whenReady();
-        return toRef(handle);
-      } catch (error: any) {
-        if (error.message.includes('is unavailable')) return undefined;
-        throw error;
+        return { doc: toRef(handle) };
+      } catch (err: any) {
+        const notFound = (err?.message || '').includes('is unavailable'); // NB: expected error when document not in repo.
+        const error = notFound ? undefined : Err.std(err);
+        return { error };
       }
     },
   };

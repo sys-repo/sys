@@ -20,7 +20,7 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     await Time.wait(500);
 
     const repoB = Crdt.repo({ storage: new IndexedDBStorageAdapter(D.database) });
-    const b = (await repoB.get<T>(a.id))!;
+    const b = (await repoB.get<T>(a.id)).doc!;
     expect(b.current).to.eql({ count: 1234 }); // NB: read from IndexedDb.
   });
 
@@ -33,7 +33,7 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     await Time.wait(10);
 
     const assertExists = async (repo: t.CrdtRepo, exists: boolean) => {
-      const res = await repo.get(doc.id);
+      const res = (await repo.get(doc.id)).doc;
       expect(!!res === exists).to.be.true;
     };
     await assertExists(repoA, true);

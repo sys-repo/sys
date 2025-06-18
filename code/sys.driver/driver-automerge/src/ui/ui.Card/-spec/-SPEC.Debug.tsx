@@ -177,8 +177,8 @@ export function valueEditorButtons(debug: DebugSignals) {
     const docId = localstore.current.docId;
     if (!docId || !repo) return;
 
-    const doc = (await repo.get<TDoc>(docId))!;
-    doc.change((d) => (d.count += by));
+    const doc = (await repo.get<TDoc>(docId)).doc;
+    doc?.change((d) => (d.count += by));
   };
 
   return (

@@ -7,5 +7,11 @@ type O = Record<string, unknown>;
 export type CrdtRepo = {
   readonly id: { readonly instance?: t.StringId; readonly peer: t.StringId };
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
-  get<T extends O>(id: t.StringId): Promise<t.CrdtRef<T> | undefined>;
+  get<T extends O>(id: t.StringId): Promise<CrdtRepoGetResponse<T>>;
+};
+
+/** Response from the `repo.get` method. */
+export type CrdtRepoGetResponse<T extends O> = {
+  readonly doc?: t.CrdtRef<T> | undefined;
+  readonly error?: t.StdError;
 };

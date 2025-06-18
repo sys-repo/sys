@@ -46,7 +46,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     const a = repoA.create<T>({ count: 0 });
     expect(a.current).to.eql({ count: 0 });
 
-    const b = (await repoB.get<T>(` ${a.id}   `))!; // NB: test input address cleanup.
+    const b = (await repoB.get<T>(` ${a.id}   `)).doc!; // NB: test input address cleanup.
     expect(a).to.not.equal(b); // NB: difference repo (not-cached).
     expect(a.id).to.eql(b.id);
     expect(a.instance).to.not.eql(b.instance);
@@ -58,7 +58,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('get: automerge-URL', async () => {
     const repo = toRepo(new Repo());
     const a = repo.create<T>({ count: 0 });
-    const b = (await repo.get<T>(`automerge:${a.id}`))!;
+    const b = (await repo.get<T>(`automerge:${a.id}`)).doc!;
     expect(b.instance).to.not.eql(a.instance);
     expect(b.id).to.eql(a.id);
     expect(b.current).to.eql({ count: 0 });
@@ -66,8 +66,9 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('get: 404', async () => {
     const repo = toRepo(new Repo());
-    const doc = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
-    expect(doc).to.eql(undefined);
+    const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+    expect(res.doc).to.eql(undefined);
+    expect(res.error).to.eql(undefined);
   });
 
   it('syncing between different instances', async () => {
@@ -75,7 +76,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     const repoA = toRepo(base);
     const repoB = toRepo(base);
     const a = repoA.create<T>({ count: 0 });
-    const b = (await repoB.get<T>(a.id))!;
+    const b = (await repoB.get<T>(a.id)).doc!;
     expect(a.instance).to.not.eql(b.instance);
 
     expect(a).to.not.equal(b);
