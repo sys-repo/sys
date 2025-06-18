@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, slug, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Peer, type PeerOptions } from 'peerjs';
 
 type P = t.SampleProps;
 
@@ -11,10 +12,40 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
+ * REF: https://peerjs.com/
+ */
+export function createPeer() {
+  const peerId = `peer-${slug()}`;
+  console.info(`connecting: ${peerId}...`);
+
+  const peerOptions: PeerOptions = {
+    host: 'rtc.db.team',
+    port: 443, //          Force HTTPS port.
+    secure: true, //       TLS (Transport Layer Security).
+    debug: 2, //           (optional): 0 = silent, 1 = errors, 2 = warnings+errors, 3 = all.
+  };
+
+  const peer = new Peer(peerId, peerOptions);
+
+  peer.on('open', (id) => {
+    console.info('⚡️ peer.on:open:', id);
+  });
+
+  peer.on('error', (err) => {
+    console.error('⚡️ peer.on:error: 💥', err);
+  });
+
+  return peer;
+}
+
+/**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const peer = createPeer();
+  console.info('🐚 peer:', peer);
 
   const defaults: Storage = { theme: 'Dark', debug: false };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);

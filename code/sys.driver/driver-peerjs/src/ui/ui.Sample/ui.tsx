@@ -12,6 +12,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      padding: 15,
     }),
   };
 
