@@ -1,5 +1,5 @@
 # Module
-System UI wrapper around WebRTC client library [peerjs](https://peerjs.com/).
+System UI wrapper around WebRTC client library [PeerJS](https://peerjs.com/).
 
 
 ### Example
