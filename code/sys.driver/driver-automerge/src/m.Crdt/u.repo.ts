@@ -32,13 +32,25 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
 
     async get<T extends O>(id: t.StringId) {
       try {
+        /**
+         * Find:
+         */
         id = wrangle.id(id);
         const handle = await repo.find<T>(id as DocumentId);
         await handle.whenReady();
         return { doc: toRef(handle) };
       } catch (err: any) {
-        const notFound = (err?.message || '').includes('is unavailable'); // NB: expected error when document not in repo.
-        const error = notFound ? undefined : Err.std(err);
+        /**
+         * Failure:
+         */
+        const message = err?.message ?? '';
+
+        if (message.includes('is unavailable')) {
+          const error = wrangle.error(message, 'NotFound');
+          return { error };
+        }
+
+        const error = wrangle.error(err, 'UNKNOWN');
         return { error };
       }
     },
@@ -65,5 +77,10 @@ const wrangle = {
     id = id.trim();
     id = isValidAutomergeUrl(id) ? id.replace(/^automerge\:/, '') : id;
     return id as DocumentId;
+  },
+
+  error(err: any, kind: t.CrdtRepoErrorKind): t.CrdtRepoError {
+    const res = Err.std(err);
+    return { ...res, kind };
   },
 } as const;

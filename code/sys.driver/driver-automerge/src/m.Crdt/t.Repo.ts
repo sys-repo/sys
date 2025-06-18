@@ -13,5 +13,11 @@ export type CrdtRepo = {
 /** Response from the `repo.get` method. */
 export type CrdtRepoGetResponse<T extends O> = {
   readonly doc?: t.CrdtRef<T> | undefined;
-  readonly error?: t.StdError;
+  readonly error?: CrdtRepoError;
 };
+
+/**
+ * Repo related errors.
+ */
+export type CrdtRepoErrorKind = 'NotFound' | 'UNKNOWN';
+export type CrdtRepoError = t.StdError & { kind: t.CrdtRepoErrorKind };

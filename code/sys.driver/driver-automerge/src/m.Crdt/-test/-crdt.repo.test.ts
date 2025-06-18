@@ -64,13 +64,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(b.current).to.eql({ count: 0 });
   });
 
-  it('get: 404', async () => {
-    const repo = toRepo(new Repo());
-    const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
-    expect(res.doc).to.eql(undefined);
-    expect(res.error).to.eql(undefined);
-  });
-
   it('syncing between different instances', async () => {
     const base = new Repo();
     const repoA = toRepo(base);
@@ -84,5 +77,31 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     a.change((d) => d.count++);
     expect(a.current).to.eql(b.current);
+  });
+
+  describe('errors', () => {
+    it('error: document not found', async () => {
+      const repo = toRepo(new Repo());
+      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+      expect(res.doc).to.eql(undefined);
+      expect(res.error?.kind === 'NotFound').to.be.true;
+      expect(res.error?.message).to.include('Document Juwryn74i3Aia5Kb529XUm3hU4Y is unavailable');
+    });
+
+    it('error: UNKNOWN - bork the repo', async () => {
+      const base = new Repo();
+      const error = '💥 test explosion';
+
+      // Monkey-patch the internal `find` method to simulate failure.
+      (base as any).find = () => {
+        throw new Error(error);
+      };
+
+      const repo = toRepo(base);
+      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+
+      expect(res.error?.message).to.eql(error);
+      expect(res.error?.kind === 'UNKNOWN').to.be.true;
+    });
   });
 });
