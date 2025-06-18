@@ -87,6 +87,7 @@
     "npm:ollama-ai-provider@1.2.0": "1.2.0_zod@3.25.64",
     "npm:ollama@0.5.16": "0.5.16",
     "npm:ora@8.2.0": "8.2.0",
+    "npm:peerjs@1.5.5": "1.5.5",
     "npm:pretty-bytes@7.0.0": "7.0.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
     "npm:prosemirror-model@1.25.1": "1.25.1",
@@ -299,7 +300,7 @@
         "@automerge/automerge-repo",
         "cbor-x",
         "debug",
-        "eventemitter3",
+        "eventemitter3@5.0.1",
         "isomorphic-ws@5.0.0_ws@8.18.2__bufferutil@4.0.9__utf-8-validate@5.0.10",
         "ws@8.18.2_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ]
@@ -324,7 +325,7 @@
         "bs58check",
         "cbor-x",
         "debug",
-        "eventemitter3",
+        "eventemitter3@5.0.1",
         "fast-sha256",
         "uuid@9.0.1",
         "xstate"
@@ -1048,7 +1049,7 @@
         "@farcaster/frame-core",
         "@farcaster/quick-auth",
         "comlink",
-        "eventemitter3",
+        "eventemitter3@5.0.1",
         "ox"
       ]
     },
@@ -1397,6 +1398,9 @@
         "react",
         "react-dom"
       ]
+    },
+    "@msgpack/msgpack@2.8.0": {
+      "integrity": "sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ=="
     },
     "@neon-rs/load@0.0.4": {
       "integrity": "sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw=="
@@ -3569,6 +3573,9 @@
     "event-target-shim@5.0.1": {
       "integrity": "sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ=="
     },
+    "eventemitter3@4.0.7": {
+      "integrity": "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
+    },
     "eventemitter3@5.0.1": {
       "integrity": "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="
     },
@@ -4165,7 +4172,7 @@
         "@scure/bip32",
         "@scure/bip39",
         "abitype",
-        "eventemitter3"
+        "eventemitter3@5.0.1"
       ]
     },
     "package-json-from-dist@1.0.1": {
@@ -4189,6 +4196,18 @@
     },
     "pathval@2.0.0": {
       "integrity": "sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA=="
+    },
+    "peerjs-js-binarypack@2.1.0": {
+      "integrity": "sha512-YIwCC+pTzp3Bi8jPI9UFKO0t0SLo6xALnHkiNt/iUFmUUZG0fEEmEyFKvjsDKweiFitzHRyhuh6NvyJZ4nNxMg=="
+    },
+    "peerjs@1.5.5": {
+      "integrity": "sha512-viMUCPDL6CSfOu0ZqVcFqbWRXNHIbv2lPqNbrBIjbFYrflebOjItJ4hPfhjnuUCstqciHVu9vVJ7jFqqKi/EuQ==",
+      "dependencies": [
+        "@msgpack/msgpack",
+        "eventemitter3@4.0.7",
+        "peerjs-js-binarypack",
+        "webrtc-adapter"
+      ]
     },
     "pg-cloudflare@1.2.5": {
       "integrity": "sha512-OOX22Vt0vOSRrdoUPKJ8Wi2OpE/o/h9T8X1s4qSkCedbNah9ei2W2765be8iMVxQUsvgT7zIAT2eIa9fs5+vtg=="
@@ -4623,7 +4642,7 @@
         "@types/uuid@8.3.4",
         "@types/ws@8.18.1",
         "buffer",
-        "eventemitter3",
+        "eventemitter3@5.0.1",
         "uuid@8.3.2",
         "ws@8.18.2_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ],
@@ -4649,6 +4668,9 @@
       "dependencies": [
         "loose-envify"
       ]
+    },
+    "sdp@3.2.1": {
+      "integrity": "sha512-lwsAIzOPlH8/7IIjjz3K0zYBk7aBVVcvjMwt3M4fLxpjMYyy7i3I97SLHebgn4YBjirkzfp3RvRDWSKsh/+WFw=="
     },
     "secure-json-parse@2.7.0": {
       "integrity": "sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw=="
@@ -4968,6 +4990,12 @@
     },
     "webidl-conversions@3.0.1": {
       "integrity": "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="
+    },
+    "webrtc-adapter@9.0.3": {
+      "integrity": "sha512-5fALBcroIl31OeXAdd1YUntxiZl1eHlZZWzNg3U4Fn+J9/cGL3eT80YlrsWGvj2ojuz1rZr2OXkgCzIxAZ7vRQ==",
+      "dependencies": [
+        "sdp"
+      ]
     },
     "whatwg-fetch@3.6.20": {
       "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg=="
