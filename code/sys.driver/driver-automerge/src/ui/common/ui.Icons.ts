@@ -1,14 +1,15 @@
 import { Icon } from '@sys/ui-react-components';
 import {
+  MdArrowBack,
+  MdArrowDownward,
+  MdArrowForward,
+  MdArrowUpward,
   MdCheck,
   MdClose,
+  MdEmojiPeople,
   MdErrorOutline,
-  MdOutlineContentCopy,
-  MdArrowBack,
-  MdArrowForward,
-  MdArrowDownward,
-  MdArrowUpward,
   MdFace,
+  MdOutlineContentCopy,
   MdWarning,
 } from 'react-icons/md';
 import { TbDatabase } from 'react-icons/tb';
@@ -32,4 +33,5 @@ export const Icons = {
   Clear: icon(MdClose),
   Tick: icon(MdCheck),
   Face: icon(MdFace),
+  Person: icon(MdEmojiPeople),
 } as const;
