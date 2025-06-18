@@ -1,4 +1,4 @@
-import { type t, R } from '../common.ts';
+import { type t, R } from './common.ts';
 
 /**
  * Builds an object from the given path

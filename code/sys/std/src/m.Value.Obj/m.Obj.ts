@@ -1,6 +1,6 @@
 import type { ObjLib } from './t.ts';
 
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { isEmptyRecord, isObject, isRecord } from './common.ts';
 import { Json } from '../m.Json/mod.ts';
 import { Path } from './m.Path.ts';
 import { clone } from './u.clone.ts';

@@ -1,4 +1,4 @@
-import { R, isRecord } from '../common.ts';
+import { R, isRecord } from './common.ts';
 import { walk } from './u.walk.ts';
 
 type O = Record<string, unknown>;
