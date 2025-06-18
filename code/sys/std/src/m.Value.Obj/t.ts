@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.Path.ts';
 
 type O = Record<string, unknown>;
 type PathArray = (string | number)[];
@@ -13,9 +12,6 @@ export type ObjExtend<T extends object, U extends object> = T & U;
 export type ObjLib = {
   /** Tool for working with JSON safely. */
   readonly Json: t.JsonLib;
-
-  /** Tools for working with abstract paths on objects. */
-  readonly Path: t.ObjPathLib;
 
   /**
    * Walks an object tree (recursive descent) implementing
