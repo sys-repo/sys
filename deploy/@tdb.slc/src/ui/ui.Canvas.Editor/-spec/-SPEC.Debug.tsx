@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal, Str } from '../common.ts';
 import { CanvasCell } from '../../ui.Canvas.Cell/mod.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
