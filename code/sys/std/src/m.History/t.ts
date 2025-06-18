@@ -23,6 +23,11 @@ export type HistoryStack = {
   push(line: string): void;
 
   /**
+   * Remove the given line from the history.
+   */
+  remove(line: string): boolean;
+
+  /**
    * "Up arrow" → older entry (sticks on oldest).
    * @param current pass current value to recursively step past it.
    */

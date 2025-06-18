@@ -3,7 +3,18 @@ import { History } from './mod.ts';
 
 describe('History', () => {
   describe('History.stack', () => {
-    it('de-dupes and keeps newest first', () => {
+    it('creates with no items', () => {
+      const h = History.stack();
+      expect(h.items).to.eql([]);
+    });
+
+    it('creates with pre-existing items', () => {
+      const items = ['one', 'two', 'three'];
+      const h = History.stack({ items });
+      expect(h.items).to.eql(items);
+    });
+
+    it('push: de-dupes and keeps newest first', () => {
       const h = History.stack();
       h.push('alpha');
       h.push('beta');
@@ -11,10 +22,16 @@ describe('History', () => {
       expect(h.items).to.eql(['alpha', 'beta']);
     });
 
-    it('creates with pre-existing items', () => {
-      const items = ['one', 'two', 'three'];
-      const h = History.stack({ items });
-      expect(h.items).to.eql(items);
+    it('remove', () => {
+      const h = History.stack();
+      ['one', 'two', 'three'].forEach(h.push);
+
+      const a = h.remove('two');
+      const b = h.remove('404');
+
+      expect(h.items).to.eql(['three', 'one']);
+      expect(a).to.eql(true);
+      expect(b).to.eql(false);
     });
 
     it('navigates back/forward', () => {
