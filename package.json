@@ -14,7 +14,7 @@
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
     "@vidstack/react": "1.12.13",
-    "hono": "4.7.11",
+    "hono": "4.8.0",
     "motion": "12.18.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
