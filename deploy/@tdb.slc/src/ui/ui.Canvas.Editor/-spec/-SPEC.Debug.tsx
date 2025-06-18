@@ -18,12 +18,11 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+  const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
 
   const defaults: Storage = { theme: 'Dark', debug: false };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
-
-  const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
 
   const props = {
     debug: s(snap.debug),
