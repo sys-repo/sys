@@ -1,9 +1,12 @@
 import { Repo } from '@automerge/automerge-repo';
 import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';
-import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
+import {
+  BrowserWebSocketClientAdapter,
+  WebSocketClientAdapter,
+} from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 
-import { type t, Arr, CrdtIs, D, Is, slug, toRepo, CrdtUrl } from './common.ts';
+import { type t, Arr, CrdtIs, CrdtUrl, D, Is, slug, toRepo } from './common.ts';
 
 /**
  * Exports:
@@ -17,8 +20,8 @@ export const Crdt: t.CrdtBrowserLib = {
   kind: 'Crdt:Browser',
   repo(args = {}) {
     const { sharePolicy, denylist } = args;
-    const network = wrangle.network(args);
     const storage = wrangle.storage(args);
+    const network = wrangle.network(args);
     const peerId = `peer.${slug()}` as t.PeerId;
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
@@ -52,14 +55,26 @@ const wrangle = {
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
+  adapter(arg?: t.CrdtBrowserNetworkArg) {
+    if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
+    if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
+    return arg;
+  },
+
   ws(text: string): WebSocketClientAdapter {
     const url = Crdt.Url.ws(text);
-    return new WebSocketClientAdapter(url);
+    return new BrowserWebSocketClientAdapter(url);
   },
 } as const;
 
+/**
+ * Convert a loose arg input into a network-adapter instance.
+ */
 const toNetworkAdapter = (arg: t.CrdtBrowserNetworkArg) => {
   if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
-  if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
+  if (Is.record(arg) && Is.string(arg.ws)) {
+    const url = Crdt.Url.ws(arg.ws);
+    return new BrowserWebSocketClientAdapter(url);
+  }
   return arg;
 };

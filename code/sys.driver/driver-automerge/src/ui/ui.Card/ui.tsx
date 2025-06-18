@@ -5,7 +5,6 @@ import { FooterTools } from './ui.FooterTools.tsx';
 import { SyncServer } from './ui.SyncServer.tsx';
 
 type P = t.CardProps;
-type O = Record<string, unknown>;
 
 export const Card: React.FC<P> = (props) => {
   const { debug = false, repo, signals = {}, sync, headerStyle = {} } = props;

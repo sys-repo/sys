@@ -34,6 +34,9 @@ export const Server: t.CrdtServerLib = {
     console.info(table.toString().trim());
     console.info();
 
+    /**
+     * Log activity:
+     */
     network.on('peer-candidate', (e) => {
       console.info(c.white('connected:   '), c.green(e.peerId));
     });

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal, Str } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
@@ -82,10 +82,10 @@ export async function createDebugSignals() {
     });
 
     console.info(`🧫 repo:`, repo);
-    console.info('└─', `(websockets) → endpoint: ${ws}`);
+    if (isWebsockets) console.info('└─', `(websockets) → endpoint: ${ws}`);
 
-    p.doc.value = undefined;
     p.repo.value = repo;
+    p.doc.value = undefined;
   });
 
   return api;
@@ -127,24 +127,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {valueEditorButtons(debug)}
 
       <hr />
+      <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-
       <Button
         block
         label={() => {
           const v = p.syncUrl.value;
-          return `sync-server (endpoint): ${v}`;
+          return `sync-server: ${v ? `"${v}"` : ''}`;
         }}
         onClick={() => {
-          const current = p.syncUrl.value;
-          const next = current === 'sync.db.team' ? 'localhost:3030' : 'sync.db.team';
-          p.syncUrl.value = next;
+          Signal.cycle(p.syncUrl, ['localhost:3030', 'sync.db.team', 'sync.automerge.org']);
         }}
       />
+
       <ObjectView
         //
         name={'debug'}

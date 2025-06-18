@@ -24,5 +24,5 @@ export type CrdtFsRepoArgs = {
 /** Network connection argument. */
 export type CrdtFsNetworkArg =
   | NetworkAdapterInterface
-  | StringWebsocketEndpoint // NB: shorthand for:↓
+  | StringWebsocketEndpoint // ↓ NB: shorthand for ↓
   | { ws: StringWebsocketEndpoint };
