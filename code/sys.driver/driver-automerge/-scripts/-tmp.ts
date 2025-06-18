@@ -1,15 +1,15 @@
 import { c, Cli } from '@sys/cli';
 import { Crdt } from '@sys/driver-automerge/fs';
 
-// const ws = 'sync.db.team';
-const ws = 'localhost:3030';
+// const ws = 'localhost:3030';
+const ws = 'sync.db.team';
 const dir = '.tmp/sync.crdt';
 
 const print = () => {
   console.clear();
 
   const table = Cli.table([]);
-  table.push([c.gray('  sync:'), c.gray(ws)]);
+  table.push([c.gray('  sync:'), c.gray(Crdt.Url.ws(ws))]);
   table.push([c.gray('  path:'), c.gray(dir)]);
   table.push([c.gray('  doc.id:'), c.green(id)]);
   table.push([c.gray('  doc:')]);
