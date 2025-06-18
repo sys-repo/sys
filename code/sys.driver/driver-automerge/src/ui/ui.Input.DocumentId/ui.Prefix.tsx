@@ -5,7 +5,7 @@ export type PrefixProps = {
   docId?: string;
   doc?: t.CrdtRef;
   over?: boolean;
-  copied?: boolean;
+  icon?: t.DocumentIdHook['transient']['kind'];
   enabled?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -14,12 +14,13 @@ export type PrefixProps = {
   onCopy?: () => void;
   onPointer?: t.PointerEventsHandler;
 };
+type P = PrefixProps;
 
 /**
  * Component:
  */
-export const Prefix: React.FC<PrefixProps> = (props) => {
-  const { doc, copied, enabled = true } = props;
+export const Prefix: React.FC<P> = (props) => {
+  const { doc, enabled = true } = props;
   const docId = (props.docId || '').trim();
   const is = { current: doc && docId ? doc.id === docId : false } as const;
 
@@ -31,7 +32,8 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
   /**
    * Render:
    */
-  const CopyIcon = copied ? Icons.Tick : Icons.Copy;
+  const CopyIcon = wrangle.copyIcon(props);
+  const DatabaseIcon = wrangle.databaseIcon(props);
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
@@ -53,7 +55,7 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
       <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
     </Button>
   );
-  const elDatabase = !elCopy && <Icons.Database color={theme.fg} size={18} style={styles.icon} />;
+  const elDatabase = !elCopy && <DatabaseIcon color={theme.fg} size={18} style={styles.icon} />;
 
   return (
     <div className={css(styles.base, props.style).class} {...pointer.handlers}>
@@ -62,3 +64,17 @@ export const Prefix: React.FC<PrefixProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  copyIcon(props: P) {
+    const copied = props.icon === 'Copy';
+    return copied ? Icons.Tick : Icons.Copy;
+  },
+  databaseIcon(props: P) {
+    const error = props.icon === 'Error';
+    return error ? Icons.Warning : Icons.Database;
+  },
+} as const;

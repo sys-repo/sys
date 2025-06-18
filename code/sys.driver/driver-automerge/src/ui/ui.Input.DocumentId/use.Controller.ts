@@ -78,7 +78,7 @@ function useInternal(args: Args = {}): Hook {
       const id = p.id.value;
       if (id) {
         navigator.clipboard.writeText(id);
-        transient.write('Copy', 'Copied');
+        transient.write('Copy', 'copied');
       }
       return;
     }
@@ -100,12 +100,19 @@ function useInternal(args: Args = {}): Hook {
     }
 
     if (action === 'Load' && props.id && enabled) {
+      const id = props.id;
+
       p.spinning.value = true;
-      const res = await repo.get(props.id);
+      const res = await repo.get(id);
       p.spinning.value = false;
 
       p.doc.value = res.doc;
-      if (res.doc) localstore.history.push(props.id);
+      if (res.doc) localstore.history.push(id);
+      if (res.error?.kind === 'Timeout') transient.write('Error', 'timed out');
+      if (res.error?.kind === 'NotFound') {
+        transient.write('Error', 'document not found');
+        localstore.history.remove(id);
+      }
       return;
     }
   };

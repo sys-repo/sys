@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import { type t, Time } from './common.ts';
 
+type T = t.DocumentIdHook['transient'];
+type Kind = T['kind'];
 type Options = { timeout?: t.Msecs };
-type Kind = t.DocumentIdInputAction;
 
 /**
  * Hook: stateful management of transient message display (eg. "copied").

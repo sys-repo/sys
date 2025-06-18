@@ -46,7 +46,7 @@ export const View: React.FC<P> = (props) => {
   const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
   const active = enabled && !!repo;
   const transient = controller.transient;
-  const copied = transient.kind === 'Copy';
+  const message = transient.message;
 
   /**
    * Effect: (mounted).
@@ -91,7 +91,7 @@ export const View: React.FC<P> = (props) => {
       marginLeft: 3,
       ...props.buttonStyle,
     }),
-    copied: css({
+    message: css({
       Absolute: [0, null, 0, 30],
       pointerEvents: 'none',
       paddingBottom: 3,
@@ -103,12 +103,12 @@ export const View: React.FC<P> = (props) => {
 
   const elPrefix = (
     <Prefix
+      theme={theme.name}
       docId={docId}
       doc={doc}
       over={active && textboxOver}
       enabled={active}
-      copied={copied}
-      theme={theme.name}
+      icon={transient.kind}
       onCopy={() => controller.handlers.onAction({ action: 'Copy' })}
       onPointer={(e) => {
         if (e.is.down) {
@@ -130,7 +130,9 @@ export const View: React.FC<P> = (props) => {
     />
   );
 
-  const elCopied = copied && <div className={styles.copied.class}>{'copied'}</div>;
+  const elMessage = transient.message && (
+    <div className={styles.message.class}>{transient.message}</div>
+  );
 
   const elActionButton = showAction && (
     <ActionButton
@@ -161,8 +163,8 @@ export const View: React.FC<P> = (props) => {
           theme={theme.name}
           style={styles.textbox}
           inputStyle={{
-            opacity: copied ? 0.1 : 1,
-            blur: copied ? 8 : 0,
+            opacity: !!message ? 0.1 : 1,
+            blur: !!message ? 8 : 0,
           }}
           border={{ mode: 'underline', defaultColor: 0 }}
           background={0}
@@ -175,7 +177,7 @@ export const View: React.FC<P> = (props) => {
         />
       </div>
       {elActionButton}
-      {elCopied}
+      {elMessage}
     </div>
   );
 };
