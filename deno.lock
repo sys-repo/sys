@@ -5162,6 +5162,7 @@
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.5.16",
       "npm:ora@8.2.0",
+      "npm:peerjs@1.5.5",
       "npm:pretty-bytes@7.0.0",
       "npm:prosemirror-example-setup@1.2.3",
       "npm:prosemirror-model@1.25.1",
