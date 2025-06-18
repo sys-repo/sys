@@ -3,11 +3,11 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-export const ns = 'sys.🐷';
+export const ns = 'driver.peerjs';
 
 /**
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}: ui.Sample`]: () => import('../ui/ui.Sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;
