@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Switch } from './common.ts';
+import { type t, Color, css, Switch, Icons } from './common.ts';
 
 export type SyncServerProps = {
   endpoint?: t.StringUrl;
@@ -57,6 +57,7 @@ export const SyncServer: React.FC<P> = (props) => {
         <span className={styles.label.class}>{`${peerParts.slice(0, -1)}.`}</span>
         <span>{peerParts.slice(-1)}</span>
       </div>
+      <Icons.Person color={theme.fg} size={16} opacity={0.3} />
     </React.Fragment>
   );
 
@@ -87,7 +88,7 @@ export const SyncServer: React.FC<P> = (props) => {
 const wrangle = {
   address(props: P) {
     if (props.endpoint == null) return '<unknown>';
-    const txt = props.endpoint.trim().replace(/^wss?:\/\//, ''); // removes 'ws://' or 'wss://'.
+    const txt = props.endpoint.trim().replace(/^wss?:\/\//, ''); // removes 'ws://' or 'wss://' prefix.
     const isLocal = txt.startsWith('localhost');
     const protocol = isLocal ? 'ws' : 'wss';
     return `${protocol}://${txt}`;

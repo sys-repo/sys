@@ -75,21 +75,17 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     }),
   };
 
-  const elStrBtn = (
-    <Button theme={theme.name} style={styles.strBtn} onClick={toggleText}>
-      <div className={styles.strBody.class}>
-        <span>"</span>
-        <span className={styles.strText.class}>{'👋'}</span>
-        <span>"</span>
-      </div>
-    </Button>
-  );
-
   const elDiv = <div className={styles.div.class} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elStrBtn}
+      <Button theme={theme.name} style={styles.strBtn} onClick={toggleText}>
+        <div className={styles.strBody.class}>
+          <span>"</span>
+          <span className={styles.strText.class}>{'👋'}</span>
+          <span>"</span>
+        </div>
+      </Button>
       {elDiv}
       <Button theme={theme.name} onClick={incrementHandler(1)}>
         <Icons.Arrow.Up color={color} size={20} />
