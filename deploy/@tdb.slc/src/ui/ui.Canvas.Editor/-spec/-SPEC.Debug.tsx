@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal, Str } from '../common.ts';
+import { CanvasCell } from '../../ui.Canvas.Cell/mod.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -30,10 +31,10 @@ export function createDebugSignals() {
     doc: s<t.CrdtRef<Doc>>(),
     panels: s<P['panels']>(),
   };
+  const p = props;
 
   Signal.effect(() => {
     store.change((d) => {
-      const p = props;
       d.theme = p.theme.value;
       d.debug = p.debug.value;
     });
@@ -47,6 +48,19 @@ export function createDebugSignals() {
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
+  };
+
+  /**
+   * Panel Layout
+   */
+  const cell = (panel: t.CanvasPanel) => {
+    console.log('panel', panel);
+    return { el: <CanvasCell theme={p.theme.value} /> };
+  };
+
+  p.panels.value = {
+    purpose: cell('purpose'),
+    uvp: cell('uvp'),
   };
 
   return api;

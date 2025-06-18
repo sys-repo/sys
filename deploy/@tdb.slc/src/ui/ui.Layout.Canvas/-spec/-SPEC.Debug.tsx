@@ -9,6 +9,7 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
+import { CanvasCell } from '../../ui.Canvas.Cell/mod.ts';
 
 type P = t.CanvasLayoutProps;
 type Storage = { borderRadius?: number } & Pick<P, 'theme' | 'debug'>;
@@ -107,7 +108,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
-      {samplesButtons(debug)}
+      <SampleButtons debug={debug} />
 
       <hr />
       <Button
@@ -128,14 +129,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Dev Helpers:
  */
-export function samplesButtons(debug: DebugSignals) {
+export function SampleButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
   const p = debug.props;
   const styles = {
     emoji: css({ fontSize: 32, padding: 8, display: 'grid', placeItems: 'center' }),
   };
 
   const elements: t.ReactNode[] = [];
-  const el = <div className={styles.emoji.class}>{'🌳'}</div>;
+  const sampleElement = (panel: t.CanvasPanel) => {
+    return <div className={styles.emoji.class}>{`🌳 ${panel}`}</div>;
+  };
 
   const sample = (label: string, fn?: () => t.CanvasPanelContentMap | undefined) => {
     const btn = (
@@ -149,16 +153,17 @@ export function samplesButtons(debug: DebugSignals) {
     elements.push(btn);
   };
 
-  sample('- all', () => {
+  sample('- panels: <all>', () => {
     const panels: t.CanvasPanelContentMap = {};
-    CanvasPanel.all.forEach((panel) => (panels[panel] = { el }));
+    CanvasPanel.all.forEach((panel) => (panels[panel] = { el: sampleElement(panel) }));
     return panels;
   });
 
-  sample('- selective', () => {
+  sample('- panels: <partial>', () => {
     return {
-      purpose: { el: '👋 hello' },
-      uvp: { el },
+      purpose: { el: '👋 hello string' },
+      uvp: { el: sampleElement('uvp') },
+      revenue: { el: <CanvasCell theme={p.theme.value} /> },
     };
   });
 

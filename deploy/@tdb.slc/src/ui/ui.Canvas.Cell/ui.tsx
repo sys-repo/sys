@@ -12,11 +12,13 @@ export const CanvasCell: React.FC<t.CanvasCellProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      padding: 30,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div>{`🐷 ${D.displayName} | Canvas Cell → <Automerge.Crdt.Card>`}</div>
     </div>
   );
 };
