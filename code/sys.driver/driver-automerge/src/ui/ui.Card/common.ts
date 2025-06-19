@@ -1,7 +1,7 @@
-export * from '../common.ts';
-export { Input } from '../ui/mod.ts';
-
 import { pkg, Pkg } from '../common.ts';
+
+export * from '../common.ts';
+export { DocumentId } from '../ui/mod.ts';
 
 /**
  * Constants:

@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Input } from '../../ui/mod.ts';
+import { DocumentId } from '../../mod.ts';
 
 import { D } from '../common.ts';
 import { TextEditor } from '../mod.ts';
@@ -48,7 +48,7 @@ export default Spec.describe(D.displayName, (e) => {
       .border(-0.1)
       .render(() => {
         return (
-          <Input.DocumentId.View
+          <DocumentId.View
             buttonStyle={{ margin: 4 }}
             controller={{
               repo,

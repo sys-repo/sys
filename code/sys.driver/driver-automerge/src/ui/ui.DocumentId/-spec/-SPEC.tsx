@@ -1,6 +1,6 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { Input } from '../../ui/mod.ts';
+import { DocumentId } from '../../mod.ts';
 import { Color, D } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -22,18 +22,18 @@ export default Spec.describe(D.displayName, (e) => {
       localstorageKey: p.localstorageKey.value,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
     };
-    const hook = Input.DocumentId.useController(args);
+    const hook = DocumentId.useController(args);
 
     /**
      * Render:
      */
     const theme = Color.theme(p.theme.value);
     return (
-      <Input.DocumentId.View
+      <DocumentId.View
         debug={p.debug.value}
         theme={p.theme.value}
         //
-        controller={p.controlled.value ? hook : args}
+        controller={p.controlled.value ? hook : args} // ← NB: "controlled" OR "uncontrolled"
         label={p.label.value}
         placeholder={p.placeholder.value}
         enabled={p.enabled.value}
@@ -67,7 +67,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const localstorageKey = p.localstorageKey.value;
         return (
-          <Input.DocumentId.View
+          <DocumentId.View
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
             controller={{

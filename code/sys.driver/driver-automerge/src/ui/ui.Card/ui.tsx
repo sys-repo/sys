@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Input, ObjectView, Str } from './common.ts';
+import { type t, Color, css, D, DocumentId, ObjectView, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 import { SyncServer } from './ui.SyncServer.tsx';
 import { useLocalStorage } from './use.LocalStorage.ts';
@@ -72,7 +72,7 @@ export const Card: React.FC<P> = (props) => {
   );
 
   const elDocumentId = (
-    <Input.DocumentId.View
+    <DocumentId.View
       theme={theme.name}
       style={styles.header}
       buttonStyle={{ marginRight: 1, marginBottom: 2 }}

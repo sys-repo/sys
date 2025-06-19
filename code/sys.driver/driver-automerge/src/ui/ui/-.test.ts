@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
-import { DocumentIdInput } from '../ui.DocumentId/mod.ts';
-import { Input } from './mod.ts';
+import { DocumentId } from '../ui.DocumentId/mod.ts';
+import { Crdt } from './mod.ts';
 
 describe('Input UI', () => {
   it('API', () => {
-    expect(Input.DocumentId).to.equal(DocumentIdInput);
+    expect(Crdt.UI.DocumentId).to.equal(DocumentId);
   });
 });

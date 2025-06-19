@@ -1,7 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Input } from '../../ui/mod.ts';
 
-import { type t, D } from '../common.ts';
+import { type t, D, DocumentId } from '../common.ts';
 import { Card } from '../mod.ts';
 import { type TDoc, Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -68,7 +67,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .render(() => {
         const repo = p.repo.value;
         return (
-          <Input.DocumentId.View
+          <DocumentId.View
             buttonStyle={{ margin: 4 }}
             controller={{
               repo,
