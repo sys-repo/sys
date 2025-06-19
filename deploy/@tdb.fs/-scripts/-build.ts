@@ -1,4 +1,4 @@
-import { buildAndCopy, copyPublic } from './-build.u.ts';
+import { buildAndCopyAll, copyPublic } from './-build.u.ts';
 import { Fs, pkg, Pkg, Tmpl } from './common.ts';
 
 await Fs.remove('dist');
@@ -8,10 +8,13 @@ await Fs.remove('dist');
  */
 console.info();
 const build = true;
-await buildAndCopy('../../code/sys.ui/ui-react-components', 'sys/ui', { build });
-await buildAndCopy('../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco', { build });
-await buildAndCopy('../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build });
-await buildAndCopy('../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build });
+
+await buildAndCopyAll([
+  ['../../code/sys.ui/ui-react-components', 'sys/ui', { build }],
+  ['../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco', { build }],
+  ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
+  ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
+]);
 await copyPublic('public', 'dist');
 
 // Write entry HTML.

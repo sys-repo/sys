@@ -4,10 +4,19 @@ import { Fs, Path } from '@sys/fs';
 import { Process } from '@sys/process';
 import { type t } from './common.ts';
 
+type Options = { build?: boolean; exitOnError?: boolean };
+
 /**
  * Ensure dist.
  */
 await Fs.ensureDir('./dist');
+
+export async function buildAndCopyAll(all: Parameters<typeof buildAndCopy>[]) {
+
+  for (const [moduleDir, targetDir, options] of all) {
+    await buildAndCopy(moduleDir, targetDir, options);
+  }
+}
 
 /**
  * Build project(s).
@@ -15,7 +24,7 @@ await Fs.ensureDir('./dist');
 export async function buildAndCopy(
   moduleDir: t.StringDir,
   targetDir: t.StringRelativeDir,
-  options: { build?: boolean; exitOnError?: boolean } = {},
+  options: Options = {},
 ) {
   const { exitOnError = true } = options;
   const path = Fs.resolve(moduleDir);
