@@ -4,7 +4,7 @@
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
 
-export { useDebouncedValue, usePointer, useSizeObserver } from '@sys/ui-react';
+export { useDebouncedValue, usePointer, useSizeObserver, useDist } from '@sys/ui-react';
 export {
   Button,
   Cropmarks,

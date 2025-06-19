@@ -21,7 +21,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   /**
    * Hooks:
    */
-  const dist = useDist({ useSampleFallback: true });
+  const dist = useDist({ sampleFallback: true });
   useRubberband(props.allowRubberband ?? false);
   useScrollObserver(baseRef, itemRefs.current, props.onItemVisibility);
   useScrollController(baseRef, itemRefs.current, props.scrollTo$);
