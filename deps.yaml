@@ -30,6 +30,10 @@ groups:
     - import: jsr:@std/testing@1.0.14
     - import: jsr:@std/uuid@1.0.9
 
+  std/testing:
+    - import: npm:chai@5
+      subpaths: ['', 'chai.js']
+
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@2.2.9
@@ -89,6 +93,7 @@ groups:
 
 deno.json:
   - group: std/deno
+  - group: std/testing
   - group: crypto
   - group: ai
   - group: automerge
@@ -102,7 +107,6 @@ deno.json:
 
   # Sundry NPM:
   - import: npm:@types/diff@8.0.0
-  - import: npm:chai@5
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2

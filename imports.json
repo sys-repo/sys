@@ -42,6 +42,8 @@
     "ai": "npm:ai@4.3.16",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5",
+    "chai/": "npm:chai@5/",
+    "chai/chai.js": "npm:chai@5/chai.js",
     "csstype": "npm:csstype@3",
     "date-fns": "npm:date-fns@4",
     "diff": "npm:diff@8.0.2",
