@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { type t } from './common.ts';
+import { type t, D } from './common.ts';
 
 type H = HTMLInputElement;
 type P = t.TextInputProps;
 
 export function useEvents(props: P) {
+  const { readOnly = D.readOnly } = props;
   const [focused, setFocused] = useState(false);
 
   /**
    * Handlers:
    */
   const onChange = (e: React.ChangeEvent<H>) => {
+    if (readOnly) return;
     const input = e.currentTarget;
     const value = input.value;
     props.onChange?.({
