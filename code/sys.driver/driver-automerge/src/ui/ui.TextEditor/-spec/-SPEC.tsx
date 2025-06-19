@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Input } from '../../ui.Input/mod.ts';
+import { Input } from '../../ui/mod.ts';
 
 import { D } from '../common.ts';
 import { TextEditor } from '../mod.ts';

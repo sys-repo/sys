@@ -1,5 +1,5 @@
 export * from '../common.ts';
-export { Input } from '../ui.Input/mod.ts';
+export { Input } from '../ui/mod.ts';
 
 import { pkg, Pkg } from '../common.ts';
 

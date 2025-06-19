@@ -9,7 +9,7 @@ import type { t } from './common.ts';
  * UI Components:
  */
 import { Card } from './ui.Card/mod.ts';
-import { Input } from './ui.Input/mod.ts';
+import { Input } from './ui/mod.ts';
 import { TextEditor } from './ui.TextEditor/mod.ts';
 
 export { Card, Input, TextEditor };
