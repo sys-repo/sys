@@ -3,7 +3,7 @@ import React from 'react';
 import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.DocumentIdInputProps;
+type P = t.DocumentIdProps;
 
 /**
  * Types:

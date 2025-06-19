@@ -68,7 +68,7 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Handlers:
    */
-  const run = async (action: t.DocumentIdInputAction) => {
+  const run = async (action: t.DocumentIdAction) => {
     if (!repo) return;
     const p = signalsRef.current;
     const props = wrangle.props(p, repo);
@@ -149,7 +149,7 @@ function useInternal(args: Args = {}): Hook {
     }
   };
 
-  const onAction: t.DocumentIdInputActionHandler = (e) => run(e.action);
+  const onAction: t.DocumentIdActionHandler = (e) => run(e.action);
 
   /**
    * API:
@@ -213,7 +213,7 @@ const wrangle = {
     return (p.docId.value ?? '').trim();
   },
 
-  action(p: P): t.DocumentIdInputAction {
+  action(p: P): t.DocumentIdAction {
     const id = wrangle.docId(p);
     if (!id) return 'Create';
     return 'Load';

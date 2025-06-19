@@ -20,14 +20,14 @@ export type DocumentIdHook = {
   readonly history: readonly t.StringId[];
   readonly transient: { kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs };
   readonly handlers: {
-    onAction: t.DocumentIdInputActionHandler;
+    onAction: t.DocumentIdActionHandler;
     onTextChange: t.TextInputChangeHandler;
     onKeyDown: t.TextInputKeyHandler;
   };
 };
 
 export type DocumentIdHookProps = {
-  readonly action: t.DocumentIdInputAction;
+  readonly action: t.DocumentIdAction;
   readonly docId?: string;
   readonly doc?: t.CrdtRef;
   readonly repo?: t.CrdtRepo;

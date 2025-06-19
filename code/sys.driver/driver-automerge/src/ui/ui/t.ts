@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export type CrdtUiLib = t.CrdtBrowserLib & {
   readonly UI: {
     readonly Card: React.FC<t.CardProps>;
-    readonly DocumentId: t.DocumentIdInputLib;
+    readonly DocumentId: t.DocumentIdLib;
     readonly TextEditor: React.FC<t.TextEditorProps>;
   };
 };

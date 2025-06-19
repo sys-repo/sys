@@ -17,7 +17,7 @@ import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
 import { readonly } from 'zod/v4-mini';
 
-type P = t.DocumentIdInputProps;
+type P = t.DocumentIdProps;
 
 export const View: React.FC<P> = (props) => {
   const { label, autoFocus = D.autoFocus, enabled = D.enabled, readOnly = D.readOnly } = props;
@@ -156,7 +156,7 @@ export const View: React.FC<P> = (props) => {
       parentFocused={focused}
       onClick={() => {
         const { action } = controller.props;
-        const payload: t.DocumentIdInputActionArgs = { action };
+        const payload: t.DocumentIdActionArgs = { action };
         controller.handlers.onAction(payload);
       }}
     />

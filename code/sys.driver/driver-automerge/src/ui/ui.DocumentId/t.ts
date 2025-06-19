@@ -2,20 +2,20 @@ import type { t } from './common.ts';
 export type * from './t.hook.ts';
 
 /** The various states the action button can assume. */
-export type DocumentIdInputAction = 'Load' | 'Create' | 'Clear' | 'Copy';
+export type DocumentIdAction = 'Load' | 'Create' | 'Clear' | 'Copy';
 
 /**
  * Library: editor for repo-document ID loader.
  */
-export type DocumentIdInputLib = {
-  readonly View: React.FC<t.DocumentIdInputProps>;
+export type DocumentIdLib = {
+  readonly View: React.FC<t.DocumentIdProps>;
   readonly useController: t.UseDocumentIdHook;
 };
 
 /**
  * <Component>:
  */
-export type DocumentIdInputProps = {
+export type DocumentIdProps = {
   debug?: boolean;
   controller?:
     | t.DocumentIdHook //         ← controlled.
@@ -33,20 +33,20 @@ export type DocumentIdInputProps = {
   background?: string | number;
 
   // Events:
-  onReady?: t.DocumentIdInputReadyHandler;
-  onChange?: t.DocumentIdInputChangedHandler;
+  onReady?: t.DocumentIdReadyHandler;
+  onChange?: t.DocumentIdChangedHandler;
 };
 
 /**
  * Events:
  */
-export type DocumentIdInputReadyHandler = (e: DocumentIdInputChanged) => void;
+export type DocumentIdReadyHandler = (e: DocumentIdChanged) => void;
 
-export type DocumentIdInputActionHandler = (e: DocumentIdInputActionArgs) => void;
-export type DocumentIdInputActionArgs = { readonly action: DocumentIdInputAction };
+export type DocumentIdActionHandler = (e: DocumentIdActionArgs) => void;
+export type DocumentIdActionArgs = { readonly action: DocumentIdAction };
 
-export type DocumentIdInputChangedHandler = (e: DocumentIdInputChanged) => void;
-export type DocumentIdInputChanged = {
+export type DocumentIdChangedHandler = (e: DocumentIdChanged) => void;
+export type DocumentIdChanged = {
   readonly signals: t.DocumentIdHookSignals;
   readonly values: t.DocumentIdHookSignalValues;
   readonly isHead: boolean;

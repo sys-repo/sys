@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { type t, Button, Color, css } from './common.ts';
 
 export type ActionButtonProps = {
-  action: t.DocumentIdInputAction;
+  action: t.DocumentIdAction;
   parentOver?: boolean;
   parentFocused?: boolean;
   debug?: boolean;

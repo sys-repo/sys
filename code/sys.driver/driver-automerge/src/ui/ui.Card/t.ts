@@ -31,5 +31,5 @@ export type CardProps = {
 /**
  * Events:
  */
-export type CardReadyHandler = t.DocumentIdInputReadyHandler;
-export type CardChangedHandler = t.DocumentIdInputChangedHandler;
+export type CardReadyHandler = t.DocumentIdReadyHandler;
+export type CardChangedHandler = t.DocumentIdChangedHandler;
