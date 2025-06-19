@@ -8,7 +8,7 @@
  *      expectTypeOf(value).toEqualTypeOf<Foo>();
  *
  */
-export function expectTypeOf<T>(_value?: T) {
+export function expectTypeOf<T>(_value: T) {
   return {
     /**
      * Succeeds only when the two types are exactly identical.
@@ -23,7 +23,7 @@ export function expectTypeOf<T>(_value?: T) {
     toEqualTypeOf<U extends T>(
       ..._assert: [T] extends [U] ? ([U] extends [T] ? [] : ['type-mismatch']) : ['type-mismatch']
     ): void {
-      /* noop – purely type-level */
+      /* (noop) – purely type-level. */
     },
   };
 }
