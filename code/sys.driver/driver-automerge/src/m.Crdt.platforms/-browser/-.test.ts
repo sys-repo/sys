@@ -1,5 +1,4 @@
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-
 import { type t, describe, expect, it, slug, Time } from '../../-test.ts';
 import { D } from './common.ts';
 import { Crdt } from './mod.ts';
