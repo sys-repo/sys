@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
+export type * from './t.Path.ts';
 
 type O = Record<string, unknown>;
-type PathArray = (string | number)[];
 
 /** An object extended with additional properties. */
 export type ObjExtend<T extends object, U extends object> = T & U;
@@ -12,6 +12,9 @@ export type ObjExtend<T extends object, U extends object> = T & U;
 export type ObjLib = {
   /** Tool for working with JSON safely. */
   readonly Json: t.JsonLib;
+
+  /** Tools for working with objects via abstract path arrays. */
+  readonly Path: t.ObjPathLib;
 
   /**
    * Walks an object tree (recursive descent) implementing
@@ -83,7 +86,7 @@ export type ObjWalkCallback = (e: ObjWalkCallbackArgs) => void;
 /** Arguments for a walker callback. */
 export type ObjWalkCallbackArgs = {
   readonly parent: object | any[];
-  readonly path: PathArray;
+  readonly path: t.ObjectPath;
   readonly key: string | number;
   readonly value: any;
   stop(): void;
