@@ -1,4 +1,4 @@
-import { describe, expect, it, slug, Time } from '../-test.ts';
+import { describe, expect, it, slug, Time } from '../../-test.ts';
 import { Crdt } from '@sys/driver-automerge/fs';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
