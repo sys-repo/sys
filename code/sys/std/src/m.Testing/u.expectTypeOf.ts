@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /**
  * Compile-time equality assertion.
  *  • Any mismatch raises a type-checker error.
@@ -8,22 +10,11 @@
  *      expectTypeOf(value).toEqualTypeOf<Foo>();
  *
  */
-export function expectTypeOf<T>(_value: T) {
-  return {
-    /**
-     * Succeeds only when the two types are exactly identical.
-     *
-     * Technique:
-     *   1.  `U extends T`   – via the generic constraint.
-     *   2.  `T extends U`   – via the tuple parameter below.
-     * If either test fails, TypeScript reports an error at the
-     * call-site.  Because the parameter is `...[]`, callers pass
-     * *no* runtime arguments.
-     */
-    toEqualTypeOf<U extends T>(
-      ..._assert: [T] extends [U] ? ([U] extends [T] ? [] : ['type-mismatch']) : ['type-mismatch']
-    ): void {
-      /* (noop) – purely type-level. */
-    },
-  };
+export function expectTypeOf<T>(_value: T): t.TypeEqualityMatcher<T> {
+  return matcher;
 }
+
+// NB A shared noop matcher instance - allocated only once.
+const matcher: t.TypeEqualityMatcher<any> = {
+  toEqualTypeOf: () => {}, // (noop) – purely type-level.
+};
