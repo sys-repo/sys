@@ -40,7 +40,7 @@ export const View: React.FC<P> = (props) => {
    */
   const controller = useController(props.controller);
 
-  const docId = controller.props.id;
+  const docId = controller.props.docId;
   const doc = controller.props.doc;
   const repo = controller.props.repo;
   const is = controller.props.is;

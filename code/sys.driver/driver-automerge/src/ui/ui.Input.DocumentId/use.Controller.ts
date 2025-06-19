@@ -34,7 +34,7 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
-  const localstore = useLocalStorage(args.localstorageKey, signalsRef.current.id);
+  const localstore = useLocalStorage(args.localstorageKey, signalsRef.current.docId);
   const transient = useTransientMessage();
 
   /**
@@ -51,7 +51,7 @@ function useInternal(args: Args = {}): Hook {
   React.useEffect(() => {
     if (ready) return;
     const props = api.props;
-    if (props.id && !props.doc) run('Load').then(() => setReady(true));
+    if (props.docId && !props.doc) run('Load').then(() => setReady(true));
     else setReady(true);
   }, [repoId, ready]);
 
@@ -60,7 +60,7 @@ function useInternal(args: Args = {}): Hook {
    */
   Signal.useRedrawEffect(() => {
     const p = signalsRef.current;
-    p.id.value;
+    p.docId.value;
     p.doc.value;
     p.spinning.value;
   });
@@ -75,7 +75,7 @@ function useInternal(args: Args = {}): Hook {
     const enabled = props.is.enabled.action;
 
     if (action === 'Copy') {
-      const id = p.id.value;
+      const id = p.docId.value;
       if (id) {
         navigator.clipboard.writeText(id);
         transient.write('Copy', 'copied');
@@ -84,7 +84,7 @@ function useInternal(args: Args = {}): Hook {
     }
 
     if (action === 'Clear') {
-      p.id.value = undefined;
+      p.docId.value = undefined;
       p.doc.value = undefined;
       p.spinning.value = false;
       return;
@@ -93,14 +93,14 @@ function useInternal(args: Args = {}): Hook {
     if (action === 'Create' && enabled) {
       const doc = repo.create(args.initial ?? {});
       p.doc.value = doc;
-      p.id.value = doc.id;
+      p.docId.value = doc.id;
       p.spinning.value = false;
       localstore.history.push(doc.id);
       return;
     }
 
-    if (action === 'Load' && props.id && enabled) {
-      const id = props.id;
+    if (action === 'Load' && props.docId && enabled) {
+      const id = props.docId;
 
       p.spinning.value = true;
       const res = await repo.get(id);
@@ -121,7 +121,7 @@ function useInternal(args: Args = {}): Hook {
     const p = signalsRef.current;
     const doc = p.doc.value;
     if (doc && doc.id !== e.value) p.doc.value = undefined;
-    p.id.value = e.value;
+    p.docId.value = e.value;
   };
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
@@ -144,7 +144,7 @@ function useInternal(args: Args = {}): Hook {
     if (e.key === 'Escape') {
       const p = signalsRef.current;
       const doc = p.doc.value;
-      if (doc && doc.id !== p.id.value) p.id.value = doc.id;
+      if (doc && doc.id !== p.docId.value) p.docId.value = doc.id;
       localstore.history.reset();
     }
   };
@@ -183,14 +183,14 @@ function isHook(input: unknown): input is Hook {
 
 const wrangle = {
   props(p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
-    const id = wrangle.id(p);
     const is = wrangle.is(p, repo);
+    const docId = wrangle.docId(p);
     const doc = p.doc.value;
-    return { id, repo, doc, is, action: wrangle.action(p) };
+    return { docId, repo, doc, is, action: wrangle.action(p) };
   },
 
   is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
-    const id = wrangle.id(p);
+    const id = wrangle.docId(p);
     const doc = p.doc.value;
     const valid = CrdtIs.id(id);
 
@@ -209,26 +209,26 @@ const wrangle = {
     };
   },
 
-  id(p: P) {
-    return (p.id.value ?? '').trim();
+  docId(p: P) {
+    return (p.docId.value ?? '').trim();
   },
 
   action(p: P): t.DocumentIdInputAction {
-    const id = wrangle.id(p);
+    const id = wrangle.docId(p);
     if (!id) return 'Create';
     return 'Load';
   },
 
   signals(args: Args) {
     const api: t.DocumentIdHookSignals = {
-      id: args.signals?.id ?? Signal.create<string>(),
+      docId: args.signals?.docId ?? Signal.create<string>(),
       doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
       spinning: args.signals?.spinning ?? Signal.create(false),
       toValues() {
         const spinning = api.spinning.value;
         const doc = api.doc.value;
-        const id = api.id.value;
-        return { id, doc, spinning };
+        const id = api.docId.value;
+        return { docId: id, doc, spinning };
       },
     };
     return api;

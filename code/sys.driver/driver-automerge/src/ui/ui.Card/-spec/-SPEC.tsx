@@ -72,7 +72,7 @@ export default Spec.describe(D.displayName, async (e) => {
             buttonStyle={{ margin: 4 }}
             controller={{
               repo,
-              signals: { doc: p.doc, id: p.docId },
+              signals: { doc: p.doc, docId: p.docId },
               initial: { count: 0 },
               localstorageKey: STORAGE_KEY,
             }}

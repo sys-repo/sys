@@ -28,7 +28,7 @@ export type DocumentIdHook = {
 
 export type DocumentIdHookProps = {
   readonly action: t.DocumentIdInputAction;
-  readonly id?: string;
+  readonly docId?: string;
   readonly doc?: t.CrdtRef;
   readonly repo?: t.CrdtRepo;
   readonly is: {
@@ -38,14 +38,16 @@ export type DocumentIdHookProps = {
   };
 };
 export type DocumentIdHookSignals = {
-  readonly id: t.Signal<string | undefined>;
+  /** The typed "document-id" value in the textbox/input. */
+  readonly docId: t.Signal<string | undefined>;
+  /** The CRDT document. */
   readonly doc: t.Signal<t.CrdtRef | undefined>;
   readonly spinning: t.Signal<boolean>;
   toValues(): DocumentIdHookSignalValues;
 };
 
 export type DocumentIdHookSignalValues = {
-  id: t.SignalValue<DocumentIdHookSignals['id']>;
+  docId: t.SignalValue<DocumentIdHookSignals['docId']>;
   doc?: t.SignalValue<DocumentIdHookSignals['doc']>;
   spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
 };

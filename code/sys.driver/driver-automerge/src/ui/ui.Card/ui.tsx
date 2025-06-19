@@ -79,7 +79,7 @@ export const Card: React.FC<P> = (props) => {
       background={-0.04}
       controller={{
         repo,
-        signals: { doc, id: props.signals?.docId },
+        signals: { doc, docId: props.signals?.docId },
         initial: { count: 0 },
         localstorageKey: props.localstorageKey,
       }}
