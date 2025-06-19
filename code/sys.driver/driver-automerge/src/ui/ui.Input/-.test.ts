@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { DocumentIdInput } from '../ui.Input.DocumentId/mod.ts';
+import { DocumentIdInput } from '../ui.DocumentId/mod.ts';
 import { Input } from './mod.ts';
 
 describe('Input UI', () => {
