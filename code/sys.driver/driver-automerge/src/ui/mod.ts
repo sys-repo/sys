@@ -2,11 +2,22 @@
  * @module
  * User Interface Components.
  */
-export { Crdt } from '../m.Crdt.-browser/mod.ts';
+import { Crdt as Base } from '../m.Crdt.-browser/mod.ts';
+import type { t } from './common.ts';
 
 /**
- * UI:
+ * UI Components:
  */
-export { Card } from './ui.Card/mod.ts';
-export { Input } from './ui.Input/mod.ts';
-export { TextEditor } from './ui.TextEditor/mod.ts';
+import { Card } from './ui.Card/mod.ts';
+import { Input } from './ui.Input/mod.ts';
+import { TextEditor } from './ui.TextEditor/mod.ts';
+
+export { Card, Input, TextEditor };
+
+/**
+ * CRDT UI Library:
+ */
+export const Crdt: t.CrdtUiLib = {
+  ...Base,
+  UI: { Card, Input, TextEditor },
+};
