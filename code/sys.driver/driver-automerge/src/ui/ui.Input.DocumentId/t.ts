@@ -49,4 +49,5 @@ export type DocumentIdInputChangedHandler = (e: DocumentIdInputChanged) => void;
 export type DocumentIdInputChanged = {
   readonly signals: t.DocumentIdHookSignals;
   readonly values: t.DocumentIdHookSignalValues;
+  readonly isHead: boolean;
 };

@@ -59,8 +59,7 @@ export function useLocalStorage(key: string | undefined, signal: t.Signal<string
     e.cancel();
     const history = historyRef.current;
 
-    if (!api.active) return;
-    if (!history) return;
+    if (!api.active || !history) return;
     if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return;
 
     if (e.key === 'ArrowUp') {
@@ -68,8 +67,13 @@ export function useLocalStorage(key: string | undefined, signal: t.Signal<string
       if (prev) signal.value = prev;
     }
     if (e.key === 'ArrowDown') {
-      const next = history.forward();
-      if (next) signal.value = next;
+      if (e.modifiers.meta) {
+        history.reset(); // ← reset to HEAD.
+        signal.value = history.current;
+      } else {
+        const next = history.forward();
+        if (next) signal.value = next;
+      }
     }
   };
 

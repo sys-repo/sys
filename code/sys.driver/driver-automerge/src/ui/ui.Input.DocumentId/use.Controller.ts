@@ -71,7 +71,7 @@ function useInternal(args: Args = {}): Hook {
   const run = async (action: t.DocumentIdInputAction) => {
     if (!repo) return;
     const p = signalsRef.current;
-    const props = wrangle.props(p, ready, repo);
+    const props = wrangle.props(p, repo);
     const enabled = props.is.enabled.action;
 
     if (action === 'Copy') {
@@ -126,16 +126,26 @@ function useInternal(args: Args = {}): Hook {
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
     if (e.key === 'Enter') {
-      const props = wrangle.props(signalsRef.current, ready, repo);
+      const props = wrangle.props(signalsRef.current, repo);
       run(props.action);
     }
 
+    // Up/Down History:
     if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
       localstore.handlers.onArrowKey(e);
     }
 
+    // Copy (Clipboard):
     if (e.modifiers.meta && e.key === 'c') {
       run('Copy');
+    }
+
+    // Escape (reset to current document-id):
+    if (e.key === 'Escape') {
+      const p = signalsRef.current;
+      const doc = p.doc.value;
+      if (doc && doc.id !== p.id.value) p.id.value = doc.id;
+      localstore.history.reset();
     }
   };
 
@@ -154,7 +164,7 @@ function useInternal(args: Args = {}): Hook {
       return transient.toObject();
     },
     get props() {
-      return wrangle.props(signals, ready, repo);
+      return wrangle.props(signals, repo);
     },
     get history() {
       return localstore.history?.items ?? [];
@@ -172,14 +182,14 @@ function isHook(input: unknown): input is Hook {
 }
 
 const wrangle = {
-  props(p: P, ready: boolean, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
+  props(p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
     const id = wrangle.id(p);
-    const is = wrangle.is(p, ready, repo);
+    const is = wrangle.is(p, repo);
     const doc = p.doc.value;
     return { id, repo, doc, is, action: wrangle.action(p) };
   },
 
-  is(p: P, ready: boolean, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
+  is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
     const id = wrangle.id(p);
     const doc = p.doc.value;
     const valid = CrdtIs.id(id);
