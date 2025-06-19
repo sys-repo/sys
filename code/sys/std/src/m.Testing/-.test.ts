@@ -1,5 +1,5 @@
 import { Random } from '../m.Random/mod.ts';
-import { Time, Testing, describe, expect, it, expectError } from './mod.ts';
+import { Testing, Time, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {
@@ -111,6 +111,37 @@ describe('Testing', () => {
 
         clearTimeout(stop);
       });
+    });
+  });
+
+  describe('expectTypeOf → toEqualTypeOf', () => {
+    it('accepts identical literal types', () => {
+      const val = 42 as const;
+      expectTypeOf(val).toEqualTypeOf<42>(); // ✅
+    });
+
+    it('accepts widened (assignable) types', () => {
+      const val = 42; // number
+      expectTypeOf(val).toEqualTypeOf<number>(); // ✅
+    });
+
+    it('rejects mismatched types (compile-time)', () => {
+      const val = { foo: 'bar' } as const;
+
+      // @ts-expect-error literal vs. broader string
+      expectTypeOf(val.foo).toEqualTypeOf<string>();
+
+      // @ts-expect-error structure mismatch
+      expectTypeOf(val).toEqualTypeOf<{ bar: string }>();
+    });
+
+    it('works with generics', () => {
+      function id<T>(x: T) {
+        expectTypeOf(x).toEqualTypeOf<T>(); // ✅
+        return x;
+      }
+      id('hello');
+      id({ ok: true });
     });
   });
 });

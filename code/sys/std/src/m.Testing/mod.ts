@@ -29,6 +29,7 @@ export {
   describe,
   expect,
   expectError,
+  expectTypeOf,
   it,
 } from './m.Bdd.ts';
 
