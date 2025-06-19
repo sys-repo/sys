@@ -16,10 +16,9 @@ export default Spec.describe(D.displayName, (e) => {
      * NOTE: either pass down the hook (instance) OR the
      *       setup arguments for the hook.
      */
-    const signals: Partial<t.DocumentIdHookSignals> = { doc: p.doc, docId: p.docId };
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
-      signals,
       repo: p.passRepo.value ? repo : undefined,
+      signals: { doc: p.doc, docId: p.docId },
       localstorageKey: p.localstorageKey.value,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
     };
