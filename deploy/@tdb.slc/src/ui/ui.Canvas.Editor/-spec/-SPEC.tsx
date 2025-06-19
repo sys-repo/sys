@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Input } from '../common.ts';
+import { D, Crdt } from '../common.ts';
 import { EditorCanvas } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -38,7 +38,7 @@ export default Spec.describe(D.displayName, (e) => {
       .border(-0.1)
       .render(() => {
         return (
-          <Input.DocumentId.View
+          <Crdt.UI.DocumentId.View
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
             controller={{
