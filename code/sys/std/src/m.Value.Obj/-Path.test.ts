@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from '../-test.ts';
+import { Mutate } from '../m.ObjectPath/m.Mutate.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './m.Obj.ts';
 import { Path } from './mod.ts';
@@ -54,36 +55,39 @@ describe('Value.Obj.Path', () => {
     });
   });
 
-  describe('Obj.Path.mutate', () => {
-    it('throws an error when path is empty', () => {
-      const target: Record<string, unknown> = {};
-      const fn = () => Obj.Path.mutate(target, [], 1);
-      expect(fn).to.throw(/The path-array must contain at least one segment/);
-    });
+  describe('Path.Mutate', () => {
+    const Mutate = Obj.Path.Mutate;
+    describe('Mutate.set', () => {
+      it('throws an error when path is empty', () => {
+        const target: Record<string, unknown> = {};
+        const fn = () => Mutate.set(target, [], 1);
+        expect(fn).to.throw(/The path-array must contain at least one segment/);
+      });
 
-    it('sets a value at a top-level key', () => {
-      const target: Record<string, unknown> = {};
-      Obj.Path.mutate(target, ['key'], 'value');
-      expect(target.key).to.eql('value');
-    });
+      it('sets a value at a top-level key', () => {
+        const target: Record<string, unknown> = {};
+        Mutate.set(target, ['key'], 'value');
+        expect(target.key).to.eql('value');
+      });
 
-    it('overwrites existing values', () => {
-      const target: Record<string, unknown> = { a: 1 };
-      Obj.Path.mutate(target, ['a'], 2);
-      expect(target.a).to.eql(2);
-    });
+      it('overwrites existing values', () => {
+        const target: Record<string, unknown> = { a: 1 };
+        Mutate.set(target, ['a'], 2);
+        expect(target.a).to.eql(2);
+      });
 
-    it('creates nested objects automatically', () => {
-      const target: Record<string, unknown> = {};
-      Obj.Path.mutate(target, ['a', 'b', 'c'], 'deep');
-      expect((target as any).a.b.c).to.eql('deep');
-    });
+      it('creates nested objects automatically', () => {
+        const target: Record<string, unknown> = {};
+        Mutate.set(target, ['a', 'b', 'c'], 'deep');
+        expect((target as any).a.b.c).to.eql('deep');
+      });
 
-    it('creates nested arrays automatically when path segment is number', () => {
-      const target: Record<string, unknown> = {};
-      Obj.Path.mutate(target, ['arr', 0, 'foo'], 'bar');
-      expect(target.arr).to.be.an('array').with.lengthOf(1);
-      expect((target as any).arr[0].foo).to.eql('bar');
+      it('creates nested arrays automatically when path segment is number', () => {
+        const target: Record<string, unknown> = {};
+        Mutate.set(target, ['arr', 0, 'foo'], 'bar');
+        expect(target.arr).to.be.an('array').with.lengthOf(1);
+        expect((target as any).arr[0].foo).to.eql('bar');
+      });
     });
   });
 });

@@ -17,29 +17,35 @@ export const Path: t.ObjPathLib = {
   },
 
   /**
-   * Ensures the entire path exists and assigns `value`
-   * at the leaf. Mutates the original `subject`.
+   * Tools that mutate an object in-place using
+   * an abstract path arrays.
    */
-  mutate(subject, path, value) {
-    if (path.length === 0) throw new Error('The path-array must contain at least one segment');
+  Mutate: {
+    /**
+     * Ensures the entire path exists and assigns `value`
+     * at the leaf. Mutates the original `subject`.
+     */
+    set(subject, path, value) {
+      if (path.length === 0) throw new Error('The path-array must contain at least one segment');
 
-    let node: any = subject;
-    for (let i = 0; i < path.length - 1; i++) {
-      const key = path[i];
-      const nextKey = path[i + 1];
-      const shouldBeArray = typeof nextKey === 'number';
+      let node: any = subject;
+      for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i];
+        const nextKey = path[i + 1];
+        const shouldBeArray = typeof nextKey === 'number';
 
-      if (
-        node[key] === undefined ||
-        (shouldBeArray && !Array.isArray(node[key])) ||
-        (!shouldBeArray && typeof node[key] !== 'object')
-      ) {
-        node[key] = shouldBeArray ? [] : {};
+        if (
+          node[key] === undefined ||
+          (shouldBeArray && !Array.isArray(node[key])) ||
+          (!shouldBeArray && typeof node[key] !== 'object')
+        ) {
+          node[key] = shouldBeArray ? [] : {};
+        }
+
+        node = node[key];
       }
 
-      node = node[key];
-    }
-
-    node[path[path.length - 1]] = value;
+      node[path[path.length - 1]] = value;
+    },
   },
 };
