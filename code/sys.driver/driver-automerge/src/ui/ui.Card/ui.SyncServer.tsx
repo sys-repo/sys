@@ -74,7 +74,7 @@ export const SyncServer: React.FC<P> = (props) => {
             toggleEnabled();
           }}
         />
-        <span className={styles.label.class}>{'sync-server:'}</span>
+        <span className={styles.label.class}>{'sync:'}</span>
         <span className={styles.address.class}>{address}</span>
         {elPeer}
       </div>

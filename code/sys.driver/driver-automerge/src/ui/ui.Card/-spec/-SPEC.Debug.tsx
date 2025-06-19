@@ -141,12 +141,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {valueEditorButtons(debug)}
 
       <hr />
-      <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
       <Button
         block
         label={() => {
@@ -158,7 +158,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} expand={0} />
+      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 15 }} expand={0} />
       {!!p.doc.value && (
         <ObjectView name={'doc'} data={p.doc.value.current} style={{ marginTop: 5 }} expand={0} />
       )}
