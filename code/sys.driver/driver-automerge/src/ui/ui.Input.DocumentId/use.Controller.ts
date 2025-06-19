@@ -133,6 +133,10 @@ function useInternal(args: Args = {}): Hook {
     if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
       localstore.handlers.onArrowKey(e);
     }
+
+    if (e.modifiers.meta && e.key === 'c') {
+      run('Copy');
+    }
   };
 
   const onAction: t.DocumentIdInputActionHandler = (e) => run(e.action);

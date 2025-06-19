@@ -15,11 +15,12 @@ import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
+import { readonly } from 'zod/v4-mini';
 
 type P = t.DocumentIdInputProps;
 
 export const View: React.FC<P> = (props) => {
-  const { label, autoFocus = D.autoFocus, enabled = D.enabled } = props;
+  const { label, autoFocus = D.autoFocus, enabled = D.enabled, readOnly = D.readOnly } = props;
 
   /**
    * Refs:
@@ -43,7 +44,7 @@ export const View: React.FC<P> = (props) => {
   const doc = controller.props.doc;
   const repo = controller.props.repo;
   const is = controller.props.is;
-  const showAction = useDebouncedValue(controller.ready && is.enabled.action, 50);
+  const showAction = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
   const active = enabled && !!repo;
   const transient = controller.transient;
   const message = transient.message;
@@ -108,6 +109,7 @@ export const View: React.FC<P> = (props) => {
       doc={doc}
       over={active && textboxOver}
       enabled={active}
+      readOnly={readOnly}
       icon={transient.kind}
       onCopy={() => controller.handlers.onAction({ action: 'Copy' })}
       onPointer={(e) => {
@@ -124,8 +126,14 @@ export const View: React.FC<P> = (props) => {
       spinning={is.spinning}
       over={active && (textboxOver || is.spinning)}
       enabled={active}
+      readOnly={readOnly}
       theme={theme.name}
-      onPointer={(e) => e.is.down && focus()}
+      onPointer={(e) => {
+        if (e.is.down) {
+          e.cancel();
+          focus();
+        }
+      }}
       onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
     />
   );
@@ -159,6 +167,7 @@ export const View: React.FC<P> = (props) => {
           suffix={elSuffix}
           placeholder={wrangle.placeholder(props, controller, focused)}
           disabled={!(active && is.enabled.input)}
+          readOnly={readOnly}
           //
           theme={theme.name}
           style={styles.textbox}
@@ -168,12 +177,15 @@ export const View: React.FC<P> = (props) => {
           }}
           border={{ mode: 'underline', defaultColor: 0 }}
           background={0}
-          autoFocus={autoFocus}
+          autoFocus={!readonly && autoFocus}
           //
           onReady={(e) => (inputRef.current = e.input)}
           onChange={(e) => controller.handlers.onTextChange(e)}
           onKeyDown={(e) => controller.handlers.onKeyDown(e)}
-          onFocusChange={(e) => setFocused(e.focused)}
+          onFocusChange={(e) => {
+            if (readOnly) setFocused(false);
+            else setFocused(e.focused);
+          }}
         />
       </div>
       {elActionButton}

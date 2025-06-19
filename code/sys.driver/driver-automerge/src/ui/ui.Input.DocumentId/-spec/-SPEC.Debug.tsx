@@ -14,7 +14,7 @@ type Storage = {
   controlled?: boolean;
   passRepo?: boolean;
   localstorageKey?: string;
-} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
+} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly'>;
 
 const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -28,6 +28,7 @@ export function createDebugSignals() {
     theme: 'Dark',
     autoFocus: D.autoFocus,
     enabled: D.enabled,
+    readOnly: D.readOnly,
     controlled: true,
     passRepo: true,
     localstorageKey: STORAGE_KEY,
@@ -52,9 +53,10 @@ export function createDebugSignals() {
     doc: s<t.CrdtRef>(),
 
     label: s<P['label']>(store.current.label),
-    placeholder: s<P['placeholder']>(store.current.placeholder),
-    autoFocus: s<P['autoFocus']>(store.current.autoFocus),
-    enabled: s<P['enabled']>(store.current.enabled),
+    placeholder: s(store.current.placeholder),
+    autoFocus: s(store.current.autoFocus),
+    enabled: s(store.current.enabled),
+    readOnly: s(store.current.readOnly),
   };
   const p = props;
   const api = {
@@ -69,13 +71,14 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value ?? 'Dark';
+      d.theme = p.theme.value;
       d.label = p.label.value;
       d.placeholder = p.placeholder.value;
-      d.autoFocus = p.autoFocus.value ?? D.autoFocus;
-      d.controlled = p.controlled.value ?? true;
-      d.passRepo = p.passRepo.value ?? true;
-      d.enabled = p.enabled.value ?? D.enabled;
+      d.autoFocus = p.autoFocus.value;
+      d.controlled = p.controlled.value;
+      d.passRepo = p.passRepo.value;
+      d.enabled = p.enabled.value;
+      d.readOnly = p.readOnly.value;
       d.localstorageKey = p.localstorageKey.value;
     });
   });
@@ -139,6 +142,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `enabled: ${p.enabled.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.enabled)}
+      />
+      <Button
+        block
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.readOnly)}
       />
 
       <hr />

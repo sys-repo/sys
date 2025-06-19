@@ -1,12 +1,13 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, usePointer } from './common.ts';
+import { type t, Button, Color, css, Icons, usePointer, D } from './common.ts';
 
 export type PrefixProps = {
   docId?: string;
   doc?: t.CrdtRef;
   over?: boolean;
-  icon?: t.DocumentIdHook['transient']['kind'];
   enabled?: boolean;
+  readOnly?: boolean;
+  icon?: t.DocumentIdHook['transient']['kind'];
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -20,9 +21,12 @@ type P = PrefixProps;
  * Component:
  */
 export const Prefix: React.FC<P> = (props) => {
-  const { doc, enabled = true } = props;
+  const { doc, enabled = D.enabled } = props;
   const docId = (props.docId || '').trim();
-  const is = { current: doc && docId ? doc.id === docId : false } as const;
+  const copied = wrangle.copied(props);
+  const is = {
+    current: doc && docId ? doc.id === docId : false,
+  };
 
   /**
    * Hooks:
@@ -50,7 +54,7 @@ export const Prefix: React.FC<P> = (props) => {
     }),
   };
 
-  const elCopy = docId && props.over && pointer.is.over && (
+  const elCopy = docId && ((props.over && pointer.is.over) || copied) && (
     <Button enabled={enabled} style={styles.btn} onClick={props.onCopy}>
       <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
     </Button>
@@ -69,8 +73,12 @@ export const Prefix: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
+  copied(props: P) {
+    return props.icon === 'Copy';
+  },
+
   copyIcon(props: P) {
-    const copied = props.icon === 'Copy';
+    const copied = wrangle.copied(props);
     return copied ? Icons.Tick : Icons.Copy;
   },
   databaseIcon(props: P) {

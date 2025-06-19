@@ -31,14 +31,17 @@ export default Spec.describe(D.displayName, (e) => {
     const theme = Color.theme(p.theme.value);
     return (
       <Input.DocumentId.View
+        debug={p.debug.value}
+        theme={p.theme.value}
+        //
         controller={p.controlled.value ? hook : args}
         label={p.label.value}
         placeholder={p.placeholder.value}
-        autoFocus={p.autoFocus.value}
-        debug={p.debug.value}
-        theme={p.theme.value}
         enabled={p.enabled.value}
+        readOnly={p.readOnly.value}
+        autoFocus={p.autoFocus.value}
         background={theme.is.dark ? -0.06 : -0.04}
+        //
         onReady={(e) => console.info(`⚡️ Input.DocumentId.onReady:`, e)}
         onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
       />

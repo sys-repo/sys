@@ -24,6 +24,7 @@ export type DocumentIdInputProps = {
   placeholder?: string;
   enabled?: boolean;
   autoFocus?: boolean | number;
+  readOnly?: boolean;
 
   // Appearance:
   theme?: t.CommonTheme;
