@@ -22,6 +22,15 @@ export const Path: t.ObjPathLib = {
    */
   Mutate: {
     /**
+     * Ensure a value at the given path exists (not undefined),
+     * and if not assigns the given default.
+     */
+    ensure(subject, path, value) {
+      const existing = Path.get(subject, path);
+      if (existing === undefined) Path.Mutate.set(subject, path, value);
+    },
+
+    /**
      * Ensures the entire path exists and assigns `value`
      * at the leaf. Mutates the original `subject`.
      */

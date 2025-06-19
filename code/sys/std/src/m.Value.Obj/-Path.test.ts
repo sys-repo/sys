@@ -57,9 +57,10 @@ describe('Value.Obj.Path', () => {
 
   describe('Path.Mutate', () => {
     const Mutate = Obj.Path.Mutate;
+
     describe('Mutate.set', () => {
       it('throws an error when path is empty', () => {
-        const target: Record<string, unknown> = {};
+        const target = {};
         const fn = () => Mutate.set(target, [], 1);
         expect(fn).to.throw(/The path-array must contain at least one segment/);
       });
@@ -71,13 +72,13 @@ describe('Value.Obj.Path', () => {
       });
 
       it('overwrites existing values', () => {
-        const target: Record<string, unknown> = { a: 1 };
+        const target = { a: 1 };
         Mutate.set(target, ['a'], 2);
         expect(target.a).to.eql(2);
       });
 
       it('creates nested objects automatically', () => {
-        const target: Record<string, unknown> = {};
+        const target = {};
         Mutate.set(target, ['a', 'b', 'c'], 'deep');
         expect((target as any).a.b.c).to.eql('deep');
       });
@@ -85,6 +86,48 @@ describe('Value.Obj.Path', () => {
       it('creates nested arrays automatically when path segment is number', () => {
         const target: Record<string, unknown> = {};
         Mutate.set(target, ['arr', 0, 'foo'], 'bar');
+        expect(target.arr).to.be.an('array').with.lengthOf(1);
+        expect((target as any).arr[0].foo).to.eql('bar');
+      });
+    });
+
+    describe('Mutate.ensure', () => {
+      it('assigns default at top-level when missing', () => {
+        const target: Record<string, unknown> = {};
+        Mutate.ensure(target, ['key'], 'value');
+        expect(target.key).to.eql('value');
+      });
+
+      it('does not override existing value', () => {
+        const value = 'foo';
+        const target = { key: value };
+        const path = ['key'];
+
+        Mutate.ensure(target, path, 123);
+        expect(target.key).to.eql(value);
+
+        Mutate.ensure(target, path, null);
+        expect(target.key).to.eql(value);
+
+        Mutate.ensure(target, path, undefined as any);
+        expect(target.key).to.eql(value);
+      });
+
+      it('ensures null value', () => {
+        const target = { foo: { bar: {} } };
+        Mutate.ensure(target, ['foo', 'bar', 'value'], null);
+        expect((target.foo.bar as any).value).to.eql(null);
+      });
+
+      it('creates nested objects automatically', () => {
+        const target = {};
+        Mutate.ensure(target, ['a', 'b', 'c'], 123);
+        expect((target as any).a.b.c).to.eql(123);
+      });
+
+      it('creates nested arrays automatically when path segment is number', () => {
+        const target: Record<string, unknown> = {};
+        Mutate.ensure(target, ['arr', 0, 'foo'], 'bar');
         expect(target.arr).to.be.an('array').with.lengthOf(1);
         expect((target as any).arr[0].foo).to.eql('bar');
       });
