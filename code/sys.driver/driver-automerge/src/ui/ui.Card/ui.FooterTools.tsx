@@ -21,6 +21,10 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
    * Handlers:
    */
   const toggleText = () => {
+    doc?.change((d) => {
+      const next = d.text ? '' : '👋';
+      Str.Doc.replace(d, ['text'], next);
+    });
   };
 
   const incrementHandler = (by: number) => {

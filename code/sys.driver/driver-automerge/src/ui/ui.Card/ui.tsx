@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { type t, Color, css, Input, ObjectView, Str } from './common.ts';
+import { type t, Color, css, D, Input, ObjectView, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 import { SyncServer } from './ui.SyncServer.tsx';
+import { useLocalStorage } from './use.LocalStorage.ts';
 
 type P = t.CardProps;
 
@@ -11,8 +12,15 @@ export const Card: React.FC<P> = (props) => {
   const doc = signals.doc;
   const current = doc?.value?.current;
 
+  const [isHead, setHead] = React.useState(false);
+  const store = useLocalStorage(props.localstorageKey);
+
   /**
    * Hools:
+   */
+
+  /**
+   * Hooks:
    */
   const [, setRender] = React.useState(0);
   const redraw = () => setRender((n) => n + 1);
@@ -32,8 +40,8 @@ export const Card: React.FC<P> = (props) => {
     header: css({
       marginTop: headerStyle.topOffset,
     }),
-    doc: css({
-      opacity: current === undefined ? 0.25 : 1,
+    objectDoc: css({
+      opacity: current === undefined || !isHead ? 0.25 : 1,
       Margin: 30,
     }),
     footer: css({
@@ -44,6 +52,7 @@ export const Card: React.FC<P> = (props) => {
       gridTemplateColumns: 'auto 1fr auto',
       alignItems: 'center',
     }),
+    empty: css({ placeItems: 'center', display: 'grid', opacity: 0.5, userSelect: 'none' }),
   };
 
   const elFooter = (
@@ -53,7 +62,9 @@ export const Card: React.FC<P> = (props) => {
         enabled={sync?.enabled}
         theme={theme.name}
         peerId={repo?.id.peer}
-        onSyncEnabledChange={props.onSyncEnabledChange}
+        onSyncEnabledChange={(e) => {
+          props.onSyncEnabledChange?.(e);
+        }}
       />
       <div />
       <FooterTools theme={theme.name} doc={doc?.value} />
@@ -80,6 +91,7 @@ export const Card: React.FC<P> = (props) => {
       onChange={(e) => {
         redraw();
         props.onChange?.(e);
+        setHead(e.isHead);
       }}
     />
   );
@@ -91,9 +103,16 @@ export const Card: React.FC<P> = (props) => {
       expand={1}
       fontSize={28}
       theme={theme.name}
-      style={styles.doc}
+      style={styles.objectDoc}
     />
   );
+
+  if (!repo)
+    return (
+      <div className={css(styles.empty, props.style).class} title={D.displayName}>
+        {'(repository not provided)'}
+      </div>
+    );
 
   return (
     <div className={css(styles.base, props.style).class}>

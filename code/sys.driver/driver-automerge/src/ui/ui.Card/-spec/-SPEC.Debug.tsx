@@ -69,6 +69,9 @@ export async function createDebugSignals() {
     });
   });
 
+  /**
+   * Reload/Redraw Repo:
+   */
   Signal.effect(() => {
     const ws = p.syncUrl.value;
     const isWebsockets = p.syncEnabled.value;
@@ -86,6 +89,17 @@ export async function createDebugSignals() {
 
     p.repo.value = repo;
     p.doc.value = undefined;
+  });
+
+  /**
+   * Redraw on Document change:
+   */
+  let events: t.CrdtEvents | undefined;
+  Signal.effect(() => {
+    events?.dispose();
+    const doc = p.doc.value;
+    events = doc?.events();
+    events?.$.subscribe(() => p.redraw.value++);
   });
 
   return api;
@@ -144,13 +158,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView
-        //
-        name={'debug'}
-        data={wrangle.data(debug)}
-        style={{ marginTop: 10 }}
-        expand={0}
-      />
+      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} expand={0} />
+      {!!p.doc.value && (
+        <ObjectView name={'doc'} data={p.doc.value.current} style={{ marginTop: 5 }} expand={0} />
+      )}
     </div>
   );
 };
