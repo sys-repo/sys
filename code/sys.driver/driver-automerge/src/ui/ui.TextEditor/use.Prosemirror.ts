@@ -17,12 +17,15 @@ import { type t, D, Obj, toAutomergeHandle } from './common.ts';
 import { useCssImports } from './use.CssImports.ts';
 
 /**
- * Hook: boot-straps the prose-mirror editor
+ * Hook: bootstraps the ProseMirror editor
  *       with the Automerge plugin.
  *
  * Refs:
- *       https://automerge.org/docs/cookbook/rich-text-prosemirror-vanilla/
- *       https://automerge.org/docs/cookbook/rich-text-prosemirror-react/
+ *        https://automerge.org/docs/cookbook/rich-text-prosemirror-vanilla/
+ *        https://automerge.org/docs/cookbook/rich-text-prosemirror-react/
+ *
+ *        https://prosemirror.net/
+ *        https://github.com/ProseMirror/prosemirror-example-setup  (sample config).
  *
  */
 export function useProsemirror(props: t.TextEditorProps) {
