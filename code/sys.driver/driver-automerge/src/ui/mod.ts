@@ -2,4 +2,15 @@
  * @module
  * User Interface Components.
  */
-export { Card, Crdt, DocumentId, TextEditor } from './ui/mod.ts';
+
+/**
+ * Individual Components:
+ */
+export { Card } from './ui.Card/mod.ts';
+export { DocumentId } from './ui.DocumentId/mod.ts';
+export { TextEditor } from './ui.TextEditor/mod.ts';
+
+/**
+ * Library:
+ */
+export { Crdt } from './m.Crdt/mod.ts';

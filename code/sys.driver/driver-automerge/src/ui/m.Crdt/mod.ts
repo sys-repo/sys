@@ -12,12 +12,14 @@ import { Card } from '../ui.Card/mod.ts';
 import { DocumentId } from '../ui.DocumentId/mod.ts';
 import { TextEditor } from '../ui.TextEditor/mod.ts';
 
-export { Card, DocumentId, TextEditor };
-
 /**
  * CRDT UI Library:
  */
 export const Crdt: t.CrdtUiLib = {
   ...Base,
-  UI: { Card, DocumentId, TextEditor },
+  UI: {
+    Card,
+    DocumentId,
+    TextEditor,
+  },
 };
