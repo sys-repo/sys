@@ -1,10 +1,12 @@
 /**
  * Compile-time equality assertion.
+ *  • Any mismatch raises a type-checker error.
+ *  • Zero run-time overhead.
  *
- *   expectTypeOf(value).toEqualTypeOf<Foo>();
+ * Usage:
  *
- * • Any mismatch raises a type-checker error.
- * • Zero run-time overhead.
+ *      expectTypeOf(value).toEqualTypeOf<Foo>();
+ *
  */
 export function expectTypeOf<T>(_value?: T) {
   return {
