@@ -12,10 +12,17 @@ export type HistoryLib = {
  * Newest item is always index 0.
  */
 export type HistoryStack = {
-  /**
-   * Read-only snapshot (newest → oldest).
-   */
+  /** Read-only snapshot (newest → oldest). */
   readonly items: readonly string[];
+  /** The current HEAD. */
+  current: string | undefined;
+  /** The index of the HEAD. */
+  index: t.Index;
+
+  /**
+   * Return the cursor to the HEAD.
+   */
+  reset(): void;
 
   /**
    * Pushes a new line (ignores blanks, de-dupes, enforces `max`).
@@ -49,6 +56,7 @@ export type HistoryStack = {
  */
 export type HistoryStackChangeHandler = (e: HistoryStackChange) => void;
 export type HistoryStackChange = {
+  readonly index: t.Index;
   readonly before: readonly string[];
   readonly after: readonly string[];
 };

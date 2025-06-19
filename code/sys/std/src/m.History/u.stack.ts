@@ -6,12 +6,13 @@ export function stack(options: Options = {}): t.HistoryStack {
   const { max = Number.POSITIVE_INFINITY } = options;
 
   const items = options.items ?? [];
-  let index: number | null = null; // null ⇢ live prompt (not in history).
   const handlers = new Set<t.HistoryStackChangeHandler>();
+  let index: number | null = null; // null ⇢ live prompt (not in history).
 
   const notify = (before: string[]) => {
+    const index = api.index;
     const after = [...items];
-    handlers.forEach((fn) => fn({ before, after }));
+    handlers.forEach((fn) => fn({ index, before, after }));
   };
 
   /**
@@ -23,11 +24,11 @@ export function stack(options: Options = {}): t.HistoryStack {
 
     const before = [...items];
     const dup = items.indexOf(value);
-    if (dup > -1) items.splice(dup, 1); //  De-dupe previous instance.
+    if (dup > -1) items.splice(dup, 1); //   ← De-dupe previous instance.
 
-    items.unshift(value); //                Newest ⇢ <head>.
-    if (items.length > max) items.pop(); // Enforce cap.
-    index = null; //                        Reset navigation cursor.
+    items.unshift(value); //                 ← Newest ⇢ <head>.
+    if (items.length > max) items.pop(); //  ← Enforce cap.
+    api.reset(); //                          ← Reset navigation cursor.
 
     notify(before);
   };
@@ -62,21 +63,34 @@ export function stack(options: Options = {}): t.HistoryStack {
       index -= 1; // Step newer.
       return items[index];
     }
-    index = null; // Stepped past newest → live.
+    api.reset(); // Stepped past newest → live.
     return undefined;
   };
 
   /**
    * API:
    */
-  return {
+  const api: t.HistoryStack = {
     get items() {
       return items;
+    },
+    get index() {
+      return index == null ? -1 : index;
+    },
+    get current() {
+      return typeof index === 'number' ? items[index] : undefined;
     },
     push,
     remove,
     back,
     forward,
     onChange: (fn) => handlers.add(fn),
+    reset: () => {
+      if (index == null) return;
+      const before = [...items];
+      index = null;
+      notify(before);
+    },
   };
+  return api;
 }

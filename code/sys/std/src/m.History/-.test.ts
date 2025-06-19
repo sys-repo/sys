@@ -75,6 +75,36 @@ describe('History', () => {
       expect(h.back()).to.eql('bar'); //      ← newest again.
     });
 
+    it('reset navigation cursor (HEAD)', () => {
+      const h = History.stack();
+      const initial = ['one', 'two', 'three'];
+      initial.forEach(h.push);
+      expect(h.current).to.eql(undefined);
+      expect(h.index).to.eql(-1);
+
+      h.back();
+      expect(h.index).to.eql(0);
+      expect(h.current).to.eql('three');
+
+      h.back();
+      expect(h.index).to.eql(1);
+      expect(h.current).to.eql('two');
+
+      const fired: t.HistoryStackChange[] = [];
+      h.onChange((e) => fired.push(e));
+
+      h.reset();
+      h.reset(); // NB: multiple calls will not trigger repeate change events.
+      h.reset();
+      expect(h.current).to.eql(undefined);
+      expect(h.index).to.eql(-1);
+
+      expect(fired.length).to.eql(1);
+      expect(fired[0].index).to.eql(-1);
+      expect(fired[0].before).to.eql(initial.toReversed());
+      expect(fired[0].after).to.eql(initial.toReversed());
+    });
+
     it('does not add head more than once', () => {
       const h = History.stack();
       h.push('a');
