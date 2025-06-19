@@ -9,8 +9,9 @@ export function stack(options: Options = {}): t.HistoryStack {
   const handlers = new Set<t.HistoryStackChangeHandler>();
   let index: number | null = null; // null ⇢ live prompt (not in history).
 
-  const notify = (before: string[]) => {
+  const notify = (options: { before?: string[] } = {}) => {
     const index = api.index;
+    const before = [...(options.before ?? items)];
     const after = [...items];
     handlers.forEach((fn) => fn({ index, before, after }));
   };
@@ -30,7 +31,7 @@ export function stack(options: Options = {}): t.HistoryStack {
     if (items.length > max) items.pop(); //  ← Enforce cap.
     api.reset(); //                          ← Reset navigation cursor.
 
-    notify(before);
+    notify({ before });
   };
 
   const remove = (line: string) => {
@@ -43,7 +44,7 @@ export function stack(options: Options = {}): t.HistoryStack {
     const before = [...items];
     items.splice(index, 1);
 
-    notify(before);
+    notify({ before });
     return true;
   };
 
@@ -54,6 +55,7 @@ export function stack(options: Options = {}): t.HistoryStack {
 
     // If the found items is the same as the provided "current" re-call back (recursion).
     if (current != null && current === items[index]) return back();
+    notify();
     return items[index];
   };
 
@@ -61,6 +63,7 @@ export function stack(options: Options = {}): t.HistoryStack {
     if (index === null) return undefined; // already at live prompt
     if (index > 0) {
       index -= 1; // Step newer.
+      notify();
       return items[index];
     }
     api.reset(); // Stepped past newest → live.
@@ -89,7 +92,7 @@ export function stack(options: Options = {}): t.HistoryStack {
       if (index == null) return;
       const before = [...items];
       index = null;
-      notify(before);
+      notify({ before });
     },
   };
   return api;

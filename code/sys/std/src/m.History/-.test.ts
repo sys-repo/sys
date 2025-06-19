@@ -118,15 +118,24 @@ describe('History', () => {
       const fired: t.HistoryStackChange[] = [];
       const handler: t.HistoryStackChangeHandler = (e) => fired.push(e);
       h.onChange(handler);
-      h.onChange(handler); // NB: repeat registrations do not double up.
+      h.onChange(handler);
+      h.onChange(handler); // ↑ NB: repeat registrations do not double-up event firing.
 
       h.push('a');
       expect(fired.length).to.eql(1);
-      expect(fired[0]).to.eql({ before: [], after: ['a'] });
+      expect(fired[0]).to.eql({ index: -1, before: [], after: ['a'] });
 
       h.push('b');
-      expect(fired.length).to.eql(2);
-      expect(fired[1]).to.eql({ before: ['a'], after: ['b', 'a'] });
+      expect(fired[1]).to.eql({ index: -1, before: ['a'], after: ['b', 'a'] });
+
+      h.back();
+      expect(fired[2]).to.eql({ index: 0, before: ['b', 'a'], after: ['b', 'a'] });
+
+      h.back();
+      expect(fired[3]).to.eql({ index: 1, before: ['b', 'a'], after: ['b', 'a'] });
+
+      h.forward();
+      expect(fired[2]).to.eql({ index: 0, before: ['b', 'a'], after: ['b', 'a'] });
     });
   });
 });
