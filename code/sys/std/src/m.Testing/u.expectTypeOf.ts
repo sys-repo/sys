@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /**
  * Compile-time equality assertion.
+ *
  *  • Any mismatch raises a type-checker error.
  *  • Zero run-time overhead.
  *
