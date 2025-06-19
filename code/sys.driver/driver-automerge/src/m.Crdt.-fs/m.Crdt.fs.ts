@@ -1,10 +1,9 @@
 import { Repo } from '@automerge/automerge-repo';
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
+import { type t, Arr, CrdtIs, CrdtUrl, Is, slug, toRepo } from './common.ts';
 
-import { type t, CrdtIs, CrdtUrl, Is, slug, toRepo } from './common.ts';
-
-type A = t.CrdtFsRepoArgs;
+type Args = t.CrdtFsRepoArgs;
 
 /**
  * Exports:
@@ -33,21 +32,22 @@ export const Crdt: t.CrdtFilesystemLib = {
  * Helpers:
  */
 const wrangle = {
-  dir(input?: t.StringDir | A): A {
+  dir(input?: t.StringDir | Args): Args {
     if (input == null) return {};
     if (typeof input === 'string') return { dir: input };
     return input;
   },
 
-  storage(args?: A): NodeFSStorageAdapter | undefined {
+  storage(args?: Args): NodeFSStorageAdapter | undefined {
     const dir = args?.dir;
     return dir ? new NodeFSStorageAdapter(dir) : undefined;
   },
 
-  network(input?: A): t.NetworkAdapterInterface[] {
-    if (!input?.network) return [];
-    const args = Array.isArray(input.network) ? input.network : [input.network];
-    return args.map(wrangle.adapter).filter(Boolean) as t.NetworkAdapterInterface[];
+  network(input?: Args): t.NetworkAdapterInterface[] | undefined {
+    if (!input?.network) return;
+    return Arr.asArray(input.network)
+      .map(wrangle.adapter)
+      .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
   adapter(arg?: t.CrdtFsNetworkArg) {

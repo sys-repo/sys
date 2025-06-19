@@ -5,8 +5,9 @@ import {
   WebSocketClientAdapter,
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-
 import { type t, Arr, CrdtIs, CrdtUrl, D, Is, slug, toRepo } from './common.ts';
+
+type Args = t.CrdtBrowserRepoArgs;
 
 /**
  * Exports:
@@ -39,7 +40,7 @@ const wrangle = {
     return new IndexedDBStorageAdapter(database);
   },
 
-  storage(args?: t.CrdtBrowserRepoArgs): t.StorageAdapterInterface | undefined {
+  storage(args?: Args): t.StorageAdapterInterface | undefined {
     if (!args?.storage) return;
     const arg = args?.storage;
     if (arg === 'IndexedDb' || arg === true) return wrangle.indexedDb();
@@ -48,7 +49,7 @@ const wrangle = {
     return;
   },
 
-  network(args?: t.CrdtBrowserRepoArgs): t.NetworkAdapterInterface[] | undefined {
+  network(args?: Args): t.NetworkAdapterInterface[] | undefined {
     if (!args?.network) return;
     return Arr.asArray(args.network)
       .map(wrangle.adapter)
