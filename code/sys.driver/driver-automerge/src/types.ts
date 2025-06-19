@@ -2,8 +2,8 @@
  * @module
  * Module types.
  */
-export type * from './m.Crdt.-browser/t.ts';
 export type * from './m.Crdt.-fs/t.ts';
+export type * from './m.Crdt.env/-browser/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Server/t.ts';
 
