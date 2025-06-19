@@ -6,7 +6,10 @@ import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '..
 export type SampleDoc = { text?: string };
 
 type P = t.TextEditorProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'autoFocus' | 'readOnly' | 'scroll' | 'singleLine'>;
+type Storage = Pick<
+  P,
+  'theme' | 'debug' | 'autoFocus' | 'readOnly' | 'scroll' | 'singleLine' | 'path'
+>;
 
 export const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -29,6 +32,7 @@ export function createDebugSignals() {
     readOnly: D.readOnly,
     scroll: false,
     singleLine: true,
+    path: ['text'],
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -44,7 +48,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
 
     doc: s<t.CrdtRef<SampleDoc>>(),
-
+    path: s<P['path']>(snap.path),
     readOnly: s<P['readOnly']>(snap.readOnly),
     scroll: s<P['scroll']>(snap.scroll),
     singleLine: s<P['singleLine']>(snap.singleLine),
@@ -78,6 +82,7 @@ export function createDebugSignals() {
       d.readOnly = p.readOnly.value;
       d.scroll = p.scroll.value;
       d.singleLine = p.singleLine.value;
+      d.path = p.path.value;
     });
   });
 
@@ -118,10 +123,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
       <Button
         block
-        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
-        onClick={() => Signal.toggle(p.readOnly)}
+        label={() => {
+          const v = p.path.value;
+          return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
+        }}
+        onClick={() => Signal.cycle(p.path, [undefined, ['text'], ['foo', 'bar']])}
       />
       <hr />
       <Button
@@ -138,6 +147,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.singleLine)}
       />
       <hr />
+      <Button
+        block
+        label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
+        onClick={() => Signal.toggle(p.readOnly)}
+      />
       <Button
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined> (default: ${D.autoFocus})`}`}
@@ -165,9 +179,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'debug'}
         data={{ ...Signal.toObject(p), doc: p.doc.value?.current }}
-        // expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
+      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} expand={1} />
     </div>
   );
 };

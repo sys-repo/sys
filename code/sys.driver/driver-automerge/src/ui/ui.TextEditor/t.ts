@@ -4,7 +4,10 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type TextEditorProps = {
+  /** The CRDT to record onto. */
   doc?: t.CrdtRef<any>;
+  /** The path within the CRDT to target. */
+  path?: t.ObjectPath;
 
   /**
    * Flags:

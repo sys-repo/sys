@@ -35,6 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
           theme={p.theme.value}
           style={{ minHeight: 30 }}
           doc={p.doc.value}
+          path={p.path.value}
           autoFocus={p.autoFocus.value}
           readOnly={p.readOnly.value}
           scroll={p.scroll.value}

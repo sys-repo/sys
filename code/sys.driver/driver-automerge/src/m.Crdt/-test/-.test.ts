@@ -50,13 +50,23 @@ describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('Change:', () => {
-    it('assign deep text value', async () => {
-      type T = { foo?: { bar?: { text?: string } } };
-      const repo = Crdt.repo();
+    type T = { foo?: { bar?: { text?: string } } };
+    const repo = Crdt.repo();
+
+    it('assign text (deep)', () => {
       const doc = repo.create<T>({});
+      const path = ['foo', 'bar', 'text'];
+      expect(doc.current.foo?.bar?.text).to.eql(undefined);
+      doc.change((d) => Obj.Path.Mutate.set(d, path, 'hello'));
+      expect(doc.current.foo?.bar?.text).to.eql('hello');
+    });
+
+    it('ensure text (deep)', () => {
+      const doc = repo.create<T>({});
+      const path = ['foo', 'bar', 'text'];
 
       expect(doc.current.foo?.bar?.text).to.eql(undefined);
-      doc.change((d) => Obj.Path.mutate(d, ['foo', 'bar', 'text'], 'hello'));
+      doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
       expect(doc.current.foo?.bar?.text).to.eql('hello');
     });
   });
