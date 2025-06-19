@@ -1,7 +1,7 @@
 import { Card, Crdt } from '@sys/driver-automerge/ui';
 import React from 'react';
 
-import { type t, Color, Cropmarks, css, pkg } from './common.ts';
+import { Color, Cropmarks, css, pkg, type t, useDist, Button } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
@@ -18,6 +18,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
   /**
    * Hooks:
    */
+  const dist = useDist({ sampleFallback: true });
   const [signals, setSignals] = React.useState<t.DocumentIdHookSignals>();
   const [repo, setRepo] = React.useState<t.CrdtRepo>();
   const [isSyncEnabled, setSyncEnabled] = React.useState(true);
@@ -55,6 +56,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
       display: 'grid',
     }),
     body: css({ width: 500, height: 350, display: 'grid' }),
+    footer: css({ Absolute: [null, 0, 0, 0], fontSize: 11, padding: 10 }),
   };
 
   return (
@@ -81,6 +83,26 @@ export const Splash: React.FC<SplashProps> = (props) => {
           />
         </div>
       </Cropmarks>
+
+      <div className={styles.footer.class}>
+        {dist && (
+          <Button
+            theme={theme.name}
+            label={() => `version: #${wrangle.versionHash(dist.json)}`}
+            onClick={() => window.open('./dist.json', '_blank')}
+          />
+        )}
+      </div>
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  versionHash(dist?: t.DistPkg) {
+    const hx = dist?.hash.digest ?? '000000';
+    return hx.slice(-5);
+  },
+} as const;
