@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <Repo debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <Repo.View debug={p.debug.value} theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

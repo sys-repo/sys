@@ -5,7 +5,7 @@ export type * from './t.hook.ts';
 export type DocumentIdAction = 'Load' | 'Create' | 'Clear' | 'Copy';
 
 /**
- * Library: editor for repo-document ID loader.
+ * Library: document-id UI tools.
  */
 export type DocumentIdLib = {
   readonly View: React.FC<t.DocumentIdProps>;
