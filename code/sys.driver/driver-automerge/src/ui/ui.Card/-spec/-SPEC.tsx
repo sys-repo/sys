@@ -4,16 +4,6 @@ import { type t, D, DocumentId } from '../common.ts';
 import { Card } from '../mod.ts';
 import { type TDoc, Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-/**
- * Add the repo to the global window object so
- * it can be accessed in the browser console.
- */
-declare global {
-  interface Window {
-    repo: t.CrdtRepo;
-  }
-}
-
 const STORAGE_KEY = `dev:${D.name}.input`;
 
 export default Spec.describe(D.displayName, async (e) => {
