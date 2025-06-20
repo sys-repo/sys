@@ -27,6 +27,7 @@ export type CardSignals = Omit<t.RepoHookSignals, 'toValues'> &
  */
 export type CardChangedHandler = (e: CardChangedArgs) => void;
 export type CardChangedArgs = {
-  readonly isHead: boolean;
+  readonly is: { readonly head: boolean };
   readonly signals: CardSignals;
+  readonly repo: t.CrdtRepo;
 };

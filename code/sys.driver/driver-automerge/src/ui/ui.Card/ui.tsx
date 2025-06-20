@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { type t, Color, css, D, DocumentId, ObjectView, Repo, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 
+type O = Record<string, unknown>;
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
@@ -10,11 +11,14 @@ export const Card: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const [isHead, setHead] = React.useState(false);
-  const [, setRender] = React.useState(0);
+  const [head, setHead] = useState(false);
+  const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
+  const [current, setCurrent] = useState<O>();
+
   const crdt = Repo.useRepo({ factory, signals: props.signals, localstorageKey });
+  const repo = crdt.repo;
   const controller = DocumentId.useController({
     repo: crdt.repo,
     signals: props.signals,
@@ -25,14 +29,18 @@ export const Card: React.FC<P> = (props) => {
   const signals = { ...crdt.signals, ...controller.signals };
   const docSignal = signals.doc;
   const doc = docSignal.value;
-  const current = doc?.current;
+
+  /**
+   * Effect:
+   */
+  React.useEffect(() => void setCurrent(doc?.current), [doc?.id]);
 
   /**
    * Handlers:
    */
   const fireChanged = () => {
     redraw();
-    props.onChange?.({ isHead, signals });
+    if (repo) props.onChange?.({ is: { head }, signals, repo });
   };
 
   /**
@@ -49,7 +57,7 @@ export const Card: React.FC<P> = (props) => {
     }),
     header: css({ marginTop: headerStyle.topOffset }),
     objectDoc: css({
-      opacity: current === undefined || !isHead ? 0.25 : 1,
+      opacity: current === undefined || !head ? 0.25 : 1,
       Margin: 30,
     }),
     footer: css({
