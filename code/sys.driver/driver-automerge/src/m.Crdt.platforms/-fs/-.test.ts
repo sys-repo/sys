@@ -1,5 +1,5 @@
-import { describe, expect, it, slug, Time } from '../../-test.ts';
 import { Crdt } from '@sys/driver-automerge/fs';
+import { describe, expect, it, slug, Time } from '../../-test.ts';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -8,8 +8,6 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
     it('import: no file-system', async () => {
       const { Crdt } = await import('@sys/driver-automerge/fs');
       const repo = Crdt.repo();
-      expect(repo.id.peer.startsWith('peer.')).to.be.true;
-      expect(repo.id.instance).to.be.a('string');
 
       const a = repo.create<T>({ count: 0 });
       a.change((d) => (d.count = 1234));
@@ -33,10 +31,19 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
     });
   });
 
-  describe('Url', () => {
-    it('Crdt.Url.ws', () => {
-      const url = Crdt.Url.ws('sync.db.team');
-      expect(url).to.eql('wss://sync.db.team');
-    });
+  it('repo.id', () => {
+    const a = Crdt.repo();
+    const b = Crdt.repo({ network: { ws: 'sync.db.team' } });
+
+    expect(a.id.instance).to.be.a('string');
+    expect(a.id.instance).to.not.eql(b.id.instance);
+
+    expect(a.id.peer).to.eql(''); // ← no network...no peer-id.
+    expect(b.id.peer.startsWith('peer.')).to.be.true;
+  });
+
+  it('Crdt.Url.ws', () => {
+    const url = Crdt.Url.ws('sync.db.team');
+    expect(url).to.eql('wss://sync.db.team');
   });
 });

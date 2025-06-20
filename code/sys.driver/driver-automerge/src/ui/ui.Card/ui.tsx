@@ -92,7 +92,7 @@ export const Card: React.FC<P> = (props) => {
       background={-0.04}
       controller={controller}
       onChange={(e) => {
-        setHead(e.isHead);
+        setHead(e.is.head);
         fireChanged();
       }}
     />

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { readonly } from 'zod/v4-mini';
 import {
   type t,
   Color,
@@ -15,7 +16,6 @@ import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
-import { readonly } from 'zod/v4-mini';
 
 type P = t.DocumentIdProps;
 
@@ -57,9 +57,10 @@ export const View: React.FC<P> = (props) => {
     const signals = controller.signals;
 
     const fireChanged = () => props.onChange?.(payload());
-    const payload = () => {
-      const isHead = (doc && doc.id === docId) ?? false;
-      return { isHead, signals, values: signals.toValues() };
+    const payload = (): t.DocumentIdChanged => {
+      const is = { head: (doc && doc.id === docId) ?? false };
+      const values = signals.toValues();
+      return { is, signals, values };
     };
 
     // Bubble change events:

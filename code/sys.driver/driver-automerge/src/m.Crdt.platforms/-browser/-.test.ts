@@ -11,7 +11,6 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(Crdt.kind).to.eql('Crdt:Browser');
 
     const repoA = Crdt.repo({ storage: 'IndexedDb' });
-    expect(repoA.id.peer.startsWith('peer.')).to.be.true;
 
     const a = repoA.create<T>({ count: 0 });
     a.change((d) => (d.count = 1234));
@@ -44,6 +43,17 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
 
     expect(names).to.include(D.database);
     expect(names).to.include(database);
+  });
+
+  it('repo.id', () => {
+    const a = Crdt.repo();
+    const b = Crdt.repo({ network: { ws: 'sync.db.team' } });
+
+    expect(a.id.instance).to.be.a('string');
+    expect(a.id.instance).to.not.eql(b.id.instance);
+
+    expect(a.id.peer).to.eql(''); // ← no network...no peer-id.
+    expect(b.id.peer.startsWith('peer.')).to.be.true;
   });
 
   it('Crdt.Url.ws', () => {

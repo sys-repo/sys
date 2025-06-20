@@ -47,7 +47,7 @@ export type DocumentIdActionArgs = { readonly action: DocumentIdAction };
 
 export type DocumentIdChangedHandler = (e: DocumentIdChanged) => void;
 export type DocumentIdChanged = {
-  readonly isHead: boolean;
+  readonly is: { readonly head: boolean };
   readonly signals: t.DocumentIdHookSignals;
   readonly values: t.DocumentIdHookSignalValues;
 };
