@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
 
@@ -8,24 +8,39 @@ type P = t.MyComponentProps;
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const defaults: Storage = { theme: 'Dark', debug: false };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
   };
   const p = props;
   const api = {
     props,
     listen() {
-      p.debug.value;
-      p.theme.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   return api;
 }
 

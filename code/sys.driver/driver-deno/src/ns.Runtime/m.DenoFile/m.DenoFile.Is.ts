@@ -1,7 +1,7 @@
-import { type t } from './common.ts';
+import type { DenoFileIsLib } from './t.ts';
 import { load } from './u.load.ts';
 
-export const Is: t.DenoFileIsLib = {
+export const Is: DenoFileIsLib = {
   /**
    * Determine if the given input is a `deno.json` file
    * that contains a "workspace":[] configuration.

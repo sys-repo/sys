@@ -14,8 +14,8 @@ describe('Immutable.events', () => {
 
     const fired1: t.PatchChange<D>[] = [];
     const fired2: t.ImmutableChange<D, P>[] = [];
-    events1.$.subscribe((e) => fired1.push(e));
-    events2.changed$.subscribe((e) => fired2.push(e));
+    events1.patch$.subscribe((e) => fired1.push(e));
+    events2.$.subscribe((e) => fired2.push(e));
 
     obj.change((d) => (d.count = 123));
     expect(fired1.length).to.eql(1);

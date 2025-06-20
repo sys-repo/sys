@@ -1,9 +1,9 @@
 /**
  * @module
  */
-import type { t } from './common.ts';
+import type { TmplFileLib } from './t.ts';
 import { update } from './u.update.ts';
 
-export const File: t.TmplFileLib = {
+export const File: TmplFileLib = {
   update,
 };

@@ -11,9 +11,9 @@ export function defaultEvents<T extends O>(
   dispose$?: t.UntilObservable,
 ): t.PatchStateEvents<T> {
   const life = rx.lifecycle(dispose$);
-  const $ = ob$.pipe(rx.takeUntil(life.dispose$));
+  const patch$ = ob$.pipe(rx.takeUntil(life.dispose$));
 
-  const changed$ = $.pipe(
+  const $ = patch$.pipe(
     rx.map((e) => {
       const { before, after } = e;
       const patches = e.patches.next;
@@ -23,7 +23,7 @@ export function defaultEvents<T extends O>(
 
   return {
     $,
-    changed$,
+    patch$,
     dispose: life.dispose,
     dispose$: life.dispose$,
     get disposed() {

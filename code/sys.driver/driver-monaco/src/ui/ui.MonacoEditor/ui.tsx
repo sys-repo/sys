@@ -134,11 +134,11 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   };
 
   const elPlaceholderText = isPlaceholderText && (
-    <div {...styles.empty.placeholderText}>{placeholder}</div>
+    <div className={styles.empty.placeholderText.class}>{placeholder}</div>
   );
 
   const elEmpty = isEmpty && placeholder && (
-    <div {...styles.empty.base}>{elPlaceholderText ?? placeholder}</div>
+    <div className={styles.empty.base.class}>{elPlaceholderText ?? placeholder}</div>
   );
 
   const elLoading = <Spinners.Bar theme={theme.name} />;

@@ -1,10 +1,10 @@
 import { Checkbox, Confirm, Input, List, Number, Secret, Select, Toggle } from '@cliffy/prompt';
-import type { t } from './common.ts';
+import type { CliPromptLib } from './t.ts';
 
 /**
  * Index of input prompts.
  */
-export const Prompt: t.CliPromptLib = {
+export const Prompt: CliPromptLib = {
   /** Text input prompt (String). */
   Input,
 

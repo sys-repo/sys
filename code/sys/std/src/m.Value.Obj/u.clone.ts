@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { type t } from './common.ts';
 
 /**
  * Deeply clone the given object (circular-reference safe)

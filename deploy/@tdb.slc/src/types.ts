@@ -3,8 +3,6 @@
  * Module types.
  */
 
-export type * from './ui.tmp/t.ts';
-
 /**
  * State:
  */
@@ -22,8 +20,11 @@ export type * from './ui/App/t.ts';
 /**
  * UI Structure:
  */
+export type * from './ui/ui.Canvas.Project/t.ts';
+export type * from './ui/ui.Canvas.Editor/t.ts';
 export type * from './ui/ui.FadeText/t.ts';
 export type * from './ui/ui.Image/t.ts';
+export type * from './ui/ui.Layout.Canvas/t.ts';
 export type * from './ui/ui.Layout/t.ts';
 export type * from './ui/ui.Logo.Canvas/t.ts';
 export type * from './ui/ui.Logo.Wordmark/t.ts';
@@ -73,3 +74,11 @@ export type CanvasPanel =
   | 'customers'
   | 'costs'
   | 'revenue';
+
+/**
+ * Canvas panels as a {map}.
+ */
+export type CanvasPanelPartialMap<T> = Partial<CanvasPanelMap<T>>;
+export type CanvasPanelMap<T> = {
+  [Panel in CanvasPanel]: T;
+};

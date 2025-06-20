@@ -1,6 +1,7 @@
-import { type t, c, Hash } from './common.ts';
+import { c, Hash } from './common.ts';
+import type { HashFmtLib } from './t.ts';
 
-export const HashFmt: t.HashFmtLib = {
+export const HashFmt: HashFmtLib = {
   digest(input, options = {}) {
     if (!input) return '';
 

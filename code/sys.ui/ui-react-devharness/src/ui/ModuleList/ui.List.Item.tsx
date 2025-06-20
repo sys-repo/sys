@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
-import { COLORS, Color, DEFAULTS, css, type t } from './common.ts';
+import { type t, COLORS, Color, DEFAULTS, css, Obj } from './common.ts';
 import { HrCalc } from './u.Hr.Calc.ts';
 
 export type ListItemProps = {
   enabled?: boolean;
   index: number;
-  url: URL;
   imports: t.ModuleImports;
   uri?: string;
+  url: t.StringUrl;
   title?: string;
   selected?: boolean;
   focused: boolean;
@@ -24,32 +24,35 @@ export type ListItemProps = {
 };
 
 export const ListItem: React.FC<ListItemProps> = (props) => {
-  const { uri, url, selected, focused, enabled = true } = props;
+  const { uri, selected, focused, enabled = true } = props;
   const { index, Icon, ns } = props;
   const { title, imports, useAnchorLinks = DEFAULTS.useAnchorLinks } = props;
-  const importsKeys = Object.keys(imports);
 
+  const importsKeys = Object.keys(imports);
   const beyondBounds = index === -1 ? true : index > importsKeys.length - 1;
+
+  const url = new URL(props.url);
   const params = url.searchParams;
 
   const prev = importsKeys[index - 1];
   const next = importsKeys[index];
   const showHr = !beyondBounds && index > 0 && HrCalc.show(props.hr, prev, next);
 
-  if (uri) params.set(DEFAULTS.qs.dev, uri);
+  if (uri) params.set(DEFAULTS.qs.dev, String(Obj.hash(uri)));
   if (!uri) params.delete(DEFAULTS.qs.dev);
 
+  /**
+   * Hooks:
+   */
   const baseRef = useRef<HTMLLIElement>(null);
 
   /**
-   * Lifecycle
+   * Lifecycle:
    */
   useEffect(() => {
     const el = baseRef.current ?? undefined;
     props.onReadyChange?.({ index, lifecycle: 'ready', el });
-    return () => {
-      props.onReadyChange?.({ index, lifecycle: 'disposed' });
-    };
+    return () => void props.onReadyChange?.({ index, lifecycle: 'disposed' });
   }, []);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
   }, [selected]);
 
   /**
-   * Handlers
+   * Handlers:
    */
   const getArgs = (): t.ModuleListItemHandlerArgs => ({ index, uri });
   const handleClick = (e: React.MouseEvent) => {

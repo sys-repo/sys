@@ -1,5 +1,4 @@
-import type { describe, it, beforeAll, beforeEach, afterAll, afterEach } from '@std/testing/bdd';
-import type { expect } from 'chai';
+import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
 import type { t } from './common.ts';
 
 /**
@@ -35,7 +34,11 @@ export type Describe = typeof describe;
 export type It = typeof it;
 
 /** Assertion library (BDD). */
-export type Expect = typeof expect;
+export type Expect = typeof import('chai').expect;
+/*
+  NOTE: ↑ Import error above (VSCode only).
+          The imports are actually fine (not a "real" type error) - SAFE TO IGNORE.
+ */
 
 /** Expect an error asyncronously */
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;
@@ -65,4 +68,20 @@ export type BddLib = {
 
   readonly expect: Expect;
   readonly expectError: t.ExpectError;
+};
+
+export type TypeEqualityMatcher<T> = {
+  /**
+   * Succeeds only when the two types are exactly identical.
+   *
+   * Technique:
+   *   1.  `U extends T`   – via the generic constraint.
+   *   2.  `T extends U`   – via the tuple parameter below.
+   * If either test fails, TypeScript reports an error at the
+   * call-site. Because the parameter is `...[]`, callers pass
+   * *no* runtime arguments.
+   */
+  toEqualTypeOf<U extends T>(
+    ..._assert: [T] extends [U] ? ([U] extends [T] ? [] : ['type-mismatch']) : ['type-mismatch']
+  ): void;
 };

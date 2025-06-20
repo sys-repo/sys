@@ -1,9 +1,9 @@
-import type { t } from '../common.ts';
+import type { DomMockKeyboardLib } from './t.ts';
 
 /**
  * Helpers for testing keyboard events in unit-tests.
  */
-export const Keyboard: t.DomMockKeyboardLib = {
+export const Keyboard: DomMockKeyboardLib = {
   event(type: string, key = 'z', keyCode = 90, code?: string) {
     code = code ?? `Key${key.toUpperCase()}`;
     return new globalThis.window.KeyboardEvent(type, { key, keyCode, code });

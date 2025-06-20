@@ -6,13 +6,14 @@ export { Motion as M, Motion };
  * @system
  */
 export { Color, css, Style } from '@sys/ui-css';
-export { Dom, Keyboard } from '@sys/ui-dom';
+export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
 export {
   ReactEvent,
   ReactString,
   useClickOutside,
   useIsTouchSupported,
   useLoading,
+  usePointer,
   useSizeObserver,
   useVisibilityThreshold,
   useVisibilityThresholdX,
@@ -36,4 +37,5 @@ export {
 /**
  * @drivers
  */
+export { Crdt } from '@sys/driver-automerge/ui';
 export { useMiniApp } from '@sys/driver-farcaster/ui';

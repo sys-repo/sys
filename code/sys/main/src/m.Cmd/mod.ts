@@ -7,8 +7,9 @@
  * import { Main } from '@sys/main/cmd';
  * ```
  */
+import type { SysMainLib } from './t.ts';
 
-import { type t, pkg } from './common.ts';
+import { pkg } from './common.ts';
 import { Cmd } from './m.Cmd.ts';
 
 export { Cmd };
@@ -16,7 +17,7 @@ export { Cmd };
 /**
  * Standardised "<Main Entry>" system behaviors.
  */
-export const Main: t.SysMainLib = {
+export const Main: SysMainLib = {
   Cmd,
   pkg,
   entry: Cmd.main,

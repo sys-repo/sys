@@ -1,7 +1,6 @@
 /**
  * @module
  * Standard system libraries.
- * ```
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
@@ -12,6 +11,7 @@ export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
+export { History } from './m.History/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
