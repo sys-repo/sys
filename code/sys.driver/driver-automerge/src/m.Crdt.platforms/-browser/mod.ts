@@ -27,7 +27,7 @@ export const Crdt: t.CrdtBrowserLib = {
     const { sharePolicy, denylist } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
-    const peerId = `peer.${slug()}` as t.PeerId;
+    const peerId = network.length > 0 ? (`peer.${slug()}` as t.PeerId) : undefined;
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
@@ -53,8 +53,8 @@ const wrangle = {
     return;
   },
 
-  network(args?: Args): t.NetworkAdapterInterface[] | undefined {
-    if (!args?.network) return;
+  network(args?: Args): t.NetworkAdapterInterface[] {
+    if (!args?.network) return [];
     return Arr.asArray(args.network)
       .map(wrangle.adapter)
       .filter(Boolean) as t.NetworkAdapterInterface[];

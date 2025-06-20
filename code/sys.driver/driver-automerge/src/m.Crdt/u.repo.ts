@@ -23,7 +23,7 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
    * API:
    */
   const api: t.CrdtRepo = {
-    id: { peer: options.peerId ?? 'UNKNOWN', instance: slug() },
+    id: { peer: options.peerId ?? '', instance: slug() },
 
     create<T extends O>(input: T | (() => T)) {
       const initial = Is.func(input) ? input() : input;
