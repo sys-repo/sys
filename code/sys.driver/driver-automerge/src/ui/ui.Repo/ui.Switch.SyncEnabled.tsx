@@ -59,7 +59,6 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
           value={enabled}
           theme={theme.name}
           height={16}
-          style={{ top: 1 }}
           onMouseDown={(e) => {
             e.stopPropagation();
             toggleEnabled();

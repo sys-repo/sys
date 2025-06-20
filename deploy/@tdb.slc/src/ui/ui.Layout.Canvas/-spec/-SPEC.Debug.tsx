@@ -1,5 +1,5 @@
 import React from 'react';
-import { CanvasCell } from '../../ui.Canvas.Project/mod.ts';
+import { CanvasProject } from '../../ui.Canvas.Project/mod.ts';
 import {
   type t,
   Button,
@@ -163,7 +163,7 @@ export function SampleButtons(props: { debug: DebugSignals }) {
     return {
       purpose: { el: '👋 hello string' },
       uvp: { el: sampleElement('uvp') },
-      revenue: { el: <CanvasCell theme={p.theme.value} /> },
+      revenue: { el: true },
     };
   });
 
