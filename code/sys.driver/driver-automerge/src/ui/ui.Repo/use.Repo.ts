@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { type t, D, Is, Signal, slug } from './common.ts';
 
 type Args = t.UseRepoHookArgs;
@@ -17,8 +17,8 @@ export const useRepo: t.UseRepoHook = (input: Hook | Args = {}) => {
  * Internal (always runs full hook list):
  */
 function useInternal(args: Args = {}): Hook {
+  const { silent = D.silent } = args;
   const instance = useRef(slug()).current;
-  const [ready, setReady] = useState(false);
 
   /**
    * Refs:
@@ -27,13 +27,39 @@ function useInternal(args: Args = {}): Hook {
   const signals = signalsRef.current;
 
   /**
+   * Effect:
+   */
+  Signal.useEffect(() => {
+    const syncEnabled = signals.syncEnabled.value;
+    const repo = args.factory?.({ syncEnabled });
+    signals.repo.value = repo;
+    if (!silent) console.info(`🧫 repo:`, repo);
+  });
+
+  Signal.useRedrawEffect(() => {
+    signals.syncEnabled.value;
+    signals.repo.value;
+  });
+
+  /**
+   * Handlers:
+   */
+  const handlers: t.RepoHook['handlers'] = {
+    onSyncEnabledChange: (e) => (signals.syncEnabled.value = e.enabled),
+  };
+
+  /**
    * API:
    */
-  return {
-    ready,
+  const api: t.RepoHook = {
     instance,
     signals,
+    handlers,
+    get props() {
+      return signals.toValues();
+    },
   };
+  return api;
 }
 
 /**

@@ -1,14 +1,19 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.RepoProps;
-
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = {
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  noRepo?: boolean;
+  localstorageKey?: string;
+};
+
+const STORAGE_KEY = `dev:${D.name}.input`;
 
 /**
  * Signals:
@@ -16,13 +21,21 @@ type Storage = Pick<P, 'theme' | 'debug'>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = { theme: 'Dark', debug: false };
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: false,
+    noRepo: false,
+    localstorageKey: STORAGE_KEY,
+  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    localstorageKey: s(snap.localstorageKey),
+    noRepo: s(snap.noRepo),
+    repo: s<t.CrdtRepo>(),
   };
   const p = props;
   const api = {
@@ -38,6 +51,8 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.noRepo = p.noRepo.value;
+      d.localstorageKey = p.localstorageKey.value;
     });
   });
 
@@ -85,12 +100,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
-        name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
-        style={{ marginTop: 10 }}
+      <Button
+        block
+        label={() => `no-repo: ${p.noRepo.value}`}
+        onClick={() => Signal.toggle(p.noRepo)}
       />
+
+      <Button
+        block
+        label={() => {
+          const v = p.localstorageKey.value;
+          return `localstorageKey: ${v ? `"${v}"` : '(none)'}`;
+        }}
+        onClick={() => {
+          const s = p.localstorageKey;
+          s.value = s.value ? undefined : STORAGE_KEY;
+        }}
+      />
+
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
+      <ObjectView name={'repo'} data={p.repo.value} expand={2} style={{ marginTop: 5 }} />
     </div>
   );
 };

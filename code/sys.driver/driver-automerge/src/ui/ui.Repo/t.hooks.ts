@@ -6,13 +6,18 @@ import type { t } from './common.ts';
 export type UseRepoHook = (args?: UseRepoHookArgs | RepoHook) => RepoHook;
 
 export type UseRepoHookArgs = {
+  factory?: RepoHookFactory;
   signals?: Partial<RepoHookSignals>;
+  silent?: boolean;
 };
 
 export type RepoHook = {
-  readonly ready: boolean;
   readonly instance: t.StringId;
   readonly signals: t.RepoHookSignals;
+  readonly props: RepoHookSignalValues;
+  readonly handlers: {
+    onSyncEnabledChange(e: { enabled: boolean }): void;
+  };
 };
 
 export type RepoHookSignals = {
@@ -25,3 +30,6 @@ export type RepoHookSignalValues = {
   readonly repo?: t.SignalValue<RepoHookSignals['repo']>;
   readonly syncEnabled: t.SignalValue<RepoHookSignals['syncEnabled']>;
 };
+
+export type RepoHookFactory = (args: RepoHookFactoryArgs) => t.CrdtRepo | undefined;
+export type RepoHookFactoryArgs = { readonly syncEnabled: boolean };
