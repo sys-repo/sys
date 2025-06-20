@@ -1,8 +1,12 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
+import { useRepo } from './use.Repo.ts';
+
 export const Repo: React.FC<t.RepoProps> = (props) => {
   const { debug = false } = props;
+
+  const hook = useRepo();
 
   /**
    * Render:
