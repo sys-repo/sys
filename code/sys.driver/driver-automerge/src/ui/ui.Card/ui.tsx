@@ -1,8 +1,8 @@
 import React from 'react';
+import { SyncEnabledSwitch } from '../ui.Repo/mod.ts';
 
 import { type t, Color, css, D, DocumentId, ObjectView, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
-import { SyncServer } from './ui.SyncServer.tsx';
 import { useLocalStorage } from './use.LocalStorage.ts';
 
 type P = t.CardProps;
@@ -16,7 +16,8 @@ export const Card: React.FC<P> = (props) => {
   const store = useLocalStorage(props.localstorageKey);
 
   /**
-   * Hools:
+   * TODO 🐷
+   * save "syncing" switch state.
    */
 
   /**
@@ -57,14 +58,12 @@ export const Card: React.FC<P> = (props) => {
 
   const elFooter = (
     <div className={styles.footer.class}>
-      <SyncServer
+      <SyncEnabledSwitch
         endpoint={sync?.url}
         enabled={sync?.enabled}
         theme={theme.name}
         peerId={repo?.id.peer}
-        onSyncEnabledChange={(e) => {
-          props.onSyncEnabledChange?.(e);
-        }}
+        onChange={(e) => props.onSyncEnabledChange?.(e)}
       />
       <div />
       <FooterTools theme={theme.name} doc={doc?.value} />
