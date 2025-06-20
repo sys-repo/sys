@@ -29,8 +29,8 @@ export function createDebugSignals() {
     autoFocus: D.autoFocus,
     enabled: D.enabled,
     readOnly: D.readOnly,
-    controlled: true,
     passRepo: true,
+    controlled: true,
     localstorageKey: STORAGE_KEY,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
@@ -45,8 +45,8 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(false),
     theme: s(snap.theme),
-    controlled: s(snap.controlled),
     passRepo: s(snap.passRepo),
+    controlled: s(snap.controlled),
     localstorageKey: s(snap.localstorageKey),
 
     docId: s<string | undefined>(),
@@ -75,10 +75,10 @@ export function createDebugSignals() {
       d.label = p.label.value;
       d.placeholder = p.placeholder.value;
       d.autoFocus = p.autoFocus.value;
-      d.controlled = p.controlled.value;
       d.passRepo = p.passRepo.value;
       d.enabled = p.enabled.value;
       d.readOnly = p.readOnly.value;
+      d.controlled = p.controlled.value;
       d.localstorageKey = p.localstorageKey.value;
     });
   });
@@ -177,7 +177,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.localstorageKey.value;
-          return `localstorageKey: ${v ? `"${v}"` : ''}`;
+          return `localstorageKey: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
           const s = p.localstorageKey;

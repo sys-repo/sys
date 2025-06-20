@@ -13,8 +13,8 @@ export default Spec.describe(D.displayName, (e) => {
 
   function Root() {
     /**
-     * NOTE: either pass down the hook (instance) OR the
-     *       setup arguments for the hook.
+     * NOTE: either pass down the hook (instance)
+     *       OR the setup arguments for the hook.
      */
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       repo: p.passRepo.value ? repo : undefined,

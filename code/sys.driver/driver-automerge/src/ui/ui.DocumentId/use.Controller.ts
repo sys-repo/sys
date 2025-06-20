@@ -9,7 +9,7 @@ type Hook = t.DocumentIdHook;
 type P = t.DocumentIdHookSignals;
 
 /**
- * Hook: controller (or passthough).
+ * Hook (or passthough):
  */
 export const useController: t.UseDocumentIdHook = (input: Hook | Args = {}) => {
   return isHook(input)
@@ -29,6 +29,7 @@ function useInternal(args: Args = {}): Hook {
    * Refs:
    */
   const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
+  const signals = signalsRef.current;
 
   /**
    * Hooks:
@@ -154,7 +155,6 @@ function useInternal(args: Args = {}): Hook {
   /**
    * API:
    */
-  const signals = signalsRef.current;
   const api: t.DocumentIdHook = {
     ready,
     instance,
@@ -227,8 +227,8 @@ const wrangle = {
       toValues() {
         const spinning = api.spinning.value;
         const doc = api.doc.value;
-        const id = api.docId.value;
-        return { docId: id, doc, spinning };
+        const docId = api.docId.value;
+        return { docId, doc, spinning };
       },
     };
     return api;

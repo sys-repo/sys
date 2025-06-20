@@ -33,8 +33,8 @@ export type DocumentIdHookProps = {
   readonly repo?: t.CrdtRepo;
   readonly is: {
     readonly valid: boolean;
-    readonly enabled: { readonly action: boolean; readonly input: boolean };
     readonly spinning: boolean;
+    readonly enabled: { readonly action: boolean; readonly input: boolean };
   };
 };
 export type DocumentIdHookSignals = {
@@ -46,6 +46,6 @@ export type DocumentIdHookSignals = {
 
 export type DocumentIdHookSignalValues = {
   readonly docId: t.SignalValue<DocumentIdHookSignals['docId']>;
-  readonly doc?: t.SignalValue<DocumentIdHookSignals['doc']>;
+  readonly doc: t.SignalValue<DocumentIdHookSignals['doc']>;
   readonly spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
 };
