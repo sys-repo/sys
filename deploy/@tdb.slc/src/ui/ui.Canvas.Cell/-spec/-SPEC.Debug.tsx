@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Crdt, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CanvasCellProps;
 
@@ -23,6 +23,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    doc: s<t.CrdtRef>(),
   };
   const p = props;
   const api = {

@@ -1,4 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+
 import { D } from '../common.ts';
 import { CanvasCell } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -17,7 +18,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([480, 350])
       .display('grid')
       .render(() => <CanvasCell debug={p.debug.value} theme={p.theme.value} />);
   });

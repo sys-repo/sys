@@ -2,6 +2,11 @@ import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
+ * Libs:
+ */
+export { Crdt } from '@sys/driver-automerge/ui';
+
+/**
  * Constants:
  */
 const name = 'CanvasCell';
