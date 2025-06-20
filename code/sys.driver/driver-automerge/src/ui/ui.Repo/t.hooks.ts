@@ -33,4 +33,4 @@ export type RepoHookSignalValues = {
 };
 
 export type RepoHookFactory = (args: RepoHookFactoryArgs) => t.CrdtRepo | undefined;
-export type RepoHookFactoryArgs = { readonly syncEnabled: boolean };
+export type RepoHookFactoryArgs = { readonly syncEnabled?: boolean };
