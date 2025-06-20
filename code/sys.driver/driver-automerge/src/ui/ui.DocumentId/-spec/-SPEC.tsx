@@ -41,7 +41,7 @@ export default Spec.describe(D.displayName, (e) => {
         autoFocus={p.autoFocus.value}
         background={theme.is.dark ? -0.06 : -0.04}
         //
-        onReady={(e) => console.info(`⚡️ Input.DocumentId.onReady:`, e)}
+        onReady={(e) => console.info(`🌳 Input.DocumentId.onReady:`, e)}
         onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
       />
     );
