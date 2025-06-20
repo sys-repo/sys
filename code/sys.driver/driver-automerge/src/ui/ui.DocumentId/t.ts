@@ -50,4 +50,5 @@ export type DocumentIdChanged = {
   readonly is: { readonly head: boolean };
   readonly signals: t.DocumentIdHookSignals;
   readonly values: t.DocumentIdHookSignalValues;
+  readonly repo: t.CrdtRepo;
 };

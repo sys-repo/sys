@@ -25,6 +25,7 @@ export const View: React.FC<P> = (props) => {
   /**
    * Refs:
    */
+  const readyFiredRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>();
   const focus = () => inputRef.current?.focus();
 
@@ -53,6 +54,7 @@ export const View: React.FC<P> = (props) => {
    * Effect: (mounted).
    */
   React.useEffect(() => {
+    if (!repo) return;
     const life = rx.disposable();
     const signals = controller.signals;
 
@@ -60,7 +62,7 @@ export const View: React.FC<P> = (props) => {
     const payload = (): t.DocumentIdChanged => {
       const is = { head: (doc && doc.id === docId) ?? false };
       const values = signals.toValues();
-      return { is, signals, values };
+      return { is, signals, values, repo };
     };
 
     // Bubble change events:
@@ -69,7 +71,10 @@ export const View: React.FC<P> = (props) => {
     events?.$.subscribe(fireChanged);
 
     // Alert listeners:
-    props.onReady?.(payload());
+    if (!readyFiredRef.current) {
+      props.onReady?.(payload());
+      readyFiredRef.current = true;
+    }
     fireChanged();
 
     return life.dispose;
