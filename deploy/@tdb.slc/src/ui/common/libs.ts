@@ -37,5 +37,4 @@ export {
 /**
  * @drivers
  */
-export { Crdt } from '@sys/driver-automerge/ui';
 export { useMiniApp } from '@sys/driver-farcaster/ui';

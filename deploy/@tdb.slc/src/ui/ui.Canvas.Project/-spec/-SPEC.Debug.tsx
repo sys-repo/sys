@@ -20,6 +20,11 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
+  const repo = Crdt.repo({
+    storage: { database: 'dev:slc.crdt' },
+    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
+  });
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -28,6 +33,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -88,7 +94,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <ObjectView
         name={'debug'}
-        data={Signal.toObject(p)}
+        data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
         expand={['$']}
         style={{ marginTop: 10 }}
       />
