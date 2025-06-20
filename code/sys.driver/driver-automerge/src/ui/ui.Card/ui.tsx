@@ -1,19 +1,19 @@
 import React from 'react';
 import { SyncEnabledSwitch } from '../ui.Repo/mod.ts';
 
-import { type t, Color, css, D, DocumentId, ObjectView, Str } from './common.ts';
+import { type t, Color, css, D, DocumentId, ObjectView, Repo, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
-import { useLocalStorage } from './use.LocalStorage.ts';
 
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, repo, signals = {}, sync, headerStyle = {} } = props;
+  const { debug = false, signals = {}, factory, sync, headerStyle = {} } = props;
   const doc = signals.doc;
   const current = doc?.value?.current;
 
   const [isHead, setHead] = React.useState(false);
-  const store = useLocalStorage(props.localstorageKey);
+  const crdt = Repo.useRepo({ factory, signals });
+  const repo = crdt.repo;
 
   /**
    * TODO 🐷
@@ -38,9 +38,7 @@ export const Card: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateRows: `auto 1fr auto`,
     }),
-    header: css({
-      marginTop: headerStyle.topOffset,
-    }),
+    header: css({ marginTop: headerStyle.topOffset }),
     objectDoc: css({
       opacity: current === undefined || !isHead ? 0.25 : 1,
       Margin: 30,
@@ -53,14 +51,19 @@ export const Card: React.FC<P> = (props) => {
       gridTemplateColumns: 'auto 1fr auto',
       alignItems: 'center',
     }),
-    empty: css({ placeItems: 'center', display: 'grid', opacity: 0.5, userSelect: 'none' }),
+    empty: css({
+      placeItems: 'center',
+      display: 'grid',
+      opacity: 0.5,
+      userSelect: 'none',
+    }),
   };
 
   const elFooter = (
     <div className={styles.footer.class}>
       <SyncEnabledSwitch
         endpoint={sync?.url}
-        enabled={sync?.enabled}
+        enabled={crdt.props.syncEnabled}
         theme={theme.name}
         peerId={repo?.id.peer}
         onChange={(e) => props.onSyncEnabledChange?.(e)}

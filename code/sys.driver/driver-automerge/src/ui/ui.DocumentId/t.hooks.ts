@@ -37,6 +37,7 @@ export type DocumentIdHookProps = {
     readonly enabled: { readonly action: boolean; readonly input: boolean };
   };
 };
+
 export type DocumentIdHookSignals = {
   readonly docId: t.Signal<string | undefined>;
   readonly doc: t.Signal<t.CrdtRef | undefined>;

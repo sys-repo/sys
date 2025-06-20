@@ -26,6 +26,19 @@ export type TDoc = {
 export async function createDebugSignals() {
   const s = Signal.create;
 
+  const factory: t.RepoHookFactory = () => {
+    const ws = p.syncUrl.value;
+    const isWebsockets = p.syncEnabled.value;
+
+    const network: t.CrdtBrowserNetworkArg[] = [];
+    if (ws && isWebsockets) network.push({ ws });
+
+    return Crdt.repo({
+      storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
+      network,
+    });
+  };
+
   const defaults: Storage = {
     debug: false,
     theme: 'Dark',
@@ -51,7 +64,8 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    localstore: store,
+    store,
+    factory,
     listen() {
       Object.values(p)
         .filter(Signal.Is.signal)
@@ -67,28 +81,6 @@ export async function createDebugSignals() {
       d.syncUrl = p.syncUrl.value;
       d.syncEnabled = p.syncEnabled.value;
     });
-  });
-
-  /**
-   * Reload/Redraw Repo:
-   */
-  Signal.effect(() => {
-    const ws = p.syncUrl.value;
-    const isWebsockets = p.syncEnabled.value;
-
-    const network: t.CrdtBrowserNetworkArg[] = [];
-    if (ws && isWebsockets) network.push({ ws });
-
-    const repo = Crdt.repo({
-      storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
-      network,
-    });
-
-    console.info(`🧫 repo:`, repo);
-    if (isWebsockets) console.info('└─', `(websockets) → endpoint: ${ws}`);
-
-    p.repo.value = repo;
-    p.doc.value = undefined;
   });
 
   /**
@@ -181,11 +173,11 @@ const wrangle = {
  * Dev Helpers:
  */
 export function valueEditorButtons(debug: DebugSignals) {
-  const { props: p, localstore } = debug;
+  const { props: p } = debug;
 
   const increment = async (by: number) => {
     const repo = p.repo.value;
-    const docId = localstore.current.docId;
+    const docId = debug.store.current.docId;
     if (!docId || !repo) return;
 
     const doc = (await repo.get<TDoc>(docId)).doc;

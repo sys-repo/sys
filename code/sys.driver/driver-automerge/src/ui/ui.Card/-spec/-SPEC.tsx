@@ -33,11 +33,15 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
           localstorageKey={STORAGE_KEY}
-          repo={p.repo.value}
-          signals={{ docId: p.docId, doc: p.doc }}
+          factory={debug.factory}
+          signals={{
+            docId: p.docId,
+            doc: p.doc,
+            repo: p.repo,
+            syncEnabled: p.syncEnabled,
+          }}
           sync={{
             url: p.syncUrl.value,
-            enabled: p.syncEnabled.value,
           }}
           // ⚡️ Handlers:
           onSyncEnabledChange={(e) => (p.syncEnabled.value = e.enabled)}

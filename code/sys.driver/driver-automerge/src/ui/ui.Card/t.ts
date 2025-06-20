@@ -1,17 +1,16 @@
 import type { t } from './common.ts';
 
 export type CardProps = {
-  repo?: t.CrdtRepo | undefined;
-  sync?: { url?: t.StringUrl; enabled?: boolean };
+  sync?: { url?: t.StringUrl };
+  factory?: t.RepoHookFactory;
 
   localstorageKey?: string;
   textMaxLength?: number;
 
   // Signals:
-  signals?: {
-    docId?: t.Signal<t.StringId | undefined>;
-    doc?: t.Signal<t.CrdtRef | undefined>;
-  };
+  signals?: Partial<
+    Pick<t.RepoHookSignals, 'repo' | 'syncEnabled'> & Pick<t.DocumentIdHookSignals, 'doc' | 'docId'>
+  >;
 
   //
   debug?: boolean;

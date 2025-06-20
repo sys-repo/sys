@@ -15,6 +15,7 @@ export type RepoHook = {
   readonly instance: t.StringId;
   readonly signals: t.RepoHookSignals;
   readonly props: RepoHookSignalValues;
+  readonly repo: t.CrdtRepo | undefined;
   readonly handlers: {
     onSyncEnabledChange(e: { enabled: boolean }): void;
   };
@@ -22,7 +23,7 @@ export type RepoHook = {
 
 export type RepoHookSignals = {
   readonly repo: t.Signal<t.CrdtRepo | undefined>;
-  readonly syncEnabled: t.Signal<boolean>;
+  readonly syncEnabled: t.Signal<boolean | undefined>;
   toValues(): RepoHookSignalValues;
 };
 
