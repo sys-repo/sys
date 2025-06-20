@@ -30,7 +30,7 @@ function useInternal(args: Args = {}): Hook {
    * Effect:
    */
   Signal.useEffect(() => {
-    const syncEnabled = signals.syncEnabled.value;
+    const syncEnabled = !!signals.syncEnabled.value;
     const repo = args.factory?.({ syncEnabled });
     signals.repo.value = repo;
     if (!silent) console.info(`🧫 repo:`, repo);
@@ -55,8 +55,8 @@ function useInternal(args: Args = {}): Hook {
     instance,
     signals,
     handlers,
-    get props() {
-      return signals.toValues();
+    get repo() {
+      return signals.repo.value;
     },
   };
   return api;

@@ -1,30 +1,39 @@
 import React from 'react';
-import { SyncEnabledSwitch } from '../ui.Repo/mod.ts';
-
 import { type t, Color, css, D, DocumentId, ObjectView, Repo, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, signals = {}, factory, sync, headerStyle = {} } = props;
-  const doc = signals.doc;
-  const current = doc?.value?.current;
-
-  const [isHead, setHead] = React.useState(false);
-  const crdt = Repo.useRepo({ factory, signals });
-  const repo = crdt.repo;
-
-  /**
-   * TODO 🐷
-   * save "syncing" switch state.
-   */
+  const { debug = false, factory, headerStyle = {}, localstorageKey } = props;
 
   /**
    * Hooks:
    */
+  const [isHead, setHead] = React.useState(false);
   const [, setRender] = React.useState(0);
   const redraw = () => setRender((n) => n + 1);
+
+  const crdt = Repo.useRepo({ factory, signals: props.signals, localstorageKey });
+  const controller = DocumentId.useController({
+    repo: crdt.repo,
+    signals: props.signals,
+    initial: { count: 0 },
+    localstorageKey: props.localstorageKey,
+  });
+
+  const signals = { ...crdt.signals, ...controller.signals };
+  const docSignal = signals.doc;
+  const doc = docSignal.value;
+  const current = doc?.current;
+
+  /**
+   * Handlers:
+   */
+  const fireChanged = () => {
+    redraw();
+    props.onChange?.({ isHead, signals });
+  };
 
   /**
    * Render:
@@ -61,15 +70,17 @@ export const Card: React.FC<P> = (props) => {
 
   const elFooter = (
     <div className={styles.footer.class}>
-      <SyncEnabledSwitch
-        endpoint={sync?.url}
-        enabled={crdt.props.syncEnabled}
+      <Repo.SyncEnabledSwitch
+        endpoint={props.syncUrl}
+        enabled={signals.syncEnabled.value}
         theme={theme.name}
-        peerId={repo?.id.peer}
-        onChange={(e) => props.onSyncEnabledChange?.(e)}
+        peerId={crdt.repo?.id.peer}
+        onChange={(e) => {
+          if (signals.syncEnabled) signals.syncEnabled.value = e.enabled;
+        }}
       />
       <div />
-      <FooterTools theme={theme.name} doc={doc?.value} />
+      <FooterTools theme={theme.name} doc={docSignal?.value} />
     </div>
   );
 
@@ -79,21 +90,10 @@ export const Card: React.FC<P> = (props) => {
       style={styles.header}
       buttonStyle={{ marginRight: 1, marginBottom: 2 }}
       background={-0.04}
-      controller={{
-        repo,
-        signals: { doc, docId: props.signals?.docId },
-        initial: { count: 0 },
-        localstorageKey: props.localstorageKey,
-      }}
-      // Mounted:
-      onReady={(e) => {
-        redraw();
-        props.onReady?.(e);
-      }}
+      controller={controller}
       onChange={(e) => {
-        redraw();
-        props.onChange?.(e);
         setHead(e.isHead);
+        fireChanged();
       }}
     />
   );
@@ -101,7 +101,7 @@ export const Card: React.FC<P> = (props) => {
   const elDoc = (
     <ObjectView
       name={'Doc:T'}
-      data={wrangle.data(props)}
+      data={wrangle.data(props, docSignal?.value)}
       expand={1}
       fontSize={28}
       theme={theme.name}
@@ -109,7 +109,7 @@ export const Card: React.FC<P> = (props) => {
     />
   );
 
-  if (!repo)
+  if (!crdt.repo)
     return (
       <div className={css(styles.empty, props.style).class} title={D.displayName}>
         {'(repository not provided)'}
@@ -129,14 +129,14 @@ export const Card: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  data(props: P) {
-    const doc = props.signals?.doc?.value?.current;
-    if (doc?.text == null) return doc;
+  data(props: P, doc?: t.CrdtRef) {
+    const current = doc?.current;
+    if (current?.text == null) return current;
 
     const { textMaxLength = 16 } = props;
-    let text = (doc?.text ?? '') as string;
+    let text = (current?.text ?? '') as string;
     if (text) text = Str.shorten(text, textMaxLength);
 
-    return { ...doc, text };
+    return { ...current, text };
   },
 } as const;

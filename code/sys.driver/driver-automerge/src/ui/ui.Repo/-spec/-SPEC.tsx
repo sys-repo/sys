@@ -23,7 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
       },
     };
     const hook = Repo.useRepo(args);
-    const props = hook.props;
+    const props = hook.signals.toValues();
 
     return (
       <Repo.SyncEnabledSwitch

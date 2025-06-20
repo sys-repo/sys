@@ -1,16 +1,13 @@
 import type { t } from './common.ts';
 
 export type CardProps = {
-  sync?: { url?: t.StringUrl };
-  factory?: t.RepoHookFactory;
-
+  syncUrl?: t.StringUrl;
   localstorageKey?: string;
   textMaxLength?: number;
 
-  // Signals:
-  signals?: Partial<
-    Pick<t.RepoHookSignals, 'repo' | 'syncEnabled'> & Pick<t.DocumentIdHookSignals, 'doc' | 'docId'>
-  >;
+  //
+  signals?: Partial<CardSignals>;
+  factory?: t.RepoHookFactory;
 
   //
   debug?: boolean;
@@ -19,16 +16,17 @@ export type CardProps = {
   headerStyle?: { topOffset?: number };
 
   //
-  onReady?: CardReadyHandler;
   onChange?: CardChangedHandler;
-
-  onActionClick?: () => void;
-  onDocIdTextChange?: t.TextInputChangeHandler;
-  onSyncEnabledChange?: (e: { enabled: boolean }) => void;
 };
+
+export type CardSignals = Omit<t.RepoHookSignals, 'toValues'> &
+  Omit<t.DocumentIdHookSignals, 'toValues'>;
 
 /**
  * Events:
  */
-export type CardReadyHandler = t.DocumentIdReadyHandler;
-export type CardChangedHandler = t.DocumentIdChangedHandler;
+export type CardChangedHandler = (e: CardChangedArgs) => void;
+export type CardChangedArgs = {
+  readonly isHead: boolean;
+  readonly signals: CardSignals;
+};

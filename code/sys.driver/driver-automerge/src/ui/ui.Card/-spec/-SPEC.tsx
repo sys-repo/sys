@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { type t, D, DocumentId } from '../common.ts';
+import { D, DocumentId } from '../common.ts';
 import { Card } from '../mod.ts';
-import { type TDoc, Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -33,24 +33,13 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
           localstorageKey={STORAGE_KEY}
+          syncUrl={p.syncUrl.value}
           factory={debug.factory}
           signals={{
             docId: p.docId,
             doc: p.doc,
             repo: p.repo,
             syncEnabled: p.syncEnabled,
-          }}
-          sync={{
-            url: p.syncUrl.value,
-          }}
-          // ⚡️ Handlers:
-          onSyncEnabledChange={(e) => (p.syncEnabled.value = e.enabled)}
-          onDocIdTextChange={(e) => (p.docId.value = e.value)}
-          onActionClick={() => {
-            const repo = p.repo.value;
-            const next = repo?.create<TDoc>({ count: 0, text: '' });
-            console.info('⚡️ created → doc:', next);
-            p.docId.value = next?.id;
           }}
         />
       ));

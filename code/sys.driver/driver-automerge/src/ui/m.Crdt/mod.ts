@@ -10,6 +10,7 @@ import type { t } from './common.ts';
  */
 import { Card } from '../ui.Card/mod.ts';
 import { DocumentId } from '../ui.DocumentId/mod.ts';
+import { Repo } from '../ui.Repo/mod.ts';
 import { TextEditor } from '../ui.TextEditor/mod.ts';
 
 /**
@@ -20,6 +21,7 @@ export const Crdt: t.CrdtUiLib = {
   UI: {
     Card,
     DocumentId,
+    Repo,
     TextEditor,
   },
 };

@@ -1,7 +1,7 @@
-import { Card, Crdt } from '@sys/driver-automerge/ui';
 import React from 'react';
 
-import { Color, Cropmarks, css, pkg, type t, useDist, Button } from './common.ts';
+import { Card, Crdt } from '@sys/driver-automerge/ui';
+import { Button, Color, Cropmarks, css, pkg, type t, useDist } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
@@ -14,34 +14,20 @@ export type SplashProps = {
  */
 export const Splash: React.FC<SplashProps> = (props) => {
   const {} = props;
+  const ws = 'sync.db.team';
 
   /**
    * Hooks:
    */
   const dist = useDist({ sampleFallback: true });
-  const [signals, setSignals] = React.useState<t.DocumentIdHookSignals>();
-  const [repo, setRepo] = React.useState<t.CrdtRepo>();
-  const [isSyncEnabled, setSyncEnabled] = React.useState(true);
-  const [, setRender] = React.useState(0);
-  const redraw = () => setRender((n) => n + 1);
-
-  /**
-   * Effects:
-   */
-  React.useEffect(() => {
-    /**
-     * Connect to repo:
-     */
-    const ws = 'sync.db.team';
-    const repo = Crdt.repo({
-      storage: { database: 'dev.crdt' },
-      network: isSyncEnabled ? { ws } : undefined,
-    });
-
-    setRepo(repo);
-    console.info(`🧫 repo:`, repo);
-    if (isSyncEnabled) console.info('└─', `(network/websockets) → endpoint: ${ws}`);
-  }, [isSyncEnabled]);
+  const crdt = Crdt.UI.Repo.useRepo({
+    factory(e) {
+      return Crdt.repo({
+        storage: { database: 'dev.crdt' },
+        network: e.syncEnabled ? { ws } : undefined,
+      });
+    },
+  });
 
   /**
    * Render:
@@ -64,22 +50,11 @@ export const Splash: React.FC<SplashProps> = (props) => {
       <Cropmarks theme={theme.name} borderOpacity={0.05}>
         <div className={styles.body.class}>
           <Card
-            //
-            repo={repo}
-            signals={{ doc: signals?.doc }}
             theme={theme.name}
+            syncUrl={ws}
             headerStyle={{ topOffset: -30 }}
             localstorageKey={`${pkg.name}.splash`}
-            //
-            // Sync:
-            onSyncEnabledChange={(e) => setSyncEnabled(e.enabled)}
-            sync={{
-              url: 'sync.db.team', // websockets.
-              enabled: isSyncEnabled,
-            }}
-            // Events:
-            onReady={(e) => setSignals(e.signals)}
-            onChange={(e) => redraw()}
+            signals={crdt.signals}
           />
         </div>
       </Cropmarks>

@@ -9,12 +9,12 @@ export type UseRepoHookArgs = {
   factory?: RepoHookFactory;
   signals?: Partial<RepoHookSignals>;
   silent?: boolean;
+  localstorageKey?: t.StringId;
 };
 
 export type RepoHook = {
   readonly instance: t.StringId;
   readonly signals: t.RepoHookSignals;
-  readonly props: RepoHookSignalValues;
   readonly repo: t.CrdtRepo | undefined;
   readonly handlers: {
     onSyncEnabledChange(e: { enabled: boolean }): void;
