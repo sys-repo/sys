@@ -38,16 +38,14 @@ export type DocumentIdHookProps = {
   };
 };
 export type DocumentIdHookSignals = {
-  /** The typed "document-id" value in the textbox/input. */
   readonly docId: t.Signal<string | undefined>;
-  /** The CRDT document. */
   readonly doc: t.Signal<t.CrdtRef | undefined>;
   readonly spinning: t.Signal<boolean>;
   toValues(): DocumentIdHookSignalValues;
 };
 
 export type DocumentIdHookSignalValues = {
-  docId: t.SignalValue<DocumentIdHookSignals['docId']>;
-  doc?: t.SignalValue<DocumentIdHookSignals['doc']>;
-  spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
+  readonly docId: t.SignalValue<DocumentIdHookSignals['docId']>;
+  readonly doc?: t.SignalValue<DocumentIdHookSignals['doc']>;
+  readonly spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
 };
