@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Crdt, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.CanvasCellProps;
+type P = t.CanvasProjectProps;
 
 /**
  * Types:

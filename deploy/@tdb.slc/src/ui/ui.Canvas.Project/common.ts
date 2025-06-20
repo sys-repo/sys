@@ -9,6 +9,6 @@ export { Crdt } from '@sys/driver-automerge/ui';
 /**
  * Constants:
  */
-const name = 'CanvasCell';
+const name = 'Canvas.Project';
 export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
 export const D = DEFAULTS;

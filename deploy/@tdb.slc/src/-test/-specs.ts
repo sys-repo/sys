@@ -24,7 +24,7 @@ export const SpecsComponents = {
   'tdb.slc.ui.TooSmall': () => import('../ui/ui.TooSmall/-SPEC.tsx'),
   'tdb.slc.ui.Video.Background': () => import('../ui/ui.Video.Background/-SPEC.tsx'),
 
-  'tdb.slc.ui.Canvas.Cell': () => import('../ui/ui.Canvas.Cell/-spec/-SPEC.tsx'),
+  'tdb.slc.ui.Canvas.Project': () => import('../ui/ui.Canvas.Project/-spec/-SPEC.tsx'),
   'tdb.slc.ui.Canvas.Editor': () => import('../ui/ui.Canvas.Editor/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 

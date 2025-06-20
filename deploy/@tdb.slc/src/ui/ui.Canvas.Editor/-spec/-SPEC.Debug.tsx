@@ -1,5 +1,4 @@
 import React from 'react';
-import { CanvasCell } from '../../ui.Canvas.Cell/mod.ts';
 import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.EditorCanvasProps;
@@ -54,7 +53,7 @@ export function createDebugSignals() {
    */
   const cell = (panel: t.CanvasPanel) => {
     console.log('panel', panel);
-    return { el: <CanvasCell theme={p.theme.value} /> };
+    return { el: <div>{'cell-🧫'}</div> };
   };
 
   p.panels.value = {

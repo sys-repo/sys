@@ -20,7 +20,7 @@ export type * from './ui/App/t.ts';
 /**
  * UI Structure:
  */
-export type * from './ui/ui.Canvas.Cell/t.ts';
+export type * from './ui/ui.Canvas.Project/t.ts';
 export type * from './ui/ui.Canvas.Editor/t.ts';
 export type * from './ui/ui.FadeText/t.ts';
 export type * from './ui/ui.Image/t.ts';

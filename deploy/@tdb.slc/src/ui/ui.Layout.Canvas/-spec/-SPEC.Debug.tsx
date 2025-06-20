@@ -1,15 +1,15 @@
 import React from 'react';
+import { CanvasCell } from '../../ui.Canvas.Project/mod.ts';
 import {
   type t,
-  CanvasPanel,
   Button,
+  CanvasPanel,
   css,
   D,
   LocalStorage,
   ObjectView,
   Signal,
 } from '../common.ts';
-import { CanvasCell } from '../../ui.Canvas.Cell/mod.ts';
 
 type P = t.CanvasLayoutProps;
 type Storage = { borderRadius?: number } & Pick<P, 'theme' | 'debug'>;

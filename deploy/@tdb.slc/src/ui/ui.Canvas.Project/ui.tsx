@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, Crdt, css, pkg } from './common.ts';
 
-export const CanvasCell: React.FC<t.CanvasCellProps> = (props) => {
+export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   const { debug = false } = props;
 
   /**
