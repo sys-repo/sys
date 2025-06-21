@@ -9,5 +9,13 @@ export type CrdtUiLib = t.CrdtBrowserLib & {
     readonly DocumentId: t.DocumentIdLib;
     readonly Repo: t.RepoLib;
     readonly TextEditor: React.FC<t.TextEditorProps>;
+
+    readonly useRedrawEffect: UseRedrawEffect;
   };
 };
+
+/**
+ * Hook:
+ */
+export type UseRedrawEffect = (doc?: t.CrdtRef) => CrdtRedrawHook;
+export type CrdtRedrawHook = { readonly doc?: t.CrdtRef };

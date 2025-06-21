@@ -14,6 +14,11 @@ import { Repo } from '../ui.Repo/mod.ts';
 import { TextEditor } from '../ui.TextEditor/mod.ts';
 
 /**
+ * Hooks:
+ */
+import { useRedrawEffect } from './use.RedrawEffect.ts';
+
+/**
  * CRDT UI Library:
  */
 export const Crdt: t.CrdtUiLib = {
@@ -23,5 +28,6 @@ export const Crdt: t.CrdtUiLib = {
     DocumentId,
     Repo,
     TextEditor,
+    useRedrawEffect,
   },
 };
