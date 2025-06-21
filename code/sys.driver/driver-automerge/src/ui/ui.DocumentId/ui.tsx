@@ -211,7 +211,8 @@ export const View: React.FC<P> = (props) => {
 const wrangle = {
   placeholder(props: P, controller: t.DocumentIdHook, focused: boolean) {
     if (Is.string(props.placeholder)) return props.placeholder;
-    if (focused && controller.history.length > 0) return `${D.placeholder}   •   ↑↓ for history`;
+    // if (focused && controller.history.length > 0) return `${D.placeholder}   •   ↑↓ for history`;
+    if (focused && controller.history.length > 0) return `${D.placeholder}  •  ↑↓ for history`;
     return D.placeholder;
   },
 } as const;
