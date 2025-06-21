@@ -11,7 +11,7 @@ const build = true;
 
 await buildAndCopyAll([
   ['../../code/sys.ui/ui-react-components', 'sys/ui', { build }],
-  ['../../code/sys.driver/driver-monaco', 'sys/ui.driver.monaco', { build }],
+  ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
   ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
   ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
 ]);
