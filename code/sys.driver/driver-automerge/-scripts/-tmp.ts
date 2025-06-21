@@ -23,10 +23,18 @@ const print = () => {
 };
 
 /**
+ * Get ID:
+ */
+const id = await Cli.Prompt.Input.prompt('document-id:');
+if (!id) {
+  console.info(c.gray(c.italic('no document-id provided')));
+  Deno.exit(0);
+}
+
+/**
  * Pull document:
  */
 const repo = Crdt.repo({ dir, network: ws });
-const id = '45BjzPsQM7UJJ66hgsrnF7gsR9D5';
 const doc = (await repo.get(id)).doc;
 
 doc?.events().$.subscribe(print);
