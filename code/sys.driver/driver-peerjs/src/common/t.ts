@@ -15,7 +15,15 @@ export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
+/**
+ * CRDT:
+ */
 export type { CrdtEvents, CrdtRef, CrdtRepo, DocumentIdProps } from '@sys/driver-automerge/t';
+
+/**
+ * PeerJS: (WebRTC)
+ */
+export type { Peer as PeerJSPeer } from 'peerjs';
 
 /**
  * @local

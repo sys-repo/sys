@@ -1,8 +1,10 @@
 import React from 'react';
-import { type t, slug, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, slug, Button, css, D, LocalStorage, ObjectView, Signal, Crdt } from '../common.ts';
 import { Peer, type PeerOptions } from 'peerjs';
 
 type P = t.SampleProps;
+type Doc = { count: number };
+export const STORAGE_KEY = `dev:${D.displayName}`;
 
 /**
  * Types:
@@ -15,7 +17,7 @@ type Storage = Pick<P, 'theme' | 'debug'>;
  * REF: https://peerjs.com/
  */
 export function createPeer() {
-  const peerId = `peer-${slug()}`;
+  const peerId = `webrtc-peer-${slug()}`;
   console.info(`connecting: ${peerId}...`);
 
   const peerOptions: PeerOptions = {
@@ -47,17 +49,31 @@ export function createDebugSignals() {
   const peer = createPeer();
   console.info('🐚 peer:', peer);
 
-  const defaults: Storage = { theme: 'Dark', debug: false };
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
+
+  /**
+   * CRDT:
+   */
+  const repo = Crdt.repo({
+    storage: { database: 'dev:slc.crdt' },
+    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
+  });
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    doc: s<t.CrdtRef<Doc>>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
+    peer,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -111,17 +127,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+
+      <Button
+        block
+        label={() => `doc: increment`}
+        onClick={() => {
+          const doc = p.doc.value;
+          doc?.change((d) => d.count++);
+        }}
+      />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
-        name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
-        style={{ marginTop: 10 }}
-      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };
