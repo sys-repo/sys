@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Crdt, STORAGE_KEY } from '../common.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { EditorCanvas } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
