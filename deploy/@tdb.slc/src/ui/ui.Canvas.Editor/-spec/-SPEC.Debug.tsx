@@ -51,9 +51,9 @@ export function createDebugSignals() {
   /**
    * Panel Layout
    */
-  const cell = (panel: t.CanvasPanel) => {
+  const cell = (panel: t.CanvasPanel): t.CanvasPanelContent => {
     console.log('panel', panel);
-    return { el: <div>{'cell-🧫'}</div> };
+    return { view: `🧫 cell.<${panel}>` };
   };
 
   p.panels.value = {

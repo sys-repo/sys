@@ -1,6 +1,7 @@
 import React from 'react';
-import { type t, Crdt, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
+type Doc = { count: number };
 type P = t.CanvasProjectProps;
 
 /**
@@ -31,7 +32,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.CrdtRef>(),
+    doc: s<t.CrdtRef<Doc>>(),
   };
   const p = props;
   const api = {
@@ -82,11 +83,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>{`${D.name}.Cell`}</div>
+
+      <hr />
 
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+
+      <Button
+        block
+        label={() => `project.count: increment`}
+        onClick={() => {
+          const doc = p.doc.value;
+          doc?.change((d) => d.count++);
+        }}
       />
 
       <hr />

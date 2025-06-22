@@ -1,30 +1,39 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { type t, Color, css, Crdt, D } from '../common.ts';
+import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-
-const STORAGE_KEY = `dev:${D.name}.slc.crdt`;
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
   function DocumentId(props: t.DocumentIdProps) {
-    const { theme = p.theme.value } = props;
+    const theme = Color.theme(p.theme.value);
     return (
       <Crdt.UI.DocumentId.View
-        {...props}
-        theme={theme}
+        background={theme.is.dark ? -0.06 : -0.04}
+        theme={theme.name}
         buttonStyle={{ margin: 4 }}
+        {...props}
         controller={{
           repo: debug.repo,
           signals: { doc: p.doc },
           initial: { count: 0 },
-          localstorageKey: STORAGE_KEY,
+          localstorageKey: STORAGE_KEY.DEV,
         }}
       />
     );
+  }
+
+  function Footer(props: { theme?: t.CommonTheme }) {
+    const styles = {
+      base: css({
+        fontSize: 20,
+        padding: 20,
+      }),
+    };
+    return <div className={styles.base.class}>Social Lean Canvas: Project</div>;
   }
 
   e.it('init', (e) => {
@@ -48,7 +57,7 @@ export default Spec.describe(D.displayName, (e) => {
 
         return (
           <div className={styles.base.class}>
-            <DocumentId style={styles.docId} background={theme.is.dark ? -0.06 : -0.04} />
+            <DocumentId style={styles.docId} />
             <CanvasProject debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />
           </div>
         );
@@ -58,6 +67,11 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .border(-0.1)
       .render(() => <DocumentId theme={'Light'} />);
+
+    ctx.debug.footer
+      .padding(0)
+      .border(-0.1)
+      .render(() => <Footer />);
   });
 
   e.it('ui:debug', (e) => {

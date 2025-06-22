@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Crdt } from '../common.ts';
+import { D, Crdt, STORAGE_KEY } from '../common.ts';
 import { EditorCanvas } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -45,7 +45,7 @@ export default Spec.describe(D.displayName, (e) => {
               repo,
               signals: { doc: p.doc },
               initial: { text: '' },
-              localstorageKey: `dev:${D.name}.crdt`,
+              localstorageKey: STORAGE_KEY.DEV,
             }}
           />
         );

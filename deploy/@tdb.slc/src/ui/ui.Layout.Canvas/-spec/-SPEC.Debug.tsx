@@ -1,5 +1,4 @@
 import React from 'react';
-import { CanvasProject } from '../../ui.Canvas.Project/mod.ts';
 import {
   type t,
   Button,
