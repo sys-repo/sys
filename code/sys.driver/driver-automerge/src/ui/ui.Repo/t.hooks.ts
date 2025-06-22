@@ -9,7 +9,7 @@ export type UseRepoHookArgs = {
   factory?: RepoHookFactory;
   signals?: Partial<RepoHookSignals>;
   silent?: boolean;
-  localstorageKey?: t.StringId;
+  localstorageKey?: t.StringKey;
 };
 
 export type RepoHook = {
