@@ -42,7 +42,7 @@ export async function main() {
         if (e.prev?.endsWith(': Buttons.Switch')) return true;
         if (e.prev?.endsWith(': Config.Slider')) return true;
         if (e.next?.endsWith('.player: Video.VidStack')) return true;
-        if (e.prev?.endsWith(': Recorder')) return true;
+        if (e.next?.endsWith(': Recorder')) return true;
       },
     });
     function App() {
