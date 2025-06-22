@@ -4,7 +4,6 @@ import { Peer, type PeerOptions } from 'peerjs';
 
 type P = t.SampleProps;
 type Doc = { count: number };
-export const STORAGE_KEY = `dev:${D.displayName}`;
 
 /**
  * Types:

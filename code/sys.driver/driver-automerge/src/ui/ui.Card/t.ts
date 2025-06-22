@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 export type CardProps = {
   syncUrl?: t.StringUrl;
-  localstorageKey?: string;
+  localstorage?: t.StringKey;
   textMaxLength?: number;
 
   //

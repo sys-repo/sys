@@ -10,7 +10,7 @@ type Storage = {
   debug?: boolean;
   theme?: t.CommonTheme;
   noRepo?: boolean;
-  localstorageKey?: string;
+  localstorage?: string;
 };
 
 const STORAGE_KEY = `dev:${D.name}.input`;
@@ -25,7 +25,7 @@ export function createDebugSignals() {
     theme: 'Dark',
     debug: false,
     noRepo: false,
-    localstorageKey: STORAGE_KEY,
+    localstorage: STORAGE_KEY,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -33,7 +33,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    localstorageKey: s(snap.localstorageKey),
+    localstorage: s(snap.localstorage),
     noRepo: s(snap.noRepo),
     repo: s<t.CrdtRepo>(),
   };
@@ -52,7 +52,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.noRepo = p.noRepo.value;
-      d.localstorageKey = p.localstorageKey.value;
+      d.localstorage = p.localstorage.value;
     });
   });
 
@@ -109,11 +109,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.localstorageKey.value;
-          return `localstorageKey: ${v ? `"${v}"` : '(none)'}`;
+          const v = p.localstorage.value;
+          return `localstorage (key): ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
-          const s = p.localstorageKey;
+          const s = p.localstorage;
           s.value = s.value ? undefined : STORAGE_KEY;
         }}
       />

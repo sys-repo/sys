@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, (e) => {
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       repo: p.passRepo.value ? repo : undefined,
       signals: { doc: p.doc, docId: p.docId },
-      localstorageKey: p.localstorageKey.value,
+      localstorage: p.localstorage.value,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
     };
     const hook = DocumentId.useController(args);
@@ -65,7 +65,6 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .border(-0.1)
       .render(() => {
-        const localstorageKey = p.localstorageKey.value;
         return (
           <DocumentId.View
             theme={'Light'}
@@ -74,7 +73,7 @@ export default Spec.describe(D.displayName, (e) => {
               repo: p.passRepo.value ? repo : undefined,
               signals: { doc: p.doc, docId: p.docId },
               initial: { count: 0, text: '' }, // NB: static version.
-              localstorageKey,
+              localstorage: p.localstorage.value,
             }}
           />
         );

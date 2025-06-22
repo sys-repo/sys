@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, Color, Crdt, css, D } from '../common.ts';
+import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
-import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, (e) => {
           repo: debug.repo,
           signals: { doc: p.doc },
           initial: { count: 0 },
-          localstorageKey: STORAGE_KEY,
+          localstorage: STORAGE_KEY.DEV,
         }}
       />
     );

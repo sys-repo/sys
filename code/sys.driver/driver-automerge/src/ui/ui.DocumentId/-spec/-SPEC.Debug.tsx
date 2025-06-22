@@ -13,7 +13,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type Storage = {
   controlled?: boolean;
   passRepo?: boolean;
-  localstorageKey?: string;
+  localstorage?: string;
 } & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly'>;
 
 const STORAGE_KEY = `dev:${D.name}.input`;
@@ -31,7 +31,7 @@ export function createDebugSignals() {
     readOnly: D.readOnly,
     passRepo: true,
     controlled: true,
-    localstorageKey: STORAGE_KEY,
+    localstorage: STORAGE_KEY,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -47,7 +47,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     passRepo: s(snap.passRepo),
     controlled: s(snap.controlled),
-    localstorageKey: s(snap.localstorageKey),
+    localstorage: s(snap.localstorage),
 
     docId: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
@@ -79,7 +79,7 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.readOnly = p.readOnly.value;
       d.controlled = p.controlled.value;
-      d.localstorageKey = p.localstorageKey.value;
+      d.localstorage = p.localstorage.value;
     });
   });
 
@@ -176,11 +176,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.localstorageKey.value;
-          return `localstorageKey: ${v ? `"${v}"` : '(none)'}`;
+          const v = p.localstorage.value;
+          return `localstorage (key): ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
-          const s = p.localstorageKey;
+          const s = p.localstorage;
           s.value = s.value ? undefined : STORAGE_KEY;
         }}
       />

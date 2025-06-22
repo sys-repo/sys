@@ -53,7 +53,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
             theme={theme.name}
             syncUrl={ws}
             headerStyle={{ topOffset: -30 }}
-            localstorageKey={`${pkg.name}.splash`}
+            localstorage={`${pkg.name}.splash`}
             signals={crdt.signals}
           />
         </div>

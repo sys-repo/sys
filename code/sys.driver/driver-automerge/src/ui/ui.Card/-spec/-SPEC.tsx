@@ -32,7 +32,7 @@ export default Spec.describe(D.displayName, async (e) => {
           debug={p.debug.value}
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
-          localstorageKey={STORAGE_KEY}
+          localstorage={STORAGE_KEY}
           syncUrl={p.syncUrl.value}
           factory={debug.factory}
           signals={{
@@ -56,7 +56,7 @@ export default Spec.describe(D.displayName, async (e) => {
               repo,
               signals: { doc: p.doc, docId: p.docId },
               initial: { count: 0 },
-              localstorageKey: STORAGE_KEY,
+              localstorage: STORAGE_KEY,
             }}
           />
         );

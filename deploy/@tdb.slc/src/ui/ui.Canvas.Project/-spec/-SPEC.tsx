@@ -20,7 +20,7 @@ export default Spec.describe(D.displayName, (e) => {
           repo: debug.repo,
           signals: { doc: p.doc },
           initial: { count: 0 },
-          localstorageKey: STORAGE_KEY.DEV,
+          localstorage: STORAGE_KEY.DEV,
         }}
       />
     );

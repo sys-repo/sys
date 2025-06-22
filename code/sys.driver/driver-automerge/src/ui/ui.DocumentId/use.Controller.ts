@@ -35,7 +35,7 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
-  const localstore = useLocalStorage(args.localstorageKey, signalsRef.current.docId);
+  const localstore = useLocalStorage(args.localstorage, signalsRef.current.docId);
   const transient = useTransientMessage();
 
   /**

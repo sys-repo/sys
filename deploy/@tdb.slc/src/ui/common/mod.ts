@@ -17,7 +17,7 @@ export const videoUrl = (id: number) => {
 };
 
 /**
- * CRDT:
+ * CRDT/local-storage:
  */
 export const STORAGE_KEY = {
   DEV: `dev:${pkg.name}:crdt`,

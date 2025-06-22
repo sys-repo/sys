@@ -54,7 +54,7 @@ export default Spec.describe(D.displayName, (e) => {
               repo,
               signals: { doc: p.doc },
               initial: { text: '' },
-              localstorageKey: STORAGE_KEY,
+              localstorage: STORAGE_KEY,
             }}
           />
         );

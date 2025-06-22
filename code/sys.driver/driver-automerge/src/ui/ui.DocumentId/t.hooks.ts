@@ -9,7 +9,7 @@ export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) 
 export type UseDocumentIdHookArgs<T = O> = {
   repo?: t.CrdtRepo;
   signals?: Partial<DocumentIdHookSignals>;
-  localstorageKey?: t.StringId;
+  localstorage?: t.StringKey;
   initial?: T | (() => T);
 };
 export type DocumentIdHook = {

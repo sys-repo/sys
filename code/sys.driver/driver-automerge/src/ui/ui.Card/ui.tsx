@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, factory, headerStyle = {}, localstorageKey } = props;
+  const { debug = false, factory, headerStyle = {}, localstorage } = props;
 
   /**
    * Hooks:
@@ -17,13 +17,13 @@ export const Card: React.FC<P> = (props) => {
 
   const [current, setCurrent] = useState<O>();
 
-  const crdt = Repo.useRepo({ factory, signals: props.signals, localstorageKey });
+  const crdt = Repo.useRepo({ factory, signals: props.signals, localstorage });
   const repo = crdt.repo;
   const controller = DocumentId.useController({
     repo: crdt.repo,
     signals: props.signals,
     initial: { count: 0 },
-    localstorageKey: props.localstorageKey,
+    localstorage,
   });
 
   const signals = { ...crdt.signals, ...controller.signals };
