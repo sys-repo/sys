@@ -15,6 +15,8 @@ export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
+export type { CrdtEvents, CrdtRef, CrdtRepo, DocumentIdProps } from '@sys/driver-automerge/t';
+
 /**
  * @local
  */

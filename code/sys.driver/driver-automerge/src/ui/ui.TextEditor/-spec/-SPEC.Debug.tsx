@@ -188,12 +188,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
 export function samplesButtons(debug: DebugSignals) {
   const p = debug.props;
+
+  const baseline = () => {
+    if (!p.path.value) p.path.value = ['text'];
+  };
+
   return (
     <React.Fragment>
       <Button
         block
         label={() => '- single-line'}
         onClick={() => {
+          baseline();
           p.singleLine.value = true;
           p.scroll.value = false;
         }}
@@ -202,6 +208,7 @@ export function samplesButtons(debug: DebugSignals) {
         block
         label={() => '- multi-line'}
         onClick={() => {
+          baseline();
           p.singleLine.value = false;
           p.scroll.value = true;
         }}
