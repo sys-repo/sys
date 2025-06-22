@@ -16,13 +16,13 @@ export type CrdtFilesystemLib = {
 /** Arguments for file-system `Crdt.repo` method. */
 export type CrdtFsRepoArgs = {
   dir?: t.StringDir;
-  network?: CrdtFsNetworkArg | CrdtFsNetworkArg[];
+  network?: CrdtFsNetworkArgInput | CrdtFsNetworkArgInput[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
 };
 
 /** Network connection argument. */
+export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface;
 export type CrdtFsNetworkArg =
-  | NetworkAdapterInterface
-  | StringWebsocketEndpoint // ↓ NB: shorthand for ↓
+  | StringWebsocketEndpoint // ↓ shorthand for: ↓
   | { ws: StringWebsocketEndpoint };

@@ -21,20 +21,16 @@ export type CrdtBrowserLib = {
 
 /** Arguments for browser `Crdt.repo` method. */
 export type CrdtBrowserRepoArgs = {
-  storage?: CrdtBrowserStorageArg | boolean;
-  network?: CrdtBrowserNetworkArg | CrdtBrowserNetworkArg[];
+  storage?: CrdtBrowserStorageArgInput;
+  network?: CrdtBrowserNetworkArgInput | CrdtBrowserNetworkArgInput[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
 };
 
 /** Storage argument. */
-export type CrdtBrowserStorageArg =
-  | StorageAdapterInterface
-  | 'IndexedDb'
-  | { database?: StringDatabaseName };
+export type CrdtBrowserStorageArg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
+export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterInterface;
 
 /** Network connection argument. */
-export type CrdtBrowserNetworkArg =
-  | NetworkAdapterInterface
-  | 'BroadcastChannel'
-  | { ws: StringWebsocketEndpoint };
+export type CrdtBrowserNetworkArg = 'BroadcastChannel' | { ws: StringWebsocketEndpoint };
+export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface;

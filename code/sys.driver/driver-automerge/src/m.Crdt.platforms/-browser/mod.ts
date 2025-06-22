@@ -60,7 +60,7 @@ const wrangle = {
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
-  adapter(arg?: t.CrdtBrowserNetworkArg) {
+  adapter(arg?: t.CrdtBrowserNetworkArgInput) {
     if (arg === 'BroadcastChannel') return new BroadcastChannelNetworkAdapter();
     if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
     return arg as t.NetworkAdapterInterface;
