@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-type Content = JSX.Element | t.ReactNode;
-
 /**
  * <Component>:
  */
@@ -21,5 +19,6 @@ export type CanvasLayoutProps = {
 /**
  * Map of content to render into panels.
  */
-export type CanvasPanelContentMap = t.CanvasPanelPartialMap<CanvasPanelContent>;
-export type CanvasPanelContent = { el?: Content | (() => Content) };
+export type CanvasPanelContentMap = t.CanvasPanelPartialMap<CanvasPanelContentOrNode>;
+export type CanvasPanelContentOrNode = CanvasPanelContent | string;
+export type CanvasPanelContent = { view?: JSX.Element | string };

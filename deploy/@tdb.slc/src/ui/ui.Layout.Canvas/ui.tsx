@@ -1,10 +1,8 @@
 import React from 'react';
-import { type t, D, Is, Color, css, useSizeObserver } from './common.ts';
+import { type t, Color, css, D, Is, useSizeObserver } from './common.ts';
 
 export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
   const { debug = false, panels = {} } = props;
-
-  console.log('layout/panels', panels);
 
   /**
    * Hooks:
@@ -59,7 +57,7 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
     }),
 
     /**
-     * Panel/Cell Content:
+     * Panel/Cell content:
      */
     content: css({ display: 'grid' }),
 
@@ -78,11 +76,11 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
   };
 
   const render = (name: t.CanvasPanel) => {
-    const panel = panels[name];
-    if (!panel?.el) return null;
+    const { view } = wrangle.content(panels[name]);
+    if (!view) return null;
 
-    const el = Is.func(panel.el) ? panel.el() : panel.el;
-    return <div className={styles.content.class}>{el}</div>;
+    const style = css({ padding: Is.string(view) ? '1em' : 0 });
+    return <div className={css(styles.content, style).class}>{view}</div>;
   };
 
   const elBody = (
@@ -122,3 +120,25 @@ export const CanvasLayout: React.FC<t.CanvasLayoutProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  content(panel?: t.CanvasPanelContentOrNode): t.CanvasPanelContent {
+    if (!panel) return {};
+
+    // const isNode = Is.string(panel);
+    if (Is.string(panel)) return { view: panel };
+
+    // if (Is.func(panel.view)) return { view: panel.view() };
+
+    return panel as t.CanvasPanelContent;
+  },
+
+  // view(panel?: t.CanvasPanelContentOrNode): t.ReactNode {
+  //   const { view } = wrangle.content(panel);
+  //   // const view = panel
+  //   // return Is.func(view) ? view() : view;
+  // },
+} as const;

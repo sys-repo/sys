@@ -155,15 +155,15 @@ export function SampleButtons(props: { debug: DebugSignals }) {
 
   sample('- panels: <all>', () => {
     const panels: t.CanvasPanelContentMap = {};
-    CanvasPanel.all.forEach((panel) => (panels[panel] = { el: sampleElement(panel) }));
+    CanvasPanel.all.forEach((panel) => (panels[panel] = { view: sampleElement(panel) }));
     return panels;
   });
 
   sample('- panels: <partial>', () => {
     return {
-      purpose: { el: '👋 hello string' },
-      uvp: { el: sampleElement('uvp') },
-      revenue: { el: true },
+      purpose: '👋 hello string',
+      uvp: { view: sampleElement('uvp') },
+      revenue: { view: '🐷 revenue' },
     };
   });
 
