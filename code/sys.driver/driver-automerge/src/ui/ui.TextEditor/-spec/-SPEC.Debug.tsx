@@ -26,8 +26,9 @@ export function createDebugSignals() {
   const s = Signal.create;
 
   const defaults: Storage = {
+    theme: 'Light',
     debug: false,
-    theme: 'Dark',
+
     autoFocus: true,
     readOnly: D.readOnly,
     scroll: false,
@@ -130,7 +131,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const v = p.path.value;
           return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
         }}
-        onClick={() => Signal.cycle(p.path, [undefined, ['text'], ['foo', 'bar']])}
+        onClick={() => {
+          Signal.cycle(p.path, [
+            undefined,
+            ['text'],
+            ['foo', 'bar'],
+            ['project', 'canvas', 'purpose'],
+          ]);
+        }}
       />
       <hr />
       <Button
@@ -181,7 +189,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         data={{ ...Signal.toObject(p), doc: p.doc.value?.current }}
         style={{ marginTop: 10 }}
       />
-      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} expand={1} />
+      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} expand={0} />
     </div>
   );
 };
