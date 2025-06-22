@@ -1,4 +1,11 @@
-import { type t, Immutable, Is, Obj } from '../common.ts';
+import { type t, Immutable, Is, Obj, pkg } from '../common.ts';
+
+const REGISTRY_KEY = Symbol.for(`${pkg.name}:localStorageImmutable`);
+const global = globalThis as any;
+
+type Registry = Map<string, R>;
+type R = t.LocalStorageImmutable<any>;
+const registry: Registry = global[REGISTRY_KEY] ?? (global[REGISTRY_KEY] = new Map<string, R>());
 
 /**
  * Factory: Immutable<T> interface to local-storage.
@@ -6,11 +13,11 @@ import { type t, Immutable, Is, Obj } from '../common.ts';
 export function immutable<T extends t.JsonMapU>(
   key: string,
   initial: T,
-  dispose$?: t.UntilInput,
 ): t.LocalStorageImmutable<T> {
   type R = t.LocalStorageImmutable<T>;
-
   key = String(key);
+
+  if (registry.has(key)) return registry.get(key) as t.LocalStorageImmutable<T>;
 
   const save = (obj: T) => localStorage.setItem(key, JSON.stringify(obj));
   const reset = (input?: T) => {
@@ -25,11 +32,10 @@ export function immutable<T extends t.JsonMapU>(
   if (existing && !Is.json(existing)) existing = null;
   if (!existing) save(initial);
 
-  const is: R['is'] = { new: existing === null };
   const api = Immutable.clonerRef<T>(existing ? JSON.parse(existing) : initial);
-  api.events(dispose$).$.subscribe((e) => save(e.after));
+  api.events().$.subscribe((e) => save(e.after));
   (api as any).reset = reset;
-  (api as any).is = is;
 
+  registry.set(key, api as R);
   return api as R;
 }

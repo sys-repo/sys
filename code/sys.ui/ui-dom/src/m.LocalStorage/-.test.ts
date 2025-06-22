@@ -1,4 +1,4 @@
-import { c, describe, DomMock, expect, it, rx, slug } from '../-test.ts';
+import { c, describe, DomMock, expect, it, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -105,27 +105,22 @@ describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () =>
       expectJsonSaved(key, store.current);
     });
 
-    it('flag: is.new', () => {
+    it('multi-instance (singleton)', () => {
+      const initial: T = { count: 0 };
       const key = `test-${slug()}`;
-      const a = LocalStorage.immutable<T>(key, { count: 0 });
-      const b = LocalStorage.immutable<T>(key, { count: 0 });
-      expect(a.is.new).to.eql(true);
-      expect(b.is.new).to.eql(false);
-    });
+      const a = LocalStorage.immutable(key, initial);
+      const b = LocalStorage.immutable(key, initial);
+      const c = LocalStorage.immutable(`test-${slug()}`, initial);
 
-    it('dispose$', () => {
-      const life = rx.lifecycle();
-      const key = `test-${slug()}`;
-      const expectSaved = (value: T) => expectJsonSaved(key, value);
+      expect(a).to.equal(b);
+      expect(a).to.not.equal(c);
 
-      const store = LocalStorage.immutable(key, { count: 123 }, life.dispose$);
-      expectSaved({ count: 123 });
-      store.change((d) => (d.count = 888));
-      expectSaved({ count: 888 });
+      expect(a.current).to.eql(initial);
+      expect(a.current).to.eql(b.current);
 
-      life.dispose();
-      store.change((d) => (d.count += 1));
-      expectSaved({ count: 888 });
+      a.change((d) => (d.count = 1234));
+      expect(a.current.count).to.eql(1234);
+      expect(a.current).to.eql(b.current);
     });
   });
 });
