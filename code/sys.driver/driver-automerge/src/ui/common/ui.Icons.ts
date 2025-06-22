@@ -1,4 +1,6 @@
 import { Icon } from '@sys/ui-react-components';
+import { TbNetwork } from 'react-icons/tb';
+import { TbNetworkOff } from 'react-icons/tb';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -11,6 +13,7 @@ import {
   MdFace,
   MdOutlineContentCopy,
   MdWarning,
+  MdSettingsInputAntenna,
 } from 'react-icons/md';
 import { TbDatabase } from 'react-icons/tb';
 
@@ -34,4 +37,9 @@ export const Icons = {
   Tick: icon(MdCheck),
   Face: icon(MdFace),
   Person: icon(MdEmojiPeople),
+  Network: {
+    On: icon(TbNetwork),
+    Off: icon(TbNetworkOff),
+    Antenna: icon(MdSettingsInputAntenna),
+  },
 } as const;

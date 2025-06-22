@@ -143,7 +143,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.syncUrl.value;
-          return `sync-server: ${v ? `"${v}"` : ''}`;
+          return `sync-server (websocket): ${v ? `"${v}"` : ''}`;
         }}
         onClick={() => {
           Signal.cycle(p.syncUrl, ['localhost:3030', 'sync.db.team', 'sync.automerge.org']);

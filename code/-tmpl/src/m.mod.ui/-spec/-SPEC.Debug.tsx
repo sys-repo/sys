@@ -16,7 +16,10 @@ type Storage = Pick<P, 'theme' | 'debug'>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = { theme: 'Dark', debug: false };
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
@@ -85,12 +88,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
-        name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
-        style={{ marginTop: 10 }}
-      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };

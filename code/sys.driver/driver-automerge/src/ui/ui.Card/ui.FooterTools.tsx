@@ -22,6 +22,7 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
    */
   const toggleText = () => {
     doc?.change((d) => {
+      if (!Is.string(d.text)) d.text = '';
       const next = d.text ? '' : '👋';
       Str.Doc.replace(d, ['text'], next);
     });
