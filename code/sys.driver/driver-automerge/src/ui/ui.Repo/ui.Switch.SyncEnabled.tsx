@@ -102,7 +102,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
             toggleEnabled();
           }}
         />
-        <span className={styles.label.class}>{'network sync:'}</span>
+        <span className={styles.label.class}>{'network:'}</span>
         <div className={styles.address.class}>{enabled && elUrls ? elUrls : `private`}</div>
         {elPeer}
       </div>
