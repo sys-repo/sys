@@ -63,11 +63,6 @@ export default Spec.describe(D.displayName, (e) => {
         );
       });
 
-    ctx.debug.header
-      .padding(0)
-      .border(-0.1)
-      .render(() => <DocumentId theme={'Light'} />);
-
     ctx.debug.footer
       .padding(0)
       .border(-0.1)

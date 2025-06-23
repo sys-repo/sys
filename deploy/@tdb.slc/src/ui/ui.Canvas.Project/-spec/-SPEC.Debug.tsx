@@ -83,9 +83,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <div className={Styles.title.class}>{`${D.name}.Cell`}</div>
-
-      <hr />
 
       <Button
         block
@@ -94,7 +91,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-
       <Button
         block
         label={() => `project.count: increment`}
