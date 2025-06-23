@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 /**
  * Components:
  */
-import { SyncEnabledSwitch } from './ui.Switch.SyncEnabled.tsx';
+import { SyncEnabledSwitch } from './ui.SyncEnabled.Switch.tsx';
 export { SyncEnabledSwitch };
 
 /**
