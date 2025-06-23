@@ -5,17 +5,15 @@ import type { t } from './common.ts';
  */
 export type RepoLib = {
   readonly SyncEnabledSwitch: React.FC<t.SyncEnabledSwitchProps>;
-  readonly useRepo: t.UseRepoHook;
 };
 
 /**
  * <Component>:
  */
 export type SyncEnabledSwitchProps = {
-  endpoint?: t.StringUrl;
-  enabled?: boolean;
-  peerId?: t.StringId;
+  repo?: t.CrdtRepo;
   debug?: boolean;
+  localstorage?: t.StringKey;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onChange?: (e: { enabled: boolean }) => void;
