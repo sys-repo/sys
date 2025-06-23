@@ -1,5 +1,5 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-import { type t, Err, Is, slug, Time } from './common.ts';
+import { type t, Err, Is, rx, slug, Time } from './common.ts';
 import { CrdtIs } from './m.Is.ts';
 import { toRef } from './u.ref.ts';
 
@@ -19,7 +19,9 @@ export function toAutomergeRepo(repo?: t.CrdtRepo): Repo | undefined {
  * Wrap an Automerge repo in a lightweight functional API.
  */
 export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRepo {
+  let _updating: t.Lifecycle | undefined;
   let _enabled = true;
+
   const networks = repo.networkSubsystem.adapters;
   const peer = networks.length > 0 ? options.peerId ?? '' : '';
 
@@ -42,10 +44,8 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
       set enabled(value) {
         if (value === _enabled) return;
         _enabled = value;
-        networks.forEach((adapter) => {
-          if (value) adapter.connect(peer as t.PeerId, {});
-          else adapter.disconnect();
-        });
+        _updating?.dispose?.();
+        _updating = updateConnected(networks, peer, value);
       },
     },
 
@@ -110,3 +110,21 @@ const wrangle = {
     return { ...res, kind };
   },
 } as const;
+
+/**
+ * Safely connects/disconnects to each network adapter.
+ */
+function updateConnected(
+  networks: t.NetworkAdapterInterface[],
+  peer: t.StringId,
+  enabled: boolean,
+) {
+  const life = rx.lifecycle();
+  networks.forEach(async (adapter) => {
+    await adapter.whenReady();
+    if (life.disposed) return;
+    if (enabled) adapter.connect(peer as t.PeerId, {});
+    else adapter.disconnect();
+  });
+  return life;
+}
