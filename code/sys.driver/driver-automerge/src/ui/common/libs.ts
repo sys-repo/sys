@@ -4,7 +4,7 @@
 export { Color, css, Style } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
 
-export { useDebouncedValue, usePointer, useSizeObserver, useDist } from '@sys/ui-react';
+export { useDebouncedValue, useDist, usePointer, useSizeObserver } from '@sys/ui-react';
 export {
   Button,
   Cropmarks,
@@ -17,4 +17,4 @@ export {
 /**
  * local:
  */
-export { CrdtIs, toAutomergeHandle } from '../../m.Crdt/mod.ts';
+export { CrdtIs, toAutomergeHandle, toAutomergeRepo } from '../../m.Crdt/mod.ts';

@@ -1,20 +1,49 @@
 import React from 'react';
-import { type t, Color, css, Icons, Switch } from './common.ts';
+import { type t, Color, css, Icons, LocalStorage, Switch } from './common.ts';
 
 type P = t.SyncEnabledSwitchProps;
+type Store = { syncEnabled?: boolean };
 
 /**
  * Component:
  */
 export const SyncEnabledSwitch: React.FC<P> = (props) => {
-  const { peerId, enabled = false } = props;
-  const address = wrangle.address(props);
-  const peerParts = (peerId ?? '').split('.');
+  const { repo, localstorage } = props;
+  const peerId = repo?.id.peer ?? '';
+  const peerParts = peerId.split('.');
+  const urls = repo?.sync.urls ?? [];
+
+  /**
+   * Hooks:
+   */
+  const [store, setStore] = React.useState(wrangle.localstore(props));
+  const [enabled, setEnabled] = React.useState(
+    store?.current.syncEnabled ?? repo?.sync.enabled ?? false,
+  );
+
+  /**
+   * Effects:
+   */
+  React.useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
+  React.useEffect(() => void store?.change((d) => (d.syncEnabled = enabled)), [store, enabled]);
+  React.useEffect(() => {
+    const next = store?.current.syncEnabled ?? repo?.sync.enabled ?? false;
+    updatedEnabled(next);
+  }, [urls.join(), repo?.id.instance, repo?.sync.enabled]);
 
   /**
    * Handlers:
    */
-  const toggleEnabled = () => props.onChange?.({ enabled: !enabled });
+  const updatedEnabled = (enabled: boolean) => {
+    if (!repo) return;
+    setEnabled(enabled);
+    repo.sync.enabled = enabled;
+  };
+  const toggleEnabled = () => {
+    const next = !enabled;
+    updatedEnabled(next);
+    props.onChange?.({ enabled: next });
+  };
 
   /**
    * Render:
@@ -39,6 +68,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     peer: css({ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'auto' }),
     label: css({ opacity: 0.5 }),
     address: css({ opacity: enabled ? 1 : 0.2, transition: 'opacity 120ms ease' }),
+    urls: css({}),
   };
 
   const elPeer = peerId && enabled && (
@@ -50,6 +80,14 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
       </div>
       <Icons.Person color={theme.fg} size={16} opacity={0.3} />
     </React.Fragment>
+  );
+
+  const tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
+  const elUrls = urls.length > 0 && enabled && (
+    <div className={styles.urls.class} title={tooltip}>
+      {urls[0]}
+      {urls.length > 1 && ` (+${urls.length - 1})`}
+    </div>
   );
 
   return (
@@ -64,8 +102,8 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
             toggleEnabled();
           }}
         />
-        <span className={styles.label.class}>{'sync:'}</span>
-        <span className={styles.address.class}>{address}</span>
+        <span className={styles.label.class}>{'network sync:'}</span>
+        <div className={styles.address.class}>{enabled && elUrls ? elUrls : `private`}</div>
         {elPeer}
       </div>
     </div>
@@ -76,11 +114,10 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  address(props: P) {
-    if (props.endpoint == null) return '<unknown>';
-    const txt = props.endpoint.trim().replace(/^wss?:\/\//, ''); // removes 'ws://' or 'wss://' prefix.
-    const isLocal = txt.startsWith('localhost');
-    const protocol = isLocal ? 'ws' : 'wss';
-    return `${protocol}://${txt}`;
+  localstore(props: P) {
+    const { repo, localstorage } = props;
+    const syncEnabled = repo?.sync.enabled ?? false;
+    if (!localstorage) return;
+    else return LocalStorage.immutable<Store>(localstorage, { syncEnabled });
   },
 } as const;

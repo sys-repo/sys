@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 /**
  * Types:
@@ -13,7 +13,10 @@ type Storage = {
   localstorage?: string;
 };
 
-const STORAGE_KEY = `dev:${D.name}.input`;
+const STORAGE_KEY = {
+  SPEC: `dev:${D.name}`,
+  SUBJECT: `dev:${D.name}.subject`,
+};
 
 /**
  * Signals:
@@ -25,21 +28,27 @@ export function createDebugSignals() {
     theme: 'Dark',
     debug: false,
     noRepo: false,
-    localstorage: STORAGE_KEY,
+    localstorage: STORAGE_KEY.SUBJECT,
   };
-  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY.SPEC, defaults);
   const snap = store.current;
 
+  const repo = Crdt.repo({
+    storage: true,
+    network: [{ ws: 'sync.db.team' }, { ws: 'sync.automerge.org' }],
+  });
+
   const props = {
+    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     localstorage: s(snap.localstorage),
     noRepo: s(snap.noRepo),
-    repo: s<t.CrdtRepo>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -110,16 +119,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.localstorage.value;
-          return `localstorage (key): ${v ? `"${v}"` : '(none)'}`;
+          return `localstorage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
           const s = p.localstorage;
-          s.value = s.value ? undefined : STORAGE_KEY;
+          s.value = s.value ? undefined : STORAGE_KEY.SUBJECT;
         }}
       />
 
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
-      <ObjectView name={'repo'} data={p.repo.value} expand={2} style={{ marginTop: 5 }} />
+      <ObjectView name={'repo'} data={debug.repo} expand={2} style={{ marginTop: 5 }} />
     </div>
   );
 };

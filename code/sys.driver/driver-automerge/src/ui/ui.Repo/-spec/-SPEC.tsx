@@ -7,38 +7,6 @@ export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
-  function Root() {
-    /**
-     * NOTE: either pass down the hook (instance)
-     *       OR the setup arguments for the hook.
-     */
-    const ws = 'sync.db.team';
-    const args: t.UseRepoHookArgs = {
-      signals: { repo: p.repo },
-      factory(e) {
-        return Crdt.repo({
-          storage: { database: 'dev.crdt' },
-          network: e.syncEnabled ? { ws } : undefined,
-        });
-      },
-    };
-    const hook = Repo.useRepo(args);
-    const props = hook.signals.toValues();
-
-    return (
-      <Repo.SyncEnabledSwitch
-        theme={p.theme.value}
-        debug={p.debug.value}
-        //
-        endpoint={ws}
-        enabled={props.syncEnabled}
-        peerId={props.repo?.id?.peer}
-        //
-        onChange={hook.handlers.onSyncEnabledChange}
-      />
-    );
-  }
-
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -51,7 +19,21 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size([380, null])
       .display('grid')
-      .render(() => <Root />);
+      .render(() => {
+        return (
+          <Repo.SyncEnabledSwitch
+            theme={p.theme.value}
+            debug={p.debug.value}
+            //
+            repo={p.noRepo.value ? undefined : debug.repo}
+            localstorage={p.localstorage.value}
+            onChange={(e) => {
+              p.redraw.value++;
+              console.info(`⚡️ SyncEnabledSwitch.onChange:`, e);
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

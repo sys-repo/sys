@@ -2,7 +2,6 @@
  * @module
  */
 import type { t } from './common.ts';
-import { useRepo } from './use.Repo.ts';
 
 /**
  * Components:
@@ -15,5 +14,4 @@ export { SyncEnabledSwitch };
  */
 export const Repo: t.RepoLib = {
   SyncEnabledSwitch,
-  useRepo,
 };
