@@ -1,9 +1,28 @@
-import React from 'react';
-import { type t, slug, Button, css, D, LocalStorage, ObjectView, Signal, Crdt } from '../common.ts';
 import { Peer, type PeerOptions } from 'peerjs';
+import React from 'react';
+import {
+  Button,
+  Crdt,
+  css,
+  D,
+  Is,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  slug,
+  type t,
+} from '../common.ts';
 
 type P = t.SampleProps;
-type Doc = { count: number };
+
+type TDoc = {
+  count: number;
+  connections?: {
+    group: t.StringId[];
+    dyads: [t.StringId, t.StringId][];
+  };
+};
 
 /**
  * Types:
@@ -64,15 +83,18 @@ export function createDebugSignals() {
   });
 
   const props = {
+    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.CrdtRef<Doc>>(),
+    doc: s<t.CrdtRef<TDoc>>(),
   };
   const p = props;
+  const redraw = () => p.redraw.value++;
   const api = {
     props,
     repo,
     peer,
+    redraw,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -85,6 +107,57 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
     });
+  });
+
+  // ---------------------------------------------------
+
+  /**
+   * Return every unique, unordered pair (dyad)
+   * from the given peer-id list.
+   */
+  function toDyads(peers: t.StringId[]): [t.StringId, t.StringId][] {
+    const ids = [...new Set(peers)]; // ensure uniqueness.
+    return ids.flatMap((a, i) => ids.slice(i + 1).map((b): [t.StringId, t.StringId] => [a, b]));
+  }
+
+  /**
+   * Sync Dyads:
+   */
+  function updateDyads(doc?: t.CrdtRef<TDoc>) {
+    const connections = doc?.current.connections;
+    if (!connections) return false;
+
+    const group = connections?.group ?? [];
+    const current = [...(connections?.dyads ?? [])];
+    const next = toDyads(group);
+    const diff = !Obj.eql(current, next);
+
+    if (diff) {
+      doc?.change((d) => {
+        Obj.Path.Mutate.ensure(d, ['connections', 'dyads'], []);
+        d.connections!.dyads = next.toSorted();
+      });
+    }
+
+    return diff;
+  }
+
+  let _events: t.CrdtEvents<TDoc> | undefined;
+  Signal.effect(() => {
+    _events?.dispose?.();
+
+    const doc = p.doc.value;
+    updateDyads(doc);
+
+    const listen = () => {
+      _events = doc?.events();
+      _events?.$.subscribe((e) => {
+        updateDyads(doc);
+        p.redraw.value++;
+      });
+    };
+
+    listen();
   });
 
   return api;
@@ -107,6 +180,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   Signal.useRedrawEffect(() => debug.listen());
+  Crdt.UI.useRedrawEffect(p.doc.value);
 
   /**
    * Render:
@@ -117,7 +191,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      {/* <div className={Styles.title.class}>{D.name}</div> */}
 
       <Button
         block
@@ -137,12 +211,93 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <DevConnectionsButtons debug={debug} />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+
+      <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
+      <ObjectView
+        name={'debug'}
+        data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
+
+/**
+ * Dev Helpers:
+ */
+export function DevConnectionsButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
+  const { props: p, peer } = debug;
+
+  const elAddSelf = (
+    <Button
+      block
+      label={() => `group: add self`}
+      onClick={() => {
+        const doc = p.doc.value;
+        if (!doc) return;
+
+        doc.change((d) => {
+          if (!Is.object(d.connections)) d.connections = { group: [], dyads: [] };
+          const group = d.connections.group;
+          if (!group.includes(peer.id)) group.push(peer.id);
+        });
+
+        console.info('after change:', { ...doc.current });
+      }}
+    />
+  );
+
+  const elRemoveSelf = (
+    <Button
+      block
+      label={() => `group: remove self`}
+      onClick={() => {
+        const doc = p.doc.value;
+        if (!doc) return;
+
+        doc.change((d) => {
+          const group = d.connections?.group;
+          if (!group) return;
+
+          const i = group.findIndex((m) => m === peer.id);
+          if (i !== -1) group.splice(i, 1);
+        });
+
+        console.info('after change:', { ...doc.current });
+      }}
+    />
+  );
+
+  const elClear = (
+    <Button
+      block
+      label={() => `clear`}
+      onClick={() => {
+        const doc = p.doc.value;
+        doc?.change((d) => {
+          delete d.connections;
+          d.connections = { group: [], dyads: [] };
+        });
+        console.info('after clear', { ...doc?.current });
+      }}
+    />
+  );
+
+  return (
+    <>
+      {elAddSelf}
+      {elRemoveSelf}
+      {elClear}
+    </>
+  );
+}

@@ -5,6 +5,7 @@ import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   function DocumentId(props: t.DocumentIdProps) {
@@ -16,7 +17,7 @@ export default Spec.describe(D.displayName, (e) => {
         buttonStyle={{ margin: 4 }}
         {...props}
         controller={{
-          repo: debug.repo,
+          repo,
           signals: { doc: p.doc },
           initial: { count: 0 },
           localstorage: STORAGE_KEY.DEV,
@@ -53,10 +54,10 @@ export default Spec.describe(D.displayName, (e) => {
           const url = new URL(href);
           return (
             <a
+              target={'_blank'}
+              rel={'noopener noreferrer'}
               href={url.href}
               className={styles.footer.a.class}
-              target={'_blank'}
-              rel="noopener noreferrer"
             >
               {label}
             </a>
@@ -68,7 +69,7 @@ export default Spec.describe(D.displayName, (e) => {
             <DocumentId style={styles.docId} />
 
             <Sample
-              //
+              // 🌳
               debug={p.debug.value}
               theme={p.theme.value}
               doc={p.doc.value}
@@ -78,13 +79,20 @@ export default Spec.describe(D.displayName, (e) => {
             <div className={styles.footer.base.class}>
               <div className={styles.footer.body.class}>
                 {link(
-                  'sys.ui.media.video (stream)',
+                  'ref: sys.ui.media.video - MediaStream',
                   'https://fs.db.team/sys/ui/?dev=6662459692802',
                 )}
               </div>
             </div>
           </div>
         );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(10)
+      .render(() => {
+        return <Crdt.UI.Repo.SyncEnabledSwitch repo={repo} localstorage={STORAGE_KEY.DEV} />;
       });
   });
 
