@@ -115,9 +115,11 @@ export function createDebugSignals() {
    * Return every unique, unordered pair (dyad)
    * from the given peer-id list.
    */
-  function toDyads(peers: t.StringId[]): [t.StringId, t.StringId][] {
+  type Dyad = [t.StringId, t.StringId];
+  function toDyads(peers: t.StringId[]): Dyad[] {
     const ids = [...new Set(peers)]; // ensure uniqueness.
-    return ids.flatMap((a, i) => ids.slice(i + 1).map((b): [t.StringId, t.StringId] => [a, b]));
+    const res = ids.flatMap((a, i) => ids.slice(i + 1).map((b): Dyad => [a, b]));
+    return res.map((item) => item.toSorted()) as Dyad[];
   }
 
   /**
@@ -135,7 +137,7 @@ export function createDebugSignals() {
     if (diff) {
       doc?.change((d) => {
         Obj.Path.Mutate.ensure(d, ['connections', 'dyads'], []);
-        d.connections!.dyads = next.toSorted();
+        d.connections!.dyads = next;
       });
     }
 
