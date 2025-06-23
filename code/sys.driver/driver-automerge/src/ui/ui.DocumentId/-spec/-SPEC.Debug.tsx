@@ -177,7 +177,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.localstorage.value;
-          return `localstorage (key): ${v ? `"${v}"` : '(none)'}`;
+          return `localstorage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
           const s = p.localstorage;

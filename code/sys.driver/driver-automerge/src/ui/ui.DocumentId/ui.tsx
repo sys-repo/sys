@@ -45,10 +45,13 @@ export const View: React.FC<P> = (props) => {
   const doc = controller.props.doc;
   const repo = controller.props.repo;
   const is = controller.props.is;
-  const showAction = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
+
   const active = enabled && !!repo;
   const transient = controller.transient;
   const message = transient.message;
+
+  let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
+  let showAction = showActionD || !docId;
 
   /**
    * Effect: (mounted).
@@ -139,13 +142,13 @@ export const View: React.FC<P> = (props) => {
       enabled={active}
       readOnly={readOnly}
       theme={theme.name}
+      onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
       onPointer={(e) => {
         if (e.is.down) {
           e.cancel();
           focus();
         }
       }}
-      onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
     />
   );
 
@@ -211,7 +214,6 @@ export const View: React.FC<P> = (props) => {
 const wrangle = {
   placeholder(props: P, controller: t.DocumentIdHook, focused: boolean) {
     if (Is.string(props.placeholder)) return props.placeholder;
-    // if (focused && controller.history.length > 0) return `${D.placeholder}   •   ↑↓ for history`;
     if (focused && controller.history.length > 0) return `${D.placeholder}  •  ↑↓ for history`;
     return D.placeholder;
   },
