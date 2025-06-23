@@ -1,6 +1,9 @@
 import { type t, Obj } from './common.ts';
+import { maintainDyadConnection } from './u.conn.maintainDyad.ts';
 
 export const Conn = {
+  maintainDyadConnection,
+
   /**
    * Produce every unique, lexicographically-ordered 1-to-1
    * pairing ( PeerDyad ) from a set of peer-ids.
@@ -27,7 +30,7 @@ export const Conn = {
   /**
    * Keep the `dyads` list in up-to-date with the current peer `group` list.
    */
-  updateDyads(doc?: t.CrdtRef<t.TSampleDoc>) {
+  updateDyads(doc?: t.CrdtRef<t.SampleDoc>) {
     const connections = doc?.current.connections;
     if (!connections) return false;
 

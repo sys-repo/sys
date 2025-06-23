@@ -40,14 +40,8 @@ export function createPeer() {
 
   const peer = new Peer(peerId, peerOptions);
 
-  peer.on('open', (id) => {
-    console.info('⚡️ peer.on:open:', id);
-  });
-
-  peer.on('error', (err) => {
-    console.error('⚡️ peer.on:error: 💥', err);
-  });
-
+  peer.on('open', (id) => console.info('⚡️ peer.on/open:', id));
+  peer.on('error', (err) => console.error('⚡️ peer.on/error: 💥', err));
   return peer;
 }
 
@@ -79,7 +73,9 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.CrdtRef<t.TSampleDoc>>(),
+    doc: s<t.CrdtRef<t.SampleDoc>>(),
+    localStream: s<MediaStream>(),
+    remoteStream: s<MediaStream>(),
   };
   const p = props;
   const redraw = () => p.redraw.value++;
@@ -105,7 +101,7 @@ export function createDebugSignals() {
   /**
    * Maintain CRDT document integrity:
    */
-  let _events: t.CrdtEvents<t.TSampleDoc> | undefined;
+  let _events: t.CrdtEvents<t.SampleDoc> | undefined;
   Signal.effect(() => {
     _events?.dispose?.();
 
@@ -260,11 +256,31 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
       label={() => `🐷 ƒ: maintainDyadConnection`}
       onClick={() => {
         const doc = p.doc.value;
-        doc?.change((d) => {
-          delete d.connections;
-          d.connections = { group: [], dyads: [] };
+        if (!doc) return;
+
+        const peer = debug.peer;
+        const localStream = p.localStream.value;
+        const dyads = doc.current.connections?.dyads ?? [];
+        const dyad = dyads[0];
+
+        if (!dyad || !localStream) return;
+
+        // const dyad =
+        console.group(`🌳 maintainDyadConnection/args:`);
+        console.log('peer', peer);
+        console.log('dyad', dyad);
+        console.log('localStream', localStream);
+        console.groupEnd();
+
+        const res = Conn.maintainDyadConnection({
+          peer,
+          dyad,
+          localStream,
+          onRemoteStream(e) {
+            console.log('⚡️ onRemoteStream', e);
+            p.remoteStream.value = e.remote.stream;
+          },
         });
-        console.info('after clear', { ...doc?.current });
       }}
     />
   );

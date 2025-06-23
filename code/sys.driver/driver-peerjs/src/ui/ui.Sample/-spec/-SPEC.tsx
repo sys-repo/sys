@@ -72,8 +72,15 @@ export default Spec.describe(D.displayName, (e) => {
               // 🌳
               debug={p.debug.value}
               theme={p.theme.value}
-              doc={p.doc.value}
+              //
               peerjs={debug.peer}
+              doc={p.doc.value}
+              remoteStream={p.remoteStream.value}
+              //
+              onReady={(e) => {
+                console.info(`⚡️ onReady:`, e);
+                p.localStream.value = e.self.stream;
+              }}
             />
 
             <div className={styles.footer.base.class}>
