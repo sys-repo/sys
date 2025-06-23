@@ -23,7 +23,7 @@ export const Obj: ObjLib = {
   clone,
   extend,
   hash,
-  equals: R.equals,
+  eql: R.equals,
 
   isObject,
   isRecord,
