@@ -5,7 +5,7 @@
 import { Repo } from '@automerge/automerge-repo';
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-import { type t, Arr, CrdtIs, CrdtUrl, Is, slug, toRepo } from './common.ts';
+import { type t, Arr, CrdtIs, CrdtUrl, createPeerId, Is, toRepo } from './common.ts';
 
 type Args = t.CrdtFsRepoArgs;
 
@@ -24,7 +24,7 @@ export const Crdt: t.CrdtFilesystemLib = {
     const { sharePolicy = async () => true, denylist } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
-    const peerId = network.length > 0 ? (`peer.${slug()}` as t.PeerId) : undefined;
+    const peerId = createPeerId();
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },

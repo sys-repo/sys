@@ -1,4 +1,5 @@
 import { Repo } from '@automerge/automerge-repo';
+import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 
 import { Time, describe, expect, it } from '../../-test.ts';
 import { toAutomergeRepo, toRepo } from '../u.repo.ts';
@@ -33,10 +34,13 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(doc.current).to.not.equal(initial);
   });
 
-  it('creates with  { peerId }', async () => {
+  it('creates with  { peerId }', () => {
+    const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
     const peerId = 'foo:bar';
-    const repo = toRepo(new Repo(), { peerId });
-    expect(repo.id.peer).to.eql(peerId);
+    const a = toRepo(new Repo(), { peerId });
+    const b = toRepo(new Repo({ network }), { peerId });
+    expect(a.id.peer).to.eql(''); // NB: no network.
+    expect(b.id.peer).to.eql(peerId);
   });
 
   it('get', async () => {
@@ -77,6 +81,74 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     a.change((d) => d.count++);
     expect(a.current).to.eql(b.current);
+  });
+
+  describe('sync (network)', () => {
+    const createAdapters = () => {
+      const net1 = new BrowserWebSocketClientAdapter('wss://sync.automerge.org');
+      const net2 = new BrowserWebSocketClientAdapter('wss://sync.db.team');
+      return { net1, net2 } as const;
+    };
+
+    it('sync.urls', () => {
+      const { net1, net2 } = createAdapters();
+
+      const a = toRepo(new Repo({}));
+      const b = toRepo(new Repo({ network: [net1] }));
+      const c = toRepo(new Repo({ network: [net1, net2] }));
+
+      expect(a.sync.urls).to.eql([]);
+      expect(b.sync.urls).to.eql(['wss://sync.automerge.org']);
+      expect(c.sync.urls).to.eql(['wss://sync.automerge.org', 'wss://sync.db.team']);
+
+      expect(a.sync.enabled).to.eql(false);
+      expect(b.sync.enabled).to.eql(true);
+      expect(c.sync.enabled).to.eql(true);
+    });
+
+    it('adapters enabled → disabled', async () => {
+      const wrap = (net: BrowserWebSocketClientAdapter) => {
+        const fired = { connect: 0, disconnect: 0 };
+        net.connect = () => fired.connect++;
+        net.disconnect = () => fired.disconnect++;
+        return { net, fired };
+      };
+
+      const { net1, net2 } = createAdapters();
+      const wrapped1 = wrap(net1);
+      const wrapped2 = wrap(net2);
+
+      const base = new Repo({ network: [wrapped1.net, wrapped2.net] });
+      const repo = toRepo(base);
+
+      expect(repo.sync.urls.length).to.eql(2);
+      expect(repo.sync.enabled).to.eql(true);
+
+      repo.sync.enabled = false;
+      expect(wrapped1.fired.disconnect).to.eql(1);
+      expect(wrapped2.fired.disconnect).to.eql(1);
+
+      repo.sync.enabled = false;
+      repo.sync.enabled = false;
+      expect(wrapped1.fired.disconnect).to.eql(1); // NB: no change.
+      expect(wrapped2.fired.disconnect).to.eql(1);
+
+      repo.sync.enabled = true;
+      expect(wrapped1.fired.connect).to.eql(1);
+      expect(wrapped2.fired.connect).to.eql(1);
+    });
+
+    it('can never be enbled when no networks', () => {
+      const { net1 } = createAdapters();
+      const a = toRepo(new Repo({}));
+      const b = toRepo(new Repo({ network: [net1] }));
+
+      expect(a.sync.enabled).to.eql(false);
+      expect(b.sync.enabled).to.eql(true);
+
+      a.sync.enabled = true;
+      expect(a.sync.enabled).to.eql(false);
+    });
   });
 
   describe('errors', () => {

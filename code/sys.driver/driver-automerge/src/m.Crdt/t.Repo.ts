@@ -8,6 +8,7 @@ export type CrdtRepoGetOptions = { timeout?: t.Msecs };
  */
 export type CrdtRepo = {
   readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
+  readonly sync: { enabled: boolean; urls: t.StringUrl[] };
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRepoGetResponse<T>>;
 };

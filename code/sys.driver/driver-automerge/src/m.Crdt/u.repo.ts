@@ -19,11 +19,35 @@ export function toAutomergeRepo(repo?: t.CrdtRepo): Repo | undefined {
  * Wrap an Automerge repo in a lightweight functional API.
  */
 export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRepo {
+  let _enabled = true;
+  const networks = repo.networkSubsystem.adapters;
+  const peer = networks.length > 0 ? options.peerId ?? '' : '';
+
+  const urls = networks
+    .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
+    .map((adapter: any) => adapter.url);
+
   /**
    * API:
    */
   const api: t.CrdtRepo = {
-    id: { peer: options.peerId ?? '', instance: slug() },
+    id: { peer, instance: slug() },
+
+    sync: {
+      urls,
+      get enabled() {
+        if (urls.length === 0) return false;
+        return _enabled;
+      },
+      set enabled(value) {
+        if (value === _enabled) return;
+        _enabled = value;
+        networks.forEach((adapter) => {
+          if (value) adapter.connect(peer as t.PeerId, {});
+          else adapter.disconnect();
+        });
+      },
+    },
 
     create<T extends O>(input: T | (() => T)) {
       const initial = Is.func(input) ? input() : input;

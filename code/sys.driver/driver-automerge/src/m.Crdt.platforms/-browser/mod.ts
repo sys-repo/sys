@@ -9,7 +9,7 @@ import {
   WebSocketClientAdapter,
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { type t, Arr, CrdtIs, CrdtUrl, D, Is, slug, toRepo } from './common.ts';
+import { type t, Arr, CrdtIs, CrdtUrl, createPeerId, D, Is, toRepo } from './common.ts';
 
 type Args = t.CrdtBrowserRepoArgs;
 
@@ -27,7 +27,7 @@ export const Crdt: t.CrdtBrowserLib = {
     const { sharePolicy, denylist } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
-    const peerId = network.length > 0 ? (`peer.${slug()}` as t.PeerId) : undefined;
+    const peerId = createPeerId();
     const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
