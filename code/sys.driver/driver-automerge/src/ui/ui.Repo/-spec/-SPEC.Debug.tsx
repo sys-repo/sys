@@ -128,7 +128,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
-      <ObjectView name={'repo'} data={debug.repo} expand={2} style={{ marginTop: 5 }} />
+      <ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 5 }} />
     </div>
   );
 };
