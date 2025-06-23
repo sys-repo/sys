@@ -10,6 +10,8 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Tools for working with objects.
  */
 export type ObjLib = {
+  equals: t.RLib['equals'];
+
   /** Tool for working with JSON safely. */
   readonly Json: t.JsonLib;
 

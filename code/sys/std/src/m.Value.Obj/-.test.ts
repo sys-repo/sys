@@ -645,4 +645,39 @@ describe('Value.Obj', () => {
       expect(res).to.eql(['One', 'Two']);
     });
   });
+
+  describe('Obj.equals', () => {
+    it('returns true for primitives that are strictly equal', () => {
+      expect(Obj.equals(123, 123)).to.be.true;
+      expect(Obj.equals('foo', 'foo')).to.be.true;
+      expect(Obj.equals(true, true)).to.be.true;
+      expect(Obj.equals(null, null)).to.be.true;
+      expect(Obj.equals(undefined, undefined)).to.be.true;
+    });
+
+    it('returns false for primitives that differ', () => {
+      expect(Obj.equals(123, 456)).to.be.false;
+      expect(Obj.equals('foo', 'bar')).to.be.false;
+      expect(Obj.equals(true, false)).to.be.false;
+      expect(Obj.equals(null, undefined)).to.be.false;
+    });
+
+    it('performs deep equality on objects', () => {
+      const obj1 = { a: 1, b: { c: [1, 2, 3] } };
+      const obj2 = { a: 1, b: { c: [1, 2, 3] } };
+      const obj3 = { a: 1, b: { c: [1, 2] } };
+
+      expect(Obj.equals(obj1, obj2)).to.be.true;
+      expect(Obj.equals(obj1, obj3)).to.be.false;
+    });
+
+    it('performs deep equality on arrays', () => {
+      const arr1 = [1, { foo: 'bar' }, [3]];
+      const arr2 = [1, { foo: 'bar' }, [3]];
+      const arr3 = [1, { foo: 'baz' }, [3]];
+
+      expect(Obj.equals(arr1, arr2)).to.be.true;
+      expect(Obj.equals(arr1, arr3)).to.be.false;
+    });
+  });
 });
