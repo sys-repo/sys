@@ -75,7 +75,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     <React.Fragment>
       <span className={styles.label.class}>{'•'}</span>
       <div className={styles.peer.class}>
-        <span className={styles.label.class}>{`${peerParts.slice(0, -1)}.`}</span>
+        <span className={styles.label.class}>{`crdt.${peerParts.slice(0, -1)}.`}</span>
         <span>{peerParts.slice(-1)}</span>
       </div>
       <Icons.Person color={theme.fg} size={16} opacity={0.3} />
