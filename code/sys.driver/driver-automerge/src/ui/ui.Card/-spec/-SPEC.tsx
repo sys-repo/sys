@@ -8,12 +8,13 @@ const STORAGE_KEY = `dev:${D.name}.input`;
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   /**
    * Effect: Put repo in global/window namespace (debug console).
    */
-  Signal.effect(() => void (window.repo = p.repo.value!));
+  window.repo = repo;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -33,14 +34,8 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
           localstorage={STORAGE_KEY}
-          syncUrl={p.syncUrl.value}
-          factory={debug.factory}
-          signals={{
-            docId: p.docId,
-            doc: p.doc,
-            repo: p.repo,
-            syncEnabled: p.syncEnabled,
-          }}
+          repo={repo}
+          signals={{ docId: p.docId, doc: p.doc }}
         />
       ));
 
@@ -48,7 +43,6 @@ export default Spec.describe(D.displayName, async (e) => {
       .padding(0)
       .border(-0.1)
       .render(() => {
-        const repo = p.repo.value;
         return (
           <DocumentId.View
             buttonStyle={{ margin: 4 }}

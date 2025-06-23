@@ -6,27 +6,24 @@ type O = Record<string, unknown>;
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, factory, headerStyle = {}, localstorage } = props;
+  const { debug = false, headerStyle = {}, localstorage, repo } = props;
 
   /**
    * Hooks:
    */
   const [head, setHead] = useState(false);
+  const [current, setCurrent] = useState<O>();
   const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
-  const [current, setCurrent] = useState<O>();
-
-  const crdt = Repo.useRepo({ factory, signals: props.signals, localstorage });
-  const repo = crdt.repo;
   const controller = DocumentId.useController({
-    repo: crdt.repo,
+    repo,
     signals: props.signals,
     initial: { count: 0 },
     localstorage,
   });
 
-  const signals = { ...crdt.signals, ...controller.signals };
+  const signals = { ...controller.signals };
   const docSignal = signals.doc;
   const doc = docSignal.value;
 
@@ -79,13 +76,10 @@ export const Card: React.FC<P> = (props) => {
   const elFooter = (
     <div className={styles.footer.class}>
       <Repo.SyncEnabledSwitch
-        endpoint={props.syncUrl}
-        enabled={signals.syncEnabled.value}
         theme={theme.name}
-        peerId={crdt.repo?.id.peer}
-        onChange={(e) => {
-          if (signals.syncEnabled) signals.syncEnabled.value = e.enabled;
-        }}
+        repo={repo}
+        localstorage={localstorage}
+        onChange={(e) => {}}
       />
       <div />
       <FooterTools theme={theme.name} doc={docSignal?.value} />
@@ -117,7 +111,7 @@ export const Card: React.FC<P> = (props) => {
     />
   );
 
-  if (!crdt.repo)
+  if (!repo)
     return (
       <div className={css(styles.empty, props.style).class} title={D.displayName}>
         {'(repository not provided)'}

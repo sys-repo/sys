@@ -4,11 +4,7 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
-type Storage = Pick<P, 'theme' | 'debug'> & {
-  docId?: string;
-  syncUrl?: string;
-  syncEnabled?: boolean;
-};
+type Storage = Pick<P, 'theme' | 'debug'> & { docId?: string };
 
 /**
  * Types:
@@ -26,24 +22,14 @@ export type TDoc = {
 export async function createDebugSignals() {
   const s = Signal.create;
 
-  const factory: t.RepoHookFactory = () => {
-    const ws = p.syncUrl.value;
-    const isWebsockets = p.syncEnabled.value;
-
-    const network: t.CrdtBrowserNetworkArg[] = [];
-    if (ws && isWebsockets) network.push({ ws });
-
-    return Crdt.repo({
-      storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
-      network,
-    });
-  };
+  const repo = Crdt.repo({
+    storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
+    network: { ws: 'sync.db.team' },
+  });
 
   const defaults: Storage = {
     debug: false,
     theme: 'Dark',
-    syncUrl: 'sync.db.team',
-    syncEnabled: true,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -53,10 +39,6 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     redraw: s(0),
 
-    repo: s<t.CrdtRepo>(),
-    syncUrl: s(snap.syncUrl),
-    syncEnabled: s(snap.syncEnabled),
-
     docId: s(store.current.docId),
     doc: s<t.CrdtRef<TDoc>>(),
   };
@@ -65,7 +47,7 @@ export async function createDebugSignals() {
   const api = {
     props,
     store,
-    factory,
+    repo,
     listen() {
       Object.values(p)
         .filter(Signal.Is.signal)
@@ -78,8 +60,6 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.docId = p.docId.value;
-      d.syncUrl = p.syncUrl.value;
-      d.syncEnabled = p.syncEnabled.value;
     });
   });
 
@@ -139,16 +119,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
-      <Button
-        block
-        label={() => {
-          const v = p.syncUrl.value;
-          return `sync-server (websocket): ${v ? `"${v}"` : ''}`;
-        }}
-        onClick={() => {
-          Signal.cycle(p.syncUrl, ['localhost:3030', 'sync.db.team', 'sync.automerge.org']);
-        }}
-      />
 
       <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 15 }} expand={0} />
       {!!p.doc.value && (
@@ -173,10 +143,9 @@ const wrangle = {
  * Dev Helpers:
  */
 export function valueEditorButtons(debug: DebugSignals) {
-  const { props: p } = debug;
+  const { props: p, repo } = debug;
 
   const increment = async (by: number) => {
-    const repo = p.repo.value;
     const docId = debug.store.current.docId;
     if (!docId || !repo) return;
 

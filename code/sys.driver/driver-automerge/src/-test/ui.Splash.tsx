@@ -14,20 +14,17 @@ export type SplashProps = {
  */
 export const Splash: React.FC<SplashProps> = (props) => {
   const {} = props;
-  const ws = 'sync.db.team';
 
   /**
    * Hooks:
    */
   const dist = useDist({ sampleFallback: true });
-  const crdt = Crdt.UI.Repo.useRepo({
-    factory(e) {
-      return Crdt.repo({
-        storage: { database: 'dev.crdt' },
-        network: e.syncEnabled ? { ws } : undefined,
-      });
-    },
-  });
+  const repoRef = React.useRef(
+    Crdt.repo({
+      storage: { database: 'dev.crdt' },
+      network: { ws: 'sync.db.team' },
+    }),
+  );
 
   /**
    * Render:
@@ -51,10 +48,9 @@ export const Splash: React.FC<SplashProps> = (props) => {
         <div className={styles.body.class}>
           <Card
             theme={theme.name}
-            syncUrl={ws}
             headerStyle={{ topOffset: -30 }}
-            localstorage={`${pkg.name}.splash`}
-            signals={crdt.signals}
+            repo={repoRef.current}
+            localstorage={`${pkg.name}:splash`}
           />
         </div>
       </Cropmarks>

@@ -1,26 +1,22 @@
 import type { t } from './common.ts';
 
 export type CardProps = {
-  syncUrl?: t.StringUrl;
   localstorage?: t.StringKey;
   textMaxLength?: number;
-
   //
   signals?: Partial<CardSignals>;
-  factory?: t.RepoHookFactory;
-
+  repo?: t.CrdtRepo;
   //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   headerStyle?: { topOffset?: number };
-
   //
   onChange?: CardChangedHandler;
 };
 
-export type CardSignals = Omit<t.RepoHookSignals, 'toValues'> &
-  Omit<t.DocumentIdHookSignals, 'toValues'>;
+/** Signal wrapped props for the <Card>. */
+export type CardSignals = Omit<t.DocumentIdHookSignals, 'toValues'>;
 
 /**
  * Events:
