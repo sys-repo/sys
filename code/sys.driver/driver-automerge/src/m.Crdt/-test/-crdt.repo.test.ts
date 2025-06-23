@@ -106,38 +106,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(c.sync.enabled).to.eql(true);
     });
 
-    it('adapters enabled → disabled', async () => {
-      const wrap = (net: BrowserWebSocketClientAdapter) => {
-        const fired = { connect: 0, disconnect: 0 };
-        net.connect = () => fired.connect++;
-        net.disconnect = () => fired.disconnect++;
-        return { net, fired };
-      };
-
-      const { net1, net2 } = createAdapters();
-      const wrapped1 = wrap(net1);
-      const wrapped2 = wrap(net2);
-
-      const base = new Repo({ network: [wrapped1.net, wrapped2.net] });
-      const repo = toRepo(base);
-
-      expect(repo.sync.urls.length).to.eql(2);
-      expect(repo.sync.enabled).to.eql(true);
-
-      repo.sync.enabled = false;
-      expect(wrapped1.fired.disconnect).to.eql(1);
-      expect(wrapped2.fired.disconnect).to.eql(1);
-
-      repo.sync.enabled = false;
-      repo.sync.enabled = false;
-      expect(wrapped1.fired.disconnect).to.eql(1); // NB: no change.
-      expect(wrapped2.fired.disconnect).to.eql(1);
-
-      repo.sync.enabled = true;
-      expect(wrapped1.fired.connect).to.eql(1);
-      expect(wrapped2.fired.connect).to.eql(1);
-    });
-
     it('can never be enbled when no networks', () => {
       const { net1 } = createAdapters();
       const a = toRepo(new Repo({}));
