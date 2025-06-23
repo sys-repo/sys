@@ -17,5 +17,8 @@ export type CrdtUiLib = t.CrdtBrowserLib & {
 /**
  * Hook:
  */
-export type UseRedrawEffect = (doc?: t.CrdtRef) => CrdtRedrawHook;
+export type UseRedrawEffect = (
+  doc?: t.CrdtRef,
+  onRedraw?: (doc: t.CrdtRef) => void,
+) => CrdtRedrawHook;
 export type CrdtRedrawHook = { readonly doc?: t.CrdtRef };
