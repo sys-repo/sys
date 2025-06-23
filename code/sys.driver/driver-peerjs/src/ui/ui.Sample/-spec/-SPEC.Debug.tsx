@@ -13,16 +13,9 @@ import {
   slug,
   type t,
 } from '../common.ts';
+import { maintainDyadConnection, Conn } from '../u.ts';
 
 type P = t.SampleProps;
-
-type TDoc = {
-  count: number;
-  connections?: {
-    group: t.StringId[];
-    dyads: [t.StringId, t.StringId][];
-  };
-};
 
 /**
  * Types:
@@ -86,7 +79,7 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.CrdtRef<TDoc>>(),
+    doc: s<t.CrdtRef<t.TSampleDoc>>(),
   };
   const p = props;
   const redraw = () => p.redraw.value++;
@@ -109,52 +102,20 @@ export function createDebugSignals() {
     });
   });
 
-  // ---------------------------------------------------
-
   /**
-   * Return every unique, unordered pair (dyad)
-   * from the given peer-id list.
+   * Maintain CRDT document integrity:
    */
-  type Dyad = [t.StringId, t.StringId];
-  function toDyads(peers: t.StringId[]): Dyad[] {
-    const ids = [...new Set(peers)]; // ensure uniqueness.
-    const res = ids.flatMap((a, i) => ids.slice(i + 1).map((b): Dyad => [a, b]));
-    return res.map((item) => item.toSorted()) as Dyad[];
-  }
-
-  /**
-   * Sync Dyads:
-   */
-  function updateDyads(doc?: t.CrdtRef<TDoc>) {
-    const connections = doc?.current.connections;
-    if (!connections) return false;
-
-    const group = connections?.group ?? [];
-    const current = [...(connections?.dyads ?? [])];
-    const next = toDyads(group);
-    const diff = !Obj.eql(current, next);
-
-    if (diff) {
-      doc?.change((d) => {
-        Obj.Path.Mutate.ensure(d, ['connections', 'dyads'], []);
-        d.connections!.dyads = next;
-      });
-    }
-
-    return diff;
-  }
-
-  let _events: t.CrdtEvents<TDoc> | undefined;
+  let _events: t.CrdtEvents<t.TSampleDoc> | undefined;
   Signal.effect(() => {
     _events?.dispose?.();
 
     const doc = p.doc.value;
-    updateDyads(doc);
+    Conn.updateDyads(doc);
 
     const listen = () => {
       _events = doc?.events();
       _events?.$.subscribe((e) => {
-        updateDyads(doc);
+        Conn.updateDyads(doc);
         p.redraw.value++;
       });
     };
@@ -193,8 +154,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {/* <div className={Styles.title.class}>{D.name}</div> */}
-
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -240,10 +199,25 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const { debug } = props;
   const { props: p, peer } = debug;
 
+  const elClear = (
+    <Button
+      block
+      label={() => `clear`}
+      onClick={() => {
+        const doc = p.doc.value;
+        doc?.change((d) => {
+          delete d.connections;
+          d.connections = { group: [], dyads: [] };
+        });
+        console.info('after clear', { ...doc?.current });
+      }}
+    />
+  );
+
   const elAddSelf = (
     <Button
       block
-      label={() => `group: add self`}
+      label={() => `- group: add self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
@@ -262,7 +236,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elRemoveSelf = (
     <Button
       block
-      label={() => `group: remove self`}
+      label={() => `- group: remove self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
@@ -280,10 +254,10 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
     />
   );
 
-  const elClear = (
+  const elTmp = (
     <Button
       block
-      label={() => `clear`}
+      label={() => `🐷 ƒ: maintainDyadConnection`}
       onClick={() => {
         const doc = p.doc.value;
         doc?.change((d) => {
@@ -297,9 +271,10 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
 
   return (
     <>
+      {elClear}
       {elAddSelf}
       {elRemoveSelf}
-      {elClear}
+      {elTmp}
     </>
   );
 }
