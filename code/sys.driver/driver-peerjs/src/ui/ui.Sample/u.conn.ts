@@ -8,7 +8,7 @@ export const Conn = {
    * Produce every unique, lexicographically-ordered 1-to-1
    * pairing ( PeerDyad ) from a set of peer-ids.
    */
-  toDyads(peers: t.WebRtc.PeerId[]): t.WebRtc.PeerDyad[] {
+  toDyads(peers: t.WebRtc.PeerId[] = []): t.WebRtc.PeerDyad[] {
     const ids = Array.from(new Set(peers)); // ← ensure uniqueness.
     const out: t.WebRtc.PeerDyad[] = [];
 
