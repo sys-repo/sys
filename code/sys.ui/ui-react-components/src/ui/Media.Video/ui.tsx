@@ -8,9 +8,10 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   const {
     debug = false,
     borderRadius = D.borderRadius,
+    aspectRatio = D.aspectRatio,
+    muted = D.muted,
     filter,
     constraints,
-    aspectRatio,
     zoom,
   } = props;
 
@@ -25,7 +26,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   useEffect(() => {
     const life = rx.lifecycle();
     const { stream, aspectRatio } = video;
-    if (!stream.raw || !stream.filtered) return;
+    if (!video.ready || !stream.raw || !stream.filtered) return;
 
     getDevice(stream.raw).then((device) => {
       if (life.disposed) return;
@@ -33,11 +34,12 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
         console.error(`Device could not be retrieved from stream: ${stream.raw?.id}`);
         return;
       }
+
       props.onReady?.({ stream, aspectRatio, device });
     });
 
     return life.dispose;
-  }, [video.stream.raw?.id]);
+  }, [video.ready, video.stream.raw?.id]);
 
   /**
    * Effect: keep video synced with current stream.
@@ -70,7 +72,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <video ref={videoRef} autoPlay muted playsInline className={styles.video.class} />
+      <video ref={videoRef} autoPlay muted={muted} playsInline className={styles.video.class} />
     </div>
   );
 };

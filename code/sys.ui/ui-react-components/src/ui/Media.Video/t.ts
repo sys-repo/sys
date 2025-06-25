@@ -51,6 +51,8 @@ export type MediaVideoStreamProps = {
   filter?: string;
   /** Options for applying a zoom effect to the media-stream. */
   zoom?: Partial<t.MediaZoomValues>;
+  /** Muted state of the <video> element. */
+  muted?: boolean;
 
   // Appearance:
   borderRadius?: t.Pixels;
@@ -75,6 +77,7 @@ export type UseVideoStream = (
 ) => VideoStreamHook;
 
 export type VideoStreamHook = {
+  readonly ready: boolean;
   readonly stream: { readonly filtered?: MediaStream; readonly raw?: MediaStream };
   readonly aspectRatio: string;
   readonly device?: MediaDeviceInfo;

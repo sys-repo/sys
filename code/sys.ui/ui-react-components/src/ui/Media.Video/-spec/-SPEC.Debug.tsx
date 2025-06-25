@@ -7,6 +7,7 @@ type P = t.MediaVideoStreamProps;
 type L = {
   filters: Partial<t.MediaFilterValues>;
   zoom: Partial<t.MediaZoomValues>;
+  muted: P['muted'];
 };
 
 const { Filters, Zoom } = Media.Config;
@@ -24,6 +25,7 @@ export function createDebugSignals() {
   const initial: L = {
     filters: Filters.values(Obj.keys(Filters.config)),
     zoom: Zoom.values(Obj.keys(Zoom.config)),
+    muted: D.muted,
   } as const;
 
   const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
@@ -39,12 +41,12 @@ export function createDebugSignals() {
     theme: s<P['theme']>('Dark'),
     filter: s<P['filter']>(Filters.toString(snap.filters)),
     zoom: s<P['zoom']>(snap.zoom),
+    muted: s(snap.muted),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
+
     stream: s<P['stream']>(),
   };
-  const p = props;
-
   const api = {
     props,
     localstore,
@@ -151,6 +153,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `aspectRatio: ${v ?? `<undefined>`}`;
         }}
         onClick={() => Signal.cycle(p.aspectRatio, [undefined, '16/9', '16/10', '21/9'])}
+      />
+
+      <Button
+        block
+        label={() => `muted: ${p.muted.value}`}
+        onClick={() => Signal.toggle(p.muted)}
       />
 
       <hr />
