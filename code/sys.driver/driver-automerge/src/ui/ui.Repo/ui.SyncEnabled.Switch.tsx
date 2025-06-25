@@ -10,7 +10,7 @@ type Store = { syncEnabled?: boolean };
 export const SyncEnabledSwitch: React.FC<P> = (props) => {
   const { repo, localstorage } = props;
   const peerId = repo?.id.peer ?? '';
-  const peerParts = peerId.split('.');
+  const peerParts = peerId.split('-');
   const urls = repo?.sync.urls ?? [];
 
   /**
@@ -75,10 +75,10 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     <React.Fragment>
       <span className={styles.label.class}>{'•'}</span>
       <div className={styles.peer.class}>
-        <span className={styles.label.class}>{`crdt.${peerParts.slice(0, -1)}.`}</span>
+        <span className={styles.label.class}>{`${peerParts.slice(0, -1).join('-')}-`}</span>
         <span>{peerParts.slice(-1)}</span>
       </div>
-      <Icons.Person color={theme.fg} size={16} opacity={0.3} />
+      <Icons.Person color={theme.fg} size={16} opacity={1} />
     </React.Fragment>
   );
 
@@ -103,7 +103,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
           }}
         />
         <span className={styles.label.class}>{'network:'}</span>
-        <div className={styles.address.class}>{enabled && elUrls ? elUrls : `private`}</div>
+        <div className={styles.address.class}>{enabled && elUrls ? elUrls : `privacy on`}</div>
         {elPeer}
       </div>
     </div>
