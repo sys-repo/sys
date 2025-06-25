@@ -8,22 +8,21 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
   /**
    * Memoised inputs.
    */
-  const zoom = useMemo<Partial<t.MediaZoomValues> | undefined>(
-    () => options.zoom,
-    [Obj.hash(options.zoom)],
-  );
-
   const deps = [Is.mediaStream(streamOrConstraints) ? 0 : Obj.hash(streamOrConstraints)];
   const input = {
     constraints: useMemo<MediaStreamConstraints | undefined>(() => {
       if (Is.mediaStream(streamOrConstraints)) return undefined;
       return streamOrConstraints ?? D.constraints;
     }, deps),
-
     stream: useMemo<MediaStream | undefined>(() => {
       return Is.mediaStream(streamOrConstraints) ? streamOrConstraints : undefined;
     }, deps),
   } as const;
+
+  const zoom = useMemo<Partial<t.MediaZoomValues> | undefined>(
+    () => options.zoom,
+    [Obj.hash(options.zoom)],
+  );
 
   /**
    * Hooks:
