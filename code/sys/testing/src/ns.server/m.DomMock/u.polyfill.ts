@@ -1,7 +1,6 @@
 import { Window } from 'happy-dom';
 import type { t } from '../common.ts';
 
-const g = globalThis as any;
 let _window: Window | undefined;
 
 const ORIGINAL = {
@@ -14,16 +13,20 @@ const ORIGINAL = {
  */
 export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
   const { url = 'http://localhost:1234' } = options;
-  const window = _window || (_window = new Window({ url }));
-  g.window = window;
-  g.document = window.document;
+  const win = _window || (_window = new Window({ url }));
+  Object.assign(globalThis, {
+    window: win,
+    document: win.document,
+    MediaStream: win.MediaStream,
+    MediaStreamTrack: win.MediaStreamTrack,
+  });
 };
 
 /**
  * Returns the `globalThis` to it's original state.
  */
 export const unpolyfill: t.DomMockLib['polyfill'] = () => {
-  g.window = ORIGINAL.window;
-  g.document = ORIGINAL.document;
+  globalThis.window = ORIGINAL.window;
+  globalThis.document = ORIGINAL.document;
   _window = undefined;
 };
