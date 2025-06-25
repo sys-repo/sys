@@ -66,7 +66,7 @@ export function createDebugSignals() {
    */
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
-    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
+    network: [{ ws: 'sync.db.team' }],
   });
 
   const props = {
@@ -160,7 +160,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `doc: increment`}
+        label={() => `count: increment`}
         onClick={() => {
           const doc = p.doc.value;
           doc?.change((d) => d.count++);
@@ -253,7 +253,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elTmp = (
     <Button
       block
-      label={() => `🐷 ƒ: maintainDyadConnection`}
+      label={() => `🐷 ƒ: maintainDyadConnection( 🌳..🌳 )`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;

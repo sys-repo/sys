@@ -25,8 +25,8 @@ export function createDebugSignals() {
   const snap = store.current;
 
   const repo = Crdt.repo({
-    storage: { database: 'dev:slc.crdt' },
-    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
+    storage: { database: 'dev.slc.crdt' },
+    network: { ws: 'sync.db.team' },
   });
 
   const props = {
@@ -93,7 +93,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `project.count: increment`}
+        label={() => `count: increment`}
         onClick={() => {
           const doc = p.doc.value;
           doc?.change((d) => d.count++);

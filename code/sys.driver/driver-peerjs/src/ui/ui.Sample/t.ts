@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type SampleProps = {
   doc?: t.CrdtRef<t.SampleDoc>;
-  peerjs?: t.PeerJS.Peer;
+  peer?: t.PeerJS.Peer;
   remoteStream?: MediaStream;
 
   debug?: boolean;

@@ -73,7 +73,7 @@ export default Spec.describe(D.displayName, (e) => {
               debug={p.debug.value}
               theme={p.theme.value}
               //
-              peerjs={debug.peer}
+              peer={debug.peer}
               doc={p.doc.value}
               remoteStream={p.remoteStream.value}
               //
