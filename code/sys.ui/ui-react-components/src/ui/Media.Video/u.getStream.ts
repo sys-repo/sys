@@ -25,6 +25,11 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
     : streamOrConstraints;
 
   /**
+   * (Early Edit): no filter/zoom ➜ simply reuse the raw stream.
+   */
+  if (!filter && !filter) return { raw, filtered: raw };
+
+  /**
    * Create hidden Video + Canvas elements.
    */
   const video = Object.assign(document.createElement('video'), {
