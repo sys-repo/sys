@@ -27,6 +27,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
   /**
    * Hooks:
    */
+  const [ready, setReady] = useState(false);
   const [filtered, setFiltered] = useState<MediaStream>();
   const [raw, setRaw] = useState<MediaStream>();
   const [error, setError] = useState<t.StdError>();
@@ -38,22 +39,27 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
   useEffect(() => {
     const life = rx.lifecycle();
 
-    (async () => {
+    async function run() {
       try {
         const res = await getStream(input.stream ?? input.constraints, { filter, zoom });
         if (life.disposed) return;
 
+        const merged = withAudio(res.raw, res.filtered);
+
         setRaw(res.raw);
-        setFiltered(res.filtered);
-        setAspectRatio(AspectRatio.toString(res.filtered));
+        setFiltered(merged);
+        setAspectRatio(AspectRatio.toString(merged));
+        setReady(true);
       } catch (err) {
         console.error(err);
         if (!life.disposed) setError(Err.std(err));
       }
-    })();
+    }
 
+    run();
     return () => {
       filtered?.getTracks().forEach((t) => t.stop());
+      setReady(false);
       return life.dispose();
     };
   }, [input.constraints, input.stream, filter, zoom]);
@@ -62,9 +68,22 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
    * API:
    */
   const api: t.VideoStreamHook = {
-    stream: { raw, filtered },
+    ready,
+    get stream() {
+      return { raw, filtered: ready ? filtered : undefined };
+    },
     aspectRatio,
     error,
   };
   return api;
+};
+
+/**
+ * Helpers:
+ */
+const withAudio = (origin: MediaStream, target: MediaStream): MediaStream => {
+  if (target.getAudioTracks().length === 0) {
+    origin.getAudioTracks().forEach((t) => target.addTrack(t.clone()));
+  }
+  return target;
 };
