@@ -32,7 +32,7 @@ export function createPeer() {
   console.info(`connecting: ${peerId}...`);
 
   const peerOptions: PeerOptions = {
-    host: 'rtc.db.team',
+    host: 'webrtc.db.team',
     port: 443, //       ← Force HTTPS.
     secure: true, //    ← TLS (Transport Layer Security).
     debug: 2, //        ← 0 = silent, 1 = errors, 2 = warnings+errors, 3 = all.
