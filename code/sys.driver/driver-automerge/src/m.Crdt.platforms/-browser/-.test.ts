@@ -54,7 +54,7 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
       expect(a.id.instance).to.not.eql(b.id.instance);
 
       expect(a.id.peer).to.eql(''); // ← no network...no peer-id.
-      expect(b.id.peer.startsWith('peer.')).to.be.true;
+      expect(b.id.peer.startsWith('crdt-peer-')).to.be.true;
     });
   });
 

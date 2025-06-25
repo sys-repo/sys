@@ -12,7 +12,7 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
     const dir = `.tmp/test/${slug()}.crdt`;
     const port = Testing.randomPort();
     const res = await Server.ws({ dir, port });
-    expect(res.repo.id.peer.startsWith('peer.')).to.eql(true);
+    expect(res.repo.id.peer.startsWith('crdt-peer-')).to.be.true;
 
     await Time.wait(50);
     expect(await Fs.exists(dir)).to.eql(true);
