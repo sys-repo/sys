@@ -36,7 +36,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   }, []);
 
   /**
-   * [Render]
+   * Render:
    */
   const styles = {
     base: css({
