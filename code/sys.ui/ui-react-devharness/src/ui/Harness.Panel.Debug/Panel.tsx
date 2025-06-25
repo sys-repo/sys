@@ -24,7 +24,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   const isHidden = width <= 0;
 
   /**
-   * Common styling for children.
+   * (Cascade): CSS styling for common <html> child elements:
    */
   React.useEffect(() => {
     const sheet = Style.Dom.stylesheet();
