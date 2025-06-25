@@ -7,13 +7,13 @@ import {
   D,
   Is,
   LocalStorage,
-  Obj,
+  Media,
   ObjectView,
   Signal,
   slug,
   type t,
 } from '../common.ts';
-import { maintainDyadConnection, Conn } from '../u.ts';
+import { Conn } from '../u.ts';
 
 type P = t.SampleProps;
 
@@ -265,22 +265,23 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
 
         if (!dyad || !localStream) return;
 
-        // const dyad =
-        console.group(`🌳 maintainDyadConnection/args:`);
-        console.log('peer', peer);
-        console.log('dyad', dyad);
-        console.log('localStream', localStream);
-        console.groupEnd();
-
         const res = Conn.maintainDyadConnection({
           peer,
           dyad,
           localStream,
           onRemoteStream(e) {
-            console.log('⚡️ onRemoteStream', e);
+            console.info('⚡️ onRemoteStream', e);
+            Media.Log.tracks(`- remote (${e.remote.peer}):`, e.remote.stream);
             p.remoteStream.value = e.remote.stream;
           },
         });
+
+        console.group(`🌳 maintainDyadConnection/args:`);
+        console.log('peer:', peer);
+        console.log('dyad:', [...dyad]);
+        console.log('localStream:', localStream);
+        console.log('res:', res);
+        console.groupEnd();
       }}
     />
   );

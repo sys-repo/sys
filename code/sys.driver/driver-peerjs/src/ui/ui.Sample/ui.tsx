@@ -8,7 +8,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
    * Hooks:
    */
   const readyRef = React.useRef(false);
-  const [selfStream, setSelfStream] = React.useState<MediaStream>();
+  const [localStream, setLocalStream] = React.useState<MediaStream>();
 
   /**
    * Effects:
@@ -19,13 +19,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
    * Effect: Ready.
    */
   React.useEffect(() => {
-    if (!selfStream || !peer) return;
+    if (!localStream || !peer) return;
     if (readyRef.current) return;
     readyRef.current = true;
 
-    const self = { stream: selfStream, peer: peer.id };
+    const self = { stream: localStream, peer: peer.id };
     props.onReady?.({ self });
-  }, [!!selfStream, !!peer]);
+  }, [!!localStream, !!peer]);
 
   /**
    * Render:
@@ -81,9 +81,12 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         style={styles.video.stream}
         aspectRatio={'16/9'}
         borderRadius={10}
+        muted={true}
         onReady={(e) => {
           console.info(`⚡️ MediaStream.onReady:`, e);
-          setSelfStream(e.stream.filtered);
+          Media.Log.tracks('- stream.raw:', e.stream.raw);
+          Media.Log.tracks('- stream.filtered:', e.stream.filtered);
+          setLocalStream(e.stream.filtered);
         }}
       />
       <div className={styles.video.border.class} />
@@ -97,9 +100,10 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         aspectRatio={'16/9'}
         borderRadius={10}
         stream={remoteStream}
+        muted={false}
         onReady={(e) => {
           console.info(`⚡️ MediaStream.onReady:`, e);
-          setSelfStream(e.stream.filtered);
+          setLocalStream(e.stream.filtered);
         }}
       />
       <div className={styles.video.border.class} />
