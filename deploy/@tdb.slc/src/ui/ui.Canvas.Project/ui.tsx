@@ -44,14 +44,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   const elObject = doc && debug && (
     <div className={styles.debugObj.base.class}>
       <div className={styles.debugObj.body.class}>
-        <ObjectView
-          //
-          name={'slc.project'}
-          data={doc?.current}
-          theme={theme.name}
-          expand={0}
-          // style={styles.debugObj}
-        />
+        <ObjectView name={'doc'} data={doc?.current} theme={theme.name} expand={1} />
       </div>
     </div>
   );
