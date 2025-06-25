@@ -1,11 +1,12 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, Spec } from '../../-test.ui.ts';
 
-import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
+import { type t, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   function DocumentId(props: t.DocumentIdProps) {
@@ -26,14 +27,36 @@ export default Spec.describe(D.displayName, (e) => {
     );
   }
 
-  function Footer(props: { theme?: t.CommonTheme }) {
+  function DebugFooter() {
+    const theme = Color.theme('Light');
+    const styles = {
+      base: css({ borderTop: `solid 10px ${Color.alpha(theme.fg, 0.15)}` }),
+      title: css({ fontSize: 20, padding: 20 }),
+    };
+    return (
+      <div className={styles.base.class}>
+        <div className={styles.title.class}>{'Social Lean Canvas: Project'}</div>
+      </div>
+    );
+  }
+
+  function HostFooter() {
+    const theme = Color.theme(p.theme.value);
     const styles = {
       base: css({
-        fontSize: 20,
-        padding: 20,
+        borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.15)}`,
+        padding: 12,
       }),
     };
-    return <div className={styles.base.class}>Social Lean Canvas: Project</div>;
+    return (
+      <div className={styles.base.class}>
+        <Crdt.UI.Repo.SyncEnabledSwitch
+          theme={p.theme.value}
+          repo={repo}
+          localstorage={STORAGE_KEY.DEV}
+        />
+      </div>
+    );
   }
 
   e.it('init', (e) => {
@@ -44,17 +67,19 @@ export default Spec.describe(D.displayName, (e) => {
       debug.listen();
       ctx.redraw();
     });
+    Signal.effect(() => {
+      const showing = p.showEditorPanel.value;
+      ctx.debug.padding(showing ? 0 : 15).scroll(!showing);
+    });
 
     ctx.subject
       .size([550, 420])
       .display('grid')
       .render(() => {
-        const theme = Color.theme(p.theme.value);
         const styles = {
           base: css({ position: 'relative', display: 'grid' }),
           docId: css({ Absolute: [-30, 0, null, 0] }),
         };
-
         return (
           <div className={styles.base.class}>
             <DocumentId style={styles.docId} />
@@ -63,10 +88,8 @@ export default Spec.describe(D.displayName, (e) => {
         );
       });
 
-    ctx.debug.footer
-      .padding(0)
-      .border(-0.1)
-      .render(() => <Footer />);
+    ctx.debug.footer.padding(0).render(() => <DebugFooter />);
+    ctx.host.footer.padding(0).render(() => <HostFooter />);
   });
 
   e.it('ui:debug', (e) => {

@@ -7,6 +7,7 @@ import {
   MdChevronRight,
   MdErrorOutline,
   MdOutlineAddBox,
+  MdClose,
 } from 'react-icons/md';
 import { PiProjectorScreenLight } from 'react-icons/pi';
 import { RiEmotionSadLine } from 'react-icons/ri';
@@ -18,6 +19,7 @@ export { icon };
  * Icon collection:
  */
 export const Icons = {
+  Close: icon(MdClose),
   Error: icon(MdErrorOutline),
   Add: { Plus: icon(MdAdd), Square: icon(MdOutlineAddBox) },
   Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },
