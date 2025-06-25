@@ -1,46 +1,63 @@
 import { useEffect, useMemo, useState } from 'react';
-import { type t, AspectRatio, D, Err, Obj } from './common.ts';
+import { type t, AspectRatio, D, Err, Is, Obj, rx } from './common.ts';
 import { getStream } from './u.getStream.ts';
 
-export const useVideoStream: t.UseVideoStream = (args) => {
-  const { filter } = args;
+export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = {}) => {
+  const { filter } = options;
+
+  /**
+   * Memoised inputs.
+   */
   const zoom = useMemo<Partial<t.MediaZoomValues> | undefined>(
-    () => args.zoom,
-    [Obj.hash(args.zoom)],
-  );
-  const constraints = useMemo<MediaStreamConstraints>(
-    () => args.constraints ?? D.constraints,
-    [Obj.hash(args.constraints)],
+    () => options.zoom,
+    [Obj.hash(options.zoom)],
   );
 
+  const deps = [Is.mediaStream(streamOrConstraints) ? 0 : Obj.hash(streamOrConstraints)];
+  const input = {
+    constraints: useMemo<MediaStreamConstraints | undefined>(() => {
+      if (Is.mediaStream(streamOrConstraints)) return undefined;
+      return streamOrConstraints ?? D.constraints;
+    }, deps),
+
+    stream: useMemo<MediaStream | undefined>(() => {
+      return Is.mediaStream(streamOrConstraints) ? streamOrConstraints : undefined;
+    }, deps),
+  } as const;
+
+  /**
+   * Hooks:
+   */
   const [filtered, setFiltered] = useState<MediaStream>();
   const [raw, setRaw] = useState<MediaStream>();
   const [error, setError] = useState<t.StdError>();
   const [aspectRatio, setAspectRatio] = useState<string>('');
 
   /**
-   * Effect: retrieve stream.
+   * Effect: acquire / transform stream.
    */
   useEffect(() => {
-    let cancelled = false;
+    const life = rx.lifecycle();
 
-    getStream(constraints, { filter, zoom })
-      .then(async (e) => {
-        if (cancelled) return;
-        setFiltered(e.filtered);
-        setRaw(e.raw);
-        setAspectRatio(AspectRatio.toString(e.filtered));
-      })
-      .catch((err: unknown) => {
+    (async () => {
+      try {
+        const res = await getStream(input.stream ?? input.constraints, { filter, zoom });
+        if (life.disposed) return;
+
+        setRaw(res.raw);
+        setFiltered(res.filtered);
+        setAspectRatio(AspectRatio.toString(res.filtered));
+      } catch (err) {
         console.error(err);
-        if (!cancelled) setError(Err.std(err));
-      });
+        if (!life.disposed) setError(Err.std(err));
+      }
+    })();
 
     return () => {
-      cancelled = true;
       filtered?.getTracks().forEach((t) => t.stop());
+      return life.dispose();
     };
-  }, [constraints, filter, zoom]);
+  }, [input.constraints, input.stream, filter, zoom]);
 
   /**
    * API:

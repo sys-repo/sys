@@ -23,7 +23,7 @@ export type MediaVideoLib = {
    *   • original audio track(s) from the raw camera.
    */
   getStream(
-    constraints?: MediaStreamConstraints,
+    constraints?: MediaStreamConstraints | MediaStream,
     options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
   ): Promise<{ raw: MediaStream; filtered: MediaStream }>;
 
@@ -43,10 +43,12 @@ export type MediaVideoLib = {
 export type MediaVideoStreamProps = {
   debug?: boolean;
 
-  /** Any CSS filter string: e.g. 'brightness(120%) hue-rotate(90deg)' */
-  filter?: string;
   /** Media constraints for `getUserMedia`. Defaults: `{ video: true, audio: true }`. */
   constraints?: MediaStreamConstraints;
+  /** Optionally provide the raw stream. The filtered derivative stream is still calculated. */
+  stream?: MediaStream;
+  /** Any CSS filter string: e.g. 'brightness(120%) hue-rotate(90deg)' */
+  filter?: string;
   /** Options for applying a zoom effect to the media-stream. */
   zoom?: Partial<t.MediaZoomValues>;
 
@@ -67,16 +69,13 @@ export type MediaVideoStreamProps = {
 /**
  * Hook: Acquire/cleanup device media with visual filter pass-through via <canvas>.
  */
-export type UseVideoStream = (args: {
-  constraints?: MediaStreamConstraints;
-  filter?: string;
-  zoom?: Partial<t.MediaZoomValues>;
-}) => VideoStreamHook;
+export type UseVideoStream = (
+  streamOrConstraints?: MediaStreamConstraints | MediaStream,
+  options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
+) => VideoStreamHook;
+
 export type VideoStreamHook = {
-  readonly stream: {
-    readonly filtered?: MediaStream;
-    readonly raw?: MediaStream;
-  };
+  readonly stream: { readonly filtered?: MediaStream; readonly raw?: MediaStream };
   readonly aspectRatio: string;
   readonly device?: MediaDeviceInfo;
   readonly error?: t.StdError;

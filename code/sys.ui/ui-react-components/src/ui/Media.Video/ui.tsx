@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+
 import { type t, Color, css, D, rx } from './common.ts';
 import { getDevice } from './u.getDevice.ts';
 import { useVideoStream } from './use.VideoStream.ts';
@@ -13,7 +14,10 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
     zoom,
   } = props;
 
-  const video = useVideoStream({ constraints, filter, zoom });
+  /**
+   * Hooks:
+   */
+  const video = useVideoStream(props.stream ?? constraints, { filter, zoom });
 
   /**
    * Effect: fire onReady when stream acquired.

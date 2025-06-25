@@ -35,12 +35,19 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
             borderRadius={p.borderRadius.value}
             aspectRatio={p.aspectRatio.value}
             zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
+            stream={p.stream.value}
             constraints={{
               audio: true,
               video: { deviceId: p.selectedCamera.value?.deviceId },
             }}
             onReady={(e) => {
               console.info(`⚡️ Media.Video.onReady:`, e);
+              console.table({
+                raw: e.stream.raw?.id,
+                filtered: e.stream.filtered?.id,
+              });
+
+              // Update signal state:
               p.selectedCamera.value = e.device;
               // p.aspectRatio.value = e.aspectRatio;
             }}

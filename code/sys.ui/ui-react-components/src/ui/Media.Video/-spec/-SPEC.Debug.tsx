@@ -25,22 +25,23 @@ export function createDebugSignals() {
     filters: Filters.values(Obj.keys(Filters.config)),
     zoom: Zoom.values(Obj.keys(Zoom.config)),
   } as const;
+
   const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
+  const snap = localstore.current;
 
   const s = Signal.create;
   const props = {
     debug: s(false),
     selectedCamera: s<MediaDeviceInfo>(),
-    config: {
-      filters: s(localstore.current.filters),
-      zoom: s(localstore.current.zoom),
-    },
+    configFilters: s(snap.filters),
+    configZoom: s(snap.zoom),
 
     theme: s<P['theme']>('Dark'),
-    filter: s<P['filter']>(Filters.toString(localstore.current.filters)),
-    zoom: s<P['zoom']>(localstore.current.zoom),
+    filter: s<P['filter']>(Filters.toString(snap.filters)),
+    zoom: s<P['zoom']>(snap.zoom),
     borderRadius: s<P['borderRadius']>(),
     aspectRatio: s<P['aspectRatio']>(),
+    stream: s<P['stream']>(),
   };
   const p = props;
 
@@ -48,16 +49,9 @@ export function createDebugSignals() {
     props,
     localstore,
     listen() {
-      p.debug.value;
-      p.selectedCamera.value;
-      p.config.filters.value;
-      p.config.zoom.value;
-
-      p.theme.value;
-      p.filter.value;
-      p.zoom.value;
-      p.borderRadius.value;
-      p.aspectRatio.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
   return api;
@@ -99,8 +93,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Media.Config.Filters.UI.List
         style={{ margin: 20 }}
-        values={p.config.filters.value}
-        onChange={(e) => (p.config.filters.value = e.values)}
+        values={p.configFilters.value}
+        onChange={(e) => (p.configFilters.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
@@ -111,8 +105,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Media.Config.Zoom.UI.List
         style={{ margin: 20 }}
-        values={p.config.zoom.value}
-        onChange={(e) => (p.config.zoom.value = e.values)}
+        values={p.configZoom.value}
+        onChange={(e) => (p.configZoom.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Zoom.onChanged:', e);
           debug.localstore.change((d) => (d.zoom = e.values));
@@ -130,6 +124,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `stream (raw): ${p.stream.value?.id}`}
+        onClick={async () => {
+          const stream = await navigator.mediaDevices.getUserMedia(D.constraints);
+          console.log('stream', stream);
+          p.stream.value = stream;
+        }}
       />
 
       <hr />
@@ -154,7 +157,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {filterSampleButtons(p.filter)}
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug.props)} expand={['$']} />
+      <ObjectView name={'debug'} data={Signal.toObject(debug.props)} expand={0} />
     </div>
   );
 };
