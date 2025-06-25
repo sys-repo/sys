@@ -14,6 +14,7 @@ export type MediaLib = {
   readonly Config: t.MediaConfigLib;
   readonly AspectRatio: t.MediaAspectRatioLib;
   readonly Is: t.MediaIsLib;
+  readonly Log: t.MediaLogLib;
 
   // Helper methods:
   download(blob?: Blob, filename?: string): void;
@@ -33,4 +34,11 @@ export type MediaAspectRatioLib = {
 export type MediaIsLib = {
   mediaStream(input?: unknown): input is MediaStream;
   constraints(input?: unknown): input is MediaStreamConstraints;
+};
+
+/**
+ * Helpers for logging Media.
+ */
+export type MediaLogLib = {
+  tracks(label: string, stream?: MediaStream): void;
 };
