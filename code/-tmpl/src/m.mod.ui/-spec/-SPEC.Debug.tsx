@@ -2,13 +2,13 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
+type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
  * Signals:
