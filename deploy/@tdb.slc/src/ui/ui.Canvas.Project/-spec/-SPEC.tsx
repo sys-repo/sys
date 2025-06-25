@@ -30,7 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
   function DebugFooter() {
     const theme = Color.theme('Light');
     const styles = {
-      base: css({ borderTop: `solid 10px ${Color.alpha(theme.fg, 0.15)}` }),
+      base: css({ borderTop: `solid 10px ${Color.alpha(theme.fg, 0.08)}` }),
       title: css({ fontSize: 20, padding: 20 }),
     };
     return (

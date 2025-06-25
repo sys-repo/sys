@@ -1,4 +1,6 @@
 import React from 'react';
+import { Monaco } from '@sys/driver-monaco';
+
 import { type t, Button, Color, Crdt, css, Icons } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
@@ -22,7 +24,10 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid', gridTemplateRows: 'auto 1fr' }),
-    body: css({ position: 'relative' }),
+    body: css({
+      position: 'relative',
+      display: 'grid',
+    }),
     desc: {
       base: css({
         position: 'relative',
@@ -62,7 +67,9 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
         />
         {elCloseButton}
       </div>
-      <div className={styles.body.class}></div>
+      <div className={styles.body.class}>
+        <Monaco.Editor theme={theme.name} minimap={false} language={'yaml'} />
+      </div>
     </div>
   );
 };

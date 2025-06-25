@@ -21,7 +21,7 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
-    showEditorPanel: false,
+    showEditorPanel: true,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
