@@ -1,10 +1,11 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D, Crdt } from '../common.ts';
+import { type t, D, Crdt, STORAGE_KEY } from '../common.ts';
 import { Repo } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
@@ -33,6 +34,13 @@ export default Spec.describe(D.displayName, (e) => {
             }}
           />
         );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(10)
+      .render(() => {
+        return <Repo.SyncEnabledSwitch repo={repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
       });
   });
 

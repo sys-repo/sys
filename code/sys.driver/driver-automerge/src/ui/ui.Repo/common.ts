@@ -14,3 +14,10 @@ export const DEFAULTS = {
   silent: false,
 } as const;
 export const D = DEFAULTS;
+
+export const STORAGE_KEY = {
+  DEV: {
+    SPEC: `dev:${D.name}`,
+    SUBJECT: `dev:${D.name}.subject`,
+  },
+} as const;

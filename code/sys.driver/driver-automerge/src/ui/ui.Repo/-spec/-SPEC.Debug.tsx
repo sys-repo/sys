@@ -1,5 +1,15 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Crdt,
+  css,
+  D,
+  LocalStorage,
+  ObjectView,
+  Signal,
+  STORAGE_KEY,
+} from '../common.ts';
 
 /**
  * Types:
@@ -13,11 +23,6 @@ type Storage = {
   localstorage?: string;
 };
 
-const STORAGE_KEY = {
-  SPEC: `dev:${D.name}`,
-  SUBJECT: `dev:${D.name}.subject`,
-};
-
 /**
  * Signals:
  */
@@ -28,9 +33,9 @@ export function createDebugSignals() {
     theme: 'Dark',
     debug: false,
     noRepo: false,
-    localstorage: STORAGE_KEY.SUBJECT,
+    localstorage: STORAGE_KEY.DEV.SUBJECT,
   };
-  const store = LocalStorage.immutable<Storage>(STORAGE_KEY.SPEC, defaults);
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
 
   const repo = Crdt.repo({
@@ -123,7 +128,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => {
           const s = p.localstorage;
-          s.value = s.value ? undefined : STORAGE_KEY.SUBJECT;
+          s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
         }}
       />
 
