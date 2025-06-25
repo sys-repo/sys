@@ -6,6 +6,7 @@ import {
   Color,
   ErrorBoundary,
   css,
+  pkg,
   useBusController,
   useRubberband,
   useSizeObserver,
@@ -84,7 +85,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   return (
     <div
       ref={baseRef}
-      data-component={'sys.ui.dev.harness'}
+      data-component={`${pkg.name}:Harness`}
       className={css(styles.reset, styles.base, props.style).class}
     >
       {elBody}
