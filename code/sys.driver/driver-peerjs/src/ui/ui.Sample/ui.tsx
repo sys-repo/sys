@@ -2,13 +2,12 @@ import React from 'react';
 import { type t, Color, Crdt, css, D, Media, ObjectView } from './common.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
-  const { debug = false, doc, peerjs, remoteStream } = props;
+  const { debug = false, doc, peer, remoteStream } = props;
 
   /**
    * Hooks:
    */
   const readyRef = React.useRef(false);
-  const remoteVideoRef = React.useRef<HTMLVideoElement>(null);
   const [selfStream, setSelfStream] = React.useState<MediaStream>();
 
   /**
@@ -20,22 +19,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
    * Effect: Ready.
    */
   React.useEffect(() => {
+    if (!selfStream || !peer) return;
     if (readyRef.current) return;
-    if (!selfStream || !peerjs) return;
-
-    const self = { stream: selfStream, peer: peerjs.id };
-    props.onReady?.({ self });
-
     readyRef.current = true;
-  }, [!!selfStream, !!peerjs]);
 
-  /**
-   * Effect: Push the incoming stream onto the <video> element.
-   */
-  React.useEffect(() => {
-    const el = remoteVideoRef.current;
-    if (el && remoteStream) el.srcObject = remoteStream;
-  }, [remoteStream]);
+    const self = { stream: selfStream, peer: peer.id };
+    props.onReady?.({ self });
+  }, [!!selfStream, !!peer]);
 
   /**
    * Render:
@@ -78,7 +68,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       <ObjectView
         theme={theme.name}
         name={'debug'}
-        data={{ peerjs, room: doc?.current }}
+        data={{ peer, room: doc?.current }}
         style={styles.obj}
         expand={['$', '$.room', '$.room.connections', '$.room.connections.group']}
       />
@@ -100,9 +90,18 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     </div>
   );
 
-  const elRemote = props.remoteStream && (
+  const elRemote = remoteStream && (
     <div className={css(styles.video.base, { Absolute: [null, 20, 20, null] }).class}>
-      <video ref={remoteVideoRef} className={styles.video.stream.class} autoPlay playsInline />
+      <Media.Video.UI.Stream
+        style={styles.video.stream}
+        aspectRatio={'16/9'}
+        borderRadius={10}
+        stream={remoteStream}
+        onReady={(e) => {
+          console.info(`⚡️ MediaStream.onReady:`, e);
+          setSelfStream(e.stream.filtered);
+        }}
+      />
       <div className={styles.video.border.class} />
     </div>
   );
