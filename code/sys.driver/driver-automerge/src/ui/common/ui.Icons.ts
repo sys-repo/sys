@@ -1,6 +1,5 @@
 import { Icon } from '@sys/ui-react-components';
-import { TbNetwork } from 'react-icons/tb';
-import { TbNetworkOff } from 'react-icons/tb';
+import { LuCopy, LuCopyCheck, LuCopySlash } from 'react-icons/lu';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -11,11 +10,10 @@ import {
   MdEmojiPeople,
   MdErrorOutline,
   MdFace,
-  MdOutlineContentCopy,
-  MdWarning,
   MdSettingsInputAntenna,
+  MdWarning,
 } from 'react-icons/md';
-import { TbDatabase } from 'react-icons/tb';
+import { TbDatabase, TbNetwork, TbNetworkOff } from 'react-icons/tb';
 
 const icon = Icon.renderer;
 
@@ -29,8 +27,12 @@ export const Icons = {
     Up: icon(MdArrowUpward),
     Down: icon(MdArrowDownward),
   },
+  Copy: {
+    Basic: icon(LuCopy),
+    Tick: icon(LuCopyCheck),
+    Slash: icon(LuCopySlash),
+  },
   Database: icon(TbDatabase),
-  Copy: icon(MdOutlineContentCopy),
   Error: icon(MdErrorOutline),
   Warning: icon(MdWarning),
   Clear: icon(MdClose),

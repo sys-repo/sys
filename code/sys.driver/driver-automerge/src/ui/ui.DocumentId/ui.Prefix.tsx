@@ -79,7 +79,7 @@ const wrangle = {
 
   copyIcon(props: P) {
     const copied = wrangle.copied(props);
-    return copied ? Icons.Tick : Icons.Copy;
+    return copied ? Icons.Copy.Tick : Icons.Copy.Basic;
   },
   databaseIcon(props: P) {
     const error = props.icon === 'Error';
