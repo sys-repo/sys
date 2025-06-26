@@ -1,5 +1,5 @@
-import React from 'react';
 import { Monaco } from '@sys/driver-monaco';
+import React from 'react';
 
 import { type t, Button, Color, Crdt, css, Icons } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
@@ -17,6 +17,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const doc = p.doc.value;
+  const path = ['project', 'description'];
 
   /**
    * Render:
@@ -24,29 +25,15 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid', gridTemplateRows: 'auto 1fr' }),
-    body: css({
+    body: css({ position: 'relative', display: 'grid' }),
+    closeBtn: css({ Absolute: [4, 5, null, null] }),
+    desc: css({
       position: 'relative',
+      height: 100,
+      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
+      Padding: [8, 10],
       display: 'grid',
     }),
-    desc: {
-      base: css({
-        position: 'relative',
-        height: 80,
-        borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
-        Padding: [25, 10, 10, 10],
-        display: 'grid',
-      }),
-      label: css({
-        Absolute: [5, null, null, 10],
-        fontSize: 11,
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        userSelect: 'none',
-        opacity: 0.5,
-      }),
-      editor: css({ fontSize: 12, overflow: 'hidden' }),
-    },
-    closeBtn: css({ Absolute: [4, 5, null, null] }),
   };
 
   const elCloseButton = (
@@ -57,14 +44,8 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.desc.base.class}>
-        <div className={styles.desc.label.class}>{'Description'}</div>
-        <Crdt.UI.TextEditor
-          doc={doc}
-          path={['project', 'description']}
-          style={styles.desc.editor}
-          scroll={false}
-        />
+      <div className={styles.desc.class}>
+        <Crdt.UI.TextPanel label={'Description'} doc={doc} path={path} />
         {elCloseButton}
       </div>
       <div className={styles.body.class}>
