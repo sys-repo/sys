@@ -22,12 +22,19 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
   let _updating: t.Lifecycle | undefined;
   let _enabled = true;
 
+  const $$ = rx.subject<t.CrdtRepoChange>();
+
   const networks = repo.networkSubsystem.adapters;
   const peer = networks.length > 0 ? options.peerId ?? '' : '';
 
   const urls = networks
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
     .map((adapter: any) => adapter.url);
+
+  const cloneProps = () => {
+    const { id, sync } = api;
+    return { id, sync: { ...sync } };
+  };
 
   /**
    * API:
@@ -43,9 +50,12 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
       },
       set enabled(value) {
         if (value === _enabled) return;
+        const before = cloneProps();
         _enabled = value;
         _updating?.dispose?.();
         _updating = updateConnected(networks, peer, value);
+        const after = cloneProps();
+        $$.next({ before, after });
       },
     },
 
@@ -81,6 +91,12 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
           return fail(wrangle.error('UNKNOWN', err));
         }
       });
+    },
+
+    events(dispose$) {
+      const life = rx.lifecycle(dispose$);
+      const $ = $$.pipe(rx.takeUntil(life.dispose$));
+      return rx.toLifecycle<t.CrdtRepoEvents>(life, { $ });
     },
   };
 

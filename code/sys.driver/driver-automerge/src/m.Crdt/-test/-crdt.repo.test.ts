@@ -1,7 +1,8 @@
 import { Repo } from '@automerge/automerge-repo';
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 
-import { Time, describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it, rx, Time } from '../../-test.ts';
+import { Crdt } from '../../m.Server/common.ts';
 import { toAutomergeRepo, toRepo } from '../u.repo.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -15,72 +16,120 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 
-  it('create (doc)', () => {
-    const repo = toRepo(new Repo());
-    expect(repo.id.peer).to.eql('');
-    expect(repo.id.instance).to.be.a('string');
+  describe('create', () => {
+    it('create (doc)', () => {
+      const repo = toRepo(new Repo());
+      expect(repo.id.peer).to.eql('');
+      expect(repo.id.instance).to.be.a('string');
 
-    const initial = { count: 0 };
-    const doc = repo.create<T>(initial);
-    expect(doc.current).to.eql(initial);
-    expect(doc.current).to.not.equal(initial);
+      const initial = { count: 0 };
+      const doc = repo.create<T>(initial);
+      expect(doc.current).to.eql(initial);
+      expect(doc.current).to.not.equal(initial);
+    });
+
+    it('create (doc) → initial as function', () => {
+      const repo = toRepo(new Repo());
+      const initial: T = { count: 1234 };
+      const doc = repo.create<T>(() => initial);
+      expect(doc.current).to.eql(initial);
+      expect(doc.current).to.not.equal(initial);
+    });
+
+    it('creates with  { peerId }', () => {
+      const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
+      const peerId = 'foo:bar';
+      const a = toRepo(new Repo(), { peerId });
+      const b = toRepo(new Repo({ network }), { peerId });
+      expect(a.id.peer).to.eql(''); // NB: no network.
+      expect(b.id.peer).to.eql(peerId);
+    });
   });
 
-  it('create (doc) → initial as function', () => {
-    const repo = toRepo(new Repo());
-    const initial: T = { count: 1234 };
-    const doc = repo.create<T>(() => initial);
-    expect(doc.current).to.eql(initial);
-    expect(doc.current).to.not.equal(initial);
+  describe('get', () => {
+    it('get', async () => {
+      const base = new Repo();
+      const repoA = toRepo(base);
+      const repoB = toRepo(base);
+      const a = repoA.create<T>({ count: 0 });
+      expect(a.current).to.eql({ count: 0 });
+
+      const b = (await repoB.get<T>(` ${a.id}   `)).doc!; // NB: test input address cleanup.
+      expect(a).to.not.equal(b); // NB: difference repo (not-cached).
+      expect(a.id).to.eql(b.id);
+      expect(a.instance).to.not.eql(b.instance);
+
+      a.change((d) => (d.count = 1234));
+      expect(b.current.count).to.eql(1234);
+    });
+
+    it('get: automerge-URL', async () => {
+      const repo = toRepo(new Repo());
+      const a = repo.create<T>({ count: 0 });
+      const b = (await repo.get<T>(`automerge:${a.id}`)).doc!;
+      expect(b.instance).to.not.eql(a.instance);
+      expect(b.id).to.eql(a.id);
+      expect(b.current).to.eql({ count: 0 });
+    });
+
+    it('sync between different doc/ref instances', async () => {
+      const base = new Repo();
+      const repoA = toRepo(base);
+      const repoB = toRepo(base);
+      const a = repoA.create<T>({ count: 0 });
+      const b = (await repoB.get<T>(a.id)).doc!;
+      expect(a.instance).to.not.eql(b.instance);
+
+      expect(a).to.not.equal(b);
+      expect(a.current).to.eql(b.current);
+
+      a.change((d) => d.count++);
+      expect(a.current).to.eql(b.current);
+    });
   });
 
-  it('creates with  { peerId }', () => {
-    const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
-    const peerId = 'foo:bar';
-    const a = toRepo(new Repo(), { peerId });
-    const b = toRepo(new Repo({ network }), { peerId });
-    expect(a.id.peer).to.eql(''); // NB: no network.
-    expect(b.id.peer).to.eql(peerId);
-  });
+  describe('events:', () => {
+    it('events.dispose', () => {
+      const life = rx.lifecycle();
+      const repo = Crdt.repo();
+      const a = repo.events();
+      const b = repo.events(life.dispose$);
 
-  it('get', async () => {
-    const base = new Repo();
-    const repoA = toRepo(base);
-    const repoB = toRepo(base);
-    const a = repoA.create<T>({ count: 0 });
-    expect(a.current).to.eql({ count: 0 });
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(false);
 
-    const b = (await repoB.get<T>(` ${a.id}   `)).doc!; // NB: test input address cleanup.
-    expect(a).to.not.equal(b); // NB: difference repo (not-cached).
-    expect(a.id).to.eql(b.id);
-    expect(a.instance).to.not.eql(b.instance);
+      life.dispose();
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(true);
 
-    a.change((d) => (d.count = 1234));
-    expect(b.current.count).to.eql(1234);
-  });
+      a.dispose();
+      expect(a.disposed).to.eql(true);
+    });
 
-  it('get: automerge-URL', async () => {
-    const repo = toRepo(new Repo());
-    const a = repo.create<T>({ count: 0 });
-    const b = (await repo.get<T>(`automerge:${a.id}`)).doc!;
-    expect(b.instance).to.not.eql(a.instance);
-    expect(b.id).to.eql(a.id);
-    expect(b.current).to.eql({ count: 0 });
-  });
+    it('events.sync$', () => {
+      const repo = Crdt.repo({ network: { ws: 'sync.db.team' } });
+      const events = repo.events();
 
-  it('syncing between different instances', async () => {
-    const base = new Repo();
-    const repoA = toRepo(base);
-    const repoB = toRepo(base);
-    const a = repoA.create<T>({ count: 0 });
-    const b = (await repoB.get<T>(a.id)).doc!;
-    expect(a.instance).to.not.eql(b.instance);
+      const fired: t.CrdtRepoChange[] = [];
+      events.$.subscribe((e) => fired.push(e));
 
-    expect(a).to.not.equal(b);
-    expect(a.current).to.eql(b.current);
+      repo.sync.enabled = false; // ← trigger event
+      expect(fired.length).to.eql(1);
 
-    a.change((d) => d.count++);
-    expect(a.current).to.eql(b.current);
+      expect(fired[0].before.id).to.eql(fired[0].after.id);
+      expect(fired[0].before.sync.urls).to.eql(fired[0].after.sync.urls);
+      expect(fired[0].before.sync.enabled).to.eql(true);
+      expect(fired[0].after.sync.enabled).to.eql(false);
+
+      repo.sync.enabled = true;
+      expect(fired.length).to.eql(2);
+      repo.sync.enabled = true;
+      expect(fired.length).to.eql(2);
+      events.dispose();
+
+      repo.sync.enabled = false;
+      expect(fired.length).to.eql(2); // no more events (disposed).
+    });
   });
 
   describe('sync (network)', () => {
