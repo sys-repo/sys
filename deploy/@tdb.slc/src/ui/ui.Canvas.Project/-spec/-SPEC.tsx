@@ -3,6 +3,7 @@ import { Dev, Spec } from '../../-test.ui.ts';
 import { type t, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { HostFooter } from './-ui.HostFooter.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -40,25 +41,6 @@ export default Spec.describe(D.displayName, (e) => {
     );
   }
 
-  function HostFooter() {
-    const theme = Color.theme(p.theme.value);
-    const styles = {
-      base: css({
-        borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.15)}`,
-        padding: 12,
-      }),
-    };
-    return (
-      <div className={styles.base.class}>
-        <Crdt.UI.Repo.SyncEnabledSwitch
-          theme={p.theme.value}
-          repo={repo}
-          localstorage={STORAGE_KEY.DEV}
-        />
-      </div>
-    );
-  }
-
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -89,7 +71,7 @@ export default Spec.describe(D.displayName, (e) => {
       });
 
     ctx.debug.footer.padding(0).render(() => <DebugFooter />);
-    ctx.host.footer.padding(0).render(() => <HostFooter />);
+    ctx.host.footer.padding(0).render(() => <HostFooter repo={repo} theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

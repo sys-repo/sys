@@ -1,4 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { HostFooter } from '../../ui.Canvas.Project/-spec/-ui.HostFooter.tsx';
+
 import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { EditorCanvas } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -50,6 +52,8 @@ export default Spec.describe(D.displayName, (e) => {
           />
         );
       });
+
+    ctx.host.footer.padding(0).render(() => <HostFooter repo={repo} theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {
