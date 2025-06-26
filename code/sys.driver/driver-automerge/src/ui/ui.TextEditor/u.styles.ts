@@ -31,8 +31,9 @@ export const EditorStyles = {
         ...Headline.DmSerif.regular.style,
       })
       .rule('.ProseMirror > P', {
-        lineHeight: '1.7em',
         fontSize: '1.3em',
+        lineHeight: '1.1em',
+        margin: '0 0 0.5em',
       });
   },
 } as const;
