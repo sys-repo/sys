@@ -12,6 +12,7 @@ import { Card } from '../ui.Card/mod.ts';
 import { DocumentId } from '../ui.DocumentId/mod.ts';
 import { Repo } from '../ui.Repo/mod.ts';
 import { TextEditor } from '../ui.TextEditor/mod.ts';
+import { TextPanel } from '../ui.TextPanel/mod.ts';
 
 /**
  * Hooks:
@@ -28,6 +29,7 @@ export const Crdt: t.CrdtUiLib = {
     DocumentId,
     Repo,
     TextEditor,
+    TextPanel,
     useRedrawEffect,
   },
 };
