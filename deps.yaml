@@ -52,8 +52,8 @@ groups:
 
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.10.2
-    - import: npm:@deno/vite-plugin@1.0.4
-    - import: npm:rollup@4.44.0
+    - import: npm:@deno/vite-plugin@1.0.5
+    - import: npm:rollup@4.44.1
     - import: npm:vite@6.3.5
     - import: npm:vite-plugin-wasm@3.4.1
 
@@ -161,5 +161,5 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.18.1
-  - import: npm:hono@4.8.1
+  - import: npm:motion@12.19.1
+  - import: npm:hono@4.8.3
