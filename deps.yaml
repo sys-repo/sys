@@ -54,7 +54,7 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@3.10.2
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.44.1
-    - import: npm:vite@6.3.5
+    - import: npm:vite@7.0.0
     - import: npm:vite-plugin-wasm@3.4.1
 
   ui/react:

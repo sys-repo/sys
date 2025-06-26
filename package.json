@@ -24,7 +24,7 @@
     "@deno/vite-plugin": "1.0.5",
     "@vitejs/plugin-react-swc": "3.10.2",
     "rollup": "4.44.1",
-    "vite": "6.3.5",
+    "vite": "7.0.0",
     "vite-plugin-wasm": "3.4.1"
   }
 }
