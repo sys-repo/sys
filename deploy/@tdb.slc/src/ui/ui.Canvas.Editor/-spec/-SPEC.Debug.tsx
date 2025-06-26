@@ -1,5 +1,15 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Crdt,
+  css,
+  D,
+  LocalStorage,
+  ObjectView,
+  Signal,
+  CanvasPanel,
+} from '../common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -49,17 +59,28 @@ export function createDebugSignals() {
   };
 
   /**
-   * Panel Layout
+   * Panel Layout:
    */
-  const cell = (panel: t.CanvasPanel): t.CanvasPanelContent => {
-    console.log('panel', panel);
-    return { view: `🧫 cell.<${panel}>` };
+  const updatePanels = (doc?: t.CrdtRef<Doc>) => {
+    const render = (panel: t.CanvasPanel): t.CanvasPanelContent => {
+      const path = ['project', panel, 'text'];
+      const view = (
+        <Crdt.UI.TextPanel
+          doc={doc}
+          path={path}
+          theme={p.theme.value}
+          label={panel}
+          style={{ padding: 8 }}
+        />
+      );
+      return { view };
+    };
+    const panels: t.CanvasPanelContentMap = {};
+    CanvasPanel.all.forEach((panel) => (panels[panel] = render(panel)));
+    p.panels.value = panels;
   };
 
-  p.panels.value = {
-    purpose: cell('purpose'),
-    uvp: cell('uvp'),
-  };
+  Signal.effect(() => updatePanels(p.doc.value));
 
   return api;
 }
