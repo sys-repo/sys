@@ -13,4 +13,5 @@ export type TextPanelProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   labelOpacity?: t.Percent;
+  rowGap?: t.Percent;
 };

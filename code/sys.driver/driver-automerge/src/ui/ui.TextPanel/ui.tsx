@@ -24,7 +24,7 @@ export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
-      rowGap: 8,
+      rowGap: props.rowGap ?? 8,
     }),
     label: css({
       fontSize: 11,
