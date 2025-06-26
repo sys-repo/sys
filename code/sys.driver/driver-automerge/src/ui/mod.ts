@@ -9,6 +9,7 @@
 export { Card } from './ui.Card/mod.ts';
 export { DocumentId } from './ui.DocumentId/mod.ts';
 export { TextEditor } from './ui.TextEditor/mod.ts';
+export { TextPanel } from './ui.TextPanel/mod.ts';
 
 /**
  * Library:

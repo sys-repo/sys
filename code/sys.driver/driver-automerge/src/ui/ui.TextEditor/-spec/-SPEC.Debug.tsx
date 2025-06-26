@@ -4,14 +4,13 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 export type SampleDoc = { text?: string };
-
 type P = t.TextEditorProps;
 type Storage = Pick<
   P,
   'theme' | 'debug' | 'autoFocus' | 'readOnly' | 'scroll' | 'singleLine' | 'path'
 >;
 
-export const STORAGE_KEY = `dev:${D.name}.input`;
+export const STORAGE_KEY = { DEV: `dev:${D.name}.input` };
 
 /**
  * Types:
@@ -40,7 +39,7 @@ export function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: ['BroadcastChannel', { ws: 'sync.db.team' }],
+    network: [{ ws: 'sync.db.team' }],
   });
 
   const props = {
@@ -48,12 +47,13 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
 
-    doc: s<t.CrdtRef<SampleDoc>>(),
-    path: s<P['path']>(snap.path),
     readOnly: s<P['readOnly']>(snap.readOnly),
     scroll: s<P['scroll']>(snap.scroll),
     singleLine: s<P['singleLine']>(snap.singleLine),
     autoFocus: s<P['autoFocus']>(snap.autoFocus),
+
+    doc: s<t.CrdtRef<SampleDoc>>(),
+    path: s<P['path']>(snap.path),
   };
   const p = props;
   const api = {
@@ -124,7 +124,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <Button
         block
         label={() => {
@@ -140,6 +139,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
+
       <hr />
       <Button
         block

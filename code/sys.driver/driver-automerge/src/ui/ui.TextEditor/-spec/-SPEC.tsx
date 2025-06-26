@@ -10,6 +10,21 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
+  function DebugDocumentId() {
+    const doc = p.doc;
+    return (
+      <DocumentId.View
+        buttonStyle={{ margin: 4 }}
+        controller={{
+          repo,
+          signals: { doc },
+          initial: { text: '' },
+          localstorage: STORAGE_KEY.DEV,
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -46,19 +61,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.debug.header
       .padding(0)
       .border(-0.1)
-      .render(() => {
-        return (
-          <DocumentId.View
-            buttonStyle={{ margin: 4 }}
-            controller={{
-              repo,
-              signals: { doc: p.doc },
-              initial: { text: '' },
-              localstorage: STORAGE_KEY,
-            }}
-          />
-        );
-      });
+      .render(() => <DebugDocumentId />);
 
     // Initialize:
     updateSize();
