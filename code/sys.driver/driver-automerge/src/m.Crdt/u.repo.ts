@@ -56,7 +56,9 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
     },
 
     get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {
-      return new Promise<t.CrdtRepoGetResponse<T>>(async (resolve) => {
+      type R = t.CrdtRefGetResponse<T>;
+
+      return new Promise<R>(async (resolve) => {
         const fail = (error: t.CrdtRepoError) => resolve({ error });
         id = wrangle.id(id);
 
