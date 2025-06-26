@@ -61,15 +61,22 @@ export type MediaVideoStreamProps = {
   style?: t.CssInput;
 
   /** Called once when the stream is live and assigned to <video>. */
-  onReady?: (e: {
-    stream: VideoStreamHook['stream'];
-    aspectRatio: string;
-    device: MediaDeviceInfo;
-  }) => void;
+  onReady?: MediaVideoStreamReadyHandler;
 };
 
 /**
- * Hook: Acquire/cleanup device media with visual filter pass-through via <canvas>.
+ * Events:
+ */
+export type MediaVideoStreamReadyHandler = (e: MediaVideoStreamReady) => void;
+export type MediaVideoStreamReady = {
+  readonly stream: VideoStreamHook['stream'];
+  readonly aspectRatio: string;
+  readonly device: MediaDeviceInfo;
+};
+
+/**
+ * Hook:
+ * Acquire/cleanup device media with visual filter pass-through via <canvas>.
  */
 export type UseVideoStream = (
   streamOrConstraints?: MediaStreamConstraints | MediaStream,

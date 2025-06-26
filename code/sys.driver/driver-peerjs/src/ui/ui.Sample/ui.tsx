@@ -1,4 +1,5 @@
 import React from 'react';
+import { Avatar } from '../ui.Avatar/mod.ts';
 import { type t, Color, Crdt, css, D, Media, ObjectView } from './common.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
@@ -76,38 +77,33 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   );
 
   const elSelf = (
-    <div className={css(styles.video.base, { Absolute: [null, null, 20, 20] }).class}>
-      <Media.Video.UI.Stream
-        style={styles.video.stream}
-        aspectRatio={'16/9'}
-        borderRadius={10}
-        muted={true}
-        onReady={(e) => {
-          console.info(`⚡️ MediaStream.onReady:`, e);
-          Media.Log.tracks('- stream.raw:', e.stream.raw);
-          Media.Log.tracks('- stream.filtered:', e.stream.filtered);
-          setLocalStream(e.stream.filtered);
-        }}
-      />
-      <div className={styles.video.border.class} />
-    </div>
+    <Avatar
+      style={{ Absolute: [null, null, 20, 20], width: 100 }}
+      theme={theme.name}
+      borderRadius={10}
+      borderWidth={2}
+      muted={true}
+      onReady={(e) => {
+        console.info(`⚡️ MediaStream.onReady (Self):`, e);
+        Media.Log.tracks('- stream.raw:', e.stream.raw);
+        Media.Log.tracks('- stream.filtered:', e.stream.filtered);
+        setLocalStream(e.stream.filtered);
+      }}
+    />
   );
 
   const elRemote = remoteStream && (
-    <div className={css(styles.video.base, { Absolute: [null, 20, 20, null] }).class}>
-      <Media.Video.UI.Stream
-        style={styles.video.stream}
-        aspectRatio={'16/9'}
-        borderRadius={10}
-        stream={remoteStream}
-        muted={false}
-        onReady={(e) => {
-          console.info(`⚡️ MediaStream.onReady:`, e);
-          setLocalStream(e.stream.filtered);
-        }}
-      />
-      <div className={styles.video.border.class} />
-    </div>
+    <Avatar
+      style={{ Absolute: [null, 20, 20, null], width: 100 }}
+      theme={theme.name}
+      borderRadius={10}
+      borderWidth={2}
+      muted={false}
+      stream={remoteStream}
+      onReady={(e) => {
+        console.info(`⚡️ MediaStream.onReady (Remote):`, e);
+      }}
+    />
   );
 
   return (

@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { D, Media } from '../common.ts';
 import { Avatar } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -17,11 +17,21 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([100, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Avatar debug={v.debug} theme={v.theme} />;
+        return (
+          <Avatar
+            debug={v.debug}
+            theme={v.theme}
+            onReady={(e) => {
+              console.info(`⚡️ MediaStream.onReady:`, e);
+              Media.Log.tracks('• stream.raw:', e.stream.raw);
+              Media.Log.tracks('• stream.filtered:', e.stream.filtered);
+            }}
+          />
+        );
       });
   });
 

@@ -2,8 +2,21 @@ import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
+ * Libs:
+ */
+export { Crdt } from '@sys/driver-automerge/ui';
+export { Media } from '@sys/ui-react-components';
+
+/**
  * Constants:
  */
 const name = 'Avatar';
-export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+export const DEFAULTS = {
+  name,
+  displayName: Pkg.toString(pkg, name),
+  aspectRatio: '16/9',
+  borderRadius: 6,
+  borderWidth: 1,
+  borderColor: 1,
+} as const;
 export const D = DEFAULTS;
