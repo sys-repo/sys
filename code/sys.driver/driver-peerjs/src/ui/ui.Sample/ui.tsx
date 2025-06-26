@@ -1,6 +1,5 @@
 import React from 'react';
-import { Avatar } from '../ui.Avatar/mod.ts';
-import { type t, Color, Crdt, css, D, Media, ObjectView } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, D, Media, ObjectView } from './common.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, doc, peer, remoteStream } = props;
@@ -35,31 +34,20 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: Color.ruby(debug ? 0.06 : 0),
       color: theme.fg,
-      padding: 40,
+      display: 'grid',
+      gridTemplateRows: `1fr auto`,
     }),
+    body: {
+      base: css({ position: 'relative' }),
+      inner: css({ Absolute: 0, padding: 40, overflow: 'hidden' }),
+    },
     debug: css({}),
     obj: css({ marginTop: 20 }),
-
-    video: {
-      base: css({
-        position: 'relative',
-        display: 'grid',
-        width: 160,
-      }),
-      border: css({
-        Absolute: 0,
-        pointerEvents: 'none',
-        border: `solid 3px ${Color.alpha(theme.fg, 0.8)}`,
-        borderRadius: 12,
-      }),
-      stream: css({
-        borderRadius: 12,
-        overflow: 'hidden',
-        aspectRatio: '16/9',
-        width: 160,
-      }),
+    dyad: {
+      base: css({ padding: 20, display: 'grid', gridTemplateColumns: `auto 1fr auto` }),
+      avatar: css({ width: 100 }),
     },
   };
 
@@ -78,39 +66,45 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   const elSelf = (
     <Avatar
-      style={{ Absolute: [null, null, 20, 20], width: 100 }}
+      style={styles.dyad.avatar}
       theme={theme.name}
       borderRadius={10}
       borderWidth={2}
       muted={true}
       onReady={(e) => {
-        console.info(`⚡️ MediaStream.onReady (Self):`, e);
+        setLocalStream(e.stream.filtered);
+
+        console.info(`⚡️ MediaStream.onReady (self):`, e);
         Media.Log.tracks('- stream.raw:', e.stream.raw);
         Media.Log.tracks('- stream.filtered:', e.stream.filtered);
-        setLocalStream(e.stream.filtered);
       }}
     />
   );
 
   const elRemote = remoteStream && (
     <Avatar
-      style={{ Absolute: [null, 20, 20, null], width: 100 }}
+      style={styles.dyad.avatar}
       theme={theme.name}
       borderRadius={10}
       borderWidth={2}
       muted={false}
       stream={remoteStream}
       onReady={(e) => {
-        console.info(`⚡️ MediaStream.onReady (Remote):`, e);
+        console.info(`⚡️ MediaStream.onReady (remote):`, e);
       }}
     />
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elDebug}
-      {elSelf}
-      {elRemote}
+      <div className={styles.body.base.class}>
+        <div className={styles.body.inner.class}>{elDebug}</div>
+      </div>
+      <div className={styles.dyad.base.class}>
+        {elSelf}
+        <div />
+        {elRemote}
+      </div>
     </div>
   );
 };

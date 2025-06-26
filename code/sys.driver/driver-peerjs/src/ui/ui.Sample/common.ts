@@ -6,6 +6,7 @@ export * from '../common.ts';
  */
 export { Crdt } from '@sys/driver-automerge/ui';
 export { Media } from '@sys/ui-react-components';
+export { Avatar } from '../ui.Avatar/mod.ts';
 
 /**
  * Constants:
