@@ -17,9 +17,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
    * Hooks:
    */
   const [store, setStore] = React.useState(wrangle.localstore(props));
-  const [enabled, setEnabled] = React.useState(
-    store?.current.syncEnabled ?? repo?.sync.enabled ?? false,
-  );
+  const [enabled, setEnabled] = React.useState(wrangle.enabled(store?.current, repo));
 
   /**
    * Effects:
@@ -27,9 +25,14 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
   React.useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
   React.useEffect(() => void store?.change((d) => (d.syncEnabled = enabled)), [store, enabled]);
   React.useEffect(() => {
-    const next = store?.current.syncEnabled ?? repo?.sync.enabled ?? false;
-    updatedEnabled(next);
-  }, [urls.join(), repo?.id.instance, repo?.sync.enabled]);
+    const events = repo?.events();
+    events?.$.subscribe((e) => {
+      const next = e.after.sync.enabled;
+      if (e.before.sync.enabled !== next) updatedEnabled(next);
+    });
+    updatedEnabled(wrangle.enabled(store?.current, repo));
+    return events?.dispose;
+  }, [repo?.id.instance]);
 
   /**
    * Handlers:
@@ -119,5 +122,9 @@ const wrangle = {
     const syncEnabled = repo?.sync.enabled ?? false;
     if (!localstorage) return;
     else return LocalStorage.immutable<Store>(localstorage, { syncEnabled });
+  },
+
+  enabled(store?: Store, repo?: t.CrdtRepo) {
+    return store?.syncEnabled ?? repo?.sync.enabled ?? false;
   },
 } as const;
