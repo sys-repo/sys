@@ -72,8 +72,8 @@ export type PointerEvent = {
 /**
  * General event fired on every kind of event.
  */
-export type PointerEventsHandler = (e: PointerEventsArgs) => void;
-export type PointerEventsArgs = {
+export type PointerEventsHandler = (e: PointerEventsArg) => void;
+export type PointerEventsArg = {
   readonly is: PointerHookFlags;
   readonly trigger: t.PointerEvent;
   cancel(): void;

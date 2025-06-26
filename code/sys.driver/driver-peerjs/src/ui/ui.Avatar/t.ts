@@ -18,4 +18,5 @@ export type AvatarProps = {
 
   // Events:
   onReady?: t.MediaVideoStreamReadyHandler;
+  onPointer?: t.PointerEventsHandler;
 };
