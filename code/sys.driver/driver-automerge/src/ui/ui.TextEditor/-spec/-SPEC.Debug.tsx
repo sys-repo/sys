@@ -143,20 +143,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
-        onClick={() => Signal.toggle(p.scroll)}
-      />
-      <Button
-        block
-        label={() => {
-          const v = p.singleLine.value;
-          return `singleLine: ${v ?? `<undefined> (default: ${D.singleLine})`}`;
-        }}
-        onClick={() => Signal.toggle(p.singleLine)}
-      />
-      <hr />
-      <Button
-        block
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
@@ -172,6 +158,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
           if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
           (p.autoFocus.value as number) += 1;
         }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
+        onClick={() => Signal.toggle(p.scroll)}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.singleLine.value;
+          return `singleLine: ${v ?? `<undefined> (default: ${D.singleLine})`}`;
+        }}
+        onClick={() => Signal.toggle(p.singleLine)}
       />
 
       <hr />

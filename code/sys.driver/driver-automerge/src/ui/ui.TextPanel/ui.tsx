@@ -37,6 +37,7 @@ export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
       backgroundColor: Color.ruby(debug),
       fontSize: 12,
       overflow: 'hidden',
+      display: 'grid', // NB:
     }),
   };
 
