@@ -18,5 +18,7 @@ export const DEFAULTS = {
   borderRadius: 6,
   borderWidth: 1,
   borderColor: 1,
+  flipped: false,
+  muted: true,
 } as const;
 export const D = DEFAULTS;

@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type AvatarProps = {
   stream?: MediaStream;
   muted?: boolean;
+  flipped?: boolean;
 
   // Appearance:
   debug?: boolean;

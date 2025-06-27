@@ -17,7 +17,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size([100, null])
+      .size([120, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
@@ -25,6 +25,8 @@ export default Spec.describe(D.displayName, (e) => {
           <Avatar
             debug={v.debug}
             theme={v.theme}
+            flipped={v.flipped}
+            muted={v.muted}
             onReady={(e) => {
               console.info(`⚡️ MediaStream.onReady:`, e);
               Media.Log.tracks('• stream.raw:', e.stream.raw);

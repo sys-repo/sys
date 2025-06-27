@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.AvatarProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'flipped' | 'muted'>;
 
 /**
  * Types:
@@ -19,6 +19,8 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    flipped: D.flipped,
+    muted: D.muted,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -26,6 +28,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    flipped: s(snap.flipped),
+    muted: s(snap.muted),
   };
   const p = props;
   const api = {
@@ -41,6 +45,8 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.flipped = p.flipped.value;
+      d.muted = p.muted.value;
     });
   });
 
@@ -80,6 +86,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `muted: ${p.muted.value ?? `<undefined> (default: ${D.muted})`}`}
+        onClick={() => Signal.toggle(p.muted)}
+      />
+      <Button
+        block
+        label={() => `flipped: ${p.flipped.value ?? `<undefined> (default: ${D.flipped})`}`}
+        onClick={() => Signal.toggle(p.flipped)}
       />
 
       <hr />
