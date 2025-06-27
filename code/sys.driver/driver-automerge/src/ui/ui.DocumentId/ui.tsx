@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 
-import { readonly } from 'zod/v4-mini';
 import {
   type t,
   Color,
@@ -12,11 +11,11 @@ import {
   useDebouncedValue,
   usePointer,
 } from './common.ts';
+import { DocUrl } from './u.Url.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
-import { DocUrl } from './u.Url.ts';
 
 type P = t.DocumentIdProps;
 
@@ -119,7 +118,14 @@ export const View: React.FC<P> = (props) => {
       alignItems: 'stretch',
     }),
     textbox: css({ fontSize: 14 }),
-    label: css({ Absolute: [-20, null, null, 5], opacity: 0.5, fontSize: 11, userSelect: 'none' }),
+    label: css({
+      Absolute: [-20, null, null, 5],
+      userSelect: 'none',
+      fontSize: 11,
+      fontWeight: 600,
+      textTransform: 'uppercase',
+      opacity: props.labelOpacity ?? 0.4,
+    }),
     actionButton: css({
       fontSize: 12,
       marginLeft: 3,
@@ -214,7 +220,7 @@ export const View: React.FC<P> = (props) => {
           }}
           border={{ mode: 'underline', defaultColor: 0 }}
           background={0}
-          autoFocus={!readonly && autoFocus}
+          autoFocus={!readOnly && autoFocus}
           //
           onReady={(e) => (inputRef.current = e.input)}
           onChange={(e) => controller.handlers.onTextChange(e)}
