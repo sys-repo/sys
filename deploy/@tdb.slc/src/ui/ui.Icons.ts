@@ -5,9 +5,9 @@ import {
   MdArrowDownward,
   MdChevronLeft,
   MdChevronRight,
+  MdClose,
   MdErrorOutline,
   MdOutlineAddBox,
-  MdClose,
 } from 'react-icons/md';
 import { PiProjectorScreenLight } from 'react-icons/pi';
 import { RiEmotionSadLine } from 'react-icons/ri';
