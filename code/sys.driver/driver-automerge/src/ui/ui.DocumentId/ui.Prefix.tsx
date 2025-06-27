@@ -91,7 +91,7 @@ const wrangle = {
     const copied = wrangle.copied(props);
     if (copied) return Icons.Copy.Tick;
     const { urlSupport = D.urlSupport } = props;
-    return urlMode && urlSupport ? Icons.Copy.Slash : Icons.Copy.Basic;
+    return urlMode && urlSupport ? Icons.Copy.Plus : Icons.Copy.Basic;
   },
   databaseIcon(props: P) {
     const error = props.icon === 'Error';

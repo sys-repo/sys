@@ -1,5 +1,5 @@
 import { Icon } from '@sys/ui-react-components';
-import { LuCopy, LuCopyCheck, LuCopySlash } from 'react-icons/lu';
+import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react-icons/lu';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -31,6 +31,8 @@ export const Icons = {
     Basic: icon(LuCopy),
     Tick: icon(LuCopyCheck),
     Slash: icon(LuCopySlash),
+    Plus: icon(LuCopyPlus),
+    Minus: icon(LuCopyMinus),
   },
   Database: icon(TbDatabase),
   Error: icon(MdErrorOutline),
