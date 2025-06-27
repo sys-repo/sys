@@ -1,6 +1,7 @@
 import { Time, describe, expect, it, rx, type t, DomMock } from '../-test.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Keyboard } from './mod.ts';
+import { UserAgent } from './common.ts';
 
 describe(
   'Keyboard',
@@ -176,6 +177,47 @@ describe(
         DomMock.Keyboard.fire(ev);
         DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
+      });
+    });
+
+    describe('Keyboard.Is', () => {
+      const OS = {
+        mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
+        windows: 'Mozilla/5.0 (X11; Linux x86_64)',
+        linux: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      } as const;
+
+      it('Is.meta', () => {
+        const mac = UserAgent.parse(OS.mac);
+        const windows = UserAgent.parse(OS.windows);
+        const linux = UserAgent.parse(OS.linux);
+
+        const a = Keyboard.Is.meta();
+        const b = Keyboard.Is.meta({ meta: true }, { ua: mac });
+        const c = Keyboard.Is.meta({ ctrl: true }, { ua: windows });
+        const d = Keyboard.Is.meta({ ctrl: true }, { ua: linux });
+
+        const e = Keyboard.Is.meta({ ctrl: true }, { ua: mac });
+        const f = Keyboard.Is.meta({ meta: true }, { ua: windows });
+        const g = Keyboard.Is.meta({ meta: true }, { ua: linux });
+
+        console.log('a', a);
+        console.log('b', b);
+        console.log('c', c);
+        console.log('d', d);
+        console.log('e', e);
+        console.log('f', f);
+        console.log('g', g);
+
+        expect(a).to.be.false;
+
+        expect(b).to.be.true;
+        expect(c).to.be.true;
+        expect(d).to.be.true;
+
+        expect(e).to.be.false;
+        expect(f).to.be.false;
+        expect(g).to.be.false;
       });
     });
   },

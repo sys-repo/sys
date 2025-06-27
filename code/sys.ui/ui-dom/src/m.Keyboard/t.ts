@@ -6,15 +6,14 @@ type KeyHandler = (e: KeyboardEvent) => unknown;
  * Tools for working with the keyboard.
  */
 export type KeyboardLib = {
-  /**
-   * Keyboard event monitor.
-   */
-  Monitor: t.KeyboardMonitor;
+  /** Boolean flag evaluaters. */
+  readonly Is: t.KeyboardIsLib;
 
-  /**
-   * Helpers for matching key patterns.
-   */
-  Match: t.KeyboardMatchLib;
+  /** Keyboard event monitor. */
+  readonly Monitor: t.KeyboardMonitor;
+
+  /** Helpers for matching key patterns. */
+  readonly Match: t.KeyboardMatchLib;
 
   /**
    * Registers a listener for keydown events.
@@ -60,6 +59,21 @@ export type KeyboardLib = {
    * Start a multi-key listener waiting for a "double-press" event.
    */
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
+};
+
+/**
+ * Boolean flag evaluaters.
+ */
+export type KeyboardIsLib = {
+  /**
+   * Determine if the flags are conceptually the
+   * Apple "CMD" Command.
+   *
+   * When on macOS™:    ⌘cmd == meta
+   * When on Linux:     Ctrl == meta
+   * When on Windows™:  ctrl == meta
+   */
+  meta(modifiers?: Partial<t.KeyboardModifierFlags>, options?: { ua?: t.UserAgent }): boolean;
 };
 
 /**
