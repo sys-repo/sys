@@ -19,4 +19,11 @@ export type AvatarProps = {
   // Events:
   onReady?: t.MediaVideoStreamReadyHandler;
   onPointer?: t.PointerEventsHandler;
+  onSelect?: t.AvatarSelectHandler;
 };
+
+/**
+ * Events:
+ */
+export type AvatarSelectHandler = (e: AvatarSelect) => void;
+export type AvatarSelect = { readonly stream: MediaStream };

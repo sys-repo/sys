@@ -13,6 +13,7 @@ export type SampleProps = {
   style?: t.CssInput;
 
   onReady?: t.SampleReadyHandler;
+  onSelect?: t.AvatarSelectHandler;
 };
 
 /**

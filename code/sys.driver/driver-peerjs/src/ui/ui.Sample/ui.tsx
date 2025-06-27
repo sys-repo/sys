@@ -71,6 +71,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       borderRadius={10}
       borderWidth={2}
       muted={true}
+      stream={localStream}
       onReady={(e) => {
         setLocalStream(e.stream.filtered);
 
@@ -78,6 +79,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         Media.Log.tracks('- stream.raw:', e.stream.raw);
         Media.Log.tracks('- stream.filtered:', e.stream.filtered);
       }}
+      onSelect={props.onSelect}
     />
   );
 
@@ -89,9 +91,8 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       borderWidth={2}
       muted={false}
       stream={remoteStream}
-      onReady={(e) => {
-        console.info(`⚡️ MediaStream.onReady (remote):`, e);
-      }}
+      onReady={(e) => console.info(`⚡️ MediaStream.onReady (remote):`, e)}
+      onSelect={props.onSelect}
     />
   );
 

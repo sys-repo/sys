@@ -76,6 +76,7 @@ export function createDebugSignals() {
     doc: s<t.CrdtRef<t.SampleDoc>>(),
     localStream: s<MediaStream>(),
     remoteStream: s<MediaStream>(),
+    selectedStream: s<MediaStream>(),
   };
   const p = props;
   const redraw = () => p.redraw.value++;

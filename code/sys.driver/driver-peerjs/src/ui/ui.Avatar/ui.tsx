@@ -15,7 +15,10 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
   /**
    * Hooks:
    */
-  const pointer = usePointer(props.onPointer);
+  const pointer = usePointer((e) => {
+    props.onPointer?.(e);
+    if (e.is.down && stream) props.onSelect?.({ stream });
+  });
 
   /**
    * Render:

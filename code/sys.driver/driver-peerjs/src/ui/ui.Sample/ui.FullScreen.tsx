@@ -1,0 +1,45 @@
+import React from 'react';
+import { type t, Button, Color, css, Icons, Media } from './common.ts';
+
+export type FullScreenProps = {
+  stream: MediaStream;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  onClose?: () => void;
+};
+
+/**
+ * Component:
+ */
+export const FullScreen: React.FC<FullScreenProps> = (props) => {
+  const {} = props;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+      pointerEvents: 'auto', // NB: reset from overlay turning pointer-events off.
+    }),
+    stream: css({ Absolute: 0 }),
+    closeBtn: css({ Absolute: [4, 5, null, null] }),
+  };
+
+  const elCloseButton = (
+    <Button style={styles.closeBtn} theme={'Dark'} onClick={props.onClose}>
+      <Icons.Close size={20} />
+    </Button>
+  );
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <Media.Video.UI.Stream stream={props.stream} style={styles.stream} />
+      {elCloseButton}
+    </div>
+  );
+};

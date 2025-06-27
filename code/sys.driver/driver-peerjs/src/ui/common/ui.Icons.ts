@@ -1,5 +1,5 @@
 import { Icon } from '@sys/ui-react-components';
-import { MdErrorOutline } from 'react-icons/md';
+import { MdClose, MdErrorOutline } from 'react-icons/md';
 
 const icon = Icon.renderer;
 export { icon };
@@ -9,4 +9,5 @@ export { icon };
  */
 export const Icons = {
   Error: icon(MdErrorOutline),
+  Close: icon(MdClose),
 } as const;
