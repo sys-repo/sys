@@ -37,12 +37,6 @@ export const Prefix: React.FC<P> = (props) => {
   const pointer = usePointer(props.onPointer);
 
   /**
-   * Effects:
-   */
-  const url = wrangle.url(props, pointer.is.over, keyboard.urlMode); // NB: "?doc" query-string dynamically inserted on CMD key.
-  React.useEffect(() => commitUrl(url), [url.href]);
-
-  /**
    * Handlers:
    */
   const handleCopy = () => {
@@ -95,7 +89,7 @@ const wrangle = {
   },
   copyIcon(props: P, urlMode: boolean) {
     const copied = wrangle.copied(props);
-    if (copied) Icons.Copy.Tick;
+    if (copied) return Icons.Copy.Tick;
     const { urlSupport = D.urlSupport } = props;
     return urlMode && urlSupport ? Icons.Copy.Slash : Icons.Copy.Basic;
   },
@@ -103,22 +97,4 @@ const wrangle = {
     const error = props.icon === 'Error';
     return error ? Icons.Warning : Icons.Database;
   },
-
-  url(props: P, isOver: boolean, urlMode: boolean) {
-    const { urlSupport = D.urlSupport } = props;
-    const next = new URL(location.href);
-    if (!urlSupport) return next;
-
-    const docId = (props.docId || '').trim();
-    if (isOver && urlMode) next.searchParams.set('doc', docId);
-    else next.searchParams.delete('doc');
-
-    return next;
-  },
 } as const;
-
-function commitUrl(url: URL) {
-  if (url.href === location.href) return; // no-change.
-  const relative = url.pathname + url.search + url.hash;
-  history.replaceState(null, '', relative);
-}

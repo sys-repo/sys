@@ -39,14 +39,6 @@ function useInternal(args: Args = {}): Hook {
   const transient = useTransientMessage();
 
   /**
-   * Effect: (repo changed → reset).
-   */
-  React.useEffect(() => {
-    setReady(false);
-    signalsRef.current.doc.value = undefined;
-  }, [repoId]);
-
-  /**
    * Effect: (init on mount or reset).
    */
   React.useEffect(() => {
@@ -55,6 +47,14 @@ function useInternal(args: Args = {}): Hook {
     if (props.docId && !props.doc) run('Load').then(() => setReady(true));
     else setReady(true);
   }, [repoId, ready]);
+
+  /**
+   * Effect: (repo changed → reset).
+   */
+  React.useEffect(() => {
+    setReady(false);
+    signalsRef.current.doc.value = undefined;
+  }, [repoId]);
 
   /**
    * Effect: (hook into redraw listeners).
@@ -77,7 +77,8 @@ function useInternal(args: Args = {}): Hook {
 
     if (action === 'Copy' || action === 'Copy:Url') {
       const copyUrl = action === 'Copy:Url';
-      const value = copyUrl ? location.href : p.docId.value;
+      const docId = p.docId.value;
+      const value = copyUrl ? wrangle.url(docId) : docId;
       if (value) {
         navigator.clipboard.writeText(value);
         transient.write('Copy', copyUrl ? 'copied url' : 'copied');
@@ -233,5 +234,12 @@ const wrangle = {
       },
     };
     return api;
+  },
+
+  url(docId?: string) {
+    if (!docId) return '';
+    const next = new URL(location.href);
+    next.searchParams.set('doc', docId);
+    return next.href;
   },
 } as const;

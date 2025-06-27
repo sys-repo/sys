@@ -16,6 +16,7 @@ import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
 import { useController } from './use.Controller.ts';
+import { DocUrl } from './u.Url.ts';
 
 type P = t.DocumentIdProps;
 
@@ -58,6 +59,18 @@ export const View: React.FC<P> = (props) => {
 
   let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
   let showAction = showActionD || !docId;
+
+  /**
+   * Effect: handle doc-id passed in on URL.
+   */
+  React.useEffect(() => {
+    if (!urlSupport) return;
+    const { docId } = DocUrl.get();
+    if (docId) {
+      controller.signals.docId.value = docId;
+      DocUrl.strip(); // NB: doc-ids in the URL are transient → UI takes over now.
+    }
+  }, []);
 
   /**
    * Effect: (mounted).
