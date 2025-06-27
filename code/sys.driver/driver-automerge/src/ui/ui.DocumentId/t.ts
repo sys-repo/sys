@@ -20,8 +20,11 @@ export type DocumentIdProps = {
   controller?:
     | t.DocumentIdHook //         ← controlled.
     | t.UseDocumentIdHookArgs; // ← uncontrolled (auto-create).
-  label?: string;
+
   placeholder?: string;
+  label?: string;
+  labelOpacity?: t.Percent;
+
   enabled?: boolean;
   autoFocus?: boolean | number;
   readOnly?: boolean;

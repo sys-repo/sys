@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function DocumentId(props: t.DocumentIdProps) {
+  function LocalDocumentId(props: t.DocumentIdProps) {
     const theme = Color.theme(p.theme.value);
     return (
       <Crdt.UI.DocumentId.View
@@ -73,7 +73,7 @@ export default Spec.describe(D.displayName, (e) => {
 
         return (
           <div className={styles.base.class}>
-            <DocumentId style={styles.docId} />
+            <LocalDocumentId style={styles.docId} autoFocus={true} />
 
             <Sample
               // 🌳

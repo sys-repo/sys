@@ -129,13 +129,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `label: ${p.label.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.label, [undefined, 'My Descriptive Label:'])}
+        onClick={() => Signal.cycle(p.label, [undefined, 'My Descriptive Label', 'Description'])}
       />
       <Button
         block
         label={() => {
           const v = p.placeholder.value;
-          return `placeholder: ${Is.string(v) ? v || '""' : `<undefined>`}`;
+          return `placeholder: ${Is.string(v) ? v || '""' : `<undefined> (default)`}`;
         }}
         onClick={() => Signal.cycle(p.placeholder, [undefined, 'My Placeholder', ''])}
       />
