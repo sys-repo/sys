@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 export type * from './t.hooks.ts';
 
 /** The various states the action button can assume. */
-export type DocumentIdAction = 'Load' | 'Create' | 'Clear' | 'Copy';
+export type DocumentIdAction = 'Load' | 'Create' | 'Clear' | 'Copy' | 'Copy:Url';
 
 /**
  * Library: document-id UI tools.

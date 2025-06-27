@@ -125,7 +125,10 @@ export const View: React.FC<P> = (props) => {
       enabled={active}
       readOnly={readOnly}
       icon={transient.kind}
-      onCopy={() => controller.handlers.onAction({ action: 'Copy' })}
+      onCopy={(e) => {
+        const action: t.DocumentIdAction = e.url ? 'Copy:Url' : 'Copy';
+        controller.handlers.onAction({ action });
+      }}
       onPointer={(e) => {
         if (e.is.down) {
           e.cancel();

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, usePointer, D } from './common.ts';
+import { type t, Button, Color, css, D, Icons, usePointer } from './common.ts';
+import { useKeyboard } from './use.Keyboard.ts';
 
 export type PrefixProps = {
   docId?: string;
@@ -12,7 +13,7 @@ export type PrefixProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   //
-  onCopy?: () => void;
+  onCopy?: (e: { url: boolean }) => void;
   onPointer?: t.PointerEventsHandler;
 };
 type P = PrefixProps;
@@ -31,12 +32,27 @@ export const Prefix: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
+  const keyboard = useKeyboard();
   const pointer = usePointer(props.onPointer);
+
+  /**
+   * Effects:
+   */
+  const url = wrangle.url(props, pointer.is.over, keyboard.urlMode); // NB: "?doc" query-string dynamically inserted on CMD key.
+  React.useEffect(() => commitUrl(url), [url.href]);
+
+  /**
+   * Handlers:
+   */
+  const handleCopy = () => {
+    const url = keyboard.urlMode;
+    props.onCopy?.({ url });
+  };
 
   /**
    * Render:
    */
-  const CopyIcon = wrangle.copyIcon(props);
+  const CopyIcon = wrangle.copyIcon(props, keyboard.urlMode);
   const DatabaseIcon = wrangle.databaseIcon(props);
   const theme = Color.theme(props.theme);
   const styles = {
@@ -55,7 +71,7 @@ export const Prefix: React.FC<P> = (props) => {
   };
 
   const elCopy = docId && ((props.over && pointer.is.over) || copied) && (
-    <Button enabled={enabled} style={styles.btn} onClick={props.onCopy}>
+    <Button enabled={enabled} style={styles.btn} onClick={handleCopy}>
       <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
     </Button>
   );
@@ -76,13 +92,27 @@ const wrangle = {
   copied(props: P) {
     return props.icon === 'Copy';
   },
-
-  copyIcon(props: P) {
+  copyIcon(props: P, urlMode: boolean) {
     const copied = wrangle.copied(props);
-    return copied ? Icons.Copy.Tick : Icons.Copy.Basic;
+    if (copied) Icons.Copy.Tick;
+    return urlMode ? Icons.Copy.Slash : Icons.Copy.Basic;
   },
   databaseIcon(props: P) {
     const error = props.icon === 'Error';
     return error ? Icons.Warning : Icons.Database;
   },
+
+  url(props: P, isOver: boolean, urlMode: boolean) {
+    const docId = (props.docId || '').trim();
+    const next = new URL(location.href);
+    if (isOver && urlMode) next.searchParams.set('doc', docId);
+    else next.searchParams.delete('doc');
+    return next;
+  },
 } as const;
+
+function commitUrl(url: URL) {
+  if (url.href === location.href) return; // no-change.
+  const relative = url.pathname + url.search + url.hash;
+  history.replaceState(null, '', relative);
+}

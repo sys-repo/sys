@@ -75,11 +75,12 @@ function useInternal(args: Args = {}): Hook {
     const props = wrangle.props(p, repo);
     const enabled = props.is.enabled.action;
 
-    if (action === 'Copy') {
-      const id = p.docId.value;
-      if (id) {
-        navigator.clipboard.writeText(id);
-        transient.write('Copy', 'copied');
+    if (action === 'Copy' || action === 'Copy:Url') {
+      const copyUrl = action === 'Copy:Url';
+      const value = copyUrl ? location.href : p.docId.value;
+      if (value) {
+        navigator.clipboard.writeText(value);
+        transient.write('Copy', copyUrl ? 'copied url' : 'copied');
       }
       return;
     }
