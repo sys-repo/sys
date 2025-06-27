@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 
+import { Keyboard } from '../common.ts';
 import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
@@ -81,7 +82,7 @@ function useInternal(args: Args = {}): Hook {
       const value = copyUrl ? wrangle.url(docId) : docId;
       if (value) {
         navigator.clipboard.writeText(value);
-        transient.write('Copy', copyUrl ? 'copied url' : 'copied');
+        transient.write('Copy', copyUrl ? 'url copied' : 'document-id copied');
       }
       return;
     }
@@ -139,8 +140,11 @@ function useInternal(args: Args = {}): Hook {
     }
 
     // Copy (Clipboard):
-    if (e.modifiers.meta && e.key === 'c') {
-      run('Copy');
+    if (Keyboard.Is.copy(e)) {
+      e.cancel(); // Handled.
+
+      if (e.modifiers.shift) run('Copy:Url');
+      else run('Copy');
     }
 
     // Escape (reset to current document-id):
