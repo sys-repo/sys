@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, Media } from './common.ts';
+import { type t, Keyboard, Button, Color, css, Icons, Media } from './common.ts';
 
 export type FullScreenProps = {
   stream: MediaStream;
@@ -14,6 +14,15 @@ export type FullScreenProps = {
  */
 export const FullScreen: React.FC<FullScreenProps> = (props) => {
   const {} = props;
+
+  /**
+   * Hooks:
+   */
+  React.useEffect(() => {
+    const kbd = Keyboard.until();
+    kbd.on('Escape', (e) => props.onClose?.());
+    return kbd.dispose;
+  }, []);
 
   /**
    * Render:
@@ -38,7 +47,7 @@ export const FullScreen: React.FC<FullScreenProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Media.Video.UI.Stream stream={props.stream} style={styles.stream} />
+      <Media.Video.UI.Stream stream={props.stream} style={styles.stream} muted={true} />
       {elCloseButton}
     </div>
   );
