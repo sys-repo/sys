@@ -61,19 +61,31 @@ export type KeyboardLib = {
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
 };
 
+export type AbstractKeyEvent = { key: string; modifiers: t.KeyboardModifierFlags };
+
 /**
  * Boolean flag evaluaters.
  */
 export type KeyboardIsLib = {
   /**
-   * Determine if the flags are conceptually the
-   * Apple "CMD" Command.
+   * Platform independent determination if the
+   * given flags conceptually align
+   * to what the Apple  [⌘ Cmmand] key means,
    *
-   * When on macOS™:    ⌘cmd == meta
-   * When on Linux:     Ctrl == meta
-   * When on Windows™:  ctrl == meta
+   *    When on macOS™    →     ⌘  == meta
+   *    When on Linux     →   ctrl == meta
+   *    When on Windows™  →   ctrl == meta
+   *
    */
-  meta(modifiers?: Partial<t.KeyboardModifierFlags>, options?: { ua?: t.UserAgent }): boolean;
+  commandConcept(
+    modifiers?: Partial<t.KeyboardModifierFlags>,
+    options?: { ua?: t.UserAgent },
+  ): boolean;
+
+  /**
+   * Platform independent match on: Clipboard Copy.
+   */
+  copy(e?: AbstractKeyEvent, options?: { ua?: t.UserAgent }): boolean;
 };
 
 /**

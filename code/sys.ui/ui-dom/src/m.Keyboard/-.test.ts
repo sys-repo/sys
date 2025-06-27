@@ -181,33 +181,25 @@ describe(
     });
 
     describe('Keyboard.Is', () => {
-      const OS = {
+      const UA = {
         mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
         windows: 'Mozilla/5.0 (X11; Linux x86_64)',
         linux: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
       } as const;
 
-      it('Is.meta', () => {
-        const mac = UserAgent.parse(OS.mac);
-        const windows = UserAgent.parse(OS.windows);
-        const linux = UserAgent.parse(OS.linux);
+      const mac = UserAgent.parse(UA.mac);
+      const windows = UserAgent.parse(UA.windows);
+      const linux = UserAgent.parse(UA.linux);
 
-        const a = Keyboard.Is.meta();
-        const b = Keyboard.Is.meta({ meta: true }, { ua: mac });
-        const c = Keyboard.Is.meta({ ctrl: true }, { ua: windows });
-        const d = Keyboard.Is.meta({ ctrl: true }, { ua: linux });
+      it('Is.commandConcept', () => {
+        const a = Keyboard.Is.commandConcept();
+        const b = Keyboard.Is.commandConcept({ meta: true }, { ua: mac });
+        const c = Keyboard.Is.commandConcept({ ctrl: true }, { ua: windows });
+        const d = Keyboard.Is.commandConcept({ ctrl: true }, { ua: linux });
 
-        const e = Keyboard.Is.meta({ ctrl: true }, { ua: mac });
-        const f = Keyboard.Is.meta({ meta: true }, { ua: windows });
-        const g = Keyboard.Is.meta({ meta: true }, { ua: linux });
-
-        console.log('a', a);
-        console.log('b', b);
-        console.log('c', c);
-        console.log('d', d);
-        console.log('e', e);
-        console.log('f', f);
-        console.log('g', g);
+        const e = Keyboard.Is.commandConcept({ ctrl: true }, { ua: mac });
+        const f = Keyboard.Is.commandConcept({ meta: true }, { ua: windows });
+        const g = Keyboard.Is.commandConcept({ meta: true }, { ua: linux });
 
         expect(a).to.be.false;
 
@@ -218,6 +210,52 @@ describe(
         expect(e).to.be.false;
         expect(f).to.be.false;
         expect(g).to.be.false;
+      });
+
+      it('Is.copy (platform-independent)', () => {
+        // No event → never a copy.
+        expect(Keyboard.Is.copy()).to.be.false;
+
+        // Correct "copy" shortcuts
+        const b = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+        const c = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: windows },
+        );
+        const d = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: linux },
+        );
+
+        expect(b).to.be.true;
+        expect(c).to.be.true;
+        expect(d).to.be.true;
+
+        // Mismatched modifiers or wrong key
+        const e = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+        const f = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: windows },
+        );
+        const g = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: linux },
+        );
+        const h = Keyboard.Is.copy(
+          { key: 'v', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+
+        expect(e).to.be.false;
+        expect(f).to.be.false;
+        expect(g).to.be.false;
+        expect(h).to.be.false;
       });
     });
   },

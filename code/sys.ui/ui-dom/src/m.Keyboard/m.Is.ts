@@ -1,7 +1,7 @@
 import { type t, UserAgent } from './common.ts';
 
 export const Is: t.KeyboardIsLib = {
-  meta(modifiers, options = {}) {
+  commandConcept(modifiers, options = {}) {
     if (!modifiers) return false;
     const ua = options.ua ?? UserAgent.current;
 
@@ -11,5 +11,10 @@ export const Is: t.KeyboardIsLib = {
         : modifiers.ctrl; //  Ctrl everywhere else.
 
     return meta ?? false;
+  },
+
+  copy(e, options = {}) {
+    if (!e) return false;
+    return e.key === 'c' && Is.commandConcept(e.modifiers, options);
   },
 };
