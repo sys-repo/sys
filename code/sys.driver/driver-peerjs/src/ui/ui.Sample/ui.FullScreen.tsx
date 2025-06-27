@@ -33,7 +33,8 @@ export const FullScreen: React.FC<FullScreenProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       display: 'grid',
-      pointerEvents: 'auto', // NB: reset from overlay turning pointer-events off.
+      pointerEvents: 'auto', //        ← NB: reset from overlay turning pointer-events off.
+      backdropFilter: 'blur(20px)', // ← NB: this should never be seen, fallback for when/if a stream does not adequately render (edge-case, eg disposed).
     }),
     stream: css({ Absolute: 0 }),
     closeBtn: css({ Absolute: [4, 5, null, null] }),
