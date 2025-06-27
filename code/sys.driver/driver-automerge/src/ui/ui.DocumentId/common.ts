@@ -14,5 +14,6 @@ export const DEFAULTS = {
   autoFocus: false,
   placeholder: 'document-id',
   spinning: false,
+  urlSupport: true,
 } as const;
 export const D = DEFAULTS;

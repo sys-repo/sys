@@ -12,14 +12,16 @@ export default Spec.describe(D.displayName, (e) => {
   const p = debug.props;
 
   function Root() {
+    const v = Signal.toObject(p);
+
     /**
      * NOTE: either pass down the hook (instance)
      *       OR the setup arguments for the hook.
      */
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
-      repo: p.passRepo.value ? repo : undefined,
+      repo: v.passRepo ? repo : undefined,
+      localstorage: v.localstorage,
       signals: { doc: p.doc, docId: p.docId },
-      localstorage: p.localstorage.value,
       initial: () => ({ count: 0 }), // NB: dynamic generator.
     };
     const hook = DocumentId.useController(args);
@@ -30,16 +32,17 @@ export default Spec.describe(D.displayName, (e) => {
     const theme = Color.theme(p.theme.value);
     return (
       <DocumentId.View
-        debug={p.debug.value}
-        theme={p.theme.value}
+        debug={v.debug}
+        theme={v.theme}
         //
-        controller={p.controlled.value ? hook : args} // ← NB: "controlled" OR "uncontrolled"
-        label={p.label.value}
-        placeholder={p.placeholder.value}
-        enabled={p.enabled.value}
-        readOnly={p.readOnly.value}
-        autoFocus={p.autoFocus.value}
+        controller={v.controlled ? hook : args} // ← NB: "controlled" OR "uncontrolled"
+        label={v.label}
+        placeholder={v.placeholder}
+        enabled={v.enabled}
+        readOnly={v.readOnly}
+        autoFocus={v.autoFocus}
         background={theme.is.dark ? -0.06 : -0.04}
+        urlSupport={v.urlSupport}
         //
         onReady={(e) => console.info(`🌳 Input.DocumentId.onReady:`, e)}
         onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}

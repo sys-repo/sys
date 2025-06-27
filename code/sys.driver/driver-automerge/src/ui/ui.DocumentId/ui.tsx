@@ -20,7 +20,15 @@ import { useController } from './use.Controller.ts';
 type P = t.DocumentIdProps;
 
 export const View: React.FC<P> = (props) => {
-  const { label, autoFocus = D.autoFocus, enabled = D.enabled, readOnly = D.readOnly } = props;
+  const {
+    label,
+    autoFocus = D.autoFocus,
+    enabled = D.enabled,
+    readOnly = D.readOnly,
+    urlSupport = D.urlSupport,
+  } = props;
+
+  console.log('urlSupport', urlSupport);
 
   /**
    * Refs:

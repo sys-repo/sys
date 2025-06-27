@@ -25,6 +25,7 @@ export type DocumentIdProps = {
   enabled?: boolean;
   autoFocus?: boolean | number;
   readOnly?: boolean;
+  urlSupport?: boolean;
 
   // Appearance:
   theme?: t.CommonTheme;

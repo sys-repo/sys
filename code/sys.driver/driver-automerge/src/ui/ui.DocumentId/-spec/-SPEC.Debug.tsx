@@ -14,7 +14,10 @@ type Storage = {
   controlled?: boolean;
   passRepo?: boolean;
   localstorage?: string;
-} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly'>;
+} & Pick<
+  P,
+  'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly' | 'urlSupport'
+>;
 
 const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -32,6 +35,7 @@ export function createDebugSignals() {
     passRepo: true,
     controlled: true,
     localstorage: STORAGE_KEY,
+    urlSupport: D.urlSupport,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -48,6 +52,7 @@ export function createDebugSignals() {
     passRepo: s(snap.passRepo),
     controlled: s(snap.controlled),
     localstorage: s(snap.localstorage),
+    urlSupport: s(snap.urlSupport),
 
     docId: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
@@ -80,6 +85,7 @@ export function createDebugSignals() {
       d.readOnly = p.readOnly.value;
       d.controlled = p.controlled.value;
       d.localstorage = p.localstorage.value;
+      d.urlSupport = p.urlSupport.value;
     });
   });
 
@@ -147,6 +153,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.readOnly)}
+      />
+      <Button
+        block
+        label={() => `urlSupport: ${p.urlSupport.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.urlSupport)}
       />
 
       <hr />
