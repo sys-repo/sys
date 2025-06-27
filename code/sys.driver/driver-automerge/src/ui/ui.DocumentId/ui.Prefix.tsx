@@ -9,6 +9,7 @@ export type PrefixProps = {
   enabled?: boolean;
   readOnly?: boolean;
   icon?: t.DocumentIdHook['transient']['kind'];
+  urlSupport?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -22,7 +23,7 @@ type P = PrefixProps;
  * Component:
  */
 export const Prefix: React.FC<P> = (props) => {
-  const { doc, enabled = D.enabled } = props;
+  const { doc, enabled = D.enabled, urlSupport = D.urlSupport } = props;
   const docId = (props.docId || '').trim();
   const copied = wrangle.copied(props);
   const is = {
@@ -45,7 +46,7 @@ export const Prefix: React.FC<P> = (props) => {
    * Handlers:
    */
   const handleCopy = () => {
-    const url = keyboard.urlMode;
+    const url = keyboard.urlMode && urlSupport;
     props.onCopy?.({ url });
   };
 
@@ -95,7 +96,8 @@ const wrangle = {
   copyIcon(props: P, urlMode: boolean) {
     const copied = wrangle.copied(props);
     if (copied) Icons.Copy.Tick;
-    return urlMode ? Icons.Copy.Slash : Icons.Copy.Basic;
+    const { urlSupport = D.urlSupport } = props;
+    return urlMode && urlSupport ? Icons.Copy.Slash : Icons.Copy.Basic;
   },
   databaseIcon(props: P) {
     const error = props.icon === 'Error';
@@ -103,10 +105,14 @@ const wrangle = {
   },
 
   url(props: P, isOver: boolean, urlMode: boolean) {
-    const docId = (props.docId || '').trim();
+    const { urlSupport = D.urlSupport } = props;
     const next = new URL(location.href);
+    if (!urlSupport) return next;
+
+    const docId = (props.docId || '').trim();
     if (isOver && urlMode) next.searchParams.set('doc', docId);
     else next.searchParams.delete('doc');
+
     return next;
   },
 } as const;
