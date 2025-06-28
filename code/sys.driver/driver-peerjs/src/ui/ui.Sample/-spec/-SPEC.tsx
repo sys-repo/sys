@@ -50,25 +50,6 @@ export default Spec.describe(D.displayName, (e) => {
         const styles = {
           base: css({ display: 'grid' }),
           docId: css({ Absolute: [-30, 0, null, 0] }),
-          footer: {
-            base: css({ Absolute: [null, 0, 0, 0] }),
-            body: css({ Absolute: 0, fontSize: 11, padding: 15 }),
-            a: css({ color: theme.fg }),
-          },
-        };
-
-        const link = (label: string, href: string) => {
-          const url = new URL(href);
-          return (
-            <a
-              target={'_blank'}
-              rel={'noopener noreferrer'}
-              href={url.href}
-              className={styles.footer.a.class}
-            >
-              {label}
-            </a>
-          );
         };
 
         return (
@@ -93,15 +74,6 @@ export default Spec.describe(D.displayName, (e) => {
                 p.selectedStream.value = e.stream;
               }}
             />
-
-            <div className={styles.footer.base.class}>
-              <div className={styles.footer.body.class}>
-                {link(
-                  'ref: sys.ui.media.video - MediaStream',
-                  'https://fs.db.team/sys/ui/?dev=6662459692802',
-                )}
-              </div>
-            </div>
           </div>
         );
       });
