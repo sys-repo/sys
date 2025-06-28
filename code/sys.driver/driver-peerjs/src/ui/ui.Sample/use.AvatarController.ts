@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Media } from './common.ts';
+import { type t, Kbd, Media } from './common.ts';
 
 /**
  * State controller for avatar video stream.
@@ -15,12 +15,12 @@ export function useAvatarController(args: {
    * Hooks:
    */
   const [stream, setStream] = React.useState<MediaStream | undefined>(args.stream);
+  const [flipped, setFlipped] = React.useState(false);
 
   /**
    * Effects:
    */
   React.useEffect(() => setStream(args.stream), [args.stream?.id]);
-
 
   /**
    * Handlers:
@@ -34,14 +34,18 @@ export function useAvatarController(args: {
   };
 
   const onSelect: t.AvatarSelectHandler = (e) => {
-    args.onSelect?.(e);
+    if (Kbd.Is.commandConcept(e.modifiers)) setFlipped((prev) => !prev);
+    if (!Kbd.Is.modified(e.modifiers) && !flipped) {
+      args.onSelect?.(e);
+    }
   };
 
   /**
    * API:
    */
   return {
-    stream,
     handlers: { onReady, onSelect },
+    stream,
+    flipped,
   } as const;
 }

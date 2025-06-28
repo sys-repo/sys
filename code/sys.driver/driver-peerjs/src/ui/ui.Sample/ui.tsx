@@ -68,25 +68,27 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   const elSelf = (
     <Avatar
+      {...self.handlers}
+      stream={self.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
       borderRadius={8}
       borderWidth={2}
       muted={true}
-      stream={self.stream}
-      {...self.handlers}
+      flipped={self.flipped}
     />
   );
 
   const elRemote = remote.stream && (
     <Avatar
+      {...remote.handlers}
+      stream={remote.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
       borderRadius={8}
       borderWidth={2}
       muted={false}
-      stream={remote.stream}
-      {...remote.handlers}
+      flipped={remote.flipped}
     />
   );
 

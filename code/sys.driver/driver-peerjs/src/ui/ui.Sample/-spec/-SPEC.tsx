@@ -90,7 +90,7 @@ export default Spec.describe(D.displayName, (e) => {
               }}
               onSelect={(e) => {
                 console.info(`⚡️ onSelect:`, e);
-                if (!Kbd.Is.modified(e.modifiers)) p.selectedStream.value = e.stream;
+                p.selectedStream.value = e.stream;
               }}
             />
 

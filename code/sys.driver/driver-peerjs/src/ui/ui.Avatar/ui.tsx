@@ -14,10 +14,11 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
   } = props;
 
   /* Pointer */
-  const pointer = usePointer((e) => {
-    props.onPointer?.(e);
-    const modifiers = e.trigger.modifiers;
-    if (e.is.down && stream) props.onSelect?.({ stream, modifiers });
+  const pointer = usePointer({
+    on: props.onPointer,
+    onUp(e) {
+      if (stream) props.onSelect?.({ stream, modifiers: e.modifiers });
+    },
   });
 
   /* Styles */
@@ -98,7 +99,7 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
           muted={true}
           stream={stream}
         />
-        <div className={styles.overlay.class}>{debug ? 'debug' : 'Config 🐷'}</div>
+        <div className={styles.overlay.class}>{'config 🐷'}</div>
       </div>
 
       <div className={styles.border.class} />
