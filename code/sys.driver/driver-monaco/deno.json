@@ -16,6 +16,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./crdt": "./src/ui/m.Editor.Crdt/mod.ts"
   }
 }

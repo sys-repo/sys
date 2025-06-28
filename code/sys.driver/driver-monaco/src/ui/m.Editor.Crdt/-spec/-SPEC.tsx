@@ -4,6 +4,7 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { D } from '../common.ts';
 import { Debug, createDebugSignals, STORAGE_KEY } from './-SPEC.Debug.tsx';
+import { EditorCrdt } from '../mod.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -43,9 +44,20 @@ export default Spec.describe(D.displayName, (e) => {
           <MonacoEditor
             debug={v.debug}
             theme={v.theme}
+            focusOnLoad={true}
             onReady={(e) => {
               console.info(`⚡️ MonacoEditor.onReady:`, e);
               p.editor.value = e.editor;
+
+              const model = e.editor.getModel();
+              const doc = p.doc.value;
+              const path = p.path.value;
+
+              if (doc && path) {
+                const binding = EditorCrdt.bind(e.editor, doc, path);
+                console.log('binding', binding);
+              }
+
             }}
           />
         );

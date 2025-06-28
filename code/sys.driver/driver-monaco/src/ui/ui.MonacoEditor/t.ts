@@ -4,19 +4,22 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type MonacoEditorProps = {
-  debug?: boolean;
-
   text?: string;
   language?: t.EditorLanguage;
-  theme?: t.CommonTheme;
   placeholder?: string;
+
   enabled?: boolean;
   focusOnLoad?: boolean;
   tabSize?: number;
   minimap?: boolean;
   readOnly?: boolean;
-  style?: t.CssValue;
 
+  // Appearance:
+  theme?: t.CommonTheme;
+  style?: t.CssValue;
+  debug?: boolean;
+
+  // Handlers:
   onChange?: t.MonacoEditorChangeHandler;
   onReady?: t.MonacoEditorReadyHandler;
   onDispose?: t.MonacoEditorDisposedHandler;

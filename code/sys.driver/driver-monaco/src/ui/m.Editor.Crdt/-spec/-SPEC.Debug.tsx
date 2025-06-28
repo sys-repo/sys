@@ -3,9 +3,7 @@ import React from 'react';
 import { Crdt } from '@sys/driver-automerge/ui';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.CodeEditorProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
-
+type Storage = { theme?: t.CommonTheme; debug?: boolean; path?: t.ObjectPath };
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
@@ -36,10 +34,10 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    path: s(snap.path),
 
     editor: s<t.MonacoCodeEditor>(),
     doc: s<t.CrdtRef>(),
-    path: s<P['path']>(snap.path),
   };
   const p = props;
   const api = {
