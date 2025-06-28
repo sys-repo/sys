@@ -46,7 +46,7 @@ export function createDebugSignals() {
     debug: true,
     enabled: D.props.enabled,
     readOnly: D.props.readOnly,
-    autoFocus: D.props.autoFocus,
+    autoFocus: true,
     minimap: D.props.minimap,
     tabSize: D.props.tabSize,
     language: D.props.language,
@@ -165,6 +165,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `autoFocus: (increment number)`}
         onClick={() => {
+          if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
+          (p.autoFocus.value as number) += 1;
         }}
       />
       <Button

@@ -19,19 +19,24 @@ export default Spec.describe('MonacoEditor', (e) => {
       .size('fill', 150)
       .display('grid')
       .render(() => {
-        if (!p.render.value) return null;
+        const v = Signal.toObject(p);
+        if (!v.render) return null;
 
         return (
           <MonacoEditor
-            debug={p.debug.value}
-            theme={p.theme.value}
-            enabled={p.enabled.value}
-            minimap={p.minimap.value}
-            readOnly={p.readOnly.value}
-            tabSize={p.tabSize.value}
-            placeholder={p.placeholder.value}
-            text={p.text.value}
-            language={p.language.value}
+            debug={v.debug}
+            theme={v.theme}
+            //
+            placeholder={v.placeholder}
+            text={v.text}
+            language={v.language}
+            //
+            enabled={v.enabled}
+            autoFocus={v.autoFocus}
+            minimap={v.minimap}
+            readOnly={v.readOnly}
+            tabSize={v.tabSize}
+            //
             onReady={(e) => {
               console.info(`⚡️ MonacoEditor.onReady:`, e);
               p.editor.value = e.editor;

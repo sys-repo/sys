@@ -48,13 +48,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   }, [tabSize, readOnly, minimap]);
 
   /**
-   * Effect: Auto-focus when requested.
-   */
-  React.useEffect(() => {
-    if (autoFocus && enabled) editorRef.current?.focus();
-  }, [readyRef.current, autoFocus, enabled]);
-
-  /**
    * Effect: End-of-life.
    */
   React.useEffect(() => {
@@ -66,6 +59,14 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       props.onDispose?.({ editor, monaco });
     };
   }, []);
+
+  /**
+   * Effect: Auto-focus when requested.
+   */
+  React.useEffect(() => {
+    const ready = readyRef.current;
+    if (autoFocus && enabled && ready) editorRef.current?.focus();
+  }, [readyRef.current, autoFocus, enabled]);
 
   /**
    * Updaters:
@@ -98,8 +99,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     const editor = (editorRef.current = ed);
     updateOptions(editor);
     updateTextState(editor);
-    if (enabled && props.focusOnLoad) editor.focus();
-    // if (enabled && props.autoFocus) editor.focus();
 
     let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
