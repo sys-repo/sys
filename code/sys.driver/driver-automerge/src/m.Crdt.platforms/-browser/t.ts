@@ -29,8 +29,10 @@ export type CrdtBrowserRepoArgs = {
 
 /** Storage argument. */
 export type CrdtBrowserStorageArg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
+/** Looser input args taking specific CRDT args, and general storage interface types. */
 export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterInterface;
 
 /** Network connection argument. */
 export type CrdtBrowserNetworkArg = { ws: StringWebsocketEndpoint };
+/** Looser input args taking specific CRDT args, and general network interface types. */
 export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface;

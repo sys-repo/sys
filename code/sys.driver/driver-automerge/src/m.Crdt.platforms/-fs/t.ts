@@ -22,7 +22,8 @@ export type CrdtFsRepoArgs = {
 };
 
 /** Network connection argument. */
-export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface;
 export type CrdtFsNetworkArg =
   | StringWebsocketEndpoint // ↓ shorthand for: ↓
   | { ws: StringWebsocketEndpoint };
+/** Looser input args taking specific CRDT args, and general network interface types. */
+export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface;

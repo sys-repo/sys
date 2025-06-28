@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/**
+ * Component:
+ */
 export type CardProps = {
   localstorage?: t.StringKey;
   textMaxLength?: number;
@@ -21,7 +24,10 @@ export type CardSignals = Omit<t.DocumentIdHookSignals, 'toValues'>;
 /**
  * Events:
  */
+
+/** Change handler. */
 export type CardChangedHandler = (e: CardChangedArgs) => void;
+/** Change event. */
 export type CardChangedArgs = {
   readonly is: { readonly head: boolean };
   readonly signals: CardSignals;

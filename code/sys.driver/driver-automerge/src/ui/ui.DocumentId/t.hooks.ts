@@ -5,13 +5,17 @@ type O = Record<string, unknown>;
 /**
  * Controller Hook:
  */
+
+/** Instantiation factor fo the <DocumentId> hook. */
 export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) => DocumentIdHook;
+/** Arguments passed to the <DocumentId> controller hook. */
 export type UseDocumentIdHookArgs<T = O> = {
   repo?: t.CrdtRepo;
   signals?: Partial<DocumentIdHookSignals>;
   localstorage?: t.StringKey;
   initial?: T | (() => T);
 };
+/** A <DocumentId> controller hook instance. */
 export type DocumentIdHook = {
   readonly ready: boolean;
   readonly instance: t.StringId;
@@ -26,6 +30,7 @@ export type DocumentIdHook = {
   };
 };
 
+/** Properties of the <DocumentId> hook. */
 export type DocumentIdHookProps = {
   readonly action: t.DocumentIdAction;
   readonly docId?: string;
@@ -38,6 +43,7 @@ export type DocumentIdHookProps = {
   };
 };
 
+/** Signals of the <DocumentId> hook. */
 export type DocumentIdHookSignals = {
   readonly docId: t.Signal<string | undefined>;
   readonly doc: t.Signal<t.CrdtRef | undefined>;
@@ -45,6 +51,7 @@ export type DocumentIdHookSignals = {
   toValues(): DocumentIdHookSignalValues;
 };
 
+/** Snapshot of the <DocumentId> signals converted to values. */
 export type DocumentIdHookSignalValues = {
   readonly docId: t.SignalValue<DocumentIdHookSignals['docId']>;
   readonly doc: t.SignalValue<DocumentIdHookSignals['doc']>;
