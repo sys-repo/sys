@@ -45,14 +45,16 @@ export const pkg: t.HttpCacheLib['pkg'] = (args) => {
     if (request.method !== 'GET') return;
 
     const { pathname } = new URL(request.url);
-    if (!HASHED_ASSET.test(pathname)) return; // ignore HTML, API, etc.
+    if (!HASHED_ASSET.test(pathname)) return; // Ignore non assets (eg. HTML, API, etc).
+
+    const key = request.url;
 
     e.respondWith(
       (async () => {
         // Step-1: any cache hit?
-        const cached = await caches.match(request);
+        const cached = await caches.match(key);
         if (cached) {
-          console.info(`🌼 cache match: ${request.url}`);
+          console.info(`🌼 cache hit: ${key}`);
           return cached;
         }
 
@@ -60,7 +62,7 @@ export const pkg: t.HttpCacheLib['pkg'] = (args) => {
         const response = await fetch(request);
         if (response.ok && (response.type === 'basic' || response.type === 'cors')) {
           const cache = await caches.open(CACHE);
-          cache.put(request, response.clone());
+          cache.put(key, response.clone());
         }
         return response;
       })(),
