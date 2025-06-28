@@ -182,7 +182,7 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
   life.dispose$.subscribe(() => {
     if (life.disposed) return;
     if (timer) clearTimeout(timer);
-    cleanupCall();
+    IO.cleanupCall();
     peer.off('call', Handle.incoming);
     peer.off('disconnected', Handle.disconnect);
   });
