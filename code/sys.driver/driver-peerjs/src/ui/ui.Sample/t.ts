@@ -22,6 +22,7 @@ export type SampleProps = {
 export type SampleDoc = {
   count: number;
   connections?: {
+    timestamp: t.UnixTimestamp;
     group: t.WebRtc.PeerId[];
     dyads: t.WebRtc.PeerDyad[];
   };

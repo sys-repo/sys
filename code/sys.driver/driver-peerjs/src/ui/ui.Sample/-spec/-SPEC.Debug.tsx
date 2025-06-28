@@ -3,6 +3,7 @@ import React from 'react';
 import {
   Button,
   Crdt,
+  Time,
   css,
   D,
   Is,
@@ -204,7 +205,8 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
         const doc = p.doc.value;
         doc?.change((d) => {
           delete d.connections;
-          d.connections = { group: [], dyads: [] };
+          const timestamp = Time.now.timestamp;
+          d.connections = { timestamp, group: [], dyads: [] };
         });
         console.info('after clear', { ...doc?.current });
       }}
@@ -214,13 +216,14 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elAddSelf = (
     <Button
       block
-      label={() => `- group: add self`}
+      label={() => `→ group: add self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
 
         doc.change((d) => {
-          if (!Is.object(d.connections)) d.connections = { group: [], dyads: [] };
+          const timestamp = Time.now.timestamp;
+          if (!Is.object(d.connections)) d.connections = { timestamp, group: [], dyads: [] };
           const group = d.connections.group;
           if (!group.includes(peer.id)) group.push(peer.id);
         });
@@ -233,7 +236,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elRemoveSelf = (
     <Button
       block
-      label={() => `- group: remove self`}
+      label={() => `→ group: remove self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
@@ -254,7 +257,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elTmp = (
     <Button
       block
-      label={() => `🐷 ƒ: maintainDyadConnection( 🌳..🌳 )`}
+      label={() => `🐷 ƒ: maintainDyadConnection( 🐚 .. 🐚 )`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
