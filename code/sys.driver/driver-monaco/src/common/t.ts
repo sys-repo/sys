@@ -5,6 +5,11 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
 export type * from '../t.def.monaco.ts';
 
 /**
+ * @drivers
+ */
+export type { CrdtRef, CrdtRepo } from '@sys/driver-automerge/t';
+
+/**
  * @system
  */
 export type * from '@sys/types';

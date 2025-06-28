@@ -10,4 +10,5 @@ export const ns = 'sys.driver.ui.react.monaco';
  */
 export const Specs = {
   [`${ns}.ui.MonacoEditor`]: () => import('../ui/ui.MonacoEditor/-spec/-SPEC.tsx'),
+  [`${ns}: ui.MonacoEditor ← (CRDT binding)`]: () => import('../ui/ui.Editor.Crdt/-spec/-SPEC.tsx'),
 } as t.SpecImports;

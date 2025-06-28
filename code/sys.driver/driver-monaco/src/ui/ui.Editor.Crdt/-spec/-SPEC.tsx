@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { DocumentId } from '../../mod.ts';
+import { DocumentId } from '@sys/driver-automerge/ui';
 
 import { D } from '../common.ts';
 import { CodeEditor } from '../mod.ts';

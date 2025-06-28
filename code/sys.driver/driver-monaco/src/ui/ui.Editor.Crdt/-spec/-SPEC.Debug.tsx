@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
+import { Crdt } from '@sys/driver-automerge/ui';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CodeEditorProps;
@@ -114,7 +114,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          doc: p.doc.value?.current,
+        }}
+        expand={1}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
