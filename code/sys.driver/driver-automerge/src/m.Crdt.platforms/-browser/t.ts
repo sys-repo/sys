@@ -32,5 +32,5 @@ export type CrdtBrowserStorageArg = 'IndexedDb' | { database?: StringDatabaseNam
 export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterInterface;
 
 /** Network connection argument. */
-export type CrdtBrowserNetworkArg = 'BroadcastChannel' | { ws: StringWebsocketEndpoint };
+export type CrdtBrowserNetworkArg = { ws: StringWebsocketEndpoint };
 export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface;

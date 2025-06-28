@@ -33,7 +33,6 @@ import { Crdt } from '@sys/driver-automerge/browser';
 const repo = Crdt.repo({
   storage: 'IndexedDb',
   network: [
-    'BroadcastChannel',
     { wss: 'localhost:3030' },       // or:↓
     { wss: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/server` to stand-up dedicated server.
   ],
