@@ -8,11 +8,11 @@ export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
   /**
    * Effect: warnings.
    */
-  React.useEffect(() => {
-    if (!path) console.warn('`path` property not specified.');
-    if (!doc) console.warn('`doc` property not specified.');
-  }, [!!path]);
-  React.useEffect(() => {}, [!!path]);
+  // React.useEffect(() => {
+  //   if (!path) console.warn('`path` property not specified.');
+  //   if (!doc) console.warn('`doc` property not specified.');
+  // }, [!!path]);
+  // React.useEffect(() => {}, [!!path]);
 
   /**
    * Render:
