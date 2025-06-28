@@ -38,11 +38,11 @@ groups:
     # https://automerge.org
     - import: npm:@automerge/automerge@2.2.9
       subpaths: [next]
-    - import: npm:@automerge/automerge-repo@2.0.5
-    - import: npm:@automerge/automerge-repo-network-broadcastchannel@2.0.5
-    - import: npm:@automerge/automerge-repo-network-websocket@2.0.5
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.5
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.5
+    - import: npm:@automerge/automerge-repo@2.0.6
+    - import: npm:@automerge/automerge-repo-network-broadcastchannel@2.0.6
+    - import: npm:@automerge/automerge-repo-network-websocket@2.0.6
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.6
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.6
     - import: npm:@onsetsoftware/automerge-patcher@0.14.0
     - import: npm:@automerge/prosemirror@0.0.13
 
@@ -133,7 +133,7 @@ deno.json:
     subpaths: [v4, v4-mini]
 
   # Websockets:
-  - import: npm:ws@8.18.2
+  - import: npm:ws@8.18.3
   - import: npm:@types/ws@8.18.1
 
   # Browser:
@@ -161,5 +161,5 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.19.1
+  - import: npm:motion@12.19.2
   - import: npm:hono@4.8.3
