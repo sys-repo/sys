@@ -23,10 +23,11 @@ export type MonacoEditorProps = {
 };
 
 /**
- * Editor ready.
+ * Handler for when the editor is ready.
  */
-export type MonacoEditorReadyHandler = (e: MonacoEditorReadyArgs) => void;
-export type MonacoEditorReadyArgs = {
+export type MonacoEditorReadyHandler = (e: MonacoEditorReady) => void;
+/** Editor ready event. */
+export type MonacoEditorReady = {
   readonly editor: t.MonacoCodeEditor;
   readonly monaco: t.Monaco;
   readonly carets: t.EditorCarets;
@@ -34,19 +35,21 @@ export type MonacoEditorReadyArgs = {
 };
 
 /**
- * Editor disposed.
+ * Handler for when the editor is disposed.
  */
-export type MonacoEditorDisposedHandler = (e: MonacoEditorDisposedArgs) => void;
-export type MonacoEditorDisposedArgs = {
+export type MonacoEditorDisposedHandler = (e: MonacoEditorDisposed) => void;
+/** Editor disposed event. */
+export type MonacoEditorDisposed = {
   readonly editor: t.MonacoCodeEditor;
   readonly monaco: t.Monaco;
 };
 
 /**
- * Editor changed.
+ * Handler for when the editor changes.
  */
-export type MonacoEditorChangeHandler = (e: MonacoEditorChangeArgs) => void;
-export type MonacoEditorChangeArgs = {
+export type MonacoEditorChangeHandler = (e: MonacoEditorChange) => void;
+/** Editor change event. */
+export type MonacoEditorChange = {
   readonly event: t.monaco.editor.IModelContentChangedEvent;
   readonly editor: t.MonacoCodeEditor;
   readonly monaco: t.Monaco;

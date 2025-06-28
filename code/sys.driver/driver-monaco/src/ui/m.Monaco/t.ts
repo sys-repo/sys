@@ -5,4 +5,5 @@ import type { t } from './common.ts';
  */
 export type MonacoLib = {
   readonly Editor: React.FC<t.MonacoEditorProps>;
+  readonly Carets: t.EditorCaretsLib;
 };

@@ -44,12 +44,18 @@ export type DocumentIdProps = {
 /**
  * Events:
  */
+
+/** Handler for when the <DocumentId> is ready. */
 export type DocumentIdReadyHandler = (e: DocumentIdChanged) => void;
 
+/** Handler for when the <DocumentId> action button is triggered. */
 export type DocumentIdActionHandler = (e: DocumentIdActionArgs) => void;
+/** <DocumentId> action tiggered event. */
 export type DocumentIdActionArgs = { readonly action: DocumentIdAction };
 
+/** Handler for when the <DocumentId> changes value. */
 export type DocumentIdChangedHandler = (e: DocumentIdChanged) => void;
+/** The <DocumentId> changed event. */
 export type DocumentIdChanged = {
   readonly is: { readonly head: boolean };
   readonly signals: t.DocumentIdHookSignals;
