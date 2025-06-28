@@ -205,8 +205,8 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
         const doc = p.doc.value;
         doc?.change((d) => {
           delete d.connections;
-          const timestamp = Time.now.timestamp;
-          d.connections = { timestamp, group: [], dyads: [] };
+          const ts = Time.now.timestamp;
+          d.connections = { ts, group: [], dyads: [] };
         });
         console.info('after clear', { ...doc?.current });
       }}
@@ -222,8 +222,8 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
         if (!doc) return;
 
         doc.change((d) => {
-          const timestamp = Time.now.timestamp;
-          if (!Is.object(d.connections)) d.connections = { timestamp, group: [], dyads: [] };
+          const ts = Time.now.timestamp;
+          if (!Is.object(d.connections)) d.connections = { ts, group: [], dyads: [] };
           const group = d.connections.group;
           if (!group.includes(peer.id)) group.push(peer.id);
         });
