@@ -236,7 +236,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elRemoveSelf = (
     <Button
       block
-      label={() => `→ remove self`}
+      label={() => `← remove self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
@@ -257,7 +257,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elTmp = (
     <Button
       block
-      label={() => `🐷 ƒ: maintainDyadConnection( 🐚 .. 🐚 )`}
+      label={() => `🐚 ƒ: maintainDyadConnection( 🐷 .. 🐷 )`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
