@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, Keyboard, Media } from './common.ts';
+import { type t, Button, Color, css, Icons, Kbd, Media } from './common.ts';
 
 export type FullScreenProps = {
   stream: MediaStream;
@@ -19,7 +19,7 @@ export const FullScreen: React.FC<FullScreenProps> = (props) => {
    * Hooks:
    */
   React.useEffect(() => {
-    const kbd = Keyboard.until();
+    const kbd = Kbd.until();
     kbd.on('Escape', (e) => props.onClose?.());
     return kbd.dispose;
   }, []);

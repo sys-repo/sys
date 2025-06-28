@@ -2,7 +2,7 @@
  * @sys:
  */
 export { Color, css, Style } from '@sys/ui-css';
-export { Keyboard, LocalStorage } from '@sys/ui-dom';
+export { Kbd, LocalStorage } from '@sys/ui-dom';
 export { UserAgent } from '@sys/ui-dom/user-agent';
 
 export { useDebouncedValue, useDist, usePointer, useSizeObserver } from '@sys/ui-react';

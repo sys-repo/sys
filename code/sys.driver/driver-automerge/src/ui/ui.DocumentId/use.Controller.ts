@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { Keyboard } from '../common.ts';
+import { Kbd } from '../common.ts';
 import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
@@ -140,7 +140,7 @@ function useInternal(args: Args = {}): Hook {
     }
 
     // Copy (Clipboard):
-    if (Keyboard.Is.copy(e)) {
+    if (Kbd.Is.copy(e)) {
       e.cancel(); // Handled.
 
       if (e.modifiers.shift) run('Copy:Url');

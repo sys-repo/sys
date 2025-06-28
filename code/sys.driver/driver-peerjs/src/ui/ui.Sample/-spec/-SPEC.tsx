@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
+import { type t, Color, Crdt, css, D, Kbd, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
-import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { FullScreen } from '../ui.FullScreen.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -90,7 +90,7 @@ export default Spec.describe(D.displayName, (e) => {
               }}
               onSelect={(e) => {
                 console.info(`⚡️ onSelect:`, e);
-                p.selectedStream.value = e.stream;
+                if (!Kbd.Is.modified(e.modifiers)) p.selectedStream.value = e.stream;
               }}
             />
 

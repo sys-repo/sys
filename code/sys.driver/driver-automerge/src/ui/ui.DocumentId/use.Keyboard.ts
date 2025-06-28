@@ -1,5 +1,5 @@
 import React from 'react';
-import { Keyboard, UserAgent } from './common.ts';
+import { Kbd, UserAgent } from './common.ts';
 
 export function useKeyboard() {
   /**
@@ -12,7 +12,7 @@ export function useKeyboard() {
    */
   React.useEffect(() => {
     const ua = UserAgent.current;
-    const kbd = Keyboard.until();
+    const kbd = Kbd.until();
 
     kbd.$.subscribe((e) => {
       const modifiers = e.current.modifiers;

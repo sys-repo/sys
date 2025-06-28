@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { type t, History, Keyboard, LocalStorage, Signal } from './common.ts';
+import { type t, History, Kbd, LocalStorage, Signal } from './common.ts';
 
 type Storage = { docId?: string; history: string[] };
 type StorageImmutable = t.LocalStorageImmutable<Storage>;
@@ -67,7 +67,7 @@ export function useLocalStorage(key: string | undefined, signal: t.Signal<string
       if (prev) signal.value = prev;
     }
     if (e.key === 'ArrowDown') {
-      if (Keyboard.Is.commandConcept(e.modifiers)) {
+      if (Kbd.Is.commandConcept(e.modifiers)) {
         history.reset(); // ← reset to HEAD.
         signal.value = history.current;
       } else {
