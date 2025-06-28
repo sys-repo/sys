@@ -1,14 +1,16 @@
 import React from 'react';
-import { type t, Avatar, Color, Crdt, css, D, Media, ObjectView } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, D, ObjectView } from './common.ts';
+import { useAvatarController } from './use.AvatarController.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
-  const { debug = false, doc, peer, remoteStream } = props;
+  const { debug = false, doc, peer, onSelect } = props;
 
   /**
    * Hooks:
    */
   const readyRef = React.useRef(false);
-  const [localStream, setLocalStream] = React.useState<MediaStream>();
+  const self = useAvatarController({ name: 'Self', onSelect });
+  const remote = useAvatarController({ name: 'Remote', stream: props.remoteStream, onSelect });
 
   /**
    * Effects:
@@ -19,13 +21,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
    * Effect: Ready.
    */
   React.useEffect(() => {
-    if (!localStream || !peer) return;
+    if (!self.stream || !peer) return;
     if (readyRef.current) return;
     readyRef.current = true;
 
-    const self = { stream: localStream, peer: peer.id };
-    props.onReady?.({ self });
-  }, [!!localStream, !!peer]);
+    const stream = self.stream;
+    props.onReady?.({ self: { stream, peer: peer.id } });
+  }, [!!self.stream, !!peer]);
 
   /**
    * Render:
@@ -47,7 +49,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     obj: css({ marginTop: 20 }),
     dyad: {
       base: css({ padding: 20, display: 'grid', gridTemplateColumns: `auto 1fr auto` }),
-      avatar: css({ width: 100 }),
+      avatar: css({ width: 120 }),
     },
   };
 
@@ -68,31 +70,23 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     <Avatar
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={10}
+      borderRadius={8}
       borderWidth={2}
       muted={true}
-      stream={localStream}
-      onReady={(e) => {
-        setLocalStream(e.stream.filtered);
-
-        console.info(`⚡️ MediaStream.onReady (self):`, e);
-        Media.Log.tracks('- stream.raw:', e.stream.raw);
-        Media.Log.tracks('- stream.filtered:', e.stream.filtered);
-      }}
-      onSelect={props.onSelect}
+      stream={self.stream}
+      {...self.handlers}
     />
   );
 
-  const elRemote = remoteStream && (
+  const elRemote = remote.stream && (
     <Avatar
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={10}
+      borderRadius={8}
       borderWidth={2}
       muted={false}
-      stream={remoteStream}
-      onReady={(e) => console.info(`⚡️ MediaStream.onReady (remote):`, e)}
-      onSelect={props.onSelect}
+      stream={remote.stream}
+      {...remote.handlers}
     />
   );
 

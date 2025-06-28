@@ -28,8 +28,8 @@ export type SampleDoc = {
 };
 
 export type SamplePeerMedia = {
-  readonly stream: MediaStream;
   readonly peer: t.WebRtc.PeerId;
+  readonly stream: MediaStream;
 };
 
 /**
