@@ -48,7 +48,12 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     debug: css({}),
     obj: css({ marginTop: 20 }),
     dyad: {
-      base: css({ padding: 15, display: 'grid', gridTemplateColumns: `auto 1fr auto` }),
+      base: css({
+        padding: 15,
+        display: 'grid',
+        gridTemplateColumns: `auto 1fr auto`,
+        borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
+      }),
       avatar: css({ width: 120 }),
     },
   };
@@ -69,13 +74,15 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     </div>
   );
 
+  const borderRadius = 14;
+
   const elSelf = (
     <Avatar
       {...self.handlers}
       stream={self.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={10}
+      borderRadius={borderRadius}
       borderWidth={2}
       muted={true}
       flipped={self.flipped}
@@ -88,7 +95,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       stream={remote.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={10}
+      borderRadius={borderRadius}
       borderWidth={2}
       muted={false}
       flipped={remote.flipped}
