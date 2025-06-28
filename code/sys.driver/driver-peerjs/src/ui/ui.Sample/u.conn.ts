@@ -1,5 +1,5 @@
 import { type t, Obj } from './common.ts';
-import { maintainDyadConnection } from './u.conn.maintainDyad.ts';
+import { maintainDyadConnection } from './u.maintainDyad.ts';
 
 export const Conn = {
   maintainDyadConnection,
