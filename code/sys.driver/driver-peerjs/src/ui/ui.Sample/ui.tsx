@@ -48,7 +48,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     debug: css({}),
     obj: css({ marginTop: 20 }),
     dyad: {
-      base: css({ padding: 20, display: 'grid', gridTemplateColumns: `auto 1fr auto` }),
+      base: css({ padding: 15, display: 'grid', gridTemplateColumns: `auto 1fr auto` }),
       avatar: css({ width: 120 }),
     },
   };
@@ -59,7 +59,10 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       <ObjectView
         theme={theme.name}
         name={'debug'}
-        data={{ peer, room: doc?.current }}
+        data={{
+          webrtc: peer,
+          room: doc?.current,
+        }}
         style={styles.obj}
         expand={['$', '$.room', '$.room.connections', '$.room.connections.group']}
       />
@@ -72,7 +75,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       stream={self.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={8}
+      borderRadius={10}
       borderWidth={2}
       muted={true}
       flipped={self.flipped}
@@ -85,7 +88,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       stream={remote.stream}
       style={styles.dyad.avatar}
       theme={theme.name}
-      borderRadius={8}
+      borderRadius={10}
       borderWidth={2}
       muted={false}
       flipped={remote.flipped}
