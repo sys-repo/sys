@@ -28,6 +28,7 @@ export type SampleDoc = {
   };
 };
 
+/** Sample: Media stream coupled with the peer-id it related to. */
 export type SamplePeerMedia = {
   readonly peer: t.WebRtc.PeerId;
   readonly stream: MediaStream;
@@ -36,5 +37,8 @@ export type SamplePeerMedia = {
 /**
  * Events:
  */
+
+/** Handler for when the sample is ready. */
 export type SampleReadyHandler = (e: SampleReadyArgs) => void;
+/** The sample ready event. */
 export type SampleReadyArgs = { readonly self: SamplePeerMedia };
