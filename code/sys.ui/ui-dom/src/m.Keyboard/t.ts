@@ -61,7 +61,11 @@ export type KeyboardLib = {
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
 };
 
-export type AbstractKeyEvent = { key: string; modifiers: t.KeyboardModifierFlags };
+/**
+ * A pared back type that represents the minimal
+ * keyboard event needed by many helpers.
+ */
+export type AbstractKeyEvent = { key: string; modifiers: Partial<t.KeyboardModifierFlags> };
 
 /**
  * Boolean flag evaluaters.
@@ -78,12 +82,12 @@ export type KeyboardIsLib = {
    *
    */
   commandConcept(
-    modifiers?: Partial<t.KeyboardModifierFlags>,
+    modifiers?: Partial<t.KeyboardModifierFlags> | t.AbstractKeyEvent,
     options?: { ua?: t.UserAgent },
   ): boolean;
 
   /** Determine if any of the modifier flags are true. */
-  modified(modifiers?: Partial<t.KeyboardModifierFlags>): boolean;
+  modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.AbstractKeyEvent): boolean;
 
   /** Platform independent match on: Clipboard Copy. */
   copy(e?: AbstractKeyEvent, options?: { ua?: t.UserAgent }): boolean;

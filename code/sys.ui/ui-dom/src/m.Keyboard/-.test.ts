@@ -202,6 +202,8 @@ describe(
         const f = Keyboard.Is.commandConcept({ meta: true }, { ua: windows });
         const g = Keyboard.Is.commandConcept({ meta: true }, { ua: linux });
 
+        const h = Keyboard.Is.commandConcept({ key: 'c', modifiers: { meta: true } }, { ua: mac });
+
         expect(a).to.be.false;
 
         expect(b).to.be.true;
@@ -231,6 +233,11 @@ describe(
           expect(Is.modified({ meta: true, shift: true })).to.be.true;
           expect(Is.modified({ ctrl: true, alt: true })).to.be.true;
           expect(Is.modified({ meta: true, ctrl: true, alt: true, shift: true })).to.be.true;
+        });
+
+        it('takes keyboard event as input', () => {
+          expect(Is.modified({ key: 'c', modifiers: { meta: true } })).to.be.true;
+          expect(Is.modified({ key: 'c', modifiers: { meta: false } })).to.be.false;
         });
       });
 
