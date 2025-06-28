@@ -10,7 +10,7 @@ type Storage = Pick<
   'theme' | 'debug' | 'autoFocus' | 'readOnly' | 'scroll' | 'singleLine' | 'path'
 >;
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.input` };
+export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
  * Types:

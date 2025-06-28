@@ -1,11 +1,29 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { DocumentId } from '../../mod.ts';
+
 import { D } from '../common.ts';
 import { CodeEditor } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Debug, createDebugSignals, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
+
+  function DebugDocumentId() {
+    const doc = p.doc;
+    return (
+      <DocumentId.View
+        buttonStyle={{ margin: 4 }}
+        controller={{
+          repo,
+          signals: { doc },
+          initial: { text: '' },
+          localstorage: STORAGE_KEY.DEV,
+        }}
+      />
+    );
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -17,12 +35,17 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill', 150)
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <CodeEditor debug={v.debug} theme={v.theme} />;
+        return <CodeEditor debug={v.debug} theme={v.theme} path={v.path} />;
       });
+
+    ctx.debug.header
+      .padding(0)
+      .border(-0.1)
+      .render(() => <DebugDocumentId />);
   });
 
   e.it('ui:debug', (e) => {

@@ -1,8 +1,12 @@
 import React from 'react';
+
+import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CodeEditorProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
+
+export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
  * Types:
@@ -19,17 +23,27 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    path: ['text'],
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
+  const repo = Crdt.repo({
+    storage: { database: 'dev.crdt' },
+    network: [{ ws: 'sync.db.team' }],
+  });
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+
+    doc: s<t.CrdtRef>(),
+    path: s<P['path']>(snap.path),
   };
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -41,6 +55,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.path = p.path.value;
     });
   });
 
@@ -80,6 +95,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => {
+          const v = p.path.value;
+          return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.path, [undefined, ['text'], ['foo', 'bar']]);
+        }}
       />
 
       <hr />
