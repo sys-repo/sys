@@ -1,6 +1,6 @@
 /**
- * @module
  * Core CRDT primitives.
+ * @module
  */
 export { CrdtIs } from './m.Is.ts';
 export { CrdtUrl } from './m.Url.ts';

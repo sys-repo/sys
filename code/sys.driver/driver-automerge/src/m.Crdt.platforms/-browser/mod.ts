@@ -1,6 +1,6 @@
 /**
- * @module
  * CRDTs that work in a browser environment.
+ * @module
  */
 import { Repo } from '@automerge/automerge-repo';
 import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';

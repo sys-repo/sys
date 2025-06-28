@@ -1,6 +1,6 @@
 /**
- * @module
  * CRDTs that work on a local/native file-system.
+ * @module
  */
 import { Repo } from '@automerge/automerge-repo';
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';

@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './m.Crdt.platforms/-browser/t.ts';
 export type * from './m.Crdt.platforms/-fs/t.ts';

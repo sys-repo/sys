@@ -1,6 +1,6 @@
 /**
- * @module
  * User Interface Components.
+ * @module
  */
 
 /**

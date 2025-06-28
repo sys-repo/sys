@@ -1,6 +1,6 @@
 /**
- * @module
  * User Interface Components.
+ * @module
  */
 import { Crdt as Base } from '../../m.Crdt.platforms/-browser/mod.ts';
 import type { t } from './common.ts';
