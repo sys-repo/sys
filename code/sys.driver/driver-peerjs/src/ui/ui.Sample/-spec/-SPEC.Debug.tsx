@@ -216,7 +216,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elAddSelf = (
     <Button
       block
-      label={() => `→ group: add self`}
+      label={() => `→ add self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
@@ -236,7 +236,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const elRemoveSelf = (
     <Button
       block
-      label={() => `→ group: remove self`}
+      label={() => `→ remove self`}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
