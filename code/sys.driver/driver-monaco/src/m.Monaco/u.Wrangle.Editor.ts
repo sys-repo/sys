@@ -1,5 +1,4 @@
-import { D } from './constants.ts';
-import type * as t from './t.ts';
+import { type t, D } from './common.ts';
 
 /**
  * Helpers that examine an editor.

@@ -1,4 +1,4 @@
-import { type t, Is, R, rx, Wrangle } from './common.ts';
+import { type t, MonacoIs, R, rx, Wrangle } from './common.ts';
 import { caretStyleFactory } from './u.Caret.Style.ts';
 import { Color } from './u.Color.ts';
 
@@ -51,7 +51,7 @@ export const Caret = {
           range: Wrangle.Range.toRangeEnd(next),
           options: { className: style.class.caret },
         });
-        if (!Is.singleCharRange(next)) {
+        if (!MonacoIs.singleCharRange(next)) {
           acc.push({
             range: next,
             options: { className: style.class.selection },

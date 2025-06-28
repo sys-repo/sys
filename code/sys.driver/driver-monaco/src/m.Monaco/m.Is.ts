@@ -1,14 +1,7 @@
-import type * as t from './t.ts';
-
-import { DEFAULTS } from './constants.ts';
-import { R } from './libs.ts';
+import { type t, D, Is, R } from './common.ts';
 import { Range } from './u.Wrangle.Range.ts';
 
-export const Is = {
-  number(value: any) {
-    return typeof value === 'number' && !isNaN(value);
-  },
-
+export const MonacoIs: t.MonacoIsLib = {
   editorRange(input: any): input is t.EditorRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;
@@ -27,7 +20,7 @@ export const Is = {
   },
 
   nullRange(input: t.EditorRange): boolean {
-    return R.equals(input, DEFAULTS.NULL_RANGE);
+    return R.equals(input, D.NULL_RANGE);
   },
 
   singleCharRange(input: t.EditorRangeInput) {

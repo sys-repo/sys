@@ -1,4 +1,4 @@
-import type * as t from './t.ts';
+import type { t } from './common.ts';
 
 /**
  * Helpers that require the full Monaco API.
