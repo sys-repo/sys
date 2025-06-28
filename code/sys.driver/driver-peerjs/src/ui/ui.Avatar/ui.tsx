@@ -41,22 +41,14 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
       alignItems: 'center',
       justifyContent: 'center',
     }),
-    front: css({
-      backgroundColor: theme.alpha(0.1).bg,
-    }),
-    back: css({
-      backgroundColor: theme.alpha(0.05).bg,
-      transform: 'rotateY(180deg)',
-    }),
-    video: css({
-      Absolute: 0,
-      borderRadius,
-    }),
+    front: css({ backgroundColor: theme.alpha(0.1).bg }),
+    back: css({ backgroundColor: theme.alpha(0.05).bg, transform: 'rotateY(180deg)' }),
+    video: css({ Absolute: 0, borderRadius }),
     videoBlur: css({
       Absolute: 0,
       borderRadius,
-      filter: 'blur(12px)',
-      opacity: theme.is.dark ? 0.3 : 0.1,
+      filter: 'blur(4px)',
+      opacity: theme.is.dark ? 0.2 : 0.15,
       transform: 'scaleX(-1)', // mirror horizontally
     }),
     overlay: css({

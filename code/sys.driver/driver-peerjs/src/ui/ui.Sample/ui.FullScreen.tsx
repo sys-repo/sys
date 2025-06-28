@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Keyboard, Button, Color, css, Icons, Media } from './common.ts';
+import { type t, Button, Color, css, Icons, Keyboard, Media } from './common.ts';
 
 export type FullScreenProps = {
   stream: MediaStream;
@@ -34,7 +34,7 @@ export const FullScreen: React.FC<FullScreenProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       pointerEvents: 'auto', //        ← NB: reset from overlay turning pointer-events off.
-      backdropFilter: 'blur(20px)', // ← NB: this should never be seen, fallback for when/if a stream does not adequately render (edge-case, eg disposed).
+      backdropFilter: 'blur(12px)', // ← NB: this should never be seen, fallback for when/if a stream does not adequately render (edge-case, eg disposed).
     }),
     stream: css({ Absolute: 0 }),
     closeBtn: css({ Absolute: [4, 5, null, null] }),
