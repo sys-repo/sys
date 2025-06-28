@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for creating directory backup snapshots of a directory.
+ * @module
  */
 import type { FsDirSnapshotLib } from './t.ts';
 

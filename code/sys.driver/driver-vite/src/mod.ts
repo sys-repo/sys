@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with Vite as a bundler and dev-harness within Deno.
+ * @module
  */
 export { pkg } from './pkg.ts';
 export type * as t from './types.ts';

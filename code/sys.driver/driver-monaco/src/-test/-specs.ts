@@ -1,6 +1,6 @@
 /**
- * @module
  * DevHarness visual specs.
+ * @module
  */
 import type { t, pkg } from './common.ts';
 export const ns = 'sys.driver.ui.react.monaco';

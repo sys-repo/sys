@@ -1,6 +1,6 @@
 /**
- * @module
  * ANSI Color formatting tools for the terminal.
+ * @module
  */
 export { stripAnsi } from './common.ts';
 

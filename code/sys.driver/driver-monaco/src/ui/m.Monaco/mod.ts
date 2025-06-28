@@ -1,6 +1,6 @@
 /**
- * @module
  * Code editor.
+ * @module
  */
 import { EditorCarets } from '../m.Editor.Carets/mod.ts';
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';

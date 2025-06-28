@@ -1,4 +1,4 @@
 /**
- * @module
  * UI Components.
+ * @module
  */

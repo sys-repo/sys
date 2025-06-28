@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with strings of text.
+ * @module
  *
  * @example
  * ```ts

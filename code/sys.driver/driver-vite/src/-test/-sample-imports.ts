@@ -1,11 +1,11 @@
 /**
- * @module
  * Testing
  * Namespace: @std (deno)
  *            @sys (deno)
  *
  * Proves that key imports work from across the workspace
  * and do not cause build/bundle errors within Vite.
+ * @module
  */
 const now = new Date();
 

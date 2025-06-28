@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with Styles/CSS programatically (aka "css-in-js").
+ * @module
  *
  * @example
  * Core style helpers.

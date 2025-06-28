@@ -1,6 +1,6 @@
 /**
- * @module
  * Entry point for starting an HTTP server.
+ * @module
  *
  * ```bash
  * deno run jsr:@sys/http/server/start

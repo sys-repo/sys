@@ -1,7 +1,7 @@
 /**
- * @module
  * Helpers for working with the native `fetch` function.
  * https://fetch.spec.whatwg.org/
+ * @module
  */
 import type { HttpFetchLib } from './t.ts';
 import { create } from './u.create.ts';

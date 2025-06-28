@@ -1,6 +1,6 @@
 /**
- * @module
  * DevHarness visual specs.
+ * @module
  */
 import type { t } from './common.ts';
 export const ns = 'driver.peerjs';

@@ -1,7 +1,7 @@
 /**
- * @module
  * Common and "standards based" types definitions
  * shared between system modules.
+ * @module
  *
  * @example
  * ```ts

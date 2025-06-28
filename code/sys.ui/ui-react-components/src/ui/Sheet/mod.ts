@@ -1,6 +1,6 @@
 /**
- * @module
  * An animated sliding "sheet" content container.
+ * @module
  */
 import type { SheetLib } from './t.ts';
 

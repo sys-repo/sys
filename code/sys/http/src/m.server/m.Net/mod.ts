@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with a network.
+ * @module
  *
  * @example
  * ```ts

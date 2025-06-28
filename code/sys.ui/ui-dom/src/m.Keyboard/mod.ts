@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with global keyboard events.
+ * @module
  *
  * @example
  * ```ts

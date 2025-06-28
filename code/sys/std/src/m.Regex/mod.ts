@@ -1,6 +1,6 @@
 /**
- * @module
  * Helpers for working with regular-expressions.
+ * @module
  */
 import type { RegexLib } from './t.ts';
 

@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with the file-system.
+ * @module
  */
 import { Fs } from './m.Fs/mod.ts';
 export { pkg } from './pkg.ts';

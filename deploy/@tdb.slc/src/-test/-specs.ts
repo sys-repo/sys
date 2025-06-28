@@ -1,6 +1,6 @@
 /**
- * @module
  * DevHarness visual specs.
+ * @module
  */
 import type { t } from './common.ts';
 import { SpecsExternal } from './entry.Specs.External.ts';

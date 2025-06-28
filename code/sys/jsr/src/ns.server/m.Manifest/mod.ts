@@ -1,7 +1,7 @@
 /**
- * @module
  * Tools for pulling the source-code (typescript)
  * of a module within the registry.
+ * @module
  */
 import type { JsrManifestLib } from './t.ts';
 

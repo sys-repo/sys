@@ -1,6 +1,6 @@
 /**
- * @module
  * Server-side testing tools, including HTTP servers and file-system helpers.
+ * @module
  *
  * @example
  * A simple unit-test file, named: `-<Subject>.test.ts`.

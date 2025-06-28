@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './m.Fmt/t.ts';
 export type * from './m.Hash.Composite/t.ts';

@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for watching file-system changes.
+ * @module
  *
  * @example
  * ```ts

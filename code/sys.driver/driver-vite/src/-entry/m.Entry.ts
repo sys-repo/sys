@@ -1,6 +1,6 @@
 /**
- * @module
  * The entry points, when using the module from the command-line [argv].
+ * @module
  */
 import type { ViteEntryLib } from './t.ts';
 

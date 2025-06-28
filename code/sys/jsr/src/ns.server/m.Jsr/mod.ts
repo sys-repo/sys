@@ -1,7 +1,7 @@
 /**
- * @module
  * Tools for working with the JSR module registry (on the server).
  * https://jsr.io/docs
+ * @module
  */
 import type { JsrServerLib } from './t.ts';
 

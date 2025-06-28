@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types: Standard Library.
+ * @module
  */
 export type * from '@sys/types/t';
 

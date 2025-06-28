@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for parsing command line arguments.
+ * @module
  *
  * @example
  * ```ts

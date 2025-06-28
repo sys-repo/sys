@@ -1,7 +1,7 @@
 /**
- * @module
  * Tools for working with systems and runtimes that support
  * the ESM (EcmaScript Module) standard.
+ * @module
  */
 import type { EsmLib } from './t.ts';
 

@@ -2,8 +2,8 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * @module
  * HTTP tools.
+ * @module
  */
 export type HttpLib = {
   /**

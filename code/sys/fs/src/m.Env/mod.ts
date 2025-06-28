@@ -1,6 +1,6 @@
 /**
- * @module
  * Helpers for retrieveing environment variables (aka. "secrets").
+ * @module
  *
  * @example
  * ```ts

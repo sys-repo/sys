@@ -1,7 +1,7 @@
 /**
- * @module
  * An event structure over an `Immutable<T>` that allows for a common event driven
  * remote function invocation pattern to be achieved.
+ * @module
  *
  * @example
  * ```ts

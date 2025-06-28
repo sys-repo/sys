@@ -1,5 +1,4 @@
 /**
- * @module
  * Tools for wokring with the JSON-patch standard.
  *
  * Standard:
@@ -8,6 +7,8 @@
  *
  *    This subset of `op` values is what the [immer] state library uses.
  *    https://github.com/immerjs/immer
+ *
+ * @module
  *
  * @example
  * ```ts

@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with the Deno cloud.
+ * @module
  *
  * @example
  * ```ts

@@ -1,7 +1,7 @@
 /**
- * @module
  * Immutable Json/Patch/ObjectPath tools using Immer-js as the
  * underlying Immutable<T> implementation.
+ * @module
  *
  * @example
  * ```ts

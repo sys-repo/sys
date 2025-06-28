@@ -1,6 +1,6 @@
 /**
- * @module
  * Core DevHarness rendering library.
+ * @module
  *
  * @example
  * To run the DevHarness samples:

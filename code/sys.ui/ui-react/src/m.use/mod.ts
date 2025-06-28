@@ -1,6 +1,6 @@
 /**
- * @module
  * Common react hooks.
+ * @module
  *
  * @example
  *

@@ -1,6 +1,6 @@
 /**
- * @module
  * Helpers for working with cryptographic functions.
+ * @module
  *
  * @example
  * ```ts

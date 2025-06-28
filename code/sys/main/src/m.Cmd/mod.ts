@@ -1,6 +1,6 @@
 /**
- * @module
  * CLI entry point to the core system tools (ESM/WASM/JSR).
+ * @module
  *
  * @example
  * ```ts

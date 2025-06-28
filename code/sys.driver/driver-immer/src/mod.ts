@@ -1,7 +1,7 @@
 /**
- * @module
  * Driver for working with Immer as the immutability strategy
  * for an `Immutable<T>` implemenation.
+ * @module
  *
  * @example
  * ```ts

@@ -1,7 +1,7 @@
 /**
- * @module
  * Tools for working with semantic-versions (server edition).
  * https://semver.org
+ * @module
  */
 import type { SemverServerLib } from './t.ts';
 

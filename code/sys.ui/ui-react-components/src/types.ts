@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './ui/Bullet/t.ts';
 export type * from './ui/Button.Switch/t.ts';

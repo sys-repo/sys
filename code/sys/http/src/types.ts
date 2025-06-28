@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './m.client/m.Http.Fetch/t.ts';
 export type * from './m.client/m.Http/t.ts';

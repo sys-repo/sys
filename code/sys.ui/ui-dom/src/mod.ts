@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with the DOM (Document Object Model).
+ * @module
  *
  * @example
  * Importing tools for styling.

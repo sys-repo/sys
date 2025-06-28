@@ -1,5 +1,5 @@
 /**
- * @module
  * Spinners
+ * @module
  */
 export * from './BarSpinner.tsx';
