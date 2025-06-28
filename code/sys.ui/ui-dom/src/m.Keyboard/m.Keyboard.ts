@@ -27,3 +27,6 @@ export const Keyboard: t.KeyboardLib = {
   until,
   dbl,
 } as const;
+
+/** Alias to `Keyboard` */
+export const Kbd = Keyboard;
