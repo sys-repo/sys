@@ -13,6 +13,11 @@ export const Is: t.KeyboardIsLib = {
     return meta ?? false;
   },
 
+  modified(modifiers) {
+    if (!modifiers) return false;
+    return Object.values(modifiers ?? {}).some(Boolean);
+  },
+
   copy(e, options = {}) {
     if (!e) return false;
     return e.key === 'c' && Is.commandConcept(e.modifiers, options);

@@ -82,9 +82,10 @@ export type KeyboardIsLib = {
     options?: { ua?: t.UserAgent },
   ): boolean;
 
-  /**
-   * Platform independent match on: Clipboard Copy.
-   */
+  /** Determine if any of the modifier flags are true. */
+  modified(modifiers?: Partial<t.KeyboardModifierFlags>): boolean;
+
+  /** Platform independent match on: Clipboard Copy. */
   copy(e?: AbstractKeyEvent, options?: { ua?: t.UserAgent }): boolean;
 };
 

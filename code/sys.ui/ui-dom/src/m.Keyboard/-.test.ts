@@ -181,6 +181,7 @@ describe(
     });
 
     describe('Keyboard.Is', () => {
+      const Is = Keyboard.Is;
       const UA = {
         mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
         windows: 'Mozilla/5.0 (X11; Linux x86_64)',
@@ -210,6 +211,27 @@ describe(
         expect(e).to.be.false;
         expect(f).to.be.false;
         expect(g).to.be.false;
+      });
+
+      describe('Is.modified', () => {
+        it('returns false when no modifiers or all are false', () => {
+          expect(Is.modified()).to.be.false;
+          expect(Is.modified({})).to.be.false;
+          expect(Is.modified({ meta: false, ctrl: false, alt: false, shift: false })).to.be.false;
+        });
+
+        it('detects any single modifier key', () => {
+          expect(Is.modified({ meta: true })).to.be.true;
+          expect(Is.modified({ ctrl: true })).to.be.true;
+          expect(Is.modified({ alt: true })).to.be.true;
+          expect(Is.modified({ shift: true })).to.be.true;
+        });
+
+        it('detects multiple modifier keys pressed together', () => {
+          expect(Is.modified({ meta: true, shift: true })).to.be.true;
+          expect(Is.modified({ ctrl: true, alt: true })).to.be.true;
+          expect(Is.modified({ meta: true, ctrl: true, alt: true, shift: true })).to.be.true;
+        });
       });
 
       it('Is.copy (platform-independent)', () => {
