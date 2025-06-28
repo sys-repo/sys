@@ -27,4 +27,7 @@ export type AvatarProps = {
  * Events:
  */
 export type AvatarSelectHandler = (e: AvatarSelect) => void;
-export type AvatarSelect = { readonly stream: MediaStream };
+export type AvatarSelect = {
+  readonly stream: MediaStream;
+  readonly modifiers: t.KeyboardModifierFlags;
+};

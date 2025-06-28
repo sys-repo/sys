@@ -16,7 +16,8 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
   /* Pointer */
   const pointer = usePointer((e) => {
     props.onPointer?.(e);
-    if (e.is.down && stream) props.onSelect?.({ stream });
+    const modifiers = e.trigger.modifiers;
+    if (e.is.down && stream) props.onSelect?.({ stream, modifiers });
   });
 
   /* Styles */
