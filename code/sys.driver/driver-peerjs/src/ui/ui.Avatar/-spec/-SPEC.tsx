@@ -29,8 +29,8 @@ export default Spec.describe(D.displayName, (e) => {
             muted={v.muted}
             onReady={(e) => {
               console.info(`⚡️ MediaStream.onReady:`, e);
-              Media.Log.tracks('• stream.raw:', e.stream.raw);
-              Media.Log.tracks('• stream.filtered:', e.stream.filtered);
+              Media.Log.tracks('⚡️ MediaStream.raw:', e.stream.raw);
+              Media.Log.tracks('⚡️ MediaStream.filtered:', e.stream.filtered);
             }}
           />
         );
