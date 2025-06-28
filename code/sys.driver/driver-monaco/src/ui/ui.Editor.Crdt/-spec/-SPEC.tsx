@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { DocumentId } from '@sys/driver-automerge/ui';
+import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { D } from '../common.ts';
-import { CodeEditor } from '../mod.ts';
 import { Debug, createDebugSignals, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -39,7 +39,16 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <CodeEditor debug={v.debug} theme={v.theme} path={v.path} />;
+        return (
+          <MonacoEditor
+            debug={v.debug}
+            theme={v.theme}
+            onReady={(e) => {
+              console.info(`⚡️ MonacoEditor.onReady:`, e);
+              p.editor.value = e.editor;
+            }}
+          />
+        );
       });
 
     ctx.debug.header
