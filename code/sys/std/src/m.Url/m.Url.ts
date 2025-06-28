@@ -36,7 +36,7 @@ export const Url: UrlLib = {
   },
 
   /**
-   * Create from a [NetAddr]
+   * Create from a [NetAddr].
    */
   fromAddr(base: Deno.NetAddr) {
     return Url.fromUrl(`http://${base.hostname}:${base.port}`);
