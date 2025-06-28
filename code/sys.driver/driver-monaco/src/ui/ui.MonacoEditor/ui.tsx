@@ -18,11 +18,16 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     readOnly = D.props.readOnly,
     minimap = D.props.minimap,
     enabled = D.props.enabled,
+    autoFocus = D.props.autoFocus,
     placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
+  /**
+   * Refs:
+   */
+  const readyRef = React.useRef(false);
   const disposeRef = React.useRef(rx.subject<void>());
   const monacoRef = React.useRef<t.Monaco>();
   const editorRef = React.useRef<t.MonacoCodeEditor>();
@@ -40,7 +45,14 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
 
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [editorRef.current, tabSize, readOnly, minimap]);
+  }, [tabSize, readOnly, minimap]);
+
+  /**
+   * Effect: Auto-focus when requested.
+   */
+  React.useEffect(() => {
+    if (autoFocus && enabled) editorRef.current?.focus();
+  }, [readyRef.current, autoFocus, enabled]);
 
   /**
    * Effect: End-of-life.
@@ -87,6 +99,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     updateOptions(editor);
     updateTextState(editor);
     if (enabled && props.focusOnLoad) editor.focus();
+    // if (enabled && props.autoFocus) editor.focus();
 
     let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
@@ -98,6 +111,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
         return _carets || (_carets = EditorCarets.create(editor));
       },
     });
+    readyRef.current = true;
   };
 
   const handleChange: OnChange = (text = '', event) => {

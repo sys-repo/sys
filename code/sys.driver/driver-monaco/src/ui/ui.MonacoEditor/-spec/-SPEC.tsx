@@ -16,7 +16,7 @@ export default Spec.describe('MonacoEditor', (e) => {
     });
 
     ctx.subject
-      .size('fill')
+      .size('fill', 150)
       .display('grid')
       .render(() => {
         if (!p.render.value) return null;

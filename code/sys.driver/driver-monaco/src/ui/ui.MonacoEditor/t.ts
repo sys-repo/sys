@@ -9,7 +9,7 @@ export type MonacoEditorProps = {
   placeholder?: string;
 
   enabled?: boolean;
-  focusOnLoad?: boolean;
+  autoFocus?: boolean | number;
   tabSize?: number;
   minimap?: boolean;
   readOnly?: boolean;

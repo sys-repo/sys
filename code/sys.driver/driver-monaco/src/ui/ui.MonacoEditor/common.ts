@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'MonacoEditor';
 const props: t.PickRequired<
   t.MonacoEditorProps,
-  'theme' | 'readOnly' | 'minimap' | 'tabSize' | 'language' | 'enabled'
+  'theme' | 'readOnly' | 'minimap' | 'tabSize' | 'language' | 'enabled' | 'autoFocus'
 > = {
   theme: 'Dark',
   enabled: true,
@@ -15,6 +15,7 @@ const props: t.PickRequired<
   minimap: true,
   tabSize: 2,
   language: 'typescript',
+  autoFocus: false,
 };
 export const DEFAULTS = {
   ...BASE,
