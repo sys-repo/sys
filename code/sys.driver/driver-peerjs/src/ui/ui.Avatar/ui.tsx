@@ -99,7 +99,7 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
           muted={true}
           stream={stream}
         />
-        <div className={styles.overlay.class}>{'config 🐷'}</div>
+        <div className={styles.overlay.class}>{'🐷'}</div>
       </div>
 
       <div className={styles.border.class} />
