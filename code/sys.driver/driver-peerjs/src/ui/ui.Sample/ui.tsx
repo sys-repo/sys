@@ -74,7 +74,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     </div>
   );
 
-  const borderRadius = 14;
+  const borderRadius = 10;
 
   const elSelf = (
     <Avatar
