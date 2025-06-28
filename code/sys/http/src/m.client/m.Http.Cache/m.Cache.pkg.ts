@@ -1,13 +1,13 @@
 declare var self: ServiceWorkerGlobalScope;
-
 import { type t } from './common.ts';
+
 export const pkg: t.HttpCacheLib['pkg'] = (args) => {
   const { pkg } = args;
 
   /**
    * One permanent cache for all immutable, hash-named bundle files.
    */
-  const CACHE = args.cacheName ?? 'sys-hashed-files';
+  const CACHE = args.cacheName ?? `${pkg.name}:hashed-files`;
 
   /**
    * Files emitted by Vite look like:
