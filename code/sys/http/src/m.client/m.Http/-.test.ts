@@ -1,4 +1,5 @@
 import { type t, describe, Err, expect, it, Url } from '../../-test.ts';
+import { Cache } from '../m.Http.Cache/mod.ts';
 import { Fetch } from '../m.Http.Fetch/mod.ts';
 import { Http } from './mod.ts';
 
@@ -8,6 +9,7 @@ describe('Http', () => {
     expect(Http.url).to.equal(Url.create);
     expect(Http.Fetch).to.equal(Fetch);
     expect(Http.fetch).to.equal(Fetch.create);
+    expect(Http.Cache).to.equal(Cache);
   });
 
   describe('Http.toError', () => {

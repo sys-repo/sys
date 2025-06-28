@@ -6,15 +6,28 @@ type O = Record<string, unknown>;
  * HTTP tools.
  */
 export type HttpLib = {
-  /** Tools for working with the `fetch` function in system/standard ways. */
+  /**
+   * Tools for working with the `fetch` function in system/standard ways.
+   */
   readonly Fetch: t.HttpFetchLib;
   /** Generator function for a new fetch client. */
   readonly fetch: t.HttpFetchLib['create'];
 
-  /** URL helpers for working with the HTTP lib. */
+  /**
+   * Tools for working with the browser's HTTP cache within a "service-worker" process.
+   */
+  readonly Cache: t.HttpCacheLib;
+
+  /**
+   * URL helpers for working with the HTTP lib.
+   */
   readonly Url: t.UrlLib;
   /** Generator function for a new URL. */
   readonly url: t.UrlLib['create'];
+
+  /**
+   * Methods:
+   */
 
   /** Convert `Headers` into a simple headers object */
   toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
