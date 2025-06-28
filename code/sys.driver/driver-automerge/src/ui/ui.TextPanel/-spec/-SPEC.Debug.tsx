@@ -96,23 +96,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{`${D.name}`}</div>
+        <div>{'Persistent / CRDT'}</div>
+      </div>
 
-      <Button
-        block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
-      <Button
-        block
-        label={() => `label: ${p.label.value ?? `<undefined> (default: ${D.label})`}`}
-        onClick={() => Signal.cycle(p.label, [undefined, 'MyLabel', 'Description'])}
-      />
-      <Button
-        block
-        label={() => `padding: ${p.padding.value}`}
-        onClick={() => Signal.cycle(p.padding, [0, 5, 15])}
-      />
       <Button
         block
         label={() => {
@@ -127,6 +115,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
             ['project', 'canvas', 'purpose'],
           ]);
         }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `label: ${p.label.value ?? `<undefined> (default: ${D.label})`}`}
+        onClick={() => Signal.cycle(p.label, [undefined, 'My Label', 'Description'])}
+      />
+      <Button
+        block
+        label={() => `padding: ${p.padding.value}`}
+        onClick={() => Signal.cycle(p.padding, [0, 5, 15])}
       />
 
       <hr />

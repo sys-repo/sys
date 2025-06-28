@@ -8,8 +8,11 @@ export type TextPanelProps = {
   doc?: t.CrdtRef;
   path?: t.ObjectPath;
 
-  // Appearance:
+  // Debug:
   debug?: boolean;
+  warnings?: boolean;
+
+  // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
   labelOpacity?: t.Percent;
