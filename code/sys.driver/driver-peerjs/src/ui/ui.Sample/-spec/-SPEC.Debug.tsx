@@ -262,7 +262,7 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
         const peer = debug.peer;
         const localStream = p.localStream.value;
         const dyads = doc.current.connections?.dyads ?? [];
-        const dyad = dyads[0];
+        const dyad = dyads[0]; // 🐷 NB: hack, first dyad used only.
 
         if (!dyad || !localStream) return;
 

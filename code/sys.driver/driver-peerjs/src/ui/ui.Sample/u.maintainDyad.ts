@@ -1,27 +1,26 @@
 import { type t, rx } from './common.ts';
 
 /**
- * Resilient "one-to-one" video link for a given dyad of peer-id's.
+ * Resilient “one-to-one” media link for a given dyad of peer-id’s.
  *
  *  @usage
  *
- *   const conn = maintainDyadConnection({
- *      peer,               // your (already-created) PeerJS instance
- *      localStream,        // getUserMedia() result
- *      dyad: ['alice', 'bob'], // alphabetically-sorted tuple of the two IDs
- *      onRemoteStream: (s) => videoEl.srcObject = s,
- *   });
+ *    const life = maintainDyadConnection({
+ *      peer,                      // (open) PeerJS instance
+ *      localStream,               // getUserMedia() result
+ *      dyad: ['alice', 'bob'],    // tuple of the two IDs (order irrelevant)
+ *      onRemoteStream: (e) => (videoEl.srcObject = e.remote.stream),
+ *    });
  *
- *    // (later):
- *
- *    conn.dispose(); // close call and removes listeners.
+ *    // … later:
+ *    life.dispose();              // closes call and removes listeners.
  */
 type Args = {
   peer: t.PeerJS.Peer;
   dyad: t.WebRtc.PeerDyad;
   localStream: MediaStream;
   onRemoteStream?: RemoteStreamHandler;
-  retryDelay?: t.Msecs; // delay between reconnect attempts (ms).
+  retryDelay?: t.Msecs; // initial delay for reconnect polling (ms)
   dispose$?: t.UntilInput;
 };
 
@@ -32,99 +31,169 @@ export type RemoteStreamArgs = {
 };
 
 /**
- * Establishes and keeps alive a single media connection between the
- * two peer-ids in `dyad`.
- * The lexicographically first id is always the **caller**; the other waits
- * for the incoming call.
+ * Establishes — and keeps alive — a single media connection between the
+ * two peer-ids in `dyad`, regardless of *which side starts first*.
  *
- * Returns a disposer you can invoke to tear everything down cleanly.
+ * • Both sides poll-dial until *exactly one* link is up.
+ * • If the link drops, polling restarts with capped exponential back-off
+ *   (1 s → 2 s → 4 s … max 30 s).
+ * • Duplicate or stale connections are pruned automatically.
  */
 export function maintainDyadConnection(args: Args): t.Lifecycle {
-  const { peer, localStream, dyad, onRemoteStream, retryDelay = 1_000 } = args;
-  const [a, b] = dyad;
+  const { peer, dyad, localStream, onRemoteStream, retryDelay = 1_000 } = args;
+
+  /** `life` – external + internal disposal channel. */
   const life = rx.lifecycle(args.dispose$);
 
-  if (!peer.id) throw new Error('Peer instance must be open before calling');
+  if (!peer.id) throw new Error('Peer instance must be “open” first');
 
-  const isCaller = peer.id === a;
-  const remoteId = isCaller ? b : a;
+  const [id1, id2] = dyad;
+  const remoteId = peer.id === id1 ? id2 : id1;
+
   let call: t.PeerJS.MediaConnection | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let delay = retryDelay; // exponential back-off tracker
 
   /**
-   * Helper: start (or restart) the outbound call.
+   * Attempt to place an outbound call (poller).
    */
   const dial = () => {
-    if (life.disposed || !isCaller) return;
-    cleanupCall();
+    console.log('DIAL', call);
+    if (life.disposed || call) return; // already connected
     try {
-      call = peer.call(remoteId, localStream);
-      if (call) wireCall(call);
+      const outgoing = peer.call(remoteId, localStream);
+      if (outgoing) IO.wireCall(outgoing);
     } catch {
       scheduleRetry();
     }
   };
 
-  const handleIncomingStream = (stream: MediaStream) => {
-    onRemoteStream?.({
-      local: { stream: localStream, peer: peer.id },
-      remote: { stream, peer: remoteId },
-    });
-  };
-
   /**
-   * Helper: attach listeners to a MediaConnection.
+   * Schedule next dial attempt with exponential back-off.
    */
-  const wireCall = (c: t.PeerJS.MediaConnection) => {
-    c.on('stream', handleIncomingStream);
-    c.on('close', scheduleRetry);
-    c.on('error', scheduleRetry);
-  };
-
-  /** Helper: clear the current MediaConnection (no retry). */
-  const cleanupCall = () => {
-    if (call) {
-      call.off('stream', handleIncomingStream);
-      call.off('close', scheduleRetry);
-      call.off('error', scheduleRetry);
-      call.close();
-      call = null;
-    }
-  };
-
-  /** Helper: retry (once) after a short delay. */
   const scheduleRetry = () => {
-    if (life.disposed || timer) return;
+    if (life.disposed || timer || call) return;
     timer = setTimeout(() => {
       timer = null;
       dial();
-    }, retryDelay);
+      delay = Math.min(delay * 2, 30_000);
+    }, delay);
   };
-
-  /** Inbound call handler (for the callee side). */
-  const handleIncoming = (incoming: t.PeerJS.MediaConnection) => {
-    if (incoming.peer !== remoteId || life.disposed) return;
-    cleanupCall(); // replaces any stale connection.
-    incoming.answer(localStream);
-    call = incoming;
-    wireCall(incoming);
-  };
-
-  // Wire up inbound-call listener.
-  peer.on('call', handleIncoming);
-
-  // Kick-off outbound call if we are the caller.
-  if (isCaller) dial();
 
   /**
-   * Public disposal
+   * Connection I/O:
+   */
+  const IO = {
+    /**
+     * Attach housekeeping listeners to a MediaConnection.
+     */
+    wireCall(c: t.PeerJS.MediaConnection) {
+      IO.cleanupCall(); // ensure single active link
+      call = c;
+
+      const lost = () => IO.lostConnection(c);
+      const handleIce = (state: string) => {
+        if (state === 'disconnected' || state === 'failed' || state === 'closed') lost();
+      };
+
+      c.on('stream', Handle.stream);
+      c.on('close', lost);
+      c.on('error', lost);
+      (c as any).on?.('iceStateChanged', handleIce);
+
+      // When this connection is ultimately closed, remove listeners.
+      const detach = () => {
+        c.off('stream', Handle.stream);
+        c.off('close', lost);
+        c.off('error', lost);
+        (c as any).off?.('iceStateChanged', handleIce);
+      };
+      c.once?.('close', detach);
+      c.once?.('error', detach);
+    },
+
+    /**
+     * Connection lost → begin polling again (only if this call died).
+     */
+    lostConnection(conn?: t.PeerJS.MediaConnection) {
+      if (conn && conn !== call) return; // (ignore): stale/duplicate close.
+      IO.cleanupCall();
+      scheduleRetry();
+    },
+
+    /**
+     * Tear down current call (no retry).
+     */
+    cleanupCall() {
+      if (!call) return;
+      try {
+        call.close();
+      } catch {
+        /* noop */
+      }
+      call = null;
+    },
+  } as const;
+
+  /**
+   * Event handlers:
+   */
+  const Handle = {
+    /**
+     * Remote stream received → alert listeners.
+     */
+    stream(stream: MediaStream) {
+      delay = retryDelay; // success → reset back-off
+      onRemoteStream?.({
+        local: { stream: localStream, peer: peer.id },
+        remote: { stream, peer: remoteId },
+      });
+    },
+
+    /**
+     * Inbound call handler — answer if it's from the expected peer.
+     */
+    incoming(incoming: t.PeerJS.MediaConnection) {
+      if (incoming.peer !== remoteId || life.disposed) return;
+      IO.wireCall(incoming); // Becomes the active link.
+      try {
+        incoming.answer(localStream);
+      } catch {
+        /* Already answered. */
+      }
+    },
+
+    /**
+     * Signalling socket dropped — ask PeerJS to reconnect.
+     */
+    disconnect() {
+      if (life.disposed) return;
+      try {
+        peer.reconnect();
+      } catch {
+        /* noop */
+      }
+    },
+  } as const;
+
+  /**
+   * Dispose:
    */
   life.dispose$.subscribe(() => {
     if (life.disposed) return;
     if (timer) clearTimeout(timer);
     cleanupCall();
-    peer.off('call', handleIncoming);
+    peer.off('call', Handle.incoming);
+    peer.off('disconnected', Handle.disconnect);
   });
 
+  /**
+   * Initialize:
+   */
+  peer.on('call', Handle.incoming);
+  peer.on('disconnected', Handle.disconnect);
+  dial(); // Start polling immediately.
+
+  // Finish up.
   return life;
 }
