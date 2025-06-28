@@ -38,7 +38,13 @@ export async function main() {
      */
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
-    const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, {
+      hr: (e) => {
+        if (e.prev?.endsWith('ui.Card')) return true;
+        if (e.prev?.endsWith('ui.DocumentId')) return true;
+      },
+      style: { Absolute: 0 },
+    });
 
     function App() {
       useKeyboard();
