@@ -28,6 +28,9 @@ export const Url: UrlLib = {
       toString() {
         return base;
       },
+      toObject() {
+        return new URL(api.toString());
+      },
     };
     return api;
   },

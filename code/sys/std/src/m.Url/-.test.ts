@@ -46,4 +46,10 @@ describe('Url', () => {
     expect(url.join('foo/bar/')).to.eql('https://foo.com/v1/foo/bar/');
     expect(url.join('foo/bar?s=123')).to.eql('https://foo.com/v1/foo/bar?s=123');
   });
+
+  it('Url.toObject', () => {
+    const href = 'https://foo.com/v1?d=true#123';
+    const url = Url.create(href);
+    expect(url.toObject().href).to.eql(href);
+  });
 });

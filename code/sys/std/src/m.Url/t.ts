@@ -26,4 +26,7 @@ export type HttpUrl = {
 
   /** Collapse the URL to a simple HREF string. */
   toString(): string;
+
+  /** Snapshot the current value into a URL instance. */
+  toObject(): URL;
 };
