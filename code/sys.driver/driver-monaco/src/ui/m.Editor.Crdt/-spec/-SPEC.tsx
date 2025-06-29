@@ -1,10 +1,10 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { DocumentId } from '@sys/driver-automerge/ui';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { D } from '../common.ts';
-import { Debug, createDebugSignals, STORAGE_KEY } from './-SPEC.Debug.tsx';
 import { EditorCrdt } from '../mod.ts';
+import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -41,8 +41,10 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         if (!v.doc) return null;
+
         return (
           <MonacoEditor
+            key={`${v.path?.join('.')}`}
             debug={v.debug}
             theme={v.theme}
             autoFocus={true}
@@ -50,16 +52,19 @@ export default Spec.describe(D.displayName, (e) => {
               console.info(`⚡️ MonacoEditor.onReady:`, e);
               p.editor.value = e.editor;
 
+              // Kill old binding if it exists.
+              p.binding.value?.dispose();
+              p.binding.value = undefined;
+
+              /**
+               * 🌳 Setup data-binding:
+               */
               const doc = p.doc.value;
               const path = p.path.value;
-
               if (doc && path) {
                 const binding = EditorCrdt.bind(e.editor, doc, path);
-                console.log('binding', binding);
-
-                binding.$.subscribe((e) => {
-                  console.info(`⚡️ binding.$:`, e);
-                });
+                p.binding.value = binding;
+                binding.$.subscribe((e) => console.info(`⚡️ binding.$:`, e));
               }
             }}
           />

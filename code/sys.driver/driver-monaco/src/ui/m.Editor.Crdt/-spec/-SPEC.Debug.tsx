@@ -38,6 +38,7 @@ export function createDebugSignals() {
 
     editor: s<t.MonacoCodeEditor>(),
     doc: s<t.CrdtRef>(),
+    binding: s<t.EditorCrdtBinding>(),
   };
   const p = props;
   const api = {
