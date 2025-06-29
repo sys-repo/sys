@@ -72,7 +72,10 @@ export default Spec.describe(D.displayName, (e) => {
               debug={v.debug}
               theme={v.theme}
               doc={v.doc}
-              onCanvasClick={() => (p.showCanvas.value = true)}
+              onCanvasClick={() => {
+                p.showCanvas.value = true;
+                p.showEditorPanel.value = true;
+              }}
             />
           </div>
         );
