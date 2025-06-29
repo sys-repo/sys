@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogoCanvas } from '../ui.Logo.Canvas/mod.ts';
-import { type t, Color, Crdt, css, M, ObjectView } from './common.ts';
+import { type t, Color, Crdt, css, M, ObjectView, Button } from './common.ts';
 
 export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   const { debug = false, doc } = props;
@@ -31,12 +31,14 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   };
 
   const elCanvas = (
-    <div className={styles.canvas.base.class} onClick={props.onCanvasClick}>
+    <div className={styles.canvas.base.class}>
       <M.div
         animate={{ scale: doc?.current ? 1.4 : 1 }}
         transition={{ type: 'spring', bounce: 0.45, duration: 0.5 }}
       >
-        <LogoCanvas theme={theme.name} style={styles.canvas.logo} />
+        <Button onClick={props.onCanvasClick}>
+          <LogoCanvas theme={theme.name} style={styles.canvas.logo} />
+        </Button>
       </M.div>
     </div>
   );
