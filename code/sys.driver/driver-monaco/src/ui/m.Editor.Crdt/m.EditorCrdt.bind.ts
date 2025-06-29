@@ -13,7 +13,7 @@ import { diffToSplices } from './u.diffToSplices.ts';
  *        we patch the model via `pushEditOperations`, preserving undo/redo.
  *
  *  - A tiny "echo-guard" (`isPulling`) stops the two flows looping on each
- *     other while still keeping both worlds fully undoable.
+ *    other while still keeping both worlds fully undoable.
  *
  */
 export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
@@ -30,7 +30,7 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
   if (model.getValue() !== initialText) model.setValue(initialText);
 
   /**
-   * Flow: CRDT ➜ Monaco (remote edits).
+   * PULL: CRDT ➜ Monaco (remote edits).
    */
   events.$.pipe(rx.filter((e) => e.patches.some((p) => pathsOverlap(p.path, path)))).subscribe(
     (e) => {
@@ -69,7 +69,7 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
   );
 
   /**
-   * Flow: Monaco ➜ CRDT (local edits).
+   * PUSH: Monaco ➜ CRDT (local edits).
    */
   const editorChangeSub = model.onDidChangeContent((e) => {
     if (_isPulling) return; // ignore CRDT-initiated ops.
