@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Icons, Kbd, Media } from './common.ts';
+import { type t, Buttons, Color, css, Kbd, Media } from './common.ts';
 
 export type FullScreenProps = {
   stream: MediaStream;
@@ -41,9 +41,12 @@ export const FullScreen: React.FC<FullScreenProps> = (props) => {
   };
 
   const elCloseButton = (
-    <Button style={styles.closeBtn} theme={'Dark'} onClick={props.onClose}>
-      <Icons.Close size={20} />
-    </Button>
+    <Buttons.Icons.Close
+      //
+      style={styles.closeBtn}
+      theme={'Dark'}
+      onClick={props.onClose}
+    />
   );
 
   return (
