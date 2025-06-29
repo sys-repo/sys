@@ -3,8 +3,8 @@
  * @module
  */
 export type * from './ui/Bullet/t.ts';
-export type * from './ui/Buttons.Switch/t.ts';
 export type * from './ui/Button/t.ts';
+export type * from './ui/Buttons.Switch/t.ts';
 export type * from './ui/Cropmarks/t.ts';
 export type * from './ui/FadeElement/t.ts';
 export type * from './ui/Icon/t.ts';
