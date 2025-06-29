@@ -9,7 +9,7 @@ import { diffToSplices } from './u.diffToSplices.ts';
  *        and raise `onRefChange` so callers can react to the new ref.
  *
  *  - Remote CRDT edits → Monaco:
- *        Whenever the bound path changes on `doc.changes$`
+ *        Whenever the bound path changes on `doc.events().$`
  *        we patch the model via `pushEditOperations`, preserving undo/redo.
  *
  *  - A tiny "echo-guard" (`isPulling`) stops the two flows looping on each
