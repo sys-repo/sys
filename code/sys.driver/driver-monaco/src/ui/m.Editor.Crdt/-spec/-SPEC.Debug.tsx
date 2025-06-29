@@ -36,7 +36,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     path: s(snap.path),
 
-    editor: s<t.MonacoTypes.Editor>(),
+    editor: s<t.Monaco.Editor>(),
     doc: s<t.CrdtRef>(),
     binding: s<t.EditorCrdtBinding>(),
   };

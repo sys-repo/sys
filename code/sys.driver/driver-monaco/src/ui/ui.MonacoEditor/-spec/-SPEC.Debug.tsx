@@ -60,7 +60,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     render: s(true),
 
-    editor: s<t.MonacoTypes.Editor>(),
+    editor: s<t.Monaco.Editor>(),
     carets: s<t.EditorCarets>(),
 
     enabled: s(snap.enabled),
