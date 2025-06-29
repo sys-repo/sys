@@ -1,5 +1,7 @@
-import { Monaco } from '@sys/driver-monaco';
 import React from 'react';
+
+import { Monaco } from '@sys/driver-monaco';
+import { EditorCrdt } from '@sys/driver-monaco/crdt';
 
 import { type t, Button, Color, Crdt, css, Icons } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
@@ -17,7 +19,11 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const doc = p.doc.value;
-  const path = ['project', 'description'];
+
+  const PATHS = {
+    description: ['project', 'description'],
+    config: ['project', 'config', 'code'],
+  };
 
   /**
    * Render:
@@ -45,11 +51,22 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.desc.class}>
-        <Crdt.UI.TextPanel label={'Description'} doc={doc} path={path} />
+        <Crdt.UI.TextPanel label={'Description'} doc={doc} path={PATHS.description} />
         {elCloseButton}
       </div>
       <div className={styles.body.class}>
-        <Monaco.Editor theme={theme.name} minimap={false} language={'yaml'} />
+        <Monaco.Editor
+          theme={theme.name}
+          minimap={false}
+          language={'yaml'}
+          onReady={(e) => {
+            const path = PATHS.config;
+            if (doc) {
+              const binding = EditorCrdt.bind(e.editor, doc, path);
+              binding.$.subscribe((e) => console.info(`⚡️ binding.$:`, e));
+            }
+          }}
+        />
       </div>
     </div>
   );
