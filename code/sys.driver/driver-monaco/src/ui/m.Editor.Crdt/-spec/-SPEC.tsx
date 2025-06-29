@@ -62,10 +62,12 @@ export default Spec.describe(D.displayName, (e) => {
               // Setup new binding.
               const doc = p.doc.value;
               const path = p.path.value ?? [];
+
               if (doc) {
                 const binding = EditorCrdt.bind(e.editor, doc, path);
+
                 p.binding.value = binding;
-                binding.$.subscribe((e) => console.info(`⚡️ binding.$:`, e));
+                binding.$.subscribe((e) => console.info(`⚡️ crdt.binding.$:`, e));
               }
             }}
           />
