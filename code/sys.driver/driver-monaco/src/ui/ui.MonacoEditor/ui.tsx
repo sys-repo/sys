@@ -1,7 +1,7 @@
-import type { OnChange, OnMount } from '@monaco-editor/react';
+import React, { useRef } from 'react';
 
+import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
-import React from 'react';
 
 import { EditorCarets } from '../m.Editor.Carets/mod.ts';
 import { type t, Color, D, Spinners, Wrangle, css, rx } from './common.ts';
@@ -27,10 +27,10 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Refs:
    */
-  const readyRef = React.useRef(false);
-  const disposeRef = React.useRef(rx.subject<void>());
-  const monacoRef = React.useRef<t.Monaco>();
-  const editorRef = React.useRef<t.MonacoCodeEditor>();
+  const readyRef = useRef(false);
+  const disposeRef = useRef(rx.subject<void>());
+  const monacoRef = useRef<t.MonacoTypes.Monaco>();
+  const editorRef = useRef<t.MonacoTypes.Editor>();
   const [isEmpty, setIsEmpty] = React.useState(false);
 
   /**
@@ -73,8 +73,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Updaters:
    */
-  const getModel = (editor?: t.MonacoCodeEditor) => editor?.getModel();
-  const updateOptions = (editor?: t.MonacoCodeEditor) => {
+  const getModel = (editor?: t.MonacoTypes.Editor) => editor?.getModel();
+  const updateOptions = (editor?: t.MonacoTypes.Editor) => {
     if (!editor) return;
     editor.updateOptions({
       theme: editorTheme,
@@ -84,7 +84,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     getModel(editor)?.updateOptions({ tabSize });
   };
 
-  const updateTextState = (editor?: t.MonacoCodeEditor) => {
+  const updateTextState = (editor?: t.MonacoTypes.Editor) => {
     if (!editor) return;
     const text = editor.getValue();
     setIsEmpty(!text);
@@ -94,7 +94,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Handlers:
    */
   const handleMount: OnMount = (ed, m) => {
-    const monaco = m as t.Monaco;
+    const monaco = m as t.MonacoTypes.Monaco;
     Theme.init(monaco);
     monacoRef.current = monaco;
 

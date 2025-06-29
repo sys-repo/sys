@@ -4,7 +4,11 @@ import type { t } from './common.ts';
  * Helpers that require the full Monaco API.
  */
 export const Monaco = {
-  offsets(monaco: t.Monaco, editor: t.MonacoCodeEditor, selection: t.ISelection) {
+  offsets(
+    monaco: t.MonacoTypes.Monaco,
+    editor: t.MonacoTypes.Editor,
+    selection: t.MonacoTypes.Selection,
+  ) {
     const { Range } = monaco;
     const model = editor.getModel();
     if (!model) throw new Error(`Editor did not return a text model.`);
@@ -18,7 +22,7 @@ export const Monaco = {
     };
   },
 
-  position(monaco: t.Monaco, selection: t.ISelection) {
+  position(monaco: t.MonacoTypes.Monaco, selection: t.MonacoTypes.Selection) {
     const { Position } = monaco;
     const { selectionStartLineNumber, selectionStartColumn } = selection;
     const { positionLineNumber, positionColumn } = selection;

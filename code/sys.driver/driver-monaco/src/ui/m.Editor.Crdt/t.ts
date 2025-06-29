@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * an immutable CRDT document interface.
  */
 export type EditorCrdtLib = {
-  bind(editor: t.MonacoCodeEditor, doc: t.CrdtRef, path: t.ObjectPath): t.EditorCrdtBinding;
+  bind(editor: t.MonacoTypes.Editor, doc: t.CrdtRef, path: t.ObjectPath): t.EditorCrdtBinding;
 };
 
 /**
@@ -14,7 +14,7 @@ export type EditorCrdtLib = {
 export type EditorCrdtBinding = t.Lifecycle & {
   readonly doc: t.CrdtRef;
   readonly path: t.ObjectPath;
-  readonly model: t.MonacoTextModel;
+  readonly model: t.MonacoTypes.TextModel;
   readonly $: t.Observable<t.EditorCrdtLocalChange>;
 };
 

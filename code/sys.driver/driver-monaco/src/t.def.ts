@@ -32,4 +32,4 @@ export type EditorRangesInput =
 /** Loose input for editor character range. */
 export type EditorRangeInput = t.EditorRange | t.CharPositionTuple | t.CharRangeTuple | null;
 /** Range selection within the editor. */
-export type EditorSelection = t.Selection;
+export type EditorSelection = t.MonacoTypes.Selection;

@@ -1,7 +1,7 @@
 import { Color, type t } from './common.ts';
 
 export const Theme = {
-  init(monaco: t.Monaco) {
+  init(monaco: t.MonacoTypes.Monaco) {
     Theme.Light.define(monaco);
     Theme.Dark.define(monaco);
   },
@@ -14,7 +14,7 @@ export const Theme = {
 
   Light: {
     name: 'sys-light',
-    define(monaco: t.Monaco) {
+    define(monaco: t.MonacoTypes.Monaco) {
       monaco.editor.defineTheme(Theme.Light.name, {
         base: 'vs',
         inherit: true,
@@ -28,7 +28,7 @@ export const Theme = {
 
   Dark: {
     name: 'sys-dark',
-    define(monaco: t.Monaco) {
+    define(monaco: t.MonacoTypes.Monaco) {
       monaco.editor.defineTheme(Theme.Dark.name, {
         base: 'vs-dark',
         inherit: true,
