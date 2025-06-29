@@ -9,14 +9,7 @@ export type EditorCrdtLib = {
     model: t.MonacoTextModel | t.MonacoCodeEditor,
     doc: t.CrdtRef,
     path: t.ObjectPath,
-    options?: EditorCrdtBindOptions,
   ): t.EditorCrdtBinding;
-};
-
-/** Options passed to the CRDT `bind()` method. */
-export type EditorCrdtBindOptions = {
-  /** Called after **local** edits have produced a new immutable ref */
-  onRefChange?: t.EditorCrdtLocalChangeHandler;
 };
 
 /**
@@ -25,17 +18,16 @@ export type EditorCrdtBindOptions = {
 export type EditorCrdtBinding = t.Lifecycle & {
   readonly doc: t.CrdtRef;
   readonly path: t.ObjectPath;
+  readonly model: t.MonacoTextModel;
+  readonly $: t.Observable<t.EditorCrdtLocalChange>;
 };
 
 /**
  * Events:
  */
 
-/** Handler for when local edits have produced an immutable change. */
-export type EditorCrdtLocalChangeHandler = (e: EditorCrdtLocalChange) => void;
 /** Local CRDT editor change event. */
 export type EditorCrdtLocalChange = {
-  readonly doc: t.CrdtRef;
   readonly path: t.ObjectPath;
-  readonly change: t.CrdtChange;
+  readonly change: { readonly before: string; readonly after: string };
 };

@@ -40,24 +40,27 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        if (!v.doc) return null;
         return (
           <MonacoEditor
             debug={v.debug}
             theme={v.theme}
-            focusOnLoad={true}
+            autoFocus={true}
             onReady={(e) => {
               console.info(`⚡️ MonacoEditor.onReady:`, e);
               p.editor.value = e.editor;
 
-              const model = e.editor.getModel();
               const doc = p.doc.value;
               const path = p.path.value;
 
               if (doc && path) {
                 const binding = EditorCrdt.bind(e.editor, doc, path);
                 console.log('binding', binding);
-              }
 
+                binding.$.subscribe((e) => {
+                  console.info(`⚡️ binding.$:`, e);
+                });
+              }
             }}
           />
         );

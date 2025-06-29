@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/ui';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type Storage = { theme?: t.CommonTheme; debug?: boolean; path?: t.ObjectPath };
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
@@ -77,6 +77,8 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+
+  Crdt.UI.useRedrawEffect(p.doc.value);
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -88,7 +90,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{'Binding'}</div>
+      </div>
 
       <Button
         block
@@ -108,6 +113,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Alter Document (CRDT):'}</div>
+      <AlterDocumentButtons debug={debug} />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -119,9 +128,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ...Signal.toObject(p),
           doc: p.doc.value?.current,
         }}
-        expand={1}
+        expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
     </div>
   );
 };
+
+/**
+ * DevHelpers:
+ */
+export function AlterDocumentButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
+  const p = debug.props;
+  const doc = p.doc.value;
+  const path = p.path.value;
+
+  if (!doc || !path) return null;
+  const Mutate = Obj.Path.Mutate;
+
+  return (
+    <React.Fragment>
+      <Button
+        block
+        label={() => `replace: "Hello 👋"`}
+        onClick={() => {
+          const next = `// Hello 👋\n`;
+          doc.change((d) => Mutate.set(d, path, next));
+        }}
+      />
+    </React.Fragment>
+  );
+}
