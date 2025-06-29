@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, slug, Color, css, D, Is, LocalStorage, Signal, Time } from '../common.ts';
+import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.TextInputProps;
 type Storage = Pick<
@@ -48,17 +48,17 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    background: s<P['background']>(snap.background),
-    border: s<P['border']>(snap.border),
-    borderRadius: s<P['borderRadius']>(snap.borderRadius),
+    background: s(snap.background),
+    border: s(snap.border),
+    borderRadius: s(snap.borderRadius),
 
-    value: s<P['value']>(snap.value),
-    placeholder: s<P['placeholder']>(snap.placeholder),
+    value: s(snap.value),
+    placeholder: s(snap.placeholder),
 
-    disabled: s<P['disabled']>(snap.disabled),
-    readOnly: s<P['readOnly']>(snap.readOnly),
-    autoFocus: s<P['autoFocus']>(snap.autoFocus),
-    spellCheck: s<P['spellCheck']>(snap.spellCheck),
+    disabled: s(snap.disabled),
+    readOnly: s(snap.readOnly),
+    autoFocus: s(snap.autoFocus),
+    spellCheck: s(snap.spellCheck),
 
     prefix: s<P['prefix']>(),
     suffix: s<P['suffix']>(),
