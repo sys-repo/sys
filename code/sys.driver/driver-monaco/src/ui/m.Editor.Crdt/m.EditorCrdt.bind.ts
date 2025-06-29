@@ -26,7 +26,7 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
   // Ensure CRDT path exists and prime Monaco with its current value:
   doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
 
-  const initialText = Obj.Path.get(doc.current, path) as string;
+  const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
   if (model.getValue() !== initialText) model.setValue(initialText);
 
   /**

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type MonacoEditorProps = {
-  text?: string;
+  defaultValue?: string;
   language?: t.EditorLanguage;
   placeholder?: string;
 

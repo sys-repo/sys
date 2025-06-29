@@ -27,8 +27,8 @@ export default Spec.describe('MonacoEditor', (e) => {
             debug={v.debug}
             theme={v.theme}
             //
+            defaultValue={v.defaultValue}
             placeholder={v.placeholder}
-            text={v.text}
             language={v.language}
             //
             enabled={v.enabled}

@@ -71,7 +71,7 @@ export function createDebugSignals() {
     language: s(snap.language),
     placeholder: s(snap.placeholder),
 
-    text: s<P['text']>(),
+    defaultValue: s<P['defaultValue']>(),
   };
   const p = props;
   const api = {
@@ -197,7 +197,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 };
 
 /**
- * Dev Buttons:
+ * DevHelpers:
  */
 export function languageButtons(debug: DebugSignals) {
   const p = debug.props;
@@ -214,7 +214,7 @@ export function languageButtons(debug: DebugSignals) {
           label={() => language}
           onClick={() => {
             p.language.value = language;
-            if (codeSample) p.text.value = format(codeSample);
+            if (codeSample) p.defaultValue.value = format(codeSample);
           }}
         />
         <div>{isCurrent ? '🌳' : ''}</div>

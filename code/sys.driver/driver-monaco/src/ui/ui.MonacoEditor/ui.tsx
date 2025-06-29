@@ -12,7 +12,7 @@ import { Theme } from './u.Theme.ts';
  */
 export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const {
-    text,
+    defaultValue,
     language = D.props.language,
     tabSize = D.props.tabSize,
     readOnly = D.props.readOnly,
@@ -38,10 +38,12 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   React.useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) return;
-    if (text !== editor.getValue()) editor.setValue(text ?? '');
+    if (!editor || defaultValue === undefined) return;
+    if (defaultValue !== editor.getValue()) {
+      editor.setValue(defaultValue ?? '');
+    }
     updateTextState(editor);
-  }, [text, editorRef.current]);
+  }, [defaultValue, editorRef.current]);
 
   React.useEffect(() => {
     updateOptions(editorRef.current);
@@ -164,7 +166,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
         <EditorReact
           defaultLanguage={language}
           language={language}
-          defaultValue={text}
+          defaultValue={defaultValue}
           theme={editorTheme}
           loading={elLoading}
           onMount={handleMount}
