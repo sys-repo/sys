@@ -2,4 +2,4 @@
  * Library of common icon buttons.
  * @module
  */
-export { ButtonsIcons } from './m.Buttons.ts';
+export { IconButtons } from './m.Buttons.ts';

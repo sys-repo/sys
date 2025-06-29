@@ -1,5 +1,8 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
+
+export { Button } from '../Button/mod.ts';
+export { Icons } from '../Icons.ts';
 
 /**
  * Constants:

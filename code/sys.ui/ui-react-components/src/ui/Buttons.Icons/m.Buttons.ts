@@ -1,3 +1,7 @@
 import { type t } from './common.ts';
+import { Close, Face } from './ui.tsx';
 
-export const ButtonsIcons: t.ButtonsIconsLib = {};
+export const IconButtons: t.ButtonsIconsLib = {
+  Close,
+  Face,
+};

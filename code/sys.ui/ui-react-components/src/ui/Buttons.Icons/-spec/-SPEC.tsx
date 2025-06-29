@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import {} from '../mod.ts';
+import { IconButtons } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -21,7 +21,15 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <div>{`Buttons.Icons 🐷`}</div>;
+        const IconButton = IconButtons[v.show];
+        return (
+          <IconButton
+            theme={v.theme}
+            onClick={(e) => {
+              console.info(`⚡️ onClick:`, e);
+            }}
+          />
+        );
       });
   });
 

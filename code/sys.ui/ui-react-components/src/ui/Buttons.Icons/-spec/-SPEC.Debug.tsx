@@ -1,8 +1,9 @@
 import React from 'react';
+import { Buttons } from '../../Buttons/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
-type Storage = { theme?: t.CommonTheme; debug?: boolean };
+type Storage = { theme?: t.CommonTheme; debug?: boolean; show: keyof t.ButtonsIconsLib };
 
 /**
  * Types:
@@ -19,6 +20,7 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    show: 'Close',
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -26,6 +28,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    show: s(snap.show),
   };
   const p = props;
   const api = {
@@ -41,6 +44,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.show = p.show.value;
     });
   });
 
@@ -81,6 +85,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      {Object.keys(Buttons.Icons)
+        .map((key) => key as keyof t.ButtonsIconsLib)
+        .map((key) => {
+          const isCurrent = key === p.show.value;
+          return (
+            <Button
+              key={key}
+              block
+              label={() => `show: ${key} ${isCurrent ? '🌳' : ''}`}
+              onClick={() => (p.show.value = key)}
+            />
+          );
+        })}
 
       <hr />
       <Button
