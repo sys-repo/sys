@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { bind } from './m.EditorCrdt.bind.ts';
+import { bind } from './u.bind.ts';
 
 /**
  * Tools for binding between a Monaco editor and
