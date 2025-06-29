@@ -5,11 +5,12 @@ import type { t } from './common.ts';
  */
 export type EditorCanvasProps = {
   doc?: t.CrdtRef;
-  panels?: t.CanvasPanelContentMap;
+  path?: t.ObjectPath;
 
   // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  borderRadius?: t.Pixels;
 
   // Debug:
   debug?: boolean;

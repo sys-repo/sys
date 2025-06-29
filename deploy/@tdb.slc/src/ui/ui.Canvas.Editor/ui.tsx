@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, CanvasLayout, Color, css } from './common.ts';
+import { type t, CanvasLayout, CanvasPanel, Color, Crdt, css } from './common.ts';
 
 type P = t.EditorCanvasProps;
 
@@ -7,12 +7,9 @@ type P = t.EditorCanvasProps;
  * Component:
  */
 export const EditorCanvas: React.FC<P> = (props) => {
-  const { debug = false, panels = {}, doc } = props;
-
-  console.log('editor/panels', panels);
-  console.log('doc', doc);
-
+  const { debug = false, doc, borderRadius } = props;
   const active = !!doc;
+  const panels = active ? wrangle.panels(props) : {};
 
   /**
    * Render:
@@ -29,9 +26,43 @@ export const EditorCanvas: React.FC<P> = (props) => {
     }),
   };
 
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <CanvasLayout theme={theme.name} panels={panels} debug={debug} debugSize={props.debugSize} />
-    </div>
+  const elLayout = active && (
+    <CanvasLayout
+      //
+      theme={theme.name}
+      panels={panels}
+      debug={debug}
+      debugSize={props.debugSize}
+      style={{ borderRadius }}
+    />
   );
+
+  return <div className={css(styles.base, props.style).class}>{elLayout}</div>;
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  panels(props: P): t.CanvasPanelContentMap {
+    const { doc } = props;
+    const panels: t.CanvasPanelContentMap = {};
+
+    const render = (panel: t.CanvasPanel): t.CanvasPanelContent => {
+      const path = [...(props.path ?? []), panel, 'text'];
+      const view = (
+        <Crdt.UI.TextPanel
+          doc={doc}
+          path={path}
+          theme={props.theme}
+          label={panel}
+          style={{ padding: 8 }}
+        />
+      );
+      return { view };
+    };
+
+    CanvasPanel.all.forEach((panel) => (panels[panel] = render(panel)));
+    return panels;
+  },
+} as const;

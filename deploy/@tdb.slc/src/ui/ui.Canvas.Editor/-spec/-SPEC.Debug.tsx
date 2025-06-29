@@ -12,7 +12,7 @@ import {
 } from '../common.ts';
 
 type P = t.EditorCanvasProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
 
 type Doc = { text: string };
 
@@ -29,15 +29,19 @@ export function createDebugSignals() {
   const s = Signal.create;
   const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
 
-  const defaults: Storage = { theme: 'Dark', debug: false };
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: false,
+    path: ['project', 'panels'],
+  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    path: s(snap.path),
     doc: s<t.CrdtRef<Doc>>(),
-    panels: s<P['panels']>(),
   };
   const p = props;
 
@@ -45,6 +49,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.path = p.path.value;
     });
   });
 
@@ -57,30 +62,6 @@ export function createDebugSignals() {
         .forEach((s) => s.value);
     },
   };
-
-  /**
-   * Panel Layout:
-   */
-  const updatePanels = (doc?: t.CrdtRef<Doc>) => {
-    const render = (panel: t.CanvasPanel): t.CanvasPanelContent => {
-      const path = ['project', panel, 'text'];
-      const view = (
-        <Crdt.UI.TextPanel
-          doc={doc}
-          path={path}
-          theme={p.theme.value}
-          label={panel}
-          style={{ padding: 8 }}
-        />
-      );
-      return { view };
-    };
-    const panels: t.CanvasPanelContentMap = {};
-    CanvasPanel.all.forEach((panel) => (panels[panel] = render(panel)));
-    p.panels.value = panels;
-  };
-
-  Signal.effect(() => updatePanels(p.doc.value));
 
   return api;
 }
@@ -118,6 +99,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `path: ${p.path.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.path, [undefined, ['project', 'panels'], ['foo']])}
       />
 
       <hr />

@@ -28,7 +28,7 @@ export default Spec.describe(D.displayName, (e) => {
           <EditorCanvas
             theme={v.theme}
             doc={v.doc}
-            panels={v.panels}
+            path={v.path}
             debug={v.debug}
             debugSize={{ style: { Absolute: [-30, 3, null, null] } }}
           />
