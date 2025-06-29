@@ -1,6 +1,7 @@
 import { Dev, Spec } from '../../-test.ui.ts';
 
-import { type t, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
+import { EditorCanvas } from '../../ui.Canvas.Editor/mod.ts';
+import { type t, Buttons, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { HostFooter } from './-ui.HostFooter.tsx';
@@ -58,20 +59,66 @@ export default Spec.describe(D.displayName, (e) => {
       .size([550, 420])
       .display('grid')
       .render(() => {
+        const v = Signal.toObject(p);
         const styles = {
           base: css({ position: 'relative', display: 'grid' }),
           docId: css({ Absolute: [-30, 0, null, 0] }),
         };
+
         return (
           <div className={styles.base.class}>
             <DocumentId style={styles.docId} />
-            <CanvasProject debug={p.debug.value} theme={p.theme.value} doc={p.doc.value} />
+            <CanvasProject
+              debug={v.debug}
+              theme={v.theme}
+              doc={v.doc}
+              onCanvasClick={() => (p.showCanvas.value = true)}
+            />
           </div>
         );
       });
 
     ctx.debug.footer.padding(0).render(() => <DebugFooter />);
     ctx.host.footer.padding(0).render(() => <HostFooter repo={repo} theme={p.theme.value} />);
+
+    ctx.host.layer(1).render(() => {
+      if (!p.showCanvas.value) return null;
+
+      const v = Signal.toObject(p);
+      const theme = Color.theme(v.theme);
+      const styles = {
+        base: css({
+          position: 'relative',
+          backgroundColor: theme.bg,
+          display: 'grid',
+          padding: 60,
+          pointerEvents: 'auto',
+        }),
+      };
+
+      const doc = v.doc;
+      const path = ['project', 'panels'];
+
+      const elCloseButton = (
+        <Buttons.Icons.Close
+          theme={'Dark'}
+          style={{ Absolute: [4, 5, null, null] }}
+          onClick={() => (p.showCanvas.value = false)}
+        />
+      );
+
+      return (
+        <div className={styles.base.class}>
+          <EditorCanvas
+            //
+            doc={doc}
+            path={path}
+            theme={v.theme}
+          />
+          {elCloseButton}
+        </div>
+      );
+    });
   });
 
   e.it('ui:debug', (e) => {

@@ -1,10 +1,21 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Obj,
+  Button,
+  Crdt,
+  css,
+  D,
+  CanvasPanel,
+  LocalStorage,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { EditorPanel } from './-ui.EditorPanel.tsx';
 
 type Doc = { count: number };
 type P = t.CanvasProjectProps;
-type Storage = Pick<P, 'theme' | 'debug'> & { showEditorPanel?: boolean };
+type Storage = Pick<P, 'theme' | 'debug'> & { showEditorPanel?: boolean; showCanvas?: boolean };
 
 /**
  * Types:
@@ -22,6 +33,7 @@ export function createDebugSignals() {
     theme: 'Dark',
     debug: true,
     showEditorPanel: true,
+    showCanvas: false,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
   const snap = store.current;
@@ -35,6 +47,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     showEditorPanel: s(snap.showEditorPanel),
+    showCanvas: s(snap.showCanvas),
     doc: s<t.CrdtRef<Doc>>(),
   };
   const p = props;
@@ -53,6 +66,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.showEditorPanel = p.showEditorPanel.value;
+      d.showCanvas = p.showCanvas.value;
     });
   });
 
@@ -100,6 +114,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `show editor: ${p.showEditorPanel.value}`}
         onClick={() => Signal.toggle(p.showEditorPanel)}
       />
+      <Button
+        block
+        label={() => `show canvas: ${p.showCanvas.value}`}
+        onClick={() => Signal.toggle(p.showCanvas)}
+      />
 
       <hr />
       <Button
@@ -117,6 +136,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <Button
+        block
+        label={() => `🐷 ƒ migrate `}
+        onClick={() => {
+          const doc = p.doc.value;
+          if (doc) {
+            doc.change((d) => {
+              const path = ['project', 'panels'];
+              Obj.Path.Mutate.ensure(d, path, {});
+
+              const o = d as any;
+              const panels = Obj.Path.get<any>(d, path)!;
+
+              CanvasPanel.all.forEach((panel) => {
+                const from = o.project[panel];
+
+                if (from) {
+                  const text = from.text;
+                  panels[panel] = { text };
+                }
+
+                delete o.project[panel];
+              });
+            });
+          }
+        }}
+      />
+
       <ObjectView
         name={'debug'}
         data={Signal.toObject({ ...p, doc: p.doc.value?.current })}

@@ -9,4 +9,6 @@ export type CanvasProjectProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  onCanvasClick?: React.MouseEventHandler;
 };

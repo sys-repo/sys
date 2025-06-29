@@ -31,7 +31,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   };
 
   const elCanvas = (
-    <div className={styles.canvas.base.class}>
+    <div className={styles.canvas.base.class} onClick={props.onCanvasClick}>
       <M.div
         animate={{ scale: doc?.current ? 1.4 : 1 }}
         transition={{ type: 'spring', bounce: 0.45, duration: 0.5 }}
@@ -44,7 +44,13 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   const elObject = doc && debug && (
     <div className={styles.debugObj.base.class}>
       <div className={styles.debugObj.body.class}>
-        <ObjectView name={'doc'} data={doc?.current} theme={theme.name} expand={1} />
+        <ObjectView
+          //
+          name={'doc'}
+          data={doc?.current}
+          theme={theme.name}
+          expand={['$', '$.project', '$.project']}
+        />
       </div>
     </div>
   );
