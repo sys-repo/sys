@@ -1,4 +1,3 @@
-import { change } from '@automerge/automerge';
 import { type t, A, Obj, rx } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
