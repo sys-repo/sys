@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor';
 /**
  * Core Monaco library types:
  */
-export namespace MonacoTypes {
+export namespace Monaco {
   /** Top-level Monaco API type. */
   export type Monaco = typeof monaco;
 

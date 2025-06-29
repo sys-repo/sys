@@ -6,11 +6,7 @@ import { Color } from './u.Color.ts';
  * Manages caret/selection(s) decoration within an editor.
  */
 export const Caret = {
-  create(
-    editor: t.MonacoTypes.Editor,
-    id: string,
-    options: { color?: string } = {},
-  ): t.EditorCaret {
+  create(editor: t.Monaco.Editor, id: string, options: { color?: string } = {}): t.EditorCaret {
     const life = rx.lifecycle();
     const { dispose, dispose$ } = life;
     dispose$.subscribe(() => {
@@ -39,7 +35,7 @@ export const Caret = {
     if (!model) throw new Error(`The editor did not return a text-model`);
 
     const Decorations = {
-      add(decorations: t.MonacoTypes.IModelDeltaDecoration[]) {
+      add(decorations: t.Monaco.IModelDeltaDecoration[]) {
         _refs = model.deltaDecorations(_refs, decorations);
       },
       clear() {
@@ -49,7 +45,7 @@ export const Caret = {
     } as const;
 
     const updateSelections = (selections: t.EditorRange[]) => {
-      type D = t.MonacoTypes.IModelDeltaDecoration;
+      type D = t.Monaco.IModelDeltaDecoration;
       const decorations = selections.reduce((acc, next) => {
         acc.push({
           range: Wrangle.Range.toRangeEnd(next),

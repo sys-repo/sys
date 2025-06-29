@@ -5,7 +5,7 @@ import type { t } from '../common.ts';
  */
 export type EditorCaretsLib = {
   readonly Color: t.EditorCaretColorLib;
-  create(editor: t.MonacoTypes.Editor, options?: { dispose$?: t.UntilInput }): t.EditorCarets;
+  create(editor: t.Monaco.Editor, options?: { dispose$?: t.UntilInput }): t.EditorCarets;
 };
 
 /**
@@ -21,7 +21,7 @@ export type EditorCaretColorLib = {
  */
 export type EditorCarets = t.Lifecycle & {
   readonly $: t.Observable<EditorCaretChanged>;
-  readonly editor: t.MonacoTypes.Editor;
+  readonly editor: t.Monaco.Editor;
   readonly current: EditorCaret[];
   identity(id: string): EditorCaret;
   delete(id: string): boolean;

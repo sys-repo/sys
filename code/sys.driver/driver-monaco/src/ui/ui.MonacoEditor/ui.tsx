@@ -29,8 +29,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   const readyRef = useRef(false);
   const disposeRef = useRef(rx.subject<void>());
-  const monacoRef = useRef<t.MonacoTypes.Monaco>();
-  const editorRef = useRef<t.MonacoTypes.Editor>();
+  const monacoRef = useRef<t.Monaco.Monaco>();
+  const editorRef = useRef<t.Monaco.Editor>();
   const [isEmpty, setIsEmpty] = React.useState(false);
 
   /**
@@ -73,8 +73,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Updaters:
    */
-  const getModel = (editor?: t.MonacoTypes.Editor) => editor?.getModel();
-  const updateOptions = (editor?: t.MonacoTypes.Editor) => {
+  const getModel = (editor?: t.Monaco.Editor) => editor?.getModel();
+  const updateOptions = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
     editor.updateOptions({
       theme: editorTheme,
@@ -84,7 +84,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     getModel(editor)?.updateOptions({ tabSize });
   };
 
-  const updateTextState = (editor?: t.MonacoTypes.Editor) => {
+  const updateTextState = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
     const text = editor.getValue();
     setIsEmpty(!text);
@@ -94,7 +94,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Handlers:
    */
   const handleMount: OnMount = (ed, m) => {
-    const monaco = m as t.MonacoTypes.Monaco;
+    const monaco = m as t.Monaco.Monaco;
     Theme.init(monaco);
     monacoRef.current = monaco;
 

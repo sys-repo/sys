@@ -31,8 +31,8 @@ export type MonacoEditorProps = {
 export type MonacoEditorReadyHandler = (e: MonacoEditorReady) => void;
 /** Editor ready event. */
 export type MonacoEditorReady = {
-  readonly editor: t.MonacoTypes.Editor;
-  readonly monaco: t.MonacoTypes.Monaco;
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
   readonly carets: t.EditorCarets;
   readonly dispose$: t.Observable<void>;
 };
@@ -43,8 +43,8 @@ export type MonacoEditorReady = {
 export type MonacoEditorDisposedHandler = (e: MonacoEditorDisposed) => void;
 /** Editor disposed event. */
 export type MonacoEditorDisposed = {
-  readonly editor: t.MonacoTypes.Editor;
-  readonly monaco: t.MonacoTypes.Monaco;
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
 };
 
 /**
@@ -53,9 +53,9 @@ export type MonacoEditorDisposed = {
 export type MonacoEditorChangeHandler = (e: MonacoEditorChange) => void;
 /** Editor change event. */
 export type MonacoEditorChange = {
-  readonly event: t.MonacoTypes.IModelContentChangedEvent;
-  readonly editor: t.MonacoTypes.Editor;
-  readonly monaco: t.MonacoTypes.Monaco;
+  readonly event: t.Monaco.IModelContentChangedEvent;
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
   readonly content: t.EditorContent;
   readonly selections: t.EditorSelection[];
 };

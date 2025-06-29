@@ -2,7 +2,7 @@
  * Module types.
  * @module
  */
-export type { MonacoTypes } from './t.def.monaco.ts';
+export type { Monaco as MonacoTypes } from './t.def.monaco.ts';
 
 export type * from './t.def.content.ts';
 export type * from './t.def.ts';
