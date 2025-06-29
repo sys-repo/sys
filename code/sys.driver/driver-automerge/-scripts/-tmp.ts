@@ -1,5 +1,6 @@
 import { c, Cli } from '@sys/cli';
 import { Crdt } from '@sys/driver-automerge/fs';
+import { Obj, Str } from '@sys/std';
 
 // const ws = 'localhost:3030';
 const ws = 'sync.db.team';
@@ -13,6 +14,11 @@ const print = () => {
   table.push([c.gray('  path:'), c.gray(dir)]);
   table.push([c.gray('  doc.id:'), c.green(id)]);
   table.push([c.gray('  doc:')]);
+
+  const current = doc?.current ?? {};
+  Obj.walk(current, (e) => {
+    if (typeof e.value === 'string') e.mutate(Str.truncate(e.value, 30));
+  });
 
   console.info();
   console.info('  🌳');
