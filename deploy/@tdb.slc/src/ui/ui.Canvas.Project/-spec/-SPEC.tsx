@@ -94,6 +94,10 @@ export default Spec.describe(D.displayName, (e) => {
           padding: 60,
           pointerEvents: 'auto',
         }),
+        canvas: css({
+          backgroundColor: theme.bg,
+          boxShadow: `0 0 65px 5px ${Color.format(-0.08)}`,
+        }),
       };
 
       const doc = v.doc;
@@ -114,6 +118,7 @@ export default Spec.describe(D.displayName, (e) => {
             doc={doc}
             path={path}
             theme={v.theme}
+            style={styles.canvas}
           />
           {elCloseButton}
         </div>

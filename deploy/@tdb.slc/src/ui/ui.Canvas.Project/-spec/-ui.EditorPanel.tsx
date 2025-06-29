@@ -4,7 +4,7 @@ import { Monaco } from '@sys/driver-monaco';
 import { EditorCrdt } from '@sys/driver-monaco/crdt';
 import { type EditorCrdtBinding } from '@sys/driver-monaco/t';
 
-import { type t, Button, Color, Crdt, css, Icons } from '../common.ts';
+import { type t, Buttons, Color, Crdt, css } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type EditorPanelProps = {
@@ -41,7 +41,6 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const styles = {
     base: css({ color: theme.fg, display: 'grid', gridTemplateRows: 'auto 1fr' }),
     body: css({ position: 'relative', display: 'grid' }),
-    closeBtn: css({ Absolute: [4, 5, null, null] }),
     desc: css({
       position: 'relative',
       height: 100,
@@ -52,9 +51,11 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   };
 
   const elCloseButton = (
-    <Button style={styles.closeBtn} onClick={() => (p.showEditorPanel.value = false)}>
-      <Icons.Close size={20} />
-    </Button>
+    <Buttons.Icons.Close
+      style={{ Absolute: [4, 5, null, null] }}
+      theme={theme.name}
+      onClick={() => (p.showEditorPanel.value = false)}
+    />
   );
 
   return (

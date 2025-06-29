@@ -139,6 +139,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `reset`}
+        onClick={() => {
+          const doc = p.doc.value;
+          p.showCanvas.value = false;
+          p.showEditorPanel.value = false;
+          doc?.change((d) => (d.count = 0));
+        }}
+      />
+
+      <Button
+        block
         label={() => `🐷 ƒ migrate `}
         onClick={() => {
           const doc = p.doc.value;
