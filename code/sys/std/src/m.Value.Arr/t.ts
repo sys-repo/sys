@@ -59,4 +59,14 @@ export type ArrayLib = {
    *   back to String-compare (`localeCompare`).
    */
   sortBy<T, K extends keyof T>(items: readonly T[], key: K, dir?: 'asc' | 'desc'): T[];
+
+  /**
+   * Determine whether `subject` begins with (i.e. has, in order, as its first elements)
+   * every element of `prefix`.
+   *
+   * @param subject – the candidate array you’re inspecting
+   * @param prefix  – the sequence that must appear at the start of `subject`
+   * @returns `true` if `subject` starts with `prefix`; otherwise `false`
+   */
+  startsWith<T>(subject: readonly T[], prefix: readonly T[]): boolean;
 };

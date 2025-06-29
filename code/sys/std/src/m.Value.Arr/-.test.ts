@@ -189,4 +189,31 @@ describe('Value.Arr (Array)', () => {
       expect(d.map((e) => e.tag)).to.eql(['C', 'B', 'A']);
     });
   });
+
+  describe('Arr.startsWith', () => {
+    it('matches a shorter prefix at the start of the array', () => {
+      expect(Arr.startsWith([1, 2, 3], [1, 2])).to.be.true;
+    });
+
+    it('matches when prefix and subject are the same length and content', () => {
+      expect(Arr.startsWith(['a', 'b'], ['a', 'b'])).to.be.true;
+    });
+
+    it('fails when prefix is longer than subject', () => {
+      expect(Arr.startsWith([1], [1, 2])).to.be.false;
+    });
+
+    it('fails when any element differs', () => {
+      expect(Arr.startsWith([1, 2, 3], [1, 3])).to.be.false;
+    });
+
+    it('always matches an empty prefix', () => {
+      expect(Arr.startsWith([1, 2, 3], [])).to.be.true;
+    });
+
+    it('compares elements with Object.is semantics (NaN / -0)', () => {
+      expect(Arr.startsWith([NaN, 2], [NaN])).to.be.true; // NaN === NaN (via Object.is)
+      expect(Arr.startsWith([-0, 1], [+0])).to.be.false; // -0 !== +0 (via Object.is)
+    });
+  });
 });
