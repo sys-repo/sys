@@ -20,8 +20,16 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
   const life = rx.lifecycle();
   const model = wrangle.model(monaco);
   const events = doc.events(life);
-  const $$ = rx.subject<t.EditorCrdtLocalChange>();
   let _isPulling = false; // NB: echo-guard.
+
+  type C = t.EditorCrdtLocalChange;
+  const $$ = rx.subject<C>();
+  const fire = (trigger: C['trigger'], before: string, after: string) => {
+    if (after !== before) {
+      const change = { before, after };
+      $$.next({ trigger, path, change });
+    }
+  };
 
   // Ensure CRDT path exists and prime Monaco with its current value:
   doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
@@ -65,6 +73,7 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
       );
 
       _isPulling = false;
+      fire('crdt', before, model.getValue());
     },
   );
 
@@ -93,11 +102,7 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
     });
 
     // Alert listeners:
-    const after = read();
-    if (after !== before) {
-      const change = { before, after };
-      $$.next({ path, change });
-    }
+    fire('editor', before, read());
   });
 
   /**

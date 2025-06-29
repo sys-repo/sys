@@ -28,6 +28,7 @@ export type EditorCrdtBinding = t.Lifecycle & {
 
 /** Local CRDT editor change event. */
 export type EditorCrdtLocalChange = {
+  readonly trigger: 'editor' | 'crdt';
   readonly path: t.ObjectPath;
   readonly change: { readonly before: string; readonly after: string };
 };
