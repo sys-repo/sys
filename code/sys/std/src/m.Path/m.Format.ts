@@ -1,9 +1,10 @@
 import type { t } from './common.ts';
+import type { PathFormatLib } from './t.ts';
 
 /**
  * CLI Formatting tools.
  */
-export const Format: t.PathFormatLib = {
+export const Format: PathFormatLib = {
   /**
    * Path color formatting.
    */

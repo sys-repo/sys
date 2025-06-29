@@ -1,0 +1,12 @@
+name: MyProject.2025
+version: 0.0.0
+program:
+  getting started: crdt-00000
+  customer model: crdt-00000
+  impact model: crdt-00000
+  economic model: crdt-00000
+  key metrics: crdt-00000
+  conclusion: crdt-00000
+
+section:
+  - intro: video:https://fs.db.team/sys/ui/?dev=17546121740536

@@ -12,17 +12,22 @@ import { Theme } from './u.Theme.ts';
  */
 export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const {
-    text,
+    defaultValue,
     language = D.props.language,
     tabSize = D.props.tabSize,
     readOnly = D.props.readOnly,
     minimap = D.props.minimap,
     enabled = D.props.enabled,
+    autoFocus = D.props.autoFocus,
     placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
+  /**
+   * Refs:
+   */
+  const readyRef = React.useRef(false);
   const disposeRef = React.useRef(rx.subject<void>());
   const monacoRef = React.useRef<t.Monaco>();
   const editorRef = React.useRef<t.MonacoCodeEditor>();
@@ -33,14 +38,16 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   React.useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) return;
-    if (text !== editor.getValue()) editor.setValue(text ?? '');
+    if (!editor || defaultValue === undefined) return;
+    if (defaultValue !== editor.getValue()) {
+      editor.setValue(defaultValue ?? '');
+    }
     updateTextState(editor);
-  }, [text, editorRef.current]);
+  }, [defaultValue, editorRef.current]);
 
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [editorRef.current, tabSize, readOnly, minimap]);
+  }, [tabSize, readOnly, minimap]);
 
   /**
    * Effect: End-of-life.
@@ -54,6 +61,14 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       props.onDispose?.({ editor, monaco });
     };
   }, []);
+
+  /**
+   * Effect: Auto-focus when requested.
+   */
+  React.useEffect(() => {
+    const ready = readyRef.current;
+    if (autoFocus && enabled && ready) editorRef.current?.focus();
+  }, [readyRef.current, autoFocus, enabled]);
 
   /**
    * Updaters:
@@ -86,7 +101,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     const editor = (editorRef.current = ed);
     updateOptions(editor);
     updateTextState(editor);
-    if (enabled && props.focusOnLoad) editor.focus();
 
     let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
@@ -98,6 +112,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
         return _carets || (_carets = EditorCarets.create(editor));
       },
     });
+    readyRef.current = true;
   };
 
   const handleChange: OnChange = (text = '', event) => {
@@ -134,11 +149,11 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   };
 
   const elPlaceholderText = isPlaceholderText && (
-    <div {...styles.empty.placeholderText}>{placeholder}</div>
+    <div className={styles.empty.placeholderText.class}>{placeholder}</div>
   );
 
   const elEmpty = isEmpty && placeholder && (
-    <div {...styles.empty.base}>{elPlaceholderText ?? placeholder}</div>
+    <div className={styles.empty.base.class}>{elPlaceholderText ?? placeholder}</div>
   );
 
   const elLoading = <Spinners.Bar theme={theme.name} />;
@@ -151,7 +166,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
         <EditorReact
           defaultLanguage={language}
           language={language}
-          defaultValue={text}
+          defaultValue={defaultValue}
           theme={editorTheme}
           loading={elLoading}
           onMount={handleMount}

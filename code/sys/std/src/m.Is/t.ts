@@ -106,6 +106,12 @@ export type StdIsLib = {
   string(input?: unknown): input is string;
 
   /**
+   * Determine if the value is a boolean.
+   * typeof === 'boolean'
+   */
+  bool(input?: unknown): input is boolean;
+
+  /**
    * Determine if the value is a number.
    * typeof === 'number'
    */
@@ -115,4 +121,9 @@ export type StdIsLib = {
    * Determine if the value is an array.
    */
   array<T>(input?: unknown): input is T[];
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value?: string | Location): boolean;
 };

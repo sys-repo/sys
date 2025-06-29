@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported, Signal } from './common.ts';
 import { Event, toEventState } from './u.events.ts';
 
@@ -56,6 +57,7 @@ export const Button: React.FC<P> = (props) => {
       userSelect: userSelect ? 'auto' : 'none',
     }),
     body: css({
+      display: 'grid',
       color: wrangle.color({
         isEnabled,
         isOver: !!(isOver || props.isOver),

@@ -22,7 +22,6 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
    * Render
    */
   const theme = Color.theme(props.theme);
-  const defaultThumbColor = thumb.color.default;
   const styles = {
     base: css({
       Absolute: [null, null, null, left],
@@ -38,10 +37,8 @@ export const Thumb: React.FC<ThumbProps> = (props) => {
       Size: thumb.size,
       overflow: 'hidden',
       borderRadius: thumb.size / 2,
-      backgroundColor: Is.string(defaultThumbColor)
-        ? defaultThumbColor
-        : Color.alpha(Color.WHITE, defaultThumbColor),
-      border: `solid 1px ${Color.alpha(Color.DARK, thumb.color.border)}`,
+      backgroundColor: Is.string(thumb.color) ? thumb.color : Color.alpha(Color.WHITE, thumb.color),
+      border: `solid 1px ${Color.alpha(Color.DARK, thumb.border)}`,
       boxSizing: 'border-box',
       boxShadow: `0 1px 5px 0 ${Color.format(-0.1)}`,
     }),

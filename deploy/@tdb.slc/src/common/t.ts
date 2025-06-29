@@ -21,10 +21,13 @@ export type {
   SheetSignalStack,
   SvgElement,
   SvgInstance,
+  VideoPlayerEndedHandler,
   VideoPlayerSignals,
   VimeoIFrame,
 } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
+
+export type { CrdtEvents, CrdtRef, CrdtRepo, DocumentIdProps } from '@sys/driver-automerge/t';
 
 /**
  * @local

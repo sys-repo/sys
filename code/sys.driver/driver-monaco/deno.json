@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-monaco",
-  "version": "0.0.8",
+  "version": "0.0.16",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
@@ -16,6 +16,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./crdt": "./src/ui/m.Editor.Crdt/mod.ts"
   }
 }

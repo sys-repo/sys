@@ -1,4 +1,5 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
+import type { FileHashUriLib } from './t.ts';
 
 /**
  * Helpers for reading/encoding the [FileHashUri] string.
@@ -9,7 +10,7 @@ import { type t } from './common.ts';
  *
  * where <algo> is "sha1" or "sha256".
  */
-export const FileHashUri: t.FileHashUriLib = {
+export const FileHashUri: FileHashUriLib = {
   toUri(hash: string, bytes?: number): t.StringFileHashUri {
     return (bytes == null ? hash : `${hash}:size=${bytes}`) as t.StringFileHashUri;
   },

@@ -1,0 +1,12 @@
+import { pkg, Pkg } from '../common.ts';
+export * from '../common.ts';
+
+export { Button } from '../Button/mod.ts';
+export { Icons } from '../Icons.ts';
+
+/**
+ * Constants:
+ */
+const name = 'Buttons.Icons';
+export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+export const D = DEFAULTS;

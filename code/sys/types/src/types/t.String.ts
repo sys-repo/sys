@@ -25,6 +25,9 @@ export type StringUrlRoute = string;
 /** String that represents a unique identifier. */
 export type StringId = string;
 
+/** String that represents a key into a field/map/object. */
+export type StringKey = string;
+
 /** String that represents a <semver> (semantic version), eg "0.1.2". */
 export type StringSemver = string;
 

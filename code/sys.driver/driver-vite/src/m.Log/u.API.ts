@@ -37,7 +37,7 @@ export const API: t.ViteLogApi = {
 
     push('dev', 'Run the development server.');
     push('build', 'Transpile to production bundle.');
-    push('serve', 'Run a local HTTP server over the production bundle.');
+    push('serve', 'Serve build on HTTP server.');
     if (!minimal) {
       table.push(['', '']);
       push('upgrade', `Upgrade to latest version.`);

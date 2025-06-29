@@ -1,6 +1,7 @@
 import { Time, describe, expect, it, rx, type t, DomMock } from '../-test.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Keyboard } from './mod.ts';
+import { UserAgent } from './common.ts';
 
 describe(
   'Keyboard',
@@ -176,6 +177,114 @@ describe(
         DomMock.Keyboard.fire(ev);
         DomMock.Keyboard.fire(ev);
         expect(fired.length).to.eql(1);
+      });
+    });
+
+    describe('Keyboard.Is', () => {
+      const Is = Keyboard.Is;
+      const UA = {
+        mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
+        windows: 'Mozilla/5.0 (X11; Linux x86_64)',
+        linux: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      } as const;
+
+      const mac = UserAgent.parse(UA.mac);
+      const windows = UserAgent.parse(UA.windows);
+      const linux = UserAgent.parse(UA.linux);
+
+      it('Is.commandConcept', () => {
+        const a = Keyboard.Is.commandConcept();
+        const b = Keyboard.Is.commandConcept({ meta: true }, { ua: mac });
+        const c = Keyboard.Is.commandConcept({ ctrl: true }, { ua: windows });
+        const d = Keyboard.Is.commandConcept({ ctrl: true }, { ua: linux });
+
+        const e = Keyboard.Is.commandConcept({ ctrl: true }, { ua: mac });
+        const f = Keyboard.Is.commandConcept({ meta: true }, { ua: windows });
+        const g = Keyboard.Is.commandConcept({ meta: true }, { ua: linux });
+
+        const h = Keyboard.Is.commandConcept({ key: 'c', modifiers: { meta: true } }, { ua: mac });
+
+        expect(a).to.be.false;
+
+        expect(b).to.be.true;
+        expect(c).to.be.true;
+        expect(d).to.be.true;
+
+        expect(e).to.be.false;
+        expect(f).to.be.false;
+        expect(g).to.be.false;
+      });
+
+      describe('Is.modified', () => {
+        it('returns false when no modifiers or all are false', () => {
+          expect(Is.modified()).to.be.false;
+          expect(Is.modified({})).to.be.false;
+          expect(Is.modified({ meta: false, ctrl: false, alt: false, shift: false })).to.be.false;
+        });
+
+        it('detects any single modifier key', () => {
+          expect(Is.modified({ meta: true })).to.be.true;
+          expect(Is.modified({ ctrl: true })).to.be.true;
+          expect(Is.modified({ alt: true })).to.be.true;
+          expect(Is.modified({ shift: true })).to.be.true;
+        });
+
+        it('detects multiple modifier keys pressed together', () => {
+          expect(Is.modified({ meta: true, shift: true })).to.be.true;
+          expect(Is.modified({ ctrl: true, alt: true })).to.be.true;
+          expect(Is.modified({ meta: true, ctrl: true, alt: true, shift: true })).to.be.true;
+        });
+
+        it('takes keyboard event as input', () => {
+          expect(Is.modified({ key: 'c', modifiers: { meta: true } })).to.be.true;
+          expect(Is.modified({ key: 'c', modifiers: { meta: false } })).to.be.false;
+        });
+      });
+
+      it('Is.copy (platform-independent)', () => {
+        // No event → never a copy.
+        expect(Keyboard.Is.copy()).to.be.false;
+
+        // Correct "copy" shortcuts
+        const b = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+        const c = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: windows },
+        );
+        const d = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: linux },
+        );
+
+        expect(b).to.be.true;
+        expect(c).to.be.true;
+        expect(d).to.be.true;
+
+        // Mismatched modifiers or wrong key
+        const e = Keyboard.Is.copy(
+          { key: 'c', modifiers: { ctrl: true, meta: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+        const f = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: windows },
+        );
+        const g = Keyboard.Is.copy(
+          { key: 'c', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: linux },
+        );
+        const h = Keyboard.Is.copy(
+          { key: 'v', modifiers: { meta: true, ctrl: false, alt: false, shift: false } },
+          { ua: mac },
+        );
+
+        expect(e).to.be.false;
+        expect(f).to.be.false;
+        expect(g).to.be.false;
+        expect(h).to.be.false;
       });
     });
   },

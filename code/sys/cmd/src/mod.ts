@@ -1,7 +1,7 @@
 /**
- * @module
  * An event structure over an `Immutable<T>` that allows for a common event driven
  * remote function invocation pattern to be achieved.
+ * @module
  *
  * @example
  * ```ts
@@ -19,6 +19,7 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Cmd } from './m.Cmd/mod.ts';

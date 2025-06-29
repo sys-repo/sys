@@ -1,9 +1,10 @@
 import { type t, Is, Path } from './common.ts';
+import type { UrlLib } from './t.ts';
 
 /**
  * Helpers for a URL used within an HTTP fetch client.
  */
-export const Url: t.UrlLib = {
+export const Url: UrlLib = {
   /**
    * URL factory.
    */
@@ -27,12 +28,15 @@ export const Url: t.UrlLib = {
       toString() {
         return base;
       },
+      toObject() {
+        return new URL(api.toString());
+      },
     };
     return api;
   },
 
   /**
-   * Create from a [NetAddr]
+   * Create from a [NetAddr].
    */
   fromAddr(base: Deno.NetAddr) {
     return Url.fromUrl(`http://${base.hostname}:${base.port}`);

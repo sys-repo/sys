@@ -31,7 +31,7 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?:
     await updateTypesFile(dir);
 
     // Update dev-harness spec entry:
-    await Tmpl.File.update(Fs.join(pkgDir, 'src/-test/entry.Specs.ts'), (line) => {
+    await Tmpl.File.update(Fs.join(pkgDir, 'src/-test/-specs.ts'), (line) => {
       const index = line.file.lines.findIndex((line) => line.includes('[`${ns}:'));
       if (line.index === index) {
         const moduleDir = dir.slice((pkgDir + 'src/').length + 1);

@@ -235,8 +235,8 @@ describe('Immutable.map', () => {
         doc: doc.events(dispose$),
         map: map.events(dispose$),
       } as const;
-      events.doc.changed$.subscribe((e) => firedDoc.push(e));
-      events.map.changed$.subscribe((e) => firedMap.push(e));
+      events.doc.$.subscribe((e) => firedDoc.push(e));
+      events.map.$.subscribe((e) => firedMap.push(e));
 
       map.change((d) => (d.foo = 888));
       map.change((d) => (d.text = 'hello'));
@@ -267,7 +267,7 @@ describe('Immutable.map', () => {
 
       const fired: E[] = [];
       const events = map.events(dispose$);
-      events.changed$.subscribe((e) => fired.push(e));
+      events.$.subscribe((e) => fired.push(e));
 
       map.change((d) => {
         d.foo = 123;
@@ -306,7 +306,7 @@ describe('Immutable.map', () => {
 
       const fired: E[] = [];
       const events = map.events(dispose$);
-      events.changed$.subscribe((e) => fired.push(e));
+      events.$.subscribe((e) => fired.push(e));
 
       map.change((d) => (d.foo = 123));
 
@@ -328,7 +328,7 @@ describe('Immutable.map', () => {
 
       const fired: E[] = [];
       const events = map.events(dispose$);
-      events.changed$.subscribe((e) => fired.push(e));
+      events.$.subscribe((e) => fired.push(e));
 
       doc1.change((d) => (d.count = 123));
 
@@ -375,9 +375,9 @@ describe('Immutable.map', () => {
       const eventsA = mapA.events(dispose$);
       const eventsB = mapB.events(dispose$);
       const eventsC = mapB.events(dispose$);
-      eventsA.changed$.subscribe((e) => firedA.push(e));
-      eventsB.changed$.subscribe((e) => firedB.push(e));
-      eventsC.changed$.subscribe((e) => firedC.push(e));
+      eventsA.$.subscribe((e) => firedA.push(e));
+      eventsB.$.subscribe((e) => firedB.push(e));
+      eventsC.$.subscribe((e) => firedC.push(e));
 
       expect(mapA.current.a).to.eql('before');
       expect(mapB.current.b).to.eql('before');

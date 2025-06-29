@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { type t, pkg } from './common.ts';
 
 export function useDist(state?: t.AppSignals) {
-  const dist = useBase({ useSampleFallback: true });
+  const dist = useBase({ sampleFallback: true });
 
   /**
    * Effect: update app state-model.

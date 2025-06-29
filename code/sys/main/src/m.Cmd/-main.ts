@@ -1,6 +1,6 @@
 /**
- * @module
  * Main command entry point.
+ * @module
  *
  * Pass (argv): "<command> --<params>"
  */

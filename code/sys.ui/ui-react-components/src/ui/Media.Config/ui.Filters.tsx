@@ -10,14 +10,14 @@ type P = t.MediaFiltersProps;
  */
 export const List: React.FC<P> = (props) => {
   const { debounce = D.debounce } = props;
-  const changed$Ref = React.useRef(rx.subject<t.MediaFiltersChangeArgs>());
+  const ref$ = React.useRef(rx.subject<t.MediaFiltersChangeArgs>());
 
   /**
    * Effect: fire debounced 'onChanged' event.
    */
   React.useEffect(() => {
     const life = rx.disposable();
-    const $ = changed$Ref.current.pipe(rx.takeUntil(life.dispose$), rx.debounceTime(debounce));
+    const $ = ref$.current.pipe(rx.takeUntil(life.dispose$), rx.debounceTime(debounce));
     $.subscribe((e) => props.onChanged?.(e));
     return life.dispose;
   }, [debounce]);
@@ -58,7 +58,7 @@ export const List: React.FC<P> = (props) => {
               },
             };
             props.onChange?.(e);
-            changed$Ref.current.next(e);
+            ref$.current.next(e);
           }}
         />
       );

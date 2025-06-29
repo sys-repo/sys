@@ -56,12 +56,12 @@ export const toLifecycle: t.DisposeLib['toLifecycle'] = <T extends L>(...input: 
       value: life.dispose.bind(life),
       enumerable: true,
     },
-    dispose$: {
-      get: () => life.dispose$,
-      enumerable: true,
-    },
     disposed: {
       get: () => life.disposed,
+      enumerable: true,
+    },
+    dispose$: {
+      get: () => life.dispose$,
       enumerable: true,
     },
   });

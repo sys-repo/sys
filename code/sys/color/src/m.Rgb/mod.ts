@@ -1,6 +1,6 @@
 /**
- * @module
  * Helper for working with RGBA color values.
+ * @module
  *
  * @example
  * ```ts

@@ -95,8 +95,8 @@ describe('Immutable', () => {
 
       const fired1: t.ImmutableChange<D, P>[] = [];
       const fired2: t.ImmutableChange<D, P>[] = [];
-      events1.changed$.subscribe((e) => fired1.push(e));
-      events2.changed$.subscribe((e) => fired2.push(e));
+      events1.$.subscribe((e) => fired1.push(e));
+      events2.$.subscribe((e) => fired2.push(e));
 
       obj.change((d) => (d.count = 123));
 
@@ -125,8 +125,8 @@ describe('Immutable', () => {
 
       let fired1 = 0;
       let fired2 = 0;
-      events1.changed$.subscribe(() => fired1++);
-      events2.changed$.subscribe(() => fired2++);
+      events1.$.subscribe(() => fired1++);
+      events2.$.subscribe(() => fired2++);
 
       obj.change((d) => (d.count = 123));
       expect(fired1).to.eql(1);

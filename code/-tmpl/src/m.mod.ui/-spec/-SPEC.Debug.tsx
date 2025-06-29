@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
+type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
  * Types:
@@ -14,18 +15,35 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
-    theme: s<t.CommonTheme>('Light'),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
   };
   const p = props;
   const api = {
     props,
     listen() {
-      p.debug.value;
-      p.theme.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   return api;
 }
 
@@ -70,12 +88,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
-        name={'debug'}
-        data={Signal.toObject(p)}
-        expand={['$']}
-        style={{ marginTop: 10 }}
-      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };
