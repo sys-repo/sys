@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/ui';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { type t, A, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type Storage = { theme?: t.CommonTheme; debug?: boolean; path?: t.ObjectPath };
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
@@ -156,6 +156,14 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
         onClick={() => {
           const next = `// Hello 👋\n`;
           doc.change((d) => Mutate.set(d, path, next));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `splice: 🌳 `}
+        onClick={() => {
+          doc.change((d) => A.splice(d, path, 0, 0, '// 🌳'));
         }}
       />
     </React.Fragment>
