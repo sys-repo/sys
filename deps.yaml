@@ -128,7 +128,7 @@ deno.json:
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
   - import: npm:yaml@2.8.0
-  - import: npm:@preact/signals-core@1.10.0
+  - import: npm:@preact/signals-core@1.11.0
   - import: npm:zod@3.25.67
     subpaths: [v4, v4-mini]
 
@@ -146,7 +146,7 @@ deno.json:
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.17.0
-  - import: npm:@preact/signals-react@3.2.0
+  - import: npm:@preact/signals-react@3.2.1
   - import: npm:react-inspector@6.0.2
   - import: npm:@monaco-editor/react@4.7.0
   - import: npm:monaco-editor@0.52.2
