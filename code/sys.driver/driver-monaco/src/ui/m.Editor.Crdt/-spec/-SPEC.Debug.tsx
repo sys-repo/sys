@@ -129,7 +129,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ...Signal.toObject(p),
           doc: p.doc.value?.current,
         }}
-        expand={['$', '$.doc']}
+        // expand={['$', '$.doc']}
         style={{ marginTop: 10 }}
       />
     </div>

@@ -49,19 +49,20 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             autoFocus={true}
             onReady={(e) => {
+              /**
+               * 🌳 READY:
+               */
               console.info(`⚡️ MonacoEditor.onReady:`, e);
               p.editor.value = e.editor;
 
-              // Kill old binding if it exists.
+              // Kill old binding (if it exists).
               p.binding.value?.dispose();
               p.binding.value = undefined;
 
-              /**
-               * 🌳 Setup data-binding:
-               */
+              // Setup new binding.
               const doc = p.doc.value;
-              const path = p.path.value;
-              if (doc && path) {
+              const path = p.path.value ?? [];
+              if (doc) {
                 const binding = EditorCrdt.bind(e.editor, doc, path);
                 p.binding.value = binding;
                 binding.$.subscribe((e) => console.info(`⚡️ binding.$:`, e));

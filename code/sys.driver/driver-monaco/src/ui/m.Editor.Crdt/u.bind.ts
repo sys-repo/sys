@@ -1,8 +1,11 @@
+import { change } from '@automerge/automerge';
 import { type t, A, Obj, rx } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
+type C = t.EditorCrdtLocalChange;
+
 /**
- * Bind a Monaco model (or editor instance) to a CRDT document reference.
+ * Bind a Monaco text-model to a CRDT document reference.
  *
  *  - Local edits → CRDT:
  *        On every model change we write the new text to `doc[path]`
@@ -16,71 +19,79 @@ import { diffToSplices } from './u.diffToSplices.ts';
  *    other while still keeping both worlds fully undoable.
  *
  */
-export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
+export const bind: t.EditorCrdtLib['bind'] = (editor, doc, path) => {
+  const model = editor.getModel();
+  if (!model) throw new Error('A model could not be retrieved from the editor.');
+
   const life = rx.lifecycle();
-  const model = wrangle.model(monaco);
   const events = doc.events(life);
+  const hasPath = (path ?? []).length > 0;
   let _isPulling = false; // NB: echo-guard.
 
-  type C = t.EditorCrdtLocalChange;
   const $$ = rx.subject<C>();
   const fire = (trigger: C['trigger'], before: string, after: string) => {
     if (after !== before) {
-      const change = { before, after };
+      const change = wrangle.change(before, after);
       $$.next({ trigger, path, change });
     }
   };
 
+  // Ensure the editor has the current value of the CRDT document.
+  const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
+  if (hasPath && model.getValue() !== initialText) model.setValue(initialText);
+
   // Ensure CRDT path exists and prime Monaco with its current value:
   doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
 
-  const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
-  if (model.getValue() !== initialText) model.setValue(initialText);
+  // Disable the editor if there is no [path] to write.
+  if (!hasPath) editor.updateOptions({ readOnly: true });
 
   /**
    * PULL: CRDT ➜ Monaco (remote edits).
    */
-  events.$.pipe(rx.filter((e) => e.patches.some((p) => pathsOverlap(p.path, path)))).subscribe(
-    (e) => {
-      const before = Obj.Path.get<string>(e.before, path) ?? '';
-      const after = Obj.Path.get<string>(e.after, path) ?? '';
-      if (before === after || model.getValue() === after) return; // ← Already synced.
+  events.$.pipe(
+    rx.filter((e) => hasPath),
+    rx.filter((e) => e.patches.some((p) => pathsOverlap(p.path, path))),
+  ).subscribe((e) => {
+    const before = Obj.Path.get<string>(e.before, path) ?? '';
+    const after = Obj.Path.get<string>(e.after, path) ?? '';
+    if (before === after || model.getValue() === after) return; // ← Already synced.
 
-      // Convert before ➜ after into one-or-more splices.
-      const splices = diffToSplices(before, after);
+    // Convert before ➜ after into one-or-more splices.
+    const splices = diffToSplices(before, after);
 
-      /**
-       * Apply from highest offset down so earlier edits don’t shift later indices.
-       * (NB: mirrors the Monaco ➜ CRDT logic).
-       */
-      _isPulling = true;
-      model.pushEditOperations(
-        [], // NB: keep selections.
-        splices.reverse().map((s) => {
-          const start = model.getPositionAt(s.index);
-          const end = model.getPositionAt(s.index + s.delCount);
-          return {
-            range: {
-              startLineNumber: start.lineNumber,
-              startColumn: start.column,
-              endLineNumber: end.lineNumber,
-              endColumn: end.column,
-            },
-            text: s.insertText,
-          };
-        }),
-        () => null,
-      );
+    /**
+     * Apply from highest offset down so earlier edits don’t shift later indices.
+     * (NB: mirrors the Monaco ➜ CRDT logic).
+     */
+    _isPulling = true;
+    model.pushEditOperations(
+      [], // NB: keep selections.
+      splices.reverse().map((s) => {
+        const start = model.getPositionAt(s.index);
+        const end = model.getPositionAt(s.index + s.delCount);
+        return {
+          range: {
+            startLineNumber: start.lineNumber,
+            startColumn: start.column,
+            endLineNumber: end.lineNumber,
+            endColumn: end.column,
+          },
+          text: s.insertText,
+        };
+      }),
+      () => null,
+    );
 
-      _isPulling = false;
-      fire('crdt', before, model.getValue());
-    },
-  );
+    _isPulling = false;
+    fire('crdt', before, model.getValue());
+  });
 
   /**
    * PUSH: Monaco ➜ CRDT (local edits).
    */
   const editorChangeSub = model.onDidChangeContent((e) => {
+    if (!hasPath) return;
     if (_isPulling) return; // ignore CRDT-initiated ops.
 
     const read = () => Obj.Path.get<string>(doc.current, path) || '';
@@ -125,12 +136,15 @@ export const bind: t.EditorCrdtLib['bind'] = (monaco, doc, path) => {
  * Helpers:
  */
 const wrangle = {
-  model(input: t.MonacoTextModel | t.MonacoCodeEditor): t.MonacoTextModel {
-    if (typeof (input as any).getModel === 'function') {
-      const m = (input as t.MonacoCodeEditor).getModel();
-      if (m) return m;
-    }
-    return input as t.MonacoTextModel;
+  change(before: string, after: string): C['change'] {
+    return {
+      get before() {
+        return before;
+      },
+      get after() {
+        return after;
+      },
+    };
   },
 } as const;
 
