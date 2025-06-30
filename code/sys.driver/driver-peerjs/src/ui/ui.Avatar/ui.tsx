@@ -1,7 +1,10 @@
 import React from 'react';
 import { type t, Color, css, D, M, Media, usePointer } from './common.ts';
+import { Body } from './ui.Body.tsx';
 
-export const Avatar: React.FC<t.AvatarProps> = (props) => {
+type P = t.AvatarProps;
+
+export const Avatar: React.FC<P> = (props) => {
   const {
     debug = false,
     stream,
@@ -44,7 +47,11 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
       justifyContent: 'center',
     }),
     front: css({ backgroundColor: theme.alpha(0.1).bg }),
-    back: css({ backgroundColor: theme.alpha(0.05).bg, transform: 'rotateY(180deg)' }),
+    back: css({
+      position: 'relative',
+      backgroundColor: theme.alpha(0.05).bg,
+      transform: 'rotateY(180deg)',
+    }),
     video: css({ Absolute: 0, borderRadius }),
     videoBlur: css({
       Absolute: 0,
@@ -54,13 +61,13 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
       transform: 'scaleX(-1)', // mirror horizontally
     }),
     overlay: css({
-      position: 'relative',
+      height: '100%',
       zIndex: 1,
       color: theme.fg,
       fontSize: '1rem',
       padding: 16,
       textAlign: 'center',
-      pointerEvents: 'none',
+      display: 'grid',
     }),
     border: css({
       Absolute: 0,
@@ -99,7 +106,9 @@ export const Avatar: React.FC<t.AvatarProps> = (props) => {
           muted={true}
           stream={stream}
         />
-        <div className={styles.overlay.class}>{'🐷'}</div>
+        <div className={styles.overlay.class}>
+          <Body {...props} />
+        </div>
       </div>
 
       <div className={styles.border.class} />
