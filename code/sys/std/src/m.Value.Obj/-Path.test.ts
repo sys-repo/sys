@@ -94,8 +94,10 @@ describe('Value.Obj.Path', () => {
     describe('Mutate.ensure', () => {
       it('assigns default at top-level when missing', () => {
         const target: Record<string, unknown> = {};
-        Mutate.ensure(target, ['key'], 'value');
-        expect(target.key).to.eql('value');
+        const value = 'my-value';
+        const result = Mutate.ensure(target, ['key'], value);
+        expect(target.key).to.eql(value);
+        expect(result).to.eql(value);
       });
 
       it('does not override existing value', () => {
@@ -123,6 +125,14 @@ describe('Value.Obj.Path', () => {
         const target = {};
         Mutate.ensure(target, ['a', 'b', 'c'], 123);
         expect((target as any).a.b.c).to.eql(123);
+      });
+
+      it('creates nested namespace', () => {
+        const target = {};
+        const ns = {};
+        const result = Mutate.ensure(target, ['a', 'b', 'c'], ns);
+        expect((target as any).a.b.c).to.equal(ns);
+        expect(result).to.equal(ns);
       });
 
       it('creates nested arrays automatically when path segment is number', () => {

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 type KeyMap = Record<string, unknown>;
 
@@ -13,7 +13,7 @@ export type ObjPathLib = {
    * is `T | undefined` **unless** you pass a default value.
    */
   get<T = unknown>(subject: unknown, path: t.ObjectPath): T | undefined;
-  get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: NonNullable<T>): T;
+  get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 };
 
 /**
@@ -25,7 +25,7 @@ export type ObjPathMutateLib = {
    * Ensure a value at the given path exists (not undefined),
    * and if not assigns the given default.
    */
-  ensure<T extends {} | null = {}>(subject: KeyMap, path: t.ObjectPath, defaultValue: T): void;
+  ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
    * Deep-set helper (mutates `subject` in-place, relying on

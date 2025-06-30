@@ -1,5 +1,7 @@
 import { type t } from './common.ts';
 
+type KeyMap = Record<string, unknown>;
+
 export const Path: t.ObjPathLib = {
   /**
    * Walks a deep path and returns the value found,
@@ -25,9 +27,10 @@ export const Path: t.ObjPathLib = {
      * Ensure a value at the given path exists (not undefined),
      * and if not assigns the given default.
      */
-    ensure(subject, path, value) {
+    ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: t.NonUndefined<T>) {
       const existing = Path.get(subject, path);
       if (existing === undefined) Path.Mutate.set(subject, path, value);
+      return Path.get<T>(subject, path, value);
     },
 
     /**
