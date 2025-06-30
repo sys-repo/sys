@@ -41,7 +41,7 @@ export function createDebugSignals() {
     readOnly: D.readOnly,
     spellCheck: D.spellCheck,
   };
-  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {

@@ -37,7 +37,7 @@ export function createDebugSignals() {
     localstorage: STORAGE_KEY,
     urlSupport: D.urlSupport,
   };
-  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const repo = Crdt.repo({

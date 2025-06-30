@@ -23,7 +23,7 @@ export function createDebugSignals() {
     debug: true,
     path: ['text'],
   };
-  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const repo = Crdt.repo({

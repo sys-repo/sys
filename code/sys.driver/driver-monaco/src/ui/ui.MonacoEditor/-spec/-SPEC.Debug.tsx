@@ -52,7 +52,7 @@ export function createDebugSignals() {
     language: D.props.language,
     placeholder: undefined,
   };
-  const store = LocalStorage.immutable<Storage>(`dev:${D.name}`, defaults);
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
