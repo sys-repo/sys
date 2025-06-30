@@ -132,7 +132,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `stream (raw): ${p.stream.value?.id}`}
         onClick={async () => {
           const stream = await navigator.mediaDevices.getUserMedia(D.constraints);
-          console.log('stream', stream);
           p.stream.value = stream;
         }}
       />
