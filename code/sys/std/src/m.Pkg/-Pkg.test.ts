@@ -27,6 +27,15 @@ describe('Pkg', () => {
       expect(a).to.eql(`${base}:FooBar`);
       expect(b).to.eql(`${base}:ns.foo.bar`);
     });
+
+    it('no version', () => {
+      const a = Pkg.toString(pkg, 'FooBar', { version: false });
+      const b = Pkg.toString(pkg, 'FooBar', false);
+      const c = Pkg.toString(pkg, undefined, false);
+      expect(a).to.eql('@sys/std:FooBar');
+      expect(b).to.eql('@sys/std:FooBar');
+      expect(c).to.eql('@sys/std');
+    });
   });
 
   describe('Pkg.fromJson', () => {
@@ -148,7 +157,6 @@ describe('Pkg', () => {
       ];
       NON.forEach((value: any) => {
         const res = Pkg.toPkg(value);
-        console.log('res', res);
         expect(res).to.eql(DEFAULTS.UNKNOWN);
       });
     });
