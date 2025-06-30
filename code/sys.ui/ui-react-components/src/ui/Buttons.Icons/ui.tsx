@@ -23,7 +23,9 @@ const renderer = (Renderer: t.IconRenderer): React.FC<P> => {
 };
 
 /**
- * Buttons Variants:
+ * Icon Buttons:
  */
 export const Close = renderer(Icons.Close);
 export const Face = renderer(Icons.Face);
+export const MicOn = renderer(Icons.Mic.On);
+export const MicOff = renderer(Icons.Mic.Off);

@@ -1,11 +1,15 @@
 import type { t } from './common.ts';
 
+type C = React.FC<IconButtonProps>;
+
 /**
  * Library of common icon buttons.
  */
 export type ButtonsIconsLib = {
-  readonly Close: React.FC<IconButtonProps>;
-  readonly Face: React.FC<IconButtonProps>;
+  readonly Close: C;
+  readonly Face: C;
+  readonly MicOn: C;
+  readonly MicOff: C;
 };
 
 /**
