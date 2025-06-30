@@ -1,13 +1,21 @@
 declare var self: ServiceWorkerGlobalScope;
 import { type t } from './common.ts';
 
-export const pkg: t.HttpCacheLib['pkg'] = (args) => {
-  const { pkg } = args;
+export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
+  const { pkg, silent = false } = args;
 
   /**
    * One permanent cache for all immutable, hash-named bundle files.
    */
   const CACHE = args.cacheName ?? `${pkg.name}:hashed-files`;
+
+  /**
+   * Alert:
+   */
+  if (!silent) {
+    const msg = `💦 [service-worker] starting Http.Cache("${CACHE}")`;
+    console.info(msg, pkg);
+  }
 
   /**
    * Files emitted by Vite look like:
@@ -37,8 +45,8 @@ export const pkg: t.HttpCacheLib['pkg'] = (args) => {
 
   /**
    * Cache-first strategy for immutable bundle assets:
-   * 1. Try every cache in Storage for a match.
-   * 2. If absent, fetch from network, then stash in `byte-assets`.
+   *  1. Try every cache in Storage for a match.
+   *  2. If absent, fetch from network, then stash in the cache.
    */
   self.addEventListener('fetch', (e) => {
     const { request } = e;
@@ -54,11 +62,11 @@ export const pkg: t.HttpCacheLib['pkg'] = (args) => {
         // Step-1: any cache hit?
         const cached = await caches.match(key);
         if (cached) {
-          console.info(`🌼 cache hit: ${key}`);
+          if (!silent) console.info(`🌼 cache hit: ${key}`);
           return cached;
         }
 
-        // Step-2: fetch + stash
+        // Step-2: fetch + stash.
         const response = await fetch(request);
         if (response.ok && (response.type === 'basic' || response.type === 'cors')) {
           const cache = await caches.open(CACHE);
@@ -68,9 +76,4 @@ export const pkg: t.HttpCacheLib['pkg'] = (args) => {
       })(),
     );
   });
-
-  /**
-   * Alert:
-   */
-  console.info(`💦 [service-worker] Http.Cache("${CACHE}")`, pkg);
 };

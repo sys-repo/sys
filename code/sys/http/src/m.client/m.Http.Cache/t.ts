@@ -20,5 +20,5 @@ export type HttpCacheLib = {
    *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
    *   • a final extension (js, css, wasm, etc.)
    */
-  pkg(args: { pkg: t.Pkg; cacheName?: string }): void;
+  pkg(args: { pkg: t.Pkg; cacheName?: string; silent?: boolean }): Promise<void>;
 };
