@@ -27,7 +27,8 @@ export type {
 } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
-export type { CrdtEvents, CrdtRef, CrdtRepo, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { Monaco } from '@sys/driver-monaco/t';
 
 /**
  * @local

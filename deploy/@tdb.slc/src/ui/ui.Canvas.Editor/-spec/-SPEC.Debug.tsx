@@ -41,7 +41,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
-    doc: s<t.CrdtRef<Doc>>(),
+    doc: s<t.Crdt.Ref<Doc>>(),
   };
   const p = props;
 

@@ -1,6 +1,6 @@
 import { type t, css, Color, Crdt, STORAGE_KEY } from '../common.ts';
 
-export function HostFooter(props: { repo: t.CrdtRepo; theme?: t.CommonTheme }) {
+export function HostFooter(props: { repo: t.Crdt.Repo; theme?: t.CommonTheme }) {
   const { repo } = props;
 
   const theme = Color.theme(props.theme);

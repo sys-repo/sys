@@ -48,7 +48,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     showEditorPanel: s(snap.showEditorPanel),
     showCanvas: s(snap.showCanvas),
-    doc: s<t.CrdtRef<Doc>>(),
+    doc: s<t.Crdt.Ref<Doc>>(),
   };
   const p = props;
   const api = {

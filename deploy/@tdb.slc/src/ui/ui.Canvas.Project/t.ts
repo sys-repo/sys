@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type CanvasProjectProps = {
-  doc?: t.CrdtRef;
+  doc?: t.Crdt.Ref;
 
   debug?: boolean;
   theme?: t.CommonTheme;

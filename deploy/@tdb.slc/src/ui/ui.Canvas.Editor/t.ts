@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type EditorCanvasProps = {
-  doc?: t.CrdtRef;
+  doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
 
   // Appearance:
