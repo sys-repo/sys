@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Button, Color, css, D } from './common.ts';
-import { Icons } from './Icons.ts';
+import { Icons } from './ui.Icons.ts';
 
 /**
  * Component: Generic Button.

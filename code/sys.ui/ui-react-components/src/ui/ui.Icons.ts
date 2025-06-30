@@ -1,4 +1,12 @@
-import { MdArrowBack, MdArrowDownward, MdClose, MdErrorOutline, MdFace } from 'react-icons/md';
+import {
+  MdArrowBack,
+  MdArrowDownward,
+  MdClose,
+  MdErrorOutline,
+  MdFace,
+  MdMic,
+  MdMicOff,
+} from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { Icon } from './Icon/mod.ts';
 
@@ -13,4 +21,5 @@ export const Icons = {
   Object: icon(VscSymbolClass),
   Error: icon(MdErrorOutline),
   Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },
+  Mic: { On: icon(MdMic), Off: icon(MdMicOff) },
 } as const;
