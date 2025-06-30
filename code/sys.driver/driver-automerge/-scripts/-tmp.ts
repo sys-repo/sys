@@ -17,7 +17,7 @@ const print = () => {
 
   const current = doc?.current ?? {};
   Obj.walk(current, (e) => {
-    if (typeof e.value === 'string') e.mutate(Str.truncate(e.value, 30));
+    if (typeof e.value === 'string') e.mutate(Str.truncate(e.value, 45));
   });
 
   console.info();
