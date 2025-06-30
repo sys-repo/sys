@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 import { Monaco } from '@sys/driver-monaco';
 import { EditorCrdt } from '@sys/driver-monaco/crdt';
@@ -21,13 +21,6 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   const p = debug.props;
   const doc = p.doc.value;
 
-  /**
-   * Hooks/Refs
-   */
-  const bindingRef = React.useRef<EditorCrdtBinding>();
-
-  if (!doc) return null;
-
   // 🐷 NB: make this configurable (pass in as props).
   const PATHS = {
     description: ['project', 'description'],
@@ -35,11 +28,37 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   };
 
   /**
+   * Hooks/Refs:
+   */
+  const bindingRef = useRef<EditorCrdtBinding>();
+  const [editor, setEditor] = React.useState<t.Monaco.Editor>();
+
+  /**
+   * Effects: setup CRDT databinding.
+   */
+  React.useEffect(() => {
+    bindingRef.current?.dispose();
+    if (doc && editor) {
+      const path = PATHS.config;
+      const binding = EditorCrdt.bind(editor, doc, path);
+      binding.$.subscribe((e) => console.info(`⚡️ crdt.binding.$:`, e));
+      bindingRef.current = binding;
+    }
+  }, [editor, doc?.id]);
+
+  if (!doc) return null;
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid', gridTemplateRows: 'auto 1fr' }),
+    base: css({
+      color: theme.fg,
+      background: theme.bg,
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr',
+    }),
     body: css({ position: 'relative', display: 'grid' }),
     desc: css({
       position: 'relative',
@@ -52,8 +71,8 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
 
   const elCloseButton = (
     <Buttons.Icons.Close
-      style={{ Absolute: [4, 5, null, null] }}
       theme={theme.name}
+      style={{ Absolute: [4, 5, null, null] }}
       onClick={() => (p.showEditorPanel.value = false)}
     />
   );
@@ -61,7 +80,12 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.desc.class}>
-        <Crdt.UI.TextPanel label={'Description'} doc={doc} path={PATHS.description} />
+        <Crdt.UI.TextPanel
+          label={'Description'}
+          doc={doc}
+          path={PATHS.description}
+          theme={theme.name}
+        />
         {elCloseButton}
       </div>
       <div className={styles.body.class}>
@@ -69,18 +93,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
           theme={theme.name}
           minimap={false}
           language={'yaml'}
-          onReady={(e) => {
-            console.info(`⚡️ Monaco.Editor.onReady:`, e);
-
-            // Setup CRDT data-binding.
-            bindingRef.current?.dispose();
-            if (doc) {
-              const path = PATHS.config;
-              const binding = EditorCrdt.bind(e.editor, doc, path);
-              binding.$.subscribe((e) => console.info(`⚡️ crdt.binding.$:`, e));
-              bindingRef.current = binding;
-            }
-          }}
+          onReady={(e) => setEditor(e.editor)}
         />
       </div>
     </div>
