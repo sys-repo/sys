@@ -51,6 +51,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
           name={'doc'}
           data={doc?.current}
           theme={theme.name}
+          expand={1}
           // expand={['$', '$.project']}
         />
       </div>
