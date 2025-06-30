@@ -63,13 +63,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       <div>{`🐷 ${D.displayName}`}</div>
       <ObjectView
         theme={theme.name}
-        name={'debug'}
+        name={'room'}
         data={{
           webrtc: peer,
-          room: doc?.current,
+          doc: doc?.current,
         }}
         style={styles.obj}
-        expand={['$', '$.room', '$.room.connections', '$.room.connections.group']}
+        expand={['$', '$.doc', '$.doc.connections', '$.doc.connections.group']}
       />
     </div>
   );

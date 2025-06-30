@@ -1,8 +1,10 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, Color, Crdt, css, D, Kbd, STORAGE_KEY } from '../common.ts';
+import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
+
 import { Sample } from '../mod.ts';
 import { FullScreen } from '../ui.FullScreen.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { HostFooter } from './-ui.Footer.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -80,10 +82,20 @@ export default Spec.describe(D.displayName, (e) => {
 
     ctx.debug.footer
       .border(-0.1)
-      .padding(10)
+      .padding(0)
       .render(() => {
-        return <Crdt.UI.Repo.SyncEnabledSwitch repo={repo} localstorage={STORAGE_KEY.DEV} />;
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
       });
+
+    ctx.host.footer
+      .padding(0)
+      .render(() => <HostFooter theme={p.theme.value} debug={p.debug.value} doc={p.doc.value} />);
 
     ctx.host.layer(1).render(() => {
       const stream = p.selectedStream.value;
