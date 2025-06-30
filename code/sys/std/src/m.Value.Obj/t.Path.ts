@@ -14,6 +14,12 @@ export type ObjPathLib = {
    */
   get<T = unknown>(subject: unknown, path: t.ObjectPath): T | undefined;
   get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Deep-set helper (mutates `subject` in-place, relying on
+   * proxy layers to record structural changes).
+   */
+  readonly mutate: ObjPathMutateLib['set'];
 };
 
 /**

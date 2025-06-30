@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from '../-test.ts';
-import { Mutate } from '../m.ObjectPath/m.Mutate.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './m.Obj.ts';
 import { Path } from './mod.ts';
@@ -8,6 +7,7 @@ describe('Value.Obj.Path', () => {
   it('API', () => {
     expect(Obj.Path).to.equal(Path);
     expect(Value.Obj.Path).to.equal(Path);
+    expect(Obj.Path.mutate).to.equal(Path.Mutate.set);
   });
 
   describe('Path.get', () => {

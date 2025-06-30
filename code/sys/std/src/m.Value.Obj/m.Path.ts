@@ -2,7 +2,53 @@ import { type t } from './common.ts';
 
 type KeyMap = Record<string, unknown>;
 
+/**
+ * Tools that mutate an object in-place using
+ * an abstract path arrays.
+ */
+const Mutate: t.ObjPathMutateLib = {
+  /**
+   * Ensure a value at the given path exists (not undefined),
+   * and if not assigns the given default.
+   */
+  ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: t.NonUndefined<T>) {
+    const existing = Path.get(subject, path);
+    if (existing === undefined) Path.Mutate.set(subject, path, value);
+    return Path.get<T>(subject, path, value);
+  },
+
+  /**
+   * Ensures the entire path exists and assigns `value`
+   * at the leaf. Mutates the original `subject`.
+   */
+  set(subject, path, value) {
+    if (path.length === 0) throw new Error('The path-array must contain at least one segment');
+
+    let node: any = subject;
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      const nextKey = path[i + 1];
+      const shouldBeArray = typeof nextKey === 'number';
+
+      if (
+        node[key] === undefined ||
+        (shouldBeArray && !Array.isArray(node[key])) ||
+        (!shouldBeArray && typeof node[key] !== 'object')
+      ) {
+        node[key] = shouldBeArray ? [] : {};
+      }
+
+      node = node[key];
+    }
+
+    node[path[path.length - 1]] = value;
+  },
+};
+
 export const Path: t.ObjPathLib = {
+  Mutate,
+  mutate: Mutate.set,
+
   /**
    * Walks a deep path and returns the value found,
    * or `undefined` / `defaultValue` if missing.
@@ -16,48 +62,5 @@ export const Path: t.ObjPathLib = {
     }
 
     return (node === undefined ? defaultValue : node) as any;
-  },
-
-  /**
-   * Tools that mutate an object in-place using
-   * an abstract path arrays.
-   */
-  Mutate: {
-    /**
-     * Ensure a value at the given path exists (not undefined),
-     * and if not assigns the given default.
-     */
-    ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: t.NonUndefined<T>) {
-      const existing = Path.get(subject, path);
-      if (existing === undefined) Path.Mutate.set(subject, path, value);
-      return Path.get<T>(subject, path, value);
-    },
-
-    /**
-     * Ensures the entire path exists and assigns `value`
-     * at the leaf. Mutates the original `subject`.
-     */
-    set(subject, path, value) {
-      if (path.length === 0) throw new Error('The path-array must contain at least one segment');
-
-      let node: any = subject;
-      for (let i = 0; i < path.length - 1; i++) {
-        const key = path[i];
-        const nextKey = path[i + 1];
-        const shouldBeArray = typeof nextKey === 'number';
-
-        if (
-          node[key] === undefined ||
-          (shouldBeArray && !Array.isArray(node[key])) ||
-          (!shouldBeArray && typeof node[key] !== 'object')
-        ) {
-          node[key] = shouldBeArray ? [] : {};
-        }
-
-        node = node[key];
-      }
-
-      node[path[path.length - 1]] = value;
-    },
   },
 };
