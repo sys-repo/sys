@@ -1,6 +1,6 @@
 import { pkg, Pkg } from '../common.ts';
 
-export { Crdt } from '../../m.Crdt.platforms/-browser/mod.ts';
+export { Crdt } from '../../-platforms/-browser/mod.ts';
 export * from '../common.ts';
 
 /**
