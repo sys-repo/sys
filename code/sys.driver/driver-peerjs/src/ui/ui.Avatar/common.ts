@@ -13,7 +13,7 @@ export { Media } from '@sys/ui-react-components';
 const name = 'Avatar';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   aspectRatio: '16/9',
   borderRadius: 6,
   borderWidth: 1,

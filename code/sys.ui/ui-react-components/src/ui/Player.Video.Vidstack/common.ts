@@ -9,7 +9,7 @@ const name = 'Player.Video';
 
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
 
   video: 'vimeo/499921561', // Tubes.
 

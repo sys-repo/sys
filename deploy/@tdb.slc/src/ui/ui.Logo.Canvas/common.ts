@@ -9,7 +9,7 @@ const selectionAnimation: Required<t.LogoCanvasSelectionAnimation> = {
 const name = 'Logo.Canvas';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   selectionAnimation,
 } as const;
 export const D = DEFAULTS;

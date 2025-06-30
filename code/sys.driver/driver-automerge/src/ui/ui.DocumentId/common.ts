@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'Input.DocumentId';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   label: undefined,
   enabled: true,
   readOnly: false,

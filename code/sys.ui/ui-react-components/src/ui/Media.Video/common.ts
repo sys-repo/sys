@@ -13,7 +13,7 @@ const name = 'Media.Video';
 const constraints: MediaStreamConstraints = { video: true, audio: true };
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   constraints,
   borderRadius: 0,
   aspectRatio: undefined,

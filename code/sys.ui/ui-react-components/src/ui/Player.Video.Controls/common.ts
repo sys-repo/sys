@@ -11,7 +11,7 @@ export { BarSpinner } from '../Spinners.Bar/mod.ts';
 const name = 'Media.Player.Video.Controls';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   playing: false,
   muted: false,
   maskHeight: 80,

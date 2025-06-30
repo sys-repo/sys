@@ -8,5 +8,5 @@ export { Icons } from '../Icons.ts';
  * Constants:
  */
 const name = 'Buttons.Icons';
-export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name, false) } as const;
 export const D = DEFAULTS;

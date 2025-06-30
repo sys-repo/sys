@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'PlayList';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   gap: 20,
   bulletSize: 9,
   paddingTop: 0,

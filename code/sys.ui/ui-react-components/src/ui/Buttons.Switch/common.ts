@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'Button.Switch';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   enabled: true,
 } as const;
 export const D = DEFAULTS;

@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'Layout.Canvas';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   borderRadius: 0,
   borderWidth: 8,
 } as const;

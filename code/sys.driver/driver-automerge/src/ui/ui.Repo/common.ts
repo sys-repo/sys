@@ -9,7 +9,7 @@ export * from '../common.ts';
 const name = 'Repo';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   syncEnabled: true,
   silent: false,
 } as const;

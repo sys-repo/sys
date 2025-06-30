@@ -20,7 +20,7 @@ const props: t.PickRequired<
 export const DEFAULTS = {
   ...BASE,
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   props,
 } as const;
 export const D = DEFAULTS;

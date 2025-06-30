@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'TextEditor';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   autoFocus: false,
   readOnly: false,
   scroll: true,

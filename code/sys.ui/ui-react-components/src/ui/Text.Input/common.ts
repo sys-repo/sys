@@ -13,7 +13,7 @@ const border: t.TextInputBorder = {
 const name = 'Text.Input';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   padding: 6,
   background: 1,
   border,

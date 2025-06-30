@@ -12,5 +12,5 @@ export { Avatar } from '../ui.Avatar/mod.ts';
  * Constants:
  */
 const name = 'Sample';
-export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name) } as const;
+export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name, false) } as const;
 export const D = DEFAULTS;

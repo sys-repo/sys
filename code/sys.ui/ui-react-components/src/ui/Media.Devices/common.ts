@@ -10,7 +10,7 @@ export * from '../common.ts';
 const name = 'Media.Device';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   rowGap: 8,
 } as const;
 export const D = DEFAULTS;
