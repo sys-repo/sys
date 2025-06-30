@@ -74,7 +74,7 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.CrdtRef<t.SampleDoc>>(),
+    doc: s<t.Crdt.Ref<t.SampleDoc>>(),
     localStream: s<MediaStream>(),
     remoteStream: s<MediaStream>(),
     selectedStream: s<MediaStream>(),
@@ -103,7 +103,7 @@ export function createDebugSignals() {
   /**
    * Maintain CRDT document integrity:
    */
-  let _events: t.CrdtEvents<t.SampleDoc> | undefined;
+  let _events: t.Crdt.Events<t.SampleDoc> | undefined;
   Signal.effect(() => {
     _events?.dispose?.();
 

@@ -14,13 +14,13 @@ export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { MediaVideoStreamReadyHandler } from '@sys/ui-react-components/t';
-export type { PointerEventsHandler } from '@sys/ui-react/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
+export type { PointerEventsHandler } from '@sys/ui-react/t';
 
 /**
  * CRDT:
  */
-export type { CrdtEvents, CrdtRef, CrdtRepo, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 
 /**
  * PeerJS (WebRTC):

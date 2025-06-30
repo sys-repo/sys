@@ -30,7 +30,7 @@ export const Conn = {
   /**
    * Keep the `dyads` list in up-to-date with the current peer `group` list.
    */
-  updateDyads(doc?: t.CrdtRef<t.SampleDoc>) {
+  updateDyads(doc?: t.Crdt.Ref<t.SampleDoc>) {
     const connections = doc?.current.connections;
     if (!connections) return false;
 
