@@ -1,5 +1,5 @@
 import type React from 'react';
-import { type t, DEFAULTS as D } from './common.ts';
+import { type t, D } from './common.ts';
 
 type P = t.ButtonProps;
 type S = [boolean, (next: boolean) => void];
@@ -50,10 +50,15 @@ const Desktop = {
         if (!isOver) props.onMouseLeave?.(e);
       }
 
-      const isDown = !isOver ? false : state.down;
-      const isEnabled = props.enabled;
       const action = isOver ? 'MouseEnter' : 'MouseLeave';
-      props.onMouse?.({ event: e, isOver, isDown, isEnabled, action });
+      const is = {
+        enabled: props.enabled,
+        over: isOver,
+        down: !isOver ? false : state.down,
+      };
+      const modifiers = wrangle.modifiers(e);
+      const cancel = wrangle.cancel(e);
+      props.onMouse?.({ action, synthetic: e, is, modifiers, cancel });
     };
   },
 
@@ -69,10 +74,15 @@ const Desktop = {
         if (!isDown) props.onClick?.(e);
       }
 
-      const isOver = state.over;
-      const isEnabled = props.enabled;
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      props.onMouse?.({ event: e, isOver, isDown, isEnabled, action });
+      const is = {
+        enabled: props.enabled,
+        over: state.over,
+        down: isDown,
+      };
+      const modifiers = wrangle.modifiers(e);
+      const cancel = wrangle.cancel(e);
+      props.onMouse?.({ synthetic: e, action, is, modifiers, cancel });
     };
   },
 } as const;
@@ -87,16 +97,22 @@ const Mobile = {
       if (!props.active) return;
 
       state.down = isDown;
-      const event = wrangle.asMouseEvent(e);
+      const synthetic = wrangle.asMouseEvent(e);
       if (props.enabled) {
-        if (isDown && props.onMouseDown) props.onMouseDown(event);
-        if (!isDown && props.onMouseUp) props.onMouseUp(event);
-        if (!isDown && props.onClick) props.onClick(event);
+        if (isDown && props.onMouseDown) props.onMouseDown(synthetic);
+        if (!isDown && props.onMouseUp) props.onMouseUp(synthetic);
+        if (!isDown && props.onClick) props.onClick(synthetic);
       }
 
-      const isEnabled = props.enabled;
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      props.onMouse?.({ event, isOver: isDown, isDown, isEnabled, action });
+      const is = {
+        enabled: props.enabled,
+        down: isDown,
+        over: isDown,
+      };
+      const modifiers = wrangle.modifiers(synthetic);
+      const cancel = wrangle.cancel(synthetic);
+      props.onMouse?.({ synthetic, action, is, modifiers, cancel });
     };
   },
 } as const;
@@ -151,5 +167,17 @@ const wrangle = {
       screenX: touch.screenX,
       screenY: touch.screenY,
     } as unknown as React.MouseEvent;
+  },
+
+  modifiers(e: React.MouseEvent): t.KeyboardModifierFlags {
+    const { ctrlKey: ctrl, shiftKey: shift, metaKey: meta, altKey: alt } = e;
+    return { ctrl, shift, meta, alt };
+  },
+
+  cancel(e: React.MouseEvent) {
+    return () => {
+      e.stopPropagation();
+      e.preventDefault();
+    };
   },
 } as const;

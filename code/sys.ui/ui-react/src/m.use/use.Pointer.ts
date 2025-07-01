@@ -47,7 +47,7 @@ export const usePointer: t.UsePointer = (input) => {
       synthetic.stopPropagation();
       synthetic.preventDefault();
     };
-    args.on?.({ is: getFlags(known), trigger, cancel });
+    args.on?.({ is: getFlags(known), synthetic: trigger, cancel });
   };
 
   const down = (isDown: boolean) => (synthetic: React.PointerEvent) => {

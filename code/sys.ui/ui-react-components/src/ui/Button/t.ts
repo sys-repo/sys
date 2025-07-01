@@ -42,22 +42,28 @@ export type ButtonProps = {
 };
 
 /**
- * Events
+ * Callbacks used by a button to dynaically evaluate a value on redraw.
  */
-export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
-export type ButtonMouseHandlerArgs = {
-  isDown: boolean;
-  isOver: boolean;
-  isEnabled: boolean;
-  action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
-  event: React.MouseEvent;
+export type ButtonPropCallbackHandler<T> = (e: ButtonPropCallbackArgs) => T;
+export type ButtonPropCallbackArgs = {
+  is: { over: boolean; down: boolean };
 };
 
-export type ButtonCopyHandler = (e: ButtonCopyHandlerArgs) => void;
-export type ButtonCopyHandlerArgs = {
-  message(value: Content): ButtonCopyHandlerArgs;
-  fontSize(value: number): ButtonCopyHandlerArgs;
-  opacity(value: number): ButtonCopyHandlerArgs;
-  delay(value: t.Msecs): ButtonCopyHandlerArgs;
-  copy(value?: string | number): Promise<void>;
+/**
+ * Events:
+ */
+
+/** Handler for general mouse button event rollup. */
+export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
+/** Mouse button event rollup. */
+export type ButtonMouseHandlerArgs = {
+  readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
+  readonly synthetic: React.MouseEvent;
+  readonly modifiers: t.KeyboardModifierFlags;
+  readonly is: {
+    readonly enabled: boolean;
+    readonly down: boolean;
+    readonly over: boolean;
+  };
+  cancel(): void;
 };

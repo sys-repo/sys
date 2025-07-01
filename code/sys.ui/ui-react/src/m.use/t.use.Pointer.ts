@@ -74,7 +74,7 @@ export type PointerEvent = {
  */
 export type PointerEventsHandler = (e: PointerEventsArg) => void;
 export type PointerEventsArg = {
+  readonly synthetic: t.PointerEvent;
   readonly is: PointerHookFlags;
-  readonly trigger: t.PointerEvent;
   cancel(): void;
 };

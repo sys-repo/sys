@@ -26,8 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             onClick={(e) => console.info(`⚡️ onClick:`, e)}
-            onMouseDown={(e) => console.info(`⚡️ onMouseDown:`, e)}
-            onMouseUp={(e) => console.info(`⚡️ onMouseUp:`, e)}
+            onMouse={(e) => console.info('⚡️ onMouse', e)}
           >{`👋 Hello Button`}</Button>
         );
       });

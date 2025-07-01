@@ -38,7 +38,7 @@ export const ControlButton: React.FC<ControlButtonProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         style={styles.body}
-        onMouse={(e) => setOver(e.isOver)}
+        onMouse={(e) => setOver(e.is.over)}
         onClick={props.onClick}
         onMouseDown={props.onMouseDown}
       >
