@@ -39,7 +39,6 @@ groups:
     - import: npm:@automerge/automerge@2.2.9
       subpaths: [next]
     - import: npm:@automerge/automerge-repo@2.0.6
-    - import: npm:@automerge/automerge-repo-network-broadcastchannel@2.0.6
     - import: npm:@automerge/automerge-repo-network-websocket@2.0.6
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.6
     - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.6
