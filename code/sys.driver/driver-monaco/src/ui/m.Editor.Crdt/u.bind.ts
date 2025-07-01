@@ -35,9 +35,20 @@ export const bind: t.EditorCrdtLib['bind'] = (editor, doc, path) => {
     }
   };
 
+  const getValue = () => {
+    if (model.isDisposed()) {
+      const msg = `Attempted to continue binding after UI/editor model has been disposed. Disposing of binding now.`;
+      console.warn(msg);
+      console.trace();
+      life.dispose();
+      return '';
+    }
+    return model.getValue();
+  };
+
   // Ensure the editor has the current value of the CRDT document.
   const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
-  if (hasPath && model.getValue() !== initialText) model.setValue(initialText);
+  if (hasPath && getValue() !== initialText) model.setValue(initialText);
 
   // Ensure CRDT path exists and prime Monaco with its current value:
   doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
@@ -54,7 +65,7 @@ export const bind: t.EditorCrdtLib['bind'] = (editor, doc, path) => {
   ).subscribe((e) => {
     const before = Obj.Path.get<string>(e.before, path) ?? '';
     const after = Obj.Path.get<string>(e.after, path) ?? '';
-    if (before === after || model.getValue() === after) return; // ← Already synced.
+    if (before === after || getValue() === after) return; // ← Already synced.
 
     // Convert before ➜ after into one-or-more splices.
     const splices = diffToSplices(before, after);
@@ -83,7 +94,7 @@ export const bind: t.EditorCrdtLib['bind'] = (editor, doc, path) => {
     );
 
     _isPulling = false;
-    fire('crdt', before, model.getValue());
+    fire('crdt', before, getValue());
   });
 
   /**
