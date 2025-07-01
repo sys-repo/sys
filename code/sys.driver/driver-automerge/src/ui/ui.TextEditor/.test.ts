@@ -1,5 +1,5 @@
-import { describe, DomMock, expect, it } from '../../-test.ts';
-import { TextEditor } from '../mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { TextEditor } from './mod.ts';
 
 describe('UI: Rich TextEditor', () => {
   it('API import', async () => {

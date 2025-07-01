@@ -1,6 +1,6 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { DocumentId } from '../../mod.ts';
+import { DocumentId } from '../mod.ts';
 import { Color, D } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 

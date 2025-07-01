@@ -1,10 +1,10 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { Crdt } from './mod.ts';
 
-import { Card } from '../ui.Card/mod.ts';
-import { DocumentId } from '../ui.DocumentId/mod.ts';
-import { TextEditor } from '../ui.TextEditor/mod.ts';
-import { TextPanel } from '../ui.TextPanel/mod.ts';
+import { Card } from '../ui/ui.Card/mod.ts';
+import { DocumentId } from '../ui/ui.DocumentId/mod.ts';
+import { TextEditor } from '../ui/ui.TextEditor/mod.ts';
+import { TextPanel } from '../ui/ui.TextPanel/mod.ts';
 
 describe('Input UI', () => {
   it('API', () => {

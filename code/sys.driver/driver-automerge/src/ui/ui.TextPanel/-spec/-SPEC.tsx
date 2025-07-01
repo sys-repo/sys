@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { DocumentId } from '../../mod.ts';
+import { DocumentId } from '../../ui.DocumentId/mod.ts';
 
 import { D } from '../common.ts';
 import { TextPanel } from '../mod.ts';
