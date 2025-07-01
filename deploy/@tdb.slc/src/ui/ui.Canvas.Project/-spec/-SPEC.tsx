@@ -1,9 +1,9 @@
 import { Dev, Spec } from '../../-test.ui.ts';
-
 import { EditorCanvas } from '../../ui.Canvas.Editor/mod.ts';
-import { type t, Buttons, Color, Crdt, css, D, Signal, STORAGE_KEY } from '../common.ts';
+
+import { type t, Buttons, Color, Crdt, css, D, Is, Obj, Signal, STORAGE_KEY } from '../common.ts';
 import { CanvasProject } from '../mod.ts';
-import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug, PATHS } from './-SPEC.Debug.tsx';
 import { HostFooter } from './-ui.HostFooter.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -30,14 +30,73 @@ export default Spec.describe(D.displayName, (e) => {
   }
 
   function DebugFooter() {
-    const theme = Color.theme('Light');
+    const theme = Color.theme(p.theme.value);
     const styles = {
-      base: css({ borderTop: `solid 10px ${Color.alpha(theme.fg, 0.08)}` }),
+      base: css({
+        borderTop: `solid 1px ${Color.alpha(theme.fg, theme.is.dark ? 1 : 0.15)}`,
+        color: theme.fg,
+        backgroundColor: theme.bg,
+      }),
       title: css({ fontSize: 20, padding: 20 }),
     };
+
+    const doc = p.doc.value;
+    const obj = Obj.Path.get(doc?.current, PATHS.YAML_PARSED, {});
+    const title = String(Is.record(obj) ? obj.name : 'Untitled');
+
+    // Signal.useRedrawEffect()
+    Crdt.UI.useRedrawEffect(doc);
+
     return (
       <div className={styles.base.class}>
-        <div className={styles.title.class}>{'Social Lean Canvas: Project'}</div>
+        <div className={styles.title.class}>{title}</div>
+      </div>
+    );
+  }
+
+  function HostCanvas() {
+    if (!p.showCanvas.value) return null;
+
+    const v = Signal.toObject(p);
+    const theme = Color.theme(v.theme);
+    const styles = {
+      base: css({
+        position: 'relative',
+        backgroundColor: theme.bg,
+        display: 'grid',
+        padding: 60,
+        pointerEvents: 'auto',
+      }),
+      canvas: css({
+        backgroundColor: theme.bg,
+        boxShadow: `0 0 65px 5px ${Color.format(-0.08)}`,
+      }),
+    };
+
+    const doc = v.doc;
+    const path = ['project', 'panels'];
+
+    const elCloseButton = (
+      <Buttons.Icons.Close
+        theme={theme.name}
+        style={{ Absolute: [4, 5, null, null] }}
+        onClick={() => {
+          p.showCanvas.value = false;
+          p.redraw.value++;
+        }}
+      />
+    );
+
+    return (
+      <div className={styles.base.class}>
+        <EditorCanvas
+          //
+          doc={doc}
+          path={path}
+          theme={v.theme}
+          style={styles.canvas}
+        />
+        {elCloseButton}
       </div>
     );
   }
@@ -72,6 +131,7 @@ export default Spec.describe(D.displayName, (e) => {
               debug={v.debug}
               theme={v.theme}
               doc={v.doc}
+              video={v.video}
               onCanvasClick={() => {
                 p.showCanvas.value = true;
                 p.showEditorPanel.value = true;
@@ -82,51 +142,11 @@ export default Spec.describe(D.displayName, (e) => {
       });
 
     ctx.debug.footer.padding(0).render(() => <DebugFooter />);
-    ctx.host.footer.padding(0).render(() => <HostFooter repo={repo} theme={p.theme.value} />);
-
-    ctx.host.layer(1).render(() => {
-      if (!p.showCanvas.value) return null;
-
-      const v = Signal.toObject(p);
-      const theme = Color.theme(v.theme);
-      const styles = {
-        base: css({
-          position: 'relative',
-          backgroundColor: theme.bg,
-          display: 'grid',
-          padding: 60,
-          pointerEvents: 'auto',
-        }),
-        canvas: css({
-          backgroundColor: theme.bg,
-          boxShadow: `0 0 65px 5px ${Color.format(-0.08)}`,
-        }),
-      };
-
-      const doc = v.doc;
-      const path = ['project', 'panels'];
-
-      const elCloseButton = (
-        <Buttons.Icons.Close
-          theme={'Dark'}
-          style={{ Absolute: [4, 5, null, null] }}
-          onClick={() => (p.showCanvas.value = false)}
-        />
-      );
-
-      return (
-        <div className={styles.base.class}>
-          <EditorCanvas
-            //
-            doc={doc}
-            path={path}
-            theme={v.theme}
-            style={styles.canvas}
-          />
-          {elCloseButton}
-        </div>
-      );
-    });
+    ctx.host.footer
+      .padding(0)
+      .border(0)
+      .render(() => <HostFooter repo={repo} theme={p.theme.value} />);
+    ctx.host.layer(1).render(() => <HostCanvas />);
   });
 
   e.it('ui:debug', (e) => {

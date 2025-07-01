@@ -9,7 +9,6 @@ import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type EditorPanelProps = {
   debug: DebugSignals;
-  theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
@@ -24,7 +23,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   // 🐷 NB: make this configurable (pass in as props).
   const PATHS = {
     description: ['project', 'description'],
-    config: ['project', 'config', 'code'],
+    config: ['project', 'config', 'yaml'],
   };
 
   /**
@@ -51,7 +50,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
+  const theme = Color.theme(p.theme.value);
   const styles = {
     base: css({
       color: theme.fg,

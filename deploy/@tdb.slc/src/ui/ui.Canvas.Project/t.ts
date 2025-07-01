@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type CanvasProjectProps = {
   doc?: t.Crdt.Ref;
+  video?: SampleVideo;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -12,3 +13,5 @@ export type CanvasProjectProps = {
 
   onCanvasClick?: React.MouseEventHandler;
 };
+
+export type SampleVideo = { src?: string };
