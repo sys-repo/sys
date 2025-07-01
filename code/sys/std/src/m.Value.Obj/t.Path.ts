@@ -34,8 +34,9 @@ export type ObjPathMutateLib = {
   ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
-   * Deep-set helper (mutates `subject` in-place, relying on
-   * proxy layers to record structural changes).
+   * Mutates `subject`, setting a nested value at `path`.
+   *  - Creates intermediate objects/arrays as needed.
+   *  - If `value` is `undefined`, the property is removed via [delete] instead.
    */
   set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): void;
 };

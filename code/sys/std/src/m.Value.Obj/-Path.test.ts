@@ -89,6 +89,20 @@ describe('Value.Obj.Path', () => {
         expect(target.arr).to.be.an('array').with.lengthOf(1);
         expect((target as any).arr[0].foo).to.eql('bar');
       });
+
+      it('undefined → property removed via [delete] rather than set <undefined>', () => {
+        type T = { a: { b?: number | string } };
+        const target: T = { a: {} };
+        const path = ['a', 'b'];
+        Mutate.set(target, path, 123);
+
+        expect(target.a?.b).to.eql(123);
+        expect(Object.keys(target.a).length).to.eql(1);
+
+        Mutate.set(target, path, undefined);
+        expect(Object.keys(target.a).length).to.eql(0);
+        expect(target.a).to.eql({});
+      });
     });
 
     describe('Mutate.ensure', () => {
