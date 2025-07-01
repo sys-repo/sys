@@ -6,6 +6,9 @@ export type { Crdt } from './t.namespace.ts';
 
 export type * from './-platforms/-browser/t.ts';
 export type * from './-platforms/-fs/t.ts';
+
+export type * from './m.Crdt.ref/t.ts';
+export type * from './m.Crdt.repo/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Server/t.ts';
 

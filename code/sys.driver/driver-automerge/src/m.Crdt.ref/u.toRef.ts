@@ -1,16 +1,9 @@
 import type { ChangeFn, DocHandleChangePayload } from '@automerge/automerge-repo';
+
 import { type t, Dispose, rx, slug } from './common.ts';
+import { REF } from './u.toAutomergeHandle.ts';
 
 type O = Record<string, unknown>;
-const REF = Symbol('ref:handle');
-
-/**
- * Extract the hidden handle from a [CrdtRef] document.
- */
-export function toAutomergeHandle<T extends O>(doc?: t.CrdtRef<T>): t.DocHandle<T> | undefined {
-  if (!doc) return;
-  return (doc as any)[REF];
-}
 
 /**
  * Convert an automerge DocHandle to an immutable CRDT reference.

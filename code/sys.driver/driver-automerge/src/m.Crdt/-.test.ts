@@ -1,12 +1,11 @@
-import { Repo } from '@automerge/automerge-repo';
+import { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 
-import { describe, expect, it } from '../../-test.ts';
-import { CrdtIs, CrdtUrl } from '../mod.ts';
-import { toRepo } from '../u.repo.ts';
+import { describe, expect, it } from '../-test.ts';
+import { CrdtIs, CrdtUrl, toRepo } from './mod.ts';
 
 describe('Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
-  const repo = toRepo(new Repo());
+  const repo = toRepo(new AutomergeRepo());
   const Is = CrdtIs;
 
   describe('Is', () => {

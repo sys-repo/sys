@@ -5,5 +5,5 @@
 export { CrdtIs } from './m.Is.ts';
 export { CrdtUrl } from './m.Url.ts';
 
-export { toAutomergeHandle, toRef } from './u.ref.ts';
-export { toAutomergeRepo, toRepo } from './u.repo.ts';
+export { toAutomergeHandle, toRef } from '../m.Crdt.ref/mod.ts';
+export { toAutomergeRepo, toRepo } from '../m.Crdt.repo/mod.ts';

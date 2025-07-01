@@ -1,7 +1,7 @@
 import { isValidDocumentId } from '@automerge/automerge-repo';
 
 import { type t, Obj } from './common.ts';
-import { toAutomergeHandle } from './u.ref.ts';
+import { toAutomergeHandle } from '../m.Crdt.ref/u.toAutomergeHandle.ts';
 
 type O = Record<string, unknown>;
 

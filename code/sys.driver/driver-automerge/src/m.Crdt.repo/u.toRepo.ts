@@ -1,19 +1,11 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-import { type t, Err, Is, rx, slug, Time } from './common.ts';
-import { CrdtIs } from './m.Is.ts';
-import { toRef } from './u.ref.ts';
+
+import { CrdtIs } from '../m.Crdt/m.Is.ts';
+import { type t, Err, Is, rx, slug, Time, toRef } from './common.ts';
+import { REF } from './u.toAutomergeRepo.ts';
 
 type O = Record<string, unknown>;
-const REF = Symbol('ref:handle');
 const D = { timeout: 5_000 };
-
-/**
- * Extract the hidden automerge Repo from a [CrdtRepo].
- */
-export function toAutomergeRepo(repo?: t.CrdtRepo): Repo | undefined {
-  if (!repo) return;
-  return (repo as any)[REF];
-}
 
 /**
  * Wrap an Automerge repo in a lightweight functional API.
