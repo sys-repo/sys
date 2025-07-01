@@ -1,9 +1,9 @@
-import type { Patch as P, PatchSource } from '@automerge/automerge';
-import type { DocumentId } from '@automerge/automerge-repo';
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-type Id = DocumentId;
+type Id = t.Automerge.DocumentId;
+type P = t.Automerge.Patch;
+
 type RefProps = t.Lifecycle & { readonly id: Id; readonly deleted: boolean };
 
 /**
@@ -19,5 +19,5 @@ export type CrdtEvents<T extends O = O> = t.ImmutableEvents<T, P, CrdtChange<T>>
 
 /** Data thrown off when a CRDT document changes */
 export type CrdtChange<T extends O = O> = t.ImmutableChange<T, P> & {
-  readonly source: PatchSource;
+  readonly source: t.Automerge.PatchSource;
 };
