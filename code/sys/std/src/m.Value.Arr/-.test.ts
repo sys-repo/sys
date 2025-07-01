@@ -216,4 +216,39 @@ describe('Value.Arr (Array)', () => {
       expect(Arr.startsWith([-0, 1], [+0])).to.be.false; // -0 !== +0 (via Object.is)
     });
   });
+
+  describe('Arr.equal (instance equality)', () => {
+    it('returns true for two empty arrays', () => {
+      expect(Arr.equal([], [])).to.be.true;
+    });
+
+    it('returns true for arrays with identical primitive elements', () => {
+      expect(Arr.equal([1, 2, 3], [1, 2, 3])).to.be.true;
+    });
+
+    it('returns false when lengths differ', () => {
+      expect(Arr.equal([1, 2], [1, 2, 3])).to.be.false;
+    });
+
+    it('returns false when elements differ at any index', () => {
+      expect(Arr.equal([1, 2, 3], [1, 4, 3])).to.be.false;
+    });
+
+    it('returns true for arrays of the same object references', () => {
+      const obj = { foo: 'bar' };
+      expect(Arr.equal([obj, obj], [obj, obj])).to.be.true;
+    });
+
+    it('returns false for arrays of different object instances with equal structure', () => {
+      expect(Arr.equal([{ foo: 'bar' }], [{ foo: 'bar' }])).to.be.false;
+    });
+
+    it('returns true for [NaN] compared to [NaN]', () => {
+      expect(Arr.equal([NaN], [NaN])).to.be.true;
+    });
+
+    it('returns false for [-0] compared to [0]', () => {
+      expect(Arr.equal([-0], [0])).to.be.false;
+    });
+  });
 });

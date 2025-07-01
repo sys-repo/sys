@@ -69,4 +69,15 @@ export type ArrayLib = {
    * @returns `true` if `subject` starts with `prefix`; otherwise `false`
    */
   startsWith<T>(subject: readonly T[], prefix: readonly T[]): boolean;
+
+  /**
+   * Compare two arrays for exact, index-wise equality.
+   *
+   * @template T
+   * @param {readonly T[]} a – the first array to compare.
+   * @param {readonly T[]} b – the second array to compare.
+   * @returns {boolean} `true` if `a` and `b` have the same length
+   *          and each element is exactly equal; otherwise `false`.
+   */
+  equal<T>(a: readonly T[], b: readonly T[]): boolean;
 };

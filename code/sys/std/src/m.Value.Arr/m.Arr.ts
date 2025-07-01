@@ -2,6 +2,7 @@ import type { t } from '../common.ts';
 import type { ArrayLib } from './t.ts';
 
 import { asArray } from './u.asArray.ts';
+import { equal } from './u.equality.ts';
 import { sortBy } from './u.sortBy.ts';
 import { startsWith } from './u.startsWith.ts';
 
@@ -9,6 +10,7 @@ export const Arr: ArrayLib = {
   asArray,
   sortBy,
   startsWith,
+  equal,
 
   isArray(input: unknown) {
     return Array.isArray(input);
