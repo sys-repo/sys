@@ -30,7 +30,7 @@ export const Button: React.FC<P> = (props) => {
   const [down, setDown] = downState;
 
   const eventState = toEventState(props, overState, downState);
-  const is: t.ButtonFlags = { enabled, over, down };
+  const is: t.ButtonFlags = { over, down, enabled, disabled: !enabled };
   const opacity = wrangle.opacity(props, is);
 
   /**

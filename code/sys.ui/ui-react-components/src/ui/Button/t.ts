@@ -55,6 +55,7 @@ export type ButtonPropCallbackArgs = { readonly is: t.ButtonFlags };
  */
 export type ButtonFlags = {
   readonly enabled: boolean;
+  readonly disabled: boolean;
   readonly over: boolean;
   readonly down: boolean;
 };

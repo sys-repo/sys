@@ -52,11 +52,8 @@ const Desktop = {
       }
 
       const action = isOver ? 'MouseEnter' : 'MouseLeave';
-      const is: t.ButtonFlags = {
-        enabled: Wrangle.enabled(props),
-        over: isOver,
-        down: !isOver ? false : state.down,
-      };
+      const down = !isOver ? false : state.down;
+      const is = wrangle.flags(props, isOver, down);
       const modifiers = wrangle.modifiers(e);
       const cancel = wrangle.cancel(e);
       props.onMouse?.({ action, synthetic: e, is, modifiers, cancel });
@@ -76,11 +73,7 @@ const Desktop = {
       }
 
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      const is: t.ButtonFlags = {
-        enabled: Wrangle.enabled(props),
-        over: state.over,
-        down: isDown,
-      };
+      const is = wrangle.flags(props, state.over, isDown);
       const modifiers = wrangle.modifiers(e);
       const cancel = wrangle.cancel(e);
       props.onMouse?.({ synthetic: e, action, is, modifiers, cancel });
@@ -106,11 +99,7 @@ const Mobile = {
       }
 
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      const is: t.ButtonFlags = {
-        enabled: Wrangle.enabled(props),
-        down: isDown,
-        over: isDown,
-      };
+      const is = wrangle.flags(props, isDown, isDown);
       const modifiers = wrangle.modifiers(synthetic);
       const cancel = wrangle.cancel(synthetic);
       props.onMouse?.({ synthetic, action, is, modifiers, cancel });
@@ -180,5 +169,10 @@ const wrangle = {
       e.stopPropagation();
       e.preventDefault();
     };
+  },
+
+  flags(props: P, over: boolean, down: boolean): t.ButtonFlags {
+    const enabled = Wrangle.enabled(props);
+    return { over, down, enabled, disabled: !enabled };
   },
 } as const;
