@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported, Signal } from './common.ts';
+import { type t, Color, css, DEFAULTS, Signal, Style, useIsTouchSupported } from './common.ts';
 import { Event, toEventState } from './u.events.ts';
 
 type P = t.ButtonProps;

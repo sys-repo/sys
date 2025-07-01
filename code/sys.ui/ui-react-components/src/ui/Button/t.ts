@@ -5,9 +5,11 @@ type MouseHandler = React.MouseEventHandler;
 type Content = JSX.Element | string | number | false;
 
 /**
- * <Component>: Button (simple clickable element).
+ * <Component>: Headless clickable "button" component.
  */
 export type ButtonProps = {
+  debug?: boolean;
+
   children?: Content;
   label?: string | (() => string);
   enabled?: boolean;
@@ -24,7 +26,6 @@ export type ButtonProps = {
   padding?: t.CssEdgesInput;
   minWidth?: number;
   maxWidth?: number;
-  disabledOpacity?: number;
   userSelect?: boolean;
   pressedOffset?: [number, number];
 
