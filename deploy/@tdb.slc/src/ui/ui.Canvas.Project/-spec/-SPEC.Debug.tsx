@@ -152,8 +152,10 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const doc = p.doc.value;
+
   Signal.useRedrawEffect(() => debug.listen());
-  if (p.showEditorPanel.value) return <EditorPanel debug={debug} />;
+  if (p.showEditorPanel.value && doc) return <EditorPanel debug={debug} />;
 
   /**
    * Render:
@@ -175,7 +177,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `show editor: ${p.showEditorPanel.value}`}
+        label={() => `show editor panel: ${p.showEditorPanel.value}`}
         onClick={() => Signal.toggle(p.showEditorPanel)}
       />
       <Button
