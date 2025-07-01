@@ -5,14 +5,14 @@ import type { t } from './common.ts';
  * an immutable CRDT document interface.
  */
 export type EditorCrdtLib = {
-  bind(editor: t.Monaco.Editor, doc: t.CrdtRef, path: t.ObjectPath): t.EditorCrdtBinding;
+  bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): t.EditorCrdtBinding;
 };
 
 /**
  * A live binding between a Monaco editor and an immutable CRDT document interface.
  */
 export type EditorCrdtBinding = t.Lifecycle & {
-  readonly doc: t.CrdtRef;
+  readonly doc: t.Crdt.Ref;
   readonly path: t.ObjectPath;
   readonly model: t.Monaco.TextModel;
   readonly $: t.Observable<t.EditorCrdtLocalChange>;
