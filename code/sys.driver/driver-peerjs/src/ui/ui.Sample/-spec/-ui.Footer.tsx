@@ -27,18 +27,11 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
    */
   React.useEffect(() => {
     const events = doc?.events();
-    const update = () => {
-      const text = Obj.Path.get<string>(doc?.current, path);
-      setText(text);
-    };
-
-    events?.$.pipe()
-      .pipe(rx.filter((e) => e.patches.some((p) => Arr.startsWith(p.path, path))))
-      .subscribe(update);
-
+    const update = () => setText(Obj.Path.get<string>(doc?.current, path));
+    events?.path(path).$.subscribe(update);
     update();
     return events?.dispose;
-  }, [doc?.id]);
+  }, [doc?.id, path.join()]);
 
   /**
    * Render:
