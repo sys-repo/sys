@@ -9,24 +9,23 @@ export const ns = 'sys.ui.component';
  * Components:
  */
 export const SpecsComponents = {
-  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
-
   [`${ns}: Button`]: () => import('../ui/Button/-SPEC.tsx'),
   [`${ns}: Buttons.Switch`]: () => import('../ui/Buttons.Switch/-spec/-SPEC.tsx'),
   [`${ns}: Buttons.Icons`]: () => import('../ui/Buttons.Icons/-spec/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-SPEC.tsx'),
+  [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-SPEC.tsx'),
+  [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
+  [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
-  [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
-  [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
   [`${ns}.player: Video.VidStack`]: () => import('../ui/Player.Video.Vidstack/-spec/-SPEC.tsx'),
