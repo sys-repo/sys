@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Arr, Color, Crdt, css, Icons, Obj, rx } from '../common.ts';
+import { type t, Color, Crdt, css, Icons, Obj } from '../common.ts';
 
 export type HostFooterProps = {
   doc?: t.Crdt.Ref;
@@ -20,7 +20,6 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
    * Hooks:
    */
   const [text, setText] = React.useState<string>();
-
 
   /**
    * Effect:
