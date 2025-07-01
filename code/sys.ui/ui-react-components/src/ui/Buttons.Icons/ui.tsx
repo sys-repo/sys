@@ -29,3 +29,4 @@ export const Close = renderer(Icons.Close);
 export const Face = renderer(Icons.Face);
 export const MicOn = renderer(Icons.Mic.On);
 export const MicOff = renderer(Icons.Mic.Off);
+export const Settings = renderer(Icons.Settings.Default);

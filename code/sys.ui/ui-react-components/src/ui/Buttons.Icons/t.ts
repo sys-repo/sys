@@ -10,6 +10,7 @@ export type ButtonsIconsLib = {
   readonly Face: C;
   readonly MicOn: C;
   readonly MicOff: C;
+  readonly Settings: C;
 };
 
 /**

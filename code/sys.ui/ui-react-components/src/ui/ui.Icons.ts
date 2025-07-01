@@ -6,6 +6,7 @@ import {
   MdFace,
   MdMic,
   MdMicOff,
+  MdSettings,
 } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
 import { Icon } from './Icon/mod.ts';
@@ -22,4 +23,5 @@ export const Icons = {
   Error: icon(MdErrorOutline),
   Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },
   Mic: { On: icon(MdMic), Off: icon(MdMicOff) },
+  Settings: { Default: icon(MdSettings) },
 } as const;
