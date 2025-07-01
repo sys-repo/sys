@@ -57,6 +57,7 @@ const wrangle = {
           theme={props.theme}
           label={panel}
           style={{ padding: 8 }}
+          scroll={true}
         />
       );
       return { view };

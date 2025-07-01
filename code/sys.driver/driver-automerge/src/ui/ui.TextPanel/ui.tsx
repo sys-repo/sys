@@ -3,7 +3,7 @@ import { TextEditor } from '../ui.TextEditor/mod.ts';
 import { type t, Color, css, D } from './common.ts';
 
 export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
-  const { debug = false, label = D.label, doc, path } = props;
+  const { debug = false, label = D.label, doc, path, scroll = D.scroll } = props;
 
   /**
    * Effect: warnings.
@@ -43,7 +43,7 @@ export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
   };
 
   const elTextbox = (
-    <TextEditor doc={doc} path={path} style={styles.editor} scroll={false} theme={theme.name} />
+    <TextEditor doc={doc} path={path} style={styles.editor} scroll={scroll} theme={theme.name} />
   );
 
   return (

@@ -5,7 +5,7 @@ import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../com
 
 export type SampleDoc = { text?: string };
 type P = t.TextPanelProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'label' | 'path'> & { padding?: t.Pixels };
+type Storage = Pick<P, 'theme' | 'debug' | 'label' | 'path' | 'scroll'> & { padding?: t.Pixels };
 
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
@@ -27,6 +27,7 @@ export function createDebugSignals() {
     padding: 0,
     label: 'Description',
     path: ['text'],
+    scroll: D.scroll,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -41,6 +42,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     padding: s(snap.padding),
     label: s(snap.label),
+    scroll: s(snap.scroll),
 
     doc: s<t.CrdtRef<SampleDoc>>(),
     path: s<P['path']>(snap.path),
@@ -63,6 +65,7 @@ export function createDebugSignals() {
       d.padding = p.padding.value;
       d.label = p.label.value;
       d.path = p.path.value;
+      d.scroll = p.scroll.value;
     });
   });
 
@@ -132,6 +135,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `padding: ${p.padding.value}`}
         onClick={() => Signal.cycle(p.padding, [0, 5, 15])}
+      />
+      <Button
+        block
+        label={() => `scroll: ${p.scroll.value}`}
+        onClick={() => Signal.toggle(p.scroll)}
       />
 
       <hr />

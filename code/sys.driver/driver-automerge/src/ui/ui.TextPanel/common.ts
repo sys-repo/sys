@@ -9,5 +9,6 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   label: 'Untitled',
+  scroll: false,
 } as const;
 export const D = DEFAULTS;

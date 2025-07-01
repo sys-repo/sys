@@ -17,4 +17,5 @@ export type TextPanelProps = {
   style?: t.CssInput;
   labelOpacity?: t.Percent;
   rowGap?: t.Percent;
+  scroll?: boolean;
 };

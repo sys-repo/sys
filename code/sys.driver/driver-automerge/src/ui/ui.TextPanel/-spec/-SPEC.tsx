@@ -48,6 +48,7 @@ export default Spec.describe(D.displayName, (e) => {
             //
             debug={v.debug}
             theme={v.theme}
+            scroll={v.scroll}
             style={{ padding }}
           />
         );
