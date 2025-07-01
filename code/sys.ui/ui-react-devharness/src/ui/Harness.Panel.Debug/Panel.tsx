@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { type t, Color, css, pkg, R, Style, useCurrentState } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { DebugPanelBody as Body } from './Panel.Body.tsx';
@@ -43,7 +44,6 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
       overflow: 'hidden',
       justifySelf: 'stretch',
       width,
-      borderLeft: `solid 1px ${Color.format(-0.1)}`,
       display: isHidden ? 'none' : 'grid',
       gridTemplateRows: 'auto 1fr auto',
       pointerEvents: isHidden ? 'none' : undefined,
