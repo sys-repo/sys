@@ -14,10 +14,32 @@ export type CrdtRef<T extends O = O> = t.ImmutableRef<T, P, CrdtEvents<T>> & Ref
 /** A single change patch within a CRDT change. */
 export type CrdtPatch = P;
 
-/** Event interface for a CrdtRef. */
-export type CrdtEvents<T extends O = O> = t.ImmutableEvents<T, P, CrdtChange<T>>;
-
 /** Data thrown off when a CRDT document changes */
 export type CrdtChange<T extends O = O> = t.ImmutableChange<T, P> & {
   readonly source: t.Automerge.PatchSource;
+};
+
+/** Event interface for a CrdtRef. */
+export type CrdtEvents<T extends O = O> = t.ImmutableEvents<T, P, CrdtChange<T>> & {
+  /**
+   * Generate a filter for the given path(s).
+   * Option: `exact` path:
+   *   - true: must have exact match
+   *   - false (default):
+   */
+  path(
+    path: t.ObjectPath | t.ObjectPath[],
+    options?: t.CrdtPathEventsOptions | boolean,
+  ): CrdtPathEvents<T>;
+};
+/** Options passed to the `Events.path` method. */
+export type CrdtPathEventsOptions = { exact?: boolean };
+
+/**
+ * Events filtered to on value path(s) within the document.
+ */
+export type CrdtPathEvents<T extends O = O> = {
+  readonly paths: t.ObjectPath[];
+  readonly exact: boolean;
+  readonly $: t.Observable<CrdtChange<T>>;
 };

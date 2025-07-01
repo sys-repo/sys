@@ -1,6 +1,6 @@
 import type { ChangeFn, DocHandleChangePayload } from '@automerge/automerge-repo';
 
-import { type t, Dispose, rx, slug } from './common.ts';
+import { type t, Arr, Dispose, Is, rx, slug } from './common.ts';
 import { REF } from './u.toAutomergeHandle.ts';
 
 type O = Record<string, unknown>;
@@ -54,7 +54,26 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
     events(dispose$) {
       const until = rx.disposable([dispose$, life.dispose$]);
       const $ = $$.pipe(rx.takeUntil(until.dispose$));
-      return Dispose.toLifecycle(life, { $ });
+      return Dispose.toLifecycle<t.CrdtEvents<T>>(life, {
+        $,
+        path(input, opt) {
+          const paths = wrangle.paths(input).filter((a) => a.length > 0);
+          const options = wrangle.pathOptions(opt);
+          const { exact = false } = options;
+
+          const match = (p: t.Automerge.Patch): boolean => {
+            return paths.some((path) => {
+              return exact ? Arr.equal(p.path, path) : Arr.startsWith(p.path, path);
+            });
+          };
+
+          return {
+            $: $.pipe(rx.filter((e) => e.patches.some(match))),
+            paths,
+            exact,
+          };
+        },
+      });
     },
   });
 
@@ -81,5 +100,16 @@ const wrangle = {
     if (!input) return {};
     if (typeof input === 'function') return { patches: input };
     return input;
+  },
+
+  pathOptions(input?: Parameters<t.CrdtEvents['path']>[1]): t.CrdtPathEventsOptions {
+    if (!input) return {};
+    if (Is.bool(input)) return { exact: input };
+    return input;
+  },
+
+  paths(input: t.ObjectPath | t.ObjectPath[]): t.ObjectPath[] {
+    if (Array.isArray(input[0])) return input as t.ObjectPath[];
+    return [input as t.ObjectPath];
   },
 } as const;
