@@ -6,7 +6,7 @@ export function HostFooter(props: { repo: t.Crdt.Repo; theme?: t.CommonTheme }) 
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.15)}`,
+      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.08)}`,
       padding: 12,
     }),
   };
