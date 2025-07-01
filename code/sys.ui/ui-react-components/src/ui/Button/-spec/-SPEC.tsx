@@ -25,6 +25,8 @@ export default Spec.describe(D.displayName, (e) => {
           <Button
             debug={v.debug}
             theme={v.theme}
+            enabled={v.enabled}
+            opacity={v.opacity}
             onClick={(e) => console.info(`⚡️ onClick:`, e)}
             onMouse={(e) => console.info('⚡️ onMouse', e)}
           >{`👋 Hello Button`}</Button>

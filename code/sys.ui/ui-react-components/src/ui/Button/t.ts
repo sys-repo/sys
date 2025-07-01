@@ -12,14 +12,17 @@ export type ButtonProps = {
 
   children?: Content;
   label?: string | (() => string);
-  enabled?: boolean;
-  active?: boolean;
-  block?: boolean;
   tooltip?: string;
 
+  // Boolean:
+  enabled?: boolean | (() => boolean);
+  opacity?: t.Percent | t.ButtonPropCallback<t.Percent>;
+  active?: boolean;
+  block?: boolean;
   isOver?: boolean; // force the button into an "is-over" state.
   isDown?: boolean; // force the button into an "is-down" state.
 
+  // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
   margin?: t.CssEdgesInput;
@@ -32,6 +35,7 @@ export type ButtonProps = {
   /** Subscribe to signals that cause the button to redraw. */
   subscribe?: () => void;
 
+  // Events:
   onClick?: MouseHandler;
   onMouseDown?: MouseHandler;
   onMouseUp?: MouseHandler;
@@ -41,12 +45,18 @@ export type ButtonProps = {
   onMouse?: t.ButtonMouseHandler;
 };
 
+/** Callbacks used by a button to dynaically evaluate a value on redraw. */
+export type ButtonPropCallback<T> = (e: ButtonPropCallbackArgs) => T;
+/** Callback arguments. */
+export type ButtonPropCallbackArgs = { readonly is: t.ButtonFlags };
+
 /**
- * Callbacks used by a button to dynaically evaluate a value on redraw.
+ * Flags representing the state of the button.
  */
-export type ButtonPropCallbackHandler<T> = (e: ButtonPropCallbackArgs) => T;
-export type ButtonPropCallbackArgs = {
-  is: { over: boolean; down: boolean };
+export type ButtonFlags = {
+  readonly enabled: boolean;
+  readonly over: boolean;
+  readonly down: boolean;
 };
 
 /**
@@ -60,10 +70,6 @@ export type ButtonMouseHandlerArgs = {
   readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
   readonly synthetic: React.MouseEvent;
   readonly modifiers: t.KeyboardModifierFlags;
-  readonly is: {
-    readonly enabled: boolean;
-    readonly down: boolean;
-    readonly over: boolean;
-  };
+  readonly is: t.ButtonFlags;
   cancel(): void;
 };

@@ -11,8 +11,8 @@ export const DEFAULTS = {
   enabled: true,
   active: true,
   block: false,
-  disabledOpacity: 0.3,
   userSelect: false,
   pressedOffset: [0, 1] as [number, number],
+  opacity: { enabled: 1, disabled: 0.3 },
 } as const;
 export const D = DEFAULTS;

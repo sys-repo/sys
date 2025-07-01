@@ -1,5 +1,6 @@
 import type React from 'react';
 import { type t, D } from './common.ts';
+import { Wrangle } from './u.ts';
 
 type P = t.ButtonProps;
 type S = [boolean, (next: boolean) => void];
@@ -51,8 +52,8 @@ const Desktop = {
       }
 
       const action = isOver ? 'MouseEnter' : 'MouseLeave';
-      const is = {
-        enabled: props.enabled,
+      const is: t.ButtonFlags = {
+        enabled: Wrangle.enabled(props),
         over: isOver,
         down: !isOver ? false : state.down,
       };
@@ -75,8 +76,8 @@ const Desktop = {
       }
 
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      const is = {
-        enabled: props.enabled,
+      const is: t.ButtonFlags = {
+        enabled: Wrangle.enabled(props),
         over: state.over,
         down: isDown,
       };
@@ -105,8 +106,8 @@ const Mobile = {
       }
 
       const action = isDown ? 'MouseDown' : 'MouseUp';
-      const is = {
-        enabled: props.enabled,
+      const is: t.ButtonFlags = {
+        enabled: Wrangle.enabled(props),
         down: isDown,
         over: isDown,
       };
