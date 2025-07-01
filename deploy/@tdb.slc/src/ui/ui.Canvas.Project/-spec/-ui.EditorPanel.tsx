@@ -40,7 +40,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
     if (doc && editor) {
       const path = PATHS.config;
       const binding = EditorCrdt.bind(editor, doc, path);
-      binding.$.subscribe((e) => console.info(`⚡️ crdt.binding.$:`, e));
+      binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
       bindingRef.current = binding;
     }
   }, [editor, doc?.id]);

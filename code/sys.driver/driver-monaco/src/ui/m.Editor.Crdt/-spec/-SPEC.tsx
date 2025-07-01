@@ -67,7 +67,7 @@ export default Spec.describe(D.displayName, (e) => {
                 const binding = EditorCrdt.bind(e.editor, doc, path);
 
                 p.binding.value = binding;
-                binding.$.subscribe((e) => console.info(`⚡️ crdt.binding.$:`, e));
+                binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
               }
             }}
           />
