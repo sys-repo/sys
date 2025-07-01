@@ -1,7 +1,6 @@
-import { Repo } from '@automerge/automerge-repo';
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 
-import { type t, describe, expect, it, rx, Time } from '../-test.ts';
+import { type t, AutomergeRepo, describe, expect, it, rx, Time } from '../-test.ts';
 import { Crdt } from '../m.Server/common.ts';
 import { toAutomergeRepo, toRepo } from './mod.ts';
 
@@ -9,7 +8,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
 
   it('toAutomergeRepo', () => {
-    const base = new Repo();
+    const base = new AutomergeRepo();
     const repo = toRepo(base);
     expect(toAutomergeRepo(repo)).to.equal(base);
     expect(toAutomergeRepo()).to.eql(undefined);
@@ -18,7 +17,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('create', () => {
     it('create (doc)', () => {
-      const repo = toRepo(new Repo());
+      const repo = toRepo(new AutomergeRepo());
       expect(repo.id.peer).to.eql('');
       expect(repo.id.instance).to.be.a('string');
 
@@ -29,7 +28,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('create (doc) → initial as function', () => {
-      const repo = toRepo(new Repo());
+      const repo = toRepo(new AutomergeRepo());
       const initial: T = { count: 1234 };
       const doc = repo.create<T>(() => initial);
       expect(doc.current).to.eql(initial);
@@ -39,8 +38,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('creates with  { peerId }', () => {
       const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
       const peerId = 'foo:bar';
-      const a = toRepo(new Repo(), { peerId });
-      const b = toRepo(new Repo({ network }), { peerId });
+      const a = toRepo(new AutomergeRepo(), { peerId });
+      const b = toRepo(new AutomergeRepo({ network }), { peerId });
       expect(a.id.peer).to.eql(''); // NB: no network.
       expect(b.id.peer).to.eql(peerId);
     });
@@ -48,7 +47,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('get', () => {
     it('get', async () => {
-      const base = new Repo();
+      const base = new AutomergeRepo();
       const repoA = toRepo(base);
       const repoB = toRepo(base);
       const a = repoA.create<T>({ count: 0 });
@@ -64,7 +63,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('get: automerge-URL', async () => {
-      const repo = toRepo(new Repo());
+      const repo = toRepo(new AutomergeRepo());
       const a = repo.create<T>({ count: 0 });
       const b = (await repo.get<T>(`automerge:${a.id}`)).doc!;
       expect(b.instance).to.not.eql(a.instance);
@@ -73,7 +72,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('sync between different doc/ref instances', async () => {
-      const base = new Repo();
+      const base = new AutomergeRepo();
       const repoA = toRepo(base);
       const repoB = toRepo(base);
       const a = repoA.create<T>({ count: 0 });
@@ -142,9 +141,9 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('sync.urls', () => {
       const { net1, net2 } = createAdapters();
 
-      const a = toRepo(new Repo({}));
-      const b = toRepo(new Repo({ network: [net1] }));
-      const c = toRepo(new Repo({ network: [net1, net2] }));
+      const a = toRepo(new AutomergeRepo({}));
+      const b = toRepo(new AutomergeRepo({ network: [net1] }));
+      const c = toRepo(new AutomergeRepo({ network: [net1, net2] }));
 
       expect(a.sync.urls).to.eql([]);
       expect(b.sync.urls).to.eql(['wss://sync.automerge.org']);
@@ -157,8 +156,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     it('can never be enbled when no networks', () => {
       const { net1 } = createAdapters();
-      const a = toRepo(new Repo({}));
-      const b = toRepo(new Repo({ network: [net1] }));
+      const a = toRepo(new AutomergeRepo({}));
+      const b = toRepo(new AutomergeRepo({ network: [net1] }));
 
       expect(a.sync.enabled).to.eql(false);
       expect(b.sync.enabled).to.eql(true);
@@ -170,15 +169,15 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('errors', () => {
     it('control: ensure monkey-patching is non-destructive', () => {
-      const a = new Repo();
-      const b = new Repo();
+      const a = new AutomergeRepo();
+      const b = new AutomergeRepo();
       (a as any).find = 0;
       expect(a.find).to.not.equal(b.find);
       expect(typeof b.find === 'function').to.be.true;
     });
 
     it('error: NotFound', async () => {
-      const repo = toRepo(new Repo());
+      const repo = toRepo(new AutomergeRepo());
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
       expect(res.doc).to.eql(undefined);
       expect(res.error?.kind === 'NotFound').to.be.true;
@@ -186,7 +185,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('error: Timeout', async () => {
-      const base = new Repo();
+      const base = new AutomergeRepo();
       const repo = toRepo(base);
 
       // Monkey-patch the internal `find` method to simulate a too long retrieval.
@@ -198,7 +197,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('error: UNKNOWN - bork the repo', async () => {
-      const base = new Repo();
+      const base = new AutomergeRepo();
       const error = '💥 test explosion';
 
       // Monkey-patch the internal `find` method to simulate failure.

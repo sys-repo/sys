@@ -1,13 +1,11 @@
-import { Repo } from '@automerge/automerge-repo';
-
-import { type t, c, describe, expect, it, rx } from '../-test.ts';
+import { type t, AutomergeRepo, c, describe, expect, it, rx } from '../-test.ts';
 import { toAutomergeHandle, toRef } from './mod.ts';
 
 describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
 
   it('toAutomergeHandle', () => {
-    const repo = new Repo();
+    const repo = new AutomergeRepo();
     const handle = repo.create<T>({ count: 0 });
     const doc = toRef(handle);
     expect(toAutomergeHandle(doc)).to.equal(handle);
@@ -16,7 +14,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   it('create → change → patches (sequence)', () => {
-    const repo = new Repo();
+    const repo = new AutomergeRepo();
     const handle = repo.create<T>({ count: 0 });
 
     const doc = toRef(handle);
@@ -47,7 +45,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   describe('dispose', () => {
     it('disposed from toRef param', () => {
       const life = rx.disposable();
-      const repo = new Repo();
+      const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle, life);
 
@@ -56,7 +54,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('does not change after disposal', () => {
-      const repo = new Repo();
+      const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle);
       expect(doc.disposed).to.eql(false);
@@ -70,7 +68,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('events do not fire when created after disposal', () => {
-      const repo = new Repo();
+      const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle);
       doc.dispose();

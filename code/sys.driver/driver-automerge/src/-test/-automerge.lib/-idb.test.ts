@@ -1,12 +1,10 @@
-import { Repo } from '@automerge/automerge-repo';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-
-import { describe, expect, it, Testing } from '../mod.ts';
+import { AutomergeRepo, describe, expect, it, Testing } from '../mod.ts';
 
 describe('CRDT: IndexedDB', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('repo → persistence', async () => {
     type T = { msg?: string };
-    const repoA = new Repo({ storage: new IndexedDBStorageAdapter() });
+    const repoA = new AutomergeRepo({ storage: new IndexedDBStorageAdapter() });
 
     // Create initial doc:
     const a = repoA.create<T>({ msg: 'initial' });
@@ -23,7 +21,7 @@ describe('CRDT: IndexedDB', { sanitizeResources: false, sanitizeOps: false }, ()
 
     // Create a secondary repo pointing at the same dir (prove filesystem save)
     await Testing.wait(100); // NB: hack ← typically don't do this on the same process, write are not real-time updated.
-    const repoB = new Repo({ storage: new IndexedDBStorageAdapter() });
+    const repoB = new AutomergeRepo({ storage: new IndexedDBStorageAdapter() });
     const c = await repoB.find<T>(a.url);
     expect(c.doc()).to.eql({ msg });
 

@@ -2,6 +2,7 @@
  * @external
  */
 export * as A from '@automerge/automerge/next';
+export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 
 /**
  * @system

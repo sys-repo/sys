@@ -2,21 +2,29 @@
  * CRDTs that work in a browser environment.
  * @module
  */
-import { Repo } from '@automerge/automerge-repo';
-import { BroadcastChannelNetworkAdapter } from '@automerge/automerge-repo-network-broadcastchannel';
 import {
   BrowserWebSocketClientAdapter,
   WebSocketClientAdapter,
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { type t, Arr, CrdtIs, CrdtUrl, createPeerId, D, Is, toRepo } from './common.ts';
+import {
+  type t,
+  Arr,
+  AutomergeRepo,
+  CrdtIs,
+  CrdtUrl,
+  createPeerId,
+  D,
+  Is,
+  toRepo,
+} from './common.ts';
 
 type Args = t.CrdtBrowserRepoArgs;
 
 /**
  * Exports:
  */
-export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
+export { AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:
@@ -28,7 +36,7 @@ export const Crdt: t.CrdtBrowserLib = {
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
     const peerId = createPeerId();
-    const base = new Repo({ storage, network, sharePolicy, denylist, peerId });
+    const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId });
   },
   Is: CrdtIs,
