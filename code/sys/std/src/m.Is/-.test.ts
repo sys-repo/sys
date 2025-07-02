@@ -344,4 +344,17 @@ describe('Is (common flags)', () => {
       expect(Is.localhost()).to.eql(false);
     });
   });
+
+  describe('Is.objectPath', () => {
+    it('is not an [ObjectPath]', () => {
+      const NON = [123, {}, false, '', Symbol('foo'), BigInt(0), undefined, null, [[]], [{}]];
+      NON.forEach((v) => expect(Is.objectPath(v)).to.eql(false));
+    });
+
+    it('is an [ObjectPath]', () => {
+      expect(Is.objectPath([])).to.eql(true);
+      expect(Is.objectPath([''])).to.eql(true);
+      expect(Is.objectPath(['foo', 1, 'bar'])).to.eql(true);
+    });
+  });
 });

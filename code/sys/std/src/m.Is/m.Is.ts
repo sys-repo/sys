@@ -177,4 +177,12 @@ export const Is: StdIsLib = {
     }
     return false;
   },
+
+  /**
+   * Determine if the given value is an ['object', 'path'] array.
+   */
+  objectPath(input): input is t.ObjectPath {
+    if (!Array.isArray(input)) return false;
+    return input.every((item) => typeof item === 'string' || typeof item === 'number');
+  },
 };

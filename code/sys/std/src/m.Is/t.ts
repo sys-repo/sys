@@ -126,4 +126,9 @@ export type StdIsLib = {
    * Determine if the given value (or the browser is environment) is "localhost".
    */
   localhost(value?: string | Location): boolean;
+
+  /**
+   * Determine if the given value is an ['object', 'path'] array.
+   */
+  objectPath(input?: unknown): input is t.ObjectPath;
 };
