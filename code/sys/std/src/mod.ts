@@ -16,7 +16,6 @@ export { History } from './m.History/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
-export { ObjectPath } from './m.ObjectPath/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { maybeWait, Promise } from './m.Promise/mod.ts';
