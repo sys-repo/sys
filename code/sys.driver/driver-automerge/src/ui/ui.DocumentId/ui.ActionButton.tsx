@@ -51,7 +51,7 @@ export const ActionButton: React.FC<ActionButtonProps> = (props) => {
       style={css(styles.base, props.style)}
       enabled={enabled}
       onClick={props.onClick}
-      disabledOpacity={0.6}
+      opacity={(e) => (e.is.disabled ? 0.6 : 1)}
       onMouse={(e) => setOver(e.is.over)}
     >
       <div className={styles.body.class}>{action}</div>
