@@ -24,7 +24,7 @@ type Args = t.CrdtBrowserRepoArgs;
 /**
  * Exports:
  */
-export { AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
+export { A, AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:

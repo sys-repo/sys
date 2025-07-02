@@ -1,6 +1,5 @@
 import { pkg, Pkg } from '../common.ts';
 
-export * as A from '@automerge/automerge/next';
 export * from '../common.ts';
 
 /**

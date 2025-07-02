@@ -11,7 +11,7 @@ type Args = t.CrdtFsRepoArgs;
 /**
  * Exports:
  */
-export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
+export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:

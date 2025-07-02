@@ -14,6 +14,7 @@ import { Repo } from '../ui/ui.Repo/mod.ts';
 import { TextEditor } from '../ui/ui.TextEditor/mod.ts';
 import { TextPanel } from '../ui/ui.TextPanel/mod.ts';
 
+export { A } from './common.ts';
 export { Card, DocumentId, Repo, TextEditor, TextPanel };
 
 /**

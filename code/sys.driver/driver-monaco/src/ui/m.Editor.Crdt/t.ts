@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * an immutable CRDT document interface.
  */
 export type EditorCrdtLib = {
-  bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): t.EditorCrdtBinding;
+  bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): Promise<t.EditorCrdtBinding>;
 };
 
 /**
