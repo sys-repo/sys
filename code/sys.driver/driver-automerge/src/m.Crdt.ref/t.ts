@@ -39,7 +39,6 @@ export type CrdtPathEventsOptions = { exact?: boolean };
  * Events filtered to on value path(s) within the document.
  */
 export type CrdtPathEvents<T extends O = O> = {
-  readonly paths: t.ObjectPath[];
-  readonly exact: boolean;
   readonly $: t.Observable<CrdtChange<T>>;
+  readonly match: { readonly paths: t.ObjectPath[]; readonly exact: boolean };
 };

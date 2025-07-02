@@ -1,4 +1,5 @@
 import type { t } from '../common.ts';
+export type * from './t.Immutable.events.ts';
 
 type O = Record<string, unknown>;
 
@@ -15,19 +16,13 @@ export type Immutable<D = O, P = unknown> = {
  */
 export type ImmutableMutator<D = O> = (draft: D) => void;
 
-/**
- * Loose inputs to the change function (multiple input types).
- */
+/** Loose inputs to the change function (multiple input types). */
 export type ImmutableChangeOptionsInput<P> = ImmutablePatchCallback<P> | ImmutableChangeOptions<P>;
 
-/**
- * Callback that JSON patches arising from a change operation are returned in.
- */
+/** Callback that JSON patches arising from a change operation are returned in. */
 export type ImmutablePatchCallback<P> = (patches: P[]) => void;
 
-/**
- * Options passed to the Immutable `change` function.
- */
+/** Options passed to the Immutable `change` function. */
 export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
 
 /**
@@ -41,28 +36,6 @@ export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
   /** Generate a new Events object. */
   events(dispose$?: t.UntilInput): E;
 };
-
-/**
- * Generic immutable events observer.
- *
- * See example reference implementation in:
- *   sys.util → Immutable.events(💥):💦
- *
- */
-export type ImmutableEvents<
-  D,
-  P,
-  C extends ImmutableChange<D, P> = ImmutableChange<D, P>,
-> = t.Lifecycle & { readonly $: t.Observable<C> };
-
-/**
- * Utility type to infer the event-type contained within the ImmutableEvents type.
- */
-export type InferImmutableEvent<T extends { $: t.Observable<any> }> = T extends {
-  $: t.Observable<infer E>;
-}
-  ? E
-  : never;
 
 /**
  * Represents a before/after patched change to the immutable state.

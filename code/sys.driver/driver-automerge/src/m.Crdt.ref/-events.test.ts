@@ -47,8 +47,8 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       const e = events.path(['foo', 0]);
 
       const assert = (subject: t.CrdtPathEvents<T>, exact: boolean, paths: t.ObjectPath[]) => {
-        expect(subject.paths).to.eql(paths);
-        expect(subject.exact).to.eql(exact);
+        expect(subject.match.paths).to.eql(paths);
+        expect(subject.match.exact).to.eql(exact);
       };
 
       assert(a, false, []);
