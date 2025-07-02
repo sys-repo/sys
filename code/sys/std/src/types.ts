@@ -36,3 +36,4 @@ export type * from './m.Value.Num/t.ts';
 export type * from './m.Value.Obj/t.ts';
 export type * from './m.Value.Str/t.ts';
 export type * from './m.Value/t.ts';
+export type * from './m.Yaml/t.ts';
