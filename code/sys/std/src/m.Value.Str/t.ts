@@ -18,9 +18,6 @@ export type StrLib = {
   /** The "lorem ipsum" string. */
   readonly lorem: string;
 
-  /** Helpers for replacing strings within immutable documents. */
-  readonly Doc: StringDocLib;
-
   /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
 
@@ -57,14 +54,4 @@ export type StrLoremLib = {
   readonly text: string;
   toString(): string;
   words(count?: number): string;
-};
-
-/**
- * Helpers for replacing strings within immutable documents.
- */
-export type StringDocLib = {
-  /** Safely modify a string stored on an immutable object <T>. */
-  splice: t.TextSplice;
-  /** Replace all of a string using splice. */
-  replace: t.TextReplace;
 };
