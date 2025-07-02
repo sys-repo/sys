@@ -16,6 +16,11 @@ export type ObjPathLib = {
   get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
+   * Determine if the given path exists on the subject, irrespective of value.
+   */
+  exists(subject: unknown, path: t.ObjectPath): boolean;
+
+  /**
    * Deep-set helper (mutates `subject` in-place, relying on
    * proxy layers to record structural changes).
    */

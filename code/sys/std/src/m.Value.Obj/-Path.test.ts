@@ -55,6 +55,55 @@ describe('Value.Obj.Path', () => {
     });
   });
 
+  describe('Path.exists', () => {
+    const root = {
+      foo: {
+        bar: {
+          baz: 42,
+          qux: undefined, // value is undefined but slot exists.
+        },
+        arr: [1, 2, 3],
+      },
+    };
+
+    it('returns true for an existing nested key', () => {
+      expect(Path.exists(root, ['foo', 'bar', 'baz'])).to.be.true;
+    });
+
+    it('returns true when the key exists but the value is undefined', () => {
+      expect(Path.exists(root, ['foo', 'bar', 'qux'])).to.be.true;
+    });
+
+    it('returns false when the key does not exist', () => {
+      expect(Path.exists(root, ['foo', 'bar', 'missing'])).to.be.false;
+    });
+
+    it('treats any numeric index as valid on an array (in-bounds or out-of-bounds)', () => {
+      expect(Path.exists(root, ['foo', 'arr', 1])).to.be.true; //  ← in-bounds
+      expect(Path.exists(root, ['foo', 'arr', 99])).to.be.true; // ← out-of-bounds
+    });
+
+    it('returns true for numeric keys on plain objects', () => {
+      const obj = { 0: 'zero' };
+      expect(Path.exists(obj, [0])).to.be.true;
+    });
+
+    it('returns false when the path array is empty', () => {
+      expect(Path.exists(root, [])).to.be.false;
+    });
+
+    it('returns false when traversal hits a non-object before the end of the path', () => {
+      const fixture = { foo: 123 };
+      expect(Path.exists(fixture, ['foo', 'bar'])).to.be.false;
+    });
+
+    it('ignores keys inherited from the prototype chain', () => {
+      const proto = { p: 1 };
+      const child = Object.create(proto);
+      expect(Path.exists(child, ['p'])).to.be.false;
+    });
+  });
+
   describe('Path.Mutate', () => {
     const Mutate = Obj.Path.Mutate;
 
