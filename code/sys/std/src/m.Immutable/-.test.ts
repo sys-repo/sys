@@ -1,9 +1,19 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Immutable } from './mod.ts';
 
+import { Patch } from './m.Patch.ts';
+import { Events } from './m.Events.ts';
+import { Is } from './u.Is.ts';
+
 describe('Immutable', () => {
   type P = t.PatchOperation;
   type D = { count: number; list?: number[] };
+
+  it('API', () => {
+    expect(Immutable.Is).to.equal(Is);
+    expect(Immutable.Patch).to.equal(Patch);
+    expect(Immutable.Events).to.equal(Events);
+  });
 
   describe('Immutable.Is', () => {
     const Is = Immutable.Is;

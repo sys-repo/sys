@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
 type P = t.PatchOperation;
+type DefaultPatch = P;
 
 /**
  * Factory functions.
@@ -13,25 +14,44 @@ type ClonerRef = <T>(
   options?: ClonerOptions,
 ) => t.ImmutableRef<T, P, t.ImmutableEvents<T, P>>;
 
-type EventsViaOverride = <T, P = t.PatchOperation>(
+type EventsViaOverride = <T, P = DefaultPatch>(
   source: t.Immutable<T, P>,
   dispose$?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
 
-type EventsViaObservable = <T, P = t.PatchOperation>(
+type EventsViaObservable = <T, P = DefaultPatch>(
   $: t.Observable<t.ImmutableChange<T, P>>,
   dispose$?: t.UntilInput,
 ) => t.ImmutableEvents<T, P>;
+
+type PathEventsFactory = <
+  T,
+  P = DefaultPatch,
+  C extends t.ImmutableChange<T, P> = t.ImmutableChange<T, P>,
+>(
+  $: t.Observable<C>,
+  toPath: (patch: P) => t.ObjectPath,
+) => t.ImmutablePathEventsFactory<T, P, C>;
 
 /**
  * Library: Immutable:
  */
 export type ImmutableLib = {
   readonly Is: t.ImmutableIsLib;
-  readonly events: { viaOverride: EventsViaOverride; viaObservable: EventsViaObservable };
+  readonly Events: ImmutableEventsLib;
+  readonly Patch: t.ImmutablePatchLib;
   toObject<T extends O>(input?: any): T;
   cloner: Cloner;
   clonerRef: ClonerRef;
+};
+
+/**
+ * Library: helpers for events.
+ */
+export type ImmutableEventsLib = {
+  readonly viaOverride: EventsViaOverride;
+  readonly viaObservable: EventsViaObservable;
+  readonly pathFilter: PathEventsFactory;
 };
 
 /**
@@ -68,7 +88,6 @@ export type ImmutablePatchLib = {
    *    toPath('/items/-')                 // ['items', '-']
    *    toPath('/')                        // ['']
    *    toPath('/foo//bar')                // ['foo', '', 'bar']
-   *
    */
-  toPath<P extends { path: string } | string>(patch: P): t.ObjectPath;
+  toObjectPath(path: string): t.ObjectPath;
 };

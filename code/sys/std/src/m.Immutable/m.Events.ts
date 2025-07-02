@@ -1,5 +1,7 @@
-import { rx, type t } from './common.ts';
+import { type t, rx } from './common.ts';
+import { pathFilter } from './m.Events.path.ts';
 import { Wrangle } from './u.ts';
+import { Patch } from './m.Patch.ts';
 
 /**
  * Change Patch Standard:
@@ -17,7 +19,12 @@ export function viaObservable<T, P = DefaultPatch>(
 ): t.ImmutableEvents<T, P> {
   const life = rx.lifecycle(dispose$);
   const $ = input$.pipe(rx.takeUntil(life.dispose$));
-  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { $ });
+  const toPath = (patch: P) => {
+    const o = patch as { path: string };
+    return 'path' in o ? Patch.toObjectPath(o.path) : [];
+  };
+  const path = pathFilter<T, P>($, toPath);
+  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { $, path });
 }
 
 /**
@@ -37,7 +44,7 @@ export function viaOverride<T, P = DefaultPatch>(
 }
 
 /**
- * Implementation for a override function for [Immutable.change].
+ * Implementation for an override function for [Immutable.change].
  */
 export function curryChangeFunction<T, P = DefaultPatch>(
   $: t.Subject<t.ImmutableChange<T, P>>,
@@ -59,3 +66,12 @@ export function curryChangeFunction<T, P = DefaultPatch>(
     $.next({ before, after, patches });
   };
 }
+
+/**
+ * Library:
+ */
+export const Events: t.ImmutableEventsLib = {
+  viaOverride,
+  viaObservable,
+  pathFilter,
+};

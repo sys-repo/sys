@@ -1,5 +1,5 @@
-import { curryChangeFunction, viaObservable } from './Immutable.events.ts';
 import { Obj, rx, slug, type t } from './common.ts';
+import { curryChangeFunction, viaObservable } from './m.Events.ts';
 import { Wrangle } from './u.ts';
 
 /**

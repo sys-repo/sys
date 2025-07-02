@@ -1,7 +1,8 @@
 import type { ImmutableLib } from './t.ts';
 
-import { cloner, clonerRef } from './Immutable.cloner.ts';
-import { viaObservable, viaOverride } from './Immutable.events.ts';
+import { Events } from './m.Events.ts';
+import { cloner, clonerRef } from './m.Immutable.cloner.ts';
+import { Patch } from './m.Patch.ts';
 import { Is, toObject } from './u.ts';
 
 /**
@@ -9,9 +10,9 @@ import { Is, toObject } from './u.ts';
  */
 export const Immutable: ImmutableLib = {
   Is,
+  Events,
+  Patch,
   cloner,
   clonerRef,
-
   toObject,
-  events: { viaOverride, viaObservable },
 } as const;

@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 export const Patch: t.ImmutablePatchLib = {
-  toPath<P extends { path: string } | string>(input: P) {
+  toObjectPath<P extends { path: string } | string>(input: P) {
     const pointer = typeof input === 'string' ? input : input.path;
 
     // Root pointer:
