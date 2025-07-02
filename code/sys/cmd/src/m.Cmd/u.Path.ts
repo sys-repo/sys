@@ -1,4 +1,4 @@
-import { DEFAULTS, isObject, ObjectPath, type t } from './common.ts';
+import { type t, DEFAULTS, isObject, Obj } from './common.ts';
 import type { CmdPathLib } from './t.ts';
 
 type S = string;
@@ -17,8 +17,6 @@ export const Path: CmdPathLib = {
 
   resolver(input?: t.CmdPaths | t.ObjectPath) {
     const paths = Path.wrangle(input);
-    const resolve = ObjectPath.resolve;
-    const Mutate = ObjectPath.Mutate;
 
     const api: t.CmdResolver = {
       paths,
@@ -28,8 +26,8 @@ export const Path: CmdPathLib = {
          */
         list<C extends t.CmdType>(d: O) {
           type T = t.CmdQueueItem<C>[];
-          const get = () => resolve<T>(d, paths.queue);
-          if (!get()) Mutate.value(d, paths.queue, []);
+          const get = () => Obj.Path.get<T>(d, paths.queue);
+          if (!get()) Obj.Path.Mutate.set(d, paths.queue, []);
           return get()!;
         },
 
@@ -40,7 +38,7 @@ export const Path: CmdPathLib = {
           const queue = api.queue.list<C>(d);
           const i = index ?? queue.length;
           const path = [...paths.queue, i];
-          if (!queue[i]) Mutate.value(d, path, {});
+          if (!queue[i]) Obj.Path.Mutate.set(d, path, {});
 
           const item: t.CmdResolverQueueItem = {
             index: i,
@@ -48,43 +46,43 @@ export const Path: CmdPathLib = {
 
             name<N extends S = S>(defaultValue = '') {
               const name = [...path, 'name'];
-              const get = () => resolve<N>(d, name);
-              if (!get()) Mutate.value(d, name, defaultValue);
+              const get = () => Obj.Path.get<N>(d, name);
+              if (!get()) Obj.Path.Mutate.set(d, name, defaultValue);
               return get()!;
             },
 
             params<P extends O = O>(defaultValue: P) {
               const params = [...path, 'params'];
-              const get = () => resolve<P>(d, params);
-              if (!get()) Mutate.value(d, params, defaultValue);
+              const get = () => Obj.Path.get<P>(d, params);
+              if (!get()) Obj.Path.Mutate.set(d, params, defaultValue);
               return get()!;
             },
 
             error<E extends O = O>(defaultValue?: E) {
               const error = [...path, 'error'];
-              const get = () => resolve<E>(d, error);
-              if (!get()) Mutate.value(d, error, defaultValue);
+              const get = () => Obj.Path.get<E>(d, error);
+              if (!get()) Obj.Path.Mutate.set(d, error, defaultValue);
               return get()!;
             },
 
             tx(defaultValue?: string) {
               const tx = [...path, 'tx'];
-              const get = () => resolve<string>(d, tx);
-              if (!get()) Mutate.value(d, tx, defaultValue ?? DEFAULTS.tx());
+              const get = () => Obj.Path.get<string>(d, tx);
+              if (!get()) Obj.Path.Mutate.set(d, tx, defaultValue ?? DEFAULTS.tx());
               return get()!;
             },
 
             id(defaultValue?: string) {
               const id = [...path, 'id'];
-              const get = () => resolve<string>(d, id);
-              if (!get()) Mutate.value(d, id, defaultValue ?? DEFAULTS.id());
+              const get = () => Obj.Path.get<string>(d, id);
+              if (!get()) Obj.Path.Mutate.set(d, id, defaultValue ?? DEFAULTS.id());
               return get()!;
             },
 
             issuer(defaultValue?: string) {
               const issuer = [...path, 'issuer'];
-              const get = () => resolve<string>(d, issuer);
-              if (!get()) Mutate.value(d, issuer, defaultValue);
+              const get = () => Obj.Path.get<string>(d, issuer);
+              if (!get()) Obj.Path.Mutate.set(d, issuer, defaultValue);
               return get()!;
             },
           } as const;
@@ -96,8 +94,8 @@ export const Path: CmdPathLib = {
       log(d: O) {
         type T = t.CmdLog;
         const path = paths.log;
-        const get = () => resolve<T>(d, path);
-        if (!get()) Mutate.value(d, path, DEFAULTS.log());
+        const get = () => Obj.Path.get<T>(d, path);
+        if (!get()) Obj.Path.Mutate.set(d, path, DEFAULTS.log());
         return get()!;
       },
 

@@ -1,6 +1,6 @@
 import type { CmdQueueLib } from './t.ts';
 
-import { DEFAULTS, ObjectPath, rx, type t } from './common.ts';
+import { DEFAULTS, Obj, rx, type t } from './common.ts';
 import { Path } from './u.Path.ts';
 import { toPaths, toTransport } from './u.To.ts';
 
@@ -14,7 +14,7 @@ export const Queue: CmdQueueLib = {
     doc.change((d) => {
       const queue = resolve.queue.list(d);
       const deleteCount = Math.max(queue.length - min, 0);
-      ObjectPath.Mutate.ensure(d, paths.log, DEFAULTS.log());
+      Obj.Path.Mutate.ensure(d, paths.log, DEFAULTS.log());
       resolve.log(d).total.purged += deleteCount;
       queue.splice(0, deleteCount);
     });

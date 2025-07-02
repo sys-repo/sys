@@ -9,7 +9,7 @@ export type {
   JsonLib,
   Msecs,
   ObjectPath,
-  ObjectPathLib,
+  ObjPathLib,
   Observable,
   PatchOperation,
   StringId,

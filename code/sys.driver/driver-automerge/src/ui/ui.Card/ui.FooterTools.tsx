@@ -1,7 +1,10 @@
 import React from 'react';
-import { type t, Button, Color, css, D, Icons, Is, Str } from './common.ts';
+import { type t, A, Button, Color, css, D, Icons, Is } from './common.ts';
 
-type D = { count?: number; text?: string };
+type D = {
+  count?: number;
+  text?: string;
+};
 
 export type FooterToolsProps = {
   doc?: t.CrdtRef;
@@ -24,7 +27,10 @@ export const FooterTools: React.FC<FooterToolsProps> = (props) => {
     doc?.change((d) => {
       if (!Is.string(d.text)) d.text = '';
       const next = d.text ? '' : '👋';
-      Str.Doc.replace(d, ['text'], next);
+      const path: t.ObjectPath = ['text'];
+
+      // Delete the whole string, then insert `next`:
+      A.splice(d, path, 0, (d.text as string).length, next);
     });
   };
 
