@@ -14,7 +14,7 @@ export type YamlLib = {
    */
   syncer<T = unknown>(
     doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
-    path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath },
+    path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
     options?: { dispose$?: t.UntilInput },
   ): YamlSyncParser<T>;
 };
@@ -42,8 +42,8 @@ export type YamlSyncParserDocs = {
 
 /** Source and target paths. */
 export type YamlSyncParserPaths = {
-  readonly source: t.ObjectPath;
-  readonly target: t.ObjectPath;
+  readonly source: t.ObjectPath | null;
+  readonly target: t.ObjectPath | null;
 };
 
 /** Change event fired by the sync-parser. */

@@ -30,10 +30,13 @@ describe('Yaml', () => {
     });
 
     it('empty input → graceful no-data, no-error result', () => {
-      const a = Yaml.parse('null');
-      const res = Yaml.parse('');
-      expect(res.data).to.eql(null);
-      expect(res.error).to.eql(undefined);
+      const test = (input: string) => {
+        const res = Yaml.parse(input);
+        expect(res.data).to.eql(null);
+        expect(res.error).to.eql(undefined);
+      };
+      test('');
+      test('  ');
     });
 
     it('simple values', () => {
@@ -104,40 +107,51 @@ describe('Yaml', () => {
         expect(c.doc.target).to.equal(docB);
       });
 
-      it('create → paths variants', () => {
-        const doc = Immutable.clonerRef<T>({});
+      it.only('create → paths variants', () => {
+        const docA = Immutable.clonerRef<T>({});
+        const docB = Immutable.clonerRef<T>({});
 
-        const a = Yaml.syncer(doc, ['text']);
-        const b = Yaml.syncer(doc, { source: ['text'] });
-        const c = Yaml.syncer(doc, { source: ['text'], target: [] });
-        const d = Yaml.syncer(doc, { source: ['text'], target: ['foo', 'parsed'] });
-
-        console.log('a.path', a.path);
-        console.log('b.path', b.path);
-        console.log('c.path', c.path);
-        console.log('d.path', d.path);
+        const a = Yaml.syncer(docA, ['text']);
+        const b = Yaml.syncer(docA, { source: ['text'] });
+        const c = Yaml.syncer({ source: docA, target: docB }, ['text']);
+        const d = Yaml.syncer(docA, { source: ['text'], target: [] });
+        const e = Yaml.syncer(docA, { source: ['text'], target: null });
+        const f = Yaml.syncer(docA, { source: ['text'], target: ['foo', 'parsed'] });
+        const g = Yaml.syncer(docA, { source: [], target: ['text'] });
 
         expect(a.ok).to.eql(true);
-        expect(b.ok).to.eql(true);
-        expect(c.ok).to.eql(false); // NB: target path empty.
-        expect(d.ok).to.eql(true);
-
         expect(a.path.source).to.eql(['text']);
-        expect(a.path.target).to.eql(['text.parsed']);
+        expect(a.path.target).to.eql(['text.parsed']); // NB: modified so as not to overwrite the source on the same document.
 
+        expect(b.ok).to.eql(true);
         expect(b.path.source).to.eql(['text']);
         expect(b.path.target).to.eql(['text.parsed']);
 
+        expect(c.ok).to.eql(true);
         expect(c.path.source).to.eql(['text']);
-        expect(c.path.target).to.eql([]);
+        expect(c.path.target).to.eql(['text']); // NB: not modified, because targetting different document.
 
+        expect(d.ok).to.eql(true); // NB: source with no target - event emitter only.
         expect(d.path.source).to.eql(['text']);
-        expect(d.path.target).to.eql(['foo', 'parsed']);
+        expect(d.path.target).to.eql(null);
+
+        // ↑ equivalent.
+        expect(e.ok).to.eql(true);
+        expect(e.path.source).to.eql(['text']);
+        expect(e.path.target).to.eql(null);
+
+        expect(f.ok).to.eql(true);
+        expect(f.path.source).to.eql(['text']);
+        expect(f.path.target).to.eql(['foo', 'parsed']);
+
+        expect(g.ok).to.eql(false); // NB: source path empty - error condition.
+        expect(g.path.source).to.eql(null);
+        expect(g.path.target).to.eql(['text']);
       });
     });
 
     describe('error state', () => {
-      it('error: no path', () => {
+      it('error: no path slots (source or target)', () => {
         const doc = Immutable.clonerRef<T>({});
 
         const a = Yaml.syncer(doc, { source: [], target: ['text'] });
@@ -149,12 +163,11 @@ describe('Yaml', () => {
         expect(c.ok).to.eql(false);
 
         expect(a.errors.length).to.eql(1);
-        expect(b.errors.length).to.eql(2);
+        expect(b.errors.length).to.eql(1);
         expect(c.errors.length).to.eql(1);
 
         expect(a.errors[0].message).to.include('The source path is empty');
         expect(b.errors[0].message).to.include('The source path is empty');
-        expect(b.errors[1].message).to.include('The target path is empty');
         expect(c.errors[0].message).to.include('The target path is empty');
       });
     });
