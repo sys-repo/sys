@@ -1,24 +1,43 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/ui';
-import { type t, A, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Bullet,
+  Button,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
+import { importLibs } from '../libs.ts';
+import { YamlSyncDebug } from './-ui.YamlSyncDebug.tsx';
+import { SelectLanguageList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
-type Storage = { theme?: t.CommonTheme; debug?: boolean; path?: t.ObjectPath };
+type P = t.MonacoEditorProps;
+type Storage = Pick<P, 'language'> & {
+  theme?: t.CommonTheme;
+  debug?: boolean;
+  path?: t.ObjectPath;
+};
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
+  const { Crdt, A } = await importLibs();
 
   const defaults: Storage = {
+    language: 'typescript',
     theme: 'Dark',
     debug: true,
     path: ['text'],
@@ -35,13 +54,16 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
+    language: s(snap.language),
 
     editor: s<t.Monaco.Editor>(),
-    doc: s<t.CrdtRef>(),
+    doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),
   };
   const p = props;
   const api = {
+    A,
+    Crdt,
     props,
     repo,
     listen() {
@@ -56,6 +78,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.path = p.path.value;
+      d.language = p.language.value;
     });
   });
 
@@ -77,7 +100,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const p = debug.props;
+  const { Crdt, props: p } = debug;
 
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRedrawEffect(p.doc.value, {
@@ -117,8 +140,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Alter Document (CRDT):'}</div>
+      <div className={Styles.title.class}>{'Alter CRDT Document:'}</div>
       <AlterDocumentButtons debug={debug} />
+
+      <hr />
+      <div className={Styles.title.class}>{'Language:'}</div>
+      <SelectLanguageList
+        style={{ marginLeft: 15, marginBottom: 20 }}
+        current={p.language.value}
+        onSelect={(e) => (p.language.value = e.language)}
+        show={['typescript', 'yaml']}
+      />
+
+      {p.language.value === 'yaml' && (
+        <YamlSyncDebug
+          doc={p.doc.value}
+          path={{ yaml: p.path.value ?? [] }}
+          style={{ marginTop: 20 }}
+        />
+      )}
 
       <hr />
       <Button
@@ -144,7 +184,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function AlterDocumentButtons(props: { debug: DebugSignals }) {
   const { debug } = props;
-  const p = debug.props;
+  const { props: p, A } = debug;
   const doc = p.doc.value;
   const path = p.path.value;
 
@@ -164,9 +204,9 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
 
       <Button
         block
-        label={() => `splice: 🌳 `}
+        label={() => `splice: +🌳 `}
         onClick={() => {
-          doc.change((d) => A.splice(d, path, 0, 0, '// 🌳'));
+          doc.change((d) => A.splice(d, path, 0, 0, '// 🌳 '));
         }}
       />
     </React.Fragment>

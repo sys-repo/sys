@@ -2,19 +2,22 @@ import { DocumentId } from '@sys/driver-automerge/ui';
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
-import { D } from '../common.ts';
+import { type t, D, Color } from '../common.ts';
 import { EditorCrdt } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
   const repo = debug.repo;
   const p = debug.props;
 
-  function DebugDocumentId() {
+  function DebugDocumentId(props: t.DocumentIdProps) {
     const doc = p.doc;
+    const theme = Color.theme(p.theme.value);
     return (
       <DocumentId.View
+        background={theme.is.dark ? -0.06 : -0.04}
+        theme={theme.name}
         buttonStyle={{ margin: 4 }}
         controller={{
           repo,
@@ -22,6 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
           initial: { text: '' },
           localstorage: STORAGE_KEY.DEV,
         }}
+        {...props}
       />
     );
   }
@@ -40,15 +44,15 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        if (!v.doc) return null;
 
-        return (
+        const elEditor = v.doc && (
           <MonacoEditor
             key={`${v.path?.join('.')}`}
             debug={v.debug}
             theme={v.theme}
+            language={v.language}
             autoFocus={true}
-            onReady={(e) => {
+            onReady={async (e) => {
               /**
                * 🌳 READY:
                */
@@ -64,7 +68,7 @@ export default Spec.describe(D.displayName, (e) => {
               const path = p.path.value ?? [];
 
               if (doc) {
-                const binding = EditorCrdt.bind(e.editor, doc, path);
+                const binding = await EditorCrdt.bind(e.editor, doc, path);
 
                 p.binding.value = binding;
                 binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
@@ -72,12 +76,14 @@ export default Spec.describe(D.displayName, (e) => {
             }}
           />
         );
-      });
 
-    ctx.debug.header
-      .padding(0)
-      .border(-0.1)
-      .render(() => <DebugDocumentId />);
+        return (
+          <>
+            {elEditor}
+            <DebugDocumentId style={{ Absolute: [null, 0, -29, 0] }} />
+          </>
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

@@ -14,6 +14,7 @@ import {
   Wrangle,
 } from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
+import { SelectLanguageList } from './-ui.ts';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<
@@ -184,10 +185,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
-      <hr />
-      {languageButtons(debug)}
 
       <hr />
+      <div className={Styles.title.class}>{'Languages:'}</div>
+      <SelectLanguageList
+        style={{ marginLeft: 15, marginBottom: 20 }}
+        current={p.language.value}
+        onSelect={(e) => {
+          const sample = SAMPLE_CODE[e.language];
+          const format = (code: string) => {
+            code = code.replace(/^\s*\n|\n\s*$/g, '');
+            return `${code}\n`;
+          };
+          if (sample) p.defaultValue.value = format(sample);
+          p.language.value = e.language;
+        }}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Carets:'}</div>
       {caretButtons(debug)}
 
       <hr />
@@ -199,60 +215,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * DevHelpers:
  */
-export function languageButtons(debug: DebugSignals) {
-  const p = debug.props;
-  const format = (code: string) => {
-    code = code.replace(/^\s*\n|\n\s*$/g, '');
-    return `${code}\n`;
-  };
-  const language = (language: t.EditorLanguage, codeSample?: string) => {
-    const isCurrent = language === (p.language.value ?? D.props.language);
-    return (
-      <div className={styles.row.class}>
-        <Button
-          block
-          label={() => language}
-          onClick={() => {
-            p.language.value = language;
-            if (codeSample) p.defaultValue.value = format(codeSample);
-          }}
-        />
-        <div>{isCurrent ? '🌳' : ''}</div>
-      </div>
-    );
-  };
-
-  const theme = Color.theme();
-  const styles = {
-    body: css({ marginLeft: 15 }),
-    row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
-    hr: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
-      height: 1,
-      MarginY: 5,
-    }),
-  };
-  const hr = () => <div className={styles.hr.class} />;
-
-  return (
-    <React.Fragment>
-      <div className={Styles.title.class}>{'Language:'}</div>
-      <div className={styles.body.class}>
-        {language('typescript', SAMPLE_CODE.typescript)}
-        {language('javascript', SAMPLE_CODE.javascript)}
-        {hr()}
-        {language('rust', SAMPLE_CODE.rust)}
-        {language('go', SAMPLE_CODE.go)}
-        {language('python', SAMPLE_CODE.python)}
-        {hr()}
-        {language('json', SAMPLE_CODE.json)}
-        {language('yaml', SAMPLE_CODE.yaml)}
-        {hr()}
-        {language('markdown', SAMPLE_CODE.markdown)}
-      </div>
-    </React.Fragment>
-  );
-}
 
 export function caretButtons(debug: DebugSignals) {
   const p = debug.props;
@@ -295,7 +257,6 @@ export function caretButtons(debug: DebugSignals) {
 
   return (
     <React.Fragment>
-      <div className={Styles.title.class}>{'Carets'}</div>
       <div className={styles.body.class}>
         {changeSelection('selection: [ ]', [])}
         {hr()}

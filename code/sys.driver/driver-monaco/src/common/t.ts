@@ -7,7 +7,7 @@ export type * from '../t.def.monaco.ts';
 /**
  * @drivers
  */
-export type { Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 
 /**
  * @system
