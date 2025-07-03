@@ -6,15 +6,15 @@ type O = Record<string, unknown>;
 /**
  * Immutable object with mutator change function.
  */
-export type Immutable<D = O, P = unknown> = {
-  readonly current: D;
-  change(fn: ImmutableMutator<D>, options?: ImmutableChangeOptionsInput<P>): void;
+export type Immutable<T = O, P = unknown> = {
+  readonly current: T;
+  change(fn: ImmutableMutator<T>, options?: ImmutableChangeOptionsInput<P>): void;
 };
 
 /**
  * Immutable change/mutator functions.
  */
-export type ImmutableMutator<D = O> = (draft: D) => void;
+export type ImmutableMutator<T = O> = (draft: T) => void;
 
 /** Loose inputs to the change function (multiple input types). */
 export type ImmutableChangeOptionsInput<P> = ImmutablePatchCallback<P> | ImmutableChangeOptions<P>;
@@ -29,7 +29,7 @@ export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
  * A reference handle to an Immutable<T> with
  * an observable event factory.
  */
-export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
+export type ImmutableRef<T = O, P = unknown, E = unknown> = Immutable<T, P> & {
   /** The unique ID of the instance of the handle. */
   readonly instance: string; // Unique ID of the reference handle.
 
@@ -40,8 +40,8 @@ export type ImmutableRef<D = O, P = unknown, E = unknown> = Immutable<D, P> & {
 /**
  * Represents a before/after patched change to the immutable state.
  */
-export type ImmutableChange<D, P> = {
-  readonly before: D;
-  readonly after: D;
+export type ImmutableChange<T, P> = {
+  readonly before: T;
+  readonly after: T;
   readonly patches: P[];
 };
