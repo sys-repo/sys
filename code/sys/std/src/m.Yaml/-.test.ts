@@ -107,7 +107,7 @@ describe('Yaml', () => {
         expect(c.doc.target).to.equal(docB);
       });
 
-      it.only('create → paths variants', () => {
+      it('create → paths variants', () => {
         const docA = Immutable.clonerRef<T>({});
         const docB = Immutable.clonerRef<T>({});
 
@@ -131,7 +131,7 @@ describe('Yaml', () => {
         expect(c.path.source).to.eql(['text']);
         expect(c.path.target).to.eql(['text']); // NB: not modified, because targetting different document.
 
-        expect(d.ok).to.eql(true); // NB: source with no target - event emitter only.
+        expect(d.ok).to.eql(true); // NB: source with no target: event emitter only.
         expect(d.path.source).to.eql(['text']);
         expect(d.path.target).to.eql(null);
 
@@ -160,15 +160,14 @@ describe('Yaml', () => {
 
         expect(a.ok).to.eql(false);
         expect(b.ok).to.eql(false);
-        expect(c.ok).to.eql(false);
+        expect(c.ok).to.eql(true); // Exception - empty target path converted to null (event-emitter only mode).
+        expect(c.path.target).to.eql(null);
 
         expect(a.errors.length).to.eql(1);
         expect(b.errors.length).to.eql(1);
-        expect(c.errors.length).to.eql(1);
-
+        expect(c.errors.length).to.eql(0);
         expect(a.errors[0].message).to.include('The source path is empty');
         expect(b.errors[0].message).to.include('The source path is empty');
-        expect(c.errors[0].message).to.include('The target path is empty');
       });
     });
 
