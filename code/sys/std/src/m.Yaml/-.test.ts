@@ -229,7 +229,8 @@ describe('Yaml', () => {
         expect(fired[0].error).to.eql(undefined);
 
         // Error:
-        doc.change((d) => (d.text = 'foo: 123\n -foo: FAIL'));
+        const fail = 'foo: 123\n -foo: FAIL';
+        doc.change((d) => (d.text = fail));
         expect(doc.current['text.parsed']).to.eql(undefined);
         expect(syncer.ok).to.eql(false);
         expect(syncer.errors.length).to.eql(1);
@@ -247,6 +248,7 @@ describe('Yaml', () => {
         expect(fired.length).to.eql(3);
         expect(fired[2].parsed).to.eql({ foo: 456 });
         expect(fired[2].error).to.eql(undefined);
+        expect(fired[2].yaml).to.eql({ before: fail, after: 'foo: 456' });
       });
 
       it('parse on change: async (debounced)', async () => {

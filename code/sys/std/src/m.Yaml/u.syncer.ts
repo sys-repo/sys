@@ -38,6 +38,7 @@ export const syncer: S = <T = unknown>(
     yaml: () => get(doc.source?.current, path.source),
     parsed: () => get(doc.target?.current, path.target),
   } as const;
+  let _before = current.yaml() ?? '';
 
   // Check for error state.
   if ((path.source || []).length === 0) errors.add(Err.std('The source path is empty'));
@@ -45,11 +46,11 @@ export const syncer: S = <T = unknown>(
   /**
    * Event Monitor:
    */
-  let _before = current.yaml() ?? '';
   const update = () => {
     // Setup initial conditions.
     const before = _before;
     const after = current.yaml() ?? '';
+    _before = after;
     removeErrors((err) => YamlIs.parseError(err)); // NB: reset errors.
 
     // Attempt to parse data.
