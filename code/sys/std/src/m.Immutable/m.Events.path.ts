@@ -6,7 +6,6 @@ import { type t, Arr, Is, rx } from './common.ts';
  *    https://tools.ietf.org/html/rfc6902
  */
 type DefaultPatch = t.PatchOperation;
-type PatchToPath = t.ImmutablePatchLib['toObjectPath'];
 
 /**
  * Creates a factory function for filtering on changes at specific paths.
