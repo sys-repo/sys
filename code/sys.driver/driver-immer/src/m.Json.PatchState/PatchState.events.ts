@@ -1,4 +1,4 @@
-import { rx, type t } from './common.ts';
+import { type t, rx, Immutable } from './common.ts';
 
 type P = t.PatchOperation;
 type O = Record<string, unknown>;
@@ -21,8 +21,11 @@ export function defaultEvents<T extends O>(
     }),
   );
 
+  const path = Immutable.Events.pathFilter<T, P>($, toPath);
+
   return {
     $,
+    path,
     patch$,
     dispose: life.dispose,
     dispose$: life.dispose$,
@@ -31,3 +34,11 @@ export function defaultEvents<T extends O>(
     },
   };
 }
+
+/**
+ * Helpers:
+ */
+const toPath = (patch: P) => {
+  const o = patch as { path: string };
+  return 'path' in o ? Immutable.Patch.toObjectPath(o.path) : [];
+};
