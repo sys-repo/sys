@@ -94,6 +94,20 @@ export type StdIsLib = {
   emptyRecord<T extends O>(input?: unknown): input is T;
 
   /**
+   * Test whether a value is a *plain* object literal.
+   *
+   * A value passes when it is:
+   *  - not `null`
+   *  - `typeof` `'object'`
+   *  - **not** an array
+   *  - has `Object.prototype` as its direct prototype
+   *
+   * @param input – value to examine
+   * @returns `true` if `value` is a plain `{ key: value }` record, otherwise `false`.
+   */
+  plainObject<T extends O>(input?: unknown): input is T;
+
+  /**
    * Determine if the value is a function.
    * typeof === 'function'
    */
