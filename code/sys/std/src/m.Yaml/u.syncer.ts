@@ -1,4 +1,6 @@
 import { type t, Arr, Err, Immutable, Is, Obj, rx } from './common.ts';
+import { Is as YamlIs } from './m.Is.ts';
+import { parse } from './u.parse.ts';
 
 type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
@@ -12,12 +14,16 @@ export const syncer: S = <T = unknown>(
   const doc = wrangle.doc(docInput);
   const path = wrangle.path(doc, pathInput);
 
-  const errors = new Set<t.StdError>();
+  const events = doc.source.events(life);
   const $$ = rx.subject<t.YamlSyncParserChange<T>>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
-  const events = doc.source.events(life);
-
+  const errors = new Set<t.StdError>();
+  const removeErrors = (predicate: (item: t.StdError) => boolean) => {
+    for (const item of errors) {
+      if (predicate(item)) errors.delete(item);
+    }
+  };
 
   const get = (doc: O, path: t.ObjectPath | null) => {
     if (path == null) return;
@@ -34,13 +40,41 @@ export const syncer: S = <T = unknown>(
   /**
    * Event Monitor:
    */
+  let _before = current.yaml() ?? '';
   const update = () => {
+    // Setup initial conditions.
+    const before = _before;
+    const after = current.yaml() ?? '';
+    removeErrors((err) => YamlIs.parseError(err)); // NB: reset errors.
+
+    // Attempt to parse data.
+    const { data, error } = parse(after);
+    if (error) errors.add(error);
+
+    if (path.target != null) {
+      const target = path.target;
+      doc.target.change((d) => {
+        if (error) {
+          if (target.length > 0) Obj.Path.mutate(d, target, undefined);
+        } else {
+          const eq = Obj.eql(data, current.parsed());
+          if (!eq) Obj.Path.mutate(d, target, data);
+        }
+      });
+    }
+
+    // Alert listeners.
+    $$.next({
+      yaml: { before, after },
+      parsed: data ? (data as t.YamSyncParsed<T>) : undefined,
+      error,
+    });
   };
 
   /**
    * API:
    */
-  return rx.toLifecycle<t.YamlSyncParser<T>>(life, {
+  const api = rx.toLifecycle<t.YamlSyncParser<T>>(life, {
     get ok() {
       return errors.size === 0;
     },
@@ -60,6 +94,11 @@ export const syncer: S = <T = unknown>(
       return [...errors];
     },
   });
+
+  // Finish up.
+  update();
+  events.path(path.source ?? []).$.subscribe(update);
+  return api;
 };
 
 /**

@@ -1,9 +1,15 @@
 import type { t } from './common.ts';
+export type * from './t.sync.ts';
+
+/** The primitives scalars possible from YAML */
+export type YamPrimitives = null | string | number | boolean;
 
 /**
  * Helpers for working with YAML.
  */
 export type YamlLib = {
+  readonly Is: YamlIsLib;
+
   /**
    * Safely parse YAML.
    */
@@ -16,39 +22,19 @@ export type YamlLib = {
     doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
     path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
     options?: { dispose$?: t.UntilInput },
-  ): YamlSyncParser<T>;
+  ): t.YamlSyncParser<T>;
+};
+
+/**
+ * YAML related flags.
+ */
+export type YamlIsLib = {
+  /** Determine if the given value is a YAML parse error object. */
+  parseError(input?: unknown): boolean;
 };
 
 /** Response from the `Yaml.parse` method. */
-export type YamlParseResponse<T> = { readonly data?: T; readonly error?: t.StdError };
-
-/**
- * Monitors an observable document and parses a YAML string
- * and persists it to a path on change.
- */
-export type YamlSyncParser<T> = t.Lifecycle & {
-  readonly ok: boolean;
-  readonly $: t.Observable<t.YamlSyncParserChange<T>>;
-  readonly path: YamlSyncParserPaths;
-  readonly doc: YamlSyncParserDocs;
-  readonly errors: t.StdError[];
-};
-
-/** Source and target docments being synced (may be the same document). */
-export type YamlSyncParserDocs = {
-  readonly source: t.ImmutableRef;
-  readonly target: t.ImmutableRef;
-};
-
-/** Source and target paths. */
-export type YamlSyncParserPaths = {
-  readonly source: t.ObjectPath | null;
-  readonly target: t.ObjectPath | null;
-};
-
-/** Change event fired by the sync-parser. */
-export type YamlSyncParserChange<T> = {
-  readonly yaml: { before: string; after: string };
-  readonly parsed?: T;
+export type YamlParseResponse<T> = {
+  readonly data?: T;
   readonly error?: t.StdError;
 };

@@ -1,11 +1,16 @@
 import { type t, c, describe, expect, it } from '../-test.ts';
-import { Immutable } from '../m.Immutable/mod.ts';
+import { Err, ERR, Immutable, rx } from './common.ts';
+import { Is } from './m.Is.ts';
 import { Yaml } from './mod.ts';
 
 type O = Record<string, unknown>;
 type R = t.YamlParseResponse<unknown>;
 
 describe('Yaml', () => {
+  it('API', () => {
+    expect(Yaml.Is).to.equal(Is);
+  });
+
   describe('Yaml.parse', () => {
     it('parses valid YAML → returns data, no error', () => {
       const src = `
@@ -24,7 +29,7 @@ describe('Yaml', () => {
       `;
       const res = Yaml.parse(src);
       expect(res.data).to.eql(undefined);
-      expect(res.error?.message).to.eql('Failed to parse YAML.');
+      expect(res.error?.message).to.include('Failed to parse YAML');
       expect(res.error?.cause?.name).to.eql('YAMLParseError');
       expect(res.error?.cause?.message).to.include('Implicit keys need to be on a single line');
     });
@@ -68,9 +73,8 @@ describe('Yaml', () => {
   });
 
   describe('Yaml.syncer', () => {
-    type T = { text?: string; foo?: { parsed: O } };
-
     it('print', () => {
+      type T = { text?: string };
       const doc = Immutable.clonerRef<T>({});
       const syncer = Yaml.syncer(doc, ['text']);
       console.info();
@@ -81,6 +85,7 @@ describe('Yaml', () => {
 
     describe('create', () => {
       it('create → doc variants', () => {
+        type T = { text?: string };
         const docA = Immutable.clonerRef<T>({});
         const docB = Immutable.clonerRef<T>({});
         const path = ['text'];
@@ -108,6 +113,7 @@ describe('Yaml', () => {
       });
 
       it('create → paths variants', () => {
+        type T = { text?: string; foo?: { parsed: O } };
         const docA = Immutable.clonerRef<T>({});
         const docB = Immutable.clonerRef<T>({});
 
@@ -151,6 +157,7 @@ describe('Yaml', () => {
     });
 
     describe('error state', () => {
+      type T = { text?: string };
       it('error: no path slots (source or target)', () => {
         const doc = Immutable.clonerRef<T>({});
 
@@ -171,5 +178,137 @@ describe('Yaml', () => {
       });
     });
 
+    describe('parsing', () => {
+      type T = { text?: string; 'text.parsed'?: O };
+      type E = t.YamlSyncParserChange<T>;
+      const sample = (text?: string) => {
+        const doc = Immutable.clonerRef<T>({ text });
+        const syncer = Yaml.syncer<T>(doc, ['text']);
+        return { doc, syncer } as const;
+      };
+
+      it('initial parse', () => {
+        const test = (text?: string, expected?: any) => {
+          const { doc, syncer } = sample(text);
+          expect(syncer.ok).to.eql(true);
+          expect(syncer.errors).to.eql([]);
+          expect(doc.current['text.parsed']).to.eql(expected);
+        };
+        test('', null);
+        test('  ', null);
+        test('foo: 123', { foo: 123 });
+        test('123', 123);
+        test('""', '');
+      });
+
+      it('initial parse: error', () => {
+        const { doc, syncer } = sample('foo: 123\n -b: a FAIL');
+        expect(syncer.ok).to.eql(false);
+        expect(syncer.errors.length).to.eql(1);
+        expect(Yaml.Is.parseError(syncer.errors[0])).to.eql(true);
+        expect(doc.current['text.parsed']).to.eql(undefined);
+      });
+
+      it('parse on change: sync (with events)', () => {
+        const { doc, syncer } = sample();
+
+        const fired: E[] = [];
+        syncer.$.subscribe((e) => fired.push(e));
+
+        expect(doc.current['text.parsed']).to.eql(null); // NB: default empty YAML parse result.
+        expect(syncer.ok).to.eql(true);
+
+        // Parsable YAML:
+        doc.change((d) => (d.text = 'foo: 123'));
+        expect(doc.current['text.parsed']).to.eql({ foo: 123 });
+        expect(syncer.ok).to.eql(true);
+
+        expect(fired.length).to.eql(1);
+        expect(fired[0].yaml).to.eql({ before: '', after: 'foo: 123' });
+        expect(fired[0].parsed).to.eql({ foo: 123 });
+        expect(fired[0].error).to.eql(undefined);
+
+        // Error:
+        doc.change((d) => (d.text = 'foo: 123\n -foo: FAIL'));
+        expect(doc.current['text.parsed']).to.eql(undefined);
+        expect(syncer.ok).to.eql(false);
+        expect(syncer.errors.length).to.eql(1);
+
+        expect(fired.length).to.eql(2);
+        expect(fired[1].parsed).to.eql(undefined);
+        expect(Yaml.Is.parseError(fired[1].error)).to.eql(true);
+
+        // Come back from error:
+        doc.change((d) => (d.text = 'foo: 456'));
+        expect(doc.current['text.parsed']).to.eql({ foo: 456 });
+        expect(syncer.ok).to.eql(true);
+        expect(syncer.errors).to.eql([]);
+
+        expect(fired.length).to.eql(3);
+        expect(fired[2].parsed).to.eql({ foo: 456 });
+        expect(fired[2].error).to.eql(undefined);
+      });
+
+
+      it('write to different document', () => {
+        const source = Immutable.clonerRef<{ text?: string }>({});
+        const target = Immutable.clonerRef<{ text?: t.YamPrimitives }>({});
+        const syncer = Yaml.syncer<T>({ source, target }, ['text']);
+
+        source.change((d) => (d.text = 'foo: 123'));
+        expect(source.current).to.eql({ text: 'foo: 123' });
+        expect(target.current).to.eql({ text: { foo: 123 } });
+
+        syncer.dispose();
+      });
+
+      describe('dispose', () => {
+        it('via: method', () => {
+          const { doc, syncer } = sample();
+          expect(syncer.disposed).to.eql(false);
+
+          const fired: E[] = [];
+          syncer.$.subscribe((e) => fired.push(e));
+
+          doc.change((d) => (d.text = 'foo: 123'));
+          expect(fired.length).to.eql(1);
+          expect(doc.current['text.parsed']).to.eql({ foo: 123 });
+
+          syncer.dispose();
+          expect(syncer.disposed).to.eql(true);
+
+          doc.change((d) => (d.text = 'foo: 456'));
+          doc.change((d) => (d.text = 'foo: 789'));
+
+          expect(fired.length).to.eql(1); // NB: no more events fired.
+          expect(doc.current['text.parsed']).to.eql({ foo: 123 }); // NB: no more updates to target.
+        });
+
+        it('via: dispose$ observable', () => {
+          const life = rx.lifecycle();
+          const { doc, syncer } = sample();
+
+          expect(syncer.disposed).to.eql(false);
+          life.dispose();
+          expect(syncer.disposed).to.eql(true);
+        });
+      });
+    });
+  });
+
+  describe('Yaml.Is', () => {
+    it('Is.parseError', () => {
+      const test = (input: any, expected: boolean) => {
+        const res = Yaml.Is.parseError(input);
+        expect(res).to.eql(expected);
+      };
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
+      test(Err.std('foo'), false);
+
+      test(Err.std('foo', { name: ERR.PARSE }), true);
+      test(Err.std('foo', { cause: { name: ERR.PARSE, message: 'derp' } }), true);
+    });
   });
 });

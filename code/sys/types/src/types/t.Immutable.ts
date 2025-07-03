@@ -29,7 +29,7 @@ export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
  * A reference handle to an Immutable<T> with
  * an observable event factory.
  */
-export type ImmutableRef<T = O, P = unknown, E = unknown> = Immutable<T, P> & {
+export type ImmutableRef<T = O, P = unknown, E = t.ImmutableEvents<T, P>> = Immutable<T, P> & {
   /** The unique ID of the instance of the handle. */
   readonly instance: string; // Unique ID of the reference handle.
 
