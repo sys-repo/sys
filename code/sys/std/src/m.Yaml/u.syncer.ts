@@ -15,6 +15,11 @@ export const syncer: S = <T = unknown>(
   const path = wrangle.path(doc, pathInput);
 
   const events = doc.source.events(life);
+  const pathEvents = events.path(path.source ?? []);
+  const source$ = options?.debounce
+    ? pathEvents.$.pipe(rx.debounceTime(options.debounce))
+    : pathEvents.$;
+
   const $$ = rx.subject<t.YamlSyncParserChange<T>>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
@@ -97,7 +102,7 @@ export const syncer: S = <T = unknown>(
 
   // Finish up.
   update();
-  events.path(path.source ?? []).$.subscribe(update);
+  source$.subscribe(update);
   return api;
 };
 

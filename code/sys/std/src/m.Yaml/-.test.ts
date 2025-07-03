@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, it } from '../-test.ts';
+import { c, describe, expect, it, type t, Time } from '../-test.ts';
 import { Err, ERR, Immutable, rx } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Yaml } from './mod.ts';
@@ -249,6 +249,19 @@ describe('Yaml', () => {
         expect(fired[2].error).to.eql(undefined);
       });
 
+      it('parse on change: async (debounced)', async () => {
+        const doc = Immutable.clonerRef<T>({});
+        Yaml.syncer<T>(doc, ['text'], { debounce: 20 });
+
+        doc.change((d) => (d.text = 'foo: 1'));
+        doc.change((d) => (d.text = 'foo: 2'));
+        await Time.wait(5);
+        doc.change((d) => (d.text = 'foo: 3'));
+        expect(doc.current['text.parsed']).to.eql(null); // NB: debouce not timed-out yet.
+
+        await Time.wait(30);
+        expect(doc.current['text.parsed']).to.eql({ foo: 3 });
+      });
 
       it('write to different document', () => {
         const source = Immutable.clonerRef<{ text?: string }>({});
@@ -285,11 +298,12 @@ describe('Yaml', () => {
         });
 
         it('via: dispose$ observable', () => {
-          const life = rx.lifecycle();
-          const { doc, syncer } = sample();
+          const { dispose, dispose$ } = rx.lifecycle();
+          const doc = Immutable.clonerRef<T>({});
+          const syncer = Yaml.syncer<T>(doc, ['text'], { dispose$ });
 
           expect(syncer.disposed).to.eql(false);
-          life.dispose();
+          dispose();
           expect(syncer.disposed).to.eql(true);
         });
       });

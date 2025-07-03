@@ -21,7 +21,7 @@ export type YamlLib = {
   syncer<T = unknown>(
     doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
     path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
-    options?: { dispose$?: t.UntilInput },
+    options?: { dispose$?: t.UntilInput; debounce?: t.Msecs },
   ): t.YamlSyncParser<T>;
 };
 
