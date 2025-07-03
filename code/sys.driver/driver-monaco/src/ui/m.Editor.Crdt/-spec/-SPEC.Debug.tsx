@@ -153,11 +153,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       {p.language.value === 'yaml' && (
-        <YamlSyncDebug
-          doc={p.doc.value}
-          path={{ yaml: p.path.value ?? [] }}
-          style={{ marginTop: 20 }}
-        />
+        <YamlSyncDebug doc={p.doc.value} path={p.path.value} style={{ marginTop: 20 }} />
       )}
 
       <hr />
