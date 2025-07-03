@@ -75,26 +75,30 @@ const wrangle = {
 
   path(doc: t.YamlSyncParserDocs, input: Parameters<S>[1]): t.YamlSyncParserPaths {
     type P = t.ObjectPath | null;
+
     const formatNull = (value: P) => {
       if (value !== null) value = value.length === 0 ? null : value;
       return value;
     };
 
+    const formatTarget = (source: t.ObjectPath, target: t.ObjectPath) => {
+      target = [...target];
+      const isEqual = Arr.equal(source, target);
+      if (isEqual && doc.source === doc.target) {
+        const lastSource = source[source.length - 1];
+        const lastTarget = target[target.length - 1] ?? '';
+        const index = target.length === 0 ? 0 : target.length - 1;
+        target[index] = lastTarget ? `${lastTarget}.parsed` : `${lastSource}.parsed`;
+      }
+      return target;
+    };
+
     const done = (source: P, target: P): t.YamlSyncParserPaths => {
       if (source !== null && target !== null) {
         if (source.length > 0 && target.length > 0) {
-          source = [...source];
-          target = [...target];
-          const isEqual = Arr.equal(source, target);
-          if (isEqual && doc.source === doc.target) {
-            const lastSource = source[source.length - 1];
-            const lastTarget = target[target.length - 1] ?? '';
-            const index = target.length === 0 ? 0 : target.length - 1;
-            target[index] = lastTarget ? `${lastTarget}.parsed` : `${lastSource}.parsed`;
-          }
+          target = formatTarget(source, target);
         }
       }
-
       return {
         source: formatNull(source),
         target: formatNull(target),
