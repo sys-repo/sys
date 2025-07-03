@@ -10,19 +10,25 @@ export const syncer: S = <T = unknown>(
   pathInput: Parameters<S>[1],
   options?: Parameters<S>[2],
 ) => {
+  const { debounce = 0 } = options ?? {};
+
   const life = rx.lifecycle(options?.dispose$);
   const doc = wrangle.doc(docInput);
   const path = wrangle.path(doc, pathInput);
 
+  /**
+   * Observables/Events:
+   */
   const events = doc.source.events(life);
   const pathEvents = events.path(path.source ?? []);
-  const source$ = options?.debounce
-    ? pathEvents.$.pipe(rx.debounceTime(options.debounce))
-    : pathEvents.$;
+  const source$ = debounce > 0 ? pathEvents.$.pipe(rx.debounceTime(debounce)) : pathEvents.$;
 
   const $$ = rx.subject<t.YamlSyncParserChange<T>>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
+  /**
+   * Errors:
+   */
   const errors = new Set<t.StdError>();
   const removeErrors = (predicate: (item: t.StdError) => boolean) => {
     for (const item of errors) {
@@ -30,6 +36,9 @@ export const syncer: S = <T = unknown>(
     }
   };
 
+  /**
+   * Data:
+   */
   const get = <T>(doc: O, path: t.ObjectPath | null) => {
     if (path == null) return;
     return Obj.Path.get<T>(doc, path);
@@ -39,11 +48,8 @@ export const syncer: S = <T = unknown>(
     parsed: () => get<t.YamSyncParsed<T>>(doc.target?.current, path.target),
   } as const;
 
-  // Check for error state.
-  if ((path.source || []).length === 0) errors.add(Err.std('The source path is empty'));
-
   /**
-   * Event Monitor:
+   * Listen:
    */
   const update = () => {
     // Setup initial conditions.
@@ -101,10 +107,15 @@ export const syncer: S = <T = unknown>(
     },
   });
 
-  // Finish up.
+  /**
+   * Initialize:
+   */
   let _before = current.yaml() ?? '';
+  if ((path.source || []).length === 0) errors.add(Err.std('The source path is empty'));
   update();
   source$.subscribe(update);
+
+  // Finish up.
   return api;
 };
 

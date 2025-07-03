@@ -1,25 +1,16 @@
 import React from 'react';
 
-import {
-  type t,
-  Bullet,
-  Button,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-} from '../common.ts';
+import { SelectLanguageList } from '../../ui.MonacoEditor/-spec/-ui.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { importLibs } from '../libs.ts';
 import { YamlSyncDebug } from './-ui.YamlSyncDebug.tsx';
-import { SelectLanguageList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language'> & {
   theme?: t.CommonTheme;
   debug?: boolean;
   path?: t.ObjectPath;
+  debounce?: boolean;
 };
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
@@ -41,6 +32,7 @@ export async function createDebugSignals() {
     theme: 'Dark',
     debug: true,
     path: ['text'],
+    debounce: true,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -55,6 +47,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     path: s(snap.path),
     language: s(snap.language),
+    debounce: s(snap.debounce),
 
     editor: s<t.Monaco.Editor>(),
     doc: s<t.Crdt.Ref>(),
@@ -79,6 +72,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.path = p.path.value;
       d.language = p.language.value;
+      d.debounce = p.debounce.value;
     });
   });
 
@@ -139,6 +133,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      <Button
+        block
+        label={() => `debounce: ${p.debounce.value}`}
+        onClick={() => Signal.toggle(p.debounce)}
+      />
+
       <hr />
       <div className={Styles.title.class}>{'Alter CRDT Document:'}</div>
       <AlterDocumentButtons debug={debug} />
@@ -153,7 +153,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       {p.language.value === 'yaml' && (
-        <YamlSyncDebug doc={p.doc.value} path={p.path.value} style={{ marginTop: 20 }} />
+        <YamlSyncDebug
+          doc={p.doc.value}
+          path={p.path.value}
+          debounce={p.debounce.value}
+          style={{ marginTop: 20 }}
+        />
       )}
 
       <hr />

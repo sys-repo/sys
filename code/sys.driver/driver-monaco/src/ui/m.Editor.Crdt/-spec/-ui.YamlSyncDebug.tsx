@@ -5,6 +5,7 @@ import { type t, Color, css, ObjectView, Yaml } from '../common.ts';
 export type YamlSyncDebugProps = {
   doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
+  debounce?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -25,7 +26,8 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
   React.useEffect(() => {
     if (!doc || !path) return;
 
-    const syncer = Yaml.syncer(doc, path, { debounce: 300 });
+    const debounce = props.debounce ? 300 : undefined;
+    const syncer = Yaml.syncer(doc, path, { debounce });
     setSyncPath(syncer.path);
 
     const update = (parsed: any, error?: t.StdError) => {
@@ -37,7 +39,7 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     syncer.$.subscribe((e) => update(e.parsed, e.error));
 
     return syncer.dispose;
-  }, [doc?.id, (path ?? []).join()]);
+  }, [doc?.id, (path ?? []).join(), props.debounce]);
 
   if (!doc) return null;
 
