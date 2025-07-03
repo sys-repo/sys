@@ -1,4 +1,4 @@
-import { type t, Arr, Dispose, Is, rx } from './common.ts';
+import { type t, Dispose, Immutable, rx } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
@@ -10,41 +10,6 @@ export function eventsFactory<T extends O>(
 ): t.CrdtEvents<T> {
   const life = rx.lifecycle(dispose$);
   const $ = doc$.pipe(rx.takeUntil(life.dispose$));
-
-  return Dispose.toLifecycle<t.CrdtEvents<T>>(life, {
-    $,
-    path(input, opt) {
-      const paths = wrangle.paths(input).filter((a) => a.length > 0);
-      const options = wrangle.pathOptions(opt);
-      const { exact = false } = options;
-
-      const match = (p: t.Automerge.Patch): boolean => {
-        return paths.some((path) => {
-          return exact ? Arr.equal(p.path, path) : Arr.startsWith(p.path, path);
-        });
-      };
-
-      return {
-        $: $.pipe(rx.filter((e) => e.patches.some(match))),
-        paths,
-        exact,
-      };
-    },
-  });
+  const path = Immutable.Events.pathFilter<T, t.CrdtPatch, t.CrdtChange<T>>($, (p) => p.path);
+  return Dispose.toLifecycle<t.CrdtEvents<T>>(life, { $, path });
 }
-
-/**
- * Helpers:
- */
-const wrangle = {
-  pathOptions(input?: Parameters<t.CrdtEvents['path']>[1]): t.CrdtPathEventsOptions {
-    if (!input) return {};
-    if (Is.bool(input)) return { exact: input };
-    return input;
-  },
-
-  paths(input: t.ObjectPath | t.ObjectPath[]): t.ObjectPath[] {
-    if (Array.isArray(input[0])) return input as t.ObjectPath[];
-    return [input as t.ObjectPath];
-  },
-} as const;
