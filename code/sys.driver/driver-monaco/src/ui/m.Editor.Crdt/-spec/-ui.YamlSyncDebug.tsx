@@ -1,5 +1,4 @@
 import type { YamlSyncParserPaths } from '@sys/std/t';
-
 import React from 'react';
 import { type t, Color, css, ObjectView, Yaml } from '../common.ts';
 
@@ -29,10 +28,13 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     const syncer = Yaml.syncer(doc, path, { debounce: 300 });
     setSyncPath(syncer.path);
 
-    syncer.$.subscribe((e) => {
-      setParseError(e.error);
-      setParsed(e.parsed);
-    });
+    const update = (parsed: any, error?: t.StdError) => {
+      setParseError(error);
+      setParsed(parsed);
+    };
+
+    update(syncer.current.parsed(), syncer.errors[0]);
+    syncer.$.subscribe((e) => update(e.parsed, e.error));
 
     return syncer.dispose;
   }, [doc?.id, (path ?? []).join()]);

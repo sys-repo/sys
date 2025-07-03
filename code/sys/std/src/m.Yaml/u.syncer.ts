@@ -30,15 +30,14 @@ export const syncer: S = <T = unknown>(
     }
   };
 
-  const get = (doc: O, path: t.ObjectPath | null) => {
+  const get = <T>(doc: O, path: t.ObjectPath | null) => {
     if (path == null) return;
-    return Obj.Path.get<string>(doc, path);
+    return Obj.Path.get<T>(doc, path);
   };
   const current = {
-    yaml: () => get(doc.source?.current, path.source),
-    parsed: () => get(doc.target?.current, path.target),
+    yaml: () => get<string>(doc.source?.current, path.source),
+    parsed: () => get<t.YamSyncParsed<T>>(doc.target?.current, path.target),
   } as const;
-  let _before = current.yaml() ?? '';
 
   // Check for error state.
   if ((path.source || []).length === 0) errors.add(Err.std('The source path is empty'));
@@ -96,12 +95,14 @@ export const syncer: S = <T = unknown>(
       },
     },
     path,
+    current,
     get errors() {
       return [...errors];
     },
   });
 
   // Finish up.
+  let _before = current.yaml() ?? '';
   update();
   source$.subscribe(update);
   return api;
