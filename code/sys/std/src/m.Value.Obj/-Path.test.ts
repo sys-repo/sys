@@ -279,6 +279,25 @@ describe('Value.Obj.Path', () => {
         expect(report.ops.length).to.equal(0);
         expect(target).to.eql(source);
       });
+
+      it('handles self-referential cycles without blowing the stack', () => {
+        const target: any = { label: 'A' };
+        target.self = target; // ← cycle in target.
+
+        const source: any = { label: 'B' };
+        source.self = source; // ← cycle in source.
+
+        const report = diff(target, source);
+        expect(report.stats).to.eql({
+          adds: 0,
+          removes: 0,
+          updates: 1, // Label.
+          arrays: 0,
+          total: 1,
+        });
+        expect(target.label).to.equal('B'); //   Target mutated.
+        expect(target.self).to.equal(target); // Cycle preserved.
+      });
     });
   });
 });

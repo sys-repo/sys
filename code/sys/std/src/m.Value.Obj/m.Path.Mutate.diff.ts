@@ -4,11 +4,19 @@ import { set } from './m.Path.Mutate.set.ts';
 type O = Record<string, unknown>;
 type Path = t.ObjectPath;
 
+/**
+ * Compare `target` with `source`, mutate `target` until it equals `source`,
+ * and return a report of every change.  Cycle-safe.
+ */
 export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
   const ops: t.ObjDiffOp[] = [];
 
+  /**
+   * `seen` remembers every (aNode → bNode) pair we have visited.
+   *  seen.get(a) === Set of b's already compared with a
+   */
+  const seen = new WeakMap<object, WeakSet<object>>();
   walk([], target as O, source as O);
-
   return {
     ops,
     stats: {
@@ -20,10 +28,37 @@ export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
     },
   };
 
-  function walk(path: Path, aNode: unknown, bNode: unknown): void {
-    if (Object.is(aNode, bNode)) return; // Identical.
+  /**
+   * Bail out if this (aNode,bNode) pair has already been visited:
+   */
+  function alreadySeen(aNode: unknown, bNode: unknown): boolean {
+    // Only objects (plain or array) can participate in cycles.
+    if (
+      typeof aNode !== 'object' ||
+      aNode === null ||
+      typeof bNode !== 'object' ||
+      bNode === null
+    ) {
+      return false;
+    }
+    let inner = seen.get(aNode as object);
+    if (!inner) {
+      inner = new WeakSet<object>();
+      seen.set(aNode as object, inner);
+    }
+    if (inner.has(bNode as object)) return true; // Done this pair.
+    inner.add(bNode as object);
+    return false;
+  }
 
-    // Plain object:
+  /**
+   * Walk the tree:
+   */
+  function walk(path: Path, aNode: unknown, bNode: unknown): void {
+    if (Object.is(aNode, bNode)) return; //   Identical primitives *or* same reference.
+    if (alreadySeen(aNode, bNode)) return; // Avoid infinite recursion on cycles.
+
+    // Plain objects:
     if (isPlainObject(aNode) && isPlainObject(bNode)) {
       const keys = new Set([...Object.keys(aNode), ...Object.keys(bNode)]);
       for (const key of keys) {
@@ -41,12 +76,12 @@ export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
           set(target, next, (bNode as O)[key]);
           continue;
         }
-        walk(next, (aNode as O)[key], (bNode as O)[key]);
+        walk(next, (aNode as O)[key], (bNode as O)[key]); // 🌳 ← recursion:
       }
       return;
     }
 
-    // Array:
+    // Arrays:
     if (Array.isArray(aNode) && Array.isArray(bNode)) {
       const same = aNode.length === bNode.length && aNode.every((v, i) => Object.is(v, bNode[i]));
       if (!same) {
@@ -56,7 +91,7 @@ export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
       return;
     }
 
-    // Primitive or constructor mismatch.
+    // Primitives or constructor mismatch:
     ops.push({ type: 'update', path, prev: aNode, next: bNode });
     set(target, path, bNode);
   }
