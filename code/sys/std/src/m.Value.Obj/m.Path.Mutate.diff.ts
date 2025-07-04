@@ -8,7 +8,7 @@ type Path = t.ObjectPath;
  * Compare `target` with `source`, mutate `target` until it equals `source`,
  * and return a report of every change.  Cycle-safe.
  */
-export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
+export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
   const ops: t.ObjDiffOp[] = [];
 
   /**
