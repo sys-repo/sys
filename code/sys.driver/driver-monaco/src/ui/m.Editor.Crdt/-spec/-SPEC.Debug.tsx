@@ -1,9 +1,9 @@
 import React from 'react';
-
 import { SelectLanguageList } from '../../ui.MonacoEditor/-spec/-ui.ts';
+
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { importLibs } from '../libs.ts';
-import { YamlSyncDebug } from './-ui.YamlSyncDebug.tsx';
+import { YamlSyncDebug } from './-ui.Yaml.SyncDebug.tsx';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language'> & {
@@ -207,7 +207,9 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
         block
         label={() => `splice: +🌳 `}
         onClick={() => {
-          doc.change((d) => A.splice(d, path, 0, 0, '// 🌳 '));
+          const lang = p.language.value;
+          const text = lang === 'yaml' ? '# 🌳 ' : '// 🌳 ';
+          doc.change((d) => A.splice(d, path, 0, 0, text));
         }}
       />
     </React.Fragment>
