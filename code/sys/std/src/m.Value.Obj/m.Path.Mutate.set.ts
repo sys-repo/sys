@@ -60,12 +60,12 @@ export function set<T = unknown>(subject: KeyMap, path: Path, value: T): Op | un
 const wrangle = {
   op(path: t.ObjectPath, value: unknown, prev: unknown): Op {
     if (value === undefined) {
-      // REMOVED  (key existed only in → target).
+      // REMOVED (key existed only in → target).
       return { type: 'remove', path, prev };
     }
 
     if (prev === undefined) {
-      // ADDED  (key existed only in → source).
+      // ADDED (key existed only in → source).
       return { type: 'add', path, value };
     }
 
@@ -74,7 +74,7 @@ const wrangle = {
       return { type: 'array', path, prev, next: value as unknown[] };
     }
 
-    // UPDATED  (primitive or object leaf changed).
+    // UPDATED (primitive or object leaf changed).
     return { type: 'update', path, prev, next: value };
   },
 } as const;
