@@ -4,7 +4,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.PlayerControlsProps;
-type Storage = { theme?: t.CommonTheme };
+type Storage = Pick<P, 'theme' | 'debug' | 'maskOpacity' | 'maskHeight'>;
 
 /**
  * Types:
@@ -16,7 +16,14 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+    maskOpacity: D.maskHeight,
+    maskHeight: D.maskHeight,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
 
   const video = Player.Video.signals();
   const v = video.props;
@@ -26,37 +33,34 @@ export function createDebugSignals() {
 
   const s = Signal.create;
   const props = {
-    debug: s(false),
-    theme: s<t.CommonTheme>(localstore.current.theme ?? 'Light'),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
     width: s(500),
-    maskHeight: s<P['maskHeight']>(D.maskHeight),
-    maskOpacity: s<P['maskOpacity']>(D.maskOpacity),
+    maskHeight: s(snap.maskHeight),
+    maskOpacity: s(snap.maskOpacity),
   };
+  const p = props;
   const api = {
     props,
     video,
     listen() {
-      const p = props;
-      p.debug.value;
-      p.theme.value;
-      p.width.value;
-      p.maskHeight.value;
-      p.maskOpacity.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => (s as t.Signal).value);
 
-      const v = video.props;
-      v.playing.value;
-      v.muted.value;
-      v.currentTime.value;
-      v.duration.value;
-      v.buffering.value;
-      v.buffered.value;
+      Object.values(video.props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => (s as t.Signal).value);
     },
   };
 
   Signal.effect(() => {
-    const p = props;
-    const theme = p.theme.value;
-    localstore.change((d) => (d.theme = theme));
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.maskHeight = p.maskHeight.value;
+      d.maskOpacity = p.maskOpacity.value;
+    });
   });
 
   return api;
