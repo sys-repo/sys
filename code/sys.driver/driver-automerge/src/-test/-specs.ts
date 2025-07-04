@@ -14,4 +14,5 @@ export const Specs = {
   [`${ns}: ui.DocumentId`]: () => import('../ui/ui.DocumentId/-spec/-SPEC.tsx'),
   [`${ns}: ui.TextPanel`]: () => import('../ui/ui.TextPanel/-spec/-SPEC.tsx'),
   [`${ns}: ui.TextEditor (ProseMirror)`]: () => import('../ui/ui.TextEditor/-spec/-SPEC.tsx'),
+  [`${ns}: ui.BinaryFile`]: () => import('../ui/ui.BinaryFile/-spec/-SPEC.tsx'),
 } as t.SpecImports;
