@@ -4,7 +4,13 @@ import { type t, Button, css, LocalStorage, ObjectView, Signal, Str } from '../.
 import { D } from '../common.ts';
 
 type P = t.VideoElementProps;
-type Storage = { src?: string; autoPlay?: boolean; muted?: boolean; loop?: boolean };
+// type Storage = { src?: string; autoPlay?: boolean; muted?: boolean; loop?: boolean };
+type Storage = Pick<P, 'theme' | 'debug'> & {
+  src?: string;
+  autoPlay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+};
 
 /**
  * Types:
@@ -17,27 +23,24 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+  // const localstore = LocalStorage.immutable<Storage>(`dev:${D.name}`, {});
+
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+    src: '/sample/group-scale.webm',
+    autoPlay: D.autoPlay,
+    muted: false,
+    loop: false,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
 
   const video = Player.Video.signals({
-    src: localstore.current.src ?? '/sample/group-scale.webm',
-    autoPlay: localstore.current.autoPlay,
-    muted: localstore.current.muted,
-    loop: localstore.current.loop,
-  });
-
-  Signal.effect(() => {
-    const p = video.props;
-    const src = p.src.value;
-    const autoPlay = p.autoPlay.value;
-    const muted = p.muted.value;
-    const loop = p.loop.value;
-    localstore.change((d) => {
-      d.src = src;
-      d.autoPlay = autoPlay;
-      d.muted = muted;
-      d.loop = loop;
-    });
+    src: snap.src,
+    autoPlay: snap.autoPlay,
+    muted: snap.muted,
+    loop: snap.loop,
   });
 
   const props = {
@@ -50,42 +53,22 @@ export function createDebugSignals() {
     props,
     video,
     listen() {
-      props.debug.value;
-      props.render.value;
-      props.theme.value;
-      props.width.value;
-
-      /**
-       * Video Player:
-       */
-      const p = video.props;
-      p.ready.value;
-
-      // Media:
-      p.src.value;
-      p.playing.value;
-      p.muted.value;
-      p.autoPlay.value;
-      p.loop.value;
-
-      // Progress:
-      p.duration.value;
-      p.currentTime.value;
-
-      // Appearance:
-      p.showControls.value;
-      p.showFullscreenButton.value;
-      p.showVolumeControl.value;
-      p.background.value;
-      p.cornerRadius.value;
-      p.aspectRatio.value;
-      p.scale.value;
-      p.fadeMask.value;
-
-      // Commands:
-      p.jumpTo.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
+
+  Signal.effect(() => {
+    const p = video.props;
+    store.change((d) => {
+      d.src = p.src.value;
+      d.autoPlay = p.autoPlay.value;
+      d.muted = p.muted.value;
+      d.loop = p.loop.value;
+    });
+  });
+
   return api;
 }
 
