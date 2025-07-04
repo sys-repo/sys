@@ -1,0 +1,63 @@
+import { type t, isPlainObject } from './common.ts';
+import { set } from './m.Path.Mutate.set.ts';
+
+type O = Record<string, unknown>;
+type Path = t.ObjectPath;
+
+export function diff<T extends O = O>(target: T, source: T): t.ObjDiffReport {
+  const ops: t.ObjDiffOp[] = [];
+
+  walk([], target as O, source as O);
+
+  return {
+    ops,
+    stats: {
+      adds: ops.filter((o) => o.type === 'add').length,
+      removes: ops.filter((o) => o.type === 'remove').length,
+      updates: ops.filter((o) => o.type === 'update').length,
+      arrays: ops.filter((o) => o.type === 'array').length,
+      total: ops.length,
+    },
+  };
+
+  function walk(path: Path, aNode: unknown, bNode: unknown): void {
+    if (Object.is(aNode, bNode)) return; // Identical.
+
+    // Plain object:
+    if (isPlainObject(aNode) && isPlainObject(bNode)) {
+      const keys = new Set([...Object.keys(aNode), ...Object.keys(bNode)]);
+      for (const key of keys) {
+        const next = [...path, key];
+        const aHas = key in aNode;
+        const bHas = key in bNode;
+
+        if (!bHas) {
+          ops.push({ type: 'remove', path: next, prev: (aNode as O)[key] });
+          set(target, next, undefined);
+          continue;
+        }
+        if (!aHas) {
+          ops.push({ type: 'add', path: next, value: (bNode as O)[key] });
+          set(target, next, (bNode as O)[key]);
+          continue;
+        }
+        walk(next, (aNode as O)[key], (bNode as O)[key]);
+      }
+      return;
+    }
+
+    // Array:
+    if (Array.isArray(aNode) && Array.isArray(bNode)) {
+      const same = aNode.length === bNode.length && aNode.every((v, i) => Object.is(v, bNode[i]));
+      if (!same) {
+        ops.push({ type: 'array', path, prev: aNode, next: bNode });
+        set(target, path, [...bNode]);
+      }
+      return;
+    }
+
+    // Primitive or constructor mismatch.
+    ops.push({ type: 'update', path, prev: aNode, next: bNode });
+    set(target, path, bNode);
+  }
+}

@@ -2,12 +2,16 @@ import { describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './m.Obj.ts';
 import { Path } from './mod.ts';
+import { diff } from './m.Path.Mutate.diff.ts';
+
+type O = Record<string, unknown>;
 
 describe('Value.Obj.Path', () => {
   it('API', () => {
     expect(Obj.Path).to.equal(Path);
     expect(Value.Obj.Path).to.equal(Path);
     expect(Obj.Path.mutate).to.equal(Path.Mutate.set);
+    expect(Obj.Path.Mutate.diff).to.equal(diff);
   });
 
   describe('Path.get', () => {
@@ -58,11 +62,11 @@ describe('Value.Obj.Path', () => {
   describe('Path.exists', () => {
     const root = {
       foo: {
+        arr: [1, 2, 3],
         bar: {
           baz: 42,
           qux: undefined, // value is undefined but slot exists.
         },
-        arr: [1, 2, 3],
       },
     };
 
@@ -203,6 +207,77 @@ describe('Value.Obj.Path', () => {
         Mutate.ensure(target, ['arr', 0, 'foo'], 'bar');
         expect(target.arr).to.be.an('array').with.lengthOf(1);
         expect((target as any).arr[0].foo).to.eql('bar');
+      });
+    });
+
+    describe('Mutate.diff', () => {
+      it('adds, updates, and deletes top-level keys', () => {
+        const target: O = { a: 1, b: 2, c: 3 };
+        const source: O = { b: 2, c: 99, d: 4 };
+
+        const report = diff(target, source);
+
+        expect(target).to.eql(source); // state equal
+        expect(report.stats).to.eql({
+          adds: 1,
+          removes: 1,
+          updates: 1,
+          arrays: 0,
+          total: 3,
+        });
+
+        // Spot-check op kinds.
+        expect(report.ops.map((o) => o.type).sort()).to.eql(['add', 'remove', 'update']);
+      });
+
+      it('handles nested objects recursively', () => {
+        const target: O = { user: { name: 'Ann', age: 21, misc: 'remove-me' } };
+        const source: O = { user: { name: 'Ann', age: 22 } };
+
+        const report = diff(target, source);
+
+        expect(target).to.eql(source);
+        expect(report.stats).to.eql({
+          adds: 0,
+          removes: 1,
+          updates: 1,
+          arrays: 0,
+          total: 2,
+        });
+
+        const paths = report.ops.map((o) => o.path.join('.'));
+        expect(paths).to.include('user.age').and.to.include('user.misc');
+      });
+
+      it('replaces arrays when they differ', () => {
+        const target: O = { list: [1, 2, 3] };
+        const source: O = { list: [1, 2, 4] };
+
+        const report = diff(target, source);
+
+        expect(target).to.eql(source); // Values equal.
+        expect(target.list).to.not.equal(source.list); // Cloned ref.
+
+        expect(report.stats).to.eql({
+          adds: 0,
+          removes: 0,
+          updates: 0,
+          arrays: 1,
+          total: 1,
+        });
+        expect(report.ops[0].type).to.eql('array');
+        expect(report.ops[0].path).to.eql(['list']);
+      });
+
+      it('makes no changes when target already equals source', () => {
+        const target: O = { x: { y: 1 } };
+        const source: O = { x: { y: 1 } };
+
+        const report = diff(target, source);
+
+        expect(report.stats.total).to.equal(0);
+        expect(report.ops.length).to.equal(0);
+        expect(target).to.eql(source);
       });
     });
   });
