@@ -42,9 +42,9 @@ export type ObjPathMutateLib = {
   /**
    * Mutates `subject`, setting a nested value at `path`.
    *  - Creates intermediate objects/arrays as needed.
-   *  - If `value` is `undefined`, the property is removed via [delete] instead.
+   *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
-  set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): void;
+  set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
 
   /**
    * Mutate `target` in-place so that, once the function returns,
@@ -71,13 +71,13 @@ export type ObjDiffOp =
  */
 export type ObjDiffReport = {
   /** Ordered list of operations in the sequence they were applied. */
-  ops: ObjDiffOp[];
+  readonly ops: ObjDiffOp[];
   /** Quick stats for dashboards / logs. */
-  stats: {
-    adds: number;
-    removes: number;
-    updates: number;
-    arrays: number;
-    total: number;
+  readonly stats: {
+    readonly adds: number;
+    readonly removes: number;
+    readonly updates: number;
+    readonly arrays: number;
+    readonly total: number;
   };
 };

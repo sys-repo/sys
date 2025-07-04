@@ -1,8 +1,8 @@
-import { describe, expect, expectTypeOf, it } from '../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './m.Obj.ts';
-import { Path } from './mod.ts';
 import { diff } from './m.Path.Mutate.diff.ts';
+import { Path } from './mod.ts';
 
 type O = Record<string, unknown>;
 
@@ -114,47 +114,57 @@ describe('Value.Obj.Path', () => {
     describe('Mutate.set', () => {
       it('throws an error when path is empty', () => {
         const target = {};
-        const fn = () => Mutate.set(target, [], 1);
+        const fn = () => Mutate.set(target as any, [], 1);
         expect(fn).to.throw(/The path-array must contain at least one segment/);
       });
 
       it('sets a value at a top-level key', () => {
         const target: Record<string, unknown> = {};
-        Mutate.set(target, ['key'], 'value');
+        const op = Mutate.set(target, ['key'], 'value');
         expect(target.key).to.eql('value');
+        expect(op).to.eql<t.ObjDiffOp>({ type: 'add', path: ['key'], value: 'value' });
       });
 
       it('overwrites existing values', () => {
         const target = { a: 1 };
-        Mutate.set(target, ['a'], 2);
+        const op = Mutate.set(target, ['a'], 2);
         expect(target.a).to.eql(2);
+        expect(op).to.eql<t.ObjDiffOp>({ type: 'update', path: ['a'], prev: 1, next: 2 });
       });
 
       it('creates nested objects automatically', () => {
         const target = {};
-        Mutate.set(target, ['a', 'b', 'c'], 'deep');
+        const op = Mutate.set(target, ['a', 'b', 'c'], 'deep');
         expect((target as any).a.b.c).to.eql('deep');
+        expect(op).to.eql<t.ObjDiffOp>({ type: 'add', path: ['a', 'b', 'c'], value: 'deep' });
       });
 
       it('creates nested arrays automatically when path segment is number', () => {
         const target: Record<string, unknown> = {};
-        Mutate.set(target, ['arr', 0, 'foo'], 'bar');
+        const op = Mutate.set(target, ['arr', 0, 'foo'], 'bar');
         expect(target.arr).to.be.an('array').with.lengthOf(1);
         expect((target as any).arr[0].foo).to.eql('bar');
+        expect(op).to.eql<t.ObjDiffOp>({
+          type: 'add',
+          path: ['arr', 0, 'foo'],
+          value: 'bar',
+        });
       });
 
       it('undefined → property removed via [delete] rather than set <undefined>', () => {
         type T = { a: { b?: number | string } };
         const target: T = { a: {} };
-        const path = ['a', 'b'];
-        Mutate.set(target, path, 123);
+        const path = ['a', 'b'] as const satisfies t.ObjectPath;
 
+        const addOp = Mutate.set(target, path, 123);
         expect(target.a?.b).to.eql(123);
         expect(Object.keys(target.a).length).to.eql(1);
+        expect(addOp).to.eql<t.ObjDiffOp>({ type: 'add', path, value: 123 });
 
-        Mutate.set(target, path, undefined);
-        expect(Object.keys(target.a).length).to.eql(0);
+        const removeOp = Mutate.set(target, path, undefined);
+        expect(Object.keys(target.a).length).to.eql(0); // NB: deleted.
         expect(target.a).to.eql({});
+        expect(removeOp).to.eql<t.ObjDiffOp>({ type: 'remove', path, prev: 123 });
       });
     });
 
