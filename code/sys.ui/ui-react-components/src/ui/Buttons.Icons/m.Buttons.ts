@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { Close, Face, MicOff, MicOn, Settings } from './ui.tsx';
+import { Close, Face, MicOff, MicOn, Settings, Tools } from './ui.tsx';
 
 export const IconButtons: t.ButtonsIconsLib = {
   Close,
@@ -7,4 +7,5 @@ export const IconButtons: t.ButtonsIconsLib = {
   MicOn,
   MicOff,
   Settings,
+  Tools,
 };

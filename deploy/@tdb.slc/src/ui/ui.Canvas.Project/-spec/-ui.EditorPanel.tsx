@@ -69,7 +69,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   };
 
   const elCloseButton = (
-    <Buttons.Icons.Close
+    <Buttons.Icons.Tools
       theme={theme.name}
       style={{ Absolute: [4, 5, null, null] }}
       onClick={() => (p.showEditorPanel.value = false)}

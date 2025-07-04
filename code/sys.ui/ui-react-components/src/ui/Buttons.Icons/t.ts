@@ -11,6 +11,7 @@ export type ButtonsIconsLib = {
   readonly MicOn: C;
   readonly MicOff: C;
   readonly Settings: C;
+  readonly Tools: C;
 };
 
 /**

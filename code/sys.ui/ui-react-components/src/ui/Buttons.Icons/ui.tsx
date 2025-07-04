@@ -30,3 +30,4 @@ export const Face = renderer(Icons.Face);
 export const MicOn = renderer(Icons.Mic.On);
 export const MicOff = renderer(Icons.Mic.Off);
 export const Settings = renderer(Icons.Settings.Default);
+export const Tools = renderer(Icons.Tools);
