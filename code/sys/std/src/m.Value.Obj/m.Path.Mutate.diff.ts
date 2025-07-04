@@ -10,6 +10,9 @@ type Path = t.ObjectPath;
  */
 export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
   const ops: t.ObjDiffOp[] = [];
+  const pushOp = (op?: t.ObjDiffOp) => {
+    if (op) ops.push(op);
+  };
 
   /**
    * `seen` remembers every (aNode → bNode) pair we have visited.
@@ -32,7 +35,7 @@ export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
    * Bail out if this (aNode,bNode) pair has already been visited:
    */
   function alreadySeen(aNode: unknown, bNode: unknown): boolean {
-    // Only objects (plain or array) can participate in cycles.
+    // Only objects (plain or array) can participate in cycles:
     if (
       typeof aNode !== 'object' ||
       aNode === null ||
@@ -55,7 +58,7 @@ export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
    * Walk the tree:
    */
   function walk(path: Path, aNode: unknown, bNode: unknown): void {
-    if (Object.is(aNode, bNode)) return; //   Identical primitives *or* same reference.
+    if (Object.is(aNode, bNode)) return; //   Identical primitives OR same reference.
     if (alreadySeen(aNode, bNode)) return; // Avoid infinite recursion on cycles.
 
     // Plain objects:
@@ -67,13 +70,11 @@ export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
         const bHas = key in bNode;
 
         if (!bHas) {
-          ops.push({ type: 'remove', path: next, prev: (aNode as O)[key] });
-          set(target, next, undefined);
+          pushOp(set(target, next, undefined));
           continue;
         }
         if (!aHas) {
-          ops.push({ type: 'add', path: next, value: (bNode as O)[key] });
-          set(target, next, (bNode as O)[key]);
+          pushOp(set(target, next, (bNode as O)[key]));
           continue;
         }
         walk(next, (aNode as O)[key], (bNode as O)[key]); // 🌳 ← recursion:
@@ -84,15 +85,11 @@ export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
     // Arrays:
     if (Array.isArray(aNode) && Array.isArray(bNode)) {
       const same = aNode.length === bNode.length && aNode.every((v, i) => Object.is(v, bNode[i]));
-      if (!same) {
-        ops.push({ type: 'array', path, prev: aNode, next: bNode });
-        set(target, path, [...bNode]);
-      }
+      if (!same) pushOp(set(target, path, [...bNode]));
       return;
     }
 
     // Primitives or constructor mismatch:
-    ops.push({ type: 'update', path, prev: aNode, next: bNode });
-    set(target, path, bNode);
+    pushOp(set(target, path, bNode));
   }
 }
