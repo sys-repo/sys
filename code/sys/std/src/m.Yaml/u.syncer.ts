@@ -59,26 +59,35 @@ export const syncer: S = <T = unknown>(
     removeErrors((err) => YamlIs.parseError(err)); // NB: reset errors.
 
     // Attempt to parse data.
-    const { data, error } = parse(after);
-    if (error) errors.add(error);
+    const parsed = parse(after);
+    if (parsed.error) errors.add(parsed.error);
 
-    if (path.target != null) {
-      const target = path.target;
-      doc.target.change((d) => {
-        if (error) {
-          if (target.length > 0) Obj.Path.mutate(d, target, undefined);
-        } else {
-          const eq = Obj.eql(data, current.parsed());
-          if (!eq) Obj.Path.mutate(d, target, data);
-        }
-      });
+    let ops: t.ObjDiffOp[] = [];
+
+    const targetPath = path.target ?? [];
+    if (!parsed.error && targetPath.length > 0) {
+      const isEqual = Obj.eql(parsed.data, current.parsed());
+      if (!isEqual) {
+        doc.target.change((d) => {
+          const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
+          if (Is.record(parsed.data) && Is.record(targetValue)) {
+            const diff = Obj.Path.Mutate.diff(parsed.data, targetValue);
+            ops.push(...diff.ops);
+          } else {
+            // Replace (any value other than {object} which is diff'd).
+            const op = Obj.Path.Mutate.set(d, targetPath, parsed.data);
+            if (op) ops.push(op);
+          }
+        });
+      }
     }
 
-    // Alert listeners.
+    // Alert listeners:
     $$.next({
+      ops,
       yaml: { before, after },
-      parsed: data ? (data as t.YamSyncParsed<T>) : undefined,
-      error,
+      parsed: parsed.data ? (parsed.data as t.YamSyncParsed<T>) : undefined,
+      error: parsed.error,
     });
   };
 

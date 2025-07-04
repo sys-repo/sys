@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Monitors an observable document and parses a YAML
  * string and persists it to a path on change.
  */
-export type YamlSyncParser<T> = t.Lifecycle & {
+export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly ok: boolean;
   readonly $: t.Observable<t.YamlSyncParserChange<T>>;
   readonly path: YamlSyncParserPaths;
@@ -30,6 +30,7 @@ export type YamlSyncParserPaths = {
 
 /** Change event fired by the sync-parser. */
 export type YamlSyncParserChange<T> = {
+  readonly ops: t.ObjDiffOp[];
   readonly yaml: { before: string; after: string };
   readonly parsed?: YamSyncParsed<T>;
   readonly error?: t.StdError;

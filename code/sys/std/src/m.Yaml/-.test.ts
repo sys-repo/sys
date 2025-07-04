@@ -178,7 +178,7 @@ describe('Yaml', () => {
       });
     });
 
-    describe('parsing', () => {
+    describe('sync/parsing', () => {
       type T = { text?: string; 'text.parsed'?: O };
       type E = t.YamlSyncParserChange<T>;
       const sample = (text?: string) => {
@@ -229,11 +229,13 @@ describe('Yaml', () => {
         expect(fired[0].yaml).to.eql({ before: '', after: 'foo: 123' });
         expect(fired[0].parsed).to.eql({ foo: 123 });
         expect(fired[0].error).to.eql(undefined);
+        expect(fired[0].ops.length).to.eql(1);
+        expect(fired[0].ops[0].type).to.eql('update');
 
         // Error:
         const fail = 'foo: 123\n -foo: FAIL';
         doc.change((d) => (d.text = fail));
-        expect(doc.current['text.parsed']).to.eql(undefined);
+        expect(doc.current['text.parsed']).to.eql({ foo: 123 }); // NB: prior value (not updated after error).
         expect(syncer.ok).to.eql(false);
         expect(syncer.errors.length).to.eql(1);
 
@@ -251,6 +253,13 @@ describe('Yaml', () => {
         expect(fired[2].parsed).to.eql({ foo: 456 });
         expect(fired[2].error).to.eql(undefined);
         expect(fired[2].yaml).to.eql({ before: fail, after: 'foo: 456' });
+
+        expect(fired[2].ops.length).to.eql(1);
+        expect(fired[2].ops[0].type).to.eql('update');
+        if (fired[2].ops[0].type === 'update') {
+          expect(fired[2].ops[0].prev).to.eql(123);
+          expect(fired[2].ops[0].next).to.eql(456);
+        }
       });
 
       it('parse on change: async (debounced)', async () => {
@@ -265,6 +274,23 @@ describe('Yaml', () => {
 
         await Time.wait(30);
         expect(doc.current['text.parsed']).to.eql({ foo: 3 });
+      });
+
+      it('object diff', () => {
+        const doc = Immutable.clonerRef<T>({});
+        Yaml.syncer<T>(doc, ['text']);
+
+        doc.change((d) => (d.text = 'foo: { bar: { value: 0 } }'));
+        expect(doc.current['text.parsed']).to.eql({ foo: { bar: { value: 0 } } });
+
+        console.log('doc.current', doc.current);
+
+        console.log(`-------------------------------------------`);
+        doc.change((d) => (d.text = 'foo: { bar: { value: 1234 } }'));
+
+        console.log('doc.current', doc.current);
+
+        //
       });
 
       it('write to different document', () => {
