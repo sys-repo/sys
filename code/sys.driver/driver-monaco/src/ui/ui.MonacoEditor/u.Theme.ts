@@ -1,4 +1,4 @@
-import { Color, type t } from './common.ts';
+import { type t, Color } from './common.ts';
 
 export const Theme = {
   init(monaco: t.Monaco.Monaco) {
@@ -15,12 +15,15 @@ export const Theme = {
   Light: {
     name: 'sys-light',
     define(monaco: t.Monaco.Monaco) {
+      const darken = (by: number) => Color.toHex(Color.darken(Color.WHITE, by));
       monaco.editor.defineTheme(Theme.Light.name, {
         base: 'vs',
         inherit: true,
         rules: [],
         colors: {
           'editor.background': Color.WHITE,
+          'editorStickyScroll.border': darken(10),
+          'editorStickyScroll.shadow': '#00000000', // remove.
         },
       });
     },
@@ -29,13 +32,16 @@ export const Theme = {
   Dark: {
     name: 'sys-dark',
     define(monaco: t.Monaco.Monaco) {
+      const lighten = (by: number) => Color.toHex(Color.lighten(Color.DARK, by));
       monaco.editor.defineTheme(Theme.Dark.name, {
         base: 'vs-dark',
         inherit: true,
         rules: [],
         colors: {
           'editor.background': Color.DARK,
-          'editor.lineHighlightBorder': Color.toHex(Color.lighten(Color.DARK, 4)),
+          'editor.lineHighlightBorder': lighten(4),
+          'editorStickyScroll.border': lighten(10),
+          'editorStickyScroll.shadow': '#00000000', // remove.
         },
       });
     },

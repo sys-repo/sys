@@ -167,6 +167,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
           defaultLanguage={language}
           language={language}
           defaultValue={defaultValue}
+          options={{ scrollbar: { useShadows: false } }}
           theme={editorTheme}
           loading={elLoading}
           onMount={handleMount}
