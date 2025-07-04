@@ -5,9 +5,9 @@
     "@std/datetime": "npm:@jsr/std__datetime@0.225.5",
     "@std/dotenv": "npm:@jsr/std__dotenv@0.225.5",
     "@std/encoding": "npm:@jsr/std__encoding@1.0.10",
-    "@std/fs": "npm:@jsr/std__fs@1.0.18",
-    "@std/http": "npm:@jsr/std__http@1.0.18",
-    "@std/path": "npm:@jsr/std__path@1.1.0",
+    "@std/fs": "npm:@jsr/std__fs@1.0.19",
+    "@std/http": "npm:@jsr/std__http@1.0.19",
+    "@std/path": "npm:@jsr/std__path@1.1.1",
     "@std/semver": "npm:@jsr/std__semver@1.0.5",
     "@std/testing": "npm:@jsr/std__testing@1.0.14",
     "@std/uuid": "npm:@jsr/std__uuid@1.0.9",
@@ -15,7 +15,7 @@
     "@types/react-dom": "18.3.5",
     "@vidstack/react": "1.12.13",
     "hono": "4.8.3",
-    "motion": "12.19.2",
+    "motion": "12.23.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.5.0"
@@ -24,7 +24,7 @@
     "@deno/vite-plugin": "1.0.5",
     "@vitejs/plugin-react-swc": "3.10.2",
     "rollup": "4.44.1",
-    "vite": "7.0.0",
+    "vite": "7.0.1",
     "vite-plugin-wasm": "3.4.1"
   }
 }
