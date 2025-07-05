@@ -215,6 +215,12 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/driver-prosemirror"
+        run: |
+          cd code/sys.driver/driver-prosemirror
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-quilibrium"
         run: |
           cd code/sys.driver/driver-quilibrium
