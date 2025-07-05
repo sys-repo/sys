@@ -1,10 +1,19 @@
+import type { editor } from 'monaco-editor';
 import * as monaco from 'monaco-editor';
 
 /**
- * @external
+ * Core Monaco library types:
  */
-export type { ISelection, Selection } from 'monaco-editor';
-export type { monaco };
+export namespace Monaco {
+  /** Top-level Monaco API type. */
+  export type Monaco = typeof monaco;
 
-export type MonacoCodeEditor = monaco.editor.IStandaloneCodeEditor;
-export type Monaco = typeof monaco;
+  /** Convenience aliases for common editor types. */
+  export type Editor = editor.IStandaloneCodeEditor;
+  export type Selection = monaco.Selection;
+  export type TextModel = editor.ITextModel;
+
+  // export type ISelection = monaco.ISelection;
+  export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
+  export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
+}

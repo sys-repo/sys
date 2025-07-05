@@ -23,7 +23,7 @@ export type MediaVideoLib = {
    *   • original audio track(s) from the raw camera.
    */
   getStream(
-    constraints?: MediaStreamConstraints,
+    constraints?: MediaStreamConstraints | MediaStream,
     options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
   ): Promise<{ raw: MediaStream; filtered: MediaStream }>;
 
@@ -43,12 +43,16 @@ export type MediaVideoLib = {
 export type MediaVideoStreamProps = {
   debug?: boolean;
 
-  /** Any CSS filter string: e.g. 'brightness(120%) hue-rotate(90deg)' */
-  filter?: string;
   /** Media constraints for `getUserMedia`. Defaults: `{ video: true, audio: true }`. */
   constraints?: MediaStreamConstraints;
+  /** Optionally provide the raw stream. The filtered derivative stream is still calculated. */
+  stream?: MediaStream;
+  /** Any CSS filter string: e.g. 'brightness(120%) hue-rotate(90deg)' */
+  filter?: string;
   /** Options for applying a zoom effect to the media-stream. */
   zoom?: Partial<t.MediaZoomValues>;
+  /** Muted state of the <video> element. */
+  muted?: boolean;
 
   // Appearance:
   borderRadius?: t.Pixels;
@@ -57,26 +61,31 @@ export type MediaVideoStreamProps = {
   style?: t.CssInput;
 
   /** Called once when the stream is live and assigned to <video>. */
-  onReady?: (e: {
-    stream: VideoStreamHook['stream'];
-    aspectRatio: string;
-    device: MediaDeviceInfo;
-  }) => void;
+  onReady?: MediaVideoStreamReadyHandler;
 };
 
 /**
- * Hook: Acquire/cleanup device media with visual filter pass-through via <canvas>.
+ * Events:
  */
-export type UseVideoStream = (args: {
-  constraints?: MediaStreamConstraints;
-  filter?: string;
-  zoom?: Partial<t.MediaZoomValues>;
-}) => VideoStreamHook;
+export type MediaVideoStreamReadyHandler = (e: MediaVideoStreamReady) => void;
+export type MediaVideoStreamReady = {
+  readonly stream: VideoStreamHook['stream'];
+  readonly aspectRatio: string;
+  readonly device: MediaDeviceInfo;
+};
+
+/**
+ * Hook:
+ * Acquire/cleanup device media with visual filter pass-through via <canvas>.
+ */
+export type UseVideoStream = (
+  streamOrConstraints?: MediaStreamConstraints | MediaStream,
+  options?: { filter?: string; zoom?: Partial<t.MediaZoomValues> },
+) => VideoStreamHook;
+
 export type VideoStreamHook = {
-  readonly stream: {
-    readonly filtered?: MediaStream;
-    readonly raw?: MediaStream;
-  };
+  readonly ready: boolean;
+  readonly stream: { readonly filtered?: MediaStream; readonly raw?: MediaStream };
   readonly aspectRatio: string;
   readonly device?: MediaDeviceInfo;
   readonly error?: t.StdError;

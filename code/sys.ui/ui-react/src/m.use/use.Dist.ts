@@ -6,8 +6,8 @@ import { type t, Err } from './common.ts';
  * Hook: Load the `dist.json` file from the server (if avilable).
  */
 export const useDist: t.UseDistFactory = (options = {}) => {
-  const { useSampleFallback = false } = options;
-  const is: t.UseDist['is'] = { sample: useSampleFallback };
+  const { sampleFallback = false } = options;
+  const is: t.UseDist['is'] = { sample: sampleFallback };
 
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);

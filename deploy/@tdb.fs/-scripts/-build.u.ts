@@ -4,10 +4,39 @@ import { Fs, Path } from '@sys/fs';
 import { Process } from '@sys/process';
 import { type t } from './common.ts';
 
+type Options = { build?: boolean; exitOnError?: boolean };
+
 /**
  * Ensure dist.
  */
 await Fs.ensureDir('./dist');
+
+export async function buildAndCopyAll(all: Parameters<typeof buildAndCopy>[]) {
+  const table = Cli.table([]);
+  table.push([c.gray('Packages:')]);
+  table.push([c.gray('  │ ')]);
+
+  let i = -1;
+  for (const [moduleDir, targetDir, options] of all) {
+    i++;
+    const isLast = i === all.length - 1;
+    const bullet = isLast ? '  └── ' : '  ├── ';
+
+    const denofile = (await DenoFile.load(moduleDir)).data;
+    const pkg = c.green(denofile?.name ?? '<unnamed>');
+    const input = `${c.gray(bullet)}${c.gray(moduleDir)}`;
+    const out = c.cyan(targetDir);
+
+    table.push([input, pkg, out]);
+  }
+
+  console.info(table.toString().trim());
+  console.info();
+
+  for (const [moduleDir, targetDir, options] of all) {
+    await buildAndCopy(moduleDir, targetDir, options);
+  }
+}
 
 /**
  * Build project(s).
@@ -15,7 +44,7 @@ await Fs.ensureDir('./dist');
 export async function buildAndCopy(
   moduleDir: t.StringDir,
   targetDir: t.StringRelativeDir,
-  options: { build?: boolean; exitOnError?: boolean } = {},
+  options: Options = {},
 ) {
   const { exitOnError = true } = options;
   const path = Fs.resolve(moduleDir);

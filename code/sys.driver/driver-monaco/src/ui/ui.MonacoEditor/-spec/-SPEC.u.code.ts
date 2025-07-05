@@ -43,10 +43,23 @@ func main(a, b) bool {
 `;
 
 export const yaml = `
+long: looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
+
 foo:
   - one
   - two
   - three
+
+bar:
+  - one
+  - two
+  - three
+
+baz:
+  - one
+  - two
+  - three
+
 `;
 
 export const json = JSON.stringify({ name: 'foo', version: '0.1.2' }, null, '  ');

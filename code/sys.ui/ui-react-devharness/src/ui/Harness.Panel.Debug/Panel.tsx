@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Style, Color, css, R, useCurrentState } from '../common.ts';
+
+import { type t, Color, css, pkg, R, Style, useCurrentState } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { DebugPanelBody as Body } from './Panel.Body.tsx';
 
@@ -10,7 +11,7 @@ export type DebugPanelProps = {
   style?: t.CssInput;
 };
 
-const componentAttr = 'sys.ui.dev.harness:Panel.Debug';
+const componentAttr = `${pkg.name}:Panel.Debug`;
 
 export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   const { instance } = props;
@@ -24,7 +25,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   const isHidden = width <= 0;
 
   /**
-   * Common styling for children.
+   * (Cascade): CSS styling for common <html> child elements:
    */
   React.useEffect(() => {
     const sheet = Style.Dom.stylesheet();
@@ -36,21 +37,22 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   }, []);
 
   /**
-   * [Render]
+   * Render:
    */
   const styles = {
     base: css({
       overflow: 'hidden',
       justifySelf: 'stretch',
       width,
-      borderLeft: `solid 1px ${Color.format(-0.1)}`,
       display: isHidden ? 'none' : 'grid',
       gridTemplateRows: 'auto 1fr auto',
       pointerEvents: isHidden ? 'none' : undefined,
     }),
     body: css({
+      position: 'relative',
       Scroll: debug?.body.scroll,
       Padding: debug?.body.padding,
+      display: 'grid',
     }),
   };
 

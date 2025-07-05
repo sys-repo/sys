@@ -14,3 +14,5 @@ export {
   Time,
   Timestamp,
 } from '@sys/std';
+
+export { Yaml } from '@sys/std/yaml';

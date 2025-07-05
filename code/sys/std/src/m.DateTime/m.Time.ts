@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
+import type { TimeLib } from './t.ts';
+
 import { Duration } from './m.Time.Duration.ts';
 import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
@@ -9,7 +10,7 @@ import { wait } from './m.Time.wait.ts';
 /**
  * Library: Helpers for working with time and timers (delays).
  */
-export const Time: t.TimeLib = {
+export const Time: TimeLib = {
   get now() {
     return utc();
   },

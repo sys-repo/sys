@@ -1,7 +1,9 @@
+import type { HttpEntryLib } from './t.ts';
+
 import { type t, Args } from './common.ts';
 import { start } from './u.start.ts';
 
-export const Entry: t.HttpEntryLib = {
+export const Entry: HttpEntryLib = {
   start,
   async entry(input) {
     const args = wrangle.args(input ?? Deno.args);

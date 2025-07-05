@@ -1,6 +1,6 @@
 /**
- * @module
  * Library for working with user-agent strings.
+ * @module
  *
  * Ref:
  *    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent

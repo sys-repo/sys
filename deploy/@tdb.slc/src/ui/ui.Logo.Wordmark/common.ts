@@ -9,7 +9,7 @@ export { Theme } from '../ui.Logo.Canvas/mod.ts';
 const name = 'Logo.Wordmark';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   width: 90,
   get logo(): t.LogoKind {
     return 'SLC';

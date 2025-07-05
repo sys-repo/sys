@@ -1,6 +1,6 @@
 {
   "name": "@sys/http",
-  "version": "0.0.65",
+  "version": "0.0.71",
   "license": "MIT",
   "tasks": {
     "lint": "deno lint",
@@ -14,8 +14,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/ns.client/mod.ts",
-    "./server": "./src/ns.server/mod.ts",
+    "./client": "./src/m.client/mod.ts",
+    "./server": "./src/m.server/mod.ts",
     "./server/main": "./src/-entry/-main.ts",
     "./server/start": "./src/-entry/-start.ts"
   }

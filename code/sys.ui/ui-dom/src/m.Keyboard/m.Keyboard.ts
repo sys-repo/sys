@@ -6,6 +6,7 @@ import { dbl } from './m.Keyboard.dbl.ts';
 import { until } from './m.Keyboard.until.ts';
 import { Match } from './m.Match.ts';
 import { Util } from './u.ts';
+import { Is } from './m.Is.ts';
 
 const toKeypress = Util.toKeypress as t.KeyboardLib['toKeypress'];
 
@@ -13,6 +14,7 @@ const toKeypress = Util.toKeypress as t.KeyboardLib['toKeypress'];
  * Tools for working with a keyboard-input device.
  */
 export const Keyboard: t.KeyboardLib = {
+  Is,
   Monitor,
   Match,
 
@@ -25,3 +27,6 @@ export const Keyboard: t.KeyboardLib = {
   until,
   dbl,
 } as const;
+
+/** Alias to `Keyboard` */
+export const Kbd = Keyboard;

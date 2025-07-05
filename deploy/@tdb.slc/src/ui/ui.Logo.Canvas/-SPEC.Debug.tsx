@@ -131,7 +131,7 @@ export function canvasSelectedButton(signal: t.Signal<P['selected']>) {
         const fmt = Array.isArray(value) ? `array[${value.length}]` : value ?? '<undefined>';
         return `selected: ${fmt}`;
       }}
-      onClick={() => Signal.cycle(signal, [undefined, CanvasPanel.list, 'purpose'])}
+      onClick={() => Signal.cycle(signal, [undefined, CanvasPanel.all, 'purpose'])}
     />
   );
 }
@@ -143,7 +143,7 @@ export function canvasSelectedButtonList(
   selected: t.Signal<P['selected']>,
   selectionAnimation: t.Signal<P['selectionAnimation']>,
 ) {
-  const buttons = CanvasPanel.list.map((panel) => {
+  const buttons = CanvasPanel.all.map((panel) => {
     return (
       <Button
         block
