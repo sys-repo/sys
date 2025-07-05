@@ -1,6 +1,8 @@
 import { pkg, Pkg } from '../common.ts';
 
-export { Crdt, TextEditor } from '@sys/driver-automerge/ui';
+export { Crdt } from '@sys/driver-automerge/ui';
+export { TextPanel } from '@sys/driver-prosemirror';
+
 export * from '../common.ts';
 export { CanvasLayout } from '../ui.Layout.Canvas/mod.ts';
 

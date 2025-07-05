@@ -4,7 +4,7 @@ import { Monaco } from '@sys/driver-monaco';
 import { EditorCrdt } from '@sys/driver-monaco/crdt';
 import { type EditorCrdtBinding } from '@sys/driver-monaco/t';
 
-import { type t, Buttons, Color, Crdt, css } from '../common.ts';
+import { type t, Buttons, Color, TextPanel, css, rx } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type EditorPanelProps = {
@@ -79,12 +79,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.desc.class}>
-        <Crdt.UI.TextPanel
-          label={'Description'}
-          doc={doc}
-          path={PATHS.description}
-          theme={theme.name}
-        />
+        <TextPanel label={'Description'} doc={doc} path={PATHS.description} theme={theme.name} />
         {elCloseButton}
       </div>
       <div className={styles.body.class}>

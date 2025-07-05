@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, CanvasLayout, CanvasPanel, Color, Crdt, css } from './common.ts';
+import { type t, CanvasLayout, CanvasPanel, Color, Crdt, css, TextPanel } from './common.ts';
 
 type P = t.EditorCanvasProps;
 
@@ -51,7 +51,7 @@ const wrangle = {
     const render = (panel: t.CanvasPanel): t.CanvasPanelContent => {
       const path = [...(props.path ?? []), panel, 'text'];
       const view = (
-        <Crdt.UI.TextPanel
+        <TextPanel
           doc={doc}
           path={path}
           theme={props.theme}

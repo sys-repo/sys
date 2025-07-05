@@ -1,10 +1,11 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
  * Libs:
  */
 export { Crdt } from '@sys/driver-automerge/ui';
+export { TextPanel } from '@sys/driver-prosemirror';
 
 /**
  * Constants:
