@@ -79,8 +79,9 @@ export default Spec.describe(D.displayName, async (e) => {
 
         return (
           <>
+            <DebugDocumentId style={{ Absolute: [-29, 0, null, 0] }} />
             {elEditor}
-            <DebugDocumentId style={{ Absolute: [null, 0, -29, 0] }} />
+            {/* <DebugDocumentId style={{ Absolute: [null, 0, -29, 0] }} /> */}
           </>
         );
       });
