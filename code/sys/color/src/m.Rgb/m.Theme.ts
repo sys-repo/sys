@@ -1,7 +1,7 @@
 import type { ColorThemeLib } from './t.ts';
 
 import { type t, Num } from './common.ts';
-import { DARK, WHITE } from './u.const.ts';
+import { DARK, WHITE } from './m.Color.const.ts';
 import { alpha } from './u.format.ts';
 
 type HexColor = string;

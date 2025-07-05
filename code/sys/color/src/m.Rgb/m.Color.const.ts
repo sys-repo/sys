@@ -14,8 +14,10 @@ export const YELLOW = '#FCC400';
 export const LIME = '#A6E130';
 export const PURPLE = '#A11D8E';
 export const RED = '#E21B22';
+export const TRANSPARENT = '#00000000';
 
 export const COLORS: t.ColorConstants = {
+  TRANSPARENT,
   BLACK,
   WHITE,
   DARK,

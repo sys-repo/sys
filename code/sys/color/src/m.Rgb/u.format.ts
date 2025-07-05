@@ -1,8 +1,8 @@
 import type { ColorInput } from 'tinycolor2';
-import { type t, Num } from './common.ts';
+import { type t } from './common.ts';
 
 import tinycolor from 'tinycolor2';
-import { RED, RUBY } from './u.const.ts';
+import { RED, RUBY } from './m.Color.const.ts';
 
 /**
  * Creates a new tiny-color instance.

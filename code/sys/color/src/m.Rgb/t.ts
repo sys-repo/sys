@@ -110,6 +110,8 @@ export type ColorThemeColors = {
  * Common color constants.
  */
 export type ColorConstants = {
+  /** Fully transparent color (0% opacity). */
+  TRANSPARENT: t.StringHex;
   /** The color black. */
   BLACK: t.StringHex;
   /** The color white. */
