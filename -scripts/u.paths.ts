@@ -4,6 +4,7 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
+
     /**
      * Monorepo:
      */
@@ -47,6 +48,7 @@ export const Paths = {
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-peerjs',
+    'code/sys.driver/driver-prosemirror',
 
     //
     'code/sys.driver/driver-obsidian',
