@@ -17,6 +17,7 @@ const props: t.PickRequired<
   language: 'typescript',
   autoFocus: false,
 };
+
 export const DEFAULTS = {
   ...BASE,
   name,
