@@ -1,6 +1,6 @@
 import type { YamlSyncParserPaths } from '@sys/std/t';
 import React from 'react';
-import { type t, Color, css, ObjectView, Yaml } from '../common.ts';
+import { type t, Str, Is, Color, css, Obj, ObjectView, Yaml } from '../common.ts';
 
 export type YamlSyncDebugProps = {
   doc?: t.Crdt.Ref;
@@ -50,7 +50,11 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
   const styles = { base: css({}) };
 
   const name = parseError ? 'yaml.error' : `yaml.parsed:/${(syncPath?.target ?? []).join('/')}`;
-  const data = parseError ?? parsed;
+  const data = { ...(parseError ?? parsed) };
+  Obj.walk(data, (e) => {
+    if (Is.string(e.value)) e.mutate(Str.truncate(e.value, 20));
+  });
+
   const elObject = (
     <ObjectView
       //

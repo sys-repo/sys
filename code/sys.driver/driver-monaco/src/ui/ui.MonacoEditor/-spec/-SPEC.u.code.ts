@@ -43,6 +43,8 @@ func main(a, b) bool {
 `;
 
 export const yaml = `
+long: looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
+
 foo:
   - one
   - two
