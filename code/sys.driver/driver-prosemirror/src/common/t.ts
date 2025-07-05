@@ -4,6 +4,11 @@
 export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNode } from 'react';
 
 /**
+ * @system drivers
+ */
+export type { A, Crdt } from '@sys/driver-automerge/t';
+
+/**
  * @system
  */
 export type * from '@sys/types';

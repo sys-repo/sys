@@ -44,7 +44,7 @@ export function createDebugSignals() {
     label: s(snap.label),
     scroll: s(snap.scroll),
 
-    doc: s<t.CrdtRef<SampleDoc>>(),
+    doc: s<t.Crdt.Ref<SampleDoc>>(),
     path: s<P['path']>(snap.path),
   };
   const p = props;

@@ -25,7 +25,7 @@ export function createDebugSignals() {
   const s = Signal.create;
 
   const defaults: Storage = {
-    theme: 'Light',
+    theme: 'Dark',
     debug: false,
 
     autoFocus: true,
@@ -52,7 +52,7 @@ export function createDebugSignals() {
     singleLine: s<P['singleLine']>(snap.singleLine),
     autoFocus: s<P['autoFocus']>(snap.autoFocus),
 
-    doc: s<t.CrdtRef<SampleDoc>>(),
+    doc: s<t.Crdt.Ref<SampleDoc>>(),
     path: s<P['path']>(snap.path),
   };
   const p = props;
@@ -67,7 +67,7 @@ export function createDebugSignals() {
     },
   };
 
-  let events: t.CrdtEvents | undefined;
+  let events: t.Crdt.Events | undefined;
   Signal.effect(() => {
     const doc = p.doc.value;
     events?.dispose();

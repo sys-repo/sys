@@ -10,8 +10,6 @@ export type CrdtUiLib = t.CrdtBrowserLib & {
     readonly Card: React.FC<t.CardProps>;
     readonly DocumentId: t.DocumentIdLib;
     readonly Repo: t.RepoLib;
-    readonly TextEditor: React.FC<t.TextEditorProps>;
-    readonly TextPanel: React.FC<t.TextPanelProps>;
     readonly useRedrawEffect: UseRedrawEffect;
   };
 };

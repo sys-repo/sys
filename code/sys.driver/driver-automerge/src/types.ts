@@ -18,5 +18,3 @@ export type * from './ui/ui.BinaryFile/t.ts';
 export type * from './ui/ui.Card/t.ts';
 export type * from './ui/ui.DocumentId/t.ts';
 export type * from './ui/ui.Repo/t.ts';
-export type * from './ui/ui.TextEditor/t.ts';
-export type * from './ui/ui.TextPanel/t.ts';

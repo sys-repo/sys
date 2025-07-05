@@ -1,6 +1,8 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
+export { toAutomergeHandle } from '@sys/driver-automerge';
+
 /**
  * Constants:
  */

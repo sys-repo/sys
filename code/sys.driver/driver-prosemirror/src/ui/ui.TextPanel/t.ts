@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type TextPanelProps = {
   label?: string;
-  doc?: t.CrdtRef;
+  doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
 
   // Debug:

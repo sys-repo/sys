@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type TextEditorProps = {
   /** The CRDT to record onto. */
-  doc?: t.CrdtRef<any>;
+  doc?: t.Crdt.Ref<any>;
   /** The path within the CRDT to target. */
   path?: t.ObjectPath;
 
