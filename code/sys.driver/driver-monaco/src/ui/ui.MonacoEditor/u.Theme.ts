@@ -51,10 +51,10 @@ export const Theme = {
           // Sticky-scroll tweaks:
           'editor.lineHighlightBorder': bg.lighten(4),
           'editorStickyScroll.border': bg.lighten(10),
-          'editorStickyScroll.shadow': TRANSPARENT,
+          'editorStickyScroll.shadow': Color.TRANSPARENT,
 
           // Minimap divider (overview-ruler) tweaks:
-          'scrollbar.shadow': TRANSPARENT,
+          'scrollbar.shadow': Color.TRANSPARENT,
           'minimap.background': bg.darken(1),
         },
       });
