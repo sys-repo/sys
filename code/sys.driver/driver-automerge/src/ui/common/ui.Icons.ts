@@ -14,6 +14,7 @@ import {
   MdWarning,
 } from 'react-icons/md';
 import { TbDatabase, TbNetwork, TbNetworkOff } from 'react-icons/tb';
+import { BsFileBinaryFill } from 'react-icons/bs';
 
 const icon = Icon.renderer;
 
@@ -46,4 +47,5 @@ export const Icons = {
     Off: icon(TbNetworkOff),
     Antenna: icon(MdSettingsInputAntenna),
   },
+  File: { Binary: icon(BsFileBinaryFill) },
 } as const;
