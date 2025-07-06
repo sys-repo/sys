@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, Crdt, css, Icons, Obj } from '../common.ts';
+import { TextEditor } from '@sys/driver-prosemirror';
 
 export type HostFooterProps = {
   doc?: t.Crdt.Ref;
@@ -56,7 +57,7 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Icons.Chevron.Right style={styles.icon} />
-      <Crdt.UI.TextEditor
+      <TextEditor
         doc={doc}
         path={path}
         style={styles.textEditor}
