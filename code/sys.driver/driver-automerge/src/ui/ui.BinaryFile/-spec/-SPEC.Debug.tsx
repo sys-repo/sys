@@ -4,7 +4,7 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.BinaryFileProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
 
 /**
  * Types:
@@ -23,6 +23,7 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    path: ['files'],
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -35,6 +36,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    path: s(snap.path),
     doc: s<t.Crdt.Ref>(),
   };
   const p = props;
@@ -52,6 +54,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.path = p.path.value;
     });
   });
 
@@ -91,6 +94,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `path: ${p.path.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.path, [undefined, ['files'], ['foo', 'bar']])}
       />
 
       <hr />

@@ -38,11 +38,19 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([450, 450])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <BinaryFile debug={v.debug} theme={v.theme} />;
+        return (
+          <BinaryFile
+            //
+            debug={v.debug}
+            theme={v.theme}
+            doc={v.doc}
+            path={v.path}
+          />
+        );
       });
 
     ctx.host.header.padding(0).render(() => <HostDocumentId />);
