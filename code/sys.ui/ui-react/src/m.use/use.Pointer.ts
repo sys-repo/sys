@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { type t, Is } from './common.ts';
+import type { t } from './common.ts';
 import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
+import { toDragdropSnapshot, usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
 /**
- * Hook: keep track of mouse/touch events for an HTML element
- * Usage:
+ * Hook: pointer events + optional file drag/drop.
  *
- *     const pointer = usePointer();
- *     <div {...pointer.handlers} />
+ *   const pointer = usePointer({ onDrag, onDragdrop });
+ *   <div {...pointer.handlers} />
  */
 export const usePointer: t.UsePointer = (input) => {
   const args = wrangle.args(input);
-  const { onDrag } = args;
+  const { onDrag, onDragdrop } = args;
 
   /**
    * Hooks:
@@ -21,101 +21,165 @@ export const usePointer: t.UsePointer = (input) => {
   const [isDown, setDown] = useState(false);
   const [isOver, setOver] = useState(false);
   const isTouch = useIsTouchSupported();
+
   const drag = usePointerDrag({ onDrag });
+  const dragdrop = usePointerDragdrop({ onDragdrop });
+  const flags = (patch?: Partial<t.PointerHookFlags>): t.PointerHookFlags => ({
+    over: patch?.over ?? isOver,
+    down: patch?.down ?? isDown,
+    dragging: drag.is.dragging,
+    dragdropping: dragdrop.is.dragging,
+  });
 
   /**
-   * Handlers:
+   * Effect: When the low-level drag stops (mouse-up outside) reset "down".
    */
-  const getFlags = (known?: {
-    isOver?: boolean;
-    isDown?: boolean;
-    isDragging?: boolean;
-  }): t.PointerHookFlags => {
-    return {
-      over: known?.isOver ?? isOver,
-      down: known?.isDown ?? isDown,
-      dragging: known?.isDragging ?? drag.is.dragging,
-    };
-  };
+  useEffect(() => {
+    if (!drag.is.dragging) setDown(false);
+  }, [drag.is.dragging]);
 
-  const fireGeneral = (
+  /**
+   * General helpers:
+   */
+  const firePointer = (
     synthetic: React.PointerEvent,
     trigger: t.PointerEvent,
-    known: { isOver?: boolean; isDown?: boolean },
+    patch: Partial<t.PointerHookFlags>,
   ) => {
     const cancel = () => {
-      synthetic.stopPropagation();
       synthetic.preventDefault();
+      synthetic.stopPropagation();
     };
-    args.on?.({ is: getFlags(known), synthetic: trigger, cancel });
-  };
-
-  const down = (isDown: boolean) => (synthetic: React.PointerEvent) => {
-    const e = wrangle.pointerEvent(synthetic);
-    setDown(isDown);
-    if (isDown) args.onDown?.(e);
-    if (!isDown) args.onUp?.(e);
-    if (!isDown) drag.cancel();
-    if (isDown && drag.enabled) drag.start();
-    fireGeneral(synthetic, e, { isDown });
-  };
-  const over = (isOver: boolean) => (synthetic: React.PointerEvent) => {
-    const e = wrangle.pointerEvent(synthetic);
-    setOver(isOver);
-    if (isOver === false) setDown(false);
-    if (isOver) args.onEnter?.(e);
-    if (!isOver) args.onLeave?.(e);
-    fireGeneral(synthetic, e, { isOver });
+    args.on?.({ is: flags(patch), synthetic: trigger, cancel });
   };
 
   /**
-   * Mouse handlers:
+   * Pointer-in / Pointer-out:
    */
-  const onMouseDown = down(true);
-  const onMouseUp = down(false);
-  const onMouseEnter = over(true);
-  const onMouseLeave = over(false);
+  const over = (inside: boolean) => (e: React.PointerEvent) => {
+    const trigger = wrangle.pointerEvent(e);
+    setOver(inside);
+    if (!inside && !drag.is.dragging) setDown(false);
+    inside ? args.onEnter?.(trigger) : args.onLeave?.(trigger);
+    firePointer(e, trigger, { over: inside, down: isDown });
+  };
 
   /**
-   * Touch handlers:
+   * Pointer-down / Pointer-up:
+   */
+  const down = (pressed: boolean) => (e: React.PointerEvent) => {
+    const trigger = wrangle.pointerEvent(e);
+    setDown(pressed);
+
+    if (pressed) {
+      args.onDown?.(trigger);
+      if (drag.enabled) drag.start();
+    } else {
+      args.onUp?.(trigger);
+      drag.cancel();
+    }
+
+    firePointer(e, trigger, { down: pressed });
+  };
+
+  /**
+   * File drag-n-drop:
+   */
+  // Enter element - start tracking:
+  const onDragEnter: React.DragEventHandler = (e) => {
+    if (!onDragdrop) return;
+    e.preventDefault();
+    if (!dragdrop.is.dragging) dragdrop.start();
+  };
+
+  // Continuous drag over target:
+  const onDragOver: React.DragEventHandler = (e) => {
+    if (!onDragdrop) return;
+    e.preventDefault();
+    const movement = toDragdropSnapshot(e);
+    onDragdrop({
+      ...movement,
+      action: 'Drag',
+      files: [],
+      cancel: () => e.preventDefault(),
+    });
+  };
+
+  // Leave element - stop tracking:
+  const onDragLeave: React.DragEventHandler = (e) => {
+    if (!onDragdrop) return;
+    e.preventDefault();
+
+    // Ignore bubbled leave events from children.
+    // Act only when really outside.
+    if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) return;
+
+    dragdrop.cancel();
+  };
+
+  // Element dropped - stop tracking & deliver files:
+  const onDrop: React.DragEventHandler = (e) => {
+    if (!onDragdrop) return;
+    e.preventDefault();
+    dragdrop.cancel();
+
+    const files = Array.from(e.dataTransfer.files);
+    const movement = toDragdropSnapshot(e);
+    onDragdrop({
+      ...movement,
+      action: 'Drop',
+      client: { x: e.clientX, y: e.clientY },
+      files,
+      cancel: () => e.preventDefault(),
+    });
+  };
+
+  /**
+   * Touch helpers (mobile):
    */
   const onTouchStart: React.TouchEventHandler = (ev) => {
-    // Treat touch-start like "mouse-down + enter".
     const e = ev as unknown as React.PointerEvent;
-    onMouseEnter(e);
-    onMouseDown(e);
+    over(true)(e);
+    down(true)(e);
   };
-
   const onTouchEnd: React.TouchEventHandler = (ev) => {
-    // Finger lifted: no longer "over" the element.
     const e = ev as unknown as React.PointerEvent;
-    onMouseLeave(e);
-    onMouseUp(e);
+    down(false)(e);
+    over(false)(e);
   };
 
-  const onTouchCancel: React.TouchEventHandler = (ev) => {
-    // Cancelled touches behave like "up + leave".
-    const e = ev as unknown as React.PointerEvent;
-    onMouseLeave(e);
-    onMouseUp(e);
+  /**
+   * Compbines handlers:
+   */
+  const pointerHandlers = isTouch
+    ? { onTouchStart, onTouchEnd, onTouchCancel: onTouchEnd }
+    : {
+        onMouseDown: down(true),
+        onMouseUp: down(false),
+        onMouseEnter: over(true),
+        onMouseLeave: over(false),
+      };
+
+  const dragdropHandlers = onDragdrop && {
+    onDragEnter,
+    onDragOver,
+    onDragLeave,
+    onDrop,
   };
 
   /**
    * API:
    */
-  const api: t.PointerHook = {
-    handlers: isTouch
-      ? { onTouchStart, onTouchEnd, onTouchCancel }
-      : { onMouseDown, onMouseUp, onMouseEnter, onMouseLeave },
-    is: getFlags(),
-    drag: drag.movement,
+  return {
+    handlers: { ...pointerHandlers, ...dragdropHandlers },
+    is: flags(),
     reset() {
       setDown(false);
       setOver(false);
       drag.cancel();
+      dragdrop.cancel();
     },
-  };
-  return api;
+  } as const;
 };
 
 /**
@@ -124,7 +188,7 @@ export const usePointer: t.UsePointer = (input) => {
 const wrangle = {
   args(input: unknown): t.PointerHookArgs {
     if (input == null) return {};
-    if (Is.func(input)) return { on: input as t.PointerEventsHandler };
+    if (typeof input === 'function') return { on: input as t.PointerEventsHandler };
     return input;
   },
 
@@ -132,39 +196,19 @@ const wrangle = {
     return {
       type: e.type,
       synthetic: e,
-      client: wrangle.point(e),
-      modifiers: wrangle.modifiers(e),
-      preventDefault: () => e.preventDefault(),
-      stopPropagation: () => e.stopPropagation(),
+      client: { x: e.clientX ?? -1, y: e.clientY ?? -1 },
+      modifiers: {
+        shift: e.shiftKey,
+        ctrl: e.ctrlKey,
+        alt: e.altKey,
+        meta: e.metaKey,
+      },
+      preventDefault: e.preventDefault.bind(e),
+      stopPropagation: e.stopPropagation.bind(e),
       cancel() {
         e.preventDefault();
         e.stopPropagation();
       },
-    };
-  },
-
-  point(e: React.PointerEvent) {
-    type T = React.TouchEvent;
-
-    if (e.type === 'touchstart') {
-      const touch = (e as unknown as T).touches[0];
-      return { x: touch.clientX, y: touch.clientY };
-    }
-
-    if (e.type === 'touchend') {
-      const touch = (e as unknown as T).changedTouches[0];
-      return { x: touch.clientX, y: touch.clientY };
-    }
-
-    return { x: e.clientX ?? -1, y: e.clientY ?? -1 };
-  },
-
-  modifiers(e: React.PointerEvent): t.KeyboardModifierFlags {
-    return {
-      shift: e.shiftKey,
-      ctrl: e.ctrlKey,
-      alt: e.altKey,
-      meta: e.metaKey,
     };
   },
 } as const;

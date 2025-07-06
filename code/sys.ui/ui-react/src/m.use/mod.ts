@@ -21,7 +21,7 @@ export { useDebouncedValue } from './use.DebouncedValue.ts';
 export { useDist } from './use.Dist.ts';
 export { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 export { useLoading } from './use.Loading.ts';
-export { usePointerDrag } from './use.Pointer.Drag.ts';
+export { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 export { usePointer } from './use.Pointer.ts';
 export { useRedraw } from './use.Redraw.ts';
 export { useSizeObserver } from './use.SizeObserver.tsx';
