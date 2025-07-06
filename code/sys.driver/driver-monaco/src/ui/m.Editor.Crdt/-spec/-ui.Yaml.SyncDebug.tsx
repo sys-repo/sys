@@ -61,7 +61,7 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
       name={name}
       data={data}
       theme={theme.name}
-      expand={1}
+      expand={0}
     />
   );
 

@@ -11,7 +11,7 @@ export default Spec.describe(D.displayName, async (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function DebugDocumentId(props: t.DocumentIdProps) {
+  function HostDocumentId(props: t.DocumentIdProps) {
     const doc = p.doc;
     const theme = Color.theme(p.theme.value);
     return (
@@ -44,8 +44,9 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        if (!v.doc) return null;
 
-        const elEditor = v.doc && (
+        return (
           <MonacoEditor
             key={`${v.path?.join('.')}`}
             debug={v.debug}
@@ -76,15 +77,9 @@ export default Spec.describe(D.displayName, async (e) => {
             }}
           />
         );
-
-        return (
-          <>
-            <DebugDocumentId style={{ Absolute: [-29, 0, null, 0] }} />
-            {elEditor}
-            {/* <DebugDocumentId style={{ Absolute: [null, 0, -29, 0] }} /> */}
-          </>
-        );
       });
+
+    ctx.host.header.padding(0).render((e) => <HostDocumentId />);
   });
 
   e.it('ui:debug', (e) => {
