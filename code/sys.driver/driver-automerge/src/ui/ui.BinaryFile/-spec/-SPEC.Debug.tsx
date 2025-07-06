@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.BinaryFileProps;
@@ -9,6 +11,8 @@ type Storage = Pick<P, 'theme' | 'debug'>;
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+
+export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
  * Signals:
@@ -23,13 +27,20 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const repo = Crdt.repo({
+    storage: { database: 'dev.crdt' },
+    network: [{ ws: 'sync.db.team' }],
+  });
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    doc: s<t.Crdt.Ref>(),
   };
   const p = props;
   const api = {
     props,
+    repo,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
