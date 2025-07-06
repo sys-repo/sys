@@ -15,6 +15,7 @@ export type {
   ReactChildrenDepsKey,
   ReadonlySignal,
   Signal,
+  UsePointerDragdropHandlerArgs,
   UsePointerDragHandlerArgs,
 } from '@sys/ui-react/t';
 

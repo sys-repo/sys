@@ -29,7 +29,7 @@ export function useEventMonitor(args: Args = {}) {
   /**
    * API:
    */
-  const dragging = mouse.is.dragging;
+  const dragging = mouse.is.dragdropping;
   const pressed = mouse.is.down || dragging;
   return {
     ref,

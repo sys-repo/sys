@@ -14,14 +14,15 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
     pointerIs: s<t.PointerHookFlags>(),
-    dragArgs: s<t.UsePointerDragHandlerArgs>(),
+    dragdrop: s<t.UsePointerDragdropHandlerArgs>(),
+    drag: s<t.UsePointerDragHandlerArgs>(),
   };
   const api = {
     props,
     listen() {
-      const p = props;
-      p.dragArgs.value;
-      p.pointerIs.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
   init?.(api);
@@ -66,9 +67,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <ObjectView
+        name={'dragdrop'}
+        data={Signal.toObject(p.dragdrop) ?? {}}
+        expand={{ level: 1, paths: ['$.client'] }}
+        style={{ marginBottom: 10 }}
+      />
+
+      <ObjectView
         name={'drag'}
-        data={Signal.toObject(p.dragArgs)}
-        expand={{ level: 1, paths: ['$', '$.client'] }}
+        data={Signal.toObject(p.drag) ?? {}}
+        expand={{ level: 1, paths: ['$.client'] }}
         style={{ marginBottom: 10 }}
       />
     </div>
