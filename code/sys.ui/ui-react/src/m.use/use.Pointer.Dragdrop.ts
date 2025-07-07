@@ -1,11 +1,18 @@
-import { useCallback, useState } from 'react';
+import { useRef, useCallback, useState } from 'react';
 
 import { type t, Time } from './common.ts';
 import { toModifiers } from './use.Pointer.Drag.ts';
 
+type AnimationFrameRequest = number;
+
 export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   const { onDragdrop } = props;
   const active = Boolean(onDragdrop);
+
+  /**
+   * Refs:
+   */
+  const raf = useRef<AnimationFrameRequest>();
 
   /**
    * Hooks:
@@ -48,8 +55,12 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
       is: { drag: false, drop: true },
       files: [],
     };
-    setPointer(payload);
-    onDragdrop(payload);
+
+    if (raf.current) cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => {
+      setPointer(payload);
+      onDragdrop(payload);
+    });
   };
 
   /**

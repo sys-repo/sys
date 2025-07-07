@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import type { t } from './common.ts';
 import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
@@ -24,12 +24,16 @@ export const usePointer: t.UsePointer = (input) => {
 
   const drag = usePointerDrag({ onDrag });
   const dragdrop = usePointerDragdrop({ onDragdrop });
-  const flags = (patch?: Partial<t.PointerHookFlags>): t.PointerHookFlags => ({
-    over: patch?.over ?? isOver,
-    down: patch?.down ?? isDown,
-    dragging: drag.is.dragging,
-    dragdropping: dragdrop.is.dragging,
-  });
+
+  const flags = useCallback(
+    (patch: Partial<t.PointerHookFlags> = {}) => ({
+      over: patch?.over ?? isOver,
+      down: patch?.down ?? isDown,
+      dragging: drag.is.dragging,
+      dragdropping: dragdrop.is.dragging,
+    }),
+    [isDown, isOver, drag.is.dragging, dragdrop.is.dragging],
+  );
 
   /**
    * Effect: When the low-level drag stops (mouse-up outside) reset "down".

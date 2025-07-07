@@ -79,6 +79,10 @@ export type PointerEvent = PointerEventCancelMethods & {
  */
 export type PointerEventsHandler = (e: PointerEventsArg) => void;
 export type PointerEventsArg = PointerEventCancelMethods & {
+  /**
+   * React synthetic event (valid synchronously; in React 18 pooling is disabled
+   * by default, but for ≤17 do not access it after the current tick).
+   */
   readonly synthetic: PointerEvent;
   readonly is: PointerHookFlags;
 };
