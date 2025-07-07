@@ -15,7 +15,7 @@ export type UsePointerDragArgs = { onDrag?: t.UsePointerDragHandler };
  */
 export type PointerDragHook = {
   readonly is: { readonly dragging: boolean };
-  readonly enabled: boolean;
+  readonly active: boolean;
   readonly pointer?: t.PointerSnapshot;
   start(): void;
   cancel(): void;

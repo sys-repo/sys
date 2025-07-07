@@ -48,6 +48,7 @@ export {
   useLoading,
   usePointer,
   usePointerDrag,
+  usePointerDragdrop,
   useRedraw,
   useSizeObserver,
   useVisibilityThreshold,

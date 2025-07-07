@@ -6,7 +6,7 @@ import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
  * Internal hook that trackes mouse/touch movement events (drag).
  */
 export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
-  const enabled = Boolean(props.onDrag);
+  const active = Boolean(props.onDrag);
   const prevTouchRef = useRef<t.Point>();
 
   /**
@@ -20,7 +20,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Handlers:
    */
   const onMouseMove = (e: MouseEvent) => {
-    if (!enabled) return;
+    if (!active) return;
 
     const snapshot = toMouseSnapshot(e);
     e.preventDefault(); // Prevent page scroll during drag.
@@ -30,7 +30,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   };
 
   const onTouchMove = (e: TouchEvent) => {
-    if (!enabled) return;
+    if (!active) return;
 
     const snapshot = toTouchSnapshot(e, prevTouchRef.current);
     e.preventDefault(); // Prevent page scroll during drag.
@@ -82,7 +82,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    */
   const api: t.PointerDragHook = {
     is: { dragging },
-    enabled,
+    active,
     pointer,
     start,
     cancel,

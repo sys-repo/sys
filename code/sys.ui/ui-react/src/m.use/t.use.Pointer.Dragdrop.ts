@@ -15,7 +15,7 @@ export type UsePointerDragdropArgs = {
 export type PointerDragdropHook = {
   readonly is: { readonly dragging: boolean };
   readonly active: boolean;
-  readonly handlers: {
+  readonly handlers?: {
     onDragEnter: React.DragEventHandler;
     onDragOver: React.DragEventHandler;
     onDragLeave: React.DragEventHandler;

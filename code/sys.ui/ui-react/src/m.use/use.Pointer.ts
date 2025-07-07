@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import type { t } from './common.ts';
 import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
-import { toDragdropSnapshot, usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
+import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
 /**
  * Hook: pointer events + optional file drag/drop.
@@ -73,65 +73,13 @@ export const usePointer: t.UsePointer = (input) => {
 
     if (pressed) {
       args.onDown?.(trigger);
-      if (drag.enabled) drag.start();
+      if (drag.active) drag.start();
     } else {
       args.onUp?.(trigger);
       drag.cancel();
     }
 
     firePointer(e, trigger, { down: pressed });
-  };
-
-  /**
-   * File drag-n-drop:
-   */
-  // Enter element - start tracking:
-  const onDragEnter: React.DragEventHandler = (e) => {
-    if (!onDragdrop) return;
-    e.preventDefault();
-    if (!dragdrop.is.dragging) dragdrop.start();
-  };
-
-  // Continuous drag over target:
-  const onDragOver: React.DragEventHandler = (e) => {
-    if (!onDragdrop) return;
-    e.preventDefault();
-    const movement = toDragdropSnapshot(e);
-    onDragdrop({
-      ...movement,
-      action: 'Drag',
-      files: [],
-      cancel: () => e.preventDefault(),
-    });
-  };
-
-  // Leave element - stop tracking:
-  const onDragLeave: React.DragEventHandler = (e) => {
-    if (!onDragdrop) return;
-    e.preventDefault();
-
-    // Ignore bubbled leave events from children.
-    // Act only when really outside.
-    if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) return;
-
-    dragdrop.cancel();
-  };
-
-  // Element dropped - stop tracking & deliver files:
-  const onDrop: React.DragEventHandler = (e) => {
-    if (!onDragdrop) return;
-    e.preventDefault();
-    dragdrop.cancel();
-
-    const files = Array.from(e.dataTransfer.files);
-    const movement = toDragdropSnapshot(e);
-    onDragdrop({
-      ...movement,
-      action: 'Drop',
-      client: { x: e.clientX, y: e.clientY },
-      files,
-      cancel: () => e.preventDefault(),
-    });
   };
 
   /**
@@ -149,7 +97,7 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   /**
-   * Compbines handlers:
+   * Combine handlers:
    */
   const pointerHandlers = isTouch
     ? { onTouchStart, onTouchEnd, onTouchCancel: onTouchEnd }
@@ -160,18 +108,11 @@ export const usePointer: t.UsePointer = (input) => {
         onMouseLeave: over(false),
       };
 
-  const dragdropHandlers = onDragdrop && {
-    onDragEnter,
-    onDragOver,
-    onDragLeave,
-    onDrop,
-  };
-
   /**
    * API:
    */
   return {
-    handlers: { ...pointerHandlers, ...dragdropHandlers },
+    handlers: { ...pointerHandlers, ...dragdrop.handlers },
     is: flags(),
     reset() {
       setDown(false);
