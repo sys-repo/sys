@@ -43,6 +43,9 @@ function useHandler<T extends E = Div>(
   return { ref, stage };
 }
 
+/**
+ * Helpers:
+ */
 const wrangle = {
   args<T extends E>(input: t.UseClickInput<T>) {
     const { callback, stage = DEFAULT_STAGE, ref = useRef<T>(null) } = wrangle.input<T>(input);
