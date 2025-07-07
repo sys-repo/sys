@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { t } from './common.ts';
-import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
+import { type t, useIsTouchSupported } from './common.ts';
 
 /**
  * Internal hook that trackes mouse/touch movement events (drag).

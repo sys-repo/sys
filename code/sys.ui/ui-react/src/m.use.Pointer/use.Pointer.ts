@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import type { t } from './common.ts';
-import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
+import { type t, useIsTouchSupported } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 

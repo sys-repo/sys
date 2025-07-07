@@ -8,6 +8,7 @@
  * import {
  *   usePointer,
  *   usePointerDrag,
+ *   usePointerDragDrop,
  *   useClickInside,
  *   useClickOutside,
  *   useRedraw,
@@ -16,14 +17,12 @@
  * } from '@sys/ui-react/use';
  * ```
  */
-export { useClickInside, useClickOutside } from './use.Click.ts';
+export * from '../m.use.Pointer/mod.ts';
+
 export { useDebouncedValue } from './use.DebouncedValue.ts';
 export { useDist } from './use.Dist.ts';
 export { useIsTouchSupported } from './use.Is.TouchSupported.ts';
 export { useLoading } from './use.Loading.ts';
-export { usePointerDrag } from './use.Pointer.Drag.ts';
-export { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
-export { usePointer } from './use.Pointer.ts';
 export { useRedraw } from './use.Redraw.ts';
 export { useSizeObserver } from './use.SizeObserver.tsx';
 export {

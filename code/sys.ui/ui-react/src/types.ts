@@ -8,6 +8,7 @@ export type { FC } from 'react';
 export type * from './m.FC/t.ts';
 export type * from './m.Signal/t.ts';
 export type * from './m.Testing.Server/t.ts';
+export type * from './m.use.Pointer/t.ts';
 export type * from './m.use/t.ts';
 export type * from './u/t.ts';
 
