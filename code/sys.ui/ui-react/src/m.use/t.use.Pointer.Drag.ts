@@ -14,9 +14,9 @@ export type UsePointerDragArgs = { onDrag?: t.UsePointerDragHandler };
  * Hook: information about a mouse drag operation.
  */
 export type PointerDragHook = {
-  readonly is: { readonly dragging: boolean };
   readonly active: boolean;
-  readonly pointer?: t.PointerSnapshot;
+  readonly is: { readonly dragging: boolean };
+  readonly pointer?: t.PointerDragSnapshot;
   start(): void;
   cancel(): void;
 };
@@ -24,6 +24,6 @@ export type PointerDragHook = {
 /**
  * Event handler for a mouse-drag operation.
  */
-export type UsePointerDragHandler = (e: UsePointerDragHandlerArgs) => void;
+export type UsePointerDragHandler = (e: PointerDragSnapshot) => void;
 /** Argument supplied to the mouse-drag handler. */
-export type UsePointerDragHandlerArgs = t.PointerSnapshot & { cancel(): void };
+export type PointerDragSnapshot = t.PointerSnapshot & { cancel(): void };

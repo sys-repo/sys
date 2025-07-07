@@ -13,10 +13,6 @@ export const Sample: React.FC<SampleProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  const dragdrop = p.dragdrop.value;
-
-  console.log('dragdrop', dragdrop);
-
   /**
    * Hooks:
    */
@@ -41,6 +37,10 @@ export const Sample: React.FC<SampleProps> = (props) => {
    * Effects:
    */
   React.useEffect(() => void (p.pointerIs.value = pointer.is), [Obj.hash(pointer.is)]);
+  React.useEffect(() => {
+    // Example of reacting to a Drop event via an effect.
+    if (pointer.dragdrop?.is.drop) console.info('⚡️ Effect → Drop', pointer.dragdrop);
+  }, [pointer.dragdrop?.action]);
 
   /**
    * Render:

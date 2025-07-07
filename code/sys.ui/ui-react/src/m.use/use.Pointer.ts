@@ -35,7 +35,11 @@ export const usePointer: t.UsePointer = (input) => {
    * Effect: When the low-level drag stops (mouse-up outside) reset "down".
    */
   useEffect(() => {
-    if (!drag.is.dragging) setDown(false);
+    if (!drag.is.dragging) {
+      setDown(false);
+      drag.cancel();
+      dragdrop.cancel();
+    }
   }, [drag.is.dragging]);
 
   /**
@@ -46,11 +50,16 @@ export const usePointer: t.UsePointer = (input) => {
     trigger: t.PointerEvent,
     patch: Partial<t.PointerHookFlags>,
   ) => {
-    const cancel = () => {
-      synthetic.preventDefault();
-      synthetic.stopPropagation();
-    };
-    args.on?.({ is: flags(patch), synthetic: trigger, cancel });
+    args.on?.({
+      is: flags(patch),
+      synthetic: trigger,
+      preventDefault: () => synthetic.preventDefault(),
+      stopPropagation: () => synthetic.stopPropagation(),
+      cancel() {
+        synthetic.preventDefault();
+        synthetic.stopPropagation();
+      },
+    });
   };
 
   /**
@@ -114,6 +123,8 @@ export const usePointer: t.UsePointer = (input) => {
   return {
     handlers: { ...pointerHandlers, ...dragdrop.handlers },
     is: flags(),
+    drag: drag.pointer,
+    dragdrop: dragdrop.pointer,
     reset() {
       setDown(false);
       setOver(false);

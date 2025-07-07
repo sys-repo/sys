@@ -11,12 +11,12 @@ export type { SpecImports } from '@sys/testing/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type {
   ExtractSignalValue,
+  PointerDragdropSnapshot,
+  PointerDragSnapshot,
   PointerHookFlags,
   ReactChildrenDepsKey,
   ReadonlySignal,
   Signal,
-  UsePointerDragdropHandlerArgs,
-  UsePointerDragHandlerArgs,
 } from '@sys/ui-react/t';
 
 /**

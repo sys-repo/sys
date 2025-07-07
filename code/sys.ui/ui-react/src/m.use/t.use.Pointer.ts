@@ -28,8 +28,10 @@ export type PointerHookArgs = {
 export type PointerHook = {
   readonly handlers: t.PointerHookHandlers;
   readonly is: t.PointerHookFlags;
-  /** Drag-movement data for the current gesture (undefined if idle). */
-  // readonly dragdrop?: t.PointerMovement;
+  /** Drag-movement data when dragging the element (undefined if idle). */
+  readonly drag?: t.PointerDragSnapshot;
+  /** Drag-movement data when drag-n-droping into the element (undefined if idle). */
+  readonly dragdrop?: t.PointerDragdropSnapshot;
   /** Reset all internal state (over, down, dragging). */
   reset(): void;
 };
@@ -65,26 +67,30 @@ export type PointerHookTouchHandlers = {
  */
 export type PointerEventHandler = (e: PointerEvent) => void;
 /** Information about a specific pointer (mouse/touch) event. */
-export type PointerEvent = {
+export type PointerEvent = PointerEventCancelMethods & {
   readonly type: React.PointerEvent['type'];
   readonly synthetic: React.PointerEvent;
   readonly modifiers: t.KeyboardModifierFlags;
   readonly client: t.Point;
-  cancel(): void;
-  /** Shorthand for `synthetic.preventDefault()` */
-  preventDefault(): void;
-  /** Shorthand for `synthetic.stopPropagation()` */
-  stopPropagation(): void;
 };
 
 /**
  * Aggregate event fired for *every* pointer-related change.
  */
 export type PointerEventsHandler = (e: PointerEventsArg) => void;
-export type PointerEventsArg = {
+export type PointerEventsArg = PointerEventCancelMethods & {
   readonly synthetic: PointerEvent;
   readonly is: PointerHookFlags;
+};
+
+/** Methods for cancelling an event. */
+export type PointerEventCancelMethods = {
+  /** Invokes both `preventDefault` and `stopPropagation`. */
   cancel(): void;
+  /** Shorthand for `synthetic.preventDefault()` */
+  preventDefault(): void;
+  /** Shorthand for `synthetic.stopPropagation()` */
+  stopPropagation(): void;
 };
 
 /**

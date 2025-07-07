@@ -14,8 +14,8 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
     pointerIs: s<t.PointerHookFlags>(),
-    dragdrop: s<t.UsePointerDragdropHandlerArgs>(),
-    drag: s<t.UsePointerDragHandlerArgs>(),
+    dragdrop: s<t.PointerDragdropSnapshot>(),
+    drag: s<t.PointerDragSnapshot>(),
   };
   const api = {
     props,

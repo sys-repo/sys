@@ -13,8 +13,9 @@ export type UsePointerDragdropArgs = {
  * Instance of the drag-n-drop hook.
  */
 export type PointerDragdropHook = {
-  readonly is: { readonly dragging: boolean };
   readonly active: boolean;
+  readonly is: { readonly dragging: boolean };
+  readonly pointer?: t.PointerDragdropSnapshot;
   readonly handlers?: {
     onDragEnter: React.DragEventHandler;
     onDragOver: React.DragEventHandler;
@@ -28,12 +29,12 @@ export type PointerDragdropHook = {
 /**
  * Handler coolback for drag-n-drop operations.
  */
-export type UsePointerDragdropHandler = (e: t.UsePointerDragdropHandlerArgs) => void;
+export type UsePointerDragdropHandler = (e: t.PointerDragdropSnapshot) => void;
 /** Drag-n-drop event arguments. */
-export type UsePointerDragdropHandlerArgs = t.PointerSnapshot & {
-  action: 'Drag' | 'Drop';
+export type PointerDragdropSnapshot = t.PointerSnapshot & {
+  /** The drag-n-drop operation that tiggered the snapshot event. */
+  readonly action: 'Drag' | 'Drop';
+  readonly is: { drag: boolean; drop: boolean };
   /** Files under the cursor (empty array during plain drag-over). */
-  files: File[];
-  /** Prevent default browser behaviour for this action. */
-  cancel(): void;
+  readonly files: File[];
 };

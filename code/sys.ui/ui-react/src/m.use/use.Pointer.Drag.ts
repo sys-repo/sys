@@ -13,8 +13,9 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Hooks:
    */
   const isTouch = useIsTouchSupported();
+  const [pointer, setPointer] = useState<t.PointerDragSnapshot>();
   const [dragging, setDragging] = useState(false);
-  const [pointer, setPointer] = useState<t.PointerSnapshot>();
+  const is: t.PointerDragHook['is'] = { dragging };
 
   /**
    * Handlers:
@@ -23,20 +24,23 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
     if (!active) return;
 
     const snapshot = toMouseSnapshot(e);
+    const payload: t.PointerDragSnapshot = { ...snapshot, cancel };
     e.preventDefault(); // Prevent page scroll during drag.
     setDragging(true);
-    setPointer(snapshot);
-    props.onDrag?.({ ...snapshot, cancel });
+    setPointer(payload);
+    props.onDrag?.(payload);
   };
 
   const onTouchMove = (e: TouchEvent) => {
     if (!active) return;
 
     const snapshot = toTouchSnapshot(e, prevTouchRef.current);
+    const payload: t.PointerDragSnapshot = { ...snapshot, cancel };
     e.preventDefault(); // Prevent page scroll during drag.
+
     setDragging(true);
-    setPointer(snapshot);
-    props.onDrag?.({ ...snapshot, cancel });
+    setPointer(payload);
+    props.onDrag?.(payload);
     prevTouchRef.current = snapshot.movement;
   };
 
@@ -81,7 +85,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * API:
    */
   const api: t.PointerDragHook = {
-    is: { dragging },
+    is,
     active,
     pointer,
     start,

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import type { t } from './common.ts';
+import { type t, Time } from './common.ts';
 import { toModifiers } from './use.Pointer.Drag.ts';
 
 export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
@@ -10,16 +10,20 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   /**
    * Hooks:
    */
+  const [pointer, setPointer] = useState<t.PointerDragdropSnapshot>();
   const [dragging, setDragging] = useState(false);
   const is: t.PointerDragdropHook['is'] = { dragging };
 
   /**
    * Methods:
    */
-  const cancel = useCallback(() => setDragging(false), []);
   const start = useCallback(() => {
     if (active) setDragging(true);
   }, [active]);
+  const cancel = useCallback(() => {
+    setDragging(false);
+    setPointer(undefined);
+  }, []);
 
   /**
    * Handler: start tracking target element.
@@ -36,13 +40,16 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   const onDragOver: React.DragEventHandler = (e) => {
     if (!onDragdrop) return;
     e.preventDefault();
-    const movement = toDragdropSnapshot(e);
-    onDragdrop({
-      ...movement,
+
+    const snapshot = toDragdropSnapshot(e);
+    const payload: t.PointerDragdropSnapshot = {
+      ...snapshot,
       action: 'Drag',
+      is: { drag: false, drop: true },
       files: [],
-      cancel: () => e.preventDefault(),
-    });
+    };
+    setPointer(payload);
+    onDragdrop(payload);
   };
 
   /**
@@ -65,17 +72,18 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   const onDrop: React.DragEventHandler = (e) => {
     if (!onDragdrop) return;
     e.preventDefault();
-    cancel();
 
     const files = Array.from(e.dataTransfer.files);
-    const movement = toDragdropSnapshot(e);
-    onDragdrop({
-      ...movement,
+    const snapshot = toDragdropSnapshot(e);
+    const payload: t.PointerDragdropSnapshot = {
+      ...snapshot,
       action: 'Drop',
-      client: { x: e.clientX, y: e.clientY },
+      is: { drag: false, drop: true },
       files,
-      cancel: () => e.preventDefault(),
-    });
+    };
+    setPointer(payload);
+    onDragdrop(payload);
+    Time.delay(cancel); // NB: micro-pause to allow repaint and listeners to the drop to react before clearing.
   };
 
   /**
@@ -85,6 +93,7 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
     is,
     active,
     handlers: active ? { onDragEnter, onDragOver, onDragLeave, onDrop } : undefined,
+    pointer,
     start,
     cancel,
   };
