@@ -33,7 +33,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       p.drag.value = e;
     },
     onDragdrop(e) {
-      p.dragdrop.value = e.action === 'Drag' ? e : undefined;
+      p.dragdrop.value = e;
     },
   });
 

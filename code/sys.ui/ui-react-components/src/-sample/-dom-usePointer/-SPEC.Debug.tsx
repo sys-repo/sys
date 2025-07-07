@@ -58,27 +58,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Hook'}</div>
       </div>
       <hr />
-
       <ObjectView
         name={'pointer.is'}
         data={Signal.toObject(p.pointerIs)}
         expand={{ level: 1 }}
-        style={{ marginBottom: 20 }}
+        style={{ MarginY: 15 }}
       />
-
-      <ObjectView
-        name={'dragdrop'}
-        data={Signal.toObject(p.dragdrop) ?? {}}
-        expand={{ level: 1, paths: ['$.client'] }}
-        style={{ marginBottom: 10 }}
-      />
-
-      <ObjectView
-        name={'drag'}
-        data={Signal.toObject(p.drag) ?? {}}
-        expand={{ level: 1, paths: ['$.client'] }}
-        style={{ marginBottom: 10 }}
-      />
+      <hr />
+      {!!p.drag.value && (
+        <ObjectView
+          name={'drag'}
+          data={Signal.toObject(p.drag)}
+          expand={{ level: 1, paths: ['$.client'] }}
+          style={{ MarginY: 15 }}
+        />
+      )}
+      {!!p.dragdrop.value && (
+        <ObjectView
+          name={'dragdrop'}
+          data={Signal.toObject(p.dragdrop)}
+          expand={{ level: 1, paths: ['$.client'] }}
+          style={{ MarginY: 15 }}
+        />
+      )}{' '}
     </div>
   );
 };
