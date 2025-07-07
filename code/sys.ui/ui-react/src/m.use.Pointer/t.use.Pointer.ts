@@ -20,6 +20,7 @@ export type PointerHookArgs = {
   onLeave?: PointerEventHandler;
   onDrag?: t.UsePointerDragHandler;
   onDragdrop?: t.UsePointerDragdropHandler;
+  dropGuard?: boolean;
 };
 
 /**

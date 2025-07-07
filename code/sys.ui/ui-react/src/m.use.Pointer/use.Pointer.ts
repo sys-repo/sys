@@ -12,7 +12,7 @@ import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
  */
 export const usePointer: t.UsePointer = (input) => {
   const args = wrangle.args(input);
-  const { onDrag, onDragdrop } = args;
+  const { onDrag, onDragdrop, dropGuard } = args;
 
   /**
    * Hooks:
@@ -22,7 +22,7 @@ export const usePointer: t.UsePointer = (input) => {
   const isTouch = useIsTouchSupported();
 
   const drag = usePointerDrag({ onDrag });
-  const dragdrop = usePointerDragdrop({ onDragdrop });
+  const dragdrop = usePointerDragdrop({ onDragdrop, dropGuard });
 
   const flags = useCallback(
     (patch: Partial<t.PointerHookFlags> = {}) => ({

@@ -1,18 +1,20 @@
-import { useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 import { type t, Time } from './common.ts';
 import { toModifiers } from './use.Pointer.Drag.ts';
+import { DropGuard } from './m.DropGuard.ts';
 
 type AnimationFrameRequest = number;
 
 export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
-  const { onDragdrop } = props;
+  const { onDragdrop, dropGuard = true } = props;
   const active = Boolean(onDragdrop);
 
   /**
    * Refs:
    */
   const raf = useRef<AnimationFrameRequest>();
+  const ref = useRef<HTMLElement | null>(null);
 
   /**
    * Hooks:
@@ -20,6 +22,15 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   const [pointer, setPointer] = useState<t.PointerDragdropSnapshot>();
   const [dragging, setDragging] = useState(false);
   const is: t.PointerDragdropHook['is'] = { dragging };
+
+  /**
+   * Effect:
+   */
+  useEffect(() => {
+    if (!dropGuard || !ref.current) return;
+    DropGuard.enable(ref.current);
+    return () => DropGuard.disable(ref.current!);
+  }, [dropGuard]);
 
   /**
    * Methods:
@@ -103,7 +114,7 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   return {
     is,
     active,
-    handlers: active ? { onDragEnter, onDragOver, onDragLeave, onDrop } : undefined,
+    handlers: active ? { ref, onDragEnter, onDragOver, onDragLeave, onDrop } : undefined,
     pointer,
     start,
     cancel,

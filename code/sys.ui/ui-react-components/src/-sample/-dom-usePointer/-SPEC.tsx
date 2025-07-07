@@ -19,6 +19,11 @@ export default Spec.describe('MyComponent', (e) => {
       .backgroundColor(1)
       .display('grid')
       .render((e) => <Sample debug={debug} />);
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => <Sample debug={debug} />);
   });
 
   e.it('ui:debug', (e) => {

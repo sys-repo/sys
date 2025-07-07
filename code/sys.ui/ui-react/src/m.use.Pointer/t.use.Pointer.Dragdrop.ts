@@ -7,6 +7,7 @@ export type UsePointerDragdrop = (props?: UsePointerDragdropArgs) => PointerDrag
 /** Arguments passed to the `usePointerDragdrop` hook. */
 export type UsePointerDragdropArgs = {
   onDragdrop?: UsePointerDragdropHandler;
+  dropGuard?: boolean;
 };
 
 /**
@@ -17,6 +18,7 @@ export type PointerDragdropHook = {
   readonly is: { readonly dragging: boolean };
   readonly pointer?: t.PointerDragdropSnapshot;
   readonly handlers?: {
+    ref: React.MutableRefObject<HTMLElement | null>;
     onDragEnter: React.DragEventHandler;
     onDragOver: React.DragEventHandler;
     onDragLeave: React.DragEventHandler;
@@ -37,4 +39,12 @@ export type PointerDragdropSnapshot = t.PointerSnapshot & {
   readonly is: { drag: boolean; drop: boolean };
   /** Files under the cursor (empty array during plain drag-over). */
   readonly files: File[];
+};
+
+/**
+ * Helper for preventing unwanted drag-n-drop activations.
+ */
+export type DropGuard = {
+  enable(zone: HTMLElement): void;
+  disable(zone: HTMLElement): void;
 };
