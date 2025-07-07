@@ -4,6 +4,7 @@ import { Sample } from './ui.tsx';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
+  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -15,6 +16,7 @@ export default Spec.describe('MyComponent', (e) => {
 
     ctx.subject
       .size()
+      .backgroundColor(1)
       .display('grid')
       .render((e) => <Sample debug={debug} />);
   });

@@ -7,7 +7,12 @@ import { useIsTouchSupported } from './use.Is.TouchSupported.ts';
  */
 export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   const active = Boolean(props.onDrag);
+
+  /**
+   * Refs:
+   */
   const prevTouchRef = useRef<t.Point>();
+  const startedRef = useRef(false);
 
   /**
    * Hooks:
@@ -56,6 +61,9 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Methods:
    */
   const start = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+
     const on = document.addEventListener;
     on('selectstart', onSelectStart);
     if (isTouch) {
@@ -68,8 +76,10 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   };
 
   const cancel = () => {
-    const off = document.removeEventListener;
+    if (!startedRef.current) return;
+    startedRef.current = false;
 
+    const off = document.removeEventListener;
     off('mouseup', cancel);
     off('mousemove', onMouseMove);
     off('touchmove', onTouchMove);
