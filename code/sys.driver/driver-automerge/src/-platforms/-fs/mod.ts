@@ -4,7 +4,17 @@
  */
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
-import { type t, Arr, AutomergeRepo, CrdtIs, CrdtUrl, createPeerId, Is, toRepo } from './common.ts';
+import {
+  type t,
+  Arr,
+  AutomergeRepo,
+  CrdtIs,
+  CrdtUrl,
+  createPeerId,
+  Is,
+  toRepo,
+  whenReady,
+} from './common.ts';
 
 type Args = t.CrdtFsRepoArgs;
 
@@ -29,6 +39,7 @@ export const Crdt: t.CrdtFilesystemLib = {
   },
   Is: CrdtIs,
   Url: CrdtUrl,
+  whenReady,
 };
 
 /**

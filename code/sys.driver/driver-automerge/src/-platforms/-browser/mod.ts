@@ -17,6 +17,7 @@ import {
   D,
   Is,
   toRepo,
+  whenReady,
 } from './common.ts';
 
 type Args = t.CrdtBrowserRepoArgs;
@@ -41,6 +42,7 @@ export const Crdt: t.CrdtBrowserLib = {
   },
   Is: CrdtIs,
   Url: CrdtUrl,
+  whenReady,
 };
 
 /**

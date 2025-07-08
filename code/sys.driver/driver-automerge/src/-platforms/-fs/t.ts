@@ -6,10 +6,8 @@ type StringWebsocketEndpoint = string;
 /**
  * API for CRDT's on a file-system:
  */
-export type CrdtFilesystemLib = {
+export type CrdtFilesystemLib = t.CrdtLib & {
   readonly kind: 'Crdt:FileSystem';
-  readonly Is: t.CrdtIsLib;
-  readonly Url: t.CrdtUrlLib;
   repo(args?: t.StringDir | t.CrdtFsRepoArgs): t.CrdtRepo;
 };
 

@@ -139,6 +139,43 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
   });
 
+  describe('repo.delete', () => {
+    it('removes document (before ready)', async () => {
+      const repo = Crdt.repo();
+      const doc = repo.create<T>({ count: 0 });
+      expect(doc.deleted).to.eql(false);
+
+      await repo.delete(doc);
+      expect(doc.deleted).to.eql(true);
+    });
+
+    it('removes document (after ready) - multiple refs', async () => {
+      const repo = Crdt.repo();
+      const a = repo.create<T>({ count: 0 });
+      const b = (await repo.get<T>(a.id)).doc;
+      expect(a.deleted).to.eql(false);
+      expect(b?.deleted).to.eql(false);
+
+      await repo.delete(a);
+      expect(a.deleted).to.eql(true);
+      expect(b?.deleted).to.eql(true);
+    });
+
+    it('fires deleted event from document', async () => {
+      const repo = Crdt.repo();
+      const doc = repo.create<T>({ count: 0 });
+      expect(doc.deleted).to.eql(false);
+
+      const fired: t.CrdtDeleted[] = [];
+      doc.events().deleted$.subscribe((e) => fired.push(e));
+
+      const id = doc.id;
+      await repo.delete(id);
+      expect(doc.deleted).to.eql(true);
+      expect(doc.disposed).to.eql(true);
+    });
+  });
+
   describe('sync (network)', () => {
     const createAdapters = () => {
       const net1 = new BrowserWebSocketClientAdapter('wss://sync.automerge.org');

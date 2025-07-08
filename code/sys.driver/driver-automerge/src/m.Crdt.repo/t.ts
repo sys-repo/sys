@@ -18,6 +18,7 @@ export type CrdtRepoProps = {
 export type CrdtRepoMethods = {
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefGetResponse<T>>;
+  delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
   events(dispose?: t.UntilInput): t.CrdtRepoEvents;
 };
 

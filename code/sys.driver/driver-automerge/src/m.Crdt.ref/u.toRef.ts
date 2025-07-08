@@ -1,7 +1,11 @@
-import type { ChangeFn, DocHandleChangePayload } from '@automerge/automerge-repo';
+import type {
+  ChangeFn,
+  DocHandleChangePayload,
+  DocHandleDeletePayload,
+} from '@automerge/automerge-repo';
 
 import { type t, Dispose, rx, slug } from './common.ts';
-import { eventsFactory } from './u.events.ts';
+import { type RefEvents, eventsFactory } from './u.events.ts';
 import { REF } from './u.toAutomergeHandle.ts';
 
 type O = Record<string, unknown>;
@@ -12,7 +16,7 @@ type O = Record<string, unknown>;
 export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput): t.CrdtRef<T> {
   const instance = slug();
   const id = handle.documentId;
-  const $$ = rx.subject<t.CrdtChange<T>>();
+  const $$ = rx.subject<RefEvents<T>>();
   let _final: T;
   let _deleted = false;
 
@@ -22,7 +26,12 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
   const onChange = (e: DocHandleChangePayload<T>) => {
     const { patches, patchInfo } = e;
     const { before, after, source } = patchInfo;
-    $$.next({ source, before, after, patches });
+    $$.next({ type: 'change', payload: { source, before, after, patches } });
+  };
+  const onDelete = (e: DocHandleDeletePayload<T>) => {
+    _deleted = true;
+    $$.next({ type: 'deleted', payload: { id } });
+    life.dispose();
   };
 
   /**
@@ -32,6 +41,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
   life.dispose$.subscribe(() => {
     _final = handle.doc();
     handle.off('change', onChange);
+    handle.off('delete', onDelete);
   });
 
   /**
@@ -69,6 +79,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
 
   // Wire up events:
   handle.on('change', onChange);
+  handle.on('delete', onDelete);
 
   // Finish up.
   return ref;

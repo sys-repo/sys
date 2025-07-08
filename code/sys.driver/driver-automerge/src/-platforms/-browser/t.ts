@@ -12,10 +12,8 @@ type StringWebsocketEndpoint = string;
 /**
  * API for CRDT's on IndexedDB (browser):
  */
-export type CrdtBrowserLib = {
+export type CrdtBrowserLib = t.CrdtLib & {
   readonly kind: 'Crdt:Browser';
-  readonly Is: t.CrdtIsLib;
-  readonly Url: t.CrdtUrlLib;
   repo(args?: CrdtBrowserRepoArgs): t.CrdtRepo;
 };
 

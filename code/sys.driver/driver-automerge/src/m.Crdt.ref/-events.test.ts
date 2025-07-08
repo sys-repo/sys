@@ -1,5 +1,6 @@
 import { type t, AutomergeRepo, describe, expect, Is, it, rx } from '../-test.ts';
 import { toRef } from './mod.ts';
+import { Crdt } from '../m.Server/common.ts';
 
 describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number; foo: string[] };
@@ -8,11 +9,10 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
     const repo = new AutomergeRepo();
     const handle = repo.create<T>({ count: 0, foo: [] });
     const doc = toRef<T>(handle);
-
-    return { doc };
+    return { doc, repo } as const;
   };
 
-  it('fires event: change$', () => {
+  it('events.$ (change)', () => {
     const { doc } = sample();
 
     const fired: t.CrdtChange<T>[] = [];
@@ -34,6 +34,20 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       { action: 'insert', path: ['foo', 0], values: [''] },
       { action: 'splice', path: ['foo', 0, 0], value: 'bar' },
     ]);
+  });
+
+  it('events.deleted$', async () => {
+    const repo = Crdt.repo();
+    const doc = repo.create<T>({ count: 0, foo: [] });
+    expect(doc.deleted).to.eql(false);
+
+    const fired: t.CrdtDeleted[] = [];
+    doc.events().deleted$.subscribe((e) => fired.push(e));
+
+    const id = doc.id;
+    await repo.delete(id);
+    expect(doc.deleted).to.eql(true);
+    expect(doc.disposed).to.eql(true);
   });
 
   describe('path()', () => {

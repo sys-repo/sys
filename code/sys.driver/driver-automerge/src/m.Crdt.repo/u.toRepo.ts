@@ -1,7 +1,7 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
 
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
-import { type t, Err, Is, rx, slug, Time, toRef } from './common.ts';
+import { type t, Err, Is, rx, slug, Time, toRef, whenReady } from './common.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
 type O = Record<string, unknown>;
@@ -83,6 +83,14 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
           return fail(wrangle.error('UNKNOWN', err));
         }
       });
+    },
+
+    async delete(input) {
+      const doc = CrdtIs.ref(input) ? input : (await api.get(input)).doc;
+      if (doc) {
+        await whenReady(doc);
+        repo.delete(doc.id);
+      }
     },
 
     events(dispose$) {

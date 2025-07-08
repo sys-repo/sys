@@ -19,8 +19,13 @@ export type CrdtChange<T extends O = O> = t.ImmutableChange<T, P> & {
   readonly source: t.Automerge.PatchSource;
 };
 
+/** Fired when a CRDT document is deleted */
+export type CrdtDeleted = { readonly id: t.StringId };
+
 /** Event interface for a CrdtRef. */
 export type CrdtEvents<T extends O = O> = t.ImmutableEvents<T, P, CrdtChange<T>> & {
+  readonly deleted$: t.Observable<t.CrdtDeleted>;
+
   /**
    * Generate a filter for the given path(s).
    * Option: `exact` path:
