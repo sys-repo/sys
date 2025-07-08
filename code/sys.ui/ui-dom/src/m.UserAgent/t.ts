@@ -84,7 +84,10 @@ export type UserAgentFlags = {
   readonly windows: boolean;
   readonly mobile: boolean;
   readonly tablet: boolean;
+
+  // Main browser types:
   readonly chromium: boolean;
+  readonly firefox: boolean;
 };
 
 /**

@@ -99,7 +99,7 @@ const wrangle = {
   },
 
   flags(parser: P): t.UserAgentFlags {
-    const { os, device, engine } = parser;
+    const { os, device, engine, browser } = parser;
     const name = wrangle.string(os.name);
 
     let macOS = name === 'macOS';
@@ -113,6 +113,7 @@ const wrangle = {
     if (iOS) macOS = false;
 
     const chromium = engine.name === 'Blink';
+    const firefox = browser.name === 'Firefox';
 
     return {
       posix: ['Linux', 'Ubuntu'].includes(name),
@@ -125,6 +126,7 @@ const wrangle = {
       mobile,
       tablet,
       chromium,
+      firefox,
     };
   },
 } as const;
