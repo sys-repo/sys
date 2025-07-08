@@ -178,10 +178,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
+        label={() => `(reset)`}
+        onClick={() => {
+          p.url.value = D.url;
+          p.urlKey.value = D.urlKey;
+          p.readOnly.value = false;
+          p.enabled.value = true;
+        }}
+      />
+      <Button
+        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-
       <Button
         block
         label={() => {
@@ -193,7 +202,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           location.reload();
         }}
       />
-
       <Button
         block
         label={() => `pass repo: ${p.passRepo.value}`}
@@ -211,22 +219,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => {
-          p.url.value = D.url;
-          p.urlKey.value = D.urlKey;
-          p.readOnly.value = false;
-          p.enabled.value = true;
-        }}
-      />
-
       <hr />
       <ObjectView
         name={'debug'}
         data={wrangle.data(debug)}
-        expand={['$', '$.docRef']}
+        // expand={['$', '$.docRef']}
+        style={{ marginTop: 10 }}
+      />
+      <ObjectView
+        name={'doc'}
+        data={p.doc.value?.current}
+        // expand={['$', '$.docRef']}
         style={{ marginTop: 10 }}
       />
     </div>

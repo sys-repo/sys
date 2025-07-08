@@ -1,8 +1,8 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
+import { Color, css, D, ObjectView } from '../common.ts';
 import { DocumentId } from '../mod.ts';
-import { Color, D } from '../common.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 type SampleDoc = { count: number; text?: string };
 
@@ -33,22 +33,38 @@ export default Spec.describe(D.displayName, (e) => {
      * Render:
      */
     const theme = Color.theme(p.theme.value);
+
+    const elDebug = v.debug && (
+      <div className={css({ Absolute: [null, 0, -25, 25] }).class}>
+        <ObjectView
+          name={'doc'}
+          data={p.doc.value?.current}
+          style={{ Absolute: [null, 0, null, 0] }}
+          theme={v.theme}
+        />
+      </div>
+    );
+
     return (
-      <DocumentId.View
-        debug={v.debug}
-        theme={v.theme}
-        //
-        controller={v.controlled ? hook : args} // ← NB: "controlled" OR "uncontrolled"
-        label={v.label}
-        placeholder={v.placeholder}
-        enabled={v.enabled}
-        readOnly={v.readOnly}
-        autoFocus={v.autoFocus}
-        background={theme.is.dark ? -0.06 : -0.04}
-        //
-        onReady={(e) => console.info(`🌳 Input.DocumentId.onReady:`, e)}
-        onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
-      />
+      <>
+        {elDebug}
+
+        <DocumentId.View
+          debug={v.debug}
+          theme={v.theme}
+          //
+          controller={v.controlled ? hook : args} // ← NB: "controlled" OR "uncontrolled"
+          label={v.label}
+          placeholder={v.placeholder}
+          enabled={v.enabled}
+          readOnly={v.readOnly}
+          autoFocus={v.autoFocus}
+          background={theme.is.dark ? -0.06 : -0.04}
+          //
+          onReady={(e) => console.info(`🌳 Input.DocumentId.onReady:`, e)}
+          onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
+        />
+      </>
     );
   }
 

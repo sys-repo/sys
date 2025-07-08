@@ -55,7 +55,7 @@ export const Prefix: React.FC<P> = (props) => {
     const dt = e.dataTransfer;
 
     // Primary payload — required by Finder & spec-conformant apps.
-    dt.setData('text/uri-list', `${href}\r\n`); // CRLF terminator
+    dt.setData('text/uri-list', `${href}\r\n`); // CRLF terminator.
 
     // Universal fallback — used by Chrome/Brave bookmark bars.
     dt.setData('text/plain', href);
@@ -82,7 +82,10 @@ export const Prefix: React.FC<P> = (props) => {
       paddingLeft: 5,
       paddingRight: 1,
     }),
-    btn: css({ display: 'grid' }),
+    btn: {
+      base: css({ display: 'grid' }),
+      body: css({ display: 'grid' }),
+    },
     icon: css({
       opacity: is.current ? 1 : 0.25,
       transition: `opacity 120ms ease`,
@@ -90,8 +93,9 @@ export const Prefix: React.FC<P> = (props) => {
   };
 
   const elCopy = docId && ((props.over && pointer.is.over) || copied) && (
-    <Button enabled={enabled} style={styles.btn} onClick={handleCopy}>
+    <Button enabled={enabled} style={styles.btn.base} onClick={handleCopy}>
       <div
+        className={styles.btn.body.class}
         draggable
         onDragStart={onDragStart}
         onPointerDownCapture={(e) => e.stopPropagation()} // NB: prevent other handlers cancelling the event.
