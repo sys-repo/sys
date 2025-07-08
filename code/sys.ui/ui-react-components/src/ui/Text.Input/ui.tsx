@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 
-import { type t, css, D, Style } from './common.ts';
+import { css, D, Style, type t, UserAgent } from './common.ts';
 import { useBorderStyles } from './use.BorderStyles.ts';
 import { useEvents } from './use.Events.ts';
 
 type H = HTMLInputElement;
 type P = t.TextInputProps;
+const isFirefox = UserAgent.current.is.firefox;
 
 export const TextInput: React.FC<P> = (props) => {
   const {
@@ -53,18 +54,22 @@ export const TextInput: React.FC<P> = (props) => {
   /**
    * Render:
    */
+  const height = 30;
   const styles = {
     base: css({
       position: 'relative',
       background: theme.format(props.background ?? D.background).bg,
       color: theme.fg,
       boxSizing: 'border-box',
+      height,
       lineHeight: 'normal',
       borderRadius,
       transition: 'border-color 120ms ease',
       ...(focused ? border.focus : border.base),
+
       display: 'grid',
       gridTemplateColumns: wrangle.columns(props),
+      alignItems: 'center',
     }),
     edge: css({ display: 'grid' }),
     input: css({
@@ -77,6 +82,11 @@ export const TextInput: React.FC<P> = (props) => {
       outline: 'none',
       '::placeholder': { color: theme.alpha(0.2).fg },
       ':disabled': { color: theme.alpha(0.35).fg },
+
+      paddingBlock: 0,
+      height: '100%',
+      lineHeight: `${height}px`, // NB: caret/text baseline identical in all browsers.
+      transform: isFirefox ? 'translateY(0.5px)' : undefined, // FF tweak.
 
       // Passed in style preferences:
       filter: inputStyle.blur ? `blur(${inputStyle.blur}px)` : undefined,
