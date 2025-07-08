@@ -43,6 +43,14 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(a.id.peer).to.eql(''); // NB: no network.
       expect(b.id.peer).to.eql(peerId);
     });
+
+    it('create from `Crdt.repo` API', () => {
+      const repo = Crdt.repo();
+      const initial = { count: 0 };
+      const doc = repo.create<T>(initial);
+      expect(doc.current).to.eql(initial);
+      expect(doc.current).to.not.equal(initial);
+    });
   });
 
   describe('get', () => {
