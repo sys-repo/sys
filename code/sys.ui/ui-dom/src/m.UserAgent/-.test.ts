@@ -24,7 +24,7 @@ describe('UserAgent', () => {
       firefox: `Mozilla/5.0 (Android 14; Mobile; LG-M255; rv:126.0) Gecko/126.0 Firefox/126.0`,
       tablet: `Mozilla/5.0 (Linux; Android 12; SM-X906C Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.119 Mobile Safari/537.36`,
     },
-  };
+  } as const;
 
   it('parses string', () => {
     const res = UserAgent.parse(EXAMPLE.apple.macos);
@@ -39,7 +39,7 @@ describe('UserAgent', () => {
   });
 
   describe('current (cache)', () => {
-    it('UserAgent.current (lazily evaluation → cached)', () => {
+    it('UserAgent.current (lazy evaluation → cached)', () => {
       const res = UserAgent.current;
       expect(res).to.not.equal(UserAgent.parse(navigator.userAgent));
       expect(res).to.equal(UserAgent.current); // NB: same instance, lazily parsed.
@@ -56,65 +56,75 @@ describe('UserAgent', () => {
     };
 
     it('apple/macos', () => {
-      const res = UserAgent.parse(EXAMPLE.apple.macos);
-      expect(res.os.kind === 'macOS').to.be.true;
-      assertIs(res, { macOS: true });
+      const ua = UserAgent.parse(EXAMPLE.apple.macos);
+      expect(ua.os.kind === 'macOS').to.be.true;
+      assertIs(ua, { macOS: true });
     });
 
     it('apple/iphone', () => {
-      const test = (ua: string) => {
-        const res = UserAgent.parse(ua);
-        expect(res.os.kind === 'iOS').to.be.true;
-        assertIs(res, { macOS: false, iOS: true, iPhone: true, mobile: true });
+      const test = (input: string) => {
+        const ua = UserAgent.parse(input);
+        expect(ua.os.kind === 'iOS').to.be.true;
+        assertIs(ua, { macOS: false, iOS: true, iPhone: true, mobile: true });
       };
       test(EXAMPLE.apple.iphone);
     });
 
     it('apple/ipad', () => {
-      const test = (ua: string) => {
-        const res = UserAgent.parse(ua);
-        expect(res.os.kind === 'iOS').to.be.true;
-        assertIs(res, { macOS: false, iOS: true, iPad: true, tablet: true });
+      const test = (input: string) => {
+        const ua = UserAgent.parse(input);
+        expect(ua.os.kind === 'iOS').to.be.true;
+        assertIs(ua, { macOS: false, iOS: true, iPad: true, tablet: true });
       };
       test(EXAMPLE.apple.ipadFirefox);
       test(EXAMPLE.apple.ipadSafari);
     });
 
     it('posix/linux', () => {
-      const res = UserAgent.parse(EXAMPLE.posix.linux);
-      expect(res.os.kind === 'posix').to.be.true;
-      assertIs(res, { posix: true });
+      const ua = UserAgent.parse(EXAMPLE.posix.linux);
+      expect(ua.os.kind === 'posix').to.be.true;
+      assertIs(ua, { posix: true });
     });
 
     it('posix/ubuntu', () => {
-      const res = UserAgent.parse(EXAMPLE.posix.ubuntu);
-      expect(res.os.kind === 'posix').to.be.true;
-      assertIs(res, { posix: true });
+      const ua = UserAgent.parse(EXAMPLE.posix.ubuntu);
+      expect(ua.os.kind === 'posix').to.be.true;
+      assertIs(ua, { posix: true });
     });
 
     it('android/mobile', () => {
-      const test = (ua: string) => {
-        const res = UserAgent.parse(ua);
-        expect(res.os.kind === 'android').to.be.true;
-        assertIs(res, { android: true, mobile: true });
+      const test = (input: string) => {
+        const ua = UserAgent.parse(input);
+        expect(ua.os.kind === 'android').to.be.true;
+        assertIs(ua, { android: true, mobile: true });
       };
       test(EXAMPLE.android.chrome);
       test(EXAMPLE.android.firefox);
     });
 
     it('android/tablet', () => {
-      const test = (ua: string) => {
-        const res = UserAgent.parse(ua);
-        expect(res.os.kind === 'android').to.be.true;
-        assertIs(res, { android: true, tablet: true });
+      const test = (input: string) => {
+        const ua = UserAgent.parse(input);
+        expect(ua.os.kind === 'android').to.be.true;
+        assertIs(ua, { android: true, tablet: true });
       };
       test(EXAMPLE.android.tablet);
     });
 
     it('windows', () => {
-      const res = UserAgent.parse(EXAMPLE.windows.windows10);
-      expect(res.os.kind === 'windows').to.be.true;
-      assertIs(res, { windows: true });
+      const ua = UserAgent.parse(EXAMPLE.windows.windows10);
+      expect(ua.os.kind === 'windows').to.be.true;
+      assertIs(ua, { windows: true });
+    });
+
+    it('chromium (variant)', () => {
+      const a = UserAgent.parse(EXAMPLE.windows.windows10);
+      const b = UserAgent.parse(EXAMPLE.apple.macos);
+      const c = UserAgent.parse(EXAMPLE.posix.ubuntu);
+      [a, b, c].forEach((ua) => {
+        expect(ua.engine.name).to.eql('Blink');
+        expect(ua.is.chromium).to.eql(true);
+      });
     });
   });
 });
