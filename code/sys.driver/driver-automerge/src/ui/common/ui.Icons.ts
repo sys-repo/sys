@@ -15,6 +15,7 @@ import {
 } from 'react-icons/md';
 import { TbDatabase, TbNetwork, TbNetworkOff } from 'react-icons/tb';
 import { BsFileBinaryFill } from 'react-icons/bs';
+import { HiDownload } from 'react-icons/hi';
 
 const icon = Icon.renderer;
 
@@ -42,6 +43,7 @@ export const Icons = {
   Tick: icon(MdCheck),
   Face: icon(MdFace),
   Person: icon(MdEmojiPeople),
+  Download: icon(HiDownload),
   Network: {
     On: icon(TbNetwork),
     Off: icon(TbNetworkOff),
