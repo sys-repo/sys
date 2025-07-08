@@ -88,8 +88,9 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
     async delete(input) {
       const doc = CrdtIs.ref(input) ? input : (await api.get(input)).doc;
       if (doc) {
+        if (doc.deleted || doc.disposed) return;
         await whenReady(doc);
-        repo.delete(doc.id);
+        if (!doc.deleted && !doc.disposed) repo.delete(doc.id);
       }
     },
 

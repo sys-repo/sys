@@ -144,9 +144,13 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const repo = Crdt.repo();
       const doc = repo.create<T>({ count: 0 });
       expect(doc.deleted).to.eql(false);
+      expect(doc.disposed).to.eql(false);
 
       await repo.delete(doc);
       expect(doc.deleted).to.eql(true);
+      expect(doc.disposed).to.eql(true);
+
+      await repo.delete(doc); // NB: safely no-op after deleted.
     });
 
     it('removes document (after ready) - multiple refs', async () => {
