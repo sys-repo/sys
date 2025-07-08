@@ -48,7 +48,7 @@ export const usePointer: t.UsePointer = (input) => {
   /**
    * General helpers:
    */
-  const firePointer = (
+  const fire = (
     synthetic: React.PointerEvent,
     trigger: t.PointerEvent,
     patch: Partial<t.PointerHookFlags>,
@@ -73,7 +73,7 @@ export const usePointer: t.UsePointer = (input) => {
     setOver(inside);
     if (!inside && !drag.is.dragging) setDown(false);
     inside ? args.onEnter?.(trigger) : args.onLeave?.(trigger);
-    firePointer(e, trigger, { over: inside, down: isDown });
+    fire(e, trigger, { over: inside, down: isDown });
   };
 
   /**
@@ -91,7 +91,7 @@ export const usePointer: t.UsePointer = (input) => {
       drag.cancel();
     }
 
-    firePointer(e, trigger, { down: pressed });
+    fire(e, trigger, { down: pressed });
   };
 
   /**

@@ -13,21 +13,24 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Refs:
    */
   const startedRef = useRef(false);
-  const originRef = useRef<t.Point>(); // position at `start` of drag operation.
-  const draggingRef = useRef(false);
+  const originRef = useRef<t.Point>(); // position at `start()` of drag operation.
   const prevTouchRef = useRef<t.Point>();
+  const draggingRef = useRef(false); // ← CHANGED (1)
 
   /**
    * Hooks:
    */
   const isTouch = useIsTouchSupported();
+  const [, setDraggingState] = useState(false); // ← CHANGED (2)
   const [pointer, setPointer] = useState<t.PointerDragSnapshot>();
-  const [, setDragging] = useState(false);
-  const is: t.PointerDragHook['is'] = {
-    get dragging() {
+
+  /* `is` now uses a getter so it always reflects `draggingRef.current`. */
+  const is = {
+    // ← CHANGED (3)
+    get dragging(): boolean {
       return draggingRef.current;
     },
-  };
+  } as t.PointerDragHook['is'];
 
   /**
    * Effects:
@@ -37,7 +40,8 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   /**
    * Helpers:
    */
-  const onSelectStart = (e: Event) => e.preventDefault(); // NB: Prevent content around the target-element from being selected while dragging.
+  // NB: Prevent content around the target-element from being selected while dragging.
+  const onSelectStart = (e: Event) => e.preventDefault();
   const ensureOrigin = (p: t.Point) => (originRef.current ??= p);
   const movedEnough = (p: t.Point) => {
     const o = originRef.current!;
@@ -46,59 +50,54 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
   const promoteIfMoved = (p: t.Point) => {
     ensureOrigin(p);
     if (!draggingRef.current && movedEnough(p)) {
-      draggingRef.current = true;
-      setDragging(true);
+      draggingRef.current = true; // ← CHANGED (4)
+      setDraggingState(true);
     }
   };
 
   /**
    * Handlers:
    */
-  const registerMove = (e: Event, snapshot: t.PointerSnapshot) => {
-    e.preventDefault(); // Prevent page-select/scroll during drag.
+  const onMouseMove = (e: MouseEvent) => {
+    if (!active) return;
+
+    const snapshot = toMouseSnapshot(e);
+    promoteIfMoved(snapshot.client);
+    if (!is.dragging) return; // NB: still below move threshold.
 
     const payload: t.PointerDragSnapshot = { ...snapshot, cancel };
+    e.preventDefault(); // Prevent page-select/scroll during drag.
     setPointer(payload);
     props.onDrag?.(payload);
   };
 
-  const onMouseMove = (e: MouseEvent) => {
-    if (!active || !startedRef.current) return;
-
-    const snapshot = toMouseSnapshot(e);
-    promoteIfMoved(snapshot.client);
-    if (!is.dragging) return;
-    else registerMove(e, snapshot);
-  };
-
   const onTouchMove = (e: TouchEvent) => {
-    if (!active || startedRef.current) return;
+    if (!active) return;
 
     const snapshot = toTouchSnapshot(e, prevTouchRef.current);
     promoteIfMoved(snapshot.client);
     if (!is.dragging) return;
-    else {
-      registerMove(e, snapshot);
-      prevTouchRef.current = snapshot.movement;
-    }
+
+    const payload: t.PointerDragSnapshot = { ...snapshot, cancel };
+    e.preventDefault(); // Prevent page-select/scroll during drag.
+    setPointer(payload);
+    props.onDrag?.(payload);
+    prevTouchRef.current = snapshot.movement;
   };
 
   /**
    * Methods:
    */
-  const resetState = () => {
-    startedRef.current = false;
-    originRef.current = undefined;
-    prevTouchRef.current = undefined;
-    draggingRef.current = false; // ← sync
-    setDragging(false); //          ← async
-    setPointer(undefined);
-  };
-
   const start = () => {
     if (startedRef.current) return;
-    resetState();
     startedRef.current = true;
+
+    // Fresh state:
+    draggingRef.current = false; // sync
+    setDraggingState(false); // async
+    setPointer(undefined);
+    originRef.current = undefined;
+    prevTouchRef.current = undefined;
 
     const on = document.addEventListener;
     on('selectstart', onSelectStart);
@@ -113,7 +112,7 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
 
   const cancel = () => {
     if (!startedRef.current) return;
-    resetState();
+    startedRef.current = false;
 
     const off = document.removeEventListener;
     off('mouseup', cancel);
@@ -121,6 +120,12 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
     off('touchmove', onTouchMove);
     off('touchend', cancel);
     off('selectstart', onSelectStart);
+
+    draggingRef.current = false; // sync
+    setDraggingState(false); // async
+    setPointer(undefined);
+    originRef.current = undefined;
+    prevTouchRef.current = undefined;
   };
 
   /**
