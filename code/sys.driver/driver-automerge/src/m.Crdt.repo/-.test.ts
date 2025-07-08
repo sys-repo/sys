@@ -15,7 +15,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 
-  describe('create', () => {
+  describe('create (toRepo)', () => {
     it('create (doc)', () => {
       const repo = toRepo(new AutomergeRepo());
       expect(repo.id.peer).to.eql('');
@@ -53,7 +53,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
   });
 
-  describe('get', () => {
+  describe('repo.get', () => {
     it('get', async () => {
       const base = new AutomergeRepo();
       const repoA = toRepo(base);
@@ -95,7 +95,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
   });
 
-  describe('events:', () => {
+  describe('repo.events:', () => {
     it('events.dispose', () => {
       const life = rx.lifecycle();
       const repo = Crdt.repo();
