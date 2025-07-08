@@ -6,7 +6,6 @@ import {
   css,
   D,
   Is,
-  Kbd,
   rx,
   TextInput,
   useDebouncedValue,
@@ -108,7 +107,7 @@ export const View: React.FC<P> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      height: 29,
+      height: 30,
       fontSize: 14,
       color: theme.fg,
       backgroundColor: theme.format(props.background).bg,
