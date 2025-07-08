@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Fmt } from '../u.ts';
 
 type P = t.BinaryFileProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
@@ -108,7 +109,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          doc: p.doc.value?.current,
+        }}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
