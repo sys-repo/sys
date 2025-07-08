@@ -4,6 +4,14 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdProps;
+export const STORAGE_KEY = `dev:${D.name}.input`;
+
+export const sampleUrlFactory: t.DocumentIdUrlFactory = (e) => {
+  const url = new URL(location.href);
+  url.searchParams.set('my-key', e.docId);
+  console.info('⚡️ SAMPLE URL FACTORY:', e, url.href);
+  return url.href;
+};
 
 /**
  * Types:
@@ -14,12 +22,9 @@ type Storage = {
   controlled?: boolean;
   passRepo?: boolean;
   localstorage?: string;
-} & Pick<
-  P,
-  'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly' | 'urlSupport'
->;
-
-const STORAGE_KEY = `dev:${D.name}.input`;
+  url?: boolean | 'ƒ';
+  urlKey?: string;
+} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly'>;
 
 /**
  * Signals:
@@ -35,7 +40,8 @@ export function createDebugSignals() {
     passRepo: true,
     controlled: true,
     localstorage: STORAGE_KEY,
-    urlSupport: D.urlSupport,
+    url: true,
+    urlKey: D.urlKey,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -52,7 +58,8 @@ export function createDebugSignals() {
     passRepo: s(snap.passRepo),
     controlled: s(snap.controlled),
     localstorage: s(snap.localstorage),
-    urlSupport: s(snap.urlSupport),
+    urlKey: s(snap.urlKey),
+    url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
 
     docId: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
@@ -85,7 +92,10 @@ export function createDebugSignals() {
       d.readOnly = p.readOnly.value;
       d.controlled = p.controlled.value;
       d.localstorage = p.localstorage.value;
-      d.urlSupport = p.urlSupport.value;
+
+      const url = p.url.value;
+      d.url = Is.func(url) ? 'ƒ' : url;
+      d.urlKey = p.urlKey.value;
     });
   });
 
@@ -156,8 +166,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `urlSupport: ${p.urlSupport.value ?? `<undefined>`}`}
-        onClick={() => Signal.toggle(p.urlSupport)}
+        label={() => `url: ${Is.func(p.url.value) ? 'ƒ' : p.url.value}`}
+        onClick={() => Signal.cycle(p.url, [true, false, sampleUrlFactory])}
+      />
+      <Button
+        block
+        label={() => `urlKey: ${p.urlKey.value ?? `<undefined> (default: ${D.urlKey})`}`}
+        onClick={() => Signal.cycle(p.urlKey, [D.urlKey, 'my-key', undefined])}
       />
 
       <hr />
@@ -193,6 +208,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           const s = p.localstorage;
           s.value = s.value ? undefined : STORAGE_KEY;
+        }}
+      />
+
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          p.url.value = D.url;
+          p.urlKey.value = D.urlKey;
+          p.readOnly.value = false;
+          p.enabled.value = true;
         }}
       />
 

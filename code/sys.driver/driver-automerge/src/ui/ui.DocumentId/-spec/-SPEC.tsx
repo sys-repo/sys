@@ -23,7 +23,10 @@ export default Spec.describe(D.displayName, (e) => {
       localstorage: v.localstorage,
       signals: { doc: p.doc, docId: p.docId },
       initial: () => ({ count: 0 }), // NB: dynamic generator.
+      url: v.url,
+      urlKey: v.urlKey,
     };
+
     const hook = DocumentId.useController(args);
 
     /**
@@ -42,7 +45,6 @@ export default Spec.describe(D.displayName, (e) => {
         readOnly={v.readOnly}
         autoFocus={v.autoFocus}
         background={theme.is.dark ? -0.06 : -0.04}
-        urlSupport={v.urlSupport}
         //
         onReady={(e) => console.info(`🌳 Input.DocumentId.onReady:`, e)}
         onChange={(e) => console.info(`⚡️ Input.DocumentId.onChange:`, e)}
@@ -68,15 +70,18 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .border(-0.1)
       .render(() => {
+        const v = Signal.toObject(p);
         return (
           <DocumentId.View
             theme={'Light'}
             buttonStyle={{ margin: 4 }}
             controller={{
-              repo: p.passRepo.value ? repo : undefined,
+              repo: v.passRepo ? repo : undefined,
               signals: { doc: p.doc, docId: p.docId },
               initial: { count: 0, text: '' }, // NB: static version.
               localstorage: p.localstorage.value,
+              url: v.url,
+              urlKey: v.urlKey,
             }}
           />
         );

@@ -1,23 +1,21 @@
 import React from 'react';
-import { Kbd, UserAgent } from './common.ts';
+import { Kbd } from './common.ts';
 
 export function useKeyboard() {
   /**
    * Hooks:
    */
-  const [urlMode, setUrlMode] = React.useState(false);
+  const [isUrlMode, setUrlMode] = React.useState(false);
 
   /**
    * Effects:
    */
   React.useEffect(() => {
-    const ua = UserAgent.current;
     const kbd = Kbd.until();
 
     kbd.$.subscribe((e) => {
       const modifiers = e.current.modifiers;
-      const isUrlMode = ua.is.windows ? modifiers.ctrl : modifiers.meta;
-      setUrlMode(isUrlMode);
+      setUrlMode(Kbd.Is.commandConcept(modifiers));
     });
 
     return kbd.dispose;
@@ -26,5 +24,5 @@ export function useKeyboard() {
   /**
    * API:
    */
-  return { urlMode } as const;
+  return { isUrlMode } as const;
 }

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
-import { Kbd } from '../common.ts';
-import { type t, CrdtIs, Is, Signal, slug } from './common.ts';
+import { type t, CrdtIs, D, Is, Kbd, Signal, slug } from './common.ts';
+import { DocUrl } from './u.DocUrl.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
 
@@ -25,6 +25,8 @@ function useInternal(args: Args = {}): Hook {
   const instance = useRef(slug()).current;
   const repo = args.repo;
   const repoId = repo?.id.instance;
+  const url = args.url ?? D.url;
+  const urlKey = args.urlKey ?? D.urlKey;
 
   /**
    * Refs:
@@ -45,7 +47,7 @@ function useInternal(args: Args = {}): Hook {
   React.useEffect(() => {
     if (ready) return;
     const props = api.props;
-    if (props.docId && !props.doc) run('Load').then(() => setReady(true));
+    if (props.docId && !props.doc) run({ action: 'Load' }).then(() => setReady(true));
     else setReady(true);
   }, [repoId, ready]);
 
@@ -70,31 +72,38 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Handlers:
    */
-  const run = async (action: t.DocumentIdAction) => {
+  const run = async (e: t.DocumentIdActionArgs) => {
     if (!repo) return;
     const p = signalsRef.current;
-    const props = wrangle.props(p, repo);
+    const props = wrangle.props(args, p, repo);
     const enabled = props.is.enabled.action;
 
-    if (action === 'Copy' || action === 'Copy:Url') {
-      const copyUrl = action === 'Copy:Url';
+    if (e.action === 'Copy') {
       const docId = p.docId.value;
-      const value = copyUrl ? wrangle.url(docId) : docId;
-      if (value) {
-        navigator.clipboard.writeText(value);
-        transient.write('Copy', copyUrl ? 'url copied' : 'document-id copied');
+      if (docId) {
+        navigator.clipboard.writeText(docId);
+        transient.write('Copy', 'document-id copied');
+      }
+    }
+
+    if (e.action === 'Copy:Url') {
+      const href = e.href;
+      if (href) {
+        navigator.clipboard.writeText(href);
+        transient.write('Copy', 'url copied');
+        DocUrl.Mutate.replace(href); // ← NB: sync the URL with the copied value.
       }
       return;
     }
 
-    if (action === 'Clear') {
+    if (e.action === 'Clear') {
       p.docId.value = undefined;
       p.doc.value = undefined;
       p.spinning.value = false;
       return;
     }
 
-    if (action === 'Create' && enabled) {
+    if (e.action === 'Create' && enabled) {
       const doc = repo.create(args.initial ?? {});
       p.doc.value = doc;
       p.docId.value = doc.id;
@@ -103,7 +112,7 @@ function useInternal(args: Args = {}): Hook {
       return;
     }
 
-    if (action === 'Load' && props.docId && enabled) {
+    if (e.action === 'Load' && props.docId && enabled) {
       const id = props.docId;
 
       p.spinning.value = true;
@@ -130,21 +139,13 @@ function useInternal(args: Args = {}): Hook {
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
     if (e.key === 'Enter') {
-      const props = wrangle.props(signalsRef.current, repo);
+      const props = wrangle.props(args, signalsRef.current, repo);
       run(props.action);
     }
 
     // Up/Down History:
     if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
       localstore.handlers.onArrowKey(e);
-    }
-
-    // Copy (Clipboard):
-    if (Kbd.Is.copy(e)) {
-      e.cancel(); // Handled.
-
-      if (e.modifiers.shift) run('Copy:Url');
-      else run('Copy');
     }
 
     // Escape (reset to current document-id):
@@ -154,9 +155,24 @@ function useInternal(args: Args = {}): Hook {
       if (doc && doc.id !== p.docId.value) p.docId.value = doc.id;
       localstore.history.reset();
     }
+
+    // Clipboard:
+    if (Kbd.Is.copy(e)) {
+      const p = signalsRef.current;
+      const docId = p.docId.value;
+      if (docId) {
+        if (e.modifiers.shift) {
+          const href = DocUrl.resolve(url, docId, urlKey);
+          if (href) run({ action: 'Copy:Url', href });
+        } else {
+          run({ action: 'Copy' });
+        }
+        e.cancel(); // Handled.
+      }
+    }
   };
 
-  const onAction: t.DocumentIdActionHandler = (e) => run(e.action);
+  const onAction: t.DocumentIdActionHandler = (e) => run(e);
 
   /**
    * API:
@@ -170,7 +186,7 @@ function useInternal(args: Args = {}): Hook {
       return transient.toObject();
     },
     get props() {
-      return wrangle.props(signals, repo);
+      return wrangle.props(args, signals, repo);
     },
     get history() {
       return localstore.history?.items ?? [];
@@ -188,11 +204,13 @@ function isHook(input: unknown): input is Hook {
 }
 
 const wrangle = {
-  props(p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
+  props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
+    const { urlKey = D.urlKey, url = D.url } = args;
     const is = wrangle.is(p, repo);
     const docId = wrangle.docId(p);
     const doc = p.doc.value;
-    return { docId, repo, doc, is, action: wrangle.action(p) };
+    const action = wrangle.action(p);
+    return { docId, repo, doc, is, action, url, urlKey };
   },
 
   is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
@@ -219,10 +237,10 @@ const wrangle = {
     return (p.docId.value ?? '').trim();
   },
 
-  action(p: P): t.DocumentIdAction {
+  action(p: P): t.DocumentIdActionArgs {
     const id = wrangle.docId(p);
-    if (!id) return 'Create';
-    return 'Load';
+    if (!id) return { action: 'Create' };
+    return { action: 'Load' };
   },
 
   signals(args: Args) {
@@ -238,12 +256,5 @@ const wrangle = {
       },
     };
     return api;
-  },
-
-  url(docId?: string) {
-    if (!docId) return '';
-    const next = new URL(location.href);
-    next.searchParams.set('doc', docId);
-    return next.href;
   },
 } as const;

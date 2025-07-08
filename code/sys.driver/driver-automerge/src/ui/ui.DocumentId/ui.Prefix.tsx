@@ -1,6 +1,9 @@
 import React from 'react';
 import { type t, Button, Color, css, D, Icons, usePointer } from './common.ts';
 import { useKeyboard } from './use.Keyboard.ts';
+import { DocUrl } from './u.DocUrl.ts';
+
+type P = PrefixProps;
 
 export type PrefixProps = {
   docId?: string;
@@ -9,26 +12,24 @@ export type PrefixProps = {
   enabled?: boolean;
   readOnly?: boolean;
   icon?: t.DocumentIdHook['transient']['kind'];
-  urlSupport?: boolean;
+  url?: t.DocumentIdHookProps['url'];
+  urlKey?: t.DocumentIdHookProps['urlKey'];
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   //
-  onCopy?: (e: { url: boolean }) => void;
+  onCopy?: (e: { mode: 'id' | 'url' }) => void;
   onPointer?: t.PointerEventsHandler;
 };
-type P = PrefixProps;
 
 /**
  * Component:
  */
 export const Prefix: React.FC<P> = (props) => {
-  const { doc, enabled = D.enabled, urlSupport = D.urlSupport } = props;
+  const { doc, enabled = D.enabled, url = D.url, urlKey = D.urlKey } = props;
   const docId = (props.docId || '').trim();
   const copied = wrangle.copied(props);
-  const is = {
-    current: doc && docId ? doc.id === docId : false,
-  };
+  const is = { current: doc && docId ? doc.id === docId : false };
 
   /**
    * Hooks:
@@ -40,14 +41,37 @@ export const Prefix: React.FC<P> = (props) => {
    * Handlers:
    */
   const handleCopy = () => {
-    const url = keyboard.urlMode && urlSupport;
-    props.onCopy?.({ url });
+    const mode = !!(keyboard.isUrlMode && url) ? 'url' : 'id';
+    props.onCopy?.({ mode });
+  };
+
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    const href = DocUrl.resolve(props.url, docId, urlKey);
+    if (!href) {
+      e.preventDefault();
+      return;
+    }
+
+    const dt = e.dataTransfer;
+
+    // Primary payload — required by Finder & spec-conformant apps.
+    dt.setData('text/uri-list', `${href}\r\n`); // CRLF terminator
+
+    // Universal fallback — used by Chrome/Brave bookmark bars.
+    dt.setData('text/plain', href);
+
+    // Optional rich-text payload (safe to keep even with no title).
+    dt.setData('text/html', `<a href="${href}">${href}</a>`);
+
+    // Let the OS know a copy is allowed so Finder materialises a file.
+    dt.effectAllowed = 'copyLink'; // 'copy' alone also fine
+    dt.dropEffect = 'copy'; // cosmetic cursor feedback
   };
 
   /**
    * Render:
    */
-  const CopyIcon = wrangle.copyIcon(props, keyboard.urlMode);
+  const CopyIcon = wrangle.copyIcon(props, keyboard.isUrlMode);
   const DatabaseIcon = wrangle.databaseIcon(props);
   const theme = Color.theme(props.theme);
   const styles = {
@@ -67,7 +91,14 @@ export const Prefix: React.FC<P> = (props) => {
 
   const elCopy = docId && ((props.over && pointer.is.over) || copied) && (
     <Button enabled={enabled} style={styles.btn} onClick={handleCopy}>
-      <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
+      <div
+        draggable
+        onDragStart={onDragStart}
+        onPointerDownCapture={(e) => e.stopPropagation()} // NB: prevent other handlers cancelling the event.
+        onMouseDownCapture={(e) => e.stopPropagation()} //   NB: for Sarafi.
+      >
+        <CopyIcon size={18} color={props.over ? Color.BLUE : theme.fg} />
+      </div>
     </Button>
   );
   const elDatabase = !elCopy && <DatabaseIcon color={theme.fg} size={18} style={styles.icon} />;
@@ -87,11 +118,11 @@ const wrangle = {
   copied(props: P) {
     return props.icon === 'Copy';
   },
-  copyIcon(props: P, urlMode: boolean) {
+  copyIcon(props: P, isUrlMode: boolean) {
     const copied = wrangle.copied(props);
     if (copied) return Icons.Copy.Tick;
-    const { urlSupport = D.urlSupport } = props;
-    return urlMode && urlSupport ? Icons.Copy.Plus : Icons.Copy.Basic;
+    const { url = D.url } = props;
+    return isUrlMode && !!url ? Icons.Copy.Plus : Icons.Copy.Basic;
   },
   databaseIcon(props: P) {
     const error = props.icon === 'Error';

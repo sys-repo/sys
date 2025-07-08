@@ -14,6 +14,8 @@ export type UseDocumentIdHookArgs<T = O> = {
   signals?: Partial<DocumentIdHookSignals>;
   localstorage?: t.StringKey;
   initial?: T | (() => T);
+  url?: t.DocumentIdUrlFactory | boolean;
+  urlKey?: string;
 };
 /** A <DocumentId> controller hook instance. */
 export type DocumentIdHook = {
@@ -32,10 +34,13 @@ export type DocumentIdHook = {
 
 /** Properties of the <DocumentId> hook. */
 export type DocumentIdHookProps = {
-  readonly action: t.DocumentIdAction;
+  readonly action: t.DocumentIdActionArgs;
   readonly docId?: string;
   readonly doc?: t.CrdtRef;
   readonly repo?: t.CrdtRepo;
+  readonly url: t.DocumentIdUrlFactory | boolean;
+  readonly urlKey: string;
+
   readonly is: {
     readonly valid: boolean;
     readonly spinning: boolean;

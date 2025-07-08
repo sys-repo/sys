@@ -1,8 +1,14 @@
 import type { t } from './common.ts';
 export type * from './t.hooks.ts';
 
+type StringTitle = string;
+
+type ActionParams = ActionParamsCopyUrl | ActionParamsPlain;
+type ActionParamsPlain = { action: 'Load' | 'Create' | 'Clear' | 'Copy' };
+type ActionParamsCopyUrl = { action: 'Copy:Url'; href: string };
+
 /** The various states the action button can assume. */
-export type DocumentIdAction = 'Load' | 'Create' | 'Clear' | 'Copy' | 'Copy:Url';
+export type DocumentIdAction = ActionParams['action'];
 
 /**
  * Library: document-id UI tools.
@@ -28,7 +34,6 @@ export type DocumentIdProps = {
   enabled?: boolean;
   autoFocus?: boolean | number;
   readOnly?: boolean;
-  urlSupport?: boolean;
 
   // Appearance:
   theme?: t.CommonTheme;
@@ -51,7 +56,7 @@ export type DocumentIdReadyHandler = (e: DocumentIdChanged) => void;
 /** Handler for when the <DocumentId> action button is triggered. */
 export type DocumentIdActionHandler = (e: DocumentIdActionArgs) => void;
 /** <DocumentId> action tiggered event. */
-export type DocumentIdActionArgs = { readonly action: DocumentIdAction };
+export type DocumentIdActionArgs = ActionParams;
 
 /** Handler for when the <DocumentId> changes value. */
 export type DocumentIdChangedHandler = (e: DocumentIdChanged) => void;
@@ -61,4 +66,11 @@ export type DocumentIdChanged = {
   readonly signals: t.DocumentIdHookSignals;
   readonly values: t.DocumentIdHookSignalValues;
   readonly repo: t.CrdtRepo;
+};
+
+/** Handler that generates a URL when activated by a user gesture. */
+export type DocumentIdUrlFactory = (e: DocumentIdUrlFactoryArgs) => t.StringUrl | undefined;
+export type DocumentIdUrlFactoryArgs = {
+  readonly docId: t.StringId;
+  readonly urlKey: string;
 };

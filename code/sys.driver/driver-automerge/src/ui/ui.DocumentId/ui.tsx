@@ -6,12 +6,13 @@ import {
   css,
   D,
   Is,
+  Kbd,
   rx,
   TextInput,
   useDebouncedValue,
   usePointer,
 } from './common.ts';
-import { DocUrl } from './u.Url.ts';
+import { DocUrl } from './u.DocUrl.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -20,13 +21,7 @@ import { useController } from './use.Controller.ts';
 type P = t.DocumentIdProps;
 
 export const View: React.FC<P> = (props) => {
-  const {
-    label,
-    autoFocus = D.autoFocus,
-    enabled = D.enabled,
-    readOnly = D.readOnly,
-    urlSupport = D.urlSupport,
-  } = props;
+  const { label, autoFocus = D.autoFocus, enabled = D.enabled, readOnly = D.readOnly } = props;
 
   /**
    * Refs:
@@ -46,11 +41,8 @@ export const View: React.FC<P> = (props) => {
    * Hook: Controller/State.
    */
   const controller = useController(props.controller);
-
-  const docId = controller.props.docId;
-  const doc = controller.props.doc;
-  const repo = controller.props.repo;
-  const is = controller.props.is;
+  const { docId, doc, repo, is, url, urlKey } = controller.props;
+  const getCurrentHref = () => (docId ? DocUrl.resolve(url, docId, urlKey) : undefined);
 
   const active = enabled && !!repo;
   const transient = controller.transient;
@@ -60,16 +52,24 @@ export const View: React.FC<P> = (props) => {
   let showAction = showActionD || !docId;
 
   /**
-   * Effect: handle doc-id passed in on URL.
+   * Effect: read in doc-id passed on the URL.
    */
   React.useEffect(() => {
-    if (!urlSupport) return;
-    const { docId } = DocUrl.get();
-    if (docId) {
-      controller.signals.docId.value = docId;
-      DocUrl.strip(); // NB: doc-ids in the URL are transient → UI takes over now.
-    }
+    if (!url) return; // Only relevant when URL support is enabled.
+    const { docId } = DocUrl.read(location.href, urlKey);
+    if (docId) controller.signals.docId.value = docId;
   }, []);
+
+  /**
+   * Effect: remove ID from URL if loaded doc-id differs.
+   * NOTE: this avoids simple confusions about what the actual/current ID is.
+   */
+  React.useEffect(() => {
+    if (!url) return; // Only relevant when URL support is enabled.
+    if (!doc) return;
+    const { exists, docId } = DocUrl.read(location.href, urlKey);
+    if (exists && docId !== doc?.id) DocUrl.Mutate.strip(location.href, urlKey);
+  }, [urlKey, doc?.id]);
 
   /**
    * Effect: (mounted).
@@ -150,14 +150,16 @@ export const View: React.FC<P> = (props) => {
       enabled={active}
       readOnly={readOnly}
       icon={transient.kind}
-      urlSupport={urlSupport}
+      url={url}
+      urlKey={urlKey}
       onCopy={(e) => {
-        const action: t.DocumentIdAction = e.url ? 'Copy:Url' : 'Copy';
-        controller.handlers.onAction({ action });
+        const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
+        const href = getCurrentHref();
+        if (href) controller.handlers.onAction({ action, href });
       }}
       onPointer={(e) => {
         if (e.is.down) {
-          e.cancel();
+          e.preventDefault();
           focus();
         }
       }}
@@ -174,7 +176,7 @@ export const View: React.FC<P> = (props) => {
       onClearClick={() => controller.handlers.onAction({ action: 'Clear' })}
       onPointer={(e) => {
         if (e.is.down) {
-          e.cancel();
+          e.preventDefault();
           focus();
         }
       }}
@@ -188,14 +190,13 @@ export const View: React.FC<P> = (props) => {
   const elActionButton = showAction && (
     <ActionButton
       style={styles.actionButton}
-      action={controller.props.action}
+      action={controller.props.action?.action}
       enabled={active && is.enabled.action}
       parentOver={textboxOver}
       parentFocused={focused}
       onClick={() => {
         const { action } = controller.props;
-        const payload: t.DocumentIdActionArgs = { action };
-        controller.handlers.onAction(payload);
+        controller.handlers.onAction(action);
       }}
     />
   );
@@ -223,8 +224,8 @@ export const View: React.FC<P> = (props) => {
           autoFocus={!readOnly && autoFocus}
           //
           onReady={(e) => (inputRef.current = e.input)}
-          onChange={(e) => controller.handlers.onTextChange(e)}
-          onKeyDown={(e) => controller.handlers.onKeyDown(e)}
+          onChange={controller.handlers.onTextChange}
+          onKeyDown={controller.handlers.onKeyDown}
           onFocusChange={(e) => {
             if (readOnly) setFocused(false);
             else setFocused(e.focused);
