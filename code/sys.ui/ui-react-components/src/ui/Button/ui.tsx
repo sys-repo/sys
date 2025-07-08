@@ -82,8 +82,9 @@ export const Button: React.FC<P> = (props) => {
   return (
     <div
       role={'button'}
-      title={props.tooltip}
       className={css(styles.base, props.style).class}
+      title={props.tooltip}
+      //
       onDoubleClick={props.onDoubleClick}
       {...Event.handlers(eventState, isTouch)}
     >

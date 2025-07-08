@@ -1,7 +1,6 @@
 import type React from 'react';
 import type { t } from './common.ts';
 
-type MouseHandler = React.MouseEventHandler;
 type Content = JSX.Element | string | number | false;
 
 /**
@@ -36,12 +35,12 @@ export type ButtonProps = {
   subscribe?: () => void;
 
   // Events:
-  onClick?: MouseHandler;
-  onMouseDown?: MouseHandler;
-  onMouseUp?: MouseHandler;
-  onMouseEnter?: MouseHandler;
-  onMouseLeave?: MouseHandler;
-  onDoubleClick?: MouseHandler;
+  onClick?: React.MouseEventHandler;
+  onMouseDown?: React.MouseEventHandler;
+  onMouseUp?: React.MouseEventHandler;
+  onMouseEnter?: React.MouseEventHandler;
+  onMouseLeave?: React.MouseEventHandler;
+  onDoubleClick?: React.MouseEventHandler;
   onMouse?: t.ButtonMouseHandler;
 };
 
