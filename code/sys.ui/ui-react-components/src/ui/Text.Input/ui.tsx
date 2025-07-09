@@ -50,7 +50,14 @@ export const TextInput: React.FC<P> = (props) => {
    * Effect: Auto-focus when requested.
    */
   useEffect(() => {
-    if (autoFocus) inputRef.current?.focus();
+    if (!autoFocus) return;
+    const input = inputRef.current;
+    if (input) {
+      const length = input.value.length;
+      selectionRef.current = { start: length, end: length };
+      input.focus();
+      input.setSelectionRange(length, length);
+    }
   }, [autoFocus]);
 
   /**
