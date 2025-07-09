@@ -20,7 +20,17 @@ export type SelectLanguage = { language: t.EditorLanguage };
  */
 export const SelectLanguageList: React.FC<SelectLanguageListProps> = (props) => {
   const { debug = false, current, onSelect, show = Languages.all } = props;
-  const language = (lang: t.EditorLanguage) => languageItem(lang, current, onSelect);
+  const language = (lang: t.EditorLanguage) => {
+    return (
+      <Language
+        //
+        key={lang}
+        language={lang}
+        current={current}
+        onSelect={onSelect}
+      />
+    );
+  };
 
   /**
    * Render:
@@ -42,11 +52,12 @@ export const SelectLanguageList: React.FC<SelectLanguageListProps> = (props) => 
 /**
  * Helpers:
  */
-const languageItem = (
-  language: t.EditorLanguage,
-  current?: t.EditorLanguage,
-  onSelect?: SelectLanguageHandler,
-) => {
+export function Language(props: {
+  language: t.EditorLanguage;
+  current?: t.EditorLanguage;
+  onSelect?: SelectLanguageHandler;
+}) {
+  const { language, current, onSelect } = props;
   const isSelected = language === current;
   const styles = {
     base: css({
@@ -63,4 +74,4 @@ const languageItem = (
       <Button block label={() => language} onClick={() => onSelect?.({ language })} />
     </div>
   );
-};
+}
