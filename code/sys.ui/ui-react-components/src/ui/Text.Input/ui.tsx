@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { css, D, Style, type t, UserAgent } from './common.ts';
 import { useBorderStyles } from './use.BorderStyles.ts';
@@ -22,9 +22,14 @@ export const TextInput: React.FC<P> = (props) => {
   } = props;
 
   /**
-   * Hooks:
+   * Refs:
    */
   const inputRef = useRef<H>(null);
+  const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+
+  /**
+   * Hooks:
+   */
   const events = useEvents(props);
   const { border, borderRadius, theme } = useBorderStyles(props);
   const { focused } = events;
@@ -32,17 +37,14 @@ export const TextInput: React.FC<P> = (props) => {
   const [ready, setReady] = React.useState(false);
 
   /**
-   * Effect: mounted → ready.
+   * Effect: When mounted → fire onReady (once).
    */
   useEffect(() => {
-    const element = inputRef.current;
-
-    if (ready) return;
-    if (element) {
-      props.onReady?.({ input: element });
-      setReady(true);
-    }
-  }, [inputRef]);
+    const input = inputRef.current;
+    if (ready || !input) return;
+    props.onReady?.({ input });
+    setReady(true);
+  }, [ready, props.onReady, inputRef]);
 
   /**
    * Effect: Auto-focus when requested.
@@ -50,6 +52,30 @@ export const TextInput: React.FC<P> = (props) => {
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
   }, [autoFocus]);
+
+  /**
+   * Effect: After each value change, restore the caret.
+   *         useLayoutEffect to avoid flicker.
+   */
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (!el || !focused) return;
+    const { start, end } = selectionRef.current;
+    el.setSelectionRange(start, end);
+  }, [value, focused]);
+
+  /**
+   * Handlers:
+   * Intercept onChange → record caret then delegate to original handler.
+   */
+  const handleChange = (e: React.ChangeEvent<H>) => {
+    const el = e.target as H;
+    selectionRef.current = {
+      start: el.selectionStart ?? 0,
+      end: el.selectionEnd ?? 0,
+    };
+    events.handlers.onChange(e);
+  };
 
   /**
    * Render:
@@ -109,7 +135,9 @@ export const TextInput: React.FC<P> = (props) => {
         disabled={disabled}
         readOnly={readOnly}
         spellCheck={props.spellCheck ?? D.spellCheck}
+        //
         {...events.handlers}
+        onChange={handleChange}
       />
       {suffix && <div className={styles.edge.class}>{suffix}</div>}
     </div>
