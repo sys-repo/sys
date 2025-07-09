@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg } from './common.ts';
+import { Log } from './u.Log.ts';
 
 /**
  * Tools for working with CRDT sync servers:
@@ -44,6 +45,12 @@ export const Server: t.CrdtServerLib = {
     network.on('peer-disconnected', (e) => {
       console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
     });
+
+    /**
+     * Metrics:
+     */
+    setInterval(Log.memory, 60_000);
+    Log.memory();
 
     /**
      * API:
