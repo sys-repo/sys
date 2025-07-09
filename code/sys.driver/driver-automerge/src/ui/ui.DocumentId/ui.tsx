@@ -153,16 +153,13 @@ export const View: React.FC<P> = (props) => {
       url={url}
       urlKey={urlKey}
       onCopyClick={(e) => {
-        const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
         const href = getCurrentHref();
         if (href) {
+          const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
           const cmd = Kbd.Is.commandConcept(e.modifiers);
           const { shift } = e.modifiers;
-          controller.handlers.onAction({
-            action,
-            href,
-            addressbarAction: cmd && shift ? 'remove' : 'add',
-          });
+          const addressbarAction = cmd && shift ? 'remove' : 'add';
+          controller.handlers.onAction({ action, href, addressbarAction });
         }
       }}
       onPointer={(e) => {
