@@ -26,23 +26,22 @@ export const BackBody: React.FC<P> = (props) => {
     mic: css({ marginLeft: 8, marginRight: 12 }),
   };
 
+  // NB: toggle on "audio track" enabled. 🐷
   const ButtonIcon = true ? Buttons.Icons.MicOn : Buttons.Icons.MicOff;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div>{''}</div>
       <div className={styles.bottom.class}>
-        <Media.UI.AudioWaveform
-          debug={debug}
-          theme={theme.name}
-          stream={stream}
-          style={{ top: -2 }}
-        />
+        <Media.UI.AudioWaveform theme={theme.name} stream={stream} style={{ top: -2 }} />
         <ButtonIcon
           theme={theme.name}
           size={18}
           style={styles.mic}
           onClick={(e) => {
+            // TODO 🐷 toggle mute
+            console.log('🐷 TODO: toggle mute', e);
+            console.log('stream', stream);
           }}
         />
       </div>
