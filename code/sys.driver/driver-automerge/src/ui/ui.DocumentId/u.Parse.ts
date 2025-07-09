@@ -17,7 +17,7 @@ export const Parse: t.DocumentIdParseLib = {
     if (CrdtIs.id(idCandidate)) {
       parsed.id = idCandidate;
 
-      // if there's more after the slash, split into path segments
+      // If there's more after the slash, split into path segments:
       if (slashIndex !== -1) {
         const rest = text.substring(slashIndex + 1);
         const segments = rest.split('/').filter((seg) => seg.length > 0);
