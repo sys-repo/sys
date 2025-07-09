@@ -7,9 +7,10 @@ type O = Record<string, unknown>;
  */
 export type CrdtUiLib = t.CrdtBrowserLib & {
   readonly UI: {
+    readonly Repo: t.RepoLib;
     readonly Card: React.FC<t.CardProps>;
     readonly DocumentId: t.DocumentIdLib;
-    readonly Repo: t.RepoLib;
+    readonly BinaryFile: React.FC<t.BinaryFileProps>;
     readonly useRedrawEffect: UseRedrawEffect;
   };
 };
