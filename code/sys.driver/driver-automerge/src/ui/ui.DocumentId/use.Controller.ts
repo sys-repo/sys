@@ -91,7 +91,8 @@ function useInternal(args: Args = {}): Hook {
       if (href) {
         navigator.clipboard.writeText(href);
         transient.write('Copy', 'url copied');
-        DocUrl.Mutate.replace(href); // ← NB: sync the URL with the copied value.
+        if (e.addressbarAction === 'add') DocUrl.Mutate.replace(href);
+        if (e.addressbarAction === 'remove') DocUrl.Mutate.strip(href, urlKey);
       }
       return;
     }
@@ -166,7 +167,7 @@ function useInternal(args: Args = {}): Hook {
       if (docId) {
         if (e.modifiers.shift) {
           const href = DocUrl.resolve(url, docId, urlKey);
-          if (href) run({ action: 'Copy:Url', href });
+          if (href) run({ action: 'Copy:Url', href, addressbarAction: 'add' });
         } else {
           run({ action: 'Copy' });
         }

@@ -6,6 +6,7 @@ import {
   css,
   D,
   Is,
+  Kbd,
   rx,
   TextInput,
   useDebouncedValue,
@@ -45,7 +46,6 @@ export const View: React.FC<P> = (props) => {
 
   const active = enabled && !!repo;
   const transient = controller.transient;
-  const message = transient.message;
 
   let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
   let showAction = showActionD || !textbox;
@@ -134,7 +134,7 @@ export const View: React.FC<P> = (props) => {
       Absolute: [0, null, 0, 30],
       pointerEvents: 'none',
       paddingBottom: 3,
-      opacity: 0.3,
+      color: Color.BLUE,
       display: 'grid',
       placeItems: 'center',
     }),
@@ -149,12 +149,21 @@ export const View: React.FC<P> = (props) => {
       enabled={active}
       readOnly={readOnly}
       icon={transient.kind}
+      transientMessageShowing={!!transient.message}
       url={url}
       urlKey={urlKey}
-      onCopy={(e) => {
+      onCopyClick={(e) => {
         const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
         const href = getCurrentHref();
-        if (href) controller.handlers.onAction({ action, href });
+        if (href) {
+          const cmd = Kbd.Is.commandConcept(e.modifiers);
+          const { shift } = e.modifiers;
+          controller.handlers.onAction({
+            action,
+            href,
+            addressbarAction: cmd && shift ? 'remove' : 'add',
+          });
+        }
       }}
       onPointer={(e) => {
         if (e.is.down) {
@@ -215,8 +224,8 @@ export const View: React.FC<P> = (props) => {
           theme={theme.name}
           style={styles.textbox}
           inputStyle={{
-            opacity: !!message ? 0.1 : 1,
-            blur: !!message ? 8 : 0,
+            opacity: !!transient.message ? 0.1 : 1,
+            blur: !!transient.message ? 8 : 0,
           }}
           border={{ mode: 'underline', defaultColor: 0 }}
           background={0}

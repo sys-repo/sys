@@ -4,7 +4,7 @@ export type * from './t.parse.ts';
 
 type ActionParams = ActionParamsCopyUrl | ActionParamsPlain;
 type ActionParamsPlain = { action: 'Load' | 'Create' | 'Clear' | 'Copy' };
-type ActionParamsCopyUrl = { action: 'Copy:Url'; href: string };
+type ActionParamsCopyUrl = { action: 'Copy:Url'; href: string; addressbarAction: 'add' | 'remove' };
 
 /** The various states the action button can assume. */
 export type DocumentIdAction = ActionParams['action'];
