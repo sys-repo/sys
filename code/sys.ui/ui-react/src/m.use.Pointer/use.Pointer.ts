@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { type t, useIsTouchSupported } from './common.ts';
+import { type t, useIsTouchSupported, Kbd } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
@@ -25,12 +25,16 @@ export const usePointer: t.UsePointer = (input) => {
   const dragdrop = usePointerDragdrop({ onDragdrop, dropGuard });
 
   const flags = useCallback(
-    (patch: Partial<t.PointerHookFlags> = {}) => ({
-      over: patch?.over ?? isOver,
-      down: patch?.down ?? isDown,
-      dragging: drag.is.dragging,
-      dragdropping: dragdrop.is.dragging,
-    }),
+    (patch: Partial<t.PointerHookFlags> = {}) => {
+      const down = patch?.down ?? isDown;
+      return {
+        over: patch?.over ?? isOver,
+        down,
+        up: !down,
+        dragging: drag.is.dragging,
+        dragdropping: dragdrop.is.dragging,
+      };
+    },
     [isDown, isOver, drag.is.dragging, dragdrop.is.dragging],
   );
 
@@ -56,6 +60,7 @@ export const usePointer: t.UsePointer = (input) => {
     args.on?.({
       is: flags(patch),
       synthetic: trigger,
+      modifiers: Kbd.modifiers(synthetic),
       preventDefault: () => synthetic.preventDefault(),
       stopPropagation: () => synthetic.stopPropagation(),
       cancel() {

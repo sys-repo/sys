@@ -43,6 +43,7 @@ export type PointerHook = {
 export type PointerHookFlags = {
   readonly over: boolean;
   readonly down: boolean;
+  readonly up: boolean;
   readonly dragdropping: boolean;
   readonly dragging: boolean;
 };
@@ -85,7 +86,10 @@ export type PointerEventsArg = PointerEventCancelMethods & {
    * by default, but for ≤17 do not access it after the current tick).
    */
   readonly synthetic: PointerEvent;
+  /** Boolean flags about the event. */
   readonly is: PointerHookFlags;
+  /** Keyboard modifiers. */
+  readonly modifiers: t.KeyboardModifierFlags;
 };
 
 /** Methods for cancelling an event. */
