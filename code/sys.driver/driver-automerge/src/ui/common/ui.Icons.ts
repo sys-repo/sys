@@ -1,4 +1,7 @@
 import { Icon } from '@sys/ui-react-components';
+import { BsFileBinaryFill } from 'react-icons/bs';
+import { FiExternalLink, FiLink } from 'react-icons/fi';
+import { HiDownload } from 'react-icons/hi';
 import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react-icons/lu';
 import {
   MdArrowBack,
@@ -14,8 +17,6 @@ import {
   MdWarning,
 } from 'react-icons/md';
 import { TbDatabase, TbNetwork, TbNetworkOff } from 'react-icons/tb';
-import { BsFileBinaryFill } from 'react-icons/bs';
-import { HiDownload } from 'react-icons/hi';
 
 const icon = Icon.renderer;
 
@@ -50,4 +51,5 @@ export const Icons = {
     Antenna: icon(MdSettingsInputAntenna),
   },
   File: { Binary: icon(BsFileBinaryFill) },
+  Link: { External: icon(FiExternalLink), Chain: icon(FiLink) },
 } as const;
