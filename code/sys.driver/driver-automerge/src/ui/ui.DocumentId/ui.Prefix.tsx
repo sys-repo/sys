@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Button, Color, css, D, Icons, usePointer } from './common.ts';
-import { DocUrl } from './u.DocUrl.ts';
+import { DocUrl } from './u.ts';
 import { useKeyboard } from './use.Keyboard.ts';
 
 type P = PrefixProps;

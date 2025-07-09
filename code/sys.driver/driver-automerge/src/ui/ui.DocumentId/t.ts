@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 export type * from './t.hooks.ts';
-
-type StringTitle = string;
+export type * from './t.parse.ts';
 
 type ActionParams = ActionParamsCopyUrl | ActionParamsPlain;
 type ActionParamsPlain = { action: 'Load' | 'Create' | 'Clear' | 'Copy' };
@@ -16,6 +15,7 @@ export type DocumentIdAction = ActionParams['action'];
 export type DocumentIdLib = {
   readonly View: React.FC<t.DocumentIdProps>;
   readonly useController: t.UseDocumentIdHook;
+  readonly Parse: t.DocumentIdParseLib;
 };
 
 /**
