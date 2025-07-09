@@ -5,7 +5,12 @@ import { EditorStyles } from './u.styles.ts';
 import { useProsemirror } from './use.Prosemirror.ts';
 
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
-  const { readOnly = D.readOnly, scroll = D.scroll, debug = false } = props;
+  const {
+    readOnly = D.readOnly,
+    scroll = D.scroll,
+    singleLine = D.singleLine,
+    debug = false,
+  } = props;
 
   /**
    * Hooks:
@@ -30,6 +35,11 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const noWrap: t.CssProps = {
+    whiteSpace: 'nowrap',
+    overflowX: 'hidden',
+    overflowY: 'hidden',
+  };
   const styles = {
     base: css({
       position: 'relative',
@@ -37,11 +47,12 @@ export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
       zIndex: 0,
       display: scroll ? 'grid' : undefined,
     }),
+
     body: EditorStyles.body({
       backgroundColor: Color.ruby(debug),
-      Absolute: scroll ? 0 : undefined,
-      Scroll: scroll,
-    }),
+      Absolute: scroll || singleLine ? 0 : undefined,
+      Scroll: singleLine ? false : scroll,
+    }).rule('p', singleLine ? noWrap : {}),
   };
 
   return (

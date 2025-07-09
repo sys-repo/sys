@@ -10,7 +10,7 @@ import { init as automergeInit } from '@automerge/prosemirror';
  */
 import { exampleSetup } from 'prosemirror-example-setup';
 import { schema as basicSchema } from 'prosemirror-schema-basic';
-import { EditorState } from 'prosemirror-state';
+import { EditorState, Plugin as StatePlugin } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 import { type t, D, Obj, toAutomergeHandle } from './common.ts';
@@ -39,7 +39,7 @@ export function useProsemirror(props: t.TextEditorProps) {
   const [editor, setEditor] = React.useState<EditorView>();
 
   /**
-   * Effect: editor setup
+   * Effect: editor setup.
    */
   useEffect(() => {
     const handle = toAutomergeHandle(doc);
@@ -51,6 +51,9 @@ export function useProsemirror(props: t.TextEditorProps) {
     // Ensure the path exists on the CRDT documetn.
     doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
 
+    /**
+     * Automerge:
+     */
     const automerge = automergeInit(handle!, path);
     const schema = basicSchema;
     const plugins = exampleSetup({
@@ -60,8 +63,34 @@ export function useProsemirror(props: t.TextEditorProps) {
         Escape: false, // ← remove the default ESC binding.
       },
     });
-    plugins.push(automerge.plugin);
+    /**
+     * Clipboard:
+     */
+    const statePlugin = new StatePlugin({
+      props: {
+        handlePaste(view, e) {
+          if (!singleLine) return false;
+          e.preventDefault();
 
+          // Clean for single-line mode:
+          // Convert plain-text and collapse any newlines into spaces.
+          const raw = e.clipboardData?.getData('text/plain') ?? '';
+          const cleaned = raw.replace(/\r?\n+/g, ' ');
+
+          // insert as a text node
+          const { tr, schema } = view.state;
+          const textNode = schema.text(cleaned);
+          view.dispatch(tr.replaceSelectionWith(textNode).scrollIntoView());
+          return true;
+        },
+      },
+    });
+
+    /**
+     * Editor:
+     */
+    plugins.push(statePlugin);
+    plugins.push(automerge.plugin);
     const state = EditorState.create({
       schema,
       plugins,

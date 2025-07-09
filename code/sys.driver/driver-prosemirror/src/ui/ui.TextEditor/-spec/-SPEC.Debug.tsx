@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Lorem } from '../../-test.ui.ts';
 
 export type SampleDoc = { text?: string };
 type P = t.TextEditorProps;
@@ -220,6 +221,15 @@ export function samplesButtons(debug: DebugSignals) {
           baseline();
           p.singleLine.value = false;
           p.scroll.value = true;
+        }}
+      />
+      <Button
+        block
+        label={() => `- long (lorem ipsum)`}
+        onClick={() => {
+          const doc = p.doc.value;
+          const path = p.path.value;
+          if (doc && path) doc.change((d) => Obj.Path.mutate(d, path, Lorem.words(500)));
         }}
       />
     </React.Fragment>
