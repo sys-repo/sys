@@ -5,17 +5,26 @@ import type { UrlLib } from './t.ts';
  * Helpers for a URL used within an HTTP fetch client.
  */
 export const Url: UrlLib = {
-  /**
-   * URL factory.
-   */
-  create(base) {
-    return Is.netaddr(base) ? Url.fromAddr(base) : Url.fromUrl(base);
+  parse(base) {
+    return Is.netaddr(base) ? wrangle.fromAddr(base) : wrangle.fromUrl(base);
+  },
+} as const;
+
+/**
+ * Helpers
+ */
+const wrangle = {
+  asUrl(base: string) {
+    try {
+      const url = new URL(base);
+      return { url };
+    } catch (_err: unknown) {
+      const error = new Error(`Invalid base URL: ${String(base)}`);
+      return { error };
+    }
   },
 
-  /**
-   * Create from a URL.
-   */
-  fromUrl(base) {
+  fromUrl(base: t.StringUrl) {
     const { url, error } = wrangle.asUrl(base);
     if (error) throw error;
     base = url.href;
@@ -35,25 +44,7 @@ export const Url: UrlLib = {
     return api;
   },
 
-  /**
-   * Create from a [NetAddr].
-   */
   fromAddr(base: Deno.NetAddr) {
-    return Url.fromUrl(`http://${base.hostname}:${base.port}`);
-  },
-} as const;
-
-/**
- * Helpers
- */
-const wrangle = {
-  asUrl(base: string) {
-    try {
-      const url = new URL(base);
-      return { url };
-    } catch (_err: unknown) {
-      const error = new Error(`Invalid base URL: ${String(base)}`);
-      return { error };
-    }
+    return wrangle.fromUrl(`http://${base.hostname}:${base.port}`);
   },
 } as const;

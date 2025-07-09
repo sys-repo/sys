@@ -23,7 +23,7 @@ export type HttpLib = {
    */
   readonly Url: t.UrlLib;
   /** Generator function for a new URL. */
-  readonly url: t.UrlLib['create'];
+  readonly url: t.UrlLib['parse'];
 
   /**
    * Methods:

@@ -14,7 +14,7 @@ export const Http: HttpLib = {
   Url,
 
   fetch: Fetch.create,
-  url: Url.create,
+  url: Url.parse,
 
   toHeaders,
   toResponse,
