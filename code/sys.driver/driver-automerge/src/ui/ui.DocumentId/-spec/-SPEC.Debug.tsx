@@ -58,17 +58,18 @@ export function createDebugSignals() {
     passRepo: s(snap.passRepo),
     controlled: s(snap.controlled),
     localstorage: s(snap.localstorage),
-    urlKey: s(snap.urlKey),
-    url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
 
-    docId: s<string | undefined>(),
+    textbox: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
 
-    label: s<P['label']>(store.current.label),
-    placeholder: s(store.current.placeholder),
-    autoFocus: s(store.current.autoFocus),
-    enabled: s(store.current.enabled),
-    readOnly: s(store.current.readOnly),
+    label: s(snap.label),
+    placeholder: s(snap.placeholder),
+    autoFocus: s(snap.autoFocus),
+    enabled: s(snap.enabled),
+    readOnly: s(snap.readOnly),
+
+    urlKey: s(snap.urlKey),
+    url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
   };
   const p = props;
   const api = {
@@ -164,6 +165,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
+
+      <hr />
       <Button
         block
         label={() => `url: ${Is.func(p.url.value) ? 'ƒ' : p.url.value}`}

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
-import { type t, CrdtIs, D, Is, Kbd, Signal, slug } from './common.ts';
-import { DocUrl } from './u.DocUrl.ts';
+import { type t, D, Is, Kbd, Signal, slug } from './common.ts';
+import { DocUrl, Parse } from './u.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
 
@@ -38,7 +38,7 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
-  const localstore = useLocalStorage(args.localstorage, signalsRef.current.docId);
+  const localstore = useLocalStorage(args.localstorage, signalsRef.current.textbox);
   const transient = useTransientMessage();
 
   /**
@@ -47,7 +47,7 @@ function useInternal(args: Args = {}): Hook {
   React.useEffect(() => {
     if (ready) return;
     const props = api.props;
-    if (props.docId && !props.doc) run({ action: 'Load' }).then(() => setReady(true));
+    if (props.textbox && !props.doc) run({ action: 'Load' }).then(() => setReady(true));
     else setReady(true);
   }, [repoId, ready]);
 
@@ -64,7 +64,7 @@ function useInternal(args: Args = {}): Hook {
    */
   Signal.useRedrawEffect(() => {
     const p = signalsRef.current;
-    p.docId.value;
+    p.textbox.value;
     p.doc.value;
     p.spinning.value;
   });
@@ -79,7 +79,7 @@ function useInternal(args: Args = {}): Hook {
     const enabled = props.is.enabled.action;
 
     if (e.action === 'Copy') {
-      const docId = p.docId.value;
+      const docId = p.textbox.value;
       if (docId) {
         navigator.clipboard.writeText(docId);
         transient.write('Copy', 'document-id copied');
@@ -97,7 +97,7 @@ function useInternal(args: Args = {}): Hook {
     }
 
     if (e.action === 'Clear') {
-      p.docId.value = undefined;
+      p.textbox.value = undefined;
       p.doc.value = undefined;
       p.spinning.value = false;
       return;
@@ -106,7 +106,7 @@ function useInternal(args: Args = {}): Hook {
     if (e.action === 'Create' && enabled) {
       const doc = repo.create(args.initial ?? {});
       p.doc.value = doc;
-      p.docId.value = doc.id;
+      p.textbox.value = doc.id;
       p.spinning.value = false;
       localstore.history.push(doc.id);
       return;
@@ -133,8 +133,9 @@ function useInternal(args: Args = {}): Hook {
   const onTextChange: t.TextInputChangeHandler = (e) => {
     const p = signalsRef.current;
     const doc = p.doc.value;
-    if (doc && doc.id !== e.value) p.doc.value = undefined;
-    p.docId.value = e.value;
+    const parsed = Parse.textbox(e.value);
+    if (doc && doc.id !== parsed.id) p.doc.value = undefined;
+    p.textbox.value = e.value;
   };
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
@@ -152,14 +153,14 @@ function useInternal(args: Args = {}): Hook {
     if (e.key === 'Escape') {
       const p = signalsRef.current;
       const doc = p.doc.value;
-      if (doc && doc.id !== p.docId.value) p.docId.value = doc.id;
+      if (doc && doc.id !== p.textbox.value) p.textbox.value = doc.id;
       localstore.history.reset();
     }
 
     // Clipboard:
     if (Kbd.Is.copy(e)) {
       const p = signalsRef.current;
-      const docId = p.docId.value;
+      const docId = p.textbox.value;
       if (docId) {
         if (e.modifiers.shift) {
           const href = DocUrl.resolve(url, docId, urlKey);
@@ -207,16 +208,19 @@ const wrangle = {
   props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
     const { urlKey = D.urlKey, url = D.url } = args;
     const is = wrangle.is(p, repo);
-    const docId = wrangle.docId(p);
+    const parsed = wrangle.parsed(p);
+    const textbox = parsed.text;
+    const docId = parsed.id || undefined;
     const doc = p.doc.value;
     const action = wrangle.action(p);
-    return { docId, repo, doc, is, action, url, urlKey };
+    return { textbox, docId, repo, doc, is, action, url, urlKey };
   },
 
   is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
-    const id = wrangle.docId(p);
+    const parsed = wrangle.parsed(p);
+    const id = parsed.id;
     const doc = p.doc.value;
-    const valid = CrdtIs.id(id);
+    const valid = !!id;
 
     let action = true;
     if (!repo) action = false;
@@ -233,26 +237,27 @@ const wrangle = {
     };
   },
 
-  docId(p: P) {
-    return (p.docId.value ?? '').trim();
+  parsed(p: P) {
+    const text = (p.textbox.value ?? '').trim();
+    return Parse.textbox(text);
   },
 
   action(p: P): t.DocumentIdActionArgs {
-    const id = wrangle.docId(p);
+    const id = wrangle.parsed(p).id;
     if (!id) return { action: 'Create' };
     return { action: 'Load' };
   },
 
   signals(args: Args) {
     const api: t.DocumentIdHookSignals = {
-      docId: args.signals?.docId ?? Signal.create<string>(),
+      textbox: args.signals?.textbox ?? Signal.create<string>(),
       doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
       spinning: args.signals?.spinning ?? Signal.create(false),
       toValues() {
-        const spinning = api.spinning.value;
+        const textbox = api.textbox.value;
         const doc = api.doc.value;
-        const docId = api.docId.value;
-        return { docId, doc, spinning };
+        const spinning = api.spinning.value;
+        return { textbox, doc, spinning };
       },
     };
     return api;

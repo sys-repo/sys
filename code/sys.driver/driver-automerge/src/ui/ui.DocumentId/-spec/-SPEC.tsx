@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       repo: v.passRepo ? repo : undefined,
       localstorage: v.localstorage,
-      signals: { doc: p.doc, docId: p.docId },
+      signals: { doc: p.doc, textbox: p.textbox },
       initial: () => ({ count: 0 }), // NB: dynamic generator.
       url: v.url,
       urlKey: v.urlKey,
@@ -93,7 +93,7 @@ export default Spec.describe(D.displayName, (e) => {
             buttonStyle={{ margin: 4 }}
             controller={{
               repo: v.passRepo ? repo : undefined,
-              signals: { doc: p.doc, docId: p.docId },
+              signals: { doc: p.doc, textbox: p.textbox },
               initial: { count: 0, text: '' }, // NB: static version.
               localstorage: p.localstorage.value,
               url: v.url,

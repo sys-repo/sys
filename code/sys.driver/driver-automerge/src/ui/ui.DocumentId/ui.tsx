@@ -11,7 +11,7 @@ import {
   useDebouncedValue,
   usePointer,
 } from './common.ts';
-import { DocUrl } from './u.DocUrl.ts';
+import { DocUrl } from './u.ts';
 import { ActionButton } from './ui.ActionButton.tsx';
 import { Prefix } from './ui.Prefix.tsx';
 import { Suffix } from './ui.Suffix.tsx';
@@ -40,7 +40,7 @@ export const View: React.FC<P> = (props) => {
    * Hook: Controller/State.
    */
   const controller = useController(props.controller);
-  const { docId, doc, repo, is, url, urlKey } = controller.props;
+  const { textbox, docId, doc, repo, is, url, urlKey } = controller.props;
   const getCurrentHref = () => (docId ? DocUrl.resolve(url, docId, urlKey) : undefined);
 
   const active = enabled && !!repo;
@@ -48,7 +48,7 @@ export const View: React.FC<P> = (props) => {
   const message = transient.message;
 
   let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
-  let showAction = showActionD || !docId;
+  let showAction = showActionD || !textbox;
 
   /**
    * Effect: read in doc-id passed on the URL.
@@ -56,7 +56,7 @@ export const View: React.FC<P> = (props) => {
   React.useEffect(() => {
     if (!url) return; // Only relevant when URL support is enabled.
     const { docId } = DocUrl.read(location.href, urlKey);
-    if (docId) controller.signals.docId.value = docId;
+    if (docId) controller.signals.textbox.value = docId;
   }, []);
 
   /**
@@ -98,7 +98,7 @@ export const View: React.FC<P> = (props) => {
     fireChanged();
 
     return life.dispose;
-  }, [repo?.id.instance, doc?.id, docId]);
+  }, [repo?.id.instance, doc?.id, docId, textbox]);
 
   /**
    * Render:
@@ -205,7 +205,7 @@ export const View: React.FC<P> = (props) => {
       <div className={styles.label.class}>{label}</div>
       <div {...pointer.handlers}>
         <TextInput
-          value={docId}
+          value={textbox}
           prefix={elPrefix}
           suffix={elSuffix}
           placeholder={wrangle.placeholder(props, controller, focused)}

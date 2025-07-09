@@ -35,7 +35,8 @@ export type DocumentIdHook = {
 /** Properties of the <DocumentId> hook. */
 export type DocumentIdHookProps = {
   readonly action: t.DocumentIdActionArgs;
-  readonly docId?: string;
+  readonly textbox?: string;
+  readonly docId?: t.StringDocumentId;
   readonly doc?: t.CrdtRef;
   readonly repo?: t.CrdtRepo;
   readonly url: t.DocumentIdUrlFactory | boolean;
@@ -50,7 +51,7 @@ export type DocumentIdHookProps = {
 
 /** Signals of the <DocumentId> hook. */
 export type DocumentIdHookSignals = {
-  readonly docId: t.Signal<string | undefined>;
+  readonly textbox: t.Signal<string | undefined>;
   readonly doc: t.Signal<t.CrdtRef | undefined>;
   readonly spinning: t.Signal<boolean>;
   toValues(): DocumentIdHookSignalValues;
@@ -58,7 +59,7 @@ export type DocumentIdHookSignals = {
 
 /** Snapshot of the <DocumentId> signals converted to values. */
 export type DocumentIdHookSignalValues = {
-  readonly docId: t.SignalValue<DocumentIdHookSignals['docId']>;
+  readonly textbox: t.SignalValue<DocumentIdHookSignals['textbox']>;
   readonly doc: t.SignalValue<DocumentIdHookSignals['doc']>;
   readonly spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
 };
