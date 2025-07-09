@@ -35,7 +35,7 @@ export default Spec.describe(D.displayName, async (e) => {
           headerStyle={{ topOffset: -29 }}
           localstorage={STORAGE_KEY}
           repo={repo}
-          signals={{ docId: p.docId, doc: p.doc }}
+          signals={{ textbox: p.textbox, doc: p.doc }}
         />
       ));
 
@@ -48,7 +48,7 @@ export default Spec.describe(D.displayName, async (e) => {
             buttonStyle={{ margin: 4 }}
             controller={{
               repo,
-              signals: { doc: p.doc, docId: p.docId },
+              signals: { doc: p.doc, textbox: p.textbox },
               initial: { count: 0 },
               localstorage: STORAGE_KEY,
             }}

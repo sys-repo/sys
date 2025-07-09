@@ -4,7 +4,7 @@ import { Crdt } from '@sys/driver-automerge/browser';
 import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
-type Storage = Pick<P, 'theme' | 'debug'> & { docId?: string };
+type Storage = Pick<P, 'theme' | 'debug'> & { textbox?: string };
 
 /**
  * Types:
@@ -39,7 +39,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     redraw: s(0),
 
-    docId: s(store.current.docId),
+    textbox: s(store.current.textbox),
     doc: s<t.CrdtRef<TDoc>>(),
   };
 
@@ -59,7 +59,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.docId = p.docId.value;
+      d.textbox = p.textbox.value;
     });
   });
 
@@ -146,10 +146,10 @@ export function valueEditorButtons(debug: DebugSignals) {
   const { props: p, repo } = debug;
 
   const increment = async (by: number) => {
-    const docId = debug.store.current.docId;
-    if (!docId || !repo) return;
+    const textbox = debug.store.current.textbox;
+    if (!textbox || !repo) return;
 
-    const doc = (await repo.get<TDoc>(docId)).doc;
+    const doc = (await repo.get<TDoc>(textbox)).doc;
     doc?.change((d) => (d.count += by));
   };
 
