@@ -149,9 +149,9 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     <ObjectView
       name={'file-drop'}
       data={{
+        doc: doc?.id,
         path,
-        files: Fmt.files(filemap),
-        filemap,
+        filemap: Fmt.fileMap(filemap),
         pointer: pointer.is,
       }}
       theme={theme.name}
@@ -177,7 +177,11 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     );
   });
 
-  const elDropMessage = !debug && <div className={styles.dropMsg.class}>{'Drop files here'}</div>;
+  const elDropMessage = !debug && (
+    <div className={styles.dropMsg.class}>
+      {pointer.is.dragdropping ? 'Drop now' : 'Drop files here'}
+    </div>
+  );
   const elDebug = debug && (
     <div>
       <div>{`🐷 ${D.displayName}`}</div>
