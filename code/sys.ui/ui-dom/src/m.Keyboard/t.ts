@@ -41,13 +41,6 @@ export type KeyboardLib = {
   filter: t.KeyboardMonitor['filter'];
 
   /**
-   * Converts keypress event data into a structured format.
-   * @param event - The keypress event to be transformed.
-   * @returns A structured keypress object.
-   */
-  toKeypress(e: KeyboardEvent): t.KeyboardKeypress;
-
-  /**
    * A utility function that listens for a keyboard event until a condition is met.
    *
    * @param fn - A function that defines the condition for stopping the listener.
@@ -59,6 +52,19 @@ export type KeyboardLib = {
    * Start a multi-key listener waiting for a "double-press" event.
    */
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
+
+  /**
+   * Convert an event into standard flags information object.
+   */
+  modifiers(e: Partial<AbstractNativeKeyEvent>): t.KeyboardModifierFlags;
+};
+
+/** Abstract event for converting into system info types. */
+export type AbstractNativeKeyEvent = {
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
+  metaKey: boolean;
 };
 
 /**

@@ -1,4 +1,11 @@
-import { UserAgent, type t } from './common.ts';
+import { type t, Is, UserAgent } from './common.ts';
+
+const DEFAULT_MODIFIERS: t.KeyboardModifierFlags = {
+  ctrl: false,
+  meta: false,
+  alt: false,
+  shift: false,
+};
 
 export const Util = {
   isModifier(value: string) {
@@ -14,6 +21,17 @@ export const Util = {
       ctrl: flag(input.ctrl),
       meta: flag(input.meta),
     };
+  },
+
+  toModifiers(e: Partial<t.AbstractNativeKeyEvent>): t.KeyboardModifierFlags {
+    if (!Is.record(e)) return { ...DEFAULT_MODIFIERS };
+    const {
+      ctrlKey: ctrl = false,
+      shiftKey: shift = false,
+      altKey: alt = false,
+      metaKey: meta = false,
+    } = e;
+    return { ctrl, shift, alt, meta };
   },
 
   toFlags(e: KeyboardEvent): t.KeyboardKeyFlags {

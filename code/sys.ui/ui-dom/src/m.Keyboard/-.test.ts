@@ -1,14 +1,20 @@
-import { Time, describe, expect, it, rx, type t, DomMock } from '../-test.ts';
-import { KeyListener } from './m.KeyListener.ts';
-import { Keyboard } from './mod.ts';
+import { DomMock, Time, describe, expect, it, rx, type t } from '../-test.ts';
 import { UserAgent } from './common.ts';
+import { KeyListener } from './m.KeyListener.ts';
+import { Keyboard, Kbd } from './mod.ts';
 
 describe(
   'Keyboard',
-  /** NB: leaked timers left around by the "happy-dom" module. */
+
+  // NB: leaked timers left around by the "happy-dom" module.
   { sanitizeOps: false, sanitizeResources: false },
+
   () => {
     it('(polyfill)', () => DomMock.polyfill());
+
+    it('API', () => {
+      expect(Keyboard).to.equal(Kbd);
+    });
 
     describe('KeyListener', () => {
       it('fires (keydown | keyup)', async () => {
@@ -285,6 +291,26 @@ describe(
         expect(f).to.be.false;
         expect(g).to.be.false;
         expect(h).to.be.false;
+      });
+    });
+
+    describe('Keyboard.modifiers', () => {
+      it('empty', () => {
+        const test = (input?: any) => {
+          const res = Kbd.modifiers(input);
+          expect(res).to.eql({ ctrl: false, meta: false, alt: false, shift: false });
+        };
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => test(v));
+      });
+
+      it('converts', () => {
+        const a = Kbd.modifiers({ metaKey: true });
+        const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
+        const c = Kbd.modifiers({ shiftKey: true });
+        expect(a).to.eql({ ctrl: false, meta: true, alt: false, shift: false });
+        expect(b).to.eql({ ctrl: true, meta: true, alt: false, shift: false });
+        expect(c).to.eql({ ctrl: false, meta: false, alt: false, shift: true });
       });
     });
   },

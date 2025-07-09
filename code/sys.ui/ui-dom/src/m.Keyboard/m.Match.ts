@@ -28,7 +28,7 @@ export const Match: KeyboardMatchLib = {
 } as const;
 
 /**
- * [Helpers]
+ * Helpers
  */
 function parsePattern(pattern: t.KeyPattern): string[] {
   if (typeof pattern !== 'string') pattern = '';
