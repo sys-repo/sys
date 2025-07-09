@@ -90,7 +90,7 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
       if (doc) {
         if (doc.deleted || doc.disposed) return;
         await whenReady(doc);
-        if (!doc.deleted && !doc.disposed) repo.delete(doc.id);
+        if (!doc.deleted && !doc.disposed) repo.delete(doc.id as t.DocumentId);
       }
     },
 

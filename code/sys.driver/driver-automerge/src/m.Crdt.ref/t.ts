@@ -1,10 +1,15 @@
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-type Id = t.Automerge.DocumentId;
 type P = t.Automerge.Patch;
 
-type RefProps = t.Lifecycle & { readonly id: Id; readonly deleted: boolean };
+/** A string representing a CRDT (Automerge) document-id. */
+export type StringDocumentId = string;
+
+type RefProps = t.Lifecycle & {
+  readonly id: t.StringDocumentId;
+  readonly deleted: boolean;
+};
 
 /**
  * An immutable CRDT document reference:
