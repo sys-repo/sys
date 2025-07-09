@@ -13,10 +13,7 @@ export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
-export type {
-  MediaVideoStreamReadyHandler,
-  MediaVideoStreamReady,
-} from '@sys/ui-react-components/t';
+export type { MediaVideoStreamReadyHandler } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 export type { PointerEventsHandler } from '@sys/ui-react/t';
 

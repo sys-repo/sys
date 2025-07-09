@@ -38,14 +38,11 @@ export const Avatar: React.FC<P> = (props) => {
   /**
    * Handlers:
    */
-  const handleReady = React.useCallback(
-    (e: t.MediaVideoStreamReady) => {
-      // NB: Only capture stream when "uncontrolled" (not passed in explicitly).
-      if (internalStream === undefined) setInternalStream(e.stream.filtered);
-      props.onReady?.(e);
-    },
-    [internalStream, props.onReady],
-  );
+  const handleReady: t.MediaVideoStreamReadyHandler = (e) => {
+    // NB: Only capture stream when "uncontrolled" (not passed in explicitly).
+    if (internalStream === undefined) setInternalStream(e.stream.filtered);
+    props.onReady?.(e);
+  };
 
   /**
    * Render:
