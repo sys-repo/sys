@@ -6,7 +6,7 @@ type P = t.AvatarProps;
 /**
  * Component:
  */
-export const Body: React.FC<P> = (props) => {
+export const BackBody: React.FC<P> = (props) => {
   const { debug = false, stream } = props;
 
   /**
@@ -14,11 +14,7 @@ export const Body: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-      gridTemplateRows: '1fr 1fr',
-    }),
+    base: css({ color: theme.fg, display: 'grid', gridTemplateRows: '1fr 1fr' }),
     bottom: css({
       position: 'relative',
       backgroundColor: Color.alpha(theme.fg, 0.08),
@@ -30,7 +26,6 @@ export const Body: React.FC<P> = (props) => {
     mic: css({ marginLeft: 8, marginRight: 12 }),
   };
 
-  // NB: toggle on "audio track" enabled. 🐷
   const ButtonIcon = true ? Buttons.Icons.MicOn : Buttons.Icons.MicOff;
 
   return (
@@ -43,7 +38,13 @@ export const Body: React.FC<P> = (props) => {
           stream={stream}
           style={{ top: -2 }}
         />
-        <ButtonIcon theme={theme.name} size={18} style={styles.mic} />
+        <ButtonIcon
+          theme={theme.name}
+          size={18}
+          style={styles.mic}
+          onClick={(e) => {
+          }}
+        />
       </div>
     </div>
   );

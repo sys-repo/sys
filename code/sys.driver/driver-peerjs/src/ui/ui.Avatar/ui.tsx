@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D, M, Media, usePointer } from './common.ts';
-import { Body } from './ui.Body.tsx';
+import { BackBody } from './ui.Back.Body.tsx';
 
 type P = t.AvatarProps;
 
@@ -64,9 +64,7 @@ export const Avatar: React.FC<P> = (props) => {
       borderRadius,
       backfaceVisibility: 'hidden',
       overflow: 'hidden',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      display: 'grid',
     }),
     front: css({ backgroundColor: theme.alpha(0.1).bg }),
     back: css({
@@ -87,8 +85,6 @@ export const Avatar: React.FC<P> = (props) => {
       zIndex: 1,
       color: theme.fg,
       fontSize: '1rem',
-      padding: 16,
-      textAlign: 'center',
       display: 'grid',
     }),
     border: css({
@@ -126,7 +122,7 @@ export const Avatar: React.FC<P> = (props) => {
           stream={internalStream}
         />
         <div className={styles.overlay.class}>
-          <Body {...props} />
+          <BackBody {...props} stream={internalStream} />
         </div>
       </div>
 
