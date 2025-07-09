@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Bullet, Button, Color, css, Languages } from '../common.ts';
 
-export type SelectLanguageListProps = {
+export type LanguagesListProps = {
   current?: t.EditorLanguage;
   show?: t.EditorLanguage[];
 
@@ -18,19 +18,8 @@ export type SelectLanguage = { language: t.EditorLanguage };
 /**
  * Component:
  */
-export const SelectLanguageList: React.FC<SelectLanguageListProps> = (props) => {
+export const LanguagesList: React.FC<LanguagesListProps> = (props) => {
   const { debug = false, current, onSelect, show = Languages.all } = props;
-  const language = (lang: t.EditorLanguage) => {
-    return (
-      <Language
-        //
-        key={lang}
-        language={lang}
-        current={current}
-        onSelect={onSelect}
-      />
-    );
-  };
 
   /**
    * Render:
@@ -45,14 +34,18 @@ export const SelectLanguageList: React.FC<SelectLanguageListProps> = (props) => 
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>{show.map((lang) => language(lang))}</div>
+    <div className={css(styles.base, props.style).class}>
+      {show.map((lang) => {
+        return <Language key={lang} language={lang} current={current} onSelect={onSelect} />;
+      })}
+    </div>
   );
 };
 
 /**
  * Helpers:
  */
-export function Language(props: {
+function Language(props: {
   language: t.EditorLanguage;
   current?: t.EditorLanguage;
   onSelect?: SelectLanguageHandler;

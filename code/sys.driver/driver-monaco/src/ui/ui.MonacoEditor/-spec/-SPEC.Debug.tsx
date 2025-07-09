@@ -14,7 +14,7 @@ import {
   Wrangle,
 } from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
-import { SelectLanguageList } from './-ui.ts';
+import { LanguagesList } from './-ui.ts';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<
@@ -188,7 +188,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Languages:'}</div>
-      <SelectLanguageList
+      <LanguagesList
         style={{ marginLeft: 15, marginBottom: 20 }}
         current={p.language.value}
         onSelect={(e) => {
