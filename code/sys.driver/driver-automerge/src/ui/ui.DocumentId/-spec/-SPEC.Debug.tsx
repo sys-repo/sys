@@ -226,7 +226,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
       <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 10 }} />
-      <ObjectView name={'path'} data={p.path.value} style={{ marginTop: 10 }} />
+      <ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 10 }} />
     </div>
   );
 };
