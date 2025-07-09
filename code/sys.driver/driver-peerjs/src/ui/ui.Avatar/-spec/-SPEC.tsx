@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Media } from '../common.ts';
+import { D, Kbd, Media } from '../common.ts';
 import { Avatar } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -31,6 +31,9 @@ export default Spec.describe(D.displayName, (e) => {
               console.info(`⚡️ MediaStream.onReady:`, e);
               Media.Log.tracks('⚡️ MediaStream.raw:', e.stream.raw);
               Media.Log.tracks('⚡️ MediaStream.filtered:', e.stream.filtered);
+            }}
+            onSelect={(e) => {
+              if (Kbd.Is.commandConcept(e.modifiers)) Signal.toggle(p.flipped);
             }}
           />
         );

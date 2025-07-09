@@ -7,7 +7,6 @@ type P = t.AvatarProps;
 export const Avatar: React.FC<P> = (props) => {
   const {
     debug = false,
-    stream,
     muted = D.muted,
     aspectRatio = D.aspectRatio,
     borderRadius = D.borderRadius,
@@ -16,15 +15,41 @@ export const Avatar: React.FC<P> = (props) => {
     flipped = D.flipped,
   } = props;
 
-  /* Pointer */
+  /**
+   * Hooks:
+   */
+  const [internalStream, setInternalStream] = React.useState(props.stream); // NB: "controlled" or "uncontrolled" stream state.
   const pointer = usePointer({
     on: props.onPointer,
     onUp(e) {
+      const stream = internalStream;
       if (stream) props.onSelect?.({ stream, modifiers: e.modifiers });
     },
   });
 
-  /* Styles */
+  /**
+   * Effect:
+   * If the parent later passes in a stream, override internal.
+   */
+  React.useEffect(() => {
+    if (props.stream !== undefined) setInternalStream(props.stream);
+  }, [props.stream]);
+
+  /**
+   * Handlers:
+   */
+  const handleReady = React.useCallback(
+    (e: t.MediaVideoStreamReady) => {
+      // NB: Only capture stream when "uncontrolled" (not passed in explicitly).
+      if (internalStream === undefined) setInternalStream(e.stream.filtered);
+      props.onReady?.(e);
+    },
+    [internalStream, props.onReady],
+  );
+
+  /**
+   * Render:
+   */
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
@@ -58,7 +83,7 @@ export const Avatar: React.FC<P> = (props) => {
       borderRadius,
       filter: 'blur(4px)',
       opacity: theme.is.dark ? 0.2 : 0.15,
-      transform: 'scaleX(-1)', // mirror horizontally
+      transform: 'scaleX(-1)', // NB: mirror horizontally.
     }),
     overlay: css({
       height: '100%',
@@ -77,9 +102,6 @@ export const Avatar: React.FC<P> = (props) => {
     }),
   };
 
-  /**
-   * Render:
-   */
   return (
     <M.div
       {...pointer.handlers}
@@ -87,24 +109,24 @@ export const Avatar: React.FC<P> = (props) => {
       animate={{ rotateY: flipped ? 180 : 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 20 }}
     >
-      {/* Front */}
+      {/* Front. */}
       <div className={css(styles.face, styles.front).class}>
         <Media.Video.UI.Stream
           style={styles.video}
           borderRadius={borderRadius}
           muted={muted}
-          stream={stream}
-          onReady={props.onReady}
+          stream={internalStream}
+          onReady={handleReady}
         />
       </div>
 
-      {/* Back (mirrored + blurred) */}
+      {/* Back (mirrored + blurred). */}
       <div className={css(styles.face, styles.back).class}>
         <Media.Video.UI.Stream
           style={styles.videoBlur}
           borderRadius={borderRadius}
           muted={true}
-          stream={stream}
+          stream={internalStream}
         />
         <div className={styles.overlay.class}>
           <Body {...props} />
