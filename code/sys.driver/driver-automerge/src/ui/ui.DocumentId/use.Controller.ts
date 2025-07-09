@@ -99,6 +99,7 @@ function useInternal(args: Args = {}): Hook {
     if (e.action === 'Clear') {
       p.textbox.value = undefined;
       p.doc.value = undefined;
+      p.path.value = undefined;
       p.spinning.value = false;
       return;
     }
@@ -136,6 +137,7 @@ function useInternal(args: Args = {}): Hook {
     const parsed = Parse.textbox(e.value);
     if (doc && doc.id !== parsed.id) p.doc.value = undefined;
     p.textbox.value = e.value;
+    p.path.value = parsed.path;
   };
 
   const onKeyDown: t.TextInputKeyHandler = (e) => {
@@ -252,6 +254,7 @@ const wrangle = {
     const api: t.DocumentIdHookSignals = {
       textbox: args.signals?.textbox ?? Signal.create<string>(),
       doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
+      path: args.signals?.path ?? Signal.create<t.ObjectPath>(),
       spinning: args.signals?.spinning ?? Signal.create(false),
       toValues() {
         const textbox = api.textbox.value;

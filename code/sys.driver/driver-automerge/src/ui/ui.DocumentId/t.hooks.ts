@@ -17,6 +17,7 @@ export type UseDocumentIdHookArgs<T = O> = {
   url?: t.DocumentIdUrlFactory | boolean;
   urlKey?: string;
 };
+
 /** A <DocumentId> controller hook instance. */
 export type DocumentIdHook = {
   readonly ready: boolean;
@@ -53,6 +54,7 @@ export type DocumentIdHookProps = {
 export type DocumentIdHookSignals = {
   readonly textbox: t.Signal<string | undefined>;
   readonly doc: t.Signal<t.CrdtRef | undefined>;
+  readonly path: t.Signal<t.ObjectPath | undefined>;
   readonly spinning: t.Signal<boolean>;
   toValues(): DocumentIdHookSignalValues;
 };

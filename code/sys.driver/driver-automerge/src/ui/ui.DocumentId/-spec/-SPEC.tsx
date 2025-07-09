@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       repo: v.passRepo ? repo : undefined,
       localstorage: v.localstorage,
-      signals: { doc: p.doc, textbox: p.textbox },
+      signals: { doc: p.doc, textbox: p.textbox, path: p.path },
       initial: () => ({ count: 0 }), // NB: dynamic generator.
       url: v.url,
       urlKey: v.urlKey,

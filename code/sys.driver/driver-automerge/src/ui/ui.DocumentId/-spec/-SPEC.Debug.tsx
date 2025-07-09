@@ -61,6 +61,7 @@ export function createDebugSignals() {
 
     textbox: s<string | undefined>(),
     doc: s<t.CrdtRef>(),
+    path: s<t.ObjectPath>(),
 
     label: s(snap.label),
     placeholder: s(snap.placeholder),
@@ -223,18 +224,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView
-        name={'debug'}
-        data={wrangle.data(debug)}
-        // expand={['$', '$.docRef']}
-        style={{ marginTop: 10 }}
-      />
-      <ObjectView
-        name={'doc'}
-        data={p.doc.value?.current}
-        // expand={['$', '$.docRef']}
-        style={{ marginTop: 10 }}
-      />
+      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
+      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 10 }} />
+      <ObjectView name={'path'} data={p.path.value} style={{ marginTop: 10 }} />
     </div>
   );
 };
