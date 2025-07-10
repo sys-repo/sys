@@ -16,7 +16,7 @@ export const Fmt = {
       name: f.name,
       type: f.type,
       size: Str.bytes(f.bytes.length),
-      hash: Hash.shorten(f.hash, [12, 5]),
+      hash: Hash.shorten(f.hash, [12, 8]),
     };
   },
 

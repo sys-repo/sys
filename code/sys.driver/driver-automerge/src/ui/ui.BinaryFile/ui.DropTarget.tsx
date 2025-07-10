@@ -16,7 +16,7 @@ export const DropTarget: React.FC<DropTargetProps> = (props) => {
   const { doc, isDragdropping = false } = props;
 
   let msg = isDragdropping ? 'Drop now' : 'Drop files here';
-  if (!doc) msg = '(Drop target not ready)';
+  if (!doc) msg = '( Drop target not ready )';
 
   /**
    * Render:
@@ -24,12 +24,12 @@ export const DropTarget: React.FC<DropTargetProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
       display: 'grid',
       placeItems: 'center',
     }),
     label: css({
+      userSelect: 'none',
       opacity: doc ? 1 : 0.2,
       transition: `opacity 120ms ease`,
     }),

@@ -100,7 +100,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
         doc: doc?.id,
         path,
         filemap: Fmt.fileMap(filemap),
-        pointer: pointer.is,
+        // pointer: pointer.is,
       }}
       theme={theme.name}
       style={{ marginTop: 20, marginLeft: 10 }}
