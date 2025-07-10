@@ -358,10 +358,29 @@ describe('Value.Obj.Path', () => {
     });
   });
 
-  describe.only('Path.Curried', () => {
+  describe('Path.Curried', () => {
     it('API', () => {
       expect(Path.Curried).to.equal(Curried);
       expect(Path.curry).to.equal(Curried.create);
+    });
+
+    describe('create (define)', () => {
+      it('path: foo/bar', () => {
+        const path = ['foo', 'bar'];
+        const a = Path.Curried.create(path);
+        const b = Path.curry(path);
+        expect(a.path).to.eql(path);
+        expect(a.path).to.eql(b.path);
+      });
+
+      it('path: <empty>', () => {
+        const test = (input: any) => {
+          const res = Path.curry(input);
+          expect(res.path).to.eql([]);
+        };
+        const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+        NON.forEach((v: any) => test(v));
+      });
     });
   });
 });
