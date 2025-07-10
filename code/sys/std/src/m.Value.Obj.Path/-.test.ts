@@ -12,7 +12,6 @@ describe('Value.Obj.Path', () => {
   it('API', () => {
     expect(Obj.Path).to.equal(Path);
     expect(Value.Obj.Path).to.equal(Path);
-    expect(Obj.Path.mutate).to.equal(Path.Mutate.set);
     expect(Obj.Path.Mutate.diff).to.equal(diff);
     expect(Obj.Path.Mutate.delete).to.equal(del);
   });
@@ -36,9 +35,7 @@ describe('Value.Obj.Path', () => {
     it('retrieves a deeply nested value (mixed segments)', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'bar', 1, 'baz']);
       expect(value).to.equal('found');
-
-      // Type is string | undefined (no default):
-      expectTypeOf(value).toEqualTypeOf<string | undefined>();
+      expectTypeOf(value).toEqualTypeOf<string | undefined>(); // Type is string | undefined (no default):
     });
 
     it('returns <undefined> when the path is missing', () => {
@@ -50,15 +47,18 @@ describe('Value.Obj.Path', () => {
     it('returns the provided default when the path is missing', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'bar', 99, 'nope'], 'my-default');
       expect(value).to.equal('my-default');
-
-      // Default supplied → never undefined:
-      expectTypeOf(value).toEqualTypeOf<string>();
+      expectTypeOf(value).toEqualTypeOf<string>(); // Default supplied → never undefined:
     });
 
     it('short-circuits when an intermediate segment is null/undefined', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'empty', 'x'], 'fallback');
       expect(value).to.equal('fallback');
       expectTypeOf(value).toEqualTypeOf<string>();
+    });
+
+    it('subject is <undefined>', () => {
+      const value = Obj.Path.get<string>(undefined, ['foo'], 'my-value');
+      expect(value).to.eql('my-value');
     });
   });
 
@@ -68,7 +68,7 @@ describe('Value.Obj.Path', () => {
         arr: [1, 2, 3],
         bar: {
           baz: 42,
-          qux: undefined, // value is undefined but slot exists.
+          qux: undefined, // ← value is undefined but slot exists.
         },
       },
     };
@@ -108,6 +108,11 @@ describe('Value.Obj.Path', () => {
       const proto = { p: 1 };
       const child = Object.create(proto);
       expect(Path.exists(child, ['p'])).to.be.false;
+    });
+
+    it('subject is <undefined>', () => {
+      const value = Obj.Path.exists(undefined, ['foo']);
+      expect(value).to.eql(false);
     });
   });
 

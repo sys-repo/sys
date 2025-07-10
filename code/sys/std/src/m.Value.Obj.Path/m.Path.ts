@@ -9,7 +9,6 @@ export const Path: t.ObjPathLib = {
   get,
   exists,
   Mutate,
-  mutate: Mutate.set,
   Curried,
   curry: Curried.create,
 };

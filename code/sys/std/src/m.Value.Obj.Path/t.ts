@@ -8,11 +8,6 @@ type O = Record<string, unknown>;
 export type ObjPathLib = {
   /** Tools for mutating an object in-place. */
   readonly Mutate: ObjPathMutateLib;
-  /**
-   * Deep-set helper (mutates `subject` in-place, relying on
-   * proxy layers to record structural changes).
-   */
-  readonly mutate: ObjPathMutateLib['set'];
 
   /** Tools for working with the standard path API on a curried object-path. */
   readonly Curried: t.CurriedPathLib;
@@ -23,13 +18,13 @@ export type ObjPathLib = {
    * Deep-get helper with overloads so the return type
    * is `T | undefined` unless you pass a default value.
    */
-  get<T = unknown>(subject: O, path: t.ObjectPath): T | undefined;
-  get<T = unknown>(subject: O, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+  get<T = unknown>(subject: O | undefined, path: t.ObjectPath): T | undefined;
+  get<T = unknown>(subject: O | undefined, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
    * Determine if the given path exists on the subject, irrespective of value.
    */
-  exists(subject: O, path: t.ObjectPath): boolean;
+  exists(subject: O | undefined, path: t.ObjectPath): boolean;
 };
 
 /**
