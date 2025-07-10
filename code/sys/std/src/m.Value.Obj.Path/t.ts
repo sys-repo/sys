@@ -97,12 +97,20 @@ export type ObjDiffReport = {
  */
 export type CurriedPathLib = {
   /** Create a new curried-path instance for the given path: */
-  create(path: t.ObjectPath): CurriedPath;
+  create<T = unknown>(path: t.ObjectPath): CurriedPath<T>;
 };
 
 /**
  * The standard read/mutate API for a single curried object-path value.
  */
-export type CurriedPath = {
+export type CurriedPath<T = unknown> = {
+  /** The embedded path. */
   readonly path: t.ObjectPath;
+
+  /**
+   * Deep-get helper with overloads so the return type
+   * is `T | undefined` **unless** you pass a default value.
+   */
+  get(subject: unknown): T | undefined;
+  get(subject: unknown, defaultValue: t.NonUndefined<T>): T;
 };

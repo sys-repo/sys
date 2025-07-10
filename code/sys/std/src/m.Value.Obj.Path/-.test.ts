@@ -41,7 +41,7 @@ describe('Value.Obj.Path', () => {
       expectTypeOf(value).toEqualTypeOf<string | undefined>();
     });
 
-    it('returns undefined when the path is missing', () => {
+    it('returns <undefined> when the path is missing', () => {
       const value = Obj.Path.get<number>(sample, ['foo', 'bar', 99, 'nope']);
       expect(value).to.be.undefined;
       expectTypeOf(value).toEqualTypeOf<number | undefined>();
@@ -380,6 +380,61 @@ describe('Value.Obj.Path', () => {
         };
         const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
         NON.forEach((v: any) => test(v));
+      });
+    });
+
+    describe('path.get', () => {
+      it('type overloads', () => {
+        const subject = { foo: 123 };
+        const p = Path.curry<number>(['foo']);
+        const a = p.get(subject);
+        const b = p.get(subject, 0);
+        expectTypeOf(a).toEqualTypeOf<number | undefined>();
+        expectTypeOf(b).toEqualTypeOf<number>();
+      });
+
+      it('retrieves a top-level value', () => {
+        const p = Path.curry<number>(['foo']);
+        const subject = { foo: 123 };
+        expect(p.get(subject)).to.equal(123);
+      });
+
+      it('retrieves a nested value', () => {
+        const p = Path.curry<string>(['a', 'b', 'c']);
+        const subject = { a: { b: { c: 'hello' } } };
+        expect(p.get(subject)).to.eql('hello');
+      });
+
+      it('returns <undefined> when the path is missing', () => {
+        const p = Path.curry<number>(['missing']);
+        const subject = { other: 42 };
+        expect(p.get(subject)).to.be.undefined;
+      });
+
+      it('returns <undefined> when an intermediate key is absent', () => {
+        const p = Path.curry(['a', 'b']);
+        const subject = { a: {} };
+        expect(p.get(subject)).to.be.undefined;
+      });
+
+      it('returns the subject itself for an empty path', () => {
+        const p = Path.curry([]);
+        const subject = { anything: true };
+        expect(p.get(subject)).to.eql(subject);
+      });
+
+      it('returns the default value when provided and path is missing', () => {
+        const p = Path.curry(['doesNotExist']);
+        const subject = { foo: 'bar' };
+        const defaultValue = 'fallback';
+        expect(p.get(subject, defaultValue)).to.eql(defaultValue);
+      });
+
+      it('returns the default value when subject is <null> or <undefined>', () => {
+        const p = Path.curry(['any']);
+        const defaultValue = 0;
+        expect(p.get(null, defaultValue)).to.eql(defaultValue);
+        expect(p.get(undefined, defaultValue)).to.eql(defaultValue);
       });
     });
   });
