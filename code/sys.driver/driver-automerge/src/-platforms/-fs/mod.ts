@@ -60,6 +60,7 @@ const wrangle = {
   network(input?: Args): t.NetworkAdapterInterface[] {
     if (!input?.network) return [];
     return Arr.asArray(input.network)
+      .filter(Boolean)
       .map(wrangle.adapter)
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
