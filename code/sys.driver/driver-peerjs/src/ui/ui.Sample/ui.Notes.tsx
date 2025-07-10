@@ -33,7 +33,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    editor: css({}),
+    editor: css({ display: doc ? 'block' : 'none' }),
     notReady: css({
       Absolute: 0,
       userSelect: 'none',

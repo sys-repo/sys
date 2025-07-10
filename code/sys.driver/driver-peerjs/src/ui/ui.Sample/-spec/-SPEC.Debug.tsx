@@ -7,12 +7,10 @@ import {
   css,
   D,
   Is,
-  Kbd,
   LocalStorage,
   Media,
-  Obj,
   ObjectView,
-  PATH,
+  P,
   Signal,
   slug,
   Time,
@@ -22,8 +20,6 @@ import { Conn } from '../u.ts';
 import { ViewsList } from './-ui.ts';
 
 type P = t.SampleProps;
-
-const Mutate = Obj.Path.Mutate;
 
 /**
  * Types:
@@ -72,8 +68,8 @@ export function createDebugSignals() {
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
     // network: [{ ws: 'sync.db.team' }],
-    network: [{ ws: 'sync.automerge.org' }],
-    // network: [{ ws: 'localhost:3030' }],
+    // network: [{ ws: 'sync.automerge.org' }],
+    network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {
@@ -159,20 +155,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <ViewsList
+        style={{ marginBottom: 25 }}
         enabled={!!doc}
-        current={Obj.Path.get<t.SampleView>(doc?.current, PATH.DEV.VIEW)}
+        current={P.DEV.view.get(doc?.current)}
         onSelect={(e) => {
-          doc?.change((d) => {
-            Mutate.ensure(d, PATH.DEV.BASE, {});
-            Mutate.set<t.SampleView>(d, PATH.DEV.VIEW, e.mode);
-          });
+          doc?.change((d) => P.DEV.view.set(d, e.mode));
         }}
       />
 
       <hr />
-      <DevConnectionsButtons debug={debug} />
+      <div className={Styles.title.class}>{'Room'}</div>
+      <DevConnectionsButtons debug={debug} style={{ marginBottom: 80 }} />
 
-      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -184,18 +178,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `create FileShare crdt`}
         onClick={() => {
-          const target = repo.create({});
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEV.FILES_REF, target.id));
+          const target = repo.create({ count: 0 });
+          doc?.change((d) => P.DEV.filesRef.set(d, target.id));
         }}
       />
       <Button
         block
         label={() => `delete FileShare crdt`}
         onClick={async () => {
-          const id = Obj.Path.get<string>(doc?.current, PATH.DEV.FILES_REF, '');
+          const id = P.DEV.filesRef.get(doc?.current, '');
           if (id) {
             await repo.delete(id);
-            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEV.FILES_REF));
+            doc?.change((d) => P.DEV.filesRef.delete(d));
           }
         }}
       />
@@ -205,18 +199,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `create Notes crdt`}
         onClick={() => {
-          const target = repo.create({});
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEV.NOTES_REF, target.id));
+          const target = repo.create({ count: 0 });
+          doc?.change((d) => P.DEV.notesRef.set(d, target.id));
         }}
       />
       <Button
         block
         label={() => `delete Notes crdt`}
         onClick={async () => {
-          const id = Obj.Path.get<string>(doc?.current, PATH.DEV.NOTES_REF, '');
+          const id = P.DEV.notesRef.get(doc?.current, '');
           if (id) {
             await repo.delete(id);
-            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEV.NOTES_REF));
+            doc?.change((d) => P.DEV.notesRef.delete(d));
           }
         }}
       />
@@ -224,11 +218,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `debug: ${Obj.Path.get<boolean>(doc?.current, PATH.DEV.MODE, false)}`}
+        label={() => `debug: ${P.DEV.mode.get(doc?.current, false)}`}
         onClick={() => {
           doc?.change((d) => {
-            const current = Obj.Path.get<boolean>(d, PATH.DEV.MODE, false);
-            Obj.Path.mutate<boolean>(d, PATH.DEV.MODE, !current);
+            const current = P.DEV.mode.get(d, false);
+            P.DEV.mode.set(d, !current);
           });
         }}
       />
@@ -258,14 +252,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Dev Helpers:
  */
-export function DevConnectionsButtons(props: { debug: DebugSignals }) {
+export function DevConnectionsButtons(props: { debug: DebugSignals; style?: t.CssInput }) {
   const { debug } = props;
   const { props: p, peer } = debug;
 
   const elReset = (
     <Button
       block
-      label={() => `(reset)`}
+      label={() => `reset`}
       onClick={() => {
         const doc = p.doc.value;
         doc?.change((d) => {
@@ -359,11 +353,11 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   );
 
   return (
-    <>
-      {elAddSelf}
-      {elRemoveSelf}
-      {elTmp}
+    <div className={css(props.style).class}>
       {elReset}
-    </>
+      {elAddSelf}
+      {/* {elRemoveSelf} */}
+      {elTmp}
+    </div>
   );
 }

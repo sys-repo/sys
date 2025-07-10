@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, Color, Crdt, css, D, Obj, PATH, STORAGE_KEY } from '../common.ts';
+import { Color, Crdt, css, D, P, STORAGE_KEY, type t, Url } from '../common.ts';
 
 import { Sample } from '../mod.ts';
 import { FullScreen } from '../ui.FullScreen.tsx';
@@ -24,6 +24,12 @@ export default Spec.describe(D.displayName, (e) => {
           signals: { doc: p.doc },
           initial: { count: 0 },
           localstorage: STORAGE_KEY.DEV,
+          urlKey: 'room',
+          url: (e) => {
+            const url = Url.parse(location.href).toURL();
+            url.searchParams.set(e.urlKey, e.docId);
+            return url.href;
+          },
         }}
       />
     );
@@ -66,7 +72,7 @@ export default Spec.describe(D.displayName, (e) => {
             <Sample
               // 🌳
               style={styles.sample}
-              debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEV.MODE, false)}
+              debug={P.DEV.mode.get(v.doc?.current)}
               theme={v.theme}
               //
               repo={repo}
@@ -102,13 +108,8 @@ export default Spec.describe(D.displayName, (e) => {
 
     ctx.host.footer.padding(0).render(() => {
       const v = Signal.toObject(p);
-      return (
-        <HostFooter
-          theme={v.theme}
-          debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEV.MODE, false)}
-          doc={v.doc}
-        />
-      );
+      const debug = P.DEV.mode.get(v.doc?.current, false);
+      return <HostFooter theme={v.theme} debug={debug} doc={v.doc} />;
     });
 
     ctx.host.layer(1).render(() => {

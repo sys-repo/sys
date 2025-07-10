@@ -1,5 +1,7 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { type t, Obj, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
+
+const curry = Obj.Path.curry;
 
 /**
  * Libs:
@@ -15,14 +17,14 @@ const name = 'Sample';
 export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name, false) } as const;
 export const D = DEFAULTS;
 
-export const PATH = {
+export const P = {
   DEV: {
-    BASE: ['dev'],
-    MODE: ['dev', 'mode'],
-    VIEW: ['dev', 'view'],
-    FILES: ['dev', 'files'],
-    FILES_REF: ['dev', 'files.ref'],
-    NOTES_REF: ['dev', 'notes.ref'],
+    base: curry(['dev']),
+    mode: curry<boolean>(['dev', 'mode']),
+    view: curry<t.SampleView>(['dev', 'view']),
+    files: curry(['dev', 'files']),
+    filesRef: curry<t.StringId>(['dev', 'files.ref']),
+    notesRef: curry<t.StringId>(['dev', 'notes.ref']),
   },
 };
 

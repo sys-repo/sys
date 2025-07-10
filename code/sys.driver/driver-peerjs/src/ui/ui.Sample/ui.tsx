@@ -1,14 +1,14 @@
 import React from 'react';
-import { type t, Avatar, Color, Crdt, css, D, Obj, ObjectView, PATH } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, D, ObjectView, P } from './common.ts';
 import { Notes } from './ui.Notes.tsx';
 import { useAvatarController } from './use.AvatarController.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, doc, repo, peer, onSelect } = props;
 
-  const view = Obj.Path.get<t.SampleView>(doc?.current, PATH.DEV.VIEW, 'Debug');
-  const fileshareDocid = Obj.Path.get<string>(doc?.current, PATH.DEV.FILES_REF, '');
-  const notesDocid = Obj.Path.get<string>(doc?.current, PATH.DEV.NOTES_REF, '');
+  const view = P.DEV.view.get(doc?.current, 'Debug');
+  const fileshareDocid = P.DEV.filesRef.get(doc?.current, '');
+  const notesDocid = P.DEV.notesRef.get(doc?.current, '');
 
   /**
    * Hooks:
@@ -113,13 +113,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     <Crdt.UI.BinaryFile
       theme={theme.name}
       doc={fileshare.doc}
-      path={PATH.DEV.FILES}
+      path={P.DEV.files.path}
       debug={debug}
     />
   );
 
   const elNotes = view === 'Notes' && (
-    <Notes theme={theme.name} doc={notes.doc} path={PATH.DEV.NOTES_REF} />
+    <Notes theme={theme.name} doc={notes.doc} path={P.DEV.notesRef.path} />
   );
 
   return (
