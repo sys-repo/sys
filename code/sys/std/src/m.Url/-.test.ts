@@ -11,7 +11,7 @@ describe('Url', () => {
       expect(url.error).to.eql(undefined);
       expect(url.base).to.eql(base);
       expect(url.toString()).to.eql(base);
-      expect(url.toObject()).to.eql(new URL(base));
+      expect(url.toURL()).to.eql(new URL(base));
     });
 
     it('parse: from net-addr', async () => {
@@ -45,7 +45,7 @@ describe('Url', () => {
         expect(url.ok).to.eql(false);
         expect(url.error?.message).to.include('Invalid base URL');
         expect(url.base).to.eql(String(input));
-        expect(url.toObject()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
+        expect(url.toURL()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
       });
 
       expect(Url.parse('').error?.message).to.include('Invalid base URL: <empty>');
@@ -64,6 +64,6 @@ describe('Url', () => {
   it('Url.toObject', () => {
     const href = 'https://foo.com/v1?d=true#123';
     const url = Url.parse(href);
-    expect(url.toObject().href).to.eql(href);
+    expect(url.toURL().href).to.eql(href);
   });
 });
