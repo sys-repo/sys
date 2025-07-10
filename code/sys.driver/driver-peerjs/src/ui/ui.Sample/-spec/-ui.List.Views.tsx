@@ -16,13 +16,13 @@ export type ViewsListProps = {
 export type SelectModeHandler = (e: SelectMode) => void;
 export type SelectMode = { mode: t.SampleView };
 
-const ALL_MODES: t.SampleView[] = ['Off', 'Debug', 'FileShare', 'Notes'];
+const ALL_VIEWS: t.SampleView[] = ['Off', 'Debug', 'Notes', 'FileShare'];
 
 /**
  * Component:
  */
 export const ViewsList: React.FC<ViewsListProps> = (props) => {
-  const { enabled = true, current = 'Debug', onSelect, show = ALL_MODES } = props;
+  const { enabled = true, current = 'Debug', onSelect, show = ALL_VIEWS } = props;
 
   /**
    * Render:

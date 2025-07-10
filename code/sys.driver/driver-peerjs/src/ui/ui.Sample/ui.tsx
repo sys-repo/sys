@@ -41,7 +41,8 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     const life = rx.lifecycle();
     if (repo && fileshareDocid) {
       repo.get(fileshareDocid).then((e) => {
-        if (!life.disposed) setFileshareDoc(e.doc);
+        if (life.disposed) return;
+        setFileshareDoc(e.doc);
       });
     } else {
       setFileshareDoc(undefined);
