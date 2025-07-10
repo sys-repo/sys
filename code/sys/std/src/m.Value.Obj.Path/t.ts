@@ -119,4 +119,10 @@ export type CurriedPath<T = unknown> = {
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
   set(subject: O, value: T): t.ObjDiffOp | undefined;
+
+  /**
+   * Ensure a value at the path exists (not undefined),
+   * and if not assigns the given default.
+   */
+  ensure(subject: O, defaultValue: t.NonUndefined<T>): T;
 };

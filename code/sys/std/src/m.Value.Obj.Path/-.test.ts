@@ -496,5 +496,25 @@ describe('Value.Obj.Path', () => {
         });
       });
     });
+
+    describe('path.ensure', () => {
+      const p = Path.curry<number | undefined>(['foo']);
+
+      it('leaves an existing value untouched', () => {
+        const subject = { foo: 10 };
+        const result = p.ensure(subject, 999);
+
+        expect(result).to.eql(10); //      ← returns existing.
+        expect(subject.foo).to.eql(10); // ← no mutation.
+      });
+
+      it('sets and returns the default when value is missing', () => {
+        const subject: Record<string, unknown> = {};
+        const result = p.ensure(subject, 42);
+
+        expect(result).to.eql(42); //      ← returns default.
+        expect(subject.foo).to.eql(42); // ← property now exists.
+      });
+    });
   });
 });

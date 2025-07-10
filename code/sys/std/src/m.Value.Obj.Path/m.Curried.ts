@@ -1,6 +1,7 @@
-import { type t } from './common.ts';
-import { get } from './m.Path.get.ts';
+import type { t } from './common.ts';
+import { ensure } from './m.Mutate.ensure.ts';
 import { set } from './m.Mutate.set.ts';
+import { get } from './m.Path.get.ts';
 
 type O = Record<string, unknown>;
 
@@ -10,11 +11,14 @@ export const Curried: t.CurriedPathLib = {
 
     const api: t.CurriedPath<T> = {
       path,
-      get(subject: unknown, defaultValue?: t.NonUndefined<T>) {
+      get(subject: O, defaultValue?: t.NonUndefined<T>) {
         return get<T>(subject, path, defaultValue);
       },
       set(subject: O, value: T) {
         return set(subject, path, value);
+      },
+      ensure(subject: O, defaultValue: t.NonUndefined<T>) {
+        return ensure<T>(subject, path, defaultValue);
       },
     };
 
