@@ -1,7 +1,7 @@
+import type { PkgFsLib } from './t.ts';
+
 import { Pkg as Base } from '@sys/std/pkg';
 import { Dist } from './m.Pkg.Dist.ts';
-
-import type { t } from './common.ts';
 
 /**
  * PkgLib (server extenions).
@@ -9,7 +9,7 @@ import type { t } from './common.ts';
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.
  */
-export const Pkg: t.PkgFsLib = {
+export const Pkg: PkgFsLib = {
   ...Base,
   Dist,
 };

@@ -1,4 +1,6 @@
-import { type t, isEmptyRecord, isObject, isRecord } from '../common.ts';
+import type { StdIsLib } from './t.ts';
+
+import { type t, isEmptyRecord, isObject, isPlainObject, isRecord } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 
 const { errorLike, stdError } = Err.Is;
@@ -6,13 +8,14 @@ const { errorLike, stdError } = Err.Is;
 /**
  * Common flag evaluators.
  */
-export const Is: t.StdIsLib = {
+export const Is: StdIsLib = {
   errorLike,
   stdError,
 
   object: isObject,
   record: isRecord,
   emptyRecord: isEmptyRecord,
+  plainObject: isPlainObject,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -108,6 +111,10 @@ export const Is: t.StdIsLib = {
     return typeof input === 'string';
   },
 
+  bool(input?: any): input is boolean {
+    return typeof input === 'boolean';
+  },
+
   array<T>(input?: any): input is T[] {
     return Array.isArray(input);
   },
@@ -152,5 +159,31 @@ export const Is: t.StdIsLib = {
   browser() {
     const g = globalThis;
     return typeof g.window === 'object' && typeof g.document === 'object';
+  },
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value) {
+    if (value == null) {
+      if (!Is.browser()) return false;
+      return window.location.hostname === 'localhost';
+    } else {
+      try {
+        if (Is.string(value)) return new URL(value).hostname === 'localhost';
+        if (Is.object(value)) return value.hostname === 'localhost';
+      } catch (error) {
+        return false;
+      }
+    }
+    return false;
+  },
+
+  /**
+   * Determine if the given value is an ['object', 'path'] array.
+   */
+  objectPath(input): input is t.ObjectPath {
+    if (!Array.isArray(input)) return false;
+    return input.every((item) => typeof item === 'string' || typeof item === 'number');
   },
 };

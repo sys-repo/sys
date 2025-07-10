@@ -3,47 +3,67 @@ import { Testing } from '../m.Testing.Server/mod.ts';
 import { Url } from './mod.ts';
 
 describe('Url', () => {
-  describe('create', () => {
-    it('create: factory methods', () => {
+  describe('parse', () => {
+    it('parse: factory methods', () => {
       const base = 'https://foo.com/v1';
-      const url = Url.create(base);
+      const url = Url.parse(base);
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
       expect(url.base).to.eql(base);
       expect(url.toString()).to.eql(base);
+      expect(url.toObject()).to.eql(new URL(base));
     });
 
-    it('create: from net-addr', async () => {
+    it('parse: from net-addr', async () => {
       const server = Testing.Http.server(() => new Response('foo'));
       const addr = server.addr;
-      const url = Url.fromAddr(addr);
+      const url = Url.parse(addr);
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
       expect(url.base).to.eql(`http://0.0.0.0:${addr.port}/`);
       await server.dispose();
     });
 
-    it('create: with trailing forward-slash', () => {
-      const url = Url.create('https://foo.com');
+    it('parse: with trailing forward-slash', () => {
+      const url = Url.parse('https://foo.com');
       expect(url.base).to.eql('https://foo.com/');
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
     });
 
-    it('create: localhost (http)', () => {
-      const url = Url.create('http://localhost:8080');
+    it('parse: localhost (http)', () => {
+      const url = Url.parse('http://localhost:8080');
       expect(url.base).to.eql('http://localhost:8080/');
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
     });
 
-    it('throw: invalid URL', () => {
+    it('error: invalid URL', () => {
       const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
       NON.forEach((input: any) => {
-        const fn = () => Url.create(input);
-        expect(fn).to.throw(/Invalid base URL/);
+        const url = Url.parse(input);
+        expect(url.ok).to.eql(false);
+        expect(url.error?.message).to.include('Invalid base URL');
+        expect(url.base).to.eql(String(input));
+        expect(url.toObject()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
       });
+
+      expect(Url.parse('').error?.message).to.include('Invalid base URL: <empty>');
     });
   });
 
   it('Url.join', () => {
-    const url = Url.create('https://foo.com/v1');
+    const url = Url.parse('https://foo.com/v1');
     expect(url.join('foo')).to.eql('https://foo.com/v1/foo');
     expect(url.join('/foo')).to.eql('https://foo.com/v1/foo');
     expect(url.join('///foo')).to.eql('https://foo.com/v1/foo');
     expect(url.join('foo/bar/')).to.eql('https://foo.com/v1/foo/bar/');
     expect(url.join('foo/bar?s=123')).to.eql('https://foo.com/v1/foo/bar?s=123');
+  });
+
+  it('Url.toObject', () => {
+    const href = 'https://foo.com/v1?d=true#123';
+    const url = Url.parse(href);
+    expect(url.toObject().href).to.eql(href);
   });
 });

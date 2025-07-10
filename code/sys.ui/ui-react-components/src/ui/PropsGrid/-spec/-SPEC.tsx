@@ -10,16 +10,25 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    const update = () => {
+      const width = p.width.value;
+      ctx.subject.size([width, null]);
+      ctx.redraw();
+    };
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      update();
     });
 
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <PropsGrid debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => <PropsGrid debug={p.debug.value} theme={p.theme.value} data={p.data.value} />);
+
+    // Init:
+    update();
   });
 
   e.it('ui:debug', (e) => {

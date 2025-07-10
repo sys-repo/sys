@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, useRenderer, type t } from '../common.ts';
+import { Color, css, pkg, useRenderer, type t } from '../common.ts';
 import { Wrangle } from './u.ts';
 
 export type HostComponentProps = {
@@ -40,7 +40,7 @@ export const HostComponent: React.FC<HostComponentProps> = (props) => {
     <div
       ref={props.subjectRef}
       className={styles.body.class}
-      data-component={'sys.ui.dev.harness:ComponentHost'}
+      data-component={`${pkg.name}:ComponentHost`}
     >
       {element as t.ReactNode}
     </div>

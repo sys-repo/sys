@@ -12,6 +12,7 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      padding: 10,
     }),
   };
 

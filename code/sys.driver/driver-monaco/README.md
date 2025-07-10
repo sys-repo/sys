@@ -1,5 +1,5 @@
 # UI: Monaco Code Editor
-UI module wrapping the Monaco code editor.
+UI module wrapping the Monaco code editor (with CRDT bindings).
 
 #### References
 - https://github.com/microsoft/monaco-editor

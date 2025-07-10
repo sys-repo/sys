@@ -1,11 +1,10 @@
-import type { t } from '../common.ts';
-
+import type { DeleteLib } from './t.ts';
 type O = Record<string, unknown>;
 
 /**
  * Helpers for deleting values and fields.
  */
-export const Delete: t.DeleteLib = {
+export const Delete: DeleteLib = {
   /**
    * Deletes undefined keys from an object (clone).
    */

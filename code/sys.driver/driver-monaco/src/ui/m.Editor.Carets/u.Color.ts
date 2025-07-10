@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { EditorCaretColorLib } from './t.ts';
 
 const colors = [
   '#0000FF', // blue
@@ -13,7 +13,7 @@ const colors = [
 
 let index = 0;
 
-export const Color: t.EditorCaretColorLib = {
+export const Color: EditorCaretColorLib = {
   /**
    * Iterate through a set of colors.
    */

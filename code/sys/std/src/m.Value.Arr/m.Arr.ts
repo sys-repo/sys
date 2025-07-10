@@ -1,10 +1,16 @@
 import type { t } from '../common.ts';
-import { asArray } from './u.asArray.ts';
-import { sortBy } from './u.sortBy.ts';
+import type { ArrayLib } from './t.ts';
 
-export const Arr: t.ArrayLib = {
+import { asArray } from './u.asArray.ts';
+import { equal } from './u.equality.ts';
+import { sortBy } from './u.sortBy.ts';
+import { startsWith } from './u.startsWith.ts';
+
+export const Arr: ArrayLib = {
   asArray,
   sortBy,
+  startsWith,
+  equal,
 
   isArray(input: unknown) {
     return Array.isArray(input);
@@ -43,14 +49,3 @@ export const Arr: t.ArrayLib = {
     return [...new Set(list)];
   },
 };
-
-/**
- * Helpers
- */
-function startsWith<T>(subject: T[], compare: T[]): boolean {
-  if (compare.length > subject.length) return false;
-  for (let i = 0; i < compare.length; i++) {
-    if (compare[i] !== subject[i]) return false;
-  }
-  return true;
-}

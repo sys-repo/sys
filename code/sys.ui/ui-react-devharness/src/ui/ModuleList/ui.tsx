@@ -18,13 +18,16 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   const baseRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<LiMap>(new Map<number, HTMLLIElement>());
 
-  const dist = useDist({ useSampleFallback: true });
+  /**
+   * Hooks:
+   */
+  const dist = useDist({ sampleFallback: true });
   useRubberband(props.allowRubberband ?? false);
   useScrollObserver(baseRef, itemRefs.current, props.onItemVisibility);
   useScrollController(baseRef, itemRefs.current, props.scrollTo$);
 
   /**
-   * Lifecycle
+   * Lifecycle:
    */
   useEffect(() => {
     if (!enabled) return;
@@ -34,7 +37,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   }, [props.selectedIndex, enabled]);
 
   /**
-   * Handlers
+   * Handlers:
    */
   const handleItemReadyChange: t.ModuleListItemReadyHandler = (e) => {
     const map = itemRefs.current;

@@ -1,4 +1,4 @@
-import { R, isRecord } from '../common.ts';
+import { R, isRecord } from './common.ts';
 import { walk } from './u.walk.ts';
 
 type O = Record<string, unknown>;
@@ -8,6 +8,14 @@ type O = Record<string, unknown>;
  */
 export function keys<T extends object>(obj?: T): Array<keyof T> {
   return isRecord(obj) ? (Object.keys(obj) as Array<keyof T>) : [];
+}
+
+/**
+ * Retrieve a typed JS-entries collection for the given object.
+ */
+export function entries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
+  type Entries = [keyof T, T[keyof T]][];
+  return Object.entries(obj) as Entries;
 }
 
 /**

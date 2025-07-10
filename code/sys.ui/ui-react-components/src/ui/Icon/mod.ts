@@ -1,6 +1,6 @@
 /**
- * @module
  * SVC Icons Components
+ * @module
  *
  * References:
  *  - https://react-icons.github.io/react-icons

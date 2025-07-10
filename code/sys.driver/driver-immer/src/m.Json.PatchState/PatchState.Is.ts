@@ -1,7 +1,9 @@
-import { Patch } from '../m.Json.Patch/mod.ts';
 import type { t } from './common.ts';
+import type { PatchStateIsLib } from './t.ts';
 
-export const Is: t.PatchStateIsLib = {
+import { Patch } from '../m.Json.Patch/mod.ts';
+
+export const Is: PatchStateIsLib = {
   state(input: any): input is t.PatchState<any> {
     if (input === null || typeof input !== 'object') return false;
     if (typeof input.instance !== 'string') return false;

@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 import type { t } from './common.ts';
 export type * from './m.Rgb/t.ts';

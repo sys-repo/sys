@@ -1,6 +1,5 @@
 /**
  * @module
- * Tools for...🐷
  */
 export { pkg } from './pkg.ts';
 

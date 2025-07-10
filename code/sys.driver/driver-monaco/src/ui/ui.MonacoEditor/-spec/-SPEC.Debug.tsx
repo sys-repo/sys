@@ -1,10 +1,34 @@
 import React from 'react';
 import { Monaco } from '../../../mod.ts';
 
-import { type t, Button, Color, css, D, ObjectView, Signal, Wrangle } from '../common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  Is,
+  LocalStorage,
+  ObjectView,
+  Signal,
+  Wrangle,
+} from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
+import { LanguagesList } from './-ui.ts';
 
 type P = t.MonacoEditorProps;
+type Storage = Pick<
+  P,
+  | 'theme'
+  | 'debug'
+  | 'enabled'
+  | 'readOnly'
+  | 'minimap'
+  | 'tabSize'
+  | 'language'
+  | 'placeholder'
+  | 'autoFocus'
+>;
 
 /**
  * Types:
@@ -17,40 +41,63 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const defaults: Storage = {
+    theme: 'Dark',
+    debug: true,
+    enabled: D.props.enabled,
+    readOnly: D.props.readOnly,
+    autoFocus: true,
+    minimap: D.props.minimap,
+    tabSize: D.props.tabSize,
+    language: D.props.language,
+    placeholder: undefined,
+  };
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
     render: s(true),
-    editor: s<t.MonacoCodeEditor>(),
+
+    editor: s<t.Monaco.Editor>(),
     carets: s<t.EditorCarets>(),
 
-    theme: s<P['theme']>('Dark'),
-    enabled: s<P['enabled']>(D.props.enabled),
-    readOnly: s<P['readOnly']>(D.props.readOnly),
-    minimap: s<P['minimap']>(D.props.minimap),
-    tabSize: s<P['tabSize']>(D.props.tabSize),
+    enabled: s(snap.enabled),
+    readOnly: s(snap.readOnly),
+    autoFocus: s(snap.autoFocus),
+    minimap: s(snap.minimap),
+    tabSize: s(snap.tabSize),
+    language: s(snap.language),
+    placeholder: s(snap.placeholder),
 
-    text: s<P['text']>(),
-    language: s<P['language']>(),
-    placeholder: s<P['placeholder']>(),
+    defaultValue: s<P['defaultValue']>(),
   };
   const p = props;
   const api = {
     props,
     listen() {
-      p.debug.value;
-      p.render.value;
-      p.editor.value;
-      p.carets.value;
-      p.theme.value;
-      p.enabled.value;
-      p.readOnly.value;
-      p.minimap.value;
-      p.tabSize.value;
-      p.placeholder.value;
-      p.text.value;
-      p.language.value;
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
     },
   };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.enabled = p.enabled.value;
+      d.readOnly = p.readOnly.value;
+      d.minimap = p.minimap.value;
+      d.autoFocus = p.autoFocus.value;
+      d.tabSize = p.tabSize.value;
+      d.language = p.language.value;
+      d.placeholder = p.placeholder.value;
+    });
+  });
+
   return api;
 }
 
@@ -112,6 +159,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `autoFocus: ${p.autoFocus.value}`}
+        onClick={() => Signal.toggle(p.autoFocus)}
+      />
+      <Button
+        block
+        label={() => `autoFocus: (increment number)`}
+        onClick={() => {
+          if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
+          (p.autoFocus.value as number) += 1;
+        }}
+      />
+      <Button
+        block
         label={() => `minimap: ${p.minimap.value}`}
         onClick={() => Signal.toggle(p.minimap)}
       />
@@ -125,10 +185,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
-      <hr />
-      {languageButtons(debug)}
 
       <hr />
+      <div className={Styles.title.class}>{'Languages:'}</div>
+      <LanguagesList
+        style={{ marginLeft: 15, marginBottom: 20 }}
+        current={p.language.value}
+        onSelect={(e) => {
+          const sample = SAMPLE_CODE[e.language];
+          const format = (code: string) => {
+            code = code.replace(/^\s*\n|\n\s*$/g, '');
+            return `${code}\n`;
+          };
+          if (sample) p.defaultValue.value = format(sample);
+          p.language.value = e.language;
+        }}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Carets:'}</div>
       {caretButtons(debug)}
 
       <hr />
@@ -138,62 +213,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 };
 
 /**
- * Dev Buttons:
+ * DevHelpers:
  */
-export function languageButtons(debug: DebugSignals) {
-  const p = debug.props;
-  const format = (code: string) => {
-    code = code.replace(/^\s*\n|\n\s*$/g, '');
-    return `${code}\n`;
-  };
-  const language = (language: t.EditorLanguage, codeSample?: string) => {
-    const isCurrent = language === (p.language.value ?? D.props.language);
-    return (
-      <div className={styles.row.class}>
-        <Button
-          block
-          label={() => language}
-          onClick={() => {
-            p.language.value = language;
-            if (codeSample) p.text.value = format(codeSample);
-          }}
-        />
-        <div>{isCurrent ? '🌳' : ''}</div>
-      </div>
-    );
-  };
-
-  const theme = Color.theme();
-  const styles = {
-    body: css({ marginLeft: 15 }),
-    row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
-    hr: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
-      height: 1,
-      MarginY: 5,
-    }),
-  };
-  const hr = () => <div className={styles.hr.class} />;
-
-  return (
-    <React.Fragment>
-      <div className={Styles.title.class}>{'Language:'}</div>
-      <div className={styles.body.class}>
-        {language('typescript', SAMPLE_CODE.typescript)}
-        {language('javascript', SAMPLE_CODE.javascript)}
-        {hr()}
-        {language('rust', SAMPLE_CODE.rust)}
-        {language('go', SAMPLE_CODE.go)}
-        {language('python', SAMPLE_CODE.python)}
-        {hr()}
-        {language('json', SAMPLE_CODE.json)}
-        {language('yaml', SAMPLE_CODE.yaml)}
-        {hr()}
-        {language('markdown', SAMPLE_CODE.markdown)}
-      </div>
-    </React.Fragment>
-  );
-}
 
 export function caretButtons(debug: DebugSignals) {
   const p = debug.props;
@@ -236,7 +257,6 @@ export function caretButtons(debug: DebugSignals) {
 
   return (
     <React.Fragment>
-      <div className={Styles.title.class}>{'Carets'}</div>
       <div className={styles.body.class}>
         {changeSelection('selection: [ ]', [])}
         {hr()}
