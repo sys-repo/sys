@@ -30,7 +30,7 @@ const Mutate = Obj.Path.Mutate;
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme'>;
 
 /**
  * REF: https://peerjs.com
@@ -62,10 +62,7 @@ export function createDebugSignals() {
   const peer = createPeer();
   console.info('🐚 peer:', peer);
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-  };
+  const defaults: Storage = { theme: 'Dark' };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -81,7 +78,6 @@ export function createDebugSignals() {
 
   const props = {
     redraw: s(0),
-    debug: s(snap.debug),
     theme: s(snap.theme),
     doc: s<t.Crdt.Ref<t.SampleDoc>>(),
     localStream: s<MediaStream>(),
@@ -105,7 +101,6 @@ export function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
-      d.debug = p.debug.value;
     });
   });
 
@@ -243,8 +238,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
+        label={() => `debug: ${Obj.Path.get<boolean>(doc?.current, PATH.DEBUG.MODE, false)}`}
+        onClick={() => {
+          doc?.change((d) => {
+            const current = Obj.Path.get<boolean>(d, PATH.DEBUG.MODE, false);
+            Obj.Path.mutate<boolean>(d, PATH.DEBUG.MODE, !current);
+          });
+        }}
       />
 
       <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />

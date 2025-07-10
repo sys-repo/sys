@@ -18,6 +18,7 @@ export const D = DEFAULTS;
 export const PATH = {
   DEBUG: {
     BASE: ['debug'],
+    MODE: ['debug', 'mode'],
     VIEW: ['debug', 'view'],
     FILES: ['debug', 'files'],
     FILES_REF: ['debug', 'files.ref'],

@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
+import { type t, Color, Crdt, css, D, Obj, PATH, STORAGE_KEY } from '../common.ts';
 
 import { Sample } from '../mod.ts';
 import { FullScreen } from '../ui.FullScreen.tsx';
@@ -48,7 +48,7 @@ export default Spec.describe(D.displayName, (e) => {
       .size([500, 460])
       .display('grid')
       .render(() => {
-        const theme = Color.theme(p.theme.value);
+        const v = Signal.toObject(p);
         const styles = {
           base: css({ display: 'grid' }),
           docId: css({ Absolute: [-30, 0, null, 0] }),
@@ -60,21 +60,21 @@ export default Spec.describe(D.displayName, (e) => {
 
             <Sample
               // 🌳
-              debug={p.debug.value}
-              theme={p.theme.value}
+              debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEBUG.MODE, false)}
+              theme={v.theme}
               //
               repo={repo}
-              doc={p.doc.value}
+              doc={v.doc}
               peer={debug.peer}
-              remoteStream={p.remoteStream.value}
+              remoteStream={v.remoteStream}
               //
               onReady={(e) => {
                 console.info(`⚡️ onReady:`, e);
-                p.localStream.value = e.self.stream;
+                v.localStream = e.self.stream;
               }}
               onSelect={(e) => {
                 console.info(`⚡️ onSelect:`, e);
-                p.selectedStream.value = e.stream;
+                v.selectedStream = e.stream;
               }}
             />
           </div>
@@ -94,9 +94,16 @@ export default Spec.describe(D.displayName, (e) => {
         );
       });
 
-    ctx.host.footer
-      .padding(0)
-      .render(() => <HostFooter theme={p.theme.value} debug={p.debug.value} doc={p.doc.value} />);
+    ctx.host.footer.padding(0).render(() => {
+      const v = Signal.toObject(p);
+      return (
+        <HostFooter
+          theme={v.theme}
+          debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEBUG.MODE, false)}
+          doc={v.doc}
+        />
+      );
+    });
 
     ctx.host.layer(1).render(() => {
       const stream = p.selectedStream.value;
