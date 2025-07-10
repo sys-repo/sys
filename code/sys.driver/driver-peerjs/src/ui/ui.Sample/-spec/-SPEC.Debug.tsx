@@ -201,21 +201,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `create BinaryFile crdt`}
         onClick={() => {
           const fileDoc = repo.create({ count: 0 });
-          doc?.change((d) => {
-            Obj.Path.mutate(d, PATH.DEBUG.FILE_DOC, fileDoc.id);
-          });
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILE_DOC, fileDoc.id));
         }}
       />
       <Button
         block
-        label={() => `load BinaryFile crdt`}
+        label={() => `delete BinaryFile crdt`}
         onClick={async () => {
           const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILE_DOC, '');
-          console.log('id', id);
           if (id) {
-            const m = await repo.get(id);
-            console.log('m', m);
-            console.log('m.doc?.current', m.doc?.current);
+            await repo.delete(id);
+            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.FILE_DOC));
           }
         }}
       />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, rx, Avatar, Color, Crdt, css, D, Obj, ObjectView, PATH } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, D, Obj, ObjectView, PATH, rx } from './common.ts';
 import { useAvatarController } from './use.AvatarController.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
@@ -39,9 +39,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
    */
   React.useEffect(() => {
     const life = rx.lifecycle();
-    repo?.get(fileshareDocid).then((e) => {
-      if (!life.disposed) setFileshareDoc(e.doc);
-    });
+    if (repo && fileshareDocid) {
+      repo.get(fileshareDocid).then((e) => {
+        if (!life.disposed) setFileshareDoc(e.doc);
+      });
+    } else {
+      setFileshareDoc(undefined);
+    }
     return life.dispose;
   }, [fileshareDocid, !!repo]);
 
