@@ -224,10 +224,9 @@ describe('Value.Obj.Path', () => {
       it('adds, updates, and deletes top-level keys', () => {
         const target: O = { a: 1, b: 2, c: 3 };
         const source: O = { b: 2, c: 99, d: 4 };
+        const report = Mutate.diff(source, target);
 
-        const report = diff(source, target);
-
-        expect(target).to.eql(source); // state equal
+        expect(target).to.eql(source);
         expect(report.stats).to.eql({
           adds: 1,
           removes: 1,
@@ -244,7 +243,7 @@ describe('Value.Obj.Path', () => {
         const target: O = { user: { name: 'Ann', age: 21, misc: 'remove-me' } };
         const source: O = { user: { name: 'Ann', age: 22 } };
 
-        const report = diff(source, target);
+        const report = Mutate.diff(source, target);
 
         expect(target).to.eql(source);
         expect(report.stats).to.eql({
@@ -263,7 +262,7 @@ describe('Value.Obj.Path', () => {
         const target: O = { list: [1, 2, 3] };
         const source: O = { list: [1, 2, 4] };
 
-        const report = diff(source, target);
+        const report = Mutate.diff(source, target);
 
         expect(target).to.eql(source); // Values equal.
         expect(target.list).to.not.equal(source.list); // Cloned ref.
@@ -283,7 +282,7 @@ describe('Value.Obj.Path', () => {
         const target: O = { x: { y: 1 } };
         const source: O = { x: { y: 1 } };
 
-        const report = diff(source, target);
+        const report = Mutate.diff(source, target);
 
         expect(report.stats.total).to.equal(0);
         expect(report.ops.length).to.equal(0);
@@ -297,7 +296,7 @@ describe('Value.Obj.Path', () => {
         const source: any = { label: 'B' };
         source.self = source; // ← cycle in source.
 
-        const report = diff(source, target);
+        const report = Mutate.diff(source, target);
         expect(report.stats).to.eql({
           adds: 0,
           removes: 0,
