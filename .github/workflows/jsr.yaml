@@ -191,6 +191,12 @@ jobs:
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/driver-peerjs"
+        run: |
+          cd code/sys.driver/driver-peerjs
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-obsidian"
         run: |
           cd code/sys.driver/driver-obsidian
@@ -206,12 +212,6 @@ jobs:
       - name: publish module → "@sys/driver-orbiter"
         run: |
           cd code/sys.driver/driver-orbiter
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-peerjs"
-        run: |
-          cd code/sys.driver/driver-peerjs
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
