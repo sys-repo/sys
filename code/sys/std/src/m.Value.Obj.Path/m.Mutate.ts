@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
-import { diff } from './m.Path.Mutate.diff.ts';
-import { set } from './m.Path.Mutate.set.ts';
+
+import { del } from './m.Mutate.delete.ts';
+import { diff } from './m.Mutate.diff.ts';
+import { set } from './m.Mutate.set.ts';
 import { get } from './m.Path.get.ts';
 
 type KeyMap = Record<string, unknown>;
@@ -12,6 +14,7 @@ type KeyMap = Record<string, unknown>;
 export const Mutate: t.ObjPathMutateLib = {
   diff,
   set,
+  delete: del,
 
   /**
    * Ensure a value at the given path exists (not undefined),

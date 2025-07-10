@@ -7,7 +7,13 @@ type KeyMap = Record<string, unknown>;
  * Tools for working with objects via abstract path arrays.
  */
 export type ObjPathLib = {
+  /** Library of tools for mutating an object in-place. */
   readonly Mutate: ObjPathMutateLib;
+  /**
+   * Deep-set helper (mutates `subject` in-place, relying on
+   * proxy layers to record structural changes).
+   */
+  readonly mutate: ObjPathMutateLib['set'];
 
   /**
    * Deep-get helper with overloads so the return type
@@ -20,12 +26,6 @@ export type ObjPathLib = {
    * Determine if the given path exists on the subject, irrespective of value.
    */
   exists(subject: unknown, path: t.ObjectPath): boolean;
-
-  /**
-   * Deep-set helper (mutates `subject` in-place, relying on
-   * proxy layers to record structural changes).
-   */
-  readonly mutate: ObjPathMutateLib['set'];
 };
 
 /**
@@ -45,6 +45,11 @@ export type ObjPathMutateLib = {
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
   set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
+
+  /**
+   * Deletes the value at the given path if it exists.
+   */
+  delete(subject: KeyMap, path: t.ObjectPath): t.ObjDiffOp | undefined;
 
   /**
    * Mutate `target` in-place so that, once the function returns,

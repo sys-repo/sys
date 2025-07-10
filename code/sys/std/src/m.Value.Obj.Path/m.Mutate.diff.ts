@@ -1,5 +1,5 @@
 import { type t, isPlainObject } from './common.ts';
-import { set } from './m.Path.Mutate.set.ts';
+import { set } from './m.Mutate.set.ts';
 
 type O = Record<string, unknown>;
 type Path = t.ObjectPath;
