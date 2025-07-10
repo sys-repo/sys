@@ -103,8 +103,13 @@ export type CurriedPath<T = unknown> = {
    * Deep-get helper with overloads so the return type
    * is `T | undefined` unless you pass a default value.
    */
-  get(subject: O): T | undefined;
-  get(subject: O, defaultValue: t.NonUndefined<T>): T;
+  get(subject: O | undefined): T | undefined;
+  get(subject: O | undefined, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Determine if the given path exists on the subject, irrespective of value.
+   */
+  exists(subject: O | undefined): boolean;
 
   /**
    * Deep-set helper that mutates `subject` setting a nested value at the path.

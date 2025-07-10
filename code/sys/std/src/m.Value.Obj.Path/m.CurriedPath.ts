@@ -3,6 +3,7 @@ import { ensure } from './m.Mutate.ensure.ts';
 import { set } from './m.Mutate.set.ts';
 import { get } from './m.Path.get.ts';
 import { del } from './m.Mutate.delete.ts';
+import { exists } from './m.Path.exists.ts';
 
 type O = Record<string, unknown>;
 
@@ -12,7 +13,10 @@ export const CurriedPath: t.CurriedPathLib = {
 
     const api: t.CurriedPath<T> = {
       path,
-      get(subject: O, defaultValue?: t.NonUndefined<T>) {
+      exists(subject: O | undefined) {
+        return exists(subject, path);
+      },
+      get(subject: O | undefined, defaultValue?: t.NonUndefined<T>) {
         return get<T>(subject, path, defaultValue);
       },
       set(subject: O, value: T) {

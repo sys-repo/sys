@@ -1,10 +1,10 @@
 import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Obj } from '../m.Value.Obj/mod.ts';
 import { Value } from '../m.Value/mod.ts';
+import { CurriedPath } from './m.CurriedPath.ts';
 import { del } from './m.Mutate.delete.ts';
 import { diff } from './m.Mutate.diff.ts';
 import { Path } from './mod.ts';
-import { CurriedPath } from './m.CurriedPath.ts';
 
 type O = Record<string, unknown>;
 
@@ -452,8 +452,34 @@ describe('Value.Obj.Path', () => {
         expect(p.get(null as any, defaultValue)).to.eql(defaultValue);
         expect(p.get(undefined as any, defaultValue)).to.eql(defaultValue);
       });
+
+      it('subject is <undefined>', () => {
+        const p = Path.curry(['a', 'b']);
+        expect(p.get(undefined)).to.eql(undefined);
+        expect(p.get(undefined, 'foo')).to.eql('foo');
+      });
     });
 
+    describe('Path.curry(...).exists', () => {
+      const p = Path.curry(['foo']);
+
+      it('returns true when the property is present (any value)', () => {
+        const subject1 = { foo: 123 };
+        const subject2 = { foo: undefined };
+
+        expect(p.exists(subject1)).to.be.true; // ← value present.
+        expect(p.exists(subject2)).to.be.true; // ← present but undefined.
+      });
+
+      it('returns false when the property is absent', () => {
+        const subject = { bar: 1 };
+        expect(p.exists(subject)).to.be.false;
+      });
+
+      it('returns false when the subject itself is undefined', () => {
+        expect(p.exists(undefined)).to.be.false;
+      });
+    });
     describe('path.curry(...).set', () => {
       const p = Path.curry<number | undefined>(['foo']);
 
