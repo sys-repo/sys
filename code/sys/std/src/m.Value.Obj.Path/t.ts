@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-type KeyMap = Record<string, unknown>;
 
 /**
  * Tools for working with objects via abstract path arrays.
@@ -24,13 +23,13 @@ export type ObjPathLib = {
    * Deep-get helper with overloads so the return type
    * is `T | undefined` unless you pass a default value.
    */
-  get<T = unknown>(subject: unknown, path: t.ObjectPath): T | undefined;
-  get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+  get<T = unknown>(subject: O, path: t.ObjectPath): T | undefined;
+  get<T = unknown>(subject: O, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
    * Determine if the given path exists on the subject, irrespective of value.
    */
-  exists(subject: unknown, path: t.ObjectPath): boolean;
+  exists(subject: O, path: t.ObjectPath): boolean;
 };
 
 /**
@@ -39,22 +38,22 @@ export type ObjPathLib = {
  */
 export type ObjPathMutateLib = {
   /**
-   * Deep-set helper that mmutates `subject` setting a nested value at the `path`.
+   * Deep-set helper that mutates `subject` setting a nested value at the `path`.
    *  - Creates intermediate objects/arrays as needed.
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
-  set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
+  set<T = unknown>(subject: O, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
 
   /**
    * Ensure a value at the given path exists (not undefined),
    * and if not assigns the given default.
    */
-  ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+  ensure<T = unknown>(subject: O, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
    * Deletes the value at the given path if it exists.
    */
-  delete(subject: KeyMap, path: t.ObjectPath): t.ObjDiffOp | undefined;
+  delete(subject: O, path: t.ObjectPath): t.ObjDiffOp | undefined;
 
   /**
    * Mutate `target` in-place so that, once the function returns,
@@ -111,6 +110,13 @@ export type CurriedPath<T = unknown> = {
    * Deep-get helper with overloads so the return type
    * is `T | undefined` unless you pass a default value.
    */
-  get(subject: unknown): T | undefined;
-  get(subject: unknown, defaultValue: t.NonUndefined<T>): T;
+  get(subject: O): T | undefined;
+  get(subject: O, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Deep-set helper that mutates `subject` setting a nested value at the path.
+   *  - Creates intermediate objects/arrays as needed.
+   *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
+   */
+  set(subject: O, value: T): t.ObjDiffOp | undefined;
 };

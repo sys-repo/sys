@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-type KeyMap = Record<string, unknown>;
+type O = Record<string, unknown>;
 type Path = t.ObjectPath;
 type Op = t.ObjDiffOp;
 
@@ -12,7 +12,7 @@ type Op = t.ObjDiffOp;
  * - Writing `undefined` removes the key via `delete`.
  * - Returns `undefined` if the operation was a no-op (`Object.is` equality).
  */
-export function set<T = unknown>(subject: KeyMap, path: Path, value: T): Op | undefined {
+export function set<T = unknown>(subject: O, path: Path, value: T): Op | undefined {
   if (path.length === 0) throw new Error('The path-array must contain at least one segment');
 
   let node: any = subject;

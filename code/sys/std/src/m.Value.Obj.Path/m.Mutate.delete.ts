@@ -1,11 +1,11 @@
 import { type t } from './common.ts';
 
-type KeyMap = Record<string, unknown>;
+type O = Record<string, unknown>;
 
 /**
  * Deletes the value at the given path if it exists.
  */
-export function del(subject: KeyMap, path: t.ObjectPath): t.ObjDiffOp | undefined {
+export function del(subject: O, path: t.ObjectPath): t.ObjDiffOp | undefined {
   if (path == null || path.length === 0) return;
 
   // Descend to the parent of the target.

@@ -1,6 +1,6 @@
 import { type t, isRecord } from './common.ts';
 
-type KeyMap = Record<string, unknown>;
+type O = Record<string, unknown>;
 
 /**
  * Determine if the given path exists on the subject, irrespective of value.
@@ -14,7 +14,7 @@ export function exists(subject: unknown, path: t.ObjectPath): boolean {
     if (node === null || node === undefined || typeof node !== 'object') {
       return false; // Cannot descend further.
     }
-    node = (node as KeyMap)[path[i] as keyof KeyMap];
+    node = (node as O)[path[i] as keyof O];
   }
 
   const parent = node;
