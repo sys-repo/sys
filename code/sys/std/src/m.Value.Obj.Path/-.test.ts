@@ -4,6 +4,7 @@ import { Value } from '../m.Value/mod.ts';
 import { del } from './m.Mutate.delete.ts';
 import { diff } from './m.Mutate.diff.ts';
 import { Path } from './mod.ts';
+import { Curried } from './m.Curried.ts';
 
 type O = Record<string, unknown>;
 
@@ -354,6 +355,13 @@ describe('Value.Obj.Path', () => {
         expect((subject.arr as any).length).to.eql(3);
         expect(subject.arr).to.eql([10, undefined, 30]);
       });
+    });
+  });
+
+  describe.only('Path.Curried', () => {
+    it('API', () => {
+      expect(Path.Curried).to.equal(Curried);
+      expect(Path.curry).to.equal(Curried.create);
     });
   });
 });

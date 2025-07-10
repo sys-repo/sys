@@ -7,13 +7,18 @@ type KeyMap = Record<string, unknown>;
  * Tools for working with objects via abstract path arrays.
  */
 export type ObjPathLib = {
-  /** Library of tools for mutating an object in-place. */
+  /** Tools for mutating an object in-place. */
   readonly Mutate: ObjPathMutateLib;
   /**
    * Deep-set helper (mutates `subject` in-place, relying on
    * proxy layers to record structural changes).
    */
   readonly mutate: ObjPathMutateLib['set'];
+
+  /** Tools for working with the standard path API on a curried object-path. */
+  readonly Curried: t.CurriedPathLib;
+  /** Create a new curried-path instance for the given path. */
+  readonly curry: t.CurriedPathLib['create'];
 
   /**
    * Deep-get helper with overloads so the return type
@@ -85,4 +90,19 @@ export type ObjDiffReport = {
     readonly arrays: number;
     readonly total: number;
   };
+};
+
+/**
+ * Curried object-path wrapper API.
+ */
+export type CurriedPathLib = {
+  /** Create a new curried-path instance for the given path: */
+  create(path: t.ObjectPath): CurriedPath;
+};
+
+/**
+ * The standard read/mutate API for a single curried object-path value.
+ */
+export type CurriedPath = {
+  readonly path: t.ObjectPath;
 };
