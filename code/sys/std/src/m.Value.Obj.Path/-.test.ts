@@ -376,7 +376,7 @@ describe('Value.Obj.Path', () => {
       expect(Path.curry).to.equal(Curried.create);
     });
 
-    describe('create (define)', () => {
+    describe('create: path.curry(...)', () => {
       it('path: foo/bar', () => {
         const path = ['foo', 'bar'];
         const a = Path.Curried.create(path);
@@ -445,8 +445,55 @@ describe('Value.Obj.Path', () => {
       it('returns the default value when subject is <null> or <undefined>', () => {
         const p = Path.curry(['any']);
         const defaultValue = 0;
-        expect(p.get(null, defaultValue)).to.eql(defaultValue);
-        expect(p.get(undefined, defaultValue)).to.eql(defaultValue);
+        expect(p.get(null as any, defaultValue)).to.eql(defaultValue);
+        expect(p.get(undefined as any, defaultValue)).to.eql(defaultValue);
+      });
+    });
+
+    describe('path.set', () => {
+      const p = Path.curry<number | undefined>(['foo']);
+
+      it('sets a new value at the curried key', () => {
+        const subject: Record<string, unknown> = {};
+        const op = p.set(subject, 123);
+
+        expect(subject.foo).to.eql(123);
+        expect(op).to.eql<t.ObjDiffOp>({
+          type: 'add',
+          path: ['foo'],
+          value: 123,
+        });
+      });
+
+      it('overwrites an existing value', () => {
+        const subject = { foo: 1 };
+        const op = p.set(subject, 2);
+
+        expect(subject.foo).to.eql(2);
+        expect(op).to.eql<t.ObjDiffOp>({
+          type: 'update',
+          path: ['foo'],
+          prev: 1,
+          next: 2,
+        });
+      });
+
+      it('returns <undefined> when value is unchanged', () => {
+        const subject = { foo: 42 };
+        const op = p.set(subject, 42);
+        expect(op).to.be.undefined;
+      });
+
+      it('removes the property when value is <undefined>', () => {
+        const subject = { foo: 99 };
+        const op = p.set(subject, undefined);
+
+        expect('foo' in subject).to.be.false;
+        expect(op).to.eql<t.ObjDiffOp>({
+          type: 'remove',
+          path: ['foo'],
+          prev: 99,
+        });
       });
     });
   });
