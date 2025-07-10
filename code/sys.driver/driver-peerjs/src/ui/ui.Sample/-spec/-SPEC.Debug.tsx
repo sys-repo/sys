@@ -1,22 +1,29 @@
 import { Peer, type PeerOptions } from 'peerjs';
 import React from 'react';
+
 import {
   Button,
   Crdt,
-  Time,
   css,
   D,
   Is,
+  Kbd,
   LocalStorage,
   Media,
+  Obj,
   ObjectView,
+  PATH,
   Signal,
   slug,
+  Time,
   type t,
 } from '../common.ts';
 import { Conn } from '../u.ts';
+import { ViewsList } from './-ui.ts';
 
 type P = t.SampleProps;
+
+const Mutate = Obj.Path.Mutate;
 
 /**
  * Types:
@@ -26,7 +33,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type Storage = Pick<P, 'theme' | 'debug'>;
 
 /**
- * REF: https://peerjs.com/
+ * REF: https://peerjs.com
  */
 export function createPeer() {
   const peerId = `webrtc-peer-${slug()}`;
@@ -40,9 +47,9 @@ export function createPeer() {
   };
 
   const peer = new Peer(peerId, peerOptions);
-
   peer.on('open', (id) => console.info('⚡️ peer.on/open:', id));
   peer.on('error', (err) => console.error('⚡️ peer.on/error: 💥', err));
+
   return peer;
 }
 
@@ -68,6 +75,8 @@ export function createDebugSignals() {
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
     network: [{ ws: 'sync.db.team' }],
+    // network: [{ ws: 'sync.automerge.org' }],
+    // network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {
@@ -140,6 +149,8 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const doc = p.doc.value;
+  const repo = debug.repo;
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRedrawEffect(p.doc.value);
 
@@ -152,6 +163,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <ViewsList
+        enabled={!!doc}
+        current={Obj.Path.get<t.SampleView>(doc?.current, PATH.DEBUG.VIEW)}
+        onSelect={(e) => {
+          doc?.change((d) => {
+            Mutate.ensure(d, PATH.DEBUG.BASE, {});
+            Mutate.set<t.SampleView>(d, PATH.DEBUG.VIEW, e.mode);
+          });
+        }}
+      />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -159,13 +182,41 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-
       <Button
         block
         label={() => `count: increment`}
-        onClick={() => {
+        onClick={(e) => {
+          const cmd = Kbd.Is.commandConcept(Kbd.modifiers(e));
           const doc = p.doc.value;
-          doc?.change((d) => d.count++);
+          doc?.change((d) => {
+            if (cmd) d.count = 0;
+            else d.count++;
+          });
+        }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `create BinaryFile crdt`}
+        onClick={() => {
+          const fileDoc = repo.create({ count: 0 });
+          doc?.change((d) => {
+            Obj.Path.mutate(d, PATH.DEBUG.FILE_DOC, fileDoc.id);
+          });
+        }}
+      />
+      <Button
+        block
+        label={() => `load BinaryFile crdt`}
+        onClick={async () => {
+          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILE_DOC, '');
+          console.log('id', id);
+          if (id) {
+            const m = await repo.get(id);
+            console.log('m', m);
+            console.log('m.doc?.current', m.doc?.current);
+          }
         }}
       />
 
@@ -180,6 +231,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
+
+      <Button
+        block
+        label={() => `tmp 🐷`}
+        onClick={() => {
+          doc?.change((d) => {
+            // const obj = Obj.Path.get<any>(d, PATH.DEBUG.BASE, {});
+          });
+        }}
+      />
+
       <ObjectView
         name={'debug'}
         data={Signal.toObject({ ...p, doc: p.doc.value?.current })}

@@ -1,6 +1,7 @@
-import React from 'react';
-import { type t, Color, Crdt, css, Icons, Obj } from '../common.ts';
 import { TextEditor } from '@sys/driver-prosemirror';
+import React from 'react';
+
+import { type t, Color, css, Icons, Obj, Url, usePointer } from '../common.ts';
 
 export type HostFooterProps = {
   doc?: t.Crdt.Ref;
@@ -21,6 +22,8 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
    * Hooks:
    */
   const [text, setText] = React.useState<string>();
+  const [iconOver, setIconOver] = React.useState(false);
+  const iconPointer = usePointer((e) => setIconOver(e.is.over));
 
   /**
    * Effect:
@@ -43,16 +46,29 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
       borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.15)}`,
       padding: 10,
       display: 'grid',
-      gridTemplateColumns: 'auto 1fr',
+      gridTemplateColumns: 'auto 1fr auto',
       columnGap: 6,
+      alignItems: 'center',
     }),
     icon: css({
       opacity: !!text ? 1 : 0.25,
       color: !!text ? Color.BLUE : theme.fg,
       transition: 'opacity 120ms ease, color 120ms ease',
     }),
-    textEditor: css({ minHeight: 20, fontSize: 14, top: 2 }),
+    textEditor: css({ minHeight: 20, fontSize: 14 }),
+    a: css({ color: Color.BLUE }),
+    suffix: css({ display: 'grid', placeItems: 'center', marginRight: 4 }),
   };
+
+  const url = wrangle.url(text);
+  const LinkIcon = iconOver ? Icons.Link.External : Icons.Link.Chain;
+  const elSuffix = url && (
+    <div className={styles.suffix.class} {...iconPointer.handlers}>
+      <a className={styles.a.class} href={url.href} target="_blank" rel="noopener noreferrer">
+        <LinkIcon size={20} />
+      </a>
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -64,6 +80,17 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
         theme={theme.name}
         singleLine={true}
       />
+      {elSuffix}
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  url(text: string = '') {
+    const url = Url.parse(text);
+    return url.ok ? url.toObject() : undefined;
+  },
+} as const;

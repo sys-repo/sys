@@ -1,9 +1,12 @@
 import type { t } from './common.ts';
 
+export type SampleView = 'Off' | 'Debug' | 'FileShare' | 'Notes';
+
 /**
  * <Component>:
  */
 export type SampleProps = {
+  repo?: t.Crdt.Repo;
   doc?: t.Crdt.Ref<t.SampleDoc>;
   peer?: t.PeerJS.Peer;
   remoteStream?: MediaStream;

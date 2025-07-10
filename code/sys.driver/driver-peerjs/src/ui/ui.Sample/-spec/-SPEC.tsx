@@ -4,7 +4,7 @@ import { type t, Color, Crdt, css, D, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { FullScreen } from '../ui.FullScreen.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { HostFooter } from './-ui.Footer.tsx';
+import { HostFooter } from './-ui.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -63,8 +63,9 @@ export default Spec.describe(D.displayName, (e) => {
               debug={p.debug.value}
               theme={p.theme.value}
               //
-              peer={debug.peer}
+              repo={repo}
               doc={p.doc.value}
+              peer={debug.peer}
               remoteStream={p.remoteStream.value}
               //
               onReady={(e) => {
