@@ -7,14 +7,19 @@ describe('Url', () => {
     it('parse: factory methods', () => {
       const base = 'https://foo.com/v1';
       const url = Url.parse(base);
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
       expect(url.base).to.eql(base);
       expect(url.toString()).to.eql(base);
+      expect(url.toObject()).to.eql(new URL(base));
     });
 
     it('parse: from net-addr', async () => {
       const server = Testing.Http.server(() => new Response('foo'));
       const addr = server.addr;
       const url = Url.parse(addr);
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
       expect(url.base).to.eql(`http://0.0.0.0:${addr.port}/`);
       await server.dispose();
     });
@@ -22,18 +27,25 @@ describe('Url', () => {
     it('parse: with trailing forward-slash', () => {
       const url = Url.parse('https://foo.com');
       expect(url.base).to.eql('https://foo.com/');
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
     });
 
     it('parse: localhost (http)', () => {
       const url = Url.parse('http://localhost:8080');
       expect(url.base).to.eql('http://localhost:8080/');
+      expect(url.ok).to.eql(true);
+      expect(url.error).to.eql(undefined);
     });
 
-    it('throw: invalid URL', () => {
+    it('error: invalid URL', () => {
       const NON = ['foo', 123, false, null, undefined, {}, [], Symbol('foo'), BigInt(0)];
       NON.forEach((input: any) => {
-        const fn = () => Url.parse(input);
-        expect(fn).to.throw(/Invalid base URL/);
+        const url = Url.parse(input);
+        expect(url.ok).to.eql(false);
+        expect(url.error?.message).to.include('Invalid base URL');
+        expect(url.base).to.eql(String(input));
+        expect(url.toObject()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
       });
     });
   });

@@ -12,6 +12,12 @@ export type UrlLib = {
  * Represents a URL endpoint of an HTTP service.
  */
 export type HttpUrl = {
+  /** Flag indicating if the parse was OK - false if there is an error. */
+  readonly ok: boolean;
+
+  /** Parse error. */
+  readonly error?: t.StdError;
+
   /** The base URL path. */
   readonly base: string;
 

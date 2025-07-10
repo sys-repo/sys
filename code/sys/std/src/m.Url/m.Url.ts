@@ -1,4 +1,4 @@
-import { type t, Is, Path } from './common.ts';
+import { type t, Err, Is, Path } from './common.ts';
 import type { UrlLib } from './t.ts';
 
 /**
@@ -18,18 +18,25 @@ const wrangle = {
     try {
       const url = new URL(base);
       return { url };
-    } catch (_err: unknown) {
-      const error = new Error(`Invalid base URL: ${String(base)}`);
-      return { error };
+    } catch (cause: unknown) {
+      const msg = `Invalid base URL: ${String(base)}`;
+      const error = Err.std(msg, { cause });
+      const url = new URL('about:blank');
+      return { url, error };
     }
   },
 
-  fromUrl(base: t.StringUrl) {
+  fromAddr(base: Deno.NetAddr) {
+    return wrangle.fromUrl(`http://${base.hostname}:${base.port}`);
+  },
+
+  fromUrl(base: t.StringUrl): t.HttpUrl {
     const { url, error } = wrangle.asUrl(base);
-    if (error) throw error;
-    base = url.href;
-    const api: t.HttpUrl = {
+    base = error ? String(base) : url.href;
+    return {
+      ok: !error,
       base,
+      error: error,
       join(...parts: string[]) {
         const path = Path.join(url.pathname, ...parts);
         return `${url.origin}/${path.replace(/^\/*/, '')}`;
@@ -38,13 +45,8 @@ const wrangle = {
         return base;
       },
       toObject() {
-        return new URL(api.toString());
+        return new URL(url.toString());
       },
     };
-    return api;
-  },
-
-  fromAddr(base: Deno.NetAddr) {
-    return wrangle.fromUrl(`http://${base.hostname}:${base.port}`);
   },
 } as const;
