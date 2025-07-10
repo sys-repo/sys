@@ -7,8 +7,6 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, doc, repo, peer, onSelect } = props;
 
   const view = P.DEV.view.get(doc?.current, 'Debug');
-  const fileshareDocid = P.DEV.filesRef.get(doc?.current, '');
-  const notesDocid = P.DEV.notesRef.get(doc?.current, '');
 
   /**
    * Hooks:
@@ -16,8 +14,8 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const readyRef = React.useRef(false);
   const self = useAvatarController({ name: 'Self', onSelect });
   const remote = useAvatarController({ name: 'Remote', stream: props.remoteStream, onSelect });
-  const fileshare = Crdt.UI.useDoc(repo, fileshareDocid);
-  const notes = Crdt.UI.useDoc(repo, notesDocid);
+  const fileshare = Crdt.UI.useDoc(repo, P.DEV.filesRef.get(doc?.current, ''));
+  const notes = Crdt.UI.useDoc(repo, P.DEV.notesRef.get(doc?.current, ''));
 
   /**
    * Effects:
