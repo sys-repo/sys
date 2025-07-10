@@ -33,7 +33,13 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { ExtractSignalValue, HistoryStack, Signal, SignalValue } from '@sys/std/t';
+export type {
+  ExtractSignalValue,
+  HistoryStack,
+  Signal,
+  SignalValue,
+  TimeDelayPromise,
+} from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';
