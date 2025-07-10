@@ -1,4 +1,4 @@
-import { pkg, Pkg } from '../common.ts';
+import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
@@ -24,4 +24,9 @@ export const PATH = {
     FILES_REF: ['dev', 'files.ref'],
     NOTES_REF: ['dev', 'notes.ref'],
   },
+};
+
+const ALL_VIEWS: t.SampleView[] = ['Room', 'Notes', 'FileShare', 'Debug'];
+export const VIEWS = {
+  ALL: ALL_VIEWS,
 };

@@ -72,8 +72,8 @@ export function createDebugSignals() {
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
     // network: [{ ws: 'sync.db.team' }],
-    // network: [{ ws: 'sync.automerge.org' }],
-    network: [{ ws: 'localhost:3030' }],
+    network: [{ ws: 'sync.automerge.org' }],
+    // network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {
@@ -170,24 +170,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
+      <DevConnectionsButtons debug={debug} />
 
       <hr />
       <Button
         block
-        label={() => `count: increment`}
-        onClick={(e) => {
-          const cmd = Kbd.Is.commandConcept(Kbd.modifiers(e));
-          const doc = p.doc.value;
-          doc?.change((d) => {
-            if (cmd) d.count = 0;
-            else d.count++;
-          });
-        }}
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
@@ -233,9 +222,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <DevConnectionsButtons debug={debug} />
-
-      <hr />
       <Button
         block
         label={() => `debug: ${Obj.Path.get<boolean>(doc?.current, PATH.DEV.MODE, false)}`}
@@ -254,13 +240,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `tmp 🐷`}
         onClick={() => {
           doc?.change((d) => {
-            // const obj = Obj.Path.get<any>(d, PATH.DEBUG.BASE, {});
+            // const obj = Obj.Path.get<any>(d, [''], {});
           });
         }}
       />
 
       <ObjectView
-        name={'debug'}
+        name={'debug(room)'}
         data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
         expand={0}
         style={{ marginTop: 10 }}
@@ -276,10 +262,10 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
   const { debug } = props;
   const { props: p, peer } = debug;
 
-  const elClear = (
+  const elReset = (
     <Button
       block
-      label={() => `clear`}
+      label={() => `(reset)`}
       onClick={() => {
         const doc = p.doc.value;
         doc?.change((d) => {
@@ -346,6 +332,9 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
         const dyads = doc.current.connections?.dyads ?? [];
         const dyad = dyads[0]; // 🐷 NB: hack, first dyad used only.
 
+        console.log('dyad', dyad);
+        console.log('localStream', localStream);
+
         if (!dyad || !localStream) return;
 
         const res = Conn.maintainDyadConnection({
@@ -371,10 +360,10 @@ export function DevConnectionsButtons(props: { debug: DebugSignals }) {
 
   return (
     <>
-      {elClear}
       {elAddSelf}
       {elRemoveSelf}
       {elTmp}
+      {elReset}
     </>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Button, Color, css } from '../common.ts';
+import { type t, Bullet, Button, Color, css, VIEWS } from '../common.ts';
 
 export type ViewsListProps = {
   enabled?: boolean;
@@ -16,13 +16,11 @@ export type ViewsListProps = {
 export type SelectModeHandler = (e: SelectMode) => void;
 export type SelectMode = { mode: t.SampleView };
 
-const ALL_VIEWS: t.SampleView[] = ['Off', 'Debug', 'Notes', 'FileShare'];
-
 /**
  * Component:
  */
 export const ViewsList: React.FC<ViewsListProps> = (props) => {
-  const { enabled = true, current = 'Debug', onSelect, show = ALL_VIEWS } = props;
+  const { enabled = true, current = 'Debug', onSelect, show = VIEWS.ALL } = props;
 
   /**
    * Render:

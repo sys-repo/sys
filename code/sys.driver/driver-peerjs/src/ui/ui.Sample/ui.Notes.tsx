@@ -29,11 +29,24 @@ export const Notes: React.FC<NotesProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       color: theme.fg,
       display: 'grid',
     }),
     editor: css({}),
+    notReady: css({
+      Absolute: 0,
+      userSelect: 'none',
+      opacity: doc ? 1 : 0.2,
+      transition: `opacity 120ms ease`,
+      display: 'grid',
+      placeItems: 'center',
+    }),
   };
+
+  const elNotReady = !doc && (
+    <div className={styles.notReady.class}>{'( Notes target not ready )'}</div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -45,6 +58,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
         language={'yaml'}
         onReady={(e) => setEditor(e.editor)}
       />
+      {elNotReady}
     </div>
   );
 };

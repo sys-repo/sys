@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type SampleView = 'Off' | 'Debug' | 'FileShare' | 'Notes';
+export type SampleView = 'Room' | 'Debug' | 'FileShare' | 'Notes';
 
 /**
  * <Component>:

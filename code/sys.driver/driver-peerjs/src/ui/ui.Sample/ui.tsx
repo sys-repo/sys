@@ -53,7 +53,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       inner: css({ Absolute: 0, overflow: 'hidden', display: 'grid' }),
     },
     debug: css({ padding: 40 }),
-    obj: css({ marginTop: 20 }),
+    obj: css({ marginTop: 10 }),
     dyad: {
       base: css({
         padding: 15,
@@ -65,7 +65,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     },
   };
 
-  const elDebug = (debug || view === 'Debug') && (
+  const elDebug = view === 'Debug' && (
     <div className={styles.debug.class}>
       <div>{`🐷 ${D.displayName}`}</div>
       <ObjectView
@@ -126,7 +126,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.base.class}>
         <div className={styles.body.inner.class}>
-          {view === 'Debug' && elDebug}
+          {elDebug}
           {elFileShare}
           {elNotes}
         </div>

@@ -96,6 +96,6 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
 const wrangle = {
   url(text: string = '') {
     const url = Url.parse(text);
-    return url.ok ? url.toObject() : undefined;
+    return url.ok ? url.toURL() : undefined;
   },
 } as const;
