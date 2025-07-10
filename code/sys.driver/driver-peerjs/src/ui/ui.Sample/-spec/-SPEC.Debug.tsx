@@ -67,9 +67,9 @@ export function createDebugSignals() {
    */
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
-    // network: [{ ws: 'sync.db.team' }],
+    network: [{ ws: 'sync.db.team' }],
     // network: [{ ws: 'sync.automerge.org' }],
-    network: [{ ws: 'localhost:3030' }],
+    // network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {

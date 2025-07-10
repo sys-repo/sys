@@ -1,10 +1,10 @@
 import { Monaco } from '@sys/driver-monaco';
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Crdt, Color, css, P, ObjectView } from './common.ts';
 
 export type NotesProps = {
-  doc?: t.Crdt.Ref;
-  path?: t.ObjectPath;
+  repo?: t.Crdt.Repo;
+  room?: t.Crdt.Ref;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -15,13 +15,16 @@ export type NotesProps = {
  * Component:
  */
 export const Notes: React.FC<NotesProps> = (props) => {
-  const { doc, path } = props;
+  const { debug = false, repo, room } = props;
+  const docId = P.DEV.notesRef.get(room?.current, '');
+  const path = ['text'];
 
   /**
    * Hooks:
    */
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
-  Monaco.useBinding(editor, doc, path);
+  const notes = Crdt.UI.useDoc(repo, docId);
+  Monaco.useBinding(editor, notes.doc, path);
 
   /**
    * Render:
@@ -33,19 +36,42 @@ export const Notes: React.FC<NotesProps> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    editor: css({ display: doc ? 'block' : 'none' }),
+    editor: css({
+      Absolute: 0,
+      display: notes.doc ? 'block' : 'none',
+      opacity: debug ? 0.2 : 1,
+    }),
     notReady: css({
       Absolute: 0,
       userSelect: 'none',
-      opacity: doc ? 1 : 0.2,
+      opacity: notes.doc ? 1 : 0.2,
       transition: `opacity 120ms ease`,
       display: 'grid',
       placeItems: 'center',
     }),
+    debug: css({
+      Absolute: 0,
+      padding: 20,
+      backgroundColor: Color.ruby(),
+    }),
   };
 
-  const elNotReady = !doc && (
+  const elNotReady = !notes.doc && (
     <div className={styles.notReady.class}>{'( Notes target not ready )'}</div>
+  );
+
+  const elDebug = debug && (
+    <div className={styles.debug.class}>
+      <ObjectView
+        theme={theme.name}
+        expand={2}
+        name={'notes.crdt'}
+        data={{
+          id: docId,
+          doc: notes.doc?.current,
+        }}
+      />
+    </div>
   );
 
   return (
@@ -53,12 +79,14 @@ export const Notes: React.FC<NotesProps> = (props) => {
       <Monaco.Editor
         theme={theme.name}
         style={styles.editor}
-        enabled={!!doc}
+        enabled={!!notes.doc}
+        readOnly={debug}
         autoFocus={true}
         language={'yaml'}
         onReady={(e) => setEditor(e.editor)}
       />
       {elNotReady}
+      {elDebug}
     </div>
   );
 };

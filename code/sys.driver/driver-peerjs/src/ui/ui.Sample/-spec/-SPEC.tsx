@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Color, Crdt, css, D, P, STORAGE_KEY, type t, Url } from '../common.ts';
+import { type t, Color, Crdt, css, D, P, STORAGE_KEY, Url } from '../common.ts';
 
 import { Sample } from '../mod.ts';
 import { FullScreen } from '../ui.FullScreen.tsx';

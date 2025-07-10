@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Avatar, Color, Crdt, css, D, ObjectView, P } from './common.ts';
 import { Notes } from './ui.Notes.tsx';
 import { useAvatarController } from './use.AvatarController.ts';
+import { Fileshare } from './ui.Fileshare.tsx';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, doc, repo, peer, onSelect } = props;
@@ -67,13 +68,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     <div className={styles.debug.class}>
       <div>{`🐷 ${D.displayName}`}</div>
       <ObjectView
+        style={styles.obj}
         theme={theme.name}
         name={'room'}
         data={{
           webrtc: peer,
           doc: doc?.current,
         }}
-        style={styles.obj}
         expand={['$', '$.doc', '$.doc.connections', '$.doc.connections.group']}
       />
     </div>
@@ -107,17 +108,12 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     />
   );
 
-  const elFileShare = view === 'FileShare' && (
-    <Crdt.UI.BinaryFile
-      theme={theme.name}
-      doc={fileshare.doc}
-      path={P.DEV.files.path}
-      debug={debug}
-    />
+  const elFileshare = view === 'FileShare' && (
+    <Fileshare debug={debug} theme={theme.name} repo={repo} room={doc} />
   );
 
   const elNotes = view === 'Notes' && (
-    <Notes theme={theme.name} doc={notes.doc} path={P.DEV.notesRef.path} />
+    <Notes debug={debug} theme={theme.name} repo={repo} room={doc} />
   );
 
   return (
@@ -125,7 +121,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       <div className={styles.body.base.class}>
         <div className={styles.body.inner.class}>
           {elDebug}
-          {elFileShare}
+          {elFileshare}
           {elNotes}
         </div>
       </div>
