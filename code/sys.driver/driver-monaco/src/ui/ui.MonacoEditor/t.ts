@@ -16,7 +16,7 @@ export type MonacoEditorProps = {
 
   // Appearance:
   theme?: t.CommonTheme;
-  style?: t.CssValue;
+  style?: t.CssInput;
   debug?: boolean;
 
   // Handlers:
