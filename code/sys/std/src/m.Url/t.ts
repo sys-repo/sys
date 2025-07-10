@@ -28,5 +28,5 @@ export type HttpUrl = {
   toString(): string;
 
   /** Snapshot the current value into a URL instance. */
-  toObject(): URL;
+  toURL(): URL;
 };

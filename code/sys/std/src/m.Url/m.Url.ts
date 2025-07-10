@@ -44,7 +44,7 @@ const wrangle = {
       toString() {
         return base;
       },
-      toObject() {
+      toURL() {
         return new URL(url.toString());
       },
     };
