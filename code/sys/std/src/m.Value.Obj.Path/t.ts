@@ -125,4 +125,9 @@ export type CurriedPath<T = unknown> = {
    * and if not assigns the given default.
    */
   ensure(subject: O, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Deletes the value at the given path if it exists.
+   */
+  delete(subject: O): t.ObjDiffOp | undefined;
 };

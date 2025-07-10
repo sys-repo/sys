@@ -395,7 +395,7 @@ describe('Value.Obj.Path', () => {
       });
     });
 
-    describe('path.get', () => {
+    describe('path.curry(...).get', () => {
       it('type overloads', () => {
         const subject = { foo: 123 };
         const p = Path.curry<number>(['foo']);
@@ -450,7 +450,7 @@ describe('Value.Obj.Path', () => {
       });
     });
 
-    describe('path.set', () => {
+    describe('path.curry(...).set', () => {
       const p = Path.curry<number | undefined>(['foo']);
 
       it('sets a new value at the curried key', () => {
@@ -497,8 +497,8 @@ describe('Value.Obj.Path', () => {
       });
     });
 
-    describe('path.ensure', () => {
-      const p = Path.curry<number | undefined>(['foo']);
+    describe('path.curry(...).ensure', () => {
+      const p = Path.curry<number>(['foo']);
 
       it('leaves an existing value untouched', () => {
         const subject = { foo: 10 };
@@ -514,6 +514,32 @@ describe('Value.Obj.Path', () => {
 
         expect(result).to.eql(42); //      ← returns default.
         expect(subject.foo).to.eql(42); // ← property now exists.
+      });
+    });
+
+    describe('path.curry(...).delete', () => {
+      const p = Path.curry<number>(['foo']);
+
+      it('removes an existing property and returns the remove-op', () => {
+        const subject = { foo: 7 };
+
+        const op = p.delete(subject);
+
+        expect('foo' in subject).to.be.false;
+        expect(op).to.eql<t.ObjDiffOp>({
+          type: 'remove',
+          path: ['foo'],
+          prev: 7,
+        });
+      });
+
+      it('returns <undefined> when the property is already absent', () => {
+        const subject: Record<string, unknown> = {};
+
+        const op = p.delete(subject);
+
+        expect(op).to.be.undefined;
+        expect(subject).to.eql({}); // no mutation
       });
     });
   });
