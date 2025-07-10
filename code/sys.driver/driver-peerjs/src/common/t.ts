@@ -21,6 +21,7 @@ export type { PointerEventsHandler } from '@sys/ui-react/t';
  * CRDT:
  */
 export type { Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { Monaco } from '@sys/driver-monaco/t';
 
 /**
  * PeerJS (WebRTC):

@@ -57,7 +57,12 @@ export const HostFooter: React.FC<HostFooterProps> = (props) => {
     }),
     textEditor: css({ minHeight: 20, fontSize: 14 }),
     a: css({ color: Color.BLUE }),
-    suffix: css({ display: 'grid', placeItems: 'center', marginRight: 4 }),
+    suffix: css({
+      marginRight: 4,
+      marginLeft: 6,
+      display: 'grid',
+      placeItems: 'center',
+    }),
   };
 
   const url = wrangle.url(text);

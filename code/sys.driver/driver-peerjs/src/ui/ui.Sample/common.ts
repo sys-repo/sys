@@ -20,6 +20,7 @@ export const PATH = {
     BASE: ['debug'],
     VIEW: ['debug', 'view'],
     FILES: ['debug', 'files'],
-    FILE_DOC: ['debug', 'files.ref'],
+    FILES_REF: ['debug', 'files.ref'],
+    NOTES_REF: ['debug', 'notes.ref'],
   },
 };

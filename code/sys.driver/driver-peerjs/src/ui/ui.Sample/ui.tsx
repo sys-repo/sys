@@ -1,21 +1,21 @@
 import React from 'react';
-import { type t, Avatar, Color, Crdt, css, D, Obj, ObjectView, PATH, rx } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, D, Obj, ObjectView, PATH } from './common.ts';
+import { Notes } from './ui.Notes.tsx';
 import { useAvatarController } from './use.AvatarController.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, doc, repo, peer, onSelect } = props;
 
   const view = Obj.Path.get<t.SampleView>(doc?.current, PATH.DEBUG.VIEW, 'Debug');
-  const fileshareDocid = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILE_DOC, '');
+  const fileshareDocid = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILES_REF, '');
 
   /**
    * Hooks:
    */
   const readyRef = React.useRef(false);
-  const [fileshareDoc, setFileshareDoc] = React.useState<t.Crdt.Ref>();
-
   const self = useAvatarController({ name: 'Self', onSelect });
   const remote = useAvatarController({ name: 'Remote', stream: props.remoteStream, onSelect });
+  const fileshare = Crdt.UI.useDoc(repo, fileshareDocid);
 
   /**
    * Effects:
@@ -33,22 +33,6 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     const stream = self.stream;
     props.onReady?.({ self: { stream, peer: peer.id } });
   }, [!!self.stream, !!peer]);
-
-  /**
-   * Effect: load file-share CRDT.
-   */
-  React.useEffect(() => {
-    const life = rx.lifecycle();
-    if (repo && fileshareDocid) {
-      repo.get(fileshareDocid).then((e) => {
-        if (life.disposed) return;
-        setFileshareDoc(e.doc);
-      });
-    } else {
-      setFileshareDoc(undefined);
-    }
-    return life.dispose;
-  }, [fileshareDocid, !!repo]);
 
   /**
    * Render:
@@ -123,10 +107,10 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     />
   );
 
-  const elFileShare = (
+  const elFileShare = view === 'FileShare' && (
     <Crdt.UI.BinaryFile
       theme={theme.name}
-      doc={fileshareDoc}
+      doc={fileshare.doc}
       path={PATH.DEBUG.FILES}
       debug={debug}
     />
@@ -137,7 +121,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       <div className={styles.body.base.class}>
         <div className={styles.body.inner.class}>
           {view === 'Debug' && elDebug}
-          {view === 'FileShare' && elFileShare}
+          {elFileShare}
         </div>
       </div>
       <div className={styles.dyad.base.class}>

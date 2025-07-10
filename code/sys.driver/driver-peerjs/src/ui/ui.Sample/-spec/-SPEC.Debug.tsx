@@ -74,9 +74,9 @@ export function createDebugSignals() {
    */
   const repo = Crdt.repo({
     storage: { database: 'dev:slc.crdt' },
-    network: [{ ws: 'sync.db.team' }],
+    // network: [{ ws: 'sync.db.team' }],
     // network: [{ ws: 'sync.automerge.org' }],
-    // network: [{ ws: 'localhost:3030' }],
+    network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {
@@ -201,17 +201,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `create BinaryFile crdt`}
         onClick={() => {
           const fileDoc = repo.create({ count: 0 });
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILE_DOC, fileDoc.id));
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILES_REF, fileDoc.id));
         }}
       />
       <Button
         block
         label={() => `delete BinaryFile crdt`}
         onClick={async () => {
-          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILE_DOC, '');
+          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILES_REF, '');
           if (id) {
             await repo.delete(id);
-            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.FILE_DOC));
+            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.FILES_REF));
           }
         }}
       />
