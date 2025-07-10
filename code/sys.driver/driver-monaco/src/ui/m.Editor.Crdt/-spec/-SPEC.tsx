@@ -1,9 +1,10 @@
 import { DocumentId } from '@sys/driver-automerge/ui';
+
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, D } from '../common.ts';
-import { EditorCrdt } from '../mod.ts';
+import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -30,6 +31,36 @@ export default Spec.describe(D.displayName, async (e) => {
     );
   }
 
+  function HostSubject() {
+    const v = Signal.toObject(p);
+
+    /**
+     * Hook:
+     */
+    useBinding(v.editor, v.doc, v.path, (e) => {
+      p.binding.value = e.binding;
+      e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
+    });
+
+    /**
+     * Render:
+     */
+    if (!v.doc) return null;
+    return (
+      <MonacoEditor
+        key={`${v.path?.join('.')}`}
+        debug={v.debug}
+        theme={v.theme}
+        language={v.language}
+        autoFocus={true}
+        onReady={(e) => {
+          console.info(`⚡️ MonacoEditor.onReady:`, e);
+          p.editor.value = e.editor;
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -42,42 +73,7 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size('fill', 150)
       .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        if (!v.doc) return null;
-
-        return (
-          <MonacoEditor
-            key={`${v.path?.join('.')}`}
-            debug={v.debug}
-            theme={v.theme}
-            language={v.language}
-            autoFocus={true}
-            onReady={async (e) => {
-              /**
-               * 🌳 READY:
-               */
-              console.info(`⚡️ MonacoEditor.onReady:`, e);
-              p.editor.value = e.editor;
-
-              // Kill old binding (if it exists).
-              p.binding.value?.dispose();
-              p.binding.value = undefined;
-
-              // Setup new binding.
-              const doc = p.doc.value;
-              const path = p.path.value ?? [];
-
-              if (doc) {
-                const binding = await EditorCrdt.bind(e.editor, doc, path);
-
-                p.binding.value = binding;
-                binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
-              }
-            }}
-          />
-        );
-      });
+      .render(() => <HostSubject />);
 
     ctx.host.header.padding(0).render((e) => <HostDocumentId />);
   });

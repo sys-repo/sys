@@ -7,6 +7,7 @@ export type MonacoLib = {
   readonly Is: t.MonacoIsLib;
   readonly Editor: React.FC<t.MonacoEditorProps>;
   readonly Carets: t.EditorCaretsLib;
+  readonly useBinding: t.UseEditorCrdtBinding;
 };
 
 /**

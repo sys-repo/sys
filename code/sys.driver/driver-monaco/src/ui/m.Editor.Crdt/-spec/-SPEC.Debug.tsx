@@ -1,5 +1,5 @@
 import React from 'react';
-import { SelectLanguageList } from '../../ui.MonacoEditor/-spec/-ui.ts';
+import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { importLibs } from '../libs.ts';
@@ -39,7 +39,8 @@ export async function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: [{ ws: 'sync.db.team' }],
+    // network: [{ ws: 'sync.db.team' }],
+    network: [{ ws: 'localhost:3030' }],
   });
 
   const props = {
@@ -145,7 +146,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Language:'}</div>
-      <SelectLanguageList
+      <LanguagesList
         style={{ marginLeft: 15, marginBottom: 20 }}
         current={p.language.value}
         onSelect={(e) => (p.language.value = e.language)}
@@ -173,7 +174,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ...Signal.toObject(p),
           doc: p.doc.value?.current,
         }}
-        // expand={['$', '$.doc']}
+        style={{ marginTop: 10 }}
+      />
+      <ObjectView
+        name={'binding'}
+        data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}
         style={{ marginTop: 10 }}
       />
     </div>
