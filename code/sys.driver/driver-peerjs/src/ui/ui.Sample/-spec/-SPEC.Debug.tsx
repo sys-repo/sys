@@ -160,11 +160,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <ViewsList
         enabled={!!doc}
-        current={Obj.Path.get<t.SampleView>(doc?.current, PATH.DEBUG.VIEW)}
+        current={Obj.Path.get<t.SampleView>(doc?.current, PATH.DEV.VIEW)}
         onSelect={(e) => {
           doc?.change((d) => {
-            Mutate.ensure(d, PATH.DEBUG.BASE, {});
-            Mutate.set<t.SampleView>(d, PATH.DEBUG.VIEW, e.mode);
+            Mutate.ensure(d, PATH.DEV.BASE, {});
+            Mutate.set<t.SampleView>(d, PATH.DEV.VIEW, e.mode);
           });
         }}
       />
@@ -196,17 +196,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `create FileShare crdt`}
         onClick={() => {
           const target = repo.create({});
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILES_REF, target.id));
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEV.FILES_REF, target.id));
         }}
       />
       <Button
         block
         label={() => `delete FileShare crdt`}
         onClick={async () => {
-          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILES_REF, '');
+          const id = Obj.Path.get<string>(doc?.current, PATH.DEV.FILES_REF, '');
           if (id) {
             await repo.delete(id);
-            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.FILES_REF));
+            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEV.FILES_REF));
           }
         }}
       />
@@ -217,17 +217,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `create Notes crdt`}
         onClick={() => {
           const target = repo.create({});
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.NOTES_REF, target.id));
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEV.NOTES_REF, target.id));
         }}
       />
       <Button
         block
         label={() => `delete Notes crdt`}
         onClick={async () => {
-          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.NOTES_REF, '');
+          const id = Obj.Path.get<string>(doc?.current, PATH.DEV.NOTES_REF, '');
           if (id) {
             await repo.delete(id);
-            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.NOTES_REF));
+            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEV.NOTES_REF));
           }
         }}
       />
@@ -238,11 +238,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `debug: ${Obj.Path.get<boolean>(doc?.current, PATH.DEBUG.MODE, false)}`}
+        label={() => `debug: ${Obj.Path.get<boolean>(doc?.current, PATH.DEV.MODE, false)}`}
         onClick={() => {
           doc?.change((d) => {
-            const current = Obj.Path.get<boolean>(d, PATH.DEBUG.MODE, false);
-            Obj.Path.mutate<boolean>(d, PATH.DEBUG.MODE, !current);
+            const current = Obj.Path.get<boolean>(d, PATH.DEV.MODE, false);
+            Obj.Path.mutate<boolean>(d, PATH.DEV.MODE, !current);
           });
         }}
       />

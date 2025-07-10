@@ -16,12 +16,12 @@ export const DEFAULTS = { name, displayName: Pkg.toString(pkg, name, false) } as
 export const D = DEFAULTS;
 
 export const PATH = {
-  DEBUG: {
-    BASE: ['debug'],
-    MODE: ['debug', 'mode'],
-    VIEW: ['debug', 'view'],
-    FILES: ['debug', 'files'],
-    FILES_REF: ['debug', 'files.ref'],
-    NOTES_REF: ['debug', 'notes.ref'],
+  DEV: {
+    BASE: ['dev'],
+    MODE: ['dev', 'mode'],
+    VIEW: ['dev', 'view'],
+    FILES: ['dev', 'files'],
+    FILES_REF: ['dev', 'files.ref'],
+    NOTES_REF: ['dev', 'notes.ref'],
   },
 };

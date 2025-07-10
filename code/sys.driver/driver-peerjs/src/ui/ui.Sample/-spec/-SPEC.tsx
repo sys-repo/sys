@@ -60,7 +60,7 @@ export default Spec.describe(D.displayName, (e) => {
 
             <Sample
               // 🌳
-              debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEBUG.MODE, false)}
+              debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEV.MODE, false)}
               theme={v.theme}
               //
               repo={repo}
@@ -99,7 +99,7 @@ export default Spec.describe(D.displayName, (e) => {
       return (
         <HostFooter
           theme={v.theme}
-          debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEBUG.MODE, false)}
+          debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEV.MODE, false)}
           doc={v.doc}
         />
       );
