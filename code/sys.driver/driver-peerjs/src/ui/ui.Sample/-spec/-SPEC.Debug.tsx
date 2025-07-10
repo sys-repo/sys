@@ -198,20 +198,41 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `create BinaryFile crdt`}
+        label={() => `create FileShare crdt`}
         onClick={() => {
-          const fileDoc = repo.create({ count: 0 });
-          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILES_REF, fileDoc.id));
+          const target = repo.create({});
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.FILES_REF, target.id));
         }}
       />
       <Button
         block
-        label={() => `delete BinaryFile crdt`}
+        label={() => `delete FileShare crdt`}
         onClick={async () => {
           const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILES_REF, '');
           if (id) {
             await repo.delete(id);
             doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.FILES_REF));
+          }
+        }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `create Notes crdt`}
+        onClick={() => {
+          const target = repo.create({});
+          doc?.change((d) => Obj.Path.mutate(d, PATH.DEBUG.NOTES_REF, target.id));
+        }}
+      />
+      <Button
+        block
+        label={() => `delete Notes crdt`}
+        onClick={async () => {
+          const id = Obj.Path.get<string>(doc?.current, PATH.DEBUG.NOTES_REF, '');
+          if (id) {
+            await repo.delete(id);
+            doc?.change((d) => Obj.Path.Mutate.delete(d, PATH.DEBUG.NOTES_REF));
           }
         }}
       />

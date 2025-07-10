@@ -15,6 +15,7 @@ import {
 } from './common.ts';
 import { Binary } from './m.Binary.ts';
 import { downloadFile, dragdropFile, Fmt } from './u.ts';
+import { DropTarget } from './ui.DropTarget.tsx';
 
 export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   const { doc, path = ['files'], debug = false } = props;
@@ -26,10 +27,9 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
    */
   useRedrawEffect(doc, path);
   const pointer = usePointer({
-    onDrag(e) {
-      // console.log('onDrag', e);
-    },
+    onDrag(e) {},
     async onDragdrop(e) {
+      if (!doc) return;
       if (e.action === 'Drop') {
         const files = await Promise.all(e.files.map(Binary.fromBrowserFile));
 
@@ -78,11 +78,6 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     }),
     top: css({ display: 'grid' }),
     bottom: css({ display: 'grid' }),
-    dropMsg: css({
-      display: 'grid',
-      placeItems: 'center',
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-    }),
     file: {
       base: css({
         marginTop: 10,
@@ -131,10 +126,9 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   });
 
   const elDropMessage = !debug && (
-    <div className={styles.dropMsg.class}>
-      {pointer.is.dragdropping ? 'Drop now' : 'Drop files here'}
-    </div>
+    <DropTarget isDragdropping={pointer.is.dragdropping} doc={doc} theme={theme.name} />
   );
+
   const elDebug = debug && (
     <div>
       <div>{`🐷 ${D.displayName}`}</div>

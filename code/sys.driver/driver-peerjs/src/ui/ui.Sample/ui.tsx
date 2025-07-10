@@ -8,6 +8,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   const view = Obj.Path.get<t.SampleView>(doc?.current, PATH.DEBUG.VIEW, 'Debug');
   const fileshareDocid = Obj.Path.get<string>(doc?.current, PATH.DEBUG.FILES_REF, '');
+  const notesDocid = Obj.Path.get<string>(doc?.current, PATH.DEBUG.NOTES_REF, '');
 
   /**
    * Hooks:
@@ -16,6 +17,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const self = useAvatarController({ name: 'Self', onSelect });
   const remote = useAvatarController({ name: 'Remote', stream: props.remoteStream, onSelect });
   const fileshare = Crdt.UI.useDoc(repo, fileshareDocid);
+  const notes = Crdt.UI.useDoc(repo, notesDocid);
 
   /**
    * Effects:
@@ -116,12 +118,17 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     />
   );
 
+  const elNotes = view === 'Notes' && (
+    <Notes theme={theme.name} doc={notes.doc} path={PATH.DEBUG.NOTES_REF} />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.base.class}>
         <div className={styles.body.inner.class}>
           {view === 'Debug' && elDebug}
           {elFileShare}
+          {elNotes}
         </div>
       </div>
       <div className={styles.dyad.base.class}>

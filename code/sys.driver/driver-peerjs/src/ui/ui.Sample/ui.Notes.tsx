@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, DEFAULTS, rx, Crdt } from './common.ts';
 import { Monaco } from '@sys/driver-monaco';
+import React from 'react';
+import { type t, Color, css } from './common.ts';
 
 export type NotesProps = {
-  doc?: t.Crdt.Ref<t.SampleDoc>;
+  doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
 
   debug?: boolean;
@@ -21,18 +21,14 @@ export const Notes: React.FC<NotesProps> = (props) => {
    * Hooks:
    */
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
-  Monaco.useBinding(editor, doc, path, (e) => {
-  });
+  Monaco.useBinding(editor, doc, path);
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-    }),
+    base: css({ color: theme.fg, display: 'grid' }),
     editor: css({}),
   };
 
