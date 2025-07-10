@@ -57,8 +57,8 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
       expect(b.id.peer.startsWith('crdt-peer-')).to.be.true;
     });
 
-    it('repo: network with <undefined> in it', () => {
-      const repo = Crdt.repo({ network: [{ ws: 'sync.db.team' }, undefined] });
+    it('repo: network with <Falsy> in it', () => {
+      const repo = Crdt.repo({ network: [{ ws: 'sync.db.team' }, undefined, null, false, 0, ''] });
       expect(repo.id.peer.startsWith('crdt-peer-')).to.be.true;
       expect(repo.sync.urls).to.eql(['wss://sync.db.team']); // NB: the <undefined> entry filtered out.
     });

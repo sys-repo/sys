@@ -25,4 +25,4 @@ export type CrdtFsNetworkArg =
   | { ws: StringWebsocketEndpoint };
 
 /** Looser input args taking specific CRDT args, and general network interface types. */
-export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface | undefined;
+export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface | t.Falsy;

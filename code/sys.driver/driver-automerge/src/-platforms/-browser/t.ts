@@ -33,7 +33,4 @@ export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterI
 /** Network connection argument. */
 export type CrdtBrowserNetworkArg = { ws: StringWebsocketEndpoint };
 /** Looser input args taking specific CRDT args, and general network interface types. */
-export type CrdtBrowserNetworkArgInput =
-  | CrdtBrowserNetworkArg
-  | NetworkAdapterInterface
-  | undefined;
+export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface | t.Falsy;
