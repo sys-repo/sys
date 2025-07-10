@@ -19,7 +19,7 @@ const wrangle = {
       const url = new URL(base);
       return { url };
     } catch (cause: unknown) {
-      const msg = `Invalid base URL: ${String(base)}`;
+      const msg = `Invalid base URL: ${String(base) || '<empty>'}`;
       const error = Err.std(msg, { cause });
       const url = new URL('about:blank');
       return { url, error };
@@ -30,8 +30,8 @@ const wrangle = {
     return wrangle.fromUrl(`http://${base.hostname}:${base.port}`);
   },
 
-  fromUrl(base: t.StringUrl): t.HttpUrl {
-    const { url, error } = wrangle.asUrl(base);
+  fromUrl(base: t.StringUrl | undefined): t.HttpUrl {
+    const { url, error } = wrangle.asUrl(base ?? '');
     base = error ? String(base) : url.href;
     return {
       ok: !error,

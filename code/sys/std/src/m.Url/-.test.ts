@@ -47,6 +47,8 @@ describe('Url', () => {
         expect(url.base).to.eql(String(input));
         expect(url.toObject()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
       });
+
+      expect(Url.parse('').error?.message).to.include('Invalid base URL: <empty>');
     });
   });
 

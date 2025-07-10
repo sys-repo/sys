@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type UrlLib = {
   /** Generator function for a new URL helpers instance. */
-  parse(base: t.StringUrl | Deno.NetAddr): t.HttpUrl;
+  parse(base: t.StringUrl | Deno.NetAddr | undefined): t.HttpUrl;
 };
 
 /**
