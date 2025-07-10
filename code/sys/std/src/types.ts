@@ -33,6 +33,7 @@ export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
 export type * from './m.Value.Arr/t.ts';
 export type * from './m.Value.Num/t.ts';
+export type * from './m.Value.Obj.Path/t.ts';
 export type * from './m.Value.Obj/t.ts';
 export type * from './m.Value.Str/t.ts';
 export type * from './m.Value/t.ts';

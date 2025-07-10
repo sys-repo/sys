@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
+import { Obj } from '../m.Value.Obj/mod.ts';
 import { Value } from '../m.Value/mod.ts';
-import { Obj } from './m.Obj.ts';
 import { diff } from './m.Path.Mutate.diff.ts';
 import { Path } from './mod.ts';
 
@@ -308,5 +308,6 @@ describe('Value.Obj.Path', () => {
         expect(target.self).to.equal(target); // Cycle preserved.
       });
     });
+
   });
 });
