@@ -1,7 +1,8 @@
 import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Obj } from '../m.Value.Obj/mod.ts';
 import { Value } from '../m.Value/mod.ts';
-import { diff } from './m.Path.Mutate.diff.ts';
+import { del } from './m.Mutate.delete.ts';
+import { diff } from './m.Mutate.diff.ts';
 import { Path } from './mod.ts';
 
 type O = Record<string, unknown>;
@@ -12,6 +13,7 @@ describe('Value.Obj.Path', () => {
     expect(Value.Obj.Path).to.equal(Path);
     expect(Obj.Path.mutate).to.equal(Path.Mutate.set);
     expect(Obj.Path.Mutate.diff).to.equal(diff);
+    expect(Obj.Path.Mutate.delete).to.equal(del);
   });
 
   describe('Path.get', () => {
@@ -309,5 +311,49 @@ describe('Value.Obj.Path', () => {
       });
     });
 
+    describe('Mutate.delete', () => {
+      it('delete top-level key and return a remove op', () => {
+        const subject: Record<string, unknown> = { foo: 'bar', baz: 42 };
+        const op = del(subject, ['foo']);
+        expect(op).to.eql({ type: 'remove', path: ['foo'], prev: 'bar' });
+        expect((subject as any).foo).to.be.undefined;
+        expect(subject.baz).to.eql(42);
+      });
+
+      it('delete nested key and return a remove op', () => {
+        const subject: Record<string, unknown> = { a: { b: { c: true } } };
+        const op = del(subject, ['a', 'b', 'c']);
+        expect(op).to.eql({ type: 'remove', path: ['a', 'b', 'c'], prev: true });
+        expect((subject.a as Record<string, any>).b).to.not.have.property('c');
+      });
+
+      it('return <undefined> when path does not exist', () => {
+        const subject: Record<string, unknown> = { a: { b: 1 } };
+        const before = Obj.clone(subject);
+        const op = del(subject, ['a', 'x']);
+        expect(op).to.be.undefined;
+        expect(subject).to.eql(before);
+      });
+
+      it('return <undefined> when path is empty', () => {
+        const subject: Record<string, unknown> = { foo: 'bar' };
+        const before = Obj.clone(subject);
+        const op = del(subject, [] as t.ObjectPath);
+        expect(op).to.be.undefined;
+        expect(subject).to.eql(before);
+      });
+
+      it('delete array index and return a remove op', () => {
+        const subject: Record<string, unknown> = { arr: [10, 20, 30] };
+        const op = del(subject, ['arr', 1]);
+        expect(op).to.eql({ type: 'remove', path: ['arr', 1], prev: 20 });
+        expect(Array.isArray(subject.arr)).to.be.true;
+
+        // NB: Delete leaves a hole in the array rather than shifting.
+        expect((subject.arr as any)[1]).to.be.undefined;
+        expect((subject.arr as any).length).to.eql(3);
+        expect(subject.arr).to.eql([10, undefined, 30]);
+      });
+    });
   });
 });

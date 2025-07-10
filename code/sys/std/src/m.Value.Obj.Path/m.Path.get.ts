@@ -2,7 +2,8 @@ import type { t } from './common.ts';
 
 /**
  * Deep-get helper with overloads so the return type
- * is `T | undefined` **unless** you pass a default value.
+ * is `T | undefined` unless a default value is passed,
+ * then reliably returns `T`.
  */
 export function get<T = unknown>(
   subject: unknown,
