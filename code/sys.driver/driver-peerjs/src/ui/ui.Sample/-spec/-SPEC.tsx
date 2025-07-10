@@ -49,17 +49,23 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        const isFullscreen = !!v.selectedStream;
         const styles = {
           base: css({ display: 'grid' }),
           docId: css({ Absolute: [-30, 0, null, 0] }),
+          sample: css({
+            opacity: isFullscreen ? 0 : 1,
+            pointerEvents: isFullscreen ? 'none' : 'auto',
+          }),
         };
 
         return (
           <div className={styles.base.class}>
-            <LocalDocumentId style={styles.docId} autoFocus={true} />
+            {/* <LocalDocumentId style={styles.docId} autoFocus={true} /> */}
 
             <Sample
               // 🌳
+              style={styles.sample}
               debug={Obj.Path.get<boolean>(v.doc?.current, PATH.DEV.MODE, false)}
               theme={v.theme}
               //
@@ -69,12 +75,12 @@ export default Spec.describe(D.displayName, (e) => {
               remoteStream={v.remoteStream}
               //
               onReady={(e) => {
-                console.info(`⚡️ onReady:`, e);
-                v.localStream = e.self.stream;
+                console.info(`⚡️ Sample.onReady:`, e);
+                p.localStream.value = e.self.stream;
               }}
               onSelect={(e) => {
                 console.info(`⚡️ onSelect:`, e);
-                v.selectedStream = e.stream;
+                p.selectedStream.value = e.stream;
               }}
             />
           </div>
@@ -116,6 +122,13 @@ export default Spec.describe(D.displayName, (e) => {
         />
       );
     });
+
+    ctx.debug.header
+      .border(0.1)
+      .padding(0)
+      .render((e) => {
+        return <LocalDocumentId theme={'Light'} />;
+      });
 
     // Finish up.
     updateSize();
