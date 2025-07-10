@@ -9,8 +9,6 @@ export type ObjPathLib = {
   /** Tools for mutating an object in-place. */
   readonly Mutate: ObjPathMutateLib;
 
-  /** Tools for working with the standard path API on a curried object-path. */
-  readonly Curried: t.CurriedPathLib;
   /** Create a new curried-path instance for the given path. */
   readonly curry: t.CurriedPathLib['create'];
 

@@ -4,7 +4,7 @@ import { Value } from '../m.Value/mod.ts';
 import { del } from './m.Mutate.delete.ts';
 import { diff } from './m.Mutate.diff.ts';
 import { Path } from './mod.ts';
-import { Curried } from './m.Curried.ts';
+import { CurriedPath } from './m.CurriedPath.ts';
 
 type O = Record<string, unknown>;
 
@@ -377,14 +377,13 @@ describe('Value.Obj.Path', () => {
 
   describe('Path.Curried', () => {
     it('API', () => {
-      expect(Path.Curried).to.equal(Curried);
-      expect(Path.curry).to.equal(Curried.create);
+      expect(Path.curry).to.equal(CurriedPath.create);
     });
 
     describe('create: path.curry(...)', () => {
       it('path: foo/bar', () => {
         const path = ['foo', 'bar'];
-        const a = Path.Curried.create(path);
+        const a = CurriedPath.create(path);
         const b = Path.curry(path);
         expect(a.path).to.eql(path);
         expect(a.path).to.eql(b.path);

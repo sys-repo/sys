@@ -6,7 +6,7 @@ import { del } from './m.Mutate.delete.ts';
 
 type O = Record<string, unknown>;
 
-export const Curried: t.CurriedPathLib = {
+export const CurriedPath: t.CurriedPathLib = {
   create<T = unknown>(path: t.ObjectPath) {
     path = Array.isArray(path) ? path : [];
 
