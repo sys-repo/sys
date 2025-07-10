@@ -154,7 +154,7 @@ describe('Value.Obj.Path', () => {
         });
       });
 
-      it('undefined → property removed via [delete] rather than set <undefined>', () => {
+      it('<undefined> → property removed via [delete] rather than set <undefined>', () => {
         type T = { a: { b?: number | string } };
         const target: T = { a: {} };
         const path = ['a', 'b'] as const satisfies t.ObjectPath;
@@ -168,6 +168,18 @@ describe('Value.Obj.Path', () => {
         expect(Object.keys(target.a).length).to.eql(0); // NB: deleted.
         expect(target.a).to.eql({});
         expect(removeOp).to.eql<t.ObjDiffOp>({ type: 'remove', path, prev: 123 });
+      });
+
+      it('returns <undefined> when setting a value equal to the existing value', () => {
+        const subject = { foo: 'bar' };
+        const result = Mutate.set(subject, ['foo'], 'bar');
+        expect(result).to.eql(undefined);
+      });
+
+      it('returns <undefined> when setting <undefined> for a key that does not exist', () => {
+        const subject = {};
+        const result = Mutate.set(subject, ['baz'], undefined);
+        expect(result).to.eql(undefined);
       });
     });
 

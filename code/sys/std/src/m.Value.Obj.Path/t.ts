@@ -22,7 +22,7 @@ export type ObjPathLib = {
 
   /**
    * Deep-get helper with overloads so the return type
-   * is `T | undefined` **unless** you pass a default value.
+   * is `T | undefined` unless you pass a default value.
    */
   get<T = unknown>(subject: unknown, path: t.ObjectPath): T | undefined;
   get<T = unknown>(subject: unknown, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
@@ -39,17 +39,17 @@ export type ObjPathLib = {
  */
 export type ObjPathMutateLib = {
   /**
-   * Ensure a value at the given path exists (not undefined),
-   * and if not assigns the given default.
-   */
-  ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
-
-  /**
-   * Mutates `subject`, setting a nested value at `path`.
+   * Deep-set helper that mmutates `subject` setting a nested value at the `path`.
    *  - Creates intermediate objects/arrays as needed.
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
   set<T = unknown>(subject: KeyMap, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
+
+  /**
+   * Ensure a value at the given path exists (not undefined),
+   * and if not assigns the given default.
+   */
+  ensure<T = unknown>(subject: KeyMap, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
 
   /**
    * Deletes the value at the given path if it exists.
@@ -109,7 +109,7 @@ export type CurriedPath<T = unknown> = {
 
   /**
    * Deep-get helper with overloads so the return type
-   * is `T | undefined` **unless** you pass a default value.
+   * is `T | undefined` unless you pass a default value.
    */
   get(subject: unknown): T | undefined;
   get(subject: unknown, defaultValue: t.NonUndefined<T>): T;

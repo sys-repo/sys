@@ -34,10 +34,8 @@ export function set<T = unknown>(subject: KeyMap, path: Path, value: T): Op | un
   const lastKey = path[path.length - 1];
   const prev = node[lastKey];
 
-  /**
-   *  Early-exit if nothing would actually change.
-   * (Important for accurate diff streams and to avoid unnecessary invalidations).
-   */
+  // Early-exit if nothing would actually change.
+  // NB: Important for accurate diff streams and to avoid unnecessary invalidations.
   if (Object.is(prev, value) || (value === undefined && !(lastKey in node))) {
     return undefined;
   }
