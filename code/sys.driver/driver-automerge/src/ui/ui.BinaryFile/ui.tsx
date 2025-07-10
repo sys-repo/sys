@@ -9,13 +9,12 @@ import {
   Obj,
   ObjectView,
   Str,
-  Time,
   usePointer,
   UserAgent,
   useRedrawEffect,
 } from './common.ts';
 import { Binary } from './m.Binary.ts';
-import { Fmt } from './u.ts';
+import { downloadFile, dragdropFile, Fmt } from './u.ts';
 
 export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   const { doc, path = ['files'], debug = false } = props;
@@ -56,58 +55,12 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   /**
    * Handlers:
    */
-  const dragStartHandler = (hash: t.StringHash) => {
-    // NB: drag-n-drop download only supported in Chromium browsers.
-    if (!ua.is.chromium) return;
-
-    return (e: React.DragEvent<HTMLDivElement>) => {
-      const entries = Obj.entries(filemap);
-      if (entries.length === 0) return;
-
-      const dataTransfer = (f: t.BinaryFile) => {
-        const file = Binary.toBrowserFile(f);
-
-        /** Modern – Chrome 86+, Edge, Safari 17 */
-        e.dataTransfer.items.add(file); // copies bytes into the drag payload
-
-        /** Fallback (old Chrome / Electron) */
-        const url = URL.createObjectURL(file);
-        // Non-standard but still handy:
-        e.dataTransfer.setData('DownloadURL', `${file.type}:${file.name}:${url}`);
-
-        /** Plain-text name so other targets at least get a string. */
-        e.dataTransfer.setData('text/plain', file.name);
-
-        e.dataTransfer.effectAllowed = 'copy';
-      };
-
-      const file = filemap[hash];
-      if (file) dataTransfer(file);
-    };
-  };
-
   const downloadClickHandler = (hash: t.StringHash) => {
-    return () => {
-      const file = filemap[hash];
-      // if (file) dataTransfer(file);
-      // console.log('download', file);
-
-      // 1 Wrap bytes in a Blob and create an in-memory URL
-      const blob = new Blob([file.bytes], { type: file.type || 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-
-      // 2 Create a temporary <a download> link and click it
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name; // filename in the “Save as…” dialog
-      document.body.appendChild(a);
-      a.click(); // ⬇️ starts the download
-      a.remove();
-
-      // 3 Tidy up the object-URL after the click has propagated
-      // setTimeout(() => URL.revokeObjectURL(url), 0);
-      Time.delay(0, () => URL.revokeObjectURL(url));
-    };
+    return () => downloadFile(filemap[hash]);
+  };
+  const dragStartHandler = (hash: t.StringHash) => {
+    if (!ua.is.chromium) return; // NB: drag-n-drop download only supported in Chromium browsers.
+    return (e: React.DragEvent) => dragdropFile(e.dataTransfer, filemap[hash]);
   };
 
   /**
