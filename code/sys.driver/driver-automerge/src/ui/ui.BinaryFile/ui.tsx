@@ -20,6 +20,7 @@ import { DropTarget } from './ui.DropTarget.tsx';
 export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   const { doc, path = ['files'], debug = false } = props;
   const ua = UserAgent.current;
+
   const filemap = Obj.Path.get<t.BinaryFileMap>(doc?.current, path, {});
 
   /**
@@ -37,15 +38,13 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
           doc.change((d) => {
             const target = Obj.Path.Mutate.ensure<t.BinaryFileMap>(d, path, {});
 
+
             files.forEach((file) => {
-              //
               if (target[file.hash]) {
-                console.log('TODO 🐷', 'add meta-data - convert to array.');
               } else {
                 target[file.hash] = file;
               }
             });
-            // Obj.Path.mutate(d, path, filemap);
           });
         }
       }
