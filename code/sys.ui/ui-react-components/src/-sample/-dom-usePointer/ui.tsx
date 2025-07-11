@@ -25,12 +25,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
     onLeave: (e) => {},
     onDown: (e) => {},
     onUp: (e) => {},
-    onDrag(e) {
-      p.drag.value = e;
-    },
-    onDragdrop(e) {
-      p.dragdrop.value = e;
-    },
+    onDrag: (e) => (p.drag.value = e),
+    onDragdrop: (e) => (p.dragdrop.value = e),
   });
 
   /**
@@ -52,6 +48,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
       userSelect: 'none',
       padding: 20,
       backgroundColor: pointer.is.dragdropping ? Color.ruby() : undefined,
+      border: `solid 5px ${Color.alpha(Color.BLUE, pointer.is.focused ? 1 : 0)}`,
     }),
     label: css({
       transform: `translateY(${pointer.is.down ? 2 : 0}px)`,
@@ -59,7 +56,12 @@ export const Sample: React.FC<SampleProps> = (props) => {
   };
 
   return (
-    <div ref={ref} className={css(styles.base, props.style).class} {...pointer.handlers}>
+    <div
+      ref={ref}
+      tabIndex={0}
+      className={css(styles.base, props.style).class}
+      {...pointer.handlers}
+    >
       <div className={styles.label.class}>{'🐷 Hello'}</div>
     </div>
   );

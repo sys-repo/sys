@@ -46,12 +46,17 @@ export type PointerHookFlags = {
   readonly up: boolean;
   readonly dragdropping: boolean;
   readonly dragging: boolean;
+  readonly focused: boolean;
 };
 
 /**
  * Event handler callbacks:
  */
-export type PointerHookHandlers = PointerHookMouseHandlers | PointerHookTouchHandlers;
+export type PointerHookHandlers =
+  | PointerHookMouseHandlers
+  | PointerHookTouchHandlers
+  | PointerHookFocusHandlers;
+
 export type PointerHookMouseHandlers = {
   readonly onMouseDown: M;
   readonly onMouseUp: M;
@@ -62,6 +67,11 @@ export type PointerHookTouchHandlers = {
   readonly onTouchStart: T;
   readonly onTouchEnd: T;
   readonly onTouchCancel: T;
+};
+
+export type PointerHookFocusHandlers = {
+  readonly onFocus: React.FocusEventHandler;
+  readonly onBlur: React.FocusEventHandler;
 };
 
 /**

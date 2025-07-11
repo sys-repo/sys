@@ -52,7 +52,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
    * Render:
    */
   return (
-    <div className={css(props.style).class}>
+    <div className={css(props.style).class} tabIndex={0}>
       <div className={Styles.title.class}>
         <div>{'usePointer'}</div>
         <div>{'Hook'}</div>

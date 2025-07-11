@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { type t, useIsTouchSupported, Kbd } from './common.ts';
+import { Kbd, type t, useIsTouchSupported } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
@@ -19,6 +19,7 @@ export const usePointer: t.UsePointer = (input) => {
    */
   const [isDown, setDown] = useState(false);
   const [isOver, setOver] = useState(false);
+  const [isFocused, setFocused] = React.useState(false);
   const isTouch = useIsTouchSupported();
 
   const drag = usePointerDrag({ onDrag });
@@ -33,13 +34,16 @@ export const usePointer: t.UsePointer = (input) => {
         up: !down,
         dragging: drag.is.dragging,
         dragdropping: dragdrop.is.dragging,
+        focused: isFocused,
       };
     },
-    [isDown, isOver, drag.is.dragging, dragdrop.is.dragging],
+    [isDown, isOver, drag.is.dragging, dragdrop.is.dragging, isFocused],
   );
 
   /**
-   * Effect: When the low-level drag stops (mouse-up outside) reset "down".
+   * Effect:
+   *    When the low-level drag stops (ie. mouse-up outside)
+   *    reset "down".
    */
   useEffect(() => {
     if (!drag.is.dragging) {
@@ -100,7 +104,7 @@ export const usePointer: t.UsePointer = (input) => {
   };
 
   /**
-   * Touch helpers (mobile):
+   * HANDLERS: Touch helpers (mobile):
    */
   const onTouchStart: React.TouchEventHandler = (ev) => {
     const e = ev as unknown as React.PointerEvent;
@@ -111,6 +115,14 @@ export const usePointer: t.UsePointer = (input) => {
     const e = ev as unknown as React.PointerEvent;
     down(false)(e);
     over(false)(e);
+  };
+
+  /**
+   * HANDLERS: Focus:
+   */
+  const focused = (isFocused: boolean) => {
+    const handler: React.FormEventHandler = (e) => setFocused(isFocused);
+    return handler;
   };
 
   /**
@@ -125,15 +137,23 @@ export const usePointer: t.UsePointer = (input) => {
         onMouseLeave: over(false),
       };
 
+  const focusHanders = { onFocus: focused(true), onBlur: focused(false) };
+  const handlers = {
+    ...pointerHandlers,
+    ...focusHanders,
+    ...dragdrop.handlers,
+  };
+
   /**
    * API:
    */
   return {
-    handlers: { ...pointerHandlers, ...dragdrop.handlers },
+    handlers,
     is: flags(),
     drag: drag.pointer,
     dragdrop: dragdrop.pointer,
     reset() {
+      setFocused(false);
       setDown(false);
       setOver(false);
       drag.cancel();
