@@ -15,12 +15,14 @@ export const Url: UrlLib = {
  */
 const wrangle = {
   asUrl(base: string) {
+    base = String(base);
+    const invalidBase = `Invalid base URL: ${base ? `"${base}"` : '<empty>'}`;
     try {
       const url = new URL(base);
+      if (url.origin === 'null') return { url, error: Err.std(invalidBase) };
       return { url };
     } catch (cause: unknown) {
-      const msg = `Invalid base URL: ${String(base) || '<empty>'}`;
-      const error = Err.std(msg, { cause });
+      const error = Err.std(invalidBase, { cause });
       const url = new URL('about:blank');
       return { url, error };
     }
@@ -30,19 +32,19 @@ const wrangle = {
     return wrangle.fromUrl(`http://${base.hostname}:${base.port}`);
   },
 
-  fromUrl(base: t.StringUrl | undefined): t.HttpUrl {
-    const { url, error } = wrangle.asUrl(base ?? '');
-    base = error ? String(base) : url.href;
+  fromUrl(raw: t.StringUrl | undefined): t.HttpUrl {
+    const { url, error } = wrangle.asUrl(raw ?? '');
+    raw = error ? String(raw) : url.href;
     return {
       ok: !error,
-      base,
+      raw: raw,
       error: error,
       join(...parts: string[]) {
         const path = Path.join(url.pathname, ...parts);
         return `${url.origin}/${path.replace(/^\/*/, '')}`;
       },
       toString() {
-        return base;
+        return raw;
       },
       toURL() {
         return new URL(url.toString());

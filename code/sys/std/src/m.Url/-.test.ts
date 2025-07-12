@@ -5,13 +5,13 @@ import { Url } from './mod.ts';
 describe('Url', () => {
   describe('parse', () => {
     it('parse: factory methods', () => {
-      const base = 'https://foo.com/v1';
-      const url = Url.parse(base);
+      const raw = 'https://foo.com/v1';
+      const url = Url.parse(raw);
       expect(url.ok).to.eql(true);
       expect(url.error).to.eql(undefined);
-      expect(url.base).to.eql(base);
-      expect(url.toString()).to.eql(base);
-      expect(url.toURL()).to.eql(new URL(base));
+      expect(url.raw).to.eql(raw);
+      expect(url.toString()).to.eql(raw);
+      expect(url.toURL()).to.eql(new URL(raw));
     });
 
     it('parse: from net-addr', async () => {
@@ -20,20 +20,20 @@ describe('Url', () => {
       const url = Url.parse(addr);
       expect(url.ok).to.eql(true);
       expect(url.error).to.eql(undefined);
-      expect(url.base).to.eql(`http://0.0.0.0:${addr.port}/`);
+      expect(url.raw).to.eql(`http://0.0.0.0:${addr.port}/`);
       await server.dispose();
     });
 
     it('parse: with trailing forward-slash', () => {
       const url = Url.parse('https://foo.com');
-      expect(url.base).to.eql('https://foo.com/');
+      expect(url.raw).to.eql('https://foo.com/');
       expect(url.ok).to.eql(true);
       expect(url.error).to.eql(undefined);
     });
 
     it('parse: localhost (http)', () => {
       const url = Url.parse('http://localhost:8080');
-      expect(url.base).to.eql('http://localhost:8080/');
+      expect(url.raw).to.eql('http://localhost:8080/');
       expect(url.ok).to.eql(true);
       expect(url.error).to.eql(undefined);
     });
@@ -44,11 +44,17 @@ describe('Url', () => {
         const url = Url.parse(input);
         expect(url.ok).to.eql(false);
         expect(url.error?.message).to.include('Invalid base URL');
-        expect(url.base).to.eql(String(input));
+        expect(url.raw).to.eql(String(input));
         expect(url.toURL()).to.eql(new URL('about:blank')); // NB: stand-in for failed URL.
       });
 
       expect(Url.parse('').error?.message).to.include('Invalid base URL: <empty>');
+    });
+
+    it('error: parse string', () => {
+      const url = Url.parse('Room: Foobar');
+      expect(url.ok).to.eql(false);
+      expect(url.error?.message).to.include('Invalid base URL');
     });
   });
 

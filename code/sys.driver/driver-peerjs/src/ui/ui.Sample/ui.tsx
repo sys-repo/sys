@@ -60,7 +60,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         gridTemplateColumns: `auto 1fr auto`,
         borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.1)}`,
       }),
-      avatar: css({ width: 120 }),
+      avatar: css({ width: 160 }),
     },
   };
 

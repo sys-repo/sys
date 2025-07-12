@@ -19,7 +19,7 @@ export type HttpUrl = {
   readonly error?: t.StdError;
 
   /** The base URL path. */
-  readonly base: string;
+  readonly raw: string;
 
   /** Join parts of a URL path. */
   join(...parts: string[]): string;
