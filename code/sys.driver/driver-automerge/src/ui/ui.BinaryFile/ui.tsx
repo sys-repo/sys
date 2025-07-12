@@ -14,13 +14,13 @@ import {
   useRedrawEffect,
 } from './common.ts';
 import { Binary } from './m.Binary.ts';
+import { handleSave } from './u.handleSave.ts';
 import { downloadFile, dragdropFile, Fmt } from './u.ts';
 import { DropTarget } from './ui.DropTarget.tsx';
 
 export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   const { doc, path = ['files'], debug = false } = props;
   const ua = UserAgent.current;
-
   const filemap = Obj.Path.get<t.BinaryFileMap>(doc?.current, path, {});
 
   /**
@@ -33,20 +33,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
       if (!doc) return;
       if (e.action === 'Drop') {
         const files = await Promise.all(e.files.map(Binary.fromBrowserFile));
-
-        if (doc) {
-          doc.change((d) => {
-            const target = Obj.Path.Mutate.ensure<t.BinaryFileMap>(d, path, {});
-
-
-            files.forEach((file) => {
-              if (target[file.hash]) {
-              } else {
-                target[file.hash] = file;
-              }
-            });
-          });
-        }
+        await handleSave(doc, path, files);
       }
     },
   });
@@ -80,7 +67,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     file: {
       base: css({
         marginTop: 10,
-        backgroundColor: 'rgba(255, 0, 0, 0.15)' /* RED */,
+        backgroundColor: Color.ruby(0.15),
         border: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
         padding: 10,
         fontSize: 12,
@@ -125,7 +112,14 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   });
 
   const elDropMessage = !debug && (
-    <DropTarget isDragdropping={pointer.is.dragdropping} doc={doc} theme={theme.name} />
+    <DropTarget
+      isDragdropping={pointer.is.dragdropping}
+      doc={doc}
+      theme={theme.name}
+      onPaste={(e) => {
+        if (doc && path) handleSave(doc, path, e.files);
+      }}
+    />
   );
 
   const elDebug = debug && (

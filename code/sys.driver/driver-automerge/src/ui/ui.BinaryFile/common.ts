@@ -9,5 +9,6 @@ const name = 'BinaryFile';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
+  path: ['files'],
 } as const;
 export const D = DEFAULTS;

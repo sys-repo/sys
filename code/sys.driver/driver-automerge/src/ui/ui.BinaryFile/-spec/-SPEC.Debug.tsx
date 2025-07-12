@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
-import { Fmt } from '../u.ts';
+import { type t, Url, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.BinaryFileProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
@@ -29,9 +28,20 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  /**
+   * CRDT:
+   */
+  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const isLocalhost = location.hostname === 'localhost';
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: [{ ws: 'sync.db.team' }],
+    network: [
+      //
+      { ws: 'sync.db.team' },
+      // { ws: 'sync.automerge.org' },
+      isLocalhost && { ws: 'localhost:3030' },
+      qsSyncServer && { ws: qsSyncServer },
+    ],
   });
 
   const props = {
