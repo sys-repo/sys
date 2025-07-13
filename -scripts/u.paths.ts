@@ -56,11 +56,6 @@ export const Paths = {
     'code/sys.driver/driver-orbiter',
     'code/sys.driver/driver-quilibrium',
 
-    /**
-     * Barrels:
-     */
-    'code/sys/sys',
-    'code/sys/main',
 
     /**
      * Instance Apps:

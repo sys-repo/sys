@@ -61,9 +61,6 @@
     "code/sys.driver/driver-quilibrium",
     "code/sys.driver/driver-vite",
 
-    "code/sys/sys",
-    "code/sys/main",
-
     "deploy/@tdb.fs",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
