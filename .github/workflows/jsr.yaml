@@ -118,12 +118,6 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/main"
-        run: |
-          cd code/sys/main
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/ui-css"
         run: |
           cd code/sys.ui/ui-css
