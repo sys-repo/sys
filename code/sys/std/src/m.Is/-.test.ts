@@ -264,7 +264,7 @@ describe('Is (common flags)', () => {
     });
 
     it('Is.number: false', () => {
-      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, [], NaN];
       NON.forEach((value) => expect(Is.number(value)).to.eql(false));
     });
   });

@@ -49,7 +49,7 @@ export const Is: StdIsLib = {
       input === null ||
       input === undefined ||
       input === 0n ||
-      Number.isNaN(input) // Handle NaN at runtime
+      Number.isNaN(input) // Handle NaN at runtime.
     );
   },
 
@@ -99,12 +99,8 @@ export const Is: StdIsLib = {
     return false;
   },
 
-  func(input?: any): input is Function {
-    return typeof input === 'function';
-  },
-
   number(input?: any): input is number {
-    return typeof input === 'number';
+    return typeof input === 'number' && !Number.isNaN(input);
   },
 
   string(input?: any): input is string {
@@ -113,6 +109,10 @@ export const Is: StdIsLib = {
 
   bool(input?: any): input is boolean {
     return typeof input === 'boolean';
+  },
+
+  func(input?: any): input is Function {
+    return typeof input === 'function';
   },
 
   array<T>(input?: any): input is T[] {
