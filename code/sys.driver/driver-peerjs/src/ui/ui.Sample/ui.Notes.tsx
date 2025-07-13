@@ -39,7 +39,9 @@ export const Notes: React.FC<NotesProps> = (props) => {
     editor: css({
       Absolute: 0,
       display: notes.doc ? 'block' : 'none',
-      opacity: debug ? 0.2 : 1,
+      opacity: debug ? 0.3 : 1,
+      filter: `blur(${debug ? 5 : 0}px)`,
+      transition: 'filter 80ms ease',
     }),
     notReady: css({
       Absolute: 0,
