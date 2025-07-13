@@ -34,17 +34,16 @@ const wrangle = {
 
   fromUrl(raw: t.StringUrl | undefined): t.HttpUrl {
     const { url, error } = wrangle.asUrl(raw ?? '');
-    raw = error ? String(raw) : url.href;
     return {
       ok: !error,
-      raw: raw,
+      raw: error ? String(raw) : url.href,
       error: error,
       join(...parts: string[]) {
         const path = Path.join(url.pathname, ...parts);
         return `${url.origin}/${path.replace(/^\/*/, '')}`;
       },
       toString() {
-        return raw;
+        return url.href;
       },
       toURL() {
         return new URL(url.toString());

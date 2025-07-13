@@ -62,7 +62,7 @@ describe('Http.Fetch', () => {
         expect(req.headers.get('content-type')).to.eql('application/json');
         return Testing.Http.json({ foo: 123 });
       });
-      const url = server.url.base;
+      const url = server.url.toString();
       const fetch = Fetch.create();
       expect(fetch.disposed).to.eql(false);
 
@@ -84,7 +84,7 @@ describe('Http.Fetch', () => {
         expect(req.headers.get('content-type')).to.eql('text/plain');
         return Testing.Http.text(text);
       });
-      const url = server.url.base;
+      const url = server.url.toString();
       const fetch = Fetch.create();
       const res = await fetch.text(url);
 
@@ -104,7 +104,7 @@ describe('Http.Fetch', () => {
         expect(req.headers.get('content-type')).to.eql('application/octet-stream');
         return Testing.Http.blob(dataIn);
       });
-      const url = server.url.base;
+      const url = server.url.toString();
       const fetch = Fetch.create();
 
       const res = await fetch.blob(url);
@@ -126,7 +126,7 @@ describe('Http.Fetch', () => {
       const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
       const fetch = Fetch.create(life.dispose$);
 
-      const url = server.url.base;
+      const url = server.url.toString();
       const headers = { foo: 'bar' };
       const res = await fetch.json(url, { headers });
       expect(res.ok).to.eql(false);
@@ -146,7 +146,7 @@ describe('Http.Fetch', () => {
       const server = Testing.Http.server(() => Testing.Http.text('hello'));
       const fetch = Fetch.create();
 
-      const url = server.url.base;
+      const url = server.url.toString();
       const res = await fetch.json(url);
 
       expect(res.status).to.eql(520);
@@ -170,7 +170,7 @@ describe('Http.Fetch', () => {
       });
 
       const fetch = Fetch.create({ headers: (e) => e.set('x-foo', 123).set('x-bar', 456) });
-      await fetch.text(server.url.base);
+      await fetch.text(server.url.toString());
       expect(count).to.eql(1); // NB: server was called.
 
       await server.dispose();
@@ -186,7 +186,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.text('👋');
       });
 
-      const url = server.url.base;
+      const url = server.url.toString();
       await fetch1.text(url);
       await fetch2.text(url);
 
@@ -212,7 +212,7 @@ describe('Http.Fetch', () => {
     it('dispose$ ← (observable param)', async () => {
       const life = rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
-      const url = server.url.base;
+      const url = server.url.toString();
       const fetch = Fetch.create(life.dispose$);
       expect(fetch.disposed).to.eql(false);
 

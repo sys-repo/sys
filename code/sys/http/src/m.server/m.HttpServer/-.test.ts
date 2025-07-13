@@ -13,7 +13,8 @@ describe('HTTP: Server', () => {
 
       const fetch = Http.fetch();
       const url = Http.url(listener.addr);
-      const res1 = await fetch.json<T>(url.base);
+
+      const res1 = await fetch.json<T>(url.raw);
       const res2 = await fetch.json<T>(url.join('404'));
 
       expect(res1.status).to.eql(200);
@@ -33,7 +34,7 @@ describe('HTTP: Server', () => {
 
       const fetch = Http.fetch();
       const url = Http.url(listener.addr);
-      const res = await fetch.text(url.base);
+      const res = await fetch.text(url.raw);
 
       const headers = res.headers;
 

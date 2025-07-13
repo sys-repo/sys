@@ -25,7 +25,7 @@ describe('Http.Fetch: hash checksums', () => {
   it('text: { checksum }', async () => {
     const text = 'text-🌳';
     const server = Testing.Http.server(() => Testing.Http.text(text));
-    const url = server.url.base;
+    const url = server.url.raw;
     const fetch = Fetch.create();
 
     const checksum = Hash.sha256(text);
@@ -48,7 +48,7 @@ describe('Http.Fetch: hash checksums', () => {
   it('json: { checksum }', async () => {
     const json = { foo: 123 };
     const server = Testing.Http.server(() => Testing.Http.json(json));
-    const url = server.url.base;
+    const url = server.url.toString();
     const fetch = Fetch.create();
 
     const checksum = Hash.sha256(json);
