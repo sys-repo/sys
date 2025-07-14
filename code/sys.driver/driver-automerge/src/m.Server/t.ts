@@ -8,20 +8,23 @@ export type CrdtServerLib = {
   /**
    * Start a new web-sockets CRDT syncronization-server.
    */
-  ws(options?: CrdtServerStartOptions): Promise<t.CrdtServerStartResponse>;
-};
-
-/** Response from the `CrdtServer.start` method. */
-export type CrdtServerStartResponse = {
-  readonly repo: t.CrdtRepo;
+  ws(options?: CrdtServerStartOptions): Promise<t.CrdtSyncServer>;
 };
 
 /** Options passed to the `CrdtServer.start` method. */
 export type CrdtServerStartOptions = {
   port?: t.PortNumber;
+  dir?: t.StringDir;
   keyboard?: boolean;
   keepAliveInterval?: t.Msecs;
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
-  dir?: t.StringDir;
+  silent?: boolean;
+  dispose$?: t.UntilInput;
+};
+
+/** Response from the `CrdtServer.start` method. */
+export type CrdtSyncServer = t.LifecycleAsync & {
+  readonly port: t.PortNumber;
+  readonly repo: t.CrdtRepo;
 };

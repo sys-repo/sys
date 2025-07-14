@@ -1,14 +1,26 @@
 import type { t } from './common.ts';
-import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg } from './common.ts';
+import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg, rx } from './common.ts';
 import { Log } from './u.Log.ts';
+import { shutdown } from './u.shutdown.ts';
 
 /**
  * Tools for working with CRDT sync servers:
  */
 export const Server: t.CrdtServerLib = {
   async ws(options = {}) {
-    const { dir, sharePolicy, denylist, keepAliveInterval } = options;
-    const port = Is.number(options.port) ? Net.port(options.port) : undefined;
+    const { dir, sharePolicy, denylist, keepAliveInterval, silent = false } = options;
+    const port = Is.number(options.port) ? Net.port(options.port) : Net.port();
+
+    /**
+     * Lifecycle:
+     */
+    const life = rx.lifecycleAsync(options.dispose$, async () => {
+      await Promise.all([
+        //
+        await shutdown(wss),
+        await repo.dispose(),
+      ]);
+    });
 
     /**
      * Create WSS server and bind to CRDT repo:
@@ -20,44 +32,43 @@ export const Server: t.CrdtServerLib = {
     /**
      * Print status:
      */
-    const table = Cli.table([]);
-    const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('server')} ${pkg.version}`);
-    const url1 = c.cyan(`http://localhost:${c.bold(String(port))}`);
-    const url2 = c.cyan(`  ws://localhost:${c.bold(String(port))}`);
+    if (!silent) {
+      Log.server({ port, dir });
 
-    table.push([c.gray('  Module:'), module]);
-    table.push([c.gray('  Transport:'), c.green('websocket')]);
-    table.push([c.gray('  Storage:'), c.gray((dir ?? '').trim() || '<no storage>')]);
-    table.push([c.gray('  Endpoint:'), url1]);
-    table.push(['', url2]);
+      /**
+       * Log activity:
+       */
+      network.on('peer-candidate', (e) => {
+        console.info(c.white('connected:   '), c.green(e.peerId));
+      });
 
-    console.info();
-    console.info(table.toString().trim());
-    console.info();
+      network.on('peer-disconnected', (e) => {
+        console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
+      });
 
-    /**
-     * Log activity:
-     */
-    network.on('peer-candidate', (e) => {
-      console.info(c.white('connected:   '), c.green(e.peerId));
-    });
-
-    network.on('peer-disconnected', (e) => {
-      console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
-    });
-
-    /**
-     * Metrics:
-     */
-    setInterval(Log.memory, 60_000);
-    Log.memory();
+      /**
+       * Log metrics:
+       */
+      setInterval(Log.memory, 60_000);
+      Log.memory();
+    }
 
     /**
      * API:
      */
     return {
+      port,
       get repo() {
         return repo;
+      },
+
+      /**
+       * Lifecycle:
+       */
+      dispose: life.dispose,
+      dispose$: life.dispose$,
+      get disposed() {
+        return life.disposed;
       },
     };
   },
