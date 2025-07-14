@@ -57,7 +57,6 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
       userSelect: 'none',
       display: 'grid',
       gridTemplateRows: `1fr auto`,
@@ -79,7 +78,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
     },
   };
 
-  const elObject = (
+  const elDebugObject = (
     <ObjectView
       name={'file-drop'}
       data={{
@@ -90,7 +89,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
       }}
       theme={theme.name}
       style={{ marginTop: 20, marginLeft: 10 }}
-      expand={{ level: 1, paths: ['$', '$.pointer'] }}
+      expand={{ level: 1, paths: ['$', '$.filemap'] }}
     />
   );
 
@@ -123,9 +122,9 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   );
 
   const elDebug = debug && (
-    <div>
+    <div className={css({ Margin: 15 }).class}>
       <div>{`🐷 ${D.displayName}`}</div>
-      {elObject}
+      {elDebugObject}
     </div>
   );
 

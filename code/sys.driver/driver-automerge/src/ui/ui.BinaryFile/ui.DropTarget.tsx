@@ -28,12 +28,12 @@ export const DropTarget: React.FC<DropTargetProps> = (props) => {
    * Hooks:
    */
   const pointer = usePointer();
-  const showBorder = pointer.is.focused || isDragdropping;
+  const showBorder = doc && (pointer.is.focused || isDragdropping);
 
   // Prepare display message:
   const action = pointer.is.focused ? 'Paste or drag' : 'Drag';
-  let msg = isDragdropping ? 'Drop file here' : `${action} file here`;
-  if (!doc) msg = '( Drop target not ready )';
+  let msg = isDragdropping ? 'Drop file here.' : `${action} file here.`;
+  if (!doc) msg = '( drop target not ready )';
 
   /**
    * Handlers:
@@ -79,7 +79,7 @@ export const DropTarget: React.FC<DropTargetProps> = (props) => {
     }),
     border: css({
       pointerEvents: 'none',
-      Absolute: 10,
+      Absolute: 20,
       border: `dashed 1px ${Color.alpha(Color.BLUE, 0.8)}`,
       borderRadius: 20,
     }),
