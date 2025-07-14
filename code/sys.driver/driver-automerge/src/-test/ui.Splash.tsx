@@ -25,7 +25,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
       storage: { database: 'dev.crdt' },
       network: [
         //
-        { ws: 'sync.db.team' },
+        { ws: 'waiheke.sync.db.team' },
         // { ws: 'sync.automerge.org' },
         isLocalhost && { ws: 'localhost:3030' },
         qsSyncServer && { ws: qsSyncServer },
@@ -50,7 +50,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
       fontFamily: 'sans-serif',
       display: 'grid',
     }),
-    body: css({ width: 500, height: 350, display: 'grid' }),
+    body: css({ width: 550, height: 350, display: 'grid' }),
     footer: css({ Absolute: [null, 0, 0, 0], fontSize: 11, padding: 10 }),
   };
 

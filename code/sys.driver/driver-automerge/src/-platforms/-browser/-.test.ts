@@ -48,7 +48,7 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
 
     it('repo.id', () => {
       const a = Crdt.repo();
-      const b = Crdt.repo({ network: { ws: 'sync.db.team' } });
+      const b = Crdt.repo({ network: { ws: 'sync.automerge.org' } });
 
       expect(a.id.instance).to.be.a('string');
       expect(a.id.instance).to.not.eql(b.id.instance);
@@ -58,14 +58,16 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     });
 
     it('repo: network with <Falsy> in it', () => {
-      const repo = Crdt.repo({ network: [{ ws: 'sync.db.team' }, undefined, null, false, 0, ''] });
+      const repo = Crdt.repo({
+        network: [{ ws: 'sync.automerge.org' }, undefined, null, false, 0, ''],
+      });
       expect(repo.id.peer.startsWith('crdt-peer-')).to.be.true;
-      expect(repo.sync.urls).to.eql(['wss://sync.db.team']); // NB: the <undefined> entry filtered out.
+      expect(repo.sync.urls).to.eql(['wss://sync.automerge.org']); // NB: the <undefined> entry filtered out.
     });
   });
 
   it('Crdt.Url.ws', () => {
-    const url = Crdt.Url.ws('sync.db.team');
-    expect(url).to.eql('wss://sync.db.team');
+    const url = Crdt.Url.ws('sync.automerge.org');
+    expect(url).to.eql('wss://sync.automerge.org');
   });
 });

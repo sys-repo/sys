@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  type t,
   Button,
   Crdt,
   css,
@@ -9,6 +8,8 @@ import {
   ObjectView,
   Signal,
   STORAGE_KEY,
+  type t,
+  Url,
 } from '../common.ts';
 
 /**
@@ -38,9 +39,19 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
 
+  /**
+   * CRDT:
+   */
+  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const isLocalhost = location.hostname === 'localhost';
   const repo = Crdt.repo({
-    storage: true,
-    network: [{ ws: 'sync.db.team' }, { ws: 'sync.automerge.org' }],
+    storage: { database: 'dev.crdt' },
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+      isLocalhost && { ws: 'localhost:3030' },
+      qsSyncServer && { ws: qsSyncServer },
+    ],
   });
 
   const props = {
@@ -116,7 +127,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `no-repo: ${p.noRepo.value}`}
+        label={() => `debug: no-repo: ${p.noRepo.value}`}
         onClick={() => Signal.toggle(p.noRepo)}
       />
 
@@ -124,11 +135,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.localstorage.value;
-          return `localstorage: ${v ? `"${v}"` : '(none)'}`;
+          return `debug: localstorage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
           const s = p.localstorage;
           s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
+        }}
+      />
+
+      <Button
+        block
+        label={() => `reset`}
+        onClick={() => {
+          p.noRepo.value = false;
         }}
       />
 

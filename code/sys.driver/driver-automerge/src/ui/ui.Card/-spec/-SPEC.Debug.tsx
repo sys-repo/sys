@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal, Url } from '../common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & { textbox?: string };
@@ -22,9 +22,19 @@ export type TDoc = {
 export async function createDebugSignals() {
   const s = Signal.create;
 
+  /**
+   * CRDT:
+   */
+  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const isLocalhost = location.hostname === 'localhost';
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
-    network: { ws: 'sync.db.team' },
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+      isLocalhost && { ws: 'localhost:3030' },
+      qsSyncServer && { ws: qsSyncServer },
+    ],
   });
 
   const defaults: Storage = {

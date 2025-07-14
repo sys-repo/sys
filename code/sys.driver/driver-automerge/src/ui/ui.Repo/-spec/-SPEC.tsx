@@ -18,7 +18,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size([380, null])
+      .size([420, null])
       .display('grid')
       .render(() => {
         return (
