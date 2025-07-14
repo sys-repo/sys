@@ -4,6 +4,7 @@ import { LabelStyle } from './u.Style.ts';
 
 export type EndpointLabelProps = {
   urls: string[];
+  showProtocol?: boolean;
   style?: t.CssInput;
 };
 
@@ -11,7 +12,7 @@ export type EndpointLabelProps = {
  * Component:
  */
 export const EndpointLabel: React.FC<EndpointLabelProps> = (props) => {
-  const { urls = [] } = props;
+  const { urls = [], showProtocol = false } = props;
   if (urls.length === 0) return null;
 
   const tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
@@ -29,7 +30,7 @@ export const EndpointLabel: React.FC<EndpointLabelProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class} title={tooltip}>
-      <span className={styles.protocol.class}>{parts.protocol}</span>
+      {showProtocol && <span className={styles.protocol.class}>{parts.protocol}</span>}
       <span className={styles.endpoint.class}>{parts.origin}</span>
       {urls.length > 1 && <span className={styles.suffix.class}>{`(+${urls.length - 1})`}</span>}
     </div>
