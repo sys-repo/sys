@@ -2,6 +2,8 @@ import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge
 
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
 import { type t, Err, Is, rx, slug, Time, toRef, whenReady } from './common.ts';
+import { eventsFactory } from './u.events.ts';
+import { monitorNetwork } from './u.monitorNetwork.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
 type O = Record<string, unknown>;
@@ -21,13 +23,24 @@ export function toRepo(
   /**
    * State:
    */
-  const $$ = rx.subject<t.CrdtRepoChange>();
-  const networks = repo.networkSubsystem.adapters;
-  const peer = networks.length > 0 ? options.peerId ?? '' : '';
-  const urls = networks
+  const $$ = rx.subject<t.CrdtRepoEvent>();
+  const adapters = repo.networkSubsystem.adapters;
+  const peer = adapters.length > 0 ? options.peerId ?? '' : '';
+  const urls = adapters
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
     .map((adapter: any) => adapter.url);
 
+  /**
+   * Listeners:
+   */
+  monitorNetwork(adapters, life.dispose$, (e) => {
+    $$.next(e);
+
+  });
+
+  /**
+   * Helpers:
+   */
   const cloneProps = () => {
     const { id, sync } = api;
     return { id, sync: { ...sync } };
@@ -50,9 +63,9 @@ export function toRepo(
         const before = cloneProps();
         _enabled = value;
         _updating?.dispose?.();
-        _updating = updateConnected(networks, peer, value);
+        _updating = updateConnected(adapters, peer, value);
         const after = cloneProps();
-        $$.next({ before, after });
+        $$.next({ type: 'repo-change', payload: { kind: 'enabled', before, after } });
       },
     },
 
@@ -101,8 +114,7 @@ export function toRepo(
 
     events(dispose$) {
       const until = rx.lifecycle([dispose$, life.dispose$]);
-      const $ = $$.pipe(rx.takeUntil(until.dispose$));
-      return rx.toLifecycle<t.CrdtRepoEvents>(until, { $ });
+      return eventsFactory($$, until);
     },
 
     /**
@@ -149,12 +161,12 @@ const wrangle = {
  * Safely connects/disconnects to each network adapter.
  */
 function updateConnected(
-  networks: t.NetworkAdapterInterface[],
+  adapters: t.NetworkAdapterInterface[],
   peer: t.StringId,
   enabled: boolean,
 ) {
   const life = rx.lifecycle();
-  networks.forEach(async (adapter) => {
+  adapters.forEach(async (adapter) => {
     await adapter.whenReady();
     if (life.disposed) return;
     if (enabled) adapter.connect(peer as t.PeerId, {});

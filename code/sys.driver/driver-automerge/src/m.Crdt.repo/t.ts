@@ -1,4 +1,6 @@
 import type { t } from './common.ts';
+export type * from './t.events.ts';
+
 type O = Record<string, unknown>;
 
 /** Options passed to the `Repo.get` method. */
@@ -35,17 +37,3 @@ export type CrdtRefGetResponse<T extends O> = {
 export type CrdtRepoErrorKind = 'NotFound' | 'Timeout' | 'UNKNOWN';
 /** A standard Repo error. */
 export type CrdtRepoError = t.StdError & { kind: t.CrdtRepoErrorKind };
-
-/**
- * Event emitter for a repo.
- */
-export type CrdtRepoEvents = t.Lifecycle & {
-  /** Primary change event stream. */
-  readonly $: t.Observable<CrdtRepoChange>;
-};
-
-/** Represents a change to the repo state. */
-export type CrdtRepoChange = {
-  readonly before: CrdtRepoProps;
-  readonly after: CrdtRepoProps;
-};

@@ -15,7 +15,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(toAutomergeRepo({} as any)).to.eql(undefined);
   });
 
-  describe('create (toRepo)', () => {
+  describe('create factory (toRepo)', () => {
     it('create (doc)', () => {
       const repo = toRepo(new AutomergeRepo());
       expect(repo.id.peer).to.eql('');
@@ -36,7 +36,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.current).to.not.equal(initial);
     });
 
-    it('creates with  { peerId }', () => {
+    it('creates with { peerId }', () => {
       const network = [new BrowserWebSocketClientAdapter('wss://sync.db.team')];
       const peerId = 'foo:bar';
       const a = toRepo(new AutomergeRepo(), { peerId });
@@ -45,12 +45,13 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.id.peer).to.eql(peerId);
     });
 
-    it('create from `Crdt.repo` API', () => {
+    it('create via `Crdt.repo` API', () => {
       const repo = Crdt.repo();
       const initial = { count: 0 };
       const doc = repo.create<T>(initial);
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
+      expect(repo.disposed).to.eql(false);
     });
   });
 
@@ -97,54 +98,56 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('repo.events:', () => {
-    it('events.dispose', () => {
+    describe('change$', () => {
+      it('prop: enabled (toggle)', () => {
+        const repo = Crdt.repo({ network: { ws: 'foo.com' } });
+        const events = repo.events();
+
+        const fired: t.CrdtRepoChangeEvent['payload'][] = [];
+        events.change$.subscribe((e) => fired.push(e));
+
+        repo.sync.enabled = false; // ← trigger event.
+        expect(fired.length).to.eql(1);
+
+        expect(fired[0].before.id).to.eql(fired[0].after.id);
+        expect(fired[0].before.sync.urls).to.eql(fired[0].after.sync.urls);
+        expect(fired[0].before.sync.enabled).to.eql(true);
+        expect(fired[0].after.sync.enabled).to.eql(false);
+
+        repo.sync.enabled = true;
+        expect(fired.length).to.eql(2);
+        repo.sync.enabled = true;
+        expect(fired.length).to.eql(2);
+        events.dispose();
+
+        repo.sync.enabled = false;
+        expect(fired.length).to.eql(2); // no more events (disposed).
+
+        console.log('fire', fired);
+      });
+    });
+
+    it('events.dispose', async () => {
       const life = rx.lifecycle();
       const repo = Crdt.repo();
       const a = repo.events();
       const b = repo.events(life.dispose$);
+      const c = repo.events();
 
       expect(a.disposed).to.eql(false);
       expect(b.disposed).to.eql(false);
+      expect(c.disposed).to.eql(false);
 
       life.dispose();
       expect(a.disposed).to.eql(false);
       expect(b.disposed).to.eql(true);
+      expect(c.disposed).to.eql(false);
 
       a.dispose();
       expect(a.disposed).to.eql(true);
-    });
 
-    it('events disposed when repo disposed', async () => {
-      const repo = Crdt.repo();
-      const events = repo.events();
-      expect(events.disposed).to.eql(false);
       await repo.dispose();
-      expect(events.disposed).to.eql(true);
-    });
-
-    it('events.sync$', () => {
-      const repo = Crdt.repo({ network: { ws: 'sync.db.team' } });
-      const events = repo.events();
-
-      const fired: t.CrdtRepoChange[] = [];
-      events.$.subscribe((e) => fired.push(e));
-
-      repo.sync.enabled = false; // ← trigger event
-      expect(fired.length).to.eql(1);
-
-      expect(fired[0].before.id).to.eql(fired[0].after.id);
-      expect(fired[0].before.sync.urls).to.eql(fired[0].after.sync.urls);
-      expect(fired[0].before.sync.enabled).to.eql(true);
-      expect(fired[0].after.sync.enabled).to.eql(false);
-
-      repo.sync.enabled = true;
-      expect(fired.length).to.eql(2);
-      repo.sync.enabled = true;
-      expect(fired.length).to.eql(2);
-      events.dispose();
-
-      repo.sync.enabled = false;
-      expect(fired.length).to.eql(2); // no more events (disposed).
+      expect(c.disposed).to.eql(true);
     });
   });
 
