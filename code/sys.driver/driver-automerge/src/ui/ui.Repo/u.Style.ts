@@ -8,5 +8,5 @@ export const LabelStyle = {
     gridAutoColumns: 'auto',
     placeItems: 'center',
   }),
-  label: css({ opacity: 0.5 }),
+  dim: css({ opacity: 0.5 }),
 };

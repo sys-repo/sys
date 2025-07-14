@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { type t, Color, css, Icons, LocalStorage, Switch } from './common.ts';
-import { PeerLabel } from './ui.Switch.Peer.tsx';
 import { LabelStyle } from './u.Style.ts';
+import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
+import { PeerLabel } from './ui.Switch.Peer.tsx';
 
 type P = t.SyncEnabledSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -19,6 +21,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
    */
   const [store, setStore] = React.useState(wrangle.localstore(props));
   const [enabled, setEnabled] = React.useState(wrangle.enabled(store?.current, repo));
+  const prefixLabel = enabled && urls.length > 0 ? 'network:' : repo ? 'private' : 'no repository';
 
   /**
    * Effects:
@@ -71,22 +74,12 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     urls: css({}),
   };
 
-  const tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
-  const elUrls = urls.length > 0 && enabled && (
-    <div className={styles.urls.class} title={tooltip}>
-      {urls[0]}
-      {urls.length > 1 && ` (+${urls.length - 1})`}
-    </div>
-  );
-
-  const prefix = enabled && elUrls ? 'network:' : repo ? 'private' : 'no repository';
-
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch value={enabled} theme={theme.name} height={16} onMouseDown={onClick} />
-        <span className={styles.label.class}>{prefix}</span>
-        <div className={styles.address.class}>{enabled && elUrls ? elUrls : ``}</div>
+        <span className={styles.label.class}>{prefixLabel}</span>
+        {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
         {peerId && enabled && <span className={styles.label.class}>{'•'}</span>}
         {peerId && enabled && <PeerLabel peerId={peerId} />}
         {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}

@@ -19,15 +19,13 @@ export const PeerLabel: React.FC<PeerLabelProps> = (props) => {
    */
   const styles = {
     base: LabelStyle.base,
-    label: LabelStyle.label,
+    dim: LabelStyle.dim,
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.base.class}>
-        <span className={styles.label.class}>{`${peerParts.slice(0, -1).join('-')}-`}</span>
-        <span>{peerParts.slice(-1)}</span>
-      </div>
+      <span className={styles.dim.class}>{`${peerParts.slice(0, -1).join('-')}-`}</span>
+      <span>{peerParts.slice(-1)}</span>
     </div>
   );
 };
