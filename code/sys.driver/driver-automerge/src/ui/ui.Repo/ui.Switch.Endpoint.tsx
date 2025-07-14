@@ -44,7 +44,6 @@ const wrangle = {
     const url = Url.parse(href).toURL();
     const protocol = `${url.protocol}//`;
     const origin = (url.host + url.pathname).replace(/\/+$/, '');
-    console.log('url', url);
     return { protocol, origin } as const;
   },
 } as const;
