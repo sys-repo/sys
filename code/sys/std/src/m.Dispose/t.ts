@@ -15,7 +15,7 @@ export type DisposeLib = {
 
   /** An async variant of the dispose pattern. */
   disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
-  disposableAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.DisposableAsync;
+  disposableAsync(until$?: t.UntilInput, onDispose?: LifecycleStageHandler): t.DisposableAsync;
 
   /**
    * Generates a disposable interface that maintains
@@ -25,7 +25,7 @@ export type DisposeLib = {
 
   /** An async variant of the lifecycle pattern. */
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
-  lifecycleAsync(until$?: t.DisposeInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+  lifecycleAsync(until$?: t.UntilInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
 
   /** Extend the given object to be expose the lifecycle API. */
   toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;

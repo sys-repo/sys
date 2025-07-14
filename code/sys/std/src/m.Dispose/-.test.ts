@@ -127,28 +127,33 @@ describe('Disposable', () => {
     });
 
     it('until$ (parameter)', async () => {
-      const life = Dispose.disposable();
-      let count = 0;
-      const until = [undefined, [undefined, life.dispose$]]; // NB: complex "until" list.
-      const obj = Dispose.disposableAsync(until, async () => {
-        await Time.wait(5);
-        count++;
-      });
+      const test = async (until: t.UntilInput) => {
+        let count = 0;
+        const obj = Dispose.disposableAsync(until, async () => {
+          await Time.wait(5);
+          count++;
+        });
 
-      const fired: t.DisposeAsyncEvent[] = [];
-      obj.dispose$.subscribe((e) => fired.push(e));
+        const fired: t.DisposeAsyncEvent[] = [];
+        obj.dispose$.subscribe((e) => fired.push(e));
 
-      life.dispose();
-      life.dispose(); // NB: multiple calls.
+        obj.dispose();
+        obj.dispose(); // NB: multiple calls.
 
-      expect(count).to.eql(0);
-      await Time.wait(15);
-      expect(count).to.eql(1);
+        expect(count).to.eql(0);
+        await Time.wait(15);
+        expect(count).to.eql(1);
 
-      expect(fired.length).to.eql(2);
-      expect(fired[0].payload.stage).to.eql('start');
-      expect(fired[1].payload.stage).to.eql('complete');
-      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+        expect(fired.length).to.eql(2);
+        expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[1].payload.stage).to.eql('complete');
+        expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+      };
+
+      await test(Dispose.disposable());
+      await test(Dispose.lifecycle());
+      await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
+      await test([undefined, [undefined, Dispose.disposable().dispose$]]);
     });
   });
 
@@ -204,30 +209,35 @@ describe('Disposable', () => {
     });
 
     it('until$ (parameter)', async () => {
-      const life = Dispose.disposable();
-      let count = 0;
-      const until = [undefined, [undefined, life.dispose$]]; // NB: complex "until" list.
-      const obj = Dispose.lifecycleAsync(until, async () => {
-        await Time.wait(5);
-        count++;
-      });
+      const test = async (until: t.UntilInput) => {
+        let count = 0;
+        const obj = Dispose.lifecycleAsync(until, async () => {
+          await Time.wait(5);
+          count++;
+        });
 
-      const fired: t.DisposeAsyncEvent[] = [];
-      obj.dispose$.subscribe((e) => fired.push(e));
+        const fired: t.DisposeAsyncEvent[] = [];
+        obj.dispose$.subscribe((e) => fired.push(e));
 
-      life.dispose();
-      life.dispose(); // NB: multiple calls.
+        obj.dispose();
+        obj.dispose(); // NB: multiple calls.
 
-      expect(count).to.eql(0);
-      await Time.wait(15);
-      expect(count).to.eql(1);
+        expect(count).to.eql(0);
+        await Time.wait(15);
+        expect(count).to.eql(1);
 
-      expect(fired.length).to.eql(2);
-      expect(fired[0].payload.stage).to.eql('start');
-      expect(fired[1].payload.stage).to.eql('complete');
-      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+        expect(fired.length).to.eql(2);
+        expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[1].payload.stage).to.eql('complete');
+        expect(fired[1].payload.is).to.eql({ ok: true, done: true });
 
-      expect(obj.disposed).to.eql(true);
+        expect(obj.disposed).to.eql(true);
+      };
+
+      await test(Dispose.disposable());
+      await test(Dispose.lifecycle());
+      await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
+      await test([undefined, [undefined, Dispose.disposable().dispose$]]);
     });
   });
 
