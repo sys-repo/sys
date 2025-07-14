@@ -2,13 +2,7 @@ import { describe, expect, it, Testing } from '../../-test.ts';
 import { R } from './common.ts';
 import { Net, Port } from './mod.ts';
 
-const NO_SANITIZE = {
-  // Disable resource-leak checks and op-leak checks.
-  sanitizeOps: false,
-  sanitizeResources: false,
-};
-
-describe('Net', NO_SANITIZE, () => {
+describe('Net', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('API', () => {
     expect(Net.Port).to.equal(Port);
     expect(Net.port).to.equal(Port.get);
@@ -75,6 +69,36 @@ describe('Net', NO_SANITIZE, () => {
         expect(res).to.not.eql(0);
         expect(typeof res).to.eql('number');
         expect(Port.inUse(res)).to.eql(false);
+      });
+    });
+  });
+
+  describe('Net.connect', () => {
+    it('connects to a listening port', async () => {
+      await Testing.retry(3, async () => {
+        const port = Port.random();
+        const listener = Deno.listen({ port });
+
+        const res = await Net.connect(port, { attempts: 3 });
+        expect(res.error).to.eql(undefined);
+        expect(res.socket).to.not.eql(undefined);
+
+        const socket = res.socket!;
+        expect(socket.remoteAddr.port).to.eql(port);
+
+        socket.close();
+        listener.close();
+      });
+    });
+
+    it('returns an error when the port is unreachable', async () => {
+      await Testing.retry(3, async () => {
+        const port = Port.random();
+        const res = await Net.connect(port, { attempts: 2, delay: 10 });
+
+        expect(res.socket).to.eql(undefined);
+        expect(res.error?.name).to.eql('ConnectionRefused');
+        expect(res.error?.message).to.include('Connection refused');
       });
     });
   });

@@ -3,10 +3,11 @@ import type { t } from './common.ts';
 /**
  * Tools for working with a network.
  */
-export type NetLib = {
-  readonly Port: t.PortLib;
-  readonly port: t.PortLib['get'];
-};
+export type NetLib = Readonly<{
+  Port: t.PortLib;
+  port: t.PortLib['get'];
+  connect(port: t.PortNumber, options?: NetConnectOptions): Promise<NetConnectResponse>;
+}>;
 
 /**
  * Tools for working with network ports.
@@ -30,3 +31,28 @@ export type PortLib = {
   /** Determine if the given port number is currently in use. */
   inUse(port: t.PortNumber): boolean;
 };
+
+/**
+ * Attempt to open a TCP connection to {port} (and optional {hostname})
+ * with retry logic and exponential back-off.
+ *
+ * Resolves with the **remote** `Deno.NetAddr` once the socket is open.
+ */
+export type NetConnectOptions = {
+  /** Hostname or IP to connect to (default `'127.0.0.1'`). */
+  hostname?: string;
+  /** Maximum connection attempts before giving up (default `10`). */
+  attempts?: number;
+  /** Delay (ms) before the first retry (default `100`). */
+  delay?: t.Msecs;
+  /** Factor applied to each subsequent delay (default `1.5`). */
+  backoff?: number;
+};
+
+/**
+ * Resposne from the `Net.connect` method:
+ */
+export type NetConnectResponse = Readonly<{
+  socket?: Deno.TcpConn;
+  error?: t.StdError;
+}>;
