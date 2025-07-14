@@ -23,6 +23,7 @@ export type CrdtBrowserRepoArgs = {
   network?: CrdtBrowserNetworkArgInput | CrdtBrowserNetworkArgInput[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
+  dispose$?: t.UntilInput;
 };
 
 /** Storage argument. */

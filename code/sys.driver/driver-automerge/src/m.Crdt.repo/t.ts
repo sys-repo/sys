@@ -1,13 +1,13 @@
 import type { t } from './common.ts';
-
 type O = Record<string, unknown>;
+
 /** Options passed to the `Repo.get` method. */
 export type CrdtRepoGetOptions = { timeout?: t.Msecs };
 
 /**
  * A repository of CRDT documents:
  */
-export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps;
+export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync;
 
 /** The properties of a CRDT Repo. */
 export type CrdtRepoProps = {

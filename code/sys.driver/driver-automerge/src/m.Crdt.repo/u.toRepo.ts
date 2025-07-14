@@ -5,26 +5,33 @@ import { type t, Err, Is, rx, slug, Time, toRef, whenReady } from './common.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
 type O = Record<string, unknown>;
-const D = { timeout: 5_000 };
+const D = { timeout: 5_000 } as const;
 
 /**
  * Wrap an Automerge repo in a lightweight functional API.
  */
-export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRepo {
+export function toRepo(
+  repo: Repo,
+  options: { peerId?: string; dispose$?: t.UntilInput } = {},
+): t.CrdtRepo {
+  const life = rx.lifecycleAsync(options.dispose$, () => repo.shutdown());
   let _updating: t.Lifecycle | undefined;
   let _enabled = true;
 
-  const cloneProps = () => {
-    const { id, sync } = api;
-    return { id, sync: { ...sync } };
-  };
-
+  /**
+   * State:
+   */
   const $$ = rx.subject<t.CrdtRepoChange>();
   const networks = repo.networkSubsystem.adapters;
   const peer = networks.length > 0 ? options.peerId ?? '' : '';
   const urls = networks
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
     .map((adapter: any) => adapter.url);
+
+  const cloneProps = () => {
+    const { id, sync } = api;
+    return { id, sync: { ...sync } };
+  };
 
   /**
    * API:
@@ -93,9 +100,18 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
     },
 
     events(dispose$) {
-      const life = rx.lifecycle(dispose$);
-      const $ = $$.pipe(rx.takeUntil(life.dispose$));
-      return rx.toLifecycle<t.CrdtRepoEvents>(life, { $ });
+      const until = rx.lifecycle([dispose$, life.dispose$]);
+      const $ = $$.pipe(rx.takeUntil(until.dispose$));
+      return rx.toLifecycle<t.CrdtRepoEvents>(until, { $ });
+    },
+
+    /**
+     * Lifecycle:
+     */
+    dispose: life.dispose,
+    dispose$: life.dispose$,
+    get disposed() {
+      return life.disposed;
     },
   };
 

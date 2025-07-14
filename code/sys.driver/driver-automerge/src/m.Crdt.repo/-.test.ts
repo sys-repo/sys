@@ -20,6 +20,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const repo = toRepo(new AutomergeRepo());
       expect(repo.id.peer).to.eql('');
       expect(repo.id.instance).to.be.a('string');
+      expect(repo.disposed).to.eql(false);
 
       const initial = { count: 0 };
       const doc = repo.create<T>(initial);
@@ -111,6 +112,14 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       a.dispose();
       expect(a.disposed).to.eql(true);
+    });
+
+    it('events disposed when repo disposed', async () => {
+      const repo = Crdt.repo();
+      const events = repo.events();
+      expect(events.disposed).to.eql(false);
+      await repo.dispose();
+      expect(events.disposed).to.eql(true);
     });
 
     it('events.sync$', () => {
@@ -259,6 +268,36 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       expect(res.error?.message).to.eql(error);
       expect(res.error?.kind === 'UNKNOWN').to.be.true;
+    });
+  });
+
+  describe('dispose (shutdown)', () => {
+    it('dispose from async method', async () => {
+      const repo = Crdt.repo();
+      expect(repo.disposed).to.eql(false);
+
+      const fired: t.DisposeAsyncEvent[] = [];
+      repo.dispose$.subscribe((e) => fired.push(e));
+
+      await repo.dispose();
+      await repo.dispose();
+      await repo.dispose(); // NB: only called once.
+
+      expect(fired.length).to.eql(2);
+      expect(fired[1].payload.is.done).to.eql(true);
+      expect(repo.disposed).to.eql(true);
+    });
+
+    it('dispose from parameter observable', async () => {
+      const life = rx.lifecycle();
+      const repo = Crdt.repo({ dispose$: life });
+      expect(repo.disposed).to.eql(false);
+
+      life.dispose();
+      expect(repo.disposed).to.eql(false); // NB: async shutdown - not yet complete.
+
+      await Time.wait(50);
+      expect(repo.disposed).to.eql(true);
     });
   });
 });

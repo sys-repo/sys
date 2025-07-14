@@ -30,12 +30,12 @@ export const Crdt: t.CrdtFilesystemLib = {
   kind: 'Crdt:FileSystem',
   repo(input) {
     const args = wrangle.dir(input);
-    const { sharePolicy = async () => true, denylist } = args;
+    const { sharePolicy = async () => true, denylist, dispose$ } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
     const peerId = createPeerId();
     const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
-    return toRepo(base, { peerId });
+    return toRepo(base, { peerId, dispose$ });
   },
   Is: CrdtIs,
   Url: CrdtUrl,
