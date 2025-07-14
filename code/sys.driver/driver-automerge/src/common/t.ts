@@ -4,8 +4,11 @@ export type {
   DocumentId,
   NetworkAdapterInterface,
   PeerId,
+  PeerMetadata,
   Repo,
   StorageAdapterInterface,
+  PeerCandidatePayload,
+  PeerDisconnectedPayload,
 } from '@automerge/automerge-repo';
 
 /**
