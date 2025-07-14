@@ -12,7 +12,10 @@ export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps;
 /** The properties of a CRDT Repo. */
 export type CrdtRepoProps = {
   readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
-  readonly sync: { enabled: boolean; urls: t.StringUrl[] };
+  readonly sync: {
+    enabled: boolean;
+    readonly urls: t.StringUrl[];
+  };
 };
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {

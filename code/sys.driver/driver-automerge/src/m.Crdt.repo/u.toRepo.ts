@@ -14,19 +14,17 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
   let _updating: t.Lifecycle | undefined;
   let _enabled = true;
 
-  const $$ = rx.subject<t.CrdtRepoChange>();
-
-  const networks = repo.networkSubsystem.adapters;
-  const peer = networks.length > 0 ? options.peerId ?? '' : '';
-
-  const urls = networks
-    .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
-    .map((adapter: any) => adapter.url);
-
   const cloneProps = () => {
     const { id, sync } = api;
     return { id, sync: { ...sync } };
   };
+
+  const $$ = rx.subject<t.CrdtRepoChange>();
+  const networks = repo.networkSubsystem.adapters;
+  const peer = networks.length > 0 ? options.peerId ?? '' : '';
+  const urls = networks
+    .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
+    .map((adapter: any) => adapter.url);
 
   /**
    * API:
@@ -109,6 +107,7 @@ export function toRepo(repo: Repo, options: { peerId?: string } = {}): t.CrdtRep
     configurable: false,
   });
 
+  // Finish up.
   return api;
 }
 
