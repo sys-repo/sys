@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { type t, LocalStorage } from './common.ts';
 
 type P = t.SyncEnabledSwitchProps;
@@ -10,15 +10,25 @@ export function useController(props: P) {
   /**
    * Hooks:
    */
-  const [store, setStore] = React.useState(wrangle.localstore(props));
-  const [enabled, setEnabled] = React.useState(wrangle.enabled(store?.current, repo));
+  const [store, setStore] = useState(wrangle.localstore(props));
+  const [enabled, setEnabled] = useState(wrangle.enabled(store?.current, repo));
 
   /**
-   * Effects:
+   * Effect: refresh local-store handle when the storage key changes.
    */
-  React.useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
-  React.useEffect(() => void store?.change((d) => (d.syncEnabled = enabled)), [store, enabled]);
-  React.useEffect(() => {
+  useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
+
+  /**
+   * Effect: persist changes made by this hook back to local-storage.
+   */
+  useEffect(() => {
+    store?.change((d) => (d.syncEnabled = enabled));
+  }, [store, enabled]);
+
+  /**
+   * Effect: keep `enabled` in-sync with repo‐side toggles done elsewhere.
+   */
+  useEffect(() => {
     const events = repo?.events();
     events?.$.subscribe((e) => {
       const next = e.after.sync.enabled;
@@ -29,7 +39,7 @@ export function useController(props: P) {
   }, [repo?.id.instance]);
 
   /**
-   * Methods
+   * Methods:
    */
   const updatedEnabled = (enabled: boolean) => {
     setEnabled(!!repo && enabled);
