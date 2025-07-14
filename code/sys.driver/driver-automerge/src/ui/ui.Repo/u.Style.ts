@@ -1,0 +1,12 @@
+import { css } from './common.ts';
+
+export const LabelStyle = {
+  base: css({
+    position: 'relative',
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridAutoColumns: 'auto',
+    placeItems: 'center',
+  }),
+  label: css({ opacity: 0.5 }),
+};

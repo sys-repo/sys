@@ -1,5 +1,7 @@
 import React from 'react';
 import { type t, Color, css, Icons, LocalStorage, Switch } from './common.ts';
+import { PeerLabel } from './ui.Switch.Peer.tsx';
+import { LabelStyle } from './u.Style.ts';
 
 type P = t.SyncEnabledSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -10,7 +12,6 @@ type Store = { syncEnabled?: boolean };
 export const SyncEnabledSwitch: React.FC<P> = (props) => {
   const { repo, localstorage } = props;
   const peerId = repo?.id.peer ?? '';
-  const peerParts = peerId.split('-');
   const urls = repo?.sync.urls ?? [];
 
   /**
@@ -37,15 +38,18 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
   /**
    * Handlers:
    */
-  const updatedEnabled = (enabled: boolean) => {
-    if (!repo) return;
-    setEnabled(enabled);
-    repo.sync.enabled = enabled;
+  const onClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleEnabled();
   };
   const toggleEnabled = () => {
     const next = !enabled;
     updatedEnabled(next);
     props.onChange?.({ enabled: next });
+  };
+  const updatedEnabled = (enabled: boolean) => {
+    setEnabled(!!repo && enabled);
+    if (repo) repo.sync.enabled = enabled;
   };
 
   /**
@@ -61,29 +65,11 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
       userSelect: 'none',
       fontSize: 11,
     }),
-    body: css({
-      display: 'grid',
-      gridAutoFlow: 'column',
-      gridAutoColumns: 'auto',
-      columnGap: 6,
-      placeItems: 'center',
-    }),
-    peer: css({ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'auto' }),
+    body: css(LabelStyle.base, { columnGap: 6 }),
     label: css({ opacity: 0.5 }),
     address: css({ opacity: enabled ? 1 : 0.2, transition: 'opacity 120ms ease' }),
     urls: css({}),
   };
-
-  const elPeer = peerId && enabled && (
-    <React.Fragment>
-      <span className={styles.label.class}>{'•'}</span>
-      <div className={styles.peer.class}>
-        <span className={styles.label.class}>{`${peerParts.slice(0, -1).join('-')}-`}</span>
-        <span>{peerParts.slice(-1)}</span>
-      </div>
-      <Icons.Person color={theme.fg} size={16} opacity={1} />
-    </React.Fragment>
-  );
 
   const tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
   const elUrls = urls.length > 0 && enabled && (
@@ -93,21 +79,17 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     </div>
   );
 
+  const prefix = enabled && elUrls ? 'network:' : repo ? 'private' : 'no repository';
+
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
-        <Switch
-          value={enabled}
-          theme={theme.name}
-          height={16}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            toggleEnabled();
-          }}
-        />
-        <span className={styles.label.class}>{enabled && elUrls ? 'network:' : 'private'}</span>
+        <Switch value={enabled} theme={theme.name} height={16} onMouseDown={onClick} />
+        <span className={styles.label.class}>{prefix}</span>
         <div className={styles.address.class}>{enabled && elUrls ? elUrls : ``}</div>
-        {elPeer}
+        {peerId && enabled && <span className={styles.label.class}>{'•'}</span>}
+        {peerId && enabled && <PeerLabel peerId={peerId} />}
+        {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}
       </div>
     </div>
   );
