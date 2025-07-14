@@ -1,12 +1,9 @@
-import { type t } from './common.ts';
-
-
 export const LooksLike = {
   check(src: string) {
-    const markdown = LooksLike.md(src);
-    const yaml = LooksLike.yaml(src);
-
-    return { yaml, markdown } as const;
+    return {
+      yaml: LooksLike.yaml(src),
+      markdown: LooksLike.md(src),
+    } as const;
   },
 
   /**
