@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { Cli, Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, pkg, rx } from './common.ts';
+import { Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, rx } from './common.ts';
 import { Log } from './u.Log.ts';
 import { shutdown } from './u.shutdown.ts';
 
