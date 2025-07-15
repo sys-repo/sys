@@ -188,4 +188,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       await b.dispose();
     });
   });
+
+  it('|→ Hack: Wait for Timer Cleanup (CI)', async () => {
+    await Time.wait(500);
+  });
 });
