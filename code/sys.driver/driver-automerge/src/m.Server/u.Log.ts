@@ -36,16 +36,22 @@ export const Log = {
     console.info();
   },
 
-  startInterval(life: t.UntilInput, log?: () => void) {
-    const time = Time.until(life);
-    const heartbeat = () => {
-      log?.();
-      time.delay(5 * 60_000, heartbeat);
-    };
-    heartbeat(); // ← Kick-off heartbeat.
+  startInterval(
+    life: t.UntilInput,
+    log?: () => void,
+    options: { debounce?: t.Msecs; heartbeatDelay?: t.Msecs } = {},
+  ) {
+    const { debounce = 3_000, heartbeatDelay = 5 * 60_000 } = options;
 
     const $ = rx.subject();
-    $.pipe(rx.debounceTime(3_000)).subscribe(() => log?.());
+    $.pipe(rx.debounceTime(debounce)).subscribe(() => log?.());
+
+    const time = Time.until(life);
+    const heartbeat = () => {
+      $.next();
+      time.delay(heartbeatDelay, heartbeat);
+    };
+    heartbeat(); // ← Kick-off heartbeat.
 
     /**
      * API:
