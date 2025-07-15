@@ -94,7 +94,7 @@ export type KeyboardIsLib = {
    *
    */
   command(
-    modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike,
+    modifiers?: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags>,
     options?: { ua?: t.UserAgent },
   ): boolean;
 

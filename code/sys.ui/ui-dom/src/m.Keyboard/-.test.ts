@@ -5,10 +5,7 @@ import { Kbd, Keyboard } from './mod.ts';
 
 describe(
   'Keyboard',
-
-  // NB: leaked timers left around by the "happy-dom" module.
-  { sanitizeOps: false, sanitizeResources: false },
-
+  { sanitizeOps: false, sanitizeResources: false }, // NB: leaked timers left around by the "happy-dom" module.
   () => {
     it('(polyfill)', () => DomMock.polyfill());
 
@@ -190,35 +187,45 @@ describe(
       const Is = Keyboard.Is;
       const UA = {
         mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)',
-        windows: 'Mozilla/5.0 (X11; Linux x86_64)',
-        linux: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        linux: 'Mozilla/5.0 (X11; Linux x86_64)',
       } as const;
 
       const mac = UserAgent.parse(UA.mac);
       const windows = UserAgent.parse(UA.windows);
       const linux = UserAgent.parse(UA.linux);
 
-      it.only('Is.command', () => {
+      it('Is.command', () => {
         const a = Keyboard.Is.command();
+        expect(a).to.be.false;
+
         const b = Keyboard.Is.command({ meta: true }, { ua: mac });
         const c = Keyboard.Is.command({ ctrl: true }, { ua: windows });
         const d = Keyboard.Is.command({ ctrl: true }, { ua: linux });
-
-        const e = Keyboard.Is.command({ ctrl: true }, { ua: mac });
-        const f = Keyboard.Is.command({ meta: true }, { ua: windows });
-        const g = Keyboard.Is.command({ meta: true }, { ua: linux });
-
-        const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
-
-        expect(a).to.be.false;
-
         expect(b).to.be.true;
         expect(c).to.be.true;
         expect(d).to.be.true;
 
+        const e = Keyboard.Is.command({ ctrl: true }, { ua: mac });
+        const f = Keyboard.Is.command({ meta: true }, { ua: windows });
+        const g = Keyboard.Is.command({ meta: true }, { ua: linux });
         expect(e).to.be.false;
         expect(f).to.be.false;
         expect(g).to.be.false;
+
+        // T:KeyEventLike
+        const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
+        const i = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: windows });
+        expect(h).to.be.true;
+        expect(i).to.be.false;
+
+        // T:NativeKeyEventLike
+        const j = Keyboard.Is.command({ metaKey: true }, { ua: mac });
+        const k = Keyboard.Is.command({ metaKey: true }, { ua: windows });
+        const l = Keyboard.Is.command({ ctrlKey: true }, { ua: windows });
+        expect(j).to.be.true;
+        expect(k).to.be.false;
+        expect(l).to.be.true;
       });
 
       describe('Is.modified', () => {

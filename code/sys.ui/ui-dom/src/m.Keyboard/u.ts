@@ -24,7 +24,9 @@ export const Util = {
     };
   },
 
-  toModifiers(e: Partial<t.NativeKeyEventLike | t.KeyEventLike>): t.KeyboardModifierFlags {
+  toModifiers(
+    e: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags> = {},
+  ): t.KeyboardModifierFlags {
     type F = t.KeyboardModifierFlags;
     if (!isRecord(e)) return { ...DEFAULT_MODIFIERS };
 
