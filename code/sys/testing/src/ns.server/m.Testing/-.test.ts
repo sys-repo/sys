@@ -1,4 +1,4 @@
-import { type t, describe, it, expect } from '../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { Testing } from './mod.ts';
 
 describe('Server ← test helpers', () => {
@@ -36,10 +36,8 @@ describe('Server ← test helpers', () => {
           listener.close();
         }
       };
-
       await test();
       await test('127.0.0.1');
-      // await test('localhost');
     });
   });
 });
