@@ -28,6 +28,25 @@ export type SwitchProps = {
   onMouseLeave?: React.MouseEventHandler;
 };
 
+/**
+ * Tools for working with the <Switch> themes.
+ */
+export type SwitchThemeLib = {
+  merge(base: t.SwitchTheme, theme: Partial<t.SwitchTheme>): t.SwitchTheme;
+  fromName(theme: t.CommonTheme): t.SwitchThemedColors;
+  toShadowCss(shadow: t.CssShadow): string | undefined;
+  readonly light: SwitchThemedColors;
+  readonly dark: SwitchThemedColors;
+};
+
+export type SwitchThemedColors = {
+  default: t.SwitchTheme;
+  blue: t.SwitchTheme;
+  green: t.SwitchTheme;
+  yellow: t.SwitchTheme;
+};
+
+/** Theme: Root */
 export type SwitchTheme = {
   trackColor: { on: Color; off: Color; disabled: Color };
   thumbColor: { on: Color; off: Color; disabled: Color };
@@ -35,6 +54,7 @@ export type SwitchTheme = {
   disabledOpacity: t.Percent;
 };
 
+/** Theme: Track */
 export type SwitchTrack = {
   widthOffset: number;
   heightOffset: number;
@@ -43,6 +63,7 @@ export type SwitchTrack = {
   borderWidth: { on?: number; off?: number };
 };
 
+/** Theme: Thumb. */
 export type SwitchThumb = {
   width: number;
   height: number;

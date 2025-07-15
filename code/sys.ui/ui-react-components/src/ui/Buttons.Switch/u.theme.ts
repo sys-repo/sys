@@ -1,6 +1,6 @@
 import { type t, Color, R, Style } from './common.ts';
 
-export const SwitchTheme = {
+export const SwitchTheme: t.SwitchThemeLib = {
   merge(base: t.SwitchTheme, theme: Partial<t.SwitchTheme>) {
     const res = R.mergeDeepRight(base, theme) as t.SwitchTheme;
     return R.clone(res);
@@ -24,12 +24,13 @@ export const SwitchTheme = {
       shadowColor: -0.35,
       disabledOpacity: 0.45,
     };
-    return {
+    const api: t.SwitchThemedColors = {
       default: BASE,
       blue: BASE,
       green: SwitchTheme.merge(BASE, { trackColor: { on: GREEN, off: -0.1, disabled: -0.1 } }),
       yellow: SwitchTheme.merge(BASE, { trackColor: { on: YELLOW, off: -0.1, disabled: -0.1 } }),
     };
+    return api;
   },
 
   get dark() {
@@ -40,11 +41,12 @@ export const SwitchTheme = {
       shadowColor: -0.6,
       disabledOpacity: 0.3,
     };
-    return {
+    const api: t.SwitchThemedColors = {
       default: BASE,
       blue: BASE,
       green: SwitchTheme.merge(BASE, { trackColor: { on: GREEN, off: 0.2, disabled: 0.2 } }),
       yellow: SwitchTheme.merge(BASE, { trackColor: { on: YELLOW, off: 0.2, disabled: 0.2 } }),
     };
+    return api;
   },
 };
