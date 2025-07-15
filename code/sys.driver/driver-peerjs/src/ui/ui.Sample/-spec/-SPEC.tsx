@@ -50,8 +50,9 @@ export default Spec.describe(D.displayName, (e) => {
       ctx.redraw();
     });
 
+    const width = 550;
     ctx.subject
-      .size([550, 460])
+      .size([width, 460])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);

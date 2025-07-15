@@ -78,7 +78,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   const elBody = size.ready && (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <HarnessHost instance={instance} baseRef={hostRef} subjectRef={subjectRef} />
-      {size.width > 950 && <DebugPanel instance={instance} baseRef={debugRef} />}
+      <DebugPanel instance={instance} baseRef={debugRef} hidden={size.width < 950} />
     </ErrorBoundary>
   );
 

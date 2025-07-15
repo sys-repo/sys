@@ -7,6 +7,7 @@ import { DebugPanelBody as Body } from './Panel.Body.tsx';
 export type DebugPanelProps = {
   instance: t.DevInstance;
   baseRef?: React.RefObject<HTMLDivElement>;
+  hidden?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -14,7 +15,7 @@ export type DebugPanelProps = {
 const componentAttr = `${pkg.name}:Panel.Debug`;
 
 export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
-  const { instance } = props;
+  const { instance, hidden = false } = props;
   const theme = Color.theme(props.theme);
 
   const current = useCurrentState(instance, { distinctUntil });
@@ -22,7 +23,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = (props) => {
   const width = Wrangle.width(debug);
 
   if (width === null) return null; // NB: configured to not render.
-  const isHidden = width <= 0;
+  const isHidden = hidden || width <= 0;
 
   /**
    * (Cascade): CSS styling for common <html> child elements:
