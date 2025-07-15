@@ -1,4 +1,4 @@
-import { type t, Obj } from './common.ts';
+import { type t, Obj, P } from './common.ts';
 import { maintainDyadConnection } from './u.maintainDyad.ts';
 
 export const Conn = {
@@ -40,10 +40,7 @@ export const Conn = {
     const diff = !Obj.eql(current, next);
 
     if (diff) {
-      doc?.change((d) => {
-        Obj.Path.Mutate.ensure(d, ['connections', 'dyads'], []);
-        d.connections!.dyads = next;
-      });
+      doc?.change((d) => P.ROOM.connections.dyads.set(d, next));
     }
 
     return diff;

@@ -7,6 +7,7 @@ import {
   css,
   D,
   Is,
+  Kbd,
   LocalStorage,
   ObjectView,
   P,
@@ -72,9 +73,8 @@ export function createDebugSignals() {
     network: [
       //
       // { ws: 'sync.db.team' },
-      // { ws: 'sync.automerge.org' },
       { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
+      // isLocalhost && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },
     ],
   });
@@ -240,7 +240,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `increment ++`}
         onClick={(e) => {
-          doc?.change((d) => (d.count = Is.number(d.count) ? d.count + 1 : 0));
+          doc?.change((d) => {
+            const next = Is.number(d.count) ? d.count + 1 : 0;
+            d.count = e.metaKey ? 0 : next;
+          });
         }}
       />
 
@@ -249,9 +252,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `tmp 🐷`}
         onClick={() => {
           doc?.change((d) => {
-            // const obj = Obj.Path.get<any>(d, [''], {});
-            // const p = Obj.Path.curry(['count']);
-            // p.delete(d);
+            P.ROOM.connections['-root'].delete(d);
           });
         }}
       />

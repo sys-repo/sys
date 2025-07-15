@@ -26,6 +26,14 @@ export const P = {
     filesRef: curry<t.StringId>(['dev', 'files.ref']),
     notesRef: curry<t.StringId>(['dev', 'notes.ref']),
   },
+  ROOM: {
+    connections: {
+      '-root': curry<{}>(['connections']),
+      ts: curry<t.UnixTimestamp>(['connections', 'ts']),
+      group: curry<t.WebRtc.PeerId[]>(['connections', 'group']),
+      dyads: curry<t.WebRtc.PeerDyad[]>(['connections', 'dyads']),
+    },
+  },
 };
 
 const ALL_VIEWS: t.SampleView[] = ['Room', 'Notes', 'FileShare', 'Debug'];
