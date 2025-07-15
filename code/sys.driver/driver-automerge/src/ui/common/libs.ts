@@ -13,6 +13,7 @@ export {
   ObjectView,
   Spinners,
   Switch,
+  SwitchTheme,
   TextInput,
 } from '@sys/ui-react-components';
 
