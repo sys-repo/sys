@@ -24,6 +24,9 @@ type Args = {
   dispose$?: t.UntilInput;
 };
 
+/**
+ * Fires when the remote stream becomes available.
+ */
 export type RemoteStreamHandler = (e: RemoteStreamArgs) => void;
 export type RemoteStreamArgs = {
   readonly remote: t.SamplePeerMedia;
@@ -39,7 +42,7 @@ export type RemoteStreamArgs = {
  *   (1 s → 2 s → 4 s … max 30 s).
  * • Duplicate or stale connections are pruned automatically.
  */
-export function maintainDyadConnection(args: Args): t.Lifecycle {
+export function maintainDyadConnection(args: Args): t.DyadConnection {
   const { peer, dyad, localStream, onRemoteStream, retryDelay = 1_000 } = args;
 
   /** `life` – external + internal disposal channel. */
@@ -53,6 +56,9 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
   let call: t.PeerJS.MediaConnection | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let delay = retryDelay; // exponential back-off tracker
+
+  /** Connection state (exposed read-only via returned object). */
+  const connected: t.DyadConnectionState = { local: false, remote: false };
 
   /**
    * Attempt to place an outbound call (poller).
@@ -88,8 +94,10 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
      * Attach housekeeping listeners to a MediaConnection.
      */
     wireCall(c: t.PeerJS.MediaConnection) {
-      IO.cleanupCall(); // ensure single active link
+      IO.cleanupCall(); // ← Ensure single active link.
       call = c;
+      connected.local = true;
+      connected.remote = false;
 
       const lost = () => IO.lostConnection(c);
       const handleIce = (state: string) => {
@@ -132,6 +140,8 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
         /* noop */
       }
       call = null;
+      connected.local = false;
+      connected.remote = false;
     },
   } as const;
 
@@ -143,7 +153,8 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
      * Remote stream received → alert listeners.
      */
     stream(stream: MediaStream) {
-      delay = retryDelay; // success → reset back-off
+      delay = retryDelay; // success → reset back-off.
+      connected.remote = true;
       onRemoteStream?.({
         local: { stream: localStream, peer: peer.id },
         remote: { stream, peer: remoteId },
@@ -194,6 +205,11 @@ export function maintainDyadConnection(args: Args): t.Lifecycle {
   peer.on('disconnected', Handle.disconnect);
   dial(); // Start polling immediately.
 
-  // Finish up.
-  return life;
+  /**
+   * API:
+   */
+  return rx.toLifecycle<t.DyadConnection>(life, {
+    peers: dyad,
+    connected,
+  });
 }

@@ -16,6 +16,7 @@ export function DevConnectionsButtons(props: P) {
   const elReset = (
     <Button
       block
+      style={{ marginTop: 20 }}
       label={() => `(reset)`}
       onClick={() => {
         const doc = p.doc.value;

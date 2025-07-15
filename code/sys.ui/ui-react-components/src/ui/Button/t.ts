@@ -10,7 +10,7 @@ export type ButtonProps = {
   debug?: boolean;
 
   children?: Content;
-  label?: string | (() => string);
+  label?: React.ReactNode | (() => React.ReactNode);
   tooltip?: string;
 
   // Boolean:

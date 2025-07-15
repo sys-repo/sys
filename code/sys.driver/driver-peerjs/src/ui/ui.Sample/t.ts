@@ -40,8 +40,24 @@ export type SamplePeerMedia = {
 /**
  * Events:
  */
-
 /** Handler for when the sample is ready. */
 export type SampleReadyHandler = (e: SampleReadyArgs) => void;
 /** The sample ready event. */
 export type SampleReadyArgs = { readonly self: SamplePeerMedia };
+
+/**
+ * —————————————————————————————————————————————————————————————————————————————————————————————
+ */
+
+/**
+ * Dyad: Connection state flags.
+ */
+export type DyadConnectionState = { local: boolean; remote: boolean };
+
+/**
+ * Dyad: A live connection between a "dyad" (two-peers).
+ */
+export type DyadConnection = t.Lifecycle & {
+  peers: t.WebRtc.PeerDyad;
+  connected: DyadConnectionState;
+};

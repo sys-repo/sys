@@ -1,6 +1,7 @@
+import React from 'react';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
-import { type t, Button, Media, P } from '../common.ts';
+import { type t, Button, Media, P, css } from '../common.ts';
 import { Conn } from '../u.ts';
 
 type P = {
@@ -15,21 +16,58 @@ export function MaintainDyadButton(props: P) {
   const { dyad, debug } = props;
   const p = debug.props;
 
+  /**
+   * Hooks:
+   */
+  const [controller, setController] = React.useState<t.DyadConnection>();
+
+  /**
+   * Render:
+   */
+  const peerCss = (isConnected: boolean = false) => {
+    return css({
+      opacity: isConnected ? 1 : 0.5,
+      filter: isConnected ? 'none' : 'grayscale(100%)',
+      transition: 'opacity 120ms ease, filter 120ms ease',
+    });
+  };
+  const styles = {
+    label: css({
+      position: 'relative',
+      display: 'grid',
+      gridAutoFlow: 'column',
+      gridAutoColumns: 'auto',
+      justifyContent: 'start',
+      columnGap: 6,
+    }),
+    peerLeft: peerCss(controller?.connected.local),
+    peerRight: peerCss(controller?.connected.remote),
+  };
+
+  const elLabel = (
+    <div className={styles.label.class}>
+      <span>{'🐚 ƒ: maintainDyadConnection('}</span>
+      <span className={styles.peerLeft.class}>{'🐷'}</span>
+      <span>{'..'}</span>
+      <span className={styles.peerRight.class}>{'🐷'}</span>
+      <span>{')'}</span>
+    </div>
+  );
+
   return (
     <Button
       tooltip={`${dyad[0]} .. ${dyad[1]}`}
       block
-      label={() => `🐚 ƒ: maintainDyadConnection( 🐷 .. 🐷 )`}
+      label={() => elLabel}
       onClick={() => {
         const doc = p.doc.value;
         if (!doc) return;
 
         const peer = debug.peer;
         const localStream = p.localStream.value;
+        if (!(dyad && peer && localStream)) return;
 
-        if (!dyad || !localStream) return;
-
-        const res = Conn.maintainDyadConnection({
+        const ctrl = Conn.maintainDyadConnection({
           peer,
           dyad,
           localStream,
@@ -40,11 +78,13 @@ export function MaintainDyadButton(props: P) {
           },
         });
 
+        setController(ctrl);
+
         console.group(`🌳 maintainDyadConnection/args:`);
         console.log('peer:', peer);
         console.log('dyad:', [...dyad]);
         console.log('localStream:', localStream);
-        console.log('res:', res);
+        console.log('controller:', ctrl);
         console.groupEnd();
       }}
     />
