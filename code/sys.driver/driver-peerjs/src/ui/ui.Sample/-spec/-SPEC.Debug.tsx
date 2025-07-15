@@ -74,7 +74,7 @@ export function createDebugSignals() {
       //
       // { ws: 'sync.db.team' },
       { ws: 'waiheke.sync.db.team' },
-      // isLocalhost && { ws: 'localhost:3030' },
+      isLocalhost && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },
     ],
   });
