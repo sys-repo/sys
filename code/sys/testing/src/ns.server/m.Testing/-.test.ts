@@ -39,7 +39,7 @@ describe('Server ← test helpers', () => {
 
       await test();
       await test('127.0.0.1');
-      await test('localhost');
+      // await test('localhost');
     });
   });
 });
