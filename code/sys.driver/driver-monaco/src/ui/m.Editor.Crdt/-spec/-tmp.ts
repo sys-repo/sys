@@ -1,14 +1,7 @@
-import { type t } from '../common.ts';
-
+import type { Node, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 import * as YAML from 'yaml';
-import type { Scalar, YAMLMap, YAMLSeq, Pair, Node } from 'yaml';
 
-/**
- * A path inside the parsed YAML value.
- *   - map  keys   → string
- *   - seq indexes → number
- */
-export type YamlPath = t.ObjectPath;
+import { type t } from '../common.ts';
 
 /**
  * 🐷
@@ -34,8 +27,8 @@ export function parseYaml(src: string): YAML.Document.Parsed {
 export const pathAtOffset = (
   node: Node | null | undefined,
   offset: number,
-  path: YamlPath = [],
-): YamlPath => {
+  path: t.ObjectPath = [],
+): t.ObjectPath => {
   if (!node || !node.range) return [];
 
   const [start, , end] = node.range; // valueStart, valueEnd, nodeEnd  [oai_citation:0‡eemeli.org](https://eemeli.org/yaml/)
@@ -45,7 +38,7 @@ export const pathAtOffset = (
   if (YAML.isScalar(node as Scalar)) return path;
 
   if (YAML.isSeq(node as YAMLSeq)) {
-    return (node as YAMLSeq).items.reduce<YamlPath>((found, item, idx) => {
+    return (node as YAMLSeq).items.reduce<t.ObjectPath>((found, item, idx) => {
       return found.length ? found : pathAtOffset(item as any, offset, [...path, idx]);
     }, []);
   }
@@ -76,7 +69,7 @@ export const pathAtOffset = (
  * Wire everything to an editor instance.
  * Re-parse on buffer edits; emit path on every cursor move.
  */
-export const observeYamlPath = (editor: t.Monaco.Editor, onPath: (p: YamlPath) => void) => {
+export const observeYamlPath = (editor: t.Monaco.Editor, onPath: (p: t.ObjectPath) => void) => {
   const model = editor.getModel();
   if (!model) throw new Error('editor has no model');
 
