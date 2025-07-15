@@ -24,7 +24,6 @@ export function DevConnectionsButtons(props: P) {
           const ts = Time.now.timestamp;
           d.connections = { ts, group: [], dyads: [] };
         });
-        console.info('after clear', { ...doc?.current });
       }}
     />
   );
