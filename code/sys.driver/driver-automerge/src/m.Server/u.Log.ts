@@ -50,7 +50,6 @@ export const Log = {
 
     console.info();
     console.info(table.toString().trim());
-    console.info();
   },
 
   startInterval(
@@ -64,11 +63,11 @@ export const Log = {
     $.pipe(rx.debounceTime(debounce)).subscribe(() => log?.());
 
     const time = Time.until(life);
-    const heartbeat = () => {
-      $.next();
+    const heartbeat = (log: boolean = true) => {
+      if (log) $.next();
       time.delay(heartbeatDelay, heartbeat);
     };
-    heartbeat(); // ← Kick-off heartbeat.
+    heartbeat(false); // ← Kick-off heartbeat.
 
     /**
      * API:
