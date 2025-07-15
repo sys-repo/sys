@@ -1,6 +1,6 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
-
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
+
 import { type t, Err, Is, rx, slug, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';

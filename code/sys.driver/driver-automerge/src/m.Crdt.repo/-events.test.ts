@@ -27,8 +27,11 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('prop$ (change)', () => {
-    it('sync.enabled (toggle)', () => {
-      const repo = Crdt.repo({ network: { ws: 'foo.com' } });
+    it('sync.enabled (toggle)', async () => {
+      const s = await Server.ws({ silent: true });
+      const ws = `localhost:${s.addr.port}`;
+
+      const repo = Crdt.repo({ network: { ws } });
       const events = repo.events();
 
       const fired: t.CrdtRepoPropChangeEvent['payload'][] = [];
@@ -50,6 +53,9 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       repo.sync.enabled = false;
       expect(fired.length).to.eql(2); // no more events (disposed).
+
+      await repo.dispose();
+      await s.dispose();
     });
 
     it('sync.peers', async () => {
