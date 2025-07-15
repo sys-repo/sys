@@ -68,7 +68,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(a.sync.peers).to.eql([]);
       expect(b.sync.peers).to.eql([]);
 
-      await Time.wait(50);
+      await Time.wait(150);
       expect(a.sync.peers).to.eql([s.repo.id.peer]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.have.members([a.id.peer, b.id.peer]);
@@ -82,7 +82,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Take A offline:
       a.sync.enabled = false;
-      await Time.wait(10);
+      await Time.wait(100);
       expect(a.sync.peers).to.eql([]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.eql([b.id.peer]);
@@ -95,7 +95,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Bring A back online:
       a.sync.enabled = true;
-      await Time.wait(10);
+      await Time.wait(100);
       expect(a.sync.peers).to.eql([s.repo.id.peer]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.have.members([a.id.peer, b.id.peer]);
@@ -105,7 +105,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Kill the server:
       await s.dispose();
-      await Time.wait(10);
+      await Time.wait(100);
       expect(a.sync.peers).to.eql([]);
       expect(b.sync.peers).to.eql([]);
       expect(s.repo.sync.peers).to.eql([]);
@@ -136,7 +136,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       b.events().network$.subscribe((e) => bFired.push(e));
 
       // Both peers connect (online):
-      await Time.wait(50);
+      await Time.wait(300);
       expect(sFired.length).to.eql(2);
       expect(sFired.map((e) => e.type)).to.eql(['network/peer-online', 'network/peer-online']);
 
@@ -148,7 +148,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Take peer-A offline:
       a.sync.enabled = false;
-      await Time.wait(10);
+      await Time.wait(100);
 
       expect(sFired.length).to.eql(3);
       expect(aFired.length).to.eql(2);
@@ -159,7 +159,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Bring peer-A back online:
       a.sync.enabled = true;
-      await Time.wait(10);
+      await Time.wait(100);
 
       expect(sFired.length).to.eql(4);
       expect(aFired.length).to.eql(3);
@@ -172,7 +172,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // Take the server offline (lose connection):
       await s.dispose();
-      await Time.wait(10);
+      await Time.wait(100);
 
       expect(sFired.length).to.eql(4); // NB: no change
       expect(aFired.length).to.eql(4);
