@@ -304,6 +304,11 @@ describe(
         NON.forEach((v: any) => test(v));
       });
 
+      it('modifiers → no change', () => {
+        const modifiers = Kbd.modifiers({ metaKey: true });
+        expect(Kbd.modifiers(modifiers)).to.eql(modifiers);
+      });
+
       it('converts: NativeKeyEventLike', () => {
         const a = Kbd.modifiers({ metaKey: true });
         const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
@@ -315,10 +320,7 @@ describe(
 
       it('converts: KeyEventLike', () => {
         type K = t.KeyEventLike;
-        const ev: K = {
-          key: 'c',
-          modifiers: { ctrl: true, meta: false, alt: false, shift: false },
-        };
+        const ev: K = { key: 'c', modifiers: Kbd.modifiers({ metaKey: true }) };
         expect(Kbd.modifiers(ev)).to.eql(ev.modifiers);
       });
     });

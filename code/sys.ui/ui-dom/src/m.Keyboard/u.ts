@@ -1,5 +1,6 @@
-import { type t, Is, UserAgent } from './common.ts';
+import { type t, isRecord, UserAgent } from './common.ts';
 
+type O = Record<string, unknown>;
 const DEFAULT_MODIFIERS: t.KeyboardModifierFlags = {
   ctrl: false,
   meta: false,
@@ -24,7 +25,8 @@ export const Util = {
   },
 
   toModifiers(e: Partial<t.NativeKeyEventLike | t.KeyEventLike>): t.KeyboardModifierFlags {
-    if (!Is.record(e)) return { ...DEFAULT_MODIFIERS };
+    type F = t.KeyboardModifierFlags;
+    if (!isRecord(e)) return { ...DEFAULT_MODIFIERS };
 
     if ('ctrlKey' in e || 'shiftKey' in e || 'altKey' in e || 'metaKey' in e) {
       const {
@@ -36,12 +38,19 @@ export const Util = {
       return { ctrl, shift, alt, meta };
     }
 
+    const isFlags = (o: O = {}): o is Partial<F> => {
+      return 'ctrl' in o || 'shift' in o || 'alt' in o || 'meta' in o;
+    };
+
+    const clone = (flags: Partial<F>) => {
+      const { ctrl = false, shift = false, alt = false, meta = false } = flags;
+      return { ctrl, shift, alt, meta };
+    };
+
+    if (isFlags(e)) return clone(e);
+
     if ('modifiers' in e) {
-      const m = e.modifiers ?? {};
-      if ('ctrl' in m || 'shift' in m || 'alt' in m || 'meta' in m) {
-        const { ctrl = false, shift = false, alt = false, meta = false } = m;
-        return { ctrl, shift, alt, meta };
-      }
+      if (isFlags(e.modifiers)) return clone(e.modifiers);
     }
 
     return { ...DEFAULT_MODIFIERS };

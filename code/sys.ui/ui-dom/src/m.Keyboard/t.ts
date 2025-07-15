@@ -54,9 +54,12 @@ export type KeyboardLib = {
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
 
   /**
-   * Convert an event into standard flags information object.
+   * Convert a loose input into standard modifier-key flags if the given
+   * object is "like" an event that contains the modifier-key information.
    */
-  modifiers(e: Partial<NativeKeyEventLike | KeyEventLike>): t.KeyboardModifierFlags;
+  modifiers(
+    e: Partial<NativeKeyEventLike | KeyEventLike | KeyboardModifierFlags>,
+  ): t.KeyboardModifierFlags;
 };
 
 /** Abstract event for converting into system info types. */
