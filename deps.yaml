@@ -31,7 +31,7 @@ groups:
     - import: jsr:@std/uuid@1.0.9
 
   std/testing:
-    - import: npm:chai@5
+    - import: npm:chai@5.2.1
       subpaths: ['', 'chai.js']
 
   automerge:
@@ -39,10 +39,9 @@ groups:
     - import: npm:@automerge/automerge@2.2.9
       subpaths: [next]
     - import: npm:@automerge/automerge-repo@2.0.7
-    - import: npm:@automerge/automerge-repo-network-websocket@2.0.7
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.0.7
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.0.7
-    - import: npm:@onsetsoftware/automerge-patcher@0.14.0
+    - import: npm:@automerge/automerge-repo-network-websocket@2.1.0
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.1.0
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.1.0
     - import: npm:@automerge/prosemirror@0.0.13
 
   crypto:
@@ -52,9 +51,9 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.10.2
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.44.1
-    - import: npm:vite@7.0.1
-    - import: npm:vite-plugin-wasm@3.4.1
+    - import: npm:rollup@4.45.1
+    - import: npm:vite@7.0.4
+    - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
     - import: npm:@types/react@18.3.18
@@ -71,7 +70,7 @@ groups:
     - import: npm:workbox-cacheable-response@7.3.0
 
   ui/prosemirror:
-    - import: npm:prosemirror-model@1.25.1
+    - import: npm:prosemirror-model@1.25.2
     - import: npm:prosemirror-state@1.4.3
     - import: npm:prosemirror-view@1.40.0
       subpaths: [style/prosemirror.css]
@@ -80,14 +79,14 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@4.3.16
-    - import: npm:@ai-sdk/openai@1.3.22
+    - import: npm:ai@4.3.19
+    - import: npm:@ai-sdk/openai@1.3.23
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.10.10
+    - import: npm:@mastra/core@0.10.15
       subpaths: ['agent']
     - import: npm:@mastra/libsql@0.11.0
     - import: npm:@mastra/loggers@0.10.3
-    - import: npm:@mastra/memory@0.11.1
+    - import: npm:@mastra/memory@0.11.3
     - import: npm:ollama@0.5.16
 
 deno.json:
@@ -128,7 +127,7 @@ deno.json:
   - import: npm:ts-essentials@10.1.1
   - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.11.0
-  - import: npm:zod@3.25.71
+  - import: npm:zod@4.0.5
     subpaths: [v4, v4-mini]
 
   # Websockets:
@@ -160,5 +159,5 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:@vidstack/react@1.12.13
-  - import: npm:motion@12.23.0
-  - import: npm:hono@4.8.3
+  - import: npm:motion@12.23.6
+  - import: npm:hono@4.8.5

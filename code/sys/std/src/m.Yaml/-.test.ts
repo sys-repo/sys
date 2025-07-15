@@ -283,14 +283,8 @@ describe('Yaml', () => {
         doc.change((d) => (d.text = 'foo: { bar: { value: 0 } }'));
         expect(doc.current['text.parsed']).to.eql({ foo: { bar: { value: 0 } } });
 
-        console.log('doc.current', doc.current);
-
-        console.log(`-------------------------------------------`);
         doc.change((d) => (d.text = 'foo: { bar: { value: 1234 } }'));
-
-        console.log('doc.current', doc.current);
-
-        //
+        expect(doc.current['text.parsed']).to.eql({ foo: { bar: { value: 1234 } } });
       });
 
       it('write to different document', () => {

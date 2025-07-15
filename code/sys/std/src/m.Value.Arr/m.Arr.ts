@@ -16,13 +16,12 @@ export const Arr: ArrayLib = {
     return Array.isArray(input);
   },
 
-  flatten<T>(list: any): T[] {
-    if (!Array.isArray(list)) return list;
-    const result: any = list.reduce((a, b) => {
-      const value: any = Array.isArray(b) ? Arr.flatten(b) : b;
-      return a.concat(value);
-    }, []);
-    return result as T[];
+  /**
+   * Converts a nested set of arrays into a flat single-level array.
+   */
+  flatten<T>(list: unknown): T[] {
+    if (!Array.isArray(list)) return [list as T];
+    return (list as unknown[]).flat(Infinity) as T[];
   },
 
   async asyncFilter<T>(list: T[], predicate: (value: T) => Promise<boolean>) {

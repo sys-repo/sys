@@ -2,7 +2,7 @@ import { Time, WebSocketServer } from './common.ts';
 
 export function shutdown(wss: WebSocketServer) {
   // Close the socket.
-  const stopped = new Promise<void>((ok, err) => wss.close((e) => (e ? err(e) : ok())));
+  const stopped = new Promise<void>((ok, err) => wss.close((e: unknown) => (e ? err(e) : ok())));
 
   // Ask each connected peer to disconnect:
   for (const ws of wss.clients) {

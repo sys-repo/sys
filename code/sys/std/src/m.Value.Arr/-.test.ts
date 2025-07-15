@@ -15,7 +15,7 @@ describe('Value.Arr (Array)', () => {
     });
 
     it('return input value if an array is not passed', () => {
-      expect(Value.Arr.flatten(123)).to.eql(123);
+      expect(Value.Arr.flatten(123)).to.eql([123]);
     });
 
     it('flattens one level deep', () => {
