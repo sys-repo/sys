@@ -34,6 +34,9 @@ export const P = {
       dyads: curry<t.WebRtc.PeerDyad[]>(['connections', 'dyads']),
     },
   },
+  NOTES: {
+    text: curry<string>(['text']),
+  },
 };
 
 const ALL_VIEWS: t.SampleView[] = ['Room', 'Notes', 'FileShare', 'Debug'];

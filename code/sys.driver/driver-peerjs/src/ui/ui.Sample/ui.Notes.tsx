@@ -1,6 +1,7 @@
 import { Monaco } from '@sys/driver-monaco';
 import React from 'react';
-import { type t, Crdt, Color, css, P, ObjectView } from './common.ts';
+
+import { type t, Crdt, Color, css, P, ObjectView, Yaml } from './common.ts';
 
 export type NotesProps = {
   repo?: t.Crdt.Repo;
@@ -17,7 +18,7 @@ export type NotesProps = {
 export const Notes: React.FC<NotesProps> = (props) => {
   const { debug = false, repo, room } = props;
   const docId = P.DEV.notesRef.get(room?.current, '');
-  const path = ['text'];
+  const path = P.NOTES.text.path;
 
   /**
    * Hooks:
@@ -25,6 +26,15 @@ export const Notes: React.FC<NotesProps> = (props) => {
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
   const notes = Crdt.UI.useDoc(repo, docId);
   Monaco.useBinding(editor, notes.doc, path);
+
+  /**
+   * Effects:
+   */
+  React.useEffect(() => {
+    if (!notes.doc) return;
+    const syncer = Yaml.syncer(notes.doc, path);
+    return syncer.dispose;
+  }, [notes.doc?.instance]);
 
   /**
    * Render:

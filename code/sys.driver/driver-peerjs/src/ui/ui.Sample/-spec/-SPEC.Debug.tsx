@@ -9,6 +9,7 @@ import {
   Is,
   Kbd,
   LocalStorage,
+  Obj,
   ObjectView,
   P,
   Signal,
@@ -109,24 +110,19 @@ export function createDebugSignals() {
   });
 
   /**
-   * Maintain CRDT document integrity:
+   * Monitor document:
    */
   let _events: t.Crdt.Events<t.SampleDoc> | undefined;
   Signal.effect(() => {
-    _events?.dispose?.();
-
     const doc = p.doc.value;
     Conn.updateDyads(doc);
 
-    const listen = () => {
-      _events = doc?.events();
-      _events?.$.subscribe((e) => {
-        Conn.updateDyads(doc);
-        p.redraw.value++;
-      });
-    };
-
-    listen();
+    _events?.dispose?.();
+    _events = doc?.events();
+    _events?.$.subscribe(() => {
+      Conn.updateDyads(doc);
+      api.redraw();
+    });
   });
 
   return api;
@@ -154,9 +150,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Hooks:
    */
+  const dist = useDist();
+  const notes = Crdt.UI.useDoc(debug.repo, P.DEV.notesRef.get(doc?.current));
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRedrawEffect(p.doc.value);
-  const dist = useDist();
+  Crdt.UI.useRedrawEffect(notes.doc);
 
   /**
    * Render:
@@ -271,7 +269,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
           'pkg.version': dist.toString(),
         }}
         expand={0}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 25 }}
+      />
+
+      <ObjectView
+        name={'notes'}
+        data={{
+          'doc.id': notes.doc?.id,
+          doc: Obj.trimStringsDeep(notes.doc?.current ?? {}, 25),
+        }}
+        expand={2}
+        style={{ marginTop: 5 }}
       />
     </div>
   );
