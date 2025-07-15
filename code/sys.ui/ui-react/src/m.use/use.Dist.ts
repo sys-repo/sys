@@ -7,7 +7,7 @@ import { type t, Err } from './common.ts';
  */
 export const useDist: t.UseDistFactory = (options = {}) => {
   const { sampleFallback = false } = options;
-  const is: t.UseDist['is'] = { sample: sampleFallback };
+  const is: t.DistHook['is'] = { sample: sampleFallback };
 
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
@@ -53,12 +53,19 @@ export const useDist: t.UseDistFactory = (options = {}) => {
   /**
    * API
    */
-  const api: t.UseDist = {
+  const api: t.DistHook = {
     count,
     is,
     error,
     get json() {
       return jsonRef.current;
+    },
+    toString() {
+      const json = api.json;
+      if (!json) return '(not found)';
+      const { name, version } = json.pkg;
+      const hx = json.hash.digest.slice(-5);
+      return `${name}@${version}-${hx}`;
     },
   };
   return api;

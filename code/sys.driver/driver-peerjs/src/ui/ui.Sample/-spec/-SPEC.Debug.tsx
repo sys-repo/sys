@@ -7,13 +7,13 @@ import {
   css,
   D,
   Is,
-  Kbd,
   LocalStorage,
   ObjectView,
   P,
   Signal,
   slug,
   Url,
+  useDist,
   type t,
 } from '../common.ts';
 import { Conn } from '../u.ts';
@@ -149,8 +149,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const doc = p.doc.value;
   const repo = debug.repo;
+
+  /**
+   * Hooks:
+   */
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRedrawEffect(p.doc.value);
+  const dist = useDist();
 
   /**
    * Render:
@@ -259,7 +264,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <ObjectView
         name={'debug(room)'}
-        data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
+        data={{
+          ...Signal.toObject(p),
+          doc: doc?.current,
+          'pkg.version': dist.toString(),
+        }}
         expand={0}
         style={{ marginTop: 10 }}
       />
