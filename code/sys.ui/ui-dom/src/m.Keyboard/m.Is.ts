@@ -29,7 +29,7 @@ export const Is: t.KeyboardIsLib = {
  */
 type P = Partial<t.KeyboardModifierFlags>;
 const wrangle = {
-  modifiers(input?: P | t.AbstractKeyEvent): t.KeyboardModifierFlags | undefined {
+  modifiers(input?: P | t.KeyEventLike): t.KeyboardModifierFlags | undefined {
     if (!input) return undefined;
 
     // Extract the source object that actually holds the modifier booleans.

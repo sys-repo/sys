@@ -23,15 +23,28 @@ export const Util = {
     };
   },
 
-  toModifiers(e: Partial<t.AbstractNativeKeyEvent>): t.KeyboardModifierFlags {
+  toModifiers(e: Partial<t.NativeKeyEventLike | t.KeyEventLike>): t.KeyboardModifierFlags {
     if (!Is.record(e)) return { ...DEFAULT_MODIFIERS };
-    const {
-      ctrlKey: ctrl = false,
-      shiftKey: shift = false,
-      altKey: alt = false,
-      metaKey: meta = false,
-    } = e;
-    return { ctrl, shift, alt, meta };
+
+    if ('ctrlKey' in e || 'shiftKey' in e || 'altKey' in e || 'metaKey' in e) {
+      const {
+        ctrlKey: ctrl = false,
+        shiftKey: shift = false,
+        altKey: alt = false,
+        metaKey: meta = false,
+      } = e;
+      return { ctrl, shift, alt, meta };
+    }
+
+    if ('modifiers' in e) {
+      const m = e.modifiers ?? {};
+      if ('ctrl' in m || 'shift' in m || 'alt' in m || 'meta' in m) {
+        const { ctrl = false, shift = false, alt = false, meta = false } = m;
+        return { ctrl, shift, alt, meta };
+      }
+    }
+
+    return { ...DEFAULT_MODIFIERS };
   },
 
   toFlags(e: KeyboardEvent): t.KeyboardKeyFlags {

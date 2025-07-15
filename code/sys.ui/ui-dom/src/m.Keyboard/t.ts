@@ -56,11 +56,11 @@ export type KeyboardLib = {
   /**
    * Convert an event into standard flags information object.
    */
-  modifiers(e: Partial<AbstractNativeKeyEvent>): t.KeyboardModifierFlags;
+  modifiers(e: Partial<NativeKeyEventLike | KeyEventLike>): t.KeyboardModifierFlags;
 };
 
 /** Abstract event for converting into system info types. */
-export type AbstractNativeKeyEvent = {
+export type NativeKeyEventLike = {
   ctrlKey: boolean;
   altKey: boolean;
   shiftKey: boolean;
@@ -71,7 +71,10 @@ export type AbstractNativeKeyEvent = {
  * A pared back type that represents the minimal
  * keyboard event needed by many helpers.
  */
-export type AbstractKeyEvent = { key: string; modifiers: Partial<t.KeyboardModifierFlags> };
+export type KeyEventLike = {
+  key: string;
+  modifiers: Partial<t.KeyboardModifierFlags>;
+};
 
 /**
  * Boolean flag evaluaters.
@@ -88,15 +91,15 @@ export type KeyboardIsLib = {
    *
    */
   commandConcept(
-    modifiers?: Partial<t.KeyboardModifierFlags> | t.AbstractKeyEvent,
+    modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike,
     options?: { ua?: t.UserAgent },
   ): boolean;
 
   /** Determine if any of the modifier flags are true. */
-  modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.AbstractKeyEvent): boolean;
+  modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike): boolean;
 
   /** Platform independent match on: Clipboard Copy. */
-  copy(e?: AbstractKeyEvent, options?: { ua?: t.UserAgent }): boolean;
+  copy(e?: KeyEventLike, options?: { ua?: t.UserAgent }): boolean;
 };
 
 /**

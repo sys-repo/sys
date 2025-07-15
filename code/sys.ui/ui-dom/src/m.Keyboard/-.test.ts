@@ -1,7 +1,7 @@
 import { DomMock, Time, describe, expect, it, rx, type t } from '../-test.ts';
 import { UserAgent } from './common.ts';
 import { KeyListener } from './m.KeyListener.ts';
-import { Keyboard, Kbd } from './mod.ts';
+import { Kbd, Keyboard } from './mod.ts';
 
 describe(
   'Keyboard',
@@ -294,7 +294,7 @@ describe(
       });
     });
 
-    describe('Keyboard.modifiers', () => {
+    describe.only('Keyboard.modifiers', () => {
       it('empty', () => {
         const test = (input?: any) => {
           const res = Kbd.modifiers(input);
@@ -304,13 +304,22 @@ describe(
         NON.forEach((v: any) => test(v));
       });
 
-      it('converts', () => {
+      it('converts: NativeKeyEventLike', () => {
         const a = Kbd.modifiers({ metaKey: true });
         const b = Kbd.modifiers({ metaKey: true, ctrlKey: true });
         const c = Kbd.modifiers({ shiftKey: true });
         expect(a).to.eql({ ctrl: false, meta: true, alt: false, shift: false });
         expect(b).to.eql({ ctrl: true, meta: true, alt: false, shift: false });
         expect(c).to.eql({ ctrl: false, meta: false, alt: false, shift: true });
+      });
+
+      it('converts: KeyEventLike', () => {
+        type K = t.KeyEventLike;
+        const ev: K = {
+          key: 'c',
+          modifiers: { ctrl: true, meta: false, alt: false, shift: false },
+        };
+        expect(Kbd.modifiers(ev)).to.eql(ev.modifiers);
       });
     });
   },
