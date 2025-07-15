@@ -25,6 +25,6 @@ export type CrdtServerStartOptions = {
 
 /** Response from the `CrdtServer.start` method. */
 export type CrdtSyncServer = t.LifecycleAsync & {
-  readonly port: t.PortNumber;
   readonly repo: t.CrdtRepo;
+  readonly addr: Deno.NetAddr;
 };

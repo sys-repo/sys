@@ -1,6 +1,6 @@
-import { slug, describe, expect, it, Testing } from '../-test.ts';
+import { describe, expect, it, slug, Testing } from '../-test.ts';
+import { Fs, rx, Time } from './common.ts';
 import { Server } from './mod.ts';
-import { Fs, Time } from './common.ts';
 
 describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () => {
   const silent = true;
@@ -17,9 +17,7 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
       const ws = await Server.ws({ dir, port });
 
       expect(ws.repo.id.peer.startsWith('crdt-peer-')).to.be.true;
-      expect(ws.port).to.eql(port);
-
-      await Time.wait(50);
+      expect(ws.addr.port).to.eql(port);
       expect(await Fs.exists(dir)).to.eql(true);
 
       await ws.dispose();
@@ -27,7 +25,7 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
 
     it('start: no port → generates random port', async () => {
       const ws = await Server.ws({ silent });
-      expect(ws.port).to.be.a('number');
+      expect(ws.addr.port).to.be.a('number');
       await ws.dispose();
     });
   });
@@ -35,12 +33,11 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
   describe('dispose (async)', () => {
     it('dispose method', async () => {
       const ws = await Server.ws({ silent });
-      const port = ws.port;
+      const port = ws.addr.port;
       expect(ws.disposed).to.eql(false);
       expect(ws.repo.disposed).to.eql(false);
 
       // NB: port is reachable prior to disposal.
-      await Time.wait(30);
       expect((await Testing.connect(port)).refused).to.eql(false);
 
       await ws.dispose();
@@ -49,6 +46,20 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
 
       // NB: port is now unreachable - server has shutdown.
       expect((await Testing.connect(port)).refused).to.eql(true);
+    });
+
+    it('dispose$ param', async () => {
+      const life = rx.disposable();
+      const ws = await Server.ws({ silent, dispose$: life });
+      const port = ws.addr.port;
+      expect(ws.disposed).to.eql(false);
+      expect(ws.repo.disposed).to.eql(false);
+      expect((await Testing.connect(port)).refused).to.eql(false);
+
+      life.dispose();
+      await Time.wait(100);
+
+      expect((await Testing.connect(port)).refused).to.eql(true); // NB: port is now unreachable - server has shutdown.
     });
   });
 });

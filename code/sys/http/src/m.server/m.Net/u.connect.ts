@@ -6,7 +6,7 @@ export const connect: t.NetLib['connect'] = async (port, options = {}) => {
   let lastErr: unknown;
 
   const done = (socket?: Deno.TcpConn): t.NetConnectResponse => {
-    const error = lastErr ? Err.std(lastErr) : undefined;
+    const error = !socket && lastErr ? Err.std(lastErr) : undefined;
     return { socket, error };
   };
 

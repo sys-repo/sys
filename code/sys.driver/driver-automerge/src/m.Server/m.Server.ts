@@ -17,8 +17,8 @@ export const Server: t.CrdtServerLib = {
     const life = rx.lifecycleAsync(options.dispose$, async () => {
       await Promise.all([
         //
-        await shutdown(wss),
-        await repo.dispose(),
+        shutdown(wss),
+        repo.dispose(),
       ]);
     });
 
@@ -54,10 +54,18 @@ export const Server: t.CrdtServerLib = {
     }
 
     /**
+     * Await startup:
+     */
+    const conn = await Net.connect(port);
+    conn.socket?.close();
+    const addr = conn.socket?.remoteAddr;
+    if (conn.error || !addr) throw new Error(`Failed to start server.`, { cause: conn.error });
+
+    /**
      * API:
      */
     return {
-      port,
+      addr,
       get repo() {
         return repo;
       },
