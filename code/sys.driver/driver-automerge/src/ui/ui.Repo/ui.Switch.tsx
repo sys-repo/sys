@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, Icons, Switch } from './common.ts';
+import { type t, Color, css, Icons, Switch, SwitchTheme } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
 import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
 import { PeerLabel } from './ui.Switch.Peer.tsx';
@@ -40,23 +40,27 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const switchTheme = wrangle.switchTheme(props, controller.peers);
   const styles = {
     base: css({
       position: 'relative',
       color: theme.fg,
-      display: 'grid',
-      justifyContent: 'start',
       userSelect: 'none',
       fontSize: 11,
+      maxWidth: '100%',
+      overflow: 'hidden',
+      //
+      display: 'grid',
+      justifyContent: 'start',
     }),
-    body: css(LabelStyle.base, { columnGap: 6 }),
+    body: css(LabelStyle.base, { columnGap: 8 }),
     dim: LabelStyle.dim,
   };
 
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
-        <Switch value={enabled} theme={theme.name} height={16} onMouseDown={onClick} />
+        <Switch value={enabled} theme={switchTheme} height={16} onMouseDown={onClick} />
         <span className={styles.dim.class}>{prefixLabel}</span>
         {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
         {peerId && enabled && <span className={styles.dim.class}>{'•'}</span>}
@@ -66,3 +70,14 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  switchTheme(props: P, peers: t.PeerId[]) {
+    const theme = Color.theme(props.theme);
+    const base = SwitchTheme.fromName(theme.name);
+    return peers.length > 0 ? base.default : base.yellow;
+  },
+} as const;

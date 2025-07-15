@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  type t,
   Button,
   Crdt,
   css,
@@ -8,7 +9,6 @@ import {
   ObjectView,
   Signal,
   STORAGE_KEY,
-  type t,
   Url,
 } from '../common.ts';
 
@@ -48,6 +48,7 @@ export function createDebugSignals() {
     storage: { database: 'dev.crdt' },
     network: [
       // { ws: 'sync.db.team' },
+      // { ws: 'titirangi.sync.db.team' },
       { ws: 'waiheke.sync.db.team' },
       isLocalhost && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },

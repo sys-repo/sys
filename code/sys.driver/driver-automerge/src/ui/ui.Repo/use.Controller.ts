@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, LocalStorage } from './common.ts';
+import { type t, LocalStorage, rx } from './common.ts';
 
 type P = t.SyncEnabledSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -12,31 +12,45 @@ export function useController(props: P) {
    */
   const [store, setStore] = useState(wrangle.localstore(props));
   const [enabled, setEnabled] = useState(wrangle.enabled(store?.current, repo));
+  const [peers, setPeers] = useState<t.PeerId[]>([]);
+  const [, setRender] = useState(0);
+  const redraw = () => setRender((n) => n + 1);
 
   /**
-   * Effect: refresh local-store handle when the storage key changes.
+   * EFFECT: refresh local-store handle when the storage key changes.
    */
   useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
 
   /**
-   * Effect: persist changes made by this hook back to local-storage.
+   * EFFECT: persist changes made by this hook back to local-storage.
    */
   useEffect(() => {
     store?.change((d) => (d.syncEnabled = enabled));
   }, [store, enabled]);
 
   /**
-   * Effect: keep `enabled` in-sync with repo‐side toggles done elsewhere.
+   * EFFECT:
+   *  - keep `enabled` in-sync with repo‐side toggles done elsewhere.
    */
   useEffect(() => {
     const events = repo?.events();
-    events?.$.subscribe((e) => {
+    events?.$.subscribe(redraw);
+    events?.prop$.pipe(rx.filter((e) => e.prop === 'sync.enabled')).subscribe((e) => {
       const next = e.after.sync.enabled;
       if (e.before.sync.enabled !== next) updatedEnabled(next);
     });
+
     updatedEnabled(wrangle.enabled(store?.current, repo));
     return events?.dispose;
   }, [repo?.id.instance]);
+
+  /**
+   * Monitor peers:
+   */
+  useEffect(() => {
+    const peers = repo?.sync.peers ?? [];
+    setPeers(peers);
+  }, [repo?.id.instance, repo?.sync.peers.join()]);
 
   /**
    * Methods:
@@ -52,6 +66,7 @@ export function useController(props: P) {
   return {
     enabled,
     updatedEnabled,
+    peers,
   } as const;
 }
 
