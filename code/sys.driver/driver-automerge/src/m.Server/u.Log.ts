@@ -19,7 +19,7 @@ export const Log = {
     const heapTotal = bytes(mem.heapTotal);
     const bullet = c.cyan('⏱');
 
-    const title = `${bullet} ${ts}`;
+    const title = `${bullet} ${ts}:`;
     const msg = `  Memory — RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
