@@ -121,7 +121,9 @@ export function toRepo(
      * Lifecycle:
      */
     dispose: life.dispose,
-    dispose$: life.dispose$,
+    get dispose$() {
+      return life.dispose$;
+    },
     get disposed() {
       return life.disposed;
     },
