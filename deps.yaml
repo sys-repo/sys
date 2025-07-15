@@ -38,7 +38,7 @@ groups:
     # https://automerge.org
     - import: npm:@automerge/automerge@2.2.9
       subpaths: [next]
-    - import: npm:@automerge/automerge-repo@2.0.7
+    - import: npm:@automerge/automerge-repo@2.1.0
     - import: npm:@automerge/automerge-repo-network-websocket@2.1.0
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.1.0
     - import: npm:@automerge/automerge-repo-storage-nodefs@2.1.0
@@ -108,7 +108,7 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.1.2
+  - import: npm:@farcaster/frame-sdk@0.1.7
   - import: npm:fast-json-patch@3.1.1
   - import: npm:fake-indexeddb@6.0.1
     subpaths: ['auto']

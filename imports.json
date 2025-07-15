@@ -2,7 +2,7 @@
   "imports": {
     "@ai-sdk/openai": "npm:@ai-sdk/openai@1.3.23",
     "@automerge/automerge": "npm:@automerge/automerge@2.2.9",
-    "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.0.7",
+    "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.1.0",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.1.0",
     "@automerge/automerge-repo-storage-indexeddb": "npm:@automerge/automerge-repo-storage-indexeddb@2.1.0",
     "@automerge/automerge-repo-storage-nodefs": "npm:@automerge/automerge-repo-storage-nodefs@2.1.0",
@@ -11,7 +11,7 @@
     "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.8",
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",
-    "@farcaster/frame-sdk": "npm:@farcaster/frame-sdk@0.1.2",
+    "@farcaster/frame-sdk": "npm:@farcaster/frame-sdk@0.1.7",
     "@mastra/core": "npm:@mastra/core@0.10.15",
     "@mastra/core/agent": "npm:@mastra/core@0.10.15/agent",
     "@mastra/libsql": "npm:@mastra/libsql@0.11.0",
