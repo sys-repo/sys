@@ -46,7 +46,7 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.1.0": "2.1.0",
     "npm:@automerge/automerge-repo-storage-nodefs@2.1.0": "2.1.0",
     "npm:@automerge/automerge-repo@2.1.0": "2.1.0",
-    "npm:@automerge/automerge@2.2.9": "2.2.9",
+    "npm:@automerge/automerge@3.0.0": "3.0.0",
     "npm:@automerge/prosemirror@0.0.13": "0.0.13",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.0.4__picomatch@4.0.3_yaml@2.8.0_@types+node@22.15.15",
     "npm:@farcaster/frame-sdk@0.1.7": "0.1.7_zod@4.0.5",
@@ -392,7 +392,7 @@
     "@automerge/automerge-repo@2.1.0": {
       "integrity": "sha512-gqJkyM6Adbgqx7amn4uuz9ezuJHkiYRd9Ad5Z1xoKLq2GjlIIXDvW/NEHGP12CAS3pAbXJsBD0KyP949KvgywA==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.0.0",
         "bs58check",
         "cbor-x",
         "debug",
@@ -408,10 +408,13 @@
         "uuid@9.0.1"
       ]
     },
+    "@automerge/automerge@3.0.0": {
+      "integrity": "sha512-vp/LrAzOyS4J+YmEKRjnCjCUqN6itzz9nKvPEcSLJuapZXfPmY72TYg0F05DVnLCvGe+sLuVAoVntJT6K0qutQ=="
+    },
     "@automerge/prosemirror@0.0.13": {
       "integrity": "sha512-TmRw9M1AfONjwHpWlGLnr8BRTXbXVRJtDHsOEhDsQWoflsKoBJO/rf/SP4wjgi2jYrlgUwTRaOny1p0AF9o27Q==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@2.2.9",
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
@@ -4273,7 +4276,7 @@
       "npm:@automerge/automerge-repo-storage-indexeddb@2.1.0",
       "npm:@automerge/automerge-repo-storage-nodefs@2.1.0",
       "npm:@automerge/automerge-repo@2.1.0",
-      "npm:@automerge/automerge@2.2.9",
+      "npm:@automerge/automerge@3.0.0",
       "npm:@automerge/prosemirror@0.0.13",
       "npm:@farcaster/frame-sdk@0.1.7",
       "npm:@mastra/core@0.10.15",

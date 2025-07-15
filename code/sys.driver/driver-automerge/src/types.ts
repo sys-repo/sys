@@ -2,7 +2,7 @@
  * Module types.
  * @module
  */
-export type * as A from '@automerge/automerge/next';
+export type * as A from '@automerge/automerge';
 export type { Crdt } from './t.namespace.ts';
 
 export type * from './-platforms/-browser/t.ts';
