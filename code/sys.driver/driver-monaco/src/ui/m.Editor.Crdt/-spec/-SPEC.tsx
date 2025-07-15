@@ -6,6 +6,7 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 import { type t, Color, D } from '../common.ts';
 import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
+import { tmp } from './-tmp.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -56,6 +57,7 @@ export default Spec.describe(D.displayName, async (e) => {
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
+          tmp(e.editor);
         }}
       />
     );
