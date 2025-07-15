@@ -128,6 +128,16 @@ function useInternal(args: Args = {}): Hook {
         transient.write('Error', 'document not found');
         localstore.history.remove(id);
       }
+
+      if (ready) {
+        const { exists } = DocUrl.read(location.href, urlKey);
+        if (exists) {
+          // The doc-id is represented in the URL query-string update it now.
+          const href = DocUrl.resolve(args.url, id, urlKey);
+          if (href) DocUrl.Mutate.replace(href);
+        }
+      }
+
       return;
     }
   };

@@ -51,8 +51,10 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       base: css({ position: 'relative' }),
       inner: css({ Absolute: 0, overflow: 'hidden', display: 'grid' }),
     },
-    debug: css({ padding: 40 }),
-    obj: css({ marginTop: 10 }),
+    debug: {
+      base: css({ Padding: [30, 40] }),
+      obj: css({}),
+    },
     dyad: {
       base: css({
         padding: 15,
@@ -65,14 +67,14 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   };
 
   const elDebug = view === 'Debug' && (
-    <div className={styles.debug.class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+    <div className={styles.debug.base.class}>
       <ObjectView
-        style={styles.obj}
+        style={styles.debug.obj}
         theme={theme.name}
         name={'room'}
         data={{
           webrtc: peer,
+          'doc.id': doc?.id,
           doc: doc?.current,
         }}
         expand={['$', '$.doc', '$.doc.connections', '$.doc.connections.group']}

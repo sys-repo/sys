@@ -60,17 +60,6 @@ export const View: React.FC<P> = (props) => {
   }, []);
 
   /**
-   * Effect: remove ID from URL if loaded doc-id differs.
-   * NOTE: this avoids simple confusions about what the actual/current ID is.
-   */
-  React.useEffect(() => {
-    if (!url) return; // Only relevant when URL support is enabled.
-    if (!doc) return;
-    const { exists, docId } = DocUrl.read(location.href, urlKey);
-    if (exists && docId !== doc?.id) DocUrl.Mutate.strip(location.href, urlKey);
-  }, [urlKey, doc?.id]);
-
-  /**
    * Effect: (mounted).
    */
   React.useEffect(() => {
