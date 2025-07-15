@@ -7,6 +7,7 @@ import {
   css,
   D,
   Is,
+  Kbd,
   LocalStorage,
   ObjectView,
   P,
@@ -247,7 +248,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={(e) => {
           doc?.change((d) => {
             const next = Is.number(d.count) ? d.count + 1 : 0;
-            d.count = e.metaKey ? 0 : next;
+            d.count = Kbd.Is.command(e) ? 0 : next;
           });
         }}
       />
