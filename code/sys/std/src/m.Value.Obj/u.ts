@@ -44,11 +44,12 @@ export function toArray<T = Record<string, unknown>, K = keyof T>(
  */
 export function trimStringsDeep<T extends Record<string, any>>(
   obj: T,
-  options: { maxLength?: number; ellipsis?: boolean; immutable?: boolean } = {},
+  options: { maxLength?: number; ellipsis?: boolean; immutable?: boolean } | number = {},
 ) {
   // NB: This is a recursive function ← via Object.walk(🌳)
-  const { ellipsis = true, immutable = true } = options;
-  const MAX = options.maxLength ?? 35;
+  const opt = typeof options === 'number' ? { maxLength: options } : options;
+  const { ellipsis = true, immutable = true } = opt;
+  const MAX = opt.maxLength ?? 35;
 
   const adjust = (obj: Record<string, string>) => {
     Object.entries(obj).forEach(([key, value]) => {

@@ -191,19 +191,19 @@ describe('Value.Obj', () => {
         nil: null,
       };
 
-      const res1 = Value.Obj.trimStringsDeep(obj);
-      const res2 = Value.Obj.trimStringsDeep(obj, { immutable: false });
+      const a = Value.Obj.trimStringsDeep(obj);
+      const b = Value.Obj.trimStringsDeep(obj, { immutable: false });
 
       const expected = {
         ...obj,
         name: `${name.substring(0, 35)}...`, // NB: default max-length
       };
 
-      expect(res1).to.eql(expected);
-      expect(res2).to.eql(expected);
+      expect(a).to.eql(expected);
+      expect(b).to.eql(expected);
 
-      expect(res1).to.not.equal(obj); // NB: default: immutable clone.
-      expect(res2).to.equal(obj);
+      expect(a).to.not.equal(obj); // NB: default: immutable clone.
+      expect(b).to.equal(obj);
     });
 
     it('deep', () => {
@@ -240,14 +240,13 @@ describe('Value.Obj', () => {
       const name = 'foo'.repeat(100);
       const obj = { name };
 
-      const res1 = Value.Obj.trimStringsDeep(obj, {});
-      const res2 = Value.Obj.trimStringsDeep(obj, {
-        ellipsis: false,
-        maxLength: 10,
-      });
+      const a = Value.Obj.trimStringsDeep(obj, {});
+      const b = Value.Obj.trimStringsDeep(obj, { ellipsis: false, maxLength: 10 });
+      const c = Value.Obj.trimStringsDeep(obj, 10);
 
-      expect(res1.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
-      expect(res2.name).to.eql(name.substring(0, 10));
+      expect(a.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
+      expect(b.name).to.eql(name.substring(0, 10));
+      expect(c.name).to.eql(`${name.substring(0, 10)}...`);
     });
   });
 
