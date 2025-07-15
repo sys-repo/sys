@@ -13,7 +13,7 @@ export type * as t from './types.ts';
 export { Bullet } from './ui/Bullet/mod.ts';
 export { Button } from './ui/Button/mod.ts';
 export { IconButtons } from './ui/Buttons.Icons/mod.ts';
-export { Switch } from './ui/Buttons.Switch/mod.ts';
+export { Switch, SwitchTheme } from './ui/Buttons.Switch/mod.ts';
 export { Buttons } from './ui/Buttons/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';
