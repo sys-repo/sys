@@ -17,16 +17,16 @@ export function monitorNetwork(
      */
     const handlePeerOnline = (e: t.PeerCandidatePayload) => {
       const { peerId, peerMetadata: metadata } = e;
-      onChange({ type: 'peer-online', payload: { peerId, metadata } });
+      onChange({ type: 'network/peer-online', payload: { peerId, metadata } });
     };
 
     const handlePeerOffline = (e: t.PeerDisconnectedPayload) => {
       const { peerId } = e;
-      onChange({ type: 'peer-offline', payload: { peerId } });
+      onChange({ type: 'network/peer-offline', payload: { peerId } });
     };
 
     const handleAdapterClose = () => {
-      onChange({ type: 'network-close', payload: { adapter } });
+      onChange({ type: 'network/close', payload: { adapter } });
     };
 
     /**

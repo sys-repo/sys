@@ -1,17 +1,10 @@
 import { type t, rx } from './common.ts';
 
-const NETWORK_TYPES: t.NetworkChangeEvent['type'][] = [
-  'network-close',
-  'peer-offline',
-  'peer-online',
-];
-
+/**
+ * Factory:
+ */
 export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycle) {
   $ = $.pipe(rx.takeUntil(life.dispose$));
-
-  const isNetwork = (e: t.CrdtRepoEvent): e is t.NetworkChangeEvent => {
-    return NETWORK_TYPES.includes(e.type as any);
-  };
 
   const change$ = $.pipe(
     rx.filter((e) => e.type === 'prop-change'),
@@ -21,6 +14,20 @@ export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycl
   return rx.toLifecycle<t.CrdtRepoEvents>(life, {
     $,
     prop$: change$,
-    network$: $.pipe(rx.filter(isNetwork)),
+    network$: $.pipe(rx.filter(EventIs.network)),
   });
 }
+
+/**
+ * Boolean flag helpers for events:
+ */
+export const EventIs = {
+  network(e: t.CrdtRepoEvent): e is t.CrdtNetworkChangeEvent {
+    const TYPES: t.CrdtNetworkChangeEvent['type'][] = [
+      'network/close',
+      'network/peer-offline',
+      'network/peer-online',
+    ];
+    return TYPES.includes(e.type as any);
+  },
+} as const;

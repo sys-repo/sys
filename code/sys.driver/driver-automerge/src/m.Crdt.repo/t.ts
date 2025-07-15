@@ -17,6 +17,7 @@ export type CrdtRepoProps = {
   readonly sync: {
     enabled: boolean;
     readonly urls: t.StringUrl[];
+    readonly peers: t.PeerId[];
   };
 };
 /** The methods of a CRDT Repo. */

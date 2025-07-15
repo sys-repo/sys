@@ -18,7 +18,7 @@ export type CrdtIsLib = {
   /** Determine if the given value is a <CrdtRef> instance. */
   ref<T extends O>(input?: unknown): input is t.CrdtRef<T>;
 
-  /** Determind if the given value is a valid CRDT document id. */
+  /** Determine if the given value is a valid CRDT document id. */
   id(input?: unknown): input is t.DocumentId;
 };
 

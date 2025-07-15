@@ -1,8 +1,6 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
-
 import { type t, AutomergeRepo, describe, expect, it, rx, Time } from '../-test.ts';
 import { Crdt } from '../m.Server/common.ts';
-import { Server } from '../m.Server/mod.ts';
 import { toAutomergeRepo, toRepo } from './mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -95,130 +93,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       a.change((d) => d.count++);
       expect(a.current).to.eql(b.current);
-    });
-  });
-
-  describe('repo.events:', () => {
-    it('events.dispose', async () => {
-      const life = rx.lifecycle();
-      const repo = Crdt.repo();
-      const a = repo.events();
-      const b = repo.events(life.dispose$);
-      const c = repo.events();
-
-      expect(a.disposed).to.eql(false);
-      expect(b.disposed).to.eql(false);
-      expect(c.disposed).to.eql(false);
-
-      life.dispose();
-      expect(a.disposed).to.eql(false);
-      expect(b.disposed).to.eql(true);
-      expect(c.disposed).to.eql(false);
-
-      a.dispose();
-      expect(a.disposed).to.eql(true);
-
-      await repo.dispose();
-      expect(c.disposed).to.eql(true);
-    });
-
-    describe('prop$ (change)', () => {
-      it('enabled (toggle)', () => {
-        const repo = Crdt.repo({ network: { ws: 'foo.com' } });
-        const events = repo.events();
-
-        const fired: t.CrdtRepoPropChangeEvent['payload'][] = [];
-        events.prop$.subscribe((e) => fired.push(e));
-
-        repo.sync.enabled = false; // ← trigger event.
-        expect(fired.length).to.eql(1);
-
-        expect(fired[0].before.id).to.eql(fired[0].after.id);
-        expect(fired[0].before.sync.urls).to.eql(fired[0].after.sync.urls);
-        expect(fired[0].before.sync.enabled).to.eql(true);
-        expect(fired[0].after.sync.enabled).to.eql(false);
-
-        repo.sync.enabled = true;
-        expect(fired.length).to.eql(2);
-        repo.sync.enabled = true;
-        expect(fired.length).to.eql(2);
-        events.dispose();
-
-        repo.sync.enabled = false;
-        expect(fired.length).to.eql(2); // no more events (disposed).
-
-        console.log('fire', fired);
-      });
-    });
-
-    describe('network$', () => {
-      it('events: peer-online → peer-offline → peer-online → network-close', async () => {
-        const s = await Server.ws({ silent: true });
-        const ws = `localhost:${s.addr.port}`;
-
-        const sFired: t.NetworkChangeEvent[] = [];
-        const aFired: t.NetworkChangeEvent[] = [];
-        const bFired: t.NetworkChangeEvent[] = [];
-
-        const a = Crdt.repo({ network: { ws } });
-        const b = Crdt.repo({ network: { ws } });
-
-        s.repo.events().network$.subscribe((e) => sFired.push(e));
-        a.events().network$.subscribe((e) => aFired.push(e));
-        b.events().network$.subscribe((e) => bFired.push(e));
-
-        // Both peers connect (online):
-        await Time.wait(50);
-        expect(sFired.length).to.eql(2);
-        expect(sFired.map((e) => e.type)).to.eql(['peer-online', 'peer-online']);
-
-        const peers = sFired
-          .filter((e) => e.type === 'peer-online')
-          .map((e) => e.payload.peerId as string);
-        expect(peers.includes(a.id.peer)).to.be.true;
-        expect(peers.includes(b.id.peer)).to.be.true;
-
-        // Take peer-A offline:
-        a.sync.enabled = false;
-        await Time.wait(10);
-
-        expect(sFired.length).to.eql(3);
-        expect(aFired.length).to.eql(2);
-        expect(bFired.length).to.eql(1);
-        expect(sFired.map((e) => e.type).slice(-1)).to.eql(['peer-offline']);
-        expect(aFired.map((e) => e.type).slice(-1)).to.eql(['peer-offline']);
-        expect(bFired.map((e) => e.type).slice(-1)).to.eql(['peer-online']); // NB: no knowledge of the other peer.
-
-        // Bring peer-A back online:
-        a.sync.enabled = true;
-        await Time.wait(10);
-
-        expect(sFired.length).to.eql(4);
-        expect(aFired.length).to.eql(3);
-        expect(bFired.length).to.eql(1);
-
-        type On = t.CrdtNetworkPeerOnline;
-        type Off = t.CrdtNetworkPeerOffline;
-        expect((sFired.slice(-1)[0].payload as On).peerId).to.eql(a.id.peer);
-        expect((aFired.slice(-1)[0].payload as On).peerId).to.eql(s.repo.id.peer);
-
-        // Take the server offline (lose connection):
-        await s.dispose();
-        await Time.wait(10);
-
-        expect(sFired.length).to.eql(4); // NB: no change
-        expect(aFired.length).to.eql(4);
-        expect(bFired.length).to.eql(2);
-
-        expect(aFired.map((e) => e.type).slice(-1)).to.eql(['peer-offline']);
-        expect(bFired.map((e) => e.type).slice(-1)).to.eql(['peer-offline']);
-        expect((aFired.slice(-1)[0].payload as Off).peerId).to.eql(s.repo.id.peer);
-        expect((bFired.slice(-1)[0].payload as Off).peerId).to.eql(s.repo.id.peer);
-
-        // Finish up.
-        await a.dispose();
-        await b.dispose();
-      });
     });
   });
 

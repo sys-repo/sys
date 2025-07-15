@@ -4,6 +4,7 @@ import { CrdtIs } from '../m.Crdt/m.Is.ts';
 import { type t, Err, Is, rx, slug, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
+import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
 type O = Record<string, unknown>;
@@ -16,16 +17,35 @@ export function toRepo(
   repo: Repo,
   options: { peerId?: string; dispose$?: t.UntilInput } = {},
 ): t.CrdtRepo {
-  const life = rx.lifecycleAsync(options.dispose$, () => repo.shutdown());
   let _updating: t.Lifecycle | undefined;
   let _enabled = true;
+
+  const life = rx.lifecycleAsync(options.dispose$, async () => {
+    peers.clear();
+    await silentShutdown(repo);
+  });
+
+  /**
+   * Observable:
+   */
+  const $$ = rx.subject<t.CrdtRepoEvent>();
+  const fireChanged = (
+    prop: t.CrdtRepoPropChange['prop'],
+    before: t.CrdtRepoProps,
+    after: t.CrdtRepoProps = cloneProps(),
+  ) => {
+    $$.next({
+      type: 'prop-change',
+      payload: { prop, before, after },
+    });
+  };
 
   /**
    * State:
    */
-  const $$ = rx.subject<t.CrdtRepoEvent>();
   const adapters = repo.networkSubsystem.adapters;
   const peer = adapters.length > 0 ? options.peerId ?? '' : '';
+  const peers = new Set<t.PeerId>();
   const urls = adapters
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
     .map((adapter: any) => adapter.url);
@@ -35,7 +55,12 @@ export function toRepo(
    */
   monitorNetwork(adapters, life.dispose$, (e) => {
     $$.next(e);
-
+    if (e.type === 'network/peer-online' || e.type === 'network/peer-offline') {
+      const before = cloneProps();
+      if (e.type === 'network/peer-online') peers.add(e.payload.peerId);
+      if (e.type === 'network/peer-offline') peers.delete(e.payload.peerId);
+      fireChanged('sync.peers', before);
+    }
   });
 
   /**
@@ -64,8 +89,10 @@ export function toRepo(
         _enabled = value;
         _updating?.dispose?.();
         _updating = updateConnected(adapters, peer, value);
-        const after = cloneProps();
-        $$.next({ type: 'prop-change', payload: { prop: 'enabled', before, after } });
+        fireChanged('sync.enabled', before);
+      },
+      get peers() {
+        return Array.from(peers);
       },
     },
 
