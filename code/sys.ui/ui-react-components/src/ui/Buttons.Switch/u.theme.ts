@@ -1,7 +1,5 @@
 import { type t, Color, R, Style } from './common.ts';
 
-const { GREEN, WHITE, BLUE, YELLOW } = Color;
-
 export const SwitchTheme = {
   merge(base: t.SwitchTheme, theme: Partial<t.SwitchTheme>) {
     const res = R.mergeDeepRight(base, theme) as t.SwitchTheme;
@@ -19,6 +17,7 @@ export const SwitchTheme = {
   },
 
   get light() {
+    const { GREEN, WHITE, BLUE, YELLOW } = Color;
     const BASE: t.SwitchTheme = {
       trackColor: { on: BLUE, off: -0.1, disabled: -0.1 },
       thumbColor: { on: WHITE, off: WHITE, disabled: WHITE },
@@ -34,6 +33,7 @@ export const SwitchTheme = {
   },
 
   get dark() {
+    const { GREEN, WHITE, BLUE, YELLOW } = Color;
     const BASE: t.SwitchTheme = {
       trackColor: { on: BLUE, off: 0.2, disabled: 0.2 },
       thumbColor: { on: WHITE, off: WHITE, disabled: WHITE },
