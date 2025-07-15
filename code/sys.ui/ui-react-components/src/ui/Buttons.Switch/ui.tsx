@@ -96,6 +96,6 @@ export const Switch: React.FC<t.SwitchProps> = (props) => {
  */
 function toTheme(input?: t.CommonTheme | Partial<t.SwitchTheme>): t.SwitchTheme {
   let theme = input || 'Light';
-  if (typeof theme === 'string') theme = SwitchTheme.fromString(theme as t.CommonTheme).blue;
+  if (typeof theme === 'string') theme = SwitchTheme.fromName(theme as t.CommonTheme).blue;
   return theme as t.SwitchTheme;
 }
