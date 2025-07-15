@@ -15,25 +15,18 @@ export function monitorNetwork(
     /**
      * Event Handlers:
      */
-    const handlePeerOnline = ({ peerId, peerMetadata }: t.PeerCandidatePayload) => {
-      onChange({
-        type: 'network-change',
-        payload: { kind: 'peer-online', peerId, metadata: peerMetadata },
-      });
+    const handlePeerOnline = (e: t.PeerCandidatePayload) => {
+      const { peerId, peerMetadata: metadata } = e;
+      onChange({ type: 'peer-online', payload: { peerId, metadata } });
     };
 
-    const handlePeerOffline = ({ peerId }: t.PeerDisconnectedPayload) => {
-      onChange({
-        type: 'network-change',
-        payload: { kind: 'peer-offline', peerId },
-      });
+    const handlePeerOffline = (e: t.PeerDisconnectedPayload) => {
+      const { peerId } = e;
+      onChange({ type: 'peer-offline', payload: { peerId } });
     };
 
     const handleAdapterClose = () => {
-      onChange({
-        type: 'network-change',
-        payload: { kind: 'adapter-close', adapter },
-      });
+      onChange({ type: 'network-close', payload: { adapter } });
     };
 
     /**

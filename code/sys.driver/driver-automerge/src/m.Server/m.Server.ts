@@ -65,16 +65,20 @@ export const Server: t.CrdtServerLib = {
      * API:
      */
     return {
-      addr,
       get repo() {
         return repo;
+      },
+      get addr() {
+        return addr;
       },
 
       /**
        * Lifecycle:
        */
       dispose: life.dispose,
-      dispose$: life.dispose$,
+      get dispose$() {
+        return life.dispose$;
+      },
       get disposed() {
         return life.disposed;
       },

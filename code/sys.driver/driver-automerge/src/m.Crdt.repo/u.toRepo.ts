@@ -65,7 +65,7 @@ export function toRepo(
         _updating?.dispose?.();
         _updating = updateConnected(adapters, peer, value);
         const after = cloneProps();
-        $$.next({ type: 'repo-change', payload: { kind: 'enabled', before, after } });
+        $$.next({ type: 'prop-change', payload: { prop: 'enabled', before, after } });
       },
     },
 

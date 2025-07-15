@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-type BeforeAfter = { readonly before: t.CrdtRepoProps; readonly after: t.CrdtRepoProps };
 
 /**
  * Event emitter for a repo.
@@ -7,39 +6,49 @@ type BeforeAfter = { readonly before: t.CrdtRepoProps; readonly after: t.CrdtRep
 export type CrdtRepoEvents = t.Lifecycle & {
   /** Primary change event stream. */
   readonly $: t.Observable<CrdtRepoEvent>;
-  readonly change$: t.Observable<CrdtRepoChangeEvent['payload']>;
-  readonly network$: t.Observable<NetworkChangeEvent['payload']>;
+  readonly prop$: t.Observable<CrdtRepoPropChangeEvent['payload']>;
+  readonly network$: t.Observable<NetworkChangeEvent>;
 };
 
 /**
  * Events:
  */
-export type CrdtRepoEvent = CrdtRepoChangeEvent | NetworkChangeEvent;
+export type CrdtRepoEvent = CrdtRepoPropChangeEvent | NetworkChangeEvent;
 
 /**
- * Event: Repo change
+ * Event: Repo property change
  */
-export type CrdtRepoChangeHandler = (e: CrdtRepoChangeEvent) => void;
+export type CrdtRepoPropChangeHandler = (e: CrdtRepoPropChangeEvent) => void;
+/** Represents a change to the repo state (event). */
+export type CrdtRepoPropChangeEvent = { type: 'prop-change'; payload: CrdtRepoPropChange };
 /** Represents a change to the repo state. */
-export type CrdtRepoChangeEvent = {
-  type: 'repo-change';
-  payload: { kind: 'enabled' } & BeforeAfter;
+export type CrdtRepoPropChange = {
+  readonly prop: 'enabled';
+  readonly before: t.CrdtRepoProps;
+  readonly after: t.CrdtRepoProps;
 };
 
 /**
- * Event: Repo network changed.
+ * Event: Describes a network-level change to the repo.
  */
 export type CrdtNetworkChangeHandler = (e: NetworkChangeEvent) => void;
-/**
- * Describes a network-level change we care about:
- * – `peer-online`  : new peer became reachable.
- * – `peer-offline` : peer went away.
- * – `adapter-close`: whole adapter closed/shutdown.
- */
-export type NetworkChangeEvent = {
-  type: 'network-change';
-  payload:
-    | { kind: 'peer-online'; peerId: t.PeerId; metadata?: t.PeerMetadata }
-    | { kind: 'peer-offline'; peerId: t.PeerId }
-    | { kind: 'adapter-close'; adapter: t.NetworkAdapterInterface };
-};
+/** Describes a network-level change to the repo (payload). */
+export type NetworkChangeEvent =
+  | CrdtNetworkPeerOnlineEvent
+  | CrdtNetworkPeerOfflineEvent
+  | CrdtNetworkCloseEvent;
+
+/** New peer becomes available (event). */
+export type CrdtNetworkPeerOnlineEvent = { type: 'peer-online'; payload: CrdtNetworkPeerOnline };
+/** New peer becomes available. */
+export type CrdtNetworkPeerOnline = { peerId: t.PeerId; metadata?: t.PeerMetadata };
+
+/** Peer went away (event). */
+export type CrdtNetworkPeerOfflineEvent = { type: 'peer-offline'; payload: CrdtNetworkPeerOffline };
+/** Peer went away. */
+export type CrdtNetworkPeerOffline = { peerId: t.PeerId };
+
+/** Whole network adapter closed/shutdown (event). */
+export type CrdtNetworkCloseEvent = { type: 'network-close'; payload: CrdtNetworkClose };
+/** Whole network adapter closed/shutdown. */
+export type CrdtNetworkClose = { adapter: t.NetworkAdapterInterface };

@@ -1,8 +1,9 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 
-import { type t, AutomergeRepo, describe, expect, it, rx, Time } from '../-test.ts';
+import { type t, AutomergeRepo, describe, expect, it, rx, Testing, Time } from '../-test.ts';
 import { Crdt } from '../m.Server/common.ts';
 import { toAutomergeRepo, toRepo } from './mod.ts';
+import { Server } from '../m.Server/mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -98,13 +99,36 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('repo.events:', () => {
-    describe('change$', () => {
-      it('prop: enabled (toggle)', () => {
+    it('events.dispose', async () => {
+      const life = rx.lifecycle();
+      const repo = Crdt.repo();
+      const a = repo.events();
+      const b = repo.events(life.dispose$);
+      const c = repo.events();
+
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(false);
+      expect(c.disposed).to.eql(false);
+
+      life.dispose();
+      expect(a.disposed).to.eql(false);
+      expect(b.disposed).to.eql(true);
+      expect(c.disposed).to.eql(false);
+
+      a.dispose();
+      expect(a.disposed).to.eql(true);
+
+      await repo.dispose();
+      expect(c.disposed).to.eql(true);
+    });
+
+    describe('prop$ (change)', () => {
+      it('enabled (toggle)', () => {
         const repo = Crdt.repo({ network: { ws: 'foo.com' } });
         const events = repo.events();
 
-        const fired: t.CrdtRepoChangeEvent['payload'][] = [];
-        events.change$.subscribe((e) => fired.push(e));
+        const fired: t.CrdtRepoPropChangeEvent['payload'][] = [];
+        events.prop$.subscribe((e) => fired.push(e));
 
         repo.sync.enabled = false; // ← trigger event.
         expect(fired.length).to.eql(1);
