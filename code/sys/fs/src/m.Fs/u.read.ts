@@ -29,7 +29,7 @@ export const readJson: t.FsReadJson = async <T>(path: string) => {
  * as strongly-typed, parsed YAML.
  */
 export const readYaml: t.FsReadYaml = async <T>(path: string) => {
-  const { parse } = await import('@eemeli/yaml');
+  const { parse } = await import('yaml');
   return handleRead<T>({ path, parse, format: 'YAML' });
 };
 
