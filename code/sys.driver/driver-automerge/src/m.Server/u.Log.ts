@@ -58,7 +58,7 @@ export const Log = {
     log?: () => void,
     options: { debounce?: t.Msecs; heartbeatDelay?: t.Msecs } = {},
   ) {
-    const { debounce = 3_000, heartbeatDelay = 5 * 60_000 } = options;
+    const { debounce = 3_000, heartbeatDelay = 30 * 60_000 } = options;
 
     const $ = rx.subject();
     $.pipe(rx.debounceTime(debounce)).subscribe(() => log?.());
