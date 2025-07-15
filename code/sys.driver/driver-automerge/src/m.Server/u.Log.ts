@@ -1,4 +1,4 @@
-import { type t, c, Str, Cli, pkg } from './common.ts';
+import { type t, c, Cli, pkg, rx, Str, Time } from './common.ts';
 
 /**
  * Helpers for logging.
@@ -34,5 +34,26 @@ export const Log = {
     console.info();
     console.info(table.toString().trim());
     console.info();
+  },
+
+  startInterval(life: t.UntilInput, log?: () => void) {
+    const time = Time.until(life);
+    const heartbeat = () => {
+      log?.();
+      time.delay(5 * 60_000, heartbeat);
+    };
+    heartbeat(); // ← Kick-off heartbeat.
+
+    const $ = rx.subject();
+    $.pipe(rx.debounceTime(3_000)).subscribe(() => log?.());
+
+    /**
+     * API:
+     */
+    const api = {
+      log: () => log?.(),
+      ping: () => $.next(),
+    };
+    return api;
   },
 } as const;

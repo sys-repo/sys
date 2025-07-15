@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-import { Crdt, Is, Net, NodeWSServerAdapter, Time, WebSocketServer, c, rx } from './common.ts';
+import { Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, rx } from './common.ts';
 import { Log } from './u.Log.ts';
 import { shutdown } from './u.shutdown.ts';
 
@@ -35,45 +35,19 @@ export const Server: t.CrdtServerLib = {
      */
     if (!silent) {
       Log.server({ port, dir });
-
-      /**
-       * Metrics logging:
-       */
-      function startLogInterval(log?: () => void) {
-        const time = Time.until(life.dispose$);
-
-        const heartbeat = () => {
-          log?.();
-          time.delay(5 * 60_000, heartbeat);
-        };
-        heartbeat(); // ← Kick-off heartbeat.
-
-        const $ = rx.subject();
-        $.pipe(rx.debounceTime(3_000)).subscribe(() => log?.());
-
-        /**
-         * API:
-         */
-        const api = {
-          log: () => log?.(),
-          ping: () => $.next(),
-        };
-        return api;
-      }
-
-      const infoLogger = startLogInterval(() => Log.memory());
+      const metricsLogger = Log.startInterval(life.dispose$, Log.memory);
 
       /**
        * Log activity:
        */
       network.on('peer-candidate', (e) => {
         console.info(c.white('connected:   '), c.green(e.peerId));
-        infoLogger.ping();
+        metricsLogger.ping();
       });
 
       network.on('peer-disconnected', (e) => {
         console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
-        infoLogger.ping();
+        metricsLogger.ping();
       });
     }
 
