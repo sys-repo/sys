@@ -1,19 +1,36 @@
-import { type t, c, Cli, pkg, rx, Str, Time } from './common.ts';
+import { type t, c, Cli, Fs, pkg, rx, Str, Time } from './common.ts';
 
 /**
  * Helpers for logging.
  */
 export const Log = {
+  async metrics(dir?: t.StringDir) {
+    Log.memory();
+    await Log.dir(dir);
+  },
+
   memory() {
     const mem = Deno.memoryUsage();
-    const ts = new Date().toLocaleTimeString();
+    const ts = new Date().toLocaleTimeString(undefined, { timeZoneName: 'short' });
 
     const bytes = (value: number) => c.white(Str.bytes(value));
     const rss = bytes(mem.rss);
     const heapUsed = bytes(mem.heapUsed);
     const heapTotal = bytes(mem.heapTotal);
+    const bullet = c.cyan('⏱');
 
-    const msg = `⏱ Memory ${ts} — RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
+    const title = `${bullet} ${ts}`;
+    const msg = `  Memory — RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
+
+    console.info(c.gray(title));
+    console.info(c.gray(msg));
+  },
+
+  async dir(path?: t.StringDir) {
+    if (!path) return;
+    const size = await Fs.Size.dir(path);
+    const total = c.white(Str.bytes(size.total.bytes));
+    const msg = `  Filesystem: ${total}`;
     console.info(c.gray(msg));
   },
 

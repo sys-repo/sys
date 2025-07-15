@@ -35,7 +35,7 @@ export const Server: t.CrdtServerLib = {
      */
     if (!silent) {
       Log.server({ port, dir });
-      const metricsLogger = Log.startInterval(life.dispose$, Log.memory);
+      const metricsLogger = Log.startInterval(life.dispose$, () => Log.metrics(dir));
 
       /**
        * Log activity:
