@@ -2,7 +2,7 @@ import { type t, UserAgent } from './common.ts';
 import { Util } from './u.ts';
 
 export const Is: t.KeyboardIsLib = {
-  commandConcept(input, options = {}) {
+  command(input, options = {}) {
     const modifiers = wrangle.modifiers(input);
     if (!modifiers) return false;
     const ua = options.ua ?? UserAgent.current;
@@ -21,7 +21,7 @@ export const Is: t.KeyboardIsLib = {
 
   copy(e, options = {}) {
     if (!e) return false;
-    return e.key === 'c' && Is.commandConcept(e.modifiers, options);
+    return e.key === 'c' && Is.command(e.modifiers, options);
   },
 };
 

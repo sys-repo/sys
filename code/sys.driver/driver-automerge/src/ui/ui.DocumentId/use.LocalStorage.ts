@@ -67,7 +67,7 @@ export function useLocalStorage(key: string | undefined, signal: t.Signal<string
       if (prev) signal.value = prev;
     }
     if (e.key === 'ArrowDown') {
-      if (Kbd.Is.commandConcept(e.modifiers)) {
+      if (Kbd.Is.command(e.modifiers)) {
         history.reset(); // ← reset to HEAD.
         signal.value = history.current;
       } else {

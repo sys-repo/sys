@@ -86,14 +86,14 @@ export type KeyboardIsLib = {
   /**
    * Platform independent determination if the
    * given flags conceptually align
-   * to what the Apple  [⌘ Cmmand] key means,
+   * to what the Apple [ ⌘ ] key means,
    *
    *    When on macOS™    →     ⌘  == meta
    *    When on Linux     →   ctrl == meta
    *    When on Windows™  →   ctrl == meta
    *
    */
-  commandConcept(
+  command(
     modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike,
     options?: { ua?: t.UserAgent },
   ): boolean;

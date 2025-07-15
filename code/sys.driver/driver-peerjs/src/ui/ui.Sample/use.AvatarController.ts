@@ -35,7 +35,7 @@ export function useAvatarController(args: {
   };
 
   const onSelect: t.AvatarSelectHandler = (e) => {
-    if (Kbd.Is.commandConcept(e.modifiers)) setFlipped((prev) => !prev);
+    if (Kbd.Is.command(e.modifiers)) setFlipped((prev) => !prev);
     if (!Kbd.Is.modified(e.modifiers) && !flipped) {
       args.onSelect?.(e);
     }

@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, (e) => {
               Media.Log.tracks('⚡️ MediaStream.filtered:', e.stream.filtered);
             }}
             onSelect={(e) => {
-              if (Kbd.Is.commandConcept(e.modifiers)) Signal.toggle(p.flipped);
+              if (Kbd.Is.command(e.modifiers)) Signal.toggle(p.flipped);
             }}
           />
         );

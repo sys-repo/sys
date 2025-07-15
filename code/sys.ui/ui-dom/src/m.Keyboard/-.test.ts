@@ -198,17 +198,17 @@ describe(
       const windows = UserAgent.parse(UA.windows);
       const linux = UserAgent.parse(UA.linux);
 
-      it('Is.commandConcept', () => {
-        const a = Keyboard.Is.commandConcept();
-        const b = Keyboard.Is.commandConcept({ meta: true }, { ua: mac });
-        const c = Keyboard.Is.commandConcept({ ctrl: true }, { ua: windows });
-        const d = Keyboard.Is.commandConcept({ ctrl: true }, { ua: linux });
+      it.only('Is.command', () => {
+        const a = Keyboard.Is.command();
+        const b = Keyboard.Is.command({ meta: true }, { ua: mac });
+        const c = Keyboard.Is.command({ ctrl: true }, { ua: windows });
+        const d = Keyboard.Is.command({ ctrl: true }, { ua: linux });
 
-        const e = Keyboard.Is.commandConcept({ ctrl: true }, { ua: mac });
-        const f = Keyboard.Is.commandConcept({ meta: true }, { ua: windows });
-        const g = Keyboard.Is.commandConcept({ meta: true }, { ua: linux });
+        const e = Keyboard.Is.command({ ctrl: true }, { ua: mac });
+        const f = Keyboard.Is.command({ meta: true }, { ua: windows });
+        const g = Keyboard.Is.command({ meta: true }, { ua: linux });
 
-        const h = Keyboard.Is.commandConcept({ key: 'c', modifiers: { meta: true } }, { ua: mac });
+        const h = Keyboard.Is.command({ key: 'c', modifiers: { meta: true } }, { ua: mac });
 
         expect(a).to.be.false;
 
@@ -294,7 +294,7 @@ describe(
       });
     });
 
-    describe.only('Keyboard.modifiers', () => {
+    describe('Keyboard.modifiers', () => {
       it('empty', () => {
         const test = (input?: any) => {
           const res = Kbd.modifiers(input);

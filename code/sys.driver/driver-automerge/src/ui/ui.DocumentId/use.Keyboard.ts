@@ -15,7 +15,7 @@ export function useKeyboard() {
 
     kbd.$.subscribe((e) => {
       const modifiers = e.current.modifiers;
-      setUrlMode(Kbd.Is.commandConcept(modifiers));
+      setUrlMode(Kbd.Is.command(modifiers));
     });
 
     return kbd.dispose;

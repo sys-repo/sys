@@ -145,7 +145,7 @@ export const View: React.FC<P> = (props) => {
         const href = getCurrentHref();
         if (href) {
           const action: t.DocumentIdAction = e.mode === 'url' ? 'Copy:Url' : 'Copy';
-          const cmd = Kbd.Is.commandConcept(e.modifiers);
+          const cmd = Kbd.Is.command(e.modifiers);
           const { shift } = e.modifiers;
           const addressbarAction = cmd && shift ? 'remove' : 'add';
           controller.handlers.onAction({ action, href, addressbarAction });
