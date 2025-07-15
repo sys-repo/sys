@@ -1,4 +1,4 @@
-import { parse, stringify } from 'yaml';
+import { parse, stringify } from '@eemeli/yaml';
 export const Yaml = { parse, stringify } as const;
 
 export { Cli } from '@sys/cli';

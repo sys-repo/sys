@@ -1,4 +1,4 @@
-export { parse as parseYaml } from 'yaml';
+export { parse as parseYaml } from '@eemeli/yaml';
 
 export * from '../common.ts';
 export { Err } from '../m.Err/mod.ts';

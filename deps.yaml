@@ -33,6 +33,8 @@ groups:
   std/testing:
     - import: npm:chai@5.2.1
       subpaths: ['', 'chai.js']
+    - import: npm:fake-indexeddb@6.0.1
+      subpaths: ['auto']
 
   automerge:
     # https://automerge.org
@@ -103,6 +105,10 @@ deno.json:
   - import: jsr:@cliffy/prompt@1.0.0-rc.8
   - import: jsr:@cliffy/table@1.0.0-rc.8
 
+  # Data:
+  - import: jsr:@eemeli/yaml@2.8.0
+    subpaths: [types]
+
   # Sundry NPM:
   - import: npm:@types/diff@8.0.0
   - import: npm:approx-string-match@2
@@ -110,8 +116,6 @@ deno.json:
   - import: npm:diff@8.0.2
   - import: npm:@farcaster/frame-sdk@0.1.7
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:fake-indexeddb@6.0.1
-    subpaths: ['auto']
   - import: npm:happy-dom@18.0.1
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
@@ -125,7 +129,6 @@ deno.json:
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
-  - import: npm:yaml@2.8.0
   - import: npm:@preact/signals-core@1.11.0
   - import: npm:zod@4.0.5
     subpaths: [v4, v4-mini]
