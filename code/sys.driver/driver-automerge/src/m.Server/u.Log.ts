@@ -1,12 +1,10 @@
 import { type t, c, Cli, Fs, pkg, rx, Str, Time } from './common.ts';
 
-const SPACE = '\u200B'; // ← zero-width space.
-
 /**
  * Helpers for logging.
  */
 export const Log = {
-  divider: () => console.info(SPACE),
+  divider: () => console.info('\u200B'), // ← zero-width space (prevents line collapse in linux logs).
 
   async metrics(options: { dir?: t.StringDir; pad?: boolean } = {}) {
     const { dir, pad = false } = options;
