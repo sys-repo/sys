@@ -24,6 +24,8 @@ export function DevConnectionsButtons(props: P) {
           delete d.connections;
           const ts = Time.now.timestamp;
           d.connections = { ts, group: [], dyads: [] };
+
+          P.DEV.view.set(d, 'Debug');
         });
       }}
     />
