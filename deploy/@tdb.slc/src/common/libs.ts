@@ -13,6 +13,7 @@ export {
   Str,
   Time,
   Timestamp,
+  Url,
 } from '@sys/std';
 
 export { Yaml } from '@sys/std/yaml';

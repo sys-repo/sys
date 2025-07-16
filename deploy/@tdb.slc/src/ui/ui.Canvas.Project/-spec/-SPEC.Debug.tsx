@@ -2,8 +2,7 @@ import React from 'react';
 import { parse } from 'yaml';
 import {
   type t,
-  Is,
-  Arr,
+  Url,
   Button,
   Crdt,
   css,
@@ -13,11 +12,12 @@ import {
   ObjectView,
   rx,
   Signal,
+  Yaml,
 } from '../common.ts';
 import { EditorPanel } from './-ui.EditorPanel.tsx';
 
-type Doc = { count: number };
 type P = t.CanvasProjectProps;
+type Doc = { count: number };
 type Storage = Pick<P, 'theme' | 'debug'> & { showEditorPanel?: boolean; showCanvas?: boolean };
 
 export const PATHS = {
@@ -47,9 +47,19 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  /**
+   * CRDT:
+   */
+  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const isLocalhost = location.hostname === 'localhost';
   const repo = Crdt.repo({
     storage: { database: 'dev.slc.crdt' },
-    network: { ws: 'sync.db.team' },
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+      isLocalhost && { ws: 'localhost:3030' },
+      qsSyncServer && { ws: qsSyncServer },
+    ],
   });
 
   const props = {
