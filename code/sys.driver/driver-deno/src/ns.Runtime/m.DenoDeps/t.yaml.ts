@@ -37,6 +37,9 @@ export type YamlDep = {
   /** Array of sub-paths for the module. */
   subpaths?: t.StringDir[];
 
+  /** Override name to use if differnt from the `import` module-name. */
+  name?: string;
+
   /**
    * Flag indicating if the import is a development-dependency only.
    * Only relevant when producing a `package.json` file.
