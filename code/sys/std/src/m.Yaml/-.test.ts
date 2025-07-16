@@ -72,6 +72,32 @@ describe('Yaml', () => {
     });
   });
 
+  describe('Yaml.parseDocument', () => {
+    it('parses valid YAML and returns the expected JS value', () => {
+      const src = `
+      name: 'Alice'
+      age: 42
+    `;
+      const doc = Yaml.parseDocument(src);
+      expect(doc.errors).to.eql([]); // no parse errors
+      expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // correct data
+    });
+
+    it('retains source-token ranges for nodes', () => {
+      const doc = Yaml.parseDocument('foo: bar');
+      const root = doc.contents!; // YAMLMap node
+      expect(Array.isArray((root as any).range)).to.eql(true);
+      expect((root as any).range.length).to.equal(3); // [start, ?, end]
+    });
+
+    it('collects errors for malformed YAML instead of throwing', () => {
+      const doc = Yaml.parseDocument('foo: [1, 2'); // missing ]
+      expect(doc.errors.length).to.be.greaterThan(0);
+      expect(doc.errors[0].name).to.equal('YAMLParseError');
+      expect(doc.errors.length).to.eql(1);
+    });
+  });
+
   describe('Yaml.syncer', () => {
     it('print', () => {
       type T = { text?: string };

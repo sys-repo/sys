@@ -1,3 +1,5 @@
+import type * as YamlExt from 'yaml';
+
 import type { t } from './common.ts';
 export type * from './t.sync.ts';
 
@@ -10,14 +12,13 @@ export type YamPrimitives = null | string | number | boolean;
 export type YamlLib = {
   readonly Is: YamlIsLib;
 
-  /**
-   * Safely parse YAML.
-   */
+  /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: string): YamlParseResponse<T>;
 
-  /**
-   * Creates a new parse-syncer.
-   */
+  /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
+  parseDocument(src: string): YamlExt.Document.Parsed;
+
+  /** Creates a new parse-syncer. */
   syncer<T = unknown>(
     doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
     path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
