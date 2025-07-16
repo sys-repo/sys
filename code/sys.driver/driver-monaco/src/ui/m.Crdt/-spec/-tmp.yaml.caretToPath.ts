@@ -1,5 +1,11 @@
 import { type t, Yaml } from '../common.ts';
+import { Monaco } from '@sys/driver-monaco';
 
+// Monaco.Editor.
+
+/**
+ * 🐷🐷
+ */
 export function tmp(editor: t.Monaco.Editor) {
   observeYamlPath(editor, (path) => {
     console.log('current YAML path →', path);
