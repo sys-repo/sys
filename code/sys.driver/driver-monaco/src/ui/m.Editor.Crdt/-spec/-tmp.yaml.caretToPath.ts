@@ -12,7 +12,7 @@ export function tmp(editor: t.Monaco.Editor) {
  */
 export const observeYamlPath = (editor: t.Monaco.Editor, onPath: (p: t.ObjectPath) => void) => {
   const model = editor.getModel();
-  if (!model) throw new Error('editor has no model');
+  if (!model) throw new Error('Editor has no model');
 
   // Includes: ranges, comments, errors.
   let doc = Yaml.parseDocument(model.getValue());
