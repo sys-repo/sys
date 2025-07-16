@@ -1,7 +1,13 @@
-import type { Node, Pair, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import type * as YamlType from 'yaml';
 import * as YAML from 'yaml';
 
 import { type t } from '../common.ts';
+
+type Range = [number, number, number];
+
+/** Re-usable alias so Pair.key/value are `Node | null`, not `unknown`. */
+type NodeOrNull = YamlType.Node | null;
+type YAMLPair = YamlType.Pair<NodeOrNull, NodeOrNull>;
 
 /**
  * 🐷
@@ -16,54 +22,9 @@ export function tmp(editor: t.Monaco.Editor) {
  * Parse once – keep source tokens so each node has .range,
  * and reuse the resulting Document until the buffer changes.
  */
-export function parseYaml(src: string): YAML.Document.Parsed {
+export function parseYaml(src: string): YamlType.Document.Parsed {
   return YAML.parseDocument(src, { keepSourceTokens: true });
 }
-
-/**
- * Find the deepest node whose range encloses `offset` and
- * return the logical object path leading to it.
- */
-export const pathAtOffset = (
-  node: Node | null | undefined,
-  offset: number,
-  path: t.ObjectPath = [],
-): t.ObjectPath => {
-  if (!node || !node.range) return [];
-
-  const [start, , end] = node.range; // valueStart, valueEnd, nodeEnd  [oai_citation:0‡eemeli.org](https://eemeli.org/yaml/)
-  if (offset < start || offset > end) return [];
-
-  // Scalars are leaves – we're done.
-  if (YAML.isScalar(node as Scalar)) return path;
-
-  if (YAML.isSeq(node as YAMLSeq)) {
-    return (node as YAMLSeq).items.reduce<t.ObjectPath>((found, item, idx) => {
-      return found.length ? found : pathAtOffset(item as any, offset, [...path, idx]);
-    }, []);
-  }
-
-  if (YAML.isMap(node as YAMLMap)) {
-    for (const pair of (node as YAMLMap).items as Pair[]) {
-      const { key, value } = pair as any; // TEMP 🐷
-
-      // Cursor inside key → path *to* the key itself.
-      if (key?.range && offset >= key.range[0] && offset <= key.range[2]) {
-        const k = YAML.isScalar(key) ? String(key.value) : String(key.toString());
-        return [...path, k];
-      }
-
-      // Cursor inside value → dive deeper (or return value path).
-      if (value?.range && offset >= value.range[0] && offset <= value.range[2]) {
-        const k = YAML.isScalar(key) ? String(key.value) : String(key.toString());
-        const sub = pathAtOffset(value, offset, [...path, k]);
-        return sub.length ? sub : [...path, k];
-      }
-    }
-  }
-
-  return path; // fallback (node encloses cursor but no child does)
-};
 
 /**
  * Wire everything to an editor instance.
@@ -75,15 +36,90 @@ export const observeYamlPath = (editor: t.Monaco.Editor, onPath: (p: t.ObjectPat
 
   let doc = parseYaml(model.getValue());
 
-  // ①  Re-parse when the buffer changes (debounce/throttle if needed)
+  // Re-parse when the buffer changes (debounce/throttle if needed):
   model.onDidChangeContent(() => {
     doc = parseYaml(model.getValue());
   });
 
-  // ②  Watch the caret
+  // Watch the caret:
   editor.onDidChangeCursorPosition((e) => {
-    const offset = model.getOffsetAt(e.position); // Monaco helper
+    const offset = model.getOffsetAt(e.position); // Monaco helper.
     const path = pathAtOffset(doc.contents, offset);
     onPath(path);
   });
+};
+
+type PathAtOffsetNodeParam = YamlType.Node | null | undefined;
+
+/**
+ * Find the deepest node whose range encloses `offset`
+ * and return the logical object path leading to it.
+ */
+export const pathAtOffset = (
+  node: PathAtOffsetNodeParam,
+  offset: number,
+  path: t.ObjectPath = [],
+): t.ObjectPath => {
+  if (!node || !node.range) return [];
+
+  const [start, , end] = node.range as Range;
+  if (offset < start || offset > end) return [];
+
+  /**
+   * If `node` is a scalar it has no children, so the current `path` is final.
+   *
+   * YAML → JS scalar mapping:
+   * - `null`
+   * - `boolean`
+   * - `number`
+   * - `string`
+   * - `bigint`      ← (when `intAsBigInt: true`)
+   * - `Date`        ← (for `!!timestamp`)
+   * - `Uint8Array`  ← (for `!!binary`)
+   */
+  if (YAML.isScalar(node as YamlType.Scalar)) return path;
+
+  /**
+   * [Array] sequences:
+   */
+  type S = YamlType.YAMLSeq<PathAtOffsetNodeParam>;
+  if (YAML.isSeq(node as YamlType.YAMLSeq)) {
+    return (node as YamlType.YAMLSeq<S>).items.reduce<t.ObjectPath>((found, item, idx) => {
+      return found.length ? found : pathAtOffset(item, offset, [...path, idx]);
+    }, []);
+  }
+
+  /**
+   * {Maps}:
+   */
+  if (YAML.isMap(node as YamlType.YAMLMap)) {
+    for (const pair of (node as YamlType.YAMLMap).items as YAMLPair[]) {
+      const key = pair.key;
+      const value = pair.value;
+
+      if (!key) continue; // Skip null keys.
+
+      const keyStr = YAML.isScalar(key) ? String(key.value) : String(key.toString());
+
+      const kPath = [...path, keyStr];
+      const kRange = key.range as Range | undefined;
+      const vRange = value?.range as Range | undefined;
+
+      // Caret inside the key:
+      if (kRange && offset >= kRange[0] && offset <= kRange[2]) return kPath;
+
+      // Caret in the colon / whitespace gap (treat as "on the key"):
+      if (kRange && vRange && offset > kRange[2] && offset < vRange[0]) return kPath;
+      if (kRange && !vRange && offset > kRange[2]) return kPath;
+
+      // Caret inside the value (recurse):
+      if (vRange && offset >= vRange[0] && offset <= vRange[2]) {
+        const sub = pathAtOffset(value, offset, kPath);
+        return sub.length ? sub : kPath;
+      }
+    }
+  }
+
+  // Caret is inside `node` but not any child.
+  return path;
 };
