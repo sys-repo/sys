@@ -74,7 +74,8 @@ export const from: t.DepsLib['from'] = async (input) => {
 
     if (dev) res.dev = true;
     if (wildcard) res.wildcard = true;
-    if (Array.isArray(subpaths)) res.subpaths = subpaths;
+    if (Array.isArray(subpaths)) res.subpaths = subpaths.map((path) => (path === '/' ? '' : path)); // NB: prevent "//" root path being inserted.
+
     deps.push(res);
   };
 
