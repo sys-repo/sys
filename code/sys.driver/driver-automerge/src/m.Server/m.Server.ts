@@ -34,11 +34,7 @@ export const Server: t.CrdtServerLib = {
      * Print status:
      */
     if (!silent) {
-      const metrics = async () => {
-        console.info();
-        await Log.metrics(dir);
-        console.info();
-      };
+      const metrics = () => Log.metrics({ dir, pad: true });
 
       Log.server({ port, dir });
       metrics();

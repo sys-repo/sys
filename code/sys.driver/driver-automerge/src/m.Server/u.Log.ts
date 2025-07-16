@@ -1,12 +1,19 @@
 import { type t, c, Cli, Fs, pkg, rx, Str, Time } from './common.ts';
 
+const SPACE = '\u200B'; // ← zero-width space.
+
 /**
  * Helpers for logging.
  */
 export const Log = {
-  async metrics(dir?: t.StringDir) {
+  divider: () => console.info(SPACE),
+
+  async metrics(options: { dir?: t.StringDir; pad?: boolean } = {}) {
+    const { dir, pad = false } = options;
+    if (pad) Log.divider();
     Log.memory();
     await Log.dir(dir);
+    if (pad) Log.divider();
   },
 
   memory() {
@@ -20,7 +27,7 @@ export const Log = {
     const bullet = c.cyan('⏱');
 
     const title = `${bullet} ${ts}:`;
-    const msg = `  Memory: RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
+    const msg = `  Memory: RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
     console.info(c.gray(msg));
