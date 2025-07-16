@@ -11,6 +11,22 @@ describe('Yaml', () => {
     expect(Yaml.Is).to.equal(Is);
   });
 
+  describe('Yaml.Is', () => {
+    it('Is.parseError', () => {
+      const test = (input: any, expected: boolean) => {
+        const res = Yaml.Is.parseError(input);
+        expect(res).to.eql(expected);
+      };
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
+      test(Err.std('foo'), false);
+
+      test(Err.std('foo', { name: ERR.PARSE }), true);
+      test(Err.std('foo', { cause: { name: ERR.PARSE, message: 'derp' } }), true);
+    });
+  });
+
   describe('Yaml.parse', () => {
     it('parses valid YAML → returns data, no error', () => {
       const src = `
@@ -95,6 +111,63 @@ describe('Yaml', () => {
       expect(doc.errors.length).to.be.greaterThan(0);
       expect(doc.errors[0].name).to.equal('YAMLParseError');
       expect(doc.errors.length).to.eql(1);
+    });
+  });
+
+  describe('Yaml.pathAtOffset', () => {
+    // Convenience: returns the offset of the first occurrence of `needle`.
+    const at = (haystack: string, needle: string) => haystack.indexOf(needle);
+
+    it('returns the key/value path in a simple map', () => {
+      const src = 'foo: bar';
+      const doc = Yaml.parseDocument(src);
+      const root = doc.contents!;
+
+      // Inside key:
+      expect(Yaml.pathAtOffset(root, at(src, 'f'))).to.eql(['foo']);
+
+      // Inside value:
+      expect(Yaml.pathAtOffset(root, at(src, 'b'))).to.eql(['foo']);
+    });
+
+    it('navigates nested maps and the key/value whitespace gap', () => {
+      const src = `parent:
+        child: 123
+        other: true`;
+      const doc = Yaml.parseDocument(src);
+      const root = doc.contents!;
+
+      // Inside nested value:
+      expect(Yaml.pathAtOffset(root, at(src, '123'))).to.eql(['parent', 'child']);
+
+      // Whitespace between "other:" and "true":
+      const gap = src.indexOf('other:') + 'other:'.length + 1; // one char after ':'
+      expect(Yaml.pathAtOffset(root, gap)).to.eql(['parent', 'other']);
+    });
+
+    it('maps sequence indices correctly', () => {
+      const src = `items:
+        - one
+        - two`;
+      const doc = Yaml.parseDocument(src);
+      const root = doc.contents!;
+
+      expect(Yaml.pathAtOffset(root, at(src, 'one'))).to.eql(['items', 0]);
+
+      expect(Yaml.pathAtOffset(root, at(src, 'two'))).to.eql(['items', 1]);
+
+      // Caret on the dash of the second item → inside sequence but not an item.
+      const dash = src.indexOf('- two'); // position of the "-".
+      expect(Yaml.pathAtOffset(root, dash)).to.eql(['items']);
+    });
+
+    it('returns an empty path when offset is outside the node range', () => {
+      const src = 'foo: bar';
+      const doc = Yaml.parseDocument(src);
+      const root = doc.contents!;
+      expect(
+        Yaml.pathAtOffset(root, src.length + 10), // Beyond EOF.
+      ).to.eql([]);
     });
   });
 
@@ -357,22 +430,6 @@ describe('Yaml', () => {
           expect(syncer.disposed).to.eql(true);
         });
       });
-    });
-  });
-
-  describe('Yaml.Is', () => {
-    it('Is.parseError', () => {
-      const test = (input: any, expected: boolean) => {
-        const res = Yaml.Is.parseError(input);
-        expect(res).to.eql(expected);
-      };
-
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((value: any) => test(value, false));
-      test(Err.std('foo'), false);
-
-      test(Err.std('foo', { name: ERR.PARSE }), true);
-      test(Err.std('foo', { cause: { name: ERR.PARSE, message: 'derp' } }), true);
     });
   });
 });
