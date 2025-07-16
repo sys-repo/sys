@@ -4,9 +4,10 @@ import type { t } from './common.ts';
  * Tools for binding between a Monaco editor and
  * an immutable CRDT document interface.
  */
-export type EditorCrdtLib = {
+export type EditorCrdtLib = Readonly<{
   bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): Promise<t.EditorCrdtBinding>;
-};
+  useBinding: t.UseEditorCrdtBinding;
+}>;
 
 /**
  * A live binding between a Monaco code-editor and
