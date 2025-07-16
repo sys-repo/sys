@@ -11,7 +11,7 @@ export const Log = {
 
   memory() {
     const mem = Deno.memoryUsage();
-    const ts = new Date().toLocaleTimeString(undefined, { timeZoneName: 'short' });
+    const ts = timestamp();
 
     const bytes = (value: number) => c.white(Str.bytes(value));
     const rss = bytes(mem.rss);
@@ -20,7 +20,7 @@ export const Log = {
     const bullet = c.cyan('⏱');
 
     const title = `${bullet} ${ts}:`;
-    const msg = `  Memory — RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
+    const msg = `  Memory: RSS ${rss}, Heap Used ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
     console.info(c.gray(msg));
@@ -79,3 +79,43 @@ export const Log = {
     return api;
   },
 } as const;
+
+/**
+ * Helpers:
+ */
+export function timestamp(): string {
+  const now = new Date();
+  const zoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const fmt = new Intl.DateTimeFormat(undefined, {
+    timeZone: zoneName,
+    hour12: true,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  });
+  const parts = fmt.formatToParts(now);
+
+  let time = '';
+  let period = '';
+  let zone = '';
+
+  for (const p of parts) {
+    switch (p.type) {
+      case 'hour':
+      case 'minute':
+      case 'second':
+      case 'literal':
+        time += p.value;
+        break;
+      case 'dayPeriod':
+        period = p.value.toLowerCase(); // ← am/pm
+        break;
+      case 'timeZoneName':
+        zone = p.value;
+        break;
+    }
+  }
+
+  return `${zone} / ${time.trim()}${period}`;
+}
