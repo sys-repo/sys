@@ -3,8 +3,11 @@ import { type t, Avatar, Color, Crdt, css, D, ObjectView, P } from './common.ts'
 import { Notes } from './ui.Notes.tsx';
 import { useAvatarController } from './use.AvatarController.ts';
 import { Fileshare } from './ui.Fileshare.tsx';
+import { Debug } from './ui.Debug.tsx';
 
-export const Sample: React.FC<t.SampleProps> = (props) => {
+type P = t.SampleProps;
+
+export const Sample: React.FC<P> = (props) => {
   const { debug = false, doc, repo, peer, onSelect } = props;
 
   const view = P.DEV.view.get(doc?.current, 'Debug');
@@ -66,24 +69,12 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     },
   };
 
-  const elDebug = view === 'Debug' && (
-    <div className={styles.debug.base.class}>
-      <ObjectView
-        style={styles.debug.obj}
-        theme={theme.name}
-        name={'room'}
-        data={{
-          webrtc: peer,
-          'doc.id': doc?.id,
-          doc: doc?.current,
-        }}
-        expand={['$', '$.doc', '$.doc.connections', '$.doc.connections.group']}
-      />
-    </div>
-  );
+  const elDebug = view === 'Debug' && <Debug {...props} />;
 
+  /**
+   * Avatars:
+   */
   const borderRadius = 10;
-
   const elSelf = (
     <Avatar
       {...self.handlers}
@@ -96,7 +87,6 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
       flipped={self.flipped}
     />
   );
-
   const elRemote = remote.stream && (
     <Avatar
       {...remote.handlers}

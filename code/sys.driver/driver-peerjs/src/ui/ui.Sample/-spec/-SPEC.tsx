@@ -41,6 +41,7 @@ export default Spec.describe(D.displayName, (e) => {
     const updateSize = () => {
       const stream = p.selectedStream.value;
       ctx.debug.width(!!stream ? 0 : 400);
+      ctx.subject.size('fill', 150);
     };
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
@@ -50,49 +51,45 @@ export default Spec.describe(D.displayName, (e) => {
       ctx.redraw();
     });
 
-    const width = 550;
-    ctx.subject
-      .size([width, 460])
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        const isFullscreen = !!v.selectedStream;
-        const styles = {
-          base: css({ display: 'grid' }),
-          docId: css({ Absolute: [-30, 0, null, 0] }),
-          sample: css({
-            opacity: isFullscreen ? 0 : 1,
-            pointerEvents: isFullscreen ? 'none' : 'auto',
-          }),
-        };
+    ctx.subject.display('grid').render(() => {
+      const v = Signal.toObject(p);
+      const isFullscreen = !!v.selectedStream;
+      const styles = {
+        base: css({ display: 'grid' }),
+        docId: css({ Absolute: [-30, 0, null, 0] }),
+        sample: css({
+          opacity: isFullscreen ? 0 : 1,
+          pointerEvents: isFullscreen ? 'none' : 'auto',
+        }),
+      };
 
-        return (
-          <div className={styles.base.class}>
-            {/* <LocalDocumentId style={styles.docId} autoFocus={true} /> */}
+      return (
+        <div className={styles.base.class}>
+          {/* <LocalDocumentId style={styles.docId} autoFocus={true} /> */}
 
-            <Sample
-              // 🌳
-              style={styles.sample}
-              debug={P.DEV.mode.get(v.doc?.current)}
-              theme={v.theme}
-              //
-              repo={repo}
-              doc={v.doc}
-              peer={debug.peer}
-              remoteStream={v.remoteStream}
-              //
-              onReady={(e) => {
-                console.info(`⚡️ Sample.onReady:`, e);
-                p.localStream.value = e.self.stream;
-              }}
-              onSelect={(e) => {
-                console.info(`⚡️ onSelect:`, e);
-                p.selectedStream.value = e.stream;
-              }}
-            />
-          </div>
-        );
-      });
+          <Sample
+            // 🌳
+            style={styles.sample}
+            debug={P.DEV.mode.get(v.doc?.current)}
+            theme={v.theme}
+            //
+            repo={repo}
+            doc={v.doc}
+            peer={debug.peer}
+            remoteStream={v.remoteStream}
+            //
+            onReady={(e) => {
+              console.info(`⚡️ Sample.onReady:`, e);
+              p.localStream.value = e.self.stream;
+            }}
+            onSelect={(e) => {
+              console.info(`⚡️ onSelect:`, e);
+              p.selectedStream.value = e.stream;
+            }}
+          />
+        </div>
+      );
+    });
 
     ctx.debug.footer
       .border(-0.1)
@@ -128,11 +125,11 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.debug.header
       .border(0.1)
       .padding(0)
-      .render((e) => {
-        return <LocalDocumentId theme={'Light'} />;
-      });
+      .render((e) => <LocalDocumentId theme={'Light'} />);
 
-    // Finish up.
+    /**
+     * Initial:
+     */
     updateSize();
   });
 

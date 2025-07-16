@@ -190,7 +190,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `create FileShare crdt`}
         onClick={() => {
           const target = repo.create({ count: 0 });
-          doc?.change((d) => P.DEV.filesRef.set(d, target.id));
+          doc?.change((d) => {
+            P.DEV.filesRef.set(d, target.id);
+            P.DEV.view.set(d, 'FileShare');
+          });
         }}
       />
       <Button
@@ -216,6 +219,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        enabled={false}
         label={() => `delete Notes crdt`}
         onClick={async () => {
           const id = P.DEV.notesRef.get(doc?.current, '');

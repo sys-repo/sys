@@ -24,7 +24,6 @@ export function DevConnectionsButtons(props: P) {
           delete d.connections;
           const ts = Time.now.timestamp;
           d.connections = { ts, group: [], dyads: [] };
-
           P.DEV.view.set(d, 'Debug');
         });
       }}
@@ -46,6 +45,8 @@ export function DevConnectionsButtons(props: P) {
           connections.dyads.ensure(d, []);
           const group = connections.group.get(d, []);
           if (!group.includes(peer.id)) group.push(peer.id);
+
+          P.DEV.view.set(d, 'Debug');
         });
       }}
     />
@@ -66,6 +67,8 @@ export function DevConnectionsButtons(props: P) {
 
           const i = group.findIndex((m) => m === peer.id);
           if (i !== -1) group.splice(i, 1);
+
+          P.DEV.view.set(d, 'Debug');
         });
       }}
     />
