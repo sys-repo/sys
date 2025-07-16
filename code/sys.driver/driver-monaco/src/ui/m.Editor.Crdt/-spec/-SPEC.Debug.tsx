@@ -1,7 +1,7 @@
 import React from 'react';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { type t, Url, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { importLibs } from '../libs.ts';
 import { YamlSyncDebug } from './-ui.Yaml.SyncDebug.tsx';
 
@@ -37,10 +37,19 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  /**
+   * CRDT:
+   */
+  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const isLocalhost = location.hostname === 'localhost';
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    // network: [{ ws: 'sync.db.team' }],
-    network: [{ ws: 'localhost:3030' }],
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+      isLocalhost && { ws: 'localhost:3030' },
+      qsSyncServer && { ws: qsSyncServer },
+    ],
   });
 
   const props = {
@@ -174,12 +183,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ...Signal.toObject(p),
           doc: p.doc.value?.current,
         }}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 15 }}
       />
       <ObjectView
         name={'binding'}
         data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 6 }}
       />
     </div>
   );
