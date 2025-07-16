@@ -32,7 +32,7 @@ groups:
 
   std/testing:
     - import: npm:chai@5.2.1
-      subpaths: ['', 'chai.js']
+      subpaths: ['/', 'chai.js']
     - import: npm:fake-indexeddb@6.0.1
       subpaths: ['auto']
 
@@ -148,7 +148,8 @@ deno.json:
   - import: npm:@preact/signals-react@3.2.1
   - import: npm:react-inspector@6.0.2
   - import: npm:@monaco-editor/react@4.7.0
-  - import: npm:monaco-editor@0.52.2
+  - import: npm:monaco-editor-core@0.52.2
+    subpaths: [/]
 
 package.json:
   - group: std/deno
