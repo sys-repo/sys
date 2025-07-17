@@ -1,7 +1,8 @@
 import { type t, rx } from './common.ts';
+import { calcHidden } from './u.calc.ts';
 
 export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
-  const editor = ed as t.Monaco.Editor & t.EditorHiddenMembers;
+  const editor = ed as t.Monaco.Editor;
 
   // Lifecycle:
   const life = rx.lifecycle(until);
@@ -13,14 +14,14 @@ export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
   /**
    * Methods/State:
    */
-  const get = (): t.Monaco.IRange[] => editor.getHiddenAreas?.() ?? [];
-  let areas: t.Monaco.IRange[] = get();
+  const current = () => calcHidden(editor);
+  let areas: t.Monaco.IRange[] = current();
 
   /**
    * Event listeners:
    */
   const sub = editor.onDidChangeHiddenAreas(() => {
-    areas = get();
+    areas = current();
     $$.next({ areas });
   });
 
