@@ -1,6 +1,6 @@
 import type { YamlSyncParserPaths } from '@sys/std/t';
 import React from 'react';
-import { type t, Str, Is, Color, css, Obj, ObjectView, Yaml } from '../common.ts';
+import { type t, Color, css, Is, Obj, ObjectView, Str, Yaml } from '../common.ts';
 
 export type YamlSyncDebugProps = {
   doc?: t.Crdt.Ref;
@@ -55,7 +55,7 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     if (Is.string(e.value)) e.mutate(Str.truncate(e.value, 20));
   });
 
-  const elObject = (
+  const elObject = (parsed || parseError) && (
     <ObjectView
       //
       name={name}
@@ -65,7 +65,5 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     />
   );
 
-  return (
-    <div className={css(styles.base, props.style).class}>{(parsed || parseError) && elObject}</div>
-  );
+  return <div className={css(styles.base, props.style).class}>{elObject}</div>;
 }
