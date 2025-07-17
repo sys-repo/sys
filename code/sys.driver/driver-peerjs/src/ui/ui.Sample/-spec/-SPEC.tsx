@@ -55,7 +55,7 @@ export default Spec.describe(D.displayName, (e) => {
       const v = Signal.toObject(p);
       const isFullscreen = !!v.selectedStream;
       const styles = {
-        base: css({ display: 'grid' }),
+        base: css({ minWidth: 400, display: 'grid' }),
         docId: css({ Absolute: [-30, 0, null, 0] }),
         sample: css({
           opacity: isFullscreen ? 0 : 1,
