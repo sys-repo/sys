@@ -28,7 +28,9 @@ export const observeAreas: t.EditorHiddenLib['observeAreas'] = (ed, until) => {
    * API:
    */
   return rx.toLifecycle<t.EditorHiddenAreaObserver>(life, {
-    $,
+    get $() {
+      return $;
+    },
     get areas() {
       return areas;
     },
