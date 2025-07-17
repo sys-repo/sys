@@ -65,6 +65,7 @@ export async function createDebugSignals() {
     doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),
     selectedPath: s<t.ObjectPath>([]),
+    hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
   const api = {
@@ -193,6 +194,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}
         style={{ marginTop: 6 }}
       />
+      {p.hiddenAreas.value && (
+        <ObjectView
+          name={'hidden'}
+          data={p.hiddenAreas.value ?? []}
+          style={{ marginTop: 6 }}
+          expand={1}
+        />
+      )}
     </div>
   );
 };

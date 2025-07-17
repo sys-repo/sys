@@ -66,9 +66,7 @@ export default Spec.describe(D.displayName, async (e) => {
           path.$.subscribe((e) => (p.selectedPath.value = e.path));
 
           const hidden = Monaco.Hidden.observe(e.editor);
-          hidden.$.subscribe((e) => {
-            console.log('⚡️ hidden', e);
-          });
+          hidden.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
         }}
       />
     );
