@@ -1,6 +1,6 @@
 import { type t, rx } from './common.ts';
 
-export const observeAreas: t.EditorHiddenLib['observeAreas'] = (ed, until) => {
+export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
   const editor = ed as t.Monaco.Editor & t.EditorHiddenMembers;
 
   // Lifecycle:

@@ -8,7 +8,7 @@ export type EditorHiddenLib = Readonly<{
   /**
    * Watch the editor's hidden-area list.
    */
-  observeAreas(editor: t.Monaco.Editor, dispose$?: t.UntilInput): t.EditorHiddenAreaObserver;
+  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): t.EditorHiddenAreaObserver;
 
   /**
    * Fold (hide) one or more **whole lines** without clobbering the

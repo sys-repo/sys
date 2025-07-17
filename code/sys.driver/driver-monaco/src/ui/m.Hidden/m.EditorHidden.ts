@@ -1,10 +1,10 @@
 import { type t } from './common.ts';
 import { clear } from './u.clear.ts';
 import { foldRange } from './u.foldRange.ts';
-import { observeAreas } from './u.observeAreas.ts';
+import { observe } from './u.observe.ts';
 
 export const EditorHidden: t.EditorHiddenLib = {
-  observeAreas,
+  observe,
   foldRange,
   clear,
 };

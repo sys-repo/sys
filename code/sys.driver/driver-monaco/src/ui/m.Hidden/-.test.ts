@@ -3,17 +3,17 @@ import { EditorHidden } from './mod.ts';
 
 describe('Monaco.Hidden', () => {
   describe('code folding', () => {
-    describe('Monaco.Hidden.observeAreas', () => {
+    describe('Monaco.Hidden.observe', () => {
       it('create', () => {
         const editor = MonacoFake.editor('');
-        const ob = EditorHidden.observeAreas(editor);
+        const ob = EditorHidden.observe(editor);
         expect(ob.areas).to.eql([]);
       });
 
       describe('lifecycle', () => {
         it('dispose: via method', () => {
           const editor = MonacoFake.editor('');
-          const ob = EditorHidden.observeAreas(editor);
+          const ob = EditorHidden.observe(editor);
           expect(ob.disposed).to.eql(false);
           ob.dispose();
           expect(ob.disposed).to.eql(true);
@@ -22,7 +22,7 @@ describe('Monaco.Hidden', () => {
         it('dispose: via dispose$', () => {
           const life = rx.disposable();
           const editor = MonacoFake.editor('');
-          const ob = EditorHidden.observeAreas(editor, life);
+          const ob = EditorHidden.observe(editor, life);
           expect(ob.disposed).to.eql(false);
           life.dispose();
           expect(ob.disposed).to.eql(true);
@@ -33,7 +33,7 @@ describe('Monaco.Hidden', () => {
         it('observer reflects fold/unfold events', () => {
           const src = 'line one\nline two\nline three';
           const editor = MonacoFake.editor(src);
-          const ob = EditorHidden.observeAreas(editor);
+          const ob = EditorHidden.observe(editor);
 
           const fired: t.EditorHiddenAreaChange[] = [];
           ob.$.subscribe((e) => fired.push(e));
@@ -62,7 +62,7 @@ describe('Monaco.Hidden', () => {
 
         it('observer stops updating after dispose', () => {
           const editor = MonacoFake.editor('one\ntwo');
-          const ob = EditorHidden.observeAreas(editor);
+          const ob = EditorHidden.observe(editor);
 
           ob.dispose();
 
@@ -80,10 +80,10 @@ describe('Monaco.Hidden', () => {
     });
 
     describe('Monaco.Hidden.foldRange', () => {
-      it('updates observeAreas when a range is folded', () => {
+      it('updates observer when a range is folded', () => {
         const src = 'a\nb\nc\nd';
         const editor = MonacoFake.editor(src);
-        const ob = EditorHidden.observeAreas(editor);
+        const ob = EditorHidden.observe(editor);
 
         // Initial state → no folds:
         expect(ob.areas).to.eql([]);
@@ -103,7 +103,7 @@ describe('Monaco.Hidden', () => {
 
       it('no further updates after observer is disposed', () => {
         const editor = MonacoFake.editor('x\ny');
-        const ob = EditorHidden.observeAreas(editor);
+        const ob = EditorHidden.observe(editor);
         ob.dispose();
 
         EditorHidden.foldRange(editor, 1); // ← would fold line 1.
@@ -123,7 +123,7 @@ describe('Monaco.Hidden', () => {
 
       it('notifies live observers', () => {
         const editor = MonacoFake.editor('x\ny\nz');
-        const ob = EditorHidden.observeAreas(editor);
+        const ob = EditorHidden.observe(editor);
 
         EditorHidden.foldRange(editor, 2, 3); //  ← hide "y", "z".
         expect(ob.areas).to.have.length(1);
