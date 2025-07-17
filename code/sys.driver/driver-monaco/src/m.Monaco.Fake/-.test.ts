@@ -48,6 +48,8 @@ describe('MonacoFake (Mock)', () => {
     it('creates from source', () => {
       const src = 'foo: bar';
       const editor = MonacoFake.editor(src);
+      const model = editor.getModel();
+      expect(model?.getValue()).to.eql(src);
     });
 
     it('notifies cursor listeners on setPosition', () => {
