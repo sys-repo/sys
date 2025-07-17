@@ -89,7 +89,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
     <Monaco.Dev.PathView
       path={selectedPath}
       theme={theme.name}
-      style={{ Absolute: [-25, 17, null, 12] }}
+      style={{ Absolute: [-25, 14, null, 14] }}
     />
   );
 
