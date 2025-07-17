@@ -10,7 +10,7 @@ describe('Monaco:Yaml Tools', () => {
     msg: hello
     count: 123
   `.slice(1);
-      const model = MonacoFake.model(yaml);
+      const model = MonacoFake.model(yaml, { language: 'yaml' });
       const editor = MonacoFake.editor(model);
       const ob = EditorYaml.watchPath(editor);
 

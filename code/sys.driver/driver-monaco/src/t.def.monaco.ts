@@ -9,10 +9,13 @@ export namespace Monaco {
   export type Monaco = typeof monaco;
 
   /** Convenience aliases for common editor types. */
-  export type Editor = editor.IStandaloneCodeEditor;
   export type Selection = monaco.Selection;
+  export type Position = monaco.Position;
+
+  export type Editor = editor.IStandaloneCodeEditor;
   export type TextModel = editor.ITextModel;
 
+  // Interfaces:
   export type IDisposable = monaco.IDisposable;
   export type IPosition = monaco.IPosition;
   export type IModelContentChangedEvent = editor.IModelContentChangedEvent;

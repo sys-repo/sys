@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Minimal `ITextModel` mock.
  */
-export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
+export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   let text = src;
   let version = 1;
   let language: t.EditorLanguage = 'UNKNOWN';
@@ -92,5 +92,9 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
     __setLanguageId,
   };
 
-  return api as t.FakeTextModelExtended;
+  /**
+   * Initialize:
+   */
+  if (options.language) __setLanguageId(options.language);
+  return api as t.FakeTextModelFull;
 };

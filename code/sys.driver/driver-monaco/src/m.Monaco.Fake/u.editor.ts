@@ -41,6 +41,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
    * API:
    */
   const api: t.FakeEditor = {
+    getPosition: () => position as t.Monaco.Position,
     getModel: () => model as unknown as t.Monaco.TextModel,
     onDidChangeCursorPosition,
     setPosition,

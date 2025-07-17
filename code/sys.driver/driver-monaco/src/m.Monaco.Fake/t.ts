@@ -6,13 +6,14 @@ type StringSourceCode = string;
  * Minimal Monaco-editor test fakes.
  */
 export type FakeMonacoLib = Readonly<{
-  model(src: StringSourceCode): t.FakeTextModelExtended;
+  model(src: StringSourceCode, options?: { language?: t.EditorLanguage }): t.FakeTextModelFull;
   editor(model?: t.FakeTextModel | StringSourceCode): t.Monaco.Editor;
 }>;
 
 /**
  * Minimal `ITextModel` mock.
  */
+export type FakeTextModelFull = t.Monaco.TextModel & t.FakeTextModel;
 export type FakeTextModel = Pick<
   t.Monaco.TextModel,
   | 'getValue'
@@ -28,12 +29,10 @@ export type FakeTextModel = Pick<
   __setLanguageId(next: t.EditorLanguage): void;
 };
 
-export type FakeTextModelExtended = t.Monaco.TextModel & t.FakeTextModel;
-
 /**
  * Minimal `IStandaloneCodeEditor` fake:
  */
 export type FakeEditor = Pick<
   t.Monaco.Editor,
-  'getModel' | 'setPosition' | 'onDidChangeCursorPosition'
+  'getModel' | 'getPosition' | 'setPosition' | 'onDidChangeCursorPosition'
 >;
