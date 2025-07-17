@@ -36,7 +36,7 @@ export type EditorCaret = t.Lifecycle & {
   readonly id: string;
   readonly color: string;
   readonly opacity: number;
-  readonly selections: t.EditorRange[];
+  readonly selections: t.Monaco.IRange[];
   readonly disposed: boolean;
   change(args: EditorCaretChangeArgs): EditorCaret;
   eq(args: EditorCaretChangeArgs): boolean;
@@ -52,6 +52,6 @@ export type EditorCaretChangeArgs = {
 /** Caret changed event data. */
 export type EditorCaretChanged = {
   id: string;
-  current: t.EditorRange[];
+  current: t.Monaco.IRange[];
   disposed: boolean;
 };

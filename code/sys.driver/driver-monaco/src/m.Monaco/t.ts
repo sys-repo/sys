@@ -1,4 +1,3 @@
-// import React from '@types/react';
 import type { t } from './common.ts';
 
 /**
@@ -21,9 +20,9 @@ export type MonacoLib = Readonly<{
  * Boolean flag evalutators for the Monaco UI library.
  */
 export type MonacoIsLib = Readonly<{
-  editorRange(input: unknown): input is t.EditorRange;
+  editorRange(input: unknown): input is t.Monaco.IRange;
   charPositionTuple(input: any): input is t.CharPositionTuple;
-  nullRange(input: t.EditorRange): boolean;
+  nullRange(input: t.Monaco.IRange): boolean;
   singleCharRange(input: t.EditorRangeInput): boolean;
   rangeWithinString(input: t.EditorRangeInput, text: string): boolean;
 }>;

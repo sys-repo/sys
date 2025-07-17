@@ -5,7 +5,7 @@ export const Range = {
   /**
    * Convert input to editor range.
    */
-  asRange(input: t.EditorRangeInput): t.EditorRange {
+  asRange(input: t.EditorRangeInput): t.Monaco.IRange {
     if (!input) {
       return { ...D.NULL_RANGE };
     }
@@ -35,12 +35,12 @@ export const Range = {
   /**
    * Collection of ranges.
    */
-  asRanges(input?: t.EditorRangesInput): t.EditorRange[] {
+  asRanges(input?: t.EditorRangesInput): t.Monaco.IRange[] {
     if (!input) return [];
 
-    type V = t.EditorRange | t.CharPositionTuple;
+    type V = t.Monaco.IRange | t.CharPositionTuple;
     const isValue = (value: V) => MonacoIs.editorRange(value) || MonacoIs.charPositionTuple(value);
-    const toRange = (value: V): t.EditorRange => {
+    const toRange = (value: V): t.Monaco.IRange => {
       if (MonacoIs.editorRange(value)) return value;
       if (MonacoIs.charPositionTuple(value)) {
         return {
@@ -63,7 +63,7 @@ export const Range = {
   /**
    * Convert to the start of the range.
    */
-  toRangeStart(input: t.EditorRange): t.EditorRange {
+  toRangeStart(input: t.Monaco.IRange): t.Monaco.IRange {
     return {
       startLineNumber: input.startLineNumber,
       startColumn: input.startColumn,
@@ -75,7 +75,7 @@ export const Range = {
   /**
    * Convert to end of the range.
    */
-  toRangeEnd(input: t.EditorRange): t.EditorRange {
+  toRangeEnd(input: t.Monaco.IRange): t.Monaco.IRange {
     return {
       startLineNumber: input.endLineNumber,
       startColumn: input.endColumn,

@@ -19,6 +19,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const setHiddenAreas = (next: t.Monaco.IRange[]) => {
     const same =
       next.length === hiddenAreas.length &&
+      next.every((r, i) => JSON.stringify(r) === JSON.stringify(hiddenAreas[i]));
     if (same) return;
     hiddenAreas = next;
     foldSubs.forEach((fn) => fn());

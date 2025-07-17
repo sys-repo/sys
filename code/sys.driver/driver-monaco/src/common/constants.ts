@@ -15,7 +15,7 @@ const languages: t.EditorLanguage[] = [
   'python',
 ];
 
-const NULL_RANGE: t.EditorRange = {
+const NULL_RANGE: t.Monaco.IRange = {
   startLineNumber: -1,
   startColumn: -1,
   endLineNumber: -1,

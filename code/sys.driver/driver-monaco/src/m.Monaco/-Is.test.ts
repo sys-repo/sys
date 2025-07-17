@@ -15,7 +15,7 @@ describe('Is', () => {
       expect(res).to.eql(expected);
     };
 
-    const range: t.EditorRange = {
+    const range: t.Monaco.IRange = {
       startLineNumber: 1,
       startColumn: 1,
       endLineNumber: 1,

@@ -20,7 +20,7 @@ export const Caret = {
     let _color = options.color ?? Color.next();
     let _opacity = 0.6;
     let _refs: string[] = [];
-    let _selections: t.EditorRange[] = [];
+    let _selections: t.Monaco.IRange[] = [];
 
     const $ = new rx.Subject<t.EditorCaretChanged>();
     const fireChanged = () =>
@@ -44,7 +44,7 @@ export const Caret = {
       },
     } as const;
 
-    const updateSelections = (selections: t.EditorRange[]) => {
+    const updateSelections = (selections: t.Monaco.IRange[]) => {
       type D = t.Monaco.IModelDeltaDecoration;
       const decorations = selections.reduce((acc, next) => {
         acc.push({
@@ -64,7 +64,7 @@ export const Caret = {
       _selections = selections;
     };
 
-    const disposeOfLineOrphans = (selections: t.EditorRange[]) => {
+    const disposeOfLineOrphans = (selections: t.Monaco.IRange[]) => {
       const text = model.getValue();
       const lines = text.split('\n');
       selections.forEach((range) => {
