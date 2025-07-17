@@ -32,7 +32,7 @@ const REGEX = {
 /**
  * Parses an "import" module-specifier string.
  */
-export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
+export const parse: t.EsmLib['parse'] = (moduleSpecifier, alias) => {
   type T = t.EsmImport;
 
   const fail = (err: string) => done('', '', '', '', err);
@@ -50,6 +50,7 @@ export const parse: t.EsmLib['parse'] = (moduleSpecifier) => {
       name,
       subpath,
       version,
+      alias,
       error,
       toString: () => toString(api),
     };

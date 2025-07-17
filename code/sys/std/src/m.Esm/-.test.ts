@@ -46,6 +46,14 @@ describe('Jsr.Esm', () => {
       test('/foobar/mod.ts', '/foobar/mod.ts');
     });
 
+    it('name → alias', () => {
+      const a = Esm.parse('jsr:@foo/bar@1.2');
+      const b = Esm.parse('jsr:@foo/bar@1.2', 'my-alias');
+      expect(a.alias).to.eql(undefined);
+      expect(b.alias).to.eql('my-alias');
+      expect(b.name).to.eql('@foo/bar');
+    });
+
     it('version', () => {
       const test = (input: string, expectedVersion: string) => {
         const res = Esm.parse(input);
