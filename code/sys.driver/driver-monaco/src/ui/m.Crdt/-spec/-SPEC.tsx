@@ -85,8 +85,7 @@ export default Spec.describe(D.displayName, async (e) => {
         const path = v.selectedPath;
         const elPath = path.length > 0 && (
           <Monaco.Dev.PathView
-            //
-            prefix={'path:'}
+            prefix={'Monaco.Dev.PathView:'}
             path={v.selectedPath}
             theme={v.theme}
             style={{ Absolute: [null, 17, -30, 17] }}
