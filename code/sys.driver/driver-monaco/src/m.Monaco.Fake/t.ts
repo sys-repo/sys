@@ -20,6 +20,8 @@ export type FakeTextModel = Pick<
   | 'getOffsetAt'
   | 'getVersionId'
   | 'getLanguageId'
+  | 'getLineCount'
+  | 'getLineContent'
   //
   | 'setValue'
   //

@@ -96,6 +96,28 @@ describe('MonacoFake (Mock)', () => {
         expect(calls).to.equal(0);
       });
     });
+
+    describe('line helpers: count, content', () => {
+      it('returns the correct line count', () => {
+        const src = 'alpha\nbravo\ncharlie';
+        const model = MonacoFake.model(src);
+        expect(model.getLineCount()).to.equal(3);
+      });
+
+      it('returns the exact line content', () => {
+        const src = 'one\ntwo\nthree';
+        const model = MonacoFake.model(src);
+        expect(model.getLineContent(1)).to.equal('one');
+        expect(model.getLineContent(2)).to.equal('two');
+        expect(model.getLineContent(3)).to.equal('three');
+      });
+
+      it('returns an empty string for out-of-range lines', () => {
+        const src = 'foo\nbar';
+        const model = MonacoFake.model(src);
+        expect(model.getLineContent(5)).to.equal('');
+      });
+    });
   });
 
   describe('IStandaloneCodeEditor', () => {

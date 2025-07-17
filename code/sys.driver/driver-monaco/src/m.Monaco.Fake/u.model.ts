@@ -15,13 +15,34 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   const langListeners: Array<(e: t.Monaco.IModelLanguageChangedEvent) => void> = [];
 
   /**
-   * Helpers:
+   * Getters:
    */
   const getOffsetAt = ({ lineNumber, column }: t.Offset) => {
     const lines = text.split('\n');
     let offset = 0;
     for (let i = 0; i < lineNumber - 1; i++) offset += lines[i].length + 1;
     return offset + (column - 1);
+  };
+
+  /**
+   * Setters (Mutate):
+   */
+  const setValue = (next: string) => {
+    if (next === text) return; // no change → no event
+    text = next;
+    version += 1;
+    const evt = {} as t.Monaco.IModelContentChangedEvent; // minimal event
+    contentListeners.forEach((fn) => fn(evt));
+  };
+
+  const __setLanguageId = (next: t.EditorLanguage) => {
+    if (next === language) return; // no change → no event
+    const evt = {
+      oldLanguage: language,
+      newLanguage: next,
+    } as t.Monaco.IModelLanguageChangedEvent;
+    language = next as t.EditorLanguage;
+    langListeners.forEach((fn) => fn(evt));
   };
 
   /**
@@ -50,27 +71,6 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   };
 
   /**
-   * Mutators:
-   */
-  const setValue = (next: string) => {
-    if (next === text) return; // no change → no event
-    text = next;
-    version += 1;
-    const evt = {} as t.Monaco.IModelContentChangedEvent; // minimal event
-    contentListeners.forEach((fn) => fn(evt));
-  };
-
-  const __setLanguageId = (next: t.EditorLanguage) => {
-    if (next === language) return; // no change → no event
-    const evt = {
-      oldLanguage: language,
-      newLanguage: next,
-    } as t.Monaco.IModelLanguageChangedEvent;
-    language = next as t.EditorLanguage;
-    langListeners.forEach((fn) => fn(evt));
-  };
-
-  /**
    * API surface exposed to tests.
    */
   const api: t.FakeTextModel = {
@@ -79,16 +79,17 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     getOffsetAt,
     getVersionId: () => version,
     getLanguageId: () => language,
+    getLineCount: () => text.split('\n').length,
+    getLineContent: (lineNumber: number) => text.split('\n')[lineNumber - 1] ?? '',
 
-    /* Mutators */
+    /* Stters (Mutate): */
     setValue,
-    // setLanguageId,
 
-    /* Events */
+    /* Events: */
     onDidChangeContent,
     onDidChangeLanguage,
 
-    /** Mock API: */
+    /** Testing API: */
     __setLanguageId,
   };
 
