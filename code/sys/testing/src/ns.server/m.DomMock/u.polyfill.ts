@@ -19,6 +19,8 @@ export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
     document: win.document,
     MediaStream: win.MediaStream,
     MediaStreamTrack: win.MediaStreamTrack,
+    HTMLElement: win.HTMLElement,
+    self: globalThis, // AMD loader checks `self` (if that is ever used by tests).
   });
 };
 
