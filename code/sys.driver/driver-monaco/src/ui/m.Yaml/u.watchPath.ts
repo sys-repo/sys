@@ -65,7 +65,9 @@ export const watchPath: t.EditorYamlLib['watchPath'] = (editor, until) => {
    * API:
    */
   return rx.toLifecycle<t.EditorYamlPathObserver>(life, {
-    $,
+    get $() {
+      return $;
+    },
     get path() {
       return path;
     },

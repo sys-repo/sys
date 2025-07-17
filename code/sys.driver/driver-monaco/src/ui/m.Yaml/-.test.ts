@@ -38,6 +38,26 @@ describe('Monaco:Yaml Tools', () => {
       expect(ob.path).to.eql(['baz']);
     });
 
+    it('only tracks YAML (reset on other languages)', () => {
+      const yaml = `foo: 👋`;
+      const model = MonacoFake.model(yaml, { language: 'yaml' });
+      const editor = MonacoFake.editor(model);
+      const ob = EditorYaml.watchPath(editor);
+
+      const fired: t.EditorYamlPathObserverEvent[] = [];
+      ob.$.subscribe((e) => fired.push(e));
+
+      editor.setPosition({ lineNumber: 1, column: 6 });
+      expect(ob.path).to.eql(['foo']);
+
+      model.__setLanguageId('typescript');
+      expect(ob.path).to.eql([]);
+
+      expect(fired.length).to.eql(2);
+      expect(fired.at(-1)?.path).to.eql([]);
+      expect(fired.at(-1)?.cursor).to.eql({ offset: -1, position: { lineNumber: -1, column: -1 } });
+    });
+
     describe('dispose', () => {
       it('via method', () => {
         const editor = MonacoFake.editor('');
