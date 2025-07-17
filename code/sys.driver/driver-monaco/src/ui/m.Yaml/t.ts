@@ -24,5 +24,8 @@ export type EditorYamlPathObserverHandler = (e: EditorYamlPathObserverEvent) => 
 /** Event information about the current cursor/path. */
 export type EditorYamlPathObserverEvent = Readonly<{
   path: t.ObjectPath;
-  cursor: Readonly<{ position: t.Monaco.IPosition; offset: t.Index }>;
+  cursor: Readonly<{
+    position: t.Monaco.IPosition;
+    offset: t.Index;
+  }>;
 }>;
