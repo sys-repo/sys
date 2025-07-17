@@ -28,7 +28,7 @@ export type EditorHiddenLib = Readonly<{
   foldRange(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
 
   /**
-   * Reveal every line by wiping the editor’s hidden-area list.
+   * Reveal every line by wiping the editor's hidden-area list.
    *
    * @example
    *   Monaco.Hidden.clear(editor);
