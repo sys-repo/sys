@@ -1,6 +1,8 @@
 import { type t } from './common.ts';
 import { fakeModel } from './u.model.ts';
 
+type Range = t.Monaco.IRange;
+
 /**
  * Minimal `IStandaloneCodeEditor` fake.
  */
@@ -10,7 +12,33 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const cursorSubs: Array<(e: t.Monaco.ICursorPositionChangedEvent) => void> = [];
 
   /**
-   * Event Handlers:
+   * Code Folding:
+   */
+  let hiddenAreas: Range[] = [];
+  const foldSubs: Array<() => void> = [];
+
+  const getHiddenAreas = () => hiddenAreas;
+  const setHiddenAreas = (next: Range[]) => {
+    const same =
+      next.length === hiddenAreas.length &&
+      next.every((r, i) => JSON.stringify(r) === JSON.stringify(hiddenAreas[i]));
+    if (same) return;
+    hiddenAreas = next;
+    foldSubs.forEach((fn) => fn());
+  };
+
+  const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.IDisposable => {
+    foldSubs.push(listener);
+    return {
+      dispose() {
+        const i = foldSubs.indexOf(listener);
+        if (i >= 0) foldSubs.splice(i, 1);
+      },
+    };
+  };
+
+  /**
+   * Cursor Position:
    */
   type CursorChangeHandler = (e: t.Monaco.ICursorPositionChangedEvent) => void;
   const onDidChangeCursorPosition = (listener: CursorChangeHandler): t.Monaco.IDisposable => {
@@ -22,10 +50,6 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
       },
     };
   };
-
-  /**
-   * Methods:
-   */
   const setPosition = (pos: t.Offset) => {
     position = pos;
     const evt = {
@@ -43,10 +67,15 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const api: t.FakeEditor = {
     getPosition: () => position as t.Monaco.Position,
     getModel: () => model as unknown as t.Monaco.TextModel,
-    onDidChangeCursorPosition,
+    getHiddenAreas,
+    setHiddenAreas,
     setPosition,
+    trigger: () => void 0,
+    // Handlers:
+    onDidChangeHiddenAreas,
+    onDidChangeCursorPosition,
   };
-  return api as t.Monaco.Editor;
+  return api as t.FakeEditorFull;
 };
 
 /**

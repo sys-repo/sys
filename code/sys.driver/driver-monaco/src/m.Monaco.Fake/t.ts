@@ -7,7 +7,7 @@ type StringSourceCode = string;
  */
 export type FakeMonacoLib = Readonly<{
   model(src: StringSourceCode, options?: { language?: t.EditorLanguage }): t.FakeTextModelFull;
-  editor(model?: t.FakeTextModel | StringSourceCode): t.Monaco.Editor;
+  editor(model?: t.FakeTextModel | StringSourceCode): t.FakeEditorFull;
 }>;
 
 /**
@@ -34,7 +34,17 @@ export type FakeTextModel = Pick<
 /**
  * Minimal `IStandaloneCodeEditor` fake:
  */
+export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
 export type FakeEditor = Pick<
-  t.Monaco.Editor,
-  'getModel' | 'getPosition' | 'setPosition' | 'onDidChangeCursorPosition'
->;
+  t.Monaco.IStandaloneCodeEditor,
+  'getModel' | 'getPosition' | 'setPosition' | 'onDidChangeCursorPosition' | 'trigger'
+> & /**
+ * NB: ↓ folding helpers (not yet in the d.ts shipped before v0.34):
+ */ {
+  /** Current hidden (folded) ranges - expressed as model ranges. */
+  getHiddenAreas(): t.Monaco.IRange[];
+  /** Replace the hidden-area list (pass `[]` to reveal everything). */
+  setHiddenAreas(ranges: t.Monaco.IRange[]): void;
+  /** Fires after any fold/unfold (user action *or* `setHiddenAreas`). */
+  onDidChangeHiddenAreas(listener: () => void): t.Monaco.IDisposable;
+};

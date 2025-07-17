@@ -15,7 +15,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   const langListeners: Array<(e: t.Monaco.IModelLanguageChangedEvent) => void> = [];
 
   /**
-   * Getters:
+   * Getters (General):
    */
   const getOffsetAt = ({ lineNumber, column }: t.Offset) => {
     const lines = text.split('\n');
@@ -25,7 +25,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   };
 
   /**
-   * Setters (Mutate):
+   * Get/Set Language:
    */
   const setValue = (next: string) => {
     if (next === text) return; // no change → no event

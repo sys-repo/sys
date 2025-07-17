@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { MonacoFake } from './mod.ts';
 
 describe('MonacoFake (Mock)', () => {
@@ -121,38 +121,86 @@ describe('MonacoFake (Mock)', () => {
   });
 
   describe('IStandaloneCodeEditor', () => {
-    it('exposes its model', () => {
-      const model = MonacoFake.model('text');
-      const editor = MonacoFake.editor(model);
-      expect(editor.getModel()).to.equal(model);
+    describe('model', () => {
+      it('exposes its model', () => {
+        const model = MonacoFake.model('text');
+        const editor = MonacoFake.editor(model);
+        expect(editor.getModel()).to.equal(model);
+      });
+
+      it('creates from "src" string param ← auto model generation', () => {
+        const src = 'foo: bar';
+        const editor = MonacoFake.editor(src);
+        const model = editor.getModel();
+        expect(model?.getValue()).to.eql(src);
+      });
+
+      it('create with no param (default src="") ← auto model generation', () => {
+        const editor = MonacoFake.editor();
+        const model = editor.getModel();
+        expect(model?.getValue()).to.eql('');
+      });
     });
 
-    it('creates from source', () => {
-      const src = 'foo: bar';
-      const editor = MonacoFake.editor(src);
-      const model = editor.getModel();
-      expect(model?.getValue()).to.eql(src);
+    describe('cursor', () => {
+      it('event: notifies cursor listeners on setPosition', () => {
+        const model = MonacoFake.model('');
+        const editor = MonacoFake.editor(model);
+
+        let pos: { lineNumber: number; column: number } | undefined;
+        const sub = editor.onDidChangeCursorPosition((e) => (pos = e.position));
+
+        editor.setPosition({ lineNumber: 2, column: 5 });
+        expect(pos).to.eql({ lineNumber: 2, column: 5 });
+
+        sub.dispose(); // unsubscribe
+        editor.setPosition({ lineNumber: 3, column: 1 });
+        expect(pos).to.eql({ lineNumber: 2, column: 5 }); // NB: unchanged
+      });
     });
 
-    it('create with no param', () => {
-      const editor = MonacoFake.editor();
-      const model = editor.getModel();
-      expect(model?.getValue()).to.eql('');
-    });
+    describe('folding helpers (hidden areas)', () => {
+      const range: t.Monaco.IRange = {
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: 1,
+      };
 
-    it('notifies cursor listeners on setPosition', () => {
-      const model = MonacoFake.model('');
-      const editor = MonacoFake.editor(model);
+      it('starts with no hidden areas', () => {
+        const editor = MonacoFake.editor('');
+        expect(editor.getHiddenAreas()).to.eql([]);
+      });
 
-      let pos: { lineNumber: number; column: number } | undefined;
-      const sub = editor.onDidChangeCursorPosition((e) => (pos = e.position));
+      it('fires onDidChangeHiddenAreas when ranges change', () => {
+        const editor = MonacoFake.editor('one\ntwo\nthree');
+        let fired = 0;
+        editor.onDidChangeHiddenAreas(() => fired++);
+        editor.setHiddenAreas([range]);
+        expect(fired).to.equal(1);
+        expect(editor.getHiddenAreas()).to.eql([range]);
+      });
 
-      editor.setPosition({ lineNumber: 2, column: 5 });
-      expect(pos).to.eql({ lineNumber: 2, column: 5 });
+      it('is idempotent when the same ranges are passed', () => {
+        const editor = MonacoFake.editor('alpha\nbeta');
+        const r: t.Monaco.IRange = { ...range, endLineNumber: 2 }; // different range for clarity
+        let fired = 0;
+        editor.onDidChangeHiddenAreas(() => fired++);
+        editor.setHiddenAreas([r]);
+        editor.setHiddenAreas([r]); // same → no extra event
+        expect(fired).to.equal(1);
+      });
 
-      sub.dispose(); // unsubscribe
-      editor.setPosition({ lineNumber: 3, column: 1 });
-      expect(pos).to.eql({ lineNumber: 2, column: 5 }); // NB: unchanged
+      it('clears folds and emits when setHiddenAreas([]) is called', () => {
+        const editor = MonacoFake.editor('x\ny');
+        const r: t.Monaco.IRange = { ...range };
+        let fired = 0;
+        editor.onDidChangeHiddenAreas(() => fired++);
+        editor.setHiddenAreas([r]); // ← fold.
+        editor.setHiddenAreas([]); //  ← unfold.
+        expect(fired).to.equal(2);
+        expect(editor.getHiddenAreas()).to.eql([]);
+      });
     });
   });
 });
