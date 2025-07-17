@@ -1,10 +1,56 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Monaco } from '@sys/driver-monaco';
+import { Color, Dev, Signal, Spec } from '../../-test.ui.ts';
+
 import { MonacoEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MonacoEditor', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
+
+  function HostSubject() {
+    const v = Signal.toObject(p);
+    return (
+      <MonacoEditor
+        debug={v.debug}
+        theme={v.theme}
+        //
+        defaultValue={v.defaultValue}
+        placeholder={v.placeholder}
+        language={v.language}
+        //
+        enabled={v.enabled}
+        autoFocus={v.autoFocus}
+        minimap={v.minimap}
+        readOnly={v.readOnly}
+        tabSize={v.tabSize}
+        //
+        onReady={(e) => {
+          console.info(`⚡️ MonacoEditor.onReady:`, e);
+          p.editor.value = e.editor;
+          p.carets.value = e.carets;
+
+          // Listeners:
+          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
+          path.$.subscribe((e) => (p.selectedPath.value = e.path));
+        }}
+      />
+    );
+  }
+
+  function HostPath() {
+    const v = Signal.toObject(p);
+    if (v.selectedPath.length === 0) return null;
+    return (
+      <Monaco.Dev.PathView
+        prefix={'Monaco.Dev.PathView:'}
+        prefixColor={Color.CYAN}
+        path={v.selectedPath}
+        theme={v.theme}
+        style={{ Absolute: [null, 17, -30, 17] }}
+      />
+    );
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -19,30 +65,12 @@ export default Spec.describe('MonacoEditor', (e) => {
       .size('fill', 150)
       .display('grid')
       .render(() => {
-        const v = Signal.toObject(p);
-        if (!v.render) return null;
-
+        if (!p.render.value) return null;
         return (
-          <MonacoEditor
-            debug={v.debug}
-            theme={v.theme}
-            //
-            defaultValue={v.defaultValue}
-            placeholder={v.placeholder}
-            language={v.language}
-            //
-            enabled={v.enabled}
-            autoFocus={v.autoFocus}
-            minimap={v.minimap}
-            readOnly={v.readOnly}
-            tabSize={v.tabSize}
-            //
-            onReady={(e) => {
-              console.info(`⚡️ MonacoEditor.onReady:`, e);
-              p.editor.value = e.editor;
-              p.carets.value = e.carets;
-            }}
-          />
+          <>
+            <HostSubject />
+            <HostPath />
+          </>
         );
       });
   });

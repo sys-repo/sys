@@ -61,9 +61,6 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     render: s(true),
 
-    editor: s<t.Monaco.Editor>(),
-    carets: s<t.EditorCarets>(),
-
     enabled: s(snap.enabled),
     readOnly: s(snap.readOnly),
     autoFocus: s(snap.autoFocus),
@@ -73,6 +70,9 @@ export function createDebugSignals() {
     placeholder: s(snap.placeholder),
 
     defaultValue: s<P['defaultValue']>(),
+    editor: s<t.Monaco.Editor>(),
+    carets: s<t.EditorCarets>(),
+    selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
   const api = {

@@ -60,6 +60,8 @@ export async function createDebugSignals() {
     debounce: s(snap.debounce),
 
     editor: s<t.Monaco.Editor>(),
+    carets: s<t.EditorCarets>(),
+
     doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),
     selectedPath: s<t.ObjectPath>([]),

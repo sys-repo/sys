@@ -52,18 +52,38 @@ export default Spec.describe(D.displayName, async (e) => {
         key={`${v.path?.join('.')}`}
         debug={v.debug}
         theme={v.theme}
+        //
         language={v.language}
         autoFocus={true}
+        //
         onReady={(e) => {
-          /**
-           * READY:⚡️
-           */
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
+          p.carets.value = e.carets;
 
-          const pathObserver = Monaco.Yaml.observePath(e.editor, e.dispose$);
-          pathObserver.$.subscribe((e) => (p.selectedPath.value = e.path));
+          // Listeners:
+          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
+          path.$.subscribe((e) => (p.selectedPath.value = e.path));
+
+          const hidden = Monaco.Hidden.observe(e.editor);
+          hidden.$.subscribe((e) => {
+            console.log('⚡️ hidden', e);
+          });
         }}
+      />
+    );
+  }
+
+  function HostPath() {
+    const v = Signal.toObject(p);
+    if (v.selectedPath.length === 0) return null;
+    return (
+      <Monaco.Dev.PathView
+        prefix={'Monaco.Dev.PathView:'}
+        prefixColor={Color.CYAN}
+        path={v.selectedPath}
+        theme={v.theme}
+        style={{ Absolute: [null, 17, -30, 17] }}
       />
     );
   }
@@ -81,21 +101,10 @@ export default Spec.describe(D.displayName, async (e) => {
       .size('fill', 150)
       .display('grid')
       .render(() => {
-        const v = Signal.toObject(p);
-        const path = v.selectedPath;
-        const elPath = path.length > 0 && (
-          <Monaco.Dev.PathView
-            prefix={'Monaco.Dev.PathView:'}
-            prefixColor={Color.CYAN}
-            path={v.selectedPath}
-            theme={v.theme}
-            style={{ Absolute: [null, 17, -30, 17] }}
-          />
-        );
         return (
           <>
-            {elPath}
             <HostSubject />
+            <HostPath />
           </>
         );
       });
