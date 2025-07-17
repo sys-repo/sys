@@ -5,10 +5,15 @@ import { type t } from './common.ts';
  */
 export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
   let text = src;
+  let version = 1;
+
+  /**
+   * Registered content-change listeners.
+   */
   const listeners: Array<(e: t.Monaco.IModelContentChangedEvent) => void> = [];
 
   /**
-   * Methods (subset used by tests):
+   * Helpers
    */
   const getOffsetAt = ({ lineNumber, column }: t.Offset) => {
     const lines = text.split('\n');
@@ -28,21 +33,27 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
     };
   };
 
+  /**
+   * Mutators
+   */
   const setValue = (next: string) => {
+    if (next === text) return; // no change → no event
     text = next;
-    // NB: minimal event object – enough to satisfy the type system
-    const evt = {} as t.Monaco.IModelContentChangedEvent;
+    version += 1;
+    const evt = {} as t.Monaco.IModelContentChangedEvent; // minimal event
     listeners.forEach((fn) => fn(evt));
   };
 
   /**
-   * API:
+   * API surface exposed to tests.
    */
   const api: t.FakeModel = {
     getValue: () => text,
     setValue,
     getOffsetAt,
     onDidChangeContent,
+    getVersionId: () => version,
   };
+
   return api as t.Monaco.TextModel;
 };

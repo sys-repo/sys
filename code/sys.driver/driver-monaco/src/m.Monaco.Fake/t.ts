@@ -15,7 +15,7 @@ export type FakeMonacoLib = Readonly<{
  */
 export type FakeModel = Pick<
   t.Monaco.TextModel,
-  'getValue' | 'setValue' | 'getOffsetAt' | 'onDidChangeContent'
+  'getValue' | 'setValue' | 'getOffsetAt' | 'onDidChangeContent' | 'getVersionId'
 >;
 
 /**

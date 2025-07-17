@@ -8,33 +8,58 @@ describe('MonacoFake (Mock)', () => {
   });
 
   describe('ITextModel', () => {
-    it('returns and mutates text via getValue / setValue', () => {
-      const model = MonacoFake.model('foo');
-      expect(model.getValue()).to.equal('foo');
+    describe('get/set value', () => {
+      it('returns and mutates text via getValue / setValue', () => {
+        const model = MonacoFake.model('foo');
+        expect(model.getValue()).to.equal('foo');
 
-      model.setValue('bar');
-      expect(model.getValue()).to.equal('bar');
+        model.setValue('bar');
+        expect(model.getValue()).to.equal('bar');
+      });
+
+      it('fires onDidChangeContent subscribers exactly once per change', () => {
+        const model = MonacoFake.model('x');
+        let calls = 0;
+        const sub = model.onDidChangeContent(() => calls++);
+
+        model.setValue('y');
+        model.setValue('z');
+        expect(calls).to.equal(2);
+
+        sub.dispose(); // Unsubscribe.
+        model.setValue('zz');
+        expect(calls).to.equal(2); // No further notifications.
+      });
     });
 
-    it('fires onDidChangeContent subscribers exactly once per change', () => {
-      const model = MonacoFake.model('x');
-      let calls = 0;
-      const sub = model.onDidChangeContent(() => calls++);
-
-      model.setValue('y');
-      model.setValue('z');
-      expect(calls).to.equal(2);
-
-      sub.dispose(); // Unsubscribe.
-      model.setValue('zz');
-      expect(calls).to.equal(2); // No further notifications.
+    describe('getOffsetAt', () => {
+      it('maps (line, column) to absolute offset', () => {
+        const model = MonacoFake.model('a\nbc\n1234');
+        expect(model.getOffsetAt({ lineNumber: 1, column: 1 })).to.equal(0); // 'a'
+        expect(model.getOffsetAt({ lineNumber: 2, column: 2 })).to.equal(3); // 'c'
+        expect(model.getOffsetAt({ lineNumber: 3, column: 4 })).to.equal(8); // '4'
+      });
     });
 
-    it('maps (line, column) to absolute offset', () => {
-      const model = MonacoFake.model('a\nbc\n1234');
-      expect(model.getOffsetAt({ lineNumber: 1, column: 1 })).to.equal(0); // 'a'
-      expect(model.getOffsetAt({ lineNumber: 2, column: 2 })).to.equal(3); // 'c'
-      expect(model.getOffsetAt({ lineNumber: 3, column: 4 })).to.equal(8); // '4'
+    describe('fakeModel.getVersionId', () => {
+      it('increments only when the text actually changes', () => {
+        const model = MonacoFake.model('foo');
+
+        // Initial version starts at 1.
+        expect(model.getVersionId()).to.eql(1);
+
+        // Writing the same value → no version bump.
+        model.setValue('foo');
+        expect(model.getVersionId()).to.eql(1);
+
+        // First real change.
+        model.setValue('bar');
+        expect(model.getVersionId()).to.eql(2);
+
+        // Second real change.
+        model.setValue('baz');
+        expect(model.getVersionId()).to.eql(3);
+      });
     });
   });
 
