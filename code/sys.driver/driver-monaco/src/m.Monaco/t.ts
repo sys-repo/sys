@@ -9,6 +9,7 @@ export type MonacoLib = Readonly<{
   Carets: t.EditorCaretsLib;
   Crdt: t.EditorCrdtLib;
   Yaml: t.EditorYamlLib;
+  Hidden: t.EditorHiddenLib;
   useBinding: t.UseEditorCrdtBinding;
 }>;
 

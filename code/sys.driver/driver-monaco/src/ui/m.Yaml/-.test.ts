@@ -1,7 +1,7 @@
 import { type t, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
 import { EditorYaml } from './mod.ts';
 
-describe('Monaco:Yaml Tools', () => {
+describe('Monaco.Yaml', () => {
   describe('Yaml.watchPath', () => {
     it('emits the expected path when the caret moves', () => {
       const yaml = `

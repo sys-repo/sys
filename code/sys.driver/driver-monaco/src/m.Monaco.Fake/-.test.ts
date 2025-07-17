@@ -1,4 +1,5 @@
 import { type t, describe, expect, it } from '../-test.ts';
+import { Monaco } from '@sys/driver-monaco';
 import { MonacoFake } from './mod.ts';
 
 describe('MonacoFake (Mock)', () => {
