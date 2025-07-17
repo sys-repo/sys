@@ -41,7 +41,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
    * API:
    */
   const api: t.FakeEditor = {
-    getModel: () => model as t.Monaco.TextModel,
+    getModel: () => model as unknown as t.Monaco.TextModel,
     onDidChangeCursorPosition,
     setPosition,
   };
@@ -52,7 +52,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
  * Helpers:
  */
 const wrangle = {
-  model(input: t.FakeModel | string = ''): t.FakeModel {
+  model(input: t.FakeTextModel | string = ''): t.FakeTextModel {
     return typeof input === 'string' ? fakeModel(input) : input;
   },
 } as const;

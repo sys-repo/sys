@@ -41,7 +41,7 @@ describe('MonacoFake (Mock)', () => {
       });
     });
 
-    describe('fakeModel.getVersionId', () => {
+    describe('getVersionId', () => {
       it('increments only when the text actually changes', () => {
         const model = MonacoFake.model('foo');
 
@@ -59,6 +59,41 @@ describe('MonacoFake (Mock)', () => {
         // Second real change.
         model.setValue('baz');
         expect(model.getVersionId()).to.eql(3);
+      });
+    });
+
+    describe('language id', () => {
+      it('defaults to "plaintext"', () => {
+        const model = MonacoFake.model('text');
+        expect(model.getLanguageId()).to.eql('UNKNOWN');
+      });
+
+      it('setLanguageId updates value and fires onDidChangeLanguage exactly once', () => {
+        const model = MonacoFake.model('code');
+        let calls = 0;
+
+        const sub = model.onDidChangeLanguage((e) => {
+          calls++;
+          expect(e.oldLanguage).to.eql('UNKNOWN');
+          expect(e.newLanguage).to.eql('javascript');
+        });
+
+        model.__setLanguageId('javascript');
+        expect(model.getLanguageId()).to.eql('javascript');
+        expect(calls).to.eql(1);
+
+        sub.dispose(); // Unsubscribe.
+        model.__setLanguageId('typescript');
+        expect(calls).to.eql(1); // No further notifications.
+      });
+
+      it('ignores no-op setLanguageId calls (same id)', () => {
+        const model = MonacoFake.model('code');
+        let calls = 0;
+        model.onDidChangeLanguage(() => calls++);
+
+        model.__setLanguageId('UNKNOWN'); // same as current
+        expect(calls).to.equal(0);
       });
     });
   });
