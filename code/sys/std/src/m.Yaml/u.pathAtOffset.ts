@@ -13,15 +13,14 @@ export const pathAtOffset: t.YamlLib['pathAtOffset'] = (node, offset, path = [])
 
   /**
    * If `node` is a scalar it has no children, so the current `path` is final.
-   *
    * YAML → JS scalar mapping:
-   * - `null`
-   * - `boolean`
-   * - `number`
-   * - `string`
-   * - `bigint`      ← (when `intAsBigInt: true`)
-   * - `Date`        ← (for `!!timestamp`)
-   * - `Uint8Array`  ← (for `!!binary`)
+   *  - `null`
+   *  - `boolean`
+   *  - `number`
+   *  - `string`
+   *  - `bigint`      ← (when `intAsBigInt: true`)
+   *  - `Date`        ← (for `!!timestamp`)
+   *  - `Uint8Array`  ← (for `!!binary`)
    */
   if (isScalar(node as Y.Scalar)) return path;
 
@@ -36,7 +35,7 @@ export const pathAtOffset: t.YamlLib['pathAtOffset'] = (node, offset, path = [])
   }
 
   /**
-   * {Maps}:
+   * { Maps }:
    */
   if (isMap(node as Y.YAMLMap)) {
     for (const pair of (node as Y.YAMLMap).items as YAMLPair[]) {
