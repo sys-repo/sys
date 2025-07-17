@@ -14,6 +14,8 @@ export namespace Monaco {
   export type TextModel = editor.ITextModel;
 
   // export type ISelection = monaco.ISelection;
+  export type IDisposable = monaco.IDisposable;
   export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
   export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
+  export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
 }

@@ -25,3 +25,9 @@ export type { DevCtx } from '@sys/ui-react-devharness/t';
  * @local
  */
 export type * from '../types.ts';
+
+/**
+ * Sundry:
+ */
+export type Offset = { lineNumber: number; column: number };
+export type DisposeFn = () => void;
