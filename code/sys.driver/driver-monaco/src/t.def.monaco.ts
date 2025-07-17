@@ -18,8 +18,11 @@ export namespace Monaco {
   // Interfaces:
   export type IDisposable = monaco.IDisposable;
   export type IPosition = monaco.IPosition;
+  export type IRange = monaco.IRange;
   export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
   export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
   export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
   export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
+  export type ICodeEditor = editor.ICodeEditor;
+  export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
 }
