@@ -51,7 +51,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button onMouse={(e) => setOver(e.isOver)} onClick={props.onClick}>
+      <Button onMouse={(e) => setOver(e.is.over)} onClick={props.onClick}>
         <div className={styles.body.class}>
           <div className={styles.button.label.class}>{label}</div>
           <Chevron item={item} color={color} theme={theme.name} />

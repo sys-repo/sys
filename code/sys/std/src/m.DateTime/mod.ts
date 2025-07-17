@@ -1,6 +1,6 @@
 /**
- * @module
  * Module: Tools for working with Date's and Time.
+ * @module
  *
  * @example
  * ```ts

@@ -1,4 +1,5 @@
 import { type t, describe, DomMock, expect, it } from '../-test.ts';
+import { UserHas } from '../m.Events/mod.ts';
 import { Event } from './m.Dom.Event.ts';
 import { Dom } from './mod.ts';
 
@@ -13,6 +14,7 @@ describe(
 
     it('API', () => {
       expect(Dom.Event).to.equal(Event);
+      expect(Dom.UserHas).to.equal(UserHas);
     });
 
     describe('Dom.Event', () => {

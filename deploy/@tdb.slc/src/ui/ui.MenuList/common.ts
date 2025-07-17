@@ -7,7 +7,7 @@ export * from '../common.ts';
 const name = 'MenuList';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   selected: undefined,
 } as const;
 export const D = DEFAULTS;

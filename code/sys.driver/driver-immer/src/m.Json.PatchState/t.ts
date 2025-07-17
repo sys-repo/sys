@@ -42,13 +42,17 @@ export type PatchState<T extends O, E = PatchStateEvents<T>> = t.ImmutableRef<T,
 };
 
 /**
- * Event API
+ * Event API:
  *    Basic observable/disposable event provider firing
  *    the core stream of JSON-Patches emitted when the
  *    change(fn) method updates the current immutable state.
+ *
+ * The `patch$` observable provides more of the `immer` patch details
+ * beyond the generalised `$` base immutable event, which contains
+ * the basic patch info only.
  */
 export type PatchStateEvents<T extends O> = t.ImmutableEvents<T, P> & {
-  readonly $: t.Observable<t.PatchChange<T>>;
+  readonly patch$: t.Observable<t.PatchChange<T>>;
 };
 
 /**

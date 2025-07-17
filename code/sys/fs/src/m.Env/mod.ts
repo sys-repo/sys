@@ -1,6 +1,6 @@
 /**
- * @module
  * Helpers for retrieveing environment variables (aka. "secrets").
+ * @module
  *
  * @example
  * ```ts
@@ -12,8 +12,9 @@
  */
 import * as DotEnv from '@std/dotenv';
 import type { t } from '../common.ts';
+import type { EnvLib } from './t.ts';
 
-export const Env: t.EnvLib = {
+export const Env: EnvLib = {
   /**
    * Creates a reader for accessing env-vars.
    */

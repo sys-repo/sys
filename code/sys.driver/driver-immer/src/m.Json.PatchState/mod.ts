@@ -1,7 +1,7 @@
 /**
- * @module
  * Simple/safe JSON/Patch driven Immutable<T> object
  * using Immer as the underlying immutability implementation.
+ * @module
  *
  * @example
  * ```ts

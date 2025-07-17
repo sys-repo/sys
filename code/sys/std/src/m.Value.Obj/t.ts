@@ -1,8 +1,6 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-type PathArray = (string | number)[];
-type KeyMap = { [key: string]: any };
 
 /** An object extended with additional properties. */
 export type ObjExtend<T extends object, U extends object> = T & U;
@@ -11,6 +9,14 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Tools for working with objects.
  */
 export type ObjLib = {
+  eql: t.RLib['equals'];
+
+  /** Tool for working with JSON safely. */
+  readonly Json: t.JsonLib;
+
+  /** Tools for working with objects via abstract path arrays. */
+  readonly Path: t.ObjPathLib;
+
   /**
    * Walks an object tree (recursive descent) implementing
    * a visitor callback for each item.
@@ -27,7 +33,7 @@ export type ObjLib = {
    */
   trimStringsDeep<T extends Record<string, any>>(
     obj: T,
-    options?: { maxLength?: number; ellipsis?: boolean; immutable?: boolean },
+    options?: { maxLength?: number; ellipsis?: boolean; immutable?: boolean } | number,
   ): T;
 
   /**
@@ -36,38 +42,14 @@ export type ObjLib = {
   pick<T extends O>(subject: T, ...fields: (keyof T)[]): T;
 
   /**
-   * Builds an object from the given path
-   * (shallow or a period seperated deep path).
-   */
-  build<T>(
-    keyPath: string,
-    root: { [key: string]: any },
-    value?: any, // Optional.  Value to set, defaults to {}.
-  ): T;
-
-  /**
-   * Walks the given (period seperated) key-path to retrieve a value.
-   */
-  pluck<T>(keyPath: string, root: { [key: string]: any }): T;
-
-  /**
-   * Remove values from the given object.
-   */
-  remove(
-    keyPath: string,
-    root: { [key: string]: any },
-    options?: { type?: 'LEAF' | 'PRUNE' },
-  ): KeyMap;
-
-  /**
-   * Prunes values on the given period seperated key-path from an object.
-   */
-  prune(keyPath: string, root: { [key: string]: any }): KeyMap;
-
-  /**
    * Typed variant of the native [Object.keys].
    */
   keys<T extends object>(obj?: T): Array<keyof T>;
+
+  /**
+   * Retrieve a typed JS-entries collection for the given object.
+   */
+  entries<T extends object>(obj: T): [keyof T, T[keyof T]][];
 
   /**
    * Sort the keys of an object.
@@ -105,7 +87,7 @@ export type ObjWalkCallback = (e: ObjWalkCallbackArgs) => void;
 /** Arguments for a walker callback. */
 export type ObjWalkCallbackArgs = {
   readonly parent: object | any[];
-  readonly path: PathArray;
+  readonly path: t.ObjectPath;
   readonly key: string | number;
   readonly value: any;
   stop(): void;

@@ -1,6 +1,6 @@
 /**
- * @module
  * Library of common `<React>` components.
+ * @module
  */
 export { pkg } from './pkg.ts';
 
@@ -11,8 +11,10 @@ export type * as t from './types.ts';
  * Components:
  */
 export { Bullet } from './ui/Bullet/mod.ts';
-export { Switch } from './ui/Button.Switch/mod.ts';
 export { Button } from './ui/Button/mod.ts';
+export { IconButtons } from './ui/Buttons.Icons/mod.ts';
+export { Switch, SwitchTheme } from './ui/Buttons.Switch/mod.ts';
+export { Buttons } from './ui/Buttons/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
@@ -24,9 +26,9 @@ export { PropsGrid } from './ui/PropsGrid/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
+export { TextInput } from './ui/Text.Input/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';
-export { VideoPlayer } from './ui/Player.Video/mod.ts';
 export { Player } from './ui/Player/mod.ts';
 export { VimeoBackground } from './ui/VimeoBackground/mod.ts';

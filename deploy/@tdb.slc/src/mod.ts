@@ -1,6 +1,6 @@
 /**
- * @module
  * The "Social Lean Canvas" product system.
+ * @module
  */
 export { pkg } from './pkg.ts';
 

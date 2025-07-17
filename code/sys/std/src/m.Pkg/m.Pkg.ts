@@ -1,17 +1,23 @@
+import type { PkgLib } from './t.ts';
+
 import { type t, DEFAULTS, isObject, isRecord } from './common.ts';
 import { Dist } from './m.Dist.ts';
 import { Is } from './m.Is.ts';
 
 const UNKNOWN = DEFAULTS.UNKNOWN;
 
-export const Pkg: t.PkgLib = {
+export const Pkg: PkgLib = {
   Is,
   Dist,
 
-  toString(pkg, suffix) {
+  toString(pkg, suffix, input) {
+    const options = wrangle.toStringOptions(input);
     if (!pkg || !isObject(pkg)) return Pkg.toString(UNKNOWN);
+
     const { name = UNKNOWN.name, version = UNKNOWN.version } = pkg;
-    let res = `${name}@${version}`;
+    let res = name;
+    if (options.version ?? true) res += `@${version}`;
+
     if (typeof suffix === 'string') {
       suffix = suffix.trim().replace(/^\:+/, '').trimStart();
       if (suffix) res = `${res}:${suffix}`;
@@ -59,3 +65,14 @@ export const Pkg: t.PkgLib = {
       : Pkg.unknown();
   },
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  toStringOptions(input: Parameters<t.PkgLib['toString']>[2]): t.PkgToStringOptions {
+    if (input == null) return {};
+    if (typeof input === 'boolean') return { version: input };
+    return input;
+  },
+} as const;
