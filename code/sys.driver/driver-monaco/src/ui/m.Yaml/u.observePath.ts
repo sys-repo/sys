@@ -1,6 +1,6 @@
 import { type t, Yaml, rx } from './common.ts';
 
-export const watchPath: t.EditorYamlLib['watchPath'] = (editor, until) => {
+export const observePath: t.EditorYamlLib['observePath'] = (editor, until) => {
   const model = editor.getModel();
   if (!model) throw new Error('Editor has no model');
 

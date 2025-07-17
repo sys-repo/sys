@@ -59,7 +59,7 @@ export default Spec.describe(D.displayName, async (e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
 
-          const pathObserver = Monaco.Yaml.watchPath(e.editor, e.dispose$);
+          const pathObserver = Monaco.Yaml.observePath(e.editor, e.dispose$);
           pathObserver.$.subscribe((e) => (p.selectedPath.value = e.path));
         }}
       />

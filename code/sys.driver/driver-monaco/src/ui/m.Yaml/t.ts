@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type EditorYamlLib = Readonly<{
   /** Create a new `EditorYamlPathObserver`. */
-  watchPath(editor: t.Monaco.Editor, dispose$?: t.UntilInput): EditorYamlPathObserver;
+  observePath(editor: t.Monaco.Editor, dispose$?: t.UntilInput): EditorYamlPathObserver;
 }>;
 
 /**
