@@ -24,8 +24,5 @@ export type EditorYamlPathChangeHandler = (e: EditorYamlPathChange) => void;
 /** Event information about the current cursor/path. */
 export type EditorYamlPathChange = Readonly<{
   path: t.ObjectPath;
-  cursor: Readonly<{
-    position: t.Monaco.IPosition;
-    offset: t.Index;
-  }>;
+  cursor: Readonly<{ position: t.Monaco.IPosition; offset: t.Index }>;
 }>;
