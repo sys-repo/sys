@@ -1,3 +1,4 @@
+// import React from '@types/react';
 import type { t } from './common.ts';
 
 /**
@@ -11,6 +12,9 @@ export type MonacoLib = Readonly<{
   Yaml: t.EditorYamlLib;
   Hidden: t.EditorHiddenLib;
   useBinding: t.UseEditorCrdtBinding;
+  Dev: Readonly<{
+    PathView: React.FC<t.PathViewProps>;
+  }>;
 }>;
 
 /**

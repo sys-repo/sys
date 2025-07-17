@@ -88,6 +88,7 @@ export function createDebugSignals() {
     localStream: s<MediaStream>(),
     remoteStream: s<MediaStream>(),
     selectedStream: s<MediaStream>(),
+    selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
   const redraw = () => p.redraw.value++;

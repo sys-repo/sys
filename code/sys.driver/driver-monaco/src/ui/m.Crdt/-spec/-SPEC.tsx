@@ -7,7 +7,6 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 import { type t, Color, D } from '../common.ts';
 import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
-import { PathView } from './-ui.Path.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -56,6 +55,9 @@ export default Spec.describe(D.displayName, async (e) => {
         language={v.language}
         autoFocus={true}
         onReady={(e) => {
+          /**
+           * READY:
+           */
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
 
@@ -82,7 +84,7 @@ export default Spec.describe(D.displayName, async (e) => {
         const v = Signal.toObject(p);
         const path = v.selectedPath;
         const elPath = path.length > 0 && (
-          <PathView
+          <Monaco.Dev.PathView
             //
             prefix={'path:'}
             path={v.selectedPath}

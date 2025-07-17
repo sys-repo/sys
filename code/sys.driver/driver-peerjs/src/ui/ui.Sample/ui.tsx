@@ -1,9 +1,9 @@
 import React from 'react';
-import { type t, Avatar, Color, Crdt, css, D, ObjectView, P } from './common.ts';
+import { type t, Avatar, Color, Crdt, css, P } from './common.ts';
+import { Debug } from './ui.Debug.tsx';
+import { Fileshare } from './ui.Fileshare.tsx';
 import { Notes } from './ui.Notes.tsx';
 import { useAvatarController } from './use.AvatarController.ts';
-import { Fileshare } from './ui.Fileshare.tsx';
-import { Debug } from './ui.Debug.tsx';
 
 type P = t.SampleProps;
 
@@ -52,7 +52,7 @@ export const Sample: React.FC<P> = (props) => {
     }),
     body: {
       base: css({ position: 'relative' }),
-      inner: css({ Absolute: 0, overflow: 'hidden', display: 'grid' }),
+      inner: css({ Absolute: 0, display: 'grid' }),
     },
     debug: {
       base: css({ Padding: [30, 40] }),

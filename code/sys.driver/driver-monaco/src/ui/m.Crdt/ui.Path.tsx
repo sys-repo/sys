@@ -1,22 +1,10 @@
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
-
-export type PathViewProps = {
-  path?: t.ObjectPath;
-  prefix?: string;
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-};
-
-/**
- * TODO 🐷 move to <Monaco.Dev.ObjectPath>
- */
+import { type t, Color, css } from './common.ts';
 
 /**
  * Component:
  */
-export const PathView: React.FC<PathViewProps> = (props) => {
+export const PathView: React.FC<t.PathViewProps> = (props) => {
   const { path = [], prefix } = props;
 
   /**

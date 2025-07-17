@@ -3,4 +3,5 @@
  * @module
  */
 export { EditorCrdt } from './m.EditorCrdt.ts';
+export { PathView } from './ui.Path.tsx';
 export { useBinding } from './use.Binding.ts';
