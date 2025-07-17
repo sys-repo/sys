@@ -17,9 +17,8 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
     return offset + (column - 1);
   };
 
-  const onDidChangeContent = (
-    listener: (e: t.Monaco.IModelContentChangedEvent) => void,
-  ): t.Monaco.IDisposable => {
+  type ChangeHandler = (e: t.Monaco.IModelContentChangedEvent) => void;
+  const onDidChangeContent = (listener: ChangeHandler): t.Monaco.IDisposable => {
     listeners.push(listener);
     return {
       dispose() {
@@ -39,10 +38,11 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src) => {
   /**
    * API:
    */
-  return {
+  const api: t.FakeModel = {
     getValue: () => text,
     setValue,
     getOffsetAt,
     onDidChangeContent,
   };
+  return api as t.Monaco.TextModel;
 };

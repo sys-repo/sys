@@ -6,8 +6,8 @@ type StringSourceCode = string;
  * Minimal Monaco-editor test fakes.
  */
 export type FakeMonacoLib = Readonly<{
-  model(src: StringSourceCode): FakeModel;
-  editor(model: t.FakeModel | StringSourceCode): FakeEditor;
+  model(src: StringSourceCode): t.Monaco.TextModel;
+  editor(model: t.FakeModel | StringSourceCode): t.Monaco.Editor;
 }>;
 
 /**

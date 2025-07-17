@@ -9,9 +9,11 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   let position: t.Offset = { lineNumber: 1, column: 1 };
   const cursorSubs: Array<(e: t.Monaco.ICursorPositionChangedEvent) => void> = [];
 
-  const onDidChangeCursorPosition = (
-    listener: (e: t.Monaco.ICursorPositionChangedEvent) => void,
-  ): t.Monaco.IDisposable => {
+  /**
+   * Event Handlers:
+   */
+  type CursorChangeHandler = (e: t.Monaco.ICursorPositionChangedEvent) => void;
+  const onDidChangeCursorPosition = (listener: CursorChangeHandler): t.Monaco.IDisposable => {
     cursorSubs.push(listener);
     return {
       dispose() {
@@ -21,6 +23,9 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
     };
   };
 
+  /**
+   * Methods:
+   */
   const setPosition = (pos: t.Offset) => {
     position = pos;
     const evt = {
@@ -32,11 +37,15 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
     cursorSubs.forEach((fn) => fn(evt));
   };
 
-  return {
+  /**
+   * API:
+   */
+  const api: t.FakeEditor = {
     getModel: () => model as t.Monaco.TextModel,
     onDidChangeCursorPosition,
     setPosition,
   };
+  return api as t.Monaco.Editor;
 };
 
 /**
