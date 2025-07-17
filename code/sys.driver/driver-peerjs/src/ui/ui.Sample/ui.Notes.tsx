@@ -104,7 +104,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
         language={'yaml'}
         onReady={(e) => {
           setEditor(e.editor);
-          const path = Monaco.Yaml.observePath(e.editor, e.dispose$);
+          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
           path.$.subscribe((e) => setSelectedPath(e.path));
         }}
       />

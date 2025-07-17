@@ -4,8 +4,15 @@ import type { t } from './common.ts';
  * Tools for working with YAML in the code-editor.
  */
 export type EditorYamlLib = Readonly<{
+  Path: EditorYamlPathLib;
+}>;
+
+/**
+ * Tools for working with selection path's in YAML.
+ */
+export type EditorYamlPathLib = Readonly<{
   /** Create a new `EditorYamlPathObserver`. */
-  observePath(editor: t.Monaco.Editor, dispose$?: t.UntilInput): EditorYamlPathObserver;
+  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): EditorYamlPathObserver;
 }>;
 
 /**

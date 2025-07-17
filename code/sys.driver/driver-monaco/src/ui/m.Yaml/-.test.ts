@@ -5,7 +5,7 @@ describe('Monaco.Yaml', () => {
   describe('lifecycle', () => {
     it('dispose: via method', () => {
       const editor = MonacoFake.editor('');
-      const ob = EditorYaml.observePath(editor);
+      const ob = EditorYaml.Path.observe(editor);
       expect(ob.disposed).to.eql(false);
       ob.dispose();
       expect(ob.disposed).to.eql(true);
@@ -14,7 +14,7 @@ describe('Monaco.Yaml', () => {
     it('dispose: via dispose$', () => {
       const life = rx.disposable();
       const editor = MonacoFake.editor('');
-      const ob = EditorYaml.observePath(editor, life);
+      const ob = EditorYaml.Path.observe(editor, life);
       expect(ob.disposed).to.eql(false);
       life.dispose();
       expect(ob.disposed).to.eql(true);
@@ -31,7 +31,7 @@ describe('Monaco.Yaml', () => {
   `.slice(1);
       const model = MonacoFake.model(yaml, { language: 'yaml' });
       const editor = MonacoFake.editor(model);
-      const ob = EditorYaml.observePath(editor);
+      const ob = EditorYaml.Path.observe(editor);
 
       const fired: t.EditorYamlPathChange[] = [];
       ob.$.subscribe((e) => fired.push(e));
@@ -61,7 +61,7 @@ describe('Monaco.Yaml', () => {
       const yaml = `foo: 👋`;
       const model = MonacoFake.model(yaml, { language: 'yaml' });
       const editor = MonacoFake.editor(model);
-      const ob = EditorYaml.observePath(editor);
+      const ob = EditorYaml.Path.observe(editor);
 
       const fired: t.EditorYamlPathChange[] = [];
       ob.$.subscribe((e) => fired.push(e));
