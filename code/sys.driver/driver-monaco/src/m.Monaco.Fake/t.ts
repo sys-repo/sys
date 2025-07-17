@@ -38,5 +38,10 @@ export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
 export type FakeEditor = t.EditorHiddenMembers &
   Pick<
     t.Monaco.IStandaloneCodeEditor,
-    'getModel' | 'getPosition' | 'setPosition' | 'onDidChangeCursorPosition' | 'trigger'
+    | 'getModel'
+    | 'getPosition'
+    | 'setPosition'
+    | 'getVisibleRanges'
+    | 'onDidChangeCursorPosition'
+    | 'trigger'
   >;

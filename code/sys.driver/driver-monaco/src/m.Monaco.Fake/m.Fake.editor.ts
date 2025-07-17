@@ -1,7 +1,5 @@
-import { type t } from './common.ts';
-import { fakeModel } from './u.model.ts';
-
-type Range = t.Monaco.IRange;
+import { type t, Range } from './common.ts';
+import { fakeModel } from './m.Fake.model.ts';
 
 /**
  * Minimal `IStandaloneCodeEditor` fake.
@@ -14,19 +12,20 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   /**
    * Code Folding:
    */
-  let hiddenAreas: Range[] = [];
+  let hiddenAreas: t.Monaco.IRange[] = [];
   const foldSubs: Array<() => void> = [];
 
   const getHiddenAreas = () => hiddenAreas;
-  const setHiddenAreas = (next: Range[]) => {
+  const setHiddenAreas = (next: t.Monaco.IRange[]) => {
     const same =
       next.length === hiddenAreas.length &&
-      next.every((r, i) => JSON.stringify(r) === JSON.stringify(hiddenAreas[i]));
     if (same) return;
     hiddenAreas = next;
     foldSubs.forEach((fn) => fn());
   };
-
+  const getVisibleRanges = () => {
+    return Range.complement(model.getLineCount(), hiddenAreas) as t.Monaco.Range[];
+  };
   const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.IDisposable => {
     foldSubs.push(listener);
     return {
@@ -55,7 +54,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
     const evt = {
       position,
       secondaryPositions: null,
-      reason: 0, // CursorChangeReason.NotSet
+      reason: 0, // ← CursorChangeReason.NotSet
       source: 'keyboard',
     } as unknown as t.Monaco.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
@@ -65,12 +64,17 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
    * API:
    */
   const api: t.FakeEditor = {
+    // Getters:
     getPosition: () => position as t.Monaco.Position,
     getModel: () => model as unknown as t.Monaco.TextModel,
+    getVisibleRanges,
     getHiddenAreas,
+
+    // Setters (Mutate):
     setHiddenAreas,
     setPosition,
     trigger: () => void 0,
+
     // Handlers:
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,

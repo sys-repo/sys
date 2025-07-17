@@ -1,5 +1,5 @@
 import { type t, rx } from './common.ts';
-import { calcHidden } from './u.calc.ts';
+import { calcHiddenRanges } from './u.ts';
 
 export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
   const editor = ed as t.Monaco.Editor;
@@ -14,7 +14,7 @@ export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
   /**
    * Methods/State:
    */
-  const current = () => calcHidden(editor);
+  const current = () => calcHiddenRanges(editor);
   let areas: t.Monaco.IRange[] = current();
 
   /**

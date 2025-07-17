@@ -83,4 +83,52 @@ export const Range = {
       endColumn: input.endColumn,
     };
   },
+
+  /**
+   * Return the complement of `occupied` within the inclusive
+   * line-range: 1..lastLine.
+   *
+   * aka. the "visible gaps"
+   *
+   * If nothing is occupied we return a single range spanning
+   * the whole document.
+   */
+  complement(lastLine: number, occupied: t.Monaco.IRange[]): t.Monaco.IRange[] {
+    if (occupied.length === 0) {
+      return [
+        {
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: lastLine,
+          endColumn: 1,
+        },
+      ];
+    }
+
+    const sorted = [...occupied].sort((a, b) => a.startLineNumber - b.startLineNumber);
+    const gaps: t.Monaco.IRange[] = [];
+
+    let line = 1;
+    for (const r of sorted) {
+      if (line < r.startLineNumber) {
+        gaps.push({
+          startLineNumber: line,
+          startColumn: 1,
+          endLineNumber: r.startLineNumber - 1,
+          endColumn: 1,
+        });
+      }
+      line = r.endLineNumber + 1;
+    }
+
+    if (line <= lastLine) {
+      gaps.push({
+        startLineNumber: line,
+        startColumn: 1,
+        endLineNumber: lastLine,
+        endColumn: 1,
+      });
+    }
+    return gaps;
+  },
 } as const;
