@@ -11,7 +11,7 @@ export const observePath: t.EditorYamlLib['observePath'] = (editor, until) => {
     langSub.dispose();
   });
 
-  const $$ = rx.subject<t.EditorYamlPathObserverEvent>();
+  const $$ = rx.subject<t.EditorYamlPathChange>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
   // Keep the latest parse and the model version it belongs to.
@@ -88,7 +88,7 @@ const wrangle = {
   },
 } as const;
 
-const nullCursor = (): t.EditorYamlPathObserverEvent['cursor'] => {
+const nullCursor = (): t.EditorYamlPathChange['cursor'] => {
   return {
     offset: -1,
     position: { lineNumber: -1, column: -1 },
