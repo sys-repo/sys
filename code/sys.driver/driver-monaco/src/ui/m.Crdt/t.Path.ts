@@ -5,6 +5,7 @@ import { type t } from './common.ts';
  */
 export type PathViewProps = {
   path?: t.ObjectPath;
+  prefixColor?: string;
   prefix?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
