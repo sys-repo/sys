@@ -52,8 +52,7 @@
     "hash-it": "npm:hash-it@6.0.0",
     "ignore": "npm:ignore@7.0.5",
     "immer": "npm:immer@10",
-    "monaco-editor-core": "npm:monaco-editor-core@0.52.2",
-    "monaco-editor-core/": "npm:monaco-editor-core@0.52.2/",
+    "monaco-editor": "npm:monaco-editor@0.52.2",
     "ollama": "npm:ollama@0.5.16",
     "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@8.2.0",
@@ -84,8 +83,8 @@
     "ws": "npm:ws@8.18.3",
     "yaml": "npm:yaml@2.8.0",
     "yaml/types": "npm:yaml@2.8.0/types",
-    "zod": "npm:zod@4.0.5",
-    "zod/v4": "npm:zod@4.0.5/v4",
-    "zod/v4-mini": "npm:zod@4.0.5/v4-mini"
+    "zod": "npm:zod@^3.23.8",
+    "zod/v4": "npm:zod@^3.23.8/v4",
+    "zod/v4-mini": "npm:zod@^3.23.8/v4-mini"
   }
 }

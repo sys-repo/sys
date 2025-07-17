@@ -128,7 +128,7 @@ deno.json:
   - import: npm:ts-essentials@10.1.1
   - import: npm:yaml@2.8.0
     subpaths: [types]
-  - import: npm:zod@4.0.5
+  - import: npm:zod@^3.23.8
     subpaths: [v4, v4-mini]
 
   # Websockets:
@@ -148,8 +148,7 @@ deno.json:
   - import: npm:@preact/signals-react@3.2.1
   - import: npm:react-inspector@6.0.2
   - import: npm:@monaco-editor/react@4.7.0
-  - import: npm:monaco-editor-core@0.52.2
-    subpaths: [/]
+  - import: npm:monaco-editor@0.52.2
 
 package.json:
   - group: std/deno
