@@ -1,7 +1,16 @@
 import { type t, D } from './common.ts';
 import { MonacoIs } from './m.Is.ts';
 
-export const Range = {
+export const RangeUtil = {
+  eql(a: t.Monaco.IRange, b: t.Monaco.IRange): boolean {
+    return (
+      a.startLineNumber === b.startLineNumber &&
+      a.startColumn === b.startColumn &&
+      a.endLineNumber === b.endLineNumber &&
+      a.endColumn === b.endColumn
+    );
+  },
+
   /**
    * Convert input to editor range.
    */

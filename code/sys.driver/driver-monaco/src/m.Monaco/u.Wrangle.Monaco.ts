@@ -3,13 +3,13 @@ import type { t } from './common.ts';
 /**
  * Helpers that require the full Monaco API.
  */
-export const Monaco = {
+export const MonacoUtil = {
   offsets(monaco: t.Monaco.Monaco, editor: t.Monaco.Editor, selection: t.Monaco.Selection) {
     const { Range } = monaco;
     const model = editor.getModel();
     if (!model) throw new Error(`Editor did not return a text model.`);
 
-    const position = Monaco.position(monaco, selection);
+    const position = MonacoUtil.position(monaco, selection);
     const range = Range.fromPositions(position.start, position.end);
 
     return {

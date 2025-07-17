@@ -1,9 +1,9 @@
-import { Editor } from './u.Wrangle.Editor.ts';
-import { Monaco } from './u.Wrangle.Monaco.ts';
-import { Range } from './u.Wrangle.Range.ts';
+import { EditorUtil } from './u.Wrangle.Editor.ts';
+import { MonacoUtil } from './u.Wrangle.Monaco.ts';
+import { RangeUtil } from './u.Wrangle.Range.ts';
 
 export const Wrangle = {
-  Monaco,
-  Range,
-  Editor,
+  Monaco: MonacoUtil,
+  Range: RangeUtil,
+  Editor: EditorUtil,
 } as const;

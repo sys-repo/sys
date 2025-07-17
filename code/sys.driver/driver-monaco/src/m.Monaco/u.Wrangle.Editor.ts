@@ -3,7 +3,7 @@ import { type t, D } from './common.ts';
 /**
  * Helpers that examine an editor.
  */
-export const Editor = {
+export const EditorUtil = {
   className(editor?: t.Monaco.Editor) {
     let id = editor?.getId() ?? '';
     if (id.includes(':')) id = `instance-${id.split(':')[1]}`;
@@ -18,7 +18,7 @@ export const Editor = {
 
   content(editor: t.Monaco.Editor): t.EditorContent {
     const text = editor.getValue() || '';
-    const language = Editor.language(editor);
+    const language = EditorUtil.language(editor);
     return { text, language };
   },
 

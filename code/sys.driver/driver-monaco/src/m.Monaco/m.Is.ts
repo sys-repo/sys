@@ -1,5 +1,5 @@
 import { type t, D, Is, R } from './common.ts';
-import { Range } from './u.Wrangle.Range.ts';
+import { RangeUtil } from './u.Wrangle.Range.ts';
 
 export const MonacoIs: t.MonacoIsLib = {
   editorRange(input: any): input is t.Monaco.IRange {
@@ -24,12 +24,12 @@ export const MonacoIs: t.MonacoIsLib = {
   },
 
   singleCharRange(input: t.EditorRangeInput) {
-    const range = Range.asRange(input);
+    const range = RangeUtil.asRange(input);
     return range.startLineNumber === range.endLineNumber && range.startColumn === range.endColumn;
   },
 
   rangeWithinString(input: t.EditorRangeInput, text: string) {
-    const range = Range.asRange(input);
+    const range = RangeUtil.asRange(input);
     const lines = text.split('\n');
     const startLine = lines[range.startLineNumber - 1];
     const endLine = lines[range.endLineNumber - 1];

@@ -1,4 +1,4 @@
-import { type t, Range } from './common.ts';
+import { type t, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
 /**
@@ -19,13 +19,13 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const setHiddenAreas = (next: t.Monaco.IRange[]) => {
     const same =
       next.length === hiddenAreas.length &&
-      next.every((r, i) => JSON.stringify(r) === JSON.stringify(hiddenAreas[i]));
+      next.every((range, i) => RangeUtil.eql(range, hiddenAreas[i]));
     if (same) return;
     hiddenAreas = next;
     foldSubs.forEach((fn) => fn());
   };
   const getVisibleRanges = () => {
-    return Range.complement(model.getLineCount(), hiddenAreas) as t.Monaco.Range[];
+    return RangeUtil.complement(model.getLineCount(), hiddenAreas) as t.Monaco.Range[];
   };
   const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.IDisposable => {
     foldSubs.push(listener);
