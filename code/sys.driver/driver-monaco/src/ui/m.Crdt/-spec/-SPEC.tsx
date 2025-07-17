@@ -84,6 +84,7 @@ export default Spec.describe(D.displayName, async (e) => {
         const elPath = path.length > 0 && (
           <PathView
             //
+            prefix={'path:'}
             path={v.selectedPath}
             theme={v.theme}
             style={{ Absolute: [null, 17, -30, 17] }}

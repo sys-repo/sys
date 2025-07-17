@@ -3,6 +3,7 @@ import { type t, Color, css } from '../common.ts';
 
 export type PathViewProps = {
   path?: t.ObjectPath;
+  prefix?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -16,7 +17,7 @@ export type PathViewProps = {
  * Component:
  */
 export const PathView: React.FC<PathViewProps> = (props) => {
-  const { path = [] } = props;
+  const { path = [], prefix } = props;
 
   /**
    * Render:
@@ -47,7 +48,7 @@ export const PathView: React.FC<PathViewProps> = (props) => {
     );
   });
 
-  const elPrefix = <div className={styles.prefix.class}>{'path:'}</div>;
+  const elPrefix = prefix && <div className={styles.prefix.class}>{prefix}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
