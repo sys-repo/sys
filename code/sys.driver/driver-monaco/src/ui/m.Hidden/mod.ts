@@ -3,4 +3,4 @@
  * of the editor (aka. "code folding").
  * @module
  */
-export { EditorHidden } from './m.EditorHidden.ts';
+export { EditorHidden } from './m.Hidden.ts';
