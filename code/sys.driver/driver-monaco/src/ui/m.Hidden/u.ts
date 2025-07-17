@@ -1,4 +1,4 @@
-import { type t, Range } from './common.ts';
+import { type t, RangeUtil } from './common.ts';
 
 /**
  * Derive folded (hidden) ranges by finding the gaps between the
@@ -6,5 +6,5 @@ import { type t, Range } from './common.ts';
  */
 export function calcHiddenRanges(editor: t.Monaco.Editor): t.Monaco.IRange[] {
   const model = editor.getModel();
-  return model ? Range.complement(model.getLineCount(), editor.getVisibleRanges()) : [];
+  return model ? RangeUtil.complement(model.getLineCount(), editor.getVisibleRanges()) : [];
 }

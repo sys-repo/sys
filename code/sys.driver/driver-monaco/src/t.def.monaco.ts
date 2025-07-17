@@ -1,5 +1,5 @@
-import type { editor } from 'monaco-editor';
 import type * as monaco from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 
 /**
  * Core Monaco library types:

@@ -11,7 +11,7 @@ import {
   LocalStorage,
   ObjectView,
   Signal,
-  Wrangle,
+  Util,
 } from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
 import { LanguagesList } from './-ui.ts';
@@ -329,7 +329,7 @@ const wrangle = {
         ? undefined
         : {
             'id.instance': editor?.getId(),
-            'css.class': Wrangle.Editor.className(editor),
+            'css.class': Util.Editor.className(editor),
             text: `chars:(${text.length}), lines:(${text.split('\n').length})`,
           },
     };

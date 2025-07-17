@@ -1,7 +1,7 @@
-import { DEFAULTS, Wrangle, type t } from './common.ts';
+import { DEFAULTS, Util, type t } from './common.ts';
 
 export function caretStyleFactory(editor: t.Monaco.Editor, id: string) {
-  const editorSelector = Wrangle.Editor.className(editor).split(' ').join('.');
+  const editorSelector = Util.Editor.className(editor).split(' ').join('.');
 
   const style = document.createElement('style');
   style.setAttribute('type', 'text/css');

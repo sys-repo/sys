@@ -1,9 +1,11 @@
 import { type t, describe, expect, it } from '../-test.ts';
+
 import { D } from './common.ts';
-import { Monaco, MonacoIs, Wrangle } from './mod.ts';
+import { Monaco, MonacoIs } from './mod.ts';
+import { Util } from './u.ts';
 
 describe('Is', () => {
-  const asRange = Wrangle.Range.asRange;
+  const asRange = Util.Range.asRange;
 
   it('API', () => {
     expect(Monaco.Is).to.equal(MonacoIs);

@@ -1,4 +1,4 @@
-import { type t, MonacoIs, R, rx, Wrangle } from './common.ts';
+import { type t, MonacoIs, R, rx, Util } from './common.ts';
 import { caretStyleFactory } from './u.Caret.Style.ts';
 import { Color } from './u.Color.ts';
 
@@ -48,7 +48,7 @@ export const Caret = {
       type D = t.Monaco.IModelDeltaDecoration;
       const decorations = selections.reduce((acc, next) => {
         acc.push({
-          range: Wrangle.Range.toRangeEnd(next),
+          range: Util.Range.toRangeEnd(next),
           options: { className: style.class.caret },
         });
         if (!MonacoIs.singleCharRange(next)) {
@@ -112,7 +112,7 @@ export const Caret = {
         }
 
         if (args.selections) {
-          const selections = Wrangle.Range.asRanges(args.selections);
+          const selections = Util.Range.asRanges(args.selections);
           updateSelections(selections);
           changed = true;
         }
@@ -135,7 +135,7 @@ export const Caret = {
         }
 
         if (args.selections) {
-          const selections = Wrangle.Range.asRanges(args.selections);
+          const selections = Util.Range.asRanges(args.selections);
           if (!R.equals(selections, _selections)) return false;
         }
 

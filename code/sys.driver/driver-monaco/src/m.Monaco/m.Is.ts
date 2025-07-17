@@ -1,5 +1,5 @@
 import { type t, D, Is, R } from './common.ts';
-import { RangeUtil } from './u.Wrangle.Range.ts';
+import { RangeUtil } from './u.Range.ts';
 
 export const MonacoIs: t.MonacoIsLib = {
   editorRange(input: any): input is t.Monaco.IRange {

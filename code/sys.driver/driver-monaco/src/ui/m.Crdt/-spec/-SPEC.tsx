@@ -56,7 +56,7 @@ export default Spec.describe(D.displayName, async (e) => {
         autoFocus={true}
         onReady={(e) => {
           /**
-           * READY:
+           * READY:⚡️
            */
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;

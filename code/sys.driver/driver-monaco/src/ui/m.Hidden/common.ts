@@ -1,2 +1,2 @@
-export { Range } from '../../m.Monaco/u.Wrangle.Range.ts';
+export { RangeUtil } from '../../m.Monaco/u.Range.ts';
 export * from '../common.ts';

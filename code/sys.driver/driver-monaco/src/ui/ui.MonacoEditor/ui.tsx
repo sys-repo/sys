@@ -4,7 +4,7 @@ import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 
 import { EditorCarets } from '../m.Carets/mod.ts';
-import { type t, Color, D, Spinners, Wrangle, css, rx } from './common.ts';
+import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
 import { Theme } from './u.Theme.ts';
 
 /**
@@ -125,8 +125,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       event,
       monaco,
       editor,
-      selections: Wrangle.Editor.selections(editor),
-      content: Wrangle.Editor.content(editor),
+      selections: Util.Editor.selections(editor),
+      content: Util.Editor.content(editor),
     });
   };
 
@@ -158,7 +158,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
 
   const elLoading = <Spinners.Bar theme={theme.name} />;
 
-  const cn = Wrangle.Editor.className(editorRef.current);
+  const cn = Util.Editor.className(editorRef.current);
   const className = `${css(styles.base, props.style).class} ${cn}`;
   return (
     <div className={className}>
