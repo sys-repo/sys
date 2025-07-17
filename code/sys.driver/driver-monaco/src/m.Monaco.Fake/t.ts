@@ -7,7 +7,7 @@ type StringSourceCode = string;
  */
 export type FakeMonacoLib = Readonly<{
   model(src: StringSourceCode): t.Monaco.TextModel;
-  editor(model: t.FakeModel | StringSourceCode): t.Monaco.Editor;
+  editor(model?: t.FakeModel | StringSourceCode): t.Monaco.Editor;
 }>;
 
 /**

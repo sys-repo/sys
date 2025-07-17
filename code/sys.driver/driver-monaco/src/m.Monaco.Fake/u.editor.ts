@@ -52,8 +52,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
  * Helpers:
  */
 const wrangle = {
-  model(input: t.FakeModel | string): t.FakeModel {
-    if (typeof input === 'string') return fakeModel(input);
-    return input;
+  model(input: t.FakeModel | string = ''): t.FakeModel {
+    return typeof input === 'string' ? fakeModel(input) : input;
   },
 } as const;

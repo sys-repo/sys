@@ -52,6 +52,12 @@ describe('MonacoFake (Mock)', () => {
       expect(model?.getValue()).to.eql(src);
     });
 
+    it('create with no param', () => {
+      const editor = MonacoFake.editor();
+      const model = editor.getModel();
+      expect(model?.getValue()).to.eql('');
+    });
+
     it('notifies cursor listeners on setPosition', () => {
       const model = MonacoFake.model('');
       const editor = MonacoFake.editor(model);
