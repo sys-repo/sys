@@ -1,4 +1,5 @@
 import { DocumentId } from '@sys/driver-automerge/ui';
+import { Monaco } from '@sys/driver-monaco';
 
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
@@ -6,7 +7,7 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 import { type t, Color, D } from '../common.ts';
 import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
-import { tmp } from './-tmp.yaml.caretToPath.ts';
+import { PathView } from './-ui.Path.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -57,7 +58,9 @@ export default Spec.describe(D.displayName, async (e) => {
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
-          tmp(e.editor);
+
+          const pathObserver = Monaco.Yaml.watchPath(e.editor, e.dispose$);
+          pathObserver.$.subscribe((e) => (p.selectedPath.value = e.path));
         }}
       />
     );
@@ -75,7 +78,24 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size('fill', 150)
       .display('grid')
-      .render(() => <HostSubject />);
+      .render(() => {
+        const v = Signal.toObject(p);
+        const path = v.selectedPath;
+        const elPath = path.length > 0 && (
+          <PathView
+            //
+            path={v.selectedPath}
+            theme={v.theme}
+            style={{ Absolute: [null, 17, -30, 17] }}
+          />
+        );
+        return (
+          <>
+            {elPath}
+            <HostSubject />
+          </>
+        );
+      });
 
     ctx.host.header.padding(0).render((e) => <HostDocumentId />);
   });

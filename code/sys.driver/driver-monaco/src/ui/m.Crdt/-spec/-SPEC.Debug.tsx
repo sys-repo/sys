@@ -62,6 +62,7 @@ export async function createDebugSignals() {
     editor: s<t.Monaco.Editor>(),
     doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),
+    selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
   const api = {

@@ -2,7 +2,7 @@ import { type t, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
 import { EditorYaml } from './mod.ts';
 
 describe('Monaco:Yaml Tools', () => {
-  describe('Yaml.trackPath', () => {
+  describe('Yaml.watchPath', () => {
     it('emits the expected path when the caret moves', () => {
       const yaml = `
   foo: 👋
@@ -12,7 +12,7 @@ describe('Monaco:Yaml Tools', () => {
   `.slice(1);
       const model = MonacoFake.model(yaml);
       const editor = MonacoFake.editor(model);
-      const ob = EditorYaml.trackPath(editor);
+      const ob = EditorYaml.watchPath(editor);
 
       const fired: t.EditorYamlPathObserverEvent[] = [];
       ob.$.subscribe((e) => fired.push(e));
@@ -41,7 +41,7 @@ describe('Monaco:Yaml Tools', () => {
     describe('dispose', () => {
       it('via method', () => {
         const editor = MonacoFake.editor('');
-        const tracker = EditorYaml.trackPath(editor);
+        const tracker = EditorYaml.watchPath(editor);
         expect(tracker.disposed).to.eql(false);
         tracker.dispose();
         expect(tracker.disposed).to.eql(true);
@@ -50,7 +50,7 @@ describe('Monaco:Yaml Tools', () => {
       it('via dispose$', () => {
         const life = rx.disposable();
         const editor = MonacoFake.editor('');
-        const tracker = EditorYaml.trackPath(editor, life);
+        const tracker = EditorYaml.watchPath(editor, life);
         expect(tracker.disposed).to.eql(false);
         life.dispose();
         expect(tracker.disposed).to.eql(true);
