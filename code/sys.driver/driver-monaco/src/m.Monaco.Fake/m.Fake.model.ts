@@ -11,8 +11,8 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   /**
    * Registered content-change listeners:
    */
-  const contentListeners: Array<(e: t.Monaco.IModelContentChangedEvent) => void> = [];
-  const langListeners: Array<(e: t.Monaco.IModelLanguageChangedEvent) => void> = [];
+  const contentListeners: Array<(e: t.Monaco.I.IModelContentChangedEvent) => void> = [];
+  const langListeners: Array<(e: t.Monaco.I.IModelLanguageChangedEvent) => void> = [];
 
   /**
    * Getters (General):
@@ -31,7 +31,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     if (next === text) return; // no change → no event
     text = next;
     version += 1;
-    const evt = {} as t.Monaco.IModelContentChangedEvent; // minimal event
+    const evt = {} as t.Monaco.I.IModelContentChangedEvent; // minimal event
     contentListeners.forEach((fn) => fn(evt));
   };
 
@@ -40,7 +40,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     const evt = {
       oldLanguage: language,
       newLanguage: next,
-    } as t.Monaco.IModelLanguageChangedEvent;
+    } as t.Monaco.I.IModelLanguageChangedEvent;
     language = next as t.EditorLanguage;
     langListeners.forEach((fn) => fn(evt));
   };
@@ -48,8 +48,8 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   /**
    * Event registrations:
    */
-  type OnContentChanged = (e: t.Monaco.IModelContentChangedEvent) => void;
-  const onDidChangeContent = (listener: OnContentChanged): t.Monaco.IDisposable => {
+  type OnContentChanged = (e: t.Monaco.I.IModelContentChangedEvent) => void;
+  const onDidChangeContent = (listener: OnContentChanged): t.Monaco.I.IDisposable => {
     contentListeners.push(listener);
     return {
       dispose() {
@@ -59,8 +59,8 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     };
   };
 
-  type OnLanguageChanged = (e: t.Monaco.IModelLanguageChangedEvent) => void;
-  const onDidChangeLanguage = (listener: OnLanguageChanged): t.Monaco.IDisposable => {
+  type OnLanguageChanged = (e: t.Monaco.I.IModelLanguageChangedEvent) => void;
+  const onDidChangeLanguage = (listener: OnLanguageChanged): t.Monaco.I.IDisposable => {
     langListeners.push(listener);
     return {
       dispose() {

@@ -37,7 +37,7 @@ export type FakeTextModel = Pick<
 export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
 export type FakeEditor = t.EditorHiddenMembers &
   Pick<
-    t.Monaco.IStandaloneCodeEditor,
+    t.Monaco.I.IStandaloneCodeEditor,
     | 'getModel'
     | 'getPosition'
     | 'setPosition'

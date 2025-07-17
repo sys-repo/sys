@@ -2,7 +2,7 @@ import { type t, D, Is, R } from './common.ts';
 import { RangeUtil } from './u.Range.ts';
 
 export const MonacoIs: t.MonacoIsLib = {
-  editorRange(input: any): input is t.Monaco.IRange {
+  editorRange(input: any): input is t.Monaco.I.IRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;
     return (
@@ -19,7 +19,7 @@ export const MonacoIs: t.MonacoIsLib = {
     return input.length === 2 && Is.number(input[0]) && Is.number(input[1]);
   },
 
-  nullRange(input: t.Monaco.IRange): boolean {
+  nullRange(input: t.Monaco.I.IRange): boolean {
     return R.equals(input, D.NULL_RANGE);
   },
 

@@ -20,7 +20,7 @@ export const Caret = {
     let _color = options.color ?? Color.next();
     let _opacity = 0.6;
     let _refs: string[] = [];
-    let _selections: t.Monaco.IRange[] = [];
+    let _selections: t.Monaco.I.IRange[] = [];
 
     const $ = new rx.Subject<t.EditorCaretChanged>();
     const fireChanged = () =>
@@ -35,7 +35,7 @@ export const Caret = {
     if (!model) throw new Error(`The editor did not return a text-model`);
 
     const Decorations = {
-      add(decorations: t.Monaco.IModelDeltaDecoration[]) {
+      add(decorations: t.Monaco.I.IModelDeltaDecoration[]) {
         _refs = model.deltaDecorations(_refs, decorations);
       },
       clear() {
@@ -44,8 +44,8 @@ export const Caret = {
       },
     } as const;
 
-    const updateSelections = (selections: t.Monaco.IRange[]) => {
-      type D = t.Monaco.IModelDeltaDecoration;
+    const updateSelections = (selections: t.Monaco.I.IRange[]) => {
+      type D = t.Monaco.I.IModelDeltaDecoration;
       const decorations = selections.reduce((acc, next) => {
         acc.push({
           range: Util.Range.toRangeEnd(next),
@@ -64,7 +64,7 @@ export const Caret = {
       _selections = selections;
     };
 
-    const disposeOfLineOrphans = (selections: t.Monaco.IRange[]) => {
+    const disposeOfLineOrphans = (selections: t.Monaco.I.IRange[]) => {
       const text = model.getValue();
       const lines = text.split('\n');
       selections.forEach((range) => {

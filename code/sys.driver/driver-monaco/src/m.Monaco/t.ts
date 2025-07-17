@@ -20,9 +20,9 @@ export type MonacoLib = Readonly<{
  * Boolean flag evalutators for the Monaco UI library.
  */
 export type MonacoIsLib = Readonly<{
-  editorRange(input: unknown): input is t.Monaco.IRange;
+  editorRange(input: unknown): input is t.Monaco.I.IRange;
   charPositionTuple(input: any): input is t.CharPositionTuple;
-  nullRange(input: t.Monaco.IRange): boolean;
+  nullRange(input: t.Monaco.I.IRange): boolean;
   singleCharRange(input: t.EditorRangeInput): boolean;
   rangeWithinString(input: t.EditorRangeInput, text: string): boolean;
 }>;

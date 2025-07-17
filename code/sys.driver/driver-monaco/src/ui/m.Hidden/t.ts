@@ -41,7 +41,7 @@ export type EditorHiddenLib = Readonly<{
  */
 export type EditorHiddenAreaObserver = t.Lifecycle & {
   readonly $: t.Observable<t.EditorHiddenAreaChange>;
-  readonly areas: t.Monaco.IRange[];
+  readonly areas: t.Monaco.I.IRange[];
 };
 
 /**
@@ -51,11 +51,11 @@ export type EditorHiddenAreaObserver = t.Lifecycle & {
  */
 export type EditorHiddenMembers = {
   /** Current hidden (folded) ranges - expressed as model ranges. */
-  getHiddenAreas(): t.Monaco.IRange[];
+  getHiddenAreas(): t.Monaco.I.IRange[];
   /** Replace the hidden-area list (pass `[]` to reveal everything). */
-  setHiddenAreas(ranges: t.Monaco.IRange[]): void;
+  setHiddenAreas(ranges: t.Monaco.I.IRange[]): void;
   /** Fires after any fold/unfold (user action *or* `setHiddenAreas`). */
-  onDidChangeHiddenAreas(listener: () => void): t.Monaco.IDisposable;
+  onDidChangeHiddenAreas(listener: () => void): t.Monaco.I.IDisposable;
 };
 
 /**
@@ -63,4 +63,4 @@ export type EditorHiddenMembers = {
  */
 export type EditorHiddenAreaChangeHandler = (e: EditorHiddenAreaChange) => void;
 /** Event information about the change. */
-export type EditorHiddenAreaChange = Readonly<{ areas: t.Monaco.IRange[] }>;
+export type EditorHiddenAreaChange = Readonly<{ areas: t.Monaco.I.IRange[] }>;

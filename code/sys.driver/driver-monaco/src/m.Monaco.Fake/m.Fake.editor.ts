@@ -7,16 +7,16 @@ import { fakeModel } from './m.Fake.model.ts';
 export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const model = wrangle.model(input);
   let position: t.Offset = { lineNumber: 1, column: 1 };
-  const cursorSubs: Array<(e: t.Monaco.ICursorPositionChangedEvent) => void> = [];
+  const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
 
   /**
    * Code Folding:
    */
-  let hiddenAreas: t.Monaco.IRange[] = [];
+  let hiddenAreas: t.Monaco.I.IRange[] = [];
   const foldSubs: Array<() => void> = [];
 
   const getHiddenAreas = () => hiddenAreas;
-  const setHiddenAreas = (next: t.Monaco.IRange[]) => {
+  const setHiddenAreas = (next: t.Monaco.I.IRange[]) => {
     const same =
       next.length === hiddenAreas.length &&
       next.every((range, i) => RangeUtil.eql(range, hiddenAreas[i]));
@@ -27,7 +27,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   const getVisibleRanges = () => {
     return RangeUtil.complement(model.getLineCount(), hiddenAreas) as t.Monaco.Range[];
   };
-  const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.IDisposable => {
+  const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.I.IDisposable => {
     foldSubs.push(listener);
     return {
       dispose() {
@@ -40,8 +40,8 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   /**
    * Cursor Position:
    */
-  type CursorChangeHandler = (e: t.Monaco.ICursorPositionChangedEvent) => void;
-  const onDidChangeCursorPosition = (listener: CursorChangeHandler): t.Monaco.IDisposable => {
+  type CursorChangeHandler = (e: t.Monaco.I.ICursorPositionChangedEvent) => void;
+  const onDidChangeCursorPosition = (listener: CursorChangeHandler): t.Monaco.I.IDisposable => {
     cursorSubs.push(listener);
     return {
       dispose() {
@@ -57,7 +57,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
       secondaryPositions: null,
       reason: 0, // ← CursorChangeReason.NotSet
       source: 'keyboard',
-    } as unknown as t.Monaco.ICursorPositionChangedEvent;
+    } as unknown as t.Monaco.I.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
   };
 

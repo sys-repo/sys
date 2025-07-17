@@ -38,7 +38,7 @@ describe('Monaco.Hidden', () => {
           const fired: t.EditorHiddenAreaChange[] = [];
           ob.$.subscribe((e) => fired.push(e));
 
-          const fold: t.Monaco.IRange = {
+          const fold: t.Monaco.I.IRange = {
             startLineNumber: 2,
             startColumn: 1,
             endLineNumber: 3,
@@ -66,7 +66,7 @@ describe('Monaco.Hidden', () => {
 
           ob.dispose();
 
-          const fold: t.Monaco.IRange = {
+          const fold: t.Monaco.I.IRange = {
             startLineNumber: 1,
             startColumn: 1,
             endLineNumber: 2,

@@ -1,8 +1,10 @@
 import { type t, D } from './common.ts';
 import { MonacoIs } from './m.Is.ts';
 
+type IRange = t.Monaco.I.IRange;
+
 export const RangeUtil = {
-  eql(a: t.Monaco.IRange, b: t.Monaco.IRange): boolean {
+  eql(a: IRange, b: IRange): boolean {
     return (
       a.startLineNumber === b.startLineNumber &&
       a.startColumn === b.startColumn &&
@@ -14,7 +16,7 @@ export const RangeUtil = {
   /**
    * Convert input to editor range.
    */
-  asRange(input: t.EditorRangeInput): t.Monaco.IRange {
+  asRange(input: t.EditorRangeInput): IRange {
     if (!input) {
       return { ...D.NULL_RANGE };
     }
@@ -44,12 +46,12 @@ export const RangeUtil = {
   /**
    * Collection of ranges.
    */
-  asRanges(input?: t.EditorRangesInput): t.Monaco.IRange[] {
+  asRanges(input?: t.EditorRangesInput): IRange[] {
     if (!input) return [];
 
-    type V = t.Monaco.IRange | t.CharPositionTuple;
+    type V = IRange | t.CharPositionTuple;
     const isValue = (value: V) => MonacoIs.editorRange(value) || MonacoIs.charPositionTuple(value);
-    const toRange = (value: V): t.Monaco.IRange => {
+    const toRange = (value: V): IRange => {
       if (MonacoIs.editorRange(value)) return value;
       if (MonacoIs.charPositionTuple(value)) {
         return {
@@ -72,7 +74,7 @@ export const RangeUtil = {
   /**
    * Convert to the start of the range.
    */
-  toRangeStart(input: t.Monaco.IRange): t.Monaco.IRange {
+  toRangeStart(input: IRange): IRange {
     return {
       startLineNumber: input.startLineNumber,
       startColumn: input.startColumn,
@@ -84,7 +86,7 @@ export const RangeUtil = {
   /**
    * Convert to end of the range.
    */
-  toRangeEnd(input: t.Monaco.IRange): t.Monaco.IRange {
+  toRangeEnd(input: IRange): IRange {
     return {
       startLineNumber: input.endLineNumber,
       startColumn: input.endColumn,
@@ -102,7 +104,7 @@ export const RangeUtil = {
    * If nothing is occupied we return a single range spanning
    * the whole document.
    */
-  complement(lastLine: number, occupied: t.Monaco.IRange[]): t.Monaco.IRange[] {
+  complement(lastLine: number, occupied: IRange[]): IRange[] {
     if (occupied.length === 0) {
       return [
         {
@@ -115,7 +117,7 @@ export const RangeUtil = {
     }
 
     const sorted = [...occupied].sort((a, b) => a.startLineNumber - b.startLineNumber);
-    const gaps: t.Monaco.IRange[] = [];
+    const gaps: IRange[] = [];
 
     let line = 1;
     for (const r of sorted) {

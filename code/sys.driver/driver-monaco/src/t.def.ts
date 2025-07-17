@@ -15,13 +15,13 @@ export type CharRangeTuple = [number, number, number, number]; // Start:[Line:Co
 
 /** Loose input for editor character range(s). */
 export type EditorRangesInput =
-  | t.Monaco.IRange
-  | t.Monaco.IRange[]
+  | t.Monaco.I.IRange
+  | t.Monaco.I.IRange[]
   | t.CharPositionTuple
   | t.CharPositionTuple[]
   | null;
 
 /** Loose input for editor character range. */
-export type EditorRangeInput = t.Monaco.IRange | t.CharPositionTuple | t.CharRangeTuple | null;
+export type EditorRangeInput = t.Monaco.I.IRange | t.CharPositionTuple | t.CharRangeTuple | null;
 /** Range selection within the editor. */
 export type EditorSelection = t.Monaco.Selection;

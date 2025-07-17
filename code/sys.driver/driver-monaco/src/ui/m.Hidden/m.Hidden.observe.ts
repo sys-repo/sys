@@ -15,7 +15,7 @@ export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
    * Methods/State:
    */
   const current = () => calcHiddenRanges(editor);
-  let areas: t.Monaco.IRange[] = current();
+  let areas: t.Monaco.I.IRange[] = current();
 
   /**
    * Event listeners:

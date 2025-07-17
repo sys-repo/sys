@@ -17,7 +17,7 @@ describe('Is', () => {
       expect(res).to.eql(expected);
     };
 
-    const range: t.Monaco.IRange = {
+    const range: t.Monaco.I.IRange = {
       startLineNumber: 1,
       startColumn: 1,
       endLineNumber: 1,

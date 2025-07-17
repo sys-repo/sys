@@ -14,15 +14,18 @@ export namespace Monaco {
 
   export type Editor = editor.IStandaloneCodeEditor;
   export type TextModel = editor.ITextModel;
+  export type Range = monaco.Range;
 
-  // Interfaces:
-  export type IDisposable = monaco.IDisposable;
-  export type IPosition = monaco.IPosition;
-  export type IRange = monaco.IRange;
-  export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
-  export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
-  export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
-  export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
-  export type ICodeEditor = editor.ICodeEditor;
-  export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
+  /** Nested namespace for all the I-prefixed interfaces */
+  export namespace I {
+    export type IDisposable = monaco.IDisposable;
+    export type IPosition = monaco.IPosition;
+    export type IRange = monaco.IRange;
+    export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
+    export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
+    export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
+    export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
+    export type ICodeEditor = editor.ICodeEditor;
+    export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
+  }
 }

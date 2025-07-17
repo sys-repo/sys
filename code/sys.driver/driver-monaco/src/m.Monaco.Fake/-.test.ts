@@ -161,7 +161,7 @@ describe('MonacoFake (Mock)', () => {
     });
 
     describe('folding helpers (hidden areas)', () => {
-      const range: t.Monaco.IRange = {
+      const range: t.Monaco.I.IRange = {
         startLineNumber: 1,
         startColumn: 1,
         endLineNumber: 1,
@@ -184,7 +184,7 @@ describe('MonacoFake (Mock)', () => {
 
       it('is idempotent when the same ranges are passed', () => {
         const editor = MonacoFake.editor('alpha\nbeta');
-        const r: t.Monaco.IRange = { ...range, endLineNumber: 2 }; // different range for clarity
+        const r: t.Monaco.I.IRange = { ...range, endLineNumber: 2 }; // different range for clarity
         let fired = 0;
         editor.onDidChangeHiddenAreas(() => fired++);
         editor.setHiddenAreas([r]);
@@ -194,7 +194,7 @@ describe('MonacoFake (Mock)', () => {
 
       it('clears folds and emits when setHiddenAreas([]) is called', () => {
         const editor = MonacoFake.editor('x\ny');
-        const r: t.Monaco.IRange = { ...range };
+        const r: t.Monaco.I.IRange = { ...range };
         let fired = 0;
         editor.onDidChangeHiddenAreas(() => fired++);
         editor.setHiddenAreas([r]); // ← fold.
