@@ -66,8 +66,10 @@ export type VideoPlayerSignalProps = {
   readonly showControls: t.Signal<boolean>;
   readonly showFullscreenButton: t.Signal<boolean>;
   readonly showVolumeControl: t.Signal<boolean>;
-  /** A background video, covers the container running silently (and generally auto-plays). */
+
+  /** @obsolete A background video, covers the container running silently (and generally auto-plays). */
   readonly background: t.Signal<boolean>;
+
   readonly aspectRatio: t.Signal<string>;
   readonly cornerRadius: t.Signal<number>;
   readonly scale: t.Signal<t.Percent | t.VideoPlayerScale>;

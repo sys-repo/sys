@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.stateful.ts';
 
 /**
  * <Component>:
@@ -8,7 +9,12 @@ export type VideoElement2Props = {
   poster?: string;
   loop?: boolean;
   aspectRatio?: string; // e.g. "16/9"
-  borderRadius?: t.Pixels;
+  cornerRadius?: t.Pixels;
+  scale?: t.Percent | t.VideoPlayerScale;
+  fadeMask?: t.VideoPlayerFadeMask;
+  showControls?: boolean;
+  showFullscreenButton?: boolean;
+  showVolumeControl?: boolean;
 
   // Apperance:
   debug?: boolean;

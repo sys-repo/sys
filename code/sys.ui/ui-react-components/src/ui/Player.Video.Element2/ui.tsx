@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PlayerControls } from '../Player.Video.Controls/mod.ts';
+
 import { type t, Color, css, M, READY_STATE } from './common.ts';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useControlsVisible } from './use.ControlsVisible.ts';
@@ -10,26 +11,25 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     poster,
     loop = false,
     aspectRatio = '16/9',
-    borderRadius = 0,
+    cornerRadius = 0,
     debug = false,
-    theme: themeInput,
-    style,
-    onEnded,
 
     // Controlled playback + mute:
     playing: playingProp,
     autoPlay = true,
     muted: mutedProp,
-    defaultMuted = props.muted ?? false, // back-compat bridge
+    defaultMuted = props.muted ?? false, // ← back-compat bridge.
 
     onPlayingChange,
     onMutedChange,
-  } = props as t.VideoElement2Props; // explicit cast in case caller passes legacy props
+    onEnded,
+  } = props as t.VideoElement2Props; // ← explicit cast in case caller passes legacy props.
 
   /**
    * Refs:
    */
   const videoRef = useRef<HTMLVideoElement>(null);
+  const shouldAutoplayRef = React.useRef(true);
 
   /**
    * Local UI state (NOT authoritative playback state):
@@ -54,6 +54,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   const elMuted = el?.muted ?? mutedProp ?? defaultMuted;
   const canPlay = rs >= READY_STATE.HAVE_FUTURE_DATA;
   const playing = !elPaused;
+  const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
 
   /**
    * Spinner logic: show while an autoplay attempt is pending and media not yet playing.
@@ -163,11 +164,12 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
    * - Hook will request external state via callbacks.
    */
   useAutoplay({
-    enabled: playingProp === undefined && autoPlay,
+    enabled: autoplayEnabled,
     src,
     muted: mutedProp ?? defaultMuted ?? false,
     videoRef,
     onStart: () => {
+      shouldAutoplayRef.current = false;
       autoplayPendingRef.current = true;
       onPlayingChange?.({ playing: true, ctx: { reason: 'autoplay-start' } });
     },
@@ -180,13 +182,14 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       onPlayingChange?.({ playing: true, ctx: { reason: 'autoplay-gesture' } });
     },
     onGiveUp: () => {
+      shouldAutoplayRef.current = false;
       autoplayPendingRef.current = false;
       onPlayingChange?.({ playing: false, ctx: { reason: 'element-event' } });
     },
   });
 
   /**
-   * Handlers (user UI interactions)
+   * Handlers (user UI interactions):
    */
   const requestTogglePlay = useCallback(() => {
     const value = !playing;
@@ -221,13 +224,13 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(themeInput);
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       position: 'relative',
       color: theme.fg,
       aspectRatio,
-      borderRadius,
+      borderRadius: cornerRadius,
       overflow: 'hidden',
     }),
     video: css({ width: '100%', height: '100%', objectFit: 'cover' }),
@@ -285,12 +288,11 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
 
       {debug && (
         <div className={styles.debug.class}>
-          {`ready-state:${rs} play:${playing} spin:${spinning} seek:${seeking}`}
+          {`ready-state:${rs}, play:${playing}, seek:${seeking}, src:${src?.slice(-8) || ''}`}
         </div>
       )}
 
-      {/* optional vignette mask */}
-      {/* <FadeMask mask="soft" theme={theme.name} /> */}
+      {/* <FadeMask mask='soft' theme={theme.name} /> */}
     </div>
   );
 };

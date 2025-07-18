@@ -1,12 +1,13 @@
 import React from 'react';
+import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
 
 type P = t.VideoElement2Props;
 type Storage = Pick<
   P,
-  'theme' | 'debug' | 'muted' | 'autoPlay' | 'src' | 'borderRadius' | 'loop' | 'aspectRatio'
-> & { width?: number };
+  'theme' | 'debug' | 'muted' | 'autoPlay' | 'src' | 'cornerRadius' | 'loop' | 'aspectRatio'
+> & { width?: number; controlled?: boolean };
 
 /**
  * Types:
@@ -14,30 +15,49 @@ type Storage = Pick<
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  width: 420,
+  muted: false,
+  autoPlay: false,
+  loop: false,
+  aspectRatio: '16/9',
+  cornerRadius: 6,
+  src: 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4',
+  controlled: false,
+};
+
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    width: 420,
-    muted: false,
-    autoPlay: false,
-    loop: false,
-    aspectRatio: '16/9',
-    borderRadius: 6,
-    src: 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4',
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+
+  let _signals: t.VideoPlayerSignals | undefined;
+  const controlled = {
+    get signals() {
+      return _signals;
+    },
+    reset() {
+      const v = Signal.toObject(props);
+      _signals = Player.Video.signals({
+        src: v.src,
+        autoPlay: v.autoPlay,
+        muted: v.muted,
+        loop: v.loop,
+      });
+    },
+  };
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     width: s(snap.width),
+    controlled: s(snap.controlled),
 
     playing: s(false),
     autoPlay: s(snap.autoPlay),
@@ -45,12 +65,13 @@ export function createDebugSignals() {
     src: s(snap.src),
     muted: s(snap.muted),
     loop: s(snap.loop),
-    borderRadius: s(snap.borderRadius),
+    cornerRadius: s(snap.cornerRadius),
     aspectRatio: s(snap.aspectRatio),
   };
   const p = props;
   const api = {
     props,
+    controlled,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -63,18 +84,24 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.width = p.width.value;
+      d.controlled = p.controlled.value;
 
       d.src = p.src.value;
       d.autoPlay = p.autoPlay.value;
       d.muted = p.muted.value;
 
       d.loop = p.loop.value;
-      d.muted = p.muted.value;
-      d.muted = p.muted.value;
-      d.borderRadius = p.borderRadius.value;
+      d.cornerRadius = p.cornerRadius.value;
+      d.aspectRatio = p.aspectRatio.value;
     });
   });
 
+  Signal.effect(() => {
+    const controlled = p.controlled.value;
+    if (controlled) api.controlled.reset();
+  });
+
+  api.controlled.reset();
   return api;
 }
 
@@ -106,7 +133,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-
+      <Button
+        block
+        label={() => {
+          const v = p.controlled.value;
+          const note = v ? 'Controlled (Signals)' : 'Uncontrolled';
+          return `controlled: ${v} ← ${note}`;
+        }}
+        onClick={() => Signal.toggle(p.controlled)}
+      />
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -114,40 +150,60 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        enabled={() => !p.controlled.value}
         label={() => `muted: ${p.muted.value}`}
         onClick={() => Signal.toggle(p.muted)}
       />
       <Button
         block
+        enabled={() => !p.controlled.value}
         label={() => `autoPlay: ${p.autoPlay.value}`}
         onClick={() => Signal.toggle(p.autoPlay)}
       />
-      <Button block label={() => `loop: ${p.loop.value}`} onClick={() => Signal.toggle(p.loop)} />
       <Button
         block
-        label={() => `borderRadius: ${p.borderRadius.value}`}
-        onClick={() => Signal.cycle(p.borderRadius, [0, 6, 15])}
+        enabled={() => !p.controlled.value}
+        label={() => `loop: ${p.loop.value}`}
+        onClick={() => Signal.toggle(p.loop)}
       />
-
+      <Button
+        block
+        enabled={() => !p.controlled.value}
+        label={() => `cornerRadius: ${p.cornerRadius.value}`}
+        onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
+      />
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
-
       <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-
       <Button
         block
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
-
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          p.controlled.value = false;
+          p.autoPlay.value = false;
+        }}
+      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
+      {p.controlled.value && (
+        <ObjectView
+          name={'signals'}
+          data={Signal.toObject(debug.controlled.signals?.props)}
+          expand={0}
+          style={{ marginTop: 5 }}
+        />
+      )}
     </div>
   );
 };

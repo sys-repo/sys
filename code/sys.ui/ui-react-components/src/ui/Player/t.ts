@@ -6,9 +6,17 @@ import type { t } from '../common.ts';
  */
 export type PlayerLib = {
   Video: {
-    signals: t.PlayerSignalsFactory;
+    /**
+     * @deprecated Obsolete—will be removed in a future release.
+     *   Use `Player.Video.Element2` instead.
+     */
+    Vidstack: React.FC<t.VidstackPlayerProps>; // ← 🐷 Obsolete.
+
     Element: React.FC<t.VideoElementProps>;
-    Vidstack: React.FC<t.VidstackPlayerProps>;
+    Element2: React.FC<t.VideoElement2Props>;
+
+    signals: t.PlayerSignalsFactory;
+    useSignals: t.UsePlayerSignals;
   };
   Timestamp: {
     Thumbnails: { View: React.FC<t.ThumbnailsProps> };
