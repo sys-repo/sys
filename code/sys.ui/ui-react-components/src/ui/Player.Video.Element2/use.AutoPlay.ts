@@ -2,7 +2,7 @@ import React, { useLayoutEffect } from 'react';
 import { READY_STATE } from './common.ts';
 
 type Args = {
-  src: string;
+  src?: string;
   mutedProp: boolean;
   wantPlay: boolean;
   setWantPlay: React.Dispatch<React.SetStateAction<boolean>>;

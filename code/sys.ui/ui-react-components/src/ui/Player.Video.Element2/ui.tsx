@@ -13,7 +13,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     muted: mutedProp = false,
     loop = false,
     aspectRatio = '16/9',
-    borderRadius = 6,
+    borderRadius = 0,
     debug = false,
     onEnded,
   } = props;
@@ -93,10 +93,16 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       borderRadius,
       overflow: 'hidden',
     }),
-
     video: css({ width: '100%', height: '100%', objectFit: 'cover' }),
     controls: css({ Absolute: [null, 0, null, 0] }),
-    debug: css({ Absolute: [6, null, null, 6], fontSize: 11, opacity: 0.5 }),
+    debug: css({
+      Absolute: [6, null, null, 6],
+      fontSize: 11,
+      color: Color.alpha(Color.DARK, 0.6),
+      backgroundColor: Color.alpha(Color.WHITE, 0.5),
+      Padding: [1, 5],
+      borderRadius: 2,
+    }),
   };
 
   return (
@@ -147,9 +153,13 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       </M.div>
 
       {debug && (
-        <div className={styles.debug.class}>{`ready:${rs} play:${playing} spin:${spinning}`}</div>
+        <div
+          className={styles.debug.class}
+        >{`ready-state:${rs} play:${playing} spin:${spinning}`}</div>
       )}
 
+      {/* optional vignette mask */}
+      {/* <FadeMask mask="soft" theme={theme.name} /> */}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type VideoElement2Props = {
-  src: string;
+  src?: string;
   poster?: string;
   autoPlay?: boolean;
   muted?: boolean;

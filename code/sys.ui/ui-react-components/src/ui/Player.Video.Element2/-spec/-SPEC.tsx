@@ -21,9 +21,19 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-
-
-        return <VideoElement2 src={src} debug={v.debug} theme={v.theme} />;
+        return (
+          <VideoElement2
+            src={v.src}
+            debug={v.debug}
+            theme={v.theme}
+            autoPlay={v.autoPlay}
+            muted={v.muted}
+            loop={v.loop}
+            borderRadius={v.borderRadius}
+            aspectRatio={v.aspectRatio}
+            onEnded={() => console.info('⚡️ onEnded')}
+          />
+        );
       });
   });
 
