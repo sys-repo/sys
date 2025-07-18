@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { type t, D } from '../common.ts';
+import { D } from '../common.ts';
 import { VideoElement2 } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -40,10 +40,10 @@ export default Spec.describe(D.displayName, (e) => {
   }
 
   function ControlledSubject() {
-    const v = Signal.toObject(p);
+    const width = p.width.value;
     const signals = debug.controlled.signals;
     const controller = Player.Video.useSignals(signals, { silent: false });
-    return <VideoElement2 style={{ width: v.width }} {...controller.props} />;
+    return <VideoElement2 style={{ width }} {...controller.props} />;
   }
 
   e.it('init', (e) => {
