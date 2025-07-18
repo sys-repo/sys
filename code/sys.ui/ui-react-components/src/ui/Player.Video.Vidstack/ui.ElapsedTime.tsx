@@ -7,8 +7,8 @@ type P = t.ElapsedTimeProps;
  * Component:
  */
 export const ElapsedTime: React.FC<P> = (props) => {
-  const { player, show = true } = props;
-  const p = player?.props;
+  const { video, show = true } = props;
+  const p = video?.props;
   const currentTime = p?.currentTime.value ?? 0;
 
   Signal.useRedrawEffect(() => p?.currentTime.value);

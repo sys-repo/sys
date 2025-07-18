@@ -30,7 +30,7 @@ export type VidstackPlayerProps = {
  * Component: Elapsed Time (Debug).
  */
 export type ElapsedTimeProps = {
-  player?: t.VideoPlayerSignals;
+  video?: t.VideoPlayerSignals;
   abs?: t.CssEdgesInput | boolean;
   show?: boolean;
   style?: t.CssInput;
