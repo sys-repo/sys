@@ -21,6 +21,7 @@ export type {
   SheetSignalStack,
   SvgElement,
   SvgInstance,
+  VideoElement2Props,
   VideoPlayerEndedHandler,
   VideoPlayerSignals,
   VimeoIFrame,

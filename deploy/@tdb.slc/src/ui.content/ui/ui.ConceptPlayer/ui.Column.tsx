@@ -10,17 +10,20 @@ export type ColumnProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClickOutside?: t.DomMouseEventHandler;
-  onVideoEnd?: t.VideoPlayerEndedHandler;
+  onVideoEnd?: t.VideoElement2Props['onEnded'];
 };
 
 /**
  * Component:
  */
 export const Column: React.FC<ColumnProps> = (props) => {
-  const { align, debug = false, videoVisible = true } = props;
+  const { align, video, debug = false, videoVisible = true } = props;
   const isCenter = align === 'Center';
-  const player = props.video;
 
+  /**
+   * Hooks:
+   */
+  const player = Player.Video.useSignals(video);
   const clickOutside = useClickOutside({
     stage: 'down',
     callback: (e) => props.onClickOutside?.(e),
@@ -41,6 +44,17 @@ export const Column: React.FC<ColumnProps> = (props) => {
     video: css({ display: videoVisible ? 'grid' : 'none' }),
   };
 
+  const elPlayer = (
+    <Player.Video.Element2
+      {...player.props}
+      debug={debug}
+      onEnded={(e) => {
+        props.onVideoEnd?.(e);
+        player.props.onEnded?.(e);
+      }}
+    />
+  );
+
   return (
     <Sheet
       theme={theme.name}
@@ -50,10 +64,8 @@ export const Column: React.FC<ColumnProps> = (props) => {
     >
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
-        <div className={styles.video.class}>
-          <Player.Video.Element video={player} debug={debug} onEnded={props.onVideoEnd} />
-        </div>
-        <Player.Timestamp.Elapsed.View player={player} abs={true} show={debug} />
+        <div className={styles.video.class}>{elPlayer}</div>
+        <Player.Timestamp.Elapsed.View video={video} abs={true} show={debug} />
       </div>
     </Sheet>
   );

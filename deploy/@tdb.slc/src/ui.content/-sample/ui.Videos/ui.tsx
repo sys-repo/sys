@@ -3,7 +3,7 @@ import { type t, Color, css, Player } from './common.ts';
 
 export const VideosIndex: React.FC<t.VideosIndexProps> = (props) => {
   const {} = props;
-  const signalsRef = React.useRef(props.signals);
+  const controller = Player.Video.useSignals(props.signals);
 
   /**
    * Render:
@@ -18,7 +18,7 @@ export const VideosIndex: React.FC<t.VideosIndexProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Player.Video.Element video={signalsRef.current} />
+      <Player.Video.Element2 {...controller.props} />
     </div>
   );
 };

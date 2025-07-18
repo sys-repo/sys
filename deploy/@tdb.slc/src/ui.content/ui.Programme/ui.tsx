@@ -15,9 +15,10 @@ type P = t.ProgrammeProps;
 export const Programme: React.FC<P> = (props) => {
   const { content, isTop } = props;
 
-  const player = useVideoPlayer(content.media, content.playOnLoad);
   const stateRef = React.useRef(ProgrammeSignals.init(props));
   const state = stateRef.current;
+  const player = useVideoPlayer(content.media, content.playOnLoad);
+  const video = player.signals;
 
   const p = state.props;
   const debug = p.debug.value;
@@ -27,13 +28,13 @@ export const Programme: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const controller = useController({ state, player });
+  const controller = useController({ state, video });
 
   /**
    * Effects:
    */
   Signal.useRedrawEffect(() => state.listen());
-  React.useEffect(() => props.onReady?.({ content, state, player }), []);
+  React.useEffect(() => props.onReady?.({ content, state, video }), []);
 
   /**
    * Render:
@@ -60,7 +61,7 @@ export const Programme: React.FC<P> = (props) => {
       debug={debug}
       state={state}
       content={content}
-      player={player}
+      video={player.signals}
       onSelect={(e) => controller.section.onChildSelected(e.index)}
     />
   );
@@ -71,7 +72,7 @@ export const Programme: React.FC<P> = (props) => {
       debug={debug}
       state={state}
       content={content}
-      player={player}
+      player={player.signals}
     />
   );
 
@@ -82,7 +83,7 @@ export const Programme: React.FC<P> = (props) => {
         theme={'Light'}
         // Column:
         columnAlign={align}
-        columnVideo={player}
+        columnVideo={player.signals}
         columnVideoVisible={!isCenter}
         columnBody={isCenter ? elRootMenu : elSection}
         // Content:

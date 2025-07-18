@@ -20,8 +20,9 @@ export const Overview: React.FC<OverviewProps> = (props) => {
   const { media, showElapsed = true } = content;
 
   const player = useVideoPlayer(media, content.playOnLoad);
-  const timestamp = useTimestamps(player, media?.timestamps);
-  usePulldown(props, player, timestamp);
+  const video = player.signals;
+  const timestamp = useTimestamps(video, media?.timestamps);
+  usePulldown(props, video, timestamp);
 
   /**
    * Render:
@@ -31,17 +32,17 @@ export const Overview: React.FC<OverviewProps> = (props) => {
     base: css({ marginTop: 44 }),
     body: css({ position: 'relative', display: 'grid', gridTemplateRows: '1fr auto' }),
     content: css({ display: 'grid' }),
-    player: css({ marginBottom: -1 }),
   };
+
+  const elPlayer = player.render({
+    style: { marginBottom: -1 },
+    onEnded: (e) => Time.delay(1_000, () => state.stack.clear(1)), // NB: add time buffer before hiding.
+  });
 
   const elBody = (
     <div className={styles.body.class}>
       <div className={styles.content.class}>{timestamp.column}</div>
-      <Player.Video.Element
-        video={player}
-        style={styles.player}
-        onEnded={() => Time.delay(1_000, () => state.stack.clear(1))} // NB: add time buffer before hiding.
-      />
+      {elPlayer}
     </div>
   );
 
@@ -54,7 +55,7 @@ export const Overview: React.FC<OverviewProps> = (props) => {
       orientation={'Bottom:Up'}
     >
       {elBody}
-      <Player.Timestamp.Elapsed.View player={player} abs={true} show={showElapsed} />
+      <Player.Timestamp.Elapsed.View video={player.signals} abs={true} show={showElapsed} />
     </Sheet>
   );
 };

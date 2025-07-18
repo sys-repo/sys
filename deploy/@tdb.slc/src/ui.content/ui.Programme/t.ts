@@ -43,7 +43,7 @@ export type ProgrammeReadyHandler = (e: ProgrammeReadyHandlerArgs) => void;
 export type ProgrammeReadyHandlerArgs = {
   content: t.ProgrammeContent;
   state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
+  video: t.VideoPlayerSignals;
 };
 
 /**
@@ -52,7 +52,7 @@ export type ProgrammeReadyHandlerArgs = {
 export type ProgrammeSectionProps = {
   content: t.ProgrammeContent;
   state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
+  video: t.VideoPlayerSignals;
 
   debug?: boolean;
   theme?: t.CommonTheme;
