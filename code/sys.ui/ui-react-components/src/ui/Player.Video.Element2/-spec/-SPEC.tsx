@@ -18,7 +18,7 @@ export default Spec.describe(D.displayName, (e) => {
       p.playing.value = e.playing;
     };
     const onMutedChange: P['onMutedChange'] = (e) => {
-      console.info(`⚡️ onPlayingChange:`, e);
+      console.info(`⚡️ onMutedChange:`, e);
       p.muted.value = e.muted;
     };
     const onEnded: P['onEnded'] = (e) => {
