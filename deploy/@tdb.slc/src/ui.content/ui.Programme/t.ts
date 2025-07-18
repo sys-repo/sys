@@ -32,6 +32,7 @@ export type ProgrammeProps = {
   state?: t.ProgrammeSignals;
   player?: t.VideoPlayerSignals;
   isTop?: boolean;
+  muted?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onCloseRequest?: () => void;

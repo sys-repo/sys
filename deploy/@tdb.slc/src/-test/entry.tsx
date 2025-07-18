@@ -72,12 +72,11 @@ export async function main() {
     const app = App.signals();
 
     app.stack.push(await Content.Factory.entry());
-    // await App.Render.preloadModule(app, Content.factory, [
-    //   'Entry',
-    //   'Trailer',
-    //   'Overview',
-    //   'Programme',
-    // ]);
+    await App.Render.preloadModule(
+      app,
+      (id, options = {}) => Content.factory(id, { ...options, muted: true }),
+      ['Entry', 'Trailer', 'Overview', 'Programme'],
+    );
 
     root.render(
       <StrictMode>

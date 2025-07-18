@@ -17,7 +17,7 @@ export const Programme: React.FC<P> = (props) => {
 
   const stateRef = React.useRef(ProgrammeSignals.init(props));
   const state = stateRef.current;
-  const player = useVideoPlayer(content.media, content.playOnLoad);
+  const player = useVideoPlayer(content.media, content.playOnLoad, props.muted);
   const video = player.signals;
 
   const p = state.props;
