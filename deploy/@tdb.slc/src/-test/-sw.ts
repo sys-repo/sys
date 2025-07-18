@@ -8,6 +8,6 @@ import { Http } from '@sys/http/client';
 self.skipWaiting();
 
 /**
- * Start the HTTP pkg/bundle cache.
+ * Start the standard HTTP pkg/bundle cache.
  */
 Http.Cache.pkg({ pkg });
