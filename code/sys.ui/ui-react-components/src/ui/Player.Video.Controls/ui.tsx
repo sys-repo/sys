@@ -19,7 +19,11 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.bg, padding: 10 }),
+    base: css({
+      position: 'relative',
+      color: Color.WHITE,
+      padding: 10,
+    }),
     mask: css({ Absolute: [null, 0, 0, 0], zIndex: 0 }),
     body: css({
       position: 'relative',
