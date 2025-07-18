@@ -6,8 +6,6 @@ import type { t } from './common.ts';
 export type VideoElement2Props = {
   src?: string;
   poster?: string;
-  autoPlay?: boolean;
-  muted?: boolean;
   loop?: boolean;
   aspectRatio?: string; // e.g. "16/9"
   borderRadius?: t.Pixels;
@@ -17,6 +15,47 @@ export type VideoElement2Props = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  // Handlers:
-  onEnded?: () => void;
+  /**
+   * Playback intent:
+   *  - If `playing` is defined => controlled.
+   *  - Else uses `autoPlay` (default true) as initial start intent.
+   */
+  playing?: boolean;
+  autoPlay?: boolean;
+
+  /**
+   * Mute control:
+   *  - If `muted` defined => controlled.
+   *  - Else uses `defaultMuted` (was previously `muted` prop) as initial.
+   */
+  muted?: boolean;
+  defaultMuted?: boolean;
+
+  /**
+   * Events fired when underlying element state changes.
+   * Parent is expected to re-render with new `playing`/`muted` if controlling.
+   */
+  onPlayingChange?: (e: { playing: boolean; ctx: t.MediaCtx }) => void;
+  onMutedChange?: (e: { muted: boolean; ctx: t.MediaCtx }) => void;
+
+  /**
+   * Fired when media ends (native `ended` or loop boundary if you care).
+   */
+  onEnded?: (e: { ctx: t.MediaCtx }) => void;
 };
+
+/**
+ * Events:
+ */
+export type MediaCtxReason =
+  | 'user-toggle-play'
+  | 'user-toggle-mute'
+  | 'autoplay-start'
+  | 'autoplay-muted-retry'
+  | 'autoplay-gesture'
+  | 'prop-change'
+  | 'media-ended'
+  | 'element-event'
+  | 'src-change'
+  | 'ended';
+export type MediaCtx = { reason: MediaCtxReason };

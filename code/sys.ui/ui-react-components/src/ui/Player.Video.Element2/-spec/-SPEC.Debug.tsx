@@ -39,10 +39,12 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     width: s(snap.width),
 
+    playing: s(false),
+    autoPlay: s(snap.autoPlay),
+
     src: s(snap.src),
     muted: s(snap.muted),
     loop: s(snap.loop),
-    autoPlay: s(snap.autoPlay),
     borderRadius: s(snap.borderRadius),
     aspectRatio: s(snap.aspectRatio),
   };
@@ -69,6 +71,7 @@ export function createDebugSignals() {
       d.loop = p.loop.value;
       d.muted = p.muted.value;
       d.muted = p.muted.value;
+      d.borderRadius = p.borderRadius.value;
     });
   });
 
@@ -142,7 +145,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `width: ${p.width.value}`}
-        onClick={() => Signal.cycle(p.width, [320, 420, 420])}
+        onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
 
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
