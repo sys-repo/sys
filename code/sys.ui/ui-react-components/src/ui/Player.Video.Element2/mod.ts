@@ -3,4 +3,4 @@
  * @module
  */
 export { VideoElement2 } from './ui.tsx';
-export { usePlayerSignals } from './use.Signals.tsx';
+export { usePlayerSignals } from './use.PlayerSignals.tsx';

@@ -13,6 +13,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     aspectRatio = '16/9',
     cornerRadius = 0,
     debug = false,
+    jumpTo,
 
     // Controlled playback + mute:
     playing: playingProp,
@@ -44,6 +45,10 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
    * Cleared when element enters playing or we give up.
    */
   const autoplayPendingRef = useRef(false);
+  useEffect(() => {
+    shouldAutoplayRef.current = true;
+    autoplayPendingRef.current = false;
+  }, [src]);
 
   /**
    * Resolve current element state (sampled).
@@ -71,7 +76,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   });
 
   /**
-   * Sync time/duration from media element.
+   * Effect: Sync time/duration from media element.
    */
   useEffect(() => {
     if (!el) return;
@@ -95,7 +100,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   }, [src, el]);
 
   /**
-   * Wire media events -> outward change notifications.
+   * Effect: Wire media events -> outward change notifications.
    */
   useEffect(() => {
     if (!el) return;
@@ -133,8 +138,8 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   }, [el, onEnded, onPlayingChange, onMutedChange]);
 
   /**
-   * Apply controlled props to element.
-   * (Runs whenever caller changes `playingProp`/`mutedProp`.)
+   * Effect: Apply controlled props to element.
+   *         (Runs whenever caller changes `playingProp`/`mutedProp`.)
    */
   useEffect(() => {
     if (!el) return;
@@ -157,6 +162,22 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       if (!playingProp && !el.paused) el.pause();
     }
   }, [el, playingProp, mutedProp, defaultMuted]);
+
+  /**
+   * Effect: Seek → respond to external jump-to commands.
+   */
+  useEffect(() => {
+    if (!videoRef.current || !jumpTo) return;
+
+    const el = videoRef.current;
+    el.currentTime = jumpTo.second;
+
+    if (jumpTo.play) {
+      if (el.paused) void el.play();
+    } else {
+      if (!el.paused) el.pause();
+    }
+  }, [jumpTo]);
 
   /**
    * Autoplay (only when playback is uncontrolled by `playingProp`):

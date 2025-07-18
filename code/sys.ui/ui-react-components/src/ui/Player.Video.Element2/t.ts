@@ -21,6 +21,9 @@ export type VideoElement2Props = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
+  // Commands:
+  jumpTo?: t.VideoPlayerJumpTo;
+
   /**
    * Playback intent:
    *  - If `playing` is defined => controlled.

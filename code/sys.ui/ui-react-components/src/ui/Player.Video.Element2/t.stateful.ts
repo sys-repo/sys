@@ -15,6 +15,8 @@ type P = Pick<
   | 'showFullscreenButton'
   | 'showVolumeControl'
   //
+  | 'jumpTo'
+  //
   | 'onPlayingChange'
   | 'onMutedChange'
   | 'onEnded'
@@ -25,7 +27,7 @@ type P = Pick<
  */
 export type UsePlayerSignals = (
   signals?: t.VideoPlayerSignals,
-  options?: { silent?: boolean },
+  options?: { log?: boolean },
 ) => PlayerSignalsHook;
 /** Instance of a stateful player hook. */
 export type PlayerSignalsHook = Readonly<{ props: P }>;

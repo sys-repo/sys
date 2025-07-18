@@ -121,6 +121,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const video = debug.controlled.signals;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -176,6 +177,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Video:'}</div>
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
+
+      <hr />
+      <Button
+        block
+        enabled={() => !!p.controlled.value}
+        label={`method: jumpTo(12, play)`}
+        onClick={() => video?.jumpTo(12)}
+      />
+      <Button
+        block
+        enabled={() => !!p.controlled.value}
+        label={`method: jumpTo(12, paused)`}
+        onClick={() => video?.jumpTo(12, { play: false })}
+      />
+
       <hr />
       <Button
         block

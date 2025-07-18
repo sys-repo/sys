@@ -42,7 +42,7 @@ export default Spec.describe(D.displayName, (e) => {
   function ControlledSubject() {
     const width = p.width.value;
     const signals = debug.controlled.signals;
-    const controller = Player.Video.useSignals(signals, { silent: false });
+    const controller = Player.Video.useSignals(signals, { log: true });
     return <VideoElement2 style={{ width }} {...controller.props} />;
   }
 

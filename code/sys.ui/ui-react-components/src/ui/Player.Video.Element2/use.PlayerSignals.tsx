@@ -3,8 +3,11 @@ import { type t, Signal } from './common.ts';
 export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   type R = t.PlayerSignalsHook;
   type P = R['props'];
-  const { silent = true } = options;
+  const { log = true } = options;
 
+  /**
+   * Effect: redraw
+   */
   Signal.useRedrawEffect(() => {
     if (!signals) return;
     const p = signals.props;
@@ -20,25 +23,26 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.showControls.value;
     p.showFullscreenButton.value;
     p.showVolumeControl.value;
+    p.jumpTo.value;
   });
 
   /**
-   * Signals as properties and handlers:
+   * Signals as view component property/handlers:
    */
   const props = ((): P => {
     if (!signals) return {};
     const p = signals.props;
 
     const onPlayingChange: P['onPlayingChange'] = (e) => {
-      if (!silent) console.info(`⚡️ onPlayingChange:`, e);
+      if (log) console.info(`⚡️ onPlayingChange:`, e);
       p.playing.value = e.playing;
     };
     const onMutedChange: P['onMutedChange'] = (e) => {
-      if (!silent) console.info(`⚡️ onMutedChange:`, e);
+      if (log) console.info(`⚡️ onMutedChange:`, e);
       p.muted.value = e.muted;
     };
     const onEnded: P['onEnded'] = (e) => {
-      if (!silent) console.info('⚡️ onEnded:', e);
+      if (log) console.info('⚡️ onEnded:', e);
     };
 
     return {
@@ -55,6 +59,8 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       showControls: p.showControls.value,
       showFullscreenButton: p.showFullscreenButton.value,
       showVolumeControl: p.showVolumeControl.value,
+
+      jumpTo: p.jumpTo.value,
 
       onPlayingChange,
       onMutedChange,
