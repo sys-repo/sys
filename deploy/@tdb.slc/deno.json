@@ -12,8 +12,8 @@
     "d-ipfs-prod": "orbiter deploy --config=orbiter-socialleancanvas.com.json",
 
     "deploy": "        deno task deploy-staging",
-    "deploy-staging": "deno task test  &&  deno task d-ipfs-staging  &&  deno task help --info",
-    "deploy-prod": "   deno task test  &&  deno task d-ipfs-prod     &&  deno task help --info",
+    "deploy-staging": "deno task test  &&  deno task build  &&  deno task d-ipfs-staging  &&  deno task help --info",
+    "deploy-prod": "   deno task test  &&  deno task build  &&  deno task d-ipfs-prod     &&  deno task help --info",
 
     "dry": "deno      publish --allow-dirty --dry-run",
     "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
