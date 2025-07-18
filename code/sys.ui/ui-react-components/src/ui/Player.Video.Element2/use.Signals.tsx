@@ -43,10 +43,10 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
 
     return {
       src: p.src.value,
+      autoPlay: p.autoPlay.value,
       playing: p.playing.value,
       muted: p.muted.value,
       loop: p.loop.value,
-      autoPlay: p.autoPlay.value,
 
       aspectRatio: p.aspectRatio.value,
       cornerRadius: p.cornerRadius.value,
