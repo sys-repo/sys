@@ -155,7 +155,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       {debug && (
         <div
           className={styles.debug.class}
-        >{`ready-state:${rs} play:${playing} spin:${spinning}`}</div>
+        >{`ready-state:${rs}, play:${playing}, spin:${spinning}, src:${src?.slice(-8) ?? ''}`}</div>
       )}
 
       {/* optional vignette mask */}
