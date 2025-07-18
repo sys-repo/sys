@@ -41,7 +41,11 @@ export function useControlsVisibility(args: {
   /**
    * Effect: listeners.
    */
-  useEffect(() => void updateState(), [video?.instance, isOver]);
+  useEffect(() => {
+    if (isOver) clearHideTimeout();
+    updateState();
+  }, [video?.instance, isOver]);
+
   Signal.useEffect(() => {
     if (video) wrangle.props(video);
     updateState();

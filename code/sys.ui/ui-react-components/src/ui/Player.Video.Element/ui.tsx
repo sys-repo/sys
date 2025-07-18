@@ -61,6 +61,17 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   });
 
   /**
+   * Effect: Reset all runtime-derived values.
+   */
+  React.useEffect(() => {
+    if (!p) return;
+    p.ready.value = false;
+    p.buffering.value = true; // ← optimistic spinner until 'playing'.
+    p.currentTime.value = 0;
+    p.duration.value = 0;
+  }, [p?.src.value]);
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);

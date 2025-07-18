@@ -17,19 +17,21 @@ export function useSignalBinding(args: {
   /**
    * Action: play/pause the <video> element.
    */
-  function play(play = true) {
+  function play(start = true) {
     const el = videoRef.current;
     if (!el) return;
 
-    if (!Dom.UserHas.interacted) {
+    const requiresInteraction = !Dom.UserHas.interacted && !el.muted;
+    if (requiresInteraction) {
       if (p) p.playing.value = false;
-      const detail = 'User has not interacted with the window yet. (no action taken)';
-      console.info(`🫵 Cannot ${play ? 'auto-play' : 'pause'} the video. ${detail}`);
+      const src = p?.src.value ?? '';
+      const detail = `User has not interacted with the window yet (and video not muted). ${src}`;
+      console.info(`🫵 Cannot ${start ? 'auto-play' : 'pause'} the video - ${detail}.`);
       return;
     }
 
-    if (play) el.play();
-    if (!play) el.pause();
+    if (start) void el.play(); // NB: play() returns a promise.
+    else el.pause();
   }
 
   /**
@@ -113,13 +115,11 @@ export function useSignalBinding(args: {
    * Effect: Auto-Play.
    */
   React.useEffect(() => {
+    if (!p?.autoPlay.value) return;
     const time = Time.until();
-    const autoPlay = p?.autoPlay.value;
-
-    // NB: after delay to prevent race condition with other callers during initial load.
-    if (autoPlay) time.delay(0, () => play(true));
+    time.delay(0, () => play(true)); // NB: delay avoids race on first mount.
     return time.dispose;
-  }, []);
+  }, [p?.src.value, p?.autoPlay.value]);
 
   /**
    * Effect: seeking behavior.
