@@ -351,4 +351,62 @@ describe('Disposable', () => {
       expect(fired).to.eql(1);
     });
   });
+
+  describe('Dispose.abortable', () => {
+    it('constructs: default (no until)', () => {
+      const a = Dispose.abortable();
+      expect(a.disposed).to.eql(false);
+      expect(a.signal.aborted).to.eql(false);
+      expect(typeof a.dispose).to.eql('function');
+      expect(a.controller).to.be.an.instanceOf(AbortController);
+      expect(a.signal).to.be.an.instanceOf(AbortSignal);
+    });
+
+    it('dispose(): aborts signal + marks disposed', () => {
+      const a = Dispose.abortable();
+      let abortedEventCount = 0;
+      a.signal.addEventListener('abort', () => abortedEventCount++);
+
+      a.dispose();
+
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+      expect(abortedEventCount).to.eql(1); // event fired exactly once
+    });
+
+    it('idempotent dispose()', () => {
+      const a = Dispose.abortable();
+      a.dispose();
+      const firstAbortedState = a.signal.aborted;
+      a.dispose(); // second call should be a no-op
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+      expect(a.signal.aborted).to.eql(firstAbortedState);
+    });
+
+    it('external lifecycle (until: dispose$) triggers abort', () => {
+      const { dispose, dispose$ } = rx.lifecycle();
+      const a = Dispose.abortable(dispose$);
+      expect(a.disposed).to.eql(false);
+      expect(a.signal.aborted).to.eql(false);
+
+      dispose(); // disposing upstream lifecycle
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+    });
+
+    it('abort event fires exactly once even with external + local dispose', () => {
+      const { dispose, dispose$ } = rx.lifecycle();
+      const a = Dispose.abortable(dispose$);
+      let count = 0;
+      a.signal.addEventListener('abort', () => count++);
+
+      dispose(); // upstream
+      a.dispose(); // local (should be idempotent)
+      a.controller.abort(); // manual abort on controller (already aborted)
+
+      expect(count).to.eql(1);
+      expect(a.signal.aborted).to.eql(true);
+    });
+  });
 });

@@ -8,6 +8,7 @@ describe('Observable/rx', () => {
     expect(rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
     expect(rx.disposable).to.equal(Dispose.disposable);
     expect(rx.disposableAsync).to.equal(Dispose.disposableAsync);
+    expect(rx.abortable).to.equal(Dispose.abortable);
   });
 
   it('dual cased names', () => {
