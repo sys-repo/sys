@@ -38,6 +38,9 @@ const wrangle = {
       ok: !error,
       raw: error ? String(raw) : url.href,
       error: error,
+      get href() {
+        return url.href;
+      },
       join(...parts: string[]) {
         const path = Path.join(url.pathname, ...parts);
         return `${url.origin}/${path.replace(/^\/*/, '')}`;

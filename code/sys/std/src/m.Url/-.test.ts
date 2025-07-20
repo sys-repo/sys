@@ -11,6 +11,7 @@ describe('Url', () => {
       expect(url.error).to.eql(undefined);
       expect(url.raw).to.eql(raw);
       expect(url.toString()).to.eql(raw);
+      expect(url.href).to.eql(url.toString());
       expect(url.toURL()).to.eql(new URL(raw));
     });
 

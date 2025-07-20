@@ -21,6 +21,9 @@ export type HttpUrl = {
   /** The base URL path. */
   readonly raw: string;
 
+  /** The URL href. */
+  readonly href: string;
+
   /** Join parts of a URL path. */
   join(...parts: string[]): string;
 
