@@ -118,6 +118,37 @@ describe('Http.Fetch', () => {
       expect(res.headers.get('content-type')).to.eql('application/octet-stream');
       await server.dispose();
     });
+
+    it('200: head', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('HEAD');
+        expect(req.headers.get('content-type')).to.eql('text/plain');
+        return new Response(null, {
+          // NB: no body for HEAD.
+          status: 200,
+          headers: {
+            'content-type': 'text/plain',
+            'content-length': '1234',
+            'x-foo': 'hello',
+          },
+        });
+      });
+
+      const url = server.url.toString();
+      const fetch = Fetch.create();
+      const res = await fetch.head(url);
+
+      expect(res.ok).to.eql(true);
+      expect(res.status).to.eql(200);
+      expect(res.url).to.eql(url);
+      expect(res.data).to.eql(undefined); // no payload
+      expect(res.error).to.eql(undefined);
+      expect(res.headers.get('content-type')).to.eql('text/plain');
+      expect(res.headers.get('content-length')).to.eql('1234');
+      expect(res.headers.get('x-foo')).to.eql('hello');
+
+      await server.dispose();
+    });
   });
 
   describe('fetch: fail', () => {

@@ -29,21 +29,28 @@ export type HttpFetch = t.Lifecycle & {
   /** Retrieve the value for the specified header. */
   header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
 
-  /** Invoke a fetch to retrieve "application/json". */
+  /** Invoke a fetch with the HTTP verb "HEAD" (no response body expected). */
+  head(
+    input: RequestInput,
+    init?: RequestInit,
+    options?: t.HttpFetchOptions,
+  ): Promise<t.FetchResponse<undefined>>;
+
+  /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/json". */
   json<T>(
     input: RequestInput,
     init?: RequestInit,
     options?: t.HttpFetchOptions,
   ): Promise<t.FetchResponse<T>>;
 
-  /** Invoke a fetch to retrieve "text/plain". */
+  /** Invoke a fetch with the HTTP verb "GET" to retrieve "text/plain". */
   text(
     input: RequestInput,
     init?: RequestInit,
     options?: t.HttpFetchOptions,
   ): Promise<t.FetchResponse<string>>;
 
-  /** Invoke a fetch to retrieve "application/octet-stream" binary file data. */
+  /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/octet-stream" binary file data. */
   blob(
     input: RequestInput,
     init?: RequestInit,

@@ -107,6 +107,13 @@ export const create: F = (input: Parameters<F>[0]) => {
       return wrangle.headers(options);
     },
 
+    head(input: RequestInput, init: RequestInit = {}, options = {}) {
+      const req = { ...init, method: 'HEAD' };
+      const contentType = 'text/plain'; //                  ← harmess header.
+      const toData = async () => undefined as undefined; // ← no body to parse.
+      return invokeFetch<undefined>(contentType, input, req, options, toData);
+    },
+
     json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
       return invokeFetch<T>('application/json', input, init, options, (r) => r.json());
     },
