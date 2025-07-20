@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, Str } from './common.ts';
 
 /**
  * Component:
  */
 export const PathView: React.FC<t.PathViewProps> = (props) => {
-  const { path = [], prefix } = props;
+  const { path = [], prefix, maxSegmentLength = 20 } = props;
 
   /**
    * Render:
@@ -28,12 +28,13 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
     last: css({ color: theme.fg }),
   };
 
-  const elPath = path.map((slot, i, { length }) => {
+  const elPath = path.map((segment, i, { length }) => {
     const last = i >= length - 1;
     const cn = last ? styles.last.class : undefined;
+    const seg = Str.truncate(String(segment), maxSegmentLength);
     return (
       <React.Fragment key={i}>
-        <span className={cn}>{slot}</span>
+        <span className={cn}>{seg}</span>
         {!last && <span className={styles.divider.class}>/</span>}
       </React.Fragment>
     );
