@@ -8,7 +8,7 @@ type RequestInput = RequestInfo | URL;
  */
 export type HttpFetchLib = {
   /** Fetch helper that can cancel fetch operations mid-stream. */
-  create(args?: t.UntilObservable | HttpFetchCreateOptions): t.HttpFetch;
+  create(args?: HttpFetchCreateOptions | t.UntilInput): t.HttpFetch;
 };
 
 /** Options passed to the `HttpFetch.create` method. */

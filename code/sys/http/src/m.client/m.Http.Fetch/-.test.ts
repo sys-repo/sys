@@ -203,10 +203,12 @@ describe('Http.Fetch', () => {
       const b = Fetch.create([life.dispose$]);
       const c = Fetch.create([life.dispose$, undefined]);
       const d = Fetch.create({ dispose$ });
+      const e = Fetch.create(life);
+      const all = [a, b, c, d, e];
 
-      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(false));
+      all.forEach(({ disposed }) => expect(disposed).to.eql(false));
       life.dispose();
-      [a, b, c, d].forEach(({ disposed }) => expect(disposed).to.eql(true));
+      all.forEach(({ disposed }) => expect(disposed).to.eql(true));
     });
 
     it('dispose$ ← (observable param)', async () => {

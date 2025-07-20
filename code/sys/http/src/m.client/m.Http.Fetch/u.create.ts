@@ -1,8 +1,11 @@
-import { type t, DEFAULTS, Err, Is, rx, toHeaders } from './common.ts';
+import { type t, DEFAULTS, Dispose, Err, Is, rx, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
 type F = t.HttpFetchLib['create'];
 
+/**
+ * Factory method:
+ */
 export const create: F = (input: Parameters<F>[0]) => {
   const options = wrangle.options(input);
   let _aborted = false;
@@ -128,12 +131,13 @@ export const create: F = (input: Parameters<F>[0]) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   options(input: Parameters<F>[0]): t.HttpFetchCreateOptions {
     if (!input) return {};
-    if (Array.isArray(input) || Is.observable(input)) return { dispose$: input };
+    if (Array.isArray(input)) return { dispose$: Dispose.until(input) };
+    if (Is.observable(input)) return { dispose$: Dispose.until(input) };
     if (typeof input === 'object') return input as t.HttpFetchCreateOptions;
     return {};
   },
