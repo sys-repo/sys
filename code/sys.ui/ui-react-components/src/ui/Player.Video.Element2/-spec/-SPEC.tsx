@@ -1,7 +1,9 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import React from 'react';
+
+import { Str, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
 import { D } from '../common.ts';
-import { VideoElement2 } from '../mod.ts';
+import { useFileSize, VideoElement2 } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -40,10 +42,41 @@ export default Spec.describe(D.displayName, (e) => {
   }
 
   function ControlledSubject() {
-    const width = p.width.value;
-    const signals = debug.controlled.signals;
-    const controller = Player.Video.useSignals(signals, { log: true });
-    return <VideoElement2 style={{ width }} {...controller.props} />;
+    const v = Signal.toObject(p);
+    const { width } = v;
+    const controller = Player.Video.useSignals(debug.video, { log: true });
+    return (
+      <VideoElement2
+        //
+        style={{ width }}
+        debug={v.debug}
+        {...controller.props}
+      />
+    );
+  }
+
+  function Root(props: { children?: React.ReactNode }) {
+    const src = useFileSize(p.src.value);
+    const size = Str.bytes(src.bytes);
+
+    const styles = {
+      base: css({
+        Absolute: [null, 0, -25, 0],
+        PaddingX: 12,
+        fontSize: 10,
+        fontFamily: 'monospace',
+        opacity: 0.5,
+        display: 'grid',
+        justifyItems: 'end',
+      }),
+    };
+
+    return (
+      <>
+        {src.bytes > 0 && <div className={styles.base.class}>{`file-size: ${size}`}</div>}
+        {props.children}
+      </>
+    );
   }
 
   e.it('init', (e) => {
@@ -57,7 +90,8 @@ export default Spec.describe(D.displayName, (e) => {
 
     ctx.subject.display('grid').render(() => {
       const controlled = p.controlled.value;
-      return controlled ? <ControlledSubject /> : <UncontrolledSubject />;
+      const el = controlled ? <ControlledSubject /> : <UncontrolledSubject />;
+      return <Root>{el}</Root>;
     });
   });
 
