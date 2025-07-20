@@ -9,6 +9,7 @@ export function until(input?: t.DisposeInput) {
 
   const $ = input;
   const list = Array.isArray($) ? $ : [$];
+
   return Arr.flatten<unknown>(list)
     .filter(Boolean)
     .map((m) => (Is.disposable(m) ? m.dispose$ : m)) as t.Observable<unknown>[];
