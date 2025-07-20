@@ -125,10 +125,10 @@ describe('Http.Fetch', () => {
     it('200: head', async () => {
       const server = Testing.Http.server((req) => {
         expect(req.method).to.eql('HEAD');
-        expect(req.headers.get('content-type')).to.eql('text/plain');
+        expect(req.headers.get('content-type')).to.eql(null);
+
         return new Response(null, {
-          // NB: no body for HEAD.
-          status: 200,
+          status: 200, // No body for HEAD.
           headers: {
             'content-type': 'text/plain',
             'content-length': '1234',
@@ -144,8 +144,10 @@ describe('Http.Fetch', () => {
       expect(res.ok).to.eql(true);
       expect(res.status).to.eql(200);
       expect(res.url).to.eql(url);
-      expect(res.data).to.eql(undefined); // no payload
+      expect(res.data).to.eql(undefined); // ← no payload.
       expect(res.error).to.eql(undefined);
+
+      // Response headers are still present.
       expect(res.headers.get('content-type')).to.eql('text/plain');
       expect(res.headers.get('content-length')).to.eql('1234');
       expect(res.headers.get('x-foo')).to.eql('hello');
@@ -277,7 +279,7 @@ describe('Http.Fetch', () => {
       await server.dispose();
     });
 
-    it('Range: 206 with Content-Range header', async () => {
+    it('range: 206 with Content-Range header', async () => {
       const server = Testing.Http.server((req) => {
         if (req.method === 'HEAD') {
           return new Response(null, { status: 405 }); // Force fallback.
@@ -296,7 +298,7 @@ describe('Http.Fetch', () => {
       await server.dispose();
     });
 
-    it('Range: 200 with Content-Length header', async () => {
+    it('range: 200 with Content-Length header', async () => {
       const server = Testing.Http.server((req) => {
         if (req.method === 'HEAD') return new Response(null, { status: 405 });
         return new Response(new Uint8Array([0]), {
@@ -312,7 +314,7 @@ describe('Http.Fetch', () => {
       await server.dispose();
     });
 
-    it('Unknown: size cannot be determined', async () => {
+    it('unknown: size cannot be determined', async () => {
       const server = Testing.Http.server(() => new Response(null, { status: 404 }));
 
       const url = server.url.toString();
@@ -322,7 +324,7 @@ describe('Http.Fetch', () => {
       await server.dispose();
     });
 
-    it('Overload: uses provided Fetch instance', async () => {
+    it('overload: uses provided Fetch instance', async () => {
       const server = Testing.Http.server((req) => {
         expect(req.method).to.eql('HEAD');
         expect(req.headers.get('x-custom')).to.eql('demo');

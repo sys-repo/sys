@@ -28,8 +28,8 @@ export const create: F = (input: Parameters<F>[0]) => {
 
     try {
       const userHeaders = toHeaders(init.headers);
-      const mergedHeaders: Record<string, string> = { ...api.headers, ...userHeaders };
-      if (!userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
+      const mergedHeaders = { ...api.headers, ...userHeaders };
+      if (contentType && !userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
 
       const fetched = await fetch(url, {
         ...init,
@@ -111,9 +111,8 @@ export const create: F = (input: Parameters<F>[0]) => {
 
     head(input: RequestInput, init: RequestInit = {}, options = {}) {
       const req = { ...init, method: 'HEAD' };
-      const contentType = 'text/plain'; //                  ← harmess header.
-      const toData = async () => undefined as undefined; // ← no body to parse.
-      return invokeFetch<undefined>(contentType, input, req, options, toData);
+      const toData = async () => undefined as undefined; // ← No body.
+      return invokeFetch<undefined>('', input, req, options, toData); // '' = no header
     },
 
     json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {

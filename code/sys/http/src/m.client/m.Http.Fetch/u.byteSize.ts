@@ -24,26 +24,33 @@ export const byteSize: t.HttpFetchLib['byteSize'] = async (...args: any[]) => {
   /**
    * Probe: Range (1-byte GET).
    */
-  try {
-    // We only need headers, so use a raw fetch to avoid reading the body.
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: { Range: 'bytes=0-0' },
-      // Abort when the caller’s HttpFetch is disposed (if available):
-      signal: (httpFetch as any)?.signal ?? undefined,
-    });
+  const isServer = !globalThis.location;
+  const isSameOriginUrl =
+    typeof globalThis !== 'undefined' &&
+    new URL(url, globalThis.location?.href).origin === globalThis.location?.origin;
 
-    // Stop reading as soon as headers arrive.
-    res.body?.cancel?.();
+  if (isServer || isSameOriginUrl) {
+    try {
+      // We only need headers, so use a raw fetch to avoid reading the body.
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { Range: 'bytes=0-0' },
+        // Abort when the caller’s HttpFetch is disposed (if available):
+        signal: (httpFetch as any)?.signal ?? undefined,
+      });
 
-    if (res.ok) {
-      const byRange = toInt(res.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
-      const byLen = toInt(res.headers.get('Content-Length'));
-      const bytes = byRange ?? byLen;
-      if (bytes !== undefined) return { url, bytes, from: 'range' };
+      // Stop reading as soon as headers arrive.
+      res.body?.cancel?.();
+
+      if (res.ok) {
+        const byRange = toInt(res.headers.get('Content-Range')?.match(/\/(\d+)\s*$/)?.[1]);
+        const byLen = toInt(res.headers.get('Content-Length'));
+        const bytes = byRange ?? byLen;
+        if (bytes !== undefined) return { url, bytes, from: 'range' };
+      }
+    } catch {
+      /* ignore */
     }
-  } catch {
-    /* ignore */
   }
 
   // Finish up.
