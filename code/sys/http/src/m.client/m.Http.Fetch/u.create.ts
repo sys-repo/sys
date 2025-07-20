@@ -8,14 +8,7 @@ type F = t.HttpFetchLib['create'];
  */
 export const create: F = (input: Parameters<F>[0]) => {
   const options = wrangle.options(input);
-  let _aborted = false;
-
-  const life = rx.lifecycle(options.dispose$);
-  const controller = new AbortController();
-  life.dispose$.subscribe(() => {
-    _aborted = true;
-    controller.abort();
-  });
+  const life = rx.abortable(options.dispose$);
 
   const invokeFetch = async <T>(
     contentType: t.StringContentType,
@@ -36,7 +29,7 @@ export const create: F = (input: Parameters<F>[0]) => {
     try {
       const fetched = await fetch(url, {
         ...init,
-        signal: controller.signal,
+        signal: life.signal,
         headers: { ...api.headers, 'content-type': contentType },
       });
       status = fetched.status;
@@ -63,22 +56,22 @@ export const create: F = (input: Parameters<F>[0]) => {
     } catch (cause: unknown) {
       const name = 'HttpError';
       statusText = 'HTTP Client Error';
-      if (_aborted) {
-        // HTTP: Client Closed Request.
+      if (life.disposed) {
+        // HTTP: Client Closed Request:
         const err = DEFAULTS.error.clientDisposed;
         status = err.status;
         statusText = err.statusText;
         const error = Err.std(statusText, { name });
         errors.push(error);
       } else {
-        // HTTP: Unknown Error.
+        // HTTP: Unknown Error:
         status = DEFAULTS.error.unknown.status;
         const err = Err.std(`Failed while fetching: ${url}`, { cause, name });
         errors.push(err);
       }
     }
 
-    // Prepare error.
+    // Prepare error:
     let error: t.HttpError | undefined;
     const cause = errors.toError();
     if (cause) {
