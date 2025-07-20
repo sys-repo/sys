@@ -1,12 +1,15 @@
 import { Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
-import { rx } from './common.ts';
+
+import { type t, rx } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Http.Fetch', () => {
   it('API', () => {
     expect(Http.Fetch).to.equal(Fetch);
     expect(Http.fetch).to.equal(Fetch.create);
+
+    Http.Url;
   });
 
   describe('create', () => {
@@ -222,6 +225,119 @@ describe('Http.Fetch', () => {
       await fetch2.text(url);
 
       expect(tokens).to.eql(['Bearer my-jwt', 'Bearer my-dynamic']);
+      await server.dispose();
+    });
+
+    it('merges custom headers with library defaults', async () => {
+      const server = Testing.Http.server((req) => {
+        // ↓ 1-byte probe should keep our Range header.
+        expect(req.headers.get('range')).to.eql('bytes=0-0');
+        // ↓ blob() still injects its default content-type.
+        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        return Testing.Http.blob(new Uint8Array([0]));
+      });
+
+      const fetch = Fetch.create();
+      await fetch.blob(server.url.toString(), { headers: { Range: 'bytes=0-0' } });
+      await server.dispose();
+    });
+
+    it('does not overwrite caller-supplied content-type', async () => {
+      const server = Testing.Http.server((req) => {
+        // Should be exactly what the caller set.
+        expect(req.headers.get('content-type')).to.eql('application/x-demo');
+        return Testing.Http.text('✔︎');
+      });
+
+      const fetch = Fetch.create();
+      await fetch.text(server.url.toString(), {
+        headers: { 'content-type': 'application/x-demo' },
+      });
+
+      await server.dispose();
+    });
+  });
+
+  describe('Fetch.byteSize', () => {
+    type R = t.ByteSizeResult;
+
+    it('HEAD: returns size via Content-Length', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('HEAD');
+        return new Response(null, {
+          status: 200,
+          headers: { 'content-length': '1234' },
+        });
+      });
+
+      const url = server.url.toString();
+      const res: R = await Fetch.byteSize(url);
+
+      expect(res).to.eql({ url, bytes: 1234, from: 'head' });
+      await server.dispose();
+    });
+
+    it('Range: 206 with Content-Range header', async () => {
+      const server = Testing.Http.server((req) => {
+        if (req.method === 'HEAD') {
+          return new Response(null, { status: 405 }); // Force fallback.
+        }
+        expect(req.headers.get('range')).to.eql('bytes=0-0');
+        return new Response(new Uint8Array([0]), {
+          status: 206,
+          headers: { 'content-range': 'bytes 0-0/65536' },
+        });
+      });
+
+      const url = server.url.toString();
+      const res: R = await Fetch.byteSize(url);
+
+      expect(res).to.eql({ url, bytes: 65536, from: 'range' });
+      await server.dispose();
+    });
+
+    it('Range: 200 with Content-Length header', async () => {
+      const server = Testing.Http.server((req) => {
+        if (req.method === 'HEAD') return new Response(null, { status: 405 });
+        return new Response(new Uint8Array([0]), {
+          status: 200,
+          headers: { 'content-length': '9999' },
+        });
+      });
+
+      const url = server.url.toString();
+      const res: R = await Fetch.byteSize(url);
+
+      expect(res).to.eql({ url, bytes: 9999, from: 'range' });
+      await server.dispose();
+    });
+
+    it('Unknown: size cannot be determined', async () => {
+      const server = Testing.Http.server(() => new Response(null, { status: 404 }));
+
+      const url = server.url.toString();
+      const res: R = await Fetch.byteSize(url);
+
+      expect(res).to.eql({ url, from: 'unknown' });
+      await server.dispose();
+    });
+
+    it('Overload: uses provided Fetch instance', async () => {
+      const server = Testing.Http.server((req) => {
+        expect(req.method).to.eql('HEAD');
+        expect(req.headers.get('x-custom')).to.eql('demo');
+        return new Response(null, {
+          status: 200,
+          headers: { 'content-length': '321' },
+        });
+      });
+
+      const url = server.url.toString();
+      const fetch = Fetch.create({ headers: (e) => e.set('x-custom', 'demo') });
+      // NB: ↓ { 'x-custom': 'demo' }.
+      const res: R = await Fetch.byteSize(url, fetch);
+
+      expect(res).to.eql({ url, bytes: 321, from: 'head' });
       await server.dispose();
     });
   });

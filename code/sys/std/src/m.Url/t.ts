@@ -27,7 +27,7 @@ export type HttpUrl = {
   /** Join parts of a URL path. */
   join(...parts: string[]): string;
 
-  /** Collapse the URL to a simple HREF string. */
+  /** Collapse the URL to a simple "href" string. */
   toString(): string;
 
   /** Snapshot the current value into a URL instance. */

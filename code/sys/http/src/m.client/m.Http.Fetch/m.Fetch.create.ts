@@ -27,10 +27,14 @@ export const create: F = (input: Parameters<F>[0]) => {
     let checksum: undefined | t.FetchResponseChecksum;
 
     try {
+      const userHeaders = toHeaders(init.headers);
+      const mergedHeaders: Record<string, string> = { ...api.headers, ...userHeaders };
+      if (!userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
+
       const fetched = await fetch(url, {
         ...init,
         signal: life.signal,
-        headers: { ...api.headers, 'content-type': contentType },
+        headers: mergedHeaders,
       });
       status = fetched.status;
       statusText = fetched.statusText;
@@ -38,10 +42,8 @@ export const create: F = (input: Parameters<F>[0]) => {
 
       if (fetched.ok) {
         data = await toData(fetched);
-
         if (options.checksum) {
-          // NB: do not load crypto-algos into memory unless needed.
-          const { verifyChecksum } = await import('./u.checksum.ts');
+          const { verifyChecksum } = await import('./u.checksum.ts'); // ← NB: Do not load crypto-algos into memory unless needed.
           checksum = verifyChecksum<T>(data, options.checksum, errors);
           if (!checksum.valid) {
             const err = DEFAULTS.error.checksumFail;

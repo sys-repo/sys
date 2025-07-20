@@ -9,6 +9,10 @@ type RequestInput = RequestInfo | URL;
 export type HttpFetchLib = {
   /** Fetch helper that can cancel fetch operations mid-stream. */
   create(args?: HttpFetchCreateOptions | t.UntilInput): t.HttpFetch;
+
+  /** Probe header information to retrieve the byte-size of an HTTP resource. */
+  byteSize(url: t.StringUrl, fetch: t.HttpFetch): Promise<ByteSizeResult>;
+  byteSize(url: t.StringUrl, until?: t.UntilInput): Promise<ByteSizeResult>;
 };
 
 /** Options passed to the `HttpFetch.create` method. */
@@ -60,3 +64,12 @@ export type HttpFetch = t.Lifecycle & {
 
 /** Options passed to the `fetch.text` method. */
 export type HttpFetchOptions = { checksum?: t.StringHash };
+
+/**
+ * Response from `Fetch.byteSize` method.
+ */
+export type ByteSizeResult = Readonly<{
+  url: string;
+  bytes?: t.NumberBytes;
+  from: 'head' | 'range' | 'unknown';
+}>;
