@@ -78,9 +78,9 @@ export type VideoPlayerSignalProps = {
 
 /** Structure representing a jump-to ("seek") location */
 export type VideoPlayerSeekCmd = {
-  /** Positive = absolute seconds, negative = from the end (-5 → 5s before end) */
+  /** Positive = absolute seconds, negative = from the end (-5 → 5s before end). */
   second: t.Secs;
-  /** Play after seeking?  (default = leave play/pause state unchanged) */
+  /** Play after seeking?  (default = leave play/pause state unchanged). */
   play?: boolean;
 };
 
@@ -94,8 +94,7 @@ export type VideoPlayerIs = {
 
 /**
  * A function that calculates the scale transform to apply to the
- * video-player based on
- *
+ * video-player based on it's current size and aspect ratio.
  */
 export type VideoPlayerScale = (e: VideoPlayerScaleArgs) => t.Percent;
 export type VideoPlayerScaleArgs = {
