@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-
 import { type t, rx } from './common.ts';
 
 type P = Pick<t.VideoElementProps, 'onBufferedChange'>;

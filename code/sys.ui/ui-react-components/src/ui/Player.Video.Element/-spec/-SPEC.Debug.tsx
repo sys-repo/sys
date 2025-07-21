@@ -225,7 +225,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.autoPlay.value = false;
         }}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
+      <ObjectView
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          src: Str.truncate(p.src.value, 35),
+        }}
+        expand={0}
+        style={{ marginTop: 15 }}
+      />
       {p.controlled.value && (
         <ObjectView
           name={'signals'}

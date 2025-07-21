@@ -35,7 +35,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     fadeMask: s<undefined | t.VideoPlayerFadeMask>(wrangle.fadeMask(defaults.fadeMask)),
 
     // Commands:
-    jumpTo: s<t.VideoPlayerJumpTo | undefined>(),
+    jumpTo: s<t.VideoPlayerSeekCmd | undefined>(),
   };
 
   const instance = slug();

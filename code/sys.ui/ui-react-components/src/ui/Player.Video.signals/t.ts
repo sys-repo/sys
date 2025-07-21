@@ -73,11 +73,16 @@ export type VideoPlayerSignalProps = {
   /**
    * Commands:
    */
-  readonly jumpTo: t.Signal<t.VideoPlayerJumpTo | undefined>;
+  readonly jumpTo: t.Signal<t.VideoPlayerSeekCmd | undefined>;
 };
 
 /** Structure representing a jump-to ("seek") location */
-export type VideoPlayerJumpTo = { second: t.Secs; play: boolean };
+export type VideoPlayerSeekCmd = {
+  /** Positive = absolute seconds, negative = from the end (-5 → 5 s before end) */
+  second: t.Secs;
+  /** Play after seeking?  (default = leave play/pause state unchanged) */
+  play?: boolean;
+};
 
 /**
  * Boolean flags for the video player.

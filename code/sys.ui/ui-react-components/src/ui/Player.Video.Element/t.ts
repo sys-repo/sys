@@ -31,7 +31,7 @@ export type VideoElementProps = {
   style?: t.CssInput;
 
   // Commands:
-  jumpTo?: t.VideoPlayerJumpTo;
+  jumpTo?: t.VideoPlayerSeekCmd;
 
   /**
    * Playback intent:
