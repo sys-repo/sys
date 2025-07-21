@@ -5,9 +5,10 @@ import { type t, Color, css, M, READY_STATE } from './common.ts';
 import { Debug } from './ui.Debug.tsx';
 import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
+import { useBuffered } from './use.Buffered.ts';
 import { useControlsVisible } from './use.ControlsVisible.ts';
 
-export const VideoElement: React.FC<t.VideoElement2Props> = (props) => {
+export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
     src,
     poster,
@@ -32,7 +33,7 @@ export const VideoElement: React.FC<t.VideoElement2Props> = (props) => {
     onDurationChange,
     onBufferingChange,
     onBufferedChange,
-  } = props as t.VideoElement2Props; // ← explicit cast in case caller passes legacy props.
+  } = props as t.VideoElementProps; // ← explicit cast in case caller passes legacy props.
 
   /**
    * Refs:
@@ -77,11 +78,9 @@ export const VideoElement: React.FC<t.VideoElement2Props> = (props) => {
   /**
    * Controls visibility.
    */
-  const controlsUp = useControlsVisible({
-    playing,
-    canPlay,
-    pointerOver,
-  });
+  const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
+
+  useBuffered(videoRef, { onBufferedChange });
 
   /**
    * Effect: Sync time/duration from media element.
@@ -176,27 +175,8 @@ export const VideoElement: React.FC<t.VideoElement2Props> = (props) => {
   }, [el, onEnded, onPlayingChange, onMutedChange]);
 
   /**
-   * Effect: track buffered status:
-   */
-  useEffect(() => {
-    if (!el) return;
-
-    const calcBuffered = () => {
-      if (!Number.isFinite(el.duration) || el.duration === 0) return;
-      const ranges = el.buffered;
-      const end = ranges.length ? ranges.end(ranges.length - 1) : 0;
-      const fraction = Math.min(1, Math.max(0, end / el.duration));
-      onBufferedChange?.({ buffered: fraction, ctx: { reason: 'element-event' } });
-    };
-
-    el.addEventListener('progress', calcBuffered);
-    el.addEventListener('loadedmetadata', calcBuffered); // first value
-    return () => el.removeEventListener('progress', calcBuffered);
-  }, [el, onBufferedChange]);
-
-  /**
    * Effect: Apply controlled props to element.
-   *         (Runs whenever caller changes `playingProp`/`mutedProp`.)
+   *         (Runs whenever caller changes `playingProp / mutedProp`.)
    */
   useEffect(() => {
     if (!el) return;

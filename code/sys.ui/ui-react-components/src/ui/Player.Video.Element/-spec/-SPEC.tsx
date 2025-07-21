@@ -34,9 +34,9 @@ export default Spec.describe(D.displayName, (e) => {
           console.info(`⚡️ onMutedChange:`, e);
           p.muted.value = e.muted;
         }}
-        onEnded={(e) => {
-          console.info('⚡️ onEnded:', e);
-        }}
+        onBufferingChange={(e) => console.info(`⚡️ onBufferingChange:`, e)}
+        onBufferedChange={(e) => console.info(`⚡️ onBufferedChange:`, e)}
+        onEnded={(e) => console.info('⚡️ onEnded:', e)}
       />
     );
   }

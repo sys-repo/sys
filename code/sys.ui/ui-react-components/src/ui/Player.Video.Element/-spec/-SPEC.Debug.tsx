@@ -3,7 +3,7 @@ import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
 
-type P = t.VideoElement2Props;
+type P = t.VideoElementProps;
 type Storage = Pick<
   P,
   'theme' | 'debug' | 'muted' | 'autoPlay' | 'src' | 'cornerRadius' | 'loop' | 'aspectRatio'

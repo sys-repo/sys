@@ -8,9 +8,9 @@ export type * from './t.Elapsed.ts';
 export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
 
 /**
- * <Component>:
+ * Component:
  */
-export type VideoElement2Props = {
+export type VideoElementProps = {
   src?: string;
   poster?: string;
   loop?: boolean;

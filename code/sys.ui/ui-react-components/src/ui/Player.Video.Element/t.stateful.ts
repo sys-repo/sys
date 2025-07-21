@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 type P = Pick<
-  t.VideoElement2Props,
+  t.VideoElementProps,
   | 'src'
   | 'playing'
   | 'muted'
