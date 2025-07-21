@@ -55,7 +55,7 @@ describe(
         // Read out history (HEADS):
         const history = handle.history()!;
         expect(history.length).to.eql(5);
-        console.info(c.cyan(c.bold(`History (HEADS):`)));
+        console.info(c.cyan(c.bold(`History (${c.green('HEADS')}):`)));
         console.info(history);
 
         // Peek at historical values via a read-only "view":
