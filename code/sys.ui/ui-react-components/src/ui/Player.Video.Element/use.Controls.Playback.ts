@@ -10,11 +10,11 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
   /**
    * Hooks:
    */
-  const [seeking, setSeeking] = useState(false);
+  const [seeking, setSeeking] = useState<{ currentTime: t.Secs }>();
 
   /**
    * Effect: Apply controlled props to element.
-   *         (Runs whenever caller changes `playing/muted` prop.)
+   *        (Runs whenever caller changes `playing/muted` prop.)
    */
   useEffect(() => {
     const el = videoRef.current;
@@ -51,7 +51,8 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
    */
   const onSeeking = (e: t.PlayerControlSeekChange) => {
     const el = videoRef.current;
-    setSeeking(!e.complete);
+    const currentTime = e.currentTime;
+    setSeeking(e.complete ? undefined : { currentTime });
 
     if (!el) return;
 
@@ -64,7 +65,6 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
        */
       if (isUncontrolled && !el.paused) void el.play();
     }
-
   };
 
   /**

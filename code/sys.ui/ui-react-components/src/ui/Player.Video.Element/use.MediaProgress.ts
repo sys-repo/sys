@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t } from './common.ts';
+import { type t, rx } from './common.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'onTimeUpdate' | 'onDurationChange'>;
 
@@ -9,8 +9,8 @@ export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, pr
   /**
    * Hooks:
    */
-  const [time, setTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState<t.Secs>(0);
+  const [duration, setDuration] = useState<t.Secs>(0);
 
   /**
    * Effect: Sync time/duration from media element.
@@ -20,35 +20,31 @@ export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, pr
     if (!el) return;
 
     const onTime = () => {
-      setTime(el.currentTime);
+      setCurrentTime(el.currentTime);
       onTimeUpdate?.({ secs: el.currentTime });
     };
-    const onDur = () => {
+    const onDuration = () => {
       const secs = Number.isFinite(el.duration) ? el.duration : 0;
       setDuration(secs);
       onDurationChange?.({ secs });
     };
 
-    el.addEventListener('timeupdate', onTime);
-    el.addEventListener('loadedmetadata', onDur);
-    el.addEventListener('durationchange', onDur);
+    const { dispose, signal } = rx.abortable();
+    el.addEventListener('timeupdate', onTime, { signal });
+    el.addEventListener('loadedmetadata', onDuration, { signal });
+    el.addEventListener('durationchange', onDuration, { signal });
 
     // Init:
-    onDur();
+    onDuration();
     onTime();
-
-    return () => {
-      el.removeEventListener('timeupdate', onTime);
-      el.removeEventListener('loadedmetadata', onDur);
-      el.removeEventListener('durationchange', onDur);
-    };
+    return dispose;
   }, [videoRef.current, src]);
 
   /**
    * Effect: Reset progress when source changes.
    */
   useEffect(() => {
-    setTime(0);
+    setCurrentTime(0);
     setDuration(0);
     onTimeUpdate?.({ secs: 0 });
     onDurationChange?.({ secs: 0 });
@@ -57,5 +53,5 @@ export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, pr
   /**
    * API:
    */
-  return { time, duration } as const;
+  return { currentTime, duration } as const;
 }

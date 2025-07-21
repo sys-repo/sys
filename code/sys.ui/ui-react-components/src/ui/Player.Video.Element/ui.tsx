@@ -151,7 +151,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       style={styles.debug}
       src={src}
       readyState={readyState}
-      seeking={controls.seeking}
+      seeking={!!controls.seeking}
       playing={playing}
     />
   );
@@ -191,7 +191,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
           playing={playing}
           muted={elMuted}
           duration={progress.duration}
-          currentTime={progress.time}
+          currentTime={controls.seeking?.currentTime ?? progress.currentTime}
           buffering={buffering || notReady}
           buffered={buffered}
           //
