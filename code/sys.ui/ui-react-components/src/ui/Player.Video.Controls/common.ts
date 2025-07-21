@@ -17,5 +17,6 @@ export const DEFAULTS = {
   maskHeight: 80,
   maskOpacity: 1,
   buffering: false,
+  enabled: true,
 } as const;
 export const D = DEFAULTS;

@@ -8,6 +8,7 @@ import { Icons } from './ui.Icons.ts';
 export type ControlButtonProps = {
   children?: JSX.Element;
   debug?: boolean;
+  enabled?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClick?: t.ButtonProps['onClick'];
@@ -15,8 +16,9 @@ export type ControlButtonProps = {
 };
 
 export const ControlButton: React.FC<ControlButtonProps> = (props) => {
-  const {} = props;
+  const { enabled = D.enabled } = props;
   const [isOver, setOver] = React.useState(false);
+  const active = isOver && enabled;
 
   /**
    * Render:
@@ -25,8 +27,8 @@ export const ControlButton: React.FC<ControlButtonProps> = (props) => {
   const styles = {
     base: css({
       Size: 32,
-      backgroundColor: Color.alpha(Color.LIGHT_BLUE, isOver ? 1 : 0),
-      transition: `background-color 200ms`,
+      backgroundColor: Color.alpha(Color.LIGHT_BLUE, active ? 1 : 0),
+      transition: `background-color 120ms ease`,
       color: theme.fg,
       borderRadius: 4,
       display: 'grid',
@@ -38,6 +40,7 @@ export const ControlButton: React.FC<ControlButtonProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         style={styles.body}
+        enabled={enabled}
         onMouse={(e) => setOver(e.is.over)}
         onClick={props.onClick}
         onMouseDown={props.onMouseDown}

@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, css } from './common.ts';
+import { type t, D, css } from './common.ts';
 
 export type TimestampProps = {
+  enabled?: boolean;
   currentTime?: t.Secs;
   duration?: t.Secs;
   style?: t.CssInput;
@@ -11,7 +12,7 @@ export type TimestampProps = {
  * Component:
  */
 export const Timestamp: React.FC<TimestampProps> = (props) => {
-  const { currentTime, duration } = props;
+  const { enabled = D.enabled, currentTime, duration } = props;
 
   /**
    * Render:
@@ -22,6 +23,8 @@ export const Timestamp: React.FC<TimestampProps> = (props) => {
       userSelect: 'none',
       display: 'grid',
       alignItems: 'center',
+      opacity: enabled ? 1 : 0.3,
+      transition: 'opacity 120ms ease',
     }),
   };
 

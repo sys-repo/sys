@@ -4,6 +4,7 @@ import { type t, BarSpinner, Color, css, D, Is, Num, Slider, useSizeObserver } f
 const Range = Num.Percent.Range;
 
 export type SeekSliderProps = {
+  enabled?: boolean;
   currentTime: t.Secs;
   duration: t.Secs;
   buffering?: boolean;
@@ -17,7 +18,7 @@ export type SeekSliderProps = {
  * Component:
  */
 export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
-  const { currentTime, duration, buffering = D.buffering, buffered } = props;
+  const { enabled = D.enabled, currentTime, duration, buffering = D.buffering, buffered } = props;
   const range: t.MinMaxNumberRange = [0, duration];
   const percent = Range.toPercent(currentTime, range);
   const bufferedPercent = Is.number(buffered) ? Range.toPercent(buffered, range) : undefined;
@@ -65,10 +66,13 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
       {elSpinner}
       <Slider
         style={styles.slider}
+        background={0.4}
+        enabled={enabled}
+        //
         percent={percent}
         thumb={{ size: 13, color: Color.WHITE, border: 0 }}
-        background={0.4}
         track={wrangle.track(bufferedPercent)}
+        //
         onChange={(e) => {
           const { percent, complete } = e;
           const currentTime = Range.fromPercent(percent, range);

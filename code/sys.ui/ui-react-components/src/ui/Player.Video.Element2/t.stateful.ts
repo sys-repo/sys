@@ -14,9 +14,15 @@ type P = Pick<
   | 'showControls'
   | 'showFullscreenButton'
   | 'showVolumeControl'
+  | 'buffering'
+  | 'buffered'
   //
   | 'jumpTo'
   //
+  | 'onTimeUpdate'
+  | 'onDurationChange'
+  | 'onBufferingChange'
+  | 'onBufferedChange'
   | 'onPlayingChange'
   | 'onMutedChange'
   | 'onEnded'

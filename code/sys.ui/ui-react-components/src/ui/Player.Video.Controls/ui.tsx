@@ -8,6 +8,7 @@ import { Timestamp } from './ui.Timestamp.tsx';
 export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
   const {
     debug = false,
+    enabled = D.enabled,
     playing = D.playing,
     muted = D.muted,
     currentTime = 0,
@@ -38,16 +39,25 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Mask style={styles.mask} opacity={props.maskOpacity} height={props.maskHeight} />
       <div className={styles.body.class}>
-        <PlayButton playing={playing} onClick={() => props.onClick?.({ button: 'Play' })} />
+        <PlayButton
+          enabled={enabled}
+          playing={playing}
+          onClick={() => props.onClick?.({ button: 'Play' })}
+        />
         <SeekSlider
+          enabled={enabled}
           duration={duration}
           currentTime={currentTime}
           buffering={props.buffering}
           buffered={props.buffered}
           onSeeking={props.onSeeking}
         />
-        <Timestamp currentTime={currentTime} duration={duration} />
-        <MuteButton muted={muted} onClick={() => props.onClick?.({ button: 'Mute' })} />
+        <Timestamp enabled={enabled} currentTime={currentTime} duration={duration} />
+        <MuteButton
+          enabled={enabled}
+          muted={muted}
+          onClick={() => props.onClick?.({ button: 'Mute' })}
+        />
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ export type PlayerControlsProps = {
   debug?: boolean;
   playing?: boolean;
   muted?: boolean;
+  enabled?: boolean;
 
   currentTime?: t.Secs;
   duration?: t.Secs;

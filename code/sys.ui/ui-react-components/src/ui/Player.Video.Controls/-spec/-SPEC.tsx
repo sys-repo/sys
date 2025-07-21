@@ -6,7 +6,37 @@ import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-  const v = debug.video.props;
+
+  function Root() {
+    const v = Signal.toObject(p);
+    const video = debug.video.props;
+    return (
+      <PlayerControls
+        debug={v.debug}
+        theme={v.theme}
+        enabled={v.enabled}
+        //
+        maskOpacity={v.maskOpacity}
+        maskHeight={v.maskHeight}
+        buffering={video.buffering.value}
+        buffered={video.buffered.value}
+        playing={video.playing.value}
+        muted={video.muted.value}
+        currentTime={video.currentTime.value}
+        duration={video.duration.value}
+        //
+        onClick={(e) => {
+          console.info(`⚡️ onClick:`, e);
+          if (e.button === 'Play') Signal.toggle(video.playing);
+          if (e.button === 'Mute') Signal.toggle(video.muted);
+        }}
+        onSeeking={(e) => {
+          console.info(`⚡️ onSeeking:`, e);
+          video.currentTime.value = e.currentTime;
+        }}
+      />
+    );
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -26,31 +56,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => {
-        return (
-          <PlayerControls
-            debug={p.debug.value}
-            theme={p.theme.value}
-            maskOpacity={p.maskOpacity.value}
-            maskHeight={p.maskHeight.value}
-            buffering={v.buffering.value}
-            buffered={v.buffered.value}
-            playing={v.playing.value}
-            muted={v.muted.value}
-            currentTime={v.currentTime.value}
-            duration={v.duration.value}
-            onClick={(e) => {
-              console.info(`⚡️ onClick:`, e);
-              if (e.button === 'Play') Signal.toggle(v.playing);
-              if (e.button === 'Mute') Signal.toggle(v.muted);
-            }}
-            onSeeking={(e) => {
-              console.info(`⚡️ onSeeking:`, e);
-              v.currentTime.value = e.currentTime;
-            }}
-          />
-        );
-      });
+      .render(() => <Root />);
 
     // Initialize:
     updateSize();

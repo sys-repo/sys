@@ -2,6 +2,11 @@ import type { t } from './common.ts';
 export type * from './t.stateful.ts';
 
 /**
+ * https://html.spec.whatwg.org/multipage/media.html#ready-states
+ */
+export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
+
+/**
  * <Component>:
  */
 export type VideoElement2Props = {
@@ -15,6 +20,9 @@ export type VideoElement2Props = {
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
+
+  buffering?: boolean;
+  buffered?: t.Secs;
 
   // Apperance:
   debug?: boolean;
@@ -46,6 +54,16 @@ export type VideoElement2Props = {
    */
   onPlayingChange?: (e: { playing: boolean; ctx: t.MediaCtx }) => void;
   onMutedChange?: (e: { muted: boolean; ctx: t.MediaCtx }) => void;
+
+  /**
+   * Events fired relating to the underlying time/duration of the media.
+   */
+  onTimeUpdate?: (e: { secs: t.Secs }) => void;
+  onDurationChange?: (e: { secs: t.Secs }) => void;
+
+  /** Events related to buffering status. */
+  onBufferingChange?: (e: { buffering: boolean; ctx: t.MediaCtx }) => void;
+  onBufferedChange?: (e: { buffered: t.Percent; ctx: t.MediaCtx }) => void;
 
   /**
    * Fired when media ends (native `ended` or loop boundary if you care).

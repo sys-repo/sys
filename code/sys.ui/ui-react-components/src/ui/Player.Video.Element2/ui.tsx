@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 import { type t, Color, css, M, READY_STATE } from './common.ts';
+import { Debug } from './ui.Debug.tsx';
+import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useControlsVisible } from './use.ControlsVisible.ts';
 
@@ -14,6 +16,8 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     cornerRadius = 0,
     debug = false,
     jumpTo,
+    buffered,
+    buffering,
 
     // Controlled playback + mute:
     playing: playingProp,
@@ -24,6 +28,10 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     onPlayingChange,
     onMutedChange,
     onEnded,
+    onTimeUpdate,
+    onDurationChange,
+    onBufferingChange,
+    onBufferedChange,
   } = props as t.VideoElement2Props; // ← explicit cast in case caller passes legacy props.
 
   /**
@@ -54,17 +62,17 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
    * Resolve current element state (sampled).
    */
   const el = videoRef.current;
-  const rs = el?.readyState ?? 0;
+  const rs = (el?.readyState ?? 0) as t.NumberMediaReadyState;
   const elPaused = el?.paused ?? true;
   const elMuted = el?.muted ?? mutedProp ?? defaultMuted;
   const canPlay = rs >= READY_STATE.HAVE_FUTURE_DATA;
-  const playing = !elPaused;
+  const playing = !elPaused && canPlay;
   const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
 
   /**
    * Spinner logic: show while an autoplay attempt is pending and media not yet playing.
    */
-  const spinning = autoplayPendingRef.current && !playing && !canPlay;
+  const spinning = autoplayPendingRef.current || rs < READY_STATE.HAVE_CURRENT_DATA;
 
   /**
    * Controls visibility.
@@ -81,14 +89,21 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   useEffect(() => {
     if (!el) return;
 
-    const onTime = () => setTime(el.currentTime);
-    const onDur = () => setDuration(Number.isFinite(el.duration) ? el.duration : 0);
+    const onTime = () => {
+      setTime(el.currentTime);
+      onTimeUpdate?.({ secs: el.currentTime });
+    };
+    const onDur = () => {
+      const secs = Number.isFinite(el.duration) ? el.duration : 0;
+      setDuration(secs);
+      onDurationChange?.({ secs });
+    };
 
     el.addEventListener('timeupdate', onTime);
     el.addEventListener('loadedmetadata', onDur);
     el.addEventListener('durationchange', onDur);
 
-    // init
+    // Init:
     onDur();
     onTime();
 
@@ -97,13 +112,25 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       el.removeEventListener('loadedmetadata', onDur);
       el.removeEventListener('durationchange', onDur);
     };
-  }, [src, el]);
+  }, [src, el, onTimeUpdate, onDurationChange]);
+
+  /**
+   * Reset progress when source changes.
+   */
+  useEffect(() => {
+    setTime(0);
+    setDuration(0);
+    onTimeUpdate?.({ secs: 0 });
+    onDurationChange?.({ secs: 0 });
+  }, [src]);
 
   /**
    * Effect: Wire media events -> outward change notifications.
    */
   useEffect(() => {
     if (!el) return;
+    const emitBuffering = (value: boolean, reason: t.MediaCtxReason) =>
+      onBufferingChange?.({ buffering: value, ctx: { reason } });
 
     const emitPlaying = (value: boolean, reason: t.MediaCtxReason) =>
       onPlayingChange?.({ playing: value, ctx: { reason } });
@@ -122,11 +149,19 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     };
     const handleVolume = () => emitMuted(el.muted, 'element-event');
 
+    const handleWaiting = () => emitBuffering(true, 'element-event');
+    const handleStalled = () => emitBuffering(true, 'element-event');
+    const handlePlaying = () => emitBuffering(false, 'element-event');
+    const handleCanPlay = () => emitBuffering(false, 'element-event');
+
     el.addEventListener('play', handlePlay);
     el.addEventListener('playing', handlePlay);
     el.addEventListener('pause', handlePause);
     el.addEventListener('ended', handleEnded);
     el.addEventListener('volumechange', handleVolume);
+    el.addEventListener('waiting', handleWaiting);
+    el.addEventListener('stalled', handleStalled);
+    el.addEventListener('canplay', handleCanPlay);
 
     return () => {
       el.removeEventListener('play', handlePlay);
@@ -134,8 +169,30 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       el.removeEventListener('pause', handlePause);
       el.removeEventListener('ended', handleEnded);
       el.removeEventListener('volumechange', handleVolume);
+      el.removeEventListener('waiting', handleWaiting);
+      el.removeEventListener('stalled', handleStalled);
+      el.removeEventListener('canplay', handleCanPlay);
     };
   }, [el, onEnded, onPlayingChange, onMutedChange]);
+
+  /**
+   * Effect: track buffered status:
+   */
+  useEffect(() => {
+    if (!el) return;
+
+    const calcBuffered = () => {
+      if (!Number.isFinite(el.duration) || el.duration === 0) return;
+      const ranges = el.buffered;
+      const end = ranges.length ? ranges.end(ranges.length - 1) : 0;
+      const fraction = Math.min(1, Math.max(0, end / el.duration));
+      onBufferedChange?.({ buffered: fraction, ctx: { reason: 'element-event' } });
+    };
+
+    el.addEventListener('progress', calcBuffered);
+    el.addEventListener('loadedmetadata', calcBuffered); // first value
+    return () => el.removeEventListener('progress', calcBuffered);
+  }, [el, onBufferedChange]);
 
   /**
    * Effect: Apply controlled props to element.
@@ -144,24 +201,28 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
   useEffect(() => {
     if (!el) return;
 
-    // Muted
+    // Muted:
     if (mutedProp !== undefined && el.muted !== mutedProp) {
       el.muted = mutedProp;
     } else if (mutedProp === undefined && defaultMuted !== undefined) {
-      // one-time init for uncontrolled
+      // One-time init for uncontrolled.
       el.muted = defaultMuted;
     }
 
-    // Play/Pause
-    if (playingProp !== undefined) {
-      if (playingProp && el.paused) {
-        void el.play().catch(() => {
-          /* let autoplay hook retry; emit fails via hook */
-        });
-      }
+    // Play/Pause:
+    const syncPlayback = () => {
+      if (playingProp && el.paused) void el.play().catch(() => {});
       if (!playingProp && !el.paused) el.pause();
+    };
+    syncPlayback();
+    if (playingProp) {
+      // If play was requested but the media isn't ready,
+      // try again on the first 'canplay' event:
+      const onCanPlay = () => syncPlayback();
+      el.addEventListener('canplay', onCanPlay, { once: true });
+      return () => el.removeEventListener('canplay', onCanPlay);
     }
-  }, [el, playingProp, mutedProp, defaultMuted]);
+  }, [el, src, playingProp, mutedProp, defaultMuted]);
 
   /**
    * Effect: Seek → respond to external jump-to commands.
@@ -170,14 +231,16 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     if (!videoRef.current || !jumpTo) return;
 
     const el = videoRef.current;
-    el.currentTime = jumpTo.second;
+    let sec = jumpTo.second;
+    if (sec < 0) sec = duration - sec;
+    el.currentTime = sec;
 
     if (jumpTo.play) {
       if (el.paused) void el.play();
     } else {
-      if (!el.paused) el.pause();
+      if (!el.paused) void el.pause();
     }
-  }, [jumpTo]);
+  }, [jumpTo, duration]);
 
   /**
    * Autoplay (only when playback is uncontrolled by `playingProp`):
@@ -233,9 +296,7 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
         // If parent controls playback, they decide whether to resume.
         // If uncontrolled (no playingProp) and element was playing, resume automatically.
         if (playingProp === undefined) {
-          if (!el.paused) {
-            void el.play();
-          }
+          if (!el.paused) void el.play();
         }
       }
     },
@@ -256,15 +317,21 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
     }),
     video: css({ width: '100%', height: '100%', objectFit: 'cover' }),
     controls: css({ Absolute: [null, 0, null, 0] }),
-    debug: css({
-      Absolute: [6, null, null, 6],
-      fontSize: 11,
-      color: Color.alpha(Color.DARK, 0.6),
-      backgroundColor: Color.alpha(Color.WHITE, 0.5),
-      Padding: [1, 5],
-      borderRadius: 2,
-    }),
+    debug: css({ Absolute: [6, null, null, 6] }),
   };
+
+  const elDebug = debug && (
+    <Debug
+      //
+      style={styles.debug}
+      readyState={rs}
+      seeking={seeking}
+      playing={playing}
+      src={src}
+    />
+  );
+
+  const elSpinning = spinning && <NotReadySpinner theme={theme.name} style={{ Absolute: 0 }} />;
 
   return (
     <div
@@ -294,11 +361,13 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
       >
         <PlayerControls
           theme={theme.name}
+          enabled={!spinning}
           playing={playing}
           muted={elMuted}
           duration={duration}
           currentTime={time}
-          buffering={spinning}
+          buffering={buffering}
+          buffered={buffered}
           onClick={(e) => {
             if (e.button === 'Play') requestTogglePlay();
             if (e.button === 'Mute') requestToggleMute();
@@ -307,13 +376,8 @@ export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
         />
       </M.div>
 
-      {debug && (
-        <div className={styles.debug.class}>
-          {`ready-state:${rs}, play:${playing}, seek:${seeking}, src:${src?.slice(-8) || ''}`}
-        </div>
-      )}
-
-      {/* <FadeMask mask='soft' theme={theme.name} /> */}
+      {elDebug}
+      {elSpinning}
     </div>
   );
 };

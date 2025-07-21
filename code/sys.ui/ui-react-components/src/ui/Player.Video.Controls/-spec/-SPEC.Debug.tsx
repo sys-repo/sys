@@ -4,7 +4,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.PlayerControlsProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'maskOpacity' | 'maskHeight'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled'>;
 
 /**
  * Types:
@@ -19,6 +19,7 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    enabled: D.enabled,
     maskOpacity: D.maskHeight,
     maskHeight: D.maskHeight,
   };
@@ -35,6 +36,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    enabled: s(snap.enabled),
     width: s(500),
     maskHeight: s(snap.maskHeight),
     maskOpacity: s(snap.maskOpacity),
@@ -58,6 +60,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.enabled = p.enabled.value;
       d.maskHeight = p.maskHeight.value;
       d.maskOpacity = p.maskOpacity.value;
     });
@@ -105,6 +108,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `maskOpacity: ${p.maskOpacity.value}`}
         onClick={() => Signal.cycle(p.maskOpacity, [0, 0.6, 1])}
+      />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value}`}
+        onClick={() => Signal.toggle(p.enabled)}
       />
 
       <hr />

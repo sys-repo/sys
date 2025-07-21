@@ -37,21 +37,12 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  let _signals: t.VideoPlayerSignals | undefined;
-  const controlled = {
-    get signals() {
-      return _signals;
-    },
-    reset() {
-      const v = Signal.toObject(props);
-      _signals = Player.Video.signals({
-        src: v.src,
-        autoPlay: v.autoPlay,
-        muted: v.muted,
-        loop: v.loop,
-      });
-    },
-  };
+  const video = Player.Video.signals({
+    src: snap.src,
+    autoPlay: snap.autoPlay,
+    muted: snap.muted,
+    loop: snap.loop,
+  });
 
   const props = {
     debug: s(snap.debug),
@@ -71,11 +62,16 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    controlled,
+    video,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
+
+      const vp = video.props;
+      vp?.currentTime.value;
+      vp?.duration.value;
+      vp?.ready.value;
     },
   };
 
@@ -98,10 +94,15 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     const controlled = p.controlled.value;
-    if (controlled) api.controlled.reset();
+    if (controlled) {
+      const vp = video.props;
+      vp.src.value = p.src.value;
+      vp.autoPlay.value = p.autoPlay.value ?? false;
+      vp.muted.value = p.muted.value ?? false;
+      vp.loop.value = p.loop.value ?? false;
+    }
   });
 
-  api.controlled.reset();
   return api;
 }
 
@@ -121,7 +122,6 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const video = debug.controlled.signals;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -133,12 +133,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        {p.controlled.value && <CurrentTime video={debug.video} />}
+      </div>
       <Button
         block
         label={() => {
           const v = p.controlled.value;
-          const note = v ? 'Controlled (Signals)' : 'Uncontrolled';
+          const note = v ? 'Controlled (Signal State)' : 'Uncontrolled';
           return `controlled: ${v} ← ${note}`;
         }}
         onClick={() => Signal.toggle(p.controlled)}
@@ -177,19 +180,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Video:'}</div>
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
-
       <hr />
       <Button
         block
         enabled={() => !!p.controlled.value}
-        label={`method: jumpTo(12, play)`}
-        onClick={() => video?.jumpTo(12)}
+        label={`method: jumpTo( 0, paused )`}
+        onClick={() => debug.video?.jumpTo(0, { play: false })}
       />
       <Button
         block
         enabled={() => !!p.controlled.value}
-        label={`method: jumpTo(12, paused)`}
-        onClick={() => video?.jumpTo(12, { play: false })}
+        label={`method: jumpTo( 12, paused )`}
+        onClick={() => debug.video?.jumpTo(12, { play: false })}
+      />
+      <Button
+        block
+        enabled={() => !!p.controlled.value}
+        label={`method: jumpTo( 12, play )`}
+        onClick={() => debug.video?.jumpTo(12)}
+      />
+      <Button
+        block
+        enabled={() => !!p.controlled.value}
+        label={`method: jumpTo( -3, play )`}
+        onClick={() => debug.video?.jumpTo(-3, { play: true })}
       />
 
       <hr />
@@ -215,8 +229,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {p.controlled.value && (
         <ObjectView
           name={'signals'}
-          data={Signal.toObject(debug.controlled.signals?.props)}
-          expand={0}
+          data={{
+            ...Signal.toObject(debug.video?.props),
+            src: Str.truncate(debug.video?.props.src.value, 35),
+          }}
+          expand={1}
           style={{ marginTop: 5 }}
         />
       )}
@@ -246,4 +263,21 @@ export function videoButton(signal: t.Signal<string | undefined>, src: string) {
       onClick={() => (signal.value = src)}
     />
   );
+}
+
+function CurrentTime(props: { video?: t.VideoPlayerSignals; prefix?: string }) {
+  const { video, prefix = '' } = props;
+  const p = video?.props;
+  const elapsed = p?.currentTime.value.toFixed(0);
+  const duration = p?.duration.value.toFixed();
+
+  Signal.useRedrawEffect(() => {
+    p?.currentTime.value;
+    p?.duration.value;
+    p?.ready.value;
+  });
+
+  if (!p) return null;
+  if (!p.ready.value) return null;
+  return <div>{`${prefix} ${elapsed}s / ${duration}s`}</div>;
 }
