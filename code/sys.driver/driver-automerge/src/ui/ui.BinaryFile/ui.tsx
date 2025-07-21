@@ -94,6 +94,10 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   );
 
   const elFiles = Object.entries(filemap).map(([hash, file]) => {
+    let text = `name:${file.name}`;
+    text += `, hash: #${file.hash.slice(-5)}`;
+    text += `, bytes:${Str.bytes(file.bytes.length)}`;
+    text += `, type:${file.type}`;
     return (
       <div
         key={hash}
@@ -102,7 +106,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
         onDragStart={dragStartHandler(hash)}
       >
         <Icons.File.Binary size={28} />
-        <div>{`name:${file.name}, bytes:${Str.bytes(file.bytes.length)}, type:${file.type}`}</div>
+        <div>{text}</div>
         <Button theme={theme.name} onClick={downloadClickHandler(hash)}>
           <Icons.Download size={20} />
         </Button>
