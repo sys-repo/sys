@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
-import { type t, Color, css, M, READY_STATE } from './common.ts';
+import { type t, Color, css, D, M, READY_STATE, useSizeObserver } from './common.ts';
 import { Debug } from './ui.Debug.tsx';
 import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
@@ -10,16 +10,17 @@ import { useControlsVisible } from './use.ControlsVisible.ts';
 import { useMediaEvents } from './use.MediaEvents.ts';
 import { useMediaProgress } from './use.MediaProgress.ts';
 import { usePlaybackControls } from './use.PlaybackControls.ts';
+import { useScale } from './use.Scale.ts';
 import { useSeekCmd } from './use.SeekCmd.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
+    debug = false,
     src,
     poster,
-    loop = false,
-    aspectRatio = '16/9',
-    cornerRadius = 0,
-    debug = false,
+    loop = D.loop,
+    aspectRatio = D.aspectRatio,
+    cornerRadius = D.cornerRadius,
     buffered,
     buffering,
 
@@ -76,6 +77,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
    */
   const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
   const progress = useMediaProgress(videoRef, props);
+  const size = useSizeObserver();
+  const scale = useScale(size, props.scale);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
   useSeekCmd(videoRef, progress.duration, props.jumpTo);
@@ -154,9 +157,14 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       borderRadius: cornerRadius,
       overflow: 'hidden',
     }),
-    video: css({ width: '100%', height: '100%', objectFit: 'cover' }),
-    controls: css({ Absolute: [null, 0, null, 0] }),
     debug: css({ Absolute: [6, null, null, 6] }),
+    controls: css({ Absolute: [null, 0, null, 0] }),
+    video: css({
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      transform: `scale(${scale.percent})`,
+    }),
   };
 
   const elDebug = debug && (
@@ -174,6 +182,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
 
   return (
     <div
+      ref={size.ref}
       className={css(styles.base, props.style).class}
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => setOver(false)}

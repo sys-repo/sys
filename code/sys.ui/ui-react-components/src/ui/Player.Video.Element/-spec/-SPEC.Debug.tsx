@@ -58,6 +58,7 @@ export function createDebugSignals() {
     loop: s(snap.loop),
     cornerRadius: s(snap.cornerRadius),
     aspectRatio: s(snap.aspectRatio),
+    scale: s<P['scale']>(),
   };
   const p = props;
   const api = {
@@ -176,6 +177,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
+      <Button
+        block
+        label={() => {
+          const current = p.scale.value;
+          return `scale: ${typeof current === 'function' ? 'ƒn' : current ?? '<undefined>'}`;
+        }}
+        onClick={() => {
+          const fn: t.VideoPlayerScale = (e) => {
+            const pixels = 3;
+            const res = e.enlargeBy(pixels);
+            console.info(`⚡️ scale (callback):`, e);
+            console.info(`   increment (${pixels}px):`, res);
+            return res;
+          };
+          Signal.cycle(p.scale, [1.5, D.scale, fn]);
+        }}
+      />
+
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
       {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
