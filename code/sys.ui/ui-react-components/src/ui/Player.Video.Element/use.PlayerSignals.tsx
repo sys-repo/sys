@@ -24,6 +24,8 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.showFullscreenButton.value;
     p.showVolumeControl.value;
     p.jumpTo.value;
+    p.buffered.value;
+    p.buffering.value;
   });
 
   /**
@@ -45,13 +47,24 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       if (log) console.info('⚡️ onEnded:', e);
     };
 
+    const onBufferingChange: P['onBufferingChange'] = (e) => (p.buffering.value = e.buffering);
+    const onBufferedChange: P['onBufferedChange'] = (e) => (p.buffered.value = e.buffered);
+    const onTimeUpdate: P['onTimeUpdate'] = (e) => (p.currentTime.value = e.secs);
+    const onDurationChange: P['onDurationChange'] = (e) => {
+      p.duration.value = e.secs;
+      p.ready.value = e.secs > 0;
+    };
+
     return {
       src: p.src.value,
+
       autoPlay: p.autoPlay.value,
       playing: p.playing.value,
+      buffering: p.buffering.value,
+      buffered: p.buffered.value,
+
       muted: p.muted.value,
       loop: p.loop.value,
-
       aspectRatio: p.aspectRatio.value,
       cornerRadius: p.cornerRadius.value,
       scale: p.scale.value,
@@ -65,6 +78,10 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       onPlayingChange,
       onMutedChange,
       onEnded,
+      onTimeUpdate,
+      onDurationChange,
+      onBufferingChange,
+      onBufferedChange,
     };
   })();
 

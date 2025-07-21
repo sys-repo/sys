@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { VideoElement__OLD as VideoElement } from './ui.tsx';
+export { VideoElement__OLD } from './ui.tsx';

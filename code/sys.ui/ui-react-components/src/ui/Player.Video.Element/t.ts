@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 export type * from './t.stateful.ts';
+export type * from './t.Elapsed.ts';
 
 /**
  * https://html.spec.whatwg.org/multipage/media.html#ready-states

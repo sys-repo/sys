@@ -7,7 +7,7 @@ import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useControlsVisible } from './use.ControlsVisible.ts';
 
-export const VideoElement2: React.FC<t.VideoElement2Props> = (props) => {
+export const VideoElement: React.FC<t.VideoElement2Props> = (props) => {
   const {
     src,
     poster,

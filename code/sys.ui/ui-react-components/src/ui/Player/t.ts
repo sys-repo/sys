@@ -6,8 +6,8 @@ import type { t } from '../common.ts';
  */
 export type PlayerLib = {
   Video: {
+    View: React.FC<t.VideoElement2Props>;
     Element__OLD: React.FC<t.VideoElementProps__OLD>;
-    Element2: React.FC<t.VideoElement2Props>;
 
     signals: t.PlayerSignalsFactory;
     useSignals: t.UsePlayerSignals;

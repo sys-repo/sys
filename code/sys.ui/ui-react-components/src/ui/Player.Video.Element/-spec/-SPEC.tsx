@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Str, css, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
 import { D } from '../common.ts';
-import { useFileSize, VideoElement2 } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { useFileSize, VideoElement } from '../mod.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -13,7 +13,7 @@ export default Spec.describe(D.displayName, (e) => {
   function UncontrolledSubject() {
     const v = Signal.toObject(p);
     return (
-      <VideoElement2
+      <VideoElement
         style={{ width: v.width }}
         src={v.src}
         debug={v.debug}
@@ -46,7 +46,7 @@ export default Spec.describe(D.displayName, (e) => {
     const { width } = v;
     const controller = Player.Video.useSignals(debug.video, { log: true });
     return (
-      <VideoElement2
+      <VideoElement
         //
         style={{ width }}
         debug={v.debug}

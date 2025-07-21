@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { VideoElement } from '../mod.ts';
+import { VideoElement__OLD } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -26,7 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject.display('grid').render(() => {
       if (!p.render.value) return null;
       return (
-        <VideoElement
+        <VideoElement__OLD
           debug={p.debug.value}
           theme={p.theme.value}
           video={debug.video}
