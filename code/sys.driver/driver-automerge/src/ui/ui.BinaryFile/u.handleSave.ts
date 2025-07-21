@@ -4,8 +4,6 @@ export async function handleSave(doc: t.Crdt.Ref, path: t.ObjectPath, files: t.B
   if (!doc) return;
   doc.change((d) => {
     const target = Obj.Path.Mutate.ensure<t.BinaryFileMap>(d, path, {});
-
-
     files.forEach((file) => {
       if (target[file.hash]) {
       } else {
