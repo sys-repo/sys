@@ -3,6 +3,7 @@ import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 import { type t, Color, css, D, M, READY_STATE, useSizeObserver } from './common.ts';
 import { Debug } from './ui.Debug.tsx';
+import { FadeMask } from './ui.FadeMask.tsx';
 import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
@@ -23,6 +24,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     cornerRadius = D.cornerRadius,
     buffered,
     buffering,
+    fadeMask,
 
     // Controlled playback + mute:
     playing: playingProp,
@@ -179,6 +181,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   );
 
   const elSpinning = spinning && <NotReadySpinner theme={theme.name} style={{ Absolute: 0 }} />;
+  const elMask = fadeMask && <FadeMask mask={fadeMask} theme={theme.name} />;
 
   return (
     <div
@@ -226,6 +229,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
 
       {elDebug}
       {elSpinning}
+      {elMask}
     </div>
   );
 };

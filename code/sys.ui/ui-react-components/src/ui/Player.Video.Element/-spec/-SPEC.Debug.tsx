@@ -6,7 +6,15 @@ import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
 type P = t.VideoElementProps;
 type Storage = Pick<
   P,
-  'theme' | 'debug' | 'muted' | 'autoPlay' | 'src' | 'cornerRadius' | 'loop' | 'aspectRatio'
+  | 'theme'
+  | 'debug'
+  | 'muted'
+  | 'autoPlay'
+  | 'src'
+  | 'cornerRadius'
+  | 'loop'
+  | 'aspectRatio'
+  | 'fadeMask'
 > & { width?: number; controlled?: boolean };
 
 /**
@@ -26,6 +34,7 @@ const defaults: Storage = {
   cornerRadius: 6,
   src: 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4',
   controlled: false,
+  fadeMask: undefined,
 };
 
 /**
@@ -58,6 +67,7 @@ export function createDebugSignals() {
     loop: s(snap.loop),
     cornerRadius: s(snap.cornerRadius),
     aspectRatio: s(snap.aspectRatio),
+    fadeMask: s(snap.fadeMask),
     scale: s<P['scale']>(),
   };
   const p = props;
@@ -90,6 +100,7 @@ export function createDebugSignals() {
       d.loop = p.loop.value;
       d.cornerRadius = p.cornerRadius.value;
       d.aspectRatio = p.aspectRatio.value;
+      d.fadeMask = p.fadeMask.value;
     });
   });
 
@@ -177,6 +188,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
+
+      <hr />
+      <Button
+        block
+        label={() => {
+          const value = p.fadeMask.value;
+          return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
+        }}
+        onClick={() => {
+          type T = t.VideoPlayerFadeMask | undefined;
+          Signal.cycle<T>(p.fadeMask, [
+            { direction: 'Top:Down' },
+            { direction: 'Bottom:Up' },
+            { direction: 'Left:Right' },
+            { direction: 'Right:Left' },
+            undefined,
+          ]);
+        }}
+      />
       <Button
         block
         label={() => {
@@ -242,6 +272,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           p.controlled.value = false;
           p.autoPlay.value = false;
+          p.fadeMask.value = undefined;
         }}
       />
       <ObjectView

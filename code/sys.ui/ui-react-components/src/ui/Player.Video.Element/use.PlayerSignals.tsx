@@ -3,7 +3,7 @@ import { type t, Signal } from './common.ts';
 export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   type R = t.PlayerSignalsHook;
   type P = R['props'];
-  const { log = true } = options;
+  const { log = false } = options;
 
   /**
    * Effect: redraw

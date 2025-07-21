@@ -23,6 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
         cornerRadius={v.cornerRadius}
         aspectRatio={v.aspectRatio}
         scale={v.scale}
+        fadeMask={v.fadeMask}
         //
         playing={v.playing}
         autoPlay={v.autoPlay}
