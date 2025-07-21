@@ -21,8 +21,10 @@ export {
   Str,
   Time,
   Timestamp,
+  Url,
 } from '@sys/std';
 
+export { Http } from '@sys/http/client';
 export { Color, css, Style } from '@sys/ui-css';
 export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
 export { UserAgent } from '@sys/ui-dom/user-agent';
