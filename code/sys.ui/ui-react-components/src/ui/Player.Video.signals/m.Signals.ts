@@ -29,7 +29,6 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
     showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
     showVolumeControl: s<boolean>(defaults.showVolumeControl ?? D.showVolumeControl),
-    background: s<boolean>(defaults.background ?? D.background),
     cornerRadius: s<number>(defaults.cornerRadius ?? D.cornerRadius),
     aspectRatio: s<string>(defaults.aspectRatio ?? D.aspectRatio),
     scale: s<number | t.VideoPlayerScale>(defaults.scale ?? D.scale),
