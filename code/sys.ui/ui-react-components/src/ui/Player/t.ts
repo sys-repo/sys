@@ -6,12 +6,6 @@ import type { t } from '../common.ts';
  */
 export type PlayerLib = {
   Video: {
-    /**
-     * @deprecated Obsolete—will be removed in a future release.
-     *   Use `Player.Video.Element2` instead.
-     */
-    Vidstack: React.FC<t.VidstackPlayerProps>; // ← 🐷 Obsolete.
-
     Element: React.FC<t.VideoElementProps>;
     Element2: React.FC<t.VideoElement2Props>;
 

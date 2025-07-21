@@ -28,7 +28,6 @@ export const SpecsComponents = {
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
-  [`${ns}.player: Video.VidStack`]: () => import('../ui/Player.Video.Vidstack/-spec/-SPEC.tsx'),
   [`${ns}.player: Video.Element-1`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video.Element-2`]: () => import('../ui/Player.Video.Element2/-spec/-SPEC.tsx'),
   [`${ns}:player: Video.Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),

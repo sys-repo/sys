@@ -159,6 +159,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:@vidstack/react@1.12.13
   - import: npm:motion@12.23.6
   - import: npm:hono@4.8.5
