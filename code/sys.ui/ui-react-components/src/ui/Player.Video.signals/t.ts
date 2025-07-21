@@ -102,3 +102,14 @@ export type VideoPlayerScaleArgs = {
   readonly height: t.Pixels;
   enlargeBy(increment: t.Pixels): t.Percent;
 };
+
+/**
+ * Visual mask that fades in from an edge.
+ */
+export type VideoPlayerFadeMaskDirection = 'Top:Down' | 'Bottom:Up' | 'Left:Right' | 'Right:Left';
+export type VideoPlayerFadeMask = {
+  direction: VideoPlayerFadeMaskDirection;
+  size?: t.Pixels;
+  color?: string;
+  opacity?: t.Percent;
+};

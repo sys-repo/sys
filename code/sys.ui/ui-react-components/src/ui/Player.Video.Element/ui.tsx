@@ -4,7 +4,6 @@ import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 import { type t, Color, css, D, M, READY_STATE, useSizeObserver } from './common.ts';
 import { Debug } from './ui.Debug.tsx';
 import { FadeMask } from './ui.FadeMask.tsx';
-import { NotReadySpinner } from './ui.Spinner.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
 import { useControlsVisible } from './use.ControlsVisible.ts';
@@ -72,7 +71,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   /**
    * Spinner logic: show while an autoplay attempt is pending and media not yet playing.
    */
-  const spinning = autoplayPendingRef.current || rs < READY_STATE.HAVE_CURRENT_DATA;
+  const NOT_READY = autoplayPendingRef.current || rs < READY_STATE.HAVE_CURRENT_DATA;
+  const READY = !NOT_READY;
 
   /**
    * Hooks:
@@ -180,7 +180,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     />
   );
 
-  const elSpinning = spinning && <NotReadySpinner theme={theme.name} style={{ Absolute: 0 }} />;
+  // const elSpinning = spinning && <NotReadySpinner theme={theme.name} style={{ Absolute: 0 }} />;
   const elMask = fadeMask && <FadeMask mask={fadeMask} theme={theme.name} />;
 
   return (
@@ -212,23 +212,23 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       >
         <PlayerControls
           theme={theme.name}
-          enabled={!spinning}
+          enabled={READY}
           playing={playing}
           muted={elMuted}
           duration={progress.duration}
           currentTime={progress.time}
-          buffering={buffering}
+          buffering={buffering || NOT_READY}
           buffered={buffered}
+          //
+          onSeeking={handleSeeking}
           onClick={(e) => {
             if (e.button === 'Play') requestTogglePlay();
             if (e.button === 'Mute') requestToggleMute();
           }}
-          onSeeking={handleSeeking}
         />
       </M.div>
 
       {elDebug}
-      {elSpinning}
       {elMask}
     </div>
   );
