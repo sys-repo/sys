@@ -212,6 +212,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
+        enabled={() => !P.DEV.notesRef.exists(doc?.current)}
         label={() => `create Notes crdt`}
         onClick={() => {
           const target = repo.create({ count: 0 });
