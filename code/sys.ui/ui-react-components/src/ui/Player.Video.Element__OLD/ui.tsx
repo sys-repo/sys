@@ -6,7 +6,7 @@ import { useControlsVisibility } from './use.ControlsVisibility.ts';
 import { useScale } from './use.Scale.ts';
 import { useSignalBinding } from './use.SignalBinding.ts';
 
-export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
+export const VideoElement__OLD: React.FC<t.VideoElementProps__OLD> = (props) => {
   const { video, debug = false } = props;
   const p = video?.props;
   const src = p?.src.value;

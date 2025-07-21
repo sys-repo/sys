@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * <Component>:
  */
-export type VideoElementProps = {
+export type VideoElementProps__OLD = {
   debug?: boolean;
 
   // State:
