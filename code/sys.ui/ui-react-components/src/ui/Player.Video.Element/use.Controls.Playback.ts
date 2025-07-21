@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted'>;
@@ -51,19 +51,18 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
    */
   const onSeeking = (e: t.PlayerControlSeekChange) => {
     const el = videoRef.current;
-    const { currentTime, complete } = e;
-    setSeeking(!complete);
+    setSeeking(!e.complete);
 
-    // if (!el) return;
+    if (!el) return;
 
-    if (el && complete) {
-      el.currentTime = currentTime;
+    if (e.complete) {
+      el.currentTime = e.currentTime;
       /**
        * If parent controls playback, they decide whether to resume,
        * however, if uncontrolled (no `plahing` prop) and the element was playing,
        * resume playing automatically.
        */
-      if (isUncontrolled && !el.paused) el.play();
+      if (isUncontrolled && !el.paused) void el.play();
     }
 
   };
