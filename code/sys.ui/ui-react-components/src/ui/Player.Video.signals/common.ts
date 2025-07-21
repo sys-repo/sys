@@ -9,7 +9,6 @@ export const DEFAULTS = {
   aspectRatio: '16/9',
   autoPlay: false,
   muted: false,
-  background: false,
   scale: 1,
 } as const;
 export const D = DEFAULTS;
