@@ -1,9 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { PlayerControls } from '../Player.Video.Controls/mod.ts';
-
-import { type t, Str, Color, css, M, READY_STATE } from './common.ts';
-import { useAutoplay } from './use.AutoPlay.ts';
-import { useControlsVisible } from './use.ControlsVisible.ts';
+import React from 'react';
+import { type t, Color, css } from './common.ts';
 
 export type DebugProps = {
   readyState?: t.NumberMediaReadyState;
@@ -23,7 +19,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { readyState, playing, seeking } = props;
 
   let src = props.src ?? '';
-  src = src ? src?.slice(-8) : '';
+  src = src ? src?.slice(-10) : '';
   src = `“...${src}”`;
 
   let text = '';

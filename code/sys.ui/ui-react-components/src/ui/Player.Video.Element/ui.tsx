@@ -6,10 +6,11 @@ import { Debug } from './ui.Debug.tsx';
 import { FadeMask } from './ui.FadeMask.tsx';
 import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
-import { useControlsVisible } from './use.ControlsVisible.ts';
+import { usePlaybackControls } from './use.Controls.Playback.ts';
+import { useControlsVisible } from './use.Controls.Visible.ts';
 import { useMediaEvents } from './use.MediaEvents.ts';
 import { useMediaProgress } from './use.MediaProgress.ts';
-import { usePlaybackControls } from './use.PlaybackControls.ts';
+import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
 import { useSeekCmd } from './use.SeekCmd.ts';
 
@@ -40,54 +41,47 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
    */
   const videoRef = useRef<HTMLVideoElement>(null);
   const shouldAutoplayRef = React.useRef(true);
-
-  /**
-   * Local UI state (NOT authoritative playback state):
-   */
-  const [pointerOver, setOver] = useState(false);
-  const [seeking, setSeeking] = useState(false);
-
-  /**
-   * Track whether we are in an autoplay attempt (for spinner UX).
-   * Cleared when element enters playing or we give up.
-   */
   const autoplayPendingRef = useRef(false);
   useEffect(() => {
+    /**
+     * Track whether we are in an autoplay attempt (for spinner UX).
+     * Cleared when element enters playing or we give up.
+     */
     shouldAutoplayRef.current = true;
     autoplayPendingRef.current = false;
   }, [src]);
 
   /**
-   * Resolve current element state (sampled).
+   * Hooks (Behavior):
    */
-  const el = videoRef.current;
-  const rs = (el?.readyState ?? 0) as t.NumberMediaReadyState;
-  const elPaused = el?.paused ?? true;
-  const elMuted = el?.muted ?? mutedProp ?? defaultMuted;
-  const canPlay = rs >= READY_STATE.HAVE_FUTURE_DATA;
-  const playing = !elPaused && canPlay;
-  const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
-
-  /**
-   * Spinner logic: show while an autoplay attempt is pending and media not yet playing.
-   */
-  const NOT_READY = autoplayPendingRef.current || rs < READY_STATE.HAVE_CURRENT_DATA;
-  const READY = !NOT_READY;
-
-  /**
-   * Hooks:
-   */
-  const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
+  const [pointerOver, setOver] = useState(false);
   const progress = useMediaProgress(videoRef, props);
   const size = useSizeObserver();
   const scale = useScale(size, props.scale);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
   useSeekCmd(videoRef, progress.duration, props.jumpTo);
-  usePlaybackControls(videoRef, props);
 
   /**
-   * Autoplay (only when playback is uncontrolled by `playingProp`):
+   * Hook: ReadyState
+   */
+  const readyState = useReadyState(videoRef, props);
+  const notReady = autoplayPendingRef.current || readyState < READY_STATE.HAVE_CURRENT_DATA;
+  const isReady = !notReady;
+
+  /** Resolve current element state: */
+  const el = videoRef.current;
+  const elPaused = el?.paused ?? true;
+  const elMuted = el?.muted ?? mutedProp ?? defaultMuted;
+  const canPlay = readyState >= READY_STATE.HAVE_FUTURE_DATA;
+  const playing = !elPaused && canPlay;
+  const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
+
+  const controls = usePlaybackControls(videoRef, props);
+  const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
+
+  /**
+   * Hook: Autoplay (only when playback is uncontrolled by `playingProp`):
    * - Intent derived from `autoPlay` (initial true by default).
    * - Hook will request external state via callbacks.
    */
@@ -130,24 +124,6 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   }, [elMuted, onMutedChange]);
 
   /**
-   * Seek handler from controls.
-   */
-  const handleSeeking = useCallback(
-    ({ currentTime, complete }: { currentTime: number; complete: boolean }) => {
-      setSeeking(!complete);
-      if (el && complete) {
-        el.currentTime = currentTime;
-        // If parent controls playback, they decide whether to resume.
-        // If uncontrolled (no playingProp) and element was playing, resume automatically.
-        if (playingProp === undefined) {
-          if (!el.paused) void el.play();
-        }
-      }
-    },
-    [el, playingProp],
-  );
-
-  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
@@ -173,14 +149,13 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     <Debug
       //
       style={styles.debug}
-      readyState={rs}
-      seeking={seeking}
-      playing={playing}
       src={src}
+      readyState={readyState}
+      seeking={controls.seeking}
+      playing={playing}
     />
   );
 
-  // const elSpinning = spinning && <NotReadySpinner theme={theme.name} style={{ Absolute: 0 }} />;
   const elMask = fadeMask && <FadeMask mask={fadeMask} theme={theme.name} />;
 
   return (
@@ -212,15 +187,15 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       >
         <PlayerControls
           theme={theme.name}
-          enabled={READY}
+          enabled={isReady}
           playing={playing}
           muted={elMuted}
           duration={progress.duration}
           currentTime={progress.time}
-          buffering={buffering || NOT_READY}
+          buffering={buffering || notReady}
           buffered={buffered}
           //
-          onSeeking={handleSeeking}
+          onSeeking={controls.onSeeking}
           onClick={(e) => {
             if (e.button === 'Play') requestTogglePlay();
             if (e.button === 'Mute') requestToggleMute();

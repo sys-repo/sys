@@ -36,10 +36,10 @@ export type PlayerControlsProps = {
 export type PlayerControlsButtonHandler = (e: PlayerControlsButtonHandlerArgs) => void;
 export type PlayerControlsButtonHandlerArgs = { readonly button: PlayerControlButton };
 
-export type PlayerControlSeekChangeHandler = (e: PlayerControlSeekChangeHandlerArgs) => void;
-export type PlayerControlSeekChangeHandlerArgs = {
-  readonly currentTime: t.Secs;
-  readonly duration: t.Secs;
-  readonly percent: t.Percent;
-  readonly complete: boolean;
-};
+export type PlayerControlSeekChangeHandler = (e: PlayerControlSeekChange) => void;
+export type PlayerControlSeekChange = Readonly<{
+  currentTime: t.Secs;
+  duration: t.Secs;
+  percent: t.Percent;
+  complete: boolean;
+}>;

@@ -1,10 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted'>;
 
 export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
-  const { playing, muted, src, defaultMuted } = props;
+  const { src, playing, muted, defaultMuted } = props;
+  const isUncontrolled = playing === undefined;
+
+  /**
+   * Hooks:
+   */
+  const [seeking, setSeeking] = useState(false);
 
   /**
    * Effect: Apply controlled props to element.
@@ -18,7 +24,7 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
     if (muted !== undefined && el.muted !== muted) {
       el.muted = muted;
     } else if (muted === undefined && defaultMuted !== undefined) {
-      // One-time init for uncontrolled.
+      // One-time init when "uncontrolled".
       el.muted = defaultMuted;
     }
 
@@ -30,12 +36,43 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
     syncPlayback(); // Immediate sync.
 
     if (playing) {
-      // If play was requested but the media isn't ready,
-      // try again on the first 'canplay' event:
+      /**
+       * If play was requested but the media isn't ready,
+       * try again on the first 'canplay' event.
+       */
       const { dispose, signal } = rx.abortable();
       el.addEventListener('canplay', syncPlayback, { once: true, signal });
-
       return dispose;
     }
   }, [videoRef.current, src, playing, muted, defaultMuted]);
+
+  /**
+   * Handlers:
+   */
+  const onSeeking = (e: t.PlayerControlSeekChange) => {
+    const el = videoRef.current;
+    const { currentTime, complete } = e;
+    setSeeking(!complete);
+
+    // if (!el) return;
+
+    if (el && complete) {
+      el.currentTime = currentTime;
+      /**
+       * If parent controls playback, they decide whether to resume,
+       * however, if uncontrolled (no `plahing` prop) and the element was playing,
+       * resume playing automatically.
+       */
+      if (isUncontrolled && !el.paused) el.play();
+    }
+
+  };
+
+  /**
+   * API:
+   */
+  return {
+    seeking,
+    onSeeking,
+  } as const;
 }
