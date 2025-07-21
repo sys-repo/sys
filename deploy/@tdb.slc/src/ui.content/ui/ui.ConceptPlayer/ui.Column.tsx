@@ -10,7 +10,7 @@ export type ColumnProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClickOutside?: t.DomMouseEventHandler;
-  onVideoEnd?: t.VideoElement2Props['onEnded'];
+  onVideoEnd?: t.VideoElementProps['onEnded'];
 };
 
 /**
@@ -45,7 +45,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
   };
 
   const elPlayer = (
-    <Player.Video.Element2
+    <Player.Video.View
       {...player.props}
       debug={debug}
       onEnded={(e) => {

@@ -41,7 +41,7 @@ export const Root: React.FC<RootProps> = (props) => {
   };
 
   const elPlayer = (
-    <Player.Video.Element2
+    <Player.Video.View
       {...player.props}
       debug={debug}
       onEnded={(e) => console.info(`⚡️ onEnded:`, e)}

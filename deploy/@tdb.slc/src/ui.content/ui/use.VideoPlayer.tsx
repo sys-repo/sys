@@ -43,10 +43,10 @@ export function useVideoPlayer(
   /**
    * Render:
    */
-  type P = { style?: t.CssInput; onEnded?: t.VideoElement2Props['onEnded'] };
+  type P = { style?: t.CssInput; onEnded?: t.VideoElementProps['onEnded'] };
   function render(props: P = {}) {
     return (
-      <Player.Video.Element2
+      <Player.Video.View
         {...controller.props}
         style={props?.style}
         muted={muted}

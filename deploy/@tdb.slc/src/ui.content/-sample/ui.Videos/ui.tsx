@@ -18,7 +18,7 @@ export const VideosIndex: React.FC<t.VideosIndexProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Player.Video.Element2 {...controller.props} />
+      <Player.Video.View {...controller.props} />
     </div>
   );
 };
