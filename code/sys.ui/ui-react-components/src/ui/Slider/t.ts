@@ -64,4 +64,7 @@ export type SliderTick = {
  * Events:
  */
 export type SliderChangeHandler = (e: SliderChangeHandlerArgs) => void;
-export type SliderChangeHandlerArgs = { percent: t.Percent; complete: boolean };
+export type SliderChangeHandlerArgs = Readonly<{
+  percent: t.Percent;
+  complete: boolean;
+}>;
