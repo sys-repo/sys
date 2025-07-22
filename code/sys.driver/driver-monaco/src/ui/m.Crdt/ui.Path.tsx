@@ -20,10 +20,7 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
       justifyItems: 'start',
     }),
     body: css({ display: 'grid', gridAutoFlow: 'column', columnGap: 4 }),
-    prefix: css({
-      marginRight: 4,
-      color: props.prefixColor,
-    }),
+    prefix: css({ marginRight: 4, color: props.prefixColor }),
     divider: css({ color: Color.alpha(theme.fg, 0.25) }),
     last: css({ color: theme.fg }),
   };
