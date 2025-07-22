@@ -1,3 +1,4 @@
+import { Str } from '@sys/std';
 import { Cli, c } from '@sys/cli';
 import { Fs } from '@sys/fs';
 
@@ -57,5 +58,7 @@ export async function pathsToFileStrings(paths: string[]) {
 if (selected.length > 0) {
   const text = await pathsToFileStrings(selected);
   Cli.copyToClipboard(text);
-  console.info(c.gray(`Copied to clipboard`));
+  const total = selected.length;
+  const msg = `\n${total} ${Str.plural(total, 'file', 'files')} copied to clipboard`;
+  console.info(c.gray(msg));
 }
