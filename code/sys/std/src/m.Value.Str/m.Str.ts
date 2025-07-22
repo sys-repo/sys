@@ -13,6 +13,7 @@ import { truncate } from './u.truncate.ts';
 export { bytes, capitalize, diff, plural, shorten };
 
 export const Str: StrLib = {
+  SPACE: '\u200B',
   Lorem,
   lorem: Lorem.text,
   diff,
