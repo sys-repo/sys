@@ -27,12 +27,15 @@ const options = paths
     };
   });
 
+console.info(Str.SPACE);
+console.info(c.gray(`Total: ${paths.length}`));
+
 const selected = await Cli.Prompt.Checkbox.prompt({
-  message: `Select files from "${dir}"`,
+  message: `Select files to copy:\n`,
   options,
-  check: c.green(c.bold('✔')),
-  uncheck: c.gray('•'),
-  maxRows: 10,
+  check: c.green('●'),
+  uncheck: c.gray(c.dim('○')),
+  maxRows: 20,
 });
 
 export async function pathsToFileStrings(paths: string[]) {
