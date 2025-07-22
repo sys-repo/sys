@@ -1,3 +1,4 @@
+import type { PathViewProps } from '@sys/ui-react-components/t';
 import type { t } from './common.ts';
 
 /**
@@ -12,7 +13,7 @@ export type MonacoLib = Readonly<{
   Hidden: t.EditorHiddenLib;
   useBinding: t.UseEditorCrdtBinding;
   Dev: Readonly<{
-    PathView: React.FC<t.PathViewProps>;
+    PathView: React.FC<PathViewProps>;
   }>;
 }>;
 

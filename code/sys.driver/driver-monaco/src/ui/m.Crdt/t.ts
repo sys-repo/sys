@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.Path.ts';
 
 /**
  * Tools for binding between a Monaco editor and
