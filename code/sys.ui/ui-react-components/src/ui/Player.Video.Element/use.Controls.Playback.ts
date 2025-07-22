@@ -52,16 +52,21 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
    */
   const onSeeking = (e: t.PlayerControlSeekChange) => {
     const el = videoRef.current;
-    const relativeTime = e.currentTime; // 0..(cropped duration).
-    setSeeking(e.complete ? undefined : { currentTime: relativeTime });
-
     if (!el) return;
 
-    // Always write back into the real <video> so you scrub immediately:
-    el.currentTime = relativeTime + cropStart;
+    // Always clear `seeking` on completion.
+    if (e.complete) {
+      setSeeking(undefined);
+      if (isUncontrolled && !el.paused) {
+        void el.play().catch(() => {});
+      }
+    } else {
+      // While actively dragging, show the drag position:
+      setSeeking({ currentTime: e.currentTime });
+    }
 
-    // When the drag is complete, if uncontrolled and it was playing, resume:
-    if (e.complete && isUncontrolled && !el.paused) void el.play().catch(() => {});
+    // Scrub the video immediately, regardless of drag state:
+    el.currentTime = e.currentTime + cropStart;
   };
 
   /**
