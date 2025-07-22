@@ -13,6 +13,7 @@
     "prep": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
     "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
     "tmpl": "deno run -RWE ./-scripts/main.ts --tmpl",
+    "cp": "deno run -RWE --allow-run=pbcopy ./-scripts/Task.-clipboard.ts",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
