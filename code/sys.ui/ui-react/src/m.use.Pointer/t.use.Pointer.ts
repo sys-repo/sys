@@ -58,10 +58,10 @@ export type PointerHookHandlers =
   | PointerHookFocusHandlers;
 
 export type PointerHookMouseHandlers = {
-  readonly onMouseDown: M;
-  readonly onMouseUp: M;
-  readonly onMouseEnter: M;
-  readonly onMouseLeave: M;
+  readonly onPointerDown: M;
+  readonly onPointerUp: M;
+  readonly onPointerEnter: M;
+  readonly onPointerLeave: M;
 };
 export type PointerHookTouchHandlers = {
   readonly onTouchStart: T;

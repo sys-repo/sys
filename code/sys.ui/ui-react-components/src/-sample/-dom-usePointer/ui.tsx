@@ -60,6 +60,8 @@ export const Sample: React.FC<SampleProps> = (props) => {
       ref={ref}
       tabIndex={0}
       className={css(styles.base, props.style).class}
+      // onPointerDown={}
+      // onPointerEnter={}
       {...pointer.handlers}
     >
       <div className={styles.label.class}>{'🐷 Hello'}</div>

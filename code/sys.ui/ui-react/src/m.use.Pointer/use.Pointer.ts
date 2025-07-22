@@ -1,14 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Kbd, type t, useIsTouchSupported } from './common.ts';
+import { type t, Kbd, useIsTouchSupported } from './common.ts';
 import { usePointerDrag } from './use.Pointer.Drag.ts';
 import { usePointerDragdrop } from './use.Pointer.Dragdrop.ts';
 
 /**
  * Hook: pointer events + optional file drag/drop.
+ * @example:
  *
  *   const pointer = usePointer({ onDrag, onDragdrop });
  *   <div {...pointer.handlers} />
+ *
  */
 export const usePointer: t.UsePointer = (input) => {
   const args = wrangle.args(input);
@@ -42,8 +44,9 @@ export const usePointer: t.UsePointer = (input) => {
 
   /**
    * Effect:
-   *    When the low-level drag stops (ie. mouse-up outside)
-   *    reset "down".
+   *    When the low-level drag stops
+   *    (ie. mouse-up outside) reset "down".
+   *
    */
   useEffect(() => {
     if (!drag.is.dragging) {
@@ -92,6 +95,9 @@ export const usePointer: t.UsePointer = (input) => {
     const trigger = wrangle.pointerEvent(e);
     setDown(pressed);
 
+    if (pressed) e.currentTarget.setPointerCapture(e.pointerId);
+    else e.currentTarget.releasePointerCapture(e.pointerId);
+
     if (pressed) {
       args.onDown?.(trigger);
       if (drag.active) drag.start();
@@ -131,10 +137,10 @@ export const usePointer: t.UsePointer = (input) => {
   const pointerHandlers = isTouch
     ? { onTouchStart, onTouchEnd, onTouchCancel: onTouchEnd }
     : {
-        onMouseDown: down(true),
-        onMouseUp: down(false),
-        onMouseEnter: over(true),
-        onMouseLeave: over(false),
+        onPointerDown: down(true),
+        onPointerUp: down(false),
+        onPointerEnter: over(true),
+        onPointerLeave: over(false),
       };
 
   const focusHanders = { onFocus: focused(true), onBlur: focused(false) };
