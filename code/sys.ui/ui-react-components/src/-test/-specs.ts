@@ -21,6 +21,7 @@ export const SpecsComponents = {
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
+  [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
   [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
