@@ -21,6 +21,7 @@ export { Icon } from './ui/Icon/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
+export { PathView } from './ui/PathView/mod.ts';
 export { Preload } from './ui/Preload/mod.ts';
 export { PropsGrid } from './ui/PropsGrid/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';

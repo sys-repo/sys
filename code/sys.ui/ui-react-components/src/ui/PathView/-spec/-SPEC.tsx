@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <PathView debug={v.debug} theme={v.theme} />;
+        return <PathView debug={v.debug} theme={v.theme} path={v.path} prefix={v.prefix} />;
       });
   });
 
