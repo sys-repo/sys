@@ -7,6 +7,9 @@ export type * from './t.Elapsed.ts';
  */
 export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
 
+/** Specifies a range to narrow the video within. */
+export type VideoCropRange = { start?: t.Secs; end?: t.Secs };
+
 /**
  * Component:
  */
@@ -21,6 +24,7 @@ export type VideoElementProps = {
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
+  crop?: t.VideoCropRange;
 
   buffering?: boolean;
   buffered?: t.Secs;
@@ -53,8 +57,8 @@ export type VideoElementProps = {
    * Events fired when underlying element state changes.
    * Parent is expected to re-render with new `playing`/`muted` if controlling.
    */
-  onPlayingChange?: (e: { playing: boolean; ctx: t.MediaCtx }) => void;
-  onMutedChange?: (e: { muted: boolean; ctx: t.MediaCtx }) => void;
+  onPlayingChange?: (e: { playing: boolean; reason: t.VideoPlayerEventReason }) => void;
+  onMutedChange?: (e: { muted: boolean; reason: t.VideoPlayerEventReason }) => void;
 
   /**
    * Events fired relating to the underlying time/duration of the media.
@@ -63,19 +67,19 @@ export type VideoElementProps = {
   onDurationChange?: (e: { secs: t.Secs }) => void;
 
   /** Events related to buffering status. */
-  onBufferingChange?: (e: { buffering: boolean; ctx: t.MediaCtx }) => void;
-  onBufferedChange?: (e: { buffered: t.Percent; ctx: t.MediaCtx }) => void;
+  onBufferingChange?: (e: { buffering: boolean; reason: t.VideoPlayerEventReason }) => void;
+  onBufferedChange?: (e: { buffered: t.Percent; reason: t.VideoPlayerEventReason }) => void;
 
   /**
    * Fired when media ends (native `ended` or loop boundary if you care).
    */
-  onEnded?: (e: { ctx: t.MediaCtx }) => void;
+  onEnded?: (e: { reason: VideoPlayerEventReason }) => void;
 };
 
 /**
  * Events:
  */
-export type MediaCtxReason =
+export type VideoPlayerEventReason =
   | 'user-toggle-play'
   | 'user-toggle-mute'
   | 'autoplay-start'
@@ -83,7 +87,6 @@ export type MediaCtxReason =
   | 'autoplay-gesture'
   | 'prop-change'
   | 'media-ended'
-  | 'element-event'
   | 'src-change'
+  | 'element-event'
   | 'ended';
-export type MediaCtx = { reason: MediaCtxReason };

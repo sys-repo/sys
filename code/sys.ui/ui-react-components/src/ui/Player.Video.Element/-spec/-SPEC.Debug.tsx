@@ -15,6 +15,7 @@ type Storage = Pick<
   | 'loop'
   | 'aspectRatio'
   | 'fadeMask'
+  | 'crop'
 > & { width?: number; controlled?: boolean };
 
 /**
@@ -25,16 +26,17 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 const defaults: Storage = {
   theme: 'Dark',
-  debug: true,
+  debug: false,
   width: 420,
   muted: false,
   autoPlay: false,
   loop: false,
   aspectRatio: '16/9',
-  cornerRadius: 6,
+  cornerRadius: 15,
   src: 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4',
   controlled: false,
   fadeMask: undefined,
+  crop: undefined,
 };
 
 /**
@@ -68,6 +70,7 @@ export function createDebugSignals() {
     cornerRadius: s(snap.cornerRadius),
     aspectRatio: s(snap.aspectRatio),
     fadeMask: s(snap.fadeMask),
+    crop: s(snap.crop),
     scale: s<P['scale']>(),
   };
   const p = props;
@@ -101,6 +104,7 @@ export function createDebugSignals() {
       d.cornerRadius = p.cornerRadius.value;
       d.aspectRatio = p.aspectRatio.value;
       d.fadeMask = p.fadeMask.value;
+      d.crop = p.crop.value;
     });
   });
 
@@ -112,6 +116,10 @@ export function createDebugSignals() {
       vp.autoPlay.value = p.autoPlay.value ?? false;
       vp.muted.value = p.muted.value ?? false;
       vp.loop.value = p.loop.value ?? false;
+      vp.crop.value = p.crop.value;
+      vp.fadeMask.value = p.fadeMask.value;
+      vp.scale.value = p.scale.value;
+      vp.cornerRadius.value = p.cornerRadius.value;
     }
   });
 
@@ -146,7 +154,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{D.name}</div>
+        <div>{'Player.Video: Element'}</div>
         {p.controlled.value && <CurrentTime video={debug.video} />}
       </div>
       <Button
@@ -188,10 +196,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
+      <Button
+        block
+        enabled={() => !p.controlled.value}
+        label={() => {
+          const v = p.crop.value;
+          return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.crop, [undefined, { start: 11.5, end: 28.6 }, { start: 11.5, end: -10 }]);
+        }}
+      />
 
       <hr />
       <Button
         block
+        enabled={() => !p.controlled.value}
         label={() => {
           const value = p.fadeMask.value;
           return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
@@ -209,6 +229,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        enabled={() => !p.controlled.value}
         label={() => {
           const current = p.scale.value;
           return `scale: ${typeof current === 'function' ? 'ƒn' : current ?? '<undefined>'}`;

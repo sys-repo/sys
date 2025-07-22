@@ -26,6 +26,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.jumpTo.value;
     p.buffered.value;
     p.buffering.value;
+    p.crop.value;
   });
 
   /**
@@ -51,6 +52,9 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     const onBufferedChange: P['onBufferedChange'] = (e) => (p.buffered.value = e.buffered);
     const onTimeUpdate: P['onTimeUpdate'] = (e) => (p.currentTime.value = e.secs);
     const onDurationChange: P['onDurationChange'] = (e) => {
+      /**
+       * TODO 🐷 - check duration when cropped
+       */
       p.duration.value = e.secs;
       p.ready.value = e.secs > 0;
     };
@@ -72,6 +76,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       showControls: p.showControls.value,
       showFullscreenButton: p.showFullscreenButton.value,
       showVolumeControl: p.showVolumeControl.value,
+      crop: p.crop.value,
 
       jumpTo: p.jumpTo.value,
 

@@ -20,8 +20,8 @@ export function useBuffered(videoRef: React.RefObject<HTMLVideoElement>, props: 
       if (!Number.isFinite(el.duration) || el.duration === 0) return;
       const ranges = el.buffered;
       const end = ranges.length ? ranges.end(ranges.length - 1) : 0;
-      const fraction = Math.min(1, Math.max(0, end / el.duration));
-      onBufferedChange?.({ buffered: fraction, ctx: { reason: 'element-event' } });
+      const buffered = Math.min(1, Math.max(0, end / el.duration));
+      onBufferedChange?.({ buffered, reason: 'element-event' });
     };
 
     const { signal, dispose } = rx.abortable();

@@ -8,6 +8,7 @@ import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
 import { usePlaybackControls } from './use.Controls.Playback.ts';
 import { useControlsVisible } from './use.Controls.Visible.ts';
+import { useCropBounds } from './use.CropBounds.ts';
 import { useMediaEvents } from './use.MediaEvents.ts';
 import { useMediaProgress } from './use.MediaProgress.ts';
 import { useReadyState } from './use.ReadyState.ts';
@@ -25,6 +26,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     buffered,
     buffering,
     fadeMask,
+    crop,
+    jumpTo,
 
     // Controlled playback + mute:
     playing: playingProp,
@@ -60,7 +63,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const scale = useScale(size, props.scale);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
-  useSeekCmd(videoRef, progress.duration, props.jumpTo);
+  useSeekCmd(videoRef, progress.duration, crop, jumpTo);
+  useCropBounds(videoRef, props);
 
   /**
    * Hook: ReadyState
@@ -93,20 +97,20 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     onStart: () => {
       shouldAutoplayRef.current = false;
       autoplayPendingRef.current = true;
-      onPlayingChange?.({ playing: true, ctx: { reason: 'autoplay-start' } });
+      onPlayingChange?.({ playing: true, reason: 'autoplay-start' });
     },
     onMutedRetry: () => {
       autoplayPendingRef.current = true;
-      onMutedChange?.({ muted: true, ctx: { reason: 'autoplay-muted-retry' } });
+      onMutedChange?.({ muted: true, reason: 'autoplay-muted-retry' });
     },
     onGesturePlay: () => {
       autoplayPendingRef.current = true;
-      onPlayingChange?.({ playing: true, ctx: { reason: 'autoplay-gesture' } });
+      onPlayingChange?.({ playing: true, reason: 'autoplay-gesture' });
     },
     onGiveUp: () => {
       shouldAutoplayRef.current = false;
       autoplayPendingRef.current = false;
-      onPlayingChange?.({ playing: false, ctx: { reason: 'element-event' } });
+      onPlayingChange?.({ playing: false, reason: 'element-event' });
     },
   });
 
@@ -115,12 +119,12 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
    */
   const requestTogglePlay = useCallback(() => {
     const value = !playing;
-    onPlayingChange?.({ playing: value, ctx: { reason: 'user-toggle-play' } });
+    onPlayingChange?.({ playing: value, reason: 'user-toggle-play' });
   }, [playing, onPlayingChange]);
 
   const requestToggleMute = useCallback(() => {
     const value = !elMuted;
-    onMutedChange?.({ muted: value, ctx: { reason: 'user-toggle-mute' } });
+    onMutedChange?.({ muted: value, reason: 'user-toggle-mute' });
   }, [elMuted, onMutedChange]);
 
   /**
@@ -191,7 +195,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
           playing={playing}
           muted={elMuted}
           duration={progress.duration}
-          currentTime={controls.seeking?.currentTime ?? progress.currentTime}
+          currentTime={controls.seeking?.currentTime ?? progress.currentTime} // ← rebased to {crop} value.
           buffering={buffering || notReady}
           buffered={buffered}
           //

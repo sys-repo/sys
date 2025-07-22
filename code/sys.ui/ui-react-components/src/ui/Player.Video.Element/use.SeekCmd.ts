@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { type t } from './common.ts';
+import { type t, resolveCropEnd } from './common.ts';
 
 export function useSeekCmd(
   videoRef: React.RefObject<HTMLVideoElement>,
   duration: t.Secs,
-  cmd?: t.VideoPlayerSeekCmd,
+  crop?: t.VideoCropRange,
+  jumpTo?: t.VideoPlayerSeekCmd,
 ) {
   const lastCmd = useRef<t.VideoPlayerSeekCmd>();
 
@@ -12,9 +13,9 @@ export function useSeekCmd(
    * Effect: seek/jump behavior.
    */
   useEffect(() => {
-    if (!cmd) return; // nothing to do
-    if (cmd === lastCmd.current) return; // already processed
-    lastCmd.current = cmd; // mark as handled
+    if (!jumpTo) return; // nothing to do
+    if (jumpTo === lastCmd.current) return; // already processed
+    lastCmd.current = jumpTo; // mark as handled
 
     const el = videoRef.current;
     if (!el) return;
@@ -22,16 +23,20 @@ export function useSeekCmd(
     /**
      * Seek:
      */
-    let secs = cmd.second;
-    if (secs < 0) secs = duration + secs; // support negative index
-    secs = Math.max(0, Math.min(duration, secs)); // clamp
+    const cropStart = crop?.start ?? 0;
+    const cropEnd = resolveCropEnd(crop?.end, duration);
+    const rawSecs = resolveCropEnd(jumpTo.second, duration);
+    let secs = rawSecs + cropStart;
+    if (secs < cropStart) secs = cropStart;
+    if (secs > cropEnd) secs = cropEnd;
+
     el.currentTime = secs;
 
     /**
-     * Play / pause
+     * Play / Pause:
      */
-    if (cmd.play === undefined) return; // leave state unchanged
-    if (cmd.play && el.paused) void el.play().catch(() => {});
-    if (!cmd.play && !el.paused) el.pause();
-  }, [cmd, duration, videoRef]);
+    if (jumpTo.play === undefined) return; // NB: leave state unchanged.
+    if (jumpTo.play && el.paused) void el.play().catch(() => {});
+    if (!jumpTo.play && !el.paused) el.pause();
+  }, [videoRef, jumpTo, crop, duration]);
 }

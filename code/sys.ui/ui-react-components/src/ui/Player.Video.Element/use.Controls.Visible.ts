@@ -9,7 +9,7 @@ type Args = {
 };
 
 export function useControlsVisible(args: Args) {
-  const { playing, canPlay, pointerOver, hideAfter = 800 } = args;
+  const { playing, canPlay, pointerOver, hideAfter = 600 } = args;
   const [visible, setVisible] = useState(true);
 
   /**

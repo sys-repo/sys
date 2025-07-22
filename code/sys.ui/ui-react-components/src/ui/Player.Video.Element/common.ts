@@ -17,3 +17,15 @@ export const DEFAULTS = {
   cornerRadius: 0,
 } as const;
 export const D = DEFAULTS;
+
+/**
+ * If you give a negative `rawEnd`, treat it as “duration + rawEnd.”
+ * Otherwise just return it (or `undefined` if you passed none).
+ */
+export function resolveCropEnd(rawEnd: number | undefined, duration: number) {
+  if (rawEnd == null) return duration;
+
+  // NB: positive = absolute, negative = from-the-end.
+  const abs = rawEnd >= 0 ? rawEnd : duration + rawEnd;
+  return Math.max(0, abs);
+}

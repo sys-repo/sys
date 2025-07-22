@@ -16,6 +16,7 @@ type P = Pick<
   | 'showVolumeControl'
   | 'buffering'
   | 'buffered'
+  | 'crop'
   //
   | 'jumpTo'
   //

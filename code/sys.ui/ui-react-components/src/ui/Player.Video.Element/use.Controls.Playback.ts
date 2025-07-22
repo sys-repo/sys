@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
 
-type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted'>;
+type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>;
 
 export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
-  const { src, playing, muted, defaultMuted } = props;
+  const { src, playing, muted, defaultMuted, crop } = props;
+  const cropStart = crop?.start ?? 0;
   const isUncontrolled = playing === undefined;
 
   /**
@@ -44,34 +45,27 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
       el.addEventListener('canplay', syncPlayback, { once: true, signal });
       return dispose;
     }
-  }, [videoRef.current, src, playing, muted, defaultMuted]);
+  }, [videoRef.current, src, playing, muted, defaultMuted, crop?.start]);
 
   /**
    * Handlers:
    */
   const onSeeking = (e: t.PlayerControlSeekChange) => {
     const el = videoRef.current;
-    const currentTime = e.currentTime;
-    setSeeking(e.complete ? undefined : { currentTime });
+    const relativeTime = e.currentTime; // 0..(cropped duration).
+    setSeeking(e.complete ? undefined : { currentTime: relativeTime });
 
     if (!el) return;
 
-    if (e.complete) {
-      el.currentTime = e.currentTime;
-      /**
-       * If parent controls playback, they decide whether to resume,
-       * however, if uncontrolled (no `plahing` prop) and the element was playing,
-       * resume playing automatically.
-       */
-      if (isUncontrolled && !el.paused) void el.play();
-    }
+    // Always write back into the real <video> so you scrub immediately:
+    el.currentTime = relativeTime + cropStart;
+
+    // When the drag is complete, if uncontrolled and it was playing, resume:
+    if (e.complete && isUncontrolled && !el.paused) void el.play().catch(() => {});
   };
 
   /**
    * API:
    */
-  return {
-    seeking,
-    onSeeking,
-  } as const;
+  return { seeking, onSeeking } as const;
 }

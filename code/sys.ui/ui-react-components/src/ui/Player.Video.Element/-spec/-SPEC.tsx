@@ -24,6 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
         aspectRatio={v.aspectRatio}
         scale={v.scale}
         fadeMask={v.fadeMask}
+        crop={v.crop}
         //
         playing={v.playing}
         autoPlay={v.autoPlay}
@@ -52,6 +53,7 @@ export default Spec.describe(D.displayName, (e) => {
         //
         style={{ width }}
         debug={v.debug}
+        theme={v.theme}
         {...controller.props}
       />
     );
@@ -69,7 +71,7 @@ export default Spec.describe(D.displayName, (e) => {
         fontFamily: 'monospace',
         opacity: 0.5,
         display: 'grid',
-        justifyItems: 'end',
+        justifyItems: 'start',
       }),
     };
 
