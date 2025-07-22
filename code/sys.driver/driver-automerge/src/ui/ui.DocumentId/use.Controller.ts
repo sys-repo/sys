@@ -34,6 +34,11 @@ function useInternal(args: Args = {}): Hook {
   const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
   const signals = signalsRef.current;
 
+  if (url) {
+    const { docId } = DocUrl.read(location.href, urlKey);
+    if (docId && !signals.textbox.value) signals.textbox.value = docId.trim();
+  }
+
   /**
    * Hooks:
    */
