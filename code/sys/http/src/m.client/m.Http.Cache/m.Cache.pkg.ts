@@ -11,7 +11,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   const MEDIA_EXT = /\.(mp4|m4v|mov|webm)$/i;
 
   if (!silent)
-    console.info(`💦 [service-worker] starting Http.Cache("${pkg.name}")`, {
+    console.info(`💦 [service-worker] starting Http.Cache: ${pkg.name}`, {
       CACHE_ASSETS,
       CACHE_MEDIA,
     });
@@ -36,6 +36,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
         if (!keep.has(name)) await caches.delete(name);
       }
     };
+
     e.waitUntil(claimAndClean());
   });
 
@@ -138,11 +139,12 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   }
 
   /**
-   * Read the body once, compute its length, and cache a Response built from the bytes.
+   * Read the body once, compute its length,
+   * and cache a Response built from the bytes.
    */
   async function cacheFullMedia(url: string, full: Response): Promise<Response> {
-    const buf = await full.arrayBuffer(); // consume once:
-    const size = buf.byteLength;
+    const buffer = await full.arrayBuffer(); // consume once:
+    const size = buffer.byteLength;
     const headers = new Headers(full.headers);
 
     // Force explicit byte length + serveable range semantics:
@@ -150,8 +152,8 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     headers.set('Accept-Ranges', 'bytes');
 
     // Build a fresh immutable Response from the full bytes:
-    const stored = new Response(buf, {
-      status: 200, // treat as full object (even if origin 206).
+    const stored = new Response(buffer, {
+      status: 200, // Treat as full object (even if origin 206 - "partial content").
       statusText: 'OK',
       headers,
     });
@@ -159,7 +161,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     const cache = await caches.open(CACHE_MEDIA);
     await cache.put(url, stored.clone());
 
-    if (!silent) console.info(`✅ cached full media (${size} bytes): ${url}`);
+    if (!silent) console.info(`✅ cached full media (${size.toLocaleString()} bytes): ${url}`);
     return stored;
   }
 };
