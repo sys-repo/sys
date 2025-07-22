@@ -6,6 +6,7 @@ import { Keyboard } from './m.Keyboard.ts';
 import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';
 import { Table } from './m.Table.ts';
+import { copyToClipboard } from './u.clipboard.ts';
 
 /**
  * Tools for CLI's (command-line-interface).
@@ -28,4 +29,5 @@ export const Cli: CliLib = {
 
   confirm: (options) => Prompt.Confirm.prompt(options),
   stripAnsi,
+  copyToClipboard,
 };
