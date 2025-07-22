@@ -30,9 +30,9 @@ export const SpecsComponents = {
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
   [`${ns}: Player.Video: Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
-  [`${ns}:player: Video: Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),
-  [`${ns}.player: Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
-  [`${ns}.player: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
+  [`${ns}: Player.Video: Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video: Thumbnails`]: () => import('../ui/Player.Thumbnails/-SPEC.tsx'),
+  [`${ns}: Player.Video: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
 
   [`${ns}.media: Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
   [`${ns}.media: Video (Stream)`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
