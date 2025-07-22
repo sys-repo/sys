@@ -204,7 +204,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
         }}
         onClick={() => {
-          Signal.cycle(p.crop, [undefined, { start: 11.5, end: 28.6 }, { start: 11.5, end: -10 }]);
+          Signal.cycle(p.crop, [undefined, [11.5, 28.6], { start: 11.5, end: -10 }]);
         }}
       />
 

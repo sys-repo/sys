@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { type t, resolveCropEnd } from './common.ts';
+
+import { type t } from './common.ts';
+import { resolveCropEnd } from './u.ts';
 
 export function useSeekCmd(
   videoRef: React.RefObject<HTMLVideoElement>,

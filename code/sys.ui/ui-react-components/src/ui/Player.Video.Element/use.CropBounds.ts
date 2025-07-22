@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { type t, resolveCropEnd, rx } from './common.ts';
+
+import { type t, rx } from './common.ts';
+import { resolveCropEnd, Wrangle } from './u.ts';
 
 type P = Pick<t.VideoElementProps, 'crop' | 'onEnded'>;
 
@@ -7,7 +9,8 @@ type P = Pick<t.VideoElementProps, 'crop' | 'onEnded'>;
  * Enforce [start..end] playback bounds on the <video>.
  */
 export function useCropBounds(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
-  const { crop, onEnded } = props;
+  const { onEnded } = props;
+  const crop = Wrangle.crop(props.crop);
 
   /**
    * Effect:

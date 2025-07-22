@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { resolveCropEnd } from './common.ts';
+import { resolveCropEnd } from './u.ts';
 
 describe('Player.Video: Element', () => {
   describe('calc: resolveCropEnd', () => {

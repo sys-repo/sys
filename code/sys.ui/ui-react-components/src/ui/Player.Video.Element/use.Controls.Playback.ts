@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+
 import { type t, rx } from './common.ts';
+import { Wrangle } from './u.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>;
 
 export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
-  const { src, playing, muted, defaultMuted, crop } = props;
+  const { src, playing, muted, defaultMuted } = props;
+  const crop = Wrangle.crop(props.crop);
   const cropStart = crop?.start ?? 0;
   const isUncontrolled = playing === undefined;
 

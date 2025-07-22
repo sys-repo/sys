@@ -52,7 +52,7 @@ describe('VideoPlayer: Signals API', () => {
           aspectRatio: '2.39/1',
           autoPlay: true,
           muted: true,
-          crop: { start: 15.2, end: -5 },
+          crop: [15.2, -5],
           fadeMask: { direction: 'Top:Down', size: 123 },
           scale,
         });
@@ -63,7 +63,7 @@ describe('VideoPlayer: Signals API', () => {
         expect(p.aspectRatio.value).to.eql('2.39/1');
         expect(p.autoPlay.value).to.eql(true);
         expect(p.muted.value).to.eql(true);
-        expect(p.crop.value).to.eql({ start: 15.2, end: -5 });
+        expect(p.crop.value).to.eql([15.2, -5]);
 
         expect(p.showControls.value).to.eql(false);
         expect(p.showFullscreenButton.value).to.eql(true);

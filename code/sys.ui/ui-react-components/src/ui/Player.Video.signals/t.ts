@@ -10,24 +10,6 @@ export type PlayerSignalsFactory = (
   defaults?: PlayerSignalsFactoryDefaults | t.StringVideoAddress,
 ) => t.VideoPlayerSignals;
 
-/** Defaults passed to the signals API factory. */
-export type PlayerSignalsFactoryDefaults = {
-  src?: t.StringVideoAddress;
-  loop?: boolean;
-  autoPlay?: boolean;
-  muted?: boolean;
-  crop?: t.VideoCropRange;
-
-  // Apperance:
-  showControls?: boolean;
-  showFullscreenButton?: boolean;
-  showVolumeControl?: boolean;
-  cornerRadius?: number;
-  aspectRatio?: string;
-  scale?: number | t.VideoPlayerScale;
-  fadeMask?: t.VideoPlayerFadeMask | t.Pixels;
-};
-
 /**
  * Signals API for dynamic control of the <VideoPlayer>.
  */
@@ -59,7 +41,7 @@ export type VideoPlayerSignalProps = Readonly<{
   duration: t.Signal<t.Secs>;
   buffering: t.Signal<boolean>;
   buffered: t.Signal<t.Secs | undefined>;
-  crop: t.Signal<t.VideoCropRange | undefined>;
+  crop: t.Signal<t.VideoCropRange | t.VideoCropRangeTuple | undefined>;
 
   /**
    * Appearance:
@@ -77,6 +59,24 @@ export type VideoPlayerSignalProps = Readonly<{
    */
   jumpTo: t.Signal<t.VideoPlayerSeekCmd | undefined>;
 }>;
+
+/** Defaults passed to the signals API factory. */
+export type PlayerSignalsFactoryDefaults = {
+  src?: t.StringVideoAddress;
+  loop?: boolean;
+  autoPlay?: boolean;
+  muted?: boolean;
+  crop?: t.VideoCropRange | t.VideoCropRangeTuple;
+
+  // Apperance:
+  showControls?: boolean;
+  showFullscreenButton?: boolean;
+  showVolumeControl?: boolean;
+  cornerRadius?: number;
+  aspectRatio?: string;
+  scale?: number | t.VideoPlayerScale;
+  fadeMask?: t.VideoPlayerFadeMask | t.Pixels;
+};
 
 /** Structure representing a jump-to ("seek") location */
 export type VideoPlayerSeekCmd = {

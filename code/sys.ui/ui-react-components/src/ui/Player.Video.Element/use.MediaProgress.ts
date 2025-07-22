@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { type t, resolveCropEnd, rx } from './common.ts';
+
+import { type t, rx } from './common.ts';
+import { resolveCropEnd, Wrangle } from './u.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'crop' | 'onTimeUpdate' | 'onDurationChange'>;
 
 export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
-  const { src, crop, onDurationChange, onTimeUpdate } = props;
+  const { src, onDurationChange, onTimeUpdate } = props;
+  const crop = Wrangle.crop(props.crop);
   const cropStart = crop?.start ?? 0;
   const rawEnd = crop?.end;
 
