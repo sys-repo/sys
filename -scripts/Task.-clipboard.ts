@@ -1,6 +1,6 @@
-import { Str } from '@sys/std';
 import { Cli, c } from '@sys/cli';
 import { Fs } from '@sys/fs';
+import { Str } from '@sys/std';
 
 const dir = Fs.cwd('terminal');
 const paths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((file) => file.path);
@@ -60,8 +60,20 @@ export async function pathsToFileStrings(paths: string[]) {
 
 if (selected.length > 0) {
   const text = await pathsToFileStrings(selected);
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean); // ← NB: remove empty lines.
+
   Cli.copyToClipboard(text);
   const total = selected.length;
-  const msg = `\n${total} ${Str.plural(total, 'file', 'files')} copied to clipboard`;
+  const filesLabel = Str.plural(total, 'file', 'files');
+  const linesLabel = Str.plural(lines.length, 'line', 'lines');
+
+  let msg = '\n';
+  msg += `${total.toLocaleString()} ${filesLabel}`;
+  msg += ` (${c.white(c.bold(`${lines.length.toLocaleString()} ${linesLabel}`))})`;
+  msg += ` copied to clipboard\n`;
+
   console.info(c.gray(msg));
 }
