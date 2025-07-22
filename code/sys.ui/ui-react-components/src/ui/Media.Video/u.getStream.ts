@@ -90,7 +90,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Capture the canvas as a MediaStream and
    * copy across original audio track(s).
    */
-  const filtered = canvas.captureStream(30); // NB: 30 fps.
+  const filtered = canvas.captureStream(30); // NB: 30-fps.
   raw.getAudioTracks().forEach((t) => filtered.addTrack(t));
 
   /**
