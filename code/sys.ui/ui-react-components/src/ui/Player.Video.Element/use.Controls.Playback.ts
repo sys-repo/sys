@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
 import { type t, rx } from './common.ts';
-import { Wrangle } from './u.ts';
+import { Crop } from './u.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>;
 
 export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
   const { src, playing, muted, defaultMuted } = props;
-  const crop = Wrangle.crop(props.crop);
+  const crop = Crop.wrangle(props.crop);
   const cropStart = crop?.start ?? 0;
   const isUncontrolled = playing === undefined;
 
@@ -23,32 +23,29 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
+    if (playing === undefined) return; // uncontrolled → let useAutoplay handle playing.
 
-    // Muted:
+    // Controlled → sync mute:
     if (muted !== undefined && el.muted !== muted) {
       el.muted = muted;
     } else if (muted === undefined && defaultMuted !== undefined) {
-      // One-time init when "uncontrolled".
       el.muted = defaultMuted;
     }
 
-    // Play/Pause:
+    // Controlled → sync play/pause:
     const syncPlayback = () => {
       if (playing && el.paused) void el.play().catch(() => {});
       if (!playing && !el.paused) el.pause();
     };
-    syncPlayback(); // Immediate sync.
+    syncPlayback();
 
+    // If not yet ready, retry on `canplay`:
     if (playing) {
-      /**
-       * If play was requested but the media isn't ready,
-       * try again on the first 'canplay' event.
-       */
       const { dispose, signal } = rx.abortable();
       el.addEventListener('canplay', syncPlayback, { once: true, signal });
       return dispose;
     }
-  }, [videoRef.current, src, playing, muted, defaultMuted, crop?.start]);
+  }, [videoRef.current, src, playing, muted, defaultMuted, cropStart]);
 
   /**
    * Handlers:

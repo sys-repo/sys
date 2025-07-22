@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
 import { type t, rx } from './common.ts';
-import { resolveCropEnd, Wrangle } from './u.ts';
+import { Crop } from './u.ts';
 
 type P = Pick<t.VideoElementProps, 'src' | 'crop' | 'onTimeUpdate' | 'onDurationChange'>;
 
 export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
   const { src, onDurationChange, onTimeUpdate } = props;
-  const crop = Wrangle.crop(props.crop);
+  const crop = Crop.wrangle(props.crop);
   const cropStart = crop?.start ?? 0;
   const rawEnd = crop?.end;
 
@@ -30,7 +30,7 @@ export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, pr
     const onTime = () => {
       // Derive the underlying duration and absolute end:
       const rawDur = Number.isFinite(el.duration) ? el.duration : 0;
-      const absEnd = resolveCropEnd(rawEnd, rawDur);
+      const absEnd = Crop.resolveEnd(rawEnd, rawDur);
       const max = absEnd - cropStart;
 
       // Compute relative position, clamped into [0..max]:
@@ -44,7 +44,7 @@ export function useMediaProgress(videoRef: React.RefObject<HTMLVideoElement>, pr
 
     const onDuration = () => {
       const rawDur = Number.isFinite(el.duration) ? el.duration : 0;
-      const absEnd = resolveCropEnd(rawEnd, rawDur);
+      const absEnd = Crop.resolveEnd(rawEnd, rawDur);
       const secs = Math.max(0, absEnd - cropStart);
 
       setDuration(secs);

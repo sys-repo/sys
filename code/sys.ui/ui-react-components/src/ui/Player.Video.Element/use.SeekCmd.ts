@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { type t } from './common.ts';
-import { resolveCropEnd } from './u.ts';
+import { Crop } from './u.ts';
 
 export function useSeekCmd(
   videoRef: React.RefObject<HTMLVideoElement>,
@@ -26,8 +26,8 @@ export function useSeekCmd(
      * Seek:
      */
     const cropStart = crop?.start ?? 0;
-    const cropEnd = resolveCropEnd(crop?.end, duration);
-    const rawSecs = resolveCropEnd(jumpTo.second, duration);
+    const cropEnd = Crop.resolveEnd(crop?.end, duration);
+    const rawSecs = Crop.resolveEnd(jumpTo.second, duration);
     let secs = rawSecs + cropStart;
     if (secs < cropStart) secs = cropStart;
     if (secs > cropEnd) secs = cropEnd;

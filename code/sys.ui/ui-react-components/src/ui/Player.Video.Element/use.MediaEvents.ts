@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { type t, rx } from './common.ts';
 
+type R = t.VideoPlayerEventReason;
 type P = Pick<
   t.VideoElementProps,
   'onBufferingChange' | 'onPlayingChange' | 'onMutedChange' | 'onEnded'
@@ -16,15 +17,31 @@ export function useMediaEvents(
 ) {
   const { onBufferingChange, onPlayingChange, onMutedChange, onEnded } = props;
 
+  /**
+   * Refs:
+   */
+  const lastPlaying = useRef<boolean>();
+
+  /**
+   * Effect:
+   */
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
 
-    type R = t.VideoPlayerEventReason;
-    const firePlaying = (playing: boolean, reason: R) => onPlayingChange?.({ playing, reason });
-    const fireMuted = (muted: boolean, reason: R) => onMutedChange?.({ muted, reason });
-    const fireBuffering = (buffering: boolean, reason: R) =>
+    const firePlaying = (playing: boolean, reason: R) => {
+      if (lastPlaying.current === playing) return;
+      lastPlaying.current = playing;
+      onPlayingChange?.({ playing, reason });
+    };
+
+    const fireMuted = (muted: boolean, reason: R) => {
+      onMutedChange?.({ muted, reason });
+    };
+
+    const fireBuffering = (buffering: boolean, reason: R) => {
       onBufferingChange?.({ buffering, reason });
+    };
 
     const onPlay = () => {
       autoplayPendingRef.current = false;
@@ -41,7 +58,6 @@ export function useMediaEvents(
     const onBufferEnd = () => fireBuffering(false, 'element-event');
 
     const { dispose, signal } = rx.abortable();
-    el.addEventListener('play', onPlay, { signal });
     el.addEventListener('playing', onPlay, { signal });
     el.addEventListener('pause', onPause, { signal });
     el.addEventListener('ended', onEndedHandler, { signal });

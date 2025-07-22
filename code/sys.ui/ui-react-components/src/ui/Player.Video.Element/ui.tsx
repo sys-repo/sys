@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 import { type t, Color, css, D, M, READY_STATE, useSizeObserver } from './common.ts';
-import { Wrangle } from './u.ts';
+import { Crop } from './u.ts';
 
 import { Debug } from './ui.Debug.tsx';
 import { FadeMask } from './ui.FadeMask.tsx';
@@ -39,7 +39,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     onPlayingChange,
     onMutedChange,
   } = props;
-  const crop = Wrangle.crop(props.crop);
+  const crop = Crop.wrangle(props.crop);
 
   /**
    * Refs:
