@@ -45,10 +45,11 @@ describe('Fs: filesystem', () => {
   describe('Fs.cwd', () => {
     it('returns the CWD', () => {
       expect(Fs.cwd()).to.eql(Deno.cwd());
+      expect(Fs.cwd('process')).to.eql(Deno.cwd());
     });
 
-    it('returns the initiating CWD', () => {
-      const dir = Fs.cwd('init');
+    it('returns the initiating terminal CWD', () => {
+      const dir = Fs.cwd('terminal');
       expect(dir).to.eql(Deno.env.get('INIT_CWD'));
     });
   });
