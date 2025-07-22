@@ -27,7 +27,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   /**
    * (Early Edit): no filter/zoom ➜ simply reuse the raw stream.
    */
-  if (!filter && !filter && zoom.factor === 1) return { raw, filtered: raw };
+  if (!filter && !filter) return { raw, filtered: raw };
 
   /**
    * Create hidden Video + Canvas elements.
@@ -40,15 +40,8 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   }) as HTMLVideoElement;
   await video.play(); // NB: wait until metadata ready.
 
-  // Ensure video dimensions are ready to be read.
-  // NB: related to bug on Windows.
-  await new Promise<void>((resolve) => {
-    if (video.readyState >= 1) return resolve(); // HAVE_METADATA
-    video.addEventListener('loadedmetadata', () => resolve(), { once: true });
-  });
-
-  let w = video.videoWidth;
-  let h = video.videoHeight;
+  const w = video.videoWidth;
+  const h = video.videoHeight;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -60,13 +53,6 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Copy each video frame into the canvas.
    */
   function draw() {
-    if ((w === 0 || h === 0) && video.videoWidth && video.videoHeight) {
-      w = video.videoWidth;
-      h = video.videoHeight;
-      canvas.width = w;
-      canvas.height = h;
-    }
-
     ctx.clearRect(0, 0, w, h);
     if (filter) ctx.filter = filter;
     if (zoom.factor === 1) {
