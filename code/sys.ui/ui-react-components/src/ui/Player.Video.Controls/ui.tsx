@@ -45,6 +45,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
           onClick={() => props.onClick?.({ button: 'Play' })}
         />
         <SeekSlider
+          style={{ top: 1, position: 'relative' }}
           enabled={enabled}
           duration={duration}
           currentTime={currentTime}
@@ -54,6 +55,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
         />
         <Timestamp enabled={enabled} currentTime={currentTime} duration={duration} />
         <MuteButton
+          style={{ top: -1, position: 'relative' }}
           enabled={enabled}
           muted={muted}
           onClick={() => props.onClick?.({ button: 'Mute' })}
