@@ -16,6 +16,7 @@ export type PlayerSignalsFactoryDefaults = {
   loop?: boolean;
   autoPlay?: boolean;
   muted?: boolean;
+  crop?: t.VideoCropRange;
 
   // Apperance:
   showControls?: boolean;
@@ -42,39 +43,40 @@ export type VideoPlayerSignals = {
 };
 
 /** The raw signal properties that make up the VideoPlayer signals API/. */
-export type VideoPlayerSignalProps = {
-  readonly ready: t.Signal<boolean>;
-  readonly src: t.Signal<t.StringVideoAddress | undefined>;
+export type VideoPlayerSignalProps = Readonly<{
+  ready: t.Signal<boolean>;
+  src: t.Signal<t.StringVideoAddress | undefined>;
 
   /**
    * Media:
    */
-  readonly playing: t.Signal<boolean>;
-  readonly loop: t.Signal<boolean>;
-  readonly autoPlay: t.Signal<boolean>;
-  readonly muted: t.Signal<boolean>;
+  playing: t.Signal<boolean>;
+  loop: t.Signal<boolean>;
+  autoPlay: t.Signal<boolean>;
+  muted: t.Signal<boolean>;
 
-  readonly currentTime: t.Signal<t.Secs>;
-  readonly duration: t.Signal<t.Secs>;
-  readonly buffering: t.Signal<boolean>;
-  readonly buffered: t.Signal<t.Secs | undefined>;
+  currentTime: t.Signal<t.Secs>;
+  duration: t.Signal<t.Secs>;
+  buffering: t.Signal<boolean>;
+  buffered: t.Signal<t.Secs | undefined>;
+  crop: t.Signal<t.VideoCropRange | undefined>;
 
   /**
    * Appearance:
    */
-  readonly showControls: t.Signal<boolean>;
-  readonly showFullscreenButton: t.Signal<boolean>;
-  readonly showVolumeControl: t.Signal<boolean>;
-  readonly aspectRatio: t.Signal<string>;
-  readonly cornerRadius: t.Signal<number>;
-  readonly scale: t.Signal<t.Percent | t.VideoPlayerScale>;
-  readonly fadeMask: t.Signal<undefined | t.VideoPlayerFadeMask>;
+  showControls: t.Signal<boolean | undefined>;
+  showFullscreenButton: t.Signal<boolean | undefined>;
+  showVolumeControl: t.Signal<boolean | undefined>;
+  aspectRatio: t.Signal<string | undefined>;
+  cornerRadius: t.Signal<number | undefined>;
+  scale: t.Signal<t.Percent | t.VideoPlayerScale | undefined>;
+  fadeMask: t.Signal<t.VideoPlayerFadeMask | undefined>;
 
   /**
    * Commands:
    */
-  readonly jumpTo: t.Signal<t.VideoPlayerSeekCmd | undefined>;
-};
+  jumpTo: t.Signal<t.VideoPlayerSeekCmd | undefined>;
+}>;
 
 /** Structure representing a jump-to ("seek") location */
 export type VideoPlayerSeekCmd = {
