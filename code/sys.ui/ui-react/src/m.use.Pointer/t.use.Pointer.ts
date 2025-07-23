@@ -57,22 +57,24 @@ export type PointerHookHandlers =
   | PointerHookTouchHandlers
   | PointerHookFocusHandlers;
 
-export type PointerHookMouseHandlers = {
-  readonly onPointerDown: M;
-  readonly onPointerUp: M;
-  readonly onPointerEnter: M;
-  readonly onPointerLeave: M;
-};
-export type PointerHookTouchHandlers = {
-  readonly onTouchStart: T;
-  readonly onTouchEnd: T;
-  readonly onTouchCancel: T;
-};
+export type PointerHookMouseHandlers = Readonly<{
+  onPointerDown: M;
+  onPointerUp: M;
+  onPointerCancel: M;
+  onLostPointerCapture: M;
+  onPointerEnter: M;
+  onPointerLeave: M;
+}>;
+export type PointerHookTouchHandlers = Readonly<{
+  onTouchStart: T;
+  onTouchEnd: T;
+  onTouchCancel: T;
+}>;
 
-export type PointerHookFocusHandlers = {
-  readonly onFocus: React.FocusEventHandler;
-  readonly onBlur: React.FocusEventHandler;
-};
+export type PointerHookFocusHandlers = Readonly<{
+  onFocus: React.FocusEventHandler;
+  onBlur: React.FocusEventHandler;
+}>;
 
 /**
  * Individual pointer event:

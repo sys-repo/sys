@@ -138,6 +138,8 @@ export const usePointer: t.UsePointer = (input) => {
     : {
         onPointerDown: down(true),
         onPointerUp: down(false),
+        onPointerCancel: down(false), //      ← ensure "up" on cancel is fired.
+        onLostPointerCapture: down(false), // ← catch any lost-capture as "up".
         onPointerEnter: over(true),
         onPointerLeave: over(false),
       };

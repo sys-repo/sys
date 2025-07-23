@@ -51,22 +51,17 @@ export function usePlaybackControls(
     const el = videoRef.current;
     if (!el) return;
 
-    // If release reached or overshoot past start, finalize seek:
-    if (e.complete || e.currentTime <= 0) {
+    // Finalize new time settings on drag-complete:
+    if (e.complete) {
+      el.currentTime = e.currentTime;
       setSeeking(undefined);
-      // Scrub to zero on release/overshoot:
-      el.currentTime = 0;
-      if (isUncontrolled && !el.paused) {
-        void el.play().catch(() => {});
-      }
+      if (isUncontrolled && !el.paused) void el.play().catch(() => {});
       return;
     }
 
-    // While dragging within bounds, show clamped position:
+    // Update seeking slider state while dragging:
     const currentTime = Math.max(0, e.currentTime);
     setSeeking({ currentTime });
-
-    // Scrub immediately to clamped time:
     el.currentTime = currentTime;
   };
 
