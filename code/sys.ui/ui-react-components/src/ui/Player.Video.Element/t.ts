@@ -89,5 +89,5 @@ export type VideoPlayerEventReason =
   | 'prop-change'
   | 'media-ended'
   | 'src-change'
-  | 'element-event'
+  | 'video-element-event'
   | 'ended';

@@ -45,17 +45,17 @@ export function useMediaEvents(
 
     const onPlay = () => {
       autoplayPendingRef.current = false;
-      firePlaying(true, 'element-event');
+      firePlaying(true, 'video-element-event');
     };
 
-    const onPause = () => firePlaying(false, 'element-event');
+    const onPause = () => firePlaying(false, 'video-element-event');
     const onEndedHandler = () => {
       firePlaying(false, 'media-ended');
       onEnded?.({ reason: 'ended' });
     };
-    const onVolume = () => fireMuted(el.muted, 'element-event');
-    const onBufferStart = () => fireBuffering(true, 'element-event');
-    const onBufferEnd = () => fireBuffering(false, 'element-event');
+    const onVolume = () => fireMuted(el.muted, 'video-element-event');
+    const onBufferStart = () => fireBuffering(true, 'video-element-event');
+    const onBufferEnd = () => fireBuffering(false, 'video-element-event');
 
     const { dispose, signal } = rx.abortable();
     el.addEventListener('playing', onPlay, { signal });

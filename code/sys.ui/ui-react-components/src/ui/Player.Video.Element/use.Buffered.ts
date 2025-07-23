@@ -21,7 +21,7 @@ export function useBuffered(videoRef: React.RefObject<HTMLVideoElement>, props: 
       const ranges = el.buffered;
       const end = ranges.length ? ranges.end(ranges.length - 1) : 0;
       const buffered = Math.min(1, Math.max(0, end / el.duration));
-      onBufferedChange?.({ buffered, reason: 'element-event' });
+      onBufferedChange?.({ buffered, reason: 'video-element-event' });
     };
 
     const { signal, dispose } = rx.abortable();

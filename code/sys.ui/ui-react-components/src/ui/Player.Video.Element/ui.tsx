@@ -108,7 +108,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     onGiveUp: () => {
       shouldAutoplayRef.current = false;
       autoplayPendingRef.current = false;
-      onPlayingChange?.({ playing: false, reason: 'element-event' });
+      onPlayingChange?.({ playing: false, reason: 'video-element-event' });
     },
   });
 
