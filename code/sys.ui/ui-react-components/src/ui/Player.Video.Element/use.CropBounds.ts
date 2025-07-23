@@ -1,54 +1,40 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-import { type t, rx } from './common.ts';
+import { type t, Obj } from './common.ts';
 import { Crop } from './u.ts';
 
-type P = Pick<t.VideoElementProps, 'crop' | 'src' | 'onEnded'>;
-
-/**
- * Enforce [start..end] playback bounds on the <video>.
- */
-export function useCropBounds(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
+export function useCropBounds(
+  videoRef: React.RefObject<HTMLVideoElement>,
+  props: Pick<t.VideoElementProps, 'crop' | 'src' | 'onEnded'>,
+) {
   const { src, onEnded } = props;
   const crop = Crop.wrangle(props.crop);
-  const lastKeyRef = useRef<string>();
 
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
 
-    // Build a key so we only reset once per (src, start, end):
-    const key = `${src}::${crop?.start ?? 0}..${crop?.end ?? 0}`;
-    if (lastKeyRef.current !== key) {
-      lastKeyRef.current = key;
-      if (!crop) {
-        el.currentTime = 0;
-        return;
+    const clamp = () => {
+      const rawDur = Number.isFinite(el.duration) ? el.duration : 0;
+      const start = crop?.start ?? 0;
+      const end = Crop.resolveEnd(crop?.end, rawDur);
+
+      if (el.currentTime < start) el.currentTime = start;
+      if (el.currentTime > end) {
+        el.currentTime = end;
+        el.pause();
+        onEnded?.({ reason: 'ended' });
       }
-      el.currentTime = crop.start ?? 0;
-    }
+    };
 
-    if (crop) {
-      const { dispose, signal } = rx.abortable();
-      const start = crop.start ?? 0;
-      const end = Crop.resolveEnd(crop.end, el.duration);
+    // seed & listen
+    clamp();
+    el.addEventListener('loadedmetadata', clamp);
+    el.addEventListener('timeupdate', clamp);
 
-      const clampToStart = () => {
-        if (el.currentTime < start) el.currentTime = start;
-      };
-      const clampAndEnd = () => {
-        if (el.currentTime < start) el.currentTime = start;
-        if (el.currentTime > end) {
-          el.currentTime = end;
-          el.pause();
-          onEnded?.({ reason: 'ended' });
-        }
-      };
-
-      el.addEventListener('loadedmetadata', clampToStart, { signal });
-      el.addEventListener('play', clampToStart, { signal });
-      el.addEventListener('timeupdate', clampAndEnd, { signal });
-      return dispose;
-    }
-  }, [videoRef, src, crop?.start, crop?.end, onEnded]);
+    return () => {
+      el.removeEventListener('loadedmetadata', clamp);
+      el.removeEventListener('timeupdate', clamp);
+    };
+  }, [videoRef, src, Obj.hash(crop), onEnded]);
 }

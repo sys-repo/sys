@@ -272,14 +272,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         enabled={() => !!p.controlled.value}
-        label={`method: jumpTo( -3, play )`}
-        onClick={() => debug.video?.jumpTo(-3, { play: true })}
+        label={`method: jumpTo( -2, play )`}
+        onClick={() => debug.video?.jumpTo(-2, { play: true })}
       />
       <Button
         block
         enabled={() => !!p.controlled.value}
-        label={`method: jumpTo( -3, paused )`}
-        onClick={() => debug.video?.jumpTo(-3, { play: false })}
+        label={`method: jumpTo( -2, paused )`}
+        onClick={() => debug.video?.jumpTo(-2, { play: false })}
       />
 
       <hr />

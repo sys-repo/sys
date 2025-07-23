@@ -69,7 +69,7 @@ describe('VideoPlayer: Signals API', () => {
         expect(p.showFullscreenButton.value).to.eql(true);
         expect(p.showVolumeControl.value).to.eql(false);
         expect(p.cornerRadius.value).to.eql(0);
-        expect(p.scale.value).to.equal(scale);
+        expect(p.scale.value).to.eql(scale);
         expect(p.fadeMask.value).to.eql({ direction: 'Top:Down', size: 123 });
       });
 
@@ -98,25 +98,13 @@ describe('VideoPlayer: Signals API', () => {
   });
 
   describe('methods', () => {
-    it('jumpTo() method → props.jumpTo', () => {
-      const s = playerSignalsFactory();
-      expect(s.props.jumpTo.value).to.eql(undefined);
-
-      const res = s.jumpTo(10);
-      expect(res).to.equal(s);
-      expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
-
-      s.jumpTo(15, { play: false });
-      expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
-    });
-
     it('play', () => {
       const s = playerSignalsFactory();
       const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
       assertPlaying(false);
 
       const res = s.play();
-      expect(res).to.equal(s);
+      expect(res).to.eql(s);
       assertPlaying(true);
     });
 
@@ -129,7 +117,7 @@ describe('VideoPlayer: Signals API', () => {
       assertPlaying(true);
 
       const res = s.play().pause();
-      expect(res).to.equal(s);
+      expect(res).to.eql(s);
       assertPlaying(false);
     });
 
@@ -139,7 +127,7 @@ describe('VideoPlayer: Signals API', () => {
       assertPlaying(false);
 
       const res = s.toggle();
-      expect(res).to.equal(s);
+      expect(res).to.eql(s);
       assertPlaying(true);
 
       s.toggle();
@@ -148,6 +136,20 @@ describe('VideoPlayer: Signals API', () => {
       assertPlaying(false);
       s.toggle(true);
       assertPlaying(true);
+    });
+
+    describe('jumpTo() → props.jumpTo', () => {
+      it('positive value', () => {
+        const s = playerSignalsFactory();
+        expect(s.props.jumpTo.value).to.eql(undefined);
+
+        const res = s.jumpTo(10);
+        expect(res).to.eql(s);
+        expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
+
+        s.jumpTo(15, { play: false });
+        expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
+      });
     });
   });
 });

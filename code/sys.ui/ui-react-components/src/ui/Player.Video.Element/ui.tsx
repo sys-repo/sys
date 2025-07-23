@@ -15,7 +15,7 @@ import { useMediaEvents } from './use.MediaEvents.ts';
 import { useMediaProgress } from './use.MediaProgress.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
-import { useSeekCmd } from './use.SeekCmd.ts';
+import { useJumpTo } from './use.JumpTo.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
@@ -65,7 +65,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const scale = useScale(size, props.scale);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
-  useSeekCmd(videoRef, progress.duration, crop, jumpTo);
+  useJumpTo(videoRef, progress.duration, crop, jumpTo);
   useCropBounds(videoRef, props);
 
   /**
@@ -88,8 +88,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
 
   /**
    * Hook: Autoplay (only when playback is uncontrolled by `playingProp`):
-   * - Intent derived from `autoPlay` (initial true by default).
-   * - Hook will request external state via callbacks.
+   *  - Intent derived from `autoPlay` (initial true by default).
+   *  - Hook will request external state via callbacks.
    */
   useAutoplay({
     enabled: autoplayEnabled,
