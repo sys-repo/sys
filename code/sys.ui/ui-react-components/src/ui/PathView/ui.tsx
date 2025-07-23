@@ -20,7 +20,7 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
       justifyItems: 'start',
     }),
     body: css({ display: 'grid', gridAutoFlow: 'column', columnGap: 4 }),
-    prefix: css({ marginRight: 4, color: props.prefixColor }),
+    prefix: css({ marginRight: 4, color: props.prefixColor, userSelect: 'none' }),
     divider: css({ color: Color.alpha(theme.fg, 0.25) }),
     last: css({ color: theme.fg }),
     empty: css({ opacity: 0.5 }),
@@ -39,7 +39,6 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
   });
 
   const emptyText = !!props.prefix ? '<empty>' : 'path: <empty>';
-
   const elEmpty = <div className={styles.empty.class}>{emptyText}</div>;
   const elPrefix = prefix && <div className={styles.prefix.class}>{prefix}</div>;
 
