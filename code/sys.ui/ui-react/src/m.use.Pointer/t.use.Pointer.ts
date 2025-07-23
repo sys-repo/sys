@@ -70,7 +70,6 @@ export type PointerHookTouchHandlers = Readonly<{
   onTouchEnd: T;
   onTouchCancel: T;
 }>;
-
 export type PointerHookFocusHandlers = Readonly<{
   onFocus: React.FocusEventHandler;
   onBlur: React.FocusEventHandler;

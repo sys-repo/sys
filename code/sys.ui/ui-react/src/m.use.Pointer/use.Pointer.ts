@@ -133,7 +133,7 @@ export const usePointer: t.UsePointer = (input) => {
   /**
    * Combine handlers:
    */
-  const pointerHandlers = isTouch
+  const pointerHandlers: t.PointerHookMouseHandlers | t.PointerHookTouchHandlers = isTouch
     ? { onTouchStart, onTouchEnd, onTouchCancel: onTouchEnd }
     : {
         onPointerDown: down(true),
@@ -144,8 +144,11 @@ export const usePointer: t.UsePointer = (input) => {
         onPointerLeave: over(false),
       };
 
-  const focusHanders = { onFocus: focused(true), onBlur: focused(false) };
-  const handlers = {
+  const focusHanders: t.PointerHookFocusHandlers = {
+    onFocus: focused(true),
+    onBlur: focused(false),
+  };
+  const handlers: t.PointerHookHandlers = {
     ...pointerHandlers,
     ...focusHanders,
     ...dragdrop.handlers,
