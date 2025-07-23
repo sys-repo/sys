@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
 
-type P = Pick<t.VideoElementProps, 'src'>;
-
-export function useReadyState(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
+export function useReadyState(
+  videoRef: React.RefObject<HTMLVideoElement>,
+  props: Pick<t.VideoElementProps, 'src'>,
+) {
   const [readyState, setReadyState] = useState<t.NumberMediaReadyState>(0);
 
   /**

@@ -2,10 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { type t, rx } from './common.ts';
 
 type R = t.VideoPlayerEventReason;
-type P = Pick<
-  t.VideoElementProps,
-  'onBufferingChange' | 'onPlayingChange' | 'onMutedChange' | 'onEnded'
->;
+type P = t.VideoElementProps;
 
 /**
  * Wire media events → outward change notifications.
@@ -13,7 +10,7 @@ type P = Pick<
 export function useMediaEvents(
   videoRef: React.RefObject<HTMLVideoElement>,
   autoplayPendingRef: React.MutableRefObject<boolean>,
-  props: P,
+  props: Pick<P, 'onBufferingChange' | 'onPlayingChange' | 'onMutedChange' | 'onEnded'>,
 ) {
   const { onBufferingChange, onPlayingChange, onMutedChange, onEnded } = props;
 

@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Time } from './common.ts';
 
-type Args = {
+export function useControlsVisible(args: {
   playing: boolean;
   canPlay: boolean;
   pointerOver: boolean;
   hideAfter?: number;
-};
-
-export function useControlsVisible(args: Args) {
+}) {
   const { playing, canPlay, pointerOver, hideAfter = 600 } = args;
   const [visible, setVisible] = useState(true);
 

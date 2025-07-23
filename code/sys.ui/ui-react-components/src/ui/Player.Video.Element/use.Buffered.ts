@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { type t, rx } from './common.ts';
 
-type P = Pick<t.VideoElementProps, 'onBufferedChange'>;
-
 /**
  * Effect: track buffered status:
  */
-export function useBuffered(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
+export function useBuffered(
+  videoRef: React.RefObject<HTMLVideoElement>,
+  props: Pick<t.VideoElementProps, 'onBufferedChange'>,
+) {
   const { onBufferedChange } = props;
 
   /**
