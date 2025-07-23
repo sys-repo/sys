@@ -56,8 +56,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
     }),
   };
 
-  const handleClick = () => {
-    navigator.clipboard.writeText(props.src ?? '');
+  const handleClick = async () => {
+    try {
+      text = props.src ?? '';
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      console.error('Clipboard write failed:', error);
+      return false;
+    }
   };
 
   const elBody = (
