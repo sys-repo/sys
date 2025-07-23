@@ -198,8 +198,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        // enabled={() => !p.controlled.value}
-        enabled={() => false}
+        enabled={() => !p.controlled.value}
         label={() => {
           const v = p.crop.value;
           return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;

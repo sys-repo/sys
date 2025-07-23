@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { type t, Obj } from './common.ts';
+import { type t, rx, Obj } from './common.ts';
 import { Crop } from './u.ts';
 
 export function useCropBounds(
@@ -27,14 +27,13 @@ export function useCropBounds(
       }
     };
 
-    // seed & listen
-    clamp();
-    el.addEventListener('loadedmetadata', clamp);
-    el.addEventListener('timeupdate', clamp);
+    // Seed and listen:
+    const { dispose, signal } = rx.abortable();
 
-    return () => {
-      el.removeEventListener('loadedmetadata', clamp);
-      el.removeEventListener('timeupdate', clamp);
-    };
+    // clamp();
+    // el.addEventListener('loadedmetadata', clamp, { signal });
+    // el.addEventListener('timeupdate', clamp, { signal });
+
+    return dispose;
   }, [videoRef, src, Obj.hash(crop), onEnded]);
 }
