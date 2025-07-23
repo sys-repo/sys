@@ -7,7 +7,7 @@ export function useCropBounds(
   props: Pick<t.VideoElementProps, 'crop' | 'src' | 'onEnded'>,
 ) {
   const { src, onEnded } = props;
-  const crop = Crop.wrangle(props.crop);
+  const range = Crop.toRange(props.crop);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -15,8 +15,8 @@ export function useCropBounds(
 
     const clamp = () => {
       const rawDur = Number.isFinite(el.duration) ? el.duration : 0;
-      const start = crop?.start ?? 0;
-      const end = Crop.resolveEnd(crop?.end, rawDur);
+      const start = range?.start ?? 0;
+      const end = Crop.resolveEnd(range?.end, rawDur);
 
       if (el.currentTime < start) el.currentTime = start;
       if (el.currentTime > end) {
@@ -31,5 +31,5 @@ export function useCropBounds(
 
 
     return dispose;
-  }, [videoRef, src, Obj.hash(crop), onEnded]);
+  }, [videoRef, src, Obj.hash(range), onEnded]);
 }

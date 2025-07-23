@@ -77,6 +77,12 @@ describe('Player.Video: Element', () => {
         expect(lens.clamp(50)).to.eql(30); //   Above end   → end.
         expect(lens.clamp(20)).to.eql(20); //   Within      → unchanged.
       });
+
+      it('range input <undefined>', () => {
+        const lens = Crop.lens(undefined, 10);
+        expect(lens.range.start).to.eql(0);
+        expect(lens.range.end).to.eql(10);
+      });
     });
   });
 });

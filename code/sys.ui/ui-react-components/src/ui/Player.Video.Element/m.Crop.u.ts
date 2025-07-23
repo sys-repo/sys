@@ -1,11 +1,11 @@
 import { type t, Is } from './common.ts';
 
-type CropInput = t.VideoCropRange | t.VideoCropRangeTuple;
-
 /**
  * Wrangle loose input into a plain arguments object.
  */
-export function wrangle(input?: CropInput): t.VideoCropRange | undefined {
+export function toRange(
+  input?: t.VideoCropRange | t.VideoCropRangeTuple,
+): t.VideoCropRange | undefined {
   if (Array.isArray(input)) return { start: input[0], end: input[1] };
   if (Is.record(input)) return input;
   return;
