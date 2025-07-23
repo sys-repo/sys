@@ -43,7 +43,9 @@ const Desktop = {
   over(state: EventState, isOver: boolean): React.MouseEventHandler {
     return (e) => {
       const props = wrangle.props(state);
-      if (!props.active) return;
+      const enabled = Wrangle.enabled(props);
+      if (!props.active || !enabled) return;
+
       state.over = isOver;
       if (!isOver && state.down) state.down = false;
       if (props.enabled) {
@@ -63,7 +65,8 @@ const Desktop = {
   down(state: EventState, isDown: boolean): React.MouseEventHandler {
     return (e) => {
       const props = wrangle.props(state);
-      if (!props.active) return;
+      const enabled = Wrangle.enabled(props);
+      if (!props.active || !enabled) return;
 
       state.down = isDown;
       if (props.enabled) {
@@ -88,7 +91,8 @@ const Mobile = {
   down(state: EventState, isDown: boolean): React.TouchEventHandler {
     return (e: React.TouchEvent) => {
       const props = wrangle.props(state);
-      if (!props.active) return;
+      const enabled = Wrangle.enabled(props);
+      if (!props.active || !enabled) return;
 
       state.down = isDown;
       const synthetic = wrangle.asMouseEvent(e);
@@ -113,8 +117,8 @@ const Mobile = {
 export const Event = {
   Desktop,
   Mobile,
-  handlers(state: EventState, isMobile: boolean) {
-    return isMobile
+  handlers(state: EventState, isTouch: boolean) {
+    return isTouch
       ? {
           onTouchStart: Event.Mobile.down(state, true),
           onTouchEnd: Event.Mobile.down(state, false),
