@@ -163,7 +163,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginLeft: 15, marginBottom: 20 }}
         current={p.language.value}
         onSelect={(e) => (p.language.value = e.language)}
-        show={['yaml', 'typescript']}
+        show={['yaml', 'markdown', 'typescript']}
       />
 
       {p.language.value === 'yaml' && (
