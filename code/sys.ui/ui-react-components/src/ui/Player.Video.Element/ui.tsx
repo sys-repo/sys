@@ -10,8 +10,8 @@ import { useBuffered } from './use.Buffered.ts';
 import { usePlaybackControls } from './use.Controls.Playback.ts';
 import { useControlsVisible } from './use.Controls.Visible.ts';
 import { useJumpTo } from './use.JumpTo.ts';
-import { useMediaEvents } from './use.MediaEvents.ts';
-import { useMediaProgress } from './use.MediaProgress.ts';
+import { useMediaEvents } from './use.Media.Events.ts';
+import { useMediaProgress } from './use.Media.Progress.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
 

@@ -30,9 +30,6 @@ export function useCropBounds(
     // Seed and listen:
     const { dispose, signal } = rx.abortable();
 
-    // clamp();
-    // el.addEventListener('loadedmetadata', clamp, { signal });
-    // el.addEventListener('timeupdate', clamp, { signal });
 
     return dispose;
   }, [videoRef, src, Obj.hash(crop), onEnded]);
