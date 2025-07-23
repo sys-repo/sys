@@ -1,4 +1,6 @@
 import type { t } from './common.ts';
+
+export type * from './t.cropped.ts';
 export type * from './t.Elapsed.ts';
 export type * from './t.stateful.ts';
 
