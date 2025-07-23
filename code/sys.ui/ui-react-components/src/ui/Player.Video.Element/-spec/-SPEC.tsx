@@ -12,6 +12,9 @@ export default Spec.describe(D.displayName, (e) => {
 
   function UncontrolledSubject() {
     const v = Signal.toObject(p);
+    const log = (...parts: any) => {
+      if (v.debug) console.info(...parts);
+    };
     return (
       <VideoElement
         style={{ width: v.width }}
@@ -30,16 +33,16 @@ export default Spec.describe(D.displayName, (e) => {
         autoPlay={v.autoPlay}
         //
         onPlayingChange={(e) => {
-          console.info(`⚡️ onPlayingChange:`, e);
+          log(`⚡️ onPlayingChange:`, e);
           p.playing.value = e.playing;
         }}
         onMutedChange={(e) => {
-          console.info(`⚡️ onMutedChange:`, e);
+          log(`⚡️ onMutedChange:`, e);
           p.muted.value = e.muted;
         }}
-        onBufferingChange={(e) => console.info(`⚡️ onBufferingChange:`, e)}
-        onBufferedChange={(e) => console.info(`⚡️ onBufferedChange:`, e)}
-        onEnded={(e) => console.info('⚡️ onEnded:', e)}
+        onBufferingChange={(e) => log(`⚡️ onBufferingChange:`, e)}
+        onBufferedChange={(e) => log(`⚡️ onBufferedChange:`, e)}
+        onEnded={(e) => log('⚡️ onEnded:', e)}
       />
     );
   }
@@ -47,7 +50,7 @@ export default Spec.describe(D.displayName, (e) => {
   function ControlledSubject() {
     const v = Signal.toObject(p);
     const { width } = v;
-    const log = v.log || v.debug;
+    const log = v.logSignals || v.debug;
     const controller = Player.Video.useSignals(debug.video, { log });
     return (
       <VideoElement
