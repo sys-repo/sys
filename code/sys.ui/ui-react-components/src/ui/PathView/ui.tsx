@@ -38,7 +38,9 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
     );
   });
 
-  const elEmpty = <div className={styles.empty.class}>{'<empty>'}</div>;
+  const emptyText = !!props.prefix ? '<empty>' : 'path: <empty>';
+
+  const elEmpty = <div className={styles.empty.class}>{emptyText}</div>;
   const elPrefix = prefix && <div className={styles.prefix.class}>{prefix}</div>;
 
   return (
