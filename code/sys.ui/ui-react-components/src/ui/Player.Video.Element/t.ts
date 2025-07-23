@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type * from './t.cropped.ts';
+export type * from './t.Crop.ts';
 export type * from './t.Elapsed.ts';
 export type * from './t.stateful.ts';
 
@@ -8,10 +8,6 @@ export type * from './t.stateful.ts';
  * https://html.spec.whatwg.org/multipage/media.html#ready-states
  */
 export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
-
-/** Specifies a range to narrow the video within. */
-export type VideoCropRange = { start?: t.Secs; end?: t.Secs };
-export type VideoCropRangeTuple = [t.Secs, t.Secs];
 
 /**
  * Component:
@@ -27,7 +23,7 @@ export type VideoElementProps = {
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
-  crop?: t.VideoCropRange | VideoCropRangeTuple;
+  crop?: t.VideoCropRange | t.VideoCropRangeTuple;
 
   buffering?: boolean;
   buffered?: t.Secs;
