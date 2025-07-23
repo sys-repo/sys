@@ -202,12 +202,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
+      <hr />
       <Button
         block
         enabled={() => !p.controlled.value}
         label={() => {
           const v = p.crop.value;
-          return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
+          return `(🐷) crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
         }}
         onClick={() => {
           Signal.cycle(p.crop, [undefined, { start: 11.5, end: 28.6 }, [11.5, -10]]);
