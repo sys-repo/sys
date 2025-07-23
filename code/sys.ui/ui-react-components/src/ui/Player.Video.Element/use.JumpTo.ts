@@ -3,24 +3,37 @@ import { type t } from './common.ts';
 
 export function useJumpTo(
   videoRef: React.RefObject<HTMLVideoElement>,
-  duration: t.Secs,
-  jumpTo?: t.VideoPlayerSeekCmd,
+  lens: t.VideoCropLens,
+  jumpTo?: t.VideoPlayerSeek,
 ) {
-  const last = useRef<t.VideoPlayerSeekCmd>();
+  const lastRef = useRef<t.VideoPlayerSeek>();
+  const lensKeyRef = useRef<string>();
 
   useEffect(() => {
-    if (!jumpTo || jumpTo === last.current) return;
-    last.current = jumpTo;
+    if (!jumpTo) return;
+
+    const lensKey = `${lens.duration.full}:${lens.range.start}:${lens.range.end}`;
+    if (lensKeyRef.current !== lensKey) {
+      lensKeyRef.current = lensKey;
+      lastRef.current = undefined; // crop changed → allow remap
+    }
+
+    // Debounce identical commands:
+    if (lastRef.current?.second === jumpTo.second && lastRef.current?.play === jumpTo.play) return;
+    lastRef.current = { second: jumpTo.second, play: jumpTo.play };
 
     const el = videoRef.current;
     if (!el) return;
 
-    let sec = jumpTo.second;
-    sec = Math.max(0, Math.min(sec, duration));
-    el.currentTime = sec;
+    const croppedDur = lens.duration.cropped;
+    let croppedSec = jumpTo.second;
+    if (croppedSec < 0) croppedSec = Math.max(0, croppedDur + croppedSec); // NB: negative = from cropped end.
+    croppedSec = Math.min(Math.max(0, croppedSec), croppedDur);
+    const fullSec = lens.toFull(croppedSec);
 
-    // play/pause
+    el.currentTime = fullSec;
+
     if (jumpTo.play === true) void el.play().catch(() => {});
     if (jumpTo.play === false) el.pause();
-  }, [videoRef, duration, jumpTo]);
+  }, [videoRef.current, lens, jumpTo]);
 }

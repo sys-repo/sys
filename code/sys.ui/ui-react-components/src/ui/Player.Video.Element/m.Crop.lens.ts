@@ -17,7 +17,7 @@ export function lens(
 
   const api: t.VideoCropLens = {
     duration: { full: fullDuration, cropped },
-    range,
+    range: { start, end },
 
     toCropped(fullTime) {
       const rel = fullTime - start;

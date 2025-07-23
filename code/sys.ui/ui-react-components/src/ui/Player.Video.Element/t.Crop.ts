@@ -15,18 +15,12 @@ export type VideoCropLens = Readonly<{
   /** The range definition of the crop. */
   range: Readonly<t.VideoCropRange>;
 
-  /**
-   * Project a full-timeline value into [0..cropped].
-   */
+  /** Project a full-timeline value into [0..cropped]. */
   toCropped(fullTime: t.Secs): t.Secs;
 
-  /**
-   * Expand a cropped-timeline value back into full time.
-   */
+  /** Expand a cropped-timeline value back into full time. */
   toFull(croppedTime: t.Secs): t.Secs;
 
-  /**
-   * Clamp any full-time into [start..end].
-   */
+  /** Clamp any full-time into [start..end]. */
   clamp(fullTime: t.Secs): t.Secs;
 }>;

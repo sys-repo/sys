@@ -48,7 +48,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       placeItems: 'center',
       gridAutoFlow: 'column',
       gridAutoColumns: 'auto',
-      columnGap: 8,
+      columnGap: 6,
     }),
     copyIcon: css({
       opacity: isOver ? 1 : 0,
@@ -70,7 +70,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       {text}
-      {<Icons.Copy.Basic size={14} style={styles.copyIcon} />}
+      {<Icons.Copy.Basic size={13} style={styles.copyIcon} />}
     </div>
   );
 

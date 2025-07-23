@@ -3,6 +3,7 @@ import { type t, rx } from './common.ts';
 
 export function usePlaybackControls(
   videoRef: React.RefObject<HTMLVideoElement>,
+  lens: t.VideoCropLens,
   props: Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>,
 ) {
   const { src, playing, muted, defaultMuted } = props;
@@ -12,6 +13,11 @@ export function usePlaybackControls(
    * Hooks:
    */
   const [seeking, setSeeking] = useState<{ currentTime: t.Secs }>();
+
+  /**
+   * Effect: nuke seeking state on crop change.
+   */
+  useEffect(() => void setSeeking(undefined), [props.crop]);
 
   /**
    * Effect: Apply controlled props to element.
@@ -51,18 +57,21 @@ export function usePlaybackControls(
     const el = videoRef.current;
     if (!el) return;
 
+    // Value coming in via event is cropped-space:
+    const croppedSecs = Math.max(0, e.currentTime);
+    const fullSecs = lens.toFull(croppedSecs);
+
     // Finalize new time settings on drag-complete:
     if (e.complete) {
-      el.currentTime = e.currentTime;
+      el.currentTime = fullSecs;
       setSeeking(undefined);
       if (isUncontrolled && !el.paused) void el.play().catch(() => {});
       return;
     }
 
     // Update seeking slider state while dragging:
-    const currentTime = Math.max(0, e.currentTime);
-    setSeeking({ currentTime });
-    el.currentTime = currentTime;
+    setSeeking({ currentTime: croppedSecs });
+    el.currentTime = fullSecs;
   };
 
   /**

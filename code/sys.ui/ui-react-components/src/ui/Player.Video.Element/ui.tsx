@@ -9,12 +9,12 @@ import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
 import { usePlaybackControls } from './use.Controls.Playback.ts';
 import { useControlsVisible } from './use.Controls.Visible.ts';
+import { useCropBounds } from './use.Crop.Bounds.ts';
 import { useJumpTo } from './use.JumpTo.ts';
 import { useMediaEvents } from './use.Media.Events.ts';
 import { useMediaProgress } from './use.Media.Progress.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
-import { Crop } from './m.Crop.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
@@ -61,9 +61,10 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const progress = useMediaProgress(videoRef, props);
   const size = useSizeObserver();
   const scale = useScale(size, props.scale);
+  useCropBounds(videoRef, progress.lens, props);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
-  useJumpTo(videoRef, progress.duration, jumpTo);
+  useJumpTo(videoRef, progress.lens, jumpTo);
 
   /**
    * Hook: ReadyState
@@ -80,7 +81,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const playing = !elPaused && canPlay;
   const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
 
-  const controls = usePlaybackControls(videoRef, props);
+  const controls = usePlaybackControls(videoRef, progress.lens, props);
   const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
 
   /**

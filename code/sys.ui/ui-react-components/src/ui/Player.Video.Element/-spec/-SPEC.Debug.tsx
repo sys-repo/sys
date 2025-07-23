@@ -208,7 +208,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         enabled={() => !p.controlled.value}
         label={() => {
           const v = p.crop.value;
-          return `( 🐷 ) crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
+          return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
         }}
         onClick={() => {
           Signal.cycle(p.crop, [undefined, { start: 11.5, end: 28.6 }, [11.5, -10]]);
