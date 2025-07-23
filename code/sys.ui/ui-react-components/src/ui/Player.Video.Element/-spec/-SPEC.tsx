@@ -47,7 +47,8 @@ export default Spec.describe(D.displayName, (e) => {
   function ControlledSubject() {
     const v = Signal.toObject(p);
     const { width } = v;
-    const controller = Player.Video.useSignals(debug.video, { log: true });
+    const log = v.log || v.debug;
+    const controller = Player.Video.useSignals(debug.video, { log });
     return (
       <VideoElement
         //

@@ -16,7 +16,7 @@ type Storage = Pick<
   | 'aspectRatio'
   | 'fadeMask'
   | 'crop'
-> & { width?: number; controlled?: boolean };
+> & { width?: number; controlled?: boolean; log?: boolean };
 
 /**
  * Types:
@@ -37,6 +37,7 @@ const defaults: Storage = {
   controlled: false,
   fadeMask: undefined,
   crop: undefined,
+  log: true,
 };
 
 /**
@@ -60,6 +61,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     width: s(snap.width),
     controlled: s(snap.controlled),
+    log: s(snap.log),
 
     playing: s(false),
     autoPlay: s(snap.autoPlay),
@@ -95,6 +97,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.width = p.width.value;
       d.controlled = p.controlled.value;
+      d.log = p.log.value;
 
       d.src = p.src.value;
       d.autoPlay = p.autoPlay.value;
@@ -108,6 +111,9 @@ export function createDebugSignals() {
     });
   });
 
+  /**
+   * Sync: Uncontrolled → Controlled (Signals).
+   */
   Signal.effect(() => {
     const controlled = p.controlled.value;
     if (controlled) {
@@ -287,6 +293,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        //
+        block
+        enabled={() => !!p.controlled.value}
+        label={() => `Video.useSignals: log: ${p.log.value}`}
+        onClick={() => Signal.toggle(p.log)}
       />
       <Button
         block
