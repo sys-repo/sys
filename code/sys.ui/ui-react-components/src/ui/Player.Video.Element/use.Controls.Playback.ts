@@ -20,7 +20,7 @@ export function usePlaybackControls(
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    if (playing === undefined) return; // uncontrolled → let useAutoplay handle playing.
+    if (playing === undefined) return; // uncontrolled → let `useAutoplay` handle playing.
 
     // Controlled → sync mute:
     if (muted !== undefined && el.muted !== muted) {
@@ -51,19 +51,23 @@ export function usePlaybackControls(
     const el = videoRef.current;
     if (!el) return;
 
-    // Always clear `seeking` on completion.
-    if (e.complete) {
+    // If release reached or overshoot past start, finalize seek:
+    if (e.complete || e.currentTime <= 0) {
       setSeeking(undefined);
+      // Scrub to zero on release/overshoot:
+      el.currentTime = 0;
       if (isUncontrolled && !el.paused) {
         void el.play().catch(() => {});
       }
-    } else {
-      // While actively dragging, show the drag position:
-      setSeeking({ currentTime: e.currentTime });
+      return;
     }
 
-    // Scrub the video immediately, regardless of drag state:
-    el.currentTime = e.currentTime;
+    // While dragging within bounds, show clamped position:
+    const currentTime = Math.max(0, e.currentTime);
+    setSeeking({ currentTime });
+
+    // Scrub immediately to clamped time:
+    el.currentTime = currentTime;
   };
 
   /**

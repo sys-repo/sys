@@ -83,7 +83,6 @@ export const usePointer: t.UsePointer = (input) => {
   const over = (inside: boolean) => (e: React.PointerEvent) => {
     const trigger = wrangle.pointerEvent(e);
     setOver(inside);
-    if (!inside && !drag.is.dragging) setDown(false);
     inside ? args.onEnter?.(trigger) : args.onLeave?.(trigger);
     fire(e, trigger, { over: inside, down: isDown });
   };
