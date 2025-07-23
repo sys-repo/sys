@@ -26,7 +26,7 @@ export function useAvatarController(args: {
    * Handlers:
    */
   const onReady: t.MediaVideoStreamReadyHandler = (e) => {
-    setStream(e.stream.raw);
+    setStream(e.stream.filtered ?? e.stream.raw);
 
     const prefix = `⚡️ [${name}].MediaStream`;
     console.info(`${prefix}.onReady:`, e);
