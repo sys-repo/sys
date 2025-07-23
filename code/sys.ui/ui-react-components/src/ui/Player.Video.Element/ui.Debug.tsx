@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Button, Color, css, Icons } from './common.ts';
 
 export type DebugProps = {
   readyState?: t.NumberMediaReadyState;
@@ -17,6 +17,7 @@ export type DebugProps = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { readyState, playing, seeking } = props;
+  const [isOver, setOver] = React.useState(false);
 
   let src = props.src ?? '';
   src = src ? src?.slice(-10) : '';
@@ -35,14 +36,42 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({
       fontSize: 11,
-      color: Color.alpha(Color.DARK, 0.6),
+      color: Color.DARK,
       backgroundColor: Color.alpha(Color.WHITE, 0.5),
       backdropFilter: 'blur(1.5px)',
       Padding: [1, 5],
       borderRadius: 2,
       userSelect: 'none',
     }),
+    body: css({
+      display: 'grid',
+      placeItems: 'center',
+      gridAutoFlow: 'column',
+      gridAutoColumns: 'auto',
+      columnGap: 8,
+    }),
+    copyIcon: css({
+      opacity: isOver ? 1 : 0,
+      transition: 'opacity 120ms ease',
+    }),
   };
 
-  return <div className={css(styles.base, props.style).class}>{text}</div>;
+  const handleClick = () => {
+    navigator.clipboard.writeText(props.src ?? '');
+  };
+
+  const elBody = (
+    <div className={styles.body.class}>
+      {text}
+      {<Icons.Copy.Basic size={14} style={styles.copyIcon} />}
+    </div>
+  );
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <Button onClick={handleClick} onMouse={(e) => setOver(e.is.over)}>
+        {elBody}
+      </Button>
+    </div>
+  );
 };
