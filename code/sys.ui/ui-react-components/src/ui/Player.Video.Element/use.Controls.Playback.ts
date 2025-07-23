@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
-import { Crop } from './u.ts';
 
-type P = Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>;
-
-export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>, props: P) {
+export function usePlaybackControls(
+  videoRef: React.RefObject<HTMLVideoElement>,
+  props: Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>,
+) {
   const { src, playing, muted, defaultMuted } = props;
-  const crop = Crop.wrangle(props.crop);
-  const cropStart = crop?.start ?? 0;
   const isUncontrolled = playing === undefined;
 
   /**
@@ -44,7 +42,7 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
       el.addEventListener('canplay', syncPlayback, { once: true, signal });
       return dispose;
     }
-  }, [videoRef.current, src, playing, muted, defaultMuted, cropStart]);
+  }, [videoRef.current, src, playing, muted, defaultMuted]);
 
   /**
    * Handlers:
@@ -65,7 +63,7 @@ export function usePlaybackControls(videoRef: React.RefObject<HTMLVideoElement>,
     }
 
     // Scrub the video immediately, regardless of drag state:
-    el.currentTime = e.currentTime + cropStart;
+    el.currentTime = e.currentTime;
   };
 
   /**

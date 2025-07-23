@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 import { type t, Color, css, D, M, READY_STATE, useSizeObserver } from './common.ts';
-import { Crop } from './u.ts';
 
 import { Debug } from './ui.Debug.tsx';
 import { FadeMask } from './ui.FadeMask.tsx';
@@ -10,12 +9,11 @@ import { useAutoplay } from './use.AutoPlay.ts';
 import { useBuffered } from './use.Buffered.ts';
 import { usePlaybackControls } from './use.Controls.Playback.ts';
 import { useControlsVisible } from './use.Controls.Visible.ts';
-import { useCropBounds } from './use.CropBounds.ts';
+import { useJumpTo } from './use.JumpTo.ts';
 import { useMediaEvents } from './use.MediaEvents.ts';
 import { useMediaProgress } from './use.MediaProgress.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
-import { useJumpTo } from './use.JumpTo.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
@@ -39,7 +37,6 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     onPlayingChange,
     onMutedChange,
   } = props;
-  const crop = Crop.wrangle(props.crop);
 
   /**
    * Refs:
@@ -65,8 +62,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const scale = useScale(size, props.scale);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
-  useJumpTo(videoRef, progress.duration, crop, jumpTo);
-  useCropBounds(videoRef, props);
+  useJumpTo(videoRef, progress.duration, jumpTo);
 
   /**
    * Hook: ReadyState
