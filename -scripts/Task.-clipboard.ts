@@ -6,6 +6,7 @@ const dir = Fs.cwd('terminal');
 const paths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((file) => file.path);
 
 const defaultChecked = (path: string) => {
+  return false;
   if (path.includes('.test.')) return false;
   if (path.includes('-SPEC.')) return false;
   if (path.includes('-spec/')) return false;
@@ -28,7 +29,7 @@ const options = paths
   });
 
 console.info(Str.SPACE);
-console.info(c.gray(`Total: ${paths.length}`));
+console.info(c.gray(`Total: ${paths.length} files`));
 
 const selected = await Cli.Prompt.Checkbox.prompt({
   message: `Select files to copy:\n`,
