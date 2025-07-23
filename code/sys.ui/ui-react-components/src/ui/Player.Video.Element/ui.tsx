@@ -14,6 +14,7 @@ import { useMediaEvents } from './use.Media.Events.ts';
 import { useMediaProgress } from './use.Media.Progress.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
+import { Crop } from './m.Crop.ts';
 
 export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   const {
