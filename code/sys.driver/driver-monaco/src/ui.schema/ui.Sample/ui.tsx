@@ -1,7 +1,12 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
 
-export const Sample: React.FC<t.SampleProps> = (props) => {
+import { type t, Color, css } from './common.ts';
+import { EditorsColumn } from './ui.Column.Editors.tsx';
+import { MainColumn } from './ui.Column.Main.tsx';
+
+type P = t.SampleProps;
+
+export const Sample: React.FC<P> = (props) => {
   const { debug = false } = props;
 
   /**
@@ -10,15 +15,28 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      position: 'relative',
       color: theme.fg,
-      padding: 10,
+      display: 'grid',
+      gridTemplateColumns: 'minmax(350px, 0.382fr) 0.618fr',
+    }),
+    left: css({
+      borderRight: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      display: 'grid',
+    }),
+    right: css({
+      display: 'grid',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <div className={styles.left.class}>
+        <EditorsColumn {...props} />
+      </div>
+      <div className={styles.right.class}>
+        <MainColumn {...props} />
+      </div>
     </div>
   );
 };
