@@ -1,13 +1,12 @@
 import { type t } from '../common.ts';
 
 export function linkInterceptSample(e: t.MonacoEditorReady) {
-  const { monaco } = e;
   const CRDT_REGEX = /\bcrdt:[\w\-./]+/g; // eg: "crdt:doc-id/path"
 
   /**
    * Register link provider: highlight matches.
    */
-  const subLinkProvider = monaco.languages.registerLinkProvider('*', {
+  const subLinkProvider = e.monaco.languages.registerLinkProvider('*', {
     provideLinks(
       model: t.Monaco.TextModel,
       token: t.Monaco.CancellationToken,
@@ -25,7 +24,7 @@ export function linkInterceptSample(e: t.MonacoEditorReady) {
         const endPos = model.getPositionAt(endIdx);
 
         links.push({
-          range: monaco.Range.fromPositions(startPos, endPos),
+          range: e.monaco.Range.fromPositions(startPos, endPos),
           url: match[0], // ← string or Uri both accepted.
           tooltip: 'Load CRDT',
         });
