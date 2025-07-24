@@ -4,23 +4,25 @@ describe(
   'automerge-repo: raw underlying API assertions',
   { sanitizeResources: false, sanitizeOps: false },
   () => {
-    it('delete handle', async () => {
-      const repo = new AutomergeRepo();
-      const handleA = repo.create({});
-      const id = handleA.documentId;
+    describe('delete', () => {
+      it('delete handle from repo', async () => {
+        const repo = new AutomergeRepo();
+        const handleA = repo.create({});
+        const id = handleA.documentId;
 
-      await handleA.whenReady();
-      expect(handleA.isDeleted()).to.eql(false);
+        await handleA.whenReady();
+        expect(handleA.isDeleted()).to.eql(false);
 
-      const handleB = await repo.find(id);
-      expect(handleB.isDeleted()).to.eql(false);
+        const handleB = await repo.find(id);
+        expect(handleB.isDeleted()).to.eql(false);
 
-      repo.delete(id);
-      expect(handleA.isDeleted()).to.eql(true);
+        repo.delete(id);
+        expect(handleA.isDeleted()).to.eql(true);
 
-      // Document is no longer in repo:
-      await expectError(() => repo.find(id), `Document ${id} is unavailable`);
-      await repo.shutdown();
+        // Document is no longer in repo:
+        await expectError(() => repo.find(id), `Document ${id} is unavailable`);
+        await repo.shutdown();
+      });
     });
 
     describe('history', () => {
