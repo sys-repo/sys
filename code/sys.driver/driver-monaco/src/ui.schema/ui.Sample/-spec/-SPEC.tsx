@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -23,6 +23,19 @@ export default Spec.describe(D.displayName, async (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return <Sample debug={v.debug} theme={v.theme} repo={repo} signals={debug.signals} />;
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
       });
   });
 
