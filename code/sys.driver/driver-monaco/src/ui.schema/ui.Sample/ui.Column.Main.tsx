@@ -22,8 +22,8 @@ export const MainColumn: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name}>
-        <div>{`🐷 MainColumn`}</div>
+      <Cropmarks theme={theme.name} borderOpacity={0.04}>
+        <div>{`🐷 Subject`}</div>
       </Cropmarks>
     </div>
   );
