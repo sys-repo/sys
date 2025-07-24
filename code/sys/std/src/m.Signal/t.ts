@@ -1,32 +1,5 @@
-import type { t } from './common.ts';
 import type Preact from '@preact/signals-core';
-import type { ReadonlySignal, Signal } from '@preact/signals-core';
-
-export { ReadonlySignal, Signal };
-
-/**
- * Converts any `Signal<X>` (at any depth) to its plain value `X`,
- * while leaving functions/primitives unchanged.
- */
-export type SignalValue<T> = T extends t.Signal<infer U>
-  ? U
-  : T extends (...args: any[]) => any
-  ? T
-  : T extends readonly [unknown, ...unknown[]]
-  ? { [K in keyof T]: SignalValue<T[K]> }
-  : T extends object
-  ? { [K in keyof T]: SignalValue<T[K]> }
-  : T;
-
-/**
- * Utility type to extract the type of a signal value.
- * @example
- * ```ts
- * const mySignal = Signal.create<'Foo' | 'Bar'>('Foo');
- * type T = ExtractSignalValue<typeof mySignal>;
- * ```
- */
-export type ExtractSignalValue<T> = T extends Signal<infer U> ? U : never;
+import type { t } from './common.ts';
 
 /** Callback passed into a signal effect. */
 export type SignalEffectFn = () => void | (() => void);
@@ -64,7 +37,7 @@ export type SignalLib = {
    * @param input  Any value: primitives, arrays, objects, Signals, or a mix.
    * @returns      The same structure with every `Signal<X>` replaced by `X`.
    */
-  toObject<T>(input: T): SignalValue<T>;
+  toObject<T>(input: T): t.UnwrapSignals<T>;
 
   //
 } & t.SignalValueHelpersLib;
@@ -74,10 +47,10 @@ export type SignalLib = {
  */
 export type SignalValueHelpersLib = {
   /** Toggle a boolean signal. */
-  toggle(signal: Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
+  toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
-  cycle<T>(signal: Signal<T | undefined>, values: T[], forceValue?: T): T;
+  cycle<T>(signal: t.Signal<T | undefined>, values: T[], forceValue?: T): T;
 };
 
 /**

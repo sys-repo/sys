@@ -1,7 +1,7 @@
 import type Preact from '@preact/signals-react';
 import type { SignalLib } from '@sys/std/t';
 
-export type { ExtractSignalValue, ReadonlySignal, Signal } from '@sys/std/t';
+export type { ReadonlySignal, Signal, SignalValue, UnwrapSignals } from '@sys/std/t';
 
 /**
  * Reactive Signals.

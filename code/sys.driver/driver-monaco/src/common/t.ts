@@ -15,7 +15,6 @@ export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';

@@ -20,6 +20,7 @@ export type * from './t.Pkg.dist.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
 export type * from './t.Semver.ts';
+export type * from './t.Signal.ts';
 export type * from './t.Size.ts';
 export type * from './t.Sort.ts';
 export type * from './t.String.ts';

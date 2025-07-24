@@ -61,7 +61,7 @@ export type DocumentIdHookSignals = {
 
 /** Snapshot of the <DocumentId> signals converted to values. */
 export type DocumentIdHookSignalValues = {
-  readonly textbox: t.SignalValue<DocumentIdHookSignals['textbox']>;
-  readonly doc: t.SignalValue<DocumentIdHookSignals['doc']>;
-  readonly spinning: t.SignalValue<DocumentIdHookSignals['spinning']>;
+  readonly textbox: t.UnwrapSignals<DocumentIdHookSignals['textbox']>;
+  readonly doc: t.UnwrapSignals<DocumentIdHookSignals['doc']>;
+  readonly spinning: t.UnwrapSignals<DocumentIdHookSignals['spinning']>;
 };
