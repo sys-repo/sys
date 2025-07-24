@@ -42,6 +42,22 @@ describe('MonacoFake (Mock)', () => {
       });
     });
 
+    describe('getValueLength', () => {
+      it('returns the total character count (including newlines)', () => {
+        const src = 'a\nbc\n1234';
+        const model = MonacoFake.model(src);
+        expect(model.getValueLength()).to.equal(src.length); // 9
+      });
+
+      it('updates when the buffer changes via setValue', () => {
+        const model = MonacoFake.model('foo');
+        expect(model.getValueLength()).to.equal(3);
+
+        model.setValue('bar\nbaz');
+        expect(model.getValueLength()).to.equal(7);
+      });
+    });
+
     describe('getVersionId', () => {
       it('increments only when the text actually changes', () => {
         const model = MonacoFake.model('foo');

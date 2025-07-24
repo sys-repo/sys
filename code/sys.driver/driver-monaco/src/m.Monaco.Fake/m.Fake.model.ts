@@ -24,6 +24,8 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     return offset + (column - 1);
   };
 
+  const getValueLength = () => text.length; // Mirror of Monaco-API `getValueLength()` (total chars incl. newlines).
+
   /**
    * Get/Set Language:
    */
@@ -81,6 +83,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     getLanguageId: () => language,
     getLineCount: () => text.split('\n').length,
     getLineContent: (lineNumber: number) => text.split('\n')[lineNumber - 1] ?? '',
+    getValueLength,
 
     /* Stters (Mutate): */
     setValue,

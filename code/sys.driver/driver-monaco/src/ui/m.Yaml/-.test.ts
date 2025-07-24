@@ -77,4 +77,36 @@ describe('Monaco.Yaml', () => {
       expect(fired.at(-1)?.cursor).to.eql({ offset: -1, position: { lineNumber: -1, column: -1 } });
     });
   });
+
+  describe('caret bias edge-cases', () => {
+    it('resolves the correct root key when the file starts with a blank line', () => {
+      const yaml = `\nfoo: 123\nbar:\n  baz: 456\n  zoo:\n    - one`;
+      const model = MonacoFake.model(yaml, { language: 'yaml' });
+      const editor = MonacoFake.editor(model);
+      const ob = EditorYaml.Path.observe(editor);
+
+      // Caret on the “f” of the root key “foo:” (line-2, col-1 because of leading blank line).
+      editor.setPosition({ lineNumber: 2, column: 1 });
+      expect(ob.path).to.eql(['foo']);
+
+      // Caret on the “b” of the root key “bar:” (line-3, col-1).
+      editor.setPosition({ lineNumber: 3, column: 1 });
+      expect(ob.path).to.eql(['bar']);
+    });
+
+    it('does not include the first child when caret is on a root key after a blank line', () => {
+      const yaml = `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
+      const model = MonacoFake.model(yaml, { language: 'yaml' });
+      const editor = MonacoFake.editor(model);
+      const ob = EditorYaml.Path.observe(editor);
+
+      // Caret on “v” of “video:” (line-4, col-1).
+      editor.setPosition({ lineNumber: 4, column: 1 });
+      expect(ob.path).to.eql(['video']);
+
+      // Move caret into the “s” of “src” (line-5, two-space indent + “s”).
+      editor.setPosition({ lineNumber: 5, column: 3 });
+      expect(ob.path).to.eql(['video', 'src']);
+    });
+  });
 });

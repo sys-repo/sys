@@ -22,6 +22,7 @@ export type FakeTextModel = Pick<
   | 'getLanguageId'
   | 'getLineCount'
   | 'getLineContent'
+  | 'getValueLength'
   //
   | 'setValue'
   //

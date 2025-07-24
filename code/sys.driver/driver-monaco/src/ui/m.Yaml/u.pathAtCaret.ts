@@ -13,8 +13,9 @@ type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
  *     (up to `limit` chars) until the path actually changes.
  *
  * @example
- * const { path } = pathAtCaret(model, doc, { lineNumber: 2, column: 1 });
- * // → ['bar']
+ *  const { path } = pathAtCaret(model, doc, { lineNumber: 2, column: 1 });
+ *  // → ['bar']
+ *
  */
 export function pathAtCaret(
   model: t.Monaco.TextModel,
@@ -32,11 +33,11 @@ export function pathAtCaret(
    */
   const firstIdx = lineText.search(/\S/); // ← 0-based.
   const firstCol = firstIdx + 1; //          ← 1-based.
+
   let col = position.column;
-
+  const isAtOrBeforeFirstVisible = col <= firstCol;
+  col = Math.max(firstCol, Math.min(col, lineText.length + 1));
   if (col <= firstCol) col = firstCol;
-  if (col === 1 && position.lineNumber !== 1) col = 2; // newline edge
-
   if (col > lineText.length + 1) col = lineText.length + 1;
 
   const offset = model.getOffsetAt({ lineNumber: position.lineNumber, column: col });
@@ -45,7 +46,7 @@ export function pathAtCaret(
   /**
    * Forward scan if still glued to previous node when at column-1.
    */
-  if (position.column === 1 && position.lineNumber !== 1) {
+  if (isAtOrBeforeFirstVisible && position.lineNumber > 1) {
     const prevPath = offset > 0 ? Yaml.pathAtOffset(doc.contents, offset - 1) : [];
     if (samePath(prevPath, path)) {
       const max = model.getValueLength();
