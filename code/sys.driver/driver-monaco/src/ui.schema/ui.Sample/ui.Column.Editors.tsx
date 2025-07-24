@@ -29,9 +29,9 @@ export const EditorsColumn: React.FC<P> = (props) => {
       display: 'grid',
     }),
     footer: css({
-      backgroundColor: Color.alpha(Color.BLACK, 0.15),
+      backgroundColor: Color.alpha(Color.BLACK, theme.is.dark ? 0.18 : 0.02),
       padding: 8,
-      borderTop: `solid 1px ${Color.alpha(theme.fg, D.borderOpacity)}`,
+      borderTop: `dashed 1px ${Color.alpha(theme.fg, D.borderOpacity)}`,
     }),
   };
 
@@ -76,7 +76,7 @@ export const EditorsColumn: React.FC<P> = (props) => {
     <div className={styles.footer.class}>
       <Monaco.Dev.PathView
         prefix={'path:'}
-        prefixColor={Color.CYAN}
+        prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
         path={signals.path.value}
         theme={theme.name}
       />
