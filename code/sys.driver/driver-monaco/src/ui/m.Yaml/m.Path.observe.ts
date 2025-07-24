@@ -1,4 +1,5 @@
 import { type t, Yaml, rx } from './common.ts';
+import { pathAtCaret } from './u.pathAtCaret.ts';
 
 export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const model = editor.getModel();
@@ -6,10 +7,8 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
 
   // Lifecycle:
   const life = rx.lifecycle(until);
-  life.dispose$.subscribe(() => {
-    cursorSub.dispose();
-    langSub.dispose();
-  });
+  const disposables: Array<{ dispose(): void }> = [];
+  life.dispose$.subscribe(() => disposables.forEach((d) => d.dispose()));
 
   const $$ = rx.subject<t.EditorYamlPathChange>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
@@ -26,19 +25,26 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   };
 
   // Update when the buffer changes.
-  model.onDidChangeContent(parse);
+  const contentSub = model.onDidChangeContent(parse);
 
   const clear = () => {
     path = [];
-    $$.next({ path, cursor: nullCursor() });
+    $$.next({ path, cursor: wrangle.nullCursor() });
   };
 
   const update = () => {
     const info = wrangle.info(editor);
-    if (info && info.language === 'yaml') {
-      const { position, offset } = info;
-      path = Yaml.pathAtOffset(doc.contents, offset);
-      $$.next({ path, cursor: { position, offset } });
+    if (info?.language === 'yaml') {
+      const { position } = info;
+
+      const result = pathAtCaret(model, doc, position);
+      if (result.offset === -1) {
+        clear();
+        return;
+      }
+
+      path = result.path;
+      $$.next({ path, cursor: { position, offset: result.offset } });
     } else {
       clear();
     }
@@ -60,6 +66,11 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
     parse(); // ← Re-parse the buffer under the new language mode.
     update();
   });
+
+  // Store refs for cleanup:
+  disposables.push(contentSub);
+  disposables.push(cursorSub);
+  disposables.push(langSub);
 
   /**
    * API:
@@ -84,13 +95,13 @@ const wrangle = {
     if (!position || !model) return;
     const language = model.getLanguageId() as t.EditorLanguage;
     const offset = position ? model?.getOffsetAt(position) ?? -1 : -1;
-    return { position, offset, language };
+    return { position, offset, language } as const;
+  },
+
+  nullCursor(): t.EditorYamlPathChange['cursor'] {
+    return {
+      offset: -1,
+      position: { lineNumber: -1, column: -1 },
+    };
   },
 } as const;
-
-const nullCursor = (): t.EditorYamlPathChange['cursor'] => {
-  return {
-    offset: -1,
-    position: { lineNumber: -1, column: -1 },
-  };
-};
