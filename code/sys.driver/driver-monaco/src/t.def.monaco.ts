@@ -15,6 +15,7 @@ export namespace Monaco {
   export type Editor = editor.IStandaloneCodeEditor;
   export type TextModel = editor.ITextModel;
   export type Range = monaco.Range;
+  export type CancellationToken = monaco.CancellationToken;
 
   /** Nested namespace for all the I-prefixed interfaces */
   export namespace I {
@@ -27,5 +28,7 @@ export namespace Monaco {
     export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
     export type ICodeEditor = editor.ICodeEditor;
     export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
+    export type ILink = monaco.languages.ILink;
+    export type ILinksList = monaco.languages.ILinksList;
   }
 }

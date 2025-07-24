@@ -7,6 +7,7 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 import { type t, Color, D } from '../common.ts';
 import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
+import { linkInterceptSample } from './-dev.link.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -61,12 +62,16 @@ export default Spec.describe(D.displayName, async (e) => {
           p.editor.value = e.editor;
           p.carets.value = e.carets;
 
-          // Listeners:
+          // Cursor path observer:
           const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
           path.$.subscribe((e) => (p.selectedPath.value = e.path));
 
+          // Hidden Areas (code-folding) observer:
           const hidden = Monaco.Hidden.observe(e.editor);
           hidden.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
+
+          // (🐷) Custom link intercepts:
+          linkInterceptSample(e);
         }}
       />
     );

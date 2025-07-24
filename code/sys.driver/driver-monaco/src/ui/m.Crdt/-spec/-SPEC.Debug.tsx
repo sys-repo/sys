@@ -3,7 +3,7 @@ import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import { type t, Url, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { importLibs } from '../libs.ts';
-import { YamlSyncDebug } from './-ui.Yaml.SyncDebug.tsx';
+import { YamlSyncDebug } from './-dev.ui.yaml.tsx';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language'> & {
