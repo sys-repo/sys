@@ -5,6 +5,7 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
@@ -21,7 +22,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Sample debug={v.debug} theme={v.theme} />;
+        return <Sample debug={v.debug} theme={v.theme} repo={repo} signals={debug.signals} />;
       });
   });
 

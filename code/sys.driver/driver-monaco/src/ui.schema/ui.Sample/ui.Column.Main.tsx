@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Cropmarks, Color, css, Signal, D, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, Cropmarks, css } from './common.ts';
 
 type P = t.SampleProps;
 

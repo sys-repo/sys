@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, css, D, LocalStorage, ObjectView, Signal, type t, Url } from '../common.ts';
-import { importLibs } from '../libs.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal, Url } from '../common.ts';
 
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -16,7 +15,6 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-  const { Crdt, A } = await importLibs();
 
   const defaults: Storage = {
     theme: 'Dark',
@@ -40,6 +38,13 @@ export async function createDebugSignals() {
     ],
   });
 
+  type S = t.SampleState;
+  const signals: t.SampleSignals = {
+    path: s<S['path']>([]),
+    editor: s<S['editor']>(),
+    doc: s<S['doc']>(),
+  };
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -49,8 +54,12 @@ export async function createDebugSignals() {
     Crdt,
     props,
     repo,
+    signals,
     listen() {
       Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
+      Object.values(signals)
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
@@ -107,7 +116,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
+      <ObjectView
+        name={'signals'}
+        data={Signal.toObject(debug.signals)}
+        expand={0}
+        style={{ marginTop: 5 }}
+      />
     </div>
   );
 };

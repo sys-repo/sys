@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { EditorsColumn } from './ui.Column.Editors.tsx';
 import { MainColumn } from './ui.Column.Main.tsx';
 
@@ -21,7 +21,7 @@ export const Sample: React.FC<P> = (props) => {
       gridTemplateColumns: 'minmax(350px, 0.382fr) 0.618fr',
     }),
     left: css({
-      borderRight: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+      borderRight: `solid 1px ${Color.alpha(theme.fg, D.borderOpacity)}`,
       display: 'grid',
     }),
     right: css({
