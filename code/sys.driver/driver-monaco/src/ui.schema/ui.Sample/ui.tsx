@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { type t, Color, css, D } from './common.ts';
-import { EditorsColumn } from './ui.Column.Editors.tsx';
-import { MainColumn } from './ui.Column.Main.tsx';
+import { EditorsColumn } from './ui.col.Editor.tsx';
+import { MainColumn } from './ui.col.Main.tsx';
 
 type P = t.SampleProps;
 

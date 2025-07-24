@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D, DocumentId, Monaco, STORAGE_KEY } from './common.ts';
+import { Footer } from './ui.col.Editor.Footer.tsx';
 
 type P = t.SampleProps;
 
@@ -25,14 +26,8 @@ export const EditorsColumn: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateRows: `auto 1fr`,
     }),
-    body: css({
-      display: 'grid',
-    }),
-    footer: css({
-      backgroundColor: Color.alpha(Color.BLACK, theme.is.dark ? 0.18 : 0.02),
-      padding: 8,
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, D.borderOpacity)}`,
-    }),
+    body: css({ display: 'grid' }),
+    footer: css({ borderTop: `dashed 1px ${Color.alpha(theme.fg, D.borderOpacity)}` }),
   };
 
   const elCrdt = (
@@ -72,22 +67,11 @@ export const EditorsColumn: React.FC<P> = (props) => {
     </div>
   );
 
-  const elFooter = (
-    <div className={styles.footer.class}>
-      <Monaco.Dev.PathView
-        prefix={'path:'}
-        prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
-        path={signals.path.value}
-        theme={theme.name}
-      />
-    </div>
-  );
-
   return (
     <div className={css(styles.base, props.style).class}>
       {elCrdt}
       {elBody}
-      {elFooter}
+      <Footer {...props} style={styles.footer} />
     </div>
   );
 };
