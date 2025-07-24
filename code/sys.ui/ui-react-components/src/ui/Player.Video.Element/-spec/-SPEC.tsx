@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
+import { Color, css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
 import { D } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
@@ -67,21 +67,34 @@ export default Spec.describe(D.displayName, (e) => {
     const src = useFileSize(p.src.value);
     const size = Str.bytes(src.bytes);
 
+    const theme = Color.theme('Dark');
     const styles = {
       base: css({
         Absolute: [null, 0, -25, 0],
         PaddingX: 12,
         fontSize: 10,
         fontFamily: 'monospace',
-        opacity: 0.5,
+        color: Color.alpha(theme.fg, 0.5),
+
         display: 'grid',
+        gridAutoFlow: 'column', //          ← Lay items out in columns.
+        gridAutoColumns: 'max-content', //  ← Size each implicit column to its content.
+        justifyContent: 'start', //         ← Align the whole grid to the left.
         justifyItems: 'start',
+        columnGap: 5,
       }),
+      size: css({ color: theme.fg }),
     };
 
+    const elSizeLabel = (
+      <>
+        <span>{'network/file-size:'}</span>
+        <span className={styles.size.class}>{size}</span>
+      </>
+    );
     return (
       <>
-        {src.bytes > 0 && <div className={styles.base.class}>{`file-size: ${size}`}</div>}
+        {src.bytes > 0 && <div className={styles.base.class}>{elSizeLabel}</div>}
         {props.children}
       </>
     );
