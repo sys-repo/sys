@@ -28,5 +28,6 @@ export type * from './t.Text.ts';
 export type * from './t.Theme.ts';
 export type * from './t.Time.ts';
 export type * from './t.Utility.ts';
+export type * from './t.Testing.ts';
 
 export type * from './t.ts';
