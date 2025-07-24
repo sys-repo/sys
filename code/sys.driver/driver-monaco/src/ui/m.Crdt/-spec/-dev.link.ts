@@ -40,7 +40,8 @@ export function linkInterceptSample(e: t.MonacoEditorReady) {
   const subLinkOpener = e.monaco.editor.registerLinkOpener({
     open(uri) {
       console.info('⚡️ open/uri:', uri);
-      return true; // NB: true == handled.
+      if (uri.scheme === 'crdt') return true; // NB: true == handled.
+      return false;
     },
   });
 
