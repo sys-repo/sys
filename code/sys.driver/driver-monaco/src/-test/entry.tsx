@@ -40,7 +40,10 @@ export async function main() {
    */
   const { render, useKeyboard } = await import('@sys/ui-react-devharness');
   const { Specs } = await import('./-specs.ts');
-  const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
+  const el = await render(pkg, Specs, {
+    hr: (e) => e.byRoots(['driver.monaco: schema/Sample']),
+    style: { Absolute: 0 },
+  });
   function App() {
     useKeyboard();
     return el;

@@ -15,3 +15,5 @@ export type * from './ui/m.Crdt/t.ts';
 export type * from './ui/m.Hidden/t.ts';
 export type * from './ui/m.Yaml/t.ts';
 export type * from './ui/ui.MonacoEditor/t.ts';
+
+export type * from './ui.schema/ui.Sample/t.ts';
