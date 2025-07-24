@@ -10,8 +10,8 @@ export type YamPrimitives = null | string | number | boolean;
 /**
  * Helpers for working with YAML.
  */
-export type YamlLib = {
-  readonly Is: YamlIsLib;
+export type YamlLib = Readonly<{
+  Is: YamlIsLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: string): YamlParseResponse<T>;
@@ -20,18 +20,15 @@ export type YamlLib = {
   parseDocument(src: string): Y.Document.Parsed;
 
   /** Creates a new parse-syncer. */
-  syncer<T = unknown>(
-    doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
-    path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
-    options?: { dispose$?: t.UntilInput; debounce?: t.Msecs },
-  ): t.YamlSyncParser<T>;
+  syncer: t.YamlSyncLib['create'];
+  Syncer: t.YamlSyncLib;
 
   /**
    * Find the deepest node whose range encloses `offset`
    * and return the logical object path leading to it.
    */
   pathAtOffset(node: NodeOrNull, offset: t.Index, path?: t.ObjectPath): t.ObjectPath;
-};
+}>;
 
 /**
  * YAML related flags.

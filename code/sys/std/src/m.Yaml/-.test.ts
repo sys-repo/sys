@@ -1,6 +1,7 @@
 import { c, describe, expect, it, type t, Time } from '../-test.ts';
 import { Err, ERR, Immutable, rx } from './common.ts';
 import { Is } from './m.Is.ts';
+import { Syncer } from './m.Syncer.ts';
 import { Yaml } from './mod.ts';
 
 type O = Record<string, unknown>;
@@ -9,6 +10,8 @@ type R = t.YamlParseResponse<unknown>;
 describe('Yaml', () => {
   it('API', () => {
     expect(Yaml.Is).to.equal(Is);
+    expect(Yaml.Syncer).to.equal(Syncer);
+    expect(Yaml.syncer).to.equal(Syncer.create);
   });
 
   describe('Yaml.Is', () => {

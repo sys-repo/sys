@@ -5,12 +5,15 @@ import { parse } from './u.parse.ts';
 type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
 
-export const syncer: S = <T = unknown>(
+/**
+ * Factory
+ */
+const create: S = <T = unknown>(
   docInput: Parameters<S>[0],
   pathInput: Parameters<S>[1],
-  options?: Parameters<S>[2],
+  options: Parameters<S>[2] = {},
 ) => {
-  const { debounce = 0 } = options ?? {};
+  const { debounce = 0 } = options;
 
   const life = rx.lifecycle(options?.dispose$);
   const doc = wrangle.doc(docInput);
@@ -175,3 +178,8 @@ const wrangle = {
     return done(input.source, input.target === undefined ? input.source : input.target);
   },
 } as const;
+
+/**
+ * Library:
+ */
+export const Syncer: t.YamlSyncLib = { create };

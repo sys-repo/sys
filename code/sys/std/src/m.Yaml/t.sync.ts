@@ -1,6 +1,18 @@
 import type { t } from './common.ts';
 
 /**
+ * Library namespace for the Yaml sync helpers:
+ */
+export type YamlSyncLib = Readonly<{
+  /** Creates a new parse-syncer. */
+  create<T = unknown>(
+    doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
+    path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
+    options?: { dispose$?: t.UntilInput; debounce?: t.Msecs },
+  ): t.YamlSyncParser<T>;
+}>;
+
+/**
  * Monitors an observable document and parses a YAML
  * string and persists it to a path on change.
  */
