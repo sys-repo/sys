@@ -27,7 +27,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
-  width: 420,
+  width: 600,
   muted: false,
   autoPlay: false,
   loop: false,
