@@ -13,6 +13,7 @@ import { useCropBounds } from './use.Crop.Bounds.ts';
 import { useJumpTo } from './use.JumpTo.ts';
 import { useMediaEvents } from './use.Media.Events.ts';
 import { useMediaProgress } from './use.Media.Progress.ts';
+import { useMuted } from './use.Muted.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
 
@@ -55,12 +56,17 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   }, [src]);
 
   /**
-   * Hooks (Behavior):
+   * Hooks (State):
    */
   const [pointerOver, setOver] = useState(false);
+
+  /**
+   * Hooks (Behavior):
+   */
   const progress = useMediaProgress(videoRef, props);
   const size = useSizeObserver();
   const scale = useScale(size, props.scale);
+  const muted = useMuted(videoRef, props);
   useCropBounds(videoRef, progress.lens, props);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
@@ -76,7 +82,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   /** Resolve current element state: */
   const el = videoRef.current;
   const elPaused = el?.paused ?? true;
-  const elMuted = el?.muted ?? mutedProp ?? defaultMuted;
+  const elMuted = el?.muted ?? mutedProp ?? muted.current;
   const canPlay = readyState >= READY_STATE.HAVE_FUTURE_DATA;
   const playing = !elPaused && canPlay;
   const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
@@ -123,9 +129,10 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   }, [playing, onPlayingChange]);
 
   const requestToggleMute = useCallback(() => {
-    const value = !elMuted;
-    onMutedChange?.({ muted: value, reason: 'user-toggle-mute' });
-  }, [elMuted, onMutedChange]);
+    const next = !muted.current;
+    muted.set(next); // Updates state (and hook effect syncs <video>).
+    onMutedChange?.({ muted: next, reason: 'user-toggle-mute' });
+  }, [muted, onMutedChange]);
 
   /**
    * Render:
