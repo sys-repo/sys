@@ -123,12 +123,12 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
   /**
    * Handlers (user UI interactions):
    */
-  const requestTogglePlay = useCallback(() => {
+  const togglePlay = useCallback(() => {
     const value = !playing;
     onPlayingChange?.({ playing: value, reason: 'user-toggle-play' });
   }, [playing, onPlayingChange]);
 
-  const requestToggleMute = useCallback(() => {
+  const toggleMute = useCallback(() => {
     const next = !muted.current;
     muted.set(next); // Updates state (and hook effect syncs <video>).
     onMutedChange?.({ muted: next, reason: 'user-toggle-mute' });
@@ -187,7 +187,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
         playsInline
         disablePictureInPicture
         // ↓ NB: don't pass `muted` or `autoPlay` here; we manage via effects.
-        onClick={requestTogglePlay}
+        onClick={togglePlay}
       />
 
       <M.div
@@ -208,8 +208,8 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
           //
           onSeeking={controls.onSeeking}
           onClick={(e) => {
-            if (e.button === 'Play') requestTogglePlay();
-            if (e.button === 'Mute') requestToggleMute();
+            if (e.button === 'Play') togglePlay();
+            if (e.button === 'Mute') toggleMute();
           }}
         />
       </M.div>
