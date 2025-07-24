@@ -1,4 +1,3 @@
-import type { YamlSyncParserPaths } from '@sys/std/t';
 import React from 'react';
 import { type t, Color, css, Is, Obj, ObjectView, Str, Yaml } from '../common.ts';
 
@@ -18,7 +17,7 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
    */
   const [parsed, setParsed] = React.useState<any>();
   const [parseError, setParseError] = React.useState<t.StdError>();
-  const [syncPath, setSyncPath] = React.useState<YamlSyncParserPaths>();
+  const [syncPath, setSyncPath] = React.useState<t.YamlSyncParserPaths>();
 
   /**
    * Effect:
