@@ -18,7 +18,11 @@ export type SampleProps = {
  */
 export type SampleState = t.UnwrapSignals<SampleSignals>;
 export type SampleSignals = Readonly<{
-  path: t.Signal<t.ObjectPath>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.Crdt.Ref | undefined>;
+  cursor: t.Signal<t.ObjectPath>;
+
+  'yaml.path': t.Signal<t.ObjectPath>;
+  'yaml.parsed': t.Signal<{} | undefined>;
+  'yaml.error': t.Signal<t.StdError | undefined>;
 }>;

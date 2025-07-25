@@ -25,7 +25,7 @@ export const Footer: React.FC<P> = (props) => {
       <Monaco.Dev.PathView
         prefix={'path:'}
         prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
-        path={signals.path.value}
+        path={signals.cursor.value}
         theme={theme.name}
       />
     </div>

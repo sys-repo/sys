@@ -10,7 +10,7 @@ type P = t.SampleProps;
 export const EditorsColumn: React.FC<P> = (props) => {
   const { debug = false, repo, signals } = props;
   const doc = signals.doc;
-
+  const path = signals['yaml.path'].value;
 
   Monaco.useBinding(signals.editor.value, doc.value, path, (e) => {
     e.binding.$.subscribe((e) => console.info(`⚡️ Sample/crdt:binding.$:`, e));
@@ -21,11 +21,7 @@ export const EditorsColumn: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-      gridTemplateRows: `auto 1fr`,
-    }),
+    base: css({ color: theme.fg, display: 'grid', gridTemplateRows: `auto 1fr` }),
     body: css({ display: 'grid' }),
     footer: css({ borderTop: `dashed 1px ${Color.alpha(theme.fg, D.borderOpacity)}` }),
   };
@@ -61,7 +57,7 @@ export const EditorsColumn: React.FC<P> = (props) => {
 
           // Listeners:
           const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
-          path.$.subscribe((e) => (signals.path.value = e.path));
+          path.$.subscribe((e) => (signals.cursor.value = e.path));
         }}
       />
     </div>

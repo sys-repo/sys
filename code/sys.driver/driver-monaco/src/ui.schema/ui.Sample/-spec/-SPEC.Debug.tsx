@@ -1,5 +1,16 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal, Url } from '../common.ts';
+import {
+  type t,
+  Button,
+  Crdt,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  Url,
+} from '../common.ts';
 
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -40,9 +51,12 @@ export async function createDebugSignals() {
 
   type S = t.SampleState;
   const signals: t.SampleSignals = {
-    path: s<S['path']>([]),
     editor: s<S['editor']>(),
     doc: s<S['doc']>(),
+    cursor: s<S['cursor']>([]),
+    'yaml.path': s<S['yaml.path']>(['foo']),
+    'yaml.parsed': s<S['yaml.parsed']>(),
+    'yaml.error': s<S['yaml.error']>(),
   };
 
   const props = {
@@ -119,8 +133,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
       <ObjectView
         name={'signals'}
-        data={Signal.toObject(debug.signals)}
-        expand={0}
+        data={{
+          ...Signal.toObject(debug.signals),
+          doc: Obj.trimStringsDeep(debug.signals.doc.value?.current ?? {}),
+        }}
+        expand={1}
         style={{ marginTop: 5 }}
       />
     </div>
