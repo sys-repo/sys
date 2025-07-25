@@ -31,7 +31,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
    */
   React.useEffect(() => {
     if (!notes.doc) return;
-    const syncer = Yaml.syncer(notes.doc, path);
+    const syncer = Yaml.syncer({ doc: notes.doc, path });
     return syncer.dispose;
   }, [notes.doc?.instance]);
 
@@ -40,11 +40,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      color: theme.fg,
-      display: 'grid',
-    }),
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
     editor: css({
       Absolute: 0,
       display: notes.doc ? 'block' : 'none',

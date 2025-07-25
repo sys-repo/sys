@@ -26,7 +26,7 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     if (!doc || !path) return;
 
     const debounce = props.debounce ? 300 : undefined;
-    const syncer = Yaml.syncer(doc, path, { debounce });
+    const syncer = Yaml.syncer({ doc, path, debounce });
     setSyncPath(syncer.path);
 
     const update = (parsed: any, error?: t.StdError) => {
