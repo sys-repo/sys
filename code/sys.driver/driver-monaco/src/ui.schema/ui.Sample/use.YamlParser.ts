@@ -12,7 +12,7 @@ export function useYamlParser(signals: t.SampleSignals) {
     if (!doc || !editorPath) return;
 
     const debounce = 300;
-    const syncer = Yaml.syncer(doc, editorPath, { debounce });
+    const syncer = Yaml.syncer({ doc, path: editorPath, debounce });
 
     const update = (parsed: any, error?: t.StdError) => {
       signals['yaml.parsed'].value = parsed;
