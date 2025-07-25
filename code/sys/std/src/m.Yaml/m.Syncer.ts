@@ -8,16 +8,8 @@ type S = t.YamlLib['syncer'];
 /**
  * Factory
  */
-const create: S = <T = unknown>(
-  docInput: Parameters<S>[0],
-  pathInput: Parameters<S>[1],
-  options: Parameters<S>[2] = {},
-) => {
-  const { debounce = 0 } = options;
-
-  const life = rx.lifecycle(options?.dispose$);
-  const doc = wrangle.doc(docInput);
-  const path = wrangle.path(doc, pathInput);
+const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
+  const { debounce, life, doc, path } = wrangle.args(input);
 
   /**
    * Observables/Events:
@@ -135,14 +127,22 @@ const create: S = <T = unknown>(
  * Helpers:
  */
 const wrangle = {
-  doc(input: Parameters<S>[0]): t.YamlSyncParserDocs {
+  args(input: t.YamlSyncArgsInput): t.YamlSyncArgs {
+    const { debounce = 0 } = input;
+    const life = rx.lifecycle(input.dispose$);
+    const doc = wrangle.doc(input.doc);
+    const path = wrangle.path(doc, input.path);
+    return { life, doc, path, debounce };
+  },
+
+  doc(input: t.YamlSyncArgsInput['doc']): t.YamlSyncParserDocs {
     type P = t.ImmutableRef;
     const done = (source: P, target: P): t.YamlSyncParserDocs => ({ source, target });
     if (Immutable.Is.immutableRef(input)) return done(input, input);
     return done(input.source, input.target ?? input.source);
   },
 
-  path(doc: t.YamlSyncParserDocs, input: Parameters<S>[1]): t.YamlSyncParserPaths {
+  path(doc: t.YamlSyncParserDocs, input: t.YamlSyncArgsInput['path']): t.YamlSyncParserPaths {
     type P = t.ObjectPath | null;
 
     const formatNull = (value: P) => {

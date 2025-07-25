@@ -178,7 +178,7 @@ describe('Yaml', () => {
     it('print', () => {
       type T = { text?: string };
       const doc = Immutable.clonerRef<T>({});
-      const syncer = Yaml.syncer(doc, ['text']);
+      const syncer = Yaml.syncer({ doc, path: ['text'] });
       console.info();
       console.info(c.bold(c.brightCyan('T:YamlSyncer:\b')));
       console.info(syncer);
@@ -192,9 +192,9 @@ describe('Yaml', () => {
         const docB = Immutable.clonerRef<T>({});
         const path = ['text'];
 
-        const a = Yaml.syncer(docA, path);
-        const b = Yaml.syncer({ source: docA }, path);
-        const c = Yaml.syncer({ source: docA, target: docB }, path);
+        const a = Yaml.syncer({ doc: docA, path });
+        const b = Yaml.syncer({ doc: { source: docA }, path });
+        const c = Yaml.syncer({ doc: { source: docA, target: docB }, path });
 
         expect(a.ok).to.eql(true);
         expect(b.ok).to.eql(true);
@@ -219,13 +219,13 @@ describe('Yaml', () => {
         const docA = Immutable.clonerRef<T>({});
         const docB = Immutable.clonerRef<T>({});
 
-        const a = Yaml.syncer(docA, ['text']);
-        const b = Yaml.syncer(docA, { source: ['text'] });
-        const c = Yaml.syncer({ source: docA, target: docB }, ['text']);
-        const d = Yaml.syncer(docA, { source: ['text'], target: [] });
-        const e = Yaml.syncer(docA, { source: ['text'], target: null });
-        const f = Yaml.syncer(docA, { source: ['text'], target: ['foo', 'parsed'] });
-        const g = Yaml.syncer(docA, { source: [], target: ['text'] });
+        const a = Yaml.syncer({ doc: docA, path: ['text'] });
+        const b = Yaml.syncer({ doc: docA, path: { source: ['text'] } });
+        const c = Yaml.syncer({ doc: { source: docA, target: docB }, path: ['text'] });
+        const d = Yaml.syncer({ doc: docA, path: { source: ['text'], target: [] } });
+        const e = Yaml.syncer({ doc: docA, path: { source: ['text'], target: null } });
+        const f = Yaml.syncer({ doc: docA, path: { source: ['text'], target: ['foo', 'parsed'] } });
+        const g = Yaml.syncer({ doc: docA, path: { source: [], target: ['text'] } });
 
         expect(a.ok).to.eql(true);
         expect(a.path.source).to.eql(['text']);
@@ -263,9 +263,9 @@ describe('Yaml', () => {
       it('error: no path slots (source or target)', () => {
         const doc = Immutable.clonerRef<T>({});
 
-        const a = Yaml.syncer(doc, { source: [], target: ['text'] });
-        const b = Yaml.syncer(doc, { source: [] });
-        const c = Yaml.syncer(doc, { source: ['text'], target: [] });
+        const a = Yaml.syncer({ doc, path: { source: [], target: ['text'] } });
+        const b = Yaml.syncer({ doc, path: { source: [] } });
+        const c = Yaml.syncer({ doc, path: { source: ['text'], target: [] } });
 
         expect(a.ok).to.eql(false);
         expect(b.ok).to.eql(false);
@@ -285,7 +285,7 @@ describe('Yaml', () => {
       type E = t.YamlSyncParserChange<T>;
       const sample = (text?: string) => {
         const doc = Immutable.clonerRef<T>({ text });
-        const syncer = Yaml.syncer<T>(doc, ['text']);
+        const syncer = Yaml.syncer<T>({ doc, path: ['text'] });
         return { doc, syncer } as const;
       };
 
@@ -366,7 +366,7 @@ describe('Yaml', () => {
 
       it('parse on change: async (debounced)', async () => {
         const doc = Immutable.clonerRef<T>({});
-        Yaml.syncer<T>(doc, ['text'], { debounce: 20 });
+        Yaml.syncer<T>({ doc, path: ['text'], debounce: 20 });
 
         doc.change((d) => (d.text = 'foo: 1'));
         doc.change((d) => (d.text = 'foo: 2'));
@@ -380,7 +380,7 @@ describe('Yaml', () => {
 
       it('object diff', () => {
         const doc = Immutable.clonerRef<T>({});
-        Yaml.syncer<T>(doc, ['text']);
+        Yaml.syncer<T>({ doc, path: ['text'] });
 
         doc.change((d) => (d.text = 'foo: { bar: { value: 0 } }'));
         expect(doc.current['text.parsed']).to.eql({ foo: { bar: { value: 0 } } });
@@ -392,7 +392,7 @@ describe('Yaml', () => {
       it('write to different document', () => {
         const source = Immutable.clonerRef<{ text?: string }>({});
         const target = Immutable.clonerRef<{ text?: t.YamPrimitives }>({});
-        const syncer = Yaml.syncer<T>({ source, target }, ['text']);
+        const syncer = Yaml.syncer<T>({ doc: { source, target }, path: ['text'] });
 
         source.change((d) => (d.text = 'foo: 123'));
         expect(source.current).to.eql({ text: 'foo: 123' });
@@ -426,7 +426,7 @@ describe('Yaml', () => {
         it('via: dispose$ observable', () => {
           const { dispose, dispose$ } = rx.lifecycle();
           const doc = Immutable.clonerRef<T>({});
-          const syncer = Yaml.syncer<T>(doc, ['text'], { dispose$ });
+          const syncer = Yaml.syncer<T>({ doc, path: ['text'], dispose$ });
 
           expect(syncer.disposed).to.eql(false);
           dispose();

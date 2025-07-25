@@ -5,11 +5,23 @@ import type { t } from './common.ts';
  */
 export type YamlSyncLib = Readonly<{
   /** Creates a new parse-syncer. */
-  create<T = unknown>(
-    doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef },
-    path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null },
-    options?: { dispose$?: t.UntilInput; debounce?: t.Msecs },
-  ): t.YamlSyncParser<T>;
+  create<T = unknown>(args: t.YamlSyncArgsInput): t.YamlSyncParser<T>;
+}>;
+
+/** Arguments passed to the `Yaml.Syncer.create` method. */
+export type YamlSyncArgsInput = {
+  doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef };
+  path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null };
+  dispose$?: t.UntilInput;
+  debounce?: t.Msecs;
+};
+
+/** Normalized input arguments into usable values. */
+export type YamlSyncArgs = Readonly<{
+  life: t.Lifecycle;
+  doc: t.YamlSyncParserDocs;
+  path: t.YamlSyncParserPaths;
+  debounce: t.Msecs;
 }>;
 
 /**
