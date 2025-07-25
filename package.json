@@ -13,7 +13,7 @@
     "@std/uuid": "npm:@jsr/std__uuid@1.0.9",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
-    "hono": "4.8.7",
+    "hono": "4.8.8",
     "motion": "12.23.9",
     "react": "18.3.1",
     "react-dom": "18.3.1",
