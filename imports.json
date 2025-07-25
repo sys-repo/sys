@@ -34,7 +34,6 @@
     "@std/testing": "jsr:@std/testing@1.0.15",
     "@std/uuid": "jsr:@std/uuid@1.0.9",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
-    "@types/diff": "npm:@types/diff@8.0.0",
     "@types/ramda": "npm:@types/ramda@0.30.2",
     "@types/ws": "npm:@types/ws@8.18.1",
     "ai": "npm:ai@4.3.19",

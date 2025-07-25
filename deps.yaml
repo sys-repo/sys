@@ -106,7 +106,6 @@ deno.json:
   - import: jsr:@cliffy/table@1.0.0-rc.8
 
   # Sundry NPM:
-  - import: npm:@types/diff@8.0.0
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
