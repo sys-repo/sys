@@ -16,6 +16,7 @@ export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
 export type {
+  YamlError,
   YamlLib,
   YamlSyncArgsInput,
   YamlSyncParser,
