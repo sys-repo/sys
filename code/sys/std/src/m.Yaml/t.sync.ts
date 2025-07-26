@@ -1,4 +1,8 @@
+import type { YAMLError } from 'yaml';
 import type { t } from './common.ts';
+
+/** A YAML parse error. */
+export type YamlError = YAMLError;
 
 /**
  * Library namespace for the Yaml sync helpers:
@@ -33,11 +37,8 @@ export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly $: t.Observable<t.YamlSyncParserChange<T>>;
   readonly path: YamlSyncParserPaths;
   readonly doc: YamlSyncParserDocs;
-  readonly current: {
-    yaml(): string | undefined;
-    parsed(): YamSyncParsed<T>;
-  };
-  readonly errors: t.StdError[];
+  readonly current: { yaml(): string | undefined; parsed(): YamSyncParsed<T> };
+  readonly errors: t.YamlError[];
 };
 
 /** Source and target docments being synced (may be the same document). */
@@ -58,6 +59,7 @@ export type YamlSyncParserChange<T> = {
   readonly yaml: { before: string; after: string };
   readonly parsed?: YamSyncParsed<T>;
   readonly error?: t.StdError;
+  readonly errors: YAMLError[];
 };
 
 /** A parsed YAML value. */

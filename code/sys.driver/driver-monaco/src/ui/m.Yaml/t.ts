@@ -30,7 +30,7 @@ export type EditorYaml = {
   readonly parsed: Readonly<{
     input: string;
     output: t.YamSyncParsed<unknown>;
-    errors: t.StdError[];
+    errors: t.YamlError[];
   }>;
 };
 

@@ -1,6 +1,6 @@
-import { type t, Arr, Err, Immutable, Is, Obj, rx } from './common.ts';
-import { Is as YamlIs } from './m.Is.ts';
-import { parse } from './u.parse.ts';
+import { YAMLError } from 'yaml';
+import { type t, Arr, Immutable, Is, Obj, rx } from './common.ts';
+import { parseDocument } from './u.parse.ts';
 
 type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
@@ -10,6 +10,7 @@ type S = t.YamlLib['syncer'];
  */
 const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const { debounce, life, doc, path } = wrangle.args(input);
+  const errors = new Set<t.YamlError>();
 
   /**
    * Observables/Events:
@@ -20,16 +21,6 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
   const $$ = rx.subject<t.YamlSyncParserChange<T>>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
-
-  /**
-   * Errors:
-   */
-  const errors = new Set<t.StdError>();
-  const removeErrors = (predicate: (item: t.StdError) => boolean) => {
-    for (const item of errors) {
-      if (predicate(item)) errors.delete(item);
-    }
-  };
 
   /**
    * Data:
@@ -51,26 +42,27 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     const before = _before;
     const after = current.yaml() ?? '';
     _before = after;
-    removeErrors((err) => YamlIs.parseError(err)); // NB: reset errors.
+    errors.clear();
 
-    // Attempt to parse data.
-    const parsed = parse(after);
-    if (parsed.error) errors.add(parsed.error);
+    // Attempt to parse data:
+    const parsed = parseDocument(after);
+    if (parsed.errors.length > 0) parsed.errors.forEach((err) => errors.add(err));
 
     let ops: t.ObjDiffOp[] = [];
+    const data = parsed.errors.length === 0 ? (parsed.toJS() as T) : undefined;
 
     const targetPath = path.target ?? [];
-    if (!parsed.error && targetPath.length > 0) {
-      const isEqual = Obj.eql(parsed.data, current.parsed());
+    if (parsed.errors.length === 0 && targetPath.length > 0) {
+      const isEqual = Obj.eql(data, current.parsed());
       if (!isEqual) {
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
-          if (Is.record(parsed.data) && Is.record(targetValue)) {
-            const diff = Obj.Path.Mutate.diff(parsed.data, targetValue);
+          if (Is.record(data) && Is.record(targetValue)) {
+            const diff = Obj.Path.Mutate.diff(data, targetValue);
             ops.push(...diff.ops);
           } else {
-            // Replace (any value other than {object} which is diff'd).
-            const op = Obj.Path.Mutate.set(d, targetPath, parsed.data);
+            // Replace (any value other than {object} which is diff'd):
+            const op = Obj.Path.Mutate.set(d, targetPath, data);
             if (op) ops.push(op);
           }
         });
@@ -81,8 +73,8 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     $$.next({
       ops,
       yaml: { before, after },
-      parsed: parsed.data ? (parsed.data as t.YamSyncParsed<T>) : undefined,
-      error: parsed.error,
+      parsed: data ? (data as t.YamSyncParsed<T>) : undefined,
+      errors: [...errors],
     });
   };
 
@@ -115,9 +107,14 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
    * Initialize:
    */
   let _before = current.yaml() ?? '';
-  if ((path.source || []).length === 0) errors.add(Err.std('The source path is empty'));
   update();
   source$.subscribe(update);
+
+  if ((path.source || []).length === 0) {
+    const msg = 'The source path is empty';
+    const err = new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', msg);
+    errors.add(err);
+  }
 
   // Finish up.
   return api;

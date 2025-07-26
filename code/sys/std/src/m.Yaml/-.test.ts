@@ -118,7 +118,7 @@ describe('Yaml', () => {
   });
 
   describe('Yaml.pathAtOffset', () => {
-    // Convenience: returns the offset of the first occurrence of `needle`.
+    // Convenience: returns the offset of the first occurrence of `needle`:
     const at = (haystack: string, needle: string) => haystack.indexOf(needle);
 
     it('returns the key/value path in a simple map', () => {
@@ -308,14 +308,13 @@ describe('Yaml', () => {
       it('initial parse: error', () => {
         const { doc, syncer } = sample('foo: 123\n -b: a FAIL');
         expect(syncer.ok).to.eql(false);
-        expect(syncer.errors.length).to.eql(1);
+        expect(syncer.errors.length).to.eql(2);
         expect(Yaml.Is.parseError(syncer.errors[0])).to.eql(true);
         expect(doc.current['text.parsed']).to.eql(undefined);
       });
 
       it('parse on change: sync (with events)', () => {
         const { doc, syncer } = sample();
-
         const fired: E[] = [];
         syncer.$.subscribe((e) => fired.push(e));
 
@@ -339,11 +338,17 @@ describe('Yaml', () => {
         doc.change((d) => (d.text = fail));
         expect(doc.current['text.parsed']).to.eql({ foo: 123 }); // NB: prior value (not updated after error).
         expect(syncer.ok).to.eql(false);
-        expect(syncer.errors.length).to.eql(1);
+        expect(syncer.errors.length).to.eql(2);
 
         expect(fired.length).to.eql(2);
         expect(fired[1].parsed).to.eql(undefined);
-        expect(Yaml.Is.parseError(fired[1].error)).to.eql(true);
+
+        const err1 = fired[1].errors[0];
+        const err2 = fired[1].errors[1];
+        expect(Yaml.Is.parseError(err1)).to.eql(true);
+        expect(Yaml.Is.parseError(err2)).to.eql(true);
+        expect(err1.pos).to.eql([5, 6]);
+        expect(err2.pos).to.eql([5, 14]);
 
         // Come back from error:
         doc.change((d) => (d.text = 'foo: 456'));
