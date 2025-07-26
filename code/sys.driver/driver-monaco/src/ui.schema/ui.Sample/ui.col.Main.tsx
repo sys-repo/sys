@@ -6,6 +6,7 @@ import { type t, Color, Cropmarks, css, Is, Obj } from './common.ts';
 
 type P = t.SampleProps & { yaml: t.EditorYaml };
 type V = VideoElementProps;
+
 type Video = {
   width?: t.Pixels;
   src?: V['src'];
