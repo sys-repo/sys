@@ -32,6 +32,7 @@ export type ProgrammeProps = {
   state?: t.ProgrammeSignals;
   player?: t.VideoPlayerSignals;
   isTop?: boolean;
+  muted?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onCloseRequest?: () => void;
@@ -43,7 +44,7 @@ export type ProgrammeReadyHandler = (e: ProgrammeReadyHandlerArgs) => void;
 export type ProgrammeReadyHandlerArgs = {
   content: t.ProgrammeContent;
   state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
+  video: t.VideoPlayerSignals;
 };
 
 /**
@@ -52,7 +53,7 @@ export type ProgrammeReadyHandlerArgs = {
 export type ProgrammeSectionProps = {
   content: t.ProgrammeContent;
   state: t.ProgrammeSignals;
-  player: t.VideoPlayerSignals;
+  video: t.VideoPlayerSignals;
 
   debug?: boolean;
   theme?: t.CommonTheme;

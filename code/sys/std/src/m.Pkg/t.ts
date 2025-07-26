@@ -14,7 +14,7 @@ export type PkgLib = {
   readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
-  toString(input?: t.Pkg, suffix?: string): string;
+  toString(input?: t.Pkg, suffix?: string, options?: t.PkgToStringOptions | boolean): string;
 
   /**
    * Extracts the name/version from the gtiven object if found,
@@ -38,6 +38,12 @@ export type PkgLib = {
    * Generate a new { \<unknown\>@0.0.0 } package object.
    */
   unknown(): t.Pkg;
+};
+
+/** Options passed to the `Pkg.toString` method. */
+export type PkgToStringOptions = {
+  /** Include the version in the display string - @default true */
+  version?: boolean;
 };
 
 /**

@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with the DOM (Document Object Model).
+ * @module
  *
  * @example
  * Importing tools for styling.
@@ -37,9 +37,10 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Dom } from './m.Dom/mod.ts';
 export { File } from './m.File/mod.ts';
-export { Keyboard } from './m.Keyboard/mod.ts';
+export { Keyboard, Kbd } from './m.Keyboard/mod.ts';
 export { LocalStorage } from './m.LocalStorage/mod.ts';

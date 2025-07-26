@@ -5,6 +5,7 @@ import {
   MdArrowDownward,
   MdChevronLeft,
   MdChevronRight,
+  MdClose,
   MdErrorOutline,
   MdOutlineAddBox,
 } from 'react-icons/md';
@@ -18,6 +19,7 @@ export { icon };
  * Icon collection:
  */
 export const Icons = {
+  Close: icon(MdClose),
   Error: icon(MdErrorOutline),
   Add: { Plus: icon(MdAdd), Square: icon(MdOutlineAddBox) },
   Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },

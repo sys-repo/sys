@@ -1,6 +1,6 @@
 /**
- * @module
  * Functional-Component tools.
+ * @module
  *
  * @example
  * ```ts

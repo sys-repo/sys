@@ -1,6 +1,8 @@
 import { Args, Path } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
+
 import { c, Cli, Format, Keyboard, Prompt, Spinner, Table } from './mod.ts';
+import { copyToClipboard } from './u.clipboard.ts';
 
 describe('Cli', () => {
   it('API', () => {
@@ -15,6 +17,7 @@ describe('Cli', () => {
 
     expect(Cli.args).to.equal(Args.parse);
     expect(Cli.keypress).to.equal(Keyboard.keypress);
+    expect(Cli.copyToClipboard).to.equal(copyToClipboard);
   });
 
   it('Cli.stripAnsi', () => {

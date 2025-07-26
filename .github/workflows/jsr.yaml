@@ -32,13 +32,13 @@ jobs:
           deno-version: v2
 
       - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
-        run: deno task info
+        run: deno task help
 
       - name: Deno Info
         run: deno info && deno --version
 
       - name: System Info
-        run: deno task info
+        run: deno task help
 
       - name: publish module → "@sys/types"
         run: |
@@ -118,12 +118,6 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/main"
-        run: |
-          cd code/sys/main
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/ui-css"
         run: |
           cd code/sys.ui/ui-css
@@ -157,6 +151,7 @@ jobs:
       - name: publish module → "@sys/driver-automerge"
         run: |
           cd code/sys.driver/driver-automerge
+          deno task check
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -184,21 +179,15 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmp"
-        run: |
-          cd code/sys.tmp
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-vitepress"
+      - name: publish module → "@sys/driver-peerjs"
         run: |
-          cd code/sys.driver/driver-vitepress
+          cd code/sys.driver/driver-peerjs
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
@@ -217,6 +206,12 @@ jobs:
       - name: publish module → "@sys/driver-orbiter"
         run: |
           cd code/sys.driver/driver-orbiter
+          deno task test --parallel --trace-leaks
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-prosemirror"
+        run: |
+          cd code/sys.driver/driver-prosemirror
           deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 

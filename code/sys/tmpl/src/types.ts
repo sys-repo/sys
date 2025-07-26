@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './m.File/t.ts';
 export type * from './m.Log/t.ts';

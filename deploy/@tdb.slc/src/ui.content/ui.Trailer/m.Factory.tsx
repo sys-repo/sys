@@ -8,7 +8,8 @@ import { Trailer } from './ui.tsx';
 /**
  * Content: "Trailer" (30 second intro).
  */
-export function factory() {
+export function factory(options: t.ContentFactoryOptions = {}) {
+  const { muted = false } = options;
   const theme = DEFAULTS.theme.sheet;
 
   const content: t.VideoContent = {
@@ -27,7 +28,7 @@ export function factory() {
     },
 
     render(props) {
-      return <Trailer {...props} theme={theme} />;
+      return <Trailer {...props} theme={theme} muted={muted} />;
     },
   };
 

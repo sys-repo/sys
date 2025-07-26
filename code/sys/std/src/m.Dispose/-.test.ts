@@ -19,7 +19,7 @@ describe('Disposable', () => {
         if (Is.disposable(until)) {
           until?.dispose();
         } else {
-          until?.forEach((subject) => subject.next());
+          until?.forEach((m) => (Is.disposable(m) ? m.dispose() : m.next()));
         }
 
         expect(count).to.eql(1);
@@ -28,7 +28,6 @@ describe('Disposable', () => {
       test();
       test(new Subject<void>());
       test([new Subject<void>(), new Subject<void>()]);
-
       test(rx.disposable());
       test(rx.lifecycle());
     });
@@ -128,28 +127,33 @@ describe('Disposable', () => {
     });
 
     it('until$ (parameter)', async () => {
-      const life = Dispose.disposable();
-      let count = 0;
-      const until = [undefined, [undefined, life.dispose$]]; // NB: complex "until" list.
-      const obj = Dispose.disposableAsync(until, async () => {
-        await Time.wait(5);
-        count++;
-      });
+      const test = async (until: t.UntilInput) => {
+        let count = 0;
+        const obj = Dispose.disposableAsync(until, async () => {
+          await Time.wait(5);
+          count++;
+        });
 
-      const fired: t.DisposeAsyncEvent[] = [];
-      obj.dispose$.subscribe((e) => fired.push(e));
+        const fired: t.DisposeAsyncEvent[] = [];
+        obj.dispose$.subscribe((e) => fired.push(e));
 
-      life.dispose();
-      life.dispose(); // NB: multiple calls.
+        obj.dispose();
+        obj.dispose(); // NB: multiple calls.
 
-      expect(count).to.eql(0);
-      await Time.wait(15);
-      expect(count).to.eql(1);
+        expect(count).to.eql(0);
+        await Time.wait(15);
+        expect(count).to.eql(1);
 
-      expect(fired.length).to.eql(2);
-      expect(fired[0].payload.stage).to.eql('start');
-      expect(fired[1].payload.stage).to.eql('complete');
-      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+        expect(fired.length).to.eql(2);
+        expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[1].payload.stage).to.eql('complete');
+        expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+      };
+
+      await test(Dispose.disposable());
+      await test(Dispose.lifecycle());
+      await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
+      await test([undefined, [undefined, Dispose.disposable().dispose$]]);
     });
   });
 
@@ -205,30 +209,35 @@ describe('Disposable', () => {
     });
 
     it('until$ (parameter)', async () => {
-      const life = Dispose.disposable();
-      let count = 0;
-      const until = [undefined, [undefined, life.dispose$]]; // NB: complex "until" list.
-      const obj = Dispose.lifecycleAsync(until, async () => {
-        await Time.wait(5);
-        count++;
-      });
+      const test = async (until: t.UntilInput) => {
+        let count = 0;
+        const obj = Dispose.lifecycleAsync(until, async () => {
+          await Time.wait(5);
+          count++;
+        });
 
-      const fired: t.DisposeAsyncEvent[] = [];
-      obj.dispose$.subscribe((e) => fired.push(e));
+        const fired: t.DisposeAsyncEvent[] = [];
+        obj.dispose$.subscribe((e) => fired.push(e));
 
-      life.dispose();
-      life.dispose(); // NB: multiple calls.
+        obj.dispose();
+        obj.dispose(); // NB: multiple calls.
 
-      expect(count).to.eql(0);
-      await Time.wait(15);
-      expect(count).to.eql(1);
+        expect(count).to.eql(0);
+        await Time.wait(15);
+        expect(count).to.eql(1);
 
-      expect(fired.length).to.eql(2);
-      expect(fired[0].payload.stage).to.eql('start');
-      expect(fired[1].payload.stage).to.eql('complete');
-      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+        expect(fired.length).to.eql(2);
+        expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[1].payload.stage).to.eql('complete');
+        expect(fired[1].payload.is).to.eql({ ok: true, done: true });
 
-      expect(obj.disposed).to.eql(true);
+        expect(obj.disposed).to.eql(true);
+      };
+
+      await test(Dispose.disposable());
+      await test(Dispose.lifecycle());
+      await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
+      await test([undefined, [undefined, Dispose.disposable().dispose$]]);
     });
   });
 
@@ -252,12 +261,14 @@ describe('Disposable', () => {
 
     it('Input: list', () => {
       const $1 = new Subject<void>();
-      const $2 = new Subject<void>();
-      const res = Dispose.until([$1, undefined, $2]);
+      const $2 = rx.disposable();
+      const $3 = [undefined, rx.disposable()];
+      const res = Dispose.until([$1, undefined, $2, $3]);
 
-      expect(res.length).to.eql(2);
-      expect(res[0]).to.eql($1);
-      expect(res[1]).to.eql($2);
+      expect(res.length).to.eql(3);
+      expect(res[0]).to.equal($1);
+      expect(res[1]).to.equal($2.dispose$);
+      expect(res[2]).to.equal($3[1]?.dispose$);
     });
 
     it('Input: deep list ← flattens', () => {
@@ -338,6 +349,64 @@ describe('Disposable', () => {
       life.dispose();
       expect(b.disposed).to.eql(true);
       expect(fired).to.eql(1);
+    });
+  });
+
+  describe('Dispose.abortable', () => {
+    it('constructs: default (no until)', () => {
+      const a = Dispose.abortable();
+      expect(a.disposed).to.eql(false);
+      expect(a.signal.aborted).to.eql(false);
+      expect(typeof a.dispose).to.eql('function');
+      expect(a.controller).to.be.an.instanceOf(AbortController);
+      expect(a.signal).to.be.an.instanceOf(AbortSignal);
+    });
+
+    it('dispose(): aborts signal + marks disposed', () => {
+      const a = Dispose.abortable();
+      let abortedEventCount = 0;
+      a.signal.addEventListener('abort', () => abortedEventCount++);
+
+      a.dispose();
+
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+      expect(abortedEventCount).to.eql(1); // event fired exactly once
+    });
+
+    it('idempotent dispose()', () => {
+      const a = Dispose.abortable();
+      a.dispose();
+      const firstAbortedState = a.signal.aborted;
+      a.dispose(); // second call should be a no-op
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+      expect(a.signal.aborted).to.eql(firstAbortedState);
+    });
+
+    it('external lifecycle (until: dispose$) triggers abort', () => {
+      const { dispose, dispose$ } = rx.lifecycle();
+      const a = Dispose.abortable(dispose$);
+      expect(a.disposed).to.eql(false);
+      expect(a.signal.aborted).to.eql(false);
+
+      dispose(); // disposing upstream lifecycle
+      expect(a.disposed).to.eql(true);
+      expect(a.signal.aborted).to.eql(true);
+    });
+
+    it('abort event fires exactly once even with external + local dispose', () => {
+      const { dispose, dispose$ } = rx.lifecycle();
+      const a = Dispose.abortable(dispose$);
+      let count = 0;
+      a.signal.addEventListener('abort', () => count++);
+
+      dispose(); // upstream
+      a.dispose(); // local (should be idempotent)
+      a.controller.abort(); // manual abort on controller (already aborted)
+
+      expect(count).to.eql(1);
+      expect(a.signal.aborted).to.eql(true);
     });
   });
 });

@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * <Component>:
+ * Component:
  */
 export type MyComponentProps = {
   debug?: boolean;

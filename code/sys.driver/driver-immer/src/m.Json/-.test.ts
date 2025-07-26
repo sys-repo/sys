@@ -1,6 +1,6 @@
 import { Json } from './mod.ts';
 import { Patch } from '../mod.ts';
-import { ObjectPath, describe, expect, it, type t } from '../-test.ts';
+import { Obj, describe, expect, it, type t } from '../-test.ts';
 
 describe('Json', () => {
   it('exposes [Patch]', () => {
@@ -8,7 +8,7 @@ describe('Json', () => {
   });
 
   it('exposes [Path]', () => {
-    expect(Json.Path).to.equal(ObjectPath);
+    expect(Json.Path).to.equal(Obj.Path);
   });
 
   it('isJson', () => {

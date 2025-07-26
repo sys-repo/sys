@@ -1,9 +1,10 @@
 import { type t, Color } from './common.ts';
+import type { StyleLib } from './t.ts';
 
 import { CssDom as Dom, CssEdges as Edges, CssTmpl as Tmpl, toString } from './common.ts';
+import { isZero } from './u.is.ts';
 import { toShadow } from './u.toShadow.ts';
 import { transformer } from './u.transform.ts';
-import { isZero } from './u.is.ts';
 
 const { toPadding, toMargins } = Edges;
 
@@ -13,7 +14,7 @@ export const css: t.CssTransform = transformer({});
 /**
  * CSS styling tools.
  */
-export const Style: t.StyleLib = {
+export const Style: StyleLib = {
   Dom,
   Color,
   Edges,

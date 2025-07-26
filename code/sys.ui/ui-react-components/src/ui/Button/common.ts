@@ -1,19 +1,18 @@
-import { pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
- * Constants
+ * Constants:
  */
 const name = 'Button';
-const displayName = `${pkg.name}:${name}`;
-
 export const DEFAULTS = {
   name,
-  displayName,
+  displayName: Pkg.toString(pkg, name, false),
   enabled: true,
   active: true,
   block: false,
-  disabledOpacity: 0.3,
   userSelect: false,
   pressedOffset: [0, 1] as [number, number],
+  opacity: { enabled: 1, disabled: 0.3 },
 } as const;
+export const D = DEFAULTS;

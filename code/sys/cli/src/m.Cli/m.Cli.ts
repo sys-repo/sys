@@ -1,14 +1,17 @@
-import { type t, Args, Path, Time, Value, stripAnsi } from './common.ts';
+import { Args, Path, Time, Value, stripAnsi } from './common.ts';
+import type { CliLib } from './t.ts';
+
 import { Format } from './m.Format.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';
 import { Table } from './m.Table.ts';
+import { copyToClipboard } from './u.clipboard.ts';
 
 /**
- * Tools for CLI's (command-line-interface).
+ * Tools for CLI's (command-line-interface):
  */
-export const Cli: t.CliLib = {
+export const Cli: CliLib = {
   Args,
   Table,
   Spinner,
@@ -26,4 +29,5 @@ export const Cli: t.CliLib = {
 
   confirm: (options) => Prompt.Confirm.prompt(options),
   stripAnsi,
+  copyToClipboard,
 };

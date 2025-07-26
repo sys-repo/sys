@@ -12,7 +12,7 @@ export type ImmerJsonLib = {
   readonly PatchState: t.ImmerPatchStateLib;
 
   /** Object-path tools for mapping changes into the Immutable<T> state objects. */
-  readonly Path: t.ObjectPathLib;
+  readonly Path: t.ObjPathLib;
 
   /** Determine if the input is a JSON structure. */
   isJson: t.StdIsLib['json'];

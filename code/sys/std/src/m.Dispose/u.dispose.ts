@@ -72,7 +72,9 @@ export function toDisposableAsyncArgs(args: any[]) {
 
   if (typeof args[0] === 'function') onDispose = args[0];
   if (typeof args[1] === 'function') onDispose = args[1];
-  if (Is.observable(args[0]) || Array.isArray(args[0])) until$ = until(args[0]);
+  if (Is.observable(args[0]) || Array.isArray(args[0]) || Is.disposable(args[0])) {
+    until$ = until(args[0]);
+  }
 
   return { onDispose, until$ };
 }

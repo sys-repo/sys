@@ -20,6 +20,7 @@ export type RxLib = Rxjs & {
 
   bus: t.RxBus;
 
+  abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];

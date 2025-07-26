@@ -1,0 +1,99 @@
+import { type t, Yaml, rx } from './common.ts';
+import { pathAtCaret } from './u.pathAtCaret.ts';
+
+export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
+  const model = editor.getModel();
+  if (!model) throw new Error('Editor has no model');
+
+  // Lifecycle:
+  const life = rx.lifecycle(until);
+  const disposables: Array<{ dispose(): void }> = [];
+  life.dispose$.subscribe(() => disposables.forEach((d) => d.dispose()));
+
+  const $$ = rx.subject<t.EditorYamlCursorPath>();
+  const $ = $$.pipe(rx.takeUntil(life.dispose$));
+
+  // Keep the latest parse and the model version it belongs to.
+  let doc = Yaml.parseDocument(model.getValue());
+  let version = model.getVersionId();
+  let current: t.EditorYamlCursorPath | undefined;
+
+  // (Re)parse helper.
+  const parse = () => {
+    doc = Yaml.parseDocument(model.getValue());
+    version = model.getVersionId();
+  };
+
+  // Update when the buffer changes.
+  const contentSub = model.onDidChangeContent(parse);
+
+  const clear = () => {
+    current = undefined;
+    $$.next({ path: [] });
+  };
+
+  const update = () => {
+    const info = wrangle.info(editor);
+    if (info?.language === 'yaml') {
+      const { position } = info;
+
+      const result = pathAtCaret(model, doc, position);
+      if (result.offset === -1) {
+        return void clear();
+      }
+
+      current = { path: result.path, cursor: { position, offset: result.offset } };
+      $$.next(current);
+    } else {
+      clear();
+    }
+  };
+
+  /**
+   * Handler: Watch the caret moving.
+   */
+  const cursorSub = editor.onDidChangeCursorPosition((e) => {
+    // If the buffer changed after the last parse, refresh it first.
+    if (model.getVersionId() !== version) parse();
+    update();
+  });
+
+  /**
+   * Handler: Only report on YAML language.
+   */
+  const langSub = model.onDidChangeLanguage((e) => {
+    parse(); // ← Re-parse the buffer under the new language mode.
+    update();
+  });
+
+  // Store refs for cleanup:
+  disposables.push(contentSub);
+  disposables.push(cursorSub);
+  disposables.push(langSub);
+
+  /**
+   * API:
+   */
+  return rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
+    get $() {
+      return $;
+    },
+    get current() {
+      return current ? current : { path: [] };
+    },
+  });
+};
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  info(editor: t.Monaco.Editor) {
+    const position = editor.getPosition() || undefined;
+    const model = editor.getModel();
+    if (!position || !model) return;
+    const language = model.getLanguageId() as t.EditorLanguage;
+    const offset = position ? model?.getOffsetAt(position) ?? -1 : -1;
+    return { position, offset, language } as const;
+  },
+} as const;

@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, CanvasPanel, CanvasSlug } from './common.ts';
 
 const Slug = CanvasSlug;
-const panels = CanvasPanel.list;
+const panels = CanvasPanel.all;
 
 /**
  * Trailer:

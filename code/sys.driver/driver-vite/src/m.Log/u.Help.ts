@@ -1,8 +1,10 @@
-import { type t, c, pkg as modulePkg, Pkg } from './common.ts';
+import type { ViteLogHelpLib } from './t.ts';
+
+import { c, pkg as modulePkg, Pkg } from './common.ts';
 import { API } from './u.API.ts';
 import { Dist } from './u.Dist.ts';
 
-export const Help: t.ViteLogHelpLib = {
+export const Help: ViteLogHelpLib = {
   async log(args) {
     const pkg = args.pkg ?? modulePkg;
     const dirs = args.dirs;
