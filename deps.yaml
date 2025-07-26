@@ -113,6 +113,7 @@ deno.json:
   - import: npm:ramda@0.31.3
   - import: npm:@types/ramda@0.30.2
   - import: npm:rxjs@7.8.2
+  - import: npm:@sinclair/typebox@0.34.38
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
