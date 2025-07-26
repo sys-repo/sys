@@ -24,7 +24,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
   const [selectedPath, setSelectedPath] = React.useState<t.ObjectPath>([]);
   const notes = Crdt.UI.useDoc(repo, docId);
-  Monaco.useBinding(editor, notes.doc, path);
+  Monaco.Crdt.useBinding(editor, notes.doc, path);
 
   /**
    * Effects:
