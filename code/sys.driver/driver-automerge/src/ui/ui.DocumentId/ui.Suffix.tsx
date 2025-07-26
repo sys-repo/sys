@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, Icons, Spinners, usePointer } from './common.ts';
+import { type t, Color, css, D, Spinners, usePointer } from './common.ts';
 
 export type SuffixProps = {
   docId?: string;
@@ -40,19 +40,11 @@ export const Suffix: React.FC<SuffixProps> = (props) => {
       placeItems: 'center',
       overflow: 'hidden',
     }),
-    btn: css({ display: 'grid' }),
   };
-
-  const elClearBtn = showClearBtn && (
-    <Button enabled={enabled} style={styles.btn} onClick={props.onClearClick}>
-      <Icons.Clear size={20} color={Color.BLUE} />
-    </Button>
-  );
 
   return (
     <div className={css(styles.base, props.style).class} {...pointer.handlers}>
-      {spinning && <Spinners.Bar theme={theme.name} width={18} />}
-      {elClearBtn}
+      {spinning && <Spinners.Bar theme={theme.name} width={18} style={{ pointerEvents: 'none' }} />}
     </div>
   );
 };
