@@ -10,13 +10,13 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const disposables: Array<{ dispose(): void }> = [];
   life.dispose$.subscribe(() => disposables.forEach((d) => d.dispose()));
 
-  const $$ = rx.subject<t.EditorYamlPathChange>();
+  const $$ = rx.subject<t.EditorYamlCursorPath>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
   // Keep the latest parse and the model version it belongs to.
   let doc = Yaml.parseDocument(model.getValue());
   let version = model.getVersionId();
-  let path: t.ObjectPath = [];
+  let current: t.EditorYamlCursorPath | undefined;
 
   // (Re)parse helper.
   const parse = () => {
@@ -28,8 +28,8 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const contentSub = model.onDidChangeContent(parse);
 
   const clear = () => {
-    path = [];
-    $$.next({ path, cursor: wrangle.nullCursor() });
+    current = undefined;
+    $$.next({ path: [] });
   };
 
   const update = () => {
@@ -39,12 +39,11 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
 
       const result = pathAtCaret(model, doc, position);
       if (result.offset === -1) {
-        clear();
-        return;
+        return void clear();
       }
 
-      path = result.path;
-      $$.next({ path, cursor: { position, offset: result.offset } });
+      current = { path: result.path, cursor: { position, offset: result.offset } };
+      $$.next(current);
     } else {
       clear();
     }
@@ -75,12 +74,12 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   /**
    * API:
    */
-  return rx.toLifecycle<t.EditorYamlPathObserver>(life, {
+  return rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
     get $() {
       return $;
     },
-    get path() {
-      return path;
+    get current() {
+      return current ? current : { path: [] };
     },
   });
 };
@@ -96,12 +95,5 @@ const wrangle = {
     const language = model.getLanguageId() as t.EditorLanguage;
     const offset = position ? model?.getOffsetAt(position) ?? -1 : -1;
     return { position, offset, language } as const;
-  },
-
-  nullCursor(): t.EditorYamlPathChange['cursor'] {
-    return {
-      offset: -1,
-      position: { lineNumber: -1, column: -1 },
-    };
   },
 } as const;

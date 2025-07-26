@@ -5,9 +5,8 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, D } from '../common.ts';
-import { useBinding } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
-import { linkInterceptSample } from './-dev.link.ts';
+import { sampleInterceptLink } from './-u.link.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -39,7 +38,7 @@ export default Spec.describe(D.displayName, async (e) => {
     /**
      * Hook:
      */
-    useBinding(v.editor, v.doc, v.path, (e) => {
+    Monaco.Crdt.useBinding(v.editor, v.doc, v.path, (e) => {
       p.binding.value = e.binding;
       e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
     });
@@ -62,16 +61,12 @@ export default Spec.describe(D.displayName, async (e) => {
           p.editor.value = e.editor;
           p.carets.value = e.carets;
 
-          // Cursor path observer:
-          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
-          path.$.subscribe((e) => (p.selectedPath.value = e.path));
-
           // Hidden Areas (code-folding) observer:
           const hidden = Monaco.Hidden.observe(e.editor);
           hidden.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
 
           // (🐷) Custom link intercepts:
-          linkInterceptSample(e);
+          sampleInterceptLink(e);
         }}
       />
     );
@@ -79,12 +74,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function HostPath() {
     const v = Signal.toObject(p);
-    if (v.selectedPath.length === 0) return null;
+    const { doc, editor, path } = v;
+
+    const yaml = Monaco.Yaml.useYaml({ editor, doc, path });
+    if (yaml.cursor.path.length === 0) return null;
+
     return (
       <Monaco.Dev.PathView
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
-        path={v.selectedPath}
+        path={yaml.cursor.path}
         theme={v.theme}
         style={{ Absolute: [null, 17, -30, 17] }}
       />

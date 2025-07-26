@@ -3,7 +3,7 @@ import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import { Button, css, D, LocalStorage, Obj, ObjectView, Signal, type t, Url } from '../common.ts';
 import { importLibs } from '../libs.ts';
-import { YamlSyncDebug } from './-dev.yaml.tsx';
+import { YamlSyncDebug } from './-u.yaml.tsx';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language'> & {
@@ -64,7 +64,6 @@ export async function createDebugSignals() {
 
     doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),
-    selectedPath: s<t.ObjectPath>([]),
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
@@ -170,6 +169,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <YamlSyncDebug
           doc={p.doc.value}
           path={p.path.value}
+          editor={p.editor.value}
           debounce={p.debounce.value}
           style={{ marginTop: 20 }}
         />

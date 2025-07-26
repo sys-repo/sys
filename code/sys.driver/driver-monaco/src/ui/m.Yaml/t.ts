@@ -13,11 +13,15 @@ export type EditorYamlLib = Readonly<{
  * Factory for instances of the Yaml parser.
  */
 export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYamlHook;
-export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>>;
+export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
+  editor?: t.Monaco.Editor;
+};
 export type EditorYamlHook = Readonly<{
   ok: boolean;
+  editor?: t.Monaco.Editor;
   doc?: t.YamlSyncParserDocs;
   path?: t.YamlSyncParserPaths;
+  cursor: t.EditorYamlCursorPath;
   parsed: Readonly<{
     input: string;
     output: t.YamSyncParsed<unknown>;

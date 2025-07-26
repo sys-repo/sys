@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { type t, Immutable, Obj, Yaml } from './common.ts';
+import { Path } from './m.Path.ts';
 
 export const useYaml: t.UseEditorYaml = (args) => {
+  const editor = args.editor;
+
   /**
    * Hooks:
    */
   const [, setCount] = useState(0);
   const [parser, setParser] = useState<t.YamlSyncParser>();
+  const [cursor, setCursor] = useState<t.EditorYamlCursorPath>({ path: [] });
 
   /**
    * Effect: YAML parsing.
@@ -22,12 +26,32 @@ export const useYaml: t.UseEditorYaml = (args) => {
   }, [Obj.hash([...wrangle.docDeps(args.doc), args.path, args.debounce])]);
 
   /**
+   * Effect: Cursor Path
+   */
+  useEffect(() => {
+    if (!editor) return;
+    const observer = Path.observe(editor);
+    observer.$.subscribe((e) => setCursor(e));
+    return observer.dispose;
+  }, [editor?.getId()]);
+
+  /**
    * API:
    */
   const api: t.EditorYamlHook = {
     ok: parser ? parser.errors.length === 0 : true,
-    doc: parser?.doc,
-    path: parser?.path,
+    get editor() {
+      return editor;
+    },
+    get doc() {
+      return parser?.doc;
+    },
+    get path() {
+      return parser?.path;
+    },
+    get cursor() {
+      return cursor;
+    },
     get parsed() {
       return {
         input: parser?.current.yaml() ?? '',
