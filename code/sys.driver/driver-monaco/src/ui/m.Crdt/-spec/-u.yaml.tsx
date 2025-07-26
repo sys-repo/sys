@@ -2,6 +2,7 @@ import { Monaco } from '@sys/driver-monaco';
 import { type t, Color, css, Is, Obj, ObjectView } from '../common.ts';
 
 export type YamlSyncDebugProps = {
+  monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
@@ -11,12 +12,12 @@ export type YamlSyncDebugProps = {
 };
 
 export function YamlSyncDebug(props: YamlSyncDebugProps) {
-  const { doc, path, editor } = props;
+  const { doc, path, editor, monaco } = props;
 
   /**
    * Hooks:
    */
-  const yaml = Monaco.Yaml.useYaml({ doc, path, editor });
+  const yaml = Monaco.Yaml.useYaml({ monaco, editor, doc, path });
   if (!doc) return null;
 
   /**

@@ -1,19 +1,20 @@
 import { useEffect } from 'react';
-import { type t, Obj } from './common.ts';
+import { type t } from './common.ts';
 
 /**
- * Adds (or clears) red squiggly error underlines
+ * Adds (or clears) red-squiggly-error underlines
  * in the editor for the given set of YAML errors.
  */
-export const useYamlMarkers = (
-  monaco?: t.Monaco.Monaco,
-  editor?: t.Monaco.Editor,
-  errors: readonly t.YamlError[] = [],
-): void => {
-  useEffect(() => {
-    if (!monaco || !editor) return;
+export const useErrorMarkers: t.UseYamlErrorMarkers = (args) => {
+  const { monaco, editor, errors = [], enabled = true } = args;
+  const owner = 'yaml';
 
-    const owner = 'yaml';
+  /**
+   * Effect: sync editor with error list.
+   */
+  useEffect(() => {
+    if (!monaco || !editor || !enabled) return;
+
     const model = editor.getModel();
     if (!model) return;
 
@@ -27,7 +28,16 @@ export const useYamlMarkers = (
     const marker = (err: t.YamlError) => wrangle.marker(monaco, model, err);
     const markers = errors.map((err) => marker(err));
     monaco.editor.setModelMarkers(model, owner, markers);
-  }, [monaco, editor, Obj.hash(errors.map((err) => err.code))]);
+  }, [enabled, monaco, editor, errors]);
+
+  /**
+   * Effect: clear on disabled
+   */
+  useEffect(() => {
+    if (enabled) return;
+    const model = editor?.getModel();
+    if (model) monaco?.editor.setModelMarkers(model, owner, []);
+  }, [enabled, monaco]);
 };
 
 /**

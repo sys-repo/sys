@@ -59,6 +59,7 @@ export async function createDebugSignals() {
     language: s(snap.language),
     debounce: s(snap.debounce),
 
+    monaco: s<t.Monaco.Monaco>(),
     editor: s<t.Monaco.Editor>(),
     carets: s<t.EditorCarets>(),
 

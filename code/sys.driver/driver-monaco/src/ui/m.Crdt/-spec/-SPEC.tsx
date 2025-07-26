@@ -34,11 +34,12 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function HostSubject() {
     const v = Signal.toObject(p);
+    const { monaco, editor, doc, path } = v;
 
     /**
      * Hook:
      */
-    Monaco.Crdt.useBinding(v.editor, v.doc, v.path, (e) => {
+    Monaco.Crdt.useBinding(editor, doc, path, (e) => {
       p.binding.value = e.binding;
       e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
     });
@@ -58,6 +59,7 @@ export default Spec.describe(D.displayName, async (e) => {
         //
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
+          p.monaco.value = e.monaco;
           p.editor.value = e.editor;
           p.carets.value = e.carets;
 
@@ -74,9 +76,9 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function HostPath() {
     const v = Signal.toObject(p);
-    const { doc, editor, path } = v;
+    const { monaco, editor, doc, path } = v;
 
-    const yaml = Monaco.Yaml.useYaml({ editor, doc, path });
+    const yaml = Monaco.Yaml.useYaml({ monaco, editor, doc, path, errorMarkers: true });
     if (yaml.cursor.path.length === 0) return null;
 
     return (

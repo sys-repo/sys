@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 export type * from './t.Path.ts';
+export type * from './t.Use.Markers.ts';
+export type * from './t.Use.Yaml.ts';
 
 /**
  * Tools for working with YAML in the code-editor.
@@ -7,35 +9,5 @@ export type * from './t.Path.ts';
 export type EditorYamlLib = Readonly<{
   Path: t.EditorYamlPathLib;
   useYaml: t.UseEditorYaml;
+  useErrorMarkers: t.UseYamlErrorMarkers;
 }>;
-
-/**
- * Factory for instances of the Yaml parser.
- */
-export type UseEditorYaml = (
-  args: UseEditorYamlArgs,
-  cb?: t.EditorYamlEventHandler,
-) => t.EditorYaml;
-
-/** Arguments passed to the `useYaml` hook. */
-export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
-  editor?: t.Monaco.Editor;
-};
-
-/** A YAML hook instance. */
-export type EditorYaml = {
-  readonly ok: boolean;
-  readonly path?: t.YamlSyncParserPaths;
-  readonly cursor: t.EditorYamlCursorPath;
-  readonly parsed: Readonly<{
-    input: string;
-    output: t.YamlSyncParsed<unknown>;
-    errors: t.YamlError[];
-  }>;
-};
-
-/**
- * Events:
- */
-export type EditorYamlEventHandler = (e: EditorYamlEvent) => void;
-export type EditorYamlEvent = EditorYaml;

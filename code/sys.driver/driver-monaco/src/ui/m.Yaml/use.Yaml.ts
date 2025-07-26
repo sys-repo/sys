@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { type t, Immutable, Obj, Yaml } from './common.ts';
 import { Path } from './m.Path.ts';
+import { useErrorMarkers } from './use.ErrorMarkers.ts';
 
 export const useYaml: t.UseEditorYaml = (args, cb) => {
-  const editor = args.editor;
+  const { monaco, editor, doc, path, debounce } = args;
+
   const fireChange = useCallback(() => {
     setCount((n) => n + 1);
     cb?.(api);
@@ -13,21 +15,28 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
    * Hooks:
    */
   const [, setCount] = useState(0);
-  const [parser, setParser] = useState<t.YamlSyncParser>();
   const [cursor, setCursor] = useState<t.EditorYamlCursorPath>({ path: [] });
+  const [parser, setParser] = useState<t.YamlSyncParser>();
+
+  useErrorMarkers({
+    enabled: args.errorMarkers ?? false, // NB: opt-in.
+    errors: parser?.errors,
+    monaco,
+    editor,
+  });
 
   /**
    * Effect: YAML parsing.
    */
   useEffect(() => {
-    if (!args.doc || !args.path) return void setParser(undefined);
+    if (!doc || !path) return void setParser(undefined);
 
-    const syncer = Yaml.syncer({ doc: args.doc, path: args.path, debounce: args.debounce });
+    const syncer = Yaml.syncer({ doc, path, debounce });
     syncer.$.subscribe(fireChange);
     setParser(syncer);
 
     return syncer.dispose;
-  }, [Obj.hash([...wrangle.docDeps(args.doc), args.path, args.debounce])]);
+  }, [Obj.hash([...wrangle.docDeps(doc), path, debounce])]);
 
   /**
    * Effect: Cursor Path
