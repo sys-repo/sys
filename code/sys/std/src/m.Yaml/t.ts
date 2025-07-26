@@ -1,6 +1,6 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
-export type * from './t.sync.ts';
+export type * from './t.Syncer.ts';
 
 type NodeOrNull = Y.Node | null | undefined;
 
