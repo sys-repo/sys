@@ -26,8 +26,6 @@ const PATH = {
 export const MainColumn: React.FC<P> = (props) => {
   const { signals, yaml } = props;
   const doc = signals.doc.value;
-  const monaco = signals.monaco.value;
-  const editor = signals.editor.value;
   const video = PATH.VIDEO.get(doc?.current, {});
 
   const errors = yaml.parsed.errors;
