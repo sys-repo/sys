@@ -38,8 +38,8 @@ export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly path: YamlSyncParserPaths;
   readonly doc: YamlSyncParserDocs;
   readonly current: {
-    input(): string | undefined;
-    output(): YamlSyncParsed<T>;
+    readonly input: string | undefined;
+    readonly output: YamlSyncParsed<T>;
   };
   readonly errors: t.YamlError[];
 };

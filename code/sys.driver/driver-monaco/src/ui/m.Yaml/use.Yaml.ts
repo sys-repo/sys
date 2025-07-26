@@ -55,8 +55,8 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
     },
     get parsed() {
       return {
-        input: parser?.current.input() ?? '',
-        output: parser?.current.output() ?? undefined,
+        input: parser?.current.input ?? '',
+        output: parser?.current.output ?? undefined,
         errors: parser?.errors ?? [],
       };
     },

@@ -30,8 +30,12 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     return Obj.Path.get<T>(doc, path);
   };
   const current: t.YamlSyncParser<T>['current'] = {
-    input: () => get<string>(doc.source?.current, path.source),
-    output: () => get<t.YamlSyncParsed<T>>(doc.target?.current, path.target),
+    get input() {
+      return get<string>(doc.source?.current, path.source);
+    },
+    get output() {
+      return get<t.YamlSyncParsed<T>>(doc.target?.current, path.target);
+    },
   };
 
   /**
@@ -40,7 +44,7 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const update = () => {
     // Setup initial conditions.
     const before = _before;
-    const after = current.input() ?? '';
+    const after = current.input ?? '';
     _before = after;
     errors.clear();
 
@@ -53,7 +57,7 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     const targetPath = path.target ?? [];
     if (parsed.errors.length === 0 && targetPath.length > 0) {
-      const isEqual = Obj.eql(data, current.output());
+      const isEqual = Obj.eql(data, current.output);
       if (!isEqual) {
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
@@ -106,7 +110,7 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   /**
    * Initialize:
    */
-  let _before = current.input() ?? '';
+  let _before = current.input ?? '';
   update();
   source$.subscribe(update);
 
