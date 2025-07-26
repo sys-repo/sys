@@ -63,14 +63,6 @@ groups:
     - import: npm:react@18.3.1
     - import: npm:react-dom@18.3.1
 
-  ui/service-worker:
-    - import: npm:workbox-core@7.3.0
-    - import: npm:workbox-routing@7.3.0
-    - import: npm:workbox-strategies@7.3.0
-    - import: npm:workbox-range-requests@7.3.0
-    - import: npm:workbox-expiration@7.3.0
-    - import: npm:workbox-cacheable-response@7.3.0
-
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.2
     - import: npm:prosemirror-state@1.4.3
@@ -97,7 +89,6 @@ deno.json:
   - group: crypto
   - group: ai
   - group: automerge
-  - group: ui/service-worker
   - group: ui/prosemirror
 
   # CLI tools:
