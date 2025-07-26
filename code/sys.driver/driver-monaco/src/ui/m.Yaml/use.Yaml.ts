@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { type t, Immutable, Obj, Yaml } from './common.ts';
 import { Path } from './m.Path.ts';
 
-export const useYaml: t.UseEditorYaml = (args) => {
+export const useYaml: t.UseEditorYaml = (args, cb) => {
   const editor = args.editor;
+  const fireChange = useCallback(() => {
+    setCount((n) => n + 1);
+    cb?.(api);
+  }, [cb]);
 
   /**
    * Hooks:
@@ -19,7 +23,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
     if (!args.doc || !args.path) return void setParser(undefined);
 
     const syncer = Yaml.syncer({ doc: args.doc, path: args.path, debounce: args.debounce });
-    syncer.$.subscribe((e) => setCount((n) => n + 1));
+    syncer.$.subscribe(fireChange);
     setParser(syncer);
 
     return syncer.dispose;
@@ -31,21 +35,18 @@ export const useYaml: t.UseEditorYaml = (args) => {
   useEffect(() => {
     if (!editor) return;
     const observer = Path.observe(editor);
-    observer.$.subscribe((e) => setCursor(e));
+    observer.$.subscribe((e) => {
+      setCursor(e);
+      fireChange();
+    });
     return observer.dispose;
   }, [editor?.getId()]);
 
   /**
    * API:
    */
-  const api: t.EditorYamlHook = {
+  const api: t.EditorYaml = {
     ok: parser ? parser.errors.length === 0 : true,
-    get editor() {
-      return editor;
-    },
-    get doc() {
-      return parser?.doc;
-    },
     get path() {
       return parser?.path;
     },

@@ -2,17 +2,18 @@ import React from 'react';
 import { type t, Color, css, D, DocumentId, Monaco, STORAGE_KEY } from './common.ts';
 import { Footer } from './ui.col.Editor.Footer.tsx';
 
-type P = t.SampleProps;
+type P = t.SampleProps & { yaml: t.EditorYaml };
 
 /**
  * Component:
  */
 export const EditorsColumn: React.FC<P> = (props) => {
-  const { debug = false, repo, signals } = props;
+  const { debug = false, repo, signals, yaml } = props;
   const doc = signals.doc;
   const path = signals['yaml.path'].value;
+  const editor = signals.editor.value;
 
-  Monaco.useBinding(signals.editor.value, doc.value, path, (e) => {
+  Monaco.Crdt.useBinding(editor, doc.value, path, (e) => {
     e.binding.$.subscribe((e) => console.info(`⚡️ Sample/crdt:binding.$:`, e));
   });
 
@@ -43,7 +44,6 @@ export const EditorsColumn: React.FC<P> = (props) => {
   const elBody = (
     <div className={styles.body.class}>
       <Monaco.Editor
-        // key={`${v.path?.join('.')}`}
         debug={debug}
         theme={theme.name}
         //
@@ -54,10 +54,6 @@ export const EditorsColumn: React.FC<P> = (props) => {
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           signals.editor.value = e.editor;
-
-          // Listeners:
-          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
-          path.$.subscribe((e) => (signals.cursor.value = e.path));
         }}
       />
     </div>
@@ -67,7 +63,7 @@ export const EditorsColumn: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {elCrdt}
       {elBody}
-      <Footer {...props} style={styles.footer} />
+      <Footer {...props} yaml={yaml} style={styles.footer} />
     </div>
   );
 };

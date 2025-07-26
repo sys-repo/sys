@@ -53,10 +53,7 @@ export async function createDebugSignals() {
   const signals: t.SampleSignals = {
     editor: s<S['editor']>(),
     doc: s<S['doc']>(),
-    cursor: s<S['cursor']>([]),
     'yaml.path': s<S['yaml.path']>(['foo']),
-    'yaml.parsed': s<S['yaml.parsed']>(),
-    'yaml.error': s<S['yaml.error']>(),
   };
 
   const props = {

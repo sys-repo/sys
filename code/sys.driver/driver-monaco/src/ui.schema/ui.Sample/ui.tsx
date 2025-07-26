@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, Monaco } from './common.ts';
 import { EditorsColumn } from './ui.col.Editor.tsx';
 import { MainColumn } from './ui.col.Main.tsx';
-import { useYamlParser } from './use.YamlParser.ts';
 
 type P = t.SampleProps;
 
@@ -13,7 +12,11 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  useYamlParser(signals);
+  const yaml = Monaco.Yaml.useYaml({
+    editor: signals.editor.value,
+    doc: signals.doc.value,
+    path: signals['yaml.path'].value,
+  });
 
   /**
    * Render:
@@ -38,10 +41,10 @@ export const Sample: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.left.class}>
-        <EditorsColumn {...props} />
+        <EditorsColumn {...props} yaml={yaml} />
       </div>
       <div className={styles.right.class}>
-        <MainColumn {...props} />
+        <MainColumn {...props} yaml={yaml} />
       </div>
     </div>
   );

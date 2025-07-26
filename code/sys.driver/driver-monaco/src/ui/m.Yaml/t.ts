@@ -12,19 +12,30 @@ export type EditorYamlLib = Readonly<{
 /**
  * Factory for instances of the Yaml parser.
  */
-export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYamlHook;
+export type UseEditorYaml = (
+  args: UseEditorYamlArgs,
+  cb?: t.EditorYamlEventHandler,
+) => t.EditorYaml;
+
+/** Arguments passed to the `useYaml` hook. */
 export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
   editor?: t.Monaco.Editor;
 };
-export type EditorYamlHook = Readonly<{
-  ok: boolean;
-  editor?: t.Monaco.Editor;
-  doc?: t.YamlSyncParserDocs;
-  path?: t.YamlSyncParserPaths;
-  cursor: t.EditorYamlCursorPath;
-  parsed: Readonly<{
+
+/** A YAML hook instance. */
+export type EditorYaml = {
+  readonly ok: boolean;
+  readonly path?: t.YamlSyncParserPaths;
+  readonly cursor: t.EditorYamlCursorPath;
+  readonly parsed: Readonly<{
     input: string;
     output: t.YamSyncParsed<unknown>;
     errors: t.StdError[];
   }>;
-}>;
+};
+
+/**
+ * Events:
+ */
+export type EditorYamlEventHandler = (e: EditorYamlEvent) => void;
+export type EditorYamlEvent = EditorYaml;
