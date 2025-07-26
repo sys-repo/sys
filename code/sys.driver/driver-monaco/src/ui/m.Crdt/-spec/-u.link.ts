@@ -1,12 +1,12 @@
 import { type t } from '../common.ts';
 
-export function linkInterceptSample(e: t.MonacoEditorReady) {
+export function sampleInterceptLink(e: t.MonacoEditorReady) {
   const CRDT_REGEX = /\bcrdt:[\w\-./]+/g; // eg: "crdt:doc-id/path"
 
   /**
    * Register link provider: highlight matches.
    */
-  const subLinkProvider = e.monaco.languages.registerLinkProvider('*', {
+  const subProvider = e.monaco.languages.registerLinkProvider('*', {
     provideLinks(
       model: t.Monaco.TextModel,
       token: t.Monaco.CancellationToken,
@@ -25,7 +25,7 @@ export function linkInterceptSample(e: t.MonacoEditorReady) {
 
         links.push({
           range: e.monaco.Range.fromPositions(startPos, endPos),
-          url: match[0], // ← string or Uri both accepted.
+          url: match[0], // ← both string or Uri accepted.
           tooltip: 'Load CRDT',
         });
       }
@@ -37,7 +37,7 @@ export function linkInterceptSample(e: t.MonacoEditorReady) {
   /**
    * Intercept link clicks:
    */
-  const subLinkOpener = e.monaco.editor.registerLinkOpener({
+  const subOpener = e.monaco.editor.registerLinkOpener({
     open(uri) {
       console.info('⚡️ open/uri:', uri);
       if (uri.scheme === 'crdt') return true; // NB: true == handled.
@@ -47,7 +47,7 @@ export function linkInterceptSample(e: t.MonacoEditorReady) {
 
   // Clean up:
   e.dispose$.subscribe(() => {
-    subLinkOpener.dispose();
-    subLinkProvider.dispose();
+    subOpener.dispose();
+    subProvider.dispose();
   });
 }
