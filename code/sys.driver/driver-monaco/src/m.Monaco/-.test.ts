@@ -10,6 +10,5 @@ describe('Monaco', () => {
     expect(Monaco.Yaml).to.equal(EditorYaml);
     expect(Monaco.Is).to.equal(MonacoIs);
     expect(Monaco.Hidden).to.equal(EditorHidden);
-    expect(Monaco.useBinding).to.equal(EditorCrdt.useBinding);
   });
 });

@@ -11,7 +11,6 @@ export type MonacoLib = Readonly<{
   Crdt: t.EditorCrdtLib;
   Yaml: t.EditorYamlLib;
   Hidden: t.EditorHiddenLib;
-  useBinding: t.UseEditorCrdtBinding;
   Dev: Readonly<{
     PathView: React.FC<PathViewProps>;
   }>;

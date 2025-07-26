@@ -1,3 +1,3 @@
-export { Arr, Err, Is, Obj, Pkg, R, rx, Str, Time, Url } from '@sys/std';
+export { Arr, Err, Immutable, Is, Obj, Pkg, R, rx, Str, Time, Url } from '@sys/std';
 export { Yaml } from '@sys/std/yaml';
 export { Signal } from '@sys/ui-react';
