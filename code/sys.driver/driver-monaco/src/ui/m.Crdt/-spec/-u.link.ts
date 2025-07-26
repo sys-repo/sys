@@ -26,7 +26,7 @@ export function sampleInterceptLink(e: t.MonacoEditorReady) {
         links.push({
           range: e.monaco.Range.fromPositions(startPos, endPos),
           url: match[0], // ← both string or Uri accepted.
-          tooltip: 'Load CRDT',
+          tooltip: 'Load Document',
         });
       }
 

@@ -51,10 +51,14 @@ export const EditorsColumn: React.FC<P> = (props) => {
         autoFocus={true}
         minimap={false}
         //
-        onReady={(e) => {
+        onReady={async (e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           signals.monaco.value = e.monaco;
           signals.editor.value = e.editor;
+
+          // 🐷 insert for "crdt:id/path" link behavior
+          const { sampleInterceptLink } = await import('../../ui/m.Crdt/-spec/-u.link.ts');
+          sampleInterceptLink(e);
         }}
       />
     </div>
