@@ -3,7 +3,6 @@ import type { VideoElementProps } from '@sys/ui-react-components/t';
 
 import React from 'react';
 import { type t, Color, Cropmarks, css, Is, Obj } from './common.ts';
-import { useYamlMarkers } from './use.YamlMarkers.ts';
 
 type P = t.SampleProps & { yaml: t.EditorYaml };
 type V = VideoElementProps;
@@ -44,7 +43,6 @@ export const MainColumn: React.FC<P> = (props) => {
    * Hooks:
    */
   const [width, setWidth] = React.useState<t.Pixels>();
-  useYamlMarkers(monaco, editor, errors);
 
   const src = videoSignals.props.src.value;
   const showVideo = !!src;
