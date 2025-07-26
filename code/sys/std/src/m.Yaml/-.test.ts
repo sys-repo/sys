@@ -295,8 +295,8 @@ describe('Yaml', () => {
           expect(syncer.ok).to.eql(true);
           expect(syncer.errors).to.eql([]);
           expect(doc.current['text.parsed']).to.eql(expected);
-          expect(syncer.current.yaml()).to.eql(text);
-          expect(syncer.current.parsed()).to.eql(expected);
+          expect(syncer.current.input()).to.eql(text);
+          expect(syncer.current.output()).to.eql(expected);
         };
         test('', null);
         test('  ', null);

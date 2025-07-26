@@ -29,7 +29,7 @@ export type EditorYaml = {
   readonly cursor: t.EditorYamlCursorPath;
   readonly parsed: Readonly<{
     input: string;
-    output: t.YamSyncParsed<unknown>;
+    output: t.YamlSyncParsed<unknown>;
     errors: t.YamlError[];
   }>;
 };

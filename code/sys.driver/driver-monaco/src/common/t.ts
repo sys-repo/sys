@@ -22,7 +22,7 @@ export type {
   YamlSyncParser,
   YamlSyncParserDocs,
   YamlSyncParserPaths,
-  YamSyncParsed,
+  YamlSyncParsed,
 } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';

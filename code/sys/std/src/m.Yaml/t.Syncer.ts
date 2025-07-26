@@ -37,7 +37,10 @@ export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly $: t.Observable<t.YamlSyncParserChange<T>>;
   readonly path: YamlSyncParserPaths;
   readonly doc: YamlSyncParserDocs;
-  readonly current: { yaml(): string | undefined; parsed(): YamSyncParsed<T> };
+  readonly current: {
+    input(): string | undefined;
+    output(): YamlSyncParsed<T>;
+  };
   readonly errors: t.YamlError[];
 };
 
@@ -57,10 +60,10 @@ export type YamlSyncParserPaths = {
 export type YamlSyncParserChange<T> = {
   readonly ops: t.ObjDiffOp[];
   readonly yaml: { before: string; after: string };
-  readonly parsed?: YamSyncParsed<T>;
+  readonly parsed?: YamlSyncParsed<T>;
   readonly error?: t.StdError;
   readonly errors: YAMLError[];
 };
 
 /** A parsed YAML value. */
-export type YamSyncParsed<T> = T | t.YamPrimitives | undefined;
+export type YamlSyncParsed<T> = T | t.YamPrimitives | undefined;
