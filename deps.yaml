@@ -53,7 +53,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.11.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.45.1
+    - import: npm:rollup@4.45.3
     - import: npm:vite@7.0.6
     - import: npm:vite-plugin-wasm@3.5.0
 
@@ -109,7 +109,7 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.1.7
+  - import: npm:@farcaster/frame-sdk@0.1.8
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@18.0.1
   - import: npm:hash-it@6.0.0
@@ -159,4 +159,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.9
-  - import: npm:hono@4.8.8
+  - import: npm:hono@4.8.9
