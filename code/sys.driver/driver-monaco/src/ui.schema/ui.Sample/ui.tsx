@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Monaco } from './common.ts';
+import { type t, Color, css, D, Monaco, rx, Signal } from './common.ts';
 import { EditorsColumn } from './ui.col.Editor.tsx';
 import { MainColumn } from './ui.col.Main.tsx';
 
@@ -8,6 +8,17 @@ type P = t.SampleProps;
 
 export const Sample: React.FC<P> = (props) => {
   const { debug = false, signals } = props;
+
+  /**
+   * Effect: Redraw Monitoring
+   * (NB: bubble notification to alert host container to refresh).
+   */
+  Signal.useEffect(() => {
+    const life = rx.abortable();
+    const doc = signals.doc.value;
+    doc?.events(life).$.subscribe((e) => props.onRequestRedraw?.());
+    return life.dispose;
+  });
 
   /**
    * Hooks:

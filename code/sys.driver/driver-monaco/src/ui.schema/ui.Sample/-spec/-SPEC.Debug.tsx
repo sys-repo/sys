@@ -51,6 +51,7 @@ export async function createDebugSignals() {
 
   type S = t.SampleState;
   const signals: t.SampleSignals = {
+    monaco: s<S['monaco']>(),
     editor: s<S['editor']>(),
     doc: s<S['doc']>(),
     'yaml.path': s<S['yaml.path']>(['foo']),

@@ -3,6 +3,7 @@ import type { VideoElementProps } from '@sys/ui-react-components/t';
 
 import React from 'react';
 import { type t, Color, Cropmarks, css, Is, Obj } from './common.ts';
+import { useYamlMarkers } from './use.YamlMarkers.ts';
 
 type P = t.SampleProps & { yaml: t.EditorYaml };
 type V = VideoElementProps;
@@ -25,6 +26,8 @@ const PATH = {
 export const MainColumn: React.FC<P> = (props) => {
   const { signals, yaml } = props;
   const doc = signals.doc.value;
+  const monaco = signals.monaco.value;
+  const editor = signals.editor.value;
   const video = PATH.VIDEO.get(doc?.current, {});
 
   const errors = yaml.parsed.errors;
@@ -41,6 +44,7 @@ export const MainColumn: React.FC<P> = (props) => {
    * Hooks:
    */
   const [width, setWidth] = React.useState<t.Pixels>();
+  useYamlMarkers(monaco, editor, errors);
 
   const src = videoSignals.props.src.value;
   const showVideo = !!src;
@@ -69,8 +73,8 @@ export const MainColumn: React.FC<P> = (props) => {
   };
 
   const elVideo = showVideo && <Player.Video.View style={{ width }} {...videoController.props} />;
-  const elError = hasErrors && <div className={styles.empty.class}>{'YAML contains errors'}</div>;
-  const elEmpty = <div className={styles.empty.class}>{'🐷 nothing to display'}</div>;
+  const elError = hasErrors && <div className={styles.empty.class}>{'YAML contains errors.'}</div>;
+  const elEmpty = <div className={styles.empty.class}>{'Nothing to display.'}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>

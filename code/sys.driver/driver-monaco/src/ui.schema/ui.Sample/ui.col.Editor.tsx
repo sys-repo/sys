@@ -53,6 +53,7 @@ export const EditorsColumn: React.FC<P> = (props) => {
         //
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
+          signals.monaco.value = e.monaco;
           signals.editor.value = e.editor;
         }}
       />

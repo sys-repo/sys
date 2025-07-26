@@ -11,6 +11,9 @@ export type SampleProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  // Events:
+  onRequestRedraw?: () => void;
 };
 
 /**
@@ -18,6 +21,7 @@ export type SampleProps = {
  */
 export type SampleState = t.UnwrapSignals<SampleSignals>;
 export type SampleSignals = Readonly<{
+  monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.Crdt.Ref | undefined>;
   'yaml.path': t.Signal<t.ObjectPath>;

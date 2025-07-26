@@ -12,7 +12,7 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    const update = () => {
+    const updateLayout = () => {
       const P = Obj.Path.curry<boolean>(['foo.parsed', '.', 'dev']);
       const doc = signals.doc.value;
       const isDev = P.get(doc?.current, true) === true;
@@ -22,7 +22,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      update();
+      updateLayout();
       ctx.redraw();
     });
 
@@ -31,7 +31,15 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Sample debug={v.debug} theme={v.theme} repo={repo} signals={signals} />;
+        return (
+          <Sample
+            debug={v.debug}
+            theme={v.theme}
+            repo={repo}
+            signals={signals}
+            onRequestRedraw={updateLayout}
+          />
+        );
       });
 
     ctx.debug.footer
@@ -48,7 +56,7 @@ export default Spec.describe(D.displayName, async (e) => {
       });
 
     // Initialize:
-    update();
+    updateLayout();
   });
 
   e.it('ui:debug', (e) => {
