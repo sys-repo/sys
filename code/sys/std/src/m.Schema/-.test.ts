@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Schema, type Static } from '@sys/std/schema';
+import { Schema } from '@sys/std/schema';
+import { type t, describe, expect, it } from '../-test.ts';
 
 describe('Standard Schema', () => {
   it('API', async () => {
@@ -15,12 +15,13 @@ describe('Standard Schema', () => {
   it('Hello, World', () => {
     const { Type, Value } = Schema;
 
+    // Define type:
     const T = Type.Object({
       id: Type.Integer(),
       name: Type.Optional(Type.String()),
     });
 
-    type T = Static<typeof T>;
+    type T = t.Static<typeof T>; // Invert proper TS type.
     const value = {
       id: 123,
       name: 'foo',
