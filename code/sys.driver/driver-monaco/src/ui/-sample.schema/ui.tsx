@@ -39,7 +39,7 @@ export const Sample: React.FC<P> = (props) => {
 
   Monaco.Crdt.useBinding(editor, doc, path.yaml, (e) => {
     const run = () => factoryUpdate(signals);
-    e.binding.$.subscribe(run);
+    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
     run();
   });
 

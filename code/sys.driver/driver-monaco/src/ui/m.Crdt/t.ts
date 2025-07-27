@@ -27,7 +27,7 @@ export type UseEditorCrdtBinding = (
   editor: t.Monaco.Editor | undefined,
   doc: t.Crdt.Ref | undefined,
   path: t.ObjectPath | undefined,
-  onReady?: (e: { binding: t.EditorCrdtBinding }) => void,
+  onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.Observable<void> }) => void,
 ) => EditorCrdtBindingHook;
 
 /** An instance of the `useBinding` Monaco-Crdt two-way data binding. */

@@ -19,7 +19,8 @@ export const useBinding: t.UseEditorCrdtBinding = (editor, doc, path, onReady) =
     EditorCrdt.bind(editor, doc, path).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
-      onReady?.({ binding });
+      const dispose$ = binding.dispose$;
+      onReady?.({ binding, dispose$ });
     });
 
     return () => {
