@@ -16,13 +16,14 @@ export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
 export type {
+  Static,
   YamlError,
   YamlLib,
   YamlSyncArgsInput,
+  YamlSyncParsed,
   YamlSyncParser,
   YamlSyncParserDocs,
   YamlSyncParserPaths,
-  YamlSyncParsed,
 } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
