@@ -1,8 +1,7 @@
-import { AssertError } from '@sinclair/typebox/value';
-
 import { SampleSchema } from './-schemas/mod.ts';
 import { type t, Obj, Schema, Signal } from './common.ts';
 
+import { AssertError } from '@sinclair/typebox/value';
 const attempt = <T>(fn: () => T | undefined) => {
   try {
     return { ok: true, value: fn() };
@@ -14,11 +13,9 @@ const attempt = <T>(fn: () => T | undefined) => {
 };
 
 /**
- * The document has changed.
- *
- *   1. Parse the meta-data to determine the <Main> view to display.
- *   2. Find and parse the props for the <View> from the document.
- *
+ * When the document has changed:
+ *   1. Parse the meta-data to determine the main <View> to display.
+ *   2. Find and parse the {props} for the <View> from within the document.
  */
 export function factoryUpdate(signals: t.SampleSignals) {
   const doc = signals.doc.value;
