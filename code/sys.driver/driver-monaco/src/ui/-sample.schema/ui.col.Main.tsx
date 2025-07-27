@@ -25,6 +25,7 @@ export const MainColumn: React.FC<P> = (props) => {
     </div>
   );
   const elEmpty = !def && <div className={styles.empty.class}>{'Nothing to display'}</div>;
+
   const elBody = (
     <React.Suspense fallback={elSpinner}>
       {Lazy && <Lazy video={def!.props} theme={props.theme} />}

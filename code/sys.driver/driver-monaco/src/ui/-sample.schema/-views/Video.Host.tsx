@@ -3,7 +3,7 @@ import { Player } from '@sys/ui-react-components';
 import React from 'react';
 import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
 
-import type { Video } from '../u.schemas.ts';
+import type { Video } from '../-schemas/mod.ts';
 
 export type VideoHostProps = {
   video?: Video;

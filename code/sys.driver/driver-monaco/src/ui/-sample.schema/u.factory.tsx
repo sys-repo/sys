@@ -27,7 +27,7 @@ export function getLazy(id: t.SampleFactoryId): LazyFactory {
  * View Factory:
  */
 export async function factory(id: t.SampleFactoryId) {
-  if (id === 'factory:video:host') {
+  if (id === 'video:host') {
     const { VideoHost } = await import('./-views/Video.Host.tsx');
     return VideoHost;
   }

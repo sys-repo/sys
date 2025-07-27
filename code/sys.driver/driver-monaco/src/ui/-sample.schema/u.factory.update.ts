@@ -1,7 +1,7 @@
 import { AssertError } from '@sinclair/typebox/value';
 
+import { SampleSchema } from './-schemas/mod.ts';
 import { type t, Obj, Schema, Signal } from './common.ts';
-import { SampleSchema } from './u.schemas.ts';
 
 const attempt = <T>(fn: () => T | undefined) => {
   try {

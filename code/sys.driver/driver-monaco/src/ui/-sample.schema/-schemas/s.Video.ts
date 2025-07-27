@@ -1,29 +1,4 @@
-import { type t, Schema } from './common.ts';
-const { Type } = Schema;
-
-/**
- * Meta-data:
- */
-export const Meta = Type.Object({
-  dev: Type.Optional(
-    Type.Boolean({
-      description: 'Flag indicating if the dev/debug column should be showing.',
-      default: false,
-    }),
-  ),
-
-  /** Main */
-  main: Type.Optional(
-    Type.Object({
-      component: Type.Optional(Type.String({ description: 'URI passed to the view-factory.' })),
-      props: Type.Optional(
-        Type.String({
-          description: `String that resolves to an object-path pointing locally to the 'props' data in the document.`,
-        }),
-      ),
-    }),
-  ),
-});
+import { Type } from '../common.ts';
 
 /**
  * Video:
@@ -56,20 +31,3 @@ export const Video = Type.Object({
     }),
   ),
 });
-
-/**
- * File-share:
- */
-export const Fileshare = Type.Object({});
-
-/**
- * Library:
- */
-export type Meta = t.Static<typeof Meta>;
-export type Video = t.Static<typeof Video>;
-export type Fileshare = t.Static<typeof Fileshare>;
-export const SampleSchema = {
-  Meta,
-  Video,
-  Fileshare,
-} as const;
