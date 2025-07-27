@@ -10,7 +10,7 @@ type P = t.SampleProps & { yaml: t.EditorYaml };
 export const EditorsColumn: React.FC<P> = (props) => {
   const { debug = false, repo, signals, yaml } = props;
   const doc = signals.doc;
-  const path = signals['yaml.path'].value;
+  const path = signals.root.value;
   const editor = signals.editor.value;
 
   Monaco.Crdt.useBinding(editor, doc.value, path, (e) => {

@@ -21,8 +21,12 @@ export type SampleProps = {
  */
 export type SampleState = t.UnwrapSignals<SampleSignals>;
 export type SampleSignals = Readonly<{
+  /** Code editor: */
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
+
+  /** CRDT document store. */
   doc: t.Signal<t.Crdt.Ref | undefined>;
-  'yaml.path': t.Signal<t.ObjectPath>;
+  /** Root path in the `doc` that the editor/yaml is written to. */
+  root: t.Signal<t.ObjectPath>;
 }>;

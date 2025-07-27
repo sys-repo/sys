@@ -54,7 +54,7 @@ export async function createDebugSignals() {
     monaco: s<S['monaco']>(),
     editor: s<S['editor']>(),
     doc: s<S['doc']>(),
-    'yaml.path': s<S['yaml.path']>(['foo']),
+    root: s<S['root']>(['foo']),
   };
 
   const props = {
@@ -103,6 +103,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const signals = debug.signals;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -128,14 +129,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
+      <Button
+        block
+        label={() => `tmp ( 🐷 )`}
+        onClick={() => {
+          const doc = signals.doc.value;
+          if (!doc) return;
+
+          doc.change((d) => {});
+        }}
+      />
+
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
       <ObjectView
         name={'signals'}
         data={{
-          ...Signal.toObject(debug.signals),
-          doc: Obj.trimStringsDeep(debug.signals.doc.value?.current ?? {}),
+          ...Signal.toObject(signals),
+          doc: Obj.trimStringsDeep(signals.doc.value?.current ?? {}),
         }}
-        expand={1}
+        expand={['$']}
         style={{ marginTop: 5 }}
       />
     </div>

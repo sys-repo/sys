@@ -27,7 +27,7 @@ export const Sample: React.FC<P> = (props) => {
     monaco: signals.monaco.value,
     editor: signals.editor.value,
     doc: signals.doc.value,
-    path: signals['yaml.path'].value,
+    path: signals.root.value,
     errorMarkers: true,
   });
 
