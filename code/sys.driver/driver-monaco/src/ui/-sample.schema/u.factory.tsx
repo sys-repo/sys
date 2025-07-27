@@ -32,6 +32,6 @@ export async function factory(id: t.SampleFactoryId) {
     return VideoHost;
   }
 
-  // No match.
+  // Not found
   return null;
 }
