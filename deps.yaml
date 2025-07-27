@@ -39,7 +39,6 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@3.0.0
-      subpaths: [next]
     - import: npm:@automerge/automerge-repo@2.1.0
     - import: npm:@automerge/automerge-repo-network-websocket@2.1.0
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.1.0
@@ -114,6 +113,7 @@ deno.json:
   - import: npm:@types/ramda@0.30.2
   - import: npm:rxjs@7.8.2
   - import: npm:@sinclair/typebox@0.34.38
+    subpaths: ['value']
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
