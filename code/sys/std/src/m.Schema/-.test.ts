@@ -43,4 +43,38 @@ describe('Standard Schema', () => {
     const fn = () => Value.Assert(T, { msg: '🐷' });
     expect(fn).to.throw(/Expected required property/);
   });
+
+  describe('Schema.try', () => {
+    const { Type, Value } = Schema;
+    const safeTry = Schema.try;
+
+    /** Sample schema for the tests */
+    const SampleSchema = Type.Object({
+      foo: Type.String(),
+      bar: Type.Optional(Type.Number()),
+    });
+
+    it('returns an ok result when the inner function succeeds', () => {
+      const result = safeTry(() => Value.Parse(SampleSchema, { foo: 'hello', bar: 1 }));
+      expect(result).to.eql({
+        ok: true,
+        value: { foo: 'hello', bar: 1 },
+      });
+    });
+
+    it('returns a fail result when TypeBox validation fails', () => {
+      const result = safeTry(() => Value.Parse(SampleSchema, { foo: {} }));
+      expect(result.ok).to.eql(false);
+      expect(result.error?.message).to.include('Expected string');
+      expect(result.error?.path).to.eql('/foo');
+    });
+
+    it('propagates unexpected (non-TypeBox) errors', () => {
+      const fn = () =>
+        safeTry(() => {
+          throw new Error('boom');
+        });
+      expect(fn).to.throw();
+    });
+  });
 });
