@@ -22,11 +22,20 @@ export type SampleProps = {
 export type SampleState = t.UnwrapSignals<SampleSignals>;
 export type SampleSignals = Readonly<{
   /** Code editor: */
-  monaco: t.Signal<t.Monaco.Monaco | undefined>;
-  editor: t.Signal<t.Monaco.Editor | undefined>;
+  io: Readonly<{
+    monaco: t.Signal<t.Monaco.Monaco | undefined>;
+    editor: t.Signal<t.Monaco.Editor | undefined>;
+  }>;
 
   /** CRDT document store. */
   doc: t.Signal<t.Crdt.Ref | undefined>;
-  /** Root path in the `doc` that the editor/yaml is written to. */
-  root: t.Signal<t.ObjectPath>;
+
+  /** Root paths to landmarks within `doc`. */
+  path: Readonly<{
+    /** Path in the `doc` that the editor/yaml text is written to. */
+    yaml: t.Signal<t.ObjectPath>;
+  }>;
+
+  /** Hook into signal values. */
+  listen(): void;
 }>;

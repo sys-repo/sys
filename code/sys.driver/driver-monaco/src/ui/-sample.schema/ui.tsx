@@ -24,11 +24,11 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const yaml = Monaco.Yaml.useYaml({
-    monaco: signals.monaco.value,
-    editor: signals.editor.value,
+    monaco: signals.io.monaco.value,
+    editor: signals.io.editor.value,
     doc: signals.doc.value,
-    path: signals.root.value,
-    errorMarkers: true,
+    path: signals.path.yaml.value,
+    errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
   });
 
   /**

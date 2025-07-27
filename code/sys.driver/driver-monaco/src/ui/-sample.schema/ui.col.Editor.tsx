@@ -10,8 +10,8 @@ type P = t.SampleProps & { yaml: t.EditorYaml };
 export const EditorsColumn: React.FC<P> = (props) => {
   const { debug = false, repo, signals, yaml } = props;
   const doc = signals.doc;
-  const path = signals.root.value;
-  const editor = signals.editor.value;
+  const path = signals.path.yaml.value;
+  const editor = signals.io.editor.value;
 
   Monaco.Crdt.useBinding(editor, doc.value, path, (e) => {
     e.binding.$.subscribe((e) => console.info(`⚡️ Sample/crdt:binding.$:`, e));
@@ -53,8 +53,8 @@ export const EditorsColumn: React.FC<P> = (props) => {
         //
         onReady={async (e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
-          signals.monaco.value = e.monaco;
-          signals.editor.value = e.editor;
+          signals.io.monaco.value = e.monaco;
+          signals.io.editor.value = e.editor;
 
           // 🐷 insert for "crdt:id/path" link behavior
           const { sampleInterceptLink } = await import('../../ui/m.Crdt/-spec/-u.link.ts');

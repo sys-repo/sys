@@ -11,6 +11,7 @@ import {
   Signal,
   Url,
 } from '../common.ts';
+import { createSignals } from '../mod.ts';
 
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -49,13 +50,14 @@ export async function createDebugSignals() {
     ],
   });
 
-  type S = t.SampleState;
-  const signals: t.SampleSignals = {
-    monaco: s<S['monaco']>(),
-    editor: s<S['editor']>(),
-    doc: s<S['doc']>(),
-    root: s<S['root']>(['foo']),
-  };
+  const signals = createSignals();
+  // type S = t.SampleState;
+  // const signals: t.SampleSignals = {
+  //   monaco: s<S['monaco']>(),
+  //   editor: s<S['editor']>(),
+  //   doc: s<S['doc']>(),
+  //   root: s<S['root']>(['foo']),
+  // };
 
   const props = {
     debug: s(snap.debug),
@@ -68,10 +70,8 @@ export async function createDebugSignals() {
     repo,
     signals,
     listen() {
+      signals.listen();
       Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
-      Object.values(signals)
         .filter(Signal.Is.signal)
         .forEach((s) => s.value);
     },
