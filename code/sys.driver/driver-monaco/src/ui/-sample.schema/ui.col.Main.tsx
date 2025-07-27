@@ -1,83 +1,40 @@
-import { Player } from '@sys/ui-react-components';
-import type { VideoElementProps } from '@sys/ui-react-components/t';
-
 import React from 'react';
-import { type t, Color, Cropmarks, css, Is, Obj } from './common.ts';
+import { type t, Color, css, Spinners } from './common.ts';
+import { getLazy } from './u.factory.tsx';
 
-type P = t.SampleProps & { yaml: t.EditorYaml };
-type V = VideoElementProps;
+type P = t.SampleProps;
 
-type Video = {
-  width?: t.Pixels;
-  src?: V['src'];
-  crop?: V['crop'];
-  cornerRadius?: V['cornerRadius'];
-  muted?: V['muted'];
-  jumpTo?: V['jumpTo'];
-};
-
-const PATH = {
-  VIDEO: Obj.Path.curry<Video>(['foo.parsed', 'video']),
-};
-
-/**
- * Component:
- */
 export const MainColumn: React.FC<P> = (props) => {
-  const { signals, yaml } = props;
-  const doc = signals.doc.value;
-  const video = PATH.VIDEO.get(doc?.current, {});
-
-  const errors = yaml.parsed.errors;
-  const hasErrors = errors.length > 0;
-
-  /**
-   * Refs:
-   */
-  const videoSignalsRef = React.useRef(Player.Video.signals());
-  const videoSignals = videoSignalsRef.current;
-  const videoController = Player.Video.useSignals(videoSignals, { log: true });
-
-  /**
-   * Hooks:
-   */
-  const [width, setWidth] = React.useState<t.Pixels>();
-
-  const src = videoSignals.props.src.value;
-  const showVideo = !!src;
-
-  /**
-   * Effect:
-   */
-  React.useEffect(() => {
-    const p = videoSignals.props;
-    p.src.value = video?.src;
-    p.crop.value = video?.crop;
-    p.cornerRadius.value = video?.cornerRadius;
-    p.muted.value = video?.muted ?? false;
-    p.jumpTo.value = Is.record(video?.jumpTo) ? video?.jumpTo : undefined;
-    setWidth(video?.width);
-  }, [Obj.hash(video), videoSignals]);
+  const { signals } = props;
+  const def = signals.main.value;
+  const Lazy = def ? getLazy(def.component as t.SampleFactoryId) : null;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid' }),
-    error: css({}),
-    empty: css({}),
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
+    empty: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
   };
 
-  const elVideo = showVideo && <Player.Video.View style={{ width }} {...videoController.props} />;
-  const elError = hasErrors && <div className={styles.empty.class}>{'YAML contains errors.'}</div>;
-  const elEmpty = <div className={styles.empty.class}>{'Nothing to display.'}</div>;
+  const elSpinner = (
+    <div className={styles.spinner.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
+  const elEmpty = !def && <div className={styles.empty.class}>{'Nothing to display'}</div>;
+  const elBody = (
+    <React.Suspense fallback={elSpinner}>
+      {Lazy && <Lazy video={def!.props} theme={props.theme} />}
+    </React.Suspense>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.04}>
-        {elError || elVideo || elEmpty}
-      </Cropmarks>
+      {elBody}
+      {elEmpty}
     </div>
   );
 };

@@ -10,7 +10,10 @@ export function createSignals() {
     doc: s<S['doc']>(),
     path: {
       yaml: s<S['path']['yaml']>(['foo']),
+      parsed: s<S['path']['parsed']>(['foo.parsed']),
+      meta: s<S['path']['meta']>(['.']),
     },
+    main: s<S['main']>(),
     listen() {
       Signal.toObject(api); // NB: walks and reads all values.
     },

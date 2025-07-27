@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+export type SampleFactoryId = 'factory:video:host';
+
 /**
  * Component:
  */
@@ -34,8 +37,21 @@ export type SampleSignals = Readonly<{
   path: Readonly<{
     /** Path in the `doc` that the editor/yaml text is written to. */
     yaml: t.Signal<t.ObjectPath>;
+    /** Path to where the parsed YAML is written to. */
+    parsed: t.Signal<t.ObjectPath>;
+    /** Path to where the meta-data about the YAML document is located within the document. */
+    meta: t.Signal<t.ObjectPath>;
   }>;
+
+  /** Factory/props information for the <Main> view renderer. */
+  main: t.Signal<SampleSignalsFactoryDef | undefined>;
 
   /** Hook into signal values. */
   listen(): void;
 }>;
+
+/** The main view */
+export type SampleSignalsFactoryDef = {
+  component: string;
+  props: O;
+};

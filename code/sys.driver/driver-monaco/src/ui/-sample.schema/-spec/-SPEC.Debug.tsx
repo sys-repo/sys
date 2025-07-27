@@ -50,19 +50,11 @@ export async function createDebugSignals() {
     ],
   });
 
-  const signals = createSignals();
-  // type S = t.SampleState;
-  // const signals: t.SampleSignals = {
-  //   monaco: s<S['monaco']>(),
-  //   editor: s<S['editor']>(),
-  //   doc: s<S['doc']>(),
-  //   root: s<S['root']>(['foo']),
-  // };
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
   };
+  const signals = createSignals();
   const p = props;
   const api = {
     Crdt,
@@ -135,9 +127,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `tmp ( 🐷 )`}
         onClick={() => {
           const doc = signals.doc.value;
-          if (!doc) return;
-
-          doc.change((d) => {});
+          doc?.change((d) => {
+            // Obj.Path.Mutate.delete(d, ['foo.parsed1']);
+          });
         }}
       />
 

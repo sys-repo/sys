@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css, D, Monaco, rx, Signal } from './common.ts';
+import { factoryUpdate } from './u.factory.tsx';
 import { EditorsColumn } from './ui.col.Editor.tsx';
 import { MainColumn } from './ui.col.Main.tsx';
 
@@ -8,6 +9,11 @@ type P = t.SampleProps;
 
 export const Sample: React.FC<P> = (props) => {
   const { debug = false, signals } = props;
+
+  const editor = signals.io.editor.value;
+  const monaco = signals.io.monaco.value;
+  const doc = signals.doc.value;
+  const path = Signal.toObject(signals.path);
 
   /**
    * Effect: Redraw Monitoring
@@ -24,12 +30,21 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const yaml = Monaco.Yaml.useYaml({
-    monaco: signals.io.monaco.value,
-    editor: signals.io.editor.value,
-    doc: signals.doc.value,
-    path: signals.path.yaml.value,
+    monaco,
+    editor,
+    doc,
+    path: { source: path.yaml, target: path.parsed },
     errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
   });
+
+  Monaco.Crdt.useBinding(editor, doc, path.yaml, (e) => {
+    const run = () => factoryUpdate(signals);
+    e.binding.$.subscribe(run);
+    run();
+  });
+
+  let hasErrors = false;
+  if (yaml.parsed.errors.length > 0) hasErrors = true;
 
   /**
    * Render:
@@ -57,7 +72,7 @@ export const Sample: React.FC<P> = (props) => {
         <EditorsColumn {...props} yaml={yaml} />
       </div>
       <div className={styles.right.class}>
-        <MainColumn {...props} yaml={yaml} />
+        <MainColumn {...props} />
       </div>
     </div>
   );
