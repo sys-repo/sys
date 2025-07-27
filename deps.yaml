@@ -52,7 +52,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.11.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.45.3
+    - import: npm:rollup@4.46.0
     - import: npm:vite@7.0.6
     - import: npm:vite-plugin-wasm@3.5.0
 
