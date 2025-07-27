@@ -480,6 +480,7 @@ describe('Value.Obj.Path', () => {
         expect(p.exists(undefined)).to.be.false;
       });
     });
+
     describe('path.curry(...).set', () => {
       const p = Path.curry<number | undefined>(['foo']);
 
@@ -570,6 +571,23 @@ describe('Value.Obj.Path', () => {
 
         expect(op).to.be.undefined;
         expect(subject).to.eql({}); // no mutation
+      });
+    });
+
+    describe('path.curry(...).join(...)', () => {
+      it('joins a sub-path', () => {
+        const a = Path.curry<number>(['foo']);
+        expect(a.path).to.eql(['foo']);
+
+        const b = a.join(['bar', 'zoo']);
+        expect(b.path).to.eql(['foo', 'bar', 'zoo']);
+      });
+
+      it('empty sub-path', () => {
+        const a = Path.curry<number>(['foo']);
+        const b = a.join([]);
+        expect(a.path).to.eql(b.path);
+        expect(a).to.not.equal(b); // NB: different instance.
       });
     });
   });

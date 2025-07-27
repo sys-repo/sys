@@ -128,4 +128,10 @@ export type CurriedPath<T = unknown> = {
    * Deletes the value at the given path if it exists.
    */
   delete(subject: O): t.ObjDiffOp | undefined;
+
+  /**
+   * Creates a new curried path combining this path as the root
+   * and the given sub-path.
+   */
+  join<T = unknown>(subpath: t.ObjectPath): CurriedPath<T>;
 };

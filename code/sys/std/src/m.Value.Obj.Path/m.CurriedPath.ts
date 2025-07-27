@@ -28,6 +28,9 @@ export const CurriedPath: t.CurriedPathLib = {
       delete(subject: O) {
         return del(subject, path);
       },
+      join<T = unknown>(subpath: t.ObjectPath) {
+        return CurriedPath.create<T>([...path, ...(subpath ?? [])]);
+      },
     };
 
     return api;
