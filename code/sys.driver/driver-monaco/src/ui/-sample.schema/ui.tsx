@@ -72,7 +72,7 @@ export const Sample: React.FC<P> = (props) => {
         <EditorsColumn {...props} yaml={yaml} />
       </div>
       <div className={styles.right.class}>
-        <MainColumn {...props} />
+        <MainColumn {...props} hasErrors={hasErrors} />
       </div>
     </div>
   );

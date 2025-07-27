@@ -2,10 +2,10 @@ import React from 'react';
 import { type t, Color, css, Spinners } from './common.ts';
 import { getLazy } from './u.factory.tsx';
 
-type P = t.SampleProps;
+type P = t.SampleProps & { hasErrors?: boolean };
 
 export const MainColumn: React.FC<P> = (props) => {
-  const { signals } = props;
+  const { signals, hasErrors } = props;
   const def = signals.main.value;
   const Lazy = def ? getLazy(def.component as t.SampleFactoryId) : null;
 
@@ -14,7 +14,13 @@ export const MainColumn: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+      opacity: hasErrors ? 0.2 : 1,
+      transition: 'opacity 120ms ease',
+    }),
     spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
     empty: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
   };
