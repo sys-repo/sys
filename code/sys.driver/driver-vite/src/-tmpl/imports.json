@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@sys/std": "jsr:@sys/std@0.0.158",
+    "@sys/std": "jsr:@sys/std@0.0.159",
     "@sys/tmp": "jsr:@sys/tmp@0.0.118",
     "@sys/types": "jsr:@sys/types@0.0.108",
     "@sys/ui-css": "jsr:@sys/ui-css@0.0.97",
