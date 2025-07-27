@@ -54,7 +54,6 @@
     "code/sys.driver/driver-farcaster",
     "code/sys.driver/driver-immer",
     "code/sys.driver/driver-monaco",
-    "code/sys.driver/driver-obsidian",
     "code/sys.driver/driver-ollama",
     "code/sys.driver/driver-orbiter",
     "code/sys.driver/driver-peerjs",
