@@ -1,7 +1,7 @@
 import { type t } from '../common.ts';
 
 export function sampleInterceptLink(e: t.MonacoEditorReady) {
-  const CRDT_REGEX = /\bcrdt:[\w\-./]+/g; // eg: "crdt:doc-id/path"
+  const CRDT_REGEX = /\bcrdt:[\w\-./]+/g; // eg: "crdt:<doc-id>/path"
 
   /**
    * Register link provider: highlight matches.

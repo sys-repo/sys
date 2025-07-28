@@ -65,7 +65,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
 
   const elVideo = video && (
     <Cropmarks theme={theme.name}>
-      <Player.Video.View {...player.props} />
+      <Player.Video.Element {...player.props} />
     </Cropmarks>
   );
 

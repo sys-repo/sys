@@ -6,7 +6,7 @@ import { playerSignalsFactory } from '../Player.Video.signals/mod.ts';
 
 export const Player: t.PlayerLib = {
   Video: {
-    View: VideoElement,
+    Element: VideoElement,
     signals: playerSignalsFactory,
     useSignals: usePlayerSignals,
   },

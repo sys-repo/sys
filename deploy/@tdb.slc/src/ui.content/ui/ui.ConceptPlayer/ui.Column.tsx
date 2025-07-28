@@ -45,7 +45,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
   };
 
   const elPlayer = (
-    <Player.Video.View
+    <Player.Video.Element
       {...player.props}
       debug={debug}
       onEnded={(e) => {
