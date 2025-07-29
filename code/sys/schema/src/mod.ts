@@ -5,4 +5,6 @@
  *  - Runtime reflection via JSONSchema.
  * @module
  */
-export { Schema, Type, Value, type Static } from './m.Schema.ts';
+export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
+export type * as t from './types.ts';

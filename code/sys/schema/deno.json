@@ -1,0 +1,17 @@
+{
+  "name": "@sys/schema",
+  "version": "0.0.0",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/*",
+    "clean": "deno run -RWE ./-scripts/-clean.ts",
+    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  }
+}

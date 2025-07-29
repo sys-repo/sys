@@ -4,7 +4,6 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
-
     /**
      * Monorepo:
      */
@@ -18,6 +17,7 @@ export const Paths = {
     'code/sys/color',
 
     'code/sys/testing',
+    'code/sys/schema',
     'code/sys/fs',
     'code/sys/cli',
     'code/sys/process',
