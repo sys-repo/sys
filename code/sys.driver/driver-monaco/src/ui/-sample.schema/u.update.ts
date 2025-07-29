@@ -27,13 +27,16 @@ export function factoryUpdate(signals: t.SampleSignals) {
   const main = meta.value?.main;
   signals.main.value = undefined; // ← (reset).
   if (main?.props && main.component) {
-    const p = Obj.Path.curry(main.props.split('/'));
-    const video = Schema.try(() => Schema.Value.Parse(SampleSchema.Video, p.get(root)));
+    const component = main.component;
+    const schema = SampleSchema.get(component);
+    if (!schema) return void console.warn(`A type schema for '${component}' was not returned.`);
 
-    if (video.value) {
-      const component = main.component;
-      const props = video.value;
-      if (component && props) signals.main.value = { component, props };
+    const p = Obj.Path.curry(main.props.split('/'));
+    const res = Schema.try(() => Schema.Value.Parse(schema, p.get(root)));
+
+    if (component && res.value) {
+      const props = res.value;
+      signals.main.value = { component, props };
     }
   }
 }

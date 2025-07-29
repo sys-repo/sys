@@ -2,11 +2,10 @@ import { Player } from '@sys/ui-react-components';
 
 import React from 'react';
 import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
-
 import type { Video } from '../-schemas/mod.ts';
 
 export type VideoHostProps = {
-  video?: Video;
+  data?: Video;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -16,7 +15,7 @@ export type VideoHostProps = {
  * Component:
  */
 export const VideoHost: React.FC<VideoHostProps> = (props) => {
-  const { video } = props;
+  const { data } = props;
 
   /**
    * Refs:
@@ -36,16 +35,16 @@ export const VideoHost: React.FC<VideoHostProps> = (props) => {
    * Effect: sync video UI model with YAML definition:
    */
   React.useEffect(() => {
-    if (!video) return;
+    if (!data) return;
 
     const p = videoSignals.props;
-    p.src.value = video.src;
-    p.crop.value = video?.crop;
-    p.cornerRadius.value = video?.cornerRadius;
-    p.muted.value = video?.muted ?? false;
-    p.jumpTo.value = Is.record(video?.jumpTo) ? video?.jumpTo : undefined;
-    setWidth(video?.width);
-  }, [Obj.hash(video), videoSignals]);
+    p.src.value = data.src;
+    p.crop.value = data?.crop;
+    p.cornerRadius.value = data?.cornerRadius;
+    p.muted.value = data?.muted ?? false;
+    p.jumpTo.value = Is.record(data?.jumpTo) ? data?.jumpTo : undefined;
+    setWidth(data?.width);
+  }, [Obj.hash(data), videoSignals]);
 
   /**
    * Render:
@@ -57,7 +56,9 @@ export const VideoHost: React.FC<VideoHostProps> = (props) => {
     empty: css({}),
   };
 
-  const elVideo = showVideo && <Player.Video.View style={{ width }} {...videoController.props} />;
+  const elVideo = showVideo && (
+    <Player.Video.Element style={{ width }} {...videoController.props} />
+  );
   const elEmpty = <div className={styles.empty.class}>{'Nothing to display.'}</div>;
 
   return (

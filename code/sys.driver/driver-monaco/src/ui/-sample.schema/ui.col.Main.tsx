@@ -7,7 +7,7 @@ type P = t.SampleProps & { hasErrors?: boolean };
 export const MainColumn: React.FC<P> = (props) => {
   const { signals, hasErrors } = props;
   const def = signals.main.value;
-  const Lazy = def ? getLazy(def.component as t.SampleFactoryId) : null;
+  const Lazy = def ? getLazy(def.component) : null;
 
   /**
    * Render:
@@ -22,7 +22,12 @@ export const MainColumn: React.FC<P> = (props) => {
       transition: 'opacity 120ms ease',
     }),
     spinner: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
-    empty: css({ Absolute: 0, display: 'grid', placeItems: 'center' }),
+    empty: css({
+      Absolute: 0,
+      display: 'grid',
+      placeItems: 'center',
+      opacity: 0.25,
+    }),
   };
 
   const elSpinner = (
@@ -34,7 +39,7 @@ export const MainColumn: React.FC<P> = (props) => {
 
   const elBody = (
     <React.Suspense fallback={elSpinner}>
-      {Lazy && <Lazy video={def!.props} theme={props.theme} />}
+      {Lazy && <Lazy data={def!.props} theme={props.theme} />}
     </React.Suspense>
   );
 

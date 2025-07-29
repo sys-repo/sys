@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css, D, Monaco, rx, Signal } from './common.ts';
-import { factoryUpdate } from './u.factory.tsx';
+import { factoryUpdate } from './u.update.ts';
 import { EditorsColumn } from './ui.col.Editor.tsx';
 import { MainColumn } from './ui.col.Main.tsx';
 
@@ -39,8 +39,8 @@ export const Sample: React.FC<P> = (props) => {
 
   Monaco.Crdt.useBinding(editor, doc, path.yaml, (e) => {
     const run = () => factoryUpdate(signals);
-    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
     run();
+    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
   });
 
   let hasErrors = false;
