@@ -14,10 +14,10 @@ export const Paths = {
      */
     'code/sys/types',
     'code/sys/std',
+    'code/sys/schema',
     'code/sys/color',
 
     'code/sys/testing',
-    'code/sys/schema',
     'code/sys/fs',
     'code/sys/cli',
     'code/sys/process',

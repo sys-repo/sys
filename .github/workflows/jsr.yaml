@@ -52,6 +52,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/schema"
+        run: |
+          cd code/sys/schema
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/color"
         run: |
           cd code/sys/color

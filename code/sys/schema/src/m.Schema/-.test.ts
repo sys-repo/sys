@@ -2,7 +2,7 @@ import { type t, describe, expect, it } from '../-test.ts';
 import { Schema, Type, Value } from './mod.ts';
 
 describe('Standard Schema', () => {
-  it.only('API', async () => {
+  it('API', async () => {
     const m = await import('@sys/schema');
     expect(m.Schema).to.equal(Schema);
     expect(m.Type).to.equal(Type);
