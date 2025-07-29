@@ -34,7 +34,7 @@ describe('Value.Obj.Path', () => {
 
     it('retrieves a deeply nested value (mixed segments)', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'bar', 1, 'baz']);
-      expect(value).to.equal('found');
+      expect(value).to.eql('found');
       expectTypeOf(value).toEqualTypeOf<string | undefined>(); // Type is string | undefined (no default):
     });
 
@@ -46,13 +46,13 @@ describe('Value.Obj.Path', () => {
 
     it('returns the provided default when the path is missing', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'bar', 99, 'nope'], 'my-default');
-      expect(value).to.equal('my-default');
+      expect(value).to.eql('my-default');
       expectTypeOf(value).toEqualTypeOf<string>(); // Default supplied → never undefined:
     });
 
     it('short-circuits when an intermediate segment is null/undefined', () => {
       const value = Obj.Path.get<string>(sample, ['foo', 'empty', 'x'], 'fallback');
-      expect(value).to.equal('fallback');
+      expect(value).to.eql('fallback');
       expectTypeOf(value).toEqualTypeOf<string>();
     });
 
@@ -304,8 +304,8 @@ describe('Value.Obj.Path', () => {
 
         const report = Mutate.diff(source, target);
 
-        expect(report.stats.total).to.equal(0);
-        expect(report.ops.length).to.equal(0);
+        expect(report.stats.total).to.eql(0);
+        expect(report.ops.length).to.eql(0);
         expect(target).to.eql(source);
       });
 
@@ -320,12 +320,56 @@ describe('Value.Obj.Path', () => {
         expect(report.stats).to.eql({
           adds: 0,
           removes: 0,
-          updates: 1, // Label.
+          updates: 1, // ← label.
           arrays: 0,
           total: 1,
         });
-        expect(target.label).to.equal('B'); //   Target mutated.
-        expect(target.self).to.equal(target); // Cycle preserved.
+        expect(target.label).to.eql('B'); //     ← target mutated.
+        expect(target.self).to.equal(target); // ← cycle preserved.
+      });
+
+      describe('diffArrays: true', () => {
+        it('diffs arrays element-by-element when one value changes', () => {
+          const target: O = { list: [1, 2, 3] };
+          const source: O = { list: [1, 99, 3] };
+
+          const report = Mutate.diff(source, target, { diffArrays: true });
+
+          expect(target).to.eql(source); // ← target mutated to equal source.
+          expect(report.stats).to.eql({
+            adds: 0,
+            removes: 0,
+            updates: 1, // ← index 1 changed.
+            arrays: 0, //  ← no wholesale replace.
+            total: 1,
+          });
+          expect(report.ops[0]).to.eql<t.ObjDiffOp>({
+            type: 'update',
+            path: ['list', 1],
+            prev: 2,
+            next: 99,
+          });
+        });
+
+        it('handles length changes (adds & removes) in one pass', () => {
+          const target: O = { nums: [10, 20, 30] };
+          const source: O = { nums: [10, 40] }; // 20 → 40, remove 30.
+
+          const report = Mutate.diff(source, target, { diffArrays: true });
+
+          expect(target).to.eql(source);
+          expect(report.stats).to.eql({
+            adds: 0,
+            removes: 1, // index 2 deleted.
+            updates: 1, // index 1 updated.
+            arrays: 0,
+            total: 2,
+          });
+
+          // Order-agnostic check of the two ops.
+          const kinds = report.ops.map((o) => o.type).sort();
+          expect(kinds).to.eql(['remove', 'update']);
+        });
       });
     });
 
@@ -412,7 +456,7 @@ describe('Value.Obj.Path', () => {
       it('retrieves a top-level value', () => {
         const p = Path.curry<number>(['foo']);
         const subject = { foo: 123 };
-        expect(p.get(subject)).to.equal(123);
+        expect(p.get(subject)).to.eql(123);
       });
 
       it('retrieves a nested value', () => {

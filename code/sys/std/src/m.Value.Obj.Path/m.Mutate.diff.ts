@@ -1,4 +1,4 @@
-import { type t, isPlainObject } from './common.ts';
+import { type t, clone, isPlainObject } from './common.ts';
 import { set } from './m.Mutate.set.ts';
 
 type O = Record<string, unknown>;
@@ -8,7 +8,12 @@ type Path = t.ObjectPath;
  * Compare `target` with `source`, mutate `target` until it equals `source`,
  * and return a report of every change.  Cycle-safe.
  */
-export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
+export function diff<T extends O = O>(
+  source: T,
+  target: T,
+  options: t.ObjDiffOptions = {},
+): t.ObjDiffReport {
+  const { diffArrays = false } = options;
   const ops: t.ObjDiffOp[] = [];
   const pushOp = (op?: t.ObjDiffOp) => {
     if (op) ops.push(op);
@@ -84,12 +89,42 @@ export function diff<T extends O = O>(source: T, target: T): t.ObjDiffReport {
 
     // Arrays:
     if (Array.isArray(aNode) && Array.isArray(bNode)) {
-      const same = aNode.length === bNode.length && aNode.every((v, i) => Object.is(v, bNode[i]));
-      if (!same) pushOp(set(target, path, [...bNode]));
+      if (diffArrays) {
+        walkArray(bNode, aNode, path); // Fine-grained diff.
+      } else {
+        const same = aNode.length === bNode.length && aNode.every((v, i) => Object.is(v, bNode[i]));
+        if (!same) pushOp(set(target, path, [...bNode]));
+      }
       return;
     }
 
     // Primitives or constructor mismatch:
     pushOp(set(target, path, bNode));
+  }
+
+  function walkArray(src: unknown[], trg: unknown[], base: Path) {
+    const max = Math.max(src.length, trg.length);
+    for (let i = 0; i < max; i += 1) {
+      const path = [...base, i] as Path;
+      const s = src[i];
+      const t = trg[i];
+
+      if (t === undefined && s !== undefined) {
+        trg[i] = clone(s);
+        pushOp({ type: 'add', path, value: s });
+      } else if (s === undefined && t !== undefined) {
+        delete trg[i];
+        pushOp({ type: 'remove', path, prev: t });
+      } else if (!Object.is(s, t)) {
+        if (typeof s === 'object' && typeof t === 'object') {
+          walk(path, t, s); // ← recursion 🌳
+        } else {
+          trg[i] = clone(s);
+          pushOp({ type: 'update', path, prev: t, next: s });
+        }
+      }
+    }
+
+    if (trg.length > src.length) trg.length = src.length; // ← trim any trailing holes.
   }
 }

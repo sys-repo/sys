@@ -53,11 +53,14 @@ export type ObjPathMutateLib = {
    * `target` is a deep structural clone of `source`.
    *
    *  - Uses {@link Obj.Path.Mutate.set} for every write/delete.
-   *  - Walks objects deeply; whole arrays are replaced when they differ.
+   *  - Walks objects deeply; whole arrays are replaced when they differ (unless `diffArrays` is true).
    *  - No external dependencies, deterministic, and ~75 LOC.
    */
-  diff<T extends O = O>(source: T, target: T): t.ObjDiffReport;
+  diff<T extends O = O>(source: T, target: T, options?: t.ObjDiffOptions): t.ObjDiffReport;
 };
+
+/** Options passed to `Obj.Path.diff` method. */
+export type ObjDiffOptions = { diffArrays?: boolean };
 
 /**
  * A JSON-serialisable description of one structural change.
