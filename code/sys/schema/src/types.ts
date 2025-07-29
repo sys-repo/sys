@@ -2,4 +2,4 @@
  * Module types.
  * @module
  */
-export type {};
+export type * from './m.Schema/t.ts';

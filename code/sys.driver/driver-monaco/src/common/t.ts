@@ -15,8 +15,8 @@ export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
+export type { Static } from '@sys/schema';
 export type {
-  Static,
   YamlError,
   YamlLib,
   YamlSyncArgsInput,

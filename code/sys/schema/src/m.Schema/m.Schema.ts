@@ -7,9 +7,16 @@ export type { Static };
 
 export { Type, Value };
 export const Schema: t.SchemaLib = {
-  Type,
-  Value,
+  get Type() {
+    return Type;
+  },
+  get Value() {
+    return Value;
+  },
 
+  /**
+   * Safe try/throw execution for schema related actions:
+   */
   try<T>(fn: () => T | undefined) {
     try {
       return { ok: true, value: fn() as T };

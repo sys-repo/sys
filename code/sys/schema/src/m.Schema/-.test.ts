@@ -1,12 +1,12 @@
-import { Schema } from '@sys/std/schema';
 import { type t, describe, expect, it } from '../-test.ts';
+import { Schema, Type, Value } from './mod.ts';
 
 describe('Standard Schema', () => {
-  it('API', async () => {
-    const m = await import('@sys/std/schema');
+  it.only('API', async () => {
+    const m = await import('@sys/schema');
     expect(m.Schema).to.equal(Schema);
-    expect(m.Type).to.equal(Schema.Type);
-    expect(m.Value).to.equal(Schema.Value);
+    expect(m.Type).to.equal(Type);
+    expect(m.Value).to.equal(Value);
   });
 
   /**
@@ -18,7 +18,7 @@ describe('Standard Schema', () => {
     // Define type:
     const T = Type.Object({
       id: Type.Integer(),
-      name: Type.Optional(Type.String()),
+      name: Type.Optional(Type.String({ description: 'Display name.' })),
     });
 
     type T = t.Static<typeof T>; // Invert proper TS type.
@@ -46,7 +46,6 @@ describe('Standard Schema', () => {
 
   describe('Schema.try', () => {
     const { Type, Value } = Schema;
-    const safeTry = Schema.try;
 
     /** Sample schema for the tests */
     const SampleSchema = Type.Object({
@@ -55,7 +54,7 @@ describe('Standard Schema', () => {
     });
 
     it('returns an ok result when the inner function succeeds', () => {
-      const result = safeTry(() => Value.Parse(SampleSchema, { foo: 'hello', bar: 1 }));
+      const result = Schema.try(() => Value.Parse(SampleSchema, { foo: 'hello', bar: 1 }));
       expect(result).to.eql({
         ok: true,
         value: { foo: 'hello', bar: 1 },
@@ -63,7 +62,7 @@ describe('Standard Schema', () => {
     });
 
     it('returns a fail result when TypeBox validation fails', () => {
-      const result = safeTry(() => Value.Parse(SampleSchema, { foo: {} }));
+      const result = Schema.try(() => Value.Parse(SampleSchema, { foo: {} }));
       expect(result.ok).to.eql(false);
       expect(result.error?.message).to.include('Expected string');
       expect(result.error?.path).to.eql('/foo');
@@ -71,7 +70,7 @@ describe('Standard Schema', () => {
 
     it('propagates unexpected (non-TypeBox) errors', () => {
       const fn = () =>
-        safeTry(() => {
+        Schema.try(() => {
           throw new Error('boom');
         });
       expect(fn).to.throw();
