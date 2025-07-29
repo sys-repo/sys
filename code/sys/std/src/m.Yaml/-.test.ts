@@ -1,4 +1,5 @@
-import { c, describe, expect, it, type t, Time } from '../-test.ts';
+import { type t, c, describe, expect, it, Time } from '../-test.ts';
+
 import { Err, ERR, Immutable, rx } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Syncer } from './m.Syncer.ts';
@@ -91,7 +92,7 @@ describe('Yaml', () => {
     });
   });
 
-  describe('Yaml.parseDocument', () => {
+  describe('Yaml.parseDocument (AST)', () => {
     it('parses valid YAML and returns the expected JS value', () => {
       const src = `
       name: 'Alice'
@@ -99,18 +100,18 @@ describe('Yaml', () => {
     `;
       const doc = Yaml.parseDocument(src);
       expect(doc.errors).to.eql([]); // no parse errors
-      expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // correct data
+      expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
     });
 
     it('retains source-token ranges for nodes', () => {
       const doc = Yaml.parseDocument('foo: bar');
       const root = doc.contents!; // YAMLMap node
       expect(Array.isArray((root as any).range)).to.eql(true);
-      expect((root as any).range.length).to.equal(3); // [start, ?, end]
+      expect((root as any).range.length).to.equal(3); // ← [start, ?, end].
     });
 
     it('collects errors for malformed YAML instead of throwing', () => {
-      const doc = Yaml.parseDocument('foo: [1, 2'); // missing ]
+      const doc = Yaml.parseDocument('foo: [1, 2'); // ← missing ].
       expect(doc.errors.length).to.be.greaterThan(0);
       expect(doc.errors[0].name).to.equal('YAMLParseError');
       expect(doc.errors.length).to.eql(1);
@@ -119,7 +120,7 @@ describe('Yaml', () => {
 
   describe('Yaml.pathAtOffset', () => {
     // Convenience: returns the offset of the first occurrence of `needle`:
-    const at = (haystack: string, needle: string) => haystack.indexOf(needle);
+    const at = (text: string, target: string) => text.indexOf(target);
 
     it('returns the key/value path in a simple map', () => {
       const src = 'foo: bar';
