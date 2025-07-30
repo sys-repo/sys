@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 export type * from './t.Path.ts';
-export type * from './t.Use.Markers.ts';
+export type * from './t.Use.ErrorMarkers.ts';
 export type * from './t.Use.Yaml.ts';
 
 /**

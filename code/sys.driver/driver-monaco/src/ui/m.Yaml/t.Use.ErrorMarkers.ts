@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Sync Monaco’s diagnostics with a YAML parse-run.
+ * Sync Monaco's diagnostics with a YAML parse-run.
  *
  *   - Replaces **all** previous markers for this model + owner (`'yaml'`).
  *   - Draws red squiggly underlines, gutter ❌, and ruler bars
