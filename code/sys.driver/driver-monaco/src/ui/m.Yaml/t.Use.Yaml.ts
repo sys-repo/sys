@@ -12,6 +12,7 @@ export type UseEditorYaml = (
 export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
+  /** Render red squiggles from YAML errors. (default = off) */
   errorMarkers?: boolean;
 };
 

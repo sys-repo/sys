@@ -2,6 +2,12 @@ import { type t, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
 import { EditorYaml } from './mod.ts';
 
 describe('Monaco.Yaml', () => {
+  it('API', async () => {
+    const m = await import('@sys/driver-monaco');
+    expect(m.Monaco.Yaml).to.eql(EditorYaml);
+    expect(m.Monaco.Yaml.Path.observe).to.equal(EditorYaml.Path.observe);
+  });
+
   describe('lifecycle', () => {
     it('dispose: via method', () => {
       const editor = MonacoFake.editor('');
@@ -21,7 +27,7 @@ describe('Monaco.Yaml', () => {
     });
   });
 
-  describe('Yaml.observePath', () => {
+  describe('Yaml.Path.observe', () => {
     it('emits the expected path when the caret moves', () => {
       const yaml = `
   foo: 👋
@@ -77,37 +83,37 @@ describe('Monaco.Yaml', () => {
       expect(fired.at(-1)?.path).to.eql([]);
       expect(fired.at(-1)?.cursor).to.eql(undefined);
     });
-  });
 
-  describe('caret bias edge-cases', () => {
-    it('resolves the correct root key when the file starts with a blank line', () => {
-      const yaml = `\nfoo: 123\nbar:\n  baz: 456\n  zoo:\n    - one`;
-      const model = MonacoFake.model(yaml, { language: 'yaml' });
-      const editor = MonacoFake.editor(model);
-      const ob = EditorYaml.Path.observe(editor);
+    describe('caret bias edge-cases', () => {
+      it('resolves the correct root key when the file starts with a blank line', () => {
+        const yaml = `\nfoo: 123\nbar:\n  baz: 456\n  zoo:\n    - one`;
+        const model = MonacoFake.model(yaml, { language: 'yaml' });
+        const editor = MonacoFake.editor(model);
+        const ob = EditorYaml.Path.observe(editor);
 
-      // Caret on the “f” of the root key “foo:” (line-2, col-1 because of leading blank line).
-      editor.setPosition({ lineNumber: 2, column: 1 });
-      expect(ob.current?.path).to.eql(['foo']);
+        // Caret on the “f” of the root key “foo:” (line-2, col-1 because of leading blank line).
+        editor.setPosition({ lineNumber: 2, column: 1 });
+        expect(ob.current?.path).to.eql(['foo']);
 
-      // Caret on the “b” of the root key “bar:” (line-3, col-1).
-      editor.setPosition({ lineNumber: 3, column: 1 });
-      expect(ob.current?.path).to.eql(['bar']);
-    });
+        // Caret on the “b” of the root key “bar:” (line-3, col-1).
+        editor.setPosition({ lineNumber: 3, column: 1 });
+        expect(ob.current?.path).to.eql(['bar']);
+      });
 
-    it('does not include the first child when caret is on a root key after a blank line', () => {
-      const yaml = `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
-      const model = MonacoFake.model(yaml, { language: 'yaml' });
-      const editor = MonacoFake.editor(model);
-      const ob = EditorYaml.Path.observe(editor);
+      it('does not include the first child when caret is on a root key after a blank line', () => {
+        const yaml = `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
+        const model = MonacoFake.model(yaml, { language: 'yaml' });
+        const editor = MonacoFake.editor(model);
+        const ob = EditorYaml.Path.observe(editor);
 
-      // Caret on “v” of “video:” (line-4, col-1).
-      editor.setPosition({ lineNumber: 4, column: 1 });
-      expect(ob.current?.path).to.eql(['video']);
+        // Caret on “v” of “video:” (line-4, col-1).
+        editor.setPosition({ lineNumber: 4, column: 1 });
+        expect(ob.current?.path).to.eql(['video']);
 
-      // Move caret into the “s” of “src” (line-5, two-space indent + “s”).
-      editor.setPosition({ lineNumber: 5, column: 3 });
-      expect(ob.current?.path).to.eql(['video', 'src']);
+        // Move caret into the “s” of “src” (line-5, two-space indent + “s”).
+        editor.setPosition({ lineNumber: 5, column: 3 });
+        expect(ob.current?.path).to.eql(['video', 'src']);
+      });
     });
   });
 });

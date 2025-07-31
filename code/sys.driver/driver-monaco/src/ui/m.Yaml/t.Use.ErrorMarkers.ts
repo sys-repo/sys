@@ -8,9 +8,12 @@ import type { t } from './common.ts';
  *     for each `YamlError` in `errors`.
  *   - When `errors` is empty the underline set is cleared.
  */
-export type UseYamlErrorMarkers = (args: {
+export type UseYamlErrorMarkers = (args: UseYamlErrorMarkersArgs) => void;
+
+/** Arguments passed to the `useErrorMarkers` hook. */
+export type UseYamlErrorMarkersArgs = {
+  enabled?: boolean;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   errors?: readonly t.YamlError[];
-  enabled?: boolean;
-}) => void;
+};
