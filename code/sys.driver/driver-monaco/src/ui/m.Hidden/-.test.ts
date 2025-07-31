@@ -111,6 +111,27 @@ describe('Monaco.Hidden', () => {
       });
     });
 
+    describe('Monaco.Hidden.unfold', () => {
+      it('removes (or splits) hidden areas when unfolded', () => {
+        const src = 'a\nb\nc\nd\ne';
+        const editor = MonacoFake.editor(src);
+
+        // Fold lines 2-4 → one contiguous hidden block:
+        EditorHidden.fold(editor, 2, 4);
+
+        // 1. unfold middle lines 3-3 → block splits into two:
+        EditorHidden.unfold(editor, 3);
+        expect(editor.getHiddenAreas()).to.eql([
+          { startLineNumber: 2, startColumn: 1, endLineNumber: 2, endColumn: 1 },
+          { startLineNumber: 4, startColumn: 1, endLineNumber: 4, endColumn: 1 },
+        ]);
+
+        // 2. unfold the remaining fragments → no hidden areas:
+        EditorHidden.unfold(editor, 2, 4);
+        expect(editor.getHiddenAreas()).to.eql([]);
+      });
+    });
+
     describe('Monaco.Hidden.clear', () => {
       it('wipes the editors hidden-area list', () => {
         const editor = MonacoFake.editor('a\nb\nc');

@@ -21,6 +21,19 @@ export type EditorHiddenLib = Readonly<{
   fold(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
 
   /**
+   * Un-fold (reveal) one or more **whole lines** without disturbing the
+   * rest of the editor’s hidden-area list.
+   *
+   * If the [start, end] slice only overlaps part of a hidden range the
+   * range is split so that everything outside the slice stays folded.
+   *
+   * @param ed     Monaco editor instance.
+   * @param start  First line to reveal – 1-based.
+   * @param end    Last line to reveal  – 1-based (defaults to `start`).
+   */
+  unfold(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
+
+  /**
    * Reveal every line by wiping the editor's hidden-area list.
    *
    * @example
