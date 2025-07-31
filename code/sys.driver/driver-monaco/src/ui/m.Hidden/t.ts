@@ -17,15 +17,8 @@ export type EditorHiddenLib = Readonly<{
    * @param editor  Monaco editor instance.
    * @param start   First line to hide – 1-based.
    * @param end     Last line to hide  – 1-based (defaults to `start`).
-   *
-   * @example
-   *   // Fold just line 5:
-   *   Monaco.Hidden.foldRange(editor, 5);
-   *
-   *   // Fold lines 10-20 (inclusive):
-   *   Monaco.Hidden.foldRange(editor, 10, 20);
    */
-  foldRange(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
+  fold(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
 
   /**
    * Reveal every line by wiping the editor's hidden-area list.

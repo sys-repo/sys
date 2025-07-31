@@ -79,7 +79,7 @@ describe('Monaco.Hidden', () => {
       });
     });
 
-    describe('Monaco.Hidden.foldRange', () => {
+    describe('Monaco.Hidden.fold', () => {
       it('updates observer when a range is folded', () => {
         const src = 'a\nb\nc\nd';
         const editor = MonacoFake.editor(src);
@@ -89,7 +89,7 @@ describe('Monaco.Hidden', () => {
         expect(ob.areas).to.eql([]);
 
         // Fold lines 2-3 (inclusive):
-        EditorHidden.foldRange(editor, 2, 3);
+        EditorHidden.fold(editor, 2, 3);
 
         expect(ob.areas).to.eql([
           {
@@ -106,15 +106,15 @@ describe('Monaco.Hidden', () => {
         const ob = EditorHidden.observe(editor);
         ob.dispose();
 
-        EditorHidden.foldRange(editor, 1); // ← would fold line 1.
-        expect(ob.areas).to.eql([]); //       ← still empty → not updated.
+        EditorHidden.fold(editor, 1); //  ← would fold line 1.
+        expect(ob.areas).to.eql([]); //   ← still empty → not updated.
       });
     });
 
     describe('Monaco.Hidden.clear', () => {
       it('wipes the editors hidden-area list', () => {
         const editor = MonacoFake.editor('a\nb\nc');
-        EditorHidden.foldRange(editor, 2); //          ← hide "b".
+        EditorHidden.fold(editor, 2); //          ← hide "b".
         expect(editor.getHiddenAreas()).to.have.length(1);
 
         EditorHidden.clear(editor); //                 ← reveal everything.
@@ -125,7 +125,7 @@ describe('Monaco.Hidden', () => {
         const editor = MonacoFake.editor('x\ny\nz');
         const ob = EditorHidden.observe(editor);
 
-        EditorHidden.foldRange(editor, 2, 3); //  ← hide "y", "z".
+        EditorHidden.fold(editor, 2, 3); //  ← hide "y", "z".
         expect(ob.areas).to.have.length(1);
 
         EditorHidden.clear(editor); //            ← clear folds.

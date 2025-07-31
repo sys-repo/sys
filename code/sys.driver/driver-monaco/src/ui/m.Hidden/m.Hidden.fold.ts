@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const foldRange: t.EditorHiddenLib['foldRange'] = (ed, start, end = start) => {
+export const fold: t.EditorHiddenLib['fold'] = (ed, start, end = start) => {
   const editor = ed as t.Monaco.Editor & t.EditorHiddenMembers;
 
   const range: t.Monaco.I.IRange = {
