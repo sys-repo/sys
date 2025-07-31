@@ -29,18 +29,18 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
+  Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
+    const run = () => factoryUpdate(signals);
+    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
+    run();
+  });
+
   const yaml = Monaco.Yaml.useYaml({
     monaco,
     editor,
     doc,
     path: { source: path.yaml, target: path.parsed },
     errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
-  });
-
-  Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
-    const run = () => factoryUpdate(signals);
-    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
-    run();
   });
 
   let hasErrors = false;
