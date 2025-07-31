@@ -21,10 +21,11 @@ export const Notes: React.FC<NotesProps> = (props) => {
   /**
    * Hooks:
    */
+  const [monaco, setMonaco] = React.useState<t.Monaco.Monaco>();
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
   const [selectedPath, setSelectedPath] = React.useState<t.ObjectPath>([]);
   const notes = Crdt.UI.useDoc(repo, docId);
-  Monaco.Crdt.useBinding(editor, notes.doc, path);
+  Monaco.Crdt.useBinding({ monaco, editor, doc: notes.doc, path });
 
   /**
    * Effects:
@@ -100,6 +101,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
         language={'yaml'}
         onReady={(e) => {
           setEditor(e.editor);
+          setMonaco(e.monaco);
           const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
           path.$.subscribe((e) => setSelectedPath(e.path));
         }}
