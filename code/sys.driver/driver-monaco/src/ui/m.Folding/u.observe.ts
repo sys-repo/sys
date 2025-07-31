@@ -1,5 +1,6 @@
 import { type t, rx } from './common.ts';
-import { calcHiddenRanges } from './u.ts';
+import { getHiddenAreas } from './u.hidden.ts';
+import { equalRanges } from './u.ts';
 
 export const observe: t.EditorFoldingLib['observe'] = (ed, until) => {
   const editor = ed as t.Monaco.Editor;
@@ -8,20 +9,39 @@ export const observe: t.EditorFoldingLib['observe'] = (ed, until) => {
   const life = rx.lifecycle(until);
   life.dispose$.subscribe(() => sub.dispose());
 
+  const toSE = (r: t.Monaco.I.IRange) => ({
+    start: r.startLineNumber,
+    end: r.endLineNumber,
+  });
+
+  /**
+   * Internal subject → raw change notifications.
+   */
   const $$ = rx.subject<t.EditorFoldingAreaChange>();
-  const $ = $$.pipe(rx.takeUntil(life.dispose$));
+
+  /**
+   * Public ∂ stream:
+   *  - auditTime(0)              ← coalesce bursty events (same-tick).
+   *  - distinctUntilChanged      ← drop dup payloads.
+   *  - takeUntil(life.dispose$)  ← auto-complete on teardown.
+   */
+  const $ = $$.pipe(
+    rx.auditTime(0),
+    rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
+    rx.takeUntil(life.dispose$),
+  );
 
   /**
    * Methods/State:
    */
-  const current = () => calcHiddenRanges(editor);
-  let areas: t.Monaco.I.IRange[] = current();
+  const snap = () => getHiddenAreas(editor);
+  let areas: t.Monaco.I.IRange[] = snap();
 
   /**
    * Event listeners:
    */
   const sub = editor.onDidChangeHiddenAreas(() => {
-    areas = current();
+    areas = snap();
     $$.next({ areas });
   });
 

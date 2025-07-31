@@ -38,6 +38,15 @@ export type EditorFoldingLib = Readonly<{
    * Stores the *parent* (twisty) line as `start`.
    */
   toMarkRanges(model: t.Monaco.TextModel, areas: t.Monaco.I.IRange[]): t.Crdt.Mark.Range[];
+
+  /**
+   * Return *all* folded regions, independent of scroll position.
+   *
+   * NOTE: Uses the internal view-model API (`_getViewModel().getHiddenAreas()`),
+   *       which has been stable since Monaco 0.21 (2021-03) but is not public.
+   *       If that ever changes swap the implementation here only.
+   */
+  getHiddenAreas(editor: t.Monaco.Editor): t.Monaco.I.IRange[];
 }>;
 
 /**

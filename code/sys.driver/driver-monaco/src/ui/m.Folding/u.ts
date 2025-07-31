@@ -1,10 +1,12 @@
-import { type t, RangeUtil } from './common.ts';
+type R = { start: number; end: number };
 
 /**
- * Derive folded (hidden) ranges by finding the gaps between the
- * editor’s visible ranges.
+ * Helpers:
  */
-export function calcHiddenRanges(editor: t.Monaco.Editor): t.Monaco.I.IRange[] {
-  const model = editor.getModel();
-  return model ? RangeUtil.complement(model.getLineCount(), editor.getVisibleRanges()) : [];
+export function equalRanges(a: R[], b: R[]) {
+  if (a.length !== b.length) return false;
+  const sort = (xs: R[]) => [...xs].sort((p, q) => p.start - q.start || p.end - q.end);
+  const aa = sort(a),
+    bb = sort(b);
+  return aa.every((r, i) => r.start === bb[i].start && r.end === bb[i].end);
 }
