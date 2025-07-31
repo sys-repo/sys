@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
-
-import { type t, EditorFolding, rx } from './common.ts';
+import { type t, Dispose, EditorFolding, rx } from './common.ts';
 import { EditorCrdt } from './m.EditorCrdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
@@ -23,25 +22,18 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
     if (!(doc && path && editor)) return;
 
     const life = rx.lifecycle();
-    EditorCrdt.bind(editor, doc, path).then((binding) => {
+    EditorCrdt.bind(editor, doc, path, life).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
       const dispose$ = binding.dispose$;
       onReady?.({ binding, dispose$ });
     });
 
-    return () => {
-      life.dispose();
-      bindingRef.current?.dispose();
-    };
+    return life.dispose;
   }, [editor, doc?.id, doc?.instance, path?.join()]);
 
   /**
    * API:
    */
-  return {
-    get binding() {
-      return bindingRef.current;
-    },
-  };
+  return bindingRef.current ? Dispose.omitDispose(bindingRef.current) : undefined;
 };

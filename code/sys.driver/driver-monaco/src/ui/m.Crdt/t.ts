@@ -5,7 +5,12 @@ import type { t } from './common.ts';
  * an immutable CRDT document interface.
  */
 export type EditorCrdtLib = Readonly<{
-  bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): Promise<t.EditorCrdtBinding>;
+  bind(
+    editor: t.Monaco.Editor,
+    doc: t.Crdt.Ref,
+    path: t.ObjectPath,
+    until?: t.UntilInput,
+  ): Promise<t.EditorCrdtBinding>;
   useBinding: t.UseEditorCrdtBinding;
 }>;
 
@@ -26,7 +31,7 @@ export type EditorCrdtBinding = t.Lifecycle & {
 export type UseEditorCrdtBinding = (
   args: t.UseEditorCrdtBindingArgs,
   onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.Observable<void> }) => void,
-) => EditorCrdtBindingHook;
+) => EditorCrdtBindingHook | undefined;
 
 /** Arguments passed to the CRDT `useBinding` hook. */
 export type UseEditorCrdtBindingArgs = {
@@ -38,9 +43,7 @@ export type UseEditorCrdtBindingArgs = {
 };
 
 /** An instance of the `useBinding` Monaco-Crdt two-way data binding. */
-export type EditorCrdtBindingHook = {
-  readonly binding?: t.EditorCrdtBinding;
-};
+export type EditorCrdtBindingHook = Omit<t.EditorCrdtBinding, 'dispose'>;
 
 /**
  * Events:

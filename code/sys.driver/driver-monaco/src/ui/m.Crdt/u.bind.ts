@@ -18,11 +18,11 @@ type C = t.EditorCrdtLocalChange;
  *    other while still keeping both worlds fully undoable.
  *
  */
-export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path) => {
+export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) => {
   const model = editor.getModel();
   if (!model) throw new Error('A model could not be retrieved from the editor.');
 
-  const life = rx.lifecycle();
+  const life = rx.lifecycle(until);
   const events = doc.events(life);
   const hasPath = (path ?? []).length > 0;
   let _isPulling = false; // NB: echo-guard.
