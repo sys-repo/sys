@@ -33,7 +33,7 @@ export type ObjLib = {
    */
   trimStringsDeep<T extends Record<string, any>>(
     obj: T,
-    options?: { maxLength?: number; ellipsis?: boolean; immutable?: boolean } | number,
+    options?: { maxLength?: number; ellipsis?: boolean; mutate?: boolean } | number,
   ): T;
 
   /**

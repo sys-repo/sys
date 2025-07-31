@@ -191,8 +191,8 @@ describe('Value.Obj', () => {
         nil: null,
       };
 
-      const a = Value.Obj.trimStringsDeep(obj);
-      const b = Value.Obj.trimStringsDeep(obj, { immutable: false });
+      const a = Value.Obj.trimStringsDeep(obj); // NB: default immutable.
+      const b = Value.Obj.trimStringsDeep(obj, { mutate: true });
 
       const expected = {
         ...obj,

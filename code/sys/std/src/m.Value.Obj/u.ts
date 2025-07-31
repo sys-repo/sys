@@ -44,11 +44,11 @@ export function toArray<T = Record<string, unknown>, K = keyof T>(
  */
 export function trimStringsDeep<T extends Record<string, any>>(
   obj: T,
-  options: { maxLength?: number; ellipsis?: boolean; immutable?: boolean } | number = {},
+  options: { maxLength?: number; ellipsis?: boolean; mutate?: boolean } | number = {},
 ) {
   // NB: This is a recursive function ← via Object.walk(🌳)
   const opt = typeof options === 'number' ? { maxLength: options } : options;
-  const { ellipsis = true, immutable = true } = opt;
+  const { ellipsis = true, mutate = false } = opt;
   const MAX = opt.maxLength ?? 35;
 
   const adjust = (obj: Record<string, string>) => {
@@ -61,14 +61,14 @@ export function trimStringsDeep<T extends Record<string, any>>(
     });
   };
 
-  const clone = immutable ? R.clone(obj) : obj;
-  adjust(clone);
-  walk(clone, (e) => {
+  const subject = mutate ? obj : R.clone(obj);
+  adjust(subject);
+  walk(subject, (e) => {
     const value = e.value;
     if (typeof value === 'object' && value !== null) adjust(value);
   });
 
-  return clone;
+  return subject;
 }
 
 /**
