@@ -69,6 +69,9 @@ type Rxjs = {
   readonly animationFrameScheduler: typeof rxjs.animationFrameScheduler;
   readonly BehaviorSubject: typeof rxjs.BehaviorSubject;
   readonly firstValueFrom: typeof rxjs.firstValueFrom;
+  readonly startWith: typeof rxjs.startWith;
+  readonly auditTime: typeof rxjs.auditTime;
+  readonly fromEventPattern: typeof rxjs.fromEventPattern;
   readonly interval: typeof rxjs.interval;
   readonly lastValueFrom: typeof rxjs.lastValueFrom;
   readonly Observable: typeof rxjs.Observable;

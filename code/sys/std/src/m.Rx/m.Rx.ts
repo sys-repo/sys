@@ -9,8 +9,16 @@ import { event, payload } from './u.payload.ts';
 import { asPromise } from './u.promise.ts';
 import { withinTimeThreshold } from './u.time.ts';
 
-const { disposable, abortable, disposableAsync, lifecycle, lifecycleAsync, done, toLifecycle } =
-  Dispose;
+const {
+  //
+  disposable,
+  abortable,
+  disposableAsync,
+  lifecycle,
+  lifecycleAsync,
+  done,
+  toLifecycle,
+} = Dispose;
 
 /** Tools for working with Observables (via the RXJS library). */
 export const Rx: RxLib = {
