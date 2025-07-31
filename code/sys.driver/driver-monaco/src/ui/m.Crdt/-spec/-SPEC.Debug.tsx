@@ -1,8 +1,20 @@
 import React from 'react';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
+import { Monaco } from '@sys/driver-monaco';
 
-import { Button, css, D, LocalStorage, Obj, ObjectView, Signal, type t, Url } from '../common.ts';
-import { importLibs } from '../libs.ts';
+import {
+  type t,
+  A,
+  Button,
+  Crdt,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  Url,
+} from '../common.ts';
 import { YamlSyncDebug } from './-u.yaml.tsx';
 
 type P = t.MonacoEditorProps;
@@ -25,7 +37,6 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-  const { Crdt, A } = await importLibs();
 
   const defaults: Storage = {
     language: 'typescript',
@@ -69,8 +80,6 @@ export async function createDebugSignals() {
   };
   const p = props;
   const api = {
-    A,
-    Crdt,
     props,
     repo,
     listen() {
@@ -108,7 +117,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const { Crdt, props: p } = debug;
+  const p = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRedrawEffect(p.doc.value, {
@@ -177,6 +186,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
       )}
 
       <hr />
+      <div className={Styles.title.class}>{'Hidden / Folding:'}</div>
+
+      <Button
+        block
+        enabled={() => !!p.editor.value}
+        label={() => `fold: 2, 7`}
+        onClick={() => {
+          const editor = p.editor.value;
+          if (editor) Monaco.Hidden.fold(editor, 2, 7);
+        }}
+      />
+
+      <Button
+        block
+        enabled={() => !!p.editor.value}
+        label={() => `unfold: 2, 7`}
+        onClick={() => {
+          const editor = p.editor.value;
+          if (editor) Monaco.Hidden.unfold(editor, 2, 7);
+        }}
+      />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -212,7 +244,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function AlterDocumentButtons(props: { debug: DebugSignals }) {
   const { debug } = props;
-  const { props: p, A } = debug;
+  const p = debug.props;
   const doc = p.doc.value;
   const path = p.path.value;
 

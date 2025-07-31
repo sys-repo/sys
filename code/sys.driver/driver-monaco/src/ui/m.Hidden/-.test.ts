@@ -106,28 +106,24 @@ describe('Monaco.Hidden', () => {
         const ob = EditorHidden.observe(editor);
         ob.dispose();
 
-        EditorHidden.fold(editor, 1); //  ← would fold line 1.
-        expect(ob.areas).to.eql([]); //   ← still empty → not updated.
+        EditorHidden.fold(editor, 1); // ← would fold line 1.
+        expect(ob.areas).to.eql([]); //  ← still empty → not updated.
       });
     });
 
     describe('Monaco.Hidden.unfold', () => {
-      it('removes (or splits) hidden areas when unfolded', () => {
+      it('unfolding a line inside a folded block reveals the whole block', () => {
         const src = 'a\nb\nc\nd\ne';
         const editor = MonacoFake.editor(src);
 
         // Fold lines 2-4 → one contiguous hidden block:
         EditorHidden.fold(editor, 2, 4);
-
-        // 1. unfold middle lines 3-3 → block splits into two:
-        EditorHidden.unfold(editor, 3);
         expect(editor.getHiddenAreas()).to.eql([
-          { startLineNumber: 2, startColumn: 1, endLineNumber: 2, endColumn: 1 },
-          { startLineNumber: 4, startColumn: 1, endLineNumber: 4, endColumn: 1 },
+          { startLineNumber: 2, startColumn: 1, endLineNumber: 4, endColumn: 1 },
         ]);
 
-        // 2. unfold the remaining fragments → no hidden areas:
-        EditorHidden.unfold(editor, 2, 4);
+        // Unfold any line within that block (line 3 here) → entire block opens:
+        EditorHidden.unfold(editor, 3);
         expect(editor.getHiddenAreas()).to.eql([]);
       });
     });
@@ -138,7 +134,7 @@ describe('Monaco.Hidden', () => {
         EditorHidden.fold(editor, 2); //          ← hide "b".
         expect(editor.getHiddenAreas()).to.have.length(1);
 
-        EditorHidden.clear(editor); //                 ← reveal everything.
+        EditorHidden.clear(editor); //            ← reveal everything.
         expect(editor.getHiddenAreas()).to.eql([]);
       });
 

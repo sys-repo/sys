@@ -62,6 +62,75 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   };
 
   /**
+   * Trigger:
+   */
+  const trigger = (_src: string, command: string, payload?: any) => {
+    switch (command) {
+      /**
+       * Commands that DON’T require `selectionLines`
+       */
+      case 'editor.unfoldAll':
+        setHiddenAreas([]); // Reveal everything.
+        return;
+
+      /**
+       * Commands that DO require `selectionLines`
+       */
+      case 'editor.fold':
+      case 'editor.unfold': {
+        const lines: number[] | undefined = payload?.selectionLines;
+        if (!lines?.length) return; // invalid payload → no-op
+
+        const to1 = (n: number) => n + 1;
+        const sortAsc = (a: number, b: number) => a - b;
+        const sorted = [...lines].sort(sortAsc);
+
+        if (command === 'editor.fold') {
+          // Build contiguous ranges ↓
+          const ranges: t.Monaco.I.IRange[] = [];
+          let run: number[] = [];
+
+          const flush = () => {
+            if (!run.length) return;
+            ranges.push({
+              startLineNumber: to1(run[0]),
+              startColumn: 1,
+              endLineNumber: to1(run[run.length - 1]),
+              endColumn: 1,
+            });
+            run = [];
+          };
+
+          sorted.forEach((ln, i) => {
+            if (i === 0 || ln === sorted[i - 1] + 1) run.push(ln);
+            else {
+              flush();
+              run.push(ln);
+            }
+          });
+          flush();
+
+          setHiddenAreas([...getHiddenAreas(), ...ranges]);
+          return;
+        }
+
+        /**
+         * editor.unfold
+         */
+        const reveal = new Set(sorted.map(to1));
+        setHiddenAreas(
+          getHiddenAreas().filter((r) =>
+            [...reveal].every((ln) => ln < r.startLineNumber || ln > r.endLineNumber),
+          ),
+        );
+        return;
+      }
+
+      default: /* ignore unknown commands */
+    }
+  };
+
+  /**
    * API:
    */
   const api: t.FakeEditor = {
@@ -74,7 +143,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
     // Setters (Mutate):
     setHiddenAreas,
     setPosition,
-    trigger: () => void 0,
+    trigger,
 
     // Handlers:
     onDidChangeHiddenAreas,
