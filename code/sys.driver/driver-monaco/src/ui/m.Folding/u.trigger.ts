@@ -1,7 +1,6 @@
 import { type t } from './common.ts';
 
 export const fold: t.EditorFoldingLib['fold'] = (editor, start, end = start) => {
-  // const editor = ed as t.Monaco.Editor;
   const s = Math.min(start, end) - 1; // → 0-based.
   const e = Math.max(start, end) - 1;
   const selectionLines = Array.from({ length: e - s + 1 }, (_, i) => s + i);
