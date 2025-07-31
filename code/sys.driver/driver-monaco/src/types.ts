@@ -12,7 +12,7 @@ export type * from './m.Monaco/t.ts';
 
 export type * from './ui/m.Carets/t.ts';
 export type * from './ui/m.Crdt/t.ts';
-export type * from './ui/m.Hidden/t.ts';
+export type * from './ui/m.Folding/t.ts';
 export type * from './ui/m.Yaml/t.ts';
 export type * from './ui/ui.MonacoEditor/t.ts';
 
