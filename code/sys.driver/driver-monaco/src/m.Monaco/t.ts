@@ -10,7 +10,7 @@ export type MonacoLib = Readonly<{
   Carets: t.EditorCaretsLib;
   Crdt: t.EditorCrdtLib;
   Yaml: t.EditorYamlLib;
-  Hidden: t.EditorHiddenLib;
+  Hidden: t.EditorFoldingLib;
   Dev: Readonly<{
     PathView: React.FC<PathViewProps>;
   }>;

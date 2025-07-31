@@ -35,7 +35,7 @@ describe('Monaco.Hidden', () => {
           const editor = MonacoFake.editor(src);
           const ob = EditorHidden.observe(editor);
 
-          const fired: t.EditorHiddenAreaChange[] = [];
+          const fired: t.EditorFoldingAreaChange[] = [];
           ob.$.subscribe((e) => fired.push(e));
 
           const fold: t.Monaco.I.IRange = {

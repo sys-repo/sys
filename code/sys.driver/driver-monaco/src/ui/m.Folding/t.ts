@@ -4,11 +4,11 @@ import type { t } from './common.ts';
  * Tools for working with the code-hiding aspects
  * of the editor (aka. "code folding").
  */
-export type EditorHiddenLib = Readonly<{
+export type EditorFoldingLib = Readonly<{
   /**
    * Watch the editor's hidden-area list.
    */
-  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): t.EditorHiddenAreaObserver;
+  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): t.EditorFoldingAreaObserver;
 
   /**
    * Fold (hide) one or more whole lines (1-based, inclusive).
@@ -37,28 +37,14 @@ export type EditorHiddenLib = Readonly<{
 /**
  * Live observer of the editor's hidden-area list:
  */
-export type EditorHiddenAreaObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EditorHiddenAreaChange>;
+export type EditorFoldingAreaObserver = t.Lifecycle & {
+  readonly $: t.Observable<t.EditorFoldingAreaChange>;
   readonly areas: t.Monaco.I.IRange[];
-};
-
-/**
- * The methods related to the editor's hidden-area list.
- * NB: explicitly declared because folding helpers
- *     are not (yet) in the d.ts shipped before v0.34.
- */
-export type EditorHiddenMembers = {
-  /** Current hidden (folded) ranges - expressed as model ranges. */
-  getHiddenAreas(): t.Monaco.I.IRange[];
-  /** Replace the hidden-area list (pass `[]` to reveal everything). */
-  setHiddenAreas(ranges: t.Monaco.I.IRange[]): void;
-  /** Fires after any fold/unfold (user action *or* `setHiddenAreas`). */
-  onDidChangeHiddenAreas(listener: () => void): t.Monaco.I.IDisposable;
 };
 
 /**
  * Event: fires when the editor's hidden-area list changes.
  */
-export type EditorHiddenAreaChangeHandler = (e: EditorHiddenAreaChange) => void;
+export type EditorFoldingAreaChangeHandler = (e: EditorFoldingAreaChange) => void;
 /** Event information about the change. */
-export type EditorHiddenAreaChange = Readonly<{ areas: t.Monaco.I.IRange[] }>;
+export type EditorFoldingAreaChange = Readonly<{ areas: t.Monaco.I.IRange[] }>;

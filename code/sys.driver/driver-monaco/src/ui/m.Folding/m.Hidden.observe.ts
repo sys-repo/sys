@@ -1,14 +1,14 @@
 import { type t, rx } from './common.ts';
 import { calcHiddenRanges } from './u.ts';
 
-export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
+export const observe: t.EditorFoldingLib['observe'] = (ed, until) => {
   const editor = ed as t.Monaco.Editor;
 
   // Lifecycle:
   const life = rx.lifecycle(until);
   life.dispose$.subscribe(() => sub.dispose());
 
-  const $$ = rx.subject<t.EditorHiddenAreaChange>();
+  const $$ = rx.subject<t.EditorFoldingAreaChange>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
   /**
@@ -28,7 +28,7 @@ export const observe: t.EditorHiddenLib['observe'] = (ed, until) => {
   /**
    * API:
    */
-  return rx.toLifecycle<t.EditorHiddenAreaObserver>(life, {
+  return rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
     get $() {
       return $;
     },
