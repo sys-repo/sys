@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.hook.ts';
 
 /**
  * Tools for binding between a Monaco editor and
@@ -8,7 +7,6 @@ export type * from './t.hook.ts';
 export type EditorCrdtLib = Readonly<{
   bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): Promise<t.EditorCrdtBinding>;
   useBinding: t.UseEditorCrdtBinding;
-  useFoldMarks: t.UseFoldMarks;
 }>;
 
 /**

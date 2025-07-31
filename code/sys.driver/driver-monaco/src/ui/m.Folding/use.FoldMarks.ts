@@ -1,5 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { type t, Obj, A, EditorFolding, pkg, Pkg } from './common.ts';
+
+import { type t, A, Obj, pkg, Pkg } from './common.ts';
+import { getHiddenAreas } from './u.hidden.ts';
+import { toMarkRanges } from './u.mark.ts';
+import { observe } from './u.observe.ts';
+import { clear, fold } from './u.trigger.ts';
+import { equalRanges } from './u.ts';
 
 type R = { start: number; end: number };
 const NAME = Pkg.toString(pkg, 'fold', { version: false });
@@ -31,11 +37,11 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
     };
 
     // Listen to code-fold changes:
-    const { $, dispose } = EditorFolding.observe(editor);
+    const { $, dispose } = observe(editor);
     $.subscribe((e) => {
       if (docUpdatingEditor.current) return; // Skip echo events from local changes to the document marks in this hook.
 
-      const ranges = EditorFolding.toMarkRanges(model, e.areas);
+      const ranges = toMarkRanges(model, e.areas);
       const stored = A.marks(doc.current, path)
         .filter((m) => m.name === NAME)
         .map(({ start, end }) => ({ start, end }));
@@ -74,8 +80,8 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
       }));
 
       // Editor → ranges we "have":
-      const hiddenAreas = EditorFolding.getHiddenAreas(editor);
-      const currentRanges = EditorFolding.toMarkRanges(model, hiddenAreas);
+      const hiddenAreas = getHiddenAreas(editor);
+      const currentRanges = toMarkRanges(model, hiddenAreas);
 
       // Already in sync?  Nothing to do.
       if (equalRanges(currentRanges, nextRanges)) return;
@@ -85,18 +91,18 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
 
       // Case A – the document says "no folds":
       if (!marks.length) {
-        if (mustClear) EditorFolding.clear(editor); // unfold once, only if needed
+        if (mustClear) clear(editor); // unfold once, only if needed
         return;
       }
 
       // Case B – we have folds to apply:
       docUpdatingEditor.current = true; //            suppress echo.
-      if (mustClear) EditorFolding.clear(editor); // only clear when something is folded
+      if (mustClear) clear(editor); // only clear when something is folded
 
       marks.forEach((m) => {
         const start = model.getPositionAt(m.start).lineNumber;
         const end = model.getPositionAt(m.end).lineNumber;
-        EditorFolding.fold(editor, start, end);
+        fold(editor, start, end);
       });
 
       docUpdatingEditor.current = false;

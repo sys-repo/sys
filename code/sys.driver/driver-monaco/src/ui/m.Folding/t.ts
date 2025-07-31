@@ -1,10 +1,13 @@
 import type { t } from './common.ts';
+export type * from './t.hook.ts';
 
 /**
  * Tools for working with the code-hiding aspects
  * of the editor (aka. "code folding").
  */
 export type EditorFoldingLib = Readonly<{
+  useFoldMarks: t.UseFoldMarks;
+
   /**
    * Watch the editor's hidden-area list.
    */

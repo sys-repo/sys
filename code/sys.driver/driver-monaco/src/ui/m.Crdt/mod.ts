@@ -4,4 +4,3 @@
  */
 export { EditorCrdt } from './m.EditorCrdt.ts';
 export { useBinding } from './use.Binding.ts';
-export { useFoldMarks } from './use.FoldMarks.ts';
