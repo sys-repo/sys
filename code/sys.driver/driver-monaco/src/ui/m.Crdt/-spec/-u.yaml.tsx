@@ -26,9 +26,9 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
   const theme = Color.theme(props.theme);
   const styles = { base: css({}) };
 
-  const name = !yaml.ok ? 'yaml.error' : `yaml.parsed:/${(yaml.path?.target ?? []).join('/')}`;
-  const data = yaml.ok ? yaml.parsed.output : yaml.parsed.errors;
-  if (Is.record(data)) Obj.trimStringsDeep(data);
+  const name = 'yaml.parsed';
+  const data = { ...yaml.parsed, path: yaml.path };
+  if (Is.record(data)) Obj.trimStringsDeep(data, { mutate: true });
 
   const elObject = (
     <ObjectView

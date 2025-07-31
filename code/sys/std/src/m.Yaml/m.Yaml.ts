@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
+import { Syncer } from './m.Syncer.ts';
 import { parse, parseDocument } from './u.parse.ts';
 import { pathAtOffset } from './u.pathAtOffset.ts';
-import { Syncer } from './m.Syncer.ts';
 
 /**
  * Helpers for working with YAML.

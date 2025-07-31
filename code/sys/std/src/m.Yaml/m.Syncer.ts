@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
 
 /**
- * Factory
+ * Factory:
  */
 const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const { debounce, life, doc, path } = wrangle.args(input);
