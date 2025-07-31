@@ -37,10 +37,10 @@ export const Sample: React.FC<P> = (props) => {
     errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
   });
 
-  Monaco.Crdt.useBinding({ editor, doc, path: path.yaml }, (e) => {
+  Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
     const run = () => factoryUpdate(signals);
-    run();
     e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
+    run();
   });
 
   let hasErrors = false;
