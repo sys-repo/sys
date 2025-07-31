@@ -1,10 +1,12 @@
 import { type t } from './common.ts';
-import { clear, fold, unfold } from './u.folding.ts';
+import { toMarkRanges } from './u.crdt.ts';
 import { observe } from './u.observe.ts';
+import { clear, fold, unfold } from './u.trigger.ts';
 
 export const EditorFolding: t.EditorFoldingLib = {
   observe,
   fold,
   unfold,
   clear,
+  toMarkRanges,
 };

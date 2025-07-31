@@ -32,6 +32,12 @@ export type EditorFoldingLib = Readonly<{
    * Reveal every line by unfolding all folded ranges.
    */
   clear(ed: t.Monaco.Editor): void;
+
+  /**
+   * Convert editor hidden areas → Automerge sequence ranges.
+   * Stores the *parent* (twisty) line as `start`.
+   */
+  toMarkRanges(model: t.Monaco.TextModel, areas: t.Monaco.I.IRange[]): t.Crdt.Mark.Range[];
 }>;
 
 /**
