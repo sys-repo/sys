@@ -11,7 +11,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   const MEDIA_EXT = /\.(mp4|m4v|mov|webm)$/i;
 
   if (!silent)
-    console.info(`💦 [service-worker] starting Http.Cache: ${pkg.name}`, {
+    console.info(`💦 [service-worker] starting Http.Cache: ${pkg.name} ${pkg.version}`, {
       CACHE_ASSETS,
       CACHE_MEDIA,
     });
