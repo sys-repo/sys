@@ -194,7 +194,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `fold: 2, 7`}
         onClick={() => {
           const editor = p.editor.value;
-          if (editor) Monaco.Hidden.fold(editor, 2, 7);
+          if (editor) Monaco.Folding.fold(editor, 2, 7);
         }}
       />
 
@@ -204,7 +204,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `unfold: 2, 7`}
         onClick={() => {
           const editor = p.editor.value;
-          if (editor) Monaco.Hidden.unfold(editor, 2, 7);
+          if (editor) Monaco.Folding.unfold(editor, 2, 7);
         }}
       />
 

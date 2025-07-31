@@ -5,6 +5,6 @@
 export { Monaco } from '../m.Monaco/mod.ts';
 export { EditorCarets } from './m.Carets/mod.ts';
 export { EditorCrdt } from './m.Crdt/mod.ts';
-export { EditorHidden } from './m.Folding/mod.ts';
+export { EditorFolding } from './m.Folding/mod.ts';
 export { EditorYaml } from './m.Yaml/mod.ts';
 export { MonacoEditor } from './ui.MonacoEditor/mod.ts';

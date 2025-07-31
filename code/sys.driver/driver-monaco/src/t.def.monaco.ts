@@ -36,3 +36,17 @@ export namespace Monaco {
     export type IMarkerData = editor.IMarkerData;
   }
 }
+
+/**
+ * The methods related to the editor's hidden-area list.
+ * NB: explicitly declared because folding helpers
+ *     are not (yet) in the `d.ts` shipped before v0.34.
+ */
+export type EditorHiddenMembers = {
+  /** Current hidden (folded) ranges - expressed as model ranges. */
+  getHiddenAreas(): Monaco.I.IRange[];
+  /** Replace the hidden-area list (pass `[]` to reveal everything). */
+  setHiddenAreas(ranges: Monaco.I.IRange[]): void;
+  /** Fires after any fold/unfold (user action *or* `setHiddenAreas`). */
+  onDidChangeHiddenAreas(listener: () => void): Monaco.I.IDisposable;
+};
