@@ -5,7 +5,6 @@ export {
   animationFrameScheduler,
   BehaviorSubject,
   firstValueFrom,
-  fromEventPattern,
   interval,
   lastValueFrom,
   Observable,
