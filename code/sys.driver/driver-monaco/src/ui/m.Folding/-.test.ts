@@ -168,7 +168,7 @@ describe('Monaco.Folding', () => {
       const editor = MonacoFake.editor('a\nb\nc\nd');
       const model = editor.getModel()!;
       const exp = {
-        start: model.getOffsetAt({ lineNumber: 2, column: 1 }),
+        start: model.getOffsetAt({ lineNumber: 1, column: 1 }),
         end: model.getOffsetAt({ lineNumber: 4, column: 1 }) - 1,
         expand: 'none',
       };
