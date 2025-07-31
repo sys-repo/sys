@@ -2,12 +2,20 @@ import React, { useRef } from 'react';
 
 import { type t, rx } from './common.ts';
 import { EditorCrdt } from './m.EditorCrdt.ts';
+import { useFoldMarks } from './use.FoldMarks.ts';
 
-export const useBinding: t.UseEditorCrdtBinding = (editor, doc, path, onReady) => {
+export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
+  const { editor, doc, path, foldMarks = false } = args;
+
   /**
    * Hooks/Refs:
    */
   const bindingRef = useRef<t.EditorCrdtBinding>();
+
+  /**
+   * Sub-Hooks:
+   */
+  useFoldMarks({ editor, doc, path, enabled: foldMarks });
 
   /**
    * Effect: setup and tear-down the Monaco-Crdt binding.

@@ -1,6 +1,5 @@
-import { type t, Obj, rx } from './common.ts';
+import { type t, A, Obj, rx } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
-import { importLibs } from './libs.ts';
 
 type C = t.EditorCrdtLocalChange;
 
@@ -22,8 +21,6 @@ type C = t.EditorCrdtLocalChange;
 export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path) => {
   const model = editor.getModel();
   if (!model) throw new Error('A model could not be retrieved from the editor.');
-
-  const { A } = await importLibs();
 
   const life = rx.lifecycle();
   const events = doc.events(life);

@@ -134,10 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>
-        <div>{D.name}</div>
-        <div>{'Data Binding'}</div>
-      </div>
+      <div className={Styles.title.class}>{D.name}</div>
 
       <Button
         block
@@ -207,6 +204,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
           if (editor) Monaco.Folding.unfold(editor, 2, 7);
         }}
       />
+      {(p.hiddenAreas.value ?? []).length > 0 && (
+        <ObjectView
+          name={'hidden'}
+          data={p.hiddenAreas.value ?? []}
+          style={{ marginTop: 6 }}
+          expand={1}
+        />
+      )}
 
       <hr />
       <Button
@@ -227,14 +232,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}
         style={{ marginTop: 6 }}
       />
-      {p.hiddenAreas.value && (
-        <ObjectView
-          name={'hidden'}
-          data={p.hiddenAreas.value ?? []}
-          style={{ marginTop: 6 }}
-          expand={1}
-        />
-      )}
     </div>
   );
 };

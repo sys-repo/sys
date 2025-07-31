@@ -34,12 +34,12 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function HostSubject() {
     const v = Signal.toObject(p);
-    const { monaco, editor, doc, path } = v;
+    const { editor, doc, path } = v;
 
     /**
      * Hook:
      */
-    Monaco.Crdt.useBinding(editor, doc, path, (e) => {
+    Monaco.Crdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {
       p.binding.value = e.binding;
       e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
     });
@@ -64,8 +64,8 @@ export default Spec.describe(D.displayName, async (e) => {
           p.carets.value = e.carets;
 
           // Hidden Areas (code-folding) observer:
-          const hidden = Monaco.Hidden.observe(e.editor);
-          hidden.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
+          const folding = Monaco.Folding.observe(e.editor);
+          folding.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
 
           // (🐷) Custom link intercepts:
           sampleInterceptLink(e);

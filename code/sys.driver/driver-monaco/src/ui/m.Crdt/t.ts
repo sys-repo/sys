@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.hook.ts';
 
 /**
  * Tools for binding between a Monaco editor and
@@ -7,6 +8,7 @@ import type { t } from './common.ts';
 export type EditorCrdtLib = Readonly<{
   bind(editor: t.Monaco.Editor, doc: t.Crdt.Ref, path: t.ObjectPath): Promise<t.EditorCrdtBinding>;
   useBinding: t.UseEditorCrdtBinding;
+  useFoldMarks: t.UseFoldMarks;
 }>;
 
 /**
@@ -24,11 +26,18 @@ export type EditorCrdtBinding = t.Lifecycle & {
  * Hook: to setup and tear-down a Monaco-Crdt two-way data binding.
  */
 export type UseEditorCrdtBinding = (
-  editor: t.Monaco.Editor | undefined,
-  doc: t.Crdt.Ref | undefined,
-  path: t.ObjectPath | undefined,
+  args: t.UseEditorCrdtBindingArgs,
   onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.Observable<void> }) => void,
 ) => EditorCrdtBindingHook;
+
+/** Arguments passed to the CRDT `useBinding` hook. */
+export type UseEditorCrdtBindingArgs = {
+  editor?: t.Monaco.Editor;
+  doc?: t.Crdt.Ref;
+  path?: t.ObjectPath;
+  /** Sync CRDT fold marks with Monaco. (default = off) */
+  foldMarks?: boolean;
+};
 
 /** An instance of the `useBinding` Monaco-Crdt two-way data binding. */
 export type EditorCrdtBindingHook = {
