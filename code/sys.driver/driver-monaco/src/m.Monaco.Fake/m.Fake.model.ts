@@ -83,6 +83,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     getLanguageId: () => language,
     getLineCount: () => text.split('\n').length,
     getLineContent: (lineNumber: number) => text.split('\n')[lineNumber - 1] ?? '',
+    getLineMaxColumn: (lineNumber: number) => api.getLineContent(lineNumber).length + 1,
     getValueLength,
 
     /* Stters (Mutate): */

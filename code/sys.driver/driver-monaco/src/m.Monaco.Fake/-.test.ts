@@ -1,5 +1,4 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { Monaco } from '@sys/driver-monaco';
 import { MonacoFake } from './mod.ts';
 
 describe('MonacoFake (Mock)', () => {
@@ -52,9 +51,18 @@ describe('MonacoFake (Mock)', () => {
       it('updates when the buffer changes via setValue', () => {
         const model = MonacoFake.model('foo');
         expect(model.getValueLength()).to.equal(3);
-
         model.setValue('bar\nbaz');
         expect(model.getValueLength()).to.equal(7);
+      });
+    });
+
+    describe('getLineMaxColumn', () => {
+      it('returns (line length + 1) for each line', () => {
+        const src = 'a\nbc\n1234';
+        const model = MonacoFake.model(src);
+        expect(model.getLineMaxColumn(1)).to.eql(2); // 'a'    → len 1 + 1
+        expect(model.getLineMaxColumn(2)).to.eql(3); // 'bc'   → len 2 + 1
+        expect(model.getLineMaxColumn(3)).to.eql(5); // '1234' → len 4 + 1
       });
     });
 

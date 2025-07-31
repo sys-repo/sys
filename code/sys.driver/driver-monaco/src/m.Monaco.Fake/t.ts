@@ -23,6 +23,7 @@ export type FakeTextModel = Pick<
   | 'getLineCount'
   | 'getLineContent'
   | 'getValueLength'
+  | 'getLineMaxColumn'
   //
   | 'setValue'
   //
