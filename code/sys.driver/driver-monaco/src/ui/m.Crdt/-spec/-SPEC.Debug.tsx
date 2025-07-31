@@ -183,7 +183,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       )}
 
       <hr />
-      <div className={Styles.title.class}>{'Hidden / Folding:'}</div>
+      <div className={Styles.title.class}>{'Folding:'}</div>
 
       <Button
         block
