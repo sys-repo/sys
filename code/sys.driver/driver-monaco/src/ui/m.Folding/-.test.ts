@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
+import { type t, Time, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
 import { EditorFolding } from './mod.ts';
 
 describe('Monaco.Folding', () => {
@@ -29,7 +29,7 @@ describe('Monaco.Folding', () => {
     });
 
     describe('observer updates', () => {
-      it('observer reflects fold/unfold events', () => {
+      it('observer reflects fold/unfold events', async () => {
         const src = 'line one\nline two\nline three';
         const editor = MonacoFake.editor(src);
         const ob = EditorFolding.observe(editor);
@@ -46,13 +46,14 @@ describe('Monaco.Folding', () => {
 
         // Fold lines 2-3:
         editor.setHiddenAreas([fold]);
+        await Time.wait(10);
         expect(ob.areas).to.eql([fold]);
-
         expect(fired.length).to.eql(1);
         expect(fired.at(-1)?.areas).to.eql([fold]);
 
         // Unfold everything:
         editor.setHiddenAreas([]);
+        await Time.wait(10);
         expect(ob.areas).to.eql([]);
 
         expect(fired.length).to.eql(2);

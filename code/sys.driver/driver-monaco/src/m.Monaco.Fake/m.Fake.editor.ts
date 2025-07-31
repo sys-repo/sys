@@ -1,6 +1,8 @@
 import { type t, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
+type IRange = t.Monaco.I.IRange;
+
 /**
  * Minimal `IStandaloneCodeEditor` fake.
  */
@@ -12,22 +14,24 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
   /**
    * Code Folding:
    */
-  let hiddenAreas: t.Monaco.I.IRange[] = [];
-  const foldSubs: Array<() => void> = [];
+  let hiddenAreas: IRange[] = [];
+  const foldSubs: Array<(areas: IRange[]) => void> = [];
 
   const getHiddenAreas = () => hiddenAreas;
-  const setHiddenAreas = (next: t.Monaco.I.IRange[]) => {
+  const setHiddenAreas = (next: IRange[]) => {
     const same =
       next.length === hiddenAreas.length &&
       next.every((range, i) => RangeUtil.eql(range, hiddenAreas[i]));
     if (same) return;
     hiddenAreas = next;
-    foldSubs.forEach((fn) => fn());
+    foldSubs.forEach((fn) => fn(hiddenAreas));
   };
+
   const getVisibleRanges = () => {
     return RangeUtil.complement(model.getLineCount(), hiddenAreas) as t.Monaco.Range[];
   };
-  const onDidChangeHiddenAreas = (listener: () => void): t.Monaco.I.IDisposable => {
+
+  const onDidChangeHiddenAreas = (listener: (areas: IRange[]) => void): t.Monaco.I.IDisposable => {
     foldSubs.push(listener);
     return {
       dispose() {
@@ -87,7 +91,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
 
         if (command === 'editor.fold') {
           // Build contiguous ranges ↓
-          const ranges: t.Monaco.I.IRange[] = [];
+          const ranges: IRange[] = [];
           let run: number[] = [];
 
           const flush = () => {
@@ -149,6 +153,10 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,
   };
+
+  // NB: shim:
+  (api as any)._getViewModel = () => ({ getHiddenAreas });
+
   return api as t.FakeEditorFull;
 };
 

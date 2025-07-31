@@ -27,6 +27,7 @@ export const observe: t.EditorFoldingLib['observe'] = (ed, until) => {
    */
   const $ = $$.pipe(
     rx.auditTime(0),
+    rx.throttleTime(0, undefined, { leading: true, trailing: true }), // ← keep first + last.
     rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
     rx.takeUntil(life.dispose$),
   );
