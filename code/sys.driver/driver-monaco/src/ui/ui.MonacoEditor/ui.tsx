@@ -5,6 +5,7 @@ import { Editor as EditorReact } from '@monaco-editor/react';
 
 import { EditorCarets } from '../m.Carets/mod.ts';
 import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
+import { defaultKeyBindings } from './u.Keyboard.ts';
 import { Theme } from './u.Theme.ts';
 
 /**
@@ -101,6 +102,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     const editor = (editorRef.current = ed);
     updateOptions(editor);
     updateTextState(editor);
+    defaultKeyBindings(monaco);
 
     let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
