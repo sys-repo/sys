@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Icons, Color, css, Signal, D, DEFAULTS, rx, Cropmarks } from '../common.ts';
+import React from 'react';
 import type { Section } from '../-schemas/mod.ts';
+import { type t, Color, Cropmarks, css, Icons } from '../common.ts';
 
 export type SectionHostProps = {
   data?: Section;
