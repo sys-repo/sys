@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { type t, Immutable, Obj, Yaml } from './common.ts';
 import { Path } from './m.Path.ts';
 import { useErrorMarkers } from './use.ErrorMarkers.ts';
+import { usePathLinks } from './use.PathLinks.ts';
 
 export const useYaml: t.UseEditorYaml = (args, cb) => {
   const { monaco, editor, doc, path, debounce } = args;
@@ -18,6 +19,7 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
   const [, setCount] = useState(0);
   const [cursor, setCursor] = useState<t.EditorYamlCursorPath>({ path: [] });
   const [parser, setParser] = useState<t.YamlSyncParser>();
+  const linkPaths = usePathLinks({ editor, cursor });
 
   /** YAML parsing diagnostics: */
   useErrorMarkers({
@@ -41,17 +43,17 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
   }, [Obj.hash([...wrangle.docDeps(doc), path, debounce])]);
 
   /**
-   * Effect: Cursor Path
+   * Effect: Cursor path.
    */
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !monaco) return;
     const observer = Path.observe(editor);
     observer.$.subscribe((e) => {
       setCursor(e);
       fireChange();
     });
     return observer.dispose;
-  }, [editor?.getId()]);
+  }, [editor?.getId(), !!monaco]);
 
   /**
    * API:

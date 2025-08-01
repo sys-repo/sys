@@ -25,4 +25,5 @@ export type EditorYamlCursorPathHandler = (e: EditorYamlCursorPath) => void;
 export type EditorYamlCursorPath = {
   readonly path: t.ObjectPath;
   readonly cursor?: Readonly<{ position: t.Monaco.I.IPosition; offset: t.Index }>;
+  readonly word?: t.Monaco.I.IRange;
 };

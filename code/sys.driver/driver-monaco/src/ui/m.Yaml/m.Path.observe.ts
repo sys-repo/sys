@@ -13,19 +13,16 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const $$ = rx.subject<t.EditorYamlCursorPath>();
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
-  // Keep the latest parse and the model version it belongs to.
+  // Keep the latest parse and the model version it belongs to:
   let doc = Yaml.parseDocument(model.getValue());
   let version = model.getVersionId();
   let current: t.EditorYamlCursorPath | undefined;
 
-  // (Re)parse helper.
+  // (Re)parse helper:
   const parse = () => {
     doc = Yaml.parseDocument(model.getValue());
     version = model.getVersionId();
   };
-
-  // Update when the buffer changes.
-  const contentSub = model.onDidChangeContent(parse);
 
   const clear = () => {
     current = undefined;
@@ -36,18 +33,21 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
     const info = wrangle.info(editor);
     if (info?.language === 'yaml') {
       const { position } = info;
+      const word = wrangle.wordRange(editor);
+      const { offset, path } = pathAtCaret(model, doc, position);
+      if (offset === -1) return void clear();
 
-      const result = pathAtCaret(model, doc, position);
-      if (result.offset === -1) {
-        return void clear();
-      }
-
-      current = { path: result.path, cursor: { position, offset: result.offset } };
+      current = { path, cursor: { position, offset }, word };
       $$.next(current);
     } else {
       clear();
     }
   };
+
+  /**
+   * Handler: Update when the buffer changes.
+   */
+  const contentSub = model.onDidChangeContent(parse);
 
   /**
    * Handler: Watch the caret moving.
@@ -95,5 +95,21 @@ const wrangle = {
     const language = model.getLanguageId() as t.EditorLanguage;
     const offset = position ? model?.getOffsetAt(position) ?? -1 : -1;
     return { position, offset, language } as const;
+  },
+
+  wordRange(editor: t.Monaco.Editor): t.Monaco.I.IRange | undefined {
+    const position = editor.getPosition();
+    const model = editor.getModel();
+    if (!position || !model) return;
+
+    const word = model.getWordAtPosition(position);
+    if (!word) return;
+
+    return {
+      startLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endLineNumber: position.lineNumber,
+      endColumn: word.endColumn,
+    };
   },
 } as const;
