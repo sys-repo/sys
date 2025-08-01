@@ -89,7 +89,6 @@
     "npm:ignore@7.0.5": "7.0.5",
     "npm:immer@10": "10.1.1",
     "npm:monaco-editor@0.52.2": "0.52.2",
-    "npm:monaco-yaml@5.4.0": "5.4.0_monaco-editor@0.52.2",
     "npm:motion@12.23.12": "12.23.12_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:ollama-ai-provider@1.2.0": "1.2.0_zod@3.25.76",
     "npm:ollama@0.5.16": "0.5.16",
@@ -115,7 +114,6 @@
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.4": "2.0.4",
     "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.0.6__picomatch@4.0.3_yaml@2.8.0_@types+node@22.15.15",
-    "npm:vite@*": "7.0.6_picomatch@4.0.3_yaml@2.8.0_@types+node@22.15.15",
     "npm:vite@7.0.6": "7.0.6_picomatch@4.0.3_yaml@2.8.0_@types+node@22.15.15",
     "npm:ws@8.18.3": "8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10",
     "npm:yaml@2.8.0": "2.8.0",
@@ -2972,9 +2970,6 @@
     "json-stringify-safe@5.0.1": {
       "integrity": "sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA=="
     },
-    "jsonc-parser@3.3.1": {
-      "integrity": "sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ=="
-    },
     "jsondiffpatch@0.6.0": {
       "integrity": "sha512-3QItJOXp2AP1uv7waBkao5nCvhEv+QmJAd38Ybq7wNI74Q+BBmnLn4EDKz6yI9xGAIQoUF87qHt+kc1IVxB4zQ==",
       "dependencies": [
@@ -3055,46 +3050,6 @@
     },
     "monaco-editor@0.52.2": {
       "integrity": "sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ=="
-    },
-    "monaco-languageserver-types@0.4.0": {
-      "integrity": "sha512-QQ3BZiU5LYkJElGncSNb5AKoJ/LCs6YBMCJMAz9EA7v+JaOdn3kx2cXpPTcZfKA5AEsR0vc97sAw+5mdNhVBmw==",
-      "dependencies": [
-        "monaco-types",
-        "vscode-languageserver-protocol",
-        "vscode-uri"
-      ]
-    },
-    "monaco-marker-data-provider@1.2.4": {
-      "integrity": "sha512-4DsPgsAqpTyUDs3humXRBPUJoihTv+L6v9aupQWD80X2YXaCXUd11mWYeSCYHuPgdUmjFaNWCEOjQ6ewf/QA1Q==",
-      "dependencies": [
-        "monaco-types"
-      ]
-    },
-    "monaco-types@0.1.0": {
-      "integrity": "sha512-aWK7SN9hAqNYi0WosPoMjenMeXJjwCxDibOqWffyQ/qXdzB/86xshGQobRferfmNz7BSNQ8GB0MD0oby9/5fTQ=="
-    },
-    "monaco-worker-manager@2.0.1_monaco-editor@0.52.2": {
-      "integrity": "sha512-kdPL0yvg5qjhKPNVjJoym331PY/5JC11aPJXtCZNwWRvBr6jhkIamvYAyiY5P1AWFmNOy0aRDRoMdZfa71h8kg==",
-      "dependencies": [
-        "monaco-editor"
-      ]
-    },
-    "monaco-yaml@5.4.0_monaco-editor@0.52.2": {
-      "integrity": "sha512-tuBVDy1KAPrgO905GHTItu8AaA5bIzF5S4X0JVRAE/D66FpRhkDUk7tKi5bwKMVTTugtpMLsXN4ewh4CgE/FtQ==",
-      "dependencies": [
-        "jsonc-parser",
-        "monaco-editor",
-        "monaco-languageserver-types",
-        "monaco-marker-data-provider",
-        "monaco-types",
-        "monaco-worker-manager",
-        "path-browserify",
-        "prettier",
-        "vscode-languageserver-textdocument",
-        "vscode-languageserver-types",
-        "vscode-uri",
-        "yaml"
-      ]
     },
     "motion-dom@12.23.12": {
       "integrity": "sha512-RcR4fvMCTESQBD/uKQe49D5RUeDOokkGRmz4ceaJKDBgHYtZtntC/s2vLvY38gqGaytinij/yi3hMcWVcEF5Kw==",
@@ -3227,9 +3182,6 @@
     },
     "partial-json@0.1.7": {
       "integrity": "sha512-Njv/59hHaokb/hRUjce3Hdv12wd60MtM9Z5Olmn+nehe0QDAsRtRbJPvJ0Z91TusF0SuZRIvnM+S4l6EIP8leA=="
-    },
-    "path-browserify@1.0.1": {
-      "integrity": "sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g=="
     },
     "path-key@3.1.1": {
       "integrity": "sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q=="
@@ -3382,10 +3334,6 @@
     },
     "postgres@3.4.7": {
       "integrity": "sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw=="
-    },
-    "prettier@3.6.2": {
-      "integrity": "sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==",
-      "bin": true
     },
     "pretty-bytes@7.0.0": {
       "integrity": "sha512-U5otLYPR3L0SVjHGrkEUx5mf7MxV2ceXeE7VwWPk+hyzC5drNohsOGNPDZqxCqyX1lkbEN4kl1LiI8QFd7r0ZA=="
@@ -3958,25 +3906,6 @@
       ],
       "bin": true
     },
-    "vscode-jsonrpc@8.2.0": {
-      "integrity": "sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA=="
-    },
-    "vscode-languageserver-protocol@3.17.5": {
-      "integrity": "sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==",
-      "dependencies": [
-        "vscode-jsonrpc",
-        "vscode-languageserver-types"
-      ]
-    },
-    "vscode-languageserver-textdocument@1.0.12": {
-      "integrity": "sha512-cxWNPesCnQCcMPeenjKKsOCKQZ/L6Tv19DTRIGuLWe32lyzWhihGVJ/rcckZXJxfdKCFvRLS3fpBIsV/ZGX4zA=="
-    },
-    "vscode-languageserver-types@3.17.5": {
-      "integrity": "sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg=="
-    },
-    "vscode-uri@3.1.0": {
-      "integrity": "sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ=="
-    },
     "w3c-keyname@2.2.8": {
       "integrity": "sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ=="
     },
@@ -4140,7 +4069,6 @@
       "npm:ignore@7.0.5",
       "npm:immer@10",
       "npm:monaco-editor@0.52.2",
-      "npm:monaco-yaml@5.4.0",
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.5.16",
       "npm:ora@8.2.0",

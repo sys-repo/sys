@@ -53,7 +53,6 @@
     "ignore": "npm:ignore@7.0.5",
     "immer": "npm:immer@10",
     "monaco-editor": "npm:monaco-editor@0.52.2",
-    "monaco-yaml": "npm:monaco-yaml@5.4.0",
     "ollama": "npm:ollama@0.5.16",
     "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@8.2.0",
