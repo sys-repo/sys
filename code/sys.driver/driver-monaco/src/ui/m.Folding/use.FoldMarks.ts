@@ -7,7 +7,6 @@ import { observe } from './u.observe.ts';
 import { clear, fold } from './u.trigger.ts';
 import { equalRanges } from './u.ts';
 
-type R = { start: number; end: number };
 const NAME = Pkg.toString(pkg, 'fold', { version: false });
 
 export const useFoldMarks: t.UseFoldMarks = (args) => {
@@ -70,10 +69,17 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
      * Convert all current "fold" marks to editor folds.
      */
     const applyDocMarksToEditor = () => {
+      let rawMarks: Array<{ start: number; end: number; name: string }>;
+      try {
+        rawMarks = A.marks(doc.current, path);
+      } catch (err) {
+        return; // NB: (invalidObjectID) / nonexistent path - skip.
+      }
+
       if (model.getValueLength() === 0) return; // Bail until the model is populated.
 
       // Doc → ranges we "want":
-      const marks = A.marks(doc.current, path).filter((m) => m.name === NAME);
+      const marks = rawMarks.filter((m) => m.name === NAME);
       const nextRanges = marks.map((m) => ({
         start: model.getPositionAt(m.start).lineNumber,
         end: model.getPositionAt(m.end).lineNumber,

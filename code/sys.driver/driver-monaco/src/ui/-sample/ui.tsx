@@ -29,6 +29,7 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
+  React.useEffect(() => State.clearMain(signals), [doc?.id]); // ← Reset UI when CRDT document changes.
   Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
     const run = () => State.updateMain(signals, factory.getSchema);
     e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);

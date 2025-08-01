@@ -4,7 +4,17 @@ import { Meta } from './u.schema.ts';
 /**
  * API:
  */
-export const State = { updateMain } as const;
+export const State = {
+  updateMain,
+  clearMain,
+} as const;
+
+/**
+ * Clear the current Main view.
+ */
+export function clearMain(signals: t.SampleSignals) {
+  signals.main.value = undefined;
+}
 
 /**
  * When the document has changed:
