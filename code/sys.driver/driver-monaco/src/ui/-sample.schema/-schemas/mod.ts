@@ -15,8 +15,8 @@ export type Section = t.Static<typeof Section>;
 
 export function getSchema(id: string) {
   const key = id as t.SampleFactoryId;
-  if (key === 'video:host') return Video;
-  if (key === 'section:host') return Section;
+  if (key === 'VideoPlayer:host') return Video;
+  if (key === 'SectionTree:host') return Section;
   return;
 }
 

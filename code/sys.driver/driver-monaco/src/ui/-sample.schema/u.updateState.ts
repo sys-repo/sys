@@ -6,7 +6,7 @@ import { type t, Obj, Schema, Signal } from './common.ts';
  *   1. Parse the meta-data to determine the main <View> to display.
  *   2. Find and parse the {props} for the <View> from within the document.
  */
-export function factoryUpdate(signals: t.SampleSignals) {
+export function updateMain(signals: t.SampleSignals) {
   const doc = signals.doc.value;
   const path = Signal.toObject(signals.path);
   const root = Obj.Path.get<{}>(doc?.current, path.parsed);

@@ -25,12 +25,12 @@ export async function factory(id: string): Promise<FactoryResponse> {
   const key = id as t.SampleFactoryId;
   const done = (Component: React.FC<any>): FactoryResponse => ({ default: Component });
 
-  if (key === 'video:host') {
+  if (key === 'VideoPlayer:host') {
     const { VideoHost } = await import('./-views/Video.Host.tsx');
     return done(VideoHost);
   }
 
-  if (key === 'section:host') {
+  if (key === 'SectionTree:host') {
     const { SectionHost } = await import('./-views/Section.Host.tsx');
     return done(SectionHost);
   }

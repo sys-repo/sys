@@ -26,7 +26,7 @@ export function sampleInterceptLink(e: t.MonacoEditorReady) {
         links.push({
           range: e.monaco.Range.fromPositions(startPos, endPos),
           url: match[0], // ← both string or Uri accepted.
-          tooltip: 'Load Document',
+          tooltip: 'Load document',
         });
       }
 
@@ -39,8 +39,12 @@ export function sampleInterceptLink(e: t.MonacoEditorReady) {
    */
   const subOpener = e.monaco.editor.registerLinkOpener({
     open(uri) {
-      console.info('⚡️ open/uri:', uri);
-      if (uri.scheme === 'crdt') return true; // NB: true == handled.
+      if (uri.scheme === 'crdt') {
+        console.info('⚡️ editor.registerLinkOpener.open(uri): CRDT - WIP 🐷', uri);
+        return true; // NB: true == handled.
+      }
+
+      console.info('⚡️ editor.registerLinkOpener.open(uri):', uri);
       return false;
     },
   });

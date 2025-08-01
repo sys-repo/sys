@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-export type SampleFactoryId = 'video:host' | 'section:host';
+export type SampleFactoryId = 'VideoPlayer:host' | 'SectionTree:host';
 
 /**
  * Component:
