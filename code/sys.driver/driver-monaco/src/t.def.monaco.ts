@@ -36,6 +36,14 @@ export namespace Monaco {
     export type IMarkerData = editor.IMarkerData;
     export type IEditorDecorationsCollection = editor.IEditorDecorationsCollection;
   }
+
+  // Languages:
+  export namespace Lang {
+    export type CompletionContext = monaco.languages.CompletionContext;
+    export type CompletionList = monaco.languages.CompletionList;
+    export type CompletionItem = monaco.languages.CompletionItem;
+    export type ProviderResult<T> = monaco.languages.ProviderResult<T>;
+  }
 }
 
 /**

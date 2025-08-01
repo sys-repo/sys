@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 
+import { defaultLanguageConfig } from './u.languages.ts';
 import { EditorCarets } from '../m.Carets/mod.ts';
 import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
@@ -96,13 +97,14 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   const handleMount: OnMount = (ed, m) => {
     const monaco = m as t.Monaco.Monaco;
+    const editor = (editorRef.current = ed);
     Theme.init(monaco);
     monacoRef.current = monaco;
 
-    const editor = (editorRef.current = ed);
+    defaultKeyBindings(monaco);
+    defaultLanguageConfig(monaco);
     updateOptions(editor);
     updateTextState(editor);
-    defaultKeyBindings(monaco);
 
     let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
