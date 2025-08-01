@@ -45,12 +45,6 @@ groups:
     - import: npm:@automerge/automerge-repo-storage-nodefs@2.2.0
     - import: npm:@automerge/prosemirror@0.1.0
 
-  monaco:
-    # https://microsoft.github.io/monaco-editor
-    - import: npm:@monaco-editor/react@4.7.0
-    - import: npm:monaco-editor@0.52.2
-    - import: npm:monaco-yaml@5.4.0
-
   crypto:
     - import: npm:@noble/hashes@1.8.0
       wildcard: true
@@ -67,6 +61,12 @@ groups:
     - import: npm:@types/react-dom@18.3.5
     - import: npm:react@18.3.1
     - import: npm:react-dom@18.3.1
+
+  ui/monaco:
+    # https://microsoft.github.io/monaco-editor
+    - import: npm:@monaco-editor/react@4.7.0
+    - import: npm:monaco-editor@0.52.2
+    - import: npm:monaco-yaml@5.4.0
 
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.2
@@ -94,7 +94,7 @@ deno.json:
   - group: crypto
   - group: ai
   - group: automerge
-  - group: monaco
+  - group: ui/monaco
   - group: ui/prosemirror
 
   # CLI tools:
