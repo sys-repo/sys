@@ -34,7 +34,7 @@ export function usePathLinks(args: { editor?: t.Monaco.Editor; cursor?: t.Editor
       const inlineClassName = css({ textDecoration: 'underline', cursor: 'pointer' }).class;
       const trigger = UserAgent.current.is.macOS ? 'cmd + click' : 'ctrl + click';
       const path = cursor.path.map((seg) => Str.truncate(String(seg), 10)).join('/');
-      const value = `Lens: '${path}' (${trigger})`;
+      const value = `Lens into '${path}' (${trigger})`;
       collection.set([{ range, options: { inlineClassName, hoverMessage: { value } } }]);
     } else {
       collection.clear();

@@ -1,8 +1,8 @@
 import { Player } from '@sys/ui-react-components';
 
 import React from 'react';
-import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
 import type { Video } from '../-schemas/mod.ts';
+import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
 
 export type VideoHostProps = {
   data?: Video;
@@ -14,7 +14,7 @@ export type VideoHostProps = {
 /**
  * Component:
  */
-export const VideoHost: React.FC<VideoHostProps> = (props) => {
+export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
   const { data } = props;
 
   /**
