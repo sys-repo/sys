@@ -1,7 +1,7 @@
 import type { Type } from '@sinclair/typebox';
-import type { Value, AssertError } from '@sinclair/typebox/value';
+import type { AssertError, Value } from '@sinclair/typebox/value';
 
-export type { Static } from '@sinclair/typebox';
+export type { Static, TSchema } from '@sinclair/typebox';
 export type { AssertError } from '@sinclair/typebox/value';
 
 /**

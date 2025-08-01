@@ -1,6 +1,5 @@
 import { type t, Obj, Schema, Signal } from './common.ts';
-
-import { SampleSchema } from '../-sample.factory/mod.ts';
+import { Meta } from './u.schema.ts';
 
 /**
  * API:
@@ -12,7 +11,7 @@ export const State = { updateMain } as const;
  *   1. Parse the meta-data to determine the main <View> to display.
  *   2. Find and parse the {props} for the <View> from within the document.
  */
-function updateMain(signals: t.SampleSignals) {
+function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
   const doc = signals.doc.value;
   const path = Signal.toObject(signals.path);
   const root = Obj.Path.get<{}>(doc?.current, path.parsed);
@@ -25,7 +24,7 @@ function updateMain(signals: t.SampleSignals) {
    * 1. Read meta from YAML:
    */
   const _meta = Obj.Path.get(root, path.meta, {});
-  const meta = Schema.try(() => Schema.Value.Parse(SampleSchema.Meta, _meta));
+  const meta = Schema.try(() => Schema.Value.Parse(Meta, _meta));
 
   /**
    * 2. Read /main UI props and factory lookup-id from YAML:
@@ -34,7 +33,7 @@ function updateMain(signals: t.SampleSignals) {
   signals.main.value = undefined; // ← (reset).
   if (main?.props && main.component) {
     const component = main.component;
-    const schema = SampleSchema.get(component);
+    const schema = getSchema(component);
     if (!schema) return void console.warn(`A type schema for '${component}' was not returned.`);
 
     const p = Obj.Path.curry(main.props.split('/'));

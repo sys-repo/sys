@@ -1,4 +1,4 @@
-import { Type } from '../common.ts';
+import { type t, Type } from './common.ts';
 
 /**
  * Meta-data:
@@ -23,3 +23,5 @@ export const Meta = Type.Object({
     }),
   ),
 });
+
+export type MetaSchema = t.Static<typeof Meta>;

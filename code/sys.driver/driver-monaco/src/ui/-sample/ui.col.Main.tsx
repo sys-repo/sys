@@ -1,13 +1,14 @@
 import React from 'react';
+
 import { type t, Color, css, Spinners } from './common.ts';
 import { getLazy } from './u.factory.tsx';
 
 type P = t.SampleProps & { hasErrors?: boolean };
 
 export const MainColumn: React.FC<P> = (props) => {
-  const { signals, hasErrors } = props;
+  const { signals, factory, hasErrors } = props;
   const def = signals.main.value;
-  const Lazy = def ? getLazy(def.component) : null;
+  const Lazy = def ? getLazy(def.component, factory.getView) : null;
 
   /**
    * Render:

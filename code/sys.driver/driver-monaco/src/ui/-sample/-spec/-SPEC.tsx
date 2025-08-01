@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Crdt, D, STORAGE_KEY, Obj } from '../common.ts';
+import { Crdt, D, Obj, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -36,6 +36,7 @@ export default Spec.describe(D.displayName, async (e) => {
             debug={v.debug}
             theme={v.theme}
             repo={repo}
+            factory={v.factory}
             signals={signals}
             onRequestRedraw={updateLayout}
           />

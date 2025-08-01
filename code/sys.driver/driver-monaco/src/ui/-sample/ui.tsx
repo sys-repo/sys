@@ -8,7 +8,7 @@ import { MainColumn } from './ui.col.Main.tsx';
 type P = t.SampleProps;
 
 export const Sample: React.FC<P> = (props) => {
-  const { debug = false, signals } = props;
+  const { debug = false, signals, factory } = props;
 
   const editor = signals.io.editor.value;
   const monaco = signals.io.monaco.value;
@@ -30,7 +30,7 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
-    const run = () => State.updateMain(signals);
+    const run = () => State.updateMain(signals, factory.getSchema);
     e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
     run();
   });

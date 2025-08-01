@@ -1,4 +1,5 @@
 import React from 'react';
+import { SampleFactory } from '../../-sample.factory/mod.ts';
 import {
   type t,
   Button,
@@ -53,6 +54,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    factory: s<t.Factory>(SampleFactory),
   };
   const signals = createSignals();
   const p = props;
