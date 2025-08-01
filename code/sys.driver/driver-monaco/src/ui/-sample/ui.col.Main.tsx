@@ -6,7 +6,7 @@ import { getLazy } from './u.factory.tsx';
 type P = t.SampleProps & { hasErrors?: boolean };
 
 export const MainColumn: React.FC<P> = (props) => {
-  const { signals, factory, hasErrors } = props;
+  const { repo, signals, factory, hasErrors } = props;
   const def = signals.main.value;
   const Lazy = def ? getLazy(def.component, factory.getView) : null;
 
@@ -40,7 +40,7 @@ export const MainColumn: React.FC<P> = (props) => {
 
   const elBody = (
     <React.Suspense fallback={elSpinner}>
-      {Lazy && <Lazy data={def!.props} theme={props.theme} />}
+      {Lazy && <Lazy data={def!.props} repo={repo} theme={props.theme} />}
     </React.Suspense>
   );
 

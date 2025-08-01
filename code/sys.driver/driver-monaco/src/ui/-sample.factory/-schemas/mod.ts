@@ -15,5 +15,6 @@ export function getSchema(id: string) {
   const key = id as t.SampleFactoryId;
   if (key === 'VideoPlayer:host') return Video;
   if (key === 'SectionTree:host') return Section;
+  if (key === 'Fileshare:host') return Fileshare;
   return;
 }
