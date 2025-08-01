@@ -74,7 +74,16 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('get: automerge-URL', async () => {
       const repo = toRepo(new AutomergeRepo());
       const a = repo.create<T>({ count: 0 });
-      const b = (await repo.get<T>(`automerge:${a.id}`)).doc!;
+      const b = (await repo.get<T>(`  automerge:${a.id}  `)).doc!;
+      expect(b.instance).to.not.eql(a.instance);
+      expect(b.id).to.eql(a.id);
+      expect(b.current).to.eql({ count: 0 });
+    });
+
+    it('get: "crdt:<docid> URI', async () => {
+      const repo = toRepo(new AutomergeRepo());
+      const a = repo.create<T>({ count: 0 });
+      const b = (await repo.get<T>(`  crdt:${a.id}  `)).doc!;
       expect(b.instance).to.not.eql(a.instance);
       expect(b.id).to.eql(a.id);
       expect(b.current).to.eql({ count: 0 });

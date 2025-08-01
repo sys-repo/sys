@@ -176,6 +176,7 @@ const wrangle = {
     let id = CrdtIs.ref(input) ? input.id : input;
     if (typeof id !== 'string') return '' as DocumentId;
     id = id.trim();
+    id = id.replace(/^crdt\:/, '');
     id = isValidAutomergeUrl(id) ? id.replace(/^automerge\:/, '') : id;
     return id as DocumentId;
   },
