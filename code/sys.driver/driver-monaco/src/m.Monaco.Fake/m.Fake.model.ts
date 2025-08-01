@@ -103,7 +103,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   };
 
   /**
-   * API surface exposed to tests.
+   * API surface exposed to tests:
    */
   const api: t.FakeTextModel = {
     /** Getters */

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, css, Obj, UserAgent } from './common.ts';
+import { type t, Str, css, Obj, UserAgent } from './common.ts';
 
 export function usePathLinks(args: { editor?: t.Monaco.Editor; cursor?: t.EditorYamlCursorPath }) {
   const { editor, cursor } = args;
@@ -32,8 +32,9 @@ export function usePathLinks(args: { editor?: t.Monaco.Editor; cursor?: t.Editor
 
     if (range) {
       const inlineClassName = css({ textDecoration: 'underline', cursor: 'pointer' }).class;
-      const trigger = UserAgent.current.is.macOS ? '⌘+Click' : 'Ctrl+Click';
-      const value = `${trigger} to expand`;
+      const trigger = UserAgent.current.is.macOS ? 'cmd + click' : 'ctrl + click';
+      const path = cursor.path.map((seg) => Str.truncate(String(seg), 10)).join('/');
+      const value = `Open lens: '${path}' (${trigger})`;
       collection.set([{ range, options: { inlineClassName, hoverMessage: { value } } }]);
     } else {
       collection.clear();
