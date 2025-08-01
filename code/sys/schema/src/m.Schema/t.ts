@@ -1,9 +1,6 @@
 import type { Type } from '@sinclair/typebox';
 import type { AssertError, Value } from '@sinclair/typebox/value';
 
-export type { Static, TSchema } from '@sinclair/typebox';
-export type { AssertError } from '@sinclair/typebox/value';
-
 /**
  * "Standard Schema" (Typescript/JSONSchema) tools:
  * ```

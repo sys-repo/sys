@@ -1,15 +1,15 @@
-import type { t } from '../common.ts';
-import { Type } from '../common.ts';
+import type { Static, TLiteral, TUnion } from '@sys/schema/t';
+import { type t, Type } from '../common.ts';
 
 /**
- * Types:
+ * Type: Keys for looking up views within the factory.
  */
-export const SampleFactoryId = Type.Union(
+const U: TUnion<[TLiteral<'VideoPlayer:host'>, TLiteral<'SectionTree:host'>]> = Type.Union(
   [Type.Literal('VideoPlayer:host'), Type.Literal('SectionTree:host')],
   { description: 'Keys for looking up views within the factory.' },
 );
-
-export type SampleFactoryId = t.Static<typeof SampleFactoryId>;
+export type SampleFactoryId = Static<typeof U>;
+export const SampleFactoryId = U;
 
 /**
  * Factory:
