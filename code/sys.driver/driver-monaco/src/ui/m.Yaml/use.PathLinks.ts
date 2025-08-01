@@ -25,16 +25,16 @@ export function usePathLinks(args: { editor?: t.Monaco.Editor; cursor?: t.Editor
     const range = cursor.word;
 
     /**
-     * TODO 🐷 WIP
-     * Links assigned and unassigned dynamically over current.
-     * Doing something with that TBD.
+     * TODO 🐷 - WIP
+     *  Links assigned and unassigned dynamically over current.
+     *  Do something with that (TBD).
      */
 
     if (range) {
       const inlineClassName = css({ textDecoration: 'underline', cursor: 'pointer' }).class;
       const trigger = UserAgent.current.is.macOS ? 'cmd + click' : 'ctrl + click';
       const path = cursor.path.map((seg) => Str.truncate(String(seg), 10)).join('/');
-      const value = `Open lens: '${path}' (${trigger})`;
+      const value = `Lens: '${path}' (${trigger})`;
       collection.set([{ range, options: { inlineClassName, hoverMessage: { value } } }]);
     } else {
       collection.clear();
