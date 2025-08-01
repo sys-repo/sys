@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { Lorem } from '../../-test.ui.ts';
+import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 export type SampleDoc = { text?: string };
 type P = t.TextEditorProps;
@@ -229,7 +229,7 @@ export function samplesButtons(debug: DebugSignals) {
         onClick={() => {
           const doc = p.doc.value;
           const path = p.path.value;
-          if (doc && path) doc.change((d) => Obj.Path.mutate(d, path, Lorem.words(500)));
+          if (doc && path) doc.change((d) => Obj.Path.Mutate.set(d, path, Lorem.words(500)));
         }}
       />
     </React.Fragment>

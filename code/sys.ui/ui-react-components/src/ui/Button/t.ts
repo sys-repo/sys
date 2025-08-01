@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { t } from './common.ts';
 
-type Content = JSX.Element | string | number | false;
+type Content = React.JSX.Element | string | number | false;
 
 /**
  * <Component>: Headless clickable "button" component.

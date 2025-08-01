@@ -13,9 +13,9 @@ export const usePointerDrag: t.UsePointerDrag = (props = {}) => {
    * Refs:
    */
   const startedRef = useRef(false);
-  const originRef = useRef<t.Point>(); // position at `start` of drag operation.
+  const originRef = useRef<t.Point>(undefined); // position at `start` of drag operation.
   const draggingRef = useRef(false);
-  const prevTouchRef = useRef<t.Point>();
+  const prevTouchRef = useRef<t.Point>(undefined);
 
   /**
    * Hooks:

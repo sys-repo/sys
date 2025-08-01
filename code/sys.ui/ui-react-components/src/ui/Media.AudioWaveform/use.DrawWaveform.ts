@@ -6,6 +6,11 @@ type Props = {
   lineWidth?: number;
 };
 
+type Args = {
+  canvasRef?: React.RefObject<HTMLCanvasElement | null>;
+  audioData?: Uint8Array;
+} & Props;
+
 /**
  * Renders an oscilloscope waveform visualization to a <canvas>.
  *
@@ -13,9 +18,7 @@ type Props = {
  *    https://www.twilio.com/blog/audio-visualisation-web-audio-api--react
  *
  */
-export function useDrawWaveform(
-  args: { canvasRef?: React.RefObject<HTMLCanvasElement>; audioData?: Uint8Array } & Props,
-) {
+export function useDrawWaveform(args: Args) {
   React.useEffect(() => {
     const { audioData, lineColor, lineWidth } = args;
     const canvas = args.canvasRef?.current;

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { type t, rx, READY_STATE } from './common.ts';
 
 export function useCropBounds(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   lens: t.VideoCropLens,
   props: Pick<t.VideoElementProps, 'loop'>,
 ) {
@@ -11,7 +11,7 @@ export function useCropBounds(
   /**
    * Refs:
    */
-  const lastKeyRef = useRef<string>();
+  const lastKeyRef = useRef<string>(undefined);
   const endedRef = useRef(false);
   const EPS = 0.01; // ← Float slop.
 

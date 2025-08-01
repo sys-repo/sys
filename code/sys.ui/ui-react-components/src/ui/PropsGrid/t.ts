@@ -18,4 +18,4 @@ export type PropsGridProps = {
 export type PropsGridRows = PropsGridRow[];
 export type PropsGridRow = PropsGridCell[];
 export type PropsGridCell = number | string | PropsGridCellDef;
-export type PropsGridCellDef = { value?: boolean | number | string | JSX.Element };
+export type PropsGridCellDef = { value?: boolean | number | string | React.JSX.Element };

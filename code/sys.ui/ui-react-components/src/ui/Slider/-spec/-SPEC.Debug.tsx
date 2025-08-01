@@ -107,7 +107,7 @@ export function configSampleButtons(debug: DebugSignals) {
   };
 
   const p = debug.props;
-  const elButtons: JSX.Element[] = [];
+  const elButtons: React.JSX.Element[] = [];
   const theme = Color.theme(p.theme.value);
 
   const hr = () => elButtons.push(<hr key={elButtons.length} />);

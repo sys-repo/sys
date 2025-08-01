@@ -30,8 +30,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    */
   const readyRef = useRef(false);
   const disposeRef = useRef(rx.subject<void>());
-  const monacoRef = useRef<t.Monaco.Monaco>();
-  const editorRef = useRef<t.Monaco.Editor>();
+  const monacoRef = useRef<t.Monaco.Monaco>(undefined);
+  const editorRef = useRef<t.Monaco.Editor>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
 
   /**

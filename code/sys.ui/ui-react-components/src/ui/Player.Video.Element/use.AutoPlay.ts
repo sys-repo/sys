@@ -5,7 +5,7 @@ type Args = {
   enabled: boolean;
   src?: string;
   muted: boolean; // current incoming mute state (best guess)
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
 
   /**
    * Lifecycle callbacks to request state from above.

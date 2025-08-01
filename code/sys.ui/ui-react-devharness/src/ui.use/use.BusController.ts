@@ -22,7 +22,7 @@ export function useBusController(
   const busid = rx.bus.instance(bus);
 
   const [info, setInfo] = useState<t.DevInfo>(DEFAULTS.info);
-  const eventsRef = useRef<t.DevEvents>();
+  const eventsRef = useRef<t.DevEvents>(undefined);
 
   /**
    * Lifecycle

@@ -17,7 +17,7 @@ export type UseVisibilityThresholdY = (args: ArgsY, deps: unknown[]) => Visibili
  * - hysteresisX/Y: flicker buffer on each axis - @default 5
  */
 type VisibilityThresholdArgs = {
-  refs: React.RefObject<HTMLElement>[];
+  refs: React.RefObject<HTMLElement | null>[];
   containerReady?: boolean;
   containerWidth: t.Pixels;
   containerHeight: t.Pixels;

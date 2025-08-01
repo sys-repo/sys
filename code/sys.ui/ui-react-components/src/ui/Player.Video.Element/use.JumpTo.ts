@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { type t } from './common.ts';
 
 export function useJumpTo(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   lens: t.VideoCropLens,
   jumpTo?: t.VideoPlayerSeek,
 ) {
-  const lastRef = useRef<t.VideoPlayerSeek>();
-  const lensKeyRef = useRef<string>();
+  const lastRef = useRef<t.VideoPlayerSeek>(undefined);
+  const lensKeyRef = useRef<string>(undefined);
 
   useEffect(() => {
     if (!jumpTo) return;

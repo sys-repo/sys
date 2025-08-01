@@ -6,7 +6,7 @@ export type HostComponentProps = {
   instance: t.DevInstance;
   border?: string;
   renderProps?: t.DevRenderProps;
-  subjectRef?: React.RefObject<HTMLDivElement>;
+  subjectRef?: React.RefObject<HTMLDivElement | null>;
   style?: t.CssInput;
 };
 

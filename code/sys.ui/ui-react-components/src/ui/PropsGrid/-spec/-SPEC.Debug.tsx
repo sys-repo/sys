@@ -111,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function sampleButtons(args: { debug: DebugSignals }) {
   const p = args.debug.props;
-  const elements: JSX.Element[] = [];
+  const elements: React.JSX.Element[] = [];
 
   const btn = (label: string, data?: t.PropsGridRows) => {
     const btn = (

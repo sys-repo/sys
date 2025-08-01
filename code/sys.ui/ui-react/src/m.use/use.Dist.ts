@@ -12,7 +12,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
   const [count, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
-  const jsonRef = useRef<t.DistPkg>();
+  const jsonRef = useRef<t.DistPkg>(undefined);
   const [error, setError] = useState<t.StdError>();
 
   /**

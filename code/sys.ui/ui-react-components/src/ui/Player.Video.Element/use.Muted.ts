@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { type t } from './common.ts';
 
 export function useMuted(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   props: Pick<t.VideoElementProps, 'muted' | 'defaultMuted'>,
 ) {
   const { defaultMuted = props.muted ?? false } = props;

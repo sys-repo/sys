@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { type t, rx } from './common.ts';
 
 export function usePlaybackControls(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   lens: t.VideoCropLens,
   props: Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>,
 ) {

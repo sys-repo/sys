@@ -27,7 +27,7 @@ export const View: React.FC<P> = (props) => {
    * Refs:
    */
   const readyFiredRef = useRef(false);
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(undefined);
   const focus = () => inputRef.current?.focus();
 
   /**

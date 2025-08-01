@@ -6,7 +6,7 @@ import { Icons } from './ui.Icons.ts';
  * Component: Generic Button.
  */
 export type ControlButtonProps = {
-  children?: JSX.Element;
+  children?: React.JSX.Element;
   debug?: boolean;
   enabled?: boolean;
   theme?: t.CommonTheme;

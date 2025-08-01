@@ -1,8 +1,8 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type t, Time } from './common.ts';
-import { toModifiers } from './use.Pointer.Drag.ts';
 import { DropGuard } from './m.DropGuard.ts';
+import { toModifiers } from './use.Pointer.Drag.ts';
 
 type AnimationFrameRequest = number;
 
@@ -13,7 +13,7 @@ export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   /**
    * Refs:
    */
-  const raf = useRef<AnimationFrameRequest>();
+  const raf = useRef<AnimationFrameRequest>(undefined);
   const ref = useRef<HTMLElement | null>(null);
 
   /**

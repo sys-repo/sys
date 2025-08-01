@@ -3,7 +3,7 @@ import { type t, rx } from './common.ts';
 import { Crop } from './m.Crop.ts';
 
 export function useMediaProgress(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   props: Pick<t.VideoElementProps, 'src' | 'crop' | 'onTimeUpdate' | 'onDurationChange'>,
 ) {
   const { src, crop, onTimeUpdate, onDurationChange } = props;

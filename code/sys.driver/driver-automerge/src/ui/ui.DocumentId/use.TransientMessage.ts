@@ -10,7 +10,7 @@ type Options = { timeout?: t.Msecs };
  */
 export function useTransientMessage(options: Options = {}) {
   const { timeout = 1500 } = options;
-  const timeoutRef = useRef<() => void>();
+  const timeoutRef = useRef<() => void>(undefined);
 
   const [message, setMessage] = React.useState<string>();
   const [kind, setKind] = React.useState<Kind>();

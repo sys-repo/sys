@@ -8,8 +8,8 @@ type StorageImmutable = t.LocalStorageImmutable<Storage>;
  * Hook: manage storing current document-id's in local-storage.
  */
 export function useLocalStorage(key: string | undefined, signal: t.Signal<string | undefined>) {
-  const storeRef = useRef<StorageImmutable>();
-  const historyRef = useRef<t.HistoryStack>();
+  const storeRef = useRef<StorageImmutable>(undefined);
+  const historyRef = useRef<t.HistoryStack>(undefined);
 
   const createStack = () => {
     const store = storeRef.current;

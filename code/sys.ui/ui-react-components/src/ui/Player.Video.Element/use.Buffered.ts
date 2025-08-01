@@ -5,7 +5,7 @@ import { type t, rx } from './common.ts';
  * Effect: track buffered status:
  */
 export function useBuffered(
-  videoRef: React.RefObject<HTMLVideoElement>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
   props: Pick<t.VideoElementProps, 'onBufferedChange'>,
 ) {
   const { onBufferedChange } = props;

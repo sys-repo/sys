@@ -8,7 +8,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   /**
    * Hooks/Refs:
    */
-  const bindingRef = useRef<t.EditorCrdtBinding>();
+  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
 
   /**
    * Sub-Hooks:

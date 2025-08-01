@@ -57,10 +57,10 @@ groups:
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
-    - import: npm:@types/react@18.3.18
-    - import: npm:@types/react-dom@18.3.5
-    - import: npm:react@18.3.1
-    - import: npm:react-dom@18.3.1
+    - import: npm:react@19.1.1
+    - import: npm:react-dom@19.1.1
+    - import: npm:@types/react@19.1.9
+    - import: npm:@types/react-dom@19.1.7
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
@@ -139,7 +139,6 @@ deno.json:
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.4
-  # UI/React:
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.17.0

@@ -8,8 +8,8 @@ type P = t.VideoElementProps;
  * Wire media events → outward change notifications.
  */
 export function useMediaEvents(
-  videoRef: React.RefObject<HTMLVideoElement>,
-  autoplayPendingRef: React.MutableRefObject<boolean>,
+  videoRef: React.RefObject<HTMLVideoElement | null>,
+  autoplayPendingRef: React.RefObject<boolean>,
   props: Pick<P, 'onBufferingChange' | 'onPlayingChange' | 'onMutedChange' | 'onEnded'>,
 ) {
   const { onBufferingChange, onPlayingChange, onMutedChange, onEnded } = props;
@@ -17,7 +17,7 @@ export function useMediaEvents(
   /**
    * Refs:
    */
-  const lastPlaying = useRef<boolean>();
+  const lastPlaying = useRef<boolean>(undefined);
 
   /**
    * Effect:

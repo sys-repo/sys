@@ -21,4 +21,4 @@ export type CanvasLayoutProps = {
  */
 export type CanvasPanelContentMap = t.CanvasPanelPartialMap<CanvasPanelContentOrNode>;
 export type CanvasPanelContentOrNode = CanvasPanelContent | string;
-export type CanvasPanelContent = { view?: JSX.Element | string };
+export type CanvasPanelContent = { view?: React.JSX.Element | string };

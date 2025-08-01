@@ -15,7 +15,7 @@ export type UseClickInput<T extends E> = t.ClickHookProps<T> | t.DomMouseEventHa
  * Hook: information about a mouse click operations
  */
 export type ClickHook<T extends E> = {
-  readonly ref: RefObject<T>;
+  readonly ref: RefObject<T | null>;
   readonly stage: t.UseClickStage;
 };
 
@@ -23,7 +23,7 @@ export type ClickHook<T extends E> = {
  * Properties passed to the `UseClick` hook.
  */
 export type ClickHookProps<T extends E> = {
-  ref?: RefObject<T>;
+  ref?: RefObject<T | null>;
   stage?: t.UseClickStage;
   callback?: t.DomMouseEventHandler;
 };

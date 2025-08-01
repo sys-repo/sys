@@ -57,7 +57,7 @@ export type SliderTickInput = t.Percent | SliderTick | undefined | false;
 export type SliderTick = {
   value: t.Percent;
   label?: string;
-  el?: JSX.Element | false;
+  el?: React.JSX.Element | false;
 };
 
 /**

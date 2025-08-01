@@ -31,7 +31,7 @@ export const preloadModule: t.AppRenderLib['preloadModule'] = async <T extends s
  */
 export const preloadTimestamps: t.AppRenderLib['preloadTimestamps'] = (content) => {
   if (!content) return;
-  const elements = new Set<JSX.Element>();
+  const elements = new Set<React.JSX.Element>();
 
   const render = (timestamp: string, fn: Function) => {
     const key = `preload-${timestamp}-${elements.size}`;

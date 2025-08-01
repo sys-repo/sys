@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 export function useDebouncedValue<T>(value: T, ms = 120): T {
   const [debounced, setDebounced] = useState<T>(value);
-  const timer = useRef<number>();
+  const timer = useRef<number>(undefined);
 
   useEffect(() => {
     clearTimeout(timer.current);
