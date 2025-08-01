@@ -24,6 +24,7 @@ export type FakeTextModel = Pick<
   | 'getLineContent'
   | 'getValueLength'
   | 'getLineMaxColumn'
+  | 'getWordAtPosition'
   //
   | 'setValue'
   //

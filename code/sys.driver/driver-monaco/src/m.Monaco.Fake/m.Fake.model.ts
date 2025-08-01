@@ -72,6 +72,36 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     };
   };
 
+  const getWordAtPosition: t.FakeTextModel['getWordAtPosition'] = ({ lineNumber, column }) => {
+    const lines = text.split('\n');
+    const line = lines[lineNumber - 1] ?? '';
+    // Clamp idx so column == maxColumn still hits the last character.
+    let idx = column - 1;
+    if (idx >= line.length) idx = line.length - 1;
+    if (idx < 0) return null;
+
+    const ch = line[idx];
+    if (!/\w/.test(ch)) return null;
+
+    // Expand backwards:
+    let start = idx;
+    while (start > 0 && /\w/.test(line[start - 1])) {
+      start--;
+    }
+
+    // Expand forwards:
+    let end = idx;
+    while (end < line.length && /\w/.test(line[end])) {
+      end++;
+    }
+
+    return {
+      word: line.slice(start, end),
+      startColumn: start + 1,
+      endColumn: end + 1,
+    };
+  };
+
   /**
    * API surface exposed to tests.
    */
@@ -85,6 +115,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     getLineContent: (lineNumber: number) => text.split('\n')[lineNumber - 1] ?? '',
     getLineMaxColumn: (lineNumber: number) => api.getLineContent(lineNumber).length + 1,
     getValueLength,
+    getWordAtPosition,
 
     /* Stters (Mutate): */
     setValue,

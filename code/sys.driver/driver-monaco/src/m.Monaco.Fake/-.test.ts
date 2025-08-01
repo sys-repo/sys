@@ -143,6 +143,65 @@ describe('MonacoFake (Mock)', () => {
         expect(model.getLineContent(5)).to.equal('');
       });
     });
+
+    describe('getWordAtPosition', () => {
+      it('returns null when cursor is on whitespace', () => {
+        const model = MonacoFake.model('foo bar');
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 4 });
+        expect(result).to.be.null;
+      });
+
+      it('returns null when cursor is on punctuation', () => {
+        const model = MonacoFake.model('foo,bar');
+        // column 4 is the comma:
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 4 });
+        expect(result).to.be.null;
+      });
+
+      it('finds a single word correctly', () => {
+        const model = MonacoFake.model('unittest');
+        // anywhere inside the word:
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 5 });
+        expect(result).to.deep.equal({
+          word: 'unittest',
+          startColumn: 1,
+          endColumn: 9,
+        });
+      });
+
+      it('finds word at line start', () => {
+        const model = MonacoFake.model('alpha beta');
+        // column 1 at the very start:
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 1 });
+        expect(result).to.deep.equal({
+          word: 'alpha',
+          startColumn: 1,
+          endColumn: 6,
+        });
+      });
+
+      it('finds word at line end', () => {
+        const model = MonacoFake.model('first second');
+        // column 13 is the last character of 'second':
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 13 });
+        expect(result).to.deep.equal({
+          word: 'second',
+          startColumn: 7,
+          endColumn: 13,
+        });
+      });
+
+      it('handles underscores and digits as part of words', () => {
+        const model = MonacoFake.model('var_name1 = 42;');
+        // column 5 is inside 'var_name1':
+        const result = model.getWordAtPosition({ lineNumber: 1, column: 5 });
+        expect(result).to.deep.equal({
+          word: 'var_name1',
+          startColumn: 1,
+          endColumn: 10,
+        });
+      });
+    });
   });
 
   describe('IStandaloneCodeEditor', () => {
