@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { Foo } from '@sys/tmp/ui';
 import { Color, css } from '@sys/ui-css';
 import type { t } from './common.ts';
 
@@ -31,7 +30,7 @@ export const View: React.FC<ViewProps> = (props) => {
       color: 'blue',
     }),
     title: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: Color.RUBY,
       MarginY: 5,
       PaddingX: 10,
       PaddingY: [15, 30],
@@ -48,7 +47,7 @@ export const View: React.FC<ViewProps> = (props) => {
   };
 
   const elThemeSample = (
-    <div {...styles.themeSample}>
+    <div className={styles.themeSample.class}>
       <div>Hello</div>
     </div>
   );
@@ -59,13 +58,9 @@ export const View: React.FC<ViewProps> = (props) => {
       onMouseEnter={over(true)}
       onMouseLeave={over(false)}
     >
-      <div {...styles.title}>
+      <div className={styles.title.class}>
         <div>{`Hello World 👋`}</div>
         <div>{`(see console for import samples)`}</div>
-      </div>
-      <div style={{ paddingTop: 10 }}>
-        {'Imported from ← '}
-        <Foo />
       </div>
       {elThemeSample}
     </div>

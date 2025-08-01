@@ -26,8 +26,8 @@ describe('ViteConfig.workspace', () => {
       const ws = await workspace();
       const map = ws.toAliasMap();
       const lookup = {
-        key: '@sys/tmp/ui',
-        path: ROOT.resolve('./code/sys.tmp/src/ui/mod.ts'),
+        key: '@sys/std/args',
+        path: ROOT.resolve('./code/sys/std/src/m.Args/mod.ts'),
       };
 
       const match = ws.aliases.find((item) => item.find === lookup.key);

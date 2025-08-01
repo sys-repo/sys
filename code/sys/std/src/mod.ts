@@ -1,9 +1,9 @@
 /**
- * @module
  * Standard system libraries.
- * ```
+ * @module
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Args } from './m.Args/mod.ts';
@@ -12,10 +12,10 @@ export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
 export { Err } from './m.Err/mod.ts';
+export { History } from './m.History/mod.ts';
 export { Immutable } from './m.Immutable/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
-export { ObjectPath } from './m.ObjectPath/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { maybeWait, Promise } from './m.Promise/mod.ts';

@@ -2,11 +2,11 @@
 * text=auto
 
 # Track large images with Git LFS (large-file-storage):
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.pdf   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.png   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.jpg   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.jpeg  filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.svg   filter=lfs diff=lfs merge=lfs -text
 deploy/**/*.gif   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.mp4   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.webm  filter=lfs diff=lfs merge=lfs -text

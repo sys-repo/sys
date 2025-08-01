@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './-entry/t.ts';
 

@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for evaluating and manipulating various types of values.
+ * @module
  */
 export { isEmptyRecord, isObject, isRecord } from '../common.ts';
 export { asArray } from '../m.Value.Arr/mod.ts';

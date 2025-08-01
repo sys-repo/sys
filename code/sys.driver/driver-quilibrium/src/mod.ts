@@ -1,8 +1,8 @@
 /**
- * @module
  * Tools for working with Quilibrium.
  * - https://docs.quilibrium.com/
  * - https://quilibrium.guide/
+ * @module
  *
  *
  * @example
@@ -12,6 +12,7 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Q } from './m.Node/mod.ts';

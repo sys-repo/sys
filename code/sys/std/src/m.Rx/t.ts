@@ -20,6 +20,7 @@ export type RxLib = Rxjs & {
 
   bus: t.RxBus;
 
+  abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
@@ -68,6 +69,8 @@ type Rxjs = {
   readonly animationFrameScheduler: typeof rxjs.animationFrameScheduler;
   readonly BehaviorSubject: typeof rxjs.BehaviorSubject;
   readonly firstValueFrom: typeof rxjs.firstValueFrom;
+  readonly startWith: typeof rxjs.startWith;
+  readonly auditTime: typeof rxjs.auditTime;
   readonly interval: typeof rxjs.interval;
   readonly lastValueFrom: typeof rxjs.lastValueFrom;
   readonly Observable: typeof rxjs.Observable;

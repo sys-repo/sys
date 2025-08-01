@@ -4,8 +4,6 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
-    'deploy/@tdb.slc.fs',
-
     /**
      * Monorepo:
      */
@@ -17,6 +15,7 @@ export const Paths = {
     'code/sys/types',
     'code/sys/std',
     'code/sys/color',
+    'code/sys/schema',
 
     'code/sys/testing',
     'code/sys/fs',
@@ -29,11 +28,6 @@ export const Paths = {
     'code/sys/text',
     'code/sys/tmpl',
     'code/sys/jsr',
-
-    /**
-     * →| dev/null
-     */
-    'code/sys.tmp',
 
     /**
      * UI:
@@ -53,24 +47,25 @@ export const Paths = {
     'code/sys.driver/driver-immer',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-vite',
-    'code/sys.driver/driver-vitepress',
+    'code/sys.driver/driver-peerjs',
+    'code/sys.driver/driver-prosemirror',
 
     //
-    'code/sys.driver/driver-obsidian',
     'code/sys.driver/driver-ollama',
     'code/sys.driver/driver-orbiter',
     'code/sys.driver/driver-quilibrium',
 
-    /**
-     * Barrels:
-     */
-    'code/sys/sys',
-    'code/sys/main',
 
     /**
      * Instance Apps:
      */
     'deploy/@tdb.fs',
     'deploy/@tdb.slc',
+    'deploy/@tdb.slc.fs',
+
+    /**
+     * Samples:
+     */
+    'code/-sample/@sample.tmp',
   ],
 } as const;

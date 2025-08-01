@@ -1,4 +1,4 @@
-import { rx, type t } from './common.ts';
+import { type t, rx, Immutable } from './common.ts';
 
 type P = t.PatchOperation;
 type O = Record<string, unknown>;
@@ -11,9 +11,9 @@ export function defaultEvents<T extends O>(
   dispose$?: t.UntilObservable,
 ): t.PatchStateEvents<T> {
   const life = rx.lifecycle(dispose$);
-  const $ = ob$.pipe(rx.takeUntil(life.dispose$));
+  const patch$ = ob$.pipe(rx.takeUntil(life.dispose$));
 
-  const changed$ = $.pipe(
+  const $ = patch$.pipe(
     rx.map((e) => {
       const { before, after } = e;
       const patches = e.patches.next;
@@ -21,9 +21,12 @@ export function defaultEvents<T extends O>(
     }),
   );
 
+  const path = Immutable.Events.pathFilter<T, P>($, toPath);
+
   return {
     $,
-    changed$,
+    path,
+    patch$,
     dispose: life.dispose,
     dispose$: life.dispose$,
     get disposed() {
@@ -31,3 +34,11 @@ export function defaultEvents<T extends O>(
     },
   };
 }
+
+/**
+ * Helpers:
+ */
+const toPath = (patch: P) => {
+  const o = patch as { path: string };
+  return 'path' in o ? Immutable.Patch.toObjectPath(o.path) : [];
+};

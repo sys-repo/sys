@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.144",
+  "version": "0.0.154",
   "license": "MIT",
   "tasks": {
     "lint": "deno     lint",
@@ -28,6 +28,7 @@
     "./entry": "./src/-entry/mod.ts",
     "./log": "./src/m.Log/mod.ts",
     "./main": "./src/-entry/-main.ts",
-    "./init": "./src/-entry/-init.ts"
+    "./init": "./src/-entry/-init.ts",
+    "./sample-imports": "./src/-test/-sample-imports.ts"
   }
 }

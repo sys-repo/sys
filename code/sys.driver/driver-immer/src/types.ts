@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types..
+ * @module
  */
 export type * from './m.Json.Patch/t.ts';
 export type * from './m.Json.PatchState/t.ts';

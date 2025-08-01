@@ -1,3 +1,5 @@
+import type { CssTmplLib } from './t.ts';
+
 import { type t, Is, isObject } from './common.ts';
 import { formatScroll } from './u.formatScroll.ts';
 import { formatSize } from './u.formatSize.ts';
@@ -7,7 +9,7 @@ import { toEdges, WrangleEdge } from './u.toEdges.ts';
 /**
  * Helpers for working with the template patterns (a DSL for css of sorts).
  */
-export const CssTmpl: t.CssTmplLib = {
+export const CssTmpl: CssTmplLib = {
   toEdges,
 
   /**

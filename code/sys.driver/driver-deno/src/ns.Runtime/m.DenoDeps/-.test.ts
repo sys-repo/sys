@@ -95,7 +95,7 @@ describe('DenoDeps', () => {
       find('@std/http', (dep) => expect(dep.dev).to.eql(true));
       find('@noble/hashes', (dep) => expect(dep.wildcard).to.eql(true));
       find('@automerge/automerge-repo', (dep) => expect(dep.wildcard).to.eql(true));
-      find('zod', (dep) => expect(dep.subpaths).to.eql(['v4-mini']));
+      find('chai', (dep) => expect(dep.subpaths).to.eql(['', 'chai.js']));
     });
 
     it('input: YAML (string)', async () => {
@@ -331,8 +331,9 @@ describe('DenoDeps', () => {
           '@std/assert': 'jsr:@std/assert@1.0.11',
           '@std/fs': 'jsr:@std/fs@1.0.11',
           '@std/http': 'jsr:@std/http@1.0.13',
-          zod: 'npm:zod@4',
-          'zod/v4-mini': 'npm:zod@4/v4-mini',
+          chai: 'npm:chai@5',
+          'chai/': 'npm:chai@5/',
+          'chai/chai.js': 'npm:chai@5/chai.js',
         },
       });
     });

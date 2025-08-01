@@ -12,7 +12,7 @@ export const VideoBackground: React.FC<P> = (props) => {
   const blur = p.blur.value;
   const playing = p.playing.value ?? D.playing;
 
-  const playerRef = React.useRef<t.VimeoIFrame>();
+  const playerRef = React.useRef<t.VimeoIFrame>(undefined);
 
   /**
    * Effect: redraw (watch).

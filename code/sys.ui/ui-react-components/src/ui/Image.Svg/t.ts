@@ -50,7 +50,7 @@ export type UseSvgInitArgs<T extends HTMLElement> = Pick<SvgInstance<T>, 'query'
  */
 export type SvgInstance<T extends HTMLElement> = {
   readonly ready: boolean;
-  readonly ref: React.RefObject<T>;
+  readonly ref: React.RefObject<T | null>;
   readonly draw?: SvgElement;
   query(selector: string): SvgElement | undefined;
   queryAll(selector: string): SvgElement[];

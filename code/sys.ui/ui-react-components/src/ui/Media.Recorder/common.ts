@@ -9,6 +9,6 @@ export { Video } from '../Media.Video/mod.ts';
 const name = 'Media.Recorder';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
 } as const;
 export const D = DEFAULTS;

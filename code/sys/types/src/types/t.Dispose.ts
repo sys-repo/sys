@@ -14,7 +14,7 @@ export type Disposable = {
 };
 
 /** The "until this fires" input for a disposable resource factory. */
-export type DisposeInput = t.UntilObservable | t.Disposable;
+export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];
 export type UntilInput = DisposeInput;
 
 /**

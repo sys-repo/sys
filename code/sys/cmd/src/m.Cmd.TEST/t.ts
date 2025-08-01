@@ -26,7 +26,6 @@ export type C1 = t.CmdType<'Foo', { foo: number }>;
 export type C2 = t.CmdType<'Bar', { msg?: string }>;
 
 /**
- * @module
  * Testing tools.
  * ────────────────────────
  * Unit test factory for the <Cmd> system allowing different
