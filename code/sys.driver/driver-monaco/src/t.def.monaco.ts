@@ -34,6 +34,7 @@ export namespace Monaco {
     export type ICodeEditor = editor.ICodeEditor;
     export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
     export type IMarkerData = editor.IMarkerData;
+    export type IEditorDecorationsCollection = editor.IEditorDecorationsCollection;
   }
 }
 
