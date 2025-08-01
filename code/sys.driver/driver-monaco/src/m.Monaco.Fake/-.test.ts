@@ -162,7 +162,7 @@ describe('MonacoFake (Mock)', () => {
         const model = MonacoFake.model('unittest');
         // anywhere inside the word:
         const result = model.getWordAtPosition({ lineNumber: 1, column: 5 });
-        expect(result).to.deep.equal({
+        expect(result).to.eql({
           word: 'unittest',
           startColumn: 1,
           endColumn: 9,
@@ -173,7 +173,7 @@ describe('MonacoFake (Mock)', () => {
         const model = MonacoFake.model('alpha beta');
         // column 1 at the very start:
         const result = model.getWordAtPosition({ lineNumber: 1, column: 1 });
-        expect(result).to.deep.equal({
+        expect(result).to.eql({
           word: 'alpha',
           startColumn: 1,
           endColumn: 6,
@@ -184,7 +184,7 @@ describe('MonacoFake (Mock)', () => {
         const model = MonacoFake.model('first second');
         // column 13 is the last character of 'second':
         const result = model.getWordAtPosition({ lineNumber: 1, column: 13 });
-        expect(result).to.deep.equal({
+        expect(result).to.eql({
           word: 'second',
           startColumn: 7,
           endColumn: 13,
@@ -195,7 +195,7 @@ describe('MonacoFake (Mock)', () => {
         const model = MonacoFake.model('var_name1 = 42;');
         // column 5 is inside 'var_name1':
         const result = model.getWordAtPosition({ lineNumber: 1, column: 5 });
-        expect(result).to.deep.equal({
+        expect(result).to.eql({
           word: 'var_name1',
           startColumn: 1,
           endColumn: 10,
