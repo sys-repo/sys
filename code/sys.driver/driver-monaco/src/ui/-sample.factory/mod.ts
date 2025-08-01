@@ -1,4 +1,5 @@
 /**
+ * Isolated factory (samples).
  * @module
  */
-import type { t } from './common.ts';
+export { SampleSchema } from './-schemas/mod.ts';

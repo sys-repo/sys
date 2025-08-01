@@ -19,22 +19,5 @@ export function getLazy(id: string): LazyFactory {
 }
 
 /**
- * View Factory:
  */
-export async function factory(id: string): Promise<FactoryResponse> {
-  const key = id as t.SampleFactoryId;
-  const done = (Component: React.FC<any>): FactoryResponse => ({ default: Component });
-
-  if (key === 'VideoPlayer:host') {
-    const { VideoHost } = await import('./-views/Video.Host.tsx');
-    return done(VideoHost);
-  }
-
-  if (key === 'SectionTree:host') {
-    const { SectionHost } = await import('./-views/Section.Host.tsx');
-    return done(SectionHost);
-  }
-
-  // Not found.
-  return { default: () => null };
-}
+import { factory } from '../-sample.factory/u.factory.tsx';
