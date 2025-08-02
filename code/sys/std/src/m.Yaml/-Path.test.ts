@@ -5,6 +5,7 @@ import { Yaml } from './mod.ts';
 describe('Yaml.Path', () => {
   it('API', () => {
     expect(Yaml.Path).to.equal(Path);
+    expect(Yaml.path).to.equal(Path.create);
   });
 
   describe('Yaml.Path.atOffset', () => {
@@ -61,6 +62,16 @@ describe('Yaml.Path', () => {
       expect(
         Path.atOffset(root, src.length + 10), // Beyond EOF.
       ).to.eql([]);
+    });
+  });
+
+  describe('Yaml.Path', () => {
+    it('factory: create', () => {
+      const ast = Yaml.parseAst('foo:\n  msg: hello');
+      const path = ['msg'];
+      const p = Yaml.path(ast, path);
+      expect(p.path).to.equal(path);
+      expect(p.ast).to.equal(ast);
     });
   });
 });

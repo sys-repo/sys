@@ -30,7 +30,7 @@ export const atOffset: t.YamlPathLib['atOffset'] = (node, offset, path = []) => 
   type S = Y.YAMLSeq<NodeOrNull>;
   if (isSeq(node as Y.YAMLSeq)) {
     return (node as Y.YAMLSeq<S>).items.reduce<t.ObjectPath>((found, item, idx) => {
-      return found.length ? found : pathAtOffset(item, offset, [...path, idx]);
+      return found.length ? found : atOffset(item, offset, [...path, idx]);
     }, []);
   }
 
@@ -59,7 +59,7 @@ export const atOffset: t.YamlPathLib['atOffset'] = (node, offset, path = []) => 
 
       // Caret inside the value (recurse):
       if (vRange && offset >= vRange[0] && offset <= vRange[2]) {
-        const sub = pathAtOffset(value, offset, kPath);
+        const sub = atOffset(value, offset, kPath);
         return sub.length ? sub : kPath;
       }
     }

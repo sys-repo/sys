@@ -13,7 +13,8 @@ export const Yaml: t.YamlLib = {
   parseAst,
 
   Is,
-  Path,
   Syncer,
   syncer: Syncer.create,
+  Path,
+  path: Path.create,
 };

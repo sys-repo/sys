@@ -8,6 +8,8 @@ type NodeOrNull = Y.Node | null | undefined;
  * reach into a parsed yaml AST.
  */
 export type YamlPathLib = Readonly<{
+  /** Factory for a curried path. */
+  create(ast: t.YamlAst, path: t.ObjectPath): YamlPath;
 
   /**
    * Find the deepest node whose range encloses `offset`
@@ -21,4 +23,5 @@ export type YamlPathLib = Readonly<{
  */
 export type YamlPath = Readonly<{
   path: t.ObjectPath;
+  ast: t.YamlAst;
 }>;
