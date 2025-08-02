@@ -2,6 +2,7 @@ import { type t, c, describe, expect, it, Time } from '../-test.ts';
 
 import { Err, ERR, Immutable, rx } from './common.ts';
 import { Is } from './m.Is.ts';
+import { Path } from './m.Path.ts';
 import { Syncer } from './m.Syncer.ts';
 import { Yaml } from './mod.ts';
 
@@ -13,6 +14,7 @@ describe('Yaml', () => {
     expect(Yaml.Is).to.equal(Is);
     expect(Yaml.Syncer).to.equal(Syncer);
     expect(Yaml.syncer).to.equal(Syncer.create);
+    expect(Yaml.Path).to.equal(Path);
   });
 
   describe('Yaml.Is', () => {
@@ -115,63 +117,6 @@ describe('Yaml', () => {
       expect(doc.errors.length).to.be.greaterThan(0);
       expect(doc.errors[0].name).to.equal('YAMLParseError');
       expect(doc.errors.length).to.eql(1);
-    });
-  });
-
-  describe('Yaml.pathAtOffset', () => {
-    // Convenience: returns the offset of the first occurrence of `needle`:
-    const at = (text: string, target: string) => text.indexOf(target);
-
-    it('returns the key/value path in a simple map', () => {
-      const src = 'foo: bar';
-      const doc = Yaml.parseAst(src);
-      const root = doc.contents!;
-
-      // Inside key:
-      expect(Yaml.pathAtOffset(root, at(src, 'f'))).to.eql(['foo']);
-
-      // Inside value:
-      expect(Yaml.pathAtOffset(root, at(src, 'b'))).to.eql(['foo']);
-    });
-
-    it('navigates nested maps and the key/value whitespace gap', () => {
-      const src = `parent:
-        child: 123
-        other: true`;
-      const doc = Yaml.parseAst(src);
-      const root = doc.contents!;
-
-      // Inside nested value:
-      expect(Yaml.pathAtOffset(root, at(src, '123'))).to.eql(['parent', 'child']);
-
-      // Whitespace between "other:" and "true":
-      const gap = src.indexOf('other:') + 'other:'.length + 1; // one char after ':'
-      expect(Yaml.pathAtOffset(root, gap)).to.eql(['parent', 'other']);
-    });
-
-    it('maps sequence indices correctly', () => {
-      const src = `items:
-        - one
-        - two`;
-      const doc = Yaml.parseAst(src);
-      const root = doc.contents!;
-
-      expect(Yaml.pathAtOffset(root, at(src, 'one'))).to.eql(['items', 0]);
-
-      expect(Yaml.pathAtOffset(root, at(src, 'two'))).to.eql(['items', 1]);
-
-      // Caret on the dash of the second item → inside sequence but not an item.
-      const dash = src.indexOf('- two'); // position of the "-".
-      expect(Yaml.pathAtOffset(root, dash)).to.eql(['items']);
-    });
-
-    it('returns an empty path when offset is outside the node range', () => {
-      const src = 'foo: bar';
-      const doc = Yaml.parseAst(src);
-      const root = doc.contents!;
-      expect(
-        Yaml.pathAtOffset(root, src.length + 10), // Beyond EOF.
-      ).to.eql([]);
     });
   });
 

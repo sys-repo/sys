@@ -1,8 +1,8 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
-export type * from './t.Syncer.ts';
 
-type NodeOrNull = Y.Node | null | undefined;
+export type * from './t.Path.ts';
+export type * from './t.Syncer.ts';
 
 /** The primitives scalars possible from YAML */
 export type YamPrimitives = null | string | number | boolean;
@@ -11,7 +11,10 @@ export type YamPrimitives = null | string | number | boolean;
  * Helpers for working with YAML.
  */
 export type YamlLib = Readonly<{
+  /** YAML flag helpers. */
   Is: YamlIsLib;
+  /** YAML path helpers.  */
+  Path: t.YamlPathLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: string): YamlParseResponse<T>;
@@ -22,12 +25,6 @@ export type YamlLib = Readonly<{
   /** Creates a new parse-syncer. */
   syncer: t.YamlSyncLib['create'];
   Syncer: t.YamlSyncLib;
-
-  /**
-   * Find the deepest node whose range encloses `offset`
-   * and return the logical object path leading to it.
-   */
-  pathAtOffset(node: NodeOrNull, offset: t.Index, path?: t.ObjectPath): t.ObjectPath;
 }>;
 
 /**

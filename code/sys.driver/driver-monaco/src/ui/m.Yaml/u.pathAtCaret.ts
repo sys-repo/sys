@@ -42,18 +42,18 @@ export function pathAtCaret(
   if (col > lineText.length + 1) col = lineText.length + 1;
 
   const offset = model.getOffsetAt({ lineNumber: position.lineNumber, column: col });
-  let path = Yaml.pathAtOffset(ast.contents, offset);
+  let path = Yaml.Path.atOffset(ast.contents, offset);
 
   /**
    * Forward scan if still glued to previous node when at column-1.
    */
   if (isAtOrBeforeFirstVisible && position.lineNumber > 1) {
-    const prevPath = offset > 0 ? Yaml.pathAtOffset(ast.contents, offset - 1) : [];
+    const prevPath = offset > 0 ? Yaml.Path.atOffset(ast.contents, offset - 1) : [];
     if (samePath(prevPath, path)) {
       const max = model.getValueLength();
       const end = Math.min(max, offset + limit);
       for (let o = offset + 1; o < end; o++) {
-        const p = Yaml.pathAtOffset(ast.contents, o);
+        const p = Yaml.Path.atOffset(ast.contents, o);
         if (!samePath(prevPath, p)) {
           path = p;
           break;
