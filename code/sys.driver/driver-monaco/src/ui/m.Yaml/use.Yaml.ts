@@ -19,7 +19,7 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
   const [, setCount] = useState(0);
   const [cursor, setCursor] = useState<t.EditorYamlCursorPath>({ path: [] });
   const [parser, setParser] = useState<t.YamlSyncParser>();
-  const linkPaths = usePathLinks({ editor, cursor });
+  usePathLinks({ editor, cursor });
 
   /** YAML parsing diagnostics: */
   useErrorMarkers({
