@@ -13,9 +13,10 @@ type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
  *     (up to `limit` chars) until the path actually changes.
  *
  * @example
- *  const { path } = pathAtCaret(model, doc, { lineNumber: 2, column: 1 });
- *  // → ['bar']
- *
+ * ```ts
+ *    const { path } = pathAtCaret(model, doc, { lineNumber: 2, column: 1 });
+ *    // → ['bar']
+ * ```
  */
 export function pathAtCaret(
   model: t.Monaco.TextModel,
