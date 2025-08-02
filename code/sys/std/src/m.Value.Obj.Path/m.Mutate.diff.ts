@@ -6,7 +6,7 @@ type Path = t.ObjectPath;
 
 /**
  * Compare `target` with `source`, mutate `target` until it equals `source`,
- * and return a report of every change.  Cycle-safe.
+ * and return a report of every change (cycle-safe).
  */
 export function diff<T extends O = O>(
   source: T,
