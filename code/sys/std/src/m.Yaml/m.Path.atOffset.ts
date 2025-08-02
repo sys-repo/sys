@@ -5,7 +5,7 @@ import { type t } from './common.ts';
 type NodeOrNull = Y.Node | null | undefined;
 type YAMLPair = Y.Pair<NodeOrNull, NodeOrNull>;
 
-export const pathAtOffset: t.YamlPathLib['atOffset'] = (node, offset, path = []) => {
+export const atOffset: t.YamlPathLib['atOffset'] = (node, offset, path = []) => {
   if (!node || !node.range) return [];
 
   const [start, , end] = node.range as Y.Range;
