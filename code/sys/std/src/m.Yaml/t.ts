@@ -17,7 +17,7 @@ export type YamlLib = Readonly<{
   parse<T>(input?: string): YamlParseResponse<T>;
 
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
-  parseDocument(src: string): Y.Document.Parsed;
+  parseAst(src: string): Y.Document.Parsed;
 
   /** Creates a new parse-syncer. */
   syncer: t.YamlSyncLib['create'];

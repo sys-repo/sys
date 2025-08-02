@@ -13,6 +13,6 @@ export const parse: t.YamlLib['parse'] = <T>(input: string) => {
   }
 };
 
-export const parseDocument: t.YamlLib['parseDocument'] = (src: string) => {
+export const parseAst: t.YamlLib['parseAst'] = (src: string) => {
   return _parseDocument(src, { keepSourceTokens: true });
 };

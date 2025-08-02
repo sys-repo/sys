@@ -14,13 +14,13 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const $ = $$.pipe(rx.takeUntil(life.dispose$));
 
   // Keep the latest parse and the model version it belongs to:
-  let doc = Yaml.parseDocument(model.getValue());
+  let ast = Yaml.parseAst(model.getValue());
   let version = model.getVersionId();
   let current: t.EditorYamlCursorPath | undefined;
 
   // (Re)parse helper:
   const parse = () => {
-    doc = Yaml.parseDocument(model.getValue());
+    ast = Yaml.parseAst(model.getValue());
     version = model.getVersionId();
   };
 
@@ -34,7 +34,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
     if (info?.language === 'yaml') {
       const { position } = info;
       const word = wrangle.wordRange(editor);
-      const { offset, path } = pathAtCaret(model, doc, position);
+      const { offset, path } = pathAtCaret(model, ast, position);
       if (offset === -1) return void clear();
 
       current = { path, cursor: { position, offset }, word };

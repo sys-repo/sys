@@ -1,4 +1,4 @@
-import type { Document } from 'yaml';
+import type { Document as YamlDocument } from 'yaml';
 import { type t, Yaml } from './common.ts';
 
 type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
@@ -20,7 +20,7 @@ type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
  */
 export function pathAtCaret(
   model: t.Monaco.TextModel,
-  doc: Document.Parsed,
+  ast: YamlDocument.Parsed,
   position: t.Monaco.I.IPosition,
   limit: number = 512, // Max chars to scan forward.
 ): Result {
@@ -42,18 +42,18 @@ export function pathAtCaret(
   if (col > lineText.length + 1) col = lineText.length + 1;
 
   const offset = model.getOffsetAt({ lineNumber: position.lineNumber, column: col });
-  let path = Yaml.pathAtOffset(doc.contents, offset);
+  let path = Yaml.pathAtOffset(ast.contents, offset);
 
   /**
    * Forward scan if still glued to previous node when at column-1.
    */
   if (isAtOrBeforeFirstVisible && position.lineNumber > 1) {
-    const prevPath = offset > 0 ? Yaml.pathAtOffset(doc.contents, offset - 1) : [];
+    const prevPath = offset > 0 ? Yaml.pathAtOffset(ast.contents, offset - 1) : [];
     if (samePath(prevPath, path)) {
       const max = model.getValueLength();
       const end = Math.min(max, offset + limit);
       for (let o = offset + 1; o < end; o++) {
-        const p = Yaml.pathAtOffset(doc.contents, o);
+        const p = Yaml.pathAtOffset(ast.contents, o);
         if (!samePath(prevPath, p)) {
           path = p;
           break;

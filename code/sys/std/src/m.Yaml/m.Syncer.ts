@@ -1,6 +1,6 @@
 import { YAMLError } from 'yaml';
 import { type t, Arr, Immutable, Is, Obj, rx } from './common.ts';
-import { parseDocument } from './u.parse.ts';
+import { parseAst } from './u.parse.ts';
 
 type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
@@ -49,14 +49,14 @@ const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     errors.clear();
 
     // Attempt to parse data:
-    const parsed = parseDocument(after);
-    if (parsed.errors.length > 0) parsed.errors.forEach((err) => errors.add(err));
+    const ast = parseAst(after);
+    if (ast.errors.length > 0) ast.errors.forEach((err) => errors.add(err));
 
     let ops: t.ObjDiffOp[] = [];
-    const data = parsed.errors.length === 0 ? (parsed.toJS() as T) : undefined;
+    const data = ast.errors.length === 0 ? (ast.toJS() as T) : undefined;
 
     const targetPath = path.target ?? [];
-    if (parsed.errors.length === 0 && targetPath.length > 0) {
+    if (ast.errors.length === 0 && targetPath.length > 0) {
       const isEqual = Obj.eql(data, current.output);
       if (!isEqual) {
         doc.target.change((d) => {

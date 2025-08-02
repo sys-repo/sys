@@ -92,26 +92,26 @@ describe('Yaml', () => {
     });
   });
 
-  describe('Yaml.parseDocument (AST)', () => {
+  describe('Yaml.parseAst', () => {
     it('parses valid YAML and returns the expected JS value', () => {
       const src = `
       name: 'Alice'
       age: 42
     `;
-      const doc = Yaml.parseDocument(src);
+      const doc = Yaml.parseAst(src);
       expect(doc.errors).to.eql([]); // no parse errors
       expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
     });
 
     it('retains source-token ranges for nodes', () => {
-      const doc = Yaml.parseDocument('foo: bar');
+      const doc = Yaml.parseAst('foo: bar');
       const root = doc.contents!; // YAMLMap node
       expect(Array.isArray((root as any).range)).to.eql(true);
       expect((root as any).range.length).to.equal(3); // ← [start, ?, end].
     });
 
     it('collects errors for malformed YAML instead of throwing', () => {
-      const doc = Yaml.parseDocument('foo: [1, 2'); // ← missing ].
+      const doc = Yaml.parseAst('foo: [1, 2'); // ← missing ].
       expect(doc.errors.length).to.be.greaterThan(0);
       expect(doc.errors[0].name).to.equal('YAMLParseError');
       expect(doc.errors.length).to.eql(1);
@@ -124,7 +124,7 @@ describe('Yaml', () => {
 
     it('returns the key/value path in a simple map', () => {
       const src = 'foo: bar';
-      const doc = Yaml.parseDocument(src);
+      const doc = Yaml.parseAst(src);
       const root = doc.contents!;
 
       // Inside key:
@@ -138,7 +138,7 @@ describe('Yaml', () => {
       const src = `parent:
         child: 123
         other: true`;
-      const doc = Yaml.parseDocument(src);
+      const doc = Yaml.parseAst(src);
       const root = doc.contents!;
 
       // Inside nested value:
@@ -153,7 +153,7 @@ describe('Yaml', () => {
       const src = `items:
         - one
         - two`;
-      const doc = Yaml.parseDocument(src);
+      const doc = Yaml.parseAst(src);
       const root = doc.contents!;
 
       expect(Yaml.pathAtOffset(root, at(src, 'one'))).to.eql(['items', 0]);
@@ -167,7 +167,7 @@ describe('Yaml', () => {
 
     it('returns an empty path when offset is outside the node range', () => {
       const src = 'foo: bar';
-      const doc = Yaml.parseDocument(src);
+      const doc = Yaml.parseAst(src);
       const root = doc.contents!;
       expect(
         Yaml.pathAtOffset(root, src.length + 10), // Beyond EOF.
