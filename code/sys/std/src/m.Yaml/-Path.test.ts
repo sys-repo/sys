@@ -67,11 +67,77 @@ describe('Yaml.Path', () => {
 
   describe('Yaml.Path', () => {
     it('factory: create', () => {
-      const ast = Yaml.parseAst('foo:\n  msg: hello');
       const path = ['msg'];
-      const p = Yaml.path(ast, path);
+      const p = Yaml.path(path);
       expect(p.path).to.equal(path);
-      expect(p.ast).to.equal(ast);
+    });
+
+    const ast = Yaml.parseAst(`
+      root:
+        foo:
+          msg: hello
+    `);
+
+    describe('Path.exists', () => {
+      it('returns true for an existing path', () => {
+        const p = Yaml.path(['root', 'foo', 'msg']);
+        expect(p.exists(ast)).to.be.true;
+      });
+
+      it('returns false for a non-existing path', () => {
+        const p = Yaml.path(['root', 'foo', 'missing']);
+        expect(p.exists(ast)).to.be.false;
+      });
+    });
+
+    describe('Path.get', () => {
+      it('returns <value> when path exists without <default>', () => {
+        const p = Yaml.path(['root', 'foo', 'msg']);
+        const result = p.get(ast);
+        expect(result).to.eql('hello');
+      });
+
+      it('returns <undefined> when path missing without <default>', () => {
+        const p = Yaml.path<string>(['root', 'foo', 'missing']);
+        const result = p.get(ast);
+        expect(result).to.be.undefined;
+      });
+
+      it('returns <default> when path missing with <default>', () => {
+        const p = Yaml.path<string>(['root', 'foo', 'missing']);
+        const result = p.get(ast, 'fallback');
+        expect(result).to.eql('fallback');
+      });
+
+      describe('edge cases', () => {
+        it('empty path', () => {
+          const p = Yaml.path([]);
+          expect(p.get(ast)).to.eql(ast.contents);
+        });
+
+        it('root-level scalar', () => {
+          const ast = Yaml.parseAst("val: 0\nboo: false\nstr: ''");
+          expect(Yaml.path(['val']).get(ast)).to.eql(0);
+          expect(Yaml.path(['boo']).get(ast)).to.eql(false);
+          expect(Yaml.path(['str']).get(ast)).to.eql('');
+        });
+
+        it('null value vs. missing key', () => {
+          const ast = Yaml.parseAst('n: null');
+          expect(Yaml.path(['n']).get(ast, 'def')).to.equal(null);
+          expect(Yaml.path(['nop']).get(ast, 'def')).to.equal('def');
+        });
+
+        it('sequence indexing + out-of-bounds', () => {
+          const ast = Yaml.parseAst('arr: [a, b]');
+          expect(Yaml.path(['arr', 1]).get(ast)).to.equal('b');
+          expect(Yaml.path(['arr', 2]).get(ast)).to.be.undefined;
+        });
+
+        it('subject undefined', () => {
+          expect(Yaml.path(['foo']).get(undefined, 'x')).to.eql('x');
+        });
+      });
     });
   });
 });

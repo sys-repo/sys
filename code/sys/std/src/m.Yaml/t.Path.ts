@@ -9,7 +9,7 @@ type NodeOrNull = Y.Node | null | undefined;
  */
 export type YamlPathLib = Readonly<{
   /** Factory for a curried path. */
-  create(ast: t.YamlAst, path: t.ObjectPath): YamlPath;
+  create<T = unknown>(path: t.ObjectPath): YamlPath<T>;
 
   /**
    * Find the deepest node whose range encloses `offset`
@@ -21,7 +21,19 @@ export type YamlPathLib = Readonly<{
 /**
  * Represents a path into a yaml AST (abstract syntax tree).
  */
-export type YamlPath = Readonly<{
-  path: t.ObjectPath;
-  ast: t.YamlAst;
-}>;
+export type YamlPath<T = unknown> = {
+  /** The curried path. */
+  readonly path: t.ObjectPath;
+
+  /**
+   * Deep-get helper with overloads so the return type
+   * is `T | undefined` unless you pass a default value.
+   */
+  get(subject: t.YamlAst | undefined): T | undefined;
+  get(subject: t.YamlAst | undefined, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Determine if the given path exists on the subject, irrespective of value.
+   */
+  exists(subject: t.YamlAst | undefined): boolean;
+};

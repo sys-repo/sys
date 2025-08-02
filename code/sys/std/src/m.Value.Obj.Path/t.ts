@@ -99,7 +99,7 @@ export type CurriedPathLib = {
  * The standard read/mutate API for a single curried object-path value.
  */
 export type CurriedPath<T = unknown> = {
-  /** The embedded path. */
+  /** The curried path. */
   readonly path: t.ObjectPath;
 
   /**
