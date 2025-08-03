@@ -1,5 +1,12 @@
 import { describe, expect, it } from '../-test.ts';
-import { EditorCarets, EditorCrdt, EditorFolding, EditorYaml, MonacoEditor } from '../ui/mod.ts';
+import {
+  Dev,
+  EditorCarets,
+  EditorCrdt,
+  EditorFolding,
+  EditorYaml,
+  MonacoEditor,
+} from '../ui/mod.ts';
 import { Monaco, MonacoIs } from './mod.ts';
 
 describe('Monaco', () => {
@@ -10,5 +17,6 @@ describe('Monaco', () => {
     expect(Monaco.Yaml).to.equal(EditorYaml);
     expect(Monaco.Is).to.equal(MonacoIs);
     expect(Monaco.Folding).to.equal(EditorFolding);
+    expect(Monaco.Dev).to.equal(Dev);
   });
 });

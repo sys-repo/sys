@@ -11,7 +11,7 @@ export type MonacoLib = Readonly<{
   Crdt: t.EditorCrdtLib;
   Yaml: t.EditorYamlLib;
   Folding: t.EditorFoldingLib;
-  Dev: Readonly<{ PathView: React.FC<PathViewProps> }>;
+  Dev: t.MonacoDevLib;
 }>;
 
 /**
