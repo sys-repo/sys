@@ -3,6 +3,8 @@ import { deepGet } from './m.Path.get.ts';
 import { deepSet } from './m.Path.set.ts';
 
 export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath) => {
+  path = [...path];
+
   /**
    * Method: get
    */
@@ -17,6 +19,18 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
   }
 
   /**
+   * Method: ensure
+   */
+  function ensure(subject: t.YamlAst, defaultValue: t.NonUndefined<T>): T {
+    const current = api.get(subject);
+    if (current === undefined) {
+      api.set(subject, defaultValue);
+      return defaultValue;
+    }
+    return current;
+  }
+
+  /**
    * API:
    */
   const api: t.YamlPath<T> = {
@@ -24,6 +38,7 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
     get,
     exists: (subject) => deepGet(subject?.contents, path) !== undefined,
     set: (subject, value) => deepSet(subject, path, value),
+    ensure,
   };
   return api;
 };

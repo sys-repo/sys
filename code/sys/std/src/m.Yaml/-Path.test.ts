@@ -69,7 +69,8 @@ describe('Yaml.Path', () => {
     it('factory: create', () => {
       const path = ['msg'];
       const p = Yaml.path(path);
-      expect(p.path).to.equal(path);
+      expect(p.path).to.eql(path);
+      expect(p.path).to.not.equal(path);
     });
 
     const ast = Yaml.parseAst(`
@@ -206,8 +207,96 @@ describe('Yaml.Path', () => {
         const p = Yaml.path(['arr', 1]);
         const op = p.set(doc, undefined);
         expect(op).to.eql({ type: 'remove', path: ['arr', 1], prev: 2 });
-        // after removal, index 1 should now be the old index 2 value
+        // After removal, index 1 should now be the old index 2 value:
         expect(p.get(doc)).to.eql(3);
+      });
+
+      describe('edge cases', () => {
+        it('root-replacement ([] path)', () => {
+          const doc = Yaml.parseAst(`foo: 1`);
+          const p = Yaml.path([] as []);
+          const op = p.set(doc, { bar: 2 });
+          // → Add/update on root
+          expect(doc.contents!.toJSON()).to.eql({ bar: 2 });
+        });
+
+        it('null vs. <undefined> leaf', () => {
+          const doc = Yaml.parseAst(`a: null`);
+          expect(Yaml.path(['a']).set(doc, null)!.type).to.equal('update');
+          expect(Yaml.path(['a']).set(doc, undefined)!.type).to.equal('remove');
+        });
+
+        it('falsey but present values', () => {
+          const doc = Yaml.parseAst(`x: 0\ny: ''\nz: false`);
+          for (const key of ['x', 'y', 'z'] as const) {
+            const p = Yaml.path([key]);
+            expect(p.exists(doc)).to.be.true;
+            expect(p.get(doc, 'def')).to.not.equal('def');
+          }
+        });
+
+        it('out-of-bounds sequence deletion', () => {
+          const doc = Yaml.parseAst(`arr: [ 1, 2 ]`);
+          const op = Yaml.path(['arr', 5]).set(doc, undefined);
+          expect(op).to.be.undefined;
+          expect(doc.toString()).to.contain('[ 1, 2 ]'); // untouched
+        });
+
+        it('deeply nested auto-creation', () => {
+          const doc = Yaml.parseAst(`{}`);
+          const p = Yaml.path(['a', 'b', 0, 'c']);
+          p.set(doc, 'hi');
+          // → ensures foo: { b: [ { c: 'hi' } ] }
+          expect(p.get(doc)).to.equal('hi');
+        });
+
+        it('full-array replace detection', () => {
+          const doc = Yaml.parseAst(`arr: [1,2,3]`);
+          const newArr = [4, 5, 6];
+          const op = Yaml.path(['arr']).set(doc, newArr);
+          expect(op!.type).to.equal('array');
+          if (op?.type === 'array') {
+            expect(op!.prev).to.eql([1, 2, 3]);
+            expect(op!.next).to.eql(newArr);
+          }
+        });
+
+        it('ensure on existing vs missing', () => {
+          const doc = Yaml.parseAst(`foo: bar`);
+          const p = Yaml.path(['foo']);
+          expect(p.ensure(doc, 'def')).to.equal('bar');
+
+          const q = Yaml.path(['missing']);
+          expect(q.ensure(doc, 'def')).to.equal('def');
+          expect(q.get(doc)).to.equal('def');
+        });
+      });
+    });
+
+    describe('Path.ensure', () => {
+      it('returns the existing value when present', () => {
+        const doc = Yaml.parseAst(`foo: bar`);
+        const p = Yaml.path(['foo']);
+        const result = p.ensure(doc, 'fallback');
+        expect(result).to.eql('bar'); // ← should not overwrite.
+        expect(p.get(doc)).to.eql('bar');
+      });
+
+      it('sets and returns the default when missing', () => {
+        const doc = Yaml.parseAst(`{}`);
+        const p = Yaml.path(['missing']);
+        const result = p.ensure(doc, 42);
+        expect(result).to.eql(42);
+        expect(p.get(doc)).to.eql(42); // ← now present.
+      });
+
+      it('creates intermediate structures for deep paths', () => {
+        const doc = Yaml.parseAst(`{}`);
+        const p = Yaml.path(['a', 'b', 0, 'c']);
+        p.ensure(doc, 'hi');
+        // Verify path built:
+        expect(p.get(doc)).to.eql('hi');
+        expect(doc.toString()).to.contain('{ a: { b: [ { c: hi } ] } }'); // ← confirm structure exists.
       });
     });
   });

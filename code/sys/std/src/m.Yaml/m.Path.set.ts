@@ -13,8 +13,33 @@ export function deepSet(
   path: t.ObjectPath,
   value: unknown,
 ): t.ObjDiffOp | undefined {
-  const prev = deepGet(doc.contents, path);
   let parent: Node | null | undefined = doc.contents;
+
+  // Capture old value/root for diff:
+  const prev = deepGet(doc.contents, path);
+
+  if (path.length === 0) {
+    const newNode = doc.createNode(value) as Node;
+    doc.contents = newNode as any;
+
+    if (prev === undefined) {
+      return { type: 'add', path, value };
+    }
+
+    // Full-array replace on root: detect AST Sequence or JS array
+    if (isSeq(prev) && Array.isArray(value)) {
+      // unwrap YAMLSeq to JS array
+      const prevArr = (prev as YAMLSeq<unknown>).items.map((item) =>
+        isScalar(item) ? (item as Scalar).value : item,
+      );
+      return { type: 'array', path, prev: prevArr, next: value as unknown[] };
+    }
+    if (Array.isArray(prev) && Array.isArray(value)) {
+      return { type: 'array', path, prev: prev as unknown[], next: value as unknown[] };
+    }
+
+    return { type: 'update', path, prev, next: value };
+  }
 
   // DESCEND: build intermediate structures (maps / arrays):
   for (let i = 0; i < path.length - 1; i++) {
@@ -56,17 +81,19 @@ export function deepSet(
     const existing = map.items.find((p) => isScalar(p.key) && p.key.value === leafKey);
     if (existing) {
       existing.value = doc.createNode(value) as Node;
-      if (Array.isArray(prev) && Array.isArray(value)) {
+
+      if (isSeq(prev) && Array.isArray(value)) {
+        const prevArr = (prev as YAMLSeq<unknown>).items.map((item) => {
+          return isScalar(item) ? (item as Scalar).value : item;
+        });
+        return { type: 'array', path, prev: prevArr, next: value as unknown[] };
+      } else if (Array.isArray(prev) && Array.isArray(value)) {
         return { type: 'array', path, prev: prev as unknown[], next: value as unknown[] };
-      } else {
-        return { type: 'update', path, prev, next: value };
       }
+      return { type: 'update', path, prev, next: value };
     }
     // Add new:
-    map.items.push({
-      key: doc.createNode(leafKey) as Node,
-      value: doc.createNode(value) as Node,
-    } as any);
+    map.items.push(doc.createPair(leafKey, value));
     return { type: 'add', path, value };
   }
 
@@ -118,10 +145,9 @@ function ensureChild(
     const map = parent as YAMLMap<unknown, unknown>;
     let pair = map.items.find((p) => isScalar(p.key) && (p.key as Scalar).value === key);
     if (!pair) {
-      const keyNode = doc.createNode(key) as Node; // scalar key
-      const child = doc.createNode(nextIsIndex ? [] : {}) as Node;
-      map.items.push({ key: keyNode, value: child } as any); // Pair<Scalar,Node>
-      return child;
+      const newPair = doc.createPair(key, nextIsIndex ? [] : {});
+      map.items.push(newPair);
+      return newPair.value as Node;
     }
     return pair.value as Node;
   }

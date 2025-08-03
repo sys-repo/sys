@@ -44,4 +44,9 @@ export type YamlPath<T = unknown> = {
    */
   set(subject: t.YamlAst, value: T): t.ObjDiffOp | undefined;
 
+  /**
+   * Ensure a value at the path exists (not undefined),
+   * and if not assigns the given default.
+   */
+  ensure(subject: t.YamlAst, defaultValue: t.NonUndefined<T>): T;
 };
