@@ -324,7 +324,7 @@ describe('Yaml.Path', () => {
     });
 
     describe('path.delete', () => {
-      it('removes a top-level property from a map', () => {
+      it('removes a top-level property from a {map}', () => {
         const doc = Yaml.parseAst(`
           foo: 1
           bar: 2
@@ -335,7 +335,7 @@ describe('Yaml.Path', () => {
         expect(p.exists(doc)).to.be.false;
       });
 
-      it('removes a nested property from a map', () => {
+      it('removes a nested property from a {map}', () => {
         const doc = Yaml.parseAst(`
           a:
             b:
@@ -347,12 +347,11 @@ describe('Yaml.Path', () => {
         expect(p.exists(doc)).to.be.false;
         // Ensure parent structure still exists:
         expect(Yaml.path(['a', 'b']).exists(doc)).to.be.true;
+        expect(doc.toString()).to.eql(`a:\n  b: {}\n`);
       });
 
       it('returns undefined when deleting a non-existent property', () => {
-        const doc = Yaml.parseAst(`
-          foo: {}
-        `);
+        const doc = Yaml.parseAst(`foo: {}`);
         const p = Yaml.path(['foo', 'baz']);
         const op = p.delete(doc);
         expect(op).to.be.undefined;
@@ -360,24 +359,20 @@ describe('Yaml.Path', () => {
       });
 
       it('removes an element from a sequence and shifts remaining items', () => {
-        const doc = Yaml.parseAst(`
-          arr: [1, 2, 3]
-        `);
+        const doc = Yaml.parseAst('arr: [1, 2, 3]');
         const p = Yaml.path(['arr', 1]);
         const op = p.delete(doc);
         expect(op).to.eql({ type: 'remove', path: ['arr', 1], prev: 2 });
         // After removal, index 1 should now be the old index 2 value:
         expect(Yaml.path(['arr', 1]).get(doc)).to.eql(3);
+        expect(doc.toString()).to.eql('arr: [ 1, 3 ]\n');
       });
 
-      it('returns undefined when deleting an out-of-bounds sequence element', () => {
-        const doc = Yaml.parseAst(`
-          arr: [1, 2]
-        `);
+      it('returns <undefined> when deleting an out-of-bounds sequence element', () => {
+        const doc = Yaml.parseAst('arr: [1, 2]');
         const p = Yaml.path(['arr', 5]);
         const op = p.delete(doc);
         expect(op).to.be.undefined;
-
         expect(doc.toString()).to.contain('[ 1, 2 ]'); // ← original sequence untouched.
       });
     });
