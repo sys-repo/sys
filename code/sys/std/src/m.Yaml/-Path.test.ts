@@ -65,7 +65,7 @@ describe('Yaml.Path', () => {
     });
   });
 
-  describe('Yaml.Path', () => {
+  describe('Yaml.path (curried)', () => {
     it('factory: create', () => {
       const path = ['msg'];
       const p = Yaml.path(path);
@@ -73,13 +73,30 @@ describe('Yaml.Path', () => {
       expect(p.path).to.not.equal(path);
     });
 
-    const ast = Yaml.parseAst(`
-      root:
-        foo:
-          msg: hello
-    `);
+    describe('path.join(...)', () => {
+      it('joins a sub-path', () => {
+        const a = Yaml.path<number>(['foo']);
+        expect(a.path).to.eql(['foo']);
+
+        const b = a.join(['bar', 'zoo']);
+        expect(b.path).to.eql(['foo', 'bar', 'zoo']);
+      });
+
+      it('empty sub-path', () => {
+        const a = Yaml.path<number>(['foo']);
+        const b = a.join([]);
+        expect(a.path).to.eql(b.path);
+        expect(a).to.not.equal(b); // NB: different instance.
+      });
+    });
 
     describe('path.exists', () => {
+      const ast = Yaml.parseAst(`
+        root:
+          foo:
+            msg: hello
+      `);
+
       it('returns true for an existing path', () => {
         const p = Yaml.path(['root', 'foo', 'msg']);
         expect(p.exists(ast)).to.be.true;
@@ -92,6 +109,12 @@ describe('Yaml.Path', () => {
     });
 
     describe('path.get', () => {
+      const ast = Yaml.parseAst(`
+        root:
+          foo:
+            msg: hello
+      `);
+
       it('returns <value> when path exists without <default>', () => {
         const p = Yaml.path(['root', 'foo', 'msg']);
         const result = p.get(ast);
@@ -222,8 +245,8 @@ describe('Yaml.Path', () => {
 
         it('null vs. <undefined> leaf', () => {
           const doc = Yaml.parseAst(`a: null`);
-          expect(Yaml.path(['a']).set(doc, null)!.type).to.equal('update');
-          expect(Yaml.path(['a']).set(doc, undefined)!.type).to.equal('remove');
+          expect(Yaml.path(['a']).set(doc, null)!.type).to.eql('update');
+          expect(Yaml.path(['a']).set(doc, undefined)!.type).to.eql('remove');
         });
 
         it('falsey but present values', () => {
@@ -231,7 +254,7 @@ describe('Yaml.Path', () => {
           for (const key of ['x', 'y', 'z'] as const) {
             const p = Yaml.path([key]);
             expect(p.exists(doc)).to.be.true;
-            expect(p.get(doc, 'def')).to.not.equal('def');
+            expect(p.get(doc, 'def')).to.not.eql('def');
           }
         });
 
@@ -247,14 +270,14 @@ describe('Yaml.Path', () => {
           const p = Yaml.path(['a', 'b', 0, 'c']);
           p.set(doc, 'hi');
           // → ensures foo: { b: [ { c: 'hi' } ] }
-          expect(p.get(doc)).to.equal('hi');
+          expect(p.get(doc)).to.eql('hi');
         });
 
         it('full-array replace detection', () => {
           const doc = Yaml.parseAst(`arr: [1,2,3]`);
           const newArr = [4, 5, 6];
           const op = Yaml.path(['arr']).set(doc, newArr);
-          expect(op!.type).to.equal('array');
+          expect(op!.type).to.eql('array');
           if (op?.type === 'array') {
             expect(op!.prev).to.eql([1, 2, 3]);
             expect(op!.next).to.eql(newArr);
@@ -264,11 +287,11 @@ describe('Yaml.Path', () => {
         it('ensure on existing vs missing', () => {
           const doc = Yaml.parseAst(`foo: bar`);
           const p = Yaml.path(['foo']);
-          expect(p.ensure(doc, 'def')).to.equal('bar');
+          expect(p.ensure(doc, 'def')).to.eql('bar');
 
           const q = Yaml.path(['missing']);
-          expect(q.ensure(doc, 'def')).to.equal('def');
-          expect(q.get(doc)).to.equal('def');
+          expect(q.ensure(doc, 'def')).to.eql('def');
+          expect(q.get(doc)).to.eql('def');
         });
       });
     });
@@ -300,20 +323,62 @@ describe('Yaml.Path', () => {
       });
     });
 
-    describe('path.join(...)', () => {
-      it('joins a sub-path', () => {
-        const a = Yaml.path<number>(['foo']);
-        expect(a.path).to.eql(['foo']);
-
-        const b = a.join(['bar', 'zoo']);
-        expect(b.path).to.eql(['foo', 'bar', 'zoo']);
+    describe('path.delete', () => {
+      it('removes a top-level property from a map', () => {
+        const doc = Yaml.parseAst(`
+          foo: 1
+          bar: 2
+        `);
+        const p = Yaml.path(['foo']);
+        const op = p.delete(doc);
+        expect(op).to.eql({ type: 'remove', path: ['foo'], prev: 1 });
+        expect(p.exists(doc)).to.be.false;
       });
 
-      it('empty sub-path', () => {
-        const a = Yaml.path<number>(['foo']);
-        const b = a.join([]);
-        expect(a.path).to.eql(b.path);
-        expect(a).to.not.equal(b); // NB: different instance.
+      it('removes a nested property from a map', () => {
+        const doc = Yaml.parseAst(`
+          a:
+            b:
+              c: 3
+        `);
+        const p = Yaml.path(['a', 'b', 'c']);
+        const op = p.delete(doc);
+        expect(op).to.eql({ type: 'remove', path: ['a', 'b', 'c'], prev: 3 });
+        expect(p.exists(doc)).to.be.false;
+        // Ensure parent structure still exists:
+        expect(Yaml.path(['a', 'b']).exists(doc)).to.be.true;
+      });
+
+      it('returns undefined when deleting a non-existent property', () => {
+        const doc = Yaml.parseAst(`
+          foo: {}
+        `);
+        const p = Yaml.path(['foo', 'baz']);
+        const op = p.delete(doc);
+        expect(op).to.be.undefined;
+        expect(doc.toString()).to.contain('foo: {}');
+      });
+
+      it('removes an element from a sequence and shifts remaining items', () => {
+        const doc = Yaml.parseAst(`
+          arr: [1, 2, 3]
+        `);
+        const p = Yaml.path(['arr', 1]);
+        const op = p.delete(doc);
+        expect(op).to.eql({ type: 'remove', path: ['arr', 1], prev: 2 });
+        // After removal, index 1 should now be the old index 2 value:
+        expect(Yaml.path(['arr', 1]).get(doc)).to.eql(3);
+      });
+
+      it('returns undefined when deleting an out-of-bounds sequence element', () => {
+        const doc = Yaml.parseAst(`
+          arr: [1, 2]
+        `);
+        const p = Yaml.path(['arr', 5]);
+        const op = p.delete(doc);
+        expect(op).to.be.undefined;
+
+        expect(doc.toString()).to.contain('[ 1, 2 ]'); // ← original sequence untouched.
       });
     });
   });

@@ -51,6 +51,11 @@ export type YamlPath<T = unknown> = {
   ensure(subject: t.YamlAst, defaultValue: t.NonUndefined<T>): T;
 
   /**
+   * Deletes the value at the given path if it exists.
+   */
+  delete(subject: t.YamlAst): t.ObjDiffOp | undefined;
+
+  /**
    * Creates a new curried path combining this path as the root
    * and the given sub-path.
    */

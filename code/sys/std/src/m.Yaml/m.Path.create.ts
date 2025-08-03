@@ -44,8 +44,9 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
     path,
     get,
     exists: (subject) => deepGet(subject?.contents, path) !== undefined,
-    set: (subject, value) => deepSet(subject, path, value),
     ensure,
+    set: (subject, value) => deepSet(subject, path, value),
+    delete: (subject) => deepSet(subject, path, undefined),
     join,
   };
   return api;
