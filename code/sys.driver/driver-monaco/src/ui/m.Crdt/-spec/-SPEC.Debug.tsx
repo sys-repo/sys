@@ -1,6 +1,7 @@
 import React from 'react';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 import { Monaco } from '@sys/driver-monaco';
+import { createRepo } from '../../-test.ui.ts';
 
 import {
   type t,
@@ -48,21 +49,6 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      // { ws: 'sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -79,6 +65,7 @@ export async function createDebugSignals() {
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
     repo,

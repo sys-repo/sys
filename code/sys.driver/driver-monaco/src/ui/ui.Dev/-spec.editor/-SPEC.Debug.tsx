@@ -1,4 +1,5 @@
 import React from 'react';
+import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DevEditorProps;
@@ -28,8 +29,10 @@ export function createDebugSignals() {
     theme: s(snap.theme),
   };
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
+    repo,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
