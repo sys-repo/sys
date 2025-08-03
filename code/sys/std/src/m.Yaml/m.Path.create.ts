@@ -31,6 +31,13 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
   }
 
   /**
+   * Method: join
+   */
+  function join<T = unknown>(subpath: t.ObjectPath) {
+    return create<T>([...path, ...(subpath ?? [])]);
+  }
+
+  /**
    * API:
    */
   const api: t.YamlPath<T> = {
@@ -39,6 +46,7 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
     exists: (subject) => deepGet(subject?.contents, path) !== undefined,
     set: (subject, value) => deepSet(subject, path, value),
     ensure,
+    join,
   };
   return api;
 };

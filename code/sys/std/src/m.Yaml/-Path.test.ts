@@ -79,7 +79,7 @@ describe('Yaml.Path', () => {
           msg: hello
     `);
 
-    describe('Path.exists', () => {
+    describe('path.exists', () => {
       it('returns true for an existing path', () => {
         const p = Yaml.path(['root', 'foo', 'msg']);
         expect(p.exists(ast)).to.be.true;
@@ -91,7 +91,7 @@ describe('Yaml.Path', () => {
       });
     });
 
-    describe('Path.get', () => {
+    describe('path.get', () => {
       it('returns <value> when path exists without <default>', () => {
         const p = Yaml.path(['root', 'foo', 'msg']);
         const result = p.get(ast);
@@ -141,7 +141,7 @@ describe('Yaml.Path', () => {
       });
     });
 
-    describe('Path.set', () => {
+    describe('path.set', () => {
       it('adds a new property to a nested {map}', () => {
         const doc = Yaml.parseAst(`
           foo: {}
@@ -273,7 +273,7 @@ describe('Yaml.Path', () => {
       });
     });
 
-    describe('Path.ensure', () => {
+    describe('path.ensure', () => {
       it('returns the existing value when present', () => {
         const doc = Yaml.parseAst(`foo: bar`);
         const p = Yaml.path(['foo']);
@@ -297,6 +297,23 @@ describe('Yaml.Path', () => {
         // Verify path built:
         expect(p.get(doc)).to.eql('hi');
         expect(doc.toString()).to.contain('{ a: { b: [ { c: hi } ] } }'); // ← confirm structure exists.
+      });
+    });
+
+    describe('path.join(...)', () => {
+      it('joins a sub-path', () => {
+        const a = Yaml.path<number>(['foo']);
+        expect(a.path).to.eql(['foo']);
+
+        const b = a.join(['bar', 'zoo']);
+        expect(b.path).to.eql(['foo', 'bar', 'zoo']);
+      });
+
+      it('empty sub-path', () => {
+        const a = Yaml.path<number>(['foo']);
+        const b = a.join([]);
+        expect(a.path).to.eql(b.path);
+        expect(a).to.not.equal(b); // NB: different instance.
       });
     });
   });

@@ -49,4 +49,10 @@ export type YamlPath<T = unknown> = {
    * and if not assigns the given default.
    */
   ensure(subject: t.YamlAst, defaultValue: t.NonUndefined<T>): T;
+
+  /**
+   * Creates a new curried path combining this path as the root
+   * and the given sub-path.
+   */
+  join<T = unknown>(subpath: t.ObjectPath): YamlPath<T>;
 };
