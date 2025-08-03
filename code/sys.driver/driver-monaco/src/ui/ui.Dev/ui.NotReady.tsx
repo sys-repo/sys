@@ -25,7 +25,7 @@ export const NotReady: React.FC<NotReadyProps> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
-    body: css({}),
+    body: css({ opacity: 0.4 }),
   };
 
   return (

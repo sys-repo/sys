@@ -3,3 +3,4 @@
  * @module
  */
 export { Dev } from './m.Dev.ts';
+export { DevEditor } from './ui.Editor.tsx';

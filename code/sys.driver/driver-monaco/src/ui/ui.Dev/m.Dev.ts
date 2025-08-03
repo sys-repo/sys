@@ -1,5 +1,5 @@
 import { type t, PathView } from './common.ts';
-import { DevEditor as Editor } from './ui.Dev.Editor.tsx';
+import { DevEditor as Editor } from './ui.Editor.tsx';
 
 export const Dev: t.MonacoDevLib = {
   Editor,
