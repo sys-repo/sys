@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 import { deepGet } from './m.Path.get.ts';
+import { deepSet } from './m.Path.set.ts';
 
 export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath) => {
   /**
@@ -16,19 +17,13 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
   }
 
   /**
-   * Method: exists
-   */
-  function exists(subject?: t.YamlAst): boolean {
-    return deepGet(subject?.contents, path) !== undefined;
-  }
-
-  /**
    * API:
    */
   const api: t.YamlPath<T> = {
     path,
     get,
-    exists,
+    exists: (subject) => deepGet(subject?.contents, path) !== undefined,
+    set: (subject, value) => deepSet(subject, path, value),
   };
   return api;
 };

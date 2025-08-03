@@ -36,4 +36,12 @@ export type YamlPath<T = unknown> = {
    * Determine if the given path exists on the subject, irrespective of value.
    */
   exists(subject: t.YamlAst | undefined): boolean;
+
+  /**
+   * Deep-set helper that mutates `subject` setting a nested value at the path.
+   *  - Creates intermediate objects/arrays as needed.
+   *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
+   */
+  set(subject: t.YamlAst, value: T): t.ObjDiffOp | undefined;
+
 };

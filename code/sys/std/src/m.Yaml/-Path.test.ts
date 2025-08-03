@@ -124,19 +124,90 @@ describe('Yaml.Path', () => {
 
         it('null value vs. missing key', () => {
           const ast = Yaml.parseAst('n: null');
-          expect(Yaml.path(['n']).get(ast, 'def')).to.equal(null);
-          expect(Yaml.path(['nop']).get(ast, 'def')).to.equal('def');
+          expect(Yaml.path(['n']).get(ast, 'def')).to.eql(null);
+          expect(Yaml.path(['nop']).get(ast, 'def')).to.eql('def');
         });
 
         it('sequence indexing + out-of-bounds', () => {
           const ast = Yaml.parseAst('arr: [a, b]');
-          expect(Yaml.path(['arr', 1]).get(ast)).to.equal('b');
+          expect(Yaml.path(['arr', 1]).get(ast)).to.eql('b');
           expect(Yaml.path(['arr', 2]).get(ast)).to.be.undefined;
         });
 
         it('subject undefined', () => {
           expect(Yaml.path(['foo']).get(undefined, 'x')).to.eql('x');
         });
+      });
+    });
+
+    describe('Path.set', () => {
+      it('adds a new property to a nested {map}', () => {
+        const doc = Yaml.parseAst(`
+          foo: {}
+        `);
+
+        const p = Yaml.path(['foo', 'bar']);
+        const op = p.set(doc, 42);
+        expect(op).to.eql({ type: 'add', path: ['foo', 'bar'], value: 42 });
+        expect(p.get(doc)).to.eql(42);
+      });
+
+      it('updates an existing property in a {map}', () => {
+        const doc = Yaml.parseAst(`
+          foo:
+            bar: 'old'
+        `);
+
+        const p = Yaml.path(['foo', 'bar']);
+        const op = p.set(doc, 'new');
+        expect(op).to.eql({ type: 'update', path: ['foo', 'bar'], prev: 'old', next: 'new' });
+        expect(p.get(doc)).to.eql('new');
+      });
+
+      it('removes a property when setting <undefined>', () => {
+        const doc = Yaml.parseAst(`
+          foo:
+            bar: 'baz'
+        `);
+
+        const p = Yaml.path(['foo', 'bar']);
+        const op = p.set(doc, undefined);
+        expect(op).to.eql({ type: 'remove', path: ['foo', 'bar'], prev: 'baz' });
+        expect(p.get(doc)).to.be.undefined;
+      });
+
+      it('updates an element in a [sequence]', () => {
+        const doc = Yaml.parseAst(`
+          arr: [1, 2]
+        `);
+
+        const p = Yaml.path(['arr', 0]);
+        const op = p.set(doc, 9);
+        expect(op).to.eql({ type: 'update', path: ['arr', 0], prev: 1, next: 9 });
+        expect(p.get(doc)).to.eql(9);
+      });
+
+      it('appends to a [sequence] when index equals length', () => {
+        const doc = Yaml.parseAst(`
+          arr: [1, 2]
+        `);
+
+        const p = Yaml.path(['arr', 2]);
+        const op = p.set(doc, 3);
+        expect(op).to.eql({ type: 'add', path: ['arr', 2], value: 3 });
+        expect(p.get(doc)).to.eql(3);
+      });
+
+      it('removes an element from a [sequence] when value is <undefined>', () => {
+        const doc = Yaml.parseAst(`
+          arr: [1, 2, 3]
+        `);
+
+        const p = Yaml.path(['arr', 1]);
+        const op = p.set(doc, undefined);
+        expect(op).to.eql({ type: 'remove', path: ['arr', 1], prev: 2 });
+        // after removal, index 1 should now be the old index 2 value
+        expect(p.get(doc)).to.eql(3);
       });
     });
   });
