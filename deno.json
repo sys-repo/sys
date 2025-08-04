@@ -25,7 +25,7 @@
     "jsxImportSource": "react"
   },
   "nodeModulesDir": "auto",
-  "importMap": "imports.json",
+  "importMap": "deno.imports.json",
   "workspace": [
     "code/sys/types",
     "code/sys/std",

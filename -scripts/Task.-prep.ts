@@ -13,7 +13,7 @@ async function processDeps() {
 
   const PATH = {
     package: './package.json',
-    deno: './imports.json',
+    deno: './deno.imports.json',
   } as const;
 
   /**
