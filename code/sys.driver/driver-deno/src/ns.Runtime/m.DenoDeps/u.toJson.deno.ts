@@ -15,7 +15,6 @@ export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
         const value = Esm.toString(e.module);
         const name = e.module.alias || e.module.name;
         imports[name] = value;
-        if (e.wildcard) imports[`${name}/*`] = `${value}/*`;
         if (Array.isArray(e.subpaths)) {
           e.subpaths.forEach((subpath) => {
             imports[`${name}/${subpath}`] = `${value}/${subpath}`;

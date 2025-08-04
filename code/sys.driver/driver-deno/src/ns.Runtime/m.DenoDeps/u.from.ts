@@ -47,7 +47,6 @@ export const from: t.DepsLib['from'] = async (input) => {
     item: t.YamlDep,
     target: t.DepTargetFile,
     dev?: boolean,
-    wildcard?: boolean,
     subpaths?: t.StringDir[],
     nameAlias?: string,
   ): t.Dep | undefined => {
@@ -56,7 +55,7 @@ export const from: t.DepsLib['from'] = async (input) => {
       if (Array.isArray(group)) {
         group.forEach((m) => {
           const item = m as t.YamlDep;
-          addDep(item, target, item.dev ?? dev, item.wildcard, item.subpaths, item.name);
+          addDep(item, target, item.dev ?? dev, item.subpaths, item.name);
         });
       }
     }
@@ -74,7 +73,6 @@ export const from: t.DepsLib['from'] = async (input) => {
     };
 
     if (dev) res.dev = true;
-    if (wildcard) res.wildcard = true;
     if (Array.isArray(subpaths)) {
       // NB: prevent double "//" malformed path being inserted into final deps.
       res.subpaths = subpaths.map((path) => path.replace(/^\/+/, ''));
@@ -84,9 +82,7 @@ export const from: t.DepsLib['from'] = async (input) => {
   };
 
   if (Array.isArray(yaml['deno.json'])) {
-    yaml['deno.json'].forEach(
-      (m) => addDep(m, 'deno.json', false, m.wildcard, m.subpaths, m.name)!,
-    );
+    yaml['deno.json'].forEach((m) => addDep(m, 'deno.json', false, m.subpaths, m.name)!);
   }
   if (Array.isArray(yaml['package.json'])) {
     yaml['package.json'].forEach((m) => addDep(m, 'package.json', m.dev)!);

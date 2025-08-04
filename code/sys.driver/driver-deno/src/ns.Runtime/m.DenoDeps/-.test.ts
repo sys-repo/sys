@@ -17,7 +17,7 @@ describe('DenoDeps', () => {
       const a = DenoDeps.toDep(esm);
       const b = DenoDeps.toDep(esm, { target: 'package.json' });
       const c = DenoDeps.toDep(esm, { target: ['package.json', 'deno.json'] });
-      const d = DenoDeps.toDep(esm, { dev: true, wildcard: true, subpaths: ['v2', 'http'] });
+      const d = DenoDeps.toDep(esm, { dev: true, subpaths: ['v2', 'http'] });
 
       expect(a.module.toString()).to.eql(esm);
       expect(b.module.input).to.eql(esm);
@@ -27,24 +27,24 @@ describe('DenoDeps', () => {
       expect(b.target).to.eql(['package.json']);
       expect(c.target).to.eql(['deno.json', 'package.json']); // NB: sorted
 
-      expect([a.dev, a.wildcard, a.subpaths]).to.eql([undefined, undefined, undefined]);
-      expect([d.dev, d.wildcard, d.subpaths]).to.eql([true, true, ['v2', 'http']]);
+      expect([a.dev, a.subpaths]).to.eql([undefined, undefined]);
+      expect([d.dev, d.subpaths]).to.eql([true, ['v2', 'http']]);
     });
 
     it('from {EsmImport}', () => {
       const esm = Esm.parse('jsr:@sys/tmp@0.1.2');
       const a = DenoDeps.toDep(esm);
       const b = DenoDeps.toDep(esm, { target: 'package.json', dev: true });
-      const c = DenoDeps.toDep(esm, { wildcard: true, subpaths: ['  '] });
+      const c = DenoDeps.toDep(esm, { subpaths: ['  '] });
       const d = DenoDeps.toDep(esm, { subpaths: ['', '//foo/bar//', ' v2 '] });
 
       expect(a.module.toString()).to.eql(esm.toString());
       expect(b.module.toString()).to.eql(esm.toString());
       expect(c.module.toString()).to.eql(esm.toString());
 
-      expect([a.dev, a.wildcard]).to.eql([undefined, undefined]);
-      expect([b.dev, b.wildcard]).to.eql([true, undefined]);
-      expect([c.dev, c.wildcard, c.subpaths]).to.eql([undefined, true, undefined]);
+      expect([a.dev]).to.eql([undefined]);
+      expect([b.dev]).to.eql([true]);
+      expect([c.dev, c.subpaths]).to.eql([undefined, undefined]);
       expect(d.subpaths).to.eql(['foo/bar', 'v2']);
     });
   });
@@ -83,7 +83,6 @@ describe('DenoDeps', () => {
       expect(mod.version).to.eql('1.0.11');
       expect(mod.registry).to.eql('jsr');
       expect(deps[0].dev).to.eql(undefined);
-      expect(deps[0].wildcard).to.eql(undefined);
 
       const find = (name: string, fn: (dep: t.Dep) => void) => {
         const match = deps.find((m) => m.module.name === name);
@@ -93,8 +92,6 @@ describe('DenoDeps', () => {
 
       find('@types/react', (dep) => expect(dep.dev).to.eql(true));
       find('@std/http', (dep) => expect(dep.dev).to.eql(true));
-      find('@noble/hashes', (dep) => expect(dep.wildcard).to.eql(true));
-      find('@automerge/automerge-repo', (dep) => expect(dep.wildcard).to.eql(true));
       find('chai', (dep) => expect(dep.subpaths).to.eql(['', 'chai.js']));
     });
 
@@ -252,7 +249,6 @@ describe('DenoDeps', () => {
         - import: jsr:@sample/tmp-1
         - import: jsr:@sample/tmp-2
         - import: jsr:@sample/foobar-1
-          wildcard: true
       package.json:
         - import: jsr:@sample/tmp-1
         - import: jsr:@sample/foobar-2
@@ -278,12 +274,10 @@ describe('DenoDeps', () => {
             - import: jsr:@sample/tmp-1
             - import: jsr:@sample/tmp-2
             - import: jsr:@sample/tmp-3
-              wildcard: true
             
         deno.json:
           - group: common/foo
           - import: jsr:@sample/foobar-1
-            wildcard: true
 
         package.json:
           - import: jsr:@sample/foobar-2
@@ -298,7 +292,7 @@ describe('DenoDeps', () => {
 
       const groupBy: t.DepsCategorizeByGroup = (e) => {
         const name = e.dep.module.name;
-        if (name.endsWith('/tmp-3')) e.group('common/foo', { wildcard: true, dev: true });
+        if (name.endsWith('/tmp-3')) e.group('common/foo', { dev: true });
         if (name.match(/tmp-(\d+)$/)) e.group('common/foo'); // NB: de-duped in algorithm.
       };
 
@@ -325,9 +319,7 @@ describe('DenoDeps', () => {
         imports: {
           '@automerge/automerge': 'npm:@automerge/automerge@2',
           '@automerge/automerge-repo': 'npm:@automerge/automerge-repo@1',
-          '@automerge/automerge-repo/*': 'npm:@automerge/automerge-repo@1/*',
           '@noble/hashes': 'npm:@noble/hashes@1.7.1',
-          '@noble/hashes/*': 'npm:@noble/hashes@1.7.1/*',
           '@std/assert': 'jsr:@std/assert@1.0.11',
           '@std/fs': 'jsr:@std/fs@1.0.11',
           '@std/http': 'jsr:@std/http@1.0.13',
