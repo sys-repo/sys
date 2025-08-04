@@ -26,8 +26,10 @@ groups:
     - import: jsr:@std/http@1.0.20
       subpaths: [file-server]
     - import: jsr:@std/path@1.1.1
+      subpaths: [join, windows/join, posix/join]
     - import: jsr:@std/semver@1.0.5
     - import: jsr:@std/testing@1.0.15
+      subpaths: [bdd]
     - import: jsr:@std/uuid@1.0.9
 
   std/testing:
@@ -47,7 +49,7 @@ groups:
 
   crypto:
     - import: npm:@noble/hashes@1.8.0
-      wildcard: true
+      subpaths: [sha1, sha256]
 
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.11.0
@@ -145,8 +147,6 @@ deno.json:
   - import: npm:react-inspector@6.0.2
 
 package.json:
-  - group: std/deno
-  - group: crypto
   - group: build/tools
     dev: true
 

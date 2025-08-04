@@ -1,16 +1,5 @@
 {
   "dependencies": {
-    "@noble/hashes": "1.8.0",
-    "@std/async": "npm:@jsr/std__async@1.0.14",
-    "@std/datetime": "npm:@jsr/std__datetime@0.225.5",
-    "@std/dotenv": "npm:@jsr/std__dotenv@0.225.5",
-    "@std/encoding": "npm:@jsr/std__encoding@1.0.10",
-    "@std/fs": "npm:@jsr/std__fs@1.0.19",
-    "@std/http": "npm:@jsr/std__http@1.0.20",
-    "@std/path": "npm:@jsr/std__path@1.1.1",
-    "@std/semver": "npm:@jsr/std__semver@1.0.5",
-    "@std/testing": "npm:@jsr/std__testing@1.0.15",
-    "@std/uuid": "npm:@jsr/std__uuid@1.0.9",
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
     "hono": "4.8.12",
