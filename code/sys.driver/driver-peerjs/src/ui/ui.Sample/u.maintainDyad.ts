@@ -44,27 +44,25 @@ export type RemoteStreamArgs = {
  */
 export function maintainDyadConnection(args: Args): t.DyadConnection {
   const { peer, dyad, localStream, onRemoteStream, retryDelay = 1_000 } = args;
-
-  /** `life` – external + internal disposal channel. */
   const life = rx.lifecycle(args.dispose$);
 
-  if (!peer.id) throw new Error('Peer instance must be “open” first');
+  if (!peer.id) throw new Error('Peer instance must be "open" first');
+
+  console.log('peer._options?.config?.iceServers ', (peer as any)._options?.config?.iceServers);
 
   const [id1, id2] = dyad;
   const remoteId = peer.id === id1 ? id2 : id1;
 
   let call: t.PeerJS.MediaConnection | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let delay = retryDelay; // exponential back-off tracker
-
-  /** Connection state (exposed read-only via returned object). */
-  const connected: t.DyadConnectionState = { local: false, remote: false };
+  let delay = retryDelay; // ← exponential back-off tracker.
+  let trackAbort: AbortController | null = null; // ← AbortController that owns all track listeners for the current call.
+  const connected: t.DyadConnectionState = { local: false, remote: false }; // ← Connection state (exposed read-only via returned object).
 
   /**
-   * Attempt to place an outbound call (poller).
+   * Attempt to place an outbound call (polling).
    */
   const dial = () => {
-    console.log('DIAL', call);
     if (life.disposed || call) return; // already connected
     try {
       const outgoing = peer.call(remoteId, localStream);
@@ -94,6 +92,12 @@ export function maintainDyadConnection(args: Args): t.DyadConnection {
      * Attach housekeeping listeners to a MediaConnection.
      */
     wireCall(c: t.PeerJS.MediaConnection) {
+      if (call?.open && connected.remote) {
+        // There is already have a good connection – reject duplicate.
+        c.close(); // ← tidy up caller’s attempt.
+        return;
+      }
+
       IO.cleanupCall(); // ← Ensure single active link.
       call = c;
       connected.local = true;
@@ -134,6 +138,10 @@ export function maintainDyadConnection(args: Args): t.DyadConnection {
      */
     cleanupCall() {
       if (!call) return;
+
+      trackAbort?.abort();
+      trackAbort = null;
+
       try {
         call.close();
       } catch {
@@ -153,8 +161,22 @@ export function maintainDyadConnection(args: Args): t.DyadConnection {
      * Remote stream received → alert listeners.
      */
     stream(stream: MediaStream) {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
       delay = retryDelay; // success → reset back-off.
       connected.remote = true;
+
+      trackAbort = new AbortController();
+      const { signal } = trackAbort;
+
+      // Track-level loss detection:
+      stream.getTracks().forEach((track) => {
+        const lost = () => IO.lostConnection(call!);
+        track.addEventListener('ended', lost, { signal });
+      });
+
       onRemoteStream?.({
         local: { stream: localStream, peer: peer.id },
         remote: { stream, peer: remoteId },
