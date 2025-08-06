@@ -16,7 +16,6 @@ export type HttpServerLib = {
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;
   create(options?: t.HttpServerCreateOptions): HonoApp;
-  options(port?: number, pkg?: t.Pkg, hash?: t.StringHash): Deno.ServeOptions<Deno.NetAddr>;
   options(args: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;
   keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
@@ -28,6 +27,7 @@ export type HttpServerOptionsOptions = {
   pkg?: t.Pkg;
   hash?: t.StringHash;
   silent?: boolean;
+  dir?: string;
 };
 
 /** Arguments passed to [HttpServer.print] */
@@ -44,6 +44,7 @@ export type HttpServerPrintOptions = {
   hash?: t.StringHash;
   keyboard?: boolean;
   requestedPort?: t.PortNumber;
+  dir?: t.StringDir;
 };
 
 /** Options passed to the creation of a server. */

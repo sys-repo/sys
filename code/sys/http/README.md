@@ -2,7 +2,21 @@
 Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational protocol of the "world wide web."
 
 
-### HTTP Client
+### Simple File Server
+Standing up an HTTP server via command line.
+
+```bash
+deno run -RNE jsr:@sys/http/server/start
+
+# ↑ default options:
+#   --port=8080
+#   --dir=dist
+```
+
+
+
+
+### HTTP Client (Programmatic)
 Fetch tools:
 
 ```ts
@@ -36,7 +50,7 @@ const text = fetch.json(url, {}, { dispose$, checksum });
 ```
 
 
-### HTTP Server
+### HTTP Server (Programmatic)
 Serving tools. A lightweight, highly performant, HTTP server that can run locally or at the "edges" ([WinterTC](https://wintertc.org/)):
 
 ```ts
@@ -67,15 +81,6 @@ const url = Http.url(listener.addr);
 
 const res = await fetch.json<T>(url.base);
 res.data // ← { count: 123 }
-```
-
-
-Standing up an HTTP server via command line (from the `jsr:` registry) from the `/start` module entry.
-
-`--allowRun` allows keyboard interaction from the terminal, eg: `O` key to open in browser.
-
-```bash
-deno run -RNE --allow-run jsr:@sys/http/server/start --port=1234
 ```
 
 

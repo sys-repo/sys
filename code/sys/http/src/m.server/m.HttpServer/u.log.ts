@@ -7,7 +7,9 @@ import { type t, c, Cli, HashFmt } from './common.ts';
 export const print: t.HttpServerLib['print'] = (options) => {
   const { addr, pkg, hash, requestedPort } = options;
   const port = c.bold(c.brightCyan(String(addr.port)));
+  const dir = (options.dir ?? '').replace(/^\/+/, '').replace(/\/+$/, '');
   const host = c.cyan(`http://localhost:${port}/`);
+
   if (pkg) {
     pkg.name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
     pkg.version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
@@ -26,6 +28,7 @@ export const print: t.HttpServerLib['print'] = (options) => {
     } else {
       table.push(['', host]);
     }
+    table.push(['', c.gray(`/${dir}/`)]);
     console.info(table.toString().trim());
   } else {
     console.info(c.gray(`Listening on ${host}`));
