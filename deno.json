@@ -59,7 +59,6 @@
     "code/sys.driver/driver-orbiter",
     "code/sys.driver/driver-peerjs",
     "code/sys.driver/driver-prosemirror",
-    "code/sys.driver/driver-quilibrium",
     "code/sys.driver/driver-vite",
 
     "deploy/@tdb.fs",
