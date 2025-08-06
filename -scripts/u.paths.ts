@@ -18,8 +18,8 @@ export const Paths = {
     'code/sys/schema',
 
     'code/sys/testing',
-    'code/sys/fs',
     'code/sys/cli',
+    'code/sys/fs',
     'code/sys/process',
     'code/sys/crypto',
 
