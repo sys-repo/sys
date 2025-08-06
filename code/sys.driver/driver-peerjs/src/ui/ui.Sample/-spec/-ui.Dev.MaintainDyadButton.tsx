@@ -67,6 +67,8 @@ export function MaintainDyadButton(props: P) {
         const localStream = p.localStream.value;
         if (!(dyad && peer && localStream)) return;
 
+        if (!!controller) return; // Already instantiated.
+
         const ctrl = Conn.maintainDyadConnection({
           peer,
           dyad,
