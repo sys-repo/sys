@@ -16,7 +16,7 @@ export type HttpServerLib = {
   readonly cors: typeof cors;
   readonly static: t.HttpServeStatic;
   create(options?: t.HttpServerCreateOptions): HonoApp;
-  options(args: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
+  options(args?: t.HttpServerOptionsOptions): Deno.ServeOptions<Deno.NetAddr>;
   print(args: t.HttpServerPrintOptions): void;
   keyboard(args: t.HttpServerKeyboardOptions): Promise<void>;
 };
