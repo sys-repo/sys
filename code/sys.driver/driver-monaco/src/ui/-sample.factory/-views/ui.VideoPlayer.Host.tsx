@@ -52,8 +52,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
-    error: css({}),
-    empty: css({}),
+    empty: css({ userSelect: 'none' }),
   };
 
   const elVideo = showVideo && (
