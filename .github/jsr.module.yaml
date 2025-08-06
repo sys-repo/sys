@@ -2,5 +2,5 @@
   run: |
     cd PATH
     deno task test --parallel
-    # deno publish --allow-dirty
-    deno publish --allow-dirty || [[ $? -eq 1 ]]
+    deno publish --allow-dirty
+    # deno publish --allow-dirty || [[ $? -eq 1 ]]
