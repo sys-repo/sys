@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Monaco } from '../../mod.ts';
-import { D } from '../common.ts';
+import { D, STORAGE_KEY } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -22,7 +22,14 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Monaco.Dev.Editor debug={v.debug} theme={v.theme} repo={repo} />;
+        return (
+          <Monaco.Dev.Editor
+            debug={v.debug}
+            theme={v.theme}
+            repo={repo}
+            localstorage={STORAGE_KEY.DEV}
+          />
+        );
       });
   });
 

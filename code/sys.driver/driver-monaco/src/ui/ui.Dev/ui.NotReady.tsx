@@ -20,12 +20,8 @@ export const NotReady: React.FC<NotReadyProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-      placeItems: 'center',
-    }),
-    body: css({ opacity: 0.4 }),
+    base: css({ color: theme.fg, display: 'grid', placeItems: 'center' }),
+    body: css({ opacity: 0.4, userSelect: 'none' }),
   };
 
   return (
