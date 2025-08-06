@@ -28,11 +28,11 @@ groups:
     - import: jsr:@std/path@1.1.1
       subpaths: [join, windows/join, posix/join]
     - import: jsr:@std/semver@1.0.5
-    - import: jsr:@std/testing@1.0.15
-      subpaths: [bdd]
     - import: jsr:@std/uuid@1.0.9
 
   std/testing:
+    - import: jsr:@std/testing@1.0.15
+      subpaths: [bdd]
     - import: npm:chai@5.2.1
       subpaths: ['/', 'chai.js']
     - import: npm:fake-indexeddb@6.0.1
@@ -50,6 +50,11 @@ groups:
   crypto:
     - import: npm:@noble/hashes@1.8.0
       subpaths: [sha1, sha256]
+
+  schema:
+    - import: npm:@sinclair/typebox-codegen@0.11.1
+    - import: npm:@sinclair/typebox@0.34.38
+      subpaths: ['value']
 
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@3.11.0
@@ -93,6 +98,7 @@ deno.json:
   - group: std/deno
   - group: std/testing
   - group: crypto
+  - group: schema
   - group: ai
   - group: automerge
   - group: ui/monaco
@@ -120,8 +126,6 @@ deno.json:
   - import: npm:ramda@0.31.3
   - import: npm:@types/ramda@0.31.0
   - import: npm:rxjs@7.8.2
-  - import: npm:@sinclair/typebox@0.34.38
-    subpaths: ['value']
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1

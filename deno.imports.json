@@ -23,6 +23,7 @@
     "@preact/signals-core": "npm:@preact/signals-core@1.11.0",
     "@preact/signals-react": "npm:@preact/signals-react@3.2.1",
     "@sinclair/typebox": "npm:@sinclair/typebox@0.34.38",
+    "@sinclair/typebox-codegen": "npm:@sinclair/typebox-codegen@0.11.1",
     "@sinclair/typebox/value": "npm:@sinclair/typebox@0.34.38/value",
     "@std/async": "jsr:@std/async@1.0.14",
     "@std/datetime": "jsr:@std/datetime@0.225.5",
