@@ -45,6 +45,10 @@ const wrangle = {
       focusColor = 0;
       defaultColor = 0;
     }
+    if (props.readOnly) {
+      focusColor = 0;
+      defaultColor = 0;
+    }
 
     const incl = (...modes: t.TextInputBorder['mode'][]) => modes.includes(mode);
     const format = (color: C) => theme.format(color).fg;
