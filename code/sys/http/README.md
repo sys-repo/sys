@@ -23,7 +23,7 @@ Fetch tools:
 import { Http } from 'jsr:@sys/http/client';
 
 const fetch = Http.Fetch.create({ accessToken: 'my-jwt' });
-const fetch = Http.fetch();  // ← shorthand (alt).
+const fetch = Http.fetch();  // ← shorthand alternative.
 
 const url = 'https://url.com/api';
 const checksum = 'sha256-01234';
@@ -72,8 +72,8 @@ app.get('/', (c) => c.json({ count: 123 }));
 
 // Stand up an HTTP server.
 const app = HttpServer.create();
-const opts = HttpServer.options(1234, pkg);
-const listener = Deno.serve(opts, app.fetch);
+const options = HttpServer.options(1234, pkg);
+const listener = Deno.serve(options, app.fetch);
 
 // HTTP client (calling back into the HTTP server).
 const fetch = Http.fetch();
