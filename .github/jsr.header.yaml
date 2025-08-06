@@ -1,20 +1,19 @@
 # https://docs.deno.com/deploy/manual/ci_github
-name: ci
+# https://jsr.io/docs/publishing-packages#publishing-from-github-actions
+name: jsr
 
 on:
   push:
     branches:
       - main
-  # pull_request:
-  #   branches:
-  #     - main
+      - phil-work
 
 jobs:
   deno:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # The OIDC ID token is used for authentication with JSR.
+      id-token: write # The OIDC/ID token is used for authentication with JSR.
     environment: dev
     env:
       TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
@@ -25,18 +24,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: denoland/setup-deno@v1
+
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v1
         with:
-          deno-version: v2
+          deno-version: v2.4.x
 
-      - name: Info (Deno Version)
-        run: deno --version
+      - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
+        run: deno task help
 
-      - name: CI → type check (publish --dry-run)
-        run: deno task dry
+      - name: Deno Info
+        run: deno info && deno --version
 
-      - name: CI → tests
-        run: deno task test --trace-leaks --parallel
-
-      - name: Info (Monorepo)
-        run: deno task info
+      - name: System Info
+        run: deno task help

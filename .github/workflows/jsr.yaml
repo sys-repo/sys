@@ -1,6 +1,5 @@
 # https://docs.deno.com/deploy/manual/ci_github
 # https://jsr.io/docs/publishing-packages#publishing-from-github-actions
-
 name: jsr
 
 on:
@@ -40,6 +39,7 @@ jobs:
       - name: System Info
         run: deno task help
 
+
       - name: publish module → "@sys/types"
         run: |
           cd code/sys/types
@@ -64,15 +64,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/cli"
+      - name: publish module → "@sys/testing"
         run: |
-          cd code/sys/cli
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/crypto"
-        run: |
-          cd code/sys/crypto
+          cd code/sys/testing
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -82,9 +76,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/testing"
+      - name: publish module → "@sys/cli"
         run: |
-          cd code/sys/testing
+          cd code/sys/cli
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -94,9 +88,21 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/crypto"
+        run: |
+          cd code/sys/crypto
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/http"
         run: |
           cd code/sys/http
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -109,12 +115,6 @@ jobs:
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/sys/tmpl
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/cmd"
-        run: |
-          cd code/sys/cmd
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -157,7 +157,6 @@ jobs:
       - name: publish module → "@sys/driver-automerge"
         run: |
           cd code/sys.driver/driver-automerge
-          deno task check
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -188,29 +187,29 @@ jobs:
       - name: publish module → "@sys/driver-vite"
         run: |
           cd code/sys.driver/driver-vite
-          deno task test --parallel --trace-leaks
+          deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-peerjs"
         run: |
           cd code/sys.driver/driver-peerjs
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-ollama"
-        run: |
-          cd code/sys.driver/driver-ollama
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-orbiter"
-        run: |
-          cd code/sys.driver/driver-orbiter
-          deno task test --parallel --trace-leaks
+          deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/driver-prosemirror"
         run: |
           cd code/sys.driver/driver-prosemirror
-          deno task test --parallel --trace-leaks
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-ollama"
+        run: |
+          cd code/sys.driver/driver-ollama
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-orbiter"
+        run: |
+          cd code/sys.driver/driver-orbiter
+          deno task test --parallel
           deno publish --allow-dirty
