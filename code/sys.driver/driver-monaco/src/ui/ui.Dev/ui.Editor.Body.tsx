@@ -7,7 +7,7 @@ type P = t.DevEditorProps;
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { repo, signals, localstorage } = props;
+  const { repo, signals, localstorage, editorMargin = 0 } = props;
 
   /**
    * Render:
@@ -43,7 +43,12 @@ export const Body: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elCrdt}
-      <Cropmarks theme={theme.name} borderOpacity={0.04}>
+      <Cropmarks
+        theme={theme.name}
+        borderOpacity={0.04}
+        subjectOnly={editorMargin === 0}
+        size={{ mode: 'fill', margin: editorMargin, x: true, y: true }}
+      >
       </Cropmarks>
     </div>
   );

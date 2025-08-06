@@ -24,10 +24,11 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         return (
           <Monaco.Dev.Editor
-            debug={v.debug}
-            theme={v.theme}
             repo={repo}
             localstorage={STORAGE_KEY.DEV}
+            editorMargin={v.editorMargin}
+            debug={v.debug}
+            theme={v.theme}
           />
         );
       });

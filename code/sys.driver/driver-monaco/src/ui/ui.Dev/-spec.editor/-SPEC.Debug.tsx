@@ -3,7 +3,7 @@ import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DevEditorProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'editorMargin'>;
 
 /**
  * Types:
@@ -20,6 +20,7 @@ export function createDebugSignals() {
   const defaults: Storage = {
     theme: 'Dark',
     debug: true,
+    editorMargin: 50,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -27,6 +28,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    editorMargin: s(snap.editorMargin),
   };
   const p = props;
   const repo = createRepo();
@@ -44,6 +46,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.editorMargin = p.editorMargin.value;
     });
   });
 
@@ -77,12 +80,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{`${D.name}:Editor`}</div>
+      <div className={Styles.title.class}>{`${D.name}.Editor`}</div>
 
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `editorMargin: ${p.editorMargin.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.editorMargin, [50, [100, 50], undefined])}
       />
 
       <hr />
