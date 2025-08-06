@@ -61,6 +61,13 @@ jobs:
           deno publish --allow-dirty
           # deno publish --allow-dirty || [[ $? -eq 1 ]]
 
+      - name: publish module → "@sys/fs"
+        run: |
+          cd code/sys/fs
+          deno task test --parallel
+          deno publish --allow-dirty
+          # deno publish --allow-dirty || [[ $? -eq 1 ]]
+
       - name: publish module → "@sys/schema"
         run: |
           cd code/sys/schema
@@ -78,13 +85,6 @@ jobs:
       - name: publish module → "@sys/cli"
         run: |
           cd code/sys/cli
-          deno task test --parallel
-          deno publish --allow-dirty
-          # deno publish --allow-dirty || [[ $? -eq 1 ]]
-
-      - name: publish module → "@sys/fs"
-        run: |
-          cd code/sys/fs
           deno task test --parallel
           deno publish --allow-dirty
           # deno publish --allow-dirty || [[ $? -eq 1 ]]
