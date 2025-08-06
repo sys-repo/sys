@@ -75,7 +75,7 @@ groups:
     - import: npm:monaco-editor@0.52.2
 
   ui/prosemirror:
-    - import: npm:prosemirror-model@1.25.2
+    - import: npm:prosemirror-model@1.25.3
     - import: npm:prosemirror-state@1.4.3
     - import: npm:prosemirror-view@1.40.1
       subpaths: [style/prosemirror.css]
@@ -84,14 +84,14 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.0
-    - import: npm:@ai-sdk/openai@2.0.0
+    - import: npm:ai@5.0.5
+    - import: npm:@ai-sdk/openai@2.0.4
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.12.1
+    - import: npm:@mastra/core@0.13.1
       subpaths: ['agent']
-    - import: npm:@mastra/libsql@0.12.0
-    - import: npm:@mastra/loggers@0.10.5
-    - import: npm:@mastra/memory@0.12.0
+    - import: npm:@mastra/libsql@0.13.1
+    - import: npm:@mastra/loggers@0.10.6
+    - import: npm:@mastra/memory@0.12.1
     - import: npm:ollama@0.5.16
 
 deno.json:
@@ -129,7 +129,7 @@ deno.json:
   - import: npm:strip-ansi@7
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
-  - import: npm:yaml@2.8.0
+  - import: npm:yaml@2.8.1
     subpaths: [types]
   - import: npm:zod@3.25.76
     subpaths: [v4, v4-mini]
