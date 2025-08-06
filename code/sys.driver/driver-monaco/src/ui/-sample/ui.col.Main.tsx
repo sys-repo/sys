@@ -28,6 +28,7 @@ export const MainColumn: React.FC<P> = (props) => {
       display: 'grid',
       placeItems: 'center',
       opacity: 0.25,
+      userSelect: 'none',
     }),
   };
 
