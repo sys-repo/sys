@@ -10,7 +10,7 @@ export const serve: t.DenoCloudServerLib['serve'] = async (...args: []) => {
   const pkg = options.pkg ?? Package;
   const env = options.env ?? (await wrangle.env());
   const app = server({ env, pkg });
-  const config = HttpServer.options(port, pkg);
+  const config = HttpServer.options({ port, pkg });
   return Deno.serve(config, app.fetch);
 };
 
