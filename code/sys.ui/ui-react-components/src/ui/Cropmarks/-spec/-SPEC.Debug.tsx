@@ -1,34 +1,89 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../u.ts';
-import { type DebugSignals } from './-SPEC.signals.tsx';
+import { Button, ObjectView } from '../../u.ts';
+import { type t, css, D, LocalStorage, Signal, Style } from '../common.ts';
+
+type P = t.CropmarksProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'subjectOnly'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  subjectOnly: false,
+  size: undefined,
+};
+
+/**
+ * Types:
+ */
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
+
+/**
+ * Signals:
+ */
+export function createDebugSignals() {
+  const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
+  const props = {
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    subjectOnly: s(snap.subjectOnly),
+    size: s(snap.size),
+  };
+  const p = props;
+  const api = {
+    props,
+    listen() {
+      Object.values(props)
+        .filter(Signal.Is.signal)
+        .forEach((s) => s.value);
+    },
+  };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.size = p.size.value;
+      d.subjectOnly = p.subjectOnly.value;
+    });
+  });
+
+  return api;
+}
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
 
 /**
  * Component:
  */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
-  Signal.useRedrawEffect(() => {
-    p.theme.value;
-    p.size.value;
-    p.subjectOnly.value;
-  });
+  Signal.useRedrawEffect(() => debug.listen());
 
   /**
    * Render:
    */
-  const theme = Color.theme(p.theme.value);
   const styles = {
-    base: css({ color: theme.fg }),
+    base: css({}),
   };
 
   const setSize = (label: string, size?: t.CropmarksSize) => {
     return (
       <Button
         block
-        label={`set size: ${label}`}
+        label={`size: ${label}`}
         onClick={() => {
           p.size.value = size;
         }}
@@ -38,9 +93,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div className={Styles.title.class}>{D.name}</div>
+
       <Button
         block
-        label={`theme: ${p.theme}`}
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
@@ -54,9 +111,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {setSize('center', { mode: 'center' })}
       {setSize('fill', { mode: 'fill', x: true, y: true, margin: [40, 40, 40, 40] })}
 
-      <hr />
+      {!!p.size.value?.mode && <hr />}
       {p.size.value?.mode === 'center' && <DebugCenter debug={debug} />}
       {p.size.value?.mode === 'fill' && <DebugFill debug={debug} />}
+
+      <hr />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };
@@ -84,14 +149,25 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
         block
         label={`size.margin: ${size.margin ?? '<undefined>'}`}
         onClick={() => {
-          const current = size.margin[0];
-          let next = [40, 40, 40, 40];
+          const margin = Style.Edges.toArray(size.margin);
+          const current = margin[0];
+          let next: number | number[] = [40, 40, 40, 40];
           if (current === 40) next = [80, 60, 30, 10];
-          if (current === 80) next = [100, 100, 100, 100];
-          if (current === 100) next = [40, 40, 40, 40];
-          if (current === 40) next = [0, 40, 0, 40];
-          if (current === 0) next = [40, 0, 40, 0];
+          if (current === 80) next = 100;
+          if (current === 100) next = [40];
+          if (current === 40) next = [0, 40];
+          if (current === 0) next = [40, 0];
           p.size.value = { ...size, margin: next as t.CssMarginArray };
+
+          // const margin = Style.Edges.toArray(size.margin);
+          // const current = margin[0];
+          // let next = [40, 40, 40, 40];
+          // if (current === 40) next = [80, 60, 30, 10];
+          // if (current === 80) next = [100, 100, 100, 100];
+          // if (current === 100) next = [40, 40, 40, 40];
+          // if (current === 40) next = [0, 40, 0, 40];
+          // if (current === 0) next = [40, 0, 40, 0];
+          // p.size.value = { ...size, margin: next as t.CssMarginArray };
         }}
       />
 
@@ -157,9 +233,9 @@ export const DebugCenter: React.FC<DebugCenterProps> = (props) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
-export function cycleNumber(current: number, values: number[]): number {
+function cycleNumber(current: number, values: number[]): number {
   const index = values.indexOf(current);
   const nextIndex = index >= 0 ? (index + 1) % values.length : 0;
   return values[nextIndex];

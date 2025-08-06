@@ -1,7 +1,6 @@
-import { Dev, Signal, Spec, css } from '../-test.ui.ts';
-import { Debug } from './-SPEC.Debug.tsx';
-import { createDebugSignals } from './-SPEC.signals.tsx';
-import { Cropmarks } from './mod.ts';
+import { Dev, Signal, Spec, css } from '../../-test.ui.ts';
+import { Cropmarks } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Cropmarks', (e) => {
   const debug = createDebugSignals();

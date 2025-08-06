@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type CropmarksProps = {
+  debug?: boolean;
   children?: t.ReactNode;
   subjectOnly?: boolean;
   size?: t.CropmarksSize;
@@ -31,7 +32,7 @@ export type CropmarksSizeCenter = {
 export type CropmarksSizeFill = {
   mode: 'fill';
   /** Pixel margin around the  */
-  margin: t.CssMarginArray;
+  margin: t.CssMarginInput;
   /** Fills the X (horizontal) plane. */
   x: boolean;
   /** Fills the Y (vertical) plane. */

@@ -14,7 +14,7 @@ export const SpecsComponents = {
   [`${ns}: Buttons.Icons`]: () => import('../ui/Buttons.Icons/-spec/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
-  [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-SPEC.tsx'),
+  [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-spec/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),

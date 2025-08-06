@@ -3,6 +3,10 @@ import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../com
 
 type P = t.MyComponentProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+};
 
 /**
  * Types:
@@ -16,10 +20,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
