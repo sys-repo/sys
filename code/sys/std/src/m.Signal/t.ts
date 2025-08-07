@@ -1,6 +1,8 @@
 import type Preact from '@preact/signals-core';
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
+
 /** Callback passed into a signal effect. */
 export type SignalEffectFn = () => void | (() => void);
 
@@ -28,6 +30,9 @@ export type SignalLib = {
 
   /** Create a new listeners collection. */
   listeners(dispose$?: t.UntilInput): t.SignalListeners;
+
+  /** Hooks into signal(s) value property. */
+  listen(subject: t.Signal | Array<unknown> | O): void;
 
   /**
    * Recursively converts an object/array of `Signal`s into

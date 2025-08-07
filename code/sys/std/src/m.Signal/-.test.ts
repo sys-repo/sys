@@ -1,7 +1,7 @@
-import { Time, describe, expect, it } from '../-test.ts';
-import { Signal } from './mod.ts';
+import { type t, Time, describe, expect, it } from '../-test.ts';
 import { rx } from '../m.Rx/mod.ts';
 import { Is } from './m.Is.ts';
+import { Signal } from './mod.ts';
 
 import * as Preact from '@preact/signals-core';
 
@@ -339,7 +339,7 @@ describe('Signal', () => {
     });
   });
 
-  describe('Listeners', () => {
+  describe('listeners', () => {
     it('create → <change> → dispose', () => {
       const life = rx.disposable();
       const a = Signal.listeners();
@@ -385,6 +385,49 @@ describe('Signal', () => {
       expect(b.disposed).to.eql(true);
       expect(a.count).to.eql(0);
       expect(b.count).to.eql(0);
+    });
+  });
+
+  describe('listen', () => {
+    const test = (subject: Parameters<t.SignalLib['listen']>[0]) => {
+      let fired = 0;
+      Signal.effect(() => {
+        Signal.listen(subject);
+        fired++;
+      });
+      fired = 0; // NB: reset iniital effect run.
+      return {
+        get fired() {
+          return fired;
+        },
+      } as const;
+    };
+
+    it('subject: signal', () => {
+      const a = Signal.create(0);
+      const monitor = test(a);
+      a.value = 1234;
+      expect(monitor.fired).to.eql(1);
+    });
+
+    it('subject: [signals] array', () => {
+      const a = Signal.create(0);
+      const b = Signal.create(0);
+      const c = Signal.create(0);
+      const monitor = test([a, b, c, b, a]); // NB: repeat declarations of same signal.
+      a.value = 10;
+      b.value = 20;
+      c.value = 30;
+      expect(monitor.fired).to.eql(3);
+    });
+
+    it('subject: {signals} object', () => {
+      const subject = { a: Signal.create(0), b: Signal.create(0), c: Signal.create(0) };
+      const monitor = test(subject);
+      subject.a.value = 10;
+      subject.b.value = 20;
+      subject.c.value = 30;
+      expect(monitor.fired).to.eql(3);
     });
   });
 
