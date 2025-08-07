@@ -33,7 +33,6 @@ export type DocumentIdProps = {
 
   enabled?: boolean;
   autoFocus?: boolean | number;
-  readOnly?: boolean;
 
   // Appearance:
   theme?: t.CommonTheme;

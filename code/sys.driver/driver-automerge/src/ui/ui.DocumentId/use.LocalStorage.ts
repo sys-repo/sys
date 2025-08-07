@@ -7,7 +7,13 @@ type StorageImmutable = t.LocalStorageImmutable<Storage>;
 /**
  * Hook: manage storing current document-id's in local-storage.
  */
-export function useLocalStorage(key: string | undefined, signal: t.Signal<string | undefined>) {
+export function useLocalStorage(args: {
+  key: string | undefined;
+  signal: t.Signal<string | undefined>;
+  readOnly?: boolean;
+}) {
+  const { key, signal, readOnly } = args;
+
   const storeRef = useRef<StorageImmutable>(undefined);
   const historyRef = useRef<t.HistoryStack>(undefined);
 
@@ -59,7 +65,7 @@ export function useLocalStorage(key: string | undefined, signal: t.Signal<string
     e.cancel();
     const history = historyRef.current;
 
-    if (!api.active || !history) return;
+    if (!api.active || !history || readOnly) return;
     if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return;
 
     if (e.key === 'ArrowUp') {

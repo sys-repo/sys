@@ -27,6 +27,7 @@ function useInternal(args: Args = {}): Hook {
   const repoId = repo?.id.instance;
   const url = args.url ?? D.url;
   const urlKey = args.urlKey ?? D.urlKey;
+  const readOnly = args.readOnly ?? D.readOnly;
 
   /**
    * Refs:
@@ -43,7 +44,11 @@ function useInternal(args: Args = {}): Hook {
    * Hooks:
    */
   const [ready, setReady] = React.useState(false);
-  const localstore = useLocalStorage(args.localstorage, signalsRef.current.textbox);
+  const localstore = useLocalStorage({
+    key: args.localstorage,
+    signal: signalsRef.current.textbox,
+    readOnly,
+  });
   const transient = useTransientMessage();
 
   /**
@@ -224,14 +229,14 @@ function isHook(input: unknown): input is Hook {
 
 const wrangle = {
   props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
-    const { urlKey = D.urlKey, url = D.url } = args;
+    const { urlKey = D.urlKey, url = D.url, readOnly = D.readOnly } = args;
     const is = wrangle.is(p, repo);
     const parsed = wrangle.parsed(p);
     const textbox = parsed.text;
     const docId = parsed.id || undefined;
     const doc = p.doc.value;
     const action = wrangle.action(p);
-    return { textbox, docId, repo, doc, is, action, url, urlKey };
+    return { textbox, docId, repo, doc, is, action, url, urlKey, readOnly };
   },
 
   is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {

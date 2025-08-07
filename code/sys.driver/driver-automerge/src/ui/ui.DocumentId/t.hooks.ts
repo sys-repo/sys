@@ -16,52 +16,53 @@ export type UseDocumentIdHookArgs<T = O> = {
   initial?: T | (() => T);
   url?: t.DocumentIdUrlFactory | boolean;
   urlKey?: t.StringKey;
+  readOnly?: boolean;
 };
 
 /** A <DocumentId> controller hook instance. */
-export type DocumentIdHook = {
-  readonly ready: boolean;
-  readonly instance: t.StringId;
-  readonly signals: t.DocumentIdHookSignals;
-  readonly props: DocumentIdHookProps;
-  readonly history: readonly t.StringId[];
-  readonly transient: { kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs };
-  readonly handlers: {
+export type DocumentIdHook = Readonly<{
+  ready: boolean;
+  instance: t.StringId;
+  signals: t.DocumentIdHookSignals;
+  props: DocumentIdHookProps;
+  history: readonly t.StringId[];
+  transient: { kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs };
+  handlers: {
     onAction: t.DocumentIdActionHandler;
     onTextChange: t.TextInputChangeHandler;
     onKeyDown: t.TextInputKeyHandler;
   };
-};
+}>;
 
 /** Properties of the <DocumentId> hook. */
-export type DocumentIdHookProps = {
-  readonly action: t.DocumentIdActionArgs;
-  readonly textbox?: string;
-  readonly docId?: t.StringDocumentId;
-  readonly doc?: t.CrdtRef;
-  readonly repo?: t.CrdtRepo;
-  readonly url: t.DocumentIdUrlFactory | boolean;
-  readonly urlKey: string;
-
-  readonly is: {
-    readonly valid: boolean;
-    readonly spinning: boolean;
-    readonly enabled: { readonly action: boolean; readonly input: boolean };
-  };
-};
+export type DocumentIdHookProps = Readonly<{
+  action: t.DocumentIdActionArgs;
+  textbox?: string;
+  docId?: t.StringDocumentId;
+  doc?: t.CrdtRef;
+  repo?: t.CrdtRepo;
+  url: t.DocumentIdUrlFactory | boolean;
+  urlKey: string;
+  readOnly?: boolean;
+  is: Readonly<{
+    valid: boolean;
+    spinning: boolean;
+    enabled: { readonly action: boolean; readonly input: boolean };
+  }>;
+}>;
 
 /** Signals of the <DocumentId> hook. */
-export type DocumentIdHookSignals = {
-  readonly textbox: t.Signal<string | undefined>;
-  readonly doc: t.Signal<t.CrdtRef | undefined>;
-  readonly path: t.Signal<t.ObjectPath | undefined>;
-  readonly spinning: t.Signal<boolean>;
+export type DocumentIdHookSignals = Readonly<{
+  textbox: t.Signal<string | undefined>;
+  doc: t.Signal<t.CrdtRef | undefined>;
+  path: t.Signal<t.ObjectPath | undefined>;
+  spinning: t.Signal<boolean>;
   toValues(): DocumentIdHookSignalValues;
-};
+}>;
 
 /** Snapshot of the <DocumentId> signals converted to values. */
-export type DocumentIdHookSignalValues = {
-  readonly textbox: t.UnwrapSignals<DocumentIdHookSignals['textbox']>;
-  readonly doc: t.UnwrapSignals<DocumentIdHookSignals['doc']>;
-  readonly spinning: t.UnwrapSignals<DocumentIdHookSignals['spinning']>;
-};
+export type DocumentIdHookSignalValues = Readonly<{
+  textbox: t.UnwrapSignals<DocumentIdHookSignals['textbox']>;
+  doc: t.UnwrapSignals<DocumentIdHookSignals['doc']>;
+  spinning: t.UnwrapSignals<DocumentIdHookSignals['spinning']>;
+}>;
