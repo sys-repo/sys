@@ -16,6 +16,7 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
       color: Color.alpha(theme.fg, 0.5),
       fontSize: 10,
       fontFamily: 'monospace',
+      cursor: 'default',
       display: 'grid',
       justifyItems: 'start',
     }),

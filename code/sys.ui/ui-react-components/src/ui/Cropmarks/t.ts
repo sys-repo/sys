@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type CropmarksProps = {
   debug?: boolean;
   children?: t.ReactNode;
+  /** When true cropmarks are abandonded and the subject `children` are rendered only. */
   subjectOnly?: boolean;
   size?: t.CropmarksSize;
   borderWidth?: number;
@@ -34,7 +35,7 @@ export type CropmarksSizeFill = {
   /** Pixel margin around the  */
   margin: t.CssMarginInput;
   /** Fills the X (horizontal) plane. */
-  x: boolean;
+  x?: boolean;
   /** Fills the Y (vertical) plane. */
-  y: boolean;
+  y?: boolean;
 };

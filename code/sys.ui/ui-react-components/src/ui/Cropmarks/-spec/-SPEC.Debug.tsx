@@ -143,6 +143,12 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
     base: css({}),
   };
 
+  const cycleBool = (current?: boolean) => {
+    if (current === undefined) return true;
+    if (current === true) return false;
+    return undefined;
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
@@ -158,29 +164,19 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
           if (current === 40) next = [0, 40];
           if (current === 0) next = [40, 0];
           p.size.value = { ...size, margin: next as t.CssMarginArray };
-
-          // const margin = Style.Edges.toArray(size.margin);
-          // const current = margin[0];
-          // let next = [40, 40, 40, 40];
-          // if (current === 40) next = [80, 60, 30, 10];
-          // if (current === 80) next = [100, 100, 100, 100];
-          // if (current === 100) next = [40, 40, 40, 40];
-          // if (current === 40) next = [0, 40, 0, 40];
-          // if (current === 0) next = [40, 0, 40, 0];
-          // p.size.value = { ...size, margin: next as t.CssMarginArray };
         }}
       />
 
       <Button
         block
-        label={`size.x: ${size.x}`}
-        onClick={() => (p.size.value = { ...size, x: !size.x })}
+        label={`size.x: ${size.x ?? '<undefined>'}`}
+        onClick={() => (p.size.value = { ...size, x: cycleBool(size.x) })}
       />
 
       <Button
         block
-        label={`size.y: ${size.y}`}
-        onClick={() => (p.size.value = { ...size, y: !size.y })}
+        label={`size.y: ${size.y ?? '<undefined>'}`}
+        onClick={() => (p.size.value = { ...size, y: cycleBool(size.y) })}
       />
     </div>
   );
