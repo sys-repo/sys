@@ -27,6 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
             repo={repo}
             localstorage={STORAGE_KEY.DEV}
             path={v.path}
+            docid={v.docid}
             editor={v.editor}
             debug={v.debug}
             theme={v.theme}

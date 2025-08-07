@@ -1,21 +1,24 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { type t, Obj, Str, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
-
-import { Crdt } from '@sys/driver-automerge/ui';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.DevEditorProps;
 type E = t.DevEditorMonacoProps;
+type I = t.DevEditorDocumentIdProps;
 
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
   editorMargin?: E['margin'];
   editorMinimap?: E['minimap'];
+  docidVisible?: I['visible'];
+  docidReadOnly?: I['readOnly'];
 };
 const defaults: Storage = {
   theme: 'Dark',
   debug: true,
   path: ['foo'],
-  editorMargin: 50,
+  docidVisible: true,
+  docidReadOnly: false,
+  editorMargin: 0,
   editorMinimap: false,
 };
 
@@ -30,7 +33,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -38,12 +40,19 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
-    doc: s<t.Crdt.Ref>(),
+
+    docid: {
+      visible: s(snap.docidVisible),
+      readOnly: s(snap.docidReadOnly),
+    },
     editor: {
       margin: s(snap.editorMargin),
       minimap: s(snap.editorMinimap),
     },
+
+    doc: s<t.Crdt.Ref>(),
   };
+
   const p = props;
   const repo = createRepo();
   const api = {
@@ -51,6 +60,7 @@ export function createDebugSignals() {
     repo,
     listen() {
       Signal.listen(props);
+      Signal.listen(props.docid);
       Signal.listen(props.editor);
     },
   };
@@ -62,6 +72,8 @@ export function createDebugSignals() {
       d.path = p.path.value;
       d.editorMargin = p.editor.margin.value;
       d.editorMinimap = p.editor.minimap.value;
+      d.docidVisible = p.docid.visible.value;
+      d.docidReadOnly = p.docid.readOnly.value;
     });
   });
 
@@ -97,7 +109,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{`${D.name}.Editor`}</div>
-        <div>{D.language}</div>
+        <div>{'YAML'}</div>
       </div>
 
       <Button
@@ -126,9 +138,32 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
+        label={() => `id.visible: ${p.docid.visible.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.docid.visible)}
+      />
+      <Button
+        block
+        label={() => `id.readOnly: ${p.docid.readOnly.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.docid.readOnly)}
+      />
+
+      <hr />
+      <Button
+        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          p.docid.visible.value = defaults.docidVisible;
+          p.docid.readOnly.value = defaults.docidReadOnly;
+          p.editor.margin.value = defaults.editorMargin;
+          p.editor.minimap.value = defaults.editorMinimap;
+        }}
+      />
+
       <ObjectView
         name={'debug'}
         data={{ ...Signal.toObject(p) }}

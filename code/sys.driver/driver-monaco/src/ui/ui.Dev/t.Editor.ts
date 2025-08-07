@@ -5,10 +5,12 @@ import type { t } from './common.ts';
  */
 export type DevEditorProps = {
   repo?: t.Crdt.Repo;
-  signals?: Partial<t.DevEditorSignals>;
   localstorage?: t.StringKey;
-  editor?: DevEditorMonacoProps;
+  signals?: Partial<t.DevEditorSignals>;
+
   path?: t.ObjectPath;
+  docid?: t.DevEditorDocumentIdProps;
+  editor?: t.DevEditorMonacoProps;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -31,4 +33,10 @@ export type DevEditorMonacoProps = Pick<
   'autoFocus' | 'tabSize' | 'minimap' | 'readOnly' | 'placeholder'
 > & {
   margin?: t.CssEdgesInput;
+};
+
+/** DocumentId sub-props: */
+export type DevEditorDocumentIdProps = {
+  visible?: boolean;
+  readOnly?: boolean;
 };
