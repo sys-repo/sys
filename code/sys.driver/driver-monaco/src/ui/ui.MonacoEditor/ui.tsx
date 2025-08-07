@@ -3,10 +3,10 @@ import React, { useRef } from 'react';
 import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 
-import { defaultLanguageConfig } from './u.languages.ts';
 import { EditorCarets } from '../m.Carets/mod.ts';
 import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
+import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from './u.Theme.ts';
 
 /**
@@ -29,11 +29,15 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Refs:
    */
-  const readyRef = useRef(false);
   const disposeRef = useRef(rx.subject<void>());
   const monacoRef = useRef<t.Monaco.Monaco>(undefined);
   const editorRef = useRef<t.Monaco.Editor>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
+
+  /**
+   * Hooks:
+   */
+  const [ready, setReady] = React.useState(false);
 
   /**
    * Effect: Lifecycle.
@@ -68,9 +72,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Effect: Auto-focus when requested.
    */
   React.useEffect(() => {
-    const ready = readyRef.current;
-    if (autoFocus && enabled && ready) editorRef.current?.focus();
-  }, [readyRef.current, autoFocus, enabled]);
+    if (ready && autoFocus && enabled) editorRef.current?.focus();
+  }, [ready, autoFocus, enabled]);
 
   /**
    * Updaters:
@@ -96,6 +99,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Handlers:
    */
   const handleMount: OnMount = (ed, m) => {
+    if (ready) return;
     const monaco = m as t.Monaco.Monaco;
     const editor = (editorRef.current = ed);
     Theme.init(monaco);
@@ -116,7 +120,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
         return _carets || (_carets = EditorCarets.create(editor));
       },
     });
-    readyRef.current = true;
+    setReady(true);
   };
 
   const handleChange: OnChange = (text = '', event) => {
@@ -124,7 +128,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     const monaco = monacoRef.current;
     if (!props.onChange || !editor || !monaco) return;
     updateTextState(editor);
-
     props.onChange({
       event,
       monaco,
@@ -145,11 +148,20 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       pointerEvents: enabled ? 'auto' : 'none',
       opacity: enabled ? 1 : 0.2,
     }),
-    inner: css({ Absolute: 0 }),
+    inner: css({
+      Absolute: 0,
+      opacity: ready ? 1 : 0,
+    }),
     empty: {
       base: css({ Absolute: 0, pointerEvents: 'none', display: 'grid' }),
       placeholderText: css({ opacity: 0.3, justifySelf: 'center', padding: 40, fontSize: 14 }),
     },
+    loading: css({
+      Absolute: 0,
+      pointerEvents: 'none',
+      display: 'grid',
+      placeItems: 'center',
+    }),
   };
 
   const elPlaceholderText = isPlaceholderText && (
@@ -160,7 +172,11 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     <div className={styles.empty.base.class}>{elPlaceholderText ?? placeholder}</div>
   );
 
-  const elLoading = <Spinners.Bar theme={theme.name} />;
+  const elLoading = !ready && (
+    <div className={styles.loading.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
 
   const cn = Util.Editor.className(editorRef.current);
   const className = `${css(styles.base, props.style).class} ${cn}`;
@@ -173,10 +189,10 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
           defaultValue={defaultValue}
           options={{ scrollbar: { useShadows: false } }}
           theme={editorTheme}
-          loading={elLoading}
           onMount={handleMount}
           onChange={handleChange}
         />
+        {elLoading}
         {elEmpty}
       </div>
     </div>

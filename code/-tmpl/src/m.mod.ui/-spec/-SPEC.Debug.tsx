@@ -31,9 +31,7 @@ export function createDebugSignals() {
   const api = {
     props,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 

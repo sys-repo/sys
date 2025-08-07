@@ -45,7 +45,8 @@ export const listeners: t.SignalLib['listeners'] = (until$) => {
 /**
  * Hooks into signal(s) value property.
  */
-export function listen(subject: t.Signal | Array<unknown> | O) {
+export function listen(subject?: unknown | unknown[] | O) {
+  if (!subject) return;
   if (Is.signal(subject)) subject.value;
   if (Array.isArray(subject)) subject.filter((s) => Is.signal(s)).forEach((s) => s.value);
   if (isRecord(subject)) {

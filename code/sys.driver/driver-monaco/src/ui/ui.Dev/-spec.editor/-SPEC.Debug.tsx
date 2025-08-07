@@ -3,7 +3,18 @@ import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.DevEditorProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'editorMargin'>;
+type E = t.DevEditorEditorProps;
+
+type Storage = Pick<P, 'theme' | 'debug'> & {
+  editorMargin?: E['margin'];
+  editorMinimap?: E['minimap'];
+};
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  editorMargin: 50,
+  editorMinimap: false,
+};
 
 /**
  * Types:
@@ -17,18 +28,16 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    editorMargin: 50,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    editorMargin: s(snap.editorMargin),
+    editor: {
+      margin: s(snap.editorMargin),
+      minimap: s(snap.editorMinimap),
+    },
   };
   const p = props;
   const repo = createRepo();
@@ -36,9 +45,8 @@ export function createDebugSignals() {
     props,
     repo,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
+      Signal.listen(props.editor);
     },
   };
 
@@ -46,7 +54,8 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.editorMargin = p.editorMargin.value;
+      d.editorMargin = p.editor.margin.value;
+      d.editorMinimap = p.editor.minimap.value;
     });
   });
 
@@ -87,10 +96,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
       <Button
         block
-        label={() => `editorMargin: ${p.editorMargin.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.editorMargin, [50, [100, 50], undefined])}
+        label={() => `editor.margin: ${p.editor.margin.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.editor.margin, [0, 50, [100, 80], undefined])}
+      />
+      <Button
+        block
+        label={() => `editor.minimap: ${p.editor.minimap.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.editor.minimap)}
       />
 
       <hr />

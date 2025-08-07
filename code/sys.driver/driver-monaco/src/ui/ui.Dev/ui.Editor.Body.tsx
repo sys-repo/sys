@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, DocumentId, Cropmarks } from './common.ts';
+import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
+import { type t, Color, Cropmarks, css, DocumentId } from './common.ts';
 
 type P = t.DevEditorProps;
 
@@ -7,7 +8,8 @@ type P = t.DevEditorProps;
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { repo, signals, localstorage, editorMargin = 0 } = props;
+  const { debug = false, repo, signals, localstorage, editor = {} } = props;
+  const margin = editor.margin ?? 0;
 
   /**
    * Render:
@@ -20,10 +22,7 @@ export const Body: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
     }),
-    editor: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      padding: 10,
-    }),
+    editor: css({ display: 'grid' }),
   };
 
   const elCrdt = (
@@ -33,9 +32,26 @@ export const Body: React.FC<P> = (props) => {
       buttonStyle={{ margin: 4 }}
       controller={{
         repo,
-        signals,
+        signals: { doc: signals?.doc },
         initial: { text: '' },
         localstorage,
+      }}
+    />
+  );
+
+  const elEditor = (
+    <MonacoEditor
+      debug={debug}
+      theme={theme.name}
+      language={editor.language}
+      autoFocus={editor.autoFocus}
+      tabSize={editor.tabSize}
+      minimap={editor.minimap}
+      readOnly={editor.readOnly}
+      onReady={(e) => {
+        if (signals?.monaco) signals.monaco.value = e.monaco;
+        if (signals?.editor) signals.editor.value = e.editor;
+        props.onReady?.(e);
       }}
     />
   );
@@ -46,9 +62,9 @@ export const Body: React.FC<P> = (props) => {
       <Cropmarks
         theme={theme.name}
         borderOpacity={0.04}
-        subjectOnly={editorMargin === 0}
-        size={{ mode: 'fill', margin: editorMargin, x: true, y: true }}
+        size={{ mode: 'fill', margin, x: true, y: true }}
       >
+        <div className={styles.editor.class}>{elEditor}</div>
       </Cropmarks>
     </div>
   );
