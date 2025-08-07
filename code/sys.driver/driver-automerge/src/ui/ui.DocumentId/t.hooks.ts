@@ -15,7 +15,7 @@ export type UseDocumentIdHookArgs<T = O> = {
   localstorage?: t.StringKey;
   initial?: T | (() => T);
   url?: t.DocumentIdUrlFactory | boolean;
-  urlKey?: string;
+  urlKey?: t.StringKey;
 };
 
 /** A <DocumentId> controller hook instance. */
