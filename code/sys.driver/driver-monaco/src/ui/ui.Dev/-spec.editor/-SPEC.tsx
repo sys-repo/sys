@@ -26,10 +26,12 @@ export default Spec.describe(D.displayName, (e) => {
           <Monaco.Dev.Editor
             repo={repo}
             localstorage={STORAGE_KEY.DEV}
+            path={v.path}
             editor={v.editor}
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => console.info(`⚡️ onReady:`, e)}
+            onDocumentChange={(e) => (p.doc.value = e.doc)}
           />
         );
       });

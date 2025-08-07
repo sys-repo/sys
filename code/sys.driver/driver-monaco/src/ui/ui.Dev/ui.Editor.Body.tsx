@@ -1,8 +1,10 @@
 import React from 'react';
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
-import { type t, Color, Cropmarks, css, DocumentId } from './common.ts';
 
-type P = t.DevEditorProps;
+import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
+import { NotReady } from './ui.NotReady.tsx';
+
+type P = Omit<t.DevEditorProps, 'signals'> & { signals: t.DevEditorSignals };
 
 /**
  * Component:
@@ -10,6 +12,7 @@ type P = t.DevEditorProps;
 export const Body: React.FC<P> = (props) => {
   const { debug = false, repo, signals, localstorage, editor = {} } = props;
   const margin = editor.margin ?? 0;
+  const doc = signals.doc.value;
 
   /**
    * Render:
@@ -32,18 +35,18 @@ export const Body: React.FC<P> = (props) => {
       buttonStyle={{ margin: 4 }}
       controller={{
         repo,
-        signals: { doc: signals?.doc },
+        signals: { doc: signals.doc },
         initial: { text: '' },
         localstorage,
       }}
     />
   );
 
-  const elEditor = (
+  const elEditor = doc && (
     <MonacoEditor
       debug={debug}
       theme={theme.name}
-      language={editor.language}
+      language={D.language}
       autoFocus={editor.autoFocus}
       tabSize={editor.tabSize}
       minimap={editor.minimap}
@@ -53,8 +56,14 @@ export const Body: React.FC<P> = (props) => {
         if (signals?.editor) signals.editor.value = e.editor;
         props.onReady?.(e);
       }}
+      onDispose={() => {
+        if (signals?.monaco) signals.monaco.value = undefined;
+        if (signals?.editor) signals.editor.value = undefined;
+      }}
     />
   );
+
+  const elNotReady = !doc && <NotReady label={'CRDT not loaded'} theme={theme.name} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -64,7 +73,7 @@ export const Body: React.FC<P> = (props) => {
         borderOpacity={0.04}
         size={{ mode: 'fill', margin, x: true, y: true }}
       >
-        <div className={styles.editor.class}>{elEditor}</div>
+        <div className={styles.editor.class}>{elEditor || elNotReady}</div>
       </Cropmarks>
     </div>
   );

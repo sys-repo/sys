@@ -1,17 +1,20 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Obj, Str, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+
+import { Crdt } from '@sys/driver-automerge/ui';
 
 type P = t.DevEditorProps;
-type E = t.DevEditorEditorProps;
+type E = t.DevEditorMonacoProps;
 
-type Storage = Pick<P, 'theme' | 'debug'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
   editorMargin?: E['margin'];
   editorMinimap?: E['minimap'];
 };
 const defaults: Storage = {
   theme: 'Dark',
   debug: true,
+  path: ['foo'],
   editorMargin: 50,
   editorMinimap: false,
 };
@@ -34,6 +37,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    path: s(snap.path),
+    doc: s<t.Crdt.Ref>(),
     editor: {
       margin: s(snap.editorMargin),
       minimap: s(snap.editorMinimap),
@@ -54,6 +59,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.path = p.path.value;
       d.editorMargin = p.editor.margin.value;
       d.editorMinimap = p.editor.minimap.value;
     });
@@ -89,12 +95,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{`${D.name}.Editor`}</div>
+      <div className={Styles.title.class}>
+        <div>{`${D.name}.Editor`}</div>
+        <div>{D.language}</div>
+      </div>
 
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `path: ${p.path.value ? p.path.value.join(' / ') : `<undefined>`}`}
+        onClick={() => Signal.cycle(p.path, [['foo'], ['sample', 'deep'], undefined])}
       />
 
       <hr />
@@ -115,7 +129,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'debug'}
+        data={{ ...Signal.toObject(p) }}
+        expand={0}
+        style={{ marginTop: 15 }}
+      />
+      <ObjectView
+        name={'doc'}
+        data={Obj.trimStringsDeep(Signal.toObject(p.doc.value?.current) ?? {})}
+        expand={0}
+        style={{ marginTop: 5 }}
+      />
     </div>
   );
 };
