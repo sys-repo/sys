@@ -1,5 +1,5 @@
 import React from 'react';
-import { LanguagesList } from '../../ui.Monaco.Editor/-spec/-ui.ts';
+import { LanguagesList } from '../../ui.Editor.Monaco/-spec/-ui.ts';
 import { Monaco } from '@sys/driver-monaco';
 import { createRepo } from '../../-test.ui.ts';
 

@@ -14,8 +14,8 @@ export type * from './ui/m.Carets/t.ts';
 export type * from './ui/m.Crdt/t.ts';
 export type * from './ui/m.Folding/t.ts';
 export type * from './ui/m.Yaml/t.ts';
-export type * from './ui/ui.Monaco.Editor/t.ts';
-export type * from './ui/ui.Yaml.Editor/t.ts';
+export type * from './ui/ui.Editor.Monaco/t.ts';
+export type * from './ui/ui.Editor.Yaml/t.ts';
 
 export type * from './ui/-sample.factory/t.ts';
 export type * from './ui/-sample/t.ts';
