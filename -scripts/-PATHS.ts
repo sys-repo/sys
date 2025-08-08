@@ -16,12 +16,12 @@ export const Paths = {
     'code/sys/std',
     'code/sys/color',
     'code/sys/cli',
+    'code/sys/crypto',
     'code/sys/fs',
     'code/sys/schema',
 
     'code/sys/testing',
     'code/sys/process',
-    'code/sys/crypto',
 
     'code/sys/http',
     'code/sys/cmd',
