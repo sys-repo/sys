@@ -1,51 +1,45 @@
 import React from 'react';
-
-import { type t, Color, css, D, Monaco, rx, Signal } from './common.ts';
+import { type t, Color, css, D, Monaco, rx, Signal, STORAGE_KEY } from './common.ts';
 import { State } from './u.state.ts';
-import { EditorsColumn } from './ui.col.Editor.tsx';
 import { MainColumn } from './ui.col.Main.tsx';
 
 type P = t.SampleProps;
 
 export const Sample: React.FC<P> = (props) => {
-  const { debug = false, signals, factory } = props;
-
-  const editor = signals.io.editor.value;
-  const monaco = signals.io.monaco.value;
+  const { debug = false, repo, signals, factory } = props;
   const doc = signals.doc.value;
-  const path = Signal.toObject(signals.path);
-
-  /**
-   * Effect: Redraw Monitoring
-   * (NB: bubble notification to alert host container to refresh).
-   */
-  Signal.useEffect(() => {
-    const life = rx.abortable();
-    const doc = signals.doc.value;
-    doc?.events(life).$.subscribe((e) => props.onRequestRedraw?.());
-    return life.dispose;
-  });
+  const paths = Signal.toObject(signals.paths);
 
   /**
    * Hooks:
    */
-  React.useEffect(() => State.clearMain(signals), [doc?.id]); // ← Reset UI when CRDT document changes.
-  Monaco.Crdt.useBinding({ editor, doc, path: path.yaml, foldMarks: true }, (e) => {
-    const run = () => State.updateMain(signals, factory.getSchema);
-    e.binding.$.pipe(rx.debounceTime(300)).subscribe(run);
-    run();
-  });
+  const [yaml, setYaml] = React.useState<t.EditorYaml>();
 
-  const yaml = Monaco.Yaml.useYaml({
-    monaco,
-    editor,
-    doc,
-    path: { source: path.yaml, target: path.parsed },
-    errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
+  /**
+   * Effects:
+   */
+  React.useEffect(() => State.clearMain(signals), [doc?.id]); // ← Reset UI when CRDT document changes.
+  Signal.useEffect(() => setYaml(signals.yaml.value));
+  Signal.useEffect(() => {
+    /**
+     * Effect: Redraw Monitoring
+     * (NB: bubble notification to alert host container to refresh).
+     */
+    const doc = signals.doc.value;
+    const events = doc?.events();
+    events?.$.subscribe((e) => props.onRequestRedraw?.());
+    return events?.dispose;
   });
 
   let hasErrors = false;
-  if (yaml.parsed.errors.length > 0) hasErrors = true;
+  if (yaml?.parsed.errors.length ?? 0 > 0) hasErrors = true;
+
+  /**
+   * Handlers:
+   */
+  const handleDocumentChanged = React.useCallback(() => {
+    State.updateMain(signals, factory.getSchema);
+  }, [signals, factory]);
 
   /**
    * Render:
@@ -67,11 +61,45 @@ export const Sample: React.FC<P> = (props) => {
     }),
   };
 
+  const elYamlEditor = (
+    <Monaco.Yaml.Editor
+      theme={theme.name}
+      repo={repo}
+      signals={{
+        doc: signals.doc,
+        monaco: signals.io.monaco,
+        editor: signals.io.editor,
+        yaml: signals.yaml,
+      }}
+      path={paths.yaml}
+      documentId={{ localstorage: STORAGE_KEY.DEV }}
+      editor={{ autoFocus: true, minimap: false }}
+      onReady={async (e) => {
+        /**
+         * Initialize Editor:
+         */
+        console.info(`⚡️ MonacoEditor.onReady:`, e);
+
+        // 🐷 WIP | Insert for "crdt:id/path" link behavior:
+        const { sampleInterceptLink } = await import('../../ui/m.Crdt/-spec/-u.link.ts');
+        sampleInterceptLink(e);
+
+        handleDocumentChanged();
+      }}
+      onDocumentLoaded={(e) => {
+        /**
+         * Monitor document changes:
+         */
+        const $ = e.events.path(paths.parsed).$;
+        $.pipe(rx.debounceTime(300)).subscribe(handleDocumentChanged);
+        handleDocumentChanged();
+      }}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.left.class}>
-        <EditorsColumn {...props} yaml={yaml} />
-      </div>
+      <div className={styles.left.class}>{elYamlEditor}</div>
       <div className={styles.right.class}>
         <MainColumn {...props} hasErrors={hasErrors} />
       </div>

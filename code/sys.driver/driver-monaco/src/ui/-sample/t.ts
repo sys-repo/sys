@@ -31,18 +31,12 @@ export type SampleSignals = Readonly<{
     editor: t.Signal<t.Monaco.Editor | undefined>;
   }>;
 
+  /** Root paths to landmarks within `doc`. */
+  paths: t.SamplePathsSignals;
   /** CRDT document store. */
   doc: t.Signal<t.Crdt.Ref | undefined>;
-
-  /** Root paths to landmarks within `doc`. */
-  path: Readonly<{
-    /** Path in the `doc` that the editor/yaml text is written to. */
-    yaml: t.Signal<t.ObjectPath>;
-    /** Path to where the parsed YAML is written to. */
-    parsed: t.Signal<t.ObjectPath>;
-    /** Path to where the meta-data about the YAML document is located within the document. */
-    meta: t.Signal<t.ObjectPath>;
-  }>;
+  /** CRDT → Parsed Yaml. */
+  yaml: t.Signal<t.EditorYaml | undefined>;
 
   /** Factory/props information for the <Main> view renderer. */
   main: t.Signal<SampleSignalsFactoryDef | undefined>;
@@ -56,3 +50,17 @@ export type SampleSignalsFactoryDef = {
   component: string;
   props: O;
 };
+
+/**
+ * CRDT Path Addresses:
+ */
+export type SamplePaths = {
+  /** Path in the `doc` that the editor/yaml text is written to. */
+  yaml: t.ObjectPath;
+  /** Path to where the parsed YAML is written to. */
+  parsed: t.ObjectPath;
+  /** Path to where the meta-data about the YAML document is located within the document. */
+  meta: t.ObjectPath;
+};
+
+export type SamplePathsSignals = t.WrapSignals<SamplePaths>;

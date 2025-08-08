@@ -23,8 +23,8 @@ export function clearMain(signals: t.SampleSignals) {
  */
 function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
   const doc = signals.doc.value;
-  const path = Signal.toObject(signals.path);
-  const root = Obj.Path.get<{}>(doc?.current, path.parsed);
+  const paths = Signal.toObject(signals.paths);
+  const root = Obj.Path.get<{}>(doc?.current, paths.parsed);
   if (!root) {
     console.warn('No change, parsed document object could not be retrieved.');
     return;
@@ -33,7 +33,7 @@ function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
   /**
    * 1. Read meta from YAML:
    */
-  const _meta = Obj.Path.get(root, path.meta, {});
+  const _meta = Obj.Path.get(root, paths.meta, {});
   const meta = Schema.try(() => Schema.Value.Parse(Meta, _meta));
 
   /**
