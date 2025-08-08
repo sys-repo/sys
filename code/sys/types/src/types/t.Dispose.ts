@@ -9,9 +9,12 @@ export type CanDispose = { dispose(): unknown };
  * An object that provides a standard destructor pattern.
  */
 export type Disposable = {
-  readonly dispose$: t.Observable<void>;
+  readonly dispose$: t.DisposeObservable;
   dispose(): void;
 };
+
+/** An observable that fires when resource is disposed. */
+export type DisposeObservable = t.Observable<void>;
 
 /** The "until this fires" input for a disposable resource factory. */
 export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];
