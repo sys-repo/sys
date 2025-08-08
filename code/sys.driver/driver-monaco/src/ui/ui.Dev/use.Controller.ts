@@ -30,7 +30,7 @@ export function useController(props: P) {
     editor,
     doc,
     path,
-    errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
+    errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
   });
 
   /**
