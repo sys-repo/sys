@@ -7,6 +7,6 @@ export type * from './t.Editor.ts';
  * Dev Library Namespace:
  */
 export type MonacoDevLib = Readonly<{
-  Editor: React.FC<t.DevEditorProps>;
+  Editor: React.FC<t.YamlEditorProps>;
   PathView: React.FC<PathViewProps>;
 }>;

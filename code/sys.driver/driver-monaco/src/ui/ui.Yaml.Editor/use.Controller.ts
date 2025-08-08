@@ -4,7 +4,7 @@ import { EditorYaml } from '../m.Yaml/mod.ts';
 import { type t, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
-type P = t.DevEditorProps;
+type P = t.YamlEditorProps;
 
 export function useController(props: P) {
   const { path } = props;

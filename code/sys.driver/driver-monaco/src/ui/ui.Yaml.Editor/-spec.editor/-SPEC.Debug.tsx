@@ -13,12 +13,13 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.DevEditorProps;
+type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
-  editor: Pick<t.DevEditorMonacoProps, 'margin' | 'minimap'>;
-  documentId: Pick<t.DevEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
-  footer: Pick<t.DevEditorFooterProps, 'visible'>;
+  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap'>;
+  documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
+  footer: Pick<t.YamlEditorFooterProps, 'visible'>;
 };
+
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,

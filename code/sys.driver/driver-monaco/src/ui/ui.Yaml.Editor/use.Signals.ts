@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { type t, Signal } from './common.ts';
 
-export function useSignals(signalsInput?: Partial<t.DevEditorSignals>) {
+export function useSignals(signalsInput?: Partial<t.YamlEditorSignals>) {
   /**
    * Create base signals exactly once:
    */
-  const [baseSignals] = useState<t.DevEditorSignals>(() => {
+  const [baseSignals] = useState<t.YamlEditorSignals>(() => {
     return {
       doc: Signal.create<t.Crdt.Ref | undefined>(),
       monaco: Signal.create<t.Monaco.Monaco | undefined>(),
@@ -16,7 +16,7 @@ export function useSignals(signalsInput?: Partial<t.DevEditorSignals>) {
   /**
    * Merge with passed in signals:
    */
-  const signals: t.DevEditorSignals = {
+  const signals: t.YamlEditorSignals = {
     doc: signalsInput?.doc ?? baseSignals.doc,
     monaco: signalsInput?.monaco ?? baseSignals.monaco,
     editor: signalsInput?.editor ?? baseSignals.editor,

@@ -3,14 +3,14 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type DevEditorProps = {
+export type YamlEditorProps = {
   repo?: t.Crdt.Repo;
-  signals?: Partial<t.DevEditorSignals>;
+  signals?: Partial<t.YamlEditorSignals>;
   path?: t.ObjectPath;
 
-  documentId?: t.DevEditorDocumentIdProps;
-  editor?: t.DevEditorMonacoProps;
-  footer?: t.DevEditorFooterProps;
+  documentId?: t.YamlEditorDocumentIdProps;
+  editor?: t.YamlEditorMonacoProps;
+  footer?: t.YamlEditorFooterProps;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -20,8 +20,10 @@ export type DevEditorProps = {
   onDocumentChange?: (e: { doc: t.Crdt.Ref }) => void;
 };
 
-/** Signal state to attach values to: */
-export type DevEditorSignals = {
+/**
+ * Signal state to attach values to:
+ */
+export type YamlEditorSignals = {
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.Crdt.Ref | undefined>;
@@ -30,7 +32,7 @@ export type DevEditorSignals = {
 /**
  * Editor sub-props:
  */
-export type DevEditorMonacoProps = Pick<
+export type YamlEditorMonacoProps = Pick<
   t.MonacoEditorProps,
   'autoFocus' | 'tabSize' | 'minimap' | 'readOnly' | 'placeholder'
 > & {
@@ -40,7 +42,7 @@ export type DevEditorMonacoProps = Pick<
 /**
  * DocumentId sub-props:
  */
-export type DevEditorDocumentIdProps = {
+export type YamlEditorDocumentIdProps = {
   visible?: boolean;
   readOnly?: boolean;
   localstorage?: t.StringKey;
@@ -50,6 +52,6 @@ export type DevEditorDocumentIdProps = {
 /**
  * FooterBar sub-props:
  */
-export type DevEditorFooterProps = {
+export type YamlEditorFooterProps = {
   visible?: boolean;
 };

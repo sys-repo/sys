@@ -6,7 +6,7 @@ import { Footer } from './ui.Footer.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useController } from './use.Controller.ts';
 
-type P = t.DevEditorProps;
+type P = t.YamlEditorProps;
 
 export const DevEditor: React.FC<P> = (props) => {
   const { debug = false, path, repo, footer = {} } = props;

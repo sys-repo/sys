@@ -3,7 +3,7 @@ import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
 import { NotReady } from './ui.NotReady.tsx';
 
-type P = Omit<t.DevEditorProps, 'signals'> & { signals: t.DevEditorSignals };
+type P = Omit<t.YamlEditorProps, 'signals'> & { signals: t.YamlEditorSignals };
 
 /**
  * Component:

@@ -9,8 +9,8 @@ export * from '../common.ts';
  * Constants:
  */
 const name = 'Monaco.Dev';
-const documentId: t.DevEditorDocumentIdProps = { visible: true, readOnly: false };
-const footer: t.DevEditorFooterProps = { visible: true };
+const documentId: t.YamlEditorDocumentIdProps = { visible: true, readOnly: false };
+const footer: t.YamlEditorFooterProps = { visible: true };
 
 export const DEFAULTS = {
   name,
