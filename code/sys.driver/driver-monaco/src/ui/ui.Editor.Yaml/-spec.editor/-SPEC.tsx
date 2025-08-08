@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Monaco } from '../../mod.ts';
-import { D } from '../common.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -33,6 +33,19 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             onReady={(e) => console.info(`⚡️ onReady:`, e)}
             onDocumentLoaded={(e) => (p.doc.value = e.doc)}
+          />
+        );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
           />
         );
       });
