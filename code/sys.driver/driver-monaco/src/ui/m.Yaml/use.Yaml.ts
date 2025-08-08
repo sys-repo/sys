@@ -59,7 +59,10 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
    * API:
    */
   const api: t.EditorYaml = {
-    ok: parser ? parser.errors.length === 0 : true,
+    get ok() {
+      const errors = parser?.errors.length ?? 0;
+      return errors === 0;
+    },
     get path() {
       return parser?.path;
     },

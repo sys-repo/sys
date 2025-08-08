@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, rx } from './common.ts';
 import { Body } from './ui.Editor.Body.tsx';
 import { Footer } from './ui.Footer.tsx';
 import { NotReady } from './ui.NotReady.tsx';
@@ -19,11 +19,14 @@ export const YamlEditor: React.FC<P> = (props) => {
   const { yaml, signals, doc } = controller;
 
   /**
-   * Effects:
+   * Effect: Alert listeners when CRDT document-loaded.
    */
   React.useEffect(() => {
     if (!doc) return;
-    props.onDocumentChange?.({ doc });
+    const { dispose, dispose$ } = rx.abortable();
+    const events = doc.events(dispose$);
+    props.onDocumentLoaded?.({ doc, events, dispose$ });
+    return dispose;
   }, [doc?.id]);
 
   /**

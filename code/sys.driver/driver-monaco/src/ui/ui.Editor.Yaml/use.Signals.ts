@@ -6,10 +6,12 @@ export function useSignals(signalsInput?: Partial<t.YamlEditorSignals>) {
    * Create base signals exactly once:
    */
   const [baseSignals] = useState<t.YamlEditorSignals>(() => {
+    const s = Signal.create;
     return {
-      doc: Signal.create<t.Crdt.Ref | undefined>(),
-      monaco: Signal.create<t.Monaco.Monaco | undefined>(),
-      editor: Signal.create<t.Monaco.Editor | undefined>(),
+      doc: s<t.Crdt.Ref | undefined>(),
+      monaco: s<t.Monaco.Monaco | undefined>(),
+      editor: s<t.Monaco.Editor | undefined>(),
+      yaml: s<t.EditorYaml | undefined>(),
     };
   });
 
@@ -20,6 +22,7 @@ export function useSignals(signalsInput?: Partial<t.YamlEditorSignals>) {
     doc: signalsInput?.doc ?? baseSignals.doc,
     monaco: signalsInput?.monaco ?? baseSignals.monaco,
     editor: signalsInput?.editor ?? baseSignals.editor,
+    yaml: signalsInput?.yaml ?? baseSignals.yaml,
   };
 
   /**

@@ -17,16 +17,25 @@ export type YamlEditorProps = {
   style?: t.CssInput;
 
   onReady?: t.MonacoEditorProps['onReady'];
-  onDocumentChange?: (e: { doc: t.Crdt.Ref }) => void;
+  onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
+};
+
+/** Fires when a new document (crdt) is loaded into the editor. */
+export type YamlEditorDocumentLoadedHandler = (e: YamlEditorDocumentLoaded) => void;
+export type YamlEditorDocumentLoaded = {
+  doc: t.Crdt.Ref;
+  events: t.Crdt.Events;
+  dispose$: t.DisposeObservable;
 };
 
 /**
- * Signal state to attach values to:
+ * State wrapped in signals.
  */
 export type YamlEditorSignals = {
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.Crdt.Ref | undefined>;
+  yaml: t.Signal<t.EditorYaml | undefined>;
 };
 
 /**

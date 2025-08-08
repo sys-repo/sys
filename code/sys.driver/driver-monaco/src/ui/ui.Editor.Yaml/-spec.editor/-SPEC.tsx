@@ -32,7 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => console.info(`⚡️ onReady:`, e)}
-            onDocumentChange={(e) => (p.doc.value = e.doc)}
+            onDocumentLoaded={(e) => (p.doc.value = e.doc)}
           />
         );
       });

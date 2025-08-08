@@ -25,13 +25,16 @@ export function useController(props: P) {
   /**
    * Hook: YAML.
    */
-  const yaml = useYaml({
-    monaco,
-    editor,
-    doc,
-    path,
-    errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
-  });
+  const yaml = useYaml(
+    {
+      monaco,
+      editor,
+      doc,
+      path,
+      errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
+    },
+    (e) => (signals.yaml.value = e),
+  );
 
   /**
    * API:
