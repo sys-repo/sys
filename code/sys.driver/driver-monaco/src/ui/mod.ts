@@ -7,5 +7,5 @@ export { EditorCarets } from './m.Carets/mod.ts';
 export { EditorCrdt } from './m.Crdt/mod.ts';
 export { EditorFolding } from './m.Folding/mod.ts';
 export { EditorYaml } from './m.Yaml/mod.ts';
-export { Dev } from './ui.Dev/mod.ts';
 export { MonacoEditor } from './ui.MonacoEditor/mod.ts';
+export { Dev } from './ui.Yaml.Editor/mod.ts';
