@@ -1,5 +1,6 @@
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { EditorYaml } from '../m.Yaml/mod.ts';
+
 import { type t, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
@@ -18,6 +19,7 @@ export function useController(props: P) {
    * Hook: CRDT.
    */
   EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {
+    //
   });
 
   /**
