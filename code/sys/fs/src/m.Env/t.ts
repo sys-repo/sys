@@ -8,6 +8,9 @@ export type EnvLib = Readonly<{
 
   /** Creates a reader for accessing env-vars. */
   load(): Promise<Env>;
+
+  /** Initializes for known environments (eg. "VSCode"). */
+  init(): Promise<void>;
 }>;
 
 /**

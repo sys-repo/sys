@@ -1,1 +1,1 @@
-export type * from '../common.ts';
+export * from '../common.ts';

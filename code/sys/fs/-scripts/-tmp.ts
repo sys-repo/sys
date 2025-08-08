@@ -1,4 +1,3 @@
-import { Fs, Env } from '@sys/fs';
+import { Env } from '@sys/fs';
 
-console.info('Fs', Fs);
-console.log('Env.Is.vscode', Env.Is.vscode);
+await Env.init();
