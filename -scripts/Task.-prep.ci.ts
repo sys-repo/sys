@@ -22,7 +22,7 @@ export async function main() {
   yaml += '\n';
   const target = '.github/workflows/jsr.yaml';
   await Fs.write(target, yaml);
-  console.info(`${c.green('done')} ${c.gray(target)}\n`);
+  console.info(`${c.green('Updated file:')} ${c.gray(target)}\n`);
 }
 
 /**
