@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Crdt, css, Monaco, ObjectView, P, Yaml } from './common.ts';
+import { type t, Color, Crdt, css, Monaco, ObjectView, P, PathView, Yaml } from './common.ts';
 
 export type NotesProps = {
   repo?: t.Crdt.Repo;
@@ -83,11 +83,7 @@ export const Notes: React.FC<NotesProps> = (props) => {
   );
 
   const elSelectedPath = (
-    <Monaco.Dev.PathView
-      path={selectedPath}
-      theme={theme.name}
-      style={{ Absolute: [-25, 14, null, 14] }}
-    />
+    <PathView path={selectedPath} theme={theme.name} style={{ Absolute: [-25, 14, null, 14] }} />
   );
 
   return (
