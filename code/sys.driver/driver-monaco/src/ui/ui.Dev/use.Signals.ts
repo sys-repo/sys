@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { type t, Signal } from './common.ts';
 
-export function useSignals(input?: Partial<t.DevEditorSignals>) {
+export function useSignals(signalsInput?: Partial<t.DevEditorSignals>) {
   /**
    * Create base signals exactly once:
    */
@@ -17,9 +17,9 @@ export function useSignals(input?: Partial<t.DevEditorSignals>) {
    * Merge with passed in signals:
    */
   const signals: t.DevEditorSignals = {
-    doc: input?.doc ?? baseSignals.doc,
-    monaco: input?.monaco ?? baseSignals.monaco,
-    editor: input?.editor ?? baseSignals.editor,
+    doc: signalsInput?.doc ?? baseSignals.doc,
+    monaco: signalsInput?.monaco ?? baseSignals.monaco,
+    editor: signalsInput?.editor ?? baseSignals.editor,
   };
 
   /**
@@ -30,13 +30,10 @@ export function useSignals(input?: Partial<t.DevEditorSignals>) {
   /**
    * API:
    */
-  const doc = signals.doc.value;
-  const editor = signals.editor.value;
-  const monaco = signals.monaco.value;
   return {
     signals,
-    doc,
-    editor,
-    monaco,
+    doc: signals.doc.value,
+    monaco: signals.monaco.value,
+    editor: signals.editor.value,
   } as const;
 }

@@ -20,8 +20,8 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    */
   React.useEffect(() => {
     if (!(doc && path && editor)) return;
-
     const life = rx.lifecycle();
+
     EditorCrdt.bind(editor, doc, path, life).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;

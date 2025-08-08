@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * Component:
  */
 export type DevEditorProps = {
-  signals?: Partial<t.DevEditorSignals>;
   repo?: t.Crdt.Repo;
+  signals?: Partial<t.DevEditorSignals>;
   path?: t.ObjectPath;
 
   documentId?: t.DevEditorDocumentIdProps;
@@ -22,9 +22,9 @@ export type DevEditorProps = {
 
 /** Signal state to attach values to: */
 export type DevEditorSignals = {
-  doc: t.Signal<t.Crdt.Ref | undefined>;
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
+  doc: t.Signal<t.Crdt.Ref | undefined>;
 };
 
 /**

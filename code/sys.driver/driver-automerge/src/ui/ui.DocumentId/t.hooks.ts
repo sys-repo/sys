@@ -26,12 +26,12 @@ export type DocumentIdHook = Readonly<{
   signals: t.DocumentIdHookSignals;
   props: DocumentIdHookProps;
   history: readonly t.StringId[];
-  transient: { kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs };
-  handlers: {
+  transient: Readonly<{ kind?: 'Copy' | 'Error'; message?: string; timeout: t.Msecs }>;
+  handlers: Readonly<{
     onAction: t.DocumentIdActionHandler;
     onTextChange: t.TextInputChangeHandler;
     onKeyDown: t.TextInputKeyHandler;
-  };
+  }>;
 }>;
 
 /** Properties of the <DocumentId> hook. */

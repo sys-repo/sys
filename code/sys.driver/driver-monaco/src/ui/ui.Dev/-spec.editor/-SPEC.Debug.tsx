@@ -3,6 +3,7 @@ import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
+  Crdt,
   css,
   D,
   LocalStorage,
@@ -122,7 +123,12 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+
   Signal.useRedrawEffect(() => debug.listen());
+  Crdt.UI.useRedrawEffect(p.doc.value, {
+    path: p.path.value,
+    onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
+  });
 
   /**
    * Render:
@@ -145,7 +151,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `path: ${p.path.value ? p.path.value.join(' / ') : `<undefined>`}`}
+        label={() => {
+          const v = p.path.value;
+          return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
+        }}
         onClick={() => Signal.cycle(p.path, [['foo'], ['sample', 'deep'], undefined])}
       />
 
@@ -214,7 +223,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'doc'}
         data={Obj.trimStringsDeep(Signal.toObject(p.doc.value?.current) ?? {})}
-        expand={0}
+        expand={1}
         style={{ marginTop: 5 }}
       />
     </div>

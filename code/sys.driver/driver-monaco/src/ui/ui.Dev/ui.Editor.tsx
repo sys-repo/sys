@@ -11,13 +11,13 @@ import { useSignals } from './use.Signals.ts';
 type P = t.DevEditorProps;
 
 export const DevEditor: React.FC<P> = (props) => {
-  const { debug = false, repo, path, footer = {} } = props;
+  const { debug = false, path, repo, footer = {} } = props;
   const footerVisible = footer.visible ?? D.footer.visible;
 
   /**
    * Hooks:
    */
-  const { signals, doc, editor, monaco } = useSignals(props.signals);
+  const { signals, doc, monaco, editor } = useSignals(props.signals);
 
   EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {});
 
