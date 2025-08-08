@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Monaco } from '../../mod.ts';
-import { D, STORAGE_KEY } from '../common.ts';
+import { D } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -25,10 +25,10 @@ export default Spec.describe(D.displayName, (e) => {
         return (
           <Monaco.Dev.Editor
             repo={repo}
-            localstorage={STORAGE_KEY.DEV}
-            path={v.path}
-            docid={v.docid}
+            documentId={v.documentId}
             editor={v.editor}
+            footer={v.footer}
+            path={v.path}
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => console.info(`⚡️ onReady:`, e)}

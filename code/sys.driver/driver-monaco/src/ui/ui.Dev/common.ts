@@ -9,12 +9,14 @@ export * from '../common.ts';
  * Constants:
  */
 const name = 'Monaco.Dev';
-const docid: t.DevEditorDocumentIdProps = { visible: true, readOnly: false };
+const documentId: t.DevEditorDocumentIdProps = { visible: true, readOnly: false };
+const footer: t.DevEditorFooterProps = { visible: true };
 
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  docid,
+  documentId,
+  footer,
 } as const;
 export const D = DEFAULTS;
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };

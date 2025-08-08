@@ -1,25 +1,37 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  STORAGE_KEY,
+} from '../common.ts';
 
 type P = t.DevEditorProps;
-type E = t.DevEditorMonacoProps;
-type I = t.DevEditorDocumentIdProps;
-
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
-  editorMargin?: E['margin'];
-  editorMinimap?: E['minimap'];
-  docidVisible?: I['visible'];
-  docidReadOnly?: I['readOnly'];
+  editor: Pick<t.DevEditorMonacoProps, 'margin' | 'minimap'>;
+  documentId: Pick<t.DevEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
+  footer: Pick<t.DevEditorFooterProps, 'visible'>;
 };
 const defaults: Storage = {
   theme: 'Dark',
-  debug: true,
+  debug: false,
   path: ['foo'],
-  docidVisible: true,
-  docidReadOnly: false,
-  editorMargin: 0,
-  editorMinimap: false,
+  documentId: {
+    visible: true,
+    readOnly: false,
+    urlKey: undefined,
+  },
+  editor: {
+    margin: 0,
+    minimap: false,
+  },
+  footer: { visible: true },
 };
 
 /**
@@ -41,13 +53,18 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     path: s(snap.path),
 
-    docid: {
-      visible: s(snap.docidVisible),
-      readOnly: s(snap.docidReadOnly),
+    documentId: {
+      visible: s((snap.documentId ?? {}).visible),
+      readOnly: s((snap.documentId ?? {}).readOnly),
+      urlKey: s((snap.documentId ?? {}).urlKey),
+      localstorage: STORAGE_KEY.DEV,
     },
     editor: {
-      margin: s(snap.editorMargin),
-      minimap: s(snap.editorMinimap),
+      margin: s((snap.editor ?? {}).margin),
+      minimap: s((snap.editor ?? {}).minimap),
+    },
+    footer: {
+      visible: s((snap.footer ?? {}).visible),
     },
 
     doc: s<t.Crdt.Ref>(),
@@ -60,8 +77,9 @@ export function createDebugSignals() {
     repo,
     listen() {
       Signal.listen(props);
-      Signal.listen(props.docid);
+      Signal.listen(props.documentId);
       Signal.listen(props.editor);
+      Signal.listen(props.footer);
     },
   };
 
@@ -70,10 +88,18 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.path = p.path.value;
-      d.editorMargin = p.editor.margin.value;
-      d.editorMinimap = p.editor.minimap.value;
-      d.docidVisible = p.docid.visible.value;
-      d.docidReadOnly = p.docid.readOnly.value;
+
+      d.editor = d.editor ?? {};
+      d.editor.margin = p.editor.margin.value;
+      d.editor.minimap = p.editor.minimap.value;
+
+      d.documentId = d.documentId ?? {};
+      d.documentId.visible = p.documentId.visible.value;
+      d.documentId.readOnly = p.documentId.readOnly.value;
+      d.documentId.urlKey = p.documentId.urlKey.value;
+
+      d.footer = d.footer ?? {};
+      d.footer.visible = p.footer.visible.value;
     });
   });
 
@@ -138,13 +164,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `id.visible: ${p.docid.visible.value ?? `<undefined>`}`}
-        onClick={() => Signal.toggle(p.docid.visible)}
+        label={() => `documentId.visible: ${p.documentId.visible.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.documentId.visible)}
       />
       <Button
         block
-        label={() => `id.readOnly: ${p.docid.readOnly.value ?? `<undefined>`}`}
-        onClick={() => Signal.toggle(p.docid.readOnly)}
+        label={() => `documentId.readOnly: ${p.documentId.readOnly.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.documentId.readOnly)}
+      />
+      <Button
+        block
+        label={() => `documentId.urlKey: ${p.documentId.urlKey.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.documentId.urlKey, ['foo', undefined])}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `footer.visible: ${p.footer.visible.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.footer.visible)}
       />
 
       <hr />
@@ -157,10 +195,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `(reset)`}
         onClick={() => {
-          p.docid.visible.value = defaults.docidVisible;
-          p.docid.readOnly.value = defaults.docidReadOnly;
-          p.editor.margin.value = defaults.editorMargin;
-          p.editor.minimap.value = defaults.editorMinimap;
+          p.debug.value = false;
+          p.documentId.visible.value = defaults.documentId.visible;
+          p.documentId.readOnly.value = defaults.documentId.readOnly;
+          p.documentId.urlKey.value = defaults.documentId.urlKey;
+          p.editor.margin.value = defaults.editor.margin;
+          p.editor.minimap.value = defaults.editor.minimap;
+          p.footer.visible.value = defaults.footer.visible;
         }}
       />
 

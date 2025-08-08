@@ -2,39 +2,25 @@ import React from 'react';
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { EditorYaml } from '../m.Yaml/mod.ts';
 
-import { type t, Color, css, Signal } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { Body } from './ui.Editor.Body.tsx';
+import { Footer } from './ui.Footer.tsx';
 import { NotReady } from './ui.NotReady.tsx';
+import { useSignals } from './use.Signals.ts';
 
 type P = t.DevEditorProps;
 
 export const DevEditor: React.FC<P> = (props) => {
-  const { debug = false, repo, path } = props;
-
-  // Create base signals exactly once:
-  const [baseSignals] = React.useState<t.DevEditorSignals>(() => {
-    return {
-      doc: Signal.create<t.Crdt.Ref | undefined>(),
-      monaco: Signal.create<t.Monaco.Monaco | undefined>(),
-      editor: Signal.create<t.Monaco.Editor | undefined>(),
-    };
-  });
-  // Merge with passed in signals:
-  const signals: t.DevEditorSignals = {
-    doc: props.signals?.doc ?? baseSignals.doc,
-    monaco: props.signals?.monaco ?? baseSignals.monaco,
-    editor: props.signals?.editor ?? baseSignals.editor,
-  };
-
-  const doc = signals.doc.value;
-  const editor = signals.editor.value;
-  const monaco = signals.monaco.value;
+  const { debug = false, repo, path, footer = {} } = props;
+  const footerVisible = footer.visible ?? D.footer.visible;
 
   /**
    * Hooks:
    */
-  Signal.useRedrawEffect(() => Signal.listen(signals));
+  const { signals, doc, editor, monaco } = useSignals(props.signals);
+
   EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {});
+
   const yaml = EditorYaml.useYaml({
     monaco,
     editor,
@@ -59,16 +45,25 @@ export const DevEditor: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    base: css({
+      position: 'relative',
+      color: theme.fg,
+      display: 'grid',
+      gridTemplateRows: '1fr auto',
+    }),
   };
 
   const elNoRepo = !repo && <NotReady theme={theme.name} label={'No CRDT repository.'} />;
   const elNoPath = !path && <NotReady theme={theme.name} label={'No document path.'} />;
   const elError = elNoRepo || elNoPath;
 
+  const elMain = elError || <Body {...props} signals={signals} />;
+  const elFooter = footerVisible && <Footer theme={theme.name} yaml={yaml} />;
+
   return (
     <div className={css(styles.base, props.style).class}>
-      {elError || <Body {...props} signals={signals} />}
+      {elMain}
+      {elFooter}
     </div>
   );
 };

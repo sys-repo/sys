@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 
-import { type t, Color, Cropmarks, css, DocumentId, D } from './common.ts';
+import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
 import { NotReady } from './ui.NotReady.tsx';
 
 type P = Omit<t.DevEditorProps, 'signals'> & { signals: t.DevEditorSignals };
@@ -10,11 +10,15 @@ type P = Omit<t.DevEditorProps, 'signals'> & { signals: t.DevEditorSignals };
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { debug = false, repo, signals, localstorage, editor = {}, docid = {} } = props;
-  const margin = editor.margin ?? 0;
+  const { debug = false, repo, signals, editor = {} } = props;
   const doc = signals.doc.value;
-  const docidVisible = docid.visible ?? D.docid.visible;
-  const docidReadOnly = docid.readOnly ?? D.docid.readOnly;
+
+  const DOC = {
+    visible: props.documentId?.visible ?? D.documentId.visible,
+    readOnly: props.documentId?.readOnly ?? D.documentId.readOnly,
+    localstorage: props.documentId?.localstorage,
+    urlKey: props.documentId?.urlKey,
+  } as const;
 
   /**
    * Render:
@@ -24,28 +28,41 @@ export const Body: React.FC<P> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
+      overflow: 'hidden',
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
     }),
-    docid: css({
-      height: docidVisible ? undefined : 0,
+    documentId: css({
+      height: DOC.visible ? undefined : 0,
       overflow: 'hidden',
     }),
     editor: css({ display: 'grid' }),
+    debug: {
+      doc: css({
+        Absolute: [null, 10, -18, null],
+        fontSize: 9,
+        fontFamily: 'monospace',
+        cursor: 'default',
+        opacity: 0.2,
+        ':hover': { opacity: 1 },
+        transition: 'opacity 120ms ease',
+      }),
+    },
   };
 
-  const elCrdt = (
-    <div className={styles.docid.class}>
+  const elDocumentId = (
+    <div className={styles.documentId.class}>
       <DocumentId.View
         background={theme.is.dark ? -0.06 : -0.04}
         theme={theme.name}
         buttonStyle={{ margin: 4 }}
-        readOnly={docidReadOnly}
         controller={{
           repo,
           signals: { doc: signals.doc },
           initial: { text: '' },
-          localstorage,
+          localstorage: DOC.localstorage,
+          urlKey: DOC.urlKey,
+          readOnly: DOC.readOnly,
         }}
       />
     </div>
@@ -72,18 +89,39 @@ export const Body: React.FC<P> = (props) => {
     />
   );
 
-  const elNotReady = !doc && <NotReady label={'CRDT not loaded'} theme={theme.name} />;
+  // When: CRDT not loaded:
+  const elNotReady = !doc && <NotReady label={''} theme={theme.name} />;
+  const elDebugDoc = <div className={styles.debug.doc.class}>{`crdt:${doc?.id ?? '<none>'}`}</div>;
+  const elDebug = <>{elDebugDoc}</>;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elCrdt}
+      {elDocumentId}
       <Cropmarks
         theme={theme.name}
         borderOpacity={0.04}
-        size={{ mode: 'fill', margin, x: true, y: true }}
+        size={{
+          mode: 'fill',
+          margin: wrangle.cropmarksMargin(props),
+        }}
       >
-        <div className={styles.editor.class}>{elEditor || elNotReady}</div>
+        <div className={styles.editor.class}>
+          {elEditor || elNotReady}
+          {elDebug}
+        </div>
       </Cropmarks>
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  cropmarksMargin(props: P) {
+    const { debug = false, editor = {} } = props;
+    const margin = editor.margin;
+    if (!!margin) return margin;
+    return debug ? 70 : 0;
+  },
+} as const;

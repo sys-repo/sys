@@ -4,13 +4,13 @@ import type { t } from './common.ts';
  * Component:
  */
 export type DevEditorProps = {
-  repo?: t.Crdt.Repo;
-  localstorage?: t.StringKey;
   signals?: Partial<t.DevEditorSignals>;
-
+  repo?: t.Crdt.Repo;
   path?: t.ObjectPath;
-  docid?: t.DevEditorDocumentIdProps;
+
+  documentId?: t.DevEditorDocumentIdProps;
   editor?: t.DevEditorMonacoProps;
+  footer?: t.DevEditorFooterProps;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -27,7 +27,9 @@ export type DevEditorSignals = {
   editor: t.Signal<t.Monaco.Editor | undefined>;
 };
 
-/** Editor sub-props: */
+/**
+ * Editor sub-props:
+ */
 export type DevEditorMonacoProps = Pick<
   t.MonacoEditorProps,
   'autoFocus' | 'tabSize' | 'minimap' | 'readOnly' | 'placeholder'
@@ -35,8 +37,19 @@ export type DevEditorMonacoProps = Pick<
   margin?: t.CssEdgesInput;
 };
 
-/** DocumentId sub-props: */
+/**
+ * DocumentId sub-props:
+ */
 export type DevEditorDocumentIdProps = {
   visible?: boolean;
   readOnly?: boolean;
+  localstorage?: t.StringKey;
+  urlKey?: t.StringKey;
+};
+
+/**
+ * FooterBar sub-props:
+ */
+export type DevEditorFooterProps = {
+  visible?: boolean;
 };
