@@ -10,21 +10,4 @@
  * env.get('TEST_SAMPLE') //== "foobar"
  * ```
  */
-import * as DotEnv from '@std/dotenv';
-import type { t } from '../common.ts';
-import type { EnvLib } from './t.ts';
-
-export const Env: EnvLib = {
-  /**
-   * Creates a reader for accessing env-vars.
-   */
-  async load() {
-    const dotenv = await DotEnv.load();
-    const api: t.Env = {
-      get(key) {
-        return dotenv[key] || Deno.env.get(key) || '';
-      },
-    };
-    return api;
-  },
-};
+export { Env } from './m.Env.ts';

@@ -1,12 +1,14 @@
+import { type t } from './common.ts';
+
 /**
  * Helpers for retrieveing environment variables (aka. "secrets").
  */
-export type EnvLib = {
-  /**
-   * Creates a reader for accessing env-vars.
-   */
+export type EnvLib = Readonly<{
+  Is: t.EnvIsLib;
+
+  /** Creates a reader for accessing env-vars. */
   load(): Promise<Env>;
-};
+}>;
 
 /**
  * Reads env-vars from either a [.env] file if present or
@@ -15,3 +17,10 @@ export type EnvLib = {
 export type Env = {
   get(key: string): string;
 };
+
+/**
+ * Boolean evaluators for environment conditions.
+ */
+export type EnvIsLib = Readonly<{
+  vscode: boolean;
+}>;

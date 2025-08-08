@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Type guards (boolean evaluators).
+ * Boolean flag evaluators.
  */
 export type StdIsLib = {
   /**
