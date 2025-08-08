@@ -23,7 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <Monaco.Dev.Editor
+          <Monaco.Yaml.Editor
             repo={repo}
             documentId={v.documentId}
             editor={v.editor}

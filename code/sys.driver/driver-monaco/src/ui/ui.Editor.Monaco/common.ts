@@ -1,10 +1,13 @@
 import { type t, DEFAULTS as BASE, pkg, Pkg } from '../common.ts';
+
 export * from '../common.ts';
+export { EditorCarets } from '../m.Carets/mod.ts';
 
 /**
  * Constants:
  */
 const name = 'MonacoEditor';
+
 const props: t.PickRequired<
   t.MonacoEditorProps,
   'theme' | 'readOnly' | 'minimap' | 'tabSize' | 'language' | 'enabled' | 'autoFocus'

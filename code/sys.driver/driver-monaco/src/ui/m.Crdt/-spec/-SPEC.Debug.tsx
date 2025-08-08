@@ -1,7 +1,7 @@
-import React from 'react';
-import { LanguagesList } from '../../ui.Editor.Monaco/-spec/-ui.ts';
 import { Monaco } from '@sys/driver-monaco';
+import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
+import { LanguagesList } from '../../ui.Editor.Monaco/-spec/-ui.ts';
 
 import {
   type t,
@@ -14,7 +14,7 @@ import {
   Obj,
   ObjectView,
   Signal,
-  Url,
+  EditorFolding,
 } from '../common.ts';
 import { YamlSyncDebug } from './-u.yaml.tsx';
 
@@ -178,7 +178,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `fold: 2, 7`}
         onClick={() => {
           const editor = p.editor.value;
-          if (editor) Monaco.Folding.fold(editor, 2, 7);
+          if (editor) EditorFolding.fold(editor, 2, 7);
         }}
       />
 
@@ -188,7 +188,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `unfold: 2, 7`}
         onClick={() => {
           const editor = p.editor.value;
-          if (editor) Monaco.Folding.unfold(editor, 2, 7);
+          if (editor) EditorFolding.unfold(editor, 2, 7);
         }}
       />
       {(p.hiddenAreas.value ?? []).length > 0 && (

@@ -9,6 +9,7 @@ export type * from './t.Use.Yaml.ts';
  */
 export type EditorYamlLib = Readonly<{
   Path: t.EditorYamlPathLib;
+  Editor: React.FC<t.YamlEditorProps>;
   useYaml: t.UseEditorYaml;
   useErrorMarkers: t.UseYamlErrorMarkers;
 }>;

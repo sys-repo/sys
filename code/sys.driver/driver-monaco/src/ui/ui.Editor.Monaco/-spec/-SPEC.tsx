@@ -1,5 +1,5 @@
 import { Monaco } from '@sys/driver-monaco';
-import { Color, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Color, Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 
 import { MonacoEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -42,7 +42,7 @@ export default Spec.describe('MonacoEditor', (e) => {
     const v = Signal.toObject(p);
     if (v.selectedPath.length === 0) return null;
     return (
-      <Monaco.Dev.PathView
+      <PathView
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
         path={v.selectedPath}

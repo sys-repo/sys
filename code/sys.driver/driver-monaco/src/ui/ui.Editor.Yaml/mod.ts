@@ -1,6 +1,5 @@
 /**
- * Development UI, tools and helpers.
+ * YAML specific editor (batteries included).
  * @module
  */
-export { Dev } from './m.Dev.ts';
-export { DevEditor } from './ui.tsx';
+export { YamlEditor } from './ui.tsx';

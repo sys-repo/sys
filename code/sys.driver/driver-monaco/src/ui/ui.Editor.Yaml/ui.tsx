@@ -8,7 +8,7 @@ import { useController } from './use.Controller.ts';
 
 type P = t.YamlEditorProps;
 
-export const DevEditor: React.FC<P> = (props) => {
+export const YamlEditor: React.FC<P> = (props) => {
   const { debug = false, path, repo, footer = {} } = props;
   const footerVisible = footer.visible ?? D.footer.visible;
 

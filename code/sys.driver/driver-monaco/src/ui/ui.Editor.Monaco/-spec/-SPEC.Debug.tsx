@@ -1,5 +1,4 @@
 import React from 'react';
-import { Monaco } from '../../../mod.ts';
 
 import {
   type t,
@@ -12,6 +11,7 @@ import {
   ObjectView,
   Signal,
   Util,
+  EditorCarets,
 } from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
 import { LanguagesList } from './-ui.ts';
@@ -295,7 +295,7 @@ export function caretButtons(debug: DebugSignals) {
         <Button
           block
           label={() => 'color: <next>'}
-          onClick={() => getCaret().change({ color: Monaco.Carets.Color.next() })}
+          onClick={() => getCaret().change({ color: EditorCarets.Color.next() })}
         />
 
         {hr()}

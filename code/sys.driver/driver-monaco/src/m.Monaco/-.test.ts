@@ -1,22 +1,16 @@
 import { describe, expect, it } from '../-test.ts';
-import {
-  Dev,
-  EditorCarets,
-  EditorCrdt,
-  EditorFolding,
-  EditorYaml,
-  MonacoEditor,
-} from '../ui/mod.ts';
+import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../ui/mod.ts';
 import { Monaco, MonacoIs } from './mod.ts';
 
 describe('Monaco', () => {
-  it('API', () => {
+  it('API', async () => {
+    const m = await import('@sys/driver-monaco');
+    expect(m.Monaco).to.equal(Monaco);
+
     expect(Monaco.Editor).to.equal(MonacoEditor);
-    expect(Monaco.Carets).to.equal(EditorCarets);
     expect(Monaco.Crdt).to.equal(EditorCrdt);
     expect(Monaco.Yaml).to.equal(EditorYaml);
+    expect(Monaco.Yaml.Editor).to.equal(YamlEditor);
     expect(Monaco.Is).to.equal(MonacoIs);
-    expect(Monaco.Folding).to.equal(EditorFolding);
-    expect(Monaco.Dev).to.equal(Dev);
   });
 });

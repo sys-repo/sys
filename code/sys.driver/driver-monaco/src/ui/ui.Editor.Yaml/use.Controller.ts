@@ -1,5 +1,5 @@
 import { EditorCrdt } from '../m.Crdt/mod.ts';
-import { EditorYaml } from '../m.Yaml/mod.ts';
+import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
 import { type t, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
@@ -25,7 +25,7 @@ export function useController(props: P) {
   /**
    * Hook: YAML.
    */
-  const yaml = EditorYaml.useYaml({
+  const yaml = useYaml({
     monaco,
     editor,
     doc,

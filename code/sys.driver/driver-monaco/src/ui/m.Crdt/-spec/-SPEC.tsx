@@ -1,10 +1,10 @@
 import { DocumentId } from '@sys/driver-automerge/ui';
 import { Monaco } from '@sys/driver-monaco';
 
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.Editor.Monaco/mod.ts';
 
-import { type t, Color, D } from '../common.ts';
+import { type t, Color, D, EditorFolding } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 import { sampleInterceptLink } from './-u.link.ts';
 
@@ -64,7 +64,7 @@ export default Spec.describe(D.displayName, async (e) => {
           p.carets.value = e.carets;
 
           // Hidden Areas (code-folding) observer:
-          const folding = Monaco.Folding.observe(e.editor);
+          const folding = EditorFolding.observe(e.editor);
           folding.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
 
           // (🐷) Custom link intercepts:
@@ -82,7 +82,7 @@ export default Spec.describe(D.displayName, async (e) => {
     if (yaml.cursor.path.length === 0) return null;
 
     return (
-      <Monaco.Dev.PathView
+      <PathView
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
         path={yaml.cursor.path}

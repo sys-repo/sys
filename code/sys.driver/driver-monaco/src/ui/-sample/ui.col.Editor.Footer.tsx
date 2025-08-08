@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons, Monaco } from './common.ts';
+import { type t, Color, css, Icons, PathView } from './common.ts';
 
 type P = t.SampleProps & { yaml: t.EditorYaml };
 
@@ -45,7 +45,7 @@ export const Footer: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Monaco.Dev.PathView
+      <PathView
         prefix={'path:'}
         prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
         path={yaml.cursor.path}
