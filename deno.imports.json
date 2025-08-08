@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.4",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.5",
     "@automerge/automerge": "npm:@automerge/automerge@3.1.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.2.0",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.2.0",
@@ -43,7 +43,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
     "@types/ramda": "npm:@types/ramda@0.31.0",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@5.0.5",
+    "ai": "npm:ai@5.0.8",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5.2.1",
     "chai/": "npm:chai@5.2.1/",
@@ -59,7 +59,7 @@
     "ignore": "npm:ignore@7.0.5",
     "immer": "npm:immer@10",
     "monaco-editor": "npm:monaco-editor@0.52.2",
-    "ollama": "npm:ollama@0.5.16",
+    "ollama": "npm:ollama@0.5.17",
     "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@8.2.0",
     "peerjs": "npm:peerjs@1.5.5",

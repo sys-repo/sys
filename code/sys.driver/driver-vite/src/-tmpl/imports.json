@@ -9,9 +9,9 @@
     "react-dom": "npm:react-dom@19.1.1",
     "@types/react": "npm:@types/react@19.1.9",
     "@types/react-dom": "npm:@types/react-dom@19.1.7",
-    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.11.0",
+    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@4.0.0",
     "rollup": "npm:rollup@4.46.2",
-    "vite": "npm:vite@7.0.6",
+    "vite": "npm:vite@7.1.1",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.5.0"
   }
 }

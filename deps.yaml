@@ -57,10 +57,10 @@ groups:
       subpaths: ['value']
 
   build/tools:
-    - import: npm:@vitejs/plugin-react-swc@3.11.0
+    - import: npm:@vitejs/plugin-react-swc@4.0.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.46.2
-    - import: npm:vite@7.0.6
+    - import: npm:vite@7.1.1
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
@@ -84,15 +84,15 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.5
-    - import: npm:@ai-sdk/openai@2.0.4
+    - import: npm:ai@5.0.8
+    - import: npm:@ai-sdk/openai@2.0.5
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.13.1
       subpaths: ['agent']
     - import: npm:@mastra/libsql@0.13.1
     - import: npm:@mastra/loggers@0.10.6
     - import: npm:@mastra/memory@0.12.1
-    - import: npm:ollama@0.5.16
+    - import: npm:ollama@0.5.17
 
 deno.json:
   - group: std/deno
@@ -158,4 +158,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.12
-  - import: npm:hono@4.8.12
+  - import: npm:hono@4.9.0

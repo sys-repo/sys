@@ -2,7 +2,7 @@
   "dependencies": {
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
-    "hono": "4.8.12",
+    "hono": "4.9.0",
     "motion": "12.23.12",
     "react": "19.1.1",
     "react-dom": "19.1.1",
@@ -10,9 +10,9 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "1.0.5",
-    "@vitejs/plugin-react-swc": "3.11.0",
+    "@vitejs/plugin-react-swc": "4.0.0",
     "rollup": "4.46.2",
-    "vite": "7.0.6",
+    "vite": "7.1.1",
     "vite-plugin-wasm": "3.5.0"
   }
 }
