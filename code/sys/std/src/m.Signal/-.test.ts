@@ -389,20 +389,19 @@ describe('Signal', () => {
   });
 
   describe('listen', () => {
-    const test = (subject: Parameters<t.SignalLib['listen']>[0]) => {
+    const test = (subject: Parameters<t.SignalLib['listen']>[0], deep: boolean = false) => {
       let fired = 0;
       Signal.effect(() => {
-        Signal.listen(subject);
+        Signal.listen(subject, deep);
         fired++;
       });
-      fired = 0; // NB: reset iniital effect run.
+      fired = 0; // NB: reset initial effect run.
       return {
         get fired() {
           return fired;
         },
       } as const;
     };
-
     it('subject: signal', () => {
       const a = Signal.create(0);
       const monitor = test(a);
@@ -428,6 +427,25 @@ describe('Signal', () => {
       subject.b.value = 20;
       subject.c.value = 30;
       expect(monitor.fired).to.eql(3);
+    });
+
+    it('subject: nested signals (deep = true)', () => {
+      const a = Signal.create(0);
+      const b = Signal.create(0);
+      const subject = [{ foo: a }, { bar: { baz: b } }];
+      const monitor = test(subject, true);
+      a.value = 111;
+      b.value = 222;
+      expect(monitor.fired).to.eql(2);
+    });
+
+    it('subject: cyclic structure handled safely (deep = true)', () => {
+      const a = Signal.create(0);
+      const subject: any = { a };
+      subject.self = subject; // create cycle
+      const monitor = test(subject, true);
+      a.value = 999;
+      expect(monitor.fired).to.eql(1);
     });
   });
 

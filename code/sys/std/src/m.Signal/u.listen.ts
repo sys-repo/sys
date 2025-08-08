@@ -1,4 +1,5 @@
 import { effect as preactEffect } from '@preact/signals-core';
+
 import { type t, Dispose, isRecord } from './common.ts';
 import { Is } from './m.Is.ts';
 
@@ -43,15 +44,50 @@ export const listeners: t.SignalLib['listeners'] = (until$) => {
 };
 
 /**
- * Hooks into signal(s) value property.
+ * Hooks into signal(s) `.value` to create a reactive dependency.
+ *
+ * @param subject  A signal, array, or record to walk.
+ * @param deep     When `true`, recurse into nested arrays/records.
  */
-export function listen(subject?: unknown | unknown[] | O) {
+export function listen(
+  subject?: unknown | unknown[] | O,
+  deep: boolean = false,
+  /** internal */ _seen: WeakSet<object> = new WeakSet(),
+): void {
   if (!subject) return;
-  if (Is.signal(subject)) subject.value;
-  if (Array.isArray(subject)) subject.filter((s) => Is.signal(s)).forEach((s) => s.value);
+
+  // Guard against cycles.
+  if (typeof subject === 'object' && subject !== null) {
+    if (_seen.has(subject)) return;
+    _seen.add(subject);
+  }
+
+  // Direct signal:
+  if (Is.signal(subject)) {
+    subject.value; // ← touch reactive value.
+    return;
+  }
+
+  // Array (top-level, or recurse if deep):
+  if (Array.isArray(subject)) {
+    for (const item of subject) {
+      if (Is.signal(item)) {
+        item.value; // ← touch reactive value.
+      } else if (deep && (Array.isArray(item) || isRecord(item))) {
+        listen(item as unknown, true, _seen);
+      }
+    }
+    return;
+  }
+
+  // Record (top-level, or recurse if deep):
   if (isRecord(subject)) {
-    Object.values(subject)
-      .filter((s) => Is.signal(s))
-      .forEach((s) => s.value);
+    for (const value of Object.values(subject)) {
+      if (Is.signal(value)) {
+        value.value; // ← touch reactive value.
+      } else if (deep && (Array.isArray(value) || isRecord(value))) {
+        listen(value as unknown, true, _seen);
+      }
+    }
   }
 }

@@ -32,7 +32,7 @@ export type SignalLib = {
   listeners(dispose$?: t.UntilInput): t.SignalListeners;
 
   /** Hooks into signal(s) value property. */
-  listen(subject?: t.Signal | Array<unknown> | O): void;
+  listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;
 
   /**
    * Recursively converts an object/array of `Signal`s into
