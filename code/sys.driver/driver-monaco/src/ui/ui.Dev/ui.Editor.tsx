@@ -1,12 +1,10 @@
 import React from 'react';
-import { EditorCrdt } from '../m.Crdt/mod.ts';
-import { EditorYaml } from '../m.Yaml/mod.ts';
 
 import { type t, Color, css, D } from './common.ts';
 import { Body } from './ui.Editor.Body.tsx';
 import { Footer } from './ui.Footer.tsx';
 import { NotReady } from './ui.NotReady.tsx';
-import { useSignals } from './use.Signals.ts';
+import { useController } from './use.Controller.ts';
 
 type P = t.DevEditorProps;
 
@@ -17,20 +15,8 @@ export const DevEditor: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const { signals, doc, monaco, editor } = useSignals(props.signals);
-
-  EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {});
-
-  const yaml = EditorYaml.useYaml({
-    monaco,
-    editor,
-    doc,
-    path,
-    errorMarkers: true, // NB: display YAML parse errors inline in the code-editor.
-  });
-
-  let hasErrors = false;
-  if (yaml.parsed.errors.length > 0) hasErrors = true;
+  const controller = useController(props);
+  const { yaml, signals, doc } = controller;
 
   /**
    * Effects:

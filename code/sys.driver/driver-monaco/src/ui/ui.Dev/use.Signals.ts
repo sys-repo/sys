@@ -30,10 +30,5 @@ export function useSignals(signalsInput?: Partial<t.DevEditorSignals>) {
   /**
    * API:
    */
-  return {
-    signals,
-    doc: signals.doc.value,
-    monaco: signals.monaco.value,
-    editor: signals.editor.value,
-  } as const;
+  return signals;
 }

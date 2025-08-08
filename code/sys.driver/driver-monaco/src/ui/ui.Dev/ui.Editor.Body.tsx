@@ -58,7 +58,7 @@ export const Body: React.FC<P> = (props) => {
         controller={{
           repo,
           signals: { doc: signals.doc },
-          initial: { text: '' },
+          initial: {},
           localstorage: DOC.localstorage,
           urlKey: DOC.urlKey,
           readOnly: DOC.readOnly,

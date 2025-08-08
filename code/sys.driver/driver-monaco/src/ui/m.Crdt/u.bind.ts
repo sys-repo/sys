@@ -164,7 +164,7 @@ const wrangle = {
 const pathsOverlap = (a: t.ObjectPath, b: t.ObjectPath): boolean => {
   const min = Math.min(a.length, b.length);
   for (let i = 0; i < min; i += 1) {
-    if (a[i] !== b[i]) return false; // Diverges at segment i.
+    if (a[i] !== b[i]) return false; // Diverges at segment [i].
   }
-  return true; // One is prefix of the other
+  return true; // One is a prefix of the other.
 };
