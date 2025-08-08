@@ -58,6 +58,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/cli"
+        run: |
+          cd code/sys/cli
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/fs"
         run: |
           cd code/sys/fs
@@ -73,12 +79,6 @@ jobs:
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/cli"
-        run: |
-          cd code/sys/cli
           deno task test --parallel
           deno publish --allow-dirty
 

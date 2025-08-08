@@ -8,4 +8,4 @@ export { Process } from '@sys/process';
 export { Tmpl } from '@sys/tmpl/fs';
 
 export * as t from './t.ts';
-export { Path, Paths } from './u.paths.ts';
+export { Path, Paths } from './-PATHS.ts';

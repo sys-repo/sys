@@ -1,5 +1,5 @@
 import { DenoFile, Fs, c } from './common.ts';
-import { Paths } from './u.paths.ts';
+import { Paths } from './-PATHS.ts';
 
 export async function main() {
   const tmpl = {

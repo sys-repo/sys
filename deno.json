@@ -10,8 +10,10 @@
     "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
     "install": "deno install --reload",
 
-    "prep": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
+    "prep-imports": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
     "prep-ci": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep-ci",
+    "prep": "deno task prep-imports && deno task prep-ci",
+
     "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
     "tmpl": "deno run -RWE ./-scripts/main.ts --tmpl",
     "cp": "deno run -RWE --allow-run=pbcopy ./-scripts/Task.-clipboard.ts",
