@@ -22,10 +22,18 @@ const { join, resolve, basename, dirname, extname } = Path;
  * Filesystem helpers.
  */
 export const Fs: FsLib = {
-  Is,
-  Path,
-  Size,
-  Watch,
+  get Is() {
+    return Is;
+  },
+  get Path() {
+    return Path;
+  },
+  get Size() {
+    return Size;
+  },
+  get Watch() {
+    return Watch;
+  },
   stat,
 
   cwd,
