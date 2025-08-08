@@ -24,7 +24,8 @@ type Storage = {
   localstorage?: string;
   url?: boolean | 'ƒ';
   urlKey?: string;
-} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled' | 'readOnly'>;
+  readOnly?: boolean;
+} & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
 
 /**
  * Signals:

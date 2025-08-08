@@ -25,6 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
       initial: () => ({ count: 0 }), // NB: dynamic generator.
       url: v.url,
       urlKey: v.urlKey,
+      readOnly: v.readOnly,
     };
 
     const hook = DocumentId.useController(args);
@@ -57,7 +58,6 @@ export default Spec.describe(D.displayName, (e) => {
           label={v.label}
           placeholder={v.placeholder}
           enabled={v.enabled}
-          readOnly={v.readOnly}
           autoFocus={v.autoFocus}
           background={theme.is.dark ? -0.06 : -0.04}
           //
