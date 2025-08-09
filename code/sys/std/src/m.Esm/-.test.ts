@@ -46,6 +46,14 @@ describe('Jsr.Esm', () => {
       test('/foobar/mod.ts', '/foobar/mod.ts');
     });
 
+    it('name → alias', () => {
+      const a = Esm.parse('jsr:@foo/bar@1.2');
+      const b = Esm.parse('jsr:@foo/bar@1.2', 'my-alias');
+      expect(a.alias).to.eql(undefined);
+      expect(b.alias).to.eql('my-alias');
+      expect(b.name).to.eql('@foo/bar');
+    });
+
     it('version', () => {
       const test = (input: string, expectedVersion: string) => {
         const res = Esm.parse(input);
@@ -139,10 +147,10 @@ describe('Jsr.Esm', () => {
         expect(mod.error).to.eql(undefined, input);
         expect(res).to.eql(input);
       };
-      test('jsr:@sys/tmp@^0.0.42');
-      test('jsr:@sys/tmp');
-      test('jsr:@sys/tmp/foo');
-      test('jsr:@sys/tmp@1.2/foo');
+      test('jsr:@scope/name@^0.0.42');
+      test('jsr:@scope/name');
+      test('jsr:@scope/name/foo');
+      test('jsr:@scope/name@1.2/foo');
       test('rxjs');
       test('rxjs/foo/bar');
       test('rxjs@7');
@@ -285,30 +293,35 @@ describe('Jsr.Esm', () => {
           const modules = Esm.modules(specifiers);
           const deps: t.EsmImportMap = {
             '@foo/bar': 'npm:@foo/bar@^1.2.3',
-            '@sys/tmp': 'jsr:@sys/tmp@^0.0.10', // no-change (with modifier not in modules-group).
+            '@scope/name': 'jsr:@scope/name@^0.0.10', // no-change (with modifier not in modules-group).
             rxjs: '>=6.5-alpha.1',
             foo: '3.2',
           };
 
           const res = modules.latest(deps);
           expect(res['@foo/bar']).to.eql('npm:@foo/bar@~1.2.4'); //   Latest in [modules].
-          expect(res['@sys/tmp']).to.eql('jsr:@sys/tmp@^0.0.10'); //  No change.
+          expect(res['@scope/name']).to.eql('jsr:@scope/name@^0.0.10'); //  No change.
           expect(res['rxjs']).to.eql('^7.2'); //                      Latest in [modules].
           expect(res['foo']).to.eql('3.2'); //                        Latest in deps.
         });
 
         it('empty version values', () => {
-          const specifiers = ['rxjs@^7.2', 'jsr:@sys/tmp@0.0.10', 'npm:@foo/bar@~1.2.4', 'foo@2'];
+          const specifiers = [
+            'rxjs@^7.2',
+            'jsr:@scope/name@0.0.10',
+            'npm:@foo/bar@~1.2.4',
+            'foo@2',
+          ];
           const modules = Esm.modules(specifiers);
           const deps: t.EsmImportMap = {
             '@foo/bar': '',
-            '@sys/tmp': 'jsr:@sys/tmp',
+            '@scope/name': 'jsr:@scope/name',
             foo: '  ',
           };
 
           const res = modules.latest(deps);
           expect(res['@foo/bar']).to.eql('~1.2.4');
-          expect(res['@sys/tmp']).to.eql('jsr:@sys/tmp@0.0.10');
+          expect(res['@scope/name']).to.eql('jsr:@scope/name@0.0.10');
           expect(res['foo']).to.eql('2');
         });
       });

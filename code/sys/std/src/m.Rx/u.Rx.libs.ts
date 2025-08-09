@@ -11,11 +11,13 @@ export {
   observeOn,
   of,
   scan,
+  startWith,
   Subject,
   timer,
 } from 'rxjs';
 
 export {
+  auditTime,
   catchError,
   debounceTime,
   delay,

@@ -1,6 +1,6 @@
 /**
- * @module
  * Standard testing helpers (surfaced from "@sys/std").
+ * @module
  */
 export { pkg } from '../pkg.ts';
 

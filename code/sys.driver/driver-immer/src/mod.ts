@@ -1,7 +1,7 @@
 /**
- * @module
  * Driver for working with Immer as the immutability strategy
  * for an `Immutable<T>` implemenation.
+ * @module
  *
  * @example
  * ```ts
@@ -19,6 +19,7 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Patch } from './m.Json.Patch/mod.ts';

@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
+import type { AuthLib } from './t.ts';
 
-export const Auth: t.AuthLib = {
+export const Auth: AuthLib = {
   /**
    * Security middleware.
    */

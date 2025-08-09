@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type E = HTMLElement;
+type E = HTMLElement | null;
 
 /**
  * Monitor size of an HTML/DOM element.

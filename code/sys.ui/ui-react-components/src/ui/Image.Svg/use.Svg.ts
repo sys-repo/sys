@@ -12,7 +12,7 @@ export function useSvg<T extends HTMLElement>(
   type R = t.SvgInstance<T>;
 
   const ref = useRef<T>(null);
-  const drawRef = useRef<SvgElement>();
+  const drawRef = useRef<SvgElement>(undefined);
 
   const [ready, setReady] = useState(false);
   const [importString, setImportString] = useState('');

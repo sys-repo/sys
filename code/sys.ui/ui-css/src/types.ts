@@ -1,6 +1,6 @@
 /**
- * @module
  * Module types.
+ * @module
  */
 export type * from './m.Css.Dom/t.ts';
 export type * from './m.Css.Edges/t.ts';

@@ -54,7 +54,7 @@ export type FsLib = Methods & {
   readonly watch: t.FsWatchLib['start'];
 
   /** Current working directory. */
-  cwd(kind?: 'init'): t.StringDir;
+  cwd(kind?: 'process' | 'terminal'): t.StringDir;
 
   /** Removes the CWD (current-working-directory) from the given path if it exists. */
   trimCwd: t.FsPathLib['trimCwd'];

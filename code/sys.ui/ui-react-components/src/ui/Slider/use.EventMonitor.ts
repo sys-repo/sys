@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { type t, DEFAULTS, useMouse } from './common.ts';
+import { type t, D, usePointer } from './common.ts';
 import { Wrangle } from './u.ts';
 
 type Args = {
@@ -11,24 +11,25 @@ type Args = {
  * HOOK: hook-up and manage mouse events.
  */
 export function useEventMonitor(args: Args = {}) {
-  const { enabled = DEFAULTS.enabled, onChange } = args;
+  const { enabled = D.enabled, onChange } = args;
 
-  const fireChange = (x: t.Pixels) => {
+  const fireChange = (x: t.Pixels, complete = false) => {
     if (!onChange || !enabled || !ref.current) return;
     const percent = Wrangle.elementToPercent(ref.current, x);
-    onChange?.({ percent });
+    onChange?.({ percent, complete });
   };
 
   const ref = useRef<HTMLDivElement>(null);
-  const mouse = useMouse({
-    onDown: (e) => fireChange(e.clientX),
+  const mouse = usePointer({
+    onDown: (e) => fireChange(e.client.x, false),
+    onUp: (e) => fireChange(e.client.x, true),
     onDrag: (e) => fireChange(e.client.x),
   });
 
   /**
-   * API
+   * API:
    */
-  const dragging = mouse.is.dragging;
+  const dragging = mouse.is.dragdropping;
   const pressed = mouse.is.down || dragging;
   return {
     ref,

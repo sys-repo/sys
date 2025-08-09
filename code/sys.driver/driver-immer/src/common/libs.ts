@@ -1,1 +1,1 @@
-export { Delete, Immutable, Is, Json, ObjectPath, R, Time, rx, slug } from '@sys/std';
+export { Delete, Immutable, Is, Json, Obj, R, rx, slug, Time } from '@sys/std';

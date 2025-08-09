@@ -1,10 +1,12 @@
+import type { FuzzyLib } from './t.ts';
+
 import search from 'approx-string-match';
 import type { t } from '../common.ts';
 
 /**
  * Approximate string matching.
  */
-export const Fuzzy: t.FuzzyLib = {
+export const Fuzzy: FuzzyLib = {
   /**
    * Match using the given "input" pattern.
    */

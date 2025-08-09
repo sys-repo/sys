@@ -19,7 +19,10 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <MyComponent debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => {
+        const v = Signal.toObject(p);
+        return <MyComponent debug={v.debug} theme={v.theme} />;
+      });
   });
 
   e.it('ui:debug', (e) => {

@@ -6,6 +6,7 @@ import { main as dry } from './Task.-dry.ts';
 import { main as info } from './Task.-info.ts';
 import { main as lint } from './Task.-lint.ts';
 import { main as prep } from './Task.-prep.ts';
+import { main as prepCi } from './Task.-prep.ci.ts';
 import { main as test } from './Task.-test.ts';
 import { main as tmpl } from './Task.-tmpl.ts';
 
@@ -18,6 +19,7 @@ type T = {
   lint?: boolean;
   bump?: boolean;
   prep?: boolean;
+  'prep-ci'?: boolean;
 
   tmpl?: boolean;
 };
@@ -33,6 +35,7 @@ if (args.clean) await clean();
 if (args.lint) await lint();
 if (args.bump) await bump();
 if (args.prep) await prep();
+if (args['prep-ci']) await prepCi();
 
 // Development:
 if (args.tmpl) await tmpl();

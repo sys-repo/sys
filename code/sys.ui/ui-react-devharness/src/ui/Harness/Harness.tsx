@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, type FC } from 'react';
+import { useEffect, useRef, type FC } from 'react';
 import { HarnessHost } from '../Harness.Host/mod.ts';
 import { DebugPanel } from '../Harness.Panel.Debug/mod.ts';
 import {
@@ -6,6 +6,7 @@ import {
   Color,
   ErrorBoundary,
   css,
+  pkg,
   useBusController,
   useRubberband,
   useSizeObserver,
@@ -18,11 +19,15 @@ type Size = { width: number; height: number };
 export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   useRubberband(props.allowRubberband ?? false);
 
+  /**
+   * Hooks:
+   */
   const baseRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const subjectRef = useRef<HTMLDivElement>(null);
   const debugRef = useRef<HTMLDivElement>(null);
   const resize = useSizeObserver([baseRef, hostRef, subjectRef]);
+  const size = toSize(baseRef.current);
 
   const controller = useBusController({
     runOnLoad: true,
@@ -34,14 +39,14 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   const { instance } = controller;
 
   /**
-   * [Effects]
+   * Effects:
    */
   useEffect(() => {
     const events = controller.events;
     if (!events) return;
     if (!(resize.ready && controller.ready)) return;
 
-    // Bubble resize events.
+    // Bubble resize events:
     events.props.change.fire((d) => {
       d.size.harness = toSize(baseRef.current);
       d.size.host = toSize(hostRef.current);
@@ -53,7 +58,7 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
   }, [controller.ready, resize.count, baseRef.current, hostRef.current, subjectRef.current]);
 
   /**
-   * [Render]
+   * Render:
    */
   const styles = {
     reset: css({
@@ -70,25 +75,29 @@ export const Harness: FC<t.HarnessProps> = (props: t.HarnessProps) => {
     }),
   };
 
+  const elBody = size.ready && (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <HarnessHost instance={instance} baseRef={hostRef} subjectRef={subjectRef} />
+      <DebugPanel instance={instance} baseRef={debugRef} hidden={size.width < 950} />
+    </ErrorBoundary>
+  );
+
   return (
     <div
-      data-component={'sys.ui.dev.harness'}
       ref={baseRef}
+      data-component={`${pkg.name}:Harness`}
       className={css(styles.reset, styles.base, props.style).class}
     >
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <HarnessHost instance={instance} baseRef={hostRef} subjectRef={subjectRef} />
-        <DebugPanel instance={instance} baseRef={debugRef} />
-      </ErrorBoundary>
+      {elBody}
     </div>
   );
 };
 
 /**
- * Helpers
+ * Helpers:
  */
-const toSize = (el?: HTMLDivElement | null): Size => {
-  if (!el) return { width: -1, height: -1 };
+const toSize = (el?: HTMLDivElement | null): Size & { ready: boolean } => {
+  if (!el) return { ready: false, width: -1, height: -1 };
   const { width, height } = el.getBoundingClientRect();
-  return { width, height };
+  return { ready: true, width, height };
 };

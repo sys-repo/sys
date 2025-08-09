@@ -1,14 +1,14 @@
-import { type t } from '../common.ts';
+import type { t } from './common.ts';
 
 import { Thumbnails } from '../Player.Thumbnails/mod.ts';
-import { ElapsedTime, VideoPlayer, playerSignalsFactory } from '../Player.Video/mod.ts';
-import { VideoElement } from '../Player.VideoElement/mod.ts';
+import { ElapsedTime, usePlayerSignals, VideoElement } from '../Player.Video.Element/mod.ts';
+import { playerSignalsFactory } from '../Player.Video.signals/mod.ts';
 
 export const Player: t.PlayerLib = {
   Video: {
-    signals: playerSignalsFactory,
-    View: VideoPlayer,
     Element: VideoElement,
+    signals: playerSignalsFactory,
+    useSignals: usePlayerSignals,
   },
   Timestamp: {
     Thumbnails: { View: Thumbnails },

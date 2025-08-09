@@ -38,7 +38,7 @@ export const Main: React.FC<P> = (props) => {
           'timestamp:<RenderedTimestamp>': timestamp.current,
         })}
       />
-      <Player.Timestamp.Elapsed.View player={player} abs={[null, 10, 5, null]} show={debug} />
+      <Player.Timestamp.Elapsed.View video={player} abs={[null, 10, 5, null]} show={debug} />
     </>
   );
 

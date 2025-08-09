@@ -21,9 +21,8 @@ export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
       const group: Args['group'] = (groupName, options = {}) => {
         groupName = (groupName || '').trim();
         const dev = options.dev || undefined;
-        const wildcard = options.wildcard || undefined;
         if (!groupName) return;
-        pushDep(getGroupList(o, groupName), { ...dep, wildcard, dev: undefined });
+        pushDep(getGroupList(o, groupName), { ...dep, dev: undefined });
         pushGroup(o[target], groupName, target === 'package.json' ? dev : undefined);
       };
       options.groupBy({ dep, target, group });
@@ -72,14 +71,12 @@ function dedupeGroups(obj: t.YamlDeps, target: t.DepTargetFile) {
 
 function pushDep(list: t.YamlDep[], dep: t.Dep) {
   const dev = dep.dev || undefined;
-  const wildcard = dep.wildcard || undefined;
   const module = dep.module;
   const existing = list.find((m) => m.import === module.toString());
   if (!existing) {
-    list.push(Delete.undefined({ import: module.toString(), dev, wildcard }));
+    list.push(Delete.undefined({ import: module.toString(), dev }));
   } else {
     if (dev) existing.dev = dev;
-    if (wildcard) existing.wildcard = wildcard;
   }
 }
 

@@ -1,3 +1,14 @@
+import type { t } from './common.ts';
+
+/**
+ * A disposable lifecycle with native browser
+ * [AbortController]/[AbortSignal] support.
+ */
+export type Abortable = t.Lifecycle & {
+  readonly controller: AbortController;
+  readonly signal: AbortSignal;
+};
+
 /**
  * Size and position of a rectangle.
  * https://developer.mozilla.org/en-US/docs/Web/API/DOMRect

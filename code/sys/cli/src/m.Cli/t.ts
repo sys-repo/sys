@@ -1,3 +1,4 @@
+import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 import type {
   Checkbox,
   Confirm,
@@ -9,9 +10,8 @@ import type {
   Toggle,
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
-import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 
-import type { ArgsLib, ValueLib, PathLib, PathFormatLib } from '@sys/std/t';
+import type { ArgsLib, PathFormatLib, PathLib, ValueLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
 
@@ -63,6 +63,9 @@ export type CliLib = {
 
   /** Strip ANSI escape codes from a string. */
   stripAnsi(input: string): string;
+
+  /** Copy arbitrary text to the system clipboard from a Deno CLI context. */
+  copyToClipboard(text: string): Promise<t.CliCopyResult>;
 };
 
 /**
@@ -161,3 +164,6 @@ export type CliKeyboardLib = {
    */
   readonly keypress: typeof CliffyKeypress;
 };
+
+/** Response from `Cli.copyToClipboard` method. */
+export type CliCopyResult = { ok: true } | { ok: false; error: Error; tried: string[] };

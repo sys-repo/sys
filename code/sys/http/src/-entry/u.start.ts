@@ -12,7 +12,7 @@ export async function start(args: t.HttpEntryArgsStart) {
   const pkg = wrangle.pkg(dist);
 
   const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-  const options = HttpServer.options({ port, pkg, hash });
+  const options = HttpServer.options({ port, pkg, hash, dir });
 
   Deno.serve(options, app.fetch);
   await HttpServer.keyboard({ port, print: true });

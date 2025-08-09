@@ -31,11 +31,11 @@ export type YamlDep = {
   /** Name of an import group to include. */
   group?: t.YamlDepsGroupName;
 
-  /** Flag indicating if a wildcard entry should be inserted into an generated import-map. */
-  wildcard?: boolean;
-
   /** Array of sub-paths for the module. */
   subpaths?: t.StringDir[];
+
+  /** Override name to use if differnt from the `import` module-name. */
+  name?: string;
 
   /**
    * Flag indicating if the import is a development-dependency only.

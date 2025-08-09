@@ -1,9 +1,10 @@
+import type { SignalLib } from './t.ts';
+
 import { batch, computed, effect, signal } from '@preact/signals-core';
 
-import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
 import { cycle } from './u.cycle.ts';
-import { listeners } from './u.listeners.ts';
+import { listen, listeners } from './u.listen.ts';
 import { toggle } from './u.toggle.ts';
 import { toObject } from './u.toObject.ts';
 
@@ -16,7 +17,7 @@ export { signal };
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export const Signal: t.SignalLib = {
+export const Signal: SignalLib = {
   Is,
 
   /**
@@ -30,6 +31,7 @@ export const Signal: t.SignalLib = {
   /**
    * Helpers:
    */
+  listen,
   listeners,
   toggle,
   cycle,

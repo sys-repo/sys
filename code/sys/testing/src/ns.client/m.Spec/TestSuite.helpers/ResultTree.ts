@@ -1,9 +1,10 @@
 import type { t } from './common.ts';
+import type { TestResultTreeLib } from './t.ts';
 
 /**
  * Helpers for walking a hierarchical tree of test results.
  */
-export const ResultTree: t.TestResultTreeLib = {
+export const ResultTree: TestResultTreeLib = {
   /**
    * Visit each test in the tree (descending).
    */

@@ -1,8 +1,9 @@
 import { R, rx, type t } from './common.ts';
+import type { PatchStateCommandLib } from './t.ts';
 
 type Cmd = { type: string; payload: { tx: string } };
 
-export const Command: t.PatchStateCommandLib = {
+export const Command: PatchStateCommandLib = {
   dispatcher<T extends Cmd>(
     state?: t.PatchState<{ cmd?: T }, any>,
     options: { debounce?: t.Msecs } = {},

@@ -13,11 +13,11 @@ export const Wrangle = {
     return { width, height } as const;
   },
 
-  fillMargin(value?: t.CropmarksSize) {
+  fillMargin(value?: t.CropmarksSize): t.CssMarginArray {
     const DEFAULT = 40;
     if (!value) return Wrangle.asMargin(DEFAULT);
     if (value.mode !== 'fill') return Wrangle.asMargin(DEFAULT);
-    return value.margin;
+    return Style.Edges.toArray(value.margin);
   },
 
   asMargin(value: number): t.CssMarginArray {

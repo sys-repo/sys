@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { isEmptyRecord, isObject, isPlainObject, isRecord } from '../common.ts';
 import { Err, Is, rx, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
@@ -7,6 +7,7 @@ describe('Is (common flags)', () => {
     expect(Is.object).to.equal(isObject);
     expect(Is.record).to.eql(isRecord);
     expect(Is.emptyRecord).to.eql(isEmptyRecord);
+    expect(Is.plainObject).to.equal(isPlainObject);
   });
 
   it('rx: observable | subject', () => {
@@ -228,12 +229,6 @@ describe('Is (common flags)', () => {
     });
   });
 
-  describe('Is.browser', () => {
-    it('Is.browser: false', () => {
-      expect(Is.browser()).to.eql(false);
-    });
-  });
-
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
       const disposable = rx.disposable();
@@ -269,7 +264,7 @@ describe('Is (common flags)', () => {
     });
 
     it('Is.number: false', () => {
-      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, [], NaN];
       NON.forEach((value) => expect(Is.number(value)).to.eql(false));
     });
   });
@@ -283,6 +278,18 @@ describe('Is (common flags)', () => {
     it('Is.string: false', () => {
       const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value) => expect(Is.string(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.bool', () => {
+    it('Is.bool: true', () => {
+      expect(Is.bool(true)).to.eql(true);
+      expect(Is.bool(false)).to.eql(true);
+    });
+
+    it('Is.bool: false', () => {
+      const NON = [123, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.bool(value)).to.eql(false));
     });
   });
 
@@ -330,6 +337,25 @@ describe('Is (common flags)', () => {
     it('Is.emptyRecord: false', () => {
       const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
       NON.forEach((value) => expect(Is.emptyRecord(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.localhost (non-browser)', () => {
+    it('Is.localhost: false', () => {
+      expect(Is.localhost()).to.eql(false);
+    });
+  });
+
+  describe('Is.objectPath', () => {
+    it('is not an [ObjectPath]', () => {
+      const NON = [123, {}, false, '', Symbol('foo'), BigInt(0), undefined, null, [[]], [{}]];
+      NON.forEach((v) => expect(Is.objectPath(v)).to.eql(false));
+    });
+
+    it('is an [ObjectPath]', () => {
+      expect(Is.objectPath([])).to.eql(true);
+      expect(Is.objectPath([''])).to.eql(true);
+      expect(Is.objectPath(['foo', 1, 'bar'])).to.eql(true);
     });
   });
 });
