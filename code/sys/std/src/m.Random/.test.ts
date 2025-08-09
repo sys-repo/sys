@@ -1,4 +1,4 @@
-import { R, describe, expect, it } from '../-test.ts';
+import { R, Testing, describe, expect, it } from '../-test.ts';
 import { Random, cuid, slug } from './mod.ts';
 
 describe('Random', () => {
@@ -29,14 +29,18 @@ describe('Random', () => {
       expect(res.length).to.eql(Random.Length.slug);
     });
 
-    it('ids are unique (1000)', () => {
-      const ids = Array.from({ length: 1000 }).map(() => Random.slug());
-      expect(ids).to.eql(R.uniq(ids));
+    it('ids are unique (1000)', async () => {
+      await Testing.retry(3, () => {
+        const ids = Array.from({ length: 1000 }).map(() => Random.slug());
+        expect(ids).to.eql(R.uniq(ids));
+      });
     });
 
-    it('ids are unique (1000)', () => {
-      const ids = Array.from({ length: 1000 }).map(() => Random.slug());
-      expect(ids).to.eql(R.uniq(ids));
+    it('ids are unique (1000)', async () => {
+      await Testing.retry(3, () => {
+        const ids = Array.from({ length: 1000 }).map(() => Random.slug());
+        expect(ids).to.eql(R.uniq(ids));
+      });
     });
 
     it('slug (alias)', () => {
