@@ -33,8 +33,8 @@ import { Crdt } from '@sys/driver-automerge/browser';
 const repo = Crdt.repo({
   storage: 'IndexedDb',
   network: [
-    { wss: 'localhost:3030' },       // or:↓
-    { wss: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/server` to stand-up dedicated server.
+    { ws: 'localhost:3030' },       // or:↓
+    { ws: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/ws` to stand-up dedicated server.
   ],
 });
 
@@ -49,7 +49,7 @@ During development, you can start the local web-socket server on `localhost`:
 deno task wss
 ```
 ```ts
-import { Server } from '@sys/driver-automerge/server';
+import { Server } from '@sys/driver-automerge/ws';
 
 Server.ws({
   port: 3030,

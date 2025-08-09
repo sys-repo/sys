@@ -1,4 +1,4 @@
-import { Server } from '@sys/driver-automerge/server';
+import { Server } from '@sys/driver-automerge/ws';
 
 Server.ws({
   port: 3030,

@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
@@ -20,7 +20,7 @@
     "./types": "./src/types.ts",
     "./fs": "./src/-platforms/-fs/mod.ts",
     "./browser": "./src/-platforms/-browser/mod.ts",
-    "./server": "./src/m.Server/mod.ts",
-    "./ui": "./src/ui.Crdt/mod.ts"
+    "./ui": "./src/ui.Crdt/mod.ts",
+    "./ws": "./src/m.Server/mod.ts"
   }
 }

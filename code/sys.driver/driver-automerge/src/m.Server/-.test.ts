@@ -6,8 +6,8 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
   const silent = true;
 
   it('API', async () => {
-    const m = await import('@sys/driver-automerge/server');
-    expect(m.Server).to.equal(Server);
+    const ws = await import('@sys/driver-automerge/ws');
+    expect(ws.Server).to.equal(Server);
   });
 
   describe('start', () => {
