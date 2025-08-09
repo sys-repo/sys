@@ -25,7 +25,7 @@ import type { t } from 'jsr:@sys/std';                   // ↑  (alternative)
 
 import { Args, Async, Dispose, Path } from 'jsr:@sys/std';
 
-import { Args } from 'jsr:@sys/std.args';
+import { Args } from 'jsr:@sys/std/args';
 import { DateTime, Time } from 'jsr:@sys/std/date';
 import { Immutable } from 'jsr:@sys/std/immutable';
 
