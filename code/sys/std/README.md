@@ -1,6 +1,12 @@
 # @sys/std
 Standard system libraries.  
-Basic low-level utility functions and helpers.
+Common low(ish)-level utility functions and helpers.
+
+```ts
+import type { t } from 'jsr:@sys/std/t';
+import { Obj, Arr, Num, Str } from 'jsr:@sys/std';
+```
+
 
 ### System:Std (Standard)
 
