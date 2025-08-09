@@ -50,9 +50,6 @@ export const Paths = {
     'code/sys.driver/driver-peerjs',
     'code/sys.driver/driver-prosemirror',
 
-    //
-    'code/sys.driver/driver-ollama',
-
 
     /**
      * Instance Apps:
