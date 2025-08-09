@@ -35,7 +35,7 @@ groups:
       subpaths: [bdd]
     - import: npm:chai@5.2.1
       subpaths: ['/', 'chai.js']
-    - import: npm:fake-indexeddb@6.0.1
+    - import: npm:fake-indexeddb@6.1.0
       subpaths: ['auto']
 
   automerge:
@@ -85,7 +85,7 @@ groups:
 
   ai:
     - import: npm:ai@5.0.8
-    - import: npm:@ai-sdk/openai@2.0.5
+    - import: npm:@ai-sdk/openai@2.0.7
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.13.1
       subpaths: ['agent']

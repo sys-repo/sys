@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.5",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.7",
     "@automerge/automerge": "npm:@automerge/automerge@3.1.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.2.0",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.2.0",
@@ -51,8 +51,8 @@
     "csstype": "npm:csstype@3",
     "date-fns": "npm:date-fns@4",
     "diff": "npm:diff@8.0.2",
-    "fake-indexeddb": "npm:fake-indexeddb@6.0.1",
-    "fake-indexeddb/auto": "npm:fake-indexeddb@6.0.1/auto",
+    "fake-indexeddb": "npm:fake-indexeddb@6.1.0",
+    "fake-indexeddb/auto": "npm:fake-indexeddb@6.1.0/auto",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "happy-dom": "npm:happy-dom@18.0.1",
     "hash-it": "npm:hash-it@6.0.0",
