@@ -52,7 +52,6 @@ export const Paths = {
 
     //
     'code/sys.driver/driver-ollama',
-    'code/sys.driver/driver-orbiter',
 
 
     /**
