@@ -28,7 +28,11 @@ export const print: t.HttpServerLib['print'] = (options) => {
     } else {
       table.push(['', host]);
     }
-    table.push(['', c.gray(`/${dir}/`)]);
+
+    if (dir) {
+      table.push([c.gray('Pathname:'), c.gray(`/${dir}/`)]);
+    }
+
     console.info(table.toString().trim());
   } else {
     console.info(c.gray(`Listening on ${host}`));
