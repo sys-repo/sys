@@ -105,11 +105,12 @@ describe('Fs: read from the file-system operations', () => {
     });
 
     it('fail: YAML parse error', async () => {
-      const path = Fs.resolve('./README.md'); // NB: markdown not parse-able as YAML.
+      const path = './src/-test/-sample-files/invalid.yaml';
       const res = await Fs.readYaml<T>(path);
       assertParseError(res, path);
       expect(res.error?.name).to.eql('YAMLParseError');
-      expect(res.error?.message).to.include('Unexpected scalar token in YAML stream');
+      expect(res.error?.message).to.include('Plain value cannot start with reserved character @');
+      expect(res.error?.name).to.eql('YAMLParseError');
     });
 
     it('fail: not a text document', async () => {
