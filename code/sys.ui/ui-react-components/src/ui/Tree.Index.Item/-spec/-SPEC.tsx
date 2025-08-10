@@ -30,6 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
             label={v.label}
             active={v.active}
             enabled={v.enabled}
+            chevron={v.chevron}
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
             onPressDown={(e) => console.info(`⚡️ onPressDown:`, e)}
             onPressUp={(e) => console.info(`⚡️ onPressUp:`, e)}

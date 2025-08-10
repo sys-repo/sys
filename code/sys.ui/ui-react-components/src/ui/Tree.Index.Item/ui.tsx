@@ -2,7 +2,13 @@ import React from 'react';
 import { type t, Color, css, D, Icons, Style, usePointer } from './common.ts';
 
 export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
-  const { debug = false, label = D.label, enabled = D.enabled, active = D.active } = props;
+  const {
+    debug = false,
+    label = D.label,
+    enabled = D.enabled,
+    active = D.active,
+    chevron = D.chevron,
+  } = props;
   const isActive = active && enabled;
 
   /**
@@ -43,16 +49,21 @@ export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
       alignItems: 'center',
     }),
 
-    label: css({
-      transform: `translateY(${isActive && pointerIs?.down ? 1 : 0}px)`,
-    }),
+    label: css({ transform: `translateY(${isActive && pointerIs?.down ? 1 : 0}px)` }),
+    chevron: css({ visibility: chevron ? 'visible' : 'hidden' }),
   };
+
+  const elChevron = (
+    <div className={styles.chevron.class}>
+      {React.isValidElement(chevron) ? chevron : <Icons.Chevron.Right />}
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class} {...pointer.handlers}>
       <div className={styles.body.class}>
         <div className={styles.label.class}>{label}</div>
-        <Icons.Chevron.Right />
+        {elChevron}
       </div>
     </div>
   );

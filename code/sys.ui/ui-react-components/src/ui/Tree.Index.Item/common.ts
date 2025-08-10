@@ -14,6 +14,7 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name, false),
   label: 'Unnamed',
   padding: [15, 8, 15, 15] satisfies P['padding'],
+  chevron: true satisfies P['chevron'],
   enabled: true,
   active: true,
 } as const;

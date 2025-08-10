@@ -8,9 +8,12 @@ export type IndexTreeItemProps = {
   enabled?: boolean;
   active?: boolean;
 
-  // Appearance:
-  debug?: boolean;
+  // Appearance
   padding?: t.CssPaddingInput;
+  chevron?: boolean | t.JSXElement;
+
+  // Standard:
+  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 

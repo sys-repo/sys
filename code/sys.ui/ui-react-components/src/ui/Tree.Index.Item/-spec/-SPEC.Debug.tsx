@@ -1,14 +1,19 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
+import { type t, Color, css, D, Icons, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.IndexTreeItemProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled'> & { label?: string };
+type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled'> & {
+  label?: string;
+  chevron?: boolean;
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  label: undefined,
   enabled: D.enabled,
   active: D.active,
+  chevron: D.chevron,
 };
 
 /**
@@ -32,6 +37,7 @@ export function createDebugSignals() {
     label: s(snap.label),
     active: s(snap.active),
     enabled: s(snap.enabled),
+    chevron: s(snap.chevron),
   };
   const p = props;
   const api = {
@@ -45,9 +51,10 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.label = Is.string(p.label.value) ? p.label.value : undefined;
       d.active = p.active.value;
       d.enabled = p.enabled.value;
+      d.label = Is.string(p.label.value) ? p.label.value : undefined;
+      d.chevron = Is.string(p.chevron.value) ? p.chevron.value : D.chevron;
     });
   });
 
@@ -88,18 +95,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <Button
         block
         label={() => {
           const v = p.label.value;
-          const label = React.isValidElement(v) ? '<Component>' : v;
+          const label = React.isValidElement(v) ? 'custom <Component>' : v;
           return `label: ${label ?? `<undefined>`}`;
         }}
         onClick={() => {
           const style = css({ backgroundColor: Color.ruby() });
           const el = <div className={style.class}>Hello Div</div>;
           Signal.cycle(p.label, ['My-Label 👋', el, undefined]);
+        }}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.chevron.value;
+          const label = React.isValidElement(v) ? 'custom <Icon>' : v;
+          return `chevron: ${label ?? `<undefined>`}`;
+        }}
+        onClick={() => {
+          const style = css({ backgroundColor: Color.ruby() });
+          const el = <Icons.Face style={style} />;
+          Signal.cycle(p.chevron, [false, true, el, undefined]);
         }}
       />
 
@@ -120,6 +139,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          Object.entries(defaults)
+            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
+            .filter((e) => Signal.Is.signal(e.signal))
+            .forEach((e) => (e.signal.value = e.value));
+        }}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>

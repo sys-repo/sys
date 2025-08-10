@@ -91,8 +91,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `(reset)`}
         onClick={() => {
           Object.entries(defaults)
-            .filter(([, value]) => Signal.Is.signal(value))
-            .forEach(([key, value]) => ((p as any)[key].value = value));
+            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
+            .filter((e) => Signal.Is.signal(e.signal))
+            .forEach((e) => (e.signal.value = e.value));
         }}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
