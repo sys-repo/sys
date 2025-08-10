@@ -41,6 +41,7 @@ export async function main() {
       hr: (e) => {
         if (e.next?.endsWith(': Bullet')) return true;
         if (e.prev?.endsWith(': Config.Slider')) return true;
+        if (e.next?.endsWith(': Tree.Index')) return true;
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
       },

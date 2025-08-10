@@ -33,4 +33,5 @@ export type * from './ui/Slider/t.ts';
 export type * from './ui/Spinners.Bar/t.ts';
 export type * from './ui/Spinners/t.ts';
 export type * from './ui/Text.Input/t.ts';
+export type * from './ui/Tree.Index/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
