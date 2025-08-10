@@ -7,6 +7,7 @@ export type IndexTreeItemProps = {
   label?: t.ReactNode;
   enabled?: boolean;
   active?: boolean;
+  selected?: boolean;
 
   // Appearance
   padding?: t.CssPaddingInput;

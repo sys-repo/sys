@@ -17,5 +17,6 @@ export const DEFAULTS = {
   chevron: true satisfies P['chevron'],
   enabled: true,
   active: true,
+  selected: false,
 } as const;
 export const D = DEFAULTS;

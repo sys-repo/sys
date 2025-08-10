@@ -8,6 +8,7 @@ export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
     enabled = D.enabled,
     active = D.active,
     chevron = D.chevron,
+    selected = D.selected,
   } = props;
   const isActive = active && enabled;
 
@@ -32,6 +33,8 @@ export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
       position: 'relative',
       color: theme.fg,
       cursor: isActive ? 'pointer' : 'default',
+      backgroundColor: selected ? Color.BLUE : undefined,
+
       ...Style.toPadding(props.padding ?? D.padding),
 
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
@@ -40,6 +43,7 @@ export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
       display: 'grid',
     }),
     body: css({
+      backgroundColor: Color.ruby(debug),
       userSelect: 'none',
       opacity: enabled ? 1 : 0.2,
       transition: 'opacity 120ms ease',

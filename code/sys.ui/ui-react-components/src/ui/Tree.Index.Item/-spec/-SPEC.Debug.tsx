@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, Icons, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.IndexTreeItemProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
   label?: string;
   chevron?: boolean;
 };
@@ -14,6 +14,7 @@ const defaults: Storage = {
   enabled: D.enabled,
   active: D.active,
   chevron: D.chevron,
+  selected: D.selected,
 };
 
 /**
@@ -35,9 +36,10 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     label: s(snap.label),
+    chevron: s(snap.chevron),
     active: s(snap.active),
     enabled: s(snap.enabled),
-    chevron: s(snap.chevron),
+    selected: s(snap.selected),
   };
   const p = props;
   const api = {
@@ -132,6 +134,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `active: ${p.active.value ?? `<undefined> (default: ${D.active})`}`}
         onClick={() => Signal.toggle(p.active)}
+      />
+      <Button
+        block
+        label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
+        onClick={() => Signal.toggle(p.selected)}
       />
 
       <hr />
