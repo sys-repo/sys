@@ -86,6 +86,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          Object.entries(defaults)
+            .filter(([, value]) => Signal.Is.signal(value))
+            .forEach(([key, value]) => ((p as any)[key].value = value));
+        }}
+      />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
