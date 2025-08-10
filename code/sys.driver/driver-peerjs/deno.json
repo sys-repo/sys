@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-peerjs",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
