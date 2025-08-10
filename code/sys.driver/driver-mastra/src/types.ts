@@ -2,4 +2,4 @@
  * Module types.
  * @module
  */
-export type * from './m.Memory.Crdt/t.ts';
+export type * from './m.Memory/t.ts';

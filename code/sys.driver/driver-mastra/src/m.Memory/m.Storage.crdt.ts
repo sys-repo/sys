@@ -11,7 +11,7 @@ type SaveV2Args =
   | { messages: MastraMessageV2[]; format: 'v2' }
   | { messages: MastraMessageV2[]; format: 'v2'; threadId: string };
 
-export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
+export const create = (args: { doc: DocRef }): t.MastraStorage => {
   const { doc } = args;
   const read = <R>(fn: (d: Doc) => R): R => fn(doc.current);
   const mutate = (fn: (d: Doc) => void) => void doc.change(fn);
