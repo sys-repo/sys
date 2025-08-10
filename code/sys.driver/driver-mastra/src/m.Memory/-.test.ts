@@ -476,7 +476,7 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
         // 1: Resource working memory (via storage helper that we know works).
         await (storage as any).setResourceWorkingMemory({
           resourceId,
-          workingMemory: 'Goals: concise replies; style: BDD + chai; ethos: local-first.',
+          workingMemory: 'Goals: concise replies; style: BDD + expect; ethos: local-first.',
         });
 
         // 2: One thread (canonical).
