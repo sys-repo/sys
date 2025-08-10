@@ -22,7 +22,19 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         const width = 350;
-        return <IndexItem debug={v.debug} theme={v.theme} style={{ width }} />;
+        return (
+          <IndexItem
+            debug={v.debug}
+            theme={v.theme}
+            style={{ width }}
+            label={v.label}
+            active={v.active}
+            enabled={v.enabled}
+            // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
+            onPressDown={(e) => console.info(`⚡️ onPressDown:`, e)}
+            onPressUp={(e) => console.info(`⚡️ onPressUp:`, e)}
+          />
+        );
       });
   });
 

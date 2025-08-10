@@ -1,12 +1,14 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.IndexTreeItemProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled'> & { label?: string };
 const defaults: Storage = {
   theme: 'Dark',
-  debug: true,
+  debug: false,
+  enabled: D.enabled,
+  active: D.active,
 };
 
 /**
@@ -27,6 +29,9 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    label: s(snap.label),
+    active: s(snap.active),
+    enabled: s(snap.enabled),
   };
   const p = props;
   const api = {
@@ -40,6 +45,9 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.label = Is.string(p.label.value) ? p.label.value : undefined;
+      d.active = p.active.value;
+      d.enabled = p.enabled.value;
     });
   });
 
@@ -79,6 +87,32 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => {
+          const v = p.label.value;
+          const label = React.isValidElement(v) ? '<Component>' : v;
+          return `label: ${label ?? `<undefined>`}`;
+        }}
+        onClick={() => {
+          const style = css({ backgroundColor: Color.ruby() });
+          const el = <div className={style.class}>Hello Div</div>;
+          Signal.cycle(p.label, ['My-Label 👋', el, undefined]);
+        }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
+        onClick={() => Signal.toggle(p.enabled)}
+      />
+      <Button
+        block
+        label={() => `active: ${p.active.value ?? `<undefined> (default: ${D.active})`}`}
+        onClick={() => Signal.toggle(p.active)}
       />
 
       <hr />

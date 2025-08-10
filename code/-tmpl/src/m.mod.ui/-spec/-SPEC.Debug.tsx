@@ -5,7 +5,7 @@ type P = t.MyComponentProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
 const defaults: Storage = {
   theme: 'Dark',
-  debug: true,
+  debug: false,
 };
 
 /**

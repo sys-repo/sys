@@ -465,7 +465,7 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
       it('Memory/Doc: initial', () => {
         const { doc } = setup();
         console.info();
-        console.info(c.green(`Memory/CRDT: initial`));
+        console.info(c.green(`Memory/CRDT: initial (empty)`));
         console.info(c.cyan(c.bold('T:Crdt<MastraStorageDoc>:')), doc.current);
         console.info();
       });
@@ -486,7 +486,11 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
         await memory.saveMessages({
           format: 'v2',
           messages: [
-            msg({ threadId: t1.id, role: 'user', content: 'hello from system driver "Mastra"' }),
+            msg({
+              threadId: t1.id,
+              role: 'user',
+              content: 'hello from the "Mastra" system driver',
+            }),
             msg({
               threadId: t1.id,
               role: 'assistant',
@@ -510,7 +514,7 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
 
         const msg0 = msgs[0];
         const msg1 = msgs[1];
-        expect(Memory.textOf(msg0?.content)).to.contain('hello from system driver "Mastra"');
+        expect(Memory.textOf(msg0?.content)).to.contain('hello from the "Mastra" system driver');
         expect(Memory.textOf(msg1?.content)).to.contain('👋 hi there — msg persisted via CRDT');
 
         // 5: Print a concise, canonical snapshot.
