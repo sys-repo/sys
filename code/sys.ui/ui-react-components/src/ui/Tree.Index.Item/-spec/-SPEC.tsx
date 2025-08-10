@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { IndexTree } from '../mod.ts';
+import { IndexItem } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -22,7 +22,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         const width = 350;
-        return <IndexTree debug={v.debug} theme={v.theme} style={{ width }} />;
+        return <IndexItem debug={v.debug} theme={v.theme} style={{ width }} />;
       });
   });
 

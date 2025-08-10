@@ -6,7 +6,7 @@ export { Icons } from '../ui.Icons.ts';
 /**
  * Constants:
  */
-const name = 'IndexTree';
+const name = 'Tree.Index';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
