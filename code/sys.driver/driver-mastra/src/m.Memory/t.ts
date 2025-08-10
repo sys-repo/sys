@@ -10,6 +10,32 @@ type DocRef = t.Crdt.Ref<Doc>;
  */
 export type MastraMemoryLib = Readonly<{
   Storage: t.MastraStorageLib;
+
+  /**
+   * Extracts plain text from a Mastra `content` field or similar structured value.
+   *
+   * Mastra's v2 message format stores message `content` as either:
+   *   - A simple string.
+   *   - An array of strings and/or nested content objects.
+   *   - An object containing a `parts` array, where each part may itself
+   *     be a string or an object with `text` or `content` properties.
+   *
+   * This utility recursively traverses any of these shapes and concatenates
+   * all textual fragments into a single string.
+   *
+   * Examples:
+   * ```ts
+   * textOf("hello");                                   // → "hello"
+   * textOf({ text: "hello" });                         // → "hello"
+   * textOf({ content: "hello" });                      // → "hello"
+   * textOf({ parts: ["hello", { text: " world" }] });  // → "hello world"
+   * textOf([{ text: "foo" }, { content: "bar" }]);     // → "foobar"
+   * ```
+   *
+   * @param c - The value to extract text from. May be a string, array, or object.
+   * @returns The concatenated plain-text content, or an empty string if none found.
+   */
+  textOf(c: unknown): string;
 }>;
 
 /**
