@@ -4,3 +4,8 @@
 export { pkg } from './pkg.ts';
 /** Type library (barrel file). */
 export type * as t from './types.ts';
+
+/**
+ * Library:
+ */
+export { Mastra } from './m.Mastra/mod.ts';
