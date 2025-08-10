@@ -1,7 +1,7 @@
 import { type t, rx } from './common.ts';
 
 /**
- * Resilient “one-to-one” media link for a given dyad of peer-id’s.
+ * Resilient "one-to-one" media link for a given dyad of peer-id’s.
  *
  *  @usage
  *
@@ -19,18 +19,9 @@ type Args = {
   peer: t.PeerJS.Peer;
   dyad: t.WebRtc.PeerDyad;
   localStream: MediaStream;
-  onRemoteStream?: RemoteStreamHandler;
+  onRemoteStream?: t.RemoteStreamHandler;
   retryDelay?: t.Msecs; // initial delay for reconnect polling (ms)
   dispose$?: t.UntilInput;
-};
-
-/**
- * Fires when the remote stream becomes available.
- */
-export type RemoteStreamHandler = (e: RemoteStreamArgs) => void;
-export type RemoteStreamArgs = {
-  readonly remote: t.SamplePeerMedia;
-  readonly local: t.SamplePeerMedia;
 };
 
 /**

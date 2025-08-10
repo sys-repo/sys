@@ -7,9 +7,10 @@ const curry = Obj.Path.curry;
  * Libs:
  */
 export { Crdt } from '@sys/driver-automerge/ui';
-export { Media } from '@sys/ui-react-components';
-export { Avatar } from '../ui.Avatar/mod.ts';
 export { Monaco } from '@sys/driver-monaco';
+export { Media } from '@sys/ui-react-components';
+export { Peer } from '../../m.Peer/mod.ts';
+export { Avatar } from '../ui.Avatar/mod.ts';
 
 /**
  * Constants:

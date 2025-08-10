@@ -1,4 +1,6 @@
+import { IndexTree } from '@sys/ui-react-components';
 import React from 'react';
+
 import type { Section } from '../-schemas/mod.ts';
 import { type t, Color, Cropmarks, css, Icons } from '../common.ts';
 
@@ -26,9 +28,7 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    body: css({
-      minWidth: 380,
-    }),
+    body: css({ minWidth: 380 }),
     item: css({
       padding: 15,
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
@@ -56,6 +56,7 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.04}>
         {elBody}
+        <IndexTree theme={theme.name} />
       </Cropmarks>
     </div>
   );

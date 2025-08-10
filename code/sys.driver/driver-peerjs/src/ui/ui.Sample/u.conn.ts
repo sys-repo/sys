@@ -1,8 +1,7 @@
-import { type t, Obj, P } from './common.ts';
-import { maintainDyadConnection } from './u.maintainDyad.ts';
+import { type t, Obj, P, Peer } from './common.ts';
 
 export const Conn = {
-  maintainDyadConnection,
+  maintainDyadConnection: Peer.maintainDyadConnection,
 
   /**
    * Produce every unique, lexicographically-ordered 1-to-1
