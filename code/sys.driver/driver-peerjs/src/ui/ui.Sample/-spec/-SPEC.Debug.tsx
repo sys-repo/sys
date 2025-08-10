@@ -1,4 +1,4 @@
-import { Peer, type PeerOptions } from 'peerjs';
+import { Peer as PeerJS, type PeerOptions } from 'peerjs';
 import React from 'react';
 
 import {
@@ -16,9 +16,10 @@ import {
   slug,
   Url,
   useDist,
+  Peer,
   type t,
 } from '../common.ts';
-import { Conn } from '../u.ts';
+
 import { DevConnectionsButtons } from './-ui.Dev.ConnectionsButtons.tsx';
 import { ViewsList } from './-ui.ts';
 
@@ -45,7 +46,7 @@ export function createPeer() {
     debug: 2, //        ← 0 = silent, 1 = errors, 2 = warnings+errors, 3 = all.
   };
 
-  const peer = new Peer(peerId, peerOptions);
+  const peer = new PeerJS(peerId, peerOptions);
   peer.on('open', (id) => console.info('⚡️ peer.on/open:', id));
   peer.on('error', (err) => console.error('⚡️ peer.on/error: 💥', err));
 
@@ -116,12 +117,13 @@ export function createDebugSignals() {
   let _events: t.Crdt.Events<t.SampleDoc> | undefined;
   Signal.effect(() => {
     const doc = p.doc.value;
-    Conn.updateDyads(doc);
+    const updateDyads = () => Peer.Conn.updateDyads(P.ROOM.connections.dyads.path, doc);
+    updateDyads(); // Immediate: run on load.
 
     _events?.dispose?.();
     _events = doc?.events();
     _events?.$.subscribe(() => {
-      Conn.updateDyads(doc);
+      updateDyads();
       api.redraw();
     });
   });

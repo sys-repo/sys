@@ -2,8 +2,8 @@
  * @module
  */
 import type { t } from './common.ts';
-import { maintainDyadConnection } from './u.maintainDyad.ts';
+import { Conn } from './m.Conn.ts';
 
 export const Peer: t.PeerLib = {
-  maintainDyadConnection,
+  Conn,
 };

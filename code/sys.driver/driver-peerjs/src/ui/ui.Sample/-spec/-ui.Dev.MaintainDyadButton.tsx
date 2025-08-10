@@ -1,8 +1,7 @@
 import React from 'react';
-import type { DebugSignals } from './-SPEC.Debug.tsx';
 
-import { type t, Button, Media, P, css } from '../common.ts';
-import { Conn } from '../u.ts';
+import { type t, Button, Media, P, Peer, css } from '../common.ts';
+import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 type P = {
   dyad: t.WebRtc.PeerDyad;
@@ -69,7 +68,7 @@ export function MaintainDyadButton(props: P) {
 
         if (!!controller) return; // Already instantiated.
 
-        const ctrl = Conn.maintainDyadConnection({
+        const ctrl = Peer.Conn.maintainDyadConnection({
           peer,
           dyad,
           localStream,

@@ -1,10 +1,35 @@
 import type { t } from './common.ts';
 
 /**
- * API for Peer/WebRTC related tools
+ * API for Peer/WebRTC related tools:
  */
 export type PeerLib = Readonly<{
+  Conn: t.PeerConLib;
+}>;
+
+/**
+ * Library: Peer connection tools:
+ */
+export type PeerConLib = Readonly<{
+  /**
+   * Establish a resilient "one-to-one" media link for
+   * a given dyad (1:1) of peer-id’s.
+   */
   maintainDyadConnection: t.MaintainDyadConnection;
+
+  /**
+   * Produce every unique, lexicographically-ordered 1-to-1
+   * pairing ( PeerDyad ) from a set of peer-ids.
+   */
+  toDyads(peers?: t.WebRtc.PeerId[]): t.WebRtc.PeerDyad[];
+
+  /**
+   * Keep the `dyads` list in up-to-date with the current peer `group` list.
+   *
+   * @returns {boolean} `true` if `connections.dyads` was updated (a change was written);
+   *   `false` if there were no connections or the computed dyads matched the current value.
+   */
+  updateDyads(dyadsPath: t.ObjectPath, doc?: t.Crdt.Ref<t.SampleDoc>): boolean;
 }>;
 
 /**

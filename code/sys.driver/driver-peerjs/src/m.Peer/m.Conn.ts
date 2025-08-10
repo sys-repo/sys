@@ -1,7 +1,8 @@
-import { type t, Obj, P, Peer } from './common.ts';
+import { type t, Obj } from './common.ts';
+import { maintainDyadConnection } from './m.Conn.maintainDyad.ts';
 
 export const Conn = {
-  maintainDyadConnection: Peer.maintainDyadConnection,
+  maintainDyadConnection,
 
   /**
    * Produce every unique, lexicographically-ordered 1-to-1
@@ -29,7 +30,7 @@ export const Conn = {
   /**
    * Keep the `dyads` list in up-to-date with the current peer `group` list.
    */
-  updateDyads(doc?: t.Crdt.Ref<t.SampleDoc>) {
+  updateDyads(dyadsPath: t.ObjectPath, doc?: t.Crdt.Ref<t.SampleDoc>) {
     const connections = doc?.current.connections;
     if (!connections) return false;
 
@@ -39,7 +40,8 @@ export const Conn = {
     const diff = !Obj.eql(current, next);
 
     if (diff) {
-      doc?.change((d) => P.ROOM.connections.dyads.set(d, next));
+      const p = Obj.Path.curry(dyadsPath);
+      doc?.change((d) => p.set(d, next));
     }
 
     return diff;
