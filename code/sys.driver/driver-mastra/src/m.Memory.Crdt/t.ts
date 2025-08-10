@@ -1,6 +1,5 @@
-import type { t } from './common.ts';
-import type { MastraMessageV1 } from '@mastra/core';
 import type { MastraMessageV2 } from '@mastra/core/agent';
+import type { t } from './common.ts';
 
 export type { MastraStorage } from 'npm:@mastra/core/storage';
 

@@ -6,6 +6,10 @@ import type { StorageGetMessagesArg } from '@mastra/core/storage';
 
 type Doc = t.MastraStorageDoc;
 type DocRef = t.Crdt.Ref<Doc>;
+type GetV2Args = StorageGetMessagesArg & { format: 'v2' };
+type SaveV2Args =
+  | { messages: MastraMessageV2[]; format: 'v2' }
+  | { messages: MastraMessageV2[]; format: 'v2'; threadId: string };
 
 export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
   const { doc } = args;
@@ -45,14 +49,16 @@ export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
         id: thread.id,
         title: thread.title ?? 'Untitled',
         // NB: pass through only if defined
-        ...((thread as any).metadata !== undefined
-          ? { metadata: (thread as any).metadata as Record<string, unknown> }
+        ...(hasMetadata(thread) && thread.metadata !== undefined
+          ? { metadata: thread.metadata }
           : {}),
       });
     }
 
     // Compute optional metadata string:
-    const rawMeta = (thread as any).metadata;
+    const rawMeta: Record<string, unknown> | undefined = hasMetadata(thread)
+      ? thread.metadata
+      : undefined;
     const metaStr: string | undefined = rawMeta === undefined ? undefined : JSON.stringify(rawMeta);
 
     // Omit key when undefined:
@@ -150,12 +156,10 @@ export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
     return { threads, total, page, perPage, hasMore };
   };
 
-  const getMessages = async (
-    args: StorageGetMessagesArg & { format: 'v2' },
-  ): Promise<MastraMessageV2[]> => {
-    const { threadId, resourceId, selectBy, limit } = args as any;
+  const getMessages = async (args: GetV2Args): Promise<MastraMessageV2[]> => {
+    const { threadId, resourceId, selectBy } = args;
 
-    const toMs = (v: unknown): number => {
+    const toMs = (v: Date | string | undefined): number => {
       if (v instanceof Date) return v.getTime();
       if (typeof v === 'string') {
         const t = Date.parse(v);
@@ -168,28 +172,31 @@ export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
       arr.slice().sort((a, b) => toMs(a?.createdAt) - toMs(b?.createdAt));
 
     const list = read((d) => {
-      if (selectBy === 'includeResourceScope' && resourceId) {
+      /**
+       * Resource-scope: if a resourceId is provided and no specific threadId,
+       *                 aggregate messages across all threads for that resource.
+       */
+      if (resourceId && !threadId) {
         const tids = Object.values(d.threads)
           .filter((t) => t.resourceId === resourceId)
           .map((t) => t.id);
-        const combined = tids.flatMap((tid) => d.messages[tid] ?? []);
-        return sortByCreated(combined as MastraMessageV2[]);
+        const combined: MastraMessageV2[] = tids.flatMap((tid) => d.messages[tid] ?? []);
+        return sortByCreated(combined);
       }
-      const threadList = (d.messages[threadId] ?? []) as MastraMessageV2[];
+      const threadList: MastraMessageV2[] = d.messages[threadId ?? ''] ?? [];
       return sortByCreated(threadList);
     });
 
-    return typeof limit === 'number' ? list.slice(-limit) : list;
+    const last = typeof selectBy?.last === 'number' ? selectBy.last : undefined;
+
+    return typeof last === 'number' ? list.slice(-last) : list;
   };
 
-  const saveMessages = async (args: {
-    messages: MastraMessageV2[];
-    format: 'v2';
-  }): Promise<MastraMessageV2[]> => {
+  const saveMessages = async (args: SaveV2Args): Promise<MastraMessageV2[]> => {
     const msgs = args.messages ?? [];
     if (!msgs.length) return [];
 
-    const threadId = msgs[0].threadId ?? (args as any).threadId;
+    const threadId = 'threadId' in args ? args.threadId : msgs[0]?.threadId;
     if (!threadId) throw new Error('threadId is required on messages');
 
     const now = getTimestamp();
@@ -211,8 +218,11 @@ export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
     mutate((d) => {
       for (const [tid, list] of Object.entries(d.messages)) {
         const before = list.length;
-        d.messages[tid] = list.filter((m: any) => !idset.has(m.id));
-        if (d.messages[tid].length !== before) {
+        const filtered: MastraMessageV2[] = (list as MastraMessageV2[]).filter(
+          (m) => !idset.has(m.id),
+        );
+        d.messages[tid] = filtered;
+        if (filtered.length !== before) {
           const trow = d.threads[tid];
           if (trow) trow.updatedAt = now;
         }
@@ -265,6 +275,9 @@ export const createCrdtStorage = (args: { doc: DocRef }): t.MastraStorage => {
  * Helpers:
  */
 const getTimestamp = (): t.StringIsoDate => new Date().toISOString();
+const hasMetadata = (x: unknown): x is { metadata?: Record<string, unknown> } => {
+  return typeof x === 'object' && x !== null && 'metadata' in x;
+};
 
 /**
  * Thread mapping (CRDT row uses ISO strings; Mastra expects Date objects):
@@ -274,7 +287,6 @@ const toStorageThread = (row: t.MastraThread): StorageThreadType => {
     id: row.id,
     resourceId: row.resourceId,
     title: row.title ?? 'Untitled',
-    metadata: undefined as unknown as Record<string, unknown> | undefined,
     createdAt: new Date(row.createdAt),
     updatedAt: new Date(row.updatedAt),
   } as StorageThreadType;
