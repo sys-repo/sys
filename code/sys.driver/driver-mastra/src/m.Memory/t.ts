@@ -27,7 +27,7 @@ export type MastraThread = {
   id: t.StringId;
   resourceId: string;
   title: string;
-  metadata?: string; // consider t.JsonValue if this will be structured JSON
+  metadata?: string;
   createdAt: t.StringIsoDate;
   updatedAt: t.StringIsoDate;
 };
