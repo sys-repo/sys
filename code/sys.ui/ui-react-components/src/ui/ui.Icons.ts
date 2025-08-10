@@ -2,6 +2,8 @@ import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react
 import {
   MdArrowBack,
   MdArrowDownward,
+  MdChevronLeft,
+  MdChevronRight,
   MdClose,
   MdConstruction,
   MdErrorOutline,
@@ -13,7 +15,6 @@ import {
 import { VscSymbolClass } from 'react-icons/vsc';
 
 import { Icon } from './Icon/mod.ts';
-
 const icon = Icon.renderer;
 
 /**
@@ -35,4 +36,5 @@ export const Icons = {
     Plus: icon(LuCopyPlus),
     Minus: icon(LuCopyMinus),
   },
+  Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
 } as const;
