@@ -1,19 +1,21 @@
-import { type t, describe, it, expect, c } from '../-test.ts';
+import { type t, c, describe, expect, it } from '../-test.ts';
 
+import type { MastraMessageV2 } from '@mastra/core/agent';
+import { Memory } from '@mastra/memory';
 import { Crdt } from '@sys/driver-automerge/fs';
 import { createCrdtStorage } from './m.Storage.ts';
-import { Memory } from '@mastra/memory';
-import type { MastraMessageV2 } from '@mastra/core/agent';
 
 describe('Memory:CRDT', { sanitizeResources: false, sanitizeOps: false }, () => {
-  it('writes/reads V2 messages via Memory into CRDT', async () => {
-    /**
-     * Setup:
-     */
+  const setup = () => {
     const repo = Crdt.repo();
     const doc = repo.create<t.MastraStorageDoc>({ threads: {}, messages: {}, resources: {} });
     const storage = createCrdtStorage({ doc });
     const memory = new Memory({ storage, options: { semanticRecall: false } });
+    return { repo, doc, storage, memory } as const;
+  };
+
+  it('writes/reads V2 messages via Memory into CRDT', async () => {
+    const { doc, memory } = setup();
 
     /**
      * 1. Create a thread via Memory (exercises saveThread path):
