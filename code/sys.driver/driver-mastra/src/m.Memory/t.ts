@@ -1,7 +1,6 @@
+export type { MastraStorage } from '@mastra/core/storage';
 import type { MastraMessageV2 } from '@mastra/core/agent';
 import type { t } from './common.ts';
-
-export type { MastraStorage } from 'npm:@mastra/core/storage';
 
 type Doc = t.MastraStorageDoc;
 type DocRef = t.Crdt.Ref<Doc>;
