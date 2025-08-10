@@ -1,3 +1,8 @@
+/**
+ * Descriptive type alias only; no runtime validation.
+ * @module
+ */
+
 /** A string that represents a MIME type (aka "Content-Type" header). */
 export type StringContentType = string;
 
@@ -70,8 +75,17 @@ export type StringJson = string;
 /** A raw string of unparsed YAML. */
 export type StringYaml = string;
 
+/** A raw string of markdown. */
+export type StringMarkdown = string;
+
 /** String representing a timestamp in the form "HH:MM:SS:mmm". */
 export type StringTimestamp = string;
+
+/**
+ * ISO-8601 date/time string.
+ * Examples: '2025-08-10T09:15:23Z', '2025-08-10T09:15:23.123+12:00'.
+ */
+export type StringIsoDate = string;
 
 /**
  * The name (module-specifier) of an ESM import.
