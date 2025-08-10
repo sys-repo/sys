@@ -4,6 +4,11 @@
 export type { ReactElement, ReactNode } from 'react';
 
 /**
+ * @drivers
+ */
+export type { Crdt } from '@sys/driver-automerge/t';
+
+/**
  * @system
  */
 export type * from '@sys/types';
