@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
-export const IndexItem: React.FC<t.IndexItemProps> = (props) => {
+export const IndexItem: React.FC<t.IndexTreeItemProps> = (props) => {
   const { debug = false } = props;
 
   /**

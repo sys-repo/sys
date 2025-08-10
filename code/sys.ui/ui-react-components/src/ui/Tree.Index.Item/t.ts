@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type IndexItemProps = {
+export type IndexTreeItemProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

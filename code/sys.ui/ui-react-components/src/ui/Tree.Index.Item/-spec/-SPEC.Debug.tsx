@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
-type P = t.IndexItemProps;
+type P = t.IndexTreeItemProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
 const defaults: Storage = {
   theme: 'Dark',

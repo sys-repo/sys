@@ -22,7 +22,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         const width = 350;
-        return <IndexTree debug={v.debug} theme={v.theme} style={{ width }} />;
+        return <IndexTree.View debug={v.debug} theme={v.theme} style={{ width }} />;
       });
   });
 
