@@ -4,6 +4,7 @@ import type { MastraMessageV2 } from '@mastra/core/agent';
 import type { StorageThreadType } from '@mastra/core/memory';
 import type { StorageGetMessagesArg } from '@mastra/core/storage';
 
+type O = Record<string, unknown>;
 type Doc = t.MastraStorageDoc;
 type DocRef = t.Crdt.Ref<Doc>;
 type GetV2Args = StorageGetMessagesArg & { format: 'v2' };
@@ -48,17 +49,15 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
       return updateThread({
         id: thread.id,
         title: thread.title ?? 'Untitled',
-        // NB: pass through only if defined
+        // NB: pass through only if defined on the incoming thread object
         ...(hasMetadata(thread) && thread.metadata !== undefined
           ? { metadata: thread.metadata }
           : {}),
-      });
+      } as { id: string; title: string; metadata?: O });
     }
 
     // Compute optional metadata string:
-    const rawMeta: Record<string, unknown> | undefined = hasMetadata(thread)
-      ? thread.metadata
-      : undefined;
+    const rawMeta: O | undefined = hasMetadata(thread) ? thread.metadata : undefined;
     const metaStr: string | undefined = rawMeta === undefined ? undefined : JSON.stringify(rawMeta);
 
     // Omit key when undefined:
@@ -82,7 +81,7 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
   const updateThread = async (args: {
     id: string;
     title: string;
-    metadata?: Record<string, unknown>;
+    metadata?: O;
   }): Promise<StorageThreadType> => {
     const now = getTimestamp();
     mutate((d) => {
@@ -91,11 +90,12 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
 
       threadRow.title = args.title ?? 'Untitled';
 
-      // NB: set-or-delete; never write undefined into Automerge:
-      if (args.metadata === undefined) {
-        delete threadRow.metadata;
-      } else {
-        threadRow.metadata = JSON.stringify(args.metadata);
+      if ('metadata' in args) {
+        if (args.metadata === undefined) {
+          delete threadRow.metadata;
+        } else {
+          threadRow.metadata = JSON.stringify(args.metadata);
+        }
       }
 
       threadRow.updatedAt = now;
@@ -150,7 +150,7 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
     const { resourceId, page, perPage, orderBy = 'createdAt', sortDirection = 'DESC' } = args;
     const all = await getThreadsByResourceId({ resourceId, orderBy, sortDirection });
     const total = all.length;
-    const start = Math.max(0, page) * Math.max(1, perPage);
+    const start = Math.max(0, page) * Math.max(0, perPage); // perPage=0 → 0 items
     const threads = all.slice(start, start + perPage);
     const hasMore = start + perPage < total;
     return { threads, total, page, perPage, hasMore };
@@ -203,7 +203,13 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
 
     mutate((d) => {
       d.messages[threadId] ??= [];
-      for (const m of msgs) d.messages[threadId].push(m);
+      for (const m of msgs) {
+        const clean: O = {};
+        for (const [k, v] of Object.entries(m as O)) {
+          if (v !== undefined) clean[k] = v;
+        }
+        (d.messages[threadId] as unknown as any[]).push(clean as unknown as MastraMessageV2);
+      }
       const trow = d.threads[threadId];
       if (trow) trow.updatedAt = now;
     });
@@ -217,12 +223,15 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
     const now = getTimestamp();
     mutate((d) => {
       for (const [tid, list] of Object.entries(d.messages)) {
-        const before = list.length;
-        const filtered: MastraMessageV2[] = (list as MastraMessageV2[]).filter(
-          (m) => !idset.has(m.id),
-        );
-        d.messages[tid] = filtered;
-        if (filtered.length !== before) {
+        let changed = false;
+        for (let i = (list as MastraMessageV2[]).length - 1; i >= 0; i--) {
+          const m = (list as MastraMessageV2[])[i];
+          if (idset.has(m.id)) {
+            (list as MastraMessageV2[]).splice(i, 1);
+            changed = true;
+          }
+        }
+        if (changed) {
           const trow = d.threads[tid];
           if (trow) trow.updatedAt = now;
         }
@@ -275,7 +284,7 @@ export const create = (args: { doc: DocRef }): t.MastraStorage => {
  * Helpers:
  */
 const getTimestamp = (): t.StringIsoDate => new Date().toISOString();
-const hasMetadata = (x: unknown): x is { metadata?: Record<string, unknown> } => {
+const hasMetadata = (x: unknown): x is { metadata?: O } => {
   return typeof x === 'object' && x !== null && 'metadata' in x;
 };
 

@@ -2,6 +2,8 @@
  * @external
  */
 export type { ReactElement, ReactNode } from 'react';
+export type { MastraMessageV2 } from '@mastra/core/agent';
+export type { StorageThreadType } from '@mastra/core/memory';
 
 /**
  * @drivers
