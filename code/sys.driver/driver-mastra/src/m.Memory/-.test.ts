@@ -486,18 +486,17 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
         await memory.saveMessages({
           format: 'v2',
           messages: [
-            msg({ threadId: t1.id, role: 'user', content: 'hello from mastra' }),
+            msg({ threadId: t1.id, role: 'user', content: 'hello from system driver "Mastra"' }),
             msg({
               threadId: t1.id,
               role: 'assistant',
-              content: 'hi there — msg persisted via CRDT',
+              content: '👋 hi there — msg persisted via CRDT',
             }),
           ],
         });
 
-        // 4) Assert canonical, compact final shape
-        const d = doc.current as t.MastraStorageDoc;
-
+        // 4: Assert canonical, compact final shape.
+        const d = doc.current;
         expect(Object.keys(d.resources)).to.include(resourceId);
         expect(d.resources[resourceId].workingMemory).to.contain('Goals:');
 
@@ -511,10 +510,10 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
 
         const msg0 = msgs[0];
         const msg1 = msgs[1];
-        expect(Memory.textOf(msg0?.content)).to.contain('hello from mastra');
-        expect(Memory.textOf(msg1?.content)).to.contain('msg persisted via CRDT');
+        expect(Memory.textOf(msg0?.content)).to.contain('hello from system driver "Mastra"');
+        expect(Memory.textOf(msg1?.content)).to.contain('👋 hi there — msg persisted via CRDT');
 
-        // 5) Print a concise, canonical snapshot
+        // 5: Print a concise, canonical snapshot.
         console.info();
         console.info(c.cyan(c.bold('T:Crdt<MastraStorageDoc>:')));
         console.info({
