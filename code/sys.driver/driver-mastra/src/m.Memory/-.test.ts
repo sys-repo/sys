@@ -465,8 +465,10 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
       it('Memory/Doc: initial', () => {
         const { doc } = setup();
         console.info();
-        console.info(c.green(`Memory/CRDT: initial (empty)`));
-        console.info(c.cyan(c.bold('T:Crdt<MastraStorageDoc>:')), doc.current);
+        console.info(c.gray(`Memory/CRDT: initial (empty)`));
+        console.info(c.cyan(c.bold(`T:Crdt<${c.green('MastraStorage')}Doc>:`)));
+        console.info(doc.current);
+
         console.info();
       });
 
@@ -519,7 +521,8 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
 
         // 5: Print a concise, canonical snapshot.
         console.info();
-        console.info(c.cyan(c.bold('T:Crdt<MastraStorageDoc>:')));
+        console.info(c.gray(`Memory/CRDT: snapshot`));
+        console.info(c.cyan(c.bold(`T:Crdt<${c.green('MastraStorage')}Doc>:`)));
         console.info({
           resources: { [resourceId]: d.resources[resourceId] },
           threads: { [t1.id]: d.threads[t1.id] },
