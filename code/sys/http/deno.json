@@ -17,6 +17,6 @@
     "./client": "./src/m.client/mod.ts",
     "./server": "./src/m.server/mod.ts",
     "./server/main": "./src/-entry/-main.ts",
-    "./server/start": "./src/-entry/-start.ts"
+    "./serve": "./src/-entry/-start.ts"
   }
 }

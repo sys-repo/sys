@@ -3,7 +3,7 @@
  * @module
  *
  * ```bash
- * deno run -RNE jsr:@sys/http/server/start
+ * deno run -RNE jsr:@sys/http/serve
  * ```
  */
 import { type t, Args, Str } from './common.ts';

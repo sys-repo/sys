@@ -3,10 +3,10 @@ Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational p
 
 
 ### Simple File Server
-Standing up an HTTP server via command line.
+Standing up an HTTP server directly from the command line.
 
 ```bash
-deno run -RNE jsr:@sys/http/server/start
+deno run -RNE jsr:@sys/http/serve
 
 # ↑ default options:
 #   --port=8080
