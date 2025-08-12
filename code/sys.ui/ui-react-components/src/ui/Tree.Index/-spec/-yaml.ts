@@ -1,6 +1,3 @@
-import { IndexTree } from '../mod.ts';
-import { Yaml } from '@sys/std/yaml';
-
 /**
  * Canonical demo: exercises scalar leaves, object leaves, meta labels,
  * children (array & record), id overrides, and multi‑level nesting.
@@ -13,7 +10,7 @@ export const SAMPLE_YAML = `
     b: 2
 
 - Bar:
-    .: { label: 'Bar (custom)' }
+    .: { label: 'Bar (custom)', enabled: false }
     a: 1
     b: 2
 
@@ -40,7 +37,7 @@ export const SAMPLE_YAML = `
             children:
               E: ref:e
 
-- ArrLeaf:
+- ArrayLeaf:
   - 1
   - 2
   - 3

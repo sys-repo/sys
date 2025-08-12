@@ -1,6 +1,7 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 
+import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
 import { toSeq } from './m.Yaml.u.ts';
 import { IndexTree } from './mod.ts';
@@ -13,6 +14,7 @@ describe('Tree.Index', () => {
     expect(IndexTree.View).to.equal(View);
     expect(IndexTree.Item.View).to.equal(IndexTreeItem);
     expect(IndexTree.Yaml).to.equal(Yaml);
+    expect(IndexTree.Is).to.equal(Is);
   });
 
   describe('YAML dialect', () => {
@@ -348,6 +350,65 @@ ArrLeaf:
           expect(Yaml.parse('   \n')).to.eql([]);
         });
       });
+    });
+  });
+
+  describe('Tree.Index.Is', () => {
+    it('identifies a TreeNodeList', () => {
+      const nodeList: t.TreeNodeList = [
+        { key: '1', label: 'One' },
+        { key: '2', label: 'Two' },
+      ];
+      expect(IndexTree.Is.list(nodeList)).to.eql(true);
+      expect(IndexTree.Is.node(nodeList)).to.eql(false);
+    });
+
+    it('identifies a single TreeNode', () => {
+      const node: t.TreeNode = { key: '1', label: 'One' };
+      expect(IndexTree.Is.node(node)).to.eql(true);
+      expect(IndexTree.Is.list(node)).to.eql(false);
+    });
+  });
+
+  describe('Tree.Index.toList', () => {
+    it('undefined → empty list', () => {
+      const out = IndexTree.toList(undefined);
+      expect(out).to.eql([]);
+    });
+
+    it('passes through a TreeNodeList unchanged (including order)', () => {
+      const list: t.TreeNodeList = [
+        { key: 'a', label: 'A' },
+        { key: 'b', label: 'B' },
+      ];
+      const out = IndexTree.toList(list);
+      expect(out).to.equal(list); // same reference is fine/expected
+      expect(out.map((n) => n.key)).to.eql(['a', 'b']);
+    });
+
+    it('TreeNode with children → that children list', () => {
+      const node: t.TreeNode = {
+        key: 'root',
+        label: 'Root',
+        children: [
+          { key: 'root/one', label: 'One' },
+          { key: 'root/two', label: 'Two' },
+        ],
+      };
+      const out = IndexTree.toList(node);
+      expect(out.map((n) => n.key)).to.eql(['root/one', 'root/two']);
+    });
+
+    it('TreeNode without children → singleton list [node]', () => {
+      const node: t.TreeNode = { key: 'leaf', label: 'Leaf' };
+      const out = IndexTree.toList(node);
+      expect(out.length).to.eql(1);
+      expect(out[0].key).to.eql('leaf');
+    });
+
+    it('empty TreeNodeList stays empty', () => {
+      const out = IndexTree.toList([] as t.TreeNodeList);
+      expect(out).to.eql([]);
     });
   });
 });

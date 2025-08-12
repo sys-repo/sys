@@ -8,7 +8,7 @@ type P = t.IndexTreeProps;
 type Storage = Pick<P, 'theme' | 'debug'> & { yaml?: string };
 const defaults: Storage = {
   theme: 'Dark',
-  debug: true,
+  debug: false,
   yaml: SAMPLE_YAML,
 };
 
@@ -100,6 +100,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          Object.entries(defaults)
+            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
+            .filter((e) => Signal.Is.signal(e.signal))
+            .forEach((e) => (e.signal.value = e.value));
+        }}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
