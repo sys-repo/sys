@@ -1,4 +1,4 @@
-# Mastra Driver (AI)
+# Mastra Driver
 
 System wrappers for the [Mastra](https://mastra.ai/) "typescript agent framework".
 
