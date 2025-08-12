@@ -1,9 +1,9 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { type t, Obj, describe, expect, it } from '../../-test.ts';
 import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 
 import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
-import { decodePath, encodePath, toSeq } from './m.Yaml.u.ts';
+import { toSeq } from './m.Yaml.u.ts';
 import { IndexTree } from './mod.ts';
 import { IndexTree as View } from './ui.tsx';
 
@@ -416,18 +416,18 @@ ArrLeaf:
   describe('Tree.Index - path encoding', () => {
     it('encodes "/" and "~" per RFC6901 (~1, ~0) and roundtrips', () => {
       const path = asObjectPath('seg/with/slash', 'tilde~here', 'mixed~/slash');
-      const key = encodePath(path);
+      const key = Obj.Path.codec.encode(path);
       expect(key).to.eql('seg~1with~1slash/tilde~0here/mixed~0~1slash');
 
-      const back = decodePath(key);
+      const back = Obj.Path.codec.decode(key);
       expect(back).to.eql(path);
     });
 
     it('handles empty and simple segments', () => {
       const path = asObjectPath('', 'a', 'b c'); // empty + space
-      const key = encodePath(path);
+      const key = Obj.Path.codec.encode(path);
       expect(key).to.eql('/a/b c'); // leading "/" represents first empty segment
-      expect(decodePath(key)).to.eql(path);
+      expect(Obj.Path.codec.decode(key)).to.eql(path);
     });
   });
 

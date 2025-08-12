@@ -1,5 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { Button } from '../../Button/mod.ts';
+import { D, Icons } from '../common.ts';
 import { IndexTree } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -24,7 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
         const width = 350;
         const root = v.yaml ? IndexTree.Yaml.parse(v.yaml) : undefined;
 
-        return (
+        const elSubject = (
           <IndexTree.View
             //
             debug={v.debug}
@@ -34,12 +35,33 @@ export default Spec.describe(D.displayName, (e) => {
             root={root}
             path={v.path}
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
-            onPressDown={(e) => console.info(`⚡️ onPressDown:`, e)}
-            onPressUp={(e) => {
-              console.info(`⚡️ onPressUp:`, e);
+            onPressDown={(e) => {
+              console.info(`⚡️ onPressDown:`, e);
               if (e.hasChildren) p.path.value = e.node.path;
             }}
+            onPressUp={(e) => {
+              console.info(`⚡️ onPressUp:`, e);
+              // if (e.hasChildren) p.path.value = e.node.path;
+            }}
           />
+        );
+
+        const elBackButton = (
+          <Button
+            enabled={() => (p.path.value?.length ?? 0) > 0}
+            style={{ Absolute: [-35, null, null, -35] }}
+            theme={v.theme}
+            onMouseDown={() => (p.path.value = (p.path.value ?? []).slice(0, -1))}
+          >
+            <Icons.Arrow.Back />
+          </Button>
+        );
+
+        return (
+          <>
+            {elBackButton}
+            {elSubject}
+          </>
         );
       });
   });
