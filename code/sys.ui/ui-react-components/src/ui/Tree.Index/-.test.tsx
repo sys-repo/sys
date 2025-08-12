@@ -59,13 +59,13 @@ describe('Tree.Index', () => {
 
         // Scalar leaf:
         const a = list[0];
-        expect(a.key).to.eql('Getting Started');
+        expect(a.key).to.eql('/Getting Started');
         expect(a.value).to.eql('crdt:ref');
         expect(a.children).to.be.undefined;
 
         // Plain object as leaf (no "." or "children"):
         const foo = list[1];
-        expect(foo.key).to.eql('Foo');
+        expect(foo.key).to.eql('/Foo');
         expect(foo.value).to.eql({ a: 1, b: 2 });
 
         // Leaf with meta + own data payload (still a leaf; no children):
@@ -77,12 +77,12 @@ describe('Tree.Index', () => {
 
         // Branch with id override, children via ordered array:
         const ex = list[3];
-        expect(ex.key).to.eql('examples'); // ← id override.
+        expect(ex.key).to.eql('/examples'); // ← id override (pointer-encoded).
         expect(labelToString(ex.label)).to.eql('Examples');
         expect(ex.meta).to.eql({ note: 'group', id: 'examples' });
         expect(ex.value).to.eql({ info: 'group details' }); // ← non-reserved keys → value.
         expect(ex.children?.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
-        expect(ex.children?.[0].key).to.eql('examples/SubTree');
+        expect(ex.children?.[0].key).to.eql('/examples/SubTree');
         expect(ex.children?.[1].value).to.eql('hello');
 
         // Branch with children as record (insertion order):
@@ -112,7 +112,7 @@ describe('Tree.Index', () => {
         // Spot checks:
         expect(list[0].value).to.eql('crdt:ref'); //                ← scalar leaf
         expect(list[2].meta).to.eql({ label: 'Bar (custom)' }); //  ← meta label leaf
-        expect(list[3].key).to.eql('examples'); //                  ← id override
+        expect(list[3].key).to.eql('/examples'); //                  ← id override (pointer-encoded)
         expect(list[5].children).to.be.undefined; //                ← array leaf remains a leaf
       });
 
@@ -157,7 +157,7 @@ describe('Tree.Index', () => {
       it('`find` by exact key and by predicate', () => {
         const list = Yaml.from(SOURCE_BASE);
 
-        const byKey = Yaml.find(list, 'examples/Bar');
+        const byKey = Yaml.find(list, '/examples/Bar');
         expect(byKey?.label).to.eql('Bar');
         expect(byKey?.value).to.eql('hello');
 
@@ -165,7 +165,7 @@ describe('Tree.Index', () => {
           list,
           ({ node, parents }) => node.label === 'Foo' && parents.length === 0,
         );
-        expect(byPred?.key).to.eql('Foo');
+        expect(byPred?.key).to.eql('/Foo');
       });
 
       it('heuristic: inferPlainObjectsAsBranches = true makes mapping-only nodes branches', () => {
@@ -188,7 +188,7 @@ describe('Tree.Index', () => {
         } as const;
 
         const v1 = Yaml.from(src);
-        expect(v1[0].key).to.eql('x');
+        expect(v1[0].key).to.eql('/x');
 
         // rename label, keep id
         const src2 = {
@@ -199,7 +199,7 @@ describe('Tree.Index', () => {
         } as const;
 
         const v2 = Yaml.from(src2);
-        expect(v2[0].key).to.eql('x');
+        expect(v2[0].key).to.eql('/x');
         expect(v2[0].label).to.eql('Node v2');
       });
     });
@@ -275,7 +275,7 @@ ArrLeaf:
           ]);
 
           // key semantics + value carry-through
-          expect(list[0].key).to.eql('Getting Started');
+          expect(list[0].key).to.eql('/Getting Started');
           expect(list[0].value).to.eql('crdt:ref');
 
           // plain object as leaf
@@ -287,7 +287,7 @@ ArrLeaf:
 
           // branch with id override + ordered children
           const ex = list[3];
-          expect(ex.key).to.eql('examples');
+          expect(ex.key).to.eql('/examples');
           expect(ex.value).to.eql({ info: 'group details' });
           expect(ex.children?.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
           expect(ex.children?.[1].value).to.eql('hello');
@@ -342,7 +342,7 @@ ArrLeaf:
           ]);
 
           // "id" override still applies.
-          expect(list[3].key).to.eql('examples');
+          expect(list[3].key).to.eql('/examples');
         });
 
         it('empty or whitespace input → empty tree', () => {
@@ -416,18 +416,18 @@ ArrLeaf:
   describe('Tree.Index - path encoding', () => {
     it('encodes "/" and "~" per RFC6901 (~1, ~0) and roundtrips', () => {
       const path = asObjectPath('seg/with/slash', 'tilde~here', 'mixed~/slash');
-      const key = Obj.Path.codec.encode(path);
-      expect(key).to.eql('seg~1with~1slash/tilde~0here/mixed~0~1slash');
+      const key = Obj.Path.Codec.pointer.encode(path);
+      expect(key).to.eql('/seg~1with~1slash/tilde~0here/mixed~0~1slash');
 
-      const back = Obj.Path.codec.decode(key);
+      const back = Obj.Path.Codec.pointer.decode(key);
       expect(back).to.eql(path);
     });
 
     it('handles empty and simple segments', () => {
       const path = asObjectPath('', 'a', 'b c'); // empty + space
-      const key = Obj.Path.codec.encode(path);
-      expect(key).to.eql('/a/b c'); // leading "/" represents first empty segment
-      expect(Obj.Path.codec.decode(key)).to.eql(path);
+      const key = Obj.Path.Codec.pointer.encode(path);
+      expect(key).to.eql('//a/b c'); // leading empty segment → extra '/'
+      expect(Obj.Path.Codec.pointer.decode(key)).to.eql(path);
     });
   });
 
@@ -443,19 +443,19 @@ ArrLeaf:
       const list = Yaml.from(src);
       const a = list[0];
       expect(a.path).to.eql(asObjectPath('id/with/slash')); //  ← raw.
-      expect(a.key).to.eql('id~1with~1slash'); //               ← encoded.
+      expect(a.key).to.eql('/id~1with~1slash'); //              ← encoded (leading slash).
 
       const c = a.children![0];
       expect(c.path).to.eql(asObjectPath('id/with/slash', 'C~D'));
-      expect(c.key).to.eql('id~1with~1slash/C~0D');
+      expect(c.key).to.eql('/id~1with~1slash/C~0D');
 
       const e = a.children![1];
       expect(e.path).to.eql(asObjectPath('id/with/slash', 'E~id'));
-      expect(e.key).to.eql('id~1with~1slash/E~0id');
+      expect(e.key).to.eql('/id~1with~1slash/E~0id');
 
       const g = e.children![0];
       expect(g.path).to.eql(asObjectPath('id/with/slash', 'E~id', 'G/H~I'));
-      expect(g.key).to.eql('id~1with~1slash/E~0id/G~1H~0I');
+      expect(g.key).to.eql('/id~1with~1slash/E~0id/G~1H~0I');
     });
 
     it('Yaml.at navigates using raw ObjectPath (no parsing)', () => {
@@ -468,7 +468,7 @@ ArrLeaf:
 
       const list = Yaml.from(src);
       const children = Yaml.at(list, asObjectPath('r')); // ← by raw path segment (with slash in id).
-      expect(children.map((n) => n.key)).to.eql(['r/A~1B', 'r/C~0D']);
+      expect(children.map((n) => n.key)).to.eql(['/r/A~1B', '/r/C~0D']);
     });
   });
 });
