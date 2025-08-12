@@ -5,11 +5,12 @@ import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeProps;
-type Storage = Pick<P, 'theme' | 'debug'> & { yaml?: string };
+type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { yaml?: string };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   yaml: SAMPLE_YAML,
+  path: undefined,
 };
 
 /**
@@ -31,6 +32,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     yaml: s(snap.yaml),
+    path: s(snap.path),
   };
   const p = props;
   const api = {
@@ -45,6 +47,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.yaml = p.yaml.value;
+      d.path = p.path.value;
     });
   });
 
@@ -93,6 +96,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `yaml: ${v ? `"${Str.truncate(v, 35)}"` : `<undefined>`}`;
         }}
         onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
+      />
+
+      <Button
+        //
+        block
+        label={() => `path: (clear)`}
+        onClick={() => (p.path.value = undefined)}
       />
 
       <hr />

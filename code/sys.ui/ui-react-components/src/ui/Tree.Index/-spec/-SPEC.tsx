@@ -17,22 +17,28 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill-y', 150)
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
         const width = 350;
         const root = v.yaml ? IndexTree.Yaml.parse(v.yaml) : undefined;
+
         return (
           <IndexTree.View
             //
             debug={v.debug}
             theme={v.theme}
             style={{ width }}
+            //
             root={root}
+            path={v.path}
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
             onPressDown={(e) => console.info(`⚡️ onPressDown:`, e)}
-            onPressUp={(e) => console.info(`⚡️ onPressUp:`, e)}
+            onPressUp={(e) => {
+              console.info(`⚡️ onPressUp:`, e);
+              if (e.hasChildren) p.path.value = e.node.path;
+            }}
           />
         );
       });

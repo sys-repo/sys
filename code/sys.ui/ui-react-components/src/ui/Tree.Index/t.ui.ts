@@ -5,6 +5,9 @@ import type { t } from './common.ts';
  */
 export type IndexTreeProps = {
   root?: t.TreeNode | t.TreeNodeList;
+  path?: t.ObjectPath;
+
+  // Appearance:
   minWidth?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -16,5 +19,12 @@ export type IndexTreeProps = {
   onPressUp?: t.IndexTreePointerHandler;
 };
 
+/**
+ * Event: Pointer event with tree/node extended properties.
+ */
 export type IndexTreePointerHandler = (e: IndexTreePointer) => void;
-export type IndexTreePointer = t.PointerEventsArg & Readonly<{ node: t.TreeNode }>;
+export type IndexTreePointer = t.PointerEventsArg &
+  Readonly<{
+    node: t.TreeNode;
+    hasChildren: boolean;
+  }>;
