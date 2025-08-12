@@ -41,8 +41,6 @@ export function SlideDeck(props: {
   const exitX = dir === 1 ? -offset : dir === -1 ? offset : 0;
   const transition = { duration: ms / 1000, ease: 'easeInOut' as const };
 
-  console.log('offset', offset);
-
   /**
    * Render:
    */
