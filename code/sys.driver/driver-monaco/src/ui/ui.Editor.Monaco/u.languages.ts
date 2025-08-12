@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 export function defaultLanguageConfig(monaco: t.Monaco.Monaco) {
   monaco.languages.registerCompletionItemProvider('yaml', {
-    triggerCharacters: [':', ' '],
+    triggerCharacters: [': '],
 
     provideCompletionItems(
       model: t.Monaco.TextModel,
