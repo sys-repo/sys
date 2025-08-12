@@ -33,7 +33,6 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
       padding: 15,
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
       ':last-child': { borderBottom: 'none' },
-
       display: 'grid',
       gridTemplateColumns: '1fr auto',
     }),
