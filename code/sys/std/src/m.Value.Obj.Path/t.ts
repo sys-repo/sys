@@ -1,16 +1,19 @@
 import type { t } from './common.ts';
+export type * from './t.codec.ts';
+export type * from './t.curried.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Tools for working with objects via abstract path arrays.
  */
-export type ObjPathLib = {
-  /** Tools for mutating an object in-place. */
-  readonly Mutate: ObjPathMutateLib;
+export type ObjPathLib = Readonly<{
+  Codec: t.ObjectPathCodecLib;
+
+  /** Tools for mutating an object in-place. */ Mutate: ObjPathMutateLib;
 
   /** Create a new curried-path instance for the given path. */
-  readonly curry: t.CurriedPathLib['create'];
+  curry: t.CurriedPathLib['create'];
 
   /**
    * Deep-get helper with overloads so the return type
@@ -23,13 +26,13 @@ export type ObjPathLib = {
    * Determine if the given path exists on the subject, irrespective of value.
    */
   exists(subject: O | undefined, path: t.ObjectPath): boolean;
-};
+}>;
 
 /**
  * Tools that mutate an object in-place using
  * an abstract path arrays.
  */
-export type ObjPathMutateLib = {
+export type ObjPathMutateLib = Readonly<{
   /**
    * Deep-set helper that mutates `subject` setting a nested value at the `path`.
    *  - Creates intermediate objects/arrays as needed.
@@ -57,7 +60,7 @@ export type ObjPathMutateLib = {
    *  - No external dependencies, deterministic, and ~75 LOC.
    */
   diff<T extends O = O>(source: T, target: T, options?: t.ObjDiffOptions): t.ObjDiffReport;
-};
+}>;
 
 /** Options passed to `Obj.Path.diff` method. */
 export type ObjDiffOptions = { diffArrays?: boolean };
@@ -85,56 +88,4 @@ export type ObjDiffReport = {
     readonly arrays: number;
     readonly total: number;
   };
-};
-
-/**
- * Curried object-path wrapper API.
- */
-export type CurriedPathLib = {
-  /** Create a new curried-path instance for the given path: */
-  create<T = unknown>(path: t.ObjectPath): CurriedPath<T>;
-};
-
-/**
- * The standard read/mutate API for a single curried object-path value.
- */
-export type CurriedPath<T = unknown> = {
-  /** The curried path. */
-  readonly path: t.ObjectPath;
-
-  /**
-   * Deep-get helper with overloads so the return type
-   * is `T | undefined` unless you pass a default value.
-   */
-  get(subject: O | undefined): T | undefined;
-  get(subject: O | undefined, defaultValue: t.NonUndefined<T>): T;
-
-  /**
-   * Determine if the given path exists on the subject, irrespective of value.
-   */
-  exists(subject: O | undefined): boolean;
-
-  /**
-   * Deep-set helper that mutates `subject` setting a nested value at the path.
-   *  - Creates intermediate objects/arrays as needed.
-   *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
-   */
-  set(subject: O, value: T): t.ObjDiffOp | undefined;
-
-  /**
-   * Ensure a value at the path exists (not undefined),
-   * and if not assigns the given default.
-   */
-  ensure(subject: O, defaultValue: t.NonUndefined<T>): T;
-
-  /**
-   * Deletes the value at the given path if it exists.
-   */
-  delete(subject: O): t.ObjDiffOp | undefined;
-
-  /**
-   * Creates a new curried path combining this path as the root
-   * and the given sub-path.
-   */
-  join<T = unknown>(subpath: t.ObjectPath): CurriedPath<T>;
 };
