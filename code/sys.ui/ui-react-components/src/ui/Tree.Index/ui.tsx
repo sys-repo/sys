@@ -33,7 +33,13 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <SlideDeck keyId={animKey} dir={dir} style={styles.body}>
+      <SlideDeck
+        keyId={animKey}
+        direction={dir}
+        style={styles.body}
+        duration={props.slideDuration}
+        offset={props.slideOffset}
+      >
         {view.map((node) => {
           const enabled = Boolean(node.meta?.enabled ?? true);
           return (

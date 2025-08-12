@@ -7,6 +7,11 @@ export type IndexTreeProps = {
   root?: t.TreeNode | t.TreeNodeList;
   path?: t.ObjectPath;
 
+  /** Slide/fade animation duration in milliseconds. */
+  slideDuration?: t.Msecs;
+  /** Horizontal slide offset in pixels applied during the fade. */
+  slideOffset?: t.Pixels;
+
   // Appearance:
   minWidth?: t.Pixels;
   debug?: boolean;

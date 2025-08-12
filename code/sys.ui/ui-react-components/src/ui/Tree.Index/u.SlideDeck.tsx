@@ -1,17 +1,19 @@
 import React from 'react';
-import { type t, css, M } from './common.ts';
+import { type t, css, D, M } from './common.ts';
 
 /**
  * SlideDeck — renders current panel; if the key changes,
  * also renders the previous panel and slides both simultaneously.
  */
 export function SlideDeck(props: {
-  keyId: string;
-  dir: -1 | 0 | 1;
   children: React.ReactNode;
+  keyId: string;
+  direction: -1 | 0 | 1;
+  duration?: t.Msecs;
+  offset?: t.Pixels;
   style?: t.CssInput;
 }) {
-  const { keyId, dir, children } = props;
+  const { keyId, direction: dir, children } = props;
 
   /**
    * Refs/Hooks:
@@ -33,8 +35,13 @@ export function SlideDeck(props: {
     prevContentRef.current = children;
   }, [keyId, children]);
 
-  const enterX = dir === 1 ? 24 : dir === -1 ? -24 : 0;
-  const exitX = dir === 1 ? -24 : dir === -1 ? 24 : 0;
+  const ms = props.duration ?? D.slideDuration;
+  const offset = props.offset ?? D.slideOffset;
+  const enterX = dir === 1 ? offset : dir === -1 ? -offset : 0;
+  const exitX = dir === 1 ? -offset : dir === -1 ? offset : 0;
+  const transition = { duration: ms / 1000, ease: 'easeInOut' as const };
+
+  console.log('offset', offset);
 
   /**
    * Render:
@@ -52,7 +59,7 @@ export function SlideDeck(props: {
           className={styles.panel.class}
           initial={{ opacity: 1, x: 0 }}
           animate={{ opacity: 0, x: exitX }}
-          transition={{ type: 'spring', stiffness: 260, damping: 26, mass: 0.6 }}
+          transition={transition}
           onAnimationComplete={() => setLeaving(null)}
         >
           {leaving}
@@ -65,7 +72,7 @@ export function SlideDeck(props: {
         className={styles.panel.class}
         initial={{ opacity: 0, x: enterX }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 26, mass: 0.6 }}
+        transition={transition}
       >
         {children}
       </M.div>

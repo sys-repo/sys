@@ -13,5 +13,7 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   minWidth: 280,
+  slideDuration: 200,
+  slideOffset: 50,
 } as const;
 export const D = DEFAULTS;
