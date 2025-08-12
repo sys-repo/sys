@@ -9,18 +9,19 @@
  */
 const now = new Date();
 
+import { Jsr } from '@sys/jsr';
+import { Args, D, Path, rx, Time, Value } from '@sys/std';
+import { IndexedDb } from '@sys/std/indexeddb';
+import { Semver } from '@sys/std/semver';
+import { Str } from '@sys/text';
 import { pkg } from '../pkg.ts';
+
 console.info(`💦 import '${pkg.name}/sample-imports';`);
 
 /**
  * Namespace: @sys
  */
 console.groupCollapsed('🧫 @sys/std');
-import { Jsr } from '@sys/jsr';
-import { Args, D, Path, rx, Time, Value } from '@sys/std';
-import { IndexedDb } from '@sys/std/indexeddb';
-import { Semver } from '@sys/std/semver';
-import { Str } from '@sys/text';
 
 console.info('@sys/std:rx', rx);
 console.info('@sys/std:Path', Path);
@@ -41,8 +42,8 @@ console.groupEnd();
  * Namespace: @sys : driver
  */
 console.groupCollapsed('🧫 @sys/driver');
-import { Json } from '@sys/driver-immer';
-console.info('@sys/driver-immer', Json);
+const { Crdt } = await import('@sys/driver-automerge/ui');
+console.info('@sys/driver-automerge/ui:', Crdt);
 console.groupEnd();
 
 console.info(' ');
