@@ -43,11 +43,13 @@ const Desktop = {
   over(state: EventState, isOver: boolean): React.MouseEventHandler {
     return (e) => {
       const props = wrangle.props(state);
-      const enabled = Wrangle.enabled(props);
-      if (!props.active || !enabled) return;
+      if (!props.active) return;
 
+      // Always track physical pointer truth, even if disabled.
       state.over = isOver;
       if (!isOver && state.down) state.down = false;
+
+      // Fire user hover callbacks only when enabled.
       if (props.enabled) {
         if (isOver) props.onMouseEnter?.(e);
         if (!isOver) props.onMouseLeave?.(e);
@@ -65,10 +67,12 @@ const Desktop = {
   down(state: EventState, isDown: boolean): React.MouseEventHandler {
     return (e) => {
       const props = wrangle.props(state);
-      const enabled = Wrangle.enabled(props);
-      if (!props.active || !enabled) return;
+      if (!props.active) return;
 
+      // Always track physical button state.
       state.down = isDown;
+
+      // Only invoke click/mousedown/mouseup when enabled.
       if (props.enabled) {
         if (isDown) props.onMouseDown?.(e);
         if (!isDown) props.onMouseUp?.(e);
@@ -91,8 +95,7 @@ const Mobile = {
   down(state: EventState, isDown: boolean): React.TouchEventHandler {
     return (e: React.TouchEvent) => {
       const props = wrangle.props(state);
-      const enabled = Wrangle.enabled(props);
-      if (!props.active || !enabled) return;
+      if (!props.active) return;
 
       state.down = isDown;
       const synthetic = wrangle.asMouseEvent(e);
