@@ -3,7 +3,7 @@ import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 
 import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
-import { toSeq } from './m.Yaml.u.ts';
+import { decodePath, encodePath, toSeq } from './m.Yaml.u.ts';
 import { IndexTree } from './mod.ts';
 import { IndexTree as View } from './ui.tsx';
 
@@ -77,10 +77,10 @@ describe('Tree.Index', () => {
 
         // Branch with id override, children via ordered array:
         const ex = list[3];
-        expect(ex.key).to.eql('examples'); // id override
+        expect(ex.key).to.eql('examples'); // ← id override.
         expect(labelToString(ex.label)).to.eql('Examples');
         expect(ex.meta).to.eql({ note: 'group', id: 'examples' });
-        expect(ex.value).to.eql({ info: 'group details' }); // non-reserved keys → value
+        expect(ex.value).to.eql({ info: 'group details' }); // ← non-reserved keys → value.
         expect(ex.children?.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
         expect(ex.children?.[0].key).to.eql('examples/SubTree');
         expect(ex.children?.[1].value).to.eql('hello');
@@ -132,11 +132,11 @@ describe('Tree.Index', () => {
 
         // deep path by literal labels:
         const b = Yaml.at(list, toObjectPath('Section/A'));
-        expect(b).to.eql([]); // 'A' is a leaf, so no children.
+        expect(b).to.eql([]); // ← 'A' is a leaf, so no children.
 
         // "id" override path (examples has meta.id = 'examples'):
         const c = Yaml.at(list, toObjectPath('examples'));
-        expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // already covered, but this is the id form
+        expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // ← already covered, but this is the id form.
 
         // explicit test that a renamed label with same id still resolves:
         const src2 = {
@@ -170,7 +170,7 @@ describe('Tree.Index', () => {
 
       it('heuristic: inferPlainObjectsAsBranches = true makes mapping-only nodes branches', () => {
         const src = { Node: { a: 1, b: 2 } } as const;
-        const leaf = Yaml.from(src); // default: plain object → leaf
+        const leaf = Yaml.from(src); // ← default: plain object → leaf.
         expect(leaf[0].value).to.eql({ a: 1, b: 2 });
         expect(leaf[0].children).to.be.undefined;
 
@@ -356,33 +356,33 @@ ArrLeaf:
   describe('Tree.Index.Is', () => {
     it('identifies a TreeNodeList', () => {
       const nodeList: t.TreeNodeList = [
-        { key: '1', label: 'One' },
-        { key: '2', label: 'Two' },
+        { key: '1', label: 'One', path: ['1'] as t.ObjectPath },
+        { key: '2', label: 'Two', path: ['2'] as t.ObjectPath },
       ];
       expect(IndexTree.Is.list(nodeList)).to.eql(true);
       expect(IndexTree.Is.node(nodeList)).to.eql(false);
     });
 
     it('identifies a single TreeNode', () => {
-      const node: t.TreeNode = { key: '1', label: 'One' };
+      const node: t.TreeNode = { key: '1', label: 'One', path: ['1'] as t.ObjectPath };
       expect(IndexTree.Is.node(node)).to.eql(true);
       expect(IndexTree.Is.list(node)).to.eql(false);
     });
   });
 
   describe('Tree.Index.toList', () => {
-    it('undefined → empty list', () => {
+    it('<undefined> → empty list', () => {
       const out = IndexTree.toList(undefined);
       expect(out).to.eql([]);
     });
 
     it('passes through a TreeNodeList unchanged (including order)', () => {
       const list: t.TreeNodeList = [
-        { key: 'a', label: 'A' },
-        { key: 'b', label: 'B' },
+        { key: 'a', label: 'A', path: ['a'] as t.ObjectPath },
+        { key: 'b', label: 'B', path: ['b'] as t.ObjectPath },
       ];
       const out = IndexTree.toList(list);
-      expect(out).to.equal(list); // same reference is fine/expected
+      expect(out).to.equal(list); // ← same reference is fine/expected.
       expect(out.map((n) => n.key)).to.eql(['a', 'b']);
     });
 
@@ -390,9 +390,10 @@ ArrLeaf:
       const node: t.TreeNode = {
         key: 'root',
         label: 'Root',
+        path: ['root'] as t.ObjectPath,
         children: [
-          { key: 'root/one', label: 'One' },
-          { key: 'root/two', label: 'Two' },
+          { key: 'root/one', label: 'One', path: ['root', 'one'] as t.ObjectPath },
+          { key: 'root/two', label: 'Two', path: ['root', 'two'] as t.ObjectPath },
         ],
       };
       const out = IndexTree.toList(node);
@@ -400,7 +401,7 @@ ArrLeaf:
     });
 
     it('TreeNode without children → singleton list [node]', () => {
-      const node: t.TreeNode = { key: 'leaf', label: 'Leaf' };
+      const node: t.TreeNode = { key: 'leaf', label: 'Leaf', path: ['leaf'] as t.ObjectPath };
       const out = IndexTree.toList(node);
       expect(out.length).to.eql(1);
       expect(out[0].key).to.eql('leaf');
@@ -411,12 +412,72 @@ ArrLeaf:
       expect(out).to.eql([]);
     });
   });
+
+  describe('Tree.Index - path encoding', () => {
+    it('encodes "/" and "~" per RFC6901 (~1, ~0) and roundtrips', () => {
+      const path = asObjectPath('seg/with/slash', 'tilde~here', 'mixed~/slash');
+      const key = encodePath(path);
+      expect(key).to.eql('seg~1with~1slash/tilde~0here/mixed~0~1slash');
+
+      const back = decodePath(key);
+      expect(back).to.eql(path);
+    });
+
+    it('handles empty and simple segments', () => {
+      const path = asObjectPath('', 'a', 'b c'); // empty + space
+      const key = encodePath(path);
+      expect(key).to.eql('/a/b c'); // leading "/" represents first empty segment
+      expect(decodePath(key)).to.eql(path);
+    });
+  });
+
+  describe('Tree.Index - normalized nodes carry path and encoded key', () => {
+    it('labels and ids with "/" or "~" are safe', () => {
+      const src = {
+        'A/B': {
+          '.': { id: 'id/with/slash', label: 'A/B label' },
+          children: [{ 'C~D': 1 }, { 'E/F': { '.': { id: 'E~id' }, children: [{ 'G/H~I': 2 }] } }],
+        },
+      } as const;
+
+      const list = Yaml.from(src);
+      const a = list[0];
+      expect(a.path).to.eql(asObjectPath('id/with/slash')); //  ← raw.
+      expect(a.key).to.eql('id~1with~1slash'); //               ← encoded.
+
+      const c = a.children![0];
+      expect(c.path).to.eql(asObjectPath('id/with/slash', 'C~D'));
+      expect(c.key).to.eql('id~1with~1slash/C~0D');
+
+      const e = a.children![1];
+      expect(e.path).to.eql(asObjectPath('id/with/slash', 'E~id'));
+      expect(e.key).to.eql('id~1with~1slash/E~0id');
+
+      const g = e.children![0];
+      expect(g.path).to.eql(asObjectPath('id/with/slash', 'E~id', 'G/H~I'));
+      expect(g.key).to.eql('id~1with~1slash/E~0id/G~1H~0I');
+    });
+
+    it('Yaml.at navigates using raw ObjectPath (no parsing)', () => {
+      const src = {
+        Root: {
+          '.': { id: 'r' },
+          children: [{ 'A/B': 1 }, { 'C~D': 2 }],
+        },
+      } as const;
+
+      const list = Yaml.from(src);
+      const children = Yaml.at(list, asObjectPath('r')); // ← by raw path segment (with slash in id).
+      expect(children.map((n) => n.key)).to.eql(['r/A~1B', 'r/C~0D']);
+    });
+  });
 });
 
 /**
  * Helpers:
  */
-const toObjectPath = (s: string): t.ObjectPath => s.split('/');
+const asObjectPath = (...segs: string[]) => segs as unknown as t.ObjectPath;
+const toObjectPath = (s: string): t.ObjectPath => s.split('/') as t.ObjectPath;
 function labelToString(label: string | t.JSX.Element) {
   if (typeof label === 'string') return label;
   return `<${(label.type as string) || 'element'}>`;

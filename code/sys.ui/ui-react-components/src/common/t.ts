@@ -12,6 +12,7 @@ export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type {
   PointerDragdropSnapshot,
   PointerDragSnapshot,
+  PointerEventsArg,
   PointerEventsHandler,
   PointerHookFlags,
   ReactChildrenDepsKey,

@@ -30,6 +30,9 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             style={{ width }}
             root={root}
+            // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
+            onPressDown={(e) => console.info(`⚡️ onPressDown:`, e)}
+            onPressUp={(e) => console.info(`⚡️ onPressUp:`, e)}
           />
         );
       });

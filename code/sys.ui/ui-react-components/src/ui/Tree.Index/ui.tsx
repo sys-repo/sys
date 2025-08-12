@@ -25,6 +25,9 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
         label={node.label}
         chevron={hasChildren(node)}
         enabled={enabled}
+        onPointer={(e) => props.onPointer?.({ ...e, node })}
+        onPressDown={(e) => props.onPressDown?.({ ...e, node })}
+        onPressUp={(e) => props.onPressUp?.({ ...e, node })}
       />
     );
   });

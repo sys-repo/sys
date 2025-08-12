@@ -1,8 +1,13 @@
 import { type t, Is } from './common.ts';
-import { isWrapper } from './m.Yaml.u.ts';
+import { isWrapper, encodePath } from './m.Yaml.u.ts';
 
+/**
+ * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeNodeList`.
+ */
 export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
   const infer = !!options?.inferPlainObjectsAsBranches;
+
+  // Root may be a mapping or a sequence of single-entry maps.
   const rootPairs: Array<[string, t.YamlTreeSourceNode]> = Array.isArray(source)
     ? (source as ReadonlyArray<Record<string, t.YamlTreeSourceNode>>).map((o) => {
         const [k, v] = Object.entries(o)[0] as [string, t.YamlTreeSourceNode];
@@ -16,22 +21,23 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
   function makeNodes(
     k: string,
     v: t.YamlTreeSourceNode,
-    path: readonly string[],
+    parentPath: t.ObjectPath,
   ): readonly t.TreeNode[] {
-    const seg = k;
-    const nextPath = [...path, seg];
-    const key = nextPath.join('/');
-
     // Wrapper path (explicit `.` or `children`):
     if (isWrapper(v)) {
       const meta = v['.'];
+
       const id = typeof meta?.id === 'string' ? (meta.id as string) : undefined;
+      const seg = id ?? k;
+
+      const path = [...parentPath, seg] as t.ObjectPath;
+      const key = encodePath(path);
+
       const rawLabel =
         meta && Object.prototype.hasOwnProperty.call(meta, 'label')
           ? (meta as any).label
           : undefined;
       const label = (rawLabel !== undefined ? (rawLabel as any) : k) as t.TreeNode['label'];
-      const nodeKey = id ? [...path, id].join('/') : key;
 
       // Data payload = all non-reserved keys:
       const data: Record<string, unknown> = {};
@@ -40,9 +46,9 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
       }
       const value = Object.keys(data).length > 0 ? data : undefined;
 
-      // Children
+      // Children:
       const childSpec = v.children;
-      const childPath = id ? [...path, id] : nextPath;
+      const childPath = path; // children inherit this node's path
       const children: t.TreeNodeList | undefined = (() => {
         if (!childSpec) return undefined;
         if (Array.isArray(childSpec)) {
@@ -59,7 +65,8 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
 
       return [
         {
-          key: nodeKey,
+          path,
+          key,
           label,
           ...(value !== undefined ? { value } : {}),
           ...(children ? { children } : {}),
@@ -70,12 +77,20 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
 
     // Heuristic (opt-in): plain object → branch:
     if (infer && Is.record(v)) {
-      const children = Object.entries(v).flatMap(([ck, cv]) => makeNodes(ck, cv, nextPath));
-      return [{ key, label: k, children }] as const;
+      const seg = k;
+      const path = [...parentPath, seg] as t.ObjectPath;
+      const key = encodePath(path);
+      const children = Object.entries(v).flatMap(([ck, cv]) => makeNodes(ck, cv, path));
+      return [{ path, key, label: k, children }] as const;
     }
 
     // Leaf (scalar | array | plain object payload):
-    return [{ key, label: k, value: v }] as const;
+    {
+      const seg = k;
+      const path = [...parentPath, seg] as t.ObjectPath;
+      const key = encodePath(path);
+      return [{ path, key, label: k, value: v }] as const;
+    }
   }
 
   // Finish up.

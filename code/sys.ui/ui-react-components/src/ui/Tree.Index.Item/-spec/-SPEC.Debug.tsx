@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, Icons, Is, LocalStorage, Signal } from '../common.ts';
+import { SAMPLE_YAML } from '../../Tree.Index/-spec/-yaml.ts';
+import { Tree } from '../../Tree/mod.ts';
 
 type P = t.IndexTreeItemProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
