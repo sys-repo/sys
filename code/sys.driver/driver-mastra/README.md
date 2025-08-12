@@ -11,11 +11,11 @@ System wrappers for the [Mastra](https://mastra.ai/) "typescript agent framework
 A tiny Mastra memory adapter that stores everything in a CRDT doc (Automerge).
 Threads and v2 messages live side‑by‑side; per‑resource “working memory” is a first‑class field. Zero SQL, zero migrations, offline‑first by default.
 
-Highlights
-  •  Single‑doc storage: threads, messages, resources
-  •  v2 messages only; ordered by createdAt
-  •  Per‑resource working memory (markdown)
-  •  Clean text extraction via textOf(...)
+Highlights:
+- Single‑doc storage: threads, messages, resources
+- v2 messages only; ordered by createdAt
+- Per‑resource working memory (markdown)
+- Clean text extraction via textOf(...)
 
 ### Install / Import
 ```ts
