@@ -44,7 +44,6 @@ export const Paths = {
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-deno',
     'code/sys.driver/driver-farcaster',
-    'code/sys.driver/driver-immer',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-vite',
