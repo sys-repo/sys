@@ -7,7 +7,9 @@ export type IndexTreeYamlLib = Readonly<{
    * mapping-only nodes as branches.
    */
   from(
-    source: Record<string, t.YamlTreeSourceNode>,
+    source:
+      | Record<string, t.YamlTreeSourceNode>
+      | ReadonlyArray<Record<string, t.YamlTreeSourceNode>>,
     options?: { inferPlainObjectsAsBranches?: boolean },
   ): t.TreeNodeList;
 

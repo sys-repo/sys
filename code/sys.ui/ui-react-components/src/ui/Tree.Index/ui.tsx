@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Icons, IndexTreeItem } from './common.ts';
+import { type t, Color, css, D, IndexTreeItem } from './common.ts';
 
 type LeafNode = { label: string };
 
@@ -19,14 +19,6 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
       color: theme.fg,
     }),
     body: css({ minWidth }),
-    item: css({
-      padding: 15,
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
-      ':last-child': { borderBottom: 'none' },
-
-      display: 'grid',
-      gridTemplateColumns: '1fr auto',
-    }),
   };
 
   const elBody = (

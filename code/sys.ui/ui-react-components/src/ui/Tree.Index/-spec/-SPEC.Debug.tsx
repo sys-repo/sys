@@ -1,6 +1,10 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { IndexTree } from '../mod.ts';
+
+import { Yaml } from '@sys/std/yaml';
+import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -79,6 +83,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `YAML`}
+        onClick={() => {
+        }}
       />
 
       <hr />

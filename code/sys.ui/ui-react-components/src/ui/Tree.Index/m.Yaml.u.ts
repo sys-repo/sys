@@ -19,3 +19,7 @@ export function lastSeg(key: string) {
   const i = key.lastIndexOf('/');
   return i >= 0 ? key.slice(i + 1) : key;
 }
+
+export function toSeq(rec: Record<string, t.YamlTreeSourceNode>) {
+  return Object.entries(rec).map(([k, v]) => ({ [k]: v }));
+}

@@ -1,6 +1,8 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
+
 import { Yaml } from './m.Yaml.ts';
+import { toSeq } from './m.Yaml.u.ts';
 import { IndexTree } from './mod.ts';
 import { IndexTree as View } from './ui.tsx';
 
@@ -90,6 +92,26 @@ describe('Tree.Index', () => {
         const arr = list[5];
         expect(Array.isArray(arr.value)).to.eql(true);
         expect(arr.children).to.be.undefined;
+      });
+
+      it('accepts root as sequence of single-entry maps and preserves order', () => {
+        const list = Yaml.from(toSeq(SOURCE_BASE));
+
+        // Exact order from YAML sequence:
+        expect(list.map((n) => labelToString(n.label))).to.eql([
+          'Getting Started',
+          'Foo',
+          'Bar (custom)',
+          'Examples',
+          'Section',
+          'ArrLeaf',
+        ]);
+
+        // Spot checks:
+        expect(list[0].value).to.eql('crdt:ref'); //                ← scalar leaf
+        expect(list[2].meta).to.eql({ label: 'Bar (custom)' }); //  ← meta label leaf
+        expect(list[3].key).to.eql('examples'); //                  ← id override
+        expect(list[5].children).to.be.undefined; //                ← array leaf remains a leaf
       });
 
       it('deterministic output (idempotent)', () => {
@@ -204,34 +226,6 @@ describe('Tree.Index', () => {
         expect(fooChildren).to.eql([]); // Foo is a leaf
       });
     });
-
-    //     describe('YAML dialect with JSX labels', () => {
-    //       it('coerces JSX.Element labels in tests for safe equality checks', () => {
-    //         const src = {
-    //           Foo: {
-    //             '.': { label: <span>Custom</span> },
-    //             a: 1,
-    //           },
-    //           Bar: 'baz',
-    //         } as const;
-    //
-    //         const list = Yaml.from(src);
-    //
-    //         // This would throw if we compared JSX.Element directly:
-    //         const labels = list.map((n) => labelToString(n.label));
-    //
-    //         console.log('labels', labels);
-    //         return;
-    //
-    //         expect(labels).to.eql(['<span>', 'Bar']); //        ← JSX element is coerced to "<span>"
-    //         expect(typeof list[0].label).to.eql('object'); //   ←  actual JSX.Element
-    //         expect(list[1].label).to.eql('Bar'); //             ← normal string label
-    //
-    //         // Also verify at() works with this setup
-    //         const foo = Yaml.at(list, toObjectPath('Foo'))[0];
-    //         expect(labelToString(foo.label)).to.eql('<span>');
-    //       });
-    //     });
   });
 });
 
@@ -240,5 +234,6 @@ describe('Tree.Index', () => {
  */
 const toObjectPath = (s: string): t.ObjectPath => s.split('/');
 function labelToString(label: string | t.JSX.Element) {
-  return typeof label === 'string' ? label : `<${(label.type as string) || 'element'}>`;
+  if (typeof label === 'string') return label;
+  return `<${(label.type as string) || 'element'}>`;
 }

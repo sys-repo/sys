@@ -3,12 +3,21 @@ import { isWrapper } from './m.Yaml.u.ts';
 
 export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
   const infer = !!options?.inferPlainObjectsAsBranches;
+  const rootPairs: Array<[string, t.YamlTreeSourceNode]> = Array.isArray(source)
+    ? (source as ReadonlyArray<Record<string, t.YamlTreeSourceNode>>).map((o) => {
+        const [k, v] = Object.entries(o)[0] as [string, t.YamlTreeSourceNode];
+        return [k, v];
+      })
+    : Object.entries(source as Record<string, t.YamlTreeSourceNode>);
 
-  const makeNodes = (
+  /**
+   * Implementation:
+   */
+  function makeNodes(
     k: string,
     v: t.YamlTreeSourceNode,
     path: readonly string[],
-  ): readonly t.TreeNode[] => {
+  ): readonly t.TreeNode[] {
     const seg = k;
     const nextPath = [...path, seg];
     const key = nextPath.join('/');
@@ -67,7 +76,8 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
 
     // Leaf (scalar | array | plain object payload):
     return [{ key, label: k, value: v }] as const;
-  };
+  }
 
-  return Object.entries(source).flatMap(([k, v]) => makeNodes(k, v, []));
+  // Finish up.
+  return rootPairs.flatMap(([k, v]) => makeNodes(k, v, []));
 };
