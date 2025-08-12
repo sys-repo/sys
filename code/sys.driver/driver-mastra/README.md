@@ -29,9 +29,10 @@ import { Mastra } from '@sys/driver-mastra';
 import { Memory } from '@mastra/memory';
 
 const repo = Crdt.repo();
+
 const initial: t.MastraStorageDoc = { threads: {}, messages: {}, resources: {} }
 const doc = repo.create(initial);
-const storage = Memory.Storage.crdt({ doc });
 
+const storage = Memory.Storage.crdt({ doc });
 const memory = new Memory({ storage, options: { semanticRecall: false } });
 ```
