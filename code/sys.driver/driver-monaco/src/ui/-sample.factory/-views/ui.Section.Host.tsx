@@ -1,4 +1,4 @@
-import { IndexTree } from '@sys/ui-react-components';
+import { Tree } from '@sys/ui-react-components';
 import React from 'react';
 
 import type { Section } from '../-schemas/mod.ts';
@@ -56,7 +56,7 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.04}>
         {elBody}
-        <IndexTree theme={theme.name} />
+        <Tree.Index.View theme={theme.name} />
       </Cropmarks>
     </div>
   );
