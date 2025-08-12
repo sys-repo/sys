@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
 import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
+import { IndexTree } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeProps;
@@ -37,6 +38,10 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    get root() {
+      const text = p.yaml.value;
+      return text ? IndexTree.Yaml.parse(text) : undefined;
+    },
     listen() {
       Signal.listen(props);
     },
@@ -121,7 +126,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
             .forEach((e) => (e.signal.value = e.value));
         }}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          yaml: Str.truncate(p.yaml.value ?? '', 35),
+          root: debug.root,
+        }}
+        expand={1}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

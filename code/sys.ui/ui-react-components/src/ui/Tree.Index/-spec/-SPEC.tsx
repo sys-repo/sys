@@ -23,8 +23,6 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         const width = 350;
-        const root = v.yaml ? IndexTree.Yaml.parse(v.yaml) : undefined;
-
         const elSubject = (
           <IndexTree.View
             //
@@ -32,7 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             style={{ width }}
             //
-            root={root}
+            root={debug.root}
             path={v.path}
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
             onPressDown={(e) => {
