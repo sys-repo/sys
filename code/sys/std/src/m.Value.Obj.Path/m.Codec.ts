@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 const pointer: t.ObjectPathCodec = {
-  name: 'pointer',
+  kind: 'pointer',
   encode(path) {
     if (path.length === 0) return '';
     const esc = (s: string) => s.replace(/~/g, '~0').replace(/\//g, '~1');
@@ -20,7 +20,7 @@ const pointer: t.ObjectPathCodec = {
 };
 
 const dot: t.ObjectPathCodec = {
-  name: 'dot',
+  kind: 'dot',
   encode(path) {
     if (path.length === 0) return '';
     const esc = (s: string) => s.replace(/([.\\[\]])/g, '\\$1');

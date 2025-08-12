@@ -1,4 +1,5 @@
-import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
+import { type t, c, describe, expect, expectTypeOf, it } from '../-test.ts';
+import { Str } from '../m.Value.Str/mod.ts';
 
 import { Obj } from '../m.Value.Obj/mod.ts';
 import { Value } from '../m.Value/mod.ts';
@@ -17,6 +18,7 @@ describe('Value.Obj.Path', () => {
     expect(Obj.Path.Mutate.diff).to.equal(diff);
     expect(Obj.Path.Mutate.delete).to.equal(del);
     expect(Obj.Path.Codec).to.equal(Codec);
+    expect(Obj.Path.codec).to.eql(Codec.default);
   });
 
   describe('Path.get', () => {
@@ -642,11 +644,11 @@ describe('Value.Obj.Path', () => {
   describe('Path.Codec', () => {
     describe('defaults', () => {
       it('exposes codecs and sets pointer as default', () => {
-        expect(Codec.pointer.name).to.eql('pointer');
-        expect(Codec.dot.name).to.eql('dot');
+        expect(Codec.pointer.kind).to.eql('pointer');
+        expect(Codec.dot.kind).to.eql('dot');
         // default is pointer (by identity or by name)
         expect(Codec.default).to.equal(Codec.pointer);
-        expect(Codec.default.name).to.eql('pointer');
+        expect(Codec.default.kind).to.eql('pointer');
       });
     });
 
@@ -757,6 +759,26 @@ describe('Value.Obj.Path', () => {
         const back = Codec.pointer.decode(text); // string[]
         const asStrings = path.map((k) => String(k)); // preserve '01' vs '1'
         expect(back).to.eql(asStrings);
+      });
+    });
+
+    describe('print', () => {
+      const printCodec = (codec: t.ObjectPathCodec, example: (string | number)[]) => {
+        console.info(Str.SPACE);
+        console.info(c.cyan(`Obj.Path.Codec.${c.bold(codec.kind)}:`));
+        console.info(codec);
+        console.info(c.gray('\nExample:'));
+        console.info(c.cyan(`ƒ encode( [path] ):`), codec.encode(example));
+        console.info(c.cyan(`ƒ decode( "path" ):`), codec.decode(codec.encode(example)));
+        console.info(Str.SPACE);
+      };
+
+      it('pointer', () => {
+        printCodec(Codec.pointer, ['a/b', 'c~d', 0, 'x.y', 'z[w]']);
+      });
+
+      it('dot', () => {
+        printCodec(Codec.dot, ['a.b', 'c[d]', 'e\\f', 'g]h[', 'plain', 0, 10]);
       });
     });
   });

@@ -27,16 +27,16 @@ export type ObjectPathCodecLib = Readonly<{
 }>;
 
 /** Kind of delimiter. */
-export type ObjectPathCodecType = 'pointer' | 'dot';
+export type ObjectPathCodecKind = 'pointer' | 'dot';
 
 /**
  * An [ObjectPath] array → string encoder/decoder.
  */
 export type ObjectPathCodec = Readonly<{
-  name: ObjectPathCodecType | (string & {});
+  kind: ObjectPathCodecKind | (string & {});
   encode(path: t.ObjectPath): string;
   decode(text: string): t.ObjectPath;
 }>;
 
-export type PathEncodeOptions = { codec?: ObjectPathCodecType | ObjectPathCodec };
-export type PathDecodeOptions = { codec?: ObjectPathCodecType | ObjectPathCodec };
+export type PathEncodeOptions = { codec?: ObjectPathCodecKind | ObjectPathCodec };
+export type PathDecodeOptions = { codec?: ObjectPathCodecKind | ObjectPathCodec };

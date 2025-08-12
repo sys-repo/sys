@@ -9,6 +9,8 @@ type O = Record<string, unknown>;
  */
 export type ObjPathLib = Readonly<{
   Codec: t.ObjectPathCodecLib;
+  /** The default string ←→ array encode/decode helpers. */
+  codec: t.ObjectPathCodec;
 
   /** Tools for mutating an object in-place. */ Mutate: ObjPathMutateLib;
 
