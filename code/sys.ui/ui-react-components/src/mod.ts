@@ -18,6 +18,7 @@ export { Buttons } from './ui/Buttons/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
+export { IFrame } from './ui/IFrame/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
