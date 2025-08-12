@@ -13,7 +13,7 @@ export type IFrameProps = {
   height?: string | number;
   title?: string;
   name?: string;
-  sandbox?: true | t.IFrameSandbox[];
+  sandbox?: boolean | t.IFrameSandbox[];
   allow?: HttpPermissionsPolicy;
   allowFullScreen?: boolean;
   referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
