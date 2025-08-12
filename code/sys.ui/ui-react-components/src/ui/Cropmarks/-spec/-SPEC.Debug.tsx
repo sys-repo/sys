@@ -57,10 +57,10 @@ export function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   }),
 };
 
@@ -80,15 +80,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   };
 
   const setSize = (label: string, size?: t.CropmarksSize) => {
-    return (
-      <Button
-        block
-        label={`size: ${label}`}
-        onClick={() => {
-          p.size.value = size;
-        }}
-      />
-    );
+    const onClick = () => (p.size.value = size);
+    return <Button block label={`size: ${label}`} onClick={onClick} />;
   };
 
   return (
@@ -155,14 +148,25 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
         block
         label={`size.margin: ${size.margin ?? '<undefined>'}`}
         onClick={() => {
-          const margin = Style.Edges.toArray(size.margin);
-          const current = margin[0];
-          let next: number | number[] = [40, 40, 40, 40];
-          if (current === 40) next = [80, 60, 30, 10];
-          if (current === 80) next = 100;
-          if (current === 100) next = [40];
-          if (current === 40) next = [0, 40];
-          if (current === 0) next = [40, 0];
+          type Margin = number | number[] | undefined;
+
+          const m = size.margin as Margin;
+          const isArr = (v: unknown): v is number[] => Array.isArray(v);
+          const eq = (a: number[] | undefined, b: number[]) =>
+            Array.isArray(a) && a.length === b.length && a.every((v, i) => v === b[i]);
+
+          let next: Margin;
+
+          // Cycle: undefined → [array] → undefined
+          if (m === undefined) next = [40, 40, 40, 40];
+          else if (isArr(m) && eq(m, [40, 40, 40, 40])) next = [80, 60, 30, 10];
+          else if (isArr(m) && eq(m, [80, 60, 30, 10])) next = 100;
+          else if (m === 100) next = [40];
+          else if (isArr(m) && m.length === 1 && m[0] === 40) next = [0, 40];
+          else if (isArr(m) && m.length === 2 && m[0] === 0 && m[1] === 40) next = [40, 0];
+          else if (isArr(m) && m.length === 2 && m[0] === 40 && m[1] === 0) next = undefined;
+          else next = [40, 40, 40, 40]; // Fallback for any other shape.
+
           p.size.value = { ...size, margin: next as t.CssMarginArray };
         }}
       />

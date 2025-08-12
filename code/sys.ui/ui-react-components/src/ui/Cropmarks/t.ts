@@ -33,7 +33,7 @@ export type CropmarksSizeCenter = {
 export type CropmarksSizeFill = {
   mode: 'fill';
   /** Pixel margin around the  */
-  margin: t.CssMarginInput;
+  margin?: t.CssMarginInput;
   /** Fills the X (horizontal) plane. */
   x?: boolean;
   /** Fills the Y (vertical) plane. */

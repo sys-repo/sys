@@ -17,7 +17,7 @@ export const Wrangle = {
     const DEFAULT = 40;
     if (!value) return Wrangle.asMargin(DEFAULT);
     if (value.mode !== 'fill') return Wrangle.asMargin(DEFAULT);
-    return Style.Edges.toArray(value.margin);
+    return value.margin == null ? Wrangle.asMargin(DEFAULT) : Style.Edges.toArray(value.margin);
   },
 
   asMargin(value: number): t.CssMarginArray {
