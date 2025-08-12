@@ -52,7 +52,7 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             onMouseDown={() => (p.path.value = (p.path.value ?? []).slice(0, -1))}
           >
-            <Icons.Arrow.Back />
+            <Icons.Arrow.Left />
           </Button>
         );
 

@@ -2,6 +2,8 @@ import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react
 import {
   MdArrowBack,
   MdArrowDownward,
+  MdArrowForward,
+  MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
   MdClose,
@@ -25,7 +27,12 @@ export const Icons = {
   Face: icon(MdFace),
   Object: icon(VscSymbolClass),
   Error: icon(MdErrorOutline),
-  Arrow: { Down: icon(MdArrowDownward), Back: icon(MdArrowBack) },
+  Arrow: {
+    Left: icon(MdArrowBack),
+    Right: icon(MdArrowForward),
+    Up: icon(MdArrowUpward),
+    Down: icon(MdArrowDownward),
+  },
   Mic: { On: icon(MdMic), Off: icon(MdMicOff) },
   Settings: { Default: icon(MdSettings) },
   Tools: icon(MdConstruction),
