@@ -2,10 +2,17 @@ import { Memory as MastraMemory } from '@mastra/memory';
 import { Crdt } from '@sys/driver-automerge/fs';
 import { beforeEach, c, describe, expect, it, slug } from '../-test.ts';
 
+import { Mastra } from '@sys/driver-mastra';
+
 import { type t } from './common.ts';
 import { Memory } from './m.Memory.ts';
 
 describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () => {
+  it('API', async () => {
+    const m = await import('@sys/driver-mastra');
+    expect(m.Mastra).to.equal(Mastra);
+  });
+
   describe('Memory: utils', () => {
     describe('Memory.textOf', () => {
       const { textOf } = Memory;
@@ -61,6 +68,13 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
       const storage = Memory.Storage.crdt({ doc });
       const memory = new MastraMemory({ storage, options: { semanticRecall: false } });
       return { repo, doc, storage, memory } as const;
+    };
+
+    const m = () => {
+      const repo = Crdt.repo();
+      const initial: t.MastraStorageDoc = { threads: {}, messages: {}, resources: {} };
+      const doc = repo.create(initial);
+      const storage = Memory.Storage.crdt({ doc });
     };
 
     beforeEach(async () => {
