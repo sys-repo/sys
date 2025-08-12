@@ -30,6 +30,7 @@ export type ButtonProps = {
   maxWidth?: number;
   userSelect?: boolean;
   pressedOffset?: [number, number];
+  disabledOpacity?: t.Percent;
 
   /** Subscribe to signals that cause the button to redraw. */
   subscribe?: () => void;

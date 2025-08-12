@@ -128,6 +128,6 @@ const wrangle = {
     const { opacity } = props;
     if (Is.number(opacity)) return opacity;
     if (Is.func(opacity)) return opacity({ is });
-    return is.enabled ? D.opacity.enabled : D.opacity.disabled;
+    return is.enabled ? D.opacity.enabled : props.disabledOpacity ?? D.opacity.disabled;
   },
 } as const;

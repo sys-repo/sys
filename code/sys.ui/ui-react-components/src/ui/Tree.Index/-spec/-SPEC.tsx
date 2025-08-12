@@ -49,6 +49,7 @@ export default Spec.describe(D.displayName, (e) => {
         const elBackButton = (
           <Button
             enabled={() => (p.path.value?.length ?? 0) > 0}
+            disabledOpacity={0.12}
             style={{ Absolute: [-35, null, null, -35] }}
             theme={v.theme}
             onMouseDown={() => (p.path.value = (p.path.value ?? []).slice(0, -1))}
