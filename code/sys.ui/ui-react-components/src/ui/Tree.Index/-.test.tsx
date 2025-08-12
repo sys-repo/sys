@@ -226,6 +226,129 @@ describe('Tree.Index', () => {
         expect(fooChildren).to.eql([]); // Foo is a leaf
       });
     });
+
+    describe('YAML dialect - parse from text (yaml)', () => {
+      describe('YAML dialect - parse from text (yaml)', () => {
+        it('parses mapping root and normalizes (order, meta, children)', () => {
+          const yaml = `
+Getting Started: crdt:ref
+
+Foo:
+  a: 1
+  b: 2
+
+Bar:
+  .: { label: 'Bar (custom)' }
+  a: 1
+  b: 2
+
+Examples:
+  .: { note: 'group', id: 'examples' }
+  info: 'group details'
+  children:
+    - SubTree: foo
+    - Bar: hello
+
+Section:
+  children:
+    A: ref:a
+    B: ref:b
+
+ArrLeaf:
+  - 1
+  - 2
+  - 3
+`.trim();
+
+          const list = Yaml.parse(yaml);
+
+          // top-level order
+          expect(list.map((n) => labelToString(n.label))).to.eql([
+            'Getting Started',
+            'Foo',
+            'Bar (custom)',
+            'Examples',
+            'Section',
+            'ArrLeaf',
+          ]);
+
+          // key semantics + value carry-through
+          expect(list[0].key).to.eql('Getting Started');
+          expect(list[0].value).to.eql('crdt:ref');
+
+          // plain object as leaf
+          expect(list[1].value).to.eql({ a: 1, b: 2 });
+
+          // meta label leaf
+          expect(labelToString(list[2].label)).to.eql('Bar (custom)');
+          expect(list[2].meta).to.eql({ label: 'Bar (custom)' });
+
+          // branch with id override + ordered children
+          const ex = list[3];
+          expect(ex.key).to.eql('examples');
+          expect(ex.value).to.eql({ info: 'group details' });
+          expect(ex.children?.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
+          expect(ex.children?.[1].value).to.eql('hello');
+
+          // children as record (insertion order)
+          const sec = list[4];
+          expect(sec.children?.map((n) => labelToString(n.label))).to.eql(['A', 'B']);
+
+          // array leaf remains a leaf
+          const arr = list[5];
+          expect(Array.isArray(arr.value)).to.eql(true);
+
+          // spot-check path navigation works post-parse
+          const kids = Yaml.at(list, toObjectPath('examples'));
+          expect(kids.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
+        });
+
+        it('parses sequence root (single-entry maps) and preserves explicit order', () => {
+          const yaml = `
+- Getting Started: crdt:ref
+- Foo:
+    a: 1
+    b: 2
+- Bar:
+    .: { label: 'Bar (custom)' }
+    a: 1
+    b: 2
+- Examples:
+    .: { note: 'group', id: 'examples' }
+    info: 'group details'
+    children:
+      - SubTree: foo
+      - Bar: hello
+- Section:
+    children:
+      A: ref:a
+      B: ref:b
+- ArrLeaf:
+    - 1
+    - 2
+    - 3
+`.trim();
+
+          const list = Yaml.parse(yaml);
+          expect(list.map((n) => labelToString(n.label))).to.eql([
+            'Getting Started',
+            'Foo',
+            'Bar (custom)',
+            'Examples',
+            'Section',
+            'ArrLeaf',
+          ]);
+
+          // "id" override still applies.
+          expect(list[3].key).to.eql('examples');
+        });
+
+        it('empty or whitespace input → empty tree', () => {
+          expect(Yaml.parse('')).to.eql([]);
+          expect(Yaml.parse('   \n')).to.eql([]);
+        });
+      });
+    });
   });
 });
 

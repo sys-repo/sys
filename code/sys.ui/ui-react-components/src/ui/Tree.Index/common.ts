@@ -1,8 +1,9 @@
 import { pkg, Pkg } from '../common.ts';
-
 export * from '../common.ts';
-export { Icons } from '../ui.Icons.ts';
+
+export { Yaml } from '@sys/std/yaml';
 export { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
+export { Icons } from '../ui.Icons.ts';
 
 /**
  * Constants:

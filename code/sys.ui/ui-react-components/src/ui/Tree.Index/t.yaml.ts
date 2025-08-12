@@ -14,6 +14,48 @@ export type IndexTreeYamlLib = Readonly<{
   ): t.TreeNodeList;
 
   /**
+   * Parse YAML text in the IndexTree authoring dialect and normalize it to a `TreeList`.
+   *
+   * Accepts either:
+   * - a root mapping: `{ Key: Node, ... }`
+   * - or a root sequence of single-entry maps (to force top-level order):
+   *   `- Key: Node`
+   *
+   * Semantics:
+   * - Anything can be a leaf. An object becomes a wrapper/branch only when it contains
+   *   "." (meta) or "children".
+   * - Ordering: for mapping roots, relies on parser insertion order; for sequence roots,
+   *   preserves the sequence order exactly.
+   * - `meta.id` overrides the path segment used to build `node.key`. `meta.label` may be
+   *   a string or JSX.Element and becomes `node.label`.
+   *
+   * @param text YAML string in the IndexTree dialect.
+   * @returns Normalized `TreeList` for rendering.
+   *
+   * @example
+   * // mapping root
+   * const yaml = `
+   * Getting Started: crdt:ref
+   * Section:
+   *   children:
+   *     A: ref:a
+   * `;
+   * const tree = IndexTree.Yaml.parse(yaml);
+   *
+   * @example
+   * // sequence root (explicit top-level order)
+   * const yaml = `
+   * - Foo: ref:foo
+   * - Bar:
+   *     .: { label: 'Bar (custom)', id: 'bar' }
+   *     children:
+   *       - Baz: ref:baz
+   * `;
+   * const tree = IndexTree.Yaml.parse(yaml);
+   */
+  parse(text: string): t.TreeNodeList;
+
+  /**
    * Get children at a path ('', 'a/b/c', or ['a','b','c']).
    * Path segments match either the literal segment or an `id` override from `meta.id`.
    */

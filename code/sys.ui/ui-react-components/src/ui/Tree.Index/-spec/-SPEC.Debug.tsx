@@ -1,16 +1,15 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
-import { IndexTree } from '../mod.ts';
 
-import { Yaml } from '@sys/std/yaml';
+import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug'> & { yaml?: string };
 const defaults: Storage = {
   theme: 'Dark',
   debug: true,
+  yaml: SAMPLE_YAML,
 };
 
 /**
@@ -31,6 +30,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    yaml: s(snap.yaml),
   };
   const p = props;
   const api = {
@@ -44,6 +44,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.yaml = p.yaml.value;
     });
   });
 
@@ -85,12 +86,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <hr />
       <Button
         block
-        label={() => `YAML`}
-        onClick={() => {
+        label={() => {
+          const v = p.yaml.value;
+          return `yaml: ${v ? `"${Str.truncate(v, 35)}"` : `<undefined>`}`;
         }}
+        onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
       />
 
       <hr />
