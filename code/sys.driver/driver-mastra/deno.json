@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-mastra",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
