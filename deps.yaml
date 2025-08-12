@@ -60,13 +60,13 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@4.0.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.46.2
-    - import: npm:vite@7.1.1
+    - import: npm:vite@7.1.2
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
     - import: npm:react@19.1.1
     - import: npm:react-dom@19.1.1
-    - import: npm:@types/react@19.1.9
+    - import: npm:@types/react@19.1.10
     - import: npm:@types/react-dom@19.1.7
 
   ui/monaco:
@@ -84,8 +84,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.9
-    - import: npm:@ai-sdk/openai@2.0.9
+    - import: npm:ai@5.0.10
+    - import: npm:@ai-sdk/openai@2.0.10
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.13.1
       subpaths: ['agent', 'memory', 'storage']
@@ -121,7 +121,7 @@ deno.json:
   - import: npm:immer@10
   - import: npm:ora@8.2.0
   - import: npm:@preact/signals-core@1.11.0
-  - import: npm:pretty-bytes@7.0.0
+  - import: npm:pretty-bytes@7.0.1
   - import: npm:peerjs@1.5.5
   - import: npm:ramda@0.31.3
   - import: npm:@types/ramda@0.31.0

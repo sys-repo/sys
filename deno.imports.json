@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.9",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.10",
     "@automerge/automerge": "npm:@automerge/automerge@3.1.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.2.0",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.2.0",
@@ -45,7 +45,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
     "@types/ramda": "npm:@types/ramda@0.31.0",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@5.0.9",
+    "ai": "npm:ai@5.0.10",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@5.2.1",
     "chai/": "npm:chai@5.2.1/",
@@ -65,7 +65,7 @@
     "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@8.2.0",
     "peerjs": "npm:peerjs@1.5.5",
-    "pretty-bytes": "npm:pretty-bytes@7.0.0",
+    "pretty-bytes": "npm:pretty-bytes@7.0.1",
     "prosemirror-example-setup": "npm:prosemirror-example-setup@1.2.3",
     "prosemirror-example-setup/style/style.css": "npm:prosemirror-example-setup@1.2.3/style/style.css",
     "prosemirror-model": "npm:prosemirror-model@1.25.3",
