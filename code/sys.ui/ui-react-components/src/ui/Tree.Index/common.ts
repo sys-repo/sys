@@ -2,6 +2,7 @@ import { pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
 export { Icons } from '../ui.Icons.ts';
+export { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 
 /**
  * Constants:

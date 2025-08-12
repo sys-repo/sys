@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Icons } from './common.ts';
+import { type t, Color, css, D, Icons, IndexTreeItem } from './common.ts';
 
 type LeafNode = { label: string };
 
@@ -33,12 +33,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
     <div className={styles.body.class}>
       {items.map((item, i) => {
         const key = `${i}.${item.label}`;
-        return (
-          <div key={key} className={styles.item.class}>
-            <div>{item.label}</div>
-            <Icons.Chevron.Right />
-          </div>
-        );
+        return <IndexTreeItem key={key} theme={theme.name} label={item.label} />;
       })}
     </div>
   );

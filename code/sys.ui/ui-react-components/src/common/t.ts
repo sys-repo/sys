@@ -1,4 +1,4 @@
-export type { ReactNode } from 'react';
+export type { JSX, ReactNode } from 'react';
 
 /**
  * @system:
