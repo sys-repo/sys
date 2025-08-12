@@ -1,5 +1,5 @@
-import { type t, Is } from './common.ts';
-import { isWrapper, encodePath } from './m.Yaml.u.ts';
+import { type t, Is, Obj } from './common.ts';
+import { isWrapper } from './m.Yaml.u.ts';
 
 /**
  * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeNodeList`.
@@ -31,7 +31,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
       const seg = id ?? k;
 
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = encodePath(path);
+      const key = Obj.Path.codec.encode(path);
 
       const rawLabel =
         meta && Object.prototype.hasOwnProperty.call(meta, 'label')
@@ -79,7 +79,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
     if (infer && Is.record(v)) {
       const seg = k;
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = encodePath(path);
+      const key = Obj.Path.codec.encode(path);
       const children = Object.entries(v).flatMap(([ck, cv]) => makeNodes(ck, cv, path));
       return [{ path, key, label: k, children }] as const;
     }
@@ -88,7 +88,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
     {
       const seg = k;
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = encodePath(path);
+      const key = Obj.Path.codec.encode(path);
       return [{ path, key, label: k, value: v }] as const;
     }
   }

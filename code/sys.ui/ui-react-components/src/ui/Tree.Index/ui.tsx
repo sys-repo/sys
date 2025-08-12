@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { type t, Color, css, D, IndexTreeItem } from './common.ts';
+import { type t, Color, css, D, IndexTreeItem, Obj } from './common.ts';
 import { toList } from './m.IndexTree.u.ts';
-import { encodePath } from './m.Yaml.u.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
 import { at, hasChildren } from './u.ts';
 
@@ -30,9 +29,11 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
     body: css({ minWidth }),
   };
 
+  const animKey = Obj.Path.codec.encode(path);
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <SlideDeck keyId={encodePath(path)} dir={dir} style={styles.body}>
+      <SlideDeck keyId={animKey} dir={dir} style={styles.body}>
         {view.map((node) => {
           const enabled = Boolean(node.meta?.enabled ?? true);
           return (
