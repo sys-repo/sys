@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, IndexTreeItem, Obj } from './common.ts';
-import { Data } from './m.Data.ts';
+import { type t, Color, css, D, Data, IndexTreeItem, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
 
 export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {

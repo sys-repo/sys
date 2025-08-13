@@ -1,4 +1,6 @@
-import { type t, Yaml } from './common.ts';
+import { Yaml } from '@sys/std/yaml';
+
+import { type t } from './common.ts';
 import { from } from './m.Yaml.from.ts';
 
 export const parse: t.IndexTreeYamlLib['parse'] = (text) => {
