@@ -158,11 +158,11 @@ describe('Tree.Index', () => {
       describe('implicit array → children (single-entry map list)', () => {
         it('value is a sequence of single-entry maps → becomes a branch with children (no wrapper required)', () => {
           const yaml = `
-            - Getting Started: crdt:ref
-            - Foo:
-              - a: 1
-              - b: 2
-            `.trim();
+- Getting Started: crdt:ref
+- Foo:
+  - a: 1
+  - b: 2
+`.trim();
 
           const list = Yaml.parse(yaml);
 
@@ -191,11 +191,11 @@ describe('Tree.Index', () => {
 
         it('arrays of scalars remain leaves (non node-list shape)', () => {
           const yaml = `
-            ArrLeaf:
-              - 1
-              - 2
-              - 3
-            `.trim();
+ArrLeaf:
+  - 1
+  - 2
+  - 3
+`.trim();
 
           const list = Yaml.parse(yaml);
           const node = list[0];
@@ -208,11 +208,11 @@ describe('Tree.Index', () => {
 
         it('arrays with items that are NOT single-entry maps remain leaves (odd shapes)', () => {
           const yaml = `
-            Foo:
-              - { a: 1, b: 2 }   # two keys → not a single-entry map
-              - []               # nested array
-              - 42               # scalar
-            `.trim();
+Foo:
+  - { a: 1, b: 2 }   # two keys → not a single-entry map
+  - []               # nested array
+  - 42               # scalar
+`.trim();
 
           const list = Yaml.parse(yaml);
           const foo = list[0];
@@ -224,12 +224,12 @@ describe('Tree.Index', () => {
 
         it('sequence root with implicit-children node still preserves explicit order', () => {
           const yaml = `
-            - A: one
-            - B:
-                - x: 1
-                - y: 2
-            - C: three
-            `.trim();
+- A: one
+- B:
+    - x: 1
+    - y: 2
+- C: three
+`.trim();
 
           const list = Yaml.parse(yaml);
           expect(list.map((n) => labelToString(n.label))).to.eql(['A', 'B', 'C']);
