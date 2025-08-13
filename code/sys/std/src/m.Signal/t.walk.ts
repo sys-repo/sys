@@ -31,9 +31,17 @@ export type SignalWalkOptions = {
 /**
  * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
  * Returns the number of visited signals.
+ *
+ * Overloads:
+ *  - Precise (generic): strong typing via `SignalValueOf<T>`.
+ *  - Wide (escape hatch): avoids deep instantiation (TS2589) when needed.
  */
-export type SignalWalk = <T extends object | any[]>(
-  parent: T,
-  fn: SignalWalkFn<SignalValueOf<T>>,
-  options?: SignalWalkOptions,
-) => number;
+export type SignalWalk = {
+  <T extends object | any[]>(
+    parent: T,
+    fn: SignalWalkFn<SignalValueOf<T>>,
+    options?: SignalWalkOptions,
+  ): number;
+
+  (parent: unknown, fn: SignalWalkFn, options?: SignalWalkOptions): number;
+};
