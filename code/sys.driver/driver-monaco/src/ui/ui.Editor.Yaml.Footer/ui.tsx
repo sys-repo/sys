@@ -1,8 +1,17 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, Icons, PathView } from './common.ts';
 
-export const Footer: React.FC<t.FooterProps> = (props) => {
-  const { debug = false } = props;
+type P = t.FooterProps;
+
+export const Footer: React.FC<P> = (props) => {
+  const { debug = false, path, crdt = {}, errors = [] } = props;
+
+
+  const hasErrors = errors.length > 0;
+  const tooltip = errors
+    .map((err) => err.message)
+    .join('\n')
+    .trim();
 
   /**
    * Render:
@@ -12,12 +21,35 @@ export const Footer: React.FC<t.FooterProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      padding: 8,
+      PaddingX: 12,
+      display: 'grid',
+      gridTemplateColumns: '1fr auto',
+      alignItems: 'center',
+    }),
+    error: css({
+      opacity: hasErrors ? 1 : 0,
+      transition: 'opacity 120ms ease',
     }),
   };
 
+  const elError = (
+    <Icons.Error size={18} color={Color.YELLOW} style={styles.error} tooltip={tooltip} />
+  );
+
+  const elPath = (
+    <PathView
+      prefix={'path:'}
+      prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
+      path={path}
+      theme={theme.name}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
+      {elPath}
+      {elError}
     </div>
   );
 };

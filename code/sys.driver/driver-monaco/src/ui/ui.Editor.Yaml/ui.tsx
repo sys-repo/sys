@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { type t, Color, css, D, rx } from './common.ts';
+import { type t, Color, css, D, Footer, rx } from './common.ts';
 import { Body } from './ui.Editor.Body.tsx';
-import { Footer } from './ui.Footer.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useController } from './use.Controller.ts';
 
@@ -40,6 +39,9 @@ export const YamlEditor: React.FC<P> = (props) => {
       display: 'grid',
       gridTemplateRows: '1fr auto',
     }),
+    footer: css({
+      backgroundColor: Color.alpha(Color.BLACK, theme.is.dark ? 0.18 : 0.02),
+    }),
   };
 
   const elNoRepo = !repo && <NotReady theme={theme.name} label={'No CRDT repository.'} />;
@@ -47,7 +49,15 @@ export const YamlEditor: React.FC<P> = (props) => {
   const elError = elNoRepo || elNoPath;
 
   const elMain = elError || <Body {...props} signals={signals} />;
-  const elFooter = footerVisible && <Footer repo={repo} theme={theme.name} yaml={yaml} />;
+  const elFooter = footerVisible && (
+    <Footer
+      theme={theme.name}
+      style={styles.footer}
+      path={yaml?.cursor.path}
+      crdt={{ repo }}
+      errors={yaml?.parsed.errors}
+    />
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -3,11 +3,27 @@ import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.FooterProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug'> & { errors?: t.Json };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  errors: undefined,
 };
+
+const SAMPLE = {
+  errors: [
+    {
+      name: 'YAMLParseError',
+      code: 'BAD_SCALAR_START',
+      message: `Plain value cannot start with reserved character @ at line 2, column 6:\n\nfoo: @foo\n     ^\n`,
+      pos: [6, 7],
+      linePos: [
+        { line: 2, col: 6 },
+        { line: 2, col: 7 },
+      ],
+    },
+  ] satisfies t.YamlError[],
+} as const;
 
 /**
  * Types:
@@ -27,6 +43,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    errors: s(snap.errors as t.YamlError[] | undefined),
   };
   const p = props;
   const api = {
@@ -41,6 +58,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.errors = p.errors.value as t.Json | undefined;
     });
   });
 
@@ -80,6 +98,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.errors.value;
+          return `errors: ${v ? `array[${v.length}]` : `<undefined>`}`;
+        }}
+        onClick={() => Signal.cycle(p.errors, [SAMPLE.errors, undefined])}
       />
 
       <hr />

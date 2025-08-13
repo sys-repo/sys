@@ -22,7 +22,15 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Footer debug={v.debug} theme={v.theme} />;
+        return (
+          <Footer
+            //
+            debug={v.debug}
+            theme={v.theme}
+            errors={v.errors}
+            crdt={{ repo, localstorage: STORAGE_KEY.DEV }}
+          />
+        );
       });
 
     ctx.debug.footer
