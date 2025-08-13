@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.data.ts';
 export type * from './t.node.ts';
 export type * from './t.ui.ts';
 export type * from './t.yaml.ts';
@@ -6,13 +7,15 @@ export type * from './t.yaml.ts';
 /**
  * Index Tree library API:
  */
-export type IndexTreeLib = Readonly<{
-  /** Flag evaluators */
-  Is: t.IndexTreeIsLib;
+export type IndexTreeLib = {
   /** <IndexTree> component view: */
   View: React.FC<t.IndexTreeProps>;
   /** Individual item/node tools: */
-  Item: Readonly<{ View: React.FC<t.IndexTreeItemProps> }>;
+  Item: { View: React.FC<t.IndexTreeItemProps> };
+  /** Flag evaluators */
+  Is: t.IndexTreeIsLib;
+  /** Data utilities: */
+  Data: t.IndexTreeDataLib;
   /** YAML dialect tools: */
   Yaml: t.IndexTreeYamlLib;
 
@@ -27,7 +30,7 @@ export type IndexTreeLib = Readonly<{
    * This is the single helper the view uses to decide what to render at the current level.
    */
   toList(root?: t.TreeNode | t.TreeNodeList): t.TreeNodeList;
-}>;
+};
 
 /**
  * Flag evaluators:

@@ -1,6 +1,7 @@
 import { type t, Obj, describe, expect, it } from '../../-test.ts';
 import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 
+import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
 import { toSeq } from './m.Yaml.u.ts';
@@ -14,35 +15,36 @@ describe('Tree.Index', () => {
     expect(IndexTree.View).to.equal(View);
     expect(IndexTree.Item.View).to.equal(IndexTreeItem);
     expect(IndexTree.Yaml).to.equal(Yaml);
+    expect(IndexTree.Data).to.equal(Data);
     expect(IndexTree.Is).to.equal(Is);
   });
 
-  describe('YAML dialect', () => {
-    /**
-     * Sample sources (mirror the docs exactly)
-     */
-    const SOURCE_BASE: Record<string, t.YamlTreeSourceNode> = {
-      'Getting Started': 'crdt:ref',
-      Foo: { a: 1, b: 2 },
-      Bar: {
-        '.': { label: 'Bar (custom)' },
-        a: 1,
-        b: 2,
+  /**
+   * Sample sources (mirror the docs exactly)
+   */
+  const SOURCE_BASE: Record<string, t.YamlTreeSourceNode> = {
+    'Getting Started': 'crdt:ref',
+    Foo: { a: 1, b: 2 },
+    Bar: {
+      '.': { label: 'Bar (custom)' },
+      a: 1,
+      b: 2,
+    },
+    Examples: {
+      '.': { note: 'group', id: 'examples' },
+      info: 'group details',
+      children: [{ SubTree: 'foo' }, { Bar: 'hello' }],
+    },
+    Section: {
+      children: {
+        A: 'ref:a',
+        B: 'ref:b',
       },
-      Examples: {
-        '.': { note: 'group', id: 'examples' },
-        info: 'group details',
-        children: [{ SubTree: 'foo' }, { Bar: 'hello' }],
-      },
-      Section: {
-        children: {
-          A: 'ref:a',
-          B: 'ref:b',
-        },
-      },
-      ArrLeaf: [1, 2, 3], // ← array leaf (must remain a leaf, not confused with list).
-    } as const;
+    },
+    ArrLeaf: [1, 2, 3], // ← array leaf (must remain a leaf, not confused with list).
+  } as const;
 
+  describe('TreeIndex.Yaml', () => {
     describe('YAML dialect → normalized Tree', () => {
       it('normalizes leaves and branches (baseline semantics)', () => {
         const list = Yaml.from(SOURCE_BASE);
@@ -123,51 +125,6 @@ describe('Tree.Index', () => {
         expect(a).to.not.equal(b);
       });
 
-      it('`at` supports string and [ObjectPath] forms, plus "id" overrides', () => {
-        const list = Yaml.from(SOURCE_BASE);
-
-        // by ObjectPath:
-        const a = Yaml.at(list, toObjectPath('examples'));
-        expect(a.map((n) => n.label)).to.eql(['SubTree', 'Bar']);
-
-        // deep path by literal labels:
-        const b = Yaml.at(list, toObjectPath('Section/A'));
-        expect(b).to.eql([]); // ← 'A' is a leaf, so no children.
-
-        // "id" override path (examples has meta.id = 'examples'):
-        const c = Yaml.at(list, toObjectPath('examples'));
-        expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // ← already covered, but this is the id form.
-
-        // explicit test that a renamed label with same id still resolves:
-        const src2 = {
-          Examples: {
-            '.': { note: 'group', id: 'examples', label: 'Examples (renamed)' },
-            children: [{ SubTree: 'foo' }],
-          },
-        } as const;
-        const list2 = Yaml.from(src2);
-        const d = Yaml.at(list2, toObjectPath('examples'));
-        expect(d.map((n) => n.label)).to.eql(['SubTree']);
-
-        // empty path returns root
-        const e = Yaml.at(list, [] as t.ObjectPath);
-        expect(e).to.eql(list);
-      });
-
-      it('`find` by exact key and by predicate', () => {
-        const list = Yaml.from(SOURCE_BASE);
-
-        const byKey = Yaml.find(list, '/examples/Bar');
-        expect(byKey?.label).to.eql('Bar');
-        expect(byKey?.value).to.eql('hello');
-
-        const byPred = Yaml.find(
-          list,
-          ({ node, parents }) => node.label === 'Foo' && parents.length === 0,
-        );
-        expect(byPred?.key).to.eql('/Foo');
-      });
-
       it('heuristic: inferPlainObjectsAsBranches = true makes mapping-only nodes branches', () => {
         const src = { Node: { a: 1, b: 2 } } as const;
         const leaf = Yaml.from(src); // ← default: plain object → leaf.
@@ -224,7 +181,7 @@ describe('Tree.Index', () => {
         expect(labelToString(list[0].label)).to.eql('<span>');
 
         // `at` works the same
-        const fooChildren = Yaml.at(list, toObjectPath('Foo'));
+        const fooChildren = Data.at(list, toObjectPath('Foo'));
         expect(fooChildren).to.eql([]); // Foo is a leaf
       });
     });
@@ -301,7 +258,7 @@ ArrLeaf:
           expect(Array.isArray(arr.value)).to.eql(true);
 
           // spot-check path navigation works post-parse
-          const kids = Yaml.at(list, toObjectPath('examples'));
+          const kids = Data.at(list, toObjectPath('examples'));
           expect(kids.map((n) => labelToString(n.label))).to.eql(['SubTree', 'Bar']);
         });
 
@@ -353,7 +310,54 @@ ArrLeaf:
     });
   });
 
-  describe('Tree.Index.Is', () => {
+  describe('TreeIndex.Data', () => {
+    it('`at` supports string and [ObjectPath] forms, plus "id" overrides', () => {
+      const list = Yaml.from(SOURCE_BASE);
+
+      // by ObjectPath:
+      const a = Data.at(list, toObjectPath('examples'));
+      expect(a.map((n) => n.label)).to.eql(['SubTree', 'Bar']);
+
+      // deep path by literal labels:
+      const b = Data.at(list, toObjectPath('Section/A'));
+      expect(b).to.eql([]); // ← 'A' is a leaf, so no children.
+
+      // "id" override path (examples has meta.id = 'examples'):
+      const c = Data.at(list, toObjectPath('examples'));
+      expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // ← already covered, but this is the id form.
+
+      // explicit test that a renamed label with same id still resolves:
+      const src2 = {
+        Examples: {
+          '.': { note: 'group', id: 'examples', label: 'Examples (renamed)' },
+          children: [{ SubTree: 'foo' }],
+        },
+      } as const;
+      const list2 = Yaml.from(src2);
+      const d = Data.at(list2, toObjectPath('examples'));
+      expect(d.map((n) => n.label)).to.eql(['SubTree']);
+
+      // empty path returns root
+      const e = Data.at(list, [] as t.ObjectPath);
+      expect(e).to.eql(list);
+    });
+
+    it('`find` by exact key and by predicate', () => {
+      const list = Yaml.from(SOURCE_BASE);
+
+      const byKey = Data.find(list, '/examples/Bar');
+      expect(byKey?.label).to.eql('Bar');
+      expect(byKey?.value).to.eql('hello');
+
+      const byPred = Data.find(
+        list,
+        ({ node, parents }) => node.label === 'Foo' && parents.length === 0,
+      );
+      expect(byPred?.key).to.eql('/Foo');
+    });
+  });
+
+  describe('TreeIndex.Is', () => {
     it('identifies a TreeNodeList', () => {
       const nodeList: t.TreeNodeList = [
         { key: '1', label: 'One', path: ['1'] as t.ObjectPath },
@@ -370,7 +374,7 @@ ArrLeaf:
     });
   });
 
-  describe('Tree.Index.toList', () => {
+  describe('TreeIndex.toList', () => {
     it('<undefined> → empty list', () => {
       const out = IndexTree.toList(undefined);
       expect(out).to.eql([]);
@@ -413,7 +417,7 @@ ArrLeaf:
     });
   });
 
-  describe('Tree.Index - path encoding', () => {
+  describe('TreeIndex: path codec (encode / decode)', () => {
     it('encodes "/" and "~" per RFC6901 (~1, ~0) and roundtrips', () => {
       const path = asObjectPath('seg/with/slash', 'tilde~here', 'mixed~/slash');
       const key = Obj.Path.Codec.pointer.encode(path);
@@ -429,9 +433,7 @@ ArrLeaf:
       expect(key).to.eql('//a/b c'); // leading empty segment → extra '/'
       expect(Obj.Path.Codec.pointer.decode(key)).to.eql(path);
     });
-  });
 
-  describe('Tree.Index - normalized nodes carry path and encoded key', () => {
     it('labels and ids with "/" or "~" are safe', () => {
       const src = {
         'A/B': {
@@ -458,7 +460,7 @@ ArrLeaf:
       expect(g.key).to.eql('/id~1with~1slash/E~0id/G~1H~0I');
     });
 
-    it('Yaml.at navigates using raw ObjectPath (no parsing)', () => {
+    it('Data.at navigates using raw ObjectPath (no parsing)', () => {
       const src = {
         Root: {
           '.': { id: 'r' },
@@ -467,7 +469,7 @@ ArrLeaf:
       } as const;
 
       const list = Yaml.from(src);
-      const children = Yaml.at(list, asObjectPath('r')); // ← by raw path segment (with slash in id).
+      const children = Data.at(list, asObjectPath('r')); // ← by raw path segment (with slash in id).
       expect(children.map((n) => n.key)).to.eql(['/r/A~1B', '/r/C~0D']);
     });
   });
