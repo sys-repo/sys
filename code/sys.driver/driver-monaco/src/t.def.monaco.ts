@@ -11,6 +11,7 @@ export namespace Monaco {
   /** Convenience aliases for common editor types. */
   export type Selection = monaco.Selection;
   export type Position = monaco.Position;
+  export type Uri = monaco.Uri;
 
   export type Editor = editor.IStandaloneCodeEditor;
   export type TextModel = editor.ITextModel;
