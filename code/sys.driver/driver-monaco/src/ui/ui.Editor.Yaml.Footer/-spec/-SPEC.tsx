@@ -22,6 +22,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        const repo = v.passCrdtRepo ? debug.repo : undefined;
         return (
           <Footer
             //
