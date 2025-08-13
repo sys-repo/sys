@@ -12,17 +12,21 @@ import {
   Url,
 } from '../common.ts';
 
+type P = t.SyncEnabledSwitchProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'localstorage' | 'mode'> & { noRepo?: boolean };
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  noRepo: false,
+  localstorage: STORAGE_KEY.DEV.SUBJECT,
+  mode: D.mode,
+};
+
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-type Storage = {
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  noRepo?: boolean;
-  localstorage?: string;
-};
 
 /**
  * Signals:
@@ -30,12 +34,6 @@ type Storage = {
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: false,
-    noRepo: false,
-    localstorage: STORAGE_KEY.DEV.SUBJECT,
-  };
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
 
@@ -60,6 +58,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     localstorage: s(snap.localstorage),
+    mode: s(snap.mode),
     noRepo: s(snap.noRepo),
   };
   const p = props;
@@ -79,6 +78,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.noRepo = p.noRepo.value;
       d.localstorage = p.localstorage.value;
+      d.mode = p.mode.value;
     });
   });
 
@@ -118,6 +118,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `mode: ${p.mode.value ?? `<undefined> (default)`}`}
+        onClick={() => Signal.cycle<P['mode']>(p.mode, ['switch-only', undefined])}
       />
 
       <hr />

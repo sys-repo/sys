@@ -14,6 +14,7 @@ export type SyncEnabledSwitchProps = {
   repo?: t.CrdtRepo;
   debug?: boolean;
   localstorage?: t.StringKey;
+  mode?: 'default' | 'switch-only';
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onChange?: (e: { enabled: boolean }) => void;

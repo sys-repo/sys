@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, Icons, Switch, SwitchTheme } from './common.ts';
+import { type t, Color, css, D, Icons, Switch, SwitchTheme } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
 import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
 import { PeerLabel } from './ui.Switch.Peer.tsx';
@@ -12,7 +12,7 @@ type P = t.SyncEnabledSwitchProps;
  * Component:
  */
 export const SyncEnabledSwitch: React.FC<P> = (props) => {
-  const { repo } = props;
+  const { repo, mode = D.mode } = props;
   const peerId = repo?.id.peer ?? '';
   const urls = repo?.sync.urls ?? [];
 
@@ -57,15 +57,21 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     dim: LabelStyle.dim,
   };
 
+  const elDetails = mode === 'default' && (
+    <>
+      <span className={styles.dim.class}>{prefixLabel}</span>
+      {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
+      {peerId && enabled && <span className={styles.dim.class}>{'•'}</span>}
+      {peerId && enabled && <PeerLabel peerId={peerId} />}
+      {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}
+    </>
+  );
+
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch value={enabled} theme={switchTheme} height={16} onMouseDown={onClick} />
-        <span className={styles.dim.class}>{prefixLabel}</span>
-        {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
-        {peerId && enabled && <span className={styles.dim.class}>{'•'}</span>}
-        {peerId && enabled && <PeerLabel peerId={peerId} />}
-        {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}
+        {elDetails}
       </div>
     </div>
   );

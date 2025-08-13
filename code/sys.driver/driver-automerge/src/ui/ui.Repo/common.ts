@@ -1,4 +1,4 @@
-import { pkg, Pkg } from '../common.ts';
+import { type t, pkg, Pkg } from '../common.ts';
 
 export { Crdt } from '../../-platforms/-browser/mod.ts';
 export * from '../common.ts';
@@ -12,6 +12,7 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name, false),
   syncEnabled: true,
   silent: false,
+  mode: 'default' satisfies t.SyncEnabledSwitchProps['mode'],
 } as const;
 export const D = DEFAULTS;
 

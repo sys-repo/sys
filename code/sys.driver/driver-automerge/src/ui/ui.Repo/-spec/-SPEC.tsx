@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D, Crdt, STORAGE_KEY } from '../common.ts';
+import { Dev, Spec } from '../../-test.ui.ts';
+import { D, STORAGE_KEY, Signal } from '../common.ts';
 import { Repo } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -21,15 +21,17 @@ export default Spec.describe(D.displayName, (e) => {
       .size([420, null])
       .display('grid')
       .render(() => {
+        const v = Signal.toObject(p);
         return (
           <Repo.SyncEnabledSwitch
-            theme={p.theme.value}
-            debug={p.debug.value}
+            theme={v.theme}
+            debug={v.debug}
             //
-            repo={p.noRepo.value ? undefined : debug.repo}
-            localstorage={p.localstorage.value}
+            repo={v.noRepo ? undefined : debug.repo}
+            mode={v.mode}
+            localstorage={v.localstorage}
             onChange={(e) => {
-              p.redraw.value++;
+              v.redraw += 1;
               console.info(`⚡️ SyncEnabledSwitch.onChange:`, e);
             }}
           />
