@@ -47,7 +47,7 @@ export const YamlEditor: React.FC<P> = (props) => {
   const elError = elNoRepo || elNoPath;
 
   const elMain = elError || <Body {...props} signals={signals} />;
-  const elFooter = footerVisible && <Footer theme={theme.name} yaml={yaml} />;
+  const elFooter = footerVisible && <Footer repo={repo} theme={theme.name} yaml={yaml} />;
 
   return (
     <div className={css(styles.base, props.style).class}>

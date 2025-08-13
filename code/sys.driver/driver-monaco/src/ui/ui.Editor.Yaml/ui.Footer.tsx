@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, css, Icons, PathView } from './common.ts';
 
 export type FooterProps = {
+  repo?: t.Crdt.Repo;
   yaml?: t.EditorYaml;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -12,7 +13,8 @@ export type FooterProps = {
  * Component:
  */
 export const Footer: React.FC<FooterProps> = (props) => {
-  const { debug = false, yaml } = props;
+  const { debug = false, yaml, repo } = props;
+
 
   const errors = yaml?.parsed.errors ?? [];
   const hasErrors = errors.length > 0;
