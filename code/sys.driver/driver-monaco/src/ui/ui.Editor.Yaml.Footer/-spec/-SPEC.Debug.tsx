@@ -2,13 +2,14 @@ import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
-type P = t.FooterProps;
-type Storage = Pick<P, 'theme' | 'debug'> & { errors?: t.Json; passCrdtRepo: boolean };
+type P = t.YamlEditorFooterProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'visible'> & { errors?: t.Json; passCrdtRepo: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   errors: undefined,
   passCrdtRepo: true,
+  visible: D.visible,
 };
 
 const SAMPLE = {
@@ -45,6 +46,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     errors: s(snap.errors as t.YamlError[] | undefined),
+    visible: s(snap.visible),
     passCrdtRepo: s(snap.passCrdtRepo),
   };
   const p = props;
@@ -60,6 +62,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.visible = p.visible.value;
       d.errors = p.errors.value as t.Json | undefined;
       d.passCrdtRepo = p.passCrdtRepo.value;
     });
@@ -109,6 +112,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `errors: ${v ? `array[${v.length}]` : `<undefined>`}`;
         }}
         onClick={() => Signal.cycle(p.errors, [SAMPLE.errors, undefined])}
+      />
+      <Button
+        block
+        label={() => `visible: ${p.visible.value ?? `<undefined> (default: ${D.visible})`}`}
+        onClick={() => Signal.toggle(p.visible)}
       />
 
       <hr />

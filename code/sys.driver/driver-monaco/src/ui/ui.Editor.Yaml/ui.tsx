@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Footer, rx } from './common.ts';
+import { type t, Color, css, D, rx, YamlEditorFooter } from './common.ts';
 import { Body } from './ui.Editor.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useController } from './use.Controller.ts';
@@ -9,7 +9,7 @@ type P = t.YamlEditorProps;
 
 export const YamlEditor: React.FC<P> = (props) => {
   const { debug = false, path, repo, footer = {} } = props;
-  const footerVisible = footer.visible ?? D.footer.visible;
+  const isFooterVisible = footer.visible ?? D.footer.visible;
 
   /**
    * Hooks:
@@ -49,11 +49,12 @@ export const YamlEditor: React.FC<P> = (props) => {
   const elError = elNoRepo || elNoPath;
 
   const elMain = elError || <Body {...props} signals={signals} />;
-  const elFooter = footerVisible && (
-    <Footer
+  const elFooter = (
+    <YamlEditorFooter
       theme={theme.name}
       style={styles.footer}
       path={yaml?.cursor.path}
+      visible={isFooterVisible}
       crdt={{ repo }}
       errors={yaml?.parsed.errors}
     />

@@ -1,17 +1,18 @@
 import React from 'react';
-import { type t, Color, css, Icons, PathView } from './common.ts';
+import { type t, Color, css, D, Icons, PathView } from './common.ts';
 
-type P = t.FooterProps;
+type P = t.YamlEditorFooterProps;
 
-export const Footer: React.FC<P> = (props) => {
-  const { debug = false, path, crdt = {}, errors = [] } = props;
-
+export const YamlEditorFooter: React.FC<P> = (props) => {
+  const { debug = false, path, crdt = {}, errors = [], visible = D.visible } = props;
 
   const hasErrors = errors.length > 0;
   const tooltip = errors
     .map((err) => err.message)
     .join('\n')
     .trim();
+
+  if (!visible) return null;
 
   /**
    * Render:

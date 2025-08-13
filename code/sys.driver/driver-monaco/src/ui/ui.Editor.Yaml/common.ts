@@ -4,14 +4,16 @@ export { Crdt, DocumentId } from '@sys/driver-automerge/ui';
 export { Monaco } from '@sys/driver-monaco';
 
 export * from '../common.ts';
-export { Footer } from '../ui.Editor.Yaml.Footer/mod.ts';
+export { YamlEditorFooter } from '../ui.Editor.Yaml.Footer/mod.ts';
+
+type P = t.YamlEditorProps;
 
 /**
  * Constants:
  */
 const name = 'Monaco.Editor.Yaml';
 const documentId: t.YamlEditorDocumentIdProps = { visible: true, readOnly: false };
-const footer: t.YamlEditorFooterProps = { visible: true };
+const footer: P['footer'] = { visible: true };
 
 export const DEFAULTS = {
   name,

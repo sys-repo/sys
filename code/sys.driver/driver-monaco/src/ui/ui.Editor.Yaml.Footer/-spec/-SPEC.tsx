@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Crdt, D, STORAGE_KEY } from '../common.ts';
-import { Footer } from '../mod.ts';
+import { YamlEditorFooter } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -24,12 +24,12 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         const repo = v.passCrdtRepo ? debug.repo : undefined;
         return (
-          <Footer
-            //
+          <YamlEditorFooter
             debug={v.debug}
             theme={v.theme}
-            errors={v.errors}
+            visible={v.visible}
             crdt={{ repo, localstorage: STORAGE_KEY.DEV }}
+            errors={v.errors}
           />
         );
       });

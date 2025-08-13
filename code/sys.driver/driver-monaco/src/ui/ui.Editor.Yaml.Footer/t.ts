@@ -3,7 +3,8 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type FooterProps = {
+export type YamlEditorFooterProps = {
+  visible?: boolean;
   path?: t.ObjectPath;
   crdt?: { repo?: t.Crdt.Repo; localstorage?: t.StringKey };
   errors?: t.YamlError[];

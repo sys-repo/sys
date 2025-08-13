@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Footer } from './ui.tsx';
+export { YamlEditorFooter } from './ui.tsx';

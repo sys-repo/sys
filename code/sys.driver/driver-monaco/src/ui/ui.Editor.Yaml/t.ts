@@ -10,7 +10,7 @@ export type YamlEditorProps = {
 
   documentId?: t.YamlEditorDocumentIdProps;
   editor?: t.YamlEditorMonacoProps;
-  footer?: t.YamlEditorFooterProps;
+  footer?: Pick<t.YamlEditorFooterProps, 'visible'>;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -56,11 +56,4 @@ export type YamlEditorDocumentIdProps = {
   readOnly?: boolean;
   localstorage?: t.StringKey;
   urlKey?: t.StringKey;
-};
-
-/**
- * FooterBar sub-props:
- */
-export type YamlEditorFooterProps = {
-  visible?: boolean;
 };
