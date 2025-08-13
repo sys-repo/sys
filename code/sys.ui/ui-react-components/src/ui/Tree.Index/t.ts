@@ -18,18 +18,6 @@ export type IndexTreeLib = {
   Data: t.IndexTreeDataLib;
   /** YAML dialect tools: */
   Yaml: t.IndexTreeYamlLib;
-
-  /**
-   * Coerce a `root` into a `TreeNodeList`.
-   *
-   * - `undefined` → `[]`
-   * - `TreeNodeList` → same list
-   * - `TreeNode` with `children` → that `children` list
-   * - `TreeNode` without `children` → `[root]`
-   *
-   * This is the single helper the view uses to decide what to render at the current level.
-   */
-  toList(root?: t.TreeNode | t.TreeNodeList): t.TreeNodeList;
 };
 
 /**

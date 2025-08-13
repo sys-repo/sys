@@ -1,17 +1,16 @@
 import React from 'react';
 
 import { type t, Color, css, D, IndexTreeItem, Obj } from './common.ts';
-import { toList } from './m.IndexTree.u.ts';
+import { Data } from './m.Data.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
-import { at, hasChildren } from './u.ts';
 
 export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
   const { debug = false, minWidth = D.minWidth, root } = props;
 
   // Normalize root → list; then drill to `path`.
-  const rootList = React.useMemo(() => toList(root), [root]);
+  const rootList = React.useMemo(() => Data.toList(root), [root]);
   const path = (props.path ?? []) as t.ObjectPath;
-  const view = React.useMemo(() => at(rootList, path), [rootList, path]);
+  const view = React.useMemo(() => Data.at(rootList, path), [rootList, path]);
 
   // Determine slide direction from path depth delta.
   const prevPathRef = React.useRef<t.ObjectPath>(path);
@@ -48,7 +47,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
               debug={debug}
               theme={theme.name}
               label={node.label}
-              chevron={hasChildren(node)}
+              chevron={Data.hasChildren(node)}
               enabled={enabled}
               onPointer={(e) => props.onPointer?.(toPointerEvent(node, e))}
               onPressDown={(e) => props.onPressDown?.(toPointerEvent(node, e))}
@@ -65,5 +64,6 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
  * Helpers:
  */
 function toPointerEvent(node: t.TreeNode, e: t.PointerEventsArg): t.IndexTreePointer {
-  return { ...e, node, hasChildren: hasChildren(node) };
+  const hasChildren = Data.hasChildren(node);
+  return { ...e, node, hasChildren };
 }

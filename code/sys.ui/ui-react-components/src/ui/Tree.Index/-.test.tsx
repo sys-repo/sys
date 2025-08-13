@@ -311,49 +311,118 @@ ArrLeaf:
   });
 
   describe('TreeIndex.Data', () => {
-    it('`at` supports string and [ObjectPath] forms, plus "id" overrides', () => {
-      const list = Yaml.from(SOURCE_BASE);
+    describe('Data.at', () => {
+      it('`at` supports string and [ObjectPath] forms, plus "id" overrides', () => {
+        const list = Yaml.from(SOURCE_BASE);
 
-      // by ObjectPath:
-      const a = Data.at(list, toObjectPath('examples'));
-      expect(a.map((n) => n.label)).to.eql(['SubTree', 'Bar']);
+        // by ObjectPath:
+        const a = Data.at(list, toObjectPath('examples'));
+        expect(a.map((n) => n.label)).to.eql(['SubTree', 'Bar']);
 
-      // deep path by literal labels:
-      const b = Data.at(list, toObjectPath('Section/A'));
-      expect(b).to.eql([]); // ← 'A' is a leaf, so no children.
+        // deep path by literal labels:
+        const b = Data.at(list, toObjectPath('Section/A'));
+        expect(b).to.eql([]); // ← 'A' is a leaf, so no children.
 
-      // "id" override path (examples has meta.id = 'examples'):
-      const c = Data.at(list, toObjectPath('examples'));
-      expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // ← already covered, but this is the id form.
+        // "id" override path (examples has meta.id = 'examples'):
+        const c = Data.at(list, toObjectPath('examples'));
+        expect(c.map((n) => n.label)).to.eql(['SubTree', 'Bar']); // ← already covered, but this is the id form.
 
-      // explicit test that a renamed label with same id still resolves:
-      const src2 = {
-        Examples: {
-          '.': { note: 'group', id: 'examples', label: 'Examples (renamed)' },
-          children: [{ SubTree: 'foo' }],
-        },
-      } as const;
-      const list2 = Yaml.from(src2);
-      const d = Data.at(list2, toObjectPath('examples'));
-      expect(d.map((n) => n.label)).to.eql(['SubTree']);
+        // explicit test that a renamed label with same id still resolves:
+        const src2 = {
+          Examples: {
+            '.': { note: 'group', id: 'examples', label: 'Examples (renamed)' },
+            children: [{ SubTree: 'foo' }],
+          },
+        } as const;
+        const list2 = Yaml.from(src2);
+        const d = Data.at(list2, toObjectPath('examples'));
+        expect(d.map((n) => n.label)).to.eql(['SubTree']);
 
-      // empty path returns root
-      const e = Data.at(list, [] as t.ObjectPath);
-      expect(e).to.eql(list);
+        // empty path returns root
+        const e = Data.at(list, [] as t.ObjectPath);
+        expect(e).to.eql(list);
+      });
     });
 
-    it('`find` by exact key and by predicate', () => {
-      const list = Yaml.from(SOURCE_BASE);
+    describe('Data.find', () => {
+      it('`find` by exact key and by predicate', () => {
+        const list = Yaml.from(SOURCE_BASE);
 
-      const byKey = Data.find(list, '/examples/Bar');
-      expect(byKey?.label).to.eql('Bar');
-      expect(byKey?.value).to.eql('hello');
+        const byKey = Data.find(list, '/examples/Bar');
+        expect(byKey?.label).to.eql('Bar');
+        expect(byKey?.value).to.eql('hello');
 
-      const byPred = Data.find(
-        list,
-        ({ node, parents }) => node.label === 'Foo' && parents.length === 0,
-      );
-      expect(byPred?.key).to.eql('/Foo');
+        const byPred = Data.find(
+          list,
+          ({ node, parents }) => node.label === 'Foo' && parents.length === 0,
+        );
+        expect(byPred?.key).to.eql('/Foo');
+      });
+    });
+
+    describe('Data.toList', () => {
+      it('<undefined> → empty list', () => {
+        const out = Data.toList(undefined);
+        expect(out).to.eql([]);
+      });
+
+      it('passes through a TreeNodeList unchanged (including order)', () => {
+        const list: t.TreeNodeList = [
+          { key: 'a', label: 'A', path: ['a'] as t.ObjectPath },
+          { key: 'b', label: 'B', path: ['b'] as t.ObjectPath },
+        ];
+        const out = Data.toList(list);
+        expect(out).to.equal(list); // ← same reference is fine/expected.
+        expect(out.map((n) => n.key)).to.eql(['a', 'b']);
+      });
+
+      it('TreeNode with children → that children list', () => {
+        const node: t.TreeNode = {
+          key: 'root',
+          label: 'Root',
+          path: ['root'] as t.ObjectPath,
+          children: [
+            { key: 'root/one', label: 'One', path: ['root', 'one'] as t.ObjectPath },
+            { key: 'root/two', label: 'Two', path: ['root', 'two'] as t.ObjectPath },
+          ],
+        };
+        const out = Data.toList(node);
+        expect(out.map((n) => n.key)).to.eql(['root/one', 'root/two']);
+      });
+
+      it('TreeNode without children → singleton list [node]', () => {
+        const node: t.TreeNode = { key: 'leaf', label: 'Leaf', path: ['leaf'] as t.ObjectPath };
+        const out = Data.toList(node);
+        expect(out.length).to.eql(1);
+        expect(out[0].key).to.eql('leaf');
+      });
+
+      it('empty TreeNodeList stays empty', () => {
+        const out = Data.toList([] as t.TreeNodeList);
+        expect(out).to.eql([]);
+      });
+    });
+
+    describe('Data.hasChildren', () => {
+      it('returns true when node has a non-empty children array', () => {
+        const node = { children: [{}] } as unknown as t.TreeNode;
+        expect(Data.hasChildren(node)).to.eql(true);
+      });
+
+      it('returns false when node has an empty children array', () => {
+        const node = { children: [] } as unknown as t.TreeNode;
+        expect(Data.hasChildren(node)).to.eql(false);
+      });
+
+      it('returns false when node.children is undefined', () => {
+        const node = {} as unknown as t.TreeNode;
+        expect(Data.hasChildren(node)).to.eql(false);
+      });
+
+      it('returns false when node.children is null', () => {
+        const node = { children: null } as unknown as t.TreeNode;
+        expect(Data.hasChildren(node)).to.eql(false);
+      });
     });
   });
 
@@ -371,49 +440,6 @@ ArrLeaf:
       const node: t.TreeNode = { key: '1', label: 'One', path: ['1'] as t.ObjectPath };
       expect(IndexTree.Is.node(node)).to.eql(true);
       expect(IndexTree.Is.list(node)).to.eql(false);
-    });
-  });
-
-  describe('TreeIndex.toList', () => {
-    it('<undefined> → empty list', () => {
-      const out = IndexTree.toList(undefined);
-      expect(out).to.eql([]);
-    });
-
-    it('passes through a TreeNodeList unchanged (including order)', () => {
-      const list: t.TreeNodeList = [
-        { key: 'a', label: 'A', path: ['a'] as t.ObjectPath },
-        { key: 'b', label: 'B', path: ['b'] as t.ObjectPath },
-      ];
-      const out = IndexTree.toList(list);
-      expect(out).to.equal(list); // ← same reference is fine/expected.
-      expect(out.map((n) => n.key)).to.eql(['a', 'b']);
-    });
-
-    it('TreeNode with children → that children list', () => {
-      const node: t.TreeNode = {
-        key: 'root',
-        label: 'Root',
-        path: ['root'] as t.ObjectPath,
-        children: [
-          { key: 'root/one', label: 'One', path: ['root', 'one'] as t.ObjectPath },
-          { key: 'root/two', label: 'Two', path: ['root', 'two'] as t.ObjectPath },
-        ],
-      };
-      const out = IndexTree.toList(node);
-      expect(out.map((n) => n.key)).to.eql(['root/one', 'root/two']);
-    });
-
-    it('TreeNode without children → singleton list [node]', () => {
-      const node: t.TreeNode = { key: 'leaf', label: 'Leaf', path: ['leaf'] as t.ObjectPath };
-      const out = IndexTree.toList(node);
-      expect(out.length).to.eql(1);
-      expect(out[0].key).to.eql('leaf');
-    });
-
-    it('empty TreeNodeList stays empty', () => {
-      const out = IndexTree.toList([] as t.TreeNodeList);
-      expect(out).to.eql([]);
     });
   });
 
