@@ -8,7 +8,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'Monaco.Dev';
+const name = 'Monaco.Editor.Yaml';
 const documentId: t.YamlEditorDocumentIdProps = { visible: true, readOnly: false };
 const footer: t.YamlEditorFooterProps = { visible: true };
 
