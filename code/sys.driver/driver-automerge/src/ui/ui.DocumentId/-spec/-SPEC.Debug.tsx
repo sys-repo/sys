@@ -1,7 +1,18 @@
+import { Crdt } from '@sys/driver-automerge/browser';
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, css, D, Is, LocalStorage, ObjectView, Signal, Url } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  Is,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  Url,
+} from '../common.ts';
 
 type P = t.DocumentIdProps;
 export const STORAGE_KEY = `dev:${D.name}.input`;
@@ -27,23 +38,24 @@ type Storage = {
   readOnly?: boolean;
 } & Pick<P, 'theme' | 'label' | 'placeholder' | 'autoFocus' | 'enabled'>;
 
+const defaults: Storage = {
+  theme: 'Dark',
+  autoFocus: D.autoFocus,
+  enabled: D.enabled,
+  readOnly: D.readOnly,
+  passRepo: true,
+  controlled: true,
+  localstorage: STORAGE_KEY,
+  url: true,
+  urlKey: D.urlKey,
+};
+
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    autoFocus: D.autoFocus,
-    enabled: D.enabled,
-    readOnly: D.readOnly,
-    passRepo: true,
-    controlled: true,
-    localstorage: STORAGE_KEY,
-    url: true,
-    urlKey: D.urlKey,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -194,12 +206,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          p.url.value = D.url;
-          p.urlKey.value = D.urlKey;
-          p.readOnly.value = false;
-          p.enabled.value = true;
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
       <Button
         block

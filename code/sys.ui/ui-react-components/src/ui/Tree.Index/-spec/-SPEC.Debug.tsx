@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
-import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
 import { IndexTree } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
@@ -119,12 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          Object.entries(defaults)
-            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
-            .filter((e) => Signal.Is.signal(e.signal))
-            .forEach((e) => (e.signal.value = e.value));
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
       <ObjectView
         name={'debug'}

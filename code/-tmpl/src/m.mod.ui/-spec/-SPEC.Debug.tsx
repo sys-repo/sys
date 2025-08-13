@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -89,12 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          Object.entries(defaults)
-            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
-            .filter((e) => Signal.Is.signal(e.signal))
-            .forEach((e) => (e.signal.value = e.value));
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>

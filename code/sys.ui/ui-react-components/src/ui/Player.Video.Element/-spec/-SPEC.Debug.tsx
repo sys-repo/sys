@@ -1,7 +1,7 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
 
 type P = t.VideoElementProps;
 type Storage = Pick<
@@ -310,12 +310,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          p.controlled.value = false;
-          p.autoPlay.value = false;
-          p.fadeMask.value = undefined;
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
+
       <ObjectView
         name={'debug'}
         data={{

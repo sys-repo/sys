@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Icons, Is, LocalStorage, Signal } from '../common.ts';
-import { SAMPLE_YAML } from '../../Tree.Index/-spec/-yaml.ts';
-import { Tree } from '../../Tree/mod.ts';
+import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.IndexTreeItemProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
@@ -152,12 +150,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          Object.entries(defaults)
-            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
-            .filter((e) => Signal.Is.signal(e.signal))
-            .forEach((e) => (e.signal.value = e.value));
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
