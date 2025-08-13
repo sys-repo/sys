@@ -1,6 +1,8 @@
 import type Preact from '@preact/signals-core';
 import type { t } from './common.ts';
 
+export type * from './t.walk.ts';
+
 type O = Record<string, unknown>;
 
 /** Callback passed into a signal effect. */
@@ -44,7 +46,11 @@ export type SignalLib = {
    */
   toObject<T>(input: T): t.UnwrapSignals<T>;
 
-  //
+  /**
+   * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
+   * Returns the number of visited signals.
+   */
+  walk: t.SignalWalk;
 } & t.SignalValueHelpersLib;
 
 /**

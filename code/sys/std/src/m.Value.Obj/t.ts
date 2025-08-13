@@ -21,7 +21,7 @@ export type ObjLib = {
    * Walks an object tree (recursive descent) implementing
    * a visitor callback for each item.
    */
-  walk<T extends object | any[]>(parent: T, fn: t.ObjWalkCallback): void;
+  walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn): void;
 
   /**
    * Converts an object into an array of {key,value} pairs.
@@ -81,11 +81,10 @@ export type ObjLib = {
   isEmptyRecord<T extends O>(input?: unknown): input is T;
 };
 
-/** A callback passed to the object walker function. */
-export type ObjWalkCallback = (e: ObjWalkCallbackArgs) => void;
-
-/** Arguments for a walker callback. */
-export type ObjWalkCallbackArgs = {
+/** A callback passed to the `Obj.walk` callback function. */
+export type ObjWalkFn = (e: ObjWalkFnArgs) => void;
+/** Arguments passed to the `Obj.walk` callback. */
+export type ObjWalkFnArgs = {
   readonly parent: object | any[];
   readonly path: t.ObjectPath;
   readonly key: string | number;

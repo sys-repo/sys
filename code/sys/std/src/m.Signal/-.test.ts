@@ -532,4 +532,128 @@ describe('Signal', () => {
       expect(snap.nested.x).to.equal(7);
     });
   });
+
+  describe('Signal.walk', () => {
+    const s = Signal.create;
+
+    it('visits all signals in nested objects and arrays (returns count)', () => {
+      const model = {
+        a: s(1),
+        b: { c: s('x'), d: [s(true), { e: s(2) }] },
+        f: [{ g: 7 }, s(null)],
+      };
+
+      const seen: Array<{ path: t.ObjectPath; key: string | number; val: unknown }> = [];
+      const count = Signal.walk(model, (e) => {
+        seen.push({ path: e.path, key: e.key, val: e.value });
+      });
+
+      expect(count).to.equal(5);
+      expect(seen.map((s) => s.path)).to.eql([
+        ['a'],
+        ['b', 'c'],
+        ['b', 'd', 0],
+        ['b', 'd', 1, 'e'],
+        ['f', 1],
+      ]);
+      expect(seen.map((s) => s.key)).to.eql(['a', 'c', 0, 'e', 1]);
+      expect(seen.map((s) => s.val)).to.eql([1, 'x', true, 2, null]);
+    });
+
+    it('mutate(value) sets the signal value; value is a live getter', () => {
+      const model = { a: s(1), b: { c: s('x') } };
+      const updates: Array<{ before: unknown; after: unknown }> = [];
+
+      Signal.walk(model, (e) => {
+        const before = e.value;
+        const next =
+          typeof before === 'number'
+            ? before + 1
+            : typeof before === 'string'
+            ? before.toUpperCase()
+            : before;
+        e.mutate(next as never);
+        updates.push({ before, after: e.value }); // ← live view should reflect mutation.
+      });
+
+      expect(updates).to.eql([
+        { before: 1, after: 2 },
+        { before: 'x', after: 'X' },
+      ]);
+      expect(model.a.value).to.equal(2);
+      expect(model.b.c.value).to.equal('X');
+    });
+
+    it('options.skipUndefined prevents <undefined> writes via mutate', () => {
+      const model = { a: s<number | undefined>(5), b: { c: s('x') } };
+
+      Signal.walk(
+        model,
+        (e) => {
+          if (e.path.join('/') === 'a') e.mutate(undefined as never);
+          if (e.path.join('/') === 'b/c') e.mutate('y' as never);
+        },
+        { skipUndefined: true },
+      );
+
+      expect(model.a.value).to.equal(5); //       ← unchanged
+      expect(model.b.c.value).to.equal('y'); //   ← updated
+    });
+
+    it('stop() halts traversal early', () => {
+      const model = { a: s(1), b: { c: s(2), d: s(3) } };
+      const visited: t.ObjectPath[] = [];
+
+      const count = Signal.walk(model, (e) => {
+        visited.push(e.path);
+        if (visited.length === 2) e.stop();
+      });
+
+      expect(count).to.equal(2);
+      expect(visited).to.eql([['a'], ['b', 'c']]); // ← no visit of ['b','d'].
+      expect(model.b.d.value).to.equal(3); //         ← untouched.
+    });
+
+    it('handles cyclic structures safely (via WeakSet)', () => {
+      const root: any = { a: s(1) };
+      root.self = root; // cycle.
+      root.arr = [root, { b: s(2) }]; // nested cycle reference.
+
+      const paths: t.ObjectPath[] = [];
+      const count = Signal.walk(root, (e) => paths.push(e.path));
+
+      expect(count).to.equal(2);
+      expect(paths).to.have.deep.members([['a'], ['arr', 1, 'b']]);
+      expect(root.a.value).to.equal(1);
+      expect(root.arr[1].b.value).to.equal(2);
+    });
+
+    it('keys and paths reflect object vs array indexing correctly', () => {
+      const model = { list: [{ x: s('a') }, { y: s('b') }] };
+      const entries: Array<{ key: string | number; path: t.ObjectPath }> = [];
+
+      Signal.walk(model, (e) => entries.push({ key: e.key, path: e.path }));
+
+      expect(entries).to.eql([
+        { key: 'x', path: ['list', 0, 'x'] },
+        { key: 'y', path: ['list', 1, 'y'] },
+      ]);
+    });
+
+    it('no-ops when mutating to the same value (Object.is short-circuit)', () => {
+      const model = { a: s(NaN), b: s(0) };
+      const beforeA = model.a.value;
+      const beforeB = model.b.value;
+
+      Signal.walk(model, (e) => {
+        // Same values (including NaN): should not churn.
+        e.mutate(e.value as never);
+      });
+
+      // Values unchanged; primary aim is to ensure no exceptions on NaN equality path.
+      expect(Number.isNaN(model.a.value as number)).to.equal(true);
+      expect(model.b.value).to.equal(beforeB);
+      expect(Number.isNaN(beforeA as number)).to.equal(true);
+    });
+  });
 });

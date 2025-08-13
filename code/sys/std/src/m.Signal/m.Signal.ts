@@ -7,6 +7,7 @@ import { cycle } from './u.cycle.ts';
 import { listen, listeners } from './u.listen.ts';
 import { toggle } from './u.toggle.ts';
 import { toObject } from './u.toObject.ts';
+import { walk } from './u.walk.ts';
 
 export { signal };
 
@@ -35,5 +36,6 @@ export const Signal: SignalLib = {
   listeners,
   toggle,
   cycle,
+  walk,
   toObject,
 } as const;
