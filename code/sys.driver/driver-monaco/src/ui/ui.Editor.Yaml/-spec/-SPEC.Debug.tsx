@@ -73,10 +73,9 @@ export function createDebugSignals() {
   };
 
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
-    repo,
+    repo: createRepo(),
     listen() {
       Signal.listen(props);
       Signal.listen(props.documentId);

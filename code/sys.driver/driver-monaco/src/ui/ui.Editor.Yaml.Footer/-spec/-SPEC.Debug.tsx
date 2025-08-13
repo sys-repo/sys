@@ -1,4 +1,5 @@
 import React from 'react';
+import { createRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.FooterProps;
@@ -30,6 +31,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    repo: createRepo(),
     listen() {
       Signal.listen(props);
     },

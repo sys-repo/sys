@@ -1,6 +1,8 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
+export { STORAGE_KEY } from '../ui.Editor.Yaml/common.ts';
+
 /**
  * Constants:
  */
