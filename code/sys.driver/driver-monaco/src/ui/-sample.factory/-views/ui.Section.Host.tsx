@@ -1,6 +1,5 @@
-import { Tree, Button } from '@sys/ui-react-components';
+import { Button, Tree } from '@sys/ui-react-components';
 import React from 'react';
-
 import { type t, Color, Cropmarks, css, Icons } from '../common.ts';
 
 type O = Record<string, unknown>;
@@ -18,7 +17,47 @@ export type SectionHostProps = {
  */
 export const SectionHost: React.FC<SectionHostProps> = (props) => {
   const { data = {} } = props;
-  const root = Tree.Index.Data.Yaml.from(data);
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
+    body: css({ minWidth: 380 }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <Cropmarks
+        theme={theme.name}
+        borderOpacity={0.04}
+        size={{ mode: 'fill', x: false, y: true, margin: 100 }}
+      >
+        <IndexTree data={data} theme={theme.name} />
+      </Cropmarks>
+    </div>
+  );
+};
+
+/**
+ * Tree
+ */
+export type IndexTreeProps = {
+  data?: O;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  outerTheme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+/**
+ * Component:
+ */
+export const IndexTree: React.FC<IndexTreeProps> = (props) => {
+  const { data = {} } = props;
+  const root = wrangle.root(data);
+  const outerTheme = Color.theme(props.outerTheme ?? props.theme);
 
   /**
    * Hooks:
@@ -30,20 +69,16 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      color: theme.fg,
-      display: 'grid',
-    }),
-    body: css({ minWidth: 380 }),
+    base: css({ color: theme.fg, display: 'grid' }),
+    backButton: css({ Absolute: [-35, null, null, -35] }),
   };
 
   const elBackButton = (
     <Button
       enabled={() => (path?.length ?? 0) > 0}
       disabledOpacity={0.2}
-      style={{ Absolute: [-35, null, null, -35] }}
-      theme={theme.name}
+      style={styles.backButton}
+      theme={outerTheme.name}
       onMouseDown={() => setPath((prev) => (prev ?? []).slice(0, -1))}
     >
       <Icons.Arrow.Left />
@@ -52,21 +87,28 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks
+      {elBackButton}
+      <Tree.Index.View
         theme={theme.name}
-        borderOpacity={0.04}
-        size={{ mode: 'fill', x: false, y: true, margin: 100 }}
-      >
-        {elBackButton}
-        <Tree.Index.View
-          theme={theme.name}
-          root={root}
-          path={path}
-          onPressDown={(e) => {
-            if (e.hasChildren) setPath(e.node.path);
-          }}
-        />
-      </Cropmarks>
+        root={root}
+        path={path}
+        onPressDown={(e) => {
+          if (e.hasChildren) setPath(e.node.path);
+        }}
+      />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  root(input?: O) {
+    try {
+      return Tree.Index.Data.Yaml.from(input ?? {});
+    } catch (error) {
+      return undefined;
+    }
+  },
+} as const;
