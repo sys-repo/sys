@@ -40,7 +40,7 @@ export function createDebugSignals() {
     props,
     get root() {
       const text = p.yaml.value;
-      return text ? IndexTree.Yaml.parse(text) : undefined;
+      return text ? IndexTree.Data.Yaml.parse(text) : undefined;
     },
     listen() {
       Signal.listen(props);

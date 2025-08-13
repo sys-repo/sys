@@ -1,7 +1,7 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
-export { Data, Is, Yaml } from '../Tree.Index.data/mod.ts';
+export { Data } from '../Tree.Index.data/mod.ts';
 export { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 export { Icons } from '../ui.Icons.ts';
 

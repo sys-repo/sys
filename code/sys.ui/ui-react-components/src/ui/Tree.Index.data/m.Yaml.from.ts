@@ -1,5 +1,5 @@
 import { type t, Is, Obj } from './common.ts';
-import { isWrapper } from './m.Yaml.u.ts';
+import { isWrapper } from './u.ts';
 
 /**
  * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeNodeList`.

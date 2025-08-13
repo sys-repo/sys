@@ -3,14 +3,15 @@ import { type t, Obj, describe, expect, it } from '../../-test.ts';
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
-import { toSeq } from './m.Yaml.u.ts';
+import { toSeq } from './u.ts';
 
 describe('Tree.Index', () => {
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
-    expect(m.IndexTree.Yaml).to.equal(Yaml);
+    expect(m.IndexTree.Data.Yaml).to.equal(Yaml);
     expect(m.IndexTree.Data).to.equal(Data);
-    expect(m.IndexTree.Is).to.equal(Is);
+    expect(Data.Is).to.equal(Is);
+    expect(Data.Yaml).to.equal(Yaml);
   });
 
   /**

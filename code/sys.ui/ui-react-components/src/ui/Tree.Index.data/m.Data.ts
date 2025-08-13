@@ -1,7 +1,8 @@
 import type { t } from './common.ts';
 
 import { Is } from './m.Is.ts';
-import { lastSeg, toPathParts } from './m.Yaml.u.ts';
+import { Yaml } from './m.Yaml.ts';
+import { lastSeg, toPathParts } from './u.ts';
 
 type D = t.IndexTreeDataLib;
 
@@ -65,6 +66,8 @@ export const find: D['find'] = (root, keyOr) => {
  * API:
  */
 export const Data = {
+  Is,
+  Yaml,
   at,
   find,
   toList,
