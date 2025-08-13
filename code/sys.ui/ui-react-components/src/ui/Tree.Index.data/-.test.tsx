@@ -154,9 +154,94 @@ describe('Tree.Index', () => {
         expect(v2[0].key).to.eql('/x');
         expect(v2[0].label).to.eql('Node v2');
       });
+
+      describe('implicit array → children (single-entry map list)', () => {
+        it('value is a sequence of single-entry maps → becomes a branch with children (no wrapper required)', () => {
+          const yaml = `
+            - Getting Started: crdt:ref
+            - Foo:
+              - a: 1
+              - b: 2
+            `.trim();
+
+          const list = Yaml.parse(yaml);
+
+          // Top-level ordering preserved
+          expect(list.map((n) => labelToString(n.label))).to.eql(['Getting Started', 'Foo']);
+
+          const foo = list[1];
+          expect(foo.key).to.eql('/Foo');
+
+          // Now Foo is a branch:
+          expect(foo.children?.map((n) => labelToString(n.label))).to.eql(['a', 'b']);
+          expect(foo.children?.[0].key).to.eql('/Foo/a');
+          expect(foo.children?.[0].value).to.eql(1);
+          expect(foo.children?.[1].key).to.eql('/Foo/b');
+          expect(foo.children?.[1].value).to.eql(2);
+
+          // And no leaf value payload on the parent:
+          expect(foo.value).to.be.undefined;
+
+          // spot-check path navigation
+          const kids = Data.at(list, toObjectPath('Foo'));
+          expect(kids.map((n) => labelToString(n.label))).to.eql(['a', 'b']);
+
+          console.log('list', list);
+        });
+
+        it('arrays of scalars remain leaves (non node-list shape)', () => {
+          const yaml = `
+            ArrLeaf:
+              - 1
+              - 2
+              - 3
+            `.trim();
+
+          const list = Yaml.parse(yaml);
+          const node = list[0];
+
+          expect(labelToString(node.label)).to.eql('ArrLeaf');
+          expect(Array.isArray(node.value)).to.eql(true);
+          expect(node.value).to.eql([1, 2, 3]);
+          expect(node.children).to.be.undefined;
+        });
+
+        it('arrays with items that are NOT single-entry maps remain leaves (odd shapes)', () => {
+          const yaml = `
+            Foo:
+              - { a: 1, b: 2 }   # two keys → not a single-entry map
+              - []               # nested array
+              - 42               # scalar
+            `.trim();
+
+          const list = Yaml.parse(yaml);
+          const foo = list[0];
+
+          // Stays a leaf, preserving original array value:
+          expect(foo.children).to.be.undefined;
+          expect(foo.value).to.eql([{ a: 1, b: 2 }, [], 42]);
+        });
+
+        it('sequence root with implicit-children node still preserves explicit order', () => {
+          const yaml = `
+            - A: one
+            - B:
+                - x: 1
+                - y: 2
+            - C: three
+            `.trim();
+
+          const list = Yaml.parse(yaml);
+          expect(list.map((n) => labelToString(n.label))).to.eql(['A', 'B', 'C']);
+
+          const b = list[1];
+          expect(b.children?.map((n) => labelToString(n.label))).to.eql(['x', 'y']);
+          expect(b.value).to.be.undefined;
+        });
+      });
     });
 
-    describe('YAML dialect with JSX labels', () => {
+    describe('with JSX labels', () => {
       it('coerces JSX.Element labels in tests for safe equality checks', () => {
         const src = {
           Foo: {
@@ -181,7 +266,7 @@ describe('Tree.Index', () => {
       });
     });
 
-    describe('YAML dialect - parse from text (yaml)', () => {
+    describe('parse YAML from text', () => {
       describe('YAML dialect - parse from text (yaml)', () => {
         it('parses mapping root and normalizes (order, meta, children)', () => {
           const yaml = `

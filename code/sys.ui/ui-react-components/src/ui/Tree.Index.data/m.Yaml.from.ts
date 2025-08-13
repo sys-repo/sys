@@ -75,6 +75,39 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
       ] as const;
     }
 
+    if (Array.isArray(v)) {
+      // Treat a sequence value as a branch whose children come from the sequence.
+      // Only auto-branch when items look like single-entry maps (our dialect).
+      const isNodeList =
+        v.length === 0 ||
+        v.every(
+          (item) =>
+            !!item &&
+            typeof item === 'object' &&
+            !Array.isArray(item) &&
+            Object.keys(item).length === 1,
+        );
+
+      if (isNodeList) {
+        const seg = k;
+        const path = [...parentPath, seg] as t.ObjectPath;
+        const key = Obj.Path.codec.encode(path);
+        const children = v.flatMap((m) => {
+          const [ck, cv] = Object.entries(m)[0] as [string, t.YamlTreeSourceNode];
+          return makeNodes(ck, cv, path);
+        });
+        return [
+          {
+            path,
+            key,
+            label: k,
+            ...(children.length > 0 ? { children } : {}),
+          },
+        ] as const;
+      }
+      // If it’s not our dialect’s node-list shape, fall through to leaf.
+    }
+
     // Heuristic (opt-in): plain object → branch:
     if (infer && Is.record(v)) {
       const seg = k;

@@ -8,6 +8,9 @@ export type IndexTreeYamlLib = Readonly<{
    * Normalize a YAML-dialect object into a stable, ordered `TreeList`.
    * Plain objects are leaves by default; set `inferPlainObjectsAsBranches` to treat
    * mapping-only nodes as branches.
+   *
+   * Sequence values (arrays) that are shaped as a list of single-entry maps are
+   * implicitly treated as children (i.e., a branch) even without a wrapper.
    */
   from(
     source:
@@ -27,10 +30,15 @@ export type IndexTreeYamlLib = Readonly<{
    * Semantics:
    * - Anything can be a leaf. An object becomes a wrapper/branch only when it contains
    *   "." (meta) or "children".
+   *
    * - Ordering: for mapping roots, relies on parser insertion order; for sequence roots,
    *   preserves the sequence order exactly.
+   *
    * - `meta.id` overrides the path segment used to build `node.key`. `meta.label` may be
    *   a string or JSX.Element and becomes `node.label`.
+   *
+   * - Additionally, if a node’s value is a sequence of single-entry maps, that sequence
+   *   is interpreted as this node’s `children` implicitly (no wrapper required).
    *
    * @param text YAML string in the IndexTree dialect.
    * @returns Normalized `TreeList` for rendering.
