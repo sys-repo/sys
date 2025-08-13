@@ -1,6 +1,8 @@
 import { type t, Obj, Schema, Signal } from './common.ts';
 import { Meta } from './u.schema.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * API:
  */
@@ -37,20 +39,23 @@ function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
   const meta = Schema.try(() => Schema.Value.Parse(Meta, _meta));
 
   /**
-   * 2. Read /main UI props and factory lookup-id from YAML:
+   * 2. Read "/main" UI props and factory lookup-id from YAML:
    */
   const main = meta.value?.main;
   signals.main.value = undefined; // ← (reset).
   if (main?.props && main.component) {
+    const p = Obj.Path.curry(main.props.split('/'));
     const component = main.component;
     const schema = getSchema(component);
-    if (!schema) return void console.warn(`A type schema for '${component}' was not returned.`);
 
-    const p = Obj.Path.curry(main.props.split('/'));
-    const res = Schema.try(() => Schema.Value.Parse(schema, p.get(root)));
+    let props: O | undefined;
+    if (schema) {
+      const res = Schema.try(() => Schema.Value.Parse(schema, p.get(root)));
+      props = res.value;
+    }
 
-    if (component && res.value) {
-      const props = res.value;
+    if (!props) props = p.get(root) as O;
+    if (component && props) {
       signals.main.value = { component, props };
     }
   }

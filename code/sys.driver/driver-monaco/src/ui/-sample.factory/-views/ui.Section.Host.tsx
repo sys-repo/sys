@@ -1,11 +1,12 @@
-import { Tree } from '@sys/ui-react-components';
+import { Tree, Button } from '@sys/ui-react-components';
 import React from 'react';
 
-import type { Section } from '../-schemas/mod.ts';
 import { type t, Color, Cropmarks, css, Icons } from '../common.ts';
 
+type O = Record<string, unknown>;
+
 export type SectionHostProps = {
-  data?: Section;
+  data?: O;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -17,6 +18,12 @@ export type SectionHostProps = {
  */
 export const SectionHost: React.FC<SectionHostProps> = (props) => {
   const { data = {} } = props;
+  const root = Tree.Index.Data.Yaml.from(data);
+
+  /**
+   * Hooks:
+   */
+  const [path, setPath] = React.useState<t.ObjectPath>();
 
   /**
    * Render:
@@ -29,33 +36,36 @@ export const SectionHost: React.FC<SectionHostProps> = (props) => {
       display: 'grid',
     }),
     body: css({ minWidth: 380 }),
-    item: css({
-      padding: 15,
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
-      ':last-child': { borderBottom: 'none' },
-      display: 'grid',
-      gridTemplateColumns: '1fr auto',
-    }),
   };
 
-  const elBody = (
-    <div className={styles.body.class}>
-      {Object.entries(data).map(([key, value], i) => {
-        return (
-          <div key={`${key}.${i}`} className={styles.item.class}>
-            <div>{key}</div>
-            <Icons.Chevron.Right />
-          </div>
-        );
-      })}
-    </div>
+  const elBackButton = (
+    <Button
+      enabled={() => (path?.length ?? 0) > 0}
+      disabledOpacity={0.2}
+      style={{ Absolute: [-35, null, null, -35] }}
+      theme={theme.name}
+      onMouseDown={() => setPath((prev) => (prev ?? []).slice(0, -1))}
+    >
+      <Icons.Arrow.Left />
+    </Button>
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.04}>
-        {elBody}
-        <Tree.Index.View theme={theme.name} />
+      <Cropmarks
+        theme={theme.name}
+        borderOpacity={0.04}
+        size={{ mode: 'fill', x: false, y: true, margin: 100 }}
+      >
+        {elBackButton}
+        <Tree.Index.View
+          theme={theme.name}
+          root={root}
+          path={path}
+          onPressDown={(e) => {
+            if (e.hasChildren) setPath(e.node.path);
+          }}
+        />
       </Cropmarks>
     </div>
   );
