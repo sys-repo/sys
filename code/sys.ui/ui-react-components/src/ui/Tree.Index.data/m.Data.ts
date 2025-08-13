@@ -65,11 +65,11 @@ export const find: D['find'] = (root, keyOr) => {
 /**
  * API:
  */
-export const Data = {
+export const Data: t.IndexTreeDataLib = {
   Is,
   Yaml,
   at,
   find,
   toList,
   hasChildren,
-} as const satisfies t.IndexTreeDataLib;
+};

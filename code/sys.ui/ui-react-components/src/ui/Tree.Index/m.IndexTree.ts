@@ -5,8 +5,8 @@ import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
 import { Data } from './common.ts';
 import { IndexTree as View } from './ui.tsx';
 
-export const IndexTree = {
+export const IndexTree: t.IndexTreeLib = {
   View,
   Item: { View: IndexTreeItem },
   Data,
-} as const satisfies t.IndexTreeLib;
+};
