@@ -1,20 +1,21 @@
 {
   "tasks": {
-    "info": "deno run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
+    "install": "deno install --reload",
+    "help": "deno             run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
 
-    "ci": "deno run -A ./-scripts/main.ts --dry --test --info",
-    "test": "deno run -A ./-scripts/main.ts --test",
-    "dry": "deno run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
-    "lint": "deno run -RE --allow-run=sh ./-scripts/main.ts --lint",
+    "ci": "deno               run -A ./-scripts/main.ts --dry --test --info",
+    "test": "deno             run -A ./-scripts/main.ts --test",
+    "dry": "deno              run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
+    "lint": "deno             run -RE --allow-run=sh ./-scripts/main.ts --lint",
+    "clean": "deno            run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
 
-    "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
-    "reload": "deno task reload:install",
-    "reload:clear": "rm -rf node_modules",
-    "reload:install": "deno install --reload",
+    "prep": "deno task prep-imports   &&   deno task prep-ci",
+    "prep-imports": "deno     run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
+    "prep-ci": "deno          run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep-ci",
 
-    "prep": "deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
-    "bump": "deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
-    "tmpl": "deno run -RWE ./-scripts/main.ts --tmpl",
+    "bump": "deno             run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
+    "tmpl": "deno             run -RWE ./-scripts/main.ts --tmpl",
+    "cp": "deno               run -RWE --allow-run=pbcopy ./-scripts/Task.-clipboard.ts",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
@@ -26,13 +27,14 @@
     "jsxImportSource": "react"
   },
   "nodeModulesDir": "auto",
-  "importMap": "imports.json",
+  "importMap": "deno.imports.json",
   "workspace": [
     "code/sys/types",
     "code/sys/std",
     "code/sys/color",
 
     "code/sys/testing",
+    "code/sys/jsr",
     "code/sys/fs",
     "code/sys/cli",
     "code/sys/process",
@@ -42,7 +44,7 @@
     "code/sys/text",
     "code/sys/tmpl",
     "code/sys/cmd",
-    "code/sys/jsr",
+    "code/sys/schema",
 
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-dom",
@@ -51,20 +53,13 @@
     "code/sys.ui/ui-react-components",
 
     "code/sys.driver/driver-automerge",
-    "code/sys.driver/driver-automerge.01",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-farcaster",
-    "code/sys.driver/driver-immer",
+    "code/sys.driver/driver-mastra",
     "code/sys.driver/driver-monaco",
-    "code/sys.driver/driver-obsidian",
-    "code/sys.driver/driver-ollama",
-    "code/sys.driver/driver-orbiter",
-    "code/sys.driver/driver-quilibrium",
+    "code/sys.driver/driver-peerjs",
+    "code/sys.driver/driver-prosemirror",
     "code/sys.driver/driver-vite",
-    "code/sys.driver/driver-vitepress",
-
-    "code/sys/sys",
-    "code/sys/main",
 
     "deploy/@tdb.fs",
     "deploy/@tdb.slc",
@@ -72,10 +67,8 @@
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 
-    "code/sys.tmp",
     "code/-tmpl",
-    "code/-sample/@sample.deno.llm",
-    "code/-sample/@sample.mcp"
+    "code/-sample/@sample.tmp"
   ],
   "lint": {
     "rules": {

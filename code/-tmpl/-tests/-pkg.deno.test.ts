@@ -50,8 +50,8 @@ describe('Template: pkg.deno', () => {
     }
 
     const read = async (path: string) => (await Fs.readText(fs.join(path))).data!;
-    const scriptPaths = await read('-scripts/u.paths.ts');
-    expect(scriptPaths).to.include(`modules: [\n    '${pkgDir}',\n`);
+    const scriptFile = await read('code/pkg-dir/-scripts/-clean.ts');
+    expect(scriptFile).to.include(`import { Fs } from '@sys/fs'`);
 
     const workspaceDenofile = await read('deno.json');
     expect(workspaceDenofile).to.include(`"workspace": [\n    "${pkgDir}",\n`);

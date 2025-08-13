@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
+import type { PathLib } from './t.ts';
+
 import { Join } from './m.Join.ts';
 import { dir } from './u.dir.ts';
 import { ext, extname } from './u.ext.ts';
@@ -20,7 +21,7 @@ import { Is } from './m.Is.ts';
 /**
  * Helpers for working with resource paths.
  */
-export const Path: t.PathLib = {
+export const Path: PathLib = {
   Is,
   Format,
   Join,

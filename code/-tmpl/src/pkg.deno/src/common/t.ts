@@ -1,7 +1,7 @@
 /**
  * @external
  */
-export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNode } from 'react';
+export type { ReactElement, ReactNode } from 'react';
 
 /**
  * @system
@@ -9,7 +9,6 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { ExtractSignalValue, Signal } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';

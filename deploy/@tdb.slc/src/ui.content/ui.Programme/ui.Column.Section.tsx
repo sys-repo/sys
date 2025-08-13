@@ -22,7 +22,7 @@ type Part = 'Canvas';
  * Component:
  */
 export const Section: React.FC<P> = (props) => {
-  const { content, state, player, debug = false } = props;
+  const { content, state, video, debug = false } = props;
   const section = Calc.Section.media(state).section;
   const selected = Calc.Section.index(state).child;
 
@@ -78,13 +78,13 @@ export const Section: React.FC<P> = (props) => {
         style={{ Absolute: [null, null, 6, 6] }}
         expand={0}
         data={Signal.toObject({
-          player: player.src,
+          video: video.src,
           'state:<ProgrammeSignals>': state.props,
           'content:<ProgrammeContent>': content,
         })}
       />
       {size.toElement([4, null, null, 6])}
-      <Player.Timestamp.Elapsed.View player={player} abs={[6, 6, null, null]} />
+      <Player.Timestamp.Elapsed.View video={video} abs={[6, 6, null, null]} />
     </>
   );
 

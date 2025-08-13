@@ -1,11 +1,13 @@
 import type { t } from './common.ts';
+import type { TestTotalLib } from './t.ts';
+
 import { Constraints } from './Constraints.ts';
 import { TestTree } from './TestTree.ts';
 
 /**
  * Helpers for calculating totals.
  */
-export const Total: t.TestTotalLib = {
+export const Total: TestTotalLib = {
   count(suite: t.TestSuiteModel) {
     const res: t.TestSuiteTotal = {
       total: 0,

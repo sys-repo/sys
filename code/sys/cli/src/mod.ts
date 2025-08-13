@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with a CLI (command-line-interface).
+ * @module
  *
  * @example
  * ```ts

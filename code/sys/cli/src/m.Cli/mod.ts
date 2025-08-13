@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for terminal based CLI's (command-line-interfaces).
+ * @module
  *
  * @example
  * Display a CLI spinner:

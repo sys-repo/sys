@@ -11,8 +11,8 @@ type M = {
 /**
  * Controls an individual section
  */
-export function useSection(props: { state: t.ProgrammeSignals; player: t.VideoPlayerSignals }) {
-  const { state, player } = props;
+export function useSection(props: { state: t.ProgrammeSignals; video: t.VideoPlayerSignals }) {
+  const { state, video } = props;
 
   const [playlist, setPlaylist] = useState<t.VideoMediaContent[]>([]);
   const [media, setMedia] = useState<M>({});
@@ -31,7 +31,7 @@ export function useSection(props: { state: t.ProgrammeSignals; player: t.VideoPl
     setCurrent(current);
     setPlaylist(playlist);
 
-    player.props.src.value = current?.video.src;
+    video.props.src.value = current?.video.src;
   });
 
   /**

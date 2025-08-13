@@ -1,0 +1,33 @@
+import type { t } from './common.ts';
+
+/**
+ * <Component>:
+ */
+export type AvatarProps = {
+  stream?: MediaStream;
+  muted?: boolean;
+  flipped?: boolean;
+
+  // Appearance:
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  aspectRatio?: string;
+  borderRadius?: t.Pixels;
+  borderWidth?: t.Pixels;
+  borderColor?: string | number;
+
+  // Events:
+  onReady?: t.MediaVideoStreamReadyHandler;
+  onPointer?: t.PointerEventsHandler;
+  onSelect?: t.AvatarSelectHandler;
+};
+
+/**
+ * Events:
+ */
+export type AvatarSelectHandler = (e: AvatarSelect) => void;
+export type AvatarSelect = {
+  readonly stream: MediaStream;
+  readonly modifiers: t.KeyboardModifierFlags;
+};

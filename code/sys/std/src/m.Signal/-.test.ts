@@ -1,7 +1,7 @@
-import { Time, describe, expect, it } from '../-test.ts';
-import { Signal } from './mod.ts';
+import { type t, Time, describe, expect, it } from '../-test.ts';
 import { rx } from '../m.Rx/mod.ts';
 import { Is } from './m.Is.ts';
+import { Signal } from './mod.ts';
 
 import * as Preact from '@preact/signals-core';
 
@@ -14,7 +14,7 @@ describe('Signal', () => {
 
   describe('Core "Signal" API', () => {
     describe('signal: update', () => {
-      it('should create a signal with an initial value and update correctly', () => {
+      it('create a signal with an initial value and update correctly', () => {
         const s = Signal.create(0);
         expect(s.value).to.eql(0);
         s.value = 42;
@@ -54,7 +54,7 @@ describe('Signal', () => {
     });
 
     describe('signal: effect (reactivity)', () => {
-      it('should run the effect whenever the signal value changes', async () => {
+      it('run the effect whenever the signal value changes', async () => {
         let dummy = 0;
         const s = Signal.create(0);
 
@@ -73,7 +73,7 @@ describe('Signal', () => {
     });
 
     describe('signal: computed', () => {
-      it('should create a derived signal that updates based on dependencies', () => {
+      it('create a derived signal that updates based on dependencies', () => {
         const a = Signal.create(2);
         const b = Signal.create(3);
         const sum = Signal.computed(() => a.value + b.value);
@@ -85,7 +85,7 @@ describe('Signal', () => {
     });
 
     describe('signal: batch (change)', () => {
-      it('should group updates so that effects run only once', () => {
+      it('group updates so that effects run only once', () => {
         let count = 0;
         const x = Signal.create(1);
         const y = Signal.create(2);
@@ -112,7 +112,7 @@ describe('Signal', () => {
 
   describe('value helpers', () => {
     describe('Signal.toggle', () => {
-      it('should toggle boolean', () => {
+      it('toggle boolean', () => {
         const s = Signal.create(false);
         expect(s.value).to.eql(false);
         const res = Signal.toggle(s);
@@ -120,7 +120,7 @@ describe('Signal', () => {
         expect(res).to.eql(true);
       });
 
-      it('should toggle boolean from <undefined>', () => {
+      it('toggle boolean from <undefined>', () => {
         const s = Signal.create<boolean | undefined>();
         expect(s.value).to.eql(undefined);
         const res = Signal.toggle(s);
@@ -130,6 +130,26 @@ describe('Signal', () => {
         expect(s.value).to.eql(false);
         Signal.toggle(s);
         expect(s.value).to.eql(true);
+      });
+
+      it('toggle from number', () => {
+        const s = Signal.create<boolean | number | undefined>();
+        expect(s.value).to.eql(undefined);
+
+        expect(Signal.toggle(s)).to.eql(true);
+        expect(s.value).to.eql(true);
+
+        s.value = 0; // NB: falsey.
+        expect(Signal.toggle(s)).to.eql(true);
+        expect(s.value).to.eql(true);
+
+        s.value = 1; // NB: truthy.
+        expect(Signal.toggle(s)).to.eql(false);
+        expect(s.value).to.eql(false);
+
+        s.value = 99;
+        expect(Signal.toggle(s)).to.eql(false);
+        expect(s.value).to.eql(false);
       });
 
       it('force: true', () => {
@@ -154,7 +174,7 @@ describe('Signal', () => {
     describe('Signal.cycle', () => {
       type T = 'a' | 'b' | 'c';
 
-      it('should cycle union [string] signal', () => {
+      it('cycle union [string] signal', () => {
         const s = Signal.create<T>('a');
         expect(s.value).to.eql('a');
 
@@ -306,7 +326,7 @@ describe('Signal', () => {
         expect(s.value).to.eql('b');
       });
 
-      it('should default to first element if current value is not in values array', () => {
+      it('default to first element if current value is not in values array', () => {
         const s = Signal.create('z');
         expect(s.value).to.eql('z');
 
@@ -319,7 +339,7 @@ describe('Signal', () => {
     });
   });
 
-  describe('Listeners', () => {
+  describe('listeners', () => {
     it('create → <change> → dispose', () => {
       const life = rx.disposable();
       const a = Signal.listeners();
@@ -365,6 +385,67 @@ describe('Signal', () => {
       expect(b.disposed).to.eql(true);
       expect(a.count).to.eql(0);
       expect(b.count).to.eql(0);
+    });
+  });
+
+  describe('listen', () => {
+    const test = (subject: Parameters<t.SignalLib['listen']>[0], deep: boolean = false) => {
+      let fired = 0;
+      Signal.effect(() => {
+        Signal.listen(subject, deep);
+        fired++;
+      });
+      fired = 0; // NB: reset initial effect run.
+      return {
+        get fired() {
+          return fired;
+        },
+      } as const;
+    };
+    it('subject: signal', () => {
+      const a = Signal.create(0);
+      const monitor = test(a);
+      a.value = 1234;
+      expect(monitor.fired).to.eql(1);
+    });
+
+    it('subject: [signals] array', () => {
+      const a = Signal.create(0);
+      const b = Signal.create(0);
+      const c = Signal.create(0);
+      const monitor = test([a, b, c, b, a]); // NB: repeat declarations of same signal.
+      a.value = 10;
+      b.value = 20;
+      c.value = 30;
+      expect(monitor.fired).to.eql(3);
+    });
+
+    it('subject: {signals} object', () => {
+      const subject = { a: Signal.create(0), b: Signal.create(0), c: Signal.create(0) };
+      const monitor = test(subject);
+      subject.a.value = 10;
+      subject.b.value = 20;
+      subject.c.value = 30;
+      expect(monitor.fired).to.eql(3);
+    });
+
+    it('subject: nested signals (deep = true)', () => {
+      const a = Signal.create(0);
+      const b = Signal.create(0);
+      const subject = [{ foo: a }, { bar: { baz: b } }];
+      const monitor = test(subject, true);
+      a.value = 111;
+      b.value = 222;
+      expect(monitor.fired).to.eql(2);
+    });
+
+    it('subject: cyclic structure handled safely (deep = true)', () => {
+      const a = Signal.create(0);
+      const subject: any = { a };
+      subject.self = subject; // create cycle
+      const monitor = test(subject, true);
+      a.value = 999;
+      expect(monitor.fired).to.eql(1);
     });
   });
 
