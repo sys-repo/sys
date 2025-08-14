@@ -6,10 +6,17 @@ import type { t } from './common.ts';
 export type YamlEditorFooterProps = {
   visible?: boolean;
   path?: t.ObjectPath;
-  crdt?: { repo?: t.Crdt.Repo; localstorage?: t.StringKey };
+  crdt?: YamlEditorFooterCrdt;
   errors?: t.YamlError[];
 
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+};
+
+/** Footer CRDT/Repo sub-properties. */
+export type YamlEditorFooterCrdt = {
+  visible?: boolean;
+  repo?: t.Crdt.Repo;
+  localstorage?: t.StringKey;
 };

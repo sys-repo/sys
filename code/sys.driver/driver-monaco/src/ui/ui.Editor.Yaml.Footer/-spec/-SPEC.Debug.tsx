@@ -1,15 +1,18 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, ObjectView, Signal, Obj } from '../common.ts';
 
 type P = t.YamlEditorFooterProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'visible'> & { errors?: t.Json; passCrdtRepo: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'visible' | 'path'> & {
+  errors?: t.Json;
+  crdt: Omit<t.YamlEditorFooterCrdt, 'repo'> & { repo?: boolean };
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   errors: undefined,
-  passCrdtRepo: true,
   visible: D.visible,
+  crdt: { visible: true, repo: true },
 };
 
 const SAMPLE = {
@@ -47,14 +50,18 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     errors: s(snap.errors as t.YamlError[] | undefined),
     visible: s(snap.visible),
-    passCrdtRepo: s(snap.passCrdtRepo),
+    path: s(snap.path),
+    crdt: {
+      visible: s(snap.crdt.visible),
+      repo: s(snap.crdt.repo),
+    },
   };
   const p = props;
   const api = {
     props,
     repo: createRepo(),
     listen() {
-      Signal.listen(props);
+      Signal.listen(props, true);
     },
   };
 
@@ -63,8 +70,10 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.visible = p.visible.value;
+      d.path = p.path.value;
       d.errors = p.errors.value as t.Json | undefined;
-      d.passCrdtRepo = p.passCrdtRepo.value;
+      d.crdt.repo = p.crdt.repo.value;
+      d.crdt.visible = p.crdt.visible.value;
     });
   });
 
@@ -107,14 +116,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => {
-          const v = p.errors.value;
-          return `errors: ${v ? `array[${v.length}]` : `<undefined>`}`;
-        }}
-        onClick={() => Signal.cycle(p.errors, [SAMPLE.errors, undefined])}
-      />
-      <Button
-        block
         label={() => `visible: ${p.visible.value ?? `<undefined> (default: ${D.visible})`}`}
         onClick={() => Signal.toggle(p.visible)}
       />
@@ -122,8 +123,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `crdt.repo: ${p.passCrdtRepo.value} (debug)`}
-        onClick={() => Signal.toggle(p.passCrdtRepo)}
+        label={() => `path: ${p.path.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.path, [['foo'], ['foo', 'bar', 0], undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.errors.value;
+          return `errors: ${v ? `array[${v.length}]` : `<undefined>`}`;
+        }}
+        onClick={() => Signal.cycle(p.errors, [SAMPLE.errors, undefined])}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `crdt.repo: ${p.crdt.repo.value} (debug)`}
+        onClick={() => Signal.toggle(p.crdt.repo)}
       />
 
       <hr />
@@ -135,12 +151,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          Object.entries(defaults)
-            .map(([key, value]) => ({ key, value, signal: (p as any)[key] as t.Signal }))
-            .filter((e) => Signal.Is.signal(e.signal))
-            .forEach((e) => (e.signal.value = e.value));
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>

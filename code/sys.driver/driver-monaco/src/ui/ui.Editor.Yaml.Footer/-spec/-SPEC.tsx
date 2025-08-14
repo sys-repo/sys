@@ -22,14 +22,19 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        const repo = v.passCrdtRepo ? debug.repo : undefined;
+        const repo = v.crdt.repo ? debug.repo : undefined;
         return (
           <YamlEditorFooter
             debug={v.debug}
             theme={v.theme}
+            path={v.path}
             visible={v.visible}
-            crdt={{ repo, localstorage: STORAGE_KEY.DEV }}
             errors={v.errors}
+            crdt={{
+              repo,
+              visible: v.crdt.visible,
+              localstorage: STORAGE_KEY.DEV,
+            }}
           />
         );
       });
