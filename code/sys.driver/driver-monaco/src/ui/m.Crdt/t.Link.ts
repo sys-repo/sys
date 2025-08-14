@@ -22,13 +22,15 @@ export type EditorCrdtRegisterLinkOptions = {
 export type OnCrdtLinkClickHandler = (e: OnCrdtLinkClick) => void;
 /** Event arguments for when a link is CMD clicked within the code-editor. */
 export type OnCrdtLinkClick = {
-  uri: t.Monaco.Uri;
+  /** Details about the editor text-model. */
+  model: {
+    /** URI of the editor text-model the link exists within.  */
+    uri: t.Monaco.Uri;
+  };
   /** raw "crdt:*" as string. */
   raw: string;
   /** Path to the "crdt:*" URI. */
   path: t.ObjectPath;
-  /** RFC6901-encoded key of the path ("" for create) */
-  key: string;
   /** Flags: */
   is: {
     /** True for "crdt:create". */

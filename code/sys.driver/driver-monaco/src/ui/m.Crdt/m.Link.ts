@@ -1,4 +1,4 @@
-import { type t, Obj, rx } from './common.ts';
+import { type t, rx } from './common.ts';
 
 const TOKEN = /\bcrdt:(create\b|[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~\-/]+)*)\b/g;
 
@@ -85,10 +85,9 @@ export const registerLink: t.EditorCrdtRegisterLink = (e, opt = {}) => {
       const isCreate = payload === 'create' || raw === 'crdt:create';
       const segments: t.ObjectPath = isCreate ? [] : payload ? payload.split('/') : [];
       const path = isCreate ? ([] as t.ObjectPath) : segments.slice(1);
-      const key = path.length > 0 ? Obj.Path.codec.encode(path) : '';
 
       const bounds: t.EditorLinkBounds = { modelUri, start, end, range, startOffset, endOffset };
-      const ev: t.OnCrdtLinkClick = { uri, raw, is: { create: isCreate }, path, key, bounds };
+      const ev: t.OnCrdtLinkClick = { uri, raw, is: { create: isCreate }, path, bounds };
 
       onLinkClick?.(ev);
       return true;
