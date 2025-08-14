@@ -8,9 +8,13 @@ import { get } from './m.Path.get.ts';
 
 export const Path: t.ObjPathLib = {
   Mutate,
-  Codec,
-  codec: Codec.default,
+
   get,
   exists,
   curry: CurriedPath.create,
+
+  Codec,
+  codec: Codec.default,
+  encode: Codec.default.encode,
+  decode: Codec.default.decode,
 };

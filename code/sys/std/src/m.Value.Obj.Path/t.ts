@@ -11,6 +11,10 @@ export type ObjPathLib = Readonly<{
   Codec: t.ObjectPathCodecLib;
   /** The default string ←→ array encode/decode helpers. */
   codec: t.ObjectPathCodec;
+  /** Encode using the default codec. */
+  encode: t.ObjectPathCodec['encode'];
+  /** Decode using the default codec. */
+  decode: t.ObjectPathCodec['decode'];
 
   /** Tools for mutating an object in-place. */ Mutate: ObjPathMutateLib;
 
