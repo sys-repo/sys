@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
-export type * from './t.binding.ts';
+export type * from './t.Bind.ts';
+export type * from './t.Link.ts';
 
 /**
  * Tools for binding between a Monaco editor and
@@ -8,4 +9,5 @@ export type * from './t.binding.ts';
 export type EditorCrdtLib = Readonly<{
   bind: t.EditorCrdtBind;
   useBinding: t.UseEditorCrdtBinding;
+  registerLink: t.EditorCrdtRegisterLink;
 }>;

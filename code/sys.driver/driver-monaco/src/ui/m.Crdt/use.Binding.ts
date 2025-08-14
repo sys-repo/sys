@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { type t, Dispose, EditorFolding, rx } from './common.ts';
-import { EditorCrdt } from './m.EditorCrdt.ts';
+import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { editor, doc, path, foldMarks = false } = args;

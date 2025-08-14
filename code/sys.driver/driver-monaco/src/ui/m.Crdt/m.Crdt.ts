@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { registerLink } from './m.Link.ts';
 import { bind } from './u.bind.ts';
 import { useBinding } from './use.Binding.ts';
 
@@ -9,4 +10,5 @@ import { useBinding } from './use.Binding.ts';
 export const EditorCrdt: t.EditorCrdtLib = {
   bind,
   useBinding,
+  registerLink,
 };
