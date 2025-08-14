@@ -8,6 +8,11 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   let version = 1;
   let language: t.EditorLanguage = 'UNKNOWN';
 
+  const uri: t.Monaco.Uri =
+    typeof options.uri === 'string'
+      ? ({ toString: () => options.uri } as unknown as t.Monaco.Uri)
+      : options.uri ?? ({ toString: () => 'inmemory://model/test' } as unknown as t.Monaco.Uri);
+
   /**
    * Registered content-change listeners:
    */
@@ -106,6 +111,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
    * API surface exposed to tests:
    */
   const api: t.FakeTextModel = {
+    uri,
     /** Getters */
     getValue: () => text,
     getOffsetAt,

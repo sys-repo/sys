@@ -7,7 +7,40 @@ describe('MonacoFake (Mock)', () => {
     expect(m.MonacoFake).to.equal(MonacoFake);
   });
 
-  describe('ITextModel', () => {
+  describe('TextModel', () => {
+    describe.only('uri', () => {
+      it('exposes a stable model URI (default)', () => {
+        const model = MonacoFake.model('alpha\nbeta');
+        const uri = model.uri;
+        expect(uri).to.be.ok;
+        expect(typeof uri.toString).to.eql('function');
+        expect(uri.toString()).to.eql('inmemory://model/test');
+
+        // Stays stable across mutations:
+        model.setValue('gamma\ndelta');
+        expect(model.uri.toString()).to.eql('inmemory://model/test');
+      });
+
+      it('accepts a custom URI (string)', () => {
+        const model = MonacoFake.model('x', { uri: 'inmemory://model/custom-1' });
+        expect(model.uri.toString()).to.eql('inmemory://model/custom-1');
+      });
+
+      it('accepts a custom URI (Uri-like object)', () => {
+        const custom = { toString: () => 'crdt://doc/42' } as unknown as t.Monaco.Uri;
+        const model = MonacoFake.model('x', { uri: custom });
+        expect(model.uri).to.equal(custom);
+        expect(model.uri.toString()).to.eql('crdt://doc/42');
+      });
+
+      it('different models have different URIs when provided', () => {
+        const a = MonacoFake.model('a', { uri: 'inmemory://model/a' });
+        const b = MonacoFake.model('b', { uri: 'inmemory://model/b' });
+        expect(a.uri.toString()).to.eql('inmemory://model/a');
+        expect(b.uri.toString()).to.eql('inmemory://model/b');
+      });
+    });
+
     describe('get/set value', () => {
       it('returns and mutates text via getValue / setValue', () => {
         const model = MonacoFake.model('foo');
