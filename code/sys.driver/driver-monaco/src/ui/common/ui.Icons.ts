@@ -1,4 +1,5 @@
 import { Icon } from '@sys/ui-react-components';
+
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -8,6 +9,7 @@ import {
   MdChevronRight,
   MdErrorOutline,
 } from 'react-icons/md';
+import { TbNetwork, TbNetworkOff } from 'react-icons/tb';
 
 const icon = Icon.renderer;
 export { icon };
@@ -23,5 +25,9 @@ export const Icons = {
     Right: icon(MdArrowForward),
     Up: icon(MdArrowUpward),
     Down: icon(MdArrowDownward),
+  },
+  Network: {
+    On: icon(TbNetwork),
+    Off: icon(TbNetworkOff),
   },
 } as const;

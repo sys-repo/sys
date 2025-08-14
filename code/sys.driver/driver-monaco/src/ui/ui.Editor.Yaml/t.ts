@@ -10,7 +10,7 @@ export type YamlEditorProps = {
 
   documentId?: t.YamlEditorDocumentIdProps;
   editor?: t.YamlEditorMonacoProps;
-  footer?: Pick<t.YamlEditorFooterProps, 'visible'>;
+  footer?: Pick<t.YamlEditorFooterProps, 'visible'> & { repo?: boolean };
 
   debug?: boolean;
   theme?: t.CommonTheme;

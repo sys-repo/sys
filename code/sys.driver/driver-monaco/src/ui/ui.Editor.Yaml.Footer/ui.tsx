@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D, Icons, PathView } from './common.ts';
+import { Repo } from './ui.Repo.tsx';
 
 type P = t.YamlEditorFooterProps;
 
@@ -25,8 +26,11 @@ export const YamlEditorFooter: React.FC<P> = (props) => {
       padding: 8,
       PaddingX: 12,
       display: 'grid',
-      gridTemplateColumns: '1fr auto',
+      gridTemplateColumns: '1fr', //      ← the left flexible column
+      gridAutoFlow: 'column', //          ← place items left→right into new columns
+      gridAutoColumns: 'max-content', //  ← each extra column sizes to its content (or 'auto')
       alignItems: 'center',
+      columnGap: 8,
     }),
     error: css({
       opacity: hasErrors ? 1 : 0,
@@ -47,10 +51,13 @@ export const YamlEditorFooter: React.FC<P> = (props) => {
     />
   );
 
+  const elRepo = <Repo crdt={crdt} theme={theme.name} />;
+
   return (
     <div className={css(styles.base, props.style).class}>
       {elPath}
       {elError}
+      {elRepo}
     </div>
   );
 };

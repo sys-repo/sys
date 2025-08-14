@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal, Obj } from '../common.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.YamlEditorFooterProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'visible' | 'path'> & {
@@ -12,6 +12,7 @@ const defaults: Storage = {
   debug: false,
   errors: undefined,
   visible: D.visible,
+  path: ['foo', 'bar', 0],
   crdt: { visible: true, repo: true },
 };
 
@@ -138,8 +139,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `crdt.repo: ${p.crdt.repo.value} (debug)`}
+        label={() => `crdt.repo: ${p.crdt.repo.value ? '(passing)' : '(not passed)'}`}
         onClick={() => Signal.toggle(p.crdt.repo)}
+      />
+      <Button
+        block
+        label={() => `crdt.visible: ${p.crdt.visible.value}`}
+        onClick={() => Signal.toggle(p.crdt.visible)}
       />
 
       <hr />

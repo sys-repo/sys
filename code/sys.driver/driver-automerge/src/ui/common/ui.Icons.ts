@@ -13,6 +13,8 @@ import {
   MdEmojiPeople,
   MdErrorOutline,
   MdFace,
+  MdOutlineWifi,
+  MdOutlineWifiOff,
   MdSettingsInputAntenna,
   MdWarning,
 } from 'react-icons/md';
@@ -48,6 +50,10 @@ export const Icons = {
   Network: {
     On: icon(TbNetwork),
     Off: icon(TbNetworkOff),
+  },
+  Wifi: {
+    On: icon(MdOutlineWifi),
+    Off: icon(MdOutlineWifiOff),
     Antenna: icon(MdSettingsInputAntenna),
   },
   File: { Binary: icon(BsFileBinaryFill) },

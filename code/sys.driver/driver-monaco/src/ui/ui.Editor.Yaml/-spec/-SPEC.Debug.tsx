@@ -17,7 +17,7 @@ type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
   editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap'>;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
-  footer: Pick<t.YamlEditorFooterProps, 'visible'>;
+  footer: P['footer'];
 };
 
 const defaults: Storage = {
@@ -33,7 +33,7 @@ const defaults: Storage = {
     margin: 0,
     minimap: false,
   },
-  footer: { visible: true },
+  footer: { visible: true, repo: true },
 };
 
 /**
@@ -67,6 +67,7 @@ export function createDebugSignals() {
     },
     footer: {
       visible: s((snap.footer ?? {}).visible),
+      repo: s((snap.footer ?? {}).repo),
     },
 
     doc: s<t.Crdt.Ref>(),
@@ -101,6 +102,7 @@ export function createDebugSignals() {
 
       d.footer = d.footer ?? {};
       d.footer.visible = p.footer.visible.value;
+      d.footer.repo = p.footer.repo.value;
     });
   });
 
@@ -193,6 +195,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `footer.visible: ${p.footer.visible.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.footer.visible)}
       />
+      <Button
+        block
+        label={() => `footer.repo: ${p.footer.repo.value ?? `<undefined>`}`}
+        onClick={() => Signal.toggle(p.footer.repo)}
+      />
 
       <hr />
       <Button
@@ -203,15 +210,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `(reset)`}
-        onClick={() => {
-          p.debug.value = false;
-          p.documentId.visible.value = defaults.documentId.visible;
-          p.documentId.readOnly.value = defaults.documentId.readOnly;
-          p.documentId.urlKey.value = defaults.documentId.urlKey;
-          p.editor.margin.value = defaults.editor.margin;
-          p.editor.minimap.value = defaults.editor.minimap;
-          p.footer.visible.value = defaults.footer.visible;
-        }}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
 
       <ObjectView
