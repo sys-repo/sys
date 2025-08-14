@@ -1,7 +1,7 @@
 import { type t, D, Is, R } from './common.ts';
 import { RangeUtil } from './u.Range.ts';
 
-export const MonacoIs: t.MonacoIsLib = {
+export const MonacoIs: t.EditorIsLib = {
   editorRange(input: any): input is t.Monaco.I.IRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;

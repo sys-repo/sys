@@ -8,7 +8,7 @@ describe('MonacoFake (Mock)', () => {
   });
 
   describe('TextModel', () => {
-    describe.only('uri', () => {
+    describe('uri', () => {
       it('exposes a stable model URI (default)', () => {
         const model = MonacoFake.model('alpha\nbeta');
         const uri = model.uri;
