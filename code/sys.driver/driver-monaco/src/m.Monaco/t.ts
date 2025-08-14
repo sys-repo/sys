@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-export type * from './t.link.ts';
+export type * from './t.Links.ts';
 
 /**
  * Code editor library:
