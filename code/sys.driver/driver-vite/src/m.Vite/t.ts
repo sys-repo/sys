@@ -40,10 +40,16 @@ export type ViteLib = {
  * Arguments passed to the [Vite.build] method.
  */
 export type ViteBuildArgs = {
+  /** Override the current-working-directory path */
   cwd?: t.StringAbsoluteDir;
-  pkg?: t.Pkg; // Consumer module.
+  /** Consuming module being built. */
+  pkg?: t.Pkg;
+  /** Supress all log output. */
   silent?: boolean;
+  /** Show wait spinner. */
   spinner?: boolean;
+  /** Exit the process with a non-zero code on failure (default: false). */
+  exitOnError?: boolean;
 };
 
 /**
