@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 type StringSrcCode = string;
 
 /**
- * Create a new text model fake.
+ * Factory: Create a new text model fake.
  */
 export type CreateFakeTextModel = (
   src: StringSrcCode,

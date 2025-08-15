@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 type StringSrcCode = string;
 
 /**
- * Create a new editor fake.
+ * Factory: Create a new editor fake.
  */
 export type CreateFakeEditor = (model?: t.FakeTextModel | StringSrcCode) => t.FakeEditorFull;
 

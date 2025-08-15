@@ -1,8 +1,12 @@
 import type { t } from './common.ts';
 
 /**
- * Monaco global fake.
- * Includes tiny test hooks for exercising providers/openers.
+ * Factory: create a new global `moncao` mock.
+ */
+export type CreateFakeMonaco = () => t.FakeMonacoGlobal;
+
+/**
+ * Minimal `Monaco` global mock.
  */
 export type FakeMonacoGlobal = Readonly<{
   languages: {
