@@ -3,6 +3,15 @@ import { fakeEditor } from './m.Fake.editor.ts';
 import { fakeModel } from './m.Fake.model.ts';
 import { fakeMonaco } from './m.Fake.monaco.ts';
 
+export const ctx: t.FakeMonacoLib['ctx'] = (modelInput?, monaco = fakeMonaco()) => {
+  const model = Is.string(modelInput) ? fakeModel(modelInput) : modelInput ?? fakeModel('');
+  const editor = fakeEditor(model);
+  return {
+    monaco: monaco as unknown as t.Monaco.Monaco,
+    editor,
+  };
+};
+
 export function makePosition(lineNumber: number, column: number): t.Monaco.Position {
   const api = {
     lineNumber,
@@ -44,12 +53,3 @@ export function makePosition(lineNumber: number, column: number): t.Monaco.Posit
   // Structural match to Monaco.Position
   return api as unknown as t.Monaco.Position;
 }
-
-export const host: t.FakeMonacoLib['host'] = (modelInput?, monaco = fakeMonaco()) => {
-  const model = Is.string(modelInput) ? fakeModel(modelInput) : modelInput ?? fakeModel('');
-  const editor = fakeEditor(model);
-  return {
-    monaco: monaco as unknown as t.Monaco.Monaco,
-    editor,
-  };
-};

@@ -22,3 +22,12 @@ export type EditorIsLib = Readonly<{
   singleCharRange(input: t.EditorRangeInput): boolean;
   rangeWithinString(input: t.EditorRangeInput, text: string): boolean;
 }>;
+
+/**
+ * Convenince bundling of the Editor with the global Monaco API
+ * for passing to functions as a single parameter.
+ */
+export type MonacoCtx = {
+  editor: t.Monaco.Editor;
+  monaco: t.Monaco.Monaco;
+};
