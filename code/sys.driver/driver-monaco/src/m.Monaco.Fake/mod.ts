@@ -1,5 +1,5 @@
 /**
- * Minimal mock of Monoaco editor.
+ * Minimal fake/mocks of Monoaco editor.
  * @module
  */
 import type { t } from './common.ts';
