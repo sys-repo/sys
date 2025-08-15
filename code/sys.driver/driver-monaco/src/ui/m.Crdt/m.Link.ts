@@ -87,7 +87,13 @@ export const registerLink: t.EditorCrdtRegisterLink = (e, opt = {}) => {
       const path = isCreate ? ([] as t.ObjectPath) : segments.slice(1);
 
       const bounds: t.EditorLinkBounds = { modelUri, start, end, range, startOffset, endOffset };
-      const ev: t.OnCrdtLinkClick = { model: { uri }, raw, is: { create: isCreate }, path, bounds };
+      const ev: t.OnCrdtLinkClick = {
+        model: { uri: modelUri },
+        raw,
+        is: { create: isCreate },
+        path,
+        bounds,
+      };
 
       onLinkClick?.(ev);
       return true;
