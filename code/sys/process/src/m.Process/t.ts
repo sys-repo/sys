@@ -110,6 +110,14 @@ export type ShellProcOptions = {
   readonly args?: string[];
   readonly silent?: boolean;
   readonly path?: string;
+
+  /**
+   * strict (default: true)
+   * - When true, prepends `set -e` to the shell script so the shell exits on the
+   *   first failing command. This does NOT treat non-empty stderr as failure.
+   * - When false, `set -e` is not added.
+   */
+  readonly strict?: boolean;
 };
 
 /**
