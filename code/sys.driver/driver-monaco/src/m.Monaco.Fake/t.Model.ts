@@ -25,6 +25,7 @@ export type FakeTextModel = Pick<
   | 'uri'
   | 'getValue'
   | 'getOffsetAt'
+  | 'getPositionAt'
   | 'getVersionId'
   | 'getLanguageId'
   | 'getLineCount'

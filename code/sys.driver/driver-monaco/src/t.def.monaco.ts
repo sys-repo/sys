@@ -7,14 +7,13 @@ import type { editor } from 'monaco-editor';
 export namespace Monaco {
   /** Top-level Monaco API type. */
   export type Monaco = typeof monaco;
-
-  /** Convenience aliases for common editor types. */
-  export type Selection = monaco.Selection;
-  export type Position = monaco.Position;
-  export type Uri = monaco.Uri;
-
   export type Editor = editor.IStandaloneCodeEditor;
   export type TextModel = editor.ITextModel;
+
+  /** Convenience aliases for common editor types. */
+  export type Uri = monaco.Uri;
+  export type Selection = monaco.Selection;
+  export type Position = monaco.Position;
   export type Range = monaco.Range;
   export type CancellationToken = monaco.CancellationToken;
 

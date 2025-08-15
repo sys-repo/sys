@@ -12,44 +12,6 @@ export const fakeMonaco = (): t.FakeMonacoGlobal => {
     dispose: onDispose,
   });
 
-  const UriImpl = {
-    parse(input: string): t.Monaco.Uri {
-      // Naive split: scheme:rest
-      const schemeSplit = input.indexOf(':');
-      const scheme = schemeSplit > 0 ? input.slice(0, schemeSplit) : '';
-      const rest = schemeSplit > 0 ? input.slice(schemeSplit + 1) : input;
-
-      // Rest may be like "//authority/path?query" or "/path?query" or "path?query"
-      // We only need path + query for tests.
-      const qIdx = rest.indexOf('?');
-      const pathRaw = qIdx >= 0 ? rest.slice(0, qIdx) : rest;
-      const query = qIdx >= 0 ? rest.slice(qIdx + 1) : '';
-
-      // Normalize path: remove leading slashes for our crdt tests.
-      const path = pathRaw.replace(/^\/+/, '');
-
-      const toString = (skipEncoding?: boolean): string => {
-        const q = query ? `?${query}` : '';
-        const p = path ? `/${path}` : '';
-        return `${scheme}:${p}${q}`;
-      };
-
-      return { scheme, path, query, toString } as unknown as t.Monaco.Uri;
-    },
-
-    from(parts: { scheme: string; path?: string; query?: string }): t.Monaco.Uri {
-      const scheme = parts.scheme ?? '';
-      const path = (parts.path ?? '').replace(/^\/+/, '');
-      const query = parts.query ?? '';
-      const toString = (skipEncoding?: boolean): string => {
-        const q = query ? `?${query}` : '';
-        const p = path ? `/${path}` : '';
-        return `${scheme}:${p}${q}`;
-      };
-      return { scheme, path, query, toString } as unknown as t.Monaco.Uri;
-    },
-  };
-
   const languages = {
     registerLinkProvider(
       languageId: string,
@@ -81,5 +43,63 @@ export const fakeMonaco = (): t.FakeMonacoGlobal => {
     },
   };
 
-  return { languages, editor, Uri: UriImpl };
+  return { languages, editor, Uri };
+};
+
+/**
+ * URI implementation:
+ */
+export const Uri = {
+  parse(input: string): t.Monaco.Uri {
+    const i = input.indexOf(':');
+    const scheme = i > 0 ? input.slice(0, i) : '';
+    let rest = i > 0 ? input.slice(i + 1) : input;
+
+    let authority = '';
+    if (rest.startsWith('//')) {
+      const after = rest.slice(2);
+      const slash = after.indexOf('/');
+      const qmark = after.indexOf('?');
+      const end = (() => {
+        if (slash === -1 && qmark === -1) return after.length;
+        if (slash === -1) return qmark;
+        if (qmark === -1) return slash;
+        return Math.min(slash, qmark);
+      })();
+      authority = after.slice(0, end);
+      rest = after.slice(end); // Starts with '' or '/' or '?'
+      if (!rest.startsWith('/')) rest = '/' + rest; // Normalize
+    }
+
+    const qIdx = rest.indexOf('?');
+    const pathRaw = qIdx >= 0 ? rest.slice(0, qIdx) : rest;
+    const query = qIdx >= 0 ? rest.slice(qIdx + 1) : '';
+
+    // Store path without leading slash for consistency.
+    const path = pathRaw.replace(/^\/+/, '');
+
+    const toString = (_?: boolean): string => {
+      const p = path ? `/${path}` : '';
+      const q = query ? `?${query}` : '';
+      return authority ? `${scheme}://${authority}${p}${q}` : `${scheme}:${p}${q}`;
+    };
+
+    // Include authority (extra prop is fine for structural typing):
+    return { scheme, authority, path, query, toString } as unknown as t.Monaco.Uri;
+  },
+
+  from(parts: { scheme: string; authority?: string; path?: string; query?: string }): t.Monaco.Uri {
+    const scheme = parts.scheme ?? '';
+    const authority = parts.authority ?? '';
+    const path = (parts.path ?? '').replace(/^\/+/, '');
+    const query = parts.query ?? '';
+
+    const toString = (_?: boolean): string => {
+      const p = path ? `/${path}` : '';
+      const q = query ? `?${query}` : '';
+      return authority ? `${scheme}://${authority}${p}${q}` : `${scheme}:${p}${q}`;
+    };
+
+    return { scheme, authority, path, query, toString } as unknown as t.Monaco.Uri;
+  },
 };

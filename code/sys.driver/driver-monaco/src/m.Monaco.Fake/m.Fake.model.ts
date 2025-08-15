@@ -1,4 +1,5 @@
 import { type t } from './common.ts';
+import { makePosition } from './u.ts';
 
 /**
  * Minimal `ITextModel` mock.
@@ -27,6 +28,41 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     let offset = 0;
     for (let i = 0; i < lineNumber - 1; i++) offset += lines[i].length + 1;
     return offset + (column - 1);
+  };
+
+  const getPositionAt = (offset: number): t.Monaco.Position => {
+    if (offset < 0) offset = 0;
+
+    const lines = text.split('\n');
+    let acc = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineLen = lines[i].length;
+      const lineEnd = acc + lineLen; // end of content (exclusive of newline)
+
+      if (offset < lineEnd) {
+        // inside this line's content
+        return makePosition(i + 1, offset - acc + 1);
+      }
+
+      if (offset === lineEnd) {
+        // exactly at the boundary: either newline or end-of-last-line
+        if (i < lines.length - 1) {
+          // map to start of next line
+          return makePosition(i + 2, 1);
+        } else {
+          // end of last line -> EOL+1
+          return makePosition(lines.length, lineLen + 1);
+        }
+      }
+
+      // skip newline and advance accumulator to next line start
+      acc = lineEnd + 1;
+    }
+
+    // past end -> clamp to end-of-last-line + 1
+    const last = lines.length - 1;
+    return makePosition(lines.length, (lines[last]?.length ?? 0) + 1);
   };
 
   const getValueLength = () => text.length; // Mirror of Monaco-API `getValueLength()` (total chars incl. newlines).
@@ -115,6 +151,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     /** Getters */
     getValue: () => text,
     getOffsetAt,
+    getPositionAt,
     getVersionId: () => version,
     getLanguageId: () => language,
     getLineCount: () => text.split('\n').length,

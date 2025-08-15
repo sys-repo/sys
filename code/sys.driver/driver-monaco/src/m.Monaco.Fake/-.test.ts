@@ -205,6 +205,84 @@ describe('MonacoFake (Mock)', () => {
       });
     });
 
+    describe('getPositionAt', () => {
+      it('line start, middle, and end positions on a single line', () => {
+        const m = MonacoFake.model('abcdef'); // len 6
+        expect(m.getPositionAt(0)).to.include({ lineNumber: 1, column: 1 }); // 'a'
+        expect(m.getPositionAt(3)).to.include({ lineNumber: 1, column: 4 }); // after 'c'
+        expect(m.getPositionAt(6)).to.include({ lineNumber: 1, column: 7 }); // EOL+1
+      });
+
+      it('across multiple lines: beginning of each line', () => {
+        const m = MonacoFake.model('a\nbc\n1234');
+        // Offsets: 'a'(0), '\n'(1), 'b'(2), 'c'(3), '\n'(4), '1'(5)...
+        expect(m.getPositionAt(0)).to.include({ lineNumber: 1, column: 1 }); // 'a'
+        expect(m.getPositionAt(2)).to.include({ lineNumber: 2, column: 1 }); // 'b'
+        expect(m.getPositionAt(5)).to.include({ lineNumber: 3, column: 1 }); // '1'
+      });
+
+      it('newline boundary maps to start of next line', () => {
+        const m = MonacoFake.model('xy\nz');
+        // Offsets: x(0) y(1) \n(2) z(3)
+        expect(m.getPositionAt(2)).to.include({ lineNumber: 2, column: 1 }); // exactly at newline
+      });
+
+      it('clamps negative offsets to (1,1)', () => {
+        const m = MonacoFake.model('hi');
+        expect(m.getPositionAt(-10)).to.include({ lineNumber: 1, column: 1 });
+      });
+
+      it('clamps past-end to end-of-last-line + 1', () => {
+        const m = MonacoFake.model('cat\ndog'); // lengths: 3 + 1 + 3 = 7
+        expect(m.getPositionAt(999)).to.include({ lineNumber: 2, column: 4 }); // 'dog' EOL+1
+      });
+
+      it('round-trip with getOffsetAt (inverse relationship)', () => {
+        const m = MonacoFake.model('alpha\nbravo\ncharlie');
+
+        const equiv = (
+          a: { lineNumber: number; column: number },
+          b: { lineNumber: number; column: number },
+        ) => {
+          if (a.lineNumber === b.lineNumber && a.column === b.column) return true;
+
+          // Treat EOL+1 on line N as equivalent to (N+1,1) when newline exists.
+          const aIsEolPlus1 = a.column === m.getLineMaxColumn(a.lineNumber);
+          const bIsStartOfNext = b.column === 1 && b.lineNumber === a.lineNumber + 1;
+          if (aIsEolPlus1 && bIsStartOfNext && a.lineNumber < m.getLineCount()) return true;
+
+          // and vice versa
+          const bIsEolPlus1 = b.column === m.getLineMaxColumn(b.lineNumber);
+          const aIsStartOfNext = a.column === 1 && a.lineNumber === b.lineNumber + 1;
+          if (bIsEolPlus1 && aIsStartOfNext && b.lineNumber < m.getLineCount()) return true;
+
+          return false;
+        };
+
+        const cases = [
+          { lineNumber: 1, column: 1 },
+          { lineNumber: 1, column: 6 }, // EOL+1 of line 1
+          { lineNumber: 2, column: 3 },
+          { lineNumber: 3, column: 8 }, // EOL+1 of 'charlie'
+        ] as const;
+
+        for (const pos of cases) {
+          const off = m.getOffsetAt(pos);
+          const back = m.getPositionAt(off);
+          expect(equiv(pos, back)).to.eql(true);
+        }
+      });
+
+      it('round-trip near boundaries (offset-1 and offset+1 where valid)', () => {
+        const m = MonacoFake.model('a\nbc\n1234');
+        // Pick a mid token position: line 3, col 3 → char '2'.
+        const pos = { lineNumber: 3, column: 3 };
+        const off = m.getOffsetAt(pos); // offset for '2'
+        expect(m.getPositionAt(off)).to.include(pos);
+        expect(m.getPositionAt(off - 1)).to.include({ lineNumber: 3, column: 2 }); // '1'
+        expect(m.getPositionAt(off + 1)).to.include({ lineNumber: 3, column: 4 }); // '3'
+      });
+    });
     describe('getValueLength', () => {
       it('returns the total character count (including newlines)', () => {
         const src = 'a\nbc\n1234';
