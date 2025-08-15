@@ -96,13 +96,13 @@ export function sampleInterceptLink(
         const pathArray: t.ObjectPath = create ? [] : payload ? payload.split('/') : [];
         const path = pathArray.slice(1);
         const ev: t.OnCrdtLinkClick = {
-          model: { uri },
+          model: { uri: modelUri },
           raw,
           is: { create },
           path,
           // ----------- added: attach bounds -----------
           bounds: {
-            modelUri,
+            model: { uri: modelUri },
             start,
             end,
             range,

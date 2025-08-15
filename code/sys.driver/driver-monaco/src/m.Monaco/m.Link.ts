@@ -2,10 +2,11 @@ import type { t } from './common.ts';
 
 export const Link: t.EditorLinkLib = {
   toLinkBounds: ({ model, range }) => {
+    const uri = model.uri;
     const start = { lineNumber: range.startLineNumber, column: range.startColumn };
     const end = { lineNumber: range.endLineNumber, column: range.endColumn };
     return {
-      modelUri: model.uri,
+      model: { uri },
       start,
       end,
       range,

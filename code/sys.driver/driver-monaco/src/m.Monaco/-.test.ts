@@ -33,7 +33,7 @@ describe('Monaco', () => {
       const b = Link.toLinkBounds({ model, range });
 
       // Model identity:
-      expect(b.modelUri.toString()).to.eql('inmemory://model/link');
+      expect(b.model.uri.toString()).to.eql('inmemory://model/link');
 
       // Positions:
       expect(b.start).to.eql({ lineNumber: 2, column: 7 });
@@ -117,7 +117,7 @@ describe('Monaco', () => {
       // Offsets: line1 "a\n" = 2 chars; then + (col-1) = +1 → 3
       expect(b.startOffset).to.eql(3);
       expect(b.endOffset).to.eql(4);
-      expect(b.modelUri.toString()).to.eql('inmemory://model/offset-test');
+      expect(b.model.uri.toString()).to.eql('inmemory://model/offset-test');
     });
   });
 });

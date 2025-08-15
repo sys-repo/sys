@@ -28,8 +28,11 @@ export type EditorLinkLib = {
  * - `start`/`end` mirror the range’s endpoints for convenience.
  */
 export type EditorLinkBounds = {
-  /** URI that uniquely identifies the Monaco text model containing the link. */
-  modelUri: t.Monaco.Uri;
+  /** Details about the editor text-model. */
+  model: {
+    /** URI that uniquely identifies the Monaco text model containing the link. */
+    uri: t.Monaco.Uri;
+  };
 
   /** Start position (1-based line/column) of the link. */
   start: t.Monaco.I.IPosition;

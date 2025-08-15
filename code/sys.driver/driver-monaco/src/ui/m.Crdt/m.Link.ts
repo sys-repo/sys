@@ -86,9 +86,10 @@ export const registerLink: t.EditorCrdtRegisterLink = (e, opt = {}) => {
       const segments: t.ObjectPath = isCreate ? [] : payload ? payload.split('/') : [];
       const path = isCreate ? ([] as t.ObjectPath) : segments.slice(1);
 
-      const bounds: t.EditorLinkBounds = { modelUri, start, end, range, startOffset, endOffset };
+      const model = { uri: modelUri };
+      const bounds: t.EditorLinkBounds = { model, start, end, range, startOffset, endOffset };
       const ev: t.OnCrdtLinkClick = {
-        model: { uri: modelUri },
+        model,
         raw,
         is: { create: isCreate },
         path,
