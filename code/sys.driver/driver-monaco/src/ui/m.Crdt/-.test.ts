@@ -9,7 +9,19 @@ describe('Monaco/Crdt', () => {
   });
 
   describe('Crdt.registerLink', () => {
-
+    const ready = (
+      model: t.FakeTextModel,
+      monaco: t.FakeMonacoGlobal = MonacoFake.monaco(),
+      until?: t.UntilInput,
+    ): t.MonacoEditorReady => {
+      const life = rx.lifecycle(until);
+      return {
+        editor: MonacoFake.editor(model),
+        monaco: MonacoFake.asMonaco(monaco),
+        carets: {} as t.EditorCarets,
+        dispose$: life.dispose$,
+      };
+    };
     it('emits click event with correct payload (id + path)', () => {
       const monaco = MonacoFake.monaco();
       const src = 'foo crdt:abc/one/two bar';
@@ -73,13 +85,13 @@ describe('Monaco/Crdt', () => {
       const monaco = MonacoFake.monaco();
       const model = MonacoFake.model('crdt:abc/x');
 
-      // Register under "json" not "yaml"
+      // Register under 'json' not 'yaml':
       const life = EditorCrdt.registerLink(ready(model, monaco), {
         language: 'json',
         onLinkClick: () => {},
       });
 
-      // No provider under 'yaml'
+      // No provider under 'yaml':
       const yamlList = monaco.languages._provideLinks('yaml', model);
       expect(yamlList).to.be.undefined;
 

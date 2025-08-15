@@ -11,4 +11,7 @@ export type FakeMonacoLib = Readonly<{
   monaco: t.CreateFakeMonaco;
   model: t.CreateFakeTextModel;
   editor: t.CreateFakeEditor;
+
+  // Utilities:
+  asMonaco(fake: t.FakeMonacoGlobal): t.Monaco.Monaco;
 }>;

@@ -11,4 +11,9 @@ export const MonacoFake: t.FakeMonacoLib = {
   monaco,
   model,
   editor,
+
+  // Utilities:
+  asMonaco(fake) {
+    return fake as unknown as t.Monaco.Monaco;
+  },
 };
