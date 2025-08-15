@@ -1,12 +1,13 @@
 import { type t, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
+type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
 
 /**
  * Minimal `IStandaloneCodeEditor` fake.
  */
-export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
+export const fakeEditor: F = (input) => {
   const model = wrangle.model(input);
   let position: t.Offset = { lineNumber: 1, column: 1 };
   const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
@@ -164,7 +165,7 @@ export const fakeEditor: t.FakeMonacoLib['editor'] = (input) => {
  * Helpers:
  */
 const wrangle = {
-  model(input: t.FakeTextModel | string = ''): t.FakeTextModel {
+  model(input: Parameters<F>[0] = ''): t.FakeTextModel {
     return typeof input === 'string' ? fakeModel(input) : input;
   },
 } as const;
