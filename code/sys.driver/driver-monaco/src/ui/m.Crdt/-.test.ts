@@ -38,7 +38,7 @@ describe('Monaco/Crdt', () => {
 
       // Model + bounds:
       expect(ev!.model.uri.toString()).to.eql('inmemory://m/alpha');
-      expect(ev!.bounds.modelUri.toString()).to.equal('inmemory://m/alpha');
+      expect(ev!.bounds.model.uri.toString()).to.equal('inmemory://m/alpha');
 
       // Sanity on bounds positions (line 1; columns map to token):
       const { start, end, startOffset, endOffset } = ev!.bounds;
@@ -64,7 +64,7 @@ describe('Monaco/Crdt', () => {
       expect(ev!.raw).to.equal('crdt:create');
       expect(ev!.is.create).to.equal(true);
       expect(ev!.path).to.eql([]);
-      expect(ev!.bounds.modelUri.toString()).to.equal('inmemory://m/create');
+      expect(ev!.bounds.model.uri.toString()).to.equal('inmemory://m/create');
 
       life.dispose();
     });
