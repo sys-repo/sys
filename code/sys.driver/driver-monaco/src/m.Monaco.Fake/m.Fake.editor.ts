@@ -3,6 +3,7 @@ import { fakeModel } from './m.Fake.model.ts';
 
 type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
+type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
 
 /**
  * Minimal `IStandaloneCodeEditor` fake.
@@ -43,7 +44,7 @@ export const fakeEditor: F = (input) => {
   };
 
   /**
-   * Cursor Position:
+   * Methods: Cursor Position:
    */
   type CursorChangeHandler = (e: t.Monaco.I.ICursorPositionChangedEvent) => void;
   const onDidChangeCursorPosition = (listener: CursorChangeHandler): t.Monaco.I.IDisposable => {
@@ -67,7 +68,7 @@ export const fakeEditor: F = (input) => {
   };
 
   /**
-   * Trigger:
+   * Trigger.
    */
   const trigger = (_src: string, command: string, payload?: any) => {
     switch (command) {
@@ -136,6 +137,45 @@ export const fakeEditor: F = (input) => {
   };
 
   /**
+   * Execute edits.
+   */
+  const executeEdits: IStandalone['executeEdits'] = (_source, edits) => {
+    const model = api.getModel?.();
+    if (!model) return false;
+
+    // Convert range-based edits to offset-based edits.
+    type E = { s: number; e: number; text: string };
+    const toOffset = (r: t.Monaco.I.IRange): { s: number; e: number } => ({
+      s: model.getOffsetAt({ lineNumber: r.startLineNumber, column: r.startColumn }),
+      e: model.getOffsetAt({ lineNumber: r.endLineNumber, column: r.endColumn }),
+    });
+
+    const ops: E[] = (edits ?? []).map((op) => {
+      const { s, e } = toOffset(op.range);
+      return { s, e, text: op.text ?? '' };
+    });
+
+    // Apply from right → left to avoid shifting subsequent offsets.
+    ops.sort((a, b) => b.s - a.s);
+
+    let text = model.getValue();
+    for (const op of ops) {
+      text = text.slice(0, op.s) + op.text + text.slice(op.e);
+    }
+    model.setValue(text);
+    return true;
+  };
+
+  /**
+   * No-ops:
+   */
+  const revealPositionInCenterIfOutsideViewport: IStandalone['revealPositionInCenterIfOutsideViewport'] =
+    (_pos) => {};
+
+  const revealRangeInCenterIfOutsideViewport: IStandalone['revealRangeInCenterIfOutsideViewport'] =
+    (_range) => {};
+
+  /**
    * API:
    */
   const api: t.FakeEditor = {
@@ -149,6 +189,11 @@ export const fakeEditor: F = (input) => {
     setHiddenAreas,
     setPosition,
     trigger,
+
+    // Methods:
+    executeEdits,
+    revealPositionInCenterIfOutsideViewport,
+    revealRangeInCenterIfOutsideViewport,
 
     // Handlers:
     onDidChangeHiddenAreas,

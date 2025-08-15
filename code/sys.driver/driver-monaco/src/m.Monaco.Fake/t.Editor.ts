@@ -20,4 +20,7 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'getVisibleRanges'
     | 'onDidChangeCursorPosition'
     | 'trigger'
+    | 'executeEdits'
+    | 'revealPositionInCenterIfOutsideViewport'
+    | 'revealRangeInCenterIfOutsideViewport'
   >;
