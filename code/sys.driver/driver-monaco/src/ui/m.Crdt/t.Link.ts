@@ -4,7 +4,7 @@ import { type t } from './common.ts';
  * Register CRDT link detection + opener; lifecycle-managed.
  */
 export type EditorCrdtRegisterLink = (
-  e: t.MonacoEditorReady,
+  e: t.MonacoCtx,
   options?: t.EditorCrdtRegisterLinkOptions | t.OnCrdtLinkClickHandler,
 ) => t.Lifecycle;
 
