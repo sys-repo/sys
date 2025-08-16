@@ -7,7 +7,9 @@ import {
   MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
+  MdEmojiPeople,
   MdErrorOutline,
+  MdSettingsInputAntenna,
 } from 'react-icons/md';
 import { TbNetwork, TbNetworkOff } from 'react-icons/tb';
 
@@ -18,6 +20,8 @@ export { icon };
  * Icon collection:
  */
 export const Icons = {
+  Person: icon(MdEmojiPeople),
+
   Error: icon(MdErrorOutline),
   Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
   Arrow: {
@@ -29,5 +33,6 @@ export const Icons = {
   Network: {
     On: icon(TbNetwork),
     Off: icon(TbNetworkOff),
+    Antenna: icon(MdSettingsInputAntenna),
   },
 } as const;
