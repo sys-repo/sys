@@ -1,11 +1,11 @@
 import { Player } from '@sys/ui-react-components';
 import React from 'react';
 
-import type { Video } from '../-schemas/mod.ts';
+import type { VideoSchema } from '../-schemas/mod.ts';
 import { type t, Color, Cropmarks, css, Is, Obj } from '../common.ts';
 
 export type VideoHostProps = {
-  data?: Video;
+  data?: VideoSchema;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

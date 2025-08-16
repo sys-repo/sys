@@ -94,6 +94,9 @@ export const IndexTree: React.FC<IndexTreeProps> = (props) => {
         path={path}
         onPressDown={(e) => {
           if (e.hasChildren) setPath(e.node.path);
+          // console.info(`⚡️ Tree.Index.View.onPressDown:`, e);
+          // if (e.is.down) {
+          // }
         }}
       />
     </div>

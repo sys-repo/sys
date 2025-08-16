@@ -94,6 +94,7 @@ export async function copyFiles() {
  * Sub-command: Copy Types
  */
 export async function copyTypes() {
+  console.info(c.gray('\nCopy Types: (stub) 🐷\n'));
 }
 
 /**

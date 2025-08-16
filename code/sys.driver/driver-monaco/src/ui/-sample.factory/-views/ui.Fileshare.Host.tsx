@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { BinaryFile } from '@sys/driver-automerge/ui';
-import type { Fileshare } from '../-schemas/mod.ts';
+import type { FileshareSchema } from '../-schemas/mod.ts';
 import { type t, Color, Crdt, Cropmarks, css, Is } from '../common.ts';
 
 export type FileshareHostProps = {
-  data?: Fileshare;
+  data?: FileshareSchema;
   repo?: t.Crdt.Repo;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -53,7 +53,7 @@ export const FileshareHost: React.FC<FileshareHostProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  path(input?: Fileshare['path']): t.ObjectPath | undefined {
+  path(input?: FileshareSchema['path']): t.ObjectPath | undefined {
     if (!input) return undefined;
     if (Is.string(input)) return input.split('/');
     return input;

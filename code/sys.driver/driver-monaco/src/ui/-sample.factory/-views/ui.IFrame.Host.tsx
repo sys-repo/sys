@@ -1,11 +1,11 @@
 import React from 'react';
 import { type t, Color, Cropmarks, css } from '../common.ts';
 
-import { IFrame as View } from '@sys/ui-react-components';
-import type { IFrame } from '../-schemas/mod.ts';
+import { IFrame as IFrameView } from '@sys/ui-react-components';
+import type { IFrameSchema } from '../-schemas/mod.ts';
 
 export type IFrameHostProps = {
-  data?: IFrame;
+  data?: IFrameSchema;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -17,6 +17,7 @@ export type IFrameHostProps = {
  */
 export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
   const { data = {} } = props;
+  const sandbox = data?.sandbox ?? true;
 
   /**
    * Render:
@@ -29,7 +30,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
 
   const elBody = (
     <div className={styles.body.class}>
-      <View {...data} />
+      <IFrameView {...data} sandbox={sandbox} />
     </div>
   );
 
