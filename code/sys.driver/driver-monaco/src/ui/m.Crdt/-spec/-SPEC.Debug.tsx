@@ -1,4 +1,3 @@
-import { Monaco } from '@sys/driver-monaco';
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
 import { LanguagesList } from '../../ui.Editor.Monaco/-spec/-ui.ts';
@@ -10,11 +9,11 @@ import {
   Crdt,
   css,
   D,
+  EditorFolding,
   LocalStorage,
   Obj,
   ObjectView,
   Signal,
-  EditorFolding,
 } from '../common.ts';
 import { YamlSyncDebug } from './-u.yaml.tsx';
 
